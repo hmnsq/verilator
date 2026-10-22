@@ -58,30 +58,30 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
 
     void iterateAndCommaConstNull(AstNode* nodep) {
-        for (; nodep; nodep = nodep->nextp()) {
+        для (; nodep; nodep = nodep->nextp()) {
             iterateConst(nodep);
-            if (nodep->nextp()) puts(", ");
+            если (nodep->nextp()) puts(", ");
         }
     }
     void emitPacked() {
-        for (AstNodeArrayDType* packedp : m_packedps) {
+        для (AstNodeArrayDType* packedp : m_packedps) {
             puts(" ");
             iterateConstNull(packedp->rangep());
         }
         m_packedps.clear();
     }
     void emitNodesWithText(AstNode* nodesp, bool tracking, const std::string& separator) {
-        for (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
-            if (const AstText* const textp = VN_CAST(nodep, Text)) {
-                if (tracking) {
+        для (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
+            если (const AstText* const textp = VN_CAST(nodep, Text)) {
+                если (tracking) {
                     puts(textp->text());
-                } else {
+                } иначе {
                     putsNoTracking(textp->text());
                 }
-            } else {
+            } иначе {
                 iterateConst(nodep);
             }
-            if (nodep->nextp()) puts(separator);
+            если (nodep->nextp()) puts(separator);
         }
     }
 
@@ -117,9 +117,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         putqs(nodep, "endcase\n");
     }
     void visit(AstGenCaseItem* nodep) override {
-        if (nodep->condsp()) {
+        если (nodep->condsp()) {
             iterateAndNextConstNull(nodep->condsp());
-        } else {
+        } иначе {
             putbs("default");
         }
         iterateAndNextConstNull(nodep->itemsp());
@@ -145,25 +145,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         iterateAndNextConstNull(nodep->condp());
         puts(") begin\n");
         iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        если (nodep->elsesp()) {
             putqs(nodep, "end else begin\n");
             iterateAndNextConstNull(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
     void visit(AstBegin* nodep) override {
-        if (nodep->name() == "") {
+        если (nodep->name() == "") {
             putbs("begin\n");
-        } else {
+        } иначе {
             putbs("begin : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
         puts("end\n");
     }
     void visit(AstFork* nodep) override {
-        if (nodep->name() == "") {
+        если (nodep->name() == "") {
             putbs("fork\n");
-        } else {
+        } иначе {
             putbs("fork : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
@@ -185,25 +185,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstAlways* nodep) override {
-        if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-            if (!ap->nextp()) {
+        если (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
+            если (!ap->nextp()) {
                 putfs(nodep, "assign ");
-                if (AstNode* const tcp = ap->timingControlp()) {
+                если (AstNode* const tcp = ap->timingControlp()) {
                     iterateAndNextConstNull(tcp);
                     putbs(" ");
                 }
                 iterateAndNextConstNull(ap->lhsp());
                 putbs(" = ");
                 iterateAndNextConstNull(ap->rhsp());
-                if (!m_suppressSemi) puts(";\n");
-                return;
+                если (!m_suppressSemi) puts(";\n");
+                вернуть;
             }
         }
         putfs(nodep, "always ");
-        if (m_sentreep) {
+        если (m_sentreep) {
             iterateAndNextConstNull(m_sentreep);
         }  // In active
-        else {
+        иначе {
             iterateAndNextConstNull(nodep->sentreep());
         }
         putbs(" begin\n");
@@ -221,74 +221,74 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         putqs(nodep, "end\n");
     }
     void visit(AstNodeAssign* nodep) override {
-        if (VN_IS(nodep, AssignForce)) puts("force ");
+        если (VN_IS(nodep, AssignForce)) puts("force ");
         iterateAndNextConstNull(nodep->lhsp());
         putfs(nodep, " " + nodep->verilogKwd() + " ");
         iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        если (!m_suppressSemi) puts(";\n");
     }
     void visit(AstAlias* nodep) override {
         putbs("alias ");
         iterateConst(nodep->itemsp());
-        for (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
+        для (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
             putfs(nodep, " = ");
             iterateConst(itemp);
         }
-        if (!m_suppressSemi) puts(";\n");
+        если (!m_suppressSemi) puts(";\n");
     }
     void visit(AstAssignW* nodep) override {
         putfs(nodep, "continuous assign ");
         iterateAndNextConstNull(nodep->lhsp());
         putbs(" = ");
         iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        если (!m_suppressSemi) puts(";\n");
     }
     void visit(AstRelease* nodep) override {
         puts("release ");
         iterateAndNextConstNull(nodep->lhsp());
-        if (!m_suppressSemi) puts(";\n");
+        если (!m_suppressSemi) puts(";\n");
     }
     void visit(AstBreak*) override {
         putbs("break");
-        if (!m_suppressSemi) puts(";\n");
+        если (!m_suppressSemi) puts(";\n");
     }
     void visit(AstSenTree* nodep) override {
         // AstSenItem is called for dumping in isolation by V3Order
         putfs(nodep, "@(");
-        for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+        для (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
             iterateConst(expp);
-            if (expp->nextp()) putqs(expp->nextp(), " or ");
+            если (expp->nextp()) putqs(expp->nextp(), " or ");
         }
         puts(")");
     }
     void visit(AstSenItem* nodep) override {
         putfs(nodep, "");
-        if (nodep->edgeType() != VEdgeType::ET_CHANGED) puts(nodep->edgeType().verilogKwd());
-        if (nodep->sensp()) puts(" ");
+        если (nodep->edgeType() != VEdgeType::ET_CHANGED) puts(nodep->edgeType().verilogKwd());
+        если (nodep->sensp()) puts(" ");
         iterateChildrenConst(nodep);
     }
     void visit(AstCReset* /*nodep*/) override { puts("/*CRESET*/"); }
     void visit(AstCase* nodep) override {
         putfs(nodep, "");
-        if (nodep->priorityPragma()) puts("priority ");
-        if (nodep->uniquePragma()) puts("unique ");
-        if (nodep->unique0Pragma()) puts("unique0 ");
+        если (nodep->priorityPragma()) puts("priority ");
+        если (nodep->uniquePragma()) puts("unique ");
+        если (nodep->unique0Pragma()) puts("unique0 ");
         puts(nodep->verilogKwd());
         puts(" (");
         iterateAndNextConstNull(nodep->exprp());
         puts(")\n");
-        if (nodep->fullPragma() || nodep->parallelPragma()) {
+        если (nodep->fullPragma() || nodep->parallelPragma()) {
             puts(" // synopsys");
-            if (nodep->fullPragma()) puts(" full_case");
-            if (nodep->parallelPragma()) puts(" parallel_case");
+            если (nodep->fullPragma()) puts(" full_case");
+            если (nodep->parallelPragma()) puts(" parallel_case");
         }
         iterateAndNextConstNull(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
     void visit(AstCaseItem* nodep) override {
-        if (nodep->condsp()) {
+        если (nodep->condsp()) {
             iterateAndNextConstNull(nodep->condsp());
-        } else {
+        } иначе {
             putbs("default");
         }
         putfs(nodep, ": begin ");
@@ -301,7 +301,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstContinue*) override {
         putbs("continue");
-        if (!m_suppressSemi) puts(";\n");
+        если (!m_suppressSemi) puts(";\n");
     }
     void visit(AstNodeCoverDecl*) override {}  // N/A
     void visit(AstCoverInc*) override {}  // N/A
@@ -312,7 +312,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         // The outer covergroup/endcovergroup wrapper is already emitted by the
         // AstNodeModule visitor (verilogKwd()="covergroup" on AstClass::isCovergroup).
         // Here we only emit the clocking event, if any.
-        if (nodep->eventp()) {
+        если (nodep->eventp()) {
             putfs(nodep, "");
             iterateConst(nodep->eventp());
         }
@@ -320,7 +320,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstCoverpoint* nodep) override {
         putfs(nodep, nodep->name() + ": coverpoint ");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->binsp() || nodep->optionsp()) {
+        если (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
             iterateAndNextConstNull(nodep->optionsp());
             iterateAndNextConstNull(nodep->binsp());
@@ -346,32 +346,32 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         putfs(nodep, std::string{nodep->isWildcard() ? "wildcard " : ""}
                          + nodep->binsType().verilogKwd() + " ");
         puts(nodep->name());
-        if (nodep->isArray()) {
+        если (nodep->isArray()) {
             puts("[");
-            if (nodep->arraySizep()) iterateConst(nodep->arraySizep());
+            если (nodep->arraySizep()) iterateConst(nodep->arraySizep());
             puts("]");
         }
-        if (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
+        если (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
             puts(" = default");
-        } else if (nodep->transp()) {
+        } иначе если (nodep->transp()) {
             puts(" = ");
-            for (AstNode* setp = nodep->transp(); setp; setp = setp->nextp()) {
-                if (setp != nodep->transp()) puts(", ");
+            для (AstNode* setp = nodep->transp(); setp; setp = setp->nextp()) {
+                если (setp != nodep->transp()) puts(", ");
                 iterateConst(setp);
             }
-        } else if (VN_IS(nodep->rangesp(), CoverWith)) {
+        } иначе если (VN_IS(nodep->rangesp(), CoverWith)) {
             puts(" = ");
             iterateConst(nodep->rangesp());
-        } else if (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
+        } иначе если (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
                                         // transp/rangesp/default
             puts(" = {");
-            for (AstNode* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
-                if (rangep != nodep->rangesp()) puts(", ");
+            для (AstNode* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
+                если (rangep != nodep->rangesp()) puts(", ");
                 iterateConst(rangep);
             }
             puts("}");
         }
-        if (nodep->iffp()) {
+        если (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
@@ -380,9 +380,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstCoverWith* nodep) override {
         const bool rangeList = !VN_IS(nodep->subp(), CoverpointRef);
-        if (rangeList) putfs(nodep, "{");
+        если (rangeList) putfs(nodep, "{");
         iterateAndCommaConstNull(nodep->subp());
-        if (rangeList) puts("}");
+        если (rangeList) puts("}");
         puts(" with (");
         iterateConst(nodep->filterp());
         puts(")");
@@ -390,9 +390,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstCoverBinsof* nodep) override {
         putfs(nodep, nodep->isNegated() ? "!binsof(" : "binsof(");
         iterateConst(nodep->pointp());
-        if (!nodep->name().empty()) puts("." + nodep->name());
+        если (!nodep->name().empty()) puts("." + nodep->name());
         puts(")");
-        if (nodep->rangesp()) {
+        если (nodep->rangesp()) {
             puts(" intersect {");
             iterateAndCommaConstNull(nodep->rangesp());
             puts("}");
@@ -401,7 +401,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstCoverCrossBin* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " " + nodep->name() + " = ");
         iterateConstNull(nodep->selectp());
-        if (nodep->iffp()) {
+        если (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
@@ -418,12 +418,12 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstCoverCrossWith* nodep) override {
         // A selection with a count is filtered further only in parentheses
-        if (nodep->countp()) putfs(nodep, "(");
+        если (nodep->countp()) putfs(nodep, "(");
         iterateConstNull(nodep->selectp());
         putfs(nodep, " with (");
         iterateConst(nodep->filterp());
         puts(")");
-        if (nodep->countp()) {
+        если (nodep->countp()) {
             puts(" matches ");
             iterateConst(nodep->countp());
             puts(")");
@@ -435,28 +435,28 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstCoverCross* nodep) override {
         putfs(nodep, nodep->name() + ": cross ");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(", ");
+        для (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            если (itemp != nodep->itemsp()) puts(", ");
             iterateConst(itemp);
         }
-        if (nodep->iffp()) {
+        если (nodep->iffp()) {
             puts(" iff (");
             iterateConst(nodep->iffp());
             puts(")");
         }
-        if (nodep->binsp() || nodep->optionsp()) {
+        если (nodep->binsp() || nodep->optionsp()) {
             puts(" {\n");
             iterateAndNextConstNull(nodep->optionsp());
             iterateAndNextConstNull(nodep->binsp());
             puts("}\n");
-        } else {
+        } иначе {
             puts(";\n");
         }
     }
     void visit(AstCoverTransSet* nodep) override {
         puts("(");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(" => ");
+        для (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            если (itemp != nodep->itemsp()) puts(" => ");
             iterateConst(itemp);
         }
         puts(")");
@@ -465,9 +465,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
 
     void visit(AstCvtPackString* nodep) override {
         putfs(nodep, "");
-        if (AstConst* const lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
+        если (AstConst* const lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
             putsQuoted(lhsConstp->num().toString());
-        } else {
+        } иначе {
             puts("string'(");
             iterateAndNextConstNull(nodep->lhsp());
             puts(")");
@@ -491,12 +491,12 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
                           AstNode* exprsp) {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (fileOrStrgp) {
+        если (fileOrStrgp) {
             iterateConstNull(fileOrStrgp);
             putbs(", ");
         }
         putsQuoted(text);
-        for (AstNode* expp = exprsp; expp; expp = expp->nextp()) {
+        для (AstNode* expp = exprsp; expp; expp = expp->nextp()) {
             puts(", ");
             iterateConstNull(expp);
         }
@@ -540,13 +540,13 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstFClose* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        если (nodep->filep()) iterateAndNextConstNull(nodep->filep());
         puts(");\n");
     }
     void visit(AstFFlush* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
+        если (nodep->filep()) iterateAndNextConstNull(nodep->filep());
         puts(");\n");
     }
     void visit(AstJumpBlock* nodep) override {
@@ -570,14 +570,14 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstNodeReadWriteMem* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filenamep()) iterateAndNextConstNull(nodep->filenamep());
+        если (nodep->filenamep()) iterateAndNextConstNull(nodep->filenamep());
         putbs(", ");
-        if (nodep->memp()) iterateAndNextConstNull(nodep->memp());
-        if (nodep->lsbp()) {
+        если (nodep->memp()) iterateAndNextConstNull(nodep->memp());
+        если (nodep->lsbp()) {
             putbs(", ");
             iterateAndNextConstNull(nodep->lsbp());
         }
-        if (nodep->msbp()) {
+        если (nodep->msbp()) {
             putbs(", ");
             iterateAndNextConstNull(nodep->msbp());
         }
@@ -598,24 +598,24 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstLoop* nodep) override {
         // Special case when the AstLoopTest is first for output readability
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+        если (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
             putfs(nodep, "while (");
             iterateConst(testp->condp());
             puts(") begin\n");
             iterateAndNextConstNull(testp->nextp());
             puts("end\n");
-            return;
+            вернуть;
         }
         // Special case when the AstLoopTest is last for output readability
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
+        если (AstNode* lastp = nodep->stmtsp()) {
+            пока (AstNode* const nextp = lastp->nextp()) lastp = nextp;
+            если (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
                 putfs(nodep, "do begin\n");
-                for (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
+                для (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
                 puts("end while (");
                 iterateConst(testp->condp());
                 puts(")\n");
-                return;
+                вернуть;
             }
         }
         // Generic case
@@ -631,16 +631,16 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstNodeIf* nodep) override {
         putfs(nodep, "");
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
-            if (ifp->priorityPragma()) puts("priority ");
-            if (ifp->uniquePragma()) puts("unique ");
-            if (ifp->unique0Pragma()) puts("unique0 ");
+        если (const AstIf* const ifp = VN_CAST(nodep, If)) {
+            если (ifp->priorityPragma()) puts("priority ");
+            если (ifp->uniquePragma()) puts("unique ");
+            если (ifp->unique0Pragma()) puts("unique0 ");
         }
         puts("if (");
         iterateAndNextConstNull(nodep->condp());
         puts(") begin\n");
         iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        если (nodep->elsesp()) {
             putqs(nodep, "end\n");
             putqs(nodep, "else begin\n");
             iterateAndNextConstNull(nodep->elsesp());
@@ -650,10 +650,10 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstPast* nodep) override {
         putfs(nodep, "$past(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->ticksp() || nodep->sentreep()) {
+        если (nodep->ticksp() || nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->ticksp());
-            if (nodep->sentreep()) {
+            если (nodep->sentreep()) {
                 puts(", ");
                 iterateAndNextConstNull(nodep->sentreep());
             }
@@ -661,7 +661,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(")");
     }
     void visit(AstSampled* nodep) override {
-        if (!m_suppressSampled) {
+        если (!m_suppressSampled) {
             putfs(nodep, "$sampled(");
             iterateAndNextConstNull(nodep->exprp());
             puts(")");
@@ -675,7 +675,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstRose* nodep) override {
         putfs(nodep, "$rose(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        если (nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->sentreep());
         }
@@ -684,7 +684,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstFell* nodep) override {
         putfs(nodep, "$fell(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        если (nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->sentreep());
         }
@@ -703,7 +703,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstStable* nodep) override {
         putfs(nodep, "$stable(");
         iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
+        если (nodep->sentreep()) {
             puts(", ");
             iterateAndNextConstNull(nodep->sentreep());
         }
@@ -801,14 +801,14 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         //      %k      Potential line break
         bool inPct = false;
         putbs("");
-        for (const char c : format) {
-            if (!inPct && c == '%') {
+        для (const char c : format) {
+            если (!inPct && c == '%') {
                 inPct = true;
-            } else if (!inPct) {  // Normal text
+            } иначе если (!inPct) {  // Normal text
                 string s;
                 s += c;
                 puts(s);
-            } else {  // Format character
+            } иначе {  // Format character
                 inPct = false;
                 switch (c) {
                 case '%': puts("%"); break;
@@ -873,7 +873,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstAttrOf* nodep) override {
         putfs(nodep, "$_ATTROF(");
         iterateAndNextConstNull(nodep->fromp());
-        if (nodep->dimp()) {
+        если (nodep->dimp()) {
             putbs(", ");
             iterateAndNextConstNull(nodep->dimp());
         }
@@ -881,9 +881,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstConsArray* nodep) override {
         putfs(nodep, "'{");
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+        для (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (itemp != nodep->itemsp()) putbs(", ");
+            если (itemp != nodep->itemsp()) putbs(", ");
             puts(cvtToStr(itemp->index()));
             puts(":");
             iterateConst(itemp->valuep());
@@ -908,12 +908,12 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstRange* nodep) override {
         puts("[");
-        if (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
+        если (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
             // Looks nicer if we print [1:0] rather than [32'sh1:32sh0]
             puts(cvtToStr(nodep->leftConst()));
             puts(":");
             puts(cvtToStr(nodep->rightConst()));
-        } else {
+        } иначе {
             iterateAndNextConstNull(nodep->leftp());
             puts(":");
             iterateAndNextConstNull(nodep->rightp());
@@ -925,25 +925,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstSel* nodep) override {
         iterateAndNextConstNull(nodep->fromp());
-        int offset = 0;
+        целое offset = 0;
         AstNodeDType* const dtypep = nodep->fromp()->dtypep();
-        if (VN_IS(dtypep, BasicDType)) {
+        если (VN_IS(dtypep, BasicDType)) {
             AstBasicDType* const basicDtypep = VN_AS(dtypep, BasicDType);
             offset = basicDtypep->lo();
         }
         puts("[");
-        if (VN_IS(nodep->lsbp(), Const)) {
-            if (nodep->widthConst() == 1) {
+        если (VN_IS(nodep->lsbp(), Const)) {
+            если (nodep->widthConst() == 1) {
                 puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
-            } else {
+            } иначе {
                 puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + nodep->widthConst() + offset
                               - 1));
                 puts(":");
                 puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
             }
-        } else {
+        } иначе {
             iterateAndNextConstNull(nodep->lsbp());
-            if (offset != 0) {
+            если (offset != 0) {
                 puts(" + ");
                 puts(cvtToStr(offset));
             }
@@ -966,42 +966,42 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstNodeCoverOrAssert* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " ");
-        if (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
+        если (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
             puts("#0 ");
-        } else if (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
+        } иначе если (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
             puts("final ");
-        } else if (nodep->userType() == VAssertType::CONCURRENT) {
+        } иначе если (nodep->userType() == VAssertType::CONCURRENT) {
             puts("property ");
         }
         iterateConstNull(nodep->sentreep());
         puts("(");
-        if (AstSampled* const sampledp = VN_CAST(nodep->propp(), Sampled)) {
+        если (AstSampled* const sampledp = VN_CAST(nodep->propp(), Sampled)) {
             iterateAndNextConstNull(sampledp->exprp());
-        } else {
+        } иначе {
             iterateAndNextConstNull(nodep->propp());
         }
-        if (!VN_IS(nodep, Restrict)) {
+        если (!VN_IS(nodep, Restrict)) {
             puts(") begin\n");
             iterateAndNextConstNull(nodep->passsp());
             puts("end\n");
-        } else {
+        } иначе {
             puts(");\n");
         }
 
-        if (const AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        если (const AstAssert* const assertp = VN_CAST(nodep, Assert)) {
             puts("else begin\n");
             iterateAndNextConstNull(assertp->failsp());
             puts("end\n");
-        } else if (const AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } иначе если (const AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
             puts("else begin\n");
             iterateAndNextConstNull(assertp->failsp());
             puts("end\n");
         }
     }
     void visit(AstAssocArrayDType* nodep) override {
-        if (!m_arrayPost) {
+        если (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } иначе {
             VL_RESTORER(m_arrayPost);
             m_arrayPost = false;
             puts("[");
@@ -1012,17 +1012,17 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstBasicDType* nodep) override {
-        if (m_arrayPost) return;
+        если (m_arrayPost) вернуть;
         putfs(nodep, nodep->prettyName());
-        if (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
+        если (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
         // Do not emit ranges for integer atoms.
-        if (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) return;
+        если (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) вернуть;
         emitPacked();
-        if (nodep->rangep()) {
+        если (nodep->rangep()) {
             puts(" ");
             iterateAndNextConstNull(nodep->rangep());
             puts(" ");
-        } else if (nodep->isRanged()) {
+        } иначе если (nodep->isRanged()) {
             puts(" [");
             puts(cvtToStr(nodep->left()));
             puts(":");
@@ -1031,20 +1031,20 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstConstDType* nodep) override {
-        if (m_arrayPost) return;
+        если (m_arrayPost) вернуть;
         putfs(nodep, "const ");
         iterateConst(nodep->subDTypep());
     }
     void visit(AstDynArrayDType* nodep) override {
-        if (!m_arrayPost) {
+        если (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } иначе {
             puts("[]");
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
     void visit(AstEnumDType* nodep) override {
-        if (m_arrayPost) return;
+        если (m_arrayPost) вернуть;
         putfs(nodep, "enum ");
         iterateConst(nodep->subDTypep());
         puts("{\n");
@@ -1052,7 +1052,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts("}");
     }
     void visit(AstEnumItemRef* nodep) override {
-        if (AstNodeModule* const classOrPackagep = nodep->classOrPackagep()) {
+        если (AstNodeModule* const classOrPackagep = nodep->classOrPackagep()) {
             putfs(nodep, classOrPackagep->prettyName());
             puts("::");
         }
@@ -1063,18 +1063,18 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         iterateConstNull(nodep->rangep());
         puts(" = ");
         iterateConstNull(nodep->valuep());
-        if (nodep->nextp()) puts(",");
+        если (nodep->nextp()) puts(",");
         puts("\n");
     }
     void visit(AstNodeArrayDType* nodep) override {
-        if (!m_arrayPost) {
-            if (VN_IS(nodep, PackArrayDType)) {
+        если (!m_arrayPost) {
+            если (VN_IS(nodep, PackArrayDType)) {
                 // Unpacked ranges handled in BasicDType, as they print "backwards"
                 m_packedps.push_back(nodep);
             }
             iterateConst(nodep->subDTypep());
-        } else {
-            if (VN_IS(nodep, UnpackArrayDType)) {
+        } иначе {
+            если (VN_IS(nodep, UnpackArrayDType)) {
                 VL_RESTORER(m_arrayPost);
                 m_arrayPost = false;
                 iterateAndNextConstNull(nodep->rangep());
@@ -1084,22 +1084,22 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstIfaceRefDType* nodep) override {
-        if (m_arrayPost) {
+        если (m_arrayPost) {
             puts(" (");
-            if (nodep->cellp()) {
+            если (nodep->cellp()) {
                 iterateConst(nodep->cellp());
-            } else {
+            } иначе {
                 puts("????");
             }
             puts(")");
-            return;
+            вернуть;
         }
         puts(nodep->ifaceName());
     }
     void visit(AstRefDType* nodep) override {
-        if (nodep->subDTypep()) {
+        если (nodep->subDTypep()) {
             iterateConst(nodep->skipRefp());
-        } else {
+        } иначе {
             puts("\n???? // "s + nodep->prettyTypeName() + " -> UNLINKED\n");
         }
     }
@@ -1113,9 +1113,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(" ");
         puts(nodep->prettyName());
         puts(" (\n");
-        if (nodep->varsp()) {
+        если (nodep->varsp()) {
             iterateConst(nodep->varsp());
-        } else {
+        } иначе {
             puts("????");
         }
         puts(");\n");
@@ -1123,23 +1123,23 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstModportVarRef* nodep) override {
         puts(nodep->direction().verilogKwd());
         puts(" ");
-        if (nodep->varp()) {
+        если (nodep->varp()) {
             VL_RESTORER(m_suppressVarSemi);
             m_suppressVarSemi = true;
             iterateConst(nodep->varp());
-        } else {
+        } иначе {
             puts(nodep->prettyName());
         }
-        if (nodep->nextp()) puts(", ");
+        если (nodep->nextp()) puts(", ");
     }
     void visit(AstNodeUOrStructDType* nodep) override {
-        if (m_arrayPost) return;
+        если (m_arrayPost) вернуть;
         puts(nodep->verilogKwd() + " ");
-        if (nodep->packed()) puts("packed ");
+        если (nodep->packed()) puts("packed ");
         {
             puts("{\n");
             VL_RESTORER_CLEAR(m_packedps);
-            for (AstMemberDType* itemp = nodep->membersp(); itemp;
+            для (AstMemberDType* itemp = nodep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
                 iterateConst(itemp);
             }
@@ -1148,20 +1148,20 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         emitPacked();
     }
     void visit(AstMemberDType* nodep) override {
-        if (m_arrayPost) return;
+        если (m_arrayPost) вернуть;
         iterateConst(nodep->subDTypep());
         puts(" ");
         puts(nodep->name());
         puts(";\n");
     }
     void visit(AstQueueDType* nodep) override {
-        if (!m_arrayPost) {
+        если (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } иначе {
             VL_RESTORER(m_arrayPost);
             m_arrayPost = false;
             puts("[$");
-            if (nodep->boundp()) {
+            если (nodep->boundp()) {
                 puts(":");
                 iterateConst(nodep->boundp());
             }
@@ -1171,14 +1171,14 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         }
     }
     void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->dotted() != "") {
+        если (nodep->dotted() != "") {
             putfs(nodep, nodep->dotted());
             puts(".");
             puts(nodep->prettyName());
-        } else {
+        } иначе {
             putfs(nodep, nodep->prettyName());
         }
-        if (!VN_IS(nodep->taskp(), Property)) {
+        если (!VN_IS(nodep->taskp(), Property)) {
             puts("(");
             iterateAndNextConstNull(nodep->argsp());
             puts(")");
@@ -1203,27 +1203,27 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts(";\n");
     }
     void visit(AstPropSpec* nodep) override {
-        if (!VN_IS(nodep->propp(), FuncRef)) {
+        если (!VN_IS(nodep->propp(), FuncRef)) {
             // Same dumping as in AstSenTree
             putfs(nodep, "@(");
-            for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+            для (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
                 iterateConst(expp);
-                if (expp->nextp()) putqs(expp->nextp(), " or ");
+                если (expp->nextp()) putqs(expp->nextp(), " or ");
             }
             puts(")");
         }
-        if (nodep->disablep()) {
+        если (nodep->disablep()) {
             puts(" disable iff ");
             iterateConst(nodep->disablep());
         }
 
         puts(" ");
-        if (nodep->propStrength() != VPropStrength::DEFAULT) {
+        если (nodep->propStrength() != VPropStrength::DEFAULT) {
             puts(nodep->propStrength().ascii());
             puts("(");
         }
         iterateConstNull(nodep->propp());
-        if (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
+        если (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
         puts("\n");
     }
     void visit(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
@@ -1243,7 +1243,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstPropAlways* nodep) override {
         puts(nodep->isStrong() ? "s_always" : "always");
-        if (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
+        если (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
             puts(" [");
             iterateConst(nodep->loBoundp());
             puts(":");
@@ -1264,18 +1264,18 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     // Terminals
     void visit(AstVarRef* nodep) override {
-        if (nodep->varScopep()) {
+        если (nodep->varScopep()) {
             putfs(nodep, nodep->varScopep()->prettyName());
-        } else {
-            if (nodep->varp()) {
-                if (nodep->selfPointer().isEmpty()) {
+        } иначе {
+            если (nodep->varp()) {
+                если (nodep->selfPointer().isEmpty()) {
                     putfs(nodep, nodep->varp()->prettyName());
-                } else {
+                } иначе {
                     putfs(nodep, nodep->selfPointer().asString());
                     putfs(nodep, "->");
                     puts(nodep->varp()->prettyName());
                 }
-            } else {
+            } иначе {
                 putfs(nodep, nodep->name());
             }
         }
@@ -1283,9 +1283,9 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstVarXRef* nodep) override {
         putfs(nodep, nodep->prettyName(nodep->dotted()));
         puts(".");
-        if (nodep->varp()) {
+        если (nodep->varp()) {
             puts(nodep->varp()->prettyName());
-        } else {
+        } иначе {
             puts(nodep->prettyName());
         }
     }
@@ -1296,7 +1296,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     void visit(AstTopScope* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstScope* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstVar* nodep) override {
-        if (nodep->isIO()) {
+        если (nodep->isIO()) {
             putfs(nodep, nodep->verilogKwd());
             puts(" ");
         }
@@ -1316,25 +1316,25 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
     }
     void visit(AstDelay* nodep) override {
         puts("");  // this is for proper alignment
-        if (nodep->isCycleDelay()) {
+        если (nodep->isCycleDelay()) {
             puts("##");
-        } else {
+        } иначе {
             puts("#");
         }
         VL_RESTORER(m_prefixed);
         m_prefixed = false;
-        if (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
+        если (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
             puts("(");
             iterateConst(nodep->lhsp());
             puts(", ");
             iterateConst(fallDelayp);
             puts(")");
-        } else {
+        } иначе {
             iterateConst(nodep->lhsp());
         }
-        if (!m_suppressSemi) {
+        если (!m_suppressSemi) {
             puts(";\n");
-        } else {
+        } иначе {
             puts(" ");
         }
         iterateAndNextConstNull(nodep->stmtsp());
@@ -1343,10 +1343,10 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts("wait(");
         iterateConst(nodep->condp());
         puts(")");
-        if (nodep->stmtsp()) {
+        если (nodep->stmtsp()) {
             puts(" ");
             iterateAndNextConstNull(nodep->stmtsp());
-        } else {
+        } иначе {
             puts(";\n");
         }
     }
@@ -1370,7 +1370,7 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         puts("\n???? // "s + nodep->prettyTypeName() + "\n");
         iterateChildrenConst(nodep);
         // Not v3fatalSrc so we keep processing
-        if (!m_suppressUnknown) {
+        если (!m_suppressUnknown) {
             nodep->v3error(
                 "Internal: Unknown node type reached emitter: " << nodep->prettyTypeName());
         }
@@ -1446,15 +1446,15 @@ void V3EmitV::debugVerilogForTree(const AstNode* nodep, std::ostream& os) {
 std::string V3EmitV::debugVerilogForTree(const AstNode* nodep) {
     std::stringstream ss;
     debugVerilogForTree(nodep, ss);
-    return ss.str();
+    вернуть ss.str();
 }
 
 void V3EmitV::emitvFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile* filep = v3Global.rootp()->filesp(); filep;
+    для (AstNodeFile* filep = v3Global.rootp()->filesp(); filep;
          filep = VN_AS(filep->nextp(), NodeFile)) {
         AstVFile* const vfilep = VN_CAST(filep, VFile);
-        if (vfilep && vfilep->tblockp()) {
+        если (vfilep && vfilep->tblockp()) {
             V3OutVFile of{vfilep->name()};
             of.puts("// DESCRIPTION: Verilator generated Verilog\n");
             EmitVFileVisitor{vfilep->tblockp(), of, false};

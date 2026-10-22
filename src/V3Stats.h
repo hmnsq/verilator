@@ -37,29 +37,29 @@ public:
     // Implicit conversion operators:
     explicit VDouble0(const uint64_t v)
         : m_d{static_cast<double>(v)} {}
-    operator double() const { return m_d; }
+    operator double() const { вернуть m_d; }
 
     // Explicit operators:
     VDouble0& operator++() {  // prefix
         ++m_d;
-        return *this;
+        вернуть *this;
     }
-    VDouble0 operator++(int) {  // postfix
+    VDouble0 operator++(целое) {  // postfix
         const VDouble0 old = *this;
         ++m_d;
-        return old;
+        вернуть old;
     }
     VDouble0& operator=(const double v) {
         m_d = v;
-        return *this;
+        вернуть *this;
     }
     VDouble0& operator+=(const double v) {
         m_d += v;
-        return *this;
+        вернуть *this;
     }
     VDouble0& operator-=(const double v) {
         m_d -= v;
-        return *this;
+        вернуть *this;
     }
 };
 
@@ -76,13 +76,13 @@ class V3Statistic final {
     bool m_printit = true;  ///< Print the results
 public:
     // METHODS
-    string stage() const VL_MT_SAFE { return m_stage; }
-    string name() const VL_MT_SAFE { return m_name; }
-    double value() const VL_MT_SAFE { return m_value; }
-    unsigned precision() const VL_MT_SAFE { return m_precision; }
-    bool sumit() const VL_MT_SAFE { return m_sumit; }
-    bool perf() const VL_MT_SAFE { return m_perf; }
-    bool printit() const VL_MT_SAFE { return m_printit; }
+    string stage() const VL_MT_SAFE { вернуть m_stage; }
+    string name() const VL_MT_SAFE { вернуть m_name; }
+    double value() const VL_MT_SAFE { вернуть m_value; }
+    unsigned precision() const VL_MT_SAFE { вернуть m_precision; }
+    bool sumit() const VL_MT_SAFE { вернуть m_sumit; }
+    bool perf() const VL_MT_SAFE { вернуть m_perf; }
+    bool printit() const VL_MT_SAFE { вернуть m_printit; }
     virtual void dump(std::ofstream& os) const VL_MT_SAFE;
     void combineWith(V3Statistic* otherp) {
         m_value += otherp->value();
@@ -130,7 +130,7 @@ public:
     static void addStatSum(const char* name, double count) VL_MT_SAFE_EXCLUDES(s_mutex) {
         // Avoid memory blow-up when called frequently with zero adds,
         // e.g. from V3Const invoked on individual expressions.
-        if (count == 0.0) return;
+        если (count == 0.0) вернуть;
         const V3LockGuard lock{s_mutex};
         addStat(V3Statistic{"*", name, count, 0, true, false});
     }
@@ -143,7 +143,7 @@ public:
     /// Return value of statistic, or zero if not found
     static double getStatSum(const string& name);
     static uint64_t getStatSumQ(const string& name) {
-        return static_cast<uint64_t>(getStatSum(name));
+        вернуть static_cast<uint64_t>(getStatSum(name));
     }
     /// Called each stage
     static void statsStage(const string& name);

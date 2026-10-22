@@ -48,16 +48,16 @@ public:
     ~VlcTest() = default;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    double computrons() const { return m_computrons; }
-    uint64_t testrun() const { return m_testrun; }
-    VlcBuckets& buckets() { return m_buckets; }
-    uint64_t bucketsCovered() const { return m_buckets.bucketsCovered(); }
-    uint64_t rank() const { return m_rank; }
+    const string& name() const { вернуть m_name; }
+    double computrons() const { вернуть m_computrons; }
+    uint64_t testrun() const { вернуть m_testrun; }
+    VlcBuckets& buckets() { вернуть m_buckets; }
+    uint64_t bucketsCovered() const { вернуть m_buckets.bucketsCovered(); }
+    uint64_t rank() const { вернуть m_rank; }
     void rank(uint64_t flag) { m_rank = flag; }
-    uint64_t rankPoints() const { return m_rankPoints; }
+    uint64_t rankPoints() const { вернуть m_rankPoints; }
     void rankPoints(uint64_t flag) { m_rankPoints = flag; }
-    uint64_t user() const { return m_user; }
+    uint64_t user() const { вернуть m_user; }
     void user(uint64_t flag) { m_user = flag; }
 
     // METHODS
@@ -67,7 +67,7 @@ public:
         std::cout << "  Covered,     Rank,  RankPts,  Filename\n";
     }
     void dump(bool bucketsToo) const {
-        if (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
+        если (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
             std::cout << "  " << std::setw(8) << std::setfill('0') << testrun()  // LCOV_EXCL_LINE
                       << ",  " << std::setw(7) << std::setfill(' ')
                       << computrons()  // LCOV_EXCL_LINE
@@ -77,7 +77,7 @@ public:
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rank();
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rankPoints();
         std::cout << ",  \"" << name() << "\"\n";
-        if (bucketsToo) m_buckets.dump();
+        если (bucketsToo) m_buckets.dump();
     }
 };
 
@@ -93,33 +93,33 @@ private:
     // MEMBERS
     ByName m_tests;  //< List of all tests
 
-    static int debug() { return V3Error::debugDefault(); }
+    static целое debug() { вернуть V3Error::debugDefault(); }
 
 public:
     // ITERATORS
     using iterator = ByName::iterator;
-    ByName::iterator begin() { return m_tests.begin(); }
-    ByName::iterator end() { return m_tests.end(); }
+    ByName::iterator begin() { вернуть m_tests.begin(); }
+    ByName::iterator end() { вернуть m_tests.end(); }
 
     // CONSTRUCTORS
     VlcTests() = default;
     ~VlcTests() {
-        for (auto it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
+        для (auto it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
     }
 
     // METHODS
     void dump(bool bucketsToo) {
         UINFO(2, "dumpTests...");
         VlcTest::dumpHeader();
-        for (const VlcTest* const testp : m_tests) testp->dump(bucketsToo);
+        для (const VlcTest* const testp : m_tests) testp->dump(bucketsToo);
     }
     VlcTest* newTest(const string& name, uint64_t testrun, double comp) {
         VlcTest* const testp = new VlcTest{name, testrun, comp};
         m_tests.push_back(testp);
-        return testp;
+        вернуть testp;
     }
     void clearUser() {
-        for (const auto& testp : m_tests) testp->user(0);
+        для (const auto& testp : m_tests) testp->user(0);
     }
 };
 

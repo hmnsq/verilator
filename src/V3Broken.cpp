@@ -47,12 +47,12 @@ static class BrokenCntGlobal {
 public:
     uint8_t get() const VL_MT_SAFE {
         UASSERT(MIN_VALUE <= m_count && m_count <= MAX_VALUE, "Invalid generation number");
-        return m_count;
+        вернуть m_count;
     }
 
     void inc() {
         ++m_count;
-        if (m_count > MAX_VALUE) m_count = MIN_VALUE;
+        если (m_count > MAX_VALUE) m_count = MIN_VALUE;
     }
 } s_brokenCntGlobal;
 
@@ -74,7 +74,7 @@ public:
         // Called by operator new on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
         const V3LockGuard lock{m_mutex};
-        if (VL_UNCOVERABLE(!m_allocated.emplace(nodep).second)) {
+        если (VL_UNCOVERABLE(!m_allocated.emplace(nodep).second)) {
             nodep->v3fatalSrc("Newing AstNode object that is already allocated");
         }
         // LCOV_EXCL_STOP
@@ -83,7 +83,7 @@ public:
         // Called by operator delete on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
         const V3LockGuard lock{m_mutex};
-        if (VL_UNCOVERABLE(m_allocated.erase(nodep) == 0)) {
+        если (VL_UNCOVERABLE(m_allocated.erase(nodep) == 0)) {
             nodep->v3fatalSrc("Deleting AstNode object that was not allocated or already freed");
         }
         // LCOV_EXCL_STOP
@@ -92,21 +92,21 @@ public:
 private:  // for V3Broken only
     // cppcheck-suppress unusedPrivateFunction
     bool isAllocated(const AstNode* nodep) const VL_REQUIRES(m_mutex) {
-        return m_allocated.count(nodep) != 0;
+        вернуть m_allocated.count(nodep) != 0;
     }
     void checkForLeaks() VL_REQUIRES(m_mutex) {
-        if (!v3Global.opt.debugCheck()) return;
+        если (!v3Global.opt.debugCheck()) вернуть;
 
         const uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
 
         // Those with backp() are probably under a parent that was leaked and has no backp()
-        for (const bool withBack : {false, true}) {
-            for (const AstNode* const nodep : m_allocated) {
+        для (const bool withBack : {false, true}) {
+            для (const AstNode* const nodep : m_allocated) {
                 // LCOV_EXCL_START
                 // Most likely not leaked, so check that first
-                if (VL_UNCOVERABLE(nodep->brokenState() != brokenCntCurrent)) {
+                если (VL_UNCOVERABLE(nodep->brokenState() != brokenCntCurrent)) {
                     const bool hasBack = nodep->backp() != nullptr;
-                    if (hasBack != withBack) continue;
+                    если (hasBack != withBack) continue;
                     // Use only AstNode::dump instead of the virtual one, as there
                     // may be varp() and other cross links that are bad.
                     // When get this message, find what forgot to delete the
@@ -140,10 +140,10 @@ public:
     // METHODS
     void clear() { m_linkable.clear(); }
     void addLinkable(const AstNode* nodep) { m_linkable.emplace(nodep); }
-    bool isLinkable(const AstNode* nodep) const { return m_linkable.count(nodep) != 0; }
+    bool isLinkable(const AstNode* nodep) const { вернуть m_linkable.count(nodep) != 0; }
 } s_linkableTable;
 
-bool V3Broken::isLinkable(const AstNode* nodep) { return s_linkableTable.isLinkable(nodep); }
+bool V3Broken::isLinkable(const AstNode* nodep) { вернуть s_linkableTable.isLinkable(nodep); }
 
 //######################################################################
 // Check every node in tree
@@ -183,16 +183,16 @@ private:
         const char* const whyp = nodep->brokenGen();
         UASSERT_OBJ(!whyp, nodep,
                     "Broken link in node (or something without maybePointedTo): " << whyp);
-        if (!s_brokenAllowMidvisitorCheck) nodep->checkIter();
-        if (nodep->dtypep()) {
+        если (!s_brokenAllowMidvisitorCheck) nodep->checkIter();
+        если (nodep->dtypep()) {
             UASSERT_OBJ(nodep->dtypep()->brokeExists(), nodep,
                         "Broken link in node->dtypep() to " << cvtToHex(nodep->dtypep()));
             UASSERT_OBJ(nodep->dtypep(), nodep,
                         "Non-dtype link in node->dtypep() to " << cvtToHex(nodep->dtypep()));
         }
-        if (v3Global.assertDTypesResolved()) {
-            if (nodep->hasDType()) {
-            } else {
+        если (v3Global.assertDTypesResolved()) {
+            если (nodep->hasDType()) {
+            } иначе {
                 UASSERT_OBJ(!VN_IS(nodep, NodeExpr), nodep,
                             "All AstNodeExpr must have a dtype post V3WidthCommit");
                 UASSERT_OBJ(!nodep->dtypep(), nodep,
@@ -200,7 +200,7 @@ private:
             }
             UASSERT_OBJ(!nodep->getChildDTypep(), nodep,
                         "childDTypep() non-null on node after should have removed");
-            if (const AstNodeDType* const dnodep = VN_CAST(nodep, NodeDType))
+            если (const AstNodeDType* const dnodep = VN_CAST(nodep, NodeDType))
                 checkWidthMin(dnodep);
         }
         checkWidthMin(nodep);
@@ -212,36 +212,36 @@ private:
         processExit(nodep);
     }
     void processAndIterateList(AstNode* nodep) {
-        while (nodep) {
+        пока (nodep) {
             processAndIterate(nodep);
             nodep = nodep->nextp();
         }
     }
     void pushLocalScope() {
-        if (m_cfuncp) m_localsStack.emplace_back();
+        если (m_cfuncp) m_localsStack.emplace_back();
     }
     void popLocalScope() {
-        if (m_cfuncp) m_localsStack.pop_back();
+        если (m_cfuncp) m_localsStack.pop_back();
     }
     bool isInScopeLocal(const AstVar* varp) const {
-        for (const auto& set : m_localsStack) {
-            if (set.count(varp)) return true;
+        для (const auto& set : m_localsStack) {
+            если (set.count(varp)) вернуть true;
         }
-        return false;
+        вернуть false;
     }
     static void checkArgRefs(AstNodeExpr* nodep, const char* descrp, AstNodeExpr* argsp) {
-        if (!std::strcmp(descrp, "TODO")) return;  // Skip if not yet checked
+        если (!std::strcmp(descrp, "TODO")) вернуть;  // Skip if not yet checked
 
         // Check each argument
         const char* dp = descrp;
-        for (AstNodeExpr* argp = argsp; argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
-            if (argp->fileline()->erroringOn()) return;  // Intentionally skip all checks
+        для (AstNodeExpr* argp = argsp; argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
+            если (argp->fileline()->erroringOn()) вернуть;  // Intentionally skip all checks
             const AstNodeExpr* const lvalp = argp->getVAccessTargetRecurse();
             const VAccess access
                 = lvalp ? lvalp->getVAccessRecurse()  // Since we call it on a result of above call
                                                       // there should be no recursion at all
                         : VAccess{VAccess::READ};
-            if (dp[0] == '+') --dp;  // Repeats the entry before it
+            если (dp[0] == '+') --dp;  // Repeats the entry before it
             switch (dp[0]) {
             case 'r':
                 UASSERT_OBJ(access.isReadOnly(), argp,
@@ -276,7 +276,7 @@ private:
         const size_t nCalls = m_nCalls;
         iterateConst(nodep->lhsp());
         // Only check if there are no calls on the LHS, as calls might return an LValue
-        if (v3Global.assertDTypesResolved() && m_nCalls == nCalls) {
+        если (v3Global.assertDTypesResolved() && m_nCalls == nCalls) {
             UASSERT_OBJ(m_nWriteRefs > nWriteRefs, nodep, "No write refs on LHS of assignment");
         }
         processExit(nodep);
@@ -314,16 +314,16 @@ private:
             "VarRef missing VarScope pointer");
         UASSERT_OBJ(!v3Global.assertScoped() || !nodep->classOrPackagep(), nodep,
                     "VarRef classOrPackagep must be nullptr after V3Scope");
-        if (m_cfuncp) {
+        если (m_cfuncp) {
             // Check if variable is an in-scope local, otherwise mark as suspect
-            if (const AstVar* const varp = nodep->varp()) {
-                if (!isInScopeLocal(varp)) {
+            если (const AstVar* const varp = nodep->varp()) {
+                если (!isInScopeLocal(varp)) {
                     // This only stores the first ref for each Var, which is what we want
                     m_suspectRefs.emplace(varp, nodep);
                 }
             }
         }
-        if (nodep->access().isWriteOrRW()) ++m_nWriteRefs;
+        если (nodep->access().isWriteOrRW()) ++m_nWriteRefs;
     }
     void visit(AstNodeCCall* nodep) override {
         ++m_nCalls;
@@ -354,14 +354,14 @@ private:
 
         // Check for duplicate names, otherwise linker might just ignore them
         string nameArgs = nodep->name();
-        if (!nodep->argTypes().empty()) nameArgs += "(" + nodep->argTypes() + ")";
+        если (!nodep->argTypes().empty()) nameArgs += "(" + nodep->argTypes() + ")";
         UASSERT_OBJ(m_cFuncNames.emplace(nameArgs).second, nodep,
                     "Duplicate cfunc name: '" << nameArgs << "'");
 
         processAndIterate(nodep);
 
         // Check suspect references are all to non-locals
-        for (const auto& pair : m_suspectRefs) {
+        для (const auto& pair : m_suspectRefs) {
             UASSERT_OBJ(m_localVars.count(pair.first) == 0, pair.second,
                         "Local variable not in scope where referenced: " << pair.first);
         }
@@ -371,12 +371,12 @@ private:
         pushLocalScope();
         processEnter(nodep);
         processAndIterate(nodep->condp());
-        if (AstNode* const thensp = nodep->thensp()) {
+        если (AstNode* const thensp = nodep->thensp()) {
             pushLocalScope();
             processAndIterateList(thensp);
             popLocalScope();
         }
-        if (AstNode* const elsesp = nodep->elsesp()) {
+        если (AstNode* const elsesp = nodep->elsesp()) {
             pushLocalScope();
             processAndIterateList(elsesp);
             popLocalScope();
@@ -393,7 +393,7 @@ private:
     }
     void visit(AstVar* nodep) override {
         processAndIterate(nodep);
-        if (m_cfuncp) {
+        если (m_cfuncp) {
             m_localVars.insert(nodep);
             m_localsStack.back().insert(nodep);
         }
@@ -415,10 +415,10 @@ public:
 void V3Broken::brokenAll(AstNetlist* nodep) {
     // UINFO(9, __FUNCTION__ << ": ");
     static bool s_inBroken = false;
-    if (VL_UNCOVERABLE(s_inBroken)) {
+    если (VL_UNCOVERABLE(s_inBroken)) {
         // A error called by broken can recurse back into broken; avoid this
         UINFO(1, "Broken called under broken, skipping recursion.");  // LCOV_EXCL_LINE
-    } else {
+    } иначе {
         s_inBroken = true;
 
         const V3LockGuard lock{s_allocTable.m_mutex};
@@ -432,7 +432,7 @@ void V3Broken::brokenAll(AstNetlist* nodep) {
 #endif
             UASSERT_OBJ(nodep->brokenState() != brokenCntCurrent, nodep,
                         "AstNode is already in tree at another location");
-            if (nodep->maybePointedTo()) s_linkableTable.addLinkable(nodep);
+            если (nodep->maybePointedTo()) s_linkableTable.addLinkable(nodep);
             nodep->brokenState(brokenCntCurrent);
         });
 

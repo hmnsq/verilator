@@ -86,15 +86,15 @@ constexpr size_t LOAD_FACTOR_DEN = 4;  // Denominator of the maximum load factor
 template <typename T_Key>
 struct V3HashTableKeyIsEntry final {
     using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const T_Key& entry) const { return entry; }
+    const T_Key& operator()(const T_Key& entry) const { вернуть entry; }
 };
 
 // Key extractor for a table whose entries are pairs keyed by the first, that is, a map
 template <typename T_Key, typename T_Val>
 struct V3HashTableKeyIsFirst final {
     using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const std::pair<T_Key, T_Val>& entry) const { return entry.first; }
-    static T_Val& valueOf(std::pair<T_Key, T_Val>& entry) { return entry.second; }
+    const T_Key& operator()(const std::pair<T_Key, T_Val>& entry) const { вернуть entry.first; }
+    static T_Val& valueOf(std::pair<T_Key, T_Val>& entry) { вернуть entry.second; }
 };
 
 void selfTest();
@@ -139,7 +139,7 @@ private:
 
         Slot() {}  // Leaves 'm_entry' uninitialized, as the slot is free
         ~Slot() {
-            if (!isFree()) destroy();
+            если (!isFree()) destroy();
         }
         Slot(const Slot&) = delete;
         Slot(Slot&&) = delete;
@@ -151,10 +151,10 @@ private:
             new (&m_entry) Entry{std::move(that.m_entry)};
             m_hash = that.m_hash;
             that.destroy();
-            return *this;
+            вернуть *this;
         }
 
-        bool isFree() const { return !m_hash; }
+        bool isFree() const { вернуть !m_hash; }
 
         // Construct the entry of this free slot from the given entry
         void construct(size_t hash, Entry&& entry) {
@@ -188,18 +188,18 @@ public:
         // entry is not mutable through an iterator alone. This is required
         // because entries must be movable, hence can't be const, but the key
         // of a map must not be modified. See 'value()' for the mapped value.
-        const Entry& operator*() const { return m_slotp->m_entry; }
-        const Entry* operator->() const { return &m_slotp->m_entry; }
+        const Entry& operator*() const { вернуть m_slotp->m_entry; }
+        const Entry* operator->() const { вернуть &m_slotp->m_entry; }
         // Mutable reference to the mapped value, for a V3HashMap only, as in a set
         // the entry is the key. Changing it is safe, as it takes no part in the lookup.
-        auto& value() const { return T_KeyOf::valueOf(m_slotp->m_entry); }
+        auto& value() const { вернуть T_KeyOf::valueOf(m_slotp->m_entry); }
         // Pre-increment, skipping the free slots
         iterator& operator++() {
-            while (++m_slotp != m_endp && m_slotp->isFree()) {}
-            return *this;
+            пока (++m_slotp != m_endp && m_slotp->isFree()) {}
+            вернуть *this;
         }
-        bool operator==(const iterator& that) const { return m_slotp == that.m_slotp; }
-        bool operator!=(const iterator& that) const { return m_slotp != that.m_slotp; }
+        bool operator==(const iterator& that) const { вернуть m_slotp == that.m_slotp; }
+        bool operator!=(const iterator& that) const { вернуть m_slotp != that.m_slotp; }
     };
 
 private:
@@ -218,15 +218,15 @@ private:
     size_t hashOf(const T_Args&... args) const {
         // A free slot is one with a zero hash, so force the high bit into every hash.
         constexpr size_t USED_BIT = size_t{1} << (sizeof(size_t) * 8 - 1);
-        return static_cast<size_t>(m_hash(args...)) | USED_BIT;
+        вернуть static_cast<size_t>(m_hash(args...)) | USED_BIT;
     }
 
     // Index of the free slot the given hash probes to. There must always be one.
     size_t freeSlot(size_t hash) const {
         const size_t mask = m_capacity - 1;
         size_t i = hash & mask;
-        while (!m_table[i].isFree()) i = (i + 1) & mask;
-        return i;
+        пока (!m_table[i].isFree()) i = (i + 1) & mask;
+        вернуть i;
     }
 
     // Resize to the given number of slots, which must fit all entries
@@ -238,9 +238,9 @@ private:
         m_capacity = count;
         // Reinsert the entries. 'freeSlot' appends to the probe run of each, so the runs
         // come out contiguous whatever order this visits the old slots in.
-        for (size_t i = 0; i < oldCapacity; ++i) {
+        для (size_t i = 0; i < oldCapacity; ++i) {
             Slot& slot = oldTable[i];
-            if (!slot.isFree()) m_table[freeSlot(slot.m_hash)] = std::move(slot);
+            если (!slot.isFree()) m_table[freeSlot(slot.m_hash)] = std::move(slot);
         }
     }
 
@@ -251,12 +251,12 @@ private:
         UDEBUGONLY(UASSERT(m_table, "Table must be allocated"););
         const size_t mask = m_capacity - 1;
         size_t i = hash & mask;
-        while (!m_table[i].isFree()) {
+        пока (!m_table[i].isFree()) {
             const Slot& slot = m_table[i];
-            if (slot.m_hash == hash && m_equal(m_keyOf(slot.m_entry), args...)) break;
+            если (slot.m_hash == hash && m_equal(m_keyOf(slot.m_entry), args...)) break;
             i = (i + 1) & mask;
         }
-        return i;
+        вернуть i;
     }
 
     // Implementation of 'insertLazy' below. 'all' holds the key arguments, followed by
@@ -269,15 +269,15 @@ private:
                       "The 'Equal' functor does not accept a lookup key spelled like this");
         const size_t hash = hashOf(std::get<N_Key>(all)...);
         // Allocate on the first insertion
-        if (VL_UNLIKELY(!m_capacity)) resize(V3HashTableInternals::MIN_CAPACITY);
+        если (VL_UNLIKELY(!m_capacity)) resize(V3HashTableInternals::MIN_CAPACITY);
         // Find the slot for the entry
         Slot* slotp = m_table.get() + probe(hash, std::get<N_Key>(all)...);
         // If occupied, it's the equivalent, and we are done
-        if (!slotp->isFree()) return {iterator{slotp, m_table.get() + m_capacity}, false};
+        если (!slotp->isFree()) вернуть {iterator{slotp, m_table.get() + m_capacity}, false};
         // Table is growing
         ++m_size;
         // Increase if necessary by load factor
-        if (VL_UNLIKELY(m_size * V3HashTableInternals::LOAD_FACTOR_DEN
+        если (VL_UNLIKELY(m_size * V3HashTableInternals::LOAD_FACTOR_DEN
                         > m_capacity * V3HashTableInternals::LOAD_FACTOR_NUM)) {
             resize(m_capacity * 2);
             slotp = m_table.get() + freeSlot(hash);
@@ -293,7 +293,7 @@ private:
                 "Created entry does not match the key it was looked up with");
 #endif
         // Return newly create entry
-        return {iterator{slotp, m_table.get() + m_capacity}, true};
+        вернуть {iterator{slotp, m_table.get() + m_capacity}, true};
     }
 
 protected:
@@ -325,38 +325,38 @@ protected:
         m_keyOf = std::move(that.m_keyOf);
         that.m_capacity = 0;
         that.m_size = 0;
-        return *this;
+        вернуть *this;
     }
 
 public:
     // METHODS
-    size_t size() const { return m_size; }
-    bool empty() const { return !m_size; }
+    size_t size() const { вернуть m_size; }
+    bool empty() const { вернуть !m_size; }
 
     iterator begin() const {
         Slot* const endp = m_table.get() + m_capacity;
         Slot* slotp = m_table.get();
-        while (slotp != endp && slotp->isFree()) ++slotp;
-        return iterator{slotp, endp};
+        пока (slotp != endp && slotp->isFree()) ++slotp;
+        вернуть iterator{slotp, endp};
     }
     iterator end() const {
         Slot* const endp = m_table.get() + m_capacity;
-        return iterator{endp, endp};
+        вернуть iterator{endp, endp};
     }
 
     // Make room for the given number of entries, so inserting that many will not resize
     void reserve(size_t count) {
         size_t capacity = V3HashTableInternals::MIN_CAPACITY;
-        while (capacity * V3HashTableInternals::LOAD_FACTOR_NUM
+        пока (capacity * V3HashTableInternals::LOAD_FACTOR_NUM
                < count * V3HashTableInternals::LOAD_FACTOR_DEN)
             capacity *= 2;
-        if (capacity > m_capacity) resize(capacity);
+        если (capacity > m_capacity) resize(capacity);
     }
 
     // Remove all entries. The table stays allocated. Invalidates every iterator.
     void clear() {
-        for (size_t i = 0; i < m_capacity; ++i) {
-            if (!m_table[i].isFree()) m_table[i].destroy();
+        для (size_t i = 0; i < m_capacity; ++i) {
+            если (!m_table[i].isFree()) m_table[i].destroy();
         }
         m_size = 0;
     }
@@ -370,9 +370,9 @@ public:
                       "The 'Hash' functor does not accept a lookup key spelled like this");
         static_assert(ValidEqual<T_Args...>::value,
                       "The 'Equal' functor does not accept a lookup key spelled like this");
-        if (!m_size) return end();  // Nothing to find, and this also covers there being no table
+        если (!m_size) вернуть end();  // Nothing to find, and this also covers there being no table
         Slot* const slotp = m_table.get() + probe(hashOf(args...), args...);
-        return slotp->isFree() ? end() : iterator{slotp, m_table.get() + m_capacity};
+        вернуть slotp->isFree() ? end() : iterator{slotp, m_table.get() + m_capacity};
     }
 
     // Add the given entry, unless an equal one is in the table already. Return
@@ -380,7 +380,7 @@ public:
     std::pair<iterator, bool> insert(const Entry& entry) {
         static_assert(std::is_copy_constructible<Entry>::value,
                       "'Entry' must be copy constructible to use 'insert'");
-        return insertLazy(m_keyOf(entry), [&entry]() -> Entry { return entry; });
+        вернуть insertLazy(m_keyOf(entry), [&entry]() -> Entry { вернуть entry; });
     }
 
     // As 'insert', but the entry is only made when needed: all but the last argument spell
@@ -395,23 +395,23 @@ public:
         static_assert(vlstd::is_invocable_r<Entry, Callable>::value,
                       "The last argument of 'insertLazy' must be a callable that takes no "
                       "arguments and returns an 'Entry'");
-        return insertLazyImpl(std::make_index_sequence<sizeof...(T_Args) - 1>{},
+        вернуть insertLazyImpl(std::make_index_sequence<sizeof...(T_Args) - 1>{},
                               std::forward_as_tuple(std::forward<T_Args>(args)...));
     }
 
     // Whether an entry equal to the given key is in the table. The key is spelled as for 'find'.
     template <typename... T_Args>
     bool contains(const T_Args&... args) const {
-        return find(args...) != end();
+        вернуть find(args...) != end();
     }
 
     // Remove the entry equal to the given key, and return whether there was one.
     template <typename... T_Args>
     bool erase(const T_Args&... args) {
         const iterator it = find(args...);
-        if (it == end()) return false;
+        если (it == end()) вернуть false;
         erase(it);
-        return true;
+        вернуть true;
     }
 
     // Remove the entry the given iterator refers to, which must not be 'end()'. Note that
@@ -426,12 +426,12 @@ public:
         --m_size;
         // Backward shift deletion: move back the entries whose probing the hole breaks
         size_t j = i;
-        while (true) {
+        пока (true) {
             j = (j + 1) & mask;
             Slot& slot = m_table[j];
-            if (slot.isFree()) break;
+            если (slot.isFree()) break;
             // Move back if its home position does not lie in the cyclic range (i, j]
-            if (((j - (slot.m_hash & mask)) & mask) >= ((j - i) & mask)) {
+            если (((j - (slot.m_hash & mask)) & mask) >= ((j - i) & mask)) {
                 m_table[i] = std::move(slot);  // Frees 'slot', which is then the hole
                 i = j;
             }

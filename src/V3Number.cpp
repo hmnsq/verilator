@@ -27,7 +27,7 @@
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-constexpr int MAX_SPRINTF_DOUBLE_SIZE
+constexpr целое MAX_SPRINTF_DOUBLE_SIZE
     = 1100;  // Maximum characters with a sprintf %e/%f/%g (really 1079)
 
 // Number operations build output in-place so can't call e.g. foo.opX(foo)
@@ -77,11 +77,11 @@ constexpr int MAX_SPRINTF_DOUBLE_SIZE
 void V3Number::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
-    if (m_nodep) {
+    если (m_nodep) {
         m_nodep->v3errorEnd(nsstr);
-    } else if (m_fileline) {
+    } иначе если (m_fileline) {
         m_fileline->v3errorEnd(nsstr);
-    } else {
+    } иначе {
         V3Error::v3errorEnd(nsstr, "", nullptr);
     }
 }
@@ -99,15 +99,15 @@ void V3Number::v3errorEndFatal(const std::ostringstream& str) const
 
 V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
     // Create a number using a verilog string as the value, thus 8 bits per character.
-    if (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
+    если (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
         init(nodep, 8);
-    } else {
-        init(nodep, std::max<int>(str.length() * 8, 1));
-        for (unsigned pos = 0; pos < str.length(); ++pos) {
-            const int topos = str.length() - 1 - pos;
+    } иначе {
+        init(nodep, std::max<целое>(str.length() * 8, 1));
+        для (unsigned pos = 0; pos < str.length(); ++pos) {
+            const целое topos = str.length() - 1 - pos;
             ValueAndX& v = m_data.num()[topos / 4];
-            for (int bit = 0; bit < 8; ++bit) {
-                if (str[pos] & (1UL << bit)) v.m_value |= (1UL << (bit + (topos % 4) * 8));
+            для (целое bit = 0; bit < 8; ++bit) {
+                если (str[pos] & (1UL << bit)) v.m_value |= (1UL << (bit + (topos % 4) * 8));
             }
         }
     }
@@ -116,16 +116,16 @@ V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
 }
 
 V3Number::V3Number(AstNode* nodep, const AstNodeDType* nodedtypep) {
-    if (nodedtypep->isCHandle()) {
+    если (nodedtypep->isCHandle()) {
         init(nodep);
         setNull();
-    } else if (nodedtypep->isDouble()) {
+    } иначе если (nodedtypep->isDouble()) {
         init(nodep, 64);
         setDouble(0.0);
-    } else if (nodedtypep->isString()) {
+    } иначе если (nodedtypep->isString()) {
         init(nodep);
         setString("");
-    } else {
+    } иначе {
         init(nodep, nodedtypep->width(), nodedtypep->widthSized());
     }
 }
@@ -133,8 +133,8 @@ V3Number::V3Number(AstNode* nodep, const AstNodeDType* nodedtypep) {
 void V3Number::create(const char* sourcep) {
     m_data.setLogic();
     const char* value_startp = sourcep;
-    for (const char* cp = sourcep; *cp; ++cp) {
-        if (*cp == '\'') {
+    для (const char* cp = sourcep; *cp; ++cp) {
+        если (*cp == '\'') {
             value_startp = cp + 1;
             break;
         }
@@ -143,98 +143,98 @@ void V3Number::create(const char* sourcep) {
     bool userSized = false;
     bool unbased = false;
     char base = '\0';
-    if (value_startp != sourcep) {  // Has a '
+    если (value_startp != sourcep) {  // Has a '
         string widthn;
         const char* cp = sourcep;
-        for (; *cp; ++cp) {
-            if (*cp == '\'') {
+        для (; *cp; ++cp) {
+            если (*cp == '\'') {
                 ++cp;
                 break;
             }
-            if (*cp != '_') widthn += *cp;
+            если (*cp != '_') widthn += *cp;
         }
-        while (*cp == '_') cp++;
-        if (*cp && std::tolower(*cp) == 's') {
+        пока (*cp == '_') cp++;
+        если (*cp && std::tolower(*cp) == 's') {
             ++cp;
             isSigned(true);
         }
-        if (*cp) {
+        если (*cp) {
             base = *cp;
             ++cp;
         }
         value_startp = cp;
 
         userSized = widthn.length() != 0;
-        if (std::atoi(widthn.c_str())) {
-            if (std::atoi(widthn.c_str()) < 0
+        если (std::atoi(widthn.c_str())) {
+            если (std::atoi(widthn.c_str()) < 0
                 || std::atoi(widthn.c_str()) > v3Global.opt.maxNumWidth()) {
                 // atoi might convert large number to negative, so can't tell which
                 v3error("Unsupported: Width of number exceeds implementation limit: "
                         << sourcep << "  (IEEE 1800-2023 6.9.1)");
                 width(v3Global.opt.maxNumWidth(), true);
-            } else {
+            } иначе {
                 width(std::atoi(widthn.c_str()), true);
             }
         }
-    } else {
+    } иначе {
         unbased = true;
         base = 'd';
     }
 
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+    для (целое i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
 
     // Special SystemVerilog unsized constructs
-    if (base == '0') {
+    если (base == '0') {
         width(1, false);  // So we extend it
         setBit(0, 0);
         m_data.m_autoExtend = true;
-    } else if (base == '1') {
+    } иначе если (base == '1') {
         width(1, false);  // So we extend it
         setBit(0, 1);
         m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'z') {
+    } иначе если (std::tolower(base) == 'z') {
         width(1, false);  // So we extend it
         setBit(0, 'z');
         m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'x') {
+    } иначе если (std::tolower(base) == 'x') {
         width(1, false);  // So we extend it
         setBit(0, 'x');
         m_data.m_autoExtend = true;
     }
     // Otherwise...
-    else if (!sized()) {
+    иначе если (!sized()) {
         // We don't use v3Global.opt.maxNumWidth() here, as it can be arbitrarily large,
         // and cause extremely slow parsing. We will resize the value at the end anyway.
         // We just need a width big enough to fit the constant, so we use a conservative
         // upper bound to start from. Should never need more than 4 bits per digit.
-        const int widthBound = std::max<int>(32, std::strlen(value_startp) * 4);
+        const целое widthBound = std::max<целое>(32, std::strlen(value_startp) * 4);
         width(widthBound, false);  // Will change width below
-        if (unbased) isSigned(true);  // Also says the spec.
+        если (unbased) isSigned(true);  // Also says the spec.
     }
 
     // Ignore leading blanks
-    while (*value_startp == '_' || std::isspace(*value_startp)) ++value_startp;
-    if (!*value_startp && !m_data.m_autoExtend) {
+    пока (*value_startp == '_' || std::isspace(*value_startp)) ++value_startp;
+    если (!*value_startp && !m_data.m_autoExtend) {
         v3error("Number is missing value digits: " << sourcep);
     }
-    if (userSized && m_data.m_autoExtend) {
+    если (userSized && m_data.m_autoExtend) {
         v3error("Syntax error: size cannot be provided with '0/'1/'x/'z: "
                 << sourcep << " (IEEE 1800-2023 5.7.1)");
     }
 
-    int obit = 0;  // Start at LSB
-    int base_align = 1;
-    if (std::tolower(base) == 'd') {
+    целое obit = 0;  // Start at LSB
+    целое base_align = 1;
+    если (std::tolower(base) == 'd') {
         // Ignore leading zeros so we don't issue too many digit errors when lots of leading 0's
-        while (*value_startp == '_' || *value_startp == '0') ++value_startp;
+        пока (*value_startp == '_' || *value_startp == '0') ++value_startp;
         // Convert decimal number to hex
-        int olen = 0;
+        целое olen = 0;
         uint32_t val = 0;
-        int got_x = 0;
-        int got_z = 0;
-        int got_01 = 0;
+        целое got_x = 0;
+        целое got_z = 0;
+        целое got_01 = 0;
         bool warnedTooMany = false;
-        for (const char* cp = value_startp; *cp; ++cp) {
+        для (const char* cp = value_startp; *cp; ++cp) {
             switch (std::tolower(*cp)) {
             case '0':  // FALLTHRU
             case '1':  // FALLTHRU
@@ -246,11 +246,11 @@ void V3Number::create(const char* sourcep) {
             case '7':  // FALLTHRU
             case '8':  // FALLTHRU
             case '9': {
-                if (olen <= 7) {  // 10000000 fits in 32 bits, so ok
+                если (olen <= 7) {  // 10000000 fits in 32 bits, so ok
                     // Constants are common, so for speed avoid wide math until we need it
                     val = val * 10 + (*cp - '0');
                     m_data.num()[0].m_value = val;
-                } else {  // Wide; all previous digits are already in m_value[0]
+                } иначе {  // Wide; all previous digits are already in m_value[0]
                     // this = (this * 10)/*product*/ + (*cp-'0')/*addend*/
                     // Assumed rare; lots of optimizations are possible here
                     V3Number product(this, width() + 4);  // +4 for overflow detection
@@ -258,7 +258,7 @@ void V3Number::create(const char* sourcep) {
                     const V3Number addend(this, width(), (*cp - '0'));
                     product.opMul(*this, ten);
                     opAdd(product, addend);
-                    if (!warnedTooMany && product.bitsValue(width(), 4)) {  // Overflowed
+                    если (!warnedTooMany && product.bitsValue(width(), 4)) {  // Overflowed
                         warnTooMany(sourcep);
                         warnedTooMany = true;
                     }
@@ -270,13 +270,13 @@ void V3Number::create(const char* sourcep) {
             case 'z':
             case '?': {
                 got_z = 1;
-                if (!userSized) width(32, false);
+                если (!userSized) width(32, false);
                 setAllBitsZ();
                 break;
             }
             case 'x': {
                 got_x = 1;
-                if (!userSized) width(32, false);
+                если (!userSized) width(32, false);
                 setAllBitsX();
                 break;
             }
@@ -289,14 +289,14 @@ void V3Number::create(const char* sourcep) {
             }
         }
         obit = width();
-        if ((got_01 + got_x + got_z) > 1) {
+        если ((got_01 + got_x + got_z) > 1) {
             v3error("Mixing X/Z/? with digits not legal in decimal constant: " << value_startp);
         }
-    } else {
+    } иначе {
         // Convert bin/octal number to hex
-        for (const char* cp = value_startp + std::strlen(value_startp) - 1; cp >= value_startp;
+        для (const char* cp = value_startp + std::strlen(value_startp) - 1; cp >= value_startp;
              cp--) {
-            if (*cp != '_' && *cp != '0' && obit >= width()) {
+            если (*cp != '_' && *cp != '0' && obit >= width()) {
                 warnTooMany(sourcep);
                 break;
             }
@@ -378,13 +378,13 @@ void V3Number::create(const char* sourcep) {
     }
 
     // If was unsized, trim width per IEEE 1800-2023 5.7.1
-    if (!userSized && !m_data.m_autoExtend) {
+    если (!userSized && !m_data.m_autoExtend) {
         width(std::max(32, base_align * ((widthToFit() + base_align - 1) / base_align)), false);
     }
 
     // Z or X extend specific width values.  Spec says we don't 1 extend.
     // This fixes 2'bx to become 2'bxx.
-    while (obit <= width() && obit && bitIsXZ(obit - 1)) {
+    пока (obit <= width() && obit && bitIsXZ(obit - 1)) {
         setBit(obit, bitIs(obit - 1));
         ++obit;
     }
@@ -400,7 +400,7 @@ void V3Number::warnTooMany(const string& value) {
 
 void V3Number::nodep(AstNode* nodep) VL_MT_STABLE {
     m_nodep = nodep;
-    if (!nodep) return;
+    если (!nodep) вернуть;
     m_fileline = nodep->fileline();
 }
 
@@ -408,48 +408,48 @@ void V3Number::nodep(AstNode* nodep) VL_MT_STABLE {
 // Global
 
 bool V3Number::epsilonEqual(double a, double b) {
-    return std::fabs(a - b)
+    вернуть std::fabs(a - b)
            <= (std::numeric_limits<double>::epsilon() * std::max(1.0, std::max(a, b)));
 }
 
 bool V3Number::epsilonIntegral(double a) {
     const double dint = static_cast<double>(static_cast<int64_t>(a));
     // Check all the rounding possibilities, as we did truncation above rather than rounding
-    return epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
+    вернуть epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
 }
 
-int V3Number::log2b(uint32_t num) {
+целое V3Number::log2b(uint32_t num) {
     // See also opCLog2
-    for (int bit = 31; bit > 0; bit--) {
-        if (num & (1ULL << bit)) return bit;
+    для (целое bit = 31; bit > 0; bit--) {
+        если (num & (1ULL << bit)) вернуть bit;
     }
-    return 0;
+    вернуть 0;
 }
 
-int V3Number::log2bQuad(uint64_t num) {
-    if (num >> 32ULL) return 32 + log2b(num >> 32ULL);
-    return log2b(num);
+целое V3Number::log2bQuad(uint64_t num) {
+    если (num >> 32ULL) вернуть 32 + log2b(num >> 32ULL);
+    вернуть log2b(num);
 }
 
 //======================================================================
 // Setters
 
 V3Number& V3Number::setZero() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+    для (целое i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+    вернуть *this;
 }
 V3Number& V3Number::setQuad(uint64_t value) {
     setZero();
     m_data.num()[0].m_value = value & 0xffffffffULL;
-    if (width() > 32) m_data.num()[1].m_value = (value >> 32ULL) & 0xffffffffULL;
+    если (width() > 32) m_data.num()[1].m_value = (value >> 32ULL) & 0xffffffffULL;
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setLong(uint32_t value) {
     setZero();
     m_data.num()[0].m_value = value;
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setLongS(int32_t value) {
     setZero();
@@ -461,7 +461,7 @@ V3Number& V3Number::setLongS(int32_t value) {
     (void)u.s;
     m_data.num()[0].m_value = u.u;
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setDouble(double value) {
     UASSERT(width() == 64, "Real operation on wrong sized number");
@@ -472,68 +472,68 @@ V3Number& V3Number::setDouble(double value) {
     } u;
     u.d = value;
     (void)u.d;
-    for (int i = 2; i < words(); ++i) m_data.num()[i] = {0, 0};
+    для (целое i = 2; i < words(); ++i) m_data.num()[i] = {0, 0};
     m_data.num()[0].m_value = u.u[0];
     m_data.num()[1].m_value = u.u[1];
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setSingleBits(char value) {
-    for (int i = 1 /*upper*/; i < words(); ++i) m_data.num()[i] = {0, 0};
+    для (целое i = 1 /*upper*/; i < words(); ++i) m_data.num()[i] = {0, 0};
     m_data.num()[0] = {(value == '1' || value == 'x' || value == 1 || value == 3),
                        (value == 'z' || value == 'x' || value == 2 || value == 3)};
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::setAllBits0() {
     setZero();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setAllBits1() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, 0};
+    для (целое i = 0; i < words(); ++i) m_data.num()[i] = {~0U, 0};
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setAllBitsX() {
     // Use setAllBitsXRemoved if calling this based on a non-X/Z input value such as divide by zero
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, ~0U};
+    для (целое i = 0; i < words(); ++i) m_data.num()[i] = {~0U, ~0U};
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setAllBitsZ() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, ~0U};
+    для (целое i = 0; i < words(); ++i) m_data.num()[i] = {0, ~0U};
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::setAllBitsXRemoved() {
-    if (!v3Global.constRemoveXs()) {
-        return setAllBitsX();
-    } else {
+    если (!v3Global.constRemoveXs()) {
+        вернуть setAllBitsX();
+    } иначе {
         // If we get a divide by zero we get Xs.
         // But after V3Unknown we have removed Xs, so use --x-assign to direct-insert 0/1
-        if (v3Global.opt.xAssign() == "1") {
-            return setAllBits1();
-        } else {
-            return setAllBits0();
+        если (v3Global.opt.xAssign() == "1") {
+            вернуть setAllBits1();
+        } иначе {
+            вернуть setAllBits0();
         }
     }
 }
 V3Number& V3Number::setValue1() {
     m_data.num()[0] = {1, 0};
-    for (int i = 1; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+    для (целое i = 1; i < words(); ++i) m_data.num()[i] = {0, 0};
+    вернуть *this;
 }
 
-void V3Number::setBitX0(int bit) {
+void V3Number::setBitX0(целое bit) {
     // Selection beyond bounds after V3Premit needs to have 0s
     // in upper bits.  Contrast to setAllBitsXRemoved which honors xAssign
     setBit(bit, v3Global.constRemoveXs() ? 0 : 'x');
 }
 
-V3Number& V3Number::setMask(int nbits, int lsb) {
+V3Number& V3Number::setMask(целое nbits, целое lsb) {
     setZero();
     UASSERT(lsb >= 0, "Negative destination bit range");
     fillBits(lsb, std::max(0, std::min(nbits, width() - lsb)), 1);
-    return *this;
+    вернуть *this;
 }
 
 //======================================================================
@@ -541,49 +541,49 @@ V3Number& V3Number::setMask(int nbits, int lsb) {
 
 string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (is1Step()) return "1step";
-    if (isNull()) return "null";
+    если (is1Step()) вернуть "1step";
+    если (isNull()) вернуть "null";
     std::ostringstream out;
-    if (isDouble()) {
+    если (isDouble()) {
         out.precision(17);
-        if (VL_UNCOVERABLE(width() != 64)) {
+        если (VL_UNCOVERABLE(width() != 64)) {
             out << "%E-bad-width-double";  // LCOV_EXCL_LINE
-        } else {
+        } иначе {
             out << toDouble();
-            if (toDouble() == floor(toDouble())) out << ".0";
+            если (toDouble() == floor(toDouble())) out << ".0";
         }
-        return out.str();
-    } else if (isString()) {
-        return '"' + toString() + '"';
-    } else {
-        if (VL_UNCOVERABLE((m_data.num()[words() - 1].m_value | m_data.num()[words() - 1].m_valueX)
+        вернуть out.str();
+    } иначе если (isString()) {
+        вернуть '"' + toString() + '"';
+    } иначе {
+        если (VL_UNCOVERABLE((m_data.num()[words() - 1].m_value | m_data.num()[words() - 1].m_valueX)
                            & ~hiWordMask())) {
             out << "%E-hidden-bits";  // LCOV_EXCL_LINE
         }
     }
-    if (prefixed) {
-        if (sized()) {
+    если (prefixed) {
+        если (sized()) {
             out << width() << "'";
-        } else if (autoExtend() && width() == 1) {
+        } иначе если (autoExtend() && width() == 1) {
             out << "'";
-            if (bitIs0(0)) {
+            если (bitIs0(0)) {
                 out << '0';
-            } else if (bitIs1(0)) {
+            } иначе если (bitIs1(0)) {
                 out << '1';
-            } else if (bitIsZ(0)) {
+            } иначе если (bitIsZ(0)) {
                 out << 'z';
-            } else {
+            } иначе {
                 out << 'x';
             }
-            return out.str();
-        } else {
-            if (cleanVerilog) {
+            вернуть out.str();
+        } иначе {
+            если (cleanVerilog) {
                 out << "'";
-            } else {
+            } иначе {
                 out << "?" << width() << "?";
             }
         }
-        if (isSigned()) out << "s";
+        если (isSigned()) out << "s";
     }
 
     const bool binary = (isFourState()
@@ -595,45 +595,45 @@ string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
     // out<<"-"<<hex<<m_value[0]<<"-";
 
     // cppcheck-suppress konwnConditionTrueFalse
-    if (binary) {
+    если (binary) {
         out << "b";
         out << displayed("%0b");
-    } else {
-        if (prefixed) out << "h";
+    } иначе {
+        если (prefixed) out << "h";
         // Always deal with 4 bits at once.  Note no 4-state, it's above.
         out << displayed("%0h");
     }
-    if (isNull()) {
-        if (VL_UNCOVERABLE(!isEqZero())) {
+    если (isNull()) {
+        если (VL_UNCOVERABLE(!isEqZero())) {
             out << "-%E-null-not-zero";  // LCOV_EXCL_LINE
-        } else {
+        } иначе {
             out << " [null]";
         }
     }
-    return out.str();
+    вернуть out.str();
 }
 
 bool V3Number::displayedFmtHasArg(char format, bool isScan) {
     // Is this a format letter that takes an argument in runtime?
     (void)isScan;
     switch (std::tolower(format)) {
-    case 'b': return true;  // Binary
-    case 'c': return true;  // Character
-    case 'd': return true;  // Decimal
-    case 'e': return true;  // Floating
-    case 'f': return true;  // Floating
-    case 'g': return true;  // Floating
-    case 'h': return true;  // Hex
-    case 'o': return true;  // Octal
-    case 'p': return true;  // Pattern
-    case 's': return true;  // String
-    case 't': return true;  // Time
-    case 'u': return true;  // Packed 2-state
-    case 'v': return true;  // Strength
-    case 'x': return true;  // Hex
-    case 'z': return true;  // Packed 4-state
-    case '?': return true;  // Internal: Compute format in V3Width based on data type
-    default: return false;
+    case 'b': вернуть true;  // Binary
+    case 'c': вернуть true;  // Character
+    case 'd': вернуть true;  // Decimal
+    case 'e': вернуть true;  // Floating
+    case 'f': вернуть true;  // Floating
+    case 'g': вернуть true;  // Floating
+    case 'h': вернуть true;  // Hex
+    case 'o': вернуть true;  // Octal
+    case 'p': вернуть true;  // Pattern
+    case 's': вернуть true;  // String
+    case 't': вернуть true;  // Time
+    case 'u': вернуть true;  // Packed 2-state
+    case 'v': вернуть true;  // Strength
+    case 'x': вернуть true;  // Hex
+    case 'z': вернуть true;  // Packed 4-state
+    case '?': вернуть true;  // Internal: Compute format in V3Width based on data type
+    default: вернуть false;
     }
     // 'l'                  // Library - precomputed front string, so no arg
     // 'm'                  // Module - precomputed front string, so no arg
@@ -642,13 +642,13 @@ bool V3Number::displayedFmtHasArg(char format, bool isScan) {
 
 string V3Number::displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE {
     string padding;
-    if (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
-    return left ? (in + padding) : (padding + in);
+    если (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
+    вернуть left ? (in + padding) : (padding + in);
 }
 
 string V3Number::displayedEnumName(const AstEnumItem* itemp) {
     const string name = VIdProtect::protect(itemp->prettyName());
-    return VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned char>(name[0]))
+    вернуть VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned char>(name[0]))
                ? name
                : "\\" + name + " ";
 }
@@ -656,13 +656,13 @@ string V3Number::displayedEnumName(const AstEnumItem* itemp) {
 string V3Number::displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE {
     V3Number value{this, dtypep->width()};
     value.opAssign(*this);
-    for (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
+    для (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), EnumItem)) {
         const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-        if (!constp->num().isAnyXZ() && value.isCaseEq(constp->num()))
-            return displayedEnumName(itemp);
+        если (!constp->num().isAnyXZ() && value.isCaseEq(constp->num()))
+            вернуть displayedEnumName(itemp);
     }
-    return "";
+    вернуть "";
 }
 
 string V3Number::displayedEnum(const AstSFormatArg* argp,
@@ -673,17 +673,17 @@ string V3Number::displayedEnum(const AstSFormatArg* argp,
     const VFormatAttr numericAttr
         = dtypep->isSigned() ? VFormatAttr::SIGNED : VFormatAttr::UNSIGNED;
     const char fmt = std::tolower(vformat.back());
-    if (fmt != 'p' && fmt != 's') return value.displayed(argp, vformat, numericAttr);
+    если (fmt != 'p' && fmt != 's') вернуть value.displayed(argp, vformat, numericAttr);
     string name = value.displayedEnumName(dtypep);
-    if (name.empty()) name = value.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
+    если (name.empty()) name = value.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
     V3Number nameNum{this};
     nameNum.setString(name);
-    return nameNum.displayed(argp, vformat, VFormatAttr::COMPLEX);
+    вернуть nameNum.displayed(argp, vformat, VFormatAttr::COMPLEX);
 }
 
 string V3Number::displayed(const AstNode* nodep, const string& vformat,
                            const VFormatAttr& formatAttr) const VL_MT_STABLE {
-    return displayed(nodep->fileline(), vformat, formatAttr);
+    вернуть displayed(nodep->fileline(), vformat, formatAttr);
 }
 
 string V3Number::displayed(FileLine* fl, const string& vformat,
@@ -696,12 +696,12 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
             "$display-like function with non-format argument " << *this);
     ++pos;
     bool left = false;
-    if (pos[0] == '-') {
+    если (pos[0] == '-') {
         left = true;
         ++pos;
     }
     string fmtsize;
-    for (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
+    для (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
         fmtsize += pos[0];
     }
     string str;
@@ -709,45 +709,45 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
     char fmt = std::tolower(pos[0]);
 
     // Override user's code for certain data-type determined arguments
-    if (formatAttr.isComplex()) {
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isString()) {
-        if (fmt == 'h' || fmt == 'x') {
+    если (formatAttr.isComplex()) {
+        если (fmt != 'p') fmt = 's';  // override
+    } иначе если (formatAttr.isString()) {
+        если (fmt == 'h' || fmt == 'x') {
             // V3Width errors on const %x of string, but V3Randomize may make a %x on a
             // string, or may have a runtime format
-            V3Number strwide{fl, static_cast<int>(toString().length()) * 8, 0};
+            V3Number strwide{fl, static_cast<целое>(toString().length()) * 8, 0};
             strwide.opNToI(*this);
-            return strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
+            вернуть strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
         }
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isSigned() || formatAttr.isUnsigned()) {
-        if (fmt == 'p') {
-            if (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
+        если (fmt != 'p') fmt = 's';  // override
+    } иначе если (formatAttr.isSigned() || formatAttr.isUnsigned()) {
+        если (fmt == 'p') {
+            если (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
                 str += "'h";
                 fmt = 'h';
-            } else {  // UVM tests require %0d
+            } иначе {  // UVM tests require %0d
                 fmtsize = "0";
                 fmt = 'd';
             }
         }
-    } else if (formatAttr.isDouble()) {
+    } иначе если (formatAttr.isDouble()) {
         // 'p' not converted to 'g' here as vformat string can't be easily changed
-        if (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
+        если (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
               || VL_UNCOVERABLE(fmt == 't'))) {
             // A non-float format with a float, must convert to integer then format
             V3Number nonfloat{fl, 64, 0};
             nonfloat.opRToIRoundS(*this);
-            return nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
+            вернуть nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
         }
     }
 
     switch (fmt) {
     case 'c': {
-        if (width() > 8)
+        если (width() > 8)
             fl->v3warn(WIDTHTRUNC, "$display-like format of %c format of > 8 bit value");
-        const unsigned int v = bitsValue(0, 8);
+        const unsigned целое v = bitsValue(0, 8);
         str.push_back(static_cast<char>(v));
-        return str;
+        вернуть str;
     }
     case 'e':  // FALLTHRU
     case 'f':  // FALLTHRU
@@ -757,119 +757,119 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
                                                  : toUQuad();
         char tmp[MAX_SPRINTF_DOUBLE_SIZE];
         (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, vformat.c_str(), n);
-        return tmp;
+        вернуть tmp;
     }
     case 's': {
-        if (formatAttr.isString() || formatAttr.isComplex()) {
+        если (formatAttr.isString() || formatAttr.isComplex()) {
             str = toString();
-        } else {
+        } иначе {
             // Spec says always drop leading zeros, this isn't quite right, we space pad.
-            int bit = width() - 1;
+            целое bit = width() - 1;
             bool start = true;
-            while ((bit % 8) != 7) ++bit;
-            for (; bit >= 0; bit -= 8) {
-                const int v = bitsValue(bit - 7, 8);
-                if (!start || v) {
+            пока ((bit % 8) != 7) ++bit;
+            для (; bit >= 0; bit -= 8) {
+                const целое v = bitsValue(bit - 7, 8);
+                если (!start || v) {
                     str += static_cast<char>((v == 0) ? ' ' : v);
                     start = false;  // Drop leading 0s
-                } else {
-                    if (fmtsize != "0") str += ' ';
+                } иначе {
+                    если (fmtsize != "0") str += ' ';
                 }
             }
         }
         const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
         str = displayPad(fmtsizen, ' ', left, str);
-        return str;
+        вернуть str;
     }
     case 'p': {  // Pattern
         // 'p' with NUMBER was earlier converted to 'd'
-        if (formatAttr.isDouble()) {
+        если (formatAttr.isDouble()) {
             const double n = formatAttr.isDouble()   ? toDouble()
                              : formatAttr.isSigned() ? toSQuad()
                                                      : toUQuad();
             char tmp[MAX_SPRINTF_DOUBLE_SIZE];
             (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, "%g", n);
-            return tmp;
+            вернуть tmp;
         }
-        if (formatAttr.isString())
-            return '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
-        if (formatAttr.isComplex()) return toString();
-        return "%p";
+        если (formatAttr.isString())
+            вернуть '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
+        если (formatAttr.isComplex()) вернуть toString();
+        вернуть "%p";
     }
     case 'b':  // FALLTHRU
     case 'o':  // FALLTHRU
     case 'h':  // FALLTHRU
     case 'x': {
-        int bit = width() - 1;
-        if (left || !fmtsize.empty()) {
-            while (bit && bitIs0(bit)) --bit;
+        целое bit = width() - 1;
+        если (left || !fmtsize.empty()) {
+            пока (bit && bitIs0(bit)) --bit;
         }
         switch (fmt) {
         case 'b': {
-            for (; bit >= 0; --bit) {
-                if (bitIs0(bit)) {
+            для (; bit >= 0; --bit) {
+                если (bitIs0(bit)) {
                     str += '0';
-                } else if (bitIs1(bit)) {
+                } иначе если (bitIs1(bit)) {
                     str += '1';
-                } else if (bitIsZ(bit)) {
+                } иначе если (bitIsZ(bit)) {
                     str += 'z';
-                } else {
+                } иначе {
                     str += 'x';
                 }
             }
             break;
         }
         case 'o': {
-            while ((bit % 3) != 2) ++bit;
-            for (; bit > 0; bit -= 3) {
-                const int numX = countX(bit - 2, 3);
-                const int numZ = countZ(bit - 2, 3);
-                if (numX == 3 || numX == width() - (bit - 2)) {
+            пока ((bit % 3) != 2) ++bit;
+            для (; bit > 0; bit -= 3) {
+                const целое numX = countX(bit - 2, 3);
+                const целое numZ = countZ(bit - 2, 3);
+                если (numX == 3 || numX == width() - (bit - 2)) {
                     str += 'x';
                     continue;
                 }
-                if (numZ == 3 || numZ == width() - (bit - 2)) {
+                если (numZ == 3 || numZ == width() - (bit - 2)) {
                     str += 'z';
                     continue;
                 }
-                if (numX > 0) {
+                если (numX > 0) {
                     str += 'X';
                     continue;
                 }
-                if (numZ > 0) {
+                если (numZ > 0) {
                     str += 'Z';
                     continue;
                 }
-                const int v = bitsValue(bit - 2, 3);
+                const целое v = bitsValue(bit - 2, 3);
                 str += static_cast<char>('0' + v);
             }
             break;
         }
         default: {  // h/x
-            while ((bit % 4) != 3) ++bit;
-            for (; bit > 0; bit -= 4) {
-                const int numX = countX(bit - 3, 4);
-                const int numZ = countZ(bit - 3, 4);
-                if (numX == 4 || numX == width() - (bit - 3)) {
+            пока ((bit % 4) != 3) ++bit;
+            для (; bit > 0; bit -= 4) {
+                const целое numX = countX(bit - 3, 4);
+                const целое numZ = countZ(bit - 3, 4);
+                если (numX == 4 || numX == width() - (bit - 3)) {
                     str += 'x';
                     continue;
                 }
-                if (numZ == 4 || numZ == width() - (bit - 3)) {
+                если (numZ == 4 || numZ == width() - (bit - 3)) {
                     str += 'z';
                     continue;
                 }
-                if (numX > 0) {
+                если (numX > 0) {
                     str += 'X';
                     continue;
                 }
-                if (numZ > 0) {
+                если (numZ > 0) {
                     str += 'Z';
                     continue;
                 }
-                const int v = bitsValue(bit - 3, 4);
-                if (v >= 10) {
+                const целое v = bitsValue(bit - 3, 4);
+                если (v >= 10) {
                     str += static_cast<char>('a' + v - 10);
-                } else {
+                } иначе {
                     str += static_cast<char>('0' + v);
                 }
             }
@@ -878,46 +878,46 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         }  // switch
         const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
         str = displayPad(fmtsizen, (left ? ' ' : '0'), left, str);
-        return str;
+        вернуть str;
     }  // case b/d/x/o
     case 't':  // Time
     case 'd': {  // Unsigned decimal
         const bool issigned = formatAttr.isSigned();
-        if (fmtsize == "" && !left) {
+        если (fmtsize == "" && !left) {
             const double mantissabits = width() - (issigned ? 1 : 0);
             // To get the number of digits required, we want to compute
             // log10(2**mantissabits) and round it up. To be able to handle
             // a very wide mantissa, we use log2(2**mantissabits)/log2(10),
             // which is (+1.0 is for rounding bias):
             double dchars = mantissabits / 3.321928094887362 + 1.0;
-            if (issigned) ++dchars;  // space for sign
-            fmtsize = cvtToStr(static_cast<int>(dchars));
+            если (issigned) ++dchars;  // space for sign
+            fmtsize = cvtToStr(static_cast<целое>(dchars));
         }
         bool hasXZ = false;
-        if (isAllX()) {
+        если (isAllX()) {
             str = "x";
             hasXZ = true;
-        } else if (isAllZ()) {
+        } иначе если (isAllZ()) {
             str = "z";
             hasXZ = true;
-        } else if (isAnyX()) {
+        } иначе если (isAnyX()) {
             str = "X";
             hasXZ = true;
-        } else if (isAnyZ()) {
+        } иначе если (isAnyZ()) {
             str = "Z";
             hasXZ = true;
         }
-        if (!hasXZ) {
-            if (issigned) {
-                if (width() > 64) {
+        если (!hasXZ) {
+            если (issigned) {
+                если (width() > 64) {
                     str = toDecimalS();
-                } else {
+                } иначе {
                     str = cvtToStr(toSQuad());
                 }
-            } else {
-                if (width() > 64) {
+            } иначе {
+                если (width() > 64) {
                     str = toDecimalU();
-                } else {
+                } иначе {
                     str = cvtToStr(toUQuad());
                 }
             }
@@ -926,21 +926,21 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         // fmtsize might have changed since we parsed the %fmtsize
         const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
         str = displayPad(fmtsizen, (zeropad ? '0' : ' '), left, str);
-        return str;
+        вернуть str;
     }
     // 'l'   // Library - converted to text by V3LinkResolve
     case 'u': {  // Packed 2-state
-        for (int i = 0; i < words(); ++i) {
+        для (целое i = 0; i < words(); ++i) {
             const uint32_t v = m_data.num()[i].m_value;
             str += static_cast<char>((v >> 0) & 0xff);
             str += static_cast<char>((v >> 8) & 0xff);
             str += static_cast<char>((v >> 16) & 0xff);
             str += static_cast<char>((v >> 24) & 0xff);
         }
-        return str;
+        вернуть str;
     }
     case 'z': {  // Packed 4-state
-        for (int i = 0; i < words(); ++i) {
+        для (целое i = 0; i < words(); ++i) {
             const ValueAndX v = m_data.num()[i];
             str += static_cast<char>((v.m_value >> 0) & 0xff);
             str += static_cast<char>((v.m_value >> 8) & 0xff);
@@ -951,23 +951,23 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
             str += static_cast<char>((v.m_valueX >> 16) & 0xff);
             str += static_cast<char>((v.m_valueX >> 24) & 0xff);
         }
-        return str;
+        вернуть str;
     }
     case 'v': {  // Strength
-        int bit = width() - 1;
-        for (; bit >= 0; bit--) {
-            if (bitIs0(bit)) {
+        целое bit = width() - 1;
+        для (; bit >= 0; bit--) {
+            если (bitIs0(bit)) {
                 str += "St0 ";
             }  // Yes, always a space even for bit 0
-            else if (bitIs1(bit)) {
+            иначе если (bitIs1(bit)) {
                 str += "St1 ";
-            } else if (bitIsZ(bit)) {
+            } иначе если (bitIsZ(bit)) {
                 str += "StZ ";
-            } else {
+            } иначе {
                 str += "StX";
             }
         }
-        return str;
+        вернуть str;
     }
     default: fl->v3fatalSrc("Unknown $display-like format code for number: %" << pos[0]);
     }
@@ -977,49 +977,49 @@ string V3Number::emitC() const VL_MT_STABLE {
     constexpr size_t bufsize = 1000;
     char sbuf[bufsize];
     string result;
-    if (isNull()) {
-        return "VlNull{}";
-    } else if (isDouble()) {
+    если (isNull()) {
+        вернуть "VlNull{}";
+    } иначе если (isDouble()) {
         const double dnum = toDouble();
-        if (std::isinf(dnum)) {
-            if (std::signbit(dnum)) result += '-';
+        если (std::isinf(dnum)) {
+            если (std::signbit(dnum)) result += '-';
             result += "std::numeric_limits<double>::infinity()";
-        } else if (std::isnan(dnum)) {
-            if (std::signbit(dnum)) result += '-';
+        } иначе если (std::isnan(dnum)) {
+            если (std::signbit(dnum)) result += '-';
             result += "std::numeric_limits<double>::quiet_NaN()";
-        } else {
-            const char* const fmt = (static_cast<int>(dnum) == dnum && -1000 < dnum && dnum < 1000)
+        } иначе {
+            const char* const fmt = (static_cast<целое>(dnum) == dnum && -1000 < dnum && dnum < 1000)
                                         ? "%3.1f"  // Force decimal point
                                         : "%.17e";  // %e always yields a float literal
             (void)VL_SNPRINTF(sbuf, bufsize, fmt, dnum);
-            return sbuf;
+            вернуть sbuf;
         }
-    } else if (isString()) {
+    } иначе если (isString()) {
         const string strg = toString();
         const string quoted
             = V3OutFormatter::quoteNameControls(strg, V3OutFormatter::Language::LA_C);
         // Note: putsQuoted does not track indentation, so we use this instead
-        return '"' + quoted + "\"s";
-    } else if (words() > 2) {
+        вернуть '"' + quoted + "\"s";
+    } иначе если (words() > 2) {
         // Note the double {{ initializer. The first { starts the initializer of the VlWide,
         // and the second starts the initializer of m_storage within the VlWide.
         // Alternative is to have constructor with std::initializer_list
         result = "::VlWide<" + std::to_string(words()) + ">{{";
-        if (words() > 4) result += '\n';
-        for (int n = 0; n < words(); ++n) {
-            if (n) result += ((n % 4) ? ", " : ",\n");
+        если (words() > 4) result += '\n';
+        для (целое n = 0; n < words(); ++n) {
+            если (n) result += ((n % 4) ? ", " : ",\n");
             (void)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
             result += sbuf;
         }
-        if (words() > 4) result += '\n';
+        если (words() > 4) result += '\n';
         result += "}}";
-    } else if (words() == 2) {  // Quad
+    } иначе если (words() == 2) {  // Quad
         const uint64_t qnum = static_cast<uint64_t>(toUQuad());
         const char* const fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
         // cppcheck-suppress wrongPrintfScanfArgNum
         (void)VL_SNPRINTF(sbuf, bufsize, fmt, qnum);
-        return sbuf;
-    } else {
+        вернуть sbuf;
+    } иначе {
         // Always emit unsigned, if signed, will call correct signed functions
         // The 'U' must be here, to avoid <= comparisons etc ending up signed
         const uint32_t unum = toUInt();
@@ -1029,38 +1029,38 @@ string V3Number::emitC() const VL_MT_STABLE {
                                                  : ("0x%02" PRIx32 "U");
         // cppcheck-suppress wrongPrintfScanfArgNum
         (void)VL_SNPRINTF(sbuf, bufsize, fmt, unum);
-        return sbuf;
+        вернуть sbuf;
     }
-    return result;
+    вернуть result;
 }
 
 string V3Number::toDecimalS() const VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (isNegative()) {
+    если (isNegative()) {
         V3Number lhsNoSign = *this;
         lhsNoSign.opNegate(*this);
-        return "-"s + lhsNoSign.toDecimalU();
-    } else {
-        return toDecimalU();
+        вернуть "-"s + lhsNoSign.toDecimalU();
+    } иначе {
+        вернуть toDecimalU();
     }
 }
 
 string V3Number::toDecimalU() const VL_MT_STABLE {
-    const int maxdecwidth = (width() + 3) * 4 / 3;
+    const целое maxdecwidth = (width() + 3) * 4 / 3;
 
     // Or (maxdecwidth+7)/8], but can't have more than 4 BCD bits per word
     V3Number bcd(this, maxdecwidth + 4);
     V3Number tmp(this, maxdecwidth + 4);
     V3Number tmp2(this, maxdecwidth + 4);
 
-    int from_bit = width() - 1;
+    целое from_bit = width() - 1;
     // Skip all leading zeros
-    for (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
+    для (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
     // Double-dabble algorithm
-    for (; from_bit >= 0; --from_bit) {
+    для (; from_bit >= 0; --from_bit) {
         // Any digits >= 5 need an add 3 (via tmp)
-        for (int nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
-            if (bcd.bitsValue(nibble_bit, 4) >= 5) {
+        для (целое nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
+            если (bcd.bitsValue(nibble_bit, 4) >= 5) {
                 tmp2.setAllBits0();
                 tmp2.setBit(nibble_bit, 1);  // Add 3, decomposed as two bits
                 tmp2.setBit(nibble_bit + 1, 1);
@@ -1072,18 +1072,18 @@ string V3Number::toDecimalU() const VL_MT_STABLE {
         tmp.opAssign(bcd);
         bcd.opShiftL(tmp, V3Number(this, 32, 1));
         // bcd[0] = this[from_bit]
-        if (bitIs1(from_bit)) bcd.setBit(0, 1);
+        если (bitIs1(from_bit)) bcd.setBit(0, 1);
     }
 
     string output;
-    int lsb = (maxdecwidth - 1) & ~3;
-    for (; lsb > 0; lsb -= 4) {  // Skip leading zeros
-        if (bcd.bitsValue(lsb, 4)) break;
+    целое lsb = (maxdecwidth - 1) & ~3;
+    для (; lsb > 0; lsb -= 4) {  // Skip leading zeros
+        если (bcd.bitsValue(lsb, 4)) break;
     }
-    for (; lsb >= 0; lsb -= 4) {
+    для (; lsb >= 0; lsb -= 4) {
         output += static_cast<char>('0' + bcd.bitsValue(lsb, 4));  // 0..9
     }
-    return output;
+    вернуть output;
 }
 
 string V3Number::toRealString() const VL_MT_STABLE {
@@ -1093,36 +1093,36 @@ string V3Number::toRealString() const VL_MT_STABLE {
     out.precision(15);
     out << value;
     string result = out.str();
-    if (std::strtod(result.c_str(), nullptr) != value) {
+    если (std::strtod(result.c_str(), nullptr) != value) {
         out.str("");
         out.precision(17);
         out << value;
         result = out.str();
     }
     // A real, as in Verilog, unless has an exponent, or is infinite or not-a-number
-    if (result.find_first_of(".en") == string::npos) result += ".0";
-    return result;
+    если (result.find_first_of(".en") == string::npos) result += ".0";
+    вернуть result;
 }
 
 //======================================================================
 // ACCESSORS - as numbers
 
 bool V3Number::fitsInUInt() const VL_MT_SAFE {
-    if (isFourState()) return false;
+    если (isFourState()) вернуть false;
     // We allow wide numbers that represent values <= 32 bits
-    for (int i = 1; i < words(); ++i) {
-        if (m_data.num()[i].m_value) return false;
+    для (целое i = 1; i < words(); ++i) {
+        если (m_data.num()[i].m_value) вернуть false;
     }
-    return true;
+    вернуть true;
 }
 uint32_t V3Number::toUInt() const VL_MT_SAFE {
     UASSERT(!isFourState(), "toUInt with 4-state " << *this);
     // We allow wide numbers that represent values <= 32 bits
-    if (VL_UNCOVERABLE(!fitsInUInt())) {
+    если (VL_UNCOVERABLE(!fitsInUInt())) {
         v3error("Value too wide for 32-bits expected in this context "  // LCOV_EXCL_LINE
                 << *this);
     }
-    return m_data.num()[0].m_value;
+    вернуть m_data.num()[0].m_value;
 }
 
 double V3Number::toDouble() const VL_MT_SAFE {
@@ -1133,245 +1133,245 @@ double V3Number::toDouble() const VL_MT_SAFE {
     } u;
     u.u[0] = m_data.num()[0].m_value;
     u.u[1] = m_data.num()[1].m_value;
-    return u.d;
+    вернуть u.d;
 }
 
 int32_t V3Number::toSInt() const VL_MT_SAFE {
-    if (isSigned()) {
+    если (isSigned()) {
         const uint32_t v = toUInt();
         const uint32_t signExtend = (-(v & (1UL << (width() - 1))));
         const uint32_t extended = v | signExtend;
-        return static_cast<int32_t>(extended);
-    } else {
+        вернуть static_cast<int32_t>(extended);
+    } иначе {
         // Where we use this (widths, etc) and care about signedness,
         // we can reasonably assume the MSB isn't set on unsigned numbers.
-        return static_cast<int32_t>(toUInt());
+        вернуть static_cast<int32_t>(toUInt());
     }
 }
 
 uint64_t V3Number::toUQuad() const VL_MT_SAFE {
     UASSERT(!isFourState(), "toUQuad with 4-state " << *this);
     // We allow wide numbers that represent values <= 64 bits
-    if (isDouble()) return static_cast<uint64_t>(toDouble());
-    for (int i = 2; i < words(); ++i) {
-        if (m_data.num()[i].m_value) {
+    если (isDouble()) вернуть static_cast<uint64_t>(toDouble());
+    для (целое i = 2; i < words(); ++i) {
+        если (m_data.num()[i].m_value) {
             v3error("Value too wide for 64-bits expected in this context " << *this);
             break;
         }
     }
-    if (width() <= 32) return (static_cast<uint64_t>(toUInt()));
-    return ((static_cast<uint64_t>(m_data.num()[1].m_value) << 32ULL)
+    если (width() <= 32) вернуть (static_cast<uint64_t>(toUInt()));
+    вернуть ((static_cast<uint64_t>(m_data.num()[1].m_value) << 32ULL)
             | (static_cast<uint64_t>(m_data.num()[0].m_value)));
 }
 
 int64_t V3Number::toSQuad() const {
-    if (isDouble()) return static_cast<int64_t>(toDouble());
+    если (isDouble()) вернуть static_cast<int64_t>(toDouble());
     const uint64_t v = toUQuad();
     const uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
     const uint64_t extended = v | signExtend;
-    return static_cast<int64_t>(extended);
+    вернуть static_cast<int64_t>(extended);
 }
 
 string V3Number::toString() const {
     UASSERT(!isFourState(), "toString with 4-state " << *this);
     // IEEE says \000 are removed
     // If used to print a %s space padding is still required after call to here
-    if (isString()) return m_data.str();
-    int bit = width() - 1;
-    while ((bit % 8) != 7) ++bit;
+    если (isString()) вернуть m_data.str();
+    целое bit = width() - 1;
+    пока ((bit % 8) != 7) ++bit;
     std::string str;
-    for (; bit >= 0; bit -= 8) {
-        const int v = bitsValue(bit - 7, 8);
-        if (v) str += static_cast<char>(v);
+    для (; bit >= 0; bit -= 8) {
+        const целое v = bitsValue(bit - 7, 8);
+        если (v) str += static_cast<char>(v);
     }
-    return str;
+    вернуть str;
 }
 
-uint32_t V3Number::edataWord(int eword) const {
+uint32_t V3Number::edataWord(целое eword) const {
     UASSERT(!isFourState(), "edataWord with 4-state " << *this);
-    return m_data.num()[eword].m_value;
+    вернуть m_data.num()[eword].m_value;
 }
 
-uint8_t V3Number::dataByte(int byte) const {
-    return (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
+uint8_t V3Number::dataByte(целое byte) const {
+    вернуть (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
 }
 
 bool V3Number::isAllZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
+    если (isDouble() || isString()) вернуть false;
+    для (целое i = 0; i < words(); ++i) {
         const ValueAndX v = m_data.num()[i];
         const uint32_t mask = i == words() - 1 ? hiWordMask() : ~0U;
-        if (((~v.m_value & v.m_valueX) & mask) != mask) return false;
+        если (((~v.m_value & v.m_valueX) & mask) != mask) вернуть false;
     }
-    return true;
+    вернуть true;
 }
 bool V3Number::isAllX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
+    если (isDouble() || isString()) вернуть false;
     uint32_t mask = hiWordMask();
-    for (int i = words() - 1; i >= 0; --i) {
+    для (целое i = words() - 1; i >= 0; --i) {
         const ValueAndX v = m_data.num()[i];
-        if ((v.m_value & v.m_valueX) ^ mask) return false;
+        если ((v.m_value & v.m_valueX) ^ mask) вернуть false;
         mask = ~0U;
     }
-    return true;
+    вернуть true;
 }
 bool V3Number::isEqZero() const VL_MT_SAFE {
-    if (isString()) return m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
+    если (isString()) вернуть m_data.str().empty();
+    для (целое i = 0; i < words(); ++i) {
         const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+        если (v.m_value || v.m_valueX) вернуть false;
     }
-    return true;
+    вернуть true;
 }
 bool V3Number::isNeqZero() const {
-    if (isString()) return !m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
+    если (isString()) вернуть !m_data.str().empty();
+    для (целое i = 0; i < words(); ++i) {
         const ValueAndX v = m_data.num()[i];
-        if (v.m_value & ~v.m_valueX) return true;
+        если (v.m_value & ~v.m_valueX) вернуть true;
     }
-    return false;
+    вернуть false;
 }
-bool V3Number::isBitsZero(int msb, int lsb) const {
-    for (int i = lsb; i <= msb; ++i) {
-        if (VL_UNLIKELY(!bitIs0(i))) return false;
+bool V3Number::isBitsZero(целое msb, целое lsb) const {
+    для (целое i = lsb; i <= msb; ++i) {
+        если (VL_UNLIKELY(!bitIs0(i))) вернуть false;
     }
-    return true;
+    вернуть true;
 }
 bool V3Number::isEqOne() const {
-    if (m_data.num()[0].m_value != 1 || m_data.num()[0].m_valueX) return false;
-    for (int i = 1; i < words(); ++i) {
+    если (m_data.num()[0].m_value != 1 || m_data.num()[0].m_valueX) вернуть false;
+    для (целое i = 1; i < words(); ++i) {
         const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+        если (v.m_value || v.m_valueX) вернуть false;
     }
-    return true;
+    вернуть true;
 }
-bool V3Number::isEqAllOnes(int optwidth) const {
+bool V3Number::isEqAllOnes(целое optwidth) const {
     // Correct number of zero bits/width matters
-    if (!optwidth) optwidth = width();
-    for (int bit = 0; bit < optwidth; ++bit) {
-        if (!bitIs1(bit)) return false;
+    если (!optwidth) optwidth = width();
+    для (целое bit = 0; bit < optwidth; ++bit) {
+        если (!bitIs1(bit)) вернуть false;
     }
-    return true;
+    вернуть true;
 }
 bool V3Number::isFourState() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+    если (isDouble() || isString()) вернуть false;
+    для (целое i = 0; i < words(); ++i) {
+        если (m_data.num()[i].m_valueX) вернуть true;
     }
-    return false;
+    вернуть false;
 }
 bool V3Number::isAnyX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
+    если (isDouble() || isString()) вернуть false;
+    для (целое i = 0; i < words(); ++i) {
         const ValueAndX v = m_data.num()[i];
-        if (v.m_value & v.m_valueX) return true;
+        если (v.m_value & v.m_valueX) вернуть true;
     }
-    return false;
+    вернуть false;
 }
 bool V3Number::isAnyXZ() const {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+    если (isDouble() || isString()) вернуть false;
+    для (целое i = 0; i < words(); ++i) {
+        если (m_data.num()[i].m_valueX) вернуть true;
     }
-    return false;
+    вернуть false;
 }
 bool V3Number::isAnyZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
+    если (isDouble() || isString()) вернуть false;
+    для (целое i = 0; i < words(); ++i) {
         const ValueAndX v = m_data.num()[i];
-        if (~v.m_value & v.m_valueX) return true;
+        если (~v.m_value & v.m_valueX) вернуть true;
     }
-    return false;
+    вернуть false;
 }
 bool V3Number::isLtXZ(const V3Number& rhs) const {
     // Include X/Z in comparisons for sort ordering
-    if (isString()) return toString() < rhs.toString();
-    if (isDouble()) return toDouble() < rhs.toDouble();
-    for (int bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
-        if (bitIs1(bit) && rhs.bitIs0(bit)) return true;
-        if (rhs.bitIs1(bit) && bitIs0(bit)) return false;
-        if (bitIsXZ(bit)) return true;
-        if (rhs.bitIsXZ(bit)) return false;
+    если (isString()) вернуть toString() < rhs.toString();
+    если (isDouble()) вернуть toDouble() < rhs.toDouble();
+    для (целое bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
+        если (bitIs1(bit) && rhs.bitIs0(bit)) вернуть true;
+        если (rhs.bitIs1(bit) && bitIs0(bit)) вернуть false;
+        если (bitIsXZ(bit)) вернуть true;
+        если (rhs.bitIsXZ(bit)) вернуть false;
     }
-    return false;
+    вернуть false;
 }
-int V3Number::countX(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsX(lsb + bitn)) ++count;
+целое V3Number::countX(целое lsb, целое nbits) const VL_MT_SAFE {
+    целое count = 0;
+    для (целое bitn = 0; bitn < nbits; ++bitn) {
+        если (lsb + bitn >= width()) вернуть count;
+        если (bitIsX(lsb + bitn)) ++count;
     }
-    return count;
+    вернуть count;
 }
-int V3Number::countZ(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsZ(lsb + bitn)) ++count;
+целое V3Number::countZ(целое lsb, целое nbits) const VL_MT_SAFE {
+    целое count = 0;
+    для (целое bitn = 0; bitn < nbits; ++bitn) {
+        если (lsb + bitn >= width()) вернуть count;
+        если (bitIsZ(lsb + bitn)) ++count;
     }
-    return count;
+    вернуть count;
 }
 
-int V3Number::widthToFit() const {
-    for (int bit = width() - 1; bit > 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
+целое V3Number::widthToFit() const {
+    для (целое bit = width() - 1; bit > 0; bit--) {
+        если (!bitIs0(bit)) вернуть bit + 1;
     }
-    return 1;  // one bit even if number is == 0
+    вернуть 1;  // one bit even if number is == 0
 }
 
 uint32_t V3Number::countBits(const V3Number& ctrl) const {
     // Correct number of zero bits/width matters
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
+    целое n = 0;
+    для (целое bit = 0; bit < width(); ++bit) {
         switch (ctrl.bitIs(0)) {
         case '0':
-            if (bitIs0(bit)) ++n;
+            если (bitIs0(bit)) ++n;
             break;
         case '1':
-            if (bitIs1(bit)) ++n;
+            если (bitIs1(bit)) ++n;
             break;
         case 'x':
-            if (bitIsX(bit)) ++n;
+            если (bitIsX(bit)) ++n;
             break;
         case 'z':
-            if (bitIsZ(bit)) ++n;
+            если (bitIsZ(bit)) ++n;
             break;
         }
     }
-    return n;
+    вернуть n;
 }
 
 uint32_t V3Number::countBits(const V3Number& ctrl1, const V3Number& ctrl2,
                              const V3Number& ctrl3) const {
     // Correct number of zero bits/width matters
-    int n = countBits(ctrl1);
-    if (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += countBits(ctrl2);
-    if ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
+    целое n = countBits(ctrl1);
+    если (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += countBits(ctrl2);
+    если ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
         n += countBits(ctrl3);
     }
-    return n;
+    вернуть n;
 }
 
 uint32_t V3Number::countOnes() const {
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
-        if (bitIs1(bit)) ++n;
+    целое n = 0;
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (bitIs1(bit)) ++n;
     }
-    return n;
+    вернуть n;
 }
 
 uint32_t V3Number::mostSetBitP1() const {
-    for (int bit = width() - 1; bit >= 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
+    для (целое bit = width() - 1; bit >= 0; bit--) {
+        если (!bitIs0(bit)) вернуть bit + 1;
     }
-    return 0;
+    вернуть 0;
 }
 
 uint32_t V3Number::leastSetBitP1() const {
-    for (int bit = 0; bit < width(); ++bit) {
-        if (!bitIs0(bit)) return bit + 1;
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (!bitIs0(bit)) вернуть bit + 1;
     }
-    return 0;
+    вернуть 0;
 }
 
 //======================================================================
@@ -1382,40 +1382,40 @@ V3Number& V3Number::opBitsNonXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opBitsOne(const V3Number& lhs) {  // 1->1, 0/X/Z->0
     // op i, L(lhs) bit return
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit)) setBit(bit, 1);
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opBitsXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsXZ(bit)) setBit(bit, 1);
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIsXZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opBitsZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsZ(bit)) setBit(bit, 1);
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIsZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    вернуть *this;
 }
 
 //======================================================================
@@ -1426,15 +1426,15 @@ V3Number& V3Number::opRedOr(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            return setSingleBits(1);
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+    для (целое bit = 0; bit < lhs.width(); ++bit) {
+        если (lhs.bitIs1(bit)) {
+            вернуть setSingleBits(1);
+        } иначе если (lhs.bitIs0(bit)) {
+        } иначе {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opRedAnd(const V3Number& lhs) {
@@ -1443,15 +1443,15 @@ V3Number& V3Number::opRedAnd(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
-            return setSingleBits(0);
-        } else if (lhs.bitIs1(bit)) {
-        } else {
+    для (целое bit = 0; bit < lhs.width(); ++bit) {
+        если (lhs.bitIs0(bit)) {
+            вернуть setSingleBits(0);
+        } иначе если (lhs.bitIs1(bit)) {
+        } иначе {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opRedXor(const V3Number& lhs) {
@@ -1459,19 +1459,19 @@ V3Number& V3Number::opRedXor(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            if (outc == 1) {
+    для (целое bit = 0; bit < lhs.width(); ++bit) {
+        если (lhs.bitIs1(bit)) {
+            если (outc == 1) {
                 outc = 0;
-            } else if (outc == 0) {
+            } иначе если (outc == 0) {
                 outc = 1;
             }
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+        } иначе если (lhs.bitIs0(bit)) {
+        } иначе {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opCountBits(const V3Number& expr, const V3Number& ctrl1, const V3Number& ctrl2,
@@ -1482,59 +1482,59 @@ V3Number& V3Number::opCountBits(const V3Number& expr, const V3Number& ctrl1, con
     setZero();
     m_data.num()[0].m_value = expr.countBits(ctrl1, ctrl2, ctrl3);
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opCountOnes(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+    если (lhs.isFourState()) вернуть setAllBitsX();
     setZero();
     m_data.num()[0].m_value = lhs.countOnes();
     opCleanThis();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opIsUnknown(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
-    return setSingleBits(lhs.isAnyXZ());
+    вернуть setSingleBits(lhs.isAnyXZ());
 }
 V3Number& V3Number::opOneHot(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() == 1);
+    если (lhs.isFourState()) вернуть setAllBitsX();
+    вернуть setSingleBits(lhs.countOnes() == 1);
 }
 V3Number& V3Number::opOneHot0(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() <= 1);
+    если (lhs.isFourState()) вернуть setAllBitsX();
+    вернуть setSingleBits(lhs.countOnes() <= 1);
 }
 V3Number& V3Number::opCLog2(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+    если (lhs.isFourState()) вернуть setAllBitsX();
     // IE if 4, this algorithm didn't pre-subtract 1, so we need to post-correct now
-    const int adjust = (lhs.countOnes() == 1) ? 0 : 1;
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    const целое adjust = (lhs.countOnes() == 1) ? 0 : 1;
+    для (целое bit = lhs.width() - 1; bit >= 0; bit--) {
+        если (lhs.bitIs1(bit)) {
             setLong(bit + adjust);
-            return *this;
+            вернуть *this;
         }
     }
     setZero();
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opMostSetBitP1(const V3Number& lhs) {
     // Most-significant set bit plus one (bit-width / find-last-set); 0 if value is zero
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    если (lhs.isFourState()) вернуть setAllBitsX();
+    для (целое bit = lhs.width() - 1; bit >= 0; bit--) {
+        если (lhs.bitIs1(bit)) {
             setLong(bit + 1);
-            return *this;
+            вернуть *this;
         }
     }
     setZero();
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opLogNot(const V3Number& lhs) {
@@ -1542,17 +1542,17 @@ V3Number& V3Number::opLogNot(const V3Number& lhs) {
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     // op i, 1 bit return
     char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    для (целое bit = 0; bit < lhs.width(); ++bit) {
+        если (lhs.bitIs1(bit)) {
             outc = 0;
             goto last;
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+        } иначе если (lhs.bitIs0(bit)) {
+        } иначе {
             outc = 'x';
         }
     }
 last:
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opNot(const V3Number& lhs) {
@@ -1561,14 +1561,14 @@ V3Number& V3Number::opNot(const V3Number& lhs) {
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     // op i, L(lhs) bit return
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit)) {
+        } иначе если (lhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opAnd(const V3Number& lhs, const V3Number& rhs) {
@@ -1576,15 +1576,15 @@ V3Number& V3Number::opAnd(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
-        } else {
+        } иначе если (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
+        } иначе {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opOr(const V3Number& lhs, const V3Number& rhs) {
@@ -1592,16 +1592,16 @@ V3Number& V3Number::opOr(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
+        } иначе если (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
             // 0
-        } else {
+        } иначе {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opXor(const V3Number& lhs, const V3Number& rhs) {
@@ -1609,31 +1609,31 @@ V3Number& V3Number::opXor(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        } иначе если (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
+        } иначе если (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
         // else zero
     }
-    return *this;
+    вернуть *this;
 }
 
-void V3Number::fillBits(int destLsb, int width, char value) {
+void V3Number::fillBits(целое destLsb, целое width, char value) {
     UASSERT(destLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
+    если (!width) вернуть;
     UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
 
     const uint32_t valueWord = value == '1' || value == 'x' || value == 1 || value == 3 ? ~0U : 0;
     const uint32_t xWord = value == 'z' || value == 'x' || value == 2 || value == 3 ? ~0U : 0;
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int word = firstWord; word <= lastWord; ++word) {
-        const int wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
-        const int wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
+    const целое firstWord = VL_BITWORD_E(destLsb);
+    const целое lastWord = VL_BITWORD_E(destLsb + width - 1);
+    для (целое word = firstWord; word <= lastWord; ++word) {
+        const целое wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
+        const целое wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
         const uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
         ValueAndX& dest = m_data.num()[word];
         dest.m_value = (dest.m_value & ~mask) | (valueWord & mask);
@@ -1641,27 +1641,27 @@ void V3Number::fillBits(int destLsb, int width, char value) {
     }
 }
 
-void V3Number::copyBits(int destLsb, const V3Number& source, int sourceLsb, int width) {
+void V3Number::copyBits(целое destLsb, const V3Number& source, целое sourceLsb, целое width) {
     UASSERT(destLsb >= 0 && sourceLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
+    если (!width) вернуть;
     UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
     UASSERT(width <= source.width() - sourceLsb, "Source bit range exceeds number width");
 
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int destWord = firstWord; destWord <= lastWord; ++destWord) {
-        const int destBit = std::max(destLsb, destWord * VL_EDATASIZE);
-        const int destOffset = VL_BITBIT_E(destBit);
-        const int sourceBit = sourceLsb + destBit - destLsb;
-        const int sourceWord = VL_BITWORD_E(sourceBit);
-        const int sourceOffset = VL_BITBIT_E(sourceBit);
-        const int copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
+    const целое firstWord = VL_BITWORD_E(destLsb);
+    const целое lastWord = VL_BITWORD_E(destLsb + width - 1);
+    для (целое destWord = firstWord; destWord <= lastWord; ++destWord) {
+        const целое destBit = std::max(destLsb, destWord * VL_EDATASIZE);
+        const целое destOffset = VL_BITBIT_E(destBit);
+        const целое sourceBit = sourceLsb + destBit - destLsb;
+        const целое sourceWord = VL_BITWORD_E(sourceBit);
+        const целое sourceOffset = VL_BITBIT_E(sourceBit);
+        const целое copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
         const uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
 
         const ValueAndX& sourceLo = source.m_data.num()[sourceWord];
         uint32_t value = sourceLo.m_value >> sourceOffset;
         uint32_t valueX = sourceLo.m_valueX >> sourceOffset;
-        if (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
+        если (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
             const ValueAndX& sourceHi = source.m_data.num()[sourceWord + 1];
             value |= sourceHi.m_value << (VL_EDATASIZE - sourceOffset);
             valueX |= sourceHi.m_valueX << (VL_EDATASIZE - sourceOffset);
@@ -1679,19 +1679,19 @@ V3Number& V3Number::opConcat(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized() || !rhs.sized()) {
+    если (!lhs.sized() || !rhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in concatenations.");
     }
     copyBits(0, rhs, 0, rhs.width());
     copyBits(rhs.width(), lhs, 0, lhs.width());
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opLenN(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_STRING_ARGS1(lhs);
     setQuad(lhs.toString().length());
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opRepl(const V3Number& lhs,
@@ -1700,10 +1700,10 @@ V3Number& V3Number::opRepl(const V3Number& lhs,
     // See also error in V3Width
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (!lhs.sized()) {
+    если (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in replications.");
     }
-    return opRepl(lhs, rhs.toUInt());
+    вернуть opRepl(lhs, rhs.toUInt());
 }
 
 V3Number& V3Number::opRepl(const V3Number& lhs,
@@ -1711,19 +1711,19 @@ V3Number& V3Number::opRepl(const V3Number& lhs,
     // i op repl, L(i)*value(rhs) bit return
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (v3Global.opt.replicationLimit()
+    если (v3Global.opt.replicationLimit()
         && rhsval > static_cast<uint32_t>(v3Global.opt.replicationLimit())) {
         v3warn(WIDTHCONCAT, "Replication of more that --replication-limit "
                                 << v3Global.opt.replicationLimit() << " is suspect: " << rhsval);
     }
     setZero();
-    for (unsigned times = 0; times < rhsval; ++times) {
+    для (unsigned times = 0; times < rhsval; ++times) {
         const uint64_t destLsb = uint64_t{times} * lhs.width();
-        if (destLsb >= static_cast<uint32_t>(width())) break;
-        copyBits(static_cast<int>(destLsb), lhs, 0,
-                 std::min(lhs.width(), width() - static_cast<int>(destLsb)));
+        если (destLsb >= static_cast<uint32_t>(width())) break;
+        copyBits(static_cast<целое>(destLsb), lhs, 0,
+                 std::min(lhs.width(), width() - static_cast<целое>(destLsb)));
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opStreamL(const V3Number& lhs, const V3Number& rhs) {
@@ -1731,16 +1731,16 @@ V3Number& V3Number::opStreamL(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized()) {
+    если (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in streams.");
     }
     // Slice size should never exceed the lhs width
-    const int ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
-    for (int istart = 0; istart < lhs.width(); istart += ssize) {
-        const int ostart = std::max(0, lhs.width() - ssize - istart);
+    const целое ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
+    для (целое istart = 0; istart < lhs.width(); istart += ssize) {
+        const целое ostart = std::max(0, lhs.width() - ssize - istart);
         copyBits(ostart, lhs, istart, std::min(ssize, lhs.width() - istart));
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opLogAnd(const V3Number& lhs, const V3Number& rhs) {
@@ -1749,24 +1749,24 @@ V3Number& V3Number::opLogAnd(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char loutc = 0;
     char routc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    для (целое bit = 0; bit < lhs.width(); ++bit) {
+        если (lhs.bitIs1(bit)) {
             loutc = 1;
             break;
         }
-        if (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
+        если (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    для (целое bit = 0; bit < rhs.width(); ++bit) {
+        если (rhs.bitIs1(bit)) {
             routc = 1;
             break;
         }
-        if (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
+        если (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
     }
     char outc = 'x';
-    if (routc == 1 && loutc == 1) outc = 1;
-    if (routc == 0 || loutc == 0) outc = 0;
-    return setSingleBits(outc);
+    если (routc == 1 && loutc == 1) outc = 1;
+    если (routc == 0 || loutc == 0) outc = 0;
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opLogOr(const V3Number& lhs, const V3Number& rhs) {
@@ -1774,22 +1774,22 @@ V3Number& V3Number::opLogOr(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    для (целое bit = 0; bit < lhs.width(); ++bit) {
+        если (lhs.bitIs1(bit)) {
             outc = 1;
             goto last;
         }
-        if (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        если (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    для (целое bit = 0; bit < rhs.width(); ++bit) {
+        если (rhs.bitIs1(bit)) {
             outc = 1;
             goto last;
         }
-        if (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        если (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opLogIf(const V3Number& lhs, const V3Number& rhs) {
@@ -1798,7 +1798,7 @@ V3Number& V3Number::opLogIf(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     V3Number lnot = lhs;
     lnot.opLogNot(lhs);
-    return opLogOr(lnot, rhs);
+    вернуть opLogOr(lnot, rhs);
 }
 
 V3Number& V3Number::opLogEq(const V3Number& lhs, const V3Number& rhs) {
@@ -1809,10 +1809,10 @@ V3Number& V3Number::opLogEq(const V3Number& lhs, const V3Number& rhs) {
     ifa.opLogIf(lhs, rhs);
     V3Number ifb = rhs;
     ifb.opLogIf(rhs, lhs);
-    return opLogAnd(ifa, ifb);
+    вернуть opLogAnd(ifa, ifb);
 }
 
-V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
+V3Number& V3Number::opAtoN(const V3Number& lhs, целое base) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_STRING_ARGS1(lhs);
     UASSERT(base == AstAtoN::ATOREAL || base == 2 || base == 8 || base == 10 || base == 16,
@@ -1823,12 +1823,12 @@ V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
     // IEEE 1800-2023 6.16.9 says '_' may exist.
     str.erase(std::remove(str.begin(), str.end(), '_'), str.end());
 
-    if (base == AstAtoN::ATOREAL) return setDouble(std::atof(str.c_str()));
+    если (base == AstAtoN::ATOREAL) вернуть setDouble(std::atof(str.c_str()));
 
     errno = 0;
     auto v = std::strtol(str.c_str(), nullptr, base);
-    if (errno != 0) v = 0;
-    return setLongS(static_cast<int32_t>(v));
+    если (errno != 0) v = 0;
+    вернуть setLongS(static_cast<int32_t>(v));
 }
 
 V3Number& V3Number::opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
@@ -1839,8 +1839,8 @@ V3Number& V3Number::opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Nu
     const int32_t c = ths.toSInt() & 0xFF;
     // 6.16.2:str.putc(i, c) does not change the value when i < 0 || i >= str.len() || c == 0
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length() && c != 0) lstring[i] = c;
-    return setString(lstring);
+    если (0 <= i && static_cast<uint32_t>(i) < lstring.length() && c != 0) lstring[i] = c;
+    вернуть setString(lstring);
 }
 
 V3Number& V3Number::opGetcN(const V3Number& lhs, const V3Number& rhs) {
@@ -1851,8 +1851,8 @@ V3Number& V3Number::opGetcN(const V3Number& lhs, const V3Number& rhs) {
     int32_t v = 0;
     // 6.16.3:str.getc(i) returns 0 if i < 0 || i >= str.len()
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length()) v = lstring[i];
-    return setLong(v);
+    если (0 <= i && static_cast<uint32_t>(i) < lstring.length()) v = lstring[i];
+    вернуть setLong(v);
 }
 
 V3Number& V3Number::opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
@@ -1864,9 +1864,9 @@ V3Number& V3Number::opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3
     // 6.16.8:str.substr(i, j) returns an empty string when i < 0 || j < i || j >= str.len()
     // when evaluating the third condition, j must be positive because 0 <= i <= j is guaranteed by
     // the former two conditions.
-    if (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.length()) return setString("");
+    если (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.length()) вернуть setString("");
     // The second parameter of std::string::substr(i, n) is length, not position as SystemVerilog.
-    return setString(lstring.substr(i, j - i + 1));
+    вернуть setString(lstring.substr(i, j - i + 1));
 }
 
 V3Number& V3Number::opCompareNN(const V3Number& lhs, const V3Number& rhs, bool ignoreCase) {
@@ -1874,144 +1874,144 @@ V3Number& V3Number::opCompareNN(const V3Number& lhs, const V3Number& rhs, bool i
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
     // SystemVerilog Language Standard does not allow a string variable to contain '\0'.
     // So C functions such as strcmp() can correctly compare strings.
-    int result;
+    целое result;
     const string lstring = lhs.toString();
     const string rstring = rhs.toString();
-    if (ignoreCase) {
+    если (ignoreCase) {
         result = VL_STRCASECMP(lstring.c_str(), rstring.c_str());
-    } else {
+    } иначе {
         result = std::strcmp(lstring.c_str(), rstring.c_str());
     }
-    return setLongS(result);
+    вернуть setLongS(result);
 }
 
 V3Number& V3Number::opEq(const V3Number& lhs, const V3Number& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opEqN(lhs, rhs);
-    if (lhs.isDouble()) return opEqD(lhs, rhs);
+    если (lhs.isString()) вернуть opEqN(lhs, rhs);
+    если (lhs.isDouble()) вернуть opEqD(lhs, rhs);
     char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    для (целое bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        если (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 0;
             goto last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        если (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 0;
             goto last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        если (lhs.bitIsXZ(bit)) outc = 'x';
+        если (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opNeq(const V3Number& lhs, const V3Number& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opNeqN(lhs, rhs);
-    if (lhs.isDouble()) return opNeqD(lhs, rhs);
+    если (lhs.isString()) вернуть opNeqN(lhs, rhs);
+    если (lhs.isDouble()) вернуть opNeqD(lhs, rhs);
     char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    для (целое bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        если (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 1;
             goto last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        если (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 1;
             goto last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        если (lhs.bitIsXZ(bit)) outc = 'x';
+        если (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Hash V3Number::toHash() const {
     // Shouldmatch isCaseEq
-    if (isString()) return V3Hash{toString()};
-    if (isDouble()) return V3Hash{toDouble()};
+    если (isString()) вернуть V3Hash{toString()};
+    если (isDouble()) вернуть V3Hash{toDouble()};
     V3Hash hash{width()};
-    for (int i = 0; i < words(); ++i) hash += m_data.num()[i].m_value;
-    return hash;
+    для (целое i = 0; i < words(); ++i) hash += m_data.num()[i].m_value;
+    вернуть hash;
 }
 
 bool V3Number::isCaseEq(const V3Number& rhs) const {
     // Should match toHash
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    if (isString()) return toString() == rhs.toString();
-    if (isDouble()) return toDouble() == rhs.toDouble();
-    if (width() != rhs.width()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (!(m_data.num()[i] == rhs.m_data.num()[i])) return false;
+    если (isString()) вернуть toString() == rhs.toString();
+    если (isDouble()) вернуть toDouble() == rhs.toDouble();
+    если (width() != rhs.width()) вернуть false;
+    для (целое i = 0; i < words(); ++i) {
+        если (!(m_data.num()[i] == rhs.m_data.num()[i])) вернуть false;
     }
-    return true;
+    вернуть true;
 }
 
 V3Number& V3Number::opCaseEq(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
+    вернуть setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
 }
 
 V3Number& V3Number::opCaseNeq(const V3Number& lhs, const V3Number& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     char outc = 0;
-    if (lhs.isString()) {
-        return opNeqN(lhs, rhs);
-    } else if (lhs.isDouble()) {
-        return opNeqD(lhs, rhs);
+    если (lhs.isString()) {
+        вернуть opNeqN(lhs, rhs);
+    } иначе если (lhs.isDouble()) {
+        вернуть opNeqD(lhs, rhs);
     }
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+    для (целое bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        если (lhs.bitIs(bit) != rhs.bitIs(bit)) {
             outc = 1;
             goto last;
         }
     }
 last:
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opWildEq(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+    для (целое bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        если (!rhs.bitIsXZ(bit)) {
+            если (lhs.bitIsXZ(bit)) {
                 outc = 'x';
                 goto last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            если (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 0;
                 goto last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opWildNeq(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+    для (целое bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        если (!rhs.bitIsXZ(bit)) {
+            если (lhs.bitIsXZ(bit)) {
                 outc = 'x';
                 goto last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            если (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 1;
                 goto last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opGt(const V3Number& lhs, const V3Number& rhs) {
@@ -2019,13 +2019,13 @@ V3Number& V3Number::opGt(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
-        if (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+    для (целое bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        если (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
+        если (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
+        если (lhs.bitIsXZ(bit)) outc = 'x';
+        если (rhs.bitIsXZ(bit)) outc = 'x';
     }
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opGtS(const V3Number& lhs, const V3Number& rhs) {
@@ -2034,62 +2034,62 @@ V3Number& V3Number::opGtS(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
     {
-        const int mbit = std::max(lhs.width() - 1, rhs.width() - 1);
-        if (lhs.bitIsXZ(mbit)) {
+        const целое mbit = std::max(lhs.width() - 1, rhs.width() - 1);
+        если (lhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (rhs.bitIsXZ(mbit)) {
+        } иначе если (rhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
+        } иначе если (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
             outc = 1;  // + > -
-        } else if (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
+        } иначе если (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
             outc = 0;  // - !> +
-        } else {
+        } иначе {
             // both positive or negative, normal >
-            for (int bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
-                if (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
-                if (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
-                if (lhs.bitIsXZ(bit)) outc = 'x';
-                if (rhs.bitIsXZ(bit)) outc = 'x';
+            для (целое bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
+                если (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
+                если (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
+                если (lhs.bitIsXZ(bit)) outc = 'x';
+                если (rhs.bitIsXZ(bit)) outc = 'x';
             }
         }
     }
-    return setSingleBits(outc);
+    вернуть setSingleBits(outc);
 }
 
 V3Number& V3Number::opGte(const V3Number& lhs, const V3Number& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGt(lhs, rhs);
+    если (eq.isNeqZero()) вернуть eq;  // Return true
+    вернуть opGt(lhs, rhs);
 }
 
 V3Number& V3Number::opGteS(const V3Number& lhs, const V3Number& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGtS(lhs, rhs);
+    если (eq.isNeqZero()) вернуть eq;  // Return true
+    вернуть opGtS(lhs, rhs);
 }
 
-V3Number& V3Number::opLt(const V3Number& lhs, const V3Number& rhs) { return opGt(rhs, lhs); }
-V3Number& V3Number::opLte(const V3Number& lhs, const V3Number& rhs) { return opGte(rhs, lhs); }
-V3Number& V3Number::opLtS(const V3Number& lhs, const V3Number& rhs) { return opGtS(rhs, lhs); }
-V3Number& V3Number::opLteS(const V3Number& lhs, const V3Number& rhs) { return opGteS(rhs, lhs); }
+V3Number& V3Number::opLt(const V3Number& lhs, const V3Number& rhs) { вернуть opGt(rhs, lhs); }
+V3Number& V3Number::opLte(const V3Number& lhs, const V3Number& rhs) { вернуть opGte(rhs, lhs); }
+V3Number& V3Number::opLtS(const V3Number& lhs, const V3Number& rhs) { вернуть opGtS(rhs, lhs); }
+V3Number& V3Number::opLteS(const V3Number& lhs, const V3Number& rhs) { вернуть opGteS(rhs, lhs); }
 
 V3Number& V3Number::opShiftR(const V3Number& lhs, const V3Number& rhs) {
     // L(lhs) bit return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    если (rhs.isFourState()) вернуть setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
+    если (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) вернуть *this;
     const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(lhs.width())) {
-        copyBits(0, lhs, static_cast<int>(rhsval),
-                 std::min(width(), lhs.width() - static_cast<int>(rhsval)));
+    если (rhsval < static_cast<uint32_t>(lhs.width())) {
+        copyBits(0, lhs, static_cast<целое>(rhsval),
+                 std::min(width(), lhs.width() - static_cast<целое>(rhsval)));
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opShiftRS(const V3Number& lhs, const V3Number& rhs, uint32_t lbits) {
@@ -2099,35 +2099,35 @@ V3Number& V3Number::opShiftRS(const V3Number& lhs, const V3Number& rhs, uint32_t
     // We presume it is signed; as that's V3Width's job to convert to opShiftR
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    если (rhs.isFourState()) вернуть setAllBitsX();
     setZero();
     const bool overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
-    if (!overflow) {
+    если (!overflow) {
         const uint32_t rhsval = rhs.toUInt();
-        if (rhsval < lbits) {
-            const int copyWidth = std::min(width(), static_cast<int>(lbits - rhsval));
-            copyBits(0, lhs, static_cast<int>(rhsval), copyWidth);
+        если (rhsval < lbits) {
+            const целое copyWidth = std::min(width(), static_cast<целое>(lbits - rhsval));
+            copyBits(0, lhs, static_cast<целое>(rhsval), copyWidth);
             fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-            return *this;
+            вернуть *this;
         }
     }
     fillBits(0, width(), lhs.bitIs(lbits - 1));  // '0/'1/'x/'z
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opShiftL(const V3Number& lhs, const V3Number& rhs) {
     // L(lhs) bit return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    если (rhs.isFourState()) вернуть setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
+    если (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) вернуть *this;
     const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(width())) {
-        copyBits(static_cast<int>(rhsval), lhs, 0,
-                 std::min(width() - static_cast<int>(rhsval), lhs.width()));
+    если (rhsval < static_cast<uint32_t>(width())) {
+        copyBits(static_cast<целое>(rhsval), lhs, 0,
+                 std::min(width() - static_cast<целое>(rhsval), lhs.width()));
     }
-    return *this;
+    вернуть *this;
 }
 
 //======================================================================
@@ -2138,22 +2138,22 @@ V3Number& V3Number::opNegate(const V3Number& lhs) {
     // op i, L(lhs) bit return
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+    если (lhs.isFourState()) вернуть setAllBitsX();
     V3Number notlhs(&lhs, width());
     notlhs.opNot(lhs);
     const V3Number one(&lhs, width(), 1);
     opAdd(notlhs, one);
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opAdd(const V3Number& lhs, const V3Number& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
     setZero();
     // Addem
     uint64_t carry = 0;
-    for (int word = 0; word < words(); ++word) {
+    для (целое word = 0; word < words(); ++word) {
         const uint64_t lwordval = lhs.m_data.num()[word].m_value;
         const uint64_t rwordval = rhs.m_data.num()[word].m_value;
         const uint64_t sum = lwordval + rwordval + carry;
@@ -2161,78 +2161,78 @@ V3Number& V3Number::opAdd(const V3Number& lhs, const V3Number& rhs) {
         carry = sum > 0xffffffffULL;
     }
     opCleanThis();  // Just in case it produced extra bits in result
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opSub(const V3Number& lhs, const V3Number& rhs) {
     // Correct number of zero bits/width matters
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
     V3Number negrhs(&rhs, width());
     negrhs.opNegate(rhs);
-    return opAdd(lhs, negrhs);
+    вернуть opAdd(lhs, negrhs);
 }
 V3Number& V3Number::opMul(const V3Number& lhs, const V3Number& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
     setZero();
-    if (width() <= 64) {
+    если (width() <= 64) {
         setQuad(lhs.toUQuad() * rhs.toUQuad());
         opCleanThis();  // Mult produces extra bits in result
-    } else {
-        for (int lword = 0; lword < lhs.words(); ++lword) {
+    } иначе {
+        для (целое lword = 0; lword < lhs.words(); ++lword) {
             const uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.num()[lword].m_value);
-            if (lwordval == 0) continue;
-            for (int rword = 0; rword < rhs.words(); ++rword) {
+            если (lwordval == 0) continue;
+            для (целое rword = 0; rword < rhs.words(); ++rword) {
                 const uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.num()[rword].m_value);
-                if (rwordval == 0) continue;
+                если (rwordval == 0) continue;
                 uint64_t mul = lwordval * rwordval;
-                for (int qword = lword + rword; qword < words(); ++qword) {
+                для (целое qword = lword + rword; qword < words(); ++qword) {
                     mul += static_cast<uint64_t>(m_data.num()[qword].m_value);
                     m_data.num()[qword].m_value = (mul & 0xffffffffULL);
                     mul = (mul >> 32ULL) & 0xffffffffULL;
-                    if (mul == 0) break;
+                    если (mul == 0) break;
                 }
             }
         }
         opCleanThis();  // Mult produces extra bits in result
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opMulS(const V3Number& lhs, const V3Number& rhs) {
     // Signed multiply
     // Correct number of zero bits/width matters
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
     V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    если (lhs.isNegative()) lhsNoSign.opNegate(lhs);
     V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    если (rhs.isNegative()) rhsNoSign.opNegate(rhs);
     const V3Number qNoSign = opMul(lhsNoSign, rhsNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    если ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } иначе {
         opAssign(qNoSign);
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opDiv(const V3Number& lhs, const V3Number& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // UINFO(9, "opdiv " << lhs << " " << rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
+    если (rhs.isEqZero()) вернуть setAllBitsXRemoved();
+    если (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() / rhs.toUQuad());
-        return *this;
-    } else {
+        вернуть *this;
+    } иначе {
         // Wide division
-        return opModDivGuts(lhs, rhs, false);
+        вернуть opModDivGuts(lhs, rhs, false);
     }
 }
 V3Number& V3Number::opDivS(const V3Number& lhs, const V3Number& rhs) {
@@ -2241,34 +2241,34 @@ V3Number& V3Number::opDivS(const V3Number& lhs, const V3Number& rhs) {
     // UINFO(9, ">>divs-start " << lhs << " " << rhs);
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
+    если (rhs.isEqZero()) вернуть setAllBitsXRemoved();
     V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    если (lhs.isNegative()) lhsNoSign.opNegate(lhs);
     V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    если (rhs.isNegative()) rhsNoSign.opNegate(rhs);
     const V3Number qNoSign = opDiv(lhsNoSign, rhsNoSign);
     // UINFO(9, " >divs-mid " << lhs << " " << rhs << " " << qNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    если ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } иначе {
         opAssign(qNoSign);
     }
     UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *this);
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opModDiv(const V3Number& lhs, const V3Number& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
+    если (rhs.isEqZero()) вернуть setAllBitsXRemoved();
+    если (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() % rhs.toUQuad());
-        return *this;
-    } else {
+        вернуть *this;
+    } иначе {
         // Wide modulus
-        return opModDivGuts(lhs, rhs, true);
+        вернуть opModDivGuts(lhs, rhs, true);
     }
 }
 V3Number& V3Number::opModDivS(const V3Number& lhs, const V3Number& rhs) {
@@ -2276,19 +2276,19 @@ V3Number& V3Number::opModDivS(const V3Number& lhs, const V3Number& rhs) {
     // Correct number of zero bits/width matters
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
+    если (rhs.isEqZero()) вернуть setAllBitsXRemoved();
     V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    если (lhs.isNegative()) lhsNoSign.opNegate(lhs);
     V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    если (rhs.isNegative()) rhsNoSign.opNegate(rhs);
     const V3Number qNoSign = opModDiv(lhsNoSign, rhsNoSign);
-    if (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
+    если (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
         opNegate(qNoSign);
-    } else {
+    } иначе {
         opAssign(qNoSign);
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus) {
     // See Knuth Algorithm D.  Computes u/v = q.r
@@ -2297,21 +2297,21 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // Find MSB and check for zero.
-    const int lWords = lhs.words();
-    const int umsbp1 = lhs.mostSetBitP1();  // dividend
-    const int vmsbp1 = rhs.mostSetBitP1();  // divisor
-    if (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
+    const целое lWords = lhs.words();
+    const целое umsbp1 = lhs.mostSetBitP1();  // dividend
+    const целое vmsbp1 = rhs.mostSetBitP1();  // divisor
+    если (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
         || VL_UNLIKELY(umsbp1 == 0)) {  // 0/x so short circuit and return 0
         UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        вернуть *this;
     }
 
-    const int uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
-    const int vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
+    const целое uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
+    const целое vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
 
-    if (vw == 1) {  // Single divisor word breaks rest of algorithm
+    если (vw == 1) {  // Single divisor word breaks rest of algorithm
         uint64_t k = 0;
-        for (int j = uw - 1; j >= 0; j--) {
+        для (целое j = uw - 1; j >= 0; j--) {
             const uint64_t unw64
                 = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.num()[j].m_value));
             m_data.num()[j].m_value = unw64 / static_cast<uint64_t>(rhs.m_data.num()[0].m_value);
@@ -2321,12 +2321,12 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
         }
         UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *this << " rem=0x" << std::hex
                                    << k << std::dec);
-        if (is_modulus) {
+        если (is_modulus) {
             setZero();
             m_data.num()[0].m_value = k;
         }
         opCleanThis();
-        return *this;
+        вернуть *this;
     }
 
     // +1 word as we may shift during normalization
@@ -2334,26 +2334,26 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     uint32_t vn[VL_MULS_MAX_WORDS + 1];  // v normalized
 
     // Zero for ease of debugging and to save having to zero for shifts
-    for (int i = 0; i < lWords; ++i) m_data.num()[i].m_value = 0;
-    for (int i = 0; i < lWords + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
+    для (целое i = 0; i < lWords; ++i) m_data.num()[i].m_value = 0;
+    для (целое i = 0; i < lWords + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
 
     // Algorithm requires divisor MSB to be set
     // Copy and shift to normalize divisor so MSB of vn[vw-1] is set
-    const int s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
+    const целое s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
     const uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
-    for (int i = vw - 1; i > 0; i--) {
+    для (целое i = vw - 1; i > 0; i--) {
         vn[i] = (rhs.m_data.num()[i].m_value << s)
                 | (shift_mask & (rhs.m_data.num()[i - 1].m_value >> (32 - s)));
     }
     vn[0] = rhs.m_data.num()[0].m_value << s;
 
     // Copy and shift dividend by same amount; may set new upper word
-    if (s) {
+    если (s) {
         un[uw] = lhs.m_data.num()[uw - 1].m_value >> (32 - s);
-    } else {
+    } иначе {
         un[uw] = 0;
     }
-    for (int i = uw - 1; i > 0; i--) {
+    для (целое i = uw - 1; i > 0; i--) {
         un[i] = (lhs.m_data.num()[i].m_value << s)
                 | (shift_mask & (lhs.m_data.num()[i - 1].m_value >> (32 - s)));
     }
@@ -2364,7 +2364,7 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
     // Main loop
-    for (int j = uw - vw; j >= 0; j--) {
+    для (целое j = uw - vw; j >= 0; j--) {
         // Estimate
         const uint64_t unw64
             = (static_cast<uint64_t>(un[j + vw]) << 32ULL | static_cast<uint64_t>(un[j + vw - 1]));
@@ -2372,15 +2372,15 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
         uint64_t rhat = unw64 - qhat * static_cast<uint64_t>(vn[vw - 1]);
 
     again:
-        if (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
+        если (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
             qhat = qhat - 1;
             rhat = rhat + vn[vw - 1];
-            if (rhat < 0x100000000ULL) goto again;
+            если (rhat < 0x100000000ULL) goto again;
         }
 
         int64_t t = 0;  // Must be signed
         uint64_t k = 0;
-        for (int i = 0; i < vw; ++i) {
+        для (целое i = 0; i < vw; ++i) {
             const uint64_t p = qhat * vn[i];  // Multiply by estimate
             t = un[i + j] - k - (p & 0xFFFFFFFFULL);  // Subtract
             un[i + j] = t;
@@ -2390,11 +2390,11 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
         un[j + vw] = t;
         m_data.num()[j].m_value = qhat;  // Save quotient digit
 
-        if (t < 0) {
+        если (t < 0) {
             // Over subtracted; correct by adding back
             m_data.num()[j].m_value--;
             k = 0;
-            for (int i = 0; i < vw; ++i) {
+            для (целое i = 0; i < vw; ++i) {
                 t = static_cast<uint64_t>(un[i + j]) + static_cast<uint64_t>(vn[i]) + k;
                 un[i + j] = t;
                 k = t >> 32ULL;
@@ -2407,19 +2407,19 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
-    if (is_modulus) {  // modulus
+    если (is_modulus) {  // modulus
         // Need to reverse normalization on copy to output
-        for (int i = 0; i < vw; ++i) {
+        для (целое i = 0; i < vw; ++i) {
             m_data.num()[i].m_value = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
         }
-        for (int i = vw; i < lWords; ++i) m_data.num()[i].m_value = 0;
+        для (целое i = vw; i < lWords; ++i) m_data.num()[i].m_value = 0;
         opCleanThis();
         UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *this);
-        return *this;
-    } else {  // division
+        вернуть *this;
+    } иначе {  // division
         opCleanThis();
         UINFO(9, "  opmoddiv-div " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        вернуть *this;
     }
 }
 
@@ -2428,106 +2428,106 @@ V3Number& V3Number::opPow(const V3Number& lhs, const V3Number& rhs, bool lsign, 
     // L(i) bit return, if any 4-state, 4-state return
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setValue1();  // Overrides lhs 0 -> return 1
+    если (lhs.isFourState() || rhs.isFourState()) вернуть setAllBitsX();
+    если (rhs.isEqZero()) вернуть setValue1();  // Overrides lhs 0 -> return 1
     // We may want to special case when the lhs is 2, so we can get larger outputs
-    if (rsign && rhs.isNegative()) {
-        if (lhs.isEqZero()) {
-            return setAllBitsXRemoved();
-        } else if (lhs.isEqOne()) {
-            return setValue1();
-        } else if (lsign && lhs.isEqAllOnes()) {
-            if (rhs.bitIs1(0)) {
-                return setAllBits1();  // -1^odd=-1
-            } else {
-                return setValue1();  // -1^even=1
+    если (rsign && rhs.isNegative()) {
+        если (lhs.isEqZero()) {
+            вернуть setAllBitsXRemoved();
+        } иначе если (lhs.isEqOne()) {
+            вернуть setValue1();
+        } иначе если (lsign && lhs.isEqAllOnes()) {
+            если (rhs.bitIs1(0)) {
+                вернуть setAllBits1();  // -1^odd=-1
+            } иначе {
+                вернуть setValue1();  // -1^even=1
             }
         }
-        return setZero();
+        вернуть setZero();
     }
-    if (lhs.isEqZero()) return setZero();
+    если (lhs.isEqZero()) вернуть setZero();
     setZero();
     m_data.num()[0].m_value = 1;
     V3Number power(&lhs, width());
     power.opAssign(lhs);
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (bit > 0) {  // power = power*power
+    для (целое bit = 0; bit < rhs.width(); ++bit) {
+        если (bit > 0) {  // power = power*power
             V3Number lastPower(&lhs, width());
             lastPower.opAssign(power);
             power.opMul(lastPower, lastPower);
         }
-        if (rhs.bitIs1(bit)) {  // out *= power
+        если (rhs.bitIs1(bit)) {  // out *= power
             V3Number lastOut(&lhs, width());
             lastOut.opAssign(*this);
             opMul(lastOut, power);
             // UINFO(0, "pow "<<lhs<<" "<<rhs<<" b"<<bit<<" pow="<<power<<" now="<<*this);
         }
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opPowSU(const V3Number& lhs, const V3Number& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, false);
+    вернуть opPow(lhs, rhs, true, false);
 }
 V3Number& V3Number::opPowSS(const V3Number& lhs, const V3Number& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, true);
+    вернуть opPow(lhs, rhs, true, true);
 }
 V3Number& V3Number::opPowUS(const V3Number& lhs, const V3Number& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, false, true);
+    вернуть opPow(lhs, rhs, false, true);
 }
 
 V3Number& V3Number::opBufIf1(const V3Number& ens, const V3Number& if1s) {
     NUM_ASSERT_OP_ARGS2(ens, if1s);
     NUM_ASSERT_LOGIC_ARGS2(ens, if1s);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (ens.bitIs1(bit)) {
+    для (целое bit = 0; bit < width(); ++bit) {
+        если (ens.bitIs1(bit)) {
             setBit(bit, if1s.bitIs(bit));
-        } else {
+        } иначе {
             setBit(bit, 'z');
         }
     }
-    return *this;
+    вернуть *this;
 }
 
 // Sets all bits in range to the given value
 V3Number& V3Number::opSetRange(uint32_t lsb, uint32_t width, char bitValue) {
-    if (lsb < static_cast<uint32_t>(this->width())) {
-        fillBits(static_cast<int>(lsb),
-                 static_cast<int>(std::min(width, static_cast<uint32_t>(this->width()) - lsb)),
+    если (lsb < static_cast<uint32_t>(this->width())) {
+        fillBits(static_cast<целое>(lsb),
+                 static_cast<целое>(std::min(width, static_cast<uint32_t>(this->width()) - lsb)),
                  bitValue);
     }
-    return *this;
+    вернуть *this;
 }
 
-V3Number& V3Number::opAssign(const V3Number& lhs) { return opAssignNonXZ(lhs, false); }
+V3Number& V3Number::opAssign(const V3Number& lhs) { вернуть opAssignNonXZ(lhs, false); }
 V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
     // Note may be a width change during the assign.
     // Special case: opAssign unlike other ops, allows this an assignment
     // to itself; V3Simulate does this when hits "foo=foo;"
     // So no: NUM_ASSERT_OP_ARGS1(lhs);
-    if (this != &lhs) {
-        if (VL_UNLIKELY(lhs.isNull())) {
+    если (this != &lhs) {
+        если (VL_UNLIKELY(lhs.isNull())) {
             m_data.m_isNull = true;
-        } else if (isString()) {
-            if (VL_UNLIKELY(!lhs.isString())) {
+        } иначе если (isString()) {
+            если (VL_UNLIKELY(!lhs.isString())) {
                 // Numbers can still be strings
                 m_data.str() = lhs.toString();
-            } else {
+            } иначе {
                 m_data.str() = lhs.m_data.str();
             }
-        } else if (VL_UNLIKELY(lhs.isString())) {
+        } иначе если (VL_UNLIKELY(lhs.isString())) {
             // Non-compatible types, see also opAToN()
             setZero();
-        } else if (lhs.isDouble()) {
+        } иначе если (lhs.isDouble()) {
             setDouble(lhs.toDouble());
-        } else if (!ignoreXZ) {
+        } иначе если (!ignoreXZ) {
             setZero();
             copyBits(0, lhs, 0, std::min(width(), lhs.width()));
-        } else {
-            for (int word = 0; word < words(); ++word) {
+        } иначе {
+            для (целое word = 0; word < words(); ++word) {
                 const uint32_t value = word < lhs.words() ? lhs.m_data.num()[word].m_value
                                                                 & ~lhs.m_data.num()[word].m_valueX
                                                           : 0;
@@ -2536,7 +2536,7 @@ V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
             opCleanThis();
         }
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opNToI(const V3Number& lhs) {
@@ -2545,14 +2545,14 @@ V3Number& V3Number::opNToI(const V3Number& lhs) {
     NUM_ASSERT_STRING_ARGS1(lhs);
     setZero();
     const string& str = lhs.toString();
-    for (size_t n = 0; n < str.length(); ++n) {
+    для (size_t n = 0; n < str.length(); ++n) {
         const char c = str[str.length() - 1 - n];
-        for (size_t cbit = 0; cbit < 8; ++cbit) {
+        для (size_t cbit = 0; cbit < 8; ++cbit) {
             const std::bitset<8> sbit{static_cast<unsigned long long>(c)};
             setBit(n * 8 + cbit, sbit.test(cbit) ? 1 : 0);
         }
     }
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opExtendS(const V3Number& lhs, uint32_t lbits) {
@@ -2560,10 +2560,10 @@ V3Number& V3Number::opExtendS(const V3Number& lhs, uint32_t lbits) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    const целое copyWidth = std::min(width(), static_cast<целое>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    вернуть *this;
 }
 
 V3Number& V3Number::opExtendXZ(const V3Number& lhs, uint32_t lbits) {
@@ -2571,13 +2571,13 @@ V3Number& V3Number::opExtendXZ(const V3Number& lhs, uint32_t lbits) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    const целое copyWidth = std::min(width(), static_cast<целое>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    вернуть *this;
 }
 
-V3Number& V3Number::opClean(const V3Number& lhs, uint32_t bits) { return opSel(lhs, bits - 1, 0); }
+V3Number& V3Number::opClean(const V3Number& lhs, uint32_t bits) { вернуть opSel(lhs, bits - 1, 0); }
 
 void V3Number::opCleanThis(bool warnOnTruncation) {
     // Clean MSB of number
@@ -2585,7 +2585,7 @@ void V3Number::opCleanThis(bool warnOnTruncation) {
     const ValueAndX v = m_data.num()[words() - 1];
     const uint32_t newValueMsb = v.m_value & hiWordMask();
     const uint32_t newValueXMsb = v.m_valueX & hiWordMask();
-    if (warnOnTruncation && (newValueMsb != v.m_value || newValueXMsb != v.m_valueX)) {
+    если (warnOnTruncation && (newValueMsb != v.m_value || newValueXMsb != v.m_valueX)) {
         // Displaying in decimal avoids hiWordMask truncation
         v3warn(WIDTHTRUNC,
                "Value too large for " << width() << " bit number: " << displayed("%d"));
@@ -2597,42 +2597,42 @@ V3Number& V3Number::opSel(const V3Number& lhs, const V3Number& msb, const V3Numb
     NUM_ASSERT_OP_ARGS3(lhs, msb, lsb);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS2(msb, lsb);
-    if (lsb.isFourState() || msb.isFourState()) return setAllBitsX();
-    return opSel(lhs, msb.toUInt(), lsb.toUInt());
+    если (lsb.isFourState() || msb.isFourState()) вернуть setAllBitsX();
+    вернуть opSel(lhs, msb.toUInt(), lsb.toUInt());
 }
 
 V3Number& V3Number::opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    int copyWidth = 0;
-    if (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
+    целое copyWidth = 0;
+    если (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
         const uint64_t selectedWidth = uint64_t{msbval} - lsbval + 1;
-        copyWidth = static_cast<int>(
+        copyWidth = static_cast<целое>(
             std::min({static_cast<uint64_t>(width()), static_cast<uint64_t>(lhs.width()) - lsbval,
                       selectedWidth}));
     }
-    copyBits(0, lhs, copyWidth ? static_cast<int>(lsbval) : 0, copyWidth);
+    copyBits(0, lhs, copyWidth ? static_cast<целое>(lsbval) : 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, v3Global.constRemoveXs() ? 0 : 'x');
     // UINFO(0, "RANGE " << lhs << " " << msb << " " << lsb << " = " << *this);
-    return *this;
+    вернуть *this;
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, const V3Number& lsb, int width) {
-    return opSelInto(lhs, lsb.toSInt(), width);
+V3Number& V3Number::opSelInto(const V3Number& lhs, const V3Number& lsb, целое width) {
+    вернуть opSelInto(lhs, lsb.toSInt(), width);
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, int lsbval, int width) {
+V3Number& V3Number::opSelInto(const V3Number& lhs, целое lsbval, целое width) {
     // this[lsbval+width-1 : lsbval] = lhs;  Other bits of this are not affected
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(lhs);
     UASSERT(lsbval >= 0, "Negative destination bit range");
-    const int copyWidth = std::max(0, std::min({width, lhs.width(), this->width() - lsbval}));
+    const целое copyWidth = std::max(0, std::min({width, lhs.width(), this->width() - lsbval}));
     copyBits(lsbval, lhs, 0, copyWidth);
-    const int fillWidth
+    const целое fillWidth
         = std::max(0, std::min(width - copyWidth, this->width() - lsbval - copyWidth));
     fillBits(lsbval + copyWidth, fillWidth, v3Global.constRemoveXs() ? 0 : 'x');
-    return *this;
+    вернуть *this;
 }
 
 //======================================================================
@@ -2647,23 +2647,23 @@ V3Number& V3Number::opIToRD(const V3Number& lhs, bool isSigned) {
     noxz.opAssignNonXZ(lhs);
     double d = 0;
     const bool negate = isSigned && noxz.isNegative();
-    if (negate) {
+    если (negate) {
         const V3Number noxz_signed = noxz;
         noxz.opNegate(noxz_signed);
     }
-    for (int bit = noxz.width() - 1; bit >= 0; bit--) {
+    для (целое bit = noxz.width() - 1; bit >= 0; bit--) {
         // Some precision might be lost in this add, that's what we want
-        if (noxz.bitIs1(bit)) d += exp2(bit);
+        если (noxz.bitIs1(bit)) d += exp2(bit);
     }
-    if (negate) d = -d;
-    return setDouble(d);
+    если (negate) d = -d;
+    вернуть setDouble(d);
 }
 V3Number& V3Number::opRToIS(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_DOUBLE_ARGS1(lhs);
     const double v = VL_TRUNC(lhs.toDouble());
     const int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
-    return setLongS(i);
+    вернуть setLongS(i);
 }
 V3Number& V3Number::opRToIRoundS(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
@@ -2677,24 +2677,24 @@ V3Number& V3Number::opRToIRoundS(const V3Number& lhs) {
     u.d = v;
     (void)u.d;
 
-    const int exp = static_cast<int>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
-    const int lsb = exp - 52;
+    const целое exp = static_cast<целое>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
+    const целое lsb = exp - 52;
     const uint64_t mantissa = (u.q & VL_MASK_Q(52)) | (1ULL << 52);
-    if (v != 0) {
+    если (v != 0) {
         // IEEE format: [63]=sign [62:52]=exp+1023 [51:0]=mantissa
         // This does not need to support subnormals as they are sub-integral
-        for (int bit = 0; bit <= 52; ++bit) {
-            if (mantissa & (1ULL << bit)) {
-                const int outbit = bit + lsb;
-                if (outbit >= 0) setBit(outbit, 1);
+        для (целое bit = 0; bit <= 52; ++bit) {
+            если (mantissa & (1ULL << bit)) {
+                const целое outbit = bit + lsb;
+                если (outbit >= 0) setBit(outbit, 1);
             }
         }
-        if (v < 0) {
+        если (v < 0) {
             const V3Number noSign = *this;
             opNegate(noSign);
         }
     }
-    return *this;
+    вернуть *this;
 }
 V3Number& V3Number::opRealToBits(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
@@ -2705,7 +2705,7 @@ V3Number& V3Number::opRealToBits(const V3Number& lhs) {
         uint64_t m_v;
     } u;
     u.m_d = lhs.toDouble();
-    return setQuad(u.m_v);
+    вернуть setQuad(u.m_v);
 }
 V3Number& V3Number::opBitsToRealD(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
@@ -2715,71 +2715,71 @@ V3Number& V3Number::opBitsToRealD(const V3Number& lhs) {
         uint64_t m_v;
     } u;
     u.m_v = lhs.toUQuad();
-    return setDouble(u.m_d);
+    вернуть setDouble(u.m_d);
 }
 V3Number& V3Number::opNegateD(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    return setDouble(-lhs.toDouble());
+    вернуть setDouble(-lhs.toDouble());
 }
 V3Number& V3Number::opAddD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() + rhs.toDouble());
+    вернуть setDouble(lhs.toDouble() + rhs.toDouble());
 }
 V3Number& V3Number::opSubD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() - rhs.toDouble());
+    вернуть setDouble(lhs.toDouble() - rhs.toDouble());
 }
 V3Number& V3Number::opMulD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() * rhs.toDouble());
+    вернуть setDouble(lhs.toDouble() * rhs.toDouble());
 }
 V3Number& V3Number::opDivD(const V3Number& lhs, const V3Number& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() / rhs.toDouble());
+    вернуть setDouble(lhs.toDouble() / rhs.toDouble());
 }
 V3Number& V3Number::opPowD(const V3Number& lhs, const V3Number& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(pow(lhs.toDouble(), rhs.toDouble()));
+    вернуть setDouble(pow(lhs.toDouble(), rhs.toDouble()));
 }
 V3Number& V3Number::opEqD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() == rhs.toDouble());
+    вернуть setSingleBits(lhs.toDouble() == rhs.toDouble());
 }
 V3Number& V3Number::opNeqD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() != rhs.toDouble());
+    вернуть setSingleBits(lhs.toDouble() != rhs.toDouble());
 }
 V3Number& V3Number::opGtD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() > rhs.toDouble());
+    вернуть setSingleBits(lhs.toDouble() > rhs.toDouble());
 }
 V3Number& V3Number::opGteD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() >= rhs.toDouble());
+    вернуть setSingleBits(lhs.toDouble() >= rhs.toDouble());
 }
 V3Number& V3Number::opLtD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() < rhs.toDouble());
+    вернуть setSingleBits(lhs.toDouble() < rhs.toDouble());
 }
 V3Number& V3Number::opLteD(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() <= rhs.toDouble());
+    вернуть setSingleBits(lhs.toDouble() <= rhs.toDouble());
 }
 
 //======================================================================
@@ -2788,67 +2788,67 @@ V3Number& V3Number::opLteD(const V3Number& lhs, const V3Number& rhs) {
 V3Number& V3Number::opConcatN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setString(lhs.toString() + rhs.toString());
+    вернуть setString(lhs.toString() + rhs.toString());
 }
 V3Number& V3Number::opReplN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_STRING_ARGS1(lhs);
     NUM_ASSERT_LOGIC_ARGS1(rhs);
-    return opReplN(lhs, rhs.toUInt());
+    вернуть opReplN(lhs, rhs.toUInt());
 }
 V3Number& V3Number::opReplN(const V3Number& lhs, uint32_t rhsval) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_STRING_ARGS1(lhs);
     string out;
     out.reserve(lhs.toString().length() * rhsval);
-    for (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
-    return setString(out);
+    для (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
+    вернуть setString(out);
 }
 V3Number& V3Number::opCvtPackString(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
-    return setString(lhs.toString());
+    вернуть setString(lhs.toString());
 }
 V3Number& V3Number::opToLowerN(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_STRING_ARGS1(lhs);
     const std::string out = VString::downcase(lhs.toString());
-    return setString(out);
+    вернуть setString(out);
 }
 V3Number& V3Number::opToUpperN(const V3Number& lhs) {
     NUM_ASSERT_OP_ARGS1(lhs);
     NUM_ASSERT_STRING_ARGS1(lhs);
     const std::string out = VString::upcase(lhs.toString());
-    return setString(out);
+    вернуть setString(out);
 }
 
 V3Number& V3Number::opEqN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() == rhs.toString());
+    вернуть setSingleBits(lhs.toString() == rhs.toString());
 }
 V3Number& V3Number::opNeqN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() != rhs.toString());
+    вернуть setSingleBits(lhs.toString() != rhs.toString());
 }
 V3Number& V3Number::opGtN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() > rhs.toString());
+    вернуть setSingleBits(lhs.toString() > rhs.toString());
 }
 V3Number& V3Number::opGteN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() >= rhs.toString());
+    вернуть setSingleBits(lhs.toString() >= rhs.toString());
 }
 V3Number& V3Number::opLtN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() < rhs.toString());
+    вернуть setSingleBits(lhs.toString() < rhs.toString());
 }
 V3Number& V3Number::opLteN(const V3Number& lhs, const V3Number& rhs) {
     NUM_ASSERT_OP_ARGS2(lhs, rhs);
     NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() <= rhs.toString());
+    вернуть setSingleBits(lhs.toString() <= rhs.toString());
 }
 
 //======================================================================

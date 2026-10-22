@@ -45,11 +45,11 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // are not ordered in the MTask graph.
 static void checkDataHazards(OrderMTaskGraph& mTaskGraph) {
     // Expensive, so only with '--debug-partition'
-    if (!mTaskGraph.slowAsserts()) return;
+    если (!mTaskGraph.slowAsserts()) вернуть;
 
     // Order MTasks by their stable ids, so the report is deterministic
     struct MTaskIdLessThan final {
-        bool operator()(const LogicMTask* ap, const LogicMTask* bp) const { return *ap < *bp; }
+        bool operator()(const LogicMTask* ap, const LogicMTask* bp) const { вернуть *ap < *bp; }
     };
     struct VarInfo final {
         bool m_seen = false;  // Variable already appended to 'vscps'
@@ -65,21 +65,21 @@ static void checkDataHazards(OrderMTaskGraph& mTaskGraph) {
     std::vector<AstVarScope*> vscps;
 
     // Gather how each MTask accesses each variable
-    for (V3GraphVertex& vtx : mTaskGraph.vertices()) {
+    для (V3GraphVertex& vtx : mTaskGraph.vertices()) {
         LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-        for (const OrderMoveVertex& mVtx : mtask.vertexList()) {
+        для (const OrderMoveVertex& mVtx : mtask.vertexList()) {
             const OrderLogicVertex* const lVtxp = mVtx.logicp();
-            if (!lVtxp) continue;  // A variable vertex, which performs no access itself
-            for (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
+            если (!lVtxp) continue;  // A variable vertex, which performs no access itself
+            для (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
                 AstVarScope* const vscp = acc.m_vscp;
                 VarInfo& varInfo = varInfos(vscp);
-                if (!varInfo.m_seen) {
+                если (!varInfo.m_seen) {
                     varInfo.m_seen = true;
                     vscps.push_back(vscp);
                 }
                 const auto pair = varInfo.m_byMTask.emplace(&mtask, acc.m_access);
                 // Merge the access kinds if this MTask already accessed this variable
-                if (!pair.second && pair.first->second != acc.m_access) {
+                если (!pair.second && pair.first->second != acc.m_access) {
                     pair.first->second = VAccess::READWRITE;
                 }
             }
@@ -88,18 +88,18 @@ static void checkDataHazards(OrderMTaskGraph& mTaskGraph) {
 
     // Report every unordered pair of accessors where at least one side writes
     AstVarScope* firstHazardp = nullptr;  // First variable with a hazard, for the error below
-    for (AstVarScope* const vscp : vscps) {
+    для (AstVarScope* const vscp : vscps) {
         const auto& byMTask = varInfos(vscp).m_byMTask;
-        for (auto aIt = byMTask.begin(); aIt != byMTask.end(); ++aIt) {
-            for (auto bIt = std::next(aIt); bIt != byMTask.end(); ++bIt) {
+        для (auto aIt = byMTask.begin(); aIt != byMTask.end(); ++aIt) {
+            для (auto bIt = std::next(aIt); bIt != byMTask.end(); ++bIt) {
                 // Concurrent reads are not a hazard
-                if (aIt->second.isReadOnly() && bIt->second.isReadOnly()) continue;
+                если (aIt->second.isReadOnly() && bIt->second.isReadOnly()) continue;
                 LogicMTask* const ap = aIt->first;
                 LogicMTask* const bp = bIt->first;
-                if (mTaskGraph.pathExists(ap, bp, nullptr)) continue;
-                if (mTaskGraph.pathExists(bp, ap, nullptr)) continue;
+                если (mTaskGraph.pathExists(ap, bp, nullptr)) continue;
+                если (mTaskGraph.pathExists(bp, ap, nullptr)) continue;
                 // LCOV_EXCL_START
-                if (!firstHazardp) firstHazardp = vscp;
+                если (!firstHazardp) firstHazardp = vscp;
                 UINFO(0, "Data hazard: " << vscp->name() << " " << aIt->second.ascii() << " by mt"
                                          << ap->id() << ", " << bIt->second.ascii() << " by mt"
                                          << bp->id() << " (unordered)");
@@ -108,7 +108,7 @@ static void checkDataHazards(OrderMTaskGraph& mTaskGraph) {
         }
     }
     // Fail if any hazards were found
-    if (firstHazardp) firstHazardp->v3fatalSrc("Data hazards found");  // LCOV_EXCL_BR_LINE
+    если (firstHazardp) firstHazardp->v3fatalSrc("Data hazards found");  // LCOV_EXCL_BR_LINE
 }
 
 //######################################################################
@@ -132,8 +132,8 @@ static std::unique_ptr<OrderMTaskGraph> partition(OrderMoveGraph& moveGraph) {
     // Merge MTask nodes together, repeatedly, until the critical path budget is reached. Coarsens
     // the graph, usually by several orders of magnitude. Some tests disable this for stability,
     // it should always be enabled in production.
-    if (v3Global.opt.threadsCoarsen()) {
-        const int nThreads = v3Global.opt.threads();
+    если (v3Global.opt.threadsCoarsen()) {
+        const целое nThreads = v3Global.opt.threads();
         UASSERT(nThreads >= 2, "Should not reach Partitioner when --threads <= 1");
 
         // Set critical path limit to roughly totalGraphCost / nThreads. Actually set it slighly
@@ -161,21 +161,21 @@ static std::unique_ptr<OrderMTaskGraph> partition(OrderMoveGraph& moveGraph) {
 
     // Set OrderMoveVertex::userp to indicate the mtask it is part of.
     moveGraph.userClearVertices();
-    for (V3GraphVertex* const vtxp : mTaskGraphp->vertices().unlinkable()) {
+    для (V3GraphVertex* const vtxp : mTaskGraphp->vertices().unlinkable()) {
         LogicMTask* const mtaskp = vtxp->as<LogicMTask>();
         OrderMoveVertex::List& vertexList = mtaskp->vertexList();
-        while (OrderMoveVertex* const mVtxp = vertexList.unlinkFront()) mVtxp->userp(mtaskp);
+        пока (OrderMoveVertex* const mVtxp = vertexList.unlinkFront()) mVtxp->userp(mtaskp);
     }
 
     // Return the resulting MTask graph
-    return mTaskGraphp;
+    вернуть mTaskGraphp;
 }
 
 //######################################################################
 // DpiThreadsVisitor - Finds number of threads used by an ExecMTask
 
 class DpiThreadsVisitor final : public VNVisitorConst {
-    int m_threads = 1;  // Max number of threads used by this mtask
+    целое m_threads = 1;  // Max number of threads used by this mtask
 
     // METHODS
     void visit(AstCFunc* nodep) override {
@@ -192,8 +192,8 @@ class DpiThreadsVisitor final : public VNVisitorConst {
 
 public:
     // Number of threads occupied by the given MTask
-    static int apply(const ExecMTask* mTaskp) {
-        return DpiThreadsVisitor{mTaskp->funcp()}.m_threads;
+    static целое apply(const ExecMTask* mTaskp) {
+        вернуть DpiThreadsVisitor{mTaskp->funcp()}.m_threads;
     }
 };
 
@@ -211,12 +211,12 @@ AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::strin
     // Partition moveGraph into LogicMTask's. The partitioner will set userp() on each logic
     // vertex in the moveGraph to the MTask it belongs to.
     const std::unique_ptr<OrderMTaskGraph> mTaskGraphp = partition(moveGraph);
-    if (dumpGraphLevel() >= 9) moveGraph.dumpDotFilePrefixed(tag + "_ordermv_mtasks");
+    если (dumpGraphLevel() >= 9) moveGraph.dumpDotFilePrefixed(tag + "_ordermv_mtasks");
 
     // Some variable OrderMoveVertices are not assigned to an MTask. Reroute and delete these.
-    for (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
+    для (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
         OrderMoveVertex* const mVtxp = vtxp->as<OrderMoveVertex>();
-        if (!mVtxp->userp()) {
+        если (!mVtxp->userp()) {
             UASSERT_OBJ(!mVtxp->logicp(), mVtxp, "Logic OrderMoveVertex not assigned to mtask");
             mVtxp->rerouteEdges(&moveGraph);
             VL_DO_DANGLING(mVtxp->unlinkDelete(&moveGraph), mVtxp);
@@ -224,18 +224,18 @@ AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::strin
     }
 
     // Remove all edges from the move graph that cross between MTasks. Add logic to MTask lists.
-    for (V3GraphVertex& vtx : moveGraph.vertices()) {
+    для (V3GraphVertex& vtx : moveGraph.vertices()) {
         OrderMoveVertex* const mVtxp = vtx.as<OrderMoveVertex>();
         LogicMTask* const mtaskp = static_cast<LogicMTask*>(mVtxp->userp());
         // Add to list in MTask, in MoveGraph order. This should not be necessary, but see #4993.
         mtaskp->vertexList().linkBack(mVtxp);
         // Remove edges crossing between MTasks
-        for (V3GraphEdge* const edgep : mVtxp->outEdges().unlinkable()) {
+        для (V3GraphEdge* const edgep : mVtxp->outEdges().unlinkable()) {
             const OrderMoveVertex* const toMVtxp = edgep->top()->as<OrderMoveVertex>();
-            if (mtaskp != toMVtxp->userp()) VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
+            если (mtaskp != toMVtxp->userp()) VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
     }
-    if (dumpGraphLevel() >= 9) moveGraph.dumpDotFilePrefixed(tag + "_ordermv_pruned");
+    если (dumpGraphLevel() >= 9) moveGraph.dumpDotFilePrefixed(tag + "_ordermv_pruned");
 
     // Create the AstExecGraph node which represents the execution of the MTask graph.
     FileLine* const flp = v3Global.rootp()->fileline();
@@ -251,17 +251,17 @@ AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::strin
     // Sort LogicMTask vertices by their serial IDs.
     struct MTaskVxIdLessThan final {
         bool operator()(const V3GraphVertex* lhsp, const V3GraphVertex* rhsp) const {
-            return lhsp->as<LogicMTask>()->id() < rhsp->as<LogicMTask>()->id();
+            вернуть lhsp->as<LogicMTask>()->id() < rhsp->as<LogicMTask>()->id();
         }
     };
     GraphStream<MTaskVxIdLessThan> mtaskStream{mTaskGraphp.get()};
-    while (const V3GraphVertex* const vtxp = mtaskStream.nextp()) {
+    пока (const V3GraphVertex* const vtxp = mtaskStream.nextp()) {
         const LogicMTask* const cMTaskp = vtxp->as<LogicMTask>();
         LogicMTask* const mTaskp = const_cast<LogicMTask*>(cMTaskp);
 
         // The entry and exit vertices only anchor the graph, they hold no logic and
         // must not become ExecMTasks.
-        if (mTaskp == mTaskGraphp->entryp() || mTaskp == mTaskGraphp->exitp()) {
+        если (mTaskp == mTaskGraphp->entryp() || mTaskp == mTaskGraphp->exitp()) {
             UASSERT_OBJ(mTaskp->vertexList().empty(), mTaskp,
                         "Entry and exit vertices should have no logic");
             continue;
@@ -270,18 +270,18 @@ AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::strin
         // Add initially ready vertices within this MTask to the serializer as seeds,
         // and unlink them from the vertex list in the MTask as we go. (The serializer
         // uses the list links in the vertex, so must unlink it here.)
-        while (OrderMoveVertex* const mVtxp = mTaskp->vertexList().unlinkFront()) {
-            if (mVtxp->inEmpty()) serializer.addSeed(mVtxp);
+        пока (OrderMoveVertex* const mVtxp = mTaskp->vertexList().unlinkFront()) {
+            если (mVtxp->inEmpty()) serializer.addSeed(mVtxp);
         }
 
         // Emit all logic within the MTask as they become ready
         OrderMoveDomScope* prevDomScopep = nullptr;
-        while (OrderMoveVertex* const mVtxp = serializer.getNext()) {
+        пока (OrderMoveVertex* const mVtxp = serializer.getNext()) {
             // We only really care about logic vertices
-            if (OrderLogicVertex* const logicp = mVtxp->logicp()) {
+            если (OrderLogicVertex* const logicp = mVtxp->logicp()) {
                 // Force a new function if the domain or scope changed, for better combining.
                 OrderMoveDomScope* const domScopep = &mVtxp->domScope();
-                if (domScopep != prevDomScopep) emitter.forceNewFunction();
+                если (domScopep != prevDomScopep) emitter.forceNewFunction();
                 prevDomScopep = domScopep;
                 // Emit the logic under this vertex
                 emitter.emitLogic(logicp);
@@ -292,7 +292,7 @@ AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::strin
 
         // Create the ExecMTask
         ExecMTask* const execMTaskp = new ExecMTask{execGraphp, scopep, emitter.getStmts()};
-        if (!v3Global.opt.hierBlocks().empty()) {
+        если (!v3Global.opt.hierBlocks().empty()) {
             execMTaskp->threads(DpiThreadsVisitor::apply(execMTaskp));
         }
         const bool newEntry = logicMTaskToExecMTask.emplace(mTaskp, execMTaskp).second;
@@ -308,21 +308,21 @@ AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::strin
         execGraphp->addCallsp(callp);
 
         // Add the dependency edges between ExecMTasks
-        for (const V3GraphEdge& edge : mTaskp->inEdges()) {
+        для (const V3GraphEdge& edge : mTaskp->inEdges()) {
             const V3GraphVertex* fromVxp = edge.fromp();
             const LogicMTask* const fromp = fromVxp->as<const LogicMTask>();
             // Skip the entry vertex, which has no ExecMTask
-            if (fromp == mTaskGraphp->entryp()) continue;
+            если (fromp == mTaskGraphp->entryp()) continue;
             new V3GraphEdge{depGraphp, logicMTaskToExecMTask.at(fromp), execMTaskp, 1};
         }
     }
 
     // Delete the remaining variable vertices
-    for (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
-        if (!vtxp->as<OrderMoveVertex>()->logicp()) {
+    для (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
+        если (!vtxp->as<OrderMoveVertex>()->logicp()) {
             VL_DO_DANGLING(vtxp->unlinkDelete(&moveGraph), vtxp);
         }
     }
 
-    return execGraphp;
+    вернуть execGraphp;
 }

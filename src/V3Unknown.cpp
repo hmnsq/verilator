@@ -65,11 +65,11 @@ class UnknownVisitor final : public VNVisitor {
     // METHODS
 
     void addVar(AstVar* varp) {
-        if (m_ftaskp) {
+        если (m_ftaskp) {
             varp->funcLocal(true);
             varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             m_ftaskp->prependStmtsp(varp);
-        } else {
+        } иначе {
             m_modp->prependStmtsp(varp);
         }
     }
@@ -80,37 +80,37 @@ class UnknownVisitor final : public VNVisitor {
         AstNodeExpr* prep = nodep;
 
         // Scan back to put the condlvalue above all selects (IE top of the lvalue)
-        while (VN_IS(prep->backp(), NodeSel) || VN_IS(prep->backp(), Sel)
+        пока (VN_IS(prep->backp(), NodeSel) || VN_IS(prep->backp(), Sel)
                || VN_IS(prep->backp(), MemberSel) || VN_IS(prep->backp(), StructSel)) {
             prep = VN_AS(prep->backp(), NodeExpr);
         }
-        if (VN_IS(prep->backp(), AssignForce) || VN_IS(prep->backp(), Release)) {
+        если (VN_IS(prep->backp(), AssignForce) || VN_IS(prep->backp(), Release)) {
             // The conversion done in this function breaks force and release statements
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Force / release statement with complex select expression");
             VL_DO_DANGLING(condp->deleteTree(), condp);
-            return;
+            вернуть;
         }
         FileLine* const fl = nodep->fileline();
         VL_DANGLING(nodep);  // Zap it so we don't use it by mistake - use prep
 
         // Already exists; rather than IF(a,... IF(b... optimize to IF(a&&b,
         // Saves us teaching V3Const how to optimize, and it won't be needed again.
-        if (const AstIf* const ifp = VN_AS(prep->user2p(), If)) {
+        если (const AstIf* const ifp = VN_AS(prep->user2p(), If)) {
             VNRelinker replaceHandle;
             AstNodeExpr* const earliercondp = ifp->condp()->unlinkFrBack(&replaceHandle);
             AstNodeExpr* const newp = new AstLogAnd{condp->fileline(), condp, earliercondp};
             UINFO(4, "Edit BOUNDLVALUE " << newp);
             replaceHandle.relink(newp);
-        } else {
+        } иначе {
             AstNode* stmtp = prep->backp();  // Grab above point before we replace 'prep'
-            while (!VN_IS(stmtp, NodeStmt)) stmtp = stmtp->backp();
+            пока (!VN_IS(stmtp, NodeStmt)) stmtp = stmtp->backp();
             VNRelinker replaceHandle;
             AstNode* const origStmtp = stmtp->unlinkFrBack(&replaceHandle);
             AstNode* elseStmtp = nullptr;
             const bool hasSideEffects = origStmtp->exists(
-                [](AstNode* const np) { return !np->isPure() || np->isTimingControl(); });
-            if (hasSideEffects) {
+                [](AstNode* const np) { вернуть !np->isPure() || np->isTimingControl(); });
+            если (hasSideEffects) {
                 // Copy original statement and replace `prep` with reference to tmp var to make
                 // sure that side effect will take place
                 m_statElses++;
@@ -134,34 +134,34 @@ class UnknownVisitor final : public VNVisitor {
         AstVar* const varp = new AstVar{nodep->fileline(), VVarType::XTEMP,
                                         m_xrandNames->get(nodep), nodep->dtypep()};
         addVar(varp);
-        return varp;
+        вернуть varp;
     }
 
     // Returns true if it is known at compile time that `msbConstp` is greater than or equal
     // `exprp`
     static bool isStaticlyGte(AstConst* const msbConstp, const AstNodeExpr* const exprp) {
-        if (msbConstp->width() >= exprp->width() && exprp->width() < 32
+        если (msbConstp->width() >= exprp->width() && exprp->width() < 32
             && msbConstp->num().toSInt() >= (1 << exprp->width()) - 1) {
-            return true;
+            вернуть true;
         }
-        if (const AstConst* const constp = VN_CAST(exprp, Const)) {
-            if (V3Number{msbConstp}.opGte(msbConstp->num(), constp->num()).isNeqZero()) {
-                return true;
+        если (const AstConst* const constp = VN_CAST(exprp, Const)) {
+            если (V3Number{msbConstp}.opGte(msbConstp->num(), constp->num()).isNeqZero()) {
+                вернуть true;
             }
         }
-        return false;
+        вернуть false;
     }
 
     AstNodeExpr* newExprStmtOrClone(AstNodeExpr*& exprp) {
-        if (!exprp->isPure()) {
+        если (!exprp->isPure()) {
             AstVar* const varp = createAddTemp(exprp);
             FileLine* const fl = exprp->fileline();
             exprp = new AstExprStmt{
                 fl, new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, exprp},
                 new AstVarRef{fl, varp, VAccess::READ}};
-            return new AstVarRef{fl, varp, VAccess::READ};
+            вернуть new AstVarRef{fl, varp, VAccess::READ};
         }
-        return exprp->cloneTreePure(false);
+        вернуть exprp->cloneTreePure(false);
     }
 
     // VISITORS
@@ -175,7 +175,7 @@ class UnknownVisitor final : public VNVisitor {
             m_modp = nodep;
             m_constXCvt = true;
             // Class X randomization causes Vxrand in strange places, so disable
-            if (VN_IS(nodep, Class)) m_allowXUnique = false;
+            если (VN_IS(nodep, Class)) m_allowXUnique = false;
             m_lvboundNames.reset();
             xrandNames.swap(m_xrandNames);
             iterateChildren(nodep);
@@ -201,32 +201,32 @@ class UnknownVisitor final : public VNVisitor {
     }
     void visit(AstVar* nodep) override {
         VL_RESTORER(m_allowXUnique);
-        if (nodep->isParam()) m_allowXUnique = false;
+        если (nodep->isParam()) m_allowXUnique = false;
         iterateChildren(nodep);
     }
     void visitEqNeqCase(AstNodeBiop* nodep) {
         UINFO(4, " N/EQCASE->EQ " << nodep);
         V3Const::constifyEdit(nodep->lhsp());  // lhsp may change
         V3Const::constifyEdit(nodep->rhsp());  // rhsp may change
-        if (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
+        если (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
             // Both sides are constant, node can be constant
             VL_DO_DANGLING(V3Const::constifyEdit(nodep), nodep);
-            return;
-        } else {
+            вернуть;
+        } иначе {
             AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
             AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
             AstNodeExpr* newp;
             // If we got ==1'bx it can never be true (but 1'bx==1'bx can be!)
-            if (((VN_IS(lhsp, Const) && VN_AS(lhsp, Const)->num().isFourState())
+            если (((VN_IS(lhsp, Const) && VN_AS(lhsp, Const)->num().isFourState())
                  || (VN_IS(rhsp, Const) && VN_AS(rhsp, Const)->num().isFourState()))) {
                 newp = new AstConst(nodep->fileline(), AstConst::WidthedValue{}, 1,
                                     (VN_IS(nodep, EqCase) ? 0 : 1));
                 VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
                 VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-            } else {
-                if (VN_IS(nodep, EqCase)) {
+            } иначе {
+                если (VN_IS(nodep, EqCase)) {
                     newp = new AstEq{nodep->fileline(), lhsp, rhsp};
-                } else {
+                } иначе {
                     newp = new AstNeq{nodep->fileline(), lhsp, rhsp};
                 }
             }
@@ -240,22 +240,22 @@ class UnknownVisitor final : public VNVisitor {
         UINFO(4, " N/EQWILD->EQ " << nodep);
         V3Const::constifyEdit(nodep->lhsp());  // lhsp may change
         V3Const::constifyEdit(nodep->rhsp());  // rhsp may change
-        if (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
+        если (VN_IS(nodep->lhsp(), Const) && VN_IS(nodep->rhsp(), Const)) {
             // Both sides are constant, node can be constant
             VL_DO_DANGLING(V3Const::constifyEdit(nodep), nodep);
-            return;
-        } else {
+            вернуть;
+        } иначе {
             AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
             AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
             AstNodeExpr* newp;
-            if (!VN_IS(rhsp, Const)) {
-                if (rhsp->dtypep()->isFourstate()) {
+            если (!VN_IS(rhsp, Const)) {
+                если (rhsp->dtypep()->isFourstate()) {
                     nodep->v3warn(
                         E_UNSUPPORTED,
                         "Unsupported: RHS of ==? or !=? is fourstate but not a constant");
                 }
                 newp = new AstEq{nodep->fileline(), lhsp, rhsp};
-            } else {
+            } иначе {
                 // X or Z's become mask, ala case statements.
                 V3Number nummask{rhsp, rhsp->width()};
                 nummask.opBitsNonXZ(VN_AS(rhsp, Const)->num());
@@ -264,9 +264,9 @@ class UnknownVisitor final : public VNVisitor {
                 AstNodeExpr* const and1p = new AstAnd{nodep->fileline(), lhsp,
                                                       new AstConst{nodep->fileline(), nummask}};
                 AstNodeExpr* const and2p = new AstConst{nodep->fileline(), numval};
-                if (VN_IS(nodep, EqWild)) {
+                если (VN_IS(nodep, EqWild)) {
                     newp = new AstEq{nodep->fileline(), and1p, and2p};
-                } else {
+                } иначе {
                     newp = new AstNeq{nodep->fileline(), and1p, and2p};
                 }
                 VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
@@ -299,35 +299,35 @@ class UnknownVisitor final : public VNVisitor {
         UINFO(4, " COUNTBITS(" << dropop[0] << dropop[1] << dropop[2] << " " << nodep);
 
         AstNodeExpr* nonXp = nullptr;
-        if (!dropop[0]) {
+        если (!dropop[0]) {
             nonXp = nodep->rhsp();
-        } else if (!dropop[1]) {
+        } иначе если (!dropop[1]) {
             nonXp = nodep->thsp();
-        } else if (!dropop[2]) {
+        } иначе если (!dropop[2]) {
             nonXp = nodep->fhsp();
-        } else {  // Was all X-s
+        } иначе {  // Was all X-s
             UINFO(4, " COUNTBITS('x)->0 " << nodep);
             AstConst* const newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
             nodep->replaceWith(newp);
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            вернуть;
         }
-        if (dropop[0]) {
+        если (dropop[0]) {
             nodep->rhsp()->unlinkFrBack()->deleteTree();
             nodep->rhsp(nonXp->cloneTreePure(true));
         }
-        if (dropop[1]) {
+        если (dropop[1]) {
             nodep->thsp()->unlinkFrBack()->deleteTree();
             nodep->thsp(nonXp->cloneTreePure(true));
         }
-        if (dropop[2]) {
+        если (dropop[2]) {
             nodep->fhsp()->unlinkFrBack()->deleteTree();
             nodep->fhsp(nonXp->cloneTreePure(true));
         }
         iterateChildren(nodep);
     }
     void visit(AstConst* nodep) override {
-        if (m_constXCvt && nodep->num().isFourState()) {
+        если (m_constXCvt && nodep->num().isFourState()) {
             UINFO(4, " CONST4 " << nodep);
             UINFOTREE(9, nodep, "", "Const_old");
             // CONST(num) -> VARREF(newvarp)
@@ -337,19 +337,19 @@ class UnknownVisitor final : public VNVisitor {
             numb1.opBitsOne(nodep->num());
             V3Number numbx{nodep, nodep->width()};
             numbx.opBitsXZ(nodep->num());
-            if (!m_allowXUnique || v3Global.opt.xAssign() != "unique") {
+            если (!m_allowXUnique || v3Global.opt.xAssign() != "unique") {
                 // All X bits just become 0; fastest simulation, but not nice
                 V3Number numnew{nodep, numb1.width()};
-                if (v3Global.opt.xAssign() == "1") {
+                если (v3Global.opt.xAssign() == "1") {
                     numnew.opOr(numb1, numbx);
-                } else {
+                } иначе {
                     numnew.opAssign(numb1);
                 }
                 AstConst* const newp = new AstConst{nodep->fileline(), numnew};
                 nodep->replaceWith(newp);
                 VL_DO_DANGLING(nodep->deleteTree(), nodep);
                 UINFO(4, "   -> " << newp);
-            } else {
+            } иначе {
                 // Make a Vxrand variable
                 // We use the special XTEMP type so it doesn't break pure functions
                 UASSERT_OBJ(m_modp, nodep, "X number not under module");
@@ -387,11 +387,11 @@ class UnknownVisitor final : public VNVisitor {
 
     void visit(AstSel* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
+        если (!nodep->user1SetOnce()) {
             // Guard against reading/writing past end of bit vector array
             const AstNode* const basefromp = nodep->baseFromp(true);
             bool lvalue = false;
-            if (const AstNodeVarRef* const varrefp = VN_CAST(basefromp, NodeVarRef)) {
+            если (const AstNodeVarRef* const varrefp = VN_CAST(basefromp, NodeVarRef)) {
                 lvalue = varrefp->access().isWriteOrRW();
             }
             // Find range of dtype we are selecting from
@@ -405,16 +405,16 @@ class UnknownVisitor final : public VNVisitor {
             AstConst* const maxmsbConstp = new AstConst{
                 nodep->fileline(), AstConst::WidthedValue{}, nodep->lsbp()->width(), maxmsb};
             AstNodeExpr* lsbp = V3Const::constifyEdit(nodep->lsbp()->unlinkFrBack());
-            if (isStaticlyGte(maxmsbConstp, lsbp)) {
+            если (isStaticlyGte(maxmsbConstp, lsbp)) {
                 // We don't need to add a conditional; we know the existing expression is ok
                 VL_DO_DANGLING(maxmsbConstp->deleteTree(), maxmsbConstp);
                 nodep->lsbp(lsbp);
-                return;
+                вернуть;
             }
             nodep->lsbp(newExprStmtOrClone(lsbp));
             AstNodeExpr* condp
                 = V3Const::constifyEdit(new AstGte{nodep->fileline(), maxmsbConstp, lsbp});
-            if (!lvalue) {
+            если (!lvalue) {
                 // SEL(...) -> COND(LTE(bit<=maxmsb), ARRAYSEL(...), {width{1'bx}})
                 VNRelinker replaceHandle;
                 nodep->unlinkFrBack(&replaceHandle);
@@ -422,19 +422,19 @@ class UnknownVisitor final : public VNVisitor {
                 xnum.setAllBitsX();
                 AstNodeExpr* const xexprp = new AstConst{nodep->fileline(), xnum};
                 AstNodeExpr* const newp = [&]() -> AstNodeExpr* {
-                    if (condp->isZero()) {
+                    если (condp->isZero()) {
                         VL_DO_DANGLING(condp->deleteTree(), condp);
                         VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                        return xexprp;
+                        вернуть xexprp;
                     }
-                    return new AstCond{nodep->fileline(), condp, nodep, xexprp};
+                    вернуть new AstCond{nodep->fileline(), condp, nodep, xexprp};
                 }();
                 UINFOTREE(9, newp, "", "_new");
                 // Link in conditional
                 replaceHandle.relink(newp);
                 // Added X's, tristate them too
                 iterate(newp);
-            } else {  // lvalue
+            } иначе {  // lvalue
                 replaceBoundLvalue(nodep, condp);
             }
         }
@@ -445,20 +445,20 @@ class UnknownVisitor final : public VNVisitor {
 
     void visit(AstArraySel* nodep) override {
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
+        если (!nodep->user1SetOnce()) {
             UINFOTREE(9, nodep, "", "in");
             // Guard against reading/writing past end of arrays
             AstNode* const basefromp = nodep->fromp()->baseFromp(true);
             bool lvalue = false;
-            if (const AstNodeVarRef* const varrefp = VN_CAST(basefromp, NodeVarRef)) {
+            если (const AstNodeVarRef* const varrefp = VN_CAST(basefromp, NodeVarRef)) {
                 lvalue = varrefp->access().isWriteOrRW();
-            } else if (VN_IS(basefromp, Const)) {
+            } иначе если (VN_IS(basefromp, Const)) {
                 // If it's a PARAMETER[bit], then basefromp may be a constant instead of a varrefp
-            } else {
+            } иначе {
                 // Normally one of above, but might have MEMBERSEL or otherwise
             }
             // Find range of dtype we are selecting from
-            int declElements = -1;
+            целое declElements = -1;
             AstNodeDType* const dtypep = nodep->fromp()->dtypep()->skipRefp();
             UASSERT_OBJ(dtypep, nodep, "Select of non-selectable type");
             const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType);
@@ -468,13 +468,13 @@ class UnknownVisitor final : public VNVisitor {
 
             // If value MODDIV constant, where constant <= declElements, known ok
             // V3Random makes these to intentionally prevent exceeding enum array bounds.
-            if (const AstModDiv* const moddivp = VN_CAST(nodep->bitp(), ModDiv)) {
-                if (const AstConst* const modconstp = VN_CAST(moddivp->rhsp(), Const)) {
-                    if (modconstp->width() <= 32
+            если (const AstModDiv* const moddivp = VN_CAST(nodep->bitp(), ModDiv)) {
+                если (const AstConst* const modconstp = VN_CAST(moddivp->rhsp(), Const)) {
+                    если (modconstp->width() <= 32
                         && modconstp->toUInt() <= static_cast<uint32_t>(declElements)) {
                         UINFO(9, "arraysel mod const " << declElements
                                                        << " >= " << modconstp->toUInt());
-                        return;
+                        вернуть;
                     }
                 }
             }
@@ -484,17 +484,17 @@ class UnknownVisitor final : public VNVisitor {
                 = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, nodep->bitp()->width(),
                                static_cast<uint32_t>(declElements - 1)};
             AstNodeExpr* bitp = V3Const::constifyEdit(nodep->bitp()->unlinkFrBack());
-            if (isStaticlyGte(declElementsp, bitp)) {
+            если (isStaticlyGte(declElementsp, bitp)) {
                 // We don't need to add a conditional; we know the existing expression is ok
                 VL_DO_DANGLING(declElementsp->deleteTree(), declElementsp);
                 nodep->bitp(bitp);
-                return;
+                вернуть;
             }
             nodep->bitp(newExprStmtOrClone(bitp));
             AstNodeExpr* condp = new AstGte{nodep->fileline(), declElementsp, bitp};
             // Note below has null backp(); the Edit function knows how to deal with that.
             const AstNodeDType* const nodeDtp = nodep->dtypep()->skipRefp();
-            if (!lvalue
+            если (!lvalue
                 // Making a scalar would break if we're making an array
                 && VN_IS(nodeDtp, BasicDType)) {
                 // ARRAYSEL(...) -> COND(LT(bit<maxbit), ARRAYSEL(...), {width{1'bx}})
@@ -502,14 +502,14 @@ class UnknownVisitor final : public VNVisitor {
                 nodep->unlinkFrBack(&replaceHandle);
                 // TODO make a tieoff function that takes AstNode and returns typed value
                 V3Number xnum{nodep, nodep->width()};
-                if (nodeDtp->isDouble()) {
+                если (nodeDtp->isDouble()) {
                     xnum = V3Number{nodep, V3Number::Double{}, 0.0};
-                } else if (nodeDtp->isString()) {
+                } иначе если (nodeDtp->isString()) {
                     xnum = V3Number{nodep, V3Number::String{}, ""};
-                } else {
-                    if (nodeDtp->isFourstate()) {
+                } иначе {
+                    если (nodeDtp->isFourstate()) {
                         xnum.setAllBitsX();
-                    } else {
+                    } иначе {
                         xnum.setAllBits0();
                     }
                 }
@@ -520,7 +520,7 @@ class UnknownVisitor final : public VNVisitor {
                 replaceHandle.relink(newp);
                 // Added X's, tristate them too
                 iterate(newp);
-            } else if (!lvalue) {  // Mid-multidimension read, just use zero
+            } иначе если (!lvalue) {  // Mid-multidimension read, just use zero
                 // ARRAYSEL(...) -> ARRAYSEL(COND(LT(bit<maxbit), bit, 0))
                 VNRelinker replaceHandle;
                 AstNodeExpr* const asBitp = nodep->bitp()->unlinkFrBack(&replaceHandle);
@@ -532,7 +532,7 @@ class UnknownVisitor final : public VNVisitor {
                 UINFOTREE(9, newp, "", "_new");
                 replaceHandle.relink(newp);
                 iterate(newp);
-            } else {  // lvalue
+            } иначе {  // lvalue
                 replaceBoundLvalue(nodep, condp);
             }
         }

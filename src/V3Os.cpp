@@ -15,7 +15,7 @@
 //*************************************************************************
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
 # ifndef PSAPI_VERSION
 #  define PSAPI_VERSION 1  // Needed for compatibility with Windows 7
 # endif
@@ -43,7 +43,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #ifdef _MSC_VER
 #include <filesystem>  // C++17
 #define PATH_MAX MAX_PATH
-#else
+#иначе
 #include <dirent.h>
 #include <utime.h>
 #endif
@@ -62,7 +62,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #endif
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
 # include <windows.h>   // LONG for bcrypt.h on MINGW
 # include <algorithm>  // replace
 # include <bcrypt.h>  // BCryptGenRandom
@@ -75,12 +75,12 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #  ifdef __MINGW32__
 #   define WIFEXITED(w) (((w) & 0xC0000000) == 0)
 #   define WEXITSTATUS(w) ((w) & ~0xC0000000)
-#  else
+#  иначе
 #   define WIFEXITED(w) (((w) & 0377) == 0)
 #   define WEXITSTATUS(w) (((w) >> 8) & 0377)
 #  endif
 # endif
-#else
+#иначе
 # include <sys/time.h>
 # ifndef __wasi__
 #  include <sys/wait.h>  // Needed on FreeBSD for WIFEXITED
@@ -96,20 +96,20 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Environment
 
 string V3Os::getenvStr(const string& envvar, const string& defaultValue) {
-    return VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
+    вернуть VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
 }
 
 void V3Os::setenvStr(const string& envvar, const string& value, const string& why) {
-    if (why != "") {
+    если (why != "") {
         UINFO(1, "export " << envvar << "='" << value << "'  # " << why);
-    } else {
+    } иначе {
         UINFO(1, "export " << envvar << "='" << value << "'");
     }
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
     _putenv_s(envvar.c_str(), value.c_str());
 #elif defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
     setenv(envvar.c_str(), value.c_str(), true);
-#else
+#иначе
     // setenv() replaced by putenv() in Solaris environment. Prototype is different
     // putenv() requires NAME=VALUE format
     const string vareq = envvar + "=" + value;
@@ -120,17 +120,17 @@ void V3Os::setenvStr(const string& envvar, const string& value, const string& wh
 //######################################################################
 // Generic filename utilities
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
 static constexpr char V3OS_SLASH = '\\';
-#else
+#иначе
 static constexpr char V3OS_SLASH = '/';
 #endif
 
 static bool isSlash(char ch) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
-    return ch == '/' || ch == '\\';
-#else
-    return ch == '/';
+#если defined(_WIN32) || defined(__MINGW32__)
+    вернуть ch == '/' || ch == '\\';
+#иначе
+    вернуть ch == '/';
 #endif
 }
 
@@ -138,130 +138,130 @@ string V3Os::filenameCleanup(const string& filename) VL_PURE {
     string str;
     str.reserve(filename.length());
     bool lastIsSlash = false;
-    for (const char ch : filename) {
+    для (const char ch : filename) {
         const bool lastIsSlashOld = lastIsSlash;
         lastIsSlash = isSlash(ch);
-        if (lastIsSlash && lastIsSlashOld) continue;
+        если (lastIsSlash && lastIsSlashOld) continue;
         str += ch;
     }
-    if (str.size() > 1 && isSlash(str.back())) str.pop_back();
-    while (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
-    return str;
+    если (str.size() > 1 && isSlash(str.back())) str.pop_back();
+    пока (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
+    вернуть str;
 }
 
 string V3Os::filenameJoin(std::initializer_list<const std::string> paths) VL_PURE {
     string fullpath;
-    for (const auto& item : paths) {
-        if (item.empty() || item == ".") continue;
-        if (!fullpath.empty()) fullpath += V3OS_SLASH;
+    для (const auto& item : paths) {
+        если (item.empty() || item == ".") continue;
+        если (!fullpath.empty()) fullpath += V3OS_SLASH;
         fullpath += item;
     }
-    return fullpath;
+    вернуть fullpath;
 }
 
 string V3Os::filenameDir(const string& filename) VL_PURE {
     // std::filesystem::path::parent_path
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    для (; it != filename.rend(); ++it) {
+        если (isSlash(*it)) break;
     }
-    if (it.base() == filename.begin()) return ".";
-    return string{filename.begin(), (++it).base()};
+    если (it.base() == filename.begin()) вернуть ".";
+    вернуть string{filename.begin(), (++it).base()};
 }
 
 string V3Os::filenameExt(const string& filename) VL_PURE {
     string base = filenameNonDir(filename);
     const string::size_type pos = base.find('.');
-    if (pos != string::npos) {
+    если (pos != string::npos) {
         base.erase(0, pos);
-        return base;
+        вернуть base;
     }
-    return "";
+    вернуть "";
 }
 
 string V3Os::filenameNonDir(const string& filename) VL_PURE {
     // std::filesystem::path::filename
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    для (; it != filename.rend(); ++it) {
+        если (isSlash(*it)) break;
     }
-    return string{it.base(), filename.end()};
+    вернуть string{it.base(), filename.end()};
 }
 
 string V3Os::filenameNonDirExt(const string& filename) VL_PURE {
     string base = filenameNonDir(filename);
     const string::size_type pos = base.find('.');
-    if (pos != string::npos) base.erase(pos);
-    return base;
+    если (pos != string::npos) base.erase(pos);
+    вернуть base;
 }
 
 string V3Os::filenameSubstitute(const string& filename) {
     string result;
     // cppcheck-has-bug-suppress unusedLabel
     enum : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
-    for (string::size_type pos = 0; pos < filename.length(); ++pos) {
-        if ((filename[pos] == '$') && (pos + 1 < filename.length())) {
+    для (string::size_type pos = 0; pos < filename.length(); ++pos) {
+        если ((filename[pos] == '$') && (pos + 1 < filename.length())) {
             switch (filename[pos + 1]) {
             case '{': brackets = CURLY; break;
             case '(': brackets = PAREN; break;
             default: brackets = NONE; break;
             }
-            if (brackets != NONE) pos = pos + 1;
+            если (brackets != NONE) pos = pos + 1;
             string::size_type endpos = pos + 1;
-            while (((endpos + 1) < filename.length())
+            пока (((endpos + 1) < filename.length())
                    && (((brackets == NONE)
                         && (std::isalnum(filename[endpos + 1]) || filename[endpos + 1] == '_'))
                        || ((brackets == CURLY) && (filename[endpos + 1] != '}'))
                        || ((brackets == PAREN) && (filename[endpos + 1] != ')'))))
                 ++endpos;
             // Catch bracket errors
-            if (((brackets == CURLY) && (filename[endpos + 1] != '}'))
+            если (((brackets == CURLY) && (filename[endpos + 1] != '}'))
                 || ((brackets == PAREN) && (filename[endpos + 1] != ')'))) {
                 v3fatal("Unmatched brackets in variable substitution in file: " + filename);
             }
             const string envvar = filename.substr(pos + 1, endpos - pos);
             string envvalue;
-            if (!envvar.empty()) envvalue = getenvStr(envvar, "");
-            if (!envvalue.empty()) {
+            если (!envvar.empty()) envvalue = getenvStr(envvar, "");
+            если (!envvalue.empty()) {
                 result += envvalue;
-                if (brackets == NONE) {
+                если (brackets == NONE) {
                     pos = endpos;
-                } else {
+                } иначе {
                     pos = endpos + 1;
                 }
-            } else {
+            } иначе {
                 result += filename[pos];  // *pos == '$'
             }
-        } else {
+        } иначе {
             result += filename[pos];
         }
     }
-    return result;
+    вернуть result;
 }
 
 string V3Os::filenameRealPath(const string& filename) VL_PURE {
     // Get rid of all the ../ behavior in the middle of the paths.
     // If there is a ../ that goes down from the 'root' of this path it is preserved.
     char retpath[PATH_MAX];
-    if (
-#if defined(_WIN32) || defined(__MINGW32__)
+    если (
+#если defined(_WIN32) || defined(__MINGW32__)
         _fullpath(retpath, filename.c_str(), PATH_MAX)
-#else
+#иначе
         realpath(filename.c_str(), retpath)
 #endif
     ) {
-        return std::string{retpath};
+        вернуть std::string{retpath};
     }
-    return filename;
+    вернуть filename;
 }
 
 string V3Os::filenameAbsolutePath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
     // _fullpath does not resolve symlinks
-    return filenameRealPath(filename);
-#else
-    if (!filenameIsRel(filename)) return filename;
-    return filenameJoin(filenameRealPath("."), filename);
+    вернуть filenameRealPath(filename);
+#иначе
+    если (!filenameIsRel(filename)) вернуть filename;
+    вернуть filenameJoin(filenameRealPath("."), filename);
 #endif
 }
 
@@ -269,66 +269,66 @@ string V3Os::filenameRelativePath(const string& filename, const string& base) VL
     const string a = V3Os::filenameRealPath(filename);
     const string b = V3Os::filenameRealPath(base);
     string result;
-    if (a == b) return ".";
+    если (a == b) вернуть ".";
 
     auto aIt = a.begin();
     auto bIt = b.begin();
-    while (aIt != a.end() && bIt != b.end()) {
+    пока (aIt != a.end() && bIt != b.end()) {
         // UINFO(9, "fnrp scan " << (aIt - a.begin()) << " " << a.substr(aIt - a.begin()));
         // UINFO(9, "fnrp scan " << (bIt - b.begin()) << " " << b.substr(bIt - b.begin()));
         auto aWordIt = aIt;  // position of next slash
-        for (; aWordIt != a.end(); ++aWordIt) {
-            if (isSlash(*aWordIt)) break;
+        для (; aWordIt != a.end(); ++aWordIt) {
+            если (isSlash(*aWordIt)) break;
         }
 
         auto bWordIt = bIt;  // position of next slash
-        for (; bWordIt != b.end(); ++bWordIt) {
-            if (isSlash(*bWordIt)) break;
+        для (; bWordIt != b.end(); ++bWordIt) {
+            если (isSlash(*bWordIt)) break;
         }
 
         const string aWord = a.substr(aIt - a.begin(), aWordIt - aIt);
         const string bWord = b.substr(bIt - b.begin(), bWordIt - bIt);
-        if (aWord != bWord) break;
+        если (aWord != bWord) break;
         aIt = aWordIt;
         bIt = bWordIt;
-        if (aIt != a.end()) ++aIt;  // Skip slash
-        if (bIt != b.end()) ++bIt;  // Skip slash
+        если (aIt != a.end()) ++aIt;  // Skip slash
+        если (bIt != b.end()) ++bIt;  // Skip slash
     }
 
-    while (bIt != b.end()) {
-        for (; bIt != b.end(); ++bIt) {
-            if (isSlash(*bIt)) {
+    пока (bIt != b.end()) {
+        для (; bIt != b.end(); ++bIt) {
+            если (isSlash(*bIt)) {
                 ++bIt;
                 break;
             }
         }
-        if (!result.empty()) result += "/";
+        если (!result.empty()) result += "/";
         result += "..";
     }
 
     const string aLeft = a.substr(aIt - a.begin());
-    if (!aLeft.empty()) {
-        if (!result.empty()) result += "/";
+    если (!aLeft.empty()) {
+        если (!result.empty()) result += "/";
         result += aLeft;
     }
-    return filenameCleanup(result);
+    вернуть filenameCleanup(result);
 }
 
 bool V3Os::filenameIsRel(const string& filename) VL_PURE {
-#if defined(_MSC_VER)
-    return std::filesystem::path(filename).is_relative();
-#else
-    return (filename.length() > 0 && filename[0] != '/');
+#если defined(_MSC_VER)
+    вернуть std::filesystem::path(filename).is_relative();
+#иначе
+    вернуть (filename.length() > 0 && filename[0] != '/');
 #endif
 }
 
 string V3Os::filenameSlashPath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
     string slashedPath = filename;
     std::replace(slashedPath.begin(), slashedPath.end(), '\\', '/');
-    return slashedPath;
-#else
-    return filename;
+    вернуть slashedPath;
+#иначе
+    вернуть filename;
 #endif
 }
 
@@ -341,19 +341,19 @@ string V3Os::getline(std::istream& is, char delim) {
     char buf[65536];
     is.getline(buf, 65535, delim);
     line = buf;
-#else
+#иначе
     std::getline(is, line, delim);
 #endif
-    return line;
+    вернуть line;
 }
 
 //######################################################################
 // Directory utilities
 
 void V3Os::createDir(const string& dirname) {
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
     _mkdir(dirname.c_str());
-#else
+#иначе
     mkdir(dirname.c_str(), 0777);
 #endif
 }
@@ -361,27 +361,27 @@ void V3Os::createDir(const string& dirname) {
 void V3Os::filesystemFlush(const string& dirname) {
     // NFS caches stat() calls so to get up-to-date information must
     // do a open or opendir on the filename.
-#if defined(_MSC_VER) || defined(__MINGW32__)
-    if (int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+#если defined(_MSC_VER) || defined(__MINGW32__)
+    если (целое fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        если (fd > 0) ::close(fd);
     }
-#else
+#иначе
     // Faster to just try both rather than check if a file is a dir.
-    if (DIR* const dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
+    если (DIR* const dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
         closedir(dirp);  // LCOV_EXCL_LINE
-    } else if (const int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+    } иначе если (const целое fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        если (fd > 0) ::close(fd);
     }
 #endif
 }
 
 void V3Os::filesystemFlushBuildDir(const string& dirname) {
     // Attempt to force out written directory, for NFS like file systems.
-#if !defined(_MSC_VER) && !defined(__MINGW32__)
+#если !defined(_MSC_VER) && !defined(__MINGW32__)
     // Linux kernel may not reread from NFS unless timestamp modified
-    const int err = utimes(dirname.c_str(), nullptr);
+    const целое err = utimes(dirname.c_str(), nullptr);
     // Not an error
-    if (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
+    если (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
 #endif
     filesystemFlush(dirname);
 }
@@ -389,21 +389,21 @@ void V3Os::filesystemFlushBuildDir(const string& dirname) {
 void V3Os::unlinkRegexp(const string& dir, const string& regexp) {
 #ifdef _MSC_VER
     try {
-        for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
-            if (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
+        для (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
+            если (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
                 const string fullname = dir + "/" + dirEntry.path().filename().string();
                 _unlink(fullname.c_str());
             }
         }
     } catch (std::filesystem::filesystem_error const& ex) {}
-#else
-    if (DIR* const dirp = opendir(dir.c_str())) {
-        while (struct dirent* const direntp = readdir(dirp)) {
-            if (VString::wildmatch(direntp->d_name, regexp.c_str())) {
+#иначе
+    если (DIR* const dirp = opendir(dir.c_str())) {
+        пока (struct dirent* const direntp = readdir(dirp)) {
+            если (VString::wildmatch(direntp->d_name, regexp.c_str())) {
                 const string fullname = dir + "/" + std::string{direntp->d_name};
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
                 _unlink(fullname.c_str());
-#else
+#иначе
                 unlink(fullname.c_str());
 #endif
             }
@@ -424,8 +424,8 @@ void V3Os::releaseMemory() {
     // Purge all unused dirty pages across all arenas
     unsigned narenas = 0;
     size_t sz = sizeof(narenas);
-    if (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
-        return;  // Failed to get number of arenas, give up
+    если (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
+        вернуть;  // Failed to get number of arenas, give up
     }
     char buf[64];
     // Index equal to narenas represents all arenas
@@ -443,7 +443,7 @@ uint64_t V3Os::rand64(std::array<uint64_t, 2>& stater) {
     stater[1] ^= stater[0];
     stater[0] = (((stater[0] << 55) | (stater[0] >> 9)) ^ stater[1] ^ (stater[1] << 14));
     stater[1] = (stater[1] << 36) | (stater[1] >> 28);
-    return result;
+    вернуть result;
 }
 
 string V3Os::trueRandom(size_t size) VL_MT_SAFE {
@@ -451,35 +451,35 @@ string V3Os::trueRandom(size_t size) VL_MT_SAFE {
     char* const data = const_cast<char*>(result.data());
     // Note: std::string.data() returns a non-const Char* from C++17 onwards.
     // For pre-C++17, this cast is OK in practice, even though it's UB.
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
     const NTSTATUS hr = BCryptGenRandom(nullptr, reinterpret_cast<BYTE*>(data), size,
                                         BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-    if (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
+    если (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
 #elif defined(__wasi__)
     // WASI has no /dev/urandom. getentropy() rejects sizes over 256 bytes,
     // which is more than any caller asks for, and errors rather than truncates.
-    if (VL_UNCOVERABLE(getentropy(data, size))) {
+    если (VL_UNCOVERABLE(getentropy(data, size))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#else
+#иначе
     std::ifstream is{"/dev/urandom", std::ios::in | std::ios::binary};
     // This read uses the size of the buffer.
     // Flawfinder: ignore
-    if (VL_UNCOVERABLE(!is.read(data, size))) {
+    если (VL_UNCOVERABLE(!is.read(data, size))) {
         v3fatal("Could not open /dev/urandom, no source of randomness. "  // LCOV_EXCL_LINE
                 "Try specifying a key instead.");
     }
 #endif
-    return result;
+    вернуть result;
 }
 
 //######################################################################
 // METHODS (performance)
 
 uint64_t V3Os::timeUsecs() {
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
     // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
     static constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
 
@@ -487,19 +487,19 @@ uint64_t V3Os::timeUsecs() {
     GetSystemTimeAsFileTime(&ft);
     const uint64_t us
         = ((static_cast<uint64_t>(ft.dwHighDateTime) << 32) + ft.dwLowDateTime + 5ULL) / 10ULL;
-    return us - EPOCH_DIFFERENCE_USECS;
-#else
+    вернуть us - EPOCH_DIFFERENCE_USECS;
+#иначе
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     timeval tv;
-    if (gettimeofday(&tv, nullptr) < 0) return 0;
-    return static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
+    если (gettimeofday(&tv, nullptr) < 0) вернуть 0;
+    вернуть static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
 #endif
 }
 
 void V3Os::u_sleep(int64_t usec) {
-#if defined(_WIN32) || defined(__MINGW32__)
+#если defined(_WIN32) || defined(__MINGW32__)
     std::this_thread::sleep_for(std::chrono::microseconds(usec));
-#else
+#иначе
     // cppcheck-suppress obsoleteFunctionsusleep
     // Flawfinder: ignore
     ::usleep(usec);
@@ -509,24 +509,24 @@ void V3Os::u_sleep(int64_t usec) {
 //######################################################################
 // METHODS (sub command)
 
-int V3Os::system(const string& command) {
+целое V3Os::system(const string& command) {
 #ifdef __wasi__
     // WASI has no process spawning
     v3fatal("Running subcommands is not supported on this platform: " << command);
-    return -1;
-#else
+    вернуть -1;
+#иначе
     UINFO(1, "Running system: " << command);
-    const int ret = ::system(command.c_str());
-    if (VL_UNCOVERABLE(ret == -1)) {
+    const целое ret = ::system(command.c_str());
+    если (VL_UNCOVERABLE(ret == -1)) {
         v3fatal("Failed to execute command:"  // LCOV_EXCL_LINE
                 << command << " " << std::strerror(errno));  // LCOV_EXCL_LINE
-        return -1;  // LCOV_EXCL_LINE
+        вернуть -1;  // LCOV_EXCL_LINE
     }
     UASSERT(WIFEXITED(ret), "system(" << command << ") returned unexpected value of " << ret);
-    const int exit_code = WEXITSTATUS(ret);
+    const целое exit_code = WEXITSTATUS(ret);
     UINFO(1, command << " returned exit code of " << exit_code);
     UASSERT(exit_code >= 0, "exit code must not be negative");
-    return exit_code;
+    вернуть exit_code;
 #endif
 }
 
