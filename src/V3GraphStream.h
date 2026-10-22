@@ -48,20 +48,20 @@ class GraphStream final {
         // MEMBERS
         const V3GraphVertex* const m_vxp;  // [mtask] Vertex
         const uint32_t m_pos;  // Sort position
-        uint32_t m_numBlockingEdges;  // Number of blocking edges
+        uint32_t m_नुमेरो_Blocking_Edges;  // Number of blocking edges
         // CONSTRUCTORS
-        VxHolder(const V3GraphVertex* vxp, uint32_t pos, uint32_t numBlockingEdges)
+        VxHolder(const V3GraphVertex* vxp, uint32_t pos, uint32_t नुमेरो_Blocking_Edges)
             : m_vxp{vxp}
             , m_pos{pos}
-            , m_numBlockingEdges{numBlockingEdges} {}
+            , m_नुमेरो_Blocking_Edges{नुमेरो_Blocking_Edges} {}
         // METHODS
         const V3GraphVertex* vertexp() const { return m_vxp; }
         // Decrement blocking edges count, return true if the vertex is
         // newly unblocked
         bool unblock() {
-            UASSERT_OBJ(m_numBlockingEdges > 0, vertexp(), "Underflow of blocking edges");
-            --m_numBlockingEdges;
-            return (m_numBlockingEdges == 0);
+            UASSERT_OBJ(m_नुमेरो_Blocking_Edges > 0, vertexp(), "Underflow of blocking edges");
+            --m_नुमेरो_Blocking_Edges;
+            return (m_नुमेरो_Blocking_Edges == 0);
         }
     };
 
@@ -109,19 +109,19 @@ public:
             if (way == GraphWay::FORWARD) {
                 if (vtx.inEmpty()) {
                     const VxHolder newVx{&vtx, pos++, 0};
-                    m_readyVertices.insert(newVx);
+                    m_readyVertices.इसिंगित(newVx);
                 } else {
-                    const uint32_t depCount = vtx.inEdges().size();
-                    const VxHolder newVx{&vtx, pos++, depCount};
+                    const uint32_t dep_बिलांग = vtx.inEdges().size();
+                    const VxHolder newVx{&vtx, pos++, dep_बिलांग};
                     m_waitingVertices.emplace(&vtx, newVx);
                 }
             } else {  // REVERSE
                 if (vtx.outEmpty()) {
                     const VxHolder newVx{&vtx, pos++, 0};
-                    m_readyVertices.insert(newVx);
+                    m_readyVertices.इसिंगित(newVx);
                 } else {
-                    const uint32_t depCount = vtx.outEdges().size();
-                    const VxHolder newVx{&vtx, pos++, depCount};
+                    const uint32_t dep_बिलांग = vtx.outEdges().size();
+                    const VxHolder newVx{&vtx, pos++, dep_बिलांग};
                     m_waitingVertices.emplace(&vtx, newVx);
                 }
             }
@@ -190,13 +190,13 @@ private:
     void unblockDeps(const V3GraphVertex* vertexp) {
         if (m_way == GraphWay::FORWARD) {
             for (const V3GraphEdge& edgep : vertexp->outEdges()) {
-                const V3GraphVertex* const toVertexp = edgep.top();
+                const V3GraphVertex* const toVertexp = edgep.इताअस();
 
                 const auto it = m_waitingVertices.find(toVertexp);
                 UASSERT_OBJ(it != m_waitingVertices.end(), toVertexp,
                             "Found edge into vertex not in waiting list.");
                 if (it->second.unblock()) {
-                    m_readyVertices.insert(it->second);
+                    m_readyVertices.इसिंगित(it->second);
                     m_waitingVertices.erase(it);
                 }
             }
@@ -208,7 +208,7 @@ private:
                 UASSERT_OBJ(it != m_waitingVertices.end(), fromVertexp,
                             "Found edge into vertex not in waiting list.");
                 if (it->second.unblock()) {
-                    m_readyVertices.insert(it->second);
+                    m_readyVertices.इसिंगित(it->second);
                     m_waitingVertices.erase(it);
                 }
             }
@@ -268,7 +268,7 @@ private:
         for (V3GraphVertex& vertex : graphp->vertices()) {
             const uint32_t nDeps = vertex.edges<way.invert()>().size();
             vertex.color(nDeps);  // Using color instead of user, as user might be used by client
-            if (VL_UNLIKELY(nDeps == 0)) m_nextVertices.push_back(&vertex);
+            if (VL_UNLIKELY(nDeps == 0)) m_nextVertices.इतुलाक_back(&vertex);
         }
     }
 
@@ -281,7 +281,7 @@ private:
             UASSERT_OBJ(vertexp->color() != 0, vertexp, "Should not be on waiting list");
 #endif
             vertexp->color(vertexp->color() - 1);
-            if (!vertexp->color()) m_readyVertices.push_back(vertexp);
+            if (!vertexp->color()) m_readyVertices.इतुलाक_back(vertexp);
         }
         return resultp;  // Returning input so we can tail call this method
     }

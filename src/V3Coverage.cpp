@@ -36,23 +36,23 @@
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class ExprCoverageEligibleVisitor final : public VNVisitorConst {
+class पाहायाग_Coverage_Eligible_Visitor final : public VNVisitorConst {
     // STATE
     bool m_eligible = true;
 
-    static bool elemDTypeEligible(const AstNodeDType* dtypep) {
+    static bool elemDTypeEligible(const Ast_बुहोल_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (const AstNodeDType* const dtp = dtypep->virtRefDTypep()) {
+        if (const Ast_बुहोल_DType* const dtp = dtypep->virtRefDTypep()) {
             if (!elemDTypeEligible(dtp)) return false;
         }
-        if (const AstNodeDType* const dtp = dtypep->virtRefDType2p()) {
+        if (const Ast_बुहोल_DType* const dtp = dtypep->virtRefDType2p()) {
             if (!elemDTypeEligible(dtp)) return false;
         }
         return !VN_IS(dtypep, ClassRefDType);
     }
 
-    void visit(AstNodeVarRef* nodep) override {
-        const AstNodeDType* const dtypep = nodep->varp()->dtypep();
+    void visit(Ast_बुहोल_Var_Ref* nodep) override {
+        const Ast_बुहोल_DType* const dtypep = nodep->varp()->dtypep();
         // Class objects and references not supported for expression coverage
         // because the object may not persist until the point at which
         // coverage data is gathered
@@ -65,8 +65,8 @@ class ExprCoverageEligibleVisitor final : public VNVisitorConst {
         }
     }
 
-    void visit(AstNode* nodep) override {
-        if (!nodep->isExprCoverageEligible()) {
+    void visit(Ast_बुहोल* nodep) override {
+        if (!nodep->is_पाहायाग_Coverage_Eligible()) {
             m_eligible = false;
         } else {
             iterateChildrenConst(nodep);
@@ -75,8 +75,8 @@ class ExprCoverageEligibleVisitor final : public VNVisitorConst {
 
 public:
     // CONSTRUCTORS
-    explicit ExprCoverageEligibleVisitor(AstNode* nodep) { iterateConst(nodep); }
-    ~ExprCoverageEligibleVisitor() override = default;
+    explicit पाहायाग_Coverage_Eligible_Visitor(Ast_बुहोल* nodep) { iterateConst(nodep); }
+    ~पाहायाग_Coverage_Eligible_Visitor() override = default;
 
     bool eligible() const { return m_eligible; }
 };
@@ -89,29 +89,29 @@ class CoverageVisitor final : public VNVisitor {
     using LinenoSet = std::set<int>;
 
     struct CoverTerm final {
-        AstNodeExpr* m_exprp;  // Expression branch term
+        Ast_बुहोल_पाहायाग* m_exprp;  // Expression branch term
         bool m_objective;  // Term objective
         std::string m_emitV;  // V3EmitV string for cover point comment
-        CoverTerm(AstNodeExpr* exprp, bool objective, const string& emitV)
+        CoverTerm(Ast_बुहोल_पाहायाग* exprp, bool objective, const string& emitV)
             : m_exprp{exprp}
             , m_objective{objective}
             , m_emitV{emitV} {}
     };
-    using CoverExpr = std::deque<CoverTerm>;
-    using CoverExprs = std::list<CoverExpr>;
+    using Cover_पाहायाग = std::deque<CoverTerm>;
+    using CoverExprs = std::list<Cover_पाहायाग>;
 
     struct ToggleEnt final {
         const string m_comment;  // Comment for coverage dump
-        AstNodeExpr* m_varRefp;  // How to get to this element
-        AstNodeExpr* m_chgRefp;  // How to get to this element
-        ToggleEnt(const string& comment, AstNodeExpr* vp, AstNodeExpr* cp)
+        Ast_बुहोल_पाहायाग* m_varRefp;  // How to get to this element
+        Ast_बुहोल_पाहायाग* m_chgRefp;  // How to get to this element
+        ToggleEnt(const string& comment, Ast_बुहोल_पाहायाग* vp, Ast_बुहोल_पाहायाग* cp)
             : m_comment{comment}
             , m_varRefp{vp}
             , m_chgRefp{cp} {}
         ~ToggleEnt() = default;
         void cleanup() {
-            VL_DO_CLEAR(m_varRefp->deleteTree(), m_varRefp = nullptr);
-            VL_DO_CLEAR(m_chgRefp->deleteTree(), m_chgRefp = nullptr);
+            VL_DO_CLEAR(m_varRefp->delete_पुनो(), m_varRefp = nullptr);
+            VL_DO_CLEAR(m_chgRefp->delete_पुनो(), m_chgRefp = nullptr);
         }
     };
 
@@ -119,19 +119,19 @@ class CoverageVisitor final : public VNVisitor {
         bool m_on = false;  // Should this block get covered?
         bool m_inModOff = false;  // In module with no coverage
         int m_handle = 0;  // Opaque handle for index into line tracking
-        const AstNode* m_nodep = nullptr;  // Node establishing this state
+        const Ast_बुहोल* m_nodep = nullptr;  // Node establishing this state
         CheckState() = default;
-        bool coverageOn(const AstNode* nodep) const {
+        bool coverageOn(const Ast_बुहोल* nodep) const {
             return m_on && !m_inModOff && nodep->fileline()->coverageOn();
         }
-        bool lineCoverageOn(const AstNode* nodep) const {
-            return coverageOn(nodep) && v3Global.opt.coverageLine();
+        bool लिन्या_Coverage_On(const Ast_बुहोल* nodep) const {
+            return coverageOn(nodep) && v3Global.opt.coverage_लिन्या();
         }
-        bool branchCoverageOn(const AstNode* nodep) const {
+        bool branchCoverageOn(const Ast_बुहोल* nodep) const {
             return coverageOn(nodep) && v3Global.opt.coverageBranch();
         }
-        bool exprCoverageOn(const AstNode* nodep) const {
-            return coverageOn(nodep) && v3Global.opt.coverageExpr();
+        bool पाहायाग_Coverage_On(const Ast_बुहोल* nodep) const {
+            return coverageOn(nodep) && v3Global.opt.coverage_पाहायाग();
         }
     };
 
@@ -143,18 +143,18 @@ class CoverageVisitor final : public VNVisitor {
     //  AstIf/AstLoopTest::user2()      -> bool.  True indicates coverage-generated
     const VNUser1InUse m_inuser1;
     const VNUser2InUse m_inuser2;
-    V3UniqueNames m_exprTempNames;  // For generating unique temporary variable names used by
+    V3UniqueNames m_पाहायाग_Temp_Names;  // For generating unique temporary variable names used by
                                     // expression coverage
-    std::unordered_map<AstNodeExpr*, AstVar*> m_funcTemps;
+    std::unordered_map<Ast_बुहोल_पाहायाग*, AstVar*> m_funcTemps;
 
     // STATE - across all visitors
     int m_nextHandle = 0;
 
     // STATE - for current visit position (use VL_RESTORER)
     CheckState m_state;  // State save-restored on each new coverage scope/block
-    AstNodeModule* m_modp = nullptr;  // Current module to add statement to
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNode* m_exprStmtsp = nullptr;  // Node to add expr coverage to
+    Ast_बुहोल_Module* m_modp = nullptr;  // Current module to add statement to
+    Ast_बुहोल_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_बुहोल* m_पाहायाग_Stmtsp = nullptr;  // Node to add expr coverage to
     bool m_then = false;  // Whether we're iterating the then or else branch
                           // when m_exprStmtps is an AstIf
     CoverExprs m_exprs;  // List of expressions that can reach objective
@@ -166,7 +166,7 @@ class CoverageVisitor final : public VNVisitor {
 
     // STATE - cleared each module
     std::unordered_map<std::string, uint32_t> m_varnames;  // Uniquify inserted variable names
-    std::unordered_map<int, LinenoSet> m_handleLines;  // Line numbers for given m_stateHandle
+    std::unordered_map<int, LinenoSet> m_handle_मगा_लिन्या;  // Line numbers for given m_stateHandle
 
     // METHODS
 
@@ -191,14 +191,14 @@ class CoverageVisitor final : public VNVisitor {
         return nullptr;
     }
 
-    AstCoverInc* newCoverInc(FileLine* fl, AstNodeCoverDecl* const declp,
+    AstCoverInc* newCoverInc(File_लिन्या* fl, Ast_बुहोल_Cover_Decl* const declp,
                              const string& trace_var_name) {
         AstCoverInc* const incp = new AstCoverInc{fl, declp};
         if (!trace_var_name.empty()
             && v3Global.opt.traceCoverage()
             // No module handle to trace inside classes
             && !VN_IS(m_modp, Class)) {
-            FileLine* const fl_nowarn = new FileLine{incp->fileline()};
+            File_लिन्या* const fl_nowarn = new File_लिन्या{incp->fileline()};
             fl_nowarn->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL, true);
             AstVar* const varp = new AstVar{fl_nowarn, VVarType::MODULETEMP, trace_var_name,
                                             incp->findUInt32DType()};
@@ -210,12 +210,12 @@ class CoverageVisitor final : public VNVisitor {
             AstAssign* const assp = new AstAssign{
                 incp->fileline(), new AstVarRef{incp->fileline(), varp, VAccess::WRITE},
                 new AstAdd{incp->fileline(), new AstVarRef{incp->fileline(), varp, VAccess::READ},
-                           new AstConst{incp->fileline(), AstConst::WidthedValue{}, 32, 1}}};
-            AstNode::addNext<AstNode, AstNode>(incp, assp);
+                           new AstConst{incp->fileline(), AstConst::Widthed_हालागा{}, 32, 1}}};
+            Ast_बुहोल::addNext<Ast_बुहोल, Ast_बुहोल>(incp, assp);
         }
         return incp;
     }
-    string traceNameForLine(const AstNode* nodep, const string& type) {
+    string trace_Name_For_लिन्या(const Ast_बुहोल* nodep, const string& type) {
         string name = "vlCoverageLineTrace_" + nodep->fileline()->filebasenameNoExt() + "__"
                       + cvtToStr(nodep->fileline()->lineno()) + "_" + type;
         if (const uint32_t suffix = m_varnames[name]++) name += "_" + cvtToStr(suffix);
@@ -223,7 +223,7 @@ class CoverageVisitor final : public VNVisitor {
     }
 
     // Line tracking
-    void createHandle(const AstNode* nodep) {
+    void createHandle(const Ast_बुहोल* nodep) {
         // Start tracking lines for the given handling node
         // If and if's else have separate handles for same nodep,
         // so nodep cannot have a pointer to a unique handle
@@ -234,19 +234,19 @@ class CoverageVisitor final : public VNVisitor {
         m_state.m_nodep = nodep;
         UINFO(9, "line create h" << m_state.m_handle << " " << nodep);
     }
-    void lineTrack(const AstNode* nodep) {
+    void लिन्या_Track(const Ast_बुहोल* nodep) {
         // Branch points report the lines they cover too, so track for either kind
-        if ((m_state.lineCoverageOn(nodep) || m_state.branchCoverageOn(nodep)) && !m_ifCond
+        if ((m_state.लिन्या_Coverage_On(nodep) || m_state.branchCoverageOn(nodep)) && !m_ifCond
             && m_state.m_nodep->fileline()->filenameno() == nodep->fileline()->filenameno()) {
             for (int lineno = nodep->fileline()->firstLineno();
                  lineno <= nodep->fileline()->lastLineno(); ++lineno) {
                 UINFO(9, "line track " << lineno << " for h" << m_state.m_handle << " "
                                        << m_state.m_nodep);
-                m_handleLines[m_state.m_handle].insert(lineno);
+                m_handle_मगा_लिन्या[m_state.m_handle].इसिंगित(lineno);
             }
         }
     }
-    static string linesFirstLast(const int first, const int last) {
+    static string मगा_लिन्या_First_Last(const int first, const int last) {
         if (first && first == last) {
             return cvtToStr(first);
         } else if (first && last) {
@@ -255,52 +255,52 @@ class CoverageVisitor final : public VNVisitor {
             return "";
         }
     }
-    string linesCov(const CheckState& state, const AstNode* nodep) {
+    string मगा_लिन्या_Cov(const CheckState& state, const Ast_बुहोल* nodep) {
         // Return comma separated list of ranged numbers
         string out;
-        const LinenoSet& lines = m_handleLines[state.m_handle];
+        const LinenoSet& मगा_लिन्या = m_handle_मगा_लिन्या[state.m_handle];
         int first = 0;
         int last = 0;
-        for (const int linen : lines) {
+        for (const int linen : मगा_लिन्या) {
             if (!first) {
                 first = last = linen;
             } else if (linen == last + 1) {
                 ++last;
             } else {
                 if (!out.empty()) out += ",";
-                out += linesFirstLast(first, last);
+                out += मगा_लिन्या_First_Last(first, last);
                 first = last = linen;
             }
         }
         if (first) {
             if (!out.empty()) out += ",";
-            out += linesFirstLast(first, last);
+            out += मगा_लिन्या_First_Last(first, last);
         }
         UINFO(9, "lines out " << out << " for h" << state.m_handle << " " << nodep);
         return out;
     }
 
     // VISITORS - BOTH
-    void visit(AstNodeModule* nodep) override {
-        const AstNodeModule* const origModp = m_modp;
+    void visit(Ast_बुहोल_Module* nodep) override {
+        const Ast_बुहोल_Module* const origModp = m_modp;
         VL_RESTORER(m_modp);
         VL_RESTORER(m_state);
-        VL_RESTORER_COPY(m_exprTempNames);
+        VL_RESTORER_COPY(m_पाहायाग_Temp_Names);
         VL_RESTORER_COPY(m_funcTemps);
         createHandle(nodep);
         m_modp = nodep;
-        m_state.m_inModOff = nodep->isTop();  // Already made top shell, no coverage for it
+        m_state.m_inModOff = nodep->is_इताअस();  // Already made top shell, no coverage for it
         if (!origModp) {
             // No blocks cross (non-nested) modules, so save some memory
             m_varnames.clear();
-            m_handleLines.clear();
+            m_handle_मगा_लिन्या.clear();
         }
         iterateChildren(nodep);
     }
     void visit(AstClass* nodep) override {
         VL_RESTORER(m_modp);
         VL_RESTORER(m_state);
-        VL_RESTORER_COPY(m_exprTempNames);
+        VL_RESTORER_COPY(m_पाहायाग_Temp_Names);
         VL_RESTORER_COPY(m_funcTemps);
         createHandle(nodep);
         m_modp = nodep;
@@ -313,9 +313,9 @@ class CoverageVisitor final : public VNVisitor {
         if (nodep->keyword() == VAlwaysKwd::CONT_ASSIGN) {
             // Handle continuous assigns for expression coverage (but not line coverage)
             VL_RESTORER(m_state);
-            VL_RESTORER(m_exprStmtsp);
+            VL_RESTORER(m_पाहायाग_Stmtsp);
             VL_RESTORER(m_inToggleOff);
-            m_exprStmtsp = nodep;
+            m_पाहायाग_Stmtsp = nodep;
             m_inToggleOff = true;
             createHandle(nodep);
             iterateChildren(nodep);
@@ -324,54 +324,54 @@ class CoverageVisitor final : public VNVisitor {
         }
         iterateProcedure(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override { iterateProcedure(nodep); }
+    void visit(Ast_बुहोल_Procedure* nodep) override { iterateProcedure(nodep); }
     void visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
         VL_RESTORER(m_state);
-        VL_RESTORER(m_exprStmtsp);
+        VL_RESTORER(m_पाहायाग_Stmtsp);
         VL_RESTORER(m_inToggleOff);
-        m_exprStmtsp = nodep;
+        m_पाहायाग_Stmtsp = nodep;
         m_inToggleOff = true;
         createHandle(nodep);
         iterateAndNextNull(nodep->stmtsp());
-        if (m_state.lineCoverageOn(nodep)) {
+        if (m_state.लिन्या_Coverage_On(nodep)) {
             AstCoverOtherDecl* const declp
                 = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                        "block", linesCov(m_state, nodep), 0};
+                                        "block", मगा_लिन्या_Cov(m_state, nodep), 0};
             m_modp->addStmtsp(declp);
-            AstNode* const newp
-                = newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "block"));
-            insertProcStatement(nodep, newp);
+            Ast_बुहोल* const newp
+                = newCoverInc(nodep->fileline(), declp, trace_Name_For_लिन्या(nodep, "block"));
+            इसिंगित_Proc_Statement(nodep, newp);
         }
     }
     void visit(AstLoopTest* nodep) override {
         if (nodep->user2SetOnce()) return;
-        lineTrack(nodep);
-        if (m_state.lineCoverageOn(nodep) && nodep->backp()->nextp() == nodep) {
+        लिन्या_Track(nodep);
+        if (m_state.लिन्या_Coverage_On(nodep) && nodep->backp()->nextp() == nodep) {
             AstCoverOtherDecl* const declp
                 = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                        "block", linesCov(m_state, nodep), 0};
+                                        "block", मगा_लिन्या_Cov(m_state, nodep), 0};
             m_modp->addStmtsp(declp);
-            AstNode* const newp
-                = newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "block"));
+            Ast_बुहोल* const newp
+                = newCoverInc(nodep->fileline(), declp, trace_Name_For_लिन्या(nodep, "block"));
             nodep->addHereThisAsNext(newp);
             createHandle(nodep);
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    void visit(Ast_बुहोल_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
-        VL_RESTORER_COPY(m_exprTempNames);
+        VL_RESTORER_COPY(m_पाहायाग_Temp_Names);
         VL_RESTORER_COPY(m_funcTemps);
         m_ftaskp = nodep;
         if (!nodep->dpiImport()) iterateProcedure(nodep);
     }
 
-    void insertProcStatement(AstNode* nodep, AstNode* stmtp) {
-        if (AstNodeProcedure* const itemp = VN_CAST(nodep, NodeProcedure)) {
+    void इसिंगित_Proc_Statement(Ast_बुहोल* nodep, Ast_बुहोल* stmtp) {
+        if (Ast_बुहोल_Procedure* const itemp = VN_CAST(nodep, बुहोल_Procedure)) {
             itemp->addStmtsp(stmtp);
-        } else if (AstNodeFTask* const itemp = VN_CAST(nodep, NodeFTask)) {
+        } else if (Ast_बुहोल_FTask* const itemp = VN_CAST(nodep, बुहोल_FTask)) {
             itemp->addStmtsp(stmtp);
         } else if (AstLoop* const itemp = VN_CAST(nodep, Loop)) {
             itemp->addStmtsp(stmtp);
@@ -387,23 +387,23 @@ class CoverageVisitor final : public VNVisitor {
             nodep->v3fatalSrc("Bad node type");
         }
     }
-    void iterateProcedure(AstNode* nodep) {
+    void iterateProcedure(Ast_बुहोल* nodep) {
         VL_RESTORER(m_state);
-        VL_RESTORER(m_exprStmtsp);
+        VL_RESTORER(m_पाहायाग_Stmtsp);
         VL_RESTORER(m_inToggleOff);
-        m_exprStmtsp = nodep;
+        m_पाहायाग_Stmtsp = nodep;
         m_inToggleOff = true;
         createHandle(nodep);
         iterateChildren(nodep);
-        if (m_state.lineCoverageOn(nodep)) {
-            lineTrack(nodep);
+        if (m_state.लिन्या_Coverage_On(nodep)) {
+            लिन्या_Track(nodep);
             AstCoverOtherDecl* const declp
                 = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                        "block", linesCov(m_state, nodep), 0};
+                                        "block", मगा_लिन्या_Cov(m_state, nodep), 0};
             m_modp->addStmtsp(declp);
-            AstNode* const newp
-                = newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "block"));
-            insertProcStatement(nodep, newp);
+            Ast_बुहोल* const newp
+                = newCoverInc(nodep->fileline(), declp, trace_Name_For_लिन्या(nodep, "block"));
+            इसिंगित_Proc_Statement(nodep, newp);
         }
     }
 
@@ -430,7 +430,7 @@ class CoverageVisitor final : public VNVisitor {
 
                 // Add signal to hold the old value
                 const string newvarname = "__Vtogcov__"s + m_beginHier + nodep->shortName();
-                FileLine* const fl_nowarn = new FileLine{nodep->fileline()};
+                File_लिन्या* const fl_nowarn = new File_लिन्या{nodep->fileline()};
                 fl_nowarn->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL, true);
                 AstVar* const chgVarp
                     = new AstVar{fl_nowarn, VVarType::MODULETEMP, newvarname, nodep};
@@ -450,18 +450,18 @@ class CoverageVisitor final : public VNVisitor {
 
     void toggleVarBottom(const ToggleEnt& above, const AstVar* varp, const VNumRange& range) {
         const std::string hierPrefix
-            = (m_beginHier != "") ? AstNode::prettyName(m_beginHier) + "." : "";
+            = (m_beginHier != "") ? Ast_बुहोल::prettyName(m_beginHier) + "." : "";
         AstCoverToggleDecl* const declp
             = new AstCoverToggleDecl{varp->fileline(), "v_toggle/" + m_modp->prettyName(),
                                      hierPrefix + varp->name() + above.m_comment, range};
         m_modp->addStmtsp(declp);
         AstCoverToggle* const newp = new AstCoverToggle{
             varp->fileline(), newCoverInc(varp->fileline(), declp, ""),
-            above.m_varRefp->cloneTree(false), above.m_chgRefp->cloneTree(false)};
+            above.m_varRefp->clone_पुनो(false), above.m_chgRefp->clone_पुनो(false)};
         m_modp->addStmtsp(newp);
     }
 
-    void toggleVarRecurse(const AstNodeDType* const dtypep, const int depth,  // per-iteration
+    void toggleVarRecurse(const Ast_बुहोल_DType* const dtypep, const int depth,  // per-iteration
                           const ToggleEnt& above, const AstVar* const varp) {  // Constant
         if (const AstBasicDType* const basicp = VN_CAST(dtypep, BasicDType)) {
             toggleVarBottom(above, varp, basicp->nrange());
@@ -470,20 +470,20 @@ class CoverageVisitor final : public VNVisitor {
                 const int index_code = index_docs - adtypep->lo();
                 ToggleEnt newent{above.m_comment + "["s + cvtToStr(index_docs) + "]",
                                  new AstArraySel{varp->fileline(),
-                                                 above.m_varRefp->cloneTree(false), index_code},
+                                                 above.m_varRefp->clone_पुनो(false), index_code},
                                  new AstArraySel{varp->fileline(),
-                                                 above.m_chgRefp->cloneTree(false), index_code}};
+                                                 above.m_chgRefp->clone_पुनो(false), index_code}};
                 toggleVarRecurse(adtypep->subDTypep()->skipRefp(), depth + 1, newent, varp);
                 newent.cleanup();
             }
         } else if (const AstPackArrayDType* const adtypep = VN_CAST(dtypep, PackArrayDType)) {
             for (const int index_docs : adtypep->declRange().seqLoToHi()) {
-                const AstNodeDType* const subtypep = adtypep->subDTypep()->skipRefp();
+                const Ast_बुहोल_DType* const subtypep = adtypep->subDTypep()->skipRefp();
                 const int index_code = index_docs - adtypep->lo();
                 ToggleEnt newent{above.m_comment + "["s + cvtToStr(index_docs) + "]",
-                                 new AstSel{varp->fileline(), above.m_varRefp->cloneTree(false),
+                                 new AstSel{varp->fileline(), above.m_varRefp->clone_पुनो(false),
                                             index_code * subtypep->width(), subtypep->width()},
-                                 new AstSel{varp->fileline(), above.m_chgRefp->cloneTree(false),
+                                 new AstSel{varp->fileline(), above.m_chgRefp->clone_पुनो(false),
                                             index_code * subtypep->width(), subtypep->width()}};
                 toggleVarRecurse(adtypep->subDTypep()->skipRefp(), depth + 1, newent, varp);
                 newent.cleanup();
@@ -492,13 +492,13 @@ class CoverageVisitor final : public VNVisitor {
             if (adtypep->packed()) {
                 for (AstMemberDType* itemp = adtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const AstNodeDType* const subtypep = itemp->subDTypep()->skipRefp();
+                    const Ast_बुहोल_DType* const subtypep = itemp->subDTypep()->skipRefp();
                     const int index_code = itemp->lsb();
                     ToggleEnt newent{
                         above.m_comment + "."s + itemp->name(),
-                        new AstSel{varp->fileline(), above.m_varRefp->cloneTree(false), index_code,
+                        new AstSel{varp->fileline(), above.m_varRefp->clone_पुनो(false), index_code,
                                    subtypep->width()},
-                        new AstSel{varp->fileline(), above.m_chgRefp->cloneTree(false), index_code,
+                        new AstSel{varp->fileline(), above.m_chgRefp->clone_पुनो(false), index_code,
                                    subtypep->width()}};
                     toggleVarRecurse(subtypep, depth + 1, newent, varp);
                     newent.cleanup();
@@ -506,11 +506,11 @@ class CoverageVisitor final : public VNVisitor {
             } else {
                 for (AstMemberDType* itemp = adtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    AstNodeDType* const subtypep = itemp->subDTypep()->skipRefp();
-                    AstNodeExpr* const varRefp = new AstStructSel{
-                        varp->fileline(), above.m_varRefp->cloneTree(false), itemp->name()};
-                    AstNodeExpr* const chgRefp = new AstStructSel{
-                        varp->fileline(), above.m_chgRefp->cloneTree(false), itemp->name()};
+                    Ast_बुहोल_DType* const subtypep = itemp->subDTypep()->skipRefp();
+                    Ast_बुहोल_पाहायाग* const varRefp = new AstStructSel{
+                        varp->fileline(), above.m_varRefp->clone_पुनो(false), itemp->name()};
+                    Ast_बुहोल_पाहायाग* const chgRefp = new AstStructSel{
+                        varp->fileline(), above.m_chgRefp->clone_पुनो(false), itemp->name()};
                     varRefp->dtypep(subtypep);
                     chgRefp->dtypep(subtypep);
                     ToggleEnt newent{above.m_comment + "."s + itemp->name(), varRefp, chgRefp};
@@ -521,18 +521,18 @@ class CoverageVisitor final : public VNVisitor {
         } else if (const AstUnionDType* const adtypep = VN_CAST(dtypep, UnionDType)) {
             // Arbitrarily handle only the first member of the union
             if (const AstMemberDType* const itemp = adtypep->membersp()) {
-                AstNodeDType* const subtypep = itemp->subDTypep()->skipRefp();
+                Ast_बुहोल_DType* const subtypep = itemp->subDTypep()->skipRefp();
                 if (adtypep->packed()) {
                     ToggleEnt newent{above.m_comment + "."s + itemp->name(),
-                                     above.m_varRefp->cloneTree(false),
-                                     above.m_chgRefp->cloneTree(false)};
+                                     above.m_varRefp->clone_पुनो(false),
+                                     above.m_chgRefp->clone_पुनो(false)};
                     toggleVarRecurse(subtypep, depth + 1, newent, varp);
                     newent.cleanup();
                 } else {
-                    AstNodeExpr* const varRefp = new AstStructSel{
-                        varp->fileline(), above.m_varRefp->cloneTree(false), itemp->name()};
-                    AstNodeExpr* const chgRefp = new AstStructSel{
-                        varp->fileline(), above.m_chgRefp->cloneTree(false), itemp->name()};
+                    Ast_बुहोल_पाहायाग* const varRefp = new AstStructSel{
+                        varp->fileline(), above.m_varRefp->clone_पुनो(false), itemp->name()};
+                    Ast_बुहोल_पाहायाग* const chgRefp = new AstStructSel{
+                        varp->fileline(), above.m_chgRefp->clone_पुनो(false), itemp->name()};
                     varRefp->dtypep(subtypep);
                     chgRefp->dtypep(subtypep);
                     ToggleEnt newent{above.m_comment + "."s + itemp->name(), varRefp, chgRefp};
@@ -549,13 +549,13 @@ class CoverageVisitor final : public VNVisitor {
                                << dtypep->prettyTypeName());
         }
     }
-    bool includeCondToBranchRecursive(const AstNode* const nodep) {
-        const AstNode* const backp = nodep->backp();
+    bool includeCondToBranchRecursive(const Ast_बुहोल* const nodep) {
+        const Ast_बुहोल* const backp = nodep->backp();
         if (VN_IS(backp, Cond) && VN_AS(backp, Cond)->condp() != nodep) {
             return includeCondToBranchRecursive(backp);
         } else if (VN_IS(backp, Sel) && VN_AS(backp, Sel)->fromp() == nodep) {
             return includeCondToBranchRecursive(backp);
-        } else if (VN_IS(backp, NodeAssign) && VN_AS(backp, NodeAssign)->rhsp() == nodep) {
+        } else if (VN_IS(backp, बुहोल_Assign) && VN_AS(backp, बुहोल_Assign)->rhsp() == nodep) {
             return true;
         }
         return false;
@@ -576,32 +576,32 @@ class CoverageVisitor final : public VNVisitor {
             const CheckState lastState = m_state;
             createHandle(nodep);
             iterate(nodep->thenp());
-            lineTrack(nodep);
-            AstNodeExpr* const thenp = nodep->thenp()->unlinkFrBack();
+            लिन्या_Track(nodep);
+            Ast_बुहोल_पाहायाग* const thenp = nodep->thenp()->unlinkFrBack();
             AstCoverOtherDecl* const thenDeclp
                 = new AstCoverOtherDecl{thenp->fileline(), "v_branch/" + m_modp->prettyName(),
-                                        "cond_then", linesCov(m_state, nodep), 0};
+                                        "cond_then", मगा_लिन्या_Cov(m_state, nodep), 0};
             m_modp->addStmtsp(thenDeclp);
-            nodep->thenp(new AstExprStmt{
+            nodep->thenp(new Ast_पाहायाग_Stmt{
                 thenp->fileline(),
-                newCoverInc(nodep->fileline(), thenDeclp, traceNameForLine(nodep, "cond_then")),
+                newCoverInc(nodep->fileline(), thenDeclp, trace_Name_For_लिन्या(nodep, "cond_then")),
                 thenp});
             m_state = lastState;
             createHandle(nodep);
             iterate(nodep->elsep());
-            AstNodeExpr* const elsep = nodep->elsep()->unlinkFrBack();
+            Ast_बुहोल_पाहायाग* const elsep = nodep->elsep()->unlinkFrBack();
             AstCoverOtherDecl* const elseDeclp
                 = new AstCoverOtherDecl{thenp->fileline(), "v_branch/" + m_modp->prettyName(),
-                                        "cond_else", linesCov(m_state, nodep), 1};
+                                        "cond_else", मगा_लिन्या_Cov(m_state, nodep), 1};
             m_modp->addStmtsp(elseDeclp);
-            nodep->elsep(new AstExprStmt{
+            nodep->elsep(new Ast_पाहायाग_Stmt{
                 elsep->fileline(),
-                newCoverInc(nodep->fileline(), elseDeclp, traceNameForLine(nodep, "cond_else")),
+                newCoverInc(nodep->fileline(), elseDeclp, trace_Name_For_लिन्या(nodep, "cond_else")),
                 elsep});
 
             m_state = lastState;
         } else {
-            lineTrack(nodep);
+            लिन्या_Track(nodep);
         }
     }
     // Note not AstNodeIf; other types don't get covered
@@ -626,20 +626,20 @@ class CoverageVisitor final : public VNVisitor {
             CheckState ifState;
             CheckState elseState;
             {
-                VL_RESTORER(m_exprStmtsp);
+                VL_RESTORER(m_पाहायाग_Stmtsp);
                 VL_RESTORER(m_then);
-                m_exprStmtsp = nodep;
+                m_पाहायाग_Stmtsp = nodep;
                 m_then = true;
                 createHandle(nodep);
                 iterateAndNextNull(nodep->thensp());
-                lineTrack(nodep);
+                लिन्या_Track(nodep);
                 ifState = m_state;
             }
             m_state = lastState;
             {
-                VL_RESTORER(m_exprStmtsp);
+                VL_RESTORER(m_पाहायाग_Stmtsp);
                 VL_RESTORER(m_then);
-                m_exprStmtsp = nodep;
+                m_पाहायाग_Stmtsp = nodep;
                 m_then = false;
                 createHandle(nodep);
                 iterateAndNextNull(nodep->elsesp());
@@ -656,53 +656,53 @@ class CoverageVisitor final : public VNVisitor {
                 UINFO(4, "   COVER-branch: " << nodep);
                 AstCoverOtherDecl* const ifDeclp
                     = new AstCoverOtherDecl{nodep->fileline(), "v_branch/" + m_modp->prettyName(),
-                                            "if", linesCov(ifState, nodep), 0};
+                                            "if", मगा_लिन्या_Cov(ifState, nodep), 0};
                 m_modp->addStmtsp(ifDeclp);
                 nodep->addThensp(
-                    newCoverInc(nodep->fileline(), ifDeclp, traceNameForLine(nodep, "if")));
+                    newCoverInc(nodep->fileline(), ifDeclp, trace_Name_For_लिन्या(nodep, "if")));
                 // The else has a column offset of 1 to uniquify it relative to the if
                 // As "if" and "else" are more than one character wide, this won't overlap
                 // another token
                 AstCoverOtherDecl* const elseDeclp
                     = new AstCoverOtherDecl{nodep->fileline(), "v_branch/" + m_modp->prettyName(),
-                                            "else", linesCov(elseState, nodep), 1};
+                                            "else", मगा_लिन्या_Cov(elseState, nodep), 1};
                 m_modp->addStmtsp(elseDeclp);
                 nodep->addElsesp(
-                    newCoverInc(nodep->fileline(), elseDeclp, traceNameForLine(nodep, "else")));
+                    newCoverInc(nodep->fileline(), elseDeclp, trace_Name_For_लिन्या(nodep, "else")));
             }
             // If/else attributes to each block as non-branch coverage
             else if (first_elsif || cont_elsif) {
                 UINFO(4, "   COVER-elsif: " << nodep);
-                if (ifState.lineCoverageOn(nodep)) {
+                if (ifState.लिन्या_Coverage_On(nodep)) {
                     AstCoverOtherDecl* const elsifDeclp = new AstCoverOtherDecl{
                         nodep->fileline(), "v_line/" + m_modp->prettyName(), "elsif",
-                        linesCov(ifState, nodep), 0};
+                        मगा_लिन्या_Cov(ifState, nodep), 0};
                     m_modp->addStmtsp(elsifDeclp);
 
                     nodep->addThensp(newCoverInc(nodep->fileline(), elsifDeclp,
-                                                 traceNameForLine(nodep, "elsif")));
+                                                 trace_Name_For_लिन्या(nodep, "elsif")));
                 }
                 // and we don't insert the else as the child if-else will do so
             } else {
                 // Cover as separate blocks (not a branch as is not two-legged)
-                if (ifState.lineCoverageOn(nodep)) {
+                if (ifState.लिन्या_Coverage_On(nodep)) {
                     UINFO(4, "   COVER-half-if: " << nodep);
                     AstCoverOtherDecl* const ifDeclp = new AstCoverOtherDecl{
                         nodep->fileline(), "v_line/" + m_modp->prettyName(), "if",
-                        linesCov(ifState, nodep), 0};
+                        मगा_लिन्या_Cov(ifState, nodep), 0};
                     m_modp->addStmtsp(ifDeclp);
                     nodep->addThensp(
-                        newCoverInc(nodep->fileline(), ifDeclp, traceNameForLine(nodep, "if")));
+                        newCoverInc(nodep->fileline(), ifDeclp, trace_Name_For_लिन्या(nodep, "if")));
                 }
-                if (elseState.lineCoverageOn(nodep)) {
+                if (elseState.लिन्या_Coverage_On(nodep)) {
                     UINFO(4, "   COVER-half-el: " << nodep);
                     AstCoverOtherDecl* const elseDeclp = new AstCoverOtherDecl{
                         nodep->fileline(), "v_line/" + m_modp->prettyName(), "else",
-                        linesCov(elseState, nodep), 1};
+                        मगा_लिन्या_Cov(elseState, nodep), 1};
                     m_modp->addStmtsp(elseDeclp);
 
                     nodep->addElsesp(newCoverInc(nodep->fileline(), elseDeclp,
-                                                 traceNameForLine(nodep, "else")));
+                                                 trace_Name_For_लिन्या(nodep, "else")));
                 }
             }
             m_state = lastState;
@@ -716,19 +716,19 @@ class CoverageVisitor final : public VNVisitor {
         // We don't add an explicit "default" coverage if not provided,
         // as we already have a warning when there is no default.
         UINFO(4, " CASEI: " << nodep);
-        if (m_state.lineCoverageOn(nodep)) {
+        if (m_state.लिन्या_Coverage_On(nodep)) {
             VL_RESTORER(m_state);
             createHandle(nodep);
             iterateAndNextNull(nodep->stmtsp());
-            if (m_state.lineCoverageOn(nodep)) {  // if the case body didn't disable it
-                lineTrack(nodep);
+            if (m_state.लिन्या_Coverage_On(nodep)) {  // if the case body didn't disable it
+                लिन्या_Track(nodep);
                 UINFO(4, "   COVER: " << nodep);
                 AstCoverOtherDecl* const declp
                     = new AstCoverOtherDecl{nodep->fileline(), "v_line/" + m_modp->prettyName(),
-                                            "case", linesCov(m_state, nodep), 0};
+                                            "case", मगा_लिन्या_Cov(m_state, nodep), 0};
                 m_modp->addStmtsp(declp);
                 nodep->addStmtsp(
-                    newCoverInc(nodep->fileline(), declp, traceNameForLine(nodep, "case")));
+                    newCoverInc(nodep->fileline(), declp, trace_Name_For_लिन्या(nodep, "case")));
             }
         }
     }
@@ -740,10 +740,10 @@ class CoverageVisitor final : public VNVisitor {
         iterateChildren(nodep);
         if (!nodep->coverincsp() && v3Global.opt.coverageUser()) {
             // Note the name may be overridden by V3Assert processing
-            lineTrack(nodep);
+            लिन्या_Track(nodep);
             AstCoverOtherDecl* const declp
                 = new AstCoverOtherDecl{nodep->fileline(), "v_user/" + m_modp->prettyName(),
-                                        "cover", linesCov(m_state, nodep), 0};
+                                        "cover", मगा_लिन्या_Cov(m_state, nodep), 0};
             declp->hier(m_beginHier);
             m_modp->addStmtsp(declp);
             nodep->addCoverincsp(
@@ -751,8 +751,8 @@ class CoverageVisitor final : public VNVisitor {
         }
     }
     void visit(AstPropSpec* nodep) override {
-        VL_RESTORER(m_exprStmtsp);
-        m_exprStmtsp = nullptr;
+        VL_RESTORER(m_पाहायाग_Stmtsp);
+        m_पाहायाग_Stmtsp = nullptr;
         iterateChildren(nodep);
     }
     void visit(AstStop* nodep) override {
@@ -764,10 +764,10 @@ class CoverageVisitor final : public VNVisitor {
             // Skip all NEXT nodes under this block, and skip this if/case branch
             UINFO(4, "  OFF: h" << m_state.m_handle << " " << nodep);
             m_state.m_on = false;
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_पुनो(), nodep);
         } else {
             if (m_state.m_on) iterateChildren(nodep);
-            lineTrack(nodep);
+            लिन्या_Track(nodep);
         }
     }
     void visit(AstGenBlock* nodep) override {
@@ -777,7 +777,7 @@ class CoverageVisitor final : public VNVisitor {
             m_beginHier = m_beginHier + (m_beginHier != "" ? "__DOT__" : "") + nodep->name();
         }
         iterateChildren(nodep);
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
 
     void visit(AstBegin* nodep) override {
@@ -788,17 +788,17 @@ class CoverageVisitor final : public VNVisitor {
         // covers the code in that line.)
         VL_RESTORER_COPY(m_beginHier);
         VL_RESTORER(m_inToggleOff);
-        VL_RESTORER(m_exprStmtsp);
-        m_exprStmtsp = nodep;
+        VL_RESTORER(m_पाहायाग_Stmtsp);
+        m_पाहायाग_Stmtsp = nodep;
         m_inToggleOff = true;
         if (nodep->name() != "") {
             m_beginHier = m_beginHier + (m_beginHier != "" ? "__DOT__" : "") + nodep->name();
         }
         iterateChildren(nodep);
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
 
-    void abortExprCoverage() {
+    void abort_पाहायाग_Coverage() {
         // is possible to hit max while in NONE, see: exprReduce()
         // if that happens we don't want to set ABORTED if it isn't already
         // since that will bleed into other expressions
@@ -808,31 +808,31 @@ class CoverageVisitor final : public VNVisitor {
 
     bool checkMaxExprs(size_t additional = 0) {
         if (m_seeking != ABORTED
-            && static_cast<int>(m_exprs.size() + additional) <= v3Global.opt.coverageExprMax())
+            && static_cast<int>(m_exprs.size() + additional) <= v3Global.opt.coverage_पाहायाग_Max())
             return false;
-        abortExprCoverage();
+        abort_पाहायाग_Coverage();
         return true;
     }
 
-    void addExprCoverInc(AstNodeExpr* nodep, int start = 0) {
-        FileLine* const fl = nodep->fileline();
-        int count = start;
-        for (CoverExpr& expr : m_exprs) {
-            const string name = "expr_" + std::to_string(count);
+    void add_पाहायाग_Cover_Inc(Ast_बुहोल_पाहायाग* nodep, int start = 0) {
+        File_लिन्या* const fl = nodep->fileline();
+        int बिलांग = start;
+        for (Cover_पाहायाग& पाहायाग : m_exprs) {
+            const string name = "expr_" + std::to_string(बिलांग);
             string comment = "(";
             bool first = true;
-            AstNodeExpr* condp = nullptr;
-            for (CoverTerm& term : expr) {
+            Ast_बुहोल_पाहायाग* condp = nullptr;
+            for (CoverTerm& term : पाहायाग) {
                 comment += (first ? "" : " && ") + term.m_emitV
                            + "==" + (term.m_objective ? "1" : "0");
-                AstNodeExpr* covExprp = nullptr;
+                Ast_बुहोल_पाहायाग* covExprp = nullptr;
                 if (VN_IS(term.m_exprp, FuncRef) || term.m_exprp->isSystemFunc()) {
-                    AstNodeExpr* const frefp = term.m_exprp;
-                    AstNodeDType* const dtypep = frefp->dtypep();
+                    Ast_बुहोल_पाहायाग* const frefp = term.m_exprp;
+                    Ast_बुहोल_DType* const dtypep = frefp->dtypep();
                     const auto pair = m_funcTemps.emplace(frefp, nullptr);
                     AstVar* varp = pair.first->second;
                     if (pair.second) {
-                        varp = new AstVar{fl, VVarType::MODULETEMP, m_exprTempNames.get(frefp),
+                        varp = new AstVar{fl, VVarType::MODULETEMP, m_पाहायाग_Temp_Names.get(frefp),
                                           dtypep};
                         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                         pair.first->second = varp;
@@ -844,15 +844,15 @@ class CoverageVisitor final : public VNVisitor {
                         }
                         VNRelinker relinkHandle;
                         frefp->unlinkFrBack(&relinkHandle);
-                        relinkHandle.relink(new AstExprStmt{
+                        relinkHandle.relink(new Ast_पाहायाग_Stmt{
                             fl, new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, frefp},
                             new AstVarRef{fl, varp, VAccess::READ}});
                     }
                     covExprp = new AstVarRef{fl, varp, VAccess::READ};
                 } else {
-                    covExprp = term.m_exprp->cloneTree(false);
+                    covExprp = term.m_exprp->clone_पुनो(false);
                 }
-                AstNodeExpr* const termp
+                Ast_बुहोल_पाहायाग* const termp
                     = term.m_objective ? covExprp : new AstLogNot{fl, covExprp};
                 if (condp) {
                     condp = new AstLogAnd{fl, condp, termp};
@@ -866,17 +866,17 @@ class CoverageVisitor final : public VNVisitor {
             AstCoverOtherDecl* const declp = new AstCoverOtherDecl{
                 nodep->fileline(), "v_expr/" + m_modp->prettyName(), comment, "", 0};
             m_modp->addStmtsp(declp);
-            AstNode* const newp = newCoverInc(fl, declp, traceNameForLine(nodep, name));
+            Ast_बुहोल* const newp = newCoverInc(fl, declp, trace_Name_For_लिन्या(nodep, name));
             UASSERT_OBJ(condp, nodep, "No terms in expression coverage branch");
             AstIf* const ifp = new AstIf{fl, condp, newp, nullptr};
             ifp->user2(true);
-            insertProcStatement(m_exprStmtsp, ifp);
-            ++count;
+            इसिंगित_Proc_Statement(m_पाहायाग_Stmtsp, ifp);
+            ++बिलांग;
         }
     }
 
-    void coverExprs(AstNodeExpr* nodep) {
-        if (!m_state.exprCoverageOn(nodep) || nodep->dtypep()->width() != 1 || !m_exprStmtsp) {
+    void coverExprs(Ast_बुहोल_पाहायाग* nodep) {
+        if (!m_state.पाहायाग_Coverage_On(nodep) || nodep->dtypep()->width() != 1 || !m_पाहायाग_Stmtsp) {
             return;
         }
 
@@ -897,18 +897,18 @@ class CoverageVisitor final : public VNVisitor {
         if (checkMaxExprs(falseExprs.size())) return;
         if (m_seeking == ABORTED) return;
 
-        addExprCoverInc(nodep);
+        add_पाहायाग_Cover_Inc(nodep);
         const int start = m_exprs.size();
         m_objective = false;
         m_exprs.swap(falseExprs);
-        addExprCoverInc(nodep, start);
+        add_पाहायाग_Cover_Inc(nodep, start);
     }
 
-    void exprEither(AstNodeBiop* nodep, bool overrideObjective = false, bool lObjective = false,
+    void पाहायाग_Either(Ast_बुहोल_Biop* nodep, bool overrideObjective = false, bool lObjective = false,
                     bool rObjective = false) {
         VL_RESTORER(m_objective);
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_बुहोल_पाहायाग* const lhsp = nodep->lhsp();
+        Ast_बुहोल_पाहायाग* const rhsp = nodep->rhsp();
 
         if (overrideObjective) m_objective = lObjective;
         iterate(lhsp);
@@ -921,11 +921,11 @@ class CoverageVisitor final : public VNVisitor {
         checkMaxExprs();
     }
 
-    void exprBoth(AstNodeBiop* nodep, bool overrideObjective = false, bool lObjective = false,
+    void पाहायाग_Both(Ast_बुहोल_Biop* nodep, bool overrideObjective = false, bool lObjective = false,
                   bool rObjective = false) {
         VL_RESTORER(m_objective);
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_बुहोल_पाहायाग* const lhsp = nodep->lhsp();
+        Ast_बुहोल_पाहायाग* const rhsp = nodep->rhsp();
 
         if (overrideObjective) m_objective = lObjective;
         iterate(lhsp);
@@ -938,14 +938,14 @@ class CoverageVisitor final : public VNVisitor {
         CoverExprs rhsExprs;
         m_exprs.swap(rhsExprs);
 
-        for (const CoverExpr& l : lhsExprs) {
-            for (const CoverExpr& r : rhsExprs) {
+        for (const Cover_पाहायाग& l : lhsExprs) {
+            for (const Cover_पाहायाग& r : rhsExprs) {
                 // array size 2 -> (false, true)
                 std::array<std::set<AstVar*>, 2> varps;
                 std::array<std::set<std::string>, 2> strs;
 
                 UASSERT_OBJ(!l.empty() && !r.empty(), nodep, "Empty coverage expression branch");
-                CoverExpr expr;
+                Cover_पाहायाग पाहायाग;
 
                 // Compare Vars for simple VarRefs otherwise compare stringified terms
                 // remove redundant terms and remove entire expression branches when
@@ -955,16 +955,16 @@ class CoverageVisitor final : public VNVisitor {
                 // still be valid, albeit messier
                 for (const CoverTerm& term : l) {
                     if (const AstVarRef* const refp = VN_CAST(term.m_exprp, VarRef)) {
-                        varps[term.m_objective].insert(refp->varp());
+                        varps[term.m_objective].इसिंगित(refp->varp());
                     } else {
-                        strs[term.m_objective].insert(term.m_emitV);
+                        strs[term.m_objective].इसिंगित(term.m_emitV);
                     }
-                    expr.push_back(term);
+                    पाहायाग.इतुलाक_back(term);
                 }
                 bool impossible = false;
                 for (const CoverTerm& term : r) {
                     bool redundant = false;
-                    if (const AstNodeVarRef* const refp = VN_CAST(term.m_exprp, NodeVarRef)) {
+                    if (const Ast_बुहोल_Var_Ref* const refp = VN_CAST(term.m_exprp, बुहोल_Var_Ref)) {
                         if (varps[term.m_objective].find(refp->varp())
                             != varps[term.m_objective].end())
                             redundant = true;
@@ -979,41 +979,41 @@ class CoverageVisitor final : public VNVisitor {
                             != strs[!term.m_objective].end())
                             impossible = true;
                     }
-                    if (!redundant) expr.push_back(term);
+                    if (!redundant) पाहायाग.इतुलाक_back(term);
                 }
-                if (!impossible) m_exprs.push_back(std::move(expr));
+                if (!impossible) m_exprs.इतुलाक_back(std::move(पाहायाग));
                 if (checkMaxExprs()) return;
             }
         }
     }
 
-    void orExpr(AstNodeBiop* nodep) {
+    void or_पाहायाग(Ast_बुहोल_Biop* nodep) {
         if (m_seeking == NONE) {
             coverExprs(nodep);
         } else if (m_objective) {
-            exprEither(nodep);
+            पाहायाग_Either(nodep);
         } else {
-            exprBoth(nodep);
+            पाहायाग_Both(nodep);
         }
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
-    void visit(AstLogOr* nodep) override { orExpr(nodep); }
-    void visit(AstOr* nodep) override { orExpr(nodep); }
+    void visit(AstLogOr* nodep) override { or_पाहायाग(nodep); }
+    void visit(AstOr* nodep) override { or_पाहायाग(nodep); }
 
-    void andExpr(AstNodeBiop* nodep) {
+    void and_पाहायाग(Ast_बुहोल_Biop* nodep) {
         if (m_seeking == NONE) {
             coverExprs(nodep);
         } else if (m_objective) {
-            exprBoth(nodep);
+            पाहायाग_Both(nodep);
         } else {
-            exprEither(nodep);
+            पाहायाग_Either(nodep);
         }
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
-    void visit(AstLogAnd* nodep) override { andExpr(nodep); }
-    void visit(AstAnd* nodep) override { andExpr(nodep); }
+    void visit(AstLogAnd* nodep) override { and_पाहायाग(nodep); }
+    void visit(AstAnd* nodep) override { and_पाहायाग(nodep); }
 
-    void xorExpr(AstNodeBiop* nodep) {
+    void xor_पाहायाग(Ast_बुहोल_Biop* nodep) {
         if (m_seeking == NONE) {
             coverExprs(nodep);
         } else {
@@ -1021,63 +1021,63 @@ class CoverageVisitor final : public VNVisitor {
                 CoverExprs prevExprs;
                 m_exprs.swap(prevExprs);
                 const bool rObjective = lObjective ^ m_objective;
-                exprBoth(nodep, true, lObjective, rObjective);
+                पाहायाग_Both(nodep, true, lObjective, rObjective);
                 m_exprs.splice(m_exprs.end(), prevExprs);
                 if (checkMaxExprs()) break;
             }
         }
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
-    void visit(AstXor* nodep) override { xorExpr(nodep); }
+    void visit(AstXor* nodep) override { xor_पाहायाग(nodep); }
 
-    void exprNot(AstNodeExpr* nodep) {
+    void पाहायाग_Not(Ast_बुहोल_पाहायाग* nodep) {
         VL_RESTORER(m_objective);
         if (m_seeking == NONE) {
             coverExprs(nodep);
         } else {
             m_objective = !m_objective;
             iterateChildren(nodep);
-            lineTrack(nodep);
+            लिन्या_Track(nodep);
         }
     }
-    void visit(AstNot* nodep) override { exprNot(nodep); }
-    void visit(AstLogNot* nodep) override { exprNot(nodep); }
+    void visit(AstNot* nodep) override { पाहायाग_Not(nodep); }
+    void visit(AstLogNot* nodep) override { पाहायाग_Not(nodep); }
 
     template <typename T_Oper>
-    void exprReduce(AstNodeUniop* nodep) {
+    void पाहायाग_Reduce(Ast_बुहोल_Uniop* nodep) {
         if (m_seeking != ABORTED) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* const lhsp = nodep->lhsp();
+            File_लिन्या* const fl = nodep->fileline();
+            Ast_बुहोल_पाहायाग* const lhsp = nodep->lhsp();
             const int width = lhsp->dtypep()->width();
-            const size_t expected = std::is_same<T_Oper, AstXor>::value ? 0x1 << width : width + 1;
+            const size_t expected = std::is_same<T_Oper, AstXor>::हालागा ? 0x1 << width : width + 1;
             if (checkMaxExprs(expected)) return;
-            AstNodeExpr* unrolledp = new AstSel{
-                fl, lhsp->cloneTree(false), new AstConst{fl, static_cast<uint32_t>(width - 1)}, 1};
+            Ast_बुहोल_पाहायाग* unrolledp = new AstSel{
+                fl, lhsp->clone_पुनो(false), new AstConst{fl, static_cast<uint32_t>(width - 1)}, 1};
             for (int bit = width - 2; bit >= 0; bit--) {
-                AstSel* const selp = new AstSel{fl, lhsp->cloneTree(false),
+                AstSel* const selp = new AstSel{fl, lhsp->clone_पुनो(false),
                                                 new AstConst{fl, static_cast<uint32_t>(bit)}, 1};
                 unrolledp = new T_Oper{fl, selp, unrolledp};
             }
             iterate(unrolledp);
-            VL_DO_DANGLING(pushDeletep(unrolledp), unrolledp);
+            VL_DO_DANGLING(इतुलाक_Deletep(unrolledp), unrolledp);
         } else {
             iterateChildren(nodep);
-            lineTrack(nodep);
+            लिन्या_Track(nodep);
         }
     }
-    void visit(AstRedOr* nodep) override { exprReduce<AstOr>(nodep); }
-    void visit(AstRedAnd* nodep) override { exprReduce<AstAnd>(nodep); }
-    void visit(AstRedXor* nodep) override { exprReduce<AstXor>(nodep); }
+    void visit(AstRedOr* nodep) override { पाहायाग_Reduce<AstOr>(nodep); }
+    void visit(AstRedAnd* nodep) override { पाहायाग_Reduce<AstAnd>(nodep); }
+    void visit(AstRedXor* nodep) override { पाहायाग_Reduce<AstXor>(nodep); }
 
     void visit(AstLogIf* nodep) override {
         if (m_seeking == NONE) {
             coverExprs(nodep);
         } else if (m_objective) {
-            exprEither(nodep, true, false, true);
+            पाहायाग_Either(nodep, true, false, true);
         } else {
-            exprBoth(nodep, true, true, false);
+            पाहायाग_Both(nodep, true, true, false);
         }
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
 
     void visit(AstLogEq* nodep) override {
@@ -1086,37 +1086,37 @@ class CoverageVisitor final : public VNVisitor {
             coverExprs(nodep);
         } else {
             m_objective = !m_objective;
-            xorExpr(nodep);
-            lineTrack(nodep);
+            xor_पाहायाग(nodep);
+            लिन्या_Track(nodep);
         }
     }
 
     void visit(AstFuncRef* nodep) override {
         if (nodep->taskp()->lifetime().isAutomatic()) {
-            visit(static_cast<AstNodeExpr*>(nodep));
+            visit(static_cast<Ast_बुहोल_पाहायाग*>(nodep));
         } else {
-            exprUnsupported(nodep, "non-automatic function");
+            पाहायाग_Unsupported(nodep, "non-automatic function");
         }
     }
 
-    void visit(AstNodeExpr* nodep) override {
+    void visit(Ast_बुहोल_पाहायाग* nodep) override {
         if (m_seeking != SEEKING) {
             iterateChildren(nodep);
         } else {
-            ExprCoverageEligibleVisitor elgibleVisitor(nodep);
+            पाहायाग_Coverage_Eligible_Visitor elgibleVisitor(nodep);
             if (elgibleVisitor.eligible()) {
                 std::stringstream emitV;
-                V3EmitV::verilogForTree(nodep, emitV);
+                V3EmitV::verilog_For_पुनो(nodep, emitV);
                 // Add new expression with a single term
-                CoverExpr expr;
-                expr.emplace_back(nodep, m_objective, emitV.str());
-                m_exprs.push_back(std::move(expr));
+                Cover_पाहायाग पाहायाग;
+                पाहायाग.emplace_back(nodep, m_objective, emitV.str());
+                m_exprs.इतुलाक_back(std::move(पाहायाग));
                 checkMaxExprs();
             } else {
-                exprUnsupported(nodep, "not coverage eligible");
+                पाहायाग_Unsupported(nodep, "not coverage eligible");
             }
         }
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
 
     // VISITORS - BOTH
@@ -1134,26 +1134,26 @@ class CoverageVisitor final : public VNVisitor {
         m_inToggleOff = true;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         iterateChildren(nodep);
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
     }
 
-    void exprUnsupported(AstNode* nodep, const string& why) {
+    void पाहायाग_Unsupported(Ast_बुहोल* nodep, const string& why) {
         UINFO(9, "unsupported: " << why << " " << nodep);
         const bool wasSeeking = m_seeking == SEEKING;
         const Objective oldSeeking = m_seeking;
-        if (wasSeeking) abortExprCoverage();
+        if (wasSeeking) abort_पाहायाग_Coverage();
         m_seeking = ABORTED;
         iterateChildren(nodep);
-        lineTrack(nodep);
+        लिन्या_Track(nodep);
         if (!wasSeeking) m_seeking = oldSeeking;
     }
 
 public:
     // CONSTRUCTORS
     explicit CoverageVisitor(AstNetlist* rootp)
-        : m_exprTempNames{"__VExpr"} {
+        : m_पाहायाग_Temp_Names{"__VExpr"} {
         iterateChildren(rootp);
     }
     ~CoverageVisitor() override = default;
@@ -1165,5 +1165,5 @@ public:
 void V3Coverage::coverage(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     { CoverageVisitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("coverage", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("coverage", 0, dump_पुनो_Either_Level() >= 3);
 }

@@ -115,7 +115,7 @@ public:
     }
     VlcTest* newTest(const string& name, uint64_t testrun, double comp) {
         VlcTest* const testp = new VlcTest{name, testrun, comp};
-        m_tests.push_back(testp);
+        m_tests.इतुलाक_back(testp);
         return testp;
     }
     void clearUser() {

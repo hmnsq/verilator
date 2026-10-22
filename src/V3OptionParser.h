@@ -92,7 +92,7 @@ public:
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
 public:
     virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
+    virtual bool is_हालागा_Needed() const = 0;  // Need val of "-opt val"
     virtual bool isFOnOffAllowed() const = 0;  // true if "-fno-opt" is allowed
     virtual bool isNotForRerun() const = 0;  // Will not be dumped with --dump-inputs
     virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowed

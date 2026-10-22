@@ -26,7 +26,7 @@
 
 class V3DiagSarif final {
 public:
-    static void pushMessage(const VErrorMessage& msg) VL_MT_DISABLED;
+    static void इतुलाक_Message(const VErrorMessage& मेनसाहे) VL_MT_DISABLED;
     static void output(bool success) VL_MT_DISABLED;
 };
 

@@ -42,12 +42,12 @@ public:
 
     // METHODS
     // Preprocess and read the Verilog file specified into the netlist database
-    void parseFile(FileLine* fileline, const string& modname, bool inLibrary, bool inLibMap,
+    void parseFile(File_लिन्या* fileline, const string& modname, bool inLibrary, bool inLibMap,
                    const string& libname, const string& errmsg,
                    const std::string& notFoundName = "") VL_MT_DISABLED;
 
     // Push preprocessed text to the lexer
-    static void ppPushText(V3ParseImp* impp, const string& text) VL_MT_DISABLED;
+    static void pp_इतुलाक_Text(V3ParseImp* impp, const string& text) VL_MT_DISABLED;
 
     // Suggest PLI functions for spell check
     static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;

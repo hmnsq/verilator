@@ -31,34 +31,34 @@
 // Collect SenTrees under the entire scope
 // And provide functions to find/add a new one
 
-class SenTreeFinder final {
+class Sen_पुनो_Finder final {
     // STATE - across all visitors
-    AstTopScope* const m_topScopep;  // Top scope to add global SenTrees to
-    std::unordered_set<VNRef<AstSenTree>> m_trees;  // Set of global SenTrees
-    AstSenTree* m_combop = nullptr;  // The unique combinational domain SenTree
-    AstSenTree* m_initialp = nullptr;  // The unique initial domain SenTree
+    Ast_इताअस_Scope* const m_इताअस_Scopep;  // Top scope to add global SenTrees to
+    std::unordered_set<VNRef<Ast_Sen_पुनो>> m_trees;  // Set of global SenTrees
+    Ast_Sen_पुनो* m_combop = nullptr;  // The unique combinational domain SenTree
+    Ast_Sen_पुनो* m_initialp = nullptr;  // The unique initial domain SenTree
 
-    VL_UNCOPYABLE(SenTreeFinder);
+    VL_UNCOPYABLE(Sen_पुनो_Finder);
 
     template <typename T_Domain>  //
-    AstSenTree* makeUnique() {
-        FileLine* const fl = m_topScopep->fileline();
-        AstSenTree* const senTreep = new AstSenTree{fl, new AstSenItem{fl, T_Domain{}}};
-        AstSenTree* const restultp = getSenTree(senTreep);
-        VL_DO_DANGLING(senTreep->deleteTree(), senTreep);  // getSenTree clones, so can delete
+    Ast_Sen_पुनो* makeUnique() {
+        File_लिन्या* const fl = m_इताअस_Scopep->fileline();
+        Ast_Sen_पुनो* const senTreep = new Ast_Sen_पुनो{fl, new AstSenItem{fl, T_Domain{}}};
+        Ast_Sen_पुनो* const restultp = get_Sen_पुनो(senTreep);
+        VL_DO_DANGLING(senTreep->delete_पुनो(), senTreep);  // getSenTree clones, so can delete
         return restultp;
     }
 
 public:
     // CONSTRUCTORS
-    SenTreeFinder()
-        : SenTreeFinder{v3Global.rootp()} {}
+    Sen_पुनो_Finder()
+        : Sen_पुनो_Finder{v3Global.rootp()} {}
 
-    explicit SenTreeFinder(AstNetlist* netlistp)
-        : m_topScopep{netlistp->topScopep()} {
+    explicit Sen_पुनो_Finder(AstNetlist* netlistp)
+        : m_इताअस_Scopep{netlistp->इताअस_Scopep()} {
         // Gather existing global SenTrees
-        for (AstSenTree* senTreep = m_topScopep->senTreesp(); senTreep;
-             senTreep = VN_AS(senTreep->nextp(), SenTree)) {
+        for (Ast_Sen_पुनो* senTreep = m_इताअस_Scopep->senTreesp(); senTreep;
+             senTreep = VN_AS(senTreep->nextp(), Sen_पुनो)) {
             m_trees.emplace(*senTreep);
             if (senTreep->hasCombo()) m_combop = senTreep;
             if (senTreep->hasInitial()) m_initialp = senTreep;
@@ -69,28 +69,28 @@ public:
 
     // Return a global AstSenTree equivalent to the given senTreep.
     // If no such global AstSenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getSenTree(AstSenTree* senTreep) {
+    Ast_Sen_पुनो* get_Sen_पुनो(Ast_Sen_पुनो* senTreep) {
         auto it = m_trees.find(*senTreep);
         // If match found, return it.
         if (it != m_trees.end()) return &(*it).get();
 
         // Not found, create a new one
-        AstSenTree* const newSenTreep = senTreep->cloneTree(false);
-        m_topScopep->addSenTreesp(newSenTreep);
+        Ast_Sen_पुनो* const newSenTreep = senTreep->clone_पुनो(false);
+        m_इताअस_Scopep->addSenTreesp(newSenTreep);
         m_trees.emplace(*newSenTreep);
         return newSenTreep;
     }
 
     // Return the global combinational AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getComb() {
+    Ast_Sen_पुनो* getComb() {
         if (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
         return m_combop;
     }
 
     // Return the global initial AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getInitial() {
+    Ast_Sen_पुनो* getInitial() {
         if (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
         return m_initialp;
     }

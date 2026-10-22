@@ -34,10 +34,10 @@ class V3PreShell final {
 public:
     static void boot() VL_MT_DISABLED;
     static void shutdown() VL_MT_DISABLED;
-    static bool preproc(FileLine* fl, const string& modname, VInFilter* filterp,
+    static bool preproc(File_लिन्या* fl, const string& modname, VInFilter* filterp,
                         V3ParseImp* parsep, const string& errmsg) VL_MT_DISABLED;
-    static void preprocInclude(FileLine* fl, const string& modname) VL_MT_DISABLED;
-    static void defineCmdLine(const string& name, const string& value) VL_MT_DISABLED;
+    static void preprocInclude(File_लिन्या* fl, const string& modname) VL_MT_DISABLED;
+    static void define_Cmd_लिन्या(const string& name, const string& हालागा) VL_MT_DISABLED;
     static void undef(const string& name) VL_MT_DISABLED;
     static void dumpDefines(std::ostream& os) VL_MT_DISABLED;
     static void candidateDefines(VSpellCheck* spellerp) VL_MT_DISABLED;

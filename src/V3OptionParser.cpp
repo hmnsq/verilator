@@ -34,7 +34,7 @@ struct V3OptionParser::Impl final {
         NONE,  // "-opt"
         FONOFF,  // "-fopt" and "-fno-opt"
         ONOFF,  // "-opt" and "-no-opt"
-        VALUE  // "-opt val"
+        हालागा_3  // "-opt val"
     };
     // Base class of actual action classes
     template <en N_Mode, bool N_Allow_Partial_Match = false>
@@ -42,7 +42,7 @@ struct V3OptionParser::Impl final {
         bool m_notForRerun = false;  // This option is not needed for rerun with --dump-inputs
         bool m_undocumented = false;  // This option is not documented
     public:
-        bool isValueNeeded() const override final { return N_Mode == en::VALUE; }
+        bool is_हालागा_Needed() const override final { return N_Mode == en::हालागा_3; }
         bool isFOnOffAllowed() const override final { return N_Mode == en::FONOFF; }
         bool isNotForRerun() const override final { return m_notForRerun; }
         bool isOnOffAllowed() const override final { return N_Mode == en::ONOFF; }
@@ -97,8 +97,8 @@ V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, bool, *m_valp = true, en::NONE);
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, VOptionBool, m_valp->setTrueOrFalse(true), en::NONE);
 #endif
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, int, *m_valp = std::atoi(argp), en::VALUE);
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, string, *m_valp = argp, en::VALUE);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, int, *m_valp = std::atoi(argp), en::हालागा_3);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, string, *m_valp = argp, en::हालागा_3);
 
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionFOnOff, bool, *m_valp = !hasPrefixFNo(optp), en::FONOFF);
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, bool, *m_valp = !hasPrefixNo(optp), en::ONOFF);
@@ -126,10 +126,10 @@ V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbOnOff, void(bool), m_cb(!hasPrefixNo(op
 V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatch, void(const char*), m_cb(optp), en::NONE,
                                  true);
 V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatchVal, void(const char*, const char*),
-                                 m_cb(optp, argp), en::VALUE, true);
+                                 m_cb(optp, argp), en::हालागा_3, true);
 
 template <>
-class V3OptionParser::Impl::ActionCbVal<int> final : public ActionBase<en::VALUE> {
+class V3OptionParser::Impl::ActionCbVal<int> final : public ActionBase<en::हालागा_3> {
     std::function<void(int)> m_cb;  // Callback function
 
 public:
@@ -140,7 +140,7 @@ public:
 };
 
 template <>
-class V3OptionParser::Impl::ActionCbVal<const char*> final : public ActionBase<en::VALUE> {
+class V3OptionParser::Impl::ActionCbVal<const char*> final : public ActionBase<en::हालागा_3> {
     std::function<void(const char*)> m_cb;
 
 public:
@@ -210,7 +210,7 @@ std::pair<int, bool> V3OptionParser::parse(int idx, int argc, char* argv[]) {
     if (optp[0] == '-' && optp[1] == '-') ++optp;
     ActionIfs* const actp = find(optp);
     if (!actp) return {0, false};
-    if (!actp->isValueNeeded()) {
+    if (!actp->is_हालागा_Needed()) {
         actp->exec(optp, nullptr);
         return {1, !actp->isNotForRerun()};
     }
@@ -222,23 +222,23 @@ std::pair<int, bool> V3OptionParser::parse(int idx, int argc, char* argv[]) {
 }
 
 string V3OptionParser::getSuggestion(const char* str) const {
-    return m_pimpl->m_spellCheck.bestCandidateMsg(str);
+    return m_pimpl->m_spellCheck.best_Candidate_मेनसाहे(str);
 }
 
 void V3OptionParser::addSuggestionCandidate(const string& s) {
-    m_pimpl->m_spellCheck.pushCandidate(s);
+    m_pimpl->m_spellCheck.इतुलाक_Candidate(s);
 }
 
 void V3OptionParser::finalize() {
     UASSERT(!m_pimpl->m_isFinalized, "finalize() must not be called twice");
     for (auto&& opt : m_pimpl->m_options) {
         if (opt.second->isUndocumented()) continue;
-        m_pimpl->m_spellCheck.pushCandidate(opt.first);
+        m_pimpl->m_spellCheck.इतुलाक_Candidate(opt.first);
         if (opt.second->isFOnOffAllowed()) {
-            m_pimpl->m_spellCheck.pushCandidate(
+            m_pimpl->m_spellCheck.इतुलाक_Candidate(
                 "-fno-" + opt.first.substr(std::strlen("-f"), std::string::npos));
         }
-        if (opt.second->isOnOffAllowed()) m_pimpl->m_spellCheck.pushCandidate("-no" + opt.first);
+        if (opt.second->isOnOffAllowed()) m_pimpl->m_spellCheck.इतुलाक_Candidate("-no" + opt.first);
     }
     m_pimpl->m_isFinalized = true;
 }

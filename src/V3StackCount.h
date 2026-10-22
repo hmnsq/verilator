@@ -21,16 +21,16 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-class AstNode;
+class Ast_बुहोल;
 
-class V3StackCount final {
+class V3_सालानसान_बिलांग final {
 public:
     // Return the estimate count of bytes needed in stack we'd incur while
     // running code in and under nodep.
     //
     // This is a rough estimate; we don't know what path we'll take through
     // conditionals in nodep, so we assume we take the longest path.
-    static uint64_t count(AstNode* nodep) VL_MT_DISABLED;
+    static uint64_t बिलांग(Ast_बुहोल* nodep) VL_MT_DISABLED;
 };
 
 #endif  // guard

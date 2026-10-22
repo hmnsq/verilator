@@ -50,15 +50,15 @@ public:
 };
 
 class V3CCtorsBuilder final {
-    AstNodeModule* const m_modp;  // Current module/class
+    Ast_बुहोल_Module* const m_modp;  // Current module/class
     const string m_basename;
     const VCtorType m_type;  // What kind of constructor are we creating
     std::list<AstCFunc*> m_newFunctions;  // Created functions, latest is at back
-    int m_numStmts = 0;  // Number of statements output
+    int m_नुमेरो_Stmts = 0;  // Number of statements output
 
     AstCFunc* makeNewFunc() {
-        const int funcNum = m_newFunctions.size();
-        const string funcName = m_basename + "_" + cvtToStr(funcNum);
+        const int func_नुमेरो = m_newFunctions.size();
+        const string funcName = m_basename + "_" + cvtToStr(func_नुमेरो);
         AstCFunc* const funcp = new AstCFunc{m_modp->fileline(), funcName, nullptr, "void"};
         funcp->isStatic(false);
         funcp->isLoose(!m_type.isClass());
@@ -78,26 +78,26 @@ class V3CCtorsBuilder final {
             funcp->addStmtsp(new AstCStmt{m_modp->fileline(), preventUnusedStmt});
         }
         m_modp->addStmtsp(funcp);
-        m_numStmts = 0;
+        m_नुमेरो_Stmts = 0;
         return funcp;
     }
 
 public:
-    void add(AstNode* nodep) {
-        if (m_newFunctions.empty()) m_newFunctions.push_back(makeNewFunc());
-        if (v3Global.opt.outputSplitCFuncs() && m_numStmts > v3Global.opt.outputSplitCFuncs()) {
-            m_newFunctions.push_back(makeNewFunc());
+    void add(Ast_बुहोल* nodep) {
+        if (m_newFunctions.empty()) m_newFunctions.इतुलाक_back(makeNewFunc());
+        if (v3Global.opt.outputSplitCFuncs() && m_नुमेरो_Stmts > v3Global.opt.outputSplitCFuncs()) {
+            m_newFunctions.इतुलाक_back(makeNewFunc());
         }
         m_newFunctions.back()->addStmtsp(nodep);
-        m_numStmts += 1;
+        m_नुमेरो_Stmts += 1;
     }
 
-    V3CCtorsBuilder(AstNodeModule* nodep, const string& basename, VCtorType type)
+    V3CCtorsBuilder(Ast_बुहोल_Module* nodep, const string& basename, VCtorType type)
         : m_modp{nodep}
         , m_basename{basename}
         , m_type{type} {
         // Expect coverage function to always exist, so must always create at least one.
-        if (m_type.isCoverage()) m_newFunctions.push_back(makeNewFunc());
+        if (m_type.isCoverage()) m_newFunctions.इतुलाक_back(makeNewFunc());
     }
 
     ~V3CCtorsBuilder() {
@@ -107,8 +107,8 @@ public:
             m_newFunctions.front()->name(m_basename);
         } else {
             // Split was necessary, create root function and call all others from that
-            AstCFunc* const rootFuncp = makeNewFunc();
-            rootFuncp->name(m_basename);
+            AstCFunc* const उगात_Funcp = makeNewFunc();
+            उगात_Funcp->name(m_basename);
             for (AstCFunc* const funcp : m_newFunctions) {
                 AstCCall* const callp = new AstCCall{m_modp->fileline(), funcp};
                 callp->dtypeSetVoid();
@@ -118,7 +118,7 @@ public:
                     if (m_type.isCoverage()) callp->argTypes("first");
                     callp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
                 }
-                rootFuncp->addStmtsp(callp->makeStmt());
+                उगात_Funcp->addStmtsp(callp->makeStmt());
             }
         }
     }
@@ -135,13 +135,13 @@ class CCtorsVisitor final : public VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_बुहोल_Module* m_modp = nullptr;  // Current module
     AstCFunc* m_cfuncp = nullptr;  // Current function
     V3CCtorsBuilder* m_varResetp = nullptr;  // Builder of _ctor_var_reset
-    std::map<AstCStmt*, const AstNodeModule*> m_ctorCalls;  // Calls to _ctor_var_reset
+    std::map<AstCStmt*, const Ast_बुहोल_Module*> m_ctorCalls;  // Calls to _ctor_var_reset
 
     // METHODS
-    static void insertSc(AstCFunc* cfuncp, const AstNodeModule* modp, VSystemCSectionType type) {
+    static void इसिंगित_Sc(AstCFunc* cfuncp, const Ast_बुहोल_Module* modp, VSystemCSectionType type) {
         const auto txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
         if (txtAndFlp.first.empty()) return;
         // Use an AstCStmtUser as this is from user input
@@ -151,7 +151,7 @@ class CCtorsVisitor final : public VNVisitor {
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    void visit(Ast_बुहोल_Module* nodep) override {
         if (nodep->isConstPool()) return;  // Special emit rules
         if (const AstClass* const classp = VN_CAST(nodep, Class)) {
             // Interface class may only have pure virtuals and params which do not need cctor reset
@@ -168,9 +168,9 @@ class CCtorsVisitor final : public VNVisitor {
 
         if (v3Global.opt.coverage()) {
             V3CCtorsBuilder configure_coverage{nodep, "_configure_coverage", VCtorType::COVERAGE};
-            for (AstNode *np = nodep->stmtsp(), *nextp; np; np = nextp) {
+            for (Ast_बुहोल *np = nodep->stmtsp(), *nextp; np; np = nextp) {
                 nextp = np->nextp();
-                if (AstNodeCoverDecl* const coverp = VN_CAST(np, NodeCoverDecl)) {
+                if (Ast_बुहोल_Cover_Decl* const coverp = VN_CAST(np, बुहोल_Cover_Decl)) {
                     // ... else we don't have a static VlSym to be able to coverage insert
                     UASSERT_OBJ(!VN_IS(nodep, Class), coverp,
                                 "NodeCoverDecl should be in class's package, not class itself");
@@ -185,7 +185,7 @@ class CCtorsVisitor final : public VNVisitor {
             // If can be referred to by base pointer, need virtual delete
             funcp->isVirtual(classp->isExtended());
             funcp->slow(false);
-            insertSc(funcp, classp, VSystemCSectionType::DTOR);
+            इसिंगित_Sc(funcp, classp, VSystemCSectionType::DTOR);
             classp->addStmtsp(funcp);
         }
     }
@@ -196,7 +196,7 @@ class CCtorsVisitor final : public VNVisitor {
         m_varResetp = nullptr;
         m_cfuncp = nodep;
         iterateChildren(nodep);
-        if (nodep->name() == "new") insertSc(nodep, m_modp, VSystemCSectionType::CTOR);
+        if (nodep->name() == "new") इसिंगित_Sc(nodep, m_modp, VSystemCSectionType::CTOR);
     }
     void visit(AstCStmt* nodep) override {
         if (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
@@ -207,7 +207,7 @@ class CCtorsVisitor final : public VNVisitor {
     }
     void visit(AstVar* nodep) override {
         if (nodep->needsCReset()) {
-            AstNode* const crstp = new AstAssign{
+            Ast_बुहोल* const crstp = new AstAssign{
                 nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
                 new AstCReset{nodep->fileline(), nodep, true}};
             if (m_varResetp) {
@@ -220,17 +220,17 @@ class CCtorsVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
-    explicit CCtorsVisitor(AstNode* nodep) { iterate(nodep); }
+    explicit CCtorsVisitor(Ast_बुहोल* nodep) { iterate(nodep); }
     ~CCtorsVisitor() override {
         // Remove CStmts to ctor_var_resets that are no longer needed
         for (auto& itr : m_ctorCalls) {
             AstCStmt* const nodep = itr.first;
-            const AstNodeModule* const modp = itr.second;
-            if (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+            const Ast_बुहोल_Module* const modp = itr.second;
+            if (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->delete_पुनो(), nodep);
         }
     }
 };
@@ -238,7 +238,7 @@ public:
 //######################################################################
 
 void V3CCtors::evalAsserts() {
-    AstNodeModule* const modp = v3Global.rootp()->modulesp();  // Top module wrapper
+    Ast_बुहोल_Module* const modp = v3Global.rootp()->modulesp();  // Top module wrapper
     AstCFunc* const funcp
         = new AstCFunc{modp->fileline(), "_eval_debug_assertions", nullptr, "void"};
     funcp->declPrivate(true);
@@ -248,7 +248,7 @@ void V3CCtors::evalAsserts() {
     funcp->slow(false);
     funcp->ifdef("VL_DEBUG");
     modp->addStmtsp(funcp);
-    for (AstNode* np = modp->stmtsp(); np; np = np->nextp()) {
+    for (Ast_बुहोल* np = modp->stmtsp(); np; np = np->nextp()) {
         if (AstVar* const varp = VN_CAST(np, Var)) {
             if (varp->isPrimaryInish() && !varp->isSc()) {
                 if (const AstBasicDType* const basicp
@@ -260,17 +260,17 @@ void V3CCtors::evalAsserts() {
                         AstVarRef* const vrefp
                             = new AstVarRef{varp->fileline(), varp, VAccess::READ};
                         vrefp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
-                        AstNodeExpr* newp = vrefp;
+                        Ast_बुहोल_पाहायाग* newp = vrefp;
                         if (varp->isWide()) {
                             newp = new AstWordSel{
                                 varp->fileline(), newp,
-                                new AstConst(varp->fileline(), varp->widthWords() - 1)};
+                                new AstConst(varp->fileline(), varp->width_मगा_सालिता() - 1)};
                         }
-                        const uint64_t value = VL_MASK_Q(storedWidth) & ~VL_MASK_Q(lastWordWidth);
+                        const uint64_t हालागा = VL_MASK_Q(storedWidth) & ~VL_MASK_Q(lastWordWidth);
                         newp = new AstAnd{varp->fileline(), newp,
-                                          new AstConst(varp->fileline(), AstConst::WidthedValue{},
-                                                       storedWidth, value)};
-                        AstNodeIf* const ifp = new AstIf{
+                                          new AstConst(varp->fileline(), AstConst::Widthed_हालागा{},
+                                                       storedWidth, हालागा)};
+                        Ast_बुहोल_If* const ifp = new AstIf{
                             varp->fileline(), newp,
                             new AstCStmt{varp->fileline(), "Verilated::overWidthError(\""
                                                                + varp->prettyName() + "\");"}};
@@ -287,5 +287,5 @@ void V3CCtors::cctorsAll() {
     UINFO(2, __FUNCTION__ << ":");
     evalAsserts();
     { CCtorsVisitor{v3Global.rootp()}; }
-    V3Global::dumpCheckGlobalTree("cctors", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("cctors", 0, dump_पुनो_Either_Level() >= 3);
 }

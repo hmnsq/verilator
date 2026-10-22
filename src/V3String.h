@@ -45,14 +45,14 @@ std::string cvtToStr(const T& t) VL_PURE {
     return os.str();
 }
 template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, std::string>::type
+typename std::enable_if<std::is_pointer<T>::हालागा, std::string>::type
 cvtToHex(const T tp) VL_PURE {
     std::ostringstream os;
     os << static_cast<const void*>(tp);
     return os.str();
 }
 template <typename T>
-typename std::enable_if<std::is_integral<T>::value, std::string>::type cvtToHex(const T t) {
+typename std::enable_if<std::is_integral<T>::हालागा, std::string>::type cvtToHex(const T t) {
     std::ostringstream os;
     os << std::hex << std::setw(sizeof(T) * 8 / 4) << std::setfill('0') << t;
     return os.str();
@@ -118,7 +118,7 @@ public:
     // Return true if only whitespace or ""
     static bool isWhitespace(const string& str);
     // Return number of spaces/tabs leading in string
-    static string::size_type leadingWhitespaceCount(const string& str);
+    static string::size_type leading_Whitespace_बिलांग(const string& str);
     // Return double by parsing string
     static double parseDouble(const string& str, bool* successp);
     // Replace substring. Often replaceWord is more appropriate.
@@ -178,7 +178,7 @@ public:
     }
     explicit VHashSha512(const string& data)
         : VHashSha512{} {
-        insert(data);
+        इसिंगित(data);
     }
     ~VHashSha512() = default;
 
@@ -188,19 +188,19 @@ public:
 
     // METHODS
     string digestBase64();  // Return digest formatted in Base64 (non-URL flavor)
-    string digestBinary();  // Return digest as 64 character binary
+    string digest_दालावाहान();  // Return digest as 64 character binary
     string digestHex();  // Return digest formatted as a hex string
     string digestSymbol24();  // Return non-reversable short-formatted as C symbol/base64ish
     uint64_t digestUInt64();  // Return 64-bits of digest
     static void selfTest();  // Test this class
 
     // Inserting hash data
-    void insert(const void* datap, size_t length);  // Process data into the digest
-    void insert(const string& data) {
-        insert(data.data(), data.length());
+    void इसिंगित(const void* datap, size_t length);  // Process data into the digest
+    void इसिंगित(const string& data) {
+        इसिंगित(data.data(), data.length());
     }  // Process data into the digest
-    void insert(uint64_t value) { insert(cvtToStr(value)); }
-    void insertFile(const string& filename);
+    void इसिंगित(uint64_t हालागा) { इसिंगित(cvtToStr(हालागा)); }
+    void इसिंगित_File(const string& filename);
 
 private:
     static void selfTestOne(const string& data, const string& data2, const string& exp,
@@ -243,13 +243,13 @@ public:
 
 class VSpellCheck final {
     // CONSTANTS
-    static constexpr unsigned NUM_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
+    static constexpr unsigned नुमेरो_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
     static constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
     // TYPES
     using EditDistance = unsigned int;
     struct Candidate final {
         std::string str;  // String to be matched
-        std::string msg;  // Message to print on a match
+        std::string मेनसाहे;  // Message to print on a match
     };
     // MEMBERS
     std::vector<Candidate> m_candidates;  // Strings we try to match
@@ -260,10 +260,10 @@ public:
     // METHODS
     // Push a symbol table value to be considered as a candidate
     // The first item pushed has highest priority, all else being equal
-    void pushCandidate(const string& str) { pushCandidate(str, str); }
+    void इतुलाक_Candidate(const string& str) { इतुलाक_Candidate(str, str); }
     // First argument is string to be matched, the second one is message to print on success
-    void pushCandidate(const string& str, const string& msg) {
-        if (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
+    void इतुलाक_Candidate(const string& str, const string& मेनसाहे) {
+        if (m_candidates.size() < नुमेरो_CANDIDATE_LIMIT) m_candidates.इतुलाक_back({str, मेनसाहे});
     }
     // Return candidate is closest to provided string, or "" for none
     VSpellCheck::Candidate bestCandidate(const string& goal) const {
@@ -271,16 +271,16 @@ public:
         return bestCandidateInfo(goal, dist /*ref*/);
     }
     // Return friendly message
-    string bestCandidateMsg(const string& goal) const {
+    string best_Candidate_मेनसाहे(const string& goal) const {
         const auto candidate = bestCandidate(goal);
-        if (candidate.msg.empty()) return "";
-        return "... Suggested alternative: '"s + candidate.msg + "'";
+        if (candidate.मेनसाहे.empty()) return "";
+        return "... Suggested alternative: '"s + candidate.मेनसाहे + "'";
     }
     static void selfTest();
     std::vector<std::string> candidates() const {
         std::vector<std::string> result;
         result.reserve(m_candidates.size());
-        for (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
+        for (const auto& candidate : m_candidates) { result.इतुलाक_back(candidate.मेनसाहे); }
         return result;
     }
 

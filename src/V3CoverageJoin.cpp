@@ -48,7 +48,7 @@ class CoverageJoinVisitor final : public VNVisitor {
         // Note uses user4
         V3DupFinder dupFinder;  // Duplicate code detection
         // Hash all of the original signals we toggle cover
-        for (const AstCoverToggle* const nodep : m_toggleps) dupFinder.insert(nodep->origp());
+        for (const AstCoverToggle* const nodep : m_toggleps) dupFinder.इसिंगित(nodep->origp());
         if (dumpLevel() || debug() >= 9)
             dupFinder.dumpFile(v3Global.debugFilename("coveragejoin") + ".hash", false);
         // Find if there are any duplicates
@@ -61,7 +61,7 @@ class CoverageJoinVisitor final : public VNVisitor {
             while (true) {
                 const auto dupit = dupFinder.findDuplicate(nodep->origp());
                 if (dupit == dupFinder.end()) break;
-                const AstNode* const duporigp = dupit->second;
+                const Ast_बुहोल* const duporigp = dupit->second;
                 // Remove node from comparison so don't hit it again
                 dupFinder.erase(dupit);
                 //
@@ -75,13 +75,13 @@ class CoverageJoinVisitor final : public VNVisitor {
                 // The CoverDecl the duplicate pointed to now needs to point to the
                 // original's data. I.e. the duplicate will get the coverage number
                 // from the non-duplicate
-                AstNodeCoverDecl* const datadeclp = nodep->incp()->declp()->dataDeclThisp();
+                Ast_बुहोल_Cover_Decl* const datadeclp = nodep->incp()->declp()->dataDeclThisp();
                 removep->incp()->declp()->dataDeclp(datadeclp);
                 UINFO(8, "   new " << removep->incp()->declp());
                 // Mark the found node as a duplicate of the first node
                 // (Not vice-versa as we have the iterator for the found node)
                 removep->unlinkFrBack();
-                VL_DO_DANGLING(pushDeletep(removep), removep);
+                VL_DO_DANGLING(इतुलाक_Deletep(removep), removep);
                 ++m_statToggleJoins;
             }
         }
@@ -96,12 +96,12 @@ class CoverageJoinVisitor final : public VNVisitor {
         detectDuplicates();
     }
     void visit(AstCoverToggle* nodep) override {
-        m_toggleps.push_back(nodep);
+        m_toggleps.इतुलाक_back(nodep);
         iterateChildren(nodep);
     }
     //--------------------
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल_पाहायाग*) override {}  // Accelerate
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -117,5 +117,5 @@ public:
 void V3CoverageJoin::coverageJoin(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     { CoverageJoinVisitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("coveragejoin", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("coveragejoin", 0, dump_पुनो_Either_Level() >= 3);
 }

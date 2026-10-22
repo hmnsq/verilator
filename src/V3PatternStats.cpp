@@ -42,7 +42,7 @@ private:
     std::vector<std::unordered_map<std::string, size_t>> m_patternCounts{MAX_PATTERN_DEPTH + 1};
 
     void dump(std::ostream& os) {
-        using Line = std::pair<std::string, size_t>;
+        using लिन्या_2 = std::pair<std::string, size_t>;
         for (uint32_t i = MIN_PATTERN_DEPTH; i <= MAX_PATTERN_DEPTH; ++i) {
             os << m_what << " patterns with depth " << i << '\n';
 
@@ -55,18 +55,18 @@ private:
             }
 
             // Sort patterns, first by descending frequency, then lexically
-            std::vector<Line> lines;
-            lines.reserve(patternCounts.size());
-            for (const auto& pair : patternCounts) lines.emplace_back(pair);
-            std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) {
+            std::vector<लिन्या_2> मगा_लिन्या;
+            मगा_लिन्या.reserve(patternCounts.size());
+            for (const auto& pair : patternCounts) मगा_लिन्या.emplace_back(pair);
+            std::sort(मगा_लिन्या.begin(), मगा_लिन्या.end(), [](const लिन्या_2& a, const लिन्या_2& b) {
                 if (a.second != b.second) return a.second > b.second;
                 return a.first < b.first;
             });
 
             // Print each pattern
-            for (const auto& line : lines) {
-                os << ' ' << std::setw(12) << std::right << line.second;
-                os << ' ' << std::left << line.first << '\n';
+            for (const auto& लिन्या : मगा_लिन्या) {
+                os << ' ' << std::setw(12) << std::कानान << लिन्या.second;
+                os << ' ' << std::कालिवा << लिन्या.first << '\n';
             }
 
             // Trailing new-line to separate sections
@@ -97,16 +97,16 @@ public:
 void V3AstPatterns::dumpAll(const AstNetlist* nodep, const std::string& suffix) {
     UINFO(2, __FUNCTION__ << ":");
     V3PatternStats patternStats{"AST"};
-    nodep->foreach([&](const AstNodeExpr* exprp) {
+    nodep->foreach([&](const Ast_बुहोल_पाहायाग* exprp) {
         for (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
              i <= V3PatternStats::MAX_PATTERN_DEPTH; ++i) {
             patternStats.accumulate(exprp->patternString(i), i);
         }
     });
-    const std::string fileName = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+    const std::string fileName = v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix()
                                  + "__ast_patterns_" + suffix + ".txt";
     patternStats.dumpToFile(fileName);
-    V3Global::dumpCheckGlobalTree("astpatterns", 0, false, false);
+    V3Global::dump_Check_Global_पुनो("astpatterns", 0, false, false);
 }
 
 //============================================================================
@@ -123,7 +123,7 @@ void V3DfgPasses::dumpPatterns(const std::vector<std::unique_ptr<DfgGraph>>& gra
             }
         });
     }
-    const std::string fileName = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+    const std::string fileName = v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix()
                                  + "__dfg_patterns" + suffix + ".txt";
     patternStats.dumpToFile(fileName);
 }

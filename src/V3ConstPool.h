@@ -44,16 +44,16 @@ class V3ConstPool final {
     // Hash and equality of entries in 'm_entries', by value
     struct EntryHash final {
         size_t operator()(const AstVar* varp) const {
-            return (*this)(VN_AS(varp->valuep(), NodeExpr));
+            return (*this)(VN_AS(varp->valuep(), बुहोल_पाहायाग));
         }
-        size_t operator()(const AstNodeExpr* initp) const { return hashValue(initp).value(); }
+        size_t operator()(const Ast_बुहोल_पाहायाग* initp) const { return hash_हालागा(initp).हालागा(); }
     };
     struct EntryEqual final {
         bool operator()(const AstVar* ap, const AstVar* bp) const {  // LCOV_EXCL_START
-            return (*this)(ap, VN_AS(bp->valuep(), NodeExpr));  // Only on collision while rebuild
+            return (*this)(ap, VN_AS(bp->valuep(), बुहोल_पाहायाग));  // Only on collision while rebuild
         }  // LCOV_EXCL_STOP
-        bool operator()(const AstVar* varp, const AstNodeExpr* initp) const {
-            return equalValue(VN_AS(varp->valuep(), NodeExpr), initp);
+        bool operator()(const AstVar* varp, const Ast_बुहोल_पाहायाग* initp) const {
+            return equal_हालागा(VN_AS(varp->valuep(), बुहोल_पाहायाग), initp);
         }
     };
 
@@ -63,14 +63,14 @@ class V3ConstPool final {
     AstScope* m_scopep = nullptr;  // Scope of the constant pool, between V3Scope and V3Descope
     V3HashSet<AstVar*, EntryHash, EntryEqual> m_entries;  // All entries
     V3HashMap<const AstVar*, AstVarScope*> m_varScopes;  // VarScope of each entry iff m_scopep
-    std::array<uint32_t, VNType::NUM_TYPES()> m_nextNumber{};  // Sequence number for naming
+    std::array<uint32_t, VNType::नुमेरो_TYPES()> m_next_नुमेरो{};  // Sequence number for naming
 
     // METHODS
     static V3ConstPool& instance() { return *v3Global.constPoolp(); }
     // Hash of a value, consistent with 'equalValue'
-    static V3Hash hashValue(const AstNode* nodep);
+    static V3Hash hash_हालागा(const Ast_बुहोल* nodep);
     // True if the two values are the same, so can use the same entry
-    static bool equalValue(const AstNode* ap, const AstNode* bp);
+    static bool equal_हालागा(const Ast_बुहोल* ap, const Ast_बुहोल* bp);
     // Rebuild the lookup cache from the constant pool package
     void rebuildCache();
 
@@ -85,7 +85,7 @@ public:
     // Find a constant pool variable with the given constant value, or create one if one does
     // not already exist, and return a read reference to it. The reference has the same dtype
     // as initp. The referenced variable *might* have a different, but compatible dtype.
-    static AstVarRef* find(AstNodeExpr* initp);
+    static AstVarRef* find(Ast_बुहोल_पाहायाग* initp);
     // Invalidate the lookup cache. This must be called after deleting any Vars from the pool.
     static void invalidateCache() { instance().m_cacheValid = false; }
     // Notify that the design has been scoped, called by V3Scope

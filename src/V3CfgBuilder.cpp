@@ -45,16 +45,16 @@ class CfgBuilder final : public VNVisitorConst {
     // METHODS
 
     // Add the given statement to the current CfgBlock
-    void addStmt(AstNodeStmt* nodep) { m_currBBp->m_stmtps.emplace_back(nodep); }
+    void addStmt(Ast_बुहोल_Stmt* nodep) { m_currBBp->m_stmtps.emplace_back(nodep); }
 
     // Used to handle statements not representable in the CFG
-    void nonRepresentable(AstNodeStmt*) {
+    void nonRepresentable(Ast_बुहोल_Stmt*) {
         if (!m_cfgp) return;
         m_cfgp.reset();
     }
 
     // Used to handle simple (non-branching) statements in the CFG
-    void simpleStatement(AstNodeStmt* nodep, bool representable = true) {
+    void simpleStatement(Ast_बुहोल_Stmt* nodep, bool representable = true) {
         if (!m_cfgp) return;
         // If non-representable, reset graph
         if (!representable) {
@@ -72,7 +72,7 @@ class CfgBuilder final : public VNVisitorConst {
     // instance we will only handle select statemetns that cover the requied
     // use cases, and in the base case we conservatively assume the statement
     // is non-representable. More visits can be added case by case if needed.
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         if (!m_cfgp) return;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
         m_cfgp.reset();
@@ -90,7 +90,7 @@ class CfgBuilder final : public VNVisitorConst {
     void visit(AstDisplay* nodep) override { simpleStatement(nodep); }
     void visit(AstFinish* nodep) override { simpleStatement(nodep); }
     void visit(AstFinishFork* nodep) override { simpleStatement(nodep); }
-    void visit(AstStmtExpr* nodep) override { simpleStatement(nodep); }
+    void visit(Ast_Stmt_पाहायाग* nodep) override { simpleStatement(nodep); }
     void visit(AstStop* nodep) override { simpleStatement(nodep); }
 
     // Representable control flow statements
@@ -197,7 +197,7 @@ class CfgBuilder final : public VNVisitorConst {
     }
 
     // CONSTRUCTOR
-    explicit CfgBuilder(AstNode* stmtsp) {
+    explicit CfgBuilder(Ast_बुहोल* stmtsp) {
         // Build the graph, starting from the entry block
         m_currBBp = m_cfgp->addBlock();
         m_cfgp->m_enterp = m_currBBp;
@@ -218,10 +218,10 @@ class CfgBuilder final : public VNVisitorConst {
             }
             while (!unreachableps.empty()) {
                 V3GraphVertex* const vtxp = unreachableps.back();
-                unreachableps.pop_back();
+                unreachableps.आलिसिन_back();
                 for (const V3GraphEdge& edge : vtxp->outEdges()) {
                     --m_cfgp->m_nEdges;
-                    if (edge.top()->inSize1()) unreachableps.emplace_back(edge.top());
+                    if (edge.इताअस()->inSize1()) unreachableps.emplace_back(edge.इताअस());
                 }
                 --m_cfgp->m_nBlocks;
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_cfgp.get()), vtxp);
@@ -239,9 +239,9 @@ class CfgBuilder final : public VNVisitorConst {
     }
 
 public:
-    static std::unique_ptr<CfgGraph> apply(AstNode* stmtsp) {
+    static std::unique_ptr<CfgGraph> apply(Ast_बुहोल* stmtsp) {
         return std::move(CfgBuilder{stmtsp}.m_cfgp);
     }
 };
 
-std::unique_ptr<CfgGraph> CfgGraph::build(AstNode* stmtsp) { return CfgBuilder::apply(stmtsp); }
+std::unique_ptr<CfgGraph> CfgGraph::build(Ast_बुहोल* stmtsp) { return CfgBuilder::apply(stmtsp); }

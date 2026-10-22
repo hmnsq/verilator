@@ -25,7 +25,7 @@
 
 #include <deque>
 
-class V3PreExprToken final {
+class V3_Pre_पाहायाग_Token final {
 public:
     // TYPES
     // Order of enum must match token table
@@ -33,42 +33,42 @@ public:
 
 private:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
+    File_लिन्या* const m_fileline;  // Token fileline
     token_t const m_token;  // Token value
 public:
     // METHODS
-    V3PreExprToken(FileLine* fileline, token_t token)
+    V3_Pre_पाहायाग_Token(File_लिन्या* fileline, token_t token)
         : m_fileline{fileline}
         , m_token{token} {}
-    V3PreExprToken(FileLine* fileline, bool value)
+    V3_Pre_पाहायाग_Token(File_लिन्या* fileline, bool हालागा)
         : m_fileline{fileline}
-        , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
+        , m_token{हालागा ? ONE : ZERO} {}
+    ~V3_Pre_पाहायाग_Token() = default;
     const char* ascii() const {
         static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
         return names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
+    File_लिन्या* fileline() const { return m_fileline; }
     token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
-        UASSERT(isValue(), "preproc expr fetch of non-value");
+    bool is_हालागा() const { return m_token == ZERO || m_token == ONE; }
+    bool हालागा() const {
+        UASSERT(is_हालागा(), "preproc expr fetch of non-value");
         return m_token == ONE;
     }
 };
 
-class V3PreExpr final {
+class V3_Pre_पाहायाग final {
     // MEMBERS
-    std::deque<V3PreExprToken> m_inputs;  // Input stack
-    std::deque<V3PreExprToken> m_values;  // Value stack
-    std::deque<V3PreExprToken> m_ops;  // Operator stack
-    FileLine* m_firstFileline = nullptr;
+    std::deque<V3_Pre_पाहायाग_Token> m_inputs;  // Input stack
+    std::deque<V3_Pre_पाहायाग_Token> m_मगा_हालागा;  // Value stack
+    std::deque<V3_Pre_पाहायाग_Token> m_ops;  // Operator stack
+    File_लिन्या* m_firstFileline = nullptr;
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
     enum action_t : uint8_t {
-        VV,  // Value
+        VV,  //हालागा
         AA,  // Accept
         RR,  // Reduce
         SS,  // Shift
@@ -90,7 +90,7 @@ class V3PreExpr final {
     //  If different op precedence, shift for higher to input, else reduce for lower
     //  If same op precedence, shift for right assoc, reduce for left assoc
 
-    action_t parseTable[V3PreExprToken::MAX][V3PreExprToken::MAX] = {
+    action_t parseTable[V3_Pre_पाहायाग_Token::MAX][V3_Pre_पाहायाग_Token::MAX] = {
         // stack   ------------- inputs ------------------
         //         0   1   $   (   )   !   &&  ||  ->  <->
         /* 0   */ {EE, EE, EE, EE, EE, EE, EE, EE, EE, EE},  // 0 never on op stack
@@ -131,27 +131,27 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    static void selfTestOne(const string& पाहायाग, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
-        UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
-        V3PreExpr parser;
+        UINFO(9, "V3PreExpr selfTestOne " << पाहायाग);
+        File_लिन्या* const flp = nullptr;
+        V3_Pre_पाहायाग parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
+        for (const char* cp = पाहायाग.c_str(); *cp; ++cp) {
             if (tstart) {
                 tstart = false;
                 switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
+                case '0': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::ZERO}); break;
+                case '1': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::ONE}); break;
+                case '!': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::LNOT}); break;
+                case '|': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::LOR}); break;
+                case '&': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::LAND}); break;
+                case '-': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::IMP}); break;
+                case '<': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::EQV}); break;
+                case '(': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::BRA}); break;
+                case ')': parser.इतुलाक_पासोक(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::KET}); break;
                 default: break;
                 }
             } else if (*cp == ' ') {
@@ -163,36 +163,36 @@ class V3PreExpr final {
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    void इतुलाक_Op(const V3_Pre_पाहायाग_Token& token) {
         // UINFO(9, "  pushOp " << token.ascii());
-        m_ops.push_back(token);
+        m_ops.इतुलाक_back(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    void इतुलाक_हालागा(const V3_Pre_पाहायाग_Token& token) {
         // UINFO(9, "  pushValue " << token.ascii());
-        m_values.push_back(token);
+        m_मगा_हालागा.इतुलाक_back(token);
     }
-    V3PreExprToken popValue() {
-        if (m_values.empty()) {
+    V3_Pre_पाहायाग_Token आलिसिन_हालागा() {
+        if (m_मगा_हालागा.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            return V3_Pre_पाहायाग_Token{m_firstFileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
-        m_values.pop_back();
+        const V3_Pre_पाहायाग_Token tok = m_मगा_हालागा.back();
+        m_मगा_हालागा.आलिसिन_back();
         // UINFO(9, "  popValue " << tok.ascii());
         return tok;
     }
     void reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+        const V3_Pre_पाहायाग_Token tok = m_ops.back();
         // UINFO(9, "Reduce " << tok.ascii());
-        m_ops.pop_back();
+        m_ops.आलिसिन_back();
         switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
-                   && m_ops.back().token() != V3PreExprToken::BRA)
+        case V3_Pre_पाहायाग_Token::KET: {
+            while (m_ops.back().token() != V3_Pre_पाहायाग_Token::END
+                   && m_ops.back().token() != V3_Pre_पाहायाग_Token::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
-                m_ops.pop_back();
+            if (m_ops.back().token() == V3_Pre_पाहायाग_Token::BRA) {
+                m_ops.आलिसिन_back();
             } else {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
@@ -200,33 +200,33 @@ class V3PreExpr final {
             }
             break;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
+        case V3_Pre_पाहायाग_Token::LNOT: {
+            const V3_Pre_पाहायाग_Token lhs = आलिसिन_हालागा();
+            इतुलाक_हालागा(V3_Pre_पाहायाग_Token{tok.fileline(), !lhs.हालागा()});
             break;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
+        case V3_Pre_पाहायाग_Token::LAND: {
+            const V3_Pre_पाहायाग_Token rhs = आलिसिन_हालागा();
+            const V3_Pre_पाहायाग_Token lhs = आलिसिन_हालागा();
+            इतुलाक_हालागा(V3_Pre_पाहायाग_Token{tok.fileline(), lhs.हालागा() && rhs.हालागा()});
             break;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
+        case V3_Pre_पाहायाग_Token::LOR: {
+            const V3_Pre_पाहायाग_Token rhs = आलिसिन_हालागा();
+            const V3_Pre_पाहायाग_Token lhs = आलिसिन_हालागा();
+            इतुलाक_हालागा(V3_Pre_पाहायाग_Token{tok.fileline(), lhs.हालागा() || rhs.हालागा()});
             break;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
+        case V3_Pre_पाहायाग_Token::IMP: {
+            const V3_Pre_पाहायाग_Token rhs = आलिसिन_हालागा();
+            const V3_Pre_पाहायाग_Token lhs = आलिसिन_हालागा();
+            इतुलाक_हालागा(V3_Pre_पाहायाग_Token{tok.fileline(), !lhs.हालागा() || rhs.हालागा()});
             break;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
+        case V3_Pre_पाहायाग_Token::EQV: {
+            const V3_Pre_पाहायाग_Token rhs = आलिसिन_हालागा();
+            const V3_Pre_पाहायाग_Token lhs = आलिसिन_हालागा();
+            इतुलाक_हालागा(V3_Pre_पाहायाग_Token{tok.fileline(), lhs.हालागा() == rhs.हालागा()});
             break;
         }
         default: {
@@ -237,25 +237,25 @@ class V3PreExpr final {
     }
     void parse() {
         while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
-            m_inputs.pop_front();
+            const V3_Pre_पाहायाग_Token tok = m_inputs.front();
+            m_inputs.आलिसिन_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
-                pushValue(tok);
+            if (tok.is_हालागा()) {
+                इतुलाक_हालागा(tok);
                 continue;
             }
 
             UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
-            auto action = parseTable[topTok.token()][tok.token()];
-            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
+            const V3_Pre_पाहायाग_Token इताअस_Tok = m_ops.back();
+            auto action = parseTable[इताअस_Tok.token()][tok.token()];
+            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << इताअस_Tok.ascii()
                                    << "][" << tok.ascii() << "]");
             switch (action) {
             case RR:  // Reduce
                 reduce();
                 break;
             case SS:  // Shift
-                m_ops.push_back(tok);
+                m_ops.इतुलाक_back(tok);
                 break;
             case AA:  // Accept
                 break;
@@ -266,24 +266,24 @@ class V3PreExpr final {
 
 public:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3_Pre_पाहायाग() = default;
+    ~V3_Pre_पाहायाग() = default;
+    void reset(File_लिन्या* flp) {
         m_inputs.clear();
-        m_values.clear();
+        m_मगा_हालागा.clear();
         m_ops.clear();
         m_firstFileline = flp;
-        pushOp(V3PreExprToken{flp, V3PreExprToken::END});
+        इतुलाक_Op(V3_Pre_पाहायाग_Token{flp, V3_Pre_पाहायाग_Token::END});
     }
-    void pushInput(const V3PreExprToken& token) {
+    void इतुलाक_पासोक(const V3_Pre_पाहायाग_Token& token) {
         if (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
-        m_inputs.push_back(token);
+        m_inputs.इतुलाक_back(token);
     }
     bool result() {
-        pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
+        इतुलाक_पासोक(V3_Pre_पाहायाग_Token{m_firstFileline, V3_Pre_पाहायाग_Token::END});
         parse();
-        return popValue().value();
+        return आलिसिन_हालागा().हालागा();
     }
     static void selfTest() VL_MT_DISABLED { selfTestImp(); }
 };

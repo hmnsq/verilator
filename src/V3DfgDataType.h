@@ -66,7 +66,7 @@ class DfgDataType final {
     // STATE
     const Kind m_kind;  // The type category
     uint32_t m_size;  // The number of elements in this type
-    AstNodeDType* const m_astDtypep;  // Equivalent canonical AstNodeDType
+    Ast_बुहोल_DType* const m_astDtypep;  // Equivalent canonical AstNodeDType
     const DfgDataType* const m_elemDtypep;  // Type of elements - for arrays only
     // Static singleton Null type
     static const DfgDataType* s_nullTypep;
@@ -76,14 +76,14 @@ class DfgDataType final {
     mutable std::unordered_map<uint32_t, const DfgDataType*> m_arrayTypes;
 
     // METHODS
-    static AstNodeDType* canonicalPackedDType(uint32_t width) {
+    static Ast_बुहोल_DType* canonicalPackedDType(uint32_t width) {
         return v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
     }
-    static AstNodeDType* canonicalArrayDType(uint32_t size, const DfgDataType& elemType) {
-        AstNodeDType* const elemDTypep = elemType.m_astDtypep;
-        FileLine* const flp = elemDTypep->fileline();
+    static Ast_बुहोल_DType* canonicalArrayDType(uint32_t size, const DfgDataType& elemType) {
+        Ast_बुहोल_DType* const elemDTypep = elemType.m_astDtypep;
+        File_लिन्या* const flp = elemDTypep->fileline();
         AstRange* const rangep = new AstRange{flp, static_cast<int>(size - 1), 0};
-        AstNodeDType* const dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
+        Ast_बुहोल_DType* const dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
         v3Global.rootp()->typeTablep()->addTypesp(dtypep);
         return dtypep;
     }
@@ -120,7 +120,7 @@ public:
     bool isArray() const { return m_kind == Kind::Array; }
     // Size of type (this is 'width' for Ppacked, 'elements' for Array, 0 for Null)
     uint32_t size() const { return m_size; }
-    AstNodeDType* astDtypep() const { return m_astDtypep; }
+    Ast_बुहोल_DType* astDtypep() const { return m_astDtypep; }
 
     // Thanks to the interning, equality is identity
     bool operator==(const DfgDataType& that) const { return this == &that; }
@@ -179,7 +179,7 @@ public:
 
     // Construct a DfgDataType that represents the given AstNodeDType.
     // Returns nullptr if AstNodeDType is not representable by DfgDataType.
-    static const DfgDataType* fromAst(const AstNodeDType* dtypep) {
+    static const DfgDataType* fromAst(const Ast_बुहोल_DType* dtypep) {
         dtypep = dtypep->skipRefp();
 
         if (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {

@@ -46,10 +46,10 @@ class V3PreProcImp;
 #define VP_DEFINE       261
 #define VP_ELSE         262
 #define VP_ELSIF        263
-#define VP_LINE         264
+#define VP_लिन्या         264
 #define VP_UNDEFINEALL  265
 
-#define VP_SYMBOL       300
+#define VP_सिम्बोलो       300
 #define VP_STRING       301
 #define VP_DEFVALUE     302
 #define VP_COMMENT      303
@@ -61,7 +61,7 @@ class V3PreProcImp;
 #define VP_DEFFORM      309
 #define VP_STRIFY       310
 #define VP_BACKQUOTE    311
-#define VP_SYMBOL_JOIN  312
+#define VP_सिम्बोलो_JOIN  312
 #define VP_DEFREF_JOIN  313
 #define VP_JOIN         314
 
@@ -130,14 +130,14 @@ int yylex_destroy();
 
 class VPreStream final {
 public:
-    FileLine* m_curFilelinep;  // Current processing point (see also m_tokFilelinep)
+    File_लिन्या* m_curFilelinep;  // Current processing point (see also m_tokFilelinep)
     V3PreLex* const m_lexp;  // Lexer, for resource tracking
     std::deque<string> m_buffers;  // Buffer of characters to process
     int m_ignNewlines = 0;  // Ignore multiline newlines
     int m_termState = 0;  // Termination fsm
     bool m_eof = false;  // "EOF" buffer
     bool m_file = false;  // Buffer is start of new file
-    VPreStream(FileLine* fl, V3PreLex* lexp)
+    VPreStream(File_लिन्या* fl, V3PreLex* lexp)
         : m_curFilelinep{fl}
         , m_lexp{lexp} {
         lexStreamDepthAdd(1);
@@ -158,11 +158,11 @@ enum class Enctype : uint8_t { UUENCODE, BASE64, QUOTE_PRINTABLE, RAW, ERR };
 class V3PreLex final {
 public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
     V3PreProcImp* const m_preimpp;  // Preprocessor lexor belongs to
-    std::stack<VPreStream*> m_streampStack;  // Stack of processing files
+    std::सालानसान<VPreStream*> m_streamp_सालानसान;  // Stack of processing files
     int m_streamDepth = 0;  // Depth of stream processing
     YY_BUFFER_STATE m_bufferState;  // Flex state
-    FileLine* m_tokFilelinep;  // Starting position of current token
-    std::deque<FileLine> m_lexLintState;  // Current lint state for save/restore
+    File_लिन्या* m_tokFilelinep;  // Starting position of current token
+    std::deque<File_लिन्या> m_lexLintState;  // Current lint state for save/restore
 
     // State to lexer
     static V3PreLex* s_currentLexp;  ///< Current lexing point
@@ -175,34 +175,34 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
     int m_parenLevel = 0;  // Parenthesis counting inside def args
     bool m_defCmtSlash = false;  // /*...*/ comment in define had \ ending
     bool m_defQuote = false;  // Definition value inside quote
-    string m_defValue;  // Definition value being built.
+    string m_def_हालागा;  // Definition value being built.
     int m_enterExit = 0;  // For VL_LINE, the enter/exit level
     int m_protLength = 0;  // unencoded length for BASE64
     int m_protBytes = 0;  // decoded length for BASE64
     Enctype m_encType{};  // encoding type for `pragma protect
 
     // CONSTRUCTORS
-    V3PreLex(V3PreProcImp* preimpp, FileLine* filelinep)
+    V3PreLex(V3PreProcImp* preimpp, File_लिन्या* filelinep)
         : m_preimpp{preimpp}
         , m_tokFilelinep{filelinep} {
         initFirstBuffer(filelinep);
     }
     ~V3PreLex() {
-        while (!m_streampStack.empty()) {
-            delete m_streampStack.top();
-            m_streampStack.pop();
+        while (!m_streamp_सालानसान.empty()) {
+            delete m_streamp_सालानसान.इताअस();
+            m_streamp_सालानसान.आलिसिन();
         }
         VL_DO_CLEAR(yy_delete_buffer(m_bufferState), m_bufferState = nullptr);
         yylex_destroy();
     }
-    VPreStream* newStream(FileLine* fl, V3PreLex* lexp);
+    VPreStream* newStream(File_लिन्या* fl, V3PreLex* lexp);
 
     // Called by V3PreLex.l from lexer
-    VPreStream* curStreamp() { return m_streampStack.top(); }  // Can't be empty, "EOF" is on top
-    FileLine* curFilelinep() { return curStreamp()->m_curFilelinep; }
-    void curFilelinep(FileLine* fl) { curStreamp()->m_curFilelinep = fl; }
-    void appendDefValue(const char* textp, size_t len) { m_defValue.append(textp, len); }
-    void lineDirective(const char* textp);
+    VPreStream* curStreamp() { return m_streamp_सालानसान.इताअस(); }  // Can't be empty, "EOF" is on top
+    File_लिन्या* curFilelinep() { return curStreamp()->m_curFilelinep; }
+    void curFilelinep(File_लिन्या* fl) { curStreamp()->m_curFilelinep = fl; }
+    void append_Def_हालागा(const char* textp, size_t len) { m_def_हालागा.append(textp, len); }
+    void लिन्या_Directive(const char* textp);
     void linenoInc() {
         if (curStreamp()->m_ignNewlines) {
             curStreamp()->m_ignNewlines--;
@@ -215,22 +215,22 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
     void verilatorCmtLintRestore();
     void verilatorCmtLintSave();
     // Called by V3PreProc.cpp to inform lexer
-    void pushStateDefArg(int level);
-    void pushStateDefForm();
-    void pushStateDefValue();
-    void pushStateExpr();
-    void pushStateIncFilename();
-    void pushStatePassthru();
-    void scanNewFile(FileLine* filelinep);
+    void इतुलाक_State_Def_Arg(int level);
+    void इतुलाक_State_Def_Form();
+    void इतुलाक_State_Def_हालागा();
+    void इतुलाक_State_पाहायाग();
+    void इतुलाक_State_Inc_Filename();
+    void इतुलाक_State_Passthru();
+    void scanNewFile(File_लिन्या* filelinep);
     void scanBytes(const string& str);
     void scanBytesBack(const string& str);
-    size_t inputToLex(char* buf, size_t max_size);
+    size_t पासोक_To_Lex(char* buf, size_t max_size);
     /// Called by V3PreProc.cpp to get data from lexer
     YY_BUFFER_STATE currentBuffer();
     int lex();
     int currentStartState() const;
     void dumpSummary();
-    void dumpStack();
+    void dump_सालानसान();
     void unused();
     // Called by VPreStream
     void streamDepthAdd(int delta) { m_streamDepth += delta; }
@@ -242,7 +242,7 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
 private:
     string currentUnreadChars();
     string endOfStream(bool& againr);
-    void initFirstBuffer(FileLine* filelinep);
+    void initFirstBuffer(File_लिन्या* filelinep);
     void scanSwitchStream(VPreStream* streamp);
 };
 

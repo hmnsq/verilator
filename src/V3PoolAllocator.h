@@ -55,8 +55,8 @@ public:
 
     // METHODS
     // Allocate an element, constructed with the given arguments
-    template <typename... Args>
-    T_Elem* alloc(Args&&... args) {
+    template <typename... मगा_कातविरान_2>
+    T_Elem* alloc(मगा_कातविरान_2&&... मगा_कातविरान) {
         // If no free slots available, then make some
         if (!m_freep) {
             // Allocate in chunks for efficiency
@@ -70,7 +70,7 @@ public:
         // Free slots are available, pick up the first one
         Slot* const slotp = m_freep;
         m_freep = slotp->m_nextFreep;
-        return new (&slotp->m_elem) T_Elem{std::forward<Args>(args)...};
+        return new (&slotp->m_elem) T_Elem{std::forward<मगा_कातविरान_2>(मगा_कातविरान)...};
     }
 
     // Destroy an element, and return its slot for future allocation

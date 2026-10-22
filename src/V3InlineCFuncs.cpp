@@ -50,8 +50,8 @@ public:
         : V3Graph{} {}
     ~InlineCFuncsCallGraph() override = default;
 
-    void addEdge(InlineCFuncsFunctionVertex& from, InlineCFuncsCallSiteVertex& top);
-    void addEdge(InlineCFuncsCallSiteVertex& from, InlineCFuncsFunctionVertex& top);
+    void addEdge(InlineCFuncsFunctionVertex& from, InlineCFuncsCallSiteVertex& इताअस);
+    void addEdge(InlineCFuncsCallSiteVertex& from, InlineCFuncsFunctionVertex& इताअस);
 };
 
 class EitherVertex VL_NOT_FINAL : public V3GraphVertex {
@@ -77,7 +77,7 @@ public:
     // ACCESSORS
     AstCFunc* cfuncp() const { return m_cfuncp; }
     size_t size() const { return m_size; }
-    void sizeInc(size_t value = 1) { m_size += value; }
+    void sizeInc(size_t हालागा = 1) { m_size += हालागा; }
     bool noInline() const { return m_noInlineWyp; }
     void setNoInline(const char* whyp) {
         if (!m_noInlineWyp) m_noInlineWyp = whyp;
@@ -91,7 +91,7 @@ public:
     }
 
     // debug
-    FileLine* fileline() const override { return m_cfuncp->fileline(); }
+    File_लिन्या* fileline() const override { return m_cfuncp->fileline(); }
     std::string dotShape() const override { return "box"; }
     std::string name() const override VL_MT_STABLE {
         std::string str = cvtToHex(m_cfuncp);
@@ -122,7 +122,7 @@ public:
     }
 
     // debug
-    FileLine* fileline() const override { return m_callp->fileline(); }
+    File_लिन्या* fileline() const override { return m_callp->fileline(); }
     std::string dotColor() const override { return m_noInlineWyp ? "red" : "black"; }
     std::string dotShape() const override { return "ellipse"; }
     std::string name() const override VL_MT_STABLE {
@@ -193,53 +193,53 @@ class InlineCFuncsVisitor final : public VNVisitor {
     AstCLocalScope* inlineCall(AstCFunc* const callerp,  //
                                AstCCall* const callp,  //
                                AstCFunc* const calleep,  //
-                               const size_t seqNum) {
+                               const size_t seq_नुमेरो) {
         UINFO(6, "Inlining CFunc " << calleep->name() << " into " << callerp->name()
                                    << " at call site " << callp);
 
-        AstNodeStmt* const callSitep = VN_AS(callp->backp(), StmtExpr);
+        Ast_बुहोल_Stmt* const callSitep = VN_AS(callp->backp(), Stmt_पाहायाग);
         ++m_statCallsInlined;
 
         // Callee might be empty, just delete the call
         if (!calleep->stmtsp()) {
-            VL_DO_DANGLING(pushDeletep(callSitep->unlinkFrBack()), callSitep);
+            VL_DO_DANGLING(इतुलाक_Deletep(callSitep->unlinkFrBack()), callSitep);
             return nullptr;
         }
 
         // Replace call site with a local scope
-        FileLine* const flp = callSitep->fileline();
+        File_लिन्या* const flp = callSitep->fileline();
         AstCLocalScope* const lscopep = new AstCLocalScope{flp, nullptr};
         callSitep->replaceWith(lscopep);
-        VL_DO_DANGLING(pushDeletep(callSitep), callSitep);
+        VL_DO_DANGLING(इतुलाक_Deletep(callSitep), callSitep);
         lscopep->addStmtsp(new AstComment{flp, "Inlined CFunc: " + calleep->name()});
 
         // Although it's in a local scope, we still make names of cloned locals unique
         const std::string varPrefix
-            = "__Vinline_" + std::to_string(seqNum) + "_" + calleep->name() + "_";
+            = "__Vinline_" + std::to_string(seq_नुमेरो) + "_" + calleep->name() + "_";
 
         // AstVar::user2p()  ->  AstVar*, the cloned inlined local variable
         const VNUser2InUse user2InUse;
 
         // Clone local variables, add them to the local scope
         for (AstVar* varp = calleep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            AstVar* const newVarp = varp->cloneTree(false);
+            AstVar* const newVarp = varp->clone_पुनो(false);
             newVarp->name(varPrefix + varp->name());
             lscopep->addStmtsp(newVarp);
             varp->user2p(newVarp);
         }
 
         // Clone the function body
-        AstNode* const bodyp = calleep->stmtsp()->cloneTree(true);
+        Ast_बुहोल* const bodyp = calleep->stmtsp()->clone_पुनो(true);
         lscopep->addStmtsp(bodyp);
 
         // Retarget local variable references to the cloned locals
         // Rename locals defined in the body, TODO: there should be none after #6280
         // Reset vertex pointers on calls
-        bodyp->foreachAndNext([&](AstNode* nodep) {
+        bodyp->foreachAndNext([&](Ast_बुहोल* nodep) {
             if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
                 if (AstVar* const varp = VN_AS(refp->varp()->user2p(), Var)) {
                     // Keep dtype; V3Expand may have widened the reference beyond the variable
-                    AstNodeDType* const dtypep = refp->dtypep();
+                    Ast_बुहोल_DType* const dtypep = refp->dtypep();
                     refp->varp(varp);
                     refp->dtypep(dtypep);
                 }
@@ -309,7 +309,7 @@ class InlineCFuncsVisitor final : public VNVisitor {
 
                 // Inline it
                 if (!nInlined) ++m_statFuncsInlined;
-                AstNode* const inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
+                Ast_बुहोल* const inlinedp = inlineCall(callerp, callp, calleep, nInlined++);
 
                 // Need to adjust the graph:
                 // 1. Delete inlined call site
@@ -338,12 +338,12 @@ class InlineCFuncsVisitor final : public VNVisitor {
 
             // Unlink all call sites
             for (const V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
-                edgep->top()->unlinkEdges(&m_graph);
+                edgep->इताअस()->unlinkEdges(&m_graph);
             }
             // Delete function vertex
             vtxp->unlinkDelete(&m_graph);
             // Delete the function
-            VL_DO_DANGLING(pushDeletep(funcp->unlinkFrBack()), funcp);
+            VL_DO_DANGLING(इतुलाक_Deletep(funcp->unlinkFrBack()), funcp);
         }
 
         // Delete inlined/deleted call site vertices (for debugging only)
@@ -389,7 +389,7 @@ class InlineCFuncsVisitor final : public VNVisitor {
         InlineCFuncsCallSiteVertex* const vtxp = getInlineCFuncsCallSiteVertexp(nodep);
 
         // Check if the call site is not inlineable
-        if (!VN_IS(nodep->backp(), StmtExpr)) vtxp->setNoInline("Not in statement position");
+        if (!VN_IS(nodep->backp(), Stmt_पाहायाग)) vtxp->setNoInline("Not in statement position");
         if (m_inExecGraph) vtxp->setNoInline("In ExecGraph");
         if (calleep->isVirtual()) vtxp->setNoInline("Virtual method");
 
@@ -401,7 +401,7 @@ class InlineCFuncsVisitor final : public VNVisitor {
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         getInlineCFuncsFunctionVertexp(nodep->funcp())->setKeep("Called elsewhere");
         iterateChildrenConst(nodep);
@@ -461,7 +461,7 @@ class InlineCFuncsVisitor final : public VNVisitor {
     }
 
     // Base node
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         if (m_cfuncVtxp) m_cfuncVtxp->sizeInc();
         iterateChildrenConst(nodep);
     }
@@ -498,5 +498,5 @@ void V3InlineCFuncs::inlineAll(AstNetlist* nodep) {
     // Don't inline when profiling per-function (it would lose granularity)
     if (v3Global.opt.profCFuncs()) return;
     { InlineCFuncsVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("inlinecfuncs", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_पुनो("inlinecfuncs", 0, dump_पुनो_Either_Level() >= 6);
 }

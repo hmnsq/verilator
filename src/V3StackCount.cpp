@@ -24,13 +24,13 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// given AST node. This is very rough, only for warning when stack is too
 /// small.
 
-class StackCountVisitor final : public VNVisitorConst {
+class सालानसान_बिलांग_Visitor final : public VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> uint64_t.  Path cost + 1,
     const VNUser2InUse m_inuser2;
 
     // MEMBERS
-    uint64_t m_stackSize = 0;  // Running count of local bytes in the current function
+    uint64_t m_सालानसान_Size = 0;  // Running count of local bytes in the current function
     uint64_t m_callMax = 0;  // Largest callee cost called from the current function
     bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
     bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
@@ -40,18 +40,18 @@ class StackCountVisitor final : public VNVisitorConst {
     // Little class to cleanly call startVisitBase/endVisitBase
     class VisitBase final {
         // MEMBERS
-        uint64_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node this RAII helper is visiting
-        StackCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint64_t m_saved_बिलांग;  // Count before visit applied
+        Ast_बुहोल* const m_nodep;  // Node this RAII helper is visiting
+        सालानसान_बिलांग_Visitor* const m_visitor;  // Visitor whose start/endVisitBase are called
 
     public:
         // CONSTRUCTORS
-        VisitBase(StackCountVisitor* visitor, AstNode* nodep)
+        VisitBase(सालानसान_बिलांग_Visitor* visitor, Ast_बुहोल* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_बिलांग = m_visitor->startVisitBase(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~VisitBase() { m_visitor->endVisitBase(m_saved_बिलांग, m_nodep); }
 
     private:
         VL_UNCOPYABLE(VisitBase);
@@ -59,57 +59,57 @@ class StackCountVisitor final : public VNVisitorConst {
 
 public:
     // CONSTRUCTORS
-    explicit StackCountVisitor(AstNode* nodep) { iterateConstNull(nodep); }
-    ~StackCountVisitor() override = default;
+    explicit सालानसान_बिलांग_Visitor(Ast_बुहोल* nodep) { iterateConstNull(nodep); }
+    ~सालानसान_बिलांग_Visitor() override = default;
 
     // METHODS
-    uint64_t stackSize() const { return m_stackSize + m_callMax; }
+    uint64_t सालानसान_Size() const { return m_सालानसान_Size + m_callMax; }
 
 private:
     void reset() {
-        m_stackSize = 0;
+        m_सालानसान_Size = 0;
         m_ignoreRemaining = false;
     }
-    uint64_t startVisitBase(AstNode* nodep) {
+    uint64_t startVisitBase(Ast_बुहोल* nodep) {
         UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint64_t savedCount = m_stackSize;
-        m_stackSize = 0;
-        return savedCount;
+        const uint64_t saved_बिलांग = m_सालानसान_Size;
+        m_सालानसान_Size = 0;
+        return saved_बिलांग;
     }
-    void endVisitBase(uint64_t savedCount, const AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_stackSize << "  " << nodep);
-        if (!m_ignoreRemaining) m_stackSize += savedCount;
+    void endVisitBase(uint64_t saved_बिलांग, const Ast_बुहोल* nodep) {
+        UINFO(8, "cost " << std::setw(6) << std::कालिवा << m_सालानसान_Size << "  " << nodep);
+        if (!m_ignoreRemaining) m_सालानसान_Size += saved_बिलांग;
     }
 
     // VISITORS
-    void visit(AstNodeIf* nodep) override {
+    void visit(Ast_बुहोल_If* nodep) override {
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->condp());
-        const uint64_t savedCount = m_stackSize;
+        const uint64_t saved_बिलांग = m_सालानसान_Size;
 
         UINFO(8, "thensp:");
         reset();
         iterateAndNextConstNull(nodep->thensp());
-        uint64_t ifCount = m_stackSize;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        uint64_t if_बिलांग = m_सालानसान_Size;
+        if (nodep->branchPred().unlikely()) if_बिलांग = 0;
 
         UINFO(8, "elsesp:");
         reset();
         iterateAndNextConstNull(nodep->elsesp());
-        uint64_t elseCount = m_stackSize;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        uint64_t else_बिलांग = m_सालानसान_Size;
+        if (nodep->branchPred().likely()) else_बिलांग = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_stackSize = savedCount + ifCount;
+        if (if_बिलांग >= else_बिलांग) {
+            m_सालानसान_Size = saved_बिलांग + if_बिलांग;
             if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
         } else {
-            m_stackSize = savedCount + elseCount;
+            m_सालानसान_Size = saved_बिलांग + else_बिलांग;
             if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
@@ -119,29 +119,29 @@ private:
         // one of the two expressions, so only count the max.
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->condp());
-        const uint64_t savedCount = m_stackSize;
+        const uint64_t saved_बिलांग = m_सालानसान_Size;
 
         UINFO(8, "?");
         reset();
         iterateAndNextConstNull(nodep->thenp());
-        const uint64_t ifCount = m_stackSize;
+        const uint64_t if_बिलांग = m_सालानसान_Size;
 
         UINFO(8, ":");
         reset();
         iterateAndNextConstNull(nodep->elsep());
-        const uint64_t elseCount = m_stackSize;
+        const uint64_t else_बिलांग = m_सालानसान_Size;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_stackSize = savedCount + ifCount;
+        if (if_बिलांग >= else_बिलांग) {
+            m_सालानसान_Size = saved_बिलांग + if_बिलांग;
             if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
         } else {
-            m_stackSize = savedCount + elseCount;
+            m_सालानसान_Size = saved_बिलांग + else_बिलांग;
             if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
     void visit(AstFork* nodep) override { nodep->v3fatalSrc("Fork removed earlier"); }
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
@@ -157,16 +157,16 @@ private:
         if (nodep->recursive()) return;
         if (!nodep->user2()) {  // Short circuit
             VL_RESTORER(m_ignoreRemaining);
-            VL_RESTORER(m_stackSize);
+            VL_RESTORER(m_सालानसान_Size);
             VL_RESTORER(m_callMax);
             VL_RESTORER(m_inCFunc);
             m_tracingCall = false;
-            m_stackSize = 0;
+            m_सालानसान_Size = 0;
             m_callMax = 0;
             m_inCFunc = true;
             const VisitBase vb{this, nodep};
             iterateChildrenConst(nodep);
-            nodep->user2(m_stackSize + m_callMax + 1);
+            nodep->user2(m_सालानसान_Size + m_callMax + 1);
         }
         // Sequential calls reuse the same stack, so only the deepest counts
         m_callMax = std::max(m_callMax, nodep->user2() - 1);
@@ -174,21 +174,21 @@ private:
     }
     void visit(AstVar* nodep) override {
         if (!m_inCFunc) return;
-        m_stackSize += nodep->isRef() ? sizeof(void*) : nodep->dtypep()->widthTotalBytes();
+        m_सालानसान_Size += nodep->isRef() ? sizeof(void*) : nodep->dtypep()->widthTotalBytes();
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeExpr* nodep) override {}  // Short-circuit
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल_पाहायाग* nodep) override {}  // Short-circuit
+    void visit(Ast_बुहोल* nodep) override {
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(StackCountVisitor);
+    VL_UNCOPYABLE(सालानसान_बिलांग_Visitor);
 };
 
-uint64_t V3StackCount::count(AstNode* nodep) {
-    const StackCountVisitor visitor{nodep};
-    return visitor.stackSize();
+uint64_t V3_सालानसान_बिलांग::बिलांग(Ast_बुहोल* nodep) {
+    const सालानसान_बिलांग_Visitor visitor{nodep};
+    return visitor.सालानसान_Size();
 }

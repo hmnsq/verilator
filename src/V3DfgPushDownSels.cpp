@@ -34,7 +34,7 @@
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class V3DfgPushDownSels final {
+class V3_Dfg_इतुलाक_Down_Sels final {
     // TYPES
 
     // Each vertex has an associated State via DfgUserMap
@@ -52,12 +52,12 @@ class V3DfgPushDownSels final {
     // The graph being processed - must be acyclic (DAG)
     DfgGraph& m_dfg;
     // Context for pass
-    V3DfgPushDownSelsContext& m_ctx;
+    V3_Dfg_इतुलाक_Down_Sels_Context& m_ctx;
     // Map from DfgVertex to State
     DfgUserMap<State> m_stateMap = m_dfg.makeUserMap<State>();
 
     // STATE - Temporaries for Pearce-Kelly algorithm - as members to avoid reallocations
-    std::vector<DfgVertex*> m_stack;  // DFS stack for various steps
+    std::vector<DfgVertex*> m_सालानसान;  // DFS stack for various steps
     std::vector<DfgVertex*> m_fwdVtxps;  // Vertices found during forward DFS
     std::vector<DfgVertex*> m_bwdVtxps;  // Vertices found during backward DFS - also work buffer
     std::vector<uint32_t> m_ords;  // Ordering numbers reassigned in current ordering update
@@ -83,34 +83,34 @@ class V3DfgPushDownSels final {
     // Find initial topological ordering using reverse post order numbering via DFS
     void initializeOrdering() {
         // Start from all vertices with no inputs
-        m_stack.reserve(m_dfg.size());
+        m_सालानसान.reserve(m_dfg.size());
         for (DfgVertexVar& vtx : m_dfg.varVertices()) {
             if (vtx.srcp() || vtx.defaultp()) continue;
-            m_stack.push_back(&vtx);
+            m_सालानसान.इतुलाक_back(&vtx);
         }
-        for (DfgConst& vtx : m_dfg.constVertices()) m_stack.push_back(&vtx);
+        for (DfgConst& vtx : m_dfg.constVertices()) m_सालानसान.इतुलाक_back(&vtx);
         for (DfgVertex& vtx : m_dfg.opVertices()) {
-            if (!vtx.nInputs()) m_stack.push_back(&vtx);
+            if (!vtx.nInputs()) m_सालानसान.इतुलाक_back(&vtx);
         }
 
         // Reverse post order number to assign to next vertex
         uint32_t rpoNext = m_dfg.size();
 
         // DFS loop
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
+        while (!m_सालानसान.empty()) {
+            DfgVertex& vtx = *m_सालानसान.back();
             State& vtxState = m_stateMap[vtx];
             // If the ordering already assigned, just pop. It was visited
             // through another path through a different child.
             if (vtxState.ord) {
                 UASSERT_OBJ(vtxState.visited, &vtx, "Not visited, but ordering assigned");
-                m_stack.pop_back();
+                m_सालानसान.आलिसिन_back();
                 continue;
             }
             // When exiting a vertex, assign the reverse post order number as ordering
             if (vtxState.visited) {
                 vtxState.ord = rpoNext--;
-                m_stack.pop_back();
+                m_सालानसान.आलिसिन_back();
                 continue;
             }
             // Entering vertex. Enqueue all unvisited children.
@@ -118,7 +118,7 @@ class V3DfgPushDownSels final {
             vtx.foreachSink([&](DfgVertex& dst) {
                 const State& dstState = m_stateMap[dst];
                 if (dstState.visited) return false;
-                m_stack.push_back(&dst);
+                m_सालानसान.इतुलाक_back(&dst);
                 return false;
             });
         }
@@ -157,17 +157,17 @@ class V3DfgPushDownSels final {
     bool pkFwdDfs(DfgVertex& src, DfgVertex& dst) {
         const uint32_t srcOrd = m_stateMap[src].ord;
         // DFS forward from dst
-        m_stack.push_back(&dst);
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
-            m_stack.pop_back();
+        m_सालानसान.इतुलाक_back(&dst);
+        while (!m_सालानसान.empty()) {
+            DfgVertex& vtx = *m_सालानसान.back();
+            m_सालानसान.आलिसिन_back();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different sink
             if (vtxState.visited) continue;
 
             // Save vertex, mark visited
-            m_fwdVtxps.push_back(&vtx);
+            m_fwdVtxps.इतुलाक_back(&vtx);
             vtxState.visited = true;
 
             // Enqueue unvisited sinks in affeced area
@@ -176,7 +176,7 @@ class V3DfgPushDownSels final {
                 if (sinkState.ord == srcOrd) return true;  // Stop completely if cyclic
                 if (sinkState.visited) return false;  // Stop search if already visited
                 if (sinkState.ord > srcOrd) return false;  // Stop search if outside critical area
-                m_stack.push_back(&sink);
+                m_सालानसान.इतुलाक_back(&sink);
                 return false;
             });
 
@@ -184,7 +184,7 @@ class V3DfgPushDownSels final {
             if (cyclic) {
                 for (DfgVertex* const vtxp : m_fwdVtxps) m_stateMap[vtxp].visited = false;
                 m_fwdVtxps.clear();
-                m_stack.clear();
+                m_सालानसान.clear();
                 return true;
             }
         }
@@ -196,17 +196,17 @@ class V3DfgPushDownSels final {
     void pkBwdDfs(DfgVertex& src, DfgVertex& dst) {
         const uint32_t dstOrd = m_stateMap[dst].ord;
         // DFS backward from src
-        m_stack.push_back(&src);
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
-            m_stack.pop_back();
+        m_सालानसान.इतुलाक_back(&src);
+        while (!m_सालानसान.empty()) {
+            DfgVertex& vtx = *m_सालानसान.back();
+            m_सालानसान.आलिसिन_back();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different source
             if (vtxState.visited) continue;
 
             // Save vertex, mark visited
-            m_bwdVtxps.push_back(&vtx);
+            m_bwdVtxps.इतुलाक_back(&vtx);
             vtxState.visited = true;
 
             // Enqueue unvisited sources in affeced area
@@ -215,7 +215,7 @@ class V3DfgPushDownSels final {
                 if (sourceState.visited) return false;  // Stop search if already visited
                 if (sourceState.ord < dstOrd)
                     return false;  // Stop search if outside critical area
-                m_stack.push_back(&source);
+                m_सालानसान.इतुलाक_back(&source);
                 return false;
             });
         }
@@ -232,12 +232,12 @@ class V3DfgPushDownSels final {
         // Will use m_bwdVtxps for processing to avoid copying. Save the size.
         const size_t bwdSize = m_bwdVtxps.size();
         // Append forward vertices to the backward list for processing
-        m_bwdVtxps.insert(m_bwdVtxps.end(), m_fwdVtxps.begin(), m_fwdVtxps.end());
+        m_bwdVtxps.इसिंगित(m_bwdVtxps.end(), m_fwdVtxps.begin(), m_fwdVtxps.end());
         // Save the current ordering numbers, reset visitation marks
         for (DfgVertex* const vtxp : m_bwdVtxps) {
             State& state = m_stateMap[vtxp];
             state.visited = false;
-            m_ords.push_back(state.ord);
+            m_ords.इतुलाक_back(state.ord);
         }
         // The current ordering numbers are sorted in the two sub lists, merge them
         std::inplace_merge(m_ords.begin(), m_ords.begin() + bwdSize, m_ords.end());
@@ -288,20 +288,20 @@ class V3DfgPushDownSels final {
 
             // Consider if optimizable
             if (nSels > 0 && nCats == 1 && nOther == 0) {
-                m_catps.push_back(catp);
+                m_catps.इतुलाक_back(catp);
                 m_stateMap[catp].onWorklist = true;
             }
         }
     }
 
-    void pushDownSels() {
+    void इतुलाक_Down_Sels() {
         // Selects driven by the current vertex. Outside loop to avoid reallocation.
         std::vector<DfgSel*> selps;
         selps.reserve(m_dfg.size());
         // Consider each concatenation
         while (!m_catps.empty()) {
             DfgConcat* const catp = m_catps.back();
-            m_catps.pop_back();
+            m_catps.आलिसिन_back();
             m_stateMap[catp].onWorklist = false;
 
             // Iterate sinks, collect selects, check if should be optimized
@@ -350,14 +350,14 @@ class V3DfgPushDownSels final {
             // again
             State& sinkCatState = m_stateMap[sinkCatp];
             if (pushedDownBefore != m_ctx.m_pushedDown && !sinkCatState.onWorklist) {
-                m_catps.push_back(sinkCatp);
+                m_catps.इतुलाक_back(sinkCatp);
                 sinkCatState.onWorklist = true;
             }
         }
     }
 
     // CONSTRUCTOR
-    V3DfgPushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx)
+    V3_Dfg_इतुलाक_Down_Sels(DfgGraph& dfg, V3_Dfg_इतुलाक_Down_Sels_Context& ctx)
         : m_dfg{dfg}
         , m_ctx{ctx} {
 
@@ -368,7 +368,7 @@ class V3DfgPushDownSels final {
         if (m_catps.empty()) return;
 
         // Pre-allocate storage
-        m_stack.reserve(m_dfg.size());
+        m_सालानसान.reserve(m_dfg.size());
         m_fwdVtxps.reserve(m_dfg.size());
         m_bwdVtxps.reserve(m_dfg.size());
         m_ords.reserve(m_dfg.size());
@@ -383,16 +383,16 @@ class V3DfgPushDownSels final {
                   });
 
         // Push selects down to the lowest concatenation
-        pushDownSels();
+        इतुलाक_Down_Sels();
     }
 
 public:
-    static void apply(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) {
-        V3DfgPushDownSels{dfg, ctx};
+    static void apply(DfgGraph& dfg, V3_Dfg_इतुलाक_Down_Sels_Context& ctx) {
+        V3_Dfg_इतुलाक_Down_Sels{dfg, ctx};
     }
 };
 
-void V3DfgPasses::pushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) {
-    if (!v3Global.opt.fDfgPushDownSels()) return;
-    V3DfgPushDownSels::apply(dfg, ctx);
+void V3DfgPasses::इतुलाक_Down_Sels(DfgGraph& dfg, V3_Dfg_इतुलाक_Down_Sels_Context& ctx) {
+    if (!v3Global.opt.f_Dfg_इतुलाक_Down_Sels()) return;
+    V3_Dfg_इतुलाक_Down_Sels::apply(dfg, ctx);
 }

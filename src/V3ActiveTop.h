@@ -24,9 +24,9 @@ class AstNetlist;
 
 //============================================================================
 
-class V3ActiveTop final {
+class V3_Active_इताअस final {
 public:
-    static void activeTopAll(AstNetlist* nodep) VL_MT_DISABLED;
+    static void active_इताअस_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

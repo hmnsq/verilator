@@ -123,13 +123,13 @@ public:
                     "Unexpected call - CFunc with name '" << name << "' not found");
         FuncInfo& info = it->second;
         if (!info.m_cacheInitialized) {
-            if (info.m_cfuncp) info.m_cache.insert(info.m_cfuncp);
+            if (info.m_cfuncp) info.m_cache.इसिंगित(info.m_cfuncp);
             if (info.m_virtualization != V3ClassGraphVertex::NON_VIRTUAL) {
                 for (V3GraphEdge& edge : outEdges()) {
-                    V3ClassGraphVertex* const other = edge.top()->as<V3ClassGraphVertex>();
+                    V3ClassGraphVertex* const other = edge.इताअस()->as<V3ClassGraphVertex>();
                     const std::unordered_set<AstCFunc*> otherCalls
                         = other->getCallPossibleCFuncs(name);
-                    info.m_cache.insert(otherCalls.begin(), otherCalls.end());
+                    info.m_cache.इसिंगित(otherCalls.begin(), otherCalls.end());
                 }
             }
             info.m_cacheInitialized = true;
@@ -139,7 +139,7 @@ public:
 };
 
 const std::unordered_set<AstCFunc*>&
-V3ClassGraph::getCallPossibleCFuncs(const AstNodeCCall* const callp) const& {
+V3ClassGraph::getCallPossibleCFuncs(const Ast_बुहोल_CCall* const callp) const& {
     // super references shall have AstNodeCCall::funcp() pointing to the only possible
     // AstCFunc that may be called
     if (callp->superReference()) return m_emptySet;
@@ -182,14 +182,14 @@ class ClassGraphBuilderVisitor final : VNVisitorConst {
                         getClassVertex(VN_AS(nodep->childDTypep(), ClassRefDType)->classp()),
                         m_classVertexp, 1};
     }
-    void visit(AstNodeModule* const nodep) override {
+    void visit(Ast_बुहोल_Module* const nodep) override {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_classVertexp);
         m_classp = VN_CAST(nodep, Class);
         if (m_classp) m_classVertexp = getClassVertex(m_classp);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNode* const nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* const nodep) override { iterateChildrenConst(nodep); }
 
 public:
     explicit ClassGraphBuilderVisitor(AstNetlist* const nodep)
@@ -201,7 +201,7 @@ public:
         for (V3GraphVertex& graphVertex : m_graphp->vertices()) {
             V3ClassGraphVertex* const vertexp = graphVertex.as<V3ClassGraphVertex>();
             for (V3GraphEdge& outEdge : vertexp->outEdges()) {
-                V3ClassGraphVertex* const successorp = outEdge.top()->as<V3ClassGraphVertex>();
+                V3ClassGraphVertex* const successorp = outEdge.इताअस()->as<V3ClassGraphVertex>();
                 successorp->propagateVirt(*vertexp);
             }
         }

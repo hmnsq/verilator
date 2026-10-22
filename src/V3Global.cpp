@@ -65,9 +65,9 @@ void V3Global::shutdown() {
     VL_DO_CLEAR(delete m_libMapp, m_libMapp = nullptr);  // delete nullptr is safe
     VL_DO_CLEAR(delete m_constPoolp, m_constPoolp = nullptr);  // delete nullptr is safe
 #ifdef VL_LEAK_CHECKS
-    if (m_rootp) VL_DO_CLEAR(m_rootp->deleteTree(), m_rootp = nullptr);
+    if (m_rootp) VL_DO_CLEAR(m_rootp->delete_पुनो(), m_rootp = nullptr);
 #endif
-    FileLine::deleteAllRemaining();
+    File_लिन्या::deleteAllRemaining();
 }
 
 void V3Global::vlExit(int status) {
@@ -75,7 +75,7 @@ void V3Global::vlExit(int status) {
     std::exit(status);
 }
 
-void V3Global::checkTree() const { rootp()->checkTree(); }
+void V3Global::check_पुनो() const { rootp()->check_पुनो(); }
 
 void V3Global::readFiles() {
     // NODE STATE
@@ -90,13 +90,13 @@ void V3Global::readFiles() {
         // Parse the std waivers
         if (v3Global.opt.stdWaiver()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdWaiverPath()}, V3Options::getStdWaiverPath(), false,
+                new File_लिन्या{V3Options::getStdWaiverPath()}, V3Options::getStdWaiverPath(), false,
                 false, "work",
                 "Cannot find verilated_std_waiver.vlt containing built-in lint waivers: ");
         }
         // Read .vlt files
         for (const VFileLibName& filelib : v3Global.opt.vltFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
+            parser.parseFile(new File_लिन्या{File_लिन्या::command_लिन्या_Filename()}, filelib.filename(),
                              false, false, filelib.libname(),
                              "Cannot find file containing .vlt file: ");
         }
@@ -104,14 +104,14 @@ void V3Global::readFiles() {
         // Parse the std package
         if (v3Global.opt.stdPackage()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdPackagePath()}, V3Options::getStdPackagePath(),
+                new File_लिन्या{V3Options::getStdPackagePath()}, V3Options::getStdPackagePath(),
                 false, false, "work",
                 "Cannot find verilated_std.sv containing built-in std:: definitions: ");
         }
 
         // Parse libmap files
         for (const string& filename : v3Global.opt.libmapFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filename, false, true,
+            parser.parseFile(new File_लिन्या{File_लिन्या::command_लिन्या_Filename()}, filename, false, true,
                              "work", "Cannot find file containing libmap definitions: ");
         }
         // Create library mapping
@@ -122,7 +122,7 @@ void V3Global::readFiles() {
             const string& libname = filelib.libname() == "work"
                                         ? v3Global.libMapp()->matchMapping(filelib.filename())
                                         : filelib.libname();
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
+            parser.parseFile(new File_लिन्या{File_लिन्या::command_लिन्या_Filename()}, filelib.filename(),
                              false, false, libname, "Cannot find file containing module: ");
         }
 
@@ -130,14 +130,14 @@ void V3Global::readFiles() {
         // To be compatible with other simulators,
         // this needs to be done after the top file is read
         for (const auto& filelib : v3Global.opt.libraryFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
+            parser.parseFile(new File_लिन्या{File_लिन्या::command_लिन्या_Filename()}, filelib.filename(),
                              true, false, filelib.libname(),
                              "Cannot find file containing library module: ");
         }
 
         // Read hierarchical type parameter file
         for (const auto& filelib : v3Global.opt.hierParamFile()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
+            parser.parseFile(new File_लिन्या{File_लिन्या::command_लिन्या_Filename()}, filelib.filename(),
                              false, false, filelib.libname(),
                              "Cannot open file containing hierarchical parameter declarations: ");
         }
@@ -151,49 +151,49 @@ void V3Global::readFiles() {
         V3LinkCells::link(v3Global.rootp(), &filter);
     }
 
-    V3Global::dumpCheckGlobalTree("cells", false, dumpTreeEitherLevel() >= 9);
+    V3Global::dump_Check_Global_पुनो("cells", false, dump_पुनो_Either_Level() >= 9);
 }
 
 void V3Global::removeStd() {
     // Delete the std package if unused
     if (!usesStdPackage()) {
         UINFO(3, "Removing unused std:: package");
-        if (AstNodeModule* stdp = v3Global.rootp()->stdPackagep()) {
+        if (Ast_बुहोल_Module* stdp = v3Global.rootp()->stdPackagep()) {
             v3Global.rootp()->stdPackagep(nullptr);
             v3Global.rootp()->stdPackageProcessp(nullptr);
-            VL_DO_DANGLING(stdp->unlinkFrBack()->deleteTree(), stdp);
+            VL_DO_DANGLING(stdp->unlinkFrBack()->delete_पुनो(), stdp);
         }
     }
 }
 
-string V3Global::debugFilename(const string& nameComment, int newNumber) {
-    ++m_debugFileNumber;
-    if (newNumber) m_debugFileNumber = newNumber;
-    return opt.hierTopDataDir() + "/" + opt.prefix() + "_" + digitsFilename(m_debugFileNumber)
+string V3Global::debugFilename(const string& nameComment, int new_नुमेरो) {
+    ++m_debug_File_नुमेरो;
+    if (new_नुमेरो) m_debug_File_नुमेरो = new_नुमेरो;
+    return opt.hier_इताअस_Data_Dir() + "/" + opt.prefix() + "_" + digitsFilename(m_debug_File_नुमेरो)
            + "_" + nameComment;
 }
-string V3Global::digitsFilename(int number) {
+string V3Global::digitsFilename(int नुमेरो_2) {
     std::stringstream ss;
-    ss << std::setfill('0') << std::setw(3) << number;
+    ss << std::setfill('0') << std::setw(3) << नुमेरो_2;
     return ss.str();
 }
 
-void V3Global::dumpCheckGlobalTree(const string& stagename, int newNumber, bool doDump,
+void V3Global::dump_Check_Global_पुनो(const string& stagename, int new_नुमेरो, bool doDump,
                                    bool doCheck) {
-    const string treeFilename = v3Global.debugFilename(stagename + ".tree", newNumber);
-    if (dumpTreeLevel()) v3Global.rootp()->dumpTreeFile(treeFilename, doDump);
-    if (dumpTreeJsonLevel()) {
-        v3Global.rootp()->dumpTreeJsonFile(treeFilename + ".json", doDump);
+    const string पुनो_Filename = v3Global.debugFilename(stagename + ".tree", new_नुमेरो);
+    if (dump_पुनो_Level()) v3Global.rootp()->dump_पुनो_File(पुनो_Filename, doDump);
+    if (dump_पुनो_Json_Level()) {
+        v3Global.rootp()->dump_पुनो_Json_File(पुनो_Filename + ".json", doDump);
     }
-    if (v3Global.opt.dumpTreeDot()) {
-        v3Global.rootp()->dumpTreeDotFile(treeFilename + ".dot", doDump);
+    if (v3Global.opt.dump_पुनो_Dot()) {
+        v3Global.rootp()->dump_पुनो_Dot_File(पुनो_Filename + ".dot", doDump);
     }
     if (v3Global.opt.stats()) V3Stats::statsStage(stagename);
 
-    if (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(treeFilename + ".v");
-    if (doCheck && (v3Global.opt.debugCheck() || dumpTreeEitherLevel())) {
+    if (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(पुनो_Filename + ".v");
+    if (doCheck && (v3Global.opt.debugCheck() || dump_पुनो_Either_Level())) {
         // Error check
-        v3Global.rootp()->checkTree();
+        v3Global.rootp()->check_पुनो();
         // Broken isn't part of check tree because it can munge iterp's
         // set by other steps if it is called in the middle of other operations
         V3Broken::brokenAll(v3Global.rootp());
@@ -211,7 +211,7 @@ void V3Global::idPtrMapDumpJson(std::ostream& os) {
 }
 
 void V3Global::saveJsonPtrFieldName(const std::string& fieldName) {
-    m_jsonPtrNames.insert(fieldName);
+    m_jsonPtrNames.इसिंगित(fieldName);
 }
 
 void V3Global::ptrNamesDumpJson(std::ostream& os) {

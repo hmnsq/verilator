@@ -95,7 +95,7 @@ class OrderMoveGraphBuilder final {
 
     // METHODS
 
-    bool domainsExclusive(const OrderDomain* fromp, const OrderDomain* top) {
+    bool domainsExclusive(const OrderDomain* fromp, const OrderDomain* इताअस) {
         // Return 'true' if we can prove that both 'from' and 'to' cannot both
         // be active on the same evaluation, or false if we can't prove this.
         //
@@ -110,7 +110,7 @@ class OrderMoveGraphBuilder final {
         // ... unless you know more about A and B, which sounds hard.
 
         const std::set<uint32_t>& fromTriggers = fromp->triggers();
-        const std::set<uint32_t>& toTriggers = top->triggers();
+        const std::set<uint32_t>& toTriggers = इताअस->triggers();
         if (fromTriggers.size() != 1) return false;
         if (toTriggers.size() != 1) return false;
         const AstSenItem* const fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
@@ -118,9 +118,9 @@ class OrderMoveGraphBuilder final {
         const AstSenItem* const toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
         if (!toSenItemp) return false;
 
-        const AstNodeVarRef* const fromVarrefp = fromSenItemp->varrefp();
+        const Ast_बुहोल_Var_Ref* const fromVarrefp = fromSenItemp->varrefp();
         if (!fromVarrefp) return false;
-        const AstNodeVarRef* const toVarrefp = toSenItemp->varrefp();
+        const Ast_बुहोल_Var_Ref* const toVarrefp = toSenItemp->varrefp();
         if (!toVarrefp) return false;
 
         // We know nothing about the relationship between different clocks here,
@@ -142,7 +142,7 @@ class OrderMoveGraphBuilder final {
             if (edge.weight() == 0) continue;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderVarVertex
-            const OrderVarVertex* const vvtxp = static_cast<const OrderVarVertex*>(edge.top());
+            const OrderVarVertex* const vvtxp = static_cast<const OrderVarVertex*>(edge.इताअस());
 
             // Look up OrderMoveVertex for this domain on this variable
             DomainMap& mapp = *static_cast<DomainMap*>(vvtxp->userp());
@@ -171,7 +171,7 @@ class OrderMoveGraphBuilder final {
             if (edge.weight() == 0) continue;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderLogicVertex
-            const OrderLogicVertex* const lVtxp = edge.top()->as<OrderLogicVertex>();
+            const OrderLogicVertex* const lVtxp = edge.इताअस()->as<OrderLogicVertex>();
 
             // Do not construct dependencies across exclusive domains.
             if (domainsExclusive(domainp, lVtxp->domainp())) continue;

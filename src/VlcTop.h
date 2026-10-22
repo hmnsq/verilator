@@ -28,7 +28,7 @@
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
+class Vlc_इताअस final {
 public:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
@@ -45,8 +45,8 @@ private:
 
 public:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_इताअस() = default;
+    ~Vlc_इताअस() = default;
 
     // ACCESSORS
     VlcTests& tests() { return m_tests; }
@@ -55,8 +55,8 @@ public:
 
     // METHODS
     void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
+    void इलिम्बाग_Hierarchy_Report();
+    void इलिम्बाग_Type_Summary();
     void readCoverage(const string& filename, bool nonfatal = false);
     void writeCoverage(const string& filename);
     void writeInfo(const string& filename);

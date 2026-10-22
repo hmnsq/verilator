@@ -49,9 +49,9 @@ class CombineVisitor final : VNVisitor {
     };
 
     // STATE
-    AstUser1Allocator<AstNodeModule, CFuncs> m_cfuncs;  // AstCFuncs under module
+    AstUser1Allocator<Ast_बुहोल_Module, CFuncs> m_cfuncs;  // AstCFuncs under module
     AstUser1Allocator<AstCFunc, std::vector<AstCCall*>> m_callSites;  // Call sites of the AstCFunc
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_बुहोल_Module* m_modp = nullptr;  // Current module
     const V3Hasher m_hasher;  // For hashing
     VDouble0 m_cfuncsCombined;  // Statistic tracking
 
@@ -66,15 +66,15 @@ class CombineVisitor final : VNVisitor {
             if (funcp->emptyBody()) {
                 // Delete call sites
                 for (AstCCall* const callp : m_callSites(funcp)) {
-                    UASSERT_OBJ(VN_IS(callp->backp(), StmtExpr), callp,
+                    UASSERT_OBJ(VN_IS(callp->backp(), Stmt_पाहायाग), callp,
                                 "Deleting non-statement call");
-                    VL_DO_DANGLING(callp->backp()->unlinkFrBack()->deleteTree(), callp);
+                    VL_DO_DANGLING(callp->backp()->unlinkFrBack()->delete_पुनो(), callp);
                 }
                 m_callSites(funcp).clear();
                 // Remove from list
                 funcps.erase(it);
                 // Delete function
-                VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
+                VL_DO_DANGLING(funcp->unlinkFrBack()->delete_पुनो(), funcp);
             }
         }
     }
@@ -94,7 +94,7 @@ class CombineVisitor final : VNVisitor {
             // Remove functions already replaced in the previous iteration
             if (funcp->user2()) {
                 funcps.erase(it);
-                VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
+                VL_DO_DANGLING(funcp->unlinkFrBack()->delete_पुनो(), funcp);
                 continue;
             }
 
@@ -154,15 +154,15 @@ class CombineVisitor final : VNVisitor {
     void process(AstNetlist* netlistp) {
         // First, remove empty functions. We need to do this separately, because removing
         // calls can change the hashes of the callers.
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
-             modulep = VN_AS(modulep->nextp(), NodeModule)) {
+        for (Ast_बुहोल_Module* modulep = netlistp->modulesp(); modulep;
+             modulep = VN_AS(modulep->nextp(), बुहोल_Module)) {
             removeEmptyFunctions(m_cfuncs(modulep).m_fast);
             removeEmptyFunctions(m_cfuncs(modulep).m_slow);
         }
 
         // Combine functions within each module
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
-             modulep = VN_AS(modulep->nextp(), NodeModule)) {
+        for (Ast_बुहोल_Module* modulep = netlistp->modulesp(); modulep;
+             modulep = VN_AS(modulep->nextp(), बुहोल_Module)) {
             // Put fast functions first, so they are preferred over slow functions
             auto funcps = std::move(m_cfuncs(modulep).m_fast);
             funcps.splice(funcps.end(), m_cfuncs(modulep).m_slow);
@@ -170,7 +170,7 @@ class CombineVisitor final : VNVisitor {
             V3DupFinder dupFinder{m_hasher};
 
             // First, hash all functions
-            for (AstCFunc* const funcp : funcps) dupFinder.insert(funcp);
+            for (AstCFunc* const funcp : funcps) dupFinder.इसिंगित(funcp);
 
             // Iterate to fixed point
             {
@@ -187,7 +187,7 @@ class CombineVisitor final : VNVisitor {
         // Combine functions
         process(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    void visit(Ast_बुहोल_Module* nodep) override {
         UASSERT_OBJ(!m_modp, nodep, "Should not nest");
         VL_RESTORER(m_modp);
         m_modp = nodep;
@@ -218,7 +218,7 @@ class CombineVisitor final : VNVisitor {
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
     // CONSTRUCTORS
     explicit CombineVisitor(AstNetlist* nodep) { iterate(nodep); }
@@ -236,5 +236,5 @@ public:
 void V3Combine::combineAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     CombineVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("combine", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("combine", 0, dump_पुनो_Either_Level() >= 3);
 }

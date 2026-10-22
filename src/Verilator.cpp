@@ -129,7 +129,7 @@ V3Global v3Global;
 
 static void reportStatsIfEnabled() {
     if (v3Global.opt.stats()) {
-        FileLine::stats();
+        File_लिन्या::stats();
         V3Stats::statsReport();
     }
 }
@@ -139,7 +139,7 @@ static void emitJson() VL_MT_DISABLED {
         = (v3Global.opt.jsonOnlyOutput().empty()
                ? v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + ".tree.json"
                : v3Global.opt.jsonOnlyOutput());
-    v3Global.rootp()->dumpTreeJsonFile(filename);
+    v3Global.rootp()->dump_पुनो_Json_File(filename);
 }
 
 static void emitSerialized() VL_MT_DISABLED {
@@ -163,7 +163,7 @@ static void process() {
         // Cross-link signal names
         // Cross-link dotted hierarchical references
         V3LinkDot::linkDotPrimary(v3Global.rootp());
-        v3Global.checkTree();  // Force a check, as link is most likely place for problems
+        v3Global.check_पुनो();  // Force a check, as link is most likely place for problems
         // Check if all parameters have been found
         v3Global.opt.checkParameters();
         // Correct state we couldn't know at parse time, repair SEL's
@@ -200,7 +200,7 @@ static void process() {
         // Remove any modules that were parameterized and are no longer referenced.
         V3Dead::deadifyModules(v3Global.rootp());
 
-        v3Global.checkTree();
+        v3Global.check_पुनो();
         if (v3Global.hasTable()) V3Udp::udpResolve(v3Global.rootp());
 
         // Create a hierarchical Verilation plan
@@ -236,9 +236,9 @@ static void process() {
             // Add top level wrapper with instance pointing to old top
             // Move packages to under new top
             // Must do this after we know parameters and dtypes (as don't clone dtype decls)
-            V3LinkLevel::wrapTop(v3Global.rootp());
+            V3LinkLevel::wrap_इताअस(v3Global.rootp());
         } else {
-            V3LinkLevel::nonWrapTop(v3Global.rootp());
+            V3LinkLevel::non_Wrap_इताअस(v3Global.rootp());
         }
 
         if (!v3Global.opt.serializeOnly()) {
@@ -302,7 +302,7 @@ static void process() {
 
         if (!v3Global.opt.serializeOnly()) {
             // Lift expressions out of statements.
-            V3LiftExpr::liftExprAll(v3Global.rootp());
+            V3_Lift_पाहायाग::lift_पाहायाग_All(v3Global.rootp());
 
             // Move assignments from X into MODULE temps.
             // (Before flattening, so each new X variable is shared between all scopes of that
@@ -320,10 +320,10 @@ static void process() {
 
         // Initial const/dead to reduce work for ordering code
         if (v3Global.opt.fConstBeforeDfg()) V3Const::constifyAll(v3Global.rootp());
-        v3Global.checkTree();
+        v3Global.check_पुनो();
 
         V3Dead::deadifyDTypes(v3Global.rootp());
-        v3Global.checkTree();
+        v3Global.check_पुनो();
 
         V3Error::abortIfErrors();
 
@@ -362,7 +362,7 @@ static void process() {
             // Cleanup
             if (v3Global.opt.fConstBeforeDfg()) V3Const::constifyAll(v3Global.rootp());
             V3Dead::deadifyDTypesScoped(v3Global.rootp());
-            v3Global.checkTree();
+            v3Global.check_पुनो();
         }
 
         if (!v3Global.opt.serializeOnly()) {
@@ -411,7 +411,7 @@ static void process() {
             // Cleanup
             if (v3Global.opt.fConstBeforeDfg()) V3Const::constifyAll(v3Global.rootp());
             V3Dead::deadifyDTypesScoped(v3Global.rootp());
-            v3Global.checkTree();
+            v3Global.check_पुनो();
 
             // Split single ALWAYS blocks into multiple blocks for better ordering chances
             if (v3Global.opt.fSplit()) V3Split::splitAll(v3Global.rootp());
@@ -466,7 +466,7 @@ static void process() {
             // Make Active's on the top level.
             // Differs from V3Active, because identical clocks may be pushed
             // down to a module and now be identical
-            V3ActiveTop::activeTopAll(v3Global.rootp());
+            V3_Active_इताअस::active_इताअस_All(v3Global.rootp());
 
             // Remove SAMPLED
             if (v3Global.hasSampled()) V3Sampled::sampledAll(v3Global.rootp());
@@ -678,7 +678,7 @@ static void process() {
         // V3EmitMk/V3EmitMkJson must be after all other emitters,
         // as they and below code visits AstCFiles added earlier
         size_t src_f_cnt = 0;
-        for (AstNode* nodep = v3Global.rootp()->filesp(); nodep; nodep = nodep->nextp()) {
+        for (Ast_बुहोल* nodep = v3Global.rootp()->filesp(); nodep; nodep = nodep->nextp()) {
             if (const AstCFile* cfilep = VN_CAST(nodep, CFile))
                 src_f_cnt += cfilep->source() ? 1 : 0;
         }
@@ -698,7 +698,7 @@ static bool verilate(const string& argString) {
     // Can we skip doing everything if times are ok?
     V3File::addSrcDepend(v3Global.opt.buildDepBin());
     if (v3Global.opt.skipIdentical().isTrue()
-        && V3File::checkTimes(v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+        && V3File::checkTimes(v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix()
                                   + "__verFiles.dat",
                               argString)) {
         UINFO(1, "--skip-identical: No change to any source files, exiting");
@@ -721,9 +721,9 @@ static bool verilate(const string& argString) {
     // Cleanup
     // Ideally we'd do prefix + "_*.*", and prefix + ".*", but this seems
     // potentially disruptive to old behavior, and --skip-identical
-    V3Os::unlinkRegexp(v3Global.opt.hierTopDataDir(), v3Global.opt.prefix() + "_*.dot");
-    V3Os::unlinkRegexp(v3Global.opt.hierTopDataDir(), v3Global.opt.prefix() + "_*.tree");
-    V3Os::unlinkRegexp(v3Global.opt.hierTopDataDir(), v3Global.opt.prefix() + "_*.txt");
+    V3Os::unlinkRegexp(v3Global.opt.hier_इताअस_Data_Dir(), v3Global.opt.prefix() + "_*.dot");
+    V3Os::unlinkRegexp(v3Global.opt.hier_इताअस_Data_Dir(), v3Global.opt.prefix() + "_*.tree");
+    V3Os::unlinkRegexp(v3Global.opt.hier_इताअस_Data_Dir(), v3Global.opt.prefix() + "_*.txt");
 
     // Internal tests (after option parsing as need debug() setting,
     // and after removing files as may make debug output)
@@ -731,7 +731,7 @@ static bool verilate(const string& argString) {
     if (v3Global.opt.debugSelfTest()) {
         AstClassRefDType::selfTest();
         V3Os::selfTest();
-        V3Number::selfTest();
+        V3_नुमेरो::selfTest();
         VString::selfTest();
         VHashSha512::selfTest();
         VSpellCheck::selfTest();
@@ -755,8 +755,8 @@ static bool verilate(const string& argString) {
     }
 
     // Final steps
-    V3Global::dumpCheckGlobalTree("final", 990, dumpTreeEitherLevel() >= 3);
-    if (v3Global.opt.jsonOnly() || dumpTreeJsonLevel()) {
+    V3Global::dump_Check_Global_पुनो("final", 990, dump_पुनो_Either_Level() >= 3);
+    if (v3Global.opt.jsonOnly() || dump_पुनो_Json_Level()) {
         const string filename
             = (v3Global.opt.jsonOnlyMetaOutput().empty()
                    ? v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + ".tree.meta.json"
@@ -779,34 +779,34 @@ static bool verilate(const string& argString) {
         UASSERT(!v3Global.opt.hierChild(), "This must not be a hierarchical-child run");
         UASSERT(v3Global.opt.hierBlocks().empty(), "hierarchical-block must not be set");
         if (v3Global.opt.gmake()) {
-            hierGraphp->writeCommandArgsFiles(false);
+            hierGraphp->write_Command_मगा_कातविरान_Files(false);
             V3EmitMk::emitHierVerilation(hierGraphp);
         }
         if (v3Global.opt.makeJson()) {
-            hierGraphp->writeCommandArgsFiles(true);
+            hierGraphp->write_Command_मगा_कातविरान_Files(true);
             V3EmitMkJson::emit();
         }
         hierGraphp->writeParametersFiles();
     }
     if (v3Global.opt.makeDepend().isTrue()) {
         string filename = v3Global.opt.makeDir() + "/" + v3Global.opt.prefix();
-        filename += v3Global.opt.hierTop() ? "__hierVer.d" : "__ver.d";
+        filename += v3Global.opt.hier_इताअस() ? "__hierVer.d" : "__ver.d";
         V3File::writeDepend(filename);
     }
     if (v3Global.opt.protectIds()) {
-        VIdProtect::writeMapFile(v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+        VIdProtect::writeMapFile(v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix()
                                  + "__idmap.xml");
     }
 
     if ((v3Global.opt.skipIdentical().isTrue() || v3Global.opt.makeDepend().isTrue())
         && !V3Error::isErrorOrWarn()) {
-        V3File::writeTimes(v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+        V3File::writeTimes(v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix()
                                + "__verFiles.dat",
                            argString);
     }
 
     V3Os::filesystemFlushBuildDir(v3Global.opt.makeDir());
-    if (v3Global.opt.hierTop()) V3Os::filesystemFlushBuildDir(v3Global.opt.hierTopDataDir());
+    if (v3Global.opt.hier_इताअस()) V3Os::filesystemFlushBuildDir(v3Global.opt.hier_इताअस_Data_Dir());
     if (v3Global.opt.stats()) V3Stats::statsStageAll(v3Global.rootp(), "WroteAll");
     if (v3Global.opt.stats()) V3Stats::statsStageAll(v3Global.rootp(), "WroteFast", true);
 
@@ -852,7 +852,7 @@ static void execBuildJob() {
     UINFO(1, "Start Build");
 
     const string cmdStr = buildMakeCmd(v3Global.opt.prefix() + ".mk", "");
-    V3Os::filesystemFlushBuildDir(v3Global.opt.hierTopDataDir());
+    V3Os::filesystemFlushBuildDir(v3Global.opt.hier_इताअस_Data_Dir());
     const int exit_code = V3Os::system(cmdStr);
     V3Stats::addStatPerf(V3Stats::STAT_WALLTIME_BUILD, buildWallTime.deltaTime());
 
@@ -868,7 +868,7 @@ static void execHierVerilation() {
     const string makefile = v3Global.opt.prefix() + "_hier.mk ";
     const string target = v3Global.opt.build() ? " hier_build" : " hier_verilation";
     const string cmdStr = buildMakeCmd(makefile, target);
-    V3Os::filesystemFlushBuildDir(v3Global.opt.hierTopDataDir());
+    V3Os::filesystemFlushBuildDir(v3Global.opt.hier_इताअस_Data_Dir());
     const int exit_code = V3Os::system(cmdStr);
     if (exit_code != 0) {
         v3error(cmdStr << " exited with " << exit_code << std::endl);
@@ -899,7 +899,7 @@ int main(int argc, char** argv) {
 
     // Command option parsing
     v3Global.opt.buildDepBin(V3Os::filenameCleanup(argv[0]));
-    v3Global.opt.parseOpts(new FileLine{FileLine::commandLineFilename()}, argc - 1, argv + 1);
+    v3Global.opt.parseOpts(new File_लिन्या{File_लिन्या::command_लिन्या_Filename()}, argc - 1, argv + 1);
 
     // Validate settings (aka Boost.Program_options)
     v3Global.opt.notify();

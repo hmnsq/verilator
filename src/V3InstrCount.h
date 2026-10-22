@@ -21,9 +21,9 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-class AstNode;
+class Ast_बुहोल;
 
-class V3InstrCount final {
+class V3_Instr_बिलांग final {
 public:
     // Return the estimate count of instructions we'd incur while running
     // code in and under nodep.
@@ -38,7 +38,7 @@ public:
     // if we see the same node twice (across more than one call to count,
     // potentially) raises an error.
     // Optional osp is stream to dump critical path to.
-    static uint32_t count(AstNode* nodep, bool assertNoDups,
+    static uint32_t बिलांग(Ast_बुहोल* nodep, bool assertNoDups,
                           std::ostream* osp = nullptr) VL_MT_DISABLED;
 };
 

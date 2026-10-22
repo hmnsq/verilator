@@ -41,17 +41,17 @@ class EmitCInlines final : EmitCBaseVisitorConst {
         if (v3Global.opt.trace()) v3Global.needTraceDumper(true);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistBiop* nodep) override {
+    void visit(Ast_बुहोल_Dist_Biop* nodep) override {
         v3Global.setUsesProbDist();
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistTriop* nodep) override {
+    void visit(Ast_बुहोल_Dist_Triop* nodep) override {
         v3Global.setUsesProbDist();
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
 public:
     explicit EmitCInlines(AstNetlist* nodep) { iterateConst(nodep); }

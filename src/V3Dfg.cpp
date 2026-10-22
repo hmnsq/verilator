@@ -100,7 +100,7 @@ void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
     }
 }
 
-DfgVertexVar* DfgGraph::makeNewVar(FileLine* flp, const std::string& prefix,
+DfgVertexVar* DfgGraph::makeNewVar(File_लिन्या* flp, const std::string& prefix,
                                    const DfgDataType& dtype, AstScope* scopep) {
     AstVarScope* const vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
     // Create and return the corresponding variable vertex
@@ -195,15 +195,15 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
     }
 
     if (const DfgConst* const constVtxp = vtx.cast<DfgConst>()) {
-        const V3Number& num = constVtxp->num();
+        const V3_नुमेरो& नुमेरो = constVtxp->नुमेरो();
 
         os << toDotId(vtx);
         os << " [label=\"";
-        if (num.width() <= 32 && !num.isSigned()) {
-            os << constVtxp->width() << "'d" << num.toUInt() << '\n';
-            os << constVtxp->width() << "'h" << std::hex << num.toUInt() << std::dec << '\n';
+        if (नुमेरो.width() <= 32 && !नुमेरो.isSigned()) {
+            os << constVtxp->width() << "'d" << नुमेरो.toUInt() << '\n';
+            os << constVtxp->width() << "'h" << std::hex << नुमेरो.toUInt() << std::dec << '\n';
         } else {
-            os << num.ascii() << '\n';
+            os << नुमेरो.ascii() << '\n';
         }
         os << cvtToHex(constVtxp) << '\n';
         os << '"';
@@ -247,7 +247,7 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
     if (const DfgLogic* const logicp = vtx.cast<DfgLogic>()) {
         os << toDotId(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(logicp->nodep(), ss);
+        V3EmitV::debug_Verilog_For_पुनो(logicp->nodep(), ss);
         std::string str = "AstNode: " + cvtToHex(logicp->nodep()) + "\n" + ss.str();
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
@@ -270,7 +270,7 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
     if (const DfgVertexAst* const astVtxp = vtx.cast<DfgVertexAst>()) {
         os << toDotId(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(astVtxp->exprp(), ss);
+        V3EmitV::debug_Verilog_For_पुनो(astVtxp->exprp(), ss);
         std::string str = "AstNode: " + cvtToHex(astVtxp->exprp()) + "\n" + ss.str() + "\n";
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
@@ -325,17 +325,17 @@ void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
         if (!p(vtx)) return;
         os << "subgraph cluster_" << cvtToHex(logicp) << " {\n";
         dumpDotVertex(os, *logicp);
-        emitted.insert(logicp);
+        emitted.इसिंगित(logicp);
         for (DfgVertex* const vtxp : logicp->synth()) {
             if (!p(*vtxp)) continue;
             dumpDotVertex(os, *vtxp);
-            emitted.insert(vtxp);
+            emitted.इसिंगित(vtxp);
         }
         os << "}\n";
     });
     // Emit all remaining vertices
     forEachVertex([&](const DfgVertex& vtx) {
-        if (emitted.count(&vtx)) return;
+        if (emitted.बिलांग(&vtx)) return;
         if (!p(vtx)) return;
         dumpDotVertex(os, vtx);
     });
@@ -393,18 +393,18 @@ dfgGraphCollectCone(const std::vector<const DfgVertex*>& vtxps) {
     while (!queue.empty()) {
         // Pop next work item
         const DfgVertex* const vtxp = queue.back();
-        queue.pop_back();
+        queue.आलिसिन_back();
         // Mark vertex as visited, move on if already visited
-        if (!resp->insert(vtxp).second) continue;
+        if (!resp->इसिंगित(vtxp).second) continue;
         // Enqueue all siblings of this vertex.
         if VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
             vtxp->foreachSink([&](const DfgVertex& sink) {
-                queue.push_back(&sink);
+                queue.इतुलाक_back(&sink);
                 return false;
             });
         } else {
             vtxp->foreachSource([&](const DfgVertex& src) {
-                queue.push_back(&src);
+                queue.इतुलाक_back(&src);
                 return false;
             });
         }
@@ -436,11 +436,11 @@ DfgGraph::neighborhood(const std::vector<const DfgVertex*>& vtxps, size_t n) con
         for (size_t i = begin; i < end; ++i) {
             const DfgVertex* const vtxp = vec[i];
             vtxp->foreachSink([&](const DfgVertex& dst) {
-                if (res.insert(&dst).second) vec.push_back(&dst);
+                if (res.इसिंगित(&dst).second) vec.इतुलाक_back(&dst);
                 return false;
             });
             vtxp->foreachSource([&](const DfgVertex& src) {
-                if (res.insert(&src).second) vec.push_back(&src);
+                if (res.इसिंगित(&src).second) vec.इतुलाक_back(&src);
                 return false;
             });
         }
@@ -454,7 +454,7 @@ DfgGraph::neighborhood(const std::vector<const DfgVertex*>& vtxps, size_t n) con
 //------------------------------------------------------------------------------
 // DfgVertex
 
-DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
+DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, File_लिन्या* flp, const DfgDataType& dt,
                      DfgEdge* inlineInputsp, uint32_t nInputs)
     : m_inlineInputsp{inlineInputsp}
     , m_nInputs{nInputs}
@@ -472,10 +472,10 @@ bool DfgVertex::unsafe() const {
 
 void DfgVertex::typeCheck(const DfgGraph& dfg) const {
 
-#define CHECK(cond, msg) \
+#define CHECK(cond, मेनसाहे) \
     UASSERT_OBJ(cond, this, \
                 "Dfg type error for vertex " << typeName() << " in " << dfg.name() << ": " \
-                                             << msg);
+                                             << मेनसाहे);
     switch (type()) {
     case VDfgType::Const: {
         CHECK(isPacked(), "Should be Packed type");
@@ -671,8 +671,8 @@ void DfgVertex::typeCheck(const DfgGraph& dfg) const {
         return;
     }
 
-    case VDfgType::CountOnes: {
-        const DfgCountOnes& v = *as<DfgCountOnes>();
+    case VDfgType::बिलांग_Ones_2: {
+        const Dfg_बिलांग_Ones& v = *as<Dfg_बिलांग_Ones>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "Source should be Packed type");
         CHECK(v.size() == 32U, "Should yield a 32-bit result");
@@ -744,8 +744,8 @@ DfgVertexVar* DfgVertex::getResultVar() {
         }
 
         // Prefer the earlier one in source order
-        const FileLine& oldFlp = *(resp->fileline());
-        const FileLine& newFlp = *(varp->fileline());
+        const File_लिन्या& oldFlp = *(resp->fileline());
+        const File_लिन्या& newFlp = *(varp->fileline());
         if (const int cmp = oldFlp.operatorCompare(newFlp)) {
             if (cmp > 0) resp = varp;
             return false;
@@ -774,7 +774,7 @@ AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED
         }
     }
 
-    AstScope* const rootp = v3Global.rootp()->topScopep()->scopep();
+    AstScope* const rootp = v3Global.rootp()->इताअस_Scopep()->scopep();
 
     // Note: the recursive invocation can cause a re-hash but that will not invalidate references
     AstScope*& resultr = cache[this];
@@ -867,33 +867,33 @@ class DfgPatternString final {
     // Multiplicity and depth of vertices
     std::map<const DfgVertex*, std::pair<uint32_t, uint32_t>> m_multiplicityAndDepth;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
+    static std::string toLetters(size_t हालागा, bool lowerCase = false) {
         const char base = lowerCase ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
+        do { s += static_cast<char>(base + हालागा % 26); } while (हालागा /= 26);
         return s;
     }
 
     const std::string& internConst(const DfgConst& vtx) {
-        const auto pair = m_internedConsts.emplace(vtx.num().ascii(false), "");
+        const auto pair = m_internedConsts.emplace(vtx.नुमेरो().ascii(false), "");
         if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
         return pair.first->second;
     }
 
-    const std::string& internSelLsb(uint32_t value) {
-        const auto pair = m_internedSelLsbs.emplace(value, "");
+    const std::string& internSelLsb(uint32_t हालागा) {
+        const auto pair = m_internedSelLsbs.emplace(हालागा, "");
         if (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
         return pair.first->second;
     }
 
-    const std::string& internWordWidth(uint32_t value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
+    const std::string& internWordWidth(uint32_t हालागा) {
+        const auto pair = m_internedWordWidths.emplace(हालागा, "");
         if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
         return pair.first->second;
     }
 
-    const std::string& internWideWidth(uint32_t value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
+    const std::string& internWideWidth(uint32_t हालागा) {
+        const auto pair = m_internedWideWidths.emplace(हालागा, "");
         if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
         return pair.first->second;
     }
@@ -905,13 +905,13 @@ class DfgPatternString final {
     }
 
     void recordMultiplicityAndDepth(const DfgVertex& vtx, uint32_t depth) {
-        std::pair<uint32_t, uint32_t>& value = m_multiplicityAndDepth
+        std::pair<uint32_t, uint32_t>& हालागा = m_multiplicityAndDepth
                                                    .emplace(std::piecewise_construct,  //
                                                             std::forward_as_tuple(&vtx),  //
                                                             std::forward_as_tuple(0, depth))
                                                    .first->second;
-        value.first += 1;
-        value.second = std::max(value.second, depth);
+        हालागा.first += 1;
+        हालागा.second = std::max(हालागा.second, depth);
         if (!depth) return;
         vtx.foreachSource([&](const DfgVertex& src) {
             recordMultiplicityAndDepth(src, depth - 1);
@@ -921,7 +921,7 @@ class DfgPatternString final {
 
     // Render the vertx into ss, and return true if the recursion reached the given depth,
     // meaning an S-expression with that nesting level has been rendered.
-    void render(const DfgVertex& vtx, uint32_t depth, bool isRoot = true) {
+    void render(const DfgVertex& vtx, uint32_t depth, bool is_उगात_2 = true) {
         if (const DfgConst* const constp = vtx.cast<DfgConst>()) {
             // Base case 1: constant
             if (constp->isZero()) {
@@ -931,7 +931,7 @@ class DfgPatternString final {
             } else {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (!isRoot && m_multiplicityAndDepth.at(&vtx).first > 1) {
+        } else if (!is_उगात_2 && m_multiplicityAndDepth.at(&vtx).first > 1) {
             // Base case 2: vertex appearing multiple times
             m_os << internVertex(vtx);
         } else if (!vtx.foreachSource([&](const DfgVertex&) { return true; })) {

@@ -26,7 +26,7 @@
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_हालागा;  // The 32-bit hash value.
 
     static uint32_t combine(uint32_t a, uint32_t b) {
         return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
@@ -35,11 +35,11 @@ class V3Hash final {
 public:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_हालागा{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_हालागा{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+        : m_हालागा{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
     explicit V3Hash(const std::string& val);
     explicit V3Hash(double val);
 
@@ -51,22 +51,22 @@ public:
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
+    uint32_t हालागा() const VL_MT_SAFE { return m_हालागा; }
     std::string toString() const VL_MT_SAFE;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool operator==(const V3Hash& rh) const { return m_हालागा == rh.m_हालागा; }
+    bool operator!=(const V3Hash& rh) const { return m_हालागा != rh.m_हालागा; }
+    bool operator<(const V3Hash& rh) const { return m_हालागा < rh.m_हालागा; }
 
     // '+' combines hashes
     template <typename T>
     V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+        return V3Hash{combine(m_हालागा, V3Hash{that}.m_हालागा)};
     }
     V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+        return V3Hash{combine(m_हालागा, V3Hash{that}.m_हालागा)};
     }
 
     // '+=' combines in place
@@ -81,7 +81,7 @@ std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
 
 template <>
 struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+    std::size_t operator()(const V3Hash& h) const noexcept { return h.हालागा(); }
 };
 
 #endif  // Guard

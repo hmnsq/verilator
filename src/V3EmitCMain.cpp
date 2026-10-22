@@ -32,7 +32,7 @@ class EmitCMain final : EmitCBaseVisitorConst {
 
     // VISITORS
     // This visitor doesn't really iterate, but exist to appease base class
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }  // LCOV_EXCL_LINE
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }  // LCOV_EXCL_LINE
 
 public:
     // CONSTRUCTORS
@@ -45,10 +45,10 @@ private:
         v3Global.opt.addCFlags("-DVL_TIME_CONTEXT");  // On MSVC++ anyways
 
         // Optional main top name argument, with empty string replacement
-        string topName = v3Global.opt.mainTopName();
-        if (topName == "-") topName = "";
+        string इताअस_Name = v3Global.opt.main_इताअस_Name();
+        if (इताअस_Name == "-") इताअस_Name = "";
 
-        openNewOutputSourceFile(EmitCUtil::topClassName() + "__main", false, false,
+        openNewOutputSourceFile(EmitCUtil::इताअस_Class_Name() + "__main", false, false,
                                 "main() simulation loop, created with --main");
         puts("\n");
 
@@ -56,7 +56,7 @@ private:
 
         puts("#include \"verilated.h\"\n");
         if (v3Global.opt.vpi()) puts("#include \"verilated_vpi.h\"\n");
-        puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
+        puts("#include \"" + EmitCUtil::इताअस_Class_Name() + ".h\"\n");
         if (v3Global.opt.debugRuntimeTimeout()) {
             puts("\n");
             puts("#include <csignal>\n");
@@ -99,8 +99,8 @@ private:
         }
 
         puts("// Construct the Verilated model, from Vtop.h generated from Verilating\n");
-        puts("const std::unique_ptr<" + EmitCUtil::topClassName() + "> topp{new "
-             + EmitCUtil::topClassName() + "{contextp.get(), \"" + topName + "\"}};\n");
+        puts("const std::unique_ptr<" + EmitCUtil::इताअस_Class_Name() + "> topp{new "
+             + EmitCUtil::इताअस_Class_Name() + "{contextp.get(), \"" + इताअस_Name + "\"}};\n");
         puts("\n");
 
         if (v3Global.opt.vpi()) {

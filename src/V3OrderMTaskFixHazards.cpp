@@ -131,19 +131,19 @@ class DpiImportCallVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         iterateChildren(nodep);
         // Enter the function and trace it
         m_tracingCall = true;
         iterate(nodep->funcp());
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
-    explicit DpiImportCallVisitor(AstNode* nodep) { iterate(nodep); }
+    explicit DpiImportCallVisitor(Ast_बुहोल* nodep) { iterate(nodep); }
 
 public:
-    static bool hasDpiHazard(AstNode* nodep) { return DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
+    static bool hasDpiHazard(Ast_बुहोल* nodep) { return DpiImportCallVisitor{nodep}.m_hasDpiHazard; }
 };
 
 //######################################################################
@@ -202,10 +202,10 @@ class FixDataHazards final {
             mtaskp->user(++seq);
             // Decrement edge count of successors and add to ready set if no dependencies left
             for (V3GraphEdge& edge : mtaskp->outEdges()) {
-                LogicMTask* const top = static_cast<LogicMTask*>(edge.top());
-                const uint32_t nDeps = top->user() - 1;
-                top->user(nDeps);
-                if (!nDeps) ready.insert(top);
+                LogicMTask* const इताअस = static_cast<LogicMTask*>(edge.इताअस());
+                const uint32_t nDeps = इताअस->user() - 1;
+                इताअस->user(nDeps);
+                if (!nDeps) ready.इसिंगित(इताअस);
             }
         }
         UASSERT(seq == m_mTaskGraph.vertices().size(), "MTask graph is cyclic");
@@ -223,7 +223,7 @@ class FixDataHazards final {
                 for (const OrderLogicVertex::VarAccess& acc : lVtxp->varAccesses()) {
                     AstVarScope* const vscp = acc.m_vscp;
                     if (!vscp->user1()) vscp->user1(++nVars);
-                    accesses.push_back({vscp, &mtask, acc.m_access});
+                    accesses.इतुलाक_back({vscp, &mtask, acc.m_access});
                 }
             }
         }
@@ -231,18 +231,18 @@ class FixDataHazards final {
     }
 
     // Add an edge ordering 'fromp' before 'top', unless they are already ordered
-    void addEdgeIfNeeded(LogicMTask* fromp, LogicMTask* top) {
+    void addEdgeIfNeeded(LogicMTask* fromp, LogicMTask* इताअस) {
         // Nothing to order within a single MTask
-        if (fromp == top) return;
-        UASSERT_OBJ(fromp->user() < top->user(), fromp,
+        if (fromp == इताअस) return;
+        UASSERT_OBJ(fromp->user() < इताअस->user(), fromp,
                     "Edge must run in increasing sequence order");
         // Already directly ordered. This is an O(1) set lookup, and catches the common case of
         // a dependency the OrderGraph already provided.
-        if (fromp->hasEdgeTo(top)) return;
+        if (fromp->hasEdgeTo(इताअस)) return;
         // Otherwise check if already ordered
-        if (m_mTaskGraph.pathExists(fromp, top, nullptr)) return;
+        if (m_mTaskGraph.pathExists(fromp, इताअस, nullptr)) return;
         // Unordered. Add an edge between them.
-        m_mTaskGraph.addEdge(fromp, top);
+        m_mTaskGraph.addEdge(fromp, इताअस);
     }
 
     // Add the edges required to make the accesses of one variable race free. 'beginp'/'endp'
@@ -272,7 +272,7 @@ class FixDataHazards final {
             } else {
                 // This read must happen after the preceding write
                 if (prevWriterp) addEdgeIfNeeded(prevWriterp, mtaskp);
-                pendingReaders.push_back(mtaskp);
+                pendingReaders.इतुलाक_back(mtaskp);
             }
         }
     }
@@ -332,7 +332,7 @@ class FixDataHazards final {
             for (const Access& access : accesses) {
                 if (!access.m_access.isWriteOrRW()) continue;
                 if (!access.m_vscp->varp()->isSc()) continue;
-                m_scratch.push_back(access.m_mtaskp);
+                m_scratch.इतुलाक_back(access.m_mtaskp);
             }
             serializeMTasks(m_scratch);
         }
@@ -342,7 +342,7 @@ class FixDataHazards final {
             m_scratch.clear();
             for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
                 LogicMTask& mtask = static_cast<LogicMTask&>(vtx);
-                if (hasDpiHazard(&mtask)) m_scratch.push_back(&mtask);
+                if (hasDpiHazard(&mtask)) m_scratch.इतुलाक_back(&mtask);
             }
             serializeMTasks(m_scratch);
         }

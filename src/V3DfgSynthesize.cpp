@@ -37,8 +37,8 @@ namespace {
 
 // Create a DfgVertex out of a AstNodeExpr. For most AstNodeExpr subtypes, this can be done
 // automatically. For the few special cases, we provide specializations below
-template <typename T_Vertex, typename T_Node>
-T_Vertex* makeVertex(const T_Node* nodep, DfgGraph& dfg, const DfgDataType& dtype) {
+template <typename T_Vertex, typename T_बुहोल>
+T_Vertex* makeVertex(const T_बुहोल* nodep, DfgGraph& dfg, const DfgDataType& dtype) {
     return new T_Vertex{dfg, nodep->fileline(), dtype};
 }
 
@@ -75,17 +75,17 @@ class AstToDfgConverter final : public VNVisitor {
     // METHODS
 
     // Allocate a new non-variable vertex, add it to the currently synthesized logic
-    template <typename Vertex, typename... Args>
-    Vertex* make(Args&&... args) {
-        static_assert(!std::is_base_of<DfgVertexVar, Vertex>::value, "Do not use for variables");
-        static_assert(std::is_base_of<DfgVertex, Vertex>::value, "'Vertex' must be a 'DfgVertex'");
-        Vertex* const vtxp = new Vertex{m_dfg, std::forward<Args>(args)...};
+    template <typename Vertex, typename... मगा_कातविरान_2>
+    Vertex* make(मगा_कातविरान_2&&... मगा_कातविरान) {
+        static_assert(!std::is_base_of<DfgVertexVar, Vertex>::हालागा, "Do not use for variables");
+        static_assert(std::is_base_of<DfgVertex, Vertex>::हालागा, "'Vertex' must be a 'DfgVertex'");
+        Vertex* const vtxp = new Vertex{m_dfg, std::forward<मगा_कातविरान_2>(मगा_कातविरान)...};
         m_logicp->synth().emplace_back(vtxp);
         return vtxp;
     }
 
     // Returns true if the expression cannot (or should not) be represented by DFG
-    bool unhandled(AstNodeExpr* nodep) {
+    bool unhandled(Ast_बुहोल_पाहायाग* nodep) {
         // Short-circuiting if something was already unhandled
         if (m_foundUnhandled) {
             // Impure nodes cannot be represented
@@ -105,7 +105,7 @@ class AstToDfgConverter final : public VNVisitor {
     }
 
     // Given an RValue expression, return the equivalent Vertex, or nullptr if not representable.
-    DfgVertex* convertRValue(AstNodeExpr* nodep) {
+    DfgVertex* convertRValue(Ast_बुहोल_पाहायाग* nodep) {
         UASSERT_OBJ(!m_converting, nodep, "'convertingRValue' should not be called recursively");
         VL_RESTORER(m_converting);
         VL_RESTORER(m_foundUnhandled);
@@ -127,7 +127,7 @@ class AstToDfgConverter final : public VNVisitor {
     // Given an LValue expression, return the splice node that writes the
     // destination, together with the index to use for splicing in the value.
     // Returns {nullptr, 0}, if the given LValue expression is not supported.
-    std::pair<DfgVertexSplice*, uint32_t> convertLValue(AstNodeExpr* nodep) {
+    std::pair<DfgVertexSplice*, uint32_t> convertLValue(Ast_बुहोल_पाहायाग* nodep) {
         if (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
             UASSERT_OBJ(vrefp->access().isWriteOnly(), vrefp, "Non-WriteOnly reference");
             if (!isSupported(vrefp)) {
@@ -217,7 +217,7 @@ class AstToDfgConverter final : public VNVisitor {
 
             // Ensure the Splice driver exists for this element
             if (!splicep->driverAt(index)) {
-                FileLine* const flp = nodep->fileline();
+                File_लिन्या* const flp = nodep->fileline();
                 // This should never fail
                 const DfgDataType& dtype = *DfgDataType::fromAst(nodep->dtypep());
                 if (dtype.isPacked()) {
@@ -249,7 +249,7 @@ class AstToDfgConverter final : public VNVisitor {
     // Given the LHS of an assignment, and the vertex representing the RHS,
     // connect up the RHS to drive the targets.
     // Returns true on success, false if the LHS is not representable.
-    bool convertAssignment(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* vtxp) {
+    bool convertAssignment(File_लिन्या* flp, Ast_बुहोल_पाहायाग* lhsp, DfgVertex* vtxp) {
         // Represents a DFG assignment contributed by the AST assignment with the above 'lhsp'.
         // There might be multiple of these if 'lhsp' is a concatenation.
         struct Assignment final {
@@ -264,7 +264,7 @@ class AstToDfgConverter final : public VNVisitor {
         };
 
         // Simplify the LHS, to get rid of things like SEL(CONCAT(_, _), _)
-        if (!VN_IS(lhsp, VarRef)) lhsp = VN_AS(V3Const::constifyExpensiveEdit(lhsp), NodeExpr);
+        if (!VN_IS(lhsp, VarRef)) lhsp = VN_AS(V3Const::constifyExpensiveEdit(lhsp), बुहोल_पाहायाग);
 
         // Assigning compound expressions to a concatenated LHS requires a temporary
         // to avoid multiple use of the expression
@@ -278,12 +278,12 @@ class AstToDfgConverter final : public VNVisitor {
         // we need to do into 'assignments', return true if all LValues
         // converted successfully.
         std::vector<Assignment> assignments;
-        const std::function<bool(AstNodeExpr*, uint32_t)> convertAllLValues
-            = [&](AstNodeExpr* subp, uint32_t lsb) -> bool {
+        const std::function<bool(Ast_बुहोल_पाहायाग*, uint32_t)> convertAllLValues
+            = [&](Ast_बुहोल_पाहायाग* subp, uint32_t lsb) -> bool {
             // Concatenation on the LHS, convert each part
             if (AstConcat* const concatp = VN_CAST(subp, Concat)) {
-                AstNodeExpr* const cRhsp = concatp->rhsp();
-                AstNodeExpr* const cLhsp = concatp->lhsp();
+                Ast_बुहोल_पाहायाग* const cRhsp = concatp->rhsp();
+                Ast_बुहोल_पाहायाग* const cLhsp = concatp->lhsp();
                 // Convert Rigth of concat
                 if (!convertAllLValues(cRhsp, lsb)) return false;
                 // Convert Left of concat
@@ -339,7 +339,7 @@ class AstToDfgConverter final : public VNVisitor {
     // VISITORS
 
     // Unhandled node
-    void visit(AstNode* /*nodep*/) override {
+    void visit(Ast_बुहोल* /*nodep*/) override {
         if (!m_foundUnhandled && m_converting) ++m_ctx.m_conv.nonRepUnknown;
         m_foundUnhandled = true;
     }
@@ -367,15 +367,15 @@ class AstToDfgConverter final : public VNVisitor {
         UASSERT_OBJ(!nodep->user2p(), nodep, "Already has Dfg vertex");
         if (unhandled(nodep)) return;
 
-        if (nodep->width() != nodep->num().width()) {
+        if (nodep->width() != nodep->नुमेरो().width()) {
             // Sometimes the width of the AstConst is not the same as the
             // V3Number it holds. Truncate it here. TODO: should this be allowed?
-            V3Number num{nodep, nodep->width()};
-            num.opSel(nodep->num(), nodep->width() - 1, 0);
-            DfgVertex* const vtxp = make<DfgConst>(nodep->fileline(), num);
+            V3_नुमेरो नुमेरो{nodep, nodep->width()};
+            नुमेरो.opSel(nodep->नुमेरो(), nodep->width() - 1, 0);
+            DfgVertex* const vtxp = make<DfgConst>(nodep->fileline(), नुमेरो);
             nodep->user2p(vtxp);
         } else {
-            DfgVertex* const vtxp = make<DfgConst>(nodep->fileline(), nodep->num());
+            DfgVertex* const vtxp = make<DfgConst>(nodep->fileline(), nodep->नुमेरो());
             nodep->user2p(vtxp);
         }
     }
@@ -414,7 +414,7 @@ class AstToDfgConverter final : public VNVisitor {
         iterate(nodep->matchp());
         if (m_foundUnhandled) return;
 
-        FileLine* const flp = nodep->fileline();
+        File_लिन्या* const flp = nodep->fileline();
         DfgMatchMasked* const vtxp = make<DfgMatchMasked>(flp, *dtypep);
         vtxp->lhsp(nodep->lhsp()->user2u().to<DfgVertex*>());
         vtxp->matchp(nodep->matchp()->user2u().to<DfgVertex*>());
@@ -435,7 +435,7 @@ class AstToDfgConverter final : public VNVisitor {
         iterate(nodep->srcp());
         if (m_foundUnhandled) return;
 
-        FileLine* const flp = nodep->fileline();
+        File_लिन्या* const flp = nodep->fileline();
         DfgRep* const vtxp = make<DfgRep>(flp, *dtypep);
         vtxp->srcp(nodep->srcp()->user2u().to<DfgVertex*>());
         nodep->user2p(vtxp);
@@ -455,7 +455,7 @@ class AstToDfgConverter final : public VNVisitor {
         iterate(nodep->fromp());
         if (m_foundUnhandled) return;
 
-        FileLine* const flp = nodep->fileline();
+        File_लिन्या* const flp = nodep->fileline();
         DfgVertex* vtxp = nullptr;
         if (const AstConst* const constp = VN_CAST(nodep->lsbp(), Const)) {
             const uint32_t lsb = constp->toUInt();
@@ -490,7 +490,7 @@ public:
     // PUBLIC METHODS
 
     // Create temporay variable capable of holding the given type
-    DfgVertexVar* createTmp(DfgLogic& logic, FileLine* flp, const DfgDataType& dtype,
+    DfgVertexVar* createTmp(DfgLogic& logic, File_लिन्या* flp, const DfgDataType& dtype,
                             const std::string& prefix) {
         DfgVertexVar* const vtxp = m_dfg.makeNewVar(flp, prefix, dtype, logic.scopep());
         logic.synth().emplace_back(vtxp);
@@ -502,7 +502,7 @@ public:
     // Create a new temporary variable capable of holding 'varp'
     DfgVertexVar* createTmp(DfgLogic& logic, AstVarScope* vscp, const std::string& prefix) {
         AstVar* const astVarp = vscp->varp();
-        FileLine* const flp = astVarp->fileline();
+        File_लिन्या* const flp = astVarp->fileline();
         const DfgDataType& dtype = *DfgDataType::fromAst(astVarp->dtypep());
         const std::string prfx = prefix + "_" + astVarp->name();
         DfgVertexVar* const vtxp = createTmp(logic, flp, dtype, prfx);
@@ -513,7 +513,7 @@ public:
     // Convert AstAssign to Dfg, return true if successful.
     // Fills 'updates' with bindings for assigned variables.
     bool convert(std::vector<std::pair<AstVarScope*, DfgVertexVar*>>& updates, DfgLogic& vtx,
-                 AstNodeAssign* nodep) {
+                 Ast_बुहोल_Assign* nodep) {
         UASSERT_OBJ(VN_IS(nodep, Assign) || VN_IS(nodep, AssignW), nodep, "Bad NodeAssign");
         UASSERT_OBJ(updates.empty(), nodep, "'updates' should be empty");
         VL_RESTORER(m_updatesp);
@@ -523,9 +523,9 @@ public:
         // Assignment with timing control shouldn't make it this far
         UASSERT_OBJ(!nodep->timingControlp(), nodep, "Shouldn't make it this far");
         // Convert it
-        ++m_ctx.m_conv.inputAssignments;
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        ++m_ctx.m_conv.पासोक_Assignments;
+        Ast_बुहोल_पाहायाग* const lhsp = nodep->lhsp();
+        Ast_बुहोल_पाहायाग* const rhsp = nodep->rhsp();
         // Check data types are compatible.
         const DfgDataType* const lDtypep = DfgDataType::fromAst(lhsp->dtypep());
         const DfgDataType* const rDtypep = DfgDataType::fromAst(rhsp->dtypep());
@@ -536,7 +536,7 @@ public:
         // For now, only direct array assignment is supported (e.g. a = b, but not a = _ ? b : c)
         if (rDtypep->isArray()) {
             if (!VN_IS(rhsp, VarRef)
-                || !lhsp->dtypep()->skipRefp()->sameTree(rhsp->dtypep()->skipRefp())) {
+                || !lhsp->dtypep()->skipRefp()->same_पुनो(rhsp->dtypep()->skipRefp())) {
                 ++m_ctx.m_conv.nonRepDType;
                 return false;
             }
@@ -553,11 +553,11 @@ public:
     }
 
     // Convert RValue expression to Dfg. Returns nullptr if failed.
-    DfgVertex* convert(DfgLogic& vtx, AstNodeExpr* nodep) {
+    DfgVertex* convert(DfgLogic& vtx, Ast_बुहोल_पाहायाग* nodep) {
         VL_RESTORER(m_logicp);
         m_logicp = &vtx;
         // Convert it
-        ++m_ctx.m_conv.inputExpressions;
+        ++m_ctx.m_conv.पासोक_Expressions;
         DfgVertex* const vtxp = convertRValue(nodep);
         if (vtxp) ++m_ctx.m_conv.representable;
         return vtxp;
@@ -594,10 +594,10 @@ class AstToDfgSynthesize final {
         DfgVertex* m_vtxp = nullptr;  // Driving vertex
         uint32_t m_lo = 0;  // Low index of driven range (internal, not Verilog)
         uint32_t m_hi = 0;  // High index of driven range (internal, not Verilog)
-        FileLine* m_flp = nullptr;  // Location of driver in source
+        File_लिन्या* m_flp = nullptr;  // Location of driver in source
 
         Driver() = default;
-        Driver(DfgVertex* vtxp, uint32_t lo, FileLine* flp)
+        Driver(DfgVertex* vtxp, uint32_t lo, File_लिन्या* flp)
             : m_vtxp{vtxp}
             , m_lo{lo}
             , m_hi{lo + vtxp->size() - 1U}
@@ -625,7 +625,7 @@ class AstToDfgSynthesize final {
     CfgBlockMap<SymTab> m_bbToOSymTab;  // Map from CfgBlock -> output symbol table
     CfgBlockMap<DfgVertexVar*> m_bbToCondp;  // Map from CfgBlock ->  terminating branch condition
     CfgEdgeMap<DfgVertexVar*> m_edgeToPredicatep;  // Map CfgGraphEdge -> path predicate to there
-    CfgDominatorTree m_domTree;  // The dominator tree of the current CFG
+    Cfg_Dominator_पुनो m_dom_पुनो;  // The dominator tree of the current CFG
 
     // STATE - Some debug aid
     // We stop after synthesizing s_dfgSynthDebugLimit vertices (if non-zero).
@@ -654,18 +654,18 @@ class AstToDfgSynthesize final {
             if (m_debugOSrcConep) {
                 // Dump only the subgraph involving the inputs and outputs of the bad vertex
                 m_dfg.dumpDotFilePrefixed(name + "-min"s, [&](const DfgVertex& v) -> bool {
-                    return m_debugOSrcConep->count(&v);
+                    return m_debugOSrcConep->बिलांग(&v);
                 });
             }
         }
     }
 
     // Allocate a new non-variable vertex, add it to the currently synthesized logic
-    template <typename Vertex, typename... Args>
-    Vertex* make(Args&&... args) {
-        static_assert(!std::is_base_of<DfgVertexVar, Vertex>::value, "Do not use for variables");
-        static_assert(std::is_base_of<DfgVertex, Vertex>::value, "'Vertex' must be a 'DfgVertex'");
-        Vertex* const vtxp = new Vertex{m_dfg, std::forward<Args>(args)...};
+    template <typename Vertex, typename... मगा_कातविरान_2>
+    Vertex* make(मगा_कातविरान_2&&... मगा_कातविरान) {
+        static_assert(!std::is_base_of<DfgVertexVar, Vertex>::हालागा, "Do not use for variables");
+        static_assert(std::is_base_of<DfgVertex, Vertex>::हालागा, "'Vertex' must be a 'DfgVertex'");
+        Vertex* const vtxp = new Vertex{m_dfg, std::forward<मगा_कातविरान_2>(मगा_कातविरान)...};
         if (m_logicp) m_logicp->synth().emplace_back(vtxp);
         return vtxp;
     }
@@ -676,7 +676,7 @@ class AstToDfgSynthesize final {
         std::vector<Driver> drivers;
         drivers.reserve(vtxp->nInputs());
         bool sorted = true;
-        vtxp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* flp) {
+        vtxp->foreachDriver([&](DfgVertex& src, uint32_t lo, File_लिन्या* flp) {
             // Collect the driver
             drivers.emplace_back(&src, lo, flp);
             // Check if drivers are sorted - most often they are
@@ -718,19 +718,19 @@ class AstToDfgSynthesize final {
     // tristate lowering. Used to distinguish intentional tristate contributor
     // overlap from accidental multidrive.
     static bool containsTriLoweredVar(DfgVertex* rootp) {
-        std::vector<const DfgVertex*> stack;
+        std::vector<const DfgVertex*> सालानसान;
         std::vector<const DfgVertex*> visited;
-        stack.emplace_back(rootp);
-        while (!stack.empty()) {
-            const DfgVertex* const vtxp = stack.back();
-            stack.pop_back();
+        सालानसान.emplace_back(rootp);
+        while (!सालानसान.empty()) {
+            const DfgVertex* const vtxp = सालानसान.back();
+            सालानसान.आलिसिन_back();
             if (std::find(visited.begin(), visited.end(), vtxp) != visited.end()) continue;
             visited.emplace_back(vtxp);
             if (const DfgVertexVar* const varp = vtxp->cast<DfgVertexVar>()) {
                 if (varp->vscp()->varp()->dfgTriLowered()) return true;
             }
             vtxp->foreachSource([&](const DfgVertex& src) {
-                stack.emplace_back(&src);
+                सालानसान.emplace_back(&src);
                 return false;
             });
         }
@@ -747,8 +747,8 @@ class AstToDfgSynthesize final {
 
         // For better locations in error reporting, we unpick concatenations
         // which are sometimes introduced by combinint assignments in V3Const.
-        const std::function<void(DfgVertex*, uint32_t, FileLine*)> gather
-            = [&](DfgVertex* vtxp, uint32_t lo, FileLine* flp) -> void {
+        const std::function<void(DfgVertex*, uint32_t, File_लिन्या*)> gather
+            = [&](DfgVertex* vtxp, uint32_t lo, File_लिन्या* flp) -> void {
             if (DfgConcat* const concatp = vtxp->cast<DfgConcat>()) {
                 DfgVertex* const rhsp = concatp->rhsp();
                 gather(rhsp, lo, rhsp->fileline());
@@ -766,7 +766,7 @@ class AstToDfgSynthesize final {
             // Synthesized drivers must be a splice at this point
             DfgVertexSplice* const splicep = src.as<DfgVertexSplice>();
             // Collect the driver
-            splicep->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* flp) {
+            splicep->foreachDriver([&](DfgVertex& src, uint32_t lo, File_लिन्या* flp) {
                 gather(&src, lo, flp);
                 return false;
             });
@@ -821,7 +821,7 @@ class AstToDfgSynthesize final {
         }
 
         // Successfully resolved. Needs a new splice and unit.
-        FileLine* const flp = var.fileline();
+        File_लिन्या* const flp = var.fileline();
         DfgSplicePacked* const splicep = make<DfgSplicePacked>(flp, aSp->dtype());
         for (const Driver& d : abDrivers) splicep->addDriver(d.m_vtxp, d.m_lo, d.m_flp);
         DfgUnitArray* const uap = make<DfgUnitArray>(flp, aUap->dtype());
@@ -1003,7 +1003,7 @@ class AstToDfgSynthesize final {
     }
 
     // Initialzie input symbol table of entry CfgBlock
-    void initializeEntrySymbolTable(SymTab& iSymTab) {
+    void initialize_Entry_सिम्बोलो_Table(SymTab& iSymTab) {
         m_logicp->foreachSource([&](DfgVertex& src) {
             DfgVertexVar* const vvp = src.as<DfgVertexVar>();
             iSymTab[vvp->vscp()] = vvp;
@@ -1024,11 +1024,11 @@ class AstToDfgSynthesize final {
 
         // We can't join the input variable just yet, so bail
         if (thenp->vscp() == vscp) {
-            ++m_ctx.m_synt.nonSynJoinInput;
+            ++m_ctx.m_synt.non_Syn_Join_पासोक;
             return nullptr;
         }
         if (elsep->vscp() == vscp) {
-            ++m_ctx.m_synt.nonSynJoinInput;
+            ++m_ctx.m_synt.non_Syn_Join_पासोक;
             return nullptr;
         }
 
@@ -1050,7 +1050,7 @@ class AstToDfgSynthesize final {
         UASSERT_OBJ(tDefaultp == eDefaultp, vscp, "Different default drivers");
 
         // Location to use for the join vertices
-        FileLine* const flp = predicatep->fileline();
+        File_लिन्या* const flp = predicatep->fileline();
 
         // Create a fresh temporary for the joined value
         DfgVertexVar* const joinp = m_converter.createTmp(*m_logicp, vscp, "SynthJoin");
@@ -1121,7 +1121,7 @@ class AstToDfgSynthesize final {
     }
 
     // Merge 'thenSymTab' into 'elseSymTab' using the given predicate to join values
-    bool joinSymbolTables(SymTab& elseSymTab, DfgVertexVar* predicatep, const SymTab& thenSymTab) {
+    bool join_सिम्बोलो_Tables(SymTab& elseSymTab, DfgVertexVar* predicatep, const SymTab& thenSymTab) {
         // Any variable that does not have a binding on both paths will be removed. These might be
         // temporaries, loop vars, etc used only in one branch. Conversion will fail if the
         // variable is actually referenced later.
@@ -1157,7 +1157,7 @@ class AstToDfgSynthesize final {
     std::tuple<DfgVertexVar*, const CfgBlock*, const CfgBlock*>  //
     howToJoin(const CfgEdge* const ap, const CfgEdge* const bp) {
         // Find the closest common dominator of the two paths
-        const CfgBlock* const domp = m_domTree.closestCommonDominator(ap->srcp(), bp->srcp());
+        const CfgBlock* const domp = m_dom_पुनो.closestCommonDominator(ap->srcp(), bp->srcp());
         // These paths join here, so 'domp' must be a branch, otherwise it's not the closest
         UASSERT_OBJ(domp->isBranch(), domp, "closestCommonDominator is not a branch");
 
@@ -1174,14 +1174,14 @@ class AstToDfgSynthesize final {
         // it's as if there was an empty block on that critical edge which
         // is dominated by that path.
 
-        if (takenEdgep == ap || m_domTree.dominates(takenEdgep->dstp(), ap->srcp())) {
-            if (untknEdgep == bp || m_domTree.dominates(untknEdgep->dstp(), bp->srcp())) {
+        if (takenEdgep == ap || m_dom_पुनो.dominates(takenEdgep->dstp(), ap->srcp())) {
+            if (untknEdgep == bp || m_dom_पुनो.dominates(untknEdgep->dstp(), bp->srcp())) {
                 // Taken path dominates 'ap' and untaken dominates 'bp', use the branch condition
                 ++m_ctx.m_synt.joinUsingBranchCondition;
                 return std::make_tuple(m_bbToCondp[domp], ap->srcp(), bp->srcp());
             }
-        } else if (takenEdgep == bp || m_domTree.dominates(takenEdgep->dstp(), bp->srcp())) {
-            if (untknEdgep == ap || m_domTree.dominates(untknEdgep->dstp(), ap->srcp())) {
+        } else if (takenEdgep == bp || m_dom_पुनो.dominates(takenEdgep->dstp(), bp->srcp())) {
+            if (untknEdgep == ap || m_dom_पुनो.dominates(untknEdgep->dstp(), ap->srcp())) {
                 // Taken path dominates 'bp' and untaken dominates 'ap', use the branch condition
                 ++m_ctx.m_synt.joinUsingBranchCondition;
                 return std::make_tuple(m_bbToCondp[domp], bp->srcp(), ap->srcp());
@@ -1200,13 +1200,13 @@ class AstToDfgSynthesize final {
 
     // Combine the output symbol tables of the predecessors of the given
     // block to compute the input symtol table for the given block.
-    bool createInputSymbolTable(const CfgBlock& bb) {
+    bool create_पासोक_सिम्बोलो_Table(const CfgBlock& bb) {
         // The input symbol table of the given block, we are computing it now
         SymTab& joined = m_bbToISymTab[bb];
 
         // Input symbol table of entry block is special
         if (bb.isEnter()) {
-            initializeEntrySymbolTable(joined);
+            initialize_Entry_सिम्बोलो_Table(joined);
             return true;
         }
 
@@ -1229,7 +1229,7 @@ class AstToDfgSynthesize final {
             // Copy from else
             joined = m_bbToOSymTab[elsep];
             // Join with then
-            return joinSymbolTables(joined, predicatep, m_bbToOSymTab[*thenp]);
+            return join_सिम्बोलो_Tables(joined, predicatep, m_bbToOSymTab[*thenp]);
         }
 
         // General hard way
@@ -1269,7 +1269,7 @@ class AstToDfgSynthesize final {
         for (size_t i = 1; i < predecessors.size(); ++i) {
             DfgVertexVar* const predicatep = predecessors[i].m_predicatep;
             const SymTab& oSymTab = *predecessors[i].m_oSymTabp;
-            if (!joinSymbolTables(joined, predicatep, oSymTab)) return false;
+            if (!join_सिम्बोलो_Tables(joined, predicatep, oSymTab)) return false;
         }
 
         return true;
@@ -1285,7 +1285,7 @@ class AstToDfgSynthesize final {
         std::vector<Driver> propagatedDrivers;
 
         // Add bits between 'msb' and 'lsb' from 'oldp' to 'pDrivers'
-        const auto addOldDriver = [&](FileLine* const flp, uint32_t msb, uint32_t lsb) {
+        const auto addOldDriver = [&](File_लिन्या* const flp, uint32_t msb, uint32_t lsb) {
             UASSERT_OBJ(propagatedDrivers.empty() || lsb > propagatedDrivers.back().m_hi, flp,
                         "Drivers should be in ascending order");
             DfgSel* const selp = make<DfgSel>(flp, DfgDataType::packed(msb - lsb + 1));
@@ -1296,7 +1296,7 @@ class AstToDfgSynthesize final {
 
         // Incorporate old drivers
         for (const Driver& oDriver : oldDrivers) {
-            FileLine* const flp = oDriver.m_flp;
+            File_लिन्या* const flp = oDriver.m_flp;
             // Range to consider inserting, we will adjust oldLo as we process drivers
             uint32_t oldLo = oDriver.m_lo;
             const uint32_t oldHi = oDriver.m_hi;
@@ -1350,7 +1350,7 @@ class AstToDfgSynthesize final {
             while (nIt != newDrivers.end() && nIt->m_lo < oDriver.m_lo) ++nIt;
             if (nIt != newDrivers.end() && nIt->m_lo == oDriver.m_lo) continue;
 
-            FileLine* const flp = oDriver.m_flp;
+            File_लिन्या* const flp = oDriver.m_flp;
             const DfgUnitArray* const oldUnitp = oDriver.m_vtxp->as<DfgUnitArray>();
             DfgArraySel* const selp = make<DfgArraySel>(flp, oldUnitp->srcp()->dtype());
             selp->fromp(oldp);
@@ -1365,7 +1365,7 @@ class AstToDfgSynthesize final {
     // Given the drivers of a variable after converting a single statement
     // 'newp', add drivers from 'oldp' that were not reassigned be drivers
     // in newp. This computes the total result of all previous assignments.
-    bool incorporatePreviousValue(AstVarScope* vscp, DfgVertexVar* newp, DfgVertexVar* oldp) {
+    bool incorporate_Previous_हालागा(AstVarScope* vscp, DfgVertexVar* newp, DfgVertexVar* oldp) {
         UASSERT_OBJ(newp->srcp(), vscp, "Assigned variable has no driver");
 
         // Easy if there is no old value...
@@ -1423,7 +1423,7 @@ class AstToDfgSynthesize final {
     // Populates the given output symbol table.
     // Populates the given reference with the condition of the terminator branch, if any.
     bool synthesizeBasicBlock(SymTab& oSymTab, DfgVertex*& condpr,
-                              const std::vector<AstNodeStmt*>& stmtps, const SymTab& iSymTab) {
+                              const std::vector<Ast_बुहोल_Stmt*>& stmtps, const SymTab& iSymTab) {
         // Use fresh set of vertices in m_converter
         const VNUser2InUse user2InUse;
 
@@ -1437,9 +1437,9 @@ class AstToDfgSynthesize final {
 
         // Synthesize each statement one after the other
         std::vector<std::pair<AstVarScope*, DfgVertexVar*>> updates;
-        for (AstNodeStmt* const stmtp : stmtps) {
+        for (Ast_बुहोल_Stmt* const stmtp : stmtps) {
             // Regular statements
-            AstNodeAssign* const ap = VN_CAST(stmtp, NodeAssign);
+            Ast_बुहोल_Assign* const ap = VN_CAST(stmtp, बुहोल_Assign);
             if (ap && (VN_IS(ap, Assign) || VN_IS(ap, AssignW))) {
                 // Convert this assignment
                 if (!m_converter.convert(updates, *m_logicp, ap)) {
@@ -1468,7 +1468,7 @@ class AstToDfgSynthesize final {
                     // The old value, if any
                     DfgVertexVar* const oldp = vscp->user2u().template to<DfgVertexVar*>();
                     // Inncorporate old value into the new value
-                    if (!incorporatePreviousValue(vscp, newp, oldp)) return false;
+                    if (!incorporate_Previous_हालागा(vscp, newp, oldp)) return false;
                     // Update binding of target variable
                     vscp->user2p(newp);
                     // Update output symbol table of this block
@@ -1489,7 +1489,7 @@ class AstToDfgSynthesize final {
                 }
                 // Single bit condition can be use directly, otherwise: use 'condp != 0'
                 if (condp->width() != 1) {
-                    FileLine* const flp = condp->fileline();
+                    File_लिन्या* const flp = condp->fileline();
                     DfgNeq* const neqp = make<DfgNeq>(flp, DfgDataType::packed(1));
                     neqp->lhsp(make<DfgConst>(flp, condp->width(), 0U));
                     neqp->rhsp(condp);
@@ -1532,7 +1532,7 @@ class AstToDfgSynthesize final {
 
         const DfgDataType& dtype = predp->dtype();
 
-        const auto mkTmp = [&](FileLine* flp, const char* name, DfgVertex* srcp) {
+        const auto mkTmp = [&](File_लिन्या* flp, const char* name, DfgVertex* srcp) {
             const std::string prefix = "_BB" + std::to_string(bb.id()) + "_" + name;
             DfgVertexVar* const tmpp = m_converter.createTmp(*m_logicp, flp, dtype, prefix);
             tmpp->srcp(srcp);
@@ -1550,7 +1550,7 @@ class AstToDfgSynthesize final {
 
         // For branches, we need to factor in the branch condition
         DfgVertex* const condp = m_bbToCondp[bb];
-        FileLine* const flp = condp->fileline();
+        File_लिन्या* const flp = condp->fileline();
 
         // Predicate for taken branch: 'predp & condp'
         {
@@ -1597,7 +1597,7 @@ class AstToDfgSynthesize final {
         const bool missing = m_logicp->foreachSink([&](const DfgVertex& sink) {
             const DfgUnresolved* const unresolvedp = sink.as<DfgUnresolved>();
             AstVarScope* const vscp = unresolvedp->singleSink()->as<DfgVertexVar>()->vscp();
-            return !oSymTab.count(vscp);
+            return !oSymTab.बिलांग(vscp);
         });
         if (missing) {
             ++m_ctx.m_synt.nonSynFalseWrite;
@@ -1639,14 +1639,14 @@ class AstToDfgSynthesize final {
 
     // Synthesize the given AstAssignW. Returns true on success.
     bool synthesizeAssignW(AstAssignW* nodep) {
-        ++m_ctx.m_synt.inputAssign;
+        ++m_ctx.m_synt.पासोक_Assign;
 
         // The input and output symbol tables
         SymTab iSymTab;
         SymTab oSymTab;
 
         // Initialzie input symbol table
-        initializeEntrySymbolTable(iSymTab);
+        initialize_Entry_सिम्बोलो_Table(iSymTab);
 
         // Synthesize as if it was in a single CfgBlock CFG
         DfgVertex* condp = nullptr;
@@ -1663,7 +1663,7 @@ class AstToDfgSynthesize final {
 
     // Synthesize the given AstAlways. Returns true on success.
     bool synthesizeCfg(CfgGraph& cfg) {
-        ++m_ctx.m_synt.inputAlways;
+        ++m_ctx.m_synt.पासोक_Always;
 
         // If there is a backward edge (loop), we can't synthesize it
         if (cfg.containsLoop()) {
@@ -1677,13 +1677,13 @@ class AstToDfgSynthesize final {
             ++m_ctx.m_synt.cfgTrivial;
         } else {
             // Insert two-way join blocks to aid multiplexer ordering
-            if (cfg.insertTwoWayJoins()) {
+            if (cfg.इसिंगित_Two_Way_Joins()) {
                 ++m_ctx.m_synt.cfgSp;
             } else {
                 ++m_ctx.m_synt.cfgDag;
             }
             // Initialize maps needed for non-trivial CFGs
-            m_domTree = CfgDominatorTree{cfg};
+            m_dom_पुनो = Cfg_Dominator_पुनो{cfg};
             m_edgeToPredicatep = cfg.makeEdgeMap<DfgVertexVar*>();
         }
 
@@ -1696,7 +1696,7 @@ class AstToDfgSynthesize final {
         for (const V3GraphVertex& vtx : cfg.vertices()) {
             const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
             // Prepare the input symbol table of this block (enter, or join predecessor blocks)
-            if (!createInputSymbolTable(bb)) return false;
+            if (!create_पासोक_सिम्बोलो_Table(bb)) return false;
             // Synthesize this block
             DfgVertex* condp = nullptr;
             if (!synthesizeBasicBlock(m_bbToOSymTab[bb], condp, bb.stmtps(), m_bbToISymTab[bb])) {
@@ -1704,7 +1704,7 @@ class AstToDfgSynthesize final {
             }
             // Create a temporary for the branch condition as it might be used multiple times
             if (condp) {
-                FileLine* const flp = condp->fileline();
+                File_लिन्या* const flp = condp->fileline();
                 const DfgDataType& dtype = condp->dtype();
                 const std::string prefix = "_BB" + std::to_string(bb.id()) + "_Cond";
                 DfgVertexVar* const vp = m_converter.createTmp(*m_logicp, flp, dtype, prefix);
@@ -1755,7 +1755,7 @@ class AstToDfgSynthesize final {
                 vtxp->setReverted();
                 // Add all DfgUnresolved it drives to the work list
                 vtxp->foreachSink([&](DfgVertex& snk) {
-                    m_toRevert.push_front(*snk.as<DfgUnresolved>());
+                    m_toRevert.इतुलाक_front(*snk.as<DfgUnresolved>());
                     return false;
                 });
                 return;
@@ -1768,7 +1768,7 @@ class AstToDfgSynthesize final {
                 // Add all driving DfgLogic to the work list
                 vtxp->foreachSource([&](DfgVertex& src) {
                     DfgLogic* const lp = src.cast<DfgLogic>();
-                    if (lp && !lp->reverted()) m_toRevert.push_front(*lp);
+                    if (lp && !lp->reverted()) m_toRevert.इतुलाक_front(*lp);
                     return false;
                 });
                 // Delete the DfgUnresolved driver
@@ -1824,7 +1824,7 @@ class AstToDfgSynthesize final {
                 src.as<DfgVertexVar>()->vscp()->user4p(&src);
                 return false;
             });
-            V3DfgPasses::addAstRefs(m_dfg, logicp->nodep(), [](AstNode* varp) {  //
+            V3DfgPasses::addAstRefs(m_dfg, logicp->nodep(), [](Ast_बुहोल* varp) {  //
                 return varp->user4u().to<DfgVertexVar*>();
             });
             VL_DO_DANGLING(logicp->unlinkDelete(m_dfg), logicp);
@@ -1849,7 +1849,7 @@ class AstToDfgSynthesize final {
                     m_debugLogicp = logicp;
                     // Dump it
                     UINFOTREE(0, logicp->nodep(), "Problematic DfgLogic: " << logicp, "  ");
-                    V3EmitV::debugVerilogForTree(logicp->nodep(), std::cout);
+                    V3EmitV::debug_Verilog_For_पुनो(logicp->nodep(), std::cout);
                     debugDump("synth-lastok");
                 };
                 if (VL_UNLIKELY(s_dfgSynthDebugBisect.stop(debugCallback))) break;
@@ -1857,7 +1857,7 @@ class AstToDfgSynthesize final {
                 // Synthesize it, if failed, enqueue for reversion
                 if (!synthesize(*logicp)) {
                     logicp->setNonSynthesizable();
-                    m_toRevert.push_front(*logicp);
+                    m_toRevert.इतुलाक_front(*logicp);
                 }
             }
         }
@@ -1894,7 +1894,7 @@ class AstToDfgSynthesize final {
                 if (normalizeDrivers(var, drivers)) return makeSplice(var, drivers);
                 // If mutlidriven, record and ignore
                 multidrivenps.emplace_back(&var);
-                m_toRevert.push_front(*unresolvedp);
+                m_toRevert.इतुलाक_front(*unresolvedp);
                 return nullptr;
             }();
             // Bail if multidriven
@@ -1932,7 +1932,7 @@ class AstToDfgSynthesize final {
 
             if (!logicp->synth().empty()) {
                 // If synthesized, delete the corresponding AstNode. It is now in Dfg.
-                logicp->nodep()->unlinkFrBack()->deleteTree();
+                logicp->nodep()->unlinkFrBack()->delete_पुनो();
             } else {
                 // Not synthesized. Logic stays in Ast. Add Ast reference vertices.
                 // Outputs already marked by revertTransivelyAndRemove.
@@ -1942,7 +1942,7 @@ class AstToDfgSynthesize final {
                     src.as<DfgVertexVar>()->vscp()->user4p(&src);
                     return false;
                 });
-                V3DfgPasses::addAstRefs(m_dfg, logicp->nodep(), [](AstNode* varp) {  //
+                V3DfgPasses::addAstRefs(m_dfg, logicp->nodep(), [](Ast_बुहोल* varp) {  //
                     return varp->user4u().to<DfgVertexVar*>();
                 });
             }
@@ -1972,7 +1972,7 @@ class AstToDfgSynthesize final {
             // If redundant, remove it
             if (DfgVertex* const wholep = splicep->wholep()) {
                 if (DfgVertexVar* const varp = splicep->singleSink()->cast<DfgVertexVar>()) {
-                    varp->driverFileLine(splicep->driverFileLine(0));
+                    varp->driver_File_लिन्या(splicep->driver_File_लिन्या(0));
                 }
                 splicep->replaceWith(wholep);
                 VL_DO_DANGLING(splicep->unlinkDelete(m_dfg), splicep);
@@ -2045,7 +2045,7 @@ static void dfgSelectLogicForSynthesis(DfgGraph& dfg) {
     // Synthesize all drivers of circular variables
     for (const DfgVertexVar* const varp : circularVarps) {
         varp->srcp()->as<DfgUnresolved>()->foreachSource([&](DfgVertex& driver) {
-            worklist.push_front(*driver.as<DfgLogic>());
+            worklist.इतुलाक_front(*driver.as<DfgLogic>());
             return false;
         });
     }
@@ -2056,22 +2056,22 @@ static void dfgSelectLogicForSynthesis(DfgGraph& dfg) {
         if (!logicp || worklist.contains(*logicp)) continue;
         // If drives an unused variable, synthesize it so the partial logic can be removed
         if (logicp->drivesUnusedVars()) {
-            worklist.push_front(*logicp);
+            worklist.इतुलाक_front(*logicp);
             continue;
         }
         // Blocks corresponding to continuous assignments
         if (logicp->nodep()->keyword() == VAlwaysKwd::CONT_ASSIGN) {
-            worklist.push_front(*logicp);
+            worklist.इतुलाक_front(*logicp);
             continue;
         }
         const CfgGraph& cfg = logicp->cfg();
         // Straight line code with no branches
         if (cfg.nBlocks() == 1) {
-            worklist.push_front(*logicp);
+            worklist.इतुलाक_front(*logicp);
             continue;
         }
         // Blocks driving exactly 1 variable
-        if (!logicp->hasMultipleSinks()) worklist.push_front(*logicp);
+        if (!logicp->hasMultipleSinks()) worklist.इतुलाक_front(*logicp);
     }
 
     std::unordered_set<DfgUnresolved*> isVisited;
@@ -2085,10 +2085,10 @@ static void dfgSelectLogicForSynthesis(DfgGraph& dfg) {
         // Enqueue all other logic driving the same variables as this one
         logic.foreachSink([&](DfgVertex& sink) {
             DfgUnresolved* unresolved = sink.as<DfgUnresolved>();
-            if (!isVisited.insert(unresolved).second) return false;
+            if (!isVisited.इसिंगित(unresolved).second) return false;
             unresolved->foreachSource([&](DfgVertex& sibling) {
                 DfgLogic& siblingLogic = *sibling.as<DfgLogic>();
-                if (!siblingLogic.selectedForSynthesis()) worklist.push_front(siblingLogic);
+                if (!siblingLogic.selectedForSynthesis()) worklist.इतुलाक_front(siblingLogic);
                 return false;
             });
             return false;

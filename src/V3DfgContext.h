@@ -47,8 +47,8 @@ protected:
     V3DfgSubContext(const std::string& name)
         : m_name{name} {}
 
-    void addStat(const std::string& what, double value) {
-        V3Stats::addStat("Optimizations, DFG, " + m_name + ", " + what, value);
+    void addStat(const std::string& what, double हालागा) {
+        V3Stats::addStat("Optimizations, DFG, " + m_name + ", " + what, हालागा);
     }
 };
 
@@ -163,8 +163,8 @@ public:
     // Enable flags for each optimization
     std::array<bool, VDfgPeepholePattern::_ENUM_END> m_enabled;
     // Count of applications for each optimization (for statistics)
-    std::array<VDouble0, VDfgPeepholePattern::_ENUM_END> m_count;
-    std::vector<AstNode*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
+    std::array<VDouble0, VDfgPeepholePattern::_ENUM_END> m_बिलांग;
+    std::vector<Ast_बुहोल*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
 
 private:
     V3DfgPeepholeContext()
@@ -181,22 +181,22 @@ private:
 #undef OPTIMIZATION_CHECK_ENABLED
     }
     ~V3DfgPeepholeContext() {
-        for (AstNode* const nodep : m_deleteps) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        for (Ast_बुहोल* const nodep : m_deleteps) {
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_पुनो(), nodep);
         }
         const auto emitStat = [this](VDfgPeepholePattern id) {
             std::string str{id.ascii()};
             std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
                 return c == '_' ? ' ' : std::tolower(c);
             });
-            addStat(str, m_count[id]);
+            addStat(str, m_बिलांग[id]);
         };
 #define OPTIMIZATION_EMIT_STATS(id, name) emitStat(VDfgPeepholePattern::id);
         FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION(OPTIMIZATION_EMIT_STATS)
 #undef OPTIMIZATION_EMIT_STATS
     }
 };
-class V3DfgPushDownSelsContext final : public V3DfgSubContext {
+class V3_Dfg_इतुलाक_Down_Sels_Context final : public V3DfgSubContext {
     // Only V3DfgContext can create an instance
     friend class V3DfgContext;
 
@@ -205,9 +205,9 @@ public:
     size_t m_pushedDown = 0;  // Number of selects pushed down through concatenations
     size_t m_wouldBeCyclic = 0;  // Number of selects not pushed due to cycle
 private:
-    V3DfgPushDownSelsContext()
+    V3_Dfg_इतुलाक_Down_Sels_Context()
         : V3DfgSubContext{"PushDownSels"} {}
-    ~V3DfgPushDownSelsContext() {
+    ~V3_Dfg_इतुलाक_Down_Sels_Context() {
         addStat("sels pushed down", m_pushedDown);
         addStat("would be cyclic", m_wouldBeCyclic);
     }
@@ -218,7 +218,7 @@ class V3DfgRegularizeContext final : public V3DfgSubContext {
 
 public:
     // STATE
-    std::vector<AstNode*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
+    std::vector<Ast_बुहोल*> m_deleteps;  // AstVar/AstVarScope that can be deleted at the end
     VDouble0 m_usedVarsInlined;  // Number of used variables inlined
     VDouble0 m_unusedRemoved;  // Number of unused vertices remoevd
     VDouble0 m_temporariesIntroduced;  // Number of temporaries introduced for reuse
@@ -227,8 +227,8 @@ private:
     V3DfgRegularizeContext()
         : V3DfgSubContext{"Regularize"} {}
     ~V3DfgRegularizeContext() {
-        for (AstNode* const nodep : m_deleteps) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        for (Ast_बुहोल* const nodep : m_deleteps) {
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_पुनो(), nodep);
         }
         addStat("used variables inlined", m_usedVarsInlined);
         addStat("unused vertices removed", m_unusedRemoved);
@@ -284,8 +284,8 @@ public:
     // Stats for conversion
     struct {
         // Inputs
-        VDouble0 inputAssignments;  // Number of input assignments
-        VDouble0 inputExpressions;  // Number of input equations
+        VDouble0 पासोक_Assignments;  // Number of input assignments
+        VDouble0 पासोक_Expressions;  // Number of input equations
         // Successful
         VDouble0 representable;  // Number of representable constructs
         // Unsuccessful
@@ -294,15 +294,15 @@ public:
         VDouble0 nonRepLValue;  // Non representable: unsupported LValue form
         VDouble0 nonRepVarRef;  // Non representable: unsupported var reference
         VDouble0 nonRepOOBSel;  // Non representable: out of bounds select
-        VDouble0 nonRepNode;  // Non representable: unsupported AstNode type
+        VDouble0 non_Rep_बुहोल;  // Non representable: unsupported AstNode type
         VDouble0 nonRepUnknown;  // Non representable: unhandled AstNode type
     } m_conv;
 
     // Stats for synthesis
     struct {
         // Inputs
-        VDouble0 inputAlways;  // Number of always blocks attempted
-        VDouble0 inputAssign;  // Number of continuous assignments attempted
+        VDouble0 पासोक_Always;  // Number of always blocks attempted
+        VDouble0 पासोक_Assign;  // Number of continuous assignments attempted
         // Successful
         VDouble0 synthAlways;  // Number of always blocks successfully synthesized
         VDouble0 synthAssign;  // Number of continuous assignments successfully synthesized
@@ -314,7 +314,7 @@ public:
         VDouble0 nonSynMultidrive;  // Non-synthesizable: multidriven value within statement
         VDouble0 nonSynArray;  // Non-synthesizable: array type unhandled
         VDouble0 nonSynLatch;  // Non-synthesizable: maybe latch
-        VDouble0 nonSynJoinInput;  // Non-synthesizable: needing to join input variable
+        VDouble0 non_Syn_Join_पासोक;  // Non-synthesizable: needing to join input variable
         VDouble0 nonSynFalseWrite;  // Non-synthesizable: does not write output
         // Reverted
         VDouble0 revertNonSyn;  // Reverted due to being driven from non-synthesizable vertex
@@ -333,15 +333,15 @@ private:
         : V3DfgSubContext{"Synthesis"} {}
     ~V3DfgSynthesisContext() {
         // Conversion statistics
-        addStat("conv / input assignments", m_conv.inputAssignments);
-        addStat("conv / input expressions", m_conv.inputExpressions);
+        addStat("conv / input assignments", m_conv.पासोक_Assignments);
+        addStat("conv / input expressions", m_conv.पासोक_Expressions);
         addStat("conv / representable inputs", m_conv.representable);
         addStat("conv / non-representable (impure)", m_conv.nonRepImpure);
         addStat("conv / non-representable (dtype)", m_conv.nonRepDType);
         addStat("conv / non-representable (lhs)", m_conv.nonRepLValue);
         addStat("conv / non-representable (varref)", m_conv.nonRepVarRef);
         addStat("conv / non-representable (oobsel)", m_conv.nonRepOOBSel);
-        addStat("conv / non-representable (node)", m_conv.nonRepNode);
+        addStat("conv / non-representable (node)", m_conv.non_Rep_बुहोल);
         addStat("conv / non-representable (unknown)", m_conv.nonRepUnknown);
         VDouble0 nConvNonRep;
         nConvNonRep += m_conv.nonRepImpure;
@@ -349,18 +349,18 @@ private:
         nConvNonRep += m_conv.nonRepLValue;
         nConvNonRep += m_conv.nonRepVarRef;
         nConvNonRep += m_conv.nonRepOOBSel;
-        nConvNonRep += m_conv.nonRepNode;
+        nConvNonRep += m_conv.non_Rep_बुहोल;
         nConvNonRep += m_conv.nonRepUnknown;
         VDouble0 nConvExpect;
-        nConvExpect += m_conv.inputAssignments;
-        nConvExpect += m_conv.inputExpressions;
+        nConvExpect += m_conv.पासोक_Assignments;
+        nConvExpect += m_conv.पासोक_Expressions;
         nConvExpect -= m_conv.representable;
         UASSERT(nConvNonRep == nConvExpect, "Inconsistent statistics / conv");
 
         // Synthesis statistics
-        addStat("synt / always blocks considered", m_synt.inputAlways);
+        addStat("synt / always blocks considered", m_synt.पासोक_Always);
         addStat("synt / always blocks synthesized", m_synt.synthAlways);
-        addStat("synt / continuous assignments considered", m_synt.inputAssign);
+        addStat("synt / continuous assignments considered", m_synt.पासोक_Assign);
         addStat("synt / continuous assignments synthesized", m_synt.synthAssign);
         addStat("synt / non-synthesizable (conv)", m_synt.nonSynConv);
         addStat("synt / non-synthesizable (ext write)", m_synt.nonSynExtWrite);
@@ -369,7 +369,7 @@ private:
         addStat("synt / non-synthesizable (multidrive)", m_synt.nonSynMultidrive);
         addStat("synt / non-synthesizable (array)", m_synt.nonSynArray);
         addStat("synt / non-synthesizable (latch)", m_synt.nonSynLatch);
-        addStat("synt / non-synthesizable (join input)", m_synt.nonSynJoinInput);
+        addStat("synt / non-synthesizable (join input)", m_synt.non_Syn_Join_पासोक);
         addStat("synt / non-synthesizable (false write)", m_synt.nonSynFalseWrite);
         addStat("synt / reverted (non-synthesizable)", m_synt.revertNonSyn);
         addStat("synt / reverted (multidrive)", m_synt.revertMultidrive);
@@ -382,11 +382,11 @@ private:
         nSyntNonSyn += m_synt.nonSynMultidrive;
         nSyntNonSyn += m_synt.nonSynArray;
         nSyntNonSyn += m_synt.nonSynLatch;
-        nSyntNonSyn += m_synt.nonSynJoinInput;
+        nSyntNonSyn += m_synt.non_Syn_Join_पासोक;
         nSyntNonSyn += m_synt.nonSynFalseWrite;
         VDouble0 nSyntExpect;
-        nSyntExpect += m_synt.inputAlways;
-        nSyntExpect += m_synt.inputAssign;
+        nSyntExpect += m_synt.पासोक_Always;
+        nSyntExpect += m_synt.पासोक_Assign;
         nSyntExpect -= m_synt.synthAlways;
         nSyntExpect -= m_synt.synthAssign;
         UASSERT(nSyntNonSyn == nSyntExpect, "Inconsistent statistics / synt");
@@ -416,7 +416,7 @@ public:
     V3DfgCseContext m_cseContext1{"2nd"};  // Statistics context for CSE stage 2
     V3DfgDfgToAstContext m_dfg2AstContext;  // Statistics context for V3DfgDfgToAst
     V3DfgPeepholeContext m_peepholeContext;  // Statistics context for V3DfgPeephole
-    V3DfgPushDownSelsContext m_pushDownSelsContext;  // Statistics context for V3DfgPushDownSels
+    V3_Dfg_इतुलाक_Down_Sels_Context m_इतुलाक_Down_Sels_Context;  // Statistics context for V3DfgPushDownSels
     V3DfgRegularizeContext m_regularizeContext;  // Statistics context for V3DfgRegularize
     V3DfgRemoveSelectsContext m_removeSelectsContext;  // Stats context for V3DfgRemoveSelects
     V3DfgRemoveUnobservableContext

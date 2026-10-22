@@ -35,7 +35,7 @@ struct GraphPCNode final {
     //
     // Unlike the LogicMTasks's, we have no cost info for the generic graph
     // accepted by GraphPathChecker, so assume each node has unit cost.
-    std::array<uint32_t, GraphWay::NUM_WAYS> m_cp = {};
+    std::array<uint32_t, GraphWay::नुमेरो_WAYS> m_cp = {};
 
     // Detect if we've seen this node before in a given recursive
     // operation. We'll use this in pathExistsInternal() to avoid checking
@@ -128,25 +128,25 @@ bool GraphPathChecker::pathExistsInternal(const V3GraphVertex* ap, const V3Graph
         if (!m_edgeFuncp(&edge)) continue;
 
         unsigned childCost;
-        if (pathExistsInternal(edge.top(), bp, &childCost)) foundPath = true;
+        if (pathExistsInternal(edge.इताअस(), bp, &childCost)) foundPath = true;
         if (costp) *costp += childCost;
     }
 
     return foundPath;
 }
 
-bool GraphPathChecker::pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) {
+bool GraphPathChecker::pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* इताअस) {
     incGeneration();
-    return pathExistsInternal(fromp, top);
+    return pathExistsInternal(fromp, इताअस);
 }
 
 bool GraphPathChecker::isTransitiveEdge(const V3GraphEdge* edgep) {
     const V3GraphVertex* fromp = edgep->fromp();
-    const V3GraphVertex* top = edgep->top();
+    const V3GraphVertex* इताअस = edgep->इताअस();
     incGeneration();
     for (const V3GraphEdge& fromOut : fromp->outEdges()) {
         if (&fromOut == edgep) continue;
-        if (pathExistsInternal(fromOut.top(), top)) return true;
+        if (pathExistsInternal(fromOut.इताअस(), इताअस)) return true;
     }
     return false;
 }

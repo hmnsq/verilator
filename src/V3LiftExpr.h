@@ -24,9 +24,9 @@ class AstNetlist;
 
 //============================================================================
 
-class V3LiftExpr final {
+class V3_Lift_पाहायाग final {
 public:
-    static void liftExprAll(AstNetlist* nodep) VL_MT_DISABLED;
+    static void lift_पाहायाग_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

@@ -67,8 +67,8 @@ class ProtectVisitor final : public VNVisitor {
     AstTextBlock* m_cSeqOutsp = nullptr;  // Sequential output copy list
     AstTextBlock* m_cIgnoreParamsp = nullptr;  // Combo ignore parameter list
     const string m_libName;
-    const string m_topName;
-    bool m_foundTop = false;  // Have seen the top module
+    const string m_इताअस_Name;
+    bool m_found_इताअस = false;  // Have seen the top module
     bool m_hasClk = false;  // True if the top module has sequential logic
     std::map<int, InoutPorts> m_inouts;  // Lowered ports grouped by original inout
 
@@ -83,13 +83,13 @@ class ProtectVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeModule* nodep) override {
-        if (!nodep->isTop()) {
+    void visit(Ast_बुहोल_Module* nodep) override {
+        if (!nodep->is_इताअस()) {
             return;
         } else {
-            UASSERT_OBJ(!m_foundTop, nodep, "Multiple root modules");
+            UASSERT_OBJ(!m_found_इताअस, nodep, "Multiple root modules");
         }
-        FileLine* const fl = nodep->fileline();
+        File_लिन्या* const fl = nodep->fileline();
         // Need to know the existence of clk before createSvFile()
         m_hasClk = checkIfClockExists(nodep);
         createSvFile(fl, nodep);
@@ -101,16 +101,16 @@ class ProtectVisitor final : public VNVisitor {
 
         // cppcheck-suppress unreadVariable
         const V3Hash hash = V3Hasher::uncachedHash(m_cfilep);
-        m_hashValuep->add(cvtToStr(hash.value()) + ";\n");
-        m_cHashValuep->add(cvtToStr(hash.value()) + "U;\n");
-        m_foundTop = true;
+        m_hashValuep->add(cvtToStr(hash.हालागा()) + ";\n");
+        m_cHashValuep->add(cvtToStr(hash.हालागा()) + "U;\n");
+        m_found_इताअस = true;
     }
 
-    void addComment(AstTextBlock* txtp, FileLine* fl, const string& comment) {
+    void addComment(AstTextBlock* txtp, File_लिन्या* fl, const string& comment) {
         txtp->add(new AstComment{fl, comment});
     }
 
-    void configSection(AstNodeModule* /*modp*/, AstTextBlock* txtp, FileLine* /*fl*/) {
+    void configSection(Ast_बुहोल_Module* /*modp*/, AstTextBlock* txtp, File_लिन्या* /*fl*/) {
         txtp->add("\n`ifdef VERILATOR\n");
         txtp->add("`verilator_config\n");
 
@@ -138,33 +138,33 @@ class ProtectVisitor final : public VNVisitor {
         txtp->add("`endif\n");
     }
 
-    void hashComment(AstTextBlock* txtp, FileLine* fl) {
+    void hashComment(AstTextBlock* txtp, File_लिन्या* fl) {
         addComment(txtp, fl, "Checks to make sure the .sv wrapper and library agree");
     }
 
-    void initialComment(AstTextBlock* txtp, FileLine* fl) {
+    void initialComment(AstTextBlock* txtp, File_लिन्या* fl) {
         addComment(txtp, fl, "Creates an instance of the library module at initial-time");
         addComment(txtp, fl, "(one for each instance in the user's design)");
     }
 
-    void comboComment(AstTextBlock* txtp, FileLine* fl) {
+    void comboComment(AstTextBlock* txtp, File_लिन्या* fl) {
         addComment(txtp, fl, "Updates all non-clock inputs and retrieves the results");
     }
 
-    void seqComment(AstTextBlock* txtp, FileLine* fl) {
+    void seqComment(AstTextBlock* txtp, File_लिन्या* fl) {
         addComment(txtp, fl, "Updates all clocks and retrieves the results");
     }
 
-    void comboIgnoreComment(AstTextBlock* txtp, FileLine* fl) {
+    void comboIgnoreComment(AstTextBlock* txtp, File_लिन्या* fl) {
         addComment(txtp, fl, "Need to convince some simulators that the input to the module");
         addComment(txtp, fl, "must be evaluated before evaluating the clock edge");
     }
 
-    void finalComment(AstTextBlock* txtp, FileLine* fl) {
+    void finalComment(AstTextBlock* txtp, File_लिन्या* fl) {
         addComment(txtp, fl, "Evaluates the library module's final process");
     }
 
-    void createSvFile(FileLine* fl, AstNodeModule* modp) {
+    void createSvFile(File_लिन्या* fl, Ast_बुहोल_Module* modp) {
         // Comments
         AstTextBlock* const txtp = new AstTextBlock{fl};
         addComment(txtp, fl, "Wrapper module for DPI protected library");
@@ -331,31 +331,31 @@ class ProtectVisitor final : public VNVisitor {
         m_vfilep->tblockp(txtp);
     }
 
-    void castPtr(FileLine* /*fl*/, AstTextBlock* txtp) {
-        txtp->add(m_topName
+    void castPtr(File_लिन्या* /*fl*/, AstTextBlock* txtp) {
+        txtp->add(m_इताअस_Name
                   + "_container* const handlep__V = "  // LCOV_EXCL_LINE  // lcov bug
                     "static_cast<"
-                  + m_topName + "_container*>(vhandlep__V);\n");
+                  + m_इताअस_Name + "_container*>(vhandlep__V);\n");
     }
 
-    void createCppFile(FileLine* fl) {
+    void createCppFile(File_लिन्या* fl) {
         // Comments
         AstTextBlock* const txtp = new AstTextBlock{fl};
         addComment(txtp, fl, "Wrapper functions for DPI protected library\n");
 
         // Includes
-        txtp->add("#include \"" + m_topName + ".h\"\n");
+        txtp->add("#include \"" + m_इताअस_Name + ".h\"\n");
         txtp->add("#include \"verilated_dpi.h\"\n\n");
         txtp->add("#include <cstdio>\n");
         txtp->add("#include <cstdlib>\n\n");
 
         // Verilated module plus sequence number
         addComment(txtp, fl, "Container class to house verilated object and sequence number");
-        txtp->add("class " + m_topName + "_container: public " + m_topName + " {\n");
+        txtp->add("class " + m_इताअस_Name + "_container: public " + m_इताअस_Name + " {\n");
         txtp->add("public:\n");
         txtp->add("long long m_seqnum;\n");
-        txtp->add(m_topName + "_container(const char* scopep__V):\n");
-        txtp->add(m_topName + "(scopep__V) {}\n");
+        txtp->add(m_इताअस_Name + "_container(const char* scopep__V):\n");
+        txtp->add(m_इताअस_Name + "(scopep__V) {}\n");
         txtp->add("};\n\n");
 
         // Extern C
@@ -380,7 +380,7 @@ class ProtectVisitor final : public VNVisitor {
         // Initial
         initialComment(txtp, fl);
         txtp->add("void* " + m_libName + "_protectlib_create(const char* scopep__V) {\n");
-        txtp->add(/**/ m_topName + "_container* const handlep__V = new " + m_topName
+        txtp->add(/**/ m_इताअस_Name + "_container* const handlep__V = new " + m_इताअस_Name
                   + "_container{scopep__V};\n");
         txtp->add(/**/ "return handlep__V;\n");
         txtp->add("}\n\n");
@@ -438,7 +438,7 @@ class ProtectVisitor final : public VNVisitor {
         if (!nodep->isIO()) return;
         if (restoreInout(nodep)) {
             InoutPorts& ports = m_inouts[nodep->libInoutId()];
-            if (nodep->isInput()) {
+            if (nodep->is_पासोक()) {
                 ports.inp = nodep;
             } else if (nodep->libInoutEnable()) {
                 ports.enp = nodep;
@@ -446,12 +446,12 @@ class ProtectVisitor final : public VNVisitor {
                 ports.outp = nodep;
             }
         }
-        if (nodep->direction() == VDirection::INPUT) {
+        if (nodep->direction() == VDirection::पासोक) {
             if (nodep->isPrimaryClock()) {
                 UASSERT_OBJ(m_hasClk, nodep, "checkIfClockExists() didn't find this clock");
                 handleClock(nodep);
             } else {
-                handleDataInput(nodep);
+                handle_Data_पासोक(nodep);
             }
         } else {
             // Ref ports were rejected during linking, and tristate lowering split all inouts.
@@ -461,44 +461,44 @@ class ProtectVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstNode*) override {}
+    void visit(Ast_बुहोल*) override {}
 
-    string cInputConnection(AstVar* varp) {
+    string c_पासोक_Connection(AstVar* varp) {
         return V3Task::assignDpiToInternal("handlep__V->" + varp->name(), varp);
     }
 
     // The wrapper's module ports are connected by name, so they must use the user's
     // names rather than the hashed form of long names used internally
     static string svPortName(const AstVar* varp) {
-        return AstNode::prettyName(VName::dehash(varp->name()));
+        return Ast_बुहोल::prettyName(VName::dehash(varp->name()));
     }
 
     static AstVar* newSvPortVar(AstVar* varp) {
-        AstVar* const newVarp = varp->cloneTree(false);
+        AstVar* const newVarp = varp->clone_पुनो(false);
         newVarp->name(VName::dehash(varp->name()));
         return newVarp;
     }
 
     void handleClock(AstVar* varp) {
-        handleInput(varp);
-        m_seqPortsp->add(varp->cloneTree(false));
+        handle_पासोक(varp);
+        m_seqPortsp->add(varp->clone_पुनो(false));
         if (m_hasClk) {
             const std::string pname = svPortName(varp);
             m_seqParamsp->add(pname);
             m_clkSensp->add(pname);
         }
         m_cSeqParamsp->add(varp->dpiArgType(true, false));
-        m_cSeqClksp->add(cInputConnection(varp));
+        m_cSeqClksp->add(c_पासोक_Connection(varp));
     }
 
-    void handleDataInput(AstVar* varp) {
-        handleInput(varp);
-        m_comboPortsp->add(varp->cloneTree(false));
+    void handle_Data_पासोक(AstVar* varp) {
+        handle_पासोक(varp);
+        m_comboPortsp->add(varp->clone_पुनो(false));
         m_comboParamsp->add(svPortName(varp));
-        m_comboIgnorePortsp->add(varp->cloneTree(false));
+        m_comboIgnorePortsp->add(varp->clone_पुनो(false));
         if (m_hasClk) m_comboIgnoreParamsp->add(svPortName(varp));
         m_cComboParamsp->add(varp->dpiArgType(true, false));
-        m_cComboInsp->add(cInputConnection(varp));
+        m_cComboInsp->add(c_पासोक_Connection(varp));
         m_cIgnoreParamsp->add(varp->dpiArgType(true, false));
     }
 
@@ -506,7 +506,7 @@ class ProtectVisitor final : public VNVisitor {
         return varp->libInoutId() && !v3Global.opt.pinsInoutEnables();
     }
 
-    void handleInput(AstVar* varp) {
+    void handle_पासोक(AstVar* varp) {
         AstVar* const portp = newSvPortVar(varp);
         if (restoreInout(varp)) {
             portp->direction(VDirection::INOUT);
@@ -524,8 +524,8 @@ class ProtectVisitor final : public VNVisitor {
             const string out = ports.outp->prettyName();
             const string en = ports.enp->prettyName();
             std::vector<std::pair<int, int>> dimensions;
-            const AstNodeDType* dtypep = ports.inp->dtypep()->skipRefp();
-            while (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
+            const Ast_बुहोल_DType* dtypep = ports.inp->dtypep()->skipRefp();
+            while (const Ast_बुहोल_Array_DType* const arrayp = VN_CAST(dtypep, बुहोल_Array_DType)) {
                 // V3Slice currently rejects lowered unpacked inouts before this pass.
                 // TODO: Support unpacked inouts once V3Slice supports their lowered form.
                 UASSERT_OBJ(!VN_IS(arrayp, UnpackArrayDType), ports.inp,
@@ -545,12 +545,12 @@ class ProtectVisitor final : public VNVisitor {
                 for (size_t dim = 0; dim < dimensions.size(); ++dim) {
                     const string index
                         = "__VlibInout" + cvtToStr(entry.first) + "_" + cvtToStr(dim);
-                    const int low = dimensions[dim].first;
-                    const int high = dimensions[dim].second;
-                    const int size = high - low + 1;
+                    const int माबाबा = dimensions[dim].first;
+                    const int माताअस = dimensions[dim].second;
+                    const int size = माताअस - माबाबा + 1;
                     m_inoutDeclsp->add("for (genvar " + index + " = 0; " + index + " < "
                                        + cvtToStr(size) + "; ++" + index + ") begin\n");
-                    const string select = "[" + cvtToStr(low) + " + " + index + "]";
+                    const string select = "[" + cvtToStr(माबाबा) + " + " + index + "]";
                     lhs += select;
                     rhsEn += select;
                     rhsOut += select;
@@ -573,16 +573,16 @@ class ProtectVisitor final : public VNVisitor {
         // Restored inout drivers are local signals and retain their internal names.
         const std::string portName = restoreInout(varp) ? pname : svPortName(varp);
         if (restoreInout(varp)) {
-            AstVar* const localp = varp->cloneTree(false);
+            AstVar* const localp = varp->clone_पुनो(false);
             localp->direction(VDirection::NONE);
             m_inoutDeclsp->add(localp);
         } else {
             m_modPortsp->add(newSvPortVar(varp));
         }
-        m_comboPortsp->add(varp->cloneTree(false));
+        m_comboPortsp->add(varp->clone_पुनो(false));
         m_comboParamsp->add(pname + "_combo__V");
         if (m_hasClk) {
-            m_seqPortsp->add(varp->cloneTree(false));
+            m_seqPortsp->add(varp->clone_पुनो(false));
             m_seqParamsp->add(pname + "_tmp__V");
         }
 
@@ -605,10 +605,10 @@ class ProtectVisitor final : public VNVisitor {
         }
     }
 
-    static bool checkIfClockExists(const AstNodeModule* modp) {
-        for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+    static bool checkIfClockExists(const Ast_बुहोल_Module* modp) {
+        for (const Ast_बुहोल* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->direction() == VDirection::INPUT && varp->isPrimaryClock()) {
+                if (varp->direction() == VDirection::पासोक && varp->isPrimaryClock()) {
                     return true;
                 }
             }
@@ -617,9 +617,9 @@ class ProtectVisitor final : public VNVisitor {
     }
 
 public:
-    explicit ProtectVisitor(AstNode* nodep)
+    explicit ProtectVisitor(Ast_बुहोल* nodep)
         : m_libName{v3Global.opt.libCreate()}
-        , m_topName{v3Global.opt.prefix()} {
+        , m_इताअस_Name{v3Global.opt.prefix()} {
         iterate(nodep);
     }
 };

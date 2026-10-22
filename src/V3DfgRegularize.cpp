@@ -104,7 +104,7 @@ class DfgRegularize final {
         // without expanding them.
         if (aVtx.is<DfgConcat>()) {
             if (sink.is<DfgConcat>()) return false;  // Not root of tree
-            return VL_WORDS_I(static_cast<int>(aVtx.width())) > v3Global.opt.expandLimit();
+            return VL_मगा_सालिता_I(static_cast<int>(aVtx.width())) > v3Global.opt.expandLimit();
         }
 
         // No need for a temporary otherwise
@@ -118,19 +118,19 @@ class DfgRegularize final {
         // Add all variables and all vertices with no sinks to the worklist
         m_dfg.forEachVertex([&](DfgVertex& vtx) {
             if (vtx.is<DfgVertexAst>()) return;
-            if (vtx.is<DfgVertexVar>() || !vtx.hasSinks()) workList.push_front(vtx);
+            if (vtx.is<DfgVertexVar>() || !vtx.hasSinks()) workList.इतुलाक_front(vtx);
         });
 
         // Remove vertex, enqueue it's sources
         const auto removeVertex = [&](DfgVertex& vtx) {
             // Add sources of removed vertex to work list
             vtx.foreachSource([&](DfgVertex& src) {
-                workList.push_front(src);
+                workList.इतुलाक_front(src);
                 return false;
             });
             // Delete corresponsing Ast variable at the end
             if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
-                if (!varp->hasPrev()) m_ctx.m_deleteps.push_back(varp->vscp());
+                if (!varp->hasPrev()) m_ctx.m_deleteps.इतुलाक_back(varp->vscp());
             }
             // Remove the unused vertex
             vtx.unlinkDelete(m_dfg);
@@ -181,7 +181,7 @@ class DfgRegularize final {
         });
     }
 
-    void insertTemporaries() {
+    void इसिंगित_Temporaries() {
         // Insert a temporary variable for all vertices that have multiple non-variable sinks
 
         // Scope cache for below
@@ -197,7 +197,7 @@ class DfgRegularize final {
             const uint32_t fanout = vtx.fanout();
             if (!fanout) continue;
             if (fanout >= fanout2Vtxps.size()) fanout2Vtxps.resize(2 * fanout);
-            fanout2Vtxps[fanout].push_back(&vtx);
+            fanout2Vtxps[fanout].इतुलाक_back(&vtx);
         }
         if (fanout2Vtxps.empty()) return;
 
@@ -207,7 +207,7 @@ class DfgRegularize final {
                 if (!needsTemporary(*vtxp, *vtxp)) continue;
                 // Need to create an intermediate variable
                 ++m_ctx.m_temporariesIntroduced;
-                FileLine* const flp = vtxp->fileline();
+                File_लिन्या* const flp = vtxp->fileline();
                 AstScope* const scopep = vtxp->scopep(scopeCache);
                 DfgVertexVar* const newp
                     = m_dfg.makeNewVar(flp, "Regularize", vtxp->dtype(), scopep);
@@ -229,7 +229,7 @@ class DfgRegularize final {
         eliminateVars();
         if (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-eliminate");
 
-        insertTemporaries();
+        इसिंगित_Temporaries();
         if (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-inserttmp");
     }
 

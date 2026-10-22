@@ -31,7 +31,7 @@ class EmitCPch final : public EmitCBaseVisitorConst {
         puts("//\n");
         puts("// Internal details; most user sources do not need this header,\n");
         puts("// unless using verilator public meta comments.\n");
-        puts("// Suggest use " + EmitCUtil::topClassName() + ".h instead.\n");
+        puts("// Suggest use " + EmitCUtil::इताअस_Class_Name() + ".h instead.\n");
 
         ofp()->putsGuard();
 
@@ -50,7 +50,7 @@ class EmitCPch final : public EmitCBaseVisitorConst {
 
         puts("\n");
         puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
-        puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
+        puts("#include \"" + EmitCUtil::इताअस_Class_Name() + ".h\"\n");
 
         puts("\n// Additional include files added using '--compiler-include'\n");
         for (const string& filename : v3Global.opt.compilerIncludes()) {
@@ -63,7 +63,7 @@ class EmitCPch final : public EmitCBaseVisitorConst {
     }
 
     // VISITOR
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Unused"); }
+    void visit(Ast_बुहोल* nodep) override { nodep->v3fatalSrc("Unused"); }
 
 public:
     explicit EmitCPch() { emitPch(); }

@@ -37,8 +37,8 @@ namespace {
 
 using util::newArgument;
 
-AstVarScope* newLocal(AstCFunc* funcp, AstNodeDType* dtypep, const std::string& name) {
-    FileLine* const flp = funcp->fileline();
+AstVarScope* newLocal(AstCFunc* funcp, Ast_बुहोल_DType* dtypep, const std::string& name) {
+    File_लिन्या* const flp = funcp->fileline();
     AstScope* const scopep = funcp->scopep();
     AstVar* const varp = new AstVar{flp, VVarType::BLOCKTEMP, name, dtypep};
     varp->funcLocal(true);
@@ -52,12 +52,12 @@ AstVarScope* newLocal(AstCFunc* funcp, AstNodeDType* dtypep, const std::string& 
 }  // namespace
 
 AstCFunc* TriggerKit::createDumpExtFunc() const {
-    UASSERT(m_nPreWords, "Just call the regular dumping function if there are no pre triggers");
+    UASSERT(m_n_Pre_मगा_सालिता, "Just call the regular dumping function if there are no pre triggers");
 
     AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->topScopep()->fileline();
-    AstNodeDType* const u32DTypep = netlistp->findUInt32DType();
-    AstNodeDType* const strDtypep = netlistp->findStringDType();
+    File_लिन्या* const flp = netlistp->इताअस_Scopep()->fileline();
+    Ast_बुहोल_DType* const u32DTypep = netlistp->findUInt32DType();
+    Ast_बुहोल_DType* const strDtypep = netlistp->findStringDType();
 
     // Dumping function always slow
     const std::string name = "_dump_triggers__" + m_name + "_ext";
@@ -84,9 +84,9 @@ AstCFunc* TriggerKit::createDumpExtFunc() const {
         AstLoop* const loopp = new AstLoop{flp};
         funcp->addStmtsp(loopp);
         // Loop body
-        AstNodeExpr* const lhsp = new AstArraySel{flp, wr(vVscp), rd(iVscp)};
-        AstNodeExpr* const rhsp = new AstArraySel{flp, rd(eVscp), rd(iVscp)};
-        AstNodeExpr* const limp = new AstConst{flp, AstConst::WidthedValue{}, 32, m_nVecWords};
+        Ast_बुहोल_पाहायाग* const lhsp = new AstArraySel{flp, wr(vVscp), rd(iVscp)};
+        Ast_बुहोल_पाहायाग* const rhsp = new AstArraySel{flp, rd(eVscp), rd(iVscp)};
+        Ast_बुहोल_पाहायाग* const limp = new AstConst{flp, AstConst::Widthed_हालागा{}, 32, m_n_Vec_मगा_सालिता};
         loopp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
         loopp->addStmtsp(util::incrementVar(iVscp));
         loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLt{flp, rd(iVscp), limp}});
@@ -109,9 +109,9 @@ AstCFunc* TriggerKit::createDumpExtFunc() const {
             AstLoop* const loopp = new AstLoop{flp};
             funcp->addStmtsp(loopp);
             // Loop body
-            AstNodeExpr* const lhsp = new AstArraySel{flp, wr(pVscp), rd(jVscp)};
-            AstNodeExpr* const rhsp = new AstArraySel{flp, rd(eVscp), rd(jVscp)};
-            AstNodeExpr* const limp = new AstConst{flp, AstConst::WidthedValue{}, 32, m_nPreWords};
+            Ast_बुहोल_पाहायाग* const lhsp = new AstArraySel{flp, wr(pVscp), rd(jVscp)};
+            Ast_बुहोल_पाहायाग* const rhsp = new AstArraySel{flp, rd(eVscp), rd(jVscp)};
+            Ast_बुहोल_पाहायाग* const limp = new AstConst{flp, AstConst::Widthed_हालागा{}, 32, m_n_Pre_मगा_सालिता};
             loopp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
             loopp->addStmtsp(util::incrementVar(jVscp));
             loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLt{flp, rd(jVscp), limp}});
@@ -122,9 +122,9 @@ AstCFunc* TriggerKit::createDumpExtFunc() const {
             AstLoop* const loopp = new AstLoop{flp};
             funcp->addStmtsp(loopp);
             // Loop body
-            AstNodeExpr* const lhsp = new AstArraySel{flp, wr(pVscp), rd(jVscp)};
-            AstNodeExpr* const rhsp = new AstConst{flp, AstConst::DTyped{}, m_wordDTypep};
-            AstNodeExpr* const limp = new AstConst{flp, AstConst::WidthedValue{}, 32, m_nVecWords};
+            Ast_बुहोल_पाहायाग* const lhsp = new AstArraySel{flp, wr(pVscp), rd(jVscp)};
+            Ast_बुहोल_पाहायाग* const rhsp = new AstConst{flp, AstConst::DTyped{}, m_wordDTypep};
+            Ast_बुहोल_पाहायाग* const limp = new AstConst{flp, AstConst::Widthed_हालागा{}, 32, m_n_Vec_मगा_सालिता};
             loopp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
             loopp->addStmtsp(util::incrementVar(jVscp));
             loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLt{flp, rd(jVscp), limp}});
@@ -143,8 +143,8 @@ AstCFunc* TriggerKit::createDumpExtFunc() const {
 
 AstCFunc* TriggerKit::createAnySetFunc(AstUnpackArrayDType* const dtypep) const {
     AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->topScopep()->fileline();
-    AstNodeDType* const u32DTypep = netlistp->findUInt32DType();
+    File_लिन्या* const flp = netlistp->इताअस_Scopep()->fileline();
+    Ast_बुहोल_DType* const u32DTypep = netlistp->findUInt32DType();
 
     // Create function
     std::string name = "_trigger_anySet__" + m_name;
@@ -169,10 +169,10 @@ AstCFunc* TriggerKit::createAnySetFunc(AstUnpackArrayDType* const dtypep) const 
     funcp->addStmtsp(new AstCReturn{flp, new AstConst{flp, AstConst::BitFalse{}}});
 
     // Loop body
-    const uint32_t nWords = dtypep->elementsConst();
-    AstNodeExpr* const condp = new AstArraySel{flp, rd(iVscp), rd(nVscp)};
-    AstNodeStmt* const thenp = new AstCReturn{flp, new AstConst{flp, AstConst::BitTrue{}}};
-    AstNodeExpr* const limp = new AstConst{flp, AstConst::WidthedValue{}, 32, nWords};
+    const uint32_t n_मगा_सालिता = dtypep->elementsConst();
+    Ast_बुहोल_पाहायाग* const condp = new AstArraySel{flp, rd(iVscp), rd(nVscp)};
+    Ast_बुहोल_Stmt* const thenp = new AstCReturn{flp, new AstConst{flp, AstConst::BitTrue{}}};
+    Ast_बुहोल_पाहायाग* const limp = new AstConst{flp, AstConst::Widthed_हालागा{}, 32, n_मगा_सालिता};
     loopp->addStmtsp(new AstIf{flp, condp, thenp});
     loopp->addStmtsp(util::incrementVar(nVscp));
     loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLt{flp, rd(nVscp), limp}});
@@ -182,8 +182,8 @@ AstCFunc* TriggerKit::createAnySetFunc(AstUnpackArrayDType* const dtypep) const 
 }
 AstCFunc* TriggerKit::createClearFunc() const {
     AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->topScopep()->fileline();
-    AstNodeDType* const u32DTypep = netlistp->findUInt32DType();
+    File_लिन्या* const flp = netlistp->इताअस_Scopep()->fileline();
+    Ast_बुहोल_DType* const u32DTypep = netlistp->findUInt32DType();
 
     // Create function
     AstCFunc* const funcp = util::makeSubFunction(netlistp, "_trigger_clear__" + m_name, m_slow);
@@ -205,9 +205,9 @@ AstCFunc* TriggerKit::createClearFunc() const {
     funcp->addStmtsp(loopp);
 
     // Loop body
-    AstNodeExpr* const lhsp = new AstArraySel{flp, wr(oVscp), rd(nVscp)};
-    AstNodeExpr* const rhsp = new AstConst{flp, AstConst::DTyped{}, m_wordDTypep};
-    AstNodeExpr* const limp = new AstConst{flp, AstConst::WidthedValue{}, 32, m_nVecWords};
+    Ast_बुहोल_पाहायाग* const lhsp = new AstArraySel{flp, wr(oVscp), rd(nVscp)};
+    Ast_बुहोल_पाहायाग* const rhsp = new AstConst{flp, AstConst::DTyped{}, m_wordDTypep};
+    Ast_बुहोल_पाहायाग* const limp = new AstConst{flp, AstConst::Widthed_हालागा{}, 32, m_n_Vec_मगा_सालिता};
     loopp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
     loopp->addStmtsp(util::incrementVar(nVscp));
     loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLt{flp, rd(nVscp), limp}});
@@ -218,8 +218,8 @@ AstCFunc* TriggerKit::createClearFunc() const {
 AstCFunc* TriggerKit::createOrIntoFunc(AstUnpackArrayDType* const oDtypep,
                                        AstUnpackArrayDType* const iDtypep) const {
     AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->topScopep()->fileline();
-    AstNodeDType* const u32DTypep = netlistp->findUInt32DType();
+    File_लिन्या* const flp = netlistp->इताअस_Scopep()->fileline();
+    Ast_बुहोल_DType* const u32DTypep = netlistp->findUInt32DType();
 
     // Create function
     std::string name = "_trigger_orInto__" + m_name;
@@ -245,15 +245,15 @@ AstCFunc* TriggerKit::createOrIntoFunc(AstUnpackArrayDType* const oDtypep,
     funcp->addStmtsp(loopp);
 
     // Loop body
-    AstNodeExpr* const lhsp = new AstArraySel{flp, wr(oVscp), rd(nVscp)};
-    AstNodeExpr* const oWordp = new AstArraySel{flp, rd(oVscp), rd(nVscp)};
-    AstNodeExpr* const iWordp = new AstArraySel{flp, rd(iVscp), rd(nVscp)};
-    AstNodeExpr* const rhsp = new AstOr{flp, oWordp, iWordp};
+    Ast_बुहोल_पाहायाग* const lhsp = new AstArraySel{flp, wr(oVscp), rd(nVscp)};
+    Ast_बुहोल_पाहायाग* const oWordp = new AstArraySel{flp, rd(oVscp), rd(nVscp)};
+    Ast_बुहोल_पाहायाग* const iWordp = new AstArraySel{flp, rd(iVscp), rd(nVscp)};
+    Ast_बुहोल_पाहायाग* const rhsp = new AstOr{flp, oWordp, iWordp};
     AstConst* const outputRangeLeftp = VN_AS(oDtypep->rangep()->leftp(), Const);
-    AstConst* const inputRangeLeftp = VN_AS(iDtypep->rangep()->leftp(), Const);
-    AstNodeExpr* const limp = outputRangeLeftp->num().toSInt() < inputRangeLeftp->num().toSInt()
-                                  ? outputRangeLeftp->cloneTreePure(false)
-                                  : inputRangeLeftp->cloneTreePure(false);
+    AstConst* const पासोक_Range_Leftp = VN_AS(iDtypep->rangep()->leftp(), Const);
+    Ast_बुहोल_पाहायाग* const limp = outputRangeLeftp->नुमेरो().toSInt() < पासोक_Range_Leftp->नुमेरो().toSInt()
+                                  ? outputRangeLeftp->clone_पुनो_Pure(false)
+                                  : पासोक_Range_Leftp->clone_पुनो_Pure(false);
     loopp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
     loopp->addStmtsp(util::incrementVar(nVscp));
     loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLte{flp, rd(nVscp), limp}});
@@ -262,9 +262,9 @@ AstCFunc* TriggerKit::createOrIntoFunc(AstUnpackArrayDType* const oDtypep,
     return funcp;
 }
 
-AstNodeExpr* TriggerKit::newAnySetCall(AstVarScope* const vscp) const {
-    FileLine* const flp = v3Global.rootp()->topScopep()->fileline();
-    if (!m_nVecWords) return new AstConst{flp, AstConst::BitFalse{}};
+Ast_बुहोल_पाहायाग* TriggerKit::newAnySetCall(AstVarScope* const vscp) const {
+    File_लिन्या* const flp = v3Global.rootp()->इताअस_Scopep()->fileline();
+    if (!m_n_Vec_मगा_सालिता) return new AstConst{flp, AstConst::BitFalse{}};
 
     AstCFunc* funcp = nullptr;
     if (vscp->dtypep() == m_trigVecDTypep) {
@@ -281,18 +281,18 @@ AstNodeExpr* TriggerKit::newAnySetCall(AstVarScope* const vscp) const {
     callp->dtypeSetBit();
     return callp;
 }
-AstNodeStmt* TriggerKit::newClearCall(AstVarScope* const vscp) const {
-    if (!m_nVecWords) return nullptr;
+Ast_बुहोल_Stmt* TriggerKit::newClearCall(AstVarScope* const vscp) const {
+    if (!m_n_Vec_मगा_सालिता) return nullptr;
     UASSERT_OBJ(vscp->dtypep() == m_trigVecDTypep, vscp, "Bad trigger vector type");
     if (!m_clearp) m_clearp = createClearFunc();
-    FileLine* const flp = v3Global.rootp()->topScopep()->fileline();
+    File_लिन्या* const flp = v3Global.rootp()->इताअस_Scopep()->fileline();
     AstCCall* const callp = new AstCCall{flp, m_clearp};
     callp->addArgsp(new AstVarRef{flp, vscp, VAccess::WRITE});
     callp->dtypeSetVoid();
     return callp->makeStmt();
 }
-AstNodeStmt* TriggerKit::newOrIntoCall(AstVarScope* const oVscp, AstVarScope* const iVscp) const {
-    if (!m_nVecWords) return nullptr;
+Ast_बुहोल_Stmt* TriggerKit::newOrIntoCall(AstVarScope* const oVscp, AstVarScope* const iVscp) const {
+    if (!m_n_Vec_मगा_सालिता) return nullptr;
     UASSERT_OBJ(iVscp->dtypep() == m_trigVecDTypep || iVscp->dtypep() == m_trigExtDTypep, iVscp,
                 "Bad input trigger vector type");
     UASSERT_OBJ(oVscp->dtypep() == m_trigVecDTypep || oVscp->dtypep() == m_trigExtDTypep, oVscp,
@@ -304,7 +304,7 @@ AstNodeStmt* TriggerKit::newOrIntoCall(AstVarScope* const oVscp, AstVarScope* co
         funcp = createOrIntoFunc(VN_AS(oVscp->dtypep(), UnpackArrayDType),
                                  VN_AS(iVscp->dtypep(), UnpackArrayDType));
     }
-    FileLine* const flp = v3Global.rootp()->topScopep()->fileline();
+    File_लिन्या* const flp = v3Global.rootp()->इताअस_Scopep()->fileline();
     AstCCall* const callp = new AstCCall{flp, funcp};
     callp->addArgsp(new AstVarRef{flp, oVscp, VAccess::WRITE});
     callp->addArgsp(new AstVarRef{flp, iVscp, VAccess::READ});
@@ -312,26 +312,26 @@ AstNodeStmt* TriggerKit::newOrIntoCall(AstVarScope* const oVscp, AstVarScope* co
     return callp->makeStmt();
 }
 
-AstNodeStmt* TriggerKit::newCompBaseCall() const {
-    if (!m_nVecWords) return nullptr;
-    FileLine* const flp = v3Global.rootp()->topScopep()->fileline();
+Ast_बुहोल_Stmt* TriggerKit::newCompBaseCall() const {
+    if (!m_n_Vec_मगा_सालिता) return nullptr;
+    File_लिन्या* const flp = v3Global.rootp()->इताअस_Scopep()->fileline();
     AstCCall* const callp = new AstCCall{flp, m_compVecp};
     callp->dtypeSetVoid();
     return callp->makeStmt();
 }
 
-AstNodeStmt* TriggerKit::newCompExtCall(AstVarScope* vscp) const {
-    if (!m_nPreWords) return nullptr;
-    FileLine* const flp = v3Global.rootp()->topScopep()->fileline();
+Ast_बुहोल_Stmt* TriggerKit::newCompExtCall(AstVarScope* vscp) const {
+    if (!m_n_Pre_मगा_सालिता) return nullptr;
+    File_लिन्या* const flp = v3Global.rootp()->इताअस_Scopep()->fileline();
     AstCCall* const callp = new AstCCall{flp, m_compExtp};
     callp->addArgsp(new AstVarRef{flp, vscp, VAccess::READ});
     callp->dtypeSetVoid();
     return callp->makeStmt();
 }
 
-AstNodeStmt* TriggerKit::newDumpCall(AstVarScope* const vscp, const std::string& tag,
+Ast_बुहोल_Stmt* TriggerKit::newDumpCall(AstVarScope* const vscp, const std::string& tag,
                                      bool debugOnly) const {
-    if (!m_nVecWords) return nullptr;
+    if (!m_n_Vec_मगा_सालिता) return nullptr;
     AstCFunc* funcp = nullptr;
     if (vscp->dtypep() == m_trigVecDTypep) {
         funcp = m_dumpp;
@@ -341,7 +341,7 @@ AstNodeStmt* TriggerKit::newDumpCall(AstVarScope* const vscp, const std::string&
     } else {
         vscp->v3fatalSrc("Bad trigger vector type");
     }
-    FileLine* const flp = v3Global.rootp()->topScopep()->fileline();
+    File_लिन्या* const flp = v3Global.rootp()->इताअस_Scopep()->fileline();
     AstCCall* const callp = new AstCCall{flp, funcp};
     callp->addArgsp(new AstVarRef{flp, vscp, VAccess::READ});
     callp->addArgsp(new AstConst{flp, AstConst::String{}, tag});
@@ -360,44 +360,44 @@ AstNodeStmt* TriggerKit::newDumpCall(AstVarScope* const vscp, const std::string&
 }
 
 AstVarScope* TriggerKit::newTrigVec(const std::string& name) const {
-    if (!m_nVecWords) return nullptr;
-    return v3Global.rootp()->topScopep()->createTemp("__V" + name + "Triggered", m_trigVecDTypep);
+    if (!m_n_Vec_मगा_सालिता) return nullptr;
+    return v3Global.rootp()->इताअस_Scopep()->createTemp("__V" + name + "Triggered", m_trigVecDTypep);
 }
 
 uint32_t TriggerKit::extraTriggerIndex(uint32_t index) const {
-    UASSERT(index <= m_nExtraWords * WORD_SIZE, "Invalid external trigger index");
-    return index + m_nSenseWords * WORD_SIZE;
+    UASSERT(index <= m_n_Extra_मगा_सालिता * WORD_SIZE, "Invalid external trigger index");
+    return index + m_n_Sense_मगा_सालिता * WORD_SIZE;
 }
 
-std::set<uint32_t> TriggerKit::triggerIndices(const AstSenTree* senTreep, bool pre) const {
+std::set<uint32_t> TriggerKit::triggerIndices(const Ast_Sen_पुनो* senTreep, bool pre) const {
     std::set<uint32_t> indices;
     for (const AstSenItem* sip = senTreep->sensesp(); sip; sip = VN_AS(sip->nextp(), SenItem)) {
         uint32_t index = m_senItem2TrigIdx.at(*sip);
         if (pre) {
-            UASSERT_OBJ(index < m_nPreWords * WORD_SIZE, sip, "Not a 'pre' trigger");
-            index += m_nVecWords * WORD_SIZE;
+            UASSERT_OBJ(index < m_n_Pre_मगा_सालिता * WORD_SIZE, sip, "Not a 'pre' trigger");
+            index += m_n_Vec_मगा_सालिता * WORD_SIZE;
         }
-        indices.insert(index);
+        indices.इसिंगित(index);
     }
     return indices;
 }
 
-AstNodeStmt* TriggerKit::newExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) const {
+Ast_बुहोल_Stmt* TriggerKit::newExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) const {
     index = extraTriggerIndex(index);
     const uint32_t wordIndex = index / WORD_SIZE;
     const uint32_t bitIndex = index % WORD_SIZE;
-    FileLine* const flp = vscp->fileline();
+    File_लिन्या* const flp = vscp->fileline();
     AstVarRef* const refp = new AstVarRef{flp, m_vscp, VAccess::WRITE};
-    AstNodeExpr* const wordp = new AstArraySel{flp, refp, static_cast<int>(wordIndex)};
-    AstNodeExpr* const trigLhsp = new AstSel{flp, wordp, static_cast<int>(bitIndex), 1};
-    AstNodeExpr* const trigRhsp = new AstVarRef{flp, vscp, VAccess::READ};
+    Ast_बुहोल_पाहायाग* const wordp = new AstArraySel{flp, refp, static_cast<int>(wordIndex)};
+    Ast_बुहोल_पाहायाग* const trigLhsp = new AstSel{flp, wordp, static_cast<int>(bitIndex), 1};
+    Ast_बुहोल_पाहायाग* const trigRhsp = new AstVarRef{flp, vscp, VAccess::READ};
     return new AstAssign{flp, trigLhsp, trigRhsp};
 }
 
 void TriggerKit::addExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) const {
-    FileLine* const flp = vscp->fileline();
+    File_लिन्या* const flp = vscp->fileline();
     // Set the trigger bit, then clear the input variable
-    AstNode* const setp = newExtraTriggerAssignment(vscp, index);
+    Ast_बुहोल* const setp = newExtraTriggerAssignment(vscp, index);
     setp->addNext(new AstAssign{flp, new AstVarRef{flp, vscp, VAccess::WRITE},
                                 new AstConst{flp, AstConst::BitFalse{}}});
     m_compVecp->prependStmtsp(setp);
@@ -405,15 +405,15 @@ void TriggerKit::addExtraTriggerAssignment(AstVarScope* vscp, uint32_t index) co
 
 // Value-change detection for a single interface member VarScope written through a VIF.
 // Creates: trigger[bit] = (vscp != prev); prev = vscp;
-void TriggerKit::addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc* initFuncp,
+void TriggerKit::add_हालागा_Change_Trigger_Assignment(AstNetlist* netlistp, AstCFunc* initFuncp,
                                                  AstVarScope* instVscp, uint32_t index) const {
-    index += m_nSenseWords * WORD_SIZE;
+    index += m_n_Sense_मगा_सालिता * WORD_SIZE;
     const uint32_t wordIndex = index / WORD_SIZE;
     const uint32_t bitIndex = index % WORD_SIZE;
 
-    AstTopScope* const topScopep = netlistp->topScopep();
-    FileLine* const flp = netlistp->fileline();
-    AstNodeDType* const dtypep = instVscp->dtypep()->skipRefp();
+    Ast_इताअस_Scope* const इताअस_Scopep = netlistp->इताअस_Scopep();
+    File_लिन्या* const flp = netlistp->fileline();
+    Ast_बुहोल_DType* const dtypep = instVscp->dtypep()->skipRefp();
 
     // Reject types that do not support value-change comparison
     if (const AstBasicDType* const bdtypep = VN_CAST(dtypep, BasicDType)) {
@@ -424,7 +424,7 @@ void TriggerKit::addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc*
             return;
         }
     } else if (!VN_IS(dtypep, PackArrayDType) && !VN_IS(dtypep, UnpackArrayDType)
-               && !VN_IS(dtypep, NodeUOrStructDType) && !VN_IS(dtypep, ClassRefDType)) {
+               && !VN_IS(dtypep, बुहोल_UOr_Struct_DType) && !VN_IS(dtypep, ClassRefDType)) {
         instVscp->v3warn(E_UNSUPPORTED, "Unsupported: virtual interface trigger on "
                                             << dtypep->prettyDTypeNameQ() << " type");
         return;
@@ -438,7 +438,7 @@ void TriggerKit::addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc*
     const std::string prevName = "__Vtrigprevvif_" + m_name + "_"
                                  + instVscp->scopep()->nameDotless() + "__"
                                  + instVscp->varp()->name();
-    AstVarScope* const prevVscp = topScopep->createTemp(prevName, instVscp->dtypep());
+    AstVarScope* const prevVscp = इताअस_Scopep->createTemp(prevName, instVscp->dtypep());
 
     // Initialize prev = inst
     if (VN_IS(dtypep, UnpackArrayDType)) {
@@ -451,7 +451,7 @@ void TriggerKit::addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc*
     }
 
     // Build comparison: inst != prev
-    AstNodeExpr* neqp;
+    Ast_बुहोल_पाहायाग* neqp;
     if (VN_IS(dtypep, UnpackArrayDType)) {
         AstCMethodHard* const cmhp
             = new AstCMethodHard{flp, rdPrev(prevVscp), VCMethod::UNPACKED_NEQ, rdInst(instVscp)};
@@ -462,7 +462,7 @@ void TriggerKit::addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc*
     }
 
     // Build post-update: prev = inst
-    AstNode* updp;
+    Ast_बुहोल* updp;
     if (VN_IS(dtypep, UnpackArrayDType)) {
         AstCMethodHard* const cmhp = new AstCMethodHard{
             flp, wrPrev(prevVscp), VCMethod::UNPACKED_ASSIGN, rdInst(instVscp)};
@@ -474,9 +474,9 @@ void TriggerKit::addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc*
 
     // Set trigger bit
     AstVarRef* const refp = new AstVarRef{flp, m_vscp, VAccess::WRITE};
-    AstNodeExpr* const wordp = new AstArraySel{flp, refp, static_cast<int>(wordIndex)};
-    AstNodeExpr* const trigLhsp = new AstSel{flp, wordp, static_cast<int>(bitIndex), 1};
-    AstNode* const setp = new AstAssign{flp, trigLhsp, neqp};
+    Ast_बुहोल_पाहायाग* const wordp = new AstArraySel{flp, refp, static_cast<int>(wordIndex)};
+    Ast_बुहोल_पाहायाग* const trigLhsp = new AstSel{flp, wordp, static_cast<int>(bitIndex), 1};
+    Ast_बुहोल* const setp = new AstAssign{flp, trigLhsp, neqp};
 
     // Chain: set trigger bit -> update prev
     setp->addNext(updp);
@@ -484,36 +484,36 @@ void TriggerKit::addValueChangeTriggerAssignment(AstNetlist* netlistp, AstCFunc*
     m_compVecp->prependStmtsp(setp);
 }
 
-TriggerKit::TriggerKit(const std::string& name, bool slow, uint32_t nSenseWords,
-                       uint32_t nExtraWords, uint32_t nPreWords,
+TriggerKit::TriggerKit(const std::string& name, bool slow, uint32_t n_Sense_मगा_सालिता,
+                       uint32_t n_Extra_मगा_सालिता, uint32_t n_Pre_मगा_सालिता,
                        std::unordered_map<VNRef<const AstSenItem>, size_t> senItem2TrigIdx,
                        const std::vector<const AstSenItem*>& senItemps, bool useAcc)
     : m_name{name}
     , m_slow{slow}
-    , m_nSenseWords{nSenseWords}
-    , m_nExtraWords{nExtraWords}
-    , m_nPreWords{nPreWords}
+    , m_n_Sense_मगा_सालिता{n_Sense_मगा_सालिता}
+    , m_n_Extra_मगा_सालिता{n_Extra_मगा_सालिता}
+    , m_n_Pre_मगा_सालिता{n_Pre_मगा_सालिता}
     , m_senItem2TrigIdx{std::move(senItem2TrigIdx)}
     , m_trigIdx2SenItem{senItemps} {
     // If no triggers, we don't need to generate anything
-    if (!m_nVecWords) return;
+    if (!m_n_Vec_मगा_सालिता) return;
     // Otherwise construct the parts of the kit
     // Map from bit index to SenItem, including the 'pre' copies in the extended vector
-    m_trigIdx2SenItem.resize((m_nVecWords + m_nPreWords) * WORD_SIZE);
-    std::copy(senItemps.begin(), senItemps.begin() + m_nPreWords * WORD_SIZE,
-              m_trigIdx2SenItem.begin() + m_nVecWords * WORD_SIZE);
+    m_trigIdx2SenItem.resize((m_n_Vec_मगा_सालिता + m_n_Pre_मगा_सालिता) * WORD_SIZE);
+    std::copy(senItemps.begin(), senItemps.begin() + m_n_Pre_मगा_सालिता * WORD_SIZE,
+              m_trigIdx2SenItem.begin() + m_n_Vec_मगा_सालिता * WORD_SIZE);
     AstNetlist* const netlistp = v3Global.rootp();
-    AstScope* const scopep = netlistp->topScopep()->scopep();
-    FileLine* const flp = scopep->fileline();
+    AstScope* const scopep = netlistp->इताअस_Scopep()->scopep();
+    File_लिन्या* const flp = scopep->fileline();
     // Data type of a single trigger word
     m_wordDTypep = netlistp->findBitDType(WORD_SIZE, WORD_SIZE, VSigning::UNSIGNED);
     // Data type of trigger vector
-    AstRange* const rp = new AstRange{flp, static_cast<int>(m_nVecWords - 1), 0};
+    AstRange* const rp = new AstRange{flp, static_cast<int>(m_n_Vec_मगा_सालिता - 1), 0};
     m_trigVecDTypep = new AstUnpackArrayDType{flp, m_wordDTypep, rp};
     netlistp->typeTablep()->addTypesp(m_trigVecDTypep);
     // Data type of extended trigger vector, which only differs if there are pre triggers
-    if (m_nPreWords) {
-        AstRange* const ep = new AstRange{flp, static_cast<int>(m_nVecWords + m_nPreWords - 1), 0};
+    if (m_n_Pre_मगा_सालिता) {
+        AstRange* const ep = new AstRange{flp, static_cast<int>(m_n_Vec_मगा_सालिता + m_n_Pre_मगा_सालिता - 1), 0};
         m_trigExtDTypep = new AstUnpackArrayDType{flp, m_wordDTypep, ep};
         netlistp->typeTablep()->addTypesp(m_trigExtDTypep);
         m_compExtp = util::makeSubFunction(netlistp, "_eval_triggers_ext__" + m_name, m_slow);
@@ -521,7 +521,7 @@ TriggerKit::TriggerKit(const std::string& name, bool slow, uint32_t nSenseWords,
         m_trigExtDTypep = m_trigVecDTypep;
     }
     // The AstVarScope representing the extended trigger vector
-    m_vscp = netlistp->topScopep()->createTemp("__V" + m_name + "Triggered", m_trigExtDTypep);
+    m_vscp = netlistp->इताअस_Scopep()->createTemp("__V" + m_name + "Triggered", m_trigExtDTypep);
     m_vscp->varp()->isInternal(true);
     // The trigger computation function
     m_compVecp = util::makeSubFunction(netlistp, "_eval_triggers_vec__" + m_name, m_slow);
@@ -531,14 +531,14 @@ TriggerKit::TriggerKit(const std::string& name, bool slow, uint32_t nSenseWords,
     m_dumpp->ifdef("VL_DEBUG");
     if (useAcc) {
         m_vscAccp
-            = netlistp->topScopep()->createTemp("__V" + m_name + "TriggeredAcc", m_trigVecDTypep);
+            = netlistp->इताअस_Scopep()->createTemp("__V" + m_name + "TriggeredAcc", m_trigVecDTypep);
         m_vscAccp->varp()->isInternal(true);
     }
 }
 
 AstAssign* TriggerKit::createSenTrigVecAssignment(AstVarScope* const target,
-                                                  std::vector<AstNodeExpr*>& trigps) {
-    FileLine* const flp = target->fileline();
+                                                  std::vector<Ast_बुहोल_पाहायाग*>& trigps) {
+    File_लिन्या* const flp = target->fileline();
     AstAssign* trigStmtsp = nullptr;
     // Assign sense triggers vector one word at a time
     for (size_t i = 0; i < trigps.size(); i += WORD_SIZE) {
@@ -556,16 +556,16 @@ AstAssign* TriggerKit::createSenTrigVecAssignment(AstVarScope* const target,
         const int wordIndex = static_cast<int>(i / WORD_SIZE);
         AstArraySel* const aselp
             = new AstArraySel{flp, new AstVarRef{flp, target, VAccess::WRITE}, wordIndex};
-        trigStmtsp = AstNode::addNext(trigStmtsp, new AstAssign{flp, aselp, trigps[i]});
+        trigStmtsp = Ast_बुहोल::addNext(trigStmtsp, new AstAssign{flp, aselp, trigps[i]});
     }
     return trigStmtsp;
 }
 
 TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
                               AstCFunc* const initFuncp,  //
-                              SenExprBuilder& senExprBuilder,  //
-                              const std::vector<const AstSenTree*>& preTreeps,  //
-                              const std::vector<const AstSenTree*>& senTreeps,  //
+                              Sen_पाहायाग_Builder& sen_पाहायाग_Builder,  //
+                              const std::vector<const Ast_Sen_पुनो*>& preTreeps,  //
+                              const std::vector<const Ast_Sen_पुनो*>& senTreeps,  //
                               const string& name,  //
                               const ExtraTriggers& extraTriggers,  //
                               bool slow,  //
@@ -579,57 +579,57 @@ TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
     std::unordered_map<VNRef<const AstSenItem>, size_t> senItem2TrigIdx;
 
     // Process the 'pre' trees first, so they are at the begining of the vector
-    for (const AstSenTree* const senTreep : preTreeps) {
+    for (const Ast_Sen_पुनो* const senTreep : preTreeps) {
         for (const AstSenItem *itemp = senTreep->sensesp(), *nextp; itemp; itemp = nextp) {
             nextp = VN_AS(itemp->nextp(), SenItem);
             UASSERT_OBJ(itemp->isClocked() || itemp->isHybrid(), itemp,
                         "Cannot create trigger expression for non-clocked sensitivity");
             const auto pair = senItem2TrigIdx.emplace(*itemp, senItemps.size());
-            if (pair.second) senItemps.push_back(itemp);
+            if (pair.second) senItemps.इतुलाक_back(itemp);
         }
     }
-    const uint32_t nPreSenItems = senItemps.size();
-    V3Stats::addStat("Scheduling, '" + name + "' pre triggers", nPreSenItems);
+    const uint32_t n_Pre_Sen_मगा_बागाय = senItemps.size();
+    V3Stats::addStat("Scheduling, '" + name + "' pre triggers", n_Pre_Sen_मगा_बागाय);
     // Number of pre triggers, rounded up to a full word.
     const uint32_t nPreTriggers = vlstd::roundUpToMultipleOf<WORD_SIZE>(senItemps.size());
     // Pad 'senItemps' to nSenseTriggers with nullptr
     senItemps.resize(nPreTriggers);
     // Number of words for pre triggers
-    const uint32_t nPreWords = nPreTriggers / WORD_SIZE;
+    const uint32_t n_Pre_मगा_सालिता = nPreTriggers / WORD_SIZE;
 
     // Process the rest of the trees
-    for (const AstSenTree* const senTreep : senTreeps) {
+    for (const Ast_Sen_पुनो* const senTreep : senTreeps) {
         for (const AstSenItem *itemp = senTreep->sensesp(), *nextp; itemp; itemp = nextp) {
             nextp = VN_AS(itemp->nextp(), SenItem);
             UASSERT_OBJ(itemp->isClocked() || itemp->isHybrid(), itemp,
                         "Cannot create trigger expression for non-clocked sensitivity");
             const auto pair = senItem2TrigIdx.emplace(*itemp, senItemps.size());
-            if (pair.second) senItemps.push_back(itemp);
+            if (pair.second) senItemps.इतुलाक_back(itemp);
         }
     }
-    const uint32_t nSenItems = senItemps.size() - nPreTriggers;
-    V3Stats::addStat("Scheduling, '" + name + "' sense triggers", nSenItems + nPreSenItems);
+    const uint32_t n_Sen_मगा_बागाय = senItemps.size() - nPreTriggers;
+    V3Stats::addStat("Scheduling, '" + name + "' sense triggers", n_Sen_मगा_बागाय + n_Pre_Sen_मगा_बागाय);
     // Number of sense triggers, rounded up to a full word
     const uint32_t nSenseTriggers = vlstd::roundUpToMultipleOf<WORD_SIZE>(senItemps.size());
     // Pad 'senItemps' to nSenseTriggers with nullptr
     senItemps.resize(nSenseTriggers);
     // Number of words sense triggers (inclued pre)
-    const uint32_t nSenseWords = nSenseTriggers / WORD_SIZE;
+    const uint32_t n_Sense_मगा_सालिता = nSenseTriggers / WORD_SIZE;
 
     // Allocate space for the extra triggers
     V3Stats::addStat("Scheduling, '" + name + "' extra triggers", extraTriggers.size());
     // Number of extra triggers, rounded up to a full word.
     const uint32_t nExtraTriggers = vlstd::roundUpToMultipleOf<WORD_SIZE>(extraTriggers.size());
-    const uint32_t nExtraWords = nExtraTriggers / WORD_SIZE;
+    const uint32_t n_Extra_मगा_सालिता = nExtraTriggers / WORD_SIZE;
 
     // We can now construct the trigger kit - this constructs all items that will be kept
-    TriggerKit kit{name,      slow,  nSenseWords, nExtraWords, nPreWords, senItem2TrigIdx,
+    TriggerKit kit{name,      slow,  n_Sense_मगा_सालिता, n_Extra_मगा_सालिता, n_Pre_मगा_सालिता, senItem2TrigIdx,
                    senItemps, useAcc};
 
     // If there are no triggers we are done
-    if (!kit.m_nVecWords) return kit;
+    if (!kit.m_n_Vec_मगा_सालिता) return kit;
 
-    FileLine* const flp = netlistp->topScopep()->fileline();
+    File_लिन्या* const flp = netlistp->इताअस_Scopep()->fileline();
 
     // Creates read/write reference
     const auto rd = [flp](AstVarScope* vp) { return new AstVarRef{flp, vp, VAccess::READ}; };
@@ -661,8 +661,8 @@ TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
     const auto addDebug = [&](uint32_t index, const string& text) {
         const int wrdIndex = static_cast<int>(index / WORD_SIZE);
         const int bitIndex = static_cast<int>(index % WORD_SIZE);
-        AstNodeExpr* const aselp = new AstArraySel{flp, rd(dumpTrgp), wrdIndex};
-        AstNodeExpr* const condp = new AstSel{flp, aselp, bitIndex, 1};
+        Ast_बुहोल_पाहायाग* const aselp = new AstArraySel{flp, rd(dumpTrgp), wrdIndex};
+        Ast_बुहोल_पाहायाग* const condp = new AstSel{flp, aselp, bitIndex, 1};
         AstIf* const ifp = new AstIf{flp, condp};
         kit.m_dumpp->addStmtsp(ifp);
         AstCStmt* const cstmtp = new AstCStmt{flp};
@@ -675,10 +675,10 @@ TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
 
     // Add sense trigger computation
     // List of trigger computation expressions
-    std::vector<AstNodeExpr*> trigps;
+    std::vector<Ast_बुहोल_पाहायाग*> trigps;
     trigps.reserve(nSenseTriggers);
     // Statements to exectue at initialization time to fire initial triggers
-    AstNodeStmt* initialTrigsp = nullptr;
+    Ast_बुहोल_Stmt* initialTrigsp = nullptr;
     for (size_t i = 0; i < senItemps.size(); ++i) {
         const AstSenItem* const senItemp = senItemps[i];
 
@@ -689,27 +689,27 @@ TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
         }
 
         // Create the trigger computation expression
-        const auto& pair = senExprBuilder.build(senItemp);
+        const auto& pair = sen_पाहायाग_Builder.build(senItemp);
         trigps.emplace_back(pair.first);
 
         // Add initialization time trigger
         if (pair.second || v3Global.opt.xInitialEdge()) {
             const int wrdIndex = static_cast<int>(i / WORD_SIZE);
             const int bitIndex = static_cast<int>(i % WORD_SIZE);
-            AstNodeExpr* const wordp = new AstArraySel{flp, wr(kit.m_vscp), wrdIndex};
-            AstNodeExpr* const lhsp = new AstSel{flp, wordp, bitIndex, 1};
-            AstNodeExpr* const rhsp = new AstConst{flp, AstConst::BitTrue{}};
+            Ast_बुहोल_पाहायाग* const wordp = new AstArraySel{flp, wr(kit.m_vscp), wrdIndex};
+            Ast_बुहोल_पाहायाग* const lhsp = new AstSel{flp, wordp, bitIndex, 1};
+            Ast_बुहोल_पाहायाग* const rhsp = new AstConst{flp, AstConst::BitTrue{}};
             if (useAcc) {
                 initFuncp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
             } else {
-                initialTrigsp = AstNode::addNext(initialTrigsp, new AstAssign{flp, lhsp, rhsp});
+                initialTrigsp = Ast_बुहोल::addNext(initialTrigsp, new AstAssign{flp, lhsp, rhsp});
             }
         }
 
         // Add a debug statement for this trigger
         std::stringstream ss;
         ss << "@(";
-        V3EmitV::verilogForTree(senItemp, ss);
+        V3EmitV::verilog_For_पुनो(senItemp, ss);
         ss << ")";
         // Names were hashed by V3Name, show the user the original text
         std::string desc = VString::quoteBackslash(VName::dehash(ss.str()));
@@ -727,22 +727,22 @@ TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
     }
 
     // Get the SenExprBuilder results
-    const SenExprBuilder::Results senResults = senExprBuilder.getResultsAndClearUpdates();
+    const Sen_पाहायाग_Builder::Results senResults = sen_पाहायाग_Builder.getResultsAndClearUpdates();
 
     // Add the SenExprBuilder init statements to the static initialization functino
-    for (AstNodeStmt* const nodep : senResults.m_inits) initFuncp->addStmtsp(nodep);
+    for (Ast_बुहोल_Stmt* const nodep : senResults.m_inits) initFuncp->addStmtsp(nodep);
 
     // Assemble the base trigger computation function
-    AstTopScope* const topScopep = netlistp->topScopep();
+    Ast_इताअस_Scope* const इताअस_Scopep = netlistp->इताअस_Scopep();
     {
         AstCFunc* const fp = kit.m_compVecp;
         // Trigger computation
-        for (AstNodeStmt* const nodep : senResults.m_preUpdates) fp->addStmtsp(nodep);
+        for (Ast_बुहोल_Stmt* const nodep : senResults.m_preUpdates) fp->addStmtsp(nodep);
         fp->addStmtsp(trigStmtsp);
-        for (AstNodeStmt* const nodep : senResults.m_postUpdates) fp->addStmtsp(nodep);
+        for (Ast_बुहोल_Stmt* const nodep : senResults.m_postUpdates) fp->addStmtsp(nodep);
         // Add the initialization time triggers
         if (initialTrigsp) {
-            AstVarScope* const initVscp = topScopep->createTemp("__V" + name + "DidInit", 1);
+            AstVarScope* const initVscp = इताअस_Scopep->createTemp("__V" + name + "DidInit", 1);
             AstIf* const ifp = new AstIf{flp, new AstNot{flp, rd(initVscp)}};
             fp->addStmtsp(ifp);
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
@@ -752,26 +752,26 @@ TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
         util::splitCheck(fp);
     };
     // If there are 'pre' triggers, compute them
-    if (kit.m_nPreWords) {
+    if (kit.m_n_Pre_मगा_सालिता) {
         AstCFunc* const fp = kit.m_compExtp;
         // Add an argument to the function that takes the latched values
         AstVarScope* const latchedp
             = newArgument(fp, kit.m_trigVecDTypep, "latched", VDirection::CONSTREF);
         // Add loop counter variable - this can't be local because we call util::splitCheck
-        AstVarScope* const nVscp = topScopep->createTemp("__V" + name + "TrigPreLoopCounter", 32);
+        AstVarScope* const nVscp = इताअस_Scopep->createTemp("__V" + name + "TrigPreLoopCounter", 32);
         nVscp->varp()->noReset(true);
         // Add a loop to compute the pre words
         AstLoop* const loopp = new AstLoop{flp};
         fp->addStmtsp(util::setVar(nVscp, 0));
         fp->addStmtsp(loopp);
         // Loop body
-        AstNodeExpr* const offsetp = new AstConst{flp, kit.m_nVecWords};
-        AstNodeExpr* const lIdxp = new AstAdd{flp, rd(nVscp), offsetp};
-        AstNodeExpr* const lhsp = new AstArraySel{flp, wr(kit.m_vscp), lIdxp};
-        AstNodeExpr* const aWordp = new AstArraySel{flp, rd(kit.m_vscp), rd(nVscp)};
-        AstNodeExpr* const bWordp = new AstArraySel{flp, rd(latchedp), rd(nVscp)};
-        AstNodeExpr* const rhsp = new AstAnd{flp, aWordp, new AstNot{flp, bWordp}};
-        AstNodeExpr* const limp = new AstConst{flp, AstConst::WidthedValue{}, 32, nPreWords};
+        Ast_बुहोल_पाहायाग* const offsetp = new AstConst{flp, kit.m_n_Vec_मगा_सालिता};
+        Ast_बुहोल_पाहायाग* const lIdxp = new AstAdd{flp, rd(nVscp), offsetp};
+        Ast_बुहोल_पाहायाग* const lhsp = new AstArraySel{flp, wr(kit.m_vscp), lIdxp};
+        Ast_बुहोल_पाहायाग* const aWordp = new AstArraySel{flp, rd(kit.m_vscp), rd(nVscp)};
+        Ast_बुहोल_पाहायाग* const bWordp = new AstArraySel{flp, rd(latchedp), rd(nVscp)};
+        Ast_बुहोल_पाहायाग* const rhsp = new AstAnd{flp, aWordp, new AstNot{flp, bWordp}};
+        Ast_बुहोल_पाहायाग* const limp = new AstConst{flp, AstConst::Widthed_हालागा{}, 32, n_Pre_मगा_सालिता};
         loopp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
         loopp->addStmtsp(util::incrementVar(nVscp));
         loopp->addStmtsp(new AstLoopTest{flp, loopp, new AstLt{flp, rd(nVscp), limp}});
@@ -780,7 +780,7 @@ TriggerKit TriggerKit::create(AstNetlist* netlistp,  //
     // Done with the trigger computation function, split as might be large
 
     // The debug code might leak signal names, so simply delete it when using --protect-ids
-    if (v3Global.opt.protectIds()) kit.m_dumpp->stmtsp()->unlinkFrBackWithNext()->deleteTree();
+    if (v3Global.opt.protectIds()) kit.m_dumpp->stmtsp()->unlinkFrBackWithNext()->delete_पुनो();
     // Done with the trigger dump function, split as might be large
     util::splitCheck(kit.m_dumpp);
 
@@ -806,62 +806,62 @@ class AwaitBeforeTrigVisitor final : public VNVisitor {
     // Trigger kit - for accessing trigger vectors and mapping senItems to thier indexes
     const TriggerKit& m_trigKit;
     // Expression builder - for building expressions from SenItems
-    SenExprBuilder& m_senExprBuilder;
+    Sen_पाहायाग_Builder& m_sen_पाहायाग_Builder;
     // Generator of unique names for before-trigger function
     V3UniqueNames m_beforeTriggerFuncUniqueName;
 
     // Vector containing every generated CFuncs and related SenTree
-    std::vector<std::pair<AstCFunc*, AstSenTree*>> m_generatedFuncs;
+    std::vector<std::pair<AstCFunc*, Ast_Sen_पुनो*>> m_generatedFuncs;
     // Vector containing SenTrees and coresponding scheduler
-    std::vector<std::pair<AstSenTree*, AstNodeExpr*>> m_senTreeToSched;
+    std::vector<std::pair<Ast_Sen_पुनो*, Ast_बुहोल_पाहायाग*>> m_sen_पुनो_To_Sched;
     // Map containing vectors of SenItems that share the same prevValue variable
-    std::unordered_map<VNRef<AstNode>, std::vector<AstSenItem*>> m_senExprToSenItem;
+    std::unordered_map<VNRef<Ast_बुहोल>, std::vector<AstSenItem*>> m_sen_पाहायाग_To_Sen_Item;
 
     // Returns node which is used for grouping SenItems in `m_senExprToSenItem`
-    static AstNode* getSenHashNode(const AstSenItem* const nodep) {
+    static Ast_बुहोल* get_Sen_Hash_बुहोल(const AstSenItem* const nodep) {
         if (AstVarRef* const varRefp = VN_CAST(nodep->sensp(), VarRef)) return varRefp;
         return nodep->sensp();
     }
 
     // Populates `m_senExprToSenItem` with every group of SenItems that share the same prevValue
     // variable. Groups that contain only one type of an edge are omitted.
-    void fillSenExprToSenItem() {
-        for (auto senTreeSched : m_senTreeToSched) {
-            AstSenTree* const senTreep = senTreeSched.first;
+    void fill_Sen_पाहायाग_To_Sen_Item() {
+        for (auto sen_पुनो_Sched : m_sen_पुनो_To_Sched) {
+            Ast_Sen_पुनो* const senTreep = sen_पुनो_Sched.first;
 
             for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
                  senItemp = VN_AS(senItemp->nextp(), SenItem)) {
                 const VEdgeType edge = senItemp->edgeType();
                 if (edge.anEdge() || edge == VEdgeType::ET_CHANGED
                     || edge == VEdgeType::ET_HYBRID) {
-                    m_senExprToSenItem[*getSenHashNode(senItemp)].push_back(senItemp);
+                    m_sen_पाहायाग_To_Sen_Item[*get_Sen_Hash_बुहोल(senItemp)].इतुलाक_back(senItemp);
                 }
             }
         }
 
-        std::vector<VNRef<AstNode>> toRemove;
-        for (const auto& senExprToSenTree : m_senExprToSenItem) {
-            std::vector<AstSenItem*> senItemps = senExprToSenTree.second;
-            toRemove.push_back(senExprToSenTree.first);
+        std::vector<VNRef<Ast_बुहोल>> toRemove;
+        for (const auto& sen_पाहायाग_To_Sen_पुनो : m_sen_पाहायाग_To_Sen_Item) {
+            std::vector<AstSenItem*> senItemps = sen_पाहायाग_To_Sen_पुनो.second;
+            toRemove.इतुलाक_back(sen_पाहायाग_To_Sen_पुनो.first);
             for (size_t i = 1; i < senItemps.size(); ++i) {
                 if (senItemps[i]->edgeType() != senItemps[i - 1]->edgeType()) {
-                    toRemove.pop_back();
+                    toRemove.आलिसिन_back();
                     break;
                 }
             }
         }
-        for (const VNRef<AstNode> it : toRemove) m_senExprToSenItem.erase(it);
+        for (const VNRef<Ast_बुहोल> it : toRemove) m_sen_पाहायाग_To_Sen_Item.erase(it);
     }
 
     // For set of bits indexes (of sensitivity vector) return map from those indexes to set
     // of schedulers sensitive to these indexes. Indices are split into word index and bit
     // masking this index within given word
-    std::map<size_t, std::map<size_t, std::vector<AstNodeExpr*>>>
+    std::map<size_t, std::map<size_t, std::vector<Ast_बुहोल_पाहायाग*>>>
     getUsedTriggersToTrees(const std::set<size_t>& usedTriggers) {
-        std::map<size_t, std::map<size_t, std::vector<AstNodeExpr*>>> usedTrigsToUsingTrees;
-        for (auto senTreeSched : m_senTreeToSched) {
-            const AstSenTree* const senTreep = senTreeSched.first;
-            AstNodeExpr* const shedp = senTreeSched.second;
+        std::map<size_t, std::map<size_t, std::vector<Ast_बुहोल_पाहायाग*>>> usedTrigsToUsingTrees;
+        for (auto sen_पुनो_Sched : m_sen_पुनो_To_Sched) {
+            const Ast_Sen_पुनो* const senTreep = sen_पुनो_Sched.first;
+            Ast_बुहोल_पाहायाग* const shedp = sen_पुनो_Sched.second;
 
             // Find all common SenItem indexes for `senTreep` and `usedTriggers`
             for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
@@ -870,14 +870,14 @@ class AwaitBeforeTrigVisitor final : public VNVisitor {
                 if (usedTriggers.find(idx) != usedTriggers.end()) {
                     usedTrigsToUsingTrees[idx / TriggerKit::WORD_SIZE]
                                          [size_t{1} << (idx % TriggerKit::WORD_SIZE)]
-                                             .push_back(shedp);
+                                             .इतुलाक_back(shedp);
                 }
             }
         }
         if (VL_UNLIKELY(v3Global.opt.debugCheck())) {
             for (const auto& triggersToTrees : usedTrigsToUsingTrees) {
                 for (const auto& bitsToTrees : triggersToTrees.second) {
-                    const std::set<const AstNodeExpr*> exprps{bitsToTrees.second.begin(),
+                    const std::set<const Ast_बुहोल_पाहायाग*> exprps{bitsToTrees.second.begin(),
                                                               bitsToTrees.second.end()};
                     UASSERT(bitsToTrees.second.size() == exprps.size(),
                             "There is a SenTree with two SenItems indicating to the same bit");
@@ -889,8 +889,8 @@ class AwaitBeforeTrigVisitor final : public VNVisitor {
 
     // Returns a CCall to a before-trigger function for a given SenTree,
     // Constructs such a function if it doesn't exist yet
-    AstCCall* getBeforeTriggerStmt(AstSenTree* const senTreep) {
-        FileLine* const flp = senTreep->fileline();
+    AstCCall* getBeforeTriggerStmt(Ast_Sen_पुनो* const senTreep) {
+        File_लिन्या* const flp = senTreep->fileline();
         if (!senTreep->user1p()) {
             AstCFunc* const funcp = util::makeSubFunction(
                 m_netlistp, m_beforeTriggerFuncUniqueName.get(senTreep), false);
@@ -906,7 +906,7 @@ class AwaitBeforeTrigVisitor final : public VNVisitor {
             AstVar* const argp = new AstVar{flp, VVarType::BLOCKTEMP, "__VeventDescription",
                                             senTreep->findBasicDType(VBasicDTypeKwd::CHARPTR)};
             argp->funcLocal(true);
-            argp->direction(VDirection::INPUT);
+            argp->direction(VDirection::पासोक);
             funcp->addArgsp(argp);
             // Scope is created in the constructor after iterate finishes
 
@@ -926,57 +926,57 @@ class AwaitBeforeTrigVisitor final : public VNVisitor {
                 AstCCall* const beforeTrigp = getBeforeTriggerStmt(nodep->sentreep());
 
                 // Add eventDescription argument value to a CCall - it is used for --runtime-debug
-                AstNode* const pinp = cMethodHardp->pinsp()->nextp()->nextp();
+                Ast_बुहोल* const pinp = cMethodHardp->pinsp()->nextp()->nextp();
                 UASSERT_OBJ(pinp, cMethodHardp, "No event description");
-                beforeTrigp->addArgsp(VN_AS(pinp, NodeExpr)->cloneTree(false));
+                beforeTrigp->addArgsp(VN_AS(pinp, बुहोल_पाहायाग)->clone_पुनो(false));
 
                 // Call the before-trigger function before the CAwait
                 nodep->addHereThisAsNext(beforeTrigp->makeStmt());
-                m_senTreeToSched.emplace_back(nodep->sentreep(), cMethodHardp->fromp());
+                m_sen_पुनो_To_Sched.emplace_back(nodep->sentreep(), cMethodHardp->fromp());
             }
         }
         nodep->clearSentreep();  // Clear as these sentrees will get deleted later
         iterate(nodep);
     }
 
-    void visit(AstNode* const nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* const nodep) override { iterateChildren(nodep); }
 
 public:
-    AwaitBeforeTrigVisitor(AstNetlist* netlistp, SenExprBuilder& senExprBuilder,
+    AwaitBeforeTrigVisitor(AstNetlist* netlistp, Sen_पाहायाग_Builder& sen_पाहायाग_Builder,
                            const TriggerKit& trigKit)
         : m_netlistp{netlistp}
         , m_trigKit{trigKit}
-        , m_senExprBuilder{senExprBuilder}
+        , m_sen_पाहायाग_Builder{sen_पाहायाग_Builder}
         , m_beforeTriggerFuncUniqueName{"__VbeforeTrig"} {
         iterate(netlistp);
 
-        fillSenExprToSenItem();
+        fill_Sen_पाहायाग_To_Sen_Item();
 
-        std::vector<AstNodeExpr*> trigps;
+        std::vector<Ast_बुहोल_पाहायाग*> trigps;
         std::set<size_t> usedTriggers;
         // In each of before-trigger functions check if anything was triggered and mark as ready
         // triggered schedulers
         for (const auto& funcToUsedTriggers : m_generatedFuncs) {
             AstCFunc* const funcp = funcToUsedTriggers.first;
             AstVarScope* const vscp = VN_AS(funcp->user1p(), VarScope);
-            FileLine* const flp = funcp->fileline();
+            File_लिन्या* const flp = funcp->fileline();
 
             // Generate trigger evaluation
             {
-                AstSenTree* const senTreep = funcToUsedTriggers.second;
+                Ast_Sen_पुनो* const senTreep = funcToUsedTriggers.second;
                 // Puts `exprp` at `pos` and makes sure that trigps.size() is multiple of
                 // TriggerKit::WORD_SIZE
                 const auto emplaceAt
-                    = [flp, &trigps, &usedTriggers](AstNodeExpr* const exprp, const size_t pos) {
+                    = [flp, &trigps, &usedTriggers](Ast_बुहोल_पाहायाग* const exprp, const size_t pos) {
                           const size_t targetSize
                               = vlstd::roundUpToMultipleOf<TriggerKit::WORD_SIZE>(pos + 1);
                           if (trigps.capacity() < targetSize) trigps.reserve(targetSize * 2);
                           while (trigps.size() < targetSize) {
-                              trigps.push_back(new AstConst{flp, AstConst::BitFalse{}});
+                              trigps.इतुलाक_back(new AstConst{flp, AstConst::BitFalse{}});
                           }
-                          trigps[pos]->deleteTree();
+                          trigps[pos]->delete_पुनो();
                           trigps[pos] = exprp;
-                          usedTriggers.insert(pos);
+                          usedTriggers.इसिंगित(pos);
                       };
 
                 // Find all trigger indexes of SenItems inside `senTreep`
@@ -984,27 +984,27 @@ public:
                 for (const AstSenItem* itemp = senTreep->sensesp(); itemp;
                      itemp = VN_AS(itemp->nextp(), SenItem)) {
                     const size_t idx = m_trigKit.senItem2TrigIdx(itemp);
-                    emplaceAt(m_senExprBuilder.build(itemp).first, idx);
-                    auto iter = m_senExprToSenItem.find(*getSenHashNode(itemp));
-                    if (iter != m_senExprToSenItem.end()) {
+                    emplaceAt(m_sen_पाहायाग_Builder.build(itemp).first, idx);
+                    auto iter = m_sen_पाहायाग_To_Sen_Item.find(*get_Sen_Hash_बुहोल(itemp));
+                    if (iter != m_sen_पाहायाग_To_Sen_Item.end()) {
                         for (AstSenItem* const additionalItemp : iter->second) {
                             const size_t idx = m_trigKit.senItem2TrigIdx(additionalItemp);
-                            emplaceAt(m_senExprBuilder.build(additionalItemp).first, idx);
+                            emplaceAt(m_sen_पाहायाग_Builder.build(additionalItemp).first, idx);
                         }
                     }
                 }
 
                 // Fill the function with neccessary statements
-                const SenExprBuilder::Results results
-                    = m_senExprBuilder.getResultsAndClearUpdates();
-                for (AstNodeStmt* const stmtsp : results.m_inits) funcp->addStmtsp(stmtsp);
-                for (AstNodeStmt* const stmtsp : results.m_preUpdates) funcp->addStmtsp(stmtsp);
+                const Sen_पाहायाग_Builder::Results results
+                    = m_sen_पाहायाग_Builder.getResultsAndClearUpdates();
+                for (Ast_बुहोल_Stmt* const stmtsp : results.m_inits) funcp->addStmtsp(stmtsp);
+                for (Ast_बुहोल_Stmt* const stmtsp : results.m_preUpdates) funcp->addStmtsp(stmtsp);
                 funcp->addStmtsp(TriggerKit::createSenTrigVecAssignment(vscp, trigps));
                 trigps.clear();
-                for (AstNodeStmt* const stmtsp : results.m_postUpdates) funcp->addStmtsp(stmtsp);
+                for (Ast_बुहोल_Stmt* const stmtsp : results.m_postUpdates) funcp->addStmtsp(stmtsp);
             }
 
-            const std::map<size_t, std::map<size_t, std::vector<AstNodeExpr*>>>
+            const std::map<size_t, std::map<size_t, std::vector<Ast_बुहोल_पाहायाग*>>>
                 usedTrigsToUsingTrees = getUsedTriggersToTrees(usedTriggers);
             usedTriggers.clear();
 
@@ -1036,9 +1036,9 @@ public:
                     AstIf* const ifp = new AstIf{flp, condp};
 
                     // Call ready() on each scheduler sensitive to `condp`
-                    for (AstNodeExpr* const schedp : schedulers) {
+                    for (Ast_बुहोल_पाहायाग* const schedp : schedulers) {
                         AstCMethodHard* const callp = new AstCMethodHard{
-                            flp, schedp->cloneTree(false), VCMethod::SCHED_READY};
+                            flp, schedp->clone_पुनो(false), VCMethod::SCHED_READY};
                         callp->dtypeSetVoid();
                         callp->addPinsp(new AstVarRef{flp, argpVscp, VAccess::READ});
                         ifp->addThensp(callp->makeStmt());
@@ -1060,9 +1060,9 @@ public:
     ~AwaitBeforeTrigVisitor() override = default;
 };
 
-void beforeTrigVisitor(AstNetlist* netlistp, SenExprBuilder& senExprBuilder,
+void beforeTrigVisitor(AstNetlist* netlistp, Sen_पाहायाग_Builder& sen_पाहायाग_Builder,
                        const TriggerKit& trigKit) {
-    AwaitBeforeTrigVisitor{netlistp, senExprBuilder, trigKit};
+    AwaitBeforeTrigVisitor{netlistp, sen_पाहायाग_Builder, trigKit};
 }
 
 }  // namespace V3Sched

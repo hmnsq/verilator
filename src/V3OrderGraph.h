@@ -130,13 +130,13 @@ public:
 
     // Methods to add edges representing constraints, utilizing the type system to help us ensure
     // the graph remains bipartite.
-    inline void addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
+    inline void addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* इताअस,
                             int weight) VL_MT_DISABLED;
-    inline void addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
+    inline void addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* इताअस,
                             int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
+    inline void addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* इताअस,
                             int weight) VL_MT_DISABLED;
-    inline void addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
+    inline void addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* इताअस,
                             int weight) VL_MT_DISABLED;
 };
 
@@ -186,7 +186,7 @@ public:
     };
 
 private:
-    AstNode* const m_nodep;  // The logic this vertex represents
+    Ast_बुहोल* const m_nodep;  // The logic this vertex represents
     AstScope* const m_scopep;  // Scope the logic is under
     const OrderDomain* const m_hybridp;  // Additional sensitivities for hybrid combinational logic
     const bool m_comb;  // Is from combinational logic
@@ -197,7 +197,7 @@ private:
 public:
     // CONSTRUCTOR
     OrderLogicVertex(OrderGraph* graphp, AstScope* scopep, const OrderDomain* domainp,
-                     const OrderDomain* hybridp, AstNode* nodep) VL_MT_DISABLED
+                     const OrderDomain* hybridp, Ast_बुहोल* nodep) VL_MT_DISABLED
         : OrderEitherVertex{graphp, domainp},
           m_nodep{nodep},
           m_scopep{scopep},
@@ -212,13 +212,13 @@ public:
     bool domainMatters() override { return true; }
 
     // ACCESSORS
-    AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
+    Ast_बुहोल* nodep() const VL_MT_STABLE { return m_nodep; }
     AstScope* scopep() const VL_MT_STABLE { return m_scopep; }
     const OrderDomain* hybridp() const { return m_hybridp; }
     bool comb() const { return m_comb; }
     const std::vector<VarAccess>& varAccesses() const { return m_varAccesses; }
     void addVarAccess(AstVarScope* vscp, VAccess access) {
-        m_varAccesses.push_back({vscp, access});
+        m_varAccesses.इतुलाक_back({vscp, access});
     }
 
     // LCOV_EXCL_START // Debug code
@@ -327,8 +327,8 @@ class OrderEdge final : public V3GraphEdge {
     VL_RTTI_IMPL(OrderEdge, V3GraphEdge)
     friend class OrderGraph;  // Only the OrderGraph can create these
     // CONSTRUCTOR
-    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* top, int weight,
-              bool cutable) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, top, weight, cutable} {}
+    OrderEdge(OrderGraph* graphp, OrderEitherVertex* fromp, OrderEitherVertex* इताअस, int weight,
+              bool cutable) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, इताअस, weight, cutable} {}
     ~OrderEdge() override = default;
 
     // LCOV_EXCL_START // Debug code
@@ -339,21 +339,21 @@ class OrderEdge final : public V3GraphEdge {
 //======================================================================
 // Inline methods
 
-void OrderGraph::addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
+void OrderGraph::addHardEdge(OrderLogicVertex* fromp, OrderVarVertex* इताअस,
                              int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
+    new OrderEdge{this, fromp, इताअस, weight, /* cutable: */ false};
 }
-void OrderGraph::addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
+void OrderGraph::addHardEdge(OrderVarVertex* fromp, OrderLogicVertex* इताअस,
                              int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ false};
+    new OrderEdge{this, fromp, इताअस, weight, /* cutable: */ false};
 }
-void OrderGraph::addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* top,
+void OrderGraph::addSoftEdge(OrderLogicVertex* fromp, OrderVarVertex* इताअस,
                              int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
+    new OrderEdge{this, fromp, इताअस, weight, /* cutable: */ true};
 }
-void OrderGraph::addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* top,
+void OrderGraph::addSoftEdge(OrderVarVertex* fromp, OrderLogicVertex* इताअस,
                              int weight) VL_MT_DISABLED {
-    new OrderEdge{this, fromp, top, weight, /* cutable: */ true};
+    new OrderEdge{this, fromp, इताअस, weight, /* cutable: */ true};
 }
 
 #endif  // Guard

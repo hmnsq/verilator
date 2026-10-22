@@ -46,28 +46,28 @@ class WidthSelVisitor final : public VNVisitor {
 
     // METHODS
 
-    void checkConstantOrReplace(AstNode* nodep, const string& message) {
+    void checkConstantOrReplace(Ast_बुहोल* nodep, const string& message) {
         // See also V3Width::checkConstantOrReplace
         // Note can't call V3Const::constifyParam(nodep) here, as constify may change nodep on us!
         if (!VN_IS(nodep, Const)) {
             nodep->v3error(message);
             nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::Unsized32{}, 1});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         }
     }
 
     // RETURN TYPE
     struct FromData final {
-        AstNodeDType* const m_errp;  // Node that was found, for error reporting if not known type
-        AstNodeDType* const m_dtypep;  // Data type for the 'from' slice
+        Ast_बुहोल_DType* const m_errp;  // Node that was found, for error reporting if not known type
+        Ast_बुहोल_DType* const m_dtypep;  // Data type for the 'from' slice
         VNumRange m_fromRange;  // Numeric range bounds for the 'from' slice
-        FromData(AstNodeDType* errp, AstNodeDType* dtypep, const VNumRange& fromRange)
+        FromData(Ast_बुहोल_DType* errp, Ast_बुहोल_DType* dtypep, const VNumRange& fromRange)
             : m_errp{errp}
             , m_dtypep{dtypep}
             , m_fromRange{fromRange} {}
         ~FromData() = default;
     };
-    static FromData fromDataForArray(AstNode* nodep, AstNode* basefromp) {
+    static FromData fromDataForArray(Ast_बुहोल* nodep, Ast_बुहोल* basefromp) {
         // What is the data type and information for this SEL-ish's from()?
         UINFO(9, "  fromData start ddtypep = " << basefromp);
         VNumRange fromRange;  // constructs to isRanged(false)
@@ -79,17 +79,17 @@ class WidthSelVisitor final : public VNVisitor {
             break;
         }
         UASSERT_OBJ(basefromp && basefromp->dtypep(), nodep, "Select with no from dtype");
-        AstNodeDType* const ddtypep = basefromp->dtypep()->skipRefp();
-        AstNodeDType* const errp = ddtypep;
+        Ast_बुहोल_DType* const ddtypep = basefromp->dtypep()->skipRefp();
+        Ast_बुहोल_DType* const errp = ddtypep;
         UINFO(9, "  fromData.ddtypep = " << ddtypep);
-        if (const AstNodeArrayDType* const adtypep = VN_CAST(ddtypep, NodeArrayDType)) {
+        if (const Ast_बुहोल_Array_DType* const adtypep = VN_CAST(ddtypep, बुहोल_Array_DType)) {
             fromRange = adtypep->declRange();
         } else if (VN_IS(ddtypep, AssocArrayDType)) {
         } else if (VN_IS(ddtypep, WildcardArrayDType)) {
         } else if (VN_IS(ddtypep, DynArrayDType)) {
         } else if (VN_IS(ddtypep, QueueDType)) {
-        } else if (const AstNodeUOrStructDType* const adtypep
-                   = VN_CAST(ddtypep, NodeUOrStructDType)) {
+        } else if (const Ast_बुहोल_UOr_Struct_DType* const adtypep
+                   = VN_CAST(ddtypep, बुहोल_UOr_Struct_DType)) {
             fromRange = adtypep->declRange();
         } else if (const AstBasicDType* const adtypep = VN_CAST(ddtypep, BasicDType)) {
             if (adtypep->isString() && VN_IS(nodep, SelBit)) {
@@ -112,26 +112,26 @@ class WidthSelVisitor final : public VNVisitor {
         return FromData(errp, ddtypep, fromRange);
     }
 
-    AstNodeExpr* newSubNeg(AstNodeExpr* lhsp, int32_t rhs) {
+    Ast_बुहोल_पाहायाग* newSubNeg(Ast_बुहोल_पाहायाग* lhsp, int32_t rhs) {
         // Return lhs-rhs, but if rhs is negative use an add, so we won't
         // have to deal with signed math and related 32bit sign extension problems
         if (rhs == 0) {
             return lhsp;
         } else if (VN_IS(lhsp, Const)) {
             // Optional vs just making add/sub below, but saves constification some work
-            V3Number num(lhsp, lhsp->width());
-            num.opSub(VN_AS(lhsp, Const)->num(), V3Number(lhsp, 32, rhs));
-            num.isSigned(lhsp->isSigned());
-            return new AstConst{lhsp->fileline(), num};
+            V3_नुमेरो नुमेरो(lhsp, lhsp->width());
+            नुमेरो.opSub(VN_AS(lhsp, Const)->नुमेरो(), V3_नुमेरो(lhsp, 32, rhs));
+            नुमेरो.isSigned(lhsp->isSigned());
+            return new AstConst{lhsp->fileline(), नुमेरो};
         } else if (rhs > 0) {
-            AstNodeExpr* const newp
+            Ast_बुहोल_पाहायाग* const newp
                 = new AstSub{lhsp->fileline(), lhsp,
                              new AstConst(lhsp->fileline(), AstConst::Unsized32{}, rhs)};
             // We must make sure sub gets sign of original value, not from the constant
             newp->dtypeFrom(lhsp);
             return newp;
         } else {  // rhs < 0;
-            AstNodeExpr* const newp
+            Ast_बुहोल_पाहायाग* const newp
                 = new AstAdd{lhsp->fileline(), lhsp,
                              new AstConst(lhsp->fileline(), AstConst::Unsized32{}, -rhs)};
             // We must make sure sub gets sign of original value, not from the constant
@@ -139,16 +139,16 @@ class WidthSelVisitor final : public VNVisitor {
             return newp;
         }
     }
-    AstNodeExpr* newSubNeg(int32_t lhs, AstNodeExpr* rhsp) {
+    Ast_बुहोल_पाहायाग* newSubNeg(int32_t lhs, Ast_बुहोल_पाहायाग* rhsp) {
         // Return lhs-rhs
         // We must make sure sub gets sign of original value
-        AstNodeExpr* const newp = new AstSub{
+        Ast_बुहोल_पाहायाग* const newp = new AstSub{
             rhsp->fileline(), new AstConst(rhsp->fileline(), AstConst::Unsized32{}, lhs), rhsp};
         newp->dtypeFrom(rhsp);  // Important as AstSub default is lhs's sign
         return newp;
     }
 
-    AstNodeExpr* newSubLsbOf(AstNodeExpr* underp, const VNumRange& fromRange) {
+    Ast_बुहोल_पाहायाग* newSubLsbOf(Ast_बुहोल_पाहायाग* underp, const VNumRange& fromRange) {
         // Account for a variable's LSB in bit selections
         // Will likely become SUB(underp, lsb_of_signal).
         // Don't report WIDTH warnings etc here, as may be inside a
@@ -167,22 +167,22 @@ class WidthSelVisitor final : public VNVisitor {
             }
         }
     }
-    AstNodeExpr* newMulConst(FileLine* fl, uint32_t elwidth, AstNodeExpr* indexp) {
-        AstNodeExpr* extendp;
-        const int widthMin = std::max(V3Number::log2b(elwidth) + 1, indexp->widthMin());
+    Ast_बुहोल_पाहायाग* newMulConst(File_लिन्या* fl, uint32_t elwidth, Ast_बुहोल_पाहायाग* indexp) {
+        Ast_बुहोल_पाहायाग* extendp;
+        const int widthMin = std::max(V3_नुमेरो::log2b(elwidth) + 1, indexp->widthMin());
         if (indexp->width() > 32) {
             extendp = new AstSel{fl, indexp, 0, 32, widthMin};
         } else {
             extendp = new AstExtend{fl, indexp, 32, widthMin};
         }
-        AstNodeExpr* const mulp
+        Ast_बुहोल_पाहायाग* const mulp
             = new AstMul{fl, new AstConst{fl, AstConst::Unsized32{}, elwidth},
                          // Extend needed as index might be e.g. 3 bits but constant e.g. 5 bits
                          extendp};
         return mulp;
     }
 
-    AstNodeDType* sliceDType(AstPackArrayDType* nodep, int msb, int lsb) {
+    Ast_बुहोल_DType* sliceDType(AstPackArrayDType* nodep, int msb, int lsb) {
         // Return slice needed for msb/lsb, either as original dtype or a new slice dtype
         if (nodep->declRange().elements() == (msb - lsb + 1)  // Extracting whole of original array
             && nodep->declRange().lo() == lsb) {
@@ -191,7 +191,7 @@ class WidthSelVisitor final : public VNVisitor {
             // Need a slice data type, which is an array of the extracted
             // type, but with (presumably) different size
             const VNumRange newRange{msb, lsb, nodep->declRange().ascending()};
-            AstNodeDType* const vardtypep
+            Ast_बुहोल_DType* const vardtypep
                 = new AstPackArrayDType{nodep->fileline(),
                                         nodep->subDTypep(),  // Need to strip off array reference
                                         new AstRange{nodep->fileline(), newRange}};
@@ -200,20 +200,20 @@ class WidthSelVisitor final : public VNVisitor {
         }
     }
 
-    AstNodeExpr* selQueueBackness(AstNode* nodep) {
+    Ast_बुहोल_पाहायाग* selQueueBackness(Ast_बुहोल* nodep) {
         if (VN_IS(nodep, Unbounded)) {  // e.g. "[$]"
             return new AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
         } else if (VN_IS(nodep, Sub) && VN_IS(VN_CAST(nodep, Sub)->lhsp(), Unbounded)) {
             // e.g. "q[$ - 1]", where 1 is subnodep
-            AstNodeExpr* subrhsp = VN_CAST(nodep, Sub)->rhsp()->unlinkFrBack();
+            Ast_बुहोल_पाहायाग* subrhsp = VN_CAST(nodep, Sub)->rhsp()->unlinkFrBack();
             return subrhsp;
         } else {
             return nullptr;
         }
     }
 
-    void warnTri(AstNode* nodep) {
-        if (VN_IS(nodep, Const) && VN_AS(nodep, Const)->num().isFourState()) {
+    void warnTri(Ast_बुहोल* nodep) {
+        if (VN_IS(nodep, Const) && VN_AS(nodep, Const)->नुमेरो().isFourState()) {
             nodep->v3error(
                 "Selection index is constantly unknown or tristated: " << nodep->name());
         }
@@ -228,16 +228,16 @@ class WidthSelVisitor final : public VNVisitor {
         UINFO(6, "SELBIT " << nodep);
         UINFOTREE(9, nodep->backp(), "", "SELBT0");
         // lhsp/rhsp do not need to be constant
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->bitp()->unlinkFrBack();  // bit we're extracting
+        Ast_बुहोल_पाहायाग* const fromp = nodep->fromp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const rhsp = nodep->bitp()->unlinkFrBack();  // bit we're extracting
         UINFOTREE(9, nodep, "", "SELBT2");
         const FromData fromdata = fromDataForArray(nodep, fromp);
-        AstNodeDType* const ddtypep = fromdata.m_dtypep;
+        Ast_बुहोल_DType* const ddtypep = fromdata.m_dtypep;
         const VNumRange fromRange = fromdata.m_fromRange;
         UINFO(6, "  ddtypep " << ddtypep);
         if (const AstUnpackArrayDType* const adtypep = VN_CAST(ddtypep, UnpackArrayDType)) {
             // SELBIT(array, index) -> ARRAYSEL(array, index)
-            AstNodeExpr* subp = rhsp;
+            Ast_बुहोल_पाहायाग* subp = rhsp;
             if (fromRange.lo() != 0 || fromRange.hi() < 0) {
                 subp = newSubNeg(subp, fromRange.lo());
             }
@@ -245,10 +245,10 @@ class WidthSelVisitor final : public VNVisitor {
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (const AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
             // SELBIT(array, index) -> SEL(array, index*width-of-subindex, width-of-subindex)
-            AstNodeExpr* subp = rhsp;
+            Ast_बुहोल_पाहायाग* subp = rhsp;
             if (fromRange.ascending()) {
                 subp = newSubNeg(fromRange.hi(), subp);
             } else {
@@ -273,14 +273,14 @@ class WidthSelVisitor final : public VNVisitor {
             }
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (const AstAssocArrayDType* const adtypep = VN_CAST(ddtypep, AssocArrayDType)) {
             // SELBIT(array, index) -> ASSOCSEL(array, index)
             AstAssocSel* const newp = new AstAssocSel{nodep->fileline(), fromp, rhsp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (const AstWildcardArrayDType* const adtypep
                    = VN_CAST(ddtypep, WildcardArrayDType)) {
             // SELBIT(array, index) -> WILDCARDSEL(array, index)
@@ -288,7 +288,7 @@ class WidthSelVisitor final : public VNVisitor {
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (const AstDynArrayDType* const adtypep = VN_CAST(ddtypep, DynArrayDType)) {
             // SELBIT(array, index) -> CMETHODCALL(queue, "at", index)
             const VCMethod method
@@ -298,11 +298,11 @@ class WidthSelVisitor final : public VNVisitor {
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off queue reference
             UINFOTREE(9, newp, "", "SELBTq");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (const AstQueueDType* const adtypep = VN_CAST(ddtypep, QueueDType)) {
             // SELBIT(array, index) -> CMETHODCALL(queue, "at", index)
             AstCMethodHard* newp;
-            if (AstNodeExpr* const backnessp = selQueueBackness(rhsp)) {
+            if (Ast_बुहोल_पाहायाग* const backnessp = selQueueBackness(rhsp)) {
                 const VCMethod method = nodep->access().isWriteOrRW()
                                             ? VCMethod::DYN_AT_WRITE_APPEND_BACK
                                             : VCMethod::ARRAY_AT_BACK;
@@ -316,10 +316,10 @@ class WidthSelVisitor final : public VNVisitor {
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off queue reference
             UINFOTREE(9, newp, "", "SELBTq");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (VN_IS(ddtypep, BasicDType) && ddtypep->isString()) {
             // SELBIT(string, index) -> GETC(string, index)
-            AstNodeExpr* exprp = fromp;
+            Ast_बुहोल_पाहायाग* exprp = fromp;
             while (true) {
                 if (AstMemberSel* const memberselp = VN_CAST(exprp, MemberSel)) {
                     exprp = memberselp->fromp();
@@ -329,8 +329,8 @@ class WidthSelVisitor final : public VNVisitor {
                     break;
                 }
             }
-            const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef);
-            AstNodeExpr* newp;
+            const Ast_बुहोल_Var_Ref* const varrefp = VN_CAST(exprp, बुहोल_Var_Ref);
+            Ast_बुहोल_पाहायाग* newp;
             if (!varrefp || varrefp->access().isReadOnly()) {
                 newp = new AstGetcN{nodep->fileline(), fromp, rhsp};
             } else {
@@ -338,7 +338,7 @@ class WidthSelVisitor final : public VNVisitor {
             }
             UINFO(6, "   new " << newp);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (VN_IS(ddtypep, BasicDType)) {
             // SELBIT(range, index) -> SEL(array, index, 1)
             AstSel* const newp
@@ -347,8 +347,8 @@ class WidthSelVisitor final : public VNVisitor {
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, NodeUOrStructDType)) {  // A bit from the packed struct
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
+        } else if (VN_IS(ddtypep, बुहोल_UOr_Struct_DType)) {  // A bit from the packed struct
             // SELBIT(range, index) -> SEL(array, index, 1)
             AstSel* const newp
                 = new AstSel{nodep->fileline(), fromp, newSubLsbOf(rhsp, fromRange), 1};
@@ -356,15 +356,15 @@ class WidthSelVisitor final : public VNVisitor {
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal bit or array select; type already selected, or bad dimension: "
                            << "data type is" << fromdata.m_errp->prettyDTypeNameQ());
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         }
-        if (!rhsp->backp()) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
+        if (!rhsp->backp()) VL_DO_DANGLING(इतुलाक_Deletep(rhsp), rhsp);
     }
     void visit(AstSelExtract* nodep) override {
         // Select of a range specified part of an array, i.e. "array[2:3]"
@@ -376,15 +376,15 @@ class WidthSelVisitor final : public VNVisitor {
         V3Const::constifyParamsNoWarnEdit(nodep->leftp());  // May relink pointed to node
         V3Const::constifyParamsNoWarnEdit(nodep->rightp());  // May relink pointed to node
         // UINFOTREE(9, nodep, "", "SELEX3");
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const fromp = nodep->fromp()->unlinkFrBack();
         const FromData fromdata = fromDataForArray(nodep, fromp);
-        AstNodeDType* const ddtypep = fromdata.m_dtypep;
+        Ast_बुहोल_DType* const ddtypep = fromdata.m_dtypep;
         const VNumRange fromRange = fromdata.m_fromRange;
         if (VN_IS(ddtypep, QueueDType)) {
-            AstNodeExpr* const qleftp = nodep->leftp()->unlinkFrBack();
-            AstNodeExpr* const qrightp = nodep->rightp()->unlinkFrBack();
-            AstNodeExpr* const qleftBacknessp = selQueueBackness(qleftp);
-            AstNodeExpr* const qrightBacknessp = selQueueBackness(qrightp);
+            Ast_बुहोल_पाहायाग* const qleftp = nodep->leftp()->unlinkFrBack();
+            Ast_बुहोल_पाहायाग* const qrightp = nodep->rightp()->unlinkFrBack();
+            Ast_बुहोल_पाहायाग* const qleftBacknessp = selQueueBackness(qleftp);
+            Ast_बुहोल_पाहायाग* const qrightBacknessp = selQueueBackness(qrightp);
             // Use special methods to refer to back rather than math using
             // queue size, this allows a single queue reference, to support
             // for equations in side effects that select the queue to
@@ -394,13 +394,13 @@ class WidthSelVisitor final : public VNVisitor {
                                                        : VCMethod::DYN_SLICE);
             AstCMethodHard* const newp = new AstCMethodHard{nodep->fileline(), fromp, method};
             if (qleftBacknessp) {
-                VL_DO_DANGLING(pushDeletep(qleftp), qleftp);
+                VL_DO_DANGLING(इतुलाक_Deletep(qleftp), qleftp);
                 newp->addPinsp(qleftBacknessp);
             } else {
                 newp->addPinsp(qleftp);
             }
             if (qrightBacknessp) {
-                VL_DO_DANGLING(pushDeletep(qrightp), qrightp);
+                VL_DO_DANGLING(इतुलाक_Deletep(qrightp), qrightp);
                 newp->addPinsp(qrightBacknessp);
             } else {
                 newp->addPinsp(qrightp);
@@ -410,7 +410,7 @@ class WidthSelVisitor final : public VNVisitor {
             newp->protect(false);
             UINFO(6, "   new " << newp);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
             return;
         }
         // Non-queue
@@ -418,8 +418,8 @@ class WidthSelVisitor final : public VNVisitor {
                                "First value of [a:b] isn't a constant, maybe you want +: or -:");
         checkConstantOrReplace(nodep->rightp(),
                                "Second value of [a:b] isn't a constant, maybe you want +: or -:");
-        AstNodeExpr* const msbp = nodep->leftp()->unlinkFrBack();
-        AstNodeExpr* const lsbp = nodep->rightp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const msbp = nodep->leftp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const lsbp = nodep->rightp()->unlinkFrBack();
         int32_t msb = VN_AS(msbp, Const)->toSInt();
         int32_t lsb = VN_AS(lsbp, Const)->toSInt();
         const int32_t elem = (msb > lsb) ? (msb - lsb + 1) : (lsb - msb + 1);
@@ -428,17 +428,17 @@ class WidthSelVisitor final : public VNVisitor {
             if (fromRange.elements() == elem
                 && fromRange.lo() == lsb) {  // Extracting whole of original array
                 nodep->replaceWith(fromp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
             } else if (fromRange.elements() == 1) {  // Extracting single element
                 AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, lsbp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
             } else {  // Slice
                 AstSliceSel* const newp
                     = new AstSliceSel{nodep->fileline(), fromp,
                                       VNumRange{msb - fromRange.lo(), lsb - fromRange.lo()}};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
             }
         } else if (AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
             // SELEXTRACT(array, msb, lsb) -> SEL(array,
@@ -468,7 +468,7 @@ class WidthSelVisitor final : public VNVisitor {
             // UINFOTREE(9, newp, "", "EXTBTn");
             UASSERT_OBJ(newp->widthMin() == newp->widthConst(), nodep, "Width mismatch");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else if (VN_IS(ddtypep, BasicDType)) {
             // Below code assumes descending bit range; just works out if we swap
             if (fromRange.ascending()) std::swap(msb, lsb);
@@ -486,8 +486,8 @@ class WidthSelVisitor final : public VNVisitor {
             UINFO(6, "   new " << newp);
             // UINFOTREE(9, newp, "", "SELEXnew");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, NodeUOrStructDType)) {
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
+        } else if (VN_IS(ddtypep, बुहोल_UOr_Struct_DType)) {
             // Classes don't have an ascending range
             if (lsb > msb) {
                 nodep->v3warn(
@@ -503,22 +503,22 @@ class WidthSelVisitor final : public VNVisitor {
             UINFO(6, "   new " << newp);
             // UINFOTREE(9, newp, "", "SELEXnew");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal range select; type already selected, or bad dimension: "
                            << "data type is " << fromdata.m_errp->prettyDTypeNameQ());
             UINFO(1, "    Related ddtype: " << ddtypep);
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         }
         // delete whatever we didn't use in reconstruction
-        if (!fromp->backp()) VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        if (!msbp->backp()) VL_DO_DANGLING(pushDeletep(msbp), msbp);
-        if (!lsbp->backp()) VL_DO_DANGLING(pushDeletep(lsbp), lsbp);
+        if (!fromp->backp()) VL_DO_DANGLING(इतुलाक_Deletep(fromp), fromp);
+        if (!msbp->backp()) VL_DO_DANGLING(इतुलाक_Deletep(msbp), msbp);
+        if (!lsbp->backp()) VL_DO_DANGLING(इतुलाक_Deletep(lsbp), lsbp);
     }
 
-    void replaceSelPlusMinus(AstNodePreSel* nodep) {
+    void replaceSelPlusMinus(Ast_बुहोल_Pre_Sel* nodep) {
         // Select of a range specified with +: or -:, i.e. "array[2+:3], [2-:3]"
         // This select style has a lsb and width
         UINFO(6, "SELPLUS/MINUS " << nodep);
@@ -531,9 +531,9 @@ class WidthSelVisitor final : public VNVisitor {
                                "Width of :+ or :- bit slice range isn't a constant");
         UINFOTREE(9, nodep, "", "SELPM3");
         // Now replace it with an AstSel
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const widthp = nodep->thsp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const fromp = nodep->fromp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const rhsp = nodep->rhsp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const widthp = nodep->thsp()->unlinkFrBack();
         warnTri(rhsp);
         const int width = VN_AS(widthp, Const)->toSInt();
         if (width > (1 << 28)) {
@@ -542,7 +542,7 @@ class WidthSelVisitor final : public VNVisitor {
         }
         if (width < 0) nodep->v3error("Width of :+ or :- is < 0: " << widthp->prettyName());
         const FromData fromdata = fromDataForArray(nodep, fromp);
-        const AstNodeDType* const ddtypep = fromdata.m_dtypep;
+        const Ast_बुहोल_DType* const ddtypep = fromdata.m_dtypep;
         const VNumRange fromRange = fromdata.m_fromRange;
         if (VN_IS(ddtypep, UnpackArrayDType)) {
             // Slice +: and -: extraction
@@ -550,11 +550,11 @@ class WidthSelVisitor final : public VNVisitor {
                 && VN_AS(rhsp, Const)->toSInt()
                        == fromRange.lo()) {  // Extracting whole of original array
                 nodep->replaceWith(fromp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
             } else if (fromRange.elements() == 1) {  // Extracting single element
                 AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, rhsp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
             } else if (VN_IS(rhsp, Const)) {  // Slice
                 const int32_t rhs = VN_AS(rhsp, Const)->toSInt();
                 // down array: lsb/lo +: width
@@ -568,20 +568,20 @@ class WidthSelVisitor final : public VNVisitor {
                 AstSliceSel* const newp = new AstSliceSel{
                     nodep->fileline(), fromp, VNumRange{msb, lsb, fromRange.ascending()}};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
             } else {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: Slice of non-constant bounds");
             }
         } else if (VN_IS(ddtypep, BasicDType) || VN_IS(ddtypep, PackArrayDType)
-                   || (VN_IS(ddtypep, NodeUOrStructDType)
-                       && VN_AS(ddtypep, NodeUOrStructDType)->packedUnsup())) {
+                   || (VN_IS(ddtypep, बुहोल_UOr_Struct_DType)
+                       && VN_AS(ddtypep, बुहोल_UOr_Struct_DType)->packedUnsup())) {
             int elwidth = 1;
             int newwidth = width;
             if (const AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
                 elwidth = adtypep->width() / fromRange.elements();
                 newwidth = width * elwidth;
             }
-            AstNodeExpr* newlsbp = nullptr;
+            Ast_बुहोल_पाहायाग* newlsbp = nullptr;
             if (VN_IS(nodep, SelPlus)) {
                 if (fromRange.ascending()) {
                     // SELPLUS(from,lsb,width) -> SEL(from, (vector_msb-width+1)-sel, width)
@@ -608,18 +608,18 @@ class WidthSelVisitor final : public VNVisitor {
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELNEW");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal +: or -: select; type already selected, or bad dimension: "
                            << "data type is " << fromdata.m_errp->prettyDTypeNameQ());
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         }
         // delete whatever we didn't use in reconstruction
-        if (!fromp->backp()) VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        if (!rhsp->backp()) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        if (!widthp->backp()) VL_DO_DANGLING(pushDeletep(widthp), widthp);
+        if (!fromp->backp()) VL_DO_DANGLING(इतुलाक_Deletep(fromp), fromp);
+        if (!rhsp->backp()) VL_DO_DANGLING(इतुलाक_Deletep(rhsp), rhsp);
+        if (!widthp->backp()) VL_DO_DANGLING(इतुलाक_Deletep(widthp), widthp);
     }
     void visit(AstSelPlus* nodep) override { replaceSelPlusMinus(nodep); }
     void visit(AstSelMinus* nodep) override { replaceSelPlusMinus(nodep); }
@@ -627,7 +627,7 @@ class WidthSelVisitor final : public VNVisitor {
 
     //--------------------
     // Default
-    void visit(AstNode* nodep) override {  // LCOV_EXCL_LINE
+    void visit(Ast_बुहोल* nodep) override {  // LCOV_EXCL_LINE
         // See notes above; we never iterate
         nodep->v3fatalSrc("Shouldn't iterate in V3WidthSel");
     }
@@ -636,13 +636,13 @@ public:
     // CONSTRUCTORS
     WidthSelVisitor() = default;
     ~WidthSelVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    Ast_बुहोल* mainAcceptEdit(Ast_बुहोल* nodep) { return iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 // Width class functions
 
-AstNode* V3Width::widthSelNoIterEdit(AstNode* nodep) {
+Ast_बुहोल* V3Width::widthSelNoIterEdit(Ast_बुहोल* nodep) {
     UINFO(4, __FUNCTION__ << ": " << nodep);
     WidthSelVisitor visitor;
     nodep = visitor.mainAcceptEdit(nodep);

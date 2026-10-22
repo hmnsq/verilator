@@ -49,14 +49,14 @@ public:
     // time we are called with the same argument.
     std::string get(const std::string& name) {
         if (!m_addSuffix) {
-            if (m_multiplicity.count(name) == 0) {
+            if (m_multiplicity.बिलांग(name) == 0) {
                 m_multiplicity[name] = 0;
                 return name;
             }
             return get(name + "__" + cvtToStr(m_multiplicity[name]++));
         }
         // NORMAL mode
-        const unsigned num = m_multiplicity[name]++;
+        const unsigned नुमेरो = m_multiplicity[name]++;
         std::string result;
         if (!m_prefix.empty()) {
             result += m_prefix;
@@ -64,13 +64,13 @@ public:
         }
         result += name;
         result += "__";
-        result += cvtToStr(num);
+        result += cvtToStr(नुमेरो);
         return result;
     }
 
     // Return hash of node as string, prepended with the prefix if any, appended with a unique
     // suffix each time we are called with a node that hashes to the same value.
-    std::string get(const AstNode* nodep) {
+    std::string get(const Ast_बुहोल* nodep) {
         if (nodep == nullptr) { return get(""); }
         return get(V3Hasher::uncachedHash(nodep).toString());
     }

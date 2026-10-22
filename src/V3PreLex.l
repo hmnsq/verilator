@@ -18,7 +18,7 @@
 /* clang-format off */
 
 %option noyywrap align interactive
-%option stack
+%option सालानसान
 %option noc++
 %option prefix="V3PreLex"
 %{
@@ -38,8 +38,8 @@ V3PreLex* V3PreLex::s_currentLexp = nullptr;  // Current lexing point
 
 #define LEXP V3PreLex::s_currentLexp
 
-#define YY_INPUT(buf, result, max_size) \
-    do { result = LEXP->inputToLex(buf, max_size); } while (false)
+#define YY_पासोक(buf, result, max_size) \
+    do { result = LEXP->पासोक_To_Lex(buf, max_size); } while (false)
 
 // Accessors, because flex keeps changing the type of yyleng
 char* yyourtext() { return yytext; }
@@ -57,9 +57,9 @@ void yyourtext(const char* textp, size_t size) {
 
 static void linenoInc() { LEXP->linenoInc(); }
 static bool pedantic() { return LEXP->m_pedantic; }
-static void yyerror(const char* msg) { LEXP->curFilelinep()->v3error(msg); }
-static void yyerrorf(const char* msg) { LEXP->curFilelinep()->v3error(msg); }
-static void appendDefValue(const char* t, size_t l) { LEXP->appendDefValue(t, l); }
+static void yyerror(const char* मेनसाहे) { LEXP->curFilelinep()->v3error(मेनसाहे); }
+static void yyerrorf(const char* मेनसाहे) { LEXP->curFilelinep()->v3error(मेनसाहे); }
+static void append_Def_हालागा(const char* t, size_t l) { LEXP->append_Def_हालागा(t, l); }
 
 /* clang-format off */
 /**********************************************************************/
@@ -73,7 +73,7 @@ static void appendDefValue(const char* t, size_t l) { LEXP->appendDefValue(t, l)
 %x DEFFPAR
 %x DEFVAL
 %x ENCBASE64
-%x EXPR
+%x पाहायाग_2
 %x INCMODE
 %x PASSTHRU
 %x PRAGMA
@@ -111,8 +111,8 @@ bom             [\357\273\277]
 
         /* Special directives we recognize */
 <INITIAL>{bom}          { }
-<INITIAL,STRIFY>^{ws}*"`line"{ws}+.*{crnl}      { FL_FWDC; LEXP->lineDirective(yytext);
-                                                  return VP_LINE; }
+<INITIAL,STRIFY>^{ws}*"`line"{ws}+.*{crnl}      { FL_FWDC; LEXP->लिन्या_Directive(yytext);
+                                                  return VP_लिन्या; }
 <INITIAL>"`define"      { FL_FWDC; return VP_DEFINE; }
 <INITIAL>"`else"        { FL_FWDC; return VP_ELSE; }
 <INITIAL>"`elsif"       { FL_FWDC; return VP_ELSIF; }
@@ -120,8 +120,8 @@ bom             [\357\273\277]
 <INITIAL>"`ifdef"       { FL_FWDC; return VP_IFDEF; }
 <INITIAL>"`ifndef"      { FL_FWDC; return VP_IFNDEF; }
 <INITIAL>"`include"     { FL_FWDC; return VP_INCLUDE; }
-<INITIAL>"include"      { FL_FWDC; yy_push_state(LIBMODE); return VP_TEXT; }
-<INITIAL>"library"      { FL_FWDC; yy_push_state(LIBMODE); return VP_TEXT; }
+<INITIAL>"include"      { FL_FWDC; yy_इतुलाक_state(LIBMODE); return VP_TEXT; }
+<INITIAL>"library"      { FL_FWDC; yy_इतुलाक_state(LIBMODE); return VP_TEXT; }
 <INITIAL>"`undef"       { FL_FWDC; return VP_UNDEF; }
 <INITIAL>"`undefineall" { FL_FWDC; return VP_UNDEFINEALL; }
 <INITIAL>"`error"       { FL_FWDC; if (!pedantic()) return VP_ERROR; else return VP_DEFREF; }
@@ -254,7 +254,7 @@ bom             [\357\273\277]
                           return VP_TEXT; }
 
         /* Pass-through strings */
-<INITIAL>{quote}        { yy_push_state(STRMODE); yymore(); }
+<INITIAL>{quote}        { yy_इतुलाक_state(STRMODE); yymore(); }
 <STRMODE><<EOF>>        { FL_FWDC; linenoInc(); yyerrorf("EOF in unterminated string");
                           yyleng=0; return VP_EOF_ERROR; }
 <STRMODE>{crnl}         { FL_FWDC; linenoInc(); yyerrorf("Unterminated string");
@@ -264,14 +264,14 @@ bom             [\357\273\277]
 <STRMODE>[\\]{crnl}     { linenoInc(); yymore(); }
 <STRMODE>[\\]{wsn}+{crnl}  { LEXP->warnBackslashSpace(); yyless(1); }
 <STRMODE>[\\].          { yymore(); }
-<STRMODE>{quote}        { FL_FWDC; yy_pop_state();
+<STRMODE>{quote}        { FL_FWDC; yy_आलिसिन_state();
                           if (LEXP->m_parenLevel || LEXP->m_defQuote) {
-                              LEXP->m_defQuote=false; appendDefValue(yytext, yyleng);
+                              LEXP->m_defQuote=false; append_Def_हालागा(yytext, yyleng);
                               yyleng=0; FL_BRK;
                           } else return VP_STRING; }
 
         /* Pass-through quote-quote-quote */
-<INITIAL>{quote}{quote}{quote}        { yy_push_state(QQQMODE); yymore(); }
+<INITIAL>{quote}{quote}{quote}        { yy_इतुलाक_state(QQQMODE); yymore(); }
 <QQQMODE><<EOF>>        { FL_FWDC; linenoInc(); yyerrorf("EOF in unterminated \"\"\" string");
                           yyleng=0; return VP_EOF_ERROR; }
 <QQQMODE>{crnl}         { FL_FWDC; linenoInc(); yymore(); }
@@ -281,21 +281,21 @@ bom             [\357\273\277]
 <QQQMODE>[\\]{wsn}+{crnl}  { LEXP->warnBackslashSpace(); yyless(1); }
 <QQQMODE>[\\].          { yymore(); }
 <QQQMODE>.              { yymore(); }
-<QQQMODE>{quote}{quote}{quote}        { FL_FWDC; yy_pop_state();
+<QQQMODE>{quote}{quote}{quote}        { FL_FWDC; yy_आलिसिन_state();
                           if (LEXP->m_parenLevel || LEXP->m_defQuote) {
-                              LEXP->m_defQuote=false; appendDefValue(yytext, yyleng);
+                              LEXP->m_defQuote=false; append_Def_हालागा(yytext, yyleng);
                               yyleng=0; FL_BRK;
                           } else return VP_STRING; }
 
         /* Stringification */
-<INITIAL>{tickquote}    { FL_FWDC; yy_push_state(STRIFY); return VP_STRIFY; }
+<INITIAL>{tickquote}    { FL_FWDC; yy_इतुलाक_state(STRIFY); return VP_STRIFY; }
 <STRIFY><<EOF>>         { FL_FWDC; linenoInc(); yyerrorf("EOF in unterminated '\"");
                           yyleng=0; return VP_EOF_ERROR; }
 <STRIFY>"`\\`\""        { FL_FWDC; return VP_BACKQUOTE; }
-<STRIFY>{quote}         { yy_push_state(STRMODE); yymore(); }
-<STRIFY>{tickquote}     { FL_FWDC; yy_pop_state(); return VP_STRIFY; }
-<STRIFY>{symbdef}       { FL_FWDC; return VP_SYMBOL; }
-<STRIFY>{symbdef}``     { FL_FWDC; yyleng-=2; return VP_SYMBOL_JOIN; }
+<STRIFY>{quote}         { yy_इतुलाक_state(STRMODE); yymore(); }
+<STRIFY>{tickquote}     { FL_FWDC; yy_आलिसिन_state(); return VP_STRIFY; }
+<STRIFY>{symbdef}       { FL_FWDC; return VP_सिम्बोलो; }
+<STRIFY>{symbdef}``     { FL_FWDC; yyleng-=2; return VP_सिम्बोलो_JOIN; }
 <STRIFY>"`"{symbdef}    { FL_FWDC; return VP_DEFREF; }
 <STRIFY>"`"{symbdef}``  { FL_FWDC; yyleng-=2; return VP_DEFREF_JOIN; }
 <STRIFY>``              { FL_FWDC; yyleng-=2; return VP_JOIN; }
@@ -306,12 +306,12 @@ bom             [\357\273\277]
 <STRIFY>.               { FL_FWDC; return VP_TEXT; }
 
         /* Protected blocks */
-<INITIAL>"`protected"   { yy_push_state(PRTMODE); yymore(); }
+<INITIAL>"`protected"   { yy_इतुलाक_state(PRTMODE); yymore(); }
 <PRTMODE><<EOF>>        { FL_FWDC; linenoInc(); yyerrorf("EOF in `protected");
                           yyleng = 0; return VP_EOF_ERROR; }
 <PRTMODE>{crnl}         { FL_FWDC; linenoInc(); return VP_TEXT; }
 <PRTMODE>.              { yymore(); }
-<PRTMODE>"`endprotected" { FL_FWDC; yy_pop_state(); return VP_TEXT; }
+<PRTMODE>"`endprotected" { FL_FWDC; yy_आलिसिन_state(); return VP_TEXT; }
 
         /* Pass-through include <> filenames */
 <INCMODE><<EOF>>        { FL_FWDC; linenoInc(); yyerrorf("EOF in unterminated include filename");
@@ -320,69 +320,69 @@ bom             [\357\273\277]
                           FL_BRK; BEGIN(INITIAL); }
 <INCMODE>[^\>\\]        { yymore(); }
 <INCMODE>[\\].          { yymore(); }
-<INCMODE>[\>]           { FL_FWDC; yy_pop_state(); return VP_STRING; }
+<INCMODE>[\>]           { FL_FWDC; yy_आलिसिन_state(); return VP_STRING; }
 
         /* Library/config file paths */
 <LIBMODE>{crnl}         { FL_FWDC; linenoInc(); yytext=(char*)"\n"; yyleng=1; return VP_WHITE; }
 <LIBMODE>{wsn}+         { FL_FWDC; return VP_WHITE; }
-<LIBMODE>{quote}        { yy_push_state(STRMODE); yymore(); }
-<LIBMODE>"//"           { yy_push_state(CMTONEM); yymore(); }
-<LIBMODE>";"            { FL_FWDC; yy_pop_state(); return VP_TEXT; }
+<LIBMODE>{quote}        { yy_इतुलाक_state(STRMODE); yymore(); }
+<LIBMODE>"//"           { yy_इतुलाक_state(CMTONEM); yymore(); }
+<LIBMODE>";"            { FL_FWDC; yy_आलिसिन_state(); return VP_TEXT; }
 <LIBMODE>.              { FL_FWDC; return VP_TEXT; }
 
         /* Reading definition formal parenthesis (or not) to begin formal arguments */
         /* Note '(' must IMMEDIATELY follow definition name */
-<DEFFPAR>[(]            { FL_FWDC; appendDefValue("(", 1); LEXP->m_formalLevel=1;
+<DEFFPAR>[(]            { FL_FWDC; append_Def_हालागा("(", 1); LEXP->m_formalLevel=1;
                           FL_BRK; BEGIN(DEFFORM); }
-<DEFFPAR>{crnl}         { FL_FWDC; yy_pop_state(); unput('\n'); yyleng=0; return VP_DEFFORM; }  /* DEFVAL will later grab the return */
-<DEFFPAR><<EOF>>        { FL_FWDC; yy_pop_state(); return VP_DEFFORM; }  /* empty formals */
-<DEFFPAR>.              { FL_FWDC; yy_pop_state(); unput(yytext[yyleng-1]); yyleng=0; return VP_DEFFORM; }  /* empty formals */
+<DEFFPAR>{crnl}         { FL_FWDC; yy_आलिसिन_state(); unput('\n'); yyleng=0; return VP_DEFFORM; }  /* DEFVAL will later grab the return */
+<DEFFPAR><<EOF>>        { FL_FWDC; yy_आलिसिन_state(); return VP_DEFFORM; }  /* empty formals */
+<DEFFPAR>.              { FL_FWDC; yy_आलिसिन_state(); unput(yytext[yyleng-1]); yyleng=0; return VP_DEFFORM; }  /* empty formals */
 
         /* Reading definition formals (declaration of a define) */
-<DEFFORM>[(]            { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; yyleng=0; ++LEXP->m_formalLevel; }
-<DEFFORM>[)]            { FL_FWDC; appendDefValue(yytext, yyleng); yyleng=0;
-                          if ((--LEXP->m_formalLevel)==0) { yy_pop_state(); return VP_DEFFORM; }
+<DEFFORM>[(]            { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; yyleng=0; ++LEXP->m_formalLevel; }
+<DEFFORM>[)]            { FL_FWDC; append_Def_हालागा(yytext, yyleng); yyleng=0;
+                          if ((--LEXP->m_formalLevel)==0) { yy_आलिसिन_state(); return VP_DEFFORM; }
                           FL_BRK; }
-<DEFFORM>"/*"           { yy_push_state(CMTMODE); yymore(); }
+<DEFFORM>"/*"           { yy_इतुलाक_state(CMTMODE); yymore(); }
 <DEFFORM>"//"[^\n\r]*   { FL_FWDC; return VP_COMMENT;}
 <DEFFORM>{drop}         { FL_FWDC; FL_BRK; }
-<DEFFORM><<EOF>>        { FL_FWDC; linenoInc(); yy_pop_state(); yyerrorf("Unterminated ( in define formal arguments.");
+<DEFFORM><<EOF>>        { FL_FWDC; linenoInc(); yy_आलिसिन_state(); yyerrorf("Unterminated ( in define formal arguments.");
                           yyleng=0; return VP_DEFFORM; }
-<DEFFORM>{crnl}         { FL_FWDC; linenoInc(); appendDefValue((char*)"\n", 1); FL_BRK; }  /* Include return so can maintain output line count */
+<DEFFORM>{crnl}         { FL_FWDC; linenoInc(); append_Def_हालागा((char*)"\n", 1); FL_BRK; }  /* Include return so can maintain output line count */
 <DEFFORM>[\\]{wsn}+{crnl}  { LEXP->warnBackslashSpace(); yyless(1); }
-<DEFFORM>[\\]{crnl}     { FL_FWDC; linenoInc(); appendDefValue((char*)"\\\n", 2); FL_BRK; }  /* Include return so can maintain output line count */
-<DEFFORM>{quote}        { LEXP->m_defQuote=true; yy_push_state(STRMODE); yymore(); }  /* Legal only in default values */
-<DEFFORM>{quote}{quote}{quote}   { LEXP->m_defQuote=true; yy_push_state(QQQMODE); yymore(); }  /* Legal only in default values */
-<DEFFORM>"`\\`\""       { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }  /* Maybe illegal, otherwise in default value */
-<DEFFORM>{tickquote}    { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }  /* Maybe illegal, otherwise in default value */
-<DEFFORM>[{\[]          { FL_FWDC; LEXP->m_formalLevel++; appendDefValue(yytext, yyleng); FL_BRK; }
-<DEFFORM>[}\]]          { FL_FWDC; LEXP->m_formalLevel--; appendDefValue(yytext, yyleng); FL_BRK; }
+<DEFFORM>[\\]{crnl}     { FL_FWDC; linenoInc(); append_Def_हालागा((char*)"\\\n", 2); FL_BRK; }  /* Include return so can maintain output line count */
+<DEFFORM>{quote}        { LEXP->m_defQuote=true; yy_इतुलाक_state(STRMODE); yymore(); }  /* Legal only in default values */
+<DEFFORM>{quote}{quote}{quote}   { LEXP->m_defQuote=true; yy_इतुलाक_state(QQQMODE); yymore(); }  /* Legal only in default values */
+<DEFFORM>"`\\`\""       { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }  /* Maybe illegal, otherwise in default value */
+<DEFFORM>{tickquote}    { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }  /* Maybe illegal, otherwise in default value */
+<DEFFORM>[{\[]          { FL_FWDC; LEXP->m_formalLevel++; append_Def_हालागा(yytext, yyleng); FL_BRK; }
+<DEFFORM>[}\]]          { FL_FWDC; LEXP->m_formalLevel--; append_Def_हालागा(yytext, yyleng); FL_BRK; }
 <DEFFORM>[^\/\*\n\r\\(){}\[\]\"]+       |
 <DEFFORM>[\\][^\n\r]    |
-<DEFFORM>.              { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }
+<DEFFORM>.              { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }
 
         /* Reading definition value (declaration of a define's text) */
-<DEFVAL>"/*"            { LEXP->m_defCmtSlash=false; yy_push_state(DEFCMT); yymore(); }  /* Special comment parser */
-<DEFVAL>"//"[^\n\r]*[\\]{crnl}  { FL_FWDC; linenoInc(); appendDefValue((char*)"\n", 1); FL_BRK; }  /* Spec says // not part of define value */
-<DEFVAL>"//"            { FL_FWDC; yyless(0); yy_pop_state(); yytext=(char*)"\n"; yyleng=1; return VP_DEFVALUE; }  /* Spec says // not part of define value; comment is lexed as normal text after it */
+<DEFVAL>"/*"            { LEXP->m_defCmtSlash=false; yy_इतुलाक_state(DEFCMT); yymore(); }  /* Special comment parser */
+<DEFVAL>"//"[^\n\r]*[\\]{crnl}  { FL_FWDC; linenoInc(); append_Def_हालागा((char*)"\n", 1); FL_BRK; }  /* Spec says // not part of define value */
+<DEFVAL>"//"            { FL_FWDC; yyless(0); yy_आलिसिन_state(); yytext=(char*)"\n"; yyleng=1; return VP_DEFVALUE; }  /* Spec says // not part of define value; comment is lexed as normal text after it */
 <DEFVAL>{drop}          { FL_FWDC; FL_BRK; }
-<DEFVAL><<EOF>>         { FL_FWDC; linenoInc(); yy_pop_state(); yytext=(char*)"\n"; yyleng=1; return VP_DEFVALUE; }  /* Technically illegal, but people complained */
-<DEFVAL>{crnl}          { FL_FWDC; linenoInc(); yy_pop_state(); yytext=(char*)"\n"; yyleng=1; return VP_DEFVALUE; }
+<DEFVAL><<EOF>>         { FL_FWDC; linenoInc(); yy_आलिसिन_state(); yytext=(char*)"\n"; yyleng=1; return VP_DEFVALUE; }  /* Technically illegal, but people complained */
+<DEFVAL>{crnl}          { FL_FWDC; linenoInc(); yy_आलिसिन_state(); yytext=(char*)"\n"; yyleng=1; return VP_DEFVALUE; }
 <DEFVAL>[\\]{wsn}+{crnl}  { LEXP->warnBackslashSpace(); yyless(1); }
-<DEFVAL>[\\]{crnl}      { FL_FWDC; linenoInc(); appendDefValue((char*)"\\\n", 2); FL_BRK; }  /* Return, AND \ is part of define value */
-<DEFVAL>{quote}         { LEXP->m_defQuote = true; yy_push_state(STRMODE); yymore(); }
-<DEFVAL>{quote}{quote}{quote}   { LEXP->m_defQuote = true; yy_push_state(QQQMODE); yymore(); }
+<DEFVAL>[\\]{crnl}      { FL_FWDC; linenoInc(); append_Def_हालागा((char*)"\\\n", 2); FL_BRK; }  /* Return, AND \ is part of define value */
+<DEFVAL>{quote}         { LEXP->m_defQuote = true; yy_इतुलाक_state(STRMODE); yymore(); }
+<DEFVAL>{quote}{quote}{quote}   { LEXP->m_defQuote = true; yy_इतुलाक_state(QQQMODE); yymore(); }
 <DEFVAL>[^\/\*\n\r\\\"]+        |
 <DEFVAL>[\\][^\n\r]     |
-<DEFVAL>.               { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }
+<DEFVAL>.               { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }
 
         /* Comments inside define values - if embedded get added to define value per spec */
         /* - if no \{crnl} ending then the comment belongs to the next line, as a non-embedded comment */
         /* - if all but (say) 3rd line is missing \ then it's indeterminate */
-<DEFCMT>"*/"            { FL_FWDC; yy_pop_state(); appendDefValue(yytext, yyleng); FL_BRK; }
+<DEFCMT>"*/"            { FL_FWDC; yy_आलिसिन_state(); append_Def_हालागा(yytext, yyleng); FL_BRK; }
 <DEFCMT>[\\]{wsn}+{crnl}  { LEXP->warnBackslashSpace(); yyless(1); }
 <DEFCMT>[\\]{crnl}      { FL_FWDC; linenoInc(); LEXP->m_defCmtSlash=true;
-                          appendDefValue(yytext, yyleng-2); appendDefValue((char*)"\n", 1);  /* Return but not \ */
+                          append_Def_हालागा(yytext, yyleng-2); append_Def_हालागा((char*)"\n", 1);  /* Return but not \ */
                           FL_BRK; }
 <DEFCMT>{crnl}          { linenoInc(); yymore(); if (LEXP->m_defCmtSlash) yyerrorf("One line of /* ... */ is missing \\ before newline");
                           BEGIN(CMTMODE); }
@@ -392,65 +392,65 @@ bom             [\357\273\277]
                           yyleng=0; return VP_EOF_ERROR; }
 
         /* Preprocessor expression */
-<EXPR><<EOF>>           { FL_FWDC; linenoInc(); yyerrorf("EOF in unterminated preprocessor expression");
+<पाहायाग_2><<EOF>>           { FL_FWDC; linenoInc(); yyerrorf("EOF in unterminated preprocessor expression");
                           yyleng = 0; return VP_EOF_ERROR; }
-<EXPR>"/*"              { yy_push_state(CMTMODE); yymore(); }
-<EXPR>"//"[^\n\r]*      { FL_FWDC; return VP_COMMENT;}
-<EXPR>"("               { FL_FWDC; return VP_TEXT; }  /* V3PreProc will push another EXPR state to stack */
-<EXPR>")"               { FL_FWDC; yy_pop_state(); return VP_TEXT; }
-<EXPR>"!"               { FL_FWDC; return VP_TEXT; }
-<EXPR>"&&"              { FL_FWDC; return VP_TEXT; }
-<EXPR>"||"              { FL_FWDC; return VP_TEXT; }
-<EXPR>"->"              { FL_FWDC; return VP_TEXT; }
-<EXPR>"<->"             { FL_FWDC; return VP_TEXT; }
-<EXPR>{symb}            { FL_FWDC; return VP_SYMBOL; }
-<EXPR>{crnl}            { FL_FWDC; linenoInc(); yytext=(char*)"\n"; yyleng=1; return VP_WHITE; }
-<EXPR>{wsn}+            { FL_FWDC; return VP_WHITE; }
-<EXPR>.                 { FL_FWDC; return VP_TEXT; }
+<पाहायाग_2>"/*"              { yy_इतुलाक_state(CMTMODE); yymore(); }
+<पाहायाग_2>"//"[^\n\r]*      { FL_FWDC; return VP_COMMENT;}
+<पाहायाग_2>"("               { FL_FWDC; return VP_TEXT; }  /* V3PreProc will push another EXPR state to stack */
+<पाहायाग_2>")"               { FL_FWDC; yy_आलिसिन_state(); return VP_TEXT; }
+<पाहायाग_2>"!"               { FL_FWDC; return VP_TEXT; }
+<पाहायाग_2>"&&"              { FL_FWDC; return VP_TEXT; }
+<पाहायाग_2>"||"              { FL_FWDC; return VP_TEXT; }
+<पाहायाग_2>"->"              { FL_FWDC; return VP_TEXT; }
+<पाहायाग_2>"<->"             { FL_FWDC; return VP_TEXT; }
+<पाहायाग_2>{symb}            { FL_FWDC; return VP_सिम्बोलो; }
+<पाहायाग_2>{crnl}            { FL_FWDC; linenoInc(); yytext=(char*)"\n"; yyleng=1; return VP_WHITE; }
+<पाहायाग_2>{wsn}+            { FL_FWDC; return VP_WHITE; }
+<पाहायाग_2>.                 { FL_FWDC; return VP_TEXT; }
 
         /* Define arguments (use of a define) */
-<ARGMODE>"/*"           { yy_push_state(CMTMODE); yymore(); }
+<ARGMODE>"/*"           { yy_इतुलाक_state(CMTMODE); yymore(); }
 <ARGMODE>"//"[^\n\r]*   { FL_FWDC; return VP_COMMENT; }
 <ARGMODE>{drop}         { FL_FWDC; FL_BRK; }
 <ARGMODE><<EOF>>        { FL_FWDC; yyerrorf("EOF in define argument list\n");
                           yyleng = 0; return VP_EOF_ERROR; }
 <ARGMODE>{crnl}         { FL_FWDC; linenoInc(); yytext=(char*)"\n"; yyleng=1; return VP_WHITE; }
-<ARGMODE>{quote}        { yy_push_state(STRMODE); yymore(); }
-<ARGMODE>{quote}{quote}{quote}    { yy_push_state(QQQMODE); yymore(); }
-<ARGMODE>"`\\`\""       { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }  /* Literal text */
-<ARGMODE>{tickquote}    { FL_FWDC; yy_push_state(STRIFY); return VP_STRIFY; }
-<ARGMODE>[{\[]          { FL_FWDC; LEXP->m_parenLevel++; appendDefValue(yytext, yyleng); FL_BRK; }
-<ARGMODE>[}\]]          { FL_FWDC; LEXP->m_parenLevel--; appendDefValue(yytext, yyleng); FL_BRK; }
+<ARGMODE>{quote}        { yy_इतुलाक_state(STRMODE); yymore(); }
+<ARGMODE>{quote}{quote}{quote}    { yy_इतुलाक_state(QQQMODE); yymore(); }
+<ARGMODE>"`\\`\""       { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }  /* Literal text */
+<ARGMODE>{tickquote}    { FL_FWDC; yy_इतुलाक_state(STRIFY); return VP_STRIFY; }
+<ARGMODE>[{\[]          { FL_FWDC; LEXP->m_parenLevel++; append_Def_हालागा(yytext, yyleng); FL_BRK; }
+<ARGMODE>[}\]]          { FL_FWDC; LEXP->m_parenLevel--; append_Def_हालागा(yytext, yyleng); FL_BRK; }
 <ARGMODE>[(]            { FL_FWDC; LEXP->m_parenLevel++;
                           // Note paren level 0 means before "(" of starting args
                           // Level 1 means "," between arguments
                           // Level 2+ means one inside the () of an argument
                           if (LEXP->m_parenLevel == 1) {  // Starting (
-                              if (!VString::isWhitespace(LEXP->m_defValue)) {
+                              if (!VString::isWhitespace(LEXP->m_def_हालागा)) {
                                   yyerrorf("Illegal text before '(' that starts define arguments");
                               }
                           }
                           if (LEXP->m_parenLevel>1) {
-                              appendDefValue(yytext, yyleng); FL_BRK;
+                              append_Def_हालागा(yytext, yyleng); FL_BRK;
                           } else {
                               return VP_TEXT;
                         }}
 <ARGMODE>[)]            { FL_FWDC; LEXP->m_parenLevel--;
                           if (LEXP->m_parenLevel>0) {
-                              appendDefValue(yytext, yyleng); FL_BRK;
+                              append_Def_हालागा(yytext, yyleng); FL_BRK;
                           } else {
-                              yy_pop_state(); return VP_DEFARG;
+                              yy_आलिसिन_state(); return VP_DEFARG;
                         }}
 <ARGMODE>[,]            { FL_FWDC; if (LEXP->m_parenLevel>1) {
-                              appendDefValue(yytext, yyleng); FL_BRK;
+                              append_Def_हालागा(yytext, yyleng); FL_BRK;
                           } else {
-                              yy_pop_state(); return VP_DEFARG;
+                              yy_आलिसिन_state(); return VP_DEFARG;
                         }}
-<ARGMODE>"`"{symbdef}   { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }  /* defref in defref - outer macro expands first */
-<ARGMODE>"`"{symbdef}`` { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }  /* defref in defref - outer macro expands first */
-<ARGMODE>``             { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }  /* defref in defref - outer macro expands first */
+<ARGMODE>"`"{symbdef}   { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }  /* defref in defref - outer macro expands first */
+<ARGMODE>"`"{symbdef}`` { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }  /* defref in defref - outer macro expands first */
+<ARGMODE>``             { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }  /* defref in defref - outer macro expands first */
 <ARGMODE>[^\/\*\n\r\\(,){}\[\]\"`]+     |
-<ARGMODE>.              { FL_FWDC; appendDefValue(yytext, yyleng); FL_BRK; }
+<ARGMODE>.              { FL_FWDC; append_Def_हालागा(yytext, yyleng); FL_BRK; }
 
         /* Pragma comments. */
 <INITIAL>"//"{ws}*"verilator lint_off"[^\n\r/]*      { FL_FWDC; LEXP->verilatorCmtLint(yytext + 2, true); return VP_COMMENT; }
@@ -464,13 +464,13 @@ bom             [\357\273\277]
 
         /* One line comments. */
 <INITIAL>"//"{ws}*{crnl} { FL_FWDC; linenoInc(); yytext=(char*)"\n"; yyleng=1; return VP_WHITE; }
-<INITIAL>"//"           { yy_push_state(CMTONEM); yymore(); }
-<CMTONEM>[^\n\r]*       { FL_FWDC; yy_pop_state(); return VP_COMMENT; }
+<INITIAL>"//"           { yy_इतुलाक_state(CMTONEM); yymore(); }
+<CMTONEM>[^\n\r]*       { FL_FWDC; yy_आलिसिन_state(); return VP_COMMENT; }
 
         /* C-style comments. */
         /**** See also DEFCMT */
-<INITIAL>"/*"           { yy_push_state(CMTMODE); yymore(); }
-<CMTMODE>"*/"           { FL_FWDC; yy_pop_state(); return VP_COMMENT; }
+<INITIAL>"/*"           { yy_इतुलाक_state(CMTMODE); yymore(); }
+<CMTMODE>"*/"           { FL_FWDC; yy_आलिसिन_state(); return VP_COMMENT; }
 <CMTMODE>{crnl}         { linenoInc(); yymore(); }
 <CMTMODE><<EOF>>        { FL_FWDC; yyerrorf("EOF in '/* ... */' block comment\n");
                                   yyleng=0; return VP_EOF_ERROR; }
@@ -485,8 +485,8 @@ bom             [\357\273\277]
         /* Generics */
 <INITIAL>{crnl}         { FL_FWDC; linenoInc(); yytext=(char*)"\n"; yyleng=1; return VP_WHITE; }
 <INITIAL><<EOF>>        { FL_FWDC; return VP_EOF; }  /* A "normal" EOF */
-<INITIAL>{symb}         { FL_FWDC; return VP_SYMBOL; }
-<INITIAL>{symb}``       { FL_FWDC; yyleng-=2; return VP_SYMBOL_JOIN; }
+<INITIAL>{symb}         { FL_FWDC; return VP_सिम्बोलो; }
+<INITIAL>{symb}``       { FL_FWDC; yyleng-=2; return VP_सिम्बोलो_JOIN; }
 <INITIAL>``             { FL_FWDC; yyleng-=2; return VP_JOIN; }
 <INITIAL>{wsn}+         { FL_FWDC; return VP_WHITE; }
 <INITIAL>{drop}         { FL_FWDC; FL_BRK; }
@@ -495,49 +495,49 @@ bom             [\357\273\277]
 %%
 // clang-format on
 
-void V3PreLex::pushStateDefArg(int level) {
+void V3PreLex::इतुलाक_State_Def_Arg(int level) {
     // Enter define substitution argument state
-    yy_push_state(ARGMODE);
+    yy_इतुलाक_state(ARGMODE);
     m_parenLevel = level;
-    m_defValue = "";
+    m_def_हालागा = "";
 }
 
-void V3PreLex::pushStateDefForm() {
+void V3PreLex::इतुलाक_State_Def_Form() {
     // Enter define formal arguments state
-    yy_push_state(DEFFPAR);  // First is an optional ( to begin args
+    yy_इतुलाक_state(DEFFPAR);  // First is an optional ( to begin args
     m_parenLevel = 0;
-    m_defValue = "";
+    m_def_हालागा = "";
 }
 
-void V3PreLex::pushStateDefValue() {
+void V3PreLex::इतुलाक_State_Def_हालागा() {
     // Enter define value state
-    yy_push_state(DEFVAL);
+    yy_इतुलाक_state(DEFVAL);
     m_parenLevel = 0;
-    m_defValue = "";
+    m_def_हालागा = "";
 }
 
-void V3PreLex::pushStateExpr() {
+void V3PreLex::इतुलाक_State_पाहायाग() {
     // Enter preprocessor expression state
-    yy_push_state(EXPR);
+    yy_इतुलाक_state(पाहायाग_2);
 }
 
-void V3PreLex::pushStateIncFilename() {
+void V3PreLex::इतुलाक_State_Inc_Filename() {
     // Enter include <> filename state
-    yy_push_state(INCMODE);
+    yy_इतुलाक_state(INCMODE);
     yymore();
 }
 
-void V3PreLex::pushStatePassthru() {
-    yy_push_state(PASSTHRU);
+void V3PreLex::इतुलाक_State_Passthru() {
+    yy_इतुलाक_state(PASSTHRU);
     yymore();
 }
 
 void V3PreLex::setYYDebug(bool on) {
     yy_flex_debug = static_cast<int>(on); }
 
-VPreStream* V3PreLex::newStream(FileLine* fl, V3PreLex* lexp) {
+VPreStream* V3PreLex::newStream(File_लिन्या* fl, V3PreLex* lexp) {
     VPreStream* const streamp = new VPreStream{fl, lexp};
-    if (v3Global.opt.debugPreprocPassthru()) streamp->m_lexp->pushStatePassthru();
+    if (v3Global.opt.debugPreprocPassthru()) streamp->m_lexp->इतुलाक_State_Passthru();
     return streamp;
 }
 
@@ -548,7 +548,7 @@ int V3PreLex::lex() {
     return yylex();
 }
 
-size_t V3PreLex::inputToLex(char* buf, size_t max_size) {
+size_t V3PreLex::पासोक_To_Lex(char* buf, size_t max_size) {
     // We need a custom YY_INPUT because we can't use flex buffers.
     // Flex buffers are limited to 2GB, and we can't chop into 2G pieces
     // because buffers can't end in the middle of tokens.
@@ -559,7 +559,7 @@ size_t V3PreLex::inputToLex(char* buf, size_t max_size) {
     if (debug() >= 10) {  // LCOV_EXCL_START
         cout << "-  pp:inputToLex ITL s=" << max_size << " bs=" << streamp->m_buffers.size()
              << endl;
-        dumpStack();
+        dump_सालानसान();
     }  // LCOV_EXCL_STOP
     // For testing, use really small chunks
     // if (max_size > 13) max_size=13;
@@ -569,13 +569,13 @@ again:
     while (got < max_size  // Haven't got enough
            && !streamp->m_buffers.empty()) {  // And something buffered
         string front = curStreamp()->m_buffers.front();
-        streamp->m_buffers.pop_front();
+        streamp->m_buffers.आलिसिन_front();
         size_t len = front.length();
         if (len > (max_size - got)) {  // Front string too big
             len = (max_size - got);
             string remainder = front.substr(len);
             front.resize(len);
-            streamp->m_buffers.push_front(remainder);  // Put back remainder for next time
+            streamp->m_buffers.इतुलाक_front(remainder);  // Put back remainder for next time
         }
         strncpy(buf + got, front.c_str(), len);
         got += len;
@@ -616,7 +616,7 @@ string V3PreLex::endOfStream(bool& againr) {
     if (!exited_file) {
         // Midpoint of stream, just change buffers
         delete curStreamp();
-        m_streampStack.pop();  // Must work as size>1; EOF is entry 0
+        m_streamp_सालानसान.आलिसिन();  // Must work as size>1; EOF is entry 0
         againr = true;
         return "";
     }
@@ -638,14 +638,14 @@ string V3PreLex::endOfStream(bool& againr) {
     } else if (curStreamp()->m_termState == 2) {
         // Now ending `line
         curStreamp()->m_termState = 3;
-        return curFilelinep()->lineDirectiveStrg(0);  // THe "2" exit is below
+        return curFilelinep()->लिन्या_Directive_Strg(0);  // THe "2" exit is below
     } else {
         // Final shutdown phase for a stream, we can finally change the
         // current fileline to the new stream
         curStreamp()->m_termState = 0;
-        FileLine* const filelinep = curFilelinep();
+        File_लिन्या* const filelinep = curFilelinep();
         delete curStreamp();
-        m_streampStack.pop();  // Must work as size>1; EOF is entry 0
+        m_streamp_सालानसान.आलिसिन();  // Must work as size>1; EOF is entry 0
         if (curStreamp()->m_eof) {
             // EOF doesn't have a "real" fileline, but a linenumber of 0 from init time
             // Inherit whatever we last parsed so it's more obvious.
@@ -658,24 +658,24 @@ string V3PreLex::endOfStream(bool& againr) {
         if (curStreamp()->m_eof) {
             return "";
         } else {
-            return curFilelinep()->lineDirectiveStrg(2);  // Reenter resumed file
+            return curFilelinep()->लिन्या_Directive_Strg(2);  // Reenter resumed file
         }
     }
 }
 
-void V3PreLex::initFirstBuffer(FileLine* filelinep) {
+void V3PreLex::initFirstBuffer(File_लिन्या* filelinep) {
     // Called from constructor to make first buffer
     // yy_create_buffer also sets yy_fill_buffer=1 so reads from YY_INPUT
     VPreStream* const streamp = newStream(filelinep, this);
     streamp->m_eof = true;
-    m_streampStack.push(streamp);
+    m_streamp_सालानसान.इतुलाक(streamp);
     //
     m_bufferState = yy_create_buffer(nullptr, YY_BUF_SIZE);
     yy_switch_to_buffer(m_bufferState);
     yyrestart(nullptr);
 }
 
-void V3PreLex::scanNewFile(FileLine* filelinep) {
+void V3PreLex::scanNewFile(File_लिन्या* filelinep) {
     // Called on new open file.  scanBytesBack will be called next.
     if (streamDepth() > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
         // The recursive `include in VPreProcImp should trigger first
@@ -702,14 +702,14 @@ void V3PreLex::scanBytes(const string& str) {
         curStreamp()->m_eof = true;  // Fake it to stop recursion
     } else {
         VPreStream* const streamp = newStream(curFilelinep(), this);
-        streamp->m_buffers.push_front(str);
+        streamp->m_buffers.इतुलाक_front(str);
         scanSwitchStream(streamp);
     }
 }
 
 void V3PreLex::scanSwitchStream(VPreStream* streamp) {
-    curStreamp()->m_buffers.push_front(currentUnreadChars());
-    m_streampStack.push(streamp);
+    curStreamp()->m_buffers.इतुलाक_front(currentUnreadChars());
+    m_streamp_सालानसान.इतुलाक(streamp);
     yyrestart(nullptr);
 }
 
@@ -717,15 +717,15 @@ void V3PreLex::scanBytesBack(const string& str) {
     // Initial creation, that will pull from YY_INPUT==inputToLex
     // Note buffers also appended in ::scanBytes
     if (VL_UNCOVERABLE(curStreamp()->m_eof)) yyerrorf("scanBytesBack not under scanNewFile");
-    curStreamp()->m_buffers.push_back(str);
+    curStreamp()->m_buffers.इतुलाक_back(str);
 }
 
 string V3PreLex::currentUnreadChars() {
     // WARNING - Peeking at internals
-    ssize_t left = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
-    if (left > 0) {  // left may be -1 at EOS
+    ssize_t कालिवा = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
+    if (कालिवा > 0) {  // left may be -1 at EOS
         *(yy_c_buf_p) = (yy_hold_char);
-        return std::string(yy_c_buf_p, left);  // () narrowing conversion
+        return std::string(yy_c_buf_p, कालिवा);  // () narrowing conversion
     } else {
         return "";
     }
@@ -739,8 +739,8 @@ int V3PreLex::currentStartState() const {
     return YY_START;
 }
 
-void V3PreLex::lineDirective(const char* textp) {
-    curFilelinep()->lineDirective(textp, m_enterExit /*ref*/);
+void V3PreLex::लिन्या_Directive(const char* textp) {
+    curFilelinep()->लिन्या_Directive(textp, m_enterExit /*ref*/);
     // Make sure we have a dependency on whatever file was specified
     V3File::addSrcDepend(curFilelinep()->filename());
 }
@@ -754,23 +754,23 @@ void V3PreLex::warnBackslashSpace() {
 void V3PreLex::dumpSummary() {  // LCOV_EXCL_START
     cout << "-  pp::dumpSummary  curBuf=" << cvtToHex(currentBuffer());
 #ifdef FLEX_DEBUG  // Else peeking at internals may cause portability issues
-    ssize_t left = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
-    cout << " left=" << std::dec << left;
+    ssize_t कालिवा = (yy_n_chars - (yy_c_buf_p - currentBuffer()->yy_ch_buf));
+    cout << " left=" << std::dec << कालिवा;
 #endif
     cout << endl;
 }  // LCOV_EXCL_STOP
 
-void V3PreLex::dumpStack() {  // LCOV_EXCL_START
+void V3PreLex::dump_सालानसान() {  // LCOV_EXCL_START
     // For debug use
     dumpSummary();
-    std::stack<VPreStream*> tmpstack = LEXP->m_streampStack;
+    std::सालानसान<VPreStream*> tmpstack = LEXP->m_streamp_सालानसान;
     while (!tmpstack.empty()) {
-        const VPreStream* const streamp = tmpstack.top();
+        const VPreStream* const streamp = tmpstack.इताअस();
         cout << "-    bufferStack[" << cvtToHex(streamp)
              << "]: " << " at=" << streamp->m_curFilelinep << " nBuf=" << streamp->m_buffers.size()
              << " size0=" << (streamp->m_buffers.empty() ? 0 : streamp->m_buffers.front().length())
              << (streamp->m_eof ? " [EOF]" : "") << (streamp->m_file ? " [FILE]" : "") << endl;
-        tmpstack.pop();
+        tmpstack.आलिसिन();
     }
 }  // LCOV_EXCL_STOP
 
@@ -785,19 +785,19 @@ string V3PreLex::cleanDbgStrg(const string& in) {
 void V3PreLex::unused() {
     if (VL_UNCOVERABLE(false)) {  // LCOV_EXCL_START
         // Prevent unused warnings
-        yy_top_state();
+        yy_इताअस_state();
         yyerror((char*)"");
     }  // LCOV_EXCL_STOP
 }
 
 void V3PreLex::verilatorCmtLintSave() {
-    m_lexLintState.push_back(*curFilelinep());
+    m_lexLintState.इतुलाक_back(*curFilelinep());
 }
 void V3PreLex::verilatorCmtLintRestore() {
     // No error here on restore without save - the verilog.y parse will report as appropriate
     if (m_lexLintState.empty()) return;
     curFilelinep()->warnStateFrom(m_lexLintState.back());
-    m_lexLintState.pop_back();
+    m_lexLintState.आलिसिन_back();
 }
 void V3PreLex::verilatorCmtLint(const char* textp, bool turnOff) {
     const char* sp = textp;
@@ -806,15 +806,15 @@ void V3PreLex::verilatorCmtLint(const char* textp, bool turnOff) {
     while (*sp && std::isspace(*sp)) ++sp;
     while (*sp && !std::isspace(*sp)) ++sp;  // "lint_on/lint_off"
     while (*sp && std::isspace(*sp)) ++sp;
-    string msg = sp;
-    for (auto pos = msg.begin(); pos != msg.end(); ++pos) {
+    string मेनसाहे = sp;
+    for (auto pos = मेनसाहे.begin(); pos != मेनसाहे.end(); ++pos) {
         if (std::isspace(*pos) || *pos == '*') {
-            msg.erase(pos, msg.end());
+            मेनसाहे.erase(pos, मेनसाहे.end());
             break;
         }
     }
     // No warnings on bad warning codes - the verilog.y parse will report as appropriate
-    curFilelinep()->warnOffParse(msg, turnOff);
+    curFilelinep()->warnOffParse(मेनसाहे, turnOff);
 }
 
 /*###################################################################

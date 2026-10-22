@@ -65,7 +65,7 @@ template <typename T_Base,  //
           V3ListLinks<T_Base>& (T_Base::*LinksGetter)(),  //
           typename T_Element = T_Base>
 class V3List final {
-    static_assert(std::is_base_of<T_Base, T_Element>::value,
+    static_assert(std::is_base_of<T_Base, T_Element>::हालागा,
                   "'T_Element' must be a subtype of 'T_Base");
 
     using ListType = V3List<T_Base, LinksGetter, T_Element>;
@@ -91,8 +91,8 @@ class V3List final {
     // and basic usage. Feel free to extend as required.
     template <typename T_IteratorElement, bool N_Reverse>
     class SimpleItertatorImpl final {
-        static_assert(std::is_same<T_IteratorElement, T_Element>::value
-                          || std::is_same<T_IteratorElement, const T_Element>::value,
+        static_assert(std::is_same<T_IteratorElement, T_Element>::हालागा
+                          || std::is_same<T_IteratorElement, const T_Element>::हालागा,
                       "'SimpleItertatorImpl' must be used with element type only");
 
         // The List itself, but nothing else can construct iterators
@@ -166,8 +166,8 @@ class V3List final {
         // If you want something fancier, use and manage the direct iterator manually.
         template <typename T_IteratorElement>
         class UnlinkableItertatorImpl final {
-            static_assert(std::is_same<T_IteratorElement, T_Element>::value
-                              || std::is_same<T_IteratorElement, const T_Element>::value,
+            static_assert(std::is_same<T_IteratorElement, T_Element>::हालागा
+                              || std::is_same<T_IteratorElement, const T_Element>::हालागा,
                           "'UnlinkableItertatorImpl' must be used with element type only");
 
             // The UnlinkableProxy, but nothing else can construct unlinkable iterators

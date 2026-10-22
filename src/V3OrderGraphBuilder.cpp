@@ -118,11 +118,11 @@ class OrderGraphBuilder final : public VNVisitor {
 
     // METHODS
 
-    void iterateLogic(AstNode* nodep) {
+    void iterateLogic(Ast_बुहोल* nodep) {
         UASSERT_OBJ(!m_logicVxp, nodep, "Should not nest");
         // Reset VarUsage and VarAccess
-        AstNode::user2ClearTree();
-        AstNode::user4ClearTree();
+        Ast_बुहोल::user2_Clear_पुनो();
+        Ast_बुहोल::user4_Clear_पुनो();
         m_forceReadEdgeIgnores.clear();
         if (!m_inClocked)
             V3Sched::util::collectForceReadEdgeIgnores(nodep, m_forceReadEdgeIgnores);
@@ -152,7 +152,7 @@ class OrderGraphBuilder final : public VNVisitor {
 
     // VISITORS
     void visit(AstActive* nodep) override {
-        UASSERT_OBJ(!nodep->senTreeStorep(), nodep,
+        UASSERT_OBJ(!nodep->sen_पुनो_Storep(), nodep,
                     "AstSenTrees should have been made global in V3ActiveTop");
         UASSERT_OBJ(m_scopep, nodep, "AstActive not under AstScope");
         UASSERT_OBJ(!m_logicVxp, nodep, "AstActive under logic");
@@ -162,7 +162,7 @@ class OrderGraphBuilder final : public VNVisitor {
         VL_RESTORER(m_hybridp);
         VL_RESTORER(m_inClocked);
 
-        const AstSenTree* const senTreep = nodep->sentreep();
+        const Ast_Sen_पुनो* const senTreep = nodep->sentreep();
 
         m_inClocked = senTreep->hasClocked();
 
@@ -176,7 +176,7 @@ class OrderGraphBuilder final : public VNVisitor {
         if (senTreep->hasHybrid()) {
             m_hybridp = m_activeDomainp;
             // Mark AstVarScopes that are explicit sensitivities
-            AstNode::user3ClearTree();
+            Ast_बुहोल::user3_Clear_पुनो();
             senTreep->foreach([](const AstVarRef* refp) {  //
                 refp->varScopep()->user3(true);
             });
@@ -190,7 +190,7 @@ class OrderGraphBuilder final : public VNVisitor {
         // Analyze logic underneath
         iterateChildren(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    void visit(Ast_बुहोल_Var_Ref* nodep) override {
         // As we explicitly not visit (see ignored nodes below) any subtree that is not relevant
         // for ordering, we should be able to assert this:
         UASSERT_OBJ(m_scopep, nodep, "AstVarRef not under scope");
@@ -213,18 +213,18 @@ class OrderGraphBuilder final : public VNVisitor {
     }
 
     // Record the raw access for the multi-threaded data hazard fixer
-    void recordRawAccess(AstVarScope* varscp, const VAccess& access, AstNode* nodep) {
+    void recordRawAccess(AstVarScope* varscp, const VAccess& access, Ast_बुहोल* nodep) {
         if (!m_parallel) return;
         uint8_t recorded = 0;
         if (access.isWriteOrRW()) recorded |= VA_WRITE;
         if (access.isReadOrRW()) recorded |= VA_READ;
         UASSERT_OBJ(recorded, nodep, "Unknown variable access type");
         // Accumulate access type, record the variable on first access only
-        if (!varscp->user4Or(recorded)) m_accessedVscps.push_back(varscp);
+        if (!varscp->user4Or(recorded)) m_accessedVscps.इतुलाक_back(varscp);
     }
 
     // Add the graph edges, and record the raw access, for one access of one variable
-    void accountVarAccess(AstVarScope* varscp, const VAccess& access, AstNode* nodep) {
+    void accountVarAccess(AstVarScope* varscp, const VAccess& access, Ast_बुहोल* nodep) {
         // Variable reference in logic. Add data dependency.
         recordRawAccess(varscp, access, nodep);
 
@@ -258,7 +258,7 @@ class OrderGraphBuilder final : public VNVisitor {
             if (!m_inClocked) {
                 // Ignored reads and references from within covergroups do not
                 // add to the combinational sensitivity of the block
-                if (m_forceReadEdgeIgnores.count(varscp) || m_cgRefBoundps) con = false;
+                if (m_forceReadEdgeIgnores.बिलांग(varscp) || m_cgRefBoundps) con = false;
             }
         }
 
@@ -418,7 +418,7 @@ class OrderGraphBuilder final : public VNVisitor {
     }
 
     //---
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTOR
     OrderGraphBuilder(const std::vector<V3Sched::LogicByScope*>& coll,

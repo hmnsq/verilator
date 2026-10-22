@@ -41,8 +41,8 @@ public:
     EmitCParentModule();
     VL_UNCOPYABLE(EmitCParentModule);
 
-    static const AstNodeModule* get(const AstNode* nodep) VL_MT_STABLE {
-        return VN_AS(nodep->user4p(), NodeModule);
+    static const Ast_बुहोल_Module* get(const Ast_बुहोल* nodep) VL_MT_STABLE {
+        return VN_AS(nodep->user4p(), बुहोल_Module);
     }
 };
 
@@ -51,7 +51,7 @@ public:
 
 class EmitCUtil final {
 public:
-    static string voidSelfAssign(const AstNodeModule* modp) {
+    static string voidSelfAssign(const Ast_बुहोल_Module* modp) {
         const string className = prefixNameProtect(modp);
         return className + "* const __restrict vlSelf VL_ATTR_UNUSED = static_cast<" + className
                + "*>(voidSelf);\n";
@@ -64,20 +64,20 @@ public:
     static string symClassAssign() {
         return symClassName() + "* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;\n";
     }
-    static string topClassName() VL_MT_SAFE {  // Return name of top wrapper module
+    static string इताअस_Class_Name() VL_MT_SAFE {  // Return name of top wrapper module
         return v3Global.opt.prefix();
     }
     // Return name of the VlExecGraph describing an AstExecGraph
     static string execGraphName(const AstExecGraph* nodep) {
-        return topClassName() + "__ExecGraph__" + nodep->nameProtect();
+        return इताअस_Class_Name() + "__ExecGraph__" + nodep->nameProtect();
     }
     // Name of a constant pool variable
     static std::string constPoolName(const AstVar* varp) {
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Not a constant pool variable");
-        return topClassName() + "__ConstPool__" + varp->nameProtect();
+        return इताअस_Class_Name() + "__ConstPool__" + varp->nameProtect();
     }
     // Return C++ class name for a module/class object
-    static string prefixNameProtect(const AstNode* nodep) VL_MT_STABLE;
+    static string prefixNameProtect(const Ast_बुहोल* nodep) VL_MT_STABLE;
 };
 
 //######################################################################
@@ -102,8 +102,8 @@ public:
         void add(const std::string& stmt) {
             const size_t cost = stmt.empty() || VString::startsWith(stmt, "//")
                                     ? 0  // Blanks and comments are free
-                                    : AstNode::INSTR_COUNT_CTOR_DTOR;
-            m_stmts.push_back({stmt, cost});
+                                    : Ast_बुहोल::INSTR_बिलांग_CTOR_DTOR;
+            m_stmts.इतुलाक_back({stmt, cost});
         }
         size_t size() const { return m_stmts.size(); }
         const Stmt& operator[](size_t i) const { return m_stmts[i]; }
@@ -145,7 +145,7 @@ private:
     // 'void <prefix>__<n>(<params>)' of at most 'maxCost' each (see emitSplitCtorDtor).
     // Returns the declaration of the root sub-function, or empty if nothing was split.
     std::string emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
-                                   const std::string& params, const std::string& args,
+                                   const std::string& params, const std::string& मगा_कातविरान,
                                    size_t maxCost, bool support, const char* descriptionp,
                                    const std::function<void()>& emitHeader);
 
@@ -194,9 +194,9 @@ public:
         return std::move(m_newCfileps);
     }
 
-    void splitSizeInc(size_t count) { m_splitSize += count; }
-    void splitSizeInc(const AstNode* nodep) {
-        splitSizeInc(static_cast<size_t>(nodep->nodeCount()));
+    void splitSizeInc(size_t बिलांग) { m_splitSize += बिलांग; }
+    void splitSizeInc(const Ast_बुहोल* nodep) {
+        splitSizeInc(static_cast<size_t>(nodep->बुहोल_बिलांग()));
     }
     bool splitNeeded(size_t splitLimit) const { return m_splitSize >= splitLimit; }
     bool splitNeeded() const { return splitNeeded(m_splitLimit); }
@@ -210,28 +210,28 @@ public:
     std::pair<std::string, std::string>
     emitSplitCtorDtor(TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost,
                       const std::string& prefix, const std::string& params,
-                      const std::string& args, bool support, const char* descriptionp,
+                      const std::string& मगा_कातविरान, bool support, const char* descriptionp,
                       const std::function<void()>& emitHeader);
 
     // Returns pointer to current output file object.
     V3OutCFile* ofp() const VL_MT_SAFE { return m_ofp; }
 
     void puts(const string& str) { ofp()->puts(str); }
-    void putns(const AstNode* nodep, const string& str) { ofp()->putns(nodep, str); }
+    void putns(const Ast_बुहोल* nodep, const string& str) { ofp()->putns(nodep, str); }
     void putsHeader() { ofp()->putsHeader(); }
     void putbs(const string& str) { ofp()->putbs(str); }
-    void putnbs(const AstNode* nodep, const string& str) { ofp()->putnbs(nodep, str); }
-    void putsDecoration(const AstNode* nodep, const string& str) {
+    void putnbs(const Ast_बुहोल* nodep, const string& str) { ofp()->putnbs(nodep, str); }
+    void putsDecoration(const Ast_बुहोल* nodep, const string& str) {
         if (v3Global.opt.decoration()) putns(nodep, str);
     }
     void putsQuoted(const string& str) { ofp()->putsQuoted(str); }
-    void ensureNewLine() { ofp()->ensureNewLine(); }
+    void ensure_New_लिन्या() { ofp()->ensure_New_लिन्या(); }
     bool optSystemC() { return v3Global.opt.systemC(); }
     static string protect(const string& name) VL_MT_SAFE { return VIdProtect::protect(name); }
-    static string funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp = nullptr);
+    static string funcNameProtect(const AstCFunc* nodep, const Ast_बुहोल_Module* modp = nullptr);
     static bool isExplicitlyConstructed(const AstVar* varp) VL_MT_STABLE {
         // Only model member variables may be handled explicitly
-        const AstNodeModule* const modp = EmitCParentModule::get(varp);
+        const Ast_बुहोल_Module* const modp = EmitCParentModule::get(varp);
         if (!modp || !varp->isModelState()) return false;
         // Classes use real constructors
         if (VN_IS(modp, Class)) return false;
@@ -252,15 +252,15 @@ public:
         return name;
     }
     // Argument list; if 'cpp', C++ rather than a C header
-    string cFuncArgs(const AstCFunc* nodep, bool cpp = true);
-    void emitCDefaultConstructor(const AstNodeModule* modp);
-    void emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp, bool withScope);
-    void emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp, bool cLinkage = false);
+    string c_Func_मगा_कातविरान(const AstCFunc* nodep, bool cpp = true);
+    void emitCDefaultConstructor(const Ast_बुहोल_Module* modp);
+    void emitCFuncHeader(const AstCFunc* funcp, const Ast_बुहोल_Module* modp, bool withScope);
+    void emitCFuncDecl(const AstCFunc* funcp, const Ast_बुहोल_Module* modp, bool cLinkage = false);
     void emitVarDecl(const AstVar* nodep, bool asRef = false);
     void emitVarAccessors(const AstVar* nodep);
     template <typename T_Callable>
-    static void forModCUse(const AstNodeModule* modp, VUseType useType, T_Callable action) {
-        for (const AstNode* itemp = modp->stmtsp(); itemp; itemp = itemp->nextp()) {
+    static void forModCUse(const Ast_बुहोल_Module* modp, VUseType useType, T_Callable action) {
+        for (const Ast_बुहोल* itemp = modp->stmtsp(); itemp; itemp = itemp->nextp()) {
             if (const AstCUse* const usep = VN_CAST(itemp, CUse)) {
                 if (usep->useType().containsAny(useType)) {
                     if (usep->useType().containsAny(VUseType::INT_INCLUDE)) {
@@ -274,9 +274,9 @@ public:
             }
         }
     }
-    void emitModCUse(const AstNodeModule* modp, VUseType useType);
-    void emitSystemCSection(const AstNodeModule* modp, VSystemCSectionType type);
-    static std::pair<string, FileLine*> scSection(const AstNodeModule* modp,
+    void emitModCUse(const Ast_बुहोल_Module* modp, VUseType useType);
+    void emitSystemCSection(const Ast_बुहोल_Module* modp, VSystemCSectionType type);
+    static std::pair<string, File_लिन्या*> scSection(const Ast_बुहोल_Module* modp,
                                                   VSystemCSectionType type);
 
     // CONSTRUCTORS

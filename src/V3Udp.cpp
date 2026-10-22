@@ -35,7 +35,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 class UdpVisitor final : public VNVisitor {
     bool m_inInitial = false;  // Is inside of an initial block
     AstVar* m_oFieldVarp = nullptr;  // Output filed var of table line
-    std::vector<AstVar*> m_inputVars;  // All the input vars in the AstPrimitive
+    std::vector<AstVar*> m_पासोक_Vars;  // All the input vars in the AstPrimitive
     std::vector<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
     AstPrimitive* m_primp = nullptr;  // The current primitive
     bool m_isFirstOutput = false;  // Whether the first IO port is output
@@ -56,7 +56,7 @@ class UdpVisitor final : public VNVisitor {
         VL_RESTORER(m_primp);
         VL_RESTORER(m_outputInitVerfp);
         VL_RESTORER(m_isFirstOutput);
-        VL_RESTORER_CLEAR(m_inputVars);
+        VL_RESTORER_CLEAR(m_पासोक_Vars);
         VL_RESTORER_CLEAR(m_outputVars);
         m_outputInitVerfp = nullptr;
         m_primp = nodep;
@@ -67,12 +67,12 @@ class UdpVisitor final : public VNVisitor {
         // Push the input and output vars for primitive.
         if (m_primp) {
             if (nodep->isIO()) {
-                if (nodep->isInput()) {
-                    m_inputVars.push_back(nodep);
+                if (nodep->is_पासोक()) {
+                    m_पासोक_Vars.इतुलाक_back(nodep);
                 } else {
-                    m_outputVars.push_back(nodep);
+                    m_outputVars.इतुलाक_back(nodep);
                 }
-                if ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
+                if ((m_पासोक_Vars.size() == 0) && (m_outputVars.size() == 1)) {
                     m_isFirstOutput = true;
                 }
             }
@@ -80,14 +80,14 @@ class UdpVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
     void visit(AstUdpTable* nodep) override {
-        FileLine* const fl = nodep->fileline();
+        File_लिन्या* const fl = nodep->fileline();
         if (m_outputVars.size() != 1) {
             m_outputVars.back()->v3error(
                 m_outputVars.size()
                 << " output ports for UDP table, there must be one output port");
         }
         if (!m_isFirstOutput && m_outputVars.size()) {
-            m_inputVars[0]->v3error("First UDP port must be the output port");
+            m_पासोक_Vars[0]->v3error("First UDP port must be the output port");
         }
         m_oFieldVarp = m_outputVars[0];
 
@@ -96,10 +96,10 @@ class UdpVisitor final : public VNVisitor {
         iterateChildren(nodep);
 
         nodep->replaceWith(m_alwaysBlockp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
     }
-    void visit(AstUdpTableLine* nodep) override {
-        FileLine* const fl = nodep->fileline();
+    void visit(Ast_Udp_Table_लिन्या* nodep) override {
+        File_लिन्या* const fl = nodep->fileline();
         if (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
             m_oFieldVarp->v3error("For sequential UDP, the output must be of 'reg' data type");
         }
@@ -107,16 +107,16 @@ class UdpVisitor final : public VNVisitor {
             m_oFieldVarp->v3error(
                 "For combinational UDP, the output must not be a 'reg' data type");
         }
-        AstNode* iNodep = nodep->iFieldsp();
-        AstNode* oNodep = nodep->oFieldsp();
-        AstSenTree* edgetrigp = nullptr;
+        Ast_बुहोल* iNodep = nodep->iFieldsp();
+        Ast_बुहोल* oNodep = nodep->oFieldsp();
+        Ast_Sen_पुनो* edgetrigp = nullptr;
 
         AstLogAnd* logandp = new AstLogAnd{fl, new AstConst{fl, AstConst::BitTrue{}},
                                            new AstConst{fl, AstConst::BitTrue{}}};
 
-        for (AstVar* const varp : m_inputVars) {
+        for (AstVar* const varp : m_पासोक_Vars) {
             if (!iNodep) break;
-            if (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
+            if (Ast_Udp_Table_लिन्या_Val* linevalp = VN_CAST(iNodep, Udp_Table_लिन्या_Val)) {
                 string valName = linevalp->name();
                 if (isEdgeTrig(valName)) {
                     if (nodep->udpIsCombo()) {
@@ -125,9 +125,9 @@ class UdpVisitor final : public VNVisitor {
                     }
                     if (edgetrigp) {
                         linevalp->v3error("There can be only one edge trigger signal");
-                        VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                        VL_DO_DANGLING(इतुलाक_Deletep(edgetrigp), edgetrigp);
                     }
-                    edgetrigp = new AstSenTree{
+                    edgetrigp = new Ast_Sen_पुनो{
                         fl, new AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
                                            new AstVarRef{fl, varp, VAccess::READ}}};
                 }
@@ -139,8 +139,8 @@ class UdpVisitor final : public VNVisitor {
                 } else if (valName == "x" || valName == "X") {
                     // No x inputs supported yet, so this whole table line
                     // can never match. Drop the whole thing.
-                    if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                    if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
+                    if (edgetrigp) VL_DO_DANGLING(इतुलाक_Deletep(edgetrigp), edgetrigp);
+                    if (logandp) VL_DO_DANGLING(इतुलाक_Deletep(logandp), logandp);
                     return;
                 }
             }
@@ -148,17 +148,17 @@ class UdpVisitor final : public VNVisitor {
         }
 
         uint32_t inputvars = 0;
-        for (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
+        for (const Ast_बुहोल* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
             ++inputvars;
-        if (inputvars != m_inputVars.size()) {
-            nodep->v3error("Incorrect number of input values, expected " << m_inputVars.size()
+        if (inputvars != m_पासोक_Vars.size()) {
+            nodep->v3error("Incorrect number of input values, expected " << m_पासोक_Vars.size()
                                                                          << ", got " << inputvars);
         }
 
         string const oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
         if (oValName == "-") {
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
+            if (edgetrigp) VL_DO_DANGLING(इतुलाक_Deletep(edgetrigp), edgetrigp);
+            if (logandp) VL_DO_DANGLING(इतुलाक_Deletep(logandp), logandp);
             return;
         }
 
@@ -173,8 +173,8 @@ class UdpVisitor final : public VNVisitor {
             } else if (oNodep->name() == "x" || oNodep->name() == "X") {
                 // No x inputs supported yet, so this whole table line
                 // can never match. Drop the whole thing.
-                if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
+                if (edgetrigp) VL_DO_DANGLING(इतुलाक_Deletep(edgetrigp), edgetrigp);
+                if (logandp) VL_DO_DANGLING(इतुलाक_Deletep(logandp), logandp);
                 return;
             }
         }
@@ -182,15 +182,15 @@ class UdpVisitor final : public VNVisitor {
         fl->warnOff(V3ErrorCode::LATCH, true);
         // Edge-triggered lines are clocked logic, so update like a flop:
         // other clocked logic reading the output sees the pre-edge value, regardless of ordering
-        AstNodeStmt* const assignp
-            = newOutputAssign(fl, getOutputNum(nodep, oValName), edgetrigp != nullptr);
+        Ast_बुहोल_Stmt* const assignp
+            = newOutputAssign(fl, get_Output_नुमेरो(nodep, oValName), edgetrigp != nullptr);
         AstIf* const ifp = new AstIf{fl, logandp, assignp};
         if (nodep->udpIsCombo()) {
             if (!isCombOutputSig(oValName)) {
                 oNodep->v3error("Illegal value for combinational UDP line output");
             }
             m_alwaysBlockp->addStmtsp(ifp);
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+            if (edgetrigp) VL_DO_DANGLING(इतुलाक_Deletep(edgetrigp), edgetrigp);
             return;
         }
         if (!isSequentOutputSig(oValName)) {
@@ -198,7 +198,7 @@ class UdpVisitor final : public VNVisitor {
         }
         m_alwaysBlockp->addNext(new AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
     void visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
     void visit(AstLogNot* nodep) override { iterateChildren(nodep); }
     // For logic processing.
@@ -234,22 +234,22 @@ class UdpVisitor final : public VNVisitor {
         return (valName == "0" || valName == "1" || valName == "x" || valName == "X"
                 || valName == "-");
     }
-    AstNodeStmt* newOutputAssign(FileLine* fl, const V3Number& outNum, bool isDelayed) const {
+    Ast_बुहोल_Stmt* newOutputAssign(File_लिन्या* fl, const V3_नुमेरो& out_नुमेरो, bool isDelayed) const {
         AstVarRef* const lhsp = new AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
-        AstConst* const rhsp = new AstConst{fl, outNum};
+        AstConst* const rhsp = new AstConst{fl, out_नुमेरो};
         if (isDelayed) return new AstAssignDly{fl, lhsp, rhsp};
         return new AstAssign{fl, lhsp, rhsp};
     }
-    static V3Number getOutputNum(AstNode* nodep, const std::string& fieldNames) {
-        V3Number outputNum{nodep, 1};
+    static V3_नुमेरो get_Output_नुमेरो(Ast_बुहोल* nodep, const std::string& fieldNames) {
+        V3_नुमेरो output_नुमेरो{nodep, 1};
         if (fieldNames == "0") {
-            outputNum.setBit(0, 0);
+            output_नुमेरो.setBit(0, 0);
         } else if (fieldNames == "1") {
-            outputNum.setBit(0, 1);
+            output_नुमेरो.setBit(0, 1);
         } else {
-            outputNum.setBit(0, 'x');
+            output_नुमेरो.setBit(0, 'x');
         }
-        return outputNum;
+        return output_नुमेरो;
     }
 
 public:
@@ -261,5 +261,5 @@ public:
 void V3Udp::udpResolve(AstNetlist* rootp) {
     UINFO(4, __FUNCTION__ << ": ");
     { const UdpVisitor visitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("udp", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("udp", 0, dump_पुनो_Either_Level() >= 3);
 }

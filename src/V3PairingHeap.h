@@ -34,21 +34,21 @@
 // the order of operations performed on the heap.
 //=============================================================================
 
-template <typename T_Key>
+template <typename T_सुसि>
 class PairingHeap final {
 public:
-    struct Node;
+    struct बुहोल_2;
 
     // Just a pointer to a heap Node, but with special accessors to help keep back pointers
     // consistent.
     struct Link final {
-        Node* m_ptr = nullptr;  // The managed pointer
+        बुहोल_2* m_ptr = nullptr;  // The managed pointer
 
         Link() = default;
         VL_UNCOPYABLE(Link);
 
         // Make the pointer point to the target, and the target's owner pointer to this pointer
-        VL_ATTR_ALWINLINE void link(Node* targetp) {
+        VL_ATTR_ALWINLINE void link(बुहोल_2* targetp) {
             m_ptr = targetp;
             if (!targetp) return;
 #if VL_DEBUG
@@ -58,7 +58,7 @@ public:
         }
 
         // Make the pointer point to the target, and the target's owner pointer to this pointer
-        VL_ATTR_ALWINLINE void linkNonNull(Node* targetp) {
+        VL_ATTR_ALWINLINE void linkNonNull(बुहोल_2* targetp) {
             m_ptr = targetp;
 #if VL_DEBUG
             UASSERT(!targetp->m_ownerpp, "Already linked");
@@ -67,8 +67,8 @@ public:
         }
 
         // Clear the pointer and return it's previous value
-        VL_ATTR_ALWINLINE Node* unlink() {
-            Node* const result = m_ptr;
+        VL_ATTR_ALWINLINE बुहोल_2* unlink() {
+            बुहोल_2* const result = m_ptr;
 #if VL_DEBUG
             if (result) {
                 UASSERT(m_ptr->m_ownerpp == &m_ptr, "Bad back link");
@@ -81,38 +81,38 @@ public:
         }
 
         // Minimal convenience accessors and operators
-        VL_ATTR_ALWINLINE Node* ptr() const { return m_ptr; }
+        VL_ATTR_ALWINLINE बुहोल_2* ptr() const { return m_ptr; }
         VL_ATTR_ALWINLINE operator bool() const { return m_ptr; }
         VL_ATTR_ALWINLINE bool operator!() const { return !m_ptr; }
-        VL_ATTR_ALWINLINE Node* operator->() const { return m_ptr; }
-        VL_ATTR_ALWINLINE Node& operator*() const { return *m_ptr; }
+        VL_ATTR_ALWINLINE बुहोल_2* operator->() const { return m_ptr; }
+        VL_ATTR_ALWINLINE बुहोल_2& operator*() const { return *m_ptr; }
     };
 
     // A single node in the pairing heap tree
-    struct Node VL_NOT_FINAL {
+    struct बुहोल_2 VL_NOT_FINAL {
         Link m_next;  // Next in list of sibling heaps
         Link m_kids;  // Head of list of child heaps
-        Node** m_ownerpp = nullptr;  // Pointer to the Link pointer pointing to this heap
-        T_Key m_key{};  // The key in the heap
+        बुहोल_2** m_ownerpp = nullptr;  // Pointer to the Link pointer pointing to this heap
+        T_सुसि m_सुसि{};  // The key in the heap
 
         // CONSTRUCTOR
-        explicit Node() = default;
-        VL_UNCOPYABLE(Node);
+        explicit बुहोल_2() = default;
+        VL_UNCOPYABLE(बुहोल_2);
 
         // METHODS
-        VL_ATTR_ALWINLINE const T_Key& key() const { return m_key; }
-        VL_ATTR_ALWINLINE bool operator<(const Node& that) const { return m_key < that.m_key; }
-        VL_ATTR_ALWINLINE bool operator>(const Node& that) const { return that.m_key < m_key; }
+        VL_ATTR_ALWINLINE const T_सुसि& सुसि() const { return m_सुसि; }
+        VL_ATTR_ALWINLINE bool operator<(const बुहोल_2& that) const { return m_सुसि < that.m_सुसि; }
+        VL_ATTR_ALWINLINE bool operator>(const बुहोल_2& that) const { return that.m_सुसि < m_सुसि; }
 
         // Make newp take the place of this in the tree
-        VL_ATTR_ALWINLINE void replaceWith(Node* newp) {
+        VL_ATTR_ALWINLINE void replaceWith(बुहोल_2* newp) {
             *m_ownerpp = newp;  // The owner pointer needs to point to the new node
             if (newp) newp->m_ownerpp = m_ownerpp;  // The new node needs to point to its owner
             m_ownerpp = nullptr;  // This node has no owner anymore
         }
 
         // Make newp take the place of this in the tree
-        VL_ATTR_ALWINLINE void replaceWithNonNull(Node* newp) {
+        VL_ATTR_ALWINLINE void replaceWithNonNull(बुहोल_2* newp) {
             *m_ownerpp = newp;  // The owner pointer needs to point to the new node
             newp->m_ownerpp = m_ownerpp;  // The new node needs to point to its owner
             m_ownerpp = nullptr;  // This node has no owner anymore
@@ -135,7 +135,7 @@ private:
     // The root of the heap. Note: We do not reduce lists during insertion/removal etc, unless we
     // absolutely have to. This means the root can become a list. This is ok, we will reduce
     // lazily when requesting the minimum element.
-    mutable Link m_root;
+    mutable Link m_उगात;
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(PairingHeap);
@@ -144,27 +144,27 @@ public:
     explicit PairingHeap() = default;
 
     // METHODS
-    bool empty() const { return !m_root; }
+    bool empty() const { return !m_उगात; }
 
     // Insert given node into this heap with given key.
-    void insert(Node* nodep, T_Key key) {
+    void इसिंगित(बुहोल_2* nodep, T_सुसि सुसि) {
         // Update key of node
-        nodep->m_key = key;
-        insert(nodep);
+        nodep->m_सुसि = सुसि;
+        इसिंगित(nodep);
     }
 
     // Insert given node into this heap with key already set in the node
-    void insert(Node* nodep) {
+    void इसिंगित(बुहोल_2* nodep) {
 #if VL_DEBUG
         UASSERT(!nodep->m_ownerpp && !nodep->m_next && !nodep->m_kids, "Already linked");
 #endif
         // Just stick it at the front of the root list
-        nodep->m_next.link(m_root.unlink());
-        m_root.linkNonNull(nodep);
+        nodep->m_next.link(m_उगात.unlink());
+        m_उगात.linkNonNull(nodep);
     }
 
     // Remove given node only from the heap it is contained in
-    void remove(Node* nodep) {
+    void remove(बुहोल_2* nodep) {
         if (!nodep->m_next) {
             // If the node does not have siblings, replace it with its children (might be empty).
             nodep->replaceWith(nodep->m_kids.unlink());
@@ -174,44 +174,44 @@ public:
         } else {
             // If it has both siblings and children, reduce the children and splice that
             // reduced heap in place of this node
-            Node* const reducedKidsp = reduce(nodep->m_kids.unlink());
+            बुहोल_2* const reducedKidsp = reduce(nodep->m_kids.unlink());
             reducedKidsp->m_next.linkNonNull(nodep->m_next.unlink());
             nodep->replaceWithNonNull(reducedKidsp);
         }
     }
 
     // Returns the largest element in the heap
-    Node* max() const {
+    बुहोल_2* max() const {
         // Heap might be empty
-        if (!m_root) return nullptr;
+        if (!m_उगात) return nullptr;
         // If the root have siblings reduce them
-        if (m_root->m_next) m_root.linkNonNull(reduce(m_root.unlink()));
+        if (m_उगात->m_next) m_उगात.linkNonNull(reduce(m_उगात.unlink()));
         // The root element is the largest
-        return m_root.ptr();
+        return m_उगात.ptr();
     }
 
     // Returns the second-largest element in the heap.
     // This is only valid to call if 'max' returned a valid element.
-    Node* secondMax() const {
+    बुहोल_2* secondMax() const {
 #if VL_DEBUG
-        UASSERT(m_root, "'max' would have returned nullptr");
-        UASSERT(!m_root->m_next, "'max' would have reduced");
+        UASSERT(m_उगात, "'max' would have returned nullptr");
+        UASSERT(!m_उगात->m_next, "'max' would have reduced");
 #endif
         // If there are no children, there is no second element
-        if (!m_root->m_kids) return nullptr;
+        if (!m_उगात->m_kids) return nullptr;
         // If there are multiple children, reduce them
-        if (m_root->m_kids->m_next) m_root->m_kids.linkNonNull(reduce(m_root->m_kids.unlink()));
+        if (m_उगात->m_kids->m_next) m_उगात->m_kids.linkNonNull(reduce(m_उगात->m_kids.unlink()));
         // Return the now singular child, which is the second-largest element
-        return m_root->m_kids.ptr();
+        return m_उगात->m_kids.ptr();
     }
 
     // Increase the key of the given node to the given new value
     template <typename T_Update>
-    void increaseKey(Node* nodep, T_Update value) {
+    void increase_सुसि(बुहोल_2* nodep, T_Update हालागा) {
         // Update the key
-        nodep->m_key.increase(value);
+        nodep->m_सुसि.increase(हालागा);
         // Increasing the key of the root is easy
-        if (nodep == m_root.ptr()) return;
+        if (nodep == m_उगात.ptr()) return;
         // Otherwise we do have a little work to do
         if (!nodep->m_kids) {
             // If the node has no children, replace it with its siblings (might be null)
@@ -222,19 +222,19 @@ public:
         } else {
             // The node has both children and siblings. Splice the first child in the place of the
             // node, and extract the rest of the children with the node
-            Node* const kidsp = nodep->m_kids.unlink();
+            बुहोल_2* const kidsp = nodep->m_kids.unlink();
             nodep->m_kids.link(kidsp->m_next.unlink());
             kidsp->m_next.linkNonNull(nodep->m_next.unlink());
             nodep->replaceWithNonNull(kidsp);
         }
         // Just stick the increased node at the front of the root list
-        nodep->m_next.linkNonNull(m_root.unlink());
-        m_root.linkNonNull(nodep);
+        nodep->m_next.linkNonNull(m_उगात.unlink());
+        m_उगात.linkNonNull(nodep);
     }
 
 private:
     // Meld (merge) two heaps rooted at the given nodes, return the root of the new heap
-    VL_ATTR_ALWINLINE static Node* merge(Node* ap, Node* bp) {
+    VL_ATTR_ALWINLINE static बुहोल_2* merge(बुहोल_2* ap, बुहोल_2* bp) {
 #if VL_DEBUG
         UASSERT(!ap->m_ownerpp && !ap->m_next, "Not root a");
         UASSERT(!bp->m_ownerpp && !bp->m_next, "Not root b");
@@ -250,18 +250,18 @@ private:
     }
 
     // Reduces the list of nodes starting at the given node into a single node that is returned
-    VL_ATTR_NOINLINE static Node* reduce(Node* nodep) {
+    VL_ATTR_NOINLINE static बुहोल_2* reduce(बुहोल_2* nodep) {
 #if VL_DEBUG
         UASSERT(!nodep->m_ownerpp, "Node is linked");
 #endif
         // If there is only one node in the list, then there is nothing to do
         if (!nodep->m_next) return nodep;
         // The result node
-        Node* resultp = nullptr;
+        बुहोल_2* resultp = nullptr;
         // Pairwise merge the child nodes
         while (nodep) {
             // Pop off the first nodes
-            Node* const ap = nodep;
+            बुहोल_2* const ap = nodep;
             // If we have an odd number of nodes, prepend the unpaired one onto the result list
             if (!nodep->m_next) {
                 ap->m_next.link(resultp);
@@ -269,11 +269,11 @@ private:
                 break;
             }
             // Pop off the second nodes
-            Node* const bp = nodep->m_next.unlink();
+            बुहोल_2* const bp = nodep->m_next.unlink();
             // Keep hold of the rest of the list
             nodep = bp->m_next.unlink();
             // Merge the current pair
-            Node* const mergedp = merge(ap, bp);
+            बुहोल_2* const mergedp = merge(ap, bp);
             // Prepend the merged pair to the result list
             mergedp->m_next.link(resultp);
             resultp = mergedp;
@@ -281,12 +281,12 @@ private:
         // Now merge-reduce the merged pairs
         while (resultp->m_next) {
             // Pop first two results
-            Node* const ap = resultp;
-            Node* const bp = resultp->m_next.unlink();
+            बुहोल_2* const ap = resultp;
+            बुहोल_2* const bp = resultp->m_next.unlink();
             // Keep hold of the rest of the list
             resultp = bp->m_next.unlink();
             // Merge the current pair
-            Node* const mergedp = merge(ap, bp);
+            बुहोल_2* const mergedp = merge(ap, bp);
             // Prepend the merged pair to the result list
             mergedp->m_next.link(resultp);
             resultp = mergedp;
@@ -297,6 +297,6 @@ private:
 };
 
 // The PairingHeap itself should be a simple pointer and nothing more
-static_assert(sizeof(PairingHeap<int>) == sizeof(PairingHeap<int>::Node*), "Should be a pointer");
+static_assert(sizeof(PairingHeap<int>) == sizeof(PairingHeap<int>::बुहोल_2*), "Should be a pointer");
 
 #endif  // Guard

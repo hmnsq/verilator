@@ -24,7 +24,7 @@
 
 //============================================================================
 
-class V3LanguageWords final {
+class V3_Language_मगा_सालिता final {
     // List of common reserved keywords
 private:
     using KeywordMap = std::map<const string, std::string>;
@@ -53,7 +53,7 @@ private:
     }
 };
 
-inline void V3LanguageWords::Singleton::init() {
+inline void V3_Language_मगा_सालिता::Singleton::init() {
     // C++ keywords
     // clang-format off
     addKwd("abort",                 "C++ common word");

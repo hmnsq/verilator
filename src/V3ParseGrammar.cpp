@@ -70,7 +70,7 @@ void V3ParseImp::candidatePli(VSpellCheck* spellerp) {
     for (int i = 0; yytname[i]; ++i) {
         if (yytname[i][0] != '\"') continue;
         if (yytname[i][1] != '$') continue;
-        spellerp->pushCandidate(string{yytname[i]}.substr(1, strlen(yytname[i]) - 2));
+        spellerp->इतुलाक_Candidate(string{yytname[i]}.substr(1, strlen(yytname[i]) - 2));
     }
 }
 
@@ -84,21 +84,21 @@ void V3ParseImp::parserClear() {
 //======================================================================
 // V3ParseGrammar functions requiring bison state
 
-AstArg* V3ParseGrammar::argWrapList(AstNodeExpr* nodep) {
+AstArg* V3ParseGrammar::argWrapList(Ast_बुहोल_पाहायाग* nodep) {
     // Convert list of expressions to list of arguments
     AstArg* outp = nullptr;
     while (nodep) {
-        AstNodeExpr* const nextp = VN_AS(nodep->nextp(), NodeExpr);
+        Ast_बुहोल_पाहायाग* const nextp = VN_AS(nodep->nextp(), बुहोल_पाहायाग);
         if (nextp) nextp->unlinkFrBackWithNext();
-        outp = AstNode::addNext(outp, new AstArg{nodep->fileline(), "", nodep});
+        outp = Ast_बुहोल::addNext(outp, new AstArg{nodep->fileline(), "", nodep});
         nodep = nextp;
     }
     return outp;
 }
 
-AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& name, int value) {
+AstAssignW* V3ParseGrammar::create_Supply_पाहायाग(File_लिन्या* fileline, const string& name, int हालागा) {
     AstAssignW* assignp = new AstAssignW{fileline, new AstParseRef{fileline, name},
-                                         value ? new AstConst{fileline, AstConst::All1{}}
+                                         हालागा ? new AstConst{fileline, AstConst::All1{}}
                                                : new AstConst{fileline, AstConst::All0{}}};
     AstStrengthSpec* strengthSpecp
         = new AstStrengthSpec{fileline, VStrength::SUPPLY, VStrength::SUPPLY};
@@ -106,55 +106,55 @@ AstAssignW* V3ParseGrammar::createSupplyExpr(FileLine* fileline, const string& n
     return assignp;
 }
 
-AstRange* V3ParseGrammar::scrubRangeMulti(AstNodeRange* nrangep) {
+AstRange* V3ParseGrammar::scrubRangeMulti(Ast_बुहोल_Range* nrangep) {
     // Remove any UnsizedRange's from list; preserves multi-dim chain via nextp().
-    for (AstNodeRange *nodep = nrangep, *nextp; nodep; nodep = nextp) {
-        nextp = VN_AS(nodep->nextp(), NodeRange);
+    for (Ast_बुहोल_Range *nodep = nrangep, *nextp; nodep; nodep = nextp) {
+        nextp = VN_AS(nodep->nextp(), बुहोल_Range);
         if (!VN_IS(nodep, Range)) {
             nodep->v3error(
                 "Unsupported or syntax error: Unsized range in instance or other declaration");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_पुनो(), nodep);
         }
     }
     return VN_CAST(nrangep, Range);
 }
-AstRange* V3ParseGrammar::scrubRange(AstNodeRange* nrangep) {
+AstRange* V3ParseGrammar::scrubRange(Ast_बुहोल_Range* nrangep) {
     AstRange* const rangep = scrubRangeMulti(nrangep);
     if (rangep && rangep->nextp()) {
         // Gate primitives only support a single dimension
         rangep->nextp()->v3warn(E_UNSUPPORTED, "Unsupported: Multidimensional gate instances.");
-        rangep->nextp()->unlinkFrBackWithNext()->deleteTree();
+        rangep->nextp()->unlinkFrBackWithNext()->delete_पुनो();
     }
     return rangep;
 }
 
-AstNodePreSel* V3ParseGrammar::scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED {
+Ast_बुहोल_Pre_Sel* V3ParseGrammar::scrubSel(Ast_बुहोल_पाहायाग* fromp, Ast_बुहोल_Pre_Sel* selp) VL_MT_DISABLED {
     // SEL(PARSELVALUE, ...) -> SEL(fromp, ...)
-    AstNodePreSel* subSelp = selp;
+    Ast_बुहोल_Pre_Sel* subSelp = selp;
     while (true) {
         if (VN_IS(subSelp->fromp(), ParseHolder)) break;
-        if (AstNodePreSel* const lowerSelp = VN_CAST(subSelp->fromp(), NodePreSel)) {
+        if (Ast_बुहोल_Pre_Sel* const lowerSelp = VN_CAST(subSelp->fromp(), बुहोल_Pre_Sel)) {
             subSelp = lowerSelp;
             continue;
         }
         subSelp->v3fatalSrc("Couldn't find where to insert expression into select");
     }
-    AstNode* subSelFromp = subSelp->fromp();
+    Ast_बुहोल* subSelFromp = subSelp->fromp();
     subSelFromp->replaceWith(fromp);
-    VL_DO_DANGLING(subSelFromp->deleteTree(), subSelFromp);
+    VL_DO_DANGLING(subSelFromp->delete_पुनो(), subSelFromp);
     return selp;
 }
 
-AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nrangep,
+Ast_बुहोल_DType* V3ParseGrammar::createArray(Ast_बुहोल_DType* basep, Ast_बुहोल_Range* nrangep,
                                           bool isPacked) {
     // Split RANGE0-RANGE1-RANGE2
     // into ARRAYDTYPE0(ARRAYDTYPE1(ARRAYDTYPE2(BASICTYPE3), RANGE), RANGE)
-    AstNodeDType* arrayp = basep;
+    Ast_बुहोल_DType* arrayp = basep;
     if (nrangep) {  // Maybe no range - return unmodified base type
-        while (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), NodeRange);
+        while (nrangep->nextp()) nrangep = VN_AS(nrangep->nextp(), बुहोल_Range);
         while (nrangep) {
-            AstNodeRange* const prevp = VN_AS(nrangep->backp(), NodeRange);
+            Ast_बुहोल_Range* const prevp = VN_AS(nrangep->backp(), बुहोल_Range);
             if (prevp) nrangep->unlinkFrBack();
             AstRange* const rangep = VN_CAST(nrangep, Range);
             if (rangep && isPacked) {
@@ -164,23 +164,23 @@ AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nra
                        && (VN_IS(rangep->leftp(), Unbounded)
                            || VN_IS(rangep->rightp(), Unbounded))) {
                 arrayp = new AstQueueDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
-                                           rangep->rightp()->cloneTree(true)};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
+                                           rangep->rightp()->clone_पुनो(true)};
+                VL_DO_DANGLING(nrangep->delete_पुनो(), nrangep);
             } else if (rangep) {
                 arrayp = new AstUnpackArrayDType{rangep->fileline(), VFlagChildDType{}, arrayp,
                                                  rangep};
             } else if (VN_IS(nrangep, UnsizedRange)) {
                 arrayp = new AstDynArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
+                VL_DO_DANGLING(nrangep->delete_पुनो(), nrangep);
             } else if (VN_IS(nrangep, BracketRange)) {
                 const AstBracketRange* const arangep = VN_AS(nrangep, BracketRange);
-                AstNode* const keyp = arangep->elementsp()->unlinkFrBack();
+                Ast_बुहोल* const keyp = arangep->elementsp()->unlinkFrBack();
                 arrayp = new AstBracketArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp,
                                                   keyp};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
+                VL_DO_DANGLING(nrangep->delete_पुनो(), nrangep);
             } else if (VN_IS(nrangep, WildcardRange)) {
                 arrayp = new AstWildcardArrayDType{nrangep->fileline(), VFlagChildDType{}, arrayp};
-                VL_DO_DANGLING(nrangep->deleteTree(), nrangep);
+                VL_DO_DANGLING(nrangep->delete_पुनो(), nrangep);
             } else {
                 UASSERT_OBJ(0, nrangep, "Expected range or unsized range");
             }
@@ -190,29 +190,29 @@ AstNodeDType* V3ParseGrammar::createArray(AstNodeDType* basep, AstNodeRange* nra
     return arrayp;
 }
 
-AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
-                                       AstNodeRange* arrayp, AstNode* attrsp) {
+AstVar* V3ParseGrammar::createVariable(File_लिन्या* fileline, const string& name,
+                                       Ast_बुहोल_Range* arrayp, Ast_बुहोल* attrsp) {
     UINFO(5, "  creVar " << name << "  decl=" << GRAMMARP->m_varDecl << "  io="
                          << GRAMMARP->m_varIO << "  dt=" << (GRAMMARP->m_varDTypep ? "set" : ""));
     if (GRAMMARP->m_varIO == VDirection::NONE  // In non-ANSI port list
         && GRAMMARP->m_varDecl == VVarType::PORT) {
         // Just a port list with variable name (not v2k format); AstPort already created
-        if (arrayp) VL_DO_DANGLING(arrayp->deleteTree(), arrayp);
+        if (arrayp) VL_DO_DANGLING(arrayp->delete_पुनो(), arrayp);
         if (attrsp) {
             // TODO: Merge attributes across list? Or warn attribute is ignored
-            VL_DO_DANGLING(attrsp->deleteTree(), attrsp);
+            VL_DO_DANGLING(attrsp->delete_पुनो(), attrsp);
         }
         return nullptr;
     }
 
-    AstNodeDType* const dtypep = [&]() -> AstNodeDType* {
+    Ast_बुहोल_DType* const dtypep = [&]() -> Ast_बुहोल_DType* {
         if (GRAMMARP->m_varDecl == VVarType::WREAL) {
             // dtypep might not be null, might be implicit LOGIC before we knew better
             return new AstBasicDType{fileline, VBasicDTypeKwd::DOUBLE};
         }
         if (GRAMMARP->m_varDTypep) {
             // May make new variables with same type, so clone
-            return GRAMMARP->m_varDTypep->cloneTree(false);
+            return GRAMMARP->m_varDTypep->clone_पुनो(false);
         }
         // Created implicitly
         if (m_insideProperty) {
@@ -241,14 +241,14 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
 
     // Split RANGE0-RANGE1-RANGE2 into
     // ARRAYDTYPE0(ARRAYDTYPE1(ARRAYDTYPE2(BASICTYPE3), RANGE), RANGE)
-    AstNodeDType* const arrayDTypep = createArray(dtypep, arrayp, false);
+    Ast_बुहोल_DType* const arrayDTypep = createArray(dtypep, arrayp, false);
 
     AstVar* const nodep = new AstVar{fileline, type, name, VFlagChildDType(), arrayDTypep};
     nodep->addAttrsp(attrsp);
     nodep->ansi(m_pinAnsi);
     nodep->declTyped(m_varDeclTyped);
     nodep->lifetime(m_varLifetime);
-    if (m_netDelayp) nodep->delayp(m_netDelayp->cloneTree(false));
+    if (m_netDelayp) nodep->delayp(m_netDelayp->clone_पुनो(false));
     if (GRAMMARP->m_varDecl != VVarType::UNKNOWN) nodep->combineType(GRAMMARP->m_varDecl);
     if (GRAMMARP->m_varIO != VDirection::NONE) {
         nodep->declDirection(GRAMMARP->m_varIO);
@@ -256,17 +256,17 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     }
 
     if (GRAMMARP->m_varDecl == VVarType::SUPPLY0) {
-        AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 0);
-        AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
+        AstAssignW* const ap = V3ParseGrammar::create_Supply_पाहायाग(fileline, nodep->name(), 0);
+        Ast_बुहोल::addNext<Ast_बुहोल, Ast_बुहोल>(nodep, new AstAlways{ap});
     }
     if (GRAMMARP->m_varDecl == VVarType::SUPPLY1) {
-        AstAssignW* const ap = V3ParseGrammar::createSupplyExpr(fileline, nodep->name(), 1);
-        AstNode::addNext<AstNode, AstNode>(nodep, new AstAlways{ap});
+        AstAssignW* const ap = V3ParseGrammar::create_Supply_पाहायाग(fileline, nodep->name(), 1);
+        Ast_बुहोल::addNext<Ast_बुहोल, Ast_बुहोल>(nodep, new AstAlways{ap});
     }
     if (VN_IS(dtypep, ParseTypeDType)) {
         // Parser needs to know what is a type
-        AstNode* const newp = new AstTypedefFwd{fileline, name, VFwdType::NONE};
-        AstNode::addNext<AstNode, AstNode>(nodep, newp);
+        Ast_बुहोल* const newp = new AstTypedefFwd{fileline, name, VFwdType::NONE};
+        Ast_बुहोल::addNext<Ast_बुहोल, Ast_बुहोल>(nodep, newp);
     }
     // Don't set dtypep in the ranging;
     // We need to autosize parameters and integers separately
@@ -287,11 +287,11 @@ AstVar* V3ParseGrammar::createVariable(FileLine* fileline, const string& name,
     return nodep;
 }
 
-string V3ParseGrammar::unquoteString(FileLine* fileline, const std::string& text) {
-    string errMsg;
-    string res = VString::unquoteSVString(text, errMsg);
-    if (!errMsg.empty()) fileline->v3error(errMsg.c_str());
+string V3ParseGrammar::unquoteString(File_लिन्या* fileline, const std::string& text) {
+    string err_मेनसाहे;
+    string res = VString::unquoteSVString(text, err_मेनसाहे);
+    if (!err_मेनसाहे.empty()) fileline->v3error(err_मेनसाहे.c_str());
     return res;
 }
 
-int V3ParseGrammar::s_typeImpNum = 0;
+int V3ParseGrammar::s_type_Imp_नुमेरो = 0;

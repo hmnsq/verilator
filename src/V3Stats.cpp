@@ -34,7 +34,7 @@ V3Mutex V3Stats::s_mutex;
 class StatsVisitor final : public VNVisitorConst {
     struct Counters final {
         // Nodes of given type
-        std::array<uint64_t, VNType::NUM_TYPES()> m_statTypeCount{};
+        std::array<uint64_t, VNType::नुमेरो_TYPES()> m_stat_Type_बिलांग{};
         // Prediction of given type
         std::array<uint64_t, VBranchPred::_ENUM_END> m_statPred{};
     };
@@ -50,8 +50,8 @@ class StatsVisitor final : public VNVisitorConst {
         m_statVarWidthNames;  // Var names of given width
 
     // METHODS
-    void countThenIterateChildren(AstNode* nodep) {
-        ++m_accump->m_statTypeCount[nodep->type()];
+    void बिलांग_Then_Iterate_Children(Ast_बुहोल* nodep) {
+        ++m_accump->m_stat_Type_बिलांग[nodep->type()];
         if (nodep->type() != VNType::Netlist) m_empty = false;
         iterateChildrenConst(nodep);
     }
@@ -74,22 +74,22 @@ class StatsVisitor final : public VNVisitorConst {
             }
         }
 
-        countThenIterateChildren(nodep);
+        बिलांग_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNodeIf* nodep) override {
+    void visit(Ast_बुहोल_If* nodep) override {
         // Track prediction
         ++m_accump->m_statPred[nodep->branchPred()];
-        countThenIterateChildren(nodep);
+        बिलांग_Then_Iterate_Children(nodep);
     }
 
     void visit(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
         if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
-        countThenIterateChildren(nodep);
+        बिलांग_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNode* nodep) override { countThenIterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { बिलांग_Then_Iterate_Children(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -101,13 +101,13 @@ public:
         if (m_empty) return;
 
         // Shorthand
-        const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
-            V3Stats::addStat(stage, name, count, precision);
+        const auto addStat = [&](const std::string& name, double बिलांग, unsigned precision = 0) {
+            V3Stats::addStat(stage, name, बिलांग, precision);
         };
 
         // Variable widths
         for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+            if (const uint64_t बिलांग = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
                 const std::string prefix = ss.str();
@@ -116,7 +116,7 @@ public:
                         addStat(prefix + " " + it.first, it.second);
                     }
                 } else {
-                    addStat(prefix, count);
+                    addStat(prefix, बिलांग);
                 }
             }
         }
@@ -126,19 +126,19 @@ public:
             = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
         const auto typeSize
             = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
-        size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                totalNodeMemoryUsage += count * typeSize(t);
-                addStat("Node count, " + typeName(t), count);
+        size_t total_बुहोल_Memory_Usage = 0;
+        for (size_t t = 0; t < VNType::नुमेरो_TYPES(); ++t) {
+            if (const uint64_t बिलांग = m_counters.m_stat_Type_बिलांग[t]) {
+                total_बुहोल_Memory_Usage += बिलांग * typeSize(t);
+                addStat("Node count, " + typeName(t), बिलांग);
             }
         }
-        addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
+        addStat("Node mem TOTAL (MiB)", total_बुहोल_Memory_Usage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
+        for (size_t t = 0; t < VNType::नुमेरो_TYPES(); ++t) {
+            if (const uint64_t बिलांग = m_counters.m_stat_Type_बिलांग[t]) {
+                const double share = 100.0 * बिलांग * typeSize(t) / total_बुहोल_Memory_Usage;
                 addStat("Node mem %, " + typeName(t), share, 2);
             }
         }

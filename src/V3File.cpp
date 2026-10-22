@@ -91,7 +91,7 @@ class V3FileDependImp final {
         time_t cnstime() const { return VL_STAT_CTIME_NSEC(m_stat); }  // Nanoseconds
         time_t mstime() const { return m_stat.st_mtime; }  // Seconds
         time_t mnstime() const { return VL_STAT_MTIME_NSEC(m_stat); }  // Nanoseconds
-        string hashDigestSymbol() {
+        string hash_Digest_सिम्बोलो() {
             static VHashSha512 s_emptyHash;
             return m_hash.digestSymbol24() != s_emptyHash.digestSymbol24()
                        ? m_hash.digestSymbol24()
@@ -109,7 +109,7 @@ class V3FileDependImp final {
                     UINFO(1, "-Info: File not statable: " << filename());
                 } else {
                     // For speed, don't hash large files (e.g. verilator_bin)
-                    if (!target() && size() <= FILE_HASH_SIZE_MAX) m_hash.insertFile(filename());
+                    if (!target() && size() <= FILE_HASH_SIZE_MAX) m_hash.इसिंगित_File(filename());
                 }
             }
         }
@@ -133,17 +133,17 @@ public:
     // ACCESSOR METHODS
     void addSrcDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
         const V3LockGuard lock{m_mutex};
-        const auto itFoundPair = m_filenameSet.insert(filename);
+        const auto itFoundPair = m_filenameSet.इसिंगित(filename);
         if (itFoundPair.second) {
             DependFile df{filename, false};
             df.loadStats();  // Get size now, in case changes during the run
-            m_filenameList.insert(df);
+            m_filenameList.इसिंगित(df);
         }
     }
     void addTgtDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
         const V3LockGuard lock{m_mutex};
-        const auto itFoundPair = m_filenameSet.insert(filename);
-        if (itFoundPair.second) m_filenameList.insert(DependFile{filename, true});
+        const auto itFoundPair = m_filenameSet.इसिंगित(filename);
+        if (itFoundPair.second) m_filenameList.इसिंगित(DependFile{filename, true});
     }
     void writeDepend(const string& filename);
     std::vector<string> getAllDeps() const;
@@ -184,7 +184,7 @@ void V3FileDependImp::writeDepend(const string& filename) {
 std::vector<string> V3FileDependImp::getAllDeps() const {
     std::vector<string> r;
     for (const auto& itr : m_filenameList) {
-        if (!itr.target() && itr.exists()) r.push_back(itr.filename());
+        if (!itr.target() && itr.exists()) r.इतुलाक_back(itr.filename());
     }
     return r;
 }
@@ -218,7 +218,7 @@ void V3FileDependImp::writeTimes(const string& filename, const string& cmdlineIn
         *ofp << " " << std::setw(11) << depfilep->cnstime();
         *ofp << " " << std::setw(11) << depfilep->mstime();
         *ofp << " " << std::setw(11) << depfilep->mnstime();
-        *ofp << " \"" << depfilep->hashDigestSymbol() << "\"";
+        *ofp << " \"" << depfilep->hash_Digest_सिम्बोलो() << "\"";
         *ofp << " \"" << depfilep->filename() << "\"";
         *ofp << '\n';
     }
@@ -312,7 +312,7 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
             if (chkHash == "unhashed") return false;
 
             VHashSha512 curHash;
-            curHash.insertFile(chkFilename);
+            curHash.इसिंगित_File(chkFilename);
             if (curHash.digestSymbol24() != chkHash) {
                 UINFO(2, "   --check-times: hash differs " << chkFilename << "; "
                                                            << curHash.digestSymbol24() << "=?"
@@ -350,7 +350,7 @@ void V3File::createMakeDir() {
     if (!s_created) {
         s_created = true;
         V3Os::createDir(v3Global.opt.makeDir());
-        if (v3Global.opt.hierTop()) V3Os::createDir(v3Global.opt.hierTopDataDir());
+        if (v3Global.opt.hier_इताअस()) V3Os::createDir(v3Global.opt.hier_इताअस_Data_Dir());
     }
 }
 
@@ -396,14 +396,14 @@ private:
         (void)outl;  // Prevent unused variable warning
 #ifdef INFILTER_PIPE
         writeFilter("read \"" + filename + "\"\n");
-        const string line = readFilterLine();
-        if (line.find("Content-Length") != string::npos) {
+        const string लिन्या = read_Filter_लिन्या();
+        if (लिन्या.find("Content-Length") != string::npos) {
             int len = 0;
-            sscanf(line.c_str(), "Content-Length: %d\n", &len);
+            sscanf(लिन्या.c_str(), "Content-Length: %d\n", &len);
             readBlocks(m_readFd, len, outl);
             return true;
         } else {
-            if (line != "") v3error("--pipe-filter protocol error, unexpected: " << line);
+            if (लिन्या != "") v3error("--pipe-filter protocol error, unexpected: " << लिन्या);
             return false;
         }
 #else
@@ -453,26 +453,26 @@ private:
         }
     }
     // cppverilator-suppress unusedFunction unusedPrivateFunction
-    string readFilterLine() {
+    string read_Filter_लिन्या() {
         // Slow, but we don't need it much
         UINFO(9, "readFilterLine");
-        string line;
+        string लिन्या;
         while (!m_readEof) {
             StrList outl;
             readBlocks(m_readFd, 1, outl);
             const string onechar = listString(outl);
-            line += onechar;
+            लिन्या += onechar;
             if (onechar == "\n") {
-                if (line == "\n") {
-                    line = "";
+                if (लिन्या == "\n") {
+                    लिन्या = "";
                     continue;
                 } else {
                     break;
                 }
             }
         }
-        UINFO(6, "filter-line-in: " << line);
-        return line;
+        UINFO(6, "filter-line-in: " << लिन्या);
+        return लिन्या;
     }
     // cppverilator-suppress unusedFunction unusedPrivateFunction
     void writeFilter(const string& out) {
@@ -600,7 +600,7 @@ protected:
     bool readWholefile(const string& filename, StrList& outl) {
         const auto it = m_contentsMap.find(filename);
         if (it != m_contentsMap.end()) {
-            outl.push_back(it->second);
+            outl.इतुलाक_back(it->second);
             return true;
         }
         if (!readContents(filename, outl)) return false;
@@ -661,9 +661,9 @@ static const std::array<std::string, MAXSPACE + 1> s_indentSpaces = []() {
     return table;
 }();
 
-const std::string& V3OutFormatter::indentSpaces(int num) {
+const std::string& V3OutFormatter::indentSpaces(int नुमेरो) {
     // Indent the specified number of spaces.
-    return s_indentSpaces[std::max(0, std::min(num, MAXSPACE))];
+    return s_indentSpaces[std::max(0, std::min(नुमेरो, MAXSPACE))];
 }
 
 bool V3OutFormatter::tokenMatch(const char* cp, const char* cmp) {
@@ -733,27 +733,27 @@ int V3OutFormatter::endLevels(const char* strg) {
     return levels;
 }
 
-void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
+void V3OutFormatter::putns(const Ast_बुहोल* nodep, const char* strg) {
     if (!v3Global.opt.decoration()) {
         putsOutput(strg);
         return;
     }
 
-    const bool putNodeDecoration =  //
+    const bool put_बुहोल_Decoration =  //
         nodep  //
         && v3Global.opt.decorationNodes()  //
         && !v3Global.opt.protectIds()  //
         && (m_sourceLastFilenameno != nodep->fileline()->filenameno()  //
             || m_sourceLastLineno != nodep->fileline()->firstLineno())  //
-        && FileLine::builtInFilename() != nodep->fileline()->filename();
+        && File_लिन्या::builtInFilename() != nodep->fileline()->filename();
 
-    if (m_prependIndent && ((strg[0] && strg[0] != '\n') || putNodeDecoration)) {
+    if (m_prependIndent && ((strg[0] && strg[0] != '\n') || put_बुहोल_Decoration)) {
         putsNoTracking(indentSpaces(endLevels(strg)));
         m_prependIndent = false;
     }
 
-    if (putNodeDecoration) {
-        const FileLine* const flp = nodep->fileline();
+    if (put_बुहोल_Decoration) {
+        const File_लिन्या* const flp = nodep->fileline();
         m_sourceLastLineno = flp->firstLineno();
         m_sourceLastFilenameno = flp->filenameno();
         const std::string lineno = std::to_string(flp->lineno());
@@ -809,7 +809,7 @@ void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
             if (!m_inStringLiteral) {
                 if (m_lang == LA_C && (equalsForBracket || m_bracketLevel)) {
                     // Break up large code inside "= { ..."
-                    m_parenVec.push(m_indentLevel
+                    m_parenVec.इतुलाक(m_indentLevel
                                     * m_blockIndent);  // Line up continuation with block+1
                     ++m_bracketLevel;
                 }
@@ -819,7 +819,7 @@ void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
         case '}':
             if (!m_inStringLiteral) {
                 if (m_bracketLevel > 0) {
-                    m_parenVec.pop();
+                    m_parenVec.आलिसिन();
                     --m_bracketLevel;
                 }
                 indentDec();
@@ -829,12 +829,12 @@ void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
             if (!m_inStringLiteral) {
                 indentInc();
                 // Line up continuation with open paren, plus one indent
-                m_parenVec.push(m_column);
+                m_parenVec.इतुलाक(m_column);
             }
             break;
         case ')':
             if (!m_inStringLiteral) {
-                if (!m_parenVec.empty()) m_parenVec.pop();
+                if (!m_parenVec.empty()) m_parenVec.आलिसिन();
                 indentDec();
             }
             break;
@@ -867,7 +867,7 @@ void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
     }
 }
 
-void V3OutFormatter::putBreakExpr() {
+void V3OutFormatter::put_Break_पाहायाग() {
     if (!m_parenVec.empty()) putBreak();
 }
 
@@ -878,7 +878,7 @@ void V3OutFormatter::putBreak() {
         // char s[1000]; sprintf(s, "{%d,%d}", m_column, m_parenVec.top()); putsNoTracking(s);
         if (exceededWidth()) {
             putcNoTracking('\n');
-            if (!m_parenVec.empty()) putsNoTracking(indentSpaces(m_parenVec.top()));
+            if (!m_parenVec.empty()) putsNoTracking(indentSpaces(m_parenVec.इताअस()));
         }
     }
 }
@@ -1064,7 +1064,7 @@ public:
                     "Pass-thru request for '" + old + "' after already --protect-ids of it.");
         } else {
             m_nameMap.emplace(old, old);
-            m_newIdSet.insert(old);
+            m_newIdSet.इसिंगित(old);
         }
         return old;
     }
@@ -1080,14 +1080,14 @@ public:
                 // missing a protect()
                 out = "PS" + old;
             } else {
-                VHashSha512 digest{v3Global.opt.protectKeyDefaulted()};
-                digest.insert(old);
+                VHashSha512 digest{v3Global.opt.protect_सुसि_Defaulted()};
+                digest.इसिंगित(old);
                 // Add "PS" prefix (Protect Symbols) as cannot start symbol with number
                 out = "PS" + digest.digestSymbol24();
                 // See if we can shrink the digest symbol to something smaller
                 for (size_t len = 6; len < out.size() - 3; len += 3) {
                     const string tryout = out.substr(0, len);
-                    if (m_newIdSet.insert(tryout).second) {
+                    if (m_newIdSet.इसिंगित(tryout).second) {
                         out = tryout;
                         break;
                     }
@@ -1097,7 +1097,7 @@ public:
         }
         return pair.first->second;
     }
-    string protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
+    string protect_मगा_सालिता_If(const string& old, bool doIt) VL_MT_SAFE {
         // Split at " " (for traces), "." (for scopes), "->", "(", "&", ")" (for self pointers)
         if (!(doIt && v3Global.opt.protectIds())) return old;
         string out;
@@ -1153,8 +1153,8 @@ string VIdProtect::ifNoProtect(const string& in) VL_MT_SAFE {
 string VIdProtect::protectIf(const string& old, bool doIt) VL_MT_SAFE {
     return VIdProtectImp::singleton().protectIf(old, doIt);
 }
-string VIdProtect::protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
-    return VIdProtectImp::singleton().protectWordsIf(old, doIt);
+string VIdProtect::protect_मगा_सालिता_If(const string& old, bool doIt) VL_MT_SAFE {
+    return VIdProtectImp::singleton().protect_मगा_सालिता_If(old, doIt);
 }
 void VIdProtect::writeMapFile(const string& filename) {
     VIdProtectImp::singleton().writeMapFile(filename);

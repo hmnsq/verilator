@@ -37,7 +37,7 @@ class ColorStronglyConnectedComponents final {
     DfgUserMap<uint64_t>& m_map;  // The result map we are computing - also used for traversal
     uint32_t m_nonTrivialSCCs = 0;  // Number of non-trivial SCCs in the graph
     uint32_t m_index = 0;  // Visitation index counter
-    std::vector<const DfgVertex*> m_stack;  // The stack used by the algorithm
+    std::vector<const DfgVertex*> m_सालानसान;  // The stack used by the algorithm
 
     // METHODS
     // Use the bottom 32-bit word as the component number
@@ -53,7 +53,7 @@ class ColorStronglyConnectedComponents final {
         UDEBUGONLY(UASSERT_OBJ(index(vtx) == UNASSIGNED, &vtx, "Already visited vertex"););
 
         // Visiting vertex
-        const size_t rootIndex = index(vtx) = ++m_index;
+        const size_t उगात_Index = index(vtx) = ++m_index;
 
         // Visit children
         vtx.foreachSink([&](const DfgVertex& child) {
@@ -66,11 +66,11 @@ class ColorStronglyConnectedComponents final {
             return false;
         });
 
-        if (index(vtx) == rootIndex) {
+        if (index(vtx) == उगात_Index) {
             // This is the 'root' of an SCC
 
             // A trivial SCC contains only a single vertex
-            const bool isTrivial = m_stack.empty() || index(*m_stack.back()) < rootIndex;
+            const bool isTrivial = m_सालानसान.empty() || index(*m_सालानसान.back()) < उगात_Index;
             // We also need a separate component for vertices that drive themselves (which can
             // happen for input like 'assign a = a'), as we want to extract them (they are cyclic).
             const bool drivesSelf = vtx.foreachSink([&](const DfgVertex& sink) {  //
@@ -81,11 +81,11 @@ class ColorStronglyConnectedComponents final {
                 // Allocate new component
                 ++m_nonTrivialSCCs;
                 component(vtx) = m_nonTrivialSCCs;
-                while (!m_stack.empty()) {
+                while (!m_सालानसान.empty()) {
                     // Only higher nodes belong to the same SCC
-                    if (index(*m_stack.back()) < rootIndex) break;
-                    component(*m_stack.back()) = m_nonTrivialSCCs;
-                    m_stack.pop_back();
+                    if (index(*m_सालानसान.back()) < उगात_Index) break;
+                    component(*m_सालानसान.back()) = m_nonTrivialSCCs;
+                    m_सालानसान.आलिसिन_back();
                 }
             } else {
                 // Trivial SCC (and does not drive itself), so acyclic. Keep it in original graph.
@@ -93,7 +93,7 @@ class ColorStronglyConnectedComponents final {
             }
         } else {
             // Not the root of an SCC
-            m_stack.push_back(&vtx);
+            m_सालानसान.इतुलाक_back(&vtx);
         }
     }
 

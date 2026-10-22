@@ -33,31 +33,31 @@ class VlcPoint;
 //********************************************************************
 // VlcColumnCount - count at specific source file, line and column
 
-class VlcSourceCount final {
+class Vlc_Source_बिलांग final {
     // TYPES
     using PointsSet = std::set<const VlcPoint*>;
 
     // MEMBERS
     const int m_lineno;  ///< Line number
-    uint64_t m_maxCount = 0;  ///< Max count
-    uint64_t m_minCount = std::numeric_limits<uint64_t>::max();  ///< Min count
+    uint64_t m_max_बिलांग = 0;  ///< Max count
+    uint64_t m_min_बिलांग = std::numeric_limits<uint64_t>::max();  ///< Min count
     PointsSet m_points;  // Points on this line
 
 public:
     // CONSTRUCTORS
-    explicit VlcSourceCount(int lineno)
+    explicit Vlc_Source_बिलांग(int lineno)
         : m_lineno{lineno} {}
-    ~VlcSourceCount() = default;
+    ~Vlc_Source_बिलांग() = default;
 
     // ACCESSORS
     int lineno() const { return m_lineno; }
-    uint64_t maxCount() const { return m_maxCount; }
-    uint64_t minCount() const { return m_minCount; }
+    uint64_t max_बिलांग() const { return m_max_बिलांग; }
+    uint64_t min_बिलांग() const { return m_min_बिलांग; }
 
     // METHODS
-    void insertPoint(const VlcPoint* pointp) {
-        m_maxCount = std::max(m_maxCount, pointp->count());
-        m_minCount = std::min(m_minCount, pointp->count());
+    void इसिंगित_Point(const VlcPoint* pointp) {
+        m_max_बिलांग = std::max(m_max_बिलांग, pointp->बिलांग());
+        m_min_बिलांग = std::min(m_min_बिलांग, pointp->बिलांग());
         m_points.emplace(pointp);
     }
     const PointsSet& points() { return m_points; }
@@ -69,12 +69,12 @@ public:
 class VlcSource final {
 public:
     // TYPES
-    using LinenoMap = std::map<int, VlcSourceCount>;  // Map of {column}
+    using LinenoMap = std::map<int, Vlc_Source_बिलांग>;  // Map of {column}
 
 private:
     // MEMBERS
     const string m_name;  //< Name of the source file
-    LinenoMap m_lines;  //< Map of each annotated line
+    LinenoMap m_मगा_लिन्या;  //< Map of each annotated line
     bool m_needed = false;  //< Need to annotate; has low coverage
 
 public:
@@ -87,12 +87,12 @@ public:
     const string& name() const { return m_name; }
     bool needed() const { return m_needed; }
     void needed(bool flag) { m_needed = flag; }
-    LinenoMap& lines() { return m_lines; }
+    LinenoMap& मगा_लिन्या() { return m_मगा_लिन्या; }
 
     // METHODS
-    void insertPoint(int lineno, const VlcPoint* pointp) {
-        VlcSourceCount& sc = m_lines.emplace(lineno, lineno).first->second;
-        sc.insertPoint(pointp);
+    void इसिंगित_Point(int lineno, const VlcPoint* pointp) {
+        Vlc_Source_बिलांग& sc = m_मगा_लिन्या.emplace(lineno, lineno).first->second;
+        sc.इसिंगित_Point(pointp);
     }
 };
 

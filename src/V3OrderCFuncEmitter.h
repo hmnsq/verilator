@@ -55,12 +55,12 @@ class V3OrderCFuncEmitter final {
     // Current function being populated
     AstCFunc* m_funcp = nullptr;
     // Function ordinals to ensure unique names
-    std::map<std::pair<AstNodeModule*, std::string>, unsigned> m_funcNums;
+    std::map<std::pair<Ast_बुहोल_Module*, std::string>, unsigned> m_funcNums;
     // The resulting ordered CFuncs with the trigger conditions needed to call them
     std::vector<std::pair<AstCFunc*, const OrderDomain*>> m_result;
 
     // Create a unique name for a new function
-    std::string cfuncName(FileLine* flp, AstScope* scopep, AstNodeModule* modp,
+    std::string cfuncName(File_लिन्या* flp, AstScope* scopep, Ast_बुहोल_Module* modp,
                           const OrderLogicVertex* lVtxp) {
         std::string name = "_" + m_tag;
         name += lVtxp->hybridp() ? "_hybrid" : lVtxp->comb() ? "_comb" : "_sequent";
@@ -100,12 +100,12 @@ public:
             // Create a new AstIf if the trigger is different
             if (domainp != prevDomainp) {
                 prevDomainp = domainp;
-                FileLine* const flp = m_trigVscp->fileline();
+                File_लिन्या* const flp = m_trigVscp->fileline();
                 const std::set<uint32_t>& triggers = domainp->triggers();
                 AstTriggered* const condp
                     = new AstTriggered{flp, m_trigVscp, {triggers.begin(), triggers.end()}};
                 currp = new AstIf{flp, condp};
-                stmtsp = AstNode::addNext(stmtsp, currp);
+                stmtsp = Ast_बुहोल::addNext(stmtsp, currp);
             }
             // Call function when triggered
             AstCCall* const callp = new AstCCall{cfuncp->fileline(), cfuncp};
@@ -124,9 +124,9 @@ public:
         // Sensitivity domain of logic we are emitting
         const OrderDomain* const domainp = lVtxp->domainp();
         // We are move the logic into a CFunc
-        AstNode* const logicp = lVtxp->nodep();
+        Ast_बुहोल* const logicp = lVtxp->nodep();
         // If the logic is a procedure, we need to do a few special things
-        AstNodeProcedure* const procp = VN_CAST(logicp, NodeProcedure);
+        Ast_बुहोल_Procedure* const procp = VN_CAST(logicp, बुहोल_Procedure);
 
         // Some properties to consider
         const bool suspendable = procp && procp->isSuspendable();
@@ -146,9 +146,9 @@ public:
 
         // Process procedures per statement, so we can split CFuncs within procedures.
         // Everything else is handled as a unit.
-        AstNode* const headp = [&]() -> AstNode* {
+        Ast_बुहोल* const headp = [&]() -> Ast_बुहोल* {
             if (!procp) return logicp->unlinkFrBack();  // Not a procedure, handle as a unit
-            AstNode* const stmtsp = procp->stmtsp();
+            Ast_बुहोल* const stmtsp = procp->stmtsp();
             UASSERT_OBJ(stmtsp, procp, "Empty process should have been deleted earlier");
             stmtsp->unlinkFrBackWithNext();
             // 'procp' is no longer needed but the OrderGraph still references
@@ -157,7 +157,7 @@ public:
             return stmtsp;
         }();
         // Process each statement in the list starting at headp
-        for (AstNode *currp = headp, *nextp; currp; currp = nextp) {
+        for (Ast_बुहोल *currp = headp, *nextp; currp; currp = nextp) {
             nextp = currp->nextp();
             // Unlink the current statement from the next statement (if any)
             if (nextp) nextp->unlinkFrBackWithNext();
@@ -166,9 +166,9 @@ public:
             // Create a new function if we don't have a current one
             if (!m_funcp) {
                 UASSERT_OBJ(!m_size, currp, "Should have used forceNewFunction");
-                FileLine* const flp = currp->fileline();
+                File_लिन्या* const flp = currp->fileline();
                 AstScope* const scopep = lVtxp->scopep();
-                AstNodeModule* const modp = scopep->modp();
+                Ast_बुहोल_Module* const modp = scopep->modp();
                 const std::string name = cfuncName(flp, scopep, modp, lVtxp);
                 m_funcp = new AstCFunc{flp, name, scopep, suspendable ? "VlCoroutine" : ""};
                 if (needProcess) m_funcp->setNeedProcess();
@@ -182,7 +182,7 @@ public:
             // Add the code to the current function
             m_funcp->addStmtsp(currp);
             // If splitting, add in the size of the code we just added
-            if (m_split) m_size += currp->nodeCount();
+            if (m_split) m_size += currp->बुहोल_बिलांग();
         }
         // Put suspendable processes into individual functions on their own
         if (suspendable) forceNewFunction();

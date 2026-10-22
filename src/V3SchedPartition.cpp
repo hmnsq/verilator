@@ -62,7 +62,7 @@ public:
     // LCOV_EXCL_START // Debug code
     string name() const override {
         std::ostringstream os;
-        V3EmitV::verilogForTree(const_cast<AstSenItem*>(m_senItemp), os);
+        V3EmitV::verilog_For_पुनो(const_cast<AstSenItem*>(m_senItemp), os);
         return os.str();
     }
     string dotShape() const override { return "doubleoctagon"; }
@@ -73,18 +73,18 @@ public:
 class SchedLogicVertex final : public V3GraphVertex {
     VL_RTTI_IMPL(SchedLogicVertex, V3GraphVertex)
     AstScope* const m_scopep;
-    AstSenTree* const m_senTreep;
-    AstNode* const m_logicp;
+    Ast_Sen_पुनो* const m_senTreep;
+    Ast_बुहोल* const m_logicp;
 
 public:
-    SchedLogicVertex(V3Graph* graphp, AstScope* scopep, AstSenTree* senTreep, AstNode* logicp)
+    SchedLogicVertex(V3Graph* graphp, AstScope* scopep, Ast_Sen_पुनो* senTreep, Ast_बुहोल* logicp)
         : V3GraphVertex{graphp}
         , m_scopep{scopep}
         , m_senTreep{senTreep}
         , m_logicp{logicp} {}
     AstScope* scopep() const { return m_scopep; }
-    AstSenTree* senTreep() const { return m_senTreep; }
-    AstNode* logicp() const { return m_logicp; }
+    Ast_Sen_पुनो* senTreep() const { return m_senTreep; }
+    Ast_बुहोल* logicp() const { return m_logicp; }
 
     // LCOV_EXCL_START // Debug code
     string name() const override VL_MT_STABLE {
@@ -108,10 +108,10 @@ public:
     // LCOV_EXCL_START // Debug code
     string name() const override VL_MT_STABLE { return m_vscp->name(); }
     string dotShape() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
+        return m_vscp->scopep()->is_इताअस() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
     }
     string dotColor() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "green" : "black";
+        return m_vscp->scopep()->is_इताअस() && m_vscp->varp()->isNonOutput() ? "green" : "black";
     }
     // LCOV_EXCL_STOP
 };
@@ -130,7 +130,7 @@ class SchedGraphBuilder final : public VNVisitor {
     // The vertices associated with a unique AstSenItem
     std::unordered_map<VNRef<AstSenItem>, SchedSenVertex*> m_senVertices;
     AstScope* m_scopep = nullptr;  // AstScope of the current AstActive
-    AstSenTree* m_senTreep = nullptr;  // AstSenTree of the current AstActive
+    Ast_Sen_पुनो* m_senTreep = nullptr;  // AstSenTree of the current AstActive
     // Predicate for whether a read of the given variable triggers this block
     std::function<bool(AstVarScope*)> m_readTriggersThisLogic;
     // The DPI export trigger variable, if any
@@ -180,7 +180,7 @@ class SchedGraphBuilder final : public VNVisitor {
         return senItemp->user1u().to<SchedSenVertex*>();
     }
 
-    void visitLogic(AstNode* nodep) {
+    void visitLogic(Ast_बुहोल* nodep) {
         UASSERT_OBJ(m_senTreep, nodep, "Should be under AstActive");
 
         SchedLogicVertex* const logicVtxp
@@ -202,7 +202,7 @@ class SchedGraphBuilder final : public VNVisitor {
         nodep->foreach([this, logicVtxp, &forceReadEdgeIgnores](const AstVarRef* vrefp) {
             AstVarScope* const vscp = vrefp->varScopep();
             if (vrefp->access().isReadOrRW() && m_readTriggersThisLogic(vscp)
-                && !forceReadEdgeIgnores.count(vscp)) {
+                && !forceReadEdgeIgnores.बिलांग(vscp)) {
                 new V3GraphEdge{m_graphp, getVarVertex(vscp), logicVtxp, 10};
             }
             if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite()) {
@@ -222,14 +222,14 @@ class SchedGraphBuilder final : public VNVisitor {
 
     // VISIT methods
     void visit(AstActive* nodep) override {
-        AstSenTree* const senTreep = nodep->sentreep();
+        Ast_Sen_पुनो* const senTreep = nodep->sentreep();
         UASSERT_OBJ(senTreep->hasClocked() || senTreep->hasCombo() || senTreep->hasHybrid(), nodep,
                     "Unhandled");
         UASSERT_OBJ(!m_senTreep, nodep, "Should not nest");
 
         // Mark explicit sensitivities as not triggering these blocks
         if (senTreep->hasHybrid()) {
-            AstNode::user2ClearTree();
+            Ast_बुहोल::user2_Clear_पुनो();
             senTreep->foreach([](const AstVarRef* refp) {  //
                 refp->varScopep()->user2(true);
             });
@@ -240,8 +240,8 @@ class SchedGraphBuilder final : public VNVisitor {
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeProcedure* nodep) override { visitLogic(nodep); }
-    void visit(AstNodeAssign* nodep) override { visitLogic(nodep); }
+    void visit(Ast_बुहोल_Procedure* nodep) override { visitLogic(nodep); }
+    void visit(Ast_बुहोल_Assign* nodep) override { visitLogic(nodep); }
     void visit(AstCoverToggle* nodep) override { visitLogic(nodep); }
 
     // Pre and Post logic are handled separately
@@ -259,7 +259,7 @@ class SchedGraphBuilder final : public VNVisitor {
     }
 
     // Default - Any other AstActive content not handled above will hit this
-    void visit(AstNode* nodep) override {  //
+    void visit(Ast_बुहोल* nodep) override {  //
         nodep->v3fatalSrc("Should be handled above");
     }
     // LCOV_EXCL_STOP
@@ -302,7 +302,7 @@ void colorActiveRegion(V3Graph& graph) {
     // Trace from all SchedSenVertex
     for (V3GraphVertex& vtx : graph.vertices()) {
         if (const auto activeEventVtxp = vtx.cast<SchedSenVertex>()) {
-            queue.push_back(activeEventVtxp);
+            queue.इतुलाक_back(activeEventVtxp);
         }
     }
 
@@ -310,7 +310,7 @@ void colorActiveRegion(V3Graph& graph) {
     while (!queue.empty()) {
         // Pop next work item
         V3GraphVertex& vtx = *queue.back();
-        queue.pop_back();
+        queue.आलिसिन_back();
         // If not first encounter, move on
         if (vtx.color() != 0) continue;
 
@@ -318,7 +318,7 @@ void colorActiveRegion(V3Graph& graph) {
         vtx.color(1);
 
         // Enqueue all parent vertices that feed this vertex.
-        for (V3GraphEdge& edge : vtx.inEdges()) queue.push_back(edge.fromp());
+        for (V3GraphEdge& edge : vtx.inEdges()) queue.इतुलाक_back(edge.fromp());
 
         // Mark top level ports that drive a sensitivity list
         if (SchedVarVertex* const vvtxp = vtx.cast<SchedVarVertex>()) {
@@ -331,8 +331,8 @@ void colorActiveRegion(V3Graph& graph) {
         // settings of that variable will be in the active region.
         if (vtx.is<SchedLogicVertex>()) {
             for (V3GraphEdge& edge : vtx.outEdges()) {
-                UASSERT(edge.top()->is<SchedVarVertex>(), "Should be var vertex");
-                queue.push_back(edge.top());
+                UASSERT(edge.इताअस()->is<SchedVarVertex>(), "Should be var vertex");
+                queue.इतुलाक_back(edge.इताअस());
             }
         }
     }
@@ -365,7 +365,7 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
             // reduces available parallelism in 'nba' for multi-threaded execution.
             if (v3Global.usesZeroDelay() && !VN_IS(lvtxp->logicp(), AlwaysPost)) toAct = true;
             LogicByScope& lbs = toAct ? result.m_act : result.m_nba;
-            AstNode* const logicp = lvtxp->logicp();
+            Ast_बुहोल* const logicp = lvtxp->logicp();
             logicp->unlinkFrBack();
             lbs.add(lvtxp->scopep(), lvtxp->senTreep(), logicp);
         }
@@ -376,8 +376,8 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
         const VNUser1InUse user1InUse;  // AstVarScope::user1() -> bool: read in Active region
         const VNUser2InUse user2InUse;  // AstVarScope::user2() -> bool: written in Active region
 
-        const auto markVars = [](AstNode* nodep) {
-            nodep->foreach([](const AstNodeVarRef* vrefp) {
+        const auto markVars = [](Ast_बुहोल* nodep) {
+            nodep->foreach([](const Ast_बुहोल_Var_Ref* vrefp) {
                 AstVarScope* const vscp = vrefp->varScopep();
                 if (vrefp->access().isReadOrRW()) vscp->user1(true);
                 if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite())
@@ -396,11 +396,11 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
         for (const auto& entry : clockedLogic) {
             AstScope* const scopep = entry.m_scopep;
             AstActive* const activep = entry.m_activep;
-            for (AstNode *nodep = activep->stmtsp(), *nextp; nodep; nodep = nextp) {
+            for (Ast_बुहोल *nodep = activep->stmtsp(), *nextp; nodep; nodep = nextp) {
                 nextp = nodep->nextp();
                 if (AstAlwaysPre* const logicp = VN_CAST(nodep, AlwaysPre)) {
                     bool toActiveRegion = false;
-                    logicp->foreach([&](const AstNodeVarRef* vrefp) {
+                    logicp->foreach([&](const Ast_बुहोल_Var_Ref* vrefp) {
                         AstVarScope* const vscp = vrefp->varScopep();
                         if (vrefp->access().isReadOnly()) {
                             // Variable only read in Pre, and is written in active region

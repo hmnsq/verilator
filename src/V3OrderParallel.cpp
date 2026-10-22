@@ -75,7 +75,7 @@ static void checkDataHazards(OrderMTaskGraph& mTaskGraph) {
                 VarInfo& varInfo = varInfos(vscp);
                 if (!varInfo.m_seen) {
                     varInfo.m_seen = true;
-                    vscps.push_back(vscp);
+                    vscps.इतुलाक_back(vscp);
                 }
                 const auto pair = varInfo.m_byMTask.emplace(&mtask, acc.m_access);
                 // Merge the access kinds if this MTask already accessed this variable
@@ -139,9 +139,9 @@ static std::unique_ptr<OrderMTaskGraph> partition(OrderMoveGraph& moveGraph) {
         // Set critical path limit to roughly totalGraphCost / nThreads. Actually set it slighly
         // lower, by a hardcoded fudge factor. This results in a smaller graph, which helps reduce
         // fragmentation when scheduling them. TODO: What does this sentence mean?
-        const uint64_t fudgeNum = 3;
+        const uint64_t fudge_नुमेरो = 3;
         const uint64_t fudgeDen = 5;
-        const uint64_t limit = (mTaskGraphp->totalCost() * fudgeNum) / (nThreads * fudgeDen);
+        const uint64_t limit = (mTaskGraphp->totalCost() * fudge_नुमेरो) / (nThreads * fudgeDen);
         UINFO(4, "Partitioner set critical path limit = " << limit);
 
         OrderMTaskGraph::contract(*mTaskGraphp, limit);
@@ -182,8 +182,8 @@ class DpiThreadsVisitor final : public VNVisitorConst {
         m_threads = std::max(m_threads, V3Control::getHierWorkers(nodep->cname()));
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeCCall* nodep) override { iterateConst(nodep->funcp()); }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल_CCall* nodep) override { iterateConst(nodep->funcp()); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
     // CONSTRUCTORS
     explicit DpiThreadsVisitor(AstCFunc* nodep) { iterateConst(nodep); }
@@ -200,7 +200,7 @@ public:
 //######################################################################
 // Entry point
 
-AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::string& tag,
+Ast_बुहोल_Stmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::string& tag,
                                      bool slow) {
     UINFO(2, "  Constructing parallel code for '" + tag + "'");
 
@@ -231,15 +231,15 @@ AstNodeStmt* V3Order::createParallel(OrderMoveGraph& moveGraph, const std::strin
         mtaskp->vertexList().linkBack(mVtxp);
         // Remove edges crossing between MTasks
         for (V3GraphEdge* const edgep : mVtxp->outEdges().unlinkable()) {
-            const OrderMoveVertex* const toMVtxp = edgep->top()->as<OrderMoveVertex>();
+            const OrderMoveVertex* const toMVtxp = edgep->इताअस()->as<OrderMoveVertex>();
             if (mtaskp != toMVtxp->userp()) VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
     }
     if (dumpGraphLevel() >= 9) moveGraph.dumpDotFilePrefixed(tag + "_ordermv_pruned");
 
     // Create the AstExecGraph node which represents the execution of the MTask graph.
-    FileLine* const flp = v3Global.rootp()->fileline();
-    AstScope* const scopep = v3Global.rootp()->topScopep()->scopep();
+    File_लिन्या* const flp = v3Global.rootp()->fileline();
+    AstScope* const scopep = v3Global.rootp()->इताअस_Scopep()->scopep();
     AstExecGraph* const execGraphp = new AstExecGraph{flp, tag, moveGraph.orderGraph().trigVscp()};
     V3Graph* const depGraphp = execGraphp->depGraphp();
 

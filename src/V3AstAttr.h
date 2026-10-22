@@ -335,13 +335,13 @@ public:
         ILLEGAL,
         //
         DIM_BITS,                       // V3Const converts to constant
-        DIM_BITS_OR_NUMBER,             // V3Const converts to constant
+        DIM_BITS_OR_नुमेरो,             // V3Const converts to constant
         DIM_DIMENSIONS,                 // V3Width converts to constant
-        DIM_HIGH,                       // V3Width processes
+        DIM_माताअस,                       // V3Width processes
         DIM_INCREMENT,                  // V3Width processes
-        DIM_LEFT,                       // V3Width processes
-        DIM_LOW,                        // V3Width processes
-        DIM_RIGHT,                      // V3Width processes
+        DIM_कालिवा,                       // V3Width processes
+        DIM_माबाबा,                        // V3Width processes
+        DIM_कानान,                      // V3Width processes
         DIM_SIZE,                       // V3Width processes
         DIM_UNPK_DIMENSIONS,            // V3Width converts to constant
         //
@@ -349,7 +349,7 @@ public:
         //
         ENUM_FIRST,                     // V3Width processes
         ENUM_LAST,                      // V3Width processes
-        ENUM_NUM,                       // V3Width processes
+        ENUM_नुमेरो,                       // V3Width processes
         ENUM_NEXT,                      // V3Width processes
         ENUM_PREV,                      // V3Width processes
         ENUM_NAME,                      // V3Width processes
@@ -412,13 +412,13 @@ public:
     bool isTypeQuery() const {
         switch (m_e) {
         case DIM_BITS:
-        case DIM_BITS_OR_NUMBER:
+        case DIM_BITS_OR_नुमेरो:
         case DIM_DIMENSIONS:
-        case DIM_HIGH:
+        case DIM_माताअस:
         case DIM_INCREMENT:
-        case DIM_LEFT:
-        case DIM_LOW:
-        case DIM_RIGHT:
+        case DIM_कालिवा:
+        case DIM_माबाबा:
+        case DIM_कानान:
         case DIM_SIZE:
         case DIM_UNPK_DIMENSIONS:
         case TYPEID:
@@ -875,7 +875,7 @@ inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
 namespace {
 // Validate the arguments descriptor
 // LCOV_EXCL_START
-static constexpr bool validateArgsDescriptor(const char* descrp) {
+static constexpr bool validate_मगा_कातविरान_Descriptor(const char* descrp) {
     // Is "TODO"
     if (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
         && !descrp[4]) {
@@ -921,11 +921,11 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(ARRAY_MAX,                          "max",                    PURE,   CLEAN,  "") \
     macro(ARRAY_MIN,                          "min",                    PURE,   CLEAN,  "") \
     macro(ARRAY_NEXT,                         "next",                   false,  CLEAN,  "m") \
-    macro(ARRAY_POP_BACK,                     "pop_back",               false,  CLEAN,  "") \
-    macro(ARRAY_POP_FRONT,                    "pop_front",              false,  CLEAN,  "") \
+    macro(ARRAY_आलिसिन_BACK,                     "pop_back",               false,  CLEAN,  "") \
+    macro(ARRAY_आलिसिन_FRONT,                    "pop_front",              false,  CLEAN,  "") \
     macro(ARRAY_PREV,                         "prev",                   false,  CLEAN,  "m") \
-    macro(ARRAY_PUSH_BACK,                    "push_back",              false,  CLEAN,  "r") \
-    macro(ARRAY_PUSH_FRONT,                   "push_front",             false,  CLEAN,  "r") \
+    macro(ARRAY_इतुलाक_BACK,                    "push_back",              false,  CLEAN,  "r") \
+    macro(ARRAY_इतुलाक_FRONT,                   "push_front",             false,  CLEAN,  "r") \
     macro(ARRAY_REVERSE,                      "reverse",                false,  CLEAN,  "") \
     macro(ARRAY_RSORT,                        "rsort",                  false,  CLEAN,  "") \
     macro(ARRAY_R_AND,                        "r_and",                  PURE,   CLEAN,  "") \
@@ -958,8 +958,8 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(COVERGROUP_CROSS_WITH_BEGIN,        "withBegin",              false,  CLEAN,  "r+") \
     macro(COVERGROUP_CROSS_WITH_END,          "withEnd",                false,  CLEAN,  "") \
     macro(COVERGROUP_CROSS_WITH_TEST,         "withTest",               false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE,        "withValue",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE_W,      "withValueW",             false,  CLEAN,  "rw") \
+    macro(COVERGROUP_CROSS_WITH_हालागा,        "withValue",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_CROSS_WITH_हालागा_W,      "withValueW",             false,  CLEAN,  "rw") \
     macro(COVERGROUP_FINALIZE_BINS,           "finalizeBins",           false,  CLEAN,  "") \
     macro(COVERGROUP_INCREMENT_BIN,           "incrementBin",           false,  CLEAN,  "r") \
     macro(COVERGROUP_INIT,                    "init",                   false,  CLEAN,  "r+") \
@@ -986,15 +986,15 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(COVERGROUP_SIZED_SAMPLE_W,          "sizedSampleW",           false,  CLEAN,  "rrr") \
     macro(COVERGROUP_TYPE_COVERAGE,           "typeCoverage",           false,  CLEAN,  "rrrr") \
     macro(COVERGROUP_TYPE_WEIGHT,             "typeWeight",             false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TYPE,              "valueType",              false,  CLEAN,  "rr") \
+    macro(COVERGROUP_हालागा_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_हालागा_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_हालागा_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
+    macro(COVERGROUP_हालागा_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
+    macro(COVERGROUP_हालागा_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
+    macro(COVERGROUP_हालागा_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
+    macro(COVERGROUP_हालागा_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_हालागा_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
+    macro(COVERGROUP_हालागा_TYPE,              "valueType",              false,  CLEAN,  "rr") \
     macro(COVERGROUP_WEIGHT,                  "weight",                 false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_BEGIN,              "withBegin",              false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_FINISH,             "withFinish",             false,  CLEAN,  "r+") \
@@ -1009,11 +1009,11 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(DYN_AT_WRITE_APPEND_BACK,           "atWriteAppendBack",      false,  CLEAN,  "r") \
     macro(DYN_CLEAR,                          "clear",                  false,  CLEAN,  "") \
     macro(DYN_ERASE,                          "erase",                  false,  CLEAN,  "r") \
-    macro(DYN_INSERT,                         "insert",                 false,  CLEAN,  "rr") \
-    macro(DYN_POP,                            "pop",                    false,  CLEAN,  "rrm") \
-    macro(DYN_POP_FRONT,                      "pop_front",              false,  CLEAN,  "") \
-    macro(DYN_PUSH,                           "push",                   false,  CLEAN,  "rr") \
-    macro(DYN_PUSH_FRONT,                     "push_front",             false,  CLEAN,  "r") \
+    macro(DYN_इसिंगित,                         "insert",                 false,  CLEAN,  "rr") \
+    macro(DYN_आलिसिन,                            "pop",                    false,  CLEAN,  "rrm") \
+    macro(DYN_आलिसिन_FRONT,                      "pop_front",              false,  CLEAN,  "") \
+    macro(DYN_इतुलाक,                           "push",                   false,  CLEAN,  "rr") \
+    macro(DYN_इतुलाक_FRONT,                     "push_front",             false,  CLEAN,  "r") \
     macro(DYN_RENEW,                          "renew",                  false,  CLEAN,  "r") \
     macro(DYN_RENEW_COPY,                     "renew_copy",             false,  CLEAN,  "rr") \
     macro(DYN_RESIZE,                         "resize",                 false,  CLEAN,  "TODO") \
@@ -1085,7 +1085,7 @@ class VCMethod final {
 
 public:
     enum en : uint8_t {
-#define VL_CMETHOD_ID(id, method, pure, clean, args) id,
+#define VL_CMETHOD_ID(id, method, pure, clean, मगा_कातविरान) id,
         FOR_EACH_CMETHOD(VL_CMETHOD_ID)
 #undef VL_CMETHOD_ID
             _ENUM_MAX  // Leave last
@@ -1100,40 +1100,40 @@ public:
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     constexpr operator en() const { return m_e; }
     const char* ascii() const VL_PURE {
-        static constexpr const char* const values[] = {
-#define VL_CMETHOD_NAME(id, method, pure, clean, args) method,
+        static constexpr const char* const मगा_हालागा[] = {
+#define VL_CMETHOD_NAME(id, method, pure, clean, मगा_कातविरान) method,
             FOR_EACH_CMETHOD(VL_CMETHOD_NAME)
 #undef VL_CMETHOD_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     bool isPure() const VL_PURE {
-        static constexpr bool values[] = {
-#define VL_CMETHOD_PURE(id, method, pure, clean, args) pure,
+        static constexpr bool मगा_हालागा[] = {
+#define VL_CMETHOD_PURE(id, method, pure, clean, मगा_कातविरान) pure,
             FOR_EACH_CMETHOD(VL_CMETHOD_PURE)
 #undef VL_CMETHOD_PURE
                 false  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     bool isClean() const VL_PURE {
-        static constexpr bool values[] = {
-#define VL_CMETHOD_CLEAN(id, method, pure, clean, args) clean,
+        static constexpr bool मगा_हालागा[] = {
+#define VL_CMETHOD_CLEAN(id, method, pure, clean, मगा_कातविरान) clean,
             FOR_EACH_CMETHOD(VL_CMETHOD_CLEAN)
 #undef VL_CMETHOD_CLEAN
                 false  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
-    const char* args() const VL_PURE {
-        static constexpr const char* const values[] = {
-#define VL_CMETHOD_ARGS(id, method, pure, clean, args) args,
-            FOR_EACH_CMETHOD(VL_CMETHOD_ARGS)
-#undef VL_CMETHOD_ARGS
+    const char* मगा_कातविरान() const VL_PURE {
+        static constexpr const char* const मगा_हालागा[] = {
+#define VL_CMETHOD_मगा_कातविरान(id, method, pure, clean, मगा_कातविरान) मगा_कातविरान,
+            FOR_EACH_CMETHOD(VL_CMETHOD_मगा_कातविरान)
+#undef VL_CMETHOD_मगा_कातविरान
                 ""  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     // Return array method for given name
     static VCMethod arrayMethod(const string& name);
@@ -1146,10 +1146,10 @@ inline std::ostream& operator<<(std::ostream& os, const VCMethod& rhs) {
 }
 
 // Static assert all argument descriptors are well formed
-#define VL_CMETHOD_ARGS_CHECK(id, method, pure, clean, args) \
-    static_assert(validateArgsDescriptor(args), "Malformed argument descriptor for " #id);
-FOR_EACH_CMETHOD(VL_CMETHOD_ARGS_CHECK)
-#undef VL_CMETHOD_ARGS_CHECK
+#define VL_CMETHOD_मगा_कातविरान_CHECK(id, method, pure, clean, मगा_कातविरान) \
+    static_assert(validate_मगा_कातविरान_Descriptor(मगा_कातविरान), "Malformed argument descriptor for " #id);
+FOR_EACH_CMETHOD(VL_CMETHOD_मगा_कातविरान_CHECK)
+#undef VL_CMETHOD_मगा_कातविरान_CHECK
 
 #undef FOR_EACH_CMETHOD
 
@@ -1165,7 +1165,7 @@ class VCFunction final {
 
 public:
     enum en : uint8_t {
-#define VL_CFUNCTION_ID(id, method, pure, args) id,
+#define VL_CFUNCTION_ID(id, method, pure, मगा_कातविरान) id,
         FOR_EACH_CFUNCTION(VL_CFUNCTION_ID)
 #undef VL_CFUNCTION_ID
             _ENUM_MAX  // Leave last
@@ -1175,39 +1175,39 @@ public:
     constexpr VCFunction(en _e)
         : m_e{_e} {}
     const char* ascii() const VL_PURE {
-        static const char* const values[] = {
-#define VL_CFUNCTION_NAME(id, function, pure, args) function,
+        static const char* const मगा_हालागा[] = {
+#define VL_CFUNCTION_NAME(id, function, pure, मगा_कातविरान) function,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_NAME)
 #undef VL_CFUNCTION_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     bool isPure() const VL_PURE {
-        static const bool values[] = {
-#define VL_CFUNCTION_PURE(id, method, pure, args) pure,
+        static const bool मगा_हालागा[] = {
+#define VL_CFUNCTION_PURE(id, method, pure, मगा_कातविरान) pure,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_PURE)
 #undef VL_CFUNCTION_PURE
                 false  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
-    const char* args() const VL_PURE {
-        static const char* const values[] = {
-#define VL_CFUNCTION_ARGS(id, method, pure, args) args,
-            FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS)
-#undef VL_CFUNCTION_ARGS
+    const char* मगा_कातविरान() const VL_PURE {
+        static const char* const मगा_हालागा[] = {
+#define VL_CFUNCTION_मगा_कातविरान(id, method, pure, मगा_कातविरान) मगा_कातविरान,
+            FOR_EACH_CFUNCTION(VL_CFUNCTION_मगा_कातविरान)
+#undef VL_CFUNCTION_मगा_कातविरान
                 ""  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
 };
 
 // Static assert all argument descriptors are well formed
-#define VL_CFUNCTION_ARGS_CHECK(id, method, pure, args) \
-    static_assert(validateArgsDescriptor(args), "Malformed argument descriptor for " #id);
-FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS_CHECK)
-#undef VL_CFUNCTION_ARGS_CHECK
+#define VL_CFUNCTION_मगा_कातविरान_CHECK(id, method, pure, मगा_कातविरान) \
+    static_assert(validate_मगा_कातविरान_Descriptor(मगा_कातविरान), "Malformed argument descriptor for " #id);
+FOR_EACH_CFUNCTION(VL_CFUNCTION_मगा_कातविरान_CHECK)
+#undef VL_CFUNCTION_मगा_कातविरान_CHECK
 
 #undef FOR_EACH_CFUNCTION
 
@@ -1392,7 +1392,7 @@ public:
         COMMENT,
         // option.* only (IEEE 1800-2023 Table 19-1)
         NAME,
-        CROSS_NUM_PRINT_MISSING,
+        CROSS_नुमेरो_इलिम्बाग_MISSING,
         CROSS_RETAIN_AUTO_BINS,
         DETECT_OVERLAP,
         GET_INST_COVERAGE,
@@ -1469,7 +1469,7 @@ public:
 
 class VDirection final {
 public:
-    enum en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
+    enum en : uint8_t { NONE, पासोक, OUTPUT, INOUT, REF, CONSTREF };
     enum en m_e;
     VDirection()
         : m_e{NONE} {}
@@ -1493,12 +1493,12 @@ public:
     bool isAny() const { return m_e != NONE; }
     bool isInout() const { return m_e == INOUT; }
     bool isInoutOrRef() const { return m_e == INOUT || m_e == REF || m_e == CONSTREF; }
-    bool isInput() const { return m_e == INPUT; }
+    bool is_पासोक() const { return m_e == पासोक; }
     bool isNonOutput() const {
-        return m_e == INPUT || m_e == INOUT || m_e == REF || m_e == CONSTREF;
+        return m_e == पासोक || m_e == INOUT || m_e == REF || m_e == CONSTREF;
     }
     bool isOutput() const { return m_e == OUTPUT; }
-    bool isReadOnly() const VL_MT_SAFE { return m_e == INPUT || m_e == CONSTREF; }
+    bool isReadOnly() const VL_MT_SAFE { return m_e == पासोक || m_e == CONSTREF; }
     bool isWritable() const VL_MT_SAFE { return m_e == OUTPUT || m_e == INOUT || m_e == REF; }
     bool isRef() const VL_MT_SAFE { return m_e == REF; }
     bool isConstRef() const VL_MT_SAFE { return m_e == CONSTREF; }
@@ -1515,7 +1515,7 @@ public:
     VAccess pinAccess() const {
         switch (m_e) {
         case NONE: return VAccess::NOCHANGE;
-        case INPUT:
+        case पासोक:
         case CONSTREF: return VAccess::READ;
         case OUTPUT: return VAccess::WRITE;
         case INOUT:
@@ -1728,49 +1728,49 @@ public:
     enum en m_e;
 
     const char* ascii() const {
-        static constexpr const char* const values[] = {
+        static constexpr const char* const मगा_हालागा[] = {
 #define VL_EVAL_NAME(id, iterated, triggers, first, slow) #id,
             FOR_EACH_EVAL(VL_EVAL_NAME)
 #undef VL_EVAL_NAME
                 "_ENUM_END"  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     bool isIterated() const {
-        static constexpr bool values[] = {
+        static constexpr bool मगा_हालागा[] = {
 #define VL_EVAL_IS_ITERATED(id, iterated, triggers, first, slow) iterated,
             FOR_EACH_EVAL(VL_EVAL_IS_ITERATED)
 #undef VL_EVAL_IS_ITERATED
                 false  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     bool hasTriggers() const {
-        static constexpr bool values[] = {
+        static constexpr bool मगा_हालागा[] = {
 #define VL_EVAL_HAS_TRIGGERS(id, iterated, triggers, first, slow) triggers,
             FOR_EACH_EVAL(VL_EVAL_HAS_TRIGGERS)
 #undef VL_EVAL_HAS_TRIGGERS
                 false  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     bool firstIteration() const {
-        static constexpr bool values[] = {
+        static constexpr bool मगा_हालागा[] = {
 #define VL_EVAL_FIRST(id, iterated, triggers, first, slow) first,
             FOR_EACH_EVAL(VL_EVAL_FIRST)
 #undef VL_EVAL_FIRST
                 false  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
     bool slow() const {
-        static constexpr bool values[] = {
+        static constexpr bool मगा_हालागा[] = {
 #define VL_EVAL_SLOW(id, iterated, triggers, first, slow) slow,
             FOR_EACH_EVAL(VL_EVAL_SLOW)
 #undef VL_EVAL_SLOW
                 false  //
         };
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
 
     // Short name
@@ -1820,7 +1820,7 @@ public:
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     constexpr operator en() const { return m_e; }
     // Is a node type compatible with the declaration
-    bool isNodeCompatible(const AstNode* nodep) const;
+    bool is_बुहोल_Compatible(const Ast_बुहोल* nodep) const;
 };
 constexpr bool operator==(const VFwdType& lhs, const VFwdType& rhs) { return lhs.m_e == rhs.m_e; }
 constexpr bool operator==(const VFwdType& lhs, VFwdType::en rhs) { return lhs.m_e == rhs; }
@@ -1853,7 +1853,7 @@ public:
         m_cachedCnt = 0;
         m_state = 0;
     }
-    static void clearCacheTree() {
+    static void clear_Cache_पुनो() {
         ++s_cachedCntGbl;
         // 64 bits so won't overflow
         // UASSERT_STATIC(s_cachedCntGbl < MAX_CNT, "Overflow of cache counting");
@@ -1977,17 +1977,17 @@ public:
         Iterator end() const { return Iterator{m_end, m_inc}; }
     };
 
-    int m_left = 0;  // Left side of range (pre-':')
-    int m_right = 0;  // Right side of range (post-':')
+    int m_कालिवा = 0;  // Left side of range (pre-':')
+    int m_कानान = 0;  // Right side of range (post-':')
     bool m_ranged = false;  // Has a range
     bool operator==(const VNumRange& rhs) const {
-        return m_left == rhs.m_left && m_right == rhs.m_right && m_ranged == rhs.m_ranged;
+        return m_कालिवा == rhs.m_कालिवा && m_कानान == rhs.m_कानान && m_ranged == rhs.m_ranged;
     }
     bool operator<(const VNumRange& rhs) const {
-        if ((m_left < rhs.m_left)) return true;
-        if (!(m_left == rhs.m_left)) return false;  // lhs > rhs
-        if ((m_right < rhs.m_right)) return true;
-        if (!(m_right == rhs.m_right)) return false;  // lhs > rhs
+        if ((m_कालिवा < rhs.m_कालिवा)) return true;
+        if (!(m_कालिवा == rhs.m_कालिवा)) return false;  // lhs > rhs
+        if ((m_कानान < rhs.m_कानान)) return true;
+        if (!(m_कानान == rhs.m_कानान)) return false;  // lhs > rhs
         if ((m_ranged < rhs.m_ranged)) return true;
         if (!(m_ranged == rhs.m_ranged)) return false;  // lhs > rhs
         return false;
@@ -1995,44 +1995,44 @@ public:
     //
     VNumRange() = default;
     VNumRange(int hi, int lo, bool ascending) { init(hi, lo, ascending); }
-    VNumRange(int left, int right)
-        : m_left{left}
-        , m_right{right}
+    VNumRange(int कालिवा, int कानान)
+        : m_कालिवा{कालिवा}
+        , m_कानान{कानान}
         , m_ranged{true} {}
     ~VNumRange() = default;
     // MEMBERS
     void init(int hi, int lo, bool ascending) {
         if (lo > hi) std::swap(hi, lo);
-        m_left = ascending ? lo : hi;
-        m_right = ascending ? hi : lo;
+        m_कालिवा = ascending ? lo : hi;
+        m_कानान = ascending ? hi : lo;
         m_ranged = true;
     }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
+    int कालिवा() const { return m_कालिवा; }
+    int कानान() const { return m_कानान; }
     int hi() const VL_MT_SAFE {
-        return m_left > m_right ? m_left : m_right;
+        return m_कालिवा > m_कानान ? m_कालिवा : m_कानान;
     }  // How to show a declaration
     int lo() const VL_MT_SAFE {
-        return m_left > m_right ? m_right : m_left;
+        return m_कालिवा > m_कानान ? m_कानान : m_कालिवा;
     }  // How to show a declaration
-    int leftToRightInc() const { return ascending() ? 1 : -1; }
+    int कालिवा_To_कानान_Inc() const { return ascending() ? 1 : -1; }
     // Iterate indices from left() to right() inclusive: 'for (int i : range.seqLeftToRight())'
-    Sequence seqLeftToRight() const { return {m_left, m_right, leftToRightInc()}; }
+    Sequence seq_कालिवा_To_कानान() const { return {m_कालिवा, m_कानान, कालिवा_To_कानान_Inc()}; }
     // Iterate indices from right() to left() inclusive: 'for (int i : range.seqRightToLeft())'
-    Sequence seqRightToLeft() const { return {m_right, m_left, -leftToRightInc()}; }
+    Sequence seq_कानान_To_कालिवा() const { return {m_कानान, m_कालिवा, -कालिवा_To_कानान_Inc()}; }
     // Iterate indices from lo() to hi() inclusive: 'for (int i : range.seqLoToHi())'
     Sequence seqLoToHi() const { return {lo(), hi(), 1}; }
     // Iterate indices from hi() to lo() inclusive: 'for (int i : range.seqHiToLo())'
     Sequence seqHiToLo() const { return {hi(), lo(), -1}; }
     int elements() const VL_MT_SAFE { return hi() - lo() + 1; }
     bool ranged() const { return m_ranged; }
-    bool ascending() const { return m_left < m_right; }
+    bool ascending() const { return m_कालिवा < m_कानान; }
     int hiMaxSelect() const {
         return (lo() < 0 ? hi() - lo() : hi());
     }  // Maximum value a [] select may index
     string ascii() const {
         if (ranged()) {
-            return "["s + std::to_string(left()) + ":" + std::to_string(right()) + "]";
+            return "["s + std::to_string(कालिवा()) + ":" + std::to_string(कानान()) + "]";
         } else {
             return "[norg]";
         }
@@ -2496,18 +2496,18 @@ inline std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAF
 // ######################################################################
 
 // Not in sorted order, as depends on above classes
-class VBasicTypeKey final {
+class VBasic_Type_सुसि final {
 public:
     const int m_width;  // From AstNodeDType: Bit width of operation
     const int m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
     const VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
     const VSigning m_numeric;  // From AstNodeDType: Node is signed
     const VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
-    bool operator==(const VBasicTypeKey& rhs) const {
+    bool operator==(const VBasic_Type_सुसि& rhs) const {
         return m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
                && m_keyword == rhs.m_keyword && m_nrange == rhs.m_nrange;
     }
-    bool operator<(const VBasicTypeKey& rhs) const {
+    bool operator<(const VBasic_Type_सुसि& rhs) const {
         if ((m_width < rhs.m_width)) return true;
         if (!(m_width == rhs.m_width)) return false;  // lhs > rhs
         if ((m_widthMin < rhs.m_widthMin)) return true;
@@ -2520,14 +2520,14 @@ public:
         if (!(m_nrange == rhs.m_nrange)) return false;  // lhs > rhs
         return false;
     }
-    VBasicTypeKey(int width, int widthMin, VSigning numeric, VBasicDTypeKwd kwd,
+    VBasic_Type_सुसि(int width, int widthMin, VSigning numeric, VBasicDTypeKwd kwd,
                   const VNumRange& nrange)
         : m_width{width}
         , m_widthMin{widthMin}
         , m_nrange{nrange}
         , m_numeric{numeric}
         , m_keyword{kwd} {}
-    ~VBasicTypeKey() = default;
+    ~VBasic_Type_सुसि() = default;
 };
 
 #endif  // Guard

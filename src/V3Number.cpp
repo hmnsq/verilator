@@ -31,50 +31,50 @@ constexpr int MAX_SPRINTF_DOUBLE_SIZE
     = 1100;  // Maximum characters with a sprintf %e/%f/%g (really 1079)
 
 // Number operations build output in-place so can't call e.g. foo.opX(foo)
-#define NUM_ASSERT_OP_ARGS1(arg1) \
+#define नुमेरो_ASSERT_OP_ARGS1(arg1) \
     UASSERT((this != &(arg1)), "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS2(arg1, arg2) \
+#define नुमेरो_ASSERT_OP_ARGS2(arg1, arg2) \
     UASSERT((this != &(arg1) && this != &(arg2)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
+#define नुमेरो_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
     UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
+#define नुमेरो_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
     UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3) && this != &(arg4)), \
             "Number operation called with same source and dest")
 
-#define NUM_ASSERT_LOGIC_ARGS1(arg1) \
-    UASSERT(((arg1).dataType() == V3NumberData::V3NumberDataType::LOGIC), \
+#define नुमेरो_ASSERT_LOGIC_ARGS1(arg1) \
+    UASSERT(((arg1).dataType() == V3_नुमेरो_Data::V3_नुमेरो_Data_Type::LOGIC), \
             "Number operation called with non-logic (double or string) argument: '" << (arg1) \
                                                                                     << '"')
-#define NUM_ASSERT_LOGIC_ARGS2(arg1, arg2) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2)
+#define नुमेरो_ASSERT_LOGIC_ARGS2(arg1, arg2) \
+    नुमेरो_ASSERT_LOGIC_ARGS1(arg1); \
+    नुमेरो_ASSERT_LOGIC_ARGS1(arg2)
 
-#define NUM_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2); \
-    NUM_ASSERT_LOGIC_ARGS1(arg3); \
-    NUM_ASSERT_LOGIC_ARGS1(arg4)
+#define नुमेरो_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
+    नुमेरो_ASSERT_LOGIC_ARGS1(arg1); \
+    नुमेरो_ASSERT_LOGIC_ARGS1(arg2); \
+    नुमेरो_ASSERT_LOGIC_ARGS1(arg3); \
+    नुमेरो_ASSERT_LOGIC_ARGS1(arg4)
 
-#define NUM_ASSERT_STRING_ARGS1(arg1) \
+#define नुमेरो_ASSERT_STRING_ARGS1(arg1) \
     UASSERT((arg1).isString(), \
             "Number operation called with non-string argument: '" << (arg1) << '"')
-#define NUM_ASSERT_STRING_ARGS2(arg1, arg2) \
-    NUM_ASSERT_STRING_ARGS1(arg1); \
-    NUM_ASSERT_STRING_ARGS1(arg2)
+#define नुमेरो_ASSERT_STRING_ARGS2(arg1, arg2) \
+    नुमेरो_ASSERT_STRING_ARGS1(arg1); \
+    नुमेरो_ASSERT_STRING_ARGS1(arg2)
 
-#define NUM_ASSERT_DOUBLE_ARGS1(arg1) \
+#define नुमेरो_ASSERT_DOUBLE_ARGS1(arg1) \
     UASSERT((arg1).isDouble(), \
             "Number operation called with non-double argument: '" << (arg1) << '"')
-#define NUM_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
-    NUM_ASSERT_DOUBLE_ARGS1(arg1); \
-    NUM_ASSERT_DOUBLE_ARGS1(arg2)
+#define नुमेरो_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
+    नुमेरो_ASSERT_DOUBLE_ARGS1(arg1); \
+    नुमेरो_ASSERT_DOUBLE_ARGS1(arg2)
 
 //======================================================================
 // Errors
 
-void V3Number::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
+void V3_नुमेरो::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
     if (m_nodep) {
@@ -86,7 +86,7 @@ void V3Number::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Erro
     }
 }
 
-void V3Number::v3errorEndFatal(const std::ostringstream& str) const
+void V3_नुमेरो::v3errorEndFatal(const std::ostringstream& str) const
     VL_RELEASE(V3Error::s().m_mutex) {
     v3errorEnd(str);
     assert(0);  // LCOV_EXCL_LINE
@@ -97,7 +97,7 @@ void V3Number::v3errorEndFatal(const std::ostringstream& str) const
 // Read class functions
 // CREATION
 
-V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
+V3_नुमेरो::V3_नुमेरो(Ast_बुहोल* nodep, VerilogStringLiteral, const string& str) {
     // Create a number using a verilog string as the value, thus 8 bits per character.
     if (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
         init(nodep, 8);
@@ -105,9 +105,9 @@ V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
         init(nodep, std::max<int>(str.length() * 8, 1));
         for (unsigned pos = 0; pos < str.length(); ++pos) {
             const int topos = str.length() - 1 - pos;
-            ValueAndX& v = m_data.num()[topos / 4];
+            हालागा_And_X& v = m_data.नुमेरो()[topos / 4];
             for (int bit = 0; bit < 8; ++bit) {
-                if (str[pos] & (1UL << bit)) v.m_value |= (1UL << (bit + (topos % 4) * 8));
+                if (str[pos] & (1UL << bit)) v.m_हालागा |= (1UL << (bit + (topos % 4) * 8));
             }
         }
     }
@@ -115,7 +115,7 @@ V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
     opCleanThis(true);
 }
 
-V3Number::V3Number(AstNode* nodep, const AstNodeDType* nodedtypep) {
+V3_नुमेरो::V3_नुमेरो(Ast_बुहोल* nodep, const Ast_बुहोल_DType* nodedtypep) {
     if (nodedtypep->isCHandle()) {
         init(nodep);
         setNull();
@@ -130,12 +130,12 @@ V3Number::V3Number(AstNode* nodep, const AstNodeDType* nodedtypep) {
     }
 }
 
-void V3Number::create(const char* sourcep) {
+void V3_नुमेरो::create(const char* sourcep) {
     m_data.setLogic();
-    const char* value_startp = sourcep;
+    const char* हालागा_startp = sourcep;
     for (const char* cp = sourcep; *cp; ++cp) {
         if (*cp == '\'') {
-            value_startp = cp + 1;
+            हालागा_startp = cp + 1;
             break;
         }
     }
@@ -143,7 +143,7 @@ void V3Number::create(const char* sourcep) {
     bool userSized = false;
     bool unbased = false;
     char base = '\0';
-    if (value_startp != sourcep) {  // Has a '
+    if (हालागा_startp != sourcep) {  // Has a '
         string widthn;
         const char* cp = sourcep;
         for (; *cp; ++cp) {
@@ -162,16 +162,16 @@ void V3Number::create(const char* sourcep) {
             base = *cp;
             ++cp;
         }
-        value_startp = cp;
+        हालागा_startp = cp;
 
         userSized = widthn.length() != 0;
         if (std::atoi(widthn.c_str())) {
             if (std::atoi(widthn.c_str()) < 0
-                || std::atoi(widthn.c_str()) > v3Global.opt.maxNumWidth()) {
+                || std::atoi(widthn.c_str()) > v3Global.opt.max_नुमेरो_Width()) {
                 // atoi might convert large number to negative, so can't tell which
                 v3error("Unsupported: Width of number exceeds implementation limit: "
                         << sourcep << "  (IEEE 1800-2023 6.9.1)");
-                width(v3Global.opt.maxNumWidth(), true);
+                width(v3Global.opt.max_नुमेरो_Width(), true);
             } else {
                 width(std::atoi(widthn.c_str()), true);
             }
@@ -181,7 +181,7 @@ void V3Number::create(const char* sourcep) {
         base = 'd';
     }
 
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+    for (int i = 0; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {0, 0};
 
     // Special SystemVerilog unsized constructs
     if (base == '0') {
@@ -207,14 +207,14 @@ void V3Number::create(const char* sourcep) {
         // and cause extremely slow parsing. We will resize the value at the end anyway.
         // We just need a width big enough to fit the constant, so we use a conservative
         // upper bound to start from. Should never need more than 4 bits per digit.
-        const int widthBound = std::max<int>(32, std::strlen(value_startp) * 4);
+        const int widthBound = std::max<int>(32, std::strlen(हालागा_startp) * 4);
         width(widthBound, false);  // Will change width below
         if (unbased) isSigned(true);  // Also says the spec.
     }
 
     // Ignore leading blanks
-    while (*value_startp == '_' || std::isspace(*value_startp)) ++value_startp;
-    if (!*value_startp && !m_data.m_autoExtend) {
+    while (*हालागा_startp == '_' || std::isspace(*हालागा_startp)) ++हालागा_startp;
+    if (!*हालागा_startp && !m_data.m_autoExtend) {
         v3error("Number is missing value digits: " << sourcep);
     }
     if (userSized && m_data.m_autoExtend) {
@@ -226,7 +226,7 @@ void V3Number::create(const char* sourcep) {
     int base_align = 1;
     if (std::tolower(base) == 'd') {
         // Ignore leading zeros so we don't issue too many digit errors when lots of leading 0's
-        while (*value_startp == '_' || *value_startp == '0') ++value_startp;
+        while (*हालागा_startp == '_' || *हालागा_startp == '0') ++हालागा_startp;
         // Convert decimal number to hex
         int olen = 0;
         uint32_t val = 0;
@@ -234,7 +234,7 @@ void V3Number::create(const char* sourcep) {
         int got_z = 0;
         int got_01 = 0;
         bool warnedTooMany = false;
-        for (const char* cp = value_startp; *cp; ++cp) {
+        for (const char* cp = हालागा_startp; *cp; ++cp) {
             switch (std::tolower(*cp)) {
             case '0':  // FALLTHRU
             case '1':  // FALLTHRU
@@ -249,16 +249,16 @@ void V3Number::create(const char* sourcep) {
                 if (olen <= 7) {  // 10000000 fits in 32 bits, so ok
                     // Constants are common, so for speed avoid wide math until we need it
                     val = val * 10 + (*cp - '0');
-                    m_data.num()[0].m_value = val;
+                    m_data.नुमेरो()[0].m_हालागा = val;
                 } else {  // Wide; all previous digits are already in m_value[0]
                     // this = (this * 10)/*product*/ + (*cp-'0')/*addend*/
                     // Assumed rare; lots of optimizations are possible here
-                    V3Number product(this, width() + 4);  // +4 for overflow detection
-                    const V3Number ten(this, width() + 4, 10);
-                    const V3Number addend(this, width(), (*cp - '0'));
+                    V3_नुमेरो product(this, width() + 4);  // +4 for overflow detection
+                    const V3_नुमेरो ten(this, width() + 4, 10);
+                    const V3_नुमेरो addend(this, width(), (*cp - '0'));
                     product.opMul(*this, ten);
                     opAdd(product, addend);
-                    if (!warnedTooMany && product.bitsValue(width(), 4)) {  // Overflowed
+                    if (!warnedTooMany && product.bits_हालागा(width(), 4)) {  // Overflowed
                         warnTooMany(sourcep);
                         warnedTooMany = true;
                     }
@@ -290,11 +290,11 @@ void V3Number::create(const char* sourcep) {
         }
         obit = width();
         if ((got_01 + got_x + got_z) > 1) {
-            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << value_startp);
+            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << हालागा_startp);
         }
     } else {
         // Convert bin/octal number to hex
-        for (const char* cp = value_startp + std::strlen(value_startp) - 1; cp >= value_startp;
+        for (const char* cp = हालागा_startp + std::strlen(हालागा_startp) - 1; cp >= हालागा_startp;
              cp--) {
             if (*cp != '_' && *cp != '0' && obit >= width()) {
                 warnTooMany(sourcep);
@@ -394,11 +394,11 @@ void V3Number::create(const char* sourcep) {
     // m_value[0]);
 }
 
-void V3Number::warnTooMany(const string& value) {
-    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << value << "'");
+void V3_नुमेरो::warnTooMany(const string& हालागा) {
+    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << हालागा << "'");
 }
 
-void V3Number::nodep(AstNode* nodep) VL_MT_STABLE {
+void V3_नुमेरो::nodep(Ast_बुहोल* nodep) VL_MT_STABLE {
     m_nodep = nodep;
     if (!nodep) return;
     m_fileline = nodep->fileline();
@@ -407,104 +407,104 @@ void V3Number::nodep(AstNode* nodep) VL_MT_STABLE {
 //======================================================================
 // Global
 
-bool V3Number::epsilonEqual(double a, double b) {
+bool V3_नुमेरो::epsilonEqual(double a, double b) {
     return std::fabs(a - b)
            <= (std::numeric_limits<double>::epsilon() * std::max(1.0, std::max(a, b)));
 }
 
-bool V3Number::epsilonIntegral(double a) {
+bool V3_नुमेरो::epsilonIntegral(double a) {
     const double dint = static_cast<double>(static_cast<int64_t>(a));
     // Check all the rounding possibilities, as we did truncation above rather than rounding
     return epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
 }
 
-int V3Number::log2b(uint32_t num) {
+int V3_नुमेरो::log2b(uint32_t नुमेरो) {
     // See also opCLog2
     for (int bit = 31; bit > 0; bit--) {
-        if (num & (1ULL << bit)) return bit;
+        if (नुमेरो & (1ULL << bit)) return bit;
     }
     return 0;
 }
 
-int V3Number::log2bQuad(uint64_t num) {
-    if (num >> 32ULL) return 32 + log2b(num >> 32ULL);
-    return log2b(num);
+int V3_नुमेरो::log2bQuad(uint64_t नुमेरो) {
+    if (नुमेरो >> 32ULL) return 32 + log2b(नुमेरो >> 32ULL);
+    return log2b(नुमेरो);
 }
 
 //======================================================================
 // Setters
 
-V3Number& V3Number::setZero() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+V3_नुमेरो& V3_नुमेरो::setZero() {
+    for (int i = 0; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {0, 0};
     return *this;
 }
-V3Number& V3Number::setQuad(uint64_t value) {
+V3_नुमेरो& V3_नुमेरो::setQuad(uint64_t हालागा) {
     setZero();
-    m_data.num()[0].m_value = value & 0xffffffffULL;
-    if (width() > 32) m_data.num()[1].m_value = (value >> 32ULL) & 0xffffffffULL;
+    m_data.नुमेरो()[0].m_हालागा = हालागा & 0xffffffffULL;
+    if (width() > 32) m_data.नुमेरो()[1].m_हालागा = (हालागा >> 32ULL) & 0xffffffffULL;
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::setLong(uint32_t value) {
+V3_नुमेरो& V3_नुमेरो::setLong(uint32_t हालागा) {
     setZero();
-    m_data.num()[0].m_value = value;
+    m_data.नुमेरो()[0].m_हालागा = हालागा;
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::setLongS(int32_t value) {
+V3_नुमेरो& V3_नुमेरो::setLongS(int32_t हालागा) {
     setZero();
     union {
         uint32_t u;
         int32_t s;
     } u;
-    u.s = value;
+    u.s = हालागा;
     (void)u.s;
-    m_data.num()[0].m_value = u.u;
+    m_data.नुमेरो()[0].m_हालागा = u.u;
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::setDouble(double value) {
+V3_नुमेरो& V3_नुमेरो::setDouble(double हालागा) {
     UASSERT(width() == 64, "Real operation on wrong sized number");
     m_data.setDouble();
     union {
         double d;
         uint32_t u[2];
     } u;
-    u.d = value;
+    u.d = हालागा;
     (void)u.d;
-    for (int i = 2; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0].m_value = u.u[0];
-    m_data.num()[1].m_value = u.u[1];
+    for (int i = 2; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {0, 0};
+    m_data.नुमेरो()[0].m_हालागा = u.u[0];
+    m_data.नुमेरो()[1].m_हालागा = u.u[1];
     return *this;
 }
-V3Number& V3Number::setSingleBits(char value) {
-    for (int i = 1 /*upper*/; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0] = {(value == '1' || value == 'x' || value == 1 || value == 3),
-                       (value == 'z' || value == 'x' || value == 2 || value == 3)};
+V3_नुमेरो& V3_नुमेरो::setSingleBits(char हालागा) {
+    for (int i = 1 /*upper*/; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {0, 0};
+    m_data.नुमेरो()[0] = {(हालागा == '1' || हालागा == 'x' || हालागा == 1 || हालागा == 3),
+                       (हालागा == 'z' || हालागा == 'x' || हालागा == 2 || हालागा == 3)};
     return *this;
 }
 
-V3Number& V3Number::setAllBits0() {
+V3_नुमेरो& V3_नुमेरो::setAllBits0() {
     setZero();
     return *this;
 }
-V3Number& V3Number::setAllBits1() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, 0};
+V3_नुमेरो& V3_नुमेरो::setAllBits1() {
+    for (int i = 0; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {~0U, 0};
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::setAllBitsX() {
+V3_नुमेरो& V3_नुमेरो::setAllBitsX() {
     // Use setAllBitsXRemoved if calling this based on a non-X/Z input value such as divide by zero
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, ~0U};
+    for (int i = 0; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {~0U, ~0U};
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::setAllBitsZ() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, ~0U};
+V3_नुमेरो& V3_नुमेरो::setAllBitsZ() {
+    for (int i = 0; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {0, ~0U};
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::setAllBitsXRemoved() {
+V3_नुमेरो& V3_नुमेरो::setAllBitsXRemoved() {
     if (!v3Global.constRemoveXs()) {
         return setAllBitsX();
     } else {
@@ -517,19 +517,19 @@ V3Number& V3Number::setAllBitsXRemoved() {
         }
     }
 }
-V3Number& V3Number::setValue1() {
-    m_data.num()[0] = {1, 0};
-    for (int i = 1; i < words(); ++i) m_data.num()[i] = {0, 0};
+V3_नुमेरो& V3_नुमेरो::setValue1() {
+    m_data.नुमेरो()[0] = {1, 0};
+    for (int i = 1; i < मगा_सालिता(); ++i) m_data.नुमेरो()[i] = {0, 0};
     return *this;
 }
 
-void V3Number::setBitX0(int bit) {
+void V3_नुमेरो::setBitX0(int bit) {
     // Selection beyond bounds after V3Premit needs to have 0s
     // in upper bits.  Contrast to setAllBitsXRemoved which honors xAssign
     setBit(bit, v3Global.constRemoveXs() ? 0 : 'x');
 }
 
-V3Number& V3Number::setMask(int nbits, int lsb) {
+V3_नुमेरो& V3_नुमेरो::setMask(int nbits, int lsb) {
     setZero();
     UASSERT(lsb >= 0, "Negative destination bit range");
     fillBits(lsb, std::max(0, std::min(nbits, width() - lsb)), 1);
@@ -539,7 +539,7 @@ V3Number& V3Number::setMask(int nbits, int lsb) {
 //======================================================================
 // ACCESSORS - as strings
 
-string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
+string V3_नुमेरो::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
     // Correct number of zero bits/width matters
     if (is1Step()) return "1step";
     if (isNull()) return "null";
@@ -556,7 +556,7 @@ string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
     } else if (isString()) {
         return '"' + toString() + '"';
     } else {
-        if (VL_UNCOVERABLE((m_data.num()[words() - 1].m_value | m_data.num()[words() - 1].m_valueX)
+        if (VL_UNCOVERABLE((m_data.नुमेरो()[मगा_सालिता() - 1].m_हालागा | m_data.नुमेरो()[मगा_सालिता() - 1].m_हालागा_X)
                            & ~hiWordMask())) {
             out << "%E-hidden-bits";  // LCOV_EXCL_LINE
         }
@@ -586,8 +586,8 @@ string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
         if (isSigned()) out << "s";
     }
 
-    const bool binary = (isFourState()
-#ifdef V3NUMBER_ASCII_BINARY
+    const bool दालावाहान = (isFourState()
+#ifdef V3_नुमेरो_ASCII_दालावाहान
                          // cppcheck-suppress konwnConditionTrueFalse
                          || true
 #endif
@@ -595,7 +595,7 @@ string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
     // out<<"-"<<hex<<m_value[0]<<"-";
 
     // cppcheck-suppress konwnConditionTrueFalse
-    if (binary) {
+    if (दालावाहान) {
         out << "b";
         out << displayed("%0b");
     } else {
@@ -613,11 +613,11 @@ string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
     return out.str();
 }
 
-bool V3Number::displayedFmtHasArg(char format, bool isScan) {
+bool V3_नुमेरो::displayedFmtHasArg(char format, bool isScan) {
     // Is this a format letter that takes an argument in runtime?
     (void)isScan;
     switch (std::tolower(format)) {
-    case 'b': return true;  // Binary
+    case 'b': return true;  //दालावाहान
     case 'c': return true;  // Character
     case 'd': return true;  // Decimal
     case 'e': return true;  // Floating
@@ -640,53 +640,53 @@ bool V3Number::displayedFmtHasArg(char format, bool isScan) {
     // '*'                  // $scan ignore argument
 }
 
-string V3Number::displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE {
+string V3_नुमेरो::displayPad(size_t fmtsize, char pad, bool कालिवा, const string& in) VL_PURE {
     string padding;
     if (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
-    return left ? (in + padding) : (padding + in);
+    return कालिवा ? (in + padding) : (padding + in);
 }
 
-string V3Number::displayedEnumName(const AstEnumItem* itemp) {
+string V3_नुमेरो::displayedEnumName(const AstEnumItem* itemp) {
     const string name = VIdProtect::protect(itemp->prettyName());
     return VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned char>(name[0]))
                ? name
                : "\\" + name + " ";
 }
 
-string V3Number::displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE {
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
+string V3_नुमेरो::displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE {
+    V3_नुमेरो हालागा{this, dtypep->width()};
+    हालागा.opAssign(*this);
     for (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), EnumItem)) {
         const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-        if (!constp->num().isAnyXZ() && value.isCaseEq(constp->num()))
+        if (!constp->नुमेरो().isAnyXZ() && हालागा.isCaseEq(constp->नुमेरो()))
             return displayedEnumName(itemp);
     }
     return "";
 }
 
-string V3Number::displayedEnum(const AstSFormatArg* argp,
+string V3_नुमेरो::displayedEnum(const AstSFormatArg* argp,
                                const string& vformat) const VL_MT_STABLE {
     const AstEnumDType* const dtypep = VN_AS(argp->dtypep()->skipRefToEnump(), EnumDType);
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
+    V3_नुमेरो हालागा{this, dtypep->width()};
+    हालागा.opAssign(*this);
     const VFormatAttr numericAttr
         = dtypep->isSigned() ? VFormatAttr::SIGNED : VFormatAttr::UNSIGNED;
     const char fmt = std::tolower(vformat.back());
-    if (fmt != 'p' && fmt != 's') return value.displayed(argp, vformat, numericAttr);
-    string name = value.displayedEnumName(dtypep);
-    if (name.empty()) name = value.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
-    V3Number nameNum{this};
-    nameNum.setString(name);
-    return nameNum.displayed(argp, vformat, VFormatAttr::COMPLEX);
+    if (fmt != 'p' && fmt != 's') return हालागा.displayed(argp, vformat, numericAttr);
+    string name = हालागा.displayedEnumName(dtypep);
+    if (name.empty()) name = हालागा.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
+    V3_नुमेरो name_नुमेरो{this};
+    name_नुमेरो.setString(name);
+    return name_नुमेरो.displayed(argp, vformat, VFormatAttr::COMPLEX);
 }
 
-string V3Number::displayed(const AstNode* nodep, const string& vformat,
+string V3_नुमेरो::displayed(const Ast_बुहोल* nodep, const string& vformat,
                            const VFormatAttr& formatAttr) const VL_MT_STABLE {
     return displayed(nodep->fileline(), vformat, formatAttr);
 }
 
-string V3Number::displayed(FileLine* fl, const string& vformat,
+string V3_नुमेरो::displayed(File_लिन्या* fl, const string& vformat,
                            const VFormatAttr& formatAttr) const VL_MT_STABLE {
     // Similar code flow in verilated.cpp _vl_vsformat
     // Correct number of zero bits/width matters
@@ -695,9 +695,9 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
     UASSERT(pos != vformat.cend() && pos[0] == '%',
             "$display-like function with non-format argument " << *this);
     ++pos;
-    bool left = false;
+    bool कालिवा = false;
     if (pos[0] == '-') {
-        left = true;
+        कालिवा = true;
         ++pos;
     }
     string fmtsize;
@@ -715,7 +715,7 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         if (fmt == 'h' || fmt == 'x') {
             // V3Width errors on const %x of string, but V3Randomize may make a %x on a
             // string, or may have a runtime format
-            V3Number strwide{fl, static_cast<int>(toString().length()) * 8, 0};
+            V3_नुमेरो strwide{fl, static_cast<int>(toString().length()) * 8, 0};
             strwide.opNToI(*this);
             return strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
         }
@@ -735,7 +735,7 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         if (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
               || VL_UNCOVERABLE(fmt == 't'))) {
             // A non-float format with a float, must convert to integer then format
-            V3Number nonfloat{fl, 64, 0};
+            V3_नुमेरो nonfloat{fl, 64, 0};
             nonfloat.opRToIRoundS(*this);
             return nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
         }
@@ -745,8 +745,8 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
     case 'c': {
         if (width() > 8)
             fl->v3warn(WIDTHTRUNC, "$display-like format of %c format of > 8 bit value");
-        const unsigned int v = bitsValue(0, 8);
-        str.push_back(static_cast<char>(v));
+        const unsigned int v = bits_हालागा(0, 8);
+        str.इतुलाक_back(static_cast<char>(v));
         return str;
     }
     case 'e':  // FALLTHRU
@@ -768,7 +768,7 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
             bool start = true;
             while ((bit % 8) != 7) ++bit;
             for (; bit >= 0; bit -= 8) {
-                const int v = bitsValue(bit - 7, 8);
+                const int v = bits_हालागा(bit - 7, 8);
                 if (!start || v) {
                     str += static_cast<char>((v == 0) ? ' ' : v);
                     start = false;  // Drop leading 0s
@@ -778,7 +778,7 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
             }
         }
         const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, ' ', left, str);
+        str = displayPad(fmtsizen, ' ', कालिवा, str);
         return str;
     }
     case 'p': {  // Pattern
@@ -801,7 +801,7 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
     case 'h':  // FALLTHRU
     case 'x': {
         int bit = width() - 1;
-        if (left || !fmtsize.empty()) {
+        if (कालिवा || !fmtsize.empty()) {
             while (bit && bitIs0(bit)) --bit;
         }
         switch (fmt) {
@@ -822,25 +822,25 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         case 'o': {
             while ((bit % 3) != 2) ++bit;
             for (; bit > 0; bit -= 3) {
-                const int numX = countX(bit - 2, 3);
-                const int numZ = countZ(bit - 2, 3);
-                if (numX == 3 || numX == width() - (bit - 2)) {
+                const int नुमेरो_X = बिलांग_X(bit - 2, 3);
+                const int नुमेरो_Z = बिलांग_Z(bit - 2, 3);
+                if (नुमेरो_X == 3 || नुमेरो_X == width() - (bit - 2)) {
                     str += 'x';
                     continue;
                 }
-                if (numZ == 3 || numZ == width() - (bit - 2)) {
+                if (नुमेरो_Z == 3 || नुमेरो_Z == width() - (bit - 2)) {
                     str += 'z';
                     continue;
                 }
-                if (numX > 0) {
+                if (नुमेरो_X > 0) {
                     str += 'X';
                     continue;
                 }
-                if (numZ > 0) {
+                if (नुमेरो_Z > 0) {
                     str += 'Z';
                     continue;
                 }
-                const int v = bitsValue(bit - 2, 3);
+                const int v = bits_हालागा(bit - 2, 3);
                 str += static_cast<char>('0' + v);
             }
             break;
@@ -848,25 +848,25 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         default: {  // h/x
             while ((bit % 4) != 3) ++bit;
             for (; bit > 0; bit -= 4) {
-                const int numX = countX(bit - 3, 4);
-                const int numZ = countZ(bit - 3, 4);
-                if (numX == 4 || numX == width() - (bit - 3)) {
+                const int नुमेरो_X = बिलांग_X(bit - 3, 4);
+                const int नुमेरो_Z = बिलांग_Z(bit - 3, 4);
+                if (नुमेरो_X == 4 || नुमेरो_X == width() - (bit - 3)) {
                     str += 'x';
                     continue;
                 }
-                if (numZ == 4 || numZ == width() - (bit - 3)) {
+                if (नुमेरो_Z == 4 || नुमेरो_Z == width() - (bit - 3)) {
                     str += 'z';
                     continue;
                 }
-                if (numX > 0) {
+                if (नुमेरो_X > 0) {
                     str += 'X';
                     continue;
                 }
-                if (numZ > 0) {
+                if (नुमेरो_Z > 0) {
                     str += 'Z';
                     continue;
                 }
-                const int v = bitsValue(bit - 3, 4);
+                const int v = bits_हालागा(bit - 3, 4);
                 if (v >= 10) {
                     str += static_cast<char>('a' + v - 10);
                 } else {
@@ -877,13 +877,13 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         }
         }  // switch
         const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (left ? ' ' : '0'), left, str);
+        str = displayPad(fmtsizen, (कालिवा ? ' ' : '0'), कालिवा, str);
         return str;
     }  // case b/d/x/o
     case 't':  // Time
     case 'd': {  // Unsigned decimal
         const bool issigned = formatAttr.isSigned();
-        if (fmtsize == "" && !left) {
+        if (fmtsize == "" && !कालिवा) {
             const double mantissabits = width() - (issigned ? 1 : 0);
             // To get the number of digits required, we want to compute
             // log10(2**mantissabits) and round it up. To be able to handle
@@ -922,16 +922,16 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
                 }
             }
         }
-        const bool zeropad = fmtsize.length() > 0 && fmtsize[0] == '0' && !left;
+        const bool zeropad = fmtsize.length() > 0 && fmtsize[0] == '0' && !कालिवा;
         // fmtsize might have changed since we parsed the %fmtsize
         const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), left, str);
+        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), कालिवा, str);
         return str;
     }
     // 'l'   // Library - converted to text by V3LinkResolve
     case 'u': {  // Packed 2-state
-        for (int i = 0; i < words(); ++i) {
-            const uint32_t v = m_data.num()[i].m_value;
+        for (int i = 0; i < मगा_सालिता(); ++i) {
+            const uint32_t v = m_data.नुमेरो()[i].m_हालागा;
             str += static_cast<char>((v >> 0) & 0xff);
             str += static_cast<char>((v >> 8) & 0xff);
             str += static_cast<char>((v >> 16) & 0xff);
@@ -940,16 +940,16 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
         return str;
     }
     case 'z': {  // Packed 4-state
-        for (int i = 0; i < words(); ++i) {
-            const ValueAndX v = m_data.num()[i];
-            str += static_cast<char>((v.m_value >> 0) & 0xff);
-            str += static_cast<char>((v.m_value >> 8) & 0xff);
-            str += static_cast<char>((v.m_value >> 16) & 0xff);
-            str += static_cast<char>((v.m_value >> 24) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 0) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 8) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 16) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 24) & 0xff);
+        for (int i = 0; i < मगा_सालिता(); ++i) {
+            const हालागा_And_X v = m_data.नुमेरो()[i];
+            str += static_cast<char>((v.m_हालागा >> 0) & 0xff);
+            str += static_cast<char>((v.m_हालागा >> 8) & 0xff);
+            str += static_cast<char>((v.m_हालागा >> 16) & 0xff);
+            str += static_cast<char>((v.m_हालागा >> 24) & 0xff);
+            str += static_cast<char>((v.m_हालागा_X >> 0) & 0xff);
+            str += static_cast<char>((v.m_हालागा_X >> 8) & 0xff);
+            str += static_cast<char>((v.m_हालागा_X >> 16) & 0xff);
+            str += static_cast<char>((v.m_हालागा_X >> 24) & 0xff);
         }
         return str;
     }
@@ -973,7 +973,7 @@ string V3Number::displayed(FileLine* fl, const string& vformat,
     }
 }
 
-string V3Number::emitC() const VL_MT_STABLE {
+string V3_नुमेरो::emitC() const VL_MT_STABLE {
     constexpr size_t bufsize = 1000;
     char sbuf[bufsize];
     string result;
@@ -1000,20 +1000,20 @@ string V3Number::emitC() const VL_MT_STABLE {
             = V3OutFormatter::quoteNameControls(strg, V3OutFormatter::Language::LA_C);
         // Note: putsQuoted does not track indentation, so we use this instead
         return '"' + quoted + "\"s";
-    } else if (words() > 2) {
+    } else if (मगा_सालिता() > 2) {
         // Note the double {{ initializer. The first { starts the initializer of the VlWide,
         // and the second starts the initializer of m_storage within the VlWide.
         // Alternative is to have constructor with std::initializer_list
-        result = "::VlWide<" + std::to_string(words()) + ">{{";
-        if (words() > 4) result += '\n';
-        for (int n = 0; n < words(); ++n) {
+        result = "::VlWide<" + std::to_string(मगा_सालिता()) + ">{{";
+        if (मगा_सालिता() > 4) result += '\n';
+        for (int n = 0; n < मगा_सालिता(); ++n) {
             if (n) result += ((n % 4) ? ", " : ",\n");
             (void)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
             result += sbuf;
         }
-        if (words() > 4) result += '\n';
+        if (मगा_सालिता() > 4) result += '\n';
         result += "}}";
-    } else if (words() == 2) {  // Quad
+    } else if (मगा_सालिता() == 2) {  // Quad
         const uint64_t qnum = static_cast<uint64_t>(toUQuad());
         const char* const fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
         // cppcheck-suppress wrongPrintfScanfArgNum
@@ -1034,10 +1034,10 @@ string V3Number::emitC() const VL_MT_STABLE {
     return result;
 }
 
-string V3Number::toDecimalS() const VL_MT_STABLE {
+string V3_नुमेरो::toDecimalS() const VL_MT_STABLE {
     // Correct number of zero bits/width matters
     if (isNegative()) {
-        V3Number lhsNoSign = *this;
+        V3_नुमेरो lhsNoSign = *this;
         lhsNoSign.opNegate(*this);
         return "-"s + lhsNoSign.toDecimalU();
     } else {
@@ -1045,13 +1045,13 @@ string V3Number::toDecimalS() const VL_MT_STABLE {
     }
 }
 
-string V3Number::toDecimalU() const VL_MT_STABLE {
+string V3_नुमेरो::toDecimalU() const VL_MT_STABLE {
     const int maxdecwidth = (width() + 3) * 4 / 3;
 
     // Or (maxdecwidth+7)/8], but can't have more than 4 BCD bits per word
-    V3Number bcd(this, maxdecwidth + 4);
-    V3Number tmp(this, maxdecwidth + 4);
-    V3Number tmp2(this, maxdecwidth + 4);
+    V3_नुमेरो bcd(this, maxdecwidth + 4);
+    V3_नुमेरो tmp(this, maxdecwidth + 4);
+    V3_नुमेरो tmp2(this, maxdecwidth + 4);
 
     int from_bit = width() - 1;
     // Skip all leading zeros
@@ -1060,7 +1060,7 @@ string V3Number::toDecimalU() const VL_MT_STABLE {
     for (; from_bit >= 0; --from_bit) {
         // Any digits >= 5 need an add 3 (via tmp)
         for (int nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
-            if (bcd.bitsValue(nibble_bit, 4) >= 5) {
+            if (bcd.bits_हालागा(nibble_bit, 4) >= 5) {
                 tmp2.setAllBits0();
                 tmp2.setBit(nibble_bit, 1);  // Add 3, decomposed as two bits
                 tmp2.setBit(nibble_bit + 1, 1);
@@ -1070,7 +1070,7 @@ string V3Number::toDecimalU() const VL_MT_STABLE {
         }
         // Shift; bcd = bcd << 1
         tmp.opAssign(bcd);
-        bcd.opShiftL(tmp, V3Number(this, 32, 1));
+        bcd.opShiftL(tmp, V3_नुमेरो(this, 32, 1));
         // bcd[0] = this[from_bit]
         if (bitIs1(from_bit)) bcd.setBit(0, 1);
     }
@@ -1078,25 +1078,25 @@ string V3Number::toDecimalU() const VL_MT_STABLE {
     string output;
     int lsb = (maxdecwidth - 1) & ~3;
     for (; lsb > 0; lsb -= 4) {  // Skip leading zeros
-        if (bcd.bitsValue(lsb, 4)) break;
+        if (bcd.bits_हालागा(lsb, 4)) break;
     }
     for (; lsb >= 0; lsb -= 4) {
-        output += static_cast<char>('0' + bcd.bitsValue(lsb, 4));  // 0..9
+        output += static_cast<char>('0' + bcd.bits_हालागा(lsb, 4));  // 0..9
     }
     return output;
 }
 
-string V3Number::toRealString() const VL_MT_STABLE {
-    const double value = toDouble();
+string V3_नुमेरो::toRealString() const VL_MT_STABLE {
+    const double हालागा = toDouble();
     // 15 digits suffice for most values, 17 digits for every value
     std::ostringstream out;
     out.precision(15);
-    out << value;
+    out << हालागा;
     string result = out.str();
-    if (std::strtod(result.c_str(), nullptr) != value) {
+    if (std::strtod(result.c_str(), nullptr) != हालागा) {
         out.str("");
         out.precision(17);
-        out << value;
+        out << हालागा;
         result = out.str();
     }
     // A real, as in Verilog, unless has an exponent, or is infinite or not-a-number
@@ -1107,36 +1107,36 @@ string V3Number::toRealString() const VL_MT_STABLE {
 //======================================================================
 // ACCESSORS - as numbers
 
-bool V3Number::fitsInUInt() const VL_MT_SAFE {
+bool V3_नुमेरो::fitsInUInt() const VL_MT_SAFE {
     if (isFourState()) return false;
     // We allow wide numbers that represent values <= 32 bits
-    for (int i = 1; i < words(); ++i) {
-        if (m_data.num()[i].m_value) return false;
+    for (int i = 1; i < मगा_सालिता(); ++i) {
+        if (m_data.नुमेरो()[i].m_हालागा) return false;
     }
     return true;
 }
-uint32_t V3Number::toUInt() const VL_MT_SAFE {
+uint32_t V3_नुमेरो::toUInt() const VL_MT_SAFE {
     UASSERT(!isFourState(), "toUInt with 4-state " << *this);
     // We allow wide numbers that represent values <= 32 bits
     if (VL_UNCOVERABLE(!fitsInUInt())) {
         v3error("Value too wide for 32-bits expected in this context "  // LCOV_EXCL_LINE
                 << *this);
     }
-    return m_data.num()[0].m_value;
+    return m_data.नुमेरो()[0].m_हालागा;
 }
 
-double V3Number::toDouble() const VL_MT_SAFE {
+double V3_नुमेरो::toDouble() const VL_MT_SAFE {
     UASSERT(isDouble() && width() == 64, "Real operation on wrong sized/non-real number");
     union {
         double d;
         uint32_t u[2];
     } u;
-    u.u[0] = m_data.num()[0].m_value;
-    u.u[1] = m_data.num()[1].m_value;
+    u.u[0] = m_data.नुमेरो()[0].m_हालागा;
+    u.u[1] = m_data.नुमेरो()[1].m_हालागा;
     return u.d;
 }
 
-int32_t V3Number::toSInt() const VL_MT_SAFE {
+int32_t V3_नुमेरो::toSInt() const VL_MT_SAFE {
     if (isSigned()) {
         const uint32_t v = toUInt();
         const uint32_t signExtend = (-(v & (1UL << (width() - 1))));
@@ -1149,22 +1149,22 @@ int32_t V3Number::toSInt() const VL_MT_SAFE {
     }
 }
 
-uint64_t V3Number::toUQuad() const VL_MT_SAFE {
+uint64_t V3_नुमेरो::toUQuad() const VL_MT_SAFE {
     UASSERT(!isFourState(), "toUQuad with 4-state " << *this);
     // We allow wide numbers that represent values <= 64 bits
     if (isDouble()) return static_cast<uint64_t>(toDouble());
-    for (int i = 2; i < words(); ++i) {
-        if (m_data.num()[i].m_value) {
+    for (int i = 2; i < मगा_सालिता(); ++i) {
+        if (m_data.नुमेरो()[i].m_हालागा) {
             v3error("Value too wide for 64-bits expected in this context " << *this);
             break;
         }
     }
     if (width() <= 32) return (static_cast<uint64_t>(toUInt()));
-    return ((static_cast<uint64_t>(m_data.num()[1].m_value) << 32ULL)
-            | (static_cast<uint64_t>(m_data.num()[0].m_value)));
+    return ((static_cast<uint64_t>(m_data.नुमेरो()[1].m_हालागा) << 32ULL)
+            | (static_cast<uint64_t>(m_data.नुमेरो()[0].m_हालागा)));
 }
 
-int64_t V3Number::toSQuad() const {
+int64_t V3_नुमेरो::toSQuad() const {
     if (isDouble()) return static_cast<int64_t>(toDouble());
     const uint64_t v = toUQuad();
     const uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
@@ -1172,7 +1172,7 @@ int64_t V3Number::toSQuad() const {
     return static_cast<int64_t>(extended);
 }
 
-string V3Number::toString() const {
+string V3_नुमेरो::toString() const {
     UASSERT(!isFourState(), "toString with 4-state " << *this);
     // IEEE says \000 are removed
     // If used to print a %s space padding is still required after call to here
@@ -1181,71 +1181,71 @@ string V3Number::toString() const {
     while ((bit % 8) != 7) ++bit;
     std::string str;
     for (; bit >= 0; bit -= 8) {
-        const int v = bitsValue(bit - 7, 8);
+        const int v = bits_हालागा(bit - 7, 8);
         if (v) str += static_cast<char>(v);
     }
     return str;
 }
 
-uint32_t V3Number::edataWord(int eword) const {
+uint32_t V3_नुमेरो::edataWord(int eword) const {
     UASSERT(!isFourState(), "edataWord with 4-state " << *this);
-    return m_data.num()[eword].m_value;
+    return m_data.नुमेरो()[eword].m_हालागा;
 }
 
-uint8_t V3Number::dataByte(int byte) const {
+uint8_t V3_नुमेरो::dataByte(int byte) const {
     return (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
 }
 
-bool V3Number::isAllZ() const VL_MT_SAFE {
+bool V3_नुमेरो::isAllZ() const VL_MT_SAFE {
     if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        const uint32_t mask = i == words() - 1 ? hiWordMask() : ~0U;
-        if (((~v.m_value & v.m_valueX) & mask) != mask) return false;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        const हालागा_And_X v = m_data.नुमेरो()[i];
+        const uint32_t mask = i == मगा_सालिता() - 1 ? hiWordMask() : ~0U;
+        if (((~v.m_हालागा & v.m_हालागा_X) & mask) != mask) return false;
     }
     return true;
 }
-bool V3Number::isAllX() const VL_MT_SAFE {
+bool V3_नुमेरो::isAllX() const VL_MT_SAFE {
     if (isDouble() || isString()) return false;
     uint32_t mask = hiWordMask();
-    for (int i = words() - 1; i >= 0; --i) {
-        const ValueAndX v = m_data.num()[i];
-        if ((v.m_value & v.m_valueX) ^ mask) return false;
+    for (int i = मगा_सालिता() - 1; i >= 0; --i) {
+        const हालागा_And_X v = m_data.नुमेरो()[i];
+        if ((v.m_हालागा & v.m_हालागा_X) ^ mask) return false;
         mask = ~0U;
     }
     return true;
 }
-bool V3Number::isEqZero() const VL_MT_SAFE {
+bool V3_नुमेरो::isEqZero() const VL_MT_SAFE {
     if (isString()) return m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        const हालागा_And_X v = m_data.नुमेरो()[i];
+        if (v.m_हालागा || v.m_हालागा_X) return false;
     }
     return true;
 }
-bool V3Number::isNeqZero() const {
+bool V3_नुमेरो::isNeqZero() const {
     if (isString()) return !m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & ~v.m_valueX) return true;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        const हालागा_And_X v = m_data.नुमेरो()[i];
+        if (v.m_हालागा & ~v.m_हालागा_X) return true;
     }
     return false;
 }
-bool V3Number::isBitsZero(int msb, int lsb) const {
+bool V3_नुमेरो::isBitsZero(int msb, int lsb) const {
     for (int i = lsb; i <= msb; ++i) {
         if (VL_UNLIKELY(!bitIs0(i))) return false;
     }
     return true;
 }
-bool V3Number::isEqOne() const {
-    if (m_data.num()[0].m_value != 1 || m_data.num()[0].m_valueX) return false;
-    for (int i = 1; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+bool V3_नुमेरो::isEqOne() const {
+    if (m_data.नुमेरो()[0].m_हालागा != 1 || m_data.नुमेरो()[0].m_हालागा_X) return false;
+    for (int i = 1; i < मगा_सालिता(); ++i) {
+        const हालागा_And_X v = m_data.नुमेरो()[i];
+        if (v.m_हालागा || v.m_हालागा_X) return false;
     }
     return true;
 }
-bool V3Number::isEqAllOnes(int optwidth) const {
+bool V3_नुमेरो::isEqAllOnes(int optwidth) const {
     // Correct number of zero bits/width matters
     if (!optwidth) optwidth = width();
     for (int bit = 0; bit < optwidth; ++bit) {
@@ -1253,37 +1253,37 @@ bool V3Number::isEqAllOnes(int optwidth) const {
     }
     return true;
 }
-bool V3Number::isFourState() const VL_MT_SAFE {
+bool V3_नुमेरो::isFourState() const VL_MT_SAFE {
     if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        if (m_data.नुमेरो()[i].m_हालागा_X) return true;
     }
     return false;
 }
-bool V3Number::isAnyX() const VL_MT_SAFE {
+bool V3_नुमेरो::isAnyX() const VL_MT_SAFE {
     if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & v.m_valueX) return true;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        const हालागा_And_X v = m_data.नुमेरो()[i];
+        if (v.m_हालागा & v.m_हालागा_X) return true;
     }
     return false;
 }
-bool V3Number::isAnyXZ() const {
+bool V3_नुमेरो::isAnyXZ() const {
     if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        if (m_data.नुमेरो()[i].m_हालागा_X) return true;
     }
     return false;
 }
-bool V3Number::isAnyZ() const VL_MT_SAFE {
+bool V3_नुमेरो::isAnyZ() const VL_MT_SAFE {
     if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (~v.m_value & v.m_valueX) return true;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        const हालागा_And_X v = m_data.नुमेरो()[i];
+        if (~v.m_हालागा & v.m_हालागा_X) return true;
     }
     return false;
 }
-bool V3Number::isLtXZ(const V3Number& rhs) const {
+bool V3_नुमेरो::isLtXZ(const V3_नुमेरो& rhs) const {
     // Include X/Z in comparisons for sort ordering
     if (isString()) return toString() < rhs.toString();
     if (isDouble()) return toDouble() < rhs.toDouble();
@@ -1295,31 +1295,31 @@ bool V3Number::isLtXZ(const V3Number& rhs) const {
     }
     return false;
 }
-int V3Number::countX(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
+int V3_नुमेरो::बिलांग_X(int lsb, int nbits) const VL_MT_SAFE {
+    int बिलांग = 0;
     for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsX(lsb + bitn)) ++count;
+        if (lsb + bitn >= width()) return बिलांग;
+        if (bitIsX(lsb + bitn)) ++बिलांग;
     }
-    return count;
+    return बिलांग;
 }
-int V3Number::countZ(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
+int V3_नुमेरो::बिलांग_Z(int lsb, int nbits) const VL_MT_SAFE {
+    int बिलांग = 0;
     for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsZ(lsb + bitn)) ++count;
+        if (lsb + bitn >= width()) return बिलांग;
+        if (bitIsZ(lsb + bitn)) ++बिलांग;
     }
-    return count;
+    return बिलांग;
 }
 
-int V3Number::widthToFit() const {
+int V3_नुमेरो::widthToFit() const {
     for (int bit = width() - 1; bit > 0; bit--) {
         if (!bitIs0(bit)) return bit + 1;
     }
     return 1;  // one bit even if number is == 0
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl) const {
+uint32_t V3_नुमेरो::बिलांग_Bits(const V3_नुमेरो& ctrl) const {
     // Correct number of zero bits/width matters
     int n = 0;
     for (int bit = 0; bit < width(); ++bit) {
@@ -1341,18 +1341,18 @@ uint32_t V3Number::countBits(const V3Number& ctrl) const {
     return n;
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl1, const V3Number& ctrl2,
-                             const V3Number& ctrl3) const {
+uint32_t V3_नुमेरो::बिलांग_Bits(const V3_नुमेरो& ctrl1, const V3_नुमेरो& ctrl2,
+                             const V3_नुमेरो& ctrl3) const {
     // Correct number of zero bits/width matters
-    int n = countBits(ctrl1);
-    if (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += countBits(ctrl2);
+    int n = बिलांग_Bits(ctrl1);
+    if (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += बिलांग_Bits(ctrl2);
     if ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
-        n += countBits(ctrl3);
+        n += बिलांग_Bits(ctrl3);
     }
     return n;
 }
 
-uint32_t V3Number::countOnes() const {
+uint32_t V3_नुमेरो::बिलांग_Ones() const {
     int n = 0;
     for (int bit = 0; bit < width(); ++bit) {
         if (bitIs1(bit)) ++n;
@@ -1360,14 +1360,14 @@ uint32_t V3Number::countOnes() const {
     return n;
 }
 
-uint32_t V3Number::mostSetBitP1() const {
+uint32_t V3_नुमेरो::mostSetBitP1() const {
     for (int bit = width() - 1; bit >= 0; bit--) {
         if (!bitIs0(bit)) return bit + 1;
     }
     return 0;
 }
 
-uint32_t V3Number::leastSetBitP1() const {
+uint32_t V3_नुमेरो::leastSetBitP1() const {
     for (int bit = 0; bit < width(); ++bit) {
         if (!bitIs0(bit)) return bit + 1;
     }
@@ -1376,41 +1376,41 @@ uint32_t V3Number::leastSetBitP1() const {
 
 //======================================================================
 
-V3Number& V3Number::opBitsNonXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_नुमेरो& V3_नुमेरो::opBitsNonXZ(const V3_नुमेरो& lhs) {  // 0/1->1, X/Z->0
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
         if (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
     }
     return *this;
 }
-V3Number& V3Number::opBitsOne(const V3Number& lhs) {  // 1->1, 0/X/Z->0
+V3_नुमेरो& V3_नुमेरो::opBitsOne(const V3_नुमेरो& lhs) {  // 1->1, 0/X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
         if (lhs.bitIs1(bit)) setBit(bit, 1);
     }
     return *this;
 }
-V3Number& V3Number::opBitsXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_नुमेरो& V3_नुमेरो::opBitsXZ(const V3_नुमेरो& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
         if (lhs.bitIsXZ(bit)) setBit(bit, 1);
     }
     return *this;
 }
-V3Number& V3Number::opBitsZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_नुमेरो& V3_नुमेरो::opBitsZ(const V3_नुमेरो& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
         if (lhs.bitIsZ(bit)) setBit(bit, 1);
@@ -1421,10 +1421,10 @@ V3Number& V3Number::opBitsZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
 //======================================================================
 // Operators - Simple per-bit logical ops
 
-V3Number& V3Number::opRedOr(const V3Number& lhs) {
+V3_नुमेरो& V3_नुमेरो::opRedOr(const V3_नुमेरो& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     char outc = 0;
     for (int bit = 0; bit < lhs.width(); ++bit) {
         if (lhs.bitIs1(bit)) {
@@ -1437,11 +1437,11 @@ V3Number& V3Number::opRedOr(const V3Number& lhs) {
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedAnd(const V3Number& lhs) {
+V3_नुमेरो& V3_नुमेरो::opRedAnd(const V3_नुमेरो& lhs) {
     // Correct number of zero bits/width matters
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     char outc = 1;
     for (int bit = 0; bit < lhs.width(); ++bit) {
         if (lhs.bitIs0(bit)) {
@@ -1454,10 +1454,10 @@ V3Number& V3Number::opRedAnd(const V3Number& lhs) {
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedXor(const V3Number& lhs) {
+V3_नुमेरो& V3_नुमेरो::opRedXor(const V3_नुमेरो& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     char outc = 0;
     for (int bit = 0; bit < lhs.width(); ++bit) {
         if (lhs.bitIs1(bit)) {
@@ -1474,45 +1474,45 @@ V3Number& V3Number::opRedXor(const V3Number& lhs) {
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opCountBits(const V3Number& expr, const V3Number& ctrl1, const V3Number& ctrl2,
-                                const V3Number& ctrl3) {
+V3_नुमेरो& V3_नुमेरो::op_बिलांग_Bits(const V3_नुमेरो& पाहायाग, const V3_नुमेरो& ctrl1, const V3_नुमेरो& ctrl2,
+                                const V3_नुमेरो& ctrl3) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS4(expr, ctrl1, ctrl2, ctrl3);
-    NUM_ASSERT_LOGIC_ARGS4(expr, ctrl1, ctrl2, ctrl3);
+    नुमेरो_ASSERT_OP_ARGS4(पाहायाग, ctrl1, ctrl2, ctrl3);
+    नुमेरो_ASSERT_LOGIC_ARGS4(पाहायाग, ctrl1, ctrl2, ctrl3);
     setZero();
-    m_data.num()[0].m_value = expr.countBits(ctrl1, ctrl2, ctrl3);
+    m_data.नुमेरो()[0].m_हालागा = पाहायाग.बिलांग_Bits(ctrl1, ctrl2, ctrl3);
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::opCountOnes(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::op_बिलांग_Ones(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     if (lhs.isFourState()) return setAllBitsX();
     setZero();
-    m_data.num()[0].m_value = lhs.countOnes();
+    m_data.नुमेरो()[0].m_हालागा = lhs.बिलांग_Ones();
     opCleanThis();
     return *this;
 }
-V3Number& V3Number::opIsUnknown(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opIsUnknown(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
     return setSingleBits(lhs.isAnyXZ());
 }
-V3Number& V3Number::opOneHot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opOneHot(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
     if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() == 1);
+    return setSingleBits(lhs.बिलांग_Ones() == 1);
 }
-V3Number& V3Number::opOneHot0(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opOneHot0(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
     if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() <= 1);
+    return setSingleBits(lhs.बिलांग_Ones() <= 1);
 }
-V3Number& V3Number::opCLog2(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opCLog2(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     if (lhs.isFourState()) return setAllBitsX();
     // IE if 4, this algorithm didn't pre-subtract 1, so we need to post-correct now
-    const int adjust = (lhs.countOnes() == 1) ? 0 : 1;
+    const int adjust = (lhs.बिलांग_Ones() == 1) ? 0 : 1;
     for (int bit = lhs.width() - 1; bit >= 0; bit--) {
         if (lhs.bitIs1(bit)) {
             setLong(bit + adjust);
@@ -1522,10 +1522,10 @@ V3Number& V3Number::opCLog2(const V3Number& lhs) {
     setZero();
     return *this;
 }
-V3Number& V3Number::opMostSetBitP1(const V3Number& lhs) {
+V3_नुमेरो& V3_नुमेरो::opMostSetBitP1(const V3_नुमेरो& lhs) {
     // Most-significant set bit plus one (bit-width / find-last-set); 0 if value is zero
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     if (lhs.isFourState()) return setAllBitsX();
     for (int bit = lhs.width() - 1; bit >= 0; bit--) {
         if (lhs.bitIs1(bit)) {
@@ -1537,9 +1537,9 @@ V3Number& V3Number::opMostSetBitP1(const V3Number& lhs) {
     return *this;
 }
 
-V3Number& V3Number::opLogNot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opLogNot(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     // op i, 1 bit return
     char outc = 1;
     for (int bit = 0; bit < lhs.width(); ++bit) {
@@ -1555,10 +1555,10 @@ last:
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opNot(const V3Number& lhs) {
+V3_नुमेरो& V3_नुमेरो::opNot(const V3_नुमेरो& lhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     // op i, L(lhs) bit return
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
@@ -1571,9 +1571,9 @@ V3Number& V3Number::opNot(const V3Number& lhs) {
     return *this;
 }
 
-V3Number& V3Number::opAnd(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opAnd(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
@@ -1587,9 +1587,9 @@ V3Number& V3Number::opAnd(const V3Number& lhs, const V3Number& rhs) {
     return *this;
 }
 
-V3Number& V3Number::opOr(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opOr(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
@@ -1604,10 +1604,10 @@ V3Number& V3Number::opOr(const V3Number& lhs, const V3Number& rhs) {
     return *this;
 }
 
-V3Number& V3Number::opXor(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opXor(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
         if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
@@ -1622,26 +1622,26 @@ V3Number& V3Number::opXor(const V3Number& lhs, const V3Number& rhs) {
     return *this;
 }
 
-void V3Number::fillBits(int destLsb, int width, char value) {
+void V3_नुमेरो::fillBits(int destLsb, int width, char हालागा) {
     UASSERT(destLsb >= 0 && width >= 0, "Negative bit range");
     if (!width) return;
     UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
 
-    const uint32_t valueWord = value == '1' || value == 'x' || value == 1 || value == 3 ? ~0U : 0;
-    const uint32_t xWord = value == 'z' || value == 'x' || value == 2 || value == 3 ? ~0U : 0;
+    const uint32_t हालागा_Word = हालागा == '1' || हालागा == 'x' || हालागा == 1 || हालागा == 3 ? ~0U : 0;
+    const uint32_t xWord = हालागा == 'z' || हालागा == 'x' || हालागा == 2 || हालागा == 3 ? ~0U : 0;
     const int firstWord = VL_BITWORD_E(destLsb);
     const int lastWord = VL_BITWORD_E(destLsb + width - 1);
     for (int word = firstWord; word <= lastWord; ++word) {
         const int wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
         const int wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
         const uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
-        ValueAndX& dest = m_data.num()[word];
-        dest.m_value = (dest.m_value & ~mask) | (valueWord & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | (xWord & mask);
+        हालागा_And_X& dest = m_data.नुमेरो()[word];
+        dest.m_हालागा = (dest.m_हालागा & ~mask) | (हालागा_Word & mask);
+        dest.m_हालागा_X = (dest.m_हालागा_X & ~mask) | (xWord & mask);
     }
 }
 
-void V3Number::copyBits(int destLsb, const V3Number& source, int sourceLsb, int width) {
+void V3_नुमेरो::copyBits(int destLsb, const V3_नुमेरो& source, int sourceLsb, int width) {
     UASSERT(destLsb >= 0 && sourceLsb >= 0 && width >= 0, "Negative bit range");
     if (!width) return;
     UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
@@ -1658,25 +1658,25 @@ void V3Number::copyBits(int destLsb, const V3Number& source, int sourceLsb, int 
         const int copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
         const uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
 
-        const ValueAndX& sourceLo = source.m_data.num()[sourceWord];
-        uint32_t value = sourceLo.m_value >> sourceOffset;
-        uint32_t valueX = sourceLo.m_valueX >> sourceOffset;
+        const हालागा_And_X& sourceLo = source.m_data.नुमेरो()[sourceWord];
+        uint32_t हालागा = sourceLo.m_हालागा >> sourceOffset;
+        uint32_t हालागा_X = sourceLo.m_हालागा_X >> sourceOffset;
         if (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
-            const ValueAndX& sourceHi = source.m_data.num()[sourceWord + 1];
-            value |= sourceHi.m_value << (VL_EDATASIZE - sourceOffset);
-            valueX |= sourceHi.m_valueX << (VL_EDATASIZE - sourceOffset);
+            const हालागा_And_X& sourceHi = source.m_data.नुमेरो()[sourceWord + 1];
+            हालागा |= sourceHi.m_हालागा << (VL_EDATASIZE - sourceOffset);
+            हालागा_X |= sourceHi.m_हालागा_X << (VL_EDATASIZE - sourceOffset);
         }
 
-        ValueAndX& dest = m_data.num()[destWord];
-        dest.m_value = (dest.m_value & ~mask) | ((value << destOffset) & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | ((valueX << destOffset) & mask);
+        हालागा_And_X& dest = m_data.नुमेरो()[destWord];
+        dest.m_हालागा = (dest.m_हालागा & ~mask) | ((हालागा << destOffset) & mask);
+        dest.m_हालागा_X = (dest.m_हालागा_X & ~mask) | ((हालागा_X << destOffset) & mask);
     }
 }
 
-V3Number& V3Number::opConcat(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opConcat(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
     if (!lhs.sized() || !rhs.sized()) {
@@ -1687,30 +1687,30 @@ V3Number& V3Number::opConcat(const V3Number& lhs, const V3Number& rhs) {
     return *this;
 }
 
-V3Number& V3Number::opLenN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opLenN(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     setQuad(lhs.toString().length());
     return *this;
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
-                           const V3Number& rhs) {  // rhs is # of times to replicate
+V3_नुमेरो& V3_नुमेरो::opRepl(const V3_नुमेरो& lhs,
+                           const V3_नुमेरो& rhs) {  // rhs is # of times to replicate
     // Hopefully the using routine has a error check to, &rhso.
     // See also error in V3Width
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in replications.");
     }
     return opRepl(lhs, rhs.toUInt());
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
+V3_नुमेरो& V3_नुमेरो::opRepl(const V3_नुमेरो& lhs,
                            uint32_t rhsval) {  // rhs is # of times to replicate
     // i op repl, L(i)*value(rhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     if (v3Global.opt.replicationLimit()
         && rhsval > static_cast<uint32_t>(v3Global.opt.replicationLimit())) {
         v3warn(WIDTHCONCAT, "Replication of more that --replication-limit "
@@ -1726,9 +1726,9 @@ V3Number& V3Number::opRepl(const V3Number& lhs,
     return *this;
 }
 
-V3Number& V3Number::opStreamL(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opStreamL(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
     if (!lhs.sized()) {
@@ -1743,10 +1743,10 @@ V3Number& V3Number::opStreamL(const V3Number& lhs, const V3Number& rhs) {
     return *this;
 }
 
-V3Number& V3Number::opLogAnd(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opLogAnd(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char loutc = 0;
     char routc = 0;
     for (int bit = 0; bit < lhs.width(); ++bit) {
@@ -1769,10 +1769,10 @@ V3Number& V3Number::opLogAnd(const V3Number& lhs, const V3Number& rhs) {
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogOr(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opLogOr(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
     for (int bit = 0; bit < lhs.width(); ++bit) {
         if (lhs.bitIs1(bit)) {
@@ -1792,29 +1792,29 @@ last:
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogIf(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opLogIf(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number lnot = lhs;
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_नुमेरो lnot = lhs;
     lnot.opLogNot(lhs);
     return opLogOr(lnot, rhs);
 }
 
-V3Number& V3Number::opLogEq(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opLogEq(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number ifa = lhs;
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_नुमेरो ifa = lhs;
     ifa.opLogIf(lhs, rhs);
-    V3Number ifb = rhs;
+    V3_नुमेरो ifb = rhs;
     ifb.opLogIf(rhs, lhs);
     return opLogAnd(ifa, ifb);
 }
 
-V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opAtoN(const V3_नुमेरो& lhs, int base) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     UASSERT(base == AstAtoN::ATOREAL || base == 2 || base == 8 || base == 10 || base == 16,
             "base must be one of AstAtoN::ATOREAL, 2, 8, 10, or 16.");
 
@@ -1831,9 +1831,9 @@ V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
     return setLongS(static_cast<int32_t>(v));
 }
 
-V3Number& V3Number::opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opPutcN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs, const V3_नुमेरो& ths) {
+    नुमेरो_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     string lstring = lhs.toString();
     const int32_t i = rhs.toSInt();
     const int32_t c = ths.toSInt() & 0xFF;
@@ -1843,9 +1843,9 @@ V3Number& V3Number::opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Nu
     return setString(lstring);
 }
 
-V3Number& V3Number::opGetcN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opGetcN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     const string lstring = lhs.toString();
     const int32_t i = rhs.toSInt();
     int32_t v = 0;
@@ -1855,9 +1855,9 @@ V3Number& V3Number::opGetcN(const V3Number& lhs, const V3Number& rhs) {
     return setLong(v);
 }
 
-V3Number& V3Number::opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opSubstrN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs, const V3_नुमेरो& ths) {
+    नुमेरो_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     const string lstring = lhs.toString();
     const int32_t i = rhs.toSInt();
     const int32_t j = ths.toSInt();
@@ -1869,9 +1869,9 @@ V3Number& V3Number::opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3
     return setString(lstring.substr(i, j - i + 1));
 }
 
-V3Number& V3Number::opCompareNN(const V3Number& lhs, const V3Number& rhs, bool ignoreCase) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opCompareNN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs, bool ignoreCase) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     // SystemVerilog Language Standard does not allow a string variable to contain '\0'.
     // So C functions such as strcmp() can correctly compare strings.
     int result;
@@ -1885,9 +1885,9 @@ V3Number& V3Number::opCompareNN(const V3Number& lhs, const V3Number& rhs, bool i
     return setLongS(result);
 }
 
-V3Number& V3Number::opEq(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opEq(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
     if (lhs.isString()) return opEqN(lhs, rhs);
     if (lhs.isDouble()) return opEqD(lhs, rhs);
     char outc = 1;
@@ -1907,9 +1907,9 @@ last:
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opNeq(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
     if (lhs.isString()) return opNeqN(lhs, rhs);
     if (lhs.isDouble()) return opNeqD(lhs, rhs);
     char outc = 0;
@@ -1929,35 +1929,35 @@ last:
     return setSingleBits(outc);
 }
 
-V3Hash V3Number::toHash() const {
+V3Hash V3_नुमेरो::toHash() const {
     // Shouldmatch isCaseEq
     if (isString()) return V3Hash{toString()};
     if (isDouble()) return V3Hash{toDouble()};
     V3Hash hash{width()};
-    for (int i = 0; i < words(); ++i) hash += m_data.num()[i].m_value;
+    for (int i = 0; i < मगा_सालिता(); ++i) hash += m_data.नुमेरो()[i].m_हालागा;
     return hash;
 }
 
-bool V3Number::isCaseEq(const V3Number& rhs) const {
+bool V3_नुमेरो::isCaseEq(const V3_नुमेरो& rhs) const {
     // Should match toHash
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
     if (isString()) return toString() == rhs.toString();
     if (isDouble()) return toDouble() == rhs.toDouble();
     if (width() != rhs.width()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (!(m_data.num()[i] == rhs.m_data.num()[i])) return false;
+    for (int i = 0; i < मगा_सालिता(); ++i) {
+        if (!(m_data.नुमेरो()[i] == rhs.m_data.नुमेरो()[i])) return false;
     }
     return true;
 }
 
-V3Number& V3Number::opCaseEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opCaseEq(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
     return setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
 }
 
-V3Number& V3Number::opCaseNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opCaseNeq(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
     char outc = 0;
     if (lhs.isString()) {
         return opNeqN(lhs, rhs);
@@ -1974,9 +1974,9 @@ last:
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opWildEq(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 1;
     for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
         if (!rhs.bitIsXZ(bit)) {
@@ -1994,9 +1994,9 @@ last:
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildNeq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opWildNeq(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
     for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
         if (!rhs.bitIsXZ(bit)) {
@@ -2014,10 +2014,10 @@ last:
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opGt(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opGt(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
     for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
         if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
@@ -2028,10 +2028,10 @@ V3Number& V3Number::opGt(const V3Number& lhs, const V3Number& rhs) {
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opGtS(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opGtS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     char outc = 0;
     {
         const int mbit = std::max(lhs.width() - 1, rhs.width() - 1);
@@ -2056,31 +2056,31 @@ V3Number& V3Number::opGtS(const V3Number& lhs, const V3Number& rhs) {
     return setSingleBits(outc);
 }
 
-V3Number& V3Number::opGte(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opGte(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_नुमेरो& eq = opEq(lhs, rhs);
     if (eq.isNeqZero()) return eq;  // Return true
     return opGt(lhs, rhs);
 }
 
-V3Number& V3Number::opGteS(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opGteS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_नुमेरो& eq = opEq(lhs, rhs);
     if (eq.isNeqZero()) return eq;  // Return true
     return opGtS(lhs, rhs);
 }
 
-V3Number& V3Number::opLt(const V3Number& lhs, const V3Number& rhs) { return opGt(rhs, lhs); }
-V3Number& V3Number::opLte(const V3Number& lhs, const V3Number& rhs) { return opGte(rhs, lhs); }
-V3Number& V3Number::opLtS(const V3Number& lhs, const V3Number& rhs) { return opGtS(rhs, lhs); }
-V3Number& V3Number::opLteS(const V3Number& lhs, const V3Number& rhs) { return opGteS(rhs, lhs); }
+V3_नुमेरो& V3_नुमेरो::opLt(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) { return opGt(rhs, lhs); }
+V3_नुमेरो& V3_नुमेरो::opLte(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) { return opGte(rhs, lhs); }
+V3_नुमेरो& V3_नुमेरो::opLtS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) { return opGtS(rhs, lhs); }
+V3_नुमेरो& V3_नुमेरो::opLteS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) { return opGteS(rhs, lhs); }
 
-V3Number& V3Number::opShiftR(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opShiftR(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (rhs.isFourState()) return setAllBitsX();
     setZero();
     if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
@@ -2092,13 +2092,13 @@ V3Number& V3Number::opShiftR(const V3Number& lhs, const V3Number& rhs) {
     return *this;
 }
 
-V3Number& V3Number::opShiftRS(const V3Number& lhs, const V3Number& rhs, uint32_t lbits) {
+V3_नुमेरो& V3_नुमेरो::opShiftRS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs, uint32_t lbits) {
     // Correct number of zero bits/width matters (hence lbits passed)
     // L(lhs) bit return
     // The spec says a unsigned >>> still acts as a normal >>.
     // We presume it is signed; as that's V3Width's job to convert to opShiftR
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (rhs.isFourState()) return setAllBitsX();
     setZero();
     const bool overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
@@ -2115,10 +2115,10 @@ V3Number& V3Number::opShiftRS(const V3Number& lhs, const V3Number& rhs, uint32_t
     return *this;
 }
 
-V3Number& V3Number::opShiftL(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opShiftL(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (rhs.isFourState()) return setAllBitsX();
     setZero();
     if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
@@ -2133,66 +2133,66 @@ V3Number& V3Number::opShiftL(const V3Number& lhs, const V3Number& rhs) {
 //======================================================================
 // Ops - Arithmetic
 
-V3Number& V3Number::opNegate(const V3Number& lhs) {
+V3_नुमेरो& V3_नुमेरो::opNegate(const V3_नुमेरो& lhs) {
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     if (lhs.isFourState()) return setAllBitsX();
-    V3Number notlhs(&lhs, width());
+    V3_नुमेरो notlhs(&lhs, width());
     notlhs.opNot(lhs);
-    const V3Number one(&lhs, width(), 1);
+    const V3_नुमेरो one(&lhs, width(), 1);
     opAdd(notlhs, one);
     return *this;
 }
-V3Number& V3Number::opAdd(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opAdd(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
     setZero();
     // Addem
     uint64_t carry = 0;
-    for (int word = 0; word < words(); ++word) {
-        const uint64_t lwordval = lhs.m_data.num()[word].m_value;
-        const uint64_t rwordval = rhs.m_data.num()[word].m_value;
+    for (int word = 0; word < मगा_सालिता(); ++word) {
+        const uint64_t lwordval = lhs.m_data.नुमेरो()[word].m_हालागा;
+        const uint64_t rwordval = rhs.m_data.नुमेरो()[word].m_हालागा;
         const uint64_t sum = lwordval + rwordval + carry;
-        m_data.num()[word].m_value = sum & 0xffffffffULL;
+        m_data.नुमेरो()[word].m_हालागा = sum & 0xffffffffULL;
         carry = sum > 0xffffffffULL;
     }
     opCleanThis();  // Just in case it produced extra bits in result
     return *this;
 }
-V3Number& V3Number::opSub(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opSub(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Correct number of zero bits/width matters
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number negrhs(&rhs, width());
+    V3_नुमेरो negrhs(&rhs, width());
     negrhs.opNegate(rhs);
     return opAdd(lhs, negrhs);
 }
-V3Number& V3Number::opMul(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opMul(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
     setZero();
     if (width() <= 64) {
         setQuad(lhs.toUQuad() * rhs.toUQuad());
         opCleanThis();  // Mult produces extra bits in result
     } else {
-        for (int lword = 0; lword < lhs.words(); ++lword) {
-            const uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.num()[lword].m_value);
+        for (int lword = 0; lword < lhs.मगा_सालिता(); ++lword) {
+            const uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.नुमेरो()[lword].m_हालागा);
             if (lwordval == 0) continue;
-            for (int rword = 0; rword < rhs.words(); ++rword) {
-                const uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.num()[rword].m_value);
+            for (int rword = 0; rword < rhs.मगा_सालिता(); ++rword) {
+                const uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.नुमेरो()[rword].m_हालागा);
                 if (rwordval == 0) continue;
                 uint64_t mul = lwordval * rwordval;
-                for (int qword = lword + rword; qword < words(); ++qword) {
-                    mul += static_cast<uint64_t>(m_data.num()[qword].m_value);
-                    m_data.num()[qword].m_value = (mul & 0xffffffffULL);
+                for (int qword = lword + rword; qword < मगा_सालिता(); ++qword) {
+                    mul += static_cast<uint64_t>(m_data.नुमेरो()[qword].m_हालागा);
+                    m_data.नुमेरो()[qword].m_हालागा = (mul & 0xffffffffULL);
                     mul = (mul >> 32ULL) & 0xffffffffULL;
                     if (mul == 0) break;
                 }
@@ -2202,17 +2202,17 @@ V3Number& V3Number::opMul(const V3Number& lhs, const V3Number& rhs) {
     }
     return *this;
 }
-V3Number& V3Number::opMulS(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opMulS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Signed multiply
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number lhsNoSign = lhs;
+    V3_नुमेरो lhsNoSign = lhs;
     if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
+    V3_नुमेरो rhsNoSign = rhs;
     if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opMul(lhsNoSign, rhsNoSign);
+    const V3_नुमेरो qNoSign = opMul(lhsNoSign, rhsNoSign);
     if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
     } else {
@@ -2220,10 +2220,10 @@ V3Number& V3Number::opMulS(const V3Number& lhs, const V3Number& rhs) {
     }
     return *this;
 }
-V3Number& V3Number::opDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opDiv(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // UINFO(9, "opdiv " << lhs << " " << rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
     if (rhs.isEqZero()) return setAllBitsXRemoved();
@@ -2235,19 +2235,19 @@ V3Number& V3Number::opDiv(const V3Number& lhs, const V3Number& rhs) {
         return opModDivGuts(lhs, rhs, false);
     }
 }
-V3Number& V3Number::opDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opDivS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Signed divide
     // Correct number of zero bits/width matters
     // UINFO(9, ">>divs-start " << lhs << " " << rhs);
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
     if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
+    V3_नुमेरो lhsNoSign = lhs;
     if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
+    V3_नुमेरो rhsNoSign = rhs;
     if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opDiv(lhsNoSign, rhsNoSign);
+    const V3_नुमेरो qNoSign = opDiv(lhsNoSign, rhsNoSign);
     // UINFO(9, " >divs-mid " << lhs << " " << rhs << " " << qNoSign);
     if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
@@ -2257,10 +2257,10 @@ V3Number& V3Number::opDivS(const V3Number& lhs, const V3Number& rhs) {
     UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *this);
     return *this;
 }
-V3Number& V3Number::opModDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opModDiv(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
     if (rhs.isEqZero()) return setAllBitsXRemoved();
     if (lhs.width() <= 64) {
@@ -2271,18 +2271,18 @@ V3Number& V3Number::opModDiv(const V3Number& lhs, const V3Number& rhs) {
         return opModDivGuts(lhs, rhs, true);
     }
 }
-V3Number& V3Number::opModDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opModDivS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Signed moddiv
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
     if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
+    V3_नुमेरो lhsNoSign = lhs;
     if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
+    V3_नुमेरो rhsNoSign = rhs;
     if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opModDiv(lhsNoSign, rhsNoSign);
+    const V3_नुमेरो qNoSign = opModDiv(lhsNoSign, rhsNoSign);
     if (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
         opNegate(qNoSign);
     } else {
@@ -2290,16 +2290,16 @@ V3Number& V3Number::opModDivS(const V3Number& lhs, const V3Number& rhs) {
     }
     return *this;
 }
-V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus) {
+V3_नुमेरो& V3_नुमेरो::opModDivGuts(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs, bool is_modulus) {
     // See Knuth Algorithm D.  Computes u/v = q.r
     // This isn't massively tuned, as wide division is rare
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // Find MSB and check for zero.
-    const int lWords = lhs.words();
+    const int l_मगा_सालिता = lhs.मगा_सालिता();
     const int umsbp1 = lhs.mostSetBitP1();  // dividend
-    const int vmsbp1 = rhs.mostSetBitP1();  // divisor
+    const int vmsbp1 = rhs.mostSetBitP1();  //पांगहाति
     if (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
         || VL_UNLIKELY(umsbp1 == 0)) {  // 0/x so short circuit and return 0
         UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *this);
@@ -2313,51 +2313,51 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
         uint64_t k = 0;
         for (int j = uw - 1; j >= 0; j--) {
             const uint64_t unw64
-                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.num()[j].m_value));
-            m_data.num()[j].m_value = unw64 / static_cast<uint64_t>(rhs.m_data.num()[0].m_value);
+                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.नुमेरो()[j].m_हालागा));
+            m_data.नुमेरो()[j].m_हालागा = unw64 / static_cast<uint64_t>(rhs.m_data.नुमेरो()[0].m_हालागा);
             k = unw64
-                - (static_cast<uint64_t>(m_data.num()[j].m_value)
-                   * static_cast<uint64_t>(rhs.m_data.num()[0].m_value));
+                - (static_cast<uint64_t>(m_data.नुमेरो()[j].m_हालागा)
+                   * static_cast<uint64_t>(rhs.m_data.नुमेरो()[0].m_हालागा));
         }
         UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *this << " rem=0x" << std::hex
                                    << k << std::dec);
         if (is_modulus) {
             setZero();
-            m_data.num()[0].m_value = k;
+            m_data.नुमेरो()[0].m_हालागा = k;
         }
         opCleanThis();
         return *this;
     }
 
     // +1 word as we may shift during normalization
-    uint32_t un[VL_MULS_MAX_WORDS + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
-    uint32_t vn[VL_MULS_MAX_WORDS + 1];  // v normalized
+    uint32_t un[VL_MULS_MAX_मगा_सालिता + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
+    uint32_t vn[VL_MULS_MAX_मगा_सालिता + 1];  // v normalized
 
     // Zero for ease of debugging and to save having to zero for shifts
-    for (int i = 0; i < lWords; ++i) m_data.num()[i].m_value = 0;
-    for (int i = 0; i < lWords + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
+    for (int i = 0; i < l_मगा_सालिता; ++i) m_data.नुमेरो()[i].m_हालागा = 0;
+    for (int i = 0; i < l_मगा_सालिता + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
 
     // Algorithm requires divisor MSB to be set
     // Copy and shift to normalize divisor so MSB of vn[vw-1] is set
     const int s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
     const uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
     for (int i = vw - 1; i > 0; i--) {
-        vn[i] = (rhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (rhs.m_data.num()[i - 1].m_value >> (32 - s)));
+        vn[i] = (rhs.m_data.नुमेरो()[i].m_हालागा << s)
+                | (shift_mask & (rhs.m_data.नुमेरो()[i - 1].m_हालागा >> (32 - s)));
     }
-    vn[0] = rhs.m_data.num()[0].m_value << s;
+    vn[0] = rhs.m_data.नुमेरो()[0].m_हालागा << s;
 
     // Copy and shift dividend by same amount; may set new upper word
     if (s) {
-        un[uw] = lhs.m_data.num()[uw - 1].m_value >> (32 - s);
+        un[uw] = lhs.m_data.नुमेरो()[uw - 1].m_हालागा >> (32 - s);
     } else {
         un[uw] = 0;
     }
     for (int i = uw - 1; i > 0; i--) {
-        un[i] = (lhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (lhs.m_data.num()[i - 1].m_value >> (32 - s)));
+        un[i] = (lhs.m_data.नुमेरो()[i].m_हालागा << s)
+                | (shift_mask & (lhs.m_data.नुमेरो()[i - 1].m_हालागा >> (32 - s)));
     }
-    un[0] = lhs.m_data.num()[0].m_value << s;
+    un[0] = lhs.m_data.नुमेरो()[0].m_हालागा << s;
 
     // printf("  un="); for (int i=5; i>=0; i--) printf(" %08x",un[i]); printf("\n");
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
@@ -2388,11 +2388,11 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
         }
         t = un[j + vw] - k;
         un[j + vw] = t;
-        m_data.num()[j].m_value = qhat;  // Save quotient digit
+        m_data.नुमेरो()[j].m_हालागा = qhat;  // Save quotient digit
 
         if (t < 0) {
             // Over subtracted; correct by adding back
-            m_data.num()[j].m_value--;
+            m_data.नुमेरो()[j].m_हालागा--;
             k = 0;
             for (int i = 0; i < vw; ++i) {
                 t = static_cast<uint64_t>(un[i + j]) + static_cast<uint64_t>(vn[i]) + k;
@@ -2410,9 +2410,9 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     if (is_modulus) {  // modulus
         // Need to reverse normalization on copy to output
         for (int i = 0; i < vw; ++i) {
-            m_data.num()[i].m_value = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
+            m_data.नुमेरो()[i].m_हालागा = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
         }
-        for (int i = vw; i < lWords; ++i) m_data.num()[i].m_value = 0;
+        for (int i = vw; i < l_मगा_सालिता; ++i) m_data.नुमेरो()[i].m_हालागा = 0;
         opCleanThis();
         UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *this);
         return *this;
@@ -2423,11 +2423,11 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     }
 }
 
-V3Number& V3Number::opPow(const V3Number& lhs, const V3Number& rhs, bool lsign, bool rsign) {
+V3_नुमेरो& V3_नुमेरो::opPow(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs, bool lsign, bool rsign) {
     // Correct number of zero bits/width matters
     // L(i) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(lhs, rhs);
     if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
     if (rhs.isEqZero()) return setValue1();  // Overrides lhs 0 -> return 1
     // We may want to special case when the lhs is 2, so we can get larger outputs
@@ -2447,17 +2447,17 @@ V3Number& V3Number::opPow(const V3Number& lhs, const V3Number& rhs, bool lsign, 
     }
     if (lhs.isEqZero()) return setZero();
     setZero();
-    m_data.num()[0].m_value = 1;
-    V3Number power(&lhs, width());
+    m_data.नुमेरो()[0].m_हालागा = 1;
+    V3_नुमेरो power(&lhs, width());
     power.opAssign(lhs);
     for (int bit = 0; bit < rhs.width(); ++bit) {
         if (bit > 0) {  // power = power*power
-            V3Number lastPower(&lhs, width());
+            V3_नुमेरो lastPower(&lhs, width());
             lastPower.opAssign(power);
             power.opMul(lastPower, lastPower);
         }
         if (rhs.bitIs1(bit)) {  // out *= power
-            V3Number lastOut(&lhs, width());
+            V3_नुमेरो lastOut(&lhs, width());
             lastOut.opAssign(*this);
             opMul(lastOut, power);
             // UINFO(0, "pow "<<lhs<<" "<<rhs<<" b"<<bit<<" pow="<<power<<" now="<<*this);
@@ -2465,22 +2465,22 @@ V3Number& V3Number::opPow(const V3Number& lhs, const V3Number& rhs, bool lsign, 
     }
     return *this;
 }
-V3Number& V3Number::opPowSU(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opPowSU(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Correct number of zero bits/width matters
     return opPow(lhs, rhs, true, false);
 }
-V3Number& V3Number::opPowSS(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opPowSS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Correct number of zero bits/width matters
     return opPow(lhs, rhs, true, true);
 }
-V3Number& V3Number::opPowUS(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opPowUS(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // Correct number of zero bits/width matters
     return opPow(lhs, rhs, false, true);
 }
 
-V3Number& V3Number::opBufIf1(const V3Number& ens, const V3Number& if1s) {
-    NUM_ASSERT_OP_ARGS2(ens, if1s);
-    NUM_ASSERT_LOGIC_ARGS2(ens, if1s);
+V3_नुमेरो& V3_नुमेरो::opBufIf1(const V3_नुमेरो& ens, const V3_नुमेरो& if1s) {
+    नुमेरो_ASSERT_OP_ARGS2(ens, if1s);
+    नुमेरो_ASSERT_LOGIC_ARGS2(ens, if1s);
     setZero();
     for (int bit = 0; bit < width(); ++bit) {
         if (ens.bitIs1(bit)) {
@@ -2493,17 +2493,17 @@ V3Number& V3Number::opBufIf1(const V3Number& ens, const V3Number& if1s) {
 }
 
 // Sets all bits in range to the given value
-V3Number& V3Number::opSetRange(uint32_t lsb, uint32_t width, char bitValue) {
+V3_नुमेरो& V3_नुमेरो::opSetRange(uint32_t lsb, uint32_t width, char bit_हालागा) {
     if (lsb < static_cast<uint32_t>(this->width())) {
         fillBits(static_cast<int>(lsb),
                  static_cast<int>(std::min(width, static_cast<uint32_t>(this->width()) - lsb)),
-                 bitValue);
+                 bit_हालागा);
     }
     return *this;
 }
 
-V3Number& V3Number::opAssign(const V3Number& lhs) { return opAssignNonXZ(lhs, false); }
-V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
+V3_नुमेरो& V3_नुमेरो::opAssign(const V3_नुमेरो& lhs) { return opAssignNonXZ(lhs, false); }
+V3_नुमेरो& V3_नुमेरो::opAssignNonXZ(const V3_नुमेरो& lhs, bool ignoreXZ) {
     // Note may be a width change during the assign.
     // Special case: opAssign unlike other ops, allows this an assignment
     // to itself; V3Simulate does this when hits "foo=foo;"
@@ -2527,11 +2527,11 @@ V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
             setZero();
             copyBits(0, lhs, 0, std::min(width(), lhs.width()));
         } else {
-            for (int word = 0; word < words(); ++word) {
-                const uint32_t value = word < lhs.words() ? lhs.m_data.num()[word].m_value
-                                                                & ~lhs.m_data.num()[word].m_valueX
+            for (int word = 0; word < मगा_सालिता(); ++word) {
+                const uint32_t हालागा = word < lhs.मगा_सालिता() ? lhs.m_data.नुमेरो()[word].m_हालागा
+                                                                & ~lhs.m_data.नुमेरो()[word].m_हालागा_X
                                                           : 0;
-                m_data.num()[word] = {value, 0};
+                m_data.नुमेरो()[word] = {हालागा, 0};
             }
             opCleanThis();
         }
@@ -2539,10 +2539,10 @@ V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
     return *this;
 }
 
-V3Number& V3Number::opNToI(const V3Number& lhs) {
+V3_नुमेरो& V3_नुमेरो::opNToI(const V3_नुमेरो& lhs) {
     // String to packed number
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     setZero();
     const string& str = lhs.toString();
     for (size_t n = 0; n < str.length(); ++n) {
@@ -2555,10 +2555,10 @@ V3Number& V3Number::opNToI(const V3Number& lhs) {
     return *this;
 }
 
-V3Number& V3Number::opExtendS(const V3Number& lhs, uint32_t lbits) {
+V3_नुमेरो& V3_नुमेरो::opExtendS(const V3_नुमेरो& lhs, uint32_t lbits) {
     // Note may be a width change during the sign extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
     const int copyWidth = std::min(width(), static_cast<int>(lbits));
     copyBits(0, lhs, 0, copyWidth);
@@ -2566,10 +2566,10 @@ V3Number& V3Number::opExtendS(const V3Number& lhs, uint32_t lbits) {
     return *this;
 }
 
-V3Number& V3Number::opExtendXZ(const V3Number& lhs, uint32_t lbits) {
+V3_नुमेरो& V3_नुमेरो::opExtendXZ(const V3_नुमेरो& lhs, uint32_t lbits) {
     // Note may be a width change during the X/Z extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
     const int copyWidth = std::min(width(), static_cast<int>(lbits));
     copyBits(0, lhs, 0, copyWidth);
@@ -2577,33 +2577,33 @@ V3Number& V3Number::opExtendXZ(const V3Number& lhs, uint32_t lbits) {
     return *this;
 }
 
-V3Number& V3Number::opClean(const V3Number& lhs, uint32_t bits) { return opSel(lhs, bits - 1, 0); }
+V3_नुमेरो& V3_नुमेरो::opClean(const V3_नुमेरो& lhs, uint32_t bits) { return opSel(lhs, bits - 1, 0); }
 
-void V3Number::opCleanThis(bool warnOnTruncation) {
+void V3_नुमेरो::opCleanThis(bool warnOnTruncation) {
     // Clean MSB of number
-    NUM_ASSERT_LOGIC_ARGS1(*this);
-    const ValueAndX v = m_data.num()[words() - 1];
-    const uint32_t newValueMsb = v.m_value & hiWordMask();
-    const uint32_t newValueXMsb = v.m_valueX & hiWordMask();
-    if (warnOnTruncation && (newValueMsb != v.m_value || newValueXMsb != v.m_valueX)) {
+    नुमेरो_ASSERT_LOGIC_ARGS1(*this);
+    const हालागा_And_X v = m_data.नुमेरो()[मगा_सालिता() - 1];
+    const uint32_t new_हालागा_Msb = v.m_हालागा & hiWordMask();
+    const uint32_t new_हालागा_XMsb = v.m_हालागा_X & hiWordMask();
+    if (warnOnTruncation && (new_हालागा_Msb != v.m_हालागा || new_हालागा_XMsb != v.m_हालागा_X)) {
         // Displaying in decimal avoids hiWordMask truncation
         v3warn(WIDTHTRUNC,
                "Value too large for " << width() << " bit number: " << displayed("%d"));
     }
-    m_data.num()[words() - 1] = {newValueMsb, newValueXMsb};
+    m_data.नुमेरो()[मगा_सालिता() - 1] = {new_हालागा_Msb, new_हालागा_XMsb};
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, const V3Number& msb, const V3Number& lsb) {
-    NUM_ASSERT_OP_ARGS3(lhs, msb, lsb);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(msb, lsb);
+V3_नुमेरो& V3_नुमेरो::opSel(const V3_नुमेरो& lhs, const V3_नुमेरो& msb, const V3_नुमेरो& lsb) {
+    नुमेरो_ASSERT_OP_ARGS3(lhs, msb, lsb);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS2(msb, lsb);
     if (lsb.isFourState() || msb.isFourState()) return setAllBitsX();
     return opSel(lhs, msb.toUInt(), lsb.toUInt());
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opSel(const V3_नुमेरो& lhs, uint32_t msbval, uint32_t lsbval) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
     int copyWidth = 0;
     if (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
@@ -2618,14 +2618,14 @@ V3Number& V3Number::opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval)
     return *this;
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, const V3Number& lsb, int width) {
+V3_नुमेरो& V3_नुमेरो::opSelInto(const V3_नुमेरो& lhs, const V3_नुमेरो& lsb, int width) {
     return opSelInto(lhs, lsb.toSInt(), width);
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, int lsbval, int width) {
+V3_नुमेरो& V3_नुमेरो::opSelInto(const V3_नुमेरो& lhs, int lsbval, int width) {
     // this[lsbval+width-1 : lsbval] = lhs;  Other bits of this are not affected
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     UASSERT(lsbval >= 0, "Negative destination bit range");
     const int copyWidth = std::max(0, std::min({width, lhs.width(), this->width() - lsbval}));
     copyBits(lsbval, lhs, 0, copyWidth);
@@ -2638,17 +2638,17 @@ V3Number& V3Number::opSelInto(const V3Number& lhs, int lsbval, int width) {
 //======================================================================
 // Ops - Floating point
 
-V3Number& V3Number::opIToRD(const V3Number& lhs, bool isSigned) {
+V3_नुमेरो& V3_नुमेरो::opIToRD(const V3_नुमेरो& lhs, bool isSigned) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(lhs);
     // IEEE says we ignore x/z in real conversions
-    V3Number noxz(lhs);
+    V3_नुमेरो noxz(lhs);
     noxz.opAssignNonXZ(lhs);
     double d = 0;
     const bool negate = isSigned && noxz.isNegative();
     if (negate) {
-        const V3Number noxz_signed = noxz;
+        const V3_नुमेरो noxz_signed = noxz;
         noxz.opNegate(noxz_signed);
     }
     for (int bit = noxz.width() - 1; bit >= 0; bit--) {
@@ -2658,16 +2658,16 @@ V3Number& V3Number::opIToRD(const V3Number& lhs, bool isSigned) {
     if (negate) d = -d;
     return setDouble(d);
 }
-V3Number& V3Number::opRToIS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opRToIS(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS1(lhs);
     const double v = VL_TRUNC(lhs.toDouble());
     const int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
     return setLongS(i);
 }
-V3Number& V3Number::opRToIRoundS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opRToIRoundS(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS1(lhs);
     const double v = VL_ROUND(lhs.toDouble());
     setZero();
     union {
@@ -2690,15 +2690,15 @@ V3Number& V3Number::opRToIRoundS(const V3Number& lhs) {
             }
         }
         if (v < 0) {
-            const V3Number noSign = *this;
+            const V3_नुमेरो noSign = *this;
             opNegate(noSign);
         }
     }
     return *this;
 }
-V3Number& V3Number::opRealToBits(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opRealToBits(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
     union {
         double m_d;
@@ -2707,8 +2707,8 @@ V3Number& V3Number::opRealToBits(const V3Number& lhs) {
     u.m_d = lhs.toDouble();
     return setQuad(u.m_v);
 }
-V3Number& V3Number::opBitsToRealD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opBitsToRealD(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
     union {
         double m_d;
@@ -2717,165 +2717,165 @@ V3Number& V3Number::opBitsToRealD(const V3Number& lhs) {
     u.m_v = lhs.toUQuad();
     return setDouble(u.m_d);
 }
-V3Number& V3Number::opNegateD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opNegateD(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS1(lhs);
     return setDouble(-lhs.toDouble());
 }
-V3Number& V3Number::opAddD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opAddD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setDouble(lhs.toDouble() + rhs.toDouble());
 }
-V3Number& V3Number::opSubD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opSubD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setDouble(lhs.toDouble() - rhs.toDouble());
 }
-V3Number& V3Number::opMulD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opMulD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setDouble(lhs.toDouble() * rhs.toDouble());
 }
-V3Number& V3Number::opDivD(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opDivD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setDouble(lhs.toDouble() / rhs.toDouble());
 }
-V3Number& V3Number::opPowD(const V3Number& lhs, const V3Number& rhs) {
+V3_नुमेरो& V3_नुमेरो::opPowD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setDouble(pow(lhs.toDouble(), rhs.toDouble()));
 }
-V3Number& V3Number::opEqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opEqD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toDouble() == rhs.toDouble());
 }
-V3Number& V3Number::opNeqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opNeqD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toDouble() != rhs.toDouble());
 }
-V3Number& V3Number::opGtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opGtD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toDouble() > rhs.toDouble());
 }
-V3Number& V3Number::opGteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opGteD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toDouble() >= rhs.toDouble());
 }
-V3Number& V3Number::opLtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opLtD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toDouble() < rhs.toDouble());
 }
-V3Number& V3Number::opLteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opLteD(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_DOUBLE_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toDouble() <= rhs.toDouble());
 }
 
 //======================================================================
 // Ops - String
 
-V3Number& V3Number::opConcatN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opConcatN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     return setString(lhs.toString() + rhs.toString());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(rhs);
+V3_नुमेरो& V3_नुमेरो::opReplN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
+    नुमेरो_ASSERT_LOGIC_ARGS1(rhs);
     return opReplN(lhs, rhs.toUInt());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, uint32_t rhsval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opReplN(const V3_नुमेरो& lhs, uint32_t rhsval) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     string out;
     out.reserve(lhs.toString().length() * rhsval);
     for (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
     return setString(out);
 }
-V3Number& V3Number::opCvtPackString(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opCvtPackString(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
     return setString(lhs.toString());
 }
-V3Number& V3Number::opToLowerN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opToLowerN(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     const std::string out = VString::downcase(lhs.toString());
     return setString(out);
 }
-V3Number& V3Number::opToUpperN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_नुमेरो& V3_नुमेरो::opToUpperN(const V3_नुमेरो& lhs) {
+    नुमेरो_ASSERT_OP_ARGS1(lhs);
+    नुमेरो_ASSERT_STRING_ARGS1(lhs);
     const std::string out = VString::upcase(lhs.toString());
     return setString(out);
 }
 
-V3Number& V3Number::opEqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opEqN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toString() == rhs.toString());
 }
-V3Number& V3Number::opNeqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opNeqN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toString() != rhs.toString());
 }
-V3Number& V3Number::opGtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opGtN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toString() > rhs.toString());
 }
-V3Number& V3Number::opGteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opGteN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toString() >= rhs.toString());
 }
-V3Number& V3Number::opLtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opLtN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toString() < rhs.toString());
 }
-V3Number& V3Number::opLteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_नुमेरो& V3_नुमेरो::opLteN(const V3_नुमेरो& lhs, const V3_नुमेरो& rhs) {
+    नुमेरो_ASSERT_OP_ARGS2(lhs, rhs);
+    नुमेरो_ASSERT_STRING_ARGS2(lhs, rhs);
     return setSingleBits(lhs.toString() <= rhs.toString());
 }
 
 //======================================================================
 
-void V3Number::selfTest() {
+void V3_नुमेरो::selfTest() {
     UINFO(2, __FUNCTION__ << ":");
-    FileLine* const fl = new FileLine{FileLine::builtInFilename()};
-    V3Number num{fl, 32, 0};
-    num.selfTestThis();
+    File_लिन्या* const fl = new File_लिन्या{File_लिन्या::builtInFilename()};
+    V3_नुमेरो नुमेरो{fl, 32, 0};
+    नुमेरो.selfTestThis();
 }
 
-void V3Number::selfTestThis() {
+void V3_नुमेरो::selfTestThis() {
     // The self test has a "this" so UASSERT_SELFTEST/errorEndFatal works correctly
 
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0, 0), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1e19, 1e19), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(9, 0.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1, 1 + std::numeric_limits<double>::epsilon()), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0.009, 0.00899999999999999931998839741709), true);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonEqual(0, 0), true);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonEqual(1e19, 1e19), true);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonEqual(9, 0.0001), false);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonEqual(1, 1 + std::numeric_limits<double>::epsilon()), true);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonEqual(0.009, 0.00899999999999999931998839741709), true);
 
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0.9999), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-0.9999), false);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonIntegral(0), true);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonIntegral(1), true);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonIntegral(-1), true);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonIntegral(1.0001), false);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonIntegral(0.9999), false);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonIntegral(-1.0001), false);
+    UASSERT_SELFTEST(V3_नुमेरो::epsilonIntegral(-0.9999), false);
 
     UASSERT_SELFTEST(log2b(0), 0);
     UASSERT_SELFTEST(log2b(1), 0);

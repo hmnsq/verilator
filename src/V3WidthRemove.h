@@ -35,10 +35,10 @@ class WidthRemoveVisitor final : public VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    void replaceWithSignedVersion(Ast_बुहोल* nodep, Ast_बुहोल* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
     }
 
     // VISITORS
@@ -48,13 +48,13 @@ class WidthRemoveVisitor final : public VNVisitor {
     void visit(AstUnsigned* nodep) override {
         VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
     WidthRemoveVisitor() = default;
     ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    Ast_बुहोल* mainAcceptEdit(Ast_बुहोल* nodep) { return iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################

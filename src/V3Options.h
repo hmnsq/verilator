@@ -30,7 +30,7 @@
 #include <vector>
 
 class V3OptionsImp;
-class FileLine;
+class File_लिन्या;
 
 //######################################################################
 
@@ -118,21 +118,21 @@ public:
     explicit VTimescale(int _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
-    VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(const string& हालागा, bool& badr);
+    VTimescale(double हालागा, bool& badr) {
         badr = false;
         for (int i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            if (multiplier() == हालागा) break;
         }
-        if (multiplier() != value) {
+        if (multiplier() != हालागा) {
             m_e = NONE;
             badr = true;
         }
     }
     bool isNone() const { return m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    static void parseSlashed(File_लिन्या* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
     const char* ascii() const {
         static const char* const names[]
@@ -142,10 +142,10 @@ public:
     }
     int powerOfTen() const { return 2 - static_cast<int>(m_e); }
     double multiplier() const {
-        static const double values[]
+        static const double मगा_हालागा[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        return मगा_हालागा[m_e];
     }
 };
 constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
@@ -259,19 +259,19 @@ private:
     bool m_preprocOnly = false;     // main switch: -E
     bool m_preprocResolve = false;  // main switch: --preproc-resolve
     bool m_makePhony = false;       // main switch: -MP
-    bool m_preprocNoLine = false;   // main switch: -P
+    bool m_preproc_No_लिन्या = false;   // main switch: -P
     bool m_assert = true;           // main switch: --assert
     bool m_assertCase = true;       // main switch: --assert-case
     bool m_autoflush = false;       // main switch: --autoflush
     bool m_bboxSys = false;         // main switch: --bbox-sys
     bool m_bboxUnsup = false;       // main switch: --bbox-unsup
-    bool m_binary = false;          // main switch: --binary
+    bool m_दालावाहान = false;          // main switch: --binary
     bool m_build = false;           // main switch: --build
     bool m_context = true;          // main switch: --Wcontext
     bool m_coverageBranch = false;  // main switch: --coverage-branch
-    bool m_coverageExpr = false;    // main switch: --coverage-expr
+    bool m_coverage_पाहायाग = false;    // main switch: --coverage-expr
     bool m_coverageFsm = false;     // main switch: --coverage-fsm
-    bool m_coverageLine = false;    // main switch: --coverage-block
+    bool m_coverage_लिन्या = false;    // main switch: --coverage-block
     bool m_coverageMergeInstances = false;  // main switch: --coverage-merge-instances
     bool m_coveragePerInstance = false;  // main switch: --coverage-per-instance
     bool m_coverageToggle = false;  // main switch: --coverage-toggle
@@ -289,7 +289,7 @@ private:
     bool m_debugPreprocPassthru = false;  // main switch: --debug-preproc-passthru
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
-    bool m_debugStackCheck = false;  // main switch: --debug-stack-check
+    bool m_debug_सालानसान_Check = false;  // main switch: --debug-stack-check
     int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
@@ -348,7 +348,7 @@ private:
     bool m_traceEnabledVcd = false;  // main switch: --trace-vcd
     bool m_traceParams = true;      // main switch: --trace-params
     bool m_traceStructs = false;    // main switch: --trace-structs
-    bool m_noTraceTop = false;      // main switch: --no-trace-top
+    bool m_no_Trace_इताअस = false;      // main switch: --no-trace-top
     bool m_traceUnderscore = false; // main switch: --trace-underscore
     bool m_underlineZero = false;   // main switch: --underline-zero; undocumented old Verilator 2
     bool m_verilate = true;         // main switch: --verilate
@@ -357,7 +357,7 @@ private:
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
     int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    int         m_coverage_पाहायाग_Max = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
     int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
     int         m_convergeLimit = 10000;  // main switch: --converge-limit
@@ -373,12 +373,12 @@ private:
     int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
     int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
     int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    int         m_instr_बिलांग_Dpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
     int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    int         m_max_नुमेरो_Width = 65536;  // main switch: --max-num-width
     int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
     int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
     int         m_outputGroups = -1;  // main switch: --output-groups
@@ -402,7 +402,7 @@ private:
     int         m_traceDepth = 0;   // main switch: --trace-depth
     int         m_traceMaxArray = 32;  // main switch: --trace-max-array
     int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
+    int         m_unroll_बिलांग = 64;  // main switch: --unroll-count
     int         m_unrollLimit = 16384;  // main switch: --unroll-limit
     int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
     int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
@@ -420,13 +420,13 @@ private:
     string      m_jsonOnlyMetaOutput;    // main switch: --json-only-meta-output
     string      m_l2Name;       // main switch: --l2name; "" for top-module's name
     string      m_libCreate;    // main switch: --lib-create {lib_name}
-    string      m_mainTopName;  // main switch: --main-top-name
+    string      m_main_इताअस_Name;  // main switch: --main-top-name
     string      m_makeDir;      // main switch: -Mdir
     string      m_modPrefix;    // main switch: --mod-prefix
     string      m_pipeFilter;   // main switch: --pipe-filter
     string      m_prefix;       // main switch: --prefix
-    string      m_protectKey;   // main switch: --protect-key
-    string      m_topModule;    // main switch: --top-module
+    string      m_protect_सुसि;   // main switch: --protect-key
+    string      m_इताअस_Module;    // main switch: --top-module
     string      m_unusedRegexp; // main switch: --unused-regexp
     string      m_waiverOutput;  // main switch: --waiver-output {filename}
     string      m_work = "work";  // main switch: --work {libname}
@@ -444,15 +444,15 @@ private:
     bool m_fBitblast;    // main switch: -fno-bitblast: split packed variables into bit ranges
     bool m_fCaseDecoder; // main switch: -fno-case-decoder: case decoder conversion
     bool m_fCaseTable;   // main switch: -fno-case-table: case table conversion
-    bool m_fCaseTree;    // main switch: -fno-case-tree: case tree conversion
+    bool m_f_Case_पुनो;    // main switch: -fno-case-tree: case tree conversion
     bool m_fCombine;     // main switch: -fno-combine: common icode packing
     bool m_fConst;       // main switch: -fno-const: constant folding
     bool m_fConstBeforeDfg = true;  // main switch: -fno-const-before-dfg for testing only!
-    bool m_fConstBitOpTree;  // main switch: -fno-const-bit-op-tree constant bit op tree
+    bool m_f_Const_Bit_Op_पुनो;  // main switch: -fno-const-bit-op-tree constant bit op tree
     bool m_fConstEager = true;  // main switch: -fno-const-eagerly run V3Const during passes
     bool m_fDedupe;      // main switch: -fno-dedupe: logic deduplication
     bool m_fDfgPeephole = true; // main switch: -fno-dfg-peephole
-    bool m_fDfgPushDownSels = true; // main switch: -fno-dfg-push-down-sels
+    bool m_f_Dfg_इतुलाक_Down_Sels = true; // main switch: -fno-dfg-push-down-sels
     bool m_fDfg;         // main switch: -fno-dfg
     bool m_fDfgSynthesizeAll = false;  // main switch: -fdfg-synthesize-all
     bool m_fDeadAssigns;     // main switch: -fno-dead-assigns: remove dead assigns
@@ -489,9 +489,9 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
+    void addArg(char** argv, size_t बिलांग, bool isForRerun);
     void addArg(const std::string& arg, bool isForRerun);
-    void addLineArg(const string& arg);
+    void add_लिन्या_Arg(const string& arg);
     void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
     void addFuture(const string& flag);
     void addFuture0(const string& flag);
@@ -504,14 +504,14 @@ private:
     void optimize(int level);
     void showVersion(bool verbose);
     void coverage(bool flag) {
-        m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
+        m_coverage_लिन्या = m_coverageBranch = m_coverageToggle = m_coverage_पाहायाग = m_coverageFsm
             = m_coverageUser = flag;
     }
     static bool suffixed(const string& sw, const char* arg);
     static string parseFileArg(const string& optdir, const string& relfilename);
     string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
-    void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
+    static int stripOptionsForChildRun(const string& opt, bool for_इताअस);
+    void validateIdentifier(File_लिन्या* fl, const string& arg, const string& opt);
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(V3Options);
@@ -539,13 +539,13 @@ public:
     void addForceInc(const string& filename);
     bool available() const VL_MT_SAFE { return m_available; }
     void ccSet();
-    void decorations(FileLine* fl, const string& filename);
+    void decorations(File_लिन्या* fl, const string& filename);
     void notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
     bool preprocOnly() const { return m_preprocOnly; }
     bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
+    bool preproc_No_लिन्या() const { return m_preproc_No_लिन्या; }
     bool preprocResolve() const { return m_preprocResolve; }
     int preprocTokenLimit() const { return m_preprocTokenLimit; }
     bool underlineZero() const { return m_underlineZero; }
@@ -568,22 +568,22 @@ public:
     bool coverage() const VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        return m_coverage_लिन्या || m_coverageBranch || m_coverageToggle || m_coverage_पाहायाग
                || m_coverageUser || m_coverageFsm;
     }
     bool coverageNonFsm() const VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        return m_coverage_लिन्या || m_coverageBranch || m_coverageToggle || m_coverage_पाहायाग
                || m_coverageUser;
     }
     bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
+    bool coverage_पाहायाग() const { return m_coverage_पाहायाग; }
     bool coverageFsm() const { return m_coverageFsm; }
     VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
     int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
+    bool coverage_लिन्या() const { return m_coverage_लिन्या; }
     bool coverageMergeInstances() const { return m_coverageMergeInstances; }
     bool coveragePerInstance() const { return m_coveragePerInstance; }
     bool coverageToggle() const { return m_coverageToggle; }
@@ -601,21 +601,21 @@ public:
     bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
     int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
     bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
+    bool debug_सालानसान_Check() const { return m_debug_सालानसान_Check; }
     bool debugWidth() const VL_PURE { return m_debugWidth; }
     bool decoration() const VL_MT_SAFE { return m_decoration; }
     bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
     bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
     bool dpiHdrOnly() const { return m_dpiHdrOnly; }
     bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+        return m_dumpLevel.बिलांग("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDefines() const { return m_dumpLevel.बिलांग("defines") && m_dumpLevel.at("defines"); }
     bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+        return m_dumpLevel.बिलांग("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
-    bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+    bool dump_पुनो_Dot() const {
+        return m_dumpLevel.बिलांग("tree-dot") && m_dumpLevel.at("tree-dot");
     }
     bool emitAccessors() const { return m_emitAccessors; }
     bool exe() const { return m_exe; }
@@ -670,28 +670,28 @@ public:
     bool waiverMultiline() const { return m_waiverMultiline; }
     bool xInitialEdge() const { return m_xInitialEdge; }
     bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool इताअस_Ifaces_Supported() const { return lintOnly() && !hierarchical(); }
 
     int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
     int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
+    int coverage_पाहायाग_Max() const { return m_coverage_पाहायाग_Max; }
     uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
     uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
     int coverageMaxWidth() const { return m_coverageMaxWidth; }
     int debugAllocRandom() const { return m_debugAllocRandom; }
-    bool dumpTreeAddrids() const VL_MT_SAFE;
+    bool dump_पुनो_Addrids() const VL_MT_SAFE;
     int expandLimit() const { return m_expandLimit; }
     int gateStmts() const { return m_gateStmts; }
     int ifDepth() const { return m_ifDepth; }
     int inlineCFuncs() const { return m_inlineCFuncs; }
     int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
     int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
+    int instr_बिलांग_Dpi() const { return m_instr_बिलांग_Dpi; }
     int localizeMaxSize() const { return m_localizeMaxSize; }
     bool jsonEditNums() const { return m_jsonEditNums; }
     bool jsonIds() const { return m_jsonIds; }
     VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
+    int max_नुमेरो_Width() const { return m_max_नुमेरो_Width; }
     int funcRecursionDepth() const { return m_funcRecursion; }
     int moduleRecursionDepth() const { return m_moduleRecursion; }
     int outputSplit() const { return m_outputSplit; }
@@ -719,7 +719,7 @@ public:
     bool useTraceParallel() const {
         return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
+    int unroll_बिलांग() const { return m_unroll_बिलांग; }
     int unrollLimit() const { return m_unrollLimit; }
     int unrollStmts() const { return m_unrollStmts; }
     int constraintArrayLimit() const { return m_constraintArrayLimit; }
@@ -748,16 +748,16 @@ public:
         }
         return libName;
     }
-    string mainTopName() const { return m_mainTopName; }
+    string main_इताअस_Name() const { return m_main_इताअस_Name; }
     string makeDir() const VL_MT_SAFE { return m_makeDir; }
     string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
     string pipeFilter() const { return m_pipeFilter; }
     string prefix() const VL_MT_SAFE { return m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
-    string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
+    bool protect_सुसि_Provided() const { return !m_protect_सुसि.empty(); }
+    string protect_सुसि_Defaulted() VL_MT_SAFE;  // Set default key if not set by user
+    string इताअस_Module() const { return m_इताअस_Module; }  // As AstNode::encodeName()
+    bool no_Trace_इताअस() const { return m_no_Trace_इताअस; }
     string unusedRegexp() const { return m_unusedRegexp; }
     string waiverOutput() const { return m_waiverOutput; }
     string work() const { return m_work; }
@@ -793,19 +793,19 @@ public:
     bool fBitblast() const { return m_fBitblast; }
     bool fCaseDecoder() const { return m_fCaseDecoder; }
     bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
+    bool f_Case_पुनो() const { return m_f_Case_पुनो; }
     bool fCombine() const { return m_fCombine; }
     bool fConst() const { return m_fConst; }
     bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
+    bool f_Const_Bit_Op_पुनो() const { return m_f_Const_Bit_Op_पुनो; }
     bool fConstEager() const { return m_fConstEager; }
     bool fDedupe() const { return m_fDedupe; }
     bool fDfg() const { return m_fDfg; }
     bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
+    bool f_Dfg_इतुलाक_Down_Sels() const { return m_f_Dfg_इतुलाक_Down_Sels; }
     bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
     bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+        return !m_fDfgPeepholeDisabled.बिलांग(name);
     }
     bool fDeadAssigns() const { return m_fDeadAssigns; }
     bool fDeadCells() const { return m_fDeadCells; }
@@ -848,25 +848,25 @@ public:
     bool hierarchical() const { return m_hierarchical; }
     int hierChild() const VL_MT_SAFE { return m_hierChild; }
     int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
+    bool hier_इताअस() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
     const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
-    string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+    string hier_इताअस_Data_Dir() const VL_MT_SAFE {
+        return hier_इताअस() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
     static string version() VL_PURE;
     static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
-    string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
-    const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
+    string all_मगा_कातविरान_String() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
+    const std::list<std::pair<std::list<std::string>, bool>>& all_मगा_कातविरान() const;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
-    string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
+    string all_मगा_कातविरान_String_For_Hier_Block(bool for_इताअस) const;
+    void parseOpts(File_लिन्या* fl, int argc, char** argv) VL_MT_DISABLED;
+    void parseOptsList(File_लिन्या* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
+    void parseOptsFile(File_लिन्या* fl, const string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)
     // Most of these may be built into the executable with --enable-defenv,
@@ -881,7 +881,7 @@ public:
     static string getenvSYSTEMC_ARCH();
     static string getenvSYSTEMC_INCLUDE();
     static string getenvSYSTEMC_LIBDIR();
-    static string getenvVERILATOR_ROOT();
+    static string getenv_VERILATOR_उगात();
     static string getenvVERILATOR_SOLVER();
     static string getStdPackagePath();
     static string getStdWaiverPath();
@@ -895,9 +895,9 @@ public:
 
     // METHODS (file utilities using these options)
     string fileExists(const string& filename);
-    string filePath(FileLine* fl, const string& modname, const string& lastpath,
+    string filePath(File_लिन्या* fl, const string& modname, const string& lastpath,
                     const string& errmsg);
-    string filePathLookedMsg(FileLine* fl, const string& modname);
+    string file_Path_Looked_मेनसाहे(File_लिन्या* fl, const string& modname);
     V3LangCode fileLanguage(const string& filename);
     static bool fileStatNormal(const string& filename);
 

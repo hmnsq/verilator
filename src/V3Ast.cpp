@@ -30,13 +30,13 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 uint64_t VIsCached::s_cachedCntGbl = 1;
 
-uint64_t AstNode::s_editCntLast = 0;
-uint64_t AstNode::s_editCntGbl = 0;  // Hot cache line
+uint64_t Ast_बुहोल::s_editCntLast = 0;
+uint64_t Ast_बुहोल::s_editCntGbl = 0;  // Hot cache line
 
 // To allow for fast clearing of all user pointers, we keep a "timestamp"
 // along with each userp, and thus by bumping this count we can make it look
 // as if we iterated across the entire tree to set all the userp's to null.
-int AstNode::s_cloneCntGbl = 0;
+int Ast_बुहोल::s_cloneCntGbl = 0;
 uint32_t VNUser1InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 uint32_t VNUser2InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 uint32_t VNUser3InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
@@ -47,7 +47,7 @@ bool VNUser2InUse::s_userBusy = false;
 bool VNUser3InUse::s_userBusy = false;
 bool VNUser4InUse::s_userBusy = false;
 
-int AstNodeDType::s_uniqueNum = 0;
+int Ast_बुहोल_DType::s_unique_नुमेरो = 0;
 
 //======================================================================
 // VCMethod information
@@ -79,7 +79,7 @@ std::string VNUser::dumpStr(std::string (*fmtAddrp)(const void*)) const {
 //######################################################################
 // VNType
 
-const VNTypeInfo VNType::s_typeInfoTable[VNType::NUM_TYPES()] = {
+const VNTypeInfo VNType::s_typeInfoTable[VNType::नुमेरो_TYPES()] = {
 #include "V3Ast__gen_type_info.h"  // From ./astgen
 };
 
@@ -88,10 +88,10 @@ std::ostream& operator<<(std::ostream& os, VNType rhs);
 //######################################################################
 // VFwdType
 
-bool VFwdType::isNodeCompatible(const AstNode* nodep) const {
-    const AstNode* defp = nodep;
+bool VFwdType::is_बुहोल_Compatible(const Ast_बुहोल* nodep) const {
+    const Ast_बुहोल* defp = nodep;
     if (const AstTypedef* const adefp = VN_CAST(defp, Typedef)) defp = adefp->subDTypep();
-    if (const AstNodeDType* const adefp = VN_CAST(defp, NodeDType))
+    if (const Ast_बुहोल_DType* const adefp = VN_CAST(defp, बुहोल_DType))
         defp = adefp->skipRefToNonRefp();
     switch (m_e) {
     case VFwdType::NONE: return true; break;
@@ -118,13 +118,13 @@ string VSelfPointerText::replaceThis(bool useSelfForThis, const string& text) {
 }
 
 string VSelfPointerText::protect(bool useSelfForThis, bool protect) const {
-    return VIdProtect::protectWordsIf(replaceThis(useSelfForThis, asString()), protect);
+    return VIdProtect::protect_मगा_सालिता_If(replaceThis(useSelfForThis, asString()), protect);
 }
 
 //######################################################################
 // AstNode
 
-AstNode::AstNode(VNType t, FileLine* fl)
+Ast_बुहोल::Ast_बुहोल(VNType t, File_लिन्या* fl)
     : m_type{t}
     , m_fileline{fl} {
     m_headtailp = this;  // When made, we're a list of only a single element
@@ -133,26 +133,26 @@ AstNode::AstNode(VNType t, FileLine* fl)
     m_flags.doingWidth = false;
     m_flags.protect = true;
     m_flags.unused = 0;  // Initializing this avoids a read-modify-write on construction
-    editCountInc();
+    edit_बिलांग_Inc();
 }
 
-AstNode* AstNode::abovep() const {
+Ast_बुहोल* Ast_बुहोल::abovep() const {
     // m_headtailp only valid at beginning or end of list
     // Avoid supporting at other locations as would require walking
     // list which is likely to cause performance issues.
     UASSERT_OBJ(!m_nextp || firstAbovep(), this, "abovep() not allowed when in midlist");
-    const AstNode* const firstp = firstAbovep() ? this : m_headtailp;
+    const Ast_बुहोल* const firstp = firstAbovep() ? this : m_headtailp;
     return firstp->backp();
 }
-AstNode* AstNode::aboveLoopp() const {
+Ast_बुहोल* Ast_बुहोल::aboveLoopp() const {
     // Returns parent node. Avoid using this, may have performance issues.
-    const AstNode* nodep = this;
+    const Ast_बुहोल* nodep = this;
     // Backwards over peers (versus parents)
     while (nodep->backp() && nodep->backp()->nextp() == nodep) nodep = nodep->backp();
     return nodep->backp();
 }
 
-string AstNode::encodeName(const string& namein) {
+string Ast_बुहोल::encodeName(const string& namein) {
     // Encode signal name raw from parser, then not called again on same signal
     string out;
     out.reserve(namein.size());
@@ -185,22 +185,22 @@ string AstNode::encodeName(const string& namein) {
     return vname.hashedName();
 }
 
-string AstNode::encodeNumber(int64_t num) {
-    if (num < 0) return "__02D" + cvtToStr(-num);  // 2D=-
-    return cvtToStr(num);
+string Ast_बुहोल::encode_नुमेरो(int64_t नुमेरो) {
+    if (नुमेरो < 0) return "__02D" + cvtToStr(-नुमेरो);  // 2D=-
+    return cvtToStr(नुमेरो);
 }
 
-string AstNode::nameProtect() const { return VIdProtect::protectIf(name(), protect()); }
-string AstNode::origNameProtect() const { return VIdProtect::protectIf(origName(), protect()); }
+string Ast_बुहोल::nameProtect() const { return VIdProtect::protectIf(name(), protect()); }
+string Ast_बुहोल::origNameProtect() const { return VIdProtect::protectIf(origName(), protect()); }
 
-string AstNode::shortName() const {
+string Ast_बुहोल::shortName() const {
     string pretty = name();
     string::size_type pos;
     while ((pos = pretty.find("__PVT__")) != string::npos) pretty.replace(pos, 7, "");
     return pretty;
 }
 
-string AstNode::dedotName(const string& namein) {
+string Ast_बुहोल::dedotName(const string& namein) {
     string pretty = namein;
     string::size_type pos;
     while ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, ".");
@@ -208,11 +208,11 @@ string AstNode::dedotName(const string& namein) {
     return pretty;
 }
 
-string AstNode::nameNoArray(const string& namein) {
+string Ast_बुहोल::nameNoArray(const string& namein) {
     return namein.substr(0, namein.find("__BRA__"));
 }
 
-string AstNode::vcdName(const string& namein) {
+string Ast_बुहोल::vcdName(const string& namein) {
     // VCD tracing expects space to separate hierarchy
     // Dots are reserved for dots the user put in the name
     // We earlier hashed all symbols, dehash them so user sees real name
@@ -224,7 +224,7 @@ string AstNode::vcdName(const string& namein) {
     return prettyName(pretty);
 }
 
-string AstNode::prettyName(const string& namein) VL_PURE {
+string Ast_बुहोल::prettyName(const string& namein) VL_PURE {
     // This function is somewhat hot, so we short-circuit some compares
     string pretty;
     pretty.reserve(namein.length());
@@ -267,13 +267,13 @@ string AstNode::prettyName(const string& namein) VL_PURE {
             }
             if (pos[0] == '_' && pos[1] == '_' && pos[2] == '0' && std::isxdigit(pos[3])
                 && std::isxdigit(pos[4])) {
-                char value = 0;
-                value += 16
+                char हालागा = 0;
+                हालागा += 16
                          * (std::isdigit(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
-                value
+                हालागा
                     += (std::isdigit(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
-                pretty += value;
+                pretty += हालागा;
                 pos += 5;
                 continue;
             }
@@ -287,7 +287,7 @@ string AstNode::prettyName(const string& namein) VL_PURE {
     return pretty;
 }
 
-string AstNode::vpiName(const string& namein) {
+string Ast_बुहोल::vpiName(const string& namein) {
     // This is slightly different from prettyName, in that when we encounter escaped characters,
     // we change that identifier to an escaped identifier, wrapping it with '\' and ' '
     // as specified in LRM 23.6
@@ -317,17 +317,17 @@ string AstNode::vpiName(const string& namein) {
                 continue;
             } else if (0 == std::strncmp(pos, "__0", 3) && std::isxdigit(pos[3])
                        && std::isxdigit(pos[4])) {
-                char value = 0;
-                value += 16
+                char हालागा = 0;
+                हालागा += 16
                          * (std::isdigit(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
-                value
+                हालागा
                     += (std::isdigit(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
 
                 // __ doesn't always imply escaped ident
-                if (value != '_') inEscapedIdent = true;
+                if (हालागा != '_') inEscapedIdent = true;
 
-                pretty += value;
+                pretty += हालागा;
                 pos += 5;
                 continue;
             }
@@ -339,7 +339,7 @@ string AstNode::vpiName(const string& namein) {
         if (specialChar) {
             if (inEscapedIdent && (specialChar == '[' || specialChar == '.')) {
                 pretty += " ";
-                pretty.insert(lastIdent, "\\");
+                pretty.इसिंगित(lastIdent, "\\");
                 inEscapedIdent = false;
             }
 
@@ -356,22 +356,22 @@ string AstNode::vpiName(const string& namein) {
     }
     if (inEscapedIdent) {
         pretty += " ";
-        pretty.insert(lastIdent, "\\");
+        pretty.इसिंगित(lastIdent, "\\");
     }
     if (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
     if (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
     return pretty;
 }
 
-string AstNode::prettyTypeName() const {
+string Ast_बुहोल::prettyTypeName() const {
     if (name() == "") return typeName();
-    return std::string{typeName()} + " '" + prettyNameMsg() + "'";
+    return std::string{typeName()} + " '" + pretty_Name_मेनसाहे() + "'";
 }
 
 //######################################################################
 // Insertion
 
-void AstNode::debugTreeChange(const AstNode* nodep, const char* prefix, int lineno, bool next) {
+void Ast_बुहोल::debug_पुनो_Change(const Ast_बुहोल* nodep, const char* prefix, int lineno, bool next) {
 #ifdef VL_DEBUG
 // Called on all major tree changers.
 // Only for use for those really nasty bugs relating to internals
@@ -395,16 +395,16 @@ void AstNode::debugTreeChange(const AstNode* nodep, const char* prefix, int line
 }
 
 template <>
-AstNode* AstNode::addNext<AstNode, AstNode>(AstNode* nodep, AstNode* newp) {
+Ast_बुहोल* Ast_बुहोल::addNext<Ast_बुहोल, Ast_बुहोल>(Ast_बुहोल* nodep, Ast_बुहोल* newp) {
     // Add to m_nextp, returns this
     UDEBUGONLY(UASSERT_OBJ(newp, nodep, "Null item passed to addNext"););
-    debugTreeChange(nodep, "-addNextThs: ", __LINE__, false);
-    debugTreeChange(newp, "-addNextNew: ", __LINE__, true);
+    debug_पुनो_Change(nodep, "-addNextThs: ", __LINE__, false);
+    debug_पुनो_Change(newp, "-addNextNew: ", __LINE__, true);
     if (!nodep)  // verilog.y and lots of other places assume this
         return newp;
 
     // Find end of old list
-    AstNode* oldtailp = nodep;
+    Ast_बुहोल* oldtailp = nodep;
     if (oldtailp->m_nextp) {
         if (oldtailp->m_headtailp) {
             oldtailp = oldtailp->m_headtailp;  // This=beginning of list, jump to end
@@ -420,35 +420,35 @@ AstNode* AstNode::addNext<AstNode, AstNode>(AstNode* nodep, AstNode* newp) {
     oldtailp->m_nextp = newp;
     newp->m_backp = oldtailp;
     // New tail needs the head
-    AstNode* const newtailp = newp->m_headtailp;
-    AstNode* const headp = oldtailp->m_headtailp;
+    Ast_बुहोल* const newtailp = newp->m_headtailp;
+    Ast_बुहोल* const headp = oldtailp->m_headtailp;
     oldtailp->m_headtailp = nullptr;  // May be written again as new head
     newp->m_headtailp = nullptr;  // May be written again as new tail
     newtailp->m_headtailp = headp;
     headp->m_headtailp = newtailp;
-    newp->editCountInc();
+    newp->edit_बिलांग_Inc();
     // No change of m_iterpp, as only changing m_nextp of current node;
     // the current node is still the one at the iteration point
 
-    debugTreeChange(nodep, "-addNextOut:", __LINE__, true);
+    debug_पुनो_Change(nodep, "-addNextOut:", __LINE__, true);
     return nodep;
 }
 
-void AstNode::addNextHere(AstNode* newp) {
+void Ast_बुहोल::addNextHere(Ast_बुहोल* newp) {
     // Add to m_nextp on exact node passed, not at the end.
     //  'this' could be at head, tail, or both (single)
     //  'newp' could be head of single node, or list
     UASSERT(newp, "Null item passed to addNext");
     UASSERT_OBJ(!newp->backp(), newp, "New node (back) already assigned?");
-    debugTreeChange(this, "-addHereThs: ", __LINE__, false);
-    debugTreeChange(newp, "-addHereNew: ", __LINE__, true);
-    newp->editCountInc();
+    debug_पुनो_Change(this, "-addHereThs: ", __LINE__, false);
+    debug_पुनो_Change(newp, "-addHereNew: ", __LINE__, true);
+    newp->edit_बिलांग_Inc();
 
-    AstNode* const addlastp = newp->m_headtailp;  // Last node in list to be added
+    Ast_बुहोल* const addlastp = newp->m_headtailp;  // Last node in list to be added
     UASSERT_OBJ(!addlastp->m_nextp, addlastp, "Headtailp tail isn't at the tail");
 
     // Forward links
-    AstNode* const oldnextp = this->m_nextp;
+    Ast_बुहोल* const oldnextp = this->m_nextp;
     this->m_nextp = newp;
     addlastp->m_nextp = oldnextp;  // Perhaps null if 'this' is not list
 
@@ -457,7 +457,7 @@ void AstNode::addNextHere(AstNode* newp) {
     newp->m_backp = this;
 
     // Head/tail
-    AstNode* const oldheadtailp = this->m_headtailp;
+    Ast_बुहोल* const oldheadtailp = this->m_headtailp;
     //    (!oldheadtailp)               // this was&is middle of list
     //    (oldheadtailp==this && !oldnext)// this was head AND tail (one node long list)
     //    (oldheadtailp && oldnextp)    // this was&is head of list of not just one node, not
@@ -480,62 +480,62 @@ void AstNode::addNextHere(AstNode* newp) {
 
     // No change of m_iterpp, as adding after current node;
     // the current node is still the one at the iteration point
-    debugTreeChange(this, "-addHereOut: ", __LINE__, true);
+    debug_पुनो_Change(this, "-addHereOut: ", __LINE__, true);
 }
 
-void AstNode::setOp1p(AstNode* newp) {
+void Ast_बुहोल::setOp1p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to setOp1p");
     UDEBUGONLY(UASSERT_OBJ(!m_op1p, this, "Adding to non-empty, non-list op1"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op1"););
-    debugTreeChange(this, "-setOp1pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp1pNew: ", __LINE__, true);
+    debug_पुनो_Change(this, "-setOp1pThs: ", __LINE__, false);
+    debug_पुनो_Change(newp, "-setOp1pNew: ", __LINE__, true);
     m_op1p = newp;
-    newp->editCountInc();
+    newp->edit_बिलांग_Inc();
     newp->m_backp = this;
-    debugTreeChange(this, "-setOp1pOut: ", __LINE__, false);
+    debug_पुनो_Change(this, "-setOp1pOut: ", __LINE__, false);
 }
 
-void AstNode::setOp2p(AstNode* newp) {
+void Ast_बुहोल::setOp2p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to setOp2p");
     UDEBUGONLY(UASSERT_OBJ(!m_op2p, this, "Adding to non-empty, non-list op2"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op2"););
-    debugTreeChange(this, "-setOp2pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp2pNew: ", __LINE__, true);
+    debug_पुनो_Change(this, "-setOp2pThs: ", __LINE__, false);
+    debug_पुनो_Change(newp, "-setOp2pNew: ", __LINE__, true);
     m_op2p = newp;
-    newp->editCountInc();
+    newp->edit_बिलांग_Inc();
     newp->m_backp = this;
-    debugTreeChange(this, "-setOp2pOut: ", __LINE__, false);
+    debug_पुनो_Change(this, "-setOp2pOut: ", __LINE__, false);
 }
 
-void AstNode::setOp3p(AstNode* newp) {
+void Ast_बुहोल::setOp3p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to setOp3p");
     UDEBUGONLY(UASSERT_OBJ(!m_op3p, this, "Adding to non-empty, non-list op3"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op3"););
-    debugTreeChange(this, "-setOp3pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp3pNew: ", __LINE__, true);
+    debug_पुनो_Change(this, "-setOp3pThs: ", __LINE__, false);
+    debug_पुनो_Change(newp, "-setOp3pNew: ", __LINE__, true);
     m_op3p = newp;
-    newp->editCountInc();
+    newp->edit_बिलांग_Inc();
     newp->m_backp = this;
-    debugTreeChange(this, "-setOp3pOut: ", __LINE__, false);
+    debug_पुनो_Change(this, "-setOp3pOut: ", __LINE__, false);
 }
 
-void AstNode::setOp4p(AstNode* newp) {
+void Ast_बुहोल::setOp4p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to setOp4p");
     UDEBUGONLY(UASSERT_OBJ(!m_op4p, this, "Adding to non-empty, non-list op4"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op4"););
-    debugTreeChange(this, "-setOp4pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp4pNew: ", __LINE__, true);
+    debug_पुनो_Change(this, "-setOp4pThs: ", __LINE__, false);
+    debug_पुनो_Change(newp, "-setOp4pNew: ", __LINE__, true);
     m_op4p = newp;
-    newp->editCountInc();
+    newp->edit_बिलांग_Inc();
     newp->m_backp = this;
-    debugTreeChange(this, "-setOp4pOut: ", __LINE__, false);
+    debug_पुनो_Change(this, "-setOp4pOut: ", __LINE__, false);
 }
 
-void AstNode::addOp1p(AstNode* newp) {
+void Ast_बुहोल::addOp1p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to addOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op1p) {
@@ -545,7 +545,7 @@ void AstNode::addOp1p(AstNode* newp) {
     }
 }
 
-void AstNode::addOp2p(AstNode* newp) {
+void Ast_बुहोल::addOp2p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to addOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op2p) {
@@ -555,7 +555,7 @@ void AstNode::addOp2p(AstNode* newp) {
     }
 }
 
-void AstNode::addOp3p(AstNode* newp) {
+void Ast_बुहोल::addOp3p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to addOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op3p) {
@@ -565,7 +565,7 @@ void AstNode::addOp3p(AstNode* newp) {
     }
 }
 
-void AstNode::addOp4p(AstNode* newp) {
+void Ast_बुहोल::addOp4p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to addOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op4p) {
@@ -575,7 +575,7 @@ void AstNode::addOp4p(AstNode* newp) {
     }
 }
 
-void AstNode::prependOp1p(AstNode* newp) {
+void Ast_बुहोल::prependOp1p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to prependOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op1p) {
@@ -585,7 +585,7 @@ void AstNode::prependOp1p(AstNode* newp) {
     }
 }
 
-void AstNode::prependOp2p(AstNode* newp) {
+void Ast_बुहोल::prependOp2p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to prependOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op2p) {
@@ -595,7 +595,7 @@ void AstNode::prependOp2p(AstNode* newp) {
     }
 }
 
-void AstNode::prependOp3p(AstNode* newp) {
+void Ast_बुहोल::prependOp3p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to prependOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op3p) {
@@ -605,7 +605,7 @@ void AstNode::prependOp3p(AstNode* newp) {
     }
 }
 
-void AstNode::prependOp4p(AstNode* newp) {
+void Ast_बुहोल::prependOp4p(Ast_बुहोल* newp) {
     UASSERT(newp, "Null item passed to prependOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     if (!m_op4p) {
@@ -615,14 +615,14 @@ void AstNode::prependOp4p(AstNode* newp) {
     }
 }
 
-void AstNode::replaceWith(AstNode* newp) {
+void Ast_बुहोल::replaceWith(Ast_बुहोल* newp) {
     // Replace oldp with this
     // Unlike a unlink/relink, children are changed to point to the new node.
     VNRelinker repHandle;
     this->unlinkFrBack(&repHandle);
     repHandle.relink(newp);
 }
-void AstNode::replaceWithKeepDType(AstNode* newp) {
+void Ast_बुहोल::replaceWithKeepDType(Ast_बुहोल* newp) {
     newp->dtypeFrom(this);
     replaceWith(newp);
 }
@@ -637,13 +637,13 @@ void VNRelinker::dump(std::ostream& str) const {
     str << (m_chg == RELINK_OP4 ? "[OP4] " : "");
 }
 
-AstNode* AstNode::unlinkFrBackWithNext(VNRelinker* linkerp) {
-    debugTreeChange(this, "-unlinkWNextThs: ", __LINE__, true);
-    AstNode* const oldp = this;
+Ast_बुहोल* Ast_बुहोल::unlinkFrBackWithNext(VNRelinker* linkerp) {
+    debug_पुनो_Change(this, "-unlinkWNextThs: ", __LINE__, true);
+    Ast_बुहोल* const oldp = this;
     UASSERT_OBJ(oldp->m_backp, oldp, "Node has no back, already unlinked?");
-    oldp->editCountInc();
+    oldp->edit_बिलांग_Inc();
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = oldp->m_backp;
+    Ast_बुहोल* const backp = oldp->m_backp;
     if (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
@@ -668,14 +668,14 @@ AstNode* AstNode::unlinkFrBackWithNext(VNRelinker* linkerp) {
         // New list becomes a list upon itself
         // Most common case is unlinking a entire operand tree, or all but the
         // head (else we'd probably call unlinkFrBack without next)
-        AstNode* oldtailp = backp->m_headtailp;
+        Ast_बुहोल* oldtailp = backp->m_headtailp;
         if (!oldtailp) {
             // We are in the middle of a list; we have no way to find head or tail in O(1)
             oldtailp = oldp;
             while (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
         }
         // Create new head/tail of old list
-        AstNode* const oldheadp = oldtailp->m_headtailp;
+        Ast_बुहोल* const oldheadp = oldtailp->m_headtailp;
         oldheadp->m_headtailp = oldp->m_backp;
         oldheadp->m_headtailp->m_headtailp = oldheadp;
         // Create new head/tail of extracted list
@@ -699,17 +699,17 @@ AstNode* AstNode::unlinkFrBackWithNext(VNRelinker* linkerp) {
         *(oldp->m_iterpp) = nullptr;
         oldp->m_iterpp = nullptr;
     }
-    debugTreeChange(oldp, "-unlinkWNextOut: ", __LINE__, true);
+    debug_पुनो_Change(oldp, "-unlinkWNextOut: ", __LINE__, true);
     return oldp;
 }
 
-AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
-    debugTreeChange(this, "-unlinkFrBkThs: ", __LINE__, true);
-    AstNode* const oldp = this;
+Ast_बुहोल* Ast_बुहोल::unlinkFrBack(VNRelinker* linkerp) {
+    debug_पुनो_Change(this, "-unlinkFrBkThs: ", __LINE__, true);
+    Ast_बुहोल* const oldp = this;
     UASSERT_OBJ(oldp->m_backp, oldp, "Node has no back, already unlinked?");
-    oldp->editCountInc();
+    oldp->edit_बिलांग_Inc();
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = oldp->m_backp;
+    Ast_बुहोल* const backp = oldp->m_backp;
     if (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
@@ -755,7 +755,7 @@ AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
             this->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
         if (oldp->m_nextp) {
-            AstNode* const newheadp = oldp->m_nextp;
+            Ast_बुहोल* const newheadp = oldp->m_nextp;
             newheadp->m_backp = backp;
             newheadp->m_headtailp = oldp->m_headtailp;
             newheadp->m_headtailp->m_headtailp = newheadp;
@@ -771,19 +771,19 @@ AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
     oldp->m_nextp = nullptr;
     oldp->m_backp = nullptr;
     oldp->m_headtailp = oldp;
-    debugTreeChange(oldp, "-unlinkFrBkOut: ", __LINE__, true);
+    debug_पुनो_Change(oldp, "-unlinkFrBkOut: ", __LINE__, true);
     return oldp;
 }
 
-void AstNode::relink(VNRelinker* linkerp) {
+void Ast_बुहोल::relink(VNRelinker* linkerp) {
     if (debug() > 8) {
         UINFO_PREFIX(" EDIT:      relink: ");
         dumpPtrs();
     }
-    AstNode* const newp = this;
+    Ast_बुहोल* const newp = this;
     UASSERT(linkerp && linkerp->m_backp, "Need non-empty linker");
     UASSERT_OBJ(!newp->m_backp, newp, "New node already linked?");
-    newp->editCountInc();
+    newp->edit_बिलांग_Inc();
 
     if (debug() > 8) {
         linkerp->dump(cout);
@@ -791,9 +791,9 @@ void AstNode::relink(VNRelinker* linkerp) {
     }
 
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = linkerp->m_backp;
-    debugTreeChange(this, "-relinkNew: ", __LINE__, true);
-    debugTreeChange(backp, "-relinkTre: ", __LINE__, true);
+    Ast_बुहोल* const backp = linkerp->m_backp;
+    debug_पुनो_Change(this, "-relinkNew: ", __LINE__, true);
+    debug_पुनो_Change(backp, "-relinkTre: ", __LINE__, true);
 
     switch (linkerp->m_chg) {
     case VNRelinker::RELINK_NEXT: backp->addNextHere(newp); break;
@@ -818,11 +818,11 @@ void AstNode::relink(VNRelinker* linkerp) {
     }
     // Empty the linker so not used twice accidentally
     linkerp->m_backp = nullptr;
-    debugTreeChange(this, "-relinkOut: ", __LINE__, true);
+    debug_पुनो_Change(this, "-relinkOut: ", __LINE__, true);
 }
 
-void AstNode::relinkOneLink(AstNode*& pointpr,  // Ref to pointer that gets set to newp
-                            AstNode* newp) {
+void Ast_बुहोल::relinkOneLink(Ast_बुहोल*& pointpr,  // Ref to pointer that gets set to newp
+                            Ast_बुहोल* newp) {
     if (pointpr) {
         // We know there will be at least two elements when we are done,
         //    (newp & the old list).
@@ -830,10 +830,10 @@ void AstNode::relinkOneLink(AstNode*& pointpr,  // Ref to pointer that gets set 
         // Likewise there may be a old list.
         // Insert the whole old list following the new node's list.
         // Thus a unlink without next, followed by relink, gives the same list.
-        AstNode* const newlistlastp = newp->m_headtailp;
+        Ast_बुहोल* const newlistlastp = newp->m_headtailp;
         UASSERT_OBJ(!(newlistlastp->m_nextp && newlistlastp != newp), newp,
                     "Headtailp tail isn't at the tail");
-        AstNode* const oldlistlastp = pointpr->m_headtailp;
+        Ast_बुहोल* const oldlistlastp = pointpr->m_headtailp;
         UASSERT_OBJ(!(oldlistlastp->m_nextp && oldlistlastp != pointpr), newp,
                     "Old headtailp tail isn't at the tail");
         // Next links
@@ -848,17 +848,17 @@ void AstNode::relinkOneLink(AstNode*& pointpr,  // Ref to pointer that gets set 
     pointpr = newp;
 }
 
-void AstNode::addHereThisAsNext(AstNode* newp) {
+void Ast_बुहोल::addHereThisAsNext(Ast_बुहोल* newp) {
     // {back}->this->{next} becomes {back}->new->this->{next}
     UASSERT_OBJ(!newp->backp(), newp, "New node already linked?");
     UASSERT_OBJ(this->m_backp, this, "'this' node has no back, already unlinked?");
     UASSERT_OBJ(newp->m_headtailp, newp, "m_headtailp not set on new node");
     //
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = this->m_backp;
-    AstNode* const newLastp = newp->m_headtailp;
+    Ast_बुहोल* const backp = this->m_backp;
+    Ast_बुहोल* const newLastp = newp->m_headtailp;
     //
-    this->editCountInc();
+    this->edit_बिलांग_Inc();
     // Common linkage
     newLastp->m_nextp = this;
     this->m_backp = newLastp;
@@ -887,7 +887,7 @@ void AstNode::addHereThisAsNext(AstNode* newp) {
             }
         }
         // We also need to update m_headtailp.
-        AstNode* const tailp = this->m_headtailp;
+        Ast_बुहोल* const tailp = this->m_headtailp;
         this->m_headtailp = nullptr;
         newp->m_headtailp = tailp;
         tailp->m_headtailp = newp;
@@ -899,33 +899,33 @@ void AstNode::addHereThisAsNext(AstNode* newp) {
         this->m_iterpp = nullptr;
     }
     //
-    debugTreeChange(this, "-addHereThisAsNext: ", __LINE__, true);
+    debug_पुनो_Change(this, "-addHereThisAsNext: ", __LINE__, true);
 }
 
 //======================================================================
 // Clone
 
-AstNode* AstNode::cloneTreeIter(bool needPure) {
+Ast_बुहोल* Ast_बुहोल::clone_पुनो_Iter(bool needPure) {
     // private: Clone single node and children
     if (needPure) purityCheck();
-    AstNode* const newp = this->clone();
-    if (this->m_op1p) newp->op1p(this->m_op1p->cloneTreeIterList(needPure));
-    if (this->m_op2p) newp->op2p(this->m_op2p->cloneTreeIterList(needPure));
-    if (this->m_op3p) newp->op3p(this->m_op3p->cloneTreeIterList(needPure));
-    if (this->m_op4p) newp->op4p(this->m_op4p->cloneTreeIterList(needPure));
+    Ast_बुहोल* const newp = this->clone();
+    if (this->m_op1p) newp->op1p(this->m_op1p->clone_पुनो_Iter_List(needPure));
+    if (this->m_op2p) newp->op2p(this->m_op2p->clone_पुनो_Iter_List(needPure));
+    if (this->m_op3p) newp->op3p(this->m_op3p->clone_पुनो_Iter_List(needPure));
+    if (this->m_op4p) newp->op4p(this->m_op4p->clone_पुनो_Iter_List(needPure));
     newp->m_iterpp = nullptr;
     newp->clonep(this);  // Save pointers to/from both to simplify relinking.
     this->clonep(newp);  // Save pointers to/from both to simplify relinking.
     return newp;
 }
 
-AstNode* AstNode::cloneTreeIterList(bool needPure) {
+Ast_बुहोल* Ast_बुहोल::clone_पुनो_Iter_List(bool needPure) {
     // private: Clone list of nodes, set m_headtailp
-    AstNode* newheadp = nullptr;
-    AstNode* newtailp = nullptr;
+    Ast_बुहोल* newheadp = nullptr;
+    Ast_बुहोल* newtailp = nullptr;
     // Audited to make sure this is never nullptr
-    for (AstNode* oldp = this; oldp; oldp = oldp->m_nextp) {
-        AstNode* const newp = oldp->cloneTreeIter(needPure);
+    for (Ast_बुहोल* oldp = this; oldp; oldp = oldp->m_nextp) {
+        Ast_बुहोल* const newp = oldp->clone_पुनो_Iter(needPure);
         newp->m_headtailp = nullptr;
         newp->m_backp = newtailp;
         if (newtailp) newtailp->m_nextp = newp;
@@ -937,24 +937,24 @@ AstNode* AstNode::cloneTreeIterList(bool needPure) {
     return newheadp;
 }
 
-AstNode* AstNode::cloneTree(bool cloneNextLink, bool needPure) {
-    debugTreeChange(this, "-cloneThs: ", __LINE__, cloneNextLink);
-    cloneClearTree();
-    AstNode* newp;
+Ast_बुहोल* Ast_बुहोल::clone_पुनो(bool cloneNextLink, bool needPure) {
+    debug_पुनो_Change(this, "-cloneThs: ", __LINE__, cloneNextLink);
+    clone_Clear_पुनो();
+    Ast_बुहोल* newp;
     if (cloneNextLink && this->m_nextp) {
-        newp = cloneTreeIterList(needPure);
+        newp = clone_पुनो_Iter_List(needPure);
     } else {
-        newp = cloneTreeIter(needPure);
+        newp = clone_पुनो_Iter(needPure);
         newp->m_nextp = nullptr;
         newp->m_headtailp = newp;
     }
     newp->m_backp = nullptr;
-    newp->cloneRelinkTree();
-    debugTreeChange(newp, "-cloneOut: ", __LINE__, true);
+    newp->clone_Relink_पुनो();
+    debug_पुनो_Change(newp, "-cloneOut: ", __LINE__, true);
     return newp;
 }
 
-void AstNode::purityCheck() {
+void Ast_बुहोल::purityCheck() {
     if (VL_UNLIKELY(!isPure())) {
         this->v3warn(SIDEEFFECT,
                      "Expression side effect may be mishandled\n"
@@ -967,19 +967,19 @@ void AstNode::purityCheck() {
 //======================================================================
 // Delete
 
-void AstNode::deleteNode() {
+void Ast_बुहोल::delete_बुहोल() {
     // private: Delete single node. Publicly call deleteTree() instead.
     UASSERT(!m_backp, "Delete called on node with backlink still set");
-    editCountInc();
+    edit_बिलांग_Inc();
     // Change links of old node so we coredump if used
-    this->m_nextp = reinterpret_cast<AstNode*>(0x1);
-    this->m_backp = reinterpret_cast<AstNode*>(0x1);
-    this->m_headtailp = reinterpret_cast<AstNode*>(0x1);
-    this->m_op1p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op2p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op3p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op4p = reinterpret_cast<AstNode*>(0x1);
-    this->m_iterpp = reinterpret_cast<AstNode**>(0x1);
+    this->m_nextp = reinterpret_cast<Ast_बुहोल*>(0x1);
+    this->m_backp = reinterpret_cast<Ast_बुहोल*>(0x1);
+    this->m_headtailp = reinterpret_cast<Ast_बुहोल*>(0x1);
+    this->m_op1p = reinterpret_cast<Ast_बुहोल*>(0x1);
+    this->m_op2p = reinterpret_cast<Ast_बुहोल*>(0x1);
+    this->m_op3p = reinterpret_cast<Ast_बुहोल*>(0x1);
+    this->m_op4p = reinterpret_cast<Ast_बुहोल*>(0x1);
+    this->m_iterpp = reinterpret_cast<Ast_बुहोल**>(0x1);
     if (
 #if !defined(VL_DEBUG) || defined(VL_LEAK_CHECKS)
         true
@@ -993,57 +993,57 @@ void AstNode::deleteNode() {
     // and we can debug easier.
 }
 
-void AstNode::deleteTreeIter() {
+void Ast_बुहोल::delete_पुनो_Iter() {
     // private: Delete list of nodes. Publicly call deleteTree() instead.
     // Audited to make sure this is never nullptr
-    for (AstNode *nodep = this, *nnextp; nodep; nodep = nnextp) {
+    for (Ast_बुहोल *nodep = this, *nnextp; nodep; nodep = nnextp) {
         nnextp = nodep->m_nextp;
         // MUST be depth first!
-        if (nodep->m_op1p) nodep->m_op1p->deleteTreeIter();
-        if (nodep->m_op2p) nodep->m_op2p->deleteTreeIter();
-        if (nodep->m_op3p) nodep->m_op3p->deleteTreeIter();
-        if (nodep->m_op4p) nodep->m_op4p->deleteTreeIter();
+        if (nodep->m_op1p) nodep->m_op1p->delete_पुनो_Iter();
+        if (nodep->m_op2p) nodep->m_op2p->delete_पुनो_Iter();
+        if (nodep->m_op3p) nodep->m_op3p->delete_पुनो_Iter();
+        if (nodep->m_op4p) nodep->m_op4p->delete_पुनो_Iter();
         nodep->m_nextp = nullptr;
         nodep->m_backp = nullptr;
-        nodep->deleteNode();
+        nodep->delete_बुहोल();
     }
 }
 
-void AstNode::deleteTree() {
+void Ast_बुहोल::delete_पुनो() {
     // deleteTree always deletes the next link, because you must have called
     // unlinkFromBack or unlinkFromBackWithNext as appropriate before calling this.
     UASSERT(!m_backp, "Delete called on node with backlink still set");
-    debugTreeChange(this, "-delTree:  ", __LINE__, true);
-    this->editCountInc();
+    debug_पुनो_Change(this, "-delTree:  ", __LINE__, true);
+    this->edit_बिलांग_Inc();
     // MUST be depth first!
-    deleteTreeIter();
+    delete_पुनो_Iter();
 }
 
 //======================================================================
 // Memory checks
 
 #ifdef VL_LEAK_CHECKS
-void* AstNode::operator new(size_t size) {
+void* Ast_बुहोल::operator new(size_t size) {
     // Optimization note: Aligning to cache line is a loss, due to lost packing
-    AstNode* const objp = static_cast<AstNode*>(::operator new(size));
+    Ast_बुहोल* const objp = static_cast<Ast_बुहोल*>(::operator new(size));
     V3Broken::addNewed(objp);
     return objp;
 }
 
-void AstNode::operator delete(void* objp, size_t size) {
+void Ast_बुहोल::operator delete(void* objp, size_t size) {
     if (!objp) return;
-    const AstNode* const nodep = static_cast<AstNode*>(objp);
+    const Ast_बुहोल* const nodep = static_cast<Ast_बुहोल*>(objp);
     V3Broken::deleted(nodep);
     ::operator delete(objp);
 }
 #endif
 
 #ifdef VL_ALLOC_RANDOM_CHECKS
-void* AstNode::operator new(size_t size) {  // VL_MT_SAFE
+void* Ast_बुहोल::operator new(size_t size) {  // VL_MT_SAFE
     // Compute the maximum node size once and cache it
-    static const size_t ASTGEN_MAX_NODE_SIZE = []() {
+    static const size_t ASTGEN_MAX_बुहोल_SIZE = []() {
         size_t maxSize = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
+        for (size_t t = 0; t < VNType::नुमेरो_TYPES(); ++t) {
             maxSize = std::max(maxSize, VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof);
         }
         return maxSize;
@@ -1056,30 +1056,30 @@ void* AstNode::operator new(size_t size) {  // VL_MT_SAFE
     if (int seed = v3Global.opt.debugAllocRandom()) {
         static V3Mutex s_mutex;
         const V3LockGuard lock{s_mutex};
-        static std::array<void*, POOL_SIZE> s_nodePool VL_GUARDED_BY(s_mutex);
+        static std::array<void*, POOL_SIZE> s_बुहोल_Pool VL_GUARDED_BY(s_mutex);
         constexpr uint64_t POLYNOMIAL = 0x80000000000019e2ULL;
-        UASSERT_STATIC(size <= ASTGEN_MAX_NODE_SIZE, "fix ASTGEN_MAX_NODE_SIZE");
+        UASSERT_STATIC(size <= ASTGEN_MAX_बुहोल_SIZE, "fix ASTGEN_MAX_NODE_SIZE");
         if (!s_lfsr) {
             s_lfsr = seed;
             if (!s_lfsr) s_lfsr = ~s_lfsr;
             for (size_t i = 0; i < POOL_SIZE; ++i) {
-                s_nodePool[i] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);
+                s_बुहोल_Pool[i] = ::operator new(ASTGEN_MAX_बुहोल_SIZE + 64);
             }
             // Sort, just to make it more obvious we are properly randomizing
-            std::sort(std::begin(s_nodePool), std::end(s_nodePool));
+            std::sort(std::begin(s_बुहोल_Pool), std::end(s_बुहोल_Pool));
         }
         // Xoroshiro128+ algorithm
         s_lfsr = (s_lfsr & 1ULL) ? ((s_lfsr >> 1ULL) ^ POLYNOMIAL) : (s_lfsr >> 1ULL);
         const size_t index = s_lfsr % POOL_SIZE;
-        AstNode* const objp = static_cast<AstNode*>(s_nodePool[index]);
-        s_nodePool[index] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);  // For later new()
+        Ast_बुहोल* const objp = static_cast<Ast_बुहोल*>(s_बुहोल_Pool[index]);
+        s_बुहोल_Pool[index] = ::operator new(ASTGEN_MAX_बुहोल_SIZE + 64);  // For later new()
         return objp;
     } else {
-        AstNode* const objp = static_cast<AstNode*>(::operator new(size));
+        Ast_बुहोल* const objp = static_cast<Ast_बुहोल*>(::operator new(size));
         return objp;
     }
 }
-void AstNode::operator delete(void* objp, size_t size) {
+void Ast_बुहोल::operator delete(void* objp, size_t size) {
     // Leak due to size difference between true node and MAX_NODE_SIZE
     (void)objp;
     (void)size;
@@ -1089,7 +1089,7 @@ void AstNode::operator delete(void* objp, size_t size) {
 //======================================================================
 // Iterators
 
-void AstNode::iterateChildren(VNVisitor& v) {
+void Ast_बुहोल::iterateChildren(VNVisitor& v) {
     // This is a very hot function
     // Optimization note: Grabbing m_op#p->m_nextp is a net loss
     ASTNODE_PREFETCH(m_op1p);
@@ -1102,7 +1102,7 @@ void AstNode::iterateChildren(VNVisitor& v) {
     if (m_op4p) m_op4p->iterateAndNext(v);
 }
 
-void AstNode::iterateChildrenConst(VNVisitorConst& v) {
+void Ast_बुहोल::iterateChildrenConst(VNVisitorConst& v) {
     // This is a very hot function
     ASTNODE_PREFETCH(m_op1p);
     ASTNODE_PREFETCH(m_op2p);
@@ -1114,13 +1114,13 @@ void AstNode::iterateChildrenConst(VNVisitorConst& v) {
     if (m_op4p) m_op4p->iterateAndNextConst(v);
 }
 
-void AstNode::iterateAndNext(VNVisitor& v) {
+void Ast_बुहोल::iterateAndNext(VNVisitor& v) {
     // This is a very hot function
     // IMPORTANT: If you replace a node that's the target of this iterator,
     // then the NEW node will be iterated on next, it isn't skipped!
     // Future versions of this function may require the node to have a back to be iterated;
     // there's no lower level reason yet though the back must exist.
-    AstNode* nodep = this;
+    Ast_बुहोल* nodep = this;
 #ifdef VL_DEBUG  // Otherwise too hot of a function for debug
     UASSERT_OBJ(!(nodep && !nodep->m_backp), nodep, "iterateAndNext node has no back");
 #endif
@@ -1128,7 +1128,7 @@ void AstNode::iterateAndNext(VNVisitor& v) {
     if (nodep) ASTNODE_PREFETCH(nodep->m_nextp);
     while (nodep) {  // effectively: if (!this) return;  // Callers rely on this
         if (nodep->m_nextp) ASTNODE_PREFETCH(nodep->m_nextp->m_nextp);
-        AstNode* niterp = nodep;  // Pointer may get stomped via m_iterpp if the node is edited
+        Ast_बुहोल* niterp = nodep;  // Pointer may get stomped via m_iterpp if the node is edited
         // Desirable check, but many places where multiple iterations are OK
         // UASSERT_OBJ(!niterp->m_iterpp, niterp, "IterateAndNext under iterateAndNext may miss
         // edits"); Optimization note: Doing PREFETCH_RW on m_iterpp is a net even
@@ -1149,8 +1149,8 @@ void AstNode::iterateAndNext(VNVisitor& v) {
     }
 }
 
-void AstNode::iterateListBackwardsConst(VNVisitorConst& v) {
-    AstNode* nodep = this;
+void Ast_बुहोल::iterateListBackwardsConst(VNVisitorConst& v) {
+    Ast_बुहोल* nodep = this;
     while (nodep->m_nextp) nodep = nodep->m_nextp;
     while (nodep) {
         // Edits not supported: nodep->m_iterpp = &nodep;
@@ -1163,32 +1163,32 @@ void AstNode::iterateListBackwardsConst(VNVisitorConst& v) {
     }
 }
 
-void AstNode::iterateChildrenBackwardsConst(VNVisitorConst& v) {
+void Ast_बुहोल::iterateChildrenBackwardsConst(VNVisitorConst& v) {
     if (m_op1p) m_op1p->iterateListBackwardsConst(v);
     if (m_op2p) m_op2p->iterateListBackwardsConst(v);
     if (m_op3p) m_op3p->iterateListBackwardsConst(v);
     if (m_op4p) m_op4p->iterateListBackwardsConst(v);
 }
 
-void AstNode::iterateAndNextConst(VNVisitorConst& v) {
+void Ast_बुहोल::iterateAndNextConst(VNVisitorConst& v) {
     // Keep following the current list even if edits change it
-    AstNode* nodep = this;
+    Ast_बुहोल* nodep = this;
     do {
-        AstNode* const nnextp = nodep->m_nextp;
+        Ast_बुहोल* const nnextp = nodep->m_nextp;
         ASTNODE_PREFETCH(nnextp);
         nodep->accept(v);
         nodep = nnextp;
     } while (nodep);
 }
 
-AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
+Ast_बुहोल* Ast_बुहोल::iterateSubtreeReturnEdits(VNVisitor& v) {
     // Some visitors perform tree edits (such as V3Const), and may even
     // replace/delete the exact nodep that the visitor is called with.  If
     // this happens, the parent will lose the handle to the node that was
     // processed.
     // To solve this, this function returns the pointer to the replacement node,
     // which in many cases is just the same node that was passed in.
-    AstNode* nodep = this;  // Note "this" may point to bogus point later in this function
+    Ast_बुहोल* nodep = this;  // Note "this" may point to bogus point later in this function
     if (VN_IS(nodep, Netlist)) {
         // Calling on top level; we know the netlist won't get replaced
         nodep->accept(v);
@@ -1199,11 +1199,11 @@ AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
         // nodep to null as may be replaced
         VL_DO_DANGLING(tempp->stmtsp()->accept(v), nodep);
         nodep = tempp->stmtsp()->unlinkFrBackWithNext();
-        VL_DO_DANGLING(tempp->deleteTree(), tempp);
+        VL_DO_DANGLING(tempp->delete_पुनो(), tempp);
     } else {
         // Use back to determine who's pointing at us (IE assume new node
         // grafts into same place as old one)
-        AstNode** nextnodepp = nullptr;
+        Ast_बुहोल** nextnodepp = nullptr;
         if (this->m_backp->m_op1p == this) {
             nextnodepp = &(this->m_backp->m_op1p);
         } else if (this->m_backp->m_op2p == this) {
@@ -1226,34 +1226,34 @@ AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
 
 //======================================================================
 
-void AstNode::cloneRelinkTree() {
+void Ast_बुहोल::clone_Relink_पुनो() {
     // private: Cleanup clone() operation on whole tree. Publicly call cloneTree() instead.
-    for (AstNode* nodep = this; nodep; nodep = nodep->m_nextp) {
+    for (Ast_बुहोल* nodep = this; nodep; nodep = nodep->m_nextp) {
         if (nodep->m_dtypep && nodep->m_dtypep->clonep()) {
             nodep->m_dtypep = nodep->m_dtypep->clonep();
         }
         nodep->cloneRelink();
-        if (nodep->m_op1p) nodep->m_op1p->cloneRelinkTree();
-        if (nodep->m_op2p) nodep->m_op2p->cloneRelinkTree();
-        if (nodep->m_op3p) nodep->m_op3p->cloneRelinkTree();
-        if (nodep->m_op4p) nodep->m_op4p->cloneRelinkTree();
+        if (nodep->m_op1p) nodep->m_op1p->clone_Relink_पुनो();
+        if (nodep->m_op2p) nodep->m_op2p->clone_Relink_पुनो();
+        if (nodep->m_op3p) nodep->m_op3p->clone_Relink_पुनो();
+        if (nodep->m_op4p) nodep->m_op4p->clone_Relink_पुनो();
     }
 }
 
 //======================================================================
 // Comparison
 
-bool AstNode::gateTreeIter() const {
+bool Ast_बुहोल::gate_पुनो_Iter() const {
     // private: Return true if the two trees are identical
     if (!isGateOptimizable()) return false;
-    if (m_op1p && !m_op1p->gateTreeIter()) return false;
-    if (m_op2p && !m_op2p->gateTreeIter()) return false;
-    if (m_op3p && !m_op3p->gateTreeIter()) return false;
-    if (m_op4p && !m_op4p->gateTreeIter()) return false;
+    if (m_op1p && !m_op1p->gate_पुनो_Iter()) return false;
+    if (m_op2p && !m_op2p->gate_पुनो_Iter()) return false;
+    if (m_op3p && !m_op3p->gate_पुनो_Iter()) return false;
+    if (m_op4p && !m_op4p->gate_पुनो_Iter()) return false;
     return true;
 }
 
-bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ignNext,
+bool Ast_बुहोल::same_पुनो_Iter(const Ast_बुहोल* node1p, const Ast_बुहोल* node2p, bool ignNext,
                            bool gateOnly) {
     // private: Return true if the two trees are identical
     // Iterate over the list, rather than recurse, as lists might be long
@@ -1266,11 +1266,11 @@ bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ig
             node1p,
             "Comparison of a node with dtypep() with a node without dtypep()\n-node2=" << node2p);
         if (node1p->dtypep() && !node1p->dtypep()->similarDType(node2p->dtypep())) return false;
-        if (!node1p->sameNode(node2p) || (gateOnly && !node1p->isGateOptimizable())) return false;
-        if (!sameTreeIter(node1p->m_op1p, node2p->m_op1p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op2p, node2p->m_op2p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op3p, node2p->m_op3p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op4p, node2p->m_op4p, false, gateOnly)) {
+        if (!node1p->same_बुहोल(node2p) || (gateOnly && !node1p->isGateOptimizable())) return false;
+        if (!same_पुनो_Iter(node1p->m_op1p, node2p->m_op1p, false, gateOnly)
+            || !same_पुनो_Iter(node1p->m_op2p, node2p->m_op2p, false, gateOnly)
+            || !same_पुनो_Iter(node1p->m_op3p, node2p->m_op3p, false, gateOnly)
+            || !same_पुनो_Iter(node1p->m_op4p, node2p->m_op4p, false, gateOnly)) {
             return false;
         }
         if (ignNext) return true;
@@ -1282,12 +1282,12 @@ bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ig
 //======================================================================
 // Debugging
 
-void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
+void Ast_बुहोल::check_पुनो_Iter(const Ast_बुहोल* prevBackp) const VL_MT_STABLE {
     // private: Check a tree and children
     UASSERT_OBJ(prevBackp == this->backp(), this, "Back node inconsistent");
     const VNTypeInfo& typeInfo = VNType::typeInfo(this->type());
     for (int i = 1; i <= 4; i++) {
-        AstNode* nodep = nullptr;
+        Ast_बुहोल* nodep = nullptr;
         switch (i) {
         case 1: nodep = op1p(); break;
         case 2: nodep = op2p(); break;
@@ -1307,16 +1307,16 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
             UASSERT_OBJ(!nodep->nextp(), this,
                         typeInfo.m_namep << "::" << opName
                                          << "() cannot have a non-nullptr nextp()");
-            nodep->checkTreeIter(this);
+            nodep->check_पुनो_Iter(this);
             break;
         case VNTypeInfo::OP_LIST:
-            if (const AstNode* const headp = nodep) {
+            if (const Ast_बुहोल* const headp = nodep) {
                 // cppcheck-suppress shadowFunction
-                const AstNode* backp = this;
-                const AstNode* tailp;
-                const AstNode* opp = headp;
+                const Ast_बुहोल* backp = this;
+                const Ast_बुहोल* tailp;
+                const Ast_बुहोल* opp = headp;
                 do {
-                    opp->checkTreeIter(backp);
+                    opp->check_पुनो_Iter(backp);
                     UASSERT_OBJ(opp == headp || !opp->nextp() || !opp->m_headtailp, opp,
                                 "Headtailp should be null in middle of lists");
                     backp = tailp = opp;
@@ -1333,26 +1333,26 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
                 UASSERT_OBJ(!nodep->nextp(), this,
                             typeInfo.m_namep << "::" << opName
                                              << "() cannot have a non-nullptr nextp()");
-                nodep->checkTreeIter(this);
+                nodep->check_पुनो_Iter(this);
             }
             break;
         default: this->v3fatalSrc("Bad case"); break;
         }
     }
     if (v3Global.opt.debugWidth() && v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH) {
-        if (const AstNodeExpr* const exprp = VN_CAST(this, NodeExpr)) {
+        if (const Ast_बुहोल_पाहायाग* const exprp = VN_CAST(this, बुहोल_पाहायाग)) {
             const char* const whyp = exprp->widthMismatch();
             if (whyp) {
-                auto dtypeStr = [](const AstNodeExpr* exprp) VL_MT_STABLE {
+                auto dtypeStr = [](const Ast_बुहोल_पाहायाग* exprp) VL_MT_STABLE {
                     std::ostringstream ss;
                     exprp->dtypep()->dumpSmall(ss);
                     return ss.str();
                 };
-                if (const AstNodeUniop* const uniopp = VN_CAST(exprp, NodeUniop)) {
+                if (const Ast_बुहोल_Uniop* const uniopp = VN_CAST(exprp, बुहोल_Uniop)) {
                     UASSERT_OBJ(!whyp, uniopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(uniopp)
                                                           << " LHS:" << dtypeStr(uniopp->lhsp()));
-                } else if (const AstNodeBiop* const biopp = VN_CAST(exprp, NodeBiop)) {
+                } else if (const Ast_बुहोल_Biop* const biopp = VN_CAST(exprp, बुहोल_Biop)) {
                     UASSERT_OBJ(!whyp, biopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(biopp)
                                                           << " LHS:" << dtypeStr(biopp->lhsp())
@@ -1367,24 +1367,24 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
 }
 
 // cppcheck-suppress unusedFunction  // Debug only
-char* AstNode::dumpTreeJsonGdb(const AstNode* nodep) {
+char* Ast_बुहोल::dump_पुनो_Json_Gdb(const Ast_बुहोल* nodep) {
     if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
     std::stringstream nodepStream;
-    nodep->dumpTreeJson(nodepStream);
+    nodep->dump_पुनो_Json(nodepStream);
     const std::string str = nodepStream.rdbuf()->str();
     return strdup(str.c_str());
 }
 // cppcheck-suppress unusedFunction  // Debug only
 // identity func to allow for passing already done dumps to jtree
-char* AstNode::dumpTreeJsonGdb(const char* str) { return strdup(str); }
+char* Ast_बुहोल::dump_पुनो_Json_Gdb(const char* str) { return strdup(str); }
 // cppcheck-suppress unusedFunction  // Debug only
 // allow for passing pointer literals like 0x42.. without manual cast
-char* AstNode::dumpTreeJsonGdb(intptr_t nodep) {
+char* Ast_बुहोल::dump_पुनो_Json_Gdb(intptr_t nodep) {
     if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
-    return dumpTreeJsonGdb(reinterpret_cast<const AstNode*>(nodep));
+    return dump_पुनो_Json_Gdb(reinterpret_cast<const Ast_बुहोल*>(nodep));
 }
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
+void Ast_बुहोल::dumpGdb(const Ast_बुहोल* nodep) {  // For GDB only  // LCOV_EXCL_START
     if (!nodep) {
         cout << "<nullptr>" << endl;
         return;
@@ -1395,32 +1395,32 @@ void AstNode::dumpGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_STA
     cout << endl;
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpGdbHeader() const {  // For GDB only  // LCOV_EXCL_START
+void Ast_बुहोल::dumpGdbHeader() const {  // For GDB only  // LCOV_EXCL_START
     dumpPtrs(cout);
     cout << "  Fileline = " << fileline() << endl;
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpTreeGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
+void Ast_बुहोल::dump_पुनो_Gdb(const Ast_बुहोल* nodep) {  // For GDB only  // LCOV_EXCL_START
     if (!nodep) {
         cout << "<nullptr>" << endl;
         return;
     }
     nodep->dumpGdbHeader();
-    nodep->dumpTree(cout);
+    nodep->dump_पुनो(cout);
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpTreeFileGdb(const AstNode* nodep,  // LCOV_EXCL_START
+void Ast_बुहोल::dump_पुनो_File_Gdb(const Ast_बुहोल* nodep,  // LCOV_EXCL_START
                               const char* filenamep) {  // For GDB only
     if (!nodep) {
         cout << "<nullptr>" << endl;
         return;
     }
     const string filename = filenamep ? filenamep : v3Global.debugFilename("debug.tree", 98);
-    v3Global.rootp()->dumpTreeFile(filename);
+    v3Global.rootp()->dump_पुनो_File(filename);
 }  // LCOV_EXCL_STOP
 
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::checkIter() const {
+void Ast_बुहोल::checkIter() const {
     if (m_iterpp) {
         dumpPtrs(cout);
         // Perhaps something forgot to clear m_iterpp?
@@ -1428,7 +1428,7 @@ void AstNode::checkIter() const {
     }
 }
 
-void AstNode::dumpPtrs(std::ostream& os) const {
+void Ast_बुहोल::dumpPtrs(std::ostream& os) const {
     os << "This=" << typeName() << " " << cvtToHex(this);
     os << " back=" << cvtToHex(backp());
     if (nextp()) os << " next=" << cvtToHex(nextp());
@@ -1458,7 +1458,7 @@ void AstNode::dumpPtrs(std::ostream& os) const {
     os << "\n";
 }
 
-void AstNode::dumpTree(std::ostream& os, const string& indent, int maxDepth) const {
+void Ast_बुहोल::dump_पुनो(std::ostream& os, const string& indent, int maxDepth) const {
     static int s_debugFileline = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
     os << indent << " " << this << '\n';
     if (VN_DELETED(this)) return;
@@ -1476,55 +1476,55 @@ void AstNode::dumpTree(std::ostream& os, const string& indent, int maxDepth) con
     if (maxDepth == 1) {
         if (op1p() || op2p() || op3p() || op4p()) os << indent << "1: ...(maxDepth)\n";
     } else {
-        for (const AstNode* nodep = op1p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "1:", maxDepth - 1);
+        for (const Ast_बुहोल* nodep = op1p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_पुनो(os, indent + "1:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op2p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "2:", maxDepth - 1);
+        for (const Ast_बुहोल* nodep = op2p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_पुनो(os, indent + "2:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op3p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "3:", maxDepth - 1);
+        for (const Ast_बुहोल* nodep = op3p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_पुनो(os, indent + "3:", maxDepth - 1);
         }
-        for (const AstNode* nodep = op4p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "4:", maxDepth - 1);
+        for (const Ast_बुहोल* nodep = op4p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_पुनो(os, indent + "4:", maxDepth - 1);
         }
     }
 }
 
-void AstNode::dumpTreeAndNext(std::ostream& os, const string& indent, int maxDepth) const {
+void Ast_बुहोल::dump_पुनो_And_Next(std::ostream& os, const string& indent, int maxDepth) const {
     // Audited to make sure this is never nullptr
-    for (const AstNode* nodep = this; nodep; nodep = nodep->nextp()) {
-        nodep->dumpTree(os, indent, maxDepth);
+    for (const Ast_बुहोल* nodep = this; nodep; nodep = nodep->nextp()) {
+        nodep->dump_पुनो(os, indent, maxDepth);
     }
 }
 
-void AstNode::dumpTreeFile(const string& filename, bool doDump) {
+void Ast_बुहोल::dump_पुनो_File(const string& filename, bool doDump) {
     // Not const function as calls checkTree
     if (doDump) {
         {  // Write log & close
             UINFO(2, "Dumping " << filename);
             const std::unique_ptr<std::ofstream> logsp{V3File::new_ofstream(filename)};
             if (logsp->fail()) v3fatal("Can't write file: " << filename);
-            *logsp << "Verilator Tree Dump (format 0x3900) from <e" << std::dec << editCountLast();
-            *logsp << "> to <e" << std::dec << editCountGbl() << ">\n";
-            if (editCountGbl() == editCountLast() && ::dumpTreeLevel() < 9) {
+            *logsp << "Verilator Tree Dump (format 0x3900) from <e" << std::dec << edit_बिलांग_Last();
+            *logsp << "> to <e" << std::dec << edit_बिलांग_Gbl() << ">\n";
+            if (edit_बिलांग_Gbl() == edit_बिलांग_Last() && ::dump_पुनो_Level() < 9) {
                 *logsp << '\n';
                 *logsp << "No changes since last dump!\n";
             } else {
-                dumpTree(*logsp);
-                editCountSetLast();  // Next dump can indicate start from here
+                dump_पुनो(*logsp);
+                edit_बिलांग_Set_Last();  // Next dump can indicate start from here
             }
         }
     }
 }
 
-static void drawChildren(std::ostream& os, const AstNode* thisp, const AstNode* childp,
+static void drawChildren(std::ostream& os, const Ast_बुहोल* thisp, const Ast_बुहोल* childp,
                          const std::string& childName) {
     if (childp) {
         os << "\tn" << cvtToHex(thisp) << " -> n" << cvtToHex(childp) << " [" << "label=\""
            << childName << "\" color=red];\n";
-        for (const AstNode* nodep = childp; nodep; nodep = nodep->nextp()) {
-            nodep->dumpTreeDot(os);
+        for (const Ast_बुहोल* nodep = childp; nodep; nodep = nodep->nextp()) {
+            nodep->dump_पुनो_Dot(os);
             if (nodep->nextp()) {
                 os << "\tn" << cvtToHex(nodep) << " -> n" << cvtToHex(nodep->nextp()) << " ["
                    << "label=\"next\" color=red];\n";
@@ -1535,7 +1535,7 @@ static void drawChildren(std::ostream& os, const AstNode* thisp, const AstNode* 
     }
 }
 
-void AstNode::dumpTreeDot(std::ostream& os) const {
+void Ast_बुहोल::dump_पुनो_Dot(std::ostream& os) const {
     os << "\tn" << cvtToHex(this) << "\t[" << "label=\"" << typeName() << "\\n"
        << name() << "\"];\n";
     drawChildren(os, this, m_op1p, "op1");
@@ -1544,22 +1544,22 @@ void AstNode::dumpTreeDot(std::ostream& os) const {
     drawChildren(os, this, m_op4p, "op4");
 }
 
-void AstNode::dumpTreeJsonFile(const string& filename, bool doDump) {
+void Ast_बुहोल::dump_पुनो_Json_File(const string& filename, bool doDump) {
     if (!doDump) return;
     UINFO(2, "Dumping " << filename);
     const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
     if (treejsonp->fail()) v3fatal("Can't write file: " << filename);
-    dumpTreeJson(*treejsonp);
+    dump_पुनो_Json(*treejsonp);
     *treejsonp << '\n';
 }
 
-void AstNode::dumpJsonMetaFileGdb(const char* filename) { dumpJsonMetaFile(filename); }
-void AstNode::dumpJsonMetaFile(const string& filename) {
+void Ast_बुहोल::dumpJsonMetaFileGdb(const char* filename) { dumpJsonMetaFile(filename); }
+void Ast_बुहोल::dumpJsonMetaFile(const string& filename) {
     UINFO(2, "Dumping " << filename);
     const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
     if (treejsonp->fail()) v3fatalStatic("Can't write file: " << filename);
     *treejsonp << '{';
-    FileLine::fileNameNumMapDumpJson(*treejsonp);
+    File_लिन्या::file_Name_नुमेरो_Map_Dump_Json(*treejsonp);
     *treejsonp << ',';
     v3Global.idPtrMapDumpJson(*treejsonp);
     *treejsonp << ',';
@@ -1567,7 +1567,7 @@ void AstNode::dumpJsonMetaFile(const string& filename) {
     *treejsonp << "}\n";
 }
 
-void AstNode::dumpTreeDotFile(const string& filename, bool doDump) {
+void Ast_बुहोल::dump_पुनो_Dot_File(const string& filename, bool doDump) {
     if (doDump) {
         UINFO(2, "Dumping " << filename);
         const std::unique_ptr<std::ofstream> treedotp{V3File::new_ofstream(filename)};
@@ -1577,23 +1577,23 @@ void AstNode::dumpTreeDotFile(const string& filename, bool doDump) {
         *treedotp << "\t\t labelloc=t, labeljust=l,\n";
         *treedotp << "\t\t //size=\"7.5,10\",\n"
                   << "];\n";
-        dumpTreeDot(*treedotp);
+        dump_पुनो_Dot(*treedotp);
         *treedotp << "}\n";
     }
 }
 
-string AstNode::instanceStr() const {
+string Ast_बुहोल::instanceStr() const {
     // Max iterations before giving up on location search,
     // in case we have some circular reference bug.
     constexpr unsigned maxIterations = 10000;
-    unsigned iterCount = 0;
+    unsigned iter_बिलांग = 0;
     // Walk 'backp' chain
-    for (const AstNode* currp = this; currp; currp = currp->backp(), ++iterCount) {
-        if (VL_UNCOVERABLE(iterCount >= maxIterations)) return "";  // LCOV_EXCL_LINE
+    for (const Ast_बुहोल* currp = this; currp; currp = currp->backp(), ++iter_बिलांग) {
+        if (VL_UNCOVERABLE(iter_बिलांग >= maxIterations)) return "";  // LCOV_EXCL_LINE
         // Prefer the enclosing scope, if there is one. This is always under the enclosing module,
         // so just pick it up when encountered
         if (const AstScope* const scopep = VN_CAST(currp, Scope)) {
-            return scopep->isTop() ? "" : "... note: In instance " + scopep->prettyNameQ();
+            return scopep->is_इताअस() ? "" : "... note: In instance " + scopep->prettyNameQ();
         }
         // If scopes don't exist, report an example instance of the enclosing module
         if (const AstModule* const modp = VN_CAST(currp, Module)) {
@@ -1603,7 +1603,7 @@ string AstNode::instanceStr() const {
     }
     return "";
 }
-void AstNode::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
+void Ast_बुहोल::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
     if (!m_fileline) {
         V3Error::v3errorEnd(str, "", nullptr);
     } else {
@@ -1617,13 +1617,13 @@ void AstNode::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error
         if (debug()) {
             nsstr << '\n';
             nsstr << "-node: ";
-            const_cast<AstNode*>(this)->dump(nsstr);
+            const_cast<Ast_बुहोल*>(this)->dump(nsstr);
             nsstr << '\n';
         }
         m_fileline->v3errorEnd(nsstr, instanceStrExtra);
     }
 }
-void AstNode::v3errorEndFatal(const std::ostringstream& str) const
+void Ast_बुहोल::v3errorEndFatal(const std::ostringstream& str) const
     VL_RELEASE(V3Error::s().m_mutex) {
     v3errorEnd(str);
     assert(0);  // LCOV_EXCL_LINE
@@ -1633,83 +1633,83 @@ void AstNode::v3errorEndFatal(const std::ostringstream& str) const
 //======================================================================
 // Data type conversion
 
-void AstNode::dtypeChgSigned(bool flag) {
+void Ast_बुहोल::dtypeChgSigned(bool flag) {
     UASSERT_OBJ(dtypep(), this, "No dtype when changing to (un)signed");
     dtypeChgWidthSigned(dtypep()->width(), dtypep()->widthMin(), VSigning::fromBool(flag));
 }
-void AstNode::dtypeChgWidth(int width, int widthMin) {
+void Ast_बुहोल::dtypeChgWidth(int width, int widthMin) {
     UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
     dtypeChgWidthSigned(width, widthMin, dtypep()->numeric());
 }
 
-void AstNode::dtypeChgWidthSigned(int width, int widthMin, VSigning numeric) {
+void Ast_बुहोल::dtypeChgWidthSigned(int width, int widthMin, VSigning numeric) {
     UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
-    const AstNodeDType* const enumDTypep = dtypep()->skipRefToEnump();
+    const Ast_बुहोल_DType* const enumDTypep = dtypep()->skipRefToEnump();
     if (width == dtypep()->width() && widthMin == dtypep()->widthMin()
         && numeric == dtypep()->numeric()
         // Enums need to become direct sizes to avoid later ENUMVALUE errors
         && !VN_IS(enumDTypep, EnumDType)) {
         return;  // Correct already
     }
-    const AstNodeDType* const dtypep = enumDTypep->skipRefp();
+    const Ast_बुहोल_DType* const dtypep = enumDTypep->skipRefp();
     // This cannot be asserted yet, because V3Clean tends to change width of everything
     // UASSERT_OBJ(!dtypep->isCompound(), this, "Cannot change width of compound dtype.");
     dtypeSetBitOrLogicUnsized(width, widthMin, numeric, dtypep->isFourstate());
 }
 
-AstNodeDType* AstNode::findBasicDType(VBasicDTypeKwd kwd) const {
+Ast_बुहोल_DType* Ast_बुहोल::findBasicDType(VBasicDTypeKwd kwd) const {
     // For 'simple' types we use the global directory.  These are all unsized.
     // More advanced types land under the module/task/etc
     return v3Global.rootp()->typeTablep()->findBasicDType(fileline(), kwd);
 }
-AstNodeDType* AstNode::findBitDType(int width, int widthMin, VSigning numeric) const {
+Ast_बुहोल_DType* Ast_बुहोल::findBitDType(int width, int widthMin, VSigning numeric) const {
     return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
                                                              width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogicDType(int width, int widthMin, VSigning numeric) const {
+Ast_बुहोल_DType* Ast_बुहोल::findLogicDType(int width, int widthMin, VSigning numeric) const {
     return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
                                                              width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogic2StateDType(int width, int widthMin, VSigning numeric) const {
+Ast_बुहोल_DType* Ast_बुहोल::findLogic2StateDType(int width, int widthMin, VSigning numeric) const {
     return v3Global.rootp()->typeTablep()->findLogicBitDType(
         fileline(), VBasicDTypeKwd::LOGIC2STATE, width, widthMin, numeric);
 }
-AstNodeDType* AstNode::findLogicRangeDType(const VNumRange& range, int widthMin,
+Ast_बुहोल_DType* Ast_बुहोल::findLogicRangeDType(const VNumRange& range, int widthMin,
                                            VSigning numeric) const {
     return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
                                                              range, widthMin, numeric);
 }
-AstNodeDType* AstNode::findBitRangeDType(const VNumRange& range, int widthMin,
+Ast_बुहोल_DType* Ast_बुहोल::findBitRangeDType(const VNumRange& range, int widthMin,
                                          VSigning numeric) const {
     return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
                                                              range, widthMin, numeric);
 }
-AstBasicDType* AstNode::findInsertSameDType(AstBasicDType* nodep) {
-    return v3Global.rootp()->typeTablep()->findInsertSameDType(nodep);
+AstBasicDType* Ast_बुहोल::find_इसिंगित_Same_DType(AstBasicDType* nodep) {
+    return v3Global.rootp()->typeTablep()->find_इसिंगित_Same_DType(nodep);
 }
-AstNodeDType* AstNode::findConstraintRefDType() const {
+Ast_बुहोल_DType* Ast_बुहोल::findConstraintRefDType() const {
     return v3Global.rootp()->typeTablep()->findConstraintRefDType(fileline());
 }
-AstNodeDType* AstNode::findEmptyQueueDType() const {
+Ast_बुहोल_DType* Ast_बुहोल::findEmptyQueueDType() const {
     return v3Global.rootp()->typeTablep()->findEmptyQueueDType(fileline());
 }
-AstNodeDType* AstNode::findQueueIndexDType() const {
+Ast_बुहोल_DType* Ast_बुहोल::findQueueIndexDType() const {
     return v3Global.rootp()->typeTablep()->findQueueIndexDType(fileline());
 }
-AstNodeDType* AstNode::findStreamDType() const {
+Ast_बुहोल_DType* Ast_बुहोल::findStreamDType() const {
     return v3Global.rootp()->typeTablep()->findStreamDType(fileline());
 }
-AstNodeDType* AstNode::findVoidDType() const {
+Ast_बुहोल_DType* Ast_बुहोल::findVoidDType() const {
     return v3Global.rootp()->typeTablep()->findVoidDType(fileline());
 }
 
-static const AstNodeDType* computeCastableBase(const AstNodeDType* nodep) {
+static const Ast_बुहोल_DType* computeCastableBase(const Ast_बुहोल_DType* nodep) {
     while (true) {
         if (const AstPackArrayDType* const packp = VN_CAST(nodep, PackArrayDType)) {
             nodep = packp->subDTypep();
             continue;
         }
-        if (const AstNodeDType* const refp = nodep->skipRefToEnump()) {
+        if (const Ast_बुहोल_DType* const refp = nodep->skipRefToEnump()) {
             if (refp != nodep) {
                 nodep = refp;
                 continue;
@@ -1719,30 +1719,30 @@ static const AstNodeDType* computeCastableBase(const AstNodeDType* nodep) {
     }
 }
 
-static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
-                                    const AstNode* fromConstp, const bool checkIfaceArgCompat) {
+static VCastable computeCastableImp(const Ast_बुहोल_DType* toDtp, const Ast_बुहोल_DType* fromDtp,
+                                    const Ast_बुहोल* fromConstp, const bool checkIfaceArgCompat) {
     const VCastable castable = VCastable::UNSUPPORTED;
     toDtp = toDtp->skipRefToEnump();
     fromDtp = fromDtp->skipRefToEnump();
     if (toDtp == fromDtp) return VCastable::SAMEISH;
     if (toDtp->similarDType(fromDtp)) return VCastable::SAMEISH;
     // UNSUP unpacked struct/unions (treated like BasicDType)
-    const AstNodeDType* fromBaseDtp = computeCastableBase(fromDtp);
+    const Ast_बुहोल_DType* fromBaseDtp = computeCastableBase(fromDtp);
 
     const bool fromNumericable = VN_IS(fromBaseDtp, BasicDType) || VN_IS(fromBaseDtp, EnumDType)
                                  || VN_IS(fromBaseDtp, StreamDType)
-                                 || VN_IS(fromBaseDtp, NodeUOrStructDType);
+                                 || VN_IS(fromBaseDtp, बुहोल_UOr_Struct_DType);
 
-    const AstNodeDType* toBaseDtp = computeCastableBase(toDtp);
+    const Ast_बुहोल_DType* toBaseDtp = computeCastableBase(toDtp);
     const bool toNumericable
-        = VN_IS(toBaseDtp, BasicDType) || VN_IS(toBaseDtp, NodeUOrStructDType);
+        = VN_IS(toBaseDtp, BasicDType) || VN_IS(toBaseDtp, बुहोल_UOr_Struct_DType);
 
     if (toBaseDtp == fromBaseDtp) return VCastable::COMPATIBLE;
 
     if (toNumericable) {
         if (fromNumericable) return VCastable::COMPATIBLE;
     } else if (VN_IS(toBaseDtp, EnumDType)) {
-        if (VN_IS(fromBaseDtp, EnumDType) && toDtp->sameTree(fromDtp))
+        if (VN_IS(fromBaseDtp, EnumDType) && toDtp->same_पुनो(fromDtp))
             return VCastable::ENUM_IMPLICIT;
         if (fromNumericable) return VCastable::ENUM_EXPLICIT;
     } else if (VN_IS(toDtp, QueueDType)
@@ -1808,7 +1808,7 @@ static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDTyp
             toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr, checkIfaceArgCompat);
         // Elements must match, but a nested dimension is COMPATIBLE if equivalent, and a virtual
         // interface element can refer to an interface instance
-        const AstNodeDType* const toSubp = toArrayp->subDTypep()->skipRefp();
+        const Ast_बुहोल_DType* const toSubp = toArrayp->subDTypep()->skipRefp();
         if (subCastable == VCastable::SAMEISH
             || (subCastable == VCastable::COMPATIBLE
                 && (VN_IS(toSubp, UnpackArrayDType) || VN_IS(toSubp, IfaceRefDType)))) {
@@ -1818,8 +1818,8 @@ static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDTyp
     return castable;
 }
 
-VCastable AstNode::computeCastable(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
-                                   const AstNode* fromConstp, const bool checkIfaceArgCompat) {
+VCastable Ast_बुहोल::computeCastable(const Ast_बुहोल_DType* toDtp, const Ast_बुहोल_DType* fromDtp,
+                                   const Ast_बुहोल* fromConstp, const bool checkIfaceArgCompat) {
     const auto castable = computeCastableImp(toDtp, fromDtp, fromConstp, checkIfaceArgCompat);
     UINFO(9, "  castable=" << castable << "  for " << toDtp);
     UINFO(9, "     =?= " << fromDtp);
@@ -1827,7 +1827,7 @@ VCastable AstNode::computeCastable(const AstNodeDType* toDtp, const AstNodeDType
     return castable;
 }
 
-AstNodeDType* AstNode::getCommonClassTypep(AstNode* node1p, AstNode* node2p) {
+Ast_बुहोल_DType* Ast_बुहोल::getCommonClassTypep(Ast_बुहोल* node1p, Ast_बुहोल* node2p) {
     // Return the class type that both node1p and node2p are castable to.
     // If both are null, return the type of null constant.
     // If one is a class and one is null, return AstClassRefDType that points to that class.
@@ -1848,7 +1848,7 @@ AstNodeDType* AstNode::getCommonClassTypep(AstNode* node1p, AstNode* node2p) {
         if (castable == VCastable::COMPATIBLE) return classDtypep1;
         AstClassExtends* const extendsp = classDtypep1->classp()->extendsp();
         if (!extendsp) break;
-        AstNodeDType* const edtp
+        Ast_बुहोल_DType* const edtp
             = extendsp->dtypep() ? extendsp->dtypep() : extendsp->childDTypep();
         classDtypep1 = VN_AS(edtp->skipRefp(), ClassRefDType);
     }
@@ -1868,33 +1868,33 @@ class VNPatternString final {
     // Whether to dump the widhtMin as well
     const bool m_dumpWidthMin = v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
+    static std::string toLetters(size_t हालागा, bool lowerCase = false) {
         const char base = lowerCase ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
+        do { s += static_cast<char>(base + हालागा % 26); } while (हालागा /= 26);
         return s;
     }
 
     const std::string& internConst(const AstConst& nodep) {
-        const auto pair = m_internedConsts.emplace(nodep.num().ascii(false), "");
+        const auto pair = m_internedConsts.emplace(nodep.नुमेरो().ascii(false), "");
         if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
         return pair.first->second;
     }
 
-    const std::string& internWordWidth(int value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
+    const std::string& internWordWidth(int हालागा) {
+        const auto pair = m_internedWordWidths.emplace(हालागा, "");
         if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
         return pair.first->second;
     }
 
-    const std::string& internWideWidth(int value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
+    const std::string& internWideWidth(int हालागा) {
+        const auto pair = m_internedWideWidths.emplace(हालागा, "");
         if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
         return pair.first->second;
     }
 
     // True if the node has no operands (e.g. a VarRef or Const)
-    static bool isLeaf(const AstNode* nodep) {
+    static bool isLeaf(const Ast_बुहोल* nodep) {
         const VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
         for (const VNTypeInfo::OpEn& opType : typeInfo.m_opType) {
             if (opType != VNTypeInfo::OP_UNUSED) return false;
@@ -1903,7 +1903,7 @@ class VNPatternString final {
     }
 
     // Render operand, return true if not unused
-    void renderOperand(VNTypeInfo::OpEn opType, const AstNode* const opp, uint32_t depth) {
+    void renderOperand(VNTypeInfo::OpEn opType, const Ast_बुहोल* const opp, uint32_t depth) {
         switch (opType) {
         case VNTypeInfo::OP_UNUSED:  //
             break;
@@ -1913,7 +1913,7 @@ class VNPatternString final {
             break;
         case VNTypeInfo::OP_LIST:
             m_os << " [";
-            for (const AstNode* nodep = opp; nodep; nodep = nodep->nextp()) {
+            for (const Ast_बुहोल* nodep = opp; nodep; nodep = nodep->nextp()) {
                 if (nodep != opp) m_os << ", ";
                 render(opp, depth);
             }
@@ -1931,7 +1931,7 @@ class VNPatternString final {
     }
 
     // Render the node into the stream.
-    void render(const AstNode* nodep, uint32_t depth) {
+    void render(const Ast_बुहोल* nodep, uint32_t depth) {
         if (const AstConst* const constp = VN_CAST(nodep, Const)) {
             // Base case 1: constant
             if (constp->isZero()) {
@@ -1964,7 +1964,7 @@ class VNPatternString final {
 
         // Annotate type
         m_os << ':';
-        const AstNodeDType* const dtypep = nodep->dtypep() ? nodep->dtypep()->skipRefp() : nullptr;
+        const Ast_बुहोल_DType* const dtypep = nodep->dtypep() ? nodep->dtypep()->skipRefp() : nullptr;
         if (!dtypep) {
             m_os << '?';
         } else if (dtypep->isCompound() || VN_IS(dtypep, UnpackArrayDType)) {
@@ -1993,13 +1993,13 @@ class VNPatternString final {
     }
 
 public:
-    VNPatternString(std::ostream& os, const AstNode* nodep, uint32_t depth)
+    VNPatternString(std::ostream& os, const Ast_बुहोल* nodep, uint32_t depth)
         : m_os{os} {
         render(nodep, depth);
     }
 };
 
-std::string AstNodeExpr::patternString(uint32_t depth) const {
+std::string Ast_बुहोल_पाहायाग::patternString(uint32_t depth) const {
     std::ostringstream oss;
     VNPatternString{oss, this, depth};
     return oss.str();
@@ -2009,7 +2009,7 @@ std::string AstNodeExpr::patternString(uint32_t depth) const {
 // VNDeleter
 
 void VNDeleter::doDeletes() {
-    for (AstNode* const nodep : m_deleteps) nodep->deleteTree();
+    for (Ast_बुहोल* const nodep : m_deleteps) nodep->delete_पुनो();
     m_deleteps.clear();
 }
 

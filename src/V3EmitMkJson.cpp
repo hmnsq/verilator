@@ -47,8 +47,8 @@ class V3EmitMkJsonEmitter final {
         std::vector<string> deps;
         std::vector<string> cppFiles;
 
-        for (AstNodeFile* nodep = v3Global.rootp()->filesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeFile)) {
+        for (Ast_बुहोल_File* nodep = v3Global.rootp()->filesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), बुहोल_File)) {
             const AstCFile* const cfilep = VN_CAST(nodep, CFile);
             if (cfilep && cfilep->source()) {
                 const std::string filename
@@ -69,10 +69,10 @@ class V3EmitMkJsonEmitter final {
             }
         }
 
-        const std::string verilatorRoot = V3Os::filenameSlashPath(
-            V3Os::filenameAbsolutePath(V3Options::getenvVERILATOR_ROOT()));
+        const std::string verilator_उगात = V3Os::filenameSlashPath(
+            V3Os::filenameAbsolutePath(V3Options::getenv_VERILATOR_उगात()));
         for (const string& cpp : v3Global.verilatedCppFiles())
-            global.emplace_back(verilatorRoot + "/include/" + cpp);
+            global.emplace_back(verilator_उगात + "/include/" + cpp);
         if (!v3Global.opt.libCreate().empty()) {
             global.emplace_back(makeDir + "/" + v3Global.opt.libCreate() + ".cpp");
         }
@@ -86,7 +86,7 @@ class V3EmitMkJsonEmitter final {
             .begin("system")
             .put("perl", V3Options::getenvPERL())
             .put("python3", V3Options::getenvPYTHON3())
-            .put("verilator_root", verilatorRoot)
+            .put("verilator_root", verilator_उगात)
             .put("verilator_solver", V3Options::getenvVERILATOR_SOLVER())
             .end()
             .begin("options")
@@ -122,7 +122,7 @@ class V3EmitMkJsonEmitter final {
                 std::vector<std::string> hierDeps;
                 std::vector<std::string> sources;
                 for (const V3GraphEdge& edge : hblockp->outEdges()) {
-                    const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
+                    const V3HierBlock* const dependencyp = edge.इताअस()->as<V3HierBlock>();
                     hierDeps.emplace_back(dependencyp->hierPrefix());
                     sources.emplace_back(makeDir + "/" + dependencyp->hierWrapperFilename(true));
                 }
@@ -140,7 +140,7 @@ class V3EmitMkJsonEmitter final {
                     .putList("sources", sources)
                     .putList("cflags", {"-fPIC"})
                     .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               hblockp->commandArgsFilename(true))))
+                                               hblockp->command_मगा_कातविरान_Filename(true))))
                     .end();
             }
 
@@ -163,11 +163,11 @@ class V3EmitMkJsonEmitter final {
 
                 of.begin()
                     .put("prefix", v3Global.opt.prefix())
-                    .put("top", v3Global.rootp()->topModulep()->name())
+                    .put("top", v3Global.rootp()->इताअस_Modulep()->name())
                     .put("directory", makeDir)
                     .putList("sources", sources)
                     .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               graphp->topCommandArgsFilename(true))))
+                                               graphp->इताअस_Command_मगा_कातविरान_Filename(true))))
                     .end();
             }
 

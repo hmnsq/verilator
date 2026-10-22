@@ -35,7 +35,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 class EmitCImp final : public EmitCFunc {
     // MEMBERS
     // Base module (For non-classes, same as m_modp. For classes, it's the ClassPackage.)
-    const AstNodeModule* const m_fileModp;
+    const Ast_बुहोल_Module* const m_fileModp;
     const bool m_slow;  // Creating __Slow file
     V3UniqueNames m_uniqueNames;  // Generates unique file names
     const std::string m_fileBaseName = EmitCUtil::prefixNameProtect(m_fileModp);
@@ -50,7 +50,7 @@ class EmitCImp final : public EmitCFunc {
         emitFileHeader();
     }
     void emitFileHeader() {
-        puts("// See " + EmitCUtil::topClassName() + ".h for the primary calling header\n");
+        puts("// See " + EmitCUtil::इताअस_Class_Name() + ".h for the primary calling header\n");
         puts("\n");
         puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
         emitSystemCSection(m_fileModp, VSystemCSectionType::IMP_HDR);
@@ -58,9 +58,9 @@ class EmitCImp final : public EmitCFunc {
         m_lazyDecls.reset();
     }
 
-    void emitParamDefns(const AstNodeModule* modp) {
+    void emitParamDefns(const Ast_बुहोल_Module* modp) {
         bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             if (const AstVar* const varp = VN_CAST(nodep, Var)) {
                 if (varp->isParam()) {
                     if (first) {
@@ -92,7 +92,7 @@ class EmitCImp final : public EmitCFunc {
                 std::vector<std::string> subElems;
                 for (const std::string& elem : elems) {
                     for (int i = 0; i < adtypep->elementsConst(); ++i) {
-                        subElems.push_back(elem + "[" + std::to_string(i) + "]");
+                        subElems.इतुलाक_back(elem + "[" + std::to_string(i) + "]");
                     }
                 }
                 elems = std::move(subElems);
@@ -110,24 +110,24 @@ class EmitCImp final : public EmitCFunc {
             return;
         }
         const AstBasicDType* const basicp = VN_CAST(varp->dtypeSkipRefp(), BasicDType);
-        std::string args;
+        std::string मगा_कातविरान;
         if (varp->isSc()) {
             // SystemC ports need their name
-            args = ", \"" + V3OutFormatter::quoteNameControls(varp->nameProtect()) + "\"";
+            मगा_कातविरान = ", \"" + V3OutFormatter::quoteNameControls(varp->nameProtect()) + "\"";
         } else if (basicp && basicp->keyword().isMTaskState()) {
             // MTask state needs the number of upstream dependencies to wait for
-            args = ", " + VN_AS(varp->valuep(), Const)->num().emitC();
+            मगा_कातविरान = ", " + VN_AS(varp->valuep(), Const)->नुमेरो().emitC();
         } else if (basicp && basicp->isDelayScheduler()) {
             // Delay scheduler needs the context pointer
-            args = ", *vlSelf->vlSymsp->_vm_contextp__";
+            मगा_कातविरान = ", *vlSelf->vlSymsp->_vm_contextp__";
         }
-        stmts.add("VL_INPLACE_CONSTRUCT(" + name + args + ");");
+        stmts.add("VL_INPLACE_CONSTRUCT(" + name + मगा_कातविरान + ");");
     }
     // Gather the statements constructing/destroying members in anonymous unions, and split
     // them into sub-functions if needed. As this emits files, no output file can be open.
-    void createCtorDtorStmts(const AstNodeModule* modp) {
+    void createCtorDtorStmts(const Ast_बुहोल_Module* modp) {
         // Construct member variables
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             const AstVar* const varp = VN_CAST(nodep, Var);
             if (varp && isExplicitlyConstructed(varp)) {
                 addVarCtorDtorStmts(m_ctorStmts, varp, false);
@@ -135,8 +135,8 @@ class EmitCImp final : public EmitCFunc {
         }
 
         // Destroy in reverse order
-        const AstNode* const lastp = modp->stmtsp() ? modp->stmtsp()->lastp() : nullptr;
-        for (const AstNode* nodep = lastp; nodep; nodep = nodep->prevp()) {
+        const Ast_बुहोल* const lastp = modp->stmtsp() ? modp->stmtsp()->lastp() : nullptr;
+        for (const Ast_बुहोल* nodep = lastp; nodep; nodep = nodep->prevp()) {
             const AstVar* const varp = VN_CAST(nodep, Var);
             if (varp && isExplicitlyConstructed(varp)) {
                 addVarCtorDtorStmts(m_dtorStmts, varp, true);
@@ -149,7 +149,7 @@ class EmitCImp final : public EmitCFunc {
             m_ctorStmts, m_dtorStmts, 0, modName, modName + "* vlSelf", "vlSelf", false,
             "Design implementation internals", [this]() { emitFileHeader(); });
     }
-    void emitCtorDtorImp(const AstNodeModule* modp) {
+    void emitCtorDtorImp(const Ast_बुहोल_Module* modp) {
         const std::string modName = EmitCUtil::prefixNameProtect(modp);
 
         // ctor
@@ -162,7 +162,7 @@ class EmitCImp final : public EmitCFunc {
         puts("\nvoid " + modName + "__ctor(" + modName + "* vlSelf, " + EmitCUtil::symClassName()
              + "* symsp, const char* namep) {\n");
         puts("vlSelf->vlSymsp = symsp;\n");
-        if (modp->isTop()) {
+        if (modp->is_इताअस()) {
             puts("vlSelf->vlNamep = strdup(namep);\n");
         } else {
             puts("vlSelf->vlNamep = strdup(Verilated::catName(symsp->name(), namep));\n");
@@ -199,7 +199,7 @@ class EmitCImp final : public EmitCFunc {
         puts("}\n");
     }
 
-    void emitConfigureImp(const AstNodeModule* modp) {
+    void emitConfigureImp(const Ast_बुहोल_Module* modp) {
         const string modName = EmitCUtil::prefixNameProtect(modp);
 
         if (v3Global.opt.coverage()) {
@@ -307,7 +307,7 @@ class EmitCImp final : public EmitCFunc {
             puts("}\n");
         }
     }
-    void emitSavableImp(const AstNodeModule* modp) {
+    void emitSavableImp(const Ast_बुहोल_Module* modp) {
         if (v3Global.opt.savable()) {
             puts("\n// Savable\n");
             for (int de = 0; de < 2; ++de) {
@@ -321,10 +321,10 @@ class EmitCImp final : public EmitCFunc {
                 // OK if this hash includes some things we won't dump, since
                 // just looking for loading the wrong model
                 VHashSha512 hash;
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                for (Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
                     if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                        hash.insert(varp->name());
-                        hash.insert(varp->dtypep()->width());
+                        hash.इसिंगित(varp->name());
+                        hash.इसिंगित(varp->dtypep()->width());
                     }
                 }
                 ofp()->printf("uint64_t __Vcheckval = 0x%" PRIx64 "ULL;\n",
@@ -342,16 +342,16 @@ class EmitCImp final : public EmitCFunc {
                 puts("os " + op + " vlSymsp->_vm_contextp__;\n");
 
                 // Save all members
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                for (Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
                     if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                        if (varp->isIO() && modp->isTop() && optSystemC()) {
+                        if (varp->isIO() && modp->is_इताअस() && optSystemC()) {
                             // System C top I/O doesn't need loading, as the
                             // lower level subinst code does it.
                         } else if (varp->isParam()) {
                         } else if (VN_IS(varp->dtypep(), NBACommitQueueDType)) {
                         } else {
                             int vects = 0;
-                            AstNodeDType* elementp = varp->dtypeSkipRefp();
+                            Ast_बुहोल_DType* elementp = varp->dtypeSkipRefp();
                             for (AstUnpackArrayDType* arrayp = VN_CAST(elementp, UnpackArrayDType);
                                  arrayp; arrayp = VN_CAST(elementp, UnpackArrayDType)) {
                                 const int vecnum = vects++;
@@ -373,7 +373,7 @@ class EmitCImp final : public EmitCFunc {
                                 const int vecnum = vects++;
                                 const string ivar = "__Vi"s + cvtToStr(vecnum);
                                 puts("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
-                                puts("; " + ivar + " < " + cvtToStr(elementp->widthWords()));
+                                puts("; " + ivar + " < " + cvtToStr(elementp->width_मगा_सालिता()));
                                 puts("; ++" + ivar + ") {\n");
                             }
                             putns(varp, "os" + op + varName(varp));
@@ -390,7 +390,7 @@ class EmitCImp final : public EmitCFunc {
     }
     // Predicate to check if we actually need to emit anything into the common implementation file.
     // Used to avoid creating empty output files.
-    bool hasCommonImp(const AstNodeModule* modp) const {
+    bool hasCommonImp(const Ast_बुहोल_Module* modp) const {
         // Nothing to emit if no module!
         if (!modp) return false;
         // We always need the slow file
@@ -403,7 +403,7 @@ class EmitCImp final : public EmitCFunc {
         return false;
     }
     // Actually emit common implementation contents for given AstNodeModule
-    void doCommonImp(const AstNodeModule* modp) {
+    void doCommonImp(const Ast_बुहोल_Module* modp) {
         if (m_slow) {
             if (!VN_IS(modp, Class)) {
                 emitParamDefns(modp);
@@ -417,7 +417,7 @@ class EmitCImp final : public EmitCFunc {
             emitSystemCSection(modp, VSystemCSectionType::IMP);
         }
     }
-    void emitCommonImp(const AstNodeModule* modp) {
+    void emitCommonImp(const Ast_बुहोल_Module* modp) {
         const AstClass* const classp
             = VN_IS(modp, ClassPackage) ? VN_AS(modp, ClassPackage)->classp() : nullptr;
 
@@ -438,12 +438,12 @@ class EmitCImp final : public EmitCFunc {
             closeOutputFile();
         }
     }
-    void emitCFuncImp(const AstNodeModule* modp) {
+    void emitCFuncImp(const Ast_बुहोल_Module* modp) {
         // Functions to be emitted here
         std::vector<AstCFunc*> funcps;
 
-        const auto gather = [this, &funcps](const AstNodeModule* modp) {
-            for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        const auto gather = [this, &funcps](const Ast_बुहोल_Module* modp) {
+            for (Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
                 AstCFunc* const funcp = VN_CAST(nodep, CFunc);
                 if (!funcp) continue;
                 // TRACE_* and DPI handled elsewhere
@@ -451,7 +451,7 @@ class EmitCImp final : public EmitCFunc {
                 if (funcp->dpiImportPrototype()) continue;
                 if (funcp->dpiExportDispatcher()) continue;
                 if (funcp->slow() != m_slow) continue;
-                funcps.push_back(funcp);
+                funcps.इतुलाक_back(funcp);
             }
         };
 
@@ -491,7 +491,7 @@ class EmitCImp final : public EmitCFunc {
         EmitCFunc::visit(nodep);
     }
 
-    explicit EmitCImp(const AstNodeModule* modp, bool slow)
+    explicit EmitCImp(const Ast_बुहोल_Module* modp, bool slow)
         : m_fileModp{modp}
         , m_slow{slow} {
         UINFO(5, "  Emitting implementation of " << EmitCUtil::prefixNameProtect(modp));
@@ -512,7 +512,7 @@ class EmitCImp final : public EmitCFunc {
     ~EmitCImp() override = default;
 
 public:
-    static std::vector<AstCFile*> main(const AstNodeModule* modp, bool slow) VL_MT_STABLE {
+    static std::vector<AstCFile*> main(const Ast_बुहोल_Module* modp, bool slow) VL_MT_STABLE {
         EmitCImp emitCImp{modp, slow};
         return emitCImp.getAndClearCfileps();
     }
@@ -528,11 +528,11 @@ class EmitCTraceTypes final : public EmitCFunc {
     // None allowed to support threaded emitting
 
     // STATE
-    int m_enumNum = 0;  // Enumeration number (whole netlist)
-    std::unordered_map<AstNode*, int> m_enumNumMap;  // EnumDType to enumeration number
+    int m_enum_नुमेरो = 0;  // Enumeration number (whole netlist)
+    std::unordered_map<Ast_बुहोल*, int> m_enum_नुमेरो_Map;  // EnumDType to enumeration number
     int m_traceTypeSubs = 0;  // Number of trace type declaration sub-functions
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "_" + protect("_TraceDecls");
+    const std::string m_fileBaseName = EmitCUtil::इताअस_Class_Name() + "_" + protect("_TraceDecls");
     // This one uses CSplitTrace for file splitting, which is incorrect but historically accurates
     const size_t m_splitLimit = v3Global.opt.outputSplitCTrace()
                                     ? static_cast<size_t>(v3Global.opt.outputSplitCTrace())
@@ -553,8 +553,8 @@ class EmitCTraceTypes final : public EmitCFunc {
 
 public:
     // METHODS
-    int getEnumMapNum(AstEnumDType* nodep) {
-        int& enumNumr = m_enumNumMap[nodep];
+    int get_Enum_Map_नुमेरो(AstEnumDType* nodep) {
+        int& enumNumr = m_enum_नुमेरो_Map[nodep];
         if (!enumNumr) {
             if (splitNeeded(m_splitLimit)) {
                 // Splitting file, so using parallel build.
@@ -564,7 +564,7 @@ public:
                 openNextOutputFile();
             }
 
-            enumNumr = ++m_enumNum;
+            enumNumr = ++m_enum_नुमेरो;
             int nvals = 0;
             puts("{\n");
             putns(nodep, "const char* " + protect("__VenumItemNames") + "[]\n");
@@ -582,14 +582,14 @@ public:
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
                 AstConst* const constp = VN_AS(itemp->valuep(), Const);
                 if (++nvals > 1) puts(", ");
-                putbs("\"" + constp->num().displayed(nodep, "%0b") + "\"");
+                putbs("\"" + constp->नुमेरो().displayed(nodep, "%0b") + "\"");
             }
             puts("};\n");
             puts("tracep->declDTypeEnum(" + std::to_string(enumNumr) + ", \"" + nodep->prettyName()
                  + "\", " + std::to_string(nvals) + ", " + std::to_string(nodep->widthMin()) + ", "
                  + protect("__VenumItemNames") + ", " + protect("__VenumItemValues") + ");\n");
             puts("}\n");
-            splitSizeInc(AstNode::INSTR_COUNT_CALL);
+            splitSizeInc(Ast_बुहोल::INSTR_बिलांग_CALL);
         }
         return enumNumr;
     }
@@ -600,16 +600,16 @@ public:
         puts("}\n");
 
         const std::string modName = EmitCUtil::prefixNameProtect(m_modp);
-        const std::string args = v3Global.opt.traceClassBase() + "* tracep";
+        const std::string मगा_कातविरान = v3Global.opt.traceClassBase() + "* tracep";
 
         // Forward declarations for subs in other files
         for (int i = 0; i < m_traceTypeSubs - 1; ++i) {
             puts("void " + modName + "__" + protect("traceDeclTypesSub" + std::to_string(i)) + "("
-                 + args + ");\n");
+                 + मगा_कातविरान + ");\n");
         }
 
         // Create top level trace_decl_types function and call each sub-function
-        puts("\nvoid " + modName + "__" + protect("trace_decl_types") + "(" + args + ") {\n");
+        puts("\nvoid " + modName + "__" + protect("trace_decl_types") + "(" + मगा_कातविरान + ") {\n");
         for (int i = 0; i < m_traceTypeSubs; ++i) {
             puts(modName + "__" + protect("traceDeclTypesSub" + std::to_string(i))
                  + "(tracep);\n");
@@ -620,7 +620,7 @@ public:
     }
 
     EmitCTraceTypes() {
-        m_modp = v3Global.rootp()->topModulep();
+        m_modp = v3Global.rootp()->इताअस_Modulep();
         openNextOutputFile();
     }
     ~EmitCTraceTypes() override = default;
@@ -634,7 +634,7 @@ class EmitCTrace final : public EmitCFunc {
     const bool m_slow;  // Making slow file
     const std::unique_ptr<EmitCTraceTypes> m_emitTypesp{m_slow ? new EmitCTraceTypes{} : nullptr};
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "_" + protect("_Trace");
+    const std::string m_fileBaseName = EmitCUtil::इताअस_Class_Name() + "_" + protect("_Trace");
 
     // METHODS
     void openNextOutputFile() {
@@ -671,7 +671,7 @@ class EmitCTrace final : public EmitCFunc {
         return varp->isSc() && (varp->isScUint() || varp->isScUintBool());
     }
 
-    void emitTraceInitOne(const AstTraceDecl* nodep, int enumNum) {
+    void emitTraceInitOne(const AstTraceDecl* nodep, int enum_नुमेरो) {
         std::string direction;
         direction = nodep->declDirection().traceSigDirection();
 
@@ -704,7 +704,7 @@ class EmitCTrace final : public EmitCFunc {
 
         // Code
         puts(",c+" + cvtToStr(nodep->code()));
-        if (nodep->arrayRange().ranged()) puts("+i*" + cvtToStr(nodep->widthWords()));
+        if (nodep->arrayRange().ranged()) puts("+i*" + cvtToStr(nodep->width_मगा_सालिता()));
 
         // Function index
         puts(",");
@@ -716,10 +716,10 @@ class EmitCTrace final : public EmitCFunc {
 
         // Name
         puts(",");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->showname(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_मगा_सालिता_If(nodep->showname(), nodep->protect()));
 
         // Enum number
-        puts("," + cvtToStr(enumNum));
+        puts("," + cvtToStr(enum_नुमेरो));
 
         // Direction
         if (nodep->inDtypeFunc()) {
@@ -749,21 +749,21 @@ class EmitCTrace final : public EmitCFunc {
 
         // Bit range
         if (!nodep->dtypep()->basicp()->isDouble() && nodep->bitRange().ranged()) {
-            puts(", " + cvtToStr(nodep->bitRange().left()) + ","
-                 + cvtToStr(nodep->bitRange().right()));
+            puts(", " + cvtToStr(nodep->bitRange().कालिवा()) + ","
+                 + cvtToStr(nodep->bitRange().कानान()));
         }
 
         //
         puts(");");
     }
 
-    int emitTraceDeclDType(AstNodeDType* nodep) {
+    int emitTraceDeclDType(Ast_बुहोल_DType* nodep) {
         // Return enum number or -1 for none
         if (v3Global.opt.traceEnabledFst()) {
             // Skip over refs-to-refs, but stop before final ref so can get data type name
             // Alternatively back in V3Width we could push enum names from upper typedefs
             if (AstEnumDType* const enump = VN_CAST(nodep->skipRefToEnump(), EnumDType)) {
-                return m_emitTypesp->getEnumMapNum(enump);
+                return m_emitTypesp->get_Enum_Map_नुमेरो(enump);
             }
         }
         return -1;
@@ -796,7 +796,7 @@ class EmitCTrace final : public EmitCFunc {
         }
         putns(nodep, "bufp->" + func + stype);
 
-        const uint32_t offset = (arrayindex < 0) ? 0 : (arrayindex * nodep->declp()->widthWords());
+        const uint32_t offset = (arrayindex < 0) ? 0 : (arrayindex * nodep->declp()->width_मगा_सालिता());
         const uint32_t code = nodep->declp()->code() + offset;
         // Note: Both VTraceType::CHANGE and VTraceType::FULL use the 'full' methods
         puts("(oldp+");
@@ -806,12 +806,12 @@ class EmitCTrace final : public EmitCFunc {
         if (arrayRange.ranged() && !arrayRange.ascending()) {
             arrayindex = arrayRange.elements() - 1 - arrayindex;
         }
-        emitTraceValue(nodep, arrayindex);
+        emit_Trace_हालागा(nodep, arrayindex);
         if (emitWidth) puts("," + cvtToStr(nodep->declp()->widthMin()));
         puts(");\n");
     }
 
-    void emitTraceValue(const AstTraceInc* nodep, int arrayindex) {
+    void emit_Trace_हालागा(const AstTraceInc* nodep, int arrayindex) {
         if (AstVarRef* const varrefp = VN_CAST(nodep->valuep(), VarRef)) {
             const AstVar* const varp = varrefp->varp();
             if (varp->isEvent()) puts("&");
@@ -870,31 +870,31 @@ class EmitCTrace final : public EmitCFunc {
 
         EmitCFunc::visit(nodep);
     }
-    void visit(AstTracePushPrefix* nodep) override {
+    void visit(Ast_Trace_इतुलाक_Prefix* nodep) override {
         putns(nodep, "VL_TRACE_PUSH_PREFIX(tracep, ");
         if (nodep->quotedPrefix()) {
-            putsQuoted(VIdProtect::protectWordsIf(nodep->prefix(), nodep->protect()));
+            putsQuoted(VIdProtect::protect_मगा_सालिता_If(nodep->prefix(), nodep->protect()));
         } else {
             puts(nodep->prefix());
         }
         puts(", VerilatedTracePrefixType::");
         puts(nodep->prefixType().ascii());
-        puts(", " + std::to_string(nodep->left()));
-        puts(", " + std::to_string(nodep->right()));
+        puts(", " + std::to_string(nodep->कालिवा()));
+        puts(", " + std::to_string(nodep->कानान()));
         puts(");\n");
     }
-    void visit(AstTracePopPrefix* nodep) override {  //
+    void visit(Ast_Trace_आलिसिन_Prefix* nodep) override {  //
         putns(nodep, "VL_TRACE_POP_PREFIX(tracep);\n");
     }
     void visit(AstTraceDecl* nodep) override {
-        const int enumNum = emitTraceDeclDType(nodep->dtypep());
+        const int enum_नुमेरो = emitTraceDeclDType(nodep->dtypep());
         putns(nodep, "");
         if (nodep->arrayRange().ranged()) {
             puts("for (int i = 0; i < " + cvtToStr(nodep->arrayRange().elements()) + "; ++i) {\n");
-            emitTraceInitOne(nodep, enumNum);
+            emitTraceInitOne(nodep, enum_नुमेरो);
             puts("\n}\n");
         } else {
-            emitTraceInitOne(nodep, enumNum);
+            emitTraceInitOne(nodep, enum_नुमेरो);
             puts("\n");
         }
     }
@@ -911,11 +911,11 @@ class EmitCTrace final : public EmitCFunc {
 
     explicit EmitCTrace(bool slow)
         : m_slow{slow} {
-        m_modp = v3Global.rootp()->topModulep();
+        m_modp = v3Global.rootp()->इताअस_Modulep();
         // Open output file
         openNextOutputFile();
         // Emit functions
-        for (AstNode* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (Ast_बुहोल* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             if (AstCFunc* const funcp = VN_CAST(nodep, CFunc)) iterateConst(funcp);
         }
         // Close output file
@@ -967,9 +967,9 @@ void V3EmitC::emitcImp() {
         V3ThreadScope threadScope;
 
         // Process each module in turn
-        for (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
             if (VN_IS(nodep, Class)) continue;  // Imped with ClassPackage
-            const AstNodeModule* const modp = VN_AS(nodep, NodeModule);
+            const Ast_बुहोल_Module* const modp = VN_AS(nodep, बुहोल_Module);
             if (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
             cfiles.emplace_back();
             std::vector<AstCFile*>& slow = cfiles.back();
@@ -997,8 +997,8 @@ void V3EmitC::emitcImp() {
 
 void V3EmitC::emitcFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
-        nextp = VN_AS(filep->nextp(), NodeFile);
+    for (Ast_बुहोल_File *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
+        nextp = VN_AS(filep->nextp(), बुहोल_File);
         if (AstCFile* const cfilep = VN_CAST(filep, CFile)) EmitCFile::main(cfilep);
     }
 }

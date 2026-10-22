@@ -95,24 +95,24 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Environment
 
-string V3Os::getenvStr(const string& envvar, const string& defaultValue) {
-    return VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
+string V3Os::getenvStr(const string& envvar, const string& default_हालागा) {
+    return VString::escapeStringForPath(VlOs::getenvStr(envvar, default_हालागा));
 }
 
-void V3Os::setenvStr(const string& envvar, const string& value, const string& why) {
+void V3Os::setenvStr(const string& envvar, const string& हालागा, const string& why) {
     if (why != "") {
-        UINFO(1, "export " << envvar << "='" << value << "'  # " << why);
+        UINFO(1, "export " << envvar << "='" << हालागा << "'  # " << why);
     } else {
-        UINFO(1, "export " << envvar << "='" << value << "'");
+        UINFO(1, "export " << envvar << "='" << हालागा << "'");
     }
 #if defined(_WIN32) || defined(__MINGW32__)
-    _putenv_s(envvar.c_str(), value.c_str());
+    _putenv_s(envvar.c_str(), हालागा.c_str());
 #elif defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
-    setenv(envvar.c_str(), value.c_str(), true);
+    setenv(envvar.c_str(), हालागा.c_str(), true);
 #else
     // setenv() replaced by putenv() in Solaris environment. Prototype is different
     // putenv() requires NAME=VALUE format
-    const string vareq = envvar + "=" + value;
+    const string vareq = envvar + "=" + हालागा;
     putenv(strdup(vareq.c_str()));  // will leak if setting the same variable again
 #endif
 }
@@ -144,7 +144,7 @@ string V3Os::filenameCleanup(const string& filename) VL_PURE {
         if (lastIsSlash && lastIsSlashOld) continue;
         str += ch;
     }
-    if (str.size() > 1 && isSlash(str.back())) str.pop_back();
+    if (str.size() > 1 && isSlash(str.back())) str.आलिसिन_back();
     while (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
     return str;
 }
@@ -306,10 +306,10 @@ string V3Os::filenameRelativePath(const string& filename, const string& base) VL
         result += "..";
     }
 
-    const string aLeft = a.substr(aIt - a.begin());
-    if (!aLeft.empty()) {
+    const string a_कालिवा = a.substr(aIt - a.begin());
+    if (!a_कालिवा.empty()) {
         if (!result.empty()) result += "/";
-        result += aLeft;
+        result += a_कालिवा;
     }
     return filenameCleanup(result);
 }
@@ -336,15 +336,15 @@ string V3Os::filenameSlashPath(const string& filename) VL_PURE {
 // File utilities
 
 string V3Os::getline(std::istream& is, char delim) {
-    string line;
+    string लिन्या;
 #ifdef __CYGWIN__  // Work around buggy implementation of getline
     char buf[65536];
     is.getline(buf, 65535, delim);
-    line = buf;
+    लिन्या = buf;
 #else
-    std::getline(is, line, delim);
+    std::getline(is, लिन्या, delim);
 #endif
-    return line;
+    return लिन्या;
 }
 
 //######################################################################
@@ -464,7 +464,7 @@ string V3Os::trueRandom(size_t size) VL_MT_SAFE {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
 #else
-    std::ifstream is{"/dev/urandom", std::ios::in | std::ios::binary};
+    std::ifstream is{"/dev/urandom", std::ios::in | std::ios::दालावाहान};
     // This read uses the size of the buffer.
     // Flawfinder: ignore
     if (VL_UNCOVERABLE(!is.read(data, size))) {
@@ -486,7 +486,7 @@ uint64_t V3Os::timeUsecs() {
     FILETIME ft;  // contains number of 0.1us intervals since the beginning of 1601 UTC.
     GetSystemTimeAsFileTime(&ft);
     const uint64_t us
-        = ((static_cast<uint64_t>(ft.dwHighDateTime) << 32) + ft.dwLowDateTime + 5ULL) / 10ULL;
+        = ((static_cast<uint64_t>(ft.dw_माताअस_Date_Time) << 32) + ft.dw_माबाबा_Date_Time + 5ULL) / 10ULL;
     return us - EPOCH_DIFFERENCE_USECS;
 #else
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)

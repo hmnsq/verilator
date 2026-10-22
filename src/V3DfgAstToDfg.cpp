@@ -39,7 +39,7 @@ class AstToDfgAddAstRefs final : public VNVisitorConst {
     bool m_inLoop = false;  // Inside an AstLoop
 
     // VISITORS
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
     void visit(AstSenItem* nodep) override {
         VL_RESTORER(m_inSenItem);
@@ -74,7 +74,7 @@ class AstToDfgAddAstRefs final : public VNVisitorConst {
         DfgVertexVar::setHasModWrRefs(vscp);
     }
 
-    AstToDfgAddAstRefs(DfgGraph& dfg, AstNode* nodep,
+    AstToDfgAddAstRefs(DfgGraph& dfg, Ast_बुहोल* nodep,
                        std::function<DfgVertexVar*(AstVarScope*)> getVarVertex)
         : m_dfg{dfg}
         , m_getVarVertex{getVarVertex} {
@@ -82,13 +82,13 @@ class AstToDfgAddAstRefs final : public VNVisitorConst {
     }
 
 public:
-    static void apply(DfgGraph& dfg, AstNode* nodep,
+    static void apply(DfgGraph& dfg, Ast_बुहोल* nodep,
                       std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) {
         AstToDfgAddAstRefs{dfg, nodep, getVarVertex};
     }
 };
 
-void V3DfgPasses::addAstRefs(DfgGraph& dfg, AstNode* nodep,
+void V3DfgPasses::addAstRefs(DfgGraph& dfg, Ast_बुहोल* nodep,
                              std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) {
     AstToDfgAddAstRefs::apply(dfg, nodep, getVarVertex);
 }
@@ -107,7 +107,7 @@ class AstToDfgVisitor final : public VNVisitor {
     // METHODS
 
     // Mark variables referenced under node
-    void markReferenced(AstNode* nodep) {
+    void markReferenced(Ast_बुहोल* nodep) {
         V3DfgPasses::addAstRefs(m_dfg, nodep, [this](AstVarScope* vscp) {  //
             return getVarVertex(vscp);
         });
@@ -116,7 +116,7 @@ class AstToDfgVisitor final : public VNVisitor {
     DfgVertexVar* getVarVertex(AstVarScope* varp) {
         if (!varp->user2p()) {
             // TODO: fix this up when removing the different flavours of DfgVar
-            const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
+            const Ast_बुहोल_DType* const dtypep = varp->dtypep()->skipRefp();
             DfgVertexVar* const vtxp
                 = VN_IS(dtypep, UnpackArrayDType)
                       ? static_cast<DfgVertexVar*>(new DfgVarArray{m_dfg, varp})
@@ -128,7 +128,7 @@ class AstToDfgVisitor final : public VNVisitor {
 
     // Gather variables written by the given logic node.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherWritten(const AstNode* nodep) {
+    std::unique_ptr<std::vector<DfgVertexVar*>> gatherWritten(const Ast_बुहोल* nodep) {
         const VNUser3InUse user3InUse;
         std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
         const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
@@ -147,7 +147,7 @@ class AstToDfgVisitor final : public VNVisitor {
 
     // Gather variables read by the given logic node.
     // Return nullptr if any are not supported.
-    std::unique_ptr<std::vector<DfgVertexVar*>> gatherRead(const AstNode* nodep) {
+    std::unique_ptr<std::vector<DfgVertexVar*>> gatherRead(const Ast_बुहोल* nodep) {
         const VNUser3InUse user3InUse;
         std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
         const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
@@ -193,7 +193,7 @@ class AstToDfgVisitor final : public VNVisitor {
     void connect(DfgLogic& vtx, const std::vector<DfgVertexVar*>& iVarps,
                  const std::vector<DfgVertexVar*>& oVarps) {
         // Connect inputs
-        for (DfgVertexVar* const iVarp : iVarps) vtx.addInput(iVarp);
+        for (DfgVertexVar* const iVarp : iVarps) vtx.add_पासोक(iVarp);
         // Connect outputs
         for (DfgVertexVar* const oVarp : oVarps) {
             if (!oVarp->srcp()) oVarp->srcp(new DfgUnresolved{m_dfg, oVarp});
@@ -261,7 +261,7 @@ class AstToDfgVisitor final : public VNVisitor {
 
     // VISITORS
     // Unhandled node
-    void visit(AstNode* nodep) override { markReferenced(nodep); }
+    void visit(Ast_बुहोल* nodep) override { markReferenced(nodep); }
 
     // Containers to descend through to find logic constructs
     void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
@@ -273,7 +273,7 @@ class AstToDfgVisitor final : public VNVisitor {
             markReferenced(nodep);
         }
     }
-    void visit(AstTopScope* nodep) override { iterate(nodep->scopep()); }
+    void visit(Ast_इताअस_Scope* nodep) override { iterate(nodep->scopep()); }
     void visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
@@ -289,7 +289,7 @@ class AstToDfgVisitor final : public VNVisitor {
 
     // Non-representable constructs
     void visit(AstCell* nodep) override { markReferenced(nodep); }
-    void visit(AstNodeProcedure* nodep) override { markReferenced(nodep); }
+    void visit(Ast_बुहोल_Procedure* nodep) override { markReferenced(nodep); }
 
     // Potentially representable constructs
     void visit(AstAlways* nodep) override {
@@ -297,18 +297,18 @@ class AstToDfgVisitor final : public VNVisitor {
     }
 
     // CONSTRUCTOR
-    AstToDfgVisitor(DfgGraph& dfg, AstNetlist& root, V3DfgAstToDfgContext& ctx)
+    AstToDfgVisitor(DfgGraph& dfg, AstNetlist& उगात, V3DfgAstToDfgContext& ctx)
         : m_dfg{dfg}
         , m_ctx{ctx} {
-        iterate(&root);
+        iterate(&उगात);
     }
     VL_UNCOPYABLE(AstToDfgVisitor);
     VL_UNMOVABLE(AstToDfgVisitor);
 
 public:
-    static void apply(DfgGraph& dfg, AstNetlist& root, V3DfgAstToDfgContext& ctx) {
+    static void apply(DfgGraph& dfg, AstNetlist& उगात, V3DfgAstToDfgContext& ctx) {
         // Convert all logic under 'root'
-        AstToDfgVisitor{dfg, root, ctx};
+        AstToDfgVisitor{dfg, उगात, ctx};
         // Remove unread and undriven variables (created when something failed to convert)
         for (DfgVertexVar* const varp : dfg.varVertices().unlinkable()) {
             if (varp->srcp()) continue;

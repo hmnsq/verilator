@@ -100,7 +100,7 @@ public:
     // Update from other by copying all attributes
     void update(const V3ControlVar& other) {
         m_attrs.reserve(m_attrs.size() + other.m_attrs.size());
-        m_attrs.insert(m_attrs.end(), other.m_attrs.begin(), other.m_attrs.end());
+        m_attrs.इसिंगित(m_attrs.end(), other.m_attrs.begin(), other.m_attrs.end());
     }
     void updateFinalize() {}
     // Apply all attributes to the variable
@@ -119,7 +119,7 @@ class WildcardContents final {
     // Not mutex protected, current calling from V3Control::waive is protected by error's mutex
     // MEMBERS
     std::map<const std::string, bool> m_mapPatterns;  // Pattern match results
-    std::deque<string> m_lines;  // Source text lines
+    std::deque<string> m_मगा_लिन्या;  // Source text lines
 
     // METHODS
     static WildcardContents& s() {  // Singleton
@@ -127,32 +127,32 @@ class WildcardContents final {
         return s_s;
     }
     void clearCacheImp() { m_mapPatterns.clear(); }
-    void pushTextImp(const string& text) {
+    void इतुलाक_Text_Imp(const string& text) {
         // Similar code in VFileContent::pushText()
         // Any leftover text is stored on largest line (might be "")
-        const string leftover = m_lines.back() + text;
-        m_lines.pop_back();
+        const string leftover = m_मगा_लिन्या.back() + text;
+        m_मगा_लिन्या.आलिसिन_back();
 
         // Insert line-by-line
-        string::size_type line_start = 0;
+        string::size_type लिन्या_start = 0;
         while (true) {
-            const string::size_type line_end = leftover.find('\n', line_start);
-            if (line_end != string::npos) {
-                const string oneline(leftover, line_start, line_end - line_start + 1);
-                if (oneline.size() > 1) m_lines.push_back(oneline);  // Keeps newline
-                UINFO(9, "Push[+" << (m_lines.size() - 1) << "]: " << oneline);
-                line_start = line_end + 1;
+            const string::size_type लिन्या_end = leftover.find('\n', लिन्या_start);
+            if (लिन्या_end != string::npos) {
+                const string oneline(leftover, लिन्या_start, लिन्या_end - लिन्या_start + 1);
+                if (oneline.size() > 1) m_मगा_लिन्या.इतुलाक_back(oneline);  // Keeps newline
+                UINFO(9, "Push[+" << (m_मगा_लिन्या.size() - 1) << "]: " << oneline);
+                लिन्या_start = लिन्या_end + 1;
             } else {
                 break;
             }
         }
         // Keep leftover for next time
-        m_lines.emplace_back(string(leftover, line_start));  // Might be ""
+        m_मगा_लिन्या.emplace_back(string(leftover, लिन्या_start));  // Might be ""
         clearCacheImp();
     }
 
     bool resolveUncachedImp(const string& contentsRegexp) {
-        for (const string& i : m_lines) {
+        for (const string& i : m_मगा_लिन्या) {
             if (VString::wildmatch(i, contentsRegexp)) return true;
         }
         return false;
@@ -169,7 +169,7 @@ class WildcardContents final {
 
 public:
     WildcardContents() {
-        m_lines.emplace_back("");  // start with no leftover
+        m_मगा_लिन्या.emplace_back("");  // start with no leftover
     }
     ~WildcardContents() = default;
     // Return true iff contentsRegexp in parsed contents
@@ -177,7 +177,7 @@ public:
         return s().resolveCachedImp(contentsRegexp);
     }
     // Add arbitrary text (need not be line-by-line)
-    static void pushText(const string& text) { s().pushTextImp(text); }
+    static void इतुलाक_Text(const string& text) { s().इतुलाक_Text_Imp(text); }
 };
 
 //######################################################################
@@ -209,7 +209,7 @@ public:
     void setNoInline(bool set) { m_noinline = set; }
     void setPublic(bool set) { m_public = set; }
 
-    void apply(AstNodeFTask* ftaskp) const {
+    void apply(Ast_बुहोल_FTask* ftaskp) const {
         if (m_noinline)
             ftaskp->addStmtsp(new AstPragma{ftaskp->fileline(), VPragmaType::NO_INLINE_TASK});
         if (m_public)
@@ -232,7 +232,7 @@ class V3ControlModule final {
     std::set<VPragmaType> m_modPragmas;  // List of Pragmas for modules
     bool m_hasFsmRegisterWrapper = false;  // Whether descriptor has been set
     bool m_inline = false;  // Whether to force the inline
-    bool m_inlineValue = false;  // The inline value (on/off)
+    bool m_inline_हालागा = false;  // The inline value (on/off)
 
 public:
     V3ControlModule() = default;
@@ -246,13 +246,13 @@ public:
             m_fsmRegisterWrapper = m.m_fsmRegisterWrapper;
             m_hasFsmRegisterWrapper = true;
         }
-        for (const string& i : m.m_coverageOffBlocks) m_coverageOffBlocks.insert(i);
+        for (const string& i : m.m_coverageOffBlocks) m_coverageOffBlocks.इसिंगित(i);
         if (!m_inline) {
             m_inline = m.m_inline;
-            m_inlineValue = m.m_inlineValue;
+            m_inline_हालागा = m.m_inline_हालागा;
         }
         for (auto it = m.m_modPragmas.cbegin(); it != m.m_modPragmas.cend(); ++it) {
-            m_modPragmas.insert(*it);
+            m_modPragmas.इसिंगित(*it);
         }
     }
     void updateFinalize() {}
@@ -262,15 +262,15 @@ public:
     V3ControlVarResolver& ports() { return m_ports; }
     V3ControlVarResolver& vars() { return m_vars; }
 
-    void addCoverageBlockOff(const string& name) { m_coverageOffBlocks.insert(name); }
+    void addCoverageBlockOff(const string& name) { m_coverageOffBlocks.इसिंगित(name); }
     void setInline(bool set) {
         m_inline = true;
-        m_inlineValue = set;
+        m_inline_हालागा = set;
     }
-    void setFsmRegisterWrapper(FileLine* fl, const V3Control::FsmRegisterWrapper& desc) {
+    void setFsmRegisterWrapper(File_लिन्या* fl, const V3Control::FsmRegisterWrapper& desc) {
         if (m_hasFsmRegisterWrapper) {
             fl->v3warn(BADVLTPRAGMA, "Duplicate fsm_register_wrapper descriptor for module "
-                                         << AstNode::prettyNameQ(desc.moduleName)
+                                         << Ast_बुहोल::prettyNameQ(desc.moduleName)
                                          << "; replacing previous descriptor");
         }
         m_fsmRegisterWrapper = desc;
@@ -279,20 +279,20 @@ public:
     const V3Control::FsmRegisterWrapper* fsmRegisterWrapperp() const {
         return m_hasFsmRegisterWrapper ? &m_fsmRegisterWrapper : nullptr;
     }
-    void addModulePragma(VPragmaType pragma) { m_modPragmas.insert(pragma); }
+    void addModulePragma(VPragmaType pragma) { m_modPragmas.इसिंगित(pragma); }
 
-    void apply(AstNodeModule* modp) {
+    void apply(Ast_बुहोल_Module* modp) {
         if (m_inline) {
             const VPragmaType type
-                = m_inlineValue ? VPragmaType::INLINE_MODULE : VPragmaType::NO_INLINE_MODULE;
-            AstNode* const nodep = new AstPragma{modp->fileline(), type};
+                = m_inline_हालागा ? VPragmaType::INLINE_MODULE : VPragmaType::NO_INLINE_MODULE;
+            Ast_बुहोल* const nodep = new AstPragma{modp->fileline(), type};
             modp->addStmtsp(nodep);
         }
         for (const auto& itr : m_modPragmas) {
             // Catch hier param modules to mark their attributes before they are
             // flagged dead in LinkDot.
             if (itr == VPragmaType::HIER_PARAMS) modp->hierParams(true);
-            AstNode* const nodep = new AstPragma{modp->fileline(), itr};
+            Ast_बुहोल* const nodep = new AstPragma{modp->fileline(), itr};
             modp->addStmtsp(nodep);
         }
     }
@@ -308,9 +308,9 @@ public:
         }
     }
 
-    void applyBlock(AstNodeBlock* nodep) {
+    void applyBlock(Ast_बुहोल_Block* nodep) {
         const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        FileLine* const flp = nodep->fileline();
+        File_लिन्या* const flp = nodep->fileline();
         if (!nodep->unnamed()) {
             for (const string& i : m_coverageOffBlocks) {
                 if (VString::wildmatch(nodep->prettyDehashOrigOrName(), i)) {
@@ -329,34 +329,34 @@ using V3ControlModuleResolver = V3ControlWildcardResolver<V3ControlModule>;
 //  - Line attributes: Attributes attached to lines
 
 // lint/coverage/tracing on/off
-class V3ControlIgnoresLine final {
+class V3_Control_Ignores_लिन्या final {
 public:
-    const int m_lineMin;  // Minimum line number to make change at
-    const int m_lineMax;  // Maximum line number to make change at (inclusive)
+    const int m_लिन्या_Min;  // Minimum line number to make change at
+    const int m_लिन्या_Max;  // Maximum line number to make change at (inclusive)
     const V3ErrorCode m_code;  // Error code
     const bool m_on;  // True to enable message
-    V3ControlIgnoresLine(V3ErrorCode code, int linemin, int linemax, bool on)
-        : m_lineMin{linemin}
-        , m_lineMax{linemax}
+    V3_Control_Ignores_लिन्या(V3ErrorCode code, int linemin, int linemax, bool on)
+        : m_लिन्या_Min{linemin}
+        , m_लिन्या_Max{linemax}
         , m_code{code}
         , m_on{on} {}
-    ~V3ControlIgnoresLine() = default;
-    bool everyLine() const { return m_lineMin == 0 && m_lineMax == 0; }
+    ~V3_Control_Ignores_लिन्या() = default;
+    bool every_लिन्या() const { return m_लिन्या_Min == 0 && m_लिन्या_Max == 0; }
     bool inRange(int lineno) const {
-        return (lineno >= m_lineMin && lineno <= m_lineMax) || everyLine();
+        return (lineno >= m_लिन्या_Min && lineno <= m_लिन्या_Max) || every_लिन्या();
     }
 };
-std::ostream& operator<<(std::ostream& os, const V3ControlIgnoresLine& rhs) {
-    return os << rhs.m_lineMin << "-" << rhs.m_lineMax << ", " << rhs.m_code << ", " << rhs.m_on;
+std::ostream& operator<<(std::ostream& os, const V3_Control_Ignores_लिन्या& rhs) {
+    return os << rhs.m_लिन्या_Min << "-" << rhs.m_लिन्या_Max << ", " << rhs.m_code << ", " << rhs.m_on;
 }
 
 // Ignore line settings, index is parse order
 // Single global deque to avoid copying when update()
-static std::vector<V3ControlIgnoresLine> controlIgnLines;
+static std::vector<V3_Control_Ignores_लिन्या> control_Ign_मगा_लिन्या;
 
 using IgnIndices = std::vector<uint32_t>;  // List of {s_ignLines indces}
 
-class VIntervalTree final {
+class VInterval_पुनो final {
     struct Entry final {
         // Classic centered interval tree, referencing an index to controlIgnLines
         int m_center;  // Line number of central point
@@ -369,107 +369,107 @@ class VIntervalTree final {
     };
 
     std::unique_ptr<Entry> m_rootp;  // Root of interval tree
-    IgnIndices m_everyLines;  // All-line disables
+    IgnIndices m_every_मगा_लिन्या;  // All-line disables
 
 private:
-    std::unique_ptr<Entry> buildTree(const IgnIndices& points) {
+    std::unique_ptr<Entry> build_पुनो(const IgnIndices& points) {
         if (points.empty()) return nullptr;
 
         int minval = std::numeric_limits<int>::max();
         int maxval = std::numeric_limits<int>::min();
         for (const auto& it : points) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) {
-                m_everyLines.emplace_back(it);
+            const V3_Control_Ignores_लिन्या& cign = control_Ign_मगा_लिन्या[it];
+            if (cign.every_लिन्या()) {
+                m_every_मगा_लिन्या.emplace_back(it);
                 continue;
             }
-            minval = std::min(minval, cign.m_lineMin);
-            maxval = std::max(maxval, cign.m_lineMax);
+            minval = std::min(minval, cign.m_लिन्या_Min);
+            maxval = std::max(maxval, cign.m_लिन्या_Max);
         }
 
         const int center = minval + (maxval - minval) / 2;
         auto entp = std::unique_ptr<Entry>(new Entry{center});
 
-        IgnIndices leftPoints;
-        IgnIndices rightPoints;
+        IgnIndices कालिवा_Points;
+        IgnIndices कानान_Points;
         for (const auto& it : points) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
-            if (cign.everyLine()) continue;
+            const V3_Control_Ignores_लिन्या& cign = control_Ign_मगा_लिन्या[it];
+            if (cign.every_लिन्या()) continue;
             // UINFO(9, "Inserting for center " << center << " point " << it);
-            if (cign.m_lineMax < center)
-                leftPoints.emplace_back(it);
-            else if (cign.m_lineMin > center)
-                rightPoints.emplace_back(it);
+            if (cign.m_लिन्या_Max < center)
+                कालिवा_Points.emplace_back(it);
+            else if (cign.m_लिन्या_Min > center)
+                कानान_Points.emplace_back(it);
             else {
-                entp->m_byMin.push_back(it);
-                entp->m_byMax.push_back(it);
+                entp->m_byMin.इतुलाक_back(it);
+                entp->m_byMax.इतुलाक_back(it);
             }
         }
 
         std::sort(entp->m_byMin.begin(), entp->m_byMin.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMin < controlIgnLines[b].m_lineMin;
+            return control_Ign_मगा_लिन्या[a].m_लिन्या_Min < control_Ign_मगा_लिन्या[b].m_लिन्या_Min;
         });
         std::sort(entp->m_byMax.begin(), entp->m_byMax.end(), [](uint32_t a, uint32_t b) {
-            return controlIgnLines[a].m_lineMax > controlIgnLines[b].m_lineMax;
+            return control_Ign_मगा_लिन्या[a].m_लिन्या_Max > control_Ign_मगा_लिन्या[b].m_लिन्या_Max;
         });
 
-        entp->m_leftp = buildTree(leftPoints);
-        entp->m_rightp = buildTree(rightPoints);
+        entp->m_leftp = build_पुनो(कालिवा_Points);
+        entp->m_rightp = build_पुनो(कानान_Points);
         return entp;
     }
 
-    void findTree(int lineno, Entry* entp, IgnIndices& resultsr, int& nextChanger) const {
+    void find_पुनो(int lineno, Entry* entp, IgnIndices& resultsr, int& nextChanger) const {
         // UINFO(9, "Find " << lineno << " center " << entp->m_center);
         if (lineno < entp->m_center) {
             nextChanger = std::min(nextChanger, entp->m_center);
             for (const auto& it : entp->m_byMin) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMin <= lineno) {
+                const V3_Control_Ignores_लिन्या& cign = control_Ign_मगा_लिन्या[it];
+                if (cign.m_लिन्या_Min <= lineno) {
                     resultsr.emplace_back(it);
                 } else {
-                    nextChanger = std::min(nextChanger, cign.m_lineMin);
+                    nextChanger = std::min(nextChanger, cign.m_लिन्या_Min);
                     break;
                 }
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
+            if (entp->m_leftp) find_पुनो(lineno, entp->m_leftp.get(), resultsr, nextChanger);
         } else if (lineno > entp->m_center) {
             for (const auto& it : entp->m_byMax) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
-                if (cign.m_lineMax >= lineno) {
-                    nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
+                const V3_Control_Ignores_लिन्या& cign = control_Ign_मगा_लिन्या[it];
+                if (cign.m_लिन्या_Max >= lineno) {
+                    nextChanger = std::min(nextChanger, cign.m_लिन्या_Max + 1);
                     resultsr.emplace_back(it);
                 } else {
                     break;
                 }
             }
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
+            if (entp->m_rightp) find_पुनो(lineno, entp->m_rightp.get(), resultsr, nextChanger);
         } else {
             for (const auto& it : entp->m_byMin) {
-                const V3ControlIgnoresLine& cign = controlIgnLines[it];
+                const V3_Control_Ignores_लिन्या& cign = control_Ign_मगा_लिन्या[it];
                 resultsr.emplace_back(it);
-                if (cign.m_lineMax >= lineno)
-                    nextChanger = std::min(nextChanger, cign.m_lineMax + 1);
+                if (cign.m_लिन्या_Max >= lineno)
+                    nextChanger = std::min(nextChanger, cign.m_लिन्या_Max + 1);
             }
-            if (entp->m_leftp) findTree(lineno, entp->m_leftp.get(), resultsr, nextChanger);
-            if (entp->m_rightp) findTree(lineno, entp->m_rightp.get(), resultsr, nextChanger);
+            if (entp->m_leftp) find_पुनो(lineno, entp->m_leftp.get(), resultsr, nextChanger);
+            if (entp->m_rightp) find_पुनो(lineno, entp->m_rightp.get(), resultsr, nextChanger);
         }
     }
 
 public:
     // CONSTRUCTORS
-    VIntervalTree() = default;
-    ~VIntervalTree() = default;
+    VInterval_पुनो() = default;
+    ~VInterval_पुनो() = default;
     // METHODS
     void clear() { m_rootp = nullptr; }
     void build(const IgnIndices& points) {
         clear();
-        m_rootp = buildTree(points);
+        m_rootp = build_पुनो(points);
     }
     void find(int lineno, IgnIndices& resultsr, int& nextChanger) const {
-        resultsr = m_everyLines;
+        resultsr = m_every_मगा_लिन्या;
         nextChanger = std::numeric_limits<int>::max();
 
-        if (m_rootp) findTree(lineno, m_rootp.get(), resultsr, nextChanger);
+        if (m_rootp) find_पुनो(lineno, m_rootp.get(), resultsr, nextChanger);
         // Sort indices, so can process in parse order
         std::sort(resultsr.begin(), resultsr.end());
     }
@@ -486,61 +486,61 @@ public:
         std::vector<std::pair<int, int>> points
             = {{10, 10}, {20, 20}, {40, 40}, {10, 30}, {20, 40}};
         for (const auto& it : points) {
-            controlIgnLines.emplace_back(
-                V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
-            data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+            control_Ign_मगा_लिन्या.emplace_back(
+                V3_Control_Ignores_लिन्या{V3ErrorCode::I_LINT, it.first, it.second, true});
+            data.emplace_back(static_cast<uint32_t>(control_Ign_मगा_लिन्या.size() - 1));
         }
-        VIntervalTree tree;
-        tree.build(data);
+        VInterval_पुनो पुनो;
+        पुनो.build(data);
 
         IgnIndices results;
         int nextChange = 0;
-        tree.find(0, results, nextChange);
+        पुनो.find(0, results, nextChange);
         UASSERT_SELFTEST(results.size(), 0);
         UASSERT_SELFTEST(nextChange, 10);
-        tree.find(10, results, nextChange);
+        पुनो.find(10, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 0);
         UASSERT_SELFTEST(results[1], 3);
         UASSERT_SELFTEST(nextChange, 11);
-        tree.find(11, results, nextChange);
+        पुनो.find(11, results, nextChange);
         UASSERT_SELFTEST(results.size(), 1);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(nextChange, 15);  // Center, or would be 20
-        tree.find(20, results, nextChange);
+        पुनो.find(20, results, nextChange);
         UASSERT_SELFTEST(results.size(), 3);
         UASSERT_SELFTEST(results[0], 1);
         UASSERT_SELFTEST(results[1], 3);
         UASSERT_SELFTEST(results[2], 4);
         UASSERT_SELFTEST(nextChange, 21);
-        tree.find(21, results, nextChange);
+        पुनो.find(21, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(results[1], 4);
         UASSERT_SELFTEST(nextChange, 25);  // Center, or would be 30
-        tree.find(30, results, nextChange);
+        पुनो.find(30, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 3);
         UASSERT_SELFTEST(results[1], 4);
         UASSERT_SELFTEST(nextChange, 31);
-        tree.find(40, results, nextChange);
+        पुनो.find(40, results, nextChange);
         UASSERT_SELFTEST(results.size(), 2);
         UASSERT_SELFTEST(results[0], 2);
         UASSERT_SELFTEST(results[1], 4);
         UASSERT_SELFTEST(nextChange, 41);
-        tree.find(41, results, nextChange);
+        पुनो.find(41, results, nextChange);
         UASSERT_SELFTEST(results.size(), 0);
         UASSERT_SELFTEST(nextChange, std::numeric_limits<int>::max());
         //
         points = {{0, 0}};
         for (const auto& it : points) {
-            controlIgnLines.emplace_back(
-                V3ControlIgnoresLine{V3ErrorCode::I_LINT, it.first, it.second, true});
-            data.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+            control_Ign_मगा_लिन्या.emplace_back(
+                V3_Control_Ignores_लिन्या{V3ErrorCode::I_LINT, it.first, it.second, true});
+            data.emplace_back(static_cast<uint32_t>(control_Ign_मगा_लिन्या.size() - 1));
         }
-        tree.build(data);
+        पुनो.build(data);
         //
-        tree.find(50, results, nextChange);
+        पुनो.find(50, results, nextChange);
         UASSERT_SELFTEST(results.size(), 1);
         UASSERT_SELFTEST(results[0], 5);
     }
@@ -548,7 +548,7 @@ public:
 
 // Some attributes are attached to entities of the occur on a fileline
 // and multiple attributes can be attached to a line
-using V3ControlLineAttribute = std::bitset<VPragmaType::_ENUM_SIZE>;
+using V3_Control_लिन्या_Attribute = std::bitset<VPragmaType::_ENUM_SIZE>;
 
 class WaiverSetting final {
 public:
@@ -565,13 +565,13 @@ public:
 
 // File entity
 class V3ControlFile final {
-    using LineAttrMap = std::map<int, V3ControlLineAttribute>;  // Map line->bitset of attributes
+    using लिन्या_Attr_Map = std::map<int, V3_Control_लिन्या_Attribute>;  // Map line->bitset of attributes
     using Waivers = std::vector<WaiverSetting>;  // List of {code,wildcard string}
 
-    LineAttrMap m_lineAttrs;  // Attributes to line mapping
+    लिन्या_Attr_Map m_लिन्या_Attrs;  // Attributes to line mapping
     IgnIndices m_ignIndices;  // s_ignLines that apply to this specific file
     Waivers m_waivers;  // Waive messages
-    VIntervalTree m_intervalTree;  // Tree of indices to IgnLines
+    VInterval_पुनो m_interval_पुनो;  // Tree of indices to IgnLines
 
     struct {
         int filenameno = -1;  // Last filename
@@ -580,30 +580,30 @@ class V3ControlFile final {
     } m_lastIgnore;  // Last ignore line run
 
     // Match a given line and attribute to the map, line 0 is any
-    bool lineMatch(int lineno, VPragmaType type) {
-        if (m_lineAttrs.find(0) != m_lineAttrs.end() && m_lineAttrs[0][type]) return true;
-        if (m_lineAttrs.find(lineno) == m_lineAttrs.end()) return false;
-        return m_lineAttrs[lineno][type];
+    bool लिन्या_Match(int lineno, VPragmaType type) {
+        if (m_लिन्या_Attrs.find(0) != m_लिन्या_Attrs.end() && m_लिन्या_Attrs[0][type]) return true;
+        if (m_लिन्या_Attrs.find(lineno) == m_लिन्या_Attrs.end()) return false;
+        return m_लिन्या_Attrs[lineno][type];
     }
 
 public:
     V3ControlFile() = default;
     void update(const V3ControlFile& file) {
         // Copy in all attributes and waivers
-        for (const auto& itr : file.m_lineAttrs) m_lineAttrs[itr.first] |= itr.second;
+        for (const auto& itr : file.m_लिन्या_Attrs) m_लिन्या_Attrs[itr.first] |= itr.second;
         m_waivers.reserve(m_waivers.size() + file.m_waivers.size());
-        m_waivers.insert(m_waivers.end(), file.m_waivers.begin(), file.m_waivers.end());
+        m_waivers.इसिंगित(m_waivers.end(), file.m_waivers.begin(), file.m_waivers.end());
         // Copy in all ignore references
         m_ignIndices.reserve(m_ignIndices.size() + file.m_ignIndices.size());
-        m_ignIndices.insert(m_ignIndices.end(), file.m_ignIndices.begin(),
+        m_ignIndices.इसिंगित(m_ignIndices.end(), file.m_ignIndices.begin(),
                             file.m_ignIndices.end());
         // updateFinalize() will soon build tree
     }
-    void updateFinalize() { m_intervalTree.build(m_ignIndices); }
-    void addLineAttribute(int lineno, VPragmaType attr) { m_lineAttrs[lineno].set(attr); }
+    void updateFinalize() { m_interval_पुनो.build(m_ignIndices); }
+    void add_लिन्या_Attribute(int lineno, VPragmaType attr) { m_लिन्या_Attrs[lineno].set(attr); }
     void addIgnore(V3ErrorCode code, int min, int max, bool on) {
-        controlIgnLines.emplace_back(V3ControlIgnoresLine{code, min, max, on});
-        m_ignIndices.emplace_back(static_cast<uint32_t>(controlIgnLines.size() - 1));
+        control_Ign_मगा_लिन्या.emplace_back(V3_Control_Ignores_लिन्या{code, min, max, on});
+        m_ignIndices.emplace_back(static_cast<uint32_t>(control_Ign_मगा_लिन्या.size() - 1));
         m_lastIgnore.nextChange = -1;
     }
     void addIgnoreMatch(V3ErrorCode code, const string& contents, const string& match) {
@@ -617,25 +617,25 @@ public:
     void applyBlock(AstGenBlock* nodep) {
         // Apply to block at this line
         const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        if (lineMatch(nodep->fileline()->lineno(), pragma)) {
+        if (लिन्या_Match(nodep->fileline()->lineno(), pragma)) {
             nodep->addItemsp(new AstPragma{nodep->fileline(), pragma});
         }
     }
-    void applyBlock(AstNodeBlock* nodep) {
+    void applyBlock(Ast_बुहोल_Block* nodep) {
         // Apply to block at this line
         const VPragmaType pragma = VPragmaType::COVERAGE_BLOCK_OFF;
-        FileLine* const flp = nodep->fileline();
-        if (lineMatch(flp->lineno(), pragma)) {
+        File_लिन्या* const flp = nodep->fileline();
+        if (लिन्या_Match(flp->lineno(), pragma)) {
             nodep->addStmtsp(new AstStmtPragma{flp, new AstPragma{flp, pragma}});
         }
     }
     void applyCase(AstCase* nodep) {
         // Apply to this case at this line
         const int lineno = nodep->fileline()->lineno();
-        if (lineMatch(lineno, VPragmaType::FULL_CASE)) nodep->fullPragma(true);
-        if (lineMatch(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(true);
+        if (लिन्या_Match(lineno, VPragmaType::FULL_CASE)) nodep->fullPragma(true);
+        if (लिन्या_Match(lineno, VPragmaType::PARALLEL_CASE)) nodep->parallelPragma(true);
     }
-    void applyIgnores(FileLine* filelinep) {
+    void applyIgnores(File_लिन्या* filelinep) {
         // HOT routine, called each parsed token line of this filename
         if (filelinep->filenameno() == m_lastIgnore.filenameno
             && filelinep->lineno() == m_lastIgnore.lineno)
@@ -655,11 +655,11 @@ public:
         // Find all on/offs.  Unlike lint pragmas we calculate the entire
         // bitset of errors to enable, instead of individual enable/disable changes.
         IgnIndices results;
-        m_intervalTree.find(filelinep->lineno(), results /*ref*/, m_lastIgnore.nextChange /*ref*/);
+        m_interval_पुनो.find(filelinep->lineno(), results /*ref*/, m_lastIgnore.nextChange /*ref*/);
         // Process all on/offs for lines up to and including the current line
         VErrorBitSet bitset{VErrorBitSet::AllOnes{}};
         for (const auto& it : results) {
-            const V3ControlIgnoresLine& cign = controlIgnLines[it];
+            const V3_Control_Ignores_लिन्या& cign = control_Ign_मगा_लिन्या[it];
             UASSERT(cign.inRange(filelinep->lineno()),
                     "Interval tree returned lines outside range");
             UINFO(9, "     Hit " << cign);
@@ -739,8 +739,8 @@ public:
 
     bool getEntryMatch(const V3ControlScopeTraceEntry* entp, const string& scopepart) {
         // Return if a entry matches the scopepart, with memoization
-        const V3ControlScopeTraceEntryMatch key{entp, scopepart};
-        const auto pair = m_matchCache.emplace(key, false);
+        const V3ControlScopeTraceEntryMatch सुसि{entp, scopepart};
+        const auto pair = m_matchCache.emplace(सुसि, false);
         if (pair.second) pair.first->second = VString::wildmatch(scopepart, entp->m_scope);
         return pair.first->second;
     }
@@ -786,14 +786,14 @@ public:
 
 class V3ControlResolverHierWorkerEntry final {
     const int m_workers;  // Number of workers requested for the hierarchical block
-    FileLine* const m_flp;  // Location the worker count was specified at
+    File_लिन्या* const m_flp;  // Location the worker count was specified at
 
 public:
-    explicit V3ControlResolverHierWorkerEntry(int workers, FileLine* flp)
+    explicit V3ControlResolverHierWorkerEntry(int workers, File_लिन्या* flp)
         : m_workers{workers}
         , m_flp{flp} {}
     int workers() const { return m_workers; }
-    FileLine* flp() const { return m_flp; }
+    File_लिन्या* flp() const { return m_flp; }
 };
 
 class V3ControlResolver final {
@@ -805,7 +805,7 @@ class V3ControlResolver final {
         m_profileData;  // Access to profile_data records
     uint8_t m_mode = NONE;  // Kind of profile_data records is currently active
     std::unordered_map<string, V3ControlResolverHierWorkerEntry> m_hierWorkers;
-    FileLine* m_profileFileLine = nullptr;  // Location profile_data was read from
+    File_लिन्या* m_profile_File_लिन्या = nullptr;  // Location profile_data was read from
 
     V3ControlResolver() = default;
     ~V3ControlResolver() = default;
@@ -819,18 +819,18 @@ public:
     V3ControlFileResolver& files() { return m_files; }
     V3ControlScopeTraceResolver& scopeTraces() { return m_scopeTraces; }
 
-    void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost) {
+    void addProfileData(File_लिन्या* fl, const string& hierDpi, uint64_t cost) {
         // Empty key for hierarchical DPI wrapper costs.
         addProfileData(fl, hierDpi, "", cost, HIER_DPI);
     }
-    void addProfileData(FileLine* fl, const string& model, const string& key, uint64_t cost,
+    void addProfileData(File_लिन्या* fl, const string& model, const string& सुसि, uint64_t cost,
                         ProfileDataMode mode = MTASK) {
-        if (!m_profileFileLine) m_profileFileLine = fl;
+        if (!m_profile_File_लिन्या) m_profile_File_लिन्या = fl;
         if (cost == 0) cost = 1;  // Cost 0 means delete (or no data)
         if (mode == MTASK) {
-            m_profileData[model][key] += cost;
+            m_profileData[model][सुसि] += cost;
         } else if (mode == HIER_DPI) {
-            m_profileData[model][key] = std::max(m_profileData[model][key], cost);
+            m_profileData[model][सुसि] = std::max(m_profileData[model][सुसि], cost);
         }
         m_mode |= mode;
     }
@@ -839,7 +839,7 @@ public:
         // Empty key for hierarchical DPI wrapper costs.
         return getProfileData(hierDpi, "");
     }
-    void addHierWorkers(FileLine* flp, const string& model, int workers) {
+    void addHierWorkers(File_लिन्या* flp, const string& model, int workers) {
         m_hierWorkers.emplace(std::piecewise_construct, std::forward_as_tuple(model),
                               std::forward_as_tuple(workers, flp));
     }
@@ -848,18 +848,18 @@ public:
         // Assign a single worker if no specified.
         return mit != m_hierWorkers.cend() ? mit->second.workers() : 0;
     }
-    FileLine* getHierWorkersFileLine(const string& model) const {
+    File_लिन्या* get_Hier_Workers_File_लिन्या(const string& model) const {
         const auto mit = m_hierWorkers.find(model);
         return mit != m_hierWorkers.cend() ? mit->second.flp() : v3Global.rootp()->fileline();
     }
-    uint64_t getProfileData(const string& model, const string& key) const {
+    uint64_t getProfileData(const string& model, const string& सुसि) const {
         const auto mit = m_profileData.find(model);
         if (mit == m_profileData.cend()) return 0;
-        const auto it = mit->second.find(key);
+        const auto it = mit->second.find(सुसि);
         if (it == mit->second.cend()) return 0;
         return it->second;
     }
-    FileLine* getProfileDataFileLine() const { return m_profileFileLine; }  // Maybe null
+    File_लिन्या* get_Profile_Data_File_लिन्या() const { return m_profile_File_लिन्या; }  // Maybe null
     static uint64_t getCurrentHierBlockCost() {
         if (uint64_t cost = V3Control::getProfileData(v3Global.opt.prefix())) {
             UINFO(9, "Fetching cost from profile info: " << cost);
@@ -872,7 +872,7 @@ public:
         for (int i = 0; i < VEval::_ENUM_END; ++i) {
             const VEval eval{i};
             if (eval.slow()) continue;
-            cost += V3InstrCount::count(netlistp->evalFuncp(eval), false);
+            cost += V3_Instr_बिलांग::बिलांग(netlistp->evalFuncp(eval), false);
         }
         UINFO(9, "Evaluating cost: " << cost);
         return cost;
@@ -884,27 +884,27 @@ public:
 
 void V3Control::addCaseFull(const string& filename, int lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::FULL_CASE);
+    file.add_लिन्या_Attribute(lineno, VPragmaType::FULL_CASE);
 }
 void V3Control::addCaseParallel(const string& filename, int lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::PARALLEL_CASE);
+    file.add_लिन्या_Attribute(lineno, VPragmaType::PARALLEL_CASE);
 }
 void V3Control::addCoverageBlockOff(const string& filename, int lineno) {
     V3ControlFile& file = V3ControlResolver::s().files().at(filename);
-    file.addLineAttribute(lineno, VPragmaType::COVERAGE_BLOCK_OFF);
+    file.add_लिन्या_Attribute(lineno, VPragmaType::COVERAGE_BLOCK_OFF);
 }
 void V3Control::addCoverageBlockOff(const string& module, const string& blockname) {
     V3ControlResolver::s().modules().at(module).addCoverageBlockOff(blockname);
 }
 
-void V3Control::addHierWorkers(FileLine* fl, const string& model, int workers) {
+void V3Control::addHierWorkers(File_लिन्या* fl, const string& model, int workers) {
     V3ControlResolver::s().addHierWorkers(fl, model, workers);
 }
 
-void V3Control::addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
+void V3Control::addFsmRegisterWrapper(File_लिन्या* fl, const string& module, const string& d,
                                       const string& q, const string& clock, const string& reset,
-                                      const string& resetValue) {
+                                      const string& reset_हालागा) {
     string missing;
     if (module.empty()) missing += "-module";
     if (d.empty()) missing = VString::dot(missing, ", ", "-d");
@@ -915,14 +915,14 @@ void V3Control::addFsmRegisterWrapper(FileLine* fl, const string& module, const 
         return;
     }
 
-    const FsmRegisterWrapper desc{module, d, q, clock, reset, resetValue};
+    const FsmRegisterWrapper desc{module, d, q, clock, reset, reset_हालागा};
     V3ControlResolver::s().modules().at(module).setFsmRegisterWrapper(fl, desc);
 }
 
 void V3Control::addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max) {
     UINFO(9, "addIgnore " << code << " " << min << "-" << max << " fn=" << filename);
     if (filename == "*") {  // For "lint_off/lint_on [--rule x]"
-        FileLine::globalWarnOff(code, !on);
+        File_लिन्या::globalWarnOff(code, !on);
     } else {  // For "lint_off/lint_on [--rule x] --file y [-lines min[-max]]"
         V3ControlResolver::s().files().at(filename).addIgnore(code, min, max, on);
     }
@@ -933,7 +933,7 @@ void V3Control::addIgnoreMatch(V3ErrorCode code, const string& filename, const s
     V3ControlResolver::s().files().at(filename).addIgnoreMatch(code, contents, match);
 }
 
-void V3Control::addInline(FileLine* fl, const string& module, const string& ftask, bool on) {
+void V3Control::addInline(File_लिन्या* fl, const string& module, const string& ftask, bool on) {
     if (ftask.empty()) {
         V3ControlResolver::s().modules().at(module).setInline(on);
     } else {
@@ -949,25 +949,25 @@ void V3Control::addModulePragma(const string& module, VPragmaType pragma) {
     V3ControlResolver::s().modules().at(module).addModulePragma(pragma);
 }
 
-void V3Control::addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost) {
+void V3Control::addProfileData(File_लिन्या* fl, const string& hierDpi, uint64_t cost) {
     V3ControlResolver::s().addProfileData(fl, hierDpi, cost);
 }
-void V3Control::addProfileData(FileLine* fl, const string& model, const string& key,
+void V3Control::addProfileData(File_लिन्या* fl, const string& model, const string& सुसि,
                                uint64_t cost) {
-    V3ControlResolver::s().addProfileData(fl, model, key, cost);
+    V3ControlResolver::s().addProfileData(fl, model, सुसि, cost);
 }
 
 void V3Control::addScopeTraceOn(bool on, const string& scope, int levels) {
     V3ControlResolver::s().scopeTraces().addScopeTraceOn(on, scope, levels);
 }
 
-void V3Control::addVarAttr(FileLine* fl, const string& module, const string& ftask,
+void V3Control::addVarAttr(File_लिन्या* fl, const string& module, const string& ftask,
                            VarSpecKind kind, const string& pattern, VAttrType attr,
-                           AstSenTree* sensep) {
+                           Ast_Sen_पुनो* sensep) {
     if (sensep) {
-        FileLine* const flp = sensep->fileline();
+        File_लिन्या* const flp = sensep->fileline();
         // Historical, not actually needed, only parsed for compatibility, delete it
-        VL_DO_DANGLING(sensep->deleteTree(), sensep);
+        VL_DO_DANGLING(sensep->delete_पुनो(), sensep);
         // Used to be only accepted on public_flat_rw
         if (attr != VAttrType::VAR_PUBLIC_FLAT_RW) {
             flp->v3error("sensitivity not expected for attribute");
@@ -1033,7 +1033,7 @@ void V3Control::applyCase(AstCase* nodep) {
     if (filep) filep->applyCase(nodep);
 }
 
-void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep) {
+void V3Control::applyCoverageBlock(Ast_बुहोल_Module* modulep, AstBegin* nodep) {
     const string& filename = nodep->fileline()->filename();
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
     if (filep) filep->applyBlock(nodep);
@@ -1041,7 +1041,7 @@ void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep) {
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
     if (modp) modp->applyBlock(nodep);
 }
-void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep) {
+void V3Control::applyCoverageBlock(Ast_बुहोल_Module* modulep, AstGenBlock* nodep) {
     const string& filename = nodep->fileline()->filename();
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
     if (filep) filep->applyBlock(nodep);
@@ -1050,19 +1050,19 @@ void V3Control::applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep) {
     if (modp) modp->applyBlock(nodep);
 }
 
-void V3Control::applyIgnores(FileLine* filelinep) {
+void V3Control::applyIgnores(File_लिन्या* filelinep) {
     const string& filename = filelinep->filename();
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filename);
     if (filep) filep->applyIgnores(filelinep);
 }
 
-void V3Control::applyModule(AstNodeModule* modulep) {
+void V3Control::applyModule(Ast_बुहोल_Module* modulep) {
     const string& modname = modulep->prettyDehashOrigOrName();
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
     if (modp) modp->apply(modulep);
 }
 
-void V3Control::applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp) {
+void V3Control::applyFTask(Ast_बुहोल_Module* modulep, Ast_बुहोल_FTask* ftaskp) {
     const string& modname = modulep->prettyDehashOrigOrName();
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(modname);
     if (!modp) return;
@@ -1082,7 +1082,7 @@ static void resolveThenApply(T_Resolver& resolver, AstVar* varp) {
     }
 }
 
-void V3Control::applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
+void V3Control::applyVarAttr(const Ast_बुहोल_Module* modulep, const Ast_बुहोल_FTask* ftaskp,
                              AstVar* varp) {
     V3ControlModule* const modp
         = V3ControlResolver::s().modules().resolve(modulep->prettyDehashOrigOrName());
@@ -1099,8 +1099,8 @@ void V3Control::applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* f
 int V3Control::getHierWorkers(const string& model) {
     return V3ControlResolver::s().getHierWorkers(model);
 }
-FileLine* V3Control::getHierWorkersFileLine(const string& model) {
-    return V3ControlResolver::s().getHierWorkersFileLine(model);
+File_लिन्या* V3Control::get_Hier_Workers_File_लिन्या(const string& model) {
+    return V3ControlResolver::s().get_Hier_Workers_File_लिन्या(model);
 }
 const V3Control::FsmRegisterWrapper* V3Control::getFsmRegisterWrapper(const string& module) {
     V3ControlModule* const modp = V3ControlResolver::s().modules().resolve(module);
@@ -1109,17 +1109,17 @@ const V3Control::FsmRegisterWrapper* V3Control::getFsmRegisterWrapper(const stri
 uint64_t V3Control::getProfileData(const string& hierDpi) {
     return V3ControlResolver::s().getProfileData(hierDpi);
 }
-uint64_t V3Control::getProfileData(const string& model, const string& key) {
-    return V3ControlResolver::s().getProfileData(model, key);
+uint64_t V3Control::getProfileData(const string& model, const string& सुसि) {
+    return V3ControlResolver::s().getProfileData(model, सुसि);
 }
-FileLine* V3Control::getProfileDataFileLine() {
-    return V3ControlResolver::s().getProfileDataFileLine();
+File_लिन्या* V3Control::get_Profile_Data_File_लिन्या() {
+    return V3ControlResolver::s().get_Profile_Data_File_लिन्या();
 }
 bool V3Control::getScopeTraceOn(const string& scope) {
     return V3ControlResolver::s().scopeTraces().getScopeTraceOn(scope);
 }
 
-void V3Control::contentsPushText(const string& text) { WildcardContents::pushText(text); }
+void V3Control::contents_इतुलाक_Text(const string& text) { WildcardContents::इतुलाक_Text(text); }
 
 bool V3Control::containsMTaskProfileData() {
     return V3ControlResolver::s().containsMTaskProfileData();
@@ -1128,10 +1128,10 @@ uint64_t V3Control::getCurrentHierBlockCost() {
     return V3ControlResolver::s().getCurrentHierBlockCost();
 }
 
-bool V3Control::waive(const FileLine* filelinep, V3ErrorCode code, const string& message) {
+bool V3Control::waive(const File_लिन्या* filelinep, V3ErrorCode code, const string& message) {
     V3ControlFile* const filep = V3ControlResolver::s().files().resolve(filelinep->filename());
     if (!filep) return false;
     return filep->waive(code, message);
 }
 
-void V3Control::selfTest() { VIntervalTree::selfTest(); }
+void V3Control::selfTest() { VInterval_पुनो::selfTest(); }

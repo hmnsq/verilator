@@ -48,34 +48,34 @@ protected:
     static void boot() {
         // Create the implementation pointer
         if (!s_preprocp) {
-            FileLine* const cmdfl = new FileLine{FileLine::commandLineFilename()};
+            File_लिन्या* const cmdfl = new File_लिन्या{File_लिन्या::command_लिन्या_Filename()};
             s_preprocp = V3PreProc::createPreProc(cmdfl);
             // Default defines
-            FileLine* const prefl = new FileLine{FileLine::builtInFilename()};
-            s_preprocp->defineCmdLine(prefl, "VERILATOR", "1");  // LEAK_OK
-            s_preprocp->defineCmdLine(prefl, "verilator", "1");  // LEAK_OK
-            s_preprocp->defineCmdLine(prefl, "verilator3", "1");  // LEAK_OK
-            s_preprocp->defineCmdLine(prefl, "coverage_block_off",
+            File_लिन्या* const prefl = new File_लिन्या{File_लिन्या::builtInFilename()};
+            s_preprocp->define_Cmd_लिन्या(prefl, "VERILATOR", "1");  // LEAK_OK
+            s_preprocp->define_Cmd_लिन्या(prefl, "verilator", "1");  // LEAK_OK
+            s_preprocp->define_Cmd_लिन्या(prefl, "verilator3", "1");  // LEAK_OK
+            s_preprocp->define_Cmd_लिन्या(prefl, "coverage_block_off",
                                       "/*verilator coverage_block_off*/");  // LEAK_OK
             if (prefl->language().systemVerilog()) {
                 // Synthesis compatibility
-                s_preprocp->defineCmdLine(prefl, "SYSTEMVERILOG", "1");  // LEAK_OK
+                s_preprocp->define_Cmd_लिन्या(prefl, "SYSTEMVERILOG", "1");  // LEAK_OK
                 // IEEE predefined
-                s_preprocp->defineCmdLine(prefl, "SV_COV_START", "0");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_STOP", "1");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_RESET", "2");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_CHECK", "3");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_MODULE", "10");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_HIER", "11");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_ASSERTION", "20");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_FSM_STATE", "21");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_STATEMENT", "22");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_TOGGLE", "23");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_OVERFLOW", "-2");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_ERROR", "-1");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_NOCOV", "0");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_OK", "1");
-                s_preprocp->defineCmdLine(prefl, "SV_COV_PARTIAL", "2");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_START", "0");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_STOP", "1");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_RESET", "2");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_CHECK", "3");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_MODULE", "10");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_HIER", "11");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_ASSERTION", "20");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_FSM_STATE", "21");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_STATEMENT", "22");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_TOGGLE", "23");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_OVERFLOW", "-2");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_ERROR", "-1");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_NOCOV", "0");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_OK", "1");
+                s_preprocp->define_Cmd_लिन्या(prefl, "SV_COV_PARTIAL", "2");
             }
         }
     }
@@ -84,7 +84,7 @@ protected:
         if (s_preprocp) VL_DO_DANGLING(delete s_preprocp, s_preprocp);
     }
 
-    bool preproc(FileLine* fl, const string& modname, VInFilter* filterp, V3ParseImp* parsep,
+    bool preproc(File_लिन्या* fl, const string& modname, VInFilter* filterp, V3ParseImp* parsep,
                  const string& errmsg) {  // "" for no error
         // Preprocess the given module, putting output in vppFilename
         UINFO(1, "Preprocessing " << modname);
@@ -100,21 +100,21 @@ protected:
             // from the V3LangCode to the various Lex BEGIN states. The language
             // of this source file is updated here, in case there have been any
             // intervening +<lang>ext+ options since it was first encountered.
-            const FileLine* const modfileline = new FileLine{modfilename};
+            const File_लिन्या* const modfileline = new File_लिन्या{modfilename};
             modfileline->language(v3Global.opt.fileLanguage(modfilename));
-            V3Parse::ppPushText(
+            V3Parse::pp_इतुलाक_Text(
                 parsep, ("`begin_keywords \""s + modfileline->language().ascii() + "\"\n"));
             // FileLine tracks and frees modfileline
         }
 
         while (!s_preprocp->isEof()) {
-            const string line = s_preprocp->getline();
-            V3Parse::ppPushText(parsep, line);
+            const string लिन्या = s_preprocp->getline();
+            V3Parse::pp_इतुलाक_Text(parsep, लिन्या);
         }
         return true;
     }
 
-    void preprocInclude(FileLine* fl, const string& modname) {
+    void preprocInclude(File_लिन्या* fl, const string& modname) {
         if (modname[0] == '/' || modname[0] == '\\') {
             fl->v3warn(INCABSPATH,
                        "Suggest `include with absolute path be made relative, and use +include: "
@@ -125,7 +125,7 @@ protected:
     }
 
 private:
-    string preprocOpen(FileLine* fl, VInFilter* filterp, const string& modname,
+    string preprocOpen(File_लिन्या* fl, VInFilter* filterp, const string& modname,
                        const string& lastpath,
                        const string& errmsg) {  // Error message or "" to suppress
         // Returns filename if successful
@@ -160,16 +160,16 @@ VInFilter* V3PreShellImp::s_filterp = nullptr;
 
 void V3PreShell::boot() { V3PreShellImp::s_preImp.boot(); }
 void V3PreShell::shutdown() { V3PreShellImp::s_preImp.shutdown(); }
-bool V3PreShell::preproc(FileLine* fl, const string& modname, VInFilter* filterp,
+bool V3PreShell::preproc(File_लिन्या* fl, const string& modname, VInFilter* filterp,
                          V3ParseImp* parsep, const string& errmsg) {
     return V3PreShellImp::s_preImp.preproc(fl, modname, filterp, parsep, errmsg);
 }
-void V3PreShell::preprocInclude(FileLine* fl, const string& modname) {
+void V3PreShell::preprocInclude(File_लिन्या* fl, const string& modname) {
     V3PreShellImp::s_preImp.preprocInclude(fl, modname);
 }
-void V3PreShell::defineCmdLine(const string& name, const string& value) {
-    FileLine* const prefl = new FileLine{FileLine::commandLineFilename()};
-    V3PreShellImp::s_preprocp->defineCmdLine(prefl, name, value);
+void V3PreShell::define_Cmd_लिन्या(const string& name, const string& हालागा) {
+    File_लिन्या* const prefl = new File_लिन्या{File_लिन्या::command_लिन्या_Filename()};
+    V3PreShellImp::s_preprocp->define_Cmd_लिन्या(prefl, name, हालागा);
 }
 void V3PreShell::undef(const string& name) { V3PreShellImp::s_preprocp->undef(name); }
 void V3PreShell::dumpDefines(std::ostream& os) { V3PreShellImp::s_preprocp->dumpDefines(os); }

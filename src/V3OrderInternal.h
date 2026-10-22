@@ -49,9 +49,9 @@ void processDomains(OrderGraph& graph,  //
                     const std::string& tag,  //
                     const ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_बुहोल_Stmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_बुहोल_Stmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
 
 };  // namespace V3Order
 

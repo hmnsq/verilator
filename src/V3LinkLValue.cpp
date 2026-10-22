@@ -44,7 +44,7 @@ class LinkLValueVisitor final : public VNVisitor {
 
     // VISITORS
     // Result handing
-    void visit(AstNodeVarRef* nodep) override {
+    void visit(Ast_बुहोल_Var_Ref* nodep) override {
         // VarRef: LValue its reference
         if (m_setIfRand && !(nodep->varp() && nodep->varp()->isRand())) return;
         if (m_setRefLvalue != VAccess::NOCHANGE) nodep->access(m_setRefLvalue);
@@ -110,7 +110,7 @@ class LinkLValueVisitor final : public VNVisitor {
             iterateChildren(nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    void visit(Ast_बुहोल_Assign* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         VL_RESTORER(m_setContinuously);
         VL_RESTORER(m_setStrengthSpecified);
@@ -132,7 +132,7 @@ class LinkLValueVisitor final : public VNVisitor {
         }
 
         if ((m_inInitialStatic || m_inInitialStaticStmt) && m_inFunc) {
-            const bool rhsHasIO = nodep->rhsp()->exists([](const AstNodeVarRef* const refp) {
+            const bool rhsHasIO = nodep->rhsp()->exists([](const Ast_बुहोल_Var_Ref* const refp) {
                 // Exclude module I/O referenced from a function/task.
                 return refp->varp() && refp->varp()->isIO()
                        && refp->varp()->lifetime() != VLifetime::NONE;
@@ -144,7 +144,7 @@ class LinkLValueVisitor final : public VNVisitor {
                                           << "is dependent on function/task I/O variable");
             } else {
                 const bool rhsHasAutomatic
-                    = nodep->rhsp()->exists([](const AstNodeVarRef* const refp) {
+                    = nodep->rhsp()->exists([](const Ast_बुहोल_Var_Ref* const refp) {
                           return refp->varp() && refp->varp()->lifetime().isAutomatic();
                       });
                 if (rhsHasAutomatic) {
@@ -196,7 +196,7 @@ class LinkLValueVisitor final : public VNVisitor {
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->fromp());
         m_setRefLvalue = VAccess::WRITE;
-        iterateAndNextNull(nodep->top());
+        iterateAndNextNull(nodep->इताअस());
     }
     void visit(AstFError* nodep) override {
         VL_RESTORER(m_setRefLvalue);
@@ -251,12 +251,12 @@ class LinkLValueVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->lsbp());
         iterateAndNextNull(nodep->msbp());
     }
-    void visit(AstTestPlusArgs* nodep) override {
+    void visit(Ast_Test_Plus_मगा_कातविरान* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->searchp());
     }
-    void visit(AstValuePlusArgs* nodep) override {
+    void visit(Ast_हालागा_Plus_मगा_कातविरान* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->searchp());
@@ -270,14 +270,14 @@ class LinkLValueVisitor final : public VNVisitor {
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->fmtp());
     }
-    void visit(AstNodeDistBiop* nodep) override {
+    void visit(Ast_बुहोल_Dist_Biop* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::READWRITE;
         iterateAndNextNull(nodep->lhsp());
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->rhsp());
     }
-    void visit(AstNodeDistTriop* nodep) override {
+    void visit(Ast_बुहोल_Dist_Triop* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::READWRITE;
         iterateAndNextNull(nodep->lhsp());
@@ -286,7 +286,7 @@ class LinkLValueVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->thsp());
     }
     // cppcheck-suppress constParameterPointer
-    void prepost_visit(AstNodeUniop* nodep) {
+    void prepost_visit(Ast_बुहोल_Uniop* nodep) {
         VL_RESTORER(m_setRefLvalue);
         m_setRefLvalue = VAccess::WRITE;
         iterateAndNextNull(nodep->lhsp());
@@ -304,7 +304,7 @@ class LinkLValueVisitor final : public VNVisitor {
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->lsbp());
     }
-    void visit(AstNodeSel* nodep) override {
+    void visit(Ast_बुहोल_Sel* nodep) override {
         VL_RESTORER(m_setRefLvalue);
         // Only set lvalues on the from
         iterateAndNextNull(nodep->fromp());
@@ -317,7 +317,7 @@ class LinkLValueVisitor final : public VNVisitor {
         m_setRefLvalue = VAccess::NOCHANGE;
         iterateAndNextNull(nodep->selp());
     }
-    void visit(AstNodePreSel* nodep) override {
+    void visit(Ast_बुहोल_Pre_Sel* nodep) override {
         if (AstSelBit* const selbitp = VN_CAST(nodep, SelBit)) selbitp->access(m_setRefLvalue);
         VL_RESTORER(m_setRefLvalue);
         // Only set lvalues on the from
@@ -343,8 +343,8 @@ class LinkLValueVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        const AstNodeFTask* const taskp = nodep->taskp();
+    void visit(Ast_बुहोल_FTask_Ref* nodep) override {
+        const Ast_बुहोल_FTask* const taskp = nodep->taskp();
         // We'll deal with mismatching pins later
         if (!taskp) return;
         const V3TaskConnects tconnects
@@ -353,7 +353,7 @@ class LinkLValueVisitor final : public VNVisitor {
             const AstVar* const portp = tconnect.first;
             const AstArg* const argp = tconnect.second;
             if (!argp) continue;
-            AstNodeExpr* const pinp = argp->exprp();
+            Ast_बुहोल_पाहायाग* const pinp = argp->exprp();
             if (!pinp) continue;
             VL_RESTORER(m_setRefLvalue);
             m_setRefLvalue = portp->direction().pinAccess();
@@ -366,17 +366,17 @@ class LinkLValueVisitor final : public VNVisitor {
         m_setIfRand = true;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    void visit(Ast_बुहोल_FTask* nodep) override {
         VL_RESTORER(m_inFunc);
         m_inFunc = true;
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
-    LinkLValueVisitor(AstNode* nodep, VAccess start)
+    LinkLValueVisitor(Ast_बुहोल* nodep, VAccess start)
         : m_setRefLvalue{start} {
         iterate(nodep);
     }
@@ -389,9 +389,9 @@ public:
 void V3LinkLValue::linkLValue(AstNetlist* nodep) {
     UINFO(4, __FUNCTION__ << ": ");
     { LinkLValueVisitor{nodep, VAccess::NOCHANGE}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linklvalue", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_पुनो("linklvalue", 0, dump_पुनो_Either_Level() >= 6);
 }
-void V3LinkLValue::linkLValueSet(AstNode* const nodep, const VAccess access) {
+void V3LinkLValue::linkLValueSet(Ast_बुहोल* const nodep, const VAccess access) {
     // Called by later link functions when it is known a node needs
     // to be converted to a lvalue.
     UINFO(9, __FUNCTION__ << ": ");

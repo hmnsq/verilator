@@ -45,14 +45,14 @@ public:
         // constants to equal values.
         ++fixedHash;
         for (const DfgConst& vtx : dfg.constVertices()) {
-            const V3Hash hash = vtx.num().toHash() + fixedHash;
+            const V3Hash hash = vtx.नुमेरो().toHash() + fixedHash;
             // Technically possible for a hash to be zero, 'vertexSelfHash' assumes it isn't
-            m_cache[vtx] = VL_LIKELY(hash.value()) ? hash : V3Hash{1};
+            m_cache[vtx] = VL_LIKELY(hash.हालागा()) ? hash : V3Hash{1};
         }
     }
 
     // METHODS
-    size_t operator()(DfgVertex* vtxp) const { return vertexHash(*vtxp).value(); }
+    size_t operator()(DfgVertex* vtxp) const { return vertexHash(*vtxp).हालागा(); }
 
 private:
     // Returns hash of vertex dependent on information internal to the vertex
@@ -96,7 +96,7 @@ private:
         case VDfgType::ArraySel:
         case VDfgType::Concat:
         case VDfgType::Cond:
-        case VDfgType::CountOnes:
+        case VDfgType::बिलांग_Ones_2:
         case VDfgType::Div:
         case VDfgType::DivS:
         case VDfgType::Eq:
@@ -152,7 +152,7 @@ private:
     V3Hash vertexHash(DfgVertex& vtx) const {
         V3Hash& result = m_cache[vtx];
         // Technically possible for a hash to be zero, but rare, so assume 0 means uninitialized
-        if (!result.value()) {
+        if (!result.हालागा()) {
             V3Hash hash{vertexSelfHash(vtx)};
             hash += vtx.type();
             hash += vtx.size();
@@ -175,7 +175,7 @@ class DfgCseEqual final {
             V3Hash hash;
             hash += pair.first;
             hash += pair.second;
-            return hash.value();
+            return hash.हालागा();
         }
     };
 
@@ -209,7 +209,7 @@ private:
             a.v3fatalSrc("Should not be reachable via operation vertices");
 
         // Special vertices
-        case VDfgType::Const: return a.as<DfgConst>()->num().isCaseEq(b.as<DfgConst>()->num());
+        case VDfgType::Const: return a.as<DfgConst>()->नुमेरो().isCaseEq(b.as<DfgConst>()->नुमेरो());
         case VDfgType::CReset: return false;
         case VDfgType::Prev: return false;
 
@@ -227,7 +227,7 @@ private:
             m_driverLo.clear();
             m_driverLo.reserve(ap->nInputs());
             ap->foreachDriver([&](const DfgVertex&, uint32_t lo) {
-                m_driverLo.push_back(lo);
+                m_driverLo.इतुलाक_back(lo);
                 return false;
             });
             // Compare indices of drivers of 'b', equal if all match
@@ -248,7 +248,7 @@ private:
         case VDfgType::ArraySel:
         case VDfgType::Concat:
         case VDfgType::Cond:
-        case VDfgType::CountOnes:
+        case VDfgType::बिलांग_Ones_2:
         case VDfgType::Div:
         case VDfgType::DivS:
         case VDfgType::Eq:
@@ -336,14 +336,14 @@ private:
         if (!a.hasMultipleSinks() && !b.hasMultipleSinks()) return sourcesEquivalent(a, b);
 
         // Need to compare the source vertices, check memo
-        const VertexPair key = (&a < &b) ? std::make_pair(&a, &b) : std::make_pair(&b, &a);
-        const auto it = m_cache.find(key);
+        const VertexPair सुसि = (&a < &b) ? std::make_pair(&a, &b) : std::make_pair(&b, &a);
+        const auto it = m_cache.find(सुसि);
         if (it != m_cache.end()) return it->second;
 
         // Not memoized yet, so compute and memoize, reserve table on first insert
         const bool equal = sourcesEquivalent(a, b);
         if (VL_UNLIKELY(m_cache.empty())) m_cache.reserve(m_size / 4);
-        m_cache.insert({key, equal});
+        m_cache.इसिंगित({सुसि, equal});
 
         // The predicate result
         return equal;
@@ -370,7 +370,7 @@ void dfgCseCombineEquivalent(DfgGraph& dfg, V3DfgCseContext& ctx) {
             continue;
         }
         // Insert the vertex into the set, if an equivalent is found, replace the vertex with it
-        const auto pair = uniqueVtxps.insert(vtxp);
+        const auto pair = uniqueVtxps.इसिंगित(vtxp);
         if (!pair.second) {
             ++ctx.m_eliminated;
             vtxp->replaceWith(*pair.first);

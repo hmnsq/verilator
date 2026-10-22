@@ -83,36 +83,36 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     // TYPES
 
     // Location of AstNode within the program
-    template <typename T_Node>
+    template <typename T_बुहोल>
     class Location final {
-        template <typename U_Node>
+        template <typename U_बुहोल>
         friend class Location;
 
-        T_Node* m_nodep;  // The AstNode being recorded
+        T_बुहोल* m_nodep;  // The AstNode being recorded
         const AstExecGraph* m_egraphp;  // AstExecTraph location is under, if any
         const ExecMTask* m_mtaskp;  // The ExecMTask location is under, if any
-        uint32_t m_seqNum;  // Location counter
+        uint32_t m_seq_नुमेरो;  // Location counter
 
     public:
-        Location(T_Node* nodep, const AstExecGraph* egp, const ExecMTask* mtaskp, uint32_t seqNum)
+        Location(T_बुहोल* nodep, const AstExecGraph* egp, const ExecMTask* mtaskp, uint32_t seq_नुमेरो)
             : m_nodep{nodep}
             , m_egraphp{egp}
             , m_mtaskp{mtaskp}
-            , m_seqNum{seqNum} {}
+            , m_seq_नुमेरो{seq_नुमेरो} {}
         Location() = delete;
 
-        T_Node* const& nodep() const { return m_nodep; }
+        T_बुहोल* const& nodep() const { return m_nodep; }
 
         // "is before" - Note: Equality (concurrency) is possible iff they are independent mtasks!
-        template <typename U_Node>
-        bool operator<(const Location<U_Node>& that) const {
+        template <typename U_बुहोल>
+        bool operator<(const Location<U_बुहोल>& that) const {
             // If they are in different mtasks under the same graph, check for a path in the graph
             if (m_egraphp && m_egraphp == that.m_egraphp && m_mtaskp != that.m_mtaskp) {
                 GraphPathChecker* const checkerp = m_egraphp->user1u().to<GraphPathChecker*>();
                 return checkerp->pathExistsFrom(m_mtaskp, that.m_mtaskp);
             }
             // Otherwise the sequence numbers work (one/both outside graph, or both in same mtask)
-            return m_seqNum < that.m_seqNum;
+            return m_seq_नुमेरो < that.m_seq_नुमेरो;
         }
     };
 
@@ -128,21 +128,21 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     const AstExecGraph* m_execGraphp = nullptr;  // Current AstExecGraph being processed (or null)
     const ExecMTask* m_execMTaskp = nullptr;  // Current ExecMTask being processed (or null)
     VDouble0 m_statAssnDel;  // Statistic tracking
-    VDouble0 m_statWordsSaved;  // Words removed from NBA shadow copies
+    VDouble0 m_stat_मगा_सालिता_Saved;  // Words removed from NBA shadow copies
     // Maps from Varscope to all their reads and writes
     using LocMap = std::unordered_map<const AstVarScope*, std::vector<Location<AstVarRef>>>;
     LocMap m_reads;  // VarScope read locations
     LocMap m_writes;  // VarScope write locations
-    std::vector<Location<AstNodeAssign>> m_assigns;  // Assignments considered for removal
+    std::vector<Location<Ast_बुहोल_Assign>> m_assigns;  // Assignments considered for removal
     std::vector<std::unique_ptr<GraphPathChecker>> m_checkers;  // Storage for exec graph checkers
     const AstCFunc* const m_nbaFuncp;  // The 'nba' region entry point
     bool m_inEvalNba = false;  // Traversing under the 'nba' region entry point
 
     // METHODS
-    void narrowCopies(AstNodeAssign* postp, AstVarScope* dVscp,
+    void narrowCopies(Ast_बुहोल_Assign* postp, AstVarScope* dVscp,
                       const std::vector<Location<AstVarRef>>& writes) {
         if (!dVscp->isWide()) return;
-        AstNodeAssign* const prep = VN_AS(writes[0].nodep()->backp(), NodeAssign);
+        Ast_बुहोल_Assign* const prep = VN_AS(writes[0].nodep()->backp(), बुहोल_Assign);
         UASSERT_OBJ(VN_AS(prep->lhsp(), VarRef)->varScopep()
                             == VN_AS(postp->rhsp(), VarRef)->varScopep()
                         && VN_AS(prep->rhsp(), VarRef)->varScopep()
@@ -161,20 +161,20 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         }
         // Copy one word-aligned range enclosing all writes, including any gaps.
         lsb = VL_BITWORD_E(lsb) * VL_EDATASIZE;
-        end = std::min(VL_WORDS_I(end) * VL_EDATASIZE, dVscp->width());
+        end = std::min(VL_मगा_सालिता_I(end) * VL_EDATASIZE, dVscp->width());
         const int width = end - lsb;
         if (width == dVscp->width()) return;
-        for (AstNodeAssign* const assignp : {prep, postp}) {
-            FileLine* const flp = assignp->fileline();
+        for (Ast_बुहोल_Assign* const assignp : {prep, postp}) {
+            File_लिन्या* const flp = assignp->fileline();
             assignp->lhsp(new AstSel{flp, assignp->lhsp()->unlinkFrBack(), lsb, width});
             assignp->rhsp(new AstSel{flp, assignp->rhsp()->unlinkFrBack(), lsb, width});
             assignp->dtypeFrom(assignp->lhsp());
         }
-        m_statWordsSaved += 2 * (dVscp->widthWords() - VL_WORDS_I(width));
+        m_stat_मगा_सालिता_Saved += 2 * (dVscp->width_मगा_सालिता() - VL_मगा_सालिता_I(width));
     }
 
     void squashAssignposts() {
-        for (const Location<AstNodeAssign>& assign : m_assigns) {
+        for (const Location<Ast_बुहोल_Assign>& assign : m_assigns) {
             AstVarScope* const dVscp = VN_AS(assign.nodep()->rhsp(), VarRef)->varScopep();
             AstVarScope* const qVscp = VN_AS(assign.nodep()->lhsp(), VarRef)->varScopep();
 
@@ -193,7 +193,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
             if (m_writes[qVscp].size() > 1) continue;
 
             // Proof (3) - Should always hold
-            UASSERT_OBJ(VN_IS(dWrites.at(0).nodep()->backp(), NodeAssign), dVscp,
+            UASSERT_OBJ(VN_IS(dWrites.at(0).nodep()->backp(), बुहोल_Assign), dVscp,
                         "Partial first write to NBA shadow variable");
 
             // Proof (4)
@@ -221,7 +221,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
             dVscp->user4p(qVscp);
             // Delete assignment
             UINFO(4, "    DELETE " << assign.nodep());
-            VL_DO_DANGLING(assign.nodep()->unlinkFrBack()->deleteTree(), assign.nodep());
+            VL_DO_DANGLING(assign.nodep()->unlinkFrBack()->delete_पुनो(), assign.nodep());
             ++m_statAssnDel;
         }
     }
@@ -292,7 +292,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
             m_reads[vscp].emplace_back(nodep, m_execGraphp, m_execMTaskp, m_sequence);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    void visit(Ast_बुहोल_Assign* nodep) override {
         // Record RHS before assignment
         iterateConst(nodep->rhsp());
         // If a straight assignment between NBA variables, consider for removal
@@ -307,7 +307,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         // Record LHS after assignment
         iterateConst(nodep->lhsp());
     }
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         iterateChildrenConst(nodep);
         // Entry points are roots of the trace, no need to do it here
         if (nodep->funcp()->entryPoint()) return;
@@ -340,7 +340,7 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         if (nodep->entryPoint()) trace(nodep);
     }
     //-----
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -350,7 +350,7 @@ public:
     }
     ~LifePostDlyVisitor() override {
         V3Stats::addStat("Optimizations, Lifetime postassign deletions", m_statAssnDel);
-        V3Stats::addStat("Optimizations, Lifetime NBA copy words removed", m_statWordsSaved);
+        V3Stats::addStat("Optimizations, Lifetime NBA copy words removed", m_stat_मगा_सालिता_Saved);
     }
 };
 
@@ -360,5 +360,5 @@ public:
 void V3LifePost::lifepostAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LifePostDlyVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("life_post", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("life_post", 0, dump_पुनो_Either_Level() >= 3);
 }

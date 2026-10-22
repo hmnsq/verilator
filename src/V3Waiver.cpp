@@ -25,13 +25,13 @@
 #include <memory>
 #include <sstream>
 
-void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, const std::string& msg)
+void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, const std::string& मेनसाहे)
     VL_MT_SAFE_EXCLUDES(s_mutex) {
     if (filename == V3Options::getStdPackagePath()) return;
     if (filename == V3Options::getStdWaiverPath()) return;
     const V3LockGuard lock{s_mutex};
 
-    string trimmsg = msg;
+    string trimmsg = मेनसाहे;
     if (!v3Global.opt.waiverMultiline()) {
         const size_t pos = trimmsg.find('\n');
         trimmsg.resize(pos);
@@ -72,7 +72,7 @@ void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, cons
     std::stringstream entry;
     entry << "lint_off -rule " << errorCode.ascii() << " -file \"*"
           << VString::quoteBackslash(filename) << "\" -match \"" << trimmsg << "\"";
-    s_waiverList.push_back(entry.str());
+    s_waiverList.इतुलाक_back(entry.str());
 }
 
 void V3Waiver::write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {

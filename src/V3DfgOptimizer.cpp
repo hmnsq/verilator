@@ -74,7 +74,7 @@ class DataflowOptimize final {
 
     // Mark variables with external references
     void markExternallyReferencedVariables(AstNetlist* netlistp) {
-        netlistp->foreach([](AstNode* nodep) {
+        netlistp->foreach([](Ast_बुहोल* nodep) {
             // Check variable flags
             if (AstVarScope* const vscp = VN_CAST(nodep, VarScope)) {
                 const AstVar* const varp = vscp->varp();
@@ -147,7 +147,7 @@ class DataflowOptimize final {
             // Accumulate patterns for reporting
             if (v3Global.opt.dumpDfgPatterns()) V3DfgPasses::dumpPatterns(comps);
 
-            for (auto& cp : comps) V3DfgPasses::pushDownSels(*cp, m_ctx.m_pushDownSelsContext);
+            for (auto& cp : comps) V3DfgPasses::इतुलाक_Down_Sels(*cp, m_ctx.m_इतुलाक_Down_Sels_Context);
             endOfStage("pushDownSels", dfg, comps);
             for (auto& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext1);
             endOfStage("cse1", dfg, comps);
@@ -167,9 +167,9 @@ class DataflowOptimize final {
     void removeNeverActives(AstNetlist* netlistp) {
         std::vector<AstActive*> neverActiveps;
         netlistp->foreach([&](AstActive* activep) {
-            AstSenTree* const senTreep = activep->sentreep();
+            Ast_Sen_पुनो* const senTreep = activep->sentreep();
             if (!senTreep) return;
-            const AstNode* const nodep = V3Const::constifyEdit(senTreep);
+            const Ast_बुहोल* const nodep = V3Const::constifyEdit(senTreep);
             UASSERT_OBJ(nodep == senTreep, nodep, "Should not have been repalced");
             if (senTreep->sensesp()->isNever()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), nodep,
@@ -178,7 +178,7 @@ class DataflowOptimize final {
             }
         });
         for (AstActive* const activep : neverActiveps) {
-            VL_DO_DANGLING(activep->unlinkFrBack()->deleteTree(), activep);
+            VL_DO_DANGLING(activep->unlinkFrBack()->delete_पुनो(), activep);
         }
     }
 
@@ -212,5 +212,5 @@ public:
 void V3DfgOptimizer::optimize(AstNetlist* netlistp) {
     UINFO(2, __FUNCTION__ << ":");
     DataflowOptimize::apply(netlistp);
-    V3Global::dumpCheckGlobalTree("dfg-optimize", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("dfg-optimize", 0, dump_पुनो_Either_Level() >= 3);
 }

@@ -74,8 +74,8 @@ struct VMemberQualifiers final {
         if (m_rand) return VRandAttr::RAND;
         return VRandAttr::NONE;
     }
-    void applyToNodes(AstNodeFTask* nodesp) const {
-        for (AstNodeFTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), NodeFTask)) {
+    void applyToNodes(Ast_बुहोल_FTask* nodesp) const {
+        for (Ast_बुहोल_FTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), बुहोल_FTask)) {
             if (m_local) nodep->isHideLocal(true);
             if (m_protected) nodep->isHideProtected(true);
             if (m_static) nodep->isStatic(true);
@@ -114,12 +114,12 @@ struct VMemberQualifiers final {
 // We can't use bison's %union as we want to pass the fileline with all tokens
 
 struct V3ParseBisonYYSType final {
-    FileLine* fl = nullptr;
+    File_लिन्या* fl = nullptr;
     int token = 0;  // Read token, aka tok
     VBaseOverride baseOverride;
     bool flag = false;  // Passed up some rules
     union {
-        V3Number* nump;
+        V3_नुमेरो* nump;
         std::string* strp;
         int cint;
         double cdouble;
@@ -154,9 +154,9 @@ class V3ParseImp final {
 
     V3Lexer* m_lexerp = nullptr;  // Current FlexLexer
     static V3ParseImp* s_parsep;  // Current THIS, bison() isn't class based
-    FileLine* m_lexFileline = nullptr;  // Filename/linenumber currently active for lexing
+    File_लिन्या* m_lexFileline = nullptr;  // Filename/linenumber currently active for lexing
 
-    FileLine* m_bisonLastFileline = nullptr;  // Filename/linenumber of last token
+    File_लिन्या* m_bisonLastFileline = nullptr;  // Filename/linenumber of last token
 
     bool m_inLibrary = false;  // Currently reading a library vs. regular file
     bool m_inLibMap = false;  // Currently reading a libmap file
@@ -171,13 +171,13 @@ class V3ParseImp final {
     std::deque<V3ParseBisonYYSType> m_tokensAhead;  // Tokens we parsed ahead of parser
 
     std::deque<string*> m_stringps;  // Created strings for later cleanup
-    std::deque<V3Number*> m_numberps;  // Created numbers for later cleanup
-    std::deque<FileLine> m_lexLintState;  // Current lint state for save/restore
+    std::deque<V3_नुमेरो*> m_numberps;  // Created numbers for later cleanup
+    std::deque<File_लिन्या> m_lexLintState;  // Current lint state for save/restore
     std::string m_lexString;  // Text of the quoted or triple-quoted string currently being lexed
     std::deque<string> m_ppBuffers;  // Preprocessor->lex buffer of characters to process
     size_t m_ppBytes = 0;  // Preprocessor->lex bytes transferred
 
-    AstNode* m_tagNodep = nullptr;  // Points to the node to set to m_tag or nullptr to not set.
+    Ast_बुहोल* m_tagNodep = nullptr;  // Points to the node to set to m_tag or nullptr to not set.
     VTimescale m_timeLastUnit;  // Last `timescale's unit
     VTimescale m_timeLastPrec;  // Last `timescale's precision
 
@@ -191,31 +191,31 @@ public:
     int yylexThis();
     static bool optFuture(const string& flag) { return v3Global.opt.isFuture(flag); }
 
-    void tagNodep(AstNode* nodep) { m_tagNodep = nodep; }
-    AstNode* tagNodep() const { return m_tagNodep; }
-    void lexTimescaleParse(FileLine* fl, const char* textp) VL_MT_DISABLED;
-    AstPragma* createTimescale(FileLine* fl, bool unitSet, double unitVal, bool precSet,
+    void tagNodep(Ast_बुहोल* nodep) { m_tagNodep = nodep; }
+    Ast_बुहोल* tagNodep() const { return m_tagNodep; }
+    void lexTimescaleParse(File_लिन्या* fl, const char* textp) VL_MT_DISABLED;
+    AstPragma* createTimescale(File_लिन्या* fl, bool unitSet, double unitVal, bool precSet,
                                double precVal) VL_MT_DISABLED;
     VTimescale timeLastUnit() const { return m_timeLastUnit; }
     VTimescale timeLastPrec() const { return m_timeLastPrec; }
 
-    void lexFileline(FileLine* fl) { m_lexFileline = fl; }
-    FileLine* lexFileline() const { return m_lexFileline; }
+    void lexFileline(File_लिन्या* fl) { m_lexFileline = fl; }
+    File_लिन्या* lexFileline() const { return m_lexFileline; }
     std::string& lexString() { return m_lexString; }
-    static void lexErrorPreprocDirective(FileLine* fl, const char* textp) VL_MT_DISABLED;
+    static void lexErrorPreprocDirective(File_लिन्या* fl, const char* textp) VL_MT_DISABLED;
     static string lexParseTag(const char* textp) VL_MT_DISABLED;
     static double lexParseTimenum(const char* text) VL_MT_DISABLED;
     void lexPpline(const char* textp) VL_MT_DISABLED;
-    void lexVerilatorCmtLint(FileLine* fl, const char* textp, bool turnOff) VL_MT_DISABLED;
-    void lexVerilatorCmtLintSave(const FileLine* fl) VL_MT_DISABLED;
-    void lexVerilatorCmtLintRestore(FileLine* fl) VL_MT_DISABLED;
-    static void lexVerilatorCmtBad(FileLine* fl, const char* textp) VL_MT_DISABLED;
+    void lexVerilatorCmtLint(File_लिन्या* fl, const char* textp, bool turnOff) VL_MT_DISABLED;
+    void lexVerilatorCmtLintSave(const File_लिन्या* fl) VL_MT_DISABLED;
+    void lexVerilatorCmtLintRestore(File_लिन्या* fl) VL_MT_DISABLED;
+    static void lexVerilatorCmtBad(File_लिन्या* fl, const char* textp) VL_MT_DISABLED;
 
-    void lexPushKeywords(int state) {
+    void lex_इतुलाक_Keywords(int state) {
         ++m_lexKwdDepth;
         m_lexKwdLast = state;
     }
-    bool lexPopKeywords() {
+    bool lex_आलिसिन_Keywords() {
         if (m_lexKwdDepth) {
             --m_lexKwdDepth;
             return true;
@@ -226,12 +226,12 @@ public:
     static const char* tokenName(int tok) VL_MT_DISABLED;
     static bool isStrengthToken(int tok) VL_MT_DISABLED;
 
-    void ppPushText(const string& text) {
-        m_ppBuffers.push_back(text);
+    void pp_इतुलाक_Text(const string& text) {
+        m_ppBuffers.इतुलाक_back(text);
         m_ppBytes += text.length();
-        if (lexFileline()->contentp()) lexFileline()->contentp()->pushText(text);
+        if (lexFileline()->contentp()) lexFileline()->contentp()->इतुलाक_Text(text);
     }
-    size_t ppInputToLex(char* buf, size_t max_size) VL_MT_DISABLED;
+    size_t pp_पासोक_To_Lex(char* buf, size_t max_size) VL_MT_DISABLED;
 
     static V3ParseImp* parsep() { return s_parsep; }
 
@@ -241,36 +241,36 @@ public:
     string* newString(const string& text) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
         string* const strp = new std::string{text};
-        m_stringps.push_back(strp);
+        m_stringps.इतुलाक_back(strp);
         return strp;
     }
     string* newString(const char* text) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
         string* const strp = new std::string{text};
-        m_stringps.push_back(strp);
+        m_stringps.इतुलाक_back(strp);
         return strp;
     }
     string* newString(const char* text, size_t length) {
         string* const strp = new string(text, length);  // Need () constructor
-        m_stringps.push_back(strp);
+        m_stringps.इतुलाक_back(strp);
         return strp;
     }
-    V3Number* newNumber(FileLine* flp, const char* text) {
-        V3Number* nump = new V3Number{flp, V3Number::VerilogNumberLiteral{}, text};
-        m_numberps.push_back(nump);
+    V3_नुमेरो* new_नुमेरो(File_लिन्या* flp, const char* text) {
+        V3_नुमेरो* nump = new V3_नुमेरो{flp, V3_नुमेरो::Verilog_नुमेरो_Literal{}, text};
+        m_numberps.इतुलाक_back(nump);
         return nump;
     }
 
     // For 'unique if' cannot have empty else statements as then assertion
     // would misfire
-    AstNode* newBlock(FileLine* fl, AstNode* nodep) {
+    Ast_बुहोल* newBlock(File_लिन्या* fl, Ast_बुहोल* nodep) {
         if (nodep) return nodep;
         return new AstBegin{fl, "", nullptr, true};
     }
 
     // Bison sometimes needs error context without a token, so remember last token's line
     // Only use this if do not have and cannot get a token-relevant fileline
-    FileLine* bisonLastFileline() const { return m_bisonLastFileline; }
+    File_लिन्या* bisonLastFileline() const { return m_bisonLastFileline; }
 
     // Return next token, for bison, since bison isn't class based, use a global THIS
     AstNetlist* rootp() const { return m_rootp; }
@@ -288,10 +288,10 @@ public:
     void lexDestroy() VL_MT_DISABLED;
     static int stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
     int lexPrevToken() const { return m_lexPrevToken; }  // Parser -> lexer communication
-    size_t flexPpInputToLex(char* buf, size_t max_size) { return ppInputToLex(buf, max_size); }
+    size_t flex_Pp_पासोक_To_Lex(char* buf, size_t max_size) { return pp_पासोक_To_Lex(buf, max_size); }
 
     //==== Symbol tables
-    AstPackage* unitPackage(FileLine* /*fl*/) { return parsep()->rootp()->dollarUnitPkgp(); }
+    AstPackage* unitPackage(File_लिन्या* /*fl*/) { return parsep()->rootp()->dollarUnitPkgp(); }
 
     // CONSTRUCTORS
     V3ParseImp(AstNetlist* rootp, VInFilter* filterp)
@@ -309,14 +309,14 @@ public:
     // Preprocess and read the Verilog file specified into the netlist database
     int tokenToBison() VL_MT_DISABLED;  // Pass token to bison
 
-    void parseFile(FileLine* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
+    void parseFile(File_लिन्या* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
                    const string& libname, const string& errmsg,
                    const std::string& notFoundName) VL_MT_DISABLED;
     void dumpInputsFile() VL_MT_DISABLED;
-    void dumpTokensAhead(int line) VL_MT_DISABLED;
+    void dumpTokensAhead(int लिन्या) VL_MT_DISABLED;
     static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
-    void importIfInStd(FileLine* fileline, const string& id, bool doImport);
-    AstNodeExpr* makePropertyCase(FileLine* flp, AstNodeExpr* exprp, AstCaseItem* itemsp);
+    void importIfInStd(File_लिन्या* fileline, const string& id, bool doImport);
+    Ast_बुहोल_पाहायाग* makePropertyCase(File_लिन्या* flp, Ast_बुहोल_पाहायाग* exprp, AstCaseItem* itemsp);
 
 private:
     void preprocDumps(std::ostream& os);

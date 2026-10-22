@@ -23,28 +23,28 @@
 //######################################################################
 // V3ConstPool
 
-V3Hash V3ConstPool::hashValue(const AstNode* nodep) {
+V3Hash V3ConstPool::hash_हालागा(const Ast_बुहोल* nodep) {
     // Hash what 'equalValue' compares
     V3Hash hash{nodep->type().hash()};
     hash += nodep->dtypep()->cType("", false, false);
-    if (const AstConst* const constp = VN_CAST(nodep, Const)) return hash + constp->num().toHash();
+    if (const AstConst* const constp = VN_CAST(nodep, Const)) return hash + constp->नुमेरो().toHash();
     if (const AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
         const uint64_t size
             = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-        for (uint64_t n = 0; n < size; ++n) hash += hashValue(consp->valuep(n));
+        for (uint64_t n = 0; n < size; ++n) hash += hash_हालागा(consp->valuep(n));
         return hash;
     }
     return hash + V3Hasher::uncachedHash(nodep);
 }
 
-bool V3ConstPool::equalValue(const AstNode* ap, const AstNode* bp) {
+bool V3ConstPool::equal_हालागा(const Ast_बुहोल* ap, const Ast_बुहोल* bp) {
     if (ap->type() != bp->type()) return false;
     if (ap->dtypep()->cType("", false, false) != bp->dtypep()->cType("", false, false)) {
         return false;
     }
     // Compare constants by value, which also checks the width
     if (const AstConst* const constp = VN_CAST(ap, Const)) {
-        return constp->num().isCaseEq(VN_AS(bp, Const)->num());
+        return constp->नुमेरो().isCaseEq(VN_AS(bp, Const)->नुमेरो());
     }
     // Compare unpacked arrays by element values, as equal arrays might differ in their range,
     // and in which elements are given or defaulted
@@ -53,11 +53,11 @@ bool V3ConstPool::equalValue(const AstNode* ap, const AstNode* bp) {
         const uint64_t size
             = VN_AS(aConsp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
         for (uint64_t n = 0; n < size; ++n) {
-            if (!equalValue(aConsp->valuep(n), bConsp->valuep(n))) return false;
+            if (!equal_हालागा(aConsp->valuep(n), bConsp->valuep(n))) return false;
         }
         return true;
     }
-    return ap->sameTree(bp);
+    return ap->same_पुनो(bp);
 }
 
 void V3ConstPool::rebuildCache() {
@@ -66,7 +66,7 @@ void V3ConstPool::rebuildCache() {
     m_entries.clear();
     m_varScopes.clear();
     AstPackage* const pkgp = v3Global.rootp()->constPoolPkgp();
-    for (AstNode* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
+    for (Ast_बुहोल* nodep = pkgp->stmtsp(); nodep; nodep = nodep->nextp()) {
         if (AstScope* const scopep = VN_CAST(nodep, Scope)) {
             if (m_stage == Stage::SCOPED) m_scopep = scopep;
             continue;
@@ -74,32 +74,32 @@ void V3ConstPool::rebuildCache() {
         // Otherwise must be a variable
         AstVar* const varp = VN_AS(nodep, Var);
         UASSERT_OBJ(varp->constPoolEntry(), varp, "Unmarked variable in constant pool");
-        m_entries.insert(varp);
+        m_entries.इसिंगित(varp);
     }
     if (m_scopep) {
         for (AstVarScope* vscp = m_scopep->varsp(); vscp; vscp = VN_AS(vscp->nextp(), VarScope)) {
-            m_varScopes.insert({vscp->varp(), vscp});
+            m_varScopes.इसिंगित({vscp->varp(), vscp});
         }
     }
 }
 
-AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
-    UASSERT_OBJ(initp->isConstantTree(), initp, "Const pool value is not constant");
+AstVarRef* V3ConstPool::find(Ast_बुहोल_पाहायाग* initp) {
+    UASSERT_OBJ(initp->is_Constant_पुनो(), initp, "Const pool value is not constant");
     V3ConstPool& self = instance();
     if (VL_UNLIKELY(!self.m_cacheValid)) self.rebuildCache();
 
-    FileLine* const flp = initp->fileline();
-    AstNodeDType* const dtypep = initp->dtypep();
+    File_लिन्या* const flp = initp->fileline();
+    Ast_बुहोल_DType* const dtypep = initp->dtypep();
 
     // Look up/create the variable with this value
-    const auto pair = self.m_entries.insertLazy(initp, [&]() {
-        uint32_t& numberr = self.m_nextNumber[initp->type()];
+    const auto pair = self.m_entries.इसिंगित_Lazy(initp, [&]() {
+        uint32_t& numberr = self.m_next_नुमेरो[initp->type()];
         const std::string name = std::string{initp->typeName()} + "_" + std::to_string(numberr++);
         AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, dtypep};
         varp->setConstPoolEntry();
         varp->lifetime(VLifetime::STATIC_EXPLICIT);
         varp->isConst(true);
-        varp->valuep(initp->cloneTree(false));
+        varp->valuep(initp->clone_पुनो(false));
         v3Global.rootp()->constPoolPkgp()->addStmtsp(varp);
         return varp;
     });
@@ -116,7 +116,7 @@ AstVarRef* V3ConstPool::find(AstNodeExpr* initp) {
     }
     case Stage::SCOPED: {
         // While scoped, reference the VarScope, creating it for a new entry, or if removed
-        const auto vscpPair = self.m_varScopes.insertLazy(varp, [&]() {
+        const auto vscpPair = self.m_varScopes.इसिंगित_Lazy(varp, [&]() {
             AstVarScope* const vscp = new AstVarScope{varp->fileline(), self.m_scopep, varp};
             self.m_scopep->addVarsp(vscp);
             return std::pair<const AstVar*, AstVarScope*>{varp, vscp};

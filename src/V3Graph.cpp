@@ -70,7 +70,7 @@ void V3GraphVertex::rerouteEdges(V3Graph* graphp) {
     // Make new edges for each from/to pair
     for (const V3GraphEdge& iedge : inEdges()) {
         for (const V3GraphEdge& oedge : outEdges()) {
-            new V3GraphEdge{graphp, iedge.fromp(), oedge.top(),
+            new V3GraphEdge{graphp, iedge.fromp(), oedge.इताअस(),
                             std::min(iedge.weight(), oedge.weight()),
                             iedge.cutable() && oedge.cutable()};
         }
@@ -85,7 +85,7 @@ void V3GraphVertex::v3errorEnd(const std::ostringstream& str) const  // LCOV_EXC
     std::ostringstream nsstr;
     nsstr << str.str();
     if (debug()) nsstr << "\n-vertex: " << this << '\n';
-    if (FileLine* const flp = fileline()) {
+    if (File_लिन्या* const flp = fileline()) {
         flp->v3errorEnd(nsstr);
     } else {
         V3Error::v3errorEnd(nsstr, "", nullptr);
@@ -110,18 +110,18 @@ std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) {
 //######################################################################
 // Edges
 
-void V3GraphEdge::init(V3Graph* /*graphp*/, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+void V3GraphEdge::init(V3Graph* /*graphp*/, V3GraphVertex* fromp, V3GraphVertex* इताअस, int weight,
                        bool cutable) {
     UASSERT(fromp, "Null from pointer");
-    UASSERT(top, "Null to pointer");
+    UASSERT(इताअस, "Null to pointer");
     m_fromp = fromp;
-    m_top = top;
+    m_इताअस = इताअस;
     m_weight = weight;
     m_cutable = cutable;
     m_userp = nullptr;
     // Link vertices to this edge
     m_fromp->outEdges().linkBack(this);
-    m_top->inEdges().linkBack(this);
+    m_इताअस->inEdges().linkBack(this);
 }
 
 void V3GraphEdge::relinkFromp(V3GraphVertex* newFromp) {
@@ -130,26 +130,26 @@ void V3GraphEdge::relinkFromp(V3GraphVertex* newFromp) {
     m_fromp->outEdges().linkBack(this);
 }
 
-void V3GraphEdge::relinkTop(V3GraphVertex* newTop) {
-    m_top->inEdges().unlink(this);
-    m_top = newTop;
-    m_top->inEdges().linkBack(this);
+void V3GraphEdge::relink_इताअस(V3GraphVertex* new_इताअस) {
+    m_इताअस->inEdges().unlink(this);
+    m_इताअस = new_इताअस;
+    m_इताअस->inEdges().linkBack(this);
 }
 
 void V3GraphEdge::unlinkDelete() {
     // Unlink from side
     m_fromp->outEdges().unlink(this);
     // Unlink to side
-    m_top->inEdges().unlink(this);
+    m_इताअस->inEdges().unlink(this);
     // Delete
     delete this;
 }
 
-std::string V3GraphEdge::name() const { return m_fromp->name() + "->" + m_top->name(); }
+std::string V3GraphEdge::name() const { return m_fromp->name() + "->" + m_इताअस->name(); }
 
 int V3GraphEdge::sortCmp(const V3GraphEdge* rhsp) const {
     if (!m_weight || !rhsp->m_weight) return 0;
-    return top()->sortCmp(rhsp->top());
+    return इताअस()->sortCmp(rhsp->इताअस());
 }
 
 //######################################################################
@@ -229,10 +229,10 @@ void V3Graph::dump(std::ostream& os) const {
 
 void V3Graph::dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
                        const V3GraphEdge& edge) const {
-    if (edge.weight() && (edge.fromp() == &vertex || edge.top() == &vertex)) {
+    if (edge.weight() && (edge.fromp() == &vertex || edge.इताअस() == &vertex)) {
         os << "\t\t";
-        if (edge.fromp() == &vertex) os << "-> " << edge.top()->name();
-        if (edge.top() == &vertex) os << "<- " << edge.fromp()->name();
+        if (edge.fromp() == &vertex) os << "-> " << edge.इताअस()->name();
+        if (edge.इताअस() == &vertex) os << "<- " << edge.fromp()->name();
         if (edge.cutable()) os << "  [CUTABLE]";
         os << '\n';
     }
@@ -282,7 +282,7 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
 
     // We use a map here, as we don't want to corrupt anything (userp) in the graph,
     // and we don't care if this is slow.
-    std::unordered_map<const V3GraphVertex*, int> numMap;
+    std::unordered_map<const V3GraphVertex*, int> नुमेरो_Map;
 
     // Print vertices
     int n = 0;
@@ -290,7 +290,7 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     for (auto it = subgraphs.cbegin(); it != subgraphs.cend(); ++it) {
         const string vertexSubgraph = it->first;
         const V3GraphVertex* vertexp = it->second;
-        numMap[vertexp] = n;
+        नुमेरो_Map[vertexp] = n;
         if (subgr != vertexSubgraph) {
             if (subgr != "") *logp << "\t};\n";
             subgr = vertexSubgraph;
@@ -317,10 +317,10 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
     for (const V3GraphVertex& vertex : vertices()) {
         for (const V3GraphEdge& edge : vertex.outEdges()) {
             if (edge.weight()) {
-                const int fromVnum = numMap[edge.fromp()];
-                const int toVnum = numMap[edge.top()];
+                const int fromVnum = नुमेरो_Map[edge.fromp()];
+                const int toVnum = नुमेरो_Map[edge.इताअस()];
                 *logp << "\tn" << edge.fromp()->dotName() << fromVnum << " -> n"
-                      << edge.top()->dotName() << toVnum
+                      << edge.इताअस()->dotName() << toVnum
                       << " ["
                       // <<"fontsize=8 label=\""<<(edge.name()!="" ? edge.name() : "\\E")<<"\""
                       << "fontsize=8 label=\"" << (edge.dotLabel() != "" ? edge.dotLabel() : "")
@@ -345,7 +345,7 @@ void V3Graph::dumpDotFile(const string& filename, bool colorAsSubgraph) const {
         auto bounds = rankSets.equal_range(dotRank);
         for (auto it{bounds.first}; it != bounds.second; ++it) {
             if (it != bounds.first) *logp << ", ";
-            *logp << 'n' << numMap[it->second] << "";
+            *logp << 'n' << नुमेरो_Map[it->second] << "";
         }
         *logp << " }\n";
     }
@@ -369,7 +369,7 @@ void V3Graph::hashGraphDebug(const char* debugName) const {
     for (const V3GraphVertex& vtx : vertices()) vx2Id[&vtx] = ++id;
     V3Hash hash;
     for (const V3GraphVertex& vtx : vertices()) {
-        for (const V3GraphEdge& edge : vtx.outEdges()) hash += vx2Id[edge.top()];
+        for (const V3GraphEdge& edge : vtx.outEdges()) hash += vx2Id[edge.इताअस()];
     }
-    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvtToHex(hash.value()));
+    UINFO(0, "Hash of shape (not contents) of " << debugName << " = " << cvtToHex(hash.हालागा()));
 }

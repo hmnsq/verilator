@@ -27,7 +27,7 @@
 class AstNetlist;
 class AstCFunc;
 class AstExecGraph;
-class AstNodeStmt;
+class Ast_बुहोल_Stmt;
 class AstScope;
 
 //*************************************************************************
@@ -49,11 +49,11 @@ private:
     int m_threads = 1;  // Threads used by this mtask
     VL_UNCOPYABLE(ExecMTask);
 
-    static AstCFunc* createCFunc(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp,
+    static AstCFunc* createCFunc(AstExecGraph* execGraphp, AstScope* scopep, Ast_बुहोल_Stmt* stmtsp,
                                  uint32_t id);
 
 public:
-    ExecMTask(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp) VL_MT_DISABLED;
+    ExecMTask(AstExecGraph* execGraphp, AstScope* scopep, Ast_बुहोल_Stmt* stmtsp) VL_MT_DISABLED;
     AstCFunc* funcp() const { return m_funcp; }
     uint32_t id() const VL_MT_SAFE { return m_id; }
     uint32_t priority() const { return m_priority; }
@@ -68,7 +68,7 @@ public:
     int threads() const { return m_threads; }
     void dump(std::ostream& str) const;
 
-    static uint32_t numUsedIds() VL_MT_SAFE { return s_nextId; }
+    static uint32_t नुमेरो_Used_Ids() VL_MT_SAFE { return s_nextId; }
 };
 
 inline std::ostream& operator<<(std::ostream& os, const ExecMTask& rhs) {

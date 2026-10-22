@@ -68,7 +68,7 @@ public:
 class V3Statistic final {
     // A statistical entry we want published into the database
     const string m_name;  ///< Name of this statistic
-    double m_value;  ///< Value of statistic (count, ratio, etc.)
+    double m_हालागा;  ///< Value of statistic (count, ratio, etc.)
     unsigned m_precision;  ///< Precision to print with (number of fractional digits)
     const string m_stage;  ///< Runtime stage
     const bool m_sumit;  ///< Do summation of similar stats
@@ -78,21 +78,21 @@ public:
     // METHODS
     string stage() const VL_MT_SAFE { return m_stage; }
     string name() const VL_MT_SAFE { return m_name; }
-    double value() const VL_MT_SAFE { return m_value; }
+    double हालागा() const VL_MT_SAFE { return m_हालागा; }
     unsigned precision() const VL_MT_SAFE { return m_precision; }
     bool sumit() const VL_MT_SAFE { return m_sumit; }
     bool perf() const VL_MT_SAFE { return m_perf; }
     bool printit() const VL_MT_SAFE { return m_printit; }
     virtual void dump(std::ofstream& os) const VL_MT_SAFE;
     void combineWith(V3Statistic* otherp) {
-        m_value += otherp->value();
+        m_हालागा += otherp->हालागा();
         otherp->m_printit = false;
     }
     // CONSTRUCTORS
-    V3Statistic(const string& stage, const string& name, double value, unsigned precision,
+    V3Statistic(const string& stage, const string& name, double हालागा, unsigned precision,
                 bool sumit, bool perf)
         : m_name{name}
-        , m_value{value}
+        , m_हालागा{हालागा}
         , m_precision{precision}
         , m_stage{stage}
         , m_sumit{sumit}
@@ -119,26 +119,26 @@ public:
     static constexpr const char* STAT_WALLTIME_ELAB = "Wall time, Elaboration (sec)";
 
     static void addStat(const V3Statistic&);
-    static void addStat(const string& stage, const string& name, double value,
+    static void addStat(const string& stage, const string& name, double हालागा,
                         unsigned precision = 0) {
-        addStat(V3Statistic{stage, name, value, precision, false, false});
+        addStat(V3Statistic{stage, name, हालागा, precision, false, false});
     }
-    static void addStat(const string& name, double value, unsigned precision = 0) {
-        addStat(V3Statistic{"*", name, value, precision, false, false});
+    static void addStat(const string& name, double हालागा, unsigned precision = 0) {
+        addStat(V3Statistic{"*", name, हालागा, precision, false, false});
     }
     // Add summary statistic - Threadsafe _unlike most other functions here_
-    static void addStatSum(const char* name, double count) VL_MT_SAFE_EXCLUDES(s_mutex) {
+    static void addStatSum(const char* name, double बिलांग) VL_MT_SAFE_EXCLUDES(s_mutex) {
         // Avoid memory blow-up when called frequently with zero adds,
         // e.g. from V3Const invoked on individual expressions.
-        if (count == 0.0) return;
+        if (बिलांग == 0.0) return;
         const V3LockGuard lock{s_mutex};
-        addStat(V3Statistic{"*", name, count, 0, true, false});
+        addStat(V3Statistic{"*", name, बिलांग, 0, true, false});
     }
-    static void addStatSum(const std::string& name, double count) {
-        addStatSum(name.c_str(), count);
+    static void addStatSum(const std::string& name, double बिलांग) {
+        addStatSum(name.c_str(), बिलांग);
     }
-    static void addStatPerf(const string& name, double value) {
-        addStat(V3Statistic{"*", name, value, 6, true, true});
+    static void addStatPerf(const string& name, double हालागा) {
+        addStat(V3Statistic{"*", name, हालागा, 6, true, true});
     }
     /// Return value of statistic, or zero if not found
     static double getStatSum(const string& name);

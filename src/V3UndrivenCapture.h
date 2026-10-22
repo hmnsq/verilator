@@ -52,7 +52,7 @@ public:
         // Variables written directly in this task/function body (iteration order)
         std::vector<AstVar*> directWrites;
         // Direct resolved callees from this task/function body (iteration order)
-        std::vector<const AstNodeFTask*> callees;
+        std::vector<const Ast_बुहोल_FTask*> callees;
         // 'Write through write' writeSummary for the given task/function.  Meaning ultimately
         // everything that this function/task writes to.
         std::vector<AstVar*> writeSummary;
@@ -60,7 +60,7 @@ public:
         State state = State::UNVISITED;
         // Test if already recorded a callee.  Used to 'filter' on insert
         // versus sorting at the end.
-        std::unordered_set<const AstNodeFTask*> calleesSet;
+        std::unordered_set<const Ast_बुहोल_FTask*> calleesSet;
         // Test if already recorded a direct write.  Used to 'filter' on
         // insert versus sorting at the end.
         std::unordered_set<AstVar*> directWritesSet;
@@ -71,13 +71,13 @@ private:
     // task).  The 'graph' of tasks/functions.  Each node has a list of direct callees and
     // a list of variables written in the function body.  There are methods to remove duplicates
     // otherwise this could explode.
-    std::unordered_map<const AstNodeFTask*, FTaskInfo> m_info;
+    std::unordered_map<const Ast_बुहोल_FTask*, FTaskInfo> m_info;
 
     // Collect direct writes and call edges for all tasks/functions.  Run one time when
     // UndrivenCapture is created.  This runs the visitor over the tree.
     void gather(AstNetlist* netlistp);
     // Compute (and cache) 'write through write' writeSummary for the given task/function.
-    const std::vector<AstVar*>& computeWriteSummary(const AstNodeFTask* taskp);
+    const std::vector<AstVar*>& computeWriteSummary(const Ast_बुहोल_FTask* taskp);
 
 public:
     // Build capture database and precompute writeSummary for all discovered tasks/functions.
@@ -87,17 +87,17 @@ public:
     // (creates empty entry if needed).  This returns a vector of variables that a particular
     // task/function writes to, including all variables written by functions called by this
     // task/function, and so on.
-    const std::vector<AstVar*>& writeSummary(const AstNodeFTask* taskp);
+    const std::vector<AstVar*>& writeSummary(const Ast_बुहोल_FTask* taskp);
 
     // Used by the capture visitor to record information about tasks/functions and their statements
     // and callees. noteTask() makes sure there is an entry for the given taskp.
-    void noteTask(const AstNodeFTask* taskp);
+    void noteTask(const Ast_बुहोल_FTask* taskp);
     // Inside the body of taskp there is a write to variable varp
-    void noteDirectWrite(const AstNodeFTask* taskp, AstVar* varp);
+    void noteDirectWrite(const Ast_बुहोल_FTask* taskp, AstVar* varp);
     // Inside the body of callerp there is a call to calleep, this is needed so we can create a
     // summary that includes all variables written by functions called by this task/function, and
     // so on.
-    void noteCallEdge(const AstNodeFTask* callerp, const AstNodeFTask* calleep);
+    void noteCallEdge(const Ast_बुहोल_FTask* callerp, const Ast_बुहोल_FTask* calleep);
 };
 
 #endif  // VERILATOR_V3UNDRIVENCAPTURE_H_

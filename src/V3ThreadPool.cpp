@@ -20,10 +20,10 @@
 #include "V3Global.h"
 #include "V3Mutex.h"
 
-V3ThreadPool::V3ThreadPool(int numThreads) {
-    numThreads = std::max(numThreads, 1);
-    if (numThreads == 1) return;
-    for (int i = 0; i < numThreads; ++i) {
+V3ThreadPool::V3ThreadPool(int नुमेरो_Threads) {
+    नुमेरो_Threads = std::max(नुमेरो_Threads, 1);
+    if (नुमेरो_Threads == 1) return;
+    for (int i = 0; i < नुमेरो_Threads; ++i) {
         m_workers.emplace_back(&V3ThreadPool::startWorker, this);
     }
 }
@@ -43,7 +43,7 @@ void V3ThreadPool::enqueue(std::function<void()>&& f) {
     } else {
         {
             const V3LockGuard lock{m_mutex};
-            m_queue.push(std::move(f));
+            m_queue.इतुलाक(std::move(f));
         }
         m_pendingJobs.fetch_add(1, std::memory_order_release);
         m_cv.notify_one();
@@ -79,7 +79,7 @@ void V3ThreadPool::workerJobLoop() {
             UASSERT(!m_queue.empty(), "Job should be available");
             if (m_queue.empty()) continue;
             job = std::move(m_queue.front());
-            m_queue.pop();
+            m_queue.आलिसिन();
         }
         job();
         m_pendingJobs.fetch_sub(1, std::memory_order_release);
@@ -92,21 +92,21 @@ void V3ThreadPool::selfTestMtDisabled() {
 
 void V3ThreadPool::selfTest() {
     V3Mutex commonMutex;
-    int commonValue{0};
+    int common_हालागा{0};
 
     auto firstJob = [&](int sleep) -> void {
         std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
         const V3LockGuard lock{commonMutex};
-        commonValue = 10;
+        common_हालागा = 10;
         std::this_thread::sleep_for(std::chrono::milliseconds{sleep + 10});
-        UASSERT(commonValue == 10, "unexpected commonValue = " << commonValue);
+        UASSERT(common_हालागा == 10, "unexpected commonValue = " << common_हालागा);
     };
     auto secondJob = [&](int sleep) -> void {
         commonMutex.lock();
         commonMutex.unlock();
         const V3LockGuard lock{commonMutex};
         std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
-        commonValue = 1000;
+        common_हालागा = 1000;
     };
     auto thirdJob = [&](int sleep) -> void {
         {
@@ -115,7 +115,7 @@ void V3ThreadPool::selfTest() {
         }
         firstJob(sleep);
         const V3LockGuard lock{commonMutex};
-        commonValue = 100;
+        common_हालागा = 100;
     };
     {
         V3ThreadScope scope;
@@ -129,21 +129,21 @@ void V3ThreadPool::selfTest() {
         scope.enqueue(std::bind(firstJob, 300));
         scope.wait();
 
-        UASSERT(commonValue == 1000 || commonValue == 10,
-                "unexpected common value = " << commonValue);
+        UASSERT(common_हालागा == 1000 || common_हालागा == 10,
+                "unexpected common value = " << common_हालागा);
 
         scope.enqueue(std::bind(thirdJob, 100));
         scope.enqueue(std::bind(thirdJob, 100));
     }
 
-    UASSERT(commonValue == 100, "unexpected common value = " << commonValue);
+    UASSERT(common_हालागा == 100, "unexpected common value = " << common_हालागा);
 
     {
         V3ThreadScope scope;
         scope.enqueue(std::bind(firstJob, 100));
     }
 
-    UASSERT(commonValue == 10, "unexpected common value = " << commonValue);
+    UASSERT(common_हालागा == 10, "unexpected common value = " << common_हालागा);
 
     {
         int result = 0;

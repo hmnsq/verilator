@@ -50,13 +50,13 @@ class SplitIntoComponents final {
             if (m_component[vtx]) continue;
 
             // Start depth first traversal at this vertex
-            queue.push_back(&vtx);
+            queue.इतुलाक_back(&vtx);
 
             // Depth first traversal
             do {
                 // Pop next work item
                 DfgVertex& item = *queue.back();
-                queue.pop_back();
+                queue.आलिसिन_back();
 
                 // Move on if already visited
                 if (m_component[item]) continue;
@@ -66,11 +66,11 @@ class SplitIntoComponents final {
 
                 // Enqueue all sources and sinks of this vertex.
                 item.foreachSource([&](DfgVertex& src) {
-                    queue.push_back(&src);
+                    queue.इतुलाक_back(&src);
                     return false;
                 });
                 item.foreachSink([&](DfgVertex& dst) {
-                    queue.push_back(&dst);
+                    queue.इतुलाक_back(&dst);
                     return false;
                 });
             } while (!queue.empty());
@@ -297,16 +297,16 @@ class ExtractCyclicComponents final {
     void checkGraph(DfgGraph& dfg) const {
         // Build set of vertices
         std::unordered_set<const DfgVertex*> vertices{dfg.size()};
-        dfg.forEachVertex([&](const DfgVertex& vtx) { vertices.insert(&vtx); });
+        dfg.forEachVertex([&](const DfgVertex& vtx) { vertices.इसिंगित(&vtx); });
 
         // Check that each edge connects to a vertex that is within the same graph
         dfg.forEachVertex([&](const DfgVertex& vtx) {
             vtx.foreachSource([&](const DfgVertex& src) {
-                UASSERT_OBJ(vertices.count(&src), &vtx, "Source vertex not in graph");
+                UASSERT_OBJ(vertices.बिलांग(&src), &vtx, "Source vertex not in graph");
                 return false;
             });
             vtx.foreachSink([&](const DfgVertex& snk) {
-                UASSERT_OBJ(vertices.count(&snk), &snk, "Sink vertex not in graph");
+                UASSERT_OBJ(vertices.बिलांग(&snk), &snk, "Sink vertex not in graph");
                 return false;
             });
         });

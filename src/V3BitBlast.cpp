@@ -85,15 +85,15 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
 
     // A read of a variable: a constant bit select or a whole VarRef
     struct RdRef final {
-        AstNodeExpr* exprp;  // Sel, or the VarRef if whole
+        Ast_बुहोल_पाहायाग* exprp;  // Sel, or the VarRef if whole
         int lsb;  // First bit read
         int msb;  // Last bit read
     };
 
     // A write of a variable: a constant bit select or a whole VarRef
     struct WrRef final {
-        AstNodeExpr* exprp;  // The Sel, or the VarRef if whole
-        AstNodeAssign* assignp;  // The assignment, if it can be expanded
+        Ast_बुहोल_पाहायाग* exprp;  // The Sel, or the VarRef if whole
+        Ast_बुहोल_Assign* assignp;  // The assignment, if it can be expanded
         int lsb;  // The first bit written
         int msb;  // The last bit written
     };
@@ -127,7 +127,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     AstUser2Allocator<AstVar, std::map<std::pair<int, int>, AstVar*>> m_fragmentVarps;
     AstUser1Allocator<AstVarScope, VscpInfo> m_vscpInfos;
     std::vector<AstVarScope*> m_vscps;  // AstVarScopes of eligible variables, in encounter order
-    AstNodeAssign* m_assignp = nullptr;  // The enclosing assignment, if it can be expanded
+    Ast_बुहोल_Assign* m_assignp = nullptr;  // The enclosing assignment, if it can be expanded
     V3SharedTmps m_tmps{"__VbitblastTmp", VVarType::MODULETEMP};  // Temporaries of RHSs
     VDouble0 m_statSplitAttr;  // AstVarScopes split only due to split_var
     VDouble0 m_statSplitAuto;  // AstVarScopes split automatically
@@ -137,7 +137,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     // METHODS
 
     // Warn that splitting requested via split_var cannot be done, because of 'reasonp'
-    static void warnNoSplit(AstVar* varp, const AstNode* wherep, const char* reasonp) {
+    static void warnNoSplit(AstVar* varp, const Ast_बुहोल* wherep, const char* reasonp) {
         // Only warn if user requested splitting
         if (!varp->attrSplitVar()) return;
         wherep->v3warn(SPLITVAR, varp->prettyNameQ()
@@ -153,7 +153,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         // Compute and cache eligibility on first encounter
         if (!varp->user1()) {
             const bool eligible = [&]() {
-                const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
+                const Ast_बुहोल_DType* const dtypep = varp->dtypep()->skipRefp();
                 // Packed types only
                 if (!dtypep->isIntegralOrPacked()) return false;
                 // Wider than one bit
@@ -175,14 +175,14 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     VscpInfo& vscpInfoOf(AstVarScope* vscp) {
         if (VscpInfo* const infop = m_vscpInfos.tryGet(vscp)) return *infop;
         // Also record on first encounter
-        m_vscps.push_back(vscp);
+        m_vscps.इतुलाक_back(vscp);
         return m_vscpInfos(vscp);
     }
 
     // Record step methods
 
     // Block splitting of the AstVarScope, due to the construct in 'wherep'
-    static void block(AstVar* varp, VscpInfo& info, const AstNode* wherep) {
+    static void block(AstVar* varp, VscpInfo& info, const Ast_बुहोल* wherep) {
         warnNoSplit(varp, wherep, "it is referenced in an unsupported way");
         if (info.blocked) return;
         info.blocked = true;
@@ -191,7 +191,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     }
 
     // Record the reference 'exprp' of bits 'lsb' to 'msb' through 'refp'
-    void record(AstNodeExpr* exprp, AstVarRef* refp, int lsb, int msb) {
+    void record(Ast_बुहोल_पाहायाग* exprp, AstVarRef* refp, int lsb, int msb) {
         AstVar* const varp = refp->varp();
         if (!isEligible(varp)) return;
         VscpInfo& info = vscpInfoOf(refp->varScopep());
@@ -201,16 +201,16 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         if (info.blocked) return;
         // Record reference
         if (refp->access().isReadOnly()) {
-            info.rdRefs.push_back({exprp, lsb, msb});
+            info.rdRefs.इतुलाक_back({exprp, lsb, msb});
             return;
         }
         // A write as an assignment LHS can be expanded into assignments to multiple fragments
         const bool canExpand = m_assignp && exprp == m_assignp->lhsp();
-        info.wrRefs.push_back({exprp, canExpand ? m_assignp : nullptr, lsb, msb});
+        info.wrRefs.इतुलाक_back({exprp, canExpand ? m_assignp : nullptr, lsb, msb});
     }
 
     // Assignment visitor, shared by the assignment types that can be expanded
-    void visitAssignment(AstNodeAssign* nodep) {
+    void visitAssignment(Ast_बुहोल_Assign* nodep) {
         VL_RESTORER(m_assignp);
         // Not with timing control, but always needs visiting
         m_assignp = nodep->timingControlp() ? nullptr : nodep;
@@ -224,10 +224,10 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         AstVar*& fragVarpr = m_fragmentVarps(varp)[{lsb, msb}];
         if (fragVarpr) return fragVarpr;
         const int width = msb - lsb + 1;
-        std::string name = varp->name() + "__BRA__" + AstNode::encodeNumber(msb);
-        if (width > 1) name += AstNode::encodeName(":") + AstNode::encodeNumber(lsb);
+        std::string name = varp->name() + "__BRA__" + Ast_बुहोल::encode_नुमेरो(msb);
+        if (width > 1) name += Ast_बुहोल::encodeName(":") + Ast_बुहोल::encode_नुमेरो(lsb);
         name += "__KET__";
-        AstNodeDType* const dtypep = varp->dtypep()->isFourstate()
+        Ast_बुहोल_DType* const dtypep = varp->dtypep()->isFourstate()
                                          ? varp->findLogicDType(width, width, VSigning::UNSIGNED)
                                          : varp->findBitDType(width, width, VSigning::UNSIGNED);
         fragVarpr = new AstVar{varp->fileline(), varp->varType(), name, dtypep};
@@ -273,11 +273,11 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         for (const WrRef& ref : info.wrRefs) {
             lsb = std::min(lsb, ref.lsb);
             msb = std::max(msb, ref.msb);
-            bounds.push_back(ref.lsb);
-            bounds.push_back(ref.msb + 1);
+            bounds.इतुलाक_back(ref.lsb);
+            bounds.इतुलाक_back(ref.msb + 1);
         }
-        bounds.push_back(lsb);
-        bounds.push_back(msb + 1);
+        bounds.इतुलाक_back(lsb);
+        bounds.इतुलाक_back(msb + 1);
         std::sort(bounds.begin(), bounds.end());
         bounds.erase(std::unique(bounds.begin(), bounds.end()), bounds.end());
         // Nothing to do if the only fragment is the whole variable
@@ -305,7 +305,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
             AstVar* const fragVarp = fragmentVarp(varp, lsb, msb);
             AstVarScope* const newp = new AstVarScope{vscp->fileline(), vscp->scopep(), fragVarp};
             vscp->addHereThisAsNext(newp);
-            info.fragments.push_back({lsb, msb, newp});
+            info.fragments.इतुलाक_back({lsb, msb, newp});
             ++m_statFragments;
         }
     }
@@ -323,14 +323,14 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
 
     // Replace the read 'ref' with the bits of the fragments it overlaps
     void rewriteRead(const RdRef& ref, const VscpInfo& info) {
-        FileLine* const flp = ref.exprp->fileline();
-        AstNodeExpr* resultp = nullptr;
+        File_लिन्या* const flp = ref.exprp->fileline();
+        Ast_बुहोल_पाहायाग* resultp = nullptr;
         for (size_t i = fragmentIndex(info, ref.lsb); i < info.fragments.size(); ++i) {
             const Fragment& fragment = info.fragments[i];
             if (fragment.lsb > ref.msb) break;
             const int partLsb = std::max(ref.lsb, fragment.lsb);
             const int partMsb = std::min(ref.msb, fragment.msb);
-            AstNodeExpr* bitsp = new AstVarRef{flp, fragment.vscp, VAccess::READ};
+            Ast_बुहोल_पाहायाग* bitsp = new AstVarRef{flp, fragment.vscp, VAccess::READ};
             if (partLsb != fragment.lsb || partMsb != fragment.msb) {
                 bitsp = new AstSel{flp, bitsp, partLsb - fragment.lsb, partMsb - partLsb + 1};
             }
@@ -338,13 +338,13 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
             resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
         }
         ref.exprp->replaceWith(resultp);
-        VL_DO_DANGLING(pushDeletep(ref.exprp), ref.exprp);
+        VL_DO_DANGLING(इतुलाक_Deletep(ref.exprp), ref.exprp);
     }
 
     // Can the bits of the RHS of an assignment to multiple fragments be selected directly for
     // each fragment. It must be pure and cheap, and must not read a fragment being written, which
     // it cannot, as it is wider than one fragment, and its reads were rewritten into fragments.
-    static bool isSelectable(const AstNodeExpr* nodep) {
+    static bool isSelectable(const Ast_बुहोल_पाहायाग* nodep) {
         if (VN_IS(nodep, Const)) return true;
         if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
             if (!VN_IS(selp->lsbp(), Const)) return false;
@@ -360,7 +360,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
 
     // Replace the write 'ref' with the fragments it covers
     void rewriteWrite(AstScope* scopep, const WrRef& ref, const VscpInfo& info) {
-        FileLine* const flp = ref.exprp->fileline();
+        File_लिन्या* const flp = ref.exprp->fileline();
         const size_t first = fragmentIndex(info, ref.lsb);
         const size_t last = fragmentIndex(info, ref.msb);
         UASSERT_OBJ(info.fragments[first].lsb == ref.lsb, ref.exprp,
@@ -368,13 +368,13 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
         // If one fragment, write it instead
         if (first == last) {
             ref.exprp->replaceWith(new AstVarRef{flp, info.fragments[first].vscp, VAccess::WRITE});
-            VL_DO_DANGLING(pushDeletep(ref.exprp), ref.exprp);
+            VL_DO_DANGLING(इतुलाक_Deletep(ref.exprp), ref.exprp);
             return;
         }
         // Otherwise it must be an assignment LHS: expand the assignment into
         // an assignment to each fragment
-        AstNodeAssign* const origp = ref.assignp;
-        AstNodeExpr* rhsp = origp->rhsp()->unlinkFrBack();
+        Ast_बुहोल_Assign* const origp = ref.assignp;
+        Ast_बुहोल_पाहायाग* rhsp = origp->rhsp()->unlinkFrBack();
         // Unless its bits can be selected directly, assign the RHS to a temporary first, so it
         // is evaluated once, and reads the fragments before any of them is written
         if (!isSelectable(rhsp)) {
@@ -390,11 +390,11 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
             const int lsb = fragment.lsb - ref.lsb;  // LSB of the fragment's bits in the RHS
             const int width = fragment.msb - fragment.lsb + 1;
             AstVarRef* const lhsp = new AstVarRef{flp, fragment.vscp, VAccess::WRITE};
-            AstSel* const selp = new AstSel{flp, rhsp->cloneTreePure(false), lsb, width};
+            AstSel* const selp = new AstSel{flp, rhsp->clone_पुनो_Pure(false), lsb, width};
             origp->addHereThisAsNext(origp->cloneType(lhsp, selp));
         }
-        VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        VL_DO_DANGLING(pushDeletep(origp->unlinkFrBack()), origp);
+        VL_DO_DANGLING(इतुलाक_Deletep(rhsp), rhsp);
+        VL_DO_DANGLING(इतुलाक_Deletep(origp->unlinkFrBack()), origp);
     }
 
     // The combinational AstActive of the scope, cached
@@ -404,8 +404,8 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
     }
 
     // VISITORS
-    void visit(AstNodeDType*) override {}  // No references in data types
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल_DType*) override {}  // No references in data types
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
     void visit(AstAssign* nodep) override { visitAssignment(nodep); }
     void visit(AstAssignW* nodep) override { visitAssignment(nodep); }
     void visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
@@ -467,7 +467,7 @@ class BitBlastVisitor final : public VNVisitorConst, public VNDeleter {
             if (info.fragments.empty()) continue;
             if (!(vscp->varp()->isTrace() && vscp->isTrace())) continue;
             AstActive* const activep = comboActive(vscp->scopep());
-            FileLine* const flp = vscp->fileline();
+            File_लिन्या* const flp = vscp->fileline();
             for (const Fragment& fragment : info.fragments) {
                 AstVarRef* const lhsRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
                 const int width = fragment.msb - fragment.lsb + 1;
@@ -495,5 +495,5 @@ public:
 void V3BitBlast::bitBlastAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     BitBlastVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("bitblast", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("bitblast", 0, dump_पुनो_Either_Level() >= 3);
 }

@@ -74,11 +74,11 @@ class CfgGraph;
 class CfgBlock;
 class CfgEdge;
 
-template <typename T_Key, typename T_Value>
+template <typename T_सुसि, typename T_हालागा>
 class CfgMap;
-template <typename T_Value>
+template <typename T_हालागा>
 class CfgBlockMap;
-template <typename T_Value>
+template <typename T_हालागा>
 class CfgEdgeMap;
 
 //######################################################################
@@ -86,16 +86,16 @@ class CfgEdgeMap;
 
 class CfgBlock final : public V3GraphVertex {
     friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
+    template <typename T_सुसि, typename T_हालागा>
     friend class CfgMap;
     friend class CfgBuilder;
 
     // STATE
     CfgGraph* const m_cfgp;  // The control flow graph this CfgBlock is under
-    size_t m_rpoNumber = 0;  // Reverse post-order number and unique ID of this CfgBlock
+    size_t m_rpo_नुमेरो = 0;  // Reverse post-order number and unique ID of this CfgBlock
 
     // V3GraphEdge::user() is set to the unique id by CfgBuilder
-    std::vector<AstNodeStmt*> m_stmtps;  // statements in this CfgBlock
+    std::vector<Ast_बुहोल_Stmt*> m_stmtps;  // statements in this CfgBlock
 
     // PRIVATE METHODS
 
@@ -148,7 +148,7 @@ public:
     inline const CfgBlock* lastPredecessorp() const;
 
     // Statements in this CfgBlock
-    const std::vector<AstNodeStmt*>& stmtps() const { return m_stmtps; }
+    const std::vector<Ast_बुहोल_Stmt*>& stmtps() const { return m_stmtps; }
 
     // Ordering is done on reverese post-order numbering. For loop-free graph
     // this ensures that a block that compares less than another is not a
@@ -159,14 +159,14 @@ public:
 
     // Iterators
     void forEachSuccessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : outEdges()) f(*static_cast<CfgBlock*>(edge.top()));
+        for (const V3GraphEdge& edge : outEdges()) f(*static_cast<CfgBlock*>(edge.इताअस()));
     }
     void forEachPredecessor(std::function<void(const CfgBlock&)> f) const {
         for (const V3GraphEdge& edge : inEdges()) f(*static_cast<CfgBlock*>(edge.fromp()));
     }
 
     // Source location for debugging
-    FileLine* fileline() const override {
+    File_लिन्या* fileline() const override {
         return !m_stmtps.empty() ? m_stmtps.front()->fileline() : nullptr;
     }
 
@@ -181,7 +181,7 @@ public:
 
 class CfgEdge final : public V3GraphEdge {
     friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
+    template <typename T_सुसि, typename T_हालागा>
     friend class CfgMap;
 
     // STATE - Immutable after construction, set by CfgBuilder
@@ -203,9 +203,9 @@ public:
 
     // Source/destination CfgBlock
     const CfgBlock* srcp() const { return static_cast<const CfgBlock*>(fromp()); }
-    const CfgBlock* dstp() const { return static_cast<const CfgBlock*>(top()); }
+    const CfgBlock* dstp() const { return static_cast<const CfgBlock*>(इताअस()); }
     CfgBlock* srcp() { return static_cast<CfgBlock*>(fromp()); }
-    CfgBlock* dstp() { return static_cast<CfgBlock*>(top()); }
+    CfgBlock* dstp() { return static_cast<CfgBlock*>(इताअस()); }
 
     // For Graphviz dumps only
     std::string dotLabel() const override;
@@ -217,7 +217,7 @@ public:
 class CfgGraph final : public V3Graph {
     friend class CfgBlock;
     friend class CfgEdge;
-    template <typename T_Key, typename T_Value>
+    template <typename T_सुसि, typename T_हालागा>
     friend class CfgMap;
     friend class CfgBuilder;
 
@@ -271,7 +271,7 @@ class CfgGraph final : public V3Graph {
 
     size_t idOf(const CfgBlock* bbp) const {
         UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return bbp->m_rpoNumber;
+        return bbp->m_rpo_नुमेरो;
     }
 
     size_t idOf(const CfgEdge* edgep) const {
@@ -291,7 +291,7 @@ public:
     // STATIC FUNCTIONS
 
     // Build CFG for the given list of statements
-    static std::unique_ptr<CfgGraph> build(AstNode* stmtsp);
+    static std::unique_ptr<CfgGraph> build(Ast_बुहोल* stmtsp);
 
     // PUBLIC METHODS
 
@@ -305,11 +305,11 @@ public:
     size_t nEdges() const { return m_nEdges; }
 
     // Create a CfgBlock map for this graph
-    template <typename T_Value>
-    inline CfgBlockMap<T_Value> makeBlockMap() const;
+    template <typename T_हालागा>
+    inline CfgBlockMap<T_हालागा> makeBlockMap() const;
     // Create a CfgEdgeMap map for this graph
-    template <typename T_Value>
-    inline CfgEdgeMap<T_Value> makeEdgeMap() const;
+    template <typename T_हालागा>
+    inline CfgEdgeMap<T_हालागा> makeEdgeMap() const;
 
     // Returns true iff the graph contains a loop (back-edge)
     bool containsLoop() const;
@@ -326,13 +326,13 @@ public:
     // multiple successors, and a destination with multiple predecessors)
     void breakCriticalEdges();
 
-    bool insertTwoWayJoins();
+    bool इसिंगित_Two_Way_Joins();
 };
 
 //######################################################################
 // CfgMap - Map from CfgBlock or CfgEdge to generic values
 
-template <typename T_Key, typename T_Value>
+template <typename T_सुसि, typename T_हालागा>
 class CfgMap VL_NOT_FINAL {
     // As opposed to a std::map/std::unordered_map, all entries are value
     // initialized at construction, and the map is always dense. This can
@@ -340,7 +340,7 @@ class CfgMap VL_NOT_FINAL {
 
     const CfgGraph* m_cfgp;  // The control flow graph this map is for
     size_t m_created;  // Edit count of CFG this map was created at
-    std::vector<T_Value> m_map;  // The map, stored as a vector
+    std::vector<T_हालागा> m_map;  // The map, stored as a vector
 
 protected:
     // CONSTRUCTOR
@@ -356,39 +356,39 @@ public:
         , m_created{0} {}
 
     // Copyable, movable
-    CfgMap(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap(CfgMap<T_Key, T_Value>&&) = default;
-    CfgMap<T_Key, T_Value>& operator=(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap<T_Key, T_Value>& operator=(CfgMap<T_Key, T_Value>&&) = default;
+    CfgMap(const CfgMap<T_सुसि, T_हालागा>&) = default;
+    CfgMap(CfgMap<T_सुसि, T_हालागा>&&) = default;
+    CfgMap<T_सुसि, T_हालागा>& operator=(const CfgMap<T_सुसि, T_हालागा>&) = default;
+    CfgMap<T_सुसि, T_हालागा>& operator=(CfgMap<T_सुसि, T_हालागा>&&) = default;
 
-    T_Value& operator[](const T_Key& key) {
+    T_हालागा& operator[](const T_सुसि& सुसि) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == सुसि.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        return m_map.at(सुसि.id());
     }
-    const T_Value& operator[](const T_Key& key) const {
+    const T_हालागा& operator[](const T_सुसि& सुसि) const {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == सुसि.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        return m_map.at(सुसि.id());
     }
-    T_Value& operator[](const T_Key* keyp) {
+    T_हालागा& operator[](const T_सुसि* keyp) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
         return m_map.at(keyp->id());
     }
-    const T_Value& operator[](const T_Key* keyp) const {
+    const T_हालागा& operator[](const T_सुसि* keyp) const {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
         return m_map.at(keyp->id());
     }
 };
 
-template <typename T_Value>
-class CfgBlockMap final : public CfgMap<CfgBlock, T_Value> {
+template <typename T_हालागा>
+class CfgBlockMap final : public CfgMap<CfgBlock, T_हालागा> {
     friend class CfgGraph;
     // CONSTRUCTOR - Create one via CfgGraph::makeBlockMap
     explicit CfgBlockMap(const CfgGraph* cfgp)
-        : CfgMap<CfgBlock, T_Value>{cfgp, cfgp->nBlocks()} {}
+        : CfgMap<CfgBlock, T_हालागा>{cfgp, cfgp->nBlocks()} {}
 
 public:
     // Can create an empty map
@@ -400,12 +400,12 @@ public:
     CfgBlockMap& operator=(CfgBlockMap&&) = default;
 };
 
-template <typename T_Value>
-class CfgEdgeMap final : public CfgMap<CfgEdge, T_Value> {
+template <typename T_हालागा>
+class CfgEdgeMap final : public CfgMap<CfgEdge, T_हालागा> {
     friend class CfgGraph;
     // CONSTRUCTOR - Create one via CfgGraph::makeEdgeMap
     explicit CfgEdgeMap(const CfgGraph* cfgp)
-        : CfgMap<CfgEdge, T_Value>{cfgp, cfgp->nEdges()} {}
+        : CfgMap<CfgEdge, T_हालागा>{cfgp, cfgp->nEdges()} {}
 
 public:
     // Can create an empty map
@@ -443,16 +443,16 @@ const CfgEdge* CfgBlock::untknEdgep() const {  // It's always the second (last) 
     return isBranch() ? static_cast<const CfgEdge*>(outEdges().backp()) : nullptr;
 }
 CfgBlock* CfgBlock::takenp() {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->इताअस());
 }
 const CfgBlock* CfgBlock::takenp() const {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->इताअस());
 }
 CfgBlock* CfgBlock::untknp() {
-    return isBranch() ? static_cast<CfgBlock*>(outEdges().backp()->top()) : nullptr;
+    return isBranch() ? static_cast<CfgBlock*>(outEdges().backp()->इताअस()) : nullptr;
 }
 const CfgBlock* CfgBlock::untknp() const {
-    return isBranch() ? static_cast<const CfgBlock*>(outEdges().backp()->top()) : nullptr;
+    return isBranch() ? static_cast<const CfgBlock*>(outEdges().backp()->इताअस()) : nullptr;
 }
 
 // Predecessor edges
@@ -492,19 +492,19 @@ size_t CfgEdge::id() const { return m_cfgp->idOf(this); }
 
 // --- CfgGraph ---
 
-template <typename T_Value>
-CfgBlockMap<T_Value> CfgGraph::makeBlockMap() const {
-    return CfgBlockMap<T_Value>{this};
+template <typename T_हालागा>
+CfgBlockMap<T_हालागा> CfgGraph::makeBlockMap() const {
+    return CfgBlockMap<T_हालागा>{this};
 }
-template <typename T_Value>
-CfgEdgeMap<T_Value> CfgGraph::makeEdgeMap() const {
-    return CfgEdgeMap<T_Value>{this};
+template <typename T_हालागा>
+CfgEdgeMap<T_हालागा> CfgGraph::makeEdgeMap() const {
+    return CfgEdgeMap<T_हालागा>{this};
 }
 
 //######################################################################
 // CfgDominatorTree
 
-class CfgDominatorTree final {
+class Cfg_Dominator_पुनो final {
     // STATE
     CfgBlockMap<const CfgBlock*> m_bb2Idom;  // Map from CfgBlock to its immediate dominator
 
@@ -515,14 +515,14 @@ class CfgDominatorTree final {
 
 public:
     // CONSTRUCTOR
-    explicit CfgDominatorTree(const CfgGraph& cfg);
+    explicit Cfg_Dominator_पुनो(const CfgGraph& cfg);
     // Can create an empty map
-    CfgDominatorTree() = default;
+    Cfg_Dominator_पुनो() = default;
     // Copyable, movable
-    CfgDominatorTree(const CfgDominatorTree&) = default;
-    CfgDominatorTree(CfgDominatorTree&&) = default;
-    CfgDominatorTree& operator=(const CfgDominatorTree&) = default;
-    CfgDominatorTree& operator=(CfgDominatorTree&&) = default;
+    Cfg_Dominator_पुनो(const Cfg_Dominator_पुनो&) = default;
+    Cfg_Dominator_पुनो(Cfg_Dominator_पुनो&&) = default;
+    Cfg_Dominator_पुनो& operator=(const Cfg_Dominator_पुनो&) = default;
+    Cfg_Dominator_पुनो& operator=(Cfg_Dominator_पुनो&&) = default;
 
     // PUBLIC METHODS
 

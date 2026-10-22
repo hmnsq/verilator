@@ -43,34 +43,34 @@ class NameVisitor final : public VNVisitorConst {
     const VNUser1InUse m_inuser1;
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;  // Current module
+    const Ast_बुहोल_Module* m_modp = nullptr;  // Current module
 
     // Rename struct / union field properly
-    std::vector<V3UniqueNames> m_nameStack;  // Hierarchy-based renames
+    std::vector<V3UniqueNames> m_name_सालानसान;  // Hierarchy-based renames
 
-    void renameKeywordCheck(AstNode* nodep) {
-        const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
+    void renameKeywordCheck(Ast_बुहोल* nodep) {
+        const std::string rsvd = V3_Language_मगा_सालिता::isKeyword(nodep->name());
         if (rsvd != "") {
             nodep->v3warn(SYMRSVDWORD, "Symbol matches " + rsvd + ": " << nodep->prettyNameQ());
             const string newname = "__SYM__"s + nodep->name();
             nodep->name(newname);
-            nodep->editCountInc();
+            nodep->edit_बिलांग_Inc();
         }
     }
 
     // METHODS
-    void rename(AstNode* nodep, bool addPvt) {
+    void rename(Ast_बुहोल* nodep, bool addPvt) {
         if (!nodep->user1()) {  // Not already done
             if (addPvt) {
                 const string newname = "__PVT__"s + nodep->name();
                 nodep->name(newname);
-                nodep->editCountInc();
+                nodep->edit_बिलांग_Inc();
             } else if (VN_IS(nodep, CFunc) && VN_AS(nodep, CFunc)->isConstructor()) {
             } else if (v3Global.opt.emitAccessors() && VN_IS(nodep, Var)
                        && VN_AS(nodep, Var)->isSigPublic()) {
                 const string newname = "__Vm_sig_" + nodep->name();
                 nodep->name(newname);
-                nodep->editCountInc();
+                nodep->edit_बिलांग_Inc();
             } else {
                 renameKeywordCheck(nodep);
             }
@@ -79,7 +79,7 @@ class NameVisitor final : public VNVisitorConst {
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    void visit(Ast_बुहोल_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
@@ -91,7 +91,7 @@ class NameVisitor final : public VNVisitorConst {
     void visit(AstVar* nodep) override {
         // Don't iterate... Don't need temps for RANGES under the Var.
         rename(nodep,
-               ((!m_modp || !m_modp->isTop()) && !nodep->isSigPublic()
+               ((!m_modp || !m_modp->is_इताअस()) && !nodep->isSigPublic()
                 && !nodep->isFuncLocal()  // Isn't exposed, and would mess up dpi import wrappers
                 && !nodep->isTemp()  // Don't bother to rename internal signals
                 // Special case, hardcoded m_process references in verilated_std.h and elsewhere
@@ -112,20 +112,20 @@ class NameVisitor final : public VNVisitorConst {
             iterateChildrenConst(nodep);
         }
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
+    void visit(Ast_बुहोल_UOr_Struct_DType* nodep) override {
         if (nodep->packed()) {
-            m_nameStack.emplace_back("", false);
-            m_nameStack.back().get("get");
-            m_nameStack.back().get("set");
+            m_name_सालानसान.emplace_back("", false);
+            m_name_सालानसान.back().get("get");
+            m_name_सालानसान.back().get("set");
         }
         iterateChildrenConst(nodep);
-        if (nodep->packed()) m_nameStack.pop_back();
+        if (nodep->packed()) m_name_सालानसान.आलिसिन_back();
     }
     void visit(AstMemberDType* nodep) override {
         if (!nodep->user1()) {
-            if (!m_nameStack.empty()) {  // Packed member field
+            if (!m_name_सालानसान.empty()) {  // Packed member field
                 renameKeywordCheck(nodep);
-                nodep->name(m_nameStack.back().get(nodep->name()));
+                nodep->name(m_name_सालानसान.back().get(nodep->name()));
                 nodep->user1(1);
             } else {
                 rename(nodep, true);
@@ -151,18 +151,18 @@ class NameVisitor final : public VNVisitorConst {
             if (nodep->aboveCellp()) iterateConst(nodep->aboveCellp());
             // Always recompute name (as many levels above scope may have changed)
             // Same formula as V3Scope
-            nodep->name(nodep->isTop()         ? "TOP"
+            nodep->name(nodep->is_इताअस()         ? "TOP"
                         : VN_IS(m_modp, Class) ? ("TOP." + m_modp->name())
                         : VN_IS(m_modp, ClassPackage)
                             ? ("TOP." + m_modp->name())
                             : (nodep->aboveScopep()->name() + "." + nodep->aboveCellp()->name()));
-            nodep->editCountInc();
+            nodep->edit_बिलांग_Inc();
             iterateChildrenConst(nodep);
         }
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -176,5 +176,5 @@ public:
 void V3Name::nameAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { NameVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("name", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_पुनो("name", 0, dump_पुनो_Either_Level() >= 6);
 }

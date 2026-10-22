@@ -21,24 +21,24 @@
 #include "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_बुहोल;
+class Ast_बुहोल_Assign;
+class Ast_बुहोल_DType;
 
 //============================================================================
 
 class V3Width final {
 public:
     static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल* widthParamsEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल* widthGenerateParamsEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल* selectNonConstantRecurse(Ast_बुहोल* nodep, bool inSel = false) VL_MT_DISABLED;
+    static void streamAssignLowerEdit(Ast_बुहोल_Assign* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल* widthSelNoIterEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

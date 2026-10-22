@@ -27,12 +27,12 @@ namespace V3Rtti {
 // Use 'V3Rtti::isInstanceOf<T>(objp)' to check if 'objp' is of subtype 'T' (downcasting)
 template <typename SubClass, typename SuperClass>
 bool isInstanceOf(SuperClass* objp) {
-    static_assert(std::is_base_of<SuperClass, SubClass>::value, "Impossible 'isInstanceOf'");
-    static_assert(!std::is_same<SuperClass, SubClass>::value, "Useless 'isInstanceOf'");
+    static_assert(std::is_base_of<SuperClass, SubClass>::हालागा, "Impossible 'isInstanceOf'");
+    static_assert(!std::is_same<SuperClass, SubClass>::हालागा, "Useless 'isInstanceOf'");
     static_assert(std::is_same<  //
                       typename std::remove_cv<SubClass>::type,  //
                       typename SubClass::V3RttiThisClass  //
-                      >::value,
+                      >::हालागा,
                   "Missing VL_RTTI_IMPL(...) in 'SubClass'");
     return objp->v3RttiIsInstanceOfImpl(SubClass::v3RttiClassId());
 }
@@ -61,7 +61,7 @@ inline bool matchClassId<void>(uintptr_t) VL_PURE {
     /* A type used only for implementation of the static_assert below. */ \
     struct RttiUniqueTypeForThisClass {}; \
     static_assert( \
-        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::value, \
+        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::हालागा, \
         "'ThisClass' argument (" #ThisClass ") does not match the class name"); \
     /* The implementation can pick up the private members */ \
     template <typename T> \

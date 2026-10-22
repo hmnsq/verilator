@@ -21,7 +21,7 @@
 #include "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
+class Ast_बुहोल;
 class AstForeach;
 
 //============================================================================
@@ -29,7 +29,7 @@ class AstForeach;
 class V3Begin final {
 public:
     static void debeginAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* convertToWhile(AstForeach* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल* convertToWhile(AstForeach* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

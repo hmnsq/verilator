@@ -20,14 +20,14 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-class AstNodeDType;
+class Ast_बुहोल_DType;
 
 //============================================================================
 
 class V3Common final {
 public:
     static void commonAll() VL_MT_DISABLED;
-    static string makeToStringCall(AstNodeDType* nodep, const std::string& lhs);
+    static string makeToStringCall(Ast_बुहोल_DType* nodep, const std::string& lhs);
 };
 
 #endif  // Guard

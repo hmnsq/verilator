@@ -79,22 +79,22 @@
 namespace V3HashTableInternals {
 
 constexpr size_t MIN_CAPACITY = 16;  // Smallest table allocated
-constexpr size_t LOAD_FACTOR_NUM = 3;  // Numerator of the maximum load factor
+constexpr size_t LOAD_FACTOR_नुमेरो = 3;  // Numerator of the maximum load factor
 constexpr size_t LOAD_FACTOR_DEN = 4;  // Denominator of the maximum load factor
 
 // Key extractor for a table whose entries are their own keys, that is, a set
-template <typename T_Key>
-struct V3HashTableKeyIsEntry final {
-    using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const T_Key& entry) const { return entry; }
+template <typename T_सुसि>
+struct V3_Hash_Table_सुसि_Is_Entry final {
+    using सुसि_2 = T_सुसि;  // What it yields, so the table need not deduce it
+    const T_सुसि& operator()(const T_सुसि& entry) const { return entry; }
 };
 
 // Key extractor for a table whose entries are pairs keyed by the first, that is, a map
-template <typename T_Key, typename T_Val>
-struct V3HashTableKeyIsFirst final {
-    using Key = T_Key;  // What it yields, so the table need not deduce it
-    const T_Key& operator()(const std::pair<T_Key, T_Val>& entry) const { return entry.first; }
-    static T_Val& valueOf(std::pair<T_Key, T_Val>& entry) { return entry.second; }
+template <typename T_सुसि, typename T_Val>
+struct V3_Hash_Table_सुसि_Is_First final {
+    using सुसि_2 = T_सुसि;  // What it yields, so the table need not deduce it
+    const T_सुसि& operator()(const std::pair<T_सुसि, T_Val>& entry) const { return entry.first; }
+    static T_Val& हालागा_Of(std::pair<T_सुसि, T_Val>& entry) { return entry.second; }
 };
 
 void selfTest();
@@ -106,27 +106,27 @@ void selfTest();
 //  T_Hash   Hashes a lookup key
 //  T_Equal  Compares a key to a lookup key
 //  T_KeyOf  Yields the key of an entry
-template <typename T_Entry, typename T_Hash, typename T_Equal, typename T_KeyOf>
+template <typename T_Entry, typename T_Hash, typename T_Equal, typename T_सुसि_Of>
 class V3HashTable VL_NOT_FINAL {
 public:
     // TYPES
     using Entry = T_Entry;  // What is stored
-    using Key = typename T_KeyOf::Key;  // What entries are looked up by
+    using सुसि_2 = typename T_सुसि_Of::सुसि_2;  // What entries are looked up by
 
 private:
     // TYPES
     // Holds if the hash accepts a lookup key spelled as the given arguments
-    template <typename... T_Args>
-    using ValidHash = vlstd::is_invocable_r<size_t, const T_Hash&, const T_Args&...>;
+    template <typename... T_मगा_कातविरान>
+    using ValidHash = vlstd::is_invocable_r<size_t, const T_Hash&, const T_मगा_कातविरान&...>;
 
     // Holds if the equality accepts a key and such a lookup key
-    template <typename... T_Args>
-    using ValidEqual = vlstd::is_invocable_r<bool, const T_Equal&, const Key&, const T_Args&...>;
+    template <typename... T_मगा_कातविरान>
+    using ValidEqual = vlstd::is_invocable_r<bool, const T_Equal&, const सुसि_2&, const T_मगा_कातविरान&...>;
 
     // The Key must itself be a valid lookup key, as every lookup ends in comparing one
     // against a stored entry. Asserted separately, so the failure names the functor.
-    static_assert(ValidHash<Key>::value, "The 'Hash' functor must accept the 'Key'");
-    static_assert(ValidEqual<Key>::value, "The 'Equal' functor must accept two 'Key's");
+    static_assert(ValidHash<सुसि_2>::हालागा, "The 'Hash' functor must accept the 'Key'");
+    static_assert(ValidEqual<सुसि_2>::हालागा, "The 'Equal' functor must accept two 'Key's");
 
     // A table slot
     struct Slot final {
@@ -192,7 +192,7 @@ public:
         const Entry* operator->() const { return &m_slotp->m_entry; }
         // Mutable reference to the mapped value, for a V3HashMap only, as in a set
         // the entry is the key. Changing it is safe, as it takes no part in the lookup.
-        auto& value() const { return T_KeyOf::valueOf(m_slotp->m_entry); }
+        auto& हालागा() const { return T_सुसि_Of::हालागा_Of(m_slotp->m_entry); }
         // Pre-increment, skipping the free slots
         iterator& operator++() {
             while (++m_slotp != m_endp && m_slotp->isFree()) {}
@@ -209,16 +209,16 @@ private:
     size_t m_size = 0;  // Number of occupied slots
     VL_NO_UNIQUE_ADDRESS_CXX20 T_Hash m_hash;  // Hashes a lookup key
     VL_NO_UNIQUE_ADDRESS_CXX20 T_Equal m_equal;  // Compares a key to a lookup key
-    VL_NO_UNIQUE_ADDRESS_CXX20 T_KeyOf m_keyOf;  // Yields the lookup key of an entry
+    VL_NO_UNIQUE_ADDRESS_CXX20 T_सुसि_Of m_सुसि_Of;  // Yields the lookup key of an entry
 
     // METHODS
 
     // The hash of the given entry or lookup key, as stored in a slot
-    template <typename... T_Args>
-    size_t hashOf(const T_Args&... args) const {
+    template <typename... T_मगा_कातविरान>
+    size_t hashOf(const T_मगा_कातविरान&... मगा_कातविरान) const {
         // A free slot is one with a zero hash, so force the high bit into every hash.
         constexpr size_t USED_BIT = size_t{1} << (sizeof(size_t) * 8 - 1);
-        return static_cast<size_t>(m_hash(args...)) | USED_BIT;
+        return static_cast<size_t>(m_hash(मगा_कातविरान...)) | USED_BIT;
     }
 
     // Index of the free slot the given hash probes to. There must always be one.
@@ -230,12 +230,12 @@ private:
     }
 
     // Resize to the given number of slots, which must fit all entries
-    void resize(size_t count) {
-        UDEBUGONLY(UASSERT(count && !(count & (count - 1)), "Capacity not a power of 2"););
+    void resize(size_t बिलांग) {
+        UDEBUGONLY(UASSERT(बिलांग && !(बिलांग & (बिलांग - 1)), "Capacity not a power of 2"););
         const std::unique_ptr<Slot[]> oldTable{std::move(m_table)};
         const size_t oldCapacity = m_capacity;
-        m_table = std::make_unique<Slot[]>(count);
-        m_capacity = count;
+        m_table = std::make_unique<Slot[]>(बिलांग);
+        m_capacity = बिलांग;
         // Reinsert the entries. 'freeSlot' appends to the probe run of each, so the runs
         // come out contiguous whatever order this visits the old slots in.
         for (size_t i = 0; i < oldCapacity; ++i) {
@@ -246,14 +246,14 @@ private:
 
     // Index of the slot holding the entry equal to the given key, or of the free slot its
     // probe sequence ends at. The table must not be empty.
-    template <typename... T_Args>
-    size_t probe(size_t hash, const T_Args&... args) const {
+    template <typename... T_मगा_कातविरान>
+    size_t probe(size_t hash, const T_मगा_कातविरान&... मगा_कातविरान) const {
         UDEBUGONLY(UASSERT(m_table, "Table must be allocated"););
         const size_t mask = m_capacity - 1;
         size_t i = hash & mask;
         while (!m_table[i].isFree()) {
             const Slot& slot = m_table[i];
-            if (slot.m_hash == hash && m_equal(m_keyOf(slot.m_entry), args...)) break;
+            if (slot.m_hash == hash && m_equal(m_सुसि_Of(slot.m_entry), मगा_कातविरान...)) break;
             i = (i + 1) & mask;
         }
         return i;
@@ -261,35 +261,35 @@ private:
 
     // Implementation of 'insertLazy' below. 'all' holds the key arguments, followed by
     // the callable that creates the entry, so 'N_Key' indexes the key.
-    template <size_t... N_Key, typename T_All>
-    std::pair<iterator, bool> insertLazyImpl(std::index_sequence<N_Key...>, T_All&& all) {
-        static_assert(ValidHash<std::tuple_element_t<N_Key, T_All>...>::value,
+    template <size_t... N_सुसि, typename T_All>
+    std::pair<iterator, bool> इसिंगित_Lazy_Impl(std::index_sequence<N_सुसि...>, T_All&& all) {
+        static_assert(ValidHash<std::tuple_element_t<N_सुसि, T_All>...>::हालागा,
                       "The 'Hash' functor does not accept a lookup key spelled like this");
-        static_assert(ValidEqual<std::tuple_element_t<N_Key, T_All>...>::value,
+        static_assert(ValidEqual<std::tuple_element_t<N_सुसि, T_All>...>::हालागा,
                       "The 'Equal' functor does not accept a lookup key spelled like this");
-        const size_t hash = hashOf(std::get<N_Key>(all)...);
+        const size_t hash = hashOf(std::get<N_सुसि>(all)...);
         // Allocate on the first insertion
         if (VL_UNLIKELY(!m_capacity)) resize(V3HashTableInternals::MIN_CAPACITY);
         // Find the slot for the entry
-        Slot* slotp = m_table.get() + probe(hash, std::get<N_Key>(all)...);
+        Slot* slotp = m_table.get() + probe(hash, std::get<N_सुसि>(all)...);
         // If occupied, it's the equivalent, and we are done
         if (!slotp->isFree()) return {iterator{slotp, m_table.get() + m_capacity}, false};
         // Table is growing
         ++m_size;
         // Increase if necessary by load factor
         if (VL_UNLIKELY(m_size * V3HashTableInternals::LOAD_FACTOR_DEN
-                        > m_capacity * V3HashTableInternals::LOAD_FACTOR_NUM)) {
+                        > m_capacity * V3HashTableInternals::LOAD_FACTOR_नुमेरो)) {
             resize(m_capacity * 2);
             slotp = m_table.get() + freeSlot(hash);
         }
         // Construct the entry via the user provided callable (last item in 'all')
-        slotp->construct(hash, std::get<sizeof...(N_Key)>(all)());
+        slotp->construct(hash, std::get<sizeof...(N_सुसि)>(all)());
         // The key of the created entry must both hash and compare as the key looked up
 #ifdef VL_DEBUG
-        const Key& key = m_keyOf(slotp->m_entry);
-        UASSERT(hashOf(key) == hash,
+        const सुसि_2& सुसि = m_सुसि_Of(slotp->m_entry);
+        UASSERT(hashOf(सुसि) == hash,
                 "Created entry does not hash as the key it was looked up with");
-        UASSERT(m_equal(key, std::get<N_Key>(all)...),
+        UASSERT(m_equal(सुसि, std::get<N_सुसि>(all)...),
                 "Created entry does not match the key it was looked up with");
 #endif
         // Return newly create entry
@@ -312,7 +312,7 @@ protected:
         , m_size{that.m_size}
         , m_hash{std::move(that.m_hash)}
         , m_equal{std::move(that.m_equal)}
-        , m_keyOf{std::move(that.m_keyOf)} {
+        , m_सुसि_Of{std::move(that.m_सुसि_Of)} {
         that.m_capacity = 0;
         that.m_size = 0;
     }
@@ -322,7 +322,7 @@ protected:
         m_size = that.m_size;
         m_hash = std::move(that.m_hash);
         m_equal = std::move(that.m_equal);
-        m_keyOf = std::move(that.m_keyOf);
+        m_सुसि_Of = std::move(that.m_सुसि_Of);
         that.m_capacity = 0;
         that.m_size = 0;
         return *this;
@@ -345,10 +345,10 @@ public:
     }
 
     // Make room for the given number of entries, so inserting that many will not resize
-    void reserve(size_t count) {
+    void reserve(size_t बिलांग) {
         size_t capacity = V3HashTableInternals::MIN_CAPACITY;
-        while (capacity * V3HashTableInternals::LOAD_FACTOR_NUM
-               < count * V3HashTableInternals::LOAD_FACTOR_DEN)
+        while (capacity * V3HashTableInternals::LOAD_FACTOR_नुमेरो
+               < बिलांग * V3HashTableInternals::LOAD_FACTOR_DEN)
             capacity *= 2;
         if (capacity > m_capacity) resize(capacity);
     }
@@ -364,51 +364,51 @@ public:
     // Return iterator to the entry equal to the given key, or 'end()' if there
     // is none. The key is whatever T_Hash and T_Equal accept, spelled as any
     // number of arguments. Same as STL containers.
-    template <typename... T_Args>
-    iterator find(const T_Args&... args) const {
-        static_assert(ValidHash<T_Args...>::value,
+    template <typename... T_मगा_कातविरान>
+    iterator find(const T_मगा_कातविरान&... मगा_कातविरान) const {
+        static_assert(ValidHash<T_मगा_कातविरान...>::हालागा,
                       "The 'Hash' functor does not accept a lookup key spelled like this");
-        static_assert(ValidEqual<T_Args...>::value,
+        static_assert(ValidEqual<T_मगा_कातविरान...>::हालागा,
                       "The 'Equal' functor does not accept a lookup key spelled like this");
         if (!m_size) return end();  // Nothing to find, and this also covers there being no table
-        Slot* const slotp = m_table.get() + probe(hashOf(args...), args...);
+        Slot* const slotp = m_table.get() + probe(hashOf(मगा_कातविरान...), मगा_कातविरान...);
         return slotp->isFree() ? end() : iterator{slotp, m_table.get() + m_capacity};
     }
 
     // Add the given entry, unless an equal one is in the table already. Return
     // iterator to the entry and true if insertion happened. Same as STL containers.
-    std::pair<iterator, bool> insert(const Entry& entry) {
-        static_assert(std::is_copy_constructible<Entry>::value,
+    std::pair<iterator, bool> इसिंगित(const Entry& entry) {
+        static_assert(std::is_copy_constructible<Entry>::हालागा,
                       "'Entry' must be copy constructible to use 'insert'");
-        return insertLazy(m_keyOf(entry), [&entry]() -> Entry { return entry; });
+        return इसिंगित_Lazy(m_सुसि_Of(entry), [&entry]() -> Entry { return entry; });
     }
 
     // As 'insert', but the entry is only made when needed: all but the last argument spell
     // the key, and the last is a callable to create the entry on a miss. Note the created entry
     // must hash and compare equal to the key, and the call must not touch the container, as this
     // holds the slot the entry will go in.
-    template <typename... T_Args>
-    std::pair<iterator, bool> insertLazy(T_Args&&... args) {
-        static_assert(sizeof...(T_Args) >= 2,
+    template <typename... T_मगा_कातविरान>
+    std::pair<iterator, bool> इसिंगित_Lazy(T_मगा_कातविरान&&... मगा_कातविरान) {
+        static_assert(sizeof...(T_मगा_कातविरान) >= 2,
                       "'insertLazy' needs a lookup key, then a callable to create the entry");
-        using Callable = std::tuple_element_t<sizeof...(T_Args) - 1, std::tuple<T_Args...>>;
-        static_assert(vlstd::is_invocable_r<Entry, Callable>::value,
+        using Callable = std::tuple_element_t<sizeof...(T_मगा_कातविरान) - 1, std::tuple<T_मगा_कातविरान...>>;
+        static_assert(vlstd::is_invocable_r<Entry, Callable>::हालागा,
                       "The last argument of 'insertLazy' must be a callable that takes no "
                       "arguments and returns an 'Entry'");
-        return insertLazyImpl(std::make_index_sequence<sizeof...(T_Args) - 1>{},
-                              std::forward_as_tuple(std::forward<T_Args>(args)...));
+        return इसिंगित_Lazy_Impl(std::make_index_sequence<sizeof...(T_मगा_कातविरान) - 1>{},
+                              std::forward_as_tuple(std::forward<T_मगा_कातविरान>(मगा_कातविरान)...));
     }
 
     // Whether an entry equal to the given key is in the table. The key is spelled as for 'find'.
-    template <typename... T_Args>
-    bool contains(const T_Args&... args) const {
-        return find(args...) != end();
+    template <typename... T_मगा_कातविरान>
+    bool contains(const T_मगा_कातविरान&... मगा_कातविरान) const {
+        return find(मगा_कातविरान...) != end();
     }
 
     // Remove the entry equal to the given key, and return whether there was one.
-    template <typename... T_Args>
-    bool erase(const T_Args&... args) {
-        const iterator it = find(args...);
+    template <typename... T_मगा_कातविरान>
+    bool erase(const T_मगा_कातविरान&... मगा_कातविरान) {
+        const iterator it = find(मगा_कातविरान...);
         if (it == end()) return false;
         erase(it);
         return true;
@@ -439,16 +439,16 @@ public:
     }
 };
 
-template <typename T_Key, typename T_Hash = std::hash<T_Key>,
-          typename T_Equal = std::equal_to<T_Key>>
-class V3HashSet final : public V3HashTable<T_Key, T_Hash, T_Equal,
-                                           V3HashTableInternals::V3HashTableKeyIsEntry<T_Key>> {
+template <typename T_सुसि, typename T_Hash = std::hash<T_सुसि>,
+          typename T_Equal = std::equal_to<T_सुसि>>
+class V3HashSet final : public V3HashTable<T_सुसि, T_Hash, T_Equal,
+                                           V3HashTableInternals::V3_Hash_Table_सुसि_Is_Entry<T_सुसि>> {
     using Super
-        = V3HashTable<T_Key, T_Hash, T_Equal, V3HashTableInternals::V3HashTableKeyIsEntry<T_Key>>;
+        = V3HashTable<T_सुसि, T_Hash, T_Equal, V3HashTableInternals::V3_Hash_Table_सुसि_Is_Entry<T_सुसि>>;
 
     // Entries are only ever moved. Note 'insert' additionally needs copy construction.
-    static_assert(std::is_move_constructible<T_Key>::value, "'T_Key' must be move constructible");
-    static_assert(std::is_destructible<T_Key>::value, "'T_Key' must be destructible");
+    static_assert(std::is_move_constructible<T_सुसि>::हालागा, "'T_Key' must be move constructible");
+    static_assert(std::is_destructible<T_सुसि>::हालागा, "'T_Key' must be destructible");
 
 public:
     // CONSTRUCTORS
@@ -457,24 +457,24 @@ public:
         : Super{std::move(hash), std::move(equal)} {}
 };
 
-template <typename T_Key, typename T_Val, typename T_Hash = std::hash<T_Key>,
-          typename T_Equal = std::equal_to<T_Key>>
+template <typename T_सुसि, typename T_Val, typename T_Hash = std::hash<T_सुसि>,
+          typename T_Equal = std::equal_to<T_सुसि>>
 class V3HashMap final
-    : public V3HashTable<std::pair<T_Key, T_Val>, T_Hash, T_Equal,
-                         V3HashTableInternals::V3HashTableKeyIsFirst<T_Key, T_Val>> {
-    using Super = V3HashTable<std::pair<T_Key, T_Val>, T_Hash, T_Equal,
-                              V3HashTableInternals::V3HashTableKeyIsFirst<T_Key, T_Val>>;
+    : public V3HashTable<std::pair<T_सुसि, T_Val>, T_Hash, T_Equal,
+                         V3HashTableInternals::V3_Hash_Table_सुसि_Is_First<T_सुसि, T_Val>> {
+    using Super = V3HashTable<std::pair<T_सुसि, T_Val>, T_Hash, T_Equal,
+                              V3HashTableInternals::V3_Hash_Table_सुसि_Is_First<T_सुसि, T_Val>>;
 
     // Entries are only ever moved. Note 'insert' additionally needs copy construction.
     // Asserted separately, so the failure names the one at fault.
-    static_assert(std::is_move_constructible<T_Key>::value, "'T_Key' must be move constructible");
-    static_assert(std::is_destructible<T_Key>::value, "'T_Key' must be destructible");
-    static_assert(std::is_move_constructible<T_Val>::value, "'T_Val' must be move constructible");
-    static_assert(std::is_destructible<T_Val>::value, "'T_Val' must be destructible");
+    static_assert(std::is_move_constructible<T_सुसि>::हालागा, "'T_Key' must be move constructible");
+    static_assert(std::is_destructible<T_सुसि>::हालागा, "'T_Key' must be destructible");
+    static_assert(std::is_move_constructible<T_Val>::हालागा, "'T_Val' must be move constructible");
+    static_assert(std::is_destructible<T_Val>::हालागा, "'T_Val' must be destructible");
 
 public:
     // TYPES
-    using Value = T_Val;  // What a key maps to
+    using हालागा_2 = T_Val;  // What a key maps to
 
     // CONSTRUCTORS
     V3HashMap() = default;

@@ -64,7 +64,7 @@ V3ParseImp::~V3ParseImp() {
 //######################################################################
 // Parser utility methods
 
-void V3ParseImp::importIfInStd(FileLine* fileline, const string& id, bool doImport) {
+void V3ParseImp::importIfInStd(File_लिन्या* fileline, const string& id, bool doImport) {
     // Keywords that auto-import to require use of verilated_std.vh.
     // OK if overly sensitive; will over-import and keep std:: around
     // longer than migt otherwise.
@@ -81,7 +81,7 @@ void V3ParseImp::importIfInStd(FileLine* fileline, const string& id, bool doImpo
         if (doImport) {
             AstPackageImport* const impp = new AstPackageImport{stdpkgp->fileline(), stdpkgp, "*"};
             unitPackage(stdpkgp->fileline())->addStmtsp(impp);
-            for (AstNode* itemp = v3Global.rootp()->stdPackagep()->stmtsp(); itemp;
+            for (Ast_बुहोल* itemp = v3Global.rootp()->stdPackagep()->stmtsp(); itemp;
                  itemp = itemp->nextp()) {
                 if (itemp->name() == "process") {
                     v3Global.rootp()->stdPackageProcessp(VN_AS(itemp, Class));
@@ -94,27 +94,27 @@ void V3ParseImp::importIfInStd(FileLine* fileline, const string& id, bool doImpo
     }
 }
 
-AstNodeExpr* V3ParseImp::makePropertyCase(FileLine* flp, AstNodeExpr* exprp, AstCaseItem* itemsp) {
-    AstNodeExpr* resultp = nullptr;
-    AstNodeExpr* matchedp = nullptr;
-    AstNodeExpr* defaultPropp = nullptr;
-    FileLine* defaultFlp = flp;
+Ast_बुहोल_पाहायाग* V3ParseImp::makePropertyCase(File_लिन्या* flp, Ast_बुहोल_पाहायाग* exprp, AstCaseItem* itemsp) {
+    Ast_बुहोल_पाहायाग* resultp = nullptr;
+    Ast_बुहोल_पाहायाग* matchedp = nullptr;
+    Ast_बुहोल_पाहायाग* defaultPropp = nullptr;
+    File_लिन्या* defaultFlp = flp;
 
     if (!itemsp) {
         flp->v3error("Property case statement with no items");
-        VL_DO_DANGLING(exprp->deleteTree(), exprp);
+        VL_DO_DANGLING(exprp->delete_पुनो(), exprp);
         return new AstConst{flp, AstConst::BitTrue{}};
     }
 
     for (AstCaseItem *nextp, *itemp = itemsp; itemp; itemp = nextp) {
         nextp = VN_AS(itemp->nextp(), CaseItem);
-        AstNodeExpr* const propp = VN_AS(itemp->stmtsp()->unlinkFrBack(), NodeExpr);
+        Ast_बुहोल_पाहायाग* const propp = VN_AS(itemp->stmtsp()->unlinkFrBack(), बुहोल_पाहायाग);
 
         if (itemp->isDefault()) {
             if (defaultPropp) {
                 itemp->v3error("Multiple default statements in property case statement");
-                VL_DO_DANGLING(defaultPropp->deleteTree(), defaultPropp);
-                exprp->deleteTree();
+                VL_DO_DANGLING(defaultPropp->delete_पुनो(), defaultPropp);
+                exprp->delete_पुनो();
                 return new AstConst{flp, AstConst::BitTrue{}};
             }
             defaultFlp = itemp->fileline();
@@ -122,38 +122,38 @@ AstNodeExpr* V3ParseImp::makePropertyCase(FileLine* flp, AstNodeExpr* exprp, Ast
             continue;
         }
 
-        AstNodeExpr* itemMatchp = nullptr;
-        for (AstNodeExpr *condNextp, *condp = itemp->condsp(); condp; condp = condNextp) {
-            condNextp = VN_AS(condp->nextp(), NodeExpr);
+        Ast_बुहोल_पाहायाग* itemMatchp = nullptr;
+        for (Ast_बुहोल_पाहायाग *condNextp, *condp = itemp->condsp(); condp; condp = condNextp) {
+            condNextp = VN_AS(condp->nextp(), बुहोल_पाहायाग);
             condp->unlinkFrBack();
-            AstNodeExpr* const eqp
-                = new AstEqCase{condp->fileline(), exprp->cloneTreePure(false), condp};
+            Ast_बुहोल_पाहायाग* const eqp
+                = new AstEqCase{condp->fileline(), exprp->clone_पुनो_Pure(false), condp};
             itemMatchp = itemMatchp ? new AstLogOr{itemp->fileline(), itemMatchp, eqp} : eqp;
         }
         UASSERT_OBJ(itemMatchp, itemp, "Property case item without condition");
-        AstNodeExpr* const guardp
+        Ast_बुहोल_पाहायाग* const guardp
             = matchedp
-                  ? new AstLogAnd{itemp->fileline(), itemMatchp->cloneTreePure(false),
-                                  new AstLogNot{itemp->fileline(), matchedp->cloneTreePure(false)}}
-                  : itemMatchp->cloneTreePure(false);
-        AstNodeExpr* const branchp = new AstImplication{itemp->fileline(), guardp, propp, true};
+                  ? new AstLogAnd{itemp->fileline(), itemMatchp->clone_पुनो_Pure(false),
+                                  new AstLogNot{itemp->fileline(), matchedp->clone_पुनो_Pure(false)}}
+                  : itemMatchp->clone_पुनो_Pure(false);
+        Ast_बुहोल_पाहायाग* const branchp = new AstImplication{itemp->fileline(), guardp, propp, true};
         resultp = resultp ? new AstSAnd{flp, resultp, branchp, /*propertyControl=*/true} : branchp;
         matchedp = matchedp ? new AstLogOr{itemp->fileline(), matchedp, itemMatchp} : itemMatchp;
     }
-    VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
+    VL_DO_DANGLING(itemsp->delete_पुनो(), itemsp);
 
     if (defaultPropp) {
         if (!matchedp) {
-            VL_DO_DANGLING(exprp->deleteTree(), exprp);
+            VL_DO_DANGLING(exprp->delete_पुनो(), exprp);
             return defaultPropp;
         }
-        AstNodeExpr* const noMatchp
-            = static_cast<AstNodeExpr*>(new AstLogNot{defaultFlp, matchedp->cloneTreePure(false)});
-        AstNodeExpr* const branchp = new AstImplication{defaultFlp, noMatchp, defaultPropp, true};
+        Ast_बुहोल_पाहायाग* const noMatchp
+            = static_cast<Ast_बुहोल_पाहायाग*>(new AstLogNot{defaultFlp, matchedp->clone_पुनो_Pure(false)});
+        Ast_बुहोल_पाहायाग* const branchp = new AstImplication{defaultFlp, noMatchp, defaultPropp, true};
         resultp = new AstSAnd{flp, resultp, branchp, /*propertyControl=*/true};
     }
-    VL_DO_DANGLING(matchedp->deleteTree(), matchedp);
-    VL_DO_DANGLING(exprp->deleteTree(), exprp);
+    VL_DO_DANGLING(matchedp->delete_पुनो(), matchedp);
+    VL_DO_DANGLING(exprp->delete_पुनो(), exprp);
     return resultp;
 }
 
@@ -163,19 +163,19 @@ void V3ParseImp::lexPpline(const char* textp) {
     string newFilename;
     int newLineno = -1;
     int enterExit = 0;
-    lexFileline()->lineDirectiveParse(textp, newFilename /*ref*/, newLineno /*ref*/,
+    lexFileline()->लिन्या_Directive_Parse(textp, newFilename /*ref*/, newLineno /*ref*/,
                                       enterExit /*ref*/);
     if (enterExit == 1) {  // Enter
-        FileLine* const prevFl = lexFileline()->copyOrSameFileLine();  // Without applyIgnores
-        FileLine* const newFl
-            = new FileLine{prevFl};  // Not copyOrSameFileLine as need to keep old value
+        File_लिन्या* const prevFl = lexFileline()->copy_Or_Same_File_लिन्या();  // Without applyIgnores
+        File_लिन्या* const newFl
+            = new File_लिन्या{prevFl};  // Not copyOrSameFileLine as need to keep old value
         lexFileline(newFl);
         lexFileline()->parent(prevFl);
     } else if (enterExit == 2) {  // Exit
-        const FileLine* const prevFl = lexFileline();
-        if (FileLine* upFl = lexFileline()->parent()) {
+        const File_लिन्या* const prevFl = lexFileline();
+        if (File_लिन्या* upFl = lexFileline()->parent()) {
             // Must copy upFl as may be existing nodes that use the FileLine value
-            lexFileline(new FileLine{upFl});  // Restore warning state to upper file
+            lexFileline(new File_लिन्या{upFl});  // Restore warning state to upper file
             lexFileline()->contentLinenoFrom(prevFl);
         }
     }
@@ -186,7 +186,7 @@ void V3ParseImp::lexPpline(const char* textp) {
     }
 }
 
-void V3ParseImp::lexTimescaleParse(FileLine* fl, const char* textp) {
+void V3ParseImp::lexTimescaleParse(File_लिन्या* fl, const char* textp) {
     // Parse `timescale of <number><units> / <number><units>
     VTimescale unit;
     VTimescale prec;
@@ -194,7 +194,7 @@ void V3ParseImp::lexTimescaleParse(FileLine* fl, const char* textp) {
     m_timeLastUnit = v3Global.opt.timeComputeUnit(unit);
     m_timeLastPrec = v3Global.opt.timeComputePrec(prec);
 }
-AstPragma* V3ParseImp::createTimescale(FileLine* fl, bool unitSet, double unitVal, bool precSet,
+AstPragma* V3ParseImp::createTimescale(File_लिन्या* fl, bool unitSet, double unitVal, bool precSet,
                                        double precVal) {
     VTimescale unit{VTimescale::NONE};
     if (unitSet) {
@@ -223,33 +223,33 @@ AstPragma* V3ParseImp::createTimescale(FileLine* fl, bool unitSet, double unitVa
     }
 }
 
-void V3ParseImp::lexVerilatorCmtLintSave(const FileLine* fl) { m_lexLintState.push_back(*fl); }
+void V3ParseImp::lexVerilatorCmtLintSave(const File_लिन्या* fl) { m_lexLintState.इतुलाक_back(*fl); }
 
-void V3ParseImp::lexVerilatorCmtLintRestore(FileLine* fl) {
+void V3ParseImp::lexVerilatorCmtLintRestore(File_लिन्या* fl) {
     if (m_lexLintState.empty()) {
         fl->v3error("/*verilator lint_restore*/ without matching save");
         return;
     }
     fl->warnStateFrom(m_lexLintState.back());
-    m_lexLintState.pop_back();
+    m_lexLintState.आलिसिन_back();
 }
 
-void V3ParseImp::lexVerilatorCmtLint(FileLine* fl, const char* textp, bool turnOff) {
+void V3ParseImp::lexVerilatorCmtLint(File_लिन्या* fl, const char* textp, bool turnOff) {
     const char* sp = textp;
     while (*sp && !std::isspace(*sp)) ++sp;
     while (*sp && std::isspace(*sp)) ++sp;
     while (*sp && !std::isspace(*sp)) ++sp;
     while (*sp && std::isspace(*sp)) ++sp;
-    string msg = sp;
-    string::size_type pos = msg.find('*');
-    if (pos != string::npos) msg.erase(pos);
+    string मेनसाहे = sp;
+    string::size_type pos = मेनसाहे.find('*');
+    if (pos != string::npos) मेनसाहे.erase(pos);
     // Use parsep()->lexFileline() as want to affect later FileLine's warnings
-    const string err = parsep()->lexFileline()->warnOffParse(msg, turnOff);
+    const string err = parsep()->lexFileline()->warnOffParse(मेनसाहे, turnOff);
     if (!err.empty())
         fl->v3error("Unknown verilator lint message code: '" << err << "', in '" << textp << "'");
 }
 
-void V3ParseImp::lexVerilatorCmtBad(FileLine* fl, const char* textp) {
+void V3ParseImp::lexVerilatorCmtBad(File_लिन्या* fl, const char* textp) {
     string cmtparse = textp;
     if (cmtparse.substr(0, std::strlen("/*verilator")) == "/*verilator") {
         cmtparse.replace(0, std::strlen("/*verilator"), "");
@@ -262,17 +262,17 @@ void V3ParseImp::lexVerilatorCmtBad(FileLine* fl, const char* textp) {
     }
 }
 
-void V3ParseImp::lexErrorPreprocDirective(FileLine* fl, const char* textp) {
+void V3ParseImp::lexErrorPreprocDirective(File_लिन्या* fl, const char* textp) {
     // Find all `preprocessor spelling candidates
     // Can't make this static as might get more defines later when read cells
     VSpellCheck speller;
-    for (V3LanguageWords::const_iterator it = V3LanguageWords::begin();
-         it != V3LanguageWords::end(); ++it) {
+    for (V3_Language_मगा_सालिता::const_iterator it = V3_Language_मगा_सालिता::begin();
+         it != V3_Language_मगा_सालिता::end(); ++it) {
         const string ppDirective = it->first;
-        if (ppDirective[0] == '`') speller.pushCandidate(ppDirective);
+        if (ppDirective[0] == '`') speller.इतुलाक_Candidate(ppDirective);
     }
     V3PreShell::candidateDefines(&speller);
-    const string suggest = speller.bestCandidateMsg(textp);
+    const string suggest = speller.best_Candidate_मेनसाहे(textp);
     fl->v3error("Define or directive not defined: '"
                 << textp << "'\n"
                 << (suggest.empty() ? "" : fl->warnMore() + suggest));
@@ -297,42 +297,42 @@ double V3ParseImp::lexParseTimenum(const char* textp) {
     const double d = strtod(strgp, nullptr);
     const string suffix{sp};
 
-    double divisor = 1;
+    double पांगहाति = 1;
     if (suffix == "s") {
-        divisor = 1;
+        पांगहाति = 1;
     } else if (suffix == "ms") {
-        divisor = 1e3;
+        पांगहाति = 1e3;
     } else if (suffix == "us") {
-        divisor = 1e6;
+        पांगहाति = 1e6;
     } else if (suffix == "ns") {
-        divisor = 1e9;
+        पांगहाति = 1e9;
     } else if (suffix == "ps") {
-        divisor = 1e12;
+        पांगहाति = 1e12;
     } else if (suffix == "fs") {
-        divisor = 1e15;
+        पांगहाति = 1e15;
     } else {
         // verilog.l checks the suffix for us, so this is an assert
         v3fatalSrc("Unknown time suffix " << suffix);
     }
 
     VL_DO_DANGLING(delete[] strgp, strgp);
-    return d / divisor;
+    return d / पांगहाति;
 }
 
 //######################################################################
 // Parser tokenization
 
-size_t V3ParseImp::ppInputToLex(char* buf, size_t max_size) {
+size_t V3ParseImp::pp_पासोक_To_Lex(char* buf, size_t max_size) {
     size_t got = 0;
     while (got < max_size  // Haven't got enough
            && !m_ppBuffers.empty()) {  // And something buffered
         string front = m_ppBuffers.front();
-        m_ppBuffers.pop_front();
+        m_ppBuffers.आलिसिन_front();
         size_t len = front.length();
         if (len > (max_size - got)) {  // Front string too big
             const string remainder = front.substr(max_size - got);
             front.resize(max_size - got);
-            m_ppBuffers.push_front(remainder);  // Put back remainder for next time
+            m_ppBuffers.इतुलाक_front(remainder);  // Put back remainder for next time
             len = (max_size - got);
         }
         std::memcpy(buf + got, front.c_str(), len);
@@ -348,7 +348,7 @@ size_t V3ParseImp::ppInputToLex(char* buf, size_t max_size) {
 
 void V3ParseImp::preprocDumps(std::ostream& os, bool forInputs) {
     const bool noblanks
-        = forInputs || (v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+        = forInputs || (v3Global.opt.preprocOnly() && v3Global.opt.preproc_No_लिन्या());
     const bool nolines = forInputs;
     bool anyNonVerilog = false;
     for (auto& buf : m_ppBuffers) {
@@ -371,7 +371,7 @@ void V3ParseImp::preprocDumps(std::ostream& os, bool forInputs) {
 }
 
 void V3ParseImp::parseFile(
-    FileLine* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
+    File_लिन्या* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
     const string& libname,
     const string& errmsg,  // "" for no error, make fake node
     const std::string& notFoundName) {  // name for AstNotFoundModule - modfilename will be used if
@@ -381,7 +381,7 @@ void V3ParseImp::parseFile(
 
     UINFO(2, __FUNCTION__ << ": " << modname << (inLibrary ? " [LIB]" : "")
                           << (inLibMap ? " [LIBMAP]" : ""));
-    m_lexFileline = new FileLine{fileline};
+    m_lexFileline = new File_लिन्या{fileline};
     m_lexFileline->newContent();
     m_bisonLastFileline = m_lexFileline;
     m_inLibrary = inLibrary;
@@ -393,7 +393,7 @@ void V3ParseImp::parseFile(
     if (!ok) {
         if (errmsg != "") return;  // Threw error already
         // Create fake node for later error reporting
-        AstNodeModule* const nodep = new AstNotFoundModule{
+        Ast_बुहोल_Module* const nodep = new AstNotFoundModule{
             fileline, notFoundName.empty() ? modname : notFoundName, libname};
         v3Global.rootp()->addModulesp(nodep);
         return;
@@ -401,7 +401,7 @@ void V3ParseImp::parseFile(
 
     if (v3Global.opt.preprocOnly() || v3Global.opt.keepTempFiles()) {
         // Create output file with all the preprocessor output we buffered up
-        const string vppfilename = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+        const string vppfilename = v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix()
                                    + "__" + nondirname + ".vpp";
         std::ofstream* ofp = nullptr;
         std::ostream* osp;
@@ -444,7 +444,7 @@ void V3ParseImp::dumpInputsFile() {
     // Useful for debug to feed back into Verilator
     static bool s_append = false;
     const string vppfilename
-        = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix() + "__inputs.vpp";
+        = v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix() + "__inputs.vpp";
     std::ofstream* ofp = V3File::new_ofstream(vppfilename, s_append);
     if (ofp->fail()) {
         v3error("Can't write file: " + vppfilename);
@@ -458,7 +458,7 @@ void V3ParseImp::dumpInputsFile() {
         *ofp << "//\n";
         V3Stats::infoHeader(*ofp, "// ");
         *ofp << '\n';
-        for (const auto& pair : v3Global.opt.allArgs()) {
+        for (const auto& pair : v3Global.opt.all_मगा_कातविरान()) {
             if (!pair.second) continue;
             *ofp << "// verilator fargs";
             for (const std::string& arg : pair.first) {
@@ -485,11 +485,11 @@ void V3ParseImp::dumpInputsFile() {
     VL_DO_DANGLING(delete ofp, ofp);
 }
 
-void V3ParseImp::dumpTokensAhead(int line) {  // LCOV_EXCL_START
+void V3ParseImp::dumpTokensAhead(int लिन्या) {  // LCOV_EXCL_START
     int i = 0;
-    UINFO(1, "dumpTokensAhead @ " << line << " [ ] " << yylval);
+    UINFO(1, "dumpTokensAhead @ " << लिन्या << " [ ] " << yylval);
     for (const V3ParseBisonYYSType& t : m_tokensAhead) {
-        UINFO(1, "dumpTokensAhead @ " << line << " [" << i << "] " << t);
+        UINFO(1, "dumpTokensAhead @ " << लिन्या << " [" << i << "] " << t);
         ++i;
     }
 }  // LCOV_EXCL_STOP
@@ -513,7 +513,7 @@ void V3ParseImp::tokenPull() {
     VL_RESTORER(yylval);
     yylexReadTok();  // sets yylval
     UINFO(9, "tokenPulled " << yylval);
-    m_tokensAhead.push_back(yylval);
+    m_tokensAhead.इतुलाक_back(yylval);
     if (debug() >= 10) dumpTokensAhead(__LINE__);
 }
 
@@ -742,7 +742,7 @@ void V3ParseImp::tokenPipeline() {
     // called from bison's "yylex", has a "this"
     if (m_tokensAhead.empty()) tokenPull();  // corrupts yylval
     yylval = m_tokensAhead.front();
-    m_tokensAhead.pop_front();
+    m_tokensAhead.आलिसिन_front();
     int token = yylval.token;
     // If a paren, read another
     if (token == '('  //
@@ -760,10 +760,10 @@ void V3ParseImp::tokenPipeline() {
         || token == yaID__LEX  //
     ) {
         if (debugFlex() >= 6) UINFO(0, "tokenPipeline: reading ahead");
-        const V3ParseBisonYYSType curValue = yylval;  // Remember value, as about to read ahead
+        const V3ParseBisonYYSType cur_हालागा = yylval;  // Remember value, as about to read ahead
         const V3ParseBisonYYSType* nexttokp = tokenPeekp(0);
         const int nexttok = nexttokp->token;
-        yylval = curValue;
+        yylval = cur_हालागा;
         // Now potentially munge the current token
         if (token == '(' && isStrengthToken(nexttok)) {
             token = yP_PAR__STRENGTH;
@@ -937,7 +937,7 @@ std::ostream& operator<<(std::ostream& os, const V3ParseBisonYYSType& rhs) {
     if (VL_UNCOVERABLE(!rhs.fl))
         os << "%E-null-fileline";
     else
-        os << rhs.fl->filenameLetters() << rhs.fl->asciiLineCol();
+        os << rhs.fl->filenameLetters() << rhs.fl->ascii_लिन्या_Col();
     os << "}";
     os << "=" << rhs.token << " " << V3ParseImp::tokenName(rhs.token);
     if (rhs.token == yaID__ETC  //
@@ -959,12 +959,12 @@ V3Parse::V3Parse(AstNetlist* rootp, VInFilter* filterp) {
 V3Parse::~V3Parse() {  //
     VL_DO_CLEAR(delete m_impp, m_impp = nullptr);
 }
-void V3Parse::parseFile(FileLine* fileline, const string& modname, bool inLibrary, bool inLibMap,
+void V3Parse::parseFile(File_लिन्या* fileline, const string& modname, bool inLibrary, bool inLibMap,
                         const string& libname, const string& errmsg,
                         const std::string& notFoundName) {
     m_impp->parseFile(fileline, modname, inLibrary, inLibMap, libname, errmsg, notFoundName);
 }
-void V3Parse::ppPushText(V3ParseImp* impp, const string& text) {
-    if (text != "") impp->ppPushText(text);
+void V3Parse::pp_इतुलाक_Text(V3ParseImp* impp, const string& text) {
+    if (text != "") impp->pp_इतुलाक_Text(text);
 }
 void V3Parse::candidatePli(VSpellCheck* spellerp) { V3ParseImp::candidatePli(spellerp); }

@@ -32,11 +32,11 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 class ConvertWriteRefsToRead final : public VNVisitor {
     // MEMBERS
-    AstNodeExpr* m_result = nullptr;
+    Ast_बुहोल_पाहायाग* m_result = nullptr;
 
     // CONSTRUCTORS
-    explicit ConvertWriteRefsToRead(AstNodeExpr* nodep) {
-        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), NodeExpr);
+    explicit ConvertWriteRefsToRead(Ast_बुहोल_पाहायाग* nodep) {
+        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), बुहोल_पाहायाग);
     }
 
     // VISITORS
@@ -45,14 +45,14 @@ class ConvertWriteRefsToRead final : public VNVisitor {
         if (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
                 new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+    static Ast_बुहोल_पाहायाग* main(Ast_बुहोल_पाहायाग* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
 };
 
 //######################################################################
@@ -65,19 +65,19 @@ class ClockVisitor final : public VNVisitor {
         // COVERTOGGLE(INC, ORIG, CHANGE) ->
         //   IF(ORIG ^ CHANGE) { INC; CHANGE = ORIG; }
         AstCoverInc* const incp = nodep->incp()->unlinkFrBack();
-        AstNodeExpr* const origp = nodep->origp()->unlinkFrBack();
-        AstNodeExpr* const changeWrp = nodep->changep()->unlinkFrBack();
-        AstNodeExpr* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->cloneTree(false));
-        AstNodeExpr* comparedp = nullptr;
-        incp->toggleExprp(origp->cloneTree(false));
-        incp->toggleCovExprp(changeRdp->cloneTree(false));
-        FileLine* const flp = nodep->fileline();
+        Ast_बुहोल_पाहायाग* const origp = nodep->origp()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const changeWrp = nodep->changep()->unlinkFrBack();
+        Ast_बुहोल_पाहायाग* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->clone_पुनो(false));
+        Ast_बुहोल_पाहायाग* comparedp = nullptr;
+        incp->toggleExprp(origp->clone_पुनो(false));
+        incp->toggleCovExprp(changeRdp->clone_पुनो(false));
+        File_लिन्या* const flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
         if (const AstBasicDType* const bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
             if (!bdtypep->isOpaque()) {
-                AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
+                Ast_बुहोल_पाहायाग* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
                 comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
             }
         }
@@ -86,16 +86,16 @@ class ClockVisitor final : public VNVisitor {
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.
         // We'll go with the miss.
-        newp->addThensp(new AstAssign{flp, changeWrp, origp->cloneTree(false)});
+        newp->addThensp(new AstAssign{flp, changeWrp, origp->clone_पुनो(false)});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_पुनो(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);  // No longer needed
+    void visit(Ast_Sen_पुनो* nodep) override {
+        VL_DO_DANGLING(इतुलाक_Deletep(nodep->unlinkFrBack()), nodep);  // No longer needed
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -109,5 +109,5 @@ public:
 void V3Clock::clockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("clock", 0, dump_पुनो_Either_Level() >= 3);
 }

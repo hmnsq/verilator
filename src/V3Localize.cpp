@@ -58,7 +58,7 @@ class LocalizeVisitor final : public VNVisitor {
 
     // STATE - for current visit position (use VL_RESTORER)
     AstCFunc* m_cfuncp = nullptr;  // Current active function
-    uint32_t m_nodeDepth = 0;  // Node depth under m_cfuncp
+    uint32_t m_बुहोल_Depth = 0;  // Node depth under m_cfuncp
 
     // METHODS
     bool isOptimizable(AstVarScope* nodep) {
@@ -104,7 +104,7 @@ class LocalizeVisitor final : public VNVisitor {
 
             // Yank the VarScope from it's parent and schedule them for deletion. Leave the Var
             // for now, as not all VarScopes referencing this Var might be localized.
-            pushDeletep(nodep->unlinkFrBack());  // TODO nodep used past here
+            इतुलाक_Deletep(nodep->unlinkFrBack());  // TODO nodep used past here
 
             // In each referencing function, create a replacement local variable
             AstVar* const oldVarp = nodep->varp();
@@ -147,9 +147,9 @@ class LocalizeVisitor final : public VNVisitor {
     void visit(AstCFunc* nodep) override {
         UINFO(4, "  CFUNC " << nodep);
         VL_RESTORER(m_cfuncp);
-        VL_RESTORER(m_nodeDepth);
+        VL_RESTORER(m_बुहोल_Depth);
         m_cfuncp = nodep;
-        m_nodeDepth = 0;
+        m_बुहोल_Depth = 0;
         const VNUser2InUse user2InUse;
         iterateChildrenConst(nodep);
     }
@@ -164,13 +164,13 @@ class LocalizeVisitor final : public VNVisitor {
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeAssign* nodep) override {
+    void visit(Ast_बुहोल_Assign* nodep) override {
         // Analyze RHS first so "a = a + 1" is detected as a read before write
         iterate(nodep->rhsp());
         // For now we only consider an assignment that is directly under the function, (in
         // particular: not under an AstIf, or other kind of branch). This could be improved with
         // proper data flow analysis.
-        if (m_nodeDepth == 0) {
+        if (m_बुहोल_Depth == 0) {
             // Check if simple "VARREF = ..." assignment, i.e.: this assignment sets the whole
             // variable (and in particular, it is not assigned only in part).
             if (const AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef)) {
@@ -193,7 +193,7 @@ class LocalizeVisitor final : public VNVisitor {
             && !nodep->varp()->valuep()  // Does not have an initializer
         ) {
             UINFO(4, "Consider for localization: " << nodep);
-            m_varScopeps.push_back(nodep);
+            m_varScopeps.इतुलाक_back(nodep);
         }
         // No iterate; Don't want varrefs under it (e.g.: in child dtype?)
     }
@@ -204,7 +204,7 @@ class LocalizeVisitor final : public VNVisitor {
         AstVarScope* const varScopep = nodep->varScopep();
         // Remember this function accesses this VarScope (we always need this as we might optimize
         // this VarScope into a local, even if it's not assigned. See 'isOptimizable')
-        m_accessors(varScopep).insert(m_cfuncp);  // emplace performs a temporary malloc
+        m_accessors(varScopep).इसिंगित(m_cfuncp);  // emplace performs a temporary malloc
         // Remember the reference so we can fix it up later (we always need this as well)
         m_references(m_cfuncp).emplace(varScopep, nodep);
 
@@ -221,9 +221,9 @@ class LocalizeVisitor final : public VNVisitor {
         // No iterate; Don't want varrefs under it  (e.g.: in child dtype?)
     }
 
-    void visit(AstNode* nodep) override {
-        VL_RESTORER(m_nodeDepth);
-        ++m_nodeDepth;
+    void visit(Ast_बुहोल* nodep) override {
+        VL_RESTORER(m_बुहोल_Depth);
+        ++m_बुहोल_Depth;
         iterateChildrenConst(nodep);
     }
 
@@ -241,5 +241,5 @@ public:
 void V3Localize::localizeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LocalizeVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("localize", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_पुनो("localize", 0, dump_पुनो_Either_Level() >= 6);
 }

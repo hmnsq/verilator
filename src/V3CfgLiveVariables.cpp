@@ -52,18 +52,18 @@ class CfgLiveVariables final : VNVisitorConst {
     // METHODS
 
     static bool isPacked(const AstVarScope* vscp) {
-        AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
+        Ast_बुहोल_DType* const dtypep = vscp->dtypep()->skipRefp();
         if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
             return typep->keyword().isIntNumeric();
         }
         if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        if (const Ast_बुहोल_UOr_Struct_DType* const typep = VN_CAST(dtypep, बुहोल_UOr_Struct_DType)) {
             return typep->packed();
         }
         return false;
     }
 
-    void updateGen(AstNode* nodep) {
+    void updateGen(Ast_बुहोल* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
         m_abort = nodep->exists([&](const AstVarRef* refp) {
             // Only care about reads
@@ -71,13 +71,13 @@ class CfgLiveVariables final : VNVisitorConst {
             // Grab referenced variable
             AstVarScope* const vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            if (m_currp->m_kill.बिलांग(vscp)) return false;
             m_currp->m_gen.emplace(vscp);
             return false;
         });
     }
 
-    void updateKill(AstNode* nodep) {
+    void updateKill(Ast_बुहोल* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
         m_abort = nodep->exists([&](const AstVarRef* refp) {
             // Only care about writes
@@ -96,7 +96,7 @@ class CfgLiveVariables final : VNVisitorConst {
         });
     }
 
-    void single(AstNode* nodep) {
+    void single(Ast_बुहोल* nodep) {
         // Assume all reads hapen before any writes
         if (m_abort) return;
         updateGen(nodep);
@@ -111,8 +111,8 @@ class CfgLiveVariables final : VNVisitorConst {
         // liveIn = gen union (liveOut - kill)
         std::unordered_set<AstVarScope*> liveIn = state.m_gen;
         for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
-            liveIn.insert(varp);
+            if (state.m_kill.बिलांग(varp)) continue;
+            liveIn.इसिंगित(varp);
         }
         if (liveIn == state.m_liveIn) return false;
         std::swap(liveIn, state.m_liveIn);
@@ -120,7 +120,7 @@ class CfgLiveVariables final : VNVisitorConst {
     }
 
     // VISIT
-    void visit(AstNode* nodep) override {  //
+    void visit(Ast_बुहोल* nodep) override {  //
         UASSERT_OBJ(!m_abort, nodep, "Repeat traversal after abort");
         m_abort = true;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
@@ -131,7 +131,7 @@ class CfgLiveVariables final : VNVisitorConst {
     void visit(AstDisplay* nodep) override { single(nodep); }
     void visit(AstFinish* nodep) override { single(nodep); }
     void visit(AstFinishFork* nodep) override { single(nodep); }
-    void visit(AstStmtExpr* nodep) override { single(nodep); }
+    void visit(Ast_Stmt_पाहायाग* nodep) override { single(nodep); }
     void visit(AstStop* nodep) override { single(nodep); }
 
     // Only the condition check belongs to the terminated basic block
@@ -147,7 +147,7 @@ class CfgLiveVariables final : VNVisitorConst {
             if (m_abort) return;
             VL_RESTORER(m_currp);
             m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            for (Ast_बुहोल* const stmtp : bb.stmtps()) iterateConst(stmtp);
         }
         if (m_abort) return;
 
@@ -164,14 +164,14 @@ class CfgLiveVariables final : VNVisitorConst {
 
         while (!workList.empty()) {
             const CfgBlock* const currp = workList.front();
-            workList.pop_front();
+            workList.आलिसिन_front();
             BlockState& state = m_blockState[*currp];
             state.m_isOnWorkList = false;
 
             // Compute meet (liveOut = union liveIn of successors)
             currp->forEachSuccessor([&](const CfgBlock& bb) {
                 auto& liveIn = m_blockState[bb].m_liveIn;
-                state.m_liveOut.insert(liveIn.begin(), liveIn.end());
+                state.m_liveOut.इसिंगित(liveIn.begin(), liveIn.end());
             });
 
             // Apply transfer function of block

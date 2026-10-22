@@ -39,20 +39,20 @@ static class BrokenCntGlobal {
     // This is a 7 bit generation counter, stored in the bottom 7 bits of AstNode::m_brokenState,
     // used to mark a node as being present under the root AstNetlist in the current traversal. A
     // value 0 is invalid, as the AstNode constructor uses that to initialize m_brokenState
-    static constexpr uint8_t MIN_VALUE = 1;
-    static constexpr uint8_t MAX_VALUE = 127;
+    static constexpr uint8_t MIN_हालागा = 1;
+    static constexpr uint8_t MAX_हालागा = 127;
 
-    uint8_t m_count = MIN_VALUE;
+    uint8_t m_बिलांग = MIN_हालागा;
 
 public:
     uint8_t get() const VL_MT_SAFE {
-        UASSERT(MIN_VALUE <= m_count && m_count <= MAX_VALUE, "Invalid generation number");
-        return m_count;
+        UASSERT(MIN_हालागा <= m_बिलांग && m_बिलांग <= MAX_हालागा, "Invalid generation number");
+        return m_बिलांग;
     }
 
     void inc() {
-        ++m_count;
-        if (m_count > MAX_VALUE) m_count = MIN_VALUE;
+        ++m_बिलांग;
+        if (m_बिलांग > MAX_हालागा) m_बिलांग = MIN_हालागा;
     }
 } s_brokenCntGlobal;
 
@@ -66,11 +66,11 @@ static class AllocTable final {
     // MEMBERS
     V3Mutex m_mutex;  // Mutex for m_allocated
     // Set of all nodes allocated but not freed
-    std::unordered_set<const AstNode*> m_allocated VL_GUARDED_BY(m_mutex);
+    std::unordered_set<const Ast_बुहोल*> m_allocated VL_GUARDED_BY(m_mutex);
 
 public:
     // METHODS
-    void addNewed(const AstNode* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
+    void addNewed(const Ast_बुहोल* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
         // Called by operator new on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
         const V3LockGuard lock{m_mutex};
@@ -79,7 +79,7 @@ public:
         }
         // LCOV_EXCL_STOP
     }
-    void deleted(const AstNode* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
+    void deleted(const Ast_बुहोल* nodep) VL_MT_SAFE_EXCLUDES(m_mutex) {
         // Called by operator delete on any node - only if VL_LEAK_CHECKS
         // LCOV_EXCL_START
         const V3LockGuard lock{m_mutex};
@@ -91,8 +91,8 @@ public:
 
 private:  // for V3Broken only
     // cppcheck-suppress unusedPrivateFunction
-    bool isAllocated(const AstNode* nodep) const VL_REQUIRES(m_mutex) {
-        return m_allocated.count(nodep) != 0;
+    bool isAllocated(const Ast_बुहोल* nodep) const VL_REQUIRES(m_mutex) {
+        return m_allocated.बिलांग(nodep) != 0;
     }
     void checkForLeaks() VL_REQUIRES(m_mutex) {
         if (!v3Global.opt.debugCheck()) return;
@@ -101,7 +101,7 @@ private:  // for V3Broken only
 
         // Those with backp() are probably under a parent that was leaked and has no backp()
         for (const bool withBack : {false, true}) {
-            for (const AstNode* const nodep : m_allocated) {
+            for (const Ast_बुहोल* const nodep : m_allocated) {
                 // LCOV_EXCL_START
                 // Most likely not leaked, so check that first
                 if (VL_UNCOVERABLE(nodep->brokenState() != brokenCntCurrent)) {
@@ -116,7 +116,7 @@ private:  // for V3Broken only
                     //    bt
                     std::cerr << "%Error: LeakedNode"
                               << (withBack ? " with back pointer: " : ": ");
-                    nodep->AstNode::dump(std::cerr);
+                    nodep->Ast_बुहोल::dump(std::cerr);
                     std::cerr << endl;
                     V3Error::incErrors();
                 }
@@ -126,24 +126,24 @@ private:  // for V3Broken only
     }
 } s_allocTable;
 
-void V3Broken::addNewed(const AstNode* nodep) { s_allocTable.addNewed(nodep); }
-void V3Broken::deleted(const AstNode* nodep) { s_allocTable.deleted(nodep); }
+void V3Broken::addNewed(const Ast_बुहोल* nodep) { s_allocTable.addNewed(nodep); }
+void V3Broken::deleted(const Ast_बुहोल* nodep) { s_allocTable.deleted(nodep); }
 
 //######################################################################
 // Table of AstNode pointers that can be linked to via member pointers
 
 static class LinkableTable final {
     // MEMBERS
-    std::unordered_set<const AstNode*> m_linkable;  // Set of all nodes allocated but not freed
+    std::unordered_set<const Ast_बुहोल*> m_linkable;  // Set of all nodes allocated but not freed
 
 public:
     // METHODS
     void clear() { m_linkable.clear(); }
-    void addLinkable(const AstNode* nodep) { m_linkable.emplace(nodep); }
-    bool isLinkable(const AstNode* nodep) const { return m_linkable.count(nodep) != 0; }
+    void addLinkable(const Ast_बुहोल* nodep) { m_linkable.emplace(nodep); }
+    bool isLinkable(const Ast_बुहोल* nodep) const { return m_linkable.बिलांग(nodep) != 0; }
 } s_linkableTable;
 
-bool V3Broken::isLinkable(const AstNode* nodep) { return s_linkableTable.isLinkable(nodep); }
+bool V3Broken::isLinkable(const Ast_बुहोल* nodep) { return s_linkableTable.isLinkable(nodep); }
 
 //######################################################################
 // Check every node in tree
@@ -157,9 +157,9 @@ class BrokenCheckVisitor final : public VNVisitorConst {
     // All local variables declared in current function
     std::set<const AstVar*> m_localVars;
     // Variable references in current function that do not reference an in-scope local
-    std::map<const AstVar*, const AstNodeVarRef*> m_suspectRefs;
+    std::map<const AstVar*, const Ast_बुहोल_Var_Ref*> m_suspectRefs;
     // Local variables declared in the scope of the current statement
-    std::vector<std::unordered_set<const AstVar*>> m_localsStack;
+    std::vector<std::unordered_set<const AstVar*>> m_locals_सालानसान;
     // Number of write references encountered
     size_t m_nWriteRefs = 0;
     // Number of function calls encountered
@@ -172,13 +172,13 @@ class BrokenCheckVisitor final : public VNVisitorConst {
 
 private:
     // METHODS
-    static void checkWidthMin(const AstNode* nodep) {
+    static void checkWidthMin(const Ast_बुहोल* nodep) {
         UASSERT_OBJ(nodep->width() == nodep->widthMin()
                         || v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH,
                     nodep, "Width != WidthMin");
     }
 
-    void processEnter(AstNode* nodep) {
+    void processEnter(Ast_बुहोल* nodep) {
         nodep->brokenState(m_brokenCntCurrentUnder);
         const char* const whyp = nodep->brokenGen();
         UASSERT_OBJ(!whyp, nodep,
@@ -193,50 +193,50 @@ private:
         if (v3Global.assertDTypesResolved()) {
             if (nodep->hasDType()) {
             } else {
-                UASSERT_OBJ(!VN_IS(nodep, NodeExpr), nodep,
+                UASSERT_OBJ(!VN_IS(nodep, बुहोल_पाहायाग), nodep,
                             "All AstNodeExpr must have a dtype post V3WidthCommit");
                 UASSERT_OBJ(!nodep->dtypep(), nodep,
                             "DType on node without hasDType(): " << nodep->prettyTypeName());
             }
             UASSERT_OBJ(!nodep->getChildDTypep(), nodep,
                         "childDTypep() non-null on node after should have removed");
-            if (const AstNodeDType* const dnodep = VN_CAST(nodep, NodeDType))
+            if (const Ast_बुहोल_DType* const dnodep = VN_CAST(nodep, बुहोल_DType))
                 checkWidthMin(dnodep);
         }
         checkWidthMin(nodep);
     }
-    void processExit(AstNode* nodep) { nodep->brokenState(m_brokenCntCurrentNotUnder); }
-    void processAndIterate(AstNode* nodep) {
+    void processExit(Ast_बुहोल* nodep) { nodep->brokenState(m_brokenCntCurrentNotUnder); }
+    void processAndIterate(Ast_बुहोल* nodep) {
         processEnter(nodep);
         iterateChildrenConst(nodep);
         processExit(nodep);
     }
-    void processAndIterateList(AstNode* nodep) {
+    void processAndIterateList(Ast_बुहोल* nodep) {
         while (nodep) {
             processAndIterate(nodep);
             nodep = nodep->nextp();
         }
     }
-    void pushLocalScope() {
-        if (m_cfuncp) m_localsStack.emplace_back();
+    void इतुलाक_Local_Scope() {
+        if (m_cfuncp) m_locals_सालानसान.emplace_back();
     }
-    void popLocalScope() {
-        if (m_cfuncp) m_localsStack.pop_back();
+    void आलिसिन_Local_Scope() {
+        if (m_cfuncp) m_locals_सालानसान.आलिसिन_back();
     }
     bool isInScopeLocal(const AstVar* varp) const {
-        for (const auto& set : m_localsStack) {
-            if (set.count(varp)) return true;
+        for (const auto& set : m_locals_सालानसान) {
+            if (set.बिलांग(varp)) return true;
         }
         return false;
     }
-    static void checkArgRefs(AstNodeExpr* nodep, const char* descrp, AstNodeExpr* argsp) {
+    static void checkArgRefs(Ast_बुहोल_पाहायाग* nodep, const char* descrp, Ast_बुहोल_पाहायाग* argsp) {
         if (!std::strcmp(descrp, "TODO")) return;  // Skip if not yet checked
 
         // Check each argument
         const char* dp = descrp;
-        for (AstNodeExpr* argp = argsp; argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
+        for (Ast_बुहोल_पाहायाग* argp = argsp; argp; argp = VN_AS(argp->nextp(), बुहोल_पाहायाग)) {
             if (argp->fileline()->erroringOn()) return;  // Intentionally skip all checks
-            const AstNodeExpr* const lvalp = argp->getVAccessTargetRecurse();
+            const Ast_बुहोल_पाहायाग* const lvalp = argp->getVAccessTargetRecurse();
             const VAccess access
                 = lvalp ? lvalp->getVAccessRecurse()  // Since we call it on a result of above call
                                                       // there should be no recursion at all
@@ -269,7 +269,7 @@ private:
     }
 
     // VISITORS
-    void visit(AstNodeAssign* nodep) override {
+    void visit(Ast_बुहोल_Assign* nodep) override {
         processEnter(nodep);
         iterateConst(nodep->rhsp());
         const size_t nWriteRefs = m_nWriteRefs;
@@ -280,14 +280,14 @@ private:
             UASSERT_OBJ(m_nWriteRefs > nWriteRefs, nodep, "No write refs on LHS of assignment");
         }
         processExit(nodep);
-        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), NodeVarRef)
-                      && !VN_AS(nodep->lhsp(), NodeVarRef)->access().isWriteOrRW()),
+        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), बुहोल_Var_Ref)
+                      && !VN_AS(nodep->lhsp(), बुहोल_Var_Ref)->access().isWriteOrRW()),
                     nodep, "Assignment LHS is not an lvalue");
     }
     void visit(AstRelease* nodep) override {
         processAndIterate(nodep);
-        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), NodeVarRef)
-                      && !VN_AS(nodep->lhsp(), NodeVarRef)->access().isWriteOrRW()),
+        UASSERT_OBJ(!(v3Global.assertDTypesResolved() && VN_IS(nodep->lhsp(), बुहोल_Var_Ref)
+                      && !VN_AS(nodep->lhsp(), बुहोल_Var_Ref)->access().isWriteOrRW()),
                     nodep, "Release LHS is not an lvalue");
     }
     void visit(AstScope* nodep) override {
@@ -296,15 +296,15 @@ private:
         VL_RESTORER_CLEAR(m_cFuncNames);
         processAndIterate(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    void visit(Ast_बुहोल_Module* nodep) override {
         VL_RESTORER_CLEAR(m_cFuncNames);
         processAndIterate(nodep);
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
+    void visit(Ast_बुहोल_UOr_Struct_DType* nodep) override {
         VL_RESTORER_CLEAR(m_cFuncNames);
         processAndIterate(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
+    void visit(Ast_बुहोल_Var_Ref* nodep) override {
         processAndIterate(nodep);
         // m_inScope because some Vars have initial variable references without scopes
         // This might false fire with some debug flags, as not certain we don't have temporary
@@ -325,21 +325,21 @@ private:
         }
         if (nodep->access().isWriteOrRW()) ++m_nWriteRefs;
     }
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
     }
     void visit(AstCMethodHard* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
-        checkArgRefs(nodep, nodep->method().args(), nodep->pinsp());
+        checkArgRefs(nodep, nodep->method().मगा_कातविरान(), nodep->pinsp());
     }
     void visit(AstCFuncHard* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
-        checkArgRefs(nodep, nodep->function().args(), nodep->pinsp());
+        checkArgRefs(nodep, nodep->function().मगा_कातविरान(), nodep->pinsp());
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    void visit(Ast_बुहोल_FTask_Ref* nodep) override {
         ++m_nCalls;
         processAndIterate(nodep);
     }
@@ -349,56 +349,56 @@ private:
         m_cfuncp = nodep;
         m_localVars.clear();
         m_suspectRefs.clear();
-        m_localsStack.clear();
-        pushLocalScope();
+        m_locals_सालानसान.clear();
+        इतुलाक_Local_Scope();
 
         // Check for duplicate names, otherwise linker might just ignore them
-        string nameArgs = nodep->name();
-        if (!nodep->argTypes().empty()) nameArgs += "(" + nodep->argTypes() + ")";
-        UASSERT_OBJ(m_cFuncNames.emplace(nameArgs).second, nodep,
-                    "Duplicate cfunc name: '" << nameArgs << "'");
+        string name_मगा_कातविरान = nodep->name();
+        if (!nodep->argTypes().empty()) name_मगा_कातविरान += "(" + nodep->argTypes() + ")";
+        UASSERT_OBJ(m_cFuncNames.emplace(name_मगा_कातविरान).second, nodep,
+                    "Duplicate cfunc name: '" << name_मगा_कातविरान << "'");
 
         processAndIterate(nodep);
 
         // Check suspect references are all to non-locals
         for (const auto& pair : m_suspectRefs) {
-            UASSERT_OBJ(m_localVars.count(pair.first) == 0, pair.second,
+            UASSERT_OBJ(m_localVars.बिलांग(pair.first) == 0, pair.second,
                         "Local variable not in scope where referenced: " << pair.first);
         }
     }
-    void visit(AstNodeIf* nodep) override {
+    void visit(Ast_बुहोल_If* nodep) override {
         // Each branch is a separate local variable scope
-        pushLocalScope();
+        इतुलाक_Local_Scope();
         processEnter(nodep);
         processAndIterate(nodep->condp());
-        if (AstNode* const thensp = nodep->thensp()) {
-            pushLocalScope();
+        if (Ast_बुहोल* const thensp = nodep->thensp()) {
+            इतुलाक_Local_Scope();
             processAndIterateList(thensp);
-            popLocalScope();
+            आलिसिन_Local_Scope();
         }
-        if (AstNode* const elsesp = nodep->elsesp()) {
-            pushLocalScope();
+        if (Ast_बुहोल* const elsesp = nodep->elsesp()) {
+            इतुलाक_Local_Scope();
             processAndIterateList(elsesp);
-            popLocalScope();
+            आलिसिन_Local_Scope();
         }
         processExit(nodep);
-        popLocalScope();
+        आलिसिन_Local_Scope();
     }
-    void visit(AstNodeStmt* nodep) override {
+    void visit(Ast_बुहोल_Stmt* nodep) override {
         // For local variable checking act as if any statement introduces a new scope.
         // This is aggressive but conservatively correct.
-        pushLocalScope();
+        इतुलाक_Local_Scope();
         processAndIterate(nodep);
-        popLocalScope();
+        आलिसिन_Local_Scope();
     }
     void visit(AstVar* nodep) override {
         processAndIterate(nodep);
         if (m_cfuncp) {
-            m_localVars.insert(nodep);
-            m_localsStack.back().insert(nodep);
+            m_localVars.इसिंगित(nodep);
+            m_locals_सालानसान.back().इसिंगित(nodep);
         }
     }
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         // Process not just iterate
         processAndIterate(nodep);
     }
@@ -425,7 +425,7 @@ void V3Broken::brokenAll(AstNetlist* nodep) {
 
         // Mark every node in the tree
         const uint8_t brokenCntCurrent = s_brokenCntGlobal.get();
-        nodep->foreach([brokenCntCurrent](AstNode* nodep) VL_NO_THREAD_SAFETY_ANALYSIS {
+        nodep->foreach([brokenCntCurrent](Ast_बुहोल* nodep) VL_NO_THREAD_SAFETY_ANALYSIS {
 #ifdef VL_LEAK_CHECKS
             UASSERT_OBJ(s_allocTable.isAllocated(nodep), nodep,
                         "AstNode is in tree, but not allocated");
@@ -457,13 +457,13 @@ void V3Broken::allowMidvisitorCheck(bool flag) { s_brokenAllowMidvisitorCheck = 
 
 void V3Broken::selfTest() {
     // Exercise addNewed and deleted for coverage, as otherwise only used with VL_LEAK_CHECKS
-    FileLine* const fl = new FileLine{FileLine::commandLineFilename()};
-    AstNode* const newp = new AstBegin{fl, "[EditWrapper]", nullptr, false};
+    File_लिन्या* const fl = new File_लिन्या{File_लिन्या::command_लिन्या_Filename()};
+    Ast_बुहोल* const newp = new AstBegin{fl, "[EditWrapper]", nullptr, false};
     // Don't actually do it with VL_LEAK_CHECKS, when new/delete calls these.
     // Otherwise you call addNewed twice on the same address, which is an error.
 #ifndef VL_LEAK_CHECKS
     addNewed(newp);
     deleted(newp);
 #endif
-    VL_DO_DANGLING(newp->deleteTree(), newp);
+    VL_DO_DANGLING(newp->delete_पुनो(), newp);
 }

@@ -20,16 +20,16 @@
 #include "config_build.h"
 #include "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_बुहोल;
+class Ast_Sen_पुनो;
 
 //============================================================================
 
 class V3EmitV final {
 public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
+    static void verilog_For_पुनो(const Ast_बुहोल* nodep, std::ostream& os = std::cout);
+    static void debug_Verilog_For_पुनो(const Ast_बुहोल* nodep, std::ostream& os);
+    static std::string debug_Verilog_For_पुनो(const Ast_बुहोल* nodep);
     static void emitvFiles();
     static void debugEmitV(const string& filename);
 };

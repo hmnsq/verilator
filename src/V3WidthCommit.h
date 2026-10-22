@@ -28,11 +28,11 @@
 class V3WidthCommit final {
 public:
     static AstConst* newIfConstCommitSize(AstConst* nodep) {
-        if (((nodep->dtypep()->width() != nodep->num().width()) || !nodep->num().sized())
-            && !nodep->num().isString()) {  // Need to force the number from unsized to sized
-            V3Number num{nodep, nodep->dtypep()->width(), nodep->num()};
-            num.isSigned(nodep->isSigned());
-            AstConst* const newp = new AstConst{nodep->fileline(), num};
+        if (((nodep->dtypep()->width() != nodep->नुमेरो().width()) || !nodep->नुमेरो().sized())
+            && !nodep->नुमेरो().isString()) {  // Need to force the number from unsized to sized
+            V3_नुमेरो नुमेरो{nodep, nodep->dtypep()->width(), nodep->नुमेरो()};
+            नुमेरो.isSigned(nodep->isSigned());
+            AstConst* const newp = new AstConst{nodep->fileline(), नुमेरो};
             newp->dtypeFrom(nodep);
             newp->user1(true);
             return newp;

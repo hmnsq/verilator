@@ -37,7 +37,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // Some handy short-hands to reduce verbosity
 static constexpr auto symClassName = &EmitCUtil::symClassName;
-static constexpr auto topClassName = &EmitCUtil::topClassName;
+static constexpr auto इताअस_Class_Name = &EmitCUtil::इताअस_Class_Name;
 
 class EmitCSyms final : EmitCBaseVisitorConst {
     // NODE STATE
@@ -47,13 +47,13 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
     // TYPES
     struct ScopeData final {
-        const AstNode* m_nodep;  // Scope symbol-table entry corresponds to
+        const Ast_बुहोल* m_nodep;  // Scope symbol-table entry corresponds to
         const std::string m_symName;  // Mangled name used to build __Vscopep_ variable
         const std::string m_prettyName;  // Pretty (unprotected) name for display
         const std::string m_defName;  // Name registered for this scope
         const int m_timeunit;  // Timeunit of this scope
         std::string m_type;  // TODO: this should be an enum
-        ScopeData(const AstNode* nodep, const std::string& symName, const std::string& prettyName,
+        ScopeData(const Ast_बुहोल* nodep, const std::string& symName, const std::string& prettyName,
                   const std::string& defName, int timeunit, const std::string& type)
             : m_nodep{nodep}
             , m_symName{symName}
@@ -80,8 +80,8 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     struct ScopeFuncData final {
         const AstScopeName* const m_scopep;  // Scope the DPI export function is registered under
         const AstCFunc* const m_cfuncp;  // DPI export function
-        const AstNodeModule* const m_modp;  // Module containing the DPI export function
-        ScopeFuncData(const AstScopeName* scopep, const AstCFunc* funcp, const AstNodeModule* modp)
+        const Ast_बुहोल_Module* const m_modp;  // Module containing the DPI export function
+        ScopeFuncData(const AstScopeName* scopep, const AstCFunc* funcp, const Ast_बुहोल_Module* modp)
             : m_scopep{scopep}
             , m_cfuncp{funcp}
             , m_modp{modp} {}
@@ -90,10 +90,10 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         const std::string m_scopeName;  // Full name of the scope containing the variable
         const std::string m_varBasePretty;  // Pretty base name of the variable, without scope
         const AstVar* const m_varp;  // Public variable
-        const AstNodeModule* const m_modp;  // Module containing the variable
+        const Ast_बुहोल_Module* const m_modp;  // Module containing the variable
         const AstScope* const m_scopep;  // Scope containing the variable
         ScopeVarData(const std::string& scopeName, const std::string& varBasePretty,
-                     const AstVar* varp, const AstNodeModule* modp, const AstScope* scopep)
+                     const AstVar* varp, const Ast_बुहोल_Module* modp, const AstScope* scopep)
             : m_scopeName{scopeName}
             , m_varBasePretty{varBasePretty}
             , m_varp{varp}
@@ -101,15 +101,15 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             , m_scopep{scopep} {}
     };
     using ScopeNames = std::map<const std::string, ScopeData>;
-    using ScopeModPair = std::pair<const AstScope*, AstNodeModule*>;
-    using ModVarPair = std::pair<const AstNodeModule*, const AstVar*>;
+    using ScopeModPair = std::pair<const AstScope*, Ast_बुहोल_Module*>;
+    using ModVarPair = std::pair<const Ast_बुहोल_Module*, const AstVar*>;
 
     // Vars with more dims take the residual per-statement path.
     static constexpr int VPI_TABLE_MAX_DIMS = 3;
 
     // STATE
     AstCFunc* m_cfuncp = nullptr;  // Current function
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_बुहोल_Module* m_modp = nullptr;  // Current module
     const AstScope* m_scopep = nullptr;  // Current scope
     std::vector<ScopeModPair> m_scopes;  // Every scope by module
     std::vector<AstCFunc*> m_dpis;  // DPI functions
@@ -144,18 +144,18 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     void emitScopeHier(TextStmts& stmts, bool destroy);
     void emitSymImp(const AstNetlist* netlistp);
     void emitDpiHdr();
-    void emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr);
+    void emitDpiStruct(const Ast_बुहोल_DType* dtypep, std::set<std::string>& namesr);
     void emitDpiImp();
 
     TextStmts getSymCtorStmts();
     TextStmts getSymDtorStmts();
 
-    static void nameCheck(AstNode* nodep) {
+    static void nameCheck(Ast_बुहोल* nodep) {
         // Prevent GCC compile time error; name check all things that reach C++ code
         if (nodep->name().empty()) return;
         const AstCFunc* const cfuncp = VN_CAST(nodep, CFunc);
         if (!cfuncp || (!cfuncp->isConstructor() && !cfuncp->isDestructor())) {
-            const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
+            const std::string rsvd = V3_Language_मगा_सालिता::isKeyword(nodep->name());
             if (rsvd != "") {
                 // Generally V3Name should find all of these and throw SYMRSVDWORD.
                 // We'll still check here because the compiler errors
@@ -209,29 +209,29 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         // Shared order used by both boundsString() and the table-row dv[] fill.
         std::vector<std::pair<int, int>> flatten() const {
             std::vector<std::pair<int, int>> flat(unpackedLR);
-            flat.insert(flat.end(), packedLR.cbegin(), packedLR.cend());
+            flat.इसिंगित(flat.end(), packedLR.cbegin(), packedLR.cend());
             return flat;
         }
     };
-    static VarDims getVarDims(const AstNodeDType* const rootDtypep) {
+    static VarDims getVarDims(const Ast_बुहोल_DType* const उगात_Dtypep) {
         VarDims d;
         // Range is always first, it's not in "C" order
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+        for (const Ast_बुहोल_DType* dtypep = उगात_Dtypep; dtypep;) {
             // Skip AstRefDType/AstTypedef, or return same node
             dtypep = dtypep->skipRefp();
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+            if (const Ast_बुहोल_Array_DType* const adtypep = VN_CAST(dtypep, बुहोल_Array_DType)) {
                 if (VN_IS(dtypep, PackArrayDType)) {
-                    d.packedLR.emplace_back(adtypep->left(), adtypep->right());
+                    d.packedLR.emplace_back(adtypep->कालिवा(), adtypep->कानान());
                     ++d.pdim;
                 } else {
-                    d.unpackedLR.emplace_back(adtypep->left(), adtypep->right());
+                    d.unpackedLR.emplace_back(adtypep->कालिवा(), adtypep->कानान());
                     ++d.udim;
                 }
                 dtypep = adtypep->subDTypep();
             } else {
                 if (const AstBasicDType* const basicp = dtypep->basicp()) {
                     if (basicp->isRanged()) {
-                        d.packedLR.emplace_back(basicp->left(), basicp->right());
+                        d.packedLR.emplace_back(basicp->कालिवा(), basicp->कानान());
                         ++d.pdim;
                     }
                 }
@@ -255,9 +255,9 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         return bounds;
     }
 
-    static int getUnpackedElements(const AstNodeDType* rootDtypep) {
+    static int getUnpackedElements(const Ast_बुहोल_DType* उगात_Dtypep) {
         int elements = 1;
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+        for (const Ast_बुहोल_DType* dtypep = उगात_Dtypep; dtypep;) {
             dtypep = dtypep->skipRefp();
             const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType);
             if (!adtypep) break;
@@ -305,9 +305,9 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         stmt += ")";
     }
     static std::string memberVlEnumDir(const AstVar* const varp,
-                                       const AstNodeDType* const dtypep) {
+                                       const Ast_बुहोल_DType* const dtypep) {
         std::string out = '(' + varp->vlEnumDir(/*forMember=*/true);
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
+        const Ast_बुहोल_DType* const skipDTypep = dtypep->skipRefp();
         if (skipDTypep->isSigned()) out += "|VLVF_SIGNED";
         if (const AstBasicDType* const basicp = skipDTypep->basicp()) {
             if (basicp->keyword() == VBasicDTypeKwd::BIT) out += "|VLVF_BITVAR";
@@ -321,10 +321,10 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         return "vlInst." + VIdProtect::protectIf(scopep->nameDotless(), scopep->protect());
     }
 
-    static std::string insertVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
+    static std::string इसिंगित_Var_Statement(const ScopeVarData& svd, const AstScope* const scopep,
                                           const AstVar* const varp, const int udim, const int pdim,
                                           const std::string& bounds) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        const std::string var_पाहायाग = "vlSymsp->" + instName(scopep) + "." + varName(varp);
         const std::string vlEnumType = varp->vlEnumType();
         const bool needsEntSize = needsEmittedEntSize(vlEnumType);
 
@@ -335,21 +335,21 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
         if (!varp->isParam()) {
             stmt += ", &(";
-            stmt += varExpr;
+            stmt += var_पाहायाग;
             stmt += "), false, ";
         } else if (varp->vlEnumType() == "VLVT_STRING"
                    && !VN_IS(varp->subDTypep(), UnpackArrayDType)) {
             stmt += ", const_cast<void*>(static_cast<const void*>(";
-            stmt += varExpr;
+            stmt += var_पाहायाग;
             stmt += ".c_str())), true, ";
         } else {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
-            stmt += varExpr;
+            stmt += var_पाहायाग;
             stmt += "))), true, ";
         }
 
         const std::string entSize = needsEntSize
-                                        ? "sizeof(" + varExpr + ") / "
+                                        ? "sizeof(" + var_पाहायाग + ") / "
                                               + std::to_string(getUnpackedElements(varp->dtypep()))
                                         : "";
         appendVarProperties(stmt, vlEnumType, varp->vlEnumDir(), udim, pdim, bounds, entSize);
@@ -393,8 +393,8 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         // Flat dim (left,right) ints in varInsert() order: unpacked then packed.
         std::vector<int> dv;
         for (const std::pair<int, int>& lr : dims.flatten()) {
-            dv.push_back(lr.first);
-            dv.push_back(lr.second);
+            dv.इतुलाक_back(lr.first);
+            dv.इतुलाक_back(lr.second);
         }
 
         std::string row = "{\"" + name + "\", ";
@@ -411,11 +411,11 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         return TableEntryKind::TABLE_ROW;
     }
 
-    static std::string insertDTypeVarStatement(const ScopeVarData& svd,
+    static std::string इसिंगित_DType_Var_Statement(const ScopeVarData& svd,
                                                const AstScope* const scopep,
                                                const std::string& prettyName,
                                                const std::string& cName,
-                                               const AstNodeDType* const dtypep, const int udim,
+                                               const Ast_बुहोल_DType* const dtypep, const int udim,
                                                const int pdim, const std::string& bounds) {
         const std::string vlEnumType = dtypep->vlEnumType();
         const bool needsEntSize = needsEmittedEntSize(vlEnumType);
@@ -423,21 +423,21 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
         stmt += needsEntSize ? "->varInsertSized(\"" : "->varInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(prettyName) + '"';
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        const std::string var_पाहायाग = "vlSymsp->" + instName(scopep) + "." + cName;
         // A parameter is emitted 'static const', so its members are const too and
         // need the same cast the whole-parameter insert uses.
         if (svd.m_varp->isParam()) {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
-            stmt += varExpr;
+            stmt += var_पाहायाग;
             stmt += "))), true, ";
         } else {
             stmt += ", &(";
-            stmt += varExpr;
+            stmt += var_पाहायाग;
             stmt += "), false, ";
         }
         const std::string entSize
             = needsEntSize
-                  ? "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep))
+                  ? "sizeof(" + var_पाहायाग + ") / " + std::to_string(getUnpackedElements(dtypep))
                   : "";
         appendVarProperties(stmt, vlEnumType, memberVlEnumDir(svd.m_varp, dtypep), udim, pdim,
                             bounds, entSize);
@@ -447,21 +447,21 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     static void addUOrStructMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
                                        const AstScope* const scopep,
                                        const std::string& prettyPrefix, const std::string& cPrefix,
-                                       const AstNodeUOrStructDType* const sdtypep) {
+                                       const Ast_बुहोल_UOr_Struct_DType* const sdtypep) {
         for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
+            const Ast_बुहोल_DType* const itemDTypep = itemp->dtypep();
             if (itemDTypep->vlEnumType().empty()) continue;
             const std::string prettyName
-                = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
+                = prettyPrefix + "." + Ast_बुहोल::vpiName(itemp->shortName());
             const std::string cName = cPrefix + "." + itemp->nameProtect();
             const VarDims dims = getVarDims(itemDTypep);
-            stmts.emplace_back(insertDTypeVarStatement(svd, scopep, prettyName, cName, itemDTypep,
+            stmts.emplace_back(इसिंगित_DType_Var_Statement(svd, scopep, prettyName, cName, itemDTypep,
                                                        dims.udim, dims.pdim, boundsString(dims))
                                + ";");
             addPackedAggMemberVars(stmts, svd, scopep, prettyName, cName, itemDTypep);
-            if (const AstNodeUOrStructDType* const subp
-                = VN_CAST(itemDTypep->skipRefp(), NodeUOrStructDType)) {
+            if (const Ast_बुहोल_UOr_Struct_DType* const subp
+                = VN_CAST(itemDTypep->skipRefp(), बुहोल_UOr_Struct_DType)) {
                 if (!subp->packed())
                     addUOrStructMemberVars(stmts, svd, scopep, prettyName, cName, subp);
             } else if (VN_IS(itemDTypep->skipRefp(), UnpackArrayDType)) {
@@ -476,13 +476,13 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                                                     const AstScope* const scopep,
                                                     const std::string& prettyPrefix,
                                                     const std::string& cPrefix,
-                                                    const AstNodeDType* const dtypep) {
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
+                                                    const Ast_बुहोल_DType* const dtypep) {
+        const Ast_बुहोल_DType* const skipDTypep = dtypep->skipRefp();
         if (const AstUnpackArrayDType* const adtypep = VN_CAST(skipDTypep, UnpackArrayDType)) {
             addUnpackedArrayUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix + "[0]",
                                                 adtypep->subDTypep());
-        } else if (const AstNodeUOrStructDType* const sdtypep
-                   = VN_CAST(skipDTypep, NodeUOrStructDType)) {
+        } else if (const Ast_बुहोल_UOr_Struct_DType* const sdtypep
+                   = VN_CAST(skipDTypep, बुहोल_UOr_Struct_DType)) {
             if (!sdtypep->packed())
                 addUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix, sdtypep);
         }
@@ -496,14 +496,14 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                                     const AstScope* const scopep, const std::string& prettyPrefix,
                                     const std::string& cName, const std::string& vlEnumType,
                                     const std::string& entSize,
-                                    const AstNodeUOrStructDType* const sdtypep,
+                                    const Ast_बुहोल_UOr_Struct_DType* const sdtypep,
                                     const int parentBitOffset, const bool needsIndex) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        const std::string var_पाहायाग = "vlSymsp->" + instName(scopep) + "." + cName;
         for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
+            const Ast_बुहोल_DType* const itemDTypep = itemp->dtypep();
             const std::string prettyName
-                = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
+                = prettyPrefix + "." + Ast_बुहोल::vpiName(itemp->shortName());
             // Union members all have lsb 0, so share the parent's offset
             const int bitOffset = parentBitOffset + itemp->lsb();
             const VarDims dims = getVarDims(itemDTypep);
@@ -515,9 +515,9 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             // A parameter is emitted 'static const', see insertDTypeVarStatement
             if (svd.m_varp->isParam()) {
                 stmt
-                    += ", const_cast<void*>(static_cast<const void*>(&(" + varExpr + "))), true, ";
+                    += ", const_cast<void*>(static_cast<const void*>(&(" + var_पाहायाग + "))), true, ";
             } else {
-                stmt += ", &(" + varExpr + "), false, ";
+                stmt += ", &(" + var_पाहायाग + "), false, ";
             }
             stmt += vlEnumType + ", ";
             stmt += memberVlEnumDir(svd.m_varp, itemDTypep);
@@ -531,13 +531,13 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             stmts.emplace_back(stmt);
             // Nested packed struct/union, or packed array of them: register the members of
             // the element at index offset 0
-            const AstNodeDType* subDTypep = itemDTypep->skipRefp();
+            const Ast_बुहोल_DType* subDTypep = itemDTypep->skipRefp();
             bool isArray = false;
             while (const AstPackArrayDType* const adtypep = VN_CAST(subDTypep, PackArrayDType)) {
                 subDTypep = adtypep->subDTypep()->skipRefp();
                 isArray = true;
             }
-            if (const AstNodeUOrStructDType* const subp = VN_CAST(subDTypep, NodeUOrStructDType)) {
+            if (const Ast_बुहोल_UOr_Struct_DType* const subp = VN_CAST(subDTypep, बुहोल_UOr_Struct_DType)) {
                 addPackedMemberVars(stmts, svd, scopep, prettyName, cName, vlEnumType, entSize,
                                     subp, bitOffset, needsIndex || isArray);
             }
@@ -549,25 +549,25 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     static void addPackedAggMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
                                        const AstScope* const scopep,
                                        const std::string& prettyPrefix, const std::string& cName,
-                                       const AstNodeDType* const dtypep) {
+                                       const Ast_बुहोल_DType* const dtypep) {
         std::string elemCName = cName;
-        const AstNodeDType* elemDTypep = dtypep->skipRefp();
+        const Ast_बुहोल_DType* elemDTypep = dtypep->skipRefp();
         bool isArray = false;
-        while (const AstNodeArrayDType* const adtypep = VN_CAST(elemDTypep, NodeArrayDType)) {
+        while (const Ast_बुहोल_Array_DType* const adtypep = VN_CAST(elemDTypep, बुहोल_Array_DType)) {
             if (VN_IS(adtypep, UnpackArrayDType)) elemCName += "[0]";
             elemDTypep = adtypep->subDTypep()->skipRefp();
             isArray = true;
         }
-        const AstNodeUOrStructDType* const sdtypep = VN_CAST(elemDTypep, NodeUOrStructDType);
+        const Ast_बुहोल_UOr_Struct_DType* const sdtypep = VN_CAST(elemDTypep, बुहोल_UOr_Struct_DType);
         if (!sdtypep || !sdtypep->packed()) return;
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        const std::string var_पाहायाग = "vlSymsp->" + instName(scopep) + "." + cName;
         const std::string entSize
-            = "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep));
+            = "sizeof(" + var_पाहायाग + ") / " + std::to_string(getUnpackedElements(dtypep));
         addPackedMemberVars(stmts, svd, scopep, prettyPrefix, elemCName, dtypep->vlEnumType(),
                             entSize, sdtypep, 0, isArray);
     }
 
-    std::string insertForceableVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
+    std::string इसिंगित_Forceable_Var_Statement(const ScopeVarData& svd, const AstScope* const scopep,
                                             const AstVar* const varp, const int udim,
                                             const int pdim, const std::string& bounds) {
         std::string stmt;
@@ -575,27 +575,27 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName) + "->forceableVarInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty)) + '"';
 
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        const std::string var_पाहायाग = "vlSymsp->" + instName(scopep) + "." + varName(varp);
 
         assert(!varp->isParam());  // Forceable params do not make sense
         stmt += ", &(";
-        stmt += varExpr;
+        stmt += var_पाहायाग;
         stmt += "), false, ";
 
         stmt += varp->vlEnumType();  // VLVT_UINT32 etc
         stmt += ", ";
         stmt += varp->vlEnumDir();  // VLVD_IN etc
         stmt += ", &(";
-        stmt += varExpr + "__VforceRd";
+        stmt += var_पाहायाग + "__VforceRd";
         stmt += "), \"" + V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty))
                 + "__VforceRd" + '"';
         stmt += ", {";
 
         for (const std::string forceControlSuffix : {"__VforceEn", "__VforceVal"}) {
-            const std::string enableSignalKey
-                = getKeyName(scopep, varp->name() + forceControlSuffix);
+            const std::string enable_Signal_सुसि
+                = get_सुसि_Name(scopep, varp->name() + forceControlSuffix);
             const std::map<const std::string, ScopeVarData>::const_iterator itpair
-                = m_scopeVars.find(enableSignalKey);
+                = m_scopeVars.find(enable_Signal_सुसि);
 
             if (itpair == m_scopeVars.end()) {
                 varp->v3fatalSrc("Signal "
@@ -603,7 +603,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                                  << " is marked forceable, but the force control signal '"
                                  << varp->name() << forceControlSuffix
                                  << "' can not be found in m_scopeVars with key '"
-                                 << enableSignalKey << "'.");
+                                 << enable_Signal_सुसि << "'.");
             }
 
             const ScopeVarData& svd = itpair->second;
@@ -611,7 +611,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             const AstVar* const varp = svd.m_varp;
             const VarDims dims = dimsFor(svd);
             stmt
-                += insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, boundsString(dims));
+                += इसिंगित_Var_Statement(svd, scopep, varp, dims.udim, dims.pdim, boundsString(dims));
             if (forceControlSuffix == "__VforceEn") stmt += ",";
         }
 
@@ -625,7 +625,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         return stmt;
     }
 
-    static std::string getKeyName(const AstScope* const scopep, const std::string& signal_name) {
+    static std::string get_सुसि_Name(const AstScope* const scopep, const std::string& signal_name) {
         // Copies the process from `addScopeVarEntry` which created the keys in the first place, in
         // order
         // signal can be found.
@@ -640,9 +640,9 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
     bool baseSignalIsValid(const AstScope* const scopep, const AstVar* const controlSignalVarp,
                            const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
+        const std::string base_Signal_सुसि = get_सुसि_Name(scopep, baseSignalName);
         const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
-            = m_scopeVars.find(baseSignalKey);
+            = m_scopeVars.find(base_Signal_सुसि);
         if (baseSignalIt == m_scopeVars.end()) {
             // This means that the signal is forceable, but not public, so only the force control
             // signals show up in the m_scopeVars, but not the base signal itself.
@@ -651,7 +651,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             return false;
         } else {
             const AstVar* const baseSignalVarp = baseSignalIt->second.m_varp;
-            if (m_scopeVars.count(baseSignalName) > 1) {
+            if (m_scopeVars.बिलांग(baseSignalName) > 1) {
                 baseSignalVarp->v3fatalSrc(
                     "Found Signal " << baseSignalName
                                     << ", but also found at least one other signal with name"
@@ -672,9 +672,9 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
     bool baseSignalIsPublic(const AstScope* const scopep,
                             const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
+        const std::string base_Signal_सुसि = get_सुसि_Name(scopep, baseSignalName);
         const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
-            = m_scopeVars.find(baseSignalKey);
+            = m_scopeVars.find(base_Signal_सुसि);
         if (baseSignalIt == m_scopeVars.end()) {
             return false;
         } else {
@@ -692,18 +692,18 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             forceControlSuffixes.begin(), forceControlSuffixes.end(),
             [scopep, baseSignalVarp, this](const std::string& forceControlSuffix) {
                 const std::string controlSignalName = baseSignalVarp->name() + forceControlSuffix;
-                const std::string controlSignalKey = getKeyName(scopep, controlSignalName);
-                const std::size_t controlSignalCount = m_scopeVars.count(controlSignalKey);
-                if (controlSignalCount == 0) {
+                const std::string control_Signal_सुसि = get_सुसि_Name(scopep, controlSignalName);
+                const std::size_t control_Signal_बिलांग = m_scopeVars.बिलांग(control_Signal_सुसि);
+                if (control_Signal_बिलांग == 0) {
                     baseSignalVarp->v3fatalSrc("Signal "
                                                << baseSignalVarp->prettyNameQ()
                                                << " is marked forceable, but the control signal '"
                                                << controlSignalName
                                                << "' can not be found in m_scopeVars with key '"
-                                               << controlSignalKey << "'.");
+                                               << control_Signal_सुसि << "'.");
                     return false;
                 }
-                if (controlSignalCount > 1) {
+                if (control_Signal_बिलांग > 1) {
                     baseSignalVarp->v3fatalSrc("The control signal '"
                                                << controlSignalName << "' for forceable signal "
                                                << baseSignalVarp->prettyNameQ()
@@ -743,7 +743,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         }
     }
 
-    void addScopeVarEntry(const AstScope* const scopep, const AstNodeModule* const modp,
+    void addScopeVarEntry(const AstScope* const scopep, const Ast_बुहोल_Module* const modp,
                           const AstVar* const varp) {
         // Need to split the module + var name into the original-ish full scope
         // and variable name under that scope. The module instance name is
@@ -757,8 +757,8 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         const std::string varBase = whole.substr(dpos + std::strlen("__DOT__"));
         // UINFO(9, "For " << scopep->name() << " - " << varp->name() << "  Scp "
         // << scpName << "Var " << varBase);
-        const std::string varBasePretty = AstNode::vpiName(VName::dehash(varBase));
-        const std::string scpPretty = AstNode::prettyName(VName::dehash(scpName));
+        const std::string varBasePretty = Ast_बुहोल::vpiName(VName::dehash(varBase));
+        const std::string scpPretty = Ast_बुहोल::prettyName(VName::dehash(scpName));
         const std::string scpSym = scopeSymString(VName::dehash(scpName));
         // UINFO(9, " scnameins sp " << scpName << " sp " << scpPretty << " ss "
         // << scpSym);
@@ -781,9 +781,9 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         // Someday.
         for (const ScopeModPair& smPair : m_scopes) {
             const AstScope* const scopep = smPair.first;
-            const AstNodeModule* const smodp = smPair.second;
+            const Ast_बुहोल_Module* const smodp = smPair.second;
             for (const ModVarPair& mvPair : m_modVars) {
-                const AstNodeModule* const modp = mvPair.first;
+                const Ast_बुहोल_Module* const modp = mvPair.first;
                 const AstVar* const varp = mvPair.second;
                 if (modp != smodp) continue;
                 addScopeVarEntry(scopep, modp, varp);
@@ -799,8 +799,8 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         // vpiName() to match the scope table these are looked up alongside. Inlining
         // flattens the hierarchy but leaves the inlined levels in the scope name, which
         // therefore carries the full enclosing path.
-        const std::string path = AstNode::vpiName(nodep->name());
-        const std::string instName = AstNode::vpiName(cellp->origName());
+        const std::string path = Ast_बुहोल::vpiName(nodep->name());
+        const std::string instName = Ast_बुहोल::vpiName(cellp->origName());
         UASSERT_OBJ(path.length() > instName.length() && VString::endsWith(path, instName), nodep,
                     "Interface scope name " << path << " does not end with instance name "
                                             << instName);
@@ -808,12 +808,12 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
         for (AstIntfRef* intfRefp = cellp->intfRefsp(); intfRefp;
              intfRefp = VN_AS(intfRefp->nextp(), IntfRef)) {
-            const std::string refName = AstNode::vpiName(intfRefp->name());
+            const std::string refName = Ast_बुहोल::vpiName(intfRefp->name());
             // Assume only references under the same parent scope reference the
             // same interface. Same limitation as the trace path in V3TraceDecl.
             if (!VString::startsWith(refName, parentPath)) continue;
             m_ifaceRefs.emplace_back(nodep, scopeSymString(intfRefp->parentName()), refName,
-                                     AstNode::vpiName(intfRefp->baseName()),
+                                     Ast_बुहोल::vpiName(intfRefp->baseName()),
                                      intfRefp->modportName());
         }
     }
@@ -840,13 +840,13 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             std::string row
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + scopeSym) + "), ";
             row += parentOffset + ", \"";
-            row += V3OutFormatter::quoteNameControls(VIdProtect::protectWordsIf(ird.m_name, true));
+            row += V3OutFormatter::quoteNameControls(VIdProtect::protect_मगा_सालिता_If(ird.m_name, true));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_suffix, true));
+                VIdProtect::protect_मगा_सालिता_If(ird.m_suffix, true));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_modportName, true));
+                VIdProtect::protect_मगा_सालिता_If(ird.m_modportName, true));
             row += "\"}";
             m_ifaceRefTableRows.emplace_back(std::move(row));
         }
@@ -864,7 +864,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                 if (pos == std::string::npos) break;
                 above.resize(pos);
                 if (m_vpiScopeHierarchy.find(above) != m_vpiScopeHierarchy.end()) {
-                    m_vpiScopeHierarchy[above].push_back(symName);
+                    m_vpiScopeHierarchy[above].इतुलाक_back(symName);
                     break;
                 }
             }
@@ -909,7 +909,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             if (!m_dpiHdrOnly) emitDpiImp();
         }
     }
-    void visit(AstNodeModule* nodep) override {
+    void visit(Ast_बुहोल_Module* nodep) override {
         if (nodep->isConstPool()) return;  // Special emit rules
         nameCheck(nodep);
         VL_RESTORER(m_modp);
@@ -928,7 +928,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_vpiScopeCandidates.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(scopeSymString(name)),  //
-            std::forward_as_tuple(nodep, scopeSymString(name), AstNode::vpiName(name),
+            std::forward_as_tuple(nodep, scopeSymString(name), Ast_बुहोल::vpiName(name),
                                   type == "SCOPE_MODULE" ? nodep->origModName() : "<null>",
                                   timeunit, type));
     }
@@ -938,7 +938,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
         m_scopes.emplace_back(nodep, m_modp);
 
-        if (v3Global.opt.vpi() && !nodep->isTop()) {
+        if (v3Global.opt.vpi() && !nodep->is_इताअस()) {
             const std::string type = VN_IS(nodep->modp(), Package) ? "SCOPE_PACKAGE"  //
                                      : VN_IS(nodep->modp(), Iface) ? "SCOPE_INTERFACE"  //
                                                                    : "SCOPE_MODULE";
@@ -947,7 +947,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                 std::piecewise_construct,  //
                 std::forward_as_tuple(scopeSymString(nodep->name())),  //
                 std::forward_as_tuple(nodep, scopeSymString(nodep->name()),
-                                      AstNode::vpiName(nodep->shortName()),
+                                      Ast_बुहोल::vpiName(nodep->shortName()),
                                       nodep->modp()->origName(), timeunit, type));
             collectIfaceRefs(nodep);
         }
@@ -991,20 +991,20 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             m_modVars.emplace_back(m_modp, nodep);
         }
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    void visit(Ast_बुहोल_Cover_Decl* nodep) override {
         // Assign both global and module-local bin numbers. Most generated
         // coverage uses module-local counters, but static/package/class helper
         // functions may have no vlSelf and still need the global array.
         if (!nodep->dataDeclNullp()) {  // else duplicate we don't need code for
-            nodep->binNum(m_coverBins);
+            nodep->bin_नुमेरो(m_coverBins);
             m_coverBins += nodep->size();
-            nodep->localBinNum(m_modCoverBins);
+            nodep->local_Bin_नुमेरो(m_modCoverBins);
             m_modCoverBins += nodep->size();
         }
     }
     void visit(AstCFunc* nodep) override {
         nameCheck(nodep);
-        if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.push_back(nodep);
+        if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.इतुलाक_back(nodep);
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildrenConst(nodep);
@@ -1012,7 +1012,7 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
     //---------------------------------------
     void visit(AstConst*) override {}
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
 public:
     explicit EmitCSyms(AstNetlist* nodep, bool dpiHdrOnly)
@@ -1031,7 +1031,7 @@ void EmitCSyms::emitSymHdr() {
     ofp()->putsGuard();
 
     puts("\n");
-    ofp()->putsIntTopInclude();
+    ofp()->puts_Int_इताअस_Include();
     puts("#include \"verilated.h\"\n");
     if (v3Global.needTraceDumper()) {
         for (const string& base : v3Global.opt.traceSourceLangs())
@@ -1040,11 +1040,11 @@ void EmitCSyms::emitSymHdr() {
     if (v3Global.opt.usesProfiler()) puts("#include \"verilated_profiler.h\"\n");
 
     puts("\n// INCLUDE MODEL CLASS\n");
-    puts("\n#include \"" + topClassName() + ".h\"\n");
+    puts("\n#include \"" + इताअस_Class_Name() + ".h\"\n");
 
     puts("\n// INCLUDE MODULE CLASSES\n");
-    for (AstNodeModule *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
-        nextp = VN_AS(nodep->nextp(), NodeModule);
+    for (Ast_बुहोल_Module *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
+        nextp = VN_AS(nodep->nextp(), बुहोल_Module);
         if (VN_IS(nodep, Class)) continue;  // Class included earlier
         if (nodep->isConstPool()) continue;  // Special emit rules
         putns(nodep, "#include \"" + EmitCUtil::prefixNameProtect(nodep) + ".h\"\n");
@@ -1058,7 +1058,7 @@ void EmitCSyms::emitSymHdr() {
             if (!funcp->dpiExportImpl()) continue;
             const std::string cbtype
                 = protect(v3Global.opt.prefix() + "__Vcb_" + funcp->cname() + "_t");
-            const std::string functype = funcp->rtnTypeVoid() + " (*) (" + cFuncArgs(funcp) + ")";
+            const std::string functype = funcp->rtnTypeVoid() + " (*) (" + c_Func_मगा_कातविरान(funcp) + ")";
             types.emplace("using " + cbtype + " = " + functype + ";\n");
         }
         for (const std::string& type : types) puts(type);
@@ -1070,7 +1070,7 @@ void EmitCSyms::emitSymHdr() {
     ofp()->putsPrivate(false);  // public:
 
     puts("// INTERNAL STATE\n");
-    puts(topClassName() + "* const __Vm_modelp;\n");
+    puts(इताअस_Class_Name() + "* const __Vm_modelp;\n");
 
     if (v3Global.needTraceDumper()) {
         // __Vm_dumperp is local, otherwise we wouldn't know what design's eval()
@@ -1113,7 +1113,7 @@ void EmitCSyms::emitSymHdr() {
 
     if (v3Global.opt.profPgo()) {
         puts("\n// PGO PROFILING\n");
-        puts("VlPgoProfiler<" + std::to_string(ExecMTask::numUsedIds()) + "> _vm_pgoProfiler;\n");
+        puts("VlPgoProfiler<" + std::to_string(ExecMTask::नुमेरो_Used_Ids()) + "> _vm_pgoProfiler;\n");
     }
 
     puts("\n// MODULE INSTANCE STATE\n");
@@ -1122,7 +1122,7 @@ void EmitCSyms::emitSymHdr() {
     puts("union {\nstruct {\n");
     for (const ScopeModPair& itpair : m_scopes) {
         const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
+        const Ast_बुहोल_Module* const modp = itpair.second;
         if (VN_IS(modp, Class)) continue;
         ofp()->printf("%-30s ", EmitCUtil::prefixNameProtect(modp).c_str());
         putns(scopep, VIdProtect::protectIf(scopep->nameDotless(), scopep->protect()) + ";\n");
@@ -1151,7 +1151,7 @@ void EmitCSyms::emitSymHdr() {
     }
 
     puts("\n// CONSTRUCTORS\n");
-    puts(symClassName() + "(VerilatedContext* contextp, const char* namep, " + topClassName()
+    puts(symClassName() + "(VerilatedContext* contextp, const char* namep, " + इताअस_Class_Name()
          + "* modelp);\n");
     puts("~" + symClassName() + "();\n");
 
@@ -1206,14 +1206,14 @@ void EmitCSyms::emitSymImpPreamble() {
     puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
     puts("\n");
     // Declarations for DPI Export implementation functions
-    bool needsNewLine = false;
+    bool needs_New_लिन्या = false;
     for (const auto& itpair : m_scopeFuncs) {
         const AstCFunc* const funcp = itpair.second.m_cfuncp;
         if (!funcp->dpiExportImpl()) continue;
         emitCFuncDecl(funcp, itpair.second.m_modp);
-        needsNewLine = true;
+        needs_New_लिन्या = true;
     }
-    if (needsNewLine) puts("\n");
+    if (needs_New_लिन्या) puts("\n");
     // Declarations of the Verilator library functions called at construction
     std::set<std::string> libNames;
     for (const ScopeModPair& itpair : m_scopes) {
@@ -1324,24 +1324,24 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     TextStmts stmts;
 
     {
-        uint64_t stackSize = V3StackCount::count(v3Global.rootp());
-        if (v3Global.opt.debugStackCheck()) stackSize += 1024 * 1024 * 1024;
-        V3Stats::addStat("Size prediction, Stack (bytes)", stackSize);
+        uint64_t सालानसान_Size = V3_सालानसान_बिलांग::बिलांग(v3Global.rootp());
+        if (v3Global.opt.debug_सालानसान_Check()) सालानसान_Size += 1024 * 1024 * 1024;
+        V3Stats::addStat("Size prediction, Stack (bytes)", सालानसान_Size);
         // TODO: 'm_statVarScopeBytes' is always 0, AstVarScope doesn't reach here (V3Descope)
         V3Stats::addStat("Size prediction, Heap, from Var Scopes (bytes)", m_statVarScopeBytes);
-        V3Stats::addStat(V3Stats::STAT_MODEL_SIZE, stackSize + m_statVarScopeBytes);
+        V3Stats::addStat(V3Stats::STAT_MODEL_SIZE, सालानसान_Size + m_statVarScopeBytes);
 
         stmts.add("// Check resources");
-        stmts.add("Verilated::stackCheck(" + std::to_string(stackSize) + ");");
+        stmts.add("Verilated::stackCheck(" + std::to_string(सालानसान_Size) + ");");
     }
 
     stmts.add("// Setup sub module instances");
     for (const ScopeModPair& itpair : m_scopes) {
         const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
+        const Ast_बुहोल_Module* const modp = itpair.second;
+        if (modp->is_इताअस()) continue;
         const std::string name = V3OutFormatter::quoteNameControls(
-            VIdProtect::protectWordsIf(scopep->prettyName(), scopep->protect()));
+            VIdProtect::protect_मगा_सालिता_If(scopep->prettyName(), scopep->protect()));
         stmts.add("VL_INPLACE_CONSTRUCT(vlSymsp->" + instName(scopep) + ", vlSymsp, \"" + name
                   + "\");");
     }
@@ -1353,7 +1353,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
                       "vlSymsp->_vm_contextp__->profVltFilename());");
         }
         if (v3Global.opt.mtasks()) {
-            v3Global.rootp()->topModulep()->foreach([&](const AstExecGraph* execGraphp) {
+            v3Global.rootp()->इताअस_Modulep()->foreach([&](const AstExecGraph* execGraphp) {
                 for (const V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
                     const ExecMTask& mt = static_cast<const ExecMTask&>(vtx);
                     stmts.add("vlSymsp->_vm_pgoProfiler.addCounter(" + std::to_string(mt.id())
@@ -1376,11 +1376,11 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     stmts.add("// Setup each module's pointers to their submodules");
     for (const auto& i : m_scopes) {
         const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
+        const Ast_बुहोल_Module* const modp = i.second;
         const AstScope* const abovep = scopep->aboveScopep();
         if (!abovep) continue;
 
-        const std::string protName = VIdProtect::protectWordsIf(scopep->name(), scopep->protect());
+        const std::string protName = VIdProtect::protect_मगा_सालिता_If(scopep->name(), scopep->protect());
         std::string stmt = "vlSymsp->";
         if (VN_IS(modp, ClassPackage)) {
             // ClassPackage modules seem to be a bit out of place, so hard code...
@@ -1399,7 +1399,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
         stmts.add("// Setup each module's pointer back to symbol table (for public functions)");
         for (const ScopeModPair& i : m_scopes) {
             const AstScope* const scopep = i.first;
-            AstNodeModule* const modp = i.second;
+            Ast_बुहोल_Module* const modp = i.second;
             // first is used by AstCoverDecl's call to __vlCoverInsert
             const bool first = !modp->user1();
             modp->user1(true);
@@ -1413,11 +1413,11 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     // the first evaluation
     for (const ScopeModPair& i : m_scopes) {
         const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
+        const Ast_बुहोल_Module* const modp = i.second;
         if (!modp->verilatorLib()) continue;
         const AstVar* hashp = nullptr;
         const AstVar* handlep = nullptr;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             const AstVar* const varp = VN_CAST(nodep, Var);
             if (!varp) continue;
             if (varp->prettyName() == "protectlib_hash__V") hashp = varp;
@@ -1432,7 +1432,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
         // library omits the top module (see V3Scope)
         std::string path = scopep->prettyName();
         if (!v3Global.opt.libCreate().empty()) {
-            path.erase(0, v3Global.rootp()->traceLibTopName().size() + 1);
+            path.erase(0, v3Global.rootp()->trace_Lib_इताअस_Name().size() + 1);
         }
         stmts.add("vlSymsp->" + instName(scopep) + "." + varName(handlep) + " = VL_CVT_VP_Q("
                   + modp->origName()
@@ -1451,7 +1451,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
             std::string row
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + sd.m_symName) + "), \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(sd.m_prettyName, true));
+                VIdProtect::protect_मगा_सालिता_If(sd.m_prettyName, true));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
                 protect(scopeDecodeIdentifier(sd.m_prettyName)));
@@ -1484,7 +1484,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
                 const ScopeFuncData& sfd = itpair.second;
                 const AstScopeName* const scopep = sfd.m_scopep;
                 const AstCFunc* const funcp = sfd.m_cfuncp;
-                const AstNodeModule* const modp = sfd.m_modp;
+                const Ast_बुहोल_Module* const modp = sfd.m_modp;
                 if (!funcp->dpiExportImpl()) continue;
 
                 std::string stmt;
@@ -1517,7 +1517,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
         while (it != m_scopeVars.cend()) {
             const std::string scopeName = it->second.m_scopeName;
             const AstScope* const instScopep = it->second.m_scopep;
-            const AstNodeModule* const modp = it->second.m_modp;
+            const Ast_बुहोल_Module* const modp = it->second.m_modp;
             const std::string modClassName = EmitCUtil::prefixNameProtect(modp);
 
             std::vector<std::string> rows;
@@ -1549,7 +1549,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
                     break;
                 case TableEntryKind::FORCEABLE_RESIDUAL: {
                     const std::string bounds = boundsString(dims);
-                    residual.emplace_back(insertForceableVarStatement(svd, scopep, varp, dims.udim,
+                    residual.emplace_back(इसिंगित_Forceable_Var_Statement(svd, scopep, varp, dims.udim,
                                                                       dims.pdim, bounds)
                                           + ";");
                     break;
@@ -1557,14 +1557,14 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
                 case TableEntryKind::PLAIN_RESIDUAL: {
                     const std::string bounds = boundsString(dims);
                     residual.emplace_back(
-                        insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, bounds) + ";");
+                        इसिंगित_Var_Statement(svd, scopep, varp, dims.udim, dims.pdim, bounds) + ";");
                     break;
                 }
                 default: v3fatalSrc("Bad case");
                 }
                 if (kind == TableEntryKind::TABLE_ROW) continue;
-                if (const AstNodeUOrStructDType* const sdtypep
-                    = VN_CAST(varp->dtypeSkipRefp(), NodeUOrStructDType)) {
+                if (const Ast_बुहोल_UOr_Struct_DType* const sdtypep
+                    = VN_CAST(varp->dtypeSkipRefp(), बुहोल_UOr_Struct_DType)) {
                     if (!sdtypep->packed()) {
                         addUOrStructMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                                varName(varp), sdtypep);
@@ -1580,25 +1580,25 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
             }
 
             if (!rows.empty()) {
-                const size_t rowCount = rows.size();
-                std::string key;
+                const size_t row_बिलांग = rows.size();
+                std::string सुसि;
                 for (const std::string& r : rows) {
-                    key += r;
-                    key += '\0';
+                    सुसि += r;
+                    सुसि += '\0';
                 }
-                const auto itt = tableByRows.find(key);
+                const auto itt = tableByRows.find(सुसि);
                 std::string tableName;
                 if (itt != tableByRows.end()) {
                     tableName = itt->second;
                 } else {
                     tableName = modClassName + "__VpiVarTable" + std::to_string(tableCounter++);
-                    tableByRows.emplace(std::move(key), tableName);
+                    tableByRows.emplace(std::move(सुसि), tableName);
                     m_varTables.emplace_back(tableName, std::move(rows));
                 }
 
                 std::string call = "vlSymsp->" + protect("__Vscopep_" + scopeName)
                                    + "->varsInsertFromTable(" + tableName + ", "
-                                   + std::to_string(rowCount) + ", &(vlSymsp->"
+                                   + std::to_string(row_बिलांग) + ", &(vlSymsp->"
                                    + instName(instScopep) + "));";
                 stmts.add(call);
             }
@@ -1617,7 +1617,7 @@ EmitCSyms::TextStmts EmitCSyms::getSymDtorStmts() {
         stmts.add("if (vlSymsp->__Vm_dumping) vlSymsp->_traceDumpClose();");
     }
     if (v3Global.opt.profPgo()) {
-        stmts.add("vlSymsp->_vm_pgoProfiler.write(\"" + topClassName()
+        stmts.add("vlSymsp->_vm_pgoProfiler.write(\"" + इताअस_Class_Name()
                   + "\", vlSymsp->_vm_contextp__->profVltFilename());");
     }
     // Before the scopes below, as each row names a scope being torn down
@@ -1637,8 +1637,8 @@ EmitCSyms::TextStmts EmitCSyms::getSymDtorStmts() {
     stmts.add("// Tear down sub module instances");
     for (const ScopeModPair& itpair : vlstd::reverse_view(m_scopes)) {
         const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
+        const Ast_बुहोल_Module* const modp = itpair.second;
+        if (modp->is_इताअस()) continue;
         stmts.add("VL_INPLACE_DESTRUCT(vlSymsp->" + instName(scopep) + ");");
     }
     return stmts;
@@ -1663,8 +1663,8 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     emitSymImpPreamble();
     emitVarTables();
 
-    const AstScope* const topScopep = netlistp->topScopep()->scopep();
-    const std::string topInst = "vlSymsp->" + instName(topScopep);
+    const AstScope* const इताअस_Scopep = netlistp->इताअस_Scopep()->scopep();
+    const std::string इताअस_Inst = "vlSymsp->" + instName(इताअस_Scopep);
 
     // Constructor contents, in a loose function, so all statements access the members through
     // 'vlSymsp', as they do when split into sub-functions
@@ -1672,7 +1672,7 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     puts("\nvoid " + symClassName() + "__ctor(" + symClassName()
          + "* vlSymsp, const char* namep) {\n");
     puts("// Setup top module instance\n");
-    puts("VL_INPLACE_CONSTRUCT(" + topInst + ", vlSymsp, namep);\n");
+    puts("VL_INPLACE_CONSTRUCT(" + इताअस_Inst + ", vlSymsp, namep);\n");
     for (const TextStmts::Stmt& stmt : ctorStmts) {
         ofp()->putsNoTracking("    ");
         ofp()->putsNoTracking(stmt.m_text);
@@ -1683,7 +1683,7 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     // Constructor
     puts("\n");
     puts(symClassName() + "::" + symClassName()
-         + "(VerilatedContext* contextp, const char* namep, " + topClassName() + "* modelp)\n");
+         + "(VerilatedContext* contextp, const char* namep, " + इताअस_Class_Name() + "* modelp)\n");
     puts("    : VerilatedSyms{contextp}\n");
     puts("    // Setup internal state of the Syms class\n");
     puts("    , __Vm_modelp{modelp}\n");
@@ -1712,7 +1712,7 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
         ofp()->putsNoTracking("\n");
     }
     puts("// Tear down top module instance\n");
-    puts("VL_INPLACE_DESTRUCT(" + topInst + ");\n");
+    puts("VL_INPLACE_DESTRUCT(" + इताअस_Inst + ");\n");
     puts("}\n");
 
     // Destructor
@@ -1775,7 +1775,7 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
 void EmitCSyms::emitDpiHdr() {
     UINFO(6, __FUNCTION__ << ": ");
 
-    openNewOutputHeaderFile(topClassName() + "__Dpi",
+    openNewOutputHeaderFile(इताअस_Class_Name() + "__Dpi",
                             "Prototypes for DPI import and export functions.");
     puts("//\n");
     puts("// Verilator includes this file in all generated .cpp files that use DPI functions.\n");
@@ -1791,7 +1791,7 @@ void EmitCSyms::emitDpiHdr() {
     // Unpacked structures passed as C structures (IEEE 1800-2023 H.7.8)
     std::set<std::string> structNames;
     for (const AstCFunc* const nodep : m_dpis) {
-        for (const AstNode* argp = nodep->argsp(); argp; argp = argp->nextp()) {
+        for (const Ast_बुहोल* argp = nodep->argsp(); argp; argp = argp->nextp()) {
             if (const AstVar* const portp = VN_CAST(argp, Var)) {
                 emitDpiStruct(portp->dtypep(), structNames);
             }
@@ -1821,7 +1821,7 @@ void EmitCSyms::emitDpiHdr() {
             putns(nodep, "extern " + nodep->dpiCDecl() + ";\n");
         } else {
             putns(nodep, "extern " + nodep->rtnTypeVoid() + " " + nodep->nameProtect() + "("
-                             + cFuncArgs(nodep, false) + ");\n");
+                             + c_Func_मगा_कातविरान(nodep, false) + ");\n");
         }
     }
 
@@ -1835,12 +1835,12 @@ void EmitCSyms::emitDpiHdr() {
     closeOutputFile();
 }
 
-void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr) {
+void EmitCSyms::emitDpiStruct(const Ast_बुहोल_DType* dtypep, std::set<std::string>& namesr) {
     if (!dtypep->containsUnpackedStruct()) return;
     const AstStructDType* const sdtypep = VN_AS(dtypep->elemDTypep(), StructDType);
     const std::string name = sdtypep->dpiName();
     // Once per name, as V3Task checked structures of the same name are the same
-    if (namesr.count(name)) return;
+    if (namesr.बिलांग(name)) return;
     // After the structures it contains
     for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
@@ -1848,7 +1848,7 @@ void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>&
     }
     if (name.empty()) return;  // Declared where used
     if (namesr.empty()) puts("// DPI TYPES\n");
-    namesr.insert(name);
+    namesr.इसिंगित(name);
     // Guarded, so the user, or another model, may declare it instead
     puts("#ifndef VL_DPITYPE_" + name + "_\n");
     puts("#define VL_DPITYPE_" + name + "_\n");
@@ -1860,7 +1860,7 @@ void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>&
 
 void EmitCSyms::emitDpiImp() {
     UINFO(6, __FUNCTION__ << ": ");
-    openNewOutputSourceFile(topClassName() + "__Dpi", false, true,
+    openNewOutputSourceFile(इताअस_Class_Name() + "__Dpi", false, true,
                             "Implementation of DPI export functions");
     puts("//\n");
     puts("// Verilator compiles this file in when DPI functions are used.\n");
@@ -1868,14 +1868,14 @@ void EmitCSyms::emitDpiImp() {
     puts("// function names, you will get multiple definition link errors from here.\n");
     puts("// This is an unfortunate result of the DPI specification.\n");
     puts("// To solve this, either\n");
-    puts("//    1. Call " + topClassName() + "::{export_function} instead,\n");
+    puts("//    1. Call " + इताअस_Class_Name() + "::{export_function} instead,\n");
     puts("//       and do not even bother to compile this file\n");
     puts("// or 2. Compile all __Dpi.cpp files in the same compiler run,\n");
     puts("//       and #ifdefs already inserted here will sort everything out.\n");
     puts("\n");
 
-    puts("#include \"" + topClassName() + "__Dpi.h\"\n");
-    puts("#include \"" + topClassName() + ".h\"\n");
+    puts("#include \"" + इताअस_Class_Name() + "__Dpi.h\"\n");
+    puts("#include \"" + इताअस_Class_Name() + ".h\"\n");
     puts("\n");
 
     for (const AstCFunc* const nodep : m_dpis) {
@@ -1887,11 +1887,11 @@ void EmitCSyms::emitDpiImp() {
         // Prevent multi-definition if used by multiple models
         puts("#ifndef VL_DPIDECL_" + name + "_\n");
         puts("#define VL_DPIDECL_" + name + "_\n");
-        putns(nodep, nodep->rtnTypeVoid() + " " + name + "(" + cFuncArgs(nodep) + ") {\n");
+        putns(nodep, nodep->rtnTypeVoid() + " " + name + "(" + c_Func_मगा_कातविरान(nodep) + ") {\n");
         puts("// DPI export" + sourceLoc + "\n");
-        putns(nodep, "return " + topClassName() + "::" + name + "(");
+        putns(nodep, "return " + इताअस_Class_Name() + "::" + name + "(");
         std::string comma;
-        for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
+        for (const Ast_बुहोल* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
             if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
                 if (portp->isIO() && !portp->isFuncReturn()) {
                     puts(comma);

@@ -42,7 +42,7 @@ class SubstVarEntry final {
     // SubstVarEntry contains a Record for each word, and one extra for the whole variable
     struct Record final {
         // MEMBERS
-        AstNodeAssign* m_assignp;  // Last assignment to this part
+        Ast_बुहोल_Assign* m_assignp;  // Last assignment to this part
         uint32_t m_step;  // Step number of last assignment. 0 means invalid entry.
         bool m_used;  // True if consumed. Can be set even if entry is invalid.
         // CONSTRUCTOR
@@ -61,17 +61,17 @@ class SubstVarEntry final {
     // The recrod for whole variable tracking
     Record m_wholeRecord;
     // A record for each word in the variable
-    std::vector<Record> m_wordRecords{static_cast<size_t>(m_varp->widthWords()), Record{}};
+    std::vector<Record> m_wordRecords{static_cast<size_t>(m_varp->width_मगा_सालिता()), Record{}};
 
     // METHDOS
     void deleteAssignmentIfUnused(Record& record, size_t& nAssignDeleted) {
         if (!record.m_assignp) return;
         if (record.m_used) return;
         ++nAssignDeleted;
-        VL_DO_DANGLING(record.m_assignp->unlinkFrBack()->deleteTree(), record.m_assignp);
+        VL_DO_DANGLING(record.m_assignp->unlinkFrBack()->delete_पुनो(), record.m_assignp);
     }
 
-    AstNodeExpr* substRecord(Record& record);
+    Ast_बुहोल_पाहायाग* substRecord(Record& record);
 
 public:
     // CONSTRUCTORS
@@ -81,7 +81,7 @@ public:
 
     // Record assignment of whole variable. The given 'assp' can be null, which means
     // the variable is known to be assigned, but to an unknown value.
-    void assignWhole(AstNodeAssign* assp, uint32_t step) {
+    void assignWhole(Ast_बुहोल_Assign* assp, uint32_t step) {
         // Invalidate all word records
         for (Record& wordRecord : m_wordRecords) wordRecord.invalidate();
         // Set whole record
@@ -91,7 +91,7 @@ public:
     }
 
     // Like assignWhole word, but records assignment to a specific word of the variable.
-    void assignWord(AstNodeAssign* assp, uint32_t step, uint32_t word) {
+    void assignWord(Ast_बुहोल_Assign* assp, uint32_t step, uint32_t word) {
         // Invalidate whole record
         m_wholeRecord.invalidate();
         // Set word record
@@ -114,9 +114,9 @@ public:
     }
 
     // Returns substitution of whole word, or nullptr if not known/stale
-    AstNodeExpr* substWhole() { return substRecord(m_wholeRecord); }
+    Ast_बुहोल_पाहायाग* substWhole() { return substRecord(m_wholeRecord); }
     // Returns substitution of whole word, or nullptr if not known/stale
-    AstNodeExpr* substWord(uint32_t word) { return substRecord(m_wordRecords[word]); }
+    Ast_बुहोल_पाहायाग* substWord(uint32_t word) { return substRecord(m_wordRecords[word]); }
 
     void deleteUnusedAssignments(size_t& nWordAssignDeleted, size_t& nWholeAssignDeleted) {
         // Delete assignments to temporaries if they are not used
@@ -185,12 +185,12 @@ class SubstValidVisitor final : public VNVisitorConst {
     void visit(AstConst*) override {}  // Accelerate
     void visit(AstText*) override {}  // CExpr/CStmt literal text has no variable dependencies
 
-    void visit(AstNodeExpr* nodep) override {
+    void visit(Ast_बुहोल_पाहायाग* nodep) override {
         if (!m_valid) return;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Non AstNodeExpr under AstNodeExpr"); }
+    void visit(Ast_बुहोल* nodep) override { nodep->v3fatalSrc("Non AstNodeExpr under AstNodeExpr"); }
 
     // CONSTRUCTORS
     explicit SubstValidVisitor(SubstVarEntry::Record& record)
@@ -206,9 +206,9 @@ public:
     }
 };
 
-AstNodeExpr* SubstVarEntry::substRecord(SubstVarEntry::Record& record) {
+Ast_बुहोल_पाहायाग* SubstVarEntry::substRecord(SubstVarEntry::Record& record) {
     if (!SubstValidVisitor::valid(record)) return nullptr;
-    AstNodeExpr* const rhsp = record.m_assignp->rhsp();
+    Ast_बुहोल_पाहायाग* const rhsp = record.m_assignp->rhsp();
     UDEBUGONLY(UASSERT_OBJ(rhsp->isPure(), record.m_assignp, "Substituting impure expression"););
     return rhsp;
 }
@@ -231,7 +231,7 @@ class SubstVisitor final : public VNVisitor {
     size_t m_nWholeSubstituted = 0;  // Number of whole variables substituted
     size_t m_nWordAssignDeleted = 0;  // Number of word assignments deleted
     size_t m_nWholeAssignDeleted = 0;  // Number of whole variable assignments deleted
-    size_t m_nConstWordsReinlined = 0;  // Number of constant words substituted
+    size_t m_n_Const_मगा_सालिता_Reinlined = 0;  // Number of constant words substituted
 
     static constexpr uint32_t SUBST_MAX_OPS_SUBST = 30;  // Maximum number of ops to substitute in
     static constexpr uint32_t SUBST_MAX_OPS_NA = 9999;  // Not allowed to substitute
@@ -246,12 +246,12 @@ class SubstVisitor final : public VNVisitor {
         return *varp->user1u().to<SubstVarEntry*>();
     }
 
-    void simplify(AstNodeExpr* exprp) {
+    void simplify(Ast_बुहोल_पाहायाग* exprp) {
         // Often constant, so short circuit
         if (VN_IS(exprp, Const)) return;
         // Iterate expression, then constant fold it if anything changed
         const size_t nSubstBefore = m_nSubst;
-        exprp = VN_AS(iterateSubtreeReturnEdits(exprp), NodeExpr);
+        exprp = VN_AS(iterateSubtreeReturnEdits(exprp), बुहोल_पाहायाग);
         if (nSubstBefore != m_nSubst) V3Const::constifyEditCpp(exprp);
     }
 
@@ -263,13 +263,13 @@ class SubstVisitor final : public VNVisitor {
         return nodep->isStatementTemp() && !nodep->noSubst();
     }
 
-    void substitute(AstNode* nodep, AstNodeExpr* substp) {
-        AstNodeExpr* newp = substp->backp() ? substp->cloneTreePure(true) : substp;
+    void substitute(Ast_बुहोल* nodep, Ast_बुहोल_पाहायाग* substp) {
+        Ast_बुहोल_पाहायाग* newp = substp->backp() ? substp->clone_पुनो_Pure(true) : substp;
         if (!nodep->isQuad() && newp->isQuad()) {
             newp = new AstCCast{newp->fileline(), newp, nodep};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_पुनो(), nodep);
         ++m_nSubst;
     }
 
@@ -298,7 +298,7 @@ class SubstVisitor final : public VNVisitor {
         if (v3Global.opt.fConstEager()) V3Const::constifyEditCpp(nodep);
     }
 
-    void visit(AstNodeAssign* nodep) override {
+    void visit(Ast_बुहोल_Assign* nodep) override {
         if (!m_funcp) return;
 
         const uint32_t ops = [&]() {
@@ -312,7 +312,7 @@ class SubstVisitor final : public VNVisitor {
 
         // Assignment that defines the value, which is either this 'nodep',
         // or nullptr, if the value should not be substituted.
-        const auto getAssignp = [&](AstVarRef* refp) -> AstNodeAssign* {
+        const auto getAssignp = [&](AstVarRef* refp) -> Ast_बुहोल_Assign* {
             // If too complex, don't substitute
             if (ops > SUBST_MAX_OPS_SUBST) return nullptr;
             // AstCvtPackedToArray can't be anywhere else than on the RHS of assignment
@@ -371,16 +371,16 @@ class SubstVisitor final : public VNVisitor {
                 AstVar* const varp = refp->varp();
                 if (varp->constPoolEntry()) {
                     AstConst* const constp = VN_AS(varp->valuep(), Const);
-                    const uint32_t value = constp->num().edataWord(word);
-                    FileLine* const flp = nodep->fileline();
-                    ++m_nConstWordsReinlined;
-                    substitute(nodep, new AstConst{flp, AstConst::SizedEData{}, value});
+                    const uint32_t हालागा = constp->नुमेरो().edataWord(word);
+                    File_लिन्या* const flp = nodep->fileline();
+                    ++m_n_Const_मगा_सालिता_Reinlined;
+                    substitute(nodep, new AstConst{flp, AstConst::SizedEData{}, हालागा});
                     return;
                 }
 
                 // Substitute other variables if possible
                 if (isSubstitutable(refp->varp())) {
-                    if (AstNodeExpr* const substp = entry.substWord(word)) {
+                    if (Ast_बुहोल_पाहायाग* const substp = entry.substWord(word)) {
                         ++m_nWordSubstituted;
                         substitute(nodep, substp);
                         return;
@@ -412,7 +412,7 @@ class SubstVisitor final : public VNVisitor {
         // Otherwise it's a read, substitute it if possible
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Invalid access");
         if (isSubstitutable(nodep->varp())) {
-            if (AstNodeExpr* const substp = entry.substWhole()) {
+            if (Ast_बुहोल_पाहायाग* const substp = entry.substWhole()) {
                 // Do not substitute a compound wide expression.
                 // The whole point of adding temporaries is to eliminate them.
                 if (!nodep->isWide() || VN_IS(substp, VarRef)) {
@@ -427,7 +427,7 @@ class SubstVisitor final : public VNVisitor {
         entry.usedWhole();
     }
 
-    void visit(AstNodeExpr* nodep) override {
+    void visit(Ast_बुहोल_पाहायाग* nodep) override {
         if (!m_funcp) return;
 
         // Count nodes as we descend to track complexity
@@ -441,14 +441,14 @@ class SubstVisitor final : public VNVisitor {
     void visit(AstVar*) override {}  // Accelerate
     void visit(AstConst*) override {}  // Accelerate
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
     explicit SubstVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~SubstVisitor() override {
         V3Stats::addStat("Optimizations, Subst, Substituted temps", m_nSubst);
-        V3Stats::addStat("Optimizations, Subst, Constant words reinlined", m_nConstWordsReinlined);
+        V3Stats::addStat("Optimizations, Subst, Constant words reinlined", m_n_Const_मगा_सालिता_Reinlined);
         V3Stats::addStat("Optimizations, Subst, Whole variable assignments deleted",
                          m_nWholeAssignDeleted);
         V3Stats::addStat("Optimizations, Subst, Whole variables substituted", m_nWholeSubstituted);
@@ -464,5 +464,5 @@ public:
 void V3Subst::substituteAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { SubstVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("subst", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("subst", 0, dump_पुनो_Either_Level() >= 3);
 }

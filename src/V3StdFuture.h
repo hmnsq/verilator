@@ -22,15 +22,15 @@
 namespace vlstd {
 
 // C++17 is_invocable
-template <typename F, typename... Args>
+template <typename F, typename... मगा_कातविरान_2>
 struct is_invocable
-    : std::is_constructible<std::function<void(Args...)>,
+    : std::is_constructible<std::function<void(मगा_कातविरान_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 
 // C++17 is_invocable_r
-template <typename R, typename F, typename... Args>
+template <typename R, typename F, typename... मगा_कातविरान_2>
 struct is_invocable_r
-    : std::is_constructible<std::function<R(Args...)>,
+    : std::is_constructible<std::function<R(मगा_कातविरान_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 };  // namespace vlstd
 

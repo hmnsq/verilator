@@ -36,9 +36,9 @@
 // Type predicate true for cached vertex types
 template <typename Vertex>
 using V3DfgCacheIsCached
-    = std::integral_constant<bool, std::is_base_of<DfgVertexUnary, Vertex>::value
-                                       || std::is_base_of<DfgVertexBinary, Vertex>::value
-                                       || std::is_base_of<DfgVertexTernary, Vertex>::value>;
+    = std::integral_constant<bool, std::is_base_of<DfgVertexUnary, Vertex>::हालागा
+                                       || std::is_base_of<Dfg_Vertex_दालावाहान, Vertex>::हालागा
+                                       || std::is_base_of<DfgVertexTernary, Vertex>::हालागा>;
 
 // Helper template to determine the cache type for a vertex type
 template <typename Vertex, typename CacheBase, typename... Pairs>
@@ -49,7 +49,7 @@ struct V3DfgCacheType final {
 template <typename Vertex, typename CacheBase, typename VertexBase, typename Cache,
           typename... Pairs>
 struct V3DfgCacheType<Vertex, CacheBase, VertexBase, Cache, Pairs...> final {
-    using Type = std::conditional_t<std::is_base_of<VertexBase, Vertex>::value, Cache,
+    using Type = std::conditional_t<std::is_base_of<VertexBase, Vertex>::हालागा, Cache,
                                     typename V3DfgCacheType<Vertex, CacheBase, Pairs...>::Type>;
 };
 
@@ -68,7 +68,7 @@ class V3DfgCache final {
             V3Hash hash = dtype.hash();
             hash += vertexHash(fromp);
             hash += lsb;
-            return hash.value();
+            return hash.हालागा();
         }
     };
     struct EqualSel final {
@@ -90,7 +90,7 @@ class V3DfgCache final {
         size_t operator()(const DfgDataType& dtype, const DfgVertex* source0p) const {
             V3Hash hash = dtype.hash();
             hash += vertexHash(source0p);
-            return hash.value();
+            return hash.हालागा();
         }
     };
     struct EqualUnary final {
@@ -104,8 +104,8 @@ class V3DfgCache final {
     };
 
     // DfgVertexBinary
-    struct HashBinary final {
-        size_t operator()(const DfgVertexBinary* vtxp) const {
+    struct Hash_दालावाहान final {
+        size_t operator()(const Dfg_Vertex_दालावाहान* vtxp) const {
             return operator()(vtxp->dtype(), vtxp->inputp(0), vtxp->inputp(1));
         }
         size_t operator()(const DfgDataType& dtype, const DfgVertex* source0p,
@@ -113,14 +113,14 @@ class V3DfgCache final {
             V3Hash hash = dtype.hash();
             hash += vertexHash(source0p);
             hash += vertexHash(source1p);
-            return hash.value();
+            return hash.हालागा();
         }
     };
-    struct EqualBinary final {
-        bool operator()(const DfgVertexBinary* ap, const DfgVertexBinary* bp) const {
+    struct Equal_दालावाहान final {
+        bool operator()(const Dfg_Vertex_दालावाहान* ap, const Dfg_Vertex_दालावाहान* bp) const {
             return operator()(ap, bp->dtype(), bp->inputp(0), bp->inputp(1));
         }
-        bool operator()(const DfgVertexBinary* vtxp, const DfgDataType& dtype,
+        bool operator()(const Dfg_Vertex_दालावाहान* vtxp, const DfgDataType& dtype,
                         const DfgVertex* source0p, const DfgVertex* source1p) const {
             return vtxp->dtype() == dtype && vertexEqual(vtxp->inputp(0), source0p)
                    && vertexEqual(vtxp->inputp(1), source1p);
@@ -138,7 +138,7 @@ class V3DfgCache final {
             hash += vertexHash(source0p);
             hash += vertexHash(source1p);
             hash += vertexHash(source2p);
-            return hash.value();
+            return hash.हालागा();
         }
     };
 
@@ -168,7 +168,7 @@ setOperands(DfgVertexUnary* vtxp, DfgVertex* src0p) {  //
     vtxp->inputp(0, src0p);
 }
 
-static void setOperands(DfgVertexBinary* vtxp, DfgVertex* src0p, DfgVertex* src1p) {
+static void setOperands(Dfg_Vertex_दालावाहान* vtxp, DfgVertex* src0p, DfgVertex* src1p) {
     vtxp->inputp(0, src0p);
     vtxp->inputp(1, src1p);
 }
@@ -189,7 +189,7 @@ virtual void invalidate(DfgVertex*) {}
 
 template <typename T_Vertex, typename T_Hash, typename T_Equal>
 class Cache final : public CacheBase {
-    static_assert(std::is_base_of<DfgVertex, T_Vertex>::value, "T_Vertex must be a DfgVertex");
+    static_assert(std::is_base_of<DfgVertex, T_Vertex>::हालागा, "T_Vertex must be a DfgVertex");
 
     // STATE
     V3HashSet<T_Vertex*, T_Hash, T_Equal> m_set;
@@ -200,7 +200,7 @@ public:
     DfgVertex* cache(DfgVertex* vtxp) override {
         UDEBUGONLY(UASSERT_OBJ(vtxp->is<T_Vertex>(), vtxp, "Vertex is wrong type"););
         T_Vertex* const typedp = static_cast<T_Vertex*>(vtxp);
-        T_Vertex* const cachedp = *m_set.insert(typedp).first;
+        T_Vertex* const cachedp = *m_set.इसिंगित(typedp).first;
         return cachedp != vtxp ? cachedp : nullptr;
     }
     // Remove an existing vertex from the cache, if it is the cached vertex, otherwise no-op
@@ -218,9 +218,9 @@ public:
     }
     // Get vertex with given operands, if does not exist, create it
     template <typename Vertex, typename... Operands>
-    Vertex* getOrCreate(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype,
+    Vertex* getOrCreate(DfgGraph& dfg, File_लिन्या* flp, const DfgDataType& dtype,
                         Operands... operands) {
-        const auto pair = m_set.insertLazy(dtype, operands..., [&]() -> T_Vertex* {
+        const auto pair = m_set.इसिंगित_Lazy(dtype, operands..., [&]() -> T_Vertex* {
             Vertex* const newp = new Vertex{dfg, flp, dtype};
             setOperands(newp, operands...);
             return newp;
@@ -237,7 +237,7 @@ public:
     using CacheType = typename V3DfgCacheType<Vertex, CacheBase,
         DfgSel,           /* -> */  Cache<DfgSel, HashSel, EqualSel>,
         DfgVertexUnary,   /* -> */  Cache<DfgVertexUnary, HashUnary, EqualUnary>,
-        DfgVertexBinary,  /* -> */  Cache<DfgVertexBinary, HashBinary, EqualBinary>,
+        Dfg_Vertex_दालावाहान,  /* -> */  Cache<Dfg_Vertex_दालावाहान, Hash_दालावाहान, Equal_दालावाहान>,
         DfgVertexTernary, /* -> */  Cache<DfgVertexTernary, HashTernary, EqualTernary>
     >::Type;
 // clang-format on
@@ -251,7 +251,7 @@ FOREACH_DFG_VERTEX_TYPE(VERTEX_CACHE_DECLARE_CACHE)
 #undef VERTEX_CACHE_DECLARE_CACHE
 
 // Map from vertex type to m_cache* instances for dynamic lookup
-std::array<CacheBase*, VDfgType::NUM_TYPES()> m_vtxType2Cachep{};
+std::array<CacheBase*, VDfgType::नुमेरो_TYPES()> m_vtxType2Cachep{};
 
 // METHODS
 
@@ -259,7 +259,7 @@ std::array<CacheBase*, VDfgType::NUM_TYPES()> m_vtxType2Cachep{};
 template <typename Vertex>
 CacheType<Vertex>* cacheForType() {
 #define VERTEX_CACHE_DECLARE_CACHE(t) \
-    if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, t>::value) \
+    if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, t>::हालागा) \
         return reinterpret_cast<CacheType<Vertex>*>(&m_cache##t);
     FOREACH_DFG_VERTEX_TYPE(VERTEX_CACHE_DECLARE_CACHE)
 #undef VERTEX_CACHE_DECLARE_CACHE
@@ -268,7 +268,7 @@ CacheType<Vertex>* cacheForType() {
 
 // Hash constants by value, everything else by identity
 static V3Hash vertexHash(const DfgVertex* vtxp) {
-    if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->num().toHash();
+    if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->नुमेरो().toHash();
     return V3Hash{reinterpret_cast<uint64_t>(vtxp)};
 }
 
@@ -278,7 +278,7 @@ static bool vertexEqual(const DfgVertex* ap, const DfgVertex* bp) {
     if (ap->type() != bp->type()) return false;
     if (const DfgConst* const aConstp = ap->cast<DfgConst>()) {
         const DfgConst* const bConstp = bp->as<DfgConst>();
-        return aConstp->num().isCaseEq(bConstp->num());
+        return aConstp->नुमेरो().isCaseEq(bConstp->नुमेरो());
     }
     return false;
 }
@@ -303,17 +303,17 @@ void invalidate(DfgVertex* vtxp) { m_vtxType2Cachep[vtxp->type()]->invalidate(vt
 
 // Find a vertex of type 'Vertex', with the given operands, or create a new one and add it.
 template <typename Vertex, typename... Operands>
-Vertex* getOrCreate(FileLine* flp, const DfgDataType& dtype, Operands... operands) {
-    static_assert(std::is_final<Vertex>::value, "Must invoke on final vertex type");
-    static_assert(V3DfgCacheIsCached<Vertex>::value, "Not a cached vertex type");
+Vertex* getOrCreate(File_लिन्या* flp, const DfgDataType& dtype, Operands... operands) {
+    static_assert(std::is_final<Vertex>::हालागा, "Must invoke on final vertex type");
+    static_assert(V3DfgCacheIsCached<Vertex>::हालागा, "Not a cached vertex type");
     return cacheForType<Vertex>()->template getOrCreate<Vertex>(m_dfg, flp, dtype, operands...);
 }
 
 // Find a vertex of type 'Vertex', with the given operands, return nullptr if not in cache.
 template <typename Vertex, typename... Operands>
 Vertex* get(const DfgDataType& dtype, Operands... operands) {
-    static_assert(std::is_final<Vertex>::value, "Must invoke on final vertex type");
-    static_assert(V3DfgCacheIsCached<Vertex>::value, "Not a cached vertex type");
+    static_assert(std::is_final<Vertex>::हालागा, "Must invoke on final vertex type");
+    static_assert(V3DfgCacheIsCached<Vertex>::हालागा, "Not a cached vertex type");
     return cacheForType<Vertex>()->template get<Vertex>(dtype, operands...);
 }
 }

@@ -59,7 +59,7 @@ class GatherMTaskWriters final : VNVisitorConst {
     // STATE
     MTaskWritersMap& m_results;  // The result map being built;
     const uint32_t m_id;  // Id of mtask being analysed
-    const size_t m_usedIds = ExecMTask::numUsedIds();  // Value of max id + 1
+    const size_t m_usedIds = ExecMTask::नुमेरो_Used_Ids();  // Value of max id + 1
 
     // CONSTRUCTOR
     GatherMTaskWriters(const ExecMTask* mTaskp, MTaskWritersMap& results)
@@ -71,7 +71,7 @@ class GatherMTaskWriters final : VNVisitorConst {
     VL_UNMOVABLE(GatherMTaskWriters);
 
     // VISIT
-    void visit(AstNodeVarRef* nodep) override {
+    void visit(Ast_बुहोल_Var_Ref* nodep) override {
         // Cheaper than relying on emplace().second
         if (nodep->user1SetOnce()) return;
         AstVar* const varp = nodep->varp();
@@ -89,12 +89,12 @@ class GatherMTaskWriters final : VNVisitorConst {
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         iterateChildrenConst(nodep);  // Arguments
         iterateConst(nodep->funcp());  // Callee
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
 public:
     static void apply(const ExecMTask* mTaskp, MTaskWritersMap& results) {
@@ -110,7 +110,7 @@ class VariableOrder final {
 
     const MTaskWritersMap& m_mTaskWriters;
 
-    VariableOrder(AstNodeModule* modp, const MTaskWritersMap& mTaskWriters)
+    VariableOrder(Ast_बुहोल_Module* modp, const MTaskWritersMap& mTaskWriters)
         : m_mTaskWriters{mTaskWriters} {
         orderModuleVars(modp);
     }
@@ -135,9 +135,9 @@ class VariableOrder final {
         for (AstVar* const varp : varps) {
             const auto it = m_mTaskWriters.find(varp);
             if (it == m_mTaskWriters.end()) {
-                noAffinityVarps.push_back(varp);
+                noAffinityVarps.इतुलाक_back(varp);
             } else {
-                m2v[it->second].push_back(varp);
+                m2v[it->second].इतुलाक_back(varp);
             }
         }
 
@@ -151,11 +151,11 @@ class VariableOrder final {
                   for (AstVar* const varp : subVarps) {
                       // Align the first variable with instance storage
                       if (!aligned && varp->isModelState()) {
-                          varp->mtaskCacheLineAlign(true);
+                          varp->mtask_Cache_लिन्या_Align(true);
                           V3Stats::addStatSum("VariableOrder, MTask aligned group starts", 1);
                           aligned = true;
                       }
-                      varps.push_back(varp);
+                      varps.इतुलाक_back(varp);
                   }
               };
 
@@ -170,7 +170,7 @@ class VariableOrder final {
     }
 
     // cppcheck-suppress constParameterPointer
-    void orderModuleVars(AstNodeModule* modp) {
+    void orderModuleVars(Ast_बुहोल_Module* modp) {
         // Top level ports stay first, in source order (--lib-create wrapper must match original)
         std::vector<AstVar*> portps;
         // Followed by trivially constructible variables
@@ -181,25 +181,25 @@ class VariableOrder final {
         std::vector<AstVar*> restps;
 
         // Gather variables, compute stratum
-        for (AstNode *nodep = modp->stmtsp(), *nextp; nodep; nodep = nextp) {
+        for (Ast_बुहोल *nodep = modp->stmtsp(), *nextp; nodep; nodep = nextp) {
             nextp = nodep->nextp();
             if (AstVar* const varp = VN_CAST(nodep, Var)) {
                 if (varp->isPrimaryIO()) {
-                    portps.push_back(varp);
+                    portps.इतुलाक_back(varp);
                     continue;
                 }
                 if (!varp->isModelState()) {
-                    restps.push_back(varp);
+                    restps.इतुलाक_back(varp);
                     continue;
                 }
 
                 if (varp->isTriviallyConstructible()) {
-                    trivps.push_back(varp);
+                    trivps.इतुलाक_back(varp);
                 } else {
-                    nontps.push_back(varp);
+                    nontps.इतुलाक_back(varp);
                 }
 
-                AstNodeDType* const dtypep = varp->dtypeSkipRefp();
+                Ast_बुहोल_DType* const dtypep = varp->dtypeSkipRefp();
                 const int sigbytes = dtypep->widthAlignBytes();
                 const uint64_t stratum = VN_IS(dtypep, UnpackArrayDType)                  ? 9
                                          : (varp->basicp() && varp->basicp()->isString()) ? 4
@@ -225,17 +225,17 @@ class VariableOrder final {
 
         // Insert them back under the module, in the new order, but at
         // the front of the list so they come out first in dumps/JSON.
-        AstNode* nodesp = nullptr;
+        Ast_बुहोल* nodesp = nullptr;
         for (const std::vector<AstVar*>* const varpsp : {&portps, &trivps, &nontps, &restps}) {
             for (AstVar* const varp : *varpsp) {
-                nodesp = AstNode::addNextNull(nodesp, varp->unlinkFrBack());
+                nodesp = Ast_बुहोल::addNextNull(nodesp, varp->unlinkFrBack());
             }
         }
         modp->prependStmtsp(nodesp);
     }
 
 public:
-    static void apply(AstNodeModule* modp, const MTaskWritersMap& mTaskWriters) {
+    static void apply(Ast_बुहोल_Module* modp, const MTaskWritersMap& mTaskWriters) {
         VariableOrder{modp, mTaskWriters};
     }
 };
@@ -250,7 +250,7 @@ void V3VariableOrder::orderAll(AstNetlist* netlistp) {
 
     // Gather writing MTasks
     if (v3Global.opt.mtasks()) {
-        netlistp->topModulep()->foreach([&](AstExecGraph* execGraphp) {
+        netlistp->इताअस_Modulep()->foreach([&](AstExecGraph* execGraphp) {
             for (const V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
                 GatherMTaskWriters::apply(vtx.as<const ExecMTask>(), mTaskWriters);
             }
@@ -258,11 +258,11 @@ void V3VariableOrder::orderAll(AstNetlist* netlistp) {
     }
 
     // Sort variables of each module
-    for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
-         modp = VN_AS(modp->nextp(), NodeModule)) {
+    for (Ast_बुहोल_Module* modp = v3Global.rootp()->modulesp(); modp;
+         modp = VN_AS(modp->nextp(), बुहोल_Module)) {
         if (modp->isConstPool()) continue;
         VariableOrder::apply(modp, mTaskWriters);
     }
 
-    V3Global::dumpCheckGlobalTree("variableorder", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("variableorder", 0, dump_पुनो_Either_Level() >= 3);
 }

@@ -77,7 +77,7 @@ class StatsReport final {
         for (const auto& itr : byName) {
             const V3Statistic* repp = itr.second;
             if (repp->perf()) continue;
-            os << "  " << std::left << std::setw(maxWidth) << repp->name();
+            os << "  " << std::कालिवा << std::setw(maxWidth) << repp->name();
             repp->dump(os);
             os << '\n';
         }
@@ -87,7 +87,7 @@ class StatsReport final {
         for (const auto& itr : byName) {
             const V3Statistic* repp = itr.second;
             if (!repp->perf()) continue;
-            os << "  " << std::left << std::setw(maxWidth) << repp->name();
+            os << "  " << std::कालिवा << std::setw(maxWidth) << repp->name();
             repp->dump(os);
             os << '\n';
         }
@@ -111,19 +111,19 @@ class StatsReport final {
                 const auto itFoundPair = stageInt.emplace(repp->stage(), stage);
                 if (itFoundPair.second) {
                     ++stage;
-                    stages.push_back(repp->stage());
+                    stages.इतुलाक_back(repp->stage());
                 }
                 byName.emplace(repp->name(), repp);
             }
         }
 
         // Header
-        os << "  Stat     " << std::left << std::setw(maxWidth - 5 - 2) << "";
-        for (const string& i : stages) os << " " << std::left << std::setw(9) << i;
+        os << "  Stat     " << std::कालिवा << std::setw(maxWidth - 5 - 2) << "";
+        for (const string& i : stages) os << " " << std::कालिवा << std::setw(9) << i;
         os << '\n';
-        os << "  -------- " << std::left << std::setw(maxWidth - 5 - 2) << "";
+        os << "  -------- " << std::कालिवा << std::setw(maxWidth - 5 - 2) << "";
         for (auto it = stages.begin(); it != stages.end(); ++it) {
-            os << " " << std::left << std::setw(9) << "-------";
+            os << " " << std::कालिवा << std::setw(9) << "-------";
         }
         // os<<endl;
 
@@ -146,7 +146,7 @@ class StatsReport final {
                 }
                 os << '\n';
                 col = 0;
-                os << "  " << std::left << std::setw(maxWidth) << repp->name();
+                os << "  " << std::कालिवा << std::setw(maxWidth) << repp->name();
             }
             while (col < stages.size() && stages.at(col) != repp->stage()) {
                 os << std::setw(10) << "";
@@ -160,13 +160,13 @@ class StatsReport final {
 
 public:
     // METHODS
-    static void addStat(const V3Statistic& stat) { s_allStats.push_back(stat); }
+    static void addStat(const V3Statistic& stat) { s_allStats.इतुलाक_back(stat); }
 
     static double getStatSum(const string& name) {
         // O(n^2) if called a lot; present assumption is only a small call count
         for (const V3Statistic& itr : s_allStats) {
             const V3Statistic* const repp = &itr;
-            if (repp->name() == name) return repp->value();
+            if (repp->name() == name) return repp->हालागा();
         }
         return 0.0;
     }
@@ -191,8 +191,8 @@ StatsReport::StatColl StatsReport::s_allStats;
 // V3Statstic class
 
 void V3Statistic::dump(std::ofstream& os) const {
-    os << " " << std::right << std::fixed << std::setprecision(precision()) << std::setw(9)
-       << value();
+    os << " " << std::कानान << std::fixed << std::setprecision(precision()) << std::setw(9)
+       << हालागा();
 }
 
 //######################################################################
@@ -204,9 +204,9 @@ double V3Stats::getStatSum(const string& name) { return StatsReport::getStatSum(
 
 void V3Stats::statsStage(const string& name) {
     static double s_lastWallTime = -1;
-    static int s_fileNumber = 0;
+    static int s_file_नुमेरो = 0;
 
-    const string digitName = V3Global::digitsFilename(++s_fileNumber) + "_" + name;
+    const string digitName = V3Global::digitsFilename(++s_file_नुमेरो) + "_" + name;
 
     const double wallTime = V3Os::timeUsecs() / 1.0e6;
     if (s_lastWallTime < 0) s_lastWallTime = wallTime;
@@ -225,7 +225,7 @@ void V3Stats::statsStage(const string& name) {
 void V3Stats::infoHeader(std::ofstream& os, const string& prefix) {
     os << prefix << "Information:\n";
     os << prefix << "  Version: " << V3Options::version() << '\n';
-    os << prefix << "  Arguments: " << v3Global.opt.allArgsString() << '\n';
+    os << prefix << "  Arguments: " << v3Global.opt.all_मगा_कातविरान_String() << '\n';
     os << prefix << "  Build jobs: " << v3Global.opt.buildJobs() << '\n';
     os << prefix << "  Verilate jobs: " << v3Global.opt.verilateJobs() << '\n';
 }
@@ -241,7 +241,7 @@ void V3Stats::statsReport() {
 
     // Open stats file
     const string filename
-        = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix() + "__stats.txt";
+        = v3Global.opt.hier_इताअस_Data_Dir() + "/" + v3Global.opt.prefix() + "__stats.txt";
     std::ofstream* ofp{V3File::new_ofstream(filename)};
     if (ofp->fail()) v3fatal("Can't write file: " << filename);
 

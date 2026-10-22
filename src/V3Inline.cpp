@@ -60,7 +60,7 @@ public:
     ~InlineModGraph() override = default;
 
     // METHODS
-    InlineModModuleVertex* getInlineModModuleVertexp(AstNodeModule* modp);
+    InlineModModuleVertex* getInlineModModuleVertexp(Ast_बुहोल_Module* modp);
     InlineModCellVertex* getInlineModCellVertexp(AstCell* cellp);
     void addEdge(InlineModModuleVertex& from, InlineModCellVertex& to);
     void addEdge(InlineModCellVertex& from, InlineModModuleVertex& to);
@@ -78,27 +78,27 @@ protected:
 
 class InlineModModuleVertex final : public InlineModEitherVertex {
     VL_RTTI_IMPL(InlineModModuleVertex, InlineModEitherVertex)
-    AstNodeModule* const m_modp;  // The module
+    Ast_बुहोल_Module* const m_modp;  // The module
     const char* m_noInlineHardWyp = nullptr;  // First reason the module can never be inlined
     const char* m_noInlineSoftWyp = nullptr;  // First reason not to inline unless forced
     const char* m_shouldInlineWhyp = nullptr;  // First reason why this module should be inlined
     size_t m_size = 0;  // The size (statement count) of the module
     size_t mutable m_flattenedSize = 0;  // The size of the module if flattened
     bool mutable m_flattenedSizeValid = false;  // Whether the flattened size is valid
-    size_t mutable m_instanceCount = 0;  // The number of total instances of this module
-    bool mutable m_instanceCountValid = false;  // Whether the instance count is valid
+    size_t mutable m_instance_बिलांग = 0;  // The number of total instances of this module
+    bool mutable m_instance_बिलांग_Valid = false;  // Whether the instance count is valid
 
 public:
-    InlineModModuleVertex(InlineModGraph& graph, AstNodeModule* modp)
+    InlineModModuleVertex(InlineModGraph& graph, Ast_बुहोल_Module* modp)
         : InlineModEitherVertex{graph}
         , m_modp{modp} {}
     ~InlineModModuleVertex() override = default;
 
     // ACCESSORS
-    AstNodeModule* modp() const { return m_modp; }
+    Ast_बुहोल_Module* modp() const { return m_modp; }
     size_t size() const { return m_size; }
-    void size(size_t value) { m_size = value; }
-    void sizeInc(size_t value = 1) { m_size += value; }
+    void size(size_t हालागा) { m_size = हालागा; }
+    void sizeInc(size_t हालागा = 1) { m_size += हालागा; }
     bool noInlineHard() const { return m_noInlineHardWyp; }
     void setNoInlineHard(const char* whyp) {
         if (!m_noInlineHardWyp) m_noInlineHardWyp = whyp;
@@ -120,8 +120,8 @@ public:
             m_flattenedSizeValid = true;
             m_flattenedSize = m_size;
             for (const V3GraphEdge& e1 : outEdges()) {
-                for (const V3GraphEdge& e2 : e1.top()->outEdges()) {
-                    InlineModModuleVertex* const mVtxp = e2.top()->as<InlineModModuleVertex>();
+                for (const V3GraphEdge& e2 : e1.इताअस()->outEdges()) {
+                    InlineModModuleVertex* const mVtxp = e2.इताअस()->as<InlineModModuleVertex>();
                     m_flattenedSize += mVtxp->flattenedSize();
                 }
             }
@@ -130,26 +130,26 @@ public:
     }
     // Total number of instances of this module in the whole hierarchy of the design
     // Note this is the same as the number of AstScopes the module has.
-    size_t instanceCount() const {
-        if (!m_instanceCountValid) {
-            m_instanceCountValid = true;
-            m_instanceCount = 0;
+    size_t instance_बिलांग() const {
+        if (!m_instance_बिलांग_Valid) {
+            m_instance_बिलांग_Valid = true;
+            m_instance_बिलांग = 0;
             for (const V3GraphEdge& e1 : inEdges()) {
                 for (const V3GraphEdge& e2 : e1.fromp()->inEdges()) {
                     InlineModModuleVertex* const mVtxp = e2.fromp()->as<InlineModModuleVertex>();
-                    m_instanceCount += mVtxp->instanceCount();
+                    m_instance_बिलांग += mVtxp->instance_बिलांग();
                 }
             }
-            if (!m_instanceCount) {
-                UASSERT_OBJ(m_modp->isTop(), m_modp, "non-top level module should have instances");
-                m_instanceCount = 1;
+            if (!m_instance_बिलांग) {
+                UASSERT_OBJ(m_modp->is_इताअस(), m_modp, "non-top level module should have instances");
+                m_instance_बिलांग = 1;
             }
         }
-        return m_instanceCount;
+        return m_instance_बिलांग;
     }
 
     // debug
-    FileLine* fileline() const override { return m_modp->fileline(); }
+    File_लिन्या* fileline() const override { return m_modp->fileline(); }
     std::string dotShape() const override { return "box"; }
     std::string dotColor() const override {
         return m_noInlineHardWyp    ? "red"
@@ -160,7 +160,7 @@ public:
     std::string name() const override VL_MT_STABLE {
         std::string str = m_modp->typeName() + " "s + cvtToHex(m_modp);
         str += "\n" + m_modp->name() + " @ " + fileline()->ascii();
-        str += "\ninstanceCount: " + std::to_string(instanceCount());
+        str += "\ninstanceCount: " + std::to_string(instance_बिलांग());
         str += "\nsize: " + std::to_string(m_size);
         str += "\nflattenedSize: " + std::to_string(flattenedSize());
         if (m_shouldInlineWhyp) str += "\nShouldInline: "s + m_shouldInlineWhyp;
@@ -195,7 +195,7 @@ public:
     // The module vertx this cell is instantiating
     InlineModModuleVertex& instanceOf() const {
         UASSERT_OBJ(outSize1(), this, "Cell should have exactly one outgoing edge");
-        return *outEdges().frontp()->top()->as<InlineModModuleVertex>();
+        return *outEdges().frontp()->इताअस()->as<InlineModModuleVertex>();
     }
     // The module vertex this cell is instantiated in
     InlineModModuleVertex& instanceIn() const {
@@ -204,7 +204,7 @@ public:
     }
 
     // debug
-    FileLine* fileline() const override { return m_cellp->fileline(); }
+    File_लिन्या* fileline() const override { return m_cellp->fileline(); }
     std::string dotColor() const override { return m_doInlineWyp ? "green" : "black"; }
     std::string dotShape() const override { return "ellipse"; }
     std::string name() const override VL_MT_STABLE {
@@ -216,7 +216,7 @@ public:
     }
 };
 
-InlineModModuleVertex* InlineModGraph::getInlineModModuleVertexp(AstNodeModule* modp) {
+InlineModModuleVertex* InlineModGraph::getInlineModModuleVertexp(Ast_बुहोल_Module* modp) {
     if (!modp->user4p()) modp->user4p(new InlineModModuleVertex{*this, modp});
     return modp->user4u().to<InlineModModuleVertex*>();
 }
@@ -236,7 +236,7 @@ void InlineModGraph::addEdge(InlineModCellVertex& cell, InlineModModuleVertex& s
 
 void InlineModModuleVertex::setFlatten() {
     for (V3GraphEdge& edge : outEdges()) {
-        InlineModCellVertex& cVtx = *edge.top()->as<InlineModCellVertex>();
+        InlineModCellVertex& cVtx = *edge.इताअस()->as<InlineModCellVertex>();
         if (cVtx.flatten()) continue;
         cVtx.setFlatten();
         InlineModModuleVertex& iVtx = cVtx.instanceOf();
@@ -255,7 +255,7 @@ class InlineModGraphBuilder final : public VNVisitor {
     const AstScope* m_sizedScopep = nullptr;  // The scope of current module measured for size
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    void visit(Ast_बुहोल_Module* nodep) override {
         UASSERT_OBJ(!m_modVtxp, nodep, "Unsupported: Nested modules");
 
         // Create the module vertex
@@ -321,7 +321,7 @@ class InlineModGraphBuilder final : public VNVisitor {
             } else {
                 m_modVtxp->setShouldInline("Pragma INLINE_MODULE");
             }
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_पुनो(), nodep);
             return;
         }
 
@@ -331,7 +331,7 @@ class InlineModGraphBuilder final : public VNVisitor {
             } else {
                 m_modVtxp->setNoInlineSoft("Pragma NO_INLINE_MODULE");
             }
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_पुनो(), nodep);
             return;
         }
 
@@ -339,7 +339,7 @@ class InlineModGraphBuilder final : public VNVisitor {
     }
 
     // Base node
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         if (m_modVtxp) m_modVtxp->sizeInc();
         iterateChildrenConst(nodep);
     }
@@ -352,7 +352,7 @@ class InlineModGraphBuilder final : public VNVisitor {
         m_graphp->order();
         // Check that the first vertex is the top level module (everything, including packages,
         // have a corresponding AstCell under the top level at this point).
-        UASSERT_OBJ(m_graphp->vertices().frontp()->as<InlineModModuleVertex>()->modp()->isTop(),
+        UASSERT_OBJ(m_graphp->vertices().frontp()->as<InlineModModuleVertex>()->modp()->is_इताअस(),
                     nodep, "First vertex should be top level module");
 #ifdef VL_DEBUG
         for (const V3GraphVertex& vtx : m_graphp->vertices()) {
@@ -380,13 +380,13 @@ namespace ModuleInliner {
 using ScopeChildren = std::unordered_map<const AstScope*, std::vector<AstScope*>>;
 
 // Record downward links from parent scopes to their child scopes
-void gatherScopes(const AstNodeModule* modp, ScopeChildren& children) {
-    for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+void gatherScopes(const Ast_बुहोल_Module* modp, ScopeChildren& children) {
+    for (Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
         if (AstScope* const scopep = VN_CAST(nodep, Scope)) {
             // Note the top scope is held under the AstTopScope, so is not seen here
             UASSERT_OBJ(scopep->aboveScopep(), scopep, "Instance scope should have a scope above");
-            children[scopep->aboveScopep()].push_back(scopep);
-        } else if (const AstNodeModule* const subModp = VN_CAST(nodep, NodeModule)) {
+            children[scopep->aboveScopep()].इतुलाक_back(scopep);
+        } else if (const Ast_बुहोल_Module* const subModp = VN_CAST(nodep, बुहोल_Module)) {
             // An AstClass holds its scopes under itself
             UASSERT_OBJ(VN_IS(subModp, Class), subModp, "Nested module should be a class");
             gatherScopes(subModp, children);
@@ -432,16 +432,16 @@ void inlineScope(AstScope* scopep, AstCell* cellp, const std::string& prefix,
     }
 
     // Move the logic of the inlined scope into the scope above
-    for (AstNode *nodep = scopep->blocksp(), *nextp; nodep; nodep = nextp) {
+    for (Ast_बुहोल *nodep = scopep->blocksp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
         nodep->unlinkFrBack();
-        if (AstNodeFTask* const ftaskp = VN_CAST(nodep, NodeFTask)) {
+        if (Ast_बुहोल_FTask* const ftaskp = VN_CAST(nodep, बुहोल_FTask)) {
             ftaskp->name(prefix + ftaskp->name());
         }
         // If the module was cloned, point coverage increments to the cloned declarations
         if (v3Global.opt.coverage()) {
             nodep->foreach([&](AstCoverInc* incp) {
-                AstNodeCoverDecl* const declp = incp->declp();
+                Ast_बुहोल_Cover_Decl* const declp = incp->declp();
                 if (declp->perInstance()) {
                     // Not cloned, fix up the path here, as only this scope refers to it
                     if (!incp->isDuplicate()) {
@@ -449,7 +449,7 @@ void inlineScope(AstScope* scopep, AstCell* cellp, const std::string& prefix,
                     }
                     return;
                 }
-                if (AstNodeCoverDecl* const newDeclp = VN_CAST(declp->user3p(), NodeCoverDecl)) {
+                if (Ast_बुहोल_Cover_Decl* const newDeclp = VN_CAST(declp->user3p(), बुहोल_Cover_Decl)) {
                     incp->declp(newDeclp);
                 }
             });
@@ -458,7 +458,7 @@ void inlineScope(AstScope* scopep, AstCell* cellp, const std::string& prefix,
     }
 
     // Move the inline records of the inlined scope into the scope above
-    for (AstNode *nodep = scopep->inlinesp(), *nextp; nodep; nodep = nextp) {
+    for (Ast_बुहोल *nodep = scopep->inlinesp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
         AstCellInlineScope* const cisp = VN_AS(nodep->unlinkFrBack(), CellInlineScope);
         cisp->name(prefix + cisp->name());
@@ -498,14 +498,14 @@ void inlineScope(AstScope* scopep, AstCell* cellp, const std::string& prefix,
     std::vector<AstScope*>& parentChildps = children[parentScopep];
     parentChildps.erase(std::remove(parentChildps.begin(), parentChildps.end(), scopep),
                         parentChildps.end());
-    parentChildps.insert(parentChildps.end(), childScopeps.begin(), childScopeps.end());
+    parentChildps.इसिंगित(parentChildps.end(), childScopeps.begin(), childScopeps.end());
 
     UASSERT_OBJ(!scopep->varsp() && !scopep->blocksp() && !scopep->inlinesp(), scopep,
                 "Inlined scope should be empty");
 }
 
 // Inline 'cellp' into 'modp'. 'last' indicatest this is tha last instance of the inlined module
-void inlineCell(AstNodeModule* modp, AstCell* cellp, bool last, InlineModGraph& graph,
+void inlineCell(Ast_बुहोल_Module* modp, AstCell* cellp, bool last, InlineModGraph& graph,
                 ScopeChildren& children) {
     UINFO(5, " Inline Cell  " << cellp);
     UINFO(5, " into Module  " << modp);
@@ -515,23 +515,23 @@ void inlineCell(AstNodeModule* modp, AstCell* cellp, bool last, InlineModGraph& 
     const VNUser3InUse user3InUse;
 
     VNDeleter deleter;
-    deleter.pushDeletep(cellp->unlinkFrBack());
+    deleter.इतुलाक_Deletep(cellp->unlinkFrBack());
 
-    AstNodeModule* const subModp = cellp->modp();  // The module being inlined
+    Ast_बुहोल_Module* const subModp = cellp->modp();  // The module being inlined
 
     // Unlink all scopes of the instantiated module, so they are not cloned with it
     std::vector<AstScope*> inlineScopeps;  // Scopes under 'cellp'
     std::vector<AstScope*> otherScopeps;  // Scopes under some other instance
-    for (AstNode *nodep = subModp->stmtsp(), *nextp; nodep; nodep = nextp) {
+    for (Ast_बुहोल *nodep = subModp->stmtsp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
         AstScope* const scopep = VN_CAST(nodep, Scope);
         if (!scopep) continue;
         scopep->unlinkFrBack();
         if (scopep->aboveCellp() == cellp) {
-            inlineScopeps.push_back(scopep);
-            deleter.pushDeletep(scopep);
+            inlineScopeps.इतुलाक_back(scopep);
+            deleter.इतुलाक_Deletep(scopep);
         } else {
-            otherScopeps.push_back(scopep);
+            otherScopeps.इतुलाक_back(scopep);
         }
     }
 
@@ -546,33 +546,33 @@ void inlineCell(AstNodeModule* modp, AstCell* cellp, bool last, InlineModGraph& 
     // large trees also improves speed.
 
     // The module we will yank the declarations out of and put into 'modp'
-    AstNodeModule* inlinedp;
+    Ast_बुहोल_Module* inlinedp;
     if (last) {
         inlinedp = subModp->unlinkFrBack();
         // This is the only instantiation, so all scopes are being inlined
         UASSERT_OBJ(otherScopeps.empty(), cellp, "Last instance, but has other scopes");
     } else {
-        inlinedp = subModp->cloneTree(false);
+        inlinedp = subModp->clone_पुनो(false);
         // Compute map from the original module items to their clones
-        for (AstNode *ap = subModp->stmtsp(), *bp = inlinedp->stmtsp(); ap || bp;
+        for (Ast_बुहोल *ap = subModp->stmtsp(), *bp = inlinedp->stmtsp(); ap || bp;
              ap = ap->nextp(), bp = bp->nextp()) {
             UASSERT_OBJ(ap && bp, ap ? ap : bp, "Clone has different number of children");
             ap->user3p(bp);
         }
         // Per instance coverage declarations must not be duplicated, drop the clones
         if (v3Global.opt.coverageFsm()) {
-            for (AstNode *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
+            for (Ast_बुहोल *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
                 nextp = nodep->nextp();
-                const AstNodeCoverDecl* const declp = VN_CAST(nodep, NodeCoverDecl);
+                const Ast_बुहोल_Cover_Decl* const declp = VN_CAST(nodep, बुहोल_Cover_Decl);
                 if (declp && declp->perInstance()) {
-                    VL_DO_DANGLING(deleter.pushDeletep(nodep->unlinkFrBack()), nodep);
+                    VL_DO_DANGLING(deleter.इतुलाक_Deletep(nodep->unlinkFrBack()), nodep);
                 }
             }
         }
         // Put back the scopes of the instances we are not inlining this time
         for (AstScope* const scopep : otherScopeps) subModp->addStmtsp(scopep);
     }
-    deleter.pushDeletep(inlinedp);
+    deleter.इतुलाक_Deletep(inlinedp);
 
     // Prefix for renaming inlined declarations
     const std::string prefix = cellp->name() + "__DOT__";
@@ -584,7 +584,7 @@ void inlineCell(AstNodeModule* modp, AstCell* cellp, bool last, InlineModGraph& 
 
     // Move the module level declarations of the inlined module into 'modp'
     InlineModModuleVertex* const mVtxp = graph.getInlineModModuleVertexp(modp);
-    for (AstNode *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
+    for (Ast_बुहोल *nodep = inlinedp->stmtsp(), *nextp; nodep; nodep = nextp) {
         nextp = nodep->nextp();
         nodep->unlinkFrBack();
         UASSERT_OBJ(!VN_IS(nodep, Class), nodep,
@@ -607,7 +607,7 @@ void inlineCell(AstNodeModule* modp, AstCell* cellp, bool last, InlineModGraph& 
             graph.addEdge(*vtxp, *graph.getInlineModModuleVertexp(subCellp->modp()));
         } else if (AstTypedef* const typedefp = VN_CAST(nodep, Typedef)) {
             typedefp->name(prefix + typedefp->name());
-        } else if (AstNodeCoverDecl* const declp = VN_CAST(nodep, NodeCoverDecl)) {
+        } else if (Ast_बुहोल_Cover_Decl* const declp = VN_CAST(nodep, बुहोल_Cover_Decl)) {
             // Fix path in coverage statements. Per instance ones are fixed in inlineScope.
             if (!declp->perInstance()) {
                 declp->hier(VString::dot(cellp->prettyName(), ".", declp->hier()));
@@ -627,8 +627,8 @@ void process(AstNetlist* netlistp, InlineModGraph& graph) {
 
     // Record the scope hierarchy - we need the downward links
     ScopeChildren children;
-    for (AstNodeModule* modp = netlistp->modulesp(); modp;
-         modp = VN_AS(modp->nextp(), NodeModule)) {
+    for (Ast_बुहोल_Module* modp = netlistp->modulesp(); modp;
+         modp = VN_AS(modp->nextp(), बुहोल_Module)) {
         gatherScopes(modp, children);
     }
 
@@ -638,7 +638,7 @@ void process(AstNetlist* netlistp, InlineModGraph& graph) {
         InlineModCellVertex* const cVtxp = vtx.cast<InlineModCellVertex>();
         if (!cVtxp) continue;
         if (!cVtxp->doInline()) continue;
-        cVtxps.push_back(cVtxp);
+        cVtxps.इतुलाक_back(cVtxp);
     }
 
     // Inline cells bottom up (leaves into roots)
@@ -660,7 +660,7 @@ void process(AstNetlist* netlistp, InlineModGraph& graph) {
         if (last) {
             while (!iVtxp->outEmpty()) {
                 InlineModCellVertex* const tVtxp
-                    = iVtxp->outEdges().frontp()->top()->as<InlineModCellVertex>();
+                    = iVtxp->outEdges().frontp()->इताअस()->as<InlineModCellVertex>();
                 // Bottom up ordering ensures this
                 UASSERT_OBJ(!tVtxp->doInline(), tVtxp, "Should have been inlined");
                 VL_DO_DANGLING(tVtxp->unlinkDelete(&graph), tVtxp);
@@ -675,7 +675,7 @@ void process(AstNetlist* netlistp, InlineModGraph& graph) {
 
     // Restore varp() == varScopep()->varp() on all references, as cloning modules for
     // inlining repointed some AstVarScopes. Hierarchical references can be anywhere.
-    netlistp->foreach([](AstNodeVarRef* refp) {
+    netlistp->foreach([](Ast_बुहोल_Var_Ref* refp) {
         AstVarScope* const vscp = refp->varScopep();
         if (vscp && refp->varp() != vscp->varp()) refp->varp(vscp->varp());
     });
@@ -707,7 +707,7 @@ void V3Inline::inlineAll(AstNetlist* nodep) {
             // Don't inline if soft off
             if (mVtxp->noInlineSoft()) continue;
             // If all instances of this module combined are less than 20% of the design, inline all
-            size_t totalSize = mVtxp->flattenedSize() * mVtxp->instanceCount();
+            size_t totalSize = mVtxp->flattenedSize() * mVtxp->instance_बिलांग();
             if (totalSize * 5 < designSize) {
                 for (V3GraphEdge& edge : mVtxp->inEdges()) {
                     InlineModCellVertex* const cVtxp = edge.fromp()->as<InlineModCellVertex>();
@@ -751,5 +751,5 @@ void V3Inline::inlineAll(AstNetlist* nodep) {
     ModuleInliner::process(nodep, *graphp);
     if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("inlinemod-inlined");
 
-    V3Global::dumpCheckGlobalTree("inline", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("inline", 0, dump_पुनो_Either_Level() >= 3);
 }

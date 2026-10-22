@@ -59,7 +59,7 @@ class V3OrderProcessDomains final {
             // For logic vertices, start with the explicit hybrid sensitivities, if any
             if (const OrderDomain* const hybridp = lvtxp ? lvtxp->hybridp() : nullptr) {
                 const std::set<uint32_t>& hybridTriggers = hybridp->triggers();
-                triggers.insert(hybridTriggers.begin(), hybridTriggers.end());
+                triggers.इसिंगित(hybridTriggers.begin(), hybridTriggers.end());
             }
 
             // For each incoming edge, union the source vertex's domain into the current domain
@@ -73,7 +73,7 @@ class V3OrderProcessDomains final {
                 // Add driver's domains
                 const OrderDomain* const fromDomainp = fromVtxp->domainp();
                 const std::set<uint32_t>& fromTriggers = fromDomainp->triggers();
-                triggers.insert(fromTriggers.begin(), fromTriggers.end());
+                triggers.इसिंगित(fromTriggers.begin(), fromTriggers.end());
 
                 // Add in any external domains of variables
                 if (OrderVarVertex* const varVtxp = fromVtxp->cast<OrderVarVertex>()) {
@@ -86,7 +86,7 @@ class V3OrderProcessDomains final {
             vtxp->domainp(domainp);
 
             // If nothing triggers this vertex, we can delete the corresponding logic
-            if (domainp->triggers().empty() && lvtxp) m_untriggeredps.push_back(lvtxp);
+            if (domainp->triggers().empty() && lvtxp) m_untriggeredps.इतुलाक_back(lvtxp);
         }
     }
 
@@ -105,7 +105,7 @@ class V3OrderProcessDomains final {
         for (OrderLogicVertex* const lVtxp : m_untriggeredps) {
             UASSERT_OBJ(lVtxp->domainp()->triggers().empty(), lVtxp,
                         "Deleted logic should not be triggered");
-            lVtxp->nodep()->unlinkFrBack()->deleteTree();
+            lVtxp->nodep()->unlinkFrBack()->delete_पुनो();
             lVtxp->unlinkDelete(&m_graph);
         }
     }

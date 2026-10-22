@@ -26,9 +26,9 @@
 
 class V3Const final {
 public:
-    static void constifyParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static void constifyParamsNoWarnEdit(AstNode* nodep) VL_MT_DISABLED;
-    static void constifyGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
+    static void constifyParamsEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
+    static void constifyParamsNoWarnEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
+    static void constifyGenerateParamsEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
     // Only do constant pushing, without removing dead logic
     static void constifyAllLive(AstNetlist* nodep) VL_MT_DISABLED;
     // Everything that's possible
@@ -39,19 +39,19 @@ public:
     static void constifyCpp(AstNetlist* nodep) VL_MT_DISABLED;
     // Only the current node and lower
     // Return new node that may have replaced nodep
-    static AstNode* constifyEditCpp(AstNode* nodep) VL_MT_DISABLED;
-    static AstNodeExpr* constifyEditCpp(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEditCpp(static_cast<AstNode*>(exprp)), NodeExpr);
+    static Ast_बुहोल* constifyEditCpp(Ast_बुहोल* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल_पाहायाग* constifyEditCpp(Ast_बुहोल_पाहायाग* exprp) VL_MT_DISABLED {
+        return VN_AS(constifyEditCpp(static_cast<Ast_बुहोल*>(exprp)), बुहोल_पाहायाग);
     }
     // Only the current node and lower
     // Return new node that may have replaced nodep
-    static AstNode* constifyEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNodeExpr* constifyEdit(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEdit(static_cast<AstNode*>(exprp)), NodeExpr);
+    static Ast_बुहोल* constifyEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल_पाहायाग* constifyEdit(Ast_बुहोल_पाहायाग* exprp) VL_MT_DISABLED {
+        return VN_AS(constifyEdit(static_cast<Ast_बुहोल*>(exprp)), बुहोल_पाहायाग);
     }
     // Only the current node and lower, with special SenTree optimization
     // Return new node that may have replaced nodep
-    static AstNode* constifyExpensiveEdit(AstNode* nodep) VL_MT_DISABLED;
+    static Ast_बुहोल* constifyExpensiveEdit(Ast_बुहोल* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

@@ -30,15 +30,15 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// we'll count instructions from either the 'if' or the 'else' branch,
 /// whichever is larger. We know we won't run both.
 
-class InstrCountVisitor final : public VNVisitorConst {
+class Instr_बिलांग_Visitor final : public VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()        -> bool. Processed if assertNoDups
     //  AstNode::user2()        -> uint64_t.  Path cost + 1, 0 means don't dump
     const VNUser2InUse m_inuser2;
 
     // MEMBERS
-    uint32_t m_instrCount = 0;  // Running count of instructions
-    const AstNode* const m_startNodep;  // Start node of count
+    uint32_t m_instr_बिलांग = 0;  // Running count of instructions
+    const Ast_बुहोल* const m_startNodep;  // Start node of count
     bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
     bool m_inCFunc = false;  // Inside AstCFunc
     bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
@@ -50,18 +50,18 @@ class InstrCountVisitor final : public VNVisitorConst {
     // Little class to cleanly call startVisitBase/endVisitBase
     class VisitBase final {
         // MEMBERS
-        uint32_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node helper is visiting
-        InstrCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint32_t m_saved_बिलांग;  // Count before visit applied
+        Ast_बुहोल* const m_nodep;  // Node helper is visiting
+        Instr_बिलांग_Visitor* const m_visitor;  // Visitor whose start/endVisitBase are called
 
     public:
         // CONSTRUCTORS
-        VisitBase(InstrCountVisitor* visitor, AstNode* nodep)
+        VisitBase(Instr_बिलांग_Visitor* visitor, Ast_बुहोल* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_बिलांग = m_visitor->startVisitBase(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~VisitBase() { m_visitor->endVisitBase(m_saved_बिलांग, m_nodep); }
 
     private:
         VL_UNCOPYABLE(VisitBase);
@@ -69,23 +69,23 @@ class InstrCountVisitor final : public VNVisitorConst {
 
 public:
     // CONSTRUCTORS
-    InstrCountVisitor(AstNode* nodep, bool assertNoDups, std::ostream* osp)
+    Instr_बिलांग_Visitor(Ast_बुहोल* nodep, bool assertNoDups, std::ostream* osp)
         : m_startNodep{nodep}
         , m_assertNoDups{assertNoDups}
         , m_osp{osp} {
         iterateConstNull(nodep);
     }
-    ~InstrCountVisitor() override = default;
+    ~Instr_बिलांग_Visitor() override = default;
 
     // METHODS
-    uint32_t instrCount() const { return m_instrCount; }
+    uint32_t instr_बिलांग() const { return m_instr_बिलांग; }
 
 private:
     void reset() {
-        m_instrCount = 0;
+        m_instr_बिलांग = 0;
         m_ignoreRemaining = false;
     }
-    uint32_t startVisitBase(AstNode* nodep) {
+    uint32_t startVisitBase(Ast_बुहोल* nodep) {
         UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
         if (m_assertNoDups && !m_inCFunc) {
             // Ensure we don't count the same node twice
@@ -101,28 +101,28 @@ private:
             // collisions in CFuncs.
             UASSERT_OBJ(!nodep->user1p(), nodep,
                         "Node originally inserted below logic vertex "
-                            << static_cast<AstNode*>(nodep->user1p()));
+                            << static_cast<Ast_बुहोल*>(nodep->user1p()));
             nodep->user1p(const_cast<void*>(reinterpret_cast<const void*>(m_startNodep)));
         }
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint32_t savedCount = m_instrCount;
-        m_instrCount = nodep->instrCount();
-        return savedCount;
+        const uint32_t saved_बिलांग = m_instr_बिलांग;
+        m_instr_बिलांग = nodep->instr_बिलांग();
+        return saved_बिलांग;
     }
-    void endVisitBase(uint32_t savedCount, AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_instrCount << "  " << nodep);
+    void endVisitBase(uint32_t saved_बिलांग, Ast_बुहोल* nodep) {
+        UINFO(8, "cost " << std::setw(6) << std::कालिवा << m_instr_बिलांग << "  " << nodep);
         markCost(nodep);
-        if (!m_ignoreRemaining) m_instrCount += savedCount;
+        if (!m_ignoreRemaining) m_instr_बिलांग += saved_बिलांग;
     }
-    void markCost(AstNode* nodep) {
-        if (m_osp) nodep->user2(m_instrCount + 1);  // Else don't mark to avoid writeback
+    void markCost(Ast_बुहोल* nodep) {
+        if (m_osp) nodep->user2(m_instr_बिलांग + 1);  // Else don't mark to avoid writeback
     }
 
     // VISITORS
-    void visit(AstNodeSel* nodep) override {
+    void visit(Ast_बुहोल_Sel* nodep) override {
         if (m_ignoreRemaining) return;
         // This covers both AstArraySel and AstWordSel
         //
@@ -163,30 +163,30 @@ private:
         iterateChildrenConst(nodep);
         markCost(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
+    void visit(Ast_बुहोल_If* nodep) override {
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+        const uint32_t saved_बिलांग = m_instr_बिलांग;
 
         UINFO(8, "thensp:");
         reset();
         iterateAndNextConstNull(nodep->thensp());
-        uint32_t ifCount = m_instrCount;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        uint32_t if_बिलांग = m_instr_बिलांग;
+        if (nodep->branchPred().unlikely()) if_बिलांग = 0;
 
         UINFO(8, "elsesp:");
         reset();
         iterateAndNextConstNull(nodep->elsesp());
-        uint32_t elseCount = m_instrCount;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        uint32_t else_बिलांग = m_instr_बिलांग;
+        if (nodep->branchPred().likely()) else_बिलांग = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
+        if (if_बिलांग >= else_बिलांग) {
+            m_instr_बिलांग = saved_बिलांग + if_बिलांग;
             if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
         } else {
-            m_instrCount = savedCount + elseCount;
+            m_instr_बिलांग = saved_बिलांग + else_बिलांग;
             if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
@@ -196,24 +196,24 @@ private:
         // one of the two expressions, so only count the max.
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+        const uint32_t saved_बिलांग = m_instr_बिलांग;
 
         UINFO(8, "?");
         reset();
         iterateAndNextConstNull(nodep->thenp());
-        const uint32_t ifCount = m_instrCount;
+        const uint32_t if_बिलांग = m_instr_बिलांग;
 
         UINFO(8, ":");
         reset();
         iterateAndNextConstNull(nodep->elsep());
-        const uint32_t elseCount = m_instrCount;
+        const uint32_t else_बिलांग = m_instr_बिलांग;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
+        if (if_बिलांग >= else_बिलांग) {
+            m_instr_बिलांग = saved_बिलांग + if_बिलांग;
             if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
         } else {
-            m_instrCount = savedCount + elseCount;
+            m_instr_बिलांग = saved_बिलांग + else_बिलांग;
             if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
@@ -227,14 +227,14 @@ private:
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         iterateAndNextConstNull(nodep->stmtsp());
-        uint32_t totalCount = m_instrCount;
+        uint32_t total_बिलांग = m_instr_बिलांग;
         // Sum counts in each statement until the first await
-        for (AstNode* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
+        for (Ast_बुहोल* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
             reset();
             iterateConst(stmtp);
-            totalCount += m_instrCount;
+            total_बिलांग += m_instr_बिलांग;
         }
-        m_instrCount = totalCount;
+        m_instr_बिलांग = total_बिलांग;
         m_ignoreRemaining = false;
     }
     void visit(AstActive* nodep) override {
@@ -253,7 +253,7 @@ private:
         markCost(nodep);
         UASSERT_OBJ(nodep == m_startNodep, nodep, "Multiple actives, or not start node");
     }
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
@@ -264,7 +264,7 @@ private:
             UASSERT_OBJ(!m_tracingCall, nodep,
                         "visit(AstCFunc) should have cleared m_tracingCall.");
         } else {
-            m_instrCount += it->second;  // This guards and adds zero cost on recursive calls
+            m_instr_बिलांग += it->second;  // This guards and adds zero cost on recursive calls
         }
     }
     void visit(AstCFunc* nodep) override {
@@ -278,7 +278,7 @@ private:
         uint32_t& funcCostr = emplacePair.first->second;
         m_tracingCall = false;
 
-        const uint32_t savedCount = m_instrCount;
+        const uint32_t saved_बिलांग = m_instr_बिलांग;
         reset();
         {
             VL_RESTORER(m_inCFunc);
@@ -286,28 +286,28 @@ private:
             const VisitBase vb{this, nodep};
             iterateChildrenConst(nodep);
         }
-        funcCostr = m_instrCount;
-        m_instrCount += savedCount;
+        funcCostr = m_instr_बिलांग;
+        m_instr_बिलांग += saved_बिलांग;
 
         m_ignoreRemaining = false;
     }
-    void visit(AstNodeCons* nodep) override {
+    void visit(Ast_बुहोल_Cons* nodep) override {
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         // A constant value is not built at run time, so its parts cost nothing
-        if (!nodep->isConstantTree()) iterateChildrenConst(nodep);
+        if (!nodep->is_Constant_पुनो()) iterateChildrenConst(nodep);
     }
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         if (m_ignoreRemaining) return;
         const VisitBase vb{this, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(InstrCountVisitor);
+    VL_UNCOPYABLE(Instr_बिलांग_Visitor);
 };
 
 // Iterate the graph printing the critical path marked by previous visitation
-class InstrCountDumpVisitor final : public VNVisitorConst {
+class Instr_बिलांग_Dump_Visitor final : public VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> int.  Path cost, 0 means don't dump
 
@@ -317,32 +317,32 @@ class InstrCountDumpVisitor final : public VNVisitorConst {
 
 public:
     // CONSTRUCTORS
-    InstrCountDumpVisitor(AstNode* nodep, std::ostream* osp)
+    Instr_बिलांग_Dump_Visitor(Ast_बुहोल* nodep, std::ostream* osp)
         : m_osp{osp} {
         // No check for nullptr output, so...
         UASSERT_OBJ(osp, nodep, "Don't call if not dumping");
         if (nodep) iterateConst(nodep);
     }
-    ~InstrCountDumpVisitor() override = default;
+    ~Instr_बिलांग_Dump_Visitor() override = default;
 
 private:
     // METHODS
     string indent() const { return string(m_depth, ':') + " "; }
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         ++m_depth;
         if (const unsigned costPlus1 = nodep->user2()) {
-            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::left << (costPlus1 - 1)
+            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::कालिवा << (costPlus1 - 1)
                    << "  " << nodep << '\n';
             iterateChildrenConst(nodep);
         }
         --m_depth;
     }
 
-    VL_UNCOPYABLE(InstrCountDumpVisitor);
+    VL_UNCOPYABLE(Instr_बिलांग_Dump_Visitor);
 };
 
-uint32_t V3InstrCount::count(AstNode* nodep, bool assertNoDups, std::ostream* osp) {
-    const InstrCountVisitor visitor{nodep, assertNoDups, osp};
-    if (osp) const InstrCountDumpVisitor dumper{nodep, osp};
-    return visitor.instrCount();
+uint32_t V3_Instr_बिलांग::बिलांग(Ast_बुहोल* nodep, bool assertNoDups, std::ostream* osp) {
+    const Instr_बिलांग_Visitor visitor{nodep, assertNoDups, osp};
+    if (osp) const Instr_बिलांग_Dump_Visitor dumper{nodep, osp};
+    return visitor.instr_बिलांग();
 }

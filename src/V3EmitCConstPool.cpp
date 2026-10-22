@@ -35,17 +35,17 @@ class EmitCConstPool final : public EmitCConstInit {
     using OutCFilePair = std::pair<V3OutCFile*, AstCFile*>;
 
     // MEMBERS
-    std::array<VDouble0, VNType::NUM_TYPES()> m_emitted;  // Entries emitted, by value type
+    std::array<VDouble0, VNType::नुमेरो_TYPES()> m_emitted;  // Entries emitted, by value type
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "__ConstPool";
+    const std::string m_fileBaseName = EmitCUtil::इताअस_Class_Name() + "__ConstPool";
 
     // METHODS
     void emitVars(const AstPackage* poolp) {
         UASSERT(!ofp(), "Output file should not be open");
 
         std::vector<const AstVar*> varps;
-        for (AstNode* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) varps.push_back(varp);
+        for (Ast_बुहोल* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            if (const AstVar* const varp = VN_CAST(nodep, Var)) varps.इतुलाक_back(varp);
         }
 
         if (varps.empty()) return;  // Constant pool is empty, so we are done
@@ -77,10 +77,10 @@ class EmitCConstPool final : public EmitCConstInit {
             emitVarDefn(varp);
             // Account for file splitting
             varp->valuep()->foreach([this](const AstConst* constp) {
-                if (constp->num().isString()) {
-                    splitSizeInc(AstNode::INSTR_COUNT_STR);
+                if (constp->नुमेरो().isString()) {
+                    splitSizeInc(Ast_बुहोल::INSTR_बिलांग_STR);
                 } else if (constp->isWide()) {
-                    splitSizeInc(constp->widthWords());
+                    splitSizeInc(constp->width_मगा_सालिता());
                 } else {
                     splitSizeInc(1);
                 }
@@ -94,7 +94,7 @@ class EmitCConstPool final : public EmitCConstInit {
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override {  // LCOV_EXCL_START
+    void visit(Ast_बुहोल* nodep) override {  // LCOV_EXCL_START
         nodep->v3fatalSrc("Unknown node type reached EmitCConstPool: " << nodep->prettyTypeName());
     }  // LCOV_EXCL_STOP
 
@@ -105,7 +105,7 @@ public:
             V3Stats::addStat("ConstPool, "s + type.ascii() + " emitted", m_emitted[type]);
         };
         addStat(VNType::Const);
-        for (int t = VNType::firstNodeCons; t <= VNType::lastNodeCons; ++t) {
+        for (int t = VNType::first_बुहोल_Cons; t <= VNType::last_बुहोल_Cons; ++t) {
             addStat(static_cast<VNType::en>(t));
         }
     }

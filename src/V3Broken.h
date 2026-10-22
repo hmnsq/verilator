@@ -24,14 +24,14 @@
 
 // Forward declare so we can include this in V3Ast.h
 class AstNetlist;
-class AstNode;
+class Ast_बुहोल;
 
 class V3Broken final {
 public:
     static void brokenAll(AstNetlist* nodep);
-    static bool isLinkable(const AstNode* nodep);
-    static void addNewed(const AstNode* nodep);
-    static void deleted(const AstNode* nodep);
+    static bool isLinkable(const Ast_बुहोल* nodep);
+    static void addNewed(const Ast_बुहोल* nodep);
+    static void deleted(const Ast_बुहोल* nodep);
     // Called on error to say may be inside visitor,
     // Disables checks that may misfire if not called at stable point between visitors
     static void allowMidvisitorCheck(bool flag);

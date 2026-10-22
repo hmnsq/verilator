@@ -28,16 +28,16 @@
 //============================================================================
 
 class V3LinkLevel final {
-    using ModVec = std::vector<AstNodeModule*>;
+    using ModVec = std::vector<Ast_बुहोल_Module*>;
 
     static void timescaling(const ModVec& mods) VL_MT_DISABLED;
-    static void wrapTopCell(AstNetlist* rootp) VL_MT_DISABLED;
-    static void wrapTopPackages(AstNetlist* rootp) VL_MT_DISABLED;
+    static void wrap_इताअस_Cell(AstNetlist* rootp) VL_MT_DISABLED;
+    static void wrap_इताअस_Packages(AstNetlist* rootp) VL_MT_DISABLED;
 
 public:
     static void modSortByLevel() VL_MT_DISABLED;
-    static void wrapTop(AstNetlist* rootp) VL_MT_DISABLED;
-    static void nonWrapTop(AstNetlist* rootp) VL_MT_DISABLED;
+    static void wrap_इताअस(AstNetlist* rootp) VL_MT_DISABLED;
+    static void non_Wrap_इताअस(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

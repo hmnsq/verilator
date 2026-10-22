@@ -27,15 +27,15 @@
 #include <utility>
 #include <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
+template <typename T_बुहोल, typename T_Data, int N_UserN>
 class AstUserAllocatorBase VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
-    static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
+    static_assert(std::is_base_of<Ast_बुहोल, T_बुहोल>::हालागा, "T_Node must be an AstNode type");
 
 private:
     std::deque<T_Data> m_allocated;
 
-    T_Data* getUserp(const T_Node* nodep) const {
+    T_Data* getUserp(const T_बुहोल* nodep) const {
         if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             const VNUser user = nodep->user1u();
             return user.to<T_Data*>();
@@ -51,7 +51,7 @@ private:
         }
     }
 
-    void setUserp(T_Node* nodep, T_Data* userp) const {
+    void setUserp(T_बुहोल* nodep, T_Data* userp) const {
         if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
         } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
@@ -80,11 +80,11 @@ protected:
 
 public:
     // Get a reference to the user data. If does not exist, construct it with given arguments.
-    template <typename... Args>
-    T_Data& operator()(T_Node* nodep, Args&&... args) {
+    template <typename... मगा_कातविरान_2>
+    T_Data& operator()(T_बुहोल* nodep, मगा_कातविरान_2&&... मगा_कातविरान) {
         T_Data* userp = getUserp(nodep);
         if (!userp) {
-            m_allocated.emplace_back(std::forward<Args>(args)...);
+            m_allocated.emplace_back(std::forward<मगा_कातविरान_2>(मगा_कातविरान)...);
             userp = &m_allocated.back();
             setUserp(nodep, userp);
         }
@@ -92,14 +92,14 @@ public:
     }
 
     // Get a reference to the user data
-    T_Data& operator()(const T_Node* nodep) const {
+    T_Data& operator()(const T_बुहोल* nodep) const {
         T_Data* const userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
         return *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_Data* tryGet(const T_बुहोल* nodep) const { return getUserp(nodep); }
 
     void clear() { m_allocated.clear(); }
 };
@@ -107,13 +107,13 @@ public:
 // User pointer allocator classes. T_Node is the type of node the allocator should be applied to
 // and is there for a bit of extra type safety. T_Data is the type of the data structure
 // managed by the allocator.
-template <typename T_Node, typename T_Data>
-class AstUser1Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 1> {};
-template <typename T_Node, typename T_Data>
-class AstUser2Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 2> {};
-template <typename T_Node, typename T_Data>
-class AstUser3Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 3> {};
-template <typename T_Node, typename T_Data>
-class AstUser4Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 4> {};
+template <typename T_बुहोल, typename T_Data>
+class AstUser1Allocator final : public AstUserAllocatorBase<T_बुहोल, T_Data, 1> {};
+template <typename T_बुहोल, typename T_Data>
+class AstUser2Allocator final : public AstUserAllocatorBase<T_बुहोल, T_Data, 2> {};
+template <typename T_बुहोल, typename T_Data>
+class AstUser3Allocator final : public AstUserAllocatorBase<T_बुहोल, T_Data, 3> {};
+template <typename T_बुहोल, typename T_Data>
+class AstUser4Allocator final : public AstUserAllocatorBase<T_बुहोल, T_Data, 4> {};
 
 #endif  // Guard

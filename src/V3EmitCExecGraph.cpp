@@ -85,7 +85,7 @@ class EmitCExecGraph final : public EmitCFunc {
                          + "__edges[] = {\n");
                 }
                 puts("{" + std::to_string(indices.at(callp->funcp())) + ", "
-                     + std::to_string(indices.at(edge.top()->as<ExecMTask>()->funcp())) + "},\n");
+                     + std::to_string(indices.at(edge.इताअस()->as<ExecMTask>()->funcp())) + "},\n");
                 ++nEdges;
             }
         }
@@ -109,11 +109,11 @@ class EmitCExecGraph final : public EmitCFunc {
 public:
     explicit EmitCExecGraph(AstNetlist* netlistp) {
         std::vector<AstExecGraph*> execGraphps;
-        netlistp->topModulep()->foreach(
-            [&](AstExecGraph* nodep) { execGraphps.push_back(nodep); });
+        netlistp->इताअस_Modulep()->foreach(
+            [&](AstExecGraph* nodep) { execGraphps.इतुलाक_back(nodep); });
         if (execGraphps.empty()) return;
 
-        openNewOutputSourceFile(EmitCUtil::topClassName() + "__ExecGraph", true, false,
+        openNewOutputSourceFile(EmitCUtil::इताअस_Class_Name() + "__ExecGraph", true, false,
                                 "Exec graphs");
         puts("\n");
         puts("#include \"verilated.h\"\n");

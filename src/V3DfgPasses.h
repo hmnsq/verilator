@@ -54,7 +54,7 @@ void cse(DfgGraph&, V3DfgCseContext&) VL_MT_DISABLED;
 // Inline fully driven variables
 void inlineVars(DfgGraph&) VL_MT_DISABLED;
 // Push down selects through concatenations
-void pushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) VL_MT_DISABLED;
+void इतुलाक_Down_Sels(DfgGraph& dfg, V3_Dfg_इतुलाक_Down_Sels_Context& ctx) VL_MT_DISABLED;
 // Peephole optimizations
 void peephole(DfgGraph&, V3DfgPeepholeContext&) VL_MT_DISABLED;
 // Regularize graph. This must be run before converting back to Ast.
@@ -72,7 +72,7 @@ void dumpPatterns(const std::vector<std::unique_ptr<DfgGraph>>&,
 // Add DfgVertexAst to the given DfgGraph for all references in the given AstNode.
 // The function 'getVarVertex' is used to get the DfgVertexVar for an AstVarScope.
 // If it returns nullptr, the reference will be ignored.
-void addAstRefs(DfgGraph& dfg, AstNode* nodep,
+void addAstRefs(DfgGraph& dfg, Ast_बुहोल* nodep,
                 std::function<DfgVertexVar*(AstVarScope*)> getVarVertex) VL_MT_DISABLED;
 // Populates the given DfgUserMap for all vertext to:
 // - 0, if the vertex is not part of a non-trivial strongly connected component

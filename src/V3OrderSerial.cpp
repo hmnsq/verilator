@@ -30,7 +30,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // OrderSerial class
 
-AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow) {
+Ast_बुहोल_Stmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow) {
 
     UINFO(2, "  Constructing serial code for '" + tag + "'");
 

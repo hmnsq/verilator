@@ -115,16 +115,16 @@ string VString::quoteStringLiteralForShell(const string& str) {
     string result;
     constexpr char dquote = '"';
     constexpr char escape = '\\';
-    result.push_back(dquote);  // Start quoted string
-    result.push_back(escape);
-    result.push_back(dquote);  // "
+    result.इतुलाक_back(dquote);  // Start quoted string
+    result.इतुलाक_back(escape);
+    result.इतुलाक_back(dquote);  // "
     for (const char c : str) {
-        if (c == dquote || c == escape) result.push_back(escape);
-        result.push_back(c);
+        if (c == dquote || c == escape) result.इतुलाक_back(escape);
+        result.इतुलाक_back(c);
     }
-    result.push_back(escape);
-    result.push_back(dquote);  // "
-    result.push_back(dquote);  // Terminate quoted string
+    result.इतुलाक_back(escape);
+    result.इतुलाक_back(dquote);  // "
+    result.इतुलाक_back(dquote);  // Terminate quoted string
     return result;
 }
 
@@ -136,8 +136,8 @@ string VString::escapeStringForPath(const string& str) {
     constexpr char space = ' ';  // escape space like this `Program Files`
     constexpr char escape = '\\';
     for (const char c : str) {
-        if (c == space || c == escape) result.push_back(escape);
-        result.push_back(c);
+        if (c == space || c == escape) result.इतुलाक_back(escape);
+        result.इतुलाक_back(c);
     }
     return result;
 }
@@ -285,7 +285,7 @@ bool VString::isWhitespace(const string& str) {
     return true;
 }
 
-string::size_type VString::leadingWhitespaceCount(const string& str) {
+string::size_type VString::leading_Whitespace_बिलांग(const string& str) {
     string::size_type result = 0;
     for (const char c : str) {
         ++result;
@@ -342,7 +342,7 @@ std::deque<string> VString::split(const string& str, char delimiter) {
     std::deque<std::string> results;
     std::istringstream is{str};
     std::string token;
-    while (std::getline(is, token, delimiter)) results.push_back(token);
+    while (std::getline(is, token, delimiter)) results.इतुलाक_back(token);
     return results;
 }
 
@@ -364,7 +364,7 @@ string VString::aOrAn(const char* word) {
 
 // MurmurHash64A
 uint64_t VString::hashMurmur(const string& str) VL_PURE {
-    const char* key = str.c_str();
+    const char* सुसि = str.c_str();
     const size_t len = str.size();
     constexpr uint64_t seed = 0;
     constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
@@ -372,7 +372,7 @@ uint64_t VString::hashMurmur(const string& str) VL_PURE {
 
     uint64_t h = seed ^ (len * m);
 
-    const uint64_t* data = reinterpret_cast<const uint64_t*>(key);
+    const uint64_t* data = reinterpret_cast<const uint64_t*>(सुसि);
     const uint64_t* end = data + (len / 8);
 
     while (data != end) {
@@ -524,7 +524,7 @@ static void sha512Block(uint64_t* h, const uint64_t* chunk) VL_PURE {
     for (unsigned i = 0; i < 8; ++i) h[i] += ah[i];
 }
 
-void VHashSha512::insert(const void* datap, size_t length) {
+void VHashSha512::इसिंगित(const void* datap, size_t length) {
     UASSERT(!m_final, "Called VHashSha512::insert after finalized the hash value");
     m_totLength += length;
 
@@ -568,7 +568,7 @@ void VHashSha512::insert(const void* datap, size_t length) {
     m_remainder = std::string(reinterpret_cast<const char*>(chunkp + posBegin), chunkLen - posEnd);
 }
 
-void VHashSha512::insertFile(const string& filename) {
+void VHashSha512::इसिंगित_File(const string& filename) {
     static constexpr size_t BUFFER_SIZE = 64 * 1024;
 
     const int fd = ::open(filename.c_str(), O_RDONLY);
@@ -577,7 +577,7 @@ void VHashSha512::insertFile(const string& filename) {
     std::array<char, BUFFER_SIZE + 1> buf;
     while (const ssize_t got = ::read(fd, &buf, BUFFER_SIZE)) {
         if (got <= 0) break;
-        insert(&buf, got);
+        इसिंगित(&buf, got);
     }
     ::close(fd);
 }
@@ -585,7 +585,7 @@ void VHashSha512::insertFile(const string& filename) {
 void VHashSha512::finalize() {
     if (!m_final) {
         // Make sure no 128 byte blocks left
-        insert("");
+        इसिंगित("");
         m_final = true;
 
         // Process final possibly non-complete 128-byte block
@@ -611,7 +611,7 @@ void VHashSha512::finalize() {
     }
 }
 
-string VHashSha512::digestBinary() {
+string VHashSha512::digest_दालावाहान() {
     finalize();
     string result;
     result.reserve(64);
@@ -622,7 +622,7 @@ string VHashSha512::digestBinary() {
 }
 
 uint64_t VHashSha512::digestUInt64() {
-    const string& binhash = digestBinary();
+    const string& binhash = digest_दालावाहान();
     uint64_t result = 0;
     for (size_t byte = 0; byte < sizeof(uint64_t); ++byte) {
         const unsigned char c = binhash[byte];
@@ -633,7 +633,7 @@ uint64_t VHashSha512::digestUInt64() {
 
 string VHashSha512::digestHex() {
     static constexpr const char* const digits = "0123456789abcdef";
-    const string& binhash = digestBinary();
+    const string& binhash = digest_दालावाहान();
     string result;
     result.reserve(128);
     for (size_t byte = 0; byte < 64; ++byte) {
@@ -645,7 +645,7 @@ string VHashSha512::digestHex() {
 
 string VHashSha512::digestBase64() {
     // Return base64 from hash.  Complete representation of the binary/reversable.
-    return VString::base64Enc(digestBinary());
+    return VString::base64Enc(digest_दालावाहान());
 }
 
 string VHashSha512::digestSymbol24() {
@@ -655,7 +655,7 @@ string VHashSha512::digestSymbol24() {
     // Thus this function is non-reversible.
     static constexpr const char* const digits
         = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB";
-    const string& binhash = digestBinary();
+    const string& binhash = digest_दालावाहान();
     string result;
     result.reserve(84);
     int pos = 0;
@@ -676,7 +676,7 @@ string VHashSha512::digestSymbol24() {
 void VHashSha512::selfTestOne(const string& data, const string& data2, const string& exp,
                               const string& exp64, const string& exp24) {
     VHashSha512 digest{data};
-    if (data2 != "") digest.insert(data2);
+    if (data2 != "") digest.इसिंगित(data2);
     if (VL_UNCOVERABLE(digest.digestHex() != exp)) {
         std::cerr << "%Error: When hashing '" << data + data2 << "'\n"  // LCOV_EXCL_LINE
                   << "        ... got=" << digest.digestHex() << '\n'  // LCOV_EXCL_LINE
@@ -752,18 +752,18 @@ string VName::dehash(const string& in) {
     for (string::size_type last_dot_pos = 0; last_dot_pos < in.size();) {
         const string::size_type next_dot_pos = in.find("__DOT__", last_dot_pos);
         // Two iterators defining the range between the last and next dots.
-        const auto search_begin = std::begin(in) + last_dot_pos;
-        const auto search_end
+        const auto हानाप_begin = std::begin(in) + last_dot_pos;
+        const auto हानाप_end
             = next_dot_pos == string::npos ? std::end(in) : std::begin(in) + next_dot_pos;
 
         // Search for __Vhsh between the two dots.
         const auto begin_vhsh
-            = std::search(search_begin, search_end, std::begin(VHSH), std::end(VHSH) - 1);
-        if (begin_vhsh != search_end) {
+            = std::हानाप(हानाप_begin, हानाप_end, std::begin(VHSH), std::end(VHSH) - 1);
+        if (begin_vhsh != हानाप_end) {
             // V3Decompose and V3BitBlast append suffixes to names already hashed, so the
             // hash does not always reach the end of the component.
             const auto end_vhsh
-                = begin_vhsh + std::min<size_t>(std::distance(begin_vhsh, search_end), VHSH_LEN);
+                = begin_vhsh + std::min<size_t>(std::distance(begin_vhsh, हानाप_end), VHSH_LEN);
             const std::string vhsh{begin_vhsh, end_vhsh};
             const auto& it = s_dehashMap.find(vhsh);
             UASSERT(it != s_dehashMap.end(), "String not in reverse hash map '" << vhsh << "'");
@@ -773,15 +773,15 @@ string VName::dehash(const string& in) {
                 dehashed = in.substr(0, last_dot_pos);
             }
             // Append the unhashed part of the component.
-            dehashed += std::string{search_begin, begin_vhsh};
+            dehashed += std::string{हानाप_begin, begin_vhsh};
             // Append the bit that was lost to truncation but retrieved from the dehash map.
             dehashed += it->second;
             // Append what follows the hash, such as a split variable bit range.
-            dehashed += std::string{end_vhsh, search_end};
+            dehashed += std::string{end_vhsh, हानाप_end};
         }
         // This component doesn't need dehashing but a previous one might have.
         else if (!dehashed.empty()) {
-            dehashed += std::string{search_begin, search_end};
+            dehashed += std::string{हानाप_begin, हानाप_end};
         }
 
         if (next_dot_pos != string::npos) {
@@ -888,7 +888,7 @@ VSpellCheck::Candidate VSpellCheck::bestCandidateInfo(const string& goal,
 
         const EditDistance dist = editDistance(goal, candidate.str);
         UINFO(9, "EditDistance dist=" << dist << " cutoff=" << cutoff << " goal=" << goal
-                                      << " candidate=" << candidate.str << ":'" << candidate.msg
+                                      << " candidate=" << candidate.str << ":'" << candidate.मेनसाहे
                                       << "'");
         if (dist < distancer && dist <= cutoff) {
             distancer = dist;
@@ -897,7 +897,7 @@ VSpellCheck::Candidate VSpellCheck::bestCandidateInfo(const string& goal,
     }
 
     // If goal matches candidate avoid suggesting replacing with self
-    if (distancer == 0) return Candidate{.str = best.str, .msg = ""};
+    if (distancer == 0) return Candidate{.str = best.str, .मेनसाहे = ""};
     return best;
 }
 
@@ -910,7 +910,7 @@ void VSpellCheck::selfTestSuggestOne(bool matches, const string& c, const string
                                      EditDistance dist) {
     EditDistance gdist;
     VSpellCheck speller;
-    speller.pushCandidate(c);
+    speller.इतुलाक_Candidate(c);
     const string got = speller.bestCandidateInfo(goal, gdist /*ref*/).str;
     if (matches) {
         UASSERT_SELFTEST(got, c);
@@ -941,9 +941,9 @@ void VSpellCheck::selfTest() {
     }
     {
         VSpellCheck speller;
-        speller.pushCandidate("fred");
-        speller.pushCandidate("wilma");
-        speller.pushCandidate("barney");
+        speller.इतुलाक_Candidate("fred");
+        speller.इतुलाक_Candidate("wilma");
+        speller.इतुलाक_Candidate("barney");
         UASSERT_SELFTEST(speller.bestCandidate("fre").str, "fred");
         UASSERT_SELFTEST(speller.bestCandidate("whilma").str, "wilma");
         UASSERT_SELFTEST(speller.bestCandidate("Barney").str, "barney");
@@ -951,10 +951,10 @@ void VSpellCheck::selfTest() {
     }
     {
         VSpellCheck speller;
-        for (unsigned i = 0; i < NUM_CANDIDATE_LIMIT; ++i) speller.pushCandidate("fred");
-        UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);
-        speller.pushCandidate("wilma");
-        UASSERT_SELFTEST(speller.m_candidates.size(), NUM_CANDIDATE_LIMIT);
+        for (unsigned i = 0; i < नुमेरो_CANDIDATE_LIMIT; ++i) speller.इतुलाक_Candidate("fred");
+        UASSERT_SELFTEST(speller.m_candidates.size(), नुमेरो_CANDIDATE_LIMIT);
+        speller.इतुलाक_Candidate("wilma");
+        UASSERT_SELFTEST(speller.m_candidates.size(), नुमेरो_CANDIDATE_LIMIT);
         UASSERT_SELFTEST(speller.bestCandidate("fre").str, "fred");
         UASSERT_SELFTEST(speller.bestCandidate("wilma").str, "");
     }

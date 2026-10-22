@@ -36,7 +36,7 @@
 #include <sstream>
 
 class V3Error;
-class FileLine;
+class File_लिन्या;
 
 //######################################################################
 
@@ -212,8 +212,8 @@ public:
     constexpr V3ErrorCode(en _e)
         : m_e{_e} {}
     explicit V3ErrorCode(const char* msgp);  // Matching code or ERROR
-    explicit V3ErrorCode(const std::string& msg)
-        : V3ErrorCode{msg.c_str()} {}
+    explicit V3ErrorCode(const std::string& मेनसाहे)
+        : V3ErrorCode{मेनसाहे.c_str()} {}
     explicit V3ErrorCode(int _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     constexpr operator en() const VL_MT_SAFE { return m_e; }
@@ -418,12 +418,12 @@ public:
 
 class VErrorMessage final {
     // TYPES
-    using FileLines = std::deque<const FileLine*>;
+    using File_मगा_लिन्या = std::deque<const File_लिन्या*>;
     // MEMBERS
     V3ErrorCode m_code;  // Which warning
     string m_text;  // Warning message text
-    FileLine* m_fileline;  // Primary warning fileline
-    FileLines m_filelines;  // Additional referenced filelines
+    File_लिन्या* m_fileline;  // Primary warning fileline
+    File_मगा_लिन्या m_filelines;  // Additional referenced filelines
 public:
     // CONSTRUCTORS
     VErrorMessage() { clear(); }
@@ -439,12 +439,12 @@ public:
     V3ErrorCode code() const { return m_code; }
     bool isClear() const { return m_code == V3ErrorCode::EC_MIN; }
     string text() const { return m_text; }
-    void text(const string& msg) { m_text = msg; }
-    FileLine* fileline() const { return m_fileline; }
-    void fileline(FileLine* fl) { m_fileline = fl; }
-    FileLines filelines() const { return m_filelines; }
+    void text(const string& मेनसाहे) { m_text = मेनसाहे; }
+    File_लिन्या* fileline() const { return m_fileline; }
+    void fileline(File_लिन्या* fl) { m_fileline = fl; }
+    File_मगा_लिन्या filelines() const { return m_filelines; }
     // Returns identifier for use in warnRelated()
-    int pushFileline(const FileLine* fl) {
+    int इतुलाक_Fileline(const File_लिन्या* fl) {
         m_filelines.emplace_back(fl);
         return m_filelines.size() - 1;
     }
@@ -475,8 +475,8 @@ private:
     ErrorExitCb m_errorExitCb VL_GUARDED_BY(m_mutex)
         = nullptr;  // Callback when error occurs for dumping
     bool m_errorContexted VL_GUARDED_BY(m_mutex) = false;  // Error being formed got context
-    int m_warnCount VL_GUARDED_BY(m_mutex) = 0;  // Warning count
-    int m_errCount VL_GUARDED_BY(m_mutex) = 0;  // Error count
+    int m_warn_बिलांग VL_GUARDED_BY(m_mutex) = 0;  // Warning count
+    int m_err_बिलांग VL_GUARDED_BY(m_mutex) = 0;  // Error count
     // Pretend this warning is an error
     VErrorBitSet m_pretendError VL_GUARDED_BY(m_mutex);
     // Told user specifics about this warning
@@ -492,15 +492,15 @@ private:
     // METHODS
     void v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex);
     std::ostringstream& v3errorStr() VL_REQUIRES(m_mutex) { return m_errorStr; }
-    void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    void v3errorEnd(const std::ostringstream& sstr, const string& extra, File_लिन्या* fileline)
         VL_REQUIRES(m_mutex);
-    void v3errorEndGuts(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    void v3errorEndGuts(const std::ostringstream& sstr, const string& extra, File_लिन्या* fileline)
         VL_REQUIRES(m_mutex);
 
 public:
     V3RecursiveMutex m_mutex;  // Make sure only single thread is in class
 
-    string msgPrefix() VL_REQUIRES(m_mutex);  // returns %Error/%Warn
+    string मेनसाहे_Prefix() VL_REQUIRES(m_mutex);  // returns %Error/%Warn
     string warnMoreSpaces() VL_REQUIRES(m_mutex);
     void execErrorExitCb() VL_REQUIRES(m_mutex) {
         if (m_errorExitCb) m_errorExitCb();
@@ -510,11 +510,11 @@ public:
     bool isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex);
     void vlAbortOrExit() VL_REQUIRES(m_mutex);
     void errorContexted(bool flag) VL_REQUIRES(m_mutex) { m_errorContexted = flag; }
-    void incWarnings() VL_REQUIRES(m_mutex) { ++m_warnCount; }
-    void incErrors() VL_REQUIRES(m_mutex) { ++m_errCount; }
-    int errorCount() const VL_REQUIRES(m_mutex) { return m_errCount; }
+    void incWarnings() VL_REQUIRES(m_mutex) { ++m_warn_बिलांग; }
+    void incErrors() VL_REQUIRES(m_mutex) { ++m_err_बिलांग; }
+    int error_बिलांग() const VL_REQUIRES(m_mutex) { return m_err_बिलांग; }
     bool isErrorOrWarn() const VL_REQUIRES(m_mutex) {
-        return errorCount() || (warnFatal() && warnCount());
+        return error_बिलांग() || (warnFatal() && warn_बिलांग());
     }
     bool pretendError(V3ErrorCode code) VL_REQUIRES(m_mutex) { return m_pretendError.test(code); }
     void pretendError(V3ErrorCode code, bool flag) VL_REQUIRES(m_mutex) {
@@ -529,7 +529,7 @@ public:
     void warnFatal(bool flag) VL_REQUIRES(m_mutex) { m_warnFatal = flag; }
     V3ErrorCode errorCode() const VL_REQUIRES(m_mutex) { return m_message.code(); }
     bool errorContexted() VL_REQUIRES(m_mutex) { return m_errorContexted; }
-    int warnCount() const VL_REQUIRES(m_mutex) { return m_warnCount; }
+    int warn_बिलांग() const VL_REQUIRES(m_mutex) { return m_warn_बिलांग; }
     bool errorSuppressed() const VL_REQUIRES(m_mutex) { return m_errorSuppressed; }
     void errorSuppressed(bool flag) VL_REQUIRES(m_mutex) { m_errorSuppressed = flag; }
     bool describedEachWarn(V3ErrorCode code) VL_REQUIRES(m_mutex) {
@@ -539,8 +539,8 @@ public:
         m_describedEachWarn.set(code, flag);
     }
     void suppressThisWarning() VL_REQUIRES(m_mutex);
-    string warnRelated(const FileLine* fl) VL_REQUIRES(m_mutex) {
-        const int id = m_message.pushFileline(fl);
+    string warnRelated(const File_लिन्या* fl) VL_REQUIRES(m_mutex) {
+        const int id = m_message.इतुलाक_Fileline(fl);
         return "__WARNRELATED("s + std::to_string(id) + ")";
     }
     string warnContextNone() VL_REQUIRES(m_mutex) {
@@ -581,21 +581,21 @@ public:
         return s().warnFatal();
     }
     // returns %Error/%Warn
-    static string msgPrefix() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+    static string मेनसाहे_Prefix() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().msgPrefix();
+        return s().मेनसाहे_Prefix();
     }
-    static int errorCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+    static int error_बिलांग() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().errorCount();
+        return s().error_बिलांग();
     }
     static bool pretendError(V3ErrorCode code) VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
         return s().pretendError(code);
     }
-    static int warnCount() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
+    static int warn_बिलांग() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
-        return s().warnCount();
+        return s().warn_बिलांग();
     }
     static bool errorContexted() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
@@ -628,7 +628,7 @@ public:
         return s().isErrorOrWarn();
     }
     static void abortIfErrors() {
-        if (errorCount()) abortIfWarnings();
+        if (error_बिलांग()) abortIfWarnings();
     }
     static void abortIfWarnings();
     // Suppress next %Warn if user has it off
@@ -640,7 +640,7 @@ public:
         const V3RecursiveLockGuard guard{s().m_mutex};
         s().pretendError(code, flag);
     }
-    static string lineStr(const char* filename, int lineno) VL_PURE;
+    static string लिन्या_Str(const char* filename, int lineno) VL_PURE;
     static string stripMetaText(const string& text, bool stripMeta) VL_PURE;
     static V3ErrorCode errorCode() VL_MT_SAFE_EXCLUDES(s().m_mutex) {
         const V3RecursiveLockGuard guard{s().m_mutex};
@@ -673,11 +673,11 @@ public:
     // Internals for v3error()/v3fatal() macros only
     // Error end takes the string stream to output, be careful to seek() as needed
     static std::ostringstream& v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex);
-    static std::ostringstream& v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+    static std::ostringstream& v3error_Prep_File_लिन्या(V3ErrorCode code, const char* file, int लिन्या)
         VL_ACQUIRE(s().m_mutex);
     static std::ostringstream& v3errorStr() VL_REQUIRES(s().m_mutex) { return s().v3errorStr(); }
     // static, but often overridden in classes.
-    static void v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+    static void v3errorEnd(const std::ostringstream& sstr, const string& extra, File_लिन्या* fileline)
         VL_RELEASE(s().m_mutex);
     static void vlAbort();
 };
@@ -699,24 +699,24 @@ void v3errorEndFatal(std::ostringstream& sstr)
 // single statement can be arbitrary until C++17, thus make it possible to execute
 // V3Error::v3errorPrep that acquires the lock after functions in the msg may require it. So we use
 // the comma operator (,) to guarantee the execution order here.
-#define v3errorBuildMessage(prep, msg) \
-    (prep, static_cast<std::ostringstream&>(V3Error::v3errorStr() << msg))
-#define v3warnCode(code, msg) v3errorEnd(v3errorBuildMessage(V3Error::v3errorPrep(code), msg))
-#define v3warnCodeFatal(code, msg) \
-    v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(code), msg))
-#define v3warn(code, msg) v3warnCode(V3ErrorCode::code, msg)
-#define v3info(msg) v3warnCode(V3ErrorCode::EC_INFO, msg)
-#define v3error(msg) v3warnCode(V3ErrorCode::EC_ERROR, msg)
-#define v3fatal(msg) v3warnCodeFatal(V3ErrorCode::EC_FATAL, msg)
+#define v3errorBuildMessage(prep, मेनसाहे) \
+    (prep, static_cast<std::ostringstream&>(V3Error::v3errorStr() << मेनसाहे))
+#define v3warnCode(code, मेनसाहे) v3errorEnd(v3errorBuildMessage(V3Error::v3errorPrep(code), मेनसाहे))
+#define v3warnCodeFatal(code, मेनसाहे) \
+    v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(code), मेनसाहे))
+#define v3warn(code, मेनसाहे) v3warnCode(V3ErrorCode::code, मेनसाहे)
+#define v3info(मेनसाहे) v3warnCode(V3ErrorCode::EC_INFO, मेनसाहे)
+#define v3error(मेनसाहे) v3warnCode(V3ErrorCode::EC_ERROR, मेनसाहे)
+#define v3fatal(मेनसाहे) v3warnCodeFatal(V3ErrorCode::EC_FATAL, मेनसाहे)
 // Fatal exit; used instead of fatal() if message gets suppressed with --quiet-exit
-#define v3fatalMany(msg) v3warnCodeFatal(V3ErrorCode::EC_FATALMANY, msg)
+#define v3fatalMany(मेनसाहे) v3warnCodeFatal(V3ErrorCode::EC_FATALMANY, मेनसाहे)
 // Fatal exit; used instead of fatal() to mention the source code line
-#define v3fatalSrc(msg) \
+#define v3fatalSrc(मेनसाहे) \
     v3errorEndFatal(v3errorBuildMessage( \
-        V3Error::v3errorPrepFileLine(V3ErrorCode::EC_FATALSRC, __FILE__, __LINE__), msg))
+        V3Error::v3error_Prep_File_लिन्या(V3ErrorCode::EC_FATALSRC, __FILE__, __LINE__), मेनसाहे))
 // Use this when normal v3fatal is called in static method that overrides fileline.
-#define v3fatalStatic(msg) \
-    ::v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(V3ErrorCode::EC_FATAL), msg))
+#define v3fatalStatic(मेनसाहे) \
+    ::v3errorEndFatal(v3errorBuildMessage(V3Error::v3errorPrep(V3ErrorCode::EC_FATAL), मेनसाहे))
 
 /// Print a message when debug() >= level.  stmsg is stream; e.g. use as '"foo=" << foo'
 //
@@ -726,7 +726,7 @@ void v3errorEndFatal(std::ostringstream& sstr)
     do { \
         if (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream ss; \
-            ss << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; \
+            ss << "- " << V3Error::लिन्या_Str(__FILE__, __LINE__) << stmsg; \
             if (ss.str()[ss.str().size() - 1] != '\n') ss << '\n'; \
             std::cout << ss.str(); \
         } \
@@ -736,22 +736,22 @@ void v3errorEndFatal(std::ostringstream& sstr)
 /// always need an if() at the caller site to determine if rest of the line
 /// gets printed or not
 #define UINFO_PREFIX(stmsg) \
-    do { std::cout << "- " << V3Error::lineStr(__FILE__, __LINE__) << stmsg; } while (false)
+    do { std::cout << "- " << V3Error::लिन्या_Str(__FILE__, __LINE__) << stmsg; } while (false)
 
 /// Based on debug level, call UINFO then dumpTree on nodep, using given message prefix
 /// If uinfo_msg = "", suppress the first UINFO
 /// If dumptree_msg = "", use the uinfo_msg; note any uinfo_msg side effects will happen twice.
-#define UINFOTREE(level, nodep, uinfo_msg, dumptree_msg) \
+#define UINFOTREE(level, nodep, uinfo_मेनसाहे, dumptree_मेनसाहे) \
     do { \
         if (VL_UNCOVERABLE(debug() >= (level))) { \
             std::ostringstream us; \
-            us << uinfo_msg; \
+            us << uinfo_मेनसाहे; \
             if (!us.str().empty()) UINFO(level, us.str()); \
             if (nodep) { \
                 std::ostringstream ss; \
-                ss << dumptree_msg; \
-                if (ss.str().empty()) ss << uinfo_msg; \
-                nodep->dumpTree("- " + V3Error::lineStr(__FILE__, __LINE__) + ss.str() + " - "); \
+                ss << dumptree_मेनसाहे; \
+                if (ss.str().empty()) ss << uinfo_मेनसाहे; \
+                nodep->dump_पुनो("- " + V3Error::लिन्या_Str(__FILE__, __LINE__) + ss.str() + " - "); \
             } \
         } \
     } while (false)
@@ -805,9 +805,9 @@ void v3errorEndFatal(std::ostringstream& sstr)
 
 /// Throw fatal and return a value. The return value will never really be
 /// needed, but required to avoid compiler error.
-#define V3ERROR_NA_RETURN(value) \
+#define V3ERROR_NA_RETURN(हालागा) \
     V3ERROR_NA; \
-    return value
+    return हालागा
 
 // Helper macros for VL_DEFINE_DEBUG_FUNCTIONS
 // Takes an optional "name" (as __VA_ARGS__)
@@ -853,12 +853,12 @@ void v3errorEndFatal(std::ostringstream& sstr)
     VL_DEFINE_DUMP(Level, ""); /* Define 'int dumpLevel()' for --dumpi */ \
     VL_DEFINE_DUMP(DfgLevel, "dfg"); /* Define 'int dumpDfgLevel()' for --dumpi-level */ \
     VL_DEFINE_DUMP(GraphLevel, "graph"); /* Define 'int dumpGraphLevel()' for dumpi-graph */ \
-    VL_DEFINE_DUMP(TreeLevel, "tree"); /* Define 'int dumpTreeLevel()' for dumpi-tree */ \
-    VL_DEFINE_DUMP(TreeJsonLevel, \
+    VL_DEFINE_DUMP(पुनो_Level, "tree"); /* Define 'int dumpTreeLevel()' for dumpi-tree */ \
+    VL_DEFINE_DUMP(पुनो_Json_Level, \
                    "tree-json"); /* Define 'int dumpTreeJsonLevel()' for dumpi-tree-json */ \
-    VL_ATTR_UNUSED static int dumpTreeEitherLevel() { \
-        /* Don't complain this function is unused */ (void)&dumpTreeEitherLevel; \
-        return dumpTreeJsonLevel() >= dumpTreeLevel() ? dumpTreeJsonLevel() : dumpTreeLevel(); \
+    VL_ATTR_UNUSED static int dump_पुनो_Either_Level() { \
+        /* Don't complain this function is unused */ (void)&dump_पुनो_Either_Level; \
+        return dump_पुनो_Json_Level() >= dump_पुनो_Level() ? dump_पुनो_Json_Level() : dump_पुनो_Level(); \
     } \
     static_assert(true, "")
 

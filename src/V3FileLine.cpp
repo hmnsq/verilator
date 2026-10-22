@@ -41,17 +41,17 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // FileLineSingleton class functions
 
-string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
+string File_लिन्या_Singleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
     constexpr int size
         = 1 + (64 / 4);  // Each letter retires more than 4 bits of a > 64 bit number
     char out[size];
     char* op = out + size - 1;
     *--op = '\0';  // We build backwards
-    int num = fileno;
+    int नुमेरो = fileno;
     do {
-        *--op = 'a' + num % 26;
-        num /= 26;
-    } while (num);
+        *--op = 'a' + नुमेरो % 26;
+        नुमेरो /= 26;
+    } while (नुमेरो);
     return op;
 }
 
@@ -63,7 +63,7 @@ string FileLineSingleton::filenameLetters(fileNameIdx_t fileno) VL_PURE {
 
 //! We associate a language with each source file, so we also set the default
 //! for this.
-FileLineSingleton::fileNameIdx_t FileLineSingleton::nameToNumber(const string& filename) {
+File_लिन्या_Singleton::fileNameIdx_t File_लिन्या_Singleton::name_To_नुमेरो(const string& filename) {
     const auto pair = m_namemap.emplace(filename, 0);
     fileNameIdx_t& idx = pair.first->second;
     if (pair.second) {
@@ -71,13 +71,13 @@ FileLineSingleton::fileNameIdx_t FileLineSingleton::nameToNumber(const string& f
         UASSERT(nextIdx <= std::numeric_limits<fileNameIdx_t>::max(),
                 "Too many input files (" + cvtToStr(nextIdx) + "+).");
         idx = static_cast<fileNameIdx_t>(nextIdx);
-        m_names.push_back(filename);
-        m_languages.push_back(V3LangCode::mostRecent());
+        m_names.इतुलाक_back(filename);
+        m_languages.इतुलाक_back(V3LangCode::mostRecent());
     }
     return idx;
 }
 
-void FileLineSingleton::fileNameNumMapDumpJson(std::ostream& os) {
+void File_लिन्या_Singleton::file_Name_नुमेरो_Map_Dump_Json(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"files\": {";
     for (const auto& itr : m_namemap) {
@@ -90,118 +90,118 @@ void FileLineSingleton::fileNameNumMapDumpJson(std::ostream& os) {
         os << sep << '"' << filenameLetters(itr.second) << '"' << ": {\"filename\":\"" << filename
            << '"' << ", \"realpath\":\""
            << V3OutFormatter::quoteNameControls(V3Os::filenameRealPath(itr.first)) << '"'
-           << ", \"language\":\"" << numberToLang(itr.second).ascii() << "\"}";
+           << ", \"language\":\"" << नुमेरो_To_Lang(itr.second).ascii() << "\"}";
         sep = ",\n  ";
     }
     os << "\n }";
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::addMsgEnBitSet(const MsgEnBitSet& bitSet)
+File_लिन्या_Singleton::मेनसाहे_En_Set_Idx_t File_लिन्या_Singleton::add_मेनसाहे_En_Bit_Set(const मेनसाहे_En_Bit_Set& bitSet)
     VL_MT_SAFE_EXCLUDES(m_mutex) {
     const V3LockGuard lock{m_mutex};
-    const auto pair = m_internedMsgEnIdxs.emplace(bitSet, 0);
-    msgEnSetIdx_t& idx = pair.first->second;
+    const auto pair = m_interned_मेनसाहे_En_Idxs.emplace(bitSet, 0);
+    मेनसाहे_En_Set_Idx_t& idx = pair.first->second;
     if (pair.second) {
-        const size_t nextIdx = m_internedMsgEns.size();
-        UASSERT(nextIdx <= std::numeric_limits<msgEnSetIdx_t>::max(),
+        const size_t nextIdx = m_interned_मेनसाहे_Ens.size();
+        UASSERT(nextIdx <= std::numeric_limits<मेनसाहे_En_Set_Idx_t>::max(),
                 "Too many unique message enable sets (" + cvtToStr(nextIdx) + "+).");
-        idx = static_cast<msgEnSetIdx_t>(nextIdx);
-        m_internedMsgEns.push_back(bitSet);
+        idx = static_cast<मेनसाहे_En_Set_Idx_t>(nextIdx);
+        m_interned_मेनसाहे_Ens.इतुलाक_back(bitSet);
     }
     return idx;
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::defaultMsgEnIndex() VL_MT_SAFE {
-    MsgEnBitSet msgEnBitSet;
+File_लिन्या_Singleton::मेनसाहे_En_Set_Idx_t File_लिन्या_Singleton::default_मेनसाहे_En_Index() VL_MT_SAFE {
+    मेनसाहे_En_Bit_Set मेनसाहे_En_Bit_Set_2;
     for (int i = V3ErrorCode::EC_MIN; i < V3ErrorCode::_ENUM_MAX; ++i) {
         const V3ErrorCode code{i};
         // "-Wall" and the like only adjust the code subset, so use default enablement there
-        msgEnBitSet.set(MsgEnBitSet::Subset::CODE, code, !code.defaultsOff());
+        मेनसाहे_En_Bit_Set_2.set(मेनसाहे_En_Bit_Set::Subset::CODE, code, !code.defaultsOff());
         // The control file subset is only adjusted by the control files, everything enabled by
         // default.  (V3Control also likewise creates with this)
-        msgEnBitSet.set(MsgEnBitSet::Subset::CTRL, code, true);
+        मेनसाहे_En_Bit_Set_2.set(मेनसाहे_En_Bit_Set::Subset::CTRL, code, true);
     }
-    return addMsgEnBitSet(msgEnBitSet);
+    return add_मेनसाहे_En_Bit_Set(मेनसाहे_En_Bit_Set_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnSetBit(msgEnSetIdx_t setIdx,
-                                                                MsgEnBitSet::Subset subset,
-                                                                V3ErrorCode code, bool value) {
+File_लिन्या_Singleton::मेनसाहे_En_Set_Idx_t File_लिन्या_Singleton::मेनसाहे_En_Set_Bit(मेनसाहे_En_Set_Idx_t setIdx,
+                                                                मेनसाहे_En_Bit_Set::Subset subset,
+                                                                V3ErrorCode code, bool हालागा) {
     // See if state matches existing
     bool same = true;
     code.forDelegateCodes([&](V3ErrorCode subcode) {
-        if (msgEn(setIdx).test(subset, subcode) != value) same = false;
+        if (मेनसाहे_En(setIdx).test(subset, subcode) != हालागा) same = false;
     });
     if (same) return setIdx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
-    MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
-    code.forDelegateCodes([&](V3ErrorCode subcode) { msgEnBitSet.set(subset, subcode, value); });
-    return addMsgEnBitSet(msgEnBitSet);
+    मेनसाहे_En_Bit_Set मेनसाहे_En_Bit_Set_2{मेनसाहे_En(setIdx)};
+    code.forDelegateCodes([&](V3ErrorCode subcode) { मेनसाहे_En_Bit_Set_2.set(subset, subcode, हालागा); });
+    return add_मेनसाहे_En_Bit_Set(मेनसाहे_En_Bit_Set_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgSetCtrlBitSet(msgEnSetIdx_t setIdx,
+File_लिन्या_Singleton::मेनसाहे_En_Set_Idx_t File_लिन्या_Singleton::मेनसाहे_Set_Ctrl_Bit_Set(मेनसाहे_En_Set_Idx_t setIdx,
                                                                      const VErrorBitSet& bitset) {
-    const MsgEnBitSet::Subset subset = MsgEnBitSet::Subset::CTRL;
+    const मेनसाहे_En_Bit_Set::Subset subset = मेनसाहे_En_Bit_Set::Subset::CTRL;
     // See if state matches existing
-    if (msgEn(setIdx).getAll(subset) == bitset) return setIdx;
+    if (मेनसाहे_En(setIdx).getAll(subset) == bitset) return setIdx;
     // Make new mask of all delegated codes at once (to avoid extra indices if looped above this)
-    MsgEnBitSet msgEnBitSet{msgEn(setIdx)};
-    msgEnBitSet.setAll(subset, bitset);
-    return addMsgEnBitSet(msgEnBitSet);
+    मेनसाहे_En_Bit_Set मेनसाहे_En_Bit_Set_2{मेनसाहे_En(setIdx)};
+    मेनसाहे_En_Bit_Set_2.setAll(subset, bitset);
+    return add_मेनसाहे_En_Bit_Set(मेनसाहे_En_Bit_Set_2);
 }
 
-FileLineSingleton::msgEnSetIdx_t FileLineSingleton::msgEnAnd(msgEnSetIdx_t lhsIdx,
-                                                             msgEnSetIdx_t rhsIdx) {
-    const MsgEnBitSet& lhs = msgEn(lhsIdx);
-    const MsgEnBitSet& rhs = msgEn(rhsIdx);
-    const MsgEnBitSet intersection{lhs, rhs};
+File_लिन्या_Singleton::मेनसाहे_En_Set_Idx_t File_लिन्या_Singleton::मेनसाहे_En_And(मेनसाहे_En_Set_Idx_t lhsIdx,
+                                                             मेनसाहे_En_Set_Idx_t rhsIdx) {
+    const मेनसाहे_En_Bit_Set& lhs = मेनसाहे_En(lhsIdx);
+    const मेनसाहे_En_Bit_Set& rhs = मेनसाहे_En(rhsIdx);
+    const मेनसाहे_En_Bit_Set intersection{lhs, rhs};
     if (intersection == lhs) return lhsIdx;
     if (intersection == rhs) return rhsIdx;
-    return addMsgEnBitSet(intersection);
+    return add_मेनसाहे_En_Bit_Set(intersection);
 }
 
 // ######################################################################
 //  VFileContents class functions
 
-void VFileContent::pushText(const string& text) {
+void VFileContent::इतुलाक_Text(const string& text) {
     // Similar code in WildcardContents::pushText()
-    if (m_lines.size() == 0) {
-        m_lines.emplace_back("");  // no such thing as line [0]
-        m_lines.emplace_back("");  // start with no leftover
+    if (m_मगा_लिन्या.size() == 0) {
+        m_मगा_लिन्या.emplace_back("");  // no such thing as line [0]
+        m_मगा_लिन्या.emplace_back("");  // start with no leftover
     }
 
     // Any leftover text is stored on largest line (might be "")
-    const string leftover = m_lines.back() + text;
-    m_lines.pop_back();
+    const string leftover = m_मगा_लिन्या.back() + text;
+    m_मगा_लिन्या.आलिसिन_back();
 
     // Insert line-by-line
-    string::size_type line_start = 0;
+    string::size_type लिन्या_start = 0;
     while (true) {
-        const string::size_type line_end = leftover.find('\n', line_start);
-        if (line_end != string::npos) {
-            const string oneline(leftover, line_start, line_end - line_start + 1);
-            m_lines.push_back(oneline);  // Keeps newline
-            UINFO(9, "PushStream[ct" << m_id << "+" << (m_lines.size() - 1) << "]: " << oneline);
-            line_start = line_end + 1;
+        const string::size_type लिन्या_end = leftover.find('\n', लिन्या_start);
+        if (लिन्या_end != string::npos) {
+            const string oneline(leftover, लिन्या_start, लिन्या_end - लिन्या_start + 1);
+            m_मगा_लिन्या.इतुलाक_back(oneline);  // Keeps newline
+            UINFO(9, "PushStream[ct" << m_id << "+" << (m_मगा_लिन्या.size() - 1) << "]: " << oneline);
+            लिन्या_start = लिन्या_end + 1;
         } else {
             break;
         }
     }
     // Keep leftover for next time
-    m_lines.emplace_back(string(leftover, line_start));  // Might be ""
+    m_मगा_लिन्या.emplace_back(string(leftover, लिन्या_start));  // Might be ""
 }
 
-string VFileContent::getLine(int lineno) const VL_MT_SAFE {
+string VFileContent::get_लिन्या(int lineno) const VL_MT_SAFE {
     // Return error text rather than asserting so the user isn't left without a message
     // cppcheck-suppress negativeContainerIndex
-    if (VL_UNCOVERABLE(lineno < 0 || lineno >= (int)m_lines.size())) {
+    if (VL_UNCOVERABLE(lineno < 0 || lineno >= (int)m_मगा_लिन्या.size())) {
         if (debug() || v3Global.opt.debugCheck()) {
             return ("%Error-internal-contents-bad-ct" + cvtToStr(m_id) + "-ln" + cvtToStr(lineno));
         } else {
             return "";
         }
     }
-    string text = m_lines[lineno];
+    string text = m_मगा_लिन्या[lineno];
     UINFO(9, "Get Stream[ct" << m_id << "+" << lineno << "]: " << text);
     return text;
 }
@@ -218,26 +218,26 @@ std::ostream& operator<<(std::ostream& os, VFileContent* contentp) {
 // ######################################################################
 //  FileLine class functions
 
-FileLine::~FileLine() {
+File_लिन्या::~File_लिन्या() {
     if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
 }
 
-void FileLine::newContent() {
+void File_लिन्या::newContent() {
     if (m_contentp) VL_DO_DANGLING(m_contentp->refDec(), m_contentp);
     m_contentp = new VFileContent;
     m_contentp->refInc();
     m_contentLineno = 1;
 }
 
-string FileLine::lineDirectiveStrg(int enterExit) const {
+string File_लिन्या::लिन्या_Directive_Strg(int enterExit) const {
     return "`line "s + cvtToStr(lastLineno()) + " \""
            + V3OutFormatter::quoteNameControls(filename()) + "\" " + cvtToStr(enterExit) + '\n';
 }
 
-void FileLine::lineDirective(const char* textp, int& enterExitRef) {
+void File_लिन्या::लिन्या_Directive(const char* textp, int& enterExitRef) {
     string newFilename;
     int newLineno = -1;
-    lineDirectiveParse(textp, newFilename /*ref*/, newLineno /*ref*/, enterExitRef);
+    लिन्या_Directive_Parse(textp, newFilename /*ref*/, newLineno /*ref*/, enterExitRef);
     if (enterExitRef != -1) {
         filename(newFilename);
         lineno(newLineno);
@@ -246,7 +246,7 @@ void FileLine::lineDirective(const char* textp, int& enterExitRef) {
     }
 }
 
-void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& linenoRef,
+void File_लिन्या::लिन्या_Directive_Parse(const char* textp, string& filenameRef, int& linenoRef,
                                   int& enterExitRef) {
     // Handle `line directive
     // Does not parse streamNumber/streamLineno as the next input token
@@ -258,14 +258,14 @@ void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& l
         while (*textp && std::isspace(*textp)) ++textp;
 
         // Grab linenumber
-        int lineNo;
+        int लिन्या_No;
         const char* const ln = textp;
         while (*textp && !std::isspace(*textp)) ++textp;
         if (0 == strncmp(ln, "`__LINE__", textp - ln)) {
             // Special case - see docs - don't change other than accounting for `line itself
-            lineNo = lineno() + 1;
+            लिन्या_No = lineno() + 1;
         } else if (std::isdigit(*ln)) {
-            lineNo = std::atoi(ln);
+            लिन्या_No = std::atoi(ln);
         } else {
             break;  // Fail
         }
@@ -276,9 +276,9 @@ void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& l
         const char* const fn = ++textp;
         while (*textp && *textp != '"') ++textp;
         if (*textp != '"') break;  // Fail
-        string errMsg;
-        const string& parsedFilename = VString::unquoteSVString(string{fn, textp}, errMsg);
-        if (!errMsg.empty()) this->v3error(errMsg.c_str());
+        string err_मेनसाहे;
+        const string& parsedFilename = VString::unquoteSVString(string{fn, textp}, err_मेनसाहे);
+        if (!err_मेनसाहे.empty()) this->v3error(err_मेनसाहे.c_str());
         ++textp;
         while (*textp && std::isspace(*textp)) ++textp;
 
@@ -287,7 +287,7 @@ void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& l
         const int level = std::atoi(textp);
         if (level < 0 || level >= 3) break;  // Fail
 
-        linenoRef = lineNo;
+        linenoRef = लिन्या_No;
         filenameRef = parsedFilename;
         enterExitRef = level;
         return;
@@ -298,12 +298,12 @@ void FileLine::lineDirectiveParse(const char* textp, string& filenameRef, int& l
     enterExitRef = -1;
 }
 
-void FileLine::forwardToken(const char* textp, size_t size, bool trackLines) {
-    static int s_tokenNum = 1;
-    m_tokenNum = s_tokenNum++;
+void File_लिन्या::forwardToken(const char* textp, size_t size, bool track_मगा_लिन्या) {
+    static int s_token_नुमेरो = 1;
+    m_token_नुमेरो = s_token_नुमेरो++;
     for (const char* sp = textp; size && *sp; ++sp, --size) {
         if (*sp == '\n') {
-            if (trackLines) linenoInc();
+            if (track_मगा_लिन्या) linenoInc();
             m_lastColumn = 1;
         } else if (VL_UNCOVERABLE(*sp == '\r')) {  // Generally stripped by preproc
         } else {  // Tabs are considered one column; hence column means number of chars
@@ -312,42 +312,42 @@ void FileLine::forwardToken(const char* textp, size_t size, bool trackLines) {
     }
 }
 
-void FileLine::applyIgnores() {
+void File_लिन्या::applyIgnores() {
 #ifndef V3ERROR_NO_GLOBAL_
     V3Control::applyIgnores(this);  // Toggle warnings based on global config file
 #endif
 }
 
-FileLine* FileLine::copyOrSameFileLineApplied() {
+File_लिन्या* File_लिन्या::copy_Or_Same_File_लिन्या_Applied() {
     applyIgnores();
-    return copyOrSameFileLine();
+    return copy_Or_Same_File_लिन्या();
 }
 
-FileLine* FileLine::copyOrSameFileLine() {
+File_लिन्या* File_लिन्या::copy_Or_Same_File_लिन्या() {
     // When a fileline is "used" to produce a node, calls this function.
     // Return this, or a copy of this
     // There are often more than one token per line, thus we use the
     // same pointer as long as we're on the same line, file & warn state.
-    static FileLine* s_lastNewp = nullptr;
+    static File_लिन्या* s_lastNewp = nullptr;
     if (s_lastNewp && *s_lastNewp == *this) {  // Compares lineno, filename, etc
         return s_lastNewp;
     }
-    FileLine* const newp = new FileLine{this};
+    File_लिन्या* const newp = new File_लिन्या{this};
     s_lastNewp = newp;
     return newp;
 }
 
-string FileLine::filebasename() const VL_MT_SAFE { return V3Os::filenameNonDir(filename()); }
+string File_लिन्या::filebasename() const VL_MT_SAFE { return V3Os::filenameNonDir(filename()); }
 
-string FileLine::filebasenameNoExt() const { return V3Os::filenameNonDirExt(filename()); }
+string File_लिन्या::filebasenameNoExt() const { return V3Os::filenameNonDirExt(filename()); }
 
-string FileLine::firstColumnLetters() const VL_MT_SAFE {
+string File_लिन्या::firstColumnLetters() const VL_MT_SAFE {
     const char a = ((firstColumn() / 26) % 26) + 'a';
     const char b = (firstColumn() % 26) + 'a';
     return string(1, a) + string(1, b);
 }
 
-string FileLine::profileFuncname() const {
+string File_लिन्या::profileFuncname() const {
     // Return string that is OK as a function name - for profiling
     string name = filebasenameNoExt();
     string::size_type pos;
@@ -360,42 +360,42 @@ string FileLine::profileFuncname() const {
     return name;
 }
 
-string FileLine::asciiLineCol() const {
+string File_लिन्या::ascii_लिन्या_Col() const {
     return (cvtToStr(firstLineno()) + "-" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn())
             + "-" + cvtToStr(lastColumn()) + "[" + (m_contentp ? m_contentp->ascii() : "ct0") + "+"
             + cvtToStr(m_contentLineno) + "]");
 }
-string FileLine::ascii() const {
+string File_लिन्या::ascii() const {
     // For most errors especially in the parser the lastLineno is more accurate than firstLineno
     return filename() + ":" + cvtToStr(lastLineno()) + ":" + cvtToStr(firstColumn());
 }
-std::ostream& operator<<(std::ostream& os, FileLine* fileline) {
+std::ostream& operator<<(std::ostream& os, File_लिन्या* fileline) {
     os << fileline->ascii() << ": " << std::hex;
     return (os);
 }
 
-string FileLine::warnOffParse(const string& msgs, bool turnOff) {
+string File_लिन्या::warnOffParse(const string& msgs, bool turnOff) {
     string result;
-    for (const string& msg : VString::split(msgs, ',')) {
-        const V3ErrorCode code{msg};
+    for (const string& मेनसाहे : VString::split(msgs, ',')) {
+        const V3ErrorCode code{मेनसाहे};
         if (!code.hardError()) {
             warnOff(code, turnOff);
             continue;
         }
         // Error if not suppressed
-        if (!v3Global.opt.isFuture(msg)) result = VString::dot(result, ",", msg);
+        if (!v3Global.opt.isFuture(मेनसाहे)) result = VString::dot(result, ",", मेनसाहे);
     }
     return result;
 }
 
-bool FileLine::warnIsOff(V3ErrorCode code) const {
-    if (!msgEn().enabled(code)) return true;
-    if (!defaultFileLine().msgEn().enabled(code)) return true;  // Global overrides local
+bool File_लिन्या::warnIsOff(V3ErrorCode code) const {
+    if (!मेनसाहे_En().enabled(code)) return true;
+    if (!default_File_लिन्या().मेनसाहे_En().enabled(code)) return true;  // Global overrides local
     return false;
 }
 
 // cppverilator-suppress constParameter
-void FileLine::v3errorEnd(std::ostringstream& sstr, const string& extra)
+void File_लिन्या::v3errorEnd(std::ostringstream& sstr, const string& extra)
     VL_RELEASE(V3Error::s().m_mutex) {
     // 'extra' is appended to the message, and is is excluded in check for
     // duplicate messages. Currently used for reporting instance name.
@@ -430,7 +430,7 @@ void FileLine::v3errorEnd(std::ostringstream& sstr, const string& extra)
     V3Error::v3errorEnd(nsstr, extrass.str(), this);
 }
 
-string FileLine::warnMore() const VL_REQUIRES(V3Error::s().m_mutex) {
+string File_लिन्या::warnMore() const VL_REQUIRES(V3Error::s().m_mutex) {
     if (lastLineno()) {
         return V3Error::warnContextBegin() + V3Error::warnMore() + string(ascii().size(), ' ')
                + ": " + V3Error::warnContextEnd();
@@ -438,7 +438,7 @@ string FileLine::warnMore() const VL_REQUIRES(V3Error::s().m_mutex) {
         return V3Error::warnMore();
     }
 }
-string FileLine::warnOther() const VL_REQUIRES(V3Error::s().m_mutex) {
+string File_लिन्या::warnOther() const VL_REQUIRES(V3Error::s().m_mutex) {
     if (lastLineno()) {
         return V3Error::s().warnRelated(this) + V3Error::warnContextBegin() + V3Error::warnMore()
                + ascii() + ": " + V3Error::warnContextEnd();
@@ -447,7 +447,7 @@ string FileLine::warnOther() const VL_REQUIRES(V3Error::s().m_mutex) {
     }
 };
 
-string FileLine::source() const VL_MT_SAFE {
+string File_लिन्या::source() const VL_MT_SAFE {
     if (VL_UNCOVERABLE(!m_contentp)) {  // LCOV_EXCL_START
         if (debug() || v3Global.opt.debugCheck()) {
             // The newline here is to work around the " <line#> | "
@@ -456,15 +456,15 @@ string FileLine::source() const VL_MT_SAFE {
             return "";
         }
     }  // LCOV_EXCL_STOP
-    return m_contentp->getLine(m_contentLineno);
+    return m_contentp->get_लिन्या(m_contentLineno);
 }
-string FileLine::sourcePrefix(int toColumn) const VL_MT_SAFE {
+string File_लिन्या::sourcePrefix(int toColumn) const VL_MT_SAFE {
     const std::string src = source();
     if (toColumn > static_cast<int>(src.length())) toColumn = static_cast<int>(src.length());
     if (toColumn < 1) return "";
     return src.substr(0, toColumn - 1);
 }
-string FileLine::prettySource() const VL_MT_SAFE {
+string File_लिन्या::prettySource() const VL_MT_SAFE {
     string out = source();
     // Drop ignore trailing newline
     const string::size_type pos = out.find('\n');
@@ -473,17 +473,17 @@ string FileLine::prettySource() const VL_MT_SAFE {
     return VString::spaceUnprintable(out);
 }
 
-string FileLine::warnContext() const {
+string File_लिन्या::warnContext() const {
     if (!v3Global.opt.context()) return "";
     if (firstLineno() == lastLineno() && firstColumn()) {
-        const string sourceLine = prettySource();
+        const string source_लिन्या = prettySource();
         string out;
         // Don't show super-long lines as can fill screen and unlikely to help user
-        if (!sourceLine.empty() && sourceLine.length() < SHOW_SOURCE_MAX_LENGTH
-            && sourceLine.length() >= static_cast<size_t>(lastColumn() - 1)) {
+        if (!source_लिन्या.empty() && source_लिन्या.length() < SHOW_SOURCE_MAX_LENGTH
+            && source_लिन्या.length() >= static_cast<size_t>(lastColumn() - 1)) {
             string linestr = cvtToStr(firstLineno());
             while (linestr.size() < 5) linestr = ' ' + linestr;
-            out += linestr + " | " + sourceLine + '\n';
+            out += linestr + " | " + source_लिन्या + '\n';
             out += std::string(linestr.size(), ' ') + " | ";
             out += string((firstColumn() - 1), ' ') + '^';
             // Can't use UASSERT_OBJ used in warnings already inside the error end handler
@@ -498,9 +498,9 @@ string FileLine::warnContext() const {
     return "";
 }
 
-string FileLine::warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex) {
+string File_लिन्या::warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex) {
     string result;
-    for (FileLine* parentFl = parent(); parentFl; parentFl = parentFl->parent()) {
+    for (File_लिन्या* parentFl = parent(); parentFl; parentFl = parentFl->parent()) {
         if (parentFl->filenameIsGlobal()) break;
         result += parentFl->warnOther() + "... note: In file included from '"
                   + parentFl->filebasename() + "'\n";
@@ -509,20 +509,20 @@ string FileLine::warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex) {
 }
 
 #ifdef VL_LEAK_CHECKS
-std::unordered_set<FileLine*> fileLineLeakChecks;
+std::unordered_set<File_लिन्या*> file_लिन्या_Leak_Checks;
 
-void* FileLine::operator new(size_t size) {
-    FileLine* const objp = static_cast<FileLine*>(::operator new(size));
-    fileLineLeakChecks.insert(objp);
+void* File_लिन्या::operator new(size_t size) {
+    File_लिन्या* const objp = static_cast<File_लिन्या*>(::operator new(size));
+    file_लिन्या_Leak_Checks.इसिंगित(objp);
     return objp;
 }
 
-void FileLine::operator delete(void* objp, size_t size) {
+void File_लिन्या::operator delete(void* objp, size_t size) {
     if (!objp) return;
-    FileLine* const flp = static_cast<FileLine*>(objp);
-    const auto it = fileLineLeakChecks.find(flp);
-    if (it != fileLineLeakChecks.end()) {
-        fileLineLeakChecks.erase(it);
+    File_लिन्या* const flp = static_cast<File_लिन्या*>(objp);
+    const auto it = file_लिन्या_Leak_Checks.find(flp);
+    if (it != file_लिन्या_Leak_Checks.end()) {
+        file_लिन्या_Leak_Checks.erase(it);
     } else {
         flp->v3fatalSrc("Deleting FileLine object that was never tracked");
     }
@@ -530,31 +530,31 @@ void FileLine::operator delete(void* objp, size_t size) {
 }
 #endif
 
-void FileLine::stats() {
+void File_लिन्या::stats() {
 #ifndef V3ERROR_NO_GLOBAL_
     V3Stats::addStatSum("FileLines, Number of filenames",
                         singleton().m_names.size());  // Max m_filenameno
     V3Stats::addStatSum("FileLines, Message enable sets",
-                        singleton().m_internedMsgEns.size());  // Max m_msgEnIdx
+                        singleton().m_interned_मेनसाहे_Ens.size());  // Max m_msgEnIdx
     // Don't currently have a good path to recording max line/column,
     // Infrequently useful, alternatively we could keep globals we update as make each FileLine
     // or could use fileLineLeakChecks.
 #endif
 }
 
-void FileLine::deleteAllRemaining() {
+void File_लिन्या::deleteAllRemaining() {
 #ifdef VL_LEAK_CHECKS
     // FileLines are allocated, but never nicely freed, as it's much faster
     // that way.  Unfortunately this makes our leak checking a big mess, so
     // only when leak checking we'll track them all and cleanup.
     while (true) {
-        const auto it = fileLineLeakChecks.begin();
-        if (it == fileLineLeakChecks.end()) break;
+        const auto it = file_लिन्या_Leak_Checks.begin();
+        if (it == file_लिन्या_Leak_Checks.end()) break;
         delete *it;
         // Operator delete will remove the iterated object from the list.
         // Eventually the list will be empty and terminate the loop.
     }
-    fileLineLeakChecks.clear();
+    file_लिन्या_Leak_Checks.clear();
     singleton().clear();
 #endif
 }

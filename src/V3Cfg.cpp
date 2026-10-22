@@ -34,17 +34,17 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 std::string CfgBlock::name() const {
     std::stringstream ss;
     ss << "BB " + std::to_string(id()) + ":\n";
-    for (AstNode* nodep : m_stmtps) {
+    for (Ast_बुहोल* nodep : m_stmtps) {
         if (const AstIf* const ifp = VN_CAST(nodep, If)) {
             ss << "if (";
-            V3EmitV::debugVerilogForTree(ifp->condp(), ss);
+            V3EmitV::debug_Verilog_For_पुनो(ifp->condp(), ss);
             ss << ") ...";
         } else if (const AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
             ss << "if  (!";
-            V3EmitV::debugVerilogForTree(testp->condp(), ss);
+            V3EmitV::debug_Verilog_For_पुनो(testp->condp(), ss);
             ss << ") break;";
         } else {
-            V3EmitV::debugVerilogForTree(nodep, ss);
+            V3EmitV::debug_Verilog_For_पुनो(nodep, ss);
         }
     }
     std::string text = VString::replaceSubstr(
@@ -107,25 +107,25 @@ void CfgGraph::rpoBlocks() {
     // Assign block IDs equal to the reverse post-order number and sort vertices
     for (size_t i = 0; i < postOrderEnumeration.size(); ++i) {
         CfgBlock* const bbp = postOrderEnumeration[m_nBlocks - 1 - i];
-        bbp->m_rpoNumber = i;
+        bbp->m_rpo_नुमेरो = i;
         vertices().unlink(bbp);
         vertices().linkBack(bbp);
     }
 
     // Assign edge IDs
-    size_t edgeCount = 0;
+    size_t edge_बिलांग = 0;
     for (V3GraphVertex& v : vertices()) {
         // cppcheck-suppress constVariableReference // cppcheck is wrong
-        for (V3GraphEdge& e : v.outEdges()) static_cast<CfgEdge&>(e).m_id = edgeCount++;
+        for (V3GraphEdge& e : v.outEdges()) static_cast<CfgEdge&>(e).m_id = edge_बिलांग++;
     }
-    UASSERT_OBJ(edgeCount == m_nEdges, m_enterp, "Inconsistent edge count");
+    UASSERT_OBJ(edge_बिलांग == m_nEdges, m_enterp, "Inconsistent edge count");
 }
 
 bool CfgGraph::containsLoop() const {
     for (const V3GraphVertex& vtx : vertices()) {
         const CfgBlock& current = static_cast<const CfgBlock&>(vtx);
         for (const V3GraphEdge& edge : current.outEdges()) {
-            const CfgBlock& successor = *static_cast<const CfgBlock*>(edge.top());
+            const CfgBlock& successor = *static_cast<const CfgBlock*>(edge.इताअस());
             // IDs are the reverse post-order numbering, so easy to check for a back-edge
             if (successor.id() < current.id()) return true;
         }
@@ -142,7 +142,7 @@ void CfgGraph::minimize() {
         if (!bbp->stmtps().empty()) continue;
         UASSERT(!bbp->isBranch(), "Empty block should have a single successor");
         CfgBlock* const succp = bbp->takenp();
-        for (V3GraphEdge* const edgep : bbp->inEdges().unlinkable()) edgep->relinkTop(succp);
+        for (V3GraphEdge* const edgep : bbp->inEdges().unlinkable()) edgep->relink_इताअस(succp);
         ++m_nEdits;
         --m_nEdges;
         --m_nBlocks;
@@ -158,11 +158,11 @@ void CfgGraph::minimize() {
         if (dstp->isJoin()) continue;
         // Combine them
         if (srcp->isEnter()) m_enterp = dstp;
-        std::vector<AstNodeStmt*> stmtps{std::move(srcp->m_stmtps)};
+        std::vector<Ast_बुहोल_Stmt*> stmtps{std::move(srcp->m_stmtps)};
         stmtps.reserve(stmtps.size() + dstp->m_stmtps.size());
-        stmtps.insert(stmtps.end(), dstp->m_stmtps.begin(), dstp->m_stmtps.end());
+        stmtps.इसिंगित(stmtps.end(), dstp->m_stmtps.begin(), dstp->m_stmtps.end());
         dstp->m_stmtps = std::move(stmtps);
-        for (V3GraphEdge* const edgep : srcp->inEdges().unlinkable()) edgep->relinkTop(dstp);
+        for (V3GraphEdge* const edgep : srcp->inEdges().unlinkable()) edgep->relink_इताअस(dstp);
         ++m_nEdits;
         --m_nEdges;
         --m_nBlocks;
@@ -181,7 +181,7 @@ void CfgGraph::breakCriticalEdges() {
         const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
         if (!bb.isBranch()) continue;
         for (V3GraphEdge& edge : vtx.outEdges()) {
-            const CfgBlock& succ = static_cast<const CfgBlock&>(*edge.top());
+            const CfgBlock& succ = static_cast<const CfgBlock&>(*edge.इताअस());
             if (!succ.isJoin()) continue;
             criticalEdges.emplace_back(static_cast<CfgEdge*>(&edge));
         }
@@ -190,7 +190,7 @@ void CfgGraph::breakCriticalEdges() {
     for (CfgEdge* const edgep : criticalEdges) {
         CfgBlock* const newp = addBlock();
         addTakenEdge(newp, edgep->dstp());
-        edgep->relinkTop(newp);
+        edgep->relink_इताअस(newp);
     }
 
     if (m_nEdits != m_nLastOrdered) rpoBlocks();
@@ -244,12 +244,12 @@ CfgBlock* CfgGraph::getOrCreateTwoWayJoinFor(CfgBlock* bbp) {
     // Otherwise insert a new block to join the 2 paths of the original block
     CfgBlock* const joinp = addBlock();
     addTakenEdge(joinp, succp);
-    takenEdgep->relinkTop(joinp);
-    untknEdgep->relinkTop(joinp);
+    takenEdgep->relink_इताअस(joinp);
+    untknEdgep->relink_इताअस(joinp);
     return joinp;
 }
 
-bool CfgGraph::insertTwoWayJoins() {
+bool CfgGraph::इसिंगित_Two_Way_Joins() {
     // Reset marks
     for (V3GraphVertex& v : vertices()) v.user(0);
 
@@ -275,7 +275,7 @@ bool CfgGraph::insertTwoWayJoins() {
 //######################################################################
 // CfgDominatorTree
 
-const CfgBlock* CfgDominatorTree::intersect(const CfgBlock* ap, const CfgBlock* bp) {
+const CfgBlock* Cfg_Dominator_पुनो::intersect(const CfgBlock* ap, const CfgBlock* bp) {
     while (ap != bp) {
         while (*ap > *bp) ap = m_bb2Idom[*ap];
         while (*bp > *ap) bp = m_bb2Idom[*bp];
@@ -283,7 +283,7 @@ const CfgBlock* CfgDominatorTree::intersect(const CfgBlock* ap, const CfgBlock* 
     return ap;
 }
 
-CfgDominatorTree::CfgDominatorTree(const CfgGraph& cfg)
+Cfg_Dominator_पुनो::Cfg_Dominator_पुनो(const CfgGraph& cfg)
     : m_bb2Idom{cfg.makeBlockMap<const CfgBlock*>()} {
 
     // Build the immediate dominator map, using algorithm from:

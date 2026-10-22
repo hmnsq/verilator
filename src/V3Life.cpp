@@ -60,7 +60,7 @@ public:
 
 class LifeVarEntry final {
     // Last assignment to this varscope, nullptr if no longer relevant
-    AstNodeStmt* m_assignp = nullptr;  // Last simple assignment
+    Ast_बुहोल_Stmt* m_assignp = nullptr;  // Last simple assignment
     AstConst* m_constp = nullptr;  // Known constant value
     bool m_isNew = true;  // Is just created
     // First access was a set (and thus block above may have a set that can be deleted
@@ -83,18 +83,18 @@ public:
         if (m_isNew) os << " isNew";
         if (m_setBeforeUse) os << " setBeforeUse";
         if (m_everSet) os << " everSet";
-        if (m_assignp) os << " assignp=" << AstNode::nodeAddr(m_assignp);
-        if (m_constp) os << " constp=" << AstNode::nodeAddr(m_constp);
+        if (m_assignp) os << " assignp=" << Ast_बुहोल::बुहोल_Addr(m_assignp);
+        if (m_constp) os << " constp=" << Ast_बुहोल::बुहोल_Addr(m_constp);
         os << "]";
         return os.str();
     }  // LCOV_EXCL_STOP
 
-    void simpleAssign(AstNodeStmt* nodep) {  // New simple A=.... assignment
+    void simpleAssign(Ast_बुहोल_Stmt* nodep) {  // New simple A=.... assignment
         UASSERT_OBJ(!m_isNew, nodep, "Uninitialized new entry");
         m_assignp = nodep;
         m_constp = nullptr;
         m_everSet = true;
-        if (AstNodeAssign* const assp = VN_CAST(nodep, Assign)) {
+        if (Ast_बुहोल_Assign* const assp = VN_CAST(nodep, Assign)) {
             if (VN_IS(assp->rhsp(), Const)) {
                 m_constp = VN_AS(assp->rhsp(), Const);
                 UINFO(9, "assign-const " << assp->rhsp() << " = " << m_constp);
@@ -111,7 +111,7 @@ public:
         UASSERT(!m_isNew, "Uninitialized new entry");
         m_assignp = nullptr;
     }
-    AstNodeStmt* assignp() const { return m_assignp; }
+    Ast_बुहोल_Stmt* assignp() const { return m_assignp; }
     AstConst* constNodep() const { return m_constp; }
     bool isNew() const { return m_isNew; }
     bool setBeforeUse() const { return m_setBeforeUse; }
@@ -149,7 +149,7 @@ public:
         if (varp->isReadByDpi()) return;
         if (varp->sensIfacep()) return;
         // Check the var entry, and remove if appropriate
-        AstNodeStmt* const oldassp = entr.assignp();
+        Ast_बुहोल_Stmt* const oldassp = entr.assignp();
         if (!oldassp) return;
         UINFO(7, "       PREV: " << oldassp);
         // Redundant assignment, in same level block
@@ -159,9 +159,9 @@ public:
         entr.complexAssign();
         oldassp->unlinkFrBack();
         ++m_statep->m_statAssnDel;
-        VL_DO_DANGLING(m_deleter.pushDeletep(oldassp), oldassp);
+        VL_DO_DANGLING(m_deleter.इतुलाक_Deletep(oldassp), oldassp);
     }
-    void simpleAssign(AstVarScope* nodep, AstNodeStmt* assp) {
+    void simpleAssign(AstVarScope* nodep, Ast_बुहोल_Stmt* assp) {
         // Do we have a old assignment we can nuke?
         UINFO(4, "     ASSIGNof: " << nodep);
         UINFO(7, "       new: " << assp);
@@ -195,9 +195,9 @@ public:
                     // We'll later constant propagate
                     UINFO(4, "     replaceconst: " << varrefp);
                     UINFO(9, "     replaceval: " << constp);
-                    varrefp->replaceWith(constp->cloneTree(false));
+                    varrefp->replaceWith(constp->clone_पुनो(false));
                     m_replacedVref = true;
-                    VL_DO_DANGLING(varrefp->deleteTree(), varrefp);
+                    VL_DO_DANGLING(varrefp->delete_पुनो(), varrefp);
                     ++m_statep->m_statAssnCon;
                     return;  // **DONE, no longer a var reference**
                 }
@@ -237,7 +237,7 @@ public:
         // Find any common sets on both branches of IF and propagate upwards
         // life1p->lifeDump();
         // life2p->lifeDump();
-        AstNode::user1ClearTree();  // user1p() used on entire tree
+        Ast_बुहोल::user1_Clear_पुनो();  // user1p() used on entire tree
         for (auto& itr : life1p->m_map) {
             // When the if branch sets a var before it's used, mark that variable
             if (itr.second.setBeforeUse()) itr.first->user1(1);
@@ -292,13 +292,13 @@ class LifeVisitor final : public VNVisitor {
         m_lifep->noopt();
     }
 
-    void processAssignment(AstNodeStmt* nodep, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
+    void processAssignment(Ast_बुहोल_Stmt* nodep, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) {
         // Collect any used variables first, as lhs may also be on rhs
         // Similar code in V3Dead
         VL_RESTORER(m_sideEffect);
         m_sideEffect = false;
         m_lifep->clearReplaced();
-        rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp), NodeExpr);
+        rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp), बुहोल_पाहायाग);
         if (m_lifep->replaced()) {
             // We changed something, try to constant propagate, but don't delete the
             // assignment as we still need nodep to remain.
@@ -330,7 +330,7 @@ class LifeVisitor final : public VNVisitor {
             VL_DO_DANGLING(m_lifep->varUsageReplace(vscp, nodep), nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    void visit(Ast_बुहोल_Assign* nodep) override {
         if (nodep->isTimingControl() || VN_IS(nodep, AssignForce)) {
             // V3Life doesn't understand time sense nor force assigns - don't optimize
             setNoopt("timing|force");
@@ -356,7 +356,7 @@ class LifeVisitor final : public VNVisitor {
     }
 
     //---- Track control flow changes
-    void visit(AstNodeIf* nodep) override {
+    void visit(Ast_बुहोल_If* nodep) override {
         UINFO(4, "   IF " << nodep);
         // Condition is part of PREVIOUS block
         iterateAndNextNull(nodep->condp());
@@ -420,7 +420,7 @@ class LifeVisitor final : public VNVisitor {
         }
         if (m_containsTiming) setNoopt("timing");
     }
-    void visit(AstNodeCCall* nodep) override {
+    void visit(Ast_बुहोल_CCall* nodep) override {
         // UINFO(4, "  CCALL " << nodep);
         iterateChildren(nodep);
         // Enter the function and trace it
@@ -453,7 +453,7 @@ class LifeVisitor final : public VNVisitor {
     }
 
     void visit(AstVar*) override {}  // Don't want varrefs under it
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         if (nodep->isTimingControl()) {
             // V3Life doesn't understand time sense - don't optimize
             setNoopt("timing");
@@ -464,7 +464,7 @@ class LifeVisitor final : public VNVisitor {
 
 public:
     // CONSTRUCTORS
-    LifeVisitor(AstNode* nodep, LifeState* statep)
+    LifeVisitor(Ast_बुहोल* nodep, LifeState* statep)
         : m_statep{statep} {
         UINFO(4, "  LifeVisitor on " << nodep);
         {
@@ -481,7 +481,7 @@ public:
 
 //######################################################################
 
-class LifeTopVisitor final : public VNVisitor {
+class Life_इताअस_Visitor final : public VNVisitor {
     // Visit all top nodes searching for functions that are entry points we want to start
     // finding code within.
 private:
@@ -495,22 +495,22 @@ private:
             LifeVisitor{nodep, m_statep};
         }
     }
-    void visit(AstNodeProcedure* nodep) override {
+    void visit(Ast_बुहोल_Procedure* nodep) override {
         // Usage model 2: Cleanup basic blocks
         LifeVisitor{nodep, m_statep};
     }
     void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNodeStmt*) override {}  // Accelerate
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल_Stmt*) override {}  // Accelerate
+    void visit(Ast_बुहोल_पाहायाग*) override {}  // Accelerate
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
-    LifeTopVisitor(AstNetlist* nodep, LifeState* statep)
+    Life_इताअस_Visitor(AstNetlist* nodep, LifeState* statep)
         : m_statep{statep} {
         iterate(nodep);
     }
-    ~LifeTopVisitor() override = default;
+    ~Life_इताअस_Visitor() override = default;
 };
 
 //######################################################################
@@ -520,8 +520,8 @@ void V3Life::lifeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         LifeState state;
-        LifeTopVisitor{nodep, &state};
+        Life_इताअस_Visitor{nodep, &state};
     }  // Destruct before checking
-    VIsCached::clearCacheTree();  // Removing assignments may affect isPure
-    V3Global::dumpCheckGlobalTree("life", 0, dumpTreeEitherLevel() >= 3);
+    VIsCached::clear_Cache_पुनो();  // Removing assignments may affect isPure
+    V3Global::dump_Check_Global_पुनो("life", 0, dump_पुनो_Either_Level() >= 3);
 }

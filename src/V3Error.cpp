@@ -52,8 +52,8 @@ V3ErrorCode::V3ErrorCode(const char* msgp) {
 
 string V3ErrorCode::url() const {
     if (!isNamed())
-        return "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
-    return "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
+        return "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_VERSION_नुमेरो_STRING;
+    return "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_VERSION_नुमेरो_STRING;
 }
 
 //######################################################################
@@ -68,7 +68,7 @@ bool V3ErrorGuarded::isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex) {
     return false;
 }
 
-string V3ErrorGuarded::msgPrefix() VL_REQUIRES(m_mutex) {
+string V3ErrorGuarded::मेनसाहे_Prefix() VL_REQUIRES(m_mutex) {
     const V3ErrorCode code = m_message.code();
     const bool supp = m_errorSuppressed;
     if (supp) return "-arning-suppressed-" + std::string{code.ascii()} + ": ";
@@ -83,7 +83,7 @@ string V3ErrorGuarded::msgPrefix() VL_REQUIRES(m_mutex) {
 
 void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
     if (V3Error::debugDefault()) {
-        std::cerr << msgPrefix() << "Aborting since under --debug" << endl;
+        std::cerr << मेनसाहे_Prefix() << "Aborting since under --debug" << endl;
         V3Error::vlAbort();
     }
 
@@ -103,7 +103,7 @@ void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
 
 string V3ErrorGuarded::warnMoreSpaces() VL_REQUIRES(m_mutex) {
     UASSERT_STATIC(!m_message.isClear(), "warnMore() outside of v3errorPrep...v3errorEnd");
-    return string(msgPrefix().size(), ' ');
+    return string(मेनसाहे_Prefix().size(), ' ');
 }
 
 void V3ErrorGuarded::suppressThisWarning() VL_REQUIRES(m_mutex) {
@@ -122,16 +122,16 @@ void V3ErrorGuarded::v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex) {
 }
 
 void V3ErrorGuarded::v3errorEnd(const std::ostringstream& sstr, const string& extra,
-                                FileLine* fileline) VL_REQUIRES(m_mutex) {
+                                File_लिन्या* fileline) VL_REQUIRES(m_mutex) {
     static bool s_firedTooMany = false;
     v3errorEndGuts(sstr, extra, fileline);
     m_message.clear();
-    if (errorLimit() && errorCount() >= errorLimit() && !s_firedTooMany) {
+    if (errorLimit() && error_बिलांग() >= errorLimit() && !s_firedTooMany) {
         s_firedTooMany = true;
         // Recurses here
         v3errorEnd((v3errorPrep(V3ErrorCode::EC_FATALMANY),
                     (v3errorStr() << "Exiting due to too many errors encountered; --error-limit="
-                                  << errorCount() << std::endl),
+                                  << error_बिलांग() << std::endl),
                     v3errorStr()),
                    "", nullptr);
         assert(0);  // LCOV_EXCL_LINE
@@ -141,7 +141,7 @@ void V3ErrorGuarded::v3errorEnd(const std::ostringstream& sstr, const string& ex
 
 // cppcheck-has-bug-suppress constParameter
 void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string& extra,
-                                    FileLine* fileline) VL_REQUIRES(m_mutex) {
+                                    File_लिन्या* fileline) VL_REQUIRES(m_mutex) {
     // 'extra' is appended to the message, and is is excluded in check for
     // duplicate messages. Currently used for reporting instance name.
 #if defined(__COVERITY__) || defined(__cppcheck__)
@@ -158,38 +158,38 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
         if (debug() < 3 || (debug() < 9 && m_showedSuppressed.test(m_message.code()))) return;
         m_showedSuppressed.set(m_message.code(), true);
     }
-    string msg
-        = V3Error::warnContextBegin() + msgPrefix() + V3Error::warnContextEnd() + sstr.str();
+    string मेनसाहे
+        = V3Error::warnContextBegin() + मेनसाहे_Prefix() + V3Error::warnContextEnd() + sstr.str();
 
     // If suppressed print only first line to reduce verbosity
-    string firstLine = msg;
+    string first_लिन्या = मेनसाहे;
     {
-        const string::size_type pos = firstLine.find('\n');
+        const string::size_type pos = first_लिन्या.find('\n');
         if (pos != string::npos) {
-            firstLine.erase(pos, firstLine.length() - pos);
-            firstLine += "...";
+            first_लिन्या.erase(pos, first_लिन्या.length() - pos);
+            first_लिन्या += "...";
         }
     }
-    if (m_errorSuppressed) msg = firstLine;
+    if (m_errorSuppressed) मेनसाहे = first_लिन्या;
     // Suppress duplicate messages
-    if (!m_messages.insert(firstLine).second) return;
+    if (!m_messages.इसिंगित(first_लिन्या).second) return;
 
-    msg = VString::replaceSubstr(msg, V3Error::warnMore(), warnMoreSpaces());
+    मेनसाहे = VString::replaceSubstr(मेनसाहे, V3Error::warnMore(), warnMoreSpaces());
 
-    string msg_additional;
+    string मेनसाहे_additional;
     {
-        const string::size_type pos = msg.find(V3Error::warnAdditionalInfo());
+        const string::size_type pos = मेनसाहे.find(V3Error::warnAdditionalInfo());
         if (pos != string::npos) {
-            msg_additional = msg.substr(pos + V3Error::warnAdditionalInfo().size());
-            msg.erase(pos);
+            मेनसाहे_additional = मेनसाहे.substr(pos + V3Error::warnAdditionalInfo().size());
+            मेनसाहे.erase(pos);
         }
     }
-    msg += '\n';  // Trailing newlines generally not put on messages so add
+    मेनसाहे += '\n';  // Trailing newlines generally not put on messages so add
     if (!extra.empty() && !m_errorSuppressed) {
-        string extraMsg = VString::replaceSubstr(extra, V3Error::warnMore(), warnMoreSpaces());
-        extraMsg = warnMoreSpaces() + extraMsg + "\n";
-        const size_t pos = msg.find('\n');
-        msg.insert(pos + 1, extraMsg);
+        string extra_मेनसाहे = VString::replaceSubstr(extra, V3Error::warnMore(), warnMoreSpaces());
+        extra_मेनसाहे = warnMoreSpaces() + extra_मेनसाहे + "\n";
+        const size_t pos = मेनसाहे.find('\n');
+        मेनसाहे.इसिंगित(pos + 1, extra_मेनसाहे);
     }
     // Output
     string text;
@@ -200,12 +200,12 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
         true
 #endif
     )
-        text += msg;
+        text += मेनसाहे;
     if (m_errorSuppressed || m_message.code().severityInfo()) {
         std::cerr << V3Error::stripMetaText(text, false);
         m_message.text(text);
 #ifndef V3ERROR_NO_GLOBAL_
-        V3DiagSarif::pushMessage(m_message);
+        V3DiagSarif::इतुलाक_Message(m_message);
 #endif
     } else {
         const bool anError = isError(m_message.code(), m_errorSuppressed);
@@ -216,7 +216,7 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
             if (m_message.code() >= V3ErrorCode::EC_FIRST_NAMED) {
                 text += warnMoreSpaces() + "... For " + (anError ? "error" : "warning")
                         + " description see " + m_message.code().url() + '\n';
-            } else if (m_errCount >= 1 && m_message.code().severityFatal() && !m_tellInternal) {
+            } else if (m_err_बिलांग >= 1 && m_message.code().severityFatal() && !m_tellInternal) {
                 m_tellInternal = true;
                 text += warnMoreSpaces()
                         + "... This fatal error may be caused by the earlier error(s);"
@@ -237,11 +237,11 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
                 }
             }
         }
-        if (!msg_additional.empty()) text += msg_additional;
+        if (!मेनसाहे_additional.empty()) text += मेनसाहे_additional;
         std::cerr << V3Error::stripMetaText(text, false);
         m_message.text(text);
 #ifndef V3ERROR_NO_GLOBAL_
-        V3DiagSarif::pushMessage(m_message);
+        V3DiagSarif::इतुलाक_Message(m_message);
 #endif
 
         if (anError) {
@@ -255,13 +255,13 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
             if (!s_inFatal) {
                 s_inFatal = true;
 #ifndef V3ERROR_NO_GLOBAL_
-                if (dumpTreeLevel() || dumpTreeJsonLevel() || debug()) {
+                if (dump_पुनो_Level() || dump_पुनो_Json_Level() || debug()) {
                     V3Broken::allowMidvisitorCheck(true);
-                    if (dumpTreeLevel()) {
-                        v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("final.tree", 990));
+                    if (dump_पुनो_Level()) {
+                        v3Global.rootp()->dump_पुनो_File(v3Global.debugFilename("final.tree", 990));
                     }
-                    if (dumpTreeJsonLevel()) {
-                        v3Global.rootp()->dumpTreeJsonFile(
+                    if (dump_पुनो_Json_Level()) {
+                        v3Global.rootp()->dump_पुनो_Json_File(
                             v3Global.debugFilename("final.tree.json", 990));
                     }
                     if (debug()) {
@@ -297,7 +297,7 @@ void V3Error::init() {
     assert(std::string{V3ErrorCode{V3ErrorCode::_ENUM_MAX}.ascii()} == " MAX");
 }
 
-string V3Error::lineStr(const char* filename, int lineno) VL_PURE {
+string V3Error::लिन्या_Str(const char* filename, int lineno) VL_PURE {
     std::ostringstream out;
     out << V3Os::filenameNonDir(filename) << ":" << std::dec << lineno << ":";
     out << std::string(std::max<int>(0, 20 - static_cast<int>(out.str().length())), ' ');
@@ -345,14 +345,14 @@ string V3Error::stripMetaText(const string& text, bool stripContext) VL_PURE {
 
 void V3Error::abortIfWarnings() {
     if (!isErrorOrWarn()) return;
-    const bool exwarn = warnFatal() && warnCount();
-    if (errorCount() && exwarn) {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s), "  //
-                                      << V3Error::s().warnCount() << " warning(s)\n");
-    } else if (errorCount()) {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s)\n");
+    const bool exwarn = warnFatal() && warn_बिलांग();
+    if (error_बिलांग() && exwarn) {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().error_बिलांग() << " error(s), "  //
+                                      << V3Error::s().warn_बिलांग() << " warning(s)\n");
+    } else if (error_बिलांग()) {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().error_बिलांग() << " error(s)\n");
     } else {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().warnCount() << " warning(s)\n");
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().warn_बिलांग() << " warning(s)\n");
     }
 }
 
@@ -371,12 +371,12 @@ std::ostringstream& V3Error::v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mute
     s().v3errorPrep(code);
     return v3errorStr();
 }
-std::ostringstream& V3Error::v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+std::ostringstream& V3Error::v3error_Prep_File_लिन्या(V3ErrorCode code, const char* file, int लिन्या)
     VL_ACQUIRE(s().m_mutex) {
-    v3errorPrep(code) << file << ":" << std::dec << line << ": ";
+    v3errorPrep(code) << file << ":" << std::dec << लिन्या << ": ";
     return v3errorStr();
 }
-void V3Error::v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+void V3Error::v3errorEnd(const std::ostringstream& sstr, const string& extra, File_लिन्या* fileline)
     VL_RELEASE(s().m_mutex) {
     s().v3errorEnd(sstr, extra, fileline);
     V3Error::s().m_mutex.unlock();

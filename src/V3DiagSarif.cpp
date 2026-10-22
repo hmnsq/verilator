@@ -50,7 +50,7 @@ class V3DiagSarifImp final {
         of.put("text", VString::trimWhitespace(clean)).put("markdown", markdown);
     }
 
-    void putLocation(V3OutJsonFile& of, const FileLine* fl) const {
+    void putLocation(V3OutJsonFile& of, const File_लिन्या* fl) const {
         const string filename = V3Os::filenameRealPath(fl->filename());
         of.begin("physicalLocation");
         of.begin("artifactLocation");
@@ -78,13 +78,13 @@ class V3DiagSarifImp final {
         return (pos == std::string::npos) ? str : str.substr(0, pos);
     }
 
-    void putResult(V3OutJsonFile& of, const VErrorMessage& msg) {
+    void putResult(V3OutJsonFile& of, const VErrorMessage& मेनसाहे) {
         of.begin();
-        of.put("level", msg.code().severityInfo()             ? "none"
-                        : V3Error::isError(msg.code(), false) ? "error"
+        of.put("level", मेनसाहे.code().severityInfo()             ? "none"
+                        : V3Error::isError(मेनसाहे.code(), false) ? "error"
                                                               : "warning");
 
-        string text = msg.text();
+        string text = मेनसाहे.text();
         // UINFO(9, "Result raw text " << text);
 
         // We put the entire message including relatedLocations text
@@ -97,7 +97,7 @@ class V3DiagSarifImp final {
         of.begin("message");
         putText(of, first_clean, first_fmt);
         of.end();
-        if (const FileLine* const fl = msg.fileline()) {
+        if (const File_लिन्या* const fl = मेनसाहे.fileline()) {
             of.begin("locations", '[').begin();
             putLocation(of, fl);
             of.end();
@@ -114,14 +114,14 @@ class V3DiagSarifImp final {
                 const size_t index = std::atoi(text.substr(start, end + 1).c_str());
                 if (end < text.size()) end += std::strlen(")");
                 text = text.substr(end, text.size());
-                UASSERT_STATIC(index < msg.filelines().size(),
+                UASSERT_STATIC(index < मेनसाहे.filelines().size(),
                                "Error message warnRelated without fileline");
 
                 const string related_clean
                     = V3Error::stripMetaText(substrToNextRelated(text), true);
                 const string related_fmt
                     = V3Error::stripMetaText(substrToNextRelated(text), false);
-                const FileLine* fl = msg.filelines()[index];
+                const File_लिन्या* fl = मेनसाहे.filelines()[index];
                 of.begin().begin("message");
                 putText(of, related_clean, related_fmt);
                 of.end();  // message
@@ -131,8 +131,8 @@ class V3DiagSarifImp final {
             of.end();
         }
 
-        if (msg.code().isNamed())
-            of.put("ruleId", msg.code().ascii()).put("ruleIndex", m_codeIndex[msg.code()]);
+        if (मेनसाहे.code().isNamed())
+            of.put("ruleId", मेनसाहे.code().ascii()).put("ruleIndex", m_codeIndex[मेनसाहे.code()]);
 
         of.end();
     }
@@ -144,7 +144,7 @@ public:
         return s_s;
     }
 
-    void pushMessage(const VErrorMessage& msg) { m_messages.push_back(msg); }
+    void इतुलाक_Message(const VErrorMessage& मेनसाहे) { m_messages.इतुलाक_back(मेनसाहे); }
 
     void output(bool success) {
         V3OutJsonFile of{v3Global.opt.diagnosticsSarifOutput()};
@@ -169,7 +169,7 @@ public:
 
         of.begin("invocations", '[')
             .begin()
-            .put("commandLine", v3Global.opt.allArgsString())
+            .put("commandLine", v3Global.opt.all_मगा_कातविरान_String())
             .put("executionSuccessful", success)
             .end()
             .end();
@@ -183,9 +183,9 @@ public:
     }
 };
 
-void V3DiagSarif::pushMessage(const VErrorMessage& msg) VL_MT_DISABLED {
+void V3DiagSarif::इतुलाक_Message(const VErrorMessage& मेनसाहे) VL_MT_DISABLED {
     if (!v3Global.opt.diagnosticsSarif()) return;
-    V3DiagSarifImp::s().pushMessage(msg);
+    V3DiagSarifImp::s().इतुलाक_Message(मेनसाहे);
 }
 
 void V3DiagSarif::output(bool success) {

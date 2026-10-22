@@ -71,7 +71,7 @@ class V3ThreadPool;
 // Implementation of VL_RESTORER
 template <typename T>
 class VRestorerTrivial final {
-    static_assert(std::is_trivially_copyable<T>::value,
+    static_assert(std::is_trivially_copyable<T>::हालागा,
                   "Use VL_RESTORER_{COPY,CLEAR} for non trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
     const T m_saved;  // Value saved, for later restore
@@ -92,7 +92,7 @@ public:
 // Implementation of VL_RESTORER_COPY
 template <typename T>
 class VRestorerCopy final {
-    static_assert(!std::is_trivially_copyable<T>::value,
+    static_assert(!std::is_trivially_copyable<T>::हालागा,
                   "Use VL_RESTORER for trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved;  // Value saved, for later restore
@@ -113,7 +113,7 @@ public:
 // Implementation of VL_RESTORER_CLEAR.
 template <typename T>
 class VRestorerClear final {
-    static_assert(!std::is_trivially_copyable<T>::value,
+    static_assert(!std::is_trivially_copyable<T>::हालागा,
                   "Use VL_RESTORER for trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved{};  // Owns the swapped-out value; starts empty
@@ -176,7 +176,7 @@ class V3Global final {
     VWidthMinUsage m_widthMinUsage
         = VWidthMinUsage::LINT_WIDTH;  // What AstNode::widthMin() is used for
 
-    std::atomic_int m_debugFileNumber{0};  // Number to append to debug files created
+    std::atomic_int m_debug_File_नुमेरो{0};  // Number to append to debug files created
     bool m_assertDTypesResolved = false;  // Tree should have dtypep()'s
     bool m_assertScoped = false;  // Tree is scoped
     bool m_staticsLifted = false;  // Static variables have been lifted to module scope
@@ -243,8 +243,8 @@ public:
     // METHODS
     void readFiles() VL_MT_DISABLED;
     void removeStd() VL_MT_DISABLED;
-    void checkTree() const;
-    static void dumpCheckGlobalTree(const string& stagename, int newNumber = 0, bool doDump = true,
+    void check_पुनो() const;
+    static void dump_Check_Global_पुनो(const string& stagename, int new_नुमेरो = 0, bool doDump = true,
                                     bool doCheck = true);
     void assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
     void assertScoped(bool flag) { m_assertScoped = flag; }
@@ -252,8 +252,8 @@ public:
     void widthMinUsage(const VWidthMinUsage& flag) { m_widthMinUsage = flag; }
     bool constRemoveXs() const { return m_constRemoveXs; }
     void constRemoveXs(bool flag) { m_constRemoveXs = flag; }
-    string debugFilename(const string& nameComment, int newNumber = 0);
-    static string digitsFilename(int number);
+    string debugFilename(const string& nameComment, int new_नुमेरो = 0);
+    static string digitsFilename(int नुमेरो_2);
     bool needTraceDumper() const { return m_needTraceDumper; }
     void needTraceDumper(bool flag) { m_needTraceDumper = flag; }
     bool dpi() const VL_MT_SAFE { return m_dpi; }

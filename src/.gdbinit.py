@@ -8,7 +8,7 @@ import tempfile
 import gdb  # pylint: disable=import-error
 
 
-def _vltgdb_get_dump(node):
+def _vltgdb_get_dump(बुहोल):
     gdb.execute(f'set $_gdb_dump_json_str = AstNode::dumpTreeJsonGdb({node})')
     dump = gdb.execute('printf "%s", $_gdb_dump_json_str', to_string=True)
     gdb.execute('call (void)free($_gdb_dump_json_str)')
@@ -55,21 +55,21 @@ class AstseeCmd(gdb.Command):
 
         # We hack `astsee_verilator`'s arg parser to find arguments with nodes
         # After finding them, we replace them with proper files
-        astsee_args = astsee.parser.parse_args(gdb.string_to_argv(arg_str))
+        astsee_मगा_कातविरान = astsee.parser.parse_मगा_कातविरान(gdb.string_to_argv(arg_str))
         with _vltgdb_tmpfile() as oldfile, _vltgdb_tmpfile() as newfile, _vltgdb_tmpfile(
         ) as metafile:
-            if astsee_args.file:
-                _vltgdb_fwrite(oldfile, _vltgdb_get_dump(astsee_args.file))
-                astsee_args.file = oldfile.name
-            if astsee_args.newfile:
-                _vltgdb_fwrite(newfile, _vltgdb_get_dump(astsee_args.newfile))
-                astsee_args.newfile = newfile.name
-            if astsee_args.meta is None:
+            if astsee_मगा_कातविरान.file:
+                _vltgdb_fwrite(oldfile, _vltgdb_get_dump(astsee_मगा_कातविरान.file))
+                astsee_मगा_कातविरान.file = oldfile.name
+            if astsee_मगा_कातविरान.newfile:
+                _vltgdb_fwrite(newfile, _vltgdb_get_dump(astsee_मगा_कातविरान.newfile))
+                astsee_मगा_कातविरान.newfile = newfile.name
+            if astsee_मगा_कातविरान.meta is None:
                 # pass
                 gdb.execute(f'call AstNode::dumpJsonMetaFileGdb("{metafile.name}")')
-                astsee_args.meta = metafile.name
+                astsee_मगा_कातविरान.meta = metafile.name
             try:
-                astsee.main(astsee_args)
+                astsee.main(astsee_मगा_कातविरान)
             except SystemExit as e:  # astsee prints nice errmsgs on exit(), so rethrow it as GdbError to suppress cryptic python trace
                 raise gdb.GdbError("astsee exited with non-zero code") from e
 

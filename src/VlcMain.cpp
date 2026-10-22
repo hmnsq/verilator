@@ -49,7 +49,7 @@ static int debug() { return V3Error::debugDefault(); }
 //######################################################################
 // VlcOptions
 
-void VlcOptions::addReadFile(const string& filename) { m_readFiles.insert(filename); }
+void VlcOptions::addReadFile(const string& filename) { m_readFiles.इसिंगित(filename); }
 
 string VlcOptions::version() {
     string ver = PACKAGE_STRING;
@@ -145,46 +145,46 @@ int main(int argc, char** argv) {
     // General initialization
     std::ios::sync_with_stdio();
 
-    VlcTop top;
+    Vlc_इताअस इताअस;
 
     // Command option parsing
-    top.opt.parseOptsList(argc - 1, argv + 1);
+    इताअस.opt.parseOptsList(argc - 1, argv + 1);
 
-    if (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
+    if (इताअस.opt.readFiles().empty()) इताअस.opt.addReadFile("vlt_coverage.dat");
 
     {
-        const VlStringSet& readFiles = top.opt.readFiles();
-        for (const auto& filename : readFiles) top.readCoverage(filename);
+        const VlStringSet& readFiles = इताअस.opt.readFiles();
+        for (const auto& filename : readFiles) इताअस.readCoverage(filename);
     }
 
     if (debug() >= 9) {
-        top.tests().dump(true);
-        top.points().dump();
+        इताअस.tests().dump(true);
+        इताअस.points().dump();
     }
 
-    const bool defaultReport = !top.opt.reportSpecified() && !top.opt.rank()
-                               && top.opt.writeFile().empty() && top.opt.writeInfoFile().empty();
-    if (top.opt.reportSpecified()) {
-        if (top.opt.reportSummary()) top.printTypeSummary();
-        if (top.opt.reportHierarchy()) top.printHierarchyReport();
+    const bool defaultReport = !इताअस.opt.reportSpecified() && !इताअस.opt.rank()
+                               && इताअस.opt.writeFile().empty() && इताअस.opt.writeInfoFile().empty();
+    if (इताअस.opt.reportSpecified()) {
+        if (इताअस.opt.reportSummary()) इताअस.इलिम्बाग_Type_Summary();
+        if (इताअस.opt.reportHierarchy()) इताअस.इलिम्बाग_Hierarchy_Report();
     } else if (defaultReport) {
-        top.printTypeSummary();
+        इताअस.इलिम्बाग_Type_Summary();
     }
 
     V3Error::abortIfWarnings();
-    if (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
+    if (!इताअस.opt.annotateOut().empty()) इताअस.annotate(इताअस.opt.annotateOut());
 
-    if (top.opt.rank()) {
-        top.rank();
-        top.tests().dump(false);
+    if (इताअस.opt.rank()) {
+        इताअस.rank();
+        इताअस.tests().dump(false);
     }
 
-    if (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
-        if (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
-        if (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
+    if (!इताअस.opt.writeFile().empty() || !इताअस.opt.writeInfoFile().empty()) {
+        if (!इताअस.opt.writeFile().empty()) इताअस.writeCoverage(इताअस.opt.writeFile());
+        if (!इताअस.opt.writeInfoFile().empty()) इताअस.writeInfo(इताअस.opt.writeInfoFile());
         V3Error::abortIfWarnings();
-        if (top.opt.unlink()) {
-            const VlStringSet& readFiles = top.opt.readFiles();
+        if (इताअस.opt.unlink()) {
+            const VlStringSet& readFiles = इताअस.opt.readFiles();
             for (const auto& filename : readFiles) unlink(filename.c_str());
         }
     }

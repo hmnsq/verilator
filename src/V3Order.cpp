@@ -120,7 +120,7 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
     if (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
 
     // The ordered statements, if there are any
-    AstNodeStmt* stmtsp = nullptr;
+    Ast_बुहोल_Stmt* stmtsp = nullptr;
     if (!moveGraphp->empty()) {
         if (parallel) {
             stmtsp = createParallel(*moveGraphp, tag, slow);
@@ -143,9 +143,9 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
 
     // Create the result function
     AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->fileline();
+    File_लिन्या* const flp = netlistp->fileline();
     AstCFunc* const funcp = [&]() {
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
+        AstScope* const scopeTopp = netlistp->इताअस_Scopep()->scopep();
         AstCFunc* const resp = new AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
         resp->dontCombine(true);
         resp->isStatic(false);

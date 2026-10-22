@@ -40,11 +40,11 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Common component builders
 
-string V3Common::makeToStringCall(AstNodeDType* nodep, const std::string& lhs) {
+string V3Common::makeToStringCall(Ast_बुहोल_DType* nodep, const std::string& lhs) {
     std::string stmt;
     if (VN_IS(nodep->skipRefp(), BasicDType) && nodep->isWide()) {
         stmt += "VL_TO_STRING_W(";
-        stmt += cvtToStr(nodep->widthWords());
+        stmt += cvtToStr(nodep->width_मगा_सालिता());
         stmt += ", ";
     } else {
         stmt += "VL_TO_STRING(";
@@ -62,13 +62,13 @@ static void makeVlToString(AstIface* nodep) {
     funcp->isConst(false);
     funcp->isStatic(false);
     funcp->protect(false);
-    AstNodeExpr* const exprp = new AstCExpr{nodep->fileline(), "obj ? obj->vlNamep : \"null\""};
+    Ast_बुहोल_पाहायाग* const exprp = new AstCExpr{nodep->fileline(), "obj ? obj->vlNamep : \"null\""};
     exprp->dtypeSetString();
     funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
     nodep->addStmtsp(funcp);
 }
-static void makeVlToString(AstNodeUOrStructDType* nodep) {
-    AstNodeModule* const modp = nodep->classOrPackagep();
+static void makeVlToString(Ast_बुहोल_UOr_Struct_DType* nodep) {
+    Ast_बुहोल_Module* const modp = nodep->classOrPackagep();
     UASSERT_OBJ(modp, nodep, "Unlinked struct package");
     AstCFunc* const funcp
         = new AstCFunc{nodep->fileline(), "VL_TO_STRING", nullptr, "std::string"};
@@ -110,15 +110,15 @@ static void makeToString(AstClass* nodep) {
     funcp->addStmtsp(new AstCReturn{nodep->fileline(), exprp});
     nodep->addStmtsp(funcp);
 }
-static void makeToStringMiddle(AstClass* nodep) {
+static void make_To_String_गित्ना(AstClass* nodep) {
     AstCFunc* const funcp
         = new AstCFunc{nodep->fileline(), "to_string_middle", nullptr, "std::string"};
     funcp->isConst(true);
     funcp->isStatic(false);
     funcp->protect(false);
-    AstNodeStmt* stmtsp = nullptr;
+    Ast_बुहोल_Stmt* stmtsp = nullptr;
     std::string comma;
-    for (AstNode* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
+    for (Ast_बुहोल* itemp = nodep->membersp(); itemp; itemp = itemp->nextp()) {
         if (const auto* const varp = VN_CAST(itemp, Var)) {
             const AstBasicDType* const basicp = varp->dtypeSkipRefp()->basicp();
             if (!varp->isParam() && !varp->isInternal()
@@ -131,7 +131,7 @@ static void makeToStringMiddle(AstClass* nodep) {
                 stmt += V3Common::makeToStringCall(itemp->dtypep(), itemp->nameProtect());
                 stmt += ";";
                 nodep->user1(true);  // So what we extend dumps this
-                stmtsp = AstNode::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
+                stmtsp = Ast_बुहोल::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
             }
         }
     }
@@ -142,10 +142,10 @@ static void makeToStringMiddle(AstClass* nodep) {
         stmt += EmitCUtil::prefixNameProtect(nodep->extendsp()->dtypep());
         stmt += "::to_string_middle();";
         nodep->user1(true);  // So what we extend dumps this
-        stmtsp = AstNode::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
+        stmtsp = Ast_बुहोल::addNextNull(stmtsp, new AstCStmt{nodep->fileline(), stmt});
     }
 
-    AstNodeExpr* exprp;
+    Ast_बुहोल_पाहायाग* exprp;
     if (stmtsp) {
         funcp->addStmtsp(new AstCStmt{nodep->fileline(), "std::string out;"});
         funcp->addStmtsp(stmtsp);
@@ -166,7 +166,7 @@ class ToStringVisitor final : public VNVisitorConst {
     //  parent to child
     const VNUser1InUse m_inuser1;
     const VNUser2InUse m_inuser2;
-    size_t m_emitTowardsRoot
+    size_t m_emit_Towards_उगात
         = 0;  // class that require its ancestors to emit to_string() sets this
     size_t m_emitForMembers = 0;  // class/struct that requires its members (and their members
                                   // recursively) to emit to_string() sets this
@@ -184,22 +184,22 @@ class ToStringVisitor final : public VNVisitorConst {
         if (classp->user1SetOnce()) return;
         VL_RESTORER(m_emitForMembers);
         ++m_emitForMembers;
-        for (AstNode* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        for (Ast_बुहोल* stmtp = classp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                AstNodeDType* nodeDtypep = varp->dtypep();
-                if (AstIfaceRefDType* const ifaceRedDTypep = VN_CAST(nodeDtypep, IfaceRefDType)) {
+                Ast_बुहोल_DType* बुहोल_Dtypep = varp->dtypep();
+                if (AstIfaceRefDType* const ifaceRedDTypep = VN_CAST(बुहोल_Dtypep, IfaceRefDType)) {
                     if (ifaceRedDTypep->ifacep()) iterateConst(ifaceRedDTypep->ifacep());
                 } else {
-                    while (nodeDtypep && nodeDtypep->subDTypep()
-                           && nodeDtypep->subDTypep()->skipRefp()) {
-                        nodeDtypep = nodeDtypep->subDTypep()->skipRefp();
+                    while (बुहोल_Dtypep && बुहोल_Dtypep->subDTypep()
+                           && बुहोल_Dtypep->subDTypep()->skipRefp()) {
+                        बुहोल_Dtypep = बुहोल_Dtypep->subDTypep()->skipRefp();
                         if (AstIfaceRefDType* const ifaceRedDTypep
-                            = VN_CAST(nodeDtypep, IfaceRefDType)) {
+                            = VN_CAST(बुहोल_Dtypep, IfaceRefDType)) {
                             if (ifaceRedDTypep->ifacep()) {
                                 iterateConst(ifaceRedDTypep->ifacep());
                             }
-                        } else if (AstNodeUOrStructDType* const uOrStructDTypep
-                                   = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                        } else if (Ast_बुहोल_UOr_Struct_DType* const uOrStructDTypep
+                                   = VN_CAST(बुहोल_Dtypep, बुहोल_UOr_Struct_DType)) {
                             iterateConst(uOrStructDTypep);
                         }
                     }
@@ -208,10 +208,10 @@ class ToStringVisitor final : public VNVisitorConst {
         }
 
         makeToString(classp);
-        makeToStringMiddle(classp);
+        make_To_String_गित्ना(classp);
         ++m_statClassToString;
     }
-    void visit(AstNodeUOrStructDType* structp) override {
+    void visit(Ast_बुहोल_UOr_Struct_DType* structp) override {
         if (structp->user1())
             return;  // if to_string() was already emitted skip the rest of the function
         if (structp->emitToString()) ++m_emitForMembers;
@@ -220,15 +220,15 @@ class ToStringVisitor final : public VNVisitorConst {
                     // class/struct that has this struct as a field requires it to emit to_string()
             for (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeDType* nodeDtypep = memberp->dtypep();
-                if (AstNodeUOrStructDType* const uOrStructDTypep
-                    = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                Ast_बुहोल_DType* बुहोल_Dtypep = memberp->dtypep();
+                if (Ast_बुहोल_UOr_Struct_DType* const uOrStructDTypep
+                    = VN_CAST(बुहोल_Dtypep, बुहोल_UOr_Struct_DType)) {
                     iterateConst(uOrStructDTypep);
                 } else {
-                    while (nodeDtypep && nodeDtypep->subDTypep()) {
-                        nodeDtypep = nodeDtypep->subDTypep()->skipRefp();
-                        if (AstNodeUOrStructDType* const uOrStructDTypep
-                            = VN_CAST(nodeDtypep, NodeUOrStructDType)) {
+                    while (बुहोल_Dtypep && बुहोल_Dtypep->subDTypep()) {
+                        बुहोल_Dtypep = बुहोल_Dtypep->subDTypep()->skipRefp();
+                        if (Ast_बुहोल_UOr_Struct_DType* const uOrStructDTypep
+                            = VN_CAST(बुहोल_Dtypep, बुहोल_UOr_Struct_DType)) {
                             iterateConst(uOrStructDTypep);
                         }
                     }
@@ -262,8 +262,8 @@ class ToStringVisitor final : public VNVisitorConst {
         if (classp->user1()) return;
         if (classp->isPrintedFrom()) {
             markClassIterate(classp);
-            VL_RESTORER(m_emitTowardsRoot);
-            ++m_emitTowardsRoot;
+            VL_RESTORER(m_emit_Towards_उगात);
+            ++m_emit_Towards_उगात;
             for (const AstClassExtends* extendp = classp->extendsp(); extendp;
                  extendp = VN_AS(extendp->nextp(), ClassExtends)) {
                 if (extendp->classp() && !extendp->classp()->user1()) {
@@ -273,30 +273,30 @@ class ToStringVisitor final : public VNVisitorConst {
             classp->user2(static_cast<int>(PrintedFromParent::PRINTED_FROM_PARENT));
         } else {
             PrintedFromParent printed_parent = static_cast<PrintedFromParent>(classp->user2());
-            if (printed_parent != PrintedFromParent::UNRESOLVED && m_emitTowardsRoot == 0) {
+            if (printed_parent != PrintedFromParent::UNRESOLVED && m_emit_Towards_उगात == 0) {
                 return;
             }
 
-            if (m_emitTowardsRoot > 0) markClassIterate(classp);
+            if (m_emit_Towards_उगात > 0) markClassIterate(classp);
 
-            bool is_root = true;
+            bool is_उगात = true;
             for (const AstClassExtends* extendp = classp->extendsp(); extendp;
                  extendp = VN_AS(extendp->nextp(), ClassExtends)) {
                 if (extendp->classp()) {
                     if (static_cast<PrintedFromParent>(extendp->classp()->user2())
                             == PrintedFromParent::UNRESOLVED
-                        || (m_emitTowardsRoot > 0 && !extendp->classp()->user1())) {
+                        || (m_emit_Towards_उगात > 0 && !extendp->classp()->user1())) {
                         iterateConst(extendp->classp());
                     }
                     if (printed_parent != PrintedFromParent::PRINTED_FROM_PARENT) {
                         printed_parent
                             = static_cast<PrintedFromParent>(extendp->classp()->user2());
                     }
-                    is_root = false;
+                    is_उगात = false;
                 }
             }
 
-            if (is_root) printed_parent = PrintedFromParent::NO_PRINTED_FROM_PARENT;
+            if (is_उगात) printed_parent = PrintedFromParent::NO_PRINTED_FROM_PARENT;
 
             classp->user2(static_cast<int>(printed_parent));
             if (printed_parent == PrintedFromParent::PRINTED_FROM_PARENT) {
@@ -307,8 +307,8 @@ class ToStringVisitor final : public VNVisitorConst {
                 // Base  IFaceClass (printed from)
                 //   V    V
                 //   Derived (this class)
-                VL_RESTORER(m_emitTowardsRoot);
-                ++m_emitTowardsRoot;
+                VL_RESTORER(m_emit_Towards_उगात);
+                ++m_emit_Towards_उगात;
                 for (const AstClassExtends* extendp = classp->extendsp(); extendp;
                      extendp = VN_AS(extendp->nextp(), ClassExtends)) {
                     if (extendp->classp() && !extendp->classp()->user1()) {
@@ -318,13 +318,13 @@ class ToStringVisitor final : public VNVisitorConst {
             }
         }
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
 public:
-    explicit ToStringVisitor(AstNode* nodep) {
+    explicit ToStringVisitor(Ast_बुहोल* nodep) {
         if (v3Global.hasPrintedObjects()) {
-            AstNode::user1ClearTree();
-            AstNode::user2ClearTree();
+            Ast_बुहोल::user1_Clear_पुनो();
+            Ast_बुहोल::user2_Clear_पुनो();
 
             iterateConst(nodep);
         }
@@ -345,5 +345,5 @@ void V3Common::commonAll() {
 
     ToStringVisitor{v3Global.rootp()};
 
-    V3Global::dumpCheckGlobalTree("common", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("common", 0, dump_पुनो_Either_Level() >= 3);
 }

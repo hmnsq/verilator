@@ -35,7 +35,7 @@ public:
         string q;
         string clock;
         string reset;
-        string resetValue;
+        string reset_हालागा;
     };
 
     enum class VarSpecKind : uint8_t {
@@ -48,46 +48,46 @@ public:
     static void addCaseParallel(const string& file, int lineno);
     static void addCoverageBlockOff(const string& file, int lineno);
     static void addCoverageBlockOff(const string& module, const string& blockname);
-    static void addHierWorkers(FileLine* fl, const string& model, int workers);
-    static void addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
+    static void addHierWorkers(File_लिन्या* fl, const string& model, int workers);
+    static void addFsmRegisterWrapper(File_लिन्या* fl, const string& module, const string& d,
                                       const string& q, const string& clock, const string& reset,
-                                      const string& resetValue);
+                                      const string& reset_हालागा);
     static void addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max);
     static void addIgnoreMatch(V3ErrorCode code, const string& filename, const string& contents,
                                const string& match);
-    static void addInline(FileLine* fl, const string& module, const string& ftask, bool on);
+    static void addInline(File_लिन्या* fl, const string& module, const string& ftask, bool on);
     static void addModulePragma(const string& module, VPragmaType pragma);
-    static void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost);
-    static void addProfileData(FileLine* fl, const string& model, const string& key,
+    static void addProfileData(File_लिन्या* fl, const string& hierDpi, uint64_t cost);
+    static void addProfileData(File_लिन्या* fl, const string& model, const string& सुसि,
                                uint64_t cost);
     static void addScopeTraceOn(bool on, const string& scope, int levels);
-    static void addVarAttr(FileLine* fl, const string& module, const string& ftask,
+    static void addVarAttr(File_लिन्या* fl, const string& module, const string& ftask,
                            VarSpecKind kind, const string& pattern, VAttrType type,
-                           AstSenTree* nodep);
+                           Ast_Sen_पुनो* nodep);
 
     static void applyCase(AstCase* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep);
-    static void applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp);
-    static void applyIgnores(FileLine* filelinep);
-    static void applyModule(AstNodeModule* modulep);
-    static void applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
+    static void applyCoverageBlock(Ast_बुहोल_Module* modulep, AstBegin* nodep);
+    static void applyCoverageBlock(Ast_बुहोल_Module* modulep, AstGenBlock* nodep);
+    static void applyFTask(Ast_बुहोल_Module* modulep, Ast_बुहोल_FTask* ftaskp);
+    static void applyIgnores(File_लिन्या* filelinep);
+    static void applyModule(Ast_बुहोल_Module* modulep);
+    static void applyVarAttr(const Ast_बुहोल_Module* modulep, const Ast_बुहोल_FTask* ftaskp,
                              AstVar* varp);
 
     static int getHierWorkers(const string& model);
-    static FileLine* getHierWorkersFileLine(const string& model);
+    static File_लिन्या* get_Hier_Workers_File_लिन्या(const string& model);
     static const FsmRegisterWrapper* getFsmRegisterWrapper(const string& module);
     static uint64_t getProfileData(const string& hierDpi);
-    static uint64_t getProfileData(const string& model, const string& key);
-    static FileLine* getProfileDataFileLine();
+    static uint64_t getProfileData(const string& model, const string& सुसि);
+    static File_लिन्या* get_Profile_Data_File_लिन्या();
     static bool getScopeTraceOn(const string& scope);
 
-    static void contentsPushText(const string& text);
+    static void contents_इतुलाक_Text(const string& text);
 
     static bool containsMTaskProfileData();
     static uint64_t getCurrentHierBlockCost();
 
-    static bool waive(const FileLine* filelinep, V3ErrorCode code, const string& message);
+    static bool waive(const File_लिन्या* filelinep, V3ErrorCode code, const string& message);
 
     static void selfTest();
 };

@@ -38,20 +38,20 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
     VMemberMap m_memberMap;
     // METHODS
 
-    class CoverCountVisitor final : public VNVisitorConst {
+    class Cover_बिलांग_Visitor final : public VNVisitorConst {
         int m_bins = 0;  // Running total of coverage bins counted so far
 
-        void visit(AstNodeCoverDecl* nodep) override {
+        void visit(Ast_बुहोल_Cover_Decl* nodep) override {
             // Each module class owns the counters for declarations it emits;
             // duplicate no-inline instances need separate arrays for
             // forcePerInstance reporting.
             if (!nodep->dataDeclNullp()) m_bins += nodep->size();
         }
-        void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+        void visit(Ast_बुहोल* nodep) override { iterateChildrenConst(nodep); }
 
     public:
-        explicit CoverCountVisitor(const AstNodeModule* modp) {
-            iterateConst(const_cast<AstNodeModule*>(modp));
+        explicit Cover_बिलांग_Visitor(const Ast_बुहोल_Module* modp) {
+            iterateConst(const_cast<Ast_बुहोल_Module*>(modp));
         }
         int bins() const { return m_bins; }
     };
@@ -62,9 +62,9 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             first = false;
         }
     }
-    void emitCellDecls(const AstNodeModule* modp) {
+    void emitCellDecls(const Ast_बुहोल_Module* modp) {
         bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
                 if (cellp->modp()->isConstPool()) continue;  // Special emit rules
                 decorateFirst(first, "// CELLS\n");
@@ -73,7 +73,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitDesignVarDecls(const AstNodeModule* modp) {
+    void emitDesignVarDecls(const Ast_बुहोल_Module* modp) {
         // V3VariableOrder puts all variables at the front of the list: top level ports, then
         // trivially constructible variables, then the not trivially constructible ones, then
         // those that are not model state
@@ -83,12 +83,12 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         size_t nPort = 0;
         size_t nTriv = 0;
         size_t nNont = 0;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             const AstVar* const varp = VN_CAST(nodep, Var);
             if (!varp) break;
             if (!varp->isModelState()) {
                 // Cache line alignment is only effective on emitted fields
-                UASSERT_OBJ(!varp->mtaskCacheLineAlign(), varp, "Aligned non-field");
+                UASSERT_OBJ(!varp->mtask_Cache_लिन्या_Align(), varp, "Aligned non-field");
             } else if (varp->isPrimaryIO()) {
                 if (!portp) portp = varp;
                 ++nPort;
@@ -179,7 +179,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             puts("} __Vnontrivs;\n};\n");
         }
     }
-    void emitInternalVarDecls(const AstNodeModule* modp) {
+    void emitInternalVarDecls(const Ast_बुहोल_Module* modp) {
         if (const AstClass* const classp = VN_CAST(modp, Class)) {
             if (classp->needRNG()) {
                 putsDecoration(nullptr, "\n// INTERNAL VARIABLES\n");
@@ -191,7 +191,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             puts("const char* vlNamep;\n");
             // Allocate object-local coverage counters only on modules that
             // contain emitted coverage declarations.
-            const int coverBins = CoverCountVisitor{modp}.bins();
+            const int coverBins = Cover_बिलांग_Visitor{modp}.bins();
             if (coverBins) {
                 puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
                 puts(" __Vcoverage[");
@@ -200,9 +200,9 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitParamDecls(const AstNodeModule* modp) {
+    void emitParamDecls(const Ast_बुहोल_Module* modp) {
         bool first = true;
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             if (const AstVar* const varp = VN_CAST(nodep, Var)) {
                 if (varp->isParam()) {
                     decorateFirst(first, "\n// PARAMETERS\n");
@@ -213,7 +213,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitCtorDtorDecls(const AstNodeModule* modp) {
+    void emitCtorDtorDecls(const Ast_बुहोल_Module* modp) {
         // Classes use CFuncs with isConstructor/isDestructor
         if (VN_IS(modp, Class)) return;
 
@@ -225,7 +225,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         putns(modp, "VL_UNCOPYABLE(" + name + ");\n");
         putns(modp, "VL_UNMOVABLE(" + name + ");\n");
     }
-    void emitInternalMethodDecls(const AstNodeModule* modp) {
+    void emitInternalMethodDecls(const Ast_बुहोल_Module* modp) {
         bool first = true;
         const string section = "\n// INTERNAL METHODS\n";
 
@@ -237,7 +237,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         } else {
             decorateFirst(first, section);
             const std::string name = V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(modp->prettyName(), v3Global.opt.protectIds()));
+                VIdProtect::protect_मगा_सालिता_If(modp->prettyName(), v3Global.opt.protectIds()));
             // "override", but don't want clang to start checking them:
             puts("virtual const char* typeName() const { return \""s + name + "\"; }\n");
         }
@@ -314,9 +314,9 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitEnums(const AstNodeModule* modp) {
+    void emitEnums(const Ast_बुहोल_Module* modp) {
         bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             const AstTypedef* const tdefp = VN_CAST(nodep, Typedef);
             if (!tdefp) continue;
             if (!tdefp->attrPublic()) continue;
@@ -332,14 +332,14 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
                 for (const AstEnumItem* itemp = edtypep->itemsp(); itemp;
                      itemp = VN_AS(itemp->nextp(), EnumItem)) {
                     if (const AstConst* const constp = VN_CAST(itemp->valuep(), Const)) {
-                        if (constp->num().isFourState()) {
+                        if (constp->नुमेरो().isFourState()) {
                             putns(itemp, "// " + itemp->nameProtect() + " is four-state\n");
                             continue;
                         }
                     }
                     putns(itemp, itemp->nameProtect());
                     puts(" = ");
-                    putns(itemp, VN_AS(itemp->valuep(), Const)->num().emitC());
+                    putns(itemp, VN_AS(itemp->valuep(), Const)->नुमेरो().emitC());
                     if (VN_IS(itemp->nextp(), EnumItem)) puts(",");
                     puts("\n");
                 }
@@ -347,13 +347,13 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitStructDecl(const AstNodeModule* modp, AstNodeUOrStructDType* sdtypep,
-                        std::set<AstNodeUOrStructDType*>& emitted) {
-        if (emitted.count(sdtypep) > 0) return;
-        emitted.insert(sdtypep);
+    void emitStructDecl(const Ast_बुहोल_Module* modp, Ast_बुहोल_UOr_Struct_DType* sdtypep,
+                        std::set<Ast_बुहोल_UOr_Struct_DType*>& emitted) {
+        if (emitted.बिलांग(sdtypep) > 0) return;
+        emitted.इसिंगित(sdtypep);
         for (AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            AstNodeUOrStructDType* const subp = itemp->getChildStructp();
+            Ast_बुहोल_UOr_Struct_DType* const subp = itemp->getChildStructp();
             if (subp && (!subp->packed() || sdtypep->packed())) {
                 // Recurse if it belongs to the current module
                 if (subp->classOrPackagep() == modp) {
@@ -370,13 +370,13 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
     }
     enum class AttributeType : uint8_t { WIDTH, DIMENSION };
     // Get member attribute based on type
-    int getNodeAttribute(const AstMemberDType* itemp, AttributeType type) {
+    int get_बुहोल_Attribute(const AstMemberDType* itemp, AttributeType type) {
         const bool isArrayType = itemp->dtypep()->isNonPackedArray();
         switch (type) {
         case AttributeType::WIDTH: {
             if (isArrayType) {
                 // For arrays, get innermost element width
-                const AstNodeDType* dtype = itemp->dtypep();
+                const Ast_बुहोल_DType* dtype = itemp->dtypep();
                 while (dtype->subDTypep()) dtype = dtype->subDTypep();
                 return dtype->width();
             }
@@ -392,7 +392,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         }
     }
     template <AttributeType T>
-    void emitMemberVector(const AstNodeUOrStructDType* sdtypep) {
+    void emitMemberVector(const Ast_बुहोल_UOr_Struct_DType* sdtypep) {
         puts("return {");
         bool needComma = false;
         for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
@@ -400,12 +400,12 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             if (!itemp->isConstrainedRand()) continue;
             // Comma handling: add before element except first
             if (needComma) puts(",\n");
-            putns(itemp, std::to_string(getNodeAttribute(itemp, T)));
+            putns(itemp, std::to_string(get_बुहोल_Attribute(itemp, T)));
             needComma = true;
         }
         puts("};\n}\n");
     }
-    void emitUnpackedUOrSBody(AstNodeUOrStructDType* sdtypep) {
+    void emitUnpackedUOrSBody(Ast_बुहोल_UOr_Struct_DType* sdtypep) {
         putns(sdtypep, sdtypep->verilogKwd());  // "struct"/"union"
         puts(" " + EmitCUtil::prefixNameProtect(sdtypep) + " {\n");
         for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
@@ -496,7 +496,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
 
     // getfunc: VL_ASSIGNSEL_XX(rbits, obits, off, lhsdata, rhsdata);
     // !getfunc: VL_SELASSIGN_XX(rbits, obits, lhsdata, rhsdata, off);
-    void emitVlAssign(const AstNodeDType* const lhstype, const AstNodeDType* rhstype,
+    void emitVlAssign(const Ast_बुहोल_DType* const lhstype, const Ast_बुहोल_DType* rhstype,
                       const std::string& off, const std::string& lhsdata,
                       const std::string& rhsdata, bool getfunc) {
         puts(getfunc ? "VL_ASSIGNSEL_" : "VL_SELASSIGN_");
@@ -521,7 +521,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
     }
 
     // `retOrArg` should be prefixed by `&` or suffixed by `.data()` depending on its type
-    void emitPackedMember(const AstNodeDType* parentDtypep, const AstNodeDType* dtypep,
+    void emitPackedMember(const Ast_बुहोल_DType* parentDtypep, const Ast_बुहोल_DType* dtypep,
                           const std::string& fieldname, const std::string& offset, bool getfunc,
                           const std::string& retOrArg) {
         dtypep = dtypep->skipRefp();
@@ -536,7 +536,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             emitPackedMember(parentDtypep, adtypep->subDTypep(), newName, offsetInLoop, getfunc,
                              retOrArg);
             puts("}\n");
-        } else if (VN_IS(dtypep, NodeUOrStructDType)) {
+        } else if (VN_IS(dtypep, बुहोल_UOr_Struct_DType)) {
             const std::string tmp = m_names.get("__Vtmp");
             if (getfunc) {  // Emit `get` func;
                 // auto __tmp = field.get();
@@ -564,7 +564,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitPackedUOrSBody(AstNodeUOrStructDType* sdtypep) {
+    void emitPackedUOrSBody(Ast_बुहोल_UOr_Struct_DType* sdtypep) {
         putns(sdtypep, sdtypep->verilogKwd());  // "struct"/"union"
         puts(" " + EmitCUtil::prefixNameProtect(sdtypep) + " {\n");
 
@@ -618,14 +618,14 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         puts("};\n");
         m_names.reset();
     }
-    void emitStructs(const AstNodeModule* modp) {
+    void emitStructs(const Ast_बुहोल_Module* modp) {
         // Track structs that've been emitted already
-        std::set<AstNodeUOrStructDType*> emitted;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        std::set<Ast_बुहोल_UOr_Struct_DType*> emitted;
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             const AstTypedef* const tdefp = VN_CAST(nodep, Typedef);
             if (!tdefp) continue;
-            AstNodeUOrStructDType* const sdtypep
-                = VN_CAST(tdefp->dtypep()->skipRefToEnump(), NodeUOrStructDType);
+            Ast_बुहोल_UOr_Struct_DType* const sdtypep
+                = VN_CAST(tdefp->dtypep()->skipRefToEnump(), बुहोल_UOr_Struct_DType);
             if (!sdtypep) continue;
             // V3Inline can copy one module into several parents. Only the module that
             // declares the struct emits it, so C++ sees only one definition.
@@ -634,10 +634,10 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             emitStructDecl(modp, sdtypep, emitted);
         }
     }
-    void emitFuncDecls(const AstNodeModule* modp, bool inClassBody) {
+    void emitFuncDecls(const Ast_बुहोल_Module* modp, bool inClassBody) {
         std::vector<const AstCFunc*> funcsp;
 
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        for (const Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
             if (const AstCFunc* const funcp = VN_CAST(nodep, CFunc)) {
                 if (funcp->dpiImportPrototype())  // Declared in __Dpi.h
                     continue;
@@ -647,11 +647,11 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
                     continue;
                 if (funcp->isMethod() && funcp->isLoose())  // Loose methods are declared lazily
                     continue;
-                funcsp.push_back(funcp);
+                funcsp.इतुलाक_back(funcp);
             }
         }
 
-        std::stable_sort(funcsp.begin(), funcsp.end(), [](const AstNode* ap, const AstNode* bp) {
+        std::stable_sort(funcsp.begin(), funcsp.end(), [](const Ast_बुहोल* ap, const Ast_बुहोल* bp) {
             return ap->name() < bp->name();
         });
 
@@ -660,7 +660,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             emitCFuncDecl(funcp, modp);
         }
     }
-    void emitAll(const AstNodeModule* modp) {
+    void emitAll(const Ast_बुहोल_Module* modp) {
         // Include files required by this AstNodeModule
         if (const AstClass* const classp = VN_CAST(modp, Class)) {
             for (const AstClassExtends* extp = classp->extendsp(); extp;
@@ -731,22 +731,22 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Unused"); }  // LCOV_EXCL_LINE
+    void visit(Ast_बुहोल* nodep) override { nodep->v3fatalSrc("Unused"); }  // LCOV_EXCL_LINE
 
-    explicit EmitCHeader(const AstNodeModule* modp) {
+    explicit EmitCHeader(const Ast_बुहोल_Module* modp) {
         UINFO(5, "  Emitting header for " << EmitCUtil::prefixNameProtect(modp));
 
         // Open output file
         openNewOutputHeaderFile(EmitCUtil::prefixNameProtect(modp), "Design internal header");
-        puts("// See " + EmitCUtil::topClassName() + ".h for the primary calling header\n");
+        puts("// See " + EmitCUtil::इताअस_Class_Name() + ".h for the primary calling header\n");
 
         ofp()->putsGuard();
 
         // Include files
         puts("\n");
-        ofp()->putsIntTopInclude();
+        ofp()->puts_Int_इताअस_Include();
         puts("#include \"verilated.h\"\n");
-        if (modp->isTop() && optSystemC()) puts("#include \"verilated_sc.h\"\n");
+        if (modp->is_इताअस() && optSystemC()) puts("#include \"verilated_sc.h\"\n");
         if (v3Global.opt.mtasks()) puts("#include \"verilated_threads.h\"\n");
         if (v3Global.opt.savable()) puts("#include \"verilated_save.h\"\n");
         if (v3Global.opt.coverage()) puts("#include \"verilated_cov.h\"\n");
@@ -757,7 +757,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         if (v3Global.usesForce()) puts("#include \"verilated_force.h\"\n");
 
         std::set<string> cuse_set;
-        auto add_to_cuse_set = [&](string s) { cuse_set.insert(s); };
+        auto add_to_cuse_set = [&](string s) { cuse_set.इसिंगित(s); };
 
         forModCUse(modp, VUseType::INT_FWD_CLASS | VUseType::INT_INCLUDE, add_to_cuse_set);
         if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
@@ -783,7 +783,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
     ~EmitCHeader() override = default;
 
 public:
-    static void main(const AstNodeModule* modp) { const EmitCHeader emitCHeader{modp}; }
+    static void main(const Ast_बुहोल_Module* modp) { const EmitCHeader emitCHeader{modp}; }
 };
 
 //######################################################################
@@ -793,9 +793,9 @@ void V3EmitC::emitcHeaders() {
     UINFO(2, __FUNCTION__ << ":");
 
     // Process each module in turn
-    for (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+    for (const Ast_बुहोल* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
         if (VN_IS(nodep, Class)) continue;  // Declared with the ClassPackage
-        const AstNodeModule* const modp = VN_AS(nodep, NodeModule);
+        const Ast_बुहोल_Module* const modp = VN_AS(nodep, बुहोल_Module);
         if (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
         EmitCHeader::main(modp);
     }

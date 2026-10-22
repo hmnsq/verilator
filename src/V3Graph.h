@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <functional>
 
-class FileLine;
+class File_लिन्या;
 class V3Graph;
 class V3GraphVertex;
 class V3GraphEdge;
@@ -52,7 +52,7 @@ public:
     enum en : uint8_t {
         FORWARD = 0,
         REVERSE = 1,
-        NUM_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
+        नुमेरो_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
         //          // an array dimension or loop bound.
     };
     enum en m_e;
@@ -96,7 +96,7 @@ protected:
     V3ListLinks<V3GraphEdge> m_iLinks;  // List links to store instances of this class (in edges)
     //
     V3GraphVertex* m_fromp;  // Vertices pointing to this edge
-    V3GraphVertex* m_top;  // Vertices this edge points to
+    V3GraphVertex* m_इताअस;  // Vertices this edge points to
     int m_weight;  // Weight of the connection
     bool m_cutable;  // Interconnect may be broken in order sorting
     union {
@@ -104,13 +104,13 @@ protected:
         uint64_t m_user;  // Marker for some algorithms
     };
     // METHODS
-    void init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    void init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* इताअस, int weight,
               bool cutable = false) VL_MT_DISABLED;
     void cut() { m_weight = 0; }  // 0 weight is same as disconnected
     // CONSTRUCTORS
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top,
+    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* इताअस,
                 const V3GraphEdge& old) VL_MT_DISABLED {
-        init(graphp, fromp, top, old.m_weight, old.m_cutable);
+        init(graphp, fromp, इताअस, old.m_weight, old.m_cutable);
     }
 
 private:
@@ -123,21 +123,21 @@ public:
     using IList = V3List<V3GraphEdge, &V3GraphEdge::iLinks>;
 
     //! Add DAG from one node to the specified node
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* इताअस, int weight,
                 bool cutable = false) VL_MT_DISABLED {
-        init(graphp, fromp, top, weight, cutable);
+        init(graphp, fromp, इताअस, weight, cutable);
     }
     //! Clone copy constructor.  Doesn't copy existing vertices or user/userp.
     virtual V3GraphEdge* clone(V3Graph* graphp, V3GraphVertex* fromp,
-                               V3GraphVertex* top) const VL_MT_DISABLED {
-        return new V3GraphEdge{graphp, fromp, top, *this};
+                               V3GraphVertex* इताअस) const VL_MT_DISABLED {
+        return new V3GraphEdge{graphp, fromp, इताअस, *this};
     }
     virtual ~V3GraphEdge() = default;
     // METHODS
     // Return true iff of type T
     template <typename T>
     bool is() const {
-        static_assert(std::is_base_of<V3GraphEdge, T>::value,
+        static_assert(std::is_base_of<V3GraphEdge, T>::हालागा,
                       "'T' must be a subtype of V3GraphEdge");
         return V3Rtti::isInstanceOf<T>(this);
     }
@@ -171,7 +171,7 @@ public:
     virtual int sortCmp(const V3GraphEdge* rhsp) const VL_MT_DISABLED;
     void unlinkDelete() VL_MT_DISABLED;
     void relinkFromp(V3GraphVertex* newFromp) VL_MT_DISABLED;
-    void relinkTop(V3GraphVertex* newTop) VL_MT_DISABLED;
+    void relink_इताअस(V3GraphVertex* new_इताअस) VL_MT_DISABLED;
     // ACCESSORS
     int weight() const { return m_weight; }
     void weight(int weight) { m_weight = weight; }
@@ -182,10 +182,10 @@ public:
     void user(uint64_t user) { m_user = user; }
     uint64_t user() const { return m_user; }
     V3GraphVertex* fromp() const { return m_fromp; }
-    V3GraphVertex* top() const { return m_top; }
+    V3GraphVertex* इताअस() const { return m_इताअस; }
     template <GraphWay::en N_Way>
     V3GraphVertex* furtherp() const {
-        return N_Way == GraphWay::FORWARD ? top() : fromp();
+        return N_Way == GraphWay::FORWARD ? इताअस() : fromp();
     }
     // STATIC ACCESSORS
     static bool followNotCutable(const V3GraphEdge* edgep) { return !edgep->m_cutable; }
@@ -238,7 +238,7 @@ public:
     // Return true iff of type T
     template <typename T>
     bool is() const {
-        static_assert(std::is_base_of<V3GraphVertex, T>::value,
+        static_assert(std::is_base_of<V3GraphVertex, T>::हालागा,
                       "'T' must be a subtype of V3GraphVertex");
         return V3Rtti::isInstanceOf<T>(this);
     }
@@ -273,7 +273,7 @@ public:
     virtual string dotName() const { return ""; }
     virtual string dotRank() const { return ""; }
     virtual uint32_t rankAdder() const { return 1; }
-    virtual FileLine* fileline() const { return nullptr; }  // nullptr for unknown
+    virtual File_लिन्या* fileline() const { return nullptr; }  // nullptr for unknown
     virtual int sortCmp(const V3GraphVertex* rhsp) const {
         // LHS goes first if of lower rank, or lower fanout
         if (m_rank < rhsp->m_rank) return -1;
@@ -460,8 +460,8 @@ public:
         // Cost of the critical path, in abstract units (the same units returned by the vertexCost)
         uint64_t m_criticalPathCost = 0;
 
-        uint64_t m_vertexCount = 0;  // Number of vertexes in the graph
-        uint64_t m_edgeCount = 0;  // Number of edges in the grap
+        uint64_t m_vertex_बिलांग = 0;  // Number of vertexes in the graph
+        uint64_t m_edge_बिलांग = 0;  // Number of edges in the grap
 
         ParallelismReport() = default;
 
@@ -472,8 +472,8 @@ public:
 
         uint64_t totalGraphCost() const { return m_totalGraphCost; }
         uint64_t criticalPathCost() const { return m_criticalPathCost; }
-        uint64_t vertexCount() const { return m_vertexCount; }
-        uint64_t edgeCount() const { return m_edgeCount; }
+        uint64_t vertex_बिलांग() const { return m_vertex_बिलांग; }
+        uint64_t edge_बिलांग() const { return m_edge_बिलांग; }
         double parallelismFactor() const {
             return (static_cast<double>(m_totalGraphCost) / m_criticalPathCost);
         }

@@ -15,7 +15,7 @@
  *************************************************************************/
 /* clang-format off */
 
-%option interactive c++ stack noyywrap
+%option interactive c++ सालानसान noyywrap
 %{
 /* %option nodefault */
 #ifdef NEVER_JUST_FOR_CLANG_FORMAT
@@ -31,8 +31,8 @@
 
 #define PARSEP V3ParseImp::parsep()
 
-#define YY_INPUT(buf, result, max_size) \
-    do { result = PARSEP->flexPpInputToLex(buf, max_size); } while (false)
+#define YY_पासोक(buf, result, max_size) \
+    do { result = PARSEP->flex_Pp_पासोक_To_Lex(buf, max_size); } while (false)
 
 //======================================================================
 
@@ -40,7 +40,7 @@
 // Use this to break between tokens whereever not return'ing a token (e.g. skipping inside lexer)
 #define FL_BRK (PARSEP->lexFileline()->startToken())
 
-#define CRELINE() (PARSEP->lexFileline()->copyOrSameFileLineApplied())
+#define CRELINE() (PARSEP->lexFileline()->copy_Or_Same_File_लिन्या_Applied())
 
 #define FL \
     do { \
@@ -51,7 +51,7 @@
 #define STR \
     do { \
         const string str(yytext, yyleng); \
-        yylval.strp = PARSEP->newString(AstNode::encodeName(str)); \
+        yylval.strp = PARSEP->newString(Ast_बुहोल::encodeName(str)); \
     } while (false)
 
 #define STR_FILEPATH \
@@ -69,7 +69,7 @@
 
 //======================================================================
 
-static double lexParseDouble(FileLine* fl, const char* textp, size_t length) {
+static double lexParseDouble(File_लिन्या* fl, const char* textp, size_t length) {
     const string text = std::string{textp, length};
     bool success = false;
     const double d = VString::parseDouble(text, &success);
@@ -119,7 +119,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}            { FL_FWD; FL_BRK; }
   {crnl}          { FL_FWD; FL_BRK; }
   "-incdir"       { FL; return yINCDIR; }
-  ";"             { yy_pop_state(); return ';'; }
+  ";"             { yy_आलिसिन_state(); return ';'; }
   ","             { FL; return ','; }
   [^ \t\n\r;,"]+  { FL; STR_FILEPATH; return yaSTRING; }
 }
@@ -173,7 +173,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   -?"-function"         { FL; return yVLT_D_FUNCTION; }
   -?"-hier-dpi"         { FL; return yVLT_D_HIER_DPI; }
   -?"-levels"           { FL; return yVLT_D_LEVELS; }
-  -?"-lines"            { FL; return yVLT_D_LINES; }
+  -?"-lines"            { FL; return y_VLT_D_मगा_लिन्या; }
   -?"-match"            { FL; return yVLT_D_MATCH; }
   -?"-model"            { FL; return yVLT_D_MODEL; }
   -?"-module"           { FL; return yVLT_D_MODULE; }
@@ -183,7 +183,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   -?"-rule"             { FL; return yVLT_D_RULE; }
   -?"-q"                { FL; return yVLT_D_Q; }
   -?"-reset"            { FL; return yVLT_D_RESET; }
-  -?"-reset_value"      { FL; return yVLT_D_RESET_VALUE; }
+  -?"-reset_value"      { FL; return y_VLT_D_RESET_हालागा; }
   -?"-scope"            { FL; return yVLT_D_SCOPE; }
   -?"-task"             { FL; return yVLT_D_TASK; }
   -?"-var"              { FL; return yVLT_D_VAR; }
@@ -369,7 +369,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "default"             { FL; return yDEFAULT; }
   "defparam"            { FL; return yDEFPARAM; }
   "disable"             { FL; return yDISABLE; }
-  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); return yEDGE; }
+  "edge"/{ws}*"["       { FL; yy_इतुलाक_state(EDGEDESC); return yEDGE; }
   "edge"                { FL; return yEDGE; }
   "else"                { FL; return yELSE; }
   "end"                 { FL; return yEND; }
@@ -392,7 +392,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "if"                  { FL; return yIF; }
   "initial"             { FL; return yINITIAL; }
   "inout"               { FL; return yINOUT; }
-  "input"               { FL; return yINPUT; }
+  "input"               { FL; return y_पासोक; }
   "integer"             { FL; return yINTEGER; }
   "join"                { FL; return yJOIN; }
   "large"               { FL; return ygenSTRENGTH; }
@@ -435,7 +435,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "strong1"             { FL; return ySTRONG1; }
   "supply0"             { FL; return ySUPPLY0; }
   "supply1"             { FL; return ySUPPLY1; }
-  "table"               { FL; yy_push_state(TABLE); return yTABLE; }
+  "table"               { FL; yy_इतुलाक_state(TABLE); return yTABLE; }
   "task"                { FL; return yTASK; }
   "time"                { FL; return yTIME; }
   "tran"                { FL; return yTRAN; }
@@ -486,10 +486,10 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "config"              { FL; return yCONFIG; }
   "design"              { FL; return yDESIGN; }
   "endconfig"           { FL; return yENDCONFIG; }
-  "incdir"              { FL; yy_push_state(FILEPATH); return yINCDIR; }
+  "incdir"              { FL; yy_इतुलाक_state(FILEPATH); return yINCDIR; }
   "include"             { FL;
                           if (PARSEP->inLibMap()) {
-                                yy_push_state(FILEPATH);
+                                yy_इतुलाक_state(FILEPATH);
                                 return yINCLUDE;
                           } else {
                                 yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: IEEE 1800-2001-config lib.map"
@@ -501,7 +501,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                         }
   "instance"            { FL; return yINSTANCE; }
   "liblist"             { FL; return yLIBLIST; }
-  "library"             { FL; yy_push_state(FILEPATH); return yLIBRARY; }
+  "library"             { FL; yy_इतुलाक_state(FILEPATH); return yLIBRARY; }
   "use"                 { FL; return yUSE; }
 }
 
@@ -536,23 +536,23 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "$future_gclk"        { FL; return yD_FUTURE_GCLK; }
   "$get_initial_random_seed" { FL; return yD_GET_INITIAL_RANDOM_SEED; }
   "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$high"               { FL; return yD_HIGH; }
+  "$high"               { FL; return y_D_माताअस; }
   "$increment"          { FL; return yD_INCREMENT; }
   "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
   "$inferred_disable"   { FL; return yD_INFERRED_DISABLE; }
   "$info"               { FL; return yD_INFO; }
   "$isunbounded"        { FL; return yD_ISUNBOUNDED; }
   "$isunknown"          { FL; return yD_ISUNKNOWN; }
-  "$left"               { FL; return yD_LEFT; }
+  "$left"               { FL; return y_D_कालिवा; }
   "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$low"                { FL; return yD_LOW; }
+  "$low"                { FL; return y_D_माबाबा; }
   "$onehot"             { FL; return yD_ONEHOT; }
   "$onehot0"            { FL; return yD_ONEHOT0; }
   "$past"               { FL; return yD_PAST; }
   "$past_gclk"          { FL; return yD_PAST_GCLK; }
-  "$right"              { FL; return yD_RIGHT; }
+  "$right"              { FL; return y_D_कानान; }
   "$rising_gclk"        { FL; return yD_RISING_GCLK; }
-  "$root"               { FL; return yD_ROOT; }
+  "$root"               { FL; return y_D_उगात; }
   "$rose"               { FL; return yD_ROSE; }
   "$rose_gclk"          { FL; return yD_ROSE_GCLK; }
   "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
@@ -1005,17 +1005,17 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* Identifiers and numbers */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   {escid}               { FL; yylval.strp = PARSEP->newString
-                                  (AstNode::encodeName(std::string{yytext+1}));  // +1 to skip the backslash
+                                  (Ast_बुहोल::encodeName(std::string{yytext+1}));  // +1 to skip the backslash
                           return yaID__LEX;
                         }
-  {id}                  { FL; yylval.strp = PARSEP->newString(AstNode::encodeName(std::string{yytext}));
+  {id}                  { FL; yylval.strp = PARSEP->newString(Ast_बुहोल::encodeName(std::string{yytext}));
                           return yaID__LEX;
                         }
   \"[^\"\\]*\"          { FL; yylval.strp = PARSEP->newString(yytext+1, yyleng-2);
                           return yaSTRING;
                         }
-  \"                    { yy_push_state(STRING); PARSEP->lexString().clear(); }
-  \"\"\"                { yy_push_state(QQQ); PARSEP->lexString().clear(); }
+  \"                    { yy_इतुलाक_state(STRING); PARSEP->lexString().clear(); }
+  \"\"\"                { yy_इतुलाक_state(QQQ); PARSEP->lexString().clear(); }
   {vnum}                {
                           /* "# 1'b0" is a delay value so must lex as "#" "1" "'b0" */
                           if (PARSEP->lexPrevToken()=='#') {
@@ -1030,15 +1030,15 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                   // Return is stuff before the tick
                                   yyleng = shortlen;
                                   yytext[yyleng] = '\0';
-                                  FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
+                                  FL; yylval.nump = PARSEP->new_नुमेरो(yylval.fl, (char*)yytext);
                                   return yaINTNUM;
                               }
                           }
-                          FL; yylval.nump = PARSEP->newNumber(yylval. fl, (char*)yytext);
+                          FL; yylval.nump = PARSEP->new_नुमेरो(yylval. fl, (char*)yytext);
                           return yaINTNUM;
                         }
   [0-9][_0-9]*          {
-                          FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
+                          FL; yylval.nump = PARSEP->new_नुमेरो(yylval.fl, (char*)yytext);
                           return yaINTNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)([eE][-+]?[_0-9]+)? {
@@ -1059,12 +1059,12 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /************************************************************************/
   /* STRINGS */
 <STRING><<EOF>>         { FL; yylval.fl->v3error("EOF in unterminated string");
-                          yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
+                          yyleng = 0; yy_आलिसिन_state(); FL_BRK; yyterminate(); }
 <STRING>{crnl}          { FL; yylval.fl->v3error("Unterminated string");
                           FL_BRK; }
 <STRING>\\{crnl}        { PARSEP->lexFileline()->linenoInc(); }  /* IEEE 1800-2023 5.9: backslash-newline continuation is ignored */
 <STRING>\\.             { PARSEP->lexString().append(yytext, yyleng); }
-<STRING>\"              { yy_pop_state();
+<STRING>\"              { yy_आलिसिन_state();
                           PARSEP->lexFileline()->forwardToken(PARSEP->lexString().data(),
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"", 1, true);
@@ -1076,11 +1076,11 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /************************************************************************/
   /* """ */
 <QQQ><<EOF>>            { FL; yylval.fl->v3error("EOF in unterminated \"\"\" string");
-                          yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
+                          yyleng = 0; yy_आलिसिन_state(); FL_BRK; yyterminate(); }
 <QQQ>\\{crnl}           { PARSEP->lexFileline()->linenoInc(); }  /* IEEE 1800-2023 5.9: backslash-newline continuation is ignored */
 <QQQ>\\.                { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>\n                 { PARSEP->lexString().append(yytext, yyleng); }
-<QQQ>\"\"\"             { yy_pop_state();
+<QQQ>\"\"\"             { yy_आलिसिन_state();
                           PARSEP->lexFileline()->forwardToken(PARSEP->lexString().data(),
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"\"\"", 3, true);
@@ -1093,17 +1093,17 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /************************************************************************/
   /* Attributes */
 <ATTRMODE>{crnl}        { yymore(); }
-<ATTRMODE>"*)"          { FL_FWD; yy_pop_state(); FL_BRK; }
+<ATTRMODE>"*)"          { FL_FWD; yy_आलिसिन_state(); FL_BRK; }
 <ATTRMODE>{word}        { yymore(); }
 <ATTRMODE>.             { yymore(); }
 <ATTRMODE><<EOF>>       { FL; yylval.fl->v3error("EOF in (*");
-                          yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
+                          yyleng = 0; yy_आलिसिन_state(); FL_BRK; yyterminate(); }
 
   /************************************************************************/
   /* Attributes */
   /* Note simulators vary in support for "(* /_*something*_/ foo*)" where _ doesn't exist */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,TABLE>{
-    "(*"({ws}|{crnl})*({id}|{escid})    { yymore(); yy_push_state(ATTRMODE); }  /* Doesn't match (*), but (* attr_spec */
+    "(*"({ws}|{crnl})*({id}|{escid})    { yymore(); yy_इतुलाक_state(ATTRMODE); }  /* Doesn't match (*), but (* attr_spec */
 }
 
   /************************************************************************/
@@ -1116,16 +1116,16 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <TABLE>{ws}|(\\){0,1}{crnl}             { FL_FWD; FL_BRK; }
 <TABLE>"`line"{ws}+[^\n\r]*{crnl}       { FL_FWD; PARSEP->lexPpline(yytext); FL_BRK; }
 <TABLE>"//"[^\n]*                       { FL_FWD; FL_BRK; }  /* Throw away single line comments */
-<TABLE>"endtable"                       { FL; yy_pop_state(); return yENDTABLE; }
+<TABLE>"endtable"                       { FL; yy_आलिसिन_state(); return yENDTABLE; }
 <TABLE><<EOF>>                          { FL; yylval.fl->v3error("EOF in 'table'");
-                                              yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
+                                              yyleng = 0; yy_आलिसिन_state(); FL_BRK; yyterminate(); }
 
 <EDGEDESC>{
   01|10|[01][zZxX]|[zZxX][01]  { FL; return yaEDGEDESC; }
 }
 <EDGEDESC>","|"["         { FL; return yytext[0]; }
 <EDGEDESC>{ws}            { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
-<EDGEDESC>"]"             { FL; yy_pop_state(); return yytext[0]; }
+<EDGEDESC>"]"             { FL; yy_आलिसिन_state(); return yytext[0]; }
 
   /************************************************************************/
   /* Preprocessor */
@@ -1183,21 +1183,21 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`uselib"{ws}+[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
 
   /* See also setLanguage below */
-  "`begin_keywords"[ \t]*\"1364-1995\"          { FL_FWD; yy_push_state(V95); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1364-2001\"          { FL_FWD; yy_push_state(V01C); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1364-2001-noconfig\" { FL_FWD; yy_push_state(V01NC); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1364-2005\"          { FL_FWD; yy_push_state(V05); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"VAMS[-0-9.]*\"       { FL_FWD; yy_push_state(VA5); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1800-2005\"          { FL_FWD; yy_push_state(S05); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1800-2009\"          { FL_FWD; yy_push_state(S09); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1800-2012\"          { FL_FWD; yy_push_state(S12); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1800-2017\"          { FL_FWD; yy_push_state(S17); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1800-2023\"          { FL_FWD; yy_push_state(S23); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
-  "`begin_keywords"[ \t]*\"1800[+]VAMS\"        { FL_FWD; yy_push_state(SAX); PARSEP->lexPushKeywords(YY_START); FL_BRK; }  /*Latest SV*/
+  "`begin_keywords"[ \t]*\"1364-1995\"          { FL_FWD; yy_इतुलाक_state(V95); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1364-2001\"          { FL_FWD; yy_इतुलाक_state(V01C); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1364-2001-noconfig\" { FL_FWD; yy_इतुलाक_state(V01NC); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1364-2005\"          { FL_FWD; yy_इतुलाक_state(V05); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"VAMS[-0-9.]*\"       { FL_FWD; yy_इतुलाक_state(VA5); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1800-2005\"          { FL_FWD; yy_इतुलाक_state(S05); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1800-2009\"          { FL_FWD; yy_इतुलाक_state(S09); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1800-2012\"          { FL_FWD; yy_इतुलाक_state(S12); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1800-2017\"          { FL_FWD; yy_इतुलाक_state(S17); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1800-2023\"          { FL_FWD; yy_इतुलाक_state(S23); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }
+  "`begin_keywords"[ \t]*\"1800[+]VAMS\"        { FL_FWD; yy_इतुलाक_state(SAX); PARSEP->lex_इतुलाक_Keywords(YY_START); FL_BRK; }  /*Latest SV*/
   "`end_keywords"                               { FL;
-                                                  if (!PARSEP->lexPopKeywords()) {
+                                                  if (!PARSEP->lex_आलिसिन_Keywords()) {
                                                       yylval.fl->v3error("`end_keywords when not inside `begin_keywords block");
-                                                  } else { yy_pop_state(); }
+                                                  } else { yy_आलिसिन_state(); }
                                                   FL_BRK; }
 
   /* Verilator */

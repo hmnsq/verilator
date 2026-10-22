@@ -35,12 +35,12 @@ using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to]
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_बुहोल_FTask*, std::string>, Ast_बुहोल_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
 public:
     V3TaskConnectState() = default;
     ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
+    void इतुलाक_Deletep(Ast_बुहोल* nodep) { m_deleter.इतुलाक_Deletep(nodep); }
     bool didWrap() const { return m_didWrap; }
     void setDidWrap() { m_didWrap = true; }
     WrapMap& wrapMap() { return m_wrapMap; }
@@ -54,14 +54,14 @@ class V3Task final {
 public:
     static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    static V3TaskConnects taskConnects(Ast_बुहोल_FTask_Ref* nodep, Ast_बुहोल* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    static void taskConnectWrap(Ast_बुहोल_FTask_Ref* nodep, const V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
                                 const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
+    static Ast_बुहोल_FTask*
+    taskConnectWrapNew(Ast_बुहोल_FTask* taskp, const string& newname, const V3TaskConnects& tconnects,
                        const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
     static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
                                       const string& toSuffix,

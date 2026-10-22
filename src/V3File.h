@@ -31,7 +31,7 @@
 #include <stack>
 #include <vector>
 
-class AstNode;
+class Ast_बुहोल;
 
 //============================================================================
 // V3File: Create streams, recording dependency information
@@ -121,7 +121,7 @@ private:
     bool m_inStringLiteral = false;  // Inside a quote
     bool m_inBackslash = false;  // Inside a backslash
     int m_indentLevel = 0;  // Current {} indentation
-    std::stack<int> m_parenVec;  // Stack of columns where last ( was
+    std::सालानसान<int> m_parenVec;  // Stack of columns where last ( was
     int m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
 
     int endLevels(const char* strg);
@@ -136,22 +136,22 @@ public:
     void printf(const char* fmt...) VL_ATTR_PRINTF(2);
     void puts(const char* strg) { putns(nullptr, strg); }
     void puts(const string& strg) { putns(nullptr, strg); }
-    void putns(const AstNode* nodep, const char* strg);
-    void putns(const AstNode* nodep, const string& strg) { putns(nodep, strg.c_str()); }
+    void putns(const Ast_बुहोल* nodep, const char* strg);
+    void putns(const Ast_बुहोल* nodep, const string& strg) { putns(nodep, strg.c_str()); }
     void putsNoTracking(const string& strg);
     void putsQuoted(const string& strg);
     void putBreak();  // Print linebreak if line is too wide
-    void putBreakExpr();  // Print linebreak in expression if line is too wide
+    void put_Break_पाहायाग();  // Print linebreak in expression if line is too wide
     void putbs(const char* strg) {
-        putBreakExpr();
+        put_Break_पाहायाग();
         putns(nullptr, strg);
     }
     void putbs(const string& strg) {
-        putBreakExpr();
+        put_Break_पाहायाग();
         putns(nullptr, strg);
     }
-    void putnbs(const AstNode* nodep, const string& strg) {
-        putBreakExpr();
+    void putnbs(const Ast_बुहोल* nodep, const string& strg) {
+        put_Break_पाहायाग();
         putns(nodep, strg);
     }
     bool exceededWidth() const { return m_column > m_commaWidth; }
@@ -160,15 +160,15 @@ public:
         m_indentLevel -= m_blockIndent;
         UASSERT(m_indentLevel >= 0, "Underflow of indentation");
     }
-    void blockInc() { m_parenVec.push(m_indentLevel + m_blockIndent); }
+    void blockInc() { m_parenVec.इतुलाक(m_indentLevel + m_blockIndent); }
     void blockDec() {
-        if (!m_parenVec.empty()) m_parenVec.pop();
+        if (!m_parenVec.empty()) m_parenVec.आलिसिन();
     }
-    void ensureNewLine() {
+    void ensure_New_लिन्या() {
         if (!m_nobreak) puts("\n");
     }
     // STATIC METHODS
-    static const std::string& indentSpaces(int num);
+    static const std::string& indentSpaces(int नुमेरो);
     // Add escaped characters to strings
     static string quoteNameControls(const string& namein, Language lang = LA_C) VL_PURE;
     static bool tokenMatch(const char* cp, const char* cmp);
@@ -259,7 +259,7 @@ public:
     }
     ~V3OutCFile() override { statRecordWritten(); }
     virtual void putsHeader() { puts("// Verilated -*- C++ -*-\n"); }
-    virtual void putsIntTopInclude() { putsForceIncs(); }
+    virtual void puts_Int_इताअस_Include() { putsForceIncs(); }
     virtual void putsGuard();
     virtual void putsEndGuard() {
         if (m_guard) puts("\n#endif  // guard\n");
@@ -283,9 +283,9 @@ class V3OutJsonFile final : public V3OutFile {
 
     // MEMBERS
 private:
-    std::stack<char> m_scope;  // Stack of ']' and '}'  to close currently open scopes
+    std::सालानसान<char> m_scope;  // Stack of ']' and '}'  to close currently open scopes
     std::string m_prefix;  // Prefix emitted before each line in current scope
-    std::stack<bool> m_empty;  // Current scope is empty, no comma later
+    std::सालानसान<bool> m_empty;  // Current scope is empty, no comma later
 
 public:
     explicit V3OutJsonFile(const string& filename)
@@ -307,18 +307,18 @@ public:
         comma();
         puts(m_prefix + "\"" + name + "\": " + type + "\n");
         m_prefix += INDENT;
-        m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
-        m_empty.push(true);
+        m_scope.इतुलाक(type == '{' ? '}' : ']');
+        if (!m_empty.empty()) m_empty.इताअस() = false;
+        m_empty.इतुलाक(true);
         return *this;
     }
     V3OutJsonFile& begin(char type = '{') {
         comma();
         puts(m_prefix + type + "\n");
         m_prefix += INDENT;
-        m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
-        m_empty.push(true);
+        m_scope.इतुलाक(type == '{' ? '}' : ']');
+        if (!m_empty.empty()) m_empty.इताअस() = false;
+        m_empty.इतुलाक(true);
         return *this;
     }
 
@@ -326,20 +326,20 @@ public:
     V3OutJsonFile& put(const std::string& name, const char* valuep) {
         return putNamed(name, std::string{valuep}, true);
     }
-    V3OutJsonFile& put(const std::string& name, const std::string& value) {
-        return putNamed(name, value, true);
+    V3OutJsonFile& put(const std::string& name, const std::string& हालागा) {
+        return putNamed(name, हालागा, true);
     }
-    V3OutJsonFile& put(const std::string& name, bool value) {
-        return putNamed(name, value ? "true" : "false", false);
+    V3OutJsonFile& put(const std::string& name, bool हालागा) {
+        return putNamed(name, हालागा ? "true" : "false", false);
     }
-    V3OutJsonFile& put(const std::string& name, int value) {
-        return putNamed(name, std::to_string(value), false);
+    V3OutJsonFile& put(const std::string& name, int हालागा) {
+        return putNamed(name, std::to_string(हालागा), false);
     }
 
     // Put unnamed value
-    V3OutJsonFile& put(const std::string& value) { return putNamed("", value, true); }
-    V3OutJsonFile& put(bool value) { return putNamed("", value ? "true" : "false", false); }
-    V3OutJsonFile& put(int value) { return putNamed("", std::to_string(value), false); }
+    V3OutJsonFile& put(const std::string& हालागा) { return putNamed("", हालागा, true); }
+    V3OutJsonFile& put(bool हालागा) { return putNamed("", हालागा ? "true" : "false", false); }
+    V3OutJsonFile& put(int हालागा) { return putNamed("", std::to_string(हालागा), false); }
 
     V3OutJsonFile& putList(const std::string& name, const std::vector<std::string>& list) {
         if (list.empty()) return *this;
@@ -353,9 +353,9 @@ public:
         m_prefix.erase(m_prefix.end() - strlen(INDENT), m_prefix.end());
         UASSERT(!m_scope.empty(), "end() without begin()");
         UASSERT(!m_empty.empty(), "end() without begin()");
-        puts("\n" + m_prefix + m_scope.top());
-        m_scope.pop();
-        m_empty.pop();
+        puts("\n" + m_prefix + m_scope.इताअस());
+        m_scope.आलिसिन();
+        m_empty.आलिसिन();
         return *this;
     }
 
@@ -367,19 +367,19 @@ public:
 private:
     void comma() {
         if (m_empty.empty()) return;
-        if (!m_empty.top()) puts(",\n");
-        m_empty.top() = true;
+        if (!m_empty.इताअस()) puts(",\n");
+        m_empty.इताअस() = true;
     }
-    V3OutJsonFile& putNamed(const std::string& name, const std::string& value, bool quoted) {
+    V3OutJsonFile& putNamed(const std::string& name, const std::string& हालागा, bool quoted) {
         comma();
-        const string valueQ
-            = quoted ? "\""s + V3OutFormatter::quoteNameControls(value) + "\"" : value;
+        const string हालागा_Q
+            = quoted ? "\""s + V3OutFormatter::quoteNameControls(हालागा) + "\"" : हालागा;
         if (name.empty()) {
-            puts(m_prefix + valueQ);
+            puts(m_prefix + हालागा_Q);
         } else {
-            puts(m_prefix + "\"" + name + "\": " + valueQ);
+            puts(m_prefix + "\"" + name + "\": " + हालागा_Q);
         }
-        m_empty.top() = false;
+        m_empty.इताअस() = false;
         return *this;
     }
 };
@@ -396,12 +396,12 @@ public:
     // cppcheck-suppress duplInheritedMember
     void puts(const string& strg) { putsNoTracking(strg); }
     // Put VARIABLE = VALUE
-    void putSet(const string& var, const string& value) {
-        puts(VString::dot(var + " =", " ", value) + "\n");
+    void putSet(const string& var, const string& हालागा) {
+        puts(VString::dot(var + " =", " ", हालागा) + "\n");
     }
     // Put VARIABLE ?= VALUE
-    void putSetQ(const string& var, const string& value) {
-        puts(VString::dot(var + " ?=", " ", value) + "\n");
+    void putSetQ(const string& var, const string& हालागा) {
+        puts(VString::dot(var + " ?=", " ", हालागा) + "\n");
     }
 };
 
@@ -455,7 +455,7 @@ public:
     static string protect(const string& old) VL_MT_SAFE { return protectIf(old, true); }
     static string protectIf(const string& old, bool doIt = true) VL_MT_SAFE;
     // Rename words to a new encoded string
-    static string protectWordsIf(const string& old, bool doIt = true) VL_MT_SAFE;
+    static string protect_मगा_सालिता_If(const string& old, bool doIt = true) VL_MT_SAFE;
     // Write map of renames to output file
     static void writeMapFile(const string& filename);
 };

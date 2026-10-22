@@ -50,17 +50,17 @@ class ScopeVisitor final : public VNVisitor {
     using VarScopeMap = std::map<std::pair<AstVar*, AstScope*>, AstVarScope*>;
 
     // STATE, inside processing a single module
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeProcedure* m_procedurep = nullptr;  // Current procedure
+    Ast_बुहोल_Module* m_modp = nullptr;  // Current module
+    Ast_बुहोल_Procedure* m_procedurep = nullptr;  // Current procedure
     AstScope* m_scopep = nullptr;  // Current scope we are building
     // STATE, for passing down one level of hierarchy (may need save/restore)
     AstCell* m_aboveCellp = nullptr;  // Cell that instantiates this module
     AstScope* m_aboveScopep = nullptr;  // Scope that instantiates this scope
     bool m_last = false;  // Scoping the last instantiation of the current module
     // The name length of the scope of the library top module instance, while within it
-    size_t m_libTopNameLen = 0;
+    size_t m_lib_इताअस_Name_Len = 0;
 
-    std::unordered_map<AstNodeModule*, AstScope*>
+    std::unordered_map<Ast_बुहोल_Module*, AstScope*>
         m_classOrPackageScopes;  // Scopes for each class or package
     VarScopeMap m_varScopes;  // Varscopes created for each scope and var
     // Varrefs-in-scopes needing fixup when done
@@ -70,25 +70,25 @@ class ScopeVisitor final : public VNVisitor {
     // METHODS
 
     // Count module instantiations, visiting cells the same way the traversal below does
-    static void countInstantiations(AstNodeModule* modp) {
+    static void बिलांग_Instantiations(Ast_बुहोल_Module* modp) {
         modp->user3Inc();
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        for (Ast_बुहोल* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             if (const AstCell* const cellp = VN_CAST(stmtp, Cell)) {
-                countInstantiations(cellp->modp());
+                बिलांग_Instantiations(cellp->modp());
             }
         }
     }
 
     // Copy, or move (on the last instantiation), the given node under
     // the current scope, and return the version now under the scope
-    template <typename T_Node>
-    T_Node* cloneOrMove(T_Node* nodep) {
-        T_Node* clonep;
+    template <typename T_बुहोल>
+    T_बुहोल* cloneOrMove(T_बुहोल* nodep) {
+        T_बुहोल* clonep;
         if (m_last) {
             nodep->unlinkFrBack();
             clonep = nodep;
         } else {
-            clonep = nodep->cloneTree(false);
+            clonep = nodep->clone_पुनो(false);
         }
         nodep->user2p(clonep);
         m_scopep->addBlocksp(clonep);
@@ -110,14 +110,14 @@ class ScopeVisitor final : public VNVisitor {
             nodep->classOrPackagep(nullptr);  // No longer needed after V3Scope
             // Search up the scope hierarchy for the variable
             AstVarScope* varscp = nullptr;
-            AstScope* searchScopep = scopep;
-            while (searchScopep) {
-                const auto it3 = m_varScopes.find(std::make_pair(nodep->varp(), searchScopep));
+            AstScope* हानाप_Scopep = scopep;
+            while (हानाप_Scopep) {
+                const auto it3 = m_varScopes.find(std::make_pair(nodep->varp(), हानाप_Scopep));
                 if (it3 != m_varScopes.end()) {
                     varscp = it3->second;
                     break;
                 }
-                searchScopep = searchScopep->aboveScopep();
+                हानाप_Scopep = हानाप_Scopep->aboveScopep();
             }
             UASSERT_OBJ(varscp, nodep, "Can't locate varref scope");
             nodep->varScopep(varscp);
@@ -126,7 +126,7 @@ class ScopeVisitor final : public VNVisitor {
 
     // VISITORS
     void visit(AstNetlist* nodep) override {
-        AstNodeModule* const modp = nodep->topModulep();
+        Ast_बुहोल_Module* const modp = nodep->इताअस_Modulep();
         if (!modp) {
             nodep->v3error("No top level module found");
             return;
@@ -134,15 +134,15 @@ class ScopeVisitor final : public VNVisitor {
         // Operate starting at the top of the hierarchy
         m_aboveCellp = nullptr;
         m_aboveScopep = nullptr;
-        countInstantiations(modp);
+        बिलांग_Instantiations(modp);
         iterate(modp);
         // Defer attachment until all instances are visited so cell collection and child
         // iteration do not rescan a growing list of completed scopes.
         for (AstScope* const scopep : m_scopes) scopep->modp()->addStmtsp(scopep);
         cleanupVarRefs();
     }
-    void visit(AstNodeModule* nodep) override {
-        VL_RESTORER(m_libTopNameLen);
+    void visit(Ast_बुहोल_Module* nodep) override {
+        VL_RESTORER(m_lib_इताअस_Name_Len);
         // Create required blocks and add to module
         string scopename;
         if (!m_aboveScopep) {
@@ -150,25 +150,25 @@ class ScopeVisitor final : public VNVisitor {
         } else {
             scopename = m_aboveScopep->name() + "." + m_aboveCellp->name();
             // The top module is the only module directly under 'TOP'
-            if (!v3Global.opt.libCreate().empty() && m_aboveScopep->isTop()
+            if (!v3Global.opt.libCreate().empty() && m_aboveScopep->is_इताअस()
                 && VN_IS(nodep, Module)) {
-                m_libTopNameLen = scopename.size();
+                m_lib_इताअस_Name_Len = scopename.size();
             }
         }
 
         UINFO(4, " MOD AT " << scopename << "  " << nodep);
-        AstNode::user1ClearTree();
+        Ast_बुहोल::user1_Clear_पुनो();
 
         m_scopep = new AstScope{
-            (m_aboveCellp ? static_cast<AstNode*>(m_aboveCellp) : static_cast<AstNode*>(nodep))
+            (m_aboveCellp ? static_cast<Ast_बुहोल*>(m_aboveCellp) : static_cast<Ast_बुहोल*>(nodep))
                 ->fileline(),
             nodep, scopename, m_aboveScopep, m_aboveCellp};
         if (VN_IS(nodep, Package)) m_classOrPackageScopes.emplace(nodep, m_scopep);
 
         // Get list of cells before we edit, to avoid excess visits (issue #6059)
         std::deque<AstCell*> cells;
-        for (AstNode* cellnextp = nodep->stmtsp(); cellnextp; cellnextp = cellnextp->nextp()) {
-            if (AstCell* const cellp = VN_CAST(cellnextp, Cell)) cells.push_back(cellp);
+        for (Ast_बुहोल* cellnextp = nodep->stmtsp(); cellnextp; cellnextp = cellnextp->nextp()) {
+            if (AstCell* const cellp = VN_CAST(cellnextp, Cell)) cells.इतुलाक_back(cellp);
         }
 
         // Now for each child cell, iterate the module this cell points to
@@ -180,7 +180,7 @@ class ScopeVisitor final : public VNVisitor {
             {
                 m_aboveCellp = cellp;
                 m_aboveScopep = m_scopep;
-                AstNodeModule* const modp = cellp->modp();
+                Ast_बुहोल_Module* const modp = cellp->modp();
                 UASSERT_OBJ(modp, cellp, "Unlinked mod");
                 iterate(modp);  // Recursive call to visit(AstNodeModule)
                 if (VN_IS(modp, Iface)) {
@@ -192,12 +192,12 @@ class ScopeVisitor final : public VNVisitor {
 
         // Create scope for the current usage of this module
         UINFO(4, " back AT " << scopename << "  " << nodep);
-        AstNode::user1ClearTree();
+        Ast_बुहोल::user1_Clear_पुनो();
         m_modp = nodep;
-        if (m_modp->isTop()) {
-            v3Global.rootp()->createTopScope(m_scopep);
+        if (m_modp->is_इताअस()) {
+            v3Global.rootp()->create_इताअस_Scope(m_scopep);
         } else {
-            m_scopes.push_back(m_scopep);
+            m_scopes.इतुलाक_back(m_scopep);
         }
 
         // Copy blocks into this scope
@@ -229,17 +229,17 @@ class ScopeVisitor final : public VNVisitor {
         }
 
         UINFO(4, " CLASS AT " << scopename << "  " << nodep);
-        AstNode::user1ClearTree();
+        Ast_बुहोल::user1_Clear_पुनो();
 
-        const AstNode* const abovep
-            = (m_aboveCellp ? static_cast<AstNode*>(m_aboveCellp) : static_cast<AstNode*>(nodep));
+        const Ast_बुहोल* const abovep
+            = (m_aboveCellp ? static_cast<Ast_बुहोल*>(m_aboveCellp) : static_cast<Ast_बुहोल*>(nodep));
         m_scopep
             = new AstScope{abovep->fileline(), m_modp, scopename, m_aboveScopep, m_aboveCellp};
         m_classOrPackageScopes.emplace(nodep, m_scopep);
 
         // Create scope for the current usage of this cell
-        AstNode::user1ClearTree();
-        m_scopes.push_back(m_scopep);
+        Ast_बुहोल::user1_Clear_पुनो();
+        m_scopes.इतुलाक_back(m_scopep);
 
         iterateChildren(nodep);
     }
@@ -251,7 +251,7 @@ class ScopeVisitor final : public VNVisitor {
     void visit(AstActive* nodep) override {  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("Actives now made after scoping");
     }
-    void visit(AstNodeProcedure* nodep) override {
+    void visit(Ast_बुहोल_Procedure* nodep) override {
         // Add to list of blocks under this scope
         // Check don't miss varref scope assignments
         UASSERT_OBJ(!m_procedurep, nodep, "prodedure in procedure");
@@ -287,10 +287,10 @@ class ScopeVisitor final : public VNVisitor {
         // We iterate under the *clone*
         iterateChildren(clonep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    void visit(Ast_बुहोल_FTask* nodep) override {
         // Add to list of blocks under this scope
         UINFO(4, "    FTASK " << nodep);
-        AstNodeFTask* const clonep = [&]() {
+        Ast_बुहोल_FTask* const clonep = [&]() {
             VL_RESTORER(m_last);
             // Only one scope will be created, so avoid pointless cloning
             if (nodep->classMethod()) m_last = true;
@@ -333,7 +333,7 @@ class ScopeVisitor final : public VNVisitor {
         std::string scopeName = m_scopep->name();
         // Drop the "l2-name" (name of the top module) for library builds, otherwise
         // would get "top.u_lib.lib.foo" instead of correct hierarchical path "top.u_lib.foo"
-        if (m_libTopNameLen) scopeName = "TOP" + scopeName.substr(m_libTopNameLen);
+        if (m_lib_इताअस_Name_Len) scopeName = "TOP" + scopeName.substr(m_lib_इताअस_Name_Len);
         const string prefix = "__DOT__"s + scopeName;
         // TOP and above will be the user's name().
         // Note 'TOP.' is stripped by scopePrettyName
@@ -343,11 +343,11 @@ class ScopeVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
     void visit(AstScope* nodep) override {
-        UASSERT_OBJ(nodep->isTop(), nodep,
+        UASSERT_OBJ(nodep->is_इताअस(), nodep,
                     "Non-top scopes must remain detached until all instances are scoped");
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -372,7 +372,7 @@ class ScopeCleanupVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    virtual void movedDeleteOrIterate(AstNode* nodep) {
+    virtual void movedDeleteOrIterate(Ast_बुहोल* nodep) {
         if (m_scopep) {
             // The new block; repair varrefs
             iterateChildren(nodep);
@@ -380,34 +380,34 @@ class ScopeCleanupVisitor final : public VNVisitor {
             // A block that was just moved under a scope, Kill it.
             // Certain nodes can be referenced later in this pass, notably
             // an FTaskRef needs to access the FTask to find the cloned task
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep->unlinkFrBack()), nodep);
         }
     }
 
-    void visit(AstNodeProcedure* nodep) override { movedDeleteOrIterate(nodep); }
+    void visit(Ast_बुहोल_Procedure* nodep) override { movedDeleteOrIterate(nodep); }
     void visit(AstAlias* nodep) override { movedDeleteOrIterate(nodep); }
     void visit(AstAliasScope* nodep) override { movedDeleteOrIterate(nodep); }
     void visit(AstCoverToggle* nodep) override { movedDeleteOrIterate(nodep); }
-    void visit(AstNodeFTask* nodep) override { movedDeleteOrIterate(nodep); }
+    void visit(Ast_बुहोल_FTask* nodep) override { movedDeleteOrIterate(nodep); }
     void visit(AstCFunc* nodep) override { movedDeleteOrIterate(nodep); }
 
     void visit(AstVarXRef* nodep) override {
         // The crossrefs are dealt with in V3LinkDot
         nodep->varp(nullptr);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    void visit(Ast_बुहोल_FTask_Ref* nodep) override {
         // The crossrefs are dealt with in V3LinkDot
         UINFO(9, "   Old pkg-taskref " << nodep);
         if (nodep->classOrPackagep()) {
             // Point to the clone
             UASSERT_OBJ(nodep->taskp(), nodep, "Unlinked");
-            AstNodeFTask* const newp = VN_AS(nodep->taskp()->user2p(), NodeFTask);
+            Ast_बुहोल_FTask* const newp = VN_AS(nodep->taskp()->user2p(), बुहोल_FTask);
             UASSERT_OBJ(newp, nodep, "No clone for package function");
             nodep->taskp(newp);
             UINFO(9, "   New pkg-taskref " << nodep);
         } else if (!VN_IS(nodep, MethodCall)) {
             nodep->taskp(nullptr);
-            VIsCached::clearCacheTree();
+            VIsCached::clear_Cache_पुनो();
             UINFO(9, "   New pkg-taskref " << nodep);
         }
         iterateChildren(nodep);
@@ -420,7 +420,7 @@ class ScopeCleanupVisitor final : public VNVisitor {
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -438,5 +438,5 @@ void V3Scope::scopeAll(AstNetlist* nodep) {
         ScopeCleanupVisitor{nodep};
     }  // Destruct before checking
     V3ConstPool::setScoped();
-    V3Global::dumpCheckGlobalTree("scope", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("scope", 0, dump_पुनो_Either_Level() >= 3);
 }

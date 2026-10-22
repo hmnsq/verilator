@@ -51,19 +51,19 @@ public:
 
     // ACCESSORS
     // Insert given file into this point in input stream
-    virtual void openFile(FileLine* fileline, VInFilter* filterp, const string& filename) = 0;
+    virtual void openFile(File_लिन्या* fileline, VInFilter* filterp, const string& filename) = 0;
     virtual string getline() = 0;  // Return next line/lines. (Null if done.)
     virtual bool isEof() const = 0;  // Return true on EOF.
-    virtual void insertUnreadback(const string& text) = 0;
+    virtual void इसिंगित_Unreadback(const string& text) = 0;
 
-    FileLine* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
+    File_लिन्या* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
     static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
     static bool keepWhitespace() { return false; }
-    static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+    static bool लिन्या_Directives() {  // Insert `line directives
+        return !(v3Global.opt.preprocOnly() && v3Global.opt.preproc_No_लिन्या());
     }
     static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
 
@@ -73,13 +73,13 @@ public:
     virtual void include(const string& filename) = 0;  // Request a include file be processed
 
     virtual void undef(const string& name) = 0;  // Remove a definition
-    virtual void define(FileLine* fileline, const string& name, const string& value,
+    virtual void define(File_लिन्या* fileline, const string& name, const string& हालागा,
                         const string& params = "",
                         bool cmdline = false)
         = 0;  // `define without any parameters
-    virtual void defineCmdLine(FileLine* fileline, const string& name,
-                               const string& value) {  // `define without any parameters
-        define(fileline, name, value, "", true);
+    virtual void define_Cmd_लिन्या(File_लिन्या* fileline, const string& name,
+                               const string& हालागा) {  // `define without any parameters
+        define(fileline, name, हालागा, "", true);
     }
     virtual string removeDefines(const string& text) = 0;  // Remove defines in a text string
 
@@ -90,10 +90,10 @@ public:
 protected:
     // CONSTRUCTORS
     V3PreProc() {}
-    void configure(FileLine* fl);
+    void configure(File_लिन्या* fl);
 
 public:
-    static V3PreProc* createPreProc(FileLine* fl) VL_MT_DISABLED;
+    static V3PreProc* createPreProc(File_लिन्या* fl) VL_MT_DISABLED;
     virtual ~V3PreProc() = default;  // LCOV_EXCL_LINE  // Persistent
     static void selfTest() VL_MT_DISABLED;
 };

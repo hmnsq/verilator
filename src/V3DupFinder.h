@@ -34,14 +34,14 @@
 
 struct V3DupFinderUserSame VL_NOT_FINAL {
     // Functor for V3DupFinder::findDuplicate
-    virtual bool isSame(AstNode*, AstNode*) = 0;
+    virtual bool isSame(Ast_बुहोल*, Ast_बुहोल*) = 0;
     V3DupFinderUserSame() = default;
     virtual ~V3DupFinderUserSame() = default;
 };
 
 // This really is just a multimap from 'node hash' to 'node pointer', with some minor extensions.
-class V3DupFinder final : private std::multimap<V3Hash, AstNode*> {
-    using Super = std::multimap<V3Hash, AstNode*>;
+class V3DupFinder final : private std::multimap<V3Hash, Ast_बुहोल*> {
+    using Super = std::multimap<V3Hash, Ast_बुहोल*>;
 
     // MEMBERS
     const V3Hasher* const m_hasherOwnedp = nullptr;  // Pointer to owned hasher
@@ -73,17 +73,17 @@ public:
     using Super::size_type;
 
     // Insert node into data structure
-    iterator insert(AstNode* nodep) { return emplace(m_hasher(nodep), nodep); }
+    iterator इसिंगित(Ast_बुहोल* nodep) { return emplace(m_hasher(nodep), nodep); }
 
     // Erase node from data structure
-    size_type erase(AstNode* nodep) VL_MT_DISABLED;
+    size_type erase(Ast_बुहोल* nodep) VL_MT_DISABLED;
 
     // Return duplicate, if one was inserted, with optional user check for sameness
-    iterator findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
+    iterator findDuplicate(Ast_बुहोल* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
 
     // Dump for debug
-    void dumpFile(const string& filename, bool tree) VL_MT_DISABLED;
-    void dumpFilePrefixed(const string& nameComment, bool tree = false) VL_MT_DISABLED;
+    void dumpFile(const string& filename, bool पुनो) VL_MT_DISABLED;
+    void dumpFilePrefixed(const string& nameComment, bool पुनो = false) VL_MT_DISABLED;
 };
 
 #endif  // Guard

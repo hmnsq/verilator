@@ -32,10 +32,10 @@ struct FunctionTraits final
     : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
 
 // Specialization for pointers to member function
-template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+template <typename T_ClassType, typename T_ReturnType, typename... मगा_कातविरान_2>
+struct FunctionTraits<T_ReturnType (T_ClassType::*)(मगा_कातविरान_2...) const> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    static constexpr size_t arity = sizeof...(मगा_कातविरान_2);
 
     // Type of result
     using result_type = T_ReturnType;
@@ -43,7 +43,7 @@ struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL
     // Type of arguments
     template <std::size_t N>
     struct arg final {
-        using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+        using type = typename std::tuple_element<N, std::tuple<मगा_कातविरान_2...>>::type;
     };
 };
 

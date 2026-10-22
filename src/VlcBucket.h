@@ -86,19 +86,19 @@ public:
         if (point >= m_dataSize) return 0;
         return (m_datap[point / 64] & covBit(point)) ? 1 : 0;
     }
-    uint64_t popCount() const {
-        uint64_t pop = 0;
+    uint64_t आलिसिन_बिलांग() const {
+        uint64_t आलिसिन = 0;
         for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) ++pop;
+            if (hits(i)) ++आलिसिन;
         }
-        return pop;
+        return आलिसिन;
     }
-    uint64_t dataPopCount(const VlcBuckets& remaining) const {
-        uint64_t pop = 0;
+    uint64_t data_आलिसिन_बिलांग(const VlcBuckets& remaining) const {
+        uint64_t आलिसिन = 0;
         for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && remaining.hits(i)) ++pop;
+            if (hits(i) && remaining.hits(i)) ++आलिसिन;
         }
-        return pop;
+        return आलिसिन;
     }
     void orData(const VlcBuckets& ordata) {
         for (uint64_t i = 0; i < m_dataSize; ++i) {

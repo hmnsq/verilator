@@ -42,13 +42,13 @@ public:
     // METHODS
 
     // Compute hash of node. This method caches the hash in the node's user4().
-    V3Hash operator()(AstNode* nodep) const;
+    V3Hash operator()(Ast_बुहोल* nodep) const;
 
     // Re-compute hash of this node, discarding cached value, but used cached hash of children.
-    V3Hash rehash(AstNode* nodep) const;
+    V3Hash rehash(Ast_बुहोल* nodep) const;
 
     // Compute hash of node, without caching in user4.
-    static V3Hash uncachedHash(const AstNode* nodep);
+    static V3Hash uncachedHash(const Ast_बुहोल* nodep);
 };
 
 #endif  // Guard

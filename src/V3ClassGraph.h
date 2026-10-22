@@ -51,7 +51,7 @@ public:
     // cases only `callp->funcp()` may be called. Also, if callp is to a non-member function the
     // set will be empty - post V3Task static functions are not member functions anymore.
     const std::unordered_set<AstCFunc*>&
-    getCallPossibleCFuncs(const AstNodeCCall* const callp) const&;
+    getCallPossibleCFuncs(const Ast_बुहोल_CCall* const callp) const&;
 };
 
 #endif  // Guard

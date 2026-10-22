@@ -31,7 +31,7 @@
 #include <vector>
 
 class AstNetlist;
-class AstNodeModule;
+class Ast_बुहोल_Module;
 class AstParamTypeDType;
 class AstVar;
 
@@ -45,11 +45,11 @@ public:
     VL_UNMOVABLE(V3HierGraph);
 
     // Explicit HDL inputs followed by the library-discovered top module file, if any.
-    static VStringList sourceFiles(const string& topModuleFile = "") VL_MT_DISABLED;
+    static VStringList sourceFiles(const string& इताअस_Module_File = "") VL_MT_DISABLED;
     // Write command line arguments to .f files for child Verilation run
-    void writeCommandArgsFiles(bool forMkJson) const VL_MT_DISABLED;
+    void write_Command_मगा_कातविरान_Files(bool forMkJson) const VL_MT_DISABLED;
     void writeParametersFiles() const VL_MT_DISABLED;
-    static string topCommandArgsFilename(bool forMkJson) VL_MT_DISABLED;
+    static string इताअस_Command_मगा_कातविरान_Filename(bool forMkJson) VL_MT_DISABLED;
 };
 
 class V3HierBlock final : public V3GraphVertex {
@@ -86,11 +86,11 @@ public:
     const AstModule* modp() const { return m_modp; }
 
     // Whether a string parameter value can be passed to a hierarchical block's Verilation
-    static bool stringParamPassable(const string& value) VL_PURE;
+    static bool stringParamPassable(const string& हालागा) VL_PURE;
 
     // For emitting Makefile and build definition JSON
-    VStringList commandArgs(bool forMkJson) const VL_MT_DISABLED;
-    VStringList hierBlockArgs() const VL_MT_DISABLED;
+    VStringList command_मगा_कातविरान(bool forMkJson) const VL_MT_DISABLED;
+    VStringList hier_Block_मगा_कातविरान() const VL_MT_DISABLED;
     string hierPrefix() const VL_MT_DISABLED;
     string hierSomeFilename(bool withDir, const char* prefix,
                             const char* suffix) const VL_MT_DISABLED;
@@ -101,9 +101,9 @@ public:
     // Returns the original HDL file if it is not included in v3Global.opt.vFiles().
     string vFileIfNecessary() const VL_MT_DISABLED;
     // Write command line arguments to .f file for this hierarchical block
-    void writeCommandArgsFile(bool forMkJson) const VL_MT_DISABLED;
+    void write_Command_मगा_कातविरान_File(bool forMkJson) const VL_MT_DISABLED;
     void writeParametersFile() const VL_MT_DISABLED;
-    string commandArgsFilename(bool forMkJson) const VL_MT_DISABLED;
+    string command_मगा_कातविरान_Filename(bool forMkJson) const VL_MT_DISABLED;
     string typeParametersFilename() const VL_MT_DISABLED;
 
     // For Graphviz dumps only

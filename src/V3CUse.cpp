@@ -39,11 +39,11 @@ class CUseVisitor final : public VNVisitorConst {
     const VNUser1InUse m_inuser1;
 
     // MEMBERS
-    AstNodeModule* const m_modp;  // Current module
-    std::map<std::string, std::pair<FileLine*, VUseType>> m_didUse;  // What we already used
+    Ast_बुहोल_Module* const m_modp;  // Current module
+    std::map<std::string, std::pair<File_लिन्या*, VUseType>> m_didUse;  // What we already used
 
     // METHODS
-    void addNewUse(const AstNode* nodep, VUseType useType, const string& name) {
+    void addNewUse(const Ast_बुहोल* nodep, VUseType useType, const string& name) {
         auto e = m_didUse.emplace(name, std::make_pair(nodep->fileline(), useType));
         if (e.second || ((e.first->second.second & useType) != useType)) {
             e.first->second.second = e.first->second.second | useType;
@@ -64,13 +64,13 @@ class CUseVisitor final : public VNVisitorConst {
         UASSERT_OBJ(!nodep->user1SetOnce(), nodep, "Visited same return twice");
         iterateConst(nodep->lhsp()->dtypep());
     }
-    void visit(AstNodeDType* nodep) override {
+    void visit(Ast_बुहोल_DType* nodep) override {
         if (nodep->user1SetOnce()) return;  // Process once
         if (nodep->virtRefDTypep()) iterateConst(nodep->virtRefDTypep());
         if (nodep->virtRefDType2p()) iterateConst(nodep->virtRefDType2p());
 
         // Add a CUse for every struct that requires a declaration
-        AstNodeUOrStructDType* const stypep = VN_CAST(nodep->skipRefp(), NodeUOrStructDType);
+        Ast_बुहोल_UOr_Struct_DType* const stypep = VN_CAST(nodep->skipRefp(), बुहोल_UOr_Struct_DType);
         if (stypep && stypep->classOrPackagep()) {
             addNewUse(nodep, VUseType::INT_INCLUDE, stypep->classOrPackagep()->name());
             iterateChildrenConst(stypep);
@@ -79,7 +79,7 @@ class CUseVisitor final : public VNVisitorConst {
             addNewUse(nodep, VUseType::INT_FWD_CLASS, classp->name());
         }
     }
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         if (nodep->user1SetOnce()) return;  // Process once
         if (nodep->dtypep()) iterateConst(nodep->dtypep());
         iterateChildrenConst(nodep);
@@ -94,7 +94,7 @@ class CUseVisitor final : public VNVisitorConst {
 
 public:
     // CONSTRUCTORS
-    explicit CUseVisitor(AstNodeModule* modp)
+    explicit CUseVisitor(Ast_बुहोल_Module* modp)
         : m_modp{modp} {
         iterateConst(modp);
 
@@ -114,12 +114,12 @@ public:
 void V3CUse::cUseAll() {
     UINFO(2, __FUNCTION__ << ":");
     // Call visitor separately for each module, so visitor state is cleared
-    for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
-         modp = VN_AS(modp->nextp(), NodeModule)) {
+    for (Ast_बुहोल_Module* modp = v3Global.rootp()->modulesp(); modp;
+         modp = VN_AS(modp->nextp(), बुहोल_Module)) {
         if (modp->isConstPool()) continue;  // Special emit rules
         // Insert under this module; someday we should e.g. make Ast
         // for each output file and put under that
         CUseVisitor{modp};
     }
-    V3Global::dumpCheckGlobalTree("cuse", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("cuse", 0, dump_पुनो_Either_Level() >= 3);
 }

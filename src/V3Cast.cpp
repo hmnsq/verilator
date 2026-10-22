@@ -56,7 +56,7 @@ class CastVisitor final : public VNVisitor {
 
     // METHODS
 
-    void insertCast(AstNodeExpr* nodep, int needsize) {  // We'll insert ABOVE passed node
+    void इसिंगित_Cast(Ast_बुहोल_पाहायाग* nodep, int needsize) {  // We'll insert ABOVE passed node
         VNRelinker relinkHandle;
         nodep->unlinkFrBack(&relinkHandle);
         //
@@ -80,19 +80,19 @@ class CastVisitor final : public VNVisitor {
             return VL_IDATASIZE;
         }
     }
-    static int castSize(const AstNode* nodep) { return castSize(nodep->width()); }
-    void ensureCast(AstNodeExpr* nodep) {
+    static int castSize(const Ast_बुहोल* nodep) { return castSize(nodep->width()); }
+    void ensureCast(Ast_बुहोल_पाहायाग* nodep) {
         if (castSize(nodep->backp()) != castSize(nodep) || !nodep->user1()) {
             if (!nodep->isNull() && !nodep->isString() && !nodep->isDouble())
-                insertCast(nodep, castSize(nodep->backp()));
+                इसिंगित_Cast(nodep, castSize(nodep->backp()));
         }
     }
     // Cast a constructor value to the C type of the element or member 'dtypep' it is stored in,
     // as V3Clean widened the value to its C++ width
-    void ensureCastValue(AstNodeExpr* valuep, const AstNodeDType* dtypep) {
+    void ensure_Cast_हालागा(Ast_बुहोल_पाहायाग* valuep, const Ast_बुहोल_DType* dtypep) {
         dtypep = dtypep->skipRefp();
         if (dtypep->isIntegralOrPacked() && dtypep->width() <= VL_QUADSIZE) {
-            insertCast(valuep, castSize(dtypep->width()));
+            इसिंगित_Cast(valuep, castSize(dtypep->width()));
         }
     }
     // cppcheck-suppress constParameterPointer // lhsp might be changed
@@ -102,10 +102,10 @@ class CastVisitor final : public VNVisitor {
         // Otherwise a (uint64)(a>b) would return wrong value, as
         // less than has nondeterministic signedness.
         if (nodep->isQuad() && !nodep->lhsp()->isQuad() && !VN_IS(nodep->lhsp(), CCast)) {
-            insertCast(nodep->lhsp(), VL_IDATASIZE);
+            इसिंगित_Cast(nodep->lhsp(), VL_IDATASIZE);
         }
     }
-    void ensureNullChecked(AstNodeExpr* nodep) {
+    void ensureNullChecked(Ast_बुहोल_पाहायाग* nodep) {
         // TODO optimize to track null checked values and avoid where possible
         if (!VN_IS(nodep->backp(), NullCheck)) {
             VNRelinker relinkHandle;
@@ -115,12 +115,12 @@ class CastVisitor final : public VNVisitor {
     }
 
     // VISITORS
-    void visit(AstNodeUniop* nodep) override {
+    void visit(Ast_बुहोल_Uniop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1());
         if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
     }
-    void visit(AstNodeBiop* nodep) override {
+    void visit(Ast_बुहोल_Biop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1());
         if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
@@ -141,24 +141,24 @@ class CastVisitor final : public VNVisitor {
             const AstClass* const commonBaseClassp
                 = VN_AS(nodep->dtypep()->skipRefp(), ClassRefDType)->classp();
             if (thenClassDtypep->classp() != commonBaseClassp) {
-                AstNodeExpr* thenp = nodep->thenp()->unlinkFrBack();
+                Ast_बुहोल_पाहायाग* thenp = nodep->thenp()->unlinkFrBack();
                 nodep->thenp(new AstCCast{thenp->fileline(), thenp, nodep});
             }
             if (elseClassDtypep->classp() != commonBaseClassp) {
-                AstNodeExpr* elsep = nodep->elsep()->unlinkFrBack();
+                Ast_बुहोल_पाहायाग* elsep = nodep->elsep()->unlinkFrBack();
                 nodep->elsep(new AstCCast{elsep->fileline(), elsep, nodep});
             }
         }
-        visit(static_cast<AstNodeTriop*>(nodep));
+        visit(static_cast<Ast_बुहोल_Triop*>(nodep));
     }
-    void visit(AstNodeTriop* nodep) override {
+    void visit(Ast_बुहोल_Triop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1() | nodep->thsp()->user1());
         if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
         if (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
         if (nodep->sizeMattersThs()) ensureCast(nodep->thsp());
     }
-    void visit(AstNodeQuadop* nodep) override {
+    void visit(Ast_बुहोल_Quadop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1() | nodep->thsp()->user1()
                      | nodep->fhsp()->user1());
@@ -175,29 +175,29 @@ class CastVisitor final : public VNVisitor {
     void visit(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
         if (nodep->defaultp()) {
-            ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
+            ensure_Cast_हालागा(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
     }
     void visit(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
         if (nodep->defaultp()) {
-            ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
+            ensure_Cast_हालागा(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
     }
     void visit(AstConsStructItem* nodep) override {
         iterateChildren(nodep);
-        ensureCastValue(nodep->valuep(), nodep->memberp());
+        ensure_Cast_हालागा(nodep->valuep(), nodep->memberp());
     }
     void visit(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
         if (nodep->defaultp()) {
-            ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
+            ensure_Cast_हालागा(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
     }
-    void visit(AstExprStmt* nodep) override {
+    void visit(Ast_पाहायाग_Stmt* nodep) override {
         iterateChildren(nodep);
         nodep->user1(1);
     }
@@ -208,22 +208,22 @@ class CastVisitor final : public VNVisitor {
             // We want to avoid a GCC "converting of negative value" warning
             // from our expansion of
             //    out = {32{a<b}}  =>   out = - (a<b)
-            insertCast(nodep->lhsp(), castSize(nodep));
+            इसिंगित_Cast(nodep->lhsp(), castSize(nodep));
         } else {
             if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
         }
     }
     void visit(AstVarRef* nodep) override {
-        const AstNode* const backp = nodep->backp();
-        if (nodep->access().isReadOnly() && VN_IS(backp, NodeExpr) && !VN_IS(backp, CCast)
-            && !VN_IS(backp, NodeCCall) && !VN_IS(backp, CMethodHard) && !VN_IS(backp, SFormatF)
+        const Ast_बुहोल* const backp = nodep->backp();
+        if (nodep->access().isReadOnly() && VN_IS(backp, बुहोल_पाहायाग) && !VN_IS(backp, CCast)
+            && !VN_IS(backp, बुहोल_CCall) && !VN_IS(backp, CMethodHard) && !VN_IS(backp, SFormatF)
             && !VN_IS(backp, ArraySel) && !VN_IS(backp, StructSel) && !VN_IS(backp, RedXor)
             && (nodep->varp()->basicp() && !nodep->varp()->basicp()->isForkSync()
                 && !nodep->varp()->basicp()->isProcessRef() && !nodep->varp()->basicp()->isEvent())
             && backp->width() && castSize(nodep) != castSize(nodep->varp())) {
             // Cast vars to IData first, else below has upper bits wrongly set
             //  CData x=3; out = (QData)(x<<30);
-            insertCast(nodep, castSize(nodep));
+            इसिंगित_Cast(nodep, castSize(nodep));
         }
         nodep->user1(1);
     }
@@ -262,7 +262,7 @@ class CastVisitor final : public VNVisitor {
     void visit(AstVar*) override {}
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
 public:
     // CONSTRUCTORS
@@ -276,5 +276,5 @@ public:
 void V3Cast::castAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CastVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("cast", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("cast", 0, dump_पुनो_Either_Level() >= 3);
 }

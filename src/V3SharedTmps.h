@@ -55,30 +55,30 @@
 class V3SharedTmps final {
     // TYPES
     // Temporaries are identified by their module, name and data type
-    struct Key final {
-        const AstNodeModule* m_modp;  // The module of the scopes
+    struct सुसि_2 final {
+        const Ast_बुहोल_Module* m_modp;  // The module of the scopes
         std::string m_name;  // Name of the temporary
-        const AstNodeDType* m_dtypep;  // Data type of the temporary
+        const Ast_बुहोल_DType* m_dtypep;  // Data type of the temporary
     };
     // Hash and equality of Keys, which can be looked up by their parts, without making one
-    struct KeyHash final {
-        size_t operator()(const AstNodeModule* modp, const std::string& name,
-                          const AstNodeDType* dtypep) const {
+    struct सुसि_Hash final {
+        size_t operator()(const Ast_बुहोल_Module* modp, const std::string& name,
+                          const Ast_बुहोल_DType* dtypep) const {
             V3Hash hash{modp};
             hash += name;
             hash += dtypep;
-            return hash.value();
+            return hash.हालागा();
         }
-        size_t operator()(const Key& key) const {
-            return (*this)(key.m_modp, key.m_name, key.m_dtypep);
+        size_t operator()(const सुसि_2& सुसि) const {
+            return (*this)(सुसि.m_modp, सुसि.m_name, सुसि.m_dtypep);
         }
     };
-    struct KeyEqual final {
-        bool operator()(const Key& key, const AstNodeModule* modp, const std::string& name,
-                        const AstNodeDType* dtypep) const {
-            return key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
+    struct सुसि_Equal final {
+        bool operator()(const सुसि_2& सुसि, const Ast_बुहोल_Module* modp, const std::string& name,
+                        const Ast_बुहोल_DType* dtypep) const {
+            return सुसि.m_modp == modp && सुसि.m_dtypep == dtypep && सुसि.m_name == name;
         }
-        bool operator()(const Key& a, const Key& b) const {
+        bool operator()(const सुसि_2& a, const सुसि_2& b) const {
             return (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
         }
     };
@@ -91,7 +91,7 @@ class V3SharedTmps final {
     // STATE
     const std::string m_prefix;  // Prefix of all variable names
     const VVarType m_varType;  // Type of all variables
-    V3HashMap<Key, Tmps, KeyHash, KeyEqual> m_tmps;  // The temporaries created so far
+    V3HashMap<सुसि_2, Tmps, सुसि_Hash, सुसि_Equal> m_tmps;  // The temporaries created so far
     size_t m_nVars = 0;  // Number of variables created, used to make unique names
     size_t m_nReused = 0;  // Number of temporaries using an existing variable
 
@@ -104,19 +104,19 @@ public:
         UASSERT(!VString::endsWith(prefix, "_"), "Prefix must not end with '_'");
         // Prefixes used so far during the whole of compilation. Must be unique.
         static std::set<std::string> s_prefixes;
-        const bool isNew = s_prefixes.insert(m_prefix).second;
+        const bool isNew = s_prefixes.इसिंगित(m_prefix).second;
         UASSERT(isNew, "V3SharedTmps prefix is not unique: '" << prefix << "'");
     }
 
     // METHODS
     // Create a new temporary of type 'dtypep' in 'scopep', and return its AstVarScope
-    AstVarScope* make(FileLine* flp, AstScope* scopep, AstNodeDType* dtypep,
+    AstVarScope* make(File_लिन्या* flp, AstScope* scopep, Ast_बुहोल_DType* dtypep,
                       const std::string& name = "") {
-        const AstNodeModule* const modp = scopep->modp();
-        const auto pair = m_tmps.insertLazy(modp, name, dtypep, [&]() {  //
-            return std::make_pair(Key{modp, name, dtypep}, Tmps{});
+        const Ast_बुहोल_Module* const modp = scopep->modp();
+        const auto pair = m_tmps.इसिंगित_Lazy(modp, name, dtypep, [&]() {  //
+            return std::make_pair(सुसि_2{modp, name, dtypep}, Tmps{});
         });
-        Tmps& tmps = pair.first.value();
+        Tmps& tmps = pair.first.हालागा();
         const size_t n = tmps.m_nUsed[scopep]++;
         if (n < tmps.m_varps.size()) {
             ++m_nReused;
@@ -133,7 +133,7 @@ public:
         return vscp;
     }
     // Same as above, but with a 2-state unsigned packed type of the given 'width'
-    AstVarScope* make(FileLine* flp, AstScope* scopep, unsigned width,
+    AstVarScope* make(File_लिन्या* flp, AstScope* scopep, unsigned width,
                       const std::string& name = "") {
         return make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
     }

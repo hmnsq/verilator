@@ -29,27 +29,27 @@
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeStmt VL_NOT_FINAL : public AstNode {
+class Ast_बुहोल_Stmt VL_NOT_FINAL : public Ast_बुहोल {
     // Procedural statement
 protected:
-    AstNodeStmt(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+    Ast_बुहोल_Stmt(VNType t, File_लिन्या* fl)
+        : Ast_बुहोल{t, fl} {}
 
 public:
-    ASTGEN_MEMBERS_AstNodeStmt;
+    ASTGEN_MEMBERS_Ast_बुहोल_Stmt;
     // METHODS
     void dump(std::ostream& str = std::cout) const override;
     void dumpJson(std::ostream& str = std::cout) const override;
 };
-class AstNodeAssign VL_NOT_FINAL : public AstNodeStmt {
+class Ast_बुहोल_Assign VL_NOT_FINAL : public Ast_बुहोल_Stmt {
     // Iteration is in order, and we want rhsp to be visited first (which is the execution order)
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := lhsp : AstNodeExpr
     // @astgen op3 := timingControlp : Optional[AstNode]
 protected:
-    AstNodeAssign(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
-        : AstNodeStmt{t, fl} {
+    Ast_बुहोल_Assign(VNType t, File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp,
+                  Ast_बुहोल* timingControlp = nullptr)
+        : Ast_बुहोल_Stmt{t, fl} {
         this->rhsp(rhsp);
         this->lhsp(lhsp);
         this->timingControlp(timingControlp);
@@ -57,18 +57,18 @@ protected:
     }
 
 public:
-    ASTGEN_MEMBERS_AstNodeAssign;
+    ASTGEN_MEMBERS_Ast_बुहोल_Assign;
     // Clone single node, just get same type back.
     void dump(std::ostream& str) const override;
-    virtual AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) = 0;
+    virtual Ast_बुहोल_Assign* cloneType(Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) = 0;
     bool hasDType() const override VL_MT_SAFE { return true; }
     virtual bool cleanRhs() const { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
+    int instr_बिलांग() const override { return widthInstrs(); }
+    bool same_बुहोल(const Ast_बुहोल*) const override { return true; }
     string verilogKwd() const override { return "="; }
     bool isTimingControl() const override { return timingControlp(); }
 };
-class AstNodeBlock VL_NOT_FINAL : public AstNodeStmt {
+class Ast_बुहोल_Block VL_NOT_FINAL : public Ast_बुहोल_Stmt {
     // A Begin/fork block
     // Parents: statement
     // @astgen op1 := declsp : List[AstNode] // Declarations inside block
@@ -76,13 +76,13 @@ class AstNodeBlock VL_NOT_FINAL : public AstNodeStmt {
     string m_name;  // Name of block
     bool m_unnamed;  // Originally unnamed (name change does not affect this)
 protected:
-    AstNodeBlock(VNType t, FileLine* fl, const string& name)
-        : AstNodeStmt{t, fl}
+    Ast_बुहोल_Block(VNType t, File_लिन्या* fl, const string& name)
+        : Ast_बुहोल_Stmt{t, fl}
         , m_name{name}
         , m_unnamed{name == ""} {}
 
 public:
-    ASTGEN_MEMBERS_AstNodeBlock;
+    ASTGEN_MEMBERS_Ast_बुहोल_Block;
     bool maybePointedTo() const override VL_MT_SAFE { return true; }
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
@@ -90,7 +90,7 @@ public:
     void name(const string& name) override { m_name = name; }
     bool unnamed() const { return m_unnamed; }
 };
-class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
+class Ast_बुहोल_Cover_Or_Assert VL_NOT_FINAL : public Ast_बुहोल_Stmt {
     // Cover or Assert
     // Parents:  {statement list}
     // @astgen op1 := propp : AstNode
@@ -104,10 +104,10 @@ class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
     bool m_immediate = false;  // Immediate assert (may differ from userType being immediate)
 
 public:
-    AstNodeCoverOrAssert(VNType t, FileLine* fl, AstNode* propp, AstNode* passsp,
+    Ast_बुहोल_Cover_Or_Assert(VNType t, File_लिन्या* fl, Ast_बुहोल* propp, Ast_बुहोल* passsp,
                          VAssertType userType, VAssertDirectiveType directive,
                          const string& name = "")
-        : AstNodeStmt{t, fl}
+        : Ast_बुहोल_Stmt{t, fl}
         , m_name{name}
         , m_userType{userType}
         , m_directive{directive} {
@@ -118,9 +118,9 @@ public:
                                              | VAssertType::FINAL_DEFERRED_IMMEDIATE)
                       || m_userType == VAssertType::INTERNAL;
     }
-    ASTGEN_MEMBERS_AstNodeCoverOrAssert;
+    ASTGEN_MEMBERS_Ast_बुहोल_Cover_Or_Assert;
     string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool sameNode(const AstNode* samep) const override { return samep->name() == name(); }
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return samep->name() == name(); }
     void name(const string& name) override { m_name = name; }
     void dump(std::ostream& str = std::cout) const override;
     void dumpJson(std::ostream& str = std::cout) const override;
@@ -132,29 +132,29 @@ public:
     bool senFromAlways() const VL_MT_STABLE { return m_senFromAlways; }
     void senFromAlways(bool flag) { m_senFromAlways = flag; }
 };
-class AstNodeForeach VL_NOT_FINAL : public AstNodeStmt {
+class Ast_बुहोल_Foreach VL_NOT_FINAL : public Ast_बुहोल_Stmt {
     // @astgen op1 := headerp : AstForeachHeader
     // @astgen op2 := bodyp : List[AstNode]
 public:
-    AstNodeForeach(VNType t, FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp)
-        : AstNodeStmt(t, fl) {
+    Ast_बुहोल_Foreach(VNType t, File_लिन्या* fl, AstForeachHeader* headerp, Ast_बुहोल* bodyp)
+        : Ast_बुहोल_Stmt(t, fl) {
         this->headerp(headerp);
         addBodyp(bodyp);
     }
-    ASTGEN_MEMBERS_AstNodeForeach;
+    ASTGEN_MEMBERS_Ast_बुहोल_Foreach;
     bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstNodeIf VL_NOT_FINAL : public AstNodeStmt {
+class Ast_बुहोल_If VL_NOT_FINAL : public Ast_बुहोल_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := thensp : List[AstNode]
     // @astgen op3 := elsesp : List[AstNode]
     VBranchPred m_branchPred;  // Branch prediction as taken/untaken?
     bool m_isBoundsCheck;  // True if this if node is for assertion/bounds checking
 protected:
-    AstNodeIf(VNType t, FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
-        : AstNodeStmt{t, fl} {
+    Ast_बुहोल_If(VNType t, File_लिन्या* fl, Ast_बुहोल_पाहायाग* condp, Ast_बुहोल* thensp, Ast_बुहोल* elsesp)
+        : Ast_बुहोल_Stmt{t, fl} {
         this->condp(condp);
         addThensp(thensp);
         addElsesp(elsesp);
@@ -162,19 +162,19 @@ protected:
     }
 
 public:
-    ASTGEN_MEMBERS_AstNodeIf;
+    ASTGEN_MEMBERS_Ast_बुहोल_If;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     bool isGateOptimizable() const override { return false; }
     bool isGateDedupable() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
     void branchPred(VBranchPred flag) { m_branchPred = flag; }
     VBranchPred branchPred() const { return m_branchPred; }
     void isBoundsCheck(bool flag) { m_isBoundsCheck = flag; }
     bool isBoundsCheck() const { return m_isBoundsCheck; }
 };
-class AstNodeReadWriteMem VL_NOT_FINAL : public AstNodeStmt {
+class Ast_बुहोल_Read_Write_Mem VL_NOT_FINAL : public Ast_बुहोल_Stmt {
     // @astgen op1 := filenamep : AstNodeExpr
     // @astgen op2 := memp : AstNodeExpr
     // @astgen op3 := lsbp : Optional[AstNodeExpr]
@@ -182,16 +182,16 @@ class AstNodeReadWriteMem VL_NOT_FINAL : public AstNodeStmt {
 
     const bool m_isHex;  // readmemh, not readmemb
 public:
-    AstNodeReadWriteMem(VNType t, FileLine* fl, bool hex, AstNodeExpr* filenamep,
-                        AstNodeExpr* memp, AstNodeExpr* lsbp, AstNodeExpr* msbp)
-        : AstNodeStmt{t, fl}
+    Ast_बुहोल_Read_Write_Mem(VNType t, File_लिन्या* fl, bool hex, Ast_बुहोल_पाहायाग* filenamep,
+                        Ast_बुहोल_पाहायाग* memp, Ast_बुहोल_पाहायाग* lsbp, Ast_बुहोल_पाहायाग* msbp)
+        : Ast_बुहोल_Stmt{t, fl}
         , m_isHex{hex} {
         this->filenamep(filenamep);
         this->memp(memp);
         this->lsbp(lsbp);
         this->msbp(msbp);
     }
-    ASTGEN_MEMBERS_AstNodeReadWriteMem;
+    ASTGEN_MEMBERS_Ast_बुहोल_Read_Write_Mem;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     bool isGateOptimizable() const override { return false; }
@@ -199,8 +199,8 @@ public:
     bool isPure() override { return false; }
     bool isOutputter() override { return true; }
     bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return isHex() == VN_DBG_AS(samep, NodeReadWriteMem)->isHex();
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
+        return isHex() == VN_DBG_AS(samep, बुहोल_Read_Write_Mem)->isHex();
     }
     bool isHex() const { return m_isHex; }
     virtual const char* cFuncPrefixp() const = 0;
@@ -209,40 +209,40 @@ public:
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstCaseItem final : public AstNode {
+class AstCaseItem final : public Ast_बुहोल {
     // Single item of AstCase/AstRandCase
     // @astgen op1 := condsp : List[AstNodeExpr]
     // @astgen op2 := stmtsp : List[AstNode]
 public:
-    AstCaseItem(FileLine* fl, AstNodeExpr* condsp, AstNode* stmtsp)
+    AstCaseItem(File_लिन्या* fl, Ast_बुहोल_पाहायाग* condsp, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_CaseItem(fl) {
         addCondsp(condsp);
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstCaseItem;
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return widthInstrs() + INSTR_बिलांग_BRANCH; }
     bool isDefault() const { return condsp() == nullptr; }
 };
 
-class AstForeachHeader final : public AstNode {
+class AstForeachHeader final : public Ast_बुहोल {
     // Variable reference + index enumeration "ref [id, id, id]" for a foreach statement
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := elementsp : List[AstNode<AstNodeExpr|AstVar|AstEmpty>]
     //             AstNodeExpr/AstEmpty during parsing (only AstParseRef/AstEmpty is well formed)
     //             then AstVar/AstEmpty after LinkDot
 public:
-    AstForeachHeader(FileLine* fl, AstNodeExpr* fromp, AstNode* elementsp)
+    AstForeachHeader(File_लिन्या* fl, Ast_बुहोल_पाहायाग* fromp, Ast_बुहोल* elementsp)
         : ASTGEN_SUPER_ForeachHeader(fl) {
         this->fromp(fromp);
         addElementsp(elementsp);
     }
     ASTGEN_MEMBERS_AstForeachHeader;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
     bool maybePointedTo() const override VL_MT_SAFE { return false; }
 };
 
 // === AstNodeStmt ===
-class AstAssertCtl final : public AstNodeStmt {
+class AstAssertCtl final : public Ast_बुहोल_Stmt {
     // @astgen op1 := controlTypep : AstNodeExpr
     // @astgen op2 := assertTypesp : Optional[AstNodeExpr]
     // @astgen op3 := directiveTypesp : Optional[AstNodeExpr]
@@ -253,11 +253,11 @@ class AstAssertCtl final : public AstNodeStmt {
     VAssertDirectiveType m_directiveTypes;  // Types of directives affected
 
 public:
-    AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
-                 AstNodeExpr* levelp = nullptr, AstNodeExpr* itemsp = nullptr);
-    AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr* assertTypesp = nullptr,
-                 AstNodeExpr* directiveTypep = nullptr, AstNodeExpr* levelp = nullptr,
-                 AstNodeExpr* itemsp = nullptr);
+    AstAssertCtl(File_लिन्या* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
+                 Ast_बुहोल_पाहायाग* levelp = nullptr, Ast_बुहोल_पाहायाग* itemsp = nullptr);
+    AstAssertCtl(File_लिन्या* fl, Ast_बुहोल_पाहायाग* controlTypep, Ast_बुहोल_पाहायाग* assertTypesp = nullptr,
+                 Ast_बुहोल_पाहायाग* directiveTypep = nullptr, Ast_बुहोल_पाहायाग* levelp = nullptr,
+                 Ast_बुहोल_पाहायाग* itemsp = nullptr);
     ASTGEN_MEMBERS_AstAssertCtl;
     string verilogKwd() const override { return m_ctlType.ascii(); }
     bool isGateOptimizable() const override { return false; }
@@ -273,15 +273,15 @@ public:
     void dump(std::ostream& str = std::cout) const override;
     void dumpJson(std::ostream& str = std::cout) const override;
 };
-class AstBreak final : public AstNodeStmt {
+class AstBreak final : public Ast_बुहोल_Stmt {
 public:
-    explicit AstBreak(FileLine* fl)
+    explicit AstBreak(File_लिन्या* fl)
         : ASTGEN_SUPER_Break(fl) {}
     ASTGEN_MEMBERS_AstBreak;
     string verilogKwd() const override { return "break"; }
     bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCAwait final : public AstNodeStmt {
+class AstCAwait final : public Ast_बुहोल_Stmt {
     // C++'s co_await. While this is an expression in C++, in Verilator it is only used
     // with void result types and always appears in statement position. There must never
     // be a suspendable process that returns a value, so modeling as a statement instead.
@@ -289,7 +289,7 @@ class AstCAwait final : public AstNodeStmt {
     //
     // @astgen ptr := m_sentreep : Optional[AstSenTree]  // Sentree related to this await
 public:
-    AstCAwait(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep = nullptr)
+    AstCAwait(File_लिन्या* fl, Ast_बुहोल_पाहायाग* exprp, Ast_Sen_पुनो* sentreep = nullptr)
         : ASTGEN_SUPER_CAwait(fl)
         , m_sentreep{sentreep} {
         this->exprp(exprp);
@@ -298,62 +298,62 @@ public:
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     bool isTimingControl() const override { return true; }
-    AstSenTree* sentreep() const { return m_sentreep; }
+    Ast_Sen_पुनो* sentreep() const { return m_sentreep; }
     void clearSentreep() { m_sentreep = nullptr; }
 };
-class AstCLocalScope final : public AstNodeStmt {
+class AstCLocalScope final : public Ast_बुहोल_Stmt {
     // Pack statements into an unnamed scope when generating C++
     // @astgen op1 := stmtsp : List[AstNode]
 public:
-    AstCLocalScope(FileLine* fl, AstNode* stmtsp)
+    AstCLocalScope(File_लिन्या* fl, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_CLocalScope(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstCLocalScope;
 };
-class AstCReturn final : public AstNodeStmt {
+class AstCReturn final : public Ast_बुहोल_Stmt {
     // C++ return from a function
     // @astgen op1 := lhsp : AstNodeExpr
 public:
-    AstCReturn(FileLine* fl, AstNodeExpr* lhsp)
+    AstCReturn(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp)
         : ASTGEN_SUPER_CReturn(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstCReturn;
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    int instr_बिलांग() const override { return widthInstrs(); }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstCStmt final : public AstNodeStmt {
+class AstCStmt final : public Ast_बुहोल_Stmt {
     // C statement emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeStmt|AstNodeExpr|AstText>]
     const VCStmtType m_stmtType;  // Special statement (instead of comparing name())
 
-    static AstCStmt* profExecSection(FileLine* flp, const std::string& section, bool push) {
+    static AstCStmt* profExecSection(File_लिन्या* flp, const std::string& section, bool इतुलाक) {
         // Compute the label
         std::string label;
         if (v3Global.opt.hierChild()) {
-            label += v3Global.opt.topModule() + ":";
+            label += v3Global.opt.इताअस_Module() + ":";
         } else if (!v3Global.opt.libCreate().empty()) {
             label += v3Global.opt.libCreate() + ":";
         }
         label += section;
         // The profiler statement
         std::string pStmt = "VL_EXEC_TRACE_ADD_RECORD(vlSymsp)";
-        pStmt += push ? ".sectionPush" : ".sectionPop";
+        pStmt += इतुलाक ? ".sectionPush" : ".sectionPop";
         pStmt += "(";
-        if (push) pStmt += "\"" + label + "\"";
+        if (इतुलाक) pStmt += "\"" + label + "\"";
         pStmt += ");";
         // The debug statement
         std::string dStmt = "VL_DEBUG_IF(VL_DBG_MSGF(\"+    --prof-exec ";
-        dStmt += push ? "sectionPush " : "sectionPop ";
+        dStmt += इतुलाक ? "sectionPush " : "sectionPop ";
         dStmt += label;
         dStmt += "\\n\"););";
         // Concatenate
-        return new AstCStmt{flp, push ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
+        return new AstCStmt{flp, इतुलाक ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
     }
 
 public:
-    explicit AstCStmt(FileLine* fl, const std::string& text = "",
+    explicit AstCStmt(File_लिन्या* fl, const std::string& text = "",
                       const VCStmtType& stmtType = VCStmtType::NONE)
         : ASTGEN_SUPER_CStmt(fl)
         , m_stmtType{stmtType} {
@@ -364,22 +364,22 @@ public:
     bool isOutputter() override { return true; }
     bool isPredictOptimizable() const override { return false; }
     bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल*) const override { return true; }
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     VCStmtType stmtType() const { return m_stmtType; }
     // Add some text, or a node to this statement
     void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    void add(Ast_बुहोल* nodep) { addNodesp(nodep); }
     // Static factory methods for specific cases
-    static AstCStmt* profExecSectionPush(FileLine* flp, const std::string& section) {
+    static AstCStmt* prof_Exec_Section_इतुलाक(File_लिन्या* flp, const std::string& section) {
         return profExecSection(flp, section, true);
     }
-    static AstCStmt* profExecSectionPop(FileLine* flp, const std::string& section) {
+    static AstCStmt* prof_Exec_Section_आलिसिन(File_लिन्या* flp, const std::string& section) {
         return profExecSection(flp, section, false);
     }
 };
-class AstCStmtUser final : public AstNodeStmt {
+class AstCStmtUser final : public Ast_बुहोल_Stmt {
     // User '$c' statement, also used for handling some AstSystemCSection.
     // Same as AstCStmt, with text tracking disabled.
     //
@@ -391,7 +391,7 @@ class AstCStmtUser final : public AstNodeStmt {
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
     const bool m_fromDollarC;  // Is from source '$c', emit decoration
 public:
-    explicit AstCStmtUser(FileLine* fl, bool fromDollarC = false)
+    explicit AstCStmtUser(File_लिन्या* fl, bool fromDollarC = false)
         : ASTGEN_SUPER_CStmtUser(fl)
         , m_fromDollarC{fromDollarC} {}
     ASTGEN_MEMBERS_AstCStmtUser;
@@ -402,13 +402,13 @@ public:
     bool isOutputter() override { return true; }
     bool isPredictOptimizable() const override { return false; }
     bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल*) const override { return true; }
     bool fromDollarC() const { return m_fromDollarC; }
     // Add some text, or a node to this statement
     void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    void add(Ast_बुहोल* nodep) { addNodesp(nodep); }
 };
-class AstCase final : public AstNodeStmt {
+class AstCase final : public Ast_बुहोल_Stmt {
     // Case statement
     // @astgen op1 := exprp : AstNodeExpr // Condition (scurtinee) expression
     // @astgen op2 := itemsp : List[AstCaseItem]
@@ -420,7 +420,7 @@ class AstCase final : public AstNodeStmt {
     bool m_unique0Pragma = false;  // unique0 case
     bool m_priorityPragma = false;  // priority case
 public:
-    AstCase(FileLine* fl, VCaseType caseType, AstNodeExpr* exprp, AstCaseItem* itemsp)
+    AstCase(File_लिन्या* fl, VCaseType caseType, Ast_बुहोल_पाहायाग* exprp, AstCaseItem* itemsp)
         : ASTGEN_SUPER_Case(fl)
         , m_caseType{caseType} {
         this->exprp(exprp);
@@ -429,9 +429,9 @@ public:
     ASTGEN_MEMBERS_AstCase;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
     string verilogKwd() const override { return casez() ? "casez" : casex() ? "casex" : "case"; }
-    bool sameNode(const AstNode* samep) const override {
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
         return m_caseType == VN_DBG_AS(samep, Case)->m_caseType;
     }
     bool casex() const { return m_caseType == VCaseType::CT_CASEX; }
@@ -453,12 +453,12 @@ public:
     void priorityPragma(bool flag) { m_priorityPragma = flag; }
     string pragmaString() const;
 };
-class AstComment final : public AstNodeStmt {
+class AstComment final : public Ast_बुहोल_Stmt {
     // Some comment to put into the output stream
     const string m_name;  // Text of comment
     const bool m_showAt;  // Show "at <fileline>"
 public:
-    AstComment(FileLine* fl, const string& name, bool showAt = false)
+    AstComment(File_लिन्या* fl, const string& name, bool showAt = false)
         : ASTGEN_SUPER_Comment(fl)
         , m_name{name}
         , m_showAt{showAt} {}
@@ -466,15 +466,15 @@ public:
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     string name() const override VL_MT_STABLE { return m_name; }  // * = Text
-    bool sameNode(const AstNode* samep) const override { return true; }  // Ignore name in comments
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return true; }  // Ignore name in comments
     virtual bool showAt() const { return m_showAt; }
 };
-class AstConstraintBefore final : public AstNodeStmt {
+class AstConstraintBefore final : public Ast_बुहोल_Stmt {
     // Constraint solve before item
     // @astgen op1 := lhssp : List[AstNodeExpr]
     // @astgen op2 := rhssp : List[AstNodeExpr]
 public:
-    AstConstraintBefore(FileLine* fl, AstNodeExpr* lhssp, AstNodeExpr* rhssp)
+    AstConstraintBefore(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhssp, Ast_बुहोल_पाहायाग* rhssp)
         : ASTGEN_SUPER_ConstraintBefore(fl) {
         addLhssp(lhssp);
         addRhssp(rhssp);
@@ -482,51 +482,51 @@ public:
     ASTGEN_MEMBERS_AstConstraintBefore;
     bool isGateOptimizable() const override { return false; }
     bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstConstraintExpr final : public AstNodeStmt {
+class Ast_Constraint_पाहायाग final : public Ast_बुहोल_Stmt {
     // Constraint expression
     // @astgen op1 := exprp : AstNodeExpr
     bool m_isDisableSoft = false;  // Disable soft constraint expression
     bool m_isSoft = false;  // Soft constraint expression
 public:
-    AstConstraintExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_ConstraintExpr(fl) {
+    Ast_Constraint_पाहायाग(File_लिन्या* fl, Ast_बुहोल_पाहायाग* exprp)
+        : ASTGEN_SUPER_Constraint_पाहायाग(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstConstraintExpr;
+    ASTGEN_MEMBERS_Ast_Constraint_पाहायाग;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     bool isGateOptimizable() const override { return false; }
     bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
     bool isDisableSoft() const { return m_isDisableSoft; }
     void isDisableSoft(bool flag) { m_isDisableSoft = flag; }
     bool isSoft() const { return m_isSoft; }
     void isSoft(bool flag) { m_isSoft = flag; }
 };
-class AstConstraintUnique final : public AstNodeStmt {
+class AstConstraintUnique final : public Ast_बुहोल_Stmt {
     // Constraint unique statement
     // @astgen op1 := rangesp : List[AstNode]
 public:
-    AstConstraintUnique(FileLine* fl, AstNode* rangesp)
+    AstConstraintUnique(File_लिन्या* fl, Ast_बुहोल* rangesp)
         : ASTGEN_SUPER_ConstraintUnique(fl) {
         addRangesp(rangesp);
     }
     ASTGEN_MEMBERS_AstConstraintUnique;
     bool isGateOptimizable() const override { return false; }
     bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstContinue final : public AstNodeStmt {
+class AstContinue final : public Ast_बुहोल_Stmt {
 public:
-    explicit AstContinue(FileLine* fl)
+    explicit AstContinue(File_लिन्या* fl)
         : ASTGEN_SUPER_Continue(fl) {}
     ASTGEN_MEMBERS_AstContinue;
     string verilogKwd() const override { return "continue"; }
     bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCoverInc final : public AstNodeStmt {
+class AstCoverInc final : public Ast_बुहोल_Stmt {
     // Coverage analysis point; increment coverage count
     // @astgen op1 := toggleExprp : Optional[AstNodeExpr]  // [After V3Clock]
     // @astgen op2 := toggleCovExprp : Optional[AstNodeExpr]  // [After V3Clock]
@@ -537,15 +537,15 @@ class AstCoverInc final : public AstNodeStmt {
     bool m_isDuplicate = false;  // Duplicate AstCoverInc associated with one AstNodeCoverDecl
 
 public:
-    AstCoverInc(FileLine* fl, AstNodeCoverDecl* declp, const bool isDuplicate = false)
+    AstCoverInc(File_लिन्या* fl, Ast_बुहोल_Cover_Decl* declp, const bool isDuplicate = false)
         : ASTGEN_SUPER_CoverInc(fl)
         , m_isDuplicate{isDuplicate}
         , m_declp{declp} {}
     ASTGEN_MEMBERS_AstCoverInc;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 1 + 2 * INSTR_COUNT_LD; }
-    bool sameNode(const AstNode* samep) const override {
+    int instr_बिलांग() const override { return 1 + 2 * INSTR_बिलांग_LD; }
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
         const AstCoverInc* const otherp = VN_DBG_AS(samep, CoverInc);
         return declp() == otherp->declp() && isDuplicate() == otherp->isDuplicate();
     }
@@ -553,21 +553,21 @@ public:
     bool isPredictOptimizable() const override { return false; }
     bool isOutputter() override { return true; }
     bool isPure() override { return false; }
-    AstNodeCoverDecl* declp() const { return m_declp; }  // Where defined
-    void declp(AstNodeCoverDecl* nodep) { m_declp = nodep; }
+    Ast_बुहोल_Cover_Decl* declp() const { return m_declp; }  // Where defined
+    void declp(Ast_बुहोल_Cover_Decl* nodep) { m_declp = nodep; }
     bool isDuplicate() const { return m_isDuplicate; }
 };
-class AstDeassign final : public AstNodeStmt {
+class AstDeassign final : public Ast_बुहोल_Stmt {
     // Procedural 'deassign' statement
     // @astgen op1 := lhsp : AstNodeExpr
 public:
-    AstDeassign(FileLine* fl, AstNodeExpr* lhsp)
+    AstDeassign(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp)
         : ASTGEN_SUPER_Deassign(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstDeassign;
 };
-class AstDelay final : public AstNodeStmt {
+class AstDelay final : public Ast_बुहोल_Stmt {
     // Delay statement
     // @astgen op1 := lhsp : AstNodeExpr // Delay value (or min for range)
     // @astgen op2 := stmtsp : List[AstNode] // Statements under delay
@@ -576,7 +576,7 @@ class AstDelay final : public AstNodeStmt {
     VTimescale m_timeunit;  // Delay's time unit
     const bool m_isCycleDelay;  // True if it is a cycle delay
 public:
-    AstDelay(FileLine* fl, AstNodeExpr* lhsp, bool isCycleDelay)
+    AstDelay(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp, bool isCycleDelay)
         : ASTGEN_SUPER_Delay(fl)
         , m_isCycleDelay{isCycleDelay} {
         this->lhsp(lhsp);
@@ -585,58 +585,58 @@ public:
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     bool isTimingControl() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
     void timeunit(const VTimescale& flag) { m_timeunit = flag; }
     VTimescale timeunit() const { return m_timeunit; }
     bool isCycleDelay() const { return m_isCycleDelay; }
     bool isRangeDelay() const { return m_isCycleDelay && rhsp(); }
     bool isUnbounded() const { return isRangeDelay() && VN_IS(rhsp(), Unbounded); }
-    void fallDelay(AstNodeExpr* const fallDelayp) { rhsp(fallDelayp); }
-    AstNodeExpr* fallDelay() const { return m_isCycleDelay ? nullptr : rhsp(); }
+    void fallDelay(Ast_बुहोल_पाहायाग* const fallDelayp) { rhsp(fallDelayp); }
+    Ast_बुहोल_पाहायाग* fallDelay() const { return m_isCycleDelay ? nullptr : rhsp(); }
 };
-class AstDisable final : public AstNodeStmt {
+class AstDisable final : public Ast_बुहोल_Stmt {
     // @astgen op1 := targetRefp : Optional[AstNodeExpr]  // Reference to link in V3LinkDot
     // @astgen ptr := m_targetp : Optional[AstNode]  // Task or block after V3LinkDot
 public:
-    AstDisable(FileLine* fl, AstNodeExpr* targetRefp)
+    AstDisable(File_लिन्या* fl, Ast_बुहोल_पाहायाग* targetRefp)
         : ASTGEN_SUPER_Disable(fl) {
         this->targetRefp(targetRefp);
     }
     ASTGEN_MEMBERS_AstDisable;
     const char* broken() const override;
     void dump(std::ostream& str) const override;
-    void targetp(AstNode* nodep) { m_targetp = nodep; }
-    AstNode* targetp() const { return m_targetp; }
+    void targetp(Ast_बुहोल* nodep) { m_targetp = nodep; }
+    Ast_बुहोल* targetp() const { return m_targetp; }
     bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstDisableFork final : public AstNodeStmt {
+class AstDisableFork final : public Ast_बुहोल_Stmt {
     // A "disable fork" statement
 public:
-    explicit AstDisableFork(FileLine* fl)
+    explicit AstDisableFork(File_लिन्या* fl)
         : ASTGEN_SUPER_DisableFork(fl) {}
     ASTGEN_MEMBERS_AstDisableFork;
     string verilogKwd() const override { return "disable fork"; }
 };
-class AstDisplay final : public AstNodeStmt {
+class AstDisplay final : public Ast_बुहोल_Stmt {
     // Parents: stmtlist
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must resolve to a VarRef)
     VDisplayType m_displayType;
 
 public:
-    AstDisplay(FileLine* fl, VDisplayType dispType, const string& text, AstNodeExpr* filep,
-               AstNodeExpr* exprsp, char missingArgChar = 'd')
+    AstDisplay(File_लिन्या* fl, VDisplayType dispType, const string& text, Ast_बुहोल_पाहायाग* filep,
+               Ast_बुहोल_पाहायाग* exprsp, char missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
         fmtp(new AstSFormatF{fl, text, true, exprsp, missingArgChar});
         this->filep(filep);
     }
-    AstDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* filep, AstNodeExpr* exprsp,
+    AstDisplay(File_लिन्या* fl, VDisplayType dispType, Ast_बुहोल_पाहायाग* filep, Ast_बुहोल_पाहायाग* exprsp,
                char missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
         AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+            = new AstSFormatF{fl, AstSFormatF::पाहायाग_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(true);
         fmtp(newp);
         this->filep(filep);
@@ -657,22 +657,22 @@ public:
     bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
     bool isOutputter() override { return true; }  // SPECIAL: $display makes output
     bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
         return displayType() == VN_DBG_AS(samep, Display)->displayType();
     }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_PLI; }
     VDisplayType displayType() const { return m_displayType; }
     void displayType(VDisplayType type) { m_displayType = type; }
     // * = Add a newline for $display
     bool addNewline() const { return displayType().addNewline(); }
 };
-class AstDumpCtl final : public AstNodeStmt {
+class AstDumpCtl final : public Ast_बुहोल_Stmt {
     // $dumpon etc
     // Parents: expr
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Expression based on type of statement
     const VDumpCtlType m_ctlType;  // Type of operation
 public:
-    AstDumpCtl(FileLine* fl, VDumpCtlType ctlType, AstNodeExpr* exprp = nullptr)
+    AstDumpCtl(File_लिन्या* fl, VDumpCtlType ctlType, Ast_बुहोल_पाहायाग* exprp = nullptr)
         : ASTGEN_SUPER_DumpCtl(fl)
         , m_ctlType{ctlType} {
         this->exprp(exprp);
@@ -684,17 +684,17 @@ public:
     bool isPredictOptimizable() const override { return false; }
     bool isPure() override { return false; }
     virtual bool cleanOut() const { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     VDumpCtlType ctlType() const { return m_ctlType; }
 };
-class AstEventControl final : public AstNodeStmt {
+class AstEventControl final : public Ast_बुहोल_Stmt {
     // Parents: stmtlist
     // @astgen op1 := sentreep : Optional[AstSenTree]
     // @astgen op2 := stmtsp : List[AstNode]
 public:
-    AstEventControl(FileLine* fl, AstSenTree* sentreep, AstNode* stmtsp)
+    AstEventControl(File_लिन्या* fl, Ast_Sen_पुनो* sentreep, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_EventControl(fl) {
         this->sentreep(sentreep);
         addStmtsp(stmtsp);
@@ -702,9 +702,9 @@ public:
     ASTGEN_MEMBERS_AstEventControl;
     string verilogKwd() const override { return "@(%l) %r"; }
     bool isTimingControl() const override { return true; }
-    int instrCount() const override { return 0; }
+    int instr_बिलांग() const override { return 0; }
 };
-class AstExecGraph final : public AstNodeStmt {
+class AstExecGraph final : public Ast_बुहोल_Stmt {
     // For parallel execution, this node contains a dependency graph. Each
     // vertex in the graph is an ExecMTask, which includes a function that
     // holds the sequential body of the mtask.
@@ -728,7 +728,7 @@ class AstExecGraph final : public AstNodeStmt {
     const string m_name;  // Name of this AstExecGraph (for uniqueness at code generation)
 
 public:
-    AstExecGraph(FileLine* fl, const string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
+    AstExecGraph(File_लिन्या* fl, const string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
     ~AstExecGraph() override;
     ASTGEN_MEMBERS_AstExecGraph;
     void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
@@ -739,11 +739,11 @@ public:
     AstCFunc* runfuncp() const { return m_runfuncp; }
     void runfuncp(AstCFunc* funcp) { m_runfuncp = funcp; }
 };
-class AstFClose final : public AstNodeStmt {
+class AstFClose final : public Ast_बुहोल_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
 public:
-    AstFClose(FileLine* fl, AstNodeExpr* filep)
+    AstFClose(File_लिन्या* fl, Ast_बुहोल_पाहायाग* filep)
         : ASTGEN_SUPER_FClose(fl) {
         this->filep(filep);
     }
@@ -754,13 +754,13 @@ public:
     bool isPure() override { return false; }
     bool isOutputter() override { return true; }
     bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstFFlush final : public AstNodeStmt {
+class AstFFlush final : public Ast_बुहोल_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
 public:
-    AstFFlush(FileLine* fl, AstNodeExpr* filep)
+    AstFFlush(File_लिन्या* fl, Ast_बुहोल_पाहायाग* filep)
         : ASTGEN_SUPER_FFlush(fl) {
         this->filep(filep);
     }
@@ -771,11 +771,11 @@ public:
     bool isPure() override { return false; }
     bool isOutputter() override { return true; }
     bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstFinish final : public AstNodeStmt {
+class AstFinish final : public Ast_बुहोल_Stmt {
 public:
-    explicit AstFinish(FileLine* fl)
+    explicit AstFinish(File_लिन्या* fl)
         : ASTGEN_SUPER_Finish(fl) {}
     ASTGEN_MEMBERS_AstFinish;
     bool isGateOptimizable() const override { return false; }
@@ -783,13 +783,13 @@ public:
     bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
     bool isOutputter() override { return true; }  // SPECIAL: $display makes output
     bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    int instr_बिलांग() const override { return 0; }  // Rarely executes
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return fileline() == samep->fileline(); }
 };
-class AstFinishFork final : public AstNodeStmt {
+class AstFinishFork final : public Ast_बुहोल_Stmt {
     // $finish in fork
 public:
-    explicit AstFinishFork(FileLine* fl)
+    explicit AstFinishFork(File_लिन्या* fl)
         : ASTGEN_SUPER_FinishFork(fl) {}
     ASTGEN_MEMBERS_AstFinishFork;
     bool isGateOptimizable() const override { return false; }
@@ -797,15 +797,15 @@ public:
     bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
     bool isOutputter() override { return true; }  // SPECIAL: $display makes output
     bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    int instr_बिलांग() const override { return 0; }  // Rarely executes
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return fileline() == samep->fileline(); }
 };
-class AstFireEvent final : public AstNodeStmt {
+class AstFireEvent final : public Ast_बुहोल_Stmt {
     // '-> _' and '->> _' event trigger statements
     // @astgen op1 := operandp : AstNodeExpr
     const bool m_delayed;  // Delayed (->>) vs non-delayed (->)
 public:
-    AstFireEvent(FileLine* fl, AstNodeExpr* operandp, bool delayed)
+    AstFireEvent(File_लिन्या* fl, Ast_बुहोल_पाहायाग* operandp, bool delayed)
         : ASTGEN_SUPER_FireEvent(fl)
         , m_delayed{delayed} {
         this->operandp(operandp);
@@ -815,7 +815,7 @@ public:
     void dumpJson(std::ostream& str) const override;
     bool isDelayed() const { return m_delayed; }
 };
-class AstInitialAutomaticStmt final : public AstNodeStmt {
+class AstInitialAutomaticStmt final : public Ast_बुहोल_Stmt {
     // Automatic variable initialization in a statement position
     // Used during early stages to record an initial initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialAutomatic, or
@@ -823,15 +823,15 @@ class AstInitialAutomaticStmt final : public AstNodeStmt {
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
 public:
-    AstInitialAutomaticStmt(FileLine* fl, AstNode* stmtsp)
+    AstInitialAutomaticStmt(File_लिन्या* fl, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_InitialAutomaticStmt(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialAutomaticStmt;
-    int instrCount() const override { return 0; }
+    int instr_बिलांग() const override { return 0; }
     bool isPure() override { return true; }
 };
-class AstInitialStaticStmt final : public AstNodeStmt {
+class AstInitialStaticStmt final : public Ast_बुहोल_Stmt {
     // Static variable initialization in a statement position
     // Used during early stages to record a static initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialStatic, or
@@ -839,15 +839,15 @@ class AstInitialStaticStmt final : public AstNodeStmt {
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
 public:
-    AstInitialStaticStmt(FileLine* fl, AstNode* stmtsp)
+    AstInitialStaticStmt(File_लिन्या* fl, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_InitialStaticStmt(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialStaticStmt;
-    int instrCount() const override { return 0; }
+    int instr_बिलांग() const override { return 0; }
     bool isPure() override { return true; }
 };
-class AstJumpBlock final : public AstNodeStmt {
+class AstJumpBlock final : public Ast_बुहोल_Stmt {
     // Block of code that might contain AstJumpGo statements as children,
     // which when exectued branch to right after the referenced AstJumpBlock.
     // AstJumpBlocks can nest, and an AstJumpGo can reference any of the
@@ -858,34 +858,34 @@ class AstJumpBlock final : public AstNodeStmt {
     VIsCached m_purity;  // Pure state
 public:
     // After construction must call ->labelp to associate with appropriate label
-    AstJumpBlock(FileLine* fl, AstNode* stmtsp)
+    AstJumpBlock(File_लिन्या* fl, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_JumpBlock(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstJumpBlock;
-    int instrCount() const override { return 0; }
+    int instr_बिलांग() const override { return 0; }
     bool maybePointedTo() const override VL_MT_SAFE { return true; }
     bool isPure() override;
 
 private:
     bool getPurityRecurse() const;
 };
-class AstJumpGo final : public AstNodeStmt {
+class AstJumpGo final : public Ast_बुहोल_Stmt {
     // Branch to right after the referenced encloding AstJumpBlock
     // Parents:  statement, including the referenced AstJumpBlock
     // Children: none
     //
     // @astgen ptr := m_blockp : AstJumpBlock  // The AstJumpBlock we are branching after
 public:
-    AstJumpGo(FileLine* fl, AstJumpBlock* blockp)
+    AstJumpGo(File_लिन्या* fl, AstJumpBlock* blockp)
         : ASTGEN_SUPER_JumpGo(fl)
         , m_blockp{blockp} {}
     ASTGEN_MEMBERS_AstJumpGo;
     const char* broken() const override;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* samep) const override {
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
         return blockp() == VN_DBG_AS(samep, JumpGo)->blockp();
     }
     bool isGateOptimizable() const override { return false; }
@@ -894,7 +894,7 @@ public:
     }
     AstJumpBlock* blockp() const { return m_blockp; }
 };
-class AstLoop final : public AstNodeStmt {
+class AstLoop final : public Ast_बुहोल_Stmt {
     // An inifinite loop, used to model all source level procedural loops.
     // Executes as:
     //  while (true) {
@@ -907,24 +907,24 @@ class AstLoop final : public AstNodeStmt {
     // @astgen op2 := contsp : List[AstNode] // Empty after LinkJump
     VOptionBool m_unroll;  // Full, none, or default unrolling
 public:
-    explicit AstLoop(FileLine* fl, AstNode* stmtsp = nullptr)
+    explicit AstLoop(File_लिन्या* fl, Ast_बुहोल* stmtsp = nullptr)
         : ASTGEN_SUPER_Loop(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstLoop;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* thatp) const override {
+    bool same_बुहोल(const Ast_बुहोल* thatp) const override {
         return m_unroll == VN_DBG_AS(thatp, Loop)->m_unroll;
     }
     bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
     bool maybePointedTo() const override VL_MT_SAFE { return true; }
     // ACCESSORS
     VOptionBool unroll() const { return m_unroll; }
     void unroll(const VOptionBool flag) { m_unroll = flag; }
 };
-class AstLoopTest final : public AstNodeStmt {
+class AstLoopTest final : public Ast_बुहोल_Stmt {
     // The condition test inside an AstLoop. If the condition is true,
     // execution continues after this AstLoopTest statement. If the condition
     // is false, control is transfered to after the corresponding AstLoop.
@@ -933,7 +933,7 @@ class AstLoopTest final : public AstNodeStmt {
     // @astgen op1 := condp : AstNodeExpr  // The loop condition
     // @astgen ptr := m_loopp : AstLoop  // The corresponding AstLoop
 public:
-    AstLoopTest(FileLine* fl, AstLoop* loopp, AstNodeExpr* condp)
+    AstLoopTest(File_लिन्या* fl, AstLoop* loopp, Ast_बुहोल_पाहायाग* condp)
         : ASTGEN_SUPER_LoopTest(fl)
         , m_loopp{loopp} {
         this->condp(condp);
@@ -941,18 +941,18 @@ public:
     ASTGEN_MEMBERS_AstLoopTest;
     const char* broken() const override;
     void dump(std::ostream& str) const override;
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल*) const override { return true; }
     bool isGateOptimizable() const override { return false; }
     bool isBrancher() const override { return true; }
-    int instrCount() const override { return 0; }
+    int instr_बिलांग() const override { return 0; }
     // ACCESSORS
     AstLoop* loopp() const { return m_loopp; }
 };
-class AstMonitorOff final : public AstNodeStmt {
+class AstMonitorOff final : public Ast_बुहोल_Stmt {
     const bool m_off;  // Monitor off.  Using 0=on allows faster init and comparison
 
 public:
-    AstMonitorOff(FileLine* fl, bool off)
+    AstMonitorOff(File_लिन्या* fl, bool off)
         : ASTGEN_SUPER_MonitorOff(fl)
         , m_off{off} {}
     ASTGEN_MEMBERS_AstMonitorOff;
@@ -963,20 +963,20 @@ public:
     bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
     bool isPure() override { return false; }  // Though deleted before opt
     bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
+    int instr_बिलांग() const override { return INSTR_बिलांग_PLI; }
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
         return m_off == VN_DBG_AS(samep, MonitorOff)->m_off;
     }
     bool off() const { return m_off; }
 };
-class AstPExprClause final : public AstNodeStmt {
+class AstPExprClause final : public Ast_बुहोल_Stmt {
     const bool m_pass;  // Will be replaced by passing assertion clause, false for
                         // assertion failure clause
     const bool m_vacuous;  // Pass is vacuous
 
 public:
     ASTGEN_MEMBERS_AstPExprClause;
-    explicit AstPExprClause(FileLine* fl, bool pass = true, bool vacuous = false)
+    explicit AstPExprClause(File_लिन्या* fl, bool pass = true, bool vacuous = false)
         : ASTGEN_SUPER_PExprClause(fl)
         , m_pass{pass}
         , m_vacuous{vacuous} {}
@@ -985,14 +985,14 @@ public:
     bool pass() const { return m_pass; }
     bool vacuous() const { return m_vacuous; }
 };
-class AstPrintTimeScale final : public AstNodeStmt {
+class Ast_इलिम्बाग_Time_Scale final : public Ast_बुहोल_Stmt {
     // Parents: stmtlist
     string m_name;  // Parent module name
     VTimescale m_timeunit;  // Parent module time unit
 public:
-    explicit AstPrintTimeScale(FileLine* fl)
-        : ASTGEN_SUPER_PrintTimeScale(fl) {}
-    ASTGEN_MEMBERS_AstPrintTimeScale;
+    explicit Ast_इलिम्बाग_Time_Scale(File_लिन्या* fl)
+        : ASTGEN_SUPER_इलिम्बाग_Time_Scale(fl) {}
+    ASTGEN_MEMBERS_Ast_इलिम्बाग_Time_Scale;
     void name(const string& name) override { m_name = name; }
     string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
     void dump(std::ostream& str) const override;
@@ -1002,27 +1002,27 @@ public:
     bool isPredictOptimizable() const override { return false; }
     bool isPure() override { return false; }
     bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_PLI; }
     void timeunit(const VTimescale& flag) { m_timeunit = flag; }
     VTimescale timeunit() const { return m_timeunit; }
 };
-class AstRSBreak final : public AstNodeStmt {
+class AstRSBreak final : public Ast_बुहोल_Stmt {
     // randsequence break
 public:
-    explicit AstRSBreak(FileLine* fl)
+    explicit AstRSBreak(File_लिन्या* fl)
         : ASTGEN_SUPER_RSBreak(fl) {}
     ASTGEN_MEMBERS_AstRSBreak;
     string verilogKwd() const override { return "break"; }
     bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSProd final : public AstNodeStmt {
+class AstRSProd final : public Ast_बुहोल_Stmt {
     // randomsequence production, under a AstRandSequence
     // @astgen op1 := fvarp : Optional[AstVar]
     // @astgen op2 := portsp : List[AstNode]
     // @astgen op3 := rulesp : List[AstRSRule]
     string m_name;  // Name of block, or "" to use first production
 public:
-    AstRSProd(FileLine* fl, const string& name, AstNode* portsp, AstRSRule* rulesp)
+    AstRSProd(File_लिन्या* fl, const string& name, Ast_बुहोल* portsp, AstRSRule* rulesp)
         : ASTGEN_SUPER_RSProd(fl)
         , m_name{name} {
         addPortsp(portsp);
@@ -1031,32 +1031,32 @@ public:
     ASTGEN_MEMBERS_AstRSProd;
     bool maybePointedTo() const override VL_MT_SAFE { return true; }
     string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
 };
-class AstRSProdItem final : public AstNodeStmt {
+class AstRSProdItem final : public Ast_बुहोल_Stmt {
     // randomsquence production item
     // @astgen op1 := argsp : List[AstArg]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to production
     string m_name;  // Name of block, or "" to use first production
 public:
-    AstRSProdItem(FileLine* fl, const string& name, AstArg* argsp)
+    AstRSProdItem(File_लिन्या* fl, const string& name, AstArg* argsp)
         : ASTGEN_SUPER_RSProdItem(fl)
         , m_name{name} {
         addArgsp(argsp);
     }
     ASTGEN_MEMBERS_AstRSProdItem;
     string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
     AstRSProd* prodp() const { return m_prodp; }
     void prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRSProdList final : public AstNodeStmt {
+class AstRSProdList final : public Ast_बुहोल_Stmt {
     // randomsquence production list
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodsp : List[AstNode]
     bool m_randJoin = false;  // Is rand join'ed
 public:
-    AstRSProdList(FileLine* fl, AstNodeExpr* weightp, AstNode* prodsp)
+    AstRSProdList(File_लिन्या* fl, Ast_बुहोल_पाहायाग* weightp, Ast_बुहोल* prodsp)
         : ASTGEN_SUPER_RSProdList(fl) {
         this->weightp(weightp);
         addProdsp(prodsp);
@@ -1064,52 +1064,52 @@ public:
     ASTGEN_MEMBERS_AstRSProdList;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
     bool randJoin() const { return m_randJoin; }
     void randJoin(bool flag) { m_randJoin = flag; }
 };
-class AstRSReturn final : public AstNodeStmt {
+class AstRSReturn final : public Ast_बुहोल_Stmt {
     // randsequence return
 public:
-    explicit AstRSReturn(FileLine* fl)
+    explicit AstRSReturn(File_लिन्या* fl)
         : ASTGEN_SUPER_RSReturn(fl) {}
     ASTGEN_MEMBERS_AstRSReturn;
     string verilogKwd() const override { return "return"; }
     bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSRule final : public AstNodeStmt {
+class AstRSRule final : public Ast_बुहोल_Stmt {
     // randomsquence rule
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodlistsp : List[AstRSProdList]
     // @astgen op3 := weightStmtsp : List[AstNode]
 public:
-    AstRSRule(FileLine* fl, AstNodeExpr* weightp, AstRSProdList* prodlistsp, AstNode* weightStmtsp)
+    AstRSRule(File_लिन्या* fl, Ast_बुहोल_पाहायाग* weightp, AstRSProdList* prodlistsp, Ast_बुहोल* weightStmtsp)
         : ASTGEN_SUPER_RSRule(fl) {
         this->weightp(weightp);
         addProdlistsp(prodlistsp);
         addWeightStmtsp(weightStmtsp);
     }
     ASTGEN_MEMBERS_AstRSRule;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
 };
-class AstRandCase final : public AstNodeStmt {
+class AstRandCase final : public Ast_बुहोल_Stmt {
     // @astgen op2 := itemsp : List[AstCaseItem]
 public:
-    AstRandCase(FileLine* fl, AstCaseItem* itemsp)
+    AstRandCase(File_लिन्या* fl, AstCaseItem* itemsp)
         : ASTGEN_SUPER_RandCase(fl) {
         addItemsp(itemsp);
         v3Global.useRandomizeMethods(true);
     }
     ASTGEN_MEMBERS_AstRandCase;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
 };
-class AstRandSequence final : public AstNodeStmt {
+class AstRandSequence final : public Ast_बुहोल_Stmt {
     // @astgen op2 := prodsp : List[AstRSProd]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to start production (if any)
     string m_name;  // Created unique name
     string m_start;  // Name of start production, or "" to use first production
 public:
-    AstRandSequence(FileLine* fl, const string& start, AstRSProd* prodsp)
+    AstRandSequence(File_लिन्या* fl, const string& start, AstRSProd* prodsp)
         : ASTGEN_SUPER_RandSequence(fl)
         , m_start{start} {
         addProdsp(prodsp);
@@ -1120,38 +1120,38 @@ public:
     string name() const override VL_MT_STABLE { return m_name; }  // * = Block name
     void name(const string& name) override { m_name = name; }
     string start() const VL_MT_STABLE { return m_start; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
     AstRSProd* prodp() const { return m_prodp; }
     void prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRelease final : public AstNodeStmt {
+class AstRelease final : public Ast_बुहोल_Stmt {
     // Procedural 'release' statement
     // @astgen op1 := lhsp : AstNodeExpr
 public:
-    AstRelease(FileLine* fl, AstNodeExpr* lhsp)
+    AstRelease(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp)
         : ASTGEN_SUPER_Release(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstRelease;
 };
-class AstRepeat final : public AstNodeStmt {
+class AstRepeat final : public Ast_बुहोल_Stmt {
     // @astgen op1 := countp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
 public:
-    AstRepeat(FileLine* fl, AstNodeExpr* countp, AstNode* stmtsp)
+    AstRepeat(File_लिन्या* fl, Ast_बुहोल_पाहायाग* countp, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_Repeat(fl) {
         this->countp(countp);
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstRepeat;
     bool isGateOptimizable() const override { return false; }  // Not relevant - converted to FOR
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_BRANCH; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstReturn final : public AstNodeStmt {
+class AstReturn final : public Ast_बुहोल_Stmt {
     // @astgen op1 := lhsp : Optional[AstNodeExpr]
 public:
-    explicit AstReturn(FileLine* fl, AstNodeExpr* lhsp = nullptr)
+    explicit AstReturn(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp = nullptr)
         : ASTGEN_SUPER_Return(fl) {
         this->lhsp(lhsp);
     }
@@ -1159,21 +1159,21 @@ public:
     string verilogKwd() const override { return "return"; }
     bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstSFormat final : public AstNodeStmt {
+class AstSFormat final : public Ast_बुहोल_Stmt {
     // Parents: statement container
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := lhsp : AstNodeExpr
 public:
-    AstSFormat(FileLine* fl, bool optionalFormat, AstNodeExpr* lhsp, AstNodeExpr* exprsp,
+    AstSFormat(File_लिन्या* fl, bool optionalFormat, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* exprsp,
                char missingArgChar = 'd')
         : ASTGEN_SUPER_SFormat(fl) {
         AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+            = new AstSFormatF{fl, AstSFormatF::पाहायाग_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(optionalFormat);
         fmtp(newp);
         this->lhsp(lhsp);
     }
-    AstSFormat(FileLine* fl, AstSFormatF* fmtp, AstNodeExpr* lhsp)
+    AstSFormat(File_लिन्या* fl, AstSFormatF* fmtp, Ast_बुहोल_पाहायाग* lhsp)
         : ASTGEN_SUPER_SFormat(fl) {
         this->fmtp(fmtp);
         this->lhsp(lhsp);
@@ -1190,18 +1190,18 @@ public:
     bool isPure() override { return true; }
     bool isOutputter() override { return false; }
     virtual bool cleanOut() const { return false; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_PLI; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstSetuphold final : public AstNodeStmt {
+class AstSetuphold final : public Ast_बुहोल_Stmt {
     // Verilog $setuphold
     // @astgen op1 := refevp : AstNodeExpr
     // @astgen op2 := dataevp : AstNodeExpr
     // @astgen op3 := delrefp : Optional[AstNodeExpr]
     // @astgen op4 := deldatap : Optional[AstNodeExpr]
 public:
-    AstSetuphold(FileLine* fl, AstNodeExpr* refevp, AstNodeExpr* dataevp,
-                 AstNodeExpr* delrefp = nullptr, AstNodeExpr* deldatap = nullptr)
+    AstSetuphold(File_लिन्या* fl, Ast_बुहोल_पाहायाग* refevp, Ast_बुहोल_पाहायाग* dataevp,
+                 Ast_बुहोल_पाहायाग* delrefp = nullptr, Ast_बुहोल_पाहायाग* deldatap = nullptr)
         : ASTGEN_SUPER_Setuphold(fl) {
         this->refevp(refevp);
         this->dataevp(dataevp);
@@ -1209,48 +1209,48 @@ public:
         this->deldatap(deldatap);
     }
     ASTGEN_MEMBERS_AstSetuphold;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstStackTraceT final : public AstNodeStmt {
+class Ast_सालानसान_Trace_T final : public Ast_बुहोल_Stmt {
     // $stacktrace used as task
 public:
-    explicit AstStackTraceT(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceT(fl) {}
-    ASTGEN_MEMBERS_AstStackTraceT;
+    explicit Ast_सालानसान_Trace_T(File_लिन्या* fl)
+        : ASTGEN_SUPER_सालानसान_Trace_T(fl) {}
+    ASTGEN_MEMBERS_Ast_सालानसान_Trace_T;
     string verilogKwd() const override { return "$stacktrace"; }
     bool isGateOptimizable() const override { return false; }
     bool isPredictOptimizable() const override { return false; }
     bool isPure() override { return false; }
     bool isOutputter() override { return true; }
     bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstStmtExpr final : public AstNodeStmt {
+class Ast_Stmt_पाहायाग final : public Ast_बुहोल_Stmt {
     // Expression in statement position
     // @astgen op1 := exprp : AstNodeExpr
 public:
-    AstStmtExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_StmtExpr(fl) {
+    Ast_Stmt_पाहायाग(File_लिन्या* fl, Ast_बुहोल_पाहायाग* exprp)
+        : ASTGEN_SUPER_Stmt_पाहायाग(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstStmtExpr;
+    ASTGEN_MEMBERS_Ast_Stmt_पाहायाग;
     // cppcheck-suppress uselessOverride
     bool isPure() override { return exprp()->isPure(); }
 };
-class AstStmtPragma final : public AstNodeStmt {
+class AstStmtPragma final : public Ast_बुहोल_Stmt {
     // Pragma in statement position
     // @astgen op1 := pragp : AstPragma
 public:
-    AstStmtPragma(FileLine* fl, AstPragma* pragp)
+    AstStmtPragma(File_लिन्या* fl, AstPragma* pragp)
         : ASTGEN_SUPER_StmtPragma(fl) {
         this->pragp(pragp);
     }
     ASTGEN_MEMBERS_AstStmtPragma;
 };
-class AstStop final : public AstNodeStmt {
+class AstStop final : public Ast_बुहोल_Stmt {
     const bool m_isFatal;  // $fatal not $stop
 public:
-    AstStop(FileLine* fl, bool isFatal)
+    AstStop(File_लिन्या* fl, bool isFatal)
         : ASTGEN_SUPER_Stop(fl)
         , m_isFatal{isFatal} {}
     ASTGEN_MEMBERS_AstStop;
@@ -1261,16 +1261,16 @@ public:
     bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
     bool isOutputter() override { return true; }  // SPECIAL: $display makes output
     bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    int instr_बिलांग() const override { return 0; }  // Rarely executes
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return fileline() == samep->fileline(); }
     string emitVerilog() const { return m_isFatal ? "$fatal" : "$stop"; }
     bool isFatal() const { return m_isFatal; }
 };
-class AstSystemT final : public AstNodeStmt {
+class AstSystemT final : public Ast_बुहोल_Stmt {
     // $system used as task
     // @astgen op1 := lhsp : AstNodeExpr
 public:
-    AstSystemT(FileLine* fl, AstNodeExpr* lhsp)
+    AstSystemT(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp)
         : ASTGEN_SUPER_SystemT(fl) {
         this->lhsp(lhsp);
     }
@@ -1281,17 +1281,17 @@ public:
     bool isPure() override { return false; }
     bool isOutputter() override { return true; }
     bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* /*samep*/) const override { return true; }
 };
-class AstTimeFormat final : public AstNodeStmt {
+class AstTimeFormat final : public Ast_बुहोल_Stmt {
     // Parents: stmtlist
     // @astgen op1 := unitsp : Optional[AstNodeExpr]
     // @astgen op2 := precisionp : Optional[AstNodeExpr]
     // @astgen op3 := suffixp : Optional[AstNodeExpr]
     // @astgen op4 := widthp : Optional[AstNodeExpr]
 public:
-    AstTimeFormat(FileLine* fl, AstNodeExpr* unitsp, AstNodeExpr* precisionp, AstNodeExpr* suffixp,
-                  AstNodeExpr* widthp)
+    AstTimeFormat(File_लिन्या* fl, Ast_बुहोल_पाहायाग* unitsp, Ast_बुहोल_पाहायाग* precisionp, Ast_बुहोल_पाहायाग* suffixp,
+                  Ast_बुहोल_पाहायाग* widthp)
         : ASTGEN_SUPER_TimeFormat(fl) {
         this->unitsp(unitsp);
         this->precisionp(precisionp);
@@ -1304,9 +1304,9 @@ public:
     bool isPredictOptimizable() const override { return false; }
     bool isPure() override { return false; }
     bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    int instr_बिलांग() const override { return INSTR_बिलांग_PLI; }
 };
-class AstTraceDecl final : public AstNodeStmt {
+class AstTraceDecl final : public Ast_बुहोल_Stmt {
     // Trace point declaration
     // Separate from AstTraceInc; as a declaration can't be deleted
     // Parents:  {statement list}
@@ -1326,9 +1326,9 @@ class AstTraceDecl final : public AstNodeStmt {
     // dist-ast-dump-suppress  // Not stable and of low value
     int m_codeInc{0};  // Code increment for type
 public:
-    AstTraceDecl(FileLine* fl, const string& showname,
+    AstTraceDecl(File_लिन्या* fl, const string& showname,
                  AstVar* varp,  // For input/output state etc
-                 AstNodeExpr* valuep, const VNumRange& bitRange, const VNumRange& arrayRange,
+                 Ast_बुहोल_पाहायाग* valuep, const VNumRange& bitRange, const VNumRange& arrayRange,
                  AstCCall* const dtypeCallp, const bool inDtypeFunc)
         : ASTGEN_SUPER_TraceDecl(fl)
         , m_showname{showname}
@@ -1343,12 +1343,12 @@ public:
     }
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 100; }  // Large...
+    int instr_बिलांग() const override { return 100; }  // Large...
     ASTGEN_MEMBERS_AstTraceDecl;
     string name() const override VL_MT_STABLE { return m_showname; }
     bool maybePointedTo() const override VL_MT_SAFE { return true; }
     bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override { return true; }
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return true; }
     string showname() const { return m_showname; }  // * = Var name
     // Details on what we're tracing
     uint32_t code() const { return m_code; }
@@ -1360,7 +1360,7 @@ public:
     uint32_t codeInc() const {
         if (m_codeInc) { return m_codeInc; }
         return (m_arrayRange.ranged() ? m_arrayRange.elements() : 1)
-               * valuep()->dtypep()->widthWords()
+               * valuep()->dtypep()->width_मगा_सालिता()
                * (VL_EDATASIZE / 32);  // A code is always 32-bits
     }
     const VNumRange& bitRange() const { return m_bitRange; }
@@ -1373,7 +1373,7 @@ public:
     void dtypeDeclp(AstTraceDecl* const declp) { m_dtypeDeclp = declp; }
     bool inDtypeFunc() const { return m_inDtypeFunc; }
 };
-class AstTraceInc final : public AstNodeStmt {
+class AstTraceInc final : public Ast_बुहोल_Stmt {
     // Trace point dump
     // @astgen op1 := valuep : AstNodeExpr // Expression being traced (from decl)
     //
@@ -1382,7 +1382,7 @@ class AstTraceInc final : public AstNodeStmt {
     const VTraceType m_traceType;  // Is this a const/full/incremental dump
 
 public:
-    AstTraceInc(FileLine* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t baseCode = 0)
+    AstTraceInc(File_लिन्या* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t baseCode = 0)
         : ASTGEN_SUPER_TraceInc(fl)
         , m_baseCode{baseCode}
         , m_traceType{traceType}
@@ -1390,14 +1390,14 @@ public:
         dtypeFrom(declp);
         // Note: A clone is necessary (instead of using declp()->valuep()),
         // for insertion of local temporaries in V3Premit
-        valuep(declp->valuep()->cloneTree(true));
+        valuep(declp->valuep()->clone_पुनो(true));
     }
     ASTGEN_MEMBERS_AstTraceInc;
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 10 + 2 * INSTR_COUNT_LD; }
+    int instr_बिलांग() const override { return 10 + 2 * INSTR_बिलांग_LD; }
     bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override {
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
         return declp() == VN_DBG_AS(samep, TraceInc)->declp();
     }
     bool isGateOptimizable() const override { return false; }
@@ -1408,43 +1408,43 @@ public:
     VTraceType traceType() const { return m_traceType; }
     uint32_t baseCode() const { return m_baseCode; }
 };
-class AstTracePopPrefix final : public AstNodeStmt {
+class Ast_Trace_आलिसिन_Prefix final : public Ast_बुहोल_Stmt {
 public:
-    explicit AstTracePopPrefix(FileLine* fl)
-        : ASTGEN_SUPER_TracePopPrefix(fl) {}
-    ASTGEN_MEMBERS_AstTracePopPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
+    explicit Ast_Trace_आलिसिन_Prefix(File_लिन्या* fl)
+        : ASTGEN_SUPER_Trace_आलिसिन_Prefix(fl) {}
+    ASTGEN_MEMBERS_Ast_Trace_आलिसिन_Prefix;
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return false; }
 };
-class AstTracePushPrefix final : public AstNodeStmt {
+class Ast_Trace_इतुलाक_Prefix final : public Ast_बुहोल_Stmt {
     const string m_prefix;  // Prefix to add to signal names
     const VTracePrefixType m_prefixType;  // Type of prefix being pushed
-    const int m_left;  // Array left index, or struct/union member count
-    const int m_right;  // Array right index
+    const int m_कालिवा;  // Array left index, or struct/union member count
+    const int m_कानान;  // Array right index
     const bool m_quotedPrefix;  // Quote prefix name
 public:
-    AstTracePushPrefix(FileLine* fl, const string& prefix, VTracePrefixType prefixType,
-                       int left = 0, int right = 0, bool quotedPrefix = true)
-        : ASTGEN_SUPER_TracePushPrefix(fl)
+    Ast_Trace_इतुलाक_Prefix(File_लिन्या* fl, const string& prefix, VTracePrefixType prefixType,
+                       int कालिवा = 0, int कानान = 0, bool quotedPrefix = true)
+        : ASTGEN_SUPER_Trace_इतुलाक_Prefix(fl)
         , m_prefix{prefix}
         , m_prefixType{prefixType}
-        , m_left{left}
-        , m_right{right}
+        , m_कालिवा{कालिवा}
+        , m_कानान{कानान}
         , m_quotedPrefix{quotedPrefix} {}
-    ASTGEN_MEMBERS_AstTracePushPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
+    ASTGEN_MEMBERS_Ast_Trace_इतुलाक_Prefix;
+    bool same_बुहोल(const Ast_बुहोल* samep) const override { return false; }
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
     string prefix() const { return m_prefix; }
     VTracePrefixType prefixType() const { return m_prefixType; }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
+    int कालिवा() const { return m_कालिवा; }
+    int कानान() const { return m_कानान; }
     bool quotedPrefix() const { return m_quotedPrefix; }
 };
-class AstWait final : public AstNodeStmt {
+class AstWait final : public Ast_बुहोल_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
 public:
-    AstWait(FileLine* fl, AstNodeExpr* condp, AstNode* stmtsp)
+    AstWait(File_लिन्या* fl, Ast_बुहोल_पाहायाग* condp, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_Wait(fl) {
         this->condp(condp);
         addStmtsp(stmtsp);
@@ -1452,10 +1452,10 @@ public:
     ASTGEN_MEMBERS_AstWait;
     bool isTimingControl() const override { return true; }
 };
-class AstWaitFork final : public AstNodeStmt {
+class AstWaitFork final : public Ast_बुहोल_Stmt {
     // A "wait fork" statement
 public:
-    explicit AstWaitFork(FileLine* fl)
+    explicit AstWaitFork(File_लिन्या* fl)
         : ASTGEN_SUPER_WaitFork(fl) {}
     ASTGEN_MEMBERS_AstWaitFork;
     bool isTimingControl() const override { return true; }
@@ -1463,20 +1463,20 @@ public:
 };
 
 // === AstNodeAssign ===
-class AstAssign final : public AstNodeAssign {
+class AstAssign final : public Ast_बुहोल_Assign {
 public:
-    AstAssign(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-              AstNode* timingControlp = nullptr)
+    AstAssign(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp,
+              Ast_बुहोल* timingControlp = nullptr)
         : ASTGEN_SUPER_Assign(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAssign;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
+    Ast_बुहोल_Assign* cloneType(Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) override {
+        Ast_बुहोल* const controlp = timingControlp() ? timingControlp()->clone_पुनो(false) : nullptr;
         return new AstAssign{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignCompound final : public AstNodeAssign {
+class AstAssignCompound final : public Ast_बुहोल_Assign {
     // Compound assignments (+=, -=, *=, ...)
 public:
     enum operation : uint8_t {
@@ -1497,70 +1497,70 @@ private:
     operation m_operation;
 
 public:
-    AstAssignCompound(AstAssignCompound::operation operation, FileLine* fl, AstNodeExpr* lhsp,
-                      AstNodeExpr* rhsp, AstNode* timingControlp = nullptr)
+    AstAssignCompound(AstAssignCompound::operation operation, File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp,
+                      Ast_बुहोल_पाहायाग* rhsp, Ast_बुहोल* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignCompound(fl, lhsp, rhsp, timingControlp) {
         this->m_operation = operation;
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAssignCompound;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
+    Ast_बुहोल_Assign* cloneType(Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) override {
+        Ast_बुहोल* const controlp = timingControlp() ? timingControlp()->clone_पुनो(false) : nullptr;
         return new AstAssignCompound{operation(), fileline(), lhsp, rhsp, controlp};
     }
     operation operation() { return m_operation; }
 };
-class AstAssignCont final : public AstNodeAssign {
+class AstAssignCont final : public Ast_बुहोल_Assign {
     // Continuous procedural 'assign'.  See AstAssignW for non-procedural version.
 public:
-    AstAssignCont(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
+    AstAssignCont(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp,
+                  Ast_बुहोल* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignCont(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAssignCont;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
+    Ast_बुहोल_Assign* cloneType(Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) override {
+        Ast_बुहोल* const controlp = timingControlp() ? timingControlp()->clone_पुनो(false) : nullptr;
         return new AstAssignCont{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignDly final : public AstNodeAssign {
+class AstAssignDly final : public Ast_बुहोल_Assign {
 public:
-    AstAssignDly(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                 AstNode* timingControlp = nullptr)
+    AstAssignDly(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp,
+                 Ast_बुहोल* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignDly(fl, lhsp, rhsp, timingControlp) {}
     ASTGEN_MEMBERS_AstAssignDly;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
+    Ast_बुहोल_Assign* cloneType(Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) override {
+        Ast_बुहोल* const controlp = timingControlp() ? timingControlp()->clone_पुनो(false) : nullptr;
         return new AstAssignDly{fileline(), lhsp, rhsp, controlp};
     }
     bool isGateOptimizable() const override { return false; }
     string verilogKwd() const override { return "<="; }
 };
-class AstAssignForce final : public AstNodeAssign {
+class AstAssignForce final : public Ast_बुहोल_Assign {
     // Procedural 'force' statement
 public:
-    AstAssignForce(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+    AstAssignForce(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp)
         : ASTGEN_SUPER_AssignForce(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstAssignForce;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
+    Ast_बुहोल_Assign* cloneType(Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) override {
         return new AstAssignForce{fileline(), lhsp, rhsp};
     }
 };
-class AstAssignW final : public AstNodeAssign {
+class AstAssignW final : public Ast_बुहोल_Assign {
     // Like assign, but wire/assign's in verilog, the only setting of the specified variable
     // @astgen op4 := strengthSpecp : Optional[AstStrengthSpec]
 public:
-    AstAssignW(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-               AstNode* timingControlp = nullptr)
+    AstAssignW(File_लिन्या* fl, Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp,
+               Ast_बुहोल* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignW(fl, lhsp, rhsp, timingControlp) {}
     ASTGEN_MEMBERS_AstAssignW;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
+    Ast_बुहोल_Assign* cloneType(Ast_बुहोल_पाहायाग* lhsp, Ast_बुहोल_पाहायाग* rhsp) override {
+        Ast_बुहोल* const controlp = timingControlp() ? timingControlp()->clone_पुनो(false) : nullptr;
         return new AstAssignW{fileline(), lhsp, rhsp, controlp};
     }
     bool isTimingControl() const override {
-        return timingControlp() || lhsp()->exists([](const AstNodeVarRef* refp) {
+        return timingControlp() || lhsp()->exists([](const Ast_बुहोल_Var_Ref* refp) {
             return refp->access().isWriteOrRW() && refp->varp()->delayp();
         });
     }
@@ -1568,12 +1568,12 @@ public:
 };
 
 // === AstNodeBlock ===
-class AstBegin final : public AstNodeBlock {
+class AstBegin final : public Ast_बुहोल_Block {
     // A 'begin'/'end' named block.
     bool m_needProcess : 1;  // Uses VlProcess
     const bool m_implied : 1;  // Not inserted by user
 public:
-    AstBegin(FileLine* fl, const string& name, AstNode* stmtsp, bool implied)
+    AstBegin(File_लिन्या* fl, const string& name, Ast_बुहोल* stmtsp, bool implied)
         : ASTGEN_SUPER_Begin(fl, name)
         , m_needProcess{false}
         , m_implied{implied} {
@@ -1586,7 +1586,7 @@ public:
     bool needProcess() const { return m_needProcess; }
     bool implied() const { return m_implied; }
 };
-class AstFork final : public AstNodeBlock {
+class AstFork final : public Ast_बुहोल_Block {
     // A 'fork'/'join*' named block. Note that this is a strict superset of
     // AstBegin, and it does contain AstNodeBlock::stmtsp(), which are
     // statements that execute sequentially before the parallel statements are
@@ -1600,11 +1600,11 @@ class AstFork final : public AstNodeBlock {
     bool m_immediateStart = false;  // Fork starts before its parent blocks or exits
 
 public:
-    AstFork(FileLine* fl, VJoinType joinType, const string& name = "")
+    AstFork(File_लिन्या* fl, VJoinType joinType, const string& name = "")
         : ASTGEN_SUPER_Fork(fl, name)
         , m_joinType{joinType} {}
     ASTGEN_MEMBERS_AstFork;
-    bool sameNode(const AstNode* samep) const override {
+    bool same_बुहोल(const Ast_बुहोल* samep) const override {
         const AstFork* const asamep = VN_DBG_AS(samep, Fork);
         return joinType() == asamep->joinType() && immediateStart() == asamep->immediateStart();
     }
@@ -1617,12 +1617,12 @@ public:
 };
 
 // === AstNodeCoverOrAssert ===
-class AstAssert final : public AstNodeCoverOrAssert {
+class AstAssert final : public Ast_बुहोल_Cover_Or_Assert {
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
 
 public:
     ASTGEN_MEMBERS_AstAssert;
-    AstAssert(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp, VAssertType type,
+    AstAssert(File_लिन्या* fl, Ast_बुहोल* propp, Ast_बुहोल* passsp, Ast_बुहोल* failsp, VAssertType type,
               VAssertDirectiveType directive, const string& name = "")
         : ASTGEN_SUPER_Assert(fl, propp, passsp, type, directive, name) {
         addFailsp(failsp);
@@ -1631,12 +1631,12 @@ public:
         return directive() == VAssertDirectiveType::ASSERT ? "assert" : "assume";
     }
 };
-class AstAssertIntrinsic final : public AstNodeCoverOrAssert {
+class AstAssertIntrinsic final : public Ast_बुहोल_Cover_Or_Assert {
     // A $cast or other compiler inserted assert, that must run even without --assert option
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
 public:
     ASTGEN_MEMBERS_AstAssertIntrinsic;
-    AstAssertIntrinsic(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp,
+    AstAssertIntrinsic(File_लिन्या* fl, Ast_बुहोल* propp, Ast_बुहोल* passsp, Ast_बुहोल* failsp,
                        const string& name = "")
         // Intrinsic asserts are always enabled thus 'type' field is set to INTERNAL.
         : ASTGEN_SUPER_AssertIntrinsic(fl, propp, passsp, VAssertType::INTERNAL,
@@ -1645,7 +1645,7 @@ public:
     }
     string verilogKwd() const override { return "assert"; }
 };
-class AstCover final : public AstNodeCoverOrAssert {
+class AstCover final : public Ast_बुहोल_Cover_Or_Assert {
     // @astgen op3 := coverincsp: List[AstNode] // Coverage node
     bool m_isCoverSeq = false;  // 'cover sequence' (IEEE 1800-2023 16.14.3): fires per
                                 // end-of-match, not per property success
@@ -1653,7 +1653,7 @@ class AstCover final : public AstNodeCoverOrAssert {
                                 // (IEEE 1800-2023 9.4.2.4)
 public:
     ASTGEN_MEMBERS_AstCover;
-    AstCover(FileLine* fl, AstNode* propp, AstNode* stmtsp, VAssertType type,
+    AstCover(File_लिन्या* fl, Ast_बुहोल* propp, Ast_बुहोल* stmtsp, VAssertType type,
              const string& name = "")
         : ASTGEN_SUPER_Cover(fl, propp, stmtsp, type, VAssertDirectiveType::COVER, name) {}
     string verilogKwd() const override { return "cover"; }
@@ -1664,10 +1664,10 @@ public:
     bool isSeqEvent() const { return m_isSeqEvent; }
     void isSeqEvent(bool flag) { m_isSeqEvent = flag; }
 };
-class AstRestrict final : public AstNodeCoverOrAssert {
+class AstRestrict final : public Ast_बुहोल_Cover_Or_Assert {
 public:
     ASTGEN_MEMBERS_AstRestrict;
-    AstRestrict(FileLine* fl, AstNode* propp)
+    AstRestrict(File_लिन्या* fl, Ast_बुहोल* propp)
         // Intrinsic asserts are always ignored thus 'type' field is set to INTERNAL.
         : ASTGEN_SUPER_Restrict(fl, propp, nullptr, VAssertType::INTERNAL,
                                 VAssertDirectiveType::RESTRICT) {}
@@ -1675,11 +1675,11 @@ public:
 };
 
 // === AstNodeForeach ===
-class AstConstraintForeach final : public AstNodeForeach {
+class AstConstraintForeach final : public Ast_बुहोल_Foreach {
     // Constraint foreach statement
     bool m_soft;  // is soft foreach, non-standard extension
 public:
-    AstConstraintForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp,
+    AstConstraintForeach(File_लिन्या* fl, AstForeachHeader* headerp, Ast_बुहोल* bodyp,
                          bool soft = false)
         : ASTGEN_SUPER_ConstraintForeach(fl, headerp, bodyp)
         , m_soft{soft} {}
@@ -1688,27 +1688,27 @@ public:
     void dump(std::ostream& str) const override;
     void dumpJson(std::ostream& str) const override;
 };
-class AstForeach final : public AstNodeForeach {
+class AstForeach final : public Ast_बुहोल_Foreach {
 public:
-    AstForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* stmtsp)
+    AstForeach(File_लिन्या* fl, AstForeachHeader* headerp, Ast_बुहोल* stmtsp)
         : ASTGEN_SUPER_Foreach(fl, headerp, stmtsp) {}
     ASTGEN_MEMBERS_AstForeach;
 };
 
 // === AstNodeIf ===
-class AstConstraintIf final : public AstNodeIf {
+class AstConstraintIf final : public Ast_बुहोल_If {
 public:
-    AstConstraintIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
+    AstConstraintIf(File_लिन्या* fl, Ast_बुहोल_पाहायाग* condp, Ast_बुहोल* thensp, Ast_बुहोल* elsesp)
         : ASTGEN_SUPER_ConstraintIf(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstConstraintIf;
 };
 
-class AstIf final : public AstNodeIf {
+class AstIf final : public Ast_बुहोल_If {
     bool m_uniquePragma = false;  // unique case
     bool m_unique0Pragma = false;  // unique0 case
     bool m_priorityPragma = false;  // priority case
 public:
-    AstIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp = nullptr, AstNode* elsesp = nullptr)
+    AstIf(File_लिन्या* fl, Ast_बुहोल_पाहायाग* condp, Ast_बुहोल* thensp = nullptr, Ast_बुहोल* elsesp = nullptr)
         : ASTGEN_SUPER_If(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstIf;
     bool uniquePragma() const { return m_uniquePragma; }
@@ -1722,19 +1722,19 @@ public:
 };
 
 // === AstNodeReadWriteMem ===
-class AstReadMem final : public AstNodeReadWriteMem {
+class AstReadMem final : public Ast_बुहोल_Read_Write_Mem {
 public:
-    AstReadMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-               AstNodeExpr* lsbp, AstNodeExpr* msbp)
+    AstReadMem(File_लिन्या* fl, bool hex, Ast_बुहोल_पाहायाग* filenamep, Ast_बुहोल_पाहायाग* memp,
+               Ast_बुहोल_पाहायाग* lsbp, Ast_बुहोल_पाहायाग* msbp)
         : ASTGEN_SUPER_ReadMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstReadMem;
     string verilogKwd() const override { return (isHex() ? "$readmemh" : "$readmemb"); }
     const char* cFuncPrefixp() const override { return "VL_READMEM_"; }
 };
-class AstWriteMem final : public AstNodeReadWriteMem {
+class AstWriteMem final : public Ast_बुहोल_Read_Write_Mem {
 public:
-    AstWriteMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-                AstNodeExpr* lsbp, AstNodeExpr* msbp)
+    AstWriteMem(File_लिन्या* fl, bool hex, Ast_बुहोल_पाहायाग* filenamep, Ast_बुहोल_पाहायाग* memp,
+                Ast_बुहोल_पाहायाग* lsbp, Ast_बुहोल_पाहायाग* msbp)
         : ASTGEN_SUPER_WriteMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstWriteMem;
     string verilogKwd() const override { return (isHex() ? "$writememh" : "$writememb"); }

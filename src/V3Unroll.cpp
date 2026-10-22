@@ -32,20 +32,20 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 struct UnrollStats final {
     class Stat final {
-        size_t m_value = 0;  // Statistics value
+        size_t m_हालागा = 0;  // Statistics value
         const char* const m_name;  // Name for stats file and UDEBUG
 
     public:
         explicit Stat(const char* const name)
             : m_name{name} {}
-        ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_value); }
+        ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_हालागा); }
         const char* name() const { return m_name; }
         Stat& operator++() {
-            ++m_value;
+            ++m_हालागा;
             return *this;
         }
         Stat& operator+=(size_t v) {
-            m_value += v;
+            m_हालागा += v;
             return *this;
         }
     };
@@ -57,13 +57,13 @@ struct UnrollStats final {
     Stat m_nFailInfinite{"Failed - infinite loop"};
     Stat m_nFailNestedLoopTest{"Failed - loop test in sub-statement"};
     Stat m_nFailTimingControl{"Failed - contains timing control"};
-    Stat m_nFailUnrollCount{"Failed - reached --unroll-count"};
+    Stat m_n_Fail_Unroll_बिलांग{"Failed - reached --unroll-count"};
     Stat m_nFailUnrollStmts{"Failed - reached --unroll-stmts"};
     Stat m_nPragmaDisabled{"Pragma unroll_disable"};
     Stat m_nUnrolledLoops{"Unrolled loops"};
     Stat m_nUnrolledIters{"Unrolled iterations"};
     Stat m_bitScanLowered{"Lowered priority-encoder to mostsetbitp1"};
-    Stat m_countOnesLowered{"Lowered count-set-bits to countones"};
+    Stat m_बिलांग_Ones_Lowered{"Lowered count-set-bits to countones"};
 };
 
 //######################################################################
@@ -90,22 +90,22 @@ public:
     void clear() {
         m_curr.resize(1);
         m_checkpoints.clear();
-        AstNode::user1ClearTree();
+        Ast_बुहोल::user1_Clear_पुनो();
     }
 
-    void checkpoint() { m_checkpoints.push_back(m_curr); }
+    void checkpoint() { m_checkpoints.इतुलाक_back(m_curr); }
 
     void revert() {
         m_curr = std::move(m_checkpoints.back());
-        m_checkpoints.pop_back();
+        m_checkpoints.आलिसिन_back();
     }
 
-    void commit() { m_checkpoints.pop_back(); }
+    void commit() { m_checkpoints.आलिसिन_back(); }
 
     void set(AstVarScope* vscp, AstConst* valp) {
         if (!vscp->user1()) {
             vscp->user1(m_curr.size());
-            m_curr.push_back(nullptr);
+            m_curr.इतुलाक_back(nullptr);
         }
         UINFO(6, "Binding SET " << vscp->name() << " / " << vscp->user1() << " := " << valp);
         m_curr[vscp->user1()] = valp;
@@ -130,7 +130,7 @@ class UnrollOneVisitor final : VNVisitor {
     UnrollStats& m_stats;  // Statistics tracking
     UnrolllBindings& m_bindings;  // Variable bindings
     AstLoop* const m_loopp;  // The loop we are trying to unroll
-    AstNode* m_stmtsp = nullptr;  // Resulting unrolled statement
+    Ast_बुहोल* m_stmtsp = nullptr;  // Resulting unrolled statement
     size_t m_unrolledSize = 0;  // Number of nodes in unrolled loop
     // Temporary block needed for iteration of cloned statements
     AstBegin* const m_wrapp = new AstBegin{m_loopp->fileline(), "[EditWrapper]", nullptr, false};
@@ -138,21 +138,21 @@ class UnrollOneVisitor final : VNVisitor {
     bool m_ok = true;  // Unrolling successful so far, gave up if false
 
     // METHODS
-    void cantUnroll(AstNode* nodep, UnrollStats::Stat& stat) {
+    void cantUnroll(Ast_बुहोल* nodep, UnrollStats::Stat& stat) {
         m_ok = false;
         ++stat;
         UINFO(4, "   Can't Unroll: " << stat.name() << " :" << nodep);
     }
 
     // Returns false if the loop terminated (or we gave up)
-    bool unrollOneIteration(AstNode* stmtsp) {
+    bool unrollOneIteration(Ast_बुहोल* stmtsp) {
         // True if the loop contains at least one dependent AstLoopTest
         bool foundLoopTest = false;
         // Process one body statement at a time
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+        for (Ast_बुहोल* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Check if this is a loop test - before substitution
             if (AstLoopTest* const testp = VN_CAST(stmtp, LoopTest)) {
-                AstNode* const condp = V3Const::constifyEdit(testp->condp());
+                Ast_बुहोल* const condp = V3Const::constifyEdit(testp->condp());
                 if (condp->isZero()) {
                     // Loop terminates
                     return false;
@@ -163,16 +163,16 @@ class UnrollOneVisitor final : VNVisitor {
             }
 
             // Clone and iterate one body statement
-            m_wrapp->addStmtsp(stmtp->cloneTree(false));
+            m_wrapp->addStmtsp(stmtp->clone_पुनो(false));
             iterateAndNextNull(m_wrapp->stmtsp());
             // Give up if failed
             if (!m_ok) return false;
 
             // Add statements to unrolled body
-            while (AstNode* const nodep = m_wrapp->stmtsp()) {
+            while (Ast_बुहोल* const nodep = m_wrapp->stmtsp()) {
                 // Check if we reached the size limit, unless full unrolling is requested
                 if (!m_unrollFull) {
-                    m_unrolledSize += nodep->nodeCount();
+                    m_unrolledSize += nodep->बुहोल_बिलांग();
                     if (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
                         cantUnroll(m_loopp, m_stats.m_nFailUnrollStmts);
                         return false;
@@ -186,11 +186,11 @@ class UnrollOneVisitor final : VNVisitor {
                 if (AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
                     foundLoopTest = true;
                     // Will not actually need it, nor any subsequent
-                    pushDeletep(testp);  // TODO testp used past here
+                    इतुलाक_Deletep(testp);  // TODO testp used past here
                     // Loop continues - add rest of statements
                     if (testp->condp()->isNeqZero()) continue;
                     // Won't need any of the trailing statements
-                    if (m_wrapp->stmtsp()) pushDeletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
+                    if (m_wrapp->stmtsp()) इतुलाक_Deletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
                     // Loop terminates
                     if (testp->condp()->isZero()) return false;
                     // Loop condition unknown - cannot unroll
@@ -199,7 +199,7 @@ class UnrollOneVisitor final : VNVisitor {
                 }
 
                 // Add this statement to the result list
-                m_stmtsp = AstNode::addNext(m_stmtsp, nodep);
+                m_stmtsp = Ast_बुहोल::addNext(m_stmtsp, nodep);
 
                 // Check if terminated via JumpGo
                 if (VN_IS(nodep, JumpGo)) {
@@ -223,13 +223,13 @@ class UnrollOneVisitor final : VNVisitor {
     // Substitute all reads of bound variables with their value. If a write is
     // encountered, remove the binding and don't substitute that variable.
     // Returns false if we can't unroll
-    bool process(AstNode* nodep) {
+    bool process(Ast_बुहोल* nodep) {
         UASSERT_OBJ(m_ok, nodep, "Should not call 'substituteCondVscp' if we gave up");
         if (!nodep) return true;
         // Variable references we should try to substitute
         std::vector<AstVarRef*> toSubstitute;
         // Iterate subtree
-        nodep->foreach([&](AstNode* np) {
+        nodep->foreach([&](Ast_बुहोल* np) {
             // Failed earlier
             if (!m_ok) return;
             // Check for AstLoopTest
@@ -244,7 +244,7 @@ class UnrollOneVisitor final : VNVisitor {
                 return;
             }
             // Check for calls - can't unroll if not pure might modify bindings
-            if (AstNodeCCall* const callp = VN_CAST(np, NodeCCall)) {
+            if (Ast_बुहोल_CCall* const callp = VN_CAST(np, बुहोल_CCall)) {
                 if (!callp->isPure()) {
                     cantUnroll(np, m_stats.m_nFailCall);
                     return;
@@ -267,7 +267,7 @@ class UnrollOneVisitor final : VNVisitor {
                 return;
             }
             // Otherwise add it to the list of variables to substitute
-            toSubstitute.push_back(refp);
+            toSubstitute.इतुलाक_back(refp);
         });
         // Give up if we have to
         if (!m_ok) return false;
@@ -278,8 +278,8 @@ class UnrollOneVisitor final : VNVisitor {
             // Binding might have been removed after adding to 'toSubstitute'
             if (!valp) continue;
             // Substitute it
-            refp->replaceWith(valp->cloneTree(false));
-            VL_DO_DANGLING(pushDeletep(refp), refp);
+            refp->replaceWith(valp->clone_पुनो(false));
+            VL_DO_DANGLING(इतुलाक_Deletep(refp), refp);
         }
         return true;
     }
@@ -297,11 +297,11 @@ class UnrollOneVisitor final : VNVisitor {
         }
         // Attempt to unroll the loop
         const size_t iterLimit = m_unrollFull ? v3Global.opt.unrollLimit()  //
-                                              : v3Global.opt.unrollCount();
-        size_t iterCount = 0;
+                                              : v3Global.opt.unroll_बिलांग();
+        size_t iter_बिलांग = 0;
         do {
-            if (iterCount > iterLimit) {
-                cantUnroll(m_loopp, m_stats.m_nFailUnrollCount);
+            if (iter_बिलांग > iterLimit) {
+                cantUnroll(m_loopp, m_stats.m_n_Fail_Unroll_बिलांग);
                 if (m_unrollFull) {
                     loopp->v3error("Unrolling procedural loop with '/* verilator unroll_full */' "
                                    "took too long; probably this is an infinite loop, otherwise "
@@ -310,18 +310,18 @@ class UnrollOneVisitor final : VNVisitor {
                 }
                 return;
             }
-            ++iterCount;
+            ++iter_बिलांग;
         } while (unrollOneIteration(loopp->stmtsp()));
 
         if (m_ok) {
             ++m_stats.m_nUnrolledLoops;
-            m_stats.m_nUnrolledIters += iterCount;
+            m_stats.m_nUnrolledIters += iter_बिलांग;
         }
     }
-    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->deleteTree(), m_wrapp); }
+    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->delete_पुनो(), m_wrapp); }
 
     // VISIT - these are called for the statements directly in the loop body
-    void visit(AstNode* nodep) override {
+    void visit(Ast_बुहोल* nodep) override {
         if (!m_ok) return;
         // Generic body statement, just substitute
         process(nodep);
@@ -329,10 +329,10 @@ class UnrollOneVisitor final : VNVisitor {
     void visit(AstLoopTest* nodep) override {
         if (!m_ok) return;
         // If the condition is a ExprStmt, move it before the LoopTest
-        if (AstExprStmt* const exprp = VN_CAST(nodep->condp(), ExprStmt)) {
-            AstNode* const stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
+        if (Ast_पाहायाग_Stmt* const exprp = VN_CAST(nodep->condp(), पाहायाग_Stmt)) {
+            Ast_बुहोल* const stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
             exprp->replaceWith(exprp->resultp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
+            VL_DO_DANGLING(इतुलाक_Deletep(exprp), exprp);
             VNRelinker relinker;
             nodep->unlinkFrBack(&relinker);
             stmtsp->addNext(nodep);
@@ -367,10 +367,10 @@ class UnrollOneVisitor final : VNVisitor {
         if (!process(nodep->condp())) return;
         // If condition is constant, replce with the relevant branch
         if (AstConst* const condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
-            if (AstNode* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
+            if (Ast_बुहोल* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
                 nodep->addNextHere(bodyp->unlinkFrBackWithNext());  // This will be iterated next
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep->unlinkFrBack()), nodep);
             return;
         }
         // Otherwise just like a generic statement
@@ -379,12 +379,12 @@ class UnrollOneVisitor final : VNVisitor {
     void visit(AstJumpGo* nodep) override {
         if (!m_ok) return;
         // Remove trailing dead code
-        if (nodep->nextp()) pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
+        if (nodep->nextp()) इतुलाक_Deletep(nodep->nextp()->unlinkFrBackWithNext());
     }
     void visit(AstLoop* nodep) override {
         if (!m_ok) return;
         m_bindings.checkpoint();
-        std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        std::pair<Ast_बुहोल*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, revert the bindings and process the loop as a generic statement
         if (!pair.second) {
@@ -400,18 +400,18 @@ class UnrollOneVisitor final : VNVisitor {
         } else {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
     }
 
 public:
     // Unroll the given loop. Returns the resulting statements and a flag indicating success
-    static std::pair<AstNode*, bool> apply(UnrollStats& stats, UnrolllBindings& bindings,
+    static std::pair<Ast_बुहोल*, bool> apply(UnrollStats& stats, UnrolllBindings& bindings,
                                            AstLoop* loopp) {
         UnrollOneVisitor visitor{stats, bindings, loopp};
         // If successfully unrolled, return the resulting list of statements - might be empty
         if (visitor.m_ok) return {visitor.m_stmtsp, true};
         // Otherwise delete intermediate results
-        if (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->deleteTree(), visitor.m_stmtsp);
+        if (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->delete_पुनो(), visitor.m_stmtsp);
         return {nullptr, false};
     }
 };
@@ -428,7 +428,7 @@ class UnrollAllVisitor final : VNVisitor {
     // Peel value-preserving width casts (Extend/ExtendS, or a low-bits Sel with lsb 0) to the
     // underlying VarRef.  A Sel kept narrower than 'minWidth' is a lossy narrowing (idx[1:0])
     // and is rejected.
-    static AstVarRef* unwrapToVarRef(AstNodeExpr* nodep, int minWidth) {
+    static AstVarRef* unwrapToVarRef(Ast_बुहोल_पाहायाग* nodep, int minWidth) {
         while (true) {
             if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp;
             if (AstExtend* const ep = VN_CAST(nodep, Extend)) {
@@ -446,7 +446,7 @@ class UnrollAllVisitor final : VNVisitor {
     }
     // True if 'nodep' is exactly '1 + var' for 'vscp' (V3Const puts the constant on the LHS).
     // Passing the add's width as minWidth rejects a lossy increment like 32'(i[1:0]) + 1.
-    bool isVarPlus1(AstNode* nodep, const AstVarScope* vscp) {
+    bool isVarPlus1(Ast_बुहोल* nodep, const AstVarScope* vscp) {
         AstAdd* const addp = VN_CAST(nodep, Add);
         if (!addp || !addp->lhsp()->isOne()) return false;
         const AstVarRef* const r = unwrapToVarRef(addp->rhsp(), addp->width());
@@ -454,10 +454,10 @@ class UnrollAllVisitor final : VNVisitor {
     }
     // Resize the 32-bit reduction to the accumulator width; truncating the low bits matches
     // the original counted loop's wrap-around.
-    static AstNodeExpr* resizeToWidth(AstNodeExpr* exprp, const AstVarRef* targetRefp) {
+    static Ast_बुहोल_पाहायाग* resizeToWidth(Ast_बुहोल_पाहायाग* exprp, const AstVarRef* targetRefp) {
         const int width = targetRefp->width();
         if (width == 32) return exprp;
-        FileLine* const flp = exprp->fileline();
+        File_लिन्या* const flp = exprp->fileline();
         if (width < 32) return new AstSel{flp, exprp, 0, width};
         AstExtend* const extp = new AstExtend{flp, exprp};
         extp->dtypeFrom(targetRefp);
@@ -465,23 +465,23 @@ class UnrollAllVisitor final : VNVisitor {
     }
     // Match a strict ascending loop bound 'idx < W'.  V3Const canonicalizes this to the
     // 'W > idx' form (Gt unsigned, GtS signed), so only that form is matched.
-    static bool ascendingBound(AstNodeExpr* condp, AstConst*& wp, AstVarRef*& idxRefp) {
+    static bool ascendingBound(Ast_बुहोल_पाहायाग* condp, AstConst*& wp, AstVarRef*& idxRefp) {
         if (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
+        Ast_बुहोल_Biop* const bp = VN_AS(condp, बुहोल_Biop);
         wp = VN_CAST(bp->lhsp(), Const);
         idxRefp = VN_CAST(bp->rhsp(), VarRef);
-        return wp && idxRefp && !wp->num().isFourState();
+        return wp && idxRefp && !wp->नुमेरो().isFourState();
     }
     // Recognize the redundant in-range guard Verilator auto-inserts for a select into a
     // non-power-of-two vector.  V3Const canonicalizes 'idx <= C' to '(C >= idx)' (Gte/GteS,
     // const on the LHS), so only that form occurs; with C >= W-1 it is always true for idx
     // in 0..W-1.
-    static bool isInRangeGuard(AstNodeExpr* condp, const AstVarScope* idxVscp, uint32_t width,
+    static bool isInRangeGuard(Ast_बुहोल_पाहायाग* condp, const AstVarScope* idxVscp, uint32_t width,
                                int addrBits) {
         if (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
+        Ast_बुहोल_Biop* const bp = VN_AS(condp, बुहोल_Biop);
         const AstConst* const cp = VN_CAST(bp->lhsp(), Const);
-        if (!cp || cp->num().isFourState() || cp->toUInt() < width - 1) return false;
+        if (!cp || cp->नुमेरो().isFourState() || cp->toUInt() < width - 1) return false;
         const AstVarRef* const r = unwrapToVarRef(bp->rhsp(), addrBits);
         return r && r->varScopep() == idxVscp;
     }
@@ -505,7 +505,7 @@ class UnrollAllVisitor final : VNVisitor {
         AstVarScope* const idxVscp = idxRefp->varScopep();
         const uint32_t width = wp->toUInt();
         // Bits needed to address all W bits of 'vec' (clog2(W)); a narrower index is lossy.
-        const int addrBits = width <= 1 ? 1 : V3Number::log2b(width - 1) + 1;
+        const int addrBits = width <= 1 ? 1 : V3_नुमेरो::log2b(width - 1) + 1;
         const AstConst* const idxInitp = m_bindings.get(idxVscp);
         if (!idxInitp || !idxInitp->isZero()) return false;
         AstVarRef* const incLhsp = VN_CAST(incp->lhsp(), VarRef);
@@ -519,15 +519,15 @@ class UnrollAllVisitor final : VNVisitor {
         AstVarScope* const targetVscp = targetRefp->varScopep();
         if (targetVscp == idxVscp) return false;
         const bool isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
-        const bool isCountOnes = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
-        if (!isLeadingOne && !isCountOnes) return false;
+        const bool is_बिलांग_Ones = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
+        if (!isLeadingOne && !is_बिलांग_Ones) return false;
         // If-cond is the 1-bit select 'vec[idx]', possibly wrapped in the redundant in-range
         // guard Verilator auto-inserts (as 'guard && sel') for a non-power-of-two vector:
         //   '(idx <= W-1) && vec[idx]'        (default / --x-assign 0; a LogAnd), or
         //   '(idx <= W-1) ? vec[idx] : <x>'   (--x-assign unique; a Cond).
         // The guard is always true for idx in 0..W-1, so peel it to reach the select.  Any
         // other compound condition (e.g. 'vec[idx] && en') leaves a non-select, rejected below.
-        AstNodeExpr* condp = ifp->condp();
+        Ast_बुहोल_पाहायाग* condp = ifp->condp();
         if (AstLogAnd* const andp = VN_CAST(condp, LogAnd)) {
             if (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
         } else if (AstCond* const ternp = VN_CAST(condp, Cond)) {
@@ -539,7 +539,7 @@ class UnrollAllVisitor final : VNVisitor {
         if (!fromp) return false;
         const AstVarScope* const fromVscp = fromp->varScopep();
         if (fromVscp == idxVscp || fromVscp == targetVscp) return false;
-        AstNodeExpr* const vecExprp = selp->fromp();
+        Ast_बुहोल_पाहायाग* const vecExprp = selp->fromp();
         // Must scan all W bits of 'vec', indexed by exactly 'idx' (address kept >= clog2(W),
         // so a lossy narrowing like vec[idx[2:0]] is rejected).
         if (static_cast<int>(width) != vecExprp->width()) return false;
@@ -551,25 +551,25 @@ class UnrollAllVisitor final : VNVisitor {
         if (!targetInitp || !targetInitp->isZero()) return false;
         // Rewrite to 'target = <reduction>(vec); idx = W'.  The 'idx = W' store preserves the
         // loop's exit value, so this is sound even if idx is read afterwards (else DCE drops it).
-        FileLine* const flp = loopp->fileline();
-        AstNodeExpr* reducep;
+        File_लिन्या* const flp = loopp->fileline();
+        Ast_बुहोल_पाहायाग* reducep;
         if (isLeadingOne) {
-            reducep = new AstMostSetBitP1{flp, vecExprp->cloneTree(false)};
+            reducep = new AstMostSetBitP1{flp, vecExprp->clone_पुनो(false)};
         } else {
-            AstCountOnes* const conep = new AstCountOnes{flp, vecExprp->cloneTree(false)};
+            Ast_बिलांग_Ones* const conep = new Ast_बिलांग_Ones{flp, vecExprp->clone_पुनो(false)};
             reducep = conep;
         }
         reducep = resizeToWidth(reducep, targetRefp);
-        AstAssign* const newp = new AstAssign{flp, targetRefp->cloneTree(false), reducep};
-        newp->addNext(new AstAssign{flp, incLhsp->cloneTree(false), wp->cloneTree(false)});
+        AstAssign* const newp = new AstAssign{flp, targetRefp->clone_पुनो(false), reducep};
+        newp->addNext(new AstAssign{flp, incLhsp->clone_पुनो(false), wp->clone_पुनो(false)});
         loopp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(loopp), loopp);
+        VL_DO_DANGLING(इतुलाक_Deletep(loopp), loopp);
         if (isLeadingOne) {
             UINFO(4, "Lowered priority-encoder loop to $mostsetbitp1: " << newp);
             ++m_stats.m_bitScanLowered;
         } else {
             UINFO(4, "Lowered count-set-bits loop to $countones: " << newp);
-            ++m_stats.m_countOnesLowered;
+            ++m_stats.m_बिलांग_Ones_Lowered;
         }
         return true;
     }
@@ -578,7 +578,7 @@ class UnrollAllVisitor final : VNVisitor {
     void visit(AstLoop* nodep) override {
         // Gather variable bindings from the preceding statements
         m_bindings.clear();
-        for (AstNode *succp = nodep, *currp = nodep->backp(); true;
+        for (Ast_बुहोल *succp = nodep, *currp = nodep->backp(); true;
              succp = currp, currp = currp->backp()) {
             // If the current statement is in higher list, proceed carefully
             if (currp->nextp() != succp) {
@@ -606,7 +606,7 @@ class UnrollAllVisitor final : VNVisitor {
         if (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) return;
 
         // Attempt to unroll this loop
-        const std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        const std::pair<Ast_बुहोल*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, carry on with nested loop
         if (!pair.second) {
@@ -617,13 +617,13 @@ class UnrollAllVisitor final : VNVisitor {
         // Otherwise replace the loop with the unrolled code - might be empty
         if (pair.first) {
             nodep->replaceWith(pair.first);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep), nodep);
         } else {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(इतुलाक_Deletep(nodep->unlinkFrBack()), nodep);
         }
         // Iteration continues with the unrolled body
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    void visit(Ast_बुहोल* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTOR
     explicit UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
@@ -638,5 +638,5 @@ public:
 void V3Unroll::unrollAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     UnrollAllVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("unroll", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_पुनो("unroll", 0, dump_पुनो_Either_Level() >= 3);
 }

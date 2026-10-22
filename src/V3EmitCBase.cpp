@@ -24,23 +24,23 @@
 // EmitCParentModule implementation
 
 EmitCParentModule::EmitCParentModule() {
-    const auto setAll = [](AstNodeModule* modp) -> void {
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, NodeCoverDecl)) {
+    const auto setAll = [](Ast_बुहोल_Module* modp) -> void {
+        for (Ast_बुहोल* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            if (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, बुहोल_Cover_Decl)) {
                 nodep->user4p(modp);
             }
         }
-        modp->foreach([&](AstNodeCoverDecl* nodep) { nodep->user4p(modp); });
+        modp->foreach([&](Ast_बुहोल_Cover_Decl* nodep) { nodep->user4p(modp); });
     };
-    for (AstNode* modp = v3Global.rootp()->modulesp(); modp; modp = modp->nextp()) {
-        setAll(VN_AS(modp, NodeModule));
+    for (Ast_बुहोल* modp = v3Global.rootp()->modulesp(); modp; modp = modp->nextp()) {
+        setAll(VN_AS(modp, बुहोल_Module));
     }
 }
 
 //######################################################################
 // EmitCUtil implementation
 
-string EmitCUtil::prefixNameProtect(const AstNode* nodep) VL_MT_STABLE {
+string EmitCUtil::prefixNameProtect(const Ast_बुहोल* nodep) VL_MT_STABLE {
     const string prefix = v3Global.opt.modPrefix() + "_" + VIdProtect::protect(nodep->name());
     // If all-uppercase prefix conflicts with a previous usage of the
     // prefix with different capitalization, rename to avoid conflict.
@@ -76,7 +76,7 @@ string EmitCUtil::prefixNameProtect(const AstNode* nodep) VL_MT_STABLE {
 //######################################################################
 // EmitCBaseVisitor implementation
 
-string EmitCBaseVisitorConst::funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp) {
+string EmitCBaseVisitorConst::funcNameProtect(const AstCFunc* nodep, const Ast_बुहोल_Module* modp) {
     modp = modp ? modp : EmitCParentModule::get(nodep);
     string name;
     if (nodep->isConstructor()) {
@@ -94,50 +94,50 @@ string EmitCBaseVisitorConst::funcNameProtect(const AstCFunc* nodep, const AstNo
     return name;
 }
 
-string EmitCBaseVisitorConst::cFuncArgs(const AstCFunc* nodep, bool cpp) {
+string EmitCBaseVisitorConst::c_Func_मगा_कातविरान(const AstCFunc* nodep, bool cpp) {
     // Return argument list for given C function
-    string args;
+    string मगा_कातविरान;
     if (nodep->isLoose() && !nodep->isStatic()) {
         if (nodep->voidSelf()) {
-            args += "void* vlVoidSelf";  // Converted to 'vlSelf' in the function body
+            मगा_कातविरान += "void* vlVoidSelf";  // Converted to 'vlSelf' in the function body
         } else {
-            if (nodep->isConst().trueKnown()) args += "const ";
-            args += EmitCUtil::prefixNameProtect(EmitCParentModule::get(nodep));
-            args += "* vlSelf";
+            if (nodep->isConst().trueKnown()) मगा_कातविरान += "const ";
+            मगा_कातविरान += EmitCUtil::prefixNameProtect(EmitCParentModule::get(nodep));
+            मगा_कातविरान += "* vlSelf";
         }
     }
     if (nodep->needProcess()) {
-        if (!args.empty()) args += ", ";
-        args += "VlProcessRef vlProcess";
+        if (!मगा_कातविरान.empty()) मगा_कातविरान += ", ";
+        मगा_कातविरान += "VlProcessRef vlProcess";
     }
     if (!nodep->argTypes().empty()) {
-        if (!args.empty()) args += ", ";
-        args += nodep->argTypes();
+        if (!मगा_कातविरान.empty()) मगा_कातविरान += ", ";
+        मगा_कातविरान += nodep->argTypes();
     }
     // Might be a user function with argument list.
-    for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
+    for (const Ast_बुहोल* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
         if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
             if (portp->isIO() && !portp->isFuncReturn()) {
-                if (!args.empty()) args += ", ";
+                if (!मगा_कातविरान.empty()) मगा_कातविरान += ", ";
                 if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) {
-                    args += portp->dpiArgType(true, false, cpp);
+                    मगा_कातविरान += portp->dpiArgType(true, false, cpp);
                 } else if (nodep->funcPublic()) {
-                    args += portp->cPubArgType(true, false);
+                    मगा_कातविरान += portp->cPubArgType(true, false);
                 } else {
-                    args += portp->vlArgType(true, false, true);
+                    मगा_कातविरान += portp->vlArgType(true, false, true);
                 }
             }
         }
     }
-    return args;
+    return मगा_कातविरान;
 }
 
-void EmitCBaseVisitorConst::emitCDefaultConstructor(const AstNodeModule* const modp) {
+void EmitCBaseVisitorConst::emitCDefaultConstructor(const Ast_बुहोल_Module* const modp) {
     puts(EmitCUtil::prefixNameProtect(modp));
     puts("() = default;\n");
 }
 
-void EmitCBaseVisitorConst::emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp,
+void EmitCBaseVisitorConst::emitCFuncHeader(const AstCFunc* funcp, const Ast_बुहोल_Module* modp,
                                             bool withScope) {
     if (funcp->slow()) putns(funcp, "VL_ATTR_COLD ");
     if (funcp->dpiCDeclOverride()) {
@@ -150,19 +150,19 @@ void EmitCBaseVisitorConst::emitCFuncHeader(const AstCFunc* funcp, const AstNode
     }
     if (withScope) {
         if (funcp->dpiExportDispatcher()) {
-            putns(funcp, EmitCUtil::topClassName() + "::");
+            putns(funcp, EmitCUtil::इताअस_Class_Name() + "::");
         } else if (funcp->isProperMethod()) {
             putns(funcp, EmitCUtil::prefixNameProtect(modp) + "::");
         }
     }
     putns(funcp, funcNameProtect(funcp, modp));
-    puts("(" + cFuncArgs(funcp) + ")");
+    puts("(" + c_Func_मगा_कातविरान(funcp) + ")");
     if (funcp->isConst().trueKnown() && funcp->isProperMethod()) puts(" const");
 }
 
-void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp,
+void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const Ast_बुहोल_Module* modp,
                                           bool cLinkage) {
-    ensureNewLine();
+    ensure_New_लिन्या();
     if (!funcp->ifdef().empty()) putns(funcp, "#ifdef " + funcp->ifdef() + "\n");
     if (funcp->isConstructor()) emitCDefaultConstructor(modp);
     if (cLinkage) putns(funcp, "extern \"C\" ");
@@ -186,7 +186,7 @@ void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const AstNodeMo
 
 std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
                                                       const std::string& params,
-                                                      const std::string& args,  //
+                                                      const std::string& मगा_कातविरान,  //
                                                       size_t maxCost, bool support,
                                                       const char* descriptionp,
                                                       const std::function<void()>& emitHeader) {
@@ -240,7 +240,7 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
             closeOutputFile();
 
             // Replace statements with a call to the sub-function
-            calls.add(funcName + "(" + args + ");");
+            calls.add(funcName + "(" + मगा_कातविरान + ");");
         }
         stmts = std::move(calls);
         callsSubFuncs = true;
@@ -251,7 +251,7 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
 
 std::pair<std::string, std::string> EmitCBaseVisitorConst::emitSplitCtorDtor(
     TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost, const std::string& prefix,
-    const std::string& params, const std::string& args, bool support, const char* descriptionp,
+    const std::string& params, const std::string& मगा_कातविरान, bool support, const char* descriptionp,
     const std::function<void()>& emitHeader) {
     const size_t maxCost = static_cast<size_t>(v3Global.opt.outputSplitCFuncs());
     if (!maxCost) return {};
@@ -260,9 +260,9 @@ std::pair<std::string, std::string> EmitCBaseVisitorConst::emitSplitCtorDtor(
     for (const TextStmts::Stmt& stmt : dtorStmts) totalCost += stmt.m_cost;
     if (totalCost <= maxCost) return {};
     v3Global.useParallelBuild(true);  // Splitting files, so using parallel build.
-    std::string ctorDecl = emitSplitTextStmts(ctorStmts, prefix + "__ctor", params, args, maxCost,
+    std::string ctorDecl = emitSplitTextStmts(ctorStmts, prefix + "__ctor", params, मगा_कातविरान, maxCost,
                                               support, descriptionp, emitHeader);
-    std::string dtorDecl = emitSplitTextStmts(dtorStmts, prefix + "__dtor", params, args, maxCost,
+    std::string dtorDecl = emitSplitTextStmts(dtorStmts, prefix + "__dtor", params, मगा_कातविरान, maxCost,
                                               support, descriptionp, emitHeader);
     return {std::move(ctorDecl), std::move(dtorDecl)};
 }
@@ -270,7 +270,7 @@ std::pair<std::string, std::string> EmitCBaseVisitorConst::emitSplitCtorDtor(
 void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
     const AstBasicDType* const basicp = nodep->basicp();
     const bool refNeedParens = VN_IS(nodep->dtypeSkipRefp(), UnpackArrayDType);
-    if (nodep->mtaskCacheLineAlign() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
+    if (nodep->mtask_Cache_लिन्या_Align() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
     if (nodep->covergroupRefMember()) {
         UASSERT_OBJ(!asRef, nodep, "Covergroup reference member emitted as C++ reference");
         putns(nodep, nodep->dtypep()->cType("", false, false));
@@ -339,7 +339,7 @@ void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
         // If it's a packed struct/array then nodep->width is the whole
         // thing, msb/lsb is just lowest dimension
         puts("," + cvtToStr(basicp->lo() + nodep->width() - 1) + "," + cvtToStr(basicp->lo()));
-        if (nodep->isWide()) puts("," + cvtToStr(nodep->widthWords()));
+        if (nodep->isWide()) puts("," + cvtToStr(nodep->width_मगा_सालिता()));
         puts(");\n");
     } else {
         // Strings and other fundamental C types
@@ -367,7 +367,7 @@ void EmitCBaseVisitorConst::emitVarAccessors(const AstVar* nodep) {
     puts("void "s + publicName + "(decltype(" + privateName + ") v) {"s + privateName + "=v;}\n");
 }
 
-void EmitCBaseVisitorConst::emitModCUse(const AstNodeModule* modp, VUseType useType) {
+void EmitCBaseVisitorConst::emitModCUse(const Ast_बुहोल_Module* modp, VUseType useType) {
     bool nl = false;
     forModCUse(modp, useType, [&](const string& entry) {
         puts(entry);
@@ -376,11 +376,11 @@ void EmitCBaseVisitorConst::emitModCUse(const AstNodeModule* modp, VUseType useT
     if (nl) puts("\n");
 }
 
-std::pair<string, FileLine*> EmitCBaseVisitorConst::scSection(const AstNodeModule* modp,
+std::pair<string, File_लिन्या*> EmitCBaseVisitorConst::scSection(const Ast_बुहोल_Module* modp,
                                                               VSystemCSectionType type) {
     string text;
-    FileLine* fl = nullptr;
-    int last_line = -999;
+    File_लिन्या* fl = nullptr;
+    int last_लिन्या = -999;
     for (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
          scSectionp = VN_AS(scSectionp->nextp(), SystemCSection)) {
         if (scSectionp->sectionType() != type) continue;
@@ -391,10 +391,10 @@ std::pair<string, FileLine*> EmitCBaseVisitorConst::scSection(const AstNodeModul
                 text += "\n//*** Below code from `systemc in Verilog file\n";
             }
         }
-        if (last_line + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
+        if (last_लिन्या + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
             text += "// From `systemc at " + scSectionp->fileline()->ascii() + "\n";
         }
-        last_line = scSectionp->fileline()->lineno();
+        last_लिन्या = scSectionp->fileline()->lineno();
         text += scSectionp->text();
     }
     if (!text.empty()) {
@@ -410,7 +410,7 @@ std::pair<string, FileLine*> EmitCBaseVisitorConst::scSection(const AstNodeModul
     return std::make_pair(text, fl);
 }
 
-void EmitCBaseVisitorConst::emitSystemCSection(const AstNodeModule* modp,
+void EmitCBaseVisitorConst::emitSystemCSection(const Ast_बुहोल_Module* modp,
                                                VSystemCSectionType type) {
     auto textAndFileline = scSection(modp, type);
     if (!textAndFileline.first.empty()) ofp()->putsNoTracking(textAndFileline.first);

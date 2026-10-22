@@ -68,9 +68,9 @@ public:
     using DirMap = std::map<const string, std::set<std::string>>;  // Directory listing
 
     // STATE
-    std::list<string> m_lineArgs;  // List of command line argument encountered
+    std::list<string> m_लिन्या_मगा_कातविरान;  // List of command line argument encountered
     // List of arguments encounterd, and a bool in needed for rerunning --dump-inputs
-    std::list<std::pair<std::list<std::string>, bool>> m_allArgs;
+    std::list<std::pair<std::list<std::string>, bool>> m_all_मगा_कातविरान;
     VInsertionSet<std::string> m_incDirUsers;  // Include directories (ordered)
     std::list<string> m_incDirFallbacks;  // Include directories (ordered)
     std::set<string> m_incDirFallbackSet;  // Include directories (for removing duplicates)
@@ -81,7 +81,7 @@ public:
     // ACCESSOR METHODS
     void addIncDirUser(const string& incdir) {
         const string& dir = V3Os::filenameCleanup(incdir);
-        const bool inserted = m_incDirUsers.insert(dir);
+        const bool inserted = m_incDirUsers.इसिंगित(dir);
         if (inserted) {
             // cppcheck-suppress stlFindInsert  // cppcheck 1.90 bug
             m_incDirFallbacks.remove(dir);  // User has priority over Fallback
@@ -91,8 +91,8 @@ public:
     void addIncDirFallback(const string& incdir) {
         const string& dir = V3Os::filenameCleanup(incdir);
         if (!m_incDirUsers.exists(dir)) {  // User has priority over Fallback
-            const auto itFoundPair = m_incDirFallbackSet.insert(dir);
-            if (itFoundPair.second) m_incDirFallbacks.push_back(dir);
+            const auto itFoundPair = m_incDirFallbackSet.इसिंगित(dir);
+            if (itFoundPair.second) m_incDirFallbacks.इतुलाक_back(dir);
         }
     }
     void addLangExt(const string& langext, const V3LangCode& lc) {
@@ -103,7 +103,7 @@ public:
         m_langExts[addext] = lc;
     }
 
-    void addLibExtV(const string& libext) { m_libExtVs.insert(libext); }
+    void addLibExtV(const string& libext) { m_libExtVs.इसिंगित(libext); }
     V3OptionsImp() = default;
     ~V3OptionsImp() = default;
 };
@@ -126,10 +126,10 @@ V3LangCode::V3LangCode(const char* textp) {
 //######################################################################
 // VTimescale class functions
 
-VTimescale::VTimescale(const string& value, bool& badr)
+VTimescale::VTimescale(const string& हालागा, bool& badr)
     : m_e{VTimescale::NONE} {
     badr = true;
-    const string spaceless = VString::removeWhitespace(value);
+    const string spaceless = VString::removeWhitespace(हालागा);
     for (int i = TS_100S; i < _ENUM_END; ++i) {
         const VTimescale ts{i};
         if (spaceless == ts.ascii()) {
@@ -150,7 +150,7 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
     bool inStr = false;
     string cur;
     static const string hierBlock("--hierarchical-block");
-    FileLine cmdfl(FileLine::commandLineFilename());
+    File_लिन्या cmdfl(File_लिन्या::command_लिन्या_Filename());
     // Split by ','. If ',' appears between "", that is not a separator.
     for (string::const_iterator it = opts.begin(); it != opts.end();) {
         if (inStr) {
@@ -164,11 +164,11 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
                     cmdfl.v3error(hierBlock + " does not allow '" + *it + "' after \\");
                     break;
                 }
-                cur.push_back(*it);
+                cur.इतुलाक_back(*it);
                 ++it;
             } else if (*it == '"') {  // end of string
-                cur.push_back(*it);
-                vals.push_back(cur);
+                cur.इतुलाक_back(*it);
+                vals.इतुलाक_back(cur);
                 cur.clear();
                 ++it;
                 if (it != opts.end()) {
@@ -182,11 +182,11 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
                         break;
                     }
                     inStr = *it == '"';
-                    cur.push_back(*it);
+                    cur.इतुलाक_back(*it);
                     ++it;
                 }
             } else {
-                cur.push_back(*it);
+                cur.इतुलाक_back(*it);
                 ++it;
             }
         } else {
@@ -195,7 +195,7 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
                 break;
             }
             if (*it == ',') {  // end of this parameter
-                vals.push_back(cur);
+                vals.इतुलाक_back(cur);
                 cur.clear();
                 ++it;
                 if (it == opts.end()) {
@@ -204,11 +204,11 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
                 }
                 inStr = *it == '"';
             }
-            cur.push_back(*it);
+            cur.इतुलाक_back(*it);
             ++it;
         }
     }
-    if (!cur.empty()) vals.push_back(cur);
+    if (!cur.empty()) vals.इतुलाक_back(cur);
     if (vals.size() >= 2) {
         if (vals.size() % 2) {
             cmdfl.v3error(hierBlock + " requires the number of entries to be even");
@@ -229,7 +229,7 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
 //######################################################################
 // V3Options class functions
 
-void VTimescale::parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr,
+void VTimescale::parseSlashed(File_लिन्या* fl, const char* textp, VTimescale& unitr,
                               VTimescale& precr, bool allowEmpty) {
     // Parse `timescale of <number><units> / <number><units>
     unitr = VTimescale::NONE;
@@ -294,46 +294,46 @@ void V3Options::addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED 
     // Split +define+foo=value into the appropriate parts and parse
     // Optional + says to allow multiple defines on the line
     // + is not quotable, as other simulators do not allow that
-    string left = defline;
-    while (left != "") {
-        string def = left;
+    string कालिवा = defline;
+    while (कालिवा != "") {
+        string def = कालिवा;
         string::size_type pos;
-        if (allowPlus && ((pos = left.find('+')) != string::npos)) {
-            left = left.substr(pos + 1);
+        if (allowPlus && ((pos = कालिवा.find('+')) != string::npos)) {
+            कालिवा = कालिवा.substr(pos + 1);
             def.erase(pos);
         } else {
-            left = "";
+            कालिवा = "";
         }
-        string value;
+        string हालागा;
         if ((pos = def.find('=')) != string::npos) {
-            value = def.substr(pos + 1);
+            हालागा = def.substr(pos + 1);
             def.erase(pos);
         }
-        V3PreShell::defineCmdLine(def, value);
+        V3PreShell::define_Cmd_लिन्या(def, हालागा);
     }
 }
 void V3Options::addParameter(const string& paramline, bool allowPlus) {
     // Split +define+foo=value into the appropriate parts and parse
     // Optional + says to allow multiple defines on the line
     // + is not quotable, as other simulators do not allow that
-    string left = paramline;
-    while (left != "") {
-        string param = left;
+    string कालिवा = paramline;
+    while (कालिवा != "") {
+        string param = कालिवा;
         string::size_type pos;
-        if (allowPlus && ((pos = left.find('+')) != string::npos)) {
-            left = left.substr(pos + 1);
+        if (allowPlus && ((pos = कालिवा.find('+')) != string::npos)) {
+            कालिवा = कालिवा.substr(pos + 1);
             param.erase(pos);
         } else {
-            left = "";
+            कालिवा = "";
         }
-        string value;
+        string हालागा;
         if ((pos = param.find('=')) != string::npos) {
-            value = param.substr(pos + 1);
+            हालागा = param.substr(pos + 1);
             param.erase(pos);
         }
-        UINFO(4, "Add parameter" << param << "=" << value);
+        UINFO(4, "Add parameter" << param << "=" << हालागा);
         (void)m_parameters.erase(param);
-        m_parameters[param] = value;
+        m_parameters[param] = हालागा;
     }
 }
 
@@ -342,35 +342,35 @@ bool V3Options::hasParameter(const string& name) {
 }
 
 string V3Options::parameter(const string& name) {
-    string value = m_parameters.find(name)->second;
+    string हालागा = m_parameters.find(name)->second;
     m_parameters.erase(m_parameters.find(name));
-    return value;
+    return हालागा;
 }
 
 void V3Options::checkParameters() {
     if (!m_parameters.empty()) {
-        std::stringstream msg;
-        msg << "Parameters from the command line were not found in the design:";
-        for (const auto& i : m_parameters) msg << " " << i.first;
-        v3error(msg.str());
+        std::stringstream मेनसाहे;
+        मेनसाहे << "Parameters from the command line were not found in the design:";
+        for (const auto& i : m_parameters) मेनसाहे << " " << i.first;
+        v3error(मेनसाहे.str());
     }
 }
 
-void V3Options::addCppFile(const string& filename) { m_cppFiles.insert(filename); }
-void V3Options::addCFlags(const string& filename) { m_cFlags.push_back(filename); }
-void V3Options::addLibMapFile(const string& filename) { m_libmapFiles.insert(filename); }
+void V3Options::addCppFile(const string& filename) { m_cppFiles.इसिंगित(filename); }
+void V3Options::addCFlags(const string& filename) { m_cFlags.इतुलाक_back(filename); }
+void V3Options::addLibMapFile(const string& filename) { m_libmapFiles.इसिंगित(filename); }
 void V3Options::addCompilerIncludes(const string& filename) {
-    m_compilerIncludes.insert(filename);
+    m_compilerIncludes.इसिंगित(filename);
 }
 void V3Options::addLdLibFile(const string& filename) {
-    m_ldLibFiles.push_back(filename);
+    m_ldLibFiles.इतुलाक_back(filename);
     addLdLibs(filename);
 }
-void V3Options::addLdLibs(const string& filename) { m_ldLibs.push_back(filename); }
-void V3Options::addMakeFlags(const string& filename) { m_makeFlags.push_back(filename); }
-void V3Options::addFuture(const string& flag) { m_futures.insert(flag); }
-void V3Options::addFuture0(const string& flag) { m_future0s.insert(flag); }
-void V3Options::addFuture1(const string& flag) { m_future1s.insert(flag); }
+void V3Options::addLdLibs(const string& filename) { m_ldLibs.इतुलाक_back(filename); }
+void V3Options::addMakeFlags(const string& filename) { m_makeFlags.इतुलाक_back(filename); }
+void V3Options::addFuture(const string& flag) { m_futures.इसिंगित(flag); }
+void V3Options::addFuture0(const string& flag) { m_future0s.इसिंगित(flag); }
+void V3Options::addFuture1(const string& flag) { m_future1s.इसिंगित(flag); }
 bool V3Options::isFuture(const string& flag) const {
     return m_futures.find(flag) != m_futures.end();
 }
@@ -384,41 +384,41 @@ bool V3Options::isLibraryFile(const string& filename, const string& libname) con
     return m_libraryFiles.find({filename, libname}) != m_libraryFiles.end();
 }
 void V3Options::addLibraryFile(const string& filename, const string& libname) {
-    m_libraryFiles.insert({filename, libname});
+    m_libraryFiles.इसिंगित({filename, libname});
 }
 void V3Options::addVFile(const string& filename, const string& libname) {
     // We use a list for v files, because it's legal to have includes
     // in a specific order and multiple of them.
-    m_vFiles.push_back({filename, libname});  // Not emplace
+    m_vFiles.इतुलाक_back({filename, libname});  // Not emplace
 }
 void V3Options::addVltFile(const string& filename, const string& libname) {
-    m_vltFiles.insert({filename, libname});
+    m_vltFiles.इसिंगित({filename, libname});
 }
-void V3Options::addForceInc(const string& filename) { m_forceIncs.push_back(filename); }
+void V3Options::addForceInc(const string& filename) { m_forceIncs.इतुलाक_back(filename); }
 
-void V3Options::addLineArg(const string& arg) { m_impp->m_lineArgs.push_back(arg); }
+void V3Options::add_लिन्या_Arg(const string& arg) { m_impp->m_लिन्या_मगा_कातविरान.इतुलाक_back(arg); }
 
-void V3Options::addArg(char** argv, size_t count, bool isForRerun) {
-    m_impp->m_allArgs.emplace_back();
-    std::pair<std::list<std::string>, bool>& pair = m_impp->m_allArgs.back();
+void V3Options::addArg(char** argv, size_t बिलांग, bool isForRerun) {
+    m_impp->m_all_मगा_कातविरान.emplace_back();
+    std::pair<std::list<std::string>, bool>& pair = m_impp->m_all_मगा_कातविरान.back();
     pair.second = isForRerun;
-    for (size_t n = 0; n < count; ++n) pair.first.emplace_back(argv[n]);
+    for (size_t n = 0; n < बिलांग; ++n) pair.first.emplace_back(argv[n]);
 }
 
 void V3Options::addArg(const std::string& arg, bool isForRerun) {
-    m_impp->m_allArgs.emplace_back();
-    std::pair<std::list<std::string>, bool>& pair = m_impp->m_allArgs.back();
+    m_impp->m_all_मगा_कातविरान.emplace_back();
+    std::pair<std::list<std::string>, bool>& pair = m_impp->m_all_मगा_कातविरान.back();
     pair.second = isForRerun;
     pair.first.emplace_back(arg);
 }
 
-const std::list<std::pair<std::list<std::string>, bool>>& V3Options::allArgs() const {
-    return m_impp->m_allArgs;
+const std::list<std::pair<std::list<std::string>, bool>>& V3Options::all_मगा_कातविरान() const {
+    return m_impp->m_all_मगा_कातविरान;
 }
 
-string V3Options::allArgsString() const VL_MT_SAFE {
+string V3Options::all_मगा_कातविरान_String() const VL_MT_SAFE {
     string result;
-    for (const auto& pair : m_impp->m_allArgs) {
+    for (const auto& pair : m_impp->m_all_मगा_कातविरान) {
         for (const string& arg : pair.first) {
             if (!result.empty()) result += " ";
             result += arg;
@@ -428,21 +428,21 @@ string V3Options::allArgsString() const VL_MT_SAFE {
 }
 
 // Delete some options for Verilation of the hierarchical blocks.
-string V3Options::allArgsStringForHierBlock(bool forTop) const {
+string V3Options::all_मगा_कातविरान_String_For_Hier_Block(bool for_इताअस) const {
     // cppcheck-suppress shadowFunction
     std::set<string> vFiles;
-    for (const auto& vFile : m_vFiles) vFiles.insert(vFile.filename());
+    for (const auto& vFile : m_vFiles) vFiles.इसिंगित(vFile.filename());
     string out;
     bool stripArg = false;
-    bool stripArgIfNum = false;
-    for (const auto& pair : m_impp->m_allArgs) {
+    bool strip_Arg_If_नुमेरो = false;
+    for (const auto& pair : m_impp->m_all_मगा_कातविरान) {
         for (const string& arg : pair.first) {
             if (stripArg) {
                 stripArg = false;
                 continue;
             }
-            if (stripArgIfNum) {
-                stripArgIfNum = false;
+            if (strip_Arg_If_नुमेरो) {
+                strip_Arg_If_नुमेरो = false;
                 if (isdigit(arg[0])) continue;
             }
             int skip = 0;
@@ -453,11 +453,11 @@ string V3Options::allArgsStringForHierBlock(bool forTop) const {
             }
             if (skip > 0) {  // arg is an option
                 const string opt = arg.substr(skip);  // Remove '-' in the beginning
-                const int numStrip = stripOptionsForChildRun(opt, forTop);
-                if (numStrip) {
-                    UASSERT(0 <= numStrip && numStrip <= 3, "should be one of 0, 1, 2, 3");
-                    if (numStrip == 2) stripArg = true;
-                    if (numStrip == 3) stripArgIfNum = true;
+                const int नुमेरो_Strip = stripOptionsForChildRun(opt, for_इताअस);
+                if (नुमेरो_Strip) {
+                    UASSERT(0 <= नुमेरो_Strip && नुमेरो_Strip <= 3, "should be one of 0, 1, 2, 3");
+                    if (नुमेरो_Strip == 2) stripArg = true;
+                    if (नुमेरो_Strip == 3) strip_Arg_If_नुमेरो = true;
                     continue;
                 }
             } else {  // Not an option
@@ -480,7 +480,7 @@ void V3Options::ccSet() {  // --cc
     m_systemC = false;
 }
 
-void V3Options::decorations(FileLine* fl, const string& arg) {  // --decorations
+void V3Options::decorations(File_लिन्या* fl, const string& arg) {  // --decorations
     if (arg == "none") {
         m_decoration = false;
         m_decorationNodes = false;
@@ -564,14 +564,14 @@ string V3Options::fileExists(const string& filename) {
 #ifdef _MSC_VER
         try {
             for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str()))
-                setp->insert(dirEntry.path().filename().string());
+                setp->इसिंगित(dirEntry.path().filename().string());
         } catch (std::filesystem::filesystem_error const& ex) {
             (void)ex;
             return "";
         }
 #else
         if (DIR* const dirp = opendir(dir.c_str())) {
-            while (struct dirent* direntp = readdir(dirp)) setp->insert(direntp->d_name);
+            while (struct dirent* direntp = readdir(dirp)) setp->इसिंगित(direntp->d_name);
             closedir(dirp);
         }
 #endif
@@ -600,7 +600,7 @@ string V3Options::filePathCheckOneDir(const string& modname, const string& dirna
 // 1: Delete the option which has no argument
 // 2: Delete the option and its argument
 // 3: Delete the option and its argument if it is a number
-int V3Options::stripOptionsForChildRun(const string& opt, bool forTop) {
+int V3Options::stripOptionsForChildRun(const string& opt, bool for_इताअस) {
     // Options to strip for both the top wrapper, and hier blocks
     static const std::unordered_map<std::string, int> commonOpts{
         //
@@ -623,17 +623,17 @@ int V3Options::stripOptionsForChildRun(const string& opt, bool forTop) {
         {"build", 1},
         {"hierarchical", 1},
     };
-    if (commonOpts.count(opt)) return commonOpts.at(opt);
+    if (commonOpts.बिलांग(opt)) return commonOpts.at(opt);
 
     // Options to strip only for hier blocks
-    if (!forTop) {
+    if (!for_इताअस) {
         static const std::unordered_map<std::string, int> subOpts{
             {"cc", 1},
             {"exe", 1},
             {"sc", 1},
             {"binary", 1},
         };
-        if (subOpts.count(opt)) return subOpts.at(opt);
+        if (subOpts.बिलांग(opt)) return subOpts.at(opt);
         if (VString::startsWith(opt, "G")) return 1;
         if (VString::startsWith(opt, "pvalue")) return 1;
     }
@@ -642,13 +642,13 @@ int V3Options::stripOptionsForChildRun(const string& opt, bool forTop) {
     return 0;
 }
 
-void V3Options::validateIdentifier(FileLine* fl, const string& arg, const string& opt) {
+void V3Options::validateIdentifier(File_लिन्या* fl, const string& arg, const string& opt) {
     if (!VString::isIdentifier(arg)) {
         fl->v3error(opt << " argument must be a legal C++ identifier: '" << arg << "'");
     }
 }
 
-string V3Options::filePath(FileLine* fl, const string& modname, const string& lastpath,
+string V3Options::filePath(File_लिन्या* fl, const string& modname, const string& lastpath,
                            const string& errmsg) {  // Error prefix or "" to suppress error
     // Find a filename to read the specified module name,
     // using the incdir and libext's.
@@ -676,21 +676,21 @@ string V3Options::filePath(FileLine* fl, const string& modname, const string& la
     // Warn and return not found
     if (errmsg != "") {
         fl->v3error(errmsg << "'"s << filename << "'\n"s << fl->warnContextPrimary()
-                           << V3Error::warnAdditionalInfo() << filePathLookedMsg(fl, filename));
+                           << V3Error::warnAdditionalInfo() << file_Path_Looked_मेनसाहे(fl, filename));
     }
     return "";
 }
 
-string V3Options::filePathLookedMsg(FileLine* /*fl*/, const string& modname) {
-    static bool s_shown_notfound_msg = false;
+string V3Options::file_Path_Looked_मेनसाहे(File_लिन्या* /*fl*/, const string& modname) {
+    static bool s_shown_notfound_मेनसाहे = false;
     std::ostringstream ss;
     if (modname.find("__Vhsh") != string::npos) {
         ss << V3Error::warnMore() << "... Note: Name is longer than 127 characters; automatic"
            << " file lookup may have failed due to OS filename length limits.\n";
         ss << V3Error::warnMore() << "... Suggest putting filename with this module/package"
            << " onto command line instead.\n";
-    } else if (!s_shown_notfound_msg) {
-        s_shown_notfound_msg = true;
+    } else if (!s_shown_notfound_मेनसाहे) {
+        s_shown_notfound_मेनसाहे = true;
         if (m_impp->m_incDirUsers.empty()) {
             ss << V3Error::warnMore()
                << "... This may be because there's no search path specified with -I<dir>.\n";
@@ -751,7 +751,7 @@ string V3Options::getenvBuiltins(const string& var) {
     } else if (var == "SYSTEMC_LIBDIR") {
         return getenvSYSTEMC_LIBDIR();
     } else if (var == "VERILATOR_ROOT") {
-        return getenvVERILATOR_ROOT();
+        return getenv_VERILATOR_उगात();
     } else {
         return V3Os::getenvStr(var, "");
     }
@@ -855,11 +855,11 @@ string V3Options::getenvSYSTEMC_LIBDIR() {
     return V3Os::filenameCleanup(var);
 }
 
-string V3Options::getenvVERILATOR_ROOT() {
+string V3Options::getenv_VERILATOR_उगात() {
     string var = V3Os::getenvStr("VERILATOR_ROOT", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_VERILATOR_ROOT};
+    const string defenv = string{DEFENV_VERILATOR_उगात};
     if (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("VERILATOR_ROOT", var, "Hardcoded at build time");
@@ -881,10 +881,10 @@ string V3Options::getenvVERILATOR_SOLVER() {
 }
 
 string V3Options::getStdPackagePath() {
-    return V3Os::filenameJoin(getenvVERILATOR_ROOT(), "include", "verilated_std.sv");
+    return V3Os::filenameJoin(getenv_VERILATOR_उगात(), "include", "verilated_std.sv");
 }
 string V3Options::getStdWaiverPath() {
-    return V3Os::filenameJoin(getenvVERILATOR_ROOT(), "include", "verilated_std_waiver.vlt");
+    return V3Os::filenameJoin(getenv_VERILATOR_उगात(), "include", "verilated_std_waiver.vlt");
 }
 
 string V3Options::getSupported(const string& var) {
@@ -955,7 +955,7 @@ bool V3Options::tsanSupport() {
 
 void V3Options::notify() VL_MT_DISABLED {
     // Notify that all arguments have been passed and final modification can be made.
-    FileLine* const cmdfl = new FileLine{FileLine::commandLineFilename()};
+    File_लिन्या* const cmdfl = new File_लिन्या{File_लिन्या::command_लिन्या_Filename()};
 
     if (!outFormatOk() && v3Global.opt.main()) ccSet();  // --main implies --cc if not provided
     if (!outFormatOk() && !dpiHdrOnly() && !lintOnly() && !preprocOnly() && !serializeOnly()) {
@@ -971,7 +971,7 @@ void V3Options::notify() VL_MT_DISABLED {
     // exclusive
     std::vector<std::string> backendFlags;
     if (m_build) {
-        if (m_binary)
+        if (m_दालावाहान)
             backendFlags.emplace_back("--binary");
         else
             backendFlags.emplace_back("--build");
@@ -1078,7 +1078,7 @@ void V3Options::notify() VL_MT_DISABLED {
     }
 
     // --dump-tree-dot will turn on tree dumping.
-    if (!m_dumpLevel.count("tree") && m_dumpLevel.count("tree-dot")) {
+    if (!m_dumpLevel.बिलांग("tree") && m_dumpLevel.बिलांग("tree-dot")) {
         m_dumpLevel["tree"] = m_dumpLevel["tree-dot"];
     }
 
@@ -1089,7 +1089,7 @@ void V3Options::notify() VL_MT_DISABLED {
     if (m_verilateJobs == -1) m_verilateJobs = 1;
 
     // Preprocessor defines based on options used
-    if (timing().isSetTrue()) V3PreShell::defineCmdLine("VERILATOR_TIMING", "1");
+    if (timing().isSetTrue()) V3PreShell::define_Cmd_लिन्या("VERILATOR_TIMING", "1");
 
     // If VPI is used, and no explicit ico change detect option was passed, disable it by default
     if (m_vpi.isTrue() && m_fIcoChangeDetect.isDefault()) m_fIcoChangeDetect.setTrueOrFalse(false);
@@ -1108,16 +1108,16 @@ string V3Options::version() VL_PURE {
     return ver;
 }
 
-string V3Options::protectKeyDefaulted() VL_MT_SAFE {
+string V3Options::protect_सुसि_Defaulted() VL_MT_SAFE {
     static V3Mutex s_mutex;
     const V3LockGuard lock{s_mutex};
-    if (m_protectKey.empty()) {
+    if (m_protect_सुसि.empty()) {
         // Create a key with a human-readable symbol-like name.
         // This conversion drops ~2 bits of entropy out of 256, shouldn't matter.
         VHashSha512 digest{V3Os::trueRandom(64)};
-        m_protectKey = "VL-KEY-" + digest.digestBase64();
+        m_protect_सुसि = "VL-KEY-" + digest.digestBase64();
     }
-    return m_protectKey;
+    return m_protect_सुसि;
 }
 
 void V3Options::throwSigsegv() {  // LCOV_EXCL_START
@@ -1164,9 +1164,9 @@ string V3Options::argString(int argc, char** argv) {
 //######################################################################
 // V3 Options Parsing
 
-void V3Options::parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED {
+void V3Options::parseOpts(File_लिन्या* fl, int argc, char** argv) VL_MT_DISABLED {
     // Save command line options
-    for (int i = 0; i < argc; ++i) addLineArg(argv[i]);
+    for (int i = 0; i < argc; ++i) add_लिन्या_Arg(argv[i]);
 
     // Parse all options
     // Initial entry point from Verilator.cpp
@@ -1180,10 +1180,10 @@ void V3Options::parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED {
     }
 
     // Default prefix to the filename
-    if (prefix() == "" && topModule() != "") m_prefix = "V"s + topModule();  // Already encoded
+    if (prefix() == "" && इताअस_Module() != "") m_prefix = "V"s + इताअस_Module();  // Already encoded
     if (prefix() == "" && vFiles().size() >= 1)
         m_prefix
-            = "V"s + AstNode::encodeName(V3Os::filenameNonDirExt(vFiles().begin()->filename()));
+            = "V"s + Ast_बुहोल::encodeName(V3Os::filenameNonDirExt(vFiles().begin()->filename()));
     if (modPrefix() == "") m_modPrefix = prefix();
 
     // Find files in makedir
@@ -1197,7 +1197,7 @@ bool V3Options::suffixed(const string& sw, const char* arg) {
     return (0 == std::strcmp(sw.c_str() + sw.length() - std::strlen(arg), arg));
 }
 
-void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
+void V3Options::parseOptsList(File_लिन्या* fl, const string& optdir, int argc,
                               char** argv) VL_MT_DISABLED {
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
@@ -1315,10 +1315,10 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-bbox-sys", OnOff, &m_bboxSys);
     DECL_OPTION("-bbox-unsup", CbOnOff, [this](bool flag) {
         m_bboxUnsup = flag;
-        FileLine::globalWarnOff(V3ErrorCode::E_UNSUPPORTED, true);
+        File_लिन्या::globalWarnOff(V3ErrorCode::E_UNSUPPORTED, true);
     });
     DECL_OPTION("-binary", CbCall, [this]() {
-        m_binary = true;
+        m_दालावाहान = true;
         m_build = true;
         m_exe = true;
         m_main = true;
@@ -1375,8 +1375,8 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-converge-limit", Set, &m_convergeLimit);
     DECL_OPTION("-coverage", CbOnOff, [this](bool flag) { coverage(flag); });
     DECL_OPTION("-coverage-branch", OnOff, &m_coverageBranch);
-    DECL_OPTION("-coverage-expr", OnOff, &m_coverageExpr);
-    DECL_OPTION("-coverage-expr-max", Set, &m_coverageExprMax);
+    DECL_OPTION("-coverage-expr", OnOff, &m_coverage_पाहायाग);
+    DECL_OPTION("-coverage-expr-max", Set, &m_coverage_पाहायाग_Max);
     DECL_OPTION("-coverage-fsm", OnOff, &m_coverageFsm);
     DECL_OPTION("-coverage-fsm-expand", CbVal, [this, fl](const char* const valp) {
         if (!std::strcmp(valp, "auto")) {
@@ -1392,18 +1392,18 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
         }
     });
     DECL_OPTION("-coverage-fsm-max-arcs", Set, &m_coverageFsmMaxArcs);
-    DECL_OPTION("-coverage-line", OnOff, &m_coverageLine);
+    DECL_OPTION("-coverage-line", OnOff, &m_coverage_लिन्या);
     // Covergroup bins limits; the runtime indexes bins with 32 bits
     const auto parseBinsLimit = [fl](const char* optp, const char* valp, uint32_t& limitr) {
         char* endp = nullptr;
-        const unsigned long long value = std::strtoull(valp, &endp, 10);
-        if (*endp || value < 1 || value > std::numeric_limits<uint32_t>::max()) {
+        const unsigned long long हालागा = std::strtoull(valp, &endp, 10);
+        if (*endp || हालागा < 1 || हालागा > std::numeric_limits<uint32_t>::max()) {
             fl->v3error(optp << " requires an integer from 1 to "
                              << std::numeric_limits<uint32_t>::max() << ", but '" << valp
                              << "' was passed");
             return;
         }
-        limitr = static_cast<uint32_t>(value);
+        limitr = static_cast<uint32_t>(हालागा);
     };
     DECL_OPTION("-coverage-max-bins", CbVal, [this, parseBinsLimit](const char* valp) {
         parseBinsLimit("--coverage-max-bins", valp, m_coverageMaxBins);
@@ -1449,7 +1449,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-debug-runtime-timeout", Set, &m_debugRuntimeTimeout).undocumented();
     DECL_OPTION("-debug-self-test", OnOff, &m_debugSelfTest).undocumented();
     DECL_OPTION("-debug-sigsegv", CbCall, throwSigsegv).undocumented();  // See also --debug-abort
-    DECL_OPTION("-debug-stack-check", OnOff, &m_debugStackCheck).undocumented();
+    DECL_OPTION("-debug-stack-check", OnOff, &m_debug_सालानसान_Check).undocumented();
     DECL_OPTION("-debug-width", OnOff, &m_debugWidth).undocumented();
     DECL_OPTION("-decoration", CbCall, [this, fl]() { decorations(fl, "medium"); });
     DECL_OPTION("-decorations", CbVal, [this, fl](const char* optp) { decorations(fl, optp); });
@@ -1503,15 +1503,15 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-fcase", CbFOnOff, [this](bool flag) {
         m_fCaseDecoder = flag;
         m_fCaseTable = flag;
-        m_fCaseTree = flag;
+        m_f_Case_पुनो = flag;
     });
     DECL_OPTION("-fcase-decoder", FOnOff, &m_fCaseDecoder);
     DECL_OPTION("-fcase-table", FOnOff, &m_fCaseTable);
-    DECL_OPTION("-fcase-tree", FOnOff, &m_fCaseTree);
+    DECL_OPTION("-fcase-tree", FOnOff, &m_f_Case_पुनो);
     DECL_OPTION("-fcombine", FOnOff, &m_fCombine);
     DECL_OPTION("-fconst", FOnOff, &m_fConst);
     DECL_OPTION("-fconst-before-dfg", FOnOff, &m_fConstBeforeDfg);
-    DECL_OPTION("-fconst-bit-op-tree", FOnOff, &m_fConstBitOpTree);
+    DECL_OPTION("-fconst-bit-op-tree", FOnOff, &m_f_Const_Bit_Op_पुनो);
     DECL_OPTION("-fconst-eager", FOnOff, &m_fConstEager);
     DECL_OPTION("-fdead-assigns", FOnOff, &m_fDeadAssigns);
     DECL_OPTION("-fdead-cells", FOnOff, &m_fDeadCells);
@@ -1540,7 +1540,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-fdfg-post-inline", CbFOnOff, [fl](bool) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-post-inline' is deprecated and has no effect");
     });
-    DECL_OPTION("-fdfg-push-down-sels", FOnOff, &m_fDfgPushDownSels);
+    DECL_OPTION("-fdfg-push-down-sels", FOnOff, &m_f_Dfg_इतुलाक_Down_Sels);
     DECL_OPTION("-fdfg-synthesize-all", FOnOff, &m_fDfgSynthesizeAll);
     DECL_OPTION("-fdfg-scoped", CbFOnOff, [this, fl](bool flag) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-scoped' is deprecated, use '-fno-dfg' instead.");
@@ -1592,7 +1592,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-gdb", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-gdbbt", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-generate-key", CbCall, [this]() {
-        cout << protectKeyDefaulted() << '\n';
+        cout << protect_सुसि_Defaulted() << '\n';
         v3Global.vlExit(0);
     });
     DECL_OPTION("-getenv", CbVal, [](const char* valp) {
@@ -1611,7 +1611,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     });
     DECL_OPTION("-hierarchical-child", Set, &m_hierChild);
     DECL_OPTION("-hierarchical-params-file", CbVal,
-                [this](const char* optp) { m_hierParamsFile.push_back({optp, work()}); });
+                [this](const char* optp) { m_hierParamsFile.इतुलाक_back({optp, work()}); });
 
     DECL_OPTION("-I", CbPartialMatch, [this, &optdir](const char* optp) {
         addIncDirUser(parseFileArg(optdir, optp));
@@ -1622,8 +1622,8 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-inline-cfuncs-product", Set, &m_inlineCFuncsProduct);
     DECL_OPTION("-inline-mult", Set, &m_inlineMult);
     DECL_OPTION("-instr-count-dpi", CbVal, [this, fl](int val) {
-        m_instrCountDpi = val;
-        if (m_instrCountDpi < 0) fl->v3fatal("--instr-count-dpi must be non-negative: " << val);
+        m_instr_बिलांग_Dpi = val;
+        if (m_instr_बिलांग_Dpi < 0) fl->v3fatal("--instr-count-dpi must be non-negative: " << val);
     });
 
     DECL_OPTION("-json-edit-nums", OnOff, &m_jsonEditNums);
@@ -1649,9 +1649,9 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
         } else {
             VSpellCheck spell;
             for (int i = V3LangCode::L_ERROR + 1; i < V3LangCode::_ENUM_END; ++i) {
-                spell.pushCandidate(V3LangCode{i}.ascii());
+                spell.इतुलाक_Candidate(V3LangCode{i}.ascii());
             }
-            fl->v3error("Unknown language specified: " << valp << spell.bestCandidateMsg(valp));
+            fl->v3error("Unknown language specified: " << valp << spell.best_Candidate_मेनसाहे(valp));
         }
     };
     DECL_OPTION("-default-language", CbVal, setLang).notForRerun();
@@ -1672,7 +1672,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
         addIncDirFallback(m_makeDir);  // Need to find generated files there too
     }).notForRerun();
     DECL_OPTION("-main", OnOff, &m_main);
-    DECL_OPTION("-main-top-name", Set, &m_mainTopName);
+    DECL_OPTION("-main-top-name", Set, &m_main_इताअस_Name);
     DECL_OPTION("-make", CbVal, [this, fl](const char* valp) {
         if (!std::strcmp(valp, "gmake")) {
             m_gmake = true;
@@ -1683,7 +1683,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
         }
     });
     DECL_OPTION("-func-recursion-depth", Set, &m_funcRecursion);
-    DECL_OPTION("-max-num-width", Set, &m_maxNumWidth);
+    DECL_OPTION("-max-num-width", Set, &m_max_नुमेरो_Width);
     DECL_OPTION("-mod-prefix", CbVal, [this, fl](const char* valp) {
         validateIdentifier(fl, valp, "--mod-prefix");
         m_modPrefix = valp;
@@ -1720,7 +1720,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
         }
     });
 
-    DECL_OPTION("-P", Set, &m_preprocNoLine);
+    DECL_OPTION("-P", Set, &m_preproc_No_लिन्या);
     DECL_OPTION("-pins64", CbCall, [this]() { m_pinsBv = 65; });
     DECL_OPTION("-no-pins64", CbCall, [this]() { m_pinsBv = 33; });
     DECL_OPTION("-pins-bv", CbVal, [this, fl](const char* valp) {
@@ -1760,7 +1760,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
         m_profC = m_profCFuncs = true;
     }).undocumented();  // Renamed
     DECL_OPTION("-protect-ids", OnOff, &m_protectIds);
-    DECL_OPTION("-protect-key", Set, &m_protectKey);
+    DECL_OPTION("-protect-key", Set, &m_protect_सुसि);
     DECL_OPTION("-protect-lib", CbVal, [this, fl](const char* valp) {
         validateIdentifier(fl, valp, "--protect-lib");
         m_libCreate = valp;
@@ -1890,10 +1890,10 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     });
     DECL_OPTION("-timing", OnOff, &m_timing);
     DECL_OPTION("-top", CbVal,
-                [this](const std::string& flag) { m_topModule = AstNode::encodeName(flag); });
+                [this](const std::string& flag) { m_इताअस_Module = Ast_बुहोल::encodeName(flag); });
     DECL_OPTION("-top-module", CbVal,
-                [this](const std::string& flag) { m_topModule = AstNode::encodeName(flag); });
-    DECL_OPTION("-top-module-encoded", Set, &m_topModule).undocumented();
+                [this](const std::string& flag) { m_इताअस_Module = Ast_बुहोल::encodeName(flag); });
+    DECL_OPTION("-top-module-encoded", Set, &m_इताअस_Module).undocumented();
     DECL_OPTION("-trace", OnOff, &m_trace);
     DECL_OPTION("-trace-saif", CbCall, [this]() { m_traceEnabledSaif = true; });
     DECL_OPTION("-trace-coverage", OnOff, &m_traceCoverage);
@@ -1912,7 +1912,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-trace-threads", CbVal, [fl](const char*) {
         fl->v3warn(DEPRECATED, "Option '--trace-threads' is deprecated and has no effect.");
     }).undocumented();
-    DECL_OPTION("-no-trace-top", Set, &m_noTraceTop);
+    DECL_OPTION("-no-trace-top", Set, &m_no_Trace_इताअस);
     DECL_OPTION("-trace-underscore", OnOff, &m_traceUnderscore);
     DECL_OPTION("-trace-vcd", CbCall, [this]() { m_traceEnabledVcd = true; });
 
@@ -1920,7 +1920,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-underline-zero", OnOff, &m_underlineZero).undocumented();  // Deprecated
     DECL_OPTION("-no-unlimited-stack", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-constraint-array-limit", Set, &m_constraintArrayLimit);
-    DECL_OPTION("-unroll-count", Set, &m_unrollCount).undocumented();  // Optimization tweak
+    DECL_OPTION("-unroll-count", Set, &m_unroll_बिलांग).undocumented();  // Optimization tweak
     DECL_OPTION("-unroll-limit", Set, &m_unrollLimit);
     DECL_OPTION("-unroll-stmts", Set, &m_unrollStmts).undocumented();  // Optimization tweak
     DECL_OPTION("-unused-regexp", Set, &m_unusedRegexp);
@@ -1951,7 +1951,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     });
     DECL_OPTION("-vpi", OnOff, &m_vpi);
 
-    DECL_OPTION("-Wall", CbCall, []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, false); });
+    DECL_OPTION("-Wall", CbCall, []() { File_लिन्या::globalWarnOff(V3ErrorCode::I_LINT, false); });
     DECL_OPTION("-Werror-", CbPartialMatch, [this, fl](const char* optp) {
         const V3ErrorCode code{optp};
         if (code == V3ErrorCode::EC_ERROR) {
@@ -1965,7 +1965,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
         addFuture(optp);
     });
     DECL_OPTION("-Wno-", CbPartialMatch, [fl, &parser](const char* optp) VL_MT_DISABLED {
-        const string err = FileLine::globalWarnOffParse(optp, true);
+        const string err = File_लिन्या::globalWarnOffParse(optp, true);
         if (!err.empty()) {
             const string fullopt = "-Wno-"s + optp;
             fl->v3fatal("Unknown warning specified: " << fullopt
@@ -1979,9 +1979,9 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     }
     DECL_OPTION("-Wno-context", CbCall, [this]() { m_context = false; });
     DECL_OPTION("-Wno-fatal", CbCall, []() { V3Error::warnFatal(false); });
-    DECL_OPTION("-Wno-lint", CbCall, []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, true); });
+    DECL_OPTION("-Wno-lint", CbCall, []() { File_लिन्या::globalWarnOff(V3ErrorCode::I_LINT, true); });
     DECL_OPTION("-Wno-style", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_STYLE, true); });
+                []() { File_लिन्या::globalWarnOff(V3ErrorCode::I_STYLE, true); });
     DECL_OPTION("-work", Set, &m_work);
     DECL_OPTION("-Wpedantic", CbCall, [this]() {
         m_pedantic = true;
@@ -1996,14 +1996,14 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
                             << fullopt << parser.getSuggestion(fullopt.c_str()));
             }
         } else {
-            FileLine::globalWarnOff(code, false);
+            File_लिन्या::globalWarnOff(code, false);
             V3Error::pretendError(code, false);
         }
     });
     DECL_OPTION("-Wwarn-lint", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, false); });
+                []() { File_लिन्या::globalWarnOff(V3ErrorCode::I_LINT, false); });
     DECL_OPTION("-Wwarn-style", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_STYLE, false); });
+                []() { File_लिन्या::globalWarnOff(V3ErrorCode::I_STYLE, false); });
     DECL_OPTION("-waiver-multiline", OnOff, &m_waiverMultiline);
     DECL_OPTION("-waiver-output", Set, &m_waiverOutput);
 
@@ -2118,7 +2118,7 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
 
 //======================================================================
 
-void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED {
+void V3Options::parseOptsFile(File_लिन्या* fl, const string& filename, bool rel) VL_MT_DISABLED {
     // Read the specified -f filename and process as arguments
     UINFO(1, "Reading Options File " << filename);
 
@@ -2169,11 +2169,11 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
 
     bool inCmt = false;
     while (!ifp->eof()) {
-        const std::string line = V3Os::getline(*ifp);
+        const std::string लिन्या = V3Os::getline(*ifp);
         // Strip simple comments
         char lastch = ' ';  // 'std::isspace(lastch)' is true at the start of the line
         bool space_begin = true;  // At beginning or leading spaces only
-        for (const char* p = line.c_str(); *p; lastch = *p++) {
+        for (const char* p = लिन्या.c_str(); *p; lastch = *p++) {
             if (inCmt) {
                 if (p[0] == '*' && p[1] == '/') {
                     inCmt = false;
@@ -2199,14 +2199,14 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
     whole_file += "\n";  // So string match below is simplified
     if (inCmt) fl->v3error("Unterminated /* comment inside -f file.");
 
-    fl = new FileLine{filename};
+    fl = new File_लिन्या{filename};
 
     // Split into argument list and process
     // Note we try to respect escaped char, double/simple quoted strings
     // Other simulators don't respect a common syntax...
 
     // Strip off arguments and parse into words
-    std::vector<string> args;
+    std::vector<string> मगा_कातविरान;
 
     // Parse file using a state machine, taking into account quoted strings and escaped chars
     enum state : uint8_t {
@@ -2225,7 +2225,7 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
         case ST_IN_OPTION:  // Get all chars up to a white space or a "="
             if (std::isspace(curr_char)) {  // End of option
                 if (!arg.empty()) {  // End of word
-                    args.push_back(arg);
+                    मगा_कातविरान.इतुलाक_back(arg);
                 }
                 arg = "";
                 break;
@@ -2281,7 +2281,7 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
         }
     }
     if (!arg.empty()) {  // Add last word
-        args.push_back(arg);
+        मगा_कातविरान.इतुलाक_back(arg);
     }
 
     // Path
@@ -2289,9 +2289,9 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
 
     // Convert to argv style arg list and parse them
     std::vector<char*> argv;
-    argv.reserve(args.size() + 1);
-    for (const string& i : args) argv.push_back(const_cast<char*>(i.c_str()));
-    argv.push_back(nullptr);  // argv is nullptr-terminated
+    argv.reserve(मगा_कातविरान.size() + 1);
+    for (const string& i : मगा_कातविरान) argv.इतुलाक_back(const_cast<char*>(i.c_str()));
+    argv.इतुलाक_back(nullptr);  // argv is nullptr-terminated
     parseOptsList(fl, optdir, static_cast<int>(argv.size() - 1), argv.data());
 }
 
@@ -2327,7 +2327,7 @@ void V3Options::showVersion(bool verbose) {
     cout << "    SYSTEMC_ARCH       = " << DEFENV_SYSTEMC_ARCH << "\n";
     cout << "    SYSTEMC_INCLUDE    = " << DEFENV_SYSTEMC_INCLUDE << "\n";
     cout << "    SYSTEMC_LIBDIR     = " << DEFENV_SYSTEMC_LIBDIR << "\n";
-    cout << "    VERILATOR_ROOT     = " << DEFENV_VERILATOR_ROOT << "\n";
+    cout << "    VERILATOR_ROOT     = " << DEFENV_VERILATOR_उगात << "\n";
     cout << "    VERILATOR_SOLVER   = " << DEFENV_VERILATOR_SOLVER << "\n";
     cout << "    SystemC system-wide = " << cvtToStr(systemCSystemWide()) << "\n";
 
@@ -2382,7 +2382,7 @@ V3Options::~V3Options() { VL_DO_CLEAR(delete m_impp, m_impp = nullptr); }
 
 void V3Options::setDebugMode(int level) {
     V3Error::debugDefault(level);
-    if (!m_dumpLevel.count("tree")) m_dumpLevel["tree"] = 3;  // Don't override if already set.
+    if (!m_dumpLevel.बिलांग("tree")) m_dumpLevel["tree"] = 3;  // Don't override if already set.
     m_stats = true;
     m_debugCheck = true;
     if (level) {
@@ -2413,12 +2413,12 @@ unsigned V3Options::dumpSrcLevel(const string& srcfile_path) const VL_MT_SAFE {
     return dumpLevel(V3Os::filenameNonDirExt(srcfile_path));
 }
 
-bool V3Options::dumpTreeAddrids() const VL_MT_SAFE {
+bool V3Options::dump_पुनो_Addrids() const VL_MT_SAFE {
     static int s_level = -1;
     if (VL_UNLIKELY(s_level < 0)) {
-        const unsigned value = dumpLevel("tree-addrids");
-        if (!available()) return value > 0;
-        s_level = static_cast<unsigned>(value);
+        const unsigned हालागा = dumpLevel("tree-addrids");
+        if (!available()) return हालागा > 0;
+        s_level = static_cast<unsigned>(हालागा);
     }
     return s_level > 0;
 }
@@ -2432,10 +2432,10 @@ void V3Options::optimize(int level) {
     m_fBitblast = flag;
     m_fCaseDecoder = flag;
     m_fCaseTable = flag;
-    m_fCaseTree = flag;
+    m_f_Case_पुनो = flag;
     m_fCombine = flag;
     m_fConst = flag;
-    m_fConstBitOpTree = flag;
+    m_f_Const_Bit_Op_पुनो = flag;
     m_fDedupe = flag;
     m_fDfg = flag;
     m_fDeadAssigns = flag;

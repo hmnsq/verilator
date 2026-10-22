@@ -32,15 +32,15 @@ class V3Os final {
 public:
     // METHODS (environment)
     static string cwd() { return filenameRealPath("."); }
-    static string getenvStr(const string& envvar, const string& defaultValue);
-    static void setenvStr(const string& envvar, const string& value, const string& why);
+    static string getenvStr(const string& envvar, const string& default_हालागा);
+    static void setenvStr(const string& envvar, const string& हालागा, const string& why);
 
     // METHODS (generic filename utilities)
     ///< @return concatenated path
     static string filenameJoin(std::initializer_list<const std::string> paths) VL_PURE;
-    template <typename... Args>
-    static string filenameJoin(Args... args) VL_PURE {
-        return filenameJoin({args...});
+    template <typename... मगा_कातविरान_2>
+    static string filenameJoin(मगा_कातविरान_2... मगा_कातविरान) VL_PURE {
+        return filenameJoin({मगा_कातविरान...});
     };
     ///< @return file path without repeated separators and ./ prefix
     static string filenameCleanup(const string& filename) VL_PURE;

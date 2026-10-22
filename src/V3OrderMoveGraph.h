@@ -109,33 +109,33 @@ class OrderMoveDomScope final {
     const AstScope* const m_scopep;  // Scope the vertices belong to
 
     // Key type for map below
-    class DomScopeMapKey final {
+    class Dom_Scope_Map_सुसि final {
         const OrderDomain* const m_domainp;  // Domain the vertices belong to
         const AstScope* const m_scopep;  // Scope the vertices belong to
 
     public:
-        DomScopeMapKey(const OrderDomain* domainp, const AstScope* scopep)
+        Dom_Scope_Map_सुसि(const OrderDomain* domainp, const AstScope* scopep)
             : m_domainp{domainp}
             , m_scopep{scopep} {}
 
         struct Hash final {
-            size_t operator()(const DomScopeMapKey& key) const {
+            size_t operator()(const Dom_Scope_Map_सुसि& सुसि) const {
                 // cppcheck-suppress unreadVariable  // cppcheck bug
-                V3Hash hash{key.m_domainp};
-                hash += key.m_scopep;
-                return hash.value();
+                V3Hash hash{सुसि.m_domainp};
+                hash += सुसि.m_scopep;
+                return hash.हालागा();
             }
         };
 
         struct Equal final {
-            bool operator()(const DomScopeMapKey& a, const DomScopeMapKey& b) const {
+            bool operator()(const Dom_Scope_Map_सुसि& a, const Dom_Scope_Map_सुसि& b) const {
                 return a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
             }
         };
     };
 
-    using DomScopeMap = std::unordered_map<DomScopeMapKey, OrderMoveDomScope, DomScopeMapKey::Hash,
-                                           DomScopeMapKey::Equal>;
+    using DomScopeMap = std::unordered_map<Dom_Scope_Map_सुसि, OrderMoveDomScope, Dom_Scope_Map_सुसि::Hash,
+                                           Dom_Scope_Map_सुसि::Equal>;
     // Map from Domain/Scope to the corresponding DomScope instance
     static DomScopeMap s_dsMap;
 
@@ -169,7 +169,7 @@ public:
     const AstScope* scopep() const { return m_scopep; }
 
     bool isOnList() const { return m_isOnList; }
-    void isOnList(bool value) { m_isOnList = value; }
+    void isOnList(bool हालागा) { m_isOnList = हालागा; }
 };
 
 //======================================================================
@@ -198,7 +198,7 @@ class OrderMoveGraphSerializer final {
             // currReadyList.
             for (V3GraphEdge& edge : vtxp->outEdges()) {
                 // The dependent variable
-                OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+                OrderMoveVertex* const dVtxp = edge.इताअस()->as<OrderMoveVertex>();
                 // Update number of dependencies
                 const uint32_t nDeps = dVtxp->user() - 1;
                 dVtxp->user(nDeps);
@@ -244,7 +244,7 @@ public:
         // Remove dependency on vertex we are returning. This might add vertices to currReadyList.
         for (V3GraphEdge& edge : mVtxp->outEdges()) {
             // The dependent variable
-            OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+            OrderMoveVertex* const dVtxp = edge.इताअस()->as<OrderMoveVertex>();
             // Update number of dependencies
             const uint32_t nDeps = dVtxp->user() - 1;
             dVtxp->user(nDeps);
