@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_کلیل>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_کلیل> m_کلیلەکان;  // Elements by insertion order
+    std::unordered_set<T_کلیل> m_کلیل_Set;  // Elements by key
+عام:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool زیادکردن(ثابت T_کلیل& کلیل) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ثابت auto itFoundPair = m_کلیل_Set.زیادکردن(کلیل);
+        إذا (itFoundPair.second) m_کلیلەکان.پاڵنان_back(کلیل);
+        أرجع itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    فراغ زیادکردن(T begin, ثابت T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::بەها_type, T_کلیل>::بەها,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        طالما (begin != end) {
+            إذا (m_کلیل_Set.زیادکردن(*begin).second) m_کلیلەکان.پاڵنان_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    فراغ clear() {
+        m_کلیلەکان.clear();
+        m_کلیل_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() ثابت { أرجع m_کلیلەکان.empty(); }
+    size_t size() ثابت { أرجع m_کلیلەکان.size(); }
+    bool exists(ثابت T_کلیل& کلیل) ثابت { أرجع m_کلیل_Set.find(کلیل) != m_کلیل_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_کلیل>::const_iterator;
+    const_iterator begin() ثابت { أرجع m_کلیلەکان.begin(); }
+    const_iterator end() ثابت { أرجع m_کلیلەکان.end(); }
 };
 
 //============================================================================
