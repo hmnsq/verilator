@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3PARSEIMP_H_
 #define VERILATOR_V3PARSEIMP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
-#include "V3Parse.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3FileLine.h"
+#അന്തര്ഭാവ "V3Global.h"
+#അന്തര്ഭാവ "V3Parse.h"
 
-#include <algorithm>
-#include <deque>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <deque>
 
 class V3Lexer;
 
@@ -37,19 +37,19 @@ class V3Lexer;
 //======================================================================
 // Types (between parser & lexer)
 
-enum V3UniqState : uint8_t { uniq_NONE, uniq_UNIQUE, uniq_UNIQUE0, uniq_PRIORITY };
+എണ്ണൽ V3UniqState : uint8_t { uniq_NONE, uniq_UNIQUE, uniq_UNIQUE0, uniq_PRIORITY };
 
-enum V3TaggedState : uint8_t { tagged_NONE, tagged_SOFT, tagged_TAGGED };
+എണ്ണൽ V3TaggedState : uint8_t { tagged_NONE, tagged_SOFT, tagged_TAGGED };
 
-enum V3ImportProperty : uint8_t { iprop_NONE, iprop_CONTEXT, iprop_PURE };
+എണ്ണൽ V3ImportProperty : uint8_t { iprop_NONE, iprop_CONTEXT, iprop_PURE };
 
 //============================================================================
 // Member qualifiers
 
-struct VMemberQualifiers final {
-    union {
+ഘടന VMemberQualifiers final {
+    സംഘം {
         uint32_t m_flags;
-        struct {
+        ഘടന {
             uint32_t m_local : 1;  // Local class item (ignored until warning implemented)
             uint32_t m_protected : 1;  // Protected class item (ignored until warning implemented)
             uint32_t m_rand : 1;  // Rand property/member qualifier
@@ -59,50 +59,50 @@ struct VMemberQualifiers final {
             uint32_t m_static : 1;  // Static class member
         };
     };
-    static VMemberQualifiers none() {
+    സ്ഥിതം VMemberQualifiers none() {
         VMemberQualifiers q;
         q.m_flags = 0;
-        return q;
+        തിരികെ q;
     }
-    static VMemberQualifiers combine(const VMemberQualifiers& a, const VMemberQualifiers& b) {
+    സ്ഥിതം VMemberQualifiers combine(സ്ഥിരം VMemberQualifiers& a, സ്ഥിരം VMemberQualifiers& b) {
         VMemberQualifiers q;
         q.m_flags = a.m_flags | b.m_flags;
-        return q;
+        തിരികെ q;
     }
-    VRandAttr randAttr() const {
-        if (m_randc) return VRandAttr::RAND_CYCLIC;
-        if (m_rand) return VRandAttr::RAND;
-        return VRandAttr::NONE;
+    VRandAttr randAttr() സ്ഥിരം {
+        എങ്കിൽ (m_randc) തിരികെ VRandAttr::RAND_CYCLIC;
+        എങ്കിൽ (m_rand) തിരികെ VRandAttr::RAND;
+        തിരികെ VRandAttr::NONE;
     }
-    void applyToNodes(AstNodeFTask* nodesp) const {
-        for (AstNodeFTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), NodeFTask)) {
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->isStatic(true);
-            if (m_virtual) nodep->isVirtual(true);
-            if (m_const || m_rand || m_randc) {
+    ശൂന്യം applyToNodes(Ast_കണ്ണി_FTask* nodesp) സ്ഥിരം {
+        വേണ്ടി (Ast_കണ്ണി_FTask* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), കണ്ണി_FTask)) {
+            എങ്കിൽ (m_local) nodep->isHideLocal(true);
+            എങ്കിൽ (m_protected) nodep->isHideProtected(true);
+            എങ്കിൽ (m_static) nodep->isStatic(true);
+            എങ്കിൽ (m_virtual) nodep->isVirtual(true);
+            എങ്കിൽ (m_const || m_rand || m_randc) {
                 nodep->v3error("Syntax error: 'const'/'rand'/'randc' not allowed "
                                "before function/task declaration");
             }
         }
     }
-    void applyToNodes(AstTypedef* nodep) const {
-        if (m_local) nodep->isHideLocal(true);
-        if (m_protected) nodep->isHideProtected(true);
-        if (m_static || m_virtual || m_rand || m_randc) {
+    ശൂന്യം applyToNodes(AstTypedef* nodep) സ്ഥിരം {
+        എങ്കിൽ (m_local) nodep->isHideLocal(true);
+        എങ്കിൽ (m_protected) nodep->isHideProtected(true);
+        എങ്കിൽ (m_static || m_virtual || m_rand || m_randc) {
             nodep->v3error("Syntax error: 'static'/'virtual'/'rand'/'randc' not allowed "
                            "before typedef declaration");
         }
     }
-    void applyToNodes(AstVar* nodesp) const {
-        for (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
-            if (m_rand) nodep->rand(VRandAttr::RAND);
-            if (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
-            if (m_local) nodep->isHideLocal(true);
-            if (m_protected) nodep->isHideProtected(true);
-            if (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
-            if (m_const) nodep->isConst(true);
-            if (m_virtual) {
+    ശൂന്യം applyToNodes(AstVar* nodesp) സ്ഥിരം {
+        വേണ്ടി (AstVar* nodep = nodesp; nodep; nodep = VN_AS(nodep->nextp(), Var)) {
+            എങ്കിൽ (m_rand) nodep->rand(VRandAttr::RAND);
+            എങ്കിൽ (m_randc) nodep->rand(VRandAttr::RAND_CYCLIC);
+            എങ്കിൽ (m_local) nodep->isHideLocal(true);
+            എങ്കിൽ (m_protected) nodep->isHideProtected(true);
+            എങ്കിൽ (m_static) nodep->lifetime(VLifetime::STATIC_EXPLICIT);
+            എങ്കിൽ (m_const) nodep->isConst(true);
+            എങ്കിൽ (m_virtual) {
                 nodep->v3error("Syntax error: 'virtual' not allowed before var declaration");
             }
         }
@@ -113,16 +113,16 @@ struct VMemberQualifiers final {
 // Parser YYSType, e.g. for parser's yylval
 // We can't use bison's %union as we want to pass the fileline with all tokens
 
-struct V3ParseBisonYYSType final {
-    FileLine* fl = nullptr;
-    int token = 0;  // Read token, aka tok
+ഘടന V3ParseBisonYYSType final {
+    File_വരി* fl = nullptr;
+    പൂർണ്ണസംഖ്യ token = 0;  // Read token, aka tok
     VBaseOverride baseOverride;
     bool flag = false;  // Passed up some rules
-    union {
-        V3Number* nump;
+    സംഘം {
+        V3_സംഖ്യ* nump;
         std::string* strp;
-        int cint;
-        double cdouble;
+        പൂർണ്ണസംഖ്യ cint;
+        ഇരട്ട cdouble;
         bool cbool;
         VMemberQualifiers qualifiers;
         V3UniqState uniqstate;
@@ -138,10 +138,10 @@ struct V3ParseBisonYYSType final {
         VStrength::en strength;
         VJoinType::en joinType;
 
-#include "V3Ast__gen_yystype.h"
+#അന്തര്ഭാവ "V3Ast__gen_yystype.h"
     };
 };
-std::ostream& operator<<(std::ostream& os, const V3ParseBisonYYSType& rhs) VL_MT_DISABLED;
+std::ostream& operator<<(std::ostream& os, സ്ഥിരം V3ParseBisonYYSType& rhs) VL_MT_DISABLED;
 
 #define YYSTYPE V3ParseBisonYYSType
 
@@ -149,149 +149,149 @@ std::ostream& operator<<(std::ostream& os, const V3ParseBisonYYSType& rhs) VL_MT
 
 class V3ParseImp final {
     // MEMBERS
-    AstNetlist* const m_rootp;  // Root of the design
-    VInFilter* const m_filterp;  // Reading filter
+    AstNetlist* സ്ഥിരം m_rootp;  // Root of the design
+    VInFilter* സ്ഥിരം m_filterp;  // Reading filter
 
     V3Lexer* m_lexerp = nullptr;  // Current FlexLexer
-    static V3ParseImp* s_parsep;  // Current THIS, bison() isn't class based
-    FileLine* m_lexFileline = nullptr;  // Filename/linenumber currently active for lexing
+    സ്ഥിതം V3ParseImp* s_parsep;  // Current THIS, bison() isn't class based
+    File_വരി* m_lexFileline = nullptr;  // Filename/linenumber currently active for lexing
 
-    FileLine* m_bisonLastFileline = nullptr;  // Filename/linenumber of last token
+    File_വരി* m_bisonLastFileline = nullptr;  // Filename/linenumber of last token
 
     bool m_inLibrary = false;  // Currently reading a library vs. regular file
     bool m_inLibMap = false;  // Currently reading a libmap file
     string m_libname;  // Config library name (or --work)
-    int m_lexKwdDepth = 0;  // Inside a `begin_keywords
-    int m_lexKwdLast;  // Last LEX state in `begin_keywords
+    പൂർണ്ണസംഖ്യ m_lexKwdDepth = 0;  // Inside a `begin_keywords
+    പൂർണ്ണസംഖ്യ m_lexKwdLast;  // Last LEX state in `begin_keywords
     VOptionBool m_unconnectedDrive;  // Last unconnected drive
 
-    int m_lexPrevToken = 0;  // previous parsed token (for lexer)
+    പൂർണ്ണസംഖ്യ m_lexPrevToken = 0;  // previous parsed token (for lexer)
     bool m_afterColonColon = false;  // The previous token was '::'
     V3ParseBisonYYSType m_tokenLastBison{};  // Token we last sent to Bison
     std::deque<V3ParseBisonYYSType> m_tokensAhead;  // Tokens we parsed ahead of parser
 
     std::deque<string*> m_stringps;  // Created strings for later cleanup
-    std::deque<V3Number*> m_numberps;  // Created numbers for later cleanup
-    std::deque<FileLine> m_lexLintState;  // Current lint state for save/restore
+    std::deque<V3_സംഖ്യ*> m_numberps;  // Created numbers for later cleanup
+    std::deque<File_വരി> m_lexLintState;  // Current lint state for save/restore
     std::string m_lexString;  // Text of the quoted or triple-quoted string currently being lexed
     std::deque<string> m_ppBuffers;  // Preprocessor->lex buffer of characters to process
     size_t m_ppBytes = 0;  // Preprocessor->lex bytes transferred
 
-    AstNode* m_tagNodep = nullptr;  // Points to the node to set to m_tag or nullptr to not set.
+    Ast_കണ്ണി* m_tagNodep = nullptr;  // Points to the node to set to m_tag or nullptr to not set.
     VTimescale m_timeLastUnit;  // Last `timescale's unit
     VTimescale m_timeLastPrec;  // Last `timescale's precision
 
-public:
+പൊതു:
     VL_DEFINE_DEBUG_FUNCTIONS;
     // Note these are an exception to using the filename as the debug type
     VL_DEFINE_DEBUG(Bison);  // Define 'unsigned debugBison()'
     VL_DEFINE_DEBUG(Flex);  // Define 'unsigned debugFlex()'
 
     // Functions called by lex rules:
-    int yylexThis();
-    static bool optFuture(const string& flag) { return v3Global.opt.isFuture(flag); }
+    പൂർണ്ണസംഖ്യ yylexThis();
+    സ്ഥിതം bool optFuture(സ്ഥിരം string& flag) { തിരികെ v3Global.opt.isFuture(flag); }
 
-    void tagNodep(AstNode* nodep) { m_tagNodep = nodep; }
-    AstNode* tagNodep() const { return m_tagNodep; }
-    void lexTimescaleParse(FileLine* fl, const char* textp) VL_MT_DISABLED;
-    AstPragma* createTimescale(FileLine* fl, bool unitSet, double unitVal, bool precSet,
-                               double precVal) VL_MT_DISABLED;
-    VTimescale timeLastUnit() const { return m_timeLastUnit; }
-    VTimescale timeLastPrec() const { return m_timeLastPrec; }
+    ശൂന്യം tagNodep(Ast_കണ്ണി* nodep) { m_tagNodep = nodep; }
+    Ast_കണ്ണി* tagNodep() സ്ഥിരം { തിരികെ m_tagNodep; }
+    ശൂന്യം lexTimescaleParse(File_വരി* fl, സ്ഥിരം അക്ഷരം* textp) VL_MT_DISABLED;
+    AstPragma* createTimescale(File_വരി* fl, bool unitSet, ഇരട്ട unitVal, bool precSet,
+                               ഇരട്ട precVal) VL_MT_DISABLED;
+    VTimescale timeLastUnit() സ്ഥിരം { തിരികെ m_timeLastUnit; }
+    VTimescale timeLastPrec() സ്ഥിരം { തിരികെ m_timeLastPrec; }
 
-    void lexFileline(FileLine* fl) { m_lexFileline = fl; }
-    FileLine* lexFileline() const { return m_lexFileline; }
-    std::string& lexString() { return m_lexString; }
-    static void lexErrorPreprocDirective(FileLine* fl, const char* textp) VL_MT_DISABLED;
-    static string lexParseTag(const char* textp) VL_MT_DISABLED;
-    static double lexParseTimenum(const char* text) VL_MT_DISABLED;
-    void lexPpline(const char* textp) VL_MT_DISABLED;
-    void lexVerilatorCmtLint(FileLine* fl, const char* textp, bool turnOff) VL_MT_DISABLED;
-    void lexVerilatorCmtLintSave(const FileLine* fl) VL_MT_DISABLED;
-    void lexVerilatorCmtLintRestore(FileLine* fl) VL_MT_DISABLED;
-    static void lexVerilatorCmtBad(FileLine* fl, const char* textp) VL_MT_DISABLED;
+    ശൂന്യം lexFileline(File_വരി* fl) { m_lexFileline = fl; }
+    File_വരി* lexFileline() സ്ഥിരം { തിരികെ m_lexFileline; }
+    std::string& lexString() { തിരികെ m_lexString; }
+    സ്ഥിതം ശൂന്യം lexErrorPreprocDirective(File_വരി* fl, സ്ഥിരം അക്ഷരം* textp) VL_MT_DISABLED;
+    സ്ഥിതം string lexParseTag(സ്ഥിരം അക്ഷരം* textp) VL_MT_DISABLED;
+    സ്ഥിതം ഇരട്ട lexParseTimenum(സ്ഥിരം അക്ഷരം* text) VL_MT_DISABLED;
+    ശൂന്യം lexPpline(സ്ഥിരം അക്ഷരം* textp) VL_MT_DISABLED;
+    ശൂന്യം lexVerilatorCmtLint(File_വരി* fl, സ്ഥിരം അക്ഷരം* textp, bool turnOff) VL_MT_DISABLED;
+    ശൂന്യം lexVerilatorCmtLintSave(സ്ഥിരം File_വരി* fl) VL_MT_DISABLED;
+    ശൂന്യം lexVerilatorCmtLintRestore(File_വരി* fl) VL_MT_DISABLED;
+    സ്ഥിതം ശൂന്യം lexVerilatorCmtBad(File_വരി* fl, സ്ഥിരം അക്ഷരം* textp) VL_MT_DISABLED;
 
-    void lexPushKeywords(int state) {
+    ശൂന്യം lex_തള്ളുക_Keywords(പൂർണ്ണസംഖ്യ state) {
         ++m_lexKwdDepth;
         m_lexKwdLast = state;
     }
-    bool lexPopKeywords() {
-        if (m_lexKwdDepth) {
+    bool lex_എടുക്കുക_Keywords() {
+        എങ്കിൽ (m_lexKwdDepth) {
             --m_lexKwdDepth;
-            return true;
+            തിരികെ true;
         }
-        return false;
+        തിരികെ false;
     }
-    int lexKwdLastState() const { return m_lexKwdLast; }
-    static const char* tokenName(int tok) VL_MT_DISABLED;
-    static bool isStrengthToken(int tok) VL_MT_DISABLED;
+    പൂർണ്ണസംഖ്യ lexKwdLastState() സ്ഥിരം { തിരികെ m_lexKwdLast; }
+    സ്ഥിതം സ്ഥിരം അക്ഷരം* tokenName(പൂർണ്ണസംഖ്യ tok) VL_MT_DISABLED;
+    സ്ഥിതം bool isStrengthToken(പൂർണ്ണസംഖ്യ tok) VL_MT_DISABLED;
 
-    void ppPushText(const string& text) {
-        m_ppBuffers.push_back(text);
+    ശൂന്യം pp_തള്ളുക_Text(സ്ഥിരം string& text) {
+        m_ppBuffers.തള്ളുക_back(text);
         m_ppBytes += text.length();
-        if (lexFileline()->contentp()) lexFileline()->contentp()->pushText(text);
+        എങ്കിൽ (lexFileline()->contentp()) lexFileline()->contentp()->തള്ളുക_Text(text);
     }
-    size_t ppInputToLex(char* buf, size_t max_size) VL_MT_DISABLED;
+    size_t pp_നിവേശം_To_Lex(അക്ഷരം* buf, size_t max_size) VL_MT_DISABLED;
 
-    static V3ParseImp* parsep() { return s_parsep; }
+    സ്ഥിതം V3ParseImp* parsep() { തിരികെ s_parsep; }
 
     // TODO: Many of these functions are the old interface; they'd be better as non-static
     // and called as READP->newString(...) etc.
     // These can be called by either parser or lexer, as not lex/parser-position aware
-    string* newString(const string& text) {
+    string* newString(സ്ഥിരം string& text) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
-        string* const strp = new std::string{text};
-        m_stringps.push_back(strp);
-        return strp;
+        string* സ്ഥിരം strp = new std::string{text};
+        m_stringps.തള്ളുക_back(strp);
+        തിരികെ strp;
     }
-    string* newString(const char* text) {
+    string* newString(സ്ഥിരം അക്ഷരം* text) {
         // Allocate a string, remembering it so we can reclaim storage at lex end
-        string* const strp = new std::string{text};
-        m_stringps.push_back(strp);
-        return strp;
+        string* സ്ഥിരം strp = new std::string{text};
+        m_stringps.തള്ളുക_back(strp);
+        തിരികെ strp;
     }
-    string* newString(const char* text, size_t length) {
-        string* const strp = new string(text, length);  // Need () constructor
-        m_stringps.push_back(strp);
-        return strp;
+    string* newString(സ്ഥിരം അക്ഷരം* text, size_t length) {
+        string* സ്ഥിരം strp = new string(text, length);  // Need () constructor
+        m_stringps.തള്ളുക_back(strp);
+        തിരികെ strp;
     }
-    V3Number* newNumber(FileLine* flp, const char* text) {
-        V3Number* nump = new V3Number{flp, V3Number::VerilogNumberLiteral{}, text};
-        m_numberps.push_back(nump);
-        return nump;
+    V3_സംഖ്യ* new_സംഖ്യ(File_വരി* flp, സ്ഥിരം അക്ഷരം* text) {
+        V3_സംഖ്യ* nump = new V3_സംഖ്യ{flp, V3_സംഖ്യ::Verilog_സംഖ്യ_Literal{}, text};
+        m_numberps.തള്ളുക_back(nump);
+        തിരികെ nump;
     }
 
     // For 'unique if' cannot have empty else statements as then assertion
     // would misfire
-    AstNode* newBlock(FileLine* fl, AstNode* nodep) {
-        if (nodep) return nodep;
-        return new AstBegin{fl, "", nullptr, true};
+    Ast_കണ്ണി* newBlock(File_വരി* fl, Ast_കണ്ണി* nodep) {
+        എങ്കിൽ (nodep) തിരികെ nodep;
+        തിരികെ new AstBegin{fl, "", nullptr, true};
     }
 
     // Bison sometimes needs error context without a token, so remember last token's line
     // Only use this if do not have and cannot get a token-relevant fileline
-    FileLine* bisonLastFileline() const { return m_bisonLastFileline; }
+    File_വരി* bisonLastFileline() സ്ഥിരം { തിരികെ m_bisonLastFileline; }
 
     // Return next token, for bison, since bison isn't class based, use a global THIS
-    AstNetlist* rootp() const { return m_rootp; }
-    bool inLibMap() const { return m_inLibMap; }
-    bool inLibrary() const { return m_inLibrary; }
-    string libname() const { return m_libname; }
-    VOptionBool unconnectedDrive() const { return m_unconnectedDrive; }
-    void unconnectedDrive(const VOptionBool flag) { m_unconnectedDrive = flag; }
+    AstNetlist* rootp() സ്ഥിരം { തിരികെ m_rootp; }
+    bool inLibMap() സ്ഥിരം { തിരികെ m_inLibMap; }
+    bool inLibrary() സ്ഥിരം { തിരികെ m_inLibrary; }
+    string libname() സ്ഥിരം { തിരികെ m_libname; }
+    VOptionBool unconnectedDrive() സ്ഥിരം { തിരികെ m_unconnectedDrive; }
+    ശൂന്യം unconnectedDrive(സ്ഥിരം VOptionBool flag) { m_unconnectedDrive = flag; }
 
     // Interactions with parser
-    int bisonParse() VL_MT_DISABLED;
+    പൂർണ്ണസംഖ്യ bisonParse() VL_MT_DISABLED;
 
     // Interactions with lexer
-    void lexNew() VL_MT_DISABLED;
-    void lexDestroy() VL_MT_DISABLED;
-    static int stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
-    int lexPrevToken() const { return m_lexPrevToken; }  // Parser -> lexer communication
-    size_t flexPpInputToLex(char* buf, size_t max_size) { return ppInputToLex(buf, max_size); }
+    ശൂന്യം lexNew() VL_MT_DISABLED;
+    ശൂന്യം lexDestroy() VL_MT_DISABLED;
+    സ്ഥിതം പൂർണ്ണസംഖ്യ stateVerilogRecent() VL_MT_DISABLED;  // Parser -> lexer communication
+    പൂർണ്ണസംഖ്യ lexPrevToken() സ്ഥിരം { തിരികെ m_lexPrevToken; }  // Parser -> lexer communication
+    size_t flex_Pp_നിവേശം_To_Lex(അക്ഷരം* buf, size_t max_size) { തിരികെ pp_നിവേശം_To_Lex(buf, max_size); }
 
     //==== Symbol tables
-    AstPackage* unitPackage(FileLine* /*fl*/) { return parsep()->rootp()->dollarUnitPkgp(); }
+    AstPackage* unitPackage(File_വരി* /*fl*/) { തിരികെ parsep()->rootp()->dollarUnitPkgp(); }
 
     // CONSTRUCTORS
     V3ParseImp(AstNetlist* rootp, VInFilter* filterp)
@@ -302,30 +302,30 @@ public:
         m_timeLastPrec = v3Global.opt.timeDefaultPrec();
     }
     ~V3ParseImp() VL_MT_DISABLED;
-    void parserClear() VL_MT_DISABLED;
-    void lexUnputString(const char* textp, size_t length) VL_MT_DISABLED;
+    ശൂന്യം parserClear() VL_MT_DISABLED;
+    ശൂന്യം lexUnputString(സ്ഥിരം അക്ഷരം* textp, size_t length) VL_MT_DISABLED;
 
     // METHODS
     // Preprocess and read the Verilog file specified into the netlist database
-    int tokenToBison() VL_MT_DISABLED;  // Pass token to bison
+    പൂർണ്ണസംഖ്യ tokenToBison() VL_MT_DISABLED;  // Pass token to bison
 
-    void parseFile(FileLine* fileline, const string& modfilename, bool inLibrary, bool inLibMap,
-                   const string& libname, const string& errmsg,
-                   const std::string& notFoundName) VL_MT_DISABLED;
-    void dumpInputsFile() VL_MT_DISABLED;
-    void dumpTokensAhead(int line) VL_MT_DISABLED;
-    static void candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
-    void importIfInStd(FileLine* fileline, const string& id, bool doImport);
-    AstNodeExpr* makePropertyCase(FileLine* flp, AstNodeExpr* exprp, AstCaseItem* itemsp);
+    ശൂന്യം parseFile(File_വരി* fileline, സ്ഥിരം string& modfilename, bool inLibrary, bool inLibMap,
+                   സ്ഥിരം string& libname, സ്ഥിരം string& errmsg,
+                   സ്ഥിരം std::string& notFoundName) VL_MT_DISABLED;
+    ശൂന്യം dumpInputsFile() VL_MT_DISABLED;
+    ശൂന്യം dumpTokensAhead(പൂർണ്ണസംഖ്യ വരി) VL_MT_DISABLED;
+    സ്ഥിതം ശൂന്യം candidatePli(VSpellCheck* spellerp) VL_MT_DISABLED;
+    ശൂന്യം importIfInStd(File_വരി* fileline, സ്ഥിരം string& id, bool doImport);
+    Ast_കണ്ണി_വ്യഞ്ജകം* makePropertyCase(File_വരി* flp, Ast_കണ്ണി_വ്യഞ്ജകം* exprp, AstCaseItem* itemsp);
 
-private:
-    void preprocDumps(std::ostream& os);
-    void lexFile(const string& modname) VL_MT_DISABLED;
-    void yylexReadTok() VL_MT_DISABLED;
-    void tokenPull() VL_MT_DISABLED;
-    void tokenPipeline() VL_MT_DISABLED;  // Internal; called from tokenToBison
-    int tokenPipelineId(int token) VL_MT_DISABLED;
-    void tokenPipelineSym() VL_MT_DISABLED;
+സ്വകാര്യ:
+    ശൂന്യം preprocDumps(std::ostream& os);
+    ശൂന്യം lexFile(സ്ഥിരം string& modname) VL_MT_DISABLED;
+    ശൂന്യം yylexReadTok() VL_MT_DISABLED;
+    ശൂന്യം tokenPull() VL_MT_DISABLED;
+    ശൂന്യം tokenPipeline() VL_MT_DISABLED;  // Internal; called from tokenToBison
+    പൂർണ്ണസംഖ്യ tokenPipelineId(പൂർണ്ണസംഖ്യ token) VL_MT_DISABLED;
+    ശൂന്യം tokenPipelineSym() VL_MT_DISABLED;
     size_t tokenPipeScanIdInst(size_t depth) VL_MT_DISABLED;
     size_t tokenPipeScanIdType(size_t depth) VL_MT_DISABLED;
     size_t tokenPipeScanBracket(size_t depth) VL_MT_DISABLED;
@@ -333,8 +333,8 @@ private:
     size_t tokenPipeScanParens(size_t depth) VL_MT_DISABLED;
     size_t tokenPipeScanEqNew(size_t depth) VL_MT_DISABLED;
     bool tokenPipeScanTaggedFollowsPrimary(size_t depth) VL_MT_DISABLED;
-    const V3ParseBisonYYSType* tokenPeekp(size_t depth) VL_MT_DISABLED;
-    void preprocDumps(std::ostream& os, bool forInputs) VL_MT_DISABLED;
+    സ്ഥിരം V3ParseBisonYYSType* tokenPeekp(size_t depth) VL_MT_DISABLED;
+    ശൂന്യം preprocDumps(std::ostream& os, bool forInputs) VL_MT_DISABLED;
 };
 
 #endif  // Guard

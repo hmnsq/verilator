@@ -14,83 +14,83 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
+#അന്തര്ഭാവ "V3Dfg.h"
 
-#include "V3Ast.h"
-#include "V3DfgContext.h"
-#include "V3EmitV.h"
-#include "V3File.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3DfgContext.h"
+#അന്തര്ഭാവ "V3EmitV.h"
+#അന്തര്ഭാവ "V3File.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //------------------------------------------------------------------------------
 // DfgGraph
 
-DfgGraph::DfgGraph(V3DfgContext& ctx, const string& name)
+DfgGraph::DfgGraph(V3DfgContext& ctx, സ്ഥിരം string& name)
     : m_ctx{ctx}
     , m_name{name} {}
 
 DfgGraph::~DfgGraph() {
-    forEachVertex([&](DfgVertex& vtx) { vtx.unlinkDelete(*this); });
+    forEachVertex([&](DfgVertex& vtx) { vtx.unlinkDelete(*ഇത്); });
 }
 
-void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
-    if (otherps.empty()) return;
+ശൂന്യം DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
+    എങ്കിൽ (otherps.empty()) തിരികെ;
 
     // NODE STATE
     // AstVarScope::user2p() -> corresponding DfgVertexVar* in 'this' graph
-    const VNUser2InUse user2InUse;
+    സ്ഥിരം VNUser2InUse user2InUse;
 
     // Set up Ast Variable -> DfgVertexVar map for 'this' graph
-    for (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
+    വേണ്ടി (DfgVertexVar& vtx : m_varVertices) vtx.vscp()->user2p(&vtx);
 
     // Merge in each of the other graphs
-    for (const std::unique_ptr<DfgGraph>& otherp : otherps) {
+    വേണ്ടി (സ്ഥിരം std::unique_ptr<DfgGraph>& otherp : otherps) {
         // Process variables
-        for (DfgVertexVar* const vtxp : otherp->m_varVertices.unlinkable()) {
+        വേണ്ടി (DfgVertexVar* സ്ഥിരം vtxp : otherp->m_varVertices.unlinkable()) {
             // Variabels that are present in 'this', make them use the DfgVertexVar in 'this'.
-            if (DfgVertexVar* const altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
-                DfgVertex* const srcp = vtxp->srcp();
-                DfgVertex* const defaultp = vtxp->defaultp();
+            എങ്കിൽ (DfgVertexVar* സ്ഥിരം altp = vtxp->vscp()->user2u().to<DfgVertexVar*>()) {
+                DfgVertex* സ്ഥിരം srcp = vtxp->srcp();
+                DfgVertex* സ്ഥിരം defaultp = vtxp->defaultp();
                 UASSERT_OBJ(!(srcp || defaultp) || (!altp->srcp() && !altp->defaultp()), vtxp,
                             "At most one alias should be driven");
                 vtxp->replaceWith(altp);
-                if (srcp) altp->srcp(srcp);
-                if (defaultp) altp->defaultp(defaultp);
+                എങ്കിൽ (srcp) altp->srcp(srcp);
+                എങ്കിൽ (defaultp) altp->defaultp(defaultp);
                 VL_DO_DANGLING(vtxp->unlinkDelete(*otherp), vtxp);
-                continue;
+                തുടരുക;
             }
             // Otherwise they will be moved
             vtxp->vscp()->user2p(vtxp);
             vtxp->m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
+            vtxp->m_dfgp = ഇത്;
 #endif
         }
         m_varVertices.splice(m_varVertices.end(), otherp->m_varVertices);
         // Process Ast references
-        for (DfgVertexAst* const vtxp : otherp->m_astVertices.unlinkable()) {
+        വേണ്ടി (DfgVertexAst* സ്ഥിരം vtxp : otherp->m_astVertices.unlinkable()) {
             vtxp->m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtxp->m_dfgp = this;
+            vtxp->m_dfgp = ഇത്;
 #endif
         }
         m_astVertices.splice(m_astVertices.end(), otherp->m_astVertices);
         // Process constants
-        for (DfgConst& vtx : otherp->m_constVertices) {
+        വേണ്ടി (DfgConst& vtx : otherp->m_constVertices) {
             vtx.m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtx.m_dfgp = this;
+            vtx.m_dfgp = ഇത്;
 #endif
         }
         m_constVertices.splice(m_constVertices.end(), otherp->m_constVertices);
         // Process operations
-        for (DfgVertex& vtx : otherp->m_opVertices) {
+        വേണ്ടി (DfgVertex& vtx : otherp->m_opVertices) {
             vtx.m_userGeneration = 0;
 #ifdef VL_DEBUG
-            vtx.m_dfgp = this;
+            vtx.m_dfgp = ഇത്;
 #endif
         }
         m_opVertices.splice(m_opVertices.end(), otherp->m_opVertices);
@@ -100,20 +100,20 @@ void DfgGraph::mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) {
     }
 }
 
-DfgVertexVar* DfgGraph::makeNewVar(FileLine* flp, const std::string& prefix,
-                                   const DfgDataType& dtype, AstScope* scopep) {
-    AstVarScope* const vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
+DfgVertexVar* DfgGraph::makeNewVar(File_വരി* flp, സ്ഥിരം std::string& prefix,
+                                   സ്ഥിരം DfgDataType& dtype, AstScope* scopep) {
+    AstVarScope* സ്ഥിരം vscp = m_ctx.m_sharedTmps.make(flp, scopep, dtype.astDtypep(), prefix);
     // Create and return the corresponding variable vertex
-    if (dtype.isArray()) return new DfgVarArray{*this, vscp};
-    return new DfgVarPacked{*this, vscp};
+    എങ്കിൽ (dtype.isArray()) തിരികെ പുതിയ DfgVarArray{*ഇത്, vscp};
+    തിരികെ പുതിയ DfgVarPacked{*ഇത്, vscp};
 }
 
-static const std::string toDotId(const DfgVertex& vtx) { return '"' + cvtToHex(&vtx) + '"'; }
+സ്ഥിതം സ്ഥിരം std::string toDotId(സ്ഥിരം DfgVertex& vtx) { തിരികെ '"' + cvtToHex(&vtx) + '"'; }
 
 // Dump one DfgVertex in Graphviz format
-static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
-    if (const DfgVertexVar* const varVtxp = vtx.cast<DfgVertexVar>()) {
-        const AstVarScope* const vscp = varVtxp->vscp();
+സ്ഥിതം ശൂന്യം dumpDotVertex(std::ostream& os, സ്ഥിരം DfgVertex& vtx) {
+    എങ്കിൽ (സ്ഥിരം DfgVertexVar* സ്ഥിരം varVtxp = vtx.cast<DfgVertexVar>()) {
+        സ്ഥിരം AstVarScope* സ്ഥിരം vscp = varVtxp->vscp();
         os << toDotId(vtx);
         // Begin attributes
         os << " [";
@@ -124,8 +124,8 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // Address
         os << '\n' << cvtToHex(varVtxp);
         // Original variable, if any
-        if (const AstVarScope* const tmpForp = varVtxp->tmpForp()) {
-            if (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
+        എങ്കിൽ (സ്ഥിരം AstVarScope* സ്ഥിരം tmpForp = varVtxp->tmpForp()) {
+            എങ്കിൽ (tmpForp != vscp) os << "\ntemporary for: " << tmpForp->prettyName();
         }
         // Type and fanout
         os << '\n';
@@ -133,22 +133,22 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << " / F" << varVtxp->fanout();
         // Reference flags
         os << " / ";
-        static const char* const rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
+        സ്ഥിതം സ്ഥിരം അക്ഷരം* സ്ഥിരം rwmn[2][2] = {{"_", "W"}, {"R", "M"}};
         os << rwmn[varVtxp->hasExtRdRefs()][varVtxp->hasExtWrRefs()];
-        os << rwmn[false][varVtxp->hasModWrRefs()];
+        os << rwmn[അസത്യം][varVtxp->hasModWrRefs()];
         os << (varVtxp->hasDfgRefs() ? "D" : "_");
         // End 'label'
         os << '"';
         // Shape
-        if (varVtxp->is<DfgVarPacked>()) {
+        എങ്കിൽ (varVtxp->is<DfgVarPacked>()) {
             os << ", shape=box";
-        } else if (varVtxp->is<DfgVarArray>()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (varVtxp->is<DfgVarArray>()) {
             os << ", shape=box3d";
-        } else {
+        } അല്ലെങ്കിൽ {
             varVtxp->v3fatalSrc("Unhandled DfgVertexVar sub-type");
         }
         // Color
-        const char* const colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം colorp = varVtxp->hasExtRefs()     ? "firebrick2"  // Red
                                    : varVtxp->hasModWrRefs() ? "darkorange1"  // Orange
                                    : varVtxp->hasDfgRefs()   ? "gold2"  // Yellow
                                    : varVtxp->tmpForp()      ? "gray95"  // Gray
@@ -157,11 +157,11 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        തിരികെ;
     }
 
-    if (const DfgPrev* const prevVtxp = vtx.cast<DfgPrev>()) {
-        const AstVarScope* const vscp = prevVtxp->vscp();
+    എങ്കിൽ (സ്ഥിരം DfgPrev* സ്ഥിരം prevVtxp = vtx.cast<DfgPrev>()) {
+        സ്ഥിരം AstVarScope* സ്ഥിരം vscp = prevVtxp->vscp();
         os << toDotId(vtx);
         // Begin attributes
         os << " [";
@@ -178,81 +178,81 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         // End 'label'
         os << '"';
         // Shape
-        if (prevVtxp->isPacked()) {
+        എങ്കിൽ (prevVtxp->isPacked()) {
             os << ", shape=box";
-        } else if (prevVtxp->isArray()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (prevVtxp->isArray()) {
             os << ", shape=box3d";
-        } else {
+        } അല്ലെങ്കിൽ {
             prevVtxp->v3fatalSrc("Unhandled variable type");
         }
         // Color
-        const char* const colorp = "mediumorchid1";  // Purple
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം colorp = "mediumorchid1";  // Purple
         os << ", style=filled";
         os << ", fillcolor=\"" << colorp << "\"";
         // End attributes
         os << "]\n";
-        return;
+        തിരികെ;
     }
 
-    if (const DfgConst* const constVtxp = vtx.cast<DfgConst>()) {
-        const V3Number& num = constVtxp->num();
+    എങ്കിൽ (സ്ഥിരം DfgConst* സ്ഥിരം constVtxp = vtx.cast<DfgConst>()) {
+        സ്ഥിരം V3_സംഖ്യ& അക്കം = constVtxp->അക്കം();
 
         os << toDotId(vtx);
         os << " [label=\"";
-        if (num.width() <= 32 && !num.isSigned()) {
-            os << constVtxp->width() << "'d" << num.toUInt() << '\n';
-            os << constVtxp->width() << "'h" << std::hex << num.toUInt() << std::dec << '\n';
-        } else {
-            os << num.ascii() << '\n';
+        എങ്കിൽ (അക്കം.width() <= 32 && !അക്കം.isSigned()) {
+            os << constVtxp->width() << "'d" << അക്കം.toUInt() << '\n';
+            os << constVtxp->width() << "'h" << std::hex << അക്കം.toUInt() << std::dec << '\n';
+        } അല്ലെങ്കിൽ {
+            os << അക്കം.ascii() << '\n';
         }
         os << cvtToHex(constVtxp) << '\n';
         os << '"';
         os << ", shape=plain";
         os << "]\n";
-        return;
+        തിരികെ;
     }
 
-    if (const DfgSel* const selVtxp = vtx.cast<DfgSel>()) {
-        const uint32_t lsb = selVtxp->lsb();
-        const uint32_t msb = lsb + selVtxp->width() - 1;
+    എങ്കിൽ (സ്ഥിരം DfgSel* സ്ഥിരം selVtxp = vtx.cast<DfgSel>()) {
+        സ്ഥിരം uint32_t lsb = selVtxp->lsb();
+        സ്ഥിരം uint32_t msb = lsb + selVtxp->width() - 1;
         os << toDotId(vtx);
         os << " [label=\"SEL _[" << msb << ":" << lsb << "]\n";
         os << cvtToHex(selVtxp) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        എങ്കിൽ (vtx.hasMultipleSinks()) {
             os << ", shape=doublecircle";
-        } else {
+        } അല്ലെങ്കിൽ {
             os << ", shape=circle";
         }
         os << "]\n";
-        return;
+        തിരികെ;
     }
 
-    if (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
+    എങ്കിൽ (vtx.is<DfgVertexSplice>() || vtx.is<DfgUnitArray>() || vtx.is<DfgUnresolved>()) {
         os << toDotId(vtx);
         os << " [label=\"" << vtx.typeName() << '\n';
         os << cvtToHex(&vtx) << '\n';
         vtx.dtype().astDtypep()->dumpSmall(os);
         os << " / F" << vtx.fanout() << '"';
-        if (vtx.hasMultipleSinks()) {
+        എങ്കിൽ (vtx.hasMultipleSinks()) {
             os << ", shape=doubleoctagon";
-        } else {
+        } അല്ലെങ്കിൽ {
             os << ", shape=octagon";
         }
         os << "]\n";
-        return;
+        തിരികെ;
     }
 
-    if (const DfgLogic* const logicp = vtx.cast<DfgLogic>()) {
+    എങ്കിൽ (സ്ഥിരം DfgLogic* സ്ഥിരം logicp = vtx.cast<DfgLogic>()) {
         os << toDotId(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(logicp->nodep(), ss);
+        V3EmitV::debug_Verilog_For_വൃക്ഷം(logicp->nodep(), ss);
         std::string str = "AstNode: " + cvtToHex(logicp->nodep()) + "\n" + ss.str();
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const char* const colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം colorp = !logicp->selectedForSynthesis() ? "#d0d0ff"  // Pale Blue
                                    : logicp->nonSynthesizable()    ? "#ffd0d0"  // Pale Red
                                    : logicp->reverted()            ? "#faffd0"  // Pale Yellow
                                                                    : "#d0ffd0";  // Pale Green
@@ -264,19 +264,19 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        തിരികെ;
     }
 
-    if (const DfgVertexAst* const astVtxp = vtx.cast<DfgVertexAst>()) {
+    എങ്കിൽ (സ്ഥിരം DfgVertexAst* സ്ഥിരം astVtxp = vtx.cast<DfgVertexAst>()) {
         os << toDotId(vtx);
         std::stringstream ss;
-        V3EmitV::debugVerilogForTree(astVtxp->exprp(), ss);
+        V3EmitV::debug_Verilog_For_വൃക്ഷം(astVtxp->exprp(), ss);
         std::string str = "AstNode: " + cvtToHex(astVtxp->exprp()) + "\n" + ss.str() + "\n";
         str = VString::quoteBackslash(str);
         str = VString::quoteAny(str, '"', '\\');
         str = VString::replaceSubstr(str, "\n", "\\l");
-        const DfgAstRd* const astRdVtxp = astVtxp->cast<DfgAstRd>();
-        const char* const colorp = astRdVtxp ? "#80ff80"  // Green
+        സ്ഥിരം DfgAstRd* സ്ഥിരം astRdVtxp = astVtxp->cast<DfgAstRd>();
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം colorp = astRdVtxp ? "#80ff80"  // Green
                                              : "#ffff80";  // Yellow
         os << " [label=\"";
         os << str;
@@ -289,7 +289,7 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
         os << ", shape=box, style=\"rounded,filled\", nojustify=true";
         os << ", fillcolor=\"" << colorp << "\"";
         os << "]\n";
-        return;
+        തിരികെ;
     }
 
     os << toDotId(vtx);
@@ -297,16 +297,16 @@ static void dumpDotVertex(std::ostream& os, const DfgVertex& vtx) {
     os << cvtToHex(&vtx) << '\n';
     vtx.dtype().astDtypep()->dumpSmall(os);
     os << " / F" << vtx.fanout() << '"';
-    if (vtx.hasMultipleSinks()) {
+    എങ്കിൽ (vtx.hasMultipleSinks()) {
         os << ", shape=doublecircle";
-    } else {
+    } അല്ലെങ്കിൽ {
         os << ", shape=circle";
     }
     os << "]\n";
 }
 
-void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
-                       std::function<bool(const DfgVertex&)> p) const {
+ശൂന്യം DfgGraph::dumpDot(std::ostream& os, സ്ഥിരം std::string& label,
+                       std::function<തർക്കം(സ്ഥിരം DfgVertex&)> p) സ്ഥിരം {
     // This generates a graphviz dump, https://www.graphviz.org
 
     // Header
@@ -314,38 +314,38 @@ void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
     os << "rankdir=LR\n";
 
     // If predicate not given, dump everything
-    if (!p) p = [](const DfgVertex&) { return true; };
+    എങ്കിൽ (!p) p = [](സ്ഥിരം DfgVertex&) { തിരികെ സത്യം; };
 
-    std::unordered_set<const DfgVertex*> emitted;
+    std::unordered_set<സ്ഥിരം DfgVertex*> emitted;
     // Emit all vertices associated with a DfgLogic
-    forEachVertex([&](const DfgVertex& vtx) {
-        const DfgLogic* const logicp = vtx.cast<DfgLogic>();
-        if (!logicp) return;
-        if (logicp->synth().empty()) return;
-        if (!p(vtx)) return;
+    forEachVertex([&](സ്ഥിരം DfgVertex& vtx) {
+        സ്ഥിരം DfgLogic* സ്ഥിരം logicp = vtx.cast<DfgLogic>();
+        എങ്കിൽ (!logicp) തിരികെ;
+        എങ്കിൽ (logicp->synth().empty()) തിരികെ;
+        എങ്കിൽ (!p(vtx)) തിരികെ;
         os << "subgraph cluster_" << cvtToHex(logicp) << " {\n";
         dumpDotVertex(os, *logicp);
-        emitted.insert(logicp);
-        for (DfgVertex* const vtxp : logicp->synth()) {
-            if (!p(*vtxp)) continue;
+        emitted.തിരുകുക(logicp);
+        വേണ്ടി (DfgVertex* സ്ഥിരം vtxp : logicp->synth()) {
+            എങ്കിൽ (!p(*vtxp)) തുടരുക;
             dumpDotVertex(os, *vtxp);
-            emitted.insert(vtxp);
+            emitted.തിരുകുക(vtxp);
         }
         os << "}\n";
     });
     // Emit all remaining vertices
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (emitted.count(&vtx)) return;
-        if (!p(vtx)) return;
+    forEachVertex([&](സ്ഥിരം DfgVertex& vtx) {
+        എങ്കിൽ (emitted.എണ്ണം(&vtx)) തിരികെ;
+        എങ്കിൽ (!p(vtx)) തിരികെ;
         dumpDotVertex(os, vtx);
     });
     // Emit all edges
-    forEachVertex([&](const DfgVertex& vtx) {
-        if (!p(vtx)) return;
-        for (size_t i = 0; i < vtx.nInputs(); ++i) {
-            DfgVertex* const srcp = vtx.inputp(i);
-            if (!srcp) continue;
-            if (!p(*srcp)) continue;
+    forEachVertex([&](സ്ഥിരം DfgVertex& vtx) {
+        എങ്കിൽ (!p(vtx)) തിരികെ;
+        വേണ്ടി (size_t i = 0; i < vtx.nInputs(); ++i) {
+            DfgVertex* സ്ഥിരം srcp = vtx.inputp(i);
+            എങ്കിൽ (!srcp) തുടരുക;
+            എങ്കിൽ (!p(*srcp)) തുടരുക;
             os << toDotId(*srcp) << " -> " << toDotId(vtx);
             os << " [headlabel=\"" << vtx.srcName(i) << "\"]";
             os << '\n';
@@ -359,606 +359,606 @@ void DfgGraph::dumpDot(std::ostream& os, const std::string& label,
     os << "}\n";
 }
 
-std::string DfgGraph::dumpDotString(const std::string& label,
-                                    std::function<bool(const DfgVertex&)> p) const {
+std::string DfgGraph::dumpDotString(സ്ഥിരം std::string& label,
+                                    std::function<തർക്കം(സ്ഥിരം DfgVertex&)> p) സ്ഥിരം {
     std::stringstream ss;
     dumpDot(ss, label, p);
-    return ss.str();
+    തിരികെ ss.str();
 }
 
-void DfgGraph::dumpDotFile(const std::string& filename, const std::string& label,
-                           std::function<bool(const DfgVertex&)> p) const {
-    const std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
-    if (os->fail()) v3fatal("Can't write file: " << filename);
+ശൂന്യം DfgGraph::dumpDotFile(സ്ഥിരം std::string& filename, സ്ഥിരം std::string& label,
+                           std::function<തർക്കം(സ്ഥിരം DfgVertex&)> p) സ്ഥിരം {
+    സ്ഥിരം std::unique_ptr<std::ofstream> os{V3File::new_ofstream(filename)};
+    എങ്കിൽ (os->fail()) v3fatal("Can't write file: " << filename);
     dumpDot(*os.get(), label, p);
     os->close();
 }
 
-void DfgGraph::dumpDotFilePrefixed(const std::string& label,
-                                   std::function<bool(const DfgVertex&)> p) const {
+ശൂന്യം DfgGraph::dumpDotFilePrefixed(സ്ഥിരം std::string& label,
+                                   std::function<തർക്കം(സ്ഥിരം DfgVertex&)> p) സ്ഥിരം {
     std::string filename = name();
-    if (!label.empty()) filename += "-" + label;
+    എങ്കിൽ (!label.empty()) filename += "-" + label;
     dumpDotFile(v3Global.debugFilename(filename) + ".dot", label, p);
 }
 
-template <bool T_SinksNotSources>
-static std::unique_ptr<std::unordered_set<const DfgVertex*>>
-dfgGraphCollectCone(const std::vector<const DfgVertex*>& vtxps) {
+template <തർക്കം T_SinksNotSources>
+സ്ഥിതം std::unique_ptr<std::unordered_set<സ്ഥിരം DfgVertex*>>
+dfgGraphCollectCone(സ്ഥിരം std::vector<സ്ഥിരം DfgVertex*>& vtxps) {
     // Work queue for traversal starting from all the seed vertices
-    std::vector<const DfgVertex*> queue = vtxps;
+    std::vector<സ്ഥിരം DfgVertex*> queue = vtxps;
     // Set of already visited vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>> resp{
-        new std::unordered_set<const DfgVertex*>{}};
+    std::unique_ptr<std::unordered_set<സ്ഥിരം DfgVertex*>> resp{
+        പുതിയ std::unordered_set<സ്ഥിരം DfgVertex*>{}};
     // Depth first traversal
-    while (!queue.empty()) {
+    ആകുമ്പോൾ (!queue.empty()) {
         // Pop next work item
-        const DfgVertex* const vtxp = queue.back();
-        queue.pop_back();
+        സ്ഥിരം DfgVertex* സ്ഥിരം vtxp = queue.back();
+        queue.എടുക്കുക_back();
         // Mark vertex as visited, move on if already visited
-        if (!resp->insert(vtxp).second) continue;
+        എങ്കിൽ (!resp->തിരുകുക(vtxp).second) തുടരുക;
         // Enqueue all siblings of this vertex.
-        if VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
-            vtxp->foreachSink([&](const DfgVertex& sink) {
-                queue.push_back(&sink);
-                return false;
+        എങ്കിൽ VL_CONSTEXPR_CXX17 (T_SinksNotSources) {
+            vtxp->foreachSink([&](സ്ഥിരം DfgVertex& sink) {
+                queue.തള്ളുക_back(&sink);
+                തിരികെ അസത്യം;
             });
-        } else {
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                queue.push_back(&src);
-                return false;
+        } അല്ലെങ്കിൽ {
+            vtxp->foreachSource([&](സ്ഥിരം DfgVertex& src) {
+                queue.തള്ളുക_back(&src);
+                തിരികെ അസത്യം;
             });
         }
     }
     // Done
-    return resp;
+    തിരികെ resp;
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sourceCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<false>(vtxps);
+std::unique_ptr<std::unordered_set<സ്ഥിരം DfgVertex*>>
+DfgGraph::sourceCone(സ്ഥിരം std::vector<സ്ഥിരം DfgVertex*>& vtxps) സ്ഥിരം {
+    തിരികെ dfgGraphCollectCone<അസത്യം>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::sinkCone(const std::vector<const DfgVertex*>& vtxps) const {
-    return dfgGraphCollectCone<true>(vtxps);
+std::unique_ptr<std::unordered_set<സ്ഥിരം DfgVertex*>>
+DfgGraph::sinkCone(സ്ഥിരം std::vector<സ്ഥിരം DfgVertex*>& vtxps) സ്ഥിരം {
+    തിരികെ dfgGraphCollectCone<സത്യം>(vtxps);
 }
 
-std::unique_ptr<std::unordered_set<const DfgVertex*>>
-DfgGraph::neighborhood(const std::vector<const DfgVertex*>& vtxps, size_t n) const {
+std::unique_ptr<std::unordered_set<സ്ഥിരം DfgVertex*>>
+DfgGraph::neighborhood(സ്ഥിരം std::vector<സ്ഥിരം DfgVertex*>& vtxps, size_t n) സ്ഥിരം {
     // Neighborhood
-    std::vector<const DfgVertex*> vec = vtxps;
+    std::vector<സ്ഥിരം DfgVertex*> vec = vtxps;
     // Set of already visited vertices
-    std::unordered_set<const DfgVertex*> res{vec.begin(), vec.end()};
+    std::unordered_set<സ്ഥിരം DfgVertex*> res{vec.begin(), vec.end()};
     // Expand neihborhood by 'n' hops
     size_t begin = 0;
     size_t end = vec.size();
-    for (size_t hops = 1; hops <= n; ++hops) {
-        for (size_t i = begin; i < end; ++i) {
-            const DfgVertex* const vtxp = vec[i];
-            vtxp->foreachSink([&](const DfgVertex& dst) {
-                if (res.insert(&dst).second) vec.push_back(&dst);
-                return false;
+    വേണ്ടി (size_t hops = 1; hops <= n; ++hops) {
+        വേണ്ടി (size_t i = begin; i < end; ++i) {
+            സ്ഥിരം DfgVertex* സ്ഥിരം vtxp = vec[i];
+            vtxp->foreachSink([&](സ്ഥിരം DfgVertex& dst) {
+                എങ്കിൽ (res.തിരുകുക(&dst).second) vec.തള്ളുക_back(&dst);
+                തിരികെ അസത്യം;
             });
-            vtxp->foreachSource([&](const DfgVertex& src) {
-                if (res.insert(&src).second) vec.push_back(&src);
-                return false;
+            vtxp->foreachSource([&](സ്ഥിരം DfgVertex& src) {
+                എങ്കിൽ (res.തിരുകുക(&src).second) vec.തള്ളുക_back(&src);
+                തിരികെ അസത്യം;
             });
         }
         begin = end;
         end = vec.size();
     }
     // Move out the results
-    return std::make_unique<std::unordered_set<const DfgVertex*>>(std::move(res));
+    തിരികെ std::make_unique<std::unordered_set<സ്ഥിരം DfgVertex*>>(std::move(res));
 }
 
 //------------------------------------------------------------------------------
 // DfgVertex
 
-DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
+DfgVertex::DfgVertex(DfgGraph& dfg, VDfgType type, File_വരി* flp, സ്ഥിരം DfgDataType& dt,
                      DfgEdge* inlineInputsp, uint32_t nInputs)
     : m_inlineInputsp{inlineInputsp}
     , m_nInputs{nInputs}
     , m_filelinep{flp}
     , m_dtype{dt}
     , m_type{type} {
-    dfg.addVertex(*this);
+    dfg.addVertex(*ഇത്);
 }
 
-bool DfgVertex::unsafe() const {
-    if (is<DfgMux>()) return true;
-    if (is<DfgArraySel>()) return !as<DfgArraySel>()->bitp()->is<DfgConst>();
-    return false;
+തർക്കം DfgVertex::unsafe() സ്ഥിരം {
+    എങ്കിൽ (is<DfgMux>()) തിരികെ സത്യം;
+    എങ്കിൽ (is<DfgArraySel>()) തിരികെ !as<DfgArraySel>()->bitp()->is<DfgConst>();
+    തിരികെ അസത്യം;
 }
 
-void DfgVertex::typeCheck(const DfgGraph& dfg) const {
+ശൂന്യം DfgVertex::typeCheck(സ്ഥിരം DfgGraph& dfg) സ്ഥിരം {
 
-#define CHECK(cond, msg) \
-    UASSERT_OBJ(cond, this, \
+#define CHECK(cond, സന്ദേശം) \
+    UASSERT_OBJ(cond, ഇത്, \
                 "Dfg type error for vertex " << typeName() << " in " << dfg.name() << ": " \
-                                             << msg);
-    switch (type()) {
-    case VDfgType::Const: {
+                                             << സന്ദേശം);
+    തിരഞ്ഞെടുപ്പ് (type()) {
+    അവസ്ഥ VDfgType::Const: {
         CHECK(isPacked(), "Should be Packed type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::CReset: {
+    അവസ്ഥ VDfgType::CReset: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::AstRd: {
-        const DfgAstRd& v = *as<DfgAstRd>();
+    അവസ്ഥ VDfgType::AstRd: {
+        സ്ഥിരം DfgAstRd& v = *as<DfgAstRd>();
         CHECK(v.isPacked() || v.isArray(), "Should be Packed or Array type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::VarArray:
-    case VDfgType::VarPacked: {
-        const DfgVertexVar& v = *as<DfgVertexVar>();
+    അവസ്ഥ VDfgType::VarArray:
+    അവസ്ഥ VDfgType::VarPacked: {
+        സ്ഥിരം DfgVertexVar& v = *as<DfgVertexVar>();
         CHECK(!v.defaultp() || v.defaultp()->dtype() == v.dtype(), "'defaultp' should match");
         CHECK(!v.srcp() || v.srcp()->dtype() == v.dtype(), "'srcp' should match");
-        return;
+        തിരികെ;
     }
-    case VDfgType::Prev: {
+    അവസ്ഥ VDfgType::Prev: {
         CHECK(isPacked() || isArray(), "Should be Packed or Array type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::SpliceArray:
-    case VDfgType::SplicePacked: {
-        const DfgVertexSplice& v = *as<DfgVertexSplice>();
-        v.foreachDriver([&](const DfgVertex& src, uint32_t lo) {
+    അവസ്ഥ VDfgType::SpliceArray:
+    അവസ്ഥ VDfgType::SplicePacked: {
+        സ്ഥിരം DfgVertexSplice& v = *as<DfgVertexSplice>();
+        v.foreachDriver([&](സ്ഥിരം DfgVertex& src, uint32_t lo) {
             CHECK(src.dtype() == DfgDataType::select(v.dtype(), lo, src.size()), "driver");
-            return false;
+            തിരികെ അസത്യം;
         });
-        return;
+        തിരികെ;
     }
-    case VDfgType::Logic: {
+    അവസ്ഥ VDfgType::Logic: {
         CHECK(dtype().isNull(), "Should be Null type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::Unresolved: {
+    അവസ്ഥ VDfgType::Unresolved: {
         CHECK(!dtype().isNull(), "Should not be Null type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::UnitArray: {
-        const DfgUnitArray& v = *as<DfgUnitArray>();
+    അവസ്ഥ VDfgType::UnitArray: {
+        സ്ഥിരം DfgUnitArray& v = *as<DfgUnitArray>();
         CHECK(v.isArray(), "Should be Array type");
         CHECK(v.size() == 1, "Should be one element");
         CHECK(v.srcp()->dtype() == v.dtype().elemDtype(), "Input should be the element type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::Sel: {
-        const DfgSel& v = *as<DfgSel>();
+    അവസ്ഥ VDfgType::Sel: {
+        സ്ഥിരം DfgSel& v = *as<DfgSel>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.dtype() == DfgDataType::select(v.srcp()->dtype(), v.lsb(), v.size()), "sel");
-        return;
+        തിരികെ;
     }
-    case VDfgType::MatchMasked: {
-        const DfgMatchMasked& v = *as<DfgMatchMasked>();
+    അവസ്ഥ VDfgType::MatchMasked: {
+        സ്ഥിരം DfgMatchMasked& v = *as<DfgMatchMasked>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.size() == 32U, "Should yield a 32-bit result");
         CHECK(v.lhsp()->isPacked(), "Lhs should be packed");
         CHECK(v.matchp()->isPacked(), "Match should be Packed type");
         CHECK(v.matchp()->is<DfgVertexVar>(), "Match should be a variable");
-        return;
+        തിരികെ;
     }
-    case VDfgType::Mux: {
-        const DfgMux& v = *as<DfgMux>();
+    അവസ്ഥ VDfgType::Mux: {
+        സ്ഥിരം DfgMux& v = *as<DfgMux>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.fromp()->isPacked(), "Source operand should be Packed type");
         CHECK(v.fromp()->size() >= v.size(), "Source operand should not be narrower");
         CHECK(v.lsbp()->isPacked(), "Index should be Packed type");
-        return;
+        തിരികെ;
     }
-    case VDfgType::ArraySel: {
-        const DfgArraySel& v = *as<DfgArraySel>();
+    അവസ്ഥ VDfgType::ArraySel: {
+        സ്ഥിരം DfgArraySel& v = *as<DfgArraySel>();
         CHECK(v.dtype() == v.fromp()->dtype().elemDtype(), "Element type should match");
         CHECK(v.bitp()->isPacked(), "Index should be Packed type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Add:
-    case VDfgType::And:
-    case VDfgType::Div:
-    case VDfgType::DivS:
-    case VDfgType::ModDiv:
-    case VDfgType::ModDivS:
-    case VDfgType::Mul:
-    case VDfgType::MulS:
-    case VDfgType::Or:
-    case VDfgType::Sub:
-    case VDfgType::Xor: {
+    അവസ്ഥ VDfgType::Add:
+    അവസ്ഥ VDfgType::And:
+    അവസ്ഥ VDfgType::Div:
+    അവസ്ഥ VDfgType::DivS:
+    അവസ്ഥ VDfgType::ModDiv:
+    അവസ്ഥ VDfgType::ModDivS:
+    അവസ്ഥ VDfgType::Mul:
+    അവസ്ഥ VDfgType::MulS:
+    അവസ്ഥ VDfgType::Or:
+    അവസ്ഥ VDfgType::Sub:
+    അവസ്ഥ VDfgType::Xor: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->dtype() == dtype(), "RHS should be same type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Negate:
-    case VDfgType::Not: {
+    അവസ്ഥ VDfgType::Negate:
+    അവസ്ഥ VDfgType::Not: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "Input should be same type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::ShiftL:
-    case VDfgType::ShiftR:
-    case VDfgType::ShiftRS: {
+    അവസ്ഥ VDfgType::ShiftL:
+    അവസ്ഥ VDfgType::ShiftR:
+    അവസ്ഥ VDfgType::ShiftRS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Concat: {
-        const DfgConcat& v = *as<DfgConcat>();
+    അവസ്ഥ VDfgType::Concat: {
+        സ്ഥിരം DfgConcat& v = *as<DfgConcat>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.lhsp()->isPacked(), "LHS should be Packed type");
         CHECK(v.rhsp()->isPacked(), "RHS should be Packed type");
         CHECK(v.size() == v.rhsp()->size() + v.lhsp()->size(), "Concat result mismatch");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Rep: {
-        const DfgRep& v = *as<DfgRep>();
+    അവസ്ഥ VDfgType::Rep: {
+        സ്ഥിരം DfgRep& v = *as<DfgRep>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "'srcp' should be same type");
         CHECK(v.size() % v.srcp()->size() == 0, "Not a replicate");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::StreamL:
-    case VDfgType::StreamR: {
+    അവസ്ഥ VDfgType::StreamL:
+    അവസ്ഥ VDfgType::StreamR: {
         // TODO: model these without an explicit slice size which is always constant (?)
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "Slice size should be Packed type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Eq:
-    case VDfgType::EqCase:
-    case VDfgType::EqWild:
-    case VDfgType::Neq:
-    case VDfgType::NeqCase:
-    case VDfgType::NeqWild:
-    case VDfgType::Gt:
-    case VDfgType::GtS:
-    case VDfgType::Gte:
-    case VDfgType::GteS:
-    case VDfgType::Lt:
-    case VDfgType::LtS:
-    case VDfgType::Lte:
-    case VDfgType::LteS: {
+    അവസ്ഥ VDfgType::Eq:
+    അവസ്ഥ VDfgType::EqCase:
+    അവസ്ഥ VDfgType::EqWild:
+    അവസ്ഥ VDfgType::Neq:
+    അവസ്ഥ VDfgType::NeqCase:
+    അവസ്ഥ VDfgType::NeqWild:
+    അവസ്ഥ VDfgType::Gt:
+    അവസ്ഥ VDfgType::GtS:
+    അവസ്ഥ VDfgType::Gte:
+    അവസ്ഥ VDfgType::GteS:
+    അവസ്ഥ VDfgType::Lt:
+    അവസ്ഥ VDfgType::LtS:
+    അവസ്ഥ VDfgType::Lte:
+    അവസ്ഥ VDfgType::LteS: {
         CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->dtype() == inputp(1)->dtype(), "Sides should match");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Extend:
-    case VDfgType::ExtendS: {
+    അവസ്ഥ VDfgType::Extend:
+    അവസ്ഥ VDfgType::ExtendS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->isPacked(), "Operand should be same type");
         CHECK(inputp(0)->size() < size(), "Operand should be narrower");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::LogAnd:
-    case VDfgType::LogEq:
-    case VDfgType::LogIf:
-    case VDfgType::LogOr: {
+    അവസ്ഥ VDfgType::LogAnd:
+    അവസ്ഥ VDfgType::LogEq:
+    അവസ്ഥ VDfgType::LogIf:
+    അവസ്ഥ VDfgType::LogOr: {
         CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "LHS should be Packed type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::LogNot:
-    case VDfgType::RedAnd:
-    case VDfgType::RedOr:
-    case VDfgType::RedXor:
-    case VDfgType::OneHot:
-    case VDfgType::OneHot0: {
+    അവസ്ഥ VDfgType::LogNot:
+    അവസ്ഥ VDfgType::RedAnd:
+    അവസ്ഥ VDfgType::RedOr:
+    അവസ്ഥ VDfgType::RedXor:
+    അവസ്ഥ VDfgType::OneHot:
+    അവസ്ഥ VDfgType::OneHot0: {
         CHECK(dtype() == DfgDataType::packed(1), "Should be 1-bit");
         CHECK(inputp(0)->isPacked(), "Operand should be Packed type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Cond: {
-        const DfgCond& v = *as<DfgCond>();
+    അവസ്ഥ VDfgType::Cond: {
+        സ്ഥിരം DfgCond& v = *as<DfgCond>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.condp()->isPacked(), "Condition should be Packed type");
         CHECK(v.thenp()->dtype() == v.dtype(), "Then should be same type");
         CHECK(v.elsep()->dtype() == v.dtype(), "Else should be same type");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::CountOnes: {
-        const DfgCountOnes& v = *as<DfgCountOnes>();
+    അവസ്ഥ VDfgType::എണ്ണം_Ones_2: {
+        സ്ഥിരം Dfg_എണ്ണം_Ones& v = *as<Dfg_എണ്ണം_Ones>();
         CHECK(v.isPacked(), "Should be Packed type");
         CHECK(v.srcp()->isPacked(), "Source should be Packed type");
         CHECK(v.size() == 32U, "Should yield a 32-bit result");
-        return;
+        തിരികെ;
     }
 
-    case VDfgType::Pow:
-    case VDfgType::PowSS:
-    case VDfgType::PowSU:
-    case VDfgType::PowUS: {
+    അവസ്ഥ VDfgType::Pow:
+    അവസ്ഥ VDfgType::PowSS:
+    അവസ്ഥ VDfgType::PowSU:
+    അവസ്ഥ VDfgType::PowUS: {
         CHECK(isPacked(), "Should be Packed type");
         CHECK(inputp(0)->dtype() == dtype(), "LHS should be same type");
         CHECK(inputp(1)->isPacked(), "RHS should be Packed type");
-        return;
+        തിരികെ;
     }
     }
 #undef CHECK
 }
 
-uint32_t DfgVertex::fanout() const {
+uint32_t DfgVertex::fanout() സ്ഥിരം {
     uint32_t result = 0;
-    foreachSink([&](const DfgVertex&) {
+    foreachSink([&](സ്ഥിരം DfgVertex&) {
         ++result;
-        return false;
+        തിരികെ അസത്യം;
     });
-    return result;
+    തിരികെ result;
 }
 
 DfgVertexVar* DfgVertex::getResultVar() {
     // It's easy if the vertex is already a variable ...
-    if (DfgVertexVar* const varp = this->cast<DfgVertexVar>()) return varp;
+    എങ്കിൽ (DfgVertexVar* സ്ഥിരം varp = ഇത്->cast<DfgVertexVar>()) തിരികെ varp;
 
     // Inspect existing variables written by this vertex, and choose one
     DfgVertexVar* resp = nullptr;
     // cppcheck-has-bug-suppress constParameter
-    this->foreachSink([&resp](DfgVertex& sink) {
-        DfgVertexVar* const varp = sink.cast<DfgVertexVar>();
-        if (!varp) return false;
+    ഇത്->foreachSink([&resp](DfgVertex& sink) {
+        DfgVertexVar* സ്ഥിരം varp = sink.cast<DfgVertexVar>();
+        എങ്കിൽ (!varp) തിരികെ അസത്യം;
 
         // Do not use it if value might differ from its drivers
-        if (varp->isVolatile()) return false;
+        എങ്കിൽ (varp->isVolatile()) തിരികെ അസത്യം;
 
         // First variable found
-        if (!resp) {
+        എങ്കിൽ (!resp) {
             resp = varp;
-            return false;
+            തിരികെ അസത്യം;
         }
 
         // Prefer those variables that must be kept anyway
-        if (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
-            if (!resp->hasExtRdRefs()) resp = varp;
-            return false;
+        എങ്കിൽ (resp->hasExtRdRefs() != varp->hasExtRdRefs()) {
+            എങ്കിൽ (!resp->hasExtRdRefs()) resp = varp;
+            തിരികെ അസത്യം;
         }
-        if (resp->hasDfgRefs() != varp->hasDfgRefs()) {
-            if (!resp->hasDfgRefs()) resp = varp;
-            return false;
+        എങ്കിൽ (resp->hasDfgRefs() != varp->hasDfgRefs()) {
+            എങ്കിൽ (!resp->hasDfgRefs()) resp = varp;
+            തിരികെ അസത്യം;
         }
 
         // Prefer real variables over temporaries
-        const bool resIsTemp = resp->vscp()->varp()->isTemp();
-        const bool varIsTemp = varp->vscp()->varp()->isTemp();
-        if (resIsTemp != varIsTemp) {
-            if (resIsTemp) resp = varp;
-            return false;
+        സ്ഥിരം തർക്കം resIsTemp = resp->vscp()->varp()->isTemp();
+        സ്ഥിരം തർക്കം varIsTemp = varp->vscp()->varp()->isTemp();
+        എങ്കിൽ (resIsTemp != varIsTemp) {
+            എങ്കിൽ (resIsTemp) resp = varp;
+            തിരികെ അസത്യം;
         }
-        if (!resp->tmpForp() != !varp->tmpForp()) {
-            if (resp->tmpForp()) resp = varp;
-            return false;
+        എങ്കിൽ (!resp->tmpForp() != !varp->tmpForp()) {
+            എങ്കിൽ (resp->tmpForp()) resp = varp;
+            തിരികെ അസത്യം;
         }
 
         // Prefer the earlier one in source order
-        const FileLine& oldFlp = *(resp->fileline());
-        const FileLine& newFlp = *(varp->fileline());
-        if (const int cmp = oldFlp.operatorCompare(newFlp)) {
-            if (cmp > 0) resp = varp;
-            return false;
+        സ്ഥിരം File_വരി& oldFlp = *(resp->fileline());
+        സ്ഥിരം File_വരി& newFlp = *(varp->fileline());
+        എങ്കിൽ (സ്ഥിരം പൂർണ്ണസംഖ്യ cmp = oldFlp.operatorCompare(newFlp)) {
+            എങ്കിൽ (cmp > 0) resp = varp;
+            തിരികെ അസത്യം;
         }
         // Prefer the one with the lexically smaller name
-        if (const int cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
-            if (cmp > 0) resp = varp;
-            return false;
+        എങ്കിൽ (സ്ഥിരം പൂർണ്ണസംഖ്യ cmp = resp->vscp()->name().compare(varp->vscp()->name())) {
+            എങ്കിൽ (cmp > 0) resp = varp;
+            തിരികെ അസത്യം;
         }
         // 'resp' and 'varp' are all the same, keep using the existing 'resp'
-        return false;
+        തിരികെ അസത്യം;
     });
-    return resp;
+    തിരികെ resp;
 }
 
-AstScope* DfgVertex::scopep(ScopeCache& cache, bool tryResultVar) VL_MT_DISABLED {
+AstScope* DfgVertex::scopep(ScopeCache& cache, തർക്കം tryResultVar) VL_MT_DISABLED {
     // If this is a variable, we are done
-    if (const DfgVertexVar* const varp = this->cast<DfgVertexVar>()) {
-        return varp->vscp()->scopep();
+    എങ്കിൽ (സ്ഥിരം DfgVertexVar* സ്ഥിരം varp = ഇത്->cast<DfgVertexVar>()) {
+        തിരികെ varp->vscp()->scopep();
     }
 
     // Try the result var first if instructed (usully only in the recursive case)
-    if (tryResultVar) {
-        if (const DfgVertexVar* const varp = this->getResultVar()) {
-            return varp->vscp()->scopep();
+    എങ്കിൽ (tryResultVar) {
+        എങ്കിൽ (സ്ഥിരം DfgVertexVar* സ്ഥിരം varp = ഇത്->getResultVar()) {
+            തിരികെ varp->vscp()->scopep();
         }
     }
 
-    AstScope* const rootp = v3Global.rootp()->topScopep()->scopep();
+    AstScope* സ്ഥിരം rootp = v3Global.rootp()->മുകൾ_Scopep()->scopep();
 
     // Note: the recursive invocation can cause a re-hash but that will not invalidate references
-    AstScope*& resultr = cache[this];
-    if (!resultr) {
+    AstScope*& resultr = cache[ഇത്];
+    എങ്കിൽ (!resultr) {
         // Mark to prevent infinite recursion on circular graphs - should never be called on such
         resultr = reinterpret_cast<AstScope*>(1);
         // Find scope based on sources, falling back on the root scope. Never use a package
         // scope, including the constant pool, so new variables are not created in packages.
         AstScope* foundp = nullptr;
         foreachSource([&](DfgVertex& src) {
-            AstScope* const scp = src.scopep(cache, true);
-            if (scp != rootp && !VN_IS(scp->modp(), Package)) {
+            AstScope* സ്ഥിരം scp = src.scopep(cache, സത്യം);
+            എങ്കിൽ (scp != rootp && !VN_IS(scp->modp(), Package)) {
                 foundp = scp;
-                return true;
+                തിരികെ സത്യം;
             }
-            return false;
+            തിരികെ അസത്യം;
         });
         resultr = foundp ? foundp : rootp;
     }
 
     // Die on a graph circular through operation vertices
-    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), this,
+    UASSERT_OBJ(resultr != reinterpret_cast<AstScope*>(1), ഇത്,
                 "DfgVertex::scopep called on graph with circular operations");
 
     // Done
-    return resultr;
+    തിരികെ resultr;
 }
 
-void DfgVertex::unlinkDelete(DfgGraph& dfg) {
+ശൂന്യം DfgVertex::unlinkDelete(DfgGraph& dfg) {
     // Unlink sink edges
-    while (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
+    ആകുമ്പോൾ (!m_sinks.empty()) m_sinks.frontp()->unlinkSrcp();
     // Remove from graph
-    dfg.removeVertex(*this);
+    dfg.removeVertex(*ഇത്);
     // Delete - this will unlink sources
-    delete this;
+    delete ഇത്;
 }
 
 //------------------------------------------------------------------------------
 // DfgVertexVar
 
 std::pair<DfgVertex*, uint32_t> DfgVertexVar::driverOfRange(uint32_t lo, uint32_t size) {
-    DfgVertex* const srcp = this->srcp();
+    DfgVertex* സ്ഥിരം srcp = ഇത്->srcp();
     // Not driven at all
-    if (!srcp) return {nullptr, 0};
+    എങ്കിൽ (!srcp) തിരികെ {nullptr, 0};
     // If volatile, can have other drivers
-    if (isVolatile()) return {nullptr, 0};
+    എങ്കിൽ (isVolatile()) തിരികെ {nullptr, 0};
     // Don't inline CReset
-    if (srcp->is<DfgCReset>()) return {nullptr, 0};
+    എങ്കിൽ (srcp->is<DfgCReset>()) തിരികെ {nullptr, 0};
 
     // If not driven via a splice, then it is driven whole, at the same offsets
-    DfgVertexSplice* const splicep = srcp->cast<DfgVertexSplice>();
-    if (!splicep) return {srcp, lo};
+    DfgVertexSplice* സ്ഥിരം splicep = srcp->cast<DfgVertexSplice>();
+    എങ്കിൽ (!splicep) തിരികെ {srcp, lo};
 
     // Find the driver that covers the whole searched range, if there is a single one
-    const uint32_t hi = lo + size - 1;
+    സ്ഥിരം uint32_t hi = lo + size - 1;
     DfgVertex* driverp = nullptr;
     uint32_t driverLo = 0;
-    bool useDefault = defaultp();
-    splicep->foreachDriver([&](DfgVertex& src, const uint32_t dLo) {
-        const uint32_t dHi = dLo + src.size() - 1;
+    തർക്കം useDefault = defaultp();
+    splicep->foreachDriver([&](DfgVertex& src, സ്ഥിരം uint32_t dLo) {
+        സ്ഥിരം uint32_t dHi = dLo + src.size() - 1;
         // Note whether it overlaps the searched range, so the default cannot be used
-        if (dLo <= hi && lo <= dHi) useDefault = false;
+        എങ്കിൽ (dLo <= hi && lo <= dHi) useDefault = അസത്യം;
         // If it does not cover the whole searched range, move on
-        if (lo < dLo || dHi < hi) return false;
+        എങ്കിൽ (lo < dLo || dHi < hi) തിരികെ അസത്യം;
         // Save the driver that covers the whole searched range
         driverp = &src;
         driverLo = dLo;
-        return true;
+        തിരികെ സത്യം;
     });
 
     // If a single driver covers the searched range, it is the one
-    if (driverp) return {driverp, lo - driverLo};
+    എങ്കിൽ (driverp) തിരികെ {driverp, lo - driverLo};
     // Otherwise the default driver is responsible for it, if nothing else overlaps it
-    if (useDefault) return {defaultp(), lo};
+    എങ്കിൽ (useDefault) തിരികെ {defaultp(), lo};
     // Not driven by a single vertex
-    return {nullptr, 0};
+    തിരികെ {nullptr, 0};
 }
 
 //######################################################################
 // Renders the canonical pattern S-expression for a single DfgVertex
 
-class DfgPatternString final {
+വർഗ്ഗം DfgPatternString final {
     std::ostream& m_os;
 
     std::map<std::string, std::string> m_internedConsts;  // Interned constants
     std::map<uint32_t, std::string> m_internedSelLsbs;  // Interned lsb value for selects
     std::map<uint32_t, std::string> m_internedWordWidths;  // Interned widths
     std::map<uint32_t, std::string> m_internedWideWidths;  // Interned widths
-    std::map<const DfgVertex*, std::string> m_internedVertices;  // Interned vertices
+    std::map<സ്ഥിരം DfgVertex*, std::string> m_internedVertices;  // Interned vertices
     // Multiplicity and depth of vertices
-    std::map<const DfgVertex*, std::pair<uint32_t, uint32_t>> m_multiplicityAndDepth;
+    std::map<സ്ഥിരം DfgVertex*, std::pair<uint32_t, uint32_t>> m_multiplicityAndDepth;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
-        const char base = lowerCase ? 'a' : 'A';
+    സ്ഥിതം std::string toLetters(size_t മൂല്യം, തർക്കം lowerCase = അസത്യം) {
+        സ്ഥിരം അക്ഷരം base = lowerCase ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        ചെയ്യുക { s += static_cast<അക്ഷരം>(base + മൂല്യം % 26); } ആകുമ്പോൾ (മൂല്യം /= 26);
+        തിരികെ s;
     }
 
-    const std::string& internConst(const DfgConst& vtx) {
-        const auto pair = m_internedConsts.emplace(vtx.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+    സ്ഥിരം std::string& internConst(സ്ഥിരം DfgConst& vtx) {
+        സ്ഥിരം auto pair = m_internedConsts.emplace(vtx.അക്കം().ascii(അസത്യം), "");
+        എങ്കിൽ (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
+        തിരികെ pair.first->second;
     }
 
-    const std::string& internSelLsb(uint32_t value) {
-        const auto pair = m_internedSelLsbs.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
-        return pair.first->second;
+    സ്ഥിരം std::string& internSelLsb(uint32_t മൂല്യം) {
+        സ്ഥിരം auto pair = m_internedSelLsbs.emplace(മൂല്യം, "");
+        എങ്കിൽ (pair.second) pair.first->second += toLetters(m_internedSelLsbs.size() - 1);
+        തിരികെ pair.first->second;
     }
 
-    const std::string& internWordWidth(uint32_t value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+    സ്ഥിരം std::string& internWordWidth(uint32_t മൂല്യം) {
+        സ്ഥിരം auto pair = m_internedWordWidths.emplace(മൂല്യം, "");
+        എങ്കിൽ (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, സത്യം);
+        തിരികെ pair.first->second;
     }
 
-    const std::string& internWideWidth(uint32_t value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+    സ്ഥിരം std::string& internWideWidth(uint32_t മൂല്യം) {
+        സ്ഥിരം auto pair = m_internedWideWidths.emplace(മൂല്യം, "");
+        എങ്കിൽ (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
+        തിരികെ pair.first->second;
     }
 
-    const std::string& internVertex(const DfgVertex& vtx) {
-        const auto pair = m_internedVertices.emplace(&vtx, "");
-        if (pair.second) pair.first->second += toLetters(m_internedVertices.size() - 1);
-        return pair.first->second;
+    സ്ഥിരം std::string& internVertex(സ്ഥിരം DfgVertex& vtx) {
+        സ്ഥിരം auto pair = m_internedVertices.emplace(&vtx, "");
+        എങ്കിൽ (pair.second) pair.first->second += toLetters(m_internedVertices.size() - 1);
+        തിരികെ pair.first->second;
     }
 
-    void recordMultiplicityAndDepth(const DfgVertex& vtx, uint32_t depth) {
-        std::pair<uint32_t, uint32_t>& value = m_multiplicityAndDepth
+    ശൂന്യം recordMultiplicityAndDepth(സ്ഥിരം DfgVertex& vtx, uint32_t depth) {
+        std::pair<uint32_t, uint32_t>& മൂല്യം = m_multiplicityAndDepth
                                                    .emplace(std::piecewise_construct,  //
                                                             std::forward_as_tuple(&vtx),  //
                                                             std::forward_as_tuple(0, depth))
                                                    .first->second;
-        value.first += 1;
-        value.second = std::max(value.second, depth);
-        if (!depth) return;
-        vtx.foreachSource([&](const DfgVertex& src) {
+        മൂല്യം.first += 1;
+        മൂല്യം.second = std::max(മൂല്യം.second, depth);
+        എങ്കിൽ (!depth) തിരികെ;
+        vtx.foreachSource([&](സ്ഥിരം DfgVertex& src) {
             recordMultiplicityAndDepth(src, depth - 1);
-            return false;
+            തിരികെ അസത്യം;
         });
     }
 
     // Render the vertx into ss, and return true if the recursion reached the given depth,
     // meaning an S-expression with that nesting level has been rendered.
-    void render(const DfgVertex& vtx, uint32_t depth, bool isRoot = true) {
-        if (const DfgConst* const constp = vtx.cast<DfgConst>()) {
+    ശൂന്യം render(സ്ഥിരം DfgVertex& vtx, uint32_t depth, തർക്കം is_വേര്_2 = സത്യം) {
+        എങ്കിൽ (സ്ഥിരം DfgConst* സ്ഥിരം constp = vtx.cast<DfgConst>()) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            എങ്കിൽ (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isOnes()) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (constp->isOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } അല്ലെങ്കിൽ {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (!isRoot && m_multiplicityAndDepth.at(&vtx).first > 1) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (!is_വേര്_2 && m_multiplicityAndDepth.at(&vtx).first > 1) {
             // Base case 2: vertex appearing multiple times
             m_os << internVertex(vtx);
-        } else if (!vtx.foreachSource([&](const DfgVertex&) { return true; })) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (!vtx.foreachSource([&](സ്ഥിരം DfgVertex&) { തിരികെ സത്യം; })) {
             // Base case 3: vertex with no inputs (input variable)
             m_os << '(' << vtx.typeName() << ')';
-        } else if (depth == 0) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (depth == 0) {
             // Base case 4: deep vertex (apperaing only once)
             m_os << "_";
-        } else {
+        } അല്ലെങ്കിൽ {
             // Recursively print an S-expression for the vertex
             m_os << '(';
             // Name
             m_os << vtx.typeName();
             // Specials
-            if (const DfgSel* const selp = vtx.cast<DfgSel>()) {
+            എങ്കിൽ (സ്ഥിരം DfgSel* സ്ഥിരം selp = vtx.cast<DfgSel>()) {
                 m_os << '@';
-                if (selp->lsb() == 0) {
+                എങ്കിൽ (selp->lsb() == 0) {
                     m_os << '0';
-                } else {
+                } അല്ലെങ്കിൽ {
                     m_os << internSelLsb(selp->lsb());
                 }
             }
             // Operands
-            vtx.foreachSource([&](const DfgVertex& src) {
+            vtx.foreachSource([&](സ്ഥിരം DfgVertex& src) {
                 m_os << ' ';
-                render(src, depth - 1, false);
-                return false;
+                render(src, depth - 1, അസത്യം);
+                തിരികെ അസത്യം;
             });
             // S-expression end
             m_os << ')';
@@ -966,51 +966,51 @@ class DfgPatternString final {
 
         // Annotate type
         m_os << ':';
-        if (!vtx.dtype().isPacked()) {
+        എങ്കിൽ (!vtx.dtype().isPacked()) {
             vtx.dtype().astDtypep()->dumpSmall(m_os);
-        } else {
-            const uint32_t width = vtx.size();
-            if (width == 1) {
+        } അല്ലെങ്കിൽ {
+            സ്ഥിരം uint32_t width = vtx.size();
+            എങ്കിൽ (width == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (width <= VL_QUADSIZE) {
                 m_os << internWordWidth(width);
-            } else {
+            } അല്ലെങ്കിൽ {
                 m_os << internWideWidth(width);
             }
         }
 
         // Mark it if it has multiple sinks
-        if (vtx.hasMultipleSinks()) m_os << '*';
+        എങ്കിൽ (vtx.hasMultipleSinks()) m_os << '*';
     }
 
-public:
-    DfgPatternString(std::ostream& os, const DfgVertex& vtx, uint32_t depth)
+പൊതു:
+    DfgPatternString(std::ostream& os, സ്ഥിരം DfgVertex& vtx, uint32_t depth)
         : m_os{os} {
         recordMultiplicityAndDepth(vtx, depth);
-        render(vtx, depth, false);
-        using Pair = std::pair<std::string, const DfgVertex*>;
+        render(vtx, depth, അസത്യം);
+        using Pair = std::pair<std::string, സ്ഥിരം DfgVertex*>;
         std::vector<Pair> vertices;
-        for (const auto& pair : m_multiplicityAndDepth) {
-            if (pair.second.first == 1) continue;
+        വേണ്ടി (സ്ഥിരം auto& pair : m_multiplicityAndDepth) {
+            എങ്കിൽ (pair.second.first == 1) തുടരുക;
             vertices.emplace_back(internVertex(*pair.first), pair.first);
         }
-        std::sort(vertices.begin(), vertices.end(), [](const Pair& a, const Pair& b) {  //
-            return a.first < b.first;
+        std::sort(vertices.begin(), vertices.end(), [](സ്ഥിരം Pair& a, സ്ഥിരം Pair& b) {  //
+            തിരികെ a.first < b.first;
         });
-        for (const Pair& pair : vertices) {
+        വേണ്ടി (സ്ഥിരം Pair& pair : vertices) {
             m_os << " | " << pair.first << " is ";
             render(*pair.second, m_multiplicityAndDepth.at(pair.second).second);
         }
     }
 };
 
-std::string DfgVertex::patternString(uint32_t depth) const {
+std::string DfgVertex::patternString(uint32_t depth) സ്ഥിരം {
     std::ostringstream oss;
-    DfgPatternString{oss, *this, depth};
-    return oss.str();
+    DfgPatternString{oss, *ഇത്, depth};
+    തിരികെ oss.str();
 }
 
 //------------------------------------------------------------------------------
 // DfgVisitor
 
-#include "V3Dfg__gen_visitor_defns.h"  // From ./astgen
+#അന്തര്ഭാവ "V3Dfg__gen_visitor_defns.h"  // From ./astgen

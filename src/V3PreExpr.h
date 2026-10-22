@@ -17,66 +17,66 @@
 #ifndef VERILATOR_V3PREEXPR_H_
 #define VERILATOR_V3PREEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3FileLine.h"
-#include "V3Global.h"
+#അന്തര്ഭാവ "V3FileLine.h"
+#അന്തര്ഭാവ "V3Global.h"
 
-#include <deque>
+#അന്തര്ഭാവ <deque>
 
-class V3PreExprToken final {
-public:
+class V3_Pre_വ്യഞ്ജകം_Token final {
+പൊതു:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    എണ്ണൽ token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
-private:
+സ്വകാര്യ:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
-    token_t const m_token;  // Token value
-public:
+    File_വരി* സ്ഥിരം m_fileline;  // Token fileline
+    token_t സ്ഥിരം m_token;  // Token value
+പൊതു:
     // METHODS
-    V3PreExprToken(FileLine* fileline, token_t token)
+    V3_Pre_വ്യഞ്ജകം_Token(File_വരി* fileline, token_t token)
         : m_fileline{fileline}
         , m_token{token} {}
-    V3PreExprToken(FileLine* fileline, bool value)
+    V3_Pre_വ്യഞ്ജകം_Token(File_വരി* fileline, bool മൂല്യം)
         : m_fileline{fileline}
-        , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+        , m_token{മൂല്യം ? ONE : ZERO} {}
+    ~V3_Pre_വ്യഞ്ജകം_Token() = സ്ഥിരസ്ഥിതി;
+    സ്ഥിരം അക്ഷരം* ascii() സ്ഥിരം {
+        സ്ഥിതം സ്ഥിരം അക്ഷരം* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        തിരികെ names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
-        UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+    File_വരി* fileline() സ്ഥിരം { തിരികെ m_fileline; }
+    token_t token() സ്ഥിരം { തിരികെ m_token; }
+    bool is_മൂല്യം() സ്ഥിരം { തിരികെ m_token == ZERO || m_token == ONE; }
+    bool മൂല്യം() സ്ഥിരം {
+        UASSERT(is_മൂല്യം(), "preproc expr fetch of non-value");
+        തിരികെ m_token == ONE;
     }
 };
 
-class V3PreExpr final {
+class V3_Pre_വ്യഞ്ജകം final {
     // MEMBERS
-    std::deque<V3PreExprToken> m_inputs;  // Input stack
-    std::deque<V3PreExprToken> m_values;  // Value stack
-    std::deque<V3PreExprToken> m_ops;  // Operator stack
-    FileLine* m_firstFileline = nullptr;
+    std::deque<V3_Pre_വ്യഞ്ജകം_Token> m_inputs;  // Input stack
+    std::deque<V3_Pre_വ്യഞ്ജകം_Token> m_മൂല്യങ്ങൾ;  // Value stack
+    std::deque<V3_Pre_വ്യഞ്ജകം_Token> m_ops;  // Operator stack
+    File_വരി* m_firstFileline = nullptr;
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
-        VV,  // Value
+    എണ്ണൽ action_t : uint8_t {
+        VV,  //മൂല്യം
         AA,  // Accept
         RR,  // Reduce
         SS,  // Shift
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    സ്ഥിതം സ്ഥിരം അക്ഷരം* actionAscii(action_t en) {
+        സ്ഥിതം constexpr സ്ഥിരം അക്ഷരം* names[] = {"VV", "AA", "RR", "SS", "EE"};
+        തിരികെ names[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -90,7 +90,7 @@ class V3PreExpr final {
     //  If different op precedence, shift for higher to input, else reduce for lower
     //  If same op precedence, shift for right assoc, reduce for left assoc
 
-    action_t parseTable[V3PreExprToken::MAX][V3PreExprToken::MAX] = {
+    action_t parseTable[V3_Pre_വ്യഞ്ജകം_Token::MAX][V3_Pre_വ്യഞ്ജകം_Token::MAX] = {
         // stack   ------------- inputs ------------------
         //         0   1   $   (   )   !   &&  ||  ->  <->
         /* 0   */ {EE, EE, EE, EE, EE, EE, EE, EE, EE, EE},  // 0 never on op stack
@@ -104,7 +104,7 @@ class V3PreExpr final {
         /* ->  */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR},
         /* <-> */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR}};
 
-    static void selfTestImp() {
+    സ്ഥിതം ശൂന്യം selfTestImp() {
         selfTestOne("0", false);
         selfTestOne("1", true);
         selfTestOne("! 0", true);
@@ -131,161 +131,161 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    സ്ഥിതം ശൂന്യം selfTestOne(സ്ഥിരം string& വ്യഞ്ജകം, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
-        UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
-        V3PreExpr parser;
+        UINFO(9, "V3PreExpr selfTestOne " << വ്യഞ്ജകം);
+        File_വരി* സ്ഥിരം flp = nullptr;
+        V3_Pre_വ്യഞ്ജകം parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = വ്യഞ്ജകം.c_str(); *cp; ++cp) {
+            എങ്കിൽ (tstart) {
                 tstart = false;
-                switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                തിരഞ്ഞെടുപ്പ് (*cp) {
+                അവസ്ഥ '0': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::ZERO}); നിർത്തുക;
+                അവസ്ഥ '1': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::ONE}); നിർത്തുക;
+                അവസ്ഥ '!': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::LNOT}); നിർത്തുക;
+                അവസ്ഥ '|': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::LOR}); നിർത്തുക;
+                അവസ്ഥ '&': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::LAND}); നിർത്തുക;
+                അവസ്ഥ '-': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::IMP}); നിർത്തുക;
+                അവസ്ഥ '<': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::EQV}); നിർത്തുക;
+                അവസ്ഥ '(': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::BRA}); നിർത്തുക;
+                അവസ്ഥ ')': parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::KET}); നിർത്തുക;
+                സ്ഥിരസ്ഥിതി: നിർത്തുക;
                 }
-            } else if (*cp == ' ') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (*cp == ' ') {
                 tstart = true;
             }
         }
-        const bool got = parser.result();
+        സ്ഥിരം bool got = parser.result();
         UASSERT_SELFTEST(got, expect);
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    ശൂന്യം തള്ളുക_Op(സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token& token) {
         // UINFO(9, "  pushOp " << token.ascii());
-        m_ops.push_back(token);
+        m_ops.തള്ളുക_back(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    ശൂന്യം തള്ളുക_മൂല്യം(സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token& token) {
         // UINFO(9, "  pushValue " << token.ascii());
-        m_values.push_back(token);
+        m_മൂല്യങ്ങൾ.തള്ളുക_back(token);
     }
-    V3PreExprToken popValue() {
-        if (m_values.empty()) {
+    V3_Pre_വ്യഞ്ജകം_Token എടുക്കുക_മൂല്യം() {
+        എങ്കിൽ (m_മൂല്യങ്ങൾ.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            തിരികെ V3_Pre_വ്യഞ്ജകം_Token{m_firstFileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
-        m_values.pop_back();
+        സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token tok = m_മൂല്യങ്ങൾ.back();
+        m_മൂല്യങ്ങൾ.എടുക്കുക_back();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        തിരികെ tok;
     }
-    void reduce() {
+    ശൂന്യം reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+        സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token tok = m_ops.back();
         // UINFO(9, "Reduce " << tok.ascii());
-        m_ops.pop_back();
-        switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
-                   && m_ops.back().token() != V3PreExprToken::BRA)
+        m_ops.എടുക്കുക_back();
+        തിരഞ്ഞെടുപ്പ് (tok.token()) {
+        അവസ്ഥ V3_Pre_വ്യഞ്ജകം_Token::KET: {
+            ആകുമ്പോൾ (m_ops.back().token() != V3_Pre_വ്യഞ്ജകം_Token::END
+                   && m_ops.back().token() != V3_Pre_വ്യഞ്ജകം_Token::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
-                m_ops.pop_back();
-            } else {
+            എങ്കിൽ (m_ops.back().token() == V3_Pre_വ്യഞ്ജകം_Token::BRA) {
+                m_ops.എടുക്കുക_back();
+            } അല്ലെങ്കിൽ {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                തിരികെ;
             }
-            break;
+            നിർത്തുക;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+        അവസ്ഥ V3_Pre_വ്യഞ്ജകം_Token::LNOT: {
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token lhs = എടുക്കുക_മൂല്യം();
+            തള്ളുക_മൂല്യം(V3_Pre_വ്യഞ്ജകം_Token{tok.fileline(), !lhs.മൂല്യം()});
+            നിർത്തുക;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+        അവസ്ഥ V3_Pre_വ്യഞ്ജകം_Token::LAND: {
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token rhs = എടുക്കുക_മൂല്യം();
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token lhs = എടുക്കുക_മൂല്യം();
+            തള്ളുക_മൂല്യം(V3_Pre_വ്യഞ്ജകം_Token{tok.fileline(), lhs.മൂല്യം() && rhs.മൂല്യം()});
+            നിർത്തുക;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+        അവസ്ഥ V3_Pre_വ്യഞ്ജകം_Token::LOR: {
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token rhs = എടുക്കുക_മൂല്യം();
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token lhs = എടുക്കുക_മൂല്യം();
+            തള്ളുക_മൂല്യം(V3_Pre_വ്യഞ്ജകം_Token{tok.fileline(), lhs.മൂല്യം() || rhs.മൂല്യം()});
+            നിർത്തുക;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+        അവസ്ഥ V3_Pre_വ്യഞ്ജകം_Token::IMP: {
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token rhs = എടുക്കുക_മൂല്യം();
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token lhs = എടുക്കുക_മൂല്യം();
+            തള്ളുക_മൂല്യം(V3_Pre_വ്യഞ്ജകം_Token{tok.fileline(), !lhs.മൂല്യം() || rhs.മൂല്യം()});
+            നിർത്തുക;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+        അവസ്ഥ V3_Pre_വ്യഞ്ജകം_Token::EQV: {
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token rhs = എടുക്കുക_മൂല്യം();
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token lhs = എടുക്കുക_മൂല്യം();
+            തള്ളുക_മൂല്യം(V3_Pre_വ്യഞ്ജകം_Token{tok.fileline(), lhs.മൂല്യം() == rhs.മൂല്യം()});
+            നിർത്തുക;
         }
-        default: {
+        സ്ഥിരസ്ഥിതി: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            നിർത്തുക;
         }
         }
     }
-    void parse() {
-        while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
-            m_inputs.pop_front();
+    ശൂന്യം parse() {
+        ആകുമ്പോൾ (!m_inputs.empty()) {
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token tok = m_inputs.front();
+            m_inputs.എടുക്കുക_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
-                pushValue(tok);
-                continue;
+            എങ്കിൽ (tok.is_മൂല്യം()) {
+                തള്ളുക_മൂല്യം(tok);
+                തുടരുക;
             }
 
             UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
-            auto action = parseTable[topTok.token()][tok.token()];
-            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
+            സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token മുകൾ_Tok = m_ops.back();
+            auto action = parseTable[മുകൾ_Tok.token()][tok.token()];
+            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << മുകൾ_Tok.ascii()
                                    << "][" << tok.ascii() << "]");
-            switch (action) {
-            case RR:  // Reduce
+            തിരഞ്ഞെടുപ്പ് (action) {
+            അവസ്ഥ RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
-                m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                നിർത്തുക;
+            അവസ്ഥ SS:  // Shift
+                m_ops.തള്ളുക_back(tok);
+                നിർത്തുക;
+            അവസ്ഥ AA:  // Accept
+                നിർത്തുക;
+            സ്ഥിരസ്ഥിതി: tok.fileline()->v3error("Syntax error in `ifdef () expression"); തിരികെ;
             }
         }
     }
 
-public:
+പൊതു:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3_Pre_വ്യഞ്ജകം() = സ്ഥിരസ്ഥിതി;
+    ~V3_Pre_വ്യഞ്ജകം() = സ്ഥിരസ്ഥിതി;
+    ശൂന്യം reset(File_വരി* flp) {
         m_inputs.clear();
-        m_values.clear();
+        m_മൂല്യങ്ങൾ.clear();
         m_ops.clear();
         m_firstFileline = flp;
-        pushOp(V3PreExprToken{flp, V3PreExprToken::END});
+        തള്ളുക_Op(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::END});
     }
-    void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+    ശൂന്യം തള്ളുക_നിവേശം(സ്ഥിരം V3_Pre_വ്യഞ്ജകം_Token& token) {
+        എങ്കിൽ (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
-        m_inputs.push_back(token);
+        m_inputs.തള്ളുക_back(token);
     }
     bool result() {
-        pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
+        തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{m_firstFileline, V3_Pre_വ്യഞ്ജകം_Token::END});
         parse();
-        return popValue().value();
+        തിരികെ എടുക്കുക_മൂല്യം().മൂല്യം();
     }
-    static void selfTest() VL_MT_DISABLED { selfTestImp(); }
+    സ്ഥിതം ശൂന്യം selfTest() VL_MT_DISABLED { selfTestImp(); }
 };
 
 #endif  // Guard

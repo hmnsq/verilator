@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3LIFTEXPR_H_
 #define VERILATOR_V3LIFTEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3LiftExpr final {
-public:
-    static void liftExprAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_Lift_വ്യഞ്ജകം final {
+പൊതു:
+    സ്ഥിതം ശൂന്യം lift_വ്യഞ്ജകം_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

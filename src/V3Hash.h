@@ -17,71 +17,71 @@
 #ifndef VERILATOR_V3HASH_H_
 #define VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#അന്തര്ഭാവ <cstdint>
+#അന്തര്ഭാവ <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_മൂല്യം;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    സ്ഥിതം uint32_t combine(uint32_t a, uint32_t b) {
+        തിരികെ a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_മൂല്യം{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_മൂല്യം{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_മൂല്യം{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(സ്ഥിരം std::string& val);
+    explicit V3Hash(ഇരട്ട val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(സ്ഥിരം ശൂന്യം* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t മൂല്യം() സ്ഥിരം VL_MT_SAFE { തിരികെ m_മൂല്യം; }
+    std::string toString() സ്ഥിരം VL_MT_SAFE;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool operator==(സ്ഥിരം V3Hash& rh) സ്ഥിരം { തിരികെ m_മൂല്യം == rh.m_മൂല്യം; }
+    bool operator!=(സ്ഥിരം V3Hash& rh) സ്ഥിരം { തിരികെ m_മൂല്യം != rh.m_മൂല്യം; }
+    bool operator<(സ്ഥിരം V3Hash& rh) സ്ഥിരം { തിരികെ m_മൂല്യം < rh.m_മൂല്യം; }
 
     // '+' combines hashes
     template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(T that) സ്ഥിരം {
+        തിരികെ V3Hash{combine(m_മൂല്യം, V3Hash{that}.m_മൂല്യം)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(സ്ഥിരം std::string& that) സ്ഥിരം {
+        തിരികെ V3Hash{combine(m_മൂല്യം, V3Hash{that}.m_മൂല്യം)};
     }
 
     // '+=' combines in place
     template <typename T>
     V3Hash& operator+=(T that) {
-        return *this = *this + that;
+        തിരികെ *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& operator+=(സ്ഥിരം std::string& that) { തിരികെ *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& operator<<(std::ostream& os, സ്ഥിരം V3Hash& rhs) VL_MT_SAFE;
 
 template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+ഘടന std::hash<V3Hash> {
+    std::size_t operator()(സ്ഥിരം V3Hash& h) സ്ഥിരം noexcept { തിരികെ h.മൂല്യം(); }
 };
 
 #endif  // Guard

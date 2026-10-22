@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3FUNCOPT_H_
 #define VERILATOR_V3FUNCOPT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3FuncOpt final {
-public:
-    static void funcOptAll(AstNetlist* nodep);
+പൊതു:
+    സ്ഥിതം ശൂന്യം funcOptAll(AstNetlist* nodep);
 };
 
 #endif  // Guard

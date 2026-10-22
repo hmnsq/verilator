@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3PREPROC_H_
 #define VERILATOR_V3PREPROC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3FileLine.h"
+#അന്തര്ഭാവ "V3Global.h"
 
-#include <iostream>
-#include <list>
-#include <map>
+#അന്തര്ഭാവ <iostream>
+#അന്തര്ഭാവ <list>
+#അന്തര്ഭാവ <map>
 
 class VInFilter;
 class VSpellCheck;
@@ -35,12 +35,12 @@ class V3PreProc VL_NOT_FINAL {
     // This defines a preprocessor.  Functions are virtual so implementation can be hidden.
     // After creating, call open(), then getline() in a loop.  The class will to the rest...
 
-protected:
+സംരക്ഷിത:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
+പൊതു:
     // CONSTANTS
-    enum MiscConsts : int {
+    എണ്ണൽ MiscConsts : പൂർണ്ണസംഖ്യ {
         DEFINE_RECURSION_LEVEL_MAX = 1000,  // How many `def substitutions before an error
         INCLUDE_DEPTH_MAX = 500,  // How many `includes deep before an error
         // Streams deep (sometimes `def deep) before an error.
@@ -51,51 +51,51 @@ public:
 
     // ACCESSORS
     // Insert given file into this point in input stream
-    virtual void openFile(FileLine* fileline, VInFilter* filterp, const string& filename) = 0;
-    virtual string getline() = 0;  // Return next line/lines. (Null if done.)
-    virtual bool isEof() const = 0;  // Return true on EOF.
-    virtual void insertUnreadback(const string& text) = 0;
+    മായാ ശൂന്യം openFile(File_വരി* fileline, VInFilter* filterp, സ്ഥിരം string& filename) = 0;
+    മായാ string getline() = 0;  // Return next line/lines. (Null if done.)
+    മായാ bool isEof() സ്ഥിരം = 0;  // Return true on EOF.
+    മായാ ശൂന്യം തിരുകുക_Unreadback(സ്ഥിരം string& text) = 0;
 
-    FileLine* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
+    File_വരി* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
-    static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
-    static bool keepWhitespace() { return false; }
-    static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+    സ്ഥിതം പൂർണ്ണസംഖ്യ keepComments() { തിരികെ 2; }  // Return comments, 0=no, 1=yes, 2=callback
+    സ്ഥിതം bool keepWhitespace() { തിരികെ false; }
+    സ്ഥിതം bool വരി_Directives() {  // Insert `line directives
+        തിരികെ !(v3Global.opt.preprocOnly() && v3Global.opt.preproc_No_വരി());
     }
-    static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
+    സ്ഥിതം bool pedantic() { തിരികെ false; }  // Obey standard; Don't substitute `error
 
     // CALLBACK METHODS
     // This probably will want to be overridden for given child users of this class.
-    virtual void comment(const string& cmt) = 0;  // Comment detected (if keepComments==2)
-    virtual void include(const string& filename) = 0;  // Request a include file be processed
+    മായാ ശൂന്യം comment(സ്ഥിരം string& cmt) = 0;  // Comment detected (if keepComments==2)
+    മായാ ശൂന്യം include(സ്ഥിരം string& filename) = 0;  // Request a include file be processed
 
-    virtual void undef(const string& name) = 0;  // Remove a definition
-    virtual void define(FileLine* fileline, const string& name, const string& value,
-                        const string& params = "",
+    മായാ ശൂന്യം undef(സ്ഥിരം string& name) = 0;  // Remove a definition
+    മായാ ശൂന്യം define(File_വരി* fileline, സ്ഥിരം string& name, സ്ഥിരം string& മൂല്യം,
+                        സ്ഥിരം string& params = "",
                         bool cmdline = false)
         = 0;  // `define without any parameters
-    virtual void defineCmdLine(FileLine* fileline, const string& name,
-                               const string& value) {  // `define without any parameters
-        define(fileline, name, value, "", true);
+    മായാ ശൂന്യം define_Cmd_വരി(File_വരി* fileline, സ്ഥിരം string& name,
+                               സ്ഥിരം string& മൂല്യം) {  // `define without any parameters
+        define(fileline, name, മൂല്യം, "", true);
     }
-    virtual string removeDefines(const string& text) = 0;  // Remove defines in a text string
+    മായാ string removeDefines(സ്ഥിരം string& text) = 0;  // Remove defines in a text string
 
     // UTILITIES
-    virtual void dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
-    virtual void candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
+    മായാ ശൂന്യം dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
+    മായാ ശൂന്യം candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
 
-protected:
+സംരക്ഷിത:
     // CONSTRUCTORS
     V3PreProc() {}
-    void configure(FileLine* fl);
+    ശൂന്യം configure(File_വരി* fl);
 
-public:
-    static V3PreProc* createPreProc(FileLine* fl) VL_MT_DISABLED;
-    virtual ~V3PreProc() = default;  // LCOV_EXCL_LINE  // Persistent
-    static void selfTest() VL_MT_DISABLED;
+പൊതു:
+    സ്ഥിതം V3PreProc* createPreProc(File_വരി* fl) VL_MT_DISABLED;
+    മായാ ~V3PreProc() = സ്ഥിരസ്ഥിതി;  // LCOV_EXCL_LINE  // Persistent
+    സ്ഥിതം ശൂന്യം selfTest() VL_MT_DISABLED;
 };
 
 #endif  // Guard

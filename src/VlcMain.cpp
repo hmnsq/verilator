@@ -17,65 +17,65 @@
 // clang-format off
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
+#അന്തര്ഭാവ "config_build.h"
 #ifndef HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
 #endif
 // clang-format on
 
-#include "verilatedos.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 // Cheat for speed and compile .cpp files into one object TODO: Reconsider
 #ifndef V3ERROR_NO_GLOBAL_
 #define V3ERROR_NO_GLOBAL_
 #endif
-#include "V3Error.h"
-static int debug() { return V3Error::debugDefault(); }
-#include "V3Error.cpp"
-#include "V3String.cpp"
+#അന്തര്ഭാവ "V3Error.h"
+സ്ഥിതം പൂർണ്ണസംഖ്യ debug() { തിരികെ V3Error::debugDefault(); }
+#അന്തര്ഭാവ "V3Error.cpp"
+#അന്തര്ഭാവ "V3String.cpp"
 #define V3OPTION_PARSER_NO_VOPTION_BOOL
 // clang-format off
-#include "V3OptionParser.cpp"
-#include "V3Os.cpp"
-#include "VlcTop.cpp"
+#അന്തര്ഭാവ "V3OptionParser.cpp"
+#അന്തര്ഭാവ "V3Os.cpp"
+#അന്തര്ഭാവ "VlcTop.cpp"
 // clang-format on
 
-#include "VlcOptions.h"
-#include "VlcTop.h"
+#അന്തര്ഭാവ "VlcOptions.h"
+#അന്തര്ഭാവ "VlcTop.h"
 
-#include <algorithm>
-#include <fstream>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <fstream>
 
 //######################################################################
 // VlcOptions
 
-void VlcOptions::addReadFile(const string& filename) { m_readFiles.insert(filename); }
+ശൂന്യം VlcOptions::addReadFile(സ്ഥിരം string& filename) { m_readFiles.തിരുകുക(filename); }
 
 string VlcOptions::version() {
     string ver = PACKAGE_STRING;
     ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    തിരികെ ver;
 }
 
-void VlcOptions::parseReportOption() {
-    if (m_report.empty()) return;
+ശൂന്യം VlcOptions::parseReportOption() {
+    എങ്കിൽ (m_report.empty()) തിരികെ;
     string::size_type start = 0;
-    while (true) {
-        const string::size_type comma = m_report.find(',', start);
-        const string kind = m_report.substr(start, comma - start);
-        if (kind == "summary") {
-            m_reportSummary = true;
-        } else if (kind == "hier" || kind == "hierarchy") {
-            m_reportHierarchy = true;
-        } else {
+    ആകുമ്പോൾ (സത്യം) {
+        സ്ഥിരം string::size_type comma = m_report.find(',', start);
+        സ്ഥിരം string kind = m_report.substr(start, comma - start);
+        എങ്കിൽ (kind == "summary") {
+            m_reportSummary = സത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (kind == "hier" || kind == "hierarchy") {
+            m_reportHierarchy = സത്യം;
+        } അല്ലെങ്കിൽ {
             v3fatal("Invalid --report option: " << m_report);
         }
-        if (comma == string::npos) break;
+        എങ്കിൽ (comma == string::npos) നിർത്തുക;
         start = comma + 1;
     }
 }
 
-void VlcOptions::parseOptsList(int argc, char** argv) {
+ശൂന്യം VlcOptions::parseOptsList(പൂർണ്ണസംഖ്യ argc, അക്ഷരം** argv) {
     V3OptionParser parser;
     V3OptionParser::AppendHelper DECL_OPTION{parser};
     V3OPTION_PARSER_DECL_TAGS;
@@ -85,7 +85,7 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     DECL_OPTION("-annotate-min", Set, &m_annotateMin);
     DECL_OPTION("-annotate-points", OnOff, &m_annotatePoints);
     DECL_OPTION("-debug", CbCall, []() { V3Error::debugDefault(3); });
-    DECL_OPTION("-debugi", CbVal, [](int v) { V3Error::debugDefault(v); });
+    DECL_OPTION("-debugi", CbVal, [](പൂർണ്ണസംഖ്യ v) { V3Error::debugDefault(v); });
     DECL_OPTION("-filter-type", Set, &m_filterType);
     DECL_OPTION("-include-reset-arcs", OnOff, &m_includeResetArcs);
     DECL_OPTION("-levels", Set, &m_reportLevels);
@@ -93,11 +93,11 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     DECL_OPTION("-report", Set, &m_report);
     DECL_OPTION("-unlink", OnOff, &m_unlink);
     DECL_OPTION("-V", CbCall, []() {
-        showVersion(true);
+        showVersion(സത്യം);
         std::exit(0);
     });
     DECL_OPTION("-version", CbCall, []() {
-        showVersion(false);
+        showVersion(അസത്യം);
         std::exit(0);
     });
     DECL_OPTION("-write", Set, &m_writeFile);
@@ -107,16 +107,16 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
-    for (int i = 0; i < argc;) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
-        if (argv[i][0] == '-') {
-            if (const int consumed = parser.parse(i, argc, argv).first) {
+        എങ്കിൽ (argv[i][0] == '-') {
+            എങ്കിൽ (സ്ഥിരം പൂർണ്ണസംഖ്യ consumed = parser.parse(i, argc, argv).first) {
                 i += consumed;
-            } else {
+            } അല്ലെങ്കിൽ {
                 v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                 ++i;  // LCOV_EXCL_LINE
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             addReadFile(argv[i]);
             ++i;
         }
@@ -124,10 +124,10 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     parseReportOption();
 }
 
-void VlcOptions::showVersion(bool verbose) {
+ശൂന്യം VlcOptions::showVersion(തർക്കം verbose) {
     std::cout << version();
     std::cout << "\n";
-    if (!verbose) return;
+    എങ്കിൽ (!verbose) തിരികെ;
 
     std::cout << "\n";
     std::cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
@@ -141,51 +141,51 @@ void VlcOptions::showVersion(bool verbose) {
 
 //######################################################################
 
-int main(int argc, char** argv) {
+പൂർണ്ണസംഖ്യ പ്രധാന(പൂർണ്ണസംഖ്യ argc, അക്ഷരം** argv) {
     // General initialization
     std::ios::sync_with_stdio();
 
-    VlcTop top;
+    Vlc_മുകൾ മുകൾ;
 
     // Command option parsing
-    top.opt.parseOptsList(argc - 1, argv + 1);
+    മുകൾ.opt.parseOptsList(argc - 1, argv + 1);
 
-    if (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
+    എങ്കിൽ (മുകൾ.opt.readFiles().empty()) മുകൾ.opt.addReadFile("vlt_coverage.dat");
 
     {
-        const VlStringSet& readFiles = top.opt.readFiles();
-        for (const auto& filename : readFiles) top.readCoverage(filename);
+        സ്ഥിരം VlStringSet& readFiles = മുകൾ.opt.readFiles();
+        വേണ്ടി (സ്ഥിരം auto& filename : readFiles) മുകൾ.readCoverage(filename);
     }
 
-    if (debug() >= 9) {
-        top.tests().dump(true);
-        top.points().dump();
+    എങ്കിൽ (debug() >= 9) {
+        മുകൾ.tests().dump(സത്യം);
+        മുകൾ.points().dump();
     }
 
-    const bool defaultReport = !top.opt.reportSpecified() && !top.opt.rank()
-                               && top.opt.writeFile().empty() && top.opt.writeInfoFile().empty();
-    if (top.opt.reportSpecified()) {
-        if (top.opt.reportSummary()) top.printTypeSummary();
-        if (top.opt.reportHierarchy()) top.printHierarchyReport();
-    } else if (defaultReport) {
-        top.printTypeSummary();
+    സ്ഥിരം തർക്കം defaultReport = !മുകൾ.opt.reportSpecified() && !മുകൾ.opt.rank()
+                               && മുകൾ.opt.writeFile().empty() && മുകൾ.opt.writeInfoFile().empty();
+    എങ്കിൽ (മുകൾ.opt.reportSpecified()) {
+        എങ്കിൽ (മുകൾ.opt.reportSummary()) മുകൾ.printTypeSummary();
+        എങ്കിൽ (മുകൾ.opt.reportHierarchy()) മുകൾ.printHierarchyReport();
+    } അല്ലെങ്കിൽ എങ്കിൽ (defaultReport) {
+        മുകൾ.printTypeSummary();
     }
 
     V3Error::abortIfWarnings();
-    if (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
+    എങ്കിൽ (!മുകൾ.opt.annotateOut().empty()) മുകൾ.annotate(മുകൾ.opt.annotateOut());
 
-    if (top.opt.rank()) {
-        top.rank();
-        top.tests().dump(false);
+    എങ്കിൽ (മുകൾ.opt.rank()) {
+        മുകൾ.rank();
+        മുകൾ.tests().dump(അസത്യം);
     }
 
-    if (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
-        if (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
-        if (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
+    എങ്കിൽ (!മുകൾ.opt.writeFile().empty() || !മുകൾ.opt.writeInfoFile().empty()) {
+        എങ്കിൽ (!മുകൾ.opt.writeFile().empty()) മുകൾ.writeCoverage(മുകൾ.opt.writeFile());
+        എങ്കിൽ (!മുകൾ.opt.writeInfoFile().empty()) മുകൾ.writeInfo(മുകൾ.opt.writeInfoFile());
         V3Error::abortIfWarnings();
-        if (top.opt.unlink()) {
-            const VlStringSet& readFiles = top.opt.readFiles();
-            for (const auto& filename : readFiles) unlink(filename.c_str());
+        എങ്കിൽ (മുകൾ.opt.unlink()) {
+            സ്ഥിരം VlStringSet& readFiles = മുകൾ.opt.readFiles();
+            വേണ്ടി (സ്ഥിരം auto& filename : readFiles) unlink(filename.c_str());
         }
     }
 

@@ -14,148 +14,148 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DfgPasses.h"
+#അന്തര്ഭാവ "V3DfgPasses.h"
 
-#include "V3Ast.h"
-#include "V3Dfg.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3String.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Dfg.h"
+#അന്തര്ഭാവ "V3File.h"
+#അന്തര്ഭാവ "V3Global.h"
+#അന്തര്ഭാവ "V3String.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-void V3DfgPasses::removeUnobservable(DfgGraph& dfg, V3DfgContext& dfgCtx) {
+ശൂന്യം V3DfgPasses::removeUnobservable(DfgGraph& dfg, V3DfgContext& dfgCtx) {
     V3DfgRemoveUnobservableContext& ctx = dfgCtx.m_removeUnobservableContext;
 
     // Enqueue all DfgLogic vertices to work list
     DfgWorklist workList{dfg};
-    for (DfgVertex& vtx : dfg.opVertices()) {
-        if (vtx.is<DfgLogic>()) workList.push_front(vtx);
+    വേണ്ടി (DfgVertex& vtx : dfg.opVertices()) {
+        എങ്കിൽ (vtx.is<DfgLogic>()) workList.തള്ളുക_front(vtx);
     }
 
     // Remove all logic that only drives unobservable variables
     workList.foreach([&](DfgVertex& vtx) {
-        DfgLogic* const logicp = vtx.as<DfgLogic>();
+        DfgLogic* സ്ഥിരം logicp = vtx.as<DfgLogic>();
         // Check all variables driven by this logic are removable
-        const bool used = logicp->foreachSink([&](DfgVertex& snk) {
-            DfgUnresolved* const uVtxp = snk.as<DfgUnresolved>();
-            DfgVertexVar* const vVtxp = uVtxp->firtsSinkp()->as<DfgVertexVar>();
-            if (vVtxp->hasSinks()) return true;
-            if (vVtxp->isObserved()) return true;
-            return false;
+        സ്ഥിരം തർക്കം used = logicp->foreachSink([&](DfgVertex& snk) {
+            DfgUnresolved* സ്ഥിരം uVtxp = snk.as<DfgUnresolved>();
+            DfgVertexVar* സ്ഥിരം vVtxp = uVtxp->firtsSinkp()->as<DfgVertexVar>();
+            എങ്കിൽ (vVtxp->hasSinks()) തിരികെ സത്യം;
+            എങ്കിൽ (vVtxp->isObserved()) തിരികെ സത്യം;
+            തിരികെ അസത്യം;
         });
         // If some are used, the logic must stay in the Ast
-        if (used) return;
+        എങ്കിൽ (used) തിരികെ;
         // If impure, it must stay in the Ast
-        if (!logicp->isPure()) return;
+        എങ്കിൽ (!logicp->isPure()) തിരികെ;
         // Enqueue logic driving the inputs of this logic we are about to delete
         logicp->foreachSource([&](DfgVertex& src) {
-            DfgVertexVar* const varp = src.as<DfgVertexVar>();
-            if (!varp->srcp()) return false;
+            DfgVertexVar* സ്ഥിരം varp = src.as<DfgVertexVar>();
+            എങ്കിൽ (!varp->srcp()) തിരികെ അസത്യം;
             varp->srcp()->as<DfgUnresolved>()->foreachSource([&](DfgVertex& driver) {
-                workList.push_front(*driver.as<DfgLogic>());
-                return false;
+                workList.തള്ളുക_front(*driver.as<DfgLogic>());
+                തിരികെ അസത്യം;
             });
-            return false;
+            തിരികെ അസത്യം;
         });
         // Delete this logic both from the Dfg and the Ast
-        AstNode* const nodep = logicp->nodep();
+        Ast_കണ്ണി* സ്ഥിരം nodep = logicp->nodep();
         VL_DO_DANGLING(logicp->unlinkDelete(dfg), logicp);
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_വൃക്ഷം(), nodep);
         ++ctx.m_logicDeleted;
     });
 
     // Remove unobservable variables
-    for (DfgVertexVar* const vVtxp : dfg.varVertices().unlinkable()) {
-        if (vVtxp->hasSinks()) continue;
-        if (vVtxp->isObserved()) continue;
-        DfgVertex* const srcp = vVtxp->srcp();  // Must be a DfgUnresolved or nullptr
-        AstVarScope* const vscp = vVtxp->vscp();
+    വേണ്ടി (DfgVertexVar* സ്ഥിരം vVtxp : dfg.varVertices().unlinkable()) {
+        എങ്കിൽ (vVtxp->hasSinks()) തുടരുക;
+        എങ്കിൽ (vVtxp->isObserved()) തുടരുക;
+        DfgVertex* സ്ഥിരം srcp = vVtxp->srcp();  // Must be a DfgUnresolved or nullptr
+        AstVarScope* സ്ഥിരം vscp = vVtxp->vscp();
         // Can delete the Ast variable too if it has no other references
-        const bool delAst = (!srcp || !srcp->nInputs())  //
+        സ്ഥിരം തർക്കം delAst = (!srcp || !srcp->nInputs())  //
                             && !vVtxp->hasExtWrRefs()  //
                             && !vVtxp->hasModWrRefs();
         VL_DO_DANGLING(vVtxp->unlinkDelete(dfg), vVtxp);
-        if (srcp) {
+        എങ്കിൽ (srcp) {
             srcp->foreachSource([&](DfgVertex& src) {
                 src.as<DfgLogic>()->setDrivesUnusedVars();
-                return false;
+                തിരികെ അസത്യം;
             });
             VL_DO_DANGLING(srcp->unlinkDelete(dfg), srcp);
         }
-        if (delAst) {
-            VL_DO_DANGLING(vscp->unlinkFrBack()->deleteTree(), vscp);
+        എങ്കിൽ (delAst) {
+            VL_DO_DANGLING(vscp->unlinkFrBack()->delete_വൃക്ഷം(), vscp);
             ++ctx.m_varsDeleted;
-        } else {
+        } അല്ലെങ്കിൽ {
             ++ctx.m_varsRemoved;
         }
     }
 
     // Finally remove logic from the Dfg if it drives no variables in the graph.
     // These should only be those with side effects.
-    for (DfgVertex* const vtxp : dfg.opVertices().unlinkable()) {
-        DfgLogic* const logicp = vtxp->cast<DfgLogic>();
-        if (!logicp) continue;
-        if (logicp->hasSinks()) continue;
+    വേണ്ടി (DfgVertex* സ്ഥിരം vtxp : dfg.opVertices().unlinkable()) {
+        DfgLogic* സ്ഥിരം logicp = vtxp->cast<DfgLogic>();
+        എങ്കിൽ (!logicp) തുടരുക;
+        എങ്കിൽ (logicp->hasSinks()) തുടരുക;
         // Input variables will be read in Ast code, add Ast reference vertices
         // AstVar/AstVarScope::user2p() -> corresponding DfgVertexVar* in the graph
-        const VNUser2InUse m_user2InUse;
+        സ്ഥിരം VNUser2InUse m_user2InUse;
         logicp->foreachSource([](DfgVertex& src) {
             src.as<DfgVertexVar>()->vscp()->user2p(&src);
-            return false;
+            തിരികെ അസത്യം;
         });
-        V3DfgPasses::addAstRefs(dfg, logicp->nodep(), [](AstNode* varp) {  //
-            return varp->user2u().to<DfgVertexVar*>();
+        V3DfgPasses::addAstRefs(dfg, logicp->nodep(), [](Ast_കണ്ണി* varp) {  //
+            തിരികെ varp->user2u().to<DfgVertexVar*>();
         });
         VL_DO_DANGLING(logicp->unlinkDelete(dfg), logicp);
         ++ctx.m_logicRemoved;
     }
 }
 
-void V3DfgPasses::removeSelects(DfgGraph& dfg, V3DfgRemoveSelectsContext& ctx) {
+ശൂന്യം V3DfgPasses::removeSelects(DfgGraph& dfg, V3DfgRemoveSelectsContext& ctx) {
 
     std::vector<DfgSel*> selps;
-    for (DfgVertex& vtx : dfg.opVertices()) {
-        DfgSel* const selp = vtx.cast<DfgSel>();
-        if (!selp) continue;
-        selps.push_back(selp);
+    വേണ്ടി (DfgVertex& vtx : dfg.opVertices()) {
+        DfgSel* സ്ഥിരം selp = vtx.cast<DfgSel>();
+        എങ്കിൽ (!selp) തുടരുക;
+        selps.തള്ളുക_back(selp);
     }
 
-    for (DfgSel* const selp : selps) {
-        FileLine* const flp = selp->fileline();
-        const DfgDataType& dtype = selp->dtype();
+    വേണ്ടി (DfgSel* സ്ഥിരം selp : selps) {
+        File_വരി* സ്ഥിരം flp = selp->fileline();
+        സ്ഥിരം DfgDataType& dtype = selp->dtype();
 
         // Remove full width selects
-        if (selp->fromp()->dtype() == dtype) {
+        എങ്കിൽ (selp->fromp()->dtype() == dtype) {
             ++ctx.m_removedFullWidth;
             selp->replaceWith(selp->fromp());
             VL_DO_DANGLING(selp->unlinkDelete(dfg), selp);
-            continue;
+            തുടരുക;
         }
 
         // Push selects through synthesis temporaries only
-        DfgVarPacked* const varp = selp->fromp()->cast<DfgVarPacked>();
-        if (!varp || !varp->tmpForp()) continue;
+        DfgVarPacked* സ്ഥിരം varp = selp->fromp()->cast<DfgVarPacked>();
+        എങ്കിൽ (!varp || !varp->tmpForp()) തുടരുക;
 
         // Find the driver of this range
-        const auto pair = varp->driverOfRange(selp->lsb(), selp->width());
-        DfgVertex* const driverp = pair.first;
-        const uint32_t driverLsb = pair.second;
-        if (!driverp) continue;
+        സ്ഥിരം auto pair = varp->driverOfRange(selp->lsb(), selp->width());
+        DfgVertex* സ്ഥിരം driverp = pair.first;
+        സ്ഥിരം uint32_t driverLsb = pair.second;
+        എങ്കിൽ (!driverp) തുടരുക;
 
         // If partial driver is the whole thing we are looking for, just replace with that
-        if (driverp->dtype() == dtype) {
+        എങ്കിൽ (driverp->dtype() == dtype) {
             ++ctx.m_replacedWithWholeDriver;
             selp->replaceWith(driverp);
             VL_DO_DANGLING(selp->unlinkDelete(dfg), selp);
-            continue;
+            തുടരുക;
         }
 
         // Otherwise create a new select from the partial driver
         ++ctx.m_replacedWithSelFromDriver;
-        DfgSel* const newSelp = new DfgSel{dfg, flp, dtype};
+        DfgSel* സ്ഥിരം newSelp = പുതിയ DfgSel{dfg, flp, dtype};
         newSelp->lsb(driverLsb);
         newSelp->fromp(driverp);
         selp->replaceWith(newSelp);
@@ -163,43 +163,43 @@ void V3DfgPasses::removeSelects(DfgGraph& dfg, V3DfgRemoveSelectsContext& ctx) {
     }
 }
 
-void V3DfgPasses::inlineVars(DfgGraph& dfg) {
-    for (DfgVertexVar& vtx : dfg.varVertices()) {
+ശൂന്യം V3DfgPasses::inlineVars(DfgGraph& dfg) {
+    വേണ്ടി (DfgVertexVar& vtx : dfg.varVertices()) {
         // Nothing to inline it into
-        if (!vtx.hasSinks()) continue;
+        എങ്കിൽ (!vtx.hasSinks()) തുടരുക;
         // Nohting to inline
-        DfgVertex* const srcp = vtx.srcp();
-        if (!srcp) continue;
+        DfgVertex* സ്ഥിരം srcp = vtx.srcp();
+        എങ്കിൽ (!srcp) തുടരുക;
         // Value can differ from driver
-        if (vtx.isVolatile()) continue;
+        എങ്കിൽ (vtx.isVolatile()) തുടരുക;
         // Partial driver cannot be inlined
-        if (srcp->is<DfgVertexSplice>()) continue;
-        if (srcp->is<DfgUnitArray>()) continue;
+        എങ്കിൽ (srcp->is<DfgVertexSplice>()) തുടരുക;
+        എങ്കിൽ (srcp->is<DfgUnitArray>()) തുടരുക;
         // Don't inline CReset
-        if (srcp->is<DfgCReset>()) continue;
+        എങ്കിൽ (srcp->is<DfgCReset>()) തുടരുക;
         // Okie dokie, here we go ...
         vtx.replaceWith(srcp);
     }
 }
 
-void V3DfgPasses::removeUnused(DfgGraph& dfg) {
+ശൂന്യം V3DfgPasses::removeUnused(DfgGraph& dfg) {
     // Worklist based algoritm
     DfgWorklist workList{dfg};
 
     // Add all unused operation vertices to the work list
-    for (DfgVertex& vtx : dfg.opVertices()) {
-        if (vtx.hasSinks()) continue;
+    വേണ്ടി (DfgVertex& vtx : dfg.opVertices()) {
+        എങ്കിൽ (vtx.hasSinks()) തുടരുക;
         // This vertex is unused. Add to work list.
-        workList.push_front(vtx);
+        workList.തള്ളുക_front(vtx);
     }
 
     // Also add all unused temporaries created during synthesis
-    for (DfgVertexVar& vtx : dfg.varVertices()) {
-        if (!vtx.tmpForp()) continue;
-        if (vtx.hasSinks()) continue;
-        if (vtx.hasDfgRefs()) continue;
+    വേണ്ടി (DfgVertexVar& vtx : dfg.varVertices()) {
+        എങ്കിൽ (!vtx.tmpForp()) തുടരുക;
+        എങ്കിൽ (vtx.hasSinks()) തുടരുക;
+        എങ്കിൽ (vtx.hasDfgRefs()) തുടരുക;
         // This vertex is unused. Add to work list.
-        workList.push_front(vtx);
+        workList.തള്ളുക_front(vtx);
     }
 
     // Process the work list
@@ -207,44 +207,44 @@ void V3DfgPasses::removeUnused(DfgGraph& dfg) {
         // DfgLogic should have been synthesized or removed
         UASSERT_OBJ(!vtx.is<DfgLogic>(), &vtx, "Should not be DfgLogic");
         // If used, then nothing to do, so move on
-        if (vtx.hasSinks()) return;
+        എങ്കിൽ (vtx.hasSinks()) തിരികെ;
         // If temporary used in another graph, we need to keep it
-        if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
+        എങ്കിൽ (സ്ഥിരം DfgVertexVar* സ്ഥിരം varp = vtx.cast<DfgVertexVar>()) {
             UASSERT_OBJ(varp->tmpForp(), varp, "Non-temporary variable should not be visited");
-            if (varp->hasDfgRefs()) return;
+            എങ്കിൽ (varp->hasDfgRefs()) തിരികെ;
         }
         // Add sources of unused vertex to work list
         vtx.foreachSource([&](DfgVertex& src) {
             // We only remove actual operation vertices and synthesis temporaries in this loop
-            if (src.is<DfgConst>()) return false;
-            const DfgVertexVar* const varp = src.cast<DfgVertexVar>();
-            if (varp && !varp->tmpForp()) return false;
+            എങ്കിൽ (src.is<DfgConst>()) തിരികെ അസത്യം;
+            സ്ഥിരം DfgVertexVar* സ്ഥിരം varp = src.cast<DfgVertexVar>();
+            എങ്കിൽ (varp && !varp->tmpForp()) തിരികെ അസത്യം;
             // Add source to workList
-            workList.push_front(src);
-            return false;
+            workList.തള്ളുക_front(src);
+            തിരികെ അസത്യം;
         });
         // Remove the unused vertex
         vtx.unlinkDelete(dfg);
     });
 
     // Remove unused and undriven variable vertices
-    for (DfgVertexVar* const vtxp : dfg.varVertices().unlinkable()) {
-        if (!vtxp->hasSinks() && !vtxp->srcp()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
+    വേണ്ടി (DfgVertexVar* സ്ഥിരം vtxp : dfg.varVertices().unlinkable()) {
+        എങ്കിൽ (!vtxp->hasSinks() && !vtxp->srcp()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
     }
 
     // Finally remove unused constants
-    for (DfgConst* const vtxp : dfg.constVertices().unlinkable()) {
-        if (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
+    വേണ്ടി (DfgConst* സ്ഥിരം vtxp : dfg.constVertices().unlinkable()) {
+        എങ്കിൽ (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
     }
 }
 
-void V3DfgPasses::binToOneHot(DfgGraph& dfg, V3DfgBinToOneHotContext& ctx) {
+ശൂന്യം V3DfgPasses::binToOneHot(DfgGraph& dfg, V3DfgBinToOneHotContext& ctx) {
     // Structure to keep track of comparison details
-    struct Term final {
+    ഘടന Term final {
         DfgVertex* m_vtxp = nullptr;  // Vertex to replace
-        bool m_inv = false;  // '!=', instead of '=='
-        Term() = default;
-        Term(DfgVertex* vtxp, bool inv)
+        തർക്കം m_inv = അസത്യം;  // '!=', instead of '=='
+        Term() = സ്ഥിരസ്ഥിതി;
+        Term(DfgVertex* vtxp, തർക്കം inv)
             : m_vtxp{vtxp}
             , m_inv{inv} {}
     };
@@ -261,76 +261,76 @@ void V3DfgPasses::binToOneHot(DfgGraph& dfg, V3DfgBinToOneHotContext& ctx) {
     // - not too small, as it's probably not worth it
     constexpr uint32_t WIDTH_MIN = 7;
     constexpr uint32_t WIDTH_MAX = 20;
-    const auto widthOk = [](const DfgVertex* vtxp) {
-        const uint32_t width = vtxp->width();
-        return WIDTH_MIN <= width && width <= WIDTH_MAX;
+    സ്ഥിരം auto widthOk = [](സ്ഥിരം DfgVertex* vtxp) {
+        സ്ഥിരം uint32_t width = vtxp->width();
+        തിരികെ WIDTH_MIN <= width && width <= WIDTH_MAX;
     };
 
     // Do not convert terms that look like they are in a Cond tree
     // the C++ compiler can generate jump tables for these
-    const std::function<bool(const DfgVertex*, bool)> useOk
-        = [&](const DfgVertex* vtxp, bool inv) -> bool {
+    സ്ഥിരം std::function<തർക്കം(സ്ഥിരം DfgVertex*, തർക്കം)> useOk
+        = [&](സ്ഥിരം DfgVertex* vtxp, തർക്കം inv) -> തർക്കം {
         // Go past a single 'Not' sink, which is common
-        if (DfgVertex* const sinkp = vtxp->singleSink()) {
-            if (sinkp->is<DfgNot>()) return useOk(sinkp, !inv);
+        എങ്കിൽ (DfgVertex* സ്ഥിരം sinkp = vtxp->singleSink()) {
+            എങ്കിൽ (sinkp->is<DfgNot>()) തിരികെ useOk(sinkp, !inv);
         }
-        const bool condTree = vtxp->foreachSink([&](const DfgVertex& sink) {
-            const DfgCond* const condp = sink.cast<DfgCond>();
-            if (!condp) return false;
-            if (condp->condp() != vtxp) return false;
-            return inv ? condp->thenp()->is<DfgCond>() : condp->elsep()->is<DfgCond>();
+        സ്ഥിരം തർക്കം cond_വൃക്ഷം = vtxp->foreachSink([&](സ്ഥിരം DfgVertex& sink) {
+            സ്ഥിരം DfgCond* സ്ഥിരം condp = sink.cast<DfgCond>();
+            എങ്കിൽ (!condp) തിരികെ അസത്യം;
+            എങ്കിൽ (condp->condp() != vtxp) തിരികെ അസത്യം;
+            തിരികെ inv ? condp->thenp()->is<DfgCond>() : condp->elsep()->is<DfgCond>();
         });
-        return !condTree;
+        തിരികെ !cond_വൃക്ഷം;
     };
 
     // Look at all comparison nodes and build the 'Val2Terms' map for each source vertex
     uint32_t nTerms = 0;
-    for (DfgVertex& vtx : dfg.opVertices()) {
+    വേണ്ടി (DfgVertex& vtx : dfg.opVertices()) {
         DfgVertex* srcp = nullptr;
         uint32_t val = 0;
-        bool inv = false;
-        if (DfgEq* const eqp = vtx.cast<DfgEq>()) {
-            DfgConst* const constp = eqp->lhsp()->cast<DfgConst>();
-            if (!constp || !widthOk(constp) || !useOk(eqp, false)) continue;
+        തർക്കം inv = അസത്യം;
+        എങ്കിൽ (DfgEq* സ്ഥിരം eqp = vtx.cast<DfgEq>()) {
+            DfgConst* സ്ഥിരം constp = eqp->lhsp()->cast<DfgConst>();
+            എങ്കിൽ (!constp || !widthOk(constp) || !useOk(eqp, അസത്യം)) തുടരുക;
             srcp = eqp->rhsp();
             val = constp->toU32();
-            inv = false;
-        } else if (DfgNeq* const neqp = vtx.cast<DfgNeq>()) {
-            DfgConst* const constp = neqp->lhsp()->cast<DfgConst>();
-            if (!constp || !widthOk(constp) || !useOk(neqp, true)) continue;
+            inv = അസത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (DfgNeq* സ്ഥിരം neqp = vtx.cast<DfgNeq>()) {
+            DfgConst* സ്ഥിരം constp = neqp->lhsp()->cast<DfgConst>();
+            എങ്കിൽ (!constp || !widthOk(constp) || !useOk(neqp, സത്യം)) തുടരുക;
             srcp = neqp->rhsp();
             val = constp->toU32();
-            inv = true;
-        } else if (DfgRedAnd* const redAndp = vtx.cast<DfgRedAnd>()) {
+            inv = സത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (DfgRedAnd* സ്ഥിരം redAndp = vtx.cast<DfgRedAnd>()) {
             srcp = redAndp->srcp();
-            if (!widthOk(srcp) || !useOk(redAndp, false)) continue;
+            എങ്കിൽ (!widthOk(srcp) || !useOk(redAndp, അസത്യം)) തുടരുക;
             val = (1U << srcp->width()) - 1;
-            inv = false;
-        } else if (DfgRedOr* const redOrp = vtx.cast<DfgRedOr>()) {
+            inv = അസത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (DfgRedOr* സ്ഥിരം redOrp = vtx.cast<DfgRedOr>()) {
             srcp = redOrp->srcp();
-            if (!widthOk(srcp) || !useOk(redOrp, true)) continue;
+            എങ്കിൽ (!widthOk(srcp) || !useOk(redOrp, സത്യം)) തുടരുക;
             val = 0;
-            inv = true;
-        } else if (DfgSel* const selp = vtx.cast<DfgSel>()) {
+            inv = സത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (DfgSel* സ്ഥിരം selp = vtx.cast<DfgSel>()) {
             // Special case: Sel(ShiftL(1, src),lsb,width=1)
-            if (selp->width() != 1) continue;
-            DfgShiftL* const shiftLp = selp->fromp()->cast<DfgShiftL>();
-            if (!shiftLp) continue;
-            const DfgConst* const constp = shiftLp->lhsp()->cast<DfgConst>();
-            if (!constp || !useOk(selp, false)) continue;
-            if (!constp->hasValue(1)) continue;
+            എങ്കിൽ (selp->width() != 1) തുടരുക;
+            DfgShiftL* സ്ഥിരം shiftLp = selp->fromp()->cast<DfgShiftL>();
+            എങ്കിൽ (!shiftLp) തുടരുക;
+            സ്ഥിരം DfgConst* സ്ഥിരം constp = shiftLp->lhsp()->cast<DfgConst>();
+            എങ്കിൽ (!constp || !useOk(selp, അസത്യം)) തുടരുക;
+            എങ്കിൽ (!constp->has_മൂല്യം(1)) തുടരുക;
             srcp = shiftLp->rhsp();
-            if (!widthOk(srcp)) continue;
+            എങ്കിൽ (!widthOk(srcp)) തുടരുക;
             val = selp->lsb();
-            inv = false;
-        } else {
+            inv = അസത്യം;
+        } അല്ലെങ്കിൽ {
             // Not a comparison-like vertex
-            continue;
+            തുടരുക;
         }
         // Grab Val2Terms for this vertex
         Val2Terms& val2Terms = vtx2Val2Terms[srcp];
         // Remeber and on first encounter
-        if (val2Terms.empty()) srcps.emplace_back(srcp);
+        എങ്കിൽ (val2Terms.empty()) srcps.emplace_back(srcp);
         // Record term
         val2Terms[val].emplace_back(&vtx, inv);
         ++nTerms;
@@ -342,21 +342,21 @@ void V3DfgPasses::binToOneHot(DfgGraph& dfg, V3DfgBinToOneHotContext& ctx) {
     static_assert((1U << WIDTH_MIN) >= TERM_LIMIT, "TERM_LIMIT too big relative to 2**WIDTH_MIN");
 
     // Fast path exit if we surely don't need to convet anything
-    if (nTerms < TERM_LIMIT) return;
+    എങ്കിൽ (nTerms < TERM_LIMIT) തിരികെ;
 
     DfgVertex::ScopeCache scopeCache;
 
     // Create decoders for each srcp
-    for (DfgVertex* const srcp : srcps) {
-        const Val2Terms& val2Terms = vtx2Val2Terms[srcp];
+    വേണ്ടി (DfgVertex* സ്ഥിരം srcp : srcps) {
+        സ്ഥിരം Val2Terms& val2Terms = vtx2Val2Terms[srcp];
 
         // If not enough terms in this vertex, ignore
-        if (val2Terms.size() < TERM_LIMIT) continue;
+        എങ്കിൽ (val2Terms.size() < TERM_LIMIT) തുടരുക;
 
         // Width of the decoded binary value
-        const uint32_t width = srcp->width();
+        സ്ഥിരം uint32_t width = srcp->width();
         // Number of bits in the input operand
-        const uint32_t nBits = 1U << width;
+        സ്ഥിരം uint32_t nBits = 1U << width;
 
         // Construct the decoder by converting many "const == vtx" by:
         // - Adding a single decoder block, where 'tab' is zero initialized:
@@ -372,143 +372,143 @@ void V3DfgPasses::binToOneHot(DfgGraph& dfg, V3DfgBinToOneHotContext& ctx) {
         //   all the others are always zero.
         // - and replace the comparisons with 'tab[const]'
 
-        FileLine* const flp = srcp->fileline();
-        AstScope* const scopep = srcp->scopep(scopeCache, true);
+        File_വരി* സ്ഥിരം flp = srcp->fileline();
+        AstScope* സ്ഥിരം scopep = srcp->scopep(scopeCache, സത്യം);
 
-        AstActive* const staticActivep = [scopep]() {
+        AstActive* സ്ഥിരം staticActivep = [scopep]() {
             // Try to find the existing static AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->sentreep()->hasStatic()) return activep;
+            വേണ്ടി (Ast_കണ്ണി* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                AstActive* സ്ഥിരം activep = VN_CAST(nodep, Active);
+                എങ്കിൽ (!activep) തുടരുക;
+                എങ്കിൽ (activep->sentreep()->hasStatic()) തിരികെ activep;
             }
             // If there isn't one, create a new one
-            FileLine* const flp = scopep->fileline();
-            AstSenTree* const stp = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Static{}}};
-            AstActive* const activep = new AstActive{flp, "", stp};
-            activep->senTreeStorep(stp);
+            File_വരി* സ്ഥിരം flp = scopep->fileline();
+            Ast_Sen_വൃക്ഷം* സ്ഥിരം stp = പുതിയ Ast_Sen_വൃക്ഷം{flp, പുതിയ AstSenItem{flp, AstSenItem::Static{}}};
+            AstActive* സ്ഥിരം activep = പുതിയ AstActive{flp, "", stp};
+            activep->sen_വൃക്ഷം_Storep(stp);
             scopep->addBlocksp(activep);
-            return activep;
+            തിരികെ activep;
         }();
-        AstActive* const combActivep = [scopep]() {
+        AstActive* സ്ഥിരം combActivep = [scopep]() {
             // Try to find the existing combinational AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->sentreep()->hasCombo()) return activep;
+            വേണ്ടി (Ast_കണ്ണി* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                AstActive* സ്ഥിരം activep = VN_CAST(nodep, Active);
+                എങ്കിൽ (!activep) തുടരുക;
+                എങ്കിൽ (activep->sentreep()->hasCombo()) തിരികെ activep;
             }
             // If there isn't one, create a new one
-            FileLine* const flp = scopep->fileline();
-            AstSenTree* const stp = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Combo{}}};
-            AstActive* const activep = new AstActive{flp, "", stp};
-            activep->senTreeStorep(stp);
+            File_വരി* സ്ഥിരം flp = scopep->fileline();
+            Ast_Sen_വൃക്ഷം* സ്ഥിരം stp = പുതിയ Ast_Sen_വൃക്ഷം{flp, പുതിയ AstSenItem{flp, AstSenItem::Combo{}}};
+            AstActive* സ്ഥിരം activep = പുതിയ AstActive{flp, "", stp};
+            activep->sen_വൃക്ഷം_Storep(stp);
             scopep->addBlocksp(activep);
-            return activep;
+            തിരികെ activep;
         }();
 
         // Required data types
-        const DfgDataType& idxDType = srcp->dtype();
-        const DfgDataType& bitDType = DfgDataType::packed(1);
-        const DfgDataType& tabDType = DfgDataType::array(bitDType, nBits);
+        സ്ഥിരം DfgDataType& idxDType = srcp->dtype();
+        സ്ഥിരം DfgDataType& bitDType = DfgDataType::packed(1);
+        സ്ഥിരം DfgDataType& tabDType = DfgDataType::array(bitDType, nBits);
 
         // The index variable
         DfgVarPacked* idxVtxp = [&]() {
             // If there is an existing result variable, use that
-            if (DfgVertexVar* const vp = srcp->getResultVar()) return vp->as<DfgVarPacked>();
+            എങ്കിൽ (DfgVertexVar* സ്ഥിരം vp = srcp->getResultVar()) തിരികെ vp->as<DfgVarPacked>();
             // Otherwise create a new variable
-            DfgVertexVar* const vtxp = dfg.makeNewVar(flp, "BinToOneHot_Idx", idxDType, scopep);
-            vtxp->vscp()->varp()->isInternal(true);
+            DfgVertexVar* സ്ഥിരം vtxp = dfg.makeNewVar(flp, "BinToOneHot_Idx", idxDType, scopep);
+            vtxp->vscp()->varp()->isInternal(സത്യം);
             vtxp->srcp(srcp);
-            return vtxp->as<DfgVarPacked>();
+            തിരികെ vtxp->as<DfgVarPacked>();
         }();
-        AstVarScope* const idxVscp = idxVtxp->vscp();
+        AstVarScope* സ്ഥിരം idxVscp = idxVtxp->vscp();
         // The previous index variable - we don't need a vertex for this
-        AstVarScope* const preVscp = [&]() {
-            DfgVertexVar* const vtxp = dfg.makeNewVar(flp, "BinToOneHot_Pre", idxDType, scopep);
-            AstVarScope* const vscp = vtxp->vscp();
+        AstVarScope* സ്ഥിരം preVscp = [&]() {
+            DfgVertexVar* സ്ഥിരം vtxp = dfg.makeNewVar(flp, "BinToOneHot_Pre", idxDType, scopep);
+            AstVarScope* സ്ഥിരം vscp = vtxp->vscp();
             VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
-            vscp->varp()->isInternal(true);
-            vscp->varp()->noReset(true);
+            vscp->varp()->isInternal(സത്യം);
+            vscp->varp()->noReset(സത്യം);
             vscp->varp()->setIgnoreSchedWrite();
-            return vscp;
+            തിരികെ vscp;
         }();
         // The table variable
-        DfgVarArray* const tabVtxp = [&]() {
-            DfgVertexVar* const varp = dfg.makeNewVar(flp, "BinToOneHot_Tab", tabDType, scopep);
-            varp->vscp()->varp()->isInternal(true);
-            varp->vscp()->varp()->noReset(true);
+        DfgVarArray* സ്ഥിരം tabVtxp = [&]() {
+            DfgVertexVar* സ്ഥിരം varp = dfg.makeNewVar(flp, "BinToOneHot_Tab", tabDType, scopep);
+            varp->vscp()->varp()->isInternal(സത്യം);
+            varp->vscp()->varp()->noReset(സത്യം);
             varp->setHasModWrRefs();
-            return varp->as<DfgVarArray>();
+            തിരികെ varp->as<DfgVarArray>();
         }();
 
         ++ctx.m_decodersCreated;
 
         // Initialize 'tab' and 'pre' variables statically
-        AstInitialStatic* const initp = new AstInitialStatic{flp, nullptr};
+        AstInitialStatic* സ്ഥിരം initp = പുതിയ AstInitialStatic{flp, nullptr};
         staticActivep->addStmtsp(initp);
         {  // pre = 0
-            initp->addStmtsp(new AstAssign{
+            initp->addStmtsp(പുതിയ AstAssign{
                 flp,  //
-                new AstVarRef{flp, preVscp, VAccess::WRITE},  //
-                new AstConst{flp, AstConst::WidthedValue{}, static_cast<int>(width), 0}});
+                പുതിയ AstVarRef{flp, preVscp, VAccess::WRITE},  //
+                പുതിയ AstConst{flp, AstConst::Widthed_മൂല്യം{}, static_cast<പൂർണ്ണസംഖ്യ>(width), 0}});
         }
         {  // tab.fill(0)
-            AstCMethodHard* const callp = new AstCMethodHard{
-                flp, new AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE}, VCMethod::UNPACKED_FILL};
-            callp->addPinsp(new AstConst{flp, AstConst::BitFalse{}});
+            AstCMethodHard* സ്ഥിരം callp = പുതിയ AstCMethodHard{
+                flp, പുതിയ AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE}, VCMethod::UNPACKED_FILL};
+            callp->addPinsp(പുതിയ AstConst{flp, AstConst::BitFalse{}});
             callp->dtypeSetVoid();
             initp->addStmtsp(callp->makeStmt());
         }
 
         // Build the decoder logic
-        AstAlways* const logicp = new AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, nullptr};
+        AstAlways* സ്ഥിരം logicp = പുതിയ AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, nullptr};
         combActivep->addStmtsp(logicp);
         {  // tab[pre] = 0;
-            logicp->addStmtsp(new AstAssign{
+            logicp->addStmtsp(പുതിയ AstAssign{
                 flp,  //
-                new AstArraySel{flp, new AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
-                                new AstVarRef{flp, preVscp, VAccess::READ}},  //
-                new AstConst{flp, AstConst::BitFalse{}}});
+                പുതിയ AstArraySel{flp, പുതിയ AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
+                                പുതിയ AstVarRef{flp, preVscp, VAccess::READ}},  //
+                പുതിയ AstConst{flp, AstConst::BitFalse{}}});
         }
         {  // tab[idx] = 1
-            AstVarRef* const idxRefp = new AstVarRef{flp, idxVscp, VAccess::READ};
-            logicp->addStmtsp(new AstAssign{
+            AstVarRef* സ്ഥിരം idxRefp = പുതിയ AstVarRef{flp, idxVscp, VAccess::READ};
+            logicp->addStmtsp(പുതിയ AstAssign{
                 flp,  //
-                new AstArraySel{flp, new AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
+                പുതിയ AstArraySel{flp, പുതിയ AstVarRef{flp, tabVtxp->vscp(), VAccess::WRITE},
                                 idxRefp},  //
-                new AstConst{flp, AstConst::BitTrue{}}});
-            DfgAstRd* const astRdp = new DfgAstRd{dfg, idxRefp, false, false};
+                പുതിയ AstConst{flp, AstConst::BitTrue{}}});
+            DfgAstRd* സ്ഥിരം astRdp = പുതിയ DfgAstRd{dfg, idxRefp, അസത്യം, അസത്യം};
             astRdp->srcp(idxVtxp);
         }
         {  // pre = idx
-            AstVarRef* const idxRefp = new AstVarRef{flp, idxVscp, VAccess::READ};
-            logicp->addStmtsp(new AstAssign{flp,  //
-                                            new AstVarRef{flp, preVscp, VAccess::WRITE},  //
+            AstVarRef* സ്ഥിരം idxRefp = പുതിയ AstVarRef{flp, idxVscp, VAccess::READ};
+            logicp->addStmtsp(പുതിയ AstAssign{flp,  //
+                                            പുതിയ AstVarRef{flp, preVscp, VAccess::WRITE},  //
                                             idxRefp});
-            DfgAstRd* const astRdp = new DfgAstRd{dfg, idxRefp, false, false};
+            DfgAstRd* സ്ഥിരം astRdp = പുതിയ DfgAstRd{dfg, idxRefp, അസത്യം, അസത്യം};
             astRdp->srcp(idxVtxp);
         }
 
         // Replace terms with ArraySels
-        for (const auto& pair : val2Terms) {
-            const uint32_t val = pair.first;
-            const std::vector<Term>& terms = pair.second;
+        വേണ്ടി (സ്ഥിരം auto& pair : val2Terms) {
+            സ്ഥിരം uint32_t val = pair.first;
+            സ്ഥിരം std::vector<Term>& terms = pair.second;
             // Create the ArraySel
-            FileLine* const aflp = terms.front().m_vtxp->fileline();
-            DfgArraySel* const aselp = new DfgArraySel{dfg, aflp, bitDType};
+            File_വരി* സ്ഥിരം aflp = terms.front().m_vtxp->fileline();
+            DfgArraySel* സ്ഥിരം aselp = പുതിയ DfgArraySel{dfg, aflp, bitDType};
             aselp->fromp(tabVtxp);
-            aselp->bitp(new DfgConst{dfg, aflp, width, val});
+            aselp->bitp(പുതിയ DfgConst{dfg, aflp, width, val});
             // The inverted value, if needed
             DfgNot* notp = nullptr;
             // Repalce the terms
-            for (const Term& term : terms) {
-                if (term.m_inv) {
-                    if (!notp) {
-                        notp = new DfgNot{dfg, aflp, bitDType};
+            വേണ്ടി (സ്ഥിരം Term& term : terms) {
+                എങ്കിൽ (term.m_inv) {
+                    എങ്കിൽ (!notp) {
+                        notp = പുതിയ DfgNot{dfg, aflp, bitDType};
                         notp->srcp(aselp);
                     }
                     term.m_vtxp->replaceWith(notp);
-                } else {
+                } അല്ലെങ്കിൽ {
                     term.m_vtxp->replaceWith(aselp);
                 }
                 VL_DO_DANGLING(term.m_vtxp->unlinkDelete(dfg), term.m_vtxp);

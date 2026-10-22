@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#include "V3Ast.h"
-#include "V3Const.h"
-#include "V3Control.h"
-#include "V3Global.h"
-#include "V3ParseImp.h"  // Defines YYTYPE; before including bison header
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Const.h"
+#അന്തര്ഭാവ "V3Control.h"
+#അന്തര്ഭാവ "V3Global.h"
+#അന്തര്ഭാവ "V3ParseImp.h"  // Defines YYTYPE; before including bison header
 
-#include <stack>
-#include <vector>
+#അന്തര്ഭാവ <stack>
+#അന്തര്ഭാവ <vector>
 
 class V3ParseGrammar final {
-public:
+പൊതു:
     AstVar* m_varAttrp = nullptr;  // Current variable for attribute adding
     AstRange* m_gateRangep = nullptr;  // Current range for gate declarations
-    AstNode* m_scopedSigAttr = nullptr;  // Pointer to default signal attribute
+    Ast_കണ്ണി* m_scopedSigAttr = nullptr;  // Pointer to default signal attribute
     AstCase* m_caseAttrp = nullptr;  // Current case statement for attribute adding
-    AstNodeDType* m_varDTypep = nullptr;  // Pointer to data type for next signal declaration
-    AstNodeDType* m_memDTypep = nullptr;  // Pointer to data type for next member declaration
+    Ast_കണ്ണി_DType* m_varDTypep = nullptr;  // Pointer to data type for next signal declaration
+    Ast_കണ്ണി_DType* m_memDTypep = nullptr;  // Pointer to data type for next member declaration
     VRandAttr m_memRand;  // 'rand'/'randc' qualifier for next member declaration
     AstDelay* m_netDelayp = nullptr;  // Pointer to delay for next signal declaration
     AstStrengthSpec* m_netStrengthp = nullptr;  // Pointer to strength for next net declaration
-    FileLine* m_instModuleFl = nullptr;  // Fileline of module referenced for instantiations
+    File_വരി* m_instModuleFl = nullptr;  // Fileline of module referenced for instantiations
     AstPin* m_instParamp = nullptr;  // Parameters for instantiations
     string m_instModule;  // Name of module referenced for instantiations
     VVarType m_varDecl = VVarType::UNKNOWN;  // Type for next signal declaration (reg/wire/etc)
@@ -53,260 +53,260 @@ public:
         = false;  // Standalone ID is a tf_identifier instead of port_identifier
     bool m_modportImpExpLastIsExport
         = false;  // Last import_export statement in modportPortsDecl is an export
-    AstNode* m_modportProtoTasksp
+    Ast_കണ്ണി* m_modportProtoTasksp
         = nullptr;  // Prototype tasks from modport import/export with prototype
 
-    int m_pinNum = -1;  // Pin number currently parsing
-    std::stack<int> m_pinStack;  // Queue of pin numbers being parsed
+    പൂർണ്ണസംഖ്യ m_pin_അക്കം = -1;  // Pin number currently parsing
+    std::അട്ടി<പൂർണ്ണസംഖ്യ> m_pin_അട്ടി;  // Queue of pin numbers being parsed
 
-    static int s_typeImpNum;  // Implicit type number, incremented each module
+    സ്ഥിതം പൂർണ്ണസംഖ്യ s_type_Imp_അക്കം;  // Implicit type number, incremented each module
 
     // CONSTRUCTORS
-    V3ParseGrammar() = default;
-    static V3ParseGrammar* singletonp() {
-        static V3ParseGrammar singleton;
-        return &singleton;
+    V3ParseGrammar() = സ്ഥിരസ്ഥിതി;
+    സ്ഥിതം V3ParseGrammar* singletonp() {
+        സ്ഥിതം V3ParseGrammar singleton;
+        തിരികെ &singleton;
     }
 
     // METHODS
-    AstArg* argWrapList(AstNodeExpr* nodep) VL_MT_DISABLED;
-    bool allTracingOn(const FileLine* fl) const {
-        return v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
+    AstArg* argWrapList(Ast_കണ്ണി_വ്യഞ്ജകം* nodep) VL_MT_DISABLED;
+    bool allTracingOn(സ്ഥിരം File_വരി* fl) സ്ഥിരം {
+        തിരികെ v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
     }
-    AstRange* scrubRange(AstNodeRange* rangep) VL_MT_DISABLED;
-    AstRange* scrubRangeMulti(AstNodeRange* rangep) VL_MT_DISABLED;
-    AstNodePreSel* scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED;
-    AstNodeDType* createArray(AstNodeDType* basep, AstNodeRange* rangep,
+    AstRange* scrubRange(Ast_കണ്ണി_Range* rangep) VL_MT_DISABLED;
+    AstRange* scrubRangeMulti(Ast_കണ്ണി_Range* rangep) VL_MT_DISABLED;
+    Ast_കണ്ണി_Pre_Sel* scrubSel(Ast_കണ്ണി_വ്യഞ്ജകം* fromp, Ast_കണ്ണി_Pre_Sel* selp) VL_MT_DISABLED;
+    Ast_കണ്ണി_DType* createArray(Ast_കണ്ണി_DType* basep, Ast_കണ്ണി_Range* rangep,
                               bool isPacked) VL_MT_DISABLED;
-    AstVar* createVariable(FileLine* fileline, const string& name, AstNodeRange* arrayp,
-                           AstNode* attrsp) VL_MT_DISABLED;
-    AstAssignW* createSupplyExpr(FileLine* fileline, const string& name, int value) VL_MT_DISABLED;
-    std::string textQuoted(FileLine* fileline, const std::string& text) {
-        return singletonp()->unquoteString(fileline, text);
+    AstVar* createVariable(File_വരി* fileline, സ്ഥിരം string& name, Ast_കണ്ണി_Range* arrayp,
+                           Ast_കണ്ണി* attrsp) VL_MT_DISABLED;
+    AstAssignW* create_Supply_വ്യഞ്ജകം(File_വരി* fileline, സ്ഥിരം string& name, പൂർണ്ണസംഖ്യ മൂല്യം) VL_MT_DISABLED;
+    std::string textQuoted(File_വരി* fileline, സ്ഥിരം std::string& text) {
+        തിരികെ singletonp()->unquoteString(fileline, text);
     }
-    AstNode* createCell(FileLine* fileline, const string& name, AstPin* pinlistp,
-                        AstNodeRange* rangelistp) {
+    Ast_കണ്ണി* createCell(File_വരി* fileline, സ്ഥിരം string& name, AstPin* pinlistp,
+                        Ast_കണ്ണി_Range* rangelistp) {
         // Must clone m_instParamp as may be comma'ed list of instances
-        AstCell* const nodep = new AstCell{
+        AstCell* സ്ഥിരം nodep = new AstCell{
             fileline,
             singletonp()->m_instModuleFl,
             name,
             singletonp()->m_instModule,
             pinlistp,
-            (singletonp()->m_instParamp ? singletonp()->m_instParamp->cloneTree(true) : nullptr),
+            (singletonp()->m_instParamp ? singletonp()->m_instParamp->clone_വൃക്ഷം(true) : nullptr),
             singletonp()->scrubRangeMulti(rangelistp)};
         nodep->trace(singletonp()->allTracingOn(fileline));
-        return nodep;
+        തിരികെ nodep;
     }
-    static AstNode* createPatternKey(AstNodeExpr* exprp) {
+    സ്ഥിതം Ast_കണ്ണി* create_Pattern_താക്കോൽ(Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
         // Assignment pattern key.  A bare identifier may name a structure
         // member rather than a constant, so pass it on as a Text node for
         // V3LinkDot to resolve; anything else is a constant expression.
-        if (const AstParseRef* const refp = VN_CAST(exprp, ParseRef)) {
-            if (!refp->lhsp() && !refp->ftaskrefp()) {
-                AstNode* const textp = new AstText{refp->fileline(), refp->name()};
-                VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                return textp;
+        എങ്കിൽ (സ്ഥിരം AstParseRef* സ്ഥിരം refp = VN_CAST(exprp, ParseRef)) {
+            എങ്കിൽ (!refp->lhsp() && !refp->ftaskrefp()) {
+                Ast_കണ്ണി* സ്ഥിരം textp = new AstText{refp->fileline(), refp->name()};
+                VL_DO_DANGLING(exprp->delete_വൃക്ഷം(), exprp);
+                തിരികെ textp;
             }
         }
-        return exprp;
+        തിരികെ exprp;
     }
-    AstDisplay* createDisplayError(FileLine* fileline) {
+    AstDisplay* createDisplayError(File_വരി* fileline) {
         AstDisplay* nodep = new AstDisplay{fileline, VDisplayType::DT_ERROR, "", nullptr, nullptr};
-        AstNode::addNext<AstNode, AstNode>(nodep, new AstStop{fileline, false});
-        return nodep;
+        Ast_കണ്ണി::addNext<Ast_കണ്ണി, Ast_കണ്ണി>(nodep, new AstStop{fileline, false});
+        തിരികെ nodep;
     }
     // Apply the array marker of a bins declaration of values: '[]' creates a bin per value, and
     // '[N]' N bins holding the values (IEEE 1800-2023 19.5.1)
-    static AstCoverBin* coverBinArray(AstCoverBin* binp, AstNodeExpr* sizep) {
-        if (!sizep) return binp;
+    സ്ഥിതം AstCoverBin* coverBinArray(AstCoverBin* binp, Ast_കണ്ണി_വ്യഞ്ജകം* sizep) {
+        എങ്കിൽ (!sizep) തിരികെ binp;
         binp->isArray(true);
-        if (VN_IS(sizep, Unbounded)) {
-            VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        } else {
+        എങ്കിൽ (VN_IS(sizep, Unbounded)) {
+            VL_DO_DANGLING(sizep->delete_വൃക്ഷം(), sizep);
+        } അല്ലെങ്കിൽ {
             binp->arraySizep(sizep);
         }
-        return binp;
+        തിരികെ binp;
     }
     // The array marker of another bins declaration, which supports only '[]'; true if present
-    static bool coverBinArrayUnsized(AstNodeExpr* sizep) {
-        if (!sizep) return false;
-        if (!VN_IS(sizep, Unbounded)) {
+    സ്ഥിതം bool coverBinArrayUnsized(Ast_കണ്ണി_വ്യഞ്ജകം* sizep) {
+        എങ്കിൽ (!sizep) തിരികെ false;
+        എങ്കിൽ (!VN_IS(sizep, Unbounded)) {
             sizep->v3warn(COVERIGN, "Unsupported: 'bins' explicit array size (treated as '[]')");
         }
-        VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        return true;
+        VL_DO_DANGLING(sizep->delete_വൃക്ഷം(), sizep);
+        തിരികെ true;
     }
-    AstNodeExpr* createGatePin(AstNodeExpr* exprp) {
-        AstRange* const rangep = m_gateRangep;
-        if (!rangep) return exprp;
-        return new AstGatePin{rangep->fileline(), exprp, rangep->cloneTree(true)};
+    Ast_കണ്ണി_വ്യഞ്ജകം* createGatePin(Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
+        AstRange* സ്ഥിരം rangep = m_gateRangep;
+        എങ്കിൽ (!rangep) തിരികെ exprp;
+        തിരികെ new AstGatePin{rangep->fileline(), exprp, rangep->clone_വൃക്ഷം(true)};
     }
-    AstSenTree* createSenTreeChanged(FileLine* fl, AstNodeExpr* exprp) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_CHANGED, exprp}};
+    Ast_Sen_വൃക്ഷം* create_Sen_വൃക്ഷം_Changed(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
+        തിരികെ new Ast_Sen_വൃക്ഷം{fl, new AstSenItem{fl, VEdgeType::ET_CHANGED, exprp}};
     }
-    AstSenTree* createSenTreeDotStar(FileLine* fl) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_COMBO_STAR, nullptr}};
+    Ast_Sen_വൃക്ഷം* create_Sen_വൃക്ഷം_Dot_Star(File_വരി* fl) {
+        തിരികെ new Ast_Sen_വൃക്ഷം{fl, new AstSenItem{fl, VEdgeType::ET_COMBO_STAR, nullptr}};
     }
-    AstNodeExpr* createGlobalClockParseRef(FileLine* fl) {
-        return new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
+    Ast_കണ്ണി_വ്യഞ്ജകം* createGlobalClockParseRef(File_വരി* fl) {
+        തിരികെ new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
     }
-    AstSenTree* createGlobalClockSenTree(FileLine* fl) {
-        return createSenTreeChanged(fl, createGlobalClockParseRef(fl));
+    Ast_Sen_വൃക്ഷം* create_Global_Clock_Sen_വൃക്ഷം(File_വരി* fl) {
+        തിരികെ create_Sen_വൃക്ഷം_Changed(fl, createGlobalClockParseRef(fl));
     }
-    AstNode* createNettype(FileLine* fl, const string& name) {
+    Ast_കണ്ണി* createNettype(File_വരി* fl, സ്ഥിരം string& name) {
         // As nettypes are unsupported, we just alias to logic
-        AstTypedef* const nodep = new AstTypedef{fl, name, nullptr, VFlagChildDType{},
+        AstTypedef* സ്ഥിരം nodep = new AstTypedef{fl, name, nullptr, VFlagChildDType{},
                                                  new AstBasicDType{fl, VFlagLogicPacked{}, 1}};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        തിരികെ nodep;
     }
-    AstNode* createTypedef(FileLine* fl, const string& name, AstNode* attrsp, AstNodeDType* basep,
-                           AstNodeRange* rangep) {
-        AstTypedef* const nodep = new AstTypedef{fl, name, attrsp, VFlagChildDType{},
+    Ast_കണ്ണി* createTypedef(File_വരി* fl, സ്ഥിരം string& name, Ast_കണ്ണി* attrsp, Ast_കണ്ണി_DType* basep,
+                           Ast_കണ്ണി_Range* rangep) {
+        AstTypedef* സ്ഥിരം nodep = new AstTypedef{fl, name, attrsp, VFlagChildDType{},
                                                  singletonp()->createArray(basep, rangep, false)};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        തിരികെ nodep;
     }
-    AstNode* createTypedefFwd(FileLine* fl, const string& name, const VFwdType& fwdType) {
-        AstTypedefFwd* const nodep = new AstTypedefFwd{fl, name, fwdType};
+    Ast_കണ്ണി* createTypedefFwd(File_വരി* fl, സ്ഥിരം string& name, സ്ഥിരം VFwdType& fwdType) {
+        AstTypedefFwd* സ്ഥിരം nodep = new AstTypedefFwd{fl, name, fwdType};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        തിരികെ nodep;
     }
-    static void endLabel(FileLine* fl, const AstNode* nodep, const string* endnamep) {
+    സ്ഥിതം ശൂന്യം endLabel(File_വരി* fl, സ്ഥിരം Ast_കണ്ണി* nodep, സ്ഥിരം string* endnamep) {
         endLabel(fl, nodep->prettyName(), endnamep);
     }
-    static void endLabel(FileLine* fl, const string& name, const string* endnamep) {
-        if (fl && endnamep && *endnamep != "" && name != *endnamep
-            && name != AstNode::prettyName(*endnamep)) {
+    സ്ഥിതം ശൂന്യം endLabel(File_വരി* fl, സ്ഥിരം string& name, സ്ഥിരം string* endnamep) {
+        എങ്കിൽ (fl && endnamep && *endnamep != "" && name != *endnamep
+            && name != Ast_കണ്ണി::prettyName(*endnamep)) {
             fl->v3warn(ENDLABEL, "End label '" << *endnamep << "' does not match begin label '"
                                                << name << "'");
         }
     }
-    void setDType(AstNodeDType* dtypep) {
-        if (m_varDTypep) {
+    ശൂന്യം setDType(Ast_കണ്ണി_DType* dtypep) {
+        എങ്കിൽ (m_varDTypep) {
             UASSERT_OBJ(!m_varDTypep->backp(), m_varDTypep, "Should not link directly");
-            VL_DO_CLEAR(m_varDTypep->deleteTree(), m_varDTypep = nullptr);
+            VL_DO_CLEAR(m_varDTypep->delete_വൃക്ഷം(), m_varDTypep = nullptr);
         }
         m_varDTypep = dtypep;
     }
-    void setNetDelay(AstDelay* netDelayp) {
-        if (m_netDelayp) {
+    ശൂന്യം setNetDelay(AstDelay* netDelayp) {
+        എങ്കിൽ (m_netDelayp) {
             UASSERT_OBJ(!m_netDelayp->backp(), m_netDelayp, "Should not link directly");
-            VL_DO_CLEAR(m_netDelayp->deleteTree(), m_netDelayp = nullptr);
+            VL_DO_CLEAR(m_netDelayp->delete_വൃക്ഷം(), m_netDelayp = nullptr);
         }
         m_netDelayp = netDelayp;
     }
-    void setNetStrength(AstStrengthSpec* netStrengthp) { m_netStrengthp = netStrengthp; }
-    void pinPush() {
-        m_pinStack.push(m_pinNum);
-        m_pinNum = 1;
+    ശൂന്യം setNetStrength(AstStrengthSpec* netStrengthp) { m_netStrengthp = netStrengthp; }
+    ശൂന്യം pin_തള്ളുക() {
+        m_pin_അട്ടി.തള്ളുക(m_pin_അക്കം);
+        m_pin_അക്കം = 1;
     }
-    void pinPop(FileLine* fl) {
-        if (VL_UNCOVERABLE(m_pinStack.empty())) fl->v3fatalSrc("Underflow of pin stack");
-        m_pinNum = m_pinStack.top();
-        m_pinStack.pop();
+    ശൂന്യം pin_എടുക്കുക(File_വരി* fl) {
+        എങ്കിൽ (VL_UNCOVERABLE(m_pin_അട്ടി.empty())) fl->v3fatalSrc("Underflow of pin stack");
+        m_pin_അക്കം = m_pin_അട്ടി.മുകൾ();
+        m_pin_അട്ടി.എടുക്കുക();
     }
-    AstNodeDType* addRange(AstBasicDType* dtypep, AstNodeRange* rangesp, bool isPacked) {
+    Ast_കണ്ണി_DType* addRange(AstBasicDType* dtypep, Ast_കണ്ണി_Range* rangesp, bool isPacked) {
         // If dtypep isn't basic, don't use this, call createArray() instead
-        if (!rangesp) return dtypep;
+        എങ്കിൽ (!rangesp) തിരികെ dtypep;
 
         // If rangesp is "wire [3:3][2:2][1:1] foo [5:5][4:4]"
         // then [1:1] becomes the basicdtype range; everything else is arraying
         // the final [5:5][4:4] will be passed in another call to createArray
-        AstNodeRange* rangearraysp = nullptr;
-        if (dtypep->isRanged()) {
+        Ast_കണ്ണി_Range* rangearraysp = nullptr;
+        എങ്കിൽ (dtypep->isRanged()) {
             rangearraysp = rangesp;  // Already a range; everything is an array
-        } else {
-            AstNodeRange* finalp = rangesp;
-            while (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
-            if (finalp != rangesp) {
+        } അല്ലെങ്കിൽ {
+            Ast_കണ്ണി_Range* finalp = rangesp;
+            ആകുമ്പോൾ (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
+            എങ്കിൽ (finalp != rangesp) {
                 finalp->unlinkFrBack();
                 rangearraysp = rangesp;
             }
-            if (AstRange* const finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
-                if (dtypep->implicit()) {
+            എങ്കിൽ (AstRange* സ്ഥിരം finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
+                എങ്കിൽ (dtypep->implicit()) {
                     // It's no longer implicit but a wire logic type
-                    AstBasicDType* const newp = new AstBasicDType{
+                    AstBasicDType* സ്ഥിരം newp = new AstBasicDType{
                         dtypep->fileline(), VBasicDTypeKwd::LOGIC, dtypep->numeric(),
                         dtypep->width(), dtypep->widthMin()};
-                    VL_DO_DANGLING(dtypep->deleteTree(), dtypep);
+                    VL_DO_DANGLING(dtypep->delete_വൃക്ഷം(), dtypep);
                     dtypep = newp;
                 }
                 dtypep->rangep(finalRangep);
             }
         }
-        return createArray(dtypep, rangearraysp, isPacked);
+        തിരികെ createArray(dtypep, rangearraysp, isPacked);
     }
-    string unquoteString(FileLine* fileline, const std::string& text) VL_MT_DISABLED;
-    void checkDpiVer(FileLine* fileline, const string& str) {
-        if (str != "DPI-C" && !v3Global.opt.bboxSys())
+    string unquoteString(File_വരി* fileline, സ്ഥിരം std::string& text) VL_MT_DISABLED;
+    ശൂന്യം checkDpiVer(File_വരി* fileline, സ്ഥിരം string& str) {
+        എങ്കിൽ (str != "DPI-C" && !v3Global.opt.bboxSys())
             fileline->v3warn(E_UNSUPPORTED, "Unsupported DPI type '"
                                                 << str
                                                 << "': Use 'DPI-C' (IEEE 1800-2023 35.5.4)");
     }
     // Given a list of clocking declarations, put them in clocking items
-    AstClockingItem* makeClockingItemList(FileLine* flp, const VDirection direction,
-                                          AstNodeExpr* skewp, AstNode* const clockingDeclps) {
+    AstClockingItem* makeClockingItemList(File_വരി* flp, സ്ഥിരം VDirection direction,
+                                          Ast_കണ്ണി_വ്യഞ്ജകം* skewp, Ast_കണ്ണി* സ്ഥിരം clockingDeclps) {
         AstClockingItem* itemsp = nullptr;
-        for (AstNode *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
+        വേണ്ടി (Ast_കണ്ണി *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
             nextp = nodep->nextp();
-            if (nextp) nextp->unlinkFrBackWithNext();
-            if (itemsp && skewp) skewp = skewp->cloneTree(false);
+            എങ്കിൽ (nextp) nextp->unlinkFrBackWithNext();
+            എങ്കിൽ (itemsp && skewp) skewp = skewp->clone_വൃക്ഷം(false);
             AstClockingItem* itemp = new AstClockingItem{flp, direction, skewp, nodep};
-            itemsp = AstNode::addNextNull(itemsp, itemp);
+            itemsp = Ast_കണ്ണി::addNextNull(itemsp, itemp);
         }
-        return itemsp;
+        തിരികെ itemsp;
     }
 
-    void setScopedSigAttr(AstNode* attrsp) {
-        if (m_scopedSigAttr) {  // clearing set attribute
+    ശൂന്യം setScopedSigAttr(Ast_കണ്ണി* attrsp) {
+        എങ്കിൽ (m_scopedSigAttr) {  // clearing set attribute
             UASSERT_OBJ(!m_scopedSigAttr->backp(), m_scopedSigAttr, "Should not link directly");
-            VL_DO_DANGLING(m_scopedSigAttr->deleteTree(), m_scopedSigAttr);
+            VL_DO_DANGLING(m_scopedSigAttr->delete_വൃക്ഷം(), m_scopedSigAttr);
         }
         m_scopedSigAttr = attrsp;
     }
 
-    void createScopedSigAttr(VAttrType vattrT) {
+    ശൂന്യം createScopedSigAttr(VAttrType vattrT) {
         setScopedSigAttr(new AstAttrOf{V3ParseImp::parsep()->lexFileline(), vattrT});
     }
 
-    AstNode* cloneScopedSigAttr() const {
-        return m_scopedSigAttr ? m_scopedSigAttr->cloneTree(true) : nullptr;
+    Ast_കണ്ണി* cloneScopedSigAttr() സ്ഥിരം {
+        തിരികെ m_scopedSigAttr ? m_scopedSigAttr->clone_വൃക്ഷം(true) : nullptr;
     }
 
-    void createGenericIface(AstNode* const nodep, AstNodeRange* const rangep,
-                            AstNode* sigAttrListp, FileLine* const modportFileline = nullptr,
-                            const string& modportstrp = "") {
+    ശൂന്യം createGenericIface(Ast_കണ്ണി* സ്ഥിരം nodep, Ast_കണ്ണി_Range* സ്ഥിരം rangep,
+                            Ast_കണ്ണി* sigAttrListp, File_വരി* സ്ഥിരം modportFileline = nullptr,
+                            സ്ഥിരം string& modportstrp = "") {
         m_varDecl = VVarType::GPARAM;
         m_varIO = VDirection::NONE;
         setDType(new AstParseTypeDType{nodep->fileline(), VFwdType::GENERIC_INTERFACE});
         m_varDeclTyped = true;
-        const std::string uniqueName = "__VGIfaceParam" + nodep->name();
-        AstNode::addNext(nodep,
+        സ്ഥിരം std::string uniqueName = "__VGIfaceParam" + nodep->name();
+        Ast_കണ്ണി::addNext(nodep,
                          createVariable(nodep->fileline(), uniqueName, nullptr,
-                                        sigAttrListp ? sigAttrListp->cloneTree(true) : nullptr));
+                                        sigAttrListp ? sigAttrListp->clone_വൃക്ഷം(true) : nullptr));
         m_varDecl = VVarType::IFACEREF;
-        AstIfaceGenericDType* const refdtypep
+        AstIfaceGenericDType* സ്ഥിരം refdtypep
             = new AstIfaceGenericDType{nodep->fileline(), modportFileline, modportstrp};
         setDType(refdtypep);
         m_varDeclTyped = true;
-        m_varIO = VDirection::INPUT;
-        AstNode::addNext(nodep,
+        m_varIO = VDirection::നിവേശം;
+        Ast_കണ്ണി::addNext(nodep,
                          createVariable(nodep->fileline(), nodep->name(), rangep, sigAttrListp));
         m_varDecl = VVarType::VAR;
     }
 
     // Wrap all statements in the given list in an AstBegin (except those already an AstBegin)
-    static AstBegin* wrapInBegin(AstNodeStmt* stmtsp) {
+    സ്ഥിതം AstBegin* wrapInBegin(Ast_കണ്ണി_Stmt* stmtsp) {
         AstBegin* resp = nullptr;
-        for (AstNodeStmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
-            nextp = VN_AS(nodep->nextp(), NodeStmt);
-            if (nextp) nextp->unlinkFrBackWithNext();
+        വേണ്ടി (Ast_കണ്ണി_Stmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
+            nextp = VN_AS(nodep->nextp(), കണ്ണി_Stmt);
+            എങ്കിൽ (nextp) nextp->unlinkFrBackWithNext();
             AstBegin* beginp = VN_CAST(nodep, Begin);
-            if (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
-            resp = AstNode::addNext(resp, beginp);
+            എങ്കിൽ (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
+            resp = Ast_കണ്ണി::addNext(resp, beginp);
         }
-        return resp;
+        തിരികെ resp;
     }
 };

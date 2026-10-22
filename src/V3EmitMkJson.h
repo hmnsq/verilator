@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3EMITMKJSON_H_
 #define VERILATOR_V3EMITMKJSON_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 //============================================================================
 
 class V3EmitMkJson final {
-public:
-    static void emit() VL_MT_DISABLED;
+പൊതു:
+    സ്ഥിതം ശൂന്യം emit() VL_MT_DISABLED;
 };
 
 #endif  // Guard

@@ -23,74 +23,74 @@
 
 #ifndef VERILATOR_V3AST_H_
 #error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#അന്തര്ഭാവ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeStmt VL_NOT_FINAL : public AstNode {
+class Ast_കണ്ണി_Stmt VL_NOT_FINAL : പൊതു Ast_കണ്ണി {
     // Procedural statement
-protected:
-    AstNodeStmt(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+സംരക്ഷിത:
+    Ast_കണ്ണി_Stmt(VNType t, File_വരി* fl)
+        : Ast_കണ്ണി{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeStmt;
+പൊതു:
+    ASTGEN_MEMBERS_Ast_കണ്ണി_Stmt;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    ശൂന്യം dump(std::ostream& str = std::cout) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str = std::cout) സ്ഥിരം override;
 };
-class AstNodeAssign VL_NOT_FINAL : public AstNodeStmt {
+class Ast_കണ്ണി_Assign VL_NOT_FINAL : പൊതു Ast_കണ്ണി_Stmt {
     // Iteration is in order, and we want rhsp to be visited first (which is the execution order)
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := lhsp : AstNodeExpr
     // @astgen op3 := timingControlp : Optional[AstNode]
-protected:
-    AstNodeAssign(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
-        : AstNodeStmt{t, fl} {
+സംരക്ഷിത:
+    Ast_കണ്ണി_Assign(VNType t, File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp,
+                  Ast_കണ്ണി* timingControlp = nullptr)
+        : Ast_കണ്ണി_Stmt{t, fl} {
         this->rhsp(rhsp);
         this->lhsp(lhsp);
         this->timingControlp(timingControlp);
         dtypeFrom(lhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeAssign;
+പൊതു:
+    ASTGEN_MEMBERS_Ast_കണ്ണി_Assign;
     // Clone single node, just get same type back.
-    void dump(std::ostream& str) const override;
-    virtual AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) = 0;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    virtual bool cleanRhs() const { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    string verilogKwd() const override { return "="; }
-    bool isTimingControl() const override { return timingControlp(); }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    മായാ Ast_കണ്ണി_Assign* cloneType(Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) = 0;
+    bool hasDType() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
+    മായാ bool cleanRhs() സ്ഥിരം { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ widthInstrs(); }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി*) സ്ഥിരം override { തിരികെ true; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "="; }
+    bool isTimingControl() സ്ഥിരം override { തിരികെ timingControlp(); }
 };
-class AstNodeBlock VL_NOT_FINAL : public AstNodeStmt {
+class Ast_കണ്ണി_Block VL_NOT_FINAL : പൊതു Ast_കണ്ണി_Stmt {
     // A Begin/fork block
     // Parents: statement
     // @astgen op1 := declsp : List[AstNode] // Declarations inside block
     // @astgen op2 := stmtsp : List[AstNode] // Sequential statements inside block
     string m_name;  // Name of block
     bool m_unnamed;  // Originally unnamed (name change does not affect this)
-protected:
-    AstNodeBlock(VNType t, FileLine* fl, const string& name)
-        : AstNodeStmt{t, fl}
+സംരക്ഷിത:
+    Ast_കണ്ണി_Block(VNType t, File_വരി* fl, സ്ഥിരം string& name)
+        : Ast_കണ്ണി_Stmt{t, fl}
         , m_name{name}
         , m_unnamed{name == ""} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBlock;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Block name
-    void name(const string& name) override { m_name = name; }
-    bool unnamed() const { return m_unnamed; }
+പൊതു:
+    ASTGEN_MEMBERS_Ast_കണ്ണി_Block;
+    bool maybePointedTo() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }  // * = Block name
+    ശൂന്യം name(സ്ഥിരം string& name) override { m_name = name; }
+    bool unnamed() സ്ഥിരം { തിരികെ m_unnamed; }
 };
-class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
+class Ast_കണ്ണി_Cover_Or_Assert VL_NOT_FINAL : പൊതു Ast_കണ്ണി_Stmt {
     // Cover or Assert
     // Parents:  {statement list}
     // @astgen op1 := propp : AstNode
@@ -98,16 +98,16 @@ class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
     // op3 used by some sub-types only
     // @astgen op4 := passsp: List[AstNode] // Statements when propp is passing/truthly
     string m_name;  // Name to report
-    const VAssertType m_userType;  // Assertion/cover type for user enable/disable
-    const VAssertDirectiveType m_directive;  // Assertion directive type
+    സ്ഥിരം VAssertType m_userType;  // Assertion/cover type for user enable/disable
+    സ്ഥിരം VAssertDirectiveType m_directive;  // Assertion directive type
     bool m_senFromAlways = false;  // Sensitivity list copied from upper always
     bool m_immediate = false;  // Immediate assert (may differ from userType being immediate)
 
-public:
-    AstNodeCoverOrAssert(VNType t, FileLine* fl, AstNode* propp, AstNode* passsp,
+പൊതു:
+    Ast_കണ്ണി_Cover_Or_Assert(VNType t, File_വരി* fl, Ast_കണ്ണി* propp, Ast_കണ്ണി* passsp,
                          VAssertType userType, VAssertDirectiveType directive,
-                         const string& name = "")
-        : AstNodeStmt{t, fl}
+                         സ്ഥിരം string& name = "")
+        : Ast_കണ്ണി_Stmt{t, fl}
         , m_name{name}
         , m_userType{userType}
         , m_directive{directive} {
@@ -118,131 +118,131 @@ public:
                                              | VAssertType::FINAL_DEFERRED_IMMEDIATE)
                       || m_userType == VAssertType::INTERNAL;
     }
-    ASTGEN_MEMBERS_AstNodeCoverOrAssert;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool sameNode(const AstNode* samep) const override { return samep->name() == name(); }
-    void name(const string& name) override { m_name = name; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string type() { return ""; }
-    VAssertType userType() const VL_MT_SAFE { return m_userType; }
-    VAssertDirectiveType directive() const { return m_directive; }
-    bool immediate() const { return m_immediate; }
-    void immediate(bool flag) { m_immediate = flag; }
-    bool senFromAlways() const VL_MT_STABLE { return m_senFromAlways; }
-    void senFromAlways(bool flag) { m_senFromAlways = flag; }
+    ASTGEN_MEMBERS_Ast_കണ്ണി_Cover_Or_Assert;
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }  // * = Var name
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ samep->name() == name(); }
+    ശൂന്യം name(സ്ഥിരം string& name) override { m_name = name; }
+    ശൂന്യം dump(std::ostream& str = std::cout) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str = std::cout) സ്ഥിരം override;
+    string type() { തിരികെ ""; }
+    VAssertType userType() സ്ഥിരം VL_MT_SAFE { തിരികെ m_userType; }
+    VAssertDirectiveType directive() സ്ഥിരം { തിരികെ m_directive; }
+    bool immediate() സ്ഥിരം { തിരികെ m_immediate; }
+    ശൂന്യം immediate(bool flag) { m_immediate = flag; }
+    bool senFromAlways() സ്ഥിരം VL_MT_STABLE { തിരികെ m_senFromAlways; }
+    ശൂന്യം senFromAlways(bool flag) { m_senFromAlways = flag; }
 };
-class AstNodeForeach VL_NOT_FINAL : public AstNodeStmt {
+class Ast_കണ്ണി_Foreach VL_NOT_FINAL : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := headerp : AstForeachHeader
     // @astgen op2 := bodyp : List[AstNode]
-public:
-    AstNodeForeach(VNType t, FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp)
-        : AstNodeStmt(t, fl) {
+പൊതു:
+    Ast_കണ്ണി_Foreach(VNType t, File_വരി* fl, AstForeachHeader* headerp, Ast_കണ്ണി* bodyp)
+        : Ast_കണ്ണി_Stmt(t, fl) {
         this->headerp(headerp);
         addBodyp(bodyp);
     }
-    ASTGEN_MEMBERS_AstNodeForeach;
-    bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_കണ്ണി_Foreach;
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstNodeIf VL_NOT_FINAL : public AstNodeStmt {
+class Ast_കണ്ണി_If VL_NOT_FINAL : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := thensp : List[AstNode]
     // @astgen op3 := elsesp : List[AstNode]
     VBranchPred m_branchPred;  // Branch prediction as taken/untaken?
     bool m_isBoundsCheck;  // True if this if node is for assertion/bounds checking
-protected:
-    AstNodeIf(VNType t, FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
-        : AstNodeStmt{t, fl} {
+സംരക്ഷിത:
+    Ast_കണ്ണി_If(VNType t, File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* condp, Ast_കണ്ണി* thensp, Ast_കണ്ണി* elsesp)
+        : Ast_കണ്ണി_Stmt{t, fl} {
         this->condp(condp);
         addThensp(thensp);
         addElsesp(elsesp);
         isBoundsCheck(false);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeIf;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isGateDedupable() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void branchPred(VBranchPred flag) { m_branchPred = flag; }
-    VBranchPred branchPred() const { return m_branchPred; }
-    void isBoundsCheck(bool flag) { m_isBoundsCheck = flag; }
-    bool isBoundsCheck() const { return m_isBoundsCheck; }
+പൊതു:
+    ASTGEN_MEMBERS_Ast_കണ്ണി_If;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isGateDedupable() സ്ഥിരം override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
+    ശൂന്യം branchPred(VBranchPred flag) { m_branchPred = flag; }
+    VBranchPred branchPred() സ്ഥിരം { തിരികെ m_branchPred; }
+    ശൂന്യം isBoundsCheck(bool flag) { m_isBoundsCheck = flag; }
+    bool isBoundsCheck() സ്ഥിരം { തിരികെ m_isBoundsCheck; }
 };
-class AstNodeReadWriteMem VL_NOT_FINAL : public AstNodeStmt {
+class Ast_കണ്ണി_Read_Write_Mem VL_NOT_FINAL : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := filenamep : AstNodeExpr
     // @astgen op2 := memp : AstNodeExpr
     // @astgen op3 := lsbp : Optional[AstNodeExpr]
     // @astgen op4 := msbp : Optional[AstNodeExpr]
 
-    const bool m_isHex;  // readmemh, not readmemb
-public:
-    AstNodeReadWriteMem(VNType t, FileLine* fl, bool hex, AstNodeExpr* filenamep,
-                        AstNodeExpr* memp, AstNodeExpr* lsbp, AstNodeExpr* msbp)
-        : AstNodeStmt{t, fl}
+    സ്ഥിരം bool m_isHex;  // readmemh, not readmemb
+പൊതു:
+    Ast_കണ്ണി_Read_Write_Mem(VNType t, File_വരി* fl, bool hex, Ast_കണ്ണി_വ്യഞ്ജകം* filenamep,
+                        Ast_കണ്ണി_വ്യഞ്ജകം* memp, Ast_കണ്ണി_വ്യഞ്ജകം* lsbp, Ast_കണ്ണി_വ്യഞ്ജകം* msbp)
+        : Ast_കണ്ണി_Stmt{t, fl}
         , m_isHex{hex} {
         this->filenamep(filenamep);
         this->memp(memp);
         this->lsbp(lsbp);
         this->msbp(msbp);
     }
-    ASTGEN_MEMBERS_AstNodeReadWriteMem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return isHex() == VN_DBG_AS(samep, NodeReadWriteMem)->isHex();
+    ASTGEN_MEMBERS_Ast_കണ്ണി_Read_Write_Mem;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        തിരികെ isHex() == VN_DBG_AS(samep, കണ്ണി_Read_Write_Mem)->isHex();
     }
-    bool isHex() const { return m_isHex; }
-    virtual const char* cFuncPrefixp() const = 0;
+    bool isHex() സ്ഥിരം { തിരികെ m_isHex; }
+    മായാ സ്ഥിരം അക്ഷരം* cFuncPrefixp() സ്ഥിരം = 0;
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstCaseItem final : public AstNode {
+class AstCaseItem final : പൊതു Ast_കണ്ണി {
     // Single item of AstCase/AstRandCase
     // @astgen op1 := condsp : List[AstNodeExpr]
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstCaseItem(FileLine* fl, AstNodeExpr* condsp, AstNode* stmtsp)
+പൊതു:
+    AstCaseItem(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* condsp, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_CaseItem(fl) {
         addCondsp(condsp);
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstCaseItem;
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isDefault() const { return condsp() == nullptr; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ widthInstrs() + INSTR_എണ്ണം_BRANCH; }
+    bool isDefault() സ്ഥിരം { തിരികെ condsp() == nullptr; }
 };
 
-class AstForeachHeader final : public AstNode {
+class AstForeachHeader final : പൊതു Ast_കണ്ണി {
     // Variable reference + index enumeration "ref [id, id, id]" for a foreach statement
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := elementsp : List[AstNode<AstNodeExpr|AstVar|AstEmpty>]
     //             AstNodeExpr/AstEmpty during parsing (only AstParseRef/AstEmpty is well formed)
     //             then AstVar/AstEmpty after LinkDot
-public:
-    AstForeachHeader(FileLine* fl, AstNodeExpr* fromp, AstNode* elementsp)
+പൊതു:
+    AstForeachHeader(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* fromp, Ast_കണ്ണി* elementsp)
         : ASTGEN_SUPER_ForeachHeader(fl) {
         this->fromp(fromp);
         addElementsp(elementsp);
     }
     ASTGEN_MEMBERS_AstForeachHeader;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
+    bool maybePointedTo() സ്ഥിരം override VL_MT_SAFE { തിരികെ false; }
 };
 
 // === AstNodeStmt ===
-class AstAssertCtl final : public AstNodeStmt {
+class AstAssertCtl final : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := controlTypep : AstNodeExpr
     // @astgen op2 := assertTypesp : Optional[AstNodeExpr]
     // @astgen op3 := directiveTypesp : Optional[AstNodeExpr]
@@ -252,134 +252,134 @@ class AstAssertCtl final : public AstNodeStmt {
     VAssertType m_assertTypes;  // Types of assertions affected
     VAssertDirectiveType m_directiveTypes;  // Types of directives affected
 
-public:
-    AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
-                 AstNodeExpr* levelp = nullptr, AstNodeExpr* itemsp = nullptr);
-    AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr* assertTypesp = nullptr,
-                 AstNodeExpr* directiveTypep = nullptr, AstNodeExpr* levelp = nullptr,
-                 AstNodeExpr* itemsp = nullptr);
+പൊതു:
+    AstAssertCtl(File_വരി* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
+                 Ast_കണ്ണി_വ്യഞ്ജകം* levelp = nullptr, Ast_കണ്ണി_വ്യഞ്ജകം* itemsp = nullptr);
+    AstAssertCtl(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* controlTypep, Ast_കണ്ണി_വ്യഞ്ജകം* assertTypesp = nullptr,
+                 Ast_കണ്ണി_വ്യഞ്ജകം* directiveTypep = nullptr, Ast_കണ്ണി_വ്യഞ്ജകം* levelp = nullptr,
+                 Ast_കണ്ണി_വ്യഞ്ജകം* itemsp = nullptr);
     ASTGEN_MEMBERS_AstAssertCtl;
-    string verilogKwd() const override { return m_ctlType.ascii(); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    VAssertCtlType ctlType() const { return m_ctlType; }
-    void ctlType(int32_t type) { m_ctlType = VAssertCtlType{type}; }
-    VAssertType assertTypes() const { return m_assertTypes; }
-    void assertTypes(VAssertType types) { m_assertTypes = types; }
-    VAssertDirectiveType directiveTypes() const { return m_directiveTypes; }
-    void directiveTypes(VAssertDirectiveType types) { m_directiveTypes = types; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    string verilogKwd() സ്ഥിരം override { തിരികെ m_ctlType.ascii(); }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    VAssertCtlType ctlType() സ്ഥിരം { തിരികെ m_ctlType; }
+    ശൂന്യം ctlType(int32_t type) { m_ctlType = VAssertCtlType{type}; }
+    VAssertType assertTypes() സ്ഥിരം { തിരികെ m_assertTypes; }
+    ശൂന്യം assertTypes(VAssertType types) { m_assertTypes = types; }
+    VAssertDirectiveType directiveTypes() സ്ഥിരം { തിരികെ m_directiveTypes; }
+    ശൂന്യം directiveTypes(VAssertDirectiveType types) { m_directiveTypes = types; }
+    ശൂന്യം dump(std::ostream& str = std::cout) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str = std::cout) സ്ഥിരം override;
 };
-class AstBreak final : public AstNodeStmt {
-public:
-    explicit AstBreak(FileLine* fl)
+class AstBreak final : പൊതു Ast_കണ്ണി_Stmt {
+പൊതു:
+    explicit AstBreak(File_വരി* fl)
         : ASTGEN_SUPER_Break(fl) {}
     ASTGEN_MEMBERS_AstBreak;
-    string verilogKwd() const override { return "break"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() സ്ഥിരം override { തിരികെ "break"; }
+    bool isBrancher() സ്ഥിരം override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCAwait final : public AstNodeStmt {
+class AstCAwait final : പൊതു Ast_കണ്ണി_Stmt {
     // C++'s co_await. While this is an expression in C++, in Verilator it is only used
     // with void result types and always appears in statement position. There must never
     // be a suspendable process that returns a value, so modeling as a statement instead.
     // @astgen op1 := exprp : AstNodeExpr
     //
     // @astgen ptr := m_sentreep : Optional[AstSenTree]  // Sentree related to this await
-public:
-    AstCAwait(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep = nullptr)
+പൊതു:
+    AstCAwait(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* exprp, Ast_Sen_വൃക്ഷം* sentreep = nullptr)
         : ASTGEN_SUPER_CAwait(fl)
         , m_sentreep{sentreep} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstCAwait;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isTimingControl() const override { return true; }
-    AstSenTree* sentreep() const { return m_sentreep; }
-    void clearSentreep() { m_sentreep = nullptr; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isTimingControl() സ്ഥിരം override { തിരികെ true; }
+    Ast_Sen_വൃക്ഷം* sentreep() സ്ഥിരം { തിരികെ m_sentreep; }
+    ശൂന്യം clearSentreep() { m_sentreep = nullptr; }
 };
-class AstCLocalScope final : public AstNodeStmt {
+class AstCLocalScope final : പൊതു Ast_കണ്ണി_Stmt {
     // Pack statements into an unnamed scope when generating C++
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstCLocalScope(FileLine* fl, AstNode* stmtsp)
+പൊതു:
+    AstCLocalScope(File_വരി* fl, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_CLocalScope(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstCLocalScope;
 };
-class AstCReturn final : public AstNodeStmt {
+class AstCReturn final : പൊതു Ast_കണ്ണി_Stmt {
     // C++ return from a function
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstCReturn(FileLine* fl, AstNodeExpr* lhsp)
+പൊതു:
+    AstCReturn(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp)
         : ASTGEN_SUPER_CReturn(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstCReturn;
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ widthInstrs(); }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstCStmt final : public AstNodeStmt {
+class AstCStmt final : പൊതു Ast_കണ്ണി_Stmt {
     // C statement emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeStmt|AstNodeExpr|AstText>]
-    const VCStmtType m_stmtType;  // Special statement (instead of comparing name())
+    സ്ഥിരം VCStmtType m_stmtType;  // Special statement (instead of comparing name())
 
-    static AstCStmt* profExecSection(FileLine* flp, const std::string& section, bool push) {
+    സ്ഥിതം AstCStmt* profExecSection(File_വരി* flp, സ്ഥിരം std::string& section, bool തള്ളുക) {
         // Compute the label
         std::string label;
-        if (v3Global.opt.hierChild()) {
-            label += v3Global.opt.topModule() + ":";
-        } else if (!v3Global.opt.libCreate().empty()) {
+        എങ്കിൽ (v3Global.opt.hierChild()) {
+            label += v3Global.opt.മുകൾ_Module() + ":";
+        } അല്ലെങ്കിൽ എങ്കിൽ (!v3Global.opt.libCreate().empty()) {
             label += v3Global.opt.libCreate() + ":";
         }
         label += section;
         // The profiler statement
         std::string pStmt = "VL_EXEC_TRACE_ADD_RECORD(vlSymsp)";
-        pStmt += push ? ".sectionPush" : ".sectionPop";
+        pStmt += തള്ളുക ? ".sectionPush" : ".sectionPop";
         pStmt += "(";
-        if (push) pStmt += "\"" + label + "\"";
+        എങ്കിൽ (തള്ളുക) pStmt += "\"" + label + "\"";
         pStmt += ");";
         // The debug statement
         std::string dStmt = "VL_DEBUG_IF(VL_DBG_MSGF(\"+    --prof-exec ";
-        dStmt += push ? "sectionPush " : "sectionPop ";
+        dStmt += തള്ളുക ? "sectionPush " : "sectionPop ";
         dStmt += label;
         dStmt += "\\n\"););";
         // Concatenate
-        return new AstCStmt{flp, push ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
+        തിരികെ new AstCStmt{flp, തള്ളുക ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
     }
 
-public:
-    explicit AstCStmt(FileLine* fl, const std::string& text = "",
-                      const VCStmtType& stmtType = VCStmtType::NONE)
+പൊതു:
+    explicit AstCStmt(File_വരി* fl, സ്ഥിരം std::string& text = "",
+                      സ്ഥിരം VCStmtType& stmtType = VCStmtType::NONE)
         : ASTGEN_SUPER_CStmt(fl)
         , m_stmtType{stmtType} {
-        if (!text.empty()) add(text);
+        എങ്കിൽ (!text.empty()) add(text);
     }
     ASTGEN_MEMBERS_AstCStmt;
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VCStmtType stmtType() const { return m_stmtType; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി*) സ്ഥിരം override { തിരികെ true; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    VCStmtType stmtType() സ്ഥിരം { തിരികെ m_stmtType; }
     // Add some text, or a node to this statement
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ശൂന്യം add(സ്ഥിരം std::string& text) { addNodesp(new AstText{fileline(), text}); }
+    ശൂന്യം add(Ast_കണ്ണി* nodep) { addNodesp(nodep); }
     // Static factory methods for specific cases
-    static AstCStmt* profExecSectionPush(FileLine* flp, const std::string& section) {
-        return profExecSection(flp, section, true);
+    സ്ഥിതം AstCStmt* prof_Exec_Section_തള്ളുക(File_വരി* flp, സ്ഥിരം std::string& section) {
+        തിരികെ profExecSection(flp, section, true);
     }
-    static AstCStmt* profExecSectionPop(FileLine* flp, const std::string& section) {
-        return profExecSection(flp, section, false);
+    സ്ഥിതം AstCStmt* prof_Exec_Section_എടുക്കുക(File_വരി* flp, സ്ഥിരം std::string& section) {
+        തിരികെ profExecSection(flp, section, false);
     }
 };
-class AstCStmtUser final : public AstNodeStmt {
+class AstCStmtUser final : പൊതു Ast_കണ്ണി_Stmt {
     // User '$c' statement, also used for handling some AstSystemCSection.
     // Same as AstCStmt, with text tracking disabled.
     //
@@ -389,26 +389,26 @@ class AstCStmtUser final : public AstNodeStmt {
     // Use AstCStmt instead, unless the text is from user input.
     //
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_fromDollarC;  // Is from source '$c', emit decoration
-public:
-    explicit AstCStmtUser(FileLine* fl, bool fromDollarC = false)
+    സ്ഥിരം bool m_fromDollarC;  // Is from source '$c', emit decoration
+പൊതു:
+    explicit AstCStmtUser(File_വരി* fl, bool fromDollarC = false)
         : ASTGEN_SUPER_CStmtUser(fl)
         , m_fromDollarC{fromDollarC} {}
     ASTGEN_MEMBERS_AstCStmtUser;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool fromDollarC() const { return m_fromDollarC; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി*) സ്ഥിരം override { തിരികെ true; }
+    bool fromDollarC() സ്ഥിരം { തിരികെ m_fromDollarC; }
     // Add some text, or a node to this statement
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ശൂന്യം add(സ്ഥിരം std::string& text) { addNodesp(new AstText{fileline(), text}); }
+    ശൂന്യം add(Ast_കണ്ണി* nodep) { addNodesp(nodep); }
 };
-class AstCase final : public AstNodeStmt {
+class AstCase final : പൊതു Ast_കണ്ണി_Stmt {
     // Case statement
     // @astgen op1 := exprp : AstNodeExpr // Condition (scurtinee) expression
     // @astgen op2 := itemsp : List[AstCaseItem]
@@ -419,114 +419,114 @@ class AstCase final : public AstNodeStmt {
     bool m_uniquePragma = false;  // unique case
     bool m_unique0Pragma = false;  // unique0 case
     bool m_priorityPragma = false;  // priority case
-public:
-    AstCase(FileLine* fl, VCaseType caseType, AstNodeExpr* exprp, AstCaseItem* itemsp)
+പൊതു:
+    AstCase(File_വരി* fl, VCaseType caseType, Ast_കണ്ണി_വ്യഞ്ജകം* exprp, AstCaseItem* itemsp)
         : ASTGEN_SUPER_Case(fl)
         , m_caseType{caseType} {
         this->exprp(exprp);
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstCase;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    string verilogKwd() const override { return casez() ? "casez" : casex() ? "casex" : "case"; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_caseType == VN_DBG_AS(samep, Case)->m_caseType;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ casez() ? "casez" : casex() ? "casex" : "case"; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        തിരികെ m_caseType == VN_DBG_AS(samep, Case)->m_caseType;
     }
-    bool casex() const { return m_caseType == VCaseType::CT_CASEX; }
-    bool casez() const { return m_caseType == VCaseType::CT_CASEZ; }
-    bool caseInside() const { return m_caseType == VCaseType::CT_CASEINSIDE; }
-    bool caseMatches() const { return m_caseType == VCaseType::CT_CASEMATCHES; }
-    bool caseSimple() const { return m_caseType == VCaseType::CT_CASE; }
-    void caseInsideSet() { m_caseType = VCaseType::CT_CASEINSIDE; }
-    void caseMatchesSet() { m_caseType = VCaseType::CT_CASEMATCHES; }
-    bool fullPragma() const { return m_fullPragma; }
-    void fullPragma(bool flag) { m_fullPragma = flag; }
-    bool parallelPragma() const { return m_parallelPragma; }
-    void parallelPragma(bool flag) { m_parallelPragma = flag; }
-    bool uniquePragma() const { return m_uniquePragma; }
-    void uniquePragma(bool flag) { m_uniquePragma = flag; }
-    bool unique0Pragma() const { return m_unique0Pragma; }
-    void unique0Pragma(bool flag) { m_unique0Pragma = flag; }
-    bool priorityPragma() const { return m_priorityPragma; }
-    void priorityPragma(bool flag) { m_priorityPragma = flag; }
-    string pragmaString() const;
+    bool casex() സ്ഥിരം { തിരികെ m_caseType == VCaseType::CT_CASEX; }
+    bool casez() സ്ഥിരം { തിരികെ m_caseType == VCaseType::CT_CASEZ; }
+    bool caseInside() സ്ഥിരം { തിരികെ m_caseType == VCaseType::CT_CASEINSIDE; }
+    bool caseMatches() സ്ഥിരം { തിരികെ m_caseType == VCaseType::CT_CASEMATCHES; }
+    bool caseSimple() സ്ഥിരം { തിരികെ m_caseType == VCaseType::CT_CASE; }
+    ശൂന്യം caseInsideSet() { m_caseType = VCaseType::CT_CASEINSIDE; }
+    ശൂന്യം caseMatchesSet() { m_caseType = VCaseType::CT_CASEMATCHES; }
+    bool fullPragma() സ്ഥിരം { തിരികെ m_fullPragma; }
+    ശൂന്യം fullPragma(bool flag) { m_fullPragma = flag; }
+    bool parallelPragma() സ്ഥിരം { തിരികെ m_parallelPragma; }
+    ശൂന്യം parallelPragma(bool flag) { m_parallelPragma = flag; }
+    bool uniquePragma() സ്ഥിരം { തിരികെ m_uniquePragma; }
+    ശൂന്യം uniquePragma(bool flag) { m_uniquePragma = flag; }
+    bool unique0Pragma() സ്ഥിരം { തിരികെ m_unique0Pragma; }
+    ശൂന്യം unique0Pragma(bool flag) { m_unique0Pragma = flag; }
+    bool priorityPragma() സ്ഥിരം { തിരികെ m_priorityPragma; }
+    ശൂന്യം priorityPragma(bool flag) { m_priorityPragma = flag; }
+    string pragmaString() സ്ഥിരം;
 };
-class AstComment final : public AstNodeStmt {
+class AstComment final : പൊതു Ast_കണ്ണി_Stmt {
     // Some comment to put into the output stream
-    const string m_name;  // Text of comment
-    const bool m_showAt;  // Show "at <fileline>"
-public:
-    AstComment(FileLine* fl, const string& name, bool showAt = false)
+    സ്ഥിരം string m_name;  // Text of comment
+    സ്ഥിരം bool m_showAt;  // Show "at <fileline>"
+പൊതു:
+    AstComment(File_വരി* fl, സ്ഥിരം string& name, bool showAt = false)
         : ASTGEN_SUPER_Comment(fl)
         , m_name{name}
         , m_showAt{showAt} {}
     ASTGEN_MEMBERS_AstComment;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Text
-    bool sameNode(const AstNode* samep) const override { return true; }  // Ignore name in comments
-    virtual bool showAt() const { return m_showAt; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }  // * = Text
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ true; }  // Ignore name in comments
+    മായാ bool showAt() സ്ഥിരം { തിരികെ m_showAt; }
 };
-class AstConstraintBefore final : public AstNodeStmt {
+class AstConstraintBefore final : പൊതു Ast_കണ്ണി_Stmt {
     // Constraint solve before item
     // @astgen op1 := lhssp : List[AstNodeExpr]
     // @astgen op2 := rhssp : List[AstNodeExpr]
-public:
-    AstConstraintBefore(FileLine* fl, AstNodeExpr* lhssp, AstNodeExpr* rhssp)
+പൊതു:
+    AstConstraintBefore(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhssp, Ast_കണ്ണി_വ്യഞ്ജകം* rhssp)
         : ASTGEN_SUPER_ConstraintBefore(fl) {
         addLhssp(lhssp);
         addRhssp(rhssp);
     }
     ASTGEN_MEMBERS_AstConstraintBefore;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstConstraintExpr final : public AstNodeStmt {
+class Ast_Constraint_വ്യഞ്ജകം final : പൊതു Ast_കണ്ണി_Stmt {
     // Constraint expression
     // @astgen op1 := exprp : AstNodeExpr
     bool m_isDisableSoft = false;  // Disable soft constraint expression
     bool m_isSoft = false;  // Soft constraint expression
-public:
-    AstConstraintExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_ConstraintExpr(fl) {
+പൊതു:
+    Ast_Constraint_വ്യഞ്ജകം(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* exprp)
+        : ASTGEN_SUPER_Constraint_വ്യഞ്ജകം(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstConstraintExpr;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isDisableSoft() const { return m_isDisableSoft; }
-    void isDisableSoft(bool flag) { m_isDisableSoft = flag; }
-    bool isSoft() const { return m_isSoft; }
-    void isSoft(bool flag) { m_isSoft = flag; }
+    ASTGEN_MEMBERS_Ast_Constraint_വ്യഞ്ജകം;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
+    bool isDisableSoft() സ്ഥിരം { തിരികെ m_isDisableSoft; }
+    ശൂന്യം isDisableSoft(bool flag) { m_isDisableSoft = flag; }
+    bool isSoft() സ്ഥിരം { തിരികെ m_isSoft; }
+    ശൂന്യം isSoft(bool flag) { m_isSoft = flag; }
 };
-class AstConstraintUnique final : public AstNodeStmt {
+class AstConstraintUnique final : പൊതു Ast_കണ്ണി_Stmt {
     // Constraint unique statement
     // @astgen op1 := rangesp : List[AstNode]
-public:
-    AstConstraintUnique(FileLine* fl, AstNode* rangesp)
+പൊതു:
+    AstConstraintUnique(File_വരി* fl, Ast_കണ്ണി* rangesp)
         : ASTGEN_SUPER_ConstraintUnique(fl) {
         addRangesp(rangesp);
     }
     ASTGEN_MEMBERS_AstConstraintUnique;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstContinue final : public AstNodeStmt {
-public:
-    explicit AstContinue(FileLine* fl)
+class AstContinue final : പൊതു Ast_കണ്ണി_Stmt {
+പൊതു:
+    explicit AstContinue(File_വരി* fl)
         : ASTGEN_SUPER_Continue(fl) {}
     ASTGEN_MEMBERS_AstContinue;
-    string verilogKwd() const override { return "continue"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() സ്ഥിരം override { തിരികെ "continue"; }
+    bool isBrancher() സ്ഥിരം override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCoverInc final : public AstNodeStmt {
+class AstCoverInc final : പൊതു Ast_കണ്ണി_Stmt {
     // Coverage analysis point; increment coverage count
     // @astgen op1 := toggleExprp : Optional[AstNodeExpr]  // [After V3Clock]
     // @astgen op2 := toggleCovExprp : Optional[AstNodeExpr]  // [After V3Clock]
@@ -536,175 +536,175 @@ class AstCoverInc final : public AstNodeStmt {
 
     bool m_isDuplicate = false;  // Duplicate AstCoverInc associated with one AstNodeCoverDecl
 
-public:
-    AstCoverInc(FileLine* fl, AstNodeCoverDecl* declp, const bool isDuplicate = false)
+പൊതു:
+    AstCoverInc(File_വരി* fl, Ast_കണ്ണി_Cover_Decl* declp, സ്ഥിരം bool isDuplicate = false)
         : ASTGEN_SUPER_CoverInc(fl)
         , m_isDuplicate{isDuplicate}
         , m_declp{declp} {}
     ASTGEN_MEMBERS_AstCoverInc;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 1 + 2 * INSTR_COUNT_LD; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCoverInc* const otherp = VN_DBG_AS(samep, CoverInc);
-        return declp() == otherp->declp() && isDuplicate() == otherp->isDuplicate();
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 1 + 2 * INSTR_എണ്ണം_LD; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        സ്ഥിരം AstCoverInc* സ്ഥിരം otherp = VN_DBG_AS(samep, CoverInc);
+        തിരികെ declp() == otherp->declp() && isDuplicate() == otherp->isDuplicate();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPure() override { return false; }
-    AstNodeCoverDecl* declp() const { return m_declp; }  // Where defined
-    void declp(AstNodeCoverDecl* nodep) { m_declp = nodep; }
-    bool isDuplicate() const { return m_isDuplicate; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isPure() override { തിരികെ false; }
+    Ast_കണ്ണി_Cover_Decl* declp() സ്ഥിരം { തിരികെ m_declp; }  // Where defined
+    ശൂന്യം declp(Ast_കണ്ണി_Cover_Decl* nodep) { m_declp = nodep; }
+    bool isDuplicate() സ്ഥിരം { തിരികെ m_isDuplicate; }
 };
-class AstDeassign final : public AstNodeStmt {
+class AstDeassign final : പൊതു Ast_കണ്ണി_Stmt {
     // Procedural 'deassign' statement
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstDeassign(FileLine* fl, AstNodeExpr* lhsp)
+പൊതു:
+    AstDeassign(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp)
         : ASTGEN_SUPER_Deassign(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstDeassign;
 };
-class AstDelay final : public AstNodeStmt {
+class AstDelay final : പൊതു Ast_കണ്ണി_Stmt {
     // Delay statement
     // @astgen op1 := lhsp : AstNodeExpr // Delay value (or min for range)
     // @astgen op2 := stmtsp : List[AstNode] // Statements under delay
     // @astgen op3 := rhsp : Optional[AstNodeExpr] // Max bound for cycle range or fall delay
     // @astgen op4 := throughoutp : Optional[AstNodeExpr] // Throughout condition (IEEE 16.9.9)
     VTimescale m_timeunit;  // Delay's time unit
-    const bool m_isCycleDelay;  // True if it is a cycle delay
-public:
-    AstDelay(FileLine* fl, AstNodeExpr* lhsp, bool isCycleDelay)
+    സ്ഥിരം bool m_isCycleDelay;  // True if it is a cycle delay
+പൊതു:
+    AstDelay(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, bool isCycleDelay)
         : ASTGEN_SUPER_Delay(fl)
         , m_isCycleDelay{isCycleDelay} {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstDelay;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isTimingControl() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
-    bool isCycleDelay() const { return m_isCycleDelay; }
-    bool isRangeDelay() const { return m_isCycleDelay && rhsp(); }
-    bool isUnbounded() const { return isRangeDelay() && VN_IS(rhsp(), Unbounded); }
-    void fallDelay(AstNodeExpr* const fallDelayp) { rhsp(fallDelayp); }
-    AstNodeExpr* fallDelay() const { return m_isCycleDelay ? nullptr : rhsp(); }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isTimingControl() സ്ഥിരം override { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
+    ശൂന്യം timeunit(സ്ഥിരം VTimescale& flag) { m_timeunit = flag; }
+    VTimescale timeunit() സ്ഥിരം { തിരികെ m_timeunit; }
+    bool isCycleDelay() സ്ഥിരം { തിരികെ m_isCycleDelay; }
+    bool isRangeDelay() സ്ഥിരം { തിരികെ m_isCycleDelay && rhsp(); }
+    bool isUnbounded() സ്ഥിരം { തിരികെ isRangeDelay() && VN_IS(rhsp(), Unbounded); }
+    ശൂന്യം fallDelay(Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം fallDelayp) { rhsp(fallDelayp); }
+    Ast_കണ്ണി_വ്യഞ്ജകം* fallDelay() സ്ഥിരം { തിരികെ m_isCycleDelay ? nullptr : rhsp(); }
 };
-class AstDisable final : public AstNodeStmt {
+class AstDisable final : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := targetRefp : Optional[AstNodeExpr]  // Reference to link in V3LinkDot
     // @astgen ptr := m_targetp : Optional[AstNode]  // Task or block after V3LinkDot
-public:
-    AstDisable(FileLine* fl, AstNodeExpr* targetRefp)
+പൊതു:
+    AstDisable(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* targetRefp)
         : ASTGEN_SUPER_Disable(fl) {
         this->targetRefp(targetRefp);
     }
     ASTGEN_MEMBERS_AstDisable;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    void targetp(AstNode* nodep) { m_targetp = nodep; }
-    AstNode* targetp() const { return m_targetp; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    സ്ഥിരം അക്ഷരം* broken() സ്ഥിരം override;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം targetp(Ast_കണ്ണി* nodep) { m_targetp = nodep; }
+    Ast_കണ്ണി* targetp() സ്ഥിരം { തിരികെ m_targetp; }
+    bool isBrancher() സ്ഥിരം override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstDisableFork final : public AstNodeStmt {
+class AstDisableFork final : പൊതു Ast_കണ്ണി_Stmt {
     // A "disable fork" statement
-public:
-    explicit AstDisableFork(FileLine* fl)
+പൊതു:
+    explicit AstDisableFork(File_വരി* fl)
         : ASTGEN_SUPER_DisableFork(fl) {}
     ASTGEN_MEMBERS_AstDisableFork;
-    string verilogKwd() const override { return "disable fork"; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "disable fork"; }
 };
-class AstDisplay final : public AstNodeStmt {
+class AstDisplay final : പൊതു Ast_കണ്ണി_Stmt {
     // Parents: stmtlist
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must resolve to a VarRef)
     VDisplayType m_displayType;
 
-public:
-    AstDisplay(FileLine* fl, VDisplayType dispType, const string& text, AstNodeExpr* filep,
-               AstNodeExpr* exprsp, char missingArgChar = 'd')
+പൊതു:
+    AstDisplay(File_വരി* fl, VDisplayType dispType, സ്ഥിരം string& text, Ast_കണ്ണി_വ്യഞ്ജകം* filep,
+               Ast_കണ്ണി_വ്യഞ്ജകം* exprsp, അക്ഷരം missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
         fmtp(new AstSFormatF{fl, text, true, exprsp, missingArgChar});
         this->filep(filep);
     }
-    AstDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* filep, AstNodeExpr* exprsp,
-               char missingArgChar = 'd')
+    AstDisplay(File_വരി* fl, VDisplayType dispType, Ast_കണ്ണി_വ്യഞ്ജകം* filep, Ast_കണ്ണി_വ്യഞ്ജകം* exprsp,
+               അക്ഷരം missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
-        AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+        AstSFormatF* സ്ഥിരം newp
+            = new AstSFormatF{fl, AstSFormatF::വ്യഞ്ജകം_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(true);
         fmtp(newp);
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstDisplay;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override {
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    സ്ഥിരം അക്ഷരം* broken() സ്ഥിരം override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        തിരികെ nullptr;
     }
-    string verilogKwd() const override {
-        return (filep() ? "$f"s + string{displayType().ascii()}
+    string verilogKwd() സ്ഥിരം override {
+        തിരികെ (filep() ? "$f"s + string{displayType().ascii()}
                         : "$"s + string{displayType().ascii()});
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return displayType() == VN_DBG_AS(samep, Display)->displayType();
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { തിരികെ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        തിരികെ displayType() == VN_DBG_AS(samep, Display)->displayType();
     }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    VDisplayType displayType() const { return m_displayType; }
-    void displayType(VDisplayType type) { m_displayType = type; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_PLI; }
+    VDisplayType displayType() സ്ഥിരം { തിരികെ m_displayType; }
+    ശൂന്യം displayType(VDisplayType type) { m_displayType = type; }
     // * = Add a newline for $display
-    bool addNewline() const { return displayType().addNewline(); }
+    bool addNewline() സ്ഥിരം { തിരികെ displayType().addNewline(); }
 };
-class AstDumpCtl final : public AstNodeStmt {
+class AstDumpCtl final : പൊതു Ast_കണ്ണി_Stmt {
     // $dumpon etc
     // Parents: expr
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Expression based on type of statement
-    const VDumpCtlType m_ctlType;  // Type of operation
-public:
-    AstDumpCtl(FileLine* fl, VDumpCtlType ctlType, AstNodeExpr* exprp = nullptr)
+    സ്ഥിരം VDumpCtlType m_ctlType;  // Type of operation
+പൊതു:
+    AstDumpCtl(File_വരി* fl, VDumpCtlType ctlType, Ast_കണ്ണി_വ്യഞ്ജകം* exprp = nullptr)
         : ASTGEN_SUPER_DumpCtl(fl)
         , m_ctlType{ctlType} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstDumpCtl;
-    string verilogKwd() const override { return ctlType().ascii(); }
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    virtual bool cleanOut() const { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VDumpCtlType ctlType() const { return m_ctlType; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ ctlType().ascii(); }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    മായാ bool cleanOut() സ്ഥിരം { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    VDumpCtlType ctlType() സ്ഥിരം { തിരികെ m_ctlType; }
 };
-class AstEventControl final : public AstNodeStmt {
+class AstEventControl final : പൊതു Ast_കണ്ണി_Stmt {
     // Parents: stmtlist
     // @astgen op1 := sentreep : Optional[AstSenTree]
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstEventControl(FileLine* fl, AstSenTree* sentreep, AstNode* stmtsp)
+പൊതു:
+    AstEventControl(File_വരി* fl, Ast_Sen_വൃക്ഷം* sentreep, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_EventControl(fl) {
         this->sentreep(sentreep);
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstEventControl;
-    string verilogKwd() const override { return "@(%l) %r"; }
-    bool isTimingControl() const override { return true; }
-    int instrCount() const override { return 0; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "@(%l) %r"; }
+    bool isTimingControl() സ്ഥിരം override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }
 };
-class AstExecGraph final : public AstNodeStmt {
+class AstExecGraph final : പൊതു Ast_കണ്ണി_Stmt {
     // For parallel execution, this node contains a dependency graph. Each
     // vertex in the graph is an ExecMTask, which includes a function that
     // holds the sequential body of the mtask.
@@ -724,130 +724,130 @@ class AstExecGraph final : public AstNodeStmt {
     // Static cost of the logic each trigger guards, populated by V3ExecGraph::implement
     // @astgen op4 := triggerCostsp : Optional[AstVarRef]
     // @astgen ptr := m_runfuncp : Optional[AstCFunc]  // Statically scheduled dispatch function
-    V3Graph* const m_depGraphp;  // contains ExecMTask vertices
-    const string m_name;  // Name of this AstExecGraph (for uniqueness at code generation)
+    V3Graph* സ്ഥിരം m_depGraphp;  // contains ExecMTask vertices
+    സ്ഥിരം string m_name;  // Name of this AstExecGraph (for uniqueness at code generation)
 
-public:
-    AstExecGraph(FileLine* fl, const string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
+പൊതു:
+    AstExecGraph(File_വരി* fl, സ്ഥിരം string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
     ~AstExecGraph() override;
     ASTGEN_MEMBERS_AstExecGraph;
-    void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
-    const char* broken() const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    V3Graph* depGraphp() { return m_depGraphp; }
-    const V3Graph* depGraphp() const { return m_depGraphp; }
-    AstCFunc* runfuncp() const { return m_runfuncp; }
-    void runfuncp(AstCFunc* funcp) { m_runfuncp = funcp; }
+    ശൂന്യം cloneRelink() override { V3ERROR_NA; }  // Not cloneable
+    സ്ഥിരം അക്ഷരം* broken() സ്ഥിരം override;
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }
+    V3Graph* depGraphp() { തിരികെ m_depGraphp; }
+    സ്ഥിരം V3Graph* depGraphp() സ്ഥിരം { തിരികെ m_depGraphp; }
+    AstCFunc* runfuncp() സ്ഥിരം { തിരികെ m_runfuncp; }
+    ശൂന്യം runfuncp(AstCFunc* funcp) { m_runfuncp = funcp; }
 };
-class AstFClose final : public AstNodeStmt {
+class AstFClose final : പൊതു Ast_കണ്ണി_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
-public:
-    AstFClose(FileLine* fl, AstNodeExpr* filep)
+പൊതു:
+    AstFClose(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* filep)
         : ASTGEN_SUPER_FClose(fl) {
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstFClose;
-    string verilogKwd() const override { return "$fclose"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "$fclose"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstFFlush final : public AstNodeStmt {
+class AstFFlush final : പൊതു Ast_കണ്ണി_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
-public:
-    AstFFlush(FileLine* fl, AstNodeExpr* filep)
+പൊതു:
+    AstFFlush(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* filep)
         : ASTGEN_SUPER_FFlush(fl) {
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstFFlush;
-    string verilogKwd() const override { return "$fflush"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "$fflush"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstFinish final : public AstNodeStmt {
-public:
-    explicit AstFinish(FileLine* fl)
+class AstFinish final : പൊതു Ast_കണ്ണി_Stmt {
+പൊതു:
+    explicit AstFinish(File_വരി* fl)
         : ASTGEN_SUPER_Finish(fl) {}
     ASTGEN_MEMBERS_AstFinish;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { തിരികെ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }  // Rarely executes
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ fileline() == samep->fileline(); }
 };
-class AstFinishFork final : public AstNodeStmt {
+class AstFinishFork final : പൊതു Ast_കണ്ണി_Stmt {
     // $finish in fork
-public:
-    explicit AstFinishFork(FileLine* fl)
+പൊതു:
+    explicit AstFinishFork(File_വരി* fl)
         : ASTGEN_SUPER_FinishFork(fl) {}
     ASTGEN_MEMBERS_AstFinishFork;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { തിരികെ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }  // Rarely executes
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ fileline() == samep->fileline(); }
 };
-class AstFireEvent final : public AstNodeStmt {
+class AstFireEvent final : പൊതു Ast_കണ്ണി_Stmt {
     // '-> _' and '->> _' event trigger statements
     // @astgen op1 := operandp : AstNodeExpr
-    const bool m_delayed;  // Delayed (->>) vs non-delayed (->)
-public:
-    AstFireEvent(FileLine* fl, AstNodeExpr* operandp, bool delayed)
+    സ്ഥിരം bool m_delayed;  // Delayed (->>) vs non-delayed (->)
+പൊതു:
+    AstFireEvent(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* operandp, bool delayed)
         : ASTGEN_SUPER_FireEvent(fl)
         , m_delayed{delayed} {
         this->operandp(operandp);
     }
     ASTGEN_MEMBERS_AstFireEvent;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isDelayed() const { return m_delayed; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isDelayed() സ്ഥിരം { തിരികെ m_delayed; }
 };
-class AstInitialAutomaticStmt final : public AstNodeStmt {
+class AstInitialAutomaticStmt final : പൊതു Ast_കണ്ണി_Stmt {
     // Automatic variable initialization in a statement position
     // Used during early stages to record an initial initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialAutomatic, or
     // AstCFunc normal statement
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstInitialAutomaticStmt(FileLine* fl, AstNode* stmtsp)
+പൊതു:
+    AstInitialAutomaticStmt(File_വരി* fl, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_InitialAutomaticStmt(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialAutomaticStmt;
-    int instrCount() const override { return 0; }
-    bool isPure() override { return true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }
+    bool isPure() override { തിരികെ true; }
 };
-class AstInitialStaticStmt final : public AstNodeStmt {
+class AstInitialStaticStmt final : പൊതു Ast_കണ്ണി_Stmt {
     // Static variable initialization in a statement position
     // Used during early stages to record a static initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialStatic, or
     // AstCFunc normal statement
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstInitialStaticStmt(FileLine* fl, AstNode* stmtsp)
+പൊതു:
+    AstInitialStaticStmt(File_വരി* fl, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_InitialStaticStmt(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialStaticStmt;
-    int instrCount() const override { return 0; }
-    bool isPure() override { return true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }
+    bool isPure() override { തിരികെ true; }
 };
-class AstJumpBlock final : public AstNodeStmt {
+class AstJumpBlock final : പൊതു Ast_കണ്ണി_Stmt {
     // Block of code that might contain AstJumpGo statements as children,
     // which when exectued branch to right after the referenced AstJumpBlock.
     // AstJumpBlocks can nest, and an AstJumpGo can reference any of the
@@ -856,45 +856,45 @@ class AstJumpBlock final : public AstNodeStmt {
     // Children: {statement list, with JumpGo below}
     // @astgen op1 := stmtsp : List[AstNode]
     VIsCached m_purity;  // Pure state
-public:
+പൊതു:
     // After construction must call ->labelp to associate with appropriate label
-    AstJumpBlock(FileLine* fl, AstNode* stmtsp)
+    AstJumpBlock(File_വരി* fl, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_JumpBlock(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstJumpBlock;
-    int instrCount() const override { return 0; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }
+    bool maybePointedTo() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
     bool isPure() override;
 
-private:
-    bool getPurityRecurse() const;
+സ്വകാര്യ:
+    bool getPurityRecurse() സ്ഥിരം;
 };
-class AstJumpGo final : public AstNodeStmt {
+class AstJumpGo final : പൊതു Ast_കണ്ണി_Stmt {
     // Branch to right after the referenced encloding AstJumpBlock
     // Parents:  statement, including the referenced AstJumpBlock
     // Children: none
     //
     // @astgen ptr := m_blockp : AstJumpBlock  // The AstJumpBlock we are branching after
-public:
-    AstJumpGo(FileLine* fl, AstJumpBlock* blockp)
+പൊതു:
+    AstJumpGo(File_വരി* fl, AstJumpBlock* blockp)
         : ASTGEN_SUPER_JumpGo(fl)
         , m_blockp{blockp} {}
     ASTGEN_MEMBERS_AstJumpGo;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* samep) const override {
-        return blockp() == VN_DBG_AS(samep, JumpGo)->blockp();
+    സ്ഥിരം അക്ഷരം* broken() സ്ഥിരം override;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        തിരികെ blockp() == VN_DBG_AS(samep, JumpGo)->blockp();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isBrancher() const override {
-        return true;  // SPECIAL: We don't process code after breaks
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isBrancher() സ്ഥിരം override {
+        തിരികെ true;  // SPECIAL: We don't process code after breaks
     }
-    AstJumpBlock* blockp() const { return m_blockp; }
+    AstJumpBlock* blockp() സ്ഥിരം { തിരികെ m_blockp; }
 };
-class AstLoop final : public AstNodeStmt {
+class AstLoop final : പൊതു Ast_കണ്ണി_Stmt {
     // An inifinite loop, used to model all source level procedural loops.
     // Executes as:
     //  while (true) {
@@ -906,25 +906,25 @@ class AstLoop final : public AstNodeStmt {
     // @astgen op1 := stmtsp : List[AstNode]
     // @astgen op2 := contsp : List[AstNode] // Empty after LinkJump
     VOptionBool m_unroll;  // Full, none, or default unrolling
-public:
-    explicit AstLoop(FileLine* fl, AstNode* stmtsp = nullptr)
+പൊതു:
+    explicit AstLoop(File_വരി* fl, Ast_കണ്ണി* stmtsp = nullptr)
         : ASTGEN_SUPER_Loop(fl) {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstLoop;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* thatp) const override {
-        return m_unroll == VN_DBG_AS(thatp, Loop)->m_unroll;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* thatp) സ്ഥിരം override {
+        തിരികെ m_unroll == VN_DBG_AS(thatp, Loop)->m_unroll;
     }
-    bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    bool maybePointedTo() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
     // ACCESSORS
-    VOptionBool unroll() const { return m_unroll; }
-    void unroll(const VOptionBool flag) { m_unroll = flag; }
+    VOptionBool unroll() സ്ഥിരം { തിരികെ m_unroll; }
+    ശൂന്യം unroll(സ്ഥിരം VOptionBool flag) { m_unroll = flag; }
 };
-class AstLoopTest final : public AstNodeStmt {
+class AstLoopTest final : പൊതു Ast_കണ്ണി_Stmt {
     // The condition test inside an AstLoop. If the condition is true,
     // execution continues after this AstLoopTest statement. If the condition
     // is false, control is transfered to after the corresponding AstLoop.
@@ -932,276 +932,276 @@ class AstLoopTest final : public AstNodeStmt {
     // which breaks out of the loop if the condition is false.
     // @astgen op1 := condp : AstNodeExpr  // The loop condition
     // @astgen ptr := m_loopp : AstLoop  // The corresponding AstLoop
-public:
-    AstLoopTest(FileLine* fl, AstLoop* loopp, AstNodeExpr* condp)
+പൊതു:
+    AstLoopTest(File_വരി* fl, AstLoop* loopp, Ast_കണ്ണി_വ്യഞ്ജകം* condp)
         : ASTGEN_SUPER_LoopTest(fl)
         , m_loopp{loopp} {
         this->condp(condp);
     }
     ASTGEN_MEMBERS_AstLoopTest;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isBrancher() const override { return true; }
-    int instrCount() const override { return 0; }
+    സ്ഥിരം അക്ഷരം* broken() സ്ഥിരം override;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി*) സ്ഥിരം override { തിരികെ true; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isBrancher() സ്ഥിരം override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }
     // ACCESSORS
-    AstLoop* loopp() const { return m_loopp; }
+    AstLoop* loopp() സ്ഥിരം { തിരികെ m_loopp; }
 };
-class AstMonitorOff final : public AstNodeStmt {
-    const bool m_off;  // Monitor off.  Using 0=on allows faster init and comparison
+class AstMonitorOff final : പൊതു Ast_കണ്ണി_Stmt {
+    സ്ഥിരം bool m_off;  // Monitor off.  Using 0=on allows faster init and comparison
 
-public:
-    AstMonitorOff(FileLine* fl, bool off)
+പൊതു:
+    AstMonitorOff(File_വരി* fl, bool off)
         : ASTGEN_SUPER_MonitorOff(fl)
         , m_off{off} {}
     ASTGEN_MEMBERS_AstMonitorOff;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return m_off ? "$monitoroff" : "$monitoron"; }
-    bool isGateOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPure() override { return false; }  // Though deleted before opt
-    bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_off == VN_DBG_AS(samep, MonitorOff)->m_off;
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    string verilogKwd() സ്ഥിരം override { തിരികെ m_off ? "$monitoroff" : "$monitoron"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }  // Though deleted before opt
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }  // Though deleted before opt
+    bool isPure() override { തിരികെ false; }  // Though deleted before opt
+    bool isOutputter() override { തിരികെ true; }  // Though deleted before opt
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_PLI; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        തിരികെ m_off == VN_DBG_AS(samep, MonitorOff)->m_off;
     }
-    bool off() const { return m_off; }
+    bool off() സ്ഥിരം { തിരികെ m_off; }
 };
-class AstPExprClause final : public AstNodeStmt {
-    const bool m_pass;  // Will be replaced by passing assertion clause, false for
+class AstPExprClause final : പൊതു Ast_കണ്ണി_Stmt {
+    സ്ഥിരം bool m_pass;  // Will be replaced by passing assertion clause, false for
                         // assertion failure clause
-    const bool m_vacuous;  // Pass is vacuous
+    സ്ഥിരം bool m_vacuous;  // Pass is vacuous
 
-public:
+പൊതു:
     ASTGEN_MEMBERS_AstPExprClause;
-    explicit AstPExprClause(FileLine* fl, bool pass = true, bool vacuous = false)
+    explicit AstPExprClause(File_വരി* fl, bool pass = true, bool vacuous = false)
         : ASTGEN_SUPER_PExprClause(fl)
         , m_pass{pass}
         , m_vacuous{vacuous} {}
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool pass() const { return m_pass; }
-    bool vacuous() const { return m_vacuous; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool pass() സ്ഥിരം { തിരികെ m_pass; }
+    bool vacuous() സ്ഥിരം { തിരികെ m_vacuous; }
 };
-class AstPrintTimeScale final : public AstNodeStmt {
+class AstPrintTimeScale final : പൊതു Ast_കണ്ണി_Stmt {
     // Parents: stmtlist
     string m_name;  // Parent module name
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    explicit AstPrintTimeScale(FileLine* fl)
+പൊതു:
+    explicit AstPrintTimeScale(File_വരി* fl)
         : ASTGEN_SUPER_PrintTimeScale(fl) {}
     ASTGEN_MEMBERS_AstPrintTimeScale;
-    void name(const string& name) override { m_name = name; }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return "$printtimescale"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
+    ശൂന്യം name(സ്ഥിരം string& name) override { m_name = name; }
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }  // * = Var name
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    string verilogKwd() സ്ഥിരം override { തിരികെ "$printtimescale"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_PLI; }
+    ശൂന്യം timeunit(സ്ഥിരം VTimescale& flag) { m_timeunit = flag; }
+    VTimescale timeunit() സ്ഥിരം { തിരികെ m_timeunit; }
 };
-class AstRSBreak final : public AstNodeStmt {
+class AstRSBreak final : പൊതു Ast_കണ്ണി_Stmt {
     // randsequence break
-public:
-    explicit AstRSBreak(FileLine* fl)
+പൊതു:
+    explicit AstRSBreak(File_വരി* fl)
         : ASTGEN_SUPER_RSBreak(fl) {}
     ASTGEN_MEMBERS_AstRSBreak;
-    string verilogKwd() const override { return "break"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() സ്ഥിരം override { തിരികെ "break"; }
+    bool isBrancher() സ്ഥിരം override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSProd final : public AstNodeStmt {
+class AstRSProd final : പൊതു Ast_കണ്ണി_Stmt {
     // randomsequence production, under a AstRandSequence
     // @astgen op1 := fvarp : Optional[AstVar]
     // @astgen op2 := portsp : List[AstNode]
     // @astgen op3 := rulesp : List[AstRSRule]
     string m_name;  // Name of block, or "" to use first production
-public:
-    AstRSProd(FileLine* fl, const string& name, AstNode* portsp, AstRSRule* rulesp)
+പൊതു:
+    AstRSProd(File_വരി* fl, സ്ഥിരം string& name, Ast_കണ്ണി* portsp, AstRSRule* rulesp)
         : ASTGEN_SUPER_RSProd(fl)
         , m_name{name} {
         addPortsp(portsp);
         addRulesp(rulesp);
     }
     ASTGEN_MEMBERS_AstRSProd;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    bool maybePointedTo() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
 };
-class AstRSProdItem final : public AstNodeStmt {
+class AstRSProdItem final : പൊതു Ast_കണ്ണി_Stmt {
     // randomsquence production item
     // @astgen op1 := argsp : List[AstArg]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to production
     string m_name;  // Name of block, or "" to use first production
-public:
-    AstRSProdItem(FileLine* fl, const string& name, AstArg* argsp)
+പൊതു:
+    AstRSProdItem(File_വരി* fl, സ്ഥിരം string& name, AstArg* argsp)
         : ASTGEN_SUPER_RSProdItem(fl)
         , m_name{name} {
         addArgsp(argsp);
     }
     ASTGEN_MEMBERS_AstRSProdItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    AstRSProd* prodp() const { return m_prodp; }
-    void prodp(AstRSProd* nodep) { m_prodp = nodep; }
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    AstRSProd* prodp() സ്ഥിരം { തിരികെ m_prodp; }
+    ശൂന്യം prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRSProdList final : public AstNodeStmt {
+class AstRSProdList final : പൊതു Ast_കണ്ണി_Stmt {
     // randomsquence production list
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodsp : List[AstNode]
     bool m_randJoin = false;  // Is rand join'ed
-public:
-    AstRSProdList(FileLine* fl, AstNodeExpr* weightp, AstNode* prodsp)
+പൊതു:
+    AstRSProdList(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* weightp, Ast_കണ്ണി* prodsp)
         : ASTGEN_SUPER_RSProdList(fl) {
         this->weightp(weightp);
         addProdsp(prodsp);
     }
     ASTGEN_MEMBERS_AstRSProdList;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool randJoin() const { return m_randJoin; }
-    void randJoin(bool flag) { m_randJoin = flag; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    bool randJoin() സ്ഥിരം { തിരികെ m_randJoin; }
+    ശൂന്യം randJoin(bool flag) { m_randJoin = flag; }
 };
-class AstRSReturn final : public AstNodeStmt {
+class AstRSReturn final : പൊതു Ast_കണ്ണി_Stmt {
     // randsequence return
-public:
-    explicit AstRSReturn(FileLine* fl)
+പൊതു:
+    explicit AstRSReturn(File_വരി* fl)
         : ASTGEN_SUPER_RSReturn(fl) {}
     ASTGEN_MEMBERS_AstRSReturn;
-    string verilogKwd() const override { return "return"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() സ്ഥിരം override { തിരികെ "return"; }
+    bool isBrancher() സ്ഥിരം override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSRule final : public AstNodeStmt {
+class AstRSRule final : പൊതു Ast_കണ്ണി_Stmt {
     // randomsquence rule
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodlistsp : List[AstRSProdList]
     // @astgen op3 := weightStmtsp : List[AstNode]
-public:
-    AstRSRule(FileLine* fl, AstNodeExpr* weightp, AstRSProdList* prodlistsp, AstNode* weightStmtsp)
+പൊതു:
+    AstRSRule(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* weightp, AstRSProdList* prodlistsp, Ast_കണ്ണി* weightStmtsp)
         : ASTGEN_SUPER_RSRule(fl) {
         this->weightp(weightp);
         addProdlistsp(prodlistsp);
         addWeightStmtsp(weightStmtsp);
     }
     ASTGEN_MEMBERS_AstRSRule;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
 };
-class AstRandCase final : public AstNodeStmt {
+class AstRandCase final : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op2 := itemsp : List[AstCaseItem]
-public:
-    AstRandCase(FileLine* fl, AstCaseItem* itemsp)
+പൊതു:
+    AstRandCase(File_വരി* fl, AstCaseItem* itemsp)
         : ASTGEN_SUPER_RandCase(fl) {
         addItemsp(itemsp);
         v3Global.useRandomizeMethods(true);
     }
     ASTGEN_MEMBERS_AstRandCase;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
 };
-class AstRandSequence final : public AstNodeStmt {
+class AstRandSequence final : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op2 := prodsp : List[AstRSProd]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to start production (if any)
     string m_name;  // Created unique name
     string m_start;  // Name of start production, or "" to use first production
-public:
-    AstRandSequence(FileLine* fl, const string& start, AstRSProd* prodsp)
+പൊതു:
+    AstRandSequence(File_വരി* fl, സ്ഥിരം string& start, AstRSProd* prodsp)
         : ASTGEN_SUPER_RandSequence(fl)
         , m_start{start} {
         addProdsp(prodsp);
     }
     ASTGEN_MEMBERS_AstRandSequence;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Block name
-    void name(const string& name) override { m_name = name; }
-    string start() const VL_MT_STABLE { return m_start; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    AstRSProd* prodp() const { return m_prodp; }
-    void prodp(AstRSProd* nodep) { m_prodp = nodep; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_name; }  // * = Block name
+    ശൂന്യം name(സ്ഥിരം string& name) override { m_name = name; }
+    string start() സ്ഥിരം VL_MT_STABLE { തിരികെ m_start; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    AstRSProd* prodp() സ്ഥിരം { തിരികെ m_prodp; }
+    ശൂന്യം prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRelease final : public AstNodeStmt {
+class AstRelease final : പൊതു Ast_കണ്ണി_Stmt {
     // Procedural 'release' statement
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstRelease(FileLine* fl, AstNodeExpr* lhsp)
+പൊതു:
+    AstRelease(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp)
         : ASTGEN_SUPER_Release(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstRelease;
 };
-class AstRepeat final : public AstNodeStmt {
+class AstRepeat final : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := countp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstRepeat(FileLine* fl, AstNodeExpr* countp, AstNode* stmtsp)
+പൊതു:
+    AstRepeat(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* countp, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_Repeat(fl) {
         this->countp(countp);
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstRepeat;
-    bool isGateOptimizable() const override { return false; }  // Not relevant - converted to FOR
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }  // Not relevant - converted to FOR
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_BRANCH; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstReturn final : public AstNodeStmt {
+class AstReturn final : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := lhsp : Optional[AstNodeExpr]
-public:
-    explicit AstReturn(FileLine* fl, AstNodeExpr* lhsp = nullptr)
+പൊതു:
+    explicit AstReturn(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp = nullptr)
         : ASTGEN_SUPER_Return(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstReturn;
-    string verilogKwd() const override { return "return"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() സ്ഥിരം override { തിരികെ "return"; }
+    bool isBrancher() സ്ഥിരം override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstSFormat final : public AstNodeStmt {
+class AstSFormat final : പൊതു Ast_കണ്ണി_Stmt {
     // Parents: statement container
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := lhsp : AstNodeExpr
-public:
-    AstSFormat(FileLine* fl, bool optionalFormat, AstNodeExpr* lhsp, AstNodeExpr* exprsp,
-               char missingArgChar = 'd')
+പൊതു:
+    AstSFormat(File_വരി* fl, bool optionalFormat, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* exprsp,
+               അക്ഷരം missingArgChar = 'd')
         : ASTGEN_SUPER_SFormat(fl) {
-        AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+        AstSFormatF* സ്ഥിരം newp
+            = new AstSFormatF{fl, AstSFormatF::വ്യഞ്ജകം_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(optionalFormat);
         fmtp(newp);
         this->lhsp(lhsp);
     }
-    AstSFormat(FileLine* fl, AstSFormatF* fmtp, AstNodeExpr* lhsp)
+    AstSFormat(File_വരി* fl, AstSFormatF* fmtp, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp)
         : ASTGEN_SUPER_SFormat(fl) {
         this->fmtp(fmtp);
         this->lhsp(lhsp);
         fmtp->hidden(true);
     }
     ASTGEN_MEMBERS_AstSFormat;
-    const char* broken() const override {
+    സ്ഥിരം അക്ഷരം* broken() സ്ഥിരം override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        തിരികെ nullptr;
     }
-    string verilogKwd() const override { return "$sformat"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
-    bool isPure() override { return true; }
-    bool isOutputter() override { return false; }
-    virtual bool cleanOut() const { return false; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "$sformat"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ true; }
+    bool isPure() override { തിരികെ true; }
+    bool isOutputter() override { തിരികെ false; }
+    മായാ bool cleanOut() സ്ഥിരം { തിരികെ false; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_PLI; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstSetuphold final : public AstNodeStmt {
+class AstSetuphold final : പൊതു Ast_കണ്ണി_Stmt {
     // Verilog $setuphold
     // @astgen op1 := refevp : AstNodeExpr
     // @astgen op2 := dataevp : AstNodeExpr
     // @astgen op3 := delrefp : Optional[AstNodeExpr]
     // @astgen op4 := deldatap : Optional[AstNodeExpr]
-public:
-    AstSetuphold(FileLine* fl, AstNodeExpr* refevp, AstNodeExpr* dataevp,
-                 AstNodeExpr* delrefp = nullptr, AstNodeExpr* deldatap = nullptr)
+പൊതു:
+    AstSetuphold(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* refevp, Ast_കണ്ണി_വ്യഞ്ജകം* dataevp,
+                 Ast_കണ്ണി_വ്യഞ്ജകം* delrefp = nullptr, Ast_കണ്ണി_വ്യഞ്ജകം* deldatap = nullptr)
         : ASTGEN_SUPER_Setuphold(fl) {
         this->refevp(refevp);
         this->dataevp(dataevp);
@@ -1209,89 +1209,89 @@ public:
         this->deldatap(deldatap);
     }
     ASTGEN_MEMBERS_AstSetuphold;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstStackTraceT final : public AstNodeStmt {
+class Ast_അട്ടി_Trace_T final : പൊതു Ast_കണ്ണി_Stmt {
     // $stacktrace used as task
-public:
-    explicit AstStackTraceT(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceT(fl) {}
-    ASTGEN_MEMBERS_AstStackTraceT;
-    string verilogKwd() const override { return "$stacktrace"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+പൊതു:
+    explicit Ast_അട്ടി_Trace_T(File_വരി* fl)
+        : ASTGEN_SUPER_അട്ടി_Trace_T(fl) {}
+    ASTGEN_MEMBERS_Ast_അട്ടി_Trace_T;
+    string verilogKwd() സ്ഥിരം override { തിരികെ "$stacktrace"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstStmtExpr final : public AstNodeStmt {
+class Ast_Stmt_വ്യഞ്ജകം final : പൊതു Ast_കണ്ണി_Stmt {
     // Expression in statement position
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstStmtExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_StmtExpr(fl) {
+പൊതു:
+    Ast_Stmt_വ്യഞ്ജകം(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* exprp)
+        : ASTGEN_SUPER_Stmt_വ്യഞ്ജകം(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstStmtExpr;
+    ASTGEN_MEMBERS_Ast_Stmt_വ്യഞ്ജകം;
     // cppcheck-suppress uselessOverride
-    bool isPure() override { return exprp()->isPure(); }
+    bool isPure() override { തിരികെ exprp()->isPure(); }
 };
-class AstStmtPragma final : public AstNodeStmt {
+class AstStmtPragma final : പൊതു Ast_കണ്ണി_Stmt {
     // Pragma in statement position
     // @astgen op1 := pragp : AstPragma
-public:
-    AstStmtPragma(FileLine* fl, AstPragma* pragp)
+പൊതു:
+    AstStmtPragma(File_വരി* fl, AstPragma* pragp)
         : ASTGEN_SUPER_StmtPragma(fl) {
         this->pragp(pragp);
     }
     ASTGEN_MEMBERS_AstStmtPragma;
 };
-class AstStop final : public AstNodeStmt {
-    const bool m_isFatal;  // $fatal not $stop
-public:
-    AstStop(FileLine* fl, bool isFatal)
+class AstStop final : പൊതു Ast_കണ്ണി_Stmt {
+    സ്ഥിരം bool m_isFatal;  // $fatal not $stop
+പൊതു:
+    AstStop(File_വരി* fl, bool isFatal)
         : ASTGEN_SUPER_Stop(fl)
         , m_isFatal{isFatal} {}
     ASTGEN_MEMBERS_AstStop;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
-    string emitVerilog() const { return m_isFatal ? "$fatal" : "$stop"; }
-    bool isFatal() const { return m_isFatal; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { തിരികെ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 0; }  // Rarely executes
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ fileline() == samep->fileline(); }
+    string emitVerilog() സ്ഥിരം { തിരികെ m_isFatal ? "$fatal" : "$stop"; }
+    bool isFatal() സ്ഥിരം { തിരികെ m_isFatal; }
 };
-class AstSystemT final : public AstNodeStmt {
+class AstSystemT final : പൊതു Ast_കണ്ണി_Stmt {
     // $system used as task
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstSystemT(FileLine* fl, AstNodeExpr* lhsp)
+പൊതു:
+    AstSystemT(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp)
         : ASTGEN_SUPER_SystemT(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstSystemT;
-    string verilogKwd() const override { return "$system"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "$system"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isUnlikely() സ്ഥിരം override { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* /*samep*/) സ്ഥിരം override { തിരികെ true; }
 };
-class AstTimeFormat final : public AstNodeStmt {
+class AstTimeFormat final : പൊതു Ast_കണ്ണി_Stmt {
     // Parents: stmtlist
     // @astgen op1 := unitsp : Optional[AstNodeExpr]
     // @astgen op2 := precisionp : Optional[AstNodeExpr]
     // @astgen op3 := suffixp : Optional[AstNodeExpr]
     // @astgen op4 := widthp : Optional[AstNodeExpr]
-public:
-    AstTimeFormat(FileLine* fl, AstNodeExpr* unitsp, AstNodeExpr* precisionp, AstNodeExpr* suffixp,
-                  AstNodeExpr* widthp)
+പൊതു:
+    AstTimeFormat(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* unitsp, Ast_കണ്ണി_വ്യഞ്ജകം* precisionp, Ast_കണ്ണി_വ്യഞ്ജകം* suffixp,
+                  Ast_കണ്ണി_വ്യഞ്ജകം* widthp)
         : ASTGEN_SUPER_TimeFormat(fl) {
         this->unitsp(unitsp);
         this->precisionp(precisionp);
@@ -1299,14 +1299,14 @@ public:
         this->widthp(widthp);
     }
     ASTGEN_MEMBERS_AstTimeFormat;
-    string verilogKwd() const override { return "$timeformat"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "$timeformat"; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPure() override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ INSTR_എണ്ണം_PLI; }
 };
-class AstTraceDecl final : public AstNodeStmt {
+class AstTraceDecl final : പൊതു Ast_കണ്ണി_Stmt {
     // Trace point declaration
     // Separate from AstTraceInc; as a declaration can't be deleted
     // Parents:  {statement list}
@@ -1317,19 +1317,19 @@ class AstTraceDecl final : public AstNodeStmt {
     // @astgen ptr := m_dtypeDeclp: Optional[AstTraceDecl] // CCall TraceDecl which replaces this
     uint32_t m_code{std::numeric_limits<uint32_t>::max()};  // Trace identifier code
     uint32_t m_fidx{0};  // Trace function index
-    const string m_showname;  // Name of variable
-    const VNumRange m_bitRange;  // Property of var the trace details
-    const VNumRange m_arrayRange;  // Property of var the trace details
-    const VVarType m_varType;  // Type of variable (for localparam vs. param)
-    const VDirection m_declDirection;  // Declared direction input/output etc
-    const bool m_inDtypeFunc;  // Trace decl inside type init function
+    സ്ഥിരം string m_showname;  // Name of variable
+    സ്ഥിരം VNumRange m_bitRange;  // Property of var the trace details
+    സ്ഥിരം VNumRange m_arrayRange;  // Property of var the trace details
+    സ്ഥിരം VVarType m_varType;  // Type of variable (for localparam vs. param)
+    സ്ഥിരം VDirection m_declDirection;  // Declared direction input/output etc
+    സ്ഥിരം bool m_inDtypeFunc;  // Trace decl inside type init function
     // dist-ast-dump-suppress  // Not stable and of low value
-    int m_codeInc{0};  // Code increment for type
-public:
-    AstTraceDecl(FileLine* fl, const string& showname,
+    പൂർണ്ണസംഖ്യ m_codeInc{0};  // Code increment for type
+പൊതു:
+    AstTraceDecl(File_വരി* fl, സ്ഥിരം string& showname,
                  AstVar* varp,  // For input/output state etc
-                 AstNodeExpr* valuep, const VNumRange& bitRange, const VNumRange& arrayRange,
-                 AstCCall* const dtypeCallp, const bool inDtypeFunc)
+                 Ast_കണ്ണി_വ്യഞ്ജകം* valuep, സ്ഥിരം VNumRange& bitRange, സ്ഥിരം VNumRange& arrayRange,
+                 AstCCall* സ്ഥിരം dtypeCallp, സ്ഥിരം bool inDtypeFunc)
         : ASTGEN_SUPER_TraceDecl(fl)
         , m_showname{showname}
         , m_bitRange{bitRange}
@@ -1341,48 +1341,48 @@ public:
         this->valuep(valuep);
         this->dtypeCallp(dtypeCallp);
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 100; }  // Large...
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 100; }  // Large...
     ASTGEN_MEMBERS_AstTraceDecl;
-    string name() const override VL_MT_STABLE { return m_showname; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override { return true; }
-    string showname() const { return m_showname; }  // * = Var name
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_showname; }
+    bool maybePointedTo() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
+    bool hasDType() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ true; }
+    string showname() സ്ഥിരം { തിരികെ m_showname; }  // * = Var name
     // Details on what we're tracing
-    uint32_t code() const { return m_code; }
-    void code(uint32_t code) { m_code = code; }
-    bool codeAssigned() const { return m_code != std::numeric_limits<uint32_t>::max(); }
-    uint32_t fidx() const { return m_fidx; }
-    void fidx(uint32_t fidx) { m_fidx = fidx; }
-    void codeInc(uint32_t codeInc) { m_codeInc = codeInc; }
-    uint32_t codeInc() const {
-        if (m_codeInc) { return m_codeInc; }
-        return (m_arrayRange.ranged() ? m_arrayRange.elements() : 1)
-               * valuep()->dtypep()->widthWords()
+    uint32_t code() സ്ഥിരം { തിരികെ m_code; }
+    ശൂന്യം code(uint32_t code) { m_code = code; }
+    bool codeAssigned() സ്ഥിരം { തിരികെ m_code != std::numeric_limits<uint32_t>::max(); }
+    uint32_t fidx() സ്ഥിരം { തിരികെ m_fidx; }
+    ശൂന്യം fidx(uint32_t fidx) { m_fidx = fidx; }
+    ശൂന്യം codeInc(uint32_t codeInc) { m_codeInc = codeInc; }
+    uint32_t codeInc() സ്ഥിരം {
+        എങ്കിൽ (m_codeInc) { തിരികെ m_codeInc; }
+        തിരികെ (m_arrayRange.ranged() ? m_arrayRange.elements() : 1)
+               * valuep()->dtypep()->width_വാക്കുകൾ()
                * (VL_EDATASIZE / 32);  // A code is always 32-bits
     }
-    const VNumRange& bitRange() const { return m_bitRange; }
-    const VNumRange& arrayRange() const { return m_arrayRange; }
-    VVarType varType() const { return m_varType; }
-    VDirection declDirection() const { return m_declDirection; }
-    AstCCall* dtypeCallp() const { return m_dtypeCallp; }
-    void dtypeCallp(AstCCall* const callp) { m_dtypeCallp = callp; }
-    AstTraceDecl* dtypeDeclp() const { return m_dtypeDeclp; }
-    void dtypeDeclp(AstTraceDecl* const declp) { m_dtypeDeclp = declp; }
-    bool inDtypeFunc() const { return m_inDtypeFunc; }
+    സ്ഥിരം VNumRange& bitRange() സ്ഥിരം { തിരികെ m_bitRange; }
+    സ്ഥിരം VNumRange& arrayRange() സ്ഥിരം { തിരികെ m_arrayRange; }
+    VVarType varType() സ്ഥിരം { തിരികെ m_varType; }
+    VDirection declDirection() സ്ഥിരം { തിരികെ m_declDirection; }
+    AstCCall* dtypeCallp() സ്ഥിരം { തിരികെ m_dtypeCallp; }
+    ശൂന്യം dtypeCallp(AstCCall* സ്ഥിരം callp) { m_dtypeCallp = callp; }
+    AstTraceDecl* dtypeDeclp() സ്ഥിരം { തിരികെ m_dtypeDeclp; }
+    ശൂന്യം dtypeDeclp(AstTraceDecl* സ്ഥിരം declp) { m_dtypeDeclp = declp; }
+    bool inDtypeFunc() സ്ഥിരം { തിരികെ m_inDtypeFunc; }
 };
-class AstTraceInc final : public AstNodeStmt {
+class AstTraceInc final : പൊതു Ast_കണ്ണി_Stmt {
     // Trace point dump
     // @astgen op1 := valuep : AstNodeExpr // Expression being traced (from decl)
     //
     // @astgen ptr := m_declp : AstTraceDecl  // Pointer to declaration
-    const uint32_t m_baseCode;  // Trace code base value in function containing this AstTraceInc
-    const VTraceType m_traceType;  // Is this a const/full/incremental dump
+    സ്ഥിരം uint32_t m_baseCode;  // Trace code base value in function containing this AstTraceInc
+    സ്ഥിരം VTraceType m_traceType;  // Is this a const/full/incremental dump
 
-public:
-    AstTraceInc(FileLine* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t baseCode = 0)
+പൊതു:
+    AstTraceInc(File_വരി* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t baseCode = 0)
         : ASTGEN_SUPER_TraceInc(fl)
         , m_baseCode{baseCode}
         , m_traceType{traceType}
@@ -1390,96 +1390,96 @@ public:
         dtypeFrom(declp);
         // Note: A clone is necessary (instead of using declp()->valuep()),
         // for insertion of local temporaries in V3Premit
-        valuep(declp->valuep()->cloneTree(true));
+        valuep(declp->valuep()->clone_വൃക്ഷം(true));
     }
     ASTGEN_MEMBERS_AstTraceInc;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 10 + 2 * INSTR_COUNT_LD; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return declp() == VN_DBG_AS(samep, TraceInc)->declp();
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം override { തിരികെ 10 + 2 * INSTR_എണ്ണം_LD; }
+    bool hasDType() സ്ഥിരം override VL_MT_SAFE { തിരികെ true; }
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        തിരികെ declp() == VN_DBG_AS(samep, TraceInc)->declp();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPure() override { return false; }
-    AstTraceDecl* declp() const { return m_declp; }
-    VTraceType traceType() const { return m_traceType; }
-    uint32_t baseCode() const { return m_baseCode; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isPredictOptimizable() സ്ഥിരം override { തിരികെ false; }
+    bool isOutputter() override { തിരികെ true; }
+    bool isPure() override { തിരികെ false; }
+    AstTraceDecl* declp() സ്ഥിരം { തിരികെ m_declp; }
+    VTraceType traceType() സ്ഥിരം { തിരികെ m_traceType; }
+    uint32_t baseCode() സ്ഥിരം { തിരികെ m_baseCode; }
 };
-class AstTracePopPrefix final : public AstNodeStmt {
-public:
-    explicit AstTracePopPrefix(FileLine* fl)
-        : ASTGEN_SUPER_TracePopPrefix(fl) {}
-    ASTGEN_MEMBERS_AstTracePopPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
+class Ast_Trace_എടുക്കുക_Prefix final : പൊതു Ast_കണ്ണി_Stmt {
+പൊതു:
+    explicit Ast_Trace_എടുക്കുക_Prefix(File_വരി* fl)
+        : ASTGEN_SUPER_Trace_എടുക്കുക_Prefix(fl) {}
+    ASTGEN_MEMBERS_Ast_Trace_എടുക്കുക_Prefix;
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ false; }
 };
-class AstTracePushPrefix final : public AstNodeStmt {
-    const string m_prefix;  // Prefix to add to signal names
-    const VTracePrefixType m_prefixType;  // Type of prefix being pushed
-    const int m_left;  // Array left index, or struct/union member count
-    const int m_right;  // Array right index
-    const bool m_quotedPrefix;  // Quote prefix name
-public:
-    AstTracePushPrefix(FileLine* fl, const string& prefix, VTracePrefixType prefixType,
-                       int left = 0, int right = 0, bool quotedPrefix = true)
-        : ASTGEN_SUPER_TracePushPrefix(fl)
+class Ast_Trace_തള്ളുക_Prefix final : പൊതു Ast_കണ്ണി_Stmt {
+    സ്ഥിരം string m_prefix;  // Prefix to add to signal names
+    സ്ഥിരം VTracePrefixType m_prefixType;  // Type of prefix being pushed
+    സ്ഥിരം പൂർണ്ണസംഖ്യ m_ഇടത്;  // Array left index, or struct/union member count
+    സ്ഥിരം പൂർണ്ണസംഖ്യ m_വലത്;  // Array right index
+    സ്ഥിരം bool m_quotedPrefix;  // Quote prefix name
+പൊതു:
+    Ast_Trace_തള്ളുക_Prefix(File_വരി* fl, സ്ഥിരം string& prefix, VTracePrefixType prefixType,
+                       പൂർണ്ണസംഖ്യ ഇടത് = 0, പൂർണ്ണസംഖ്യ വലത് = 0, bool quotedPrefix = true)
+        : ASTGEN_SUPER_Trace_തള്ളുക_Prefix(fl)
         , m_prefix{prefix}
         , m_prefixType{prefixType}
-        , m_left{left}
-        , m_right{right}
+        , m_ഇടത്{ഇടത്}
+        , m_വലത്{വലത്}
         , m_quotedPrefix{quotedPrefix} {}
-    ASTGEN_MEMBERS_AstTracePushPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string prefix() const { return m_prefix; }
-    VTracePrefixType prefixType() const { return m_prefixType; }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    bool quotedPrefix() const { return m_quotedPrefix; }
+    ASTGEN_MEMBERS_Ast_Trace_തള്ളുക_Prefix;
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override { തിരികെ false; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    string prefix() സ്ഥിരം { തിരികെ m_prefix; }
+    VTracePrefixType prefixType() സ്ഥിരം { തിരികെ m_prefixType; }
+    പൂർണ്ണസംഖ്യ ഇടത്() സ്ഥിരം { തിരികെ m_ഇടത്; }
+    പൂർണ്ണസംഖ്യ വലത്() സ്ഥിരം { തിരികെ m_വലത്; }
+    bool quotedPrefix() സ്ഥിരം { തിരികെ m_quotedPrefix; }
 };
-class AstWait final : public AstNodeStmt {
+class AstWait final : പൊതു Ast_കണ്ണി_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstWait(FileLine* fl, AstNodeExpr* condp, AstNode* stmtsp)
+പൊതു:
+    AstWait(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* condp, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_Wait(fl) {
         this->condp(condp);
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstWait;
-    bool isTimingControl() const override { return true; }
+    bool isTimingControl() സ്ഥിരം override { തിരികെ true; }
 };
-class AstWaitFork final : public AstNodeStmt {
+class AstWaitFork final : പൊതു Ast_കണ്ണി_Stmt {
     // A "wait fork" statement
-public:
-    explicit AstWaitFork(FileLine* fl)
+പൊതു:
+    explicit AstWaitFork(File_വരി* fl)
         : ASTGEN_SUPER_WaitFork(fl) {}
     ASTGEN_MEMBERS_AstWaitFork;
-    bool isTimingControl() const override { return true; }
-    string verilogKwd() const override { return "wait fork"; }
+    bool isTimingControl() സ്ഥിരം override { തിരികെ true; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "wait fork"; }
 };
 
 // === AstNodeAssign ===
-class AstAssign final : public AstNodeAssign {
-public:
-    AstAssign(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-              AstNode* timingControlp = nullptr)
+class AstAssign final : പൊതു Ast_കണ്ണി_Assign {
+പൊതു:
+    AstAssign(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp,
+              Ast_കണ്ണി* timingControlp = nullptr)
         : ASTGEN_SUPER_Assign(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAssign;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssign{fileline(), lhsp, rhsp, controlp};
+    Ast_കണ്ണി_Assign* cloneType(Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) override {
+        Ast_കണ്ണി* സ്ഥിരം controlp = timingControlp() ? timingControlp()->clone_വൃക്ഷം(false) : nullptr;
+        തിരികെ new AstAssign{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignCompound final : public AstNodeAssign {
+class AstAssignCompound final : പൊതു Ast_കണ്ണി_Assign {
     // Compound assignments (+=, -=, *=, ...)
-public:
-    enum operation : uint8_t {
+പൊതു:
+    എണ്ണൽ operation : uint8_t {
         Add,
         And,
         Div,
@@ -1493,100 +1493,100 @@ public:
         Xor,
     };
 
-private:
+സ്വകാര്യ:
     operation m_operation;
 
-public:
-    AstAssignCompound(AstAssignCompound::operation operation, FileLine* fl, AstNodeExpr* lhsp,
-                      AstNodeExpr* rhsp, AstNode* timingControlp = nullptr)
+പൊതു:
+    AstAssignCompound(AstAssignCompound::operation operation, File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp,
+                      Ast_കണ്ണി_വ്യഞ്ജകം* rhsp, Ast_കണ്ണി* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignCompound(fl, lhsp, rhsp, timingControlp) {
         this->m_operation = operation;
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAssignCompound;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignCompound{operation(), fileline(), lhsp, rhsp, controlp};
+    Ast_കണ്ണി_Assign* cloneType(Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) override {
+        Ast_കണ്ണി* സ്ഥിരം controlp = timingControlp() ? timingControlp()->clone_വൃക്ഷം(false) : nullptr;
+        തിരികെ new AstAssignCompound{operation(), fileline(), lhsp, rhsp, controlp};
     }
-    operation operation() { return m_operation; }
+    operation operation() { തിരികെ m_operation; }
 };
-class AstAssignCont final : public AstNodeAssign {
+class AstAssignCont final : പൊതു Ast_കണ്ണി_Assign {
     // Continuous procedural 'assign'.  See AstAssignW for non-procedural version.
-public:
-    AstAssignCont(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
+പൊതു:
+    AstAssignCont(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp,
+                  Ast_കണ്ണി* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignCont(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAssignCont;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignCont{fileline(), lhsp, rhsp, controlp};
+    Ast_കണ്ണി_Assign* cloneType(Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) override {
+        Ast_കണ്ണി* സ്ഥിരം controlp = timingControlp() ? timingControlp()->clone_വൃക്ഷം(false) : nullptr;
+        തിരികെ new AstAssignCont{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignDly final : public AstNodeAssign {
-public:
-    AstAssignDly(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                 AstNode* timingControlp = nullptr)
+class AstAssignDly final : പൊതു Ast_കണ്ണി_Assign {
+പൊതു:
+    AstAssignDly(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp,
+                 Ast_കണ്ണി* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignDly(fl, lhsp, rhsp, timingControlp) {}
     ASTGEN_MEMBERS_AstAssignDly;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignDly{fileline(), lhsp, rhsp, controlp};
+    Ast_കണ്ണി_Assign* cloneType(Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) override {
+        Ast_കണ്ണി* സ്ഥിരം controlp = timingControlp() ? timingControlp()->clone_വൃക്ഷം(false) : nullptr;
+        തിരികെ new AstAssignDly{fileline(), lhsp, rhsp, controlp};
     }
-    bool isGateOptimizable() const override { return false; }
-    string verilogKwd() const override { return "<="; }
+    bool isGateOptimizable() സ്ഥിരം override { തിരികെ false; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "<="; }
 };
-class AstAssignForce final : public AstNodeAssign {
+class AstAssignForce final : പൊതു Ast_കണ്ണി_Assign {
     // Procedural 'force' statement
-public:
-    AstAssignForce(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+പൊതു:
+    AstAssignForce(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp)
         : ASTGEN_SUPER_AssignForce(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstAssignForce;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        return new AstAssignForce{fileline(), lhsp, rhsp};
+    Ast_കണ്ണി_Assign* cloneType(Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) override {
+        തിരികെ new AstAssignForce{fileline(), lhsp, rhsp};
     }
 };
-class AstAssignW final : public AstNodeAssign {
+class AstAssignW final : പൊതു Ast_കണ്ണി_Assign {
     // Like assign, but wire/assign's in verilog, the only setting of the specified variable
     // @astgen op4 := strengthSpecp : Optional[AstStrengthSpec]
-public:
-    AstAssignW(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-               AstNode* timingControlp = nullptr)
+പൊതു:
+    AstAssignW(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp,
+               Ast_കണ്ണി* timingControlp = nullptr)
         : ASTGEN_SUPER_AssignW(fl, lhsp, rhsp, timingControlp) {}
     ASTGEN_MEMBERS_AstAssignW;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignW{fileline(), lhsp, rhsp, controlp};
+    Ast_കണ്ണി_Assign* cloneType(Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) override {
+        Ast_കണ്ണി* സ്ഥിരം controlp = timingControlp() ? timingControlp()->clone_വൃക്ഷം(false) : nullptr;
+        തിരികെ new AstAssignW{fileline(), lhsp, rhsp, controlp};
     }
-    bool isTimingControl() const override {
-        return timingControlp() || lhsp()->exists([](const AstNodeVarRef* refp) {
-            return refp->access().isWriteOrRW() && refp->varp()->delayp();
+    bool isTimingControl() സ്ഥിരം override {
+        തിരികെ timingControlp() || lhsp()->exists([](സ്ഥിരം Ast_കണ്ണി_Var_Ref* refp) {
+            തിരികെ refp->access().isWriteOrRW() && refp->varp()->delayp();
         });
     }
-    AstDelay* getLhsNetDelay() const;
+    AstDelay* getLhsNetDelay() സ്ഥിരം;
 };
 
 // === AstNodeBlock ===
-class AstBegin final : public AstNodeBlock {
+class AstBegin final : പൊതു Ast_കണ്ണി_Block {
     // A 'begin'/'end' named block.
     bool m_needProcess : 1;  // Uses VlProcess
-    const bool m_implied : 1;  // Not inserted by user
-public:
-    AstBegin(FileLine* fl, const string& name, AstNode* stmtsp, bool implied)
+    സ്ഥിരം bool m_implied : 1;  // Not inserted by user
+പൊതു:
+    AstBegin(File_വരി* fl, സ്ഥിരം string& name, Ast_കണ്ണി* stmtsp, bool implied)
         : ASTGEN_SUPER_Begin(fl, name)
         , m_needProcess{false}
         , m_implied{implied} {
         addStmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstBegin;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void setNeedProcess() { m_needProcess = true; }
-    bool needProcess() const { return m_needProcess; }
-    bool implied() const { return m_implied; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം setNeedProcess() { m_needProcess = true; }
+    bool needProcess() സ്ഥിരം { തിരികെ m_needProcess; }
+    bool implied() സ്ഥിരം { തിരികെ m_implied; }
 };
-class AstFork final : public AstNodeBlock {
+class AstFork final : പൊതു Ast_കണ്ണി_Block {
     // A 'fork'/'join*' named block. Note that this is a strict superset of
     // AstBegin, and it does contain AstNodeBlock::stmtsp(), which are
     // statements that execute sequentially before the parallel statements are
@@ -1596,149 +1596,149 @@ class AstFork final : public AstNodeBlock {
     // be executed sequentially within each fork branch.
     //
     // @astgen op3 := forksp : List[AstBegin]
-    const VJoinType m_joinType;  // Join keyword type
+    സ്ഥിരം VJoinType m_joinType;  // Join keyword type
     bool m_immediateStart = false;  // Fork starts before its parent blocks or exits
 
-public:
-    AstFork(FileLine* fl, VJoinType joinType, const string& name = "")
+പൊതു:
+    AstFork(File_വരി* fl, VJoinType joinType, സ്ഥിരം string& name = "")
         : ASTGEN_SUPER_Fork(fl, name)
         , m_joinType{joinType} {}
     ASTGEN_MEMBERS_AstFork;
-    bool sameNode(const AstNode* samep) const override {
-        const AstFork* const asamep = VN_DBG_AS(samep, Fork);
-        return joinType() == asamep->joinType() && immediateStart() == asamep->immediateStart();
+    bool same_കണ്ണി(സ്ഥിരം Ast_കണ്ണി* samep) സ്ഥിരം override {
+        സ്ഥിരം AstFork* സ്ഥിരം asamep = VN_DBG_AS(samep, Fork);
+        തിരികെ joinType() == asamep->joinType() && immediateStart() == asamep->immediateStart();
     }
-    bool isTimingControl() const override { return !joinType().joinNone(); }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VJoinType joinType() const { return m_joinType; }
-    bool immediateStart() const { return m_immediateStart; }
-    void immediateStart(bool flag) { m_immediateStart = flag; }
+    bool isTimingControl() സ്ഥിരം override { തിരികെ !joinType().joinNone(); }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    VJoinType joinType() സ്ഥിരം { തിരികെ m_joinType; }
+    bool immediateStart() സ്ഥിരം { തിരികെ m_immediateStart; }
+    ശൂന്യം immediateStart(bool flag) { m_immediateStart = flag; }
 };
 
 // === AstNodeCoverOrAssert ===
-class AstAssert final : public AstNodeCoverOrAssert {
+class AstAssert final : പൊതു Ast_കണ്ണി_Cover_Or_Assert {
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
 
-public:
+പൊതു:
     ASTGEN_MEMBERS_AstAssert;
-    AstAssert(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp, VAssertType type,
-              VAssertDirectiveType directive, const string& name = "")
+    AstAssert(File_വരി* fl, Ast_കണ്ണി* propp, Ast_കണ്ണി* passsp, Ast_കണ്ണി* failsp, VAssertType type,
+              VAssertDirectiveType directive, സ്ഥിരം string& name = "")
         : ASTGEN_SUPER_Assert(fl, propp, passsp, type, directive, name) {
         addFailsp(failsp);
     }
-    string verilogKwd() const override {
-        return directive() == VAssertDirectiveType::ASSERT ? "assert" : "assume";
+    string verilogKwd() സ്ഥിരം override {
+        തിരികെ directive() == VAssertDirectiveType::ASSERT ? "assert" : "assume";
     }
 };
-class AstAssertIntrinsic final : public AstNodeCoverOrAssert {
+class AstAssertIntrinsic final : പൊതു Ast_കണ്ണി_Cover_Or_Assert {
     // A $cast or other compiler inserted assert, that must run even without --assert option
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
-public:
+പൊതു:
     ASTGEN_MEMBERS_AstAssertIntrinsic;
-    AstAssertIntrinsic(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp,
-                       const string& name = "")
+    AstAssertIntrinsic(File_വരി* fl, Ast_കണ്ണി* propp, Ast_കണ്ണി* passsp, Ast_കണ്ണി* failsp,
+                       സ്ഥിരം string& name = "")
         // Intrinsic asserts are always enabled thus 'type' field is set to INTERNAL.
         : ASTGEN_SUPER_AssertIntrinsic(fl, propp, passsp, VAssertType::INTERNAL,
                                        VAssertDirectiveType::INTRINSIC, name) {
         addFailsp(failsp);
     }
-    string verilogKwd() const override { return "assert"; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "assert"; }
 };
-class AstCover final : public AstNodeCoverOrAssert {
+class AstCover final : പൊതു Ast_കണ്ണി_Cover_Or_Assert {
     // @astgen op3 := coverincsp: List[AstNode] // Coverage node
     bool m_isCoverSeq = false;  // 'cover sequence' (IEEE 1800-2023 16.14.3): fires per
                                 // end-of-match, not per property success
     bool m_isSeqEvent = false;  // Synthesized for a sequence used as an event control
                                 // (IEEE 1800-2023 9.4.2.4)
-public:
+പൊതു:
     ASTGEN_MEMBERS_AstCover;
-    AstCover(FileLine* fl, AstNode* propp, AstNode* stmtsp, VAssertType type,
-             const string& name = "")
+    AstCover(File_വരി* fl, Ast_കണ്ണി* propp, Ast_കണ്ണി* stmtsp, VAssertType type,
+             സ്ഥിരം string& name = "")
         : ASTGEN_SUPER_Cover(fl, propp, stmtsp, type, VAssertDirectiveType::COVER, name) {}
-    string verilogKwd() const override { return "cover"; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isCoverSeq() const { return m_isCoverSeq; }
-    void isCoverSeq(bool flag) { m_isCoverSeq = flag; }
-    bool isSeqEvent() const { return m_isSeqEvent; }
-    void isSeqEvent(bool flag) { m_isSeqEvent = flag; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "cover"; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
+    bool isCoverSeq() സ്ഥിരം { തിരികെ m_isCoverSeq; }
+    ശൂന്യം isCoverSeq(bool flag) { m_isCoverSeq = flag; }
+    bool isSeqEvent() സ്ഥിരം { തിരികെ m_isSeqEvent; }
+    ശൂന്യം isSeqEvent(bool flag) { m_isSeqEvent = flag; }
 };
-class AstRestrict final : public AstNodeCoverOrAssert {
-public:
+class AstRestrict final : പൊതു Ast_കണ്ണി_Cover_Or_Assert {
+പൊതു:
     ASTGEN_MEMBERS_AstRestrict;
-    AstRestrict(FileLine* fl, AstNode* propp)
+    AstRestrict(File_വരി* fl, Ast_കണ്ണി* propp)
         // Intrinsic asserts are always ignored thus 'type' field is set to INTERNAL.
         : ASTGEN_SUPER_Restrict(fl, propp, nullptr, VAssertType::INTERNAL,
                                 VAssertDirectiveType::RESTRICT) {}
-    string verilogKwd() const override { return "restrict"; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ "restrict"; }
 };
 
 // === AstNodeForeach ===
-class AstConstraintForeach final : public AstNodeForeach {
+class AstConstraintForeach final : പൊതു Ast_കണ്ണി_Foreach {
     // Constraint foreach statement
     bool m_soft;  // is soft foreach, non-standard extension
-public:
-    AstConstraintForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp,
+പൊതു:
+    AstConstraintForeach(File_വരി* fl, AstForeachHeader* headerp, Ast_കണ്ണി* bodyp,
                          bool soft = false)
         : ASTGEN_SUPER_ConstraintForeach(fl, headerp, bodyp)
         , m_soft{soft} {}
     ASTGEN_MEMBERS_AstConstraintForeach;
-    bool isSoft() const { return m_soft; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool isSoft() സ്ഥിരം { തിരികെ m_soft; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
 };
-class AstForeach final : public AstNodeForeach {
-public:
-    AstForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* stmtsp)
+class AstForeach final : പൊതു Ast_കണ്ണി_Foreach {
+പൊതു:
+    AstForeach(File_വരി* fl, AstForeachHeader* headerp, Ast_കണ്ണി* stmtsp)
         : ASTGEN_SUPER_Foreach(fl, headerp, stmtsp) {}
     ASTGEN_MEMBERS_AstForeach;
 };
 
 // === AstNodeIf ===
-class AstConstraintIf final : public AstNodeIf {
-public:
-    AstConstraintIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
+class AstConstraintIf final : പൊതു Ast_കണ്ണി_If {
+പൊതു:
+    AstConstraintIf(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* condp, Ast_കണ്ണി* thensp, Ast_കണ്ണി* elsesp)
         : ASTGEN_SUPER_ConstraintIf(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstConstraintIf;
 };
 
-class AstIf final : public AstNodeIf {
+class AstIf final : പൊതു Ast_കണ്ണി_If {
     bool m_uniquePragma = false;  // unique case
     bool m_unique0Pragma = false;  // unique0 case
     bool m_priorityPragma = false;  // priority case
-public:
-    AstIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp = nullptr, AstNode* elsesp = nullptr)
+പൊതു:
+    AstIf(File_വരി* fl, Ast_കണ്ണി_വ്യഞ്ജകം* condp, Ast_കണ്ണി* thensp = nullptr, Ast_കണ്ണി* elsesp = nullptr)
         : ASTGEN_SUPER_If(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstIf;
-    bool uniquePragma() const { return m_uniquePragma; }
-    void uniquePragma(bool flag) { m_uniquePragma = flag; }
-    bool unique0Pragma() const { return m_unique0Pragma; }
-    void unique0Pragma(bool flag) { m_unique0Pragma = flag; }
-    bool priorityPragma() const { return m_priorityPragma; }
-    void priorityPragma(bool flag) { m_priorityPragma = flag; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool uniquePragma() സ്ഥിരം { തിരികെ m_uniquePragma; }
+    ശൂന്യം uniquePragma(bool flag) { m_uniquePragma = flag; }
+    bool unique0Pragma() സ്ഥിരം { തിരികെ m_unique0Pragma; }
+    ശൂന്യം unique0Pragma(bool flag) { m_unique0Pragma = flag; }
+    bool priorityPragma() സ്ഥിരം { തിരികെ m_priorityPragma; }
+    ശൂന്യം priorityPragma(bool flag) { m_priorityPragma = flag; }
+    ശൂന്യം dump(std::ostream& str) സ്ഥിരം override;
+    ശൂന്യം dumpJson(std::ostream& str) സ്ഥിരം override;
 };
 
 // === AstNodeReadWriteMem ===
-class AstReadMem final : public AstNodeReadWriteMem {
-public:
-    AstReadMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-               AstNodeExpr* lsbp, AstNodeExpr* msbp)
+class AstReadMem final : പൊതു Ast_കണ്ണി_Read_Write_Mem {
+പൊതു:
+    AstReadMem(File_വരി* fl, bool hex, Ast_കണ്ണി_വ്യഞ്ജകം* filenamep, Ast_കണ്ണി_വ്യഞ്ജകം* memp,
+               Ast_കണ്ണി_വ്യഞ്ജകം* lsbp, Ast_കണ്ണി_വ്യഞ്ജകം* msbp)
         : ASTGEN_SUPER_ReadMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstReadMem;
-    string verilogKwd() const override { return (isHex() ? "$readmemh" : "$readmemb"); }
-    const char* cFuncPrefixp() const override { return "VL_READMEM_"; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ (isHex() ? "$readmemh" : "$readmemb"); }
+    സ്ഥിരം അക്ഷരം* cFuncPrefixp() സ്ഥിരം override { തിരികെ "VL_READMEM_"; }
 };
-class AstWriteMem final : public AstNodeReadWriteMem {
-public:
-    AstWriteMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-                AstNodeExpr* lsbp, AstNodeExpr* msbp)
+class AstWriteMem final : പൊതു Ast_കണ്ണി_Read_Write_Mem {
+പൊതു:
+    AstWriteMem(File_വരി* fl, bool hex, Ast_കണ്ണി_വ്യഞ്ജകം* filenamep, Ast_കണ്ണി_വ്യഞ്ജകം* memp,
+                Ast_കണ്ണി_വ്യഞ്ജകം* lsbp, Ast_കണ്ണി_വ്യഞ്ജകം* msbp)
         : ASTGEN_SUPER_WriteMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstWriteMem;
-    string verilogKwd() const override { return (isHex() ? "$writememh" : "$writememb"); }
-    const char* cFuncPrefixp() const override { return "VL_WRITEMEM_"; }
+    string verilogKwd() സ്ഥിരം override { തിരികെ (isHex() ? "$writememh" : "$writememb"); }
+    സ്ഥിരം അക്ഷരം* cFuncPrefixp() സ്ഥിരം override { തിരികെ "VL_WRITEMEM_"; }
 };
 
 #endif  // Guard

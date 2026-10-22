@@ -23,119 +23,119 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Sampled.h"
+#അന്തര്ഭാവ "V3Sampled.h"
 
-#include "V3Sched.h"
-#include "V3SharedTmps.h"
+#അന്തര്ഭാവ "V3Sched.h"
+#അന്തര്ഭാവ "V3SharedTmps.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class SampledVisitor final : public VNVisitor {
+വർഗ്ഗം SampledVisitor final : പൊതു VNVisitor {
     // NODE STATE
     //  AstVarScope::user1()  -> AstVarScope*. The VarScope that stores sampled value
     //  AstVarRef::user1()    -> bool. Whether already converted
-    const VNUser1InUse m_user1InUse;
+    സ്ഥിരം VNUser1InUse m_user1InUse;
 
     // STATE - across all visitors
-    AstCFunc* const m_sampleFuncp;  // The 'sample' eval function assigning the sampled values
+    AstCFunc* സ്ഥിരം m_sampleFuncp;  // The 'sample' eval function assigning the sampled values
     V3SharedTmps m_sampledTmps{"__Vsampled", VVarType::MODULETEMP};  // Sampled variables
     V3SharedTmps m_forceTmps{"__VsampledForce", VVarType::MODULETEMP};  // Sampled force values
     // Keys remain in the tree as the sampled variables' value expressions.
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_forceSamples;
+    std::unordered_map<VNRef<Ast_കണ്ണി>, AstVarScope*> m_forceSamples;
 
     // STATE - for current visit position (use VL_RESTORER)
     AstScope* m_scopep = nullptr;  // Current scope
-    bool m_inSampled = false;  // True inside a sampled expression
+    തർക്കം m_inSampled = അസത്യം;  // True inside a sampled expression
 
     // METHODS
 
     // Create a variable in the current scope, assigned 'valuep' at the start of each evaluation
-    AstVarScope* createSampledVar(V3SharedTmps& tmps, AstNodeExpr* valuep,
-                                  const std::string& name) {
-        FileLine* const flp = valuep->fileline();
-        AstVarScope* const vscp = tmps.make(flp, m_scopep, valuep->dtypep(), name);
-        vscp->varp()->sampled(true);
-        AstVarRef* const lhsp = new AstVarRef{flp, vscp, VAccess::WRITE};
-        m_sampleFuncp->addStmtsp(new AstAssign{flp, lhsp, valuep});
+    AstVarScope* createSampledVar(V3SharedTmps& tmps, Ast_കണ്ണി_വ്യഞ്ജകം* valuep,
+                                  സ്ഥിരം std::string& name) {
+        File_വരി* സ്ഥിരം flp = valuep->fileline();
+        AstVarScope* സ്ഥിരം vscp = tmps.make(flp, m_scopep, valuep->dtypep(), name);
+        vscp->varp()->sampled(സത്യം);
+        AstVarRef* സ്ഥിരം lhsp = പുതിയ AstVarRef{flp, vscp, VAccess::WRITE};
+        m_sampleFuncp->addStmtsp(പുതിയ AstAssign{flp, lhsp, valuep});
         UINFO(4, "New Sampled: " << vscp);
-        return vscp;
+        തിരികെ vscp;
     }
 
     // VISITORS
-    void visit(AstScope* nodep) override {
+    ശൂന്യം visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstSampled* nodep) override {
+    ശൂന്യം visit(AstSampled* nodep) override {
         VL_RESTORER(m_inSampled);
-        m_inSampled = true;
+        m_inSampled = സത്യം;
         iterateChildren(nodep);
         nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
-        if (!m_inSampled || nodep->method() != VCMethod::FORCE_READ) {
+    ശൂന്യം visit(AstCMethodHard* nodep) override {
+        എങ്കിൽ (!m_inSampled || nodep->method() != VCMethod::FORCE_READ) {
             iterateChildren(nodep);
-            return;
+            തിരികെ;
         }
         // Force vectors hold pointers to live RHS shadows. Copying the vector and base
         // separately would let later writes change the sampled value (IEEE 1800-2023 16.5.1).
         // Whole-signal reads have no user expressions to evaluate at the point of use.
-        const auto pair = m_forceSamples.emplace(*nodep, nullptr);
+        സ്ഥിരം auto pair = m_forceSamples.emplace(*nodep, nullptr);
         AstVarScope*& vscp = pair.first->second;
-        FileLine* const flp = nodep->fileline();
+        File_വരി* സ്ഥിരം flp = nodep->fileline();
         VNRelinker relinker;
         nodep->unlinkFrBack(&relinker);
-        if (pair.second) {
+        എങ്കിൽ (pair.second) {
             vscp = createSampledVar(m_forceTmps, nodep, "");
-        } else {
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        } അല്ലെങ്കിൽ {
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
         }
-        AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::READ};
+        AstVarRef* സ്ഥിരം refp = പുതിയ AstVarRef{flp, vscp, VAccess::READ};
         refp->user1SetOnce();
         relinker.relink(refp);
     }
-    void visit(AstVarRef* nodep) override {
+    ശൂന്യം visit(AstVarRef* nodep) override {
         iterateChildren(nodep);
-        if (m_inSampled && !nodep->user1SetOnce()) {
+        എങ്കിൽ (m_inSampled && !nodep->user1SetOnce()) {
             UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Should have failed in V3Access");
-            AstVarScope* const vscp = nodep->varScopep();
-            if (!vscp->user1p()) {
-                AstVarRef* const valuep = new AstVarRef{vscp->fileline(), vscp, VAccess::READ};
+            AstVarScope* സ്ഥിരം vscp = nodep->varScopep();
+            എങ്കിൽ (!vscp->user1p()) {
+                AstVarRef* സ്ഥിരം valuep = പുതിയ AstVarRef{vscp->fileline(), vscp, VAccess::READ};
                 vscp->user1p(createSampledVar(m_sampledTmps, valuep, vscp->varp()->name()));
             }
-            AstVarScope* const sampledp = VN_AS(vscp->user1p(), VarScope);
-            AstNode* const newp = new AstVarRef{nodep->fileline(), sampledp, VAccess::READ};
+            AstVarScope* സ്ഥിരം sampledp = VN_AS(vscp->user1p(), VarScope);
+            Ast_കണ്ണി* സ്ഥിരം newp = പുതിയ AstVarRef{nodep->fileline(), sampledp, VAccess::READ};
             newp->user1SetOnce();  // Don't sample this one
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
         }
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit SampledVisitor(AstNetlist* netlistp)
         : m_sampleFuncp{netlistp->evalFuncp(VEval::SAMPLE)} {
         iterate(netlistp);
         V3Sched::util::splitCheck(m_sampleFuncp);
     }
-    ~SampledVisitor() override = default;
+    ~SampledVisitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 // Sampled class functions
 
-void V3Sampled::sampledAll(AstNetlist* nodep) {
+ശൂന്യം V3Sampled::sampledAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { SampledVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("sampled", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("sampled", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

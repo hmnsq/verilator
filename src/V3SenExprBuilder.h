@@ -17,336 +17,336 @@
 #ifndef VERILATOR_V3SENEXPRBUILDER_H_
 #define VERILATOR_V3SENEXPRBUILDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3UniqueNames.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3UniqueNames.h"
 
 //######################################################################
 // SenExprBuilder constructs the expressions used to compute if an
 // AstSenTree have triggered
 
-class SenExprBuilder final {
-public:
+class Sen_വ്യഞ്ജകം_Builder final {
+പൊതു:
     // TYPES
-    struct Results final {
-        std::vector<AstNodeStmt*> m_inits;  // Initialization statements for previous values
-        std::vector<AstNodeStmt*> m_preUpdates;  // Pre update assignments
-        std::vector<AstNodeStmt*> m_postUpdates;  // Post update assignments
+    ഘടന Results final {
+        std::vector<Ast_കണ്ണി_Stmt*> m_inits;  // Initialization statements for previous values
+        std::vector<Ast_കണ്ണി_Stmt*> m_preUpdates;  // Pre update assignments
+        std::vector<Ast_കണ്ണി_Stmt*> m_postUpdates;  // Post update assignments
         // Aliases of destructive post updates (for example event clearFired) that may need
         // to run once before entering a fresh dynamic wait loop.
-        std::vector<AstNodeStmt*> m_destructivePostUpdates;
+        std::vector<Ast_കണ്ണി_Stmt*> m_destructivePostUpdates;
         std::vector<AstVar*> m_vars;  // Created temporary variables
     };
 
-private:
+സ്വകാര്യ:
     // STATE
-    AstScope* const m_scopep;  // The scope
+    AstScope* സ്ഥിരം m_scopep;  // The scope
 
     Results m_results;  // The builder result
 
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_prev;  // The 'previous value' signals
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_curr;  // The 'current value' signals
-    std::unordered_set<VNRef<AstNode>> m_hasPreUpdate;  // Whether the given sen expression already
+    std::unordered_map<VNRef<Ast_കണ്ണി>, AstVarScope*> m_prev;  // The 'previous value' signals
+    std::unordered_map<VNRef<Ast_കണ്ണി>, AstVarScope*> m_curr;  // The 'current value' signals
+    std::unordered_set<VNRef<Ast_കണ്ണി>> m_hasPreUpdate;  // Whether the given sen expression already
                                                         // has an update statement in m_preUpdates
-    std::unordered_set<VNRef<AstNode>> m_hasPostUpdate;  // Likewise for m_postUpdates
+    std::unordered_set<VNRef<Ast_കണ്ണി>> m_hasPostUpdate;  // Likewise for m_postUpdates
 
     V3UniqueNames m_prevNames{"__Vtrigprevexpr"};  // For generating unique temporary names
 
-    static bool isSupportedDType(AstNodeDType* dtypep) {
+    സ്ഥിതം bool isSupportedDType(Ast_കണ്ണി_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, BasicDType)) return true;
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (VN_IS(dtypep, UnpackArrayDType)) return isSupportedDType(dtypep->subDTypep());
-        if (VN_IS(dtypep, NodeUOrStructDType)) return true;  // All are packed at the moment
+        എങ്കിൽ (VN_IS(dtypep, BasicDType)) തിരികെ true;
+        എങ്കിൽ (VN_IS(dtypep, PackArrayDType)) തിരികെ true;
+        എങ്കിൽ (VN_IS(dtypep, UnpackArrayDType)) തിരികെ isSupportedDType(dtypep->subDTypep());
+        എങ്കിൽ (VN_IS(dtypep, കണ്ണി_UOr_Struct_DType)) തിരികെ true;  // All are packed at the moment
         // Per IEEE, detects reference object pointer changes, not contents of the class changes
-        if (VN_IS(dtypep, ClassRefDType)) return true;
-        return false;
+        എങ്കിൽ (VN_IS(dtypep, ClassRefDType)) തിരികെ true;
+        തിരികെ false;
     }
 
-    static bool isSimpleExpr(const AstNode* const exprp) {
-        return exprp->forall([](const AstNode* const nodep) {
-            return VN_IS(nodep, Const) || VN_IS(nodep, NodeVarRef) || VN_IS(nodep, Sel)
-                   || VN_IS(nodep, NodeSel) || VN_IS(nodep, MemberSel)
+    സ്ഥിതം bool is_Simple_വ്യഞ്ജകം(സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം exprp) {
+        തിരികെ exprp->forall([](സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം nodep) {
+            തിരികെ VN_IS(nodep, Const) || VN_IS(nodep, കണ്ണി_Var_Ref) || VN_IS(nodep, Sel)
+                   || VN_IS(nodep, കണ്ണി_Sel) || VN_IS(nodep, MemberSel)
                    || VN_IS(nodep, CMethodHard);
         });
     }
 
     // Whether a reference may be null: a class reference or a virtual interface
-    static bool isNullableRef(const AstNodeExpr* const refp) {
-        if (!refp->dtypep()) return false;
-        const AstNodeDType* const dtypep = refp->dtypep()->skipRefp();
-        const AstIfaceRefDType* const ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
-        return VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
+    സ്ഥിതം bool isNullableRef(സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം refp) {
+        എങ്കിൽ (!refp->dtypep()) തിരികെ false;
+        സ്ഥിരം Ast_കണ്ണി_DType* സ്ഥിരം dtypep = refp->dtypep()->skipRefp();
+        സ്ഥിരം AstIfaceRefDType* സ്ഥിരം ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
+        തിരികെ VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
     }
 
     // Check if expression contains a member access through a reference that could be null
     // (e.g., accessing an event through a class reference that may not be initialized)
-    static bool hasNullableMemberAccess(const AstNode* const exprp) {
-        return exprp && exprp->exists([](const AstNode* const nodep) {
-            const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel);
-            return mselp && isNullableRef(mselp->fromp());
+    സ്ഥിതം bool hasNullableMemberAccess(സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം exprp) {
+        തിരികെ exprp && exprp->exists([](സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം nodep) {
+            സ്ഥിരം AstMemberSel* സ്ഥിരം mselp = VN_CAST(nodep, MemberSel);
+            തിരികെ mselp && isNullableRef(mselp->fromp());
         });
     }
 
     // Get the base reference expression from a member selection chain
     // Returns the outermost reference that needs to be null-checked
     // Note: Returns a pointer into the original tree - caller must clone if needed
-    static const AstNodeExpr* getBaseNullableRef(const AstNodeExpr* exprp) {
-        while (exprp) {
-            if (const AstMemberSel* const mselp = VN_CAST(exprp, MemberSel)) {
-                const AstNodeExpr* const fromp = mselp->fromp();
-                if (isNullableRef(fromp)) {
+    സ്ഥിതം സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* getBaseNullableRef(സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
+        ആകുമ്പോൾ (exprp) {
+            എങ്കിൽ (സ്ഥിരം AstMemberSel* സ്ഥിരം mselp = VN_CAST(exprp, MemberSel)) {
+                സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം fromp = mselp->fromp();
+                എങ്കിൽ (isNullableRef(fromp)) {
                     // Check if the base itself has a member access through a nullable reference
-                    if (hasNullableMemberAccess(fromp)) {
+                    എങ്കിൽ (hasNullableMemberAccess(fromp)) {
                         exprp = fromp;
-                        continue;
+                        തുടരുക;
                     }
-                    return fromp;
+                    തിരികെ fromp;
                 }
                 exprp = fromp;
-            } else {
-                return nullptr;
+            } അല്ലെങ്കിൽ {
+                തിരികെ nullptr;
             }
         }
-        return nullptr;
+        തിരികെ nullptr;
     }
 
     // METHODS
-    AstVarScope* crateTemp(AstNodeExpr* exprp) {
+    AstVarScope* crateTemp(Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
         // For readability, use the scoped signal name if the trigger is a simple AstVarRef
         string name;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
-            AstVarScope* const vscp = refp->varScopep();
+        എങ്കിൽ (AstVarRef* സ്ഥിരം refp = VN_CAST(exprp, VarRef)) {
+            AstVarScope* സ്ഥിരം vscp = refp->varScopep();
             name = "__" + vscp->scopep()->nameDotless() + "__" + vscp->varp()->name();
             name = m_prevNames.get(name);
-        } else {
+        } അല്ലെങ്കിൽ {
             name = m_prevNames.get(exprp);
         }
         // Not shared between instances, as the users might move the variables into processes
-        FileLine* const flp = m_scopep->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+        File_വരി* സ്ഥിരം flp = m_scopep->fileline();
+        AstVar* സ്ഥിരം varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
         varp->isInternal(true);
         m_scopep->modp()->addStmtsp(varp);
-        AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
+        AstVarScope* സ്ഥിരം vscp = new AstVarScope{flp, m_scopep, varp};
         m_scopep->addVarsp(vscp);
-        m_results.m_vars.push_back(varp);
-        return vscp;
+        m_results.m_vars.തള്ളുക_back(varp);
+        തിരികെ vscp;
     }
 
     // Helper to wrap a statement with a null check: if (baseRef != null) stmt
-    AstNodeStmt* wrapStmtWithNullCheck(FileLine* flp, AstNodeStmt* stmtp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return stmtp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_കണ്ണി_Stmt* wrapStmtWithNullCheck(File_വരി* flp, Ast_കണ്ണി_Stmt* stmtp,
+                                       സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* baseRefp) {
+        എങ്കിൽ (!baseRefp) തിരികെ stmtp;
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        return new AstIf{flp, checkp, stmtp};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം checkp
+            = new AstNeq{flp, const_cast<Ast_കണ്ണി_വ്യഞ്ജകം*>(baseRefp)->clone_വൃക്ഷം(false), nullp};
+        തിരികെ new AstIf{flp, checkp, stmtp};
     }
 
     // Helper to wrap a trigger expression with a null check if needed
     // Returns the expression wrapped in: (baseRef != null) ? expr : 0
-    AstNodeExpr* wrapExprWithNullCheck(FileLine* flp, AstNodeExpr* exprp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return exprp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_കണ്ണി_വ്യഞ്ജകം* wrap_വ്യഞ്ജകം_With_Null_Check(File_വരി* flp, Ast_കണ്ണി_വ്യഞ്ജകം* exprp,
+                                       സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* baseRefp) {
+        എങ്കിൽ (!baseRefp) തിരികെ exprp;
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        AstNodeExpr* const falsep = new AstConst{flp, AstConst::BitFalse{}};
-        AstNodeExpr* const condp = new AstCond{flp, checkp, exprp, falsep};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം checkp
+            = new AstNeq{flp, const_cast<Ast_കണ്ണി_വ്യഞ്ജകം*>(baseRefp)->clone_വൃക്ഷം(false), nullp};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം falsep = new AstConst{flp, AstConst::BitFalse{}};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം condp = new AstCond{flp, checkp, exprp, falsep};
         condp->dtypeSetBit();
-        return condp;
+        തിരികെ condp;
     }
 
-    AstNodeExpr* getCurr(AstNodeExpr* exprp) {
+    Ast_കണ്ണി_വ്യഞ്ജകം* getCurr(Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
         // For simple expressions like varrefs or selects, just use them directly
-        if (isSimpleExpr(exprp)) return exprp->cloneTree(false);
+        എങ്കിൽ (is_Simple_വ്യഞ്ജകം(exprp)) തിരികെ exprp->clone_വൃക്ഷം(false);
 
         // Create the 'current value' variable
-        FileLine* const flp = exprp->fileline();
+        File_വരി* സ്ഥിരം flp = exprp->fileline();
         auto result = m_curr.emplace(*exprp, nullptr);
-        if (result.second) result.first->second = crateTemp(exprp);
-        AstVarScope* const currp = result.first->second;
+        എങ്കിൽ (result.second) result.first->second = crateTemp(exprp);
+        AstVarScope* സ്ഥിരം currp = result.first->second;
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
+        സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം baseRefp
             = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
 
         // Add pre update if it does not exist yet in this round
-        if (m_hasPreUpdate.emplace(*currp).second) {
-            m_results.m_preUpdates.push_back(
+        എങ്കിൽ (m_hasPreUpdate.emplace(*currp).second) {
+            m_results.m_preUpdates.തള്ളുക_back(
                 wrapStmtWithNullCheck(flp,
                                       new AstAssign{flp, new AstVarRef{flp, currp, VAccess::WRITE},
-                                                    exprp->cloneTree(false)},
+                                                    exprp->clone_വൃക്ഷം(false)},
                                       baseRefp));
         }
-        return new AstVarRef{flp, currp, VAccess::READ};
+        തിരികെ new AstVarRef{flp, currp, VAccess::READ};
     }
 
-    AstVarScope* getPrev(AstNodeExpr* exprp) {
-        FileLine* const flp = exprp->fileline();
-        const auto rdCurr = [this, exprp]() { return getCurr(exprp); };
+    AstVarScope* getPrev(Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
+        File_വരി* സ്ഥിരം flp = exprp->fileline();
+        സ്ഥിരം auto rdCurr = [this, exprp]() { തിരികെ getCurr(exprp); };
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
+        സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം baseRefp
             = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
 
-        AstNode* scopeExprp = exprp;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
+        Ast_കണ്ണി* scopeExprp = exprp;
+        എങ്കിൽ (AstVarRef* സ്ഥിരം refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
         // Create the 'previous value' variable
-        const auto pair = m_prev.emplace(*scopeExprp, nullptr);
-        if (pair.second) {
-            AstVarScope* const prevp = crateTemp(exprp);
+        സ്ഥിരം auto pair = m_prev.emplace(*scopeExprp, nullptr);
+        എങ്കിൽ (pair.second) {
+            AstVarScope* സ്ഥിരം prevp = crateTemp(exprp);
             pair.first->second = prevp;
             // Add the initializer init (guarded if through a nullable reference)
-            AstAssign* const initp = new AstAssign{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
-                                                   exprp->cloneTree(false)};
-            m_results.m_inits.push_back(wrapStmtWithNullCheck(flp, initp, baseRefp));
+            AstAssign* സ്ഥിരം initp = new AstAssign{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
+                                                   exprp->clone_വൃക്ഷം(false)};
+            m_results.m_inits.തള്ളുക_back(wrapStmtWithNullCheck(flp, initp, baseRefp));
         }
 
-        AstVarScope* const prevp = pair.first->second;
+        AstVarScope* സ്ഥിരം prevp = pair.first->second;
 
-        const auto wrPrev = [=]() { return new AstVarRef{flp, prevp, VAccess::WRITE}; };
+        സ്ഥിരം auto wrPrev = [=]() { തിരികെ new AstVarRef{flp, prevp, VAccess::WRITE}; };
 
         // Add post update if it does not exist yet
-        if (m_hasPostUpdate.emplace(*exprp).second) {
-            AstNodeDType* const exprDtp = exprp->dtypep()->skipRefp();
-            if (!isSupportedDType(exprDtp)) {
+        എങ്കിൽ (m_hasPostUpdate.emplace(*exprp).second) {
+            Ast_കണ്ണി_DType* സ്ഥിരം വ്യഞ്ജകം_Dtp = exprp->dtypep()->skipRefp();
+            എങ്കിൽ (!isSupportedDType(വ്യഞ്ജകം_Dtp)) {
                 exprp->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Cannot detect changes on expression of complex type "
-                        << exprDtp->prettyDTypeNameQ() << "\n"
+                        << വ്യഞ്ജകം_Dtp->prettyDTypeNameQ() << "\n"
                         << exprp->warnMore()
                         << "... May be caused by combinational cycles reported with UNOPTFLAT");
-                return prevp;
+                തിരികെ prevp;
             }
-            if (VN_IS(exprDtp, UnpackArrayDType)) {
-                AstCMethodHard* const cmhp
+            എങ്കിൽ (VN_IS(വ്യഞ്ജകം_Dtp, UnpackArrayDType)) {
+                AstCMethodHard* സ്ഥിരം cmhp
                     = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ASSIGN, rdCurr()};
                 cmhp->dtypeSetVoid();
-                m_results.m_postUpdates.push_back(
+                m_results.m_postUpdates.തള്ളുക_back(
                     wrapStmtWithNullCheck(flp, cmhp->makeStmt(), baseRefp));
-            } else {
-                m_results.m_postUpdates.push_back(
+            } അല്ലെങ്കിൽ {
+                m_results.m_postUpdates.തള്ളുക_back(
                     wrapStmtWithNullCheck(flp, new AstAssign{flp, wrPrev(), rdCurr()}, baseRefp));
             }
         }
 
-        return prevp;
+        തിരികെ prevp;
     }
 
-    std::pair<AstNodeExpr*, bool> createTerm(const AstSenItem* senItemp) {
-        FileLine* const flp = senItemp->fileline();
-        AstNodeExpr* const senp = senItemp->sensp();
+    std::pair<Ast_കണ്ണി_വ്യഞ്ജകം*, bool> createTerm(സ്ഥിരം AstSenItem* senItemp) {
+        File_വരി* സ്ഥിരം flp = senItemp->fileline();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം senp = senItemp->sensp();
 
         // Check if the sensitivity expression involves accessing through a class reference
         // that may be null (e.g., DynScope handles created in fork blocks, or class member
         // virtual interfaces). If so, we need to guard against null pointer dereference.
-        const AstNodeExpr* const baseRefp
+        സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം baseRefp
             = hasNullableMemberAccess(senp) ? getBaseNullableRef(senp) : nullptr;
 
-        const auto currp = [this, senp]() { return getCurr(senp); };
-        const auto prevp
-            = [this, flp, senp]() { return new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
-        const auto lsb = [=](AstNodeExpr* opp) { return new AstSel{flp, opp, 0, 1}; };
+        സ്ഥിരം auto currp = [this, senp]() { തിരികെ getCurr(senp); };
+        സ്ഥിരം auto prevp
+            = [this, flp, senp]() { തിരികെ new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
+        സ്ഥിരം auto lsb = [=](Ast_കണ്ണി_വ്യഞ്ജകം* opp) { തിരികെ new AstSel{flp, opp, 0, 1}; };
 
         // All event signals should be 1-bit at this point
-        switch (senItemp->edgeType()) {
-        case VEdgeType::ET_CHANGED:
-        case VEdgeType::ET_HYBRID:  //
-            if (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
+        തിരഞ്ഞെടുപ്പ് (senItemp->edgeType()) {
+        അവസ്ഥ VEdgeType::ET_CHANGED:
+        അവസ്ഥ VEdgeType::ET_HYBRID:  //
+            എങ്കിൽ (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // operand order reversed to avoid calling neq() method on non-VlUnpacked type, see
                 // issue #5125
-                AstCMethodHard* const resultp
+                AstCMethodHard* സ്ഥിരം resultp
                     = new AstCMethodHard{flp, prevp(), VCMethod::UNPACKED_NEQ, currp()};
                 resultp->dtypeSetBit();
-                return {wrapExprWithNullCheck(flp, resultp, baseRefp), true};
+                തിരികെ {wrap_വ്യഞ്ജകം_With_Null_Check(flp, resultp, baseRefp), true};
             }
-            return {wrapExprWithNullCheck(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
-        case VEdgeType::ET_BOTHEDGE:  //
-            return {wrapExprWithNullCheck(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
+            തിരികെ {wrap_വ്യഞ്ജകം_With_Null_Check(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
+        അവസ്ഥ VEdgeType::ET_BOTHEDGE:  //
+            തിരികെ {wrap_വ്യഞ്ജകം_With_Null_Check(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
                     false};
-        case VEdgeType::ET_POSEDGE:  //
-            return {wrapExprWithNullCheck(
+        അവസ്ഥ VEdgeType::ET_POSEDGE:  //
+            തിരികെ {wrap_വ്യഞ്ജകം_With_Null_Check(
                         flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), baseRefp),
                     false};
-        case VEdgeType::ET_NEGEDGE:  //
-            return {wrapExprWithNullCheck(
+        അവസ്ഥ VEdgeType::ET_NEGEDGE:  //
+            തിരികെ {wrap_വ്യഞ്ജകം_With_Null_Check(
                         flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), baseRefp),
                     false};
-        case VEdgeType::ET_EVENT: {
+        അവസ്ഥ VEdgeType::ET_EVENT: {
             UASSERT_OBJ(v3Global.hasEvents(), senItemp, "Inconsistent");
 
             // Clear 'fired' state when done (guarded if through a nullable reference)
             // The event is modified, so the select (e.g. assoc array) must be an lvalue
-            AstNodeExpr* const clearFromp = currp();
-            if (AstNodeVarRef* const refp
-                = VN_CAST(clearFromp->getVAccessTargetRecurse(), NodeVarRef)) {
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം clearFromp = currp();
+            എങ്കിൽ (Ast_കണ്ണി_Var_Ref* സ്ഥിരം refp
+                = VN_CAST(clearFromp->getVAccessTargetRecurse(), കണ്ണി_Var_Ref)) {
                 refp->access(VAccess::WRITE);
             }
-            AstCMethodHard* const clearp
+            AstCMethodHard* സ്ഥിരം clearp
                 = new AstCMethodHard{flp, clearFromp, VCMethod::EVENT_CLEAR_FIRED};
             clearp->dtypeSetVoid();
-            AstNodeStmt* const clearStmtp
+            Ast_കണ്ണി_Stmt* സ്ഥിരം clearStmtp
                 = wrapStmtWithNullCheck(flp, clearp->makeStmt(), baseRefp);
-            m_results.m_postUpdates.push_back(clearStmtp);
-            m_results.m_destructivePostUpdates.push_back(clearStmtp);
+            m_results.m_postUpdates.തള്ളുക_back(clearStmtp);
+            m_results.m_destructivePostUpdates.തള്ളുക_back(clearStmtp);
 
             // Get 'fired' state
-            AstCMethodHard* const callp
+            AstCMethodHard* സ്ഥിരം callp
                 = new AstCMethodHard{flp, currp(), VCMethod::EVENT_IS_FIRED};
             callp->dtypeSetBit();
-            AstNodeExpr* const firedp = wrapExprWithNullCheck(flp, callp, baseRefp);
-            if (const AstVarRef* const refp = VN_CAST(senp, VarRef)) {
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം firedp = wrap_വ്യഞ്ജകം_With_Null_Check(flp, callp, baseRefp);
+            എങ്കിൽ (സ്ഥിരം AstVarRef* സ്ഥിരം refp = VN_CAST(senp, VarRef)) {
                 // The private NBA event must run so pending assignments finish settling.
-                if (refp->varScopep() == v3Global.rootp()->nbaEventp()) return {firedp, false};
+                എങ്കിൽ (refp->varScopep() == v3Global.rootp()->nbaEventp()) തിരികെ {firedp, false};
             }
             // Do not trigger user named-event processes after $finish.
-            AstNodeExpr* const notFinishp
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം notFinishp
                 = new AstCExpr{flp,
                                "VL_LIKELY(!vlSymsp->_vm_contextp__->gotFinish() && "
                                "!vlSymsp->_vm_contextp__->finishPending())",
                                1};
-            return {new AstLogAnd{flp, notFinishp, firedp}, false};
+            തിരികെ {new AstLogAnd{flp, notFinishp, firedp}, false};
         }
-        case VEdgeType::ET_TRUE:  //
-            return {currp(), false};
-        case VEdgeType::ET_INITIAL_NBA:  //
-            return {new AstConst{flp, AstConst::BitFalse{}}, true};
-        default:  // LCOV_EXCL_START
+        അവസ്ഥ VEdgeType::ET_TRUE:  //
+            തിരികെ {currp(), false};
+        അവസ്ഥ VEdgeType::ET_INITIAL_NBA:  //
+            തിരികെ {new AstConst{flp, AstConst::BitFalse{}}, true};
+        സ്ഥിരസ്ഥിതി:  // LCOV_EXCL_START
             senItemp->v3fatalSrc("Unknown edge type");
-            return {nullptr, false};
+            തിരികെ {nullptr, false};
         }  // LCOV_EXCL_STOP
     }
 
-public:
+പൊതു:
     // Returns the expression computing the trigger, and a bool indicating that
     // this trigger should be fired on the first evaluation (at initialization)
-    std::pair<AstNodeExpr*, bool> build(const AstSenItem* senItemp) {
+    std::pair<Ast_കണ്ണി_വ്യഞ്ജകം*, bool> build(സ്ഥിരം AstSenItem* senItemp) {
         auto term = createTerm(senItemp);
-        if (AstNodeExpr* const condp = senItemp->condp()) {
-            term.first = new AstAnd{senItemp->fileline(), condp->cloneTreePure(false), term.first};
+        എങ്കിൽ (Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം condp = senItemp->condp()) {
+            term.first = new AstAnd{senItemp->fileline(), condp->clone_വൃക്ഷം_Pure(false), term.first};
         }
-        return term;
+        തിരികെ term;
     }
 
     // Like above, but for a whole SenTree
-    std::pair<AstNodeExpr*, bool> build(const AstSenTree* senTreep) {
-        FileLine* const flp = senTreep->fileline();
-        AstNodeExpr* resultp = nullptr;
+    std::pair<Ast_കണ്ണി_വ്യഞ്ജകം*, bool> build(സ്ഥിരം Ast_Sen_വൃക്ഷം* senTreep) {
+        File_വരി* സ്ഥിരം flp = senTreep->fileline();
+        Ast_കണ്ണി_വ്യഞ്ജകം* resultp = nullptr;
         bool firedAtInitialization = false;
-        for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
+        വേണ്ടി (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
              senItemp = VN_AS(senItemp->nextp(), SenItem)) {
-            const auto& pair = build(senItemp);
-            if (AstNodeExpr* termp = pair.first) {
+            സ്ഥിരം auto& pair = build(senItemp);
+            എങ്കിൽ (Ast_കണ്ണി_വ്യഞ്ജകം* termp = pair.first) {
                 resultp = resultp ? new AstOr{flp, resultp, termp} : termp;
                 firedAtInitialization |= pair.second;
             }
         }
-        return {resultp, firedAtInitialization};
+        തിരികെ {resultp, firedAtInitialization};
     }
 
     Results getResultsAndClearUpdates() {
@@ -354,7 +354,7 @@ public:
         m_hasPostUpdate.clear();
         Results ans = std::move(m_results);
         m_results = {};
-        return ans;
+        തിരികെ ans;
     }
 
     Results getAndClearResults() {
@@ -362,11 +362,11 @@ public:
         m_prev.clear();
         m_hasPreUpdate.clear();
         m_hasPostUpdate.clear();
-        return std::move(m_results);
+        തിരികെ std::move(m_results);
     }
 
     // CONSTRUCTOR
-    explicit SenExprBuilder(AstScope* scopep)
+    explicit Sen_വ്യഞ്ജകം_Builder(AstScope* scopep)
         : m_scopep{scopep} {}
 };
 

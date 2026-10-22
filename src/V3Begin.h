@@ -17,19 +17,19 @@
 #ifndef VERILATOR_V3BEGIN_H_
 #define VERILATOR_V3BEGIN_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
+class Ast_കണ്ണി;
 class AstForeach;
 
 //============================================================================
 
 class V3Begin final {
-public:
-    static void debeginAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* convertToWhile(AstForeach* nodep) VL_MT_DISABLED;
+പൊതു:
+    സ്ഥിതം ശൂന്യം debeginAll(AstNetlist* nodep) VL_MT_DISABLED;
+    സ്ഥിതം Ast_കണ്ണി* convertToWhile(AstForeach* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

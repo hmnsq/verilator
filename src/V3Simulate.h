@@ -32,42 +32,42 @@
 #ifndef VERILATOR_V3SIMULATE_H_
 #define VERILATOR_V3SIMULATE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3Task.h"
-#include "V3Width.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3AstUserAllocator.h"
+#അന്തര്ഭാവ "V3Const.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3Task.h"
+#അന്തര്ഭാവ "V3Width.h"
 
-#include <deque>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#അന്തര്ഭാവ <deque>
+#അന്തര്ഭാവ <set>
+#അന്തര്ഭാവ <sstream>
+#അന്തര്ഭാവ <stack>
+#അന്തര്ഭാവ <string>
+#അന്തര്ഭാവ <unordered_map>
+#അന്തര്ഭാവ <vector>
 
 //============================================================================
 
 //######################################################################
 // Simulate class functions
 
-class SimStackNode final {
-public:
+class Sim_അട്ടി_കണ്ണി final {
+പൊതു:
     // MEMBERS
-    AstFuncRef* const m_funcp;
-    V3TaskConnects* const m_tconnects;
+    AstFuncRef* സ്ഥിരം m_funcp;
+    V3TaskConnects* സ്ഥിരം m_tconnects;
     // CONSTRUCTORS
-    SimStackNode(AstFuncRef* funcp, V3TaskConnects* tconnects)
+    Sim_അട്ടി_കണ്ണി(AstFuncRef* funcp, V3TaskConnects* tconnects)
         : m_funcp{funcp}
         , m_tconnects{tconnects} {}
-    ~SimStackNode() = default;
+    ~Sim_അട്ടി_കണ്ണി() = സ്ഥിരസ്ഥിതി;
 };
 
-class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
+class SimulateVisitor VL_NOT_FINAL : പൊതു VNVisitorConst {
     // Simulate a node tree, returning value of variables
     // Two major operating modes:
     //   Test the tree to see if it is conformant
@@ -75,54 +75,54 @@ class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
     // Both are done in this same visitor to reduce risk; if a visitor
     // is missing, we will not apply the optimization, rather then bomb.
 
-private:
+സ്വകാര്യ:
     // CONSTANTS
-    static constexpr int CALL_STACK_MAX = 100;
+    സ്ഥിതം constexpr പൂർണ്ണസംഖ്യ CALL_അട്ടി_MAX = 100;
 
     // NODE STATE
     // Cleared on each always/assignw
-    const VNUser1InUse m_inuser1;
+    സ്ഥിരം VNUser1InUse m_inuser1;
 
     // AstNode::user1p()     -> See AuxAstVar via m_varAux
 
-    enum VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
+    എണ്ണൽ VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
 
-    struct AuxVariable final {
+    ഘടന AuxVariable final {
         // Checking:
         //  Set true to indicate tracking as lvalue/rvalue
         uint8_t usage = VU_NONE;
         // Simulating:
         //  Output value of variable (delayed assignments)
-        AstNodeExpr* outValuep = nullptr;
+        Ast_കണ്ണി_വ്യഞ്ജകം* outValuep = nullptr;
         //  Input value of variable or node (and output for non-delayed assignments)
-        AstNodeExpr* valuep = nullptr;
+        Ast_കണ്ണി_വ്യഞ്ജകം* valuep = nullptr;
     };
 
-    AstUser1Allocator<AstNode, AuxVariable> m_varAux;
+    AstUser1Allocator<Ast_കണ്ണി, AuxVariable> m_varAux;
 
     // We want to re-use allocated constants across calls to clear(), but we want to be able
     // to 'clear()' fast, so we use a generation number based allocator.
-    struct ConstAllocator final {
+    ഘടന ConstAllocator final {
         size_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
         size_t m_nextFree = 0;  // Index of the next unused constant in m_constps
         std::deque<AstConst*> m_constps;  // Pool of allocated constants, reused across generations
-        AstConst* allocate(size_t currentGeneration, AstNode* nodep) {
-            if (m_generation != currentGeneration) {
+        AstConst* allocate(size_t currentGeneration, Ast_കണ്ണി* nodep) {
+            എങ്കിൽ (m_generation != currentGeneration) {
                 m_generation = currentGeneration;
                 m_nextFree = 0;
             }
             UASSERT_OBJ(m_nextFree <= m_constps.size(), nodep, "Should only allocate at end");
-            if (m_nextFree == m_constps.size()) {
-                m_constps.push_back(
+            എങ്കിൽ (m_nextFree == m_constps.size()) {
+                m_constps.തള്ളുക_back(
                     new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
             }
-            AstConst* const constp = m_constps[m_nextFree++];
-            constp->num().nodep(nodep);
-            return constp;
+            AstConst* സ്ഥിരം constp = m_constps[m_nextFree++];
+            constp->അക്കം().nodep(nodep);
+            തിരികെ constp;
         }
 
         ~ConstAllocator() {
-            for (AstConst* const constp : m_constps) VL_DO_DANGLING(delete constp, constp);
+            വേണ്ടി (AstConst* സ്ഥിരം constp : m_constps) VL_DO_DANGLING(delete constp, constp);
         }
     };
 
@@ -133,949 +133,949 @@ private:
     bool m_params;  ///< Doing parameter propagation
     // Checking:
     string m_whyNotOptimizable;  ///< String explaining why not optimizable or nullptr to optimize
-    AstNode* m_whyNotNodep;  ///< First node not optimizable
+    Ast_കണ്ണി* m_whyNotNodep;  ///< First node not optimizable
     bool m_anyAssignDly;  ///< True if found a delayed assignment
     bool m_anyAssignComb;  ///< True if found a non-delayed assignment
     bool m_inDlyAssign;  ///< Under delayed assignment
     bool m_isImpure;  // Not pure
     bool m_isCoverage;  // Has coverage
-    int m_instrCount;  ///< Number of nodes
-    int m_dataCount;  ///< Bytes of data
-    int m_recurseCount = 0;  // Now deep in current recursion
-    AstNode* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
+    പൂർണ്ണസംഖ്യ m_instr_എണ്ണം;  ///< Number of nodes
+    പൂർണ്ണസംഖ്യ m_data_എണ്ണം;  ///< Bytes of data
+    പൂർണ്ണസംഖ്യ m_recurse_എണ്ണം = 0;  // Now deep in current recursion
+    Ast_കണ്ണി* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
     // Simulating:
     // Allocators for constants of various data types
-    std::unordered_map<const AstNodeDType*, ConstAllocator> m_constps;
+    std::unordered_map<സ്ഥിരം Ast_കണ്ണി_DType*, ConstAllocator> m_constps;
     size_t m_constGeneration = 0;
-    std::vector<SimStackNode*> m_callStack;  // Call stack for verbose error messages
+    std::vector<Sim_അട്ടി_കണ്ണി*> m_call_അട്ടി;  // Call stack for verbose error messages
 
     // Cleanup
     // V3Numbers that represents strings are a bit special and the API for
     // V3Number does not allow changing them.
-    std::vector<AstNode*> m_reclaimValuesp;  // List of allocated string numbers
+    std::vector<Ast_കണ്ണി*> m_reclaimValuesp;  // List of allocated string numbers
 
     // Note level 8&9 include debugging each simulation value
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // Potentially very slow, intended for debugging
-    string prettyNumber(const V3Number* nump, const AstNodeDType* dtypep) {
-        if (const AstRefDType* const refdtypep = VN_CAST(dtypep, RefDType)) {  //
+    string pretty_സംഖ്യ(സ്ഥിരം V3_സംഖ്യ* nump, സ്ഥിരം Ast_കണ്ണി_DType* dtypep) {
+        എങ്കിൽ (സ്ഥിരം AstRefDType* സ്ഥിരം refdtypep = VN_CAST(dtypep, RefDType)) {  //
             dtypep = refdtypep->skipRefp();
         }
-        if (const AstNodeUOrStructDType* const stp = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (stp->packed()) {
+        എങ്കിൽ (സ്ഥിരം Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം stp = VN_CAST(dtypep, കണ്ണി_UOr_Struct_DType)) {
+            എങ്കിൽ (stp->packed()) {
                 std::ostringstream out;
                 out << "'{";
-                for (AstMemberDType* itemp = stp->membersp(); itemp;
+                വേണ്ടി (AstMemberDType* itemp = stp->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const int width = itemp->width();
-                    const int lsb = itemp->lsb();
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ width = itemp->width();
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ lsb = itemp->lsb();
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ msb = lsb + width - 1;
+                    V3_സംഖ്യ field_അക്കം{nump, width};
+                    field_അക്കം.opSel(*nump, msb, lsb);
                     out << itemp->name() << ": ";
-                    if (const AstNodeDType* const childTypep = itemp->subDTypep()) {
-                        out << prettyNumber(&fieldNum, childTypep);
-                    } else {
-                        out << fieldNum;
+                    എങ്കിൽ (സ്ഥിരം Ast_കണ്ണി_DType* സ്ഥിരം childTypep = itemp->subDTypep()) {
+                        out << pretty_സംഖ്യ(&field_അക്കം, childTypep);
+                    } അല്ലെങ്കിൽ {
+                        out << field_അക്കം;
                     }
-                    if (itemp->nextp()) out << ", ";
+                    എങ്കിൽ (itemp->nextp()) out << ", ";
                 }
                 out << "}";
-                return out.str();
+                തിരികെ out.str();
             }
-        } else if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            if (const AstNodeDType* const childTypep = arrayp->subDTypep()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstPackArrayDType* സ്ഥിരം arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            എങ്കിൽ (സ്ഥിരം Ast_കണ്ണി_DType* സ്ഥിരം childTypep = arrayp->subDTypep()) {
                 std::ostringstream out;
                 out << "[";
-                const int arrayElements = arrayp->elementsConst();
-                for (int element = 0; element < arrayElements; ++element) {
-                    const int width = childTypep->width();
-                    const int lsb = width * element;
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    const int arrayElem = arrayp->lo() + element;
-                    out << arrayElem << " = " << prettyNumber(&fieldNum, childTypep);
-                    if (element < arrayElements - 1) out << ", ";
+                സ്ഥിരം പൂർണ്ണസംഖ്യ arrayElements = arrayp->elementsConst();
+                വേണ്ടി (പൂർണ്ണസംഖ്യ element = 0; element < arrayElements; ++element) {
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ width = childTypep->width();
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ lsb = width * element;
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ msb = lsb + width - 1;
+                    V3_സംഖ്യ field_അക്കം{nump, width};
+                    field_അക്കം.opSel(*nump, msb, lsb);
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ arrayElem = arrayp->lo() + element;
+                    out << arrayElem << " = " << pretty_സംഖ്യ(&field_അക്കം, childTypep);
+                    എങ്കിൽ (element < arrayElements - 1) out << ", ";
                 }
                 out << "]";
-                return out.str();
+                തിരികെ out.str();
             }
         }
-        return nump->ascii();
+        തിരികെ nump->ascii();
     }
 
     // Checking METHODS
-public:
+പൊതു:
     /// Call other-this function on all new *non-constant* var references
-    virtual void varRefCb(AstVarRef* nodep) {}
+    മായാ ശൂന്യം varRefCb(AstVarRef* nodep) {}
 
-    void clearOptimizable(AstNode* nodep /*null ok*/, const string& why) {
+    ശൂന്യം clearOptimizable(Ast_കണ്ണി* nodep /*null ok*/, സ്ഥിരം string& why) {
         //  Something bad found.  optimizable() will return false,
         //  and fetchConst should not be called or it may assert.
-        if (!m_whyNotNodep) {
+        എങ്കിൽ (!m_whyNotNodep) {
             m_whyNotNodep = nodep;
-            if (debug() >= 5) {  // LCOV_EXCL_START
+            എങ്കിൽ (debug() >= 5) {  // LCOV_EXCL_START
                 UINFO_PREFIX("Clear optimizable: " << why);
-                if (nodep) std::cout << ": " << nodep;
+                എങ്കിൽ (nodep) std::cout << ": " << nodep;
                 std::cout << '\n';
             }  // LCOV_EXCL_STOP
             m_whyNotOptimizable = why;
-            std::ostringstream stack;
-            int n = 0;
-            for (const auto& callstack : vlstd::reverse_view(m_callStack)) {
-                const AstFuncRef* const funcp = callstack->m_funcp;
-                stack << "\n        " << funcp->fileline() << "... Called from '"
+            std::ostringstream അട്ടി;
+            പൂർണ്ണസംഖ്യ n = 0;
+            വേണ്ടി (സ്ഥിരം auto& callstack : vlstd::reverse_view(m_call_അട്ടി)) {
+                സ്ഥിരം AstFuncRef* സ്ഥിരം funcp = callstack->m_funcp;
+                അട്ടി << "\n        " << funcp->fileline() << "... Called from '"
                       << funcp->prettyName() << "()' with parameters:";
                 V3TaskConnects* tconnects = callstack->m_tconnects;
-                for (V3TaskConnects::iterator conIt = tconnects->begin();
+                വേണ്ടി (V3TaskConnects::iterator conIt = tconnects->begin();
                      conIt != tconnects->end(); ++conIt) {
-                    const AstVar* const portp = conIt->first;
-                    AstNodeExpr* const pinp = conIt->second->exprp();
-                    const AstNodeDType* const dtypep = pinp->dtypep();
-                    if (AstConst* const valp = fetchConstNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << prettyNumber(&valp->num(), dtypep);
-                    } else if (AstNodeExpr* const valuep = fetchValueNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
+                    സ്ഥിരം AstVar* സ്ഥിരം portp = conIt->first;
+                    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം pinp = conIt->second->exprp();
+                    സ്ഥിരം Ast_കണ്ണി_DType* സ്ഥിരം dtypep = pinp->dtypep();
+                    എങ്കിൽ (AstConst* സ്ഥിരം valp = fetchConstNull(pinp)) {
+                        അട്ടി << "\n           " << portp->prettyName() << " = "
+                              << pretty_സംഖ്യ(&valp->അക്കം(), dtypep);
+                    } അല്ലെങ്കിൽ എങ്കിൽ (Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = fetch_മൂല്യം_Null(pinp)) {
+                        അട്ടി << "\n           " << portp->prettyName() << " = "
                               << toStringRecurse(valuep);
                     }
                 }
-                if (++n > CALL_STACK_MAX) {
-                    stack << "\n           ... stack truncated";
-                    break;
+                എങ്കിൽ (++n > CALL_അട്ടി_MAX) {
+                    അട്ടി << "\n           ... stack truncated";
+                    നിർത്തുക;
                 }
             }
-            m_whyNotOptimizable += stack.str();
+            m_whyNotOptimizable += അട്ടി.str();
         }
     }
-    bool optimizable() const { return m_whyNotNodep == nullptr; }
-    string whyNotMessage() const { return m_whyNotOptimizable; }
-    AstNode* whyNotNodep() const { return m_whyNotNodep; }
+    bool optimizable() സ്ഥിരം { തിരികെ m_whyNotNodep == nullptr; }
+    string whyNotMessage() സ്ഥിരം { തിരികെ m_whyNotOptimizable; }
+    Ast_കണ്ണി* whyNotNodep() സ്ഥിരം { തിരികെ m_whyNotNodep; }
 
-    bool isAssignDly() const { return m_anyAssignDly; }
-    bool isImpure() const { return m_isImpure; }
-    bool isCoverage() const { return m_isCoverage; }
-    int instrCount() const { return m_instrCount; }
-    int dataCount() const { return m_dataCount; }
+    bool isAssignDly() സ്ഥിരം { തിരികെ m_anyAssignDly; }
+    bool isImpure() സ്ഥിരം { തിരികെ m_isImpure; }
+    bool isCoverage() സ്ഥിരം { തിരികെ m_isCoverage; }
+    പൂർണ്ണസംഖ്യ instr_എണ്ണം() സ്ഥിരം { തിരികെ m_instr_എണ്ണം; }
+    പൂർണ്ണസംഖ്യ data_എണ്ണം() സ്ഥിരം { തിരികെ m_data_എണ്ണം; }
 
     // Simulation METHODS
-private:
-    AstConst* allocConst(AstNode* nodep) {
+സ്വകാര്യ:
+    AstConst* allocConst(Ast_കണ്ണി* nodep) {
         // Allocate a constant with this dtype. Reuse them across a 'clear()' call for efficiency.
-        return m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
+        തിരികെ m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
     }
 
-public:
-    void newValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newConst(nodep)->num().opAssign(constp->num());
+പൊതു:
+    ശൂന്യം new_മൂല്യം(Ast_കണ്ണി* nodep, സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* valuep) {
+        എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം constp = VN_CAST(valuep, Const)) {
+            newConst(nodep)->അക്കം().opAssign(constp->അക്കം());
             UINFO(9, "     new val " << valuep->name() << " on " << nodep);
-        } else if (fetchValueNull(nodep) != valuep) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (fetch_മൂല്യം_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_മൂല്യം(nodep, newTrackedClone(const_cast<Ast_കണ്ണി_വ്യഞ്ജകം*>(valuep)));
         }
     }
-    void newOutValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newOutConst(nodep)->num().opAssign(constp->num());
+    ശൂന്യം new_Out_മൂല്യം(Ast_കണ്ണി* nodep, സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* valuep) {
+        എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം constp = VN_CAST(valuep, Const)) {
+            newOutConst(nodep)->അക്കം().opAssign(constp->അക്കം());
             UINFO(9, "     new oval " << valuep->name() << " on " << nodep);
-        } else if (fetchOutValueNull(nodep) != valuep) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (fetch_Out_മൂല്യം_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setOutValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_Out_മൂല്യം(nodep, newTrackedClone(const_cast<Ast_കണ്ണി_വ്യഞ്ജകം*>(valuep)));
         }
     }
 
-private:
-    AstNodeExpr* newTrackedClone(AstNodeExpr* nodep) {
-        AstNodeExpr* const newp = nodep->cloneTree(false);
-        m_reclaimValuesp.push_back(newp);
-        return newp;
+സ്വകാര്യ:
+    Ast_കണ്ണി_വ്യഞ്ജകം* newTrackedClone(Ast_കണ്ണി_വ്യഞ്ജകം* nodep) {
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം newp = nodep->clone_വൃക്ഷം(false);
+        m_reclaimValuesp.തള്ളുക_back(newp);
+        തിരികെ newp;
     }
-    AstConst* newConst(AstNode* nodep) {
+    AstConst* newConst(Ast_കണ്ണി* nodep) {
         // Set a constant value for this node
-        if (!VN_IS(m_varAux(nodep).valuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        എങ്കിൽ (!VN_IS(m_varAux(nodep).valuep, Const)) {
+            AstConst* സ്ഥിരം constp = allocConst(nodep);
             m_varAux(nodep).valuep = constp;
-            return constp;
+            തിരികെ constp;
         }
-        return fetchConst(nodep);
+        തിരികെ fetchConst(nodep);
     }
-    AstConst* newOutConst(AstNode* nodep) {
+    AstConst* newOutConst(Ast_കണ്ണി* nodep) {
         // Set a var-output constant value for this node
-        if (!VN_IS(m_varAux(nodep).outValuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        എങ്കിൽ (!VN_IS(m_varAux(nodep).outValuep, Const)) {
+            AstConst* സ്ഥിരം constp = allocConst(nodep);
             m_varAux(nodep).outValuep = constp;
-            return constp;
+            തിരികെ constp;
         }
-        return fetchOutConst(nodep);
+        തിരികെ fetchOutConst(nodep);
     }
 
-public:
-    AstNodeExpr* fetchValueNull(AstNode* nodep) { return m_varAux(nodep).valuep; }
+പൊതു:
+    Ast_കണ്ണി_വ്യഞ്ജകം* fetch_മൂല്യം_Null(Ast_കണ്ണി* nodep) { തിരികെ m_varAux(nodep).valuep; }
 
-private:
-    AstNodeExpr* fetchOutValueNull(AstNode* nodep) { return m_varAux(nodep).outValuep; }
-    AstConst* fetchConstNull(AstNode* nodep) { return VN_CAST(fetchValueNull(nodep), Const); }
-    AstConst* fetchOutConstNull(AstNode* nodep) {
-        return VN_CAST(fetchOutValueNull(nodep), Const);
+സ്വകാര്യ:
+    Ast_കണ്ണി_വ്യഞ്ജകം* fetch_Out_മൂല്യം_Null(Ast_കണ്ണി* nodep) { തിരികെ m_varAux(nodep).outValuep; }
+    AstConst* fetchConstNull(Ast_കണ്ണി* nodep) { തിരികെ VN_CAST(fetch_മൂല്യം_Null(nodep), Const); }
+    AstConst* fetchOutConstNull(Ast_കണ്ണി* nodep) {
+        തിരികെ VN_CAST(fetch_Out_മൂല്യം_Null(nodep), Const);
     }
-    AstNodeExpr* fetchValue(AstNode* nodep) {
-        AstNodeExpr* const valuep = fetchValueNull(nodep);
+    Ast_കണ്ണി_വ്യഞ്ജകം* fetch_മൂല്യം(Ast_കണ്ണി* nodep) {
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = fetch_മൂല്യം_Null(nodep);
         UASSERT_OBJ(valuep, nodep, "No value found for node.");
         // UINFO(9, "     fetch val " << *valuep << " on " << nodep);
-        return valuep;
+        തിരികെ valuep;
     }
-    AstConst* fetchConst(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
+    AstConst* fetchConst(Ast_കണ്ണി* nodep) {
+        AstConst* സ്ഥിരം constp = fetchConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
         // UINFO(9, "     fetch num " << *constp << " on " << nodep);
-        return constp;
+        തിരികെ constp;
     }
-    AstConst* fetchOutConst(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
+    AstConst* fetchOutConst(Ast_കണ്ണി* nodep) {
+        AstConst* സ്ഥിരം constp = fetchOutConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
-        return constp;
+        തിരികെ constp;
     }
 
-public:
-    V3Number* fetchNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+പൊതു:
+    V3_സംഖ്യ* fetch_സംഖ്യ_Null(Ast_കണ്ണി* nodep) {
+        AstConst* സ്ഥിരം constp = fetchConstNull(nodep);
+        എങ്കിൽ (constp) തിരികെ &constp->അക്കം();
+        തിരികെ nullptr;
     }
-    V3Number* fetchOutNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+    V3_സംഖ്യ* fetch_Out_സംഖ്യ_Null(Ast_കണ്ണി* nodep) {
+        AstConst* സ്ഥിരം constp = fetchOutConstNull(nodep);
+        എങ്കിൽ (constp) തിരികെ &constp->അക്കം();
+        തിരികെ nullptr;
     }
 
-private:
-    void setValue(AstNode* nodep, AstNodeExpr* valuep) {
+സ്വകാര്യ:
+    ശൂന്യം set_മൂല്യം(Ast_കണ്ണി* nodep, Ast_കണ്ണി_വ്യഞ്ജകം* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set val " << valuep->name() << " on " << nodep);
         m_varAux(nodep).valuep = valuep;
     }
-    void setOutValue(AstNode* nodep, AstNodeExpr* valuep) {
+    ശൂന്യം set_Out_മൂല്യം(Ast_കണ്ണി* nodep, Ast_കണ്ണി_വ്യഞ്ജകം* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set oval " << valuep->name() << " on " << nodep);
         m_varAux(nodep).outValuep = valuep;
     }
 
-    void checkNodeInfo(AstNode* nodep, bool ignorePredict = false) {
-        if (m_checkOnly) {
-            m_instrCount += nodep->instrCount();
-            m_dataCount += nodep->width();
+    ശൂന്യം check_കണ്ണി_Info(Ast_കണ്ണി* nodep, bool ignorePredict = false) {
+        എങ്കിൽ (m_checkOnly) {
+            m_instr_എണ്ണം += nodep->instr_എണ്ണം();
+            m_data_എണ്ണം += nodep->width();
         }
-        if (!ignorePredict && !nodep->isPredictOptimizable()) {
+        എങ്കിൽ (!ignorePredict && !nodep->isPredictOptimizable()) {
             // UINFO(9, "     !predictopt " << nodep);
             clearOptimizable(nodep, "Isn't predictable");
         }
-        if (!nodep->isPure()) m_isImpure = true;
+        എങ്കിൽ (!nodep->isPure()) m_isImpure = true;
     }
 
-    void knownBadNodeType(AstNode* nodep) {
+    ശൂന്യം known_Bad_കണ്ണി_Type(Ast_കണ്ണി* nodep) {
         // Call for node types we know we can't handle
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (optimizable()) {
             clearOptimizable(nodep, "Known unhandled node type "s + nodep->typeName());
         }
     }
-    void badNodeType(AstNode* nodep) {
+    ശൂന്യം bad_കണ്ണി_Type(Ast_കണ്ണി* nodep) {
         // Call for default node types, or other node types we don't know how to handle
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (optimizable()) {
             // Hmm, what is this then?
             // In production code, we'll just not optimize.  It should be fixed though.
             clearOptimizable(nodep,
                              "Unknown node type, perhaps missing visitor in SimulateVisitor");
 #ifdef VL_DEBUG
-            static std::set<VNType> s_typePrinted;
-            const auto pair = s_typePrinted.emplace(nodep->type());
-            if (pair.second)
+            സ്ഥിതം std::set<VNType> s_typePrinted;
+            സ്ഥിരം auto pair = s_typePrinted.emplace(nodep->type());
+            എങ്കിൽ (pair.second)
                 UINFO(0, "Unknown node type in SimulateVisitor: " << nodep->prettyTypeName());
 #endif
         }
     }
 
-    AstNode* varOrScope(AstVarRef* nodep) const {
-        AstNode* vscp;
-        if (m_scoped) {
+    Ast_കണ്ണി* varOrScope(AstVarRef* nodep) സ്ഥിരം {
+        Ast_കണ്ണി* vscp;
+        എങ്കിൽ (m_scoped) {
             vscp = nodep->varScopep();
-        } else {
+        } അല്ലെങ്കിൽ {
             vscp = nodep->varp();
         }
         UASSERT_OBJ(vscp, nodep, "Not linked");
-        return vscp;
+        തിരികെ vscp;
     }
 
     // True if current node might be jumped over - all visitors must call this up front
-    bool jumpingOver() const { return m_jumptargetp; }
-    void assignOutValue(const AstNodeAssign* nodep, AstNode* vscp, const AstNodeExpr* valuep) {
-        if (VN_IS(nodep, AssignDly)) {
+    bool jumpingOver() സ്ഥിരം { തിരികെ m_jumptargetp; }
+    ശൂന്യം assign_Out_മൂല്യം(സ്ഥിരം Ast_കണ്ണി_Assign* nodep, Ast_കണ്ണി* vscp, സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* valuep) {
+        എങ്കിൽ (VN_IS(nodep, AssignDly)) {
             // Don't do setValue, as value isn't yet visible to following statements
-            newOutValue(vscp, valuep);
-        } else {
-            newValue(vscp, valuep);
-            setOutValue(vscp, fetchValue(vscp));
+            new_Out_മൂല്യം(vscp, valuep);
+        } അല്ലെങ്കിൽ {
+            new_മൂല്യം(vscp, valuep);
+            set_Out_മൂല്യം(vscp, fetch_മൂല്യം(vscp));
         }
     }
 
-    string toStringRecurse(AstNodeExpr* valuep) {
+    string toStringRecurse(Ast_കണ്ണി_വ്യഞ്ജകം* valuep) {
         // Return string representation of a value, or clearOptimizable
-        if (const AstConst* const avaluep = VN_CAST(valuep, Const)) {
-            return "'h"s + avaluep->num().displayed(valuep, "%0x");
+        എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം avaluep = VN_CAST(valuep, Const)) {
+            തിരികെ "'h"s + avaluep->അക്കം().displayed(valuep, "%0x");
         }
-        if (const AstConsArray* const avaluep = VN_CAST(valuep, ConsArray)) {
+        എങ്കിൽ (സ്ഥിരം AstConsArray* സ്ഥിരം avaluep = VN_CAST(valuep, ConsArray)) {
             string result = "'{";
             string comma;
-            const AstUnpackArrayDType* const dtypep
+            സ്ഥിരം AstUnpackArrayDType* സ്ഥിരം dtypep
                 = VN_AS(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            വേണ്ടി (പൂർണ്ണസംഖ്യ n = 0; n < dtypep->elementsConst(); ++n) {
                 result += comma + toStringRecurse(avaluep->valuep(n));
                 comma = ", ";
             }
             result += "}";
-            return result;
+            തിരികെ result;
         }
-        if (const AstConsStruct* const avaluep = VN_CAST(valuep, ConsStruct)) {
+        എങ്കിൽ (സ്ഥിരം AstConsStruct* സ്ഥിരം avaluep = VN_CAST(valuep, ConsStruct)) {
             string result = "'{";
             string comma;
-            for (const AstConsStructItem* itemp = avaluep->itemsp(); itemp;
+            വേണ്ടി (സ്ഥിരം AstConsStructItem* itemp = avaluep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
                 result
                     += comma + itemp->memberp()->name() + ":" + toStringRecurse(itemp->valuep());
                 comma = ", ";
             }
             result += "}";
-            return result;
+            തിരികെ result;
         }
         clearOptimizable(valuep, "Cannot convert to string");  // LCOV_EXCL_LINE
-        return "";
+        തിരികെ "";
     }
 
     // Return a new value of the initial value of a variable of the given type, or nullptr if
     // the type isn't supported
-    AstNodeExpr* newInitValuep(AstNode* nodep, AstNodeDType* dtypep) {
+    Ast_കണ്ണി_വ്യഞ്ജകം* newInitValuep(Ast_കണ്ണി* nodep, Ast_കണ്ണി_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
-            AstNodeExpr* const elementp = newInitValuep(nodep, arrayp->subDTypep());
-            return elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
+        എങ്കിൽ (AstUnpackArrayDType* സ്ഥിരം arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം elementp = newInitValuep(nodep, arrayp->subDTypep());
+            തിരികെ elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
         }
-        AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        if (structp && !structp->packed()) {
-            AstConsStruct* const newp = new AstConsStruct{nodep->fileline(), structp};
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+        AstStructDType* സ്ഥിരം structp = VN_CAST(dtypep, StructDType);
+        എങ്കിൽ (structp && !structp->packed()) {
+            AstConsStruct* സ്ഥിരം newp = new AstConsStruct{nodep->fileline(), structp};
+            വേണ്ടി (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeExpr* const memberValuep = newInitValuep(nodep, memberp->subDTypep());
-                if (!memberValuep) {
-                    VL_DO_DANGLING(newp->deleteTree(), newp);
-                    return nullptr;
+                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം memberValuep = newInitValuep(nodep, memberp->subDTypep());
+                എങ്കിൽ (!memberValuep) {
+                    VL_DO_DANGLING(newp->delete_വൃക്ഷം(), newp);
+                    തിരികെ nullptr;
                 }
                 newp->addItemsp(new AstConsStructItem{nodep->fileline(), memberp, memberValuep});
             }
-            return newp;
+            തിരികെ newp;
         }
-        if (const AstBasicDType* const basicp = dtypep->basicp()) {
-            AstConst* const constp
-                = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, basicp->widthMin(), 0};
-            if (basicp->isZeroInit()) {
-                constp->num() = V3Number{nodep, basicp};
-            } else {
-                constp->num().setAllBitsX();
+        എങ്കിൽ (സ്ഥിരം AstBasicDType* സ്ഥിരം basicp = dtypep->basicp()) {
+            AstConst* സ്ഥിരം constp
+                = new AstConst{nodep->fileline(), AstConst::Widthed_മൂല്യം{}, basicp->widthMin(), 0};
+            എങ്കിൽ (basicp->isZeroInit()) {
+                constp->അക്കം() = V3_സംഖ്യ{nodep, basicp};
+            } അല്ലെങ്കിൽ {
+                constp->അക്കം().setAllBitsX();
             }
-            return constp;
+            തിരികെ constp;
         }
-        return nullptr;
+        തിരികെ nullptr;
     }
-    void initVar(AstVar* nodep) {
-        if (AstNodeExpr* const valuep = newInitValuep(nodep, nodep->dtypep())) {
-            newValue(nodep, valuep);
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
+    ശൂന്യം initVar(AstVar* nodep) {
+        എങ്കിൽ (Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = newInitValuep(nodep, nodep->dtypep())) {
+            new_മൂല്യം(nodep, valuep);
+            VL_DO_DANGLING(valuep->delete_വൃക്ഷം(), valuep);
         }
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstAlways* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstSenTree* nodep) override {
+    ശൂന്യം visit(Ast_Sen_വൃക്ഷം* nodep) override {
         // Sensitivities aren't inputs per se; we'll keep our tree under the same sens.
     }
-    void visit(AstVarRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    ശൂന്യം visit(AstVarRef* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
         UASSERT_OBJ(nodep->varp(), nodep, "Unlinked");
         iterateChildrenConst(nodep->varp());
-        AstNode* const vscp = varOrScope(nodep);
+        Ast_കണ്ണി* സ്ഥിരം vscp = varOrScope(nodep);
 
         // We can't have non-delayed assignments with same value on LHS and RHS
         // as we don't figure out variable ordering.
         // Delayed is OK though, as we'll decode the next state separately.
-        if (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
+        എങ്കിൽ (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), PackArrayDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), UnpackArrayDType)
-            && !VN_IS(nodep->varp()->dtypeSkipRefp(), NodeUOrStructDType))
+            && !VN_IS(nodep->varp()->dtypeSkipRefp(), കണ്ണി_UOr_Struct_DType))
             clearOptimizable(nodep, "Array references/not basic");
-        if (nodep->access().isWriteOrRW()) {
-            if (m_inDlyAssign) {
-                if (!(m_varAux(vscp).usage & VU_LVDLY)) {
+        എങ്കിൽ (nodep->access().isWriteOrRW()) {
+            എങ്കിൽ (m_inDlyAssign) {
+                എങ്കിൽ (!(m_varAux(vscp).usage & VU_LVDLY)) {
                     m_varAux(vscp).usage |= VU_LVDLY;
-                    if (m_checkOnly) varRefCb(nodep);
+                    എങ്കിൽ (m_checkOnly) varRefCb(nodep);
                 }
-            } else {  // nondly asn
-                if (!(m_varAux(vscp).usage & VU_LV)) {
-                    if (!m_params && (m_varAux(vscp).usage & VU_RV)) {
+            } അല്ലെങ്കിൽ {  // nondly asn
+                എങ്കിൽ (!(m_varAux(vscp).usage & VU_LV)) {
+                    എങ്കിൽ (!m_params && (m_varAux(vscp).usage & VU_RV)) {
                         clearOptimizable(nodep, "Var read & write");
                     }
                     m_varAux(vscp).usage |= VarUsage::VU_LV;
-                    if (m_checkOnly) varRefCb(nodep);
+                    എങ്കിൽ (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (nodep->access().isReadOrRW()) {
-            if (!(m_varAux(vscp).usage & VU_RV)) {
-                if (!m_params && (m_varAux(vscp).usage & VU_LV)) {
+        എങ്കിൽ (nodep->access().isReadOrRW()) {
+            എങ്കിൽ (!(m_varAux(vscp).usage & VU_RV)) {
+                എങ്കിൽ (!m_params && (m_varAux(vscp).usage & VU_LV)) {
                     clearOptimizable(nodep, "Var write & read");
                 }
                 m_varAux(vscp).usage |= VU_RV;
-                const bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
+                സ്ഥിരം bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
                                         && nodep->varp()->valuep();
-                const AstNodeExpr* const valuep
-                    = varIsConst ? fetchValueNull(nodep->varp()->valuep()) : nullptr;
+                സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep
+                    = varIsConst ? fetch_മൂല്യം_Null(nodep->varp()->valuep()) : nullptr;
                 // Propagate PARAM constants for constant function analysis
-                if (varIsConst && valuep) {
-                    if (!m_checkOnly && optimizable()) newValue(vscp, valuep);
-                } else {
-                    if (m_checkOnly) varRefCb(nodep);
+                എങ്കിൽ (varIsConst && valuep) {
+                    എങ്കിൽ (!m_checkOnly && optimizable()) new_മൂല്യം(vscp, valuep);
+                } അല്ലെങ്കിൽ {
+                    എങ്കിൽ (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (m_checkOnly || !optimizable()) return;  // Not simulating
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;  // Not simulating
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep,
                     "LHS varref should be handled in AstAssign visitor.");
         {
             // Return simulation value - copy by reference instead of value for speed
-            AstNodeExpr* valuep = fetchValueNull(vscp);
-            if (!valuep) {
-                if (m_params) {
+            Ast_കണ്ണി_വ്യഞ്ജകം* valuep = fetch_മൂല്യം_Null(vscp);
+            എങ്കിൽ (!valuep) {
+                എങ്കിൽ (m_params) {
                     clearOptimizable(
                         nodep, "Language violation: reference to non-function-local variable");
-                } else {
+                } അല്ലെങ്കിൽ {
                     nodep->v3fatalSrc(
                         "Variable value should have been set before any visitor called.");
                 }
                 valuep = allocConst(nodep);  // Any value; just so recover from error
             }
-            setValue(nodep, valuep);
+            set_മൂല്യം(nodep, valuep);
         }
     }
-    void visit(AstVarXRef* nodep) override {
-        if (jumpingOver()) return;
-        if (m_scoped) {
-            badNodeType(nodep);
-            return;
+    ശൂന്യം visit(AstVarXRef* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (m_scoped) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
         }
         clearOptimizable(nodep, "Language violation: Dotted hierarchical references not "
                                 "allowed in constant functions");
     }
-    void visit(AstNodeFTask* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ശൂന്യം visit(Ast_കണ്ണി_FTask* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!m_params) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
         }
-        if (nodep->dpiImport()) {
-            if (m_params) {
+        എങ്കിൽ (nodep->dpiImport()) {
+            എങ്കിൽ (m_params) {
                 nodep->v3error("Constant function may not be DPI import (IEEE 1800-2023 13.4.3)");
             }
             clearOptimizable(nodep, "DPI import functions aren't simulatable");
         }
-        if (nodep->underGenerate()) {
+        എങ്കിൽ (nodep->underGenerate()) {
             nodep->v3error(
                 "Constant function may not be declared under generate (IEEE 1800-2023 13.4.3)");
             clearOptimizable(nodep, "Constant function called under generate");
         }
-        checkNodeInfo(nodep);
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstInitialAutomaticStmt* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstInitialStaticStmt* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ശൂന്യം visit(AstInitialStatic* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!m_params) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
         }
-        checkNodeInfo(nodep);
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (jumpingOver()) return;
+    ശൂന്യം visit(Ast_കണ്ണി_If* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
         UINFO(5, "   IF " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             iterateAndNextConstNull(nodep->condp());
-            if (optimizable()) {
-                if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            എങ്കിൽ (optimizable()) {
+                എങ്കിൽ (fetchConst(nodep->condp())->അക്കം().isNeqZero()) {
                     iterateAndNextConstNull(nodep->thensp());
-                } else {
+                } അല്ലെങ്കിൽ {
                     iterateAndNextConstNull(nodep->elsesp());
                 }
             }
         }
     }
-    void visit(AstConst* nodep) override {
-        checkNodeInfo(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, nodep);
+    ശൂന്യം visit(AstConst* nodep) override {
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        new_മൂല്യം(nodep, nodep);
     }
     // An aggregate value is a tree of only AstConst, AstConsArray and AstConsStruct
     // nodes, so the value of an element or member is its subtree
-    void visit(AstConsArray* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstConsArray* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsArray* const valuep = new AstConsArray{
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        AstConsArray* സ്ഥിരം valuep = new AstConsArray{
             nodep->fileline(), nodep->dtypep(),
-            nodep->defaultp() ? fetchValue(nodep->defaultp())->cloneTree(false) : nullptr};
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+            nodep->defaultp() ? fetch_മൂല്യം(nodep->defaultp())->clone_വൃക്ഷം(false) : nullptr};
+        വേണ്ടി (സ്ഥിരം AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            valuep->valuep(itemp->index(), fetchValue(itemp->valuep())->cloneTree(false));
+            valuep->valuep(itemp->index(), fetch_മൂല്യം(itemp->valuep())->clone_വൃക്ഷം(false));
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.തള്ളുക_back(valuep);
+        set_മൂല്യം(nodep, valuep);
     }
-    void visit(AstConsStruct* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ശൂന്യം visit(AstConsStruct* nodep) override {
+        എങ്കിൽ (!m_params) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
         }
-        checkNodeInfo(nodep);
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        check_കണ്ണി_Info(nodep);
+        വേണ്ടി (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             iterateConst(itemp->valuep());
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const valuep = new AstConsStruct{
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        AstConsStruct* സ്ഥിരം valuep = new AstConsStruct{
             nodep->fileline(), VN_AS(nodep->dtypep()->skipRefp(), StructDType)};
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        വേണ്ടി (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             valuep->addItemsp(
                 new AstConsStructItem{itemp->fileline(), itemp->memberp(),
-                                      fetchValue(itemp->valuep())->cloneTree(false)});
+                                      fetch_മൂല്യം(itemp->valuep())->clone_വൃക്ഷം(false)});
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.തള്ളുക_back(valuep);
+        set_മൂല്യം(nodep, valuep);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstCvtUnpackToUnpack* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
         // An array value is an AstConsArray, so V3Const folds the conversion
-        AstNodeExpr* const cvtp = new AstCvtUnpackToUnpack{
-            nodep->fileline(), fetchValue(nodep->fromp())->cloneTree(false), nodep->dtypep()};
-        AstNodeExpr* const valuep = V3Const::constifyEdit(cvtp);
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം cvtp = new AstCvtUnpackToUnpack{
+            nodep->fileline(), fetch_മൂല്യം(nodep->fromp())->clone_വൃക്ഷം(false), nodep->dtypep()};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = V3Const::constifyEdit(cvtp);
+        m_reclaimValuesp.തള്ളുക_back(valuep);
+        set_മൂല്യം(nodep, valuep);
     }
-    void visit(AstConsArrayItem* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstConsArrayItem* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstEnumItemRef* nodep) override {
+        check_കണ്ണി_Info(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const valuep = nodep->itemp()->valuep();
-        if (valuep) {
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        Ast_കണ്ണി* സ്ഥിരം valuep = nodep->itemp()->valuep();
+        എങ്കിൽ (valuep) {
             iterateAndNextConstNull(valuep);
-            if (!optimizable()) return;
-            newValue(nodep, fetchValue(valuep));
-        } else {
+            എങ്കിൽ (!optimizable()) തിരികെ;
+            new_മൂല്യം(nodep, fetch_മൂല്യം(valuep));
+        } അല്ലെങ്കിൽ {
             clearOptimizable(nodep, "No value found for enum item");  // LCOV_EXCL_LINE
         }
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(Ast_കണ്ണി_Uniop* nodep) override {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num());
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        nodep->സംഖ്യ_Operate(newConst(nodep)->അക്കം(), fetchConst(nodep->lhsp())->അക്കം());
     }
     // Set resultr to whether the aggregate values are equal, like a logical and of comparing
     // each element or member. V3Width allows comparing only values of matching types, so the
     // values have the same shape, and an array value is of an unpacked array, as associative
     // and dynamic arrays and queues are not values here.
-    void aggregateEqRecurse(V3Number& resultr, AstNode* nodep, bool caseEq, AstNodeExpr* lhsp,
-                            AstNodeExpr* rhsp) {
-        if (const AstConst* const lconstp = VN_CAST(lhsp, Const)) {
-            const V3Number& lnum = lconstp->num();
-            const V3Number& rnum = VN_AS(rhsp, Const)->num();
-            V3Number eq{nodep, 1};
-            if (lnum.isDouble()) {
+    ശൂന്യം aggregateEqRecurse(V3_സംഖ്യ& resultr, Ast_കണ്ണി* nodep, bool caseEq, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp,
+                            Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) {
+        എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം lconstp = VN_CAST(lhsp, Const)) {
+            സ്ഥിരം V3_സംഖ്യ& lnum = lconstp->അക്കം();
+            സ്ഥിരം V3_സംഖ്യ& rnum = VN_AS(rhsp, Const)->അക്കം();
+            V3_സംഖ്യ eq{nodep, 1};
+            എങ്കിൽ (lnum.isDouble()) {
                 eq.opEqD(lnum, rnum);
-            } else if (lnum.isString()) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (lnum.isString()) {
                 eq.opEqN(lnum, rnum);
-            } else if (caseEq) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (caseEq) {
                 eq.opCaseEq(lnum, rnum);
-            } else {
+            } അല്ലെങ്കിൽ {
                 eq.opEq(lnum, rnum);
             }
-            const V3Number prev = resultr;
+            സ്ഥിരം V3_സംഖ്യ prev = resultr;
             resultr.opLogAnd(prev, eq);
-        } else if (const AstConsArray* const lconsp = VN_CAST(lhsp, ConsArray)) {
-            const AstUnpackArrayDType* const dtypep
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstConsArray* സ്ഥിരം lconsp = VN_CAST(lhsp, ConsArray)) {
+            സ്ഥിരം AstUnpackArrayDType* സ്ഥിരം dtypep
                 = VN_AS(lhsp->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            വേണ്ടി (പൂർണ്ണസംഖ്യ n = 0; n < dtypep->elementsConst(); ++n) {
                 aggregateEqRecurse(resultr, nodep, caseEq, lconsp->valuep(n),
                                    VN_AS(rhsp, ConsArray)->valuep(n));
             }
-        } else {
-            const AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
-            for (const AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
+        } അല്ലെങ്കിൽ {
+            സ്ഥിരം AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
+            വേണ്ടി (സ്ഥിരം AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
                  litemp = VN_AS(litemp->nextp(), ConsStructItem),
                                           ritemp = VN_AS(ritemp->nextp(), ConsStructItem)) {
                 aggregateEqRecurse(resultr, nodep, caseEq, litemp->valuep(), ritemp->valuep());
             }
         }
     }
-    void handleAggregateCompare(AstNodeBiop* nodep) {
+    ശൂന്യം handleAggregateCompare(Ast_കണ്ണി_Biop* nodep) {
         // V3Width allows only equality operators on aggregates (IEEE 1800-2023 11.3)
-        const bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
-        const bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
+        സ്ഥിരം bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
+        സ്ഥിരം bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
         UASSERT_OBJ(caseEq || neq || VN_IS(nodep, Eq), nodep, "Unexpected operator on aggregate");
-        V3Number& resultr = newConst(nodep)->num();
+        V3_സംഖ്യ& resultr = newConst(nodep)->അക്കം();
         resultr.setAllBits1();
-        aggregateEqRecurse(resultr, nodep, caseEq, fetchValue(nodep->lhsp()),
-                           fetchValue(nodep->rhsp()));
-        if (neq) {
-            const V3Number eq = resultr;
+        aggregateEqRecurse(resultr, nodep, caseEq, fetch_മൂല്യം(nodep->lhsp()),
+                           fetch_മൂല്യം(nodep->rhsp()));
+        എങ്കിൽ (neq) {
+            സ്ഥിരം V3_സംഖ്യ eq = resultr;
             resultr.opLogNot(eq);
         }
     }
-    void visit(AstNodeBiop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(Ast_കണ്ണി_Biop* nodep) override {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
         // A value that is not a constant is an aggregate, and V3Width allows only
         // equality operators on aggregates (IEEE 1800-2023 11.3)
-        if (!VN_IS(fetchValue(nodep->lhsp()), Const)) {
+        എങ്കിൽ (!VN_IS(fetch_മൂല്യം(nodep->lhsp()), Const)) {
             handleAggregateCompare(nodep);
-            return;
+            തിരികെ;
         }
-        AstConst* const valuep = newConst(nodep);
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num());
+        AstConst* സ്ഥിരം valuep = newConst(nodep);
+        nodep->സംഖ്യ_Operate(newConst(nodep)->അക്കം(), fetchConst(nodep->lhsp())->അക്കം(),
+                             fetchConst(nodep->rhsp())->അക്കം());
         // See #5490. 'numberOperate' on partially out of range select yields 'x' bits,
         // but in reality it would yield '0's without V3Table, so force 'x' bits to '0',
         // to ensure the result is the same with and without V3Table.
-        if (!m_params && VN_IS(nodep, Sel) && valuep->num().isAnyX()) {
-            const V3Number num{valuep, valuep->width(), valuep->num()};
-            valuep->num().opBitsOne(num);
+        എങ്കിൽ (!m_params && VN_IS(nodep, Sel) && valuep->അക്കം().isAnyX()) {
+            സ്ഥിരം V3_സംഖ്യ അക്കം{valuep, valuep->width(), valuep->അക്കം()};
+            valuep->അക്കം().opBitsOne(അക്കം);
         }
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(Ast_കണ്ണി_Triop* nodep) override {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num());
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        nodep->സംഖ്യ_Operate(newConst(nodep)->അക്കം(), fetchConst(nodep->lhsp())->അക്കം(),
+                             fetchConst(nodep->rhsp())->അക്കം(), fetchConst(nodep->thsp())->അക്കം());
     }
-    void visit(AstNodeQuadop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(Ast_കണ്ണി_Quadop* nodep) override {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num(),
-                             fetchConst(nodep->fhsp())->num());
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        nodep->സംഖ്യ_Operate(newConst(nodep)->അക്കം(), fetchConst(nodep->lhsp())->അക്കം(),
+                             fetchConst(nodep->rhsp())->അക്കം(), fetchConst(nodep->thsp())->അക്കം(),
+                             fetchConst(nodep->fhsp())->അക്കം());
     }
-    void visit(AstLogAnd* nodep) override {
+    ശൂന്യം visit(AstLogAnd* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
+            എങ്കിൽ (!optimizable()) തിരികെ;
+            എങ്കിൽ (fetchConst(nodep->lhsp())->അക്കം().isNeqZero()) {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
-            } else {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a zero
+                എങ്കിൽ (!optimizable()) തിരികെ;
+                new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->rhsp()));
+            } അല്ലെങ്കിൽ {
+                new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->lhsp()));  // a zero
             }
         }
     }
-    void visit(AstLogOr* nodep) override {
+    ശൂന്യം visit(AstLogOr* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a one
-            } else {
+            എങ്കിൽ (!optimizable()) തിരികെ;
+            എങ്കിൽ (fetchConst(nodep->lhsp())->അക്കം().isNeqZero()) {
+                new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->lhsp()));  // a one
+            } അല്ലെങ്കിൽ {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                എങ്കിൽ (!optimizable()) തിരികെ;
+                new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->rhsp()));
             }
         }
     }
-    void visit(AstLogIf* nodep) override {
+    ശൂന്യം visit(AstLogIf* nodep) override {
         // Need to short circuit, same as (!A || B)
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isEqZero()) {
-                const AstConst cnst{nodep->fileline(), AstConst::WidthedValue{}, 1, 1};  // a one
-                newValue(nodep, &cnst);  // a one
-            } else {
+            എങ്കിൽ (!optimizable()) തിരികെ;
+            എങ്കിൽ (fetchConst(nodep->lhsp())->അക്കം().isEqZero()) {
+                സ്ഥിരം AstConst cnst{nodep->fileline(), AstConst::Widthed_മൂല്യം{}, 1, 1};  // a one
+                new_മൂല്യം(nodep, &cnst);  // a one
+            } അല്ലെങ്കിൽ {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                എങ്കിൽ (!optimizable()) തിരികെ;
+                new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->rhsp()));
             }
         }
     }
-    void visit(AstCond* nodep) override {
+    ശൂന്യം visit(AstCond* nodep) override {
         // We could use above visit(AstNodeTriop), but need to do short circuiting.
         // It's also slower even O(n^2) to evaluate both sides when we
         // really only need to evaluate one side.
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             iterateConst(nodep->condp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            എങ്കിൽ (!optimizable()) തിരികെ;
+            എങ്കിൽ (fetchConst(nodep->condp())->അക്കം().isNeqZero()) {
                 iterateConst(nodep->thenp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->thenp()));
-            } else {
+                എങ്കിൽ (!optimizable()) തിരികെ;
+                new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->thenp()));
+            } അല്ലെങ്കിൽ {
                 iterateConst(nodep->elsep());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->elsep()));
+                എങ്കിൽ (!optimizable()) തിരികെ;
+                new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->elsep()));
             }
         }
     }
 
-    void handleAssignElement(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
+    ശൂന്യം handleAssignElement(Ast_കണ്ണി_Assign* nodep, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* മൂല്യം_Fromp) {
         // Assign an element or member, maybe nested, of a variable, by editing the variable's
         // value. Selects, from the element inwards:
-        std::vector<AstNodeExpr*> selps;
-        AstNodeExpr* fromp = lhsp;
-        while (true) {
-            if (AstArraySel* const selp = VN_CAST(fromp, ArraySel)) {
-                checkNodeInfo(selp);
+        std::vector<Ast_കണ്ണി_വ്യഞ്ജകം*> selps;
+        Ast_കണ്ണി_വ്യഞ്ജകം* fromp = lhsp;
+        ആകുമ്പോൾ (true) {
+            എങ്കിൽ (AstArraySel* സ്ഥിരം selp = VN_CAST(fromp, ArraySel)) {
+                check_കണ്ണി_Info(selp);
                 iterateAndNextConstNull(selp->bitp());  // Bit index
-                selps.push_back(selp);
+                selps.തള്ളുക_back(selp);
                 fromp = selp->fromp();
-            } else if (AstStructSel* const selp = VN_CAST(fromp, StructSel)) {
-                checkNodeInfo(selp);
-                selps.push_back(selp);
+            } അല്ലെങ്കിൽ എങ്കിൽ (AstStructSel* സ്ഥിരം selp = VN_CAST(fromp, StructSel)) {
+                check_കണ്ണി_Info(selp);
+                selps.തള്ളുക_back(selp);
                 fromp = selp->fromp();
-            } else {
-                break;
+            } അല്ലെങ്കിൽ {
+                നിർത്തുക;
             }
         }
-        AstVarRef* const varrefp = VN_CAST(fromp, VarRef);
-        if (!varrefp) {
+        AstVarRef* സ്ഥിരം varrefp = VN_CAST(fromp, VarRef);
+        എങ്കിൽ (!varrefp) {
             clearOptimizable(fromp, "Array select LHS isn't simple variable");
-            return;
+            തിരികെ;
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const vscp = varOrScope(varrefp);
-        AstNodeExpr* rootp = fetchOutValueNull(vscp);
-        if (!rootp) rootp = fetchValueNull(vscp);
-        if (!rootp) {  // As initVar couldn't make an initial value of its type
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        Ast_കണ്ണി* സ്ഥിരം vscp = varOrScope(varrefp);
+        Ast_കണ്ണി_വ്യഞ്ജകം* rootp = fetch_Out_മൂല്യം_Null(vscp);
+        എങ്കിൽ (!rootp) rootp = fetch_മൂല്യം_Null(vscp);
+        എങ്കിൽ (!rootp) {  // As initVar couldn't make an initial value of its type
             clearOptimizable(varrefp, "Assigned variable has unsupported data type");
-            return;
+            തിരികെ;
         }
         // Find the value of the selected element, making a defaulted array element explicit
-        AstNodeExpr* itemp = rootp;
-        for (AstNodeExpr* const selp : vlstd::reverse_view(selps)) {
-            if (const AstArraySel* const aselp = VN_CAST(selp, ArraySel)) {
-                AstConsArray* const consp = VN_AS(itemp, ConsArray);
-                const uint32_t index = fetchConst(aselp->bitp())->toUInt();
-                const int elements
+        Ast_കണ്ണി_വ്യഞ്ജകം* itemp = rootp;
+        വേണ്ടി (Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം selp : vlstd::reverse_view(selps)) {
+            എങ്കിൽ (സ്ഥിരം AstArraySel* സ്ഥിരം aselp = VN_CAST(selp, ArraySel)) {
+                AstConsArray* സ്ഥിരം consp = VN_AS(itemp, ConsArray);
+                സ്ഥിരം uint32_t index = fetchConst(aselp->bitp())->toUInt();
+                സ്ഥിരം പൂർണ്ണസംഖ്യ elements
                     = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-                if (index >= static_cast<uint32_t>(elements)) {
-                    return;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
+                എങ്കിൽ (index >= static_cast<uint32_t>(elements)) {
+                    തിരികെ;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
                 }
                 itemp = consp->valuep(index);
-                if (itemp == consp->defaultp()) {  // Make a defaulted element explicit
-                    itemp = itemp->cloneTree(false);
+                എങ്കിൽ (itemp == consp->defaultp()) {  // Make a defaulted element explicit
+                    itemp = itemp->clone_വൃക്ഷം(false);
                     consp->valuep(index, itemp);
                 }
-            } else {
+            } അല്ലെങ്കിൽ {
                 itemp = VN_AS(itemp, ConsStruct)->memberValuep(selp->name());
             }
         }
         // Clone first, as the value assigned may be the old value of the element
-        AstNodeExpr* const valuep = newTrackedClone(fetchValue(valueFromp));
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = newTrackedClone(fetch_മൂല്യം(മൂല്യം_Fromp));
         UINFO(9, "     set " << lhsp << " = " << valuep);
         itemp->replaceWith(valuep);
-        m_reclaimValuesp.push_back(itemp);
+        m_reclaimValuesp.തള്ളുക_back(itemp);
         UINFOTREE(9, rootp, "", "aggregate");
-        assignOutValue(nodep, vscp, rootp);
+        assign_Out_മൂല്യം(nodep, vscp, rootp);
     }
-    void handleAssignSel(AstNodeAssign* nodep, AstSel* selp, AstNodeExpr* valueFromp) {
+    ശൂന്യം handleAssignSel(Ast_കണ്ണി_Assign* nodep, AstSel* selp, Ast_കണ്ണി_വ്യഞ്ജകം* മൂല്യം_Fromp) {
         AstVarRef* varrefp = nullptr;
-        V3Number lsb{nodep};
+        V3_സംഖ്യ lsb{nodep};
         handleAssignSelRecurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
-        if (m_checkOnly || !optimizable()) return;
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
         UASSERT_OBJ(varrefp, nodep,
                     "Indicated optimizable, but no variable found on RHS of select");
-        AstNode* const vscp = varOrScope(varrefp);
+        Ast_കണ്ണി* സ്ഥിരം vscp = varOrScope(varrefp);
         AstConst* outconstp = nullptr;
-        if (AstConst* const vscpnump = fetchOutConstNull(vscp)) {
+        എങ്കിൽ (AstConst* സ്ഥിരം vscpnump = fetchOutConstNull(vscp)) {
             outconstp = vscpnump;
-        } else if (AstConst* const vscpnump = fetchConstNull(vscp)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstConst* സ്ഥിരം vscpnump = fetchConstNull(vscp)) {
             outconstp = vscpnump;
-        } else {  // Assignment to unassigned variable, all bits are X or 0
-            outconstp = new AstConst{nodep->fileline(), AstConst::WidthedValue{},
+        } അല്ലെങ്കിൽ {  // Assignment to unassigned variable, all bits are X or 0
+            outconstp = new AstConst{nodep->fileline(), AstConst::Widthed_മൂല്യം{},
                                      varrefp->varp()->widthMin(), 0};
-            if (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
-                outconstp->num().setAllBits0();
-            } else {
-                outconstp->num().setAllBitsX();
+            എങ്കിൽ (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
+                outconstp->അക്കം().setAllBits0();
+            } അല്ലെങ്കിൽ {
+                outconstp->അക്കം().setAllBitsX();
             }
             m_reclaimValuesp.emplace_back(outconstp);
         }
-        outconstp->num().opSelInto(fetchConst(valueFromp)->num(), lsb, selp->widthConst());
-        assignOutValue(nodep, vscp, outconstp);
+        outconstp->അക്കം().opSelInto(fetchConst(മൂല്യം_Fromp)->അക്കം(), lsb, selp->widthConst());
+        assign_Out_മൂല്യം(nodep, vscp, outconstp);
     }
-    void handleAssignSelRecurse(AstNodeAssign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
-                                V3Number& lsbRef, int depth) {
+    ശൂന്യം handleAssignSelRecurse(Ast_കണ്ണി_Assign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
+                                V3_സംഖ്യ& lsbRef, പൂർണ്ണസംഖ്യ depth) {
         // Recurse down to find final variable being set (outVarrefp), with
         // lsb to be eventually set on lsbRef
-        checkNodeInfo(selp);
+        check_കണ്ണി_Info(selp);
         iterateAndNextConstNull(selp->lsbp());  // Bit index
-        if (AstVarRef* const varrefp = VN_CAST(selp->fromp(), VarRef)) {
+        എങ്കിൽ (AstVarRef* സ്ഥിരം varrefp = VN_CAST(selp->fromp(), VarRef)) {
             outVarrefpRef = varrefp;
-            lsbRef = fetchConst(selp->lsbp())->num();
-            return;  // And presumably still optimizable()
+            lsbRef = fetchConst(selp->lsbp())->അക്കം();
+            തിരികെ;  // And presumably still optimizable()
         }
-        if (AstSel* const subselp = VN_CAST(selp->fromp(), Sel)) {
-            V3Number sublsb{nodep};
+        എങ്കിൽ (AstSel* സ്ഥിരം subselp = VN_CAST(selp->fromp(), Sel)) {
+            V3_സംഖ്യ sublsb{nodep};
             handleAssignSelRecurse(nodep, subselp, outVarrefpRef, sublsb /*ref*/, depth + 1);
-            if (optimizable()) {
+            എങ്കിൽ (optimizable()) {
                 lsbRef = sublsb;
-                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->num());
+                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->അക്കം());
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             clearOptimizable(selp->fromp(), "Select LHS isn't simple variable");
         }
     }
-    void handleAssignRecurse(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
-        if (!optimizable()) return;
-        if (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
-            if (!m_params) {
+    ശൂന്യം handleAssignRecurse(Ast_കണ്ണി_Assign* nodep, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* മൂല്യം_Fromp) {
+        എങ്കിൽ (!optimizable()) തിരികെ;
+        എങ്കിൽ (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
+            എങ്കിൽ (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                തിരികെ;
             }
-            handleAssignElement(nodep, lhsp, valueFromp);
-        } else if (AstConcat* const selp = VN_CAST(lhsp, Concat)) {
-            checkNodeInfo(selp);
-            if (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
+            handleAssignElement(nodep, lhsp, മൂല്യം_Fromp);
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstConcat* സ്ഥിരം selp = VN_CAST(lhsp, Concat)) {
+            check_കണ്ണി_Info(selp);
+            എങ്കിൽ (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
                 clearOptimizable(lhsp, "Assign LHS concat of non-basic type");
-                return;
+                തിരികെ;
             }
             // Split value into left and right concat values
-            if (!m_checkOnly) {
+            എങ്കിൽ (!m_checkOnly) {
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->lhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* സ്ഥിരം outconstp
+                        = new AstConst{selp->lhsp()->fileline(), AstConst::Widthed_മൂല്യം{},
                                        selp->lhsp()->width(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->അക്കം().opSel(fetchConst(മൂല്യം_Fromp)->അക്കം(),
                                            selp->lhsp()->width() + selp->rhsp()->width() + 1,
                                            selp->rhsp()->width());
-                    newValue(selp->lhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_മൂല്യം(selp->lhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_വൃക്ഷം(), outconstp);
                 }
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->rhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* സ്ഥിരം outconstp
+                        = new AstConst{selp->rhsp()->fileline(), AstConst::Widthed_മൂല്യം{},
                                        selp->rhsp()->widthMin(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->അക്കം().opSel(fetchConst(മൂല്യം_Fromp)->അക്കം(),
                                            selp->rhsp()->width() - 1, 0);
-                    newValue(selp->rhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_മൂല്യം(selp->rhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_വൃക്ഷം(), outconstp);
                 }
             }
             handleAssignRecurse(nodep, selp->lhsp(), selp->lhsp());
             handleAssignRecurse(nodep, selp->rhsp(), selp->rhsp());
-        } else if (AstReplicate* const selp = VN_CAST(lhsp, Replicate)) {
-            checkNodeInfo(selp);
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstReplicate* സ്ഥിരം selp = VN_CAST(lhsp, Replicate)) {
+            check_കണ്ണി_Info(selp);
             iterateAndNextConstNull(selp->countp());
-            AstConst* const countp = VN_CAST(selp->countp(), Const);
-            if (!countp || !countp->num().isEqOne()) {
+            AstConst* സ്ഥിരം countp = VN_CAST(selp->countp(), Const);
+            എങ്കിൽ (!countp || !countp->അക്കം().isEqOne()) {
                 clearOptimizable(selp, "Replicate LHS count isn't one");
-                return;
+                തിരികെ;
             }
-            handleAssignRecurse(nodep, selp->srcp(), valueFromp);
-        } else if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (!m_params) {
+            handleAssignRecurse(nodep, selp->srcp(), മൂല്യം_Fromp);
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstSel* സ്ഥിരം selp = VN_CAST(lhsp, Sel)) {
+            എങ്കിൽ (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                തിരികെ;
             }
-            handleAssignSel(nodep, selp, valueFromp);
-        } else if (VN_IS(lhsp, VarRef)) {
-            if (m_checkOnly) {
+            handleAssignSel(nodep, selp, മൂല്യം_Fromp);
+        } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(lhsp, VarRef)) {
+            എങ്കിൽ (m_checkOnly) {
                 iterateAndNextConstNull(lhsp);
-            } else {
-                AstNode* const vscp = varOrScope(VN_CAST(lhsp, VarRef));
-                assignOutValue(nodep, vscp, fetchValue(valueFromp));
+            } അല്ലെങ്കിൽ {
+                Ast_കണ്ണി* സ്ഥിരം vscp = varOrScope(VN_CAST(lhsp, VarRef));
+                assign_Out_മൂല്യം(nodep, vscp, fetch_മൂല്യം(മൂല്യം_Fromp));
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             clearOptimizable(lhsp, "Assign LHS isn't simple variable");
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(Ast_കണ്ണി_Assign* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
 
         VL_RESTORER(m_inDlyAssign);
 
-        if (VN_IS(nodep, AssignForce)) {
+        എങ്കിൽ (VN_IS(nodep, AssignForce)) {
             clearOptimizable(nodep, "Force");
-        } else if (VN_IS(nodep, AssignDly)) {
-            if (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(nodep, AssignDly)) {
+            എങ്കിൽ (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignDly = true;
             m_inDlyAssign = true;
-        } else {
-            if (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } അല്ലെങ്കിൽ {
+            എങ്കിൽ (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignComb = true;
         }
 
-        if (VN_IS(nodep->rhsp(), CReset)) {
+        എങ്കിൽ (VN_IS(nodep->rhsp(), CReset)) {
             initVar(VN_AS(nodep->lhsp(), VarRef)->varp());
-            return;
+            തിരികെ;
         }
 
         iterateAndNextConstNull(nodep->rhsp());  // Value to assign
@@ -1083,86 +1083,86 @@ private:
         // UINFO(9, "set " << fetchConst(nodep->rhsp())->num().ascii() << " for assign "
         //  << nodep->lhsp()->name());
     }
-    void visit(AstArraySel* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstArraySel* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const AstConst* const indexp = fetchConst(nodep->bitp());
-            const uint32_t offset = indexp->num().toUInt();
-            AstNodeExpr* const itemp = consp->valuep(offset);
-            if (!itemp) {
+        എങ്കിൽ (സ്ഥിരം AstConsArray* സ്ഥിരം consp = VN_CAST(fetch_മൂല്യം_Null(nodep->fromp()), ConsArray)) {
+            സ്ഥിരം AstConst* സ്ഥിരം indexp = fetchConst(nodep->bitp());
+            സ്ഥിരം uint32_t offset = indexp->അക്കം().toUInt();
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം itemp = consp->valuep(offset);
+            എങ്കിൽ (!itemp) {
                 clearOptimizable(nodep, "Array select out of range: " + std::to_string(offset));
-            } else {
-                setValue(nodep, itemp);
+            } അല്ലെങ്കിൽ {
+                set_മൂല്യം(nodep, itemp);
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             clearOptimizable(nodep, "Array select of non-array");
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    ശൂന്യം visit(AstStructSel* nodep) override {
+        എങ്കിൽ (!m_params) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
         }
-        checkNodeInfo(nodep);
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const consp = VN_AS(fetchValue(nodep->fromp()), ConsStruct);
-        setValue(nodep, consp->memberValuep(nodep->name()));
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        AstConsStruct* സ്ഥിരം consp = VN_AS(fetch_മൂല്യം(nodep->fromp()), ConsStruct);
+        set_മൂല്യം(nodep, consp->memberValuep(nodep->name()));
     }
 
     // Evaluate a slice of an unpacked array.  If the base value is a constant
     // AstConsArray, build a new AstConsArray representing the slice and assign
     // it as this node's value.  New index 0 corresponds to the lowest index of
     // the slice.  Otherwise, mark this node as unoptimizable.
-    void visit(AstSliceSel* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstSliceSel* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
         // Fetch the base constant array
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const VNumRange& sliceRange = nodep->declRange();
-            const uint32_t sliceElements = sliceRange.elements();
-            const int sliceLo = sliceRange.lo();
+        എങ്കിൽ (സ്ഥിരം AstConsArray* സ്ഥിരം consp = VN_CAST(fetch_മൂല്യം_Null(nodep->fromp()), ConsArray)) {
+            സ്ഥിരം VNumRange& sliceRange = nodep->declRange();
+            സ്ഥിരം uint32_t sliceElements = sliceRange.elements();
+            സ്ഥിരം പൂർണ്ണസംഖ്യ sliceLo = sliceRange.lo();
             // Use this node's dtype for the slice array
-            AstNodeDType* const dtypep = nodep->dtypep()->skipRefp();
-            AstConsArray* const newConsp = new AstConsArray{nodep->fileline(), dtypep};
+            Ast_കണ്ണി_DType* സ്ഥിരം dtypep = nodep->dtypep()->skipRefp();
+            AstConsArray* സ്ഥിരം newConsp = new AstConsArray{nodep->fileline(), dtypep};
             // Copy slice elements in ascending order
-            for (uint32_t idx = 0; idx < sliceElements; ++idx) {
-                const uint32_t baseIdx = sliceLo + idx;
-                newConsp->valuep(idx, consp->valuep(baseIdx)->cloneTree(false));
+            വേണ്ടി (uint32_t idx = 0; idx < sliceElements; ++idx) {
+                സ്ഥിരം uint32_t baseIdx = sliceLo + idx;
+                newConsp->valuep(idx, consp->valuep(baseIdx)->clone_വൃക്ഷം(false));
             }
             // Assign the new constant array and track it for later deletion
-            setValue(nodep, newConsp);
-            m_reclaimValuesp.push_back(newConsp);
-        } else {
+            set_മൂല്യം(nodep, newConsp);
+            m_reclaimValuesp.തള്ളുക_back(newConsp);
+        } അല്ലെങ്കിൽ {
             clearOptimizable(nodep, "Slice select of non-array");
         }
     }
 
-    void visit(AstBegin* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstBegin* nodep) override {
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstCase* nodep) override {
-        if (jumpingOver()) return;
+    ശൂന്യം visit(AstCase* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
         UINFO(5, "   CASE " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else if (optimizable()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (optimizable()) {
             iterateAndNextConstNull(nodep->exprp());
             bool hit = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            വേണ്ടി (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (!itemp->isDefault()) {
-                    for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                        if (hit) break;
+                എങ്കിൽ (!itemp->isDefault()) {
+                    വേണ്ടി (Ast_കണ്ണി* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                        എങ്കിൽ (hit) നിർത്തുക;
                         iterateAndNextConstNull(ep);
-                        if (optimizable()) {
-                            V3Number match{nodep, 1};
-                            match.opEq(fetchConst(nodep->exprp())->num(), fetchConst(ep)->num());
-                            if (match.isNeqZero()) {
+                        എങ്കിൽ (optimizable()) {
+                            V3_സംഖ്യ match{nodep, 1};
+                            match.opEq(fetchConst(nodep->exprp())->അക്കം(), fetchConst(ep)->അക്കം());
+                            എങ്കിൽ (match.isNeqZero()) {
                                 iterateAndNextConstNull(itemp->stmtsp());
                                 hit = true;
                             }
@@ -1171,10 +1171,10 @@ private:
                 }
             }
             // Else default match
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            വേണ്ടി (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (hit) break;
-                if (itemp->isDefault()) {
+                എങ്കിൽ (hit) നിർത്തുക;
+                എങ്കിൽ (itemp->isDefault()) {
                     iterateAndNextConstNull(itemp->stmtsp());
                     hit = true;
                 }
@@ -1182,143 +1182,143 @@ private:
         }
     }
 
-    void visit(AstCaseItem* nodep) override {
+    ശൂന്യം visit(AstCaseItem* nodep) override {
         // Real handling is in AstNodeCase
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstComment*) override {}
+    ശൂന്യം visit(AstComment*) override {}
 
-    void visit(AstStmtExpr* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(Ast_Stmt_വ്യഞ്ജകം* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstExprStmt* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(Ast_വ്യഞ്ജകം_Stmt* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        check_കണ്ണി_Info(nodep);
         iterateAndNextConstNull(nodep->stmtsp());
-        if (!optimizable()) return;
+        എങ്കിൽ (!optimizable()) തിരികെ;
         iterateAndNextConstNull(nodep->resultp());
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, fetchValue(nodep->resultp()));
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        new_മൂല്യം(nodep, fetch_മൂല്യം(nodep->resultp()));
     }
 
-    void visit(AstJumpBlock* nodep) override {
-        if (jumpingOver()) return;
+    ശൂന്യം visit(AstJumpBlock* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
         iterateChildrenConst(nodep);
-        if (m_jumptargetp == nodep) {
+        എങ്കിൽ (m_jumptargetp == nodep) {
             UINFO(5, "   JUMP DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstJumpGo* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (!m_checkOnly) {
+    ശൂന്യം visit(AstJumpGo* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (!m_checkOnly) {
             UINFO(5, "   JUMP GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->blockp();
         }
     }
-    void visit(AstLoop* nodep) override {
+    ശൂന്യം visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (jumpingOver()) return;
+        എങ്കിൽ (jumpingOver()) തിരികെ;
         UINFO(5, "   LOOP " << nodep);
         // Doing lots of loops is slow, so only for parameters
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        എങ്കിൽ (!m_params) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
         }
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (m_checkOnly) {
             iterateChildrenConst(nodep);
-            return;
+            തിരികെ;
         }
-        if (!optimizable()) return;
+        എങ്കിൽ (!optimizable()) തിരികെ;
 
-        size_t iterCount = 0;
-        const size_t iterLimit = v3Global.opt.unrollLimit();
-        while (true) {
-            if (iterCount > iterLimit) {
+        size_t iter_എണ്ണം = 0;
+        സ്ഥിരം size_t iterLimit = v3Global.opt.unrollLimit();
+        ആകുമ്പോൾ (true) {
+            എങ്കിൽ (iter_എണ്ണം > iterLimit) {
                 clearOptimizable(nodep, "Loop simulation took too long; probably this is an "
                                         "infinite loop, otherwise set '--unroll-limit' above "
                                             + std::to_string(iterLimit));
-                break;
+                നിർത്തുക;
             }
-            ++iterCount;
+            ++iter_എണ്ണം;
 
             UINFO(5, "    LOOP-ITER " << nodep);
             iterateAndNextConstNull(nodep->stmtsp());
-            if (jumpingOver()) break;
+            എങ്കിൽ (jumpingOver()) നിർത്തുക;
         }
 
-        if (m_jumptargetp == nodep) {
+        എങ്കിൽ (m_jumptargetp == nodep) {
             UINFO(5, "   LOOP TEST DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstLoopTest* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstLoopTest* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        check_കണ്ണി_Info(nodep);
         iterateConst(nodep->condp());
-        if (m_checkOnly || !optimizable()) return;
-        if (fetchConst(nodep->condp())->num().isEqZero()) {
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        എങ്കിൽ (fetchConst(nodep->condp())->അക്കം().isEqZero()) {
             UINFO(5, "   LOOP TEST GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->loopp();
         }
     }
 
-    void visit(AstStop* nodep) override {
-        if (jumpingOver()) return;
-        if (m_params) {  // This message seems better than an obscure $stop
+    ശൂന്യം visit(AstStop* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (m_params) {  // This message seems better than an obscure $stop
             // The spec says $stop is just ignored, it seems evil to ignore assertions
             clearOptimizable(
                 nodep,
                 "$stop executed during function constification; maybe indicates assertion firing");
         }
-        checkNodeInfo(nodep);
+        check_കണ്ണി_Info(nodep);
     }
-    void visit(AstFuncRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    ശൂന്യം visit(AstFuncRef* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
         UINFO(5, "   FUNCREF " << nodep);
-        checkNodeInfo(nodep);
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        check_കണ്ണി_Info(nodep);
+        എങ്കിൽ (!m_params) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
         }
-        AstNodeFTask* funcp = nodep->taskp();
+        Ast_കണ്ണി_FTask* funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
-        if (m_params) V3Width::widthParamsEdit(funcp);
+        എങ്കിൽ (m_params) V3Width::widthParamsEdit(funcp);
         VL_DANGLING(funcp);  // Make sure we've sized the function
         funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
 
-        if (funcp->recursive()) {
-            if (m_recurseCount >= v3Global.opt.funcRecursionDepth()) {
+        എങ്കിൽ (funcp->recursive()) {
+            എങ്കിൽ (m_recurse_എണ്ണം >= v3Global.opt.funcRecursionDepth()) {
                 clearOptimizable(funcp, "Constant function recursed more than "s
                                             + std::to_string(v3Global.opt.funcRecursionDepth())
                                             + " times");
-                return;
+                തിരികെ;
             }
-            ++m_recurseCount;
+            ++m_recurse_എണ്ണം;
         }
 
         // Values from previous call, so can save to stack
         // The "stack" is this visit function's local stack, as this visit is itself recursing
-        std::map<AstNode*, AstNodeExpr*> oldValues;
+        std::map<Ast_കണ്ണി*, Ast_കണ്ണി_വ്യഞ്ജകം*> old_മൂല്യങ്ങൾ;
 
-        if (funcp->recursive() && !m_checkOnly) {
+        എങ്കിൽ (funcp->recursive() && !m_checkOnly) {
             // Save local automatics
-            funcp->foreach([this, &oldValues](AstVar* varp) {
-                if (varp->lifetime().isAutomatic()) {  // This also does function's I/O
-                    if (AstNodeExpr* const valuep = fetchValueNull(varp)) {
-                        AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                        oldValues.emplace(varp, nvaluep);
+            funcp->foreach([this, &old_മൂല്യങ്ങൾ](AstVar* varp) {
+                എങ്കിൽ (varp->lifetime().isAutomatic()) {  // This also does function's I/O
+                    എങ്കിൽ (Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = fetch_മൂല്യം_Null(varp)) {
+                        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം nvaluep = newTrackedClone(valuep);
+                        old_മൂല്യങ്ങൾ.emplace(varp, nvaluep);
                     }
                 }
             });
@@ -1328,11 +1328,11 @@ private:
             // we could look at the visit stack to determine what nodes
             // need save-restore, but that is difficult to get right, and
             // recursion is rare.
-            funcp->foreach([this, &oldValues](AstNodeExpr* exprp) {
-                if (VN_IS(exprp, Const)) return;  // Speed up as won't change
-                if (AstNodeExpr* const valuep = fetchValueNull(exprp)) {
-                    AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                    oldValues.emplace(exprp, nvaluep);
+            funcp->foreach([this, &old_മൂല്യങ്ങൾ](Ast_കണ്ണി_വ്യഞ്ജകം* exprp) {
+                എങ്കിൽ (VN_IS(exprp, Const)) തിരികെ;  // Speed up as won't change
+                എങ്കിൽ (Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = fetch_മൂല്യം_Null(exprp)) {
+                    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം nvaluep = newTrackedClone(valuep);
+                    old_മൂല്യങ്ങൾ.emplace(exprp, nvaluep);
                 }
             });
         }
@@ -1340,219 +1340,219 @@ private:
         V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
         // Must do this in two steps, eval all params, then apply them
         // Otherwise chained functions may have the wrong results
-        std::vector<std::pair<AstVar*, AstNodeExpr*>> portValues;
-        for (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
-            AstVar* const portp = it->first;
-            AstNode* const pinp = it->second->exprp();
-            if (pinp) {  // Else too few arguments in function call - ignore it
-                if (portp->isWritable()) {
+        std::vector<std::pair<AstVar*, Ast_കണ്ണി_വ്യഞ്ജകം*>> port_മൂല്യങ്ങൾ;
+        വേണ്ടി (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
+            AstVar* സ്ഥിരം portp = it->first;
+            Ast_കണ്ണി* സ്ഥിരം pinp = it->second->exprp();
+            എങ്കിൽ (pinp) {  // Else too few arguments in function call - ignore it
+                എങ്കിൽ (portp->isWritable()) {
                     clearOptimizable(
                         portp,
                         "Language violation: Outputs/refs not allowed in constant functions");
-                    return;
+                    തിരികെ;
                 }
                 // Evaluate pin value
                 iterateConst(pinp);
                 // Clone in case are recursing
-                portValues.emplace_back(std::make_pair(portp, newTrackedClone(fetchValue(pinp))));
+                port_മൂല്യങ്ങൾ.emplace_back(std::make_pair(portp, newTrackedClone(fetch_മൂല്യം(pinp))));
             }
         }
         // Apply value to the function
-        if (!m_checkOnly && optimizable())
-            for (const auto& it : portValues) {
-                if (!m_checkOnly && optimizable()) newValue(it.first, it.second);
+        എങ്കിൽ (!m_checkOnly && optimizable())
+            വേണ്ടി (സ്ഥിരം auto& it : port_മൂല്യങ്ങൾ) {
+                എങ്കിൽ (!m_checkOnly && optimizable()) new_മൂല്യം(it.first, it.second);
             }
-        SimStackNode stackNode{nodep, &tconnects};
+        Sim_അട്ടി_കണ്ണി അട്ടി_കണ്ണി{nodep, &tconnects};
         // cppcheck-suppress danglingLifetime
-        m_callStack.push_back(&stackNode);
-        if (!m_checkOnly) {
+        m_call_അട്ടി.തള്ളുക_back(&അട്ടി_കണ്ണി);
+        എങ്കിൽ (!m_checkOnly) {
             // Clear output variable
             initVar(VN_CAST(funcp->fvarp(), Var));
             // Clear other automatic variables
             funcp->foreach([this](AstVar* varp) {
-                if (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
+                എങ്കിൽ (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
                     initVar(varp);
             });
         }
 
         // Evaluate the function
         iterateConst(funcp);
-        m_callStack.pop_back();
-        const AstNodeExpr* returnp = nullptr;
-        if (!m_checkOnly && optimizable()) {
+        m_call_അട്ടി.എടുക്കുക_back();
+        സ്ഥിരം Ast_കണ്ണി_വ്യഞ്ജകം* returnp = nullptr;
+        എങ്കിൽ (!m_checkOnly && optimizable()) {
             // Grab return value from output variable
             UASSERT_OBJ(funcp->fvarp(), nodep, "Function reference points at non-function");
-            returnp = newTrackedClone(fetchValue(funcp->fvarp()));
+            returnp = newTrackedClone(fetch_മൂല്യം(funcp->fvarp()));
             UINFO(5, "func " << nodep->name() << " return = " << returnp);
         }
         // Restore local automatics (none unless recursed)
-        for (const auto& it : oldValues) {
-            if (it.second) newValue(it.first, it.second);
+        വേണ്ടി (സ്ഥിരം auto& it : old_മൂല്യങ്ങൾ) {
+            എങ്കിൽ (it.second) new_മൂല്യം(it.first, it.second);
         }
-        if (returnp) newValue(nodep, returnp);
-        if (funcp->recursive()) {
-            UASSERT_OBJ(m_recurseCount > 0, nodep, "recurse underflow");
-            --m_recurseCount;
-        }
-    }
-
-    void visit(AstVar* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        എങ്കിൽ (returnp) new_മൂല്യം(nodep, returnp);
+        എങ്കിൽ (funcp->recursive()) {
+            UASSERT_OBJ(m_recurse_എണ്ണം > 0, nodep, "recurse underflow");
+            --m_recurse_എണ്ണം;
         }
     }
 
-    void visit(AstScopeName* /*nodep*/) override {
-        if (jumpingOver()) return;
+    ശൂന്യം visit(AstVar* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!m_params) {
+            bad_കണ്ണി_Type(nodep);
+            തിരികെ;
+        }
+    }
+
+    ശൂന്യം visit(AstScopeName* /*nodep*/) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
         // Ignore
     }
 
-    void visit(AstSFormatArg* nodep) override {
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstSFormatArg* nodep) override {
+        check_കണ്ണി_Info(nodep);
         // Constant enum names come from the dtype, not the runtime lookup.
         iterateAndNextConstNull(nodep->exprp());
     }
-    void visit(AstSFormatF* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstSFormatF* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
 
-        AstNode* nextArgp = nodep->exprsp();
+        Ast_കണ്ണി* nextArgp = nodep->exprsp();
         string result;
-        const string format = nodep->text();
+        സ്ഥിരം string format = nodep->text();
         auto pos = format.cbegin();
         bool inPct = false;
         string width;
-        for (; pos != format.cend(); ++pos) {
-            if (!inPct && pos[0] == '%') {
+        വേണ്ടി (; pos != format.cend(); ++pos) {
+            എങ്കിൽ (!inPct && pos[0] == '%') {
                 inPct = true;
                 width = "";
-            } else if (!inPct) {  // Normal text
+            } അല്ലെങ്കിൽ എങ്കിൽ (!inPct) {  // Normal text
                 result += *pos;
-            } else {  // Format character
-                if (std::isdigit(pos[0])) {
+            } അല്ലെങ്കിൽ {  // Format character
+                എങ്കിൽ (std::isdigit(pos[0])) {
                     width += pos[0];
-                    continue;
+                    തുടരുക;
                 }
 
                 inPct = false;
 
-                if (V3Number::displayedFmtHasArg(std::tolower(pos[0]), false)) {
-                    AstNode* const argp = nextArgp;
+                എങ്കിൽ (V3_സംഖ്യ::displayedFmtHasArg(std::tolower(pos[0]), false)) {
+                    Ast_കണ്ണി* സ്ഥിരം argp = nextArgp;
                     nextArgp = nextArgp->nextp();
-                    AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                    AstNode* const subargp = fargp ? fargp->exprp() : argp;
-                    AstConst* const constp = fetchConstNull(subargp);
-                    const VFormatAttr formatAttr
+                    AstSFormatArg* സ്ഥിരം fargp = VN_CAST(argp, SFormatArg);
+                    Ast_കണ്ണി* സ്ഥിരം subargp = fargp ? fargp->exprp() : argp;
+                    AstConst* സ്ഥിരം constp = fetchConstNull(subargp);
+                    സ്ഥിരം VFormatAttr formatAttr
                         = argp ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                : VFormatAttr{};
-                    if (!constp) {
+                    എങ്കിൽ (!constp) {
                         clearOptimizable(nodep,
                                          "Argument for $display-like statement is not constant");
-                        break;
+                        നിർത്തുക;
                     }
-                    const string pformat = "%"s + width + pos[0];
+                    സ്ഥിരം string pformat = "%"s + width + pos[0];
                     result += formatAttr.isEnum()
-                                  ? constp->num().displayedEnum(fargp, pformat)
-                                  : constp->num().displayed(nodep, pformat, formatAttr);
-                } else {
-                    switch (std::tolower(pos[0])) {
-                    case '%': result += "%"; break;
-                    case 'm':
+                                  ? constp->അക്കം().displayedEnum(fargp, pformat)
+                                  : constp->അക്കം().displayed(nodep, pformat, formatAttr);
+                } അല്ലെങ്കിൽ {
+                    തിരഞ്ഞെടുപ്പ് (std::tolower(pos[0])) {
+                    അവസ്ഥ '%': result += "%"; നിർത്തുക;
+                    അവസ്ഥ 'm':
                         // This happens prior to AstScope so we don't
                         // know the scope name. Leave the %m in place.
                         result += "%m";
-                        break;
-                    default: clearOptimizable(nodep, "Unknown $display-like format code."); break;
+                        നിർത്തുക;
+                    സ്ഥിരസ്ഥിതി: clearOptimizable(nodep, "Unknown $display-like format code."); നിർത്തുക;
                     }
                 }
             }
         }
 
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        AstConst* സ്ഥിരം resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_മൂല്യം(nodep, resultConstp);
+        m_reclaimValuesp.തള്ളുക_back(resultConstp);
     }
 
-    void visit(AstDisplay* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    ശൂന്യം visit(AstDisplay* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
         // We ignore isPredictOptimizable as $display is often in constant
         // functions and we want them to work if used with parameters
-        checkNodeInfo(nodep, /*display:*/ true);
+        check_കണ്ണി_Info(nodep, /*display:*/ true);
         iterateChildrenConst(nodep);
-        if (m_params) {
-            const AstConst* const textp = fetchConst(nodep->fmtp());
-            switch (nodep->displayType()) {
-            case VDisplayType::DT_DISPLAY:  // FALLTHRU
-            case VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); break;
-            case VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); break;
-            case VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); break;
-            case VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); break;
-            case VDisplayType::DT_WRITE:  // FALLTHRU
-            default: clearOptimizable(nodep, "Unexpected display type");
+        എങ്കിൽ (m_params) {
+            സ്ഥിരം AstConst* സ്ഥിരം textp = fetchConst(nodep->fmtp());
+            തിരഞ്ഞെടുപ്പ് (nodep->displayType()) {
+            അവസ്ഥ VDisplayType::DT_DISPLAY:  // FALLTHRU
+            അവസ്ഥ VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); നിർത്തുക;
+            അവസ്ഥ VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); നിർത്തുക;
+            അവസ്ഥ VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); നിർത്തുക;
+            അവസ്ഥ VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); നിർത്തുക;
+            അവസ്ഥ VDisplayType::DT_WRITE:  // FALLTHRU
+            സ്ഥിരസ്ഥിതി: clearOptimizable(nodep, "Unexpected display type");
             }
         }
     }
-    void visit(AstToStringN* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    ശൂന്യം visit(AstToStringN* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        എങ്കിൽ (!optimizable()) തിരികെ;  // Accelerate
+        check_കണ്ണി_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        const std::string result = toStringRecurse(fetchValue(nodep->lhsp()));
-        if (!optimizable()) return;
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        എങ്കിൽ (m_checkOnly || !optimizable()) തിരികെ;
+        സ്ഥിരം std::string result = toStringRecurse(fetch_മൂല്യം(nodep->lhsp()));
+        എങ്കിൽ (!optimizable()) തിരികെ;
+        AstConst* സ്ഥിരം resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_മൂല്യം(nodep, resultConstp);
+        m_reclaimValuesp.തള്ളുക_back(resultConstp);
     }
 
-    void visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
+    ശൂന്യം visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
 
     // ====
     // Known Bad
-    void visit(AstCMethodHard* nodep) override {
+    ശൂന്യം visit(AstCMethodHard* nodep) override {
         // Some CMethods such as size() on queues could be supported, but
         // instead we should change those methods to new Ast types so we can
         // properly dispatch them
-        knownBadNodeType(nodep);
+        known_Bad_കണ്ണി_Type(nodep);
     }
-    void visit(AstGetInitialRandomSeed* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstMemberSel* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstSampled* nodep) override { knownBadNodeType(nodep); }
+    ശൂന്യം visit(AstGetInitialRandomSeed* nodep) override { known_Bad_കണ്ണി_Type(nodep); }
+    ശൂന്യം visit(AstMemberSel* nodep) override { known_Bad_കണ്ണി_Type(nodep); }
+    ശൂന്യം visit(AstSampled* nodep) override { known_Bad_കണ്ണി_Type(nodep); }
     // ====
     // default
     // These types are definitely not reducible
     //   AstCoverInc, AstFinish,
     //   AstRand, AstTime, AstCCall, AstCStmt*, AstCExpr*
-    void visit(AstNode* nodep) override {
-        if (jumpingOver()) return;
-        badNodeType(nodep);
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
+        എങ്കിൽ (jumpingOver()) തിരികെ;
+        bad_കണ്ണി_Type(nodep);
     }
 
     // MEMBERS - called by constructor
-    void setMode(bool scoped, bool checkOnly, bool params) {
+    ശൂന്യം setMode(bool scoped, bool checkOnly, bool params) {
         m_checkOnly = checkOnly;
         m_scoped = scoped;
         m_params = params;
     }
-    void mainGuts(AstNode* nodep) {
+    ശൂന്യം mainGuts(Ast_കണ്ണി* nodep) {
         iterateConst(nodep);
         UASSERT_OBJ(!m_jumptargetp, m_jumptargetp, "Jump target was not found");
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     SimulateVisitor() {
         // Note AstUser#InUse ensures only one invocation exists at once
         setMode(false, false, false);
         clear();  // We reuse this structure in the main loop, so put initializers inside clear()
     }
-    void clear() {
+    ശൂന്യം clear() {
         m_whyNotOptimizable = "";
         m_whyNotNodep = nullptr;
         m_anyAssignComb = false;
@@ -1560,35 +1560,35 @@ public:
         m_inDlyAssign = false;
         m_isImpure = false;
         m_isCoverage = false;
-        m_instrCount = 0;
-        m_dataCount = 0;
+        m_instr_എണ്ണം = 0;
+        m_data_എണ്ണം = 0;
         m_jumptargetp = nullptr;
 
-        AstNode::user1ClearTree();
+        Ast_കണ്ണി::user1_Clear_വൃക്ഷം();
         m_varAux.clear();
         ++m_constGeneration;
     }
-    void mainTableCheck(AstNode* nodep) {
+    ശൂന്യം mainTableCheck(Ast_കണ്ണി* nodep) {
         setMode(true /*scoped*/, true /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainTableEmulate(AstNode* nodep) {
+    ശൂന്യം mainTableEmulate(Ast_കണ്ണി* nodep) {
         setMode(true /*scoped*/, false /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainParamEmulate(AstNode* nodep) {
+    ശൂന്യം mainParamEmulate(Ast_കണ്ണി* nodep) {
         setMode(false /*scoped*/, false /*checking*/, true /*params*/);
         mainGuts(nodep);
     }
     ~SimulateVisitor() override {
         m_constps.clear();
         // A value replaced in an aggregate may be listed twice
-        std::set<AstNode*> unusedRootps;
-        for (AstNode* const nodep : m_reclaimValuesp) {
-            if (!nodep->backp()) unusedRootps.emplace(nodep);
+        std::set<Ast_കണ്ണി*> unusedRootps;
+        വേണ്ടി (Ast_കണ്ണി* സ്ഥിരം nodep : m_reclaimValuesp) {
+            എങ്കിൽ (!nodep->backp()) unusedRootps.emplace(nodep);
         }
         m_reclaimValuesp.clear();
-        for (AstNode* const nodep : unusedRootps) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        വേണ്ടി (Ast_കണ്ണി* സ്ഥിരം nodep : unusedRootps) VL_DO_DANGLING(nodep->delete_വൃക്ഷം(), nodep);
     }
 };
 

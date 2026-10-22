@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#അന്തര്ഭാവ "V3PchAstMT.h"
 
-#include "V3File.h"
+#അന്തര്ഭാവ "V3File.h"
 
-#include "V3Os.h"
-#include "V3String.h"
+#അന്തര്ഭാവ "V3Os.h"
+#അന്തര്ഭാവ "V3String.h"
 
-#include <cerrno>
-#include <cstdarg>
-#include <fcntl.h>
-#include <iomanip>
-#include <map>
-#include <memory>
+#അന്തര്ഭാവ <cerrno>
+#അന്തര്ഭാവ <cstdarg>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <iomanip>
+#അന്തര്ഭാവ <map>
+#അന്തര്ഭാവ <memory>
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <sys/types.h>
 
 // clang-format off
-#if defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) || defined(VL_CPPCHECK)
+#എങ്കിൽ defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) || defined(VL_CPPCHECK)
 # define INFILTER_PIPE  // Allow pipe filtering.  Needs fork()
 #endif
 
 #ifdef HAVE_STAT_NSEC  // i.e. Linux 2.6, from configure
 # define VL_STAT_CTIME_NSEC(stat) ((stat).st_ctim.tv_nsec)  // Nanoseconds
 # define VL_STAT_MTIME_NSEC(stat) ((stat).st_mtim.tv_nsec)  // Nanoseconds
-#else
+#അല്ലെങ്കിൽ
 # define VL_STAT_CTIME_NSEC(stat) (0)
 # define VL_STAT_MTIME_NSEC(stat) (0)
 #endif
@@ -48,7 +48,7 @@
 # include <sys/wait.h>
 #endif
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
 # include <io.h>  // open, read, write, close
 #endif
 // clang-format on
@@ -57,63 +57,63 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // If change this code, run a test with the below size set very small
 // #define INFILTER_IPC_BUFSIZ 16
-constexpr int INFILTER_IPC_BUFSIZ = (64 * 1024);  // For debug, try this as a small number
-constexpr int INFILTER_CACHE_MAX = (64 * 1024);  // Maximum bytes to cache if same file read twice
+constexpr പൂർണ്ണസംഖ്യ INFILTER_IPC_BUFSIZ = (64 * 1024);  // For debug, try this as a small number
+constexpr പൂർണ്ണസംഖ്യ INFILTER_CACHE_MAX = (64 * 1024);  // Maximum bytes to cache if same file read twice
 
 constexpr off_t FILE_HASH_SIZE_MAX = 1 * 1024 * 1024;  // Maxium size file to hash
 
 //######################################################################
 // V3File Internal state
 
-class V3FileDependImp final {
+വർഗ്ഗം V3FileDependImp final {
     // TYPES
-    class DependFile final {
+    വർഗ്ഗം DependFile final {
         // A single file
-        const bool m_target;  // True if write, else read
-        bool m_exists = true;  // File exists
-        const string m_filename;  // Filename
-        struct stat m_stat;  // Stat information
+        സ്ഥിരം തർക്കം m_target;  // True if write, else read
+        തർക്കം m_exists = സത്യം;  // File exists
+        സ്ഥിരം string m_filename;  // Filename
+        ഘടന stat m_stat;  // Stat information
         VHashSha512 m_hash;  // SHA hash of file contents
-    public:
-        DependFile(const string& filename, bool target)
+    പൊതു:
+        DependFile(സ്ഥിരം string& filename, തർക്കം target)
             : m_target{target}
             , m_filename{filename} {
             m_stat.st_ctime = 0;
             m_stat.st_mtime = 0;
         }
-        ~DependFile() = default;
-        const string& filename() const { return m_filename; }
-        bool target() const { return m_target; }
-        bool exists() const { return m_exists; }
-        off_t size() const { return m_stat.st_size; }
-        ino_t ino() const { return m_stat.st_ino; }
-        time_t cstime() const { return m_stat.st_ctime; }  // Seconds
-        time_t cnstime() const { return VL_STAT_CTIME_NSEC(m_stat); }  // Nanoseconds
-        time_t mstime() const { return m_stat.st_mtime; }  // Seconds
-        time_t mnstime() const { return VL_STAT_MTIME_NSEC(m_stat); }  // Nanoseconds
-        string hashDigestSymbol() {
-            static VHashSha512 s_emptyHash;
-            return m_hash.digestSymbol24() != s_emptyHash.digestSymbol24()
+        ~DependFile() = സ്ഥിരസ്ഥിതി;
+        സ്ഥിരം string& filename() സ്ഥിരം { തിരികെ m_filename; }
+        തർക്കം target() സ്ഥിരം { തിരികെ m_target; }
+        തർക്കം exists() സ്ഥിരം { തിരികെ m_exists; }
+        off_t size() സ്ഥിരം { തിരികെ m_stat.st_size; }
+        ino_t ino() സ്ഥിരം { തിരികെ m_stat.st_ino; }
+        time_t cstime() സ്ഥിരം { തിരികെ m_stat.st_ctime; }  // Seconds
+        time_t cnstime() സ്ഥിരം { തിരികെ VL_STAT_CTIME_NSEC(m_stat); }  // Nanoseconds
+        time_t mstime() സ്ഥിരം { തിരികെ m_stat.st_mtime; }  // Seconds
+        time_t mnstime() സ്ഥിരം { തിരികെ VL_STAT_MTIME_NSEC(m_stat); }  // Nanoseconds
+        string hash_Digest_ചിഹ്നം() {
+            സ്ഥിതം VHashSha512 s_emptyHash;
+            തിരികെ m_hash.digestSymbol24() != s_emptyHash.digestSymbol24()
                        ? m_hash.digestSymbol24()
                        : "unhashed";
         }
-        void loadStats() {
-            if (!m_stat.st_mtime) {
-                const string fn = filename();
-                const int err = stat(fn.c_str(), &m_stat);
-                if (err != 0) {
-                    std::memset(&m_stat, 0, sizeof(m_stat));
+        ശൂന്യം loadStats() {
+            എങ്കിൽ (!m_stat.st_mtime) {
+                സ്ഥിരം string fn = filename();
+                സ്ഥിരം പൂർണ്ണസംഖ്യ err = stat(fn.c_str(), &m_stat);
+                എങ്കിൽ (err != 0) {
+                    std::memset(&m_stat, 0, വലുപ്പം(m_stat));
                     m_stat.st_mtime = 1;
-                    m_exists = false;
+                    m_exists = അസത്യം;
                     // Not an error... This can occur due to `line directives in the .vpp files
                     UINFO(1, "-Info: File not statable: " << filename());
-                } else {
+                } അല്ലെങ്കിൽ {
                     // For speed, don't hash large files (e.g. verilator_bin)
-                    if (!target() && size() <= FILE_HASH_SIZE_MAX) m_hash.insertFile(filename());
+                    എങ്കിൽ (!target() && size() <= FILE_HASH_SIZE_MAX) m_hash.തിരുകുക_File(filename());
                 }
             }
         }
-        bool operator<(const DependFile& rhs) const { return filename() < rhs.filename(); }
+        തർക്കം operator<(സ്ഥിരം DependFile& rhs) സ്ഥിരം { തിരികെ filename() < rhs.filename(); }
     };
 
     // MEMBERS
@@ -121,34 +121,34 @@ class V3FileDependImp final {
     std::set<string> m_filenameSet VL_GUARDED_BY(m_mutex);  // Files generated (elim duplicates)
     std::set<DependFile> m_filenameList;  // Files sourced/generated
 
-    static string stripQuotes(const string& in) {
+    സ്ഥിതം string stripQuotes(സ്ഥിരം string& in) {
         string pretty = in;
         string::size_type pos;
-        while ((pos = pretty.find('\"')) != string::npos) pretty.replace(pos, 1, "_");
-        while ((pos = pretty.find('\n')) != string::npos) pretty.replace(pos, 1, "_");
-        return pretty;
+        ആകുമ്പോൾ ((pos = pretty.find('\"')) != string::npos) pretty.replace(pos, 1, "_");
+        ആകുമ്പോൾ ((pos = pretty.find('\n')) != string::npos) pretty.replace(pos, 1, "_");
+        തിരികെ pretty;
     }
 
-public:
+പൊതു:
     // ACCESSOR METHODS
-    void addSrcDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
-        const auto itFoundPair = m_filenameSet.insert(filename);
-        if (itFoundPair.second) {
-            DependFile df{filename, false};
+    ശൂന്യം addSrcDepend(സ്ഥിരം string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        സ്ഥിരം V3LockGuard lock{m_mutex};
+        സ്ഥിരം auto itFoundPair = m_filenameSet.തിരുകുക(filename);
+        എങ്കിൽ (itFoundPair.second) {
+            DependFile df{filename, അസത്യം};
             df.loadStats();  // Get size now, in case changes during the run
-            m_filenameList.insert(df);
+            m_filenameList.തിരുകുക(df);
         }
     }
-    void addTgtDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
-        const auto itFoundPair = m_filenameSet.insert(filename);
-        if (itFoundPair.second) m_filenameList.insert(DependFile{filename, true});
+    ശൂന്യം addTgtDepend(സ്ഥിരം string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        സ്ഥിരം V3LockGuard lock{m_mutex};
+        സ്ഥിരം auto itFoundPair = m_filenameSet.തിരുകുക(filename);
+        എങ്കിൽ (itFoundPair.second) m_filenameList.തിരുകുക(DependFile{filename, സത്യം});
     }
-    void writeDepend(const string& filename);
-    std::vector<string> getAllDeps() const;
-    void writeTimes(const string& filename, const string& cmdlineIn);
-    bool checkTimes(const string& filename, const string& cmdlineIn);
+    ശൂന്യം writeDepend(സ്ഥിരം string& filename);
+    std::vector<string> getAllDeps() സ്ഥിരം;
+    ശൂന്യം writeTimes(സ്ഥിരം string& filename, സ്ഥിരം string& cmdlineIn);
+    തർക്കം checkTimes(സ്ഥിരം string& filename, സ്ഥിരം string& cmdlineIn);
 };
 
 V3FileDependImp dependImp;  // Depend implementation class
@@ -156,57 +156,57 @@ V3FileDependImp dependImp;  // Depend implementation class
 //######################################################################
 // V3FileDependImp
 
-void V3FileDependImp::writeDepend(const string& filename) {
-    const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+ശൂന്യം V3FileDependImp::writeDepend(സ്ഥിരം string& filename) {
+    സ്ഥിരം std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+    എങ്കിൽ (ofp->fail()) v3fatal("Can't write file: " << filename);
 
-    for (const DependFile& i : m_filenameList) {
-        if (i.target()) *ofp << i.filename() << " ";
+    വേണ്ടി (സ്ഥിരം DependFile& i : m_filenameList) {
+        എങ്കിൽ (i.target()) *ofp << i.filename() << " ";
     }
     *ofp << " : ";
     *ofp << v3Global.opt.buildDepBin();
     *ofp << " ";
 
-    for (const DependFile& i : m_filenameList) {
-        if (!i.target()) *ofp << i.filename() << " ";
+    വേണ്ടി (സ്ഥിരം DependFile& i : m_filenameList) {
+        എങ്കിൽ (!i.target()) *ofp << i.filename() << " ";
     }
 
     *ofp << '\n';
 
-    if (v3Global.opt.makePhony()) {
+    എങ്കിൽ (v3Global.opt.makePhony()) {
         *ofp << '\n';
-        for (const DependFile& i : m_filenameList) {
-            if (!i.target()) *ofp << i.filename() << ":\n";
+        വേണ്ടി (സ്ഥിരം DependFile& i : m_filenameList) {
+            എങ്കിൽ (!i.target()) *ofp << i.filename() << ":\n";
         }
     }
 }
 
-std::vector<string> V3FileDependImp::getAllDeps() const {
+std::vector<string> V3FileDependImp::getAllDeps() സ്ഥിരം {
     std::vector<string> r;
-    for (const auto& itr : m_filenameList) {
-        if (!itr.target() && itr.exists()) r.push_back(itr.filename());
+    വേണ്ടി (സ്ഥിരം auto& itr : m_filenameList) {
+        എങ്കിൽ (!itr.target() && itr.exists()) r.തള്ളുക_back(itr.filename());
     }
-    return r;
+    തിരികെ r;
 }
 
-void V3FileDependImp::writeTimes(const string& filename, const string& cmdlineIn) {
-    const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+ശൂന്യം V3FileDependImp::writeTimes(സ്ഥിരം string& filename, സ്ഥിരം string& cmdlineIn) {
+    സ്ഥിരം std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+    എങ്കിൽ (ofp->fail()) v3fatal("Can't write file: " << filename);
 
-    const string cmdline = stripQuotes(cmdlineIn);
+    സ്ഥിരം string cmdline = stripQuotes(cmdlineIn);
     *ofp << "# DESCR"
          << "IPTION: Verilator output: Timestamp data for --skip-identical.  Delete at will.\n";
     *ofp << "C \"" << cmdline << "\"\n";
 
-    for (auto& it : m_filenameList) {
-        DependFile* const depfilep = const_cast<DependFile*>(&it);
+    വേണ്ടി (auto& it : m_filenameList) {
+        DependFile* സ്ഥിരം depfilep = const_cast<DependFile*>(&it);
         // Read stats of files we create after we're done making them
         // (except for this file, of course)
         V3Os::filesystemFlush(depfilep->filename());
         depfilep->loadStats();
         off_t showSize = depfilep->size();
         ino_t showIno = depfilep->ino();
-        if (depfilep->filename() == filename) {
+        എങ്കിൽ (depfilep->filename() == filename) {
             showSize = 0;
             showIno = 0;  // We're writing it, so need to ignore it
         }
@@ -218,46 +218,46 @@ void V3FileDependImp::writeTimes(const string& filename, const string& cmdlineIn
         *ofp << " " << std::setw(11) << depfilep->cnstime();
         *ofp << " " << std::setw(11) << depfilep->mstime();
         *ofp << " " << std::setw(11) << depfilep->mnstime();
-        *ofp << " \"" << depfilep->hashDigestSymbol() << "\"";
+        *ofp << " \"" << depfilep->hash_Digest_ചിഹ്നം() << "\"";
         *ofp << " \"" << depfilep->filename() << "\"";
         *ofp << '\n';
     }
 }
 
-bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn) {
-    const std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream_nodepend(filename)};
-    if (ifp->fail()) {
+തർക്കം V3FileDependImp::checkTimes(സ്ഥിരം string& filename, സ്ഥിരം string& cmdlineIn) {
+    സ്ഥിരം std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream_nodepend(filename)};
+    എങ്കിൽ (ifp->fail()) {
         UINFO(2, "   --check-times failed: no input " << filename);
-        return false;
+        തിരികെ അസത്യം;
     }
     {
-        const string ignore = V3Os::getline(*ifp);
-        if (ignore.empty()) { /*used*/
+        സ്ഥിരം string ignore = V3Os::getline(*ifp);
+        എങ്കിൽ (ignore.empty()) { /*used*/
         }
     }
     {
-        char chkDir;
+        അക്ഷരം chkDir;
         *ifp >> chkDir;
-        char quote;
+        അക്ഷരം quote;
         *ifp >> quote;
-        const string chkCmdline = V3Os::getline(*ifp, '"');
-        const string cmdline = stripQuotes(cmdlineIn);
-        if (cmdline != chkCmdline) {
+        സ്ഥിരം string chkCmdline = V3Os::getline(*ifp, '"');
+        സ്ഥിരം string cmdline = stripQuotes(cmdlineIn);
+        എങ്കിൽ (cmdline != chkCmdline) {
             UINFO(2, "   --check-times failed: different command line");
-            return false;
+            തിരികെ അസത്യം;
         }
     }
 
-    const bool skipHashing = !V3Os::getenvStr("VERILATOR_DEBUG_SKIP_HASH", "").empty();
+    സ്ഥിരം തർക്കം skipHashing = !V3Os::getenvStr("VERILATOR_DEBUG_SKIP_HASH", "").empty();
 
-    while (!ifp->eof()) {
-        char chkDir;
+    ആകുമ്പോൾ (!ifp->eof()) {
+        അക്ഷരം chkDir;
         *ifp >> chkDir;
         off_t chkSize;
         *ifp >> chkSize;
         ino_t chkIno;
         *ifp >> chkIno;
-        if (ifp->eof()) break;  // Needed to read final whitespace before found eof
+        എങ്കിൽ (ifp->eof()) നിർത്തുക;  // Needed to read final whitespace before found eof
         time_t chkCstime;
         *ifp >> chkCstime;
         time_t chkCnstime;
@@ -266,23 +266,23 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
         *ifp >> chkMstime;
         time_t chkMnstime;
         *ifp >> chkMnstime;
-        char quote;
+        അക്ഷരം quote;
         *ifp >> quote;
-        const string chkHash = V3Os::getline(*ifp, '"');
+        സ്ഥിരം string chkHash = V3Os::getline(*ifp, '"');
         *ifp >> quote;
-        const string chkFilename = V3Os::getline(*ifp, '"');
+        സ്ഥിരം string chkFilename = V3Os::getline(*ifp, '"');
 
         V3Os::filesystemFlush(chkFilename);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-        struct stat curStat;
-        const int err = stat(chkFilename.c_str(), &curStat);
-        if (err != 0) {
+        ഘടന stat curStat;
+        സ്ഥിരം പൂർണ്ണസംഖ്യ err = stat(chkFilename.c_str(), &curStat);
+        എങ്കിൽ (err != 0) {
             UINFO(2, "   --check-times failed: missing " << chkFilename);
-            return false;
+            തിരികെ അസത്യം;
         }
 
         // Skip the .dat file itself, as we were writing it at the time was being made
-        if (filename == chkFilename) continue;
+        എങ്കിൽ (filename == chkFilename) തുടരുക;
 
         UINFO(9, " got d=" << chkDir << " s=" << chkSize << " ct=" << chkCstime << "."
                            << chkCnstime << " mt=" << chkMstime << "." << chkMnstime
@@ -296,7 +296,7 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
         // However NFS messes us up, as there might be some data outstanding when
         // we determined the original size.  For safety, we know the creation time
         // must be within a few second window... call it 20 sec.
-        if (!(curStat.st_size >= chkSize && curStat.st_ino == chkIno
+        എങ്കിൽ (!(curStat.st_size >= chkSize && curStat.st_ino == chkIno
               && curStat.st_ctime == chkCstime && VL_STAT_CTIME_NSEC(curStat) == chkCnstime
               && curStat.st_mtime <= (chkMstime + 20)
               // Not comparing chkMnstime
@@ -306,226 +306,226 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
                          << curStat.st_ctime << "." << VL_STAT_CTIME_NSEC(curStat) << "=?"
                          << chkCstime << "." << chkCnstime << " " << curStat.st_mtime << "."
                          << VL_STAT_MTIME_NSEC(curStat) << "=?" << chkMstime << "." << chkMnstime);
-            if (skipHashing) return false;
+            എങ്കിൽ (skipHashing) തിരികെ അസത്യം;
             // We didn't hash target output files, nor large files,
             // as unlikely to find a match and can be large
-            if (chkHash == "unhashed") return false;
+            എങ്കിൽ (chkHash == "unhashed") തിരികെ അസത്യം;
 
             VHashSha512 curHash;
-            curHash.insertFile(chkFilename);
-            if (curHash.digestSymbol24() != chkHash) {
+            curHash.തിരുകുക_File(chkFilename);
+            എങ്കിൽ (curHash.digestSymbol24() != chkHash) {
                 UINFO(2, "   --check-times: hash differs " << chkFilename << "; "
                                                            << curHash.digestSymbol24() << "=?"
                                                            << chkHash);
-                return false;
+                തിരികെ അസത്യം;
             }
         }
     }
-    return true;
+    തിരികെ സത്യം;
 }
 
 //######################################################################
 // V3File
 
-void V3File::addSrcDepend(const string& filename) VL_MT_SAFE { dependImp.addSrcDepend(filename); }
-void V3File::addTgtDepend(const string& filename) VL_MT_SAFE { dependImp.addTgtDepend(filename); }
-void V3File::writeDepend(const string& filename) { dependImp.writeDepend(filename); }
-std::vector<string> V3File::getAllDeps() { return dependImp.getAllDeps(); }
-void V3File::writeTimes(const string& filename, const string& cmdlineIn) {
+ശൂന്യം V3File::addSrcDepend(സ്ഥിരം string& filename) VL_MT_SAFE { dependImp.addSrcDepend(filename); }
+ശൂന്യം V3File::addTgtDepend(സ്ഥിരം string& filename) VL_MT_SAFE { dependImp.addTgtDepend(filename); }
+ശൂന്യം V3File::writeDepend(സ്ഥിരം string& filename) { dependImp.writeDepend(filename); }
+std::vector<string> V3File::getAllDeps() { തിരികെ dependImp.getAllDeps(); }
+ശൂന്യം V3File::writeTimes(സ്ഥിരം string& filename, സ്ഥിരം string& cmdlineIn) {
     dependImp.writeTimes(filename, cmdlineIn);
 }
-bool V3File::checkTimes(const string& filename, const string& cmdlineIn) {
-    return dependImp.checkTimes(filename, cmdlineIn);
+തർക്കം V3File::checkTimes(സ്ഥിരം string& filename, സ്ഥിരം string& cmdlineIn) {
+    തിരികെ dependImp.checkTimes(filename, cmdlineIn);
 }
-void V3File::createMakeDirFor(const string& filename) {
-    if (filename != VL_DEV_NULL
+ശൂന്യം V3File::createMakeDirFor(സ്ഥിരം string& filename) {
+    എങ്കിൽ (filename != VL_DEV_NULL
         // If doesn't start with makeDir then some output file user requested
         && filename.substr(0, v3Global.opt.makeDir().length() + 1)
                == v3Global.opt.makeDir() + "/") {
         createMakeDir();
     }
 }
-void V3File::createMakeDir() {
-    static bool s_created = false;
-    if (!s_created) {
-        s_created = true;
+ശൂന്യം V3File::createMakeDir() {
+    സ്ഥിതം തർക്കം s_created = അസത്യം;
+    എങ്കിൽ (!s_created) {
+        s_created = സത്യം;
         V3Os::createDir(v3Global.opt.makeDir());
-        if (v3Global.opt.hierTop()) V3Os::createDir(v3Global.opt.hierTopDataDir());
+        എങ്കിൽ (v3Global.opt.hier_മുകൾ()) V3Os::createDir(v3Global.opt.hier_മുകൾ_Data_Dir());
     }
 }
 
 //######################################################################
 // VInFilterImp
 
-class VInFilterImp final {
+വർഗ്ഗം VInFilterImp final {
     using StrList = VInFilter::StrList;
 
-    std::map<const std::string, std::string> m_contentsMap;  // Cache of file contents
-    bool m_readEof = false;  // Received EOF on read
+    std::map<സ്ഥിരം std::string, std::string> m_contentsMap;  // Cache of file contents
+    തർക്കം m_readEof = അസത്യം;  // Received EOF on read
 #ifdef INFILTER_PIPE
     pid_t m_pid = 0;  // fork() process id
-#else
-    int m_pid = 0;  // fork() process id - always zero as disabled
+#അല്ലെങ്കിൽ
+    പൂർണ്ണസംഖ്യ m_pid = 0;  // fork() process id - always zero as disabled
 #endif
-    bool m_pidExited = false;  //  waitpid() reaped the filter process
-    int m_pidStatus = 0;  // Exit status of the filter process
-    int m_writeFd = 0;  // File descriptor TO filter
-    int m_readFd = 0;  // File descriptor FROM filter
+    തർക്കം m_pidExited = അസത്യം;  //  waitpid() reaped the filter process
+    പൂർണ്ണസംഖ്യ m_pidStatus = 0;  // Exit status of the filter process
+    പൂർണ്ണസംഖ്യ m_writeFd = 0;  // File descriptor TO filter
+    പൂർണ്ണസംഖ്യ m_readFd = 0;  // File descriptor FROM filter
 
-private:
+സ്വകാര്യ:
     // METHODS
 
-    bool readContents(const string& filename, StrList& outl) {
-        if (m_pid) {
-            return readContentsFilter(filename, outl);
-        } else {
-            return readContentsFile(filename, outl);
+    തർക്കം readContents(സ്ഥിരം string& filename, StrList& outl) {
+        എങ്കിൽ (m_pid) {
+            തിരികെ readContentsFilter(filename, outl);
+        } അല്ലെങ്കിൽ {
+            തിരികെ readContentsFile(filename, outl);
         }
     }
-    bool readContentsFile(const string& filename, StrList& outl) {
-        const int fd = open(filename.c_str(), O_RDONLY);
-        if (fd < 0) return false;
-        m_readEof = false;
+    തർക്കം readContentsFile(സ്ഥിരം string& filename, StrList& outl) {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ fd = open(filename.c_str(), O_RDONLY);
+        എങ്കിൽ (fd < 0) തിരികെ അസത്യം;
+        m_readEof = അസത്യം;
         readBlocks(fd, -1, outl);
         close(fd);
-        return true;
+        തിരികെ സത്യം;
     }
     // cppcheck-suppress constParameterReference
-    bool readContentsFilter(const string& filename, StrList& outl) {
-        (void)filename;  // Prevent unused variable warning
-        (void)outl;  // Prevent unused variable warning
+    തർക്കം readContentsFilter(സ്ഥിരം string& filename, StrList& outl) {
+        (ശൂന്യം)filename;  // Prevent unused variable warning
+        (ശൂന്യം)outl;  // Prevent unused variable warning
 #ifdef INFILTER_PIPE
         writeFilter("read \"" + filename + "\"\n");
-        const string line = readFilterLine();
-        if (line.find("Content-Length") != string::npos) {
-            int len = 0;
-            sscanf(line.c_str(), "Content-Length: %d\n", &len);
+        സ്ഥിരം string വരി = read_Filter_വരി();
+        എങ്കിൽ (വരി.find("Content-Length") != string::npos) {
+            പൂർണ്ണസംഖ്യ len = 0;
+            sscanf(വരി.c_str(), "Content-Length: %d\n", &len);
             readBlocks(m_readFd, len, outl);
-            return true;
-        } else {
-            if (line != "") v3error("--pipe-filter protocol error, unexpected: " << line);
-            return false;
+            തിരികെ സത്യം;
+        } അല്ലെങ്കിൽ {
+            എങ്കിൽ (വരി != "") v3error("--pipe-filter protocol error, unexpected: " << വരി);
+            തിരികെ അസത്യം;
         }
-#else
+#അല്ലെങ്കിൽ
         v3fatalSrc("--pipe-filter not implemented on this platform");
-        return false;
+        തിരികെ അസത്യം;
 #endif
     }
 
     // cppcheck-suppress functionConst
-    void checkFilter(bool hang) {
+    ശൂന്യം checkFilter(തർക്കം hang) {
 #ifdef INFILTER_PIPE
-        if (!m_pidExited && waitpid(m_pid, &m_pidStatus, hang ? 0 : WNOHANG)) {
+        എങ്കിൽ (!m_pidExited && waitpid(m_pid, &m_pidStatus, hang ? 0 : WNOHANG)) {
             UINFO(1, "--pipe-filter: Exited, status "
                          << m_pidStatus << " exit=" << WEXITSTATUS(m_pidStatus) << " err"
                          << std::strerror(errno));
-            m_readEof = true;
-            m_pidExited = true;
+            m_readEof = സത്യം;
+            m_pidExited = സത്യം;
         }
 #endif
     }
 
-    void readBlocks(int fd, int size, StrList& outl) {
-        char buf[INFILTER_IPC_BUFSIZ];
+    ശൂന്യം readBlocks(പൂർണ്ണസംഖ്യ fd, പൂർണ്ണസംഖ്യ size, StrList& outl) {
+        അക്ഷരം buf[INFILTER_IPC_BUFSIZ];
         ssize_t sizegot = 0;
-        while (!m_readEof && (size < 0 || size > sizegot)) {
+        ആകുമ്പോൾ (!m_readEof && (size < 0 || size > sizegot)) {
             ssize_t todo = INFILTER_IPC_BUFSIZ;
-            if (size > 0 && size < todo) todo = size;
+            എങ്കിൽ (size > 0 && size < todo) todo = size;
             errno = 0;
-            const ssize_t got = read(fd, buf, todo);
+            സ്ഥിരം ssize_t got = പഠ(fd, buf, todo);
             // UINFO(9, "RD GOT g " << got << " e " << errno << " " << strerror(errno));
             // usleep(50*1000);
-            if (got > 0) {
+            എങ്കിൽ (got > 0) {
                 outl.emplace_back(string(buf, got));
                 sizegot += got;
-            } else if (errno == EINTR || errno == EAGAIN
+            } അല്ലെങ്കിൽ എങ്കിൽ (errno == EINTR || errno == EAGAIN
 #ifdef EWOULDBLOCK
                        || errno == EWOULDBLOCK
 #endif
             ) {
-                checkFilter(false);
+                checkFilter(അസത്യം);
                 V3Os::u_sleep(1000);
-                continue;
-            } else {
-                m_readEof = true;
-                break;
+                തുടരുക;
+            } അല്ലെങ്കിൽ {
+                m_readEof = സത്യം;
+                നിർത്തുക;
             }
         }
     }
     // cppverilator-suppress unusedFunction unusedPrivateFunction
-    string readFilterLine() {
+    string read_Filter_വരി() {
         // Slow, but we don't need it much
         UINFO(9, "readFilterLine");
-        string line;
-        while (!m_readEof) {
+        string വരി;
+        ആകുമ്പോൾ (!m_readEof) {
             StrList outl;
             readBlocks(m_readFd, 1, outl);
-            const string onechar = listString(outl);
-            line += onechar;
-            if (onechar == "\n") {
-                if (line == "\n") {
-                    line = "";
-                    continue;
-                } else {
-                    break;
+            സ്ഥിരം string onechar = listString(outl);
+            വരി += onechar;
+            എങ്കിൽ (onechar == "\n") {
+                എങ്കിൽ (വരി == "\n") {
+                    വരി = "";
+                    തുടരുക;
+                } അല്ലെങ്കിൽ {
+                    നിർത്തുക;
                 }
             }
         }
-        UINFO(6, "filter-line-in: " << line);
-        return line;
+        UINFO(6, "filter-line-in: " << വരി);
+        തിരികെ വരി;
     }
     // cppverilator-suppress unusedFunction unusedPrivateFunction
-    void writeFilter(const string& out) {
-        if (debug() >= 6) {
+    ശൂന്യം writeFilter(സ്ഥിരം string& out) {
+        എങ്കിൽ (debug() >= 6) {
             UINFO(6, "filter-out: " << out);
-            if (out[out.length() - 1] != '\n') cout << '\n';
+            എങ്കിൽ (out[out.length() - 1] != '\n') cout << '\n';
         }
-        if (!m_pid) {
+        എങ്കിൽ (!m_pid) {
             v3error("--pipe-filter: write to closed file\n");
-            m_readEof = true;
+            m_readEof = സത്യം;
             stop();
         }
         unsigned offset = 0;
-        while (!m_readEof && out.length() > offset) {
+        ആകുമ്പോൾ (!m_readEof && out.length() > offset) {
             errno = 0;
-            const int got = write(m_writeFd, (out.c_str()) + offset, out.length() - offset);
+            സ്ഥിരം പൂർണ്ണസംഖ്യ got = ലിഖ(m_writeFd, (out.c_str()) + offset, out.length() - offset);
             // UINFO(9, "WR GOT g " << got << " e " << errno << " " << strerror(errno));
             // usleep(50*1000);
-            if (got > 0) {
+            എങ്കിൽ (got > 0) {
                 offset += got;
-            } else if (errno == EINTR || errno == EAGAIN
+            } അല്ലെങ്കിൽ എങ്കിൽ (errno == EINTR || errno == EAGAIN
 #ifdef EWOULDBLOCK
                        || errno == EWOULDBLOCK
 #endif
             ) {
-                checkFilter(false);
+                checkFilter(അസത്യം);
                 V3Os::u_sleep(1000);
-                continue;
-            } else {
-                break;
+                തുടരുക;
+            } അല്ലെങ്കിൽ {
+                നിർത്തുക;
             }
         }
     }
 
     // Start the filter
-    void start(const string& command) {
-        if (command == "") {
+    ശൂന്യം start(സ്ഥിരം string& command) {
+        എങ്കിൽ (command == "") {
             m_pid = 0;  // Disabled
-        } else {
+        } അല്ലെങ്കിൽ {
             startFilter(command);
         }
     }
-    void startFilter(const string& command) {
-        (void)command;  // Prevent Unused variable warning
+    ശൂന്യം startFilter(സ്ഥിരം string& command) {
+        (ശൂന്യം)command;  // Prevent Unused variable warning
 #ifdef INFILTER_PIPE
-        int fd_stdin[2];  // Can't use std::array
-        int fd_stdout[2];  // Can't use std::array
-        constexpr int P_RD = 0;
-        constexpr int P_WR = 1;
+        പൂർണ്ണസംഖ്യ fd_stdin[2];  // Can't use std::array
+        പൂർണ്ണസംഖ്യ fd_stdout[2];  // Can't use std::array
+        constexpr പൂർണ്ണസംഖ്യ P_RD = 0;
+        constexpr പൂർണ്ണസംഖ്യ P_WR = 1;
 
-        if (VL_UNCOVERABLE(pipe(fd_stdin) != 0 || pipe(fd_stdout) != 0))
+        എങ്കിൽ (VL_UNCOVERABLE(പ്രണാല(fd_stdin) != 0 || പ്രണാല(fd_stdout) != 0))
             v3fatal("--pipe-filter: Can't pipe: " << std::strerror(errno));  // LCOV_EXCL_LINE
-        if (fd_stdin[P_RD] <= 2 || fd_stdin[P_WR] <= 2 || fd_stdout[P_RD] <= 2
+        എങ്കിൽ (fd_stdin[P_RD] <= 2 || fd_stdin[P_WR] <= 2 || fd_stdout[P_RD] <= 2
             || fd_stdout[P_WR] <= 2) {
             // We'd have to rearrange all of the FD usages in this case.
             // Too unlikely; verilator isn't a daemon.
@@ -534,10 +534,10 @@ private:
 
         UINFO(1, "--pipe-filter: /bin/sh -c " << command);
 
-        const pid_t pid = fork();
-        if (VL_UNCOVERABLE(pid < 0))
+        സ്ഥിരം pid_t pid = fork();
+        എങ്കിൽ (VL_UNCOVERABLE(pid < 0))
             v3fatal("--pipe-filter: fork failed: " << std::strerror(errno));  // LCOV_EXCL_LINE
-        if (pid == 0) {  // Child
+        എങ്കിൽ (pid == 0) {  // Child
             UINFO(6, "In child");
             close(fd_stdin[P_WR]);
             dup2(fd_stdin[P_RD], 0);
@@ -545,85 +545,85 @@ private:
             dup2(fd_stdout[P_WR], 1);
             // And stderr comes from parent
 
-            execl("/bin/sh", "sh", "-c", command.c_str(), static_cast<char*>(nullptr));
+            execl("/bin/sh", "sh", "-c", command.c_str(), static_cast<അക്ഷരം*>(nullptr));
             // Don't use v3fatal, we don't share the common structures any more
             fprintf(stderr, "--pipe-filter: exec failed: %s\n", std::strerror(errno));
             _exit(1);
-        } else {  // Parent
+        } അല്ലെങ്കിൽ {  // Parent
             UINFO(6, "In parent, child pid " << pid << " stdin " << fd_stdin[P_WR] << "->"
                                              << fd_stdin[P_RD] << " stdout " << fd_stdout[P_WR]
                                              << "->" << fd_stdout[P_RD]);
             m_pid = pid;
-            m_pidExited = false;
+            m_pidExited = അസത്യം;
             m_pidStatus = 0;
             m_writeFd = fd_stdin[P_WR];
             m_readFd = fd_stdout[P_RD];
-            m_readEof = false;
+            m_readEof = അസത്യം;
 
             close(fd_stdin[P_RD]);
             close(fd_stdout[P_WR]);
 
-            int flags = fcntl(m_readFd, F_GETFL, 0);
+            പൂർണ്ണസംഖ്യ flags = fcntl(m_readFd, F_GETFL, 0);
             fcntl(m_readFd, F_SETFL, flags | O_NONBLOCK);
 
             flags = fcntl(m_writeFd, F_GETFL, 0);
             fcntl(m_writeFd, F_SETFL, flags | O_NONBLOCK);
         }
         UINFO(6, "startFilter complete");
-#else
+#അല്ലെങ്കിൽ
         v3fatalSrc("--pipe-filter not implemented on this platform");
 #endif
     }
 
-    void stop() {
-        if (m_pid) stopFilter();
+    ശൂന്യം stop() {
+        എങ്കിൽ (m_pid) stopFilter();
     }
-    void stopFilter() {
+    ശൂന്യം stopFilter() {
         UINFO(6, "Stopping filter process");
 #ifdef INFILTER_PIPE
         close(m_writeFd);
-        checkFilter(true);
-        if (!WIFEXITED(m_pidStatus) || WEXITSTATUS(m_pidStatus) != 0) {
+        checkFilter(സത്യം);
+        എങ്കിൽ (!WIFEXITED(m_pidStatus) || WEXITSTATUS(m_pidStatus) != 0) {
             v3fatal("--pipe-filter returned bad status");
         }
         m_pid = 0;
         close(m_readFd);
         UINFO(6, "Closed");
-#else
+#അല്ലെങ്കിൽ
         v3fatalSrc("--pipe-filter not implemented on this platform");
 #endif
     }
 
-protected:
-    friend class VInFilter;
+സംരക്ഷിത:
+    friend വർഗ്ഗം VInFilter;
     // Read file contents and return it
-    bool readWholefile(const string& filename, StrList& outl) {
-        const auto it = m_contentsMap.find(filename);
-        if (it != m_contentsMap.end()) {
-            outl.push_back(it->second);
-            return true;
+    തർക്കം readWholefile(സ്ഥിരം string& filename, StrList& outl) {
+        സ്ഥിരം auto it = m_contentsMap.find(filename);
+        എങ്കിൽ (it != m_contentsMap.end()) {
+            outl.തള്ളുക_back(it->second);
+            തിരികെ സത്യം;
         }
-        if (!readContents(filename, outl)) return false;
-        if (listSize(outl) < INFILTER_CACHE_MAX) {
+        എങ്കിൽ (!readContents(filename, outl)) തിരികെ അസത്യം;
+        എങ്കിൽ (listSize(outl) < INFILTER_CACHE_MAX) {
             // Cache small files (only to save space)
             // It's quite common to `include "timescale" thousands of times
             // This isn't so important if it's just an open(), but filtering can be slow
             m_contentsMap.emplace(filename, listString(outl));
         }
-        return true;
+        തിരികെ സത്യം;
     }
-    static size_t listSize(const StrList& sl) {
+    സ്ഥിതം size_t listSize(സ്ഥിരം StrList& sl) {
         size_t result = 0;
-        for (const string& i : sl) result += i.length();
-        return result;
+        വേണ്ടി (സ്ഥിരം string& i : sl) result += i.length();
+        തിരികെ result;
     }
-    static string listString(const StrList& sl) {
+    സ്ഥിതം string listString(സ്ഥിരം StrList& sl) {
         string result;
-        for (const string& i : sl) result += i;
-        return result;
+        വേണ്ടി (സ്ഥിരം string& i : sl) result += i;
+        തിരികെ result;
     }
     // CONSTRUCTORS
-    explicit VInFilterImp(const string& command) { start(command); }
+    explicit VInFilterImp(സ്ഥിരം string& command) { start(command); }
     ~VInFilterImp() { stop(); }
 };
 
@@ -631,14 +631,14 @@ protected:
 // VInFilter
 // Just dispatch to the implementation
 
-VInFilter::VInFilter(const string& command) { m_impp = new VInFilterImp{command}; }
+VInFilter::VInFilter(സ്ഥിരം string& command) { m_impp = പുതിയ VInFilterImp{command}; }
 VInFilter::~VInFilter() {
-    if (m_impp) VL_DO_CLEAR(delete m_impp, m_impp = nullptr);
+    എങ്കിൽ (m_impp) VL_DO_CLEAR(delete m_impp, m_impp = nullptr);
 }
 
-bool VInFilter::readWholefile(const string& filename, VInFilter::StrList& outl) {
+തർക്കം VInFilter::readWholefile(സ്ഥിരം string& filename, VInFilter::StrList& outl) {
     UASSERT(m_impp, "readWholefile on invalid filter");
-    return m_impp->readWholefile(filename, outl);
+    തിരികെ m_impp->readWholefile(filename, outl);
 }
 
 //######################################################################
@@ -652,348 +652,348 @@ V3OutFormatter::V3OutFormatter(V3OutFormatter::Language lang)
 
 //----------------------------------------------------------------------
 
-static constexpr int MAXSPACE = 80;  // After this indent, stop indenting more
+സ്ഥിതം constexpr പൂർണ്ണസംഖ്യ MAXSPACE = 80;  // After this indent, stop indenting more
 
 // Table of spaces, so we don't have to alloc/free them all the time
-static const std::array<std::string, MAXSPACE + 1> s_indentSpaces = []() {
+സ്ഥിതം സ്ഥിരം std::array<std::string, MAXSPACE + 1> s_indentSpaces = []() {
     std::array<std::string, MAXSPACE + 1> table;
-    for (int i = 0; i <= MAXSPACE; ++i) table[i] = std::string(static_cast<size_t>(i), ' ');
-    return table;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i <= MAXSPACE; ++i) table[i] = std::string(static_cast<size_t>(i), ' ');
+    തിരികെ table;
 }();
 
-const std::string& V3OutFormatter::indentSpaces(int num) {
+സ്ഥിരം std::string& V3OutFormatter::indentSpaces(പൂർണ്ണസംഖ്യ അക്കം) {
     // Indent the specified number of spaces.
-    return s_indentSpaces[std::max(0, std::min(num, MAXSPACE))];
+    തിരികെ s_indentSpaces[std::max(0, std::min(അക്കം, MAXSPACE))];
 }
 
-bool V3OutFormatter::tokenMatch(const char* cp, const char* cmp) {
-    while (*cmp && *cmp == *cp) {
+തർക്കം V3OutFormatter::tokenMatch(സ്ഥിരം അക്ഷരം* cp, സ്ഥിരം അക്ഷരം* cmp) {
+    ആകുമ്പോൾ (*cmp && *cmp == *cp) {
         ++cp;
         ++cmp;
     }
-    if (*cmp) return false;
-    if (*cp && !std::isspace(*cp)) return false;
-    return true;
+    എങ്കിൽ (*cmp) തിരികെ അസത്യം;
+    എങ്കിൽ (*cp && !std::isspace(*cp)) തിരികെ അസത്യം;
+    തിരികെ സത്യം;
 }
 
-bool V3OutFormatter::tokenStart(const char* cp) {
-    return (tokenMatch(cp, "begin") || tokenMatch(cp, "case") || tokenMatch(cp, "casex")
+തർക്കം V3OutFormatter::tokenStart(സ്ഥിരം അക്ഷരം* cp) {
+    തിരികെ (tokenMatch(cp, "begin") || tokenMatch(cp, "case") || tokenMatch(cp, "casex")
             || tokenMatch(cp, "casez") || tokenMatch(cp, "class") || tokenMatch(cp, "function")
             || tokenMatch(cp, "interface") || tokenMatch(cp, "module") || tokenMatch(cp, "package")
             || tokenMatch(cp, "task"));
 }
 
-bool V3OutFormatter::tokenEnd(const char* cp) {
-    return (tokenMatch(cp, "end") || tokenMatch(cp, "endcase") || tokenMatch(cp, "endclass")
+തർക്കം V3OutFormatter::tokenEnd(സ്ഥിരം അക്ഷരം* cp) {
+    തിരികെ (tokenMatch(cp, "end") || tokenMatch(cp, "endcase") || tokenMatch(cp, "endclass")
             || tokenMatch(cp, "endfunction") || tokenMatch(cp, "endinterface")
             || tokenMatch(cp, "endmodule") || tokenMatch(cp, "endpackage")
             || tokenMatch(cp, "endtask"));
 }
 
-bool V3OutFormatter::tokenNotStart(const char* cp) {
-    return (tokenMatch(cp, "export") || tokenMatch(cp, "import"));
+തർക്കം V3OutFormatter::tokenNotStart(സ്ഥിരം അക്ഷരം* cp) {
+    തിരികെ (tokenMatch(cp, "export") || tokenMatch(cp, "import"));
 }
 
-int V3OutFormatter::endLevels(const char* strg) {
-    int levels = m_indentLevel;
+പൂർണ്ണസംഖ്യ V3OutFormatter::endLevels(സ്ഥിരം അക്ഷരം* strg) {
+    പൂർണ്ണസംഖ്യ levels = m_indentLevel;
     {
-        const char* cp = strg;
-        while (std::isspace(*cp)) ++cp;
-        switch (*cp) {
-        case '\n':  // Newlines.. No need for whitespace before it
-            return 0;
-        case '#':  // Preproc directive
-            if (m_lang == LA_C) return 0;
+        സ്ഥിരം അക്ഷരം* cp = strg;
+        ആകുമ്പോൾ (std::isspace(*cp)) ++cp;
+        തിരഞ്ഞെടുപ്പ് (*cp) {
+        അവസ്ഥ '\n':  // Newlines.. No need for whitespace before it
+            തിരികെ 0;
+        അവസ്ഥ '#':  // Preproc directive
+            എങ്കിൽ (m_lang == LA_C) തിരികെ 0;
         }
         {
             // label/public/private:  Deindent by 2 spaces
-            const char* mp = cp;
-            for (; std::isalnum(*mp); ++mp) {}
-            if (mp[0] == ':' && mp[1] != ':') return (levels - m_blockIndent / 2);
+            സ്ഥിരം അക്ഷരം* mp = cp;
+            വേണ്ടി (; std::isalnum(*mp); ++mp) {}
+            എങ്കിൽ (mp[0] == ':' && mp[1] != ':') തിരികെ (levels - m_blockIndent / 2);
         }
     }
     // We want "} else {" to be one level to the left of normal
-    for (const char* cp = strg; *cp; ++cp) {
-        switch (*cp) {
-        case '}':
-        case ')': levels -= m_blockIndent; break;
-        case '<':
-            if (m_lang == LA_XML) {
-                if (cp[1] == '/') levels -= m_blockIndent;
+    വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = strg; *cp; ++cp) {
+        തിരഞ്ഞെടുപ്പ് (*cp) {
+        അവസ്ഥ '}':
+        അവസ്ഥ ')': levels -= m_blockIndent; നിർത്തുക;
+        അവസ്ഥ '<':
+            എങ്കിൽ (m_lang == LA_XML) {
+                എങ്കിൽ (cp[1] == '/') levels -= m_blockIndent;
             }
-            break;
-        case 'e':
-            if (m_lang == LA_VERILOG && tokenEnd(cp)) levels -= m_blockIndent;
-            break;
-        case '\t':
-        case ' ': break;  // Continue
-        default: return levels;  // Letter
+            നിർത്തുക;
+        അവസ്ഥ 'e':
+            എങ്കിൽ (m_lang == LA_VERILOG && tokenEnd(cp)) levels -= m_blockIndent;
+            നിർത്തുക;
+        അവസ്ഥ '\t':
+        അവസ്ഥ ' ': നിർത്തുക;  // Continue
+        സ്ഥിരസ്ഥിതി: തിരികെ levels;  // Letter
         }
     }
-    return levels;
+    തിരികെ levels;
 }
 
-void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
-    if (!v3Global.opt.decoration()) {
+ശൂന്യം V3OutFormatter::putns(സ്ഥിരം Ast_കണ്ണി* nodep, സ്ഥിരം അക്ഷരം* strg) {
+    എങ്കിൽ (!v3Global.opt.decoration()) {
         putsOutput(strg);
-        return;
+        തിരികെ;
     }
 
-    const bool putNodeDecoration =  //
+    സ്ഥിരം തർക്കം put_കണ്ണി_Decoration =  //
         nodep  //
         && v3Global.opt.decorationNodes()  //
         && !v3Global.opt.protectIds()  //
         && (m_sourceLastFilenameno != nodep->fileline()->filenameno()  //
             || m_sourceLastLineno != nodep->fileline()->firstLineno())  //
-        && FileLine::builtInFilename() != nodep->fileline()->filename();
+        && File_വരി::builtInFilename() != nodep->fileline()->filename();
 
-    if (m_prependIndent && ((strg[0] && strg[0] != '\n') || putNodeDecoration)) {
+    എങ്കിൽ (m_prependIndent && ((strg[0] && strg[0] != '\n') || put_കണ്ണി_Decoration)) {
         putsNoTracking(indentSpaces(endLevels(strg)));
-        m_prependIndent = false;
+        m_prependIndent = അസത്യം;
     }
 
-    if (putNodeDecoration) {
-        const FileLine* const flp = nodep->fileline();
+    എങ്കിൽ (put_കണ്ണി_Decoration) {
+        സ്ഥിരം File_വരി* സ്ഥിരം flp = nodep->fileline();
         m_sourceLastLineno = flp->firstLineno();
         m_sourceLastFilenameno = flp->filenameno();
-        const std::string lineno = std::to_string(flp->lineno());
+        സ്ഥിരം std::string lineno = std::to_string(flp->lineno());
         putsNoTracking("/*" + flp->filename() + ":" + lineno + " " + cvtToHex(nodep) + "*/");
     }
 
-    bool notstart = false;
-    bool wordstart = true;
-    bool equalsForBracket = false;  // Looking for "= {"
-    for (const char* cp = strg; *cp; ++cp) {
+    തർക്കം notstart = അസത്യം;
+    തർക്കം wordstart = സത്യം;
+    തർക്കം equalsForBracket = അസത്യം;  // Looking for "= {"
+    വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = strg; *cp; ++cp) {
         putcNoTracking(*cp);
-        if (std::isalpha(*cp)) {
-            if (wordstart && m_lang == LA_VERILOG && tokenNotStart(cp)) notstart = true;
-            if (wordstart && m_lang == LA_VERILOG && !notstart && tokenStart(cp)) indentInc();
-            if (wordstart && m_lang == LA_VERILOG && tokenEnd(cp)) indentDec();
+        എങ്കിൽ (std::isalpha(*cp)) {
+            എങ്കിൽ (wordstart && m_lang == LA_VERILOG && tokenNotStart(cp)) notstart = സത്യം;
+            എങ്കിൽ (wordstart && m_lang == LA_VERILOG && !notstart && tokenStart(cp)) indentInc();
+            എങ്കിൽ (wordstart && m_lang == LA_VERILOG && tokenEnd(cp)) indentDec();
         }
-        const bool wasInBackslash = m_inBackslash;
-        m_inBackslash = false;
-        switch (*cp) {
-        case '\n':
+        സ്ഥിരം തർക്കം wasInBackslash = m_inBackslash;
+        m_inBackslash = അസത്യം;
+        തിരഞ്ഞെടുപ്പ് (*cp) {
+        അവസ്ഥ '\n':
             ++m_lineno;
-            wordstart = true;
-            if (cp[1] == '\0') {
+            wordstart = സത്യം;
+            എങ്കിൽ (cp[1] == '\0') {
                 // Add the indent later, may be a indentInc/indentDec
                 // called between now and then
-                m_prependIndent = true;
-            } else {
-                m_prependIndent = false;
+                m_prependIndent = സത്യം;
+            } അല്ലെങ്കിൽ {
+                m_prependIndent = അസത്യം;
                 putsNoTracking(indentSpaces(endLevels(cp + 1)));
             }
-            break;
-        case ' ': wordstart = true; break;
-        case '\t': wordstart = true; break;
-        case '"':
-            wordstart = false;
-            if (!wasInBackslash) m_inStringLiteral = !m_inStringLiteral;
-            break;
-        case '\\':
-            wordstart = false;
-            if (!wasInBackslash) m_inBackslash = true;
-            break;
-        case '/':
-            if (m_lang == LA_C || m_lang == LA_VERILOG) {
-                if (cp > strg && cp[-1] == '/' && !m_inStringLiteral) {
+            നിർത്തുക;
+        അവസ്ഥ ' ': wordstart = സത്യം; നിർത്തുക;
+        അവസ്ഥ '\t': wordstart = സത്യം; നിർത്തുക;
+        അവസ്ഥ '"':
+            wordstart = അസത്യം;
+            എങ്കിൽ (!wasInBackslash) m_inStringLiteral = !m_inStringLiteral;
+            നിർത്തുക;
+        അവസ്ഥ '\\':
+            wordstart = അസത്യം;
+            എങ്കിൽ (!wasInBackslash) m_inBackslash = സത്യം;
+            നിർത്തുക;
+        അവസ്ഥ '/':
+            എങ്കിൽ (m_lang == LA_C || m_lang == LA_VERILOG) {
+                എങ്കിൽ (cp > strg && cp[-1] == '/' && !m_inStringLiteral) {
                     // Output ignoring contents to EOL
                     ++cp;
-                    while (*cp && cp[1] && cp[1] != '\n') putcNoTracking(*cp++);
-                    if (*cp) putcNoTracking(*cp);
+                    ആകുമ്പോൾ (*cp && cp[1] && cp[1] != '\n') putcNoTracking(*cp++);
+                    എങ്കിൽ (*cp) putcNoTracking(*cp);
                 }
             }
-            break;
-        case '{':
-            if (!m_inStringLiteral) {
-                if (m_lang == LA_C && (equalsForBracket || m_bracketLevel)) {
+            നിർത്തുക;
+        അവസ്ഥ '{':
+            എങ്കിൽ (!m_inStringLiteral) {
+                എങ്കിൽ (m_lang == LA_C && (equalsForBracket || m_bracketLevel)) {
                     // Break up large code inside "= { ..."
-                    m_parenVec.push(m_indentLevel
+                    m_parenVec.തള്ളുക(m_indentLevel
                                     * m_blockIndent);  // Line up continuation with block+1
                     ++m_bracketLevel;
                 }
                 indentInc();
             }
-            break;
-        case '}':
-            if (!m_inStringLiteral) {
-                if (m_bracketLevel > 0) {
-                    m_parenVec.pop();
+            നിർത്തുക;
+        അവസ്ഥ '}':
+            എങ്കിൽ (!m_inStringLiteral) {
+                എങ്കിൽ (m_bracketLevel > 0) {
+                    m_parenVec.എടുക്കുക();
                     --m_bracketLevel;
                 }
                 indentDec();
             }
-            break;
-        case '(':
-            if (!m_inStringLiteral) {
+            നിർത്തുക;
+        അവസ്ഥ '(':
+            എങ്കിൽ (!m_inStringLiteral) {
                 indentInc();
                 // Line up continuation with open paren, plus one indent
-                m_parenVec.push(m_column);
+                m_parenVec.തള്ളുക(m_column);
             }
-            break;
-        case ')':
-            if (!m_inStringLiteral) {
-                if (!m_parenVec.empty()) m_parenVec.pop();
+            നിർത്തുക;
+        അവസ്ഥ ')':
+            എങ്കിൽ (!m_inStringLiteral) {
+                എങ്കിൽ (!m_parenVec.empty()) m_parenVec.എടുക്കുക();
                 indentDec();
             }
-            break;
-        case '<':
-            if (m_lang == LA_XML) {
-                if (cp[1] == '/') {
+            നിർത്തുക;
+        അവസ്ഥ '<':
+            എങ്കിൽ (m_lang == LA_XML) {
+                എങ്കിൽ (cp[1] == '/') {
                     // Zero as the > will result in net decrease by one
-                } else if (cp[1] == '!' || cp[1] == '?') {
+                } അല്ലെങ്കിൽ എങ്കിൽ (cp[1] == '!' || cp[1] == '?') {
                     indentInc();  // net same indent
-                } else {
+                } അല്ലെങ്കിൽ {
                     indentInc();  // net increase by one
                     indentInc();
                 }
             }
-            break;
-        case '>':
-            if (m_lang == LA_XML) {
+            നിർത്തുക;
+        അവസ്ഥ '>':
+            എങ്കിൽ (m_lang == LA_XML) {
                 indentDec();
-                if (cp > strg && cp[-1] == '/') indentDec();  // < ..... /> stays same level
+                എങ്കിൽ (cp > strg && cp[-1] == '/') indentDec();  // < ..... /> stays same level
             }
-            break;
-        default: wordstart = false; break;
+            നിർത്തുക;
+        സ്ഥിരസ്ഥിതി: wordstart = അസത്യം; നിർത്തുക;
         }
 
-        switch (*cp) {
-        case '=': equalsForBracket = true; break;
-        case ' ': break;
-        default: equalsForBracket = false; break;
+        തിരഞ്ഞെടുപ്പ് (*cp) {
+        അവസ്ഥ '=': equalsForBracket = സത്യം; നിർത്തുക;
+        അവസ്ഥ ' ': നിർത്തുക;
+        സ്ഥിരസ്ഥിതി: equalsForBracket = അസത്യം; നിർത്തുക;
         }
     }
 }
 
-void V3OutFormatter::putBreakExpr() {
-    if (!m_parenVec.empty()) putBreak();
+ശൂന്യം V3OutFormatter::put_Break_വ്യഞ്ജകം() {
+    എങ്കിൽ (!m_parenVec.empty()) putBreak();
 }
 
 // Add a line break if too wide
-void V3OutFormatter::putBreak() {
-    if (!v3Global.opt.decoration()) return;
-    if (!m_nobreak) {
+ശൂന്യം V3OutFormatter::putBreak() {
+    എങ്കിൽ (!v3Global.opt.decoration()) തിരികെ;
+    എങ്കിൽ (!m_nobreak) {
         // char s[1000]; sprintf(s, "{%d,%d}", m_column, m_parenVec.top()); putsNoTracking(s);
-        if (exceededWidth()) {
+        എങ്കിൽ (exceededWidth()) {
             putcNoTracking('\n');
-            if (!m_parenVec.empty()) putsNoTracking(indentSpaces(m_parenVec.top()));
+            എങ്കിൽ (!m_parenVec.empty()) putsNoTracking(indentSpaces(m_parenVec.മുകൾ()));
         }
     }
 }
 
-void V3OutFormatter::putsQuoted(const string& strg) {
+ശൂന്യം V3OutFormatter::putsQuoted(സ്ഥിരം string& strg) {
     // Quote \ and " for use inside C programs
     // Don't use to quote a filename for #include - #include doesn't \ escape.
-    const string quoted = quoteNameControls(strg);
+    സ്ഥിരം string quoted = quoteNameControls(strg);
     putcNoTracking('"');
-    for (const char c : quoted) putcNoTracking(c);
+    വേണ്ടി (സ്ഥിരം അക്ഷരം c : quoted) putcNoTracking(c);
     putcNoTracking('"');
-    if (strg.find('\0') != std::string::npos) putcNoTracking('s');  // C++14 std::string
+    എങ്കിൽ (strg.find('\0') != std::string::npos) putcNoTracking('s');  // C++14 std::string
 }
-void V3OutFormatter::putsNoTracking(const string& strg) {
-    if (!v3Global.opt.decoration()) {
+ശൂന്യം V3OutFormatter::putsNoTracking(സ്ഥിരം string& strg) {
+    എങ്കിൽ (!v3Global.opt.decoration()) {
         putsOutput(strg.c_str());
-        return;
+        തിരികെ;
     }
     // Don't track {}'s, probably because it's a $display format string
-    for (const char c : strg) putcNoTracking(c);
+    വേണ്ടി (സ്ഥിരം അക്ഷരം c : strg) putcNoTracking(c);
 }
 
-void V3OutFormatter::putcNoTracking(char chr) {
-    if (!v3Global.opt.decoration()) {
+ശൂന്യം V3OutFormatter::putcNoTracking(അക്ഷരം chr) {
+    എങ്കിൽ (!v3Global.opt.decoration()) {
         putcOutput(chr);
-        return;
+        തിരികെ;
     }
-    switch (chr) {
-    case '\n':
+    തിരഞ്ഞെടുപ്പ് (chr) {
+    അവസ്ഥ '\n':
         ++m_lineno;
         m_column = 0;
-        m_nobreak = true;
-        break;
-    case '\t': m_column = ((m_column + 9) / 8) * 8; break;
-    case ' ':
-    case '(':
-    case '|':
-    case '&': ++m_column; break;
-    default:
+        m_nobreak = സത്യം;
+        നിർത്തുക;
+    അവസ്ഥ '\t': m_column = ((m_column + 9) / 8) * 8; നിർത്തുക;
+    അവസ്ഥ ' ':
+    അവസ്ഥ '(':
+    അവസ്ഥ '|':
+    അവസ്ഥ '&': ++m_column; നിർത്തുക;
+    സ്ഥിരസ്ഥിതി:
         ++m_column;
-        m_nobreak = false;
-        break;
+        m_nobreak = അസത്യം;
+        നിർത്തുക;
     }
     putcOutput(chr);
 }
 
-string V3OutFormatter::quoteNameControls(const string& namein,
+string V3OutFormatter::quoteNameControls(സ്ഥിരം string& namein,
                                          V3OutFormatter::Language lang) VL_PURE {
     // Encode control chars into output-appropriate escapes
     // Reverse is VString::unquoteSVString
     string out;
-    if (lang == LA_XML) {
+    എങ്കിൽ (lang == LA_XML) {
         // Encode chars into XML string
-        for (const char c : namein) {
-            if (c == '"') {
+        വേണ്ടി (സ്ഥിരം അക്ഷരം c : namein) {
+            എങ്കിൽ (c == '"') {
                 out += "&quot;"s;
-            } else if (c == '\'') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == '\'') {
                 out += "&apos;"s;
-            } else if (c == '<') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == '<') {
                 out += "&lt;"s;
-            } else if (c == '>') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == '>') {
                 out += "&gt;"s;
-            } else if (c == '&') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == '&') {
                 out += "&amp;"s;
-            } else if (std::isprint(c)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (std::isprint(c)) {
                 out += c;
-            } else {
-                out += "&#"s + cvtToStr(static_cast<unsigned int>(c & 0xff)) + ";";
+            } അല്ലെങ്കിൽ {
+                out += "&#"s + cvtToStr(static_cast<unsigned പൂർണ്ണസംഖ്യ>(c & 0xff)) + ";";
             }
         }
-    } else {
+    } അല്ലെങ്കിൽ {
         // Encode control chars into C style escapes
-        for (const char c : namein) {
-            if (c == '\\' || c == '"') {
+        വേണ്ടി (സ്ഥിരം അക്ഷരം c : namein) {
+            എങ്കിൽ (c == '\\' || c == '"') {
                 out += "\\"s + c;
-            } else if (c == '\n') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == '\n') {
                 out += "\\n";
-            } else if (c == '\r') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == '\r') {
                 out += "\\r";
-            } else if (c == '\t') {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == '\t') {
                 out += "\\t";
-            } else if (std::isprint(c)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (std::isprint(c)) {
                 out += c;
-            } else {
+            } അല്ലെങ്കിൽ {
                 // This will also cover \a etc
-                const string octal
+                സ്ഥിരം string octal
                     = "\\"s + cvtToStr((c >> 6) & 3) + cvtToStr((c >> 3) & 7) + cvtToStr(c & 7);
                 out += octal;
             }
         }
     }
-    return out;
+    തിരികെ out;
 }
 
 //----------------------------------------------------------------------
 // Simple wrappers
 
-void V3OutFormatter::printf(const char* fmt...) {
+ശൂന്യം V3OutFormatter::printf(സ്ഥിരം അക്ഷരം* fmt...) {
     constexpr size_t bufsize = 5000;
-    char sbuff[bufsize];
+    അക്ഷരം sbuff[bufsize];
     va_list ap;
     va_start(ap, fmt);
     VL_VSNPRINTF(sbuff, bufsize, fmt, ap);
     va_end(ap);
-    this->puts(sbuff);
+    ഇത്->puts(sbuff);
 }
 
 //######################################################################
 // V3OutFormatter: A class for printing to a file, with automatic indentation of C++ code.
 
-V3OutFile::V3OutFile(const string& filename, V3OutFormatter::Language lang)
+V3OutFile::V3OutFile(സ്ഥിരം string& filename, V3OutFormatter::Language lang)
     : V3OutFormatter{lang}
     , m_filename{filename}
-    , m_bufferp{new std::array<char, WRITE_BUFFER_SIZE_BYTES>{}} {
-    if ((m_fp = V3File::new_fopen_w(filename)) == nullptr) {
+    , m_bufferp{പുതിയ std::array<അക്ഷരം, WRITE_BUFFER_SIZE_BYTES>{}} {
+    എങ്കിൽ ((m_fp = V3File::new_fopen_w(filename)) == nullptr) {
         v3fatal("Can't write file: " << filename);
     }
 }
@@ -1001,21 +1001,21 @@ V3OutFile::V3OutFile(const string& filename, V3OutFormatter::Language lang)
 V3OutFile::~V3OutFile() {
     writeBlock();
 
-    if (m_fp) fclose(m_fp);
+    എങ്കിൽ (m_fp) fclose(m_fp);
     m_fp = nullptr;
 }
 
-void V3OutFile::putsForceIncs() {
-    const VStringList& forceIncs = v3Global.opt.forceIncs();
-    for (const string& i : forceIncs) puts("#include \"" + i + "\"\n");
+ശൂന്യം V3OutFile::putsForceIncs() {
+    സ്ഥിരം VStringList& forceIncs = v3Global.opt.forceIncs();
+    വേണ്ടി (സ്ഥിരം string& i : forceIncs) puts("#include \"" + i + "\"\n");
 }
 
-void V3OutCFile::putsGuard() {
+ശൂന്യം V3OutCFile::putsGuard() {
     UASSERT(!m_guard, "Already called putsGuard in emit file");
-    m_guard = true;
+    m_guard = സത്യം;
     string var = VString::upcase("VERILATED_"s + V3Os::filenameNonDir(filename()) + "_");
-    for (char& c : var) {
-        if (!std::isalnum(c)) c = '_';
+    വേണ്ടി (അക്ഷരം& c : var) {
+        എങ്കിൽ (!std::isalnum(c)) c = '_';
     }
     puts("\n#ifndef " + var + "\n");
     puts("#define " + var + "  // guard\n");
@@ -1031,20 +1031,20 @@ V3OutStream::V3OutStream(std::ostream& ostream, V3OutFormatter::Language lang)
 //######################################################################
 // VIdProtect
 
-class VIdProtectImp final {
+വർഗ്ഗം VIdProtectImp final {
     // MEMBERS
     V3Mutex m_mutex;  // Protects members
-    std::map<const std::string, std::string> m_nameMap;  // Map of old name into new name
+    std::map<സ്ഥിരം std::string, std::string> m_nameMap;  // Map of old name into new name
     std::unordered_set<std::string> m_newIdSet VL_GUARDED_BY(m_mutex);  // Which new names exist
-protected:
+സംരക്ഷിത:
     // CONSTRUCTORS
-    friend class VIdProtect;
-    static VIdProtectImp& singleton() VL_MT_SAFE {
-        static VIdProtectImp s;
-        return s;
+    friend വർഗ്ഗം VIdProtect;
+    സ്ഥിതം VIdProtectImp& singleton() VL_MT_SAFE {
+        സ്ഥിതം VIdProtectImp s;
+        തിരികെ s;
     }
 
-public:
+പൊതു:
     VIdProtectImp() {
         passthru("this");
         passthru("TOP");
@@ -1052,58 +1052,58 @@ public:
         passthru("vlSelf");
         passthru("vlSymsp");
     }
-    ~VIdProtectImp() = default;
+    ~VIdProtectImp() = സ്ഥിരസ്ഥിതി;
     // METHODS
-    string passthru(const string& old) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        if (!v3Global.opt.protectIds()) return old;
-        const V3LockGuard lock{m_mutex};
-        const auto it = m_nameMap.find(old);
-        if (it != m_nameMap.end()) {
+    string passthru(സ്ഥിരം string& old) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        എങ്കിൽ (!v3Global.opt.protectIds()) തിരികെ old;
+        സ്ഥിരം V3LockGuard lock{m_mutex};
+        സ്ഥിരം auto it = m_nameMap.find(old);
+        എങ്കിൽ (it != m_nameMap.end()) {
             // No way to go back and correct the older crypt name
             UASSERT(old == it->second,
                     "Pass-thru request for '" + old + "' after already --protect-ids of it.");
-        } else {
+        } അല്ലെങ്കിൽ {
             m_nameMap.emplace(old, old);
-            m_newIdSet.insert(old);
+            m_newIdSet.തിരുകുക(old);
         }
-        return old;
+        തിരികെ old;
     }
-    string protectIf(const string& old, bool doIt) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        if (!v3Global.opt.protectIds() || old.empty() || !doIt) return old;
-        const V3LockGuard lock{m_mutex};
-        const auto pair = m_nameMap.emplace(old, "");
-        if (pair.second) {
+    string protectIf(സ്ഥിരം string& old, തർക്കം doIt) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        എങ്കിൽ (!v3Global.opt.protectIds() || old.empty() || !doIt) തിരികെ old;
+        സ്ഥിരം V3LockGuard lock{m_mutex};
+        സ്ഥിരം auto pair = m_nameMap.emplace(old, "");
+        എങ്കിൽ (pair.second) {
             string out;
-            if (v3Global.opt.debugProtect()) {
+            എങ്കിൽ (v3Global.opt.debugProtect()) {
                 // This lets us see the symbol being protected to debug cases
                 // where e.g. the definition is protect() but reference is
                 // missing a protect()
                 out = "PS" + old;
-            } else {
-                VHashSha512 digest{v3Global.opt.protectKeyDefaulted()};
-                digest.insert(old);
+            } അല്ലെങ്കിൽ {
+                VHashSha512 digest{v3Global.opt.protect_താക്കോൽ_Defaulted()};
+                digest.തിരുകുക(old);
                 // Add "PS" prefix (Protect Symbols) as cannot start symbol with number
                 out = "PS" + digest.digestSymbol24();
                 // See if we can shrink the digest symbol to something smaller
-                for (size_t len = 6; len < out.size() - 3; len += 3) {
-                    const string tryout = out.substr(0, len);
-                    if (m_newIdSet.insert(tryout).second) {
+                വേണ്ടി (size_t len = 6; len < out.size() - 3; len += 3) {
+                    സ്ഥിരം string tryout = out.substr(0, len);
+                    എങ്കിൽ (m_newIdSet.തിരുകുക(tryout).second) {
                         out = tryout;
-                        break;
+                        നിർത്തുക;
                     }
                 }
             }
             pair.first->second = out;
         }
-        return pair.first->second;
+        തിരികെ pair.first->second;
     }
-    string protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
+    string protect_വാക്കുകൾ_If(സ്ഥിരം string& old, തർക്കം doIt) VL_MT_SAFE {
         // Split at " " (for traces), "." (for scopes), "->", "(", "&", ")" (for self pointers)
-        if (!(doIt && v3Global.opt.protectIds())) return old;
+        എങ്കിൽ (!(doIt && v3Global.opt.protectIds())) തിരികെ old;
         string out;
         string::size_type start = 0;
         // space, ., ->
-        while (true) {
+        ആകുമ്പോൾ (സത്യം) {
             // When C++11, use find_if and lambda
             string::size_type pos = string::npos;
             string separator;
@@ -1113,33 +1113,33 @@ public:
             trySep(old, start, "(", pos /*ref*/, separator /*ref*/);
             trySep(old, start, "&", pos /*ref*/, separator /*ref*/);
             trySep(old, start, ")", pos /*ref*/, separator /*ref*/);
-            if (pos == string::npos) break;
-            out += protectIf(old.substr(start, pos - start), true) + separator;
+            എങ്കിൽ (pos == string::npos) നിർത്തുക;
+            out += protectIf(old.substr(start, pos - start), സത്യം) + separator;
             start = pos + separator.length();
         }
-        out += protectIf(old.substr(start), true);
-        return out;
+        out += protectIf(old.substr(start), സത്യം);
+        തിരികെ out;
     }
-    void writeMapFile(const string& filename) const {
+    ശൂന്യം writeMapFile(സ്ഥിരം string& filename) സ്ഥിരം {
         V3OutXmlFile of{filename};
         of.putsHeader();
         of.puts("<!-- DESCR"
                 "IPTION: Verilator output: XML representation of netlist -->\n");
         of.puts("<verilator_id_map>\n");
         {
-            for (const auto& itr : m_nameMap) {
+            വേണ്ടി (സ്ഥിരം auto& itr : m_nameMap) {
                 of.puts("<map from=\"" + itr.second + "\" to=\"" + itr.first + "\"/>\n");
             }
         }
         of.puts("</verilator_id_map>\n");
     }
 
-private:
-    void trySep(const string& old, string::size_type start, const string& trySep,
+സ്വകാര്യ:
+    ശൂന്യം trySep(സ്ഥിരം string& old, string::size_type start, സ്ഥിരം string& trySep,
                 string::size_type& posr, string& separatorr) VL_PURE {
-        const string::size_type trypos = old.find(trySep, start);
-        if (trypos != string::npos) {
-            if (posr == string::npos || (posr > trypos)) {
+        സ്ഥിരം string::size_type trypos = old.find(trySep, start);
+        എങ്കിൽ (trypos != string::npos) {
+            എങ്കിൽ (posr == string::npos || (posr > trypos)) {
                 posr = trypos;
                 separatorr = trySep;
             }
@@ -1147,15 +1147,15 @@ private:
     }
 };
 
-string VIdProtect::ifNoProtect(const string& in) VL_MT_SAFE {
-    return v3Global.opt.protectIds() ? "" : in;
+string VIdProtect::ifNoProtect(സ്ഥിരം string& in) VL_MT_SAFE {
+    തിരികെ v3Global.opt.protectIds() ? "" : in;
 }
-string VIdProtect::protectIf(const string& old, bool doIt) VL_MT_SAFE {
-    return VIdProtectImp::singleton().protectIf(old, doIt);
+string VIdProtect::protectIf(സ്ഥിരം string& old, തർക്കം doIt) VL_MT_SAFE {
+    തിരികെ VIdProtectImp::singleton().protectIf(old, doIt);
 }
-string VIdProtect::protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
-    return VIdProtectImp::singleton().protectWordsIf(old, doIt);
+string VIdProtect::protect_വാക്കുകൾ_If(സ്ഥിരം string& old, തർക്കം doIt) VL_MT_SAFE {
+    തിരികെ VIdProtectImp::singleton().protect_വാക്കുകൾ_If(old, doIt);
 }
-void VIdProtect::writeMapFile(const string& filename) {
+ശൂന്യം VIdProtect::writeMapFile(സ്ഥിരം string& filename) {
     VIdProtectImp::singleton().writeMapFile(filename);
 }

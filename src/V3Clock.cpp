@@ -19,95 +19,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clock.h"
+#അന്തര്ഭാവ "V3Clock.h"
 
-#include "V3Const.h"
+#അന്തര്ഭാവ "V3Const.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert every WRITE AstVarRef to a READ ref
 
-class ConvertWriteRefsToRead final : public VNVisitor {
+വർഗ്ഗം ConvertWriteRefsToRead final : പൊതു VNVisitor {
     // MEMBERS
-    AstNodeExpr* m_result = nullptr;
+    Ast_കണ്ണി_വ്യഞ്ജകം* m_result = nullptr;
 
     // CONSTRUCTORS
-    explicit ConvertWriteRefsToRead(AstNodeExpr* nodep) {
-        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), NodeExpr);
+    explicit ConvertWriteRefsToRead(Ast_കണ്ണി_വ്യഞ്ജകം* nodep) {
+        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), കണ്ണി_വ്യഞ്ജകം);
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    ശൂന്യം visit(AstVarRef* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Cannot handle a READWRITE reference");
-        if (nodep->access().isWriteOnly()) {
+        എങ്കിൽ (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
-                new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                പുതിയ AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+പൊതു:
+    സ്ഥിതം Ast_കണ്ണി_വ്യഞ്ജകം* പ്രധാന(Ast_കണ്ണി_വ്യഞ്ജകം* nodep) { തിരികെ ConvertWriteRefsToRead{nodep}.m_result; }
 };
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class ClockVisitor final : public VNVisitor {
+വർഗ്ഗം ClockVisitor final : പൊതു VNVisitor {
     // VISITORS
-    void visit(AstCoverToggle* nodep) override {
+    ശൂന്യം visit(AstCoverToggle* nodep) override {
         // UINFOTREE(1, nodep, "", "ct");
         // COVERTOGGLE(INC, ORIG, CHANGE) ->
         //   IF(ORIG ^ CHANGE) { INC; CHANGE = ORIG; }
-        AstCoverInc* const incp = nodep->incp()->unlinkFrBack();
-        AstNodeExpr* const origp = nodep->origp()->unlinkFrBack();
-        AstNodeExpr* const changeWrp = nodep->changep()->unlinkFrBack();
-        AstNodeExpr* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->cloneTree(false));
-        AstNodeExpr* comparedp = nullptr;
-        incp->toggleExprp(origp->cloneTree(false));
-        incp->toggleCovExprp(changeRdp->cloneTree(false));
-        FileLine* const flp = nodep->fileline();
+        AstCoverInc* സ്ഥിരം incp = nodep->incp()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം origp = nodep->origp()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം changeWrp = nodep->changep()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം changeRdp = ConvertWriteRefsToRead::പ്രധാന(changeWrp->clone_വൃക്ഷം(അസത്യം));
+        Ast_കണ്ണി_വ്യഞ്ജകം* comparedp = nullptr;
+        incp->toggleExprp(origp->clone_വൃക്ഷം(അസത്യം));
+        incp->toggleCovExprp(changeRdp->clone_വൃക്ഷം(അസത്യം));
+        File_വരി* സ്ഥിരം flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
-        if (const AstBasicDType* const bdtypep
+        എങ്കിൽ (സ്ഥിരം AstBasicDType* സ്ഥിരം bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
-            if (!bdtypep->isOpaque()) {
-                AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
-                comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
+            എങ്കിൽ (!bdtypep->isOpaque()) {
+                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം zp = പുതിയ AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
+                comparedp = പുതിയ AstNeq{flp, zp, പുതിയ AstXor{flp, origp, changeRdp}};
             }
         }
-        if (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
-        AstIf* const newp = new AstIf{flp, comparedp, incp};
+        എങ്കിൽ (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
+        AstIf* സ്ഥിരം newp = പുതിയ AstIf{flp, comparedp, incp};
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.
         // We'll go with the miss.
-        newp->addThensp(new AstAssign{flp, changeWrp, origp->cloneTree(false)});
+        newp->addThensp(പുതിയ AstAssign{flp, changeWrp, origp->clone_വൃക്ഷം(അസത്യം)});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_വൃക്ഷം(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);  // No longer needed
+    ശൂന്യം visit(Ast_Sen_വൃക്ഷം* nodep) override {
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);  // No longer needed
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    ~ClockVisitor() override = default;
+    ~ClockVisitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 // Clock class functions
 
-void V3Clock::clockAll(AstNetlist* nodep) {
+ശൂന്യം V3Clock::clockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("clock", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

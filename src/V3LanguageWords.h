@@ -17,43 +17,43 @@
 #ifndef VERILATOR_V3LANGUAGEWORDS_H_
 #define VERILATOR_V3LANGUAGEWORDS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include <map>
+#അന്തര്ഭാവ <map>
 
 //============================================================================
 
-class V3LanguageWords final {
+class V3_Language_വാക്കുകൾ final {
     // List of common reserved keywords
-private:
-    using KeywordMap = std::map<const string, std::string>;
-    struct Singleton final {
+സ്വകാര്യ:
+    using KeywordMap = std::map<സ്ഥിരം string, std::string>;
+    ഘടന Singleton final {
         KeywordMap s_kwdMap;  // List of keywords, and what language applies
         Singleton() { init(); }
-        void addKwd(const string& kwd, const string& why) { s_kwdMap.emplace(kwd, why); }
-        void init();
+        ശൂന്യം addKwd(സ്ഥിരം string& kwd, സ്ഥിരം string& why) { s_kwdMap.emplace(kwd, why); }
+        ശൂന്യം init();
     };
 
-public:
+പൊതു:
     using const_iterator = KeywordMap::const_iterator;
     // METHODS
-    static const_iterator begin() { return s().s_kwdMap.begin(); }
-    static const_iterator end() { return s().s_kwdMap.end(); }
-    static string isKeyword(const string& kwd) {
-        const auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
-        if (it == s().s_kwdMap.end()) return "";
-        return it->second;
+    സ്ഥിതം const_iterator begin() { തിരികെ s().s_kwdMap.begin(); }
+    സ്ഥിതം const_iterator end() { തിരികെ s().s_kwdMap.end(); }
+    സ്ഥിതം string isKeyword(സ്ഥിരം string& kwd) {
+        സ്ഥിരം auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
+        എങ്കിൽ (it == s().s_kwdMap.end()) തിരികെ "";
+        തിരികെ it->second;
     }
 
-private:
-    static Singleton& s() {
-        static Singleton s_s;  // LCOV_EXCL_BR_LINE
-        return s_s;
+സ്വകാര്യ:
+    സ്ഥിതം Singleton& s() {
+        സ്ഥിതം Singleton s_s;  // LCOV_EXCL_BR_LINE
+        തിരികെ s_s;
     }
 };
 
-inline void V3LanguageWords::Singleton::init() {
+വരിയിൽ ശൂന്യം V3_Language_വാക്കുകൾ::Singleton::init() {
     // C++ keywords
     // clang-format off
     addKwd("abort",                 "C++ common word");

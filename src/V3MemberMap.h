@@ -22,90 +22,90 @@
 #ifndef VERILATOR_V3MEMBERMAP_H_
 #define VERILATOR_V3MEMBERMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Global.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Global.h"
 
-#include <map>
+#അന്തര്ഭാവ <map>
 
 //######################################################################
 
 class VMemberMap final {
     // MEMBERS
-    using MemberMap = std::map<std::string, AstNode*>;
-    using NodeMap = std::map<const AstNode*, MemberMap>;
-    NodeMap m_map;  // Map of nodes being tracked
+    using MemberMap = std::map<std::string, Ast_കണ്ണി*>;
+    using കണ്ണി_Map = std::map<സ്ഥിരം Ast_കണ്ണി*, MemberMap>;
+    കണ്ണി_Map m_map;  // Map of nodes being tracked
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
-    void clear() { m_map.clear(); }
+പൊതു:
+    ശൂന്യം clear() { m_map.clear(); }
     // Find 'name' under 'nodep', caching nodep's children if needed
-    AstNode* findMember(const AstNode* nodep, const std::string& name) {
+    Ast_കണ്ണി* findMember(സ്ഥിരം Ast_കണ്ണി* nodep, സ്ഥിരം std::string& name) {
         auto nit = m_map.find(nodep);
-        if (VL_UNLIKELY(nit == m_map.end())) {
+        എങ്കിൽ (VL_UNLIKELY(nit == m_map.end())) {
             scan(nodep);
             nit = m_map.find(nodep);
         }
-        const auto mit = nit->second.find(name);
-        if (mit == nit->second.end()) return nullptr;
-        return mit->second;
+        സ്ഥിരം auto mit = nit->second.find(name);
+        എങ്കിൽ (mit == nit->second.end()) തിരികെ nullptr;
+        തിരികെ mit->second;
     }
     // Insert under the given parent node the child's name
-    void insert(const AstNode* nodep, AstNode* childp) {
+    ശൂന്യം തിരുകുക(സ്ഥിരം Ast_കണ്ണി* nodep, Ast_കണ്ണി* childp) {
         auto nit = m_map.find(nodep);
-        if (nit == m_map.end()) {
+        എങ്കിൽ (nit == m_map.end()) {
             scan(nodep);
             nit = m_map.find(nodep);
         }
-        memberInsert(nit->second, childp, false);
+        member_തിരുകുക(nit->second, childp, false);
     }
 
-private:
-    void scan(const AstNode* nodep) {
-        const auto nitPair = m_map.emplace(nodep, MemberMap{});
+സ്വകാര്യ:
+    ശൂന്യം scan(സ്ഥിരം Ast_കണ്ണി* nodep) {
+        സ്ഥിരം auto nitPair = m_map.emplace(nodep, MemberMap{});
         MemberMap& mmapr = nitPair.first->second;
-        if (const AstClass* const anodep = VN_CAST(nodep, Class)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                        if (AstClass::isCacheableChild(blockp)) memberInsert(mmapr, blockp);
+        എങ്കിൽ (സ്ഥിരം AstClass* സ്ഥിരം anodep = VN_CAST(nodep, Class)) {
+            വേണ്ടി (Ast_കണ്ണി* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+                എങ്കിൽ (സ്ഥിരം AstScope* സ്ഥിരം scopep = VN_CAST(itemp, Scope)) {
+                    വേണ്ടി (Ast_കണ്ണി* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                        എങ്കിൽ (AstClass::isCacheableChild(blockp)) member_തിരുകുക(mmapr, blockp);
                     }
-                } else {
-                    if (AstClass::isCacheableChild(itemp)) memberInsert(mmapr, itemp);
+                } അല്ലെങ്കിൽ {
+                    എങ്കിൽ (AstClass::isCacheableChild(itemp)) member_തിരുകുക(mmapr, itemp);
                 }
             }
-        } else if (const AstIface* const anodep = VN_CAST(nodep, Iface)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                if (const AstScope* const scopep = VN_CAST(itemp, Scope)) {
-                    for (AstNode* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                        memberInsert(mmapr, blockp);
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstIface* സ്ഥിരം anodep = VN_CAST(nodep, Iface)) {
+            വേണ്ടി (Ast_കണ്ണി* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                എങ്കിൽ (സ്ഥിരം AstScope* സ്ഥിരം scopep = VN_CAST(itemp, Scope)) {
+                    വേണ്ടി (Ast_കണ്ണി* blockp = scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                        member_തിരുകുക(mmapr, blockp);
                     }
-                } else if (!VN_IS(itemp, Always)) {
-                    memberInsert(mmapr, itemp);
+                } അല്ലെങ്കിൽ എങ്കിൽ (!VN_IS(itemp, Always)) {
+                    member_തിരുകുക(mmapr, itemp);
                 }
             }
-        } else if (const AstNodeUOrStructDType* const anodep
-                   = VN_CAST(nodep, NodeUOrStructDType)) {
-            for (AstNode* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
-                memberInsert(mmapr, itemp);
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം anodep
+                   = VN_CAST(nodep, കണ്ണി_UOr_Struct_DType)) {
+            വേണ്ടി (Ast_കണ്ണി* itemp = anodep->membersp(); itemp; itemp = itemp->nextp()) {
+                member_തിരുകുക(mmapr, itemp);
             }
-        } else if (const AstPackage* const anodep = VN_CAST(nodep, Package)) {
-            for (AstNode* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
-                memberInsert(mmapr, itemp);
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstPackage* സ്ഥിരം anodep = VN_CAST(nodep, Package)) {
+            വേണ്ടി (Ast_കണ്ണി* itemp = anodep->stmtsp(); itemp; itemp = itemp->nextp()) {
+                member_തിരുകുക(mmapr, itemp);
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->v3fatalSrc("Unsupported node type");
         }
     }
-    void memberInsert(MemberMap& mmapr, AstNode* childp, bool warn = true) {
+    ശൂന്യം member_തിരുകുക(MemberMap& mmapr, Ast_കണ്ണി* childp, bool warn = true) {
         // Skip nodes without names (e.g., initial blocks, anonymous statements)
         // These can't be looked up by name anyway
-        if (childp->name().empty()) return;
-        const auto mitPair = mmapr.emplace(childp->name(), childp);
-        if (VL_UNCOVERABLE(!mitPair.second && warn)) {
+        എങ്കിൽ (childp->name().empty()) തിരികെ;
+        സ്ഥിരം auto mitPair = mmapr.emplace(childp->name(), childp);
+        എങ്കിൽ (VL_UNCOVERABLE(!mitPair.second && warn)) {
             // Probably an internal error, but we'll make it user friendly if happens
             childp->v3error("Duplicate declaration of member name: " << childp->prettyNameQ());
         }

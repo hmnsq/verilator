@@ -20,52 +20,52 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Class.h"
+#അന്തര്ഭാവ "V3Class.h"
 
-#include "V3UniqueNames.h"
+#അന്തര്ഭാവ "V3UniqueNames.h"
 
-#include <queue>
-#include <set>
+#അന്തര്ഭാവ <queue>
+#അന്തര്ഭാവ <set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class ClassVisitor final : public VNVisitor {
+വർഗ്ഗം ClassVisitor final : പൊതു VNVisitor {
     // NODE STATE
     //  AstClass::user1()       -> bool.  True if iterated already
     //  AstVar::user1p()        -> AstVarScope*  Scope used with this var
-    const VNUser1InUse m_inuser1;
+    സ്ഥിരം VNUser1InUse m_inuser1;
 
     // MEMBERS
     string m_prefix;  // String prefix to add to class name based on hier
     V3UniqueNames m_names;  // For unique naming of structs and unions
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeModule* m_classPackagep = nullptr;  // Package moving into
-    const AstScope* m_classScopep = nullptr;  // Package moving scopes into
+    Ast_കണ്ണി_Module* m_modp = nullptr;  // Current module
+    Ast_കണ്ണി_Module* m_classPackagep = nullptr;  // Package moving into
+    സ്ഥിരം AstScope* m_classScopep = nullptr;  // Package moving scopes into
     AstScope* m_packageScopep = nullptr;  // Class package scope
-    const AstNodeFTask* m_ftaskp = nullptr;  // Current task
-    std::vector<std::pair<AstNode*, AstScope*>> m_toScopeMoves;
-    std::vector<std::pair<AstNode*, AstNodeModule*>> m_toPackageMoves;
+    സ്ഥിരം Ast_കണ്ണി_FTask* m_ftaskp = nullptr;  // Current task
+    std::vector<std::pair<Ast_കണ്ണി*, AstScope*>> m_toScopeMoves;
+    std::vector<std::pair<Ast_കണ്ണി*, Ast_കണ്ണി_Module*>> m_toPackageMoves;
     std::set<AstTypedef*> m_typedefps;  // Contains all typedef nodes
-    std::set<AstNodeUOrStructDType*> m_strDtypeps;  // Contains all packed structs and unions
+    std::set<Ast_കണ്ണി_UOr_Struct_DType*> m_strDtypeps;  // Contains all packed structs and unions
     // Contains all public packed structs and unions, using a queue to
     // mark embedded struct / union public by BFS
-    std::queue<AstNodeUOrStructDType*> m_pubStrDtypeps;
+    std::queue<Ast_കണ്ണി_UOr_Struct_DType*> m_pubStrDtypeps;
 
     // METHODS
 
-    void recurseImplements(AstClass* nodep) {
+    ശൂന്യം recurseImplements(AstClass* nodep) {
         // In SystemVerilog, we have two inheritance chains:
         // - extends of concrete clasess: mapped to non-virtual C++ inheritance
         //   as there is only single ancestor allowed
         // - implements of concrete classes / extends of interface classes: mapped
         //   to virtual inheritance to allow diamond patterns with multiple ancestors
-        if (nodep->useVirtualPublic()) return;  // Short-circuit to exit diamond cycles
-        if (nodep->isInterfaceClass()) { nodep->useVirtualPublic(true); }
-        for (const AstClassExtends* extp = nodep->extendsp(); extp;
+        എങ്കിൽ (nodep->useVirtualPublic()) തിരികെ;  // Short-circuit to exit diamond cycles
+        എങ്കിൽ (nodep->isInterfaceClass()) { nodep->useVirtualPublic(സത്യം); }
+        വേണ്ടി (സ്ഥിരം AstClassExtends* extp = nodep->extendsp(); extp;
              extp = VN_AS(extp->nextp(), ClassExtends)) {
             recurseImplements(extp->classp());
         }
@@ -73,8 +73,8 @@ class ClassVisitor final : public VNVisitor {
 
     // VISITORS
 
-    void visit(AstClass* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ശൂന്യം visit(AstClass* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;
         // Move this class
         nodep->name(m_prefix + nodep->name());
         nodep->unlinkFrBack();
@@ -82,16 +82,16 @@ class ClassVisitor final : public VNVisitor {
         recurseImplements(nodep);
         // Make containing package
         // Note origName is the same as the class origName so errors look correct
-        AstClassPackage* const packagep
-            = new AstClassPackage{nodep->fileline(), nodep->origName(), nodep->libname()};
+        AstClassPackage* സ്ഥിരം packagep
+            = പുതിയ AstClassPackage{nodep->fileline(), nodep->origName(), nodep->libname()};
         packagep->name(nodep->name() + "__Vclpkg");
-        nodep->editCountInc();
+        nodep->edit_എണ്ണം_Inc();
         nodep->classOrPackagep(packagep);
         packagep->classp(nodep);
         packagep->timeunit(nodep->timeunit());
         v3Global.rootp()->addModulesp(packagep);
         // Add package to hierarchy
-        AstCell* const cellp = new AstCell{packagep->fileline(),
+        AstCell* സ്ഥിരം cellp = പുതിയ AstCell{packagep->fileline(),
                                            packagep->fileline(),
                                            packagep->name(),
                                            packagep->name(),
@@ -99,18 +99,18 @@ class ClassVisitor final : public VNVisitor {
                                            nullptr,
                                            nullptr};
         cellp->modp(packagep);
-        v3Global.rootp()->topModulep()->addStmtsp(cellp);
+        v3Global.rootp()->മുകൾ_Modulep()->addStmtsp(cellp);
         // Find class's scope
         // Alternative would be to move this and related to V3Scope
-        const AstScope* classScopep = nullptr;
-        for (AstNode* itp = nodep->stmtsp(); itp; itp = itp->nextp()) {
-            if ((classScopep = VN_CAST(itp, Scope))) break;
+        സ്ഥിരം AstScope* classScopep = nullptr;
+        വേണ്ടി (Ast_കണ്ണി* itp = nodep->stmtsp(); itp; itp = itp->nextp()) {
+            എങ്കിൽ ((classScopep = VN_CAST(itp, Scope))) നിർത്തുക;
         }
         UASSERT_OBJ(classScopep, nodep, "No scope under class");
 
         // Add scope
-        AstScope* const scopep
-            = new AstScope{nodep->fileline(), packagep, classScopep->name(),
+        AstScope* സ്ഥിരം scopep
+            = പുതിയ AstScope{nodep->fileline(), packagep, classScopep->name(),
                            classScopep->aboveScopep(), classScopep->aboveCellp()};
         packagep->addStmtsp(scopep);
         // Iterate
@@ -126,7 +126,7 @@ class ClassVisitor final : public VNVisitor {
         m_prefix = nodep->name() + "__02e";  // .
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
         // Visit for NodeModules that are not AstClass (AstClass is-a AstNodeModule)
         // Classes are always under a Package (perhaps $unit) or a module
         VL_RESTORER_CLEAR(m_prefix);
@@ -136,16 +136,16 @@ class ClassVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    void visit(AstVar* nodep) override {
+    ശൂന്യം visit(AstVar* nodep) override {
         iterateChildren(nodep);
-        if (m_packageScopep) {
-            if (m_ftaskp && m_ftaskp->isStatic()) {
+        എങ്കിൽ (m_packageScopep) {
+            എങ്കിൽ (m_ftaskp && m_ftaskp->isStatic()) {
                 // Move later, or we wouldn't keep iterating the class
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
                 m_toScopeMoves.emplace_back(nodep, m_packageScopep);
             }
-            if (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
+            എങ്കിൽ (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
                 m_toPackageMoves.emplace_back(nodep, m_classPackagep);
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
@@ -154,20 +154,20 @@ class ClassVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstVarScope* nodep) override {
+    ശൂന്യം visit(AstVarScope* nodep) override {
         iterateChildren(nodep);
         nodep->varp()->user1p(nodep);
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
-        if (m_packageScopep && nodep->isStatic()) {
+        എങ്കിൽ (m_packageScopep && nodep->isStatic()) {
             m_toScopeMoves.emplace_back(nodep, m_packageScopep);
         }
     }
-    void visit(AstCFunc* nodep) override {
+    ശൂന്യം visit(AstCFunc* nodep) override {
         iterateChildren(nodep);
         // Don't move now, or wouldn't keep iterating the class
         // TODO move function statics only
@@ -175,109 +175,109 @@ class ClassVisitor final : public VNVisitor {
         //    m_toScopeMoves.emplace_back(nodep, m_classScopep);
         //}
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Cover_Decl* nodep) override {
         // Need to declare coverage in package, where we have access to symbol table
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        എങ്കിൽ (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
     }
-    void visit(AstInitial* nodep) override {
+    ശൂന്യം visit(AstInitial* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        എങ്കിൽ (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
     }
-    void visit(AstInitialStatic* nodep) override {
+    ശൂന്യം visit(AstInitialStatic* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        എങ്കിൽ (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
     }
 
-    void setStructModulep(AstNodeUOrStructDType* const dtypep) {
+    ശൂന്യം setStructModulep(Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം dtypep) {
         // Give struct a pointer to its package and a final name
-        dtypep->editCountInc();
+        dtypep->edit_എണ്ണം_Inc();
         dtypep->classOrPackagep(m_classPackagep ? m_classPackagep : m_modp);
         dtypep->name(
             m_names.get(dtypep->name() + (VN_IS(dtypep, UnionDType) ? "__union" : "__struct")));
-        if (dtypep->packed()) m_strDtypeps.insert(dtypep);
+        എങ്കിൽ (dtypep->packed()) m_strDtypeps.തിരുകുക(dtypep);
 
-        for (AstMemberDType* itemp = dtypep->membersp(); itemp;
+        വേണ്ടി (AstMemberDType* itemp = dtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            AstNodeUOrStructDType* const subp = itemp->getChildStructp();
+            Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം subp = itemp->getChildStructp();
             // Recurse only into anonymous structs inside this definition,
             // other structs will be reached from another typedefs
-            if (subp && subp->name().empty()) setStructModulep(subp);
+            എങ്കിൽ (subp && subp->name().empty()) setStructModulep(subp);
         }
     }
-    void visit(AstTypedef* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        AstNodeUOrStructDType* const dtypep = VN_CAST(nodep->dtypep(), NodeUOrStructDType);
-        if (dtypep && dtypep->packed()) {
-            m_typedefps.insert(nodep);
-            if (nodep->attrPublic()) m_pubStrDtypeps.push(dtypep);
+    ശൂന്യം visit(AstTypedef* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;
+        Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം dtypep = VN_CAST(nodep->dtypep(), കണ്ണി_UOr_Struct_DType);
+        എങ്കിൽ (dtypep && dtypep->packed()) {
+            m_typedefps.തിരുകുക(nodep);
+            എങ്കിൽ (nodep->attrPublic()) m_pubStrDtypeps.തള്ളുക(dtypep);
         }
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        എങ്കിൽ (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
 
-        if (dtypep) {
+        എങ്കിൽ (dtypep) {
             dtypep->name(nodep->name());
             setStructModulep(dtypep);
         }
     }
 
-    void visit(AstNodeExpr* nodep) override {}  // Short circuit
-    void visit(AstNodeStmt* nodep) override {}  // Short circuit
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി_വ്യഞ്ജകം* nodep) override {}  // Short circuit
+    ശൂന്യം visit(Ast_കണ്ണി_Stmt* nodep) override {}  // Short circuit
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit ClassVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ClassVisitor() override {
-        for (auto moved : m_toScopeMoves) {
-            AstNode* const nodep = moved.first;
-            AstScope* const scopep = moved.second;
+        വേണ്ടി (auto moved : m_toScopeMoves) {
+            Ast_കണ്ണി* സ്ഥിരം nodep = moved.first;
+            AstScope* സ്ഥിരം scopep = moved.second;
             UINFO(9, "moving " << nodep << " to " << scopep);
-            if (VN_IS(nodep, NodeFTask)) {
+            എങ്കിൽ (VN_IS(nodep, കണ്ണി_FTask)) {
                 scopep->addBlocksp(nodep->unlinkFrBack());
-            } else if (VN_IS(nodep, Var)) {
-                AstVarScope* const vscp = VN_AS(nodep->user1p(), VarScope);
+            } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(nodep, Var)) {
+                AstVarScope* സ്ഥിരം vscp = VN_AS(nodep->user1p(), VarScope);
                 vscp->scopep(scopep);
                 vscp->unlinkFrBack();
                 scopep->addVarsp(vscp);
-            } else if (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
                 nodep->unlinkFrBack();
                 scopep->addBlocksp(nodep);
-            } else {
+            } അല്ലെങ്കിൽ {
                 nodep->v3fatalSrc("Bad case");
             }
         }
-        for (auto moved : m_toPackageMoves) {
-            AstNode* const nodep = moved.first;
-            AstNodeModule* const modp = moved.second;
+        വേണ്ടി (auto moved : m_toPackageMoves) {
+            Ast_കണ്ണി* സ്ഥിരം nodep = moved.first;
+            Ast_കണ്ണി_Module* സ്ഥിരം modp = moved.second;
             UINFO(9, "moving " << nodep << " to " << modp);
             nodep->unlinkFrBack();
             modp->addStmtsp(nodep);
         }
         // BFS to mark public typedefs.
-        std::set<const AstNodeUOrStructDType*> pubStrDtypeps;
-        while (!m_pubStrDtypeps.empty()) {
-            AstNodeUOrStructDType* const dtypep = m_pubStrDtypeps.front();
-            m_pubStrDtypeps.pop();
-            if (pubStrDtypeps.insert(dtypep).second) {
-                for (AstMemberDType* itemp = dtypep->membersp(); itemp;
+        std::set<സ്ഥിരം Ast_കണ്ണി_UOr_Struct_DType*> pubStrDtypeps;
+        ആകുമ്പോൾ (!m_pubStrDtypeps.empty()) {
+            Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം dtypep = m_pubStrDtypeps.front();
+            m_pubStrDtypeps.എടുക്കുക();
+            എങ്കിൽ (pubStrDtypeps.തിരുകുക(dtypep).second) {
+                വേണ്ടി (AstMemberDType* itemp = dtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    if (AstNodeUOrStructDType* const subp = itemp->getChildStructp())
-                        m_pubStrDtypeps.push(subp);
+                    എങ്കിൽ (Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം subp = itemp->getChildStructp())
+                        m_pubStrDtypeps.തള്ളുക(subp);
                 }
             }
         }
-        for (AstTypedef* typedefp : m_typedefps) {
-            const AstNodeUOrStructDType* const sdtypep
-                = VN_AS(typedefp->dtypep(), NodeUOrStructDType);
-            if (pubStrDtypeps.count(sdtypep)) typedefp->attrPublic(true);
+        വേണ്ടി (AstTypedef* typedefp : m_typedefps) {
+            സ്ഥിരം Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം sdtypep
+                = VN_AS(typedefp->dtypep(), കണ്ണി_UOr_Struct_DType);
+            എങ്കിൽ (pubStrDtypeps.എണ്ണം(sdtypep)) typedefp->attrPublic(സത്യം);
         }
         // Clear package pointer of non-public packed struct / union type, which will never be
         // exported.
-        for (AstNodeUOrStructDType* sdtypep : m_strDtypeps) {
-            if (!pubStrDtypeps.count(sdtypep)) sdtypep->classOrPackagep(nullptr);
+        വേണ്ടി (Ast_കണ്ണി_UOr_Struct_DType* sdtypep : m_strDtypeps) {
+            എങ്കിൽ (!pubStrDtypeps.എണ്ണം(sdtypep)) sdtypep->classOrPackagep(nullptr);
         }
     }
 };
@@ -285,8 +285,8 @@ public:
 //######################################################################
 // Class class functions
 
-void V3Class::classAll(AstNetlist* nodep) {
+ശൂന്യം V3Class::classAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClassVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("class", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("class", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3CCTORS_H_
 #define VERILATOR_V3CCTORS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 //============================================================================
 
 class V3CCtors final {
-public:
-    static void cctorsAll() VL_MT_DISABLED;
+പൊതു:
+    സ്ഥിതം ശൂന്യം cctorsAll() VL_MT_DISABLED;
 
-private:
-    static void evalAsserts() VL_MT_DISABLED;
+സ്വകാര്യ:
+    സ്ഥിതം ശൂന്യം evalAsserts() VL_MT_DISABLED;
 };
 
 #endif  // Guard

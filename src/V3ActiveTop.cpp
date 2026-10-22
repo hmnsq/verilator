@@ -23,92 +23,92 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3ActiveTop.h"
+#അന്തര്ഭാവ "V3ActiveTop.h"
 
-#include "V3Const.h"
-#include "V3SenTree.h"
+#അന്തര്ഭാവ "V3Const.h"
+#അന്തര്ഭാവ "V3SenTree.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Active class functions
 
-class ActiveTopVisitor final : public VNVisitor {
+വർഗ്ഗം Active_മുകൾ_Visitor final : പൊതു VNVisitor {
     // NODE STATE
     // AstVarScope::user1()  // bool.  Processed
 
     // STATE
-    SenTreeFinder m_finder;  // Find global sentree's / add them under the AstTopScope
+    Sen_വൃക്ഷം_Finder m_finder;  // Find global sentree's / add them under the AstTopScope
 
     // METHODS
-    static bool isInitial(AstNode* nodep) {
-        const VNUser1InUse user1InUse;
+    സ്ഥിതം തർക്കം isInitial(Ast_കണ്ണി* nodep) {
+        സ്ഥിരം VNUser1InUse user1InUse;
         // Return true if no variables that read.
-        return nodep->forall([&](const AstVarRef* refp) -> bool {
-            AstVarScope* const vscp = refp->varScopep();
+        തിരികെ nodep->forall([&](സ്ഥിരം AstVarRef* refp) -> തർക്കം {
+            AstVarScope* സ്ഥിരം vscp = refp->varScopep();
             // Note: Use same heuristic as ordering does to ignore written variables
             // TODO: Use live variable analysis.
-            if (refp->access().isWriteOnly()) {
-                vscp->user1(true);
-                return true;
+            എങ്കിൽ (refp->access().isWriteOnly()) {
+                vscp->user1(സത്യം);
+                തിരികെ സത്യം;
             }
             // Read or ReadWrite: OK if written before
-            return vscp->user1();
+            തിരികെ vscp->user1();
         });
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
         // Create required actives and add to module
         // We can start ordering at a module, or a scope
         UINFO(4, " MOD   " << nodep);
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
+    ശൂന്യം visit(AstActive* nodep) override {
         UINFO(4, "   ACTIVE " << nodep);
         // Remove duplicate clocks and such; sensesp() may change!
         V3Const::constifyExpensiveEdit(nodep);
-        AstSenTree* sentreep = nodep->sentreep();
+        Ast_Sen_വൃക്ഷം* sentreep = nodep->sentreep();
         UASSERT_OBJ(sentreep, nodep, "nullptr");
-        if (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
+        എങ്കിൽ (sentreep->sensesp() && sentreep->sensesp()->isNever()) {
             // Never executing.  Kill it.
             UASSERT_OBJ(!sentreep->sensesp()->nextp(), nodep,
                         "Never senitem should be alone, else the never should be eliminated.");
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_വൃക്ഷം(), nodep);
+            തിരികെ;
         }
 
         // Delete empty procedures
-        for (AstNode *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
+        വേണ്ടി (Ast_കണ്ണി *stmtp = nodep->stmtsp(), *nextp; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstNodeProcedure* const procp = VN_CAST(stmtp, NodeProcedure)) {
-                if (!procp->stmtsp()) VL_DO_DANGLING(pushDeletep(procp->unlinkFrBack()), stmtp);
+            എങ്കിൽ (Ast_കണ്ണി_Procedure* സ്ഥിരം procp = VN_CAST(stmtp, കണ്ണി_Procedure)) {
+                എങ്കിൽ (!procp->stmtsp()) VL_DO_DANGLING(തള്ളുക_Deletep(procp->unlinkFrBack()), stmtp);
             }
         }
 
         // Delete empty actives
-        if (!nodep->stmtsp()) {
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+        എങ്കിൽ (!nodep->stmtsp()) {
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_വൃക്ഷം(), nodep);
+            തിരികെ;
         }
 
         // Move the SENTREE for each active up to the global level.
         // This way we'll easily see what clock domains are identical
-        AstSenTree* const wantp = m_finder.getSenTree(sentreep);
+        Ast_Sen_വൃക്ഷം* സ്ഥിരം wantp = m_finder.get_Sen_വൃക്ഷം(sentreep);
         UINFO(4, "   lookdone");
-        if (wantp != sentreep) {
+        എങ്കിൽ (wantp != sentreep) {
             // Move the active's contents to the other active
             UINFO(4, "   merge active " << sentreep << " into " << wantp);
-            if (nodep->senTreeStorep()) {
-                UASSERT_OBJ(sentreep == nodep->senTreeStorep(), nodep,
+            എങ്കിൽ (nodep->sen_വൃക്ഷം_Storep()) {
+                UASSERT_OBJ(sentreep == nodep->sen_വൃക്ഷം_Storep(), nodep,
                             "sensesStore should have been deleted earlier if different");
                 sentreep->unlinkFrBack();
                 // There may be other references to same sense tree,
                 // we'll be removing all references when we get to them,
                 // but don't dangle our pointer yet!
-                VL_DO_DANGLING(pushDeletep(sentreep), sentreep);
+                VL_DO_DANGLING(തള്ളുക_Deletep(sentreep), sentreep);
             }
             nodep->sentreep(wantp);
         }
@@ -118,37 +118,37 @@ class ActiveTopVisitor final : public VNVisitor {
         // prune these otherwise.
         // TODO: we should warn for these if they were 'always @*' as some (including strictly
         //       compliant) simulators will never execute these.
-        if (nodep->sentreep()->hasCombo()) {
-            FileLine* const flp = nodep->fileline();
+        എങ്കിൽ (nodep->sentreep()->hasCombo()) {
+            File_വരി* സ്ഥിരം flp = nodep->fileline();
             AstActive* initialp = nullptr;
-            for (AstNode *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
+            വേണ്ടി (Ast_കണ്ണി *logicp = nodep->stmtsp(), *nextp; logicp; logicp = nextp) {
                 nextp = logicp->nextp();
-                if (!isInitial(logicp)) continue;
-                if (!initialp) initialp = new AstActive{flp, "", m_finder.getInitial()};
+                എങ്കിൽ (!isInitial(logicp)) തുടരുക;
+                എങ്കിൽ (!initialp) initialp = പുതിയ AstActive{flp, "", m_finder.getInitial()};
                 initialp->addStmtsp(logicp->unlinkFrBack());
             }
-            if (initialp) nodep->addHereThisAsNext(initialp);
+            എങ്കിൽ (initialp) nodep->addHereThisAsNext(initialp);
         }
     }
-    void visit(AstNodeProcedure* nodep) override {  // LCOV_EXCL_LINE
+    ശൂന്യം visit(Ast_കണ്ണി_Procedure* nodep) override {  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("Node should have been under ACTIVE");
     }
     //--------------------
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstVarScope*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി_വ്യഞ്ജകം*) override {}  // Accelerate
+    ശൂന്യം visit(AstVarScope*) override {}  // Accelerate
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    explicit ActiveTopVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~ActiveTopVisitor() override = default;
+    explicit Active_മുകൾ_Visitor(AstNetlist* nodep) { iterate(nodep); }
+    ~Active_മുകൾ_Visitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 // Active class functions
 
-void V3ActiveTop::activeTopAll(AstNetlist* nodep) {
+ശൂന്യം V3_Active_മുകൾ::active_മുകൾ_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { ActiveTopVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("activetop", 0, dumpTreeEitherLevel() >= 3);
+    { Active_മുകൾ_Visitor{nodep}; }  // Destruct before checking
+    V3Global::dump_Check_Global_വൃക്ഷം("activetop", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

@@ -17,22 +17,22 @@
 #ifndef VERILATOR_V3WAIVER_H_
 #define VERILATOR_V3WAIVER_H_
 
-#include "V3Error.h"
-#include "V3Mutex.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3Mutex.h"
 
-#include <string>
-#include <vector>
+#അന്തര്ഭാവ <string>
+#അന്തര്ഭാവ <vector>
 
 class V3Waiver final {
     // TYPES
     using WaiverList = std::vector<std::string>;
-    static V3Mutex s_mutex;  // Protect members
-    static WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
+    സ്ഥിതം V3Mutex s_mutex;  // Protect members
+    സ്ഥിതം WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
 
-public:
-    static void addEntry(V3ErrorCode errorCode, const string& filename, const std::string& msg)
+പൊതു:
+    സ്ഥിതം ശൂന്യം addEntry(V3ErrorCode errorCode, സ്ഥിരം string& filename, സ്ഥിരം std::string& സന്ദേശം)
         VL_MT_SAFE_EXCLUDES(s_mutex);
-    static void write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex);
+    സ്ഥിതം ശൂന്യം ലിഖ(സ്ഥിരം std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex);
 };
 
 #endif  // Guard

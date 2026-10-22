@@ -44,19 +44,19 @@
 #ifndef VERILATOR_V3DFGDATATYPE_H_
 #define VERILATOR_V3DFGDATATYPE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Hash.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3Global.h"
+#അന്തര്ഭാവ "V3Hash.h"
 
-#include <memory>
-#include <unordered_map>
+#അന്തര്ഭാവ <memory>
+#അന്തര്ഭാവ <unordered_map>
 
 class DfgDataType final {
-    enum class Kind : uint8_t {
+    എണ്ണൽ class Kind : uint8_t {
         Packed,
         Array,
         // Tuple - to model unpacked structs in the future
@@ -64,28 +64,28 @@ class DfgDataType final {
     };
 
     // STATE
-    const Kind m_kind;  // The type category
+    സ്ഥിരം Kind m_kind;  // The type category
     uint32_t m_size;  // The number of elements in this type
-    AstNodeDType* const m_astDtypep;  // Equivalent canonical AstNodeDType
-    const DfgDataType* const m_elemDtypep;  // Type of elements - for arrays only
+    Ast_കണ്ണി_DType* സ്ഥിരം m_astDtypep;  // Equivalent canonical AstNodeDType
+    സ്ഥിരം DfgDataType* സ്ഥിരം m_elemDtypep;  // Type of elements - for arrays only
     // Static singleton Null type
-    static const DfgDataType* s_nullTypep;
+    സ്ഥിതം സ്ഥിരം DfgDataType* s_nullTypep;
     // Static map from 'width' -> 'interned Packed DfgDataType with that width'
-    static std::unordered_map<uint32_t, const DfgDataType*> s_packedTypes;
+    സ്ഥിതം std::unordered_map<uint32_t, സ്ഥിരം DfgDataType*> s_packedTypes;
     // Map from 'elements' -> 'interned Array DfgDataType with that many elements of *this* type'
-    mutable std::unordered_map<uint32_t, const DfgDataType*> m_arrayTypes;
+    mutable std::unordered_map<uint32_t, സ്ഥിരം DfgDataType*> m_arrayTypes;
 
     // METHODS
-    static AstNodeDType* canonicalPackedDType(uint32_t width) {
-        return v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
+    സ്ഥിതം Ast_കണ്ണി_DType* canonicalPackedDType(uint32_t width) {
+        തിരികെ v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
     }
-    static AstNodeDType* canonicalArrayDType(uint32_t size, const DfgDataType& elemType) {
-        AstNodeDType* const elemDTypep = elemType.m_astDtypep;
-        FileLine* const flp = elemDTypep->fileline();
-        AstRange* const rangep = new AstRange{flp, static_cast<int>(size - 1), 0};
-        AstNodeDType* const dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
+    സ്ഥിതം Ast_കണ്ണി_DType* canonicalArrayDType(uint32_t size, സ്ഥിരം DfgDataType& elemType) {
+        Ast_കണ്ണി_DType* സ്ഥിരം elemDTypep = elemType.m_astDtypep;
+        File_വരി* സ്ഥിരം flp = elemDTypep->fileline();
+        AstRange* സ്ഥിരം rangep = new AstRange{flp, static_cast<പൂർണ്ണസംഖ്യ>(size - 1), 0};
+        Ast_കണ്ണി_DType* സ്ഥിരം dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
         v3Global.rootp()->typeTablep()->addTypesp(dtypep);
-        return dtypep;
+        തിരികെ dtypep;
     }
 
     // CONSTRUCTOR - use 'fromAst' instead
@@ -99,7 +99,7 @@ class DfgDataType final {
         , m_size{size}
         , m_astDtypep{canonicalPackedDType(size)}
         , m_elemDtypep{nullptr} {}
-    DfgDataType(uint32_t size, const DfgDataType& elemType)
+    DfgDataType(uint32_t size, സ്ഥിരം DfgDataType& elemType)
         : m_kind{Kind::Array}
         , m_size{size}
         , m_astDtypep{canonicalArrayDType(size, elemType)}
@@ -108,124 +108,124 @@ class DfgDataType final {
     VL_UNCOPYABLE(DfgDataType);
     VL_UNMOVABLE(DfgDataType);
     ~DfgDataType() {
-        for (const auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+        വേണ്ടി (സ്ഥിരം auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
     }
 
-public:
+പൊതു:
     //-----------------------------------------------------------------------
     // Properties
 
-    bool isNull() const { return m_kind == Kind::Null; }
-    bool isPacked() const { return m_kind == Kind::Packed; }
-    bool isArray() const { return m_kind == Kind::Array; }
+    bool isNull() സ്ഥിരം { തിരികെ m_kind == Kind::Null; }
+    bool isPacked() സ്ഥിരം { തിരികെ m_kind == Kind::Packed; }
+    bool isArray() സ്ഥിരം { തിരികെ m_kind == Kind::Array; }
     // Size of type (this is 'width' for Ppacked, 'elements' for Array, 0 for Null)
-    uint32_t size() const { return m_size; }
-    AstNodeDType* astDtypep() const { return m_astDtypep; }
+    uint32_t size() സ്ഥിരം { തിരികെ m_size; }
+    Ast_കണ്ണി_DType* astDtypep() സ്ഥിരം { തിരികെ m_astDtypep; }
 
     // Thanks to the interning, equality is identity
-    bool operator==(const DfgDataType& that) const { return this == &that; }
-    bool operator!=(const DfgDataType& that) const { return this != &that; }
+    bool operator==(സ്ഥിരം DfgDataType& that) സ്ഥിരം { തിരികെ this == &that; }
+    bool operator!=(സ്ഥിരം DfgDataType& that) സ്ഥിരം { തിരികെ this != &that; }
     // Similarly for hash
-    V3Hash hash() const { return V3Hash{this}; }
+    V3Hash hash() സ്ഥിരം { തിരികെ V3Hash{this}; }
 
     // Type of elements, for arrays only
-    const DfgDataType& elemDtype() const {
+    സ്ഥിരം DfgDataType& elemDtype() സ്ഥിരം {
         UASSERT(isArray(), "Non-array has no 'elemDType'");
-        return *m_elemDtypep;
+        തിരികെ *m_elemDtypep;
     }
 
     //-----------------------------------------------------------------------
     // Static factory and management functions
 
     // Returns a Packed type of the given width
-    static const DfgDataType& packed(uint32_t width) {
+    സ്ഥിതം സ്ഥിരം DfgDataType& packed(uint32_t width) {
         UASSERT(width > 0, "Width must be positive");
         // Find or create the right sized packed type
-        const DfgDataType*& entryr = s_packedTypes[width];
-        if (!entryr) entryr = new DfgDataType{width};
-        return *entryr;
+        സ്ഥിരം DfgDataType*& entryr = s_packedTypes[width];
+        എങ്കിൽ (!entryr) entryr = new DfgDataType{width};
+        തിരികെ *entryr;
     }
 
     // Returns an Array type of the given size with the given elements
-    static const DfgDataType& array(const DfgDataType& elemType, uint32_t size) {
+    സ്ഥിതം സ്ഥിരം DfgDataType& array(സ്ഥിരം DfgDataType& elemType, uint32_t size) {
         UASSERT(elemType.isPacked(), "Cannot create multi-dimensional arrays yet");
         // Find or create the right sized array type with this as elements
-        const DfgDataType*& entryr = elemType.m_arrayTypes[size];
-        if (!entryr) entryr = new DfgDataType{size, elemType};
-        return *entryr;
+        സ്ഥിരം DfgDataType*& entryr = elemType.m_arrayTypes[size];
+        എങ്കിൽ (!entryr) entryr = new DfgDataType{size, elemType};
+        തിരികെ *entryr;
     }
 
     // Returns the singleton Null type
-    static const DfgDataType& null() {
-        if (!s_nullTypep) s_nullTypep = new DfgDataType{};
-        return *s_nullTypep;
+    സ്ഥിതം സ്ഥിരം DfgDataType& null() {
+        എങ്കിൽ (!s_nullTypep) s_nullTypep = new DfgDataType{};
+        തിരികെ *s_nullTypep;
     }
 
     // Returns the data type of selecting the range [lo + size - 1 : lo] from this type
-    static const DfgDataType& select(const DfgDataType& dtype, uint32_t lo, uint32_t size) {
-        switch (dtype.m_kind) {
-        case Kind::Packed: {
+    സ്ഥിതം സ്ഥിരം DfgDataType& select(സ്ഥിരം DfgDataType& dtype, uint32_t lo, uint32_t size) {
+        തിരഞ്ഞെടുപ്പ് (dtype.m_kind) {
+        അവസ്ഥ Kind::Packed: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::packed(size);
+            തിരികെ DfgDataType::packed(size);
         }
-        case Kind::Array: {
+        അവസ്ഥ Kind::Array: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::array(dtype.elemDtype(), size);
+            തിരികെ DfgDataType::array(dtype.elemDtype(), size);
         }
-        case Kind::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
+        അവസ്ഥ Kind::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
         }
         VL_UNREACHABLE;
     }
 
     // Construct a DfgDataType that represents the given AstNodeDType.
     // Returns nullptr if AstNodeDType is not representable by DfgDataType.
-    static const DfgDataType* fromAst(const AstNodeDType* dtypep) {
+    സ്ഥിതം സ്ഥിരം DfgDataType* fromAst(സ്ഥിരം Ast_കണ്ണി_DType* dtypep) {
         dtypep = dtypep->skipRefp();
 
-        if (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {
+        എങ്കിൽ (സ്ഥിരം AstUnpackArrayDType* സ്ഥിരം typep = VN_CAST(dtypep, UnpackArrayDType)) {
             // Convert the element type
-            const DfgDataType* const elemp = fromAst(typep->subDTypep());
+            സ്ഥിരം DfgDataType* സ്ഥിരം elemp = fromAst(typep->subDTypep());
             // If element type is not supported, we cannot handle the array either
-            if (!elemp) return nullptr;
+            എങ്കിൽ (!elemp) തിരികെ nullptr;
             // Currently restricted to 1-dimensional arrays, just assumptions in the code
-            if (elemp->isArray()) return nullptr;
+            എങ്കിൽ (elemp->isArray()) തിരികെ nullptr;
             // Unpacked array maps to Array
-            return &array(*elemp, typep->elementsConst());
+            തിരികെ &array(*elemp, typep->elementsConst());
         }
 
-        if (const AstPackArrayDType* const typep = VN_CAST(dtypep, PackArrayDType)) {
+        എങ്കിൽ (സ്ഥിരം AstPackArrayDType* സ്ഥിരം typep = VN_CAST(dtypep, PackArrayDType)) {
             // Packed array maps to Packed
-            return &packed(typep->width());
+            തിരികെ &packed(typep->width());
         }
 
-        if (const AstStructDType* const typep = VN_CAST(dtypep, StructDType)) {
+        എങ്കിൽ (സ്ഥിരം AstStructDType* സ്ഥിരം typep = VN_CAST(dtypep, StructDType)) {
             // Unpacked structs currently not supported
-            if (!typep->packed()) return nullptr;
+            എങ്കിൽ (!typep->packed()) തിരികെ nullptr;
             // Packed struct maps to Packed
-            return &packed(typep->width());
+            തിരികെ &packed(typep->width());
         }
 
-        if (const AstUnionDType* const typep = VN_CAST(dtypep, UnionDType)) {
+        എങ്കിൽ (സ്ഥിരം AstUnionDType* സ്ഥിരം typep = VN_CAST(dtypep, UnionDType)) {
             // Unpacked unions not supported
-            if (!typep->packed()) return nullptr;
+            എങ്കിൽ (!typep->packed()) തിരികെ nullptr;
             // Packed union maps to Packed
-            return &packed(typep->width());
+            തിരികെ &packed(typep->width());
         }
 
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
+        എങ്കിൽ (സ്ഥിരം AstBasicDType* സ്ഥിരം typep = VN_CAST(dtypep, BasicDType)) {
             // Anything not resembling a binary encoded number is not supported
-            if (!typep->keyword().isIntNumeric()) return nullptr;
+            എങ്കിൽ (!typep->keyword().isIntNumeric()) തിരികെ nullptr;
             // Basic numeric types map to Packed
-            return &packed(typep->width());
+            തിരികെ &packed(typep->width());
         }
 
         // Anything else is not representable
-        return nullptr;
+        തിരികെ nullptr;
     }
 
     // Reset interned types
-    static void reset() {
-        for (const auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+    സ്ഥിതം ശൂന്യം reset() {
+        വേണ്ടി (സ്ഥിരം auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
         s_packedTypes.clear();
         delete s_nullTypep;
         s_nullTypep = nullptr;

@@ -14,43 +14,43 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#അന്തര്ഭാവ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCFunc.h"
-#include "V3ThreadPool.h"
-#include "V3UniqueNames.h"
+#അന്തര്ഭാവ "V3EmitC.h"
+#അന്തര്ഭാവ "V3EmitCFunc.h"
+#അന്തര്ഭാവ "V3ThreadPool.h"
+#അന്തര്ഭാവ "V3UniqueNames.h"
 
-#include <algorithm>
-#include <map>
-#include <set>
-#include <tuple>
-#include <vector>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <map>
+#അന്തര്ഭാവ <set>
+#അന്തര്ഭാവ <tuple>
+#അന്തര്ഭാവ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Internal EmitC implementation
 
-class EmitCImp final : public EmitCFunc {
+വർഗ്ഗം EmitCImp final : പൊതു EmitCFunc {
     // MEMBERS
     // Base module (For non-classes, same as m_modp. For classes, it's the ClassPackage.)
-    const AstNodeModule* const m_fileModp;
-    const bool m_slow;  // Creating __Slow file
+    സ്ഥിരം Ast_കണ്ണി_Module* സ്ഥിരം m_fileModp;
+    സ്ഥിരം തർക്കം m_slow;  // Creating __Slow file
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::prefixNameProtect(m_fileModp);
+    സ്ഥിരം std::string m_fileBaseName = EmitCUtil::prefixNameProtect(m_fileModp);
     TextStmts m_ctorStmts;  // Statements constructing members in 'ctor'
     TextStmts m_dtorStmts;  // Statements destroying members in 'dtor'
     std::string m_ctorSplitDecl;  // Declaration of sub-function 'ctor' was split into, if any
     std::string m_dtorSplitDecl;  // Declaration of sub-function 'dtor' was split into, if any
 
     // METHODS
-    void openNextOutputFile(const std::string& fileName) {
-        openNewOutputSourceFile(fileName, m_slow, false, "Design implementation internals");
+    ശൂന്യം openNextOutputFile(സ്ഥിരം std::string& fileName) {
+        openNewOutputSourceFile(fileName, m_slow, അസത്യം, "Design implementation internals");
         emitFileHeader();
     }
-    void emitFileHeader() {
-        puts("// See " + EmitCUtil::topClassName() + ".h for the primary calling header\n");
+    ശൂന്യം emitFileHeader() {
+        puts("// See " + EmitCUtil::മുകൾ_Class_Name() + ".h for the primary calling header\n");
         puts("\n");
         puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
         emitSystemCSection(m_fileModp, VSystemCSectionType::IMP_HDR);
@@ -58,66 +58,66 @@ class EmitCImp final : public EmitCFunc {
         m_lazyDecls.reset();
     }
 
-    void emitParamDefns(const AstNodeModule* modp) {
-        bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isParam()) {
-                    if (first) {
+    ശൂന്യം emitParamDefns(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
+        തർക്കം first = സത്യം;
+        വേണ്ടി (സ്ഥിരം Ast_കണ്ണി* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            എങ്കിൽ (സ്ഥിരം AstVar* സ്ഥിരം varp = VN_CAST(nodep, Var)) {
+                എങ്കിൽ (varp->isParam()) {
+                    എങ്കിൽ (first) {
                         puts("\n");
-                        const string modName = EmitCUtil::prefixNameProtect(modp);
+                        സ്ഥിരം string modName = EmitCUtil::prefixNameProtect(modp);
                         putsDecoration(modp, "// Parameter definitions for " + modName + "\n");
-                        first = false;
+                        first = അസത്യം;
                     }
-                    if (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
+                    എങ്കിൽ (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
                     putns(varp, "const ");
                     emitVarDefn(varp);
                     puts(";\n");
                 }
             }
         }
-        if (!first) puts("\n");
+        എങ്കിൽ (!first) puts("\n");
     }
     // Add statements explicitly constructing, or destroying, a member AstVar
-    static void addVarCtorDtorStmts(TextStmts& stmts, const AstVar* varp, bool destroy) {
-        const std::string name = "vlSelf->" + varName(varp);
+    സ്ഥിതം ശൂന്യം addVarCtorDtorStmts(TextStmts& stmts, സ്ഥിരം AstVar* varp, തർക്കം destroy) {
+        സ്ഥിരം std::string name = "vlSelf->" + varName(varp);
 
         // SystemC port arrays are C arrays, so construct them element by element. They are
         // default constructed (unnamed), as the elements of an array member would be.
-        if (varp->isSc() && VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+        എങ്കിൽ (varp->isSc() && VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
             std::vector<std::string> elems{name};
-            for (const AstUnpackArrayDType* adtypep
+            വേണ്ടി (സ്ഥിരം AstUnpackArrayDType* adtypep
                  = VN_CAST(varp->dtypeSkipRefp(), UnpackArrayDType);
                  adtypep; adtypep = VN_CAST(adtypep->subDTypep()->skipRefp(), UnpackArrayDType)) {
                 std::vector<std::string> subElems;
-                for (const std::string& elem : elems) {
-                    for (int i = 0; i < adtypep->elementsConst(); ++i) {
-                        subElems.push_back(elem + "[" + std::to_string(i) + "]");
+                വേണ്ടി (സ്ഥിരം std::string& elem : elems) {
+                    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < adtypep->elementsConst(); ++i) {
+                        subElems.തള്ളുക_back(elem + "[" + std::to_string(i) + "]");
                     }
                 }
                 elems = std::move(subElems);
             }
-            if (destroy) std::reverse(elems.begin(), elems.end());
-            for (const std::string& e : elems) {
+            എങ്കിൽ (destroy) std::reverse(elems.begin(), elems.end());
+            വേണ്ടി (സ്ഥിരം std::string& e : elems) {
                 stmts.add((destroy ? "VL_INPLACE_DESTRUCT(" : "VL_INPLACE_CONSTRUCT(") + e + ");");
             }
-            return;
+            തിരികെ;
         }
 
         // Other variables are constructed whole, even if aggregates
-        if (destroy) {
+        എങ്കിൽ (destroy) {
             stmts.add("VL_INPLACE_DESTRUCT(" + name + ");");
-            return;
+            തിരികെ;
         }
-        const AstBasicDType* const basicp = VN_CAST(varp->dtypeSkipRefp(), BasicDType);
+        സ്ഥിരം AstBasicDType* സ്ഥിരം basicp = VN_CAST(varp->dtypeSkipRefp(), BasicDType);
         std::string args;
-        if (varp->isSc()) {
+        എങ്കിൽ (varp->isSc()) {
             // SystemC ports need their name
             args = ", \"" + V3OutFormatter::quoteNameControls(varp->nameProtect()) + "\"";
-        } else if (basicp && basicp->keyword().isMTaskState()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (basicp && basicp->keyword().isMTaskState()) {
             // MTask state needs the number of upstream dependencies to wait for
-            args = ", " + VN_AS(varp->valuep(), Const)->num().emitC();
-        } else if (basicp && basicp->isDelayScheduler()) {
+            args = ", " + VN_AS(varp->valuep(), Const)->അക്കം().emitC();
+        } അല്ലെങ്കിൽ എങ്കിൽ (basicp && basicp->isDelayScheduler()) {
             // Delay scheduler needs the context pointer
             args = ", *vlSelf->vlSymsp->_vm_contextp__";
         }
@@ -125,53 +125,53 @@ class EmitCImp final : public EmitCFunc {
     }
     // Gather the statements constructing/destroying members in anonymous unions, and split
     // them into sub-functions if needed. As this emits files, no output file can be open.
-    void createCtorDtorStmts(const AstNodeModule* modp) {
+    ശൂന്യം createCtorDtorStmts(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
         // Construct member variables
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (varp && isExplicitlyConstructed(varp)) {
-                addVarCtorDtorStmts(m_ctorStmts, varp, false);
+        വേണ്ടി (സ്ഥിരം Ast_കണ്ണി* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            സ്ഥിരം AstVar* സ്ഥിരം varp = VN_CAST(nodep, Var);
+            എങ്കിൽ (varp && isExplicitlyConstructed(varp)) {
+                addVarCtorDtorStmts(m_ctorStmts, varp, അസത്യം);
             }
         }
 
         // Destroy in reverse order
-        const AstNode* const lastp = modp->stmtsp() ? modp->stmtsp()->lastp() : nullptr;
-        for (const AstNode* nodep = lastp; nodep; nodep = nodep->prevp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (varp && isExplicitlyConstructed(varp)) {
-                addVarCtorDtorStmts(m_dtorStmts, varp, true);
+        സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം lastp = modp->stmtsp() ? modp->stmtsp()->lastp() : nullptr;
+        വേണ്ടി (സ്ഥിരം Ast_കണ്ണി* nodep = lastp; nodep; nodep = nodep->prevp()) {
+            സ്ഥിരം AstVar* സ്ഥിരം varp = VN_CAST(nodep, Var);
+            എങ്കിൽ (varp && isExplicitlyConstructed(varp)) {
+                addVarCtorDtorStmts(m_dtorStmts, varp, സത്യം);
             }
         }
 
         // Split into sub-functions if needed
-        const std::string modName = EmitCUtil::prefixNameProtect(modp);
+        സ്ഥിരം std::string modName = EmitCUtil::prefixNameProtect(modp);
         std::tie(m_ctorSplitDecl, m_dtorSplitDecl) = emitSplitCtorDtor(
-            m_ctorStmts, m_dtorStmts, 0, modName, modName + "* vlSelf", "vlSelf", false,
-            "Design implementation internals", [this]() { emitFileHeader(); });
+            m_ctorStmts, m_dtorStmts, 0, modName, modName + "* vlSelf", "vlSelf", അസത്യം,
+            "Design implementation internals", [ഇത്]() { emitFileHeader(); });
     }
-    void emitCtorDtorImp(const AstNodeModule* modp) {
-        const std::string modName = EmitCUtil::prefixNameProtect(modp);
+    ശൂന്യം emitCtorDtorImp(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
+        സ്ഥിരം std::string modName = EmitCUtil::prefixNameProtect(modp);
 
         // ctor
-        if (modp->ctorVarReset()) {
+        എങ്കിൽ (modp->ctorVarReset()) {
             m_lazyDecls.emit("\nvoid " + modName + "__", protect("_ctor_var_reset"),
                              "(" + modName + "* vlSelf);\n");
         }
 
-        if (!m_ctorSplitDecl.empty()) puts("\n" + m_ctorSplitDecl + "\n");
+        എങ്കിൽ (!m_ctorSplitDecl.empty()) puts("\n" + m_ctorSplitDecl + "\n");
         puts("\nvoid " + modName + "__ctor(" + modName + "* vlSelf, " + EmitCUtil::symClassName()
              + "* symsp, const char* namep) {\n");
         puts("vlSelf->vlSymsp = symsp;\n");
-        if (modp->isTop()) {
+        എങ്കിൽ (modp->is_മുകൾ()) {
             puts("vlSelf->vlNamep = strdup(namep);\n");
-        } else {
+        } അല്ലെങ്കിൽ {
             puts("vlSelf->vlNamep = strdup(Verilated::catName(symsp->name(), namep));\n");
         }
         putsDecoration(modp, "// Construct members\n");
-        for (const TextStmts::Stmt& stmt : m_ctorStmts) puts(stmt.m_text + "\n");
+        വേണ്ടി (സ്ഥിരം TextStmts::Stmt& stmt : m_ctorStmts) puts(stmt.m_text + "\n");
 
         putsDecoration(modp, "// Reset structure values\n");
-        if (modp->ctorVarReset()) {
+        എങ്കിൽ (modp->ctorVarReset()) {
             puts(modName + "__" + protect("_ctor_var_reset") + "(vlSelf);\n");
         }
         puts("}\n");
@@ -184,10 +184,10 @@ class EmitCImp final : public EmitCFunc {
         puts("}\n");
 
         // dtor
-        if (!m_dtorSplitDecl.empty()) puts("\n" + m_dtorSplitDecl + "\n");
+        എങ്കിൽ (!m_dtorSplitDecl.empty()) puts("\n" + m_dtorSplitDecl + "\n");
         puts("\nvoid " + modName + "__dtor(" + modName + "* vlSelf) {\n");
         putsDecoration(modp, "// Destroy members\n");
-        for (const TextStmts::Stmt& stmt : m_dtorStmts) puts(stmt.m_text + "\n");
+        വേണ്ടി (സ്ഥിരം TextStmts::Stmt& stmt : m_dtorStmts) puts(stmt.m_text + "\n");
         puts("VL_DO_DANGLING(std::free(const_cast<char*>(vlSelf->vlNamep)), "
              "vlSelf->vlNamep);\n");
         puts("}\n");
@@ -199,27 +199,27 @@ class EmitCImp final : public EmitCFunc {
         puts("}\n");
     }
 
-    void emitConfigureImp(const AstNodeModule* modp) {
-        const string modName = EmitCUtil::prefixNameProtect(modp);
+    ശൂന്യം emitConfigureImp(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
+        സ്ഥിരം string modName = EmitCUtil::prefixNameProtect(modp);
 
-        if (v3Global.opt.coverage()) {
+        എങ്കിൽ (v3Global.opt.coverage()) {
             puts("\n");
             m_lazyDecls.emit("void " + modName + "__", protect("_configure_coverage"),
                              "(" + modName + "* vlSelf, bool first);");
         }
 
-        if (v3Global.opt.coverage()) {
+        എങ്കിൽ (v3Global.opt.coverage()) {
             puts("\nvoid " + modName + "::" + protect("__Vconfigure") + "(bool first) {\n");
             puts("(void)first;  // Prevent unused variable warning\n");
             puts(modName + "__" + protect("_configure_coverage") + "(this, first);\n");
             puts("}\n");
         }
     }
-    void emitCoverageImp() {
+    ശൂന്യം emitCoverageImp() {
         // Rather than putting out VL_COVER_INSERT calls directly, we do it via this
         // function. This gets around gcc slowness constructing all of the template
         // arguments.
-        if (v3Global.opt.coverage()) {
+        എങ്കിൽ (v3Global.opt.coverage()) {
             puts("\n// Coverage\n");
             puts("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverInsert(");
             puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
@@ -229,10 +229,10 @@ class EmitCImp final : public EmitCFunc {
                  "linescovp,\n");
             puts("const char* fsmVarp, const char* fsmFromp, const char* fsmTop, const char* "
                  "fsmTagp) {\n");
-            if (v3Global.opt.threads() > 1) {
+            എങ്കിൽ (v3Global.opt.threads() > 1) {
                 puts("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
                 puts("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
-            } else {
+            } അല്ലെങ്കിൽ {
                 puts("uint32_t* count32p = countp;\n");
             }
             // static doesn't need save-restore as is constant
@@ -259,7 +259,7 @@ class EmitCImp final : public EmitCFunc {
             puts("  (fsmTagp[0] ? \"fsm_tag\" : \"\"), fsmTagp);\n");
             puts("}\n");
         }
-        if (v3Global.opt.coverageToggle()) {
+        എങ്കിൽ (v3Global.opt.coverageToggle()) {
             puts("\n// Toggle Coverage\n");
             puts("void " + EmitCUtil::prefixNameProtect(m_modp) + "::__vlCoverToggleInsert(");
             puts("int begin, int end, bool ranged, ");
@@ -267,16 +267,16 @@ class EmitCImp final : public EmitCFunc {
             puts("* countp, bool enable, bool localCounter, const char* filenamep, int lineno, "
                  "int column,\n");
             puts("const char* hierp, const char* pagep, const char* commentp) {\n");
-            if (v3Global.opt.threads() > 1) {
+            എങ്കിൽ (v3Global.opt.threads() > 1) {
                 puts("assert(sizeof(uint32_t) == sizeof(std::atomic<uint32_t>));\n");
             }
             puts("int step = (end >= begin) ? 1 : -1;\n");
             // range is inclusive
             puts("for (int i = begin; i != end + step; i += step) {\n");
             puts("for (int j = 0; j < 2; j++) {\n");
-            if (v3Global.opt.threads() > 1) {
+            എങ്കിൽ (v3Global.opt.threads() > 1) {
                 puts("uint32_t* count32p = reinterpret_cast<uint32_t*>(countp);\n");
-            } else {
+            } അല്ലെങ്കിൽ {
                 puts("uint32_t* count32p = countp;\n");
             }
             // static doesn't need save-restore as is constant
@@ -307,13 +307,13 @@ class EmitCImp final : public EmitCFunc {
             puts("}\n");
         }
     }
-    void emitSavableImp(const AstNodeModule* modp) {
-        if (v3Global.opt.savable()) {
+    ശൂന്യം emitSavableImp(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
+        എങ്കിൽ (v3Global.opt.savable()) {
             puts("\n// Savable\n");
-            for (int de = 0; de < 2; ++de) {
-                const string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
-                const string funcname = de ? "__Vdeserialize" : "__Vserialize";
-                const string op = de ? ">>" : "<<";
+            വേണ്ടി (പൂർണ്ണസംഖ്യ de = 0; de < 2; ++de) {
+                സ്ഥിരം string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
+                സ്ഥിരം string funcname = de ? "__Vdeserialize" : "__Vserialize";
+                സ്ഥിരം string op = de ? ">>" : "<<";
                 // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
                 putns(modp, "void " + EmitCUtil::prefixNameProtect(modp) + "::" + protect(funcname)
                                 + "(" + classname + "& os) {\n");
@@ -321,17 +321,17 @@ class EmitCImp final : public EmitCFunc {
                 // OK if this hash includes some things we won't dump, since
                 // just looking for loading the wrong model
                 VHashSha512 hash;
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                    if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                        hash.insert(varp->name());
-                        hash.insert(varp->dtypep()->width());
+                വേണ്ടി (Ast_കണ്ണി* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                    എങ്കിൽ (സ്ഥിരം AstVar* സ്ഥിരം varp = VN_CAST(nodep, Var)) {
+                        hash.തിരുകുക(varp->name());
+                        hash.തിരുകുക(varp->dtypep()->width());
                     }
                 }
                 ofp()->printf("uint64_t __Vcheckval = 0x%" PRIx64 "ULL;\n",
                               static_cast<uint64_t>(hash.digestUInt64()));
-                if (de) {
+                എങ്കിൽ (de) {
                     puts("os.readAssert(__Vcheckval);\n");
-                } else {
+                } അല്ലെങ്കിൽ {
                     puts("os << __Vcheckval;\n");
                 }
 
@@ -342,44 +342,44 @@ class EmitCImp final : public EmitCFunc {
                 puts("os " + op + " vlSymsp->_vm_contextp__;\n");
 
                 // Save all members
-                for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                    if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                        if (varp->isIO() && modp->isTop() && optSystemC()) {
+                വേണ്ടി (Ast_കണ്ണി* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                    എങ്കിൽ (സ്ഥിരം AstVar* സ്ഥിരം varp = VN_CAST(nodep, Var)) {
+                        എങ്കിൽ (varp->isIO() && modp->is_മുകൾ() && optSystemC()) {
                             // System C top I/O doesn't need loading, as the
                             // lower level subinst code does it.
-                        } else if (varp->isParam()) {
-                        } else if (VN_IS(varp->dtypep(), NBACommitQueueDType)) {
-                        } else {
-                            int vects = 0;
-                            AstNodeDType* elementp = varp->dtypeSkipRefp();
-                            for (AstUnpackArrayDType* arrayp = VN_CAST(elementp, UnpackArrayDType);
+                        } അല്ലെങ്കിൽ എങ്കിൽ (varp->isParam()) {
+                        } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(varp->dtypep(), NBACommitQueueDType)) {
+                        } അല്ലെങ്കിൽ {
+                            പൂർണ്ണസംഖ്യ vects = 0;
+                            Ast_കണ്ണി_DType* elementp = varp->dtypeSkipRefp();
+                            വേണ്ടി (AstUnpackArrayDType* arrayp = VN_CAST(elementp, UnpackArrayDType);
                                  arrayp; arrayp = VN_CAST(elementp, UnpackArrayDType)) {
-                                const int vecnum = vects++;
+                                സ്ഥിരം പൂർണ്ണസംഖ്യ vecnum = vects++;
                                 UASSERT_OBJ(arrayp->hi() >= arrayp->lo(), varp,
                                             "Should have swapped msb & lsb earlier.");
-                                const string ivar = "__Vi"s + cvtToStr(vecnum);
+                                സ്ഥിരം string ivar = "__Vi"s + cvtToStr(vecnum);
                                 puts("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
                                 puts("; " + ivar + " < " + cvtToStr(arrayp->elementsConst()));
                                 puts("; ++" + ivar + ") {\n");
                                 elementp = arrayp->subDTypep()->skipRefp();
                             }
-                            const AstBasicDType* const basicp = elementp->basicp();
+                            സ്ഥിരം AstBasicDType* സ്ഥിരം basicp = elementp->basicp();
                             // Do not save MTask state, only matters within an evaluation
-                            if (basicp && basicp->keyword().isMTaskState()) continue;
+                            എങ്കിൽ (basicp && basicp->keyword().isMTaskState()) തുടരുക;
                             // Want to detect types that are represented as arrays
                             // (i.e. packed types of more than 64 bits).
-                            if (elementp->isWide()
+                            എങ്കിൽ (elementp->isWide()
                                 && !(basicp && basicp->keyword() == VBasicDTypeKwd::STRING)) {
-                                const int vecnum = vects++;
-                                const string ivar = "__Vi"s + cvtToStr(vecnum);
+                                സ്ഥിരം പൂർണ്ണസംഖ്യ vecnum = vects++;
+                                സ്ഥിരം string ivar = "__Vi"s + cvtToStr(vecnum);
                                 puts("for (int __Vi" + cvtToStr(vecnum) + " = " + cvtToStr(0));
-                                puts("; " + ivar + " < " + cvtToStr(elementp->widthWords()));
+                                puts("; " + ivar + " < " + cvtToStr(elementp->width_വാക്കുകൾ()));
                                 puts("; ++" + ivar + ") {\n");
                             }
                             putns(varp, "os" + op + varName(varp));
-                            for (int v = 0; v < vects; ++v) puts("[__Vi" + cvtToStr(v) + "]");
+                            വേണ്ടി (പൂർണ്ണസംഖ്യ v = 0; v < vects; ++v) puts("[__Vi" + cvtToStr(v) + "]");
                             puts(";\n");
-                            for (int v = 0; v < vects; ++v) puts("}\n");
+                            വേണ്ടി (പൂർണ്ണസംഖ്യ v = 0; v < vects; ++v) puts("}\n");
                         }
                     }
                 }
@@ -390,46 +390,46 @@ class EmitCImp final : public EmitCFunc {
     }
     // Predicate to check if we actually need to emit anything into the common implementation file.
     // Used to avoid creating empty output files.
-    bool hasCommonImp(const AstNodeModule* modp) const {
+    തർക്കം hasCommonImp(സ്ഥിരം Ast_കണ്ണി_Module* modp) സ്ഥിരം {
         // Nothing to emit if no module!
-        if (!modp) return false;
+        എങ്കിൽ (!modp) തിരികെ അസത്യം;
         // We always need the slow file
-        if (m_slow) return true;
+        എങ്കിൽ (m_slow) തിരികെ സത്യം;
         // The fast file is only required when we have `systemc_implementation nodes
-        for (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
+        വേണ്ടി (സ്ഥിരം AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
              scSectionp = VN_AS(scSectionp->nextp(), SystemCSection)) {
-            if (scSectionp->sectionType() == VSystemCSectionType::IMP) return true;
+            എങ്കിൽ (scSectionp->sectionType() == VSystemCSectionType::IMP) തിരികെ സത്യം;
         }
-        return false;
+        തിരികെ അസത്യം;
     }
     // Actually emit common implementation contents for given AstNodeModule
-    void doCommonImp(const AstNodeModule* modp) {
-        if (m_slow) {
-            if (!VN_IS(modp, Class)) {
+    ശൂന്യം doCommonImp(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
+        എങ്കിൽ (m_slow) {
+            എങ്കിൽ (!VN_IS(modp, Class)) {
                 emitParamDefns(modp);
                 emitCtorDtorImp(modp);
                 emitConfigureImp(modp);
                 emitCoverageImp();
             }
             emitSavableImp(modp);
-        } else {
+        } അല്ലെങ്കിൽ {
             // From `systemc_implementation
             emitSystemCSection(modp, VSystemCSectionType::IMP);
         }
     }
-    void emitCommonImp(const AstNodeModule* modp) {
-        const AstClass* const classp
+    ശൂന്യം emitCommonImp(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
+        സ്ഥിരം AstClass* സ്ഥിരം classp
             = VN_IS(modp, ClassPackage) ? VN_AS(modp, ClassPackage)->classp() : nullptr;
 
-        if (hasCommonImp(modp) || hasCommonImp(classp)) {
+        എങ്കിൽ (hasCommonImp(modp) || hasCommonImp(classp)) {
             // Create ctor/dtor statements. If these need splitting, they will be emitted
             // during construction so do this before opening the output file.
-            if (m_slow && !VN_IS(modp, Class)) createCtorDtorStmts(modp);
+            എങ്കിൽ (m_slow && !VN_IS(modp, Class)) createCtorDtorStmts(modp);
 
             openNextOutputFile(m_fileBaseName);
 
             doCommonImp(modp);
-            if (classp) {
+            എങ്കിൽ (classp) {
                 VL_RESTORER(m_modp);
                 m_modp = classp;
                 doCommonImp(classp);
@@ -438,37 +438,37 @@ class EmitCImp final : public EmitCFunc {
             closeOutputFile();
         }
     }
-    void emitCFuncImp(const AstNodeModule* modp) {
+    ശൂന്യം emitCFuncImp(സ്ഥിരം Ast_കണ്ണി_Module* modp) {
         // Functions to be emitted here
         std::vector<AstCFunc*> funcps;
 
-        const auto gather = [this, &funcps](const AstNodeModule* modp) {
-            for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                AstCFunc* const funcp = VN_CAST(nodep, CFunc);
-                if (!funcp) continue;
+        സ്ഥിരം auto gather = [ഇത്, &funcps](സ്ഥിരം Ast_കണ്ണി_Module* modp) {
+            വേണ്ടി (Ast_കണ്ണി* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                AstCFunc* സ്ഥിരം funcp = VN_CAST(nodep, CFunc);
+                എങ്കിൽ (!funcp) തുടരുക;
                 // TRACE_* and DPI handled elsewhere
-                if (funcp->isTrace()) continue;
-                if (funcp->dpiImportPrototype()) continue;
-                if (funcp->dpiExportDispatcher()) continue;
-                if (funcp->slow() != m_slow) continue;
-                funcps.push_back(funcp);
+                എങ്കിൽ (funcp->isTrace()) തുടരുക;
+                എങ്കിൽ (funcp->dpiImportPrototype()) തുടരുക;
+                എങ്കിൽ (funcp->dpiExportDispatcher()) തുടരുക;
+                എങ്കിൽ (funcp->slow() != m_slow) തുടരുക;
+                funcps.തള്ളുക_back(funcp);
             }
         };
 
         gather(modp);
         VL_RESTORER(m_classOrPackage);
-        if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
+        എങ്കിൽ (സ്ഥിരം AstClassPackage* സ്ഥിരം packagep = VN_CAST(modp, ClassPackage)) {
             m_classOrPackage = packagep;
             gather(packagep->classp());
         }
 
         // Do not create empty files
-        if (funcps.empty()) return;
+        എങ്കിൽ (funcps.empty()) തിരികെ;
 
         // Open output file
         openNextOutputFile(m_uniqueNames.get(m_fileBaseName));
         // Emit all functions
-        for (AstCFunc* const funcp : funcps) {
+        വേണ്ടി (AstCFunc* സ്ഥിരം funcp : funcps) {
             VL_RESTORER(m_modp);
             m_modp = EmitCParentModule::get(funcp);
             iterateConst(funcp);
@@ -478,10 +478,10 @@ class EmitCImp final : public EmitCFunc {
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
-        if (splitNeeded()) {
+    ശൂന്യം visit(AstCFunc* nodep) override {
+        എങ്കിൽ (splitNeeded()) {
             // Splitting file, so using parallel build.
-            v3Global.useParallelBuild(true);
+            v3Global.useParallelBuild(സത്യം);
             // Close old file
             closeOutputFile();
             // Open a new file
@@ -491,7 +491,7 @@ class EmitCImp final : public EmitCFunc {
         EmitCFunc::visit(nodep);
     }
 
-    explicit EmitCImp(const AstNodeModule* modp, bool slow)
+    explicit EmitCImp(സ്ഥിരം Ast_കണ്ണി_Module* modp, തർക്കം slow)
         : m_fileModp{modp}
         , m_slow{slow} {
         UINFO(5, "  Emitting implementation of " << EmitCUtil::prefixNameProtect(modp));
@@ -509,12 +509,12 @@ class EmitCImp final : public EmitCFunc {
         // Emit implementations of all AstCFunc
         emitCFuncImp(modp);
     }
-    ~EmitCImp() override = default;
+    ~EmitCImp() override = സ്ഥിരസ്ഥിതി;
 
-public:
-    static std::vector<AstCFile*> main(const AstNodeModule* modp, bool slow) VL_MT_STABLE {
+പൊതു:
+    സ്ഥിതം std::vector<AstCFile*> പ്രധാന(സ്ഥിരം Ast_കണ്ണി_Module* modp, തർക്കം slow) VL_MT_STABLE {
         EmitCImp emitCImp{modp, slow};
-        return emitCImp.getAndClearCfileps();
+        തിരികെ emitCImp.getAndClearCfileps();
     }
 };
 
@@ -523,26 +523,26 @@ public:
 
 // Trace type descriptors go in a different file as it needs to be written in
 // parallel with the actual trace function source files
-class EmitCTraceTypes final : public EmitCFunc {
+വർഗ്ഗം EmitCTraceTypes final : പൊതു EmitCFunc {
     // NODE STATE/TYPES
     // None allowed to support threaded emitting
 
     // STATE
-    int m_enumNum = 0;  // Enumeration number (whole netlist)
-    std::unordered_map<AstNode*, int> m_enumNumMap;  // EnumDType to enumeration number
-    int m_traceTypeSubs = 0;  // Number of trace type declaration sub-functions
+    പൂർണ്ണസംഖ്യ m_enum_അക്കം = 0;  // Enumeration number (whole netlist)
+    std::unordered_map<Ast_കണ്ണി*, പൂർണ്ണസംഖ്യ> m_enum_അക്കം_Map;  // EnumDType to enumeration number
+    പൂർണ്ണസംഖ്യ m_traceTypeSubs = 0;  // Number of trace type declaration sub-functions
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "_" + protect("_TraceDecls");
+    സ്ഥിരം std::string m_fileBaseName = EmitCUtil::മുകൾ_Class_Name() + "_" + protect("_TraceDecls");
     // This one uses CSplitTrace for file splitting, which is incorrect but historically accurates
-    const size_t m_splitLimit = v3Global.opt.outputSplitCTrace()
+    സ്ഥിരം size_t m_splitLimit = v3Global.opt.outputSplitCTrace()
                                     ? static_cast<size_t>(v3Global.opt.outputSplitCTrace())
                                     : std::numeric_limits<size_t>::max();
 
-    void openNextOutputFile() {
-        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), true, true,
+    ശൂന്യം openNextOutputFile() {
+        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), സത്യം, സത്യം,
                                 "Tracing declarations");
         puts("\n");
-        for (const std::string& base : v3Global.opt.traceSourceLangs()) {
+        വേണ്ടി (സ്ഥിരം std::string& base : v3Global.opt.traceSourceLangs()) {
             puts("#include \"" + base + ".h\"\n");
         }
         puts("\n");
@@ -551,66 +551,66 @@ class EmitCTraceTypes final : public EmitCFunc {
              + v3Global.opt.traceClassBase() + "* tracep) {\n");
     }
 
-public:
+പൊതു:
     // METHODS
-    int getEnumMapNum(AstEnumDType* nodep) {
-        int& enumNumr = m_enumNumMap[nodep];
-        if (!enumNumr) {
-            if (splitNeeded(m_splitLimit)) {
+    പൂർണ്ണസംഖ്യ get_Enum_Map_അക്കം(AstEnumDType* nodep) {
+        പൂർണ്ണസംഖ്യ& enumNumr = m_enum_അക്കം_Map[nodep];
+        എങ്കിൽ (!enumNumr) {
+            എങ്കിൽ (splitNeeded(m_splitLimit)) {
                 // Splitting file, so using parallel build.
-                v3Global.useParallelBuild(true);
+                v3Global.useParallelBuild(സത്യം);
                 puts("}\n");
                 closeOutputFile();
                 openNextOutputFile();
             }
 
-            enumNumr = ++m_enumNum;
-            int nvals = 0;
+            enumNumr = ++m_enum_അക്കം;
+            പൂർണ്ണസംഖ്യ nvals = 0;
             puts("{\n");
             putns(nodep, "const char* " + protect("__VenumItemNames") + "[]\n");
             puts("= {");
-            for (AstEnumItem* itemp = nodep->itemsp(); itemp;
+            വേണ്ടി (AstEnumItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                if (++nvals > 1) puts(", ");
+                എങ്കിൽ (++nvals > 1) puts(", ");
                 putbs("\"" + itemp->prettyName() + "\"");
             }
             puts("};\n");
             nvals = 0;
             puts("const char* " + protect("__VenumItemValues") + "[]\n");
             puts("= {");
-            for (AstEnumItem* itemp = nodep->itemsp(); itemp;
+            വേണ്ടി (AstEnumItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                AstConst* const constp = VN_AS(itemp->valuep(), Const);
-                if (++nvals > 1) puts(", ");
-                putbs("\"" + constp->num().displayed(nodep, "%0b") + "\"");
+                AstConst* സ്ഥിരം constp = VN_AS(itemp->valuep(), Const);
+                എങ്കിൽ (++nvals > 1) puts(", ");
+                putbs("\"" + constp->അക്കം().displayed(nodep, "%0b") + "\"");
             }
             puts("};\n");
             puts("tracep->declDTypeEnum(" + std::to_string(enumNumr) + ", \"" + nodep->prettyName()
                  + "\", " + std::to_string(nvals) + ", " + std::to_string(nodep->widthMin()) + ", "
                  + protect("__VenumItemNames") + ", " + protect("__VenumItemValues") + ");\n");
             puts("}\n");
-            splitSizeInc(AstNode::INSTR_COUNT_CALL);
+            splitSizeInc(Ast_കണ്ണി::INSTR_എണ്ണം_CALL);
         }
-        return enumNumr;
+        തിരികെ enumNumr;
     }
 
     // Close output file
-    void finalize() {
+    ശൂന്യം finalize() {
         // Close function definition
         puts("}\n");
 
-        const std::string modName = EmitCUtil::prefixNameProtect(m_modp);
-        const std::string args = v3Global.opt.traceClassBase() + "* tracep";
+        സ്ഥിരം std::string modName = EmitCUtil::prefixNameProtect(m_modp);
+        സ്ഥിരം std::string args = v3Global.opt.traceClassBase() + "* tracep";
 
         // Forward declarations for subs in other files
-        for (int i = 0; i < m_traceTypeSubs - 1; ++i) {
+        വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < m_traceTypeSubs - 1; ++i) {
             puts("void " + modName + "__" + protect("traceDeclTypesSub" + std::to_string(i)) + "("
                  + args + ");\n");
         }
 
         // Create top level trace_decl_types function and call each sub-function
         puts("\nvoid " + modName + "__" + protect("trace_decl_types") + "(" + args + ") {\n");
-        for (int i = 0; i < m_traceTypeSubs; ++i) {
+        വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < m_traceTypeSubs; ++i) {
             puts(modName + "__" + protect("traceDeclTypesSub" + std::to_string(i))
                  + "(tracep);\n");
         }
@@ -620,28 +620,28 @@ public:
     }
 
     EmitCTraceTypes() {
-        m_modp = v3Global.rootp()->topModulep();
+        m_modp = v3Global.rootp()->മുകൾ_Modulep();
         openNextOutputFile();
     }
-    ~EmitCTraceTypes() override = default;
+    ~EmitCTraceTypes() override = സ്ഥിരസ്ഥിതി;
 };
 
-class EmitCTrace final : public EmitCFunc {
+വർഗ്ഗം EmitCTrace final : പൊതു EmitCFunc {
     // NODE STATE/TYPES
     // None allowed to support threaded emitting
 
     // MEMBERS
-    const bool m_slow;  // Making slow file
-    const std::unique_ptr<EmitCTraceTypes> m_emitTypesp{m_slow ? new EmitCTraceTypes{} : nullptr};
+    സ്ഥിരം തർക്കം m_slow;  // Making slow file
+    സ്ഥിരം std::unique_ptr<EmitCTraceTypes> m_emitTypesp{m_slow ? പുതിയ EmitCTraceTypes{} : nullptr};
     V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "_" + protect("_Trace");
+    സ്ഥിരം std::string m_fileBaseName = EmitCUtil::മുകൾ_Class_Name() + "_" + protect("_Trace");
 
     // METHODS
-    void openNextOutputFile() {
-        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), m_slow, true,
+    ശൂന്യം openNextOutputFile() {
+        openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), m_slow, സത്യം,
                                 "Tracing implementation internals");
         puts("\n");
-        for (const std::string& base : v3Global.opt.traceSourceLangs()) {
+        വേണ്ടി (സ്ഥിരം std::string& base : v3Global.opt.traceSourceLangs()) {
             puts("#include \"" + base + ".h\"\n");
         }
         puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
@@ -650,81 +650,81 @@ class EmitCTrace final : public EmitCFunc {
         m_lazyDecls.reset();
     }
 
-    bool emitTraceIsScBv(const AstTraceInc* nodep) {
-        const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
-        const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && varp->isScBv();
+    തർക്കം emitTraceIsScBv(സ്ഥിരം AstTraceInc* nodep) {
+        സ്ഥിരം AstVarRef* സ്ഥിരം varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
+        എങ്കിൽ (!varrefp) തിരികെ അസത്യം;
+        സ്ഥിരം AstVar* സ്ഥിരം varp = varrefp->varp();
+        തിരികെ varp->isSc() && varp->isScBv();
     }
 
-    bool emitTraceIsScBigUint(const AstTraceInc* nodep) {
-        const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
-        const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && varp->isScBigUint();
+    തർക്കം emitTraceIsScBigUint(സ്ഥിരം AstTraceInc* nodep) {
+        സ്ഥിരം AstVarRef* സ്ഥിരം varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
+        എങ്കിൽ (!varrefp) തിരികെ അസത്യം;
+        സ്ഥിരം AstVar* സ്ഥിരം varp = varrefp->varp();
+        തിരികെ varp->isSc() && varp->isScBigUint();
     }
 
-    bool emitTraceIsScUint(const AstTraceInc* nodep) {
-        const AstVarRef* const varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
-        if (!varrefp) return false;
-        const AstVar* const varp = varrefp->varp();
-        return varp->isSc() && (varp->isScUint() || varp->isScUintBool());
+    തർക്കം emitTraceIsScUint(സ്ഥിരം AstTraceInc* nodep) {
+        സ്ഥിരം AstVarRef* സ്ഥിരം varrefp = VN_CAST(nodep->declp()->valuep(), VarRef);
+        എങ്കിൽ (!varrefp) തിരികെ അസത്യം;
+        സ്ഥിരം AstVar* സ്ഥിരം varp = varrefp->varp();
+        തിരികെ varp->isSc() && (varp->isScUint() || varp->isScUintBool());
     }
 
-    void emitTraceInitOne(const AstTraceDecl* nodep, int enumNum) {
+    ശൂന്യം emitTraceInitOne(സ്ഥിരം AstTraceDecl* nodep, പൂർണ്ണസംഖ്യ enum_അക്കം) {
         std::string direction;
         direction = nodep->declDirection().traceSigDirection();
 
-        AstCCall* const callp = nodep->dtypeCallp();
-        if (callp) {
+        AstCCall* സ്ഥിരം callp = nodep->dtypeCallp();
+        എങ്കിൽ (callp) {
             callp->argTypes(callp->argTypes() + ", " + cvtToStr(nodep->fidx()) + ", c+"
                             + cvtToStr(nodep->code()) + ", " + direction);
-            return;
+            തിരികെ;
         }
 
-        if (nodep->dtypep()->basicp()->isDouble()) {
+        എങ്കിൽ (nodep->dtypep()->basicp()->isDouble()) {
             puts("VL_TRACE_DECL_DOUBLE");
-        } else if (nodep->isWide()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->isWide()) {
             puts("VL_TRACE_DECL_WIDE");
-        } else if (nodep->isQuad()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->isQuad()) {
             puts("VL_TRACE_DECL_QUAD");
-        } else if (nodep->bitRange().ranged()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->bitRange().ranged()) {
             puts("VL_TRACE_DECL_BUS");
-        } else if (nodep->dtypep()->basicp()->isEvent()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->dtypep()->basicp()->isEvent()) {
             puts("VL_TRACE_DECL_EVENT");
-        } else {
+        } അല്ലെങ്കിൽ {
             puts("VL_TRACE_DECL_BIT");
         }
 
-        if (nodep->arrayRange().ranged()) {
+        എങ്കിൽ (nodep->arrayRange().ranged()) {
             puts("_ARRAY(tracep");
-        } else {
+        } അല്ലെങ്കിൽ {
             puts("(tracep");
         }
 
         // Code
         puts(",c+" + cvtToStr(nodep->code()));
-        if (nodep->arrayRange().ranged()) puts("+i*" + cvtToStr(nodep->widthWords()));
+        എങ്കിൽ (nodep->arrayRange().ranged()) puts("+i*" + cvtToStr(nodep->width_വാക്കുകൾ()));
 
         // Function index
         puts(",");
-        if (nodep->inDtypeFunc()) {
+        എങ്കിൽ (nodep->inDtypeFunc()) {
             puts("fidx");
-        } else {
+        } അല്ലെങ്കിൽ {
             puts(cvtToStr(nodep->fidx()));
         }
 
         // Name
         puts(",");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->showname(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_വാക്കുകൾ_If(nodep->showname(), nodep->protect()));
 
         // Enum number
-        puts("," + cvtToStr(enumNum));
+        puts("," + cvtToStr(enum_അക്കം));
 
         // Direction
-        if (nodep->inDtypeFunc()) {
+        എങ്കിൽ (nodep->inDtypeFunc()) {
             puts(", direction");
-        } else {
+        } അല്ലെങ്കിൽ {
             puts(", " + direction);
         }
 
@@ -739,100 +739,100 @@ class EmitCTrace final : public EmitCFunc {
         puts(nodep->dtypep()->basicp()->keyword().traceSigType());
 
         // Array range
-        if (nodep->arrayRange().ranged()) {
-            if (nodep->arrayRange().ascending()) {
+        എങ്കിൽ (nodep->arrayRange().ranged()) {
+            എങ്കിൽ (nodep->arrayRange().ascending()) {
                 puts(", (i + " + std::to_string(nodep->arrayRange().lo()) + ")");
-            } else {
+            } അല്ലെങ്കിൽ {
                 puts(", (" + std::to_string(nodep->arrayRange().hi()) + " - i)");
             }
         }
 
         // Bit range
-        if (!nodep->dtypep()->basicp()->isDouble() && nodep->bitRange().ranged()) {
-            puts(", " + cvtToStr(nodep->bitRange().left()) + ","
-                 + cvtToStr(nodep->bitRange().right()));
+        എങ്കിൽ (!nodep->dtypep()->basicp()->isDouble() && nodep->bitRange().ranged()) {
+            puts(", " + cvtToStr(nodep->bitRange().ഇടത്()) + ","
+                 + cvtToStr(nodep->bitRange().വലത്()));
         }
 
         //
         puts(");");
     }
 
-    int emitTraceDeclDType(AstNodeDType* nodep) {
+    പൂർണ്ണസംഖ്യ emitTraceDeclDType(Ast_കണ്ണി_DType* nodep) {
         // Return enum number or -1 for none
-        if (v3Global.opt.traceEnabledFst()) {
+        എങ്കിൽ (v3Global.opt.traceEnabledFst()) {
             // Skip over refs-to-refs, but stop before final ref so can get data type name
             // Alternatively back in V3Width we could push enum names from upper typedefs
-            if (AstEnumDType* const enump = VN_CAST(nodep->skipRefToEnump(), EnumDType)) {
-                return m_emitTypesp->getEnumMapNum(enump);
+            എങ്കിൽ (AstEnumDType* സ്ഥിരം enump = VN_CAST(nodep->skipRefToEnump(), EnumDType)) {
+                തിരികെ m_emitTypesp->get_Enum_Map_അക്കം(enump);
             }
         }
-        return -1;
+        തിരികെ -1;
     }
 
-    void emitTraceChangeOne(AstTraceInc* nodep, int arrayindex) {
+    ശൂന്യം emitTraceChangeOne(AstTraceInc* nodep, പൂർണ്ണസംഖ്യ arrayindex) {
         // Note: Both VTraceType::CHANGE and VTraceType::FULL use the 'full' methods
-        const std::string func = nodep->traceType() == VTraceType::CHANGE ? "chg" : "full";
-        bool emitWidth = true;
+        സ്ഥിരം std::string func = nodep->traceType() == VTraceType::CHANGE ? "chg" : "full";
+        തർക്കം emitWidth = സത്യം;
         string stype;
-        if (nodep->dtypep()->basicp()->isDouble()) {
+        എങ്കിൽ (nodep->dtypep()->basicp()->isDouble()) {
             stype = "Double";
-            emitWidth = false;
-        } else if (nodep->isWide() || emitTraceIsScBv(nodep) || emitTraceIsScBigUint(nodep)) {
+            emitWidth = അസത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->isWide() || emitTraceIsScBv(nodep) || emitTraceIsScBigUint(nodep)) {
             stype = "WData";
-        } else if (nodep->isQuad()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->isQuad()) {
             stype = "QData";
-        } else if (nodep->declp()->widthMin() > 16) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->declp()->widthMin() > 16) {
             stype = "IData";
-        } else if (nodep->declp()->widthMin() > 8) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->declp()->widthMin() > 8) {
             stype = "SData";
-        } else if (nodep->declp()->widthMin() > 1) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->declp()->widthMin() > 1) {
             stype = "CData";
-        } else if (nodep->dtypep()->basicp()->isEvent()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->dtypep()->basicp()->isEvent()) {
             stype = "Event";
-            emitWidth = false;
-        } else {
+            emitWidth = അസത്യം;
+        } അല്ലെങ്കിൽ {
             stype = "Bit";
-            emitWidth = false;
+            emitWidth = അസത്യം;
         }
         putns(nodep, "bufp->" + func + stype);
 
-        const uint32_t offset = (arrayindex < 0) ? 0 : (arrayindex * nodep->declp()->widthWords());
-        const uint32_t code = nodep->declp()->code() + offset;
+        സ്ഥിരം uint32_t offset = (arrayindex < 0) ? 0 : (arrayindex * nodep->declp()->width_വാക്കുകൾ());
+        സ്ഥിരം uint32_t code = nodep->declp()->code() + offset;
         // Note: Both VTraceType::CHANGE and VTraceType::FULL use the 'full' methods
         puts("(oldp+");
         puts(cvtToStr(code - nodep->baseCode()));
         puts(",");
-        const VNumRange& arrayRange = nodep->declp()->arrayRange();
-        if (arrayRange.ranged() && !arrayRange.ascending()) {
+        സ്ഥിരം VNumRange& arrayRange = nodep->declp()->arrayRange();
+        എങ്കിൽ (arrayRange.ranged() && !arrayRange.ascending()) {
             arrayindex = arrayRange.elements() - 1 - arrayindex;
         }
-        emitTraceValue(nodep, arrayindex);
-        if (emitWidth) puts("," + cvtToStr(nodep->declp()->widthMin()));
+        emit_Trace_മൂല്യം(nodep, arrayindex);
+        എങ്കിൽ (emitWidth) puts("," + cvtToStr(nodep->declp()->widthMin()));
         puts(");\n");
     }
 
-    void emitTraceValue(const AstTraceInc* nodep, int arrayindex) {
-        if (AstVarRef* const varrefp = VN_CAST(nodep->valuep(), VarRef)) {
-            const AstVar* const varp = varrefp->varp();
-            if (varp->isEvent()) puts("&");
+    ശൂന്യം emit_Trace_മൂല്യം(സ്ഥിരം AstTraceInc* nodep, പൂർണ്ണസംഖ്യ arrayindex) {
+        എങ്കിൽ (AstVarRef* സ്ഥിരം varrefp = VN_CAST(nodep->valuep(), VarRef)) {
+            സ്ഥിരം AstVar* സ്ഥിരം varp = varrefp->varp();
+            എങ്കിൽ (varp->isEvent()) puts("&");
             puts("(");
-            if (emitTraceIsScBigUint(nodep)) {
+            എങ്കിൽ (emitTraceIsScBigUint(nodep)) {
                 puts("(uint32_t*)");
-            } else if (emitTraceIsScBv(nodep)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (emitTraceIsScBv(nodep)) {
                 puts("VL_SC_BV_DATAP(");
             }
             iterateConst(varrefp);  // Put var name out
             emitTraceIndex(nodep, arrayindex);
-            if (varp->isSc()) puts(".read()");
-            if (emitTraceIsScUint(nodep)) {
+            എങ്കിൽ (varp->isSc()) puts(".read()");
+            എങ്കിൽ (emitTraceIsScUint(nodep)) {
                 puts(nodep->isQuad() ? ".to_uint64()" : ".to_uint()");
-            } else if (emitTraceIsScBigUint(nodep)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (emitTraceIsScBigUint(nodep)) {
                 puts(".get_raw()");
-            } else if (emitTraceIsScBv(nodep)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (emitTraceIsScBv(nodep)) {
                 puts(")");
             }
             puts(")");
-        } else {
+        } അല്ലെങ്കിൽ {
             puts("(");
             iterateConst(nodep->valuep());
             emitTraceIndex(nodep, arrayindex);
@@ -840,14 +840,14 @@ class EmitCTrace final : public EmitCFunc {
         }
     }
 
-    void emitTraceIndex(const AstTraceInc* const nodep, int arrayindex) {
+    ശൂന്യം emitTraceIndex(സ്ഥിരം AstTraceInc* സ്ഥിരം nodep, പൂർണ്ണസംഖ്യ arrayindex) {
         // Tracing only supports 1D arrays
-        if (nodep->declp()->arrayRange().ranged()) {
-            if (arrayindex == -2) {
+        എങ്കിൽ (nodep->declp()->arrayRange().ranged()) {
+            എങ്കിൽ (arrayindex == -2) {
                 puts("[i]");
-            } else if (arrayindex == -1) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (arrayindex == -1) {
                 puts("[0]");
-            } else {
+            } അല്ലെങ്കിൽ {
                 puts("[" + cvtToStr(arrayindex) + "]");
             }
         }
@@ -855,13 +855,13 @@ class EmitCTrace final : public EmitCFunc {
 
     // VISITORS
     using EmitCFunc::visit;  // Suppress hidden overloaded virtual function warning
-    void visit(AstCFunc* nodep) override {
-        if (!nodep->isTrace()) return;
-        if (nodep->slow() != m_slow) return;
+    ശൂന്യം visit(AstCFunc* nodep) override {
+        എങ്കിൽ (!nodep->isTrace()) തിരികെ;
+        എങ്കിൽ (nodep->slow() != m_slow) തിരികെ;
 
-        if (splitNeeded()) {
+        എങ്കിൽ (splitNeeded()) {
             // Splitting file, so using parallel build.
-            v3Global.useParallelBuild(true);
+            v3Global.useParallelBuild(സത്യം);
             // Close old file
             closeOutputFile();
             // Open a new file
@@ -870,87 +870,87 @@ class EmitCTrace final : public EmitCFunc {
 
         EmitCFunc::visit(nodep);
     }
-    void visit(AstTracePushPrefix* nodep) override {
+    ശൂന്യം visit(Ast_Trace_തള്ളുക_Prefix* nodep) override {
         putns(nodep, "VL_TRACE_PUSH_PREFIX(tracep, ");
-        if (nodep->quotedPrefix()) {
-            putsQuoted(VIdProtect::protectWordsIf(nodep->prefix(), nodep->protect()));
-        } else {
+        എങ്കിൽ (nodep->quotedPrefix()) {
+            putsQuoted(VIdProtect::protect_വാക്കുകൾ_If(nodep->prefix(), nodep->protect()));
+        } അല്ലെങ്കിൽ {
             puts(nodep->prefix());
         }
         puts(", VerilatedTracePrefixType::");
         puts(nodep->prefixType().ascii());
-        puts(", " + std::to_string(nodep->left()));
-        puts(", " + std::to_string(nodep->right()));
+        puts(", " + std::to_string(nodep->ഇടത്()));
+        puts(", " + std::to_string(nodep->വലത്()));
         puts(");\n");
     }
-    void visit(AstTracePopPrefix* nodep) override {  //
+    ശൂന്യം visit(Ast_Trace_എടുക്കുക_Prefix* nodep) override {  //
         putns(nodep, "VL_TRACE_POP_PREFIX(tracep);\n");
     }
-    void visit(AstTraceDecl* nodep) override {
-        const int enumNum = emitTraceDeclDType(nodep->dtypep());
+    ശൂന്യം visit(AstTraceDecl* nodep) override {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ enum_അക്കം = emitTraceDeclDType(nodep->dtypep());
         putns(nodep, "");
-        if (nodep->arrayRange().ranged()) {
+        എങ്കിൽ (nodep->arrayRange().ranged()) {
             puts("for (int i = 0; i < " + cvtToStr(nodep->arrayRange().elements()) + "; ++i) {\n");
-            emitTraceInitOne(nodep, enumNum);
+            emitTraceInitOne(nodep, enum_അക്കം);
             puts("\n}\n");
-        } else {
-            emitTraceInitOne(nodep, enumNum);
+        } അല്ലെങ്കിൽ {
+            emitTraceInitOne(nodep, enum_അക്കം);
             puts("\n");
         }
     }
-    void visit(AstTraceInc* nodep) override {
-        if (nodep->declp()->arrayRange().ranged()) {
+    ശൂന്യം visit(AstTraceInc* nodep) override {
+        എങ്കിൽ (nodep->declp()->arrayRange().ranged()) {
             // It traces faster if we unroll the loop
-            for (int i = 0; i < nodep->declp()->arrayRange().elements(); i++) {
+            വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < nodep->declp()->arrayRange().elements(); i++) {
                 emitTraceChangeOne(nodep, i);
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             emitTraceChangeOne(nodep, -1);
         }
     }
 
-    explicit EmitCTrace(bool slow)
+    explicit EmitCTrace(തർക്കം slow)
         : m_slow{slow} {
-        m_modp = v3Global.rootp()->topModulep();
+        m_modp = v3Global.rootp()->മുകൾ_Modulep();
         // Open output file
         openNextOutputFile();
         // Emit functions
-        for (AstNode* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (AstCFunc* const funcp = VN_CAST(nodep, CFunc)) iterateConst(funcp);
+        വേണ്ടി (Ast_കണ്ണി* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            എങ്കിൽ (AstCFunc* സ്ഥിരം funcp = VN_CAST(nodep, CFunc)) iterateConst(funcp);
         }
         // Close output file
         closeOutputFile();
-        if (m_slow) m_emitTypesp->finalize();
+        എങ്കിൽ (m_slow) m_emitTypesp->finalize();
     }
-    ~EmitCTrace() override = default;
+    ~EmitCTrace() override = സ്ഥിരസ്ഥിതി;
 
-public:
-    static std::vector<AstCFile*> main(bool slow) VL_MT_STABLE {
+പൊതു:
+    സ്ഥിതം std::vector<AstCFile*> പ്രധാന(തർക്കം slow) VL_MT_STABLE {
         EmitCTrace emitCTrace{slow};
         std::vector<AstCFile*> cfileps = emitCTrace.getAndClearCfileps();
-        if (slow) {
-            for (AstCFile* const cfilep : emitCTrace.m_emitTypesp->getAndClearCfileps()) {
+        എങ്കിൽ (slow) {
+            വേണ്ടി (AstCFile* സ്ഥിരം cfilep : emitCTrace.m_emitTypesp->getAndClearCfileps()) {
                 cfileps.emplace_back(cfilep);
             }
         }
-        return cfileps;
+        തിരികെ cfileps;
     }
 };
 
 //######################################################################
 // Existing AstCFile emitter
 
-class EmitCFile final : public EmitCFunc {
+വർഗ്ഗം EmitCFile final : പൊതു EmitCFunc {
     explicit EmitCFile(AstCFile* cfilep) {
         openOutputFile(cfilep, "Generated C++");
         iterateConst(cfilep->tblockp());
         closeOutputFile();
     }
-    ~EmitCFile() override = default;
+    ~EmitCFile() override = സ്ഥിരസ്ഥിതി;
 
-public:
-    static void main(AstCFile* cfilep) VL_MT_STABLE {
-        if (!cfilep->tblockp()) return;
+പൊതു:
+    സ്ഥിതം ശൂന്യം പ്രധാന(AstCFile* cfilep) VL_MT_STABLE {
+        എങ്കിൽ (!cfilep->tblockp()) തിരികെ;
         EmitCFile{cfilep};
     }
 };
@@ -958,47 +958,47 @@ public:
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcImp() {
+ശൂന്യം V3EmitC::emitcImp() {
     UINFO(2, __FUNCTION__ << ":");
     std::list<std::vector<AstCFile*>> cfiles;
     {
         // Make parent module pointers available.
-        const EmitCParentModule emitCParentModule;
+        സ്ഥിരം EmitCParentModule emitCParentModule;
         V3ThreadScope threadScope;
 
         // Process each module in turn
-        for (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-            if (VN_IS(nodep, Class)) continue;  // Imped with ClassPackage
-            const AstNodeModule* const modp = VN_AS(nodep, NodeModule);
-            if (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
+        വേണ്ടി (സ്ഥിരം Ast_കണ്ണി* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+            എങ്കിൽ (VN_IS(nodep, Class)) തുടരുക;  // Imped with ClassPackage
+            സ്ഥിരം Ast_കണ്ണി_Module* സ്ഥിരം modp = VN_AS(nodep, കണ്ണി_Module);
+            എങ്കിൽ (modp->isConstPool()) തുടരുക;  // Emitted by V3EmitCConstPool
             cfiles.emplace_back();
             std::vector<AstCFile*>& slow = cfiles.back();
-            threadScope.enqueue([modp, &slow] { slow = EmitCImp::main(modp, /* slow: */ true); });
+            threadScope.enqueue([modp, &slow] { slow = EmitCImp::പ്രധാന(modp, /* slow: */ സത്യം); });
             cfiles.emplace_back();
             std::vector<AstCFile*>& fast = cfiles.back();
-            threadScope.enqueue([modp, &fast] { fast = EmitCImp::main(modp, /* slow: */ false); });
+            threadScope.enqueue([modp, &fast] { fast = EmitCImp::പ്രധാന(modp, /* slow: */ അസത്യം); });
         }
 
         // Emit trace routines (currently they can only exist in the top module)
-        if (v3Global.opt.trace() && !v3Global.opt.lintOnly()) {
+        എങ്കിൽ (v3Global.opt.trace() && !v3Global.opt.lintOnly()) {
             cfiles.emplace_back();
             std::vector<AstCFile*>& slow = cfiles.back();
-            threadScope.enqueue([&slow] { slow = EmitCTrace::main(/* slow: */ true); });
+            threadScope.enqueue([&slow] { slow = EmitCTrace::പ്രധാന(/* slow: */ സത്യം); });
             cfiles.emplace_back();
             std::vector<AstCFile*>& fast = cfiles.back();
-            threadScope.enqueue([&fast] { fast = EmitCTrace::main(/* slow: */ false); });
+            threadScope.enqueue([&fast] { fast = EmitCTrace::പ്രധാന(/* slow: */ അസത്യം); });
         }
     }
     // Add files to netlist
-    for (const std::vector<AstCFile*>& cfileps : cfiles) {
-        for (AstCFile* const cfilep : cfileps) v3Global.rootp()->addFilesp(cfilep);
+    വേണ്ടി (സ്ഥിരം std::vector<AstCFile*>& cfileps : cfiles) {
+        വേണ്ടി (AstCFile* സ്ഥിരം cfilep : cfileps) v3Global.rootp()->addFilesp(cfilep);
     }
 }
 
-void V3EmitC::emitcFiles() {
+ശൂന്യം V3EmitC::emitcFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
-        nextp = VN_AS(filep->nextp(), NodeFile);
-        if (AstCFile* const cfilep = VN_CAST(filep, CFile)) EmitCFile::main(cfilep);
+    വേണ്ടി (Ast_കണ്ണി_File *filep = v3Global.rootp()->filesp(), *nextp; filep; filep = nextp) {
+        nextp = VN_AS(filep->nextp(), കണ്ണി_File);
+        എങ്കിൽ (AstCFile* സ്ഥിരം cfilep = VN_CAST(filep, CFile)) EmitCFile::പ്രധാന(cfilep);
     }
 }

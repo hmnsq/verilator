@@ -14,22 +14,22 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
+#അന്തര്ഭാവ "V3Dfg.h"
+#അന്തര്ഭാവ "V3DfgPasses.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //------------------------------------------------------------------------------
 // DfgDataType
 
-const DfgDataType* DfgDataType::s_nullTypep{nullptr};
-std::unordered_map<uint32_t, const DfgDataType*> DfgDataType::s_packedTypes{};
+സ്ഥിരം DfgDataType* DfgDataType::s_nullTypep{nullptr};
+std::unordered_map<uint32_t, സ്ഥിരം DfgDataType*> DfgDataType::s_packedTypes{};
 
 //------------------------------------------------------------------------------
 // Type checker - for internal validation only
 
-void V3DfgPasses::typeCheck(const DfgGraph& dfg) {
-    dfg.forEachVertex([&](const DfgVertex& vtx) { vtx.typeCheck(dfg); });
+ശൂന്യം V3DfgPasses::typeCheck(സ്ഥിരം DfgGraph& dfg) {
+    dfg.forEachVertex([&](സ്ഥിരം DfgVertex& vtx) { vtx.typeCheck(dfg); });
 }

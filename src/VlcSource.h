@@ -17,82 +17,82 @@
 #ifndef VERILATOR_VLCSOURCE_H_
 #define VERILATOR_VLCSOURCE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "VlcPoint.h"
+#അന്തര്ഭാവ "VlcPoint.h"
 
-#include <limits>
-#include <map>
-#include <set>
-#include <utility>
-#include <vector>
+#അന്തര്ഭാവ <limits>
+#അന്തര്ഭാവ <map>
+#അന്തര്ഭാവ <set>
+#അന്തര്ഭാവ <utility>
+#അന്തര്ഭാവ <vector>
 
 class VlcPoint;
 
 //********************************************************************
 // VlcColumnCount - count at specific source file, line and column
 
-class VlcSourceCount final {
+class Vlc_Source_എണ്ണം final {
     // TYPES
-    using PointsSet = std::set<const VlcPoint*>;
+    using PointsSet = std::set<സ്ഥിരം VlcPoint*>;
 
     // MEMBERS
-    const int m_lineno;  ///< Line number
-    uint64_t m_maxCount = 0;  ///< Max count
-    uint64_t m_minCount = std::numeric_limits<uint64_t>::max();  ///< Min count
+    സ്ഥിരം പൂർണ്ണസംഖ്യ m_lineno;  ///< Line number
+    uint64_t m_max_എണ്ണം = 0;  ///< Max count
+    uint64_t m_min_എണ്ണം = std::numeric_limits<uint64_t>::max();  ///< Min count
     PointsSet m_points;  // Points on this line
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    explicit VlcSourceCount(int lineno)
+    explicit Vlc_Source_എണ്ണം(പൂർണ്ണസംഖ്യ lineno)
         : m_lineno{lineno} {}
-    ~VlcSourceCount() = default;
+    ~Vlc_Source_എണ്ണം() = സ്ഥിരസ്ഥിതി;
 
     // ACCESSORS
-    int lineno() const { return m_lineno; }
-    uint64_t maxCount() const { return m_maxCount; }
-    uint64_t minCount() const { return m_minCount; }
+    പൂർണ്ണസംഖ്യ lineno() സ്ഥിരം { തിരികെ m_lineno; }
+    uint64_t max_എണ്ണം() സ്ഥിരം { തിരികെ m_max_എണ്ണം; }
+    uint64_t min_എണ്ണം() സ്ഥിരം { തിരികെ m_min_എണ്ണം; }
 
     // METHODS
-    void insertPoint(const VlcPoint* pointp) {
-        m_maxCount = std::max(m_maxCount, pointp->count());
-        m_minCount = std::min(m_minCount, pointp->count());
+    ശൂന്യം തിരുകുക_Point(സ്ഥിരം VlcPoint* pointp) {
+        m_max_എണ്ണം = std::max(m_max_എണ്ണം, pointp->എണ്ണം());
+        m_min_എണ്ണം = std::min(m_min_എണ്ണം, pointp->എണ്ണം());
         m_points.emplace(pointp);
     }
-    const PointsSet& points() { return m_points; }
+    സ്ഥിരം PointsSet& points() { തിരികെ m_points; }
 };
 
 //********************************************************************
 // VlcSource - source file to annotate
 
 class VlcSource final {
-public:
+പൊതു:
     // TYPES
-    using LinenoMap = std::map<int, VlcSourceCount>;  // Map of {column}
+    using LinenoMap = std::map<പൂർണ്ണസംഖ്യ, Vlc_Source_എണ്ണം>;  // Map of {column}
 
-private:
+സ്വകാര്യ:
     // MEMBERS
-    const string m_name;  //< Name of the source file
-    LinenoMap m_lines;  //< Map of each annotated line
+    സ്ഥിരം string m_name;  //< Name of the source file
+    LinenoMap m_വരികൾ;  //< Map of each annotated line
     bool m_needed = false;  //< Need to annotate; has low coverage
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    explicit VlcSource(const string& name)
+    explicit VlcSource(സ്ഥിരം string& name)
         : m_name{name} {}
-    ~VlcSource() = default;
+    ~VlcSource() = സ്ഥിരസ്ഥിതി;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool needed() const { return m_needed; }
-    void needed(bool flag) { m_needed = flag; }
-    LinenoMap& lines() { return m_lines; }
+    സ്ഥിരം string& name() സ്ഥിരം { തിരികെ m_name; }
+    bool needed() സ്ഥിരം { തിരികെ m_needed; }
+    ശൂന്യം needed(bool flag) { m_needed = flag; }
+    LinenoMap& വരികൾ() { തിരികെ m_വരികൾ; }
 
     // METHODS
-    void insertPoint(int lineno, const VlcPoint* pointp) {
-        VlcSourceCount& sc = m_lines.emplace(lineno, lineno).first->second;
-        sc.insertPoint(pointp);
+    ശൂന്യം തിരുകുക_Point(പൂർണ്ണസംഖ്യ lineno, സ്ഥിരം VlcPoint* pointp) {
+        Vlc_Source_എണ്ണം& sc = m_വരികൾ.emplace(lineno, lineno).first->second;
+        sc.തിരുകുക_Point(pointp);
     }
 };
 
@@ -100,30 +100,30 @@ public:
 // VlcSources - Container of all source files
 
 class VlcSources final {
-public:
+പൊതു:
     // TYPES
-    using NameMap = std::map<const std::string, VlcSource>;
+    using NameMap = std::map<സ്ഥിരം std::string, VlcSource>;
 
-private:
+സ്വകാര്യ:
     // MEMBERS
     NameMap m_sources;  //< List of all sources
 
-public:
+പൊതു:
     // ITERATORS
     using iterator = NameMap::iterator;
-    NameMap::iterator begin() { return m_sources.begin(); }
-    NameMap::iterator end() { return m_sources.end(); }
+    NameMap::iterator begin() { തിരികെ m_sources.begin(); }
+    NameMap::iterator end() { തിരികെ m_sources.end(); }
 
     // CONSTRUCTORS
-    VlcSources() = default;
-    ~VlcSources() = default;
+    VlcSources() = സ്ഥിരസ്ഥിതി;
+    ~VlcSources() = സ്ഥിരസ്ഥിതി;
 
     // METHODS
-    VlcSource& findNewSource(const string& name) {
+    VlcSource& findNewSource(സ്ഥിരം string& name) {
         NameMap::iterator iter = m_sources.find(name);
-        if (iter != m_sources.end()) return iter->second;
+        എങ്കിൽ (iter != m_sources.end()) തിരികെ iter->second;
         iter = m_sources.emplace(name, VlcSource{name}).first;
-        return iter->second;
+        തിരികെ iter->second;
     }
 };
 

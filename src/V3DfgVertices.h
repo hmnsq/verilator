@@ -32,7 +32,7 @@
 
 #ifndef VERILATOR_V3DFG_H_
 #error "Use V3Dfg.h as the include"
-#include "V3Dfg.h"  // This helps code analysis tools pick up symbols in V3Dfg.h
+#അന്തര്ഭാവ "V3Dfg.h"  // This helps code analysis tools pick up symbols in V3Dfg.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
@@ -40,24 +40,24 @@
 // for each DfgVertex sub-type. The generated members include boilerplate
 // methods related to cloning, visitor dispatch, and other functionality.
 // For precise details please read the generated macros.
-#include "V3Dfg__gen_macros.h"
+#അന്തര്ഭാവ "V3Dfg__gen_macros.h"
 
 //------------------------------------------------------------------------------
 // Variable vertices - represent a variables
 
-class DfgVertexVar VL_NOT_FINAL : public DfgVertex {
+class DfgVertexVar VL_NOT_FINAL : പൊതു DfgVertex {
     // Represents a variable. It has 2 optional inputs, 'srcp' and 'defaultp'.
 
     DfgInlineEdgeStorage<2> m_inputs{this};  // Input edges
-    AstVarScope* const m_vscp;  // The AstVarScope associated with this vertex (not owned)
+    AstVarScope* സ്ഥിരം m_vscp;  // The AstVarScope associated with this vertex (not owned)
     // Location of driver of this variable. Only used for converting back to Ast. Might be nullptr.
-    FileLine* m_driverFileLine = nullptr;
+    File_വരി* m_driver_File_വരി = nullptr;
     // If this DfgVertexVar is a synthesized temporary, this is the original AstVarScope it stands
     // for. It might point to m_vscp itself to indicate it's a temporary without an associated
     // input AstVarScope.
     AstVarScope* m_tmpForp = nullptr;
 
-protected:
+സംരക്ഷിത:
     DfgVertexVar(DfgGraph& dfg, VDfgType type, AstVarScope* vscp)
         : DfgVertex{dfg,
                     type,
@@ -71,7 +71,7 @@ protected:
         UASSERT_OBJ((m_vscp->user1() >> 6) > 0, m_vscp, "Reference count overflow");
     }
 
-public:
+പൊതു:
     ~DfgVertexVar() {
         // Decrement reference count
         UASSERT_OBJ(m_vscp->user1() >= 0x40, m_vscp, "Reference count underflow");
@@ -80,82 +80,82 @@ public:
     ASTGEN_MEMBERS_DfgVertexVar;
 
     // The driver of the variable. Might be nullptr if driven exernally (input to DfgGraph).
-    DfgVertex* srcp() const { return inputp(0); }
-    void srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
+    DfgVertex* srcp() സ്ഥിരം { തിരികെ inputp(0); }
+    ശൂന്യം srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
     // The default value of the variable. This defines the parts not driven by 'srcp', maybe null
-    DfgVertex* defaultp() const { return inputp(1); }
-    void defaultp(DfgVertex* vtxp) { inputp(1, vtxp); }
+    DfgVertex* defaultp() സ്ഥിരം { തിരികെ inputp(1); }
+    ശൂന്യം defaultp(DfgVertex* vtxp) { inputp(1, vtxp); }
 
     // Return the vertex and the offset into the vertex driving the given range [lo, lo + size - 1]
     // of this variable, iff it is driven by a single vertex. Returns nullptr if undriven, or the
     // range is driven by multiple vertices in parts.
     std::pair<DfgVertex*, uint32_t> driverOfRange(uint32_t lo, uint32_t size);
 
-    std::string srcName(size_t idx) const override final { return idx ? "defaultp" : "srcp"; }
+    std::string srcName(size_t idx) സ്ഥിരം override final { തിരികെ idx ? "defaultp" : "srcp"; }
 
     // The Ast variable this vertex representess
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() സ്ഥിരം { തിരികെ m_vscp; }
 
     // If this is a temporary, the Ast variable it stands for,  or same as
     // 'nodep()' if it's a temporary with no associated original Ast variable.
-    AstVarScope* tmpForp() const { return m_tmpForp; }
-    void tmpForp(AstVarScope* nodep) { m_tmpForp = nodep; }
+    AstVarScope* tmpForp() സ്ഥിരം { തിരികെ m_tmpForp; }
+    ശൂന്യം tmpForp(AstVarScope* nodep) { m_tmpForp = nodep; }
 
     // Location of driver of variable (only used if 'srcp' is not a splice)
-    FileLine* driverFileLine() const { return m_driverFileLine; }
-    void driverFileLine(FileLine* flp) { m_driverFileLine = flp; }
+    File_വരി* driver_File_വരി() സ്ഥിരം { തിരികെ m_driver_File_വരി; }
+    ശൂന്യം driver_File_വരി(File_വരി* flp) { m_driver_File_വരി = flp; }
 
     // Variable referenced from other DFG in the same module/netlist
-    bool hasDfgRefs() const { return m_vscp->user1() >> 7; }  // I.e.: (nodep()->user1() >> 6) > 1
+    bool hasDfgRefs() സ്ഥിരം { തിരികെ m_vscp->user1() >> 7; }  // I.e.: (nodep()->user1() >> 6) > 1
 
     // Variable referenced from Ast code in the same module/netlist
-    static bool hasModWrRefs(const AstVarScope* nodep) { return nodep->user1() & 0x08; }
-    static void setHasModWrRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x08); }
-    bool hasModWrRefs() const { return hasModWrRefs(m_vscp); }
-    void setHasModWrRefs() const { setHasModWrRefs(m_vscp); }
+    സ്ഥിതം bool hasModWrRefs(സ്ഥിരം AstVarScope* nodep) { തിരികെ nodep->user1() & 0x08; }
+    സ്ഥിതം ശൂന്യം setHasModWrRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x08); }
+    bool hasModWrRefs() സ്ഥിരം { തിരികെ hasModWrRefs(m_vscp); }
+    ശൂന്യം setHasModWrRefs() സ്ഥിരം { setHasModWrRefs(m_vscp); }
 
     // Variable referenced outside the containing module/netlist.
-    static bool hasExtRdRefs(const AstVarScope* nodep) { return nodep->user1() & 0x01; }
-    static bool hasExtWrRefs(const AstVarScope* nodep) { return nodep->user1() & 0x02; }
-    static void setHasExtRdRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x01); }
-    static void setHasExtWrRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x02); }
-    bool hasExtRdRefs() const { return hasExtRdRefs(m_vscp); }
-    bool hasExtWrRefs() const { return hasExtWrRefs(m_vscp); }
-    bool hasExtRefs() const { return hasExtRdRefs() || hasExtWrRefs(); }
+    സ്ഥിതം bool hasExtRdRefs(സ്ഥിരം AstVarScope* nodep) { തിരികെ nodep->user1() & 0x01; }
+    സ്ഥിതം bool hasExtWrRefs(സ്ഥിരം AstVarScope* nodep) { തിരികെ nodep->user1() & 0x02; }
+    സ്ഥിതം ശൂന്യം setHasExtRdRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x01); }
+    സ്ഥിതം ശൂന്യം setHasExtWrRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x02); }
+    bool hasExtRdRefs() സ്ഥിരം { തിരികെ hasExtRdRefs(m_vscp); }
+    bool hasExtWrRefs() സ്ഥിരം { തിരികെ hasExtWrRefs(m_vscp); }
+    bool hasExtRefs() സ്ഥിരം { തിരികെ hasExtRdRefs() || hasExtWrRefs(); }
 
     // Variable referenced via READWRITE references
-    static bool hasRWRefs(const AstVarScope* nodep) { return nodep->user1() & 0x10; }
-    static void setHasRWRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x10); }
+    സ്ഥിതം bool hasRWRefs(സ്ഥിരം AstVarScope* nodep) { തിരികെ nodep->user1() & 0x10; }
+    സ്ഥിതം ശൂന്യം setHasRWRefs(AstVarScope* nodep) { nodep->user1(nodep->user1() | 0x10); }
 
     // There exists a DfgPrev vertex for this variable
-    static bool hasPrev(const AstVarScope* nodep) { return nodep->user1() & 0x20; }
-    bool hasPrev() const { return hasPrev(m_vscp); }
+    സ്ഥിതം bool hasPrev(സ്ഥിരം AstVarScope* nodep) { തിരികെ nodep->user1() & 0x20; }
+    bool hasPrev() സ്ഥിരം { തിരികെ hasPrev(m_vscp); }
 
     // True iff this variable is consumed without an explicit sink: its value is read outside
     // this DfgGraph, or a DfgPrev reads it within this graph.
-    bool isObserved() const {
+    bool isObserved() സ്ഥിരം {
         // A DfgPrev reads this variable
-        if (hasPrev()) return true;
+        എങ്കിൽ (hasPrev()) തിരികെ true;
         // A DfgVarVertex is written in exactly one DfgGraph, and might be read in an arbitrary
         // number of other DfgGraphs. If it's driven in this DfgGraph, it's read in others.
-        if (hasDfgRefs()) return srcp() || defaultp();
-        return hasExtRdRefs();
+        എങ്കിൽ (hasDfgRefs()) തിരികെ srcp() || defaultp();
+        തിരികെ hasExtRdRefs();
     }
 
     // The value of this vertex might differ from what is defined by its drivers
     // 'srcp' and 'defaultp'. That is, it might be assigned, possibly partially,
     // or abruptly outside the graph, hence it is not equivalent to its 'srcp'.
-    static bool isVolatile(const AstVarScope* nodep) {
-        return hasModWrRefs(nodep) || hasExtWrRefs(nodep);
+    സ്ഥിതം bool isVolatile(സ്ഥിരം AstVarScope* nodep) {
+        തിരികെ hasModWrRefs(nodep) || hasExtWrRefs(nodep);
     }
-    bool isVolatile() const { return isVolatile(m_vscp); }
+    bool isVolatile() സ്ഥിരം { തിരികെ isVolatile(m_vscp); }
 };
 
-class DfgVarArray final : public DfgVertexVar {
+class DfgVarArray final : പൊതു DfgVertexVar {
     friend class DfgVertex;
     friend class DfgVisitor;
 
-public:
+പൊതു:
     DfgVarArray(DfgGraph& dfg, AstVarScope* vscp)
         : DfgVertexVar{dfg, dfgType(), vscp} {
         UASSERT_OBJ(isArray(), vscp, "Non-array DfgVarArray");
@@ -163,11 +163,11 @@ public:
     ASTGEN_MEMBERS_DfgVarArray;
 };
 
-class DfgVarPacked final : public DfgVertexVar {
+class DfgVarPacked final : പൊതു DfgVertexVar {
     friend class DfgVertex;
     friend class DfgVisitor;
 
-public:
+പൊതു:
     DfgVarPacked(DfgGraph& dfg, AstVarScope* vscp)
         : DfgVertexVar{dfg, dfgType(), vscp} {
         UASSERT_OBJ(isPacked(), vscp, "Non-packed DfgVarPacked");
@@ -175,15 +175,15 @@ public:
     ASTGEN_MEMBERS_DfgVarPacked;
 };
 
-class DfgPrev final : public DfgVertex {
+class DfgPrev final : പൊതു DfgVertex {
     // Previous value of variable, before any updates made in this graph.
     // Used to break combinational cycles.
     friend class DfgVertex;
     friend class DfgVisitor;
 
-    AstVarScope* const m_vscp;  // The AstVarScope associated with this vertex (not owned)
+    AstVarScope* സ്ഥിരം m_vscp;  // The AstVarScope associated with this vertex (not owned)
 
-public:
+പൊതു:
     DfgPrev(DfgGraph& dfg, AstVarScope* vscp)
         : DfgVertex{dfg,
                     dfgType(),
@@ -201,21 +201,21 @@ public:
     ASTGEN_MEMBERS_DfgPrev;
 
     // The Ast variable this vertex representess
-    AstVarScope* vscp() const { return m_vscp; }
+    AstVarScope* vscp() സ്ഥിരം { തിരികെ m_vscp; }
 
-    std::string srcName(size_t) const override final { return ""; }
+    std::string srcName(size_t) സ്ഥിരം override final { തിരികെ ""; }
 };
 
 //------------------------------------------------------------------------------
 // Ast reference vertices
 
-class DfgVertexAst VL_NOT_FINAL : public DfgVertex {
+class DfgVertexAst VL_NOT_FINAL : പൊതു DfgVertex {
     // Represents a reference in the Ast
 
-    AstNodeExpr* m_exprp;  // The AstNodeExpr representing this reference
+    Ast_കണ്ണി_വ്യഞ്ജകം* m_exprp;  // The AstNodeExpr representing this reference
 
-public:
-    DfgVertexAst(DfgGraph& dfg, VDfgType type, AstNodeExpr* exprp, DfgEdge* inlineInputsp,
+പൊതു:
+    DfgVertexAst(DfgGraph& dfg, VDfgType type, Ast_കണ്ണി_വ്യഞ്ജകം* exprp, DfgEdge* inlineInputsp,
                  uint32_t nInputs)
         : DfgVertex{dfg,
                     type,
@@ -226,79 +226,79 @@ public:
         , m_exprp{exprp} {}
     ASTGEN_MEMBERS_DfgVertexAst;
 
-    AstNodeExpr* exprp() const { return m_exprp; }
-    void exprp(AstNodeExpr* exprp) { m_exprp = exprp; }
+    Ast_കണ്ണി_വ്യഞ്ജകം* exprp() സ്ഥിരം { തിരികെ m_exprp; }
+    ശൂന്യം exprp(Ast_കണ്ണി_വ്യഞ്ജകം* exprp) { m_exprp = exprp; }
 };
 
-class DfgAstRd final : public DfgVertexAst {
+class DfgAstRd final : പൊതു DfgVertexAst {
     friend class DfgVertex;
     friend class DfgVisitor;
 
     DfgInlineEdgeStorage<1> m_inputs{this};  // Input edges
-    const bool m_inSenItem;  // Reference is in a sensitivity list
-    const bool m_inLoop;  // Reference is in a loop
+    സ്ഥിരം bool m_inSenItem;  // Reference is in a sensitivity list
+    സ്ഥിരം bool m_inLoop;  // Reference is in a loop
 
-public:
-    DfgAstRd(DfgGraph& dfg, AstNodeExpr* exprp, bool inSenItem, bool inLoop)
+പൊതു:
+    DfgAstRd(DfgGraph& dfg, Ast_കണ്ണി_വ്യഞ്ജകം* exprp, bool inSenItem, bool inLoop)
         : DfgVertexAst{dfg, dfgType(), exprp, m_inputs.m_edges, 1}
         , m_inSenItem{inSenItem}
         , m_inLoop{inLoop} {}
     ASTGEN_MEMBERS_DfgAstRd;
 
-    DfgVertex* srcp() const { return inputp(0); }
-    void srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    std::string srcName(size_t) const override final { return ""; }
-    bool inSenItem() const { return m_inSenItem; }
-    bool inLoop() const { return m_inLoop; }
+    DfgVertex* srcp() സ്ഥിരം { തിരികെ inputp(0); }
+    ശൂന്യം srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
+    std::string srcName(size_t) സ്ഥിരം override final { തിരികെ ""; }
+    bool inSenItem() സ്ഥിരം { തിരികെ m_inSenItem; }
+    bool inLoop() സ്ഥിരം { തിരികെ m_inLoop; }
 };
 
 //------------------------------------------------------------------------------
 // Nullary vertices - 0 inputs
 
-class DfgVertexNullary VL_NOT_FINAL : public DfgVertex {
-protected:
-    DfgVertexNullary(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dtype)
+class DfgVertexNullary VL_NOT_FINAL : പൊതു DfgVertex {
+സംരക്ഷിത:
+    DfgVertexNullary(DfgGraph& dfg, VDfgType type, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertex{dfg, type, flp, dtype, nullptr, 0} {}
 
-public:
+പൊതു:
     ASTGEN_MEMBERS_DfgVertexNullary;
-    std::string srcName(size_t) const override final { V3ERROR_NA_RETURN(""); }
+    std::string srcName(size_t) സ്ഥിരം override final { V3ERROR_NA_RETURN(""); }
 };
 
-class DfgConst final : public DfgVertexNullary {
+class DfgConst final : പൊതു DfgVertexNullary {
     friend class DfgVertex;
     friend class DfgVisitor;
 
-    V3Number m_num;  // Constant value
+    V3_സംഖ്യ m_അക്കം;  // Constant value
 
-public:
-    DfgConst(DfgGraph& dfg, FileLine* flp, const V3Number& num)
-        : DfgVertexNullary{dfg, dfgType(), flp, DfgDataType::packed(num.width())}
-        , m_num{num} {}
-    DfgConst(DfgGraph& dfg, FileLine* flp, size_t width, uint32_t value)
+പൊതു:
+    DfgConst(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം V3_സംഖ്യ& അക്കം)
+        : DfgVertexNullary{dfg, dfgType(), flp, DfgDataType::packed(അക്കം.width())}
+        , m_അക്കം{അക്കം} {}
+    DfgConst(DfgGraph& dfg, File_വരി* flp, size_t width, uint32_t മൂല്യം)
         : DfgVertexNullary{dfg, dfgType(), flp, DfgDataType::packed(width)}
-        , m_num{flp, static_cast<int>(width), value} {}
+        , m_അക്കം{flp, static_cast<പൂർണ്ണസംഖ്യ>(width), മൂല്യം} {}
 
     ASTGEN_MEMBERS_DfgConst;
 
-    V3Number& num() { return m_num; }
-    const V3Number& num() const { return m_num; }
+    V3_സംഖ്യ& അക്കം() { തിരികെ m_അക്കം; }
+    സ്ഥിരം V3_സംഖ്യ& അക്കം() സ്ഥിരം { തിരികെ m_അക്കം; }
 
-    size_t toSizeT() const { return static_cast<size_t>(num().toUQuad()); }
-    uint32_t toU32() const { return num().toUInt(); }
+    size_t toSizeT() സ്ഥിരം { തിരികെ static_cast<size_t>(അക്കം().toUQuad()); }
+    uint32_t toU32() സ്ഥിരം { തിരികെ അക്കം().toUInt(); }
 
-    bool isZero() const { return num().isEqZero(); }
-    bool isOnes() const { return num().isEqAllOnes(width()); }
+    bool isZero() സ്ഥിരം { തിരികെ അക്കം().isEqZero(); }
+    bool isOnes() സ്ഥിരം { തിരികെ അക്കം().isEqAllOnes(width()); }
 
     // Does this DfgConst have the given value? Note this is not easy to answer if wider than 32.
-    bool hasValue(uint32_t value) const {
-        return !num().isFourState() && num().edataWord(0) == value && num().mostSetBitP1() <= 32;
+    bool has_മൂല്യം(uint32_t മൂല്യം) സ്ഥിരം {
+        തിരികെ !അക്കം().isFourState() && അക്കം().edataWord(0) == മൂല്യം && അക്കം().mostSetBitP1() <= 32;
     }
 };
 
-class DfgCReset final : public DfgVertexNullary {
-public:
-    DfgCReset(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
+class DfgCReset final : പൊതു DfgVertexNullary {
+പൊതു:
+    DfgCReset(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertexNullary{dfg, dfgType(), flp, dtype} {}
 
     ASTGEN_MEMBERS_DfgCReset;
@@ -307,54 +307,54 @@ public:
 //------------------------------------------------------------------------------
 // Unary vertices - 1 inputs
 
-class DfgVertexUnary VL_NOT_FINAL : public DfgVertex {
+class DfgVertexUnary VL_NOT_FINAL : പൊതു DfgVertex {
     DfgInlineEdgeStorage<1> m_inputs{this};  // Input edges
 
-protected:
-    DfgVertexUnary(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dtype)
+സംരക്ഷിത:
+    DfgVertexUnary(DfgGraph& dfg, VDfgType type, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertex{dfg, type, flp, dtype, m_inputs.m_edges, 1} {}
 
-public:
+പൊതു:
     ASTGEN_MEMBERS_DfgVertexUnary;
-    DfgVertex* srcp() const { return inputp(0); }
-    void srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    std::string srcName(size_t) const override final { return ""; }
+    DfgVertex* srcp() സ്ഥിരം { തിരികെ inputp(0); }
+    ശൂന്യം srcp(DfgVertex* vtxp) { inputp(0, vtxp); }
+    std::string srcName(size_t) സ്ഥിരം override final { തിരികെ ""; }
 };
 
-class DfgRep final : public DfgVertexUnary {
+class DfgRep final : പൊതു DfgVertexUnary {
     // AstReplicate is binary, but 'countp' is always constant. Represented in
     // Dfg as a unary vertex, with the count determined by the data type,
     // similar to Extend/ExtendS.
-public:
-    DfgRep(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
+പൊതു:
+    DfgRep(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertexUnary{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgRep;
-    uint32_t count() const { return width() / srcp()->width(); }
+    uint32_t എണ്ണം() സ്ഥിരം { തിരികെ width() / srcp()->width(); }
 };
 
-class DfgSel final : public DfgVertexUnary {
+class DfgSel final : പൊതു DfgVertexUnary {
     // AstSel is binary, but 'lsbp' is very often constant. As AstSel is fairly
     // common, we special case as a DfgSel for the constant 'lsbp', and as
     // 'DfgMux` for the non-constant 'lsbp'.
     uint32_t m_lsb = 0;  // The LSB index
 
-public:
-    DfgSel(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
+പൊതു:
+    DfgSel(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertexUnary{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgSel;
 
-    DfgVertex* fromp() const { return srcp(); }
-    void fromp(DfgVertex* vtxp) { srcp(vtxp); }
-    uint32_t lsb() const { return m_lsb; }
-    void lsb(uint32_t value) { m_lsb = value; }
-    uint32_t msb() const { return m_lsb + width() - 1; }
+    DfgVertex* fromp() സ്ഥിരം { തിരികെ srcp(); }
+    ശൂന്യം fromp(DfgVertex* vtxp) { srcp(vtxp); }
+    uint32_t lsb() സ്ഥിരം { തിരികെ m_lsb; }
+    ശൂന്യം lsb(uint32_t മൂല്യം) { m_lsb = മൂല്യം; }
+    uint32_t msb() സ്ഥിരം { തിരികെ m_lsb + width() - 1; }
 };
 
-class DfgUnitArray final : public DfgVertexUnary {
+class DfgUnitArray final : പൊതു DfgVertexUnary {
     // This is a type adapter for modeling arrays. It's a single element array,
     // with the value of the single element being the source operand.
-public:
-    DfgUnitArray(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
+പൊതു:
+    DfgUnitArray(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertexUnary{dfg, dfgType(), flp, dtype} {
         UASSERT_OBJ(isArray(), flp, "Non-array DfgUnitArray");
         UASSERT_OBJ(size() == 1, flp, "DfgUnitArray must have a single element");
@@ -365,237 +365,237 @@ public:
 //------------------------------------------------------------------------------
 // Binary vertices - 2 inputs
 
-class DfgVertexBinary VL_NOT_FINAL : public DfgVertex {
+class Dfg_Vertex_ദ്വിമാന VL_NOT_FINAL : പൊതു DfgVertex {
     DfgInlineEdgeStorage<2> m_inputs{this};  // Input edges
 
-protected:
-    DfgVertexBinary(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dtype)
+സംരക്ഷിത:
+    Dfg_Vertex_ദ്വിമാന(DfgGraph& dfg, VDfgType type, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertex{dfg, type, flp, dtype, m_inputs.m_edges, 2} {}
 
-public:
-    ASTGEN_MEMBERS_DfgVertexBinary;
-    DfgVertex* lhsp() const { return inputp(0); }
-    void lhsp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    DfgVertex* rhsp() const { return inputp(1); }
-    void rhsp(DfgVertex* vtxp) { inputp(1, vtxp); }
+പൊതു:
+    ASTGEN_MEMBERS_Dfg_Vertex_ദ്വിമാന;
+    DfgVertex* lhsp() സ്ഥിരം { തിരികെ inputp(0); }
+    ശൂന്യം lhsp(DfgVertex* vtxp) { inputp(0, vtxp); }
+    DfgVertex* rhsp() സ്ഥിരം { തിരികെ inputp(1); }
+    ശൂന്യം rhsp(DfgVertex* vtxp) { inputp(1, vtxp); }
 };
 
-class DfgMatchMasked final : public DfgVertexBinary {
+class DfgMatchMasked final : പൊതു Dfg_Vertex_ദ്വിമാന {
     // Dfg equivalent of AstMatchMasked
-public:
-    DfgMatchMasked(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
-        : DfgVertexBinary{dfg, dfgType(), flp, dtype} {}
+പൊതു:
+    DfgMatchMasked(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
+        : Dfg_Vertex_ദ്വിമാന{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgMatchMasked;
 
-    DfgVertex* lhsp() const { return inputp(0); }
-    void lhsp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    DfgVertex* matchp() const { return inputp(1); }
-    void matchp(DfgVertex* vtxp) { inputp(1, vtxp); }
+    DfgVertex* lhsp() സ്ഥിരം { തിരികെ inputp(0); }
+    ശൂന്യം lhsp(DfgVertex* vtxp) { inputp(0, vtxp); }
+    DfgVertex* matchp() സ്ഥിരം { തിരികെ inputp(1); }
+    ശൂന്യം matchp(DfgVertex* vtxp) { inputp(1, vtxp); }
 
-    std::string srcName(size_t idx) const override { return idx ? "matchp" : "lhsp"; }
+    std::string srcName(size_t idx) സ്ഥിരം override { തിരികെ idx ? "matchp" : "lhsp"; }
 };
 
-class DfgMux final : public DfgVertexBinary {
+class DfgMux final : പൊതു Dfg_Vertex_ദ്വിമാന {
     // AstSel is binary, but 'lsbp' is very often constant. As AstSel is fairly
     // common, we special case as a DfgSel for the constant 'lsbp', and as
     // 'DfgMux` for the non-constant 'lsbp'.
-public:
-    DfgMux(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
-        : DfgVertexBinary{dfg, dfgType(), flp, dtype} {}
+പൊതു:
+    DfgMux(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
+        : Dfg_Vertex_ദ്വിമാന{dfg, dfgType(), flp, dtype} {}
     ASTGEN_MEMBERS_DfgMux;
 
-    DfgVertex* fromp() const { return inputp(0); }
-    void fromp(DfgVertex* vtxp) { inputp(0, vtxp); }
-    DfgVertex* lsbp() const { return inputp(1); }
-    void lsbp(DfgVertex* vtxp) { inputp(1, vtxp); }
+    DfgVertex* fromp() സ്ഥിരം { തിരികെ inputp(0); }
+    ശൂന്യം fromp(DfgVertex* vtxp) { inputp(0, vtxp); }
+    DfgVertex* lsbp() സ്ഥിരം { തിരികെ inputp(1); }
+    ശൂന്യം lsbp(DfgVertex* vtxp) { inputp(1, vtxp); }
 
-    std::string srcName(size_t idx) const override { return idx ? "lsbp" : "fromp"; }
+    std::string srcName(size_t idx) സ്ഥിരം override { തിരികെ idx ? "lsbp" : "fromp"; }
 };
 
 //------------------------------------------------------------------------------
 // Ternary vertices - 3 inputs
 
-class DfgVertexTernary VL_NOT_FINAL : public DfgVertex {
+class DfgVertexTernary VL_NOT_FINAL : പൊതു DfgVertex {
     DfgInlineEdgeStorage<3> m_inputs{this};  // Input edges
 
-protected:
-    DfgVertexTernary(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dtype)
+സംരക്ഷിത:
+    DfgVertexTernary(DfgGraph& dfg, VDfgType type, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertex{dfg, type, flp, dtype, m_inputs.m_edges, 3} {}
 
-public:
+പൊതു:
     ASTGEN_MEMBERS_DfgVertexTernary;
 };
 
 //------------------------------------------------------------------------------
 // Variadic vertices - variable number of inputs
 
-class DfgVertexVariadic VL_NOT_FINAL : public DfgVertex {
+class DfgVertexVariadic VL_NOT_FINAL : പൊതു DfgVertex {
     friend class DfgVertex;  // For 'DfgVertex::inputEdgep' to access 'm_edgeps'
 
     std::vector<std::unique_ptr<DfgEdge>> m_edgeps;  // Input edges
 
-protected:
-    DfgVertexVariadic(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dtype)
+സംരക്ഷിത:
+    DfgVertexVariadic(DfgGraph& dfg, VDfgType type, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertex{dfg, type, flp, dtype, nullptr, 0} {}
 
     // Create a new input edge and return it
-    DfgEdge* newInput() {
+    DfgEdge* new_നിവേശം() {
         m_edgeps.emplace_back(new DfgEdge{this});
         m_nInputs = m_edgeps.size();
-        return m_edgeps.back().get();
+        തിരികെ m_edgeps.back().get();
     }
 
     // Unlink all inputs and reset to no inputs - use very carefully
-    void resetInputs() {
+    ശൂന്യം resetInputs() {
         m_edgeps.clear();
         m_nInputs = 0;
     }
 
-public:
+പൊതു:
     ASTGEN_MEMBERS_DfgVertexVariadic;
 };
 
-class DfgVertexSplice VL_NOT_FINAL : public DfgVertexVariadic {
+class DfgVertexSplice VL_NOT_FINAL : പൊതു DfgVertexVariadic {
     // Represents a partial update to a varibale
 
-    struct DriverData final {
+    ഘടന DriverData final {
         uint32_t m_lo;  // Low index of range driven by this driver
-        FileLine* m_flp;  // Location of this driver
+        File_വരി* m_flp;  // Location of this driver
         DriverData() = delete;
-        DriverData(uint32_t lo, FileLine* flp)
+        DriverData(uint32_t lo, File_വരി* flp)
             : m_lo{lo}
             , m_flp{flp} {}
     };
     std::vector<DriverData> m_driverData;  // Additional data associated with each driver
 
-protected:
-    DfgVertexSplice(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dtype)
+സംരക്ഷിത:
+    DfgVertexSplice(DfgGraph& dfg, VDfgType type, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertexVariadic{dfg, type, flp, dtype} {}
 
-public:
+പൊതു:
     ASTGEN_MEMBERS_DfgVertexSplice;
 
     // Add driver
-    void addDriver(DfgVertex* vtxp, uint32_t lo, FileLine* flp) {
+    ശൂന്യം addDriver(DfgVertex* vtxp, uint32_t lo, File_വരി* flp) {
         UASSERT_OBJ(!vtxp->is<DfgLogic>(), vtxp, "addDriver called with DfgLogic");
         m_driverData.emplace_back(lo, flp);
-        newInput()->relinkSrcp(vtxp);
+        new_നിവേശം()->relinkSrcp(vtxp);
     }
 
-    void resetDrivers() {
+    ശൂന്യം resetDrivers() {
         resetInputs();
         m_driverData.clear();
     }
 
-    std::string srcName(size_t idx) const override final {
-        const uint32_t lo = m_driverData[idx].m_lo;
-        const uint32_t hi = lo + inputp(idx)->size() - 1;
-        return '[' + std::to_string(hi) + ':' + std::to_string(lo) + ']';
+    std::string srcName(size_t idx) സ്ഥിരം override final {
+        സ്ഥിരം uint32_t lo = m_driverData[idx].m_lo;
+        സ്ഥിരം uint32_t hi = lo + inputp(idx)->size() - 1;
+        തിരികെ '[' + std::to_string(hi) + ':' + std::to_string(lo) + ']';
     }
 
-    FileLine* driverFileLine(size_t idx) const { return m_driverData.at(idx).m_flp; }
+    File_വരി* driver_File_വരി(size_t idx) സ്ഥിരം { തിരികെ m_driverData.at(idx).m_flp; }
 
-    DfgVertex* driverAt(size_t idx) const {
-        const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (m_driverData[i].m_lo == idx) return inputp(i);
+    DfgVertex* driverAt(size_t idx) സ്ഥിരം {
+        സ്ഥിരം size_t n = nInputs();
+        വേണ്ടി (size_t i = 0; i < n; ++i) {
+            എങ്കിൽ (m_driverData[i].m_lo == idx) തിരികെ inputp(i);
         }
-        return nullptr;
+        തിരികെ nullptr;
     }
 
     // If drives the whole result explicitly (not through defaultp), this is
     // the actual driver this DfgVertexSplice can be replaced with.
     DfgVertex* wholep() {
-        if (nInputs() != 1) return nullptr;
-        if (m_driverData[0].m_lo != 0) return nullptr;
-        DfgVertex* const vtxp = inputp(0);
-        if (vtxp->size() != size()) return nullptr;
-        if (const DfgUnitArray* const uap = vtxp->cast<DfgUnitArray>()) {
-            if (DfgVertexSplice* const splicep = uap->srcp()->cast<DfgVertexSplice>()) {
-                if (!splicep->wholep()) return nullptr;
+        എങ്കിൽ (nInputs() != 1) തിരികെ nullptr;
+        എങ്കിൽ (m_driverData[0].m_lo != 0) തിരികെ nullptr;
+        DfgVertex* സ്ഥിരം vtxp = inputp(0);
+        എങ്കിൽ (vtxp->size() != size()) തിരികെ nullptr;
+        എങ്കിൽ (സ്ഥിരം DfgUnitArray* സ്ഥിരം uap = vtxp->cast<DfgUnitArray>()) {
+            എങ്കിൽ (DfgVertexSplice* സ്ഥിരം splicep = uap->srcp()->cast<DfgVertexSplice>()) {
+                എങ്കിൽ (!splicep->wholep()) തിരികെ nullptr;
             }
         }
-        return vtxp;
+        തിരികെ vtxp;
     }
 
     template <typename T_Callable,
               std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, DfgVertex&, uint32_t,
-                                                     FileLine*>::value,  //
-                               int>
+                                                     File_വരി*>::മൂല്യം,  //
+                               പൂർണ്ണസംഖ്യ>
               = 0>
     bool foreachDriver(T_Callable&& f) {
-        const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) return true;
+        സ്ഥിരം size_t n = nInputs();
+        വേണ്ടി (size_t i = 0; i < n; ++i) {
+            എങ്കിൽ (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) തിരികെ true;
         }
-        return false;
+        തിരികെ false;
     }
     template <typename T_Callable,
-              std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&, uint32_t,
-                                                     FileLine*>::value,
-                               int>
+              std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, സ്ഥിരം DfgVertex&, uint32_t,
+                                                     File_വരി*>::മൂല്യം,
+                               പൂർണ്ണസംഖ്യ>
               = 0>
-    bool foreachDriver(T_Callable&& f) const {
-        const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) return true;
+    bool foreachDriver(T_Callable&& f) സ്ഥിരം {
+        സ്ഥിരം size_t n = nInputs();
+        വേണ്ടി (size_t i = 0; i < n; ++i) {
+            എങ്കിൽ (f(*inputp(i), m_driverData[i].m_lo, m_driverData[i].m_flp)) തിരികെ true;
         }
-        return false;
+        തിരികെ false;
     }
     template <
         typename T_Callable,
-        std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, DfgVertex&, uint32_t>::value,  //
-                         int>
+        std::enable_if_t<vlstd::is_invocable_r<bool, T_Callable, DfgVertex&, uint32_t>::മൂല്യം,  //
+                         പൂർണ്ണസംഖ്യ>
         = 0>
     bool foreachDriver(T_Callable&& f) {
-        const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo)) return true;
+        സ്ഥിരം size_t n = nInputs();
+        വേണ്ടി (size_t i = 0; i < n; ++i) {
+            എങ്കിൽ (f(*inputp(i), m_driverData[i].m_lo)) തിരികെ true;
         }
-        return false;
+        തിരികെ false;
     }
     template <typename T_Callable,
               std::enable_if_t<
-                  vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&, uint32_t>::value, int>
+                  vlstd::is_invocable_r<bool, T_Callable, സ്ഥിരം DfgVertex&, uint32_t>::മൂല്യം, പൂർണ്ണസംഖ്യ>
               = 0>
-    bool foreachDriver(T_Callable&& f) const {
-        const size_t n = nInputs();
-        for (size_t i = 0; i < n; ++i) {
-            if (f(*inputp(i), m_driverData[i].m_lo)) return true;
+    bool foreachDriver(T_Callable&& f) സ്ഥിരം {
+        സ്ഥിരം size_t n = nInputs();
+        വേണ്ടി (size_t i = 0; i < n; ++i) {
+            എങ്കിൽ (f(*inputp(i), m_driverData[i].m_lo)) തിരികെ true;
         }
-        return false;
+        തിരികെ false;
     }
 };
 
-class DfgSpliceArray final : public DfgVertexSplice {
+class DfgSpliceArray final : പൊതു DfgVertexSplice {
     friend class DfgVertex;
     friend class DfgVisitor;
 
-public:
-    DfgSpliceArray(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
+പൊതു:
+    DfgSpliceArray(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertexSplice{dfg, dfgType(), flp, dtype} {
         UASSERT_OBJ(isArray(), flp, "Non-array DfgSpliceArray");
     }
     ASTGEN_MEMBERS_DfgSpliceArray;
 };
 
-class DfgSplicePacked final : public DfgVertexSplice {
+class DfgSplicePacked final : പൊതു DfgVertexSplice {
     friend class DfgVertex;
     friend class DfgVisitor;
 
-public:
-    DfgSplicePacked(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype)
+പൊതു:
+    DfgSplicePacked(DfgGraph& dfg, File_വരി* flp, സ്ഥിരം DfgDataType& dtype)
         : DfgVertexSplice{dfg, dfgType(), flp, dtype} {
         UASSERT_OBJ(isPacked(), flp, "Non-packed DfgSplicePacked");
     }
     ASTGEN_MEMBERS_DfgSplicePacked;
 };
 
-class DfgLogic final : public DfgVertexVariadic {
+class DfgLogic final : പൊതു DfgVertexVariadic {
     // Generic vertex representing a whole combinational process
-    AstAlways* const m_nodep;  // The Ast logic represented by this vertex
-    AstScope* const m_scopep;  // The AstScope m_nodep is under, iff scoped
-    const std::unique_ptr<CfgGraph> m_cfgp;
+    AstAlways* സ്ഥിരം m_nodep;  // The Ast logic represented by this vertex
+    AstScope* സ്ഥിരം m_scopep;  // The AstScope m_nodep is under, iff scoped
+    സ്ഥിരം std::unique_ptr<CfgGraph> m_cfgp;
     std::vector<DfgVertex*> m_synth;  // Vertices this logic was synthesized into
     bool m_drivesUnusedVars = false;  // Logic drives unused variables
     bool m_selectedForSynthesis = false;  // Logic selected for synthesis
@@ -603,7 +603,7 @@ class DfgLogic final : public DfgVertexVariadic {
     bool m_reverted = false;  // Logic was synthesized (in part if non-synthesizable) then reverted
     mutable uint8_t m_cachedPure = 0;  // Cached purity of the logic
 
-public:
+പൊതു:
     DfgLogic(DfgGraph& dfg, AstAlways* nodep, AstScope* scopep, std::unique_ptr<CfgGraph> cfgp)
         : DfgVertexVariadic{dfg, dfgType(), nodep->fileline(), DfgDataType::null()}
         , m_nodep{nodep}
@@ -612,55 +612,55 @@ public:
 
     ASTGEN_MEMBERS_DfgLogic;
 
-    std::string srcName(size_t) const override final { return ""; }
+    std::string srcName(size_t) സ്ഥിരം override final { തിരികെ ""; }
 
     // Can only be driven by DfgVertexVar
-    void addInput(DfgVertexVar* varp) { newInput()->relinkSrcp(varp); }
+    ശൂന്യം add_നിവേശം(DfgVertexVar* varp) { new_നിവേശം()->relinkSrcp(varp); }
 
     // Accessors
-    AstAlways* nodep() const { return m_nodep; }
-    AstScope* scopep() const { return m_scopep; }
-    CfgGraph& cfg() { return *m_cfgp; }
-    const CfgGraph& cfg() const { return *m_cfgp; }
-    std::vector<DfgVertex*>& synth() { return m_synth; }
-    const std::vector<DfgVertex*>& synth() const { return m_synth; }
-    bool drivesUnusedVars() const { return m_drivesUnusedVars; }
-    void setDrivesUnusedVars() { m_drivesUnusedVars = true; }
-    bool selectedForSynthesis() const { return m_selectedForSynthesis; }
-    void setSelectedForSynthesis() { m_selectedForSynthesis = true; }
-    bool nonSynthesizable() const { return m_nonSynthesizable; }
-    void setNonSynthesizable() { m_nonSynthesizable = true; }
-    bool reverted() const { return m_reverted; }
-    void setReverted() { m_reverted = true; }
+    AstAlways* nodep() സ്ഥിരം { തിരികെ m_nodep; }
+    AstScope* scopep() സ്ഥിരം { തിരികെ m_scopep; }
+    CfgGraph& cfg() { തിരികെ *m_cfgp; }
+    സ്ഥിരം CfgGraph& cfg() സ്ഥിരം { തിരികെ *m_cfgp; }
+    std::vector<DfgVertex*>& synth() { തിരികെ m_synth; }
+    സ്ഥിരം std::vector<DfgVertex*>& synth() സ്ഥിരം { തിരികെ m_synth; }
+    bool drivesUnusedVars() സ്ഥിരം { തിരികെ m_drivesUnusedVars; }
+    ശൂന്യം setDrivesUnusedVars() { m_drivesUnusedVars = true; }
+    bool selectedForSynthesis() സ്ഥിരം { തിരികെ m_selectedForSynthesis; }
+    ശൂന്യം setSelectedForSynthesis() { m_selectedForSynthesis = true; }
+    bool nonSynthesizable() സ്ഥിരം { തിരികെ m_nonSynthesizable; }
+    ശൂന്യം setNonSynthesizable() { m_nonSynthesizable = true; }
+    bool reverted() സ്ഥിരം { തിരികെ m_reverted; }
+    ശൂന്യം setReverted() { m_reverted = true; }
     // Logic has no side-effect, just computes its output variables based on its input variables
-    bool isPure() const {
-        if (!m_cachedPure) {
+    bool isPure() സ്ഥിരം {
+        എങ്കിൽ (!m_cachedPure) {
             // This is a sledgehamer, but AstNodeStmts don't compute their 'purity' properly,
             // not that 'purity' makes sense for statements... We don't call this often and cached.
-            const bool pure = m_nodep->forall([](AstNode* nodep) { return nodep->isPure(); });
+            സ്ഥിരം bool pure = m_nodep->forall([](Ast_കണ്ണി* nodep) { തിരികെ nodep->isPure(); });
             m_cachedPure = static_cast<uint8_t>(pure) | 0x2;
         }
-        return m_cachedPure & 0x01;
+        തിരികെ m_cachedPure & 0x01;
     }
 };
 
-class DfgUnresolved final : public DfgVertexVariadic {
+class DfgUnresolved final : പൊതു DfgVertexVariadic {
     // Represents a collection of unresolved variable drivers before synthesis
-public:
-    DfgUnresolved(DfgGraph& dfg, const DfgVertexVar* vtxp)
+പൊതു:
+    DfgUnresolved(DfgGraph& dfg, സ്ഥിരം DfgVertexVar* vtxp)
         : DfgVertexVariadic{dfg, dfgType(), vtxp->fileline(), vtxp->dtype()} {}
     ASTGEN_MEMBERS_DfgUnresolved;
 
-    std::string srcName(size_t) const override final { return ""; }
+    std::string srcName(size_t) സ്ഥിരം override final { തിരികെ ""; }
 
     // Can only be driven by DfgLogic or DfgVertexSplice
-    void addDriver(DfgLogic* vtxp) { newInput()->relinkSrcp(vtxp); }
-    void addDriver(DfgVertexSplice* vtxp) { newInput()->relinkSrcp(vtxp); }
+    ശൂന്യം addDriver(DfgLogic* vtxp) { new_നിവേശം()->relinkSrcp(vtxp); }
+    ശൂന്യം addDriver(DfgVertexSplice* vtxp) { new_നിവേശം()->relinkSrcp(vtxp); }
 };
 
 //------------------------------------------------------------------------------
 // The rest of the vertex types are generated by 'astgen' from AstNodeExpr
-#include "V3Dfg__gen_auto_classes.h"
+#അന്തര്ഭാവ "V3Dfg__gen_auto_classes.h"
 
 //------------------------------------------------------------------------------
 // Inline method definitions

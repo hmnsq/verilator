@@ -26,114 +26,114 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Begin.h"
+#അന്തര്ഭാവ "V3Begin.h"
 
-#include "V3Stats.h"
-#include "V3String.h"
-#include "V3UniqueNames.h"
+#അന്തര്ഭാവ "V3Stats.h"
+#അന്തര്ഭാവ "V3String.h"
+#അന്തര്ഭാവ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class BeginState final {
+വർഗ്ഗം BeginState final {
     // NODE STATE
     // Entire netlist:
     // AstNodeFTask::user1      -> bool, 1=processed
-    const VNUser1InUse m_inuser1;
-    bool m_anyFuncInBegin = false;
+    സ്ഥിരം VNUser1InUse m_inuser1;
+    തർക്കം m_anyFuncInBegin = അസത്യം;
 
-public:
-    BeginState() = default;
-    ~BeginState() = default;
-    void userMarkChanged(AstNode* nodep) {
-        nodep->user1(true);
-        m_anyFuncInBegin = true;
+പൊതു:
+    BeginState() = സ്ഥിരസ്ഥിതി;
+    ~BeginState() = സ്ഥിരസ്ഥിതി;
+    ശൂന്യം userMarkChanged(Ast_കണ്ണി* nodep) {
+        nodep->user1(സത്യം);
+        m_anyFuncInBegin = സത്യം;
     }
-    bool anyFuncInBegin() const { return m_anyFuncInBegin; }
+    തർക്കം anyFuncInBegin() സ്ഥിരം { തിരികെ m_anyFuncInBegin; }
 };
 
 //######################################################################
 
-class BeginVisitor final : public VNVisitor {
+വർഗ്ഗം BeginVisitor final : പൊതു VNVisitor {
     // NODE STATE
     // AstCase::user1   -> bool, if already purified
 
     // STATE - across all visitors
-    BeginState* const m_statep;  // Current global state
+    BeginState* സ്ഥിരം m_statep;  // Current global state
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_കണ്ണി_Module* m_modp = nullptr;  // Current module
     AstCellInline* m_inlinesp = nullptr;  // AstCellInlines to add to m_modp
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNodeProcedure* m_procedurep = nullptr;  // Current procedure
-    AstNode* m_liftedp = nullptr;  // Local nodes we are lifting into m_ftaskp
+    Ast_കണ്ണി_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_കണ്ണി_Procedure* m_procedurep = nullptr;  // Current procedure
+    Ast_കണ്ണി* m_liftedp = nullptr;  // Local nodes we are lifting into m_ftaskp
     string m_displayScope;  // Name of %m in $display/AstScopeName
     string m_namedScope;  // Name of begin blocks above us
     string m_unnamedScope;  // Name of begin blocks, including unnamed blocks
-    int m_ifDepth = 0;  // Current if depth
-    bool m_keepBegins = false;  // True if begins should not be inlined
+    പൂർണ്ണസംഖ്യ m_ifDepth = 0;  // Current if depth
+    തർക്കം m_keepBegins = അസത്യം;  // True if begins should not be inlined
 
     // METHODS
 
-    string dot(const string& a, const string& b) { return VString::dot(a, "__DOT__", b); }
+    string dot(സ്ഥിരം string& a, സ്ഥിരം string& b) { തിരികെ VString::dot(a, "__DOT__", b); }
 
-    void dotNames(const std::string& name, FileLine* const flp, const char* const blockName) {
+    ശൂന്യം dotNames(സ്ഥിരം std::string& name, File_വരി* സ്ഥിരം flp, സ്ഥിരം അക്ഷരം* സ്ഥിരം blockName) {
         UINFO(8, "nname " << m_namedScope);
         // If unneeded unnamed block, whatever that means :)
-        if (name == "") return;
+        എങ്കിൽ (name == "") തിരികെ;
 
         // Create data for dotted variable resolution
         std::string dottedname = name + "__DOT__";  // So always found
         std::string::size_type pos;
-        while ((pos = dottedname.find("__DOT__")) != std::string::npos) {
-            const std::string ident = dottedname.substr(0, pos);
+        ആകുമ്പോൾ ((pos = dottedname.find("__DOT__")) != std::string::npos) {
+            സ്ഥിരം std::string ident = dottedname.substr(0, pos);
             dottedname = dottedname.substr(pos + std::strlen("__DOT__"));
-            if (name != "") {
+            എങ്കിൽ (name != "") {
                 m_displayScope = dot(m_displayScope, ident);
                 m_namedScope = dot(m_namedScope, ident);
             }
             m_unnamedScope = dot(m_unnamedScope, ident);
             // Create CellInline for dotted var resolution
-            if (!m_ftaskp) {
-                AstCellInline* const inlinep = new AstCellInline{flp, m_unnamedScope, blockName};
-                m_inlinesp = AstNode::addNextNull(m_inlinesp, inlinep);
+            എങ്കിൽ (!m_ftaskp) {
+                AstCellInline* സ്ഥിരം inlinep = പുതിയ AstCellInline{flp, m_unnamedScope, blockName};
+                m_inlinesp = Ast_കണ്ണി::addNextNull(m_inlinesp, inlinep);
             }
         }
     }
 
-    void liftNode(AstNode* nodep) {
+    ശൂന്യം lift_കണ്ണി(Ast_കണ്ണി* nodep) {
         nodep->unlinkFrBack();
-        if (m_ftaskp) {
+        എങ്കിൽ (m_ftaskp) {
             // AstBegin under ftask, just move into the ftask
-            if (!m_liftedp) {
+            എങ്കിൽ (!m_liftedp) {
                 m_liftedp = nodep;
-            } else {
+            } അല്ലെങ്കിൽ {
                 m_liftedp->addNext(nodep);
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             // Move to module
             m_modp->addStmtsp(nodep);
         }
     }
 
     // VISITORS
-    void visit(AstForeach* nodep) override {
+    ശൂന്യം visit(AstForeach* nodep) override {
         VL_DO_DANGLING(V3Begin::convertToWhile(nodep), nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Assign* nodep) override {
         // Keep begin under assignment (in nodep->timingControlp())
         VL_RESTORER(m_keepBegins);
-        m_keepBegins = true;
+        m_keepBegins = സത്യം;
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         // Rename it (e.g. class under a generate)
-        if (m_unnamedScope != "") {
+        എങ്കിൽ (m_unnamedScope != "") {
             nodep->name(dot(m_unnamedScope, nodep->name()));
             UINFO(8, "     rename to " << nodep->name());
             m_statep->userMarkChanged(nodep);
@@ -147,15 +147,15 @@ class BeginVisitor final : public VNVisitor {
         // Must be parsed before any AstCells, so put them first
         nodep->prependStmtsp(m_inlinesp);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Procedure* nodep) override {
         VL_RESTORER(m_procedurep);
         m_procedurep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_FTask* nodep) override {
         UINFO(8, "  " << nodep);
         // Rename it
-        if (m_unnamedScope != "") {
+        എങ്കിൽ (m_unnamedScope != "") {
             nodep->name(dot(m_unnamedScope, nodep->name()));
             UINFO(8, "     rename to " << nodep->name());
             m_statep->userMarkChanged(nodep);
@@ -175,14 +175,14 @@ class BeginVisitor final : public VNVisitor {
         m_ftaskp = nodep;
         m_liftedp = nullptr;
         iterateChildren(nodep);
-        nodep->foreach([&](AstInitialStatic* const initp) {
+        nodep->foreach([&](AstInitialStatic* സ്ഥിരം initp) {
             initp->unlinkFrBack();
             m_ftaskp->addHereThisAsNext(initp);
         });
         // Place lifted nodes at beginning of stmtsp, so Var nodes appear before referenced
         nodep->prependStmtsp(m_liftedp);
     }
-    void visit(AstGenBlock* nodep) override {
+    ശൂന്യം visit(AstGenBlock* nodep) override {
         // GenBlocks were only useful in variable creation, change names and delete
         UINFO(8, "  " << nodep);
         VL_RESTORER_COPY(m_displayScope);
@@ -192,33 +192,33 @@ class BeginVisitor final : public VNVisitor {
         dotNames(nodep->name(), nodep->fileline(), "__BEGIN__");
         iterateAndNextNull(nodep->itemsp());
         // Repalce node with body then delete
-        if (AstNode* const itemsp = nodep->itemsp()) {
+        എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം itemsp = nodep->itemsp()) {
             nodep->addNextHere(itemsp->unlinkFrBackWithNext());
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstFork* nodep) override {
+    ശൂന്യം visit(AstFork* nodep) override {
         dotNames(nodep->name(), nodep->fileline(), "__FORK__");
         iterateAndNextNull(nodep->stmtsp());
         {
             // Keep begins in forks to group their statements together
             VL_RESTORER(m_keepBegins);
-            m_keepBegins = true;
+            m_keepBegins = സത്യം;
             iterateAndNextNull(nodep->forksp());
         }
-        AstNode* addsp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
+        Ast_കണ്ണി* addsp = nullptr;
+        എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം declsp = nodep->declsp()) {
             declsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, declsp);
+            addsp = Ast_കണ്ണി::addNext(addsp, declsp);
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം stmtsp = nodep->stmtsp()) {
             stmtsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, stmtsp);
+            addsp = Ast_കണ്ണി::addNext(addsp, stmtsp);
         }
-        if (addsp) nodep->addHereThisAsNext(addsp);
+        എങ്കിൽ (addsp) nodep->addHereThisAsNext(addsp);
         nodep->name("");
     }
-    void visit(AstBegin* nodep) override {
+    ശൂന്യം visit(AstBegin* nodep) override {
         // Begin blocks were only useful in variable creation, change names and delete
         UINFO(8, "  " << nodep);
         VL_RESTORER_COPY(m_displayScope);
@@ -226,33 +226,33 @@ class BeginVisitor final : public VNVisitor {
         VL_RESTORER_COPY(m_unnamedScope);
         {
             VL_RESTORER(m_keepBegins);
-            m_keepBegins = false;
+            m_keepBegins = അസത്യം;
             dotNames(nodep->name(), nodep->fileline(), "__BEGIN__");
             iterateChildren(nodep);
         }
 
         // Cleanup
-        if (m_keepBegins) {
+        എങ്കിൽ (m_keepBegins) {
             nodep->name("");
-            return;
+            തിരികെ;
         }
-        AstNode* addsp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
+        Ast_കണ്ണി* addsp = nullptr;
+        എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം declsp = nodep->declsp()) {
             declsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, declsp);
+            addsp = Ast_കണ്ണി::addNext(addsp, declsp);
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം stmtsp = nodep->stmtsp()) {
             stmtsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, stmtsp);
+            addsp = Ast_കണ്ണി::addNext(addsp, stmtsp);
         }
-        if (addsp) {
+        എങ്കിൽ (addsp) {
             nodep->replaceWith(addsp);
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstNodeBlock* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Block* nodep) override {
         // Begin/Fork blocks were only useful in variable creation, change names and delete
         UINFO(8, "  " << nodep);
         VL_RESTORER_COPY(m_displayScope);
@@ -267,104 +267,104 @@ class BeginVisitor final : public VNVisitor {
         }
 
         // Cleanup
-        if (m_keepBegins) {
+        എങ്കിൽ (m_keepBegins) {
             nodep->name("");
-            return;
+            തിരികെ;
         }
-        AstNode* addsp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
+        Ast_കണ്ണി* addsp = nullptr;
+        എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം declsp = nodep->declsp()) {
             declsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, declsp);
+            addsp = Ast_കണ്ണി::addNext(addsp, declsp);
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം stmtsp = nodep->stmtsp()) {
             stmtsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, stmtsp);
+            addsp = Ast_കണ്ണി::addNext(addsp, stmtsp);
         }
-        if (addsp) {
+        എങ്കിൽ (addsp) {
             nodep->replaceWith(addsp);
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (nodep->user1SetOnce()) { return; }
+    ശൂന്യം visit(AstVar* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) { തിരികെ; }
         // If static variable, move it outside a function.
-        if (nodep->lifetime().isStatic() && m_ftaskp) {
-            const std::string newName
+        എങ്കിൽ (nodep->lifetime().isStatic() && m_ftaskp) {
+            സ്ഥിരം std::string newName
                 = m_ftaskp->name() + "__Vstatic__" + dot(m_unnamedScope, nodep->name());
-            if (nodep->isIO()) {
-                if (nodep->direction().isRef()) {
+            എങ്കിൽ (nodep->isIO()) {
+                എങ്കിൽ (nodep->direction().isRef()) {
                     nodep->v3error(
                         "It is illegal to use argument passing by reference for subroutines with "
                         "a lifetime of static (IEEE 1800-2023 13.5.2)");
                 }
                 // Create a port that is used for passing value between argument and static
                 // variable
-                AstVar* const portp = nodep->cloneTreePure(false);
+                AstVar* സ്ഥിരം portp = nodep->clone_വൃക്ഷം_Pure(അസത്യം);
                 nodep->replaceWith(portp);
 
-                if (nodep->isInput() || nodep->isInout()) {
-                    AstAssign* const initAssignp = new AstAssign{
-                        nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
-                        new AstVarRef{portp->fileline(), portp, VAccess::READ}};
+                എങ്കിൽ (nodep->is_നിവേശം() || nodep->isInout()) {
+                    AstAssign* സ്ഥിരം initAssignp = പുതിയ AstAssign{
+                        nodep->fileline(), പുതിയ AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+                        പുതിയ AstVarRef{portp->fileline(), portp, VAccess::READ}};
                     portp->addNextHere(initAssignp);
                 }
 
-                if (nodep->isWritable()) {
-                    AstAssign* const endAssignp = new AstAssign{
-                        nodep->fileline(), new AstVarRef{portp->fileline(), portp, VAccess::WRITE},
-                        new AstVarRef{nodep->fileline(), nodep, VAccess::READ}};
+                എങ്കിൽ (nodep->isWritable()) {
+                    AstAssign* സ്ഥിരം endAssignp = പുതിയ AstAssign{
+                        nodep->fileline(), പുതിയ AstVarRef{portp->fileline(), portp, VAccess::WRITE},
+                        പുതിയ AstVarRef{nodep->fileline(), nodep, VAccess::READ}};
                     m_ftaskp->addStmtsp(endAssignp);
                 }
-            } else {
+            } അല്ലെങ്കിൽ {
                 nodep->unlinkFrBack();
             }
             nodep->name(newName);
             m_ftaskp->addHereThisAsNext(nodep);
-            nodep->funcLocal(false);
-        } else if (m_unnamedScope != "") {
+            nodep->funcLocal(അസത്യം);
+        } അല്ലെങ്കിൽ എങ്കിൽ (m_unnamedScope != "") {
             // Rename it
             nodep->name(dot(m_unnamedScope, nodep->name()));
             m_statep->userMarkChanged(nodep);
             // Move it under enclosing tree
-            liftNode(nodep);
+            lift_കണ്ണി(nodep);
         }
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
+    ശൂന്യം visit(AstInitialAutomaticStmt* nodep) override {
         // Automatic sets go at the current location
         nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
+    ശൂന്യം visit(AstInitialStaticStmt* nodep) override {
         // As we moved static variables, move static initializers too
-        if (nodep->user1SetOnce()) return;  // Don't double-add text's
-        AstNode* wasUnderp = m_ftaskp;
-        if (!m_ftaskp) wasUnderp = m_procedurep;
-        if (wasUnderp) {
-            if (nodep->stmtsp()) {
-                AstNode* const newp = new AstInitialStatic{
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;  // Don't double-add text's
+        Ast_കണ്ണി* wasUnderp = m_ftaskp;
+        എങ്കിൽ (!m_ftaskp) wasUnderp = m_procedurep;
+        എങ്കിൽ (wasUnderp) {
+            എങ്കിൽ (nodep->stmtsp()) {
+                Ast_കണ്ണി* സ്ഥിരം newp = പുതിയ AstInitialStatic{
                     nodep->fileline(), nodep->stmtsp()->unlinkFrBackWithNext()};
                 wasUnderp->addHereThisAsNext(newp);
                 iterateChildren(newp);
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
+        } അല്ലെങ്കിൽ {
             nodep->v3fatalSrc("InitialStaticStmt under unexpected grand-parent");
         }
     }
-    void visit(AstTypedef* nodep) override {
-        if (m_unnamedScope != "") {
+    ശൂന്യം visit(AstTypedef* nodep) override {
+        എങ്കിൽ (m_unnamedScope != "") {
             // Rename it
             nodep->name(dot(m_unnamedScope, nodep->name()));
             m_statep->userMarkChanged(nodep);
             // Move it under enclosing tree
-            liftNode(nodep);
+            lift_കണ്ണി(nodep);
         }
     }
-    void visit(AstCell* nodep) override {
+    ശൂന്യം visit(AstCell* nodep) override {
         UINFO(8, "   CELL " << nodep);
-        if (m_namedScope != "") {
+        എങ്കിൽ (m_namedScope != "") {
             m_statep->userMarkChanged(nodep);
             // Rename it
             nodep->name(dot(m_namedScope, nodep->name()));
@@ -375,234 +375,234 @@ class BeginVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstVarXRef* nodep) override {
+    ശൂന്യം visit(AstVarXRef* nodep) override {
         UINFO(9, "   VARXREF " << nodep);
-        if (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
+        എങ്കിൽ (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
             nodep->inlinedDots(m_namedScope);
             UINFO(9, "    rescope to " << nodep);
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_FTask_Ref* nodep) override {
         UINFO(9, "   FTASKREF " << nodep);
-        if (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
+        എങ്കിൽ (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
             nodep->inlinedDots(m_namedScope);
             UINFO(9, "    rescope to " << nodep);
         }
         iterateChildren(nodep);
     }
-    void visit(AstScopeName* nodep) override {
+    ശൂന്യം visit(AstScopeName* nodep) override {
         // If there's a %m in the display text, we add a special node that will contain the name()
         // Similar code in V3Inline
-        if (nodep->user1SetOnce()) return;  // Don't double-add text's
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;  // Don't double-add text's
         // DPI svGetScope doesn't include function name, but %m does
-        const std::string scname = nodep->forFormat() ? m_displayScope : m_namedScope;
+        സ്ഥിരം std::string scname = nodep->forFormat() ? m_displayScope : m_namedScope;
         // To keep correct visual order, must add before exising
-        if (!scname.empty()) nodep->scopeAttr("__DOT__"s + scname + nodep->scopeAttr());
+        എങ്കിൽ (!scname.empty()) nodep->scopeAttr("__DOT__"s + scname + nodep->scopeAttr());
         iterateChildren(nodep);
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Cover_Decl* nodep) override {
         // Don't need to fix path in coverage statements, they're not under
         // any BEGINs, but V3Coverage adds them all under the module itself.
         iterateChildren(nodep);
     }
-    void visit(AstCase* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(AstCase* nodep) override { iterateChildren(nodep); }
     // VISITORS - LINT CHECK
-    void visit(AstIf* nodep) override {  // not AstNodeIf; other types not covered
+    ശൂന്യം visit(AstIf* nodep) override {  // not AstNodeIf; other types not covered
         VL_RESTORER(m_keepBegins);
-        m_keepBegins = false;
+        m_keepBegins = അസത്യം;
         // Check IFDEPTH warning - could be in other transform files if desire
         VL_RESTORER(m_ifDepth);
-        if (m_ifDepth == -1 || v3Global.opt.ifDepth() < 1) {  // Turned off
-        } else if (nodep->uniquePragma() || nodep->unique0Pragma() || nodep->priorityPragma()) {
+        എങ്കിൽ (m_ifDepth == -1 || v3Global.opt.ifDepth() < 1) {  // Turned off
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->uniquePragma() || nodep->unique0Pragma() || nodep->priorityPragma()) {
             m_ifDepth = -1;
-        } else if (++m_ifDepth > v3Global.opt.ifDepth()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (++m_ifDepth > v3Global.opt.ifDepth()) {
             nodep->v3warn(IFDEPTH,
                           "Deep 'if' statement; suggest unique/priority to avoid slow logic");
-            nodep->fileline()->modifyWarnOff(V3ErrorCode::IFDEPTH, true);  // Warn only once
+            nodep->fileline()->modifyWarnOff(V3ErrorCode::IFDEPTH, സത്യം);  // Warn only once
             m_ifDepth = -1;
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
         VL_RESTORER(m_keepBegins);
-        m_keepBegins = false;
+        m_keepBegins = അസത്യം;
         iterateChildren(nodep);
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     BeginVisitor(AstNetlist* nodep, BeginState* statep)
         : m_statep{statep} {
         iterate(nodep);
     }
-    ~BeginVisitor() override = default;
+    ~BeginVisitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 
-class BeginRelinkVisitor final : public VNVisitorConst {
+വർഗ്ഗം BeginRelinkVisitor final : പൊതു VNVisitorConst {
     // Replace tasks with new pointer
-private:
+സ്വകാര്യ:
     // NODE STATE
     //  Input:
     //   AstNodeFTask::user1p           // bool.  Node replaced, rename it
 
     // VISITORS
-    void visit(AstNodeFTaskRef* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_FTask_Ref* nodep) override {
         UASSERT_OBJ(nodep->taskp(), nodep, "unlinked");
-        if (nodep->taskp()->user1()) {  // It was converted
+        എങ്കിൽ (nodep->taskp()->user1()) {  // It was converted
             UINFO(9, "    relinkFTask " << nodep);
             nodep->name(nodep->taskp()->name());
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstVarRef* nodep) override {
-        if (nodep->varp()->user1()) {  // It was converted
+    ശൂന്യം visit(AstVarRef* nodep) override {
+        എങ്കിൽ (nodep->varp()->user1()) {  // It was converted
             UINFO(9, "    relinVarRef " << nodep);
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstIfaceRefDType* nodep) override {
+    ശൂന്യം visit(AstIfaceRefDType* nodep) override {
         // May have changed cell names
         // TypeTable is always after all modules, so names are stable
         UINFO(8, "   IFACEREFDTYPE " << nodep);
-        if (nodep->cellp()) nodep->cellName(nodep->cellp()->name());
+        എങ്കിൽ (nodep->cellp()) nodep->cellName(nodep->cellp()->name());
         UINFO(8, "       rename to " << nodep);
         iterateChildrenConst(nodep);
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     BeginRelinkVisitor(AstNetlist* nodep, BeginState*) { iterateConst(nodep); }
-    ~BeginRelinkVisitor() override = default;
+    ~BeginRelinkVisitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 // Task class functions
 
-void V3Begin::debeginAll(AstNetlist* nodep) {
+ശൂന്യം V3Begin::debeginAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         BeginState state;
         { BeginVisitor{nodep, &state}; }
-        if (state.anyFuncInBegin()) BeginRelinkVisitor{nodep, &state};
+        എങ്കിൽ (state.anyFuncInBegin()) BeginRelinkVisitor{nodep, &state};
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("begin", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("begin", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }
 
-static AstNode* createForeachLoop(AstNodeForeach* /*nodep*/, AstNode* bodysp, bool arrayMayResize,
-                                  AstNodeExpr* subfromp, AstVar* varp, AstNodeExpr* leftp,
-                                  AstNodeExpr* rightp, VNType nodeType) {
-    FileLine* const fl = varp->fileline();
-    AstNodeExpr* varRefp = new AstVarRef{fl, varp, VAccess::READ};
-    AstNodeExpr* condp;
-    bool inc = true;
-    switch (nodeType) {
-    case VNType::LteS: condp = new AstLteS{fl, varRefp, rightp}; break;
-    case VNType::Lt: condp = new AstLt{fl, varRefp, rightp}; break;
-    case VNType::GteS:
-        condp = new AstGteS{fl, varRefp, rightp};
-        inc = false;
-        break;
-    default: varp->v3fatalSrc("Missing comparison handling"); break;
+സ്ഥിതം Ast_കണ്ണി* createForeachLoop(Ast_കണ്ണി_Foreach* /*nodep*/, Ast_കണ്ണി* bodysp, തർക്കം arrayMayResize,
+                                  Ast_കണ്ണി_വ്യഞ്ജകം* subfromp, AstVar* varp, Ast_കണ്ണി_വ്യഞ്ജകം* leftp,
+                                  Ast_കണ്ണി_വ്യഞ്ജകം* rightp, VNType കണ്ണി_Type) {
+    File_വരി* സ്ഥിരം fl = varp->fileline();
+    Ast_കണ്ണി_വ്യഞ്ജകം* varRefp = പുതിയ AstVarRef{fl, varp, VAccess::READ};
+    Ast_കണ്ണി_വ്യഞ്ജകം* condp;
+    തർക്കം inc = സത്യം;
+    തിരഞ്ഞെടുപ്പ് (കണ്ണി_Type) {
+    അവസ്ഥ VNType::LteS: condp = പുതിയ AstLteS{fl, varRefp, rightp}; നിർത്തുക;
+    അവസ്ഥ VNType::Lt: condp = പുതിയ AstLt{fl, varRefp, rightp}; നിർത്തുക;
+    അവസ്ഥ VNType::GteS:
+        condp = പുതിയ AstGteS{fl, varRefp, rightp};
+        inc = അസത്യം;
+        നിർത്തുക;
+    സ്ഥിരസ്ഥിതി: varp->v3fatalSrc("Missing comparison handling"); നിർത്തുക;
     }
-    AstNodeExpr* incp;
-    if (inc)
-        incp = new AstAdd{fl, varRefp->cloneTree(false), new AstConst{fl, 1}};
-    else
-        incp = new AstSub{fl, varRefp->cloneTree(false), new AstConst{fl, 1}};
+    Ast_കണ്ണി_വ്യഞ്ജകം* incp;
+    എങ്കിൽ (inc)
+        incp = പുതിയ AstAdd{fl, varRefp->clone_വൃക്ഷം(അസത്യം), പുതിയ AstConst{fl, 1}};
+    അല്ലെങ്കിൽ
+        incp = പുതിയ AstSub{fl, varRefp->clone_വൃക്ഷം(അസത്യം), പുതിയ AstConst{fl, 1}};
 
-    AstLoop* const loopp = new AstLoop{fl};
-    loopp->addStmtsp(new AstLoopTest{fl, loopp, condp});
+    AstLoop* സ്ഥിരം loopp = പുതിയ AstLoop{fl};
+    loopp->addStmtsp(പുതിയ AstLoopTest{fl, loopp, condp});
     AstVar* sizeVarp = nullptr;
-    AstNodeExpr* sizeGetp = nullptr;
-    if (arrayMayResize) {
-        sizeVarp = new AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vloopsize",
+    Ast_കണ്ണി_വ്യഞ്ജകം* sizeGetp = nullptr;
+    എങ്കിൽ (arrayMayResize) {
+        sizeVarp = പുതിയ AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vloopsize",
                               varp->findUInt32DType()};
         sizeVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        sizeVarp->usedLoopIdx(true);  // Not technically an index, but used only inside loop
+        sizeVarp->usedLoopIdx(സത്യം);  // Not technically an index, but used only inside loop
         varp->addNext(sizeVarp);
         sizeGetp
-            = new AstCMethodHard{fl, subfromp->cloneTreePure(false), VCMethod::DYN_SIZE, nullptr};
+            = പുതിയ AstCMethodHard{fl, subfromp->clone_വൃക്ഷം_Pure(അസത്യം), VCMethod::DYN_SIZE, nullptr};
         sizeGetp->dtypeSetUInt32();
-        loopp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, sizeVarp, VAccess::WRITE}, sizeGetp});
+        loopp->addStmtsp(പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, sizeVarp, VAccess::WRITE}, sizeGetp});
     }
     loopp->addStmtsp(bodysp);
-    AstNodeStmt* incStmtp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, incp};
-    if (arrayMayResize) {
-        incStmtp = new AstIf{fl,
-                             new AstLte{fl, new AstVarRef{fl, sizeVarp, VAccess::READ},
-                                        sizeGetp->cloneTreePure(false)},
+    Ast_കണ്ണി_Stmt* incStmtp = പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE}, incp};
+    എങ്കിൽ (arrayMayResize) {
+        incStmtp = പുതിയ AstIf{fl,
+                             പുതിയ AstLte{fl, പുതിയ AstVarRef{fl, sizeVarp, VAccess::READ},
+                                        sizeGetp->clone_വൃക്ഷം_Pure(അസത്യം)},
                              incStmtp};
     }
     loopp->addStmtsp(incStmtp);
-    AstNode* const stmtsp = varp;  // New statements for outer loop
-    stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, leftp});
+    Ast_കണ്ണി* സ്ഥിരം stmtsp = varp;  // New statements for outer loop
+    stmtsp->addNext(പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE}, leftp});
     stmtsp->addNext(loopp);
-    return stmtsp;
+    തിരികെ stmtsp;
 }
-static AstNode* createForeachLoopRanged(AstNodeForeach* nodep, AstNode* bodysp,
-                                        AstNodeExpr* subfromp, AstVar* varp,
-                                        const VNumRange& declRange) {
-    FileLine* const fl = varp->fileline();
-    V3Number left{nodep, 32};
-    V3Number right{nodep, 32};
-    left.isSigned(true);
-    right.isSigned(true);
-    left.setLongS(declRange.left());
-    right.setLongS(declRange.right());
-    AstNodeExpr* const leftp = new AstConst{fl, left};
-    AstNodeExpr* const rightp = new AstConst{fl, right};
-    return createForeachLoop(nodep, bodysp, false /*fixed array size*/, subfromp, varp, leftp,
+സ്ഥിതം Ast_കണ്ണി* createForeachLoopRanged(Ast_കണ്ണി_Foreach* nodep, Ast_കണ്ണി* bodysp,
+                                        Ast_കണ്ണി_വ്യഞ്ജകം* subfromp, AstVar* varp,
+                                        സ്ഥിരം VNumRange& declRange) {
+    File_വരി* സ്ഥിരം fl = varp->fileline();
+    V3_സംഖ്യ ഇടത്{nodep, 32};
+    V3_സംഖ്യ വലത്{nodep, 32};
+    ഇടത്.isSigned(സത്യം);
+    വലത്.isSigned(സത്യം);
+    ഇടത്.setLongS(declRange.ഇടത്());
+    വലത്.setLongS(declRange.വലത്());
+    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം leftp = പുതിയ AstConst{fl, ഇടത്};
+    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം rightp = പുതിയ AstConst{fl, വലത്};
+    തിരികെ createForeachLoop(nodep, bodysp, അസത്യം /*fixed array size*/, subfromp, varp, leftp,
                              rightp,
-                             declRange.left() <= declRange.right() ? VNType::LteS : VNType::GteS);
+                             declRange.ഇടത്() <= declRange.വലത്() ? VNType::LteS : VNType::GteS);
 }
-static AstNode* createForeachAssoc(FileLine* fl, AstVar* varp, AstNodeExpr* subfromp,
-                                   AstNodeDType* fromDtp, AstNode* bodyPointp) {
-    AstNode* loopp = varp;
-    AstVar* const next_varp  // Iterator containing next element (to handle mid-array delete)
-        = new AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vnext", varp};
-    next_varp->usedLoopIdx(true);
+സ്ഥിതം Ast_കണ്ണി* createForeachAssoc(File_വരി* fl, AstVar* varp, Ast_കണ്ണി_വ്യഞ്ജകം* subfromp,
+                                   Ast_കണ്ണി_DType* fromDtp, Ast_കണ്ണി* bodyPointp) {
+    Ast_കണ്ണി* loopp = varp;
+    AstVar* സ്ഥിരം next_varp  // Iterator containing next element (to handle mid-array delete)
+        = പുതിയ AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vnext", varp};
+    next_varp->usedLoopIdx(സത്യം);
     next_varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
     loopp->addNext(next_varp);
 
-    AstVar* const more_varp  // bool var. 0 = loop empty/done, 1 = continue with loop
-        = new AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vmore", VFlagBitPacked{}, 1};
-    more_varp->usedLoopIdx(true);  // Not technically an index, but used only inside loop
+    AstVar* സ്ഥിരം more_varp  // bool var. 0 = loop empty/done, 1 = continue with loop
+        = പുതിയ AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vmore", VFlagBitPacked{}, 1};
+    more_varp->usedLoopIdx(സത്യം);  // Not technically an index, but used only inside loop
     more_varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
     loopp->addNext(more_varp);
 
-    AstNodeExpr* const firstp
-        = new AstCMethodHard{fl, subfromp->cloneTreePure(false), VCMethod::ASSOC_FIRST,
-                             new AstVarRef{fl, next_varp, VAccess::READWRITE}};
+    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം firstp
+        = പുതിയ AstCMethodHard{fl, subfromp->clone_വൃക്ഷം_Pure(അസത്യം), VCMethod::ASSOC_FIRST,
+                             പുതിയ AstVarRef{fl, next_varp, VAccess::READWRITE}};
     firstp->dtypeSetInt();
-    AstNodeExpr* const nextp
-        = new AstCMethodHard{fl, subfromp->cloneTreePure(false), VCMethod::ASSOC_NEXT,
-                             new AstVarRef{fl, next_varp, VAccess::READWRITE}};
+    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം nextp
+        = പുതിയ AstCMethodHard{fl, subfromp->clone_വൃക്ഷം_Pure(അസത്യം), VCMethod::ASSOC_NEXT,
+                             പുതിയ AstVarRef{fl, next_varp, VAccess::READWRITE}};
     nextp->dtypeSetInt();
 
     // _Vmore = array.first(__Vnext)
-    loopp->addNext(new AstAssign{fl, new AstVarRef{fl, more_varp, VAccess::WRITE},
-                                 new AstNeq{fl, new AstConst{fl, 0}, firstp}});
+    loopp->addNext(പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, more_varp, VAccess::WRITE},
+                                 പുതിയ AstNeq{fl, പുതിയ AstConst{fl, 0}, firstp}});
 
     // LOOP(if (!_Vmore) break;  ...)
-    AstLoop* const lp = new AstLoop{fl};
+    AstLoop* സ്ഥിരം lp = പുതിയ AstLoop{fl};
     loopp->addNext(lp);
-    lp->addStmtsp(new AstLoopTest{fl, lp, new AstVarRef{fl, more_varp, VAccess::READ}});
+    lp->addStmtsp(പുതിയ AstLoopTest{fl, lp, പുതിയ AstVarRef{fl, more_varp, VAccess::READ}});
 
     // index = __Vnext
-    lp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                new AstVarRef{fl, next_varp, VAccess::READ}});
+    lp->addStmtsp(പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE},
+                                പുതിയ AstVarRef{fl, next_varp, VAccess::READ}});
     // _Vmore = array.next(__Vnext)
-    lp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, more_varp, VAccess::WRITE},
-                                new AstNeq{fl, new AstConst{fl, 0}, nextp}});
+    lp->addStmtsp(പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, more_varp, VAccess::WRITE},
+                                പുതിയ AstNeq{fl, പുതിയ AstConst{fl, 0}, nextp}});
     lp->addStmtsp(bodyPointp);
-    return loopp;
+    തിരികെ loopp;
 }
 
-static bool arrayMayResizeCheck(AstNode* nodesp, AstVar* fromVarp) {
+സ്ഥിതം തർക്കം arrayMayResizeCheck(Ast_കണ്ണി* nodesp, AstVar* fromVarp) {
     // IEEE 1800-2023 12.7.3 "If the dimensions of a dynamically sized
     // array are changed while iterating over a foreach-loop construct, th
     // results are undefined".  However UVM calls delete within a foreach
@@ -615,120 +615,120 @@ static bool arrayMayResizeCheck(AstNode* nodesp, AstVar* fromVarp) {
     // flight. Could use generation counter and each loop checks, but adds
     // time to every array modification. So, we assume if the array
     // shrinks, we should repeat the loop.
-    if (!nodesp) return false;
-    return nodesp->existsAndNext([&](const AstNode* nodep) -> bool {
-        if (const AstNodeVarRef* varrefp = VN_CAST(nodep, NodeVarRef)) {
+    എങ്കിൽ (!nodesp) തിരികെ അസത്യം;
+    തിരികെ nodesp->existsAndNext([&](സ്ഥിരം Ast_കണ്ണി* nodep) -> തർക്കം {
+        എങ്കിൽ (സ്ഥിരം Ast_കണ്ണി_Var_Ref* varrefp = VN_CAST(nodep, കണ്ണി_Var_Ref)) {
             // Any variable written, as might have indirect ref to array
-            if (varrefp->access().isWriteOrRW()) {
-                if (!fromVarp) return true;
-                if (varrefp->varp() == fromVarp) return true;
+            എങ്കിൽ (varrefp->access().isWriteOrRW()) {
+                എങ്കിൽ (!fromVarp) തിരികെ സത്യം;
+                എങ്കിൽ (varrefp->varp() == fromVarp) തിരികെ സത്യം;
             }
         }
         // No idea what a function might be doing
-        if (VN_IS(nodep, MethodCall) || VN_IS(nodep, NodeFTaskRef)) return true;
-        return false;
+        എങ്കിൽ (VN_IS(nodep, MethodCall) || VN_IS(nodep, കണ്ണി_FTask_Ref)) തിരികെ സത്യം;
+        തിരികെ അസത്യം;
     });
 }
 
-AstNode* V3Begin::convertToWhile(AstForeach* nodep) {
+Ast_കണ്ണി* V3Begin::convertToWhile(AstForeach* nodep) {
     // UINFOTREE(1, nodep, "", "foreach-old");
-    const AstForeachHeader* const headerp = nodep->headerp();
-    AstNodeExpr* const fromp = headerp->fromp();
+    സ്ഥിരം AstForeachHeader* സ്ഥിരം headerp = nodep->headerp();
+    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം fromp = headerp->fromp();
     UASSERT_OBJ(fromp->dtypep(), fromp, "Missing data type");
-    AstVar* const fromVarp = VN_IS(fromp, VarRef) ? VN_CAST(fromp, VarRef)->varp() : nullptr;
-    AstNodeDType* fromDtp = fromp->dtypep()->skipRefp();
-    const bool arrayMayResize = arrayMayResizeCheck(nodep->bodyp(), fromVarp);
+    AstVar* സ്ഥിരം fromVarp = VN_IS(fromp, VarRef) ? VN_CAST(fromp, VarRef)->varp() : nullptr;
+    Ast_കണ്ണി_DType* fromDtp = fromp->dtypep()->skipRefp();
+    സ്ഥിരം തർക്കം arrayMayResize = arrayMayResizeCheck(nodep->bodyp(), fromVarp);
     // Split into for loop
     // We record where the body needs to eventually go with bodyPointp
-    AstNode* bodyPointp = new AstBegin{nodep->fileline(), "[EditWrapper]", nullptr, false};
-    AstNode* newp = nullptr;
-    AstNode* lastp = nodep;
+    Ast_കണ്ണി* bodyPointp = പുതിയ AstBegin{nodep->fileline(), "[EditWrapper]", nullptr, അസത്യം};
+    Ast_കണ്ണി* newp = nullptr;
+    Ast_കണ്ണി* lastp = nodep;
     AstVar* nestedIndexp = nullptr;
     // subfromp used to traverse each dimension of multi-d variable-sized unpacked array (queue,
     // dyn-arr and associative-arr)
-    AstNodeExpr* subfromp = fromp->cloneTreePure(false);
+    Ast_കണ്ണി_വ്യഞ്ജകം* subfromp = fromp->clone_വൃക്ഷം_Pure(അസത്യം);
     // Major dimension first
-    for (AstNode *argsp = headerp->elementsp(), *next_argsp; argsp; argsp = next_argsp) {
+    വേണ്ടി (Ast_കണ്ണി *argsp = headerp->elementsp(), *next_argsp; argsp; argsp = next_argsp) {
         next_argsp = argsp->nextp();
-        const bool empty = VN_IS(argsp, Empty);
-        AstVar* const varp = VN_CAST(argsp, Var);
+        സ്ഥിരം തർക്കം empty = VN_IS(argsp, Empty);
+        AstVar* സ്ഥിരം varp = VN_CAST(argsp, Var);
         UASSERT_OBJ(varp || empty, argsp, "Missing foreach loop variable");
-        if (varp) varp->unlinkFrBack()->usedLoopIdx(true);
+        എങ്കിൽ (varp) varp->unlinkFrBack()->usedLoopIdx(സത്യം);
         UASSERT_OBJ(fromDtp, argsp, "more loop vars than dimensions");
         fromDtp = fromDtp->skipRefp();
 
-        FileLine* const fl = argsp->fileline();
-        if (varp) {
-            AstNode* loopp = nullptr;
+        File_വരി* സ്ഥിരം fl = argsp->fileline();
+        എങ്കിൽ (varp) {
+            Ast_കണ്ണി* loopp = nullptr;
             VNRelinker handle;
             lastp->unlinkFrBack(&handle);
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(fromDtp, NodeArrayDType)) {
+            എങ്കിൽ (സ്ഥിരം Ast_കണ്ണി_Array_DType* സ്ഥിരം adtypep = VN_CAST(fromDtp, കണ്ണി_Array_DType)) {
                 loopp = createForeachLoopRanged(nodep, bodyPointp, subfromp, varp,
                                                 adtypep->declRange());
-            } else if (const AstBasicDType* const adtypep = VN_CAST(fromDtp, BasicDType)) {
-                if (adtypep->isString()) {
-                    AstConst* const leftp = new AstConst{fl, 0};
-                    AstNodeExpr* const rightp = new AstLenN{fl, fromp->cloneTreePure(false)};
+            } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstBasicDType* സ്ഥിരം adtypep = VN_CAST(fromDtp, BasicDType)) {
+                എങ്കിൽ (adtypep->isString()) {
+                    AstConst* സ്ഥിരം leftp = പുതിയ AstConst{fl, 0};
+                    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം rightp = പുതിയ AstLenN{fl, fromp->clone_വൃക്ഷം_Pure(അസത്യം)};
                     loopp = createForeachLoop(nodep, bodyPointp, arrayMayResize, subfromp, varp,
                                               leftp, rightp, VNType::Lt);
-                } else {
+                } അല്ലെങ്കിൽ {
                     UASSERT_OBJ(adtypep->isRanged(), varp, "foreach on basic " << adtypep);
                     loopp = createForeachLoopRanged(nodep, bodyPointp, subfromp, varp,
                                                     adtypep->declRange());
                 }
-            } else if (VN_IS(fromDtp, DynArrayDType) || VN_IS(fromDtp, QueueDType)) {
-                AstConst* const leftp = new AstConst{fl, 0};
-                AstNodeExpr* const rightp = new AstCMethodHard{
+            } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(fromDtp, DynArrayDType) || VN_IS(fromDtp, QueueDType)) {
+                AstConst* സ്ഥിരം leftp = പുതിയ AstConst{fl, 0};
+                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം rightp = പുതിയ AstCMethodHard{
                     fl,
-                    VN_IS(subfromp->dtypep(), NodeArrayDType)
-                        ? new AstArraySel{fl, subfromp->cloneTreePure(false),
-                                          new AstVarRef{fl, nestedIndexp, VAccess::READ}}
-                        : subfromp->cloneTreePure(false),
+                    VN_IS(subfromp->dtypep(), കണ്ണി_Array_DType)
+                        ? പുതിയ AstArraySel{fl, subfromp->clone_വൃക്ഷം_Pure(അസത്യം),
+                                          പുതിയ AstVarRef{fl, nestedIndexp, VAccess::READ}}
+                        : subfromp->clone_വൃക്ഷം_Pure(അസത്യം),
                     VCMethod::DYN_SIZE};
-                AstVarRef* varRefp = new AstVarRef{fl, varp, VAccess::READ};
+                AstVarRef* varRefp = പുതിയ AstVarRef{fl, varp, VAccess::READ};
                 rightp->dtypeSetInt();
-                rightp->protect(false);
+                rightp->protect(അസത്യം);
                 loopp = createForeachLoop(nodep, bodyPointp, arrayMayResize, subfromp, varp, leftp,
                                           rightp, VNType::Lt);
-                subfromp = new AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
+                subfromp = പുതിയ AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
                 subfromp->dtypep(fromDtp);
-            } else if (VN_IS(fromDtp, AssocArrayDType)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(fromDtp, AssocArrayDType)) {
                 // Make this: var KEY_TYPE index;
                 //            bit index__Vfirst;
                 //            index__Vfirst = 0;
                 //            if (0 != array.first(index))
                 //                 do body while (index__Vfirst || 0 != array.next(index))
                 loopp = createForeachAssoc(fl, varp, subfromp, fromDtp, bodyPointp);
-                AstVarRef* varRefp = new AstVarRef{fl, varp, VAccess::READ};
-                subfromp = new AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
+                AstVarRef* varRefp = പുതിയ AstVarRef{fl, varp, VAccess::READ};
+                subfromp = പുതിയ AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
                 subfromp->dtypep(fromDtp);
             }
             UASSERT_OBJ(loopp, argsp, "unable to foreach " << fromDtp);
             // New loop goes UNDER previous loop
             handle.relink(loopp);
             lastp = bodyPointp;
-            if (!newp) newp = loopp;
+            എങ്കിൽ (!newp) newp = loopp;
         }
         // Prep for next
         nestedIndexp = varp;
         fromDtp = fromDtp->subDTypep();
     }
-    VL_DO_DANGLING(subfromp->deleteTree(), subfromp);
+    VL_DO_DANGLING(subfromp->delete_വൃക്ഷം(), subfromp);
     // The parser validates we don't have "foreach (array[,,,])"
-    AstNode* const bodyp = nodep->bodyp();
-    if (!newp) {
+    Ast_കണ്ണി* സ്ഥിരം bodyp = nodep->bodyp();
+    എങ്കിൽ (!newp) {
         nodep->v3warn(NOEFFECT, "foreach with no loop variable has no effect");
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-        if (!bodyPointp->backp()) VL_DO_DANGLING(bodyPointp->deleteTree(), bodyPointp);
-        return nullptr;
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_വൃക്ഷം(), nodep);
+        എങ്കിൽ (!bodyPointp->backp()) VL_DO_DANGLING(bodyPointp->delete_വൃക്ഷം(), bodyPointp);
+        തിരികെ nullptr;
     }
-    if (bodyp) {
+    എങ്കിൽ (bodyp) {
         bodyPointp->replaceWith(bodyp->unlinkFrBackWithNext());
-    } else {
+    } അല്ലെങ്കിൽ {
         bodyPointp->unlinkFrBack();
     }
-    VL_DO_DANGLING(bodyPointp->deleteTree(), bodyPointp);
-    VL_DO_DANGLING(nodep->deleteTree(), nodep);
+    VL_DO_DANGLING(bodyPointp->delete_വൃക്ഷം(), bodyPointp);
+    VL_DO_DANGLING(nodep->delete_വൃക്ഷം(), nodep);
     // UINFOTREE(1, newp, "", "foreach-new");
-    return newp;
+    തിരികെ newp;
 }

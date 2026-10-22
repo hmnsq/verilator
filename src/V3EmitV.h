@@ -17,21 +17,21 @@
 #ifndef VERILATOR_V3EMITV_H_
 #define VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_കണ്ണി;
+class Ast_Sen_വൃക്ഷം;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+പൊതു:
+    സ്ഥിതം ശൂന്യം verilog_For_വൃക്ഷം(സ്ഥിരം Ast_കണ്ണി* nodep, std::ostream& os = std::cout);
+    സ്ഥിതം ശൂന്യം debug_Verilog_For_വൃക്ഷം(സ്ഥിരം Ast_കണ്ണി* nodep, std::ostream& os);
+    സ്ഥിതം std::string debug_Verilog_For_വൃക്ഷം(സ്ഥിരം Ast_കണ്ണി* nodep);
+    സ്ഥിതം ശൂന്യം emitvFiles();
+    സ്ഥിതം ശൂന്യം debugEmitV(സ്ഥിരം string& filename);
 };
 
 #endif  // Guard

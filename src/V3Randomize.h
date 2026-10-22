@@ -17,27 +17,27 @@
 #ifndef VERILATOR_V3RANDOMIZE_METHOD_H_
 #define VERILATOR_V3RANDOMIZE_METHOD_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 class AstClass;
 class AstFunc;
 class AstNetlist;
-class AstNodeModule;
+class Ast_കണ്ണി_Module;
 
 class VMemberMap;
 
 class V3Randomize final {
-public:
-    static void randomizeNetlist(AstNetlist* nodep) VL_MT_DISABLED;
+പൊതു:
+    സ്ഥിതം ശൂന്യം randomizeNetlist(AstNetlist* nodep) VL_MT_DISABLED;
 
-    static AstFunc* newRandomizeFunc(VMemberMap& memberMap, AstClass* nodep,
-                                     const std::string& name = "randomize",
+    സ്ഥിതം AstFunc* newRandomizeFunc(VMemberMap& memberMap, AstClass* nodep,
+                                     സ്ഥിരം std::string& name = "randomize",
                                      bool allowVirtual = true,
                                      bool childDType = false) VL_MT_DISABLED;
-    static AstFunc* newRandomizeStdFunc(AstNodeModule* nodep,
-                                        const std::string& name) VL_MT_DISABLED;
-    static AstFunc* newSRandomFunc(VMemberMap& memberMap, AstClass* nodep) VL_MT_DISABLED;
+    സ്ഥിതം AstFunc* newRandomizeStdFunc(Ast_കണ്ണി_Module* nodep,
+                                        സ്ഥിരം std::string& name) VL_MT_DISABLED;
+    സ്ഥിതം AstFunc* newSRandomFunc(VMemberMap& memberMap, AstClass* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

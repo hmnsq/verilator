@@ -25,21 +25,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstNodeExpr.h"
-#include "V3Sched.h"
+#അന്തര്ഭാവ "V3AstNodeExpr.h"
+#അന്തര്ഭാവ "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+നാമാകാശ V3Sched {
 
-namespace {
+നാമാകാശ {
 
-class VirtIfaceVisitor final : public VNVisitor {
-private:
+വർഗ്ഗം VirtIfaceVisitor final : പൊതു VNVisitor {
+സ്വകാര്യ:
     // STATE
-    using IfaceMember = std::pair<const AstIface*, std::string>;
+    using IfaceMember = std::pair<സ്ഥിരം AstIface*, std::string>;
     using IfaceCallable = std::pair<AstIface*, AstCFunc*>;
 
     // Set of (iface, member) pairs written through VIF -- defines which members need triggers
@@ -48,122 +48,122 @@ private:
     std::map<IfaceMember, std::vector<AstVarScope*>> m_candidateVscps;
     std::set<std::pair<IfaceMember, AstVarScope*>> m_seenCandidateVscps;
     // VarScope index and callable worklist for VIF method-body writes.
-    std::map<const AstVar*, std::vector<AstVarScope*>> m_vscpsByVar;
+    std::map<സ്ഥിരം AstVar*, std::vector<AstVarScope*>> m_vscpsByVar;
     std::vector<IfaceCallable> m_reachableIfaceCallables;
     std::set<IfaceCallable> m_seenReachableIfaceCallables;
     VirtIfaceTriggers m_triggers;
 
     // METHODS
     // Returns true if statement writes across a virtual interface boundary
-    static bool writesToVirtIface(const AstNode* const nodep) {
-        return nodep->exists([](const AstMemberSel* const memberSelp) {
-            if (!memberSelp->access().isWriteOrRW()) return false;
-            AstIfaceRefDType* const dtypep
+    സ്ഥിതം തർക്കം writesToVirtIface(സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം nodep) {
+        തിരികെ nodep->exists([](സ്ഥിരം AstMemberSel* സ്ഥിരം memberSelp) {
+            എങ്കിൽ (!memberSelp->access().isWriteOrRW()) തിരികെ അസത്യം;
+            AstIfaceRefDType* സ്ഥിരം dtypep
                 = VN_CAST(memberSelp->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            return dtypep && dtypep->isVirtual();
+            തിരികെ dtypep && dtypep->isVirtual();
         });
     }
 
     // VISITORS
-    void visit(AstMemberSel* nodep) override {
+    ശൂന്യം visit(AstMemberSel* nodep) override {
         // Detect writes through VIF: the MemberSel's fromp resolves to a virtual interface type.
         // Handles both direct VIF access (vif.member) and class chain (obj.vif.member).
-        if (nodep->access().isWriteOrRW()) {
-            AstIfaceRefDType* const dtypep
+        എങ്കിൽ (nodep->access().isWriteOrRW()) {
+            AstIfaceRefDType* സ്ഥിരം dtypep
                 = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            if (dtypep && dtypep->isVirtual()) {
+            എങ്കിൽ (dtypep && dtypep->isVirtual()) {
                 m_vifWrittenMembers.emplace(dtypep->ifacep(), nodep->varp()->name());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstCMethodCall* nodep) override {
-        if (const AstIfaceRefDType* const dtypep
+    ശൂന്യം visit(AstCMethodCall* nodep) override {
+        എങ്കിൽ (സ്ഥിരം AstIfaceRefDType* സ്ഥിരം dtypep
             = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType)) {
-            if (VL_UNCOVERABLE(!dtypep->isVirtual())) {
+            എങ്കിൽ (VL_UNCOVERABLE(!dtypep->isVirtual())) {
                 // Concrete interface method calls are lowered before this pass.
-            } else {
+            } അല്ലെങ്കിൽ {
                 addReachableIfaceCallable(dtypep->ifaceViaCellp(), nodep->funcp());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {
+    ശൂന്യം visit(AstVarScope* nodep) override {
         // Collect candidate VarScopes. sensIfacep() is set on interface members
         // accessed via any MemberSel (virtual or non-virtual).
-        AstVar* const varp = nodep->varp();
-        if (varp->isTemp()) return;
-        m_vscpsByVar[varp].push_back(nodep);
-        if (const AstIface* const ifacep = varp->sensIfacep()) addCandidateVscp(ifacep, nodep);
+        AstVar* സ്ഥിരം varp = nodep->varp();
+        എങ്കിൽ (varp->isTemp()) തിരികെ;
+        m_vscpsByVar[varp].തള്ളുക_back(nodep);
+        എങ്കിൽ (സ്ഥിരം AstIface* സ്ഥിരം ifacep = varp->sensIfacep()) addCandidateVscp(ifacep, nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Procedure* nodep) override {
         // Disable lifetime optimization for variables in AlwaysPost blocks
         // that write to virtual interface members, as VIF reads may observe them
-        if (VN_IS(nodep, AlwaysPost) && writesToVirtIface(nodep)) {
-            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(false); });
+        എങ്കിൽ (VN_IS(nodep, AlwaysPost) && writesToVirtIface(nodep)) {
+            nodep->foreach([](AstVarRef* refp) { refp->varScopep()->optimizeLifePost(അസത്യം); });
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-    void addCandidateVscp(const AstIface* const ifacep, AstVarScope* const vscp) {
-        const IfaceMember member{ifacep, vscp->varp()->name()};
-        if (m_seenCandidateVscps.emplace(member, vscp).second)
-            m_candidateVscps[member].push_back(vscp);
+    ശൂന്യം addCandidateVscp(സ്ഥിരം AstIface* സ്ഥിരം ifacep, AstVarScope* സ്ഥിരം vscp) {
+        സ്ഥിരം IfaceMember member{ifacep, vscp->varp()->name()};
+        എങ്കിൽ (m_seenCandidateVscps.emplace(member, vscp).second)
+            m_candidateVscps[member].തള്ളുക_back(vscp);
     }
 
-    void addReachableIfaceCallable(AstIface* const ifacep, AstCFunc* const funcp) {
-        const IfaceCallable callable{ifacep, funcp};
-        if (m_seenReachableIfaceCallables.emplace(callable).second) {
-            m_reachableIfaceCallables.push_back(callable);
+    ശൂന്യം addReachableIfaceCallable(AstIface* സ്ഥിരം ifacep, AstCFunc* സ്ഥിരം funcp) {
+        സ്ഥിരം IfaceCallable callable{ifacep, funcp};
+        എങ്കിൽ (m_seenReachableIfaceCallables.emplace(callable).second) {
+            m_reachableIfaceCallables.തള്ളുക_back(callable);
         }
     }
 
     // Build final trigger list by intersecting VIF writes with candidate VarScopes
-    void buildTriggers() {
-        for (const auto& written : m_vifWrittenMembers) {
-            const auto it = m_candidateVscps.find(written);
-            if (it == m_candidateVscps.end()) continue;
-            for (AstVarScope* const vscp : it->second) {
-                const AstIface* const ifacep = written.first;
+    ശൂന്യം buildTriggers() {
+        വേണ്ടി (സ്ഥിരം auto& written : m_vifWrittenMembers) {
+            സ്ഥിരം auto it = m_candidateVscps.find(written);
+            എങ്കിൽ (it == m_candidateVscps.end()) തുടരുക;
+            വേണ്ടി (AstVarScope* സ്ഥിരം vscp : it->second) {
+                സ്ഥിരം AstIface* സ്ഥിരം ifacep = written.first;
                 m_triggers.addTrigger(ifacep, vscp->varp(), vscp);
             }
         }
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit VirtIfaceVisitor(AstNetlist* nodep) {
         iterate(nodep);
-        for (size_t i = 0; i < m_reachableIfaceCallables.size(); ++i) {
-            const IfaceCallable callable = m_reachableIfaceCallables[i];
-            callable.second->foreach([this, callable](AstNodeExpr* const nodep) {
-                if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+        വേണ്ടി (size_t i = 0; i < m_reachableIfaceCallables.size(); ++i) {
+            സ്ഥിരം IfaceCallable callable = m_reachableIfaceCallables[i];
+            callable.second->foreach([ഇത്, callable](Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം nodep) {
+                എങ്കിൽ (AstVarRef* സ്ഥിരം refp = VN_CAST(nodep, VarRef)) {
                     // Only persistent interface storage is observable through a VIF read.
                     UASSERT_OBJ(refp->varScopep(), refp, "No var scope");
-                    AstVar* const varp = refp->varp();
-                    if (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->isTemp()
+                    AstVar* സ്ഥിരം varp = refp->varp();
+                    എങ്കിൽ (!refp->access().isWriteOrRW() || varp->isFuncLocal() || varp->isTemp()
                         || varp->isEvent() || !VN_IS(refp->varScopep()->scopep()->modp(), Iface)) {
-                        return;
+                        തിരികെ;
                     }
                     varp->sensIfacep(callable.first);
                     m_vifWrittenMembers.emplace(callable.first, varp->name());
-                    const auto it = m_vscpsByVar.find(varp);
+                    സ്ഥിരം auto it = m_vscpsByVar.find(varp);
                     UASSERT_OBJ(it != m_vscpsByVar.end(), varp,
                                 "No VarScope for interface member");
-                    for (AstVarScope* const vscp : it->second)
+                    വേണ്ടി (AstVarScope* സ്ഥിരം vscp : it->second)
                         addCandidateVscp(callable.first, vscp);
-                } else if (AstNodeCCall* const callp = VN_CAST(nodep, NodeCCall)) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (Ast_കണ്ണി_CCall* സ്ഥിരം callp = VN_CAST(nodep, കണ്ണി_CCall)) {
                     addReachableIfaceCallable(callable.first, callp->funcp());
                 }
             });
         }
         buildTriggers();
     }
-    ~VirtIfaceVisitor() override = default;
+    ~VirtIfaceVisitor() override = സ്ഥിരസ്ഥിതി;
 
     // METHODS
-    VirtIfaceTriggers take_triggers() { return std::move(m_triggers); }
+    VirtIfaceTriggers take_triggers() { തിരികെ std::move(m_triggers); }
 };
 
 }  //namespace
@@ -171,12 +171,12 @@ public:
 VirtIfaceTriggers makeVirtIfaceTriggers(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     VirtIfaceTriggers triggers{};
-    if (v3Global.hasVirtIfaces()) {
+    എങ്കിൽ (v3Global.hasVirtIfaces()) {
         triggers = VirtIfaceVisitor{nodep}.take_triggers();
         // Dump after destructor so VNDeleter runs
-        V3Global::dumpCheckGlobalTree("sched_vif", 0, dumpTreeEitherLevel() >= 6);
+        V3Global::dump_Check_Global_വൃക്ഷം("sched_vif", 0, dump_വൃക്ഷം_Either_Level() >= 6);
     }
-    return triggers;
+    തിരികെ triggers;
 }
 
 }  //namespace V3Sched

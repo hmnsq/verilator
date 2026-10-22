@@ -17,38 +17,38 @@
 #ifndef VERILATOR_V3FUNCTIONTRAITS_H_
 #define VERILATOR_V3FUNCTIONTRAITS_H_
 
-#include "verilatedos.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include <cstddef>
-#include <tuple>
-#include <type_traits>
+#അന്തര്ഭാവ <cstddef>
+#അന്തര്ഭാവ <tuple>
+#അന്തര്ഭാവ <type_traits>
 
 template <typename T>
-struct FunctionTraits;
+ഘടന FunctionTraits;
 
 // For generic types, directly use the result of the signature of its 'operator()'
 template <typename T>
-struct FunctionTraits final
-    : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
+ഘടന FunctionTraits final
+    : പൊതു FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
 
 // Specialization for pointers to member function
 template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+ഘടന FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) സ്ഥിരം> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    സ്ഥിതം constexpr size_t arity = വലുപ്പം...(Args);
 
     // Type of result
     using result_type = T_ReturnType;
 
     // Type of arguments
     template <std::size_t N>
-    struct arg final {
+    ഘടന arg final {
         using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
     };
 };
 
 template <typename T_Callable, size_t N_Index>
-struct FunctionArgNoPointerNoCV final {
+ഘടന FunctionArgNoPointerNoCV final {
     using Traits = FunctionTraits<T_Callable>;
     using T_Arg = typename Traits::template arg<N_Index>::type;
     using T_ArgNoPtr = typename std::remove_pointer<T_Arg>::type;

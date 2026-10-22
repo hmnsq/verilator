@@ -18,35 +18,35 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Unroll.h"
+#അന്തര്ഭാവ "V3Unroll.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#അന്തര്ഭാവ "V3Const.h"
+#അന്തര്ഭാവ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Statistics tracking
 
-struct UnrollStats final {
-    class Stat final {
-        size_t m_value = 0;  // Statistics value
-        const char* const m_name;  // Name for stats file and UDEBUG
+ഘടന UnrollStats final {
+    വർഗ്ഗം Stat final {
+        size_t m_മൂല്യം = 0;  // Statistics value
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം m_name;  // Name for stats file and UDEBUG
 
-    public:
-        explicit Stat(const char* const name)
+    പൊതു:
+        explicit Stat(സ്ഥിരം അക്ഷരം* സ്ഥിരം name)
             : m_name{name} {}
-        ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_value); }
-        const char* name() const { return m_name; }
+        ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_മൂല്യം); }
+        സ്ഥിരം അക്ഷരം* name() സ്ഥിരം { തിരികെ m_name; }
         Stat& operator++() {
-            ++m_value;
-            return *this;
+            ++m_മൂല്യം;
+            തിരികെ *ഇത്;
         }
         Stat& operator+=(size_t v) {
-            m_value += v;
-            return *this;
+            m_മൂല്യം += v;
+            തിരികെ *ഇത്;
         }
     };
 
@@ -57,21 +57,21 @@ struct UnrollStats final {
     Stat m_nFailInfinite{"Failed - infinite loop"};
     Stat m_nFailNestedLoopTest{"Failed - loop test in sub-statement"};
     Stat m_nFailTimingControl{"Failed - contains timing control"};
-    Stat m_nFailUnrollCount{"Failed - reached --unroll-count"};
+    Stat m_n_Fail_Unroll_എണ്ണം{"Failed - reached --unroll-count"};
     Stat m_nFailUnrollStmts{"Failed - reached --unroll-stmts"};
     Stat m_nPragmaDisabled{"Pragma unroll_disable"};
     Stat m_nUnrolledLoops{"Unrolled loops"};
     Stat m_nUnrolledIters{"Unrolled iterations"};
     Stat m_bitScanLowered{"Lowered priority-encoder to mostsetbitp1"};
-    Stat m_countOnesLowered{"Lowered count-set-bits to countones"};
+    Stat m_എണ്ണം_Ones_Lowered{"Lowered count-set-bits to countones"};
 };
 
 //######################################################################
 // Variable bindings
-class UnrolllBindings final {
+വർഗ്ഗം UnrolllBindings final {
     // NODE STATE
     // AstVarScope::user1()    int: index of the binding in m_bindings
-    const VNUser1InUse m_inuser1;
+    സ്ഥിരം VNUser1InUse m_inuser1;
 
     // STATE
     // Map from AstVarScope::user1() to current variable value, nullptr if not bound - idx 0 unused
@@ -79,33 +79,33 @@ class UnrolllBindings final {
     // Stack of binding checkpoints
     std::vector<std::vector<AstConst*>> m_checkpoints;
 
-public:
+പൊതു:
     // CONSTRUCTOR
-    UnrolllBindings() = default;
-    ~UnrolllBindings() = default;
+    UnrolllBindings() = സ്ഥിരസ്ഥിതി;
+    ~UnrolllBindings() = സ്ഥിരസ്ഥിതി;
     VL_UNCOPYABLE(UnrolllBindings);
     VL_UNMOVABLE(UnrolllBindings);
 
     // METHODS
-    void clear() {
+    ശൂന്യം clear() {
         m_curr.resize(1);
         m_checkpoints.clear();
-        AstNode::user1ClearTree();
+        Ast_കണ്ണി::user1_Clear_വൃക്ഷം();
     }
 
-    void checkpoint() { m_checkpoints.push_back(m_curr); }
+    ശൂന്യം checkpoint() { m_checkpoints.തള്ളുക_back(m_curr); }
 
-    void revert() {
+    ശൂന്യം revert() {
         m_curr = std::move(m_checkpoints.back());
-        m_checkpoints.pop_back();
+        m_checkpoints.എടുക്കുക_back();
     }
 
-    void commit() { m_checkpoints.pop_back(); }
+    ശൂന്യം commit() { m_checkpoints.എടുക്കുക_back(); }
 
-    void set(AstVarScope* vscp, AstConst* valp) {
-        if (!vscp->user1()) {
+    ശൂന്യം set(AstVarScope* vscp, AstConst* valp) {
+        എങ്കിൽ (!vscp->user1()) {
             vscp->user1(m_curr.size());
-            m_curr.push_back(nullptr);
+            m_curr.തള്ളുക_back(nullptr);
         }
         UINFO(6, "Binding SET " << vscp->name() << " / " << vscp->user1() << " := " << valp);
         m_curr[vscp->user1()] = valp;
@@ -113,69 +113,69 @@ public:
 
     AstConst* get(AstVarScope* vscp) {
         // It's possible after a revert that user1 is set, but the vector is shorter, pad up
-        if (static_cast<size_t>(vscp->user1()) >= m_curr.size()) {
+        എങ്കിൽ (static_cast<size_t>(vscp->user1()) >= m_curr.size()) {
             m_curr.resize(vscp->user1() + 1, nullptr);
         }
-        AstConst* const valp = vscp->user1() ? m_curr[vscp->user1()] : nullptr;
+        AstConst* സ്ഥിരം valp = vscp->user1() ? m_curr[vscp->user1()] : nullptr;
         UINFO(6, "Binding GET " << vscp->name() << " / " << vscp->user1() << " == " << valp);
-        return valp;
+        തിരികെ valp;
     }
 };
 
 //######################################################################
 // Unroll one AstLoop
 
-class UnrollOneVisitor final : VNVisitor {
+വർഗ്ഗം UnrollOneVisitor final : VNVisitor {
     // STATE
     UnrollStats& m_stats;  // Statistics tracking
     UnrolllBindings& m_bindings;  // Variable bindings
-    AstLoop* const m_loopp;  // The loop we are trying to unroll
-    AstNode* m_stmtsp = nullptr;  // Resulting unrolled statement
+    AstLoop* സ്ഥിരം m_loopp;  // The loop we are trying to unroll
+    Ast_കണ്ണി* m_stmtsp = nullptr;  // Resulting unrolled statement
     size_t m_unrolledSize = 0;  // Number of nodes in unrolled loop
     // Temporary block needed for iteration of cloned statements
-    AstBegin* const m_wrapp = new AstBegin{m_loopp->fileline(), "[EditWrapper]", nullptr, false};
-    const bool m_unrollFull = m_loopp->unroll().isSetTrue();  // Completely unroll the loop?
-    bool m_ok = true;  // Unrolling successful so far, gave up if false
+    AstBegin* സ്ഥിരം m_wrapp = പുതിയ AstBegin{m_loopp->fileline(), "[EditWrapper]", nullptr, അസത്യം};
+    സ്ഥിരം തർക്കം m_unrollFull = m_loopp->unroll().isSetTrue();  // Completely unroll the loop?
+    തർക്കം m_ok = സത്യം;  // Unrolling successful so far, gave up if false
 
     // METHODS
-    void cantUnroll(AstNode* nodep, UnrollStats::Stat& stat) {
-        m_ok = false;
+    ശൂന്യം cantUnroll(Ast_കണ്ണി* nodep, UnrollStats::Stat& stat) {
+        m_ok = അസത്യം;
         ++stat;
         UINFO(4, "   Can't Unroll: " << stat.name() << " :" << nodep);
     }
 
     // Returns false if the loop terminated (or we gave up)
-    bool unrollOneIteration(AstNode* stmtsp) {
+    തർക്കം unrollOneIteration(Ast_കണ്ണി* stmtsp) {
         // True if the loop contains at least one dependent AstLoopTest
-        bool foundLoopTest = false;
+        തർക്കം foundLoopTest = അസത്യം;
         // Process one body statement at a time
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+        വേണ്ടി (Ast_കണ്ണി* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Check if this is a loop test - before substitution
-            if (AstLoopTest* const testp = VN_CAST(stmtp, LoopTest)) {
-                AstNode* const condp = V3Const::constifyEdit(testp->condp());
-                if (condp->isZero()) {
+            എങ്കിൽ (AstLoopTest* സ്ഥിരം testp = VN_CAST(stmtp, LoopTest)) {
+                Ast_കണ്ണി* സ്ഥിരം condp = V3Const::constifyEdit(testp->condp());
+                എങ്കിൽ (condp->isZero()) {
                     // Loop terminates
-                    return false;
-                } else if (condp->isNeqZero()) {
+                    തിരികെ അസത്യം;
+                } അല്ലെങ്കിൽ എങ്കിൽ (condp->isNeqZero()) {
                     // Loop test is unconditionally true, ignore
-                    continue;
+                    തുടരുക;
                 }
             }
 
             // Clone and iterate one body statement
-            m_wrapp->addStmtsp(stmtp->cloneTree(false));
+            m_wrapp->addStmtsp(stmtp->clone_വൃക്ഷം(അസത്യം));
             iterateAndNextNull(m_wrapp->stmtsp());
             // Give up if failed
-            if (!m_ok) return false;
+            എങ്കിൽ (!m_ok) തിരികെ അസത്യം;
 
             // Add statements to unrolled body
-            while (AstNode* const nodep = m_wrapp->stmtsp()) {
+            ആകുമ്പോൾ (Ast_കണ്ണി* സ്ഥിരം nodep = m_wrapp->stmtsp()) {
                 // Check if we reached the size limit, unless full unrolling is requested
-                if (!m_unrollFull) {
-                    m_unrolledSize += nodep->nodeCount();
-                    if (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
+                എങ്കിൽ (!m_unrollFull) {
+                    m_unrolledSize += nodep->കണ്ണി_എണ്ണം();
+                    എങ്കിൽ (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
                         cantUnroll(m_loopp, m_stats.m_nFailUnrollStmts);
-                        return false;
+                        തിരികെ അസത്യം;
                     }
                 }
 
@@ -183,105 +183,105 @@ class UnrollOneVisitor final : VNVisitor {
                 nodep->unlinkFrBack();
 
                 // If a LoopTest, check how it resolved
-                if (AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
-                    foundLoopTest = true;
+                എങ്കിൽ (AstLoopTest* സ്ഥിരം testp = VN_CAST(nodep, LoopTest)) {
+                    foundLoopTest = സത്യം;
                     // Will not actually need it, nor any subsequent
-                    pushDeletep(testp);  // TODO testp used past here
+                    തള്ളുക_Deletep(testp);  // TODO testp used past here
                     // Loop continues - add rest of statements
-                    if (testp->condp()->isNeqZero()) continue;
+                    എങ്കിൽ (testp->condp()->isNeqZero()) തുടരുക;
                     // Won't need any of the trailing statements
-                    if (m_wrapp->stmtsp()) pushDeletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
+                    എങ്കിൽ (m_wrapp->stmtsp()) തള്ളുക_Deletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
                     // Loop terminates
-                    if (testp->condp()->isZero()) return false;
+                    എങ്കിൽ (testp->condp()->isZero()) തിരികെ അസത്യം;
                     // Loop condition unknown - cannot unroll
                     cantUnroll(testp->condp(), m_stats.m_nFailCondition);
-                    return false;
+                    തിരികെ അസത്യം;
                 }
 
                 // Add this statement to the result list
-                m_stmtsp = AstNode::addNext(m_stmtsp, nodep);
+                m_stmtsp = Ast_കണ്ണി::addNext(m_stmtsp, nodep);
 
                 // Check if terminated via JumpGo
-                if (VN_IS(nodep, JumpGo)) {
+                എങ്കിൽ (VN_IS(nodep, JumpGo)) {
                     UASSERT_OBJ(!m_wrapp->stmtsp(), nodep, "Statements after JumpGo");
                     // This JumpGo is going directly into the body of the unrolled loop.
                     // A JumpGo always redirects to the end of an enclosing JumpBlock,
                     // so this JumpGo must go outside the loop. The loop terminates.
-                    return false;
+                    തിരികെ അസത്യം;
                 }
             }
         }
         // If there is no loop test in the body, give up, it's an infinite loop
-        if (!foundLoopTest) {
+        എങ്കിൽ (!foundLoopTest) {
             cantUnroll(m_loopp, m_stats.m_nFailInfinite);
-            return false;
+            തിരികെ അസത്യം;
         }
         // One iteration done, loop continues
-        return true;
+        തിരികെ സത്യം;
     }
 
     // Substitute all reads of bound variables with their value. If a write is
     // encountered, remove the binding and don't substitute that variable.
     // Returns false if we can't unroll
-    bool process(AstNode* nodep) {
+    തർക്കം process(Ast_കണ്ണി* nodep) {
         UASSERT_OBJ(m_ok, nodep, "Should not call 'substituteCondVscp' if we gave up");
-        if (!nodep) return true;
+        എങ്കിൽ (!nodep) തിരികെ സത്യം;
         // Variable references we should try to substitute
         std::vector<AstVarRef*> toSubstitute;
         // Iterate subtree
-        nodep->foreach([&](AstNode* np) {
+        nodep->foreach([&](Ast_കണ്ണി* np) {
             // Failed earlier
-            if (!m_ok) return;
+            എങ്കിൽ (!m_ok) തിരികെ;
             // Check for AstLoopTest
-            if (AstLoopTest* const testp = VN_CAST(np, LoopTest)) {
+            എങ്കിൽ (AstLoopTest* സ്ഥിരം testp = VN_CAST(np, LoopTest)) {
                 // Nested loop is OK, bail only if the nested LoopTest is for the current loop
-                if (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
-                return;
+                എങ്കിൽ (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
+                തിരികെ;
             }
             // Check for AstFork - can't unroll
-            if (VN_IS(np, Fork)) {
+            എങ്കിൽ (VN_IS(np, Fork)) {
                 cantUnroll(np, m_stats.m_nFailFork);
-                return;
+                തിരികെ;
             }
             // Check for calls - can't unroll if not pure might modify bindings
-            if (AstNodeCCall* const callp = VN_CAST(np, NodeCCall)) {
-                if (!callp->isPure()) {
+            എങ്കിൽ (Ast_കണ്ണി_CCall* സ്ഥിരം callp = VN_CAST(np, കണ്ണി_CCall)) {
+                എങ്കിൽ (!callp->isPure()) {
                     cantUnroll(np, m_stats.m_nFailCall);
-                    return;
+                    തിരികെ;
                 }
             }
             // Check for timing control - can't unroll, might modify bindings
-            if (np->isTimingControl()) {
+            എങ്കിൽ (np->isTimingControl()) {
                 cantUnroll(np, m_stats.m_nFailTimingControl);
-                return;
+                തിരികെ;
             }
             // Process variable references
-            AstVarRef* const refp = VN_CAST(np, VarRef);
-            if (!refp) return;
+            AstVarRef* സ്ഥിരം refp = VN_CAST(np, VarRef);
+            എങ്കിൽ (!refp) തിരികെ;
             // Ignore if the referenced variable has no binding
-            AstConst* const valp = m_bindings.get(refp->varScopep());
-            if (!valp) return;
+            AstConst* സ്ഥിരം valp = m_bindings.get(refp->varScopep());
+            എങ്കിൽ (!valp) തിരികെ;
             // If writen, remove the binding
-            if (refp->access().isWriteOrRW()) {
+            എങ്കിൽ (refp->access().isWriteOrRW()) {
                 m_bindings.set(refp->varScopep(), nullptr);
-                return;
+                തിരികെ;
             }
             // Otherwise add it to the list of variables to substitute
-            toSubstitute.push_back(refp);
+            toSubstitute.തള്ളുക_back(refp);
         });
         // Give up if we have to
-        if (!m_ok) return false;
+        എങ്കിൽ (!m_ok) തിരികെ അസത്യം;
         // Actually substitute the variables that still have bindings
-        for (AstVarRef* const refp : toSubstitute) {
+        വേണ്ടി (AstVarRef* സ്ഥിരം refp : toSubstitute) {
             // Pick up bound value
-            AstConst* const valp = m_bindings.get(refp->varScopep());
+            AstConst* സ്ഥിരം valp = m_bindings.get(refp->varScopep());
             // Binding might have been removed after adding to 'toSubstitute'
-            if (!valp) continue;
+            എങ്കിൽ (!valp) തുടരുക;
             // Substitute it
-            refp->replaceWith(valp->cloneTree(false));
-            VL_DO_DANGLING(pushDeletep(refp), refp);
+            refp->replaceWith(valp->clone_വൃക്ഷം(അസത്യം));
+            VL_DO_DANGLING(തള്ളുക_Deletep(refp), refp);
         }
-        return true;
+        തിരികെ സത്യം;
     }
 
     // CONSTRUCTOR
@@ -291,135 +291,135 @@ class UnrollOneVisitor final : VNVisitor {
         , m_loopp{loopp} {
         UASSERT_OBJ(!loopp->contsp(), loopp, "'contsp' only used before LinkJump");
         // Do not unroll if we are told not to
-        if (loopp->unroll().isSetFalse()) {
+        എങ്കിൽ (loopp->unroll().isSetFalse()) {
             cantUnroll(loopp, m_stats.m_nPragmaDisabled);
-            return;
+            തിരികെ;
         }
         // Attempt to unroll the loop
-        const size_t iterLimit = m_unrollFull ? v3Global.opt.unrollLimit()  //
-                                              : v3Global.opt.unrollCount();
-        size_t iterCount = 0;
-        do {
-            if (iterCount > iterLimit) {
-                cantUnroll(m_loopp, m_stats.m_nFailUnrollCount);
-                if (m_unrollFull) {
+        സ്ഥിരം size_t iterLimit = m_unrollFull ? v3Global.opt.unrollLimit()  //
+                                              : v3Global.opt.unroll_എണ്ണം();
+        size_t iter_എണ്ണം = 0;
+        ചെയ്യുക {
+            എങ്കിൽ (iter_എണ്ണം > iterLimit) {
+                cantUnroll(m_loopp, m_stats.m_n_Fail_Unroll_എണ്ണം);
+                എങ്കിൽ (m_unrollFull) {
                     loopp->v3error("Unrolling procedural loop with '/* verilator unroll_full */' "
                                    "took too long; probably this is an infinite loop, otherwise "
                                    "set '--unroll-limit' above "
                                    << iterLimit);
                 }
-                return;
+                തിരികെ;
             }
-            ++iterCount;
-        } while (unrollOneIteration(loopp->stmtsp()));
+            ++iter_എണ്ണം;
+        } ആകുമ്പോൾ (unrollOneIteration(loopp->stmtsp()));
 
-        if (m_ok) {
+        എങ്കിൽ (m_ok) {
             ++m_stats.m_nUnrolledLoops;
-            m_stats.m_nUnrolledIters += iterCount;
+            m_stats.m_nUnrolledIters += iter_എണ്ണം;
         }
     }
-    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->deleteTree(), m_wrapp); }
+    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->delete_വൃക്ഷം(), m_wrapp); }
 
     // VISIT - these are called for the statements directly in the loop body
-    void visit(AstNode* nodep) override {
-        if (!m_ok) return;
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
+        എങ്കിൽ (!m_ok) തിരികെ;
         // Generic body statement, just substitute
         process(nodep);
     }
-    void visit(AstLoopTest* nodep) override {
-        if (!m_ok) return;
+    ശൂന്യം visit(AstLoopTest* nodep) override {
+        എങ്കിൽ (!m_ok) തിരികെ;
         // If the condition is a ExprStmt, move it before the LoopTest
-        if (AstExprStmt* const exprp = VN_CAST(nodep->condp(), ExprStmt)) {
-            AstNode* const stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
+        എങ്കിൽ (Ast_വ്യഞ്ജകം_Stmt* സ്ഥിരം exprp = VN_CAST(nodep->condp(), വ്യഞ്ജകം_Stmt)) {
+            Ast_കണ്ണി* സ്ഥിരം stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
             exprp->replaceWith(exprp->resultp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
+            VL_DO_DANGLING(തള്ളുക_Deletep(exprp), exprp);
             VNRelinker relinker;
             nodep->unlinkFrBack(&relinker);
             stmtsp->addNext(nodep);
             relinker.relink(stmtsp);
-            return;
+            തിരികെ;
         }
         // Substitute the condition only, this is not a nested AstLoopTest
         process(nodep->condp());
         // Also simplify it, it will be checked later
         V3Const::constifyEdit(nodep->condp());
     }
-    void visit(AstAssign* nodep) override {
-        if (!m_ok) return;
+    ശൂന്യം visit(AstAssign* nodep) override {
+        എങ്കിൽ (!m_ok) തിരികെ;
         // Can't do it if delayed
-        if (nodep->timingControlp()) {
+        എങ്കിൽ (nodep->timingControlp()) {
             cantUnroll(nodep, m_stats.m_nFailTimingControl);
-            return;
+            തിരികെ;
         }
-        if (!process(nodep->rhsp())) return;
+        എങ്കിൽ (!process(nodep->rhsp())) തിരികെ;
         // If a simple variable assignment, update the binding
-        AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef);
-        AstConst* const valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
-        if (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
+        AstVarRef* സ്ഥിരം lhsp = VN_CAST(nodep->lhsp(), VarRef);
+        AstConst* സ്ഥിരം valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
+        എങ്കിൽ (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
             m_bindings.set(lhsp->varScopep(), valp);
-            return;
+            തിരികെ;
         }
         // Otherwise just like a generic statement
         process(nodep->lhsp());
     }
-    void visit(AstIf* nodep) override {
-        if (!m_ok) return;
-        if (!process(nodep->condp())) return;
+    ശൂന്യം visit(AstIf* nodep) override {
+        എങ്കിൽ (!m_ok) തിരികെ;
+        എങ്കിൽ (!process(nodep->condp())) തിരികെ;
         // If condition is constant, replce with the relevant branch
-        if (AstConst* const condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
-            if (AstNode* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
+        എങ്കിൽ (AstConst* സ്ഥിരം condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
+            എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
                 nodep->addNextHere(bodyp->unlinkFrBackWithNext());  // This will be iterated next
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
+            തിരികെ;
         }
         // Otherwise just like a generic statement
         process(nodep);
     }
-    void visit(AstJumpGo* nodep) override {
-        if (!m_ok) return;
+    ശൂന്യം visit(AstJumpGo* nodep) override {
+        എങ്കിൽ (!m_ok) തിരികെ;
         // Remove trailing dead code
-        if (nodep->nextp()) pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
+        എങ്കിൽ (nodep->nextp()) തള്ളുക_Deletep(nodep->nextp()->unlinkFrBackWithNext());
     }
-    void visit(AstLoop* nodep) override {
-        if (!m_ok) return;
+    ശൂന്യം visit(AstLoop* nodep) override {
+        എങ്കിൽ (!m_ok) തിരികെ;
         m_bindings.checkpoint();
-        std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        std::pair<Ast_കണ്ണി*, തർക്കം> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, revert the bindings and process the loop as a generic statement
-        if (!pair.second) {
+        എങ്കിൽ (!pair.second) {
             m_bindings.revert();
             process(nodep);
-            return;
+            തിരികെ;
         }
 
         // Commit the bindings and replace the loop with the unrolled code
         m_bindings.commit();
-        if (pair.first) {
+        എങ്കിൽ (pair.first) {
             nodep->replaceWith(pair.first);
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
 
-public:
+പൊതു:
     // Unroll the given loop. Returns the resulting statements and a flag indicating success
-    static std::pair<AstNode*, bool> apply(UnrollStats& stats, UnrolllBindings& bindings,
+    സ്ഥിതം std::pair<Ast_കണ്ണി*, തർക്കം> apply(UnrollStats& stats, UnrolllBindings& bindings,
                                            AstLoop* loopp) {
         UnrollOneVisitor visitor{stats, bindings, loopp};
         // If successfully unrolled, return the resulting list of statements - might be empty
-        if (visitor.m_ok) return {visitor.m_stmtsp, true};
+        എങ്കിൽ (visitor.m_ok) തിരികെ {visitor.m_stmtsp, സത്യം};
         // Otherwise delete intermediate results
-        if (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->deleteTree(), visitor.m_stmtsp);
-        return {nullptr, false};
+        എങ്കിൽ (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->delete_വൃക്ഷം(), visitor.m_stmtsp);
+        തിരികെ {nullptr, അസത്യം};
     }
 };
 
 //######################################################################
 // Unroll all AstLoop statements
 
-class UnrollAllVisitor final : VNVisitor {
+വർഗ്ഗം UnrollAllVisitor final : VNVisitor {
     // STATE
     UnrollStats m_stats;  // Statistic tracking
     UnrolllBindings m_bindings;  // Variable bindings
@@ -428,62 +428,62 @@ class UnrollAllVisitor final : VNVisitor {
     // Peel value-preserving width casts (Extend/ExtendS, or a low-bits Sel with lsb 0) to the
     // underlying VarRef.  A Sel kept narrower than 'minWidth' is a lossy narrowing (idx[1:0])
     // and is rejected.
-    static AstVarRef* unwrapToVarRef(AstNodeExpr* nodep, int minWidth) {
-        while (true) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp;
-            if (AstExtend* const ep = VN_CAST(nodep, Extend)) {
+    സ്ഥിതം AstVarRef* unwrapToVarRef(Ast_കണ്ണി_വ്യഞ്ജകം* nodep, പൂർണ്ണസംഖ്യ minWidth) {
+        ആകുമ്പോൾ (സത്യം) {
+            എങ്കിൽ (AstVarRef* സ്ഥിരം refp = VN_CAST(nodep, VarRef)) തിരികെ refp;
+            എങ്കിൽ (AstExtend* സ്ഥിരം ep = VN_CAST(nodep, Extend)) {
                 nodep = ep->lhsp();
-            } else if (AstExtendS* const ep = VN_CAST(nodep, ExtendS)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (AstExtendS* സ്ഥിരം ep = VN_CAST(nodep, ExtendS)) {
                 nodep = ep->lhsp();
-            } else if (AstSel* const sp = VN_CAST(nodep, Sel)) {
-                const AstConst* const lsbp = VN_CAST(sp->lsbp(), Const);
-                if (!lsbp || lsbp->toUInt() != 0 || sp->width() < minWidth) return nullptr;
+            } അല്ലെങ്കിൽ എങ്കിൽ (AstSel* സ്ഥിരം sp = VN_CAST(nodep, Sel)) {
+                സ്ഥിരം AstConst* സ്ഥിരം lsbp = VN_CAST(sp->lsbp(), Const);
+                എങ്കിൽ (!lsbp || lsbp->toUInt() != 0 || sp->width() < minWidth) തിരികെ nullptr;
                 nodep = sp->fromp();
-            } else {
-                return nullptr;
+            } അല്ലെങ്കിൽ {
+                തിരികെ nullptr;
             }
         }
     }
     // True if 'nodep' is exactly '1 + var' for 'vscp' (V3Const puts the constant on the LHS).
     // Passing the add's width as minWidth rejects a lossy increment like 32'(i[1:0]) + 1.
-    bool isVarPlus1(AstNode* nodep, const AstVarScope* vscp) {
-        AstAdd* const addp = VN_CAST(nodep, Add);
-        if (!addp || !addp->lhsp()->isOne()) return false;
-        const AstVarRef* const r = unwrapToVarRef(addp->rhsp(), addp->width());
-        return r && r->varScopep() == vscp;
+    തർക്കം isVarPlus1(Ast_കണ്ണി* nodep, സ്ഥിരം AstVarScope* vscp) {
+        AstAdd* സ്ഥിരം addp = VN_CAST(nodep, Add);
+        എങ്കിൽ (!addp || !addp->lhsp()->isOne()) തിരികെ അസത്യം;
+        സ്ഥിരം AstVarRef* സ്ഥിരം r = unwrapToVarRef(addp->rhsp(), addp->width());
+        തിരികെ r && r->varScopep() == vscp;
     }
     // Resize the 32-bit reduction to the accumulator width; truncating the low bits matches
     // the original counted loop's wrap-around.
-    static AstNodeExpr* resizeToWidth(AstNodeExpr* exprp, const AstVarRef* targetRefp) {
-        const int width = targetRefp->width();
-        if (width == 32) return exprp;
-        FileLine* const flp = exprp->fileline();
-        if (width < 32) return new AstSel{flp, exprp, 0, width};
-        AstExtend* const extp = new AstExtend{flp, exprp};
+    സ്ഥിതം Ast_കണ്ണി_വ്യഞ്ജകം* resizeToWidth(Ast_കണ്ണി_വ്യഞ്ജകം* exprp, സ്ഥിരം AstVarRef* targetRefp) {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ width = targetRefp->width();
+        എങ്കിൽ (width == 32) തിരികെ exprp;
+        File_വരി* സ്ഥിരം flp = exprp->fileline();
+        എങ്കിൽ (width < 32) തിരികെ പുതിയ AstSel{flp, exprp, 0, width};
+        AstExtend* സ്ഥിരം extp = പുതിയ AstExtend{flp, exprp};
         extp->dtypeFrom(targetRefp);
-        return extp;
+        തിരികെ extp;
     }
     // Match a strict ascending loop bound 'idx < W'.  V3Const canonicalizes this to the
     // 'W > idx' form (Gt unsigned, GtS signed), so only that form is matched.
-    static bool ascendingBound(AstNodeExpr* condp, AstConst*& wp, AstVarRef*& idxRefp) {
-        if (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
+    സ്ഥിതം തർക്കം ascendingBound(Ast_കണ്ണി_വ്യഞ്ജകം* condp, AstConst*& wp, AstVarRef*& idxRefp) {
+        എങ്കിൽ (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) തിരികെ അസത്യം;
+        Ast_കണ്ണി_Biop* സ്ഥിരം bp = VN_AS(condp, കണ്ണി_Biop);
         wp = VN_CAST(bp->lhsp(), Const);
         idxRefp = VN_CAST(bp->rhsp(), VarRef);
-        return wp && idxRefp && !wp->num().isFourState();
+        തിരികെ wp && idxRefp && !wp->അക്കം().isFourState();
     }
     // Recognize the redundant in-range guard Verilator auto-inserts for a select into a
     // non-power-of-two vector.  V3Const canonicalizes 'idx <= C' to '(C >= idx)' (Gte/GteS,
     // const on the LHS), so only that form occurs; with C >= W-1 it is always true for idx
     // in 0..W-1.
-    static bool isInRangeGuard(AstNodeExpr* condp, const AstVarScope* idxVscp, uint32_t width,
-                               int addrBits) {
-        if (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
-        const AstConst* const cp = VN_CAST(bp->lhsp(), Const);
-        if (!cp || cp->num().isFourState() || cp->toUInt() < width - 1) return false;
-        const AstVarRef* const r = unwrapToVarRef(bp->rhsp(), addrBits);
-        return r && r->varScopep() == idxVscp;
+    സ്ഥിതം തർക്കം isInRangeGuard(Ast_കണ്ണി_വ്യഞ്ജകം* condp, സ്ഥിരം AstVarScope* idxVscp, uint32_t width,
+                               പൂർണ്ണസംഖ്യ addrBits) {
+        എങ്കിൽ (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) തിരികെ അസത്യം;
+        Ast_കണ്ണി_Biop* സ്ഥിരം bp = VN_AS(condp, കണ്ണി_Biop);
+        സ്ഥിരം AstConst* സ്ഥിരം cp = VN_CAST(bp->lhsp(), Const);
+        എങ്കിൽ (!cp || cp->അക്കം().isFourState() || cp->toUInt() < width - 1) തിരികെ അസത്യം;
+        സ്ഥിരം AstVarRef* സ്ഥിരം r = unwrapToVarRef(bp->rhsp(), addrBits);
+        തിരികെ r && r->varScopep() == idxVscp;
     }
     // Recognize a single-bit scan loop over all W bits of 'vec' (idx 0..W-1, target
     // pre-zeroed) and lower it to a bit-reduction primitive.  Two idioms are matched:
@@ -492,151 +492,151 @@ class UnrollAllVisitor final : VNVisitor {
     // where, when W == width(vec):
     //   <e> = idx + 1     => target = $mostsetbitp1(vec)  (leading-one / bit-width)
     //   <e> = target + 1  => target = $countones(vec)     (population count)
-    bool tryLowerBitScanLoop(AstLoop* loopp) {
-        AstLoopTest* const testp = VN_CAST(loopp->stmtsp(), LoopTest);
-        if (!testp) return false;
-        AstIf* const ifp = VN_CAST(testp->nextp(), If);
-        if (!ifp) return false;
-        AstAssign* const incp = VN_CAST(ifp->nextp(), Assign);
-        if (!incp || incp->nextp()) return false;
+    തർക്കം tryLowerBitScanLoop(AstLoop* loopp) {
+        AstLoopTest* സ്ഥിരം testp = VN_CAST(loopp->stmtsp(), LoopTest);
+        എങ്കിൽ (!testp) തിരികെ അസത്യം;
+        AstIf* സ്ഥിരം ifp = VN_CAST(testp->nextp(), If);
+        എങ്കിൽ (!ifp) തിരികെ അസത്യം;
+        AstAssign* സ്ഥിരം incp = VN_CAST(ifp->nextp(), Assign);
+        എങ്കിൽ (!incp || incp->nextp()) തിരികെ അസത്യം;
         AstConst* wp = nullptr;
         AstVarRef* idxRefp = nullptr;
-        if (!ascendingBound(testp->condp(), wp, idxRefp)) return false;
-        AstVarScope* const idxVscp = idxRefp->varScopep();
-        const uint32_t width = wp->toUInt();
+        എങ്കിൽ (!ascendingBound(testp->condp(), wp, idxRefp)) തിരികെ അസത്യം;
+        AstVarScope* സ്ഥിരം idxVscp = idxRefp->varScopep();
+        സ്ഥിരം uint32_t width = wp->toUInt();
         // Bits needed to address all W bits of 'vec' (clog2(W)); a narrower index is lossy.
-        const int addrBits = width <= 1 ? 1 : V3Number::log2b(width - 1) + 1;
-        const AstConst* const idxInitp = m_bindings.get(idxVscp);
-        if (!idxInitp || !idxInitp->isZero()) return false;
-        AstVarRef* const incLhsp = VN_CAST(incp->lhsp(), VarRef);
-        if (!incLhsp || incLhsp->varScopep() != idxVscp) return false;
-        if (!isVarPlus1(incp->rhsp(), idxVscp)) return false;
-        if (ifp->elsesp()) return false;
-        AstAssign* const thenp = VN_CAST(ifp->thensp(), Assign);
-        if (!thenp || thenp->nextp()) return false;
-        AstVarRef* const targetRefp = VN_CAST(thenp->lhsp(), VarRef);
-        if (!targetRefp) return false;
-        AstVarScope* const targetVscp = targetRefp->varScopep();
-        if (targetVscp == idxVscp) return false;
-        const bool isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
-        const bool isCountOnes = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
-        if (!isLeadingOne && !isCountOnes) return false;
+        സ്ഥിരം പൂർണ്ണസംഖ്യ addrBits = width <= 1 ? 1 : V3_സംഖ്യ::log2b(width - 1) + 1;
+        സ്ഥിരം AstConst* സ്ഥിരം idxInitp = m_bindings.get(idxVscp);
+        എങ്കിൽ (!idxInitp || !idxInitp->isZero()) തിരികെ അസത്യം;
+        AstVarRef* സ്ഥിരം incLhsp = VN_CAST(incp->lhsp(), VarRef);
+        എങ്കിൽ (!incLhsp || incLhsp->varScopep() != idxVscp) തിരികെ അസത്യം;
+        എങ്കിൽ (!isVarPlus1(incp->rhsp(), idxVscp)) തിരികെ അസത്യം;
+        എങ്കിൽ (ifp->elsesp()) തിരികെ അസത്യം;
+        AstAssign* സ്ഥിരം thenp = VN_CAST(ifp->thensp(), Assign);
+        എങ്കിൽ (!thenp || thenp->nextp()) തിരികെ അസത്യം;
+        AstVarRef* സ്ഥിരം targetRefp = VN_CAST(thenp->lhsp(), VarRef);
+        എങ്കിൽ (!targetRefp) തിരികെ അസത്യം;
+        AstVarScope* സ്ഥിരം targetVscp = targetRefp->varScopep();
+        എങ്കിൽ (targetVscp == idxVscp) തിരികെ അസത്യം;
+        സ്ഥിരം തർക്കം isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
+        സ്ഥിരം തർക്കം is_എണ്ണം_Ones = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
+        എങ്കിൽ (!isLeadingOne && !is_എണ്ണം_Ones) തിരികെ അസത്യം;
         // If-cond is the 1-bit select 'vec[idx]', possibly wrapped in the redundant in-range
         // guard Verilator auto-inserts (as 'guard && sel') for a non-power-of-two vector:
         //   '(idx <= W-1) && vec[idx]'        (default / --x-assign 0; a LogAnd), or
         //   '(idx <= W-1) ? vec[idx] : <x>'   (--x-assign unique; a Cond).
         // The guard is always true for idx in 0..W-1, so peel it to reach the select.  Any
         // other compound condition (e.g. 'vec[idx] && en') leaves a non-select, rejected below.
-        AstNodeExpr* condp = ifp->condp();
-        if (AstLogAnd* const andp = VN_CAST(condp, LogAnd)) {
-            if (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
-        } else if (AstCond* const ternp = VN_CAST(condp, Cond)) {
-            if (isInRangeGuard(ternp->condp(), idxVscp, width, addrBits)) condp = ternp->thenp();
+        Ast_കണ്ണി_വ്യഞ്ജകം* condp = ifp->condp();
+        എങ്കിൽ (AstLogAnd* സ്ഥിരം andp = VN_CAST(condp, LogAnd)) {
+            എങ്കിൽ (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstCond* സ്ഥിരം ternp = VN_CAST(condp, Cond)) {
+            എങ്കിൽ (isInRangeGuard(ternp->condp(), idxVscp, width, addrBits)) condp = ternp->thenp();
         }
-        AstSel* const selp = VN_CAST(condp, Sel);
-        if (!selp || selp->width() != 1) return false;
-        const AstVarRef* const fromp = VN_CAST(selp->fromp(), VarRef);
-        if (!fromp) return false;
-        const AstVarScope* const fromVscp = fromp->varScopep();
-        if (fromVscp == idxVscp || fromVscp == targetVscp) return false;
-        AstNodeExpr* const vecExprp = selp->fromp();
+        AstSel* സ്ഥിരം selp = VN_CAST(condp, Sel);
+        എങ്കിൽ (!selp || selp->width() != 1) തിരികെ അസത്യം;
+        സ്ഥിരം AstVarRef* സ്ഥിരം fromp = VN_CAST(selp->fromp(), VarRef);
+        എങ്കിൽ (!fromp) തിരികെ അസത്യം;
+        സ്ഥിരം AstVarScope* സ്ഥിരം fromVscp = fromp->varScopep();
+        എങ്കിൽ (fromVscp == idxVscp || fromVscp == targetVscp) തിരികെ അസത്യം;
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം vecExprp = selp->fromp();
         // Must scan all W bits of 'vec', indexed by exactly 'idx' (address kept >= clog2(W),
         // so a lossy narrowing like vec[idx[2:0]] is rejected).
-        if (static_cast<int>(width) != vecExprp->width()) return false;
-        const AstVarRef* const idxInSel = unwrapToVarRef(selp->lsbp(), addrBits);
-        if (!idxInSel || idxInSel->varScopep() != idxVscp) return false;
+        എങ്കിൽ (static_cast<പൂർണ്ണസംഖ്യ>(width) != vecExprp->width()) തിരികെ അസത്യം;
+        സ്ഥിരം AstVarRef* സ്ഥിരം idxInSel = unwrapToVarRef(selp->lsbp(), addrBits);
+        എങ്കിൽ (!idxInSel || idxInSel->varScopep() != idxVscp) തിരികെ അസത്യം;
         // 'target' must be const-0 immediately before the loop (collected in m_bindings),
         // so that an all-zero 'vec' yields 0, matching $mostsetbitp1's definition.
-        const AstConst* const targetInitp = m_bindings.get(targetVscp);
-        if (!targetInitp || !targetInitp->isZero()) return false;
+        സ്ഥിരം AstConst* സ്ഥിരം targetInitp = m_bindings.get(targetVscp);
+        എങ്കിൽ (!targetInitp || !targetInitp->isZero()) തിരികെ അസത്യം;
         // Rewrite to 'target = <reduction>(vec); idx = W'.  The 'idx = W' store preserves the
         // loop's exit value, so this is sound even if idx is read afterwards (else DCE drops it).
-        FileLine* const flp = loopp->fileline();
-        AstNodeExpr* reducep;
-        if (isLeadingOne) {
-            reducep = new AstMostSetBitP1{flp, vecExprp->cloneTree(false)};
-        } else {
-            AstCountOnes* const conep = new AstCountOnes{flp, vecExprp->cloneTree(false)};
+        File_വരി* സ്ഥിരം flp = loopp->fileline();
+        Ast_കണ്ണി_വ്യഞ്ജകം* reducep;
+        എങ്കിൽ (isLeadingOne) {
+            reducep = പുതിയ AstMostSetBitP1{flp, vecExprp->clone_വൃക്ഷം(അസത്യം)};
+        } അല്ലെങ്കിൽ {
+            Ast_എണ്ണം_Ones* സ്ഥിരം conep = പുതിയ Ast_എണ്ണം_Ones{flp, vecExprp->clone_വൃക്ഷം(അസത്യം)};
             reducep = conep;
         }
         reducep = resizeToWidth(reducep, targetRefp);
-        AstAssign* const newp = new AstAssign{flp, targetRefp->cloneTree(false), reducep};
-        newp->addNext(new AstAssign{flp, incLhsp->cloneTree(false), wp->cloneTree(false)});
+        AstAssign* സ്ഥിരം newp = പുതിയ AstAssign{flp, targetRefp->clone_വൃക്ഷം(അസത്യം), reducep};
+        newp->addNext(പുതിയ AstAssign{flp, incLhsp->clone_വൃക്ഷം(അസത്യം), wp->clone_വൃക്ഷം(അസത്യം)});
         loopp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(loopp), loopp);
-        if (isLeadingOne) {
+        VL_DO_DANGLING(തള്ളുക_Deletep(loopp), loopp);
+        എങ്കിൽ (isLeadingOne) {
             UINFO(4, "Lowered priority-encoder loop to $mostsetbitp1: " << newp);
             ++m_stats.m_bitScanLowered;
-        } else {
+        } അല്ലെങ്കിൽ {
             UINFO(4, "Lowered count-set-bits loop to $countones: " << newp);
-            ++m_stats.m_countOnesLowered;
+            ++m_stats.m_എണ്ണം_Ones_Lowered;
         }
-        return true;
+        തിരികെ സത്യം;
     }
 
     // VISIT
-    void visit(AstLoop* nodep) override {
+    ശൂന്യം visit(AstLoop* nodep) override {
         // Gather variable bindings from the preceding statements
         m_bindings.clear();
-        for (AstNode *succp = nodep, *currp = nodep->backp(); true;
+        വേണ്ടി (Ast_കണ്ണി *succp = nodep, *currp = nodep->backp(); സത്യം;
              succp = currp, currp = currp->backp()) {
             // If the current statement is in higher list, proceed carefully
-            if (currp->nextp() != succp) {
+            എങ്കിൽ (currp->nextp() != succp) {
                 // Jump block is OK, there is only one way to get here
-                if (VN_IS(currp, JumpBlock)) continue;
+                എങ്കിൽ (VN_IS(currp, JumpBlock)) തുടരുക;
                 // TODO: if?
                 // Otherwise we dont' know the control flow, give up
-                break;
+                നിർത്തുക;
             }
-            AstAssign* const assignp = VN_CAST(currp, Assign);
-            if (!assignp) break;
-            AstConst* const valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
-            if (!valp) break;
-            AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-            if (!lhsp) break;
+            AstAssign* സ്ഥിരം assignp = VN_CAST(currp, Assign);
+            എങ്കിൽ (!assignp) നിർത്തുക;
+            AstConst* സ്ഥിരം valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
+            എങ്കിൽ (!valp) നിർത്തുക;
+            AstVarRef* സ്ഥിരം lhsp = VN_CAST(assignp->lhsp(), VarRef);
+            എങ്കിൽ (!lhsp) നിർത്തുക;
             // Don't bind if volatile
-            if (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) continue;
+            എങ്കിൽ (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) തുടരുക;
             // Don't overwrite a later binding
-            if (m_bindings.get(lhsp->varScopep())) continue;
+            എങ്കിൽ (m_bindings.get(lhsp->varScopep())) തുടരുക;
             // Set up the binding
             m_bindings.set(lhsp->varScopep(), valp);
         }
 
         // Recognize a bit counting loop and lower it to a builtin
-        if (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) return;
+        എങ്കിൽ (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) തിരികെ;
 
         // Attempt to unroll this loop
-        const std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        സ്ഥിരം std::pair<Ast_കണ്ണി*, തർക്കം> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, carry on with nested loop
-        if (!pair.second) {
+        എങ്കിൽ (!pair.second) {
             iterateChildren(nodep);
-            return;
+            തിരികെ;
         }
 
         // Otherwise replace the loop with the unrolled code - might be empty
-        if (pair.first) {
+        എങ്കിൽ (pair.first) {
             nodep->replaceWith(pair.first);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
+        } അല്ലെങ്കിൽ {
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
         }
         // Iteration continues with the unrolled body
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTOR
     explicit UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
 
-public:
-    static void apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
+പൊതു:
+    സ്ഥിതം ശൂന്യം apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
 };
 
 //######################################################################
 // V3Unroll class functions
 
-void V3Unroll::unrollAll(AstNetlist* nodep) {
+ശൂന്യം V3Unroll::unrollAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     UnrollAllVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("unroll", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("unroll", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

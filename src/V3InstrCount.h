@@ -18,13 +18,13 @@
 #ifndef VERILATOR_V3INSTRCOUNT_H_
 #define VERILATOR_V3INSTRCOUNT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-class AstNode;
+class Ast_കണ്ണി;
 
-class V3InstrCount final {
-public:
+class V3_Instr_എണ്ണം final {
+പൊതു:
     // Return the estimate count of instructions we'd incur while running
     // code in and under nodep.
     //
@@ -38,7 +38,7 @@ public:
     // if we see the same node twice (across more than one call to count,
     // potentially) raises an error.
     // Optional osp is stream to dump critical path to.
-    static uint32_t count(AstNode* nodep, bool assertNoDups,
+    സ്ഥിതം uint32_t എണ്ണം(Ast_കണ്ണി* nodep, bool assertNoDups,
                           std::ostream* osp = nullptr) VL_MT_DISABLED;
 };
 

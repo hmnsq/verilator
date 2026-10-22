@@ -45,43 +45,43 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkInc.h"
+#അന്തര്ഭാവ "V3LinkInc.h"
 
-#include "V3LinkLValue.h"
+#അന്തര്ഭാവ "V3LinkLValue.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class LinkIncVisitor final : public VNVisitor {
+വർഗ്ഗം LinkIncVisitor final : പൊതു VNVisitor {
     // NODE STATE
     //  AstLogAnd/AstLogOr::user1()  -> bool.  True if already lowered
-    const VNUser1InUse m_inuser1;
+    സ്ഥിരം VNUser1InUse m_inuser1;
 
     // STATE
-    AstNodeFTask* m_ftaskp = nullptr;  // Function or task we're inside
-    AstNodeModule* m_modp = nullptr;  // Module we're inside
-    int m_modCompoundAssignmentsNum = 0;  // Var name counter
-    AstNode* m_insStmtp = nullptr;  // Where to insert statement
-    bool m_inCovergroup = false;  // Under a covergroup's coverpoint, cross, or option
-    bool m_condEvalContext = false;  // ++/-- is in a conditionally-evaluated position
-    AstNodeExpr* m_incCondp = nullptr;  // Gating condition for ++/-- in short-circuit context
+    Ast_കണ്ണി_FTask* m_ftaskp = nullptr;  // Function or task we're inside
+    Ast_കണ്ണി_Module* m_modp = nullptr;  // Module we're inside
+    പൂർണ്ണസംഖ്യ m_mod_Compound_Assignments_അക്കം = 0;  // Var name counter
+    Ast_കണ്ണി* m_insStmtp = nullptr;  // Where to insert statement
+    തർക്കം m_inCovergroup = അസത്യം;  // Under a covergroup's coverpoint, cross, or option
+    തർക്കം m_condEvalContext = അസത്യം;  // ++/-- is in a conditionally-evaluated position
+    Ast_കണ്ണി_വ്യഞ്ജകം* m_incCondp = nullptr;  // Gating condition for ++/-- in short-circuit context
 
     // METHODS
-    void insertOnTop(AstNode* newp) {
+    ശൂന്യം തിരുകുക_On_മുകൾ(Ast_കണ്ണി* newp) {
         // Add the thing directly under the current TFunc/Module, or class, as a member
         // Must not unlink the statements, as one of them is being iterated
-        if (m_ftaskp) {
+        എങ്കിൽ (m_ftaskp) {
             m_ftaskp->prependStmtsp(newp);
-        } else {
+        } അല്ലെങ്കിൽ {
             UASSERT_OBJ(m_modp, newp, "Variable not under FTASK/MODULE");
-            if (VN_IS(m_modp, Class)) VN_AS(newp, Var)->varType(VVarType::MEMBER);
+            എങ്കിൽ (VN_IS(m_modp, Class)) VN_AS(newp, Var)->varType(VVarType::MEMBER);
             m_modp->prependStmtsp(newp);
         }
     }
-    void insertBeforeStmt(AstNode* nodep, AstNode* newp) {
+    ശൂന്യം തിരുകുക_Before_Stmt(Ast_കണ്ണി* nodep, Ast_കണ്ണി* newp) {
         // Return node that must be visited, if any
         UINFOTREE(9, newp, "", "newstmt");
         UASSERT_OBJ(m_insStmtp, nodep, "Expression not underneath a statement");
@@ -89,50 +89,50 @@ class LinkIncVisitor final : public VNVisitor {
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
+        എങ്കിൽ (nodep->dead()) തിരികെ;
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modCompoundAssignmentsNum);
+        VL_RESTORER(m_mod_Compound_Assignments_അക്കം);
         m_modp = nodep;
-        m_modCompoundAssignmentsNum = 0;
+        m_mod_Compound_Assignments_അക്കം = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
     // A covergroup's expressions are under no statement, and V3Covergroup moves them to its
     // constructor or sample(), so their variables are members of its class
-    void visitCovergroup(AstNode* nodep) {
+    ശൂന്യം visitCovergroup(Ast_കണ്ണി* nodep) {
         VL_RESTORER(m_ftaskp);
         VL_RESTORER(m_inCovergroup);
         m_ftaskp = nullptr;
-        m_inCovergroup = true;
+        m_inCovergroup = സത്യം;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFuncCovItem* nodep) override { visitCovergroup(nodep); }
-    void visit(AstCgOptionAssign* nodep) override { visitCovergroup(nodep); }
-    void visit(AstNodeCoverOrAssert* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Func_Cov_Item* nodep) override { visitCovergroup(nodep); }
+    ശൂന്യം visit(AstCgOptionAssign* nodep) override { visitCovergroup(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി_Cover_Or_Assert* nodep) override {
         VL_RESTORER(m_insStmtp);
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->propp());
         m_insStmtp = nullptr;
         // Note: no iterating over sentreep here as they will be ignored anyway
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        എങ്കിൽ (AstAssert* സ്ഥിരം assertp = VN_CAST(nodep, Assert)) {
             iterateAndNextNull(assertp->failsp());
-        } else if (AstAssertIntrinsic* const intrinsicp = VN_CAST(nodep, AssertIntrinsic)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstAssertIntrinsic* സ്ഥിരം intrinsicp = VN_CAST(nodep, AssertIntrinsic)) {
             iterateAndNextNull(intrinsicp->failsp());
         }
         iterateAndNextNull(nodep->passsp());
     }
-    void visit(AstLoop* nodep) override {
+    ശൂന്യം visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
         m_insStmtp = nullptr;  // First thing should be new statement
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstNodeForeach* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Foreach* nodep) override {
         // Special, as statements need to be put in different places
         // Body insert just before themselves
         m_insStmtp = nullptr;  // First thing should be new statement
@@ -140,7 +140,7 @@ class LinkIncVisitor final : public VNVisitor {
         // Done the loop
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstJumpBlock* nodep) override {
+    ശൂന്യം visit(AstJumpBlock* nodep) override {
         // Special, as statements need to be put in different places
         // Body insert just before themselves
         m_insStmtp = nullptr;  // First thing should be new statement
@@ -148,7 +148,7 @@ class LinkIncVisitor final : public VNVisitor {
         // Done the loop
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstNodeIf* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_If* nodep) override {
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->condp());
         m_insStmtp = nullptr;
@@ -156,62 +156,62 @@ class LinkIncVisitor final : public VNVisitor {
         iterateAndNextNull(nodep->elsesp());
         m_insStmtp = nullptr;
     }
-    void visit(AstCaseItem* nodep) override {
+    ശൂന്യം visit(AstCaseItem* nodep) override {
         {
             VL_RESTORER(m_condEvalContext);
-            m_condEvalContext = true;
+            m_condEvalContext = സത്യം;
             iterateAndNextNull(nodep->condsp());
         }
         m_insStmtp = nullptr;  // Next thing should be new statement
         iterateAndNextNull(nodep->stmtsp());
     }
-    void visit(AstDelay* nodep) override {
+    ശൂന്യം visit(AstDelay* nodep) override {
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->lhsp());
         m_insStmtp = nullptr;
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;
     }
-    void visit(AstEventControl* nodep) override {
+    ശൂന്യം visit(AstEventControl* nodep) override {
         m_insStmtp = nullptr;
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;
     }
-    void visit(AstWait* nodep) override {
+    ശൂന്യം visit(AstWait* nodep) override {
         m_insStmtp = nodep;
         iterateAndNextNull(nodep->condp());
         m_insStmtp = nullptr;
         iterateAndNextNull(nodep->stmtsp());
         m_insStmtp = nullptr;
     }
-    void visit(AstBegin* nodep) override {
+    ശൂന്യം visit(AstBegin* nodep) override {
         m_insStmtp = nullptr;  // Pretend not a statement TODO: parse ++/-- as ExprStmt
         iterateChildren(nodep);
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void visit(AstStmtExpr* nodep) override {
-        AstNodeExpr* const exprp = nodep->exprp();
-        if (VN_IS(exprp, PostInc) || VN_IS(exprp, PostDec) || VN_IS(exprp, PreInc)
+    ശൂന്യം visit(Ast_Stmt_വ്യഞ്ജകം* nodep) override {
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp = nodep->exprp();
+        എങ്കിൽ (VN_IS(exprp, PostInc) || VN_IS(exprp, PostDec) || VN_IS(exprp, PreInc)
             || VN_IS(exprp, PreDec)) {
             // Repalce this StmtExpr with the expression, visiting it will turn it into a NodeStmt
             nodep->replaceWith(exprp->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
             m_insStmtp = nullptr;
             iterate(exprp);
             m_insStmtp = nullptr;
-            return;
+            തിരികെ;
         }
-        visit(static_cast<AstNodeStmt*>(nodep));
+        visit(static_cast<Ast_കണ്ണി_Stmt*>(nodep));
     }
-    void visit(AstNodeStmt* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Stmt* nodep) override {
         m_insStmtp = nodep;
         iterateChildren(nodep);
         m_insStmtp = nullptr;  // Next thing should be new statement
     }
-    void unsupported_visit(AstNode* nodep) {
+    ശൂന്യം unsupported_visit(Ast_കണ്ണി* nodep) {
         VL_RESTORER(m_condEvalContext);
         VL_RESTORER(m_incCondp);
-        m_condEvalContext = true;
+        m_condEvalContext = സത്യം;
         // Not rescuable by short-circuit gating; drop the gate so nested ++/-- errors
         m_incCondp = nullptr;
         UINFO(9, "Marking unsupported " << nodep);
@@ -219,293 +219,293 @@ class LinkIncVisitor final : public VNVisitor {
     }
     // Hoist LHS into a BLOCKTEMP so it is evaluated exactly once; otherwise the
     // gated RHS ++/-- could modify a variable the LHS reads.
-    AstNodeExpr* captureLogicalLhsToTemp(AstNodeBiop* const nodep) {
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-        const string name = "__VincGate"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
+    Ast_കണ്ണി_വ്യഞ്ജകം* captureLogicalLhsToTemp(Ast_കണ്ണി_Biop* സ്ഥിരം nodep) {
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം lhsp = nodep->lhsp()->unlinkFrBack();
+        സ്ഥിരം string name = "__VincGate"s + cvtToStr(++m_mod_Compound_Assignments_അക്കം);
+        AstVar* സ്ഥിരം varp = പുതിയ AstVar{
             fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, lhsp->cloneTree(true)}};
+            പുതിയ AstRefDType{fl, AstRefDType::Flag_Type_Of_വ്യഞ്ജകം{}, lhsp->clone_വൃക്ഷം(സത്യം)}};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        if (m_ftaskp) varp->funcLocal(true);
-        insertOnTop(varp);
-        AstNode* tempInitp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, lhsp};
+        എങ്കിൽ (m_ftaskp) varp->funcLocal(സത്യം);
+        തിരുകുക_On_മുകൾ(varp);
+        Ast_കണ്ണി* tempInitp = പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE}, lhsp};
         // Gate by the enclosing condition so a side-effecting LHS isn't run on short-circuit
-        if (m_incCondp) {
-            tempInitp = new AstIf{fl, m_incCondp->cloneTreePure(true), tempInitp, nullptr};
+        എങ്കിൽ (m_incCondp) {
+            tempInitp = പുതിയ AstIf{fl, m_incCondp->clone_വൃക്ഷം_Pure(സത്യം), tempInitp, nullptr};
         }
-        insertBeforeStmt(nodep, tempInitp);
-        nodep->lhsp(new AstVarRef{fl, varp, VAccess::READ});
-        return new AstVarRef{fl, varp, VAccess::READ};
+        തിരുകുക_Before_Stmt(nodep, tempInitp);
+        nodep->lhsp(പുതിയ AstVarRef{fl, varp, VAccess::READ});
+        തിരികെ പുതിയ AstVarRef{fl, varp, VAccess::READ};
     }
-    void handleShortCircuit(AstNodeBiop* const nodep, bool isOr) {
+    ശൂന്യം handleShortCircuit(Ast_കണ്ണി_Biop* സ്ഥിരം nodep, തർക്കം isOr) {
         // insertBeforeStmt retargets the parent iterator; skip on re-visit
-        if (nodep->user1SetOnce()) return;
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;
         VL_RESTORER(m_condEvalContext);
         VL_RESTORER(m_incCondp);
         iterateAndNextNull(nodep->lhsp());
-        m_condEvalContext = true;
-        AstNodeExpr* ownedCondp = nullptr;
+        m_condEvalContext = സത്യം;
+        Ast_കണ്ണി_വ്യഞ്ജകം* ownedCondp = nullptr;
         // Gate the RHS by the LHS condition if it evaluates any ++/-- anywhere within
-        if (nodep->rhsp()->exists([](const AstNode* np) {
-                return VN_IS(np, PreInc) || VN_IS(np, PreDec) || VN_IS(np, PostInc)
+        എങ്കിൽ (nodep->rhsp()->exists([](സ്ഥിരം Ast_കണ്ണി* np) {
+                തിരികെ VN_IS(np, PreInc) || VN_IS(np, PreDec) || VN_IS(np, PostInc)
                        || VN_IS(np, PostDec) || VN_IS(np, AssignCompound);
             })) {
             // Const LHS or no statement context: clone-and-evaluate-twice is safe
-            AstNodeExpr* lhsRefp = (!m_insStmtp || VN_IS(nodep->lhsp(), Const))
-                                       ? nodep->lhsp()->cloneTreePure(true)
+            Ast_കണ്ണി_വ്യഞ്ജകം* lhsRefp = (!m_insStmtp || VN_IS(nodep->lhsp(), Const))
+                                       ? nodep->lhsp()->clone_വൃക്ഷം_Pure(സത്യം)
                                        : captureLogicalLhsToTemp(nodep);
             // For ||, RHS runs when LHS is false; gate by !LHS
-            if (isOr) lhsRefp = new AstLogNot{nodep->fileline(), lhsRefp};
-            ownedCondp = m_incCondp ? new AstLogAnd{nodep->fileline(),
-                                                    m_incCondp->cloneTreePure(true), lhsRefp}
+            എങ്കിൽ (isOr) lhsRefp = പുതിയ AstLogNot{nodep->fileline(), lhsRefp};
+            ownedCondp = m_incCondp ? പുതിയ AstLogAnd{nodep->fileline(),
+                                                    m_incCondp->clone_വൃക്ഷം_Pure(സത്യം), lhsRefp}
                                     : lhsRefp;
             m_incCondp = ownedCondp;
         }
         iterateAndNextNull(nodep->rhsp());
-        if (ownedCondp) VL_DO_DANGLING(ownedCondp->deleteTree(), ownedCondp);
+        എങ്കിൽ (ownedCondp) VL_DO_DANGLING(ownedCondp->delete_വൃക്ഷം(), ownedCondp);
     }
-    void visit(AstLogAnd* nodep) override { handleShortCircuit(nodep, /*isOr=*/false); }
-    void visit(AstLogOr* nodep) override { handleShortCircuit(nodep, /*isOr=*/true); }
-    void visit(AstLogEq* nodep) override { unsupported_visit(nodep); }
-    void visit(AstLogIf* nodep) override { unsupported_visit(nodep); }
-    void visit(AstCond* nodep) override { unsupported_visit(nodep); }
-    void visit(AstPropSpec* nodep) override { unsupported_visit(nodep); }
-    void prepost_visit(AstNodeUniop* const nodep) {
+    ശൂന്യം visit(AstLogAnd* nodep) override { handleShortCircuit(nodep, /*isOr=*/അസത്യം); }
+    ശൂന്യം visit(AstLogOr* nodep) override { handleShortCircuit(nodep, /*isOr=*/സത്യം); }
+    ശൂന്യം visit(AstLogEq* nodep) override { unsupported_visit(nodep); }
+    ശൂന്യം visit(AstLogIf* nodep) override { unsupported_visit(nodep); }
+    ശൂന്യം visit(AstCond* nodep) override { unsupported_visit(nodep); }
+    ശൂന്യം visit(AstPropSpec* nodep) override { unsupported_visit(nodep); }
+    ശൂന്യം prepost_visit(Ast_കണ്ണി_Uniop* സ്ഥിരം nodep) {
         // Not underneath a statement, the increment is one, unless in a covergroup expression,
         // which is under none
-        const bool isStandaloneStmt = !m_insStmtp && !m_inCovergroup;
-        AstSelBit* const selbitp = VN_CAST(nodep->lhsp(), SelBit);
-        if (isStandaloneStmt && selbitp && VN_IS(selbitp->fromp(), NodeVarRef)
+        സ്ഥിരം തർക്കം isStandaloneStmt = !m_insStmtp && !m_inCovergroup;
+        AstSelBit* സ്ഥിരം selbitp = VN_CAST(nodep->lhsp(), SelBit);
+        എങ്കിൽ (isStandaloneStmt && selbitp && VN_IS(selbitp->fromp(), കണ്ണി_Var_Ref)
             && !selbitp->bitp()->isPure()) {
             prepost_stmt_sel_visit(nodep);
-        } else {
-            if (isStandaloneStmt) {
+        } അല്ലെങ്കിൽ {
+            എങ്കിൽ (isStandaloneStmt) {
                 prepost_stmt_visit(nodep);
-            } else {
-                prepost_expr_visit(nodep);
+            } അല്ലെങ്കിൽ {
+                prepost_വ്യഞ്ജകം_visit(nodep);
             }
         }
     }
-    AstNodeExpr* getOperationp(AstNode* const nodep, AstNodeExpr* const lhsp,
-                               AstNodeExpr* const rhsp) {
-        if (VN_IS(nodep, PreDec) || VN_IS(nodep, PostDec)) {
-            return new AstSub{nodep->fileline(), lhsp, rhsp};
+    Ast_കണ്ണി_വ്യഞ്ജകം* getOperationp(Ast_കണ്ണി* സ്ഥിരം nodep, Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം lhsp,
+                               Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം rhsp) {
+        എങ്കിൽ (VN_IS(nodep, PreDec) || VN_IS(nodep, PostDec)) {
+            തിരികെ പുതിയ AstSub{nodep->fileline(), lhsp, rhsp};
         }
-        if (VN_IS(nodep, PreInc) || VN_IS(nodep, PostInc)) {
-            return new AstAdd{nodep->fileline(), lhsp, rhsp};
+        എങ്കിൽ (VN_IS(nodep, PreInc) || VN_IS(nodep, PostInc)) {
+            തിരികെ പുതിയ AstAdd{nodep->fileline(), lhsp, rhsp};
         }
-        if (AstAssignCompound* assignp = VN_CAST(nodep, AssignCompound)) {
-            switch (assignp->operation()) {
-            case AstAssignCompound::operation::Add:
-                return new AstAdd{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::And:
-                return new AstAnd{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Div:
-                return new AstDiv{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ModDiv:
-                return new AstModDiv{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Mul:
-                return new AstMul{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Or: return new AstOr{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftL:
-                return new AstShiftL{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftR:
-                return new AstShiftR{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::ShiftRS:
-                return new AstShiftRS{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Sub:
-                return new AstSub{nodep->fileline(), lhsp, rhsp};
-            case AstAssignCompound::operation::Xor:
-                return new AstXor{nodep->fileline(), lhsp, rhsp};
-            default:;  // Error below  // LCOV_EXCL_LINE
+        എങ്കിൽ (AstAssignCompound* assignp = VN_CAST(nodep, AssignCompound)) {
+            തിരഞ്ഞെടുപ്പ് (assignp->operation()) {
+            അവസ്ഥ AstAssignCompound::operation::Add:
+                തിരികെ പുതിയ AstAdd{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::And:
+                തിരികെ പുതിയ AstAnd{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::Div:
+                തിരികെ പുതിയ AstDiv{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::ModDiv:
+                തിരികെ പുതിയ AstModDiv{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::Mul:
+                തിരികെ പുതിയ AstMul{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::Or: തിരികെ പുതിയ AstOr{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::ShiftL:
+                തിരികെ പുതിയ AstShiftL{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::ShiftR:
+                തിരികെ പുതിയ AstShiftR{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::ShiftRS:
+                തിരികെ പുതിയ AstShiftRS{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::Sub:
+                തിരികെ പുതിയ AstSub{nodep->fileline(), lhsp, rhsp};
+            അവസ്ഥ AstAssignCompound::operation::Xor:
+                തിരികെ പുതിയ AstXor{nodep->fileline(), lhsp, rhsp};
+            സ്ഥിരസ്ഥിതി:;  // Error below  // LCOV_EXCL_LINE
             }
         }
         nodep->v3fatalSrc("Unhandled compound assignment operation");
     }
-    void prepost_stmt_sel_visit(AstNodeUniop* const nodep) {
+    ശൂന്യം prepost_stmt_sel_visit(Ast_കണ്ണി_Uniop* സ്ഥിരം nodep) {
         // Special case array[something]++, see comments at file top
         // UINFOTREE(9, nodep, "", "pp-stmt-sel-in");
         iterateChildren(nodep);
-        FileLine* fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const exprp = new AstConst{nodep->fileline(), numOne};
+        File_വരി* fl = nodep->fileline();
+        V3_സംഖ്യ അക്കം_One{fl, 32, 1, അസത്യം};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp = പുതിയ AstConst{nodep->fileline(), അക്കം_One};
 
         prepost_stmt_sel_visit(nodep, nodep->lhsp(), exprp);
     }
-    void prepost_stmt_sel_visit(AstAssignCompound* const nodep) {
+    ശൂന്യം prepost_stmt_sel_visit(AstAssignCompound* സ്ഥിരം nodep) {
         // Special case array[something] += expr, see comments at file top
         // UINFOTREE(9, nodep, "", "pp-stmt-sel-in");
-        AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp = nodep->rhsp()->unlinkFrBack();
 
         prepost_stmt_sel_visit(nodep, nodep->lhsp(), exprp);
     }
-    void prepost_stmt_sel_visit(AstNode* const nodep, AstNodeExpr* const lhsp,
-                                AstNodeExpr* const exprp) {
-        AstSelBit* const rdSelbitp = VN_AS(lhsp, SelBit);
-        AstNodeVarRef* const rdFromp = VN_AS(rdSelbitp->fromp()->cloneTreePure(true), NodeVarRef);
+    ശൂന്യം prepost_stmt_sel_visit(Ast_കണ്ണി* സ്ഥിരം nodep, Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം lhsp,
+                                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp) {
+        AstSelBit* സ്ഥിരം rdSelbitp = VN_AS(lhsp, SelBit);
+        Ast_കണ്ണി_Var_Ref* സ്ഥിരം rdFromp = VN_AS(rdSelbitp->fromp()->clone_വൃക്ഷം_Pure(സത്യം), കണ്ണി_Var_Ref);
         rdFromp->access(VAccess::READ);
-        AstNodeExpr* const rdBitp = rdSelbitp->bitp()->unlinkFrBack();
-        AstSelBit* const wrSelbitp = VN_CAST(lhsp, SelBit);
-        AstNodeExpr* const wrFromp = wrSelbitp->fromp()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം rdBitp = rdSelbitp->bitp()->unlinkFrBack();
+        AstSelBit* സ്ഥിരം wrSelbitp = VN_CAST(lhsp, SelBit);
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം wrFromp = wrSelbitp->fromp()->unlinkFrBack();
         V3LinkLValue::linkLValueSet(wrFromp);
 
         // Prepare a temporary variable
-        FileLine* const fl = nodep->fileline();
-        const string name = "__VtempIndex"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
+        സ്ഥിരം string name = "__VtempIndex"s + cvtToStr(++m_mod_Compound_Assignments_അക്കം);
+        AstVar* സ്ഥിരം varp = പുതിയ AstVar{
             fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, rdBitp->cloneTree(true)}};
-        if (m_ftaskp) varp->funcLocal(true);
+            പുതിയ AstRefDType{fl, AstRefDType::Flag_Type_Of_വ്യഞ്ജകം{}, rdBitp->clone_വൃക്ഷം(സത്യം)}};
+        എങ്കിൽ (m_ftaskp) varp->funcLocal(സത്യം);
 
         // Declare the variable
-        insertOnTop(varp);
+        തിരുകുക_On_മുകൾ(varp);
 
         // Define what operation will we be doing
-        AstAssign* const varAssignp
-            = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, rdBitp};
-        AstNode* const newp = varAssignp;
+        AstAssign* സ്ഥിരം varAssignp
+            = പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE}, rdBitp};
+        Ast_കണ്ണി* സ്ഥിരം newp = varAssignp;
 
-        AstNodeExpr* const valuep
-            = new AstSelBit{fl, rdFromp, new AstVarRef{fl, varp, VAccess::READ}};
-        AstNodeExpr* const storeTop
-            = new AstSelBit{fl, wrFromp, new AstVarRef{fl, varp, VAccess::READ}};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep
+            = പുതിയ AstSelBit{fl, rdFromp, പുതിയ AstVarRef{fl, varp, VAccess::READ}};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം store_മുകൾ
+            = പുതിയ AstSelBit{fl, wrFromp, പുതിയ AstVarRef{fl, varp, VAccess::READ}};
 
         AstAssign* assignp
-            = new AstAssign{nodep->fileline(), storeTop, getOperationp(nodep, valuep, exprp)};
+            = പുതിയ AstAssign{nodep->fileline(), store_മുകൾ, getOperationp(nodep, valuep, exprp)};
         newp->addNext(assignp);
 
         // if (debug() >= 9) newp->dumpTreeAndNext("-pp-stmt-sel-new: ");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_വൃക്ഷം(), nodep);
     }
-    void prepost_stmt_visit(AstNodeUniop* const nodep) {
+    ശൂന്യം prepost_stmt_visit(Ast_കണ്ണി_Uniop* സ്ഥിരം nodep) {
         iterateChildren(nodep);
-        AstNodeExpr* const storeTop = nodep->lhsp()->cloneTreePure(true);
-        AstNodeExpr* const valuep = nodep->lhsp()->unlinkFrBack();
-        FileLine* const fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const exprp = new AstConst{nodep->fileline(), numOne};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം store_മുകൾ = nodep->lhsp()->clone_വൃക്ഷം_Pure(സത്യം);
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = nodep->lhsp()->unlinkFrBack();
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
+        V3_സംഖ്യ അക്കം_One{fl, 32, 1, അസത്യം};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp = പുതിയ AstConst{nodep->fileline(), അക്കം_One};
 
-        prepost_stmt_visit(nodep, exprp, storeTop, valuep);
+        prepost_stmt_visit(nodep, exprp, store_മുകൾ, valuep);
     }
-    void prepost_stmt_visit(AstAssignCompound* const nodep) {
-        AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const storeTop = nodep->lhsp()->cloneTreePure(true);
-        AstNodeExpr* const valuep = nodep->lhsp()->unlinkFrBack();
+    ശൂന്യം prepost_stmt_visit(AstAssignCompound* സ്ഥിരം nodep) {
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp = nodep->rhsp()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം store_മുകൾ = nodep->lhsp()->clone_വൃക്ഷം_Pure(സത്യം);
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep = nodep->lhsp()->unlinkFrBack();
 
-        prepost_stmt_visit(nodep, exprp, storeTop, valuep);
+        prepost_stmt_visit(nodep, exprp, store_മുകൾ, valuep);
     }
-    void prepost_stmt_visit(AstNode* const nodep, AstNodeExpr* const exprp,
-                            AstNodeExpr* const storeTop, AstNodeExpr* const valuep) {
+    ശൂന്യം prepost_stmt_visit(Ast_കണ്ണി* സ്ഥിരം nodep, Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp,
+                            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം store_മുകൾ, Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം valuep) {
         V3LinkLValue::linkLValueSet(valuep, VAccess::READ);
-        AstAssign* const assignp
-            = new AstAssign{nodep->fileline(), storeTop, getOperationp(nodep, valuep, exprp)};
+        AstAssign* സ്ഥിരം assignp
+            = പുതിയ AstAssign{nodep->fileline(), store_മുകൾ, getOperationp(nodep, valuep, exprp)};
         nodep->replaceWith(assignp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_വൃക്ഷം(), nodep);
     }
-    void prepost_expr_visit(AstNodeUniop* const nodep) {
+    ശൂന്യം prepost_വ്യഞ്ജകം_visit(Ast_കണ്ണി_Uniop* സ്ഥിരം nodep) {
         iterateChildren(nodep);
         // In a covergroup, whose expressions are under no statement, the increment forms an
         // expression statement in place, as the parser makes '(x += 1)', so it is evaluated only
         // where and when its expression is
-        if (m_condEvalContext && !m_incCondp && !m_inCovergroup) {
+        എങ്കിൽ (m_condEvalContext && !m_incCondp && !m_inCovergroup) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: Pre/post increment/decrement operator"
                                          " within a logical expression (&&, ||, ?:, etc.)");
-            return;
+            തിരികെ;
         }
-        const bool needGating = m_condEvalContext && m_incCondp && !m_inCovergroup;
-        AstNodeExpr* const readp = nodep->lhsp();
-        AstNodeExpr* const writep = nodep->lhsp()->cloneTreePure(true);
+        സ്ഥിരം തർക്കം needGating = m_condEvalContext && m_incCondp && !m_inCovergroup;
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം readp = nodep->lhsp();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം writep = nodep->lhsp()->clone_വൃക്ഷം_Pure(സത്യം);
         V3LinkLValue::linkLValueSet(readp, VAccess::READ);
 
-        FileLine* const fl = nodep->fileline();
-        V3Number numOne{fl, 32, 1, false};
-        AstNodeExpr* const newconstp = new AstConst{nodep->fileline(), numOne};
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
+        V3_സംഖ്യ അക്കം_One{fl, 32, 1, അസത്യം};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം newconstp = പുതിയ AstConst{nodep->fileline(), അക്കം_One};
 
         // Prepare a temporary variable
-        const string name = "__Vincrement"s + cvtToStr(++m_modCompoundAssignmentsNum);
-        AstVar* const varp = new AstVar{
+        സ്ഥിരം string name = "__Vincrement"s + cvtToStr(++m_mod_Compound_Assignments_അക്കം);
+        AstVar* സ്ഥിരം varp = പുതിയ AstVar{
             fl, VVarType::BLOCKTEMP, name, VFlagChildDType{},
-            new AstRefDType{fl, AstRefDType::FlagTypeOfExpr{}, readp->cloneTreePure(true)}};
+            പുതിയ AstRefDType{fl, AstRefDType::Flag_Type_Of_വ്യഞ്ജകം{}, readp->clone_വൃക്ഷം_Pure(സത്യം)}};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        if (m_ftaskp) varp->funcLocal(true);
+        എങ്കിൽ (m_ftaskp) varp->funcLocal(സത്യം);
 
         // Declare the variable
-        insertOnTop(varp);
+        തിരുകുക_On_മുകൾ(varp);
 
         // Define what operation will we be doing
-        AstNodeExpr* const operp = getOperationp(nodep, readp->cloneTreePure(true), newconstp);
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം operp = getOperationp(nodep, readp->clone_വൃക്ഷം_Pure(സത്യം), newconstp);
 
-        AstNode* stmtsp = nullptr;
-        if (needGating) {
+        Ast_കണ്ണി* stmtsp = nullptr;
+        എങ്കിൽ (needGating) {
             // Short-circuit context: mutate the variable only when the gate is true.
             // The temp holds the old value, plus the new value for pre-inc/dec.
-            AstAssign* const assignp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     readp->cloneTreePure(true)};
-            AstNode* const incp = new AstAssign{fl, writep, operp};
-            if (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
-                incp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                            readp->cloneTreePure(true)});
+            AstAssign* സ്ഥിരം assignp = പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE},
+                                                     readp->clone_വൃക്ഷം_Pure(സത്യം)};
+            Ast_കണ്ണി* സ്ഥിരം incp = പുതിയ AstAssign{fl, writep, operp};
+            എങ്കിൽ (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
+                incp->addNext(പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE},
+                                            readp->clone_വൃക്ഷം_Pure(സത്യം)});
             }
-            assignp->addNextHere(new AstIf{fl, m_incCondp->cloneTreePure(true), incp, nullptr});
+            assignp->addNextHere(പുതിയ AstIf{fl, m_incCondp->clone_വൃക്ഷം_Pure(സത്യം), incp, nullptr});
             stmtsp = assignp;
-        } else if (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(nodep, PreInc) || VN_IS(nodep, PreDec)) {
             // PreInc/PreDec operations
             // Immediately after declaration - increment it by one
-            AstAssign* const assignp
-                = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, operp};
+            AstAssign* സ്ഥിരം assignp
+                = പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE}, operp};
             // Immediately after incrementing - assign it to the original variable
-            assignp->addNext(new AstAssign{fl, writep, new AstVarRef{fl, varp, VAccess::READ}});
+            assignp->addNext(പുതിയ AstAssign{fl, writep, പുതിയ AstVarRef{fl, varp, VAccess::READ}});
             stmtsp = assignp;
-        } else {
+        } അല്ലെങ്കിൽ {
             // PostInc/PostDec operations
             // Assign the original variable to the temporary one
-            AstAssign* const assignp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     readp->cloneTreePure(true)};
+            AstAssign* സ്ഥിരം assignp = പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE},
+                                                     readp->clone_വൃക്ഷം_Pure(സത്യം)};
             // Increment the original variable by one
-            assignp->addNext(new AstAssign{fl, writep, operp});
+            assignp->addNext(പുതിയ AstAssign{fl, writep, operp});
             stmtsp = assignp;
         }
 
         // Replace the node with the temporary, after the statements
-        AstNodeExpr* newp = new AstVarRef{readp->fileline(), varp, VAccess::READ};
-        if (m_inCovergroup) {
-            newp = new AstExprStmt{fl, stmtsp, newp};
-        } else {
-            insertBeforeStmt(nodep, stmtsp);
+        Ast_കണ്ണി_വ്യഞ്ജകം* newp = പുതിയ AstVarRef{readp->fileline(), varp, VAccess::READ};
+        എങ്കിൽ (m_inCovergroup) {
+            newp = പുതിയ Ast_വ്യഞ്ജകം_Stmt{fl, stmtsp, newp};
+        } അല്ലെങ്കിൽ {
+            തിരുകുക_Before_Stmt(nodep, stmtsp);
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_വൃക്ഷം(), nodep);
     }
-    void visit(AstPreInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostInc* nodep) override { prepost_visit(nodep); }
-    void visit(AstPreDec* nodep) override { prepost_visit(nodep); }
-    void visit(AstPostDec* nodep) override { prepost_visit(nodep); }
-    void visit(AstAssignCompound* nodep) override {
-        visit(static_cast<AstNodeStmt*>(nodep));
-        AstSelBit* const selbitp = VN_CAST(nodep->lhsp(), SelBit);
-        if (!m_insStmtp && selbitp && VN_IS(selbitp->fromp(), NodeVarRef)
+    ശൂന്യം visit(AstPreInc* nodep) override { prepost_visit(nodep); }
+    ശൂന്യം visit(AstPostInc* nodep) override { prepost_visit(nodep); }
+    ശൂന്യം visit(AstPreDec* nodep) override { prepost_visit(nodep); }
+    ശൂന്യം visit(AstPostDec* nodep) override { prepost_visit(nodep); }
+    ശൂന്യം visit(AstAssignCompound* nodep) override {
+        visit(static_cast<Ast_കണ്ണി_Stmt*>(nodep));
+        AstSelBit* സ്ഥിരം selbitp = VN_CAST(nodep->lhsp(), SelBit);
+        എങ്കിൽ (!m_insStmtp && selbitp && VN_IS(selbitp->fromp(), കണ്ണി_Var_Ref)
             && !selbitp->bitp()->isPure()) {
             prepost_stmt_sel_visit(nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             prepost_stmt_visit(nodep);
         }
     }
-    void visit(AstGenFor* nodep) override { iterateChildren(nodep); }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(AstGenFor* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit LinkIncVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~LinkIncVisitor() override = default;
+    ~LinkIncVisitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 // Task class functions
 
-void V3LinkInc::linkIncrements(AstNetlist* nodep) {
+ശൂന്യം V3LinkInc::linkIncrements(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LinkIncVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linkinc", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("linkinc", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

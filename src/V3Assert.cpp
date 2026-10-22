@@ -14,234 +14,234 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Assert.h"
+#അന്തര്ഭാവ "V3Assert.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#അന്തര്ഭാവ "V3AstUserAllocator.h"
+#അന്തര്ഭാവ "V3Const.h"
+#അന്തര്ഭാവ "V3Stats.h"
+#അന്തര്ഭാവ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+നാമാകാശ {
 
-class DefaultDisableLocalVisitor final : public VNVisitor {
+വർഗ്ഗം DefaultDisableLocalVisitor final : പൊതു VNVisitor {
     // STATE
-    AstNode* m_scopep = nullptr;
+    Ast_കണ്ണി* m_scopep = nullptr;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         nodep->defaultDisablep(nullptr);
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    ശൂന്യം visit(AstGenBlock* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         nodep->defaultDisablep(nullptr);
         iterateChildren(nodep);
     }
-    void visit(AstDefaultDisable* nodep) override {
+    ശൂന്യം visit(AstDefaultDisable* nodep) override {
         UASSERT_OBJ(nodep, m_scopep,
                     "default disable iff must be inside a module or generate block");
         AstDefaultDisable* defaultp = nullptr;
-        if (const AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        എങ്കിൽ (സ്ഥിരം Ast_കണ്ണി_Module* സ്ഥിരം modp = VN_CAST(m_scopep, കണ്ണി_Module)) {
             defaultp = modp->defaultDisablep();
-        } else {
+        } അല്ലെങ്കിൽ {
             defaultp = VN_AS(m_scopep, GenBlock)->defaultDisablep();
         }
-        if (VL_UNLIKELY(defaultp)) {
+        എങ്കിൽ (VL_UNLIKELY(defaultp)) {
             nodep->v3error("Only one 'default disable iff' allowed per "
-                           << (VN_IS(m_scopep, NodeModule) ? "module" : "generate block")
+                           << (VN_IS(m_scopep, കണ്ണി_Module) ? "module" : "generate block")
                            << " (IEEE 1800-2023 16.15)");
-        } else if (AstNodeModule* const modp = VN_CAST(m_scopep, NodeModule)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (Ast_കണ്ണി_Module* സ്ഥിരം modp = VN_CAST(m_scopep, കണ്ണി_Module)) {
             modp->defaultDisablep(nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             VN_AS(m_scopep, GenBlock)->defaultDisablep(nodep);
         }
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     explicit DefaultDisableLocalVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
-class DefaultDisablePropagateVisitor final : public VNVisitor {
+വർഗ്ഗം DefaultDisablePropagateVisitor final : പൊതു VNVisitor {
     // STATE
     AstDefaultDisable* m_defaultDisablep = nullptr;
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    ശൂന്യം visit(AstGenBlock* nodep) override {
         VL_RESTORER(m_defaultDisablep);
-        if (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
+        എങ്കിൽ (!nodep->defaultDisablep()) nodep->defaultDisablep(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     explicit DefaultDisablePropagateVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 // Lower a sequence used as an event control ('@seq', IEEE 1800-2023 9.4.2.4) into a
 // synthesized event fired by an internal 'cover sequence' on each end-of-match
-class SeqEventLowerVisitor final : public VNVisitor {
+വർഗ്ഗം SeqEventLowerVisitor final : പൊതു VNVisitor {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_കണ്ണി_Module* m_modp = nullptr;  // Current module
     V3UniqueNames m_names{"__VseqEvent"};  // Synthesized event names
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstSenItem* nodep) override {
-        AstFuncRef* const funcrefp = VN_CAST(nodep->sensp(), FuncRef);
-        if (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
-            FileLine* const flp = nodep->fileline();
-            AstVar* const eventp = new AstVar{flp, VVarType::MODULETEMP, m_names.get(nodep),
+    ശൂന്യം visit(AstSenItem* nodep) override {
+        AstFuncRef* സ്ഥിരം funcrefp = VN_CAST(nodep->sensp(), FuncRef);
+        എങ്കിൽ (funcrefp && VN_IS(funcrefp->taskp(), Sequence)) {
+            File_വരി* സ്ഥിരം flp = nodep->fileline();
+            AstVar* സ്ഥിരം eventp = പുതിയ AstVar{flp, VVarType::MODULETEMP, m_names.get(nodep),
                                               m_modp->findBasicDType(VBasicDTypeKwd::EVENT)};
             eventp->lifetime(VLifetime::STATIC_EXPLICIT);
             m_modp->addStmtsp(eventp);
             v3Global.setHasEvents();
             funcrefp->unlinkFrBack();
-            nodep->sensp(new AstVarRef{flp, eventp, VAccess::READ});
-            const bool automaticActual = funcrefp->exists([](const AstNodeVarRef* refp) {
-                return refp->varp() && refp->varp()->lifetime().isAutomatic();
+            nodep->sensp(പുതിയ AstVarRef{flp, eventp, VAccess::READ});
+            സ്ഥിരം തർക്കം automaticActual = funcrefp->exists([](സ്ഥിരം Ast_കണ്ണി_Var_Ref* refp) {
+                തിരികെ refp->varp() && refp->varp()->lifetime().isAutomatic();
             });
-            if (automaticActual) {
+            എങ്കിൽ (automaticActual) {
                 nodep->v3error("Arguments to a sequence used as an event control must be"
                                " static (IEEE 1800-2023 9.4.2.4)");
-                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(false);
-                VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
-                return;
+                VN_AS(funcrefp->taskp(), Sequence)->isReferenced(അസത്യം);
+                VL_DO_DANGLING(തള്ളുക_Deletep(funcrefp), funcrefp);
+                തിരികെ;
             }
-            AstFireEvent* const firep
-                = new AstFireEvent{flp, new AstVarRef{flp, eventp, VAccess::WRITE}, false};
-            AstCover* const coverp
-                = new AstCover{flp, new AstPropSpec{flp, nullptr, nullptr, funcrefp}, firep,
+            AstFireEvent* സ്ഥിരം firep
+                = പുതിയ AstFireEvent{flp, പുതിയ AstVarRef{flp, eventp, VAccess::WRITE}, അസത്യം};
+            AstCover* സ്ഥിരം coverp
+                = പുതിയ AstCover{flp, പുതിയ AstPropSpec{flp, nullptr, nullptr, funcrefp}, firep,
                                VAssertType::CONCURRENT};
-            coverp->isCoverSeq(true);
-            coverp->isSeqEvent(true);
+            coverp->isCoverSeq(സത്യം);
+            coverp->isSeqEvent(സത്യം);
             m_modp->addStmtsp(coverp);
-            return;
+            തിരികെ;
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     explicit SeqEventLowerVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 }  // namespace
 
-void V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
+ശൂന്യം V3AssertCommon::collectDefaultDisable(AstNetlist* nodep) {
     { DefaultDisableLocalVisitor{nodep}; }
     { DefaultDisablePropagateVisitor{nodep}; }
 }
 
-void V3AssertCommon::lowerSequenceEvents(AstNetlist* nodep) {
+ശൂന്യം V3AssertCommon::lowerSequenceEvents(AstNetlist* nodep) {
     { SeqEventLowerVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("assertseqevent", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("assertseqevent", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }
 
-string V3AssertCommon::assertCtlGetCall(const char* query, VAssertType type,
+string V3AssertCommon::assertCtlGetCall(സ്ഥിരം അക്ഷരം* query, VAssertType type,
                                         VAssertDirectiveType directiveType) {
     // Template arguments let the runtime build the type/directive mask at C++ compile time
-    return "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::to_string(type) + ", "s
+    തിരികെ "vlSymsp->_vm_contextp__->assertCtlGet<"s + std::to_string(type) + ", "s
            + std::to_string(directiveType) + ">(VerilatedAssertCtlQuery::"s + query + ")"s;
 }
 
-bool V3AssertCommon::checkSvaValueLimit(AstNode* nodep, const AstConst* constp, const char* what) {
+തർക്കം V3AssertCommon::check_Sva_മൂല്യം_Limit(Ast_കണ്ണി* nodep, സ്ഥിരം AstConst* constp, സ്ഥിരം അക്ഷരം* what) {
     // Temporal values can materialize as O(N) AST or state in later passes.
     // Leave headroom for a range ring's extra slot and V3Number's signed
     // `(bits + 31) / 32` word count.
-    static constexpr unsigned SVA_VALUE_HARD_LIMIT
-        = static_cast<unsigned>(std::numeric_limits<int>::max()) - 32U;
-    const unsigned configuredLimit = static_cast<unsigned>(v3Global.opt.maxNumWidth());
-    const unsigned limit = std::min(configuredLimit, SVA_VALUE_HARD_LIMIT);
-    if (constp->num().fitsInUInt() && constp->toUInt() <= limit) return true;
+    സ്ഥിതം constexpr unsigned SVA_മൂല്യം_HARD_LIMIT
+        = static_cast<unsigned>(std::numeric_limits<പൂർണ്ണസംഖ്യ>::max()) - 32U;
+    സ്ഥിരം unsigned configuredLimit = static_cast<unsigned>(v3Global.opt.max_അക്കം_Width());
+    സ്ഥിരം unsigned limit = std::min(configuredLimit, SVA_മൂല്യം_HARD_LIMIT);
+    എങ്കിൽ (constp->അക്കം().fitsInUInt() && constp->toUInt() <= limit) തിരികെ സത്യം;
     nodep->v3warn(E_UNSUPPORTED, "Unsupported: " << what << " exceeds implementation limit of "
                                                  << limit
-                                                 << (configuredLimit <= SVA_VALUE_HARD_LIMIT
+                                                 << (configuredLimit <= SVA_മൂല്യം_HARD_LIMIT
                                                          ? " (--max-num-width)"
                                                          : " (host arithmetic limit)"));
-    return false;
+    തിരികെ അസത്യം;
 }
 
 // The bound of a cycle delay in a sequence, if a non-negative elaboration-time constant
-static const AstConst* checkSvaDelayBound(AstNode* errp, AstNodeExpr* boundp, const char* what) {
-    const AstConst* const constp = VN_CAST(boundp, Const);
-    if (!constp || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
+സ്ഥിതം സ്ഥിരം AstConst* checkSvaDelayBound(Ast_കണ്ണി* errp, Ast_കണ്ണി_വ്യഞ്ജകം* boundp, സ്ഥിരം അക്ഷരം* what) {
+    സ്ഥിരം AstConst* സ്ഥിരം constp = VN_CAST(boundp, Const);
+    എങ്കിൽ (!constp || (constp->dtypep()->isSigned() && constp->അക്കം().isNegative())) {
         errp->v3error(what << " is not a non-negative elaboration-time constant"
                               " (IEEE 1800-2023 16.7)");
-        return nullptr;
+        തിരികെ nullptr;
     }
-    if (!V3AssertCommon::checkSvaValueLimit(errp, constp, "SVA cycle delay")) return nullptr;
-    return constp;
+    എങ്കിൽ (!V3AssertCommon::check_Sva_മൂല്യം_Limit(errp, constp, "SVA cycle delay")) തിരികെ nullptr;
+    തിരികെ constp;
 }
 
 // Fold the bounds of a cycle delay in a sequence, and return if they are valid, else report it
 // on errp
-static bool svaCycleDelayValid(const AstDelay* nodep, AstNode* errp) {
+സ്ഥിതം തർക്കം svaCycleDelayValid(സ്ഥിരം AstDelay* nodep, Ast_കണ്ണി* errp) {
     V3Const::constifyParamsNoWarnEdit(nodep->lhsp());
-    const AstConst* const minConstp = checkSvaDelayBound(
+    സ്ഥിരം AstConst* സ്ഥിരം minConstp = checkSvaDelayBound(
         errp, nodep->lhsp(), nodep->isRangeDelay() ? "Range delay minimum" : "Delay value");
-    if (!nodep->rhsp() || nodep->isUnbounded()) return minConstp != nullptr;
+    എങ്കിൽ (!nodep->rhsp() || nodep->isUnbounded()) തിരികെ minConstp != nullptr;
     V3Const::constifyParamsNoWarnEdit(nodep->rhsp());
-    const AstConst* const maxConstp
+    സ്ഥിരം AstConst* സ്ഥിരം maxConstp
         = checkSvaDelayBound(errp, nodep->rhsp(), "Range delay maximum");
-    if (!minConstp || !maxConstp) return false;
-    if (maxConstp->toUInt() < minConstp->toUInt()) {
+    എങ്കിൽ (!minConstp || !maxConstp) തിരികെ അസത്യം;
+    എങ്കിൽ (maxConstp->toUInt() < minConstp->toUInt()) {
         errp->v3error("Range delay maximum must be >= minimum (IEEE 1800-2023 16.7)");
-        return false;
+        തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
 
-void V3AssertCommon::checkSvaCycleDelay(AstDelay* nodep, AstNode* errp) {
-    if (svaCycleDelayValid(nodep, errp)) return;
+ശൂന്യം V3AssertCommon::checkSvaCycleDelay(AstDelay* nodep, Ast_കണ്ണി* errp) {
+    എങ്കിൽ (svaCycleDelayValid(nodep, errp)) തിരികെ;
     // Make the delay valid, so later steps do not fail after the error
-    FileLine* const flp = nodep->fileline();
-    AstNodeExpr* const minp = nodep->lhsp();
-    minp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-    VL_DO_DANGLING(minp->deleteTree(), minp);
-    if (nodep->rhsp() && !nodep->isUnbounded()) {
-        AstNodeExpr* const maxp = nodep->rhsp();
-        maxp->replaceWith(new AstConst{flp, AstConst::BitFalseErroring{}});
-        VL_DO_DANGLING(maxp->deleteTree(), maxp);
+    File_വരി* സ്ഥിരം flp = nodep->fileline();
+    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം minp = nodep->lhsp();
+    minp->replaceWith(പുതിയ AstConst{flp, AstConst::BitFalseErroring{}});
+    VL_DO_DANGLING(minp->delete_വൃക്ഷം(), minp);
+    എങ്കിൽ (nodep->rhsp() && !nodep->isUnbounded()) {
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം maxp = nodep->rhsp();
+        maxp->replaceWith(പുതിയ AstConst{flp, AstConst::BitFalseErroring{}});
+        VL_DO_DANGLING(maxp->delete_വൃക്ഷം(), maxp);
     }
 }
 
-bool V3AssertCommon::refsSvaFormal(const AstNode* nodep) {
-    return nodep->exists([](const AstNodeVarRef* refp) {
-        const AstVar* const varp = refp->varp();
-        if (!varp || !varp->isIO()) return false;
-        const AstNode* const declp = varp->aboveLoopp();
-        return VN_IS(declp, Sequence) || VN_IS(declp, Property);
+തർക്കം V3AssertCommon::refsSvaFormal(സ്ഥിരം Ast_കണ്ണി* nodep) {
+    തിരികെ nodep->exists([](സ്ഥിരം Ast_കണ്ണി_Var_Ref* refp) {
+        സ്ഥിരം AstVar* സ്ഥിരം varp = refp->varp();
+        എങ്കിൽ (!varp || !varp->isIO()) തിരികെ അസത്യം;
+        സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം declp = varp->aboveLoopp();
+        തിരികെ VN_IS(declp, Sequence) || VN_IS(declp, Property);
     });
 }
 
-void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
+ശൂന്യം V3AssertCommon::checkSvaInstanceDelays(Ast_കണ്ണി* nodep, Ast_കണ്ണി* instp) {
     // A delay still referencing a formal argument of an enclosing sequence or property is
     // checked when that is instanced. Collect first, as checking edits the delays.
     std::vector<AstDelay*> delayps;
     nodep->foreach([&](AstDelay* delayp) {
-        if (!delayp->isCycleDelay() || refsSvaFormal(delayp->lhsp())) return;
-        if (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) return;
-        delayps.push_back(delayp);
+        എങ്കിൽ (!delayp->isCycleDelay() || refsSvaFormal(delayp->lhsp())) തിരികെ;
+        എങ്കിൽ (delayp->rhsp() && refsSvaFormal(delayp->rhsp())) തിരികെ;
+        delayps.തള്ളുക_back(delayp);
     });
-    for (AstDelay* const delayp : delayps) checkSvaCycleDelay(delayp, instp);
+    വേണ്ടി (AstDelay* സ്ഥിരം delayp : delayps) checkSvaCycleDelay(delayp, instp);
 }
 
 //######################################################################
@@ -249,134 +249,134 @@ void V3AssertCommon::checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) {
 // If any AstFuture, then move all non-future varrefs to be one cycle behind,
 // see IEEE 1800-2023 16.9.4.
 
-class AssertDeFutureVisitor final : public VNVisitor {
+വർഗ്ഗം AssertDeFutureVisitor final : പൊതു VNVisitor {
     // STATE - across all visitors
-    AstNodeModule* const m_modp;  // Module future is underneath
-    const AstFuture* m_futurep;  // First AstFuture found
-    const unsigned m_pastNum;  // Prefix unique number for this module
+    Ast_കണ്ണി_Module* സ്ഥിരം m_modp;  // Module future is underneath
+    സ്ഥിരം AstFuture* m_futurep;  // First AstFuture found
+    സ്ഥിരം unsigned m_past_അക്കം;  // Prefix unique number for this module
     std::map<AstVar*, AstVar*> m_delayedVars;  // Old to delayed variable mapping
     // STATE - for current visit position (use VL_RESTORER)
-    bool m_inFuture = false;  // Inside a future
-    bool m_unsupported = false;  // Printed unsupported
+    തർക്കം m_inFuture = അസത്യം;  // Inside a future
+    തർക്കം m_unsupported = അസത്യം;  // Printed unsupported
 
     // METHODS
-    void unsupported(AstNode* nodep) {
-        if (m_unsupported) return;
-        m_unsupported = true;
+    ശൂന്യം unsupported(Ast_കണ്ണി* nodep) {
+        എങ്കിൽ (m_unsupported) തിരികെ;
+        m_unsupported = സത്യം;
         nodep->v3warn(E_UNSUPPORTED,
                       "Unsupported/illegal: Future value function used with expression with "
                           << nodep->prettyOperatorName());
     }
     // VISITORS
-    void visit(AstFuture* nodep) override {
+    ശൂന്യം visit(AstFuture* nodep) override {
         VL_RESTORER(m_inFuture);
-        m_inFuture = true;
+        m_inFuture = സത്യം;
         iterateChildren(nodep);
         // Done with the future, this subexpression is current-time
         nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        if (m_inFuture || m_unsupported)
-            return;  // Need user1 set above, don't process when Future is removed
-        if (nodep->access().isWriteOrRW()) {
+    ശൂന്യം visit(Ast_കണ്ണി_Var_Ref* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;
+        എങ്കിൽ (m_inFuture || m_unsupported)
+            തിരികെ;  // Need user1 set above, don't process when Future is removed
+        എങ്കിൽ (nodep->access().isWriteOrRW()) {
             unsupported(nodep);
-            return;
+            തിരികെ;
         }
         auto it = m_delayedVars.find(nodep->varp());
         AstVar* outvarp;
-        if (it == m_delayedVars.end()) {
-            AstSenTree* const sentreep = m_futurep->sentreep();
-            AstAlways* const alwaysp = new AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
-                                                     sentreep->cloneTree(false), nullptr};
+        എങ്കിൽ (it == m_delayedVars.end()) {
+            Ast_Sen_വൃക്ഷം* സ്ഥിരം sentreep = m_futurep->sentreep();
+            AstAlways* സ്ഥിരം alwaysp = പുതിയ AstAlways{nodep->fileline(), VAlwaysKwd::ALWAYS,
+                                                     sentreep->clone_വൃക്ഷം(അസത്യം), nullptr};
             m_modp->addStmtsp(alwaysp);
-            outvarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP,
-                                 "__Vnotfuture" + cvtToStr(m_pastNum) + "_" + nodep->name(),
+            outvarp = പുതിയ AstVar{nodep->fileline(), VVarType::MODULETEMP,
+                                 "__Vnotfuture" + cvtToStr(m_past_അക്കം) + "_" + nodep->name(),
                                  nodep->dtypep()};
             m_modp->addStmtsp(outvarp);
-            AstVarRef* varRefAWritep = new AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
-            varRefAWritep->user1(true);
-            AstNodeVarRef* varRefAReadp = nodep->cloneTree(false);
-            varRefAReadp->user1(true);
-            AstNode* const assp = new AstAssignDly{nodep->fileline(), varRefAWritep, varRefAReadp};
+            AstVarRef* varRefAWritep = പുതിയ AstVarRef{nodep->fileline(), outvarp, VAccess::WRITE};
+            varRefAWritep->user1(സത്യം);
+            Ast_കണ്ണി_Var_Ref* varRefAReadp = nodep->clone_വൃക്ഷം(അസത്യം);
+            varRefAReadp->user1(സത്യം);
+            Ast_കണ്ണി* സ്ഥിരം assp = പുതിയ AstAssignDly{nodep->fileline(), varRefAWritep, varRefAReadp};
             alwaysp->addStmtsp(assp);
             m_delayedVars.emplace(nodep->varp(), outvarp);
-        } else {
+        } അല്ലെങ്കിൽ {
             outvarp = it->second;
         }
-        AstVarRef* newp = new AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
-        newp->user1(true);
+        AstVarRef* newp = പുതിയ AstVarRef{nodep->fileline(), outvarp, VAccess::READ};
+        newp->user1(സത്യം);
         UINFO(9, "DeFuture " << nodep << "  becomes " << newp);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override { unsupported(nodep); }
-    void visit(AstMethodCall* nodep) override { unsupported(nodep); }
-    void visit(AstNode* nodep) override {
-        if (!nodep->isPure()) unsupported(nodep);
+    ശൂന്യം visit(Ast_കണ്ണി_FTask_Ref* nodep) override { unsupported(nodep); }
+    ശൂന്യം visit(AstMethodCall* nodep) override { unsupported(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
+        എങ്കിൽ (!nodep->isPure()) unsupported(nodep);
         iterateChildren(nodep);
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    explicit AssertDeFutureVisitor(AstNode* nodep, AstNodeModule* modp, unsigned pastNum)
+    explicit AssertDeFutureVisitor(Ast_കണ്ണി* nodep, Ast_കണ്ണി_Module* modp, unsigned past_അക്കം)
         : m_modp{modp}
-        , m_pastNum{pastNum} {
+        , m_past_അക്കം{past_അക്കം} {
         // See if any Future before we process
-        if (nodep->forall([&](const AstFuture* futurep) -> bool {
+        എങ്കിൽ (nodep->forall([&](സ്ഥിരം AstFuture* futurep) -> തർക്കം {
                 m_futurep = futurep;
-                return false;
+                തിരികെ അസത്യം;
             }))
-            return;
+            തിരികെ;
         // UINFOTREE(9, nodep, "", "defuture-in");
         visit(nodep);  // Nodep may get deleted
         // UINFOTREE(9, nodep, "", "defuture-ou");
     }
-    ~AssertDeFutureVisitor() = default;
+    ~AssertDeFutureVisitor() = സ്ഥിരസ്ഥിതി;
 };
 
 // Prepare one default sampled expression.
-class DefaultSampledValueVisitor final : public VNVisitor {
+വർഗ്ഗം Default_Sampled_മൂല്യം_Visitor final : പൊതു VNVisitor {
     // METHODS
-    static AstConst* newTypeDefault(AstNodeExpr* nodep) {
-        AstConst* const constp
-            = new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
-        if (nodep->dtypep()->isFourstate()) constp->num().setAllBitsX();
+    സ്ഥിതം AstConst* newTypeDefault(Ast_കണ്ണി_വ്യഞ്ജകം* nodep) {
+        AstConst* സ്ഥിരം constp
+            = പുതിയ AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()};
+        എങ്കിൽ (nodep->dtypep()->isFourstate()) constp->അക്കം().setAllBitsX();
         constp->dtypeFrom(nodep);
-        return constp;
+        തിരികെ constp;
     }
 
     // VISITORS
-    void visit(AstCMethodHard* nodep) override {
-        if (nodep->method() == VCMethod::EVENT_IS_TRIGGERED) {
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+    ശൂന്യം visit(AstCMethodHard* nodep) override {
+        എങ്കിൽ (nodep->method() == VCMethod::EVENT_IS_TRIGGERED) {
+            nodep->replaceWith(പുതിയ AstConst{nodep->fileline(), AstConst::BitFalse{}});
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
+        } അല്ലെങ്കിൽ {
             iterateChildren(nodep);
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
-        AstVar* const varp = nodep->varp();
-        if (varp->isParam()
+    ശൂന്യം visit(Ast_കണ്ണി_Var_Ref* nodep) override {
+        AstVar* സ്ഥിരം varp = nodep->varp();
+        എങ്കിൽ (varp->isParam()
             || (!varp->isNet() && varp->lifetime().isStatic() && varp->hasUserInit())) {
-            return;
+            തിരികെ;
         }
         nodep->replaceWith(newTypeDefault(nodep));
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit DefaultSampledValueVisitor(AstNode* nodep) { iterate(nodep); }
+പൊതു:
+    explicit Default_Sampled_മൂല്യം_Visitor(Ast_കണ്ണി* nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // AssertVisitor
 
-class AssertVisitor final : public VNVisitor {
+വർഗ്ഗം AssertVisitor final : പൊതു VNVisitor {
     // CONSTANTS
-    static constexpr uint8_t ALL_ASSERT_TYPES
+    സ്ഥിതം constexpr uint8_t ALL_ASSERT_TYPES
         = std::numeric_limits<std::underlying_type<VAssertType::en>::type>::max();
 
     // NODE STATE/TYPES
@@ -385,19 +385,19 @@ class AssertVisitor final : public VNVisitor {
     //  AstAlways::user2p()      -> std::vector<AstVar*>. Delayed variables via 'm_delayed'
     //  AstNodeVarRef::user2()   -> bool.  True if shouldn't be sampled
     //  AstIf::user2()           -> bool.  True for assertOn() checks inserted in this pass
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
+    സ്ഥിരം VNUser1InUse m_user1InUse;
+    സ്ഥിരം VNUser2InUse m_user2InUse;
     AstUser2Allocator<AstAlways, std::vector<AstVar*>> m_delayed;
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Last module
-    const AstNode* m_beginp = nullptr;  // Last AstBegin/AstGenBlock
-    unsigned m_monitorNum = 0;  // Global $monitor numbering (not per module)
-    AstVar* m_monitorNumVarp = nullptr;  // $monitor number variable
+    Ast_കണ്ണി_Module* m_modp = nullptr;  // Last module
+    സ്ഥിരം Ast_കണ്ണി* m_beginp = nullptr;  // Last AstBegin/AstGenBlock
+    unsigned m_monitor_അക്കം = 0;  // Global $monitor numbering (not per module)
+    AstVar* m_monitor_അക്കം_Varp = nullptr;  // $monitor number variable
     AstVar* m_monitorOffVarp = nullptr;  // $monitoroff variable
-    unsigned m_modPastNum = 0;  // Module past numbering
-    unsigned m_modStrobeNum = 0;  // Module $strobe numbering
-    AstNodeProcedure* m_procedurep = nullptr;  // Current procedure
+    unsigned m_mod_Past_അക്കം = 0;  // Module past numbering
+    unsigned m_mod_Strobe_അക്കം = 0;  // Module $strobe numbering
+    Ast_കണ്ണി_Procedure* m_procedurep = nullptr;  // Current procedure
     VDouble0 m_statCover;  // Statistic tracking
     VDouble0 m_statAsNotImm;  // Statistic tracking
     VDouble0 m_statAsImm;  // Statistic tracking
@@ -405,399 +405,399 @@ class AssertVisitor final : public VNVisitor {
     VDouble0 m_statPastVars;  // Statistic tracking
     VDouble0 m_statAssertOnCombined;  // Statistic tracking
     VDouble0 m_statAssertOnHoisted;  // Statistic tracking
-    bool m_inSampled = false;  // True inside a sampled expression
-    bool m_inRestrict = false;  // True inside restrict assertion
-    AstNode* m_passsp = nullptr;  // Current pass statement
-    AstNode* m_failsp = nullptr;  // Current fail statement
-    AstNodeCoverOrAssert* m_assertp = nullptr;  // Current assertion
+    തർക്കം m_inSampled = അസത്യം;  // True inside a sampled expression
+    തർക്കം m_inRestrict = അസത്യം;  // True inside restrict assertion
+    Ast_കണ്ണി* m_passsp = nullptr;  // Current pass statement
+    Ast_കണ്ണി* m_failsp = nullptr;  // Current fail statement
+    Ast_കണ്ണി_Cover_Or_Assert* m_assertp = nullptr;  // Current assertion
     AstFinal* m_finalp = nullptr;  // Current final block
     VDouble0 m_statLiftedCaseExprs;  // Count of purified case expressions
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_കണ്ണി_FTask* m_ftaskp = nullptr;  // Current function/task
     V3UniqueNames m_caseTempNames{"__VCase"};
-    V3UniqueNames m_matchCountNames{"__VnfaRemainingMatchCount"};  // Match replay counter names
+    V3UniqueNames m_match_എണ്ണം_Names{"__VnfaRemainingMatchCount"};  // Match replay counter names
     // Maps from (expression, senTree) to the AstAlways that computes its delayed values.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_കണ്ണി_വ്യഞ്ജകം>, std::unordered_map<VNRef<Ast_Sen_വൃക്ഷം>, AstAlways*>>
         m_modExpr2Sen2DelayedAlwaysp;
     // Source sampled-value history is initialized, unlike internal property-lowering history.
-    std::unordered_map<VNRef<AstNodeExpr>, std::unordered_map<VNRef<AstSenTree>, AstAlways*>>
+    std::unordered_map<VNRef<Ast_കണ്ണി_വ്യഞ്ജകം>, std::unordered_map<VNRef<Ast_Sen_വൃക്ഷം>, AstAlways*>>
         m_modExpr2Sen2DefaultDelayedAlwaysp;
     // Map from delayed-value AstAlways to its last-sampling-tick time variable
-    std::unordered_map<const AstAlways*, AstVar*> m_delayedAlways2TickTimep;
+    std::unordered_map<സ്ഥിരം AstAlways*, AstVar*> m_delayedAlways2TickTimep;
 
     // METHODS
-    static const char* assertPassOnQuery(bool vacuous) {
-        static constexpr const char* queries[2]
+    സ്ഥിതം സ്ഥിരം അക്ഷരം* assertPassOnQuery(തർക്കം vacuous) {
+        സ്ഥിതം constexpr സ്ഥിരം അക്ഷരം* queries[2]
             = {"ASSERT_CTL_PASS_ON_NONVACUOUS", "ASSERT_CTL_PASS_ON_VACUOUS"};
-        return queries[vacuous];
+        തിരികെ queries[vacuous];
     }
-    static AstNodeExpr* assertOnCond(FileLine* fl, VAssertType type,
+    സ്ഥിതം Ast_കണ്ണി_വ്യഞ്ജകം* assertOnCond(File_വരി* fl, VAssertType type,
                                      VAssertDirectiveType directiveType) {
         // cppcheck-suppress missingReturn
-        switch (directiveType) {
-        case VAssertDirectiveType::INTRINSIC: return new AstConst{fl, AstConst::BitTrue{}};
-        case VAssertDirectiveType::VIOLATION_CASE: {
-            if (v3Global.opt.assertCase()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        തിരഞ്ഞെടുപ്പ് (directiveType) {
+        അവസ്ഥ VAssertDirectiveType::INTRINSIC: തിരികെ പുതിയ AstConst{fl, AstConst::BitTrue{}};
+        അവസ്ഥ VAssertDirectiveType::VIOLATION_CASE: {
+            എങ്കിൽ (v3Global.opt.assertCase()) {
+                തിരികെ പുതിയ AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
             // If assertions are off, have constant propagation rip them out later
             // This allows syntax errors and such to be detected normally.
-            return new AstConst{fl, AstConst::BitFalse{}};
+            തിരികെ പുതിയ AstConst{fl, AstConst::BitFalse{}};
         }
-        case VAssertDirectiveType::ASSERT:
-        case VAssertDirectiveType::COVER:
-        case VAssertDirectiveType::ASSUME: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{
+        അവസ്ഥ VAssertDirectiveType::ASSERT:
+        അവസ്ഥ VAssertDirectiveType::COVER:
+        അവസ്ഥ VAssertDirectiveType::ASSUME: {
+            എങ്കിൽ (v3Global.opt.assertOn()) {
+                തിരികെ പുതിയ AstCExpr{
                     fl, AstCExpr::Pure{},
                     V3AssertCommon::assertCtlGetCall("ASSERT_CTL_ON", type, directiveType), 1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            തിരികെ പുതിയ AstConst{fl, AstConst::BitFalse{}};
         }
-        case VAssertDirectiveType::INTERNAL:
-        case VAssertDirectiveType::VIOLATION_IF:
-        case VAssertDirectiveType::RESTRICT: {
-            if (v3Global.opt.assertOn()) {
-                return new AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
+        അവസ്ഥ VAssertDirectiveType::INTERNAL:
+        അവസ്ഥ VAssertDirectiveType::VIOLATION_IF:
+        അവസ്ഥ VAssertDirectiveType::RESTRICT: {
+            എങ്കിൽ (v3Global.opt.assertOn()) {
+                തിരികെ പുതിയ AstCExpr{fl, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()",
                                     1};
             }
-            return new AstConst{fl, AstConst::BitFalse{}};
+            തിരികെ പുതിയ AstConst{fl, AstConst::BitFalse{}};
         }
         }
         VL_UNREACHABLE;
     }
 
-    static bool isControlled(VAssertDirectiveType directiveType) {
-        return (static_cast<int>(directiveType)
-                & (static_cast<int>(VAssertDirectiveType::ASSERT)
-                   | static_cast<int>(VAssertDirectiveType::COVER)
-                   | static_cast<int>(VAssertDirectiveType::ASSUME)));
+    സ്ഥിതം തർക്കം isControlled(VAssertDirectiveType directiveType) {
+        തിരികെ (static_cast<പൂർണ്ണസംഖ്യ>(directiveType)
+                & (static_cast<പൂർണ്ണസംഖ്യ>(VAssertDirectiveType::ASSERT)
+                   | static_cast<പൂർണ്ണസംഖ്യ>(VAssertDirectiveType::COVER)
+                   | static_cast<പൂർണ്ണസംഖ്യ>(VAssertDirectiveType::ASSUME)));
     }
-    static AstNodeExpr* assertPassOnCond(FileLine* fl, VAssertType type,
-                                         VAssertDirectiveType directiveType, bool vacuous) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
+    സ്ഥിതം Ast_കണ്ണി_വ്യഞ്ജകം* assertPassOnCond(File_വരി* fl, VAssertType type,
+                                         VAssertDirectiveType directiveType, തർക്കം vacuous) {
+        എങ്കിൽ (!isControlled(directiveType)) തിരികെ പുതിയ AstConst{fl, AstConst::BitTrue{}};
+        എങ്കിൽ (!v3Global.opt.assertOn()) തിരികെ പുതിയ AstConst{fl, AstConst::BitFalse{}};
+        തിരികെ പുതിയ AstCExpr{
             fl, AstCExpr::Pure{},
             V3AssertCommon::assertCtlGetCall(assertPassOnQuery(vacuous), type, directiveType), 1};
     }
-    static AstNodeExpr* assertFailOnCond(FileLine* fl, VAssertType type,
+    സ്ഥിതം Ast_കണ്ണി_വ്യഞ്ജകം* assertFailOnCond(File_വരി* fl, VAssertType type,
                                          VAssertDirectiveType directiveType) {
-        if (!isControlled(directiveType)) return new AstConst{fl, AstConst::BitTrue{}};
-        if (!v3Global.opt.assertOn()) return new AstConst{fl, AstConst::BitFalse{}};
-        return new AstCExpr{
+        എങ്കിൽ (!isControlled(directiveType)) തിരികെ പുതിയ AstConst{fl, AstConst::BitTrue{}};
+        എങ്കിൽ (!v3Global.opt.assertOn()) തിരികെ പുതിയ AstConst{fl, AstConst::BitFalse{}};
+        തിരികെ പുതിയ AstCExpr{
             fl, AstCExpr::Pure{},
             V3AssertCommon::assertCtlGetCall("ASSERT_CTL_FAIL_ON", type, directiveType), 1};
     }
-    string assertDisplayMessage(const AstNode* nodep, const string& prefix, const string& message,
+    string assertDisplayMessage(സ്ഥിരം Ast_കണ്ണി* nodep, സ്ഥിരം string& prefix, സ്ഥിരം string& message,
                                 VDisplayType severity) {
-        if (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
-            return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
+        എങ്കിൽ (severity == VDisplayType::DT_ERROR || severity == VDisplayType::DT_FATAL) {
+            തിരികെ ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
                     + cvtToStr(nodep->fileline()->lineno()) + ": Assertion failed in %m"
                     + ((message != "") ? ": " : "") + message + "\n");
         }
-        return ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
+        തിരികെ ("[%0t] "s + prefix + ": " + nodep->fileline()->filebasename() + ":"
                 + cvtToStr(nodep->fileline()->lineno()) + ": %m" + ((message != "") ? ": " : "")
                 + message + "\n");
     }
-    void replaceDisplay(AstDisplay* nodep, const string& prefix) {
+    ശൂന്യം replaceDisplay(AstDisplay* nodep, സ്ഥിരം string& prefix) {
         nodep->fmtp()->text(
             assertDisplayMessage(nodep, prefix, nodep->fmtp()->text(), nodep->displayType()));
         nodep->displayType(VDisplayType::DT_WRITE);
         // cppcheck-suppress nullPointer
-        AstNodeExpr* const timenewp = new AstTime{nodep->fileline(), m_modp->timeunit()};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം timenewp = പുതിയ AstTime{nodep->fileline(), m_modp->timeunit()};
         nodep->fmtp()->prependExprsp(timenewp);
-        if (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
-            nodep->fmtp()->scopeNamep(new AstScopeName{nodep->fileline(), true});
+        എങ്കിൽ (!nodep->fmtp()->scopeNamep() && nodep->fmtp()->formatScopeTracking()) {
+            nodep->fmtp()->scopeNamep(പുതിയ AstScopeName{nodep->fileline(), സത്യം});
         }
     }
-    AstSampled* newSampledExpr(AstNodeExpr* nodep) {
-        return new AstSampled{nodep->fileline(), nodep, nodep->dtypep(), true};
+    AstSampled* new_Sampled_വ്യഞ്ജകം(Ast_കണ്ണി_വ്യഞ്ജകം* nodep) {
+        തിരികെ പുതിയ AstSampled{nodep->fileline(), nodep, nodep->dtypep(), സത്യം};
     }
-    AstVarRef* newMonitorNumVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorNumVarp) {
-            m_monitorNumVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
+    AstVarRef* new_Monitor_അക്കം_Var_Refp(സ്ഥിരം Ast_കണ്ണി* nodep, VAccess access) {
+        എങ്കിൽ (!m_monitor_അക്കം_Varp) {
+            m_monitor_അക്കം_Varp = പുതിയ AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorNum",
                                           nodep->findUInt64DType()};
-            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorNumVarp);
+            v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitor_അക്കം_Varp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorNumVarp, access};
+        AstVarRef* സ്ഥിരം varrefp = പുതിയ AstVarRef{nodep->fileline(), m_monitor_അക്കം_Varp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        തിരികെ varrefp;
     }
-    AstVarRef* newMonitorOffVarRefp(const AstNode* nodep, VAccess access) {
-        if (!m_monitorOffVarp) {
-            m_monitorOffVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
+    AstVarRef* newMonitorOffVarRefp(സ്ഥിരം Ast_കണ്ണി* nodep, VAccess access) {
+        എങ്കിൽ (!m_monitorOffVarp) {
+            m_monitorOffVarp = പുതിയ AstVar{nodep->fileline(), VVarType::MODULETEMP, "__VmonitorOff",
                                           nodep->findBitDType()};
             v3Global.rootp()->dollarUnitPkgp()->addStmtsp(m_monitorOffVarp);
         }
-        AstVarRef* const varrefp = new AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
+        AstVarRef* സ്ഥിരം varrefp = പുതിയ AstVarRef{nodep->fileline(), m_monitorOffVarp, access};
         varrefp->classOrPackagep(v3Global.rootp()->dollarUnitPkgp());
-        return varrefp;
+        തിരികെ varrefp;
     }
-    static AstIf* newIfAssertOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+    സ്ഥിതം AstIf* newIfAssertOn(Ast_കണ്ണി* bodyp, VAssertDirectiveType directiveType,
                                 VAssertType type = VAssertType::INTERNAL) {
         // Add an internal if to check assertions are on.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
+        File_വരി* സ്ഥിരം fl = bodyp->fileline();
 
-        AstNodeExpr* const condp = assertOnCond(fl, type, directiveType);
-        AstIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം condp = assertOnCond(fl, type, directiveType);
+        AstIf* സ്ഥിരം newp = പുതിയ AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
+        newp->user2(സത്യം);  // Mark as an assertOn() check
+        തിരികെ newp;
     }
-    static AstNodeStmt* newIfAssertPassOn(AstNode* bodyp, VAssertDirectiveType directiveType,
-                                          VAssertType type, bool vacuous) {
+    സ്ഥിതം Ast_കണ്ണി_Stmt* newIfAssertPassOn(Ast_കണ്ണി* bodyp, VAssertDirectiveType directiveType,
+                                          VAssertType type, തർക്കം vacuous) {
         // Add an internal if to check assertion passOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertPassOnCond(fl, type, directiveType, vacuous);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_വരി* സ്ഥിരം fl = bodyp->fileline();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം condp = assertPassOnCond(fl, type, directiveType, vacuous);
+        Ast_കണ്ണി_If* സ്ഥിരം newp = പുതിയ AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
+        newp->user1(സത്യം);  // Don't assert/cover this if
+        newp->user2(സത്യം);  // Mark as an assertOn() check
+        തിരികെ newp;
     }
-    static AstNodeStmt* newIfAssertFailOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+    സ്ഥിതം Ast_കണ്ണി_Stmt* newIfAssertFailOn(Ast_കണ്ണി* bodyp, VAssertDirectiveType directiveType,
                                           VAssertType type) {
         // Add an internal if to check assertion failOn is enabled.
         // Don't make this an AND term, as it's unlikely to need to test this.
-        FileLine* const fl = bodyp->fileline();
-        AstNodeExpr* const condp = assertFailOnCond(fl, type, directiveType);
-        AstNodeIf* const newp = new AstIf{fl, condp, bodyp};
-        newp->isBoundsCheck(true);  // To avoid LATCH warning
-        newp->user1(true);  // Don't assert/cover this if
-        newp->user2(true);  // Mark as an assertOn() check
-        return newp;
+        File_വരി* സ്ഥിരം fl = bodyp->fileline();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം condp = assertFailOnCond(fl, type, directiveType);
+        Ast_കണ്ണി_If* സ്ഥിരം newp = പുതിയ AstIf{fl, condp, bodyp};
+        newp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
+        newp->user1(സത്യം);  // Don't assert/cover this if
+        newp->user2(സത്യം);  // Mark as an assertOn() check
+        തിരികെ newp;
     }
 
-    static AstIf* assertCond(const AstNodeCoverOrAssert* nodep, AstNodeExpr* propp,
-                             AstNode* passsp, AstNode* failsp) {
-        AstIf* const ifp = new AstIf{nodep->fileline(), propp, passsp, failsp};
+    സ്ഥിതം AstIf* assertCond(സ്ഥിരം Ast_കണ്ണി_Cover_Or_Assert* nodep, Ast_കണ്ണി_വ്യഞ്ജകം* propp,
+                             Ast_കണ്ണി* passsp, Ast_കണ്ണി* failsp) {
+        AstIf* സ്ഥിരം ifp = പുതിയ AstIf{nodep->fileline(), propp, passsp, failsp};
         // It's more LIKELY that we'll take the nullptr if clause
         // than the sim-killing else clause:
         ifp->branchPred(VBranchPred::BP_LIKELY);
-        ifp->isBoundsCheck(true);  // To avoid LATCH warning
-        return ifp;
+        ifp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
+        തിരികെ ifp;
     }
 
-    AstNodeStmt* assertBody(const AstNodeCoverOrAssert* nodep, AstNode* propp, AstNode* passsp,
-                            AstNode* failsp) {
-        if (AstPExpr* const pexprp = VN_CAST(propp, PExpr)) {
-            if (!v3Global.opt.timing().isSetTrue()) {
+    Ast_കണ്ണി_Stmt* assertBody(സ്ഥിരം Ast_കണ്ണി_Cover_Or_Assert* nodep, Ast_കണ്ണി* propp, Ast_കണ്ണി* passsp,
+                            Ast_കണ്ണി* failsp) {
+        എങ്കിൽ (AstPExpr* സ്ഥിരം pexprp = VN_CAST(propp, PExpr)) {
+            എങ്കിൽ (!v3Global.opt.timing().isSetTrue()) {
                 nodep->v3warn(E_NOTIMING, "This property expression requires --timing");
-                VL_DO_DANGLING(pushDeletep(pexprp), pexprp);
-                return new AstBegin{nodep->fileline(), "", nullptr, false};
+                VL_DO_DANGLING(തള്ളുക_Deletep(pexprp), pexprp);
+                തിരികെ പുതിയ AstBegin{nodep->fileline(), "", nullptr, അസത്യം};
             }
-            AstFork* const forkp = new AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
+            AstFork* സ്ഥിരം forkp = പുതിയ AstFork{nodep->fileline(), VJoinType::JOIN_NONE};
             forkp->addForksp(pexprp->bodyp()->unlinkFrBack());
-            if (AstNodeStmt* const finalp = pexprp->finalp()) {
-                if (!m_finalp) {
-                    m_finalp = new AstFinal{m_modp->fileline(), finalp->unlinkFrBack()};
+            എങ്കിൽ (Ast_കണ്ണി_Stmt* സ്ഥിരം finalp = pexprp->finalp()) {
+                എങ്കിൽ (!m_finalp) {
+                    m_finalp = പുതിയ AstFinal{m_modp->fileline(), finalp->unlinkFrBack()};
                     m_modp->addStmtsp(m_finalp);
-                } else {
+                } അല്ലെങ്കിൽ {
                     m_finalp->addStmtsp(finalp->unlinkFrBack());
                 }
             }
-            VL_DO_DANGLING2(pushDeletep(pexprp), pexprp, propp);
-            return forkp;
+            VL_DO_DANGLING2(തള്ളുക_Deletep(pexprp), pexprp, propp);
+            തിരികെ forkp;
         }
 
-        return assertCond(nodep, VN_AS(propp, NodeExpr), passsp, failsp);
+        തിരികെ assertCond(nodep, VN_AS(propp, കണ്ണി_വ്യഞ്ജകം), passsp, failsp);
     }
 
-    AstNodeStmt* newFireAssertUnchecked(const AstNodeStmt* nodep, const string& message,
-                                        AstNodeExpr* exprsp = nullptr) {
+    Ast_കണ്ണി_Stmt* newFireAssertUnchecked(സ്ഥിരം Ast_കണ്ണി_Stmt* nodep, സ്ഥിരം string& message,
+                                        Ast_കണ്ണി_വ്യഞ്ജകം* exprsp = nullptr) {
         // Like newFireAssert() but omits the asserts-on check
-        AstDisplay* const dispp
-            = new AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, message, nullptr, nullptr};
+        AstDisplay* സ്ഥിരം dispp
+            = പുതിയ AstDisplay{nodep->fileline(), VDisplayType::DT_ERROR, message, nullptr, nullptr};
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        AstNodeStmt* const bodysp = dispp;
+        Ast_കണ്ണി_Stmt* സ്ഥിരം bodysp = dispp;
         replaceDisplay(dispp, "%%Error");  // Convert to standard DISPLAY format
-        if (exprsp) dispp->fmtp()->exprsp()->addNext(exprsp);
-        if (v3Global.opt.stopFail()) bodysp->addNext(new AstStop{nodep->fileline(), false});
-        return bodysp;
+        എങ്കിൽ (exprsp) dispp->fmtp()->exprsp()->addNext(exprsp);
+        എങ്കിൽ (v3Global.opt.stopFail()) bodysp->addNext(പുതിയ AstStop{nodep->fileline(), അസത്യം});
+        തിരികെ bodysp;
     }
 
-    AstNodeStmt* newFireAssert(const AstNodeStmt* nodep, VAssertDirectiveType directiveType,
-                               VAssertType assertType, const string& message,
-                               AstNodeExpr* exprsp = nullptr) {
-        AstNodeStmt* bodysp = newFireAssertUnchecked(nodep, message, exprsp);
+    Ast_കണ്ണി_Stmt* newFireAssert(സ്ഥിരം Ast_കണ്ണി_Stmt* nodep, VAssertDirectiveType directiveType,
+                               VAssertType assertType, സ്ഥിരം string& message,
+                               Ast_കണ്ണി_വ്യഞ്ജകം* exprsp = nullptr) {
+        Ast_കണ്ണി_Stmt* bodysp = newFireAssertUnchecked(nodep, message, exprsp);
         bodysp = newIfAssertOn(bodysp, directiveType, assertType);
-        return bodysp;
+        തിരികെ bodysp;
     }
 
-    AstVar* createDelayedVar(const std::string& name, AstAlways* alwaysp, AstNodeExpr* exprp,
-                             AstNodeExpr* initp) {
-        FileLine* const flp = exprp->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+    AstVar* createDelayedVar(സ്ഥിരം std::string& name, AstAlways* alwaysp, Ast_കണ്ണി_വ്യഞ്ജകം* exprp,
+                             Ast_കണ്ണി_വ്യഞ്ജകം* initp) {
+        File_വരി* സ്ഥിരം flp = exprp->fileline();
+        AstVar* സ്ഥിരം varp = പുതിയ AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
         // TODO: this lifetime seems nonsene (can't have NBAs to automatics), but is as before
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         m_modp->addStmtsp(varp);
         // Before enough clock ticks, $past returns the expression's default sampled value.
-        if (initp) {
-            m_modp->addStmtsp(new AstInitialStatic{
-                flp, new AstAssign{flp, new AstVarRef{flp, varp, VAccess::WRITE}, initp}});
+        എങ്കിൽ (initp) {
+            m_modp->addStmtsp(പുതിയ AstInitialStatic{
+                flp, പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, varp, VAccess::WRITE}, initp}});
         }
         ++m_statPastVars;
         // Actually set the delayed value
-        AstNodeExpr* const lhsp = new AstVarRef{flp, varp, VAccess::WRITE};
-        AstAssignDly* const assignp = new AstAssignDly{flp, lhsp, exprp};
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം lhsp = പുതിയ AstVarRef{flp, varp, VAccess::WRITE};
+        AstAssignDly* സ്ഥിരം assignp = പുതിയ AstAssignDly{flp, lhsp, exprp};
         alwaysp->prependStmtsp(assignp);
-        return varp;
+        തിരികെ varp;
     }
 
-    AstAlways* getDelayedAlways(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep) {
+    AstAlways* getDelayedAlways(Ast_കണ്ണി_വ്യഞ്ജകം* exprp, Ast_കണ്ണി_വ്യഞ്ജകം* initp, Ast_Sen_വൃക്ഷം* senTreep) {
         auto& expr2Sen2Alwaysr
             = initp ? m_modExpr2Sen2DefaultDelayedAlwaysp : m_modExpr2Sen2DelayedAlwaysp;
         AstAlways*& alwayspr = expr2Sen2Alwaysr[*exprp][*senTreep];
-        if (!alwayspr) {
-            FileLine* const flp = exprp->fileline();
+        എങ്കിൽ (!alwayspr) {
+            File_വരി* സ്ഥിരം flp = exprp->fileline();
             // Create the always block that computes the delayed values
-            alwayspr = new AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, nullptr};
+            alwayspr = പുതിയ AstAlways{flp, VAlwaysKwd::ALWAYS, senTreep, nullptr};
             m_modp->addStmtsp(alwayspr);
             // Create the once-delayed variable
-            const std::string name = "_Vpast_" + cvtToStr(m_modPastNum++) + "_1";
-            AstVar* const varp = createDelayedVar(name, alwayspr, exprp, initp);
+            സ്ഥിരം std::string name = "_Vpast_" + cvtToStr(m_mod_Past_അക്കം++) + "_1";
+            AstVar* സ്ഥിരം varp = createDelayedVar(name, alwayspr, exprp, initp);
             // Add it to delayed variable vector
             m_delayed(alwayspr).emplace_back(varp);
-        } else {
+        } അല്ലെങ്കിൽ {
             // Reusing exiting, not needed
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
+            VL_DO_DANGLING(തള്ളുക_Deletep(exprp), exprp);
+            എങ്കിൽ (initp) VL_DO_DANGLING(തള്ളുക_Deletep(initp), initp);
+            VL_DO_DANGLING(തള്ളുക_Deletep(senTreep), senTreep);
         }
-        return alwayspr;
+        തിരികെ alwayspr;
     }
 
-    AstNodeExpr* getPastValue(AstNodeExpr* exprp, AstNodeExpr* initp, AstSenTree* senTreep,
+    Ast_കണ്ണി_വ്യഞ്ജകം* get_Past_മൂല്യം(Ast_കണ്ണി_വ്യഞ്ജകം* exprp, Ast_കണ്ണി_വ്യഞ്ജകം* initp, Ast_Sen_വൃക്ഷം* senTreep,
                               uint32_t ticks) {
         UASSERT_OBJ(ticks > 0, exprp, "Delay must be > 0");
-        FileLine* const flp = exprp->fileline();
-        AstAlways* const alwaysp
-            = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-        AstNodeExpr* const resultp = pastValueRef(alwaysp, flp, ticks, initp);
-        if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-        return resultp;
+        File_വരി* സ്ഥിരം flp = exprp->fileline();
+        AstAlways* സ്ഥിരം alwaysp
+            = getDelayedAlways(exprp, initp ? initp->clone_വൃക്ഷം_Pure(അസത്യം) : nullptr, senTreep);
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം resultp = past_മൂല്യം_Ref(alwaysp, flp, ticks, initp);
+        എങ്കിൽ (initp) VL_DO_DANGLING(തള്ളുക_Deletep(initp), initp);
+        തിരികെ resultp;
     }
 
-    AstNodeExpr* pastValueRef(AstAlways* alwaysp, FileLine* flp, uint32_t ticks,
-                              AstNodeExpr* initp) {
+    Ast_കണ്ണി_വ്യഞ്ജകം* past_മൂല്യം_Ref(AstAlways* alwaysp, File_വരി* flp, uint32_t ticks,
+                              Ast_കണ്ണി_വ്യഞ്ജകം* initp) {
         std::vector<AstVar*>& delayedr = m_delayed(alwaysp);
         // Ensure the required delay exists
-        while (delayedr.size() < ticks) {
-            AstVar* const firstp = delayedr.front();
-            FileLine* const varFlp = firstp->fileline();
+        ആകുമ്പോൾ (delayedr.size() < ticks) {
+            AstVar* സ്ഥിരം firstp = delayedr.front();
+            File_വരി* സ്ഥിരം varFlp = firstp->fileline();
             // Create once more delayed value
             std::string name = firstp->name();
             name.resize(name.size() - 1);
             name += std::to_string(delayedr.size() + 1);
-            AstNodeExpr* const prevp = new AstVarRef{varFlp, delayedr.back(), VAccess::READ};
-            AstVar* const varp = createDelayedVar(name, alwaysp, prevp,
-                                                  initp ? initp->cloneTreePure(false) : nullptr);
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം prevp = പുതിയ AstVarRef{varFlp, delayedr.back(), VAccess::READ};
+            AstVar* സ്ഥിരം varp = createDelayedVar(name, alwaysp, prevp,
+                                                  initp ? initp->clone_വൃക്ഷം_Pure(അസത്യം) : nullptr);
             // Add it to delayed variable vector
             delayedr.emplace_back(varp);
         }
         // Return a reference to the appropriately delayed variable
-        return new AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
+        തിരികെ പുതിയ AstVarRef{flp, delayedr.at(ticks - 1), VAccess::READ};
     }
 
     // Time of the pipeline's last sampling tick, for end-of-simulation readers
     AstVar* getPastTickTimeVar(AstAlways* alwaysp) {
         AstVar*& varpr = m_delayedAlways2TickTimep[alwaysp];
-        if (!varpr) {
-            FileLine* const flp = alwaysp->fileline();
-            varpr = new AstVar{flp, VVarType::MODULETEMP,
-                               "_Vpast_" + cvtToStr(m_modPastNum++) + "_t",
+        എങ്കിൽ (!varpr) {
+            File_വരി* സ്ഥിരം flp = alwaysp->fileline();
+            varpr = പുതിയ AstVar{flp, VVarType::MODULETEMP,
+                               "_Vpast_" + cvtToStr(m_mod_Past_അക്കം++) + "_t",
                                m_modp->findUInt64DType()};
             m_modp->addStmtsp(varpr);
-            AstNodeExpr* const timep = new AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം timep = പുതിയ AstCExpr{flp, "vlSymsp->_vm_contextp__->time()", 64};
             alwaysp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, varpr, VAccess::WRITE}, timep});
+                പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, varpr, VAccess::WRITE}, timep});
         }
-        return varpr;
+        തിരികെ varpr;
     }
 
-    void visitAssertionIterate(AstNodeCoverOrAssert* nodep, AstNode* failsp) {
-        if (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
+    ശൂന്യം visitAssertionIterate(Ast_കണ്ണി_Cover_Or_Assert* nodep, Ast_കണ്ണി* failsp) {
+        എങ്കിൽ (m_beginp && nodep->name() == "") nodep->name(m_beginp->name());
 
-        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_modPastNum++}; }
+        { AssertDeFutureVisitor{nodep->propp(), m_modp, m_mod_Past_അക്കം++}; }
 
         iterateAndNextNull(nodep->sentreep());
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        എങ്കിൽ (AstAssert* സ്ഥിരം assertp = VN_CAST(nodep, Assert)) {
             iterateAndNextNull(assertp->failsp());
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstAssertIntrinsic* സ്ഥിരം assertp = VN_CAST(nodep, AssertIntrinsic)) {
             iterateAndNextNull(assertp->failsp());
-        } else if (AstCover* const coverp = VN_CAST(nodep, Cover)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstCover* സ്ഥിരം coverp = VN_CAST(nodep, Cover)) {
             iterateAndNextNull(coverp->coverincsp());
-        } else if (!VN_IS(nodep, Restrict)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (!VN_IS(nodep, Restrict)) {
             nodep->v3fatalSrc("Unhandled assert type");
         }
         iterateAndNextNull(nodep->passsp());
-        AstSenTree* sentreep = nodep->sentreep();
-        if (nodep->immediate()) {
+        Ast_Sen_വൃക്ഷം* sentreep = nodep->sentreep();
+        എങ്കിൽ (nodep->immediate()) {
             UASSERT_OBJ(!sentreep, nodep, "Immediate assertions don't have sensitivity");
-        } else {
+        } അല്ലെങ്കിൽ {
             UASSERT_OBJ(sentreep, nodep, "Concurrent assertions must have sensitivity");
             // Explicit inline clock differs from the enclosing always: hoist
             // and warn. To support this need queue of asserts to activate.
-            if (m_procedurep && !nodep->senFromAlways()) {
+            എങ്കിൽ (m_procedurep && !nodep->senFromAlways()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Procedural concurrent assertion with"
                               " clocking event inside always (IEEE 1800-2023 16.14.6)");
-                static_cast<AstNode*>(m_procedurep)->addNext(nodep->unlinkFrBack());
-                return;  // Later iterate will pick up
+                static_cast<Ast_കണ്ണി*>(m_procedurep)->addNext(nodep->unlinkFrBack());
+                തിരികെ;  // Later iterate will pick up
             }
             sentreep->unlinkFrBack();
-            if (m_procedurep) { VL_DO_DANGLING(pushDeletep(sentreep), sentreep); }
+            എങ്കിൽ (m_procedurep) { VL_DO_DANGLING(തള്ളുക_Deletep(sentreep), sentreep); }
         }
         //
-        const string& message = nodep->name();
-        AstNode* passsp = nodep->passsp();
-        if (passsp) passsp->unlinkFrBackWithNext();
-        if (AstAssert* const assertp = VN_CAST(nodep, Assert)) {
+        സ്ഥിരം string& message = nodep->name();
+        Ast_കണ്ണി* passsp = nodep->passsp();
+        എങ്കിൽ (passsp) passsp->unlinkFrBackWithNext();
+        എങ്കിൽ (AstAssert* സ്ഥിരം assertp = VN_CAST(nodep, Assert)) {
             failsp = assertp->failsp();
-        } else if (AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (AstAssertIntrinsic* സ്ഥിരം assertp = VN_CAST(nodep, AssertIntrinsic)) {
             failsp = assertp->failsp();
         }
-        if (failsp) failsp->unlinkFrBackWithNext();
+        എങ്കിൽ (failsp) failsp->unlinkFrBackWithNext();
 
-        bool selfDestruct = false;
-        bool passspGated = false;
-        const AstCover* const coverp = VN_CAST(nodep, Cover);
+        തർക്കം selfDestruct = അസത്യം;
+        തർക്കം passspGated = അസത്യം;
+        സ്ഥിരം AstCover* സ്ഥിരം coverp = VN_CAST(nodep, Cover);
         // A sequence event control is not an assertion directive; no assertion control
-        const bool seqEvent = coverp && coverp->isSeqEvent();
-        if (coverp) {
+        സ്ഥിരം തർക്കം seqEvent = coverp && coverp->isSeqEvent();
+        എങ്കിൽ (coverp) {
             ++m_statCover;
-            if (seqEvent) {
+            എങ്കിൽ (seqEvent) {
                 // Keep the event-fire action, with no coverage bucket
-            } else if (!v3Global.opt.coverageUser()) {
-                selfDestruct = true;
-            } else {
+            } അല്ലെങ്കിൽ എങ്കിൽ (!v3Global.opt.coverageUser()) {
+                selfDestruct = സത്യം;
+            } അല്ലെങ്കിൽ {
                 // V3Coverage assigned us a bucket to increment.
-                AstCoverInc* const covincp = VN_AS(coverp->coverincsp(), CoverInc);
+                AstCoverInc* സ്ഥിരം covincp = VN_AS(coverp->coverincsp(), CoverInc);
                 UASSERT_OBJ(covincp, coverp, "Missing AstCoverInc under assertion");
                 covincp->unlinkFrBackWithNext();  // next() might have  AstAssign for trace
-                if (message != "") covincp->declp()->comment(message);
-                if (passsp) {
+                എങ്കിൽ (message != "") covincp->declp()->comment(message);
+                എങ്കിൽ (passsp) {
                     passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                               /*vacuous=*/false);
-                    passspGated = true;
-                    passsp = AstNode::addNext<AstNode, AstNode>(covincp, passsp);
-                } else {
+                                               /*vacuous=*/അസത്യം);
+                    passspGated = സത്യം;
+                    passsp = Ast_കണ്ണി::addNext<Ast_കണ്ണി, Ast_കണ്ണി>(covincp, passsp);
+                } അല്ലെങ്കിൽ {
                     passsp = covincp;
                 }
             }
-        } else if (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
-            if (nodep->immediate()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (VN_IS(nodep, Assert) || VN_IS(nodep, AssertIntrinsic)) {
+            എങ്കിൽ (nodep->immediate()) {
                 ++m_statAsImm;
-            } else {
+            } അല്ലെങ്കിൽ {
                 ++m_statAsNotImm;
             }
-            if (!passsp && !failsp)
+            എങ്കിൽ (!passsp && !failsp)
                 failsp = newFireAssertUnchecked(
                     nodep, VN_IS(nodep, AssertIntrinsic) ? "'$cast' failed." : "'assert' failed.");
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->v3fatalSrc("Unknown node type");
         }
 
@@ -809,334 +809,334 @@ class AssertVisitor final : public VNVisitor {
         m_assertp = nodep;
         iterate(nodep->propp());
 
-        AstNode* propExprp;
-        AstNodeExpr* disablep = nullptr;
-        AstNodeExpr* matchCountp = nullptr;
-        if (AstPropSpec* const specp = VN_CAST(nodep->propp(), PropSpec)) {
+        Ast_കണ്ണി* propExprp;
+        Ast_കണ്ണി_വ്യഞ്ജകം* disablep = nullptr;
+        Ast_കണ്ണി_വ്യഞ്ജകം* matchCountp = nullptr;
+        എങ്കിൽ (AstPropSpec* സ്ഥിരം specp = VN_CAST(nodep->propp(), PropSpec)) {
             propExprp = specp->propp()->unlinkFrBack();
-            if (specp->disablep()) disablep = specp->disablep()->unlinkFrBack();
+            എങ്കിൽ (specp->disablep()) disablep = specp->disablep()->unlinkFrBack();
             matchCountp = specp->matchCountp();
-        } else {
+        } അല്ലെങ്കിൽ {
             propExprp = nodep->propp()->unlinkFrBack();
         }
-        FileLine* const flp = nodep->fileline();
-        bool passspAlreadyGated = false;
-        if (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
-        if (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
+        File_വരി* സ്ഥിരം flp = nodep->fileline();
+        തർക്കം passspAlreadyGated = അസത്യം;
+        എങ്കിൽ (passsp && VN_IS(passsp, If)) passspAlreadyGated = VN_AS(passsp, If)->user1();
+        എങ്കിൽ (passsp && !passspGated && !passspAlreadyGated && !VN_IS(propExprp, PExpr)
             && !seqEvent) {
             passsp = newIfAssertPassOn(passsp, nodep->directive(), nodep->userType(),
-                                       /*vacuous=*/false);
+                                       /*vacuous=*/അസത്യം);
         }
-        if (failsp && !VN_IS(propExprp, PExpr)) {
+        എങ്കിൽ (failsp && !VN_IS(propExprp, PExpr)) {
             failsp = newIfAssertFailOn(failsp, nodep->directive(), nodep->userType());
         }
-        if (coverp && matchCountp && passsp) {
+        എങ്കിൽ (coverp && matchCountp && passsp) {
             // Convert the match count into a loop that decrements a temporary variable until it
             // reaches zero.
             matchCountp->unlinkFrBack();
-            AstVar* const remainingp = new AstVar{
-                flp, VVarType::MODULETEMP, m_matchCountNames.get(""), matchCountp->dtypep()};
+            AstVar* സ്ഥിരം remainingp = പുതിയ AstVar{
+                flp, VVarType::MODULETEMP, m_match_എണ്ണം_Names.get(""), matchCountp->dtypep()};
             remainingp->lifetime(VLifetime::STATIC_EXPLICIT);
             m_modp->addStmtsp(remainingp);
-            AstNode* const replaysp
-                = new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE}, matchCountp};
-            AstLoop* const loopp = new AstLoop{flp};
+            Ast_കണ്ണി* സ്ഥിരം replaysp
+                = പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, remainingp, VAccess::WRITE}, matchCountp};
+            AstLoop* സ്ഥിരം loopp = പുതിയ AstLoop{flp};
             loopp->addStmtsp(
-                new AstLoopTest{flp, loopp, new AstVarRef{flp, remainingp, VAccess::READ}});
+                പുതിയ AstLoopTest{flp, loopp, പുതിയ AstVarRef{flp, remainingp, VAccess::READ}});
             loopp->addStmtsp(passsp);
             loopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, remainingp, VAccess::WRITE},
-                              new AstSub{flp, new AstVarRef{flp, remainingp, VAccess::READ},
-                                         new AstConst{flp, AstConst::WidthedValue{},
+                പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, remainingp, VAccess::WRITE},
+                              പുതിയ AstSub{flp, പുതിയ AstVarRef{flp, remainingp, VAccess::READ},
+                                         പുതിയ AstConst{flp, AstConst::Widthed_മൂല്യം{},
                                                       remainingp->dtypep()->width(), 1}}});
             replaysp->addNext(loopp);
             passsp = replaysp;
         }
-        AstNode* bodysp = assertBody(nodep, propExprp, passsp, failsp);
-        if (disablep) bodysp = new AstIf{flp, new AstLogNot{flp, disablep}, bodysp};
+        Ast_കണ്ണി* bodysp = assertBody(nodep, propExprp, passsp, failsp);
+        എങ്കിൽ (disablep) bodysp = പുതിയ AstIf{flp, പുതിയ AstLogNot{flp, disablep}, bodysp};
         // Add assertOn check last, for better combining
-        if (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
-        if (sentreep) bodysp = new AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
+        എങ്കിൽ (!seqEvent) bodysp = newIfAssertOn(bodysp, nodep->directive(), nodep->userType());
+        എങ്കിൽ (sentreep) bodysp = പുതിയ AstAlways{flp, VAlwaysKwd::ALWAYS, sentreep, bodysp};
 
-        if (passsp && !passsp->backp()) VL_DO_DANGLING(pushDeletep(passsp), passsp);
-        if (failsp && !failsp->backp()) VL_DO_DANGLING(pushDeletep(failsp), failsp);
+        എങ്കിൽ (passsp && !passsp->backp()) VL_DO_DANGLING(തള്ളുക_Deletep(passsp), passsp);
+        എങ്കിൽ (failsp && !failsp->backp()) VL_DO_DANGLING(തള്ളുക_Deletep(failsp), failsp);
 
         // Install it
-        if (selfDestruct) {
+        എങ്കിൽ (selfDestruct) {
             // Delete it after making the tree.  This way we can tell the user
             // if it wasn't constructed nicely or has other errors without needing --coverage.
-            VL_DO_DANGLING(bodysp->deleteTree(), bodysp);
+            VL_DO_DANGLING(bodysp->delete_വൃക്ഷം(), bodysp);
             nodep->unlinkFrBack();
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->replaceWith(bodysp);
         }
         // Bye
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
 
-    bool isEmptyStmt(AstNode* nodep) {
-        if (!nodep) return true;
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->declsp()) return false;
-            for (AstNode* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (!isEmptyStmt(stmtp)) return false;
+    തർക്കം isEmptyStmt(Ast_കണ്ണി* nodep) {
+        എങ്കിൽ (!nodep) തിരികെ സത്യം;
+        എങ്കിൽ (AstBegin* സ്ഥിരം beginp = VN_CAST(nodep, Begin)) {
+            എങ്കിൽ (beginp->declsp()) തിരികെ അസത്യം;
+            വേണ്ടി (Ast_കണ്ണി* stmtp = beginp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                എങ്കിൽ (!isEmptyStmt(stmtp)) തിരികെ അസത്യം;
             }
-            return true;
+            തിരികെ സത്യം;
         }
-        return false;
+        തിരികെ അസത്യം;
     }
 
     // VISITORS
-    void visit(AstIf* nodep) override {
-        if (!nodep->user1SetOnce()) {
-            if (nodep->uniquePragma() || nodep->unique0Pragma()) {
-                const AstNodeIf* ifp = nodep;
-                AstNodeExpr* propp = nullptr;
-                bool hasDefaultElse = false;
-                do {
+    ശൂന്യം visit(AstIf* nodep) override {
+        എങ്കിൽ (!nodep->user1SetOnce()) {
+            എങ്കിൽ (nodep->uniquePragma() || nodep->unique0Pragma()) {
+                സ്ഥിരം Ast_കണ്ണി_If* ifp = nodep;
+                Ast_കണ്ണി_വ്യഞ്ജകം* propp = nullptr;
+                തർക്കം hasDefaultElse = അസത്യം;
+                ചെയ്യുക {
                     // If this statement ends with 'else if', then nextIf will point to the
                     // nextIf statement.  Otherwise it will be null.
-                    const AstNodeIf* const nextifp = dynamic_cast<AstNodeIf*>(ifp->elsesp());
+                    സ്ഥിരം Ast_കണ്ണി_If* സ്ഥിരം nextifp = dynamic_cast<Ast_കണ്ണി_If*>(ifp->elsesp());
                     iterateAndNextNull(ifp->condp());
 
                     // Recurse into the true case.
                     iterateAndNextNull(ifp->thensp());
 
                     // If the last else is not an else if, recurse into that too.
-                    if (ifp->elsesp() && !nextifp) {  //
+                    എങ്കിൽ (ifp->elsesp() && !nextifp) {  //
                         iterateAndNextNull(ifp->elsesp());
                     }
 
                     // Build a bitmask of the true predicates
-                    AstNodeExpr* const predp = ifp->condp()->cloneTreePure(false);
-                    if (propp) {
-                        propp = new AstConcat{nodep->fileline(), predp, propp};
-                    } else {
+                    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം predp = ifp->condp()->clone_വൃക്ഷം_Pure(അസത്യം);
+                    എങ്കിൽ (propp) {
+                        propp = പുതിയ AstConcat{nodep->fileline(), predp, propp};
+                    } അല്ലെങ്കിൽ {
                         propp = predp;
                     }
 
                     // Record if this ends with an 'else' that does not have an if
-                    if (ifp->elsesp() && !nextifp) hasDefaultElse = true;
+                    എങ്കിൽ (ifp->elsesp() && !nextifp) hasDefaultElse = സത്യം;
 
                     ifp = nextifp;
-                } while (ifp);
+                } ആകുമ്പോൾ (ifp);
 
-                const bool allow_none = nodep->unique0Pragma();
+                സ്ഥിരം തർക്കം allow_none = nodep->unique0Pragma();
 
                 // Empty case means no property
-                if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                എങ്കിൽ (!propp) propp = പുതിയ AstConst{nodep->fileline(), AstConst::BitFalse{}};
 
                 // Note: if this ends with an 'else', then we don't need to validate that one of
                 // the predicates evaluates to true.
-                AstNodeExpr* const ohot
+                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം ohot
                     = ((allow_none || hasDefaultElse)
-                           ? static_cast<AstNodeExpr*>(new AstOneHot0{nodep->fileline(), propp})
-                           : static_cast<AstNodeExpr*>(new AstOneHot{nodep->fileline(), propp}));
-                const VAssertType assertType
+                           ? static_cast<Ast_കണ്ണി_വ്യഞ്ജകം*>(പുതിയ AstOneHot0{nodep->fileline(), propp})
+                           : static_cast<Ast_കണ്ണി_വ്യഞ്ജകം*>(പുതിയ AstOneHot{nodep->fileline(), propp}));
+                സ്ഥിരം VAssertType assertType
                     = nodep->uniquePragma() ? VAssertType::UNIQUE : VAssertType::UNIQUE0;
                 // Move, not clone, as the branches might declare referenced variables
                 VNRelinker relinker;
                 nodep->unlinkFrBack(&relinker);
-                AstIf* const checkifp
-                    = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot},
+                AstIf* സ്ഥിരം checkifp
+                    = പുതിയ AstIf{nodep->fileline(), പുതിയ AstLogNot{nodep->fileline(), ohot},
                                 newFireAssert(nodep, VAssertDirectiveType::VIOLATION_IF,
                                               assertType, "'unique if' statement violated"),
                                 nodep};
-                checkifp->isBoundsCheck(true);  // To avoid LATCH warning
+                checkifp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
                 checkifp->branchPred(VBranchPred::BP_UNLIKELY);
                 relinker.relink(checkifp);
-                return;
+                തിരികെ;
             }
         }
 
         iterateChildren(nodep);
 
-        if (nodep->user2()) {
+        എങ്കിൽ (nodep->user2()) {
             // Combine consecutive assertOn checks if possible
-            if (AstIf* const backp = VN_CAST(nodep->backp(), If)) {
-                if (backp->nextp() == nodep  //
+            എങ്കിൽ (AstIf* സ്ഥിരം backp = VN_CAST(nodep->backp(), If)) {
+                എങ്കിൽ (backp->nextp() == nodep  //
                     && backp->user2()  //
-                    && backp->condp()->sameTree(nodep->condp())) {
+                    && backp->condp()->same_വൃക്ഷം(nodep->condp())) {
                     ++m_statAssertOnCombined;
                     backp->addThensp(nodep->thensp()->unlinkFrBackWithNext());
                     nodep->unlinkFrBack();
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
+                    തിരികെ;
                 }
             }
             // Combine nested assertOn checks if possible
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp  //
+            എങ്കിൽ (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
+                AstIf* സ്ഥിരം checkp = VN_CAST(nodep->thensp(), If);
+                എങ്കിൽ (checkp  //
                     && checkp->user2()  //
-                    && checkp->condp()->sameTree(nodep->condp())) {
+                    && checkp->condp()->same_വൃക്ഷം(nodep->condp())) {
                     ++m_statAssertOnCombined;
                     nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
-                    VL_DO_DANGLING(pushDeletep(checkp->unlinkFrBack()), checkp);
-                    return;
+                    VL_DO_DANGLING(തള്ളുക_Deletep(checkp->unlinkFrBack()), checkp);
+                    തിരികെ;
                 }
             }
-            return;
+            തിരികെ;
         }
 
         // Swap assertOn check with single statement 'if' statement to bubble up for combining
         // Note we can't just swap the conditions as they two Ifs have different flags,
         // so swapping the Ifs themeselves then swapping back the bodies.
-        if (nodep->condp()->isPure()) {
-            if (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
-                AstIf* const checkp = VN_CAST(nodep->thensp(), If);
-                if (checkp && checkp->user2()) {
+        എങ്കിൽ (nodep->condp()->isPure()) {
+            എങ്കിൽ (nodep->thensp() && !nodep->thensp()->nextp() && isEmptyStmt(nodep->elsesp())) {
+                AstIf* സ്ഥിരം checkp = VN_CAST(nodep->thensp(), If);
+                എങ്കിൽ (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
                     nodep->replaceWith(checkp->unlinkFrBack());
                     nodep->addThensp(checkp->thensp()->unlinkFrBackWithNext());
                     checkp->addThensp(nodep);
-                    return;
+                    തിരികെ;
                 }
             }
-            if (nodep->elsesp() && !nodep->elsesp()->nextp() && isEmptyStmt(nodep->thensp())) {
-                AstIf* const checkp = VN_CAST(nodep->elsesp(), If);
-                if (checkp && checkp->user2()) {
+            എങ്കിൽ (nodep->elsesp() && !nodep->elsesp()->nextp() && isEmptyStmt(nodep->thensp())) {
+                AstIf* സ്ഥിരം checkp = VN_CAST(nodep->elsesp(), If);
+                എങ്കിൽ (checkp && checkp->user2()) {
                     ++m_statAssertOnHoisted;
                     nodep->replaceWith(checkp->unlinkFrBack());
                     nodep->addElsesp(checkp->thensp()->unlinkFrBackWithNext());
                     checkp->addThensp(nodep);
-                    return;
+                    തിരികെ;
                 }
             }
         }
     }
 
     //========== Case assertions
-    void visit(AstCase* nodep) override {
+    ശൂന്യം visit(AstCase* nodep) override {
         // Introduce temporary variable for AstCase if needed - it is done here and not in V3Case
         // because this phase is before V3Scope and V3Case is not. Doing it before V3Scope ensures
         // that V3Scope will take care of a scope creation
         // We also need to do it before V3Begin, co that pragmas like `unique0` also work correctly
-        if (!nodep->exprp()->isPure()) {
+        എങ്കിൽ (!nodep->exprp()->isPure()) {
             ++m_statLiftedCaseExprs;
-            FileLine* const fl = nodep->exprp()->fileline();
-            AstVar* const varp = new AstVar{fl, VVarType::BLOCKTEMP, m_caseTempNames.get(nodep),
+            File_വരി* സ്ഥിരം fl = nodep->exprp()->fileline();
+            AstVar* സ്ഥിരം varp = പുതിയ AstVar{fl, VVarType::BLOCKTEMP, m_caseTempNames.get(nodep),
                                             nodep->exprp()->dtypep()};
-            AstNodeExpr* const origp = nodep->exprp()->unlinkFrBack();
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം origp = nodep->exprp()->unlinkFrBack();
             nodep->addHereThisAsNext(
-                new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, origp});
-            nodep->exprp(new AstVarRef{fl, varp, VAccess::READ});
-            if (m_ftaskp) {
-                varp->funcLocal(true);
+                പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE}, origp});
+            nodep->exprp(പുതിയ AstVarRef{fl, varp, VAccess::READ});
+            എങ്കിൽ (m_ftaskp) {
+                varp->funcLocal(സത്യം);
                 varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                 m_ftaskp->prependStmtsp(varp);
-            } else {
+            } അല്ലെങ്കിൽ {
                 m_modp->prependStmtsp(varp);
             }
-            VIsCached::clearCacheTree();
+            VIsCached::clear_Cache_വൃക്ഷം();
         }
         iterateChildren(nodep);
-        if (!nodep->user1SetOnce()) {
-            bool has_default = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+        എങ്കിൽ (!nodep->user1SetOnce()) {
+            തർക്കം has_default = അസത്യം;
+            വേണ്ടി (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (itemp->isDefault()) has_default = true;
+                എങ്കിൽ (itemp->isDefault()) has_default = സത്യം;
             }
-            const AstNodeDType* exprDtypep = nodep->exprp()->dtypep()->skipRefp();
+            സ്ഥിരം Ast_കണ്ണി_DType* വ്യഞ്ജകം_Dtypep = nodep->exprp()->dtypep()->skipRefp();
 
             VAssertType assertType = VAssertType::INTERNAL;
-            if (nodep->priorityPragma()) {
+            എങ്കിൽ (nodep->priorityPragma()) {
                 assertType = VAssertType::PRIORITY;
-            } else if (nodep->uniquePragma()) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (nodep->uniquePragma()) {
                 assertType = VAssertType::UNIQUE;
-            } else if (nodep->unique0Pragma()) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (nodep->unique0Pragma()) {
                 assertType = VAssertType::UNIQUE0;
             }
 
             string valFmt;
-            if (exprDtypep->isIntegralOrPacked())
-                valFmt = " for '" + cvtToStr(exprDtypep->widthMin()) + "'h%X'";
-            if (nodep->fullPragma() || nodep->priorityPragma()) {
+            എങ്കിൽ (വ്യഞ്ജകം_Dtypep->isIntegralOrPacked())
+                valFmt = " for '" + cvtToStr(വ്യഞ്ജകം_Dtypep->widthMin()) + "'h%X'";
+            എങ്കിൽ (nodep->fullPragma() || nodep->priorityPragma()) {
                 // Need to add a default if there isn't one already
                 ++m_statAsFull;
-                if (!has_default) {
-                    nodep->addItemsp(new AstCaseItem{
+                എങ്കിൽ (!has_default) {
+                    nodep->addItemsp(പുതിയ AstCaseItem{
                         nodep->fileline(), nullptr /*DEFAULT*/,
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       nodep->pragmaString() + ", but non-match found" + valFmt,
                                       valFmt.empty() ? nullptr
-                                                     : nodep->exprp()->cloneTreePure(false))});
+                                                     : nodep->exprp()->clone_വൃക്ഷം_Pure(അസത്യം))});
                 }
             }
-            if (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
+            എങ്കിൽ (nodep->parallelPragma() || nodep->uniquePragma() || nodep->unique0Pragma()) {
                 // Need to check that one, and only one of the case items match at any moment
                 // If there's a default, we allow none to match, else exactly one must match
                 ++m_statAsFull;
-                if (!has_default && !nodep->itemsp()) {
+                എങ്കിൽ (!has_default && !nodep->itemsp()) {
                     // Not parallel, but harmlessly so.
-                } else {
-                    AstNodeExpr* propp = nullptr;
-                    for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+                } അല്ലെങ്കിൽ {
+                    Ast_കണ്ണി_വ്യഞ്ജകം* propp = nullptr;
+                    വേണ്ടി (AstCaseItem* itemp = nodep->itemsp(); itemp;
                          itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                        AstNodeExpr* itembitp = nullptr;
-                        for (AstNodeExpr* icondp = itemp->condsp(); icondp;
-                             icondp = VN_AS(icondp->nextp(), NodeExpr)) {
-                            AstNodeExpr* onep;
-                            if (AstInsideRange* const rcondp = VN_CAST(icondp, InsideRange)) {
+                        Ast_കണ്ണി_വ്യഞ്ജകം* itembitp = nullptr;
+                        വേണ്ടി (Ast_കണ്ണി_വ്യഞ്ജകം* icondp = itemp->condsp(); icondp;
+                             icondp = VN_AS(icondp->nextp(), കണ്ണി_വ്യഞ്ജകം)) {
+                            Ast_കണ്ണി_വ്യഞ്ജകം* onep;
+                            എങ്കിൽ (AstInsideRange* സ്ഥിരം rcondp = VN_CAST(icondp, InsideRange)) {
                                 onep = rcondp->newAndFromInside(
-                                    nodep->exprp()->cloneTreePure(true),
-                                    rcondp->lhsp()->cloneTreePure(true),
-                                    rcondp->rhsp()->cloneTreePure(true));
-                            } else if (nodep->casex() || nodep->casez() || nodep->caseInside()) {
+                                    nodep->exprp()->clone_വൃക്ഷം_Pure(സത്യം),
+                                    rcondp->lhsp()->clone_വൃക്ഷം_Pure(സത്യം),
+                                    rcondp->rhsp()->clone_വൃക്ഷം_Pure(സത്യം));
+                            } അല്ലെങ്കിൽ എങ്കിൽ (nodep->casex() || nodep->casez() || nodep->caseInside()) {
                                 onep = AstEqWild::newTyped(itemp->fileline(),
-                                                           nodep->exprp()->cloneTreePure(false),
-                                                           icondp->cloneTreePure(false));
-                            } else {
+                                                           nodep->exprp()->clone_വൃക്ഷം_Pure(അസത്യം),
+                                                           icondp->clone_വൃക്ഷം_Pure(അസത്യം));
+                            } അല്ലെങ്കിൽ {
                                 onep = AstEq::newTyped(icondp->fileline(),
-                                                       nodep->exprp()->cloneTreePure(false),
-                                                       icondp->cloneTreePure(false));
+                                                       nodep->exprp()->clone_വൃക്ഷം_Pure(അസത്യം),
+                                                       icondp->clone_വൃക്ഷം_Pure(അസത്യം));
                             }
                             // OR together all conditions within the same case item
-                            if (onep) {
-                                if (itembitp) {
-                                    itembitp = new AstOr{icondp->fileline(), onep, itembitp};
-                                } else {
+                            എങ്കിൽ (onep) {
+                                എങ്കിൽ (itembitp) {
+                                    itembitp = പുതിയ AstOr{icondp->fileline(), onep, itembitp};
+                                } അല്ലെങ്കിൽ {
                                     itembitp = onep;
                                 }
                             }
                         }
-                        if (itembitp) {
-                            if (propp) {
-                                propp = new AstConcat{itemp->fileline(), itembitp, propp};
-                            } else {
+                        എങ്കിൽ (itembitp) {
+                            എങ്കിൽ (propp) {
+                                propp = പുതിയ AstConcat{itemp->fileline(), itembitp, propp};
+                            } അല്ലെങ്കിൽ {
                                 propp = itembitp;
                             }
                         }
                     }
                     // Empty case means no property
-                    if (!propp) propp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-                    const bool allow_none = has_default || nodep->unique0Pragma();
+                    എങ്കിൽ (!propp) propp = പുതിയ AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                    സ്ഥിരം തർക്കം allow_none = has_default || nodep->unique0Pragma();
                     // The following assertion looks as below.
                     // if (!$onehot(propp)) begin
                     //     if (propp == '0) begin if (!allow_none) $error("none match"); end
                     //     else $error("multiple match");
                     // end
-                    AstNodeExpr* const ohot = new AstOneHot{nodep->fileline(), propp};
-                    AstConst* const zero = new AstConst{
-                        nodep->fileline(), AstConst::WidthedValue{}, propp->width(), 0};
-                    AstIf* const ohotIfp
-                        = new AstIf{nodep->fileline(), new AstLogNot{nodep->fileline(), ohot}};
-                    AstIf* const zeroIfp = new AstIf{
+                    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം ohot = പുതിയ AstOneHot{nodep->fileline(), propp};
+                    AstConst* സ്ഥിരം zero = പുതിയ AstConst{
+                        nodep->fileline(), AstConst::Widthed_മൂല്യം{}, propp->width(), 0};
+                    AstIf* സ്ഥിരം ohotIfp
+                        = പുതിയ AstIf{nodep->fileline(), പുതിയ AstLogNot{nodep->fileline(), ohot}};
+                    AstIf* സ്ഥിരം zeroIfp = പുതിയ AstIf{
                         nodep->fileline(),
-                        new AstEq{nodep->fileline(), propp->cloneTreePure(false), zero}};
-                    AstNodeExpr* const exprp = nodep->exprp();
-                    const string pragmaStr = nodep->pragmaString();
-                    if (!allow_none)
+                        പുതിയ AstEq{nodep->fileline(), propp->clone_വൃക്ഷം_Pure(അസത്യം), zero}};
+                    Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp = nodep->exprp();
+                    സ്ഥിരം string pragmaStr = nodep->pragmaString();
+                    എങ്കിൽ (!allow_none)
                         zeroIfp->addThensp(
                             newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                           pragmaStr + ", but none matched" + valFmt,
-                                          valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
+                                          valFmt.empty() ? nullptr : exprp->clone_വൃക്ഷം_Pure(അസത്യം)));
                     zeroIfp->addElsesp(
                         newFireAssert(nodep, VAssertDirectiveType::VIOLATION_CASE, assertType,
                                       pragmaStr + ", but multiple matches found" + valFmt,
-                                      valFmt.empty() ? nullptr : exprp->cloneTreePure(false)));
+                                      valFmt.empty() ? nullptr : exprp->clone_വൃക്ഷം_Pure(അസത്യം)));
                     ohotIfp->addThensp(zeroIfp);
-                    ohotIfp->isBoundsCheck(true);  // To avoid LATCH warning
+                    ohotIfp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
                     ohotIfp->branchPred(VBranchPred::BP_UNLIKELY);
                     nodep->addNotParallelp(ohotIfp);
                 }
@@ -1144,78 +1144,78 @@ class AssertVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstFuture* nodep) override {
+    ശൂന്യം visit(AstFuture* nodep) override {
         nodep->v3error("Future sampled value function called outside property or sequence "
                        "expression (IEEE 16.9.4)");
-        nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(പുതിയ AstConst{nodep->fileline(), 0});
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
 
     //========== Past
-    void visit(AstPast* nodep) override {
-        if (!nodep->propertyTiming()) {
-            nodep->initp(nodep->exprp()->cloneTreePure(false));
-            { DefaultSampledValueVisitor{nodep->initp()}; }
+    ശൂന്യം visit(AstPast* nodep) override {
+        എങ്കിൽ (!nodep->propertyTiming()) {
+            nodep->initp(nodep->exprp()->clone_വൃക്ഷം_Pure(അസത്യം));
+            { Default_Sampled_മൂല്യം_Visitor{nodep->initp()}; }
         }
-        AstNodeExpr* const initp = nodep->initp() ? nodep->initp()->unlinkFrBack() : nullptr;
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം initp = nodep->initp() ? nodep->initp()->unlinkFrBack() : nullptr;
         iterateChildren(nodep);
         uint32_t ticks = 1;
-        if (nodep->ticksp()) {
+        എങ്കിൽ (nodep->ticksp()) {
             UASSERT_OBJ(VN_IS(nodep->ticksp(), Const), nodep,
                         "Expected constant ticks, checked in V3Width");
             ticks = VN_AS(nodep->ticksp(), Const)->toUInt();
         }
         UASSERT_OBJ(ticks >= 1, nodep, "0 tick should have been checked in V3Width");
-        AstNodeExpr* const exprp = newSampledExpr(nodep->exprp()->unlinkFrBack());
-        AstSenTree* const senTreep = nodep->sentreep()->unlinkFrBack();
-        AstNodeExpr* inp = nullptr;
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp = new_Sampled_വ്യഞ്ജകം(nodep->exprp()->unlinkFrBack());
+        Ast_Sen_വൃക്ഷം* സ്ഥിരം senTreep = nodep->sentreep()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* inp = nullptr;
         // Deliberately emitted for every ftask $past; calls outside final take the normal stage
-        if (VN_IS(m_procedurep, Final) || m_ftaskp) {
+        എങ്കിൽ (VN_IS(m_procedurep, Final) || m_ftaskp) {
             // A sampling-tick finish reads one stage deeper (IEEE 1800-2023 16.9.3).
-            FileLine* const flp = nodep->fileline();
-            AstAlways* const alwaysp
-                = getDelayedAlways(exprp, initp ? initp->cloneTreePure(false) : nullptr, senTreep);
-            AstNodeExpr* const betweenTicksp = pastValueRef(alwaysp, flp, ticks, initp);
-            AstNodeExpr* const onTickp = pastValueRef(alwaysp, flp, ticks + 1, initp);
-            if (initp) VL_DO_DANGLING(pushDeletep(initp), initp);
-            AstNodeExpr* const onTickCondp = new AstLogAnd{
-                flp, new AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
-                new AstEq{flp, new AstVarRef{flp, getPastTickTimeVar(alwaysp), VAccess::READ},
-                          new AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
-            AstCond* const condp = new AstCond{flp, onTickCondp, onTickp, betweenTicksp};
+            File_വരി* സ്ഥിരം flp = nodep->fileline();
+            AstAlways* സ്ഥിരം alwaysp
+                = getDelayedAlways(exprp, initp ? initp->clone_വൃക്ഷം_Pure(അസത്യം) : nullptr, senTreep);
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം betweenTicksp = past_മൂല്യം_Ref(alwaysp, flp, ticks, initp);
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം onTickp = past_മൂല്യം_Ref(alwaysp, flp, ticks + 1, initp);
+            എങ്കിൽ (initp) VL_DO_DANGLING(തള്ളുക_Deletep(initp), initp);
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം onTickCondp = പുതിയ AstLogAnd{
+                flp, പുതിയ AstCExpr{flp, "vlSymsp->_vm_contextp__->executingFinal()", 1},
+                പുതിയ AstEq{flp, പുതിയ AstVarRef{flp, getPastTickTimeVar(alwaysp), VAccess::READ},
+                          പുതിയ AstCExpr{flp, "vlSymsp->_vm_contextp__->finishPendingTime()", 64}}};
+            AstCond* സ്ഥിരം condp = പുതിയ AstCond{flp, onTickCondp, onTickp, betweenTicksp};
             condp->dtypeFrom(onTickp);
             inp = condp;
-        } else {
-            inp = getPastValue(exprp, initp, senTreep, ticks);
+        } അല്ലെങ്കിൽ {
+            inp = get_Past_മൂല്യം(exprp, initp, senTreep, ticks);
         }
         nodep->replaceWith(inp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
 
     //========== Move $sampled down to read-only variables
-    void visit(AstSampled* nodep) override {
-        if (nodep->user1()) return;
+    ശൂന്യം visit(AstSampled* nodep) override {
+        എങ്കിൽ (nodep->user1()) തിരികെ;
         VL_RESTORER(m_inSampled);
         {
-            m_inSampled = true;
+            m_inSampled = സത്യം;
             iterateChildren(nodep);
         }
-        if (nodep->exprp()) {
+        എങ്കിൽ (nodep->exprp()) {
             nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_inSampled && !nodep->user2() && !nodep->varp()->isTemp()) {
-            if (!nodep->access().isReadOnly()) {
+    ശൂന്യം visit(Ast_കണ്ണി_Var_Ref* nodep) override {
+        എങ്കിൽ (m_inSampled && !nodep->user2() && !nodep->varp()->isTemp()) {
+            എങ്കിൽ (!nodep->access().isReadOnly()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Write to variable in sampled expression");
-            } else {
+            } അല്ലെങ്കിൽ {
                 VNRelinker relinkHandle;
                 nodep->unlinkFrBack(&relinkHandle);
-                AstSampled* const newp = newSampledExpr(nodep);
+                AstSampled* സ്ഥിരം newp = new_Sampled_വ്യഞ്ജകം(nodep);
                 relinkHandle.relink(newp);
                 newp->user1(1);
                 v3Global.setHasSampled();
@@ -1223,243 +1223,243 @@ class AssertVisitor final : public VNVisitor {
         }
     }
     // Don't sample sensitivities
-    void visit(AstSenItem* nodep) override {
+    ശൂന്യം visit(AstSenItem* nodep) override {
         VL_RESTORER(m_inSampled);
-        m_inSampled = false;
+        m_inSampled = അസത്യം;
         iterateChildren(nodep);
     }
-    void visit(AstPExprClause* nodep) override {
-        AstNode* stmtsp = nullptr;
-        if (nodep->pass() && m_passsp) {
+    ശൂന്യം visit(AstPExprClause* nodep) override {
+        Ast_കണ്ണി* stmtsp = nullptr;
+        എങ്കിൽ (nodep->pass() && m_passsp) {
             // Cover adds COVERINC by AstNode::addNext, thus need to clone next too.
-            stmtsp = m_passsp->cloneTree(true);
+            stmtsp = m_passsp->clone_വൃക്ഷം(സത്യം);
             stmtsp = newIfAssertPassOn(stmtsp, m_assertp->directive(), m_assertp->userType(),
                                        nodep->vacuous());
-        } else if (!nodep->pass() && m_failsp) {
-            stmtsp = m_failsp->cloneTree(true);
+        } അല്ലെങ്കിൽ എങ്കിൽ (!nodep->pass() && m_failsp) {
+            stmtsp = m_failsp->clone_വൃക്ഷം(സത്യം);
             stmtsp = newIfAssertFailOn(stmtsp, m_assertp->directive(), m_assertp->userType());
         }
-        if (stmtsp) {
-            stmtsp->foreachAndNext([](AstNodeVarRef* const refp) {
+        എങ്കിൽ (stmtsp) {
+            stmtsp->foreachAndNext([](Ast_കണ്ണി_Var_Ref* സ്ഥിരം refp) {
                 // References inside action blocks shouldn't be implicitly sampled
                 // m_passsp/m_failsp have been already visited once and refs explicitly sampled
                 // are handled already
                 refp->user2(1);
             });
             nodep->replaceWith(stmtsp);
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstPExpr* nodep) override {
-        if (m_inRestrict) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+    ശൂന്യം visit(AstPExpr* nodep) override {
+        എങ്കിൽ (m_inRestrict) {
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
+        } അല്ലെങ്കിൽ {
             iterateChildren(nodep);
         }
     }
 
     //========== Statements
-    void visit(AstDisplay* nodep) override {
+    ശൂന്യം visit(AstDisplay* nodep) override {
         iterateChildren(nodep);
         // Replace the special types with standard text
-        if (nodep->displayType() == VDisplayType::DT_INFO) {
+        എങ്കിൽ (nodep->displayType() == VDisplayType::DT_INFO) {
             replaceDisplay(nodep, "-Info");
-        } else if (nodep->displayType() == VDisplayType::DT_WARNING) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->displayType() == VDisplayType::DT_WARNING) {
             replaceDisplay(nodep, "%%Warning");
-        } else if (nodep->displayType() == VDisplayType::DT_ERROR) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->displayType() == VDisplayType::DT_ERROR) {
             replaceDisplay(nodep, "%%Error");
-        } else if (nodep->displayType() == VDisplayType::DT_FATAL) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->displayType() == VDisplayType::DT_FATAL) {
             replaceDisplay(nodep, "%%Fatal");
-        } else if (nodep->displayType() == VDisplayType::DT_MONITOR) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->displayType() == VDisplayType::DT_MONITOR) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
-            FileLine* const fl = nodep->fileline();
+            File_വരി* സ്ഥിരം fl = nodep->fileline();
 
             AstSenItem* monSenItemsp = nullptr;
-            if (AstNode* const monExprsp = nodep->fmtp()->exprsp()) {
+            എങ്കിൽ (Ast_കണ്ണി* സ്ഥിരം monExprsp = nodep->fmtp()->exprsp()) {
                 monExprsp->foreachAndNext([&](AstVarRef* varrefp) {
-                    AstSenItem* const senItemp
-                        = new AstSenItem{fl, VEdgeType::ET_CHANGED,
+                    AstSenItem* സ്ഥിരം senItemp
+                        = പുതിയ AstSenItem{fl, VEdgeType::ET_CHANGED,
                                          // Clone so get VarRef or VarXRef as needed
-                                         varrefp->cloneTree(false)};
-                    monSenItemsp = AstNode::addNextNull(monSenItemsp, senItemp);
+                                         varrefp->clone_വൃക്ഷം(അസത്യം)};
+                    monSenItemsp = Ast_കണ്ണി::addNextNull(monSenItemsp, senItemp);
                 });
             }
 
-            AstSenTree* const monSenTree = new AstSenTree{fl, monSenItemsp};
-            const auto monNum = ++m_monitorNum;
+            Ast_Sen_വൃക്ഷം* സ്ഥിരം mon_Sen_വൃക്ഷം = പുതിയ Ast_Sen_വൃക്ഷം{fl, monSenItemsp};
+            സ്ഥിരം auto mon_അക്കം = ++m_monitor_അക്കം;
             // Where $monitor was we do "__VmonitorNum = N;"
-            AstAssign* const newsetp = new AstAssign{
-                fl, newMonitorNumVarRefp(nodep, VAccess::WRITE), new AstConst{fl, monNum}};
+            AstAssign* സ്ഥിരം newsetp = പുതിയ AstAssign{
+                fl, new_Monitor_അക്കം_Var_Refp(nodep, VAccess::WRITE), പുതിയ AstConst{fl, mon_അക്കം}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__VmonitorOn && __VmonitorNum==N) $display(...);"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{
+            Ast_കണ്ണി* സ്ഥിരം stmtsp = nodep;
+            AstIf* സ്ഥിരം ifp = പുതിയ AstIf{
                 fl,
-                new AstLogAnd{fl, new AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
-                              new AstEq{fl, new AstConst{fl, monNum},
-                                        newMonitorNumVarRefp(nodep, VAccess::READ)}},
+                പുതിയ AstLogAnd{fl, പുതിയ AstLogNot{fl, newMonitorOffVarRefp(nodep, VAccess::READ)},
+                              പുതിയ AstEq{fl, പുതിയ AstConst{fl, mon_അക്കം},
+                                        new_Monitor_അക്കം_Var_Refp(nodep, VAccess::READ)}},
                 stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            ifp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlways{fl, VAlwaysKwd::ALWAYS, monSenTree, ifp};
+            Ast_കണ്ണി* സ്ഥിരം newp = പുതിയ AstAlways{fl, VAlwaysKwd::ALWAYS, mon_Sen_വൃക്ഷം, ifp};
             m_modp->addStmtsp(newp);
-        } else if (nodep->displayType() == VDisplayType::DT_STROBE) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->displayType() == VDisplayType::DT_STROBE) {
             nodep->displayType(VDisplayType::DT_DISPLAY);
             // Need one-shot
-            FileLine* const fl = nodep->fileline();
-            AstVar* const varp
-                = new AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvtToStr(m_modStrobeNum++),
+            File_വരി* സ്ഥിരം fl = nodep->fileline();
+            AstVar* സ്ഥിരം varp
+                = പുതിയ AstVar{fl, VVarType::MODULETEMP, "__Vstrobe" + cvtToStr(m_mod_Strobe_അക്കം++),
                              nodep->findBitDType()};
             m_modp->addStmtsp(varp);
             // Where $strobe was we do "__Vstrobe = '1;"
-            AstAssign* const newsetp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                                     new AstConst{fl, AstConst::BitTrue{}}};
+            AstAssign* സ്ഥിരം newsetp = പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE},
+                                                     പുതിയ AstConst{fl, AstConst::BitTrue{}}};
             nodep->replaceWith(newsetp);
             // Add "always_comb if (__Vstrobe) begin $display(...); __Vstrobe = '0; end"
-            AstNode* const stmtsp = nodep;
-            AstIf* const ifp = new AstIf{fl, new AstVarRef{fl, varp, VAccess::READ}, stmtsp};
-            ifp->isBoundsCheck(true);  // To avoid LATCH warning
+            Ast_കണ്ണി* സ്ഥിരം stmtsp = nodep;
+            AstIf* സ്ഥിരം ifp = പുതിയ AstIf{fl, പുതിയ AstVarRef{fl, varp, VAccess::READ}, stmtsp};
+            ifp->isBoundsCheck(സത്യം);  // To avoid LATCH warning
             ifp->branchPred(VBranchPred::BP_UNLIKELY);
-            AstNode* const newp = new AstAlwaysPostponed{fl, ifp};
-            stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                          new AstConst{fl, AstConst::BitFalse{}}});
+            Ast_കണ്ണി* സ്ഥിരം newp = പുതിയ AstAlwaysPostponed{fl, ifp};
+            stmtsp->addNext(പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, varp, VAccess::WRITE},
+                                          പുതിയ AstConst{fl, AstConst::BitFalse{}}});
             m_modp->addStmtsp(newp);
         }
     }
-    void visit(AstMonitorOff* nodep) override {
-        AstAssign* const newp
-            = new AstAssign{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
-                            new AstConst{nodep->fileline(), AstConst::BitTrue{}, nodep->off()}};
+    ശൂന്യം visit(AstMonitorOff* nodep) override {
+        AstAssign* സ്ഥിരം newp
+            = പുതിയ AstAssign{nodep->fileline(), newMonitorOffVarRefp(nodep, VAccess::WRITE),
+                            പുതിയ AstConst{nodep->fileline(), AstConst::BitTrue{}, nodep->off()}};
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstAssert* nodep) override {  //
+    ശൂന്യം visit(AstAssert* nodep) override {  //
         visitAssertionIterate(nodep, nodep->failsp());
     }
-    void visit(AstAssertCtl* nodep) override {
+    ശൂന്യം visit(AstAssertCtl* nodep) override {
         iterateChildren(nodep);
 
-        bool assertTypeConst = true;
-        if (!nodep->assertTypesp()) {
+        തർക്കം assertTypeConst = സത്യം;
+        എങ്കിൽ (!nodep->assertTypesp()) {
             nodep->assertTypes(VAssertType{ALL_ASSERT_TYPES});
-        } else if (const AstConst* const assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം assertTypesp = VN_CAST(nodep->assertTypesp(), Const)) {
             nodep->assertTypes(VAssertType{assertTypesp->toSInt()});
-        } else {
-            assertTypeConst = false;
+        } അല്ലെങ്കിൽ {
+            assertTypeConst = അസത്യം;
         }
 
-        bool controlTypeConst = false;
-        if (const AstConst* const constp = VN_CAST(nodep->controlTypep(), Const)) {
+        തർക്കം controlTypeConst = അസത്യം;
+        എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം constp = VN_CAST(nodep->controlTypep(), Const)) {
             nodep->ctlType(constp->toSInt());
-            controlTypeConst = true;
+            controlTypeConst = സത്യം;
         }
-        if (controlTypeConst
+        എങ്കിൽ (controlTypeConst
             && (nodep->ctlType() < VAssertCtlType::LOCK
                 || nodep->ctlType() > VAssertCtlType::VACUOUS_OFF)) {
             nodep->unlinkFrBack();
             nodep->v3error("Bad $assertcontrol control_type '"
-                           << cvtToStr(static_cast<int>(nodep->ctlType()))
+                           << cvtToStr(static_cast<പൂർണ്ണസംഖ്യ>(nodep->ctlType()))
                            << "' (IEEE 1800-2023 Table 20-5)");
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
+            തിരികെ;
         }
-        if (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
+        എങ്കിൽ (assertTypeConst && nodep->assertTypes() != ALL_ASSERT_TYPES
             && nodep->assertTypes().containsAny(VAssertType::UNIQUE | VAssertType::UNIQUE0
                                                 | VAssertType::PRIORITY)) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: assert control assertion_type");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
+            തിരികെ;
         }
 
-        bool directiveTypeConst = true;
-        if (!nodep->directiveTypesp()) {
+        തർക്കം directiveTypeConst = സത്യം;
+        എങ്കിൽ (!nodep->directiveTypesp()) {
             nodep->directiveTypes(VAssertDirectiveType::ASSERT | VAssertDirectiveType::ASSUME
                                   | VAssertDirectiveType::COVER);
-        } else if (const AstConst* const directiveTypesp
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം directiveTypesp
                    = VN_CAST(nodep->directiveTypesp(), Const)) {
             nodep->directiveTypes(VAssertDirectiveType{directiveTypesp->toSInt()});
-        } else {
-            directiveTypeConst = false;
+        } അല്ലെങ്കിൽ {
+            directiveTypeConst = അസത്യം;
         }
-        if (!directiveTypeConst) {
+        എങ്കിൽ (!directiveTypeConst) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: non-const assert directive type expression");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
+            തിരികെ;
         }
 
-        FileLine* const fl = nodep->fileline();
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
         UINFO(9, "Generating assertctl for a module: " << m_modp);
-        AstCStmt* const newp = new AstCStmt{fl};
+        AstCStmt* സ്ഥിരം newp = പുതിയ AstCStmt{fl};
         newp->add("vlSymsp->_vm_contextp__->assertCtl(");
         newp->add(nodep->controlTypep()->unlinkFrBack());
         newp->add(", ");
-        if (nodep->assertTypesp()) {
+        എങ്കിൽ (nodep->assertTypesp()) {
             newp->add(nodep->assertTypesp()->unlinkFrBack());
-        } else {
+        } അല്ലെങ്കിൽ {
             newp->add(std::to_string(ALL_ASSERT_TYPES));
         }
         newp->add(", " + std::to_string(nodep->directiveTypes()) + ");\n");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstAssertIntrinsic* nodep) override {  //
+    ശൂന്യം visit(AstAssertIntrinsic* nodep) override {  //
         visitAssertionIterate(nodep, nodep->failsp());
     }
-    void visit(AstCover* nodep) override {  //
+    ശൂന്യം visit(AstCover* nodep) override {  //
         visitAssertionIterate(nodep, nullptr);
     }
-    void visit(AstRestrict* nodep) override {
+    ശൂന്യം visit(AstRestrict* nodep) override {
         VL_RESTORER(m_inRestrict);
-        m_inRestrict = true;
+        m_inRestrict = സത്യം;
         iterateChildren(nodep);
         // IEEE says simulator ignores these
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
-    void visit(AstNodeModule* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modPastNum);
-        VL_RESTORER(m_modStrobeNum);
+        VL_RESTORER(m_mod_Past_അക്കം);
+        VL_RESTORER(m_mod_Strobe_അക്കം);
         VL_RESTORER(m_finalp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DelayedAlwaysp);
         VL_RESTORER_CLEAR(m_modExpr2Sen2DefaultDelayedAlwaysp);
         VL_RESTORER_CLEAR(m_delayedAlways2TickTimep);
         m_modp = nodep;
-        m_modPastNum = 0;
-        m_modStrobeNum = 0;
+        m_mod_Past_അക്കം = 0;
+        m_mod_Strobe_അക്കം = 0;
         m_finalp = nullptr;
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Procedure* nodep) override {
         VL_RESTORER(m_procedurep);
         m_procedurep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    ശൂന്യം visit(AstGenBlock* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    ശൂന്യം visit(AstBegin* nodep) override {
         // This code is needed rather than a visitor in V3Begin,
         // because V3Assert is called before V3Begin
         VL_RESTORER(m_beginp);
         m_beginp = nodep;
         iterateChildren(nodep);
         // If the body is a single assertOn check, bubble it up for combining
-        if (!nodep->declsp()) {
-            if (AstIf* const ifp = VN_CAST(nodep->stmtsp(), If)) {
-                if (ifp->user2() && !ifp->nextp()) {
+        എങ്കിൽ (!nodep->declsp()) {
+            എങ്കിൽ (AstIf* സ്ഥിരം ifp = VN_CAST(nodep->stmtsp(), If)) {
+                എങ്കിൽ (ifp->user2() && !ifp->nextp()) {
                     ++m_statAssertOnHoisted;
                     nodep->replaceWith(ifp->unlinkFrBack());
                     nodep->addStmtsp(ifp->thensp()->unlinkFrBackWithNext());
@@ -1469,9 +1469,9 @@ class AssertVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit AssertVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~AssertVisitor() override {
@@ -1484,15 +1484,15 @@ public:
         V3Stats::addStat("Assertions, assertOn checks hoisted", m_statAssertOnHoisted);
         V3Stats::addStat("Assertions, lifted impure case expressions", m_statLiftedCaseExprs);
         // Rewrites can change purity, e.g. by compiling out assertion statements with --no-assert
-        VIsCached::clearCacheTree();
+        VIsCached::clear_Cache_വൃക്ഷം();
     }
 };
 
 //######################################################################
 // Top Assert class
 
-void V3Assert::assertAll(AstNetlist* nodep) {
+ശൂന്യം V3Assert::assertAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { AssertVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("assert", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("assert", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

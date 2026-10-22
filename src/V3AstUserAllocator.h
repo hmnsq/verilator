@@ -18,102 +18,102 @@
 #ifndef VERILATOR_V3ASTUSERALLOCATOR_H_
 #define VERILATOR_V3ASTUSERALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
+#അന്തര്ഭാവ "V3Ast.h"
 
-#include <type_traits>
-#include <utility>
-#include <vector>
+#അന്തര്ഭാവ <type_traits>
+#അന്തര്ഭാവ <utility>
+#അന്തര്ഭാവ <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
+template <typename T_കണ്ണി, typename T_Data, പൂർണ്ണസംഖ്യ N_UserN>
 class AstUserAllocatorBase VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
-    static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
+    static_assert(std::is_base_of<Ast_കണ്ണി, T_കണ്ണി>::മൂല്യം, "T_Node must be an AstNode type");
 
-private:
+സ്വകാര്യ:
     std::deque<T_Data> m_allocated;
 
-    T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
-            const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+    T_Data* getUserp(സ്ഥിരം T_കണ്ണി* nodep) സ്ഥിരം {
+        എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            സ്ഥിരം VNUser user = nodep->user1u();
+            തിരികെ user.to<T_Data*>();
+        } അല്ലെങ്കിൽ എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            സ്ഥിരം VNUser user = nodep->user2u();
+            തിരികെ user.to<T_Data*>();
+        } അല്ലെങ്കിൽ എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            സ്ഥിരം VNUser user = nodep->user3u();
+            തിരികെ user.to<T_Data*>();
+        } അല്ലെങ്കിൽ {
+            സ്ഥിരം VNUser user = nodep->user4u();
+            തിരികെ user.to<T_Data*>();
         }
     }
 
-    void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+    ശൂന്യം setUserp(T_കണ്ണി* nodep, T_Data* userp) സ്ഥിരം {
+        എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } അല്ലെങ്കിൽ എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } അല്ലെങ്കിൽ എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } അല്ലെങ്കിൽ {
             nodep->user4u(VNUser{userp});
         }
     }
 
-protected:
+സംരക്ഷിത:
     AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } അല്ലെങ്കിൽ എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } അല്ലെങ്കിൽ എങ്കിൽ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             VNUser3InUse::check();
-        } else {
+        } അല്ലെങ്കിൽ {
             VNUser4InUse::check();
         }
     }
 
     VL_UNCOPYABLE(AstUserAllocatorBase);
 
-public:
+പൊതു:
     // Get a reference to the user data. If does not exist, construct it with given arguments.
     template <typename... Args>
-    T_Data& operator()(T_Node* nodep, Args&&... args) {
+    T_Data& operator()(T_കണ്ണി* nodep, Args&&... args) {
         T_Data* userp = getUserp(nodep);
-        if (!userp) {
+        എങ്കിൽ (!userp) {
             m_allocated.emplace_back(std::forward<Args>(args)...);
             userp = &m_allocated.back();
             setUserp(nodep, userp);
         }
-        return *userp;
+        തിരികെ *userp;
     }
 
     // Get a reference to the user data
-    T_Data& operator()(const T_Node* nodep) const {
-        T_Data* const userp = getUserp(nodep);
+    T_Data& operator()(സ്ഥിരം T_കണ്ണി* nodep) സ്ഥിരം {
+        T_Data* സ്ഥിരം userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        തിരികെ *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_Data* tryGet(സ്ഥിരം T_കണ്ണി* nodep) സ്ഥിരം { തിരികെ getUserp(nodep); }
 
-    void clear() { m_allocated.clear(); }
+    ശൂന്യം clear() { m_allocated.clear(); }
 };
 
 // User pointer allocator classes. T_Node is the type of node the allocator should be applied to
 // and is there for a bit of extra type safety. T_Data is the type of the data structure
 // managed by the allocator.
-template <typename T_Node, typename T_Data>
-class AstUser1Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 1> {};
-template <typename T_Node, typename T_Data>
-class AstUser2Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 2> {};
-template <typename T_Node, typename T_Data>
-class AstUser3Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 3> {};
-template <typename T_Node, typename T_Data>
-class AstUser4Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 4> {};
+template <typename T_കണ്ണി, typename T_Data>
+class AstUser1Allocator final : പൊതു AstUserAllocatorBase<T_കണ്ണി, T_Data, 1> {};
+template <typename T_കണ്ണി, typename T_Data>
+class AstUser2Allocator final : പൊതു AstUserAllocatorBase<T_കണ്ണി, T_Data, 2> {};
+template <typename T_കണ്ണി, typename T_Data>
+class AstUser3Allocator final : പൊതു AstUserAllocatorBase<T_കണ്ണി, T_Data, 3> {};
+template <typename T_കണ്ണി, typename T_Data>
+class AstUser4Allocator final : പൊതു AstUserAllocatorBase<T_കണ്ണി, T_Data, 4> {};
 
 #endif  // Guard

@@ -23,25 +23,25 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Broken.h"
-#include "V3Container.h"
-#include "V3DebugBisect.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3Number.h"
-#include "V3Options.h"
-#include "V3StdFuture.h"
-#include "V3String.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Broken.h"
+#അന്തര്ഭാവ "V3Container.h"
+#അന്തര്ഭാവ "V3DebugBisect.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3FileLine.h"
+#അന്തര്ഭാവ "V3FunctionTraits.h"
+#അന്തര്ഭാവ "V3Global.h"
+#അന്തര്ഭാവ "V3Mutex.h"
+#അന്തര്ഭാവ "V3Number.h"
+#അന്തര്ഭാവ "V3Options.h"
+#അന്തര്ഭാവ "V3StdFuture.h"
+#അന്തര്ഭാവ "V3String.h"
 
-#include <algorithm>
-#include <map>
-#include <utility>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <map>
+#അന്തര്ഭാവ <utility>
 
 #endif  // Guard

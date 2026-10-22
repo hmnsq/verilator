@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#അന്തര്ഭാവ <unordered_map>
+#അന്തര്ഭാവ <unordered_set>
+#അന്തര്ഭാവ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_താക്കോൽ>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_താക്കോൽ> m_താക്കോലുകൾ;  // Elements by insertion order
+    std::unordered_set<T_താക്കോൽ> m_താക്കോൽ_Set;  // Elements by key
+പൊതു:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool തിരുകുക(സ്ഥിരം T_താക്കോൽ& താക്കോൽ) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        സ്ഥിരം auto itFoundPair = m_താക്കോൽ_Set.തിരുകുക(താക്കോൽ);
+        എങ്കിൽ (itFoundPair.second) m_താക്കോലുകൾ.തള്ളുക_back(താക്കോൽ);
+        തിരികെ itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    ശൂന്യം തിരുകുക(T begin, സ്ഥിരം T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::മൂല്യം_type, T_താക്കോൽ>::മൂല്യം,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        ആകുമ്പോൾ (begin != end) {
+            എങ്കിൽ (m_താക്കോൽ_Set.തിരുകുക(*begin).second) m_താക്കോലുകൾ.തള്ളുക_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    ശൂന്യം clear() {
+        m_താക്കോലുകൾ.clear();
+        m_താക്കോൽ_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() സ്ഥിരം { തിരികെ m_താക്കോലുകൾ.empty(); }
+    size_t size() സ്ഥിരം { തിരികെ m_താക്കോലുകൾ.size(); }
+    bool exists(സ്ഥിരം T_താക്കോൽ& താക്കോൽ) സ്ഥിരം { തിരികെ m_താക്കോൽ_Set.find(താക്കോൽ) != m_താക്കോൽ_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_താക്കോൽ>::const_iterator;
+    const_iterator begin() സ്ഥിരം { തിരികെ m_താക്കോലുകൾ.begin(); }
+    const_iterator end() സ്ഥിരം { തിരികെ m_താക്കോലുകൾ.end(); }
 };
 
 //============================================================================

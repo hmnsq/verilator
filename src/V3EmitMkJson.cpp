@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitMkJson.h"
+#അന്തര്ഭാവ "V3EmitMkJson.h"
 
-#include "V3EmitCBase.h"
-#include "V3HierBlock.h"
-#include "V3Os.h"
+#അന്തര്ഭാവ "V3EmitCBase.h"
+#അന്തര്ഭാവ "V3HierBlock.h"
+#അന്തര്ഭാവ "V3Os.h"
 
-#include <memory>
+#അന്തര്ഭാവ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Emit statements
 
-class V3EmitMkJsonEmitter final {
+വർഗ്ഗം V3EmitMkJsonEmitter final {
     // METHODS
 
     // STATIC FUNCTIONS
-    static void emitManifest() {
-        const std::string makeDir
+    സ്ഥിതം ശൂന്യം emitManifest() {
+        സ്ഥിരം std::string makeDir
             = V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(v3Global.opt.makeDir()));
 
         V3OutJsonFile of{makeDir + "/" + v3Global.opt.prefix() + ".json"};
@@ -47,46 +47,46 @@ class V3EmitMkJsonEmitter final {
         std::vector<string> deps;
         std::vector<string> cppFiles;
 
-        for (AstNodeFile* nodep = v3Global.rootp()->filesp(); nodep;
-             nodep = VN_AS(nodep->nextp(), NodeFile)) {
-            const AstCFile* const cfilep = VN_CAST(nodep, CFile);
-            if (cfilep && cfilep->source()) {
-                const std::string filename
+        വേണ്ടി (Ast_കണ്ണി_File* nodep = v3Global.rootp()->filesp(); nodep;
+             nodep = VN_AS(nodep->nextp(), കണ്ണി_File)) {
+            സ്ഥിരം AstCFile* സ്ഥിരം cfilep = VN_CAST(nodep, CFile);
+            എങ്കിൽ (cfilep && cfilep->source()) {
+                സ്ഥിരം std::string filename
                     = V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(cfilep->name()));
-                if (cfilep->support()) {
-                    if (cfilep->slow()) {
+                എങ്കിൽ (cfilep->support()) {
+                    എങ്കിൽ (cfilep->slow()) {
                         supportSlow.emplace_back(filename);
-                    } else {
+                    } അല്ലെങ്കിൽ {
                         supportFast.emplace_back(filename);
                     }
-                } else {
-                    if (cfilep->slow()) {
+                } അല്ലെങ്കിൽ {
+                    എങ്കിൽ (cfilep->slow()) {
                         classesSlow.emplace_back(filename);
-                    } else {
+                    } അല്ലെങ്കിൽ {
                         classesFast.emplace_back(filename);
                     }
                 }
             }
         }
 
-        const std::string verilatorRoot = V3Os::filenameSlashPath(
-            V3Os::filenameAbsolutePath(V3Options::getenvVERILATOR_ROOT()));
-        for (const string& cpp : v3Global.verilatedCppFiles())
-            global.emplace_back(verilatorRoot + "/include/" + cpp);
-        if (!v3Global.opt.libCreate().empty()) {
+        സ്ഥിരം std::string verilator_വേര് = V3Os::filenameSlashPath(
+            V3Os::filenameAbsolutePath(V3Options::getenv_VERILATOR_വേര്()));
+        വേണ്ടി (സ്ഥിരം string& cpp : v3Global.verilatedCppFiles())
+            global.emplace_back(verilator_വേര് + "/include/" + cpp);
+        എങ്കിൽ (!v3Global.opt.libCreate().empty()) {
             global.emplace_back(makeDir + "/" + v3Global.opt.libCreate() + ".cpp");
         }
 
-        for (const auto& dep : V3File::getAllDeps())
+        വേണ്ടി (സ്ഥിരം auto& dep : V3File::getAllDeps())
             deps.emplace_back(V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(dep)));
-        for (const auto& cppFile : v3Global.opt.cppFiles())
+        വേണ്ടി (സ്ഥിരം auto& cppFile : v3Global.opt.cppFiles())
             cppFiles.emplace_back(V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(cppFile)));
 
         of.put("version", 1)
             .begin("system")
             .put("perl", V3Options::getenvPERL())
             .put("python3", V3Options::getenvPYTHON3())
-            .put("verilator_root", verilatorRoot)
+            .put("verilator_root", verilator_വേര്)
             .put("verilator_solver", V3Options::getenvVERILATOR_SOLVER())
             .end()
             .begin("options")
@@ -112,22 +112,22 @@ class V3EmitMkJsonEmitter final {
             .putList("user_classes", cppFiles)
             .end();
 
-        if (const V3HierGraph* const graphp = v3Global.hierGraphp()) {
+        എങ്കിൽ (സ്ഥിരം V3HierGraph* സ്ഥിരം graphp = v3Global.hierGraphp()) {
             of.begin("submodules", '[');
 
             // Enumerate in dependency order, leaves first. TODO: Shouldn't
             // really have to, but verilator-config.cmake.in depends on order.
-            for (const V3GraphVertex& vtx : vlstd::reverse_view(graphp->vertices())) {
-                const V3HierBlock* const hblockp = vtx.as<V3HierBlock>();
+            വേണ്ടി (സ്ഥിരം V3GraphVertex& vtx : vlstd::reverse_view(graphp->vertices())) {
+                സ്ഥിരം V3HierBlock* സ്ഥിരം hblockp = vtx.as<V3HierBlock>();
                 std::vector<std::string> hierDeps;
                 std::vector<std::string> sources;
-                for (const V3GraphEdge& edge : hblockp->outEdges()) {
-                    const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
+                വേണ്ടി (സ്ഥിരം V3GraphEdge& edge : hblockp->outEdges()) {
+                    സ്ഥിരം V3HierBlock* സ്ഥിരം dependencyp = edge.മുകൾ()->as<V3HierBlock>();
                     hierDeps.emplace_back(dependencyp->hierPrefix());
-                    sources.emplace_back(makeDir + "/" + dependencyp->hierWrapperFilename(true));
+                    sources.emplace_back(makeDir + "/" + dependencyp->hierWrapperFilename(സത്യം));
                 }
 
-                for (const string& fname : V3HierGraph::sourceFiles(hblockp->vFileIfNecessary())) {
+                വേണ്ടി (സ്ഥിരം string& fname : V3HierGraph::sourceFiles(hblockp->vFileIfNecessary())) {
                     sources.emplace_back(
                         V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(fname)));
                 }
@@ -140,7 +140,7 @@ class V3EmitMkJsonEmitter final {
                     .putList("sources", sources)
                     .putList("cflags", {"-fPIC"})
                     .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               hblockp->commandArgsFilename(true))))
+                                               hblockp->commandArgsFilename(സത്യം))))
                     .end();
             }
 
@@ -151,23 +151,23 @@ class V3EmitMkJsonEmitter final {
                 // "subodule" list we are creating here with one that doesn't have "submodule".
                 // Good luck debugging, suggest 'message(${MANIFEST})' in verilated-config.cmake.
                 std::vector<std::string> sources;
-                for (const V3GraphVertex& vtx : graphp->vertices()) {
-                    const V3HierBlock* const blockp = vtx.as<V3HierBlock>();
-                    sources.emplace_back(makeDir + "/" + blockp->hierWrapperFilename(true));
+                വേണ്ടി (സ്ഥിരം V3GraphVertex& vtx : graphp->vertices()) {
+                    സ്ഥിരം V3HierBlock* സ്ഥിരം blockp = vtx.as<V3HierBlock>();
+                    sources.emplace_back(makeDir + "/" + blockp->hierWrapperFilename(സത്യം));
                 }
 
-                for (const string& fname : V3HierGraph::sourceFiles()) {
+                വേണ്ടി (സ്ഥിരം string& fname : V3HierGraph::sourceFiles()) {
                     sources.emplace_back(
                         V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(fname)));
                 }
 
                 of.begin()
                     .put("prefix", v3Global.opt.prefix())
-                    .put("top", v3Global.rootp()->topModulep()->name())
+                    .put("top", v3Global.rootp()->മുകൾ_Modulep()->name())
                     .put("directory", makeDir)
                     .putList("sources", sources)
                     .put("verilator_args", V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(
-                                               graphp->topCommandArgsFilename(true))))
+                                               graphp->മുകൾ_Command_Args_Filename(സത്യം))))
                     .end();
             }
 
@@ -175,12 +175,12 @@ class V3EmitMkJsonEmitter final {
         }
     }
 
-public:
+പൊതു:
     explicit V3EmitMkJsonEmitter() { emitManifest(); }
-    virtual ~V3EmitMkJsonEmitter() = default;
+    മായാ ~V3EmitMkJsonEmitter() = സ്ഥിരസ്ഥിതി;
 };
 
-void V3EmitMkJson::emit() {
+ശൂന്യം V3EmitMkJson::emit() {
     UINFO(2, __FUNCTION__ << ":");
-    const V3EmitMkJsonEmitter emitter;
+    സ്ഥിരം V3EmitMkJsonEmitter emitter;
 }

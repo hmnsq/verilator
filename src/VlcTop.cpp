@@ -16,25 +16,25 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "VlcTop.h"
+#അന്തര്ഭാവ "VlcTop.h"
 
-#include "V3Error.h"
-#include "V3Os.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3Os.h"
 
-#include "VlcOptions.h"
+#അന്തര്ഭാവ "VlcOptions.h"
 
-#include <algorithm>
-#include <fstream>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <fstream>
+#അന്തര്ഭാവ <iomanip>
+#അന്തര്ഭാവ <map>
+#അന്തര്ഭാവ <set>
+#അന്തര്ഭാവ <sstream>
+#അന്തര്ഭാവ <string>
+#അന്തര്ഭാവ <vector>
 
 //######################################################################
 
-namespace {
+നാമാകാശ {
 
 // Report helpers only.  They keep the flat summary and hierarchy report using
 // the same hit/total accounting and output formatting.  These helpers read the
@@ -43,29 +43,29 @@ namespace {
 
 // Coverage of a report row: its covered and total points, and for covergroups, their
 // coverage, which weights coverpoints and crosses rather than counting bins
-class Tally final {
+വർഗ്ഗം Tally final {
     // MEMBERS
     uint64_t m_hit = 0;  // Covered points
     uint64_t m_total = 0;  // Points
-    bool m_scored = false;  // Coverage is m_score, not the ratio of the points
-    double m_score = 0.0;  // Percent coverage, if m_scored
+    തർക്കം m_scored = അസത്യം;  // Coverage is m_score, not the ratio of the points
+    ഇരട്ട m_score = 0.0;  // Percent coverage, if m_scored
 
-public:
+പൊതു:
     // ACCESSORS
-    uint64_t hit() const { return m_hit; }
-    uint64_t total() const { return m_total; }
-    bool scored() const { return m_scored; }
-    double score() const { return m_score; }
-    void score(double value) {
-        m_scored = true;
-        m_score = value;
+    uint64_t hit() സ്ഥിരം { തിരികെ m_hit; }
+    uint64_t total() സ്ഥിരം { തിരികെ m_total; }
+    തർക്കം scored() സ്ഥിരം { തിരികെ m_scored; }
+    ഇരട്ട score() സ്ഥിരം { തിരികെ m_score; }
+    ശൂന്യം score(ഇരട്ട മൂല്യം) {
+        m_scored = സത്യം;
+        m_score = മൂല്യം;
     }
     // METHODS
-    void addPoint(bool covered) {
-        if (covered) ++m_hit;
+    ശൂന്യം addPoint(തർക്കം covered) {
+        എങ്കിൽ (covered) ++m_hit;
         ++m_total;
     }
-    void addPoints(const Tally& other) {
+    ശൂന്യം addPoints(സ്ഥിരം Tally& other) {
         m_hit += other.m_hit;
         m_total += other.m_total;
     }
@@ -74,35 +74,35 @@ public:
 // Map coverage type to its tally.
 using TypeTally = std::map<std::string, Tally>;
 
-static constexpr const char* const s_orderedTypes[]
+സ്ഥിതം constexpr സ്ഥിരം അക്ഷരം* സ്ഥിരം s_orderedTypes[]
     = {"line", "toggle", "branch", "expr", "fsm_state", "fsm_arc"};
-static constexpr const char* const s_covergroupType = "covergroup";
-static constexpr size_t s_summaryIndent = 2;
-static constexpr size_t s_reportRowIndent = 4;
+സ്ഥിതം constexpr സ്ഥിരം അക്ഷരം* സ്ഥിരം s_covergroupType = "covergroup";
+സ്ഥിതം constexpr size_t s_summaryIndent = 2;
+സ്ഥിതം constexpr size_t s_reportRowIndent = 4;
 
-string displayType(const VlcPoint& point) {
-    const string type = point.type();
-    return type.empty() ? "point" : type;
+string displayType(സ്ഥിരം VlcPoint& point) {
+    സ്ഥിരം string type = point.type();
+    തിരികെ type.empty() ? "point" : type;
 }
 
-bool isCollapsedHier(const string& hier) {
-    return hier.find('*') != string::npos || hier.find('?') != string::npos;
+തർക്കം isCollapsedHier(സ്ഥിരം string& hier) {
+    തിരികെ hier.find('*') != string::npos || hier.find('?') != string::npos;
 }
 
-bool isOrderedType(const string& type) {
-    for (const char* const typep : s_orderedTypes) {
-        if (type == typep) return true;
+തർക്കം isOrderedType(സ്ഥിരം string& type) {
+    വേണ്ടി (സ്ഥിരം അക്ഷരം* സ്ഥിരം typep : s_orderedTypes) {
+        എങ്കിൽ (type == typep) തിരികെ സത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
 
-string reportHier(const VlcPoint& point) {
+string reportHier(സ്ഥിരം VlcPoint& point) {
     // FSM records currently have useful instance scope in Fv.
-    if (point.isFsmState() || point.isFsmArc()) {
-        const string fsmVar = point.fsmVarName();
-        return fsmVar.substr(0, fsmVar.rfind('.'));
+    എങ്കിൽ (point.isFsmState() || point.isFsmArc()) {
+        സ്ഥിരം string fsmVar = point.fsmVarName();
+        തിരികെ fsmVar.substr(0, fsmVar.rfind('.'));
     }
-    return point.hier();
+    തിരികെ point.hier();
 }
 
 // The components of a hierarchy, split at its dots.  A covergroup's is the name of its type, as
@@ -112,73 +112,73 @@ string reportHier(const VlcPoint& point) {
 // within, which V3OutFormatter::quoteNameControls() escapes, as VString::quotedEnd() finds the
 // end of.  A name whose identifiers, parentheses, or quotes do not end is not as $typename writes
 // a type, so splits at each dot.
-std::vector<string> splitHier(const string& hier) {
+std::vector<string> splitHier(സ്ഥിരം string& hier) {
     std::vector<string> parts;
     string::size_type start = 0;
-    int depth = 0;  // Of the parentheses of the values of parameters
+    പൂർണ്ണസംഖ്യ depth = 0;  // Of the parentheses of the values of parameters
     string::size_type pos = 0;
-    while (pos < hier.size()) {
-        const char c = hier[pos];
-        if (c == '\\') {
+    ആകുമ്പോൾ (pos < hier.size()) {
+        സ്ഥിരം അക്ഷരം c = hier[pos];
+        എങ്കിൽ (c == '\\') {
             pos = hier.find(' ', pos);  // npos if not ended
-            continue;
-        } else if (!depth && hier.compare(pos, 2, "#(") == 0) {
+            തുടരുക;
+        } അല്ലെങ്കിൽ എങ്കിൽ (!depth && hier.compare(pos, 2, "#(") == 0) {
             depth = 1;
             ++pos;
-        } else if (!depth && c == '.') {
-            parts.push_back(hier.substr(start, pos - start));
+        } അല്ലെങ്കിൽ എങ്കിൽ (!depth && c == '.') {
+            parts.തള്ളുക_back(hier.substr(start, pos - start));
             start = pos + 1;
-        } else if (depth && c == '"') {
+        } അല്ലെങ്കിൽ എങ്കിൽ (depth && c == '"') {
             pos = VString::quotedEnd(hier, pos);  // npos if not terminated
-            continue;
-        } else if (depth && c == '(') {
+            തുടരുക;
+        } അല്ലെങ്കിൽ എങ്കിൽ (depth && c == '(') {
             ++depth;
-        } else if (depth && c == ')') {
+        } അല്ലെങ്കിൽ എങ്കിൽ (depth && c == ')') {
             --depth;
         }
         ++pos;
     }
-    if (depth || pos != hier.size()) {  // Unbalanced
+    എങ്കിൽ (depth || pos != hier.size()) {  // Unbalanced
         parts.clear();
         start = 0;
-        for (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
+        വേണ്ടി (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
              start = dot + 1) {
-            parts.push_back(hier.substr(start, dot - start));
+            parts.തള്ളുക_back(hier.substr(start, dot - start));
         }
     }
-    parts.push_back(hier.substr(start));
-    return parts;
+    parts.തള്ളുക_back(hier.substr(start));
+    തിരികെ parts;
 }
 
-string duName(const VlcPoint& point) {
+string duName(സ്ഥിരം VlcPoint& point) {
     // Pages are emitted as v_<type>/<design-unit> for RTL coverage.  Use the
     // suffix as the design-unit summary key.
-    const string page = point.page();
-    return page.substr(page.find('/') + 1);
+    സ്ഥിരം string page = point.page();
+    തിരികെ page.substr(page.find('/') + 1);
 }
 
-void tallyPoint(TypeTally& tally, const string& type, uint64_t count) {
-    tally[type].addPoint(count > 0);
+ശൂന്യം tallyPoint(TypeTally& tally, സ്ഥിരം string& type, uint64_t എണ്ണം) {
+    tally[type].addPoint(എണ്ണം > 0);
 }
 
 // Keep the percentage calculation in one place so flat summaries and hierarchy
 // reports cannot drift in zero-total handling.
-double pct(uint64_t hit, uint64_t total) {
-    return total ? (100.0 * static_cast<double>(hit) / static_cast<double>(total)) : 0.0;
+ഇരട്ട pct(uint64_t hit, uint64_t total) {
+    തിരികെ total ? (100.0 * static_cast<ഇരട്ട>(hit) / static_cast<ഇരട്ട>(total)) : 0.0;
 }
 
 // Return a percentage as a string, handling 100%: coverage not complete shows below it.
-string pctValueString(double value, bool complete) {
-    if (!complete && value > 99.9) value = 99.9;  // Presumes precision 1
+string pct_മൂല്യം_String(ഇരട്ട മൂല്യം, തർക്കം complete) {
+    എങ്കിൽ (!complete && മൂല്യം > 99.9) മൂല്യം = 99.9;  // Presumes precision 1
     std::stringstream os;
     os << std::fixed << std::setprecision(1)  // 1 matters, see above
-       << value << "%";
-    return os.str();
+       << മൂല്യം << "%";
+    തിരികെ os.str();
 }
 
 // Return percentage as a string, handling 100%, and protecting from div zero.
 string pctString(uint64_t hit, uint64_t total) {
-    return pctValueString(pct(hit, total), hit >= total);
+    തിരികെ pct_മൂല്യം_String(pct(hit, total), hit >= total);
 }
 
 // Covergroup coverage (IEEE 1800-2023 19.11).  An item, a coverpoint or cross, covers the
@@ -190,244 +190,244 @@ string pctString(uint64_t hit, uint64_t total) {
 // for a single instance.
 
 // A coverable bin of a coverpoint or cross, of all its records
-class CgBin final {
+വർഗ്ഗം CgBin final {
     // MEMBERS
     string m_name;  // Name of the bin
-    uint64_t m_count = 0;  // Hits, of all the records
+    uint64_t m_എണ്ണം = 0;  // Hits, of all the records
     uint64_t m_atLeast = 0;  // option.at_least, the largest of the records
 
-public:
+പൊതു:
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool covered() const { return m_count >= m_atLeast; }
+    സ്ഥിരം string& name() സ്ഥിരം { തിരികെ m_name; }
+    തർക്കം covered() സ്ഥിരം { തിരികെ m_എണ്ണം >= m_atLeast; }
     // METHODS
-    void addRecord(const string& name, uint64_t count, uint64_t atLeast) {
+    ശൂന്യം addRecord(സ്ഥിരം string& name, uint64_t എണ്ണം, uint64_t atLeast) {
         m_name = name;
-        m_count += count;
+        m_എണ്ണം += എണ്ണം;
         m_atLeast = std::max(m_atLeast, atLeast);
     }
 };
 
 // A coverpoint or cross
-class CgItem final {
+വർഗ്ഗം CgItem final {
     // MEMBERS
     uint64_t m_weight = 0;  // The weight of the records, the largest
     std::map<string, CgBin> m_bins;  // Coverable bins, by binIdentity()
 
-public:
+പൊതു:
     // ACCESSORS
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgBin>& bins() const { return m_bins; }
+    uint64_t weight() സ്ഥിരം { തിരികെ m_weight; }
+    സ്ഥിരം std::map<string, CgBin>& bins() സ്ഥിരം { തിരികെ m_bins; }
     // METHODS
-    void addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
-    CgBin& findNewBin(const string& identity) { return m_bins[identity]; }
+    ശൂന്യം addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
+    CgBin& findNewBin(സ്ഥിരം string& identity) { തിരികെ m_bins[identity]; }
 };
 
 // A covergroup
-class CgGroup final {
+വർഗ്ഗം CgGroup final {
     // MEMBERS
     string m_hier;  // Hierarchy above the items
     uint64_t m_weight = 0;  // type_option.weight, the largest of the records
-    std::map<string, CgItem> m_items;  // By hierarchy
+    std::map<string, CgItem> m_ഇനങ്ങൾ;  // By hierarchy
 
-public:
+പൊതു:
     // ACCESSORS
-    const string& hier() const { return m_hier; }
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgItem>& items() const { return m_items; }
+    സ്ഥിരം string& hier() സ്ഥിരം { തിരികെ m_hier; }
+    uint64_t weight() സ്ഥിരം { തിരികെ m_weight; }
+    സ്ഥിരം std::map<string, CgItem>& ഇനങ്ങൾ() സ്ഥിരം { തിരികെ m_ഇനങ്ങൾ; }
     // METHODS
-    void addRecord(const string& hier, uint64_t weight) {
+    ശൂന്യം addRecord(സ്ഥിരം string& hier, uint64_t weight) {
         m_hier = hier;
         m_weight = std::max(m_weight, weight);
     }
-    CgItem& findNewItem(const string& hier) { return m_items[hier]; }
+    CgItem& findNewItem(സ്ഥിരം string& hier) { തിരികെ m_ഇനങ്ങൾ[hier]; }
 };
 using CgGroups = std::map<string, CgGroup>;  // By page
 
 // A number of a record, or 1 if the record leaves it out
-uint64_t keyNumber(const string& value) {
-    return value.empty() ? 1 : std::strtoull(value.c_str(), nullptr, 10);
+uint64_t താക്കോൽ_സംഖ്യ(സ്ഥിരം string& മൂല്യം) {
+    തിരികെ മൂല്യം.empty() ? 1 : std::strtoull(മൂല്യം.c_str(), nullptr, 10);
 }
 
 // If a field of a record's name, '\001<key>\002<value>', has a key of the coverage computation
-bool isScoreField(const string& field) {
-    for (const char* const keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
-        const string prefix = string{"\001"} + keyp + "\002";
-        if (field.compare(0, prefix.size(), prefix) == 0) return true;
+തർക്കം isScoreField(സ്ഥിരം string& field) {
+    വേണ്ടി (സ്ഥിരം അക്ഷരം* സ്ഥിരം keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
+        സ്ഥിരം string prefix = string{"\001"} + keyp + "\002";
+        എങ്കിൽ (field.compare(0, prefix.size(), prefix) == 0) തിരികെ സത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
 
 // The name of a bin's record without the keys of the coverage computation, which the records of
 // a bin may differ in, so identifying the bin.  Its name does not: covergroups of distinct scopes
 // may share a name.
-string binIdentity(const string& recordName) {
+string binIdentity(സ്ഥിരം string& recordName) {
     string identity;
     string::size_type start = 0;
-    while (start < recordName.size()) {
+    ആകുമ്പോൾ (start < recordName.size()) {
         string::size_type end = recordName.find('\001', start + 1);
-        if (end == string::npos) end = recordName.size();
-        const string field = recordName.substr(start, end - start);
-        if (!isScoreField(field)) identity += field;
+        എങ്കിൽ (end == string::npos) end = recordName.size();
+        സ്ഥിരം string field = recordName.substr(start, end - start);
+        എങ്കിൽ (!isScoreField(field)) identity += field;
         start = end;
     }
-    return identity;
+    തിരികെ identity;
 }
 
-bool isCovergroup(const VlcPoint& point) { return point.type() == s_covergroupType; }
+തർക്കം isCovergroup(സ്ഥിരം VlcPoint& point) { തിരികെ point.type() == s_covergroupType; }
 
 CgGroups covergroups(VlcPoints& points) {
     CgGroups groups;
-    for (const VlcPoints::ByName::value_type& i : points) {
-        const VlcPoint& pt = points.pointNumber(i.second);
-        if (!isCovergroup(pt)) continue;
+    വേണ്ടി (സ്ഥിരം VlcPoints::ByName::മൂല്യം_type& i : points) {
+        സ്ഥിരം VlcPoint& pt = points.point_സംഖ്യ(i.second);
+        എങ്കിൽ (!isCovergroup(pt)) തുടരുക;
         // Named '<covergroup>.<item>.<bin>', where only the bin, of its own key, may have dots
-        const string hier = pt.hier();
+        സ്ഥിരം string hier = pt.hier();
         string bin = pt.bin();
-        if (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
-        const string itemHier
+        എങ്കിൽ (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
+        സ്ഥിരം string itemHier
             = hier.substr(0, hier.size() - std::min(hier.size(), bin.size() + 1));
         CgGroup& group = groups[pt.page()];
-        group.addRecord(itemHier.substr(0, itemHier.rfind('.')), keyNumber(pt.groupWeight()));
+        group.addRecord(itemHier.substr(0, itemHier.rfind('.')), താക്കോൽ_സംഖ്യ(pt.groupWeight()));
         CgItem& item = group.findNewItem(itemHier);
-        item.addRecord(keyNumber(pt.weight()));
-        if (!pt.binType().empty()) continue;  // Not coverable
-        item.findNewBin(binIdentity(pt.name())).addRecord(bin, pt.count(), keyNumber(pt.thresh()));
+        item.addRecord(താക്കോൽ_സംഖ്യ(pt.weight()));
+        എങ്കിൽ (!pt.binType().empty()) തുടരുക;  // Not coverable
+        item.findNewBin(binIdentity(pt.name())).addRecord(bin, pt.എണ്ണം(), താക്കോൽ_സംഖ്യ(pt.thresh()));
     }
-    return groups;
+    തിരികെ groups;
 }
 
-Tally itemTally(const CgItem& item) {
+Tally itemTally(സ്ഥിരം CgItem& item) {
     Tally tally;
-    for (const std::pair<const string, CgBin>& bin : item.bins()) {
+    വേണ്ടി (സ്ഥിരം std::pair<സ്ഥിരം string, CgBin>& bin : item.bins()) {
         tally.addPoint(bin.second.covered());
     }
     // Without bins, 0.0, or 100.0 if of zero weight (IEEE 1800-2023 19.11.1)
     tally.score(tally.total() ? pct(tally.hit(), tally.total()) : item.weight() ? 0.0 : 100.0);
-    return tally;
+    തിരികെ tally;
 }
 
 // The tally of a covergroup; contributesp, if its items have weight and bins, so that it counts
 // in the coverage of covergroups together
-Tally groupTally(const CgGroup& group, bool* contributesp = nullptr) {
+Tally groupTally(സ്ഥിരം CgGroup& group, തർക്കം* contributesp = nullptr) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    for (const std::pair<const string, CgItem>& it : group.items()) {
-        const Tally item = itemTally(it.second);
+    ഇരട്ട weighted = 0.0;
+    ഇരട്ട weights = 0.0;
+    വേണ്ടി (സ്ഥിരം std::pair<സ്ഥിരം string, CgItem>& it : group.ഇനങ്ങൾ()) {
+        സ്ഥിരം Tally item = itemTally(it.second);
         tally.addPoints(item);
-        if (!item.total()) continue;  // Excluded from both sums
-        weighted += static_cast<double>(it.second.weight()) * item.score();
-        weights += static_cast<double>(it.second.weight());
+        എങ്കിൽ (!item.total()) തുടരുക;  // Excluded from both sums
+        weighted += static_cast<ഇരട്ട>(it.second.weight()) * item.score();
+        weights += static_cast<ഇരട്ട>(it.second.weight());
     }
-    if (contributesp) *contributesp = weights != 0.0;
+    എങ്കിൽ (contributesp) *contributesp = weights != 0.0;
     // Without items of weight and bins, 0.0, or 100.0 if of zero weight
     tally.score(weights != 0.0 ? weighted / weights : group.weight() ? 0.0 : 100.0);
-    return tally;
+    തിരികെ tally;
 }
 
-Tally groupsTally(const std::vector<const CgGroup*>& groups) {
+Tally groupsTally(സ്ഥിരം std::vector<സ്ഥിരം CgGroup*>& groups) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    bool anyWeight = false;
-    for (const CgGroup* const groupp : groups) {
-        bool contributes = false;
-        const Tally group = groupTally(*groupp, &contributes);
+    ഇരട്ട weighted = 0.0;
+    ഇരട്ട weights = 0.0;
+    തർക്കം anyWeight = അസത്യം;
+    വേണ്ടി (സ്ഥിരം CgGroup* സ്ഥിരം groupp : groups) {
+        തർക്കം contributes = അസത്യം;
+        സ്ഥിരം Tally group = groupTally(*groupp, &contributes);
         tally.addPoints(group);
-        if (groupp->weight()) anyWeight = true;
-        if (!contributes) continue;
-        weighted += static_cast<double>(groupp->weight()) * group.score();
-        weights += static_cast<double>(groupp->weight());
+        എങ്കിൽ (groupp->weight()) anyWeight = സത്യം;
+        എങ്കിൽ (!contributes) തുടരുക;
+        weighted += static_cast<ഇരട്ട>(groupp->weight()) * group.score();
+        weights += static_cast<ഇരട്ട>(groupp->weight());
     }
     // Without covergroups of weight that contribute, 0.0, or 100.0 if all have zero weight
     tally.score(weights != 0.0 ? weighted / weights : anyWeight ? 0.0 : 100.0);
-    return tally;
+    തിരികെ tally;
 }
 
 // The tallies of covergroups, of their coverpoints and crosses, and of the coverable bins of
 // those, by name; a covergroup of a dotted name also tallies in each node of its name
-std::map<string, Tally> covergroupTallies(const CgGroups& groups) {
+std::map<string, Tally> covergroupTallies(സ്ഥിരം CgGroups& groups) {
     std::map<string, Tally> tallies;
-    std::map<string, std::vector<const CgGroup*>> nodeGroups;
-    for (const CgGroups::value_type& it : groups) {
-        const CgGroup& group = it.second;
+    std::map<string, std::vector<സ്ഥിരം CgGroup*>> കണ്ണി_Groups;
+    വേണ്ടി (സ്ഥിരം CgGroups::മൂല്യം_type& it : groups) {
+        സ്ഥിരം CgGroup& group = it.second;
         string path;
-        for (const string& part : splitHier(group.hier())) {
+        വേണ്ടി (സ്ഥിരം string& part : splitHier(group.hier())) {
             path = path.empty() ? part : path + "." + part;
-            nodeGroups[path].push_back(&group);
+            കണ്ണി_Groups[path].തള്ളുക_back(&group);
         }
-        for (const std::pair<const string, CgItem>& item : group.items()) {
+        വേണ്ടി (സ്ഥിരം std::pair<സ്ഥിരം string, CgItem>& item : group.ഇനങ്ങൾ()) {
             tallies[item.first] = itemTally(item.second);
-            for (const std::pair<const string, CgBin>& bin : item.second.bins()) {
+            വേണ്ടി (സ്ഥിരം std::pair<സ്ഥിരം string, CgBin>& bin : item.second.bins()) {
                 // Of the bins of the name
                 tallies[item.first + "." + bin.second.name()].addPoint(bin.second.covered());
             }
         }
     }
-    for (const std::pair<const string, std::vector<const CgGroup*>>& it : nodeGroups) {
+    വേണ്ടി (സ്ഥിരം std::pair<സ്ഥിരം string, std::vector<സ്ഥിരം CgGroup*>>& it : കണ്ണി_Groups) {
         tallies[it.first]
             = it.second.size() == 1 ? groupTally(*it.second.front()) : groupsTally(it.second);
     }
-    return tallies;
+    തിരികെ tallies;
 }
 
 // Shared row formatter.  The callers choose which rows to print; this only keeps
 // the text layout identical between the flat and hierarchy reports.
-void printIndent(size_t indent) {
-    for (size_t i = 0; i < indent; ++i) std::cout << ' ';
+ശൂന്യം printIndent(size_t indent) {
+    വേണ്ടി (size_t i = 0; i < indent; ++i) std::cout << ' ';
 }
 
-void printTallyRow(const string& type, const Tally& tally, size_t indent, size_t typeWidth,
-                   size_t countWidth) {
+ശൂന്യം printTallyRow(സ്ഥിരം string& type, സ്ഥിരം Tally& tally, size_t indent, size_t typeWidth,
+                   size_t എണ്ണം_Width) {
     printIndent(indent);
     // A score is complete at 100%, which it may reach with bins of no weight uncovered
-    const string percent = tally.scored() ? pctValueString(tally.score(), tally.score() >= 100.0)
+    സ്ഥിരം string percent = tally.scored() ? pct_മൂല്യം_String(tally.score(), tally.score() >= 100.0)
                                           : pctString(tally.hit(), tally.total());
     // Right-align percentages to the width of "100.0%", so that rows line up
-    std::cout << std::left << std::setw(typeWidth) << type << " : " << std::right << std::fixed
-              << std::setw(6) << percent << " (" << std::setw(countWidth) << tally.hit() << "/"
-              << std::setw(countWidth) << tally.total() << ")\n";
+    std::cout << std::ഇടത് << std::setw(typeWidth) << type << " : " << std::വലത് << std::fixed
+              << std::setw(6) << percent << " (" << std::setw(എണ്ണം_Width) << tally.hit() << "/"
+              << std::setw(എണ്ണം_Width) << tally.total() << ")\n";
 }
 
-size_t countWidth(const TypeTally& tally) {
+size_t എണ്ണം_Width(സ്ഥിരം TypeTally& tally) {
     size_t width = cvtToStr(0).size();
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+    വേണ്ടി (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
         width = std::max(width, cvtToStr(it->second.hit()).size());
         width = std::max(width, cvtToStr(it->second.total()).size());
     }
-    return width;
+    തിരികെ width;
 }
 
-size_t typeWidth(const TypeTally& tally) {
+size_t typeWidth(സ്ഥിരം TypeTally& tally) {
     size_t typeWidth = 0;
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
+    വേണ്ടി (സ്ഥിരം അക്ഷരം* സ്ഥിരം typep : s_orderedTypes) {
+        സ്ഥിരം string type = typep;
         typeWidth = std::max(typeWidth, type.size());
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+    വേണ്ടി (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
         typeWidth = std::max(typeWidth, it->first.size());
     }
-    return typeWidth;
+    തിരികെ typeWidth;
 }
 
-void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOrdered) {
+ശൂന്യം printTypeTally(സ്ഥിരം TypeTally& tally, size_t indent, തർക്കം includeMissingOrdered) {
     // Print standard coverage types first for stable output.  When requested,
     // missing standard rows are printed with zero counts for compatibility with
     // the historical flat summary output.
-    const size_t typWidth = typeWidth(tally);
-    const size_t cntWidth = countWidth(tally);
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
-        const TypeTally::const_iterator it = tally.find(type);
-        if (it != tally.end()) {
+    സ്ഥിരം size_t typWidth = typeWidth(tally);
+    സ്ഥിരം size_t cntWidth = എണ്ണം_Width(tally);
+    വേണ്ടി (സ്ഥിരം അക്ഷരം* സ്ഥിരം typep : s_orderedTypes) {
+        സ്ഥിരം string type = typep;
+        സ്ഥിരം TypeTally::const_iterator it = tally.find(type);
+        എങ്കിൽ (it != tally.end()) {
             printTallyRow(type, it->second, indent, typWidth, cntWidth);
-        } else if (includeMissingOrdered) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (includeMissingOrdered) {
             printTallyRow(type, Tally{}, indent, typWidth, cntWidth);
         }
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        if (!isOrderedType(it->first)) {
+    വേണ്ടി (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+        എങ്കിൽ (!isOrderedType(it->first)) {
             printTallyRow(it->first, it->second, indent, typWidth, cntWidth);
         }
     }
@@ -435,63 +435,63 @@ void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOr
 
 // Print covergroups, coverpoints, crosses, and bins one per line, so that searching for a name
 // shows its coverage
-void printCovergroupTallies(const std::map<string, Tally>& tallies, int levels) {
+ശൂന്യം printCovergroupTallies(സ്ഥിരം std::map<string, Tally>& tallies, പൂർണ്ണസംഖ്യ levels) {
     std::map<string, Tally> shown;
     size_t nameWidth = 0;
-    for (const std::pair<const string, Tally>& it : tallies) {
-        if (levels >= 0 && static_cast<int>(splitHier(it.first).size()) > levels + 1) continue;
-        shown.insert(it);
+    വേണ്ടി (സ്ഥിരം std::pair<സ്ഥിരം string, Tally>& it : tallies) {
+        എങ്കിൽ (levels >= 0 && static_cast<പൂർണ്ണസംഖ്യ>(splitHier(it.first).size()) > levels + 1) തുടരുക;
+        shown.തിരുകുക(it);
         nameWidth = std::max(nameWidth, it.first.size());
     }
-    const size_t cntWidth = countWidth(shown);
+    സ്ഥിരം size_t cntWidth = എണ്ണം_Width(shown);
     std::cout << "Covergroup Coverage Summary:\n";
-    for (const std::pair<const string, Tally>& it : shown) {
+    വേണ്ടി (സ്ഥിരം std::pair<സ്ഥിരം string, Tally>& it : shown) {
         printTallyRow(it.first, it.second, s_summaryIndent, nameWidth, cntWidth);
     }
 }
 
 }  // namespace
 
-void VlcTop::readCoverage(const string& filename, bool nonfatal) {
+ശൂന്യം Vlc_മുകൾ::readCoverage(സ്ഥിരം string& filename, തർക്കം nonfatal) {
     UINFO(2, "readCoverage " << filename);
 
     std::ifstream is{filename.c_str()};
-    if (!is) {
-        if (!nonfatal) v3fatal("Can't read coverage file: " << filename);
-        return;
+    എങ്കിൽ (!is) {
+        എങ്കിൽ (!nonfatal) v3fatal("Can't read coverage file: " << filename);
+        തിരികെ;
     }
 
     // Testrun and computrons argument unsupported as yet
-    VlcTest* const testp = tests().newTest(filename, 0, 0);
+    VlcTest* സ്ഥിരം testp = tests().newTest(filename, 0, 0);
 
     uint64_t lineno = 0;
-    while (!is.eof()) {
-        const string line = V3Os::getline(is);
+    ആകുമ്പോൾ (!is.eof()) {
+        സ്ഥിരം string വരി = V3Os::getline(is);
         ++lineno;
         // UINFO(9, " got " << line);
-        if (line[0] == 'C') {
+        എങ്കിൽ (വരി[0] == 'C') {
             // The count follows the last "' ": a point may hold one too, as does a covergroup
             // type named with the value of a string parameter
-            const string::size_type secspace = line.rfind("' ");
-            if (secspace == string::npos || secspace < 3) {
+            സ്ഥിരം string::size_type secspace = വരി.rfind("' ");
+            എങ്കിൽ (secspace == string::npos || secspace < 3) {
                 v3error("Malformed coverage point, without a count: " << filename << ":"
                                                                       << lineno);
-                continue;
+                തുടരുക;
             }
-            const string point = line.substr(3, secspace - 3);
-            if (!opt.isTypeMatch(point.c_str())) continue;
+            സ്ഥിരം string point = വരി.substr(3, secspace - 3);
+            എങ്കിൽ (!opt.isTypeMatch(point.c_str())) തുടരുക;
 
-            const uint64_t hits = std::atoll(line.c_str() + secspace + 1);
+            സ്ഥിരം uint64_t hits = std::atoll(വരി.c_str() + secspace + 1);
             // UINFO(9, "   point '" << point << "'" << " " << hits);
 
-            const uint64_t pointnum = points().findAddPoint(point, hits);
-            if (opt.rank()) {  // Only if ranking - uses a lot of memory
+            സ്ഥിരം uint64_t pointnum = points().findAddPoint(point, hits);
+            എങ്കിൽ (opt.rank()) {  // Only if ranking - uses a lot of memory
                 // A test covers a point with a threshold (option.at_least) when its own hits
                 // reach it
-                const uint64_t needed = std::max(
-                    VlcBuckets::sufficient(), keyNumber(points().pointNumber(pointnum).thresh()));
-                if (hits >= needed) {
-                    points().pointNumber(pointnum).testsCoveringInc();
+                സ്ഥിരം uint64_t needed = std::max(
+                    VlcBuckets::sufficient(), താക്കോൽ_സംഖ്യ(points().point_സംഖ്യ(pointnum).thresh()));
+                എങ്കിൽ (hits >= needed) {
+                    points().point_സംഖ്യ(pointnum).testsCoveringInc();
                     testp->buckets().addData(pointnum, hits);
                 }
             }
@@ -499,29 +499,29 @@ void VlcTop::readCoverage(const string& filename, bool nonfatal) {
     }
 }
 
-void VlcTop::writeCoverage(const string& filename) {
+ശൂന്യം Vlc_മുകൾ::writeCoverage(സ്ഥിരം string& filename) {
     UINFO(2, "writeCoverage " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    എങ്കിൽ (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        തിരികെ;
     }
 
     os << "# SystemC::Coverage-3\n";
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
-        os << "C '" << point.name() << "' " << point.count() << '\n';
+    വേണ്ടി (സ്ഥിരം auto& i : m_points) {
+        സ്ഥിരം VlcPoint& point = m_points.point_സംഖ്യ(i.second);
+        os << "C '" << point.name() << "' " << point.എണ്ണം() << '\n';
     }
 }
 
-void VlcTop::writeInfo(const string& filename) {
+ശൂന്യം Vlc_മുകൾ::writeInfo(സ്ഥിരം string& filename) {
     UINFO(2, "writeInfo " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    എങ്കിൽ (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        തിരികെ;
     }
 
     annotateCalc();
@@ -546,42 +546,42 @@ void VlcTop::writeInfo(const string& filename) {
     //   end_of_record
 
     os << "TN:verilator_coverage\n";
-    for (auto& si : m_sources) {
+    വേണ്ടി (auto& si : m_sources) {
         VlcSource& source = si.second;
         os << "SF:" << source.name() << '\n';
-        VlcSource::LinenoMap& lines = source.lines();
-        int branchesFound = 0;
-        int branchesHit = 0;
-        for (auto& li : lines) {
-            VlcSourceCount& sc = li.second;
-            uint64_t daCount = 0;
-            std::vector<const VlcPoint*> infoPoints;
-            for (const auto& point : sc.points()) {
-                daCount = std::max(daCount, point->count());
-                infoPoints.push_back(point);
+        VlcSource::LinenoMap& വരികൾ = source.വരികൾ();
+        പൂർണ്ണസംഖ്യ branchesFound = 0;
+        പൂർണ്ണസംഖ്യ branchesHit = 0;
+        വേണ്ടി (auto& li : വരികൾ) {
+            Vlc_Source_എണ്ണം& sc = li.second;
+            uint64_t da_എണ്ണം = 0;
+            std::vector<സ്ഥിരം VlcPoint*> infoPoints;
+            വേണ്ടി (സ്ഥിരം auto& point : sc.points()) {
+                da_എണ്ണം = std::max(da_എണ്ണം, point->എണ്ണം());
+                infoPoints.തള്ളുക_back(point);
             }
-            os << "DA:" << sc.lineno() << "," << daCount << "\n";
-            if (infoPoints.size() <= 1) continue;
-            branchesFound += static_cast<int>(infoPoints.size());
-            int point_num = 0;
-            for (const VlcPoint* point : infoPoints) {
+            os << "DA:" << sc.lineno() << "," << da_എണ്ണം << "\n";
+            എങ്കിൽ (infoPoints.size() <= 1) തുടരുക;
+            branchesFound += static_cast<പൂർണ്ണസംഖ്യ>(infoPoints.size());
+            പൂർണ്ണസംഖ്യ point_അക്കം_2 = 0;
+            വേണ്ടി (സ്ഥിരം VlcPoint* point : infoPoints) {
                 os << "BRDA:" << sc.lineno() << ",";
-                if (point->isFsmArc()) {
+                എങ്കിൽ (point->isFsmArc()) {
                     os << "2,";
                     os << point->fsmFromState() << "->" << point->fsmToState();
-                } else if (point->comment().empty()) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (point->comment().empty()) {
                     os << "0,";
-                    os << point_num;
-                } else {
+                    os << point_അക്കം_2;
+                } അല്ലെങ്കിൽ {
                     os << (point->isFsmState() ? '1' : '0') << ',';
                     std::string comment(point->comment());
                     std::replace(comment.begin(), comment.end(), ',', '_');
                     os << comment;
                 }
-                os << "," << point->count() << "\n";
+                os << "," << point->എണ്ണം() << "\n";
 
-                branchesHit += opt.countOk(point->count());
-                ++point_num;
+                branchesHit += opt.എണ്ണം_Ok(point->എണ്ണം());
+                ++point_അക്കം_2;
             }
         }
         os << "BRF:" << branchesFound << '\n';
@@ -593,98 +593,98 @@ void VlcTop::writeInfo(const string& filename) {
 
 //********************************************************************
 
-struct CmpComputrons final {
-    bool operator()(const VlcTest* lhsp, const VlcTest* rhsp) const {
-        if (lhsp->computrons() != rhsp->computrons()) {
-            return lhsp->computrons() < rhsp->computrons();
+ഘടന CmpComputrons final {
+    തർക്കം operator()(സ്ഥിരം VlcTest* lhsp, സ്ഥിരം VlcTest* rhsp) സ്ഥിരം {
+        എങ്കിൽ (lhsp->computrons() != rhsp->computrons()) {
+            തിരികെ lhsp->computrons() < rhsp->computrons();
         }
-        return lhsp->bucketsCovered() > rhsp->bucketsCovered();
+        തിരികെ lhsp->bucketsCovered() > rhsp->bucketsCovered();
     }
 };
 
-void VlcTop::rank() {
+ശൂന്യം Vlc_മുകൾ::rank() {
     UINFO(2, "rank...");
     uint64_t nextrank = 1;
 
     // Sort by computrons, so fast tests get selected first
     std::vector<VlcTest*> bytime;
-    for (const auto& testp : m_tests) {
-        if (testp->bucketsCovered()) {  // else no points, so can't help us
-            bytime.push_back(testp);
+    വേണ്ടി (സ്ഥിരം auto& testp : m_tests) {
+        എങ്കിൽ (testp->bucketsCovered()) {  // else no points, so can't help us
+            bytime.തള്ളുക_back(testp);
         }
     }
     sort(bytime.begin(), bytime.end(), CmpComputrons());  // Sort the vector
 
     VlcBuckets remaining;
-    for (const auto& i : m_points) {
-        const VlcPoint* const pointp = &points().pointNumber(i.second);
+    വേണ്ടി (സ്ഥിരം auto& i : m_points) {
+        സ്ഥിരം VlcPoint* സ്ഥിരം pointp = &points().point_സംഖ്യ(i.second);
         // If any tests hit this point, then we'll need to cover it.
-        if (pointp->testsCovering()) remaining.addData(pointp->pointNum(), 1);
+        എങ്കിൽ (pointp->testsCovering()) remaining.addData(pointp->point_അക്കം(), 1);
     }
 
     // Additional Greedy algorithm
     // O(n^2) Ouch.  Probably the thing to do is randomize the order of data
     // then hierarchically solve a small subset of tests, and take resulting
     // solution and move up to larger subset of tests.  (Aka quick sort.)
-    while (true) {
-        if (debug() >= 9) {
+    ആകുമ്പോൾ (സത്യം) {
+        എങ്കിൽ (debug() >= 9) {
             UINFO_PREFIX("Left on iter" << nextrank << ": ");  // LCOV_EXCL_LINE
             remaining.dump();  // LCOV_EXCL_LINE
         }
         VlcTest* bestTestp = nullptr;
         uint64_t bestRemain = 0;
-        for (const auto& testp : bytime) {
-            if (!testp->rank()) {
-                const uint64_t remain = testp->buckets().dataPopCount(remaining);
-                if (remain > bestRemain) {
+        വേണ്ടി (സ്ഥിരം auto& testp : bytime) {
+            എങ്കിൽ (!testp->rank()) {
+                സ്ഥിരം uint64_t remain = testp->buckets().data_എടുക്കുക_എണ്ണം(remaining);
+                എങ്കിൽ (remain > bestRemain) {
                     bestTestp = testp;
                     bestRemain = remain;
                 }
             }
         }
-        if (VlcTest* const testp = bestTestp) {
+        എങ്കിൽ (VlcTest* സ്ഥിരം testp = bestTestp) {
             testp->rank(nextrank++);
             testp->rankPoints(bestRemain);
             remaining.orData(bestTestp->buckets());
-        } else {
-            break;  // No test covering more stuff found
+        } അല്ലെങ്കിൽ {
+            നിർത്തുക;  // No test covering more stuff found
         }
     }
 }
 
-void VlcTop::annotateCalc() {
+ശൂന്യം Vlc_മുകൾ::annotateCalc() {
     // Calculate per-line information into filedata structure
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
-        const string filename = point.filename();
-        const int lineno = point.lineno();
-        if (!filename.empty() && lineno != 0) {
+    വേണ്ടി (സ്ഥിരം auto& i : m_points) {
+        സ്ഥിരം VlcPoint& point = m_points.point_സംഖ്യ(i.second);
+        സ്ഥിരം string filename = point.filename();
+        സ്ഥിരം പൂർണ്ണസംഖ്യ lineno = point.lineno();
+        എങ്കിൽ (!filename.empty() && lineno != 0) {
             VlcSource& source = sources().findNewSource(filename);
             UINFO(9, "AnnoCalc count " << filename << ":" << lineno << ":" << point.column() << " "
-                                       << point.count() << " " << point.linescov());
+                                       << point.എണ്ണം() << " " << point.linescov());
             // Base coverage
-            source.insertPoint(lineno, &point);
+            source.തിരുകുക_Point(lineno, &point);
             // Additional lines covered by this statement
-            bool range = false;
-            int start = 0;
-            int end = 0;
-            const string linescov = point.linescov();
-            for (const char* covp = linescov.c_str(); true; ++covp) {
-                if (!*covp || *covp == ',') {  // Ending
-                    for (int lni = start; start && lni <= end; ++lni) {
-                        source.insertPoint(lni, &point);
+            തർക്കം range = അസത്യം;
+            പൂർണ്ണസംഖ്യ start = 0;
+            പൂർണ്ണസംഖ്യ end = 0;
+            സ്ഥിരം string linescov = point.linescov();
+            വേണ്ടി (സ്ഥിരം അക്ഷരം* covp = linescov.c_str(); സത്യം; ++covp) {
+                എങ്കിൽ (!*covp || *covp == ',') {  // Ending
+                    വേണ്ടി (പൂർണ്ണസംഖ്യ lni = start; start && lni <= end; ++lni) {
+                        source.തിരുകുക_Point(lni, &point);
                     }
-                    if (!*covp) break;
+                    എങ്കിൽ (!*covp) നിർത്തുക;
                     start = 0;  // Prep for next
                     end = 0;
-                    range = false;
-                } else if (*covp == '-') {
-                    range = true;
-                } else if (std::isdigit(*covp)) {
-                    const char* const digitsp = covp;
-                    while (std::isdigit(*covp)) ++covp;
+                    range = അസത്യം;
+                } അല്ലെങ്കിൽ എങ്കിൽ (*covp == '-') {
+                    range = സത്യം;
+                } അല്ലെങ്കിൽ എങ്കിൽ (std::isdigit(*covp)) {
+                    സ്ഥിരം അക്ഷരം* സ്ഥിരം digitsp = covp;
+                    ആകുമ്പോൾ (std::isdigit(*covp)) ++covp;
                     --covp;  // Will inc in for loop
-                    if (!range) start = std::atoi(digitsp);
+                    എങ്കിൽ (!range) start = std::atoi(digitsp);
                     end = std::atoi(digitsp);
                 }
             }
@@ -692,103 +692,103 @@ void VlcTop::annotateCalc() {
     }
 }
 
-void VlcTop::annotateCalcNeeded() {
+ശൂന്യം Vlc_മുകൾ::annotateCalcNeeded() {
     // Compute which files are needed.  A file isn't needed if it has appropriate
     // coverage in all categories
-    int totCases = 0;
-    int totOk = 0;
-    for (auto& si : m_sources) {
+    പൂർണ്ണസംഖ്യ totCases = 0;
+    പൂർണ്ണസംഖ്യ totOk = 0;
+    വേണ്ടി (auto& si : m_sources) {
         VlcSource& source = si.second;
         // UINFO(1, "Source " << source.name());
-        if (opt.annotateAll()) source.needed(true);
-        const VlcSource::LinenoMap& lines = source.lines();
-        for (auto& li : lines) {
-            const VlcSourceCount& sc = li.second;
+        എങ്കിൽ (opt.annotateAll()) source.needed(സത്യം);
+        സ്ഥിരം VlcSource::LinenoMap& വരികൾ = source.വരികൾ();
+        വേണ്ടി (auto& li : വരികൾ) {
+            സ്ഥിരം Vlc_Source_എണ്ണം& sc = li.second;
             // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" << sc.column());
             ++totCases;
-            if (opt.countOk(sc.minCount())) {
+            എങ്കിൽ (opt.എണ്ണം_Ok(sc.min_എണ്ണം())) {
                 ++totOk;
-            } else {
-                source.needed(true);
+            } അല്ലെങ്കിൽ {
+                source.needed(സത്യം);
             }
         }
     }
     std::cout << "Annotation Summary:\n";
     std::cout << "  lines with all attached points covered : ";
     std::cout << pctString(totOk, totCases) << "  (" << totOk << "/" << totCases << ")\n";
-    if (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
+    എങ്കിൽ (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
 }
 
-void VlcTop::annotateOutputFiles(const string& dirname) {
+ശൂന്യം Vlc_മുകൾ::annotateOutputFiles(സ്ഥിരം string& dirname) {
     // Create if uncreated, ignore errors
     V3Os::createDir(dirname);
-    for (auto& si : m_sources) {
+    വേണ്ടി (auto& si : m_sources) {
         VlcSource& source = si.second;
-        if (!source.needed()) continue;
-        const string filename = source.name();
-        const string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
+        എങ്കിൽ (!source.needed()) തുടരുക;
+        സ്ഥിരം string filename = source.name();
+        സ്ഥിരം string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
 
         UINFO(1, "annotateOutputFile " << filename << " -> " << outfilename);
 
         std::ifstream is{filename.c_str()};
-        if (!is) {
+        എങ്കിൽ (!is) {
             v3error("Can't read annotation file: " << filename);
-            return;
+            തിരികെ;
         }
 
         std::ofstream os{outfilename.c_str()};
-        if (!os) {
+        എങ്കിൽ (!os) {
             v3error("Can't write file: " << outfilename);
-            return;
+            തിരികെ;
         }
 
         os << "//      // verilator_coverage annotation\n";
 
-        int lineno = 0;
-        while (!is.eof()) {
+        പൂർണ്ണസംഖ്യ lineno = 0;
+        ആകുമ്പോൾ (!is.eof()) {
             lineno++;
-            const std::string line = V3Os::getline(is);
+            സ്ഥിരം std::string വരി = V3Os::getline(is);
 
-            VlcSource::LinenoMap& lines = source.lines();
-            const auto lit = lines.find(lineno);
-            if (lit == lines.end()) {
-                os << "        " << line << '\n';
-            } else {
-                VlcSourceCount& sc = lit->second;
+            VlcSource::LinenoMap& വരികൾ = source.വരികൾ();
+            സ്ഥിരം auto lit = വരികൾ.find(lineno);
+            എങ്കിൽ (lit == വരികൾ.end()) {
+                os << "        " << വരി << '\n';
+            } അല്ലെങ്കിൽ {
+                Vlc_Source_എണ്ണം& sc = lit->second;
                 // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" <<
                 // sc.column());
-                const bool minOk = opt.countOk(sc.minCount());
-                const bool maxOk = opt.countOk(sc.maxCount());
-                if (minOk) {
+                സ്ഥിരം തർക്കം minOk = opt.എണ്ണം_Ok(sc.min_എണ്ണം());
+                സ്ഥിരം തർക്കം maxOk = opt.എണ്ണം_Ok(sc.max_എണ്ണം());
+                എങ്കിൽ (minOk) {
                     os << " ";
-                } else if (maxOk) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (maxOk) {
                     os << "~";
-                } else {
+                } അല്ലെങ്കിൽ {
                     os << "%";
                 }
-                os << std::setfill('0') << std::setw(6) << sc.maxCount() << " " << line << '\n';
+                os << std::setfill('0') << std::setw(6) << sc.max_എണ്ണം() << " " << വരി << '\n';
 
-                if (opt.annotatePoints()) {
-                    for (const auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
+                എങ്കിൽ (opt.annotatePoints()) {
+                    വേണ്ടി (സ്ഥിരം auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
                 }
-                bool printedFsmHeader = false;
-                for (const auto& pit : sc.points()) {
-                    if (!pit->isFsmState() && !pit->isFsmArc()) continue;
-                    if (!printedFsmHeader) {
+                തർക്കം printedFsmHeader = അസത്യം;
+                വേണ്ടി (സ്ഥിരം auto& pit : sc.points()) {
+                    എങ്കിൽ (!pit->isFsmState() && !pit->isFsmArc()) തുടരുക;
+                    എങ്കിൽ (!printedFsmHeader) {
                         os << "        // [FSM coverage]\n";
-                        printedFsmHeader = true;
+                        printedFsmHeader = സത്യം;
                     }
-                    os << (opt.countOk(pit->count()) ? " " : "%");
-                    os << std::setfill('0') << std::setw(6) << pit->count() << "        ";
-                    if (pit->isFsmState()) {
+                    os << (opt.എണ്ണം_Ok(pit->എണ്ണം()) ? " " : "%");
+                    os << std::setfill('0') << std::setw(6) << pit->എണ്ണം() << "        ";
+                    എങ്കിൽ (pit->isFsmState()) {
                         os << "// [fsm_state " << pit->comment() << "]";
-                        if (pit->count() == 0) os << " *** UNCOVERED ***";
+                        എങ്കിൽ (pit->എണ്ണം() == 0) os << " *** UNCOVERED ***";
                         os << "\n";
-                    } else if (pit->isFsmDefaultArc()) {
+                    } അല്ലെങ്കിൽ എങ്കിൽ (pit->isFsmDefaultArc()) {
                         os << "// [SYNTHETIC DEFAULT ARC: " << pit->comment() << "]\n";
-                    } else {
+                    } അല്ലെങ്കിൽ {
                         os << "// [fsm_arc " << pit->comment() << "]";
-                        if (pit->fsmIsReset() && !opt.includeResetArcs()) {
+                        എങ്കിൽ (pit->fsmIsReset() && !opt.includeResetArcs()) {
                             os << " [reset arc, excluded from %]";
                         }
                         os << "\n";
@@ -799,91 +799,91 @@ void VlcTop::annotateOutputFiles(const string& dirname) {
     }
 }
 
-void VlcTop::annotate(const string& dirname) {
+ശൂന്യം Vlc_മുകൾ::annotate(സ്ഥിരം string& dirname) {
     // Calculate per-line information into filedata structure
     annotateCalc();
     annotateCalcNeeded();
     annotateOutputFiles(dirname);
 }
 
-void VlcTop::printTypeSummary() {
+ശൂന്യം Vlc_മുകൾ::printTypeSummary() {
     TypeTally tally;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Tallied below, by covergroup
-        tallyPoint(tally, displayType(pt), pt.count());
+    വേണ്ടി (VlcPoints::ByName::മൂല്യം_type& i : m_points) {
+        സ്ഥിരം VlcPoint& pt = m_points.point_സംഖ്യ(i.second);
+        എങ്കിൽ (isCovergroup(pt)) തുടരുക;  // Tallied below, by covergroup
+        tallyPoint(tally, displayType(pt), pt.എണ്ണം());
     }
-    const CgGroups groups = covergroups(m_points);
-    if (!groups.empty()) {
-        std::vector<const CgGroup*> groupps;
-        for (const CgGroups::value_type& it : groups) groupps.push_back(&it.second);
+    സ്ഥിരം CgGroups groups = covergroups(m_points);
+    എങ്കിൽ (!groups.empty()) {
+        std::vector<സ്ഥിരം CgGroup*> groupps;
+        വേണ്ടി (സ്ഥിരം CgGroups::മൂല്യം_type& it : groups) groupps.തള്ളുക_back(&it.second);
         tally[s_covergroupType] = groupsTally(groupps);
     }
-    if (tally.empty()) return;
+    എങ്കിൽ (tally.empty()) തിരികെ;
     std::cout << "Coverage Summary:\n";
     // Keep the legacy summary behavior of showing standard coverage types even
     // when the input has no points of that type.
-    printTypeTally(tally, s_summaryIndent, true);
+    printTypeTally(tally, s_summaryIndent, സത്യം);
 }
 
-void VlcTop::printHierarchyReport() {
+ശൂന്യം Vlc_മുകൾ::printHierarchyReport() {
     std::map<string, TypeTally> hierTallies;
     std::map<string, TypeTally> duTallies;
-    bool hasHier = false;
-    bool hasCollapsedHier = false;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Reported below, by covergroup
-        const string hier = reportHier(pt);
-        if (hier.empty()) continue;
-        hasHier = true;
-        if (isCollapsedHier(hier)) hasCollapsedHier = true;
-        const string type = displayType(pt);
-        const std::vector<string> parts = splitHier(hier);
+    തർക്കം hasHier = അസത്യം;
+    തർക്കം hasCollapsedHier = അസത്യം;
+    വേണ്ടി (VlcPoints::ByName::മൂല്യം_type& i : m_points) {
+        സ്ഥിരം VlcPoint& pt = m_points.point_സംഖ്യ(i.second);
+        എങ്കിൽ (isCovergroup(pt)) തുടരുക;  // Reported below, by covergroup
+        സ്ഥിരം string hier = reportHier(pt);
+        എങ്കിൽ (hier.empty()) തുടരുക;
+        hasHier = സത്യം;
+        എങ്കിൽ (isCollapsedHier(hier)) hasCollapsedHier = സത്യം;
+        സ്ഥിരം string type = displayType(pt);
+        സ്ഥിരം std::vector<string> parts = splitHier(hier);
         string path;
-        for (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+        വേണ്ടി (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
             path = path.empty() ? *it : path + "." + *it;
-            tallyPoint(hierTallies[path], type, pt.count());
+            tallyPoint(hierTallies[path], type, pt.എണ്ണം());
         }
-        tallyPoint(duTallies[duName(pt)], type, pt.count());
+        tallyPoint(duTallies[duName(pt)], type, pt.എണ്ണം());
     }
-    const std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
+    സ്ഥിരം std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
 
-    if (!hasHier && !cgTallies.empty()) {
+    എങ്കിൽ (!hasHier && !cgTallies.empty()) {
         printCovergroupTallies(cgTallies, opt.reportLevels());
-        return;
+        തിരികെ;
     }
-    if (!hasHier) {
+    എങ്കിൽ (!hasHier) {
         std::cout << "%Warning: --report hierarchy input has no hierarchy fields; "
                   << "printing flat summary instead.\n";
         printTypeSummary();
-        return;
+        തിരികെ;
     }
 
-    const int levels = opt.reportLevels();
-    if (hasCollapsedHier) {
+    സ്ഥിരം പൂർണ്ണസംഖ്യ levels = opt.reportLevels();
+    എങ്കിൽ (hasCollapsedHier) {
         std::cout << "Note: hierarchy report contains collapsed hierarchy paths; "
                   << "it is not precise per-instance coverage.\n";
     }
     std::cout << "Hierarchy Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
+    വേണ്ടി (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
          it != hierTallies.end(); ++it) {
-        const std::vector<string> parts = splitHier(it->first);
-        if (levels >= 0 && static_cast<int>(parts.size()) > levels + 1) continue;
+        സ്ഥിരം std::vector<string> parts = splitHier(it->first);
+        എങ്കിൽ (levels >= 0 && static_cast<പൂർണ്ണസംഖ്യ>(parts.size()) > levels + 1) തുടരുക;
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
         // Hierarchy nodes can be numerous, so only print coverage types present
         // under this node instead of repeating absent zero-count rows.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->second, s_reportRowIndent, അസത്യം);
     }
     std::cout << "Design Unit Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
+    വേണ്ടി (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
          ++it) {
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
         // Design-unit summaries follow the hierarchy report style: present
         // types only, but in the same stable order as the flat summary.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->second, s_reportRowIndent, അസത്യം);
     }
-    if (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
+    എങ്കിൽ (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
 }

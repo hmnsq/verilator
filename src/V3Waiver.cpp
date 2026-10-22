@@ -14,39 +14,39 @@
 //
 //*************************************************************************
 
-#include "verilatedos.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Waiver.h"
+#അന്തര്ഭാവ "V3Waiver.h"
 
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Options.h"
+#അന്തര്ഭാവ "V3File.h"
+#അന്തര്ഭാവ "V3Global.h"
+#അന്തര്ഭാവ "V3Options.h"
 
-#include <memory>
-#include <sstream>
+#അന്തര്ഭാവ <memory>
+#അന്തര്ഭാവ <sstream>
 
-void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, const std::string& msg)
+ശൂന്യം V3Waiver::addEntry(V3ErrorCode errorCode, സ്ഥിരം std::string& filename, സ്ഥിരം std::string& സന്ദേശം)
     VL_MT_SAFE_EXCLUDES(s_mutex) {
-    if (filename == V3Options::getStdPackagePath()) return;
-    if (filename == V3Options::getStdWaiverPath()) return;
-    const V3LockGuard lock{s_mutex};
+    എങ്കിൽ (filename == V3Options::getStdPackagePath()) തിരികെ;
+    എങ്കിൽ (filename == V3Options::getStdWaiverPath()) തിരികെ;
+    സ്ഥിരം V3LockGuard lock{s_mutex};
 
-    string trimmsg = msg;
-    if (!v3Global.opt.waiverMultiline()) {
-        const size_t pos = trimmsg.find('\n');
+    string trimmsg = സന്ദേശം;
+    എങ്കിൽ (!v3Global.opt.waiverMultiline()) {
+        സ്ഥിരം size_t pos = trimmsg.find('\n');
         trimmsg.resize(pos);
-        if (pos != std::string::npos) trimmsg += '*';
+        എങ്കിൽ (pos != std::string::npos) trimmsg += '*';
     }
     {  // Remove line numbers and context "\n [0-9] | ", "\n  ^[~]+"
         string result;
-        for (const char* cp = trimmsg.c_str(); *cp; cp = *cp ? cp + 1 : cp) {
-            while (*cp == ' ' || isdigit(*cp)) ++cp;
-            if (*cp == '|') ++cp;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = trimmsg.c_str(); *cp; cp = *cp ? cp + 1 : cp) {
+            ആകുമ്പോൾ (*cp == ' ' || isdigit(*cp)) ++cp;
+            എങ്കിൽ (*cp == '|') ++cp;
             // ^~~~~
-            while (*cp == ' ' || *cp == '^') ++cp;
-            while (*cp == '~') ++cp;
-            while (*cp && *cp != '\n') result += *cp++;
-            while (*cp == '\n') result += *cp++;
+            ആകുമ്പോൾ (*cp == ' ' || *cp == '^') ++cp;
+            ആകുമ്പോൾ (*cp == '~') ++cp;
+            ആകുമ്പോൾ (*cp && *cp != '\n') result += *cp++;
+            ആകുമ്പോൾ (*cp == '\n') result += *cp++;
         }
         trimmsg = result;
     }
@@ -55,12 +55,12 @@ void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, cons
         string result;
         string add;
         result.reserve(trimmsg.size());
-        for (const char& c : trimmsg) {
-            if (c == '*' || !std::isprint(c)) {
+        വേണ്ടി (സ്ഥിരം അക്ഷരം& c : trimmsg) {
+            എങ്കിൽ (c == '*' || !std::isprint(c)) {
                 add = "*";
-            } else if (c == ' ') {
-                if (add != "*") add += c;
-            } else {
+            } അല്ലെങ്കിൽ എങ്കിൽ (c == ' ') {
+                എങ്കിൽ (add != "*") add += c;
+            } അല്ലെങ്കിൽ {
                 result += add + c;
                 add = "";
             }
@@ -72,12 +72,12 @@ void V3Waiver::addEntry(V3ErrorCode errorCode, const std::string& filename, cons
     std::stringstream entry;
     entry << "lint_off -rule " << errorCode.ascii() << " -file \"*"
           << VString::quoteBackslash(filename) << "\" -match \"" << trimmsg << "\"";
-    s_waiverList.push_back(entry.str());
+    s_waiverList.തള്ളുക_back(entry.str());
 }
 
-void V3Waiver::write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {
-    const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+ശൂന്യം V3Waiver::ലിഖ(സ്ഥിരം std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {
+    സ്ഥിരം std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+    എങ്കിൽ (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     *ofp << "// DESCR"
             "IPTION: Verilator output: Waivers generated with --waiver-output\n\n";
@@ -89,11 +89,11 @@ void V3Waiver::write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex) {
     *ofp << "//   2. Keep the waiver permanently if you are sure it is okay\n";
     *ofp << "//   3. Keep the waiver temporarily to suppress the output\n\n";
 
-    const V3LockGuard lock{s_mutex};
+    സ്ഥിരം V3LockGuard lock{s_mutex};
 
-    if (s_waiverList.empty()) *ofp << "// No waivers needed - great!\n";
+    എങ്കിൽ (s_waiverList.empty()) *ofp << "// No waivers needed - great!\n";
 
-    for (const auto& i : s_waiverList) *ofp << "// " << i << "\n\n";
+    വേണ്ടി (സ്ഥിരം auto& i : s_waiverList) *ofp << "// " << i << "\n\n";
 }
 
 V3Mutex V3Waiver::s_mutex;

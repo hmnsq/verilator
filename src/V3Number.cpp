@@ -14,82 +14,82 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#അന്തര്ഭാവ "V3PchAstMT.h"
 
-#include "V3Number.h"
+#അന്തര്ഭാവ "V3Number.h"
 
-#include "V3File.h"
+#അന്തര്ഭാവ "V3File.h"
 
-#include <algorithm>
-#include <cerrno>
-#include <cmath>
-#include <functional>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <cerrno>
+#അന്തര്ഭാവ <cmath>
+#അന്തര്ഭാവ <functional>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-constexpr int MAX_SPRINTF_DOUBLE_SIZE
+constexpr പൂർണ്ണസംഖ്യ MAX_SPRINTF_DOUBLE_SIZE
     = 1100;  // Maximum characters with a sprintf %e/%f/%g (really 1079)
 
 // Number operations build output in-place so can't call e.g. foo.opX(foo)
-#define NUM_ASSERT_OP_ARGS1(arg1) \
-    UASSERT((this != &(arg1)), "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS2(arg1, arg2) \
-    UASSERT((this != &(arg1) && this != &(arg2)), \
+#define അക്കം_ASSERT_OP_ARGS1(arg1) \
+    UASSERT((ഇത് != &(arg1)), "Number operation called with same source and dest")
+#define അക്കം_ASSERT_OP_ARGS2(arg1, arg2) \
+    UASSERT((ഇത് != &(arg1) && ഇത് != &(arg2)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
-    UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3)), \
+#define അക്കം_ASSERT_OP_ARGS3(arg1, arg2, arg3) \
+    UASSERT((ഇത് != &(arg1) && ഇത് != &(arg2) && ഇത് != &(arg3)), \
             "Number operation called with same source and dest")
-#define NUM_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
-    UASSERT((this != &(arg1) && this != &(arg2) && this != &(arg3) && this != &(arg4)), \
+#define അക്കം_ASSERT_OP_ARGS4(arg1, arg2, arg3, arg4) \
+    UASSERT((ഇത് != &(arg1) && ഇത് != &(arg2) && ഇത് != &(arg3) && ഇത് != &(arg4)), \
             "Number operation called with same source and dest")
 
-#define NUM_ASSERT_LOGIC_ARGS1(arg1) \
-    UASSERT(((arg1).dataType() == V3NumberData::V3NumberDataType::LOGIC), \
+#define അക്കം_ASSERT_LOGIC_ARGS1(arg1) \
+    UASSERT(((arg1).dataType() == V3_സംഖ്യ_Data::V3_സംഖ്യ_Data_Type::LOGIC), \
             "Number operation called with non-logic (double or string) argument: '" << (arg1) \
                                                                                     << '"')
-#define NUM_ASSERT_LOGIC_ARGS2(arg1, arg2) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2)
+#define അക്കം_ASSERT_LOGIC_ARGS2(arg1, arg2) \
+    അക്കം_ASSERT_LOGIC_ARGS1(arg1); \
+    അക്കം_ASSERT_LOGIC_ARGS1(arg2)
 
-#define NUM_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
-    NUM_ASSERT_LOGIC_ARGS1(arg1); \
-    NUM_ASSERT_LOGIC_ARGS1(arg2); \
-    NUM_ASSERT_LOGIC_ARGS1(arg3); \
-    NUM_ASSERT_LOGIC_ARGS1(arg4)
+#define അക്കം_ASSERT_LOGIC_ARGS4(arg1, arg2, arg3, arg4) \
+    അക്കം_ASSERT_LOGIC_ARGS1(arg1); \
+    അക്കം_ASSERT_LOGIC_ARGS1(arg2); \
+    അക്കം_ASSERT_LOGIC_ARGS1(arg3); \
+    അക്കം_ASSERT_LOGIC_ARGS1(arg4)
 
-#define NUM_ASSERT_STRING_ARGS1(arg1) \
+#define അക്കം_ASSERT_STRING_ARGS1(arg1) \
     UASSERT((arg1).isString(), \
             "Number operation called with non-string argument: '" << (arg1) << '"')
-#define NUM_ASSERT_STRING_ARGS2(arg1, arg2) \
-    NUM_ASSERT_STRING_ARGS1(arg1); \
-    NUM_ASSERT_STRING_ARGS1(arg2)
+#define അക്കം_ASSERT_STRING_ARGS2(arg1, arg2) \
+    അക്കം_ASSERT_STRING_ARGS1(arg1); \
+    അക്കം_ASSERT_STRING_ARGS1(arg2)
 
-#define NUM_ASSERT_DOUBLE_ARGS1(arg1) \
+#define അക്കം_ASSERT_DOUBLE_ARGS1(arg1) \
     UASSERT((arg1).isDouble(), \
             "Number operation called with non-double argument: '" << (arg1) << '"')
-#define NUM_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
-    NUM_ASSERT_DOUBLE_ARGS1(arg1); \
-    NUM_ASSERT_DOUBLE_ARGS1(arg2)
+#define അക്കം_ASSERT_DOUBLE_ARGS2(arg1, arg2) \
+    അക്കം_ASSERT_DOUBLE_ARGS1(arg1); \
+    അക്കം_ASSERT_DOUBLE_ARGS1(arg2)
 
 //======================================================================
 // Errors
 
-void V3Number::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
+ശൂന്യം V3_സംഖ്യ::v3errorEnd(സ്ഥിരം std::ostringstream& str) സ്ഥിരം VL_RELEASE(V3Error::s().m_mutex) {
     std::ostringstream nsstr;
     nsstr << str.str();
-    if (m_nodep) {
+    എങ്കിൽ (m_nodep) {
         m_nodep->v3errorEnd(nsstr);
-    } else if (m_fileline) {
+    } അല്ലെങ്കിൽ എങ്കിൽ (m_fileline) {
         m_fileline->v3errorEnd(nsstr);
-    } else {
+    } അല്ലെങ്കിൽ {
         V3Error::v3errorEnd(nsstr, "", nullptr);
     }
 }
 
-void V3Number::v3errorEndFatal(const std::ostringstream& str) const
+ശൂന്യം V3_സംഖ്യ::v3errorEndFatal(സ്ഥിരം std::ostringstream& str) സ്ഥിരം
     VL_RELEASE(V3Error::s().m_mutex) {
     v3errorEnd(str);
-    assert(0);  // LCOV_EXCL_LINE
+    പ്രതിജ്ഞാ(0);  // LCOV_EXCL_LINE
     VL_UNREACHABLE;
 }
 
@@ -97,970 +97,970 @@ void V3Number::v3errorEndFatal(const std::ostringstream& str) const
 // Read class functions
 // CREATION
 
-V3Number::V3Number(AstNode* nodep, VerilogStringLiteral, const string& str) {
+V3_സംഖ്യ::V3_സംഖ്യ(Ast_കണ്ണി* nodep, VerilogStringLiteral, സ്ഥിരം string& str) {
     // Create a number using a verilog string as the value, thus 8 bits per character.
-    if (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
+    എങ്കിൽ (str.empty()) {  // IEEE 1800-2023 11.10.3 "" = "\000"
         init(nodep, 8);
-    } else {
-        init(nodep, std::max<int>(str.length() * 8, 1));
-        for (unsigned pos = 0; pos < str.length(); ++pos) {
-            const int topos = str.length() - 1 - pos;
-            ValueAndX& v = m_data.num()[topos / 4];
-            for (int bit = 0; bit < 8; ++bit) {
-                if (str[pos] & (1UL << bit)) v.m_value |= (1UL << (bit + (topos % 4) * 8));
+    } അല്ലെങ്കിൽ {
+        init(nodep, std::max<പൂർണ്ണസംഖ്യ>(str.length() * 8, 1));
+        വേണ്ടി (unsigned pos = 0; pos < str.length(); ++pos) {
+            സ്ഥിരം പൂർണ്ണസംഖ്യ topos = str.length() - 1 - pos;
+            മൂല്യം_And_X& v = m_data.അക്കം()[topos / 4];
+            വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < 8; ++bit) {
+                എങ്കിൽ (str[pos] & (1UL << bit)) v.m_മൂല്യം |= (1UL << (bit + (topos % 4) * 8));
             }
         }
     }
-    m_data.m_fromString = true;
-    opCleanThis(true);
+    m_data.m_fromString = സത്യം;
+    opCleanThis(സത്യം);
 }
 
-V3Number::V3Number(AstNode* nodep, const AstNodeDType* nodedtypep) {
-    if (nodedtypep->isCHandle()) {
+V3_സംഖ്യ::V3_സംഖ്യ(Ast_കണ്ണി* nodep, സ്ഥിരം Ast_കണ്ണി_DType* nodedtypep) {
+    എങ്കിൽ (nodedtypep->isCHandle()) {
         init(nodep);
         setNull();
-    } else if (nodedtypep->isDouble()) {
+    } അല്ലെങ്കിൽ എങ്കിൽ (nodedtypep->isDouble()) {
         init(nodep, 64);
         setDouble(0.0);
-    } else if (nodedtypep->isString()) {
+    } അല്ലെങ്കിൽ എങ്കിൽ (nodedtypep->isString()) {
         init(nodep);
         setString("");
-    } else {
+    } അല്ലെങ്കിൽ {
         init(nodep, nodedtypep->width(), nodedtypep->widthSized());
     }
 }
 
-void V3Number::create(const char* sourcep) {
+ശൂന്യം V3_സംഖ്യ::create(സ്ഥിരം അക്ഷരം* sourcep) {
     m_data.setLogic();
-    const char* value_startp = sourcep;
-    for (const char* cp = sourcep; *cp; ++cp) {
-        if (*cp == '\'') {
-            value_startp = cp + 1;
-            break;
+    സ്ഥിരം അക്ഷരം* മൂല്യം_startp = sourcep;
+    വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = sourcep; *cp; ++cp) {
+        എങ്കിൽ (*cp == '\'') {
+            മൂല്യം_startp = cp + 1;
+            നിർത്തുക;
         }
     }
 
-    bool userSized = false;
-    bool unbased = false;
-    char base = '\0';
-    if (value_startp != sourcep) {  // Has a '
+    തർക്കം userSized = അസത്യം;
+    തർക്കം unbased = അസത്യം;
+    അക്ഷരം base = '\0';
+    എങ്കിൽ (മൂല്യം_startp != sourcep) {  // Has a '
         string widthn;
-        const char* cp = sourcep;
-        for (; *cp; ++cp) {
-            if (*cp == '\'') {
+        സ്ഥിരം അക്ഷരം* cp = sourcep;
+        വേണ്ടി (; *cp; ++cp) {
+            എങ്കിൽ (*cp == '\'') {
                 ++cp;
-                break;
+                നിർത്തുക;
             }
-            if (*cp != '_') widthn += *cp;
+            എങ്കിൽ (*cp != '_') widthn += *cp;
         }
-        while (*cp == '_') cp++;
-        if (*cp && std::tolower(*cp) == 's') {
+        ആകുമ്പോൾ (*cp == '_') cp++;
+        എങ്കിൽ (*cp && std::tolower(*cp) == 's') {
             ++cp;
-            isSigned(true);
+            isSigned(സത്യം);
         }
-        if (*cp) {
+        എങ്കിൽ (*cp) {
             base = *cp;
             ++cp;
         }
-        value_startp = cp;
+        മൂല്യം_startp = cp;
 
         userSized = widthn.length() != 0;
-        if (std::atoi(widthn.c_str())) {
-            if (std::atoi(widthn.c_str()) < 0
-                || std::atoi(widthn.c_str()) > v3Global.opt.maxNumWidth()) {
+        എങ്കിൽ (std::atoi(widthn.c_str())) {
+            എങ്കിൽ (std::atoi(widthn.c_str()) < 0
+                || std::atoi(widthn.c_str()) > v3Global.opt.max_അക്കം_Width()) {
                 // atoi might convert large number to negative, so can't tell which
                 v3error("Unsupported: Width of number exceeds implementation limit: "
                         << sourcep << "  (IEEE 1800-2023 6.9.1)");
-                width(v3Global.opt.maxNumWidth(), true);
-            } else {
-                width(std::atoi(widthn.c_str()), true);
+                width(v3Global.opt.max_അക്കം_Width(), സത്യം);
+            } അല്ലെങ്കിൽ {
+                width(std::atoi(widthn.c_str()), സത്യം);
             }
         }
-    } else {
-        unbased = true;
+    } അല്ലെങ്കിൽ {
+        unbased = സത്യം;
         base = 'd';
     }
 
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {0, 0};
 
     // Special SystemVerilog unsized constructs
-    if (base == '0') {
-        width(1, false);  // So we extend it
+    എങ്കിൽ (base == '0') {
+        width(1, അസത്യം);  // So we extend it
         setBit(0, 0);
-        m_data.m_autoExtend = true;
-    } else if (base == '1') {
-        width(1, false);  // So we extend it
+        m_data.m_autoExtend = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (base == '1') {
+        width(1, അസത്യം);  // So we extend it
         setBit(0, 1);
-        m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'z') {
-        width(1, false);  // So we extend it
+        m_data.m_autoExtend = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (std::tolower(base) == 'z') {
+        width(1, അസത്യം);  // So we extend it
         setBit(0, 'z');
-        m_data.m_autoExtend = true;
-    } else if (std::tolower(base) == 'x') {
-        width(1, false);  // So we extend it
+        m_data.m_autoExtend = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (std::tolower(base) == 'x') {
+        width(1, അസത്യം);  // So we extend it
         setBit(0, 'x');
-        m_data.m_autoExtend = true;
+        m_data.m_autoExtend = സത്യം;
     }
     // Otherwise...
-    else if (!sized()) {
+    അല്ലെങ്കിൽ എങ്കിൽ (!sized()) {
         // We don't use v3Global.opt.maxNumWidth() here, as it can be arbitrarily large,
         // and cause extremely slow parsing. We will resize the value at the end anyway.
         // We just need a width big enough to fit the constant, so we use a conservative
         // upper bound to start from. Should never need more than 4 bits per digit.
-        const int widthBound = std::max<int>(32, std::strlen(value_startp) * 4);
-        width(widthBound, false);  // Will change width below
-        if (unbased) isSigned(true);  // Also says the spec.
+        സ്ഥിരം പൂർണ്ണസംഖ്യ widthBound = std::max<പൂർണ്ണസംഖ്യ>(32, std::strlen(മൂല്യം_startp) * 4);
+        width(widthBound, അസത്യം);  // Will change width below
+        എങ്കിൽ (unbased) isSigned(സത്യം);  // Also says the spec.
     }
 
     // Ignore leading blanks
-    while (*value_startp == '_' || std::isspace(*value_startp)) ++value_startp;
-    if (!*value_startp && !m_data.m_autoExtend) {
+    ആകുമ്പോൾ (*മൂല്യം_startp == '_' || std::isspace(*മൂല്യം_startp)) ++മൂല്യം_startp;
+    എങ്കിൽ (!*മൂല്യം_startp && !m_data.m_autoExtend) {
         v3error("Number is missing value digits: " << sourcep);
     }
-    if (userSized && m_data.m_autoExtend) {
+    എങ്കിൽ (userSized && m_data.m_autoExtend) {
         v3error("Syntax error: size cannot be provided with '0/'1/'x/'z: "
                 << sourcep << " (IEEE 1800-2023 5.7.1)");
     }
 
-    int obit = 0;  // Start at LSB
-    int base_align = 1;
-    if (std::tolower(base) == 'd') {
+    പൂർണ്ണസംഖ്യ obit = 0;  // Start at LSB
+    പൂർണ്ണസംഖ്യ base_align = 1;
+    എങ്കിൽ (std::tolower(base) == 'd') {
         // Ignore leading zeros so we don't issue too many digit errors when lots of leading 0's
-        while (*value_startp == '_' || *value_startp == '0') ++value_startp;
+        ആകുമ്പോൾ (*മൂല്യം_startp == '_' || *മൂല്യം_startp == '0') ++മൂല്യം_startp;
         // Convert decimal number to hex
-        int olen = 0;
+        പൂർണ്ണസംഖ്യ olen = 0;
         uint32_t val = 0;
-        int got_x = 0;
-        int got_z = 0;
-        int got_01 = 0;
-        bool warnedTooMany = false;
-        for (const char* cp = value_startp; *cp; ++cp) {
-            switch (std::tolower(*cp)) {
-            case '0':  // FALLTHRU
-            case '1':  // FALLTHRU
-            case '2':  // FALLTHRU
-            case '3':  // FALLTHRU
-            case '4':  // FALLTHRU
-            case '5':  // FALLTHRU
-            case '6':  // FALLTHRU
-            case '7':  // FALLTHRU
-            case '8':  // FALLTHRU
-            case '9': {
-                if (olen <= 7) {  // 10000000 fits in 32 bits, so ok
+        പൂർണ്ണസംഖ്യ got_x = 0;
+        പൂർണ്ണസംഖ്യ got_z = 0;
+        പൂർണ്ണസംഖ്യ got_01 = 0;
+        തർക്കം warnedTooMany = അസത്യം;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = മൂല്യം_startp; *cp; ++cp) {
+            തിരഞ്ഞെടുപ്പ് (std::tolower(*cp)) {
+            അവസ്ഥ '0':  // FALLTHRU
+            അവസ്ഥ '1':  // FALLTHRU
+            അവസ്ഥ '2':  // FALLTHRU
+            അവസ്ഥ '3':  // FALLTHRU
+            അവസ്ഥ '4':  // FALLTHRU
+            അവസ്ഥ '5':  // FALLTHRU
+            അവസ്ഥ '6':  // FALLTHRU
+            അവസ്ഥ '7':  // FALLTHRU
+            അവസ്ഥ '8':  // FALLTHRU
+            അവസ്ഥ '9': {
+                എങ്കിൽ (olen <= 7) {  // 10000000 fits in 32 bits, so ok
                     // Constants are common, so for speed avoid wide math until we need it
                     val = val * 10 + (*cp - '0');
-                    m_data.num()[0].m_value = val;
-                } else {  // Wide; all previous digits are already in m_value[0]
+                    m_data.അക്കം()[0].m_മൂല്യം = val;
+                } അല്ലെങ്കിൽ {  // Wide; all previous digits are already in m_value[0]
                     // this = (this * 10)/*product*/ + (*cp-'0')/*addend*/
                     // Assumed rare; lots of optimizations are possible here
-                    V3Number product(this, width() + 4);  // +4 for overflow detection
-                    const V3Number ten(this, width() + 4, 10);
-                    const V3Number addend(this, width(), (*cp - '0'));
-                    product.opMul(*this, ten);
+                    V3_സംഖ്യ product(ഇത്, width() + 4);  // +4 for overflow detection
+                    സ്ഥിരം V3_സംഖ്യ ten(ഇത്, width() + 4, 10);
+                    സ്ഥിരം V3_സംഖ്യ addend(ഇത്, width(), (*cp - '0'));
+                    product.opMul(*ഇത്, ten);
                     opAdd(product, addend);
-                    if (!warnedTooMany && product.bitsValue(width(), 4)) {  // Overflowed
+                    എങ്കിൽ (!warnedTooMany && product.bits_മൂല്യം(width(), 4)) {  // Overflowed
                         warnTooMany(sourcep);
-                        warnedTooMany = true;
+                        warnedTooMany = സത്യം;
                     }
                 }
                 ++olen;
                 got_01 = 1;
-                break;
+                നിർത്തുക;
             }
-            case 'z':
-            case '?': {
+            അവസ്ഥ 'z':
+            അവസ്ഥ '?': {
                 got_z = 1;
-                if (!userSized) width(32, false);
+                എങ്കിൽ (!userSized) width(32, അസത്യം);
                 setAllBitsZ();
-                break;
+                നിർത്തുക;
             }
-            case 'x': {
+            അവസ്ഥ 'x': {
                 got_x = 1;
-                if (!userSized) width(32, false);
+                എങ്കിൽ (!userSized) width(32, അസത്യം);
                 setAllBitsX();
-                break;
+                നിർത്തുക;
             }
-            case '_': break;
-            default: {  // LCOV_EXCL_START
+            അവസ്ഥ '_': നിർത്തുക;
+            സ്ഥിരസ്ഥിതി: {  // LCOV_EXCL_START
                 // Likely impossible as parser prevents hitting it
                 v3error("Illegal character in decimal constant: " << *cp);
-                break;
+                നിർത്തുക;
             }  // LCOV_EXCL_STOP
             }
         }
         obit = width();
-        if ((got_01 + got_x + got_z) > 1) {
-            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << value_startp);
+        എങ്കിൽ ((got_01 + got_x + got_z) > 1) {
+            v3error("Mixing X/Z/? with digits not legal in decimal constant: " << മൂല്യം_startp);
         }
-    } else {
+    } അല്ലെങ്കിൽ {
         // Convert bin/octal number to hex
-        for (const char* cp = value_startp + std::strlen(value_startp) - 1; cp >= value_startp;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = മൂല്യം_startp + std::strlen(മൂല്യം_startp) - 1; cp >= മൂല്യം_startp;
              cp--) {
-            if (*cp != '_' && *cp != '0' && obit >= width()) {
+            എങ്കിൽ (*cp != '_' && *cp != '0' && obit >= width()) {
                 warnTooMany(sourcep);
-                break;
+                നിർത്തുക;
             }
-            switch (std::tolower(base)) {
-            case 'b': {
+            തിരഞ്ഞെടുപ്പ് (std::tolower(base)) {
+            അവസ്ഥ 'b': {
                 base_align = 1;
-                switch (std::tolower(*cp)) {
-                case '0': setBit(obit++, 0); break;
-                case '1': setBit(obit++, 1); break;
-                case 'z':
-                case '?': setBit(obit++, 'z'); break;
-                case 'x': setBit(obit++, 'x'); break;
-                case '_': break;
-                default: v3error("Illegal character in binary constant: " << *cp);
+                തിരഞ്ഞെടുപ്പ് (std::tolower(*cp)) {
+                അവസ്ഥ '0': setBit(obit++, 0); നിർത്തുക;
+                അവസ്ഥ '1': setBit(obit++, 1); നിർത്തുക;
+                അവസ്ഥ 'z':
+                അവസ്ഥ '?': setBit(obit++, 'z'); നിർത്തുക;
+                അവസ്ഥ 'x': setBit(obit++, 'x'); നിർത്തുക;
+                അവസ്ഥ '_': നിർത്തുക;
+                സ്ഥിരസ്ഥിതി: v3error("Illegal character in binary constant: " << *cp);
                 }
-                break;
+                നിർത്തുക;
             }
 
-            case 'o':
-            case 'c': {
+            അവസ്ഥ 'o':
+            അവസ്ഥ 'c': {
                 base_align = 3;
-                switch (std::tolower(*cp)) {  // clang-format off
-                case '0': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 0);  break;
-                case '1': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 0);  break;
-                case '2': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 0);  break;
-                case '3': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 0);  break;
-                case '4': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 1);  break;
-                case '5': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 1);  break;
-                case '6': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 1);  break;
-                case '7': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 1);  break;
-                case 'z':
-                case '?': setBit(obit++, 'z'); setBit(obit++, 'z'); setBit(obit++, 'z'); break;
-                case 'x': setBit(obit++, 'x'); setBit(obit++, 'x'); setBit(obit++, 'x'); break;
-                case '_': break;
+                തിരഞ്ഞെടുപ്പ് (std::tolower(*cp)) {  // clang-format off
+                അവസ്ഥ '0': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 0);  നിർത്തുക;
+                അവസ്ഥ '1': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 0);  നിർത്തുക;
+                അവസ്ഥ '2': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 0);  നിർത്തുക;
+                അവസ്ഥ '3': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 0);  നിർത്തുക;
+                അവസ്ഥ '4': setBit(obit++, 0); setBit(obit++, 0);  setBit(obit++, 1);  നിർത്തുക;
+                അവസ്ഥ '5': setBit(obit++, 1); setBit(obit++, 0);  setBit(obit++, 1);  നിർത്തുക;
+                അവസ്ഥ '6': setBit(obit++, 0); setBit(obit++, 1);  setBit(obit++, 1);  നിർത്തുക;
+                അവസ്ഥ '7': setBit(obit++, 1); setBit(obit++, 1);  setBit(obit++, 1);  നിർത്തുക;
+                അവസ്ഥ 'z':
+                അവസ്ഥ '?': setBit(obit++, 'z'); setBit(obit++, 'z'); setBit(obit++, 'z'); നിർത്തുക;
+                അവസ്ഥ 'x': setBit(obit++, 'x'); setBit(obit++, 'x'); setBit(obit++, 'x'); നിർത്തുക;
+                അവസ്ഥ '_': നിർത്തുക;
                 // clang-format on
-                default: v3error("Illegal character in octal constant");
+                സ്ഥിരസ്ഥിതി: v3error("Illegal character in octal constant");
                 }
-                break;
+                നിർത്തുക;
             }
 
-            case 'h':  // FALLTHRU
-            case 'x': {
+            അവസ്ഥ 'h':  // FALLTHRU
+            അവസ്ഥ 'x': {
                 base_align = 4;
-                switch (std::tolower(*cp)) {  // clang-format off
-                case '0': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); break;
-                case '1': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); break;
-                case '2': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); break;
-                case '3': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); break;
-                case '4': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); break;
-                case '5': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); break;
-                case '6': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); break;
-                case '7': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); break;
-                case '8': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); break;
-                case '9': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); break;
-                case 'a': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); break;
-                case 'b': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); break;
-                case 'c': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); break;
-                case 'd': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); break;
-                case 'e': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); break;
-                case 'f': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); break;
-                case 'z':
-                case '?': setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); break;
-                case 'x': setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); break;
+                തിരഞ്ഞെടുപ്പ് (std::tolower(*cp)) {  // clang-format off
+                അവസ്ഥ '0': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '1': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '2': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '3': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '4': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '5': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '6': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '7': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); നിർത്തുക;
+                അവസ്ഥ '8': setBit(obit++,0); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ '9': setBit(obit++,1); setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ 'a': setBit(obit++,0); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ 'b': setBit(obit++,1); setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ 'c': setBit(obit++,0); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ 'd': setBit(obit++,1); setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ 'e': setBit(obit++,0); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ 'f': setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); setBit(obit++,1); നിർത്തുക;
+                അവസ്ഥ 'z':
+                അവസ്ഥ '?': setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); setBit(obit++,'z'); നിർത്തുക;
+                അവസ്ഥ 'x': setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); setBit(obit++,'x'); നിർത്തുക;
                     // clang-format on
-                case '_': break;
-                default:  // LCOV_EXCL_START
+                അവസ്ഥ '_': നിർത്തുക;
+                സ്ഥിരസ്ഥിതി:  // LCOV_EXCL_START
                     // Likely impossible as parser prevents hitting it
                     v3error("Illegal character in hex constant: " << *cp);
-                    break;
+                    നിർത്തുക;
                 }  // LCOV_EXCL_STOP
-                break;
+                നിർത്തുക;
             }
-            default:  // LCOV_EXCL_START
+            സ്ഥിരസ്ഥിതി:  // LCOV_EXCL_START
                 // Likely impossible as parser prevents hitting it
                 v3error("Illegal base character: " << base);
-                break;
+                നിർത്തുക;
             }  // LCOV_EXCL_STOP
         }
     }
 
     // If was unsized, trim width per IEEE 1800-2023 5.7.1
-    if (!userSized && !m_data.m_autoExtend) {
-        width(std::max(32, base_align * ((widthToFit() + base_align - 1) / base_align)), false);
+    എങ്കിൽ (!userSized && !m_data.m_autoExtend) {
+        width(std::max(32, base_align * ((widthToFit() + base_align - 1) / base_align)), അസത്യം);
     }
 
     // Z or X extend specific width values.  Spec says we don't 1 extend.
     // This fixes 2'bx to become 2'bxx.
-    while (obit <= width() && obit && bitIsXZ(obit - 1)) {
+    ആകുമ്പോൾ (obit <= width() && obit && bitIsXZ(obit - 1)) {
         setBit(obit, bitIs(obit - 1));
         ++obit;
     }
-    opCleanThis(true);
+    opCleanThis(സത്യം);
 
     // printf("Dump \"%s\"  CP \"%s\"  B '%c' %d W %d\n", sourcep, value_startp, base, width(),
     // m_value[0]);
 }
 
-void V3Number::warnTooMany(const string& value) {
-    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << value << "'");
+ശൂന്യം V3_സംഖ്യ::warnTooMany(സ്ഥിരം string& മൂല്യം) {
+    v3warn(WIDTHDIGITS, "Too many digits for " << width() << " bit number: '" << മൂല്യം << "'");
 }
 
-void V3Number::nodep(AstNode* nodep) VL_MT_STABLE {
+ശൂന്യം V3_സംഖ്യ::nodep(Ast_കണ്ണി* nodep) VL_MT_STABLE {
     m_nodep = nodep;
-    if (!nodep) return;
+    എങ്കിൽ (!nodep) തിരികെ;
     m_fileline = nodep->fileline();
 }
 
 //======================================================================
 // Global
 
-bool V3Number::epsilonEqual(double a, double b) {
-    return std::fabs(a - b)
-           <= (std::numeric_limits<double>::epsilon() * std::max(1.0, std::max(a, b)));
+തർക്കം V3_സംഖ്യ::epsilonEqual(ഇരട്ട a, ഇരട്ട b) {
+    തിരികെ std::fabs(a - b)
+           <= (std::numeric_limits<ഇരട്ട>::epsilon() * std::max(1.0, std::max(a, b)));
 }
 
-bool V3Number::epsilonIntegral(double a) {
-    const double dint = static_cast<double>(static_cast<int64_t>(a));
+തർക്കം V3_സംഖ്യ::epsilonIntegral(ഇരട്ട a) {
+    സ്ഥിരം ഇരട്ട dint = static_cast<ഇരട്ട>(static_cast<int64_t>(a));
     // Check all the rounding possibilities, as we did truncation above rather than rounding
-    return epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
+    തിരികെ epsilonEqual(a, dint) || epsilonEqual(a, dint - 1) || epsilonEqual(a, dint + 1);
 }
 
-int V3Number::log2b(uint32_t num) {
+പൂർണ്ണസംഖ്യ V3_സംഖ്യ::log2b(uint32_t അക്കം) {
     // See also opCLog2
-    for (int bit = 31; bit > 0; bit--) {
-        if (num & (1ULL << bit)) return bit;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 31; bit > 0; bit--) {
+        എങ്കിൽ (അക്കം & (1ULL << bit)) തിരികെ bit;
     }
-    return 0;
+    തിരികെ 0;
 }
 
-int V3Number::log2bQuad(uint64_t num) {
-    if (num >> 32ULL) return 32 + log2b(num >> 32ULL);
-    return log2b(num);
+പൂർണ്ണസംഖ്യ V3_സംഖ്യ::log2bQuad(uint64_t അക്കം) {
+    എങ്കിൽ (അക്കം >> 32ULL) തിരികെ 32 + log2b(അക്കം >> 32ULL);
+    തിരികെ log2b(അക്കം);
 }
 
 //======================================================================
 // Setters
 
-V3Number& V3Number::setZero() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+V3_സംഖ്യ& V3_സംഖ്യ::setZero() {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {0, 0};
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setQuad(uint64_t value) {
+V3_സംഖ്യ& V3_സംഖ്യ::setQuad(uint64_t മൂല്യം) {
     setZero();
-    m_data.num()[0].m_value = value & 0xffffffffULL;
-    if (width() > 32) m_data.num()[1].m_value = (value >> 32ULL) & 0xffffffffULL;
+    m_data.അക്കം()[0].m_മൂല്യം = മൂല്യം & 0xffffffffULL;
+    എങ്കിൽ (width() > 32) m_data.അക്കം()[1].m_മൂല്യം = (മൂല്യം >> 32ULL) & 0xffffffffULL;
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setLong(uint32_t value) {
+V3_സംഖ്യ& V3_സംഖ്യ::setLong(uint32_t മൂല്യം) {
     setZero();
-    m_data.num()[0].m_value = value;
+    m_data.അക്കം()[0].m_മൂല്യം = മൂല്യം;
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setLongS(int32_t value) {
+V3_സംഖ്യ& V3_സംഖ്യ::setLongS(int32_t മൂല്യം) {
     setZero();
-    union {
+    സംഘം {
         uint32_t u;
         int32_t s;
     } u;
-    u.s = value;
-    (void)u.s;
-    m_data.num()[0].m_value = u.u;
+    u.s = മൂല്യം;
+    (ശൂന്യം)u.s;
+    m_data.അക്കം()[0].m_മൂല്യം = u.u;
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setDouble(double value) {
+V3_സംഖ്യ& V3_സംഖ്യ::setDouble(ഇരട്ട മൂല്യം) {
     UASSERT(width() == 64, "Real operation on wrong sized number");
     m_data.setDouble();
-    union {
-        double d;
+    സംഘം {
+        ഇരട്ട d;
         uint32_t u[2];
     } u;
-    u.d = value;
-    (void)u.d;
-    for (int i = 2; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0].m_value = u.u[0];
-    m_data.num()[1].m_value = u.u[1];
-    return *this;
+    u.d = മൂല്യം;
+    (ശൂന്യം)u.d;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 2; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {0, 0};
+    m_data.അക്കം()[0].m_മൂല്യം = u.u[0];
+    m_data.അക്കം()[1].m_മൂല്യം = u.u[1];
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setSingleBits(char value) {
-    for (int i = 1 /*upper*/; i < words(); ++i) m_data.num()[i] = {0, 0};
-    m_data.num()[0] = {(value == '1' || value == 'x' || value == 1 || value == 3),
-                       (value == 'z' || value == 'x' || value == 2 || value == 3)};
-    return *this;
+V3_സംഖ്യ& V3_സംഖ്യ::setSingleBits(അക്ഷരം മൂല്യം) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1 /*upper*/; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {0, 0};
+    m_data.അക്കം()[0] = {(മൂല്യം == '1' || മൂല്യം == 'x' || മൂല്യം == 1 || മൂല്യം == 3),
+                       (മൂല്യം == 'z' || മൂല്യം == 'x' || മൂല്യം == 2 || മൂല്യം == 3)};
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::setAllBits0() {
+V3_സംഖ്യ& V3_സംഖ്യ::setAllBits0() {
     setZero();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setAllBits1() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, 0};
+V3_സംഖ്യ& V3_സംഖ്യ::setAllBits1() {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {~0U, 0};
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setAllBitsX() {
+V3_സംഖ്യ& V3_സംഖ്യ::setAllBitsX() {
     // Use setAllBitsXRemoved if calling this based on a non-X/Z input value such as divide by zero
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {~0U, ~0U};
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {~0U, ~0U};
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setAllBitsZ() {
-    for (int i = 0; i < words(); ++i) m_data.num()[i] = {0, ~0U};
+V3_സംഖ്യ& V3_സംഖ്യ::setAllBitsZ() {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {0, ~0U};
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::setAllBitsXRemoved() {
-    if (!v3Global.constRemoveXs()) {
-        return setAllBitsX();
-    } else {
+V3_സംഖ്യ& V3_സംഖ്യ::setAllBitsXRemoved() {
+    എങ്കിൽ (!v3Global.constRemoveXs()) {
+        തിരികെ setAllBitsX();
+    } അല്ലെങ്കിൽ {
         // If we get a divide by zero we get Xs.
         // But after V3Unknown we have removed Xs, so use --x-assign to direct-insert 0/1
-        if (v3Global.opt.xAssign() == "1") {
-            return setAllBits1();
-        } else {
-            return setAllBits0();
+        എങ്കിൽ (v3Global.opt.xAssign() == "1") {
+            തിരികെ setAllBits1();
+        } അല്ലെങ്കിൽ {
+            തിരികെ setAllBits0();
         }
     }
 }
-V3Number& V3Number::setValue1() {
-    m_data.num()[0] = {1, 0};
-    for (int i = 1; i < words(); ++i) m_data.num()[i] = {0, 0};
-    return *this;
+V3_സംഖ്യ& V3_സംഖ്യ::setValue1() {
+    m_data.അക്കം()[0] = {1, 0};
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < വാക്കുകൾ(); ++i) m_data.അക്കം()[i] = {0, 0};
+    തിരികെ *ഇത്;
 }
 
-void V3Number::setBitX0(int bit) {
+ശൂന്യം V3_സംഖ്യ::setBitX0(പൂർണ്ണസംഖ്യ bit) {
     // Selection beyond bounds after V3Premit needs to have 0s
     // in upper bits.  Contrast to setAllBitsXRemoved which honors xAssign
     setBit(bit, v3Global.constRemoveXs() ? 0 : 'x');
 }
 
-V3Number& V3Number::setMask(int nbits, int lsb) {
+V3_സംഖ്യ& V3_സംഖ്യ::setMask(പൂർണ്ണസംഖ്യ nbits, പൂർണ്ണസംഖ്യ lsb) {
     setZero();
     UASSERT(lsb >= 0, "Negative destination bit range");
     fillBits(lsb, std::max(0, std::min(nbits, width() - lsb)), 1);
-    return *this;
+    തിരികെ *ഇത്;
 }
 
 //======================================================================
 // ACCESSORS - as strings
 
-string V3Number::ascii(bool prefixed, bool cleanVerilog) const VL_MT_STABLE {
+string V3_സംഖ്യ::ascii(തർക്കം prefixed, തർക്കം cleanVerilog) സ്ഥിരം VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (is1Step()) return "1step";
-    if (isNull()) return "null";
+    എങ്കിൽ (is1Step()) തിരികെ "1step";
+    എങ്കിൽ (isNull()) തിരികെ "null";
     std::ostringstream out;
-    if (isDouble()) {
+    എങ്കിൽ (isDouble()) {
         out.precision(17);
-        if (VL_UNCOVERABLE(width() != 64)) {
+        എങ്കിൽ (VL_UNCOVERABLE(width() != 64)) {
             out << "%E-bad-width-double";  // LCOV_EXCL_LINE
-        } else {
+        } അല്ലെങ്കിൽ {
             out << toDouble();
-            if (toDouble() == floor(toDouble())) out << ".0";
+            എങ്കിൽ (toDouble() == floor(toDouble())) out << ".0";
         }
-        return out.str();
-    } else if (isString()) {
-        return '"' + toString() + '"';
-    } else {
-        if (VL_UNCOVERABLE((m_data.num()[words() - 1].m_value | m_data.num()[words() - 1].m_valueX)
+        തിരികെ out.str();
+    } അല്ലെങ്കിൽ എങ്കിൽ (isString()) {
+        തിരികെ '"' + toString() + '"';
+    } അല്ലെങ്കിൽ {
+        എങ്കിൽ (VL_UNCOVERABLE((m_data.അക്കം()[വാക്കുകൾ() - 1].m_മൂല്യം | m_data.അക്കം()[വാക്കുകൾ() - 1].m_മൂല്യം_X)
                            & ~hiWordMask())) {
             out << "%E-hidden-bits";  // LCOV_EXCL_LINE
         }
     }
-    if (prefixed) {
-        if (sized()) {
+    എങ്കിൽ (prefixed) {
+        എങ്കിൽ (sized()) {
             out << width() << "'";
-        } else if (autoExtend() && width() == 1) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (autoExtend() && width() == 1) {
             out << "'";
-            if (bitIs0(0)) {
+            എങ്കിൽ (bitIs0(0)) {
                 out << '0';
-            } else if (bitIs1(0)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (bitIs1(0)) {
                 out << '1';
-            } else if (bitIsZ(0)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (bitIsZ(0)) {
                 out << 'z';
-            } else {
+            } അല്ലെങ്കിൽ {
                 out << 'x';
             }
-            return out.str();
-        } else {
-            if (cleanVerilog) {
+            തിരികെ out.str();
+        } അല്ലെങ്കിൽ {
+            എങ്കിൽ (cleanVerilog) {
                 out << "'";
-            } else {
+            } അല്ലെങ്കിൽ {
                 out << "?" << width() << "?";
             }
         }
-        if (isSigned()) out << "s";
+        എങ്കിൽ (isSigned()) out << "s";
     }
 
-    const bool binary = (isFourState()
-#ifdef V3NUMBER_ASCII_BINARY
+    സ്ഥിരം തർക്കം ദ്വിമാന = (isFourState()
+#ifdef V3_സംഖ്യ_ASCII_ദ്വിമാന
                          // cppcheck-suppress konwnConditionTrueFalse
-                         || true
+                         || സത്യം
 #endif
     );
     // out<<"-"<<hex<<m_value[0]<<"-";
 
     // cppcheck-suppress konwnConditionTrueFalse
-    if (binary) {
+    എങ്കിൽ (ദ്വിമാന) {
         out << "b";
         out << displayed("%0b");
-    } else {
-        if (prefixed) out << "h";
+    } അല്ലെങ്കിൽ {
+        എങ്കിൽ (prefixed) out << "h";
         // Always deal with 4 bits at once.  Note no 4-state, it's above.
         out << displayed("%0h");
     }
-    if (isNull()) {
-        if (VL_UNCOVERABLE(!isEqZero())) {
+    എങ്കിൽ (isNull()) {
+        എങ്കിൽ (VL_UNCOVERABLE(!isEqZero())) {
             out << "-%E-null-not-zero";  // LCOV_EXCL_LINE
-        } else {
+        } അല്ലെങ്കിൽ {
             out << " [null]";
         }
     }
-    return out.str();
+    തിരികെ out.str();
 }
 
-bool V3Number::displayedFmtHasArg(char format, bool isScan) {
+തർക്കം V3_സംഖ്യ::displayedFmtHasArg(അക്ഷരം format, തർക്കം isScan) {
     // Is this a format letter that takes an argument in runtime?
-    (void)isScan;
-    switch (std::tolower(format)) {
-    case 'b': return true;  // Binary
-    case 'c': return true;  // Character
-    case 'd': return true;  // Decimal
-    case 'e': return true;  // Floating
-    case 'f': return true;  // Floating
-    case 'g': return true;  // Floating
-    case 'h': return true;  // Hex
-    case 'o': return true;  // Octal
-    case 'p': return true;  // Pattern
-    case 's': return true;  // String
-    case 't': return true;  // Time
-    case 'u': return true;  // Packed 2-state
-    case 'v': return true;  // Strength
-    case 'x': return true;  // Hex
-    case 'z': return true;  // Packed 4-state
-    case '?': return true;  // Internal: Compute format in V3Width based on data type
-    default: return false;
+    (ശൂന്യം)isScan;
+    തിരഞ്ഞെടുപ്പ് (std::tolower(format)) {
+    അവസ്ഥ 'b': തിരികെ സത്യം;  //ദ്വിമാന
+    അവസ്ഥ 'c': തിരികെ സത്യം;  // Character
+    അവസ്ഥ 'd': തിരികെ സത്യം;  // Decimal
+    അവസ്ഥ 'e': തിരികെ സത്യം;  // Floating
+    അവസ്ഥ 'f': തിരികെ സത്യം;  // Floating
+    അവസ്ഥ 'g': തിരികെ സത്യം;  // Floating
+    അവസ്ഥ 'h': തിരികെ സത്യം;  // Hex
+    അവസ്ഥ 'o': തിരികെ സത്യം;  // Octal
+    അവസ്ഥ 'p': തിരികെ സത്യം;  // Pattern
+    അവസ്ഥ 's': തിരികെ സത്യം;  // String
+    അവസ്ഥ 't': തിരികെ സത്യം;  // Time
+    അവസ്ഥ 'u': തിരികെ സത്യം;  // Packed 2-state
+    അവസ്ഥ 'v': തിരികെ സത്യം;  // Strength
+    അവസ്ഥ 'x': തിരികെ സത്യം;  // Hex
+    അവസ്ഥ 'z': തിരികെ സത്യം;  // Packed 4-state
+    അവസ്ഥ '?': തിരികെ സത്യം;  // Internal: Compute format in V3Width based on data type
+    സ്ഥിരസ്ഥിതി: തിരികെ അസത്യം;
     }
     // 'l'                  // Library - precomputed front string, so no arg
     // 'm'                  // Module - precomputed front string, so no arg
     // '*'                  // $scan ignore argument
 }
 
-string V3Number::displayPad(size_t fmtsize, char pad, bool left, const string& in) VL_PURE {
+string V3_സംഖ്യ::displayPad(size_t fmtsize, അക്ഷരം pad, തർക്കം ഇടത്, സ്ഥിരം string& in) VL_PURE {
     string padding;
-    if (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
-    return left ? (in + padding) : (padding + in);
+    എങ്കിൽ (in.length() < fmtsize) padding = string(fmtsize - in.length(), pad);
+    തിരികെ ഇടത് ? (in + padding) : (padding + in);
 }
 
-string V3Number::displayedEnumName(const AstEnumItem* itemp) {
-    const string name = VIdProtect::protect(itemp->prettyName());
-    return VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned char>(name[0]))
+string V3_സംഖ്യ::displayedEnumName(സ്ഥിരം AstEnumItem* itemp) {
+    സ്ഥിരം string name = VIdProtect::protect(itemp->prettyName());
+    തിരികെ VString::isIdentifier(name) && !std::isdigit(static_cast<unsigned അക്ഷരം>(name[0]))
                ? name
                : "\\" + name + " ";
 }
 
-string V3Number::displayedEnumName(const AstEnumDType* dtypep) const VL_MT_STABLE {
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
-    for (const AstEnumItem* itemp = dtypep->itemsp(); itemp;
+string V3_സംഖ്യ::displayedEnumName(സ്ഥിരം AstEnumDType* dtypep) സ്ഥിരം VL_MT_STABLE {
+    V3_സംഖ്യ മൂല്യം{ഇത്, dtypep->width()};
+    മൂല്യം.opAssign(*ഇത്);
+    വേണ്ടി (സ്ഥിരം AstEnumItem* itemp = dtypep->itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), EnumItem)) {
-        const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-        if (!constp->num().isAnyXZ() && value.isCaseEq(constp->num()))
-            return displayedEnumName(itemp);
+        സ്ഥിരം AstConst* സ്ഥിരം constp = VN_AS(itemp->valuep(), Const);
+        എങ്കിൽ (!constp->അക്കം().isAnyXZ() && മൂല്യം.isCaseEq(constp->അക്കം()))
+            തിരികെ displayedEnumName(itemp);
     }
-    return "";
+    തിരികെ "";
 }
 
-string V3Number::displayedEnum(const AstSFormatArg* argp,
-                               const string& vformat) const VL_MT_STABLE {
-    const AstEnumDType* const dtypep = VN_AS(argp->dtypep()->skipRefToEnump(), EnumDType);
-    V3Number value{this, dtypep->width()};
-    value.opAssign(*this);
-    const VFormatAttr numericAttr
+string V3_സംഖ്യ::displayedEnum(സ്ഥിരം AstSFormatArg* argp,
+                               സ്ഥിരം string& vformat) സ്ഥിരം VL_MT_STABLE {
+    സ്ഥിരം AstEnumDType* സ്ഥിരം dtypep = VN_AS(argp->dtypep()->skipRefToEnump(), EnumDType);
+    V3_സംഖ്യ മൂല്യം{ഇത്, dtypep->width()};
+    മൂല്യം.opAssign(*ഇത്);
+    സ്ഥിരം VFormatAttr numericAttr
         = dtypep->isSigned() ? VFormatAttr::SIGNED : VFormatAttr::UNSIGNED;
-    const char fmt = std::tolower(vformat.back());
-    if (fmt != 'p' && fmt != 's') return value.displayed(argp, vformat, numericAttr);
-    string name = value.displayedEnumName(dtypep);
-    if (name.empty()) name = value.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
-    V3Number nameNum{this};
-    nameNum.setString(name);
-    return nameNum.displayed(argp, vformat, VFormatAttr::COMPLEX);
+    സ്ഥിരം അക്ഷരം fmt = std::tolower(vformat.back());
+    എങ്കിൽ (fmt != 'p' && fmt != 's') തിരികെ മൂല്യം.displayed(argp, vformat, numericAttr);
+    string name = മൂല്യം.displayedEnumName(dtypep);
+    എങ്കിൽ (name.empty()) name = മൂല്യം.displayed(argp, fmt == 'p' ? vformat : "%0d", numericAttr);
+    V3_സംഖ്യ name_അക്കം{ഇത്};
+    name_അക്കം.setString(name);
+    തിരികെ name_അക്കം.displayed(argp, vformat, VFormatAttr::COMPLEX);
 }
 
-string V3Number::displayed(const AstNode* nodep, const string& vformat,
-                           const VFormatAttr& formatAttr) const VL_MT_STABLE {
-    return displayed(nodep->fileline(), vformat, formatAttr);
+string V3_സംഖ്യ::displayed(സ്ഥിരം Ast_കണ്ണി* nodep, സ്ഥിരം string& vformat,
+                           സ്ഥിരം VFormatAttr& formatAttr) സ്ഥിരം VL_MT_STABLE {
+    തിരികെ displayed(nodep->fileline(), vformat, formatAttr);
 }
 
-string V3Number::displayed(FileLine* fl, const string& vformat,
-                           const VFormatAttr& formatAttr) const VL_MT_STABLE {
+string V3_സംഖ്യ::displayed(File_വരി* fl, സ്ഥിരം string& vformat,
+                           സ്ഥിരം VFormatAttr& formatAttr) സ്ഥിരം VL_MT_STABLE {
     // Similar code flow in verilated.cpp _vl_vsformat
     // Correct number of zero bits/width matters
     // UINFO(9, "displayed(\"" << vformat << "\", formatAttr=" << formatAttr);
     auto pos = vformat.cbegin();
     UASSERT(pos != vformat.cend() && pos[0] == '%',
-            "$display-like function with non-format argument " << *this);
+            "$display-like function with non-format argument " << *ഇത്);
     ++pos;
-    bool left = false;
-    if (pos[0] == '-') {
-        left = true;
+    തർക്കം ഇടത് = അസത്യം;
+    എങ്കിൽ (pos[0] == '-') {
+        ഇടത് = സത്യം;
         ++pos;
     }
     string fmtsize;
-    for (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
+    വേണ്ടി (; pos != vformat.cend() && (std::isdigit(pos[0]) || pos[0] == '.'); ++pos) {
         fmtsize += pos[0];
     }
     string str;
 
-    char fmt = std::tolower(pos[0]);
+    അക്ഷരം fmt = std::tolower(pos[0]);
 
     // Override user's code for certain data-type determined arguments
-    if (formatAttr.isComplex()) {
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isString()) {
-        if (fmt == 'h' || fmt == 'x') {
+    എങ്കിൽ (formatAttr.isComplex()) {
+        എങ്കിൽ (fmt != 'p') fmt = 's';  // override
+    } അല്ലെങ്കിൽ എങ്കിൽ (formatAttr.isString()) {
+        എങ്കിൽ (fmt == 'h' || fmt == 'x') {
             // V3Width errors on const %x of string, but V3Randomize may make a %x on a
             // string, or may have a runtime format
-            V3Number strwide{fl, static_cast<int>(toString().length()) * 8, 0};
-            strwide.opNToI(*this);
-            return strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
+            V3_സംഖ്യ strwide{fl, static_cast<പൂർണ്ണസംഖ്യ>(toString().length()) * 8, 0};
+            strwide.opNToI(*ഇത്);
+            തിരികെ strwide.displayed(fl, vformat, VFormatAttr::UNSIGNED);
         }
-        if (fmt != 'p') fmt = 's';  // override
-    } else if (formatAttr.isSigned() || formatAttr.isUnsigned()) {
-        if (fmt == 'p') {
-            if (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
+        എങ്കിൽ (fmt != 'p') fmt = 's';  // override
+    } അല്ലെങ്കിൽ എങ്കിൽ (formatAttr.isSigned() || formatAttr.isUnsigned()) {
+        എങ്കിൽ (fmt == 'p') {
+            എങ്കിൽ (fmtsize == "0") {  // For %0p, IEEE our choice, use 'h%0h
                 str += "'h";
                 fmt = 'h';
-            } else {  // UVM tests require %0d
+            } അല്ലെങ്കിൽ {  // UVM tests require %0d
                 fmtsize = "0";
                 fmt = 'd';
             }
         }
-    } else if (formatAttr.isDouble()) {
+    } അല്ലെങ്കിൽ എങ്കിൽ (formatAttr.isDouble()) {
         // 'p' not converted to 'g' here as vformat string can't be easily changed
-        if (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
+        എങ്കിൽ (!(fmt == 'e' || fmt == 'f' || fmt == 'g' || fmt == 'p'
               || VL_UNCOVERABLE(fmt == 't'))) {
             // A non-float format with a float, must convert to integer then format
-            V3Number nonfloat{fl, 64, 0};
-            nonfloat.opRToIRoundS(*this);
-            return nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
+            V3_സംഖ്യ nonfloat{fl, 64, 0};
+            nonfloat.opRToIRoundS(*ഇത്);
+            തിരികെ nonfloat.displayed(fl, vformat, VFormatAttr::SIGNED);
         }
     }
 
-    switch (fmt) {
-    case 'c': {
-        if (width() > 8)
+    തിരഞ്ഞെടുപ്പ് (fmt) {
+    അവസ്ഥ 'c': {
+        എങ്കിൽ (width() > 8)
             fl->v3warn(WIDTHTRUNC, "$display-like format of %c format of > 8 bit value");
-        const unsigned int v = bitsValue(0, 8);
-        str.push_back(static_cast<char>(v));
-        return str;
+        സ്ഥിരം unsigned പൂർണ്ണസംഖ്യ v = bits_മൂല്യം(0, 8);
+        str.തള്ളുക_back(static_cast<അക്ഷരം>(v));
+        തിരികെ str;
     }
-    case 'e':  // FALLTHRU
-    case 'f':  // FALLTHRU
-    case 'g': {
-        const double n = formatAttr.isDouble()   ? toDouble()
+    അവസ്ഥ 'e':  // FALLTHRU
+    അവസ്ഥ 'f':  // FALLTHRU
+    അവസ്ഥ 'g': {
+        സ്ഥിരം ഇരട്ട n = formatAttr.isDouble()   ? toDouble()
                          : formatAttr.isSigned() ? toSQuad()
                                                  : toUQuad();
-        char tmp[MAX_SPRINTF_DOUBLE_SIZE];
-        (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, vformat.c_str(), n);
-        return tmp;
+        അക്ഷരം tmp[MAX_SPRINTF_DOUBLE_SIZE];
+        (ശൂന്യം)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, vformat.c_str(), n);
+        തിരികെ tmp;
     }
-    case 's': {
-        if (formatAttr.isString() || formatAttr.isComplex()) {
+    അവസ്ഥ 's': {
+        എങ്കിൽ (formatAttr.isString() || formatAttr.isComplex()) {
             str = toString();
-        } else {
+        } അല്ലെങ്കിൽ {
             // Spec says always drop leading zeros, this isn't quite right, we space pad.
-            int bit = width() - 1;
-            bool start = true;
-            while ((bit % 8) != 7) ++bit;
-            for (; bit >= 0; bit -= 8) {
-                const int v = bitsValue(bit - 7, 8);
-                if (!start || v) {
-                    str += static_cast<char>((v == 0) ? ' ' : v);
-                    start = false;  // Drop leading 0s
-                } else {
-                    if (fmtsize != "0") str += ' ';
+            പൂർണ്ണസംഖ്യ bit = width() - 1;
+            തർക്കം start = സത്യം;
+            ആകുമ്പോൾ ((bit % 8) != 7) ++bit;
+            വേണ്ടി (; bit >= 0; bit -= 8) {
+                സ്ഥിരം പൂർണ്ണസംഖ്യ v = bits_മൂല്യം(bit - 7, 8);
+                എങ്കിൽ (!start || v) {
+                    str += static_cast<അക്ഷരം>((v == 0) ? ' ' : v);
+                    start = അസത്യം;  // Drop leading 0s
+                } അല്ലെങ്കിൽ {
+                    എങ്കിൽ (fmtsize != "0") str += ' ';
                 }
             }
         }
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, ' ', left, str);
-        return str;
+        സ്ഥിരം size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, ' ', ഇടത്, str);
+        തിരികെ str;
     }
-    case 'p': {  // Pattern
+    അവസ്ഥ 'p': {  // Pattern
         // 'p' with NUMBER was earlier converted to 'd'
-        if (formatAttr.isDouble()) {
-            const double n = formatAttr.isDouble()   ? toDouble()
+        എങ്കിൽ (formatAttr.isDouble()) {
+            സ്ഥിരം ഇരട്ട n = formatAttr.isDouble()   ? toDouble()
                              : formatAttr.isSigned() ? toSQuad()
                                                      : toUQuad();
-            char tmp[MAX_SPRINTF_DOUBLE_SIZE];
-            (void)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, "%g", n);
-            return tmp;
+            അക്ഷരം tmp[MAX_SPRINTF_DOUBLE_SIZE];
+            (ശൂന്യം)VL_SNPRINTF(tmp, MAX_SPRINTF_DOUBLE_SIZE, "%g", n);
+            തിരികെ tmp;
         }
-        if (formatAttr.isString())
-            return '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
-        if (formatAttr.isComplex()) return toString();
-        return "%p";
+        എങ്കിൽ (formatAttr.isString())
+            തിരികെ '"' + V3OutFormatter::quoteNameControls(toString()) + '"';
+        എങ്കിൽ (formatAttr.isComplex()) തിരികെ toString();
+        തിരികെ "%p";
     }
-    case 'b':  // FALLTHRU
-    case 'o':  // FALLTHRU
-    case 'h':  // FALLTHRU
-    case 'x': {
-        int bit = width() - 1;
-        if (left || !fmtsize.empty()) {
-            while (bit && bitIs0(bit)) --bit;
+    അവസ്ഥ 'b':  // FALLTHRU
+    അവസ്ഥ 'o':  // FALLTHRU
+    അവസ്ഥ 'h':  // FALLTHRU
+    അവസ്ഥ 'x': {
+        പൂർണ്ണസംഖ്യ bit = width() - 1;
+        എങ്കിൽ (ഇടത് || !fmtsize.empty()) {
+            ആകുമ്പോൾ (bit && bitIs0(bit)) --bit;
         }
-        switch (fmt) {
-        case 'b': {
-            for (; bit >= 0; --bit) {
-                if (bitIs0(bit)) {
+        തിരഞ്ഞെടുപ്പ് (fmt) {
+        അവസ്ഥ 'b': {
+            വേണ്ടി (; bit >= 0; --bit) {
+                എങ്കിൽ (bitIs0(bit)) {
                     str += '0';
-                } else if (bitIs1(bit)) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (bitIs1(bit)) {
                     str += '1';
-                } else if (bitIsZ(bit)) {
+                } അല്ലെങ്കിൽ എങ്കിൽ (bitIsZ(bit)) {
                     str += 'z';
-                } else {
+                } അല്ലെങ്കിൽ {
                     str += 'x';
                 }
             }
-            break;
+            നിർത്തുക;
         }
-        case 'o': {
-            while ((bit % 3) != 2) ++bit;
-            for (; bit > 0; bit -= 3) {
-                const int numX = countX(bit - 2, 3);
-                const int numZ = countZ(bit - 2, 3);
-                if (numX == 3 || numX == width() - (bit - 2)) {
+        അവസ്ഥ 'o': {
+            ആകുമ്പോൾ ((bit % 3) != 2) ++bit;
+            വേണ്ടി (; bit > 0; bit -= 3) {
+                സ്ഥിരം പൂർണ്ണസംഖ്യ അക്കം_X = എണ്ണം_X(bit - 2, 3);
+                സ്ഥിരം പൂർണ്ണസംഖ്യ അക്കം_Z = എണ്ണം_Z(bit - 2, 3);
+                എങ്കിൽ (അക്കം_X == 3 || അക്കം_X == width() - (bit - 2)) {
                     str += 'x';
-                    continue;
+                    തുടരുക;
                 }
-                if (numZ == 3 || numZ == width() - (bit - 2)) {
+                എങ്കിൽ (അക്കം_Z == 3 || അക്കം_Z == width() - (bit - 2)) {
                     str += 'z';
-                    continue;
+                    തുടരുക;
                 }
-                if (numX > 0) {
+                എങ്കിൽ (അക്കം_X > 0) {
                     str += 'X';
-                    continue;
+                    തുടരുക;
                 }
-                if (numZ > 0) {
+                എങ്കിൽ (അക്കം_Z > 0) {
                     str += 'Z';
-                    continue;
+                    തുടരുക;
                 }
-                const int v = bitsValue(bit - 2, 3);
-                str += static_cast<char>('0' + v);
+                സ്ഥിരം പൂർണ്ണസംഖ്യ v = bits_മൂല്യം(bit - 2, 3);
+                str += static_cast<അക്ഷരം>('0' + v);
             }
-            break;
+            നിർത്തുക;
         }
-        default: {  // h/x
-            while ((bit % 4) != 3) ++bit;
-            for (; bit > 0; bit -= 4) {
-                const int numX = countX(bit - 3, 4);
-                const int numZ = countZ(bit - 3, 4);
-                if (numX == 4 || numX == width() - (bit - 3)) {
+        സ്ഥിരസ്ഥിതി: {  // h/x
+            ആകുമ്പോൾ ((bit % 4) != 3) ++bit;
+            വേണ്ടി (; bit > 0; bit -= 4) {
+                സ്ഥിരം പൂർണ്ണസംഖ്യ അക്കം_X = എണ്ണം_X(bit - 3, 4);
+                സ്ഥിരം പൂർണ്ണസംഖ്യ അക്കം_Z = എണ്ണം_Z(bit - 3, 4);
+                എങ്കിൽ (അക്കം_X == 4 || അക്കം_X == width() - (bit - 3)) {
                     str += 'x';
-                    continue;
+                    തുടരുക;
                 }
-                if (numZ == 4 || numZ == width() - (bit - 3)) {
+                എങ്കിൽ (അക്കം_Z == 4 || അക്കം_Z == width() - (bit - 3)) {
                     str += 'z';
-                    continue;
+                    തുടരുക;
                 }
-                if (numX > 0) {
+                എങ്കിൽ (അക്കം_X > 0) {
                     str += 'X';
-                    continue;
+                    തുടരുക;
                 }
-                if (numZ > 0) {
+                എങ്കിൽ (അക്കം_Z > 0) {
                     str += 'Z';
-                    continue;
+                    തുടരുക;
                 }
-                const int v = bitsValue(bit - 3, 4);
-                if (v >= 10) {
-                    str += static_cast<char>('a' + v - 10);
-                } else {
-                    str += static_cast<char>('0' + v);
+                സ്ഥിരം പൂർണ്ണസംഖ്യ v = bits_മൂല്യം(bit - 3, 4);
+                എങ്കിൽ (v >= 10) {
+                    str += static_cast<അക്ഷരം>('a' + v - 10);
+                } അല്ലെങ്കിൽ {
+                    str += static_cast<അക്ഷരം>('0' + v);
                 }
             }
-            break;
+            നിർത്തുക;
         }
         }  // switch
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (left ? ' ' : '0'), left, str);
-        return str;
+        സ്ഥിരം size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, (ഇടത് ? ' ' : '0'), ഇടത്, str);
+        തിരികെ str;
     }  // case b/d/x/o
-    case 't':  // Time
-    case 'd': {  // Unsigned decimal
-        const bool issigned = formatAttr.isSigned();
-        if (fmtsize == "" && !left) {
-            const double mantissabits = width() - (issigned ? 1 : 0);
+    അവസ്ഥ 't':  // Time
+    അവസ്ഥ 'd': {  // Unsigned decimal
+        സ്ഥിരം തർക്കം issigned = formatAttr.isSigned();
+        എങ്കിൽ (fmtsize == "" && !ഇടത്) {
+            സ്ഥിരം ഇരട്ട mantissabits = width() - (issigned ? 1 : 0);
             // To get the number of digits required, we want to compute
             // log10(2**mantissabits) and round it up. To be able to handle
             // a very wide mantissa, we use log2(2**mantissabits)/log2(10),
             // which is (+1.0 is for rounding bias):
-            double dchars = mantissabits / 3.321928094887362 + 1.0;
-            if (issigned) ++dchars;  // space for sign
-            fmtsize = cvtToStr(static_cast<int>(dchars));
+            ഇരട്ട dchars = mantissabits / 3.321928094887362 + 1.0;
+            എങ്കിൽ (issigned) ++dchars;  // space for sign
+            fmtsize = cvtToStr(static_cast<പൂർണ്ണസംഖ്യ>(dchars));
         }
-        bool hasXZ = false;
-        if (isAllX()) {
+        തർക്കം hasXZ = അസത്യം;
+        എങ്കിൽ (isAllX()) {
             str = "x";
-            hasXZ = true;
-        } else if (isAllZ()) {
+            hasXZ = സത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (isAllZ()) {
             str = "z";
-            hasXZ = true;
-        } else if (isAnyX()) {
+            hasXZ = സത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (isAnyX()) {
             str = "X";
-            hasXZ = true;
-        } else if (isAnyZ()) {
+            hasXZ = സത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (isAnyZ()) {
             str = "Z";
-            hasXZ = true;
+            hasXZ = സത്യം;
         }
-        if (!hasXZ) {
-            if (issigned) {
-                if (width() > 64) {
+        എങ്കിൽ (!hasXZ) {
+            എങ്കിൽ (issigned) {
+                എങ്കിൽ (width() > 64) {
                     str = toDecimalS();
-                } else {
+                } അല്ലെങ്കിൽ {
                     str = cvtToStr(toSQuad());
                 }
-            } else {
-                if (width() > 64) {
+            } അല്ലെങ്കിൽ {
+                എങ്കിൽ (width() > 64) {
                     str = toDecimalU();
-                } else {
+                } അല്ലെങ്കിൽ {
                     str = cvtToStr(toUQuad());
                 }
             }
         }
-        const bool zeropad = fmtsize.length() > 0 && fmtsize[0] == '0' && !left;
+        സ്ഥിരം തർക്കം zeropad = fmtsize.length() > 0 && fmtsize[0] == '0' && !ഇടത്;
         // fmtsize might have changed since we parsed the %fmtsize
-        const size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
-        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), left, str);
-        return str;
+        സ്ഥിരം size_t fmtsizen = static_cast<size_t>(std::atoi(fmtsize.c_str()));
+        str = displayPad(fmtsizen, (zeropad ? '0' : ' '), ഇടത്, str);
+        തിരികെ str;
     }
     // 'l'   // Library - converted to text by V3LinkResolve
-    case 'u': {  // Packed 2-state
-        for (int i = 0; i < words(); ++i) {
-            const uint32_t v = m_data.num()[i].m_value;
-            str += static_cast<char>((v >> 0) & 0xff);
-            str += static_cast<char>((v >> 8) & 0xff);
-            str += static_cast<char>((v >> 16) & 0xff);
-            str += static_cast<char>((v >> 24) & 0xff);
+    അവസ്ഥ 'u': {  // Packed 2-state
+        വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+            സ്ഥിരം uint32_t v = m_data.അക്കം()[i].m_മൂല്യം;
+            str += static_cast<അക്ഷരം>((v >> 0) & 0xff);
+            str += static_cast<അക്ഷരം>((v >> 8) & 0xff);
+            str += static_cast<അക്ഷരം>((v >> 16) & 0xff);
+            str += static_cast<അക്ഷരം>((v >> 24) & 0xff);
         }
-        return str;
+        തിരികെ str;
     }
-    case 'z': {  // Packed 4-state
-        for (int i = 0; i < words(); ++i) {
-            const ValueAndX v = m_data.num()[i];
-            str += static_cast<char>((v.m_value >> 0) & 0xff);
-            str += static_cast<char>((v.m_value >> 8) & 0xff);
-            str += static_cast<char>((v.m_value >> 16) & 0xff);
-            str += static_cast<char>((v.m_value >> 24) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 0) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 8) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 16) & 0xff);
-            str += static_cast<char>((v.m_valueX >> 24) & 0xff);
+    അവസ്ഥ 'z': {  // Packed 4-state
+        വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+            സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം >> 0) & 0xff);
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം >> 8) & 0xff);
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം >> 16) & 0xff);
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം >> 24) & 0xff);
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം_X >> 0) & 0xff);
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം_X >> 8) & 0xff);
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം_X >> 16) & 0xff);
+            str += static_cast<അക്ഷരം>((v.m_മൂല്യം_X >> 24) & 0xff);
         }
-        return str;
+        തിരികെ str;
     }
-    case 'v': {  // Strength
-        int bit = width() - 1;
-        for (; bit >= 0; bit--) {
-            if (bitIs0(bit)) {
+    അവസ്ഥ 'v': {  // Strength
+        പൂർണ്ണസംഖ്യ bit = width() - 1;
+        വേണ്ടി (; bit >= 0; bit--) {
+            എങ്കിൽ (bitIs0(bit)) {
                 str += "St0 ";
             }  // Yes, always a space even for bit 0
-            else if (bitIs1(bit)) {
+            അല്ലെങ്കിൽ എങ്കിൽ (bitIs1(bit)) {
                 str += "St1 ";
-            } else if (bitIsZ(bit)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (bitIsZ(bit)) {
                 str += "StZ ";
-            } else {
+            } അല്ലെങ്കിൽ {
                 str += "StX";
             }
         }
-        return str;
+        തിരികെ str;
     }
-    default: fl->v3fatalSrc("Unknown $display-like format code for number: %" << pos[0]);
+    സ്ഥിരസ്ഥിതി: fl->v3fatalSrc("Unknown $display-like format code for number: %" << pos[0]);
     }
 }
 
-string V3Number::emitC() const VL_MT_STABLE {
+string V3_സംഖ്യ::emitC() സ്ഥിരം VL_MT_STABLE {
     constexpr size_t bufsize = 1000;
-    char sbuf[bufsize];
+    അക്ഷരം sbuf[bufsize];
     string result;
-    if (isNull()) {
-        return "VlNull{}";
-    } else if (isDouble()) {
-        const double dnum = toDouble();
-        if (std::isinf(dnum)) {
-            if (std::signbit(dnum)) result += '-';
+    എങ്കിൽ (isNull()) {
+        തിരികെ "VlNull{}";
+    } അല്ലെങ്കിൽ എങ്കിൽ (isDouble()) {
+        സ്ഥിരം ഇരട്ട dnum = toDouble();
+        എങ്കിൽ (std::isinf(dnum)) {
+            എങ്കിൽ (std::signbit(dnum)) result += '-';
             result += "std::numeric_limits<double>::infinity()";
-        } else if (std::isnan(dnum)) {
-            if (std::signbit(dnum)) result += '-';
+        } അല്ലെങ്കിൽ എങ്കിൽ (std::isnan(dnum)) {
+            എങ്കിൽ (std::signbit(dnum)) result += '-';
             result += "std::numeric_limits<double>::quiet_NaN()";
-        } else {
-            const char* const fmt = (static_cast<int>(dnum) == dnum && -1000 < dnum && dnum < 1000)
+        } അല്ലെങ്കിൽ {
+            സ്ഥിരം അക്ഷരം* സ്ഥിരം fmt = (static_cast<പൂർണ്ണസംഖ്യ>(dnum) == dnum && -1000 < dnum && dnum < 1000)
                                         ? "%3.1f"  // Force decimal point
                                         : "%.17e";  // %e always yields a float literal
-            (void)VL_SNPRINTF(sbuf, bufsize, fmt, dnum);
-            return sbuf;
+            (ശൂന്യം)VL_SNPRINTF(sbuf, bufsize, fmt, dnum);
+            തിരികെ sbuf;
         }
-    } else if (isString()) {
-        const string strg = toString();
-        const string quoted
+    } അല്ലെങ്കിൽ എങ്കിൽ (isString()) {
+        സ്ഥിരം string strg = toString();
+        സ്ഥിരം string quoted
             = V3OutFormatter::quoteNameControls(strg, V3OutFormatter::Language::LA_C);
         // Note: putsQuoted does not track indentation, so we use this instead
-        return '"' + quoted + "\"s";
-    } else if (words() > 2) {
+        തിരികെ '"' + quoted + "\"s";
+    } അല്ലെങ്കിൽ എങ്കിൽ (വാക്കുകൾ() > 2) {
         // Note the double {{ initializer. The first { starts the initializer of the VlWide,
         // and the second starts the initializer of m_storage within the VlWide.
         // Alternative is to have constructor with std::initializer_list
-        result = "::VlWide<" + std::to_string(words()) + ">{{";
-        if (words() > 4) result += '\n';
-        for (int n = 0; n < words(); ++n) {
-            if (n) result += ((n % 4) ? ", " : ",\n");
-            (void)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
+        result = "::VlWide<" + std::to_string(വാക്കുകൾ()) + ">{{";
+        എങ്കിൽ (വാക്കുകൾ() > 4) result += '\n';
+        വേണ്ടി (പൂർണ്ണസംഖ്യ n = 0; n < വാക്കുകൾ(); ++n) {
+            എങ്കിൽ (n) result += ((n % 4) ? ", " : ",\n");
+            (ശൂന്യം)VL_SNPRINTF(sbuf, bufsize, "0x%08" PRIx32, edataWord(n));
             result += sbuf;
         }
-        if (words() > 4) result += '\n';
+        എങ്കിൽ (വാക്കുകൾ() > 4) result += '\n';
         result += "}}";
-    } else if (words() == 2) {  // Quad
-        const uint64_t qnum = static_cast<uint64_t>(toUQuad());
-        const char* const fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
+    } അല്ലെങ്കിൽ എങ്കിൽ (വാക്കുകൾ() == 2) {  // Quad
+        സ്ഥിരം uint64_t qnum = static_cast<uint64_t>(toUQuad());
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം fmt = (qnum < 10) ? ("%" PRIx64 "ULL") : ("0x%016" PRIx64 "ULL");
         // cppcheck-suppress wrongPrintfScanfArgNum
-        (void)VL_SNPRINTF(sbuf, bufsize, fmt, qnum);
-        return sbuf;
-    } else {
+        (ശൂന്യം)VL_SNPRINTF(sbuf, bufsize, fmt, qnum);
+        തിരികെ sbuf;
+    } അല്ലെങ്കിൽ {
         // Always emit unsigned, if signed, will call correct signed functions
         // The 'U' must be here, to avoid <= comparisons etc ending up signed
-        const uint32_t unum = toUInt();
-        const char* const fmt = (unum < 10)      ? ("%" PRIu32 "U")
+        സ്ഥിരം uint32_t unum = toUInt();
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം fmt = (unum < 10)      ? ("%" PRIu32 "U")
                                 : (width() > 16) ? ("0x%08" PRIx32 "U")
                                 : (width() > 8)  ? ("0x%04" PRIx32 "U")
                                                  : ("0x%02" PRIx32 "U");
         // cppcheck-suppress wrongPrintfScanfArgNum
-        (void)VL_SNPRINTF(sbuf, bufsize, fmt, unum);
-        return sbuf;
+        (ശൂന്യം)VL_SNPRINTF(sbuf, bufsize, fmt, unum);
+        തിരികെ sbuf;
     }
-    return result;
+    തിരികെ result;
 }
 
-string V3Number::toDecimalS() const VL_MT_STABLE {
+string V3_സംഖ്യ::toDecimalS() സ്ഥിരം VL_MT_STABLE {
     // Correct number of zero bits/width matters
-    if (isNegative()) {
-        V3Number lhsNoSign = *this;
-        lhsNoSign.opNegate(*this);
-        return "-"s + lhsNoSign.toDecimalU();
-    } else {
-        return toDecimalU();
+    എങ്കിൽ (isNegative()) {
+        V3_സംഖ്യ lhsNoSign = *ഇത്;
+        lhsNoSign.opNegate(*ഇത്);
+        തിരികെ "-"s + lhsNoSign.toDecimalU();
+    } അല്ലെങ്കിൽ {
+        തിരികെ toDecimalU();
     }
 }
 
-string V3Number::toDecimalU() const VL_MT_STABLE {
-    const int maxdecwidth = (width() + 3) * 4 / 3;
+string V3_സംഖ്യ::toDecimalU() സ്ഥിരം VL_MT_STABLE {
+    സ്ഥിരം പൂർണ്ണസംഖ്യ maxdecwidth = (width() + 3) * 4 / 3;
 
     // Or (maxdecwidth+7)/8], but can't have more than 4 BCD bits per word
-    V3Number bcd(this, maxdecwidth + 4);
-    V3Number tmp(this, maxdecwidth + 4);
-    V3Number tmp2(this, maxdecwidth + 4);
+    V3_സംഖ്യ bcd(ഇത്, maxdecwidth + 4);
+    V3_സംഖ്യ tmp(ഇത്, maxdecwidth + 4);
+    V3_സംഖ്യ tmp2(ഇത്, maxdecwidth + 4);
 
-    int from_bit = width() - 1;
+    പൂർണ്ണസംഖ്യ from_bit = width() - 1;
     // Skip all leading zeros
-    for (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
+    വേണ്ടി (; from_bit >= 0 && bitIs0(from_bit); --from_bit) {}
     // Double-dabble algorithm
-    for (; from_bit >= 0; --from_bit) {
+    വേണ്ടി (; from_bit >= 0; --from_bit) {
         // Any digits >= 5 need an add 3 (via tmp)
-        for (int nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
-            if (bcd.bitsValue(nibble_bit, 4) >= 5) {
+        വേണ്ടി (പൂർണ്ണസംഖ്യ nibble_bit = 0; nibble_bit < maxdecwidth; nibble_bit += 4) {
+            എങ്കിൽ (bcd.bits_മൂല്യം(nibble_bit, 4) >= 5) {
                 tmp2.setAllBits0();
                 tmp2.setBit(nibble_bit, 1);  // Add 3, decomposed as two bits
                 tmp2.setBit(nibble_bit + 1, 1);
@@ -1070,751 +1070,751 @@ string V3Number::toDecimalU() const VL_MT_STABLE {
         }
         // Shift; bcd = bcd << 1
         tmp.opAssign(bcd);
-        bcd.opShiftL(tmp, V3Number(this, 32, 1));
+        bcd.opShiftL(tmp, V3_സംഖ്യ(ഇത്, 32, 1));
         // bcd[0] = this[from_bit]
-        if (bitIs1(from_bit)) bcd.setBit(0, 1);
+        എങ്കിൽ (bitIs1(from_bit)) bcd.setBit(0, 1);
     }
 
     string output;
-    int lsb = (maxdecwidth - 1) & ~3;
-    for (; lsb > 0; lsb -= 4) {  // Skip leading zeros
-        if (bcd.bitsValue(lsb, 4)) break;
+    പൂർണ്ണസംഖ്യ lsb = (maxdecwidth - 1) & ~3;
+    വേണ്ടി (; lsb > 0; lsb -= 4) {  // Skip leading zeros
+        എങ്കിൽ (bcd.bits_മൂല്യം(lsb, 4)) നിർത്തുക;
     }
-    for (; lsb >= 0; lsb -= 4) {
-        output += static_cast<char>('0' + bcd.bitsValue(lsb, 4));  // 0..9
+    വേണ്ടി (; lsb >= 0; lsb -= 4) {
+        output += static_cast<അക്ഷരം>('0' + bcd.bits_മൂല്യം(lsb, 4));  // 0..9
     }
-    return output;
+    തിരികെ output;
 }
 
-string V3Number::toRealString() const VL_MT_STABLE {
-    const double value = toDouble();
+string V3_സംഖ്യ::toRealString() സ്ഥിരം VL_MT_STABLE {
+    സ്ഥിരം ഇരട്ട മൂല്യം = toDouble();
     // 15 digits suffice for most values, 17 digits for every value
     std::ostringstream out;
     out.precision(15);
-    out << value;
+    out << മൂല്യം;
     string result = out.str();
-    if (std::strtod(result.c_str(), nullptr) != value) {
+    എങ്കിൽ (std::strtod(result.c_str(), nullptr) != മൂല്യം) {
         out.str("");
         out.precision(17);
-        out << value;
+        out << മൂല്യം;
         result = out.str();
     }
     // A real, as in Verilog, unless has an exponent, or is infinite or not-a-number
-    if (result.find_first_of(".en") == string::npos) result += ".0";
-    return result;
+    എങ്കിൽ (result.find_first_of(".en") == string::npos) result += ".0";
+    തിരികെ result;
 }
 
 //======================================================================
 // ACCESSORS - as numbers
 
-bool V3Number::fitsInUInt() const VL_MT_SAFE {
-    if (isFourState()) return false;
+തർക്കം V3_സംഖ്യ::fitsInUInt() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isFourState()) തിരികെ അസത്യം;
     // We allow wide numbers that represent values <= 32 bits
-    for (int i = 1; i < words(); ++i) {
-        if (m_data.num()[i].m_value) return false;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < വാക്കുകൾ(); ++i) {
+        എങ്കിൽ (m_data.അക്കം()[i].m_മൂല്യം) തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
-uint32_t V3Number::toUInt() const VL_MT_SAFE {
-    UASSERT(!isFourState(), "toUInt with 4-state " << *this);
+uint32_t V3_സംഖ്യ::toUInt() സ്ഥിരം VL_MT_SAFE {
+    UASSERT(!isFourState(), "toUInt with 4-state " << *ഇത്);
     // We allow wide numbers that represent values <= 32 bits
-    if (VL_UNCOVERABLE(!fitsInUInt())) {
+    എങ്കിൽ (VL_UNCOVERABLE(!fitsInUInt())) {
         v3error("Value too wide for 32-bits expected in this context "  // LCOV_EXCL_LINE
-                << *this);
+                << *ഇത്);
     }
-    return m_data.num()[0].m_value;
+    തിരികെ m_data.അക്കം()[0].m_മൂല്യം;
 }
 
-double V3Number::toDouble() const VL_MT_SAFE {
+ഇരട്ട V3_സംഖ്യ::toDouble() സ്ഥിരം VL_MT_SAFE {
     UASSERT(isDouble() && width() == 64, "Real operation on wrong sized/non-real number");
-    union {
-        double d;
+    സംഘം {
+        ഇരട്ട d;
         uint32_t u[2];
     } u;
-    u.u[0] = m_data.num()[0].m_value;
-    u.u[1] = m_data.num()[1].m_value;
-    return u.d;
+    u.u[0] = m_data.അക്കം()[0].m_മൂല്യം;
+    u.u[1] = m_data.അക്കം()[1].m_മൂല്യം;
+    തിരികെ u.d;
 }
 
-int32_t V3Number::toSInt() const VL_MT_SAFE {
-    if (isSigned()) {
-        const uint32_t v = toUInt();
-        const uint32_t signExtend = (-(v & (1UL << (width() - 1))));
-        const uint32_t extended = v | signExtend;
-        return static_cast<int32_t>(extended);
-    } else {
+int32_t V3_സംഖ്യ::toSInt() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isSigned()) {
+        സ്ഥിരം uint32_t v = toUInt();
+        സ്ഥിരം uint32_t signExtend = (-(v & (1UL << (width() - 1))));
+        സ്ഥിരം uint32_t extended = v | signExtend;
+        തിരികെ static_cast<int32_t>(extended);
+    } അല്ലെങ്കിൽ {
         // Where we use this (widths, etc) and care about signedness,
         // we can reasonably assume the MSB isn't set on unsigned numbers.
-        return static_cast<int32_t>(toUInt());
+        തിരികെ static_cast<int32_t>(toUInt());
     }
 }
 
-uint64_t V3Number::toUQuad() const VL_MT_SAFE {
-    UASSERT(!isFourState(), "toUQuad with 4-state " << *this);
+uint64_t V3_സംഖ്യ::toUQuad() സ്ഥിരം VL_MT_SAFE {
+    UASSERT(!isFourState(), "toUQuad with 4-state " << *ഇത്);
     // We allow wide numbers that represent values <= 64 bits
-    if (isDouble()) return static_cast<uint64_t>(toDouble());
-    for (int i = 2; i < words(); ++i) {
-        if (m_data.num()[i].m_value) {
-            v3error("Value too wide for 64-bits expected in this context " << *this);
-            break;
+    എങ്കിൽ (isDouble()) തിരികെ static_cast<uint64_t>(toDouble());
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 2; i < വാക്കുകൾ(); ++i) {
+        എങ്കിൽ (m_data.അക്കം()[i].m_മൂല്യം) {
+            v3error("Value too wide for 64-bits expected in this context " << *ഇത്);
+            നിർത്തുക;
         }
     }
-    if (width() <= 32) return (static_cast<uint64_t>(toUInt()));
-    return ((static_cast<uint64_t>(m_data.num()[1].m_value) << 32ULL)
-            | (static_cast<uint64_t>(m_data.num()[0].m_value)));
+    എങ്കിൽ (width() <= 32) തിരികെ (static_cast<uint64_t>(toUInt()));
+    തിരികെ ((static_cast<uint64_t>(m_data.അക്കം()[1].m_മൂല്യം) << 32ULL)
+            | (static_cast<uint64_t>(m_data.അക്കം()[0].m_മൂല്യം)));
 }
 
-int64_t V3Number::toSQuad() const {
-    if (isDouble()) return static_cast<int64_t>(toDouble());
-    const uint64_t v = toUQuad();
-    const uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
-    const uint64_t extended = v | signExtend;
-    return static_cast<int64_t>(extended);
+int64_t V3_സംഖ്യ::toSQuad() സ്ഥിരം {
+    എങ്കിൽ (isDouble()) തിരികെ static_cast<int64_t>(toDouble());
+    സ്ഥിരം uint64_t v = toUQuad();
+    സ്ഥിരം uint64_t signExtend = (-(v & (1ULL << (width() - 1))));
+    സ്ഥിരം uint64_t extended = v | signExtend;
+    തിരികെ static_cast<int64_t>(extended);
 }
 
-string V3Number::toString() const {
-    UASSERT(!isFourState(), "toString with 4-state " << *this);
+string V3_സംഖ്യ::toString() സ്ഥിരം {
+    UASSERT(!isFourState(), "toString with 4-state " << *ഇത്);
     // IEEE says \000 are removed
     // If used to print a %s space padding is still required after call to here
-    if (isString()) return m_data.str();
-    int bit = width() - 1;
-    while ((bit % 8) != 7) ++bit;
+    എങ്കിൽ (isString()) തിരികെ m_data.str();
+    പൂർണ്ണസംഖ്യ bit = width() - 1;
+    ആകുമ്പോൾ ((bit % 8) != 7) ++bit;
     std::string str;
-    for (; bit >= 0; bit -= 8) {
-        const int v = bitsValue(bit - 7, 8);
-        if (v) str += static_cast<char>(v);
+    വേണ്ടി (; bit >= 0; bit -= 8) {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ v = bits_മൂല്യം(bit - 7, 8);
+        എങ്കിൽ (v) str += static_cast<അക്ഷരം>(v);
     }
-    return str;
+    തിരികെ str;
 }
 
-uint32_t V3Number::edataWord(int eword) const {
-    UASSERT(!isFourState(), "edataWord with 4-state " << *this);
-    return m_data.num()[eword].m_value;
+uint32_t V3_സംഖ്യ::edataWord(പൂർണ്ണസംഖ്യ eword) സ്ഥിരം {
+    UASSERT(!isFourState(), "edataWord with 4-state " << *ഇത്);
+    തിരികെ m_data.അക്കം()[eword].m_മൂല്യം;
 }
 
-uint8_t V3Number::dataByte(int byte) const {
-    return (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
+uint8_t V3_സംഖ്യ::dataByte(പൂർണ്ണസംഖ്യ byte) സ്ഥിരം {
+    തിരികെ (edataWord(byte / (VL_EDATASIZE / 8)) >> ((byte * 8) % VL_EDATASIZE)) & 0xff;
 }
 
-bool V3Number::isAllZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        const uint32_t mask = i == words() - 1 ? hiWordMask() : ~0U;
-        if (((~v.m_value & v.m_valueX) & mask) != mask) return false;
+തർക്കം V3_സംഖ്യ::isAllZ() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isDouble() || isString()) തിരികെ അസത്യം;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+        സ്ഥിരം uint32_t mask = i == വാക്കുകൾ() - 1 ? hiWordMask() : ~0U;
+        എങ്കിൽ (((~v.m_മൂല്യം & v.m_മൂല്യം_X) & mask) != mask) തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
-bool V3Number::isAllX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
+തർക്കം V3_സംഖ്യ::isAllX() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isDouble() || isString()) തിരികെ അസത്യം;
     uint32_t mask = hiWordMask();
-    for (int i = words() - 1; i >= 0; --i) {
-        const ValueAndX v = m_data.num()[i];
-        if ((v.m_value & v.m_valueX) ^ mask) return false;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = വാക്കുകൾ() - 1; i >= 0; --i) {
+        സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+        എങ്കിൽ ((v.m_മൂല്യം & v.m_മൂല്യം_X) ^ mask) തിരികെ അസത്യം;
         mask = ~0U;
     }
-    return true;
+    തിരികെ സത്യം;
 }
-bool V3Number::isEqZero() const VL_MT_SAFE {
-    if (isString()) return m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+തർക്കം V3_സംഖ്യ::isEqZero() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isString()) തിരികെ m_data.str().empty();
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+        എങ്കിൽ (v.m_മൂല്യം || v.m_മൂല്യം_X) തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
-bool V3Number::isNeqZero() const {
-    if (isString()) return !m_data.str().empty();
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & ~v.m_valueX) return true;
+തർക്കം V3_സംഖ്യ::isNeqZero() സ്ഥിരം {
+    എങ്കിൽ (isString()) തിരികെ !m_data.str().empty();
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+        എങ്കിൽ (v.m_മൂല്യം & ~v.m_മൂല്യം_X) തിരികെ സത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
-bool V3Number::isBitsZero(int msb, int lsb) const {
-    for (int i = lsb; i <= msb; ++i) {
-        if (VL_UNLIKELY(!bitIs0(i))) return false;
+തർക്കം V3_സംഖ്യ::isBitsZero(പൂർണ്ണസംഖ്യ msb, പൂർണ്ണസംഖ്യ lsb) സ്ഥിരം {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = lsb; i <= msb; ++i) {
+        എങ്കിൽ (VL_UNLIKELY(!bitIs0(i))) തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
-bool V3Number::isEqOne() const {
-    if (m_data.num()[0].m_value != 1 || m_data.num()[0].m_valueX) return false;
-    for (int i = 1; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value || v.m_valueX) return false;
+തർക്കം V3_സംഖ്യ::isEqOne() സ്ഥിരം {
+    എങ്കിൽ (m_data.അക്കം()[0].m_മൂല്യം != 1 || m_data.അക്കം()[0].m_മൂല്യം_X) തിരികെ അസത്യം;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 1; i < വാക്കുകൾ(); ++i) {
+        സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+        എങ്കിൽ (v.m_മൂല്യം || v.m_മൂല്യം_X) തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
-bool V3Number::isEqAllOnes(int optwidth) const {
+തർക്കം V3_സംഖ്യ::isEqAllOnes(പൂർണ്ണസംഖ്യ optwidth) സ്ഥിരം {
     // Correct number of zero bits/width matters
-    if (!optwidth) optwidth = width();
-    for (int bit = 0; bit < optwidth; ++bit) {
-        if (!bitIs1(bit)) return false;
+    എങ്കിൽ (!optwidth) optwidth = width();
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < optwidth; ++bit) {
+        എങ്കിൽ (!bitIs1(bit)) തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
-bool V3Number::isFourState() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+തർക്കം V3_സംഖ്യ::isFourState() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isDouble() || isString()) തിരികെ അസത്യം;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        എങ്കിൽ (m_data.അക്കം()[i].m_മൂല്യം_X) തിരികെ സത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
-bool V3Number::isAnyX() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (v.m_value & v.m_valueX) return true;
+തർക്കം V3_സംഖ്യ::isAnyX() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isDouble() || isString()) തിരികെ അസത്യം;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+        എങ്കിൽ (v.m_മൂല്യം & v.m_മൂല്യം_X) തിരികെ സത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
-bool V3Number::isAnyXZ() const {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (m_data.num()[i].m_valueX) return true;
+തർക്കം V3_സംഖ്യ::isAnyXZ() സ്ഥിരം {
+    എങ്കിൽ (isDouble() || isString()) തിരികെ അസത്യം;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        എങ്കിൽ (m_data.അക്കം()[i].m_മൂല്യം_X) തിരികെ സത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
-bool V3Number::isAnyZ() const VL_MT_SAFE {
-    if (isDouble() || isString()) return false;
-    for (int i = 0; i < words(); ++i) {
-        const ValueAndX v = m_data.num()[i];
-        if (~v.m_value & v.m_valueX) return true;
+തർക്കം V3_സംഖ്യ::isAnyZ() സ്ഥിരം VL_MT_SAFE {
+    എങ്കിൽ (isDouble() || isString()) തിരികെ അസത്യം;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[i];
+        എങ്കിൽ (~v.m_മൂല്യം & v.m_മൂല്യം_X) തിരികെ സത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
-bool V3Number::isLtXZ(const V3Number& rhs) const {
+തർക്കം V3_സംഖ്യ::isLtXZ(സ്ഥിരം V3_സംഖ്യ& rhs) സ്ഥിരം {
     // Include X/Z in comparisons for sort ordering
-    if (isString()) return toString() < rhs.toString();
-    if (isDouble()) return toDouble() < rhs.toDouble();
-    for (int bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
-        if (bitIs1(bit) && rhs.bitIs0(bit)) return true;
-        if (rhs.bitIs1(bit) && bitIs0(bit)) return false;
-        if (bitIsXZ(bit)) return true;
-        if (rhs.bitIsXZ(bit)) return false;
+    എങ്കിൽ (isString()) തിരികെ toString() < rhs.toString();
+    എങ്കിൽ (isDouble()) തിരികെ toDouble() < rhs.toDouble();
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(width(), rhs.width()); ++bit) {
+        എങ്കിൽ (bitIs1(bit) && rhs.bitIs0(bit)) തിരികെ സത്യം;
+        എങ്കിൽ (rhs.bitIs1(bit) && bitIs0(bit)) തിരികെ അസത്യം;
+        എങ്കിൽ (bitIsXZ(bit)) തിരികെ സത്യം;
+        എങ്കിൽ (rhs.bitIsXZ(bit)) തിരികെ അസത്യം;
     }
-    return false;
+    തിരികെ അസത്യം;
 }
-int V3Number::countX(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsX(lsb + bitn)) ++count;
+പൂർണ്ണസംഖ്യ V3_സംഖ്യ::എണ്ണം_X(പൂർണ്ണസംഖ്യ lsb, പൂർണ്ണസംഖ്യ nbits) സ്ഥിരം VL_MT_SAFE {
+    പൂർണ്ണസംഖ്യ എണ്ണം = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bitn = 0; bitn < nbits; ++bitn) {
+        എങ്കിൽ (lsb + bitn >= width()) തിരികെ എണ്ണം;
+        എങ്കിൽ (bitIsX(lsb + bitn)) ++എണ്ണം;
     }
-    return count;
+    തിരികെ എണ്ണം;
 }
-int V3Number::countZ(int lsb, int nbits) const VL_MT_SAFE {
-    int count = 0;
-    for (int bitn = 0; bitn < nbits; ++bitn) {
-        if (lsb + bitn >= width()) return count;
-        if (bitIsZ(lsb + bitn)) ++count;
+പൂർണ്ണസംഖ്യ V3_സംഖ്യ::എണ്ണം_Z(പൂർണ്ണസംഖ്യ lsb, പൂർണ്ണസംഖ്യ nbits) സ്ഥിരം VL_MT_SAFE {
+    പൂർണ്ണസംഖ്യ എണ്ണം = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bitn = 0; bitn < nbits; ++bitn) {
+        എങ്കിൽ (lsb + bitn >= width()) തിരികെ എണ്ണം;
+        എങ്കിൽ (bitIsZ(lsb + bitn)) ++എണ്ണം;
     }
-    return count;
-}
-
-int V3Number::widthToFit() const {
-    for (int bit = width() - 1; bit > 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
-    }
-    return 1;  // one bit even if number is == 0
+    തിരികെ എണ്ണം;
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl) const {
+പൂർണ്ണസംഖ്യ V3_സംഖ്യ::widthToFit() സ്ഥിരം {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = width() - 1; bit > 0; bit--) {
+        എങ്കിൽ (!bitIs0(bit)) തിരികെ bit + 1;
+    }
+    തിരികെ 1;  // one bit even if number is == 0
+}
+
+uint32_t V3_സംഖ്യ::എണ്ണം_Bits(സ്ഥിരം V3_സംഖ്യ& ctrl) സ്ഥിരം {
     // Correct number of zero bits/width matters
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
-        switch (ctrl.bitIs(0)) {
-        case '0':
-            if (bitIs0(bit)) ++n;
-            break;
-        case '1':
-            if (bitIs1(bit)) ++n;
-            break;
-        case 'x':
-            if (bitIsX(bit)) ++n;
-            break;
-        case 'z':
-            if (bitIsZ(bit)) ++n;
-            break;
+    പൂർണ്ണസംഖ്യ n = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        തിരഞ്ഞെടുപ്പ് (ctrl.bitIs(0)) {
+        അവസ്ഥ '0':
+            എങ്കിൽ (bitIs0(bit)) ++n;
+            നിർത്തുക;
+        അവസ്ഥ '1':
+            എങ്കിൽ (bitIs1(bit)) ++n;
+            നിർത്തുക;
+        അവസ്ഥ 'x':
+            എങ്കിൽ (bitIsX(bit)) ++n;
+            നിർത്തുക;
+        അവസ്ഥ 'z':
+            എങ്കിൽ (bitIsZ(bit)) ++n;
+            നിർത്തുക;
         }
     }
-    return n;
+    തിരികെ n;
 }
 
-uint32_t V3Number::countBits(const V3Number& ctrl1, const V3Number& ctrl2,
-                             const V3Number& ctrl3) const {
+uint32_t V3_സംഖ്യ::എണ്ണം_Bits(സ്ഥിരം V3_സംഖ്യ& ctrl1, സ്ഥിരം V3_സംഖ്യ& ctrl2,
+                             സ്ഥിരം V3_സംഖ്യ& ctrl3) സ്ഥിരം {
     // Correct number of zero bits/width matters
-    int n = countBits(ctrl1);
-    if (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += countBits(ctrl2);
-    if ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
-        n += countBits(ctrl3);
+    പൂർണ്ണസംഖ്യ n = എണ്ണം_Bits(ctrl1);
+    എങ്കിൽ (ctrl2.bitIs(0) != ctrl1.bitIs(0)) n += എണ്ണം_Bits(ctrl2);
+    എങ്കിൽ ((ctrl3.bitIs(0) != ctrl1.bitIs(0)) && (ctrl3.bitIs(0) != ctrl2.bitIs(0))) {
+        n += എണ്ണം_Bits(ctrl3);
     }
-    return n;
+    തിരികെ n;
 }
 
-uint32_t V3Number::countOnes() const {
-    int n = 0;
-    for (int bit = 0; bit < width(); ++bit) {
-        if (bitIs1(bit)) ++n;
+uint32_t V3_സംഖ്യ::എണ്ണം_Ones() സ്ഥിരം {
+    പൂർണ്ണസംഖ്യ n = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (bitIs1(bit)) ++n;
     }
-    return n;
+    തിരികെ n;
 }
 
-uint32_t V3Number::mostSetBitP1() const {
-    for (int bit = width() - 1; bit >= 0; bit--) {
-        if (!bitIs0(bit)) return bit + 1;
+uint32_t V3_സംഖ്യ::mostSetBitP1() സ്ഥിരം {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = width() - 1; bit >= 0; bit--) {
+        എങ്കിൽ (!bitIs0(bit)) തിരികെ bit + 1;
     }
-    return 0;
+    തിരികെ 0;
 }
 
-uint32_t V3Number::leastSetBitP1() const {
-    for (int bit = 0; bit < width(); ++bit) {
-        if (!bitIs0(bit)) return bit + 1;
+uint32_t V3_സംഖ്യ::leastSetBitP1() സ്ഥിരം {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (!bitIs0(bit)) തിരികെ bit + 1;
     }
-    return 0;
+    തിരികെ 0;
 }
 
 //======================================================================
 
-V3Number& V3Number::opBitsNonXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_സംഖ്യ& V3_സംഖ്യ::opBitsNonXZ(സ്ഥിരം V3_സംഖ്യ& lhs) {  // 0/1->1, X/Z->0
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs0(bit) || lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opBitsOne(const V3Number& lhs) {  // 1->1, 0/X/Z->0
+V3_സംഖ്യ& V3_സംഖ്യ::opBitsOne(സ്ഥിരം V3_സംഖ്യ& lhs) {  // 1->1, 0/X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit)) setBit(bit, 1);
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit)) setBit(bit, 1);
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opBitsXZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_സംഖ്യ& V3_സംഖ്യ::opBitsXZ(സ്ഥിരം V3_സംഖ്യ& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsXZ(bit)) setBit(bit, 1);
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIsXZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opBitsZ(const V3Number& lhs) {  // 0/1->1, X/Z->0
+V3_സംഖ്യ& V3_സംഖ്യ::opBitsZ(സ്ഥിരം V3_സംഖ്യ& lhs) {  // 0/1->1, X/Z->0
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIsZ(bit)) setBit(bit, 1);
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIsZ(bit)) setBit(bit, 1);
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
 //======================================================================
 // Operators - Simple per-bit logical ops
 
-V3Number& V3Number::opRedOr(const V3Number& lhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opRedOr(സ്ഥിരം V3_സംഖ്യ& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            return setSingleBits(1);
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    അക്ഷരം outc = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < lhs.width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit)) {
+            തിരികെ setSingleBits(1);
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs0(bit)) {
+        } അല്ലെങ്കിൽ {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedAnd(const V3Number& lhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opRedAnd(സ്ഥിരം V3_സംഖ്യ& lhs) {
     // Correct number of zero bits/width matters
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
-            return setSingleBits(0);
-        } else if (lhs.bitIs1(bit)) {
-        } else {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    അക്ഷരം outc = 1;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < lhs.width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs0(bit)) {
+            തിരികെ setSingleBits(0);
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs1(bit)) {
+        } അല്ലെങ്കിൽ {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opRedXor(const V3Number& lhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opRedXor(സ്ഥിരം V3_സംഖ്യ& lhs) {
     // op i, 1 bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
-            if (outc == 1) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    അക്ഷരം outc = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < lhs.width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit)) {
+            എങ്കിൽ (outc == 1) {
                 outc = 0;
-            } else if (outc == 0) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (outc == 0) {
                 outc = 1;
             }
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs0(bit)) {
+        } അല്ലെങ്കിൽ {
             outc = 'x';
         }
     }
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opCountBits(const V3Number& expr, const V3Number& ctrl1, const V3Number& ctrl2,
-                                const V3Number& ctrl3) {
+V3_സംഖ്യ& V3_സംഖ്യ::op_എണ്ണം_Bits(സ്ഥിരം V3_സംഖ്യ& വ്യഞ്ജകം, സ്ഥിരം V3_സംഖ്യ& ctrl1, സ്ഥിരം V3_സംഖ്യ& ctrl2,
+                                സ്ഥിരം V3_സംഖ്യ& ctrl3) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS4(expr, ctrl1, ctrl2, ctrl3);
-    NUM_ASSERT_LOGIC_ARGS4(expr, ctrl1, ctrl2, ctrl3);
+    അക്കം_ASSERT_OP_ARGS4(വ്യഞ്ജകം, ctrl1, ctrl2, ctrl3);
+    അക്കം_ASSERT_LOGIC_ARGS4(വ്യഞ്ജകം, ctrl1, ctrl2, ctrl3);
     setZero();
-    m_data.num()[0].m_value = expr.countBits(ctrl1, ctrl2, ctrl3);
+    m_data.അക്കം()[0].m_മൂല്യം = വ്യഞ്ജകം.എണ്ണം_Bits(ctrl1, ctrl2, ctrl3);
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opCountOnes(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+V3_സംഖ്യ& V3_സംഖ്യ::op_എണ്ണം_Ones(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    എങ്കിൽ (lhs.isFourState()) തിരികെ setAllBitsX();
     setZero();
-    m_data.num()[0].m_value = lhs.countOnes();
+    m_data.അക്കം()[0].m_മൂല്യം = lhs.എണ്ണം_Ones();
     opCleanThis();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opIsUnknown(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    return setSingleBits(lhs.isAnyXZ());
+V3_സംഖ്യ& V3_സംഖ്യ::opIsUnknown(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    തിരികെ setSingleBits(lhs.isAnyXZ());
 }
-V3Number& V3Number::opOneHot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() == 1);
+V3_സംഖ്യ& V3_സംഖ്യ::opOneHot(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    എങ്കിൽ (lhs.isFourState()) തിരികെ setAllBitsX();
+    തിരികെ setSingleBits(lhs.എണ്ണം_Ones() == 1);
 }
-V3Number& V3Number::opOneHot0(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    return setSingleBits(lhs.countOnes() <= 1);
+V3_സംഖ്യ& V3_സംഖ്യ::opOneHot0(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    എങ്കിൽ (lhs.isFourState()) തിരികെ setAllBitsX();
+    തിരികെ setSingleBits(lhs.എണ്ണം_Ones() <= 1);
 }
-V3Number& V3Number::opCLog2(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
+V3_സംഖ്യ& V3_സംഖ്യ::opCLog2(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    എങ്കിൽ (lhs.isFourState()) തിരികെ setAllBitsX();
     // IE if 4, this algorithm didn't pre-subtract 1, so we need to post-correct now
-    const int adjust = (lhs.countOnes() == 1) ? 0 : 1;
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    സ്ഥിരം പൂർണ്ണസംഖ്യ adjust = (lhs.എണ്ണം_Ones() == 1) ? 0 : 1;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = lhs.width() - 1; bit >= 0; bit--) {
+        എങ്കിൽ (lhs.bitIs1(bit)) {
             setLong(bit + adjust);
-            return *this;
+            തിരികെ *ഇത്;
         }
     }
     setZero();
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opMostSetBitP1(const V3Number& lhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opMostSetBitP1(സ്ഥിരം V3_സംഖ്യ& lhs) {
     // Most-significant set bit plus one (bit-width / find-last-set); 0 if value is zero
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    for (int bit = lhs.width() - 1; bit >= 0; bit--) {
-        if (lhs.bitIs1(bit)) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    എങ്കിൽ (lhs.isFourState()) തിരികെ setAllBitsX();
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = lhs.width() - 1; bit >= 0; bit--) {
+        എങ്കിൽ (lhs.bitIs1(bit)) {
             setLong(bit + 1);
-            return *this;
+            തിരികെ *ഇത്;
         }
     }
     setZero();
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opLogNot(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opLogNot(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     // op i, 1 bit return
-    char outc = 1;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    അക്ഷരം outc = 1;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < lhs.width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit)) {
             outc = 0;
-            goto last;
-        } else if (lhs.bitIs0(bit)) {
-        } else {
+            പോകുക last;
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs0(bit)) {
+        } അല്ലെങ്കിൽ {
             outc = 'x';
         }
     }
 last:
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opNot(const V3Number& lhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opNot(സ്ഥിരം V3_സംഖ്യ& lhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     // op i, L(lhs) bit return
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs0(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opAnd(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opAnd(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
-        } else {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs0(bit) || rhs.bitIs0(bit)) {  // 0
+        } അല്ലെങ്കിൽ {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opOr(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opOr(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit) || rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs0(bit) && rhs.bitIs0(bit)) {
             // 0
-        } else {
+        } അല്ലെങ്കിൽ {
             setBit(bit, 'x');
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opXor(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opXor(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             setBit(bit, 1);
-        } else if (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIsXZ(bit) || rhs.bitIsXZ(bit)) {
             setBit(bit, 'x');
         }
         // else zero
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-void V3Number::fillBits(int destLsb, int width, char value) {
+ശൂന്യം V3_സംഖ്യ::fillBits(പൂർണ്ണസംഖ്യ destLsb, പൂർണ്ണസംഖ്യ width, അക്ഷരം മൂല്യം) {
     UASSERT(destLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
-    UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
+    എങ്കിൽ (!width) തിരികെ;
+    UASSERT(width <= ഇത്->width() - destLsb, "Destination bit range exceeds number width");
 
-    const uint32_t valueWord = value == '1' || value == 'x' || value == 1 || value == 3 ? ~0U : 0;
-    const uint32_t xWord = value == 'z' || value == 'x' || value == 2 || value == 3 ? ~0U : 0;
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int word = firstWord; word <= lastWord; ++word) {
-        const int wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
-        const int wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
-        const uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
-        ValueAndX& dest = m_data.num()[word];
-        dest.m_value = (dest.m_value & ~mask) | (valueWord & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | (xWord & mask);
+    സ്ഥിരം uint32_t മൂല്യം_Word = മൂല്യം == '1' || മൂല്യം == 'x' || മൂല്യം == 1 || മൂല്യം == 3 ? ~0U : 0;
+    സ്ഥിരം uint32_t xWord = മൂല്യം == 'z' || മൂല്യം == 'x' || മൂല്യം == 2 || മൂല്യം == 3 ? ~0U : 0;
+    സ്ഥിരം പൂർണ്ണസംഖ്യ firstWord = VL_BITWORD_E(destLsb);
+    സ്ഥിരം പൂർണ്ണസംഖ്യ lastWord = VL_BITWORD_E(destLsb + width - 1);
+    വേണ്ടി (പൂർണ്ണസംഖ്യ word = firstWord; word <= lastWord; ++word) {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ wordLsb = word == firstWord ? VL_BITBIT_E(destLsb) : 0;
+        സ്ഥിരം പൂർണ്ണസംഖ്യ wordMsb = word == lastWord ? VL_BITBIT_E(destLsb + width - 1) : VL_SIZEBITS_E;
+        സ്ഥിരം uint32_t mask = VL_MASK_E(wordMsb - wordLsb + 1) << wordLsb;
+        മൂല്യം_And_X& dest = m_data.അക്കം()[word];
+        dest.m_മൂല്യം = (dest.m_മൂല്യം & ~mask) | (മൂല്യം_Word & mask);
+        dest.m_മൂല്യം_X = (dest.m_മൂല്യം_X & ~mask) | (xWord & mask);
     }
 }
 
-void V3Number::copyBits(int destLsb, const V3Number& source, int sourceLsb, int width) {
+ശൂന്യം V3_സംഖ്യ::copyBits(പൂർണ്ണസംഖ്യ destLsb, സ്ഥിരം V3_സംഖ്യ& source, പൂർണ്ണസംഖ്യ sourceLsb, പൂർണ്ണസംഖ്യ width) {
     UASSERT(destLsb >= 0 && sourceLsb >= 0 && width >= 0, "Negative bit range");
-    if (!width) return;
-    UASSERT(width <= this->width() - destLsb, "Destination bit range exceeds number width");
+    എങ്കിൽ (!width) തിരികെ;
+    UASSERT(width <= ഇത്->width() - destLsb, "Destination bit range exceeds number width");
     UASSERT(width <= source.width() - sourceLsb, "Source bit range exceeds number width");
 
-    const int firstWord = VL_BITWORD_E(destLsb);
-    const int lastWord = VL_BITWORD_E(destLsb + width - 1);
-    for (int destWord = firstWord; destWord <= lastWord; ++destWord) {
-        const int destBit = std::max(destLsb, destWord * VL_EDATASIZE);
-        const int destOffset = VL_BITBIT_E(destBit);
-        const int sourceBit = sourceLsb + destBit - destLsb;
-        const int sourceWord = VL_BITWORD_E(sourceBit);
-        const int sourceOffset = VL_BITBIT_E(sourceBit);
-        const int copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
-        const uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
+    സ്ഥിരം പൂർണ്ണസംഖ്യ firstWord = VL_BITWORD_E(destLsb);
+    സ്ഥിരം പൂർണ്ണസംഖ്യ lastWord = VL_BITWORD_E(destLsb + width - 1);
+    വേണ്ടി (പൂർണ്ണസംഖ്യ destWord = firstWord; destWord <= lastWord; ++destWord) {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ destBit = std::max(destLsb, destWord * VL_EDATASIZE);
+        സ്ഥിരം പൂർണ്ണസംഖ്യ destOffset = VL_BITBIT_E(destBit);
+        സ്ഥിരം പൂർണ്ണസംഖ്യ sourceBit = sourceLsb + destBit - destLsb;
+        സ്ഥിരം പൂർണ്ണസംഖ്യ sourceWord = VL_BITWORD_E(sourceBit);
+        സ്ഥിരം പൂർണ്ണസംഖ്യ sourceOffset = VL_BITBIT_E(sourceBit);
+        സ്ഥിരം പൂർണ്ണസംഖ്യ copyWidth = std::min(width - (destBit - destLsb), VL_EDATASIZE - destOffset);
+        സ്ഥിരം uint32_t mask = VL_MASK_E(copyWidth) << destOffset;
 
-        const ValueAndX& sourceLo = source.m_data.num()[sourceWord];
-        uint32_t value = sourceLo.m_value >> sourceOffset;
-        uint32_t valueX = sourceLo.m_valueX >> sourceOffset;
-        if (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
-            const ValueAndX& sourceHi = source.m_data.num()[sourceWord + 1];
-            value |= sourceHi.m_value << (VL_EDATASIZE - sourceOffset);
-            valueX |= sourceHi.m_valueX << (VL_EDATASIZE - sourceOffset);
+        സ്ഥിരം മൂല്യം_And_X& sourceLo = source.m_data.അക്കം()[sourceWord];
+        uint32_t മൂല്യം = sourceLo.m_മൂല്യം >> sourceOffset;
+        uint32_t മൂല്യം_X = sourceLo.m_മൂല്യം_X >> sourceOffset;
+        എങ്കിൽ (sourceOffset && copyWidth > VL_EDATASIZE - sourceOffset) {
+            സ്ഥിരം മൂല്യം_And_X& sourceHi = source.m_data.അക്കം()[sourceWord + 1];
+            മൂല്യം |= sourceHi.m_മൂല്യം << (VL_EDATASIZE - sourceOffset);
+            മൂല്യം_X |= sourceHi.m_മൂല്യം_X << (VL_EDATASIZE - sourceOffset);
         }
 
-        ValueAndX& dest = m_data.num()[destWord];
-        dest.m_value = (dest.m_value & ~mask) | ((value << destOffset) & mask);
-        dest.m_valueX = (dest.m_valueX & ~mask) | ((valueX << destOffset) & mask);
+        മൂല്യം_And_X& dest = m_data.അക്കം()[destWord];
+        dest.m_മൂല്യം = (dest.m_മൂല്യം & ~mask) | ((മൂല്യം << destOffset) & mask);
+        dest.m_മൂല്യം_X = (dest.m_മൂല്യം_X & ~mask) | ((മൂല്യം_X << destOffset) & mask);
     }
 }
 
-V3Number& V3Number::opConcat(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opConcat(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized() || !rhs.sized()) {
+    എങ്കിൽ (!lhs.sized() || !rhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in concatenations.");
     }
     copyBits(0, rhs, 0, rhs.width());
     copyBits(rhs.width(), lhs, 0, lhs.width());
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opLenN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opLenN(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
     setQuad(lhs.toString().length());
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
-                           const V3Number& rhs) {  // rhs is # of times to replicate
+V3_സംഖ്യ& V3_സംഖ്യ::opRepl(സ്ഥിരം V3_സംഖ്യ& lhs,
+                           സ്ഥിരം V3_സംഖ്യ& rhs) {  // rhs is # of times to replicate
     // Hopefully the using routine has a error check to, &rhso.
     // See also error in V3Width
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (!lhs.sized()) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in replications.");
     }
-    return opRepl(lhs, rhs.toUInt());
+    തിരികെ opRepl(lhs, rhs.toUInt());
 }
 
-V3Number& V3Number::opRepl(const V3Number& lhs,
+V3_സംഖ്യ& V3_സംഖ്യ::opRepl(സ്ഥിരം V3_സംഖ്യ& lhs,
                            uint32_t rhsval) {  // rhs is # of times to replicate
     // i op repl, L(i)*value(rhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (v3Global.opt.replicationLimit()
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    എങ്കിൽ (v3Global.opt.replicationLimit()
         && rhsval > static_cast<uint32_t>(v3Global.opt.replicationLimit())) {
         v3warn(WIDTHCONCAT, "Replication of more that --replication-limit "
                                 << v3Global.opt.replicationLimit() << " is suspect: " << rhsval);
     }
     setZero();
-    for (unsigned times = 0; times < rhsval; ++times) {
-        const uint64_t destLsb = uint64_t{times} * lhs.width();
-        if (destLsb >= static_cast<uint32_t>(width())) break;
-        copyBits(static_cast<int>(destLsb), lhs, 0,
-                 std::min(lhs.width(), width() - static_cast<int>(destLsb)));
+    വേണ്ടി (unsigned times = 0; times < rhsval; ++times) {
+        സ്ഥിരം uint64_t destLsb = uint64_t{times} * lhs.width();
+        എങ്കിൽ (destLsb >= static_cast<uint32_t>(width())) നിർത്തുക;
+        copyBits(static_cast<പൂർണ്ണസംഖ്യ>(destLsb), lhs, 0,
+                 std::min(lhs.width(), width() - static_cast<പൂർണ്ണസംഖ്യ>(destLsb)));
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opStreamL(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opStreamL(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // See also error in V3Width
-    if (!lhs.sized()) {
+    എങ്കിൽ (!lhs.sized()) {
         v3warn(WIDTHCONCAT, "Unsized numbers/parameters not allowed in streams.");
     }
     // Slice size should never exceed the lhs width
-    const int ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
-    for (int istart = 0; istart < lhs.width(); istart += ssize) {
-        const int ostart = std::max(0, lhs.width() - ssize - istart);
+    സ്ഥിരം പൂർണ്ണസംഖ്യ ssize = std::min(rhs.toUInt(), static_cast<unsigned>(lhs.width()));
+    വേണ്ടി (പൂർണ്ണസംഖ്യ istart = 0; istart < lhs.width(); istart += ssize) {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ ostart = std::max(0, lhs.width() - ssize - istart);
         copyBits(ostart, lhs, istart, std::min(ssize, lhs.width() - istart));
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opLogAnd(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opLogAnd(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char loutc = 0;
-    char routc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്ഷരം loutc = 0;
+    അക്ഷരം routc = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < lhs.width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit)) {
             loutc = 1;
-            break;
+            നിർത്തുക;
         }
-        if (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
+        എങ്കിൽ (lhs.bitIsXZ(bit) && loutc == 0) loutc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < rhs.width(); ++bit) {
+        എങ്കിൽ (rhs.bitIs1(bit)) {
             routc = 1;
-            break;
+            നിർത്തുക;
         }
-        if (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
+        എങ്കിൽ (rhs.bitIsXZ(bit) && routc == 0) routc = 'x';
     }
-    char outc = 'x';
-    if (routc == 1 && loutc == 1) outc = 1;
-    if (routc == 0 || loutc == 0) outc = 0;
-    return setSingleBits(outc);
+    അക്ഷരം outc = 'x';
+    എങ്കിൽ (routc == 1 && loutc == 1) outc = 1;
+    എങ്കിൽ (routc == 0 || loutc == 0) outc = 0;
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogOr(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opLogOr(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < lhs.width(); ++bit) {
-        if (lhs.bitIs1(bit)) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്ഷരം outc = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < lhs.width(); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            പോകുക last;
         }
-        if (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        എങ്കിൽ (lhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (rhs.bitIs1(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < rhs.width(); ++bit) {
+        എങ്കിൽ (rhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            പോകുക last;
         }
-        if (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
+        എങ്കിൽ (rhs.bitIsXZ(bit) && outc == 0) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opLogIf(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opLogIf(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number lnot = lhs;
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_സംഖ്യ lnot = lhs;
     lnot.opLogNot(lhs);
-    return opLogOr(lnot, rhs);
+    തിരികെ opLogOr(lnot, rhs);
 }
 
-V3Number& V3Number::opLogEq(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opLogEq(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to
     // X/Z extend. Use definition in IEEE to do this for us.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number ifa = lhs;
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_സംഖ്യ ifa = lhs;
     ifa.opLogIf(lhs, rhs);
-    V3Number ifb = rhs;
+    V3_സംഖ്യ ifb = rhs;
     ifb.opLogIf(rhs, lhs);
-    return opLogAnd(ifa, ifb);
+    തിരികെ opLogAnd(ifa, ifb);
 }
 
-V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opAtoN(സ്ഥിരം V3_സംഖ്യ& lhs, പൂർണ്ണസംഖ്യ base) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
     UASSERT(base == AstAtoN::ATOREAL || base == 2 || base == 8 || base == 10 || base == 16,
             "base must be one of AstAtoN::ATOREAL, 2, 8, 10, or 16.");
 
@@ -1823,578 +1823,578 @@ V3Number& V3Number::opAtoN(const V3Number& lhs, int base) {
     // IEEE 1800-2023 6.16.9 says '_' may exist.
     str.erase(std::remove(str.begin(), str.end(), '_'), str.end());
 
-    if (base == AstAtoN::ATOREAL) return setDouble(std::atof(str.c_str()));
+    എങ്കിൽ (base == AstAtoN::ATOREAL) തിരികെ setDouble(std::atof(str.c_str()));
 
     errno = 0;
     auto v = std::strtol(str.c_str(), nullptr, base);
-    if (errno != 0) v = 0;
-    return setLongS(static_cast<int32_t>(v));
+    എങ്കിൽ (errno != 0) v = 0;
+    തിരികെ setLongS(static_cast<int32_t>(v));
 }
 
-V3Number& V3Number::opPutcN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opPutcN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs, സ്ഥിരം V3_സംഖ്യ& ths) {
+    അക്കം_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
     string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
-    const int32_t c = ths.toSInt() & 0xFF;
+    സ്ഥിരം int32_t i = rhs.toSInt();
+    സ്ഥിരം int32_t c = ths.toSInt() & 0xFF;
     // 6.16.2:str.putc(i, c) does not change the value when i < 0 || i >= str.len() || c == 0
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length() && c != 0) lstring[i] = c;
-    return setString(lstring);
+    എങ്കിൽ (0 <= i && static_cast<uint32_t>(i) < lstring.length() && c != 0) lstring[i] = c;
+    തിരികെ setString(lstring);
 }
 
-V3Number& V3Number::opGetcN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
+V3_സംഖ്യ& V3_സംഖ്യ::opGetcN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
+    സ്ഥിരം string lstring = lhs.toString();
+    സ്ഥിരം int32_t i = rhs.toSInt();
     int32_t v = 0;
     // 6.16.3:str.getc(i) returns 0 if i < 0 || i >= str.len()
     // when evaluating the second condition, i must be positive.
-    if (0 <= i && static_cast<uint32_t>(i) < lstring.length()) v = lstring[i];
-    return setLong(v);
+    എങ്കിൽ (0 <= i && static_cast<uint32_t>(i) < lstring.length()) v = lstring[i];
+    തിരികെ setLong(v);
 }
 
-V3Number& V3Number::opSubstrN(const V3Number& lhs, const V3Number& rhs, const V3Number& ths) {
-    NUM_ASSERT_OP_ARGS3(lhs, rhs, ths);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const string lstring = lhs.toString();
-    const int32_t i = rhs.toSInt();
-    const int32_t j = ths.toSInt();
+V3_സംഖ്യ& V3_സംഖ്യ::opSubstrN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs, സ്ഥിരം V3_സംഖ്യ& ths) {
+    അക്കം_ASSERT_OP_ARGS3(lhs, rhs, ths);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
+    സ്ഥിരം string lstring = lhs.toString();
+    സ്ഥിരം int32_t i = rhs.toSInt();
+    സ്ഥിരം int32_t j = ths.toSInt();
     // 6.16.8:str.substr(i, j) returns an empty string when i < 0 || j < i || j >= str.len()
     // when evaluating the third condition, j must be positive because 0 <= i <= j is guaranteed by
     // the former two conditions.
-    if (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.length()) return setString("");
+    എങ്കിൽ (i < 0 || j < i || static_cast<uint32_t>(j) >= lstring.length()) തിരികെ setString("");
     // The second parameter of std::string::substr(i, n) is length, not position as SystemVerilog.
-    return setString(lstring.substr(i, j - i + 1));
+    തിരികെ setString(lstring.substr(i, j - i + 1));
 }
 
-V3Number& V3Number::opCompareNN(const V3Number& lhs, const V3Number& rhs, bool ignoreCase) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opCompareNN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs, തർക്കം ignoreCase) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
     // SystemVerilog Language Standard does not allow a string variable to contain '\0'.
     // So C functions such as strcmp() can correctly compare strings.
-    int result;
-    const string lstring = lhs.toString();
-    const string rstring = rhs.toString();
-    if (ignoreCase) {
+    പൂർണ്ണസംഖ്യ result;
+    സ്ഥിരം string lstring = lhs.toString();
+    സ്ഥിരം string rstring = rhs.toString();
+    എങ്കിൽ (ignoreCase) {
         result = VL_STRCASECMP(lstring.c_str(), rstring.c_str());
-    } else {
+    } അല്ലെങ്കിൽ {
         result = std::strcmp(lstring.c_str(), rstring.c_str());
     }
-    return setLongS(result);
+    തിരികെ setLongS(result);
 }
 
-V3Number& V3Number::opEq(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opEq(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opEqN(lhs, rhs);
-    if (lhs.isDouble()) return opEqD(lhs, rhs);
-    char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isString()) തിരികെ opEqN(lhs, rhs);
+    എങ്കിൽ (lhs.isDouble()) തിരികെ opEqD(lhs, rhs);
+    അക്ഷരം outc = 1;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 0;
-            goto last;
+            പോകുക last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        എങ്കിൽ (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 0;
-            goto last;
+            പോകുക last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        എങ്കിൽ (lhs.bitIsXZ(bit)) outc = 'x';
+        എങ്കിൽ (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opNeq(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    if (lhs.isString()) return opNeqN(lhs, rhs);
-    if (lhs.isDouble()) return opNeqD(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isString()) തിരികെ opNeqN(lhs, rhs);
+    എങ്കിൽ (lhs.isDouble()) തിരികെ opNeqD(lhs, rhs);
+    അക്ഷരം outc = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit) && rhs.bitIs0(bit)) {
             outc = 1;
-            goto last;
+            പോകുക last;
         }
-        if (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
+        എങ്കിൽ (lhs.bitIs0(bit) && rhs.bitIs1(bit)) {
             outc = 1;
-            goto last;
+            പോകുക last;
         }
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+        എങ്കിൽ (lhs.bitIsXZ(bit)) outc = 'x';
+        എങ്കിൽ (rhs.bitIsXZ(bit)) outc = 'x';
     }
 last:
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Hash V3Number::toHash() const {
+V3Hash V3_സംഖ്യ::toHash() സ്ഥിരം {
     // Shouldmatch isCaseEq
-    if (isString()) return V3Hash{toString()};
-    if (isDouble()) return V3Hash{toDouble()};
+    എങ്കിൽ (isString()) തിരികെ V3Hash{toString()};
+    എങ്കിൽ (isDouble()) തിരികെ V3Hash{toDouble()};
     V3Hash hash{width()};
-    for (int i = 0; i < words(); ++i) hash += m_data.num()[i].m_value;
-    return hash;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) hash += m_data.അക്കം()[i].m_മൂല്യം;
+    തിരികെ hash;
 }
 
-bool V3Number::isCaseEq(const V3Number& rhs) const {
+തർക്കം V3_സംഖ്യ::isCaseEq(സ്ഥിരം V3_സംഖ്യ& rhs) സ്ഥിരം {
     // Should match toHash
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    if (isString()) return toString() == rhs.toString();
-    if (isDouble()) return toDouble() == rhs.toDouble();
-    if (width() != rhs.width()) return false;
-    for (int i = 0; i < words(); ++i) {
-        if (!(m_data.num()[i] == rhs.m_data.num()[i])) return false;
+    എങ്കിൽ (isString()) തിരികെ toString() == rhs.toString();
+    എങ്കിൽ (isDouble()) തിരികെ toDouble() == rhs.toDouble();
+    എങ്കിൽ (width() != rhs.width()) തിരികെ അസത്യം;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < വാക്കുകൾ(); ++i) {
+        എങ്കിൽ (!(m_data.അക്കം()[i] == rhs.m_data.അക്കം()[i])) തിരികെ അസത്യം;
     }
-    return true;
+    തിരികെ സത്യം;
 }
 
-V3Number& V3Number::opCaseEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
+V3_സംഖ്യ& V3_സംഖ്യ::opCaseEq(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.isCaseEq(rhs) ? 1 : 0);
 }
 
-V3Number& V3Number::opCaseNeq(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opCaseNeq(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    char outc = 0;
-    if (lhs.isString()) {
-        return opNeqN(lhs, rhs);
-    } else if (lhs.isDouble()) {
-        return opNeqD(lhs, rhs);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്ഷരം outc = 0;
+    എങ്കിൽ (lhs.isString()) {
+        തിരികെ opNeqN(lhs, rhs);
+    } അല്ലെങ്കിൽ എങ്കിൽ (lhs.isDouble()) {
+        തിരികെ opNeqD(lhs, rhs);
     }
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        എങ്കിൽ (lhs.bitIs(bit) != rhs.bitIs(bit)) {
             outc = 1;
-            goto last;
+            പോകുക last;
         }
     }
 last:
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildEq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 1;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+V3_സംഖ്യ& V3_സംഖ്യ::opWildEq(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്ഷരം outc = 1;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        എങ്കിൽ (!rhs.bitIsXZ(bit)) {
+            എങ്കിൽ (lhs.bitIsXZ(bit)) {
                 outc = 'x';
-                goto last;
+                പോകുക last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            എങ്കിൽ (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 0;
-                goto last;
+                പോകുക last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opWildNeq(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (!rhs.bitIsXZ(bit)) {
-            if (lhs.bitIsXZ(bit)) {
+V3_സംഖ്യ& V3_സംഖ്യ::opWildNeq(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്ഷരം outc = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        എങ്കിൽ (!rhs.bitIsXZ(bit)) {
+            എങ്കിൽ (lhs.bitIsXZ(bit)) {
                 outc = 'x';
-                goto last;
+                പോകുക last;
             }
-            if (lhs.bitIs(bit) != rhs.bitIs(bit)) {
+            എങ്കിൽ (lhs.bitIs(bit) != rhs.bitIs(bit)) {
                 outc = 1;
-                goto last;
+                പോകുക last;
             }
         }
     }
 last:
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opGt(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opGt(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
-    for (int bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
-        if (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
-        if (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
-        if (lhs.bitIsXZ(bit)) outc = 'x';
-        if (rhs.bitIsXZ(bit)) outc = 'x';
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്ഷരം outc = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(lhs.width(), rhs.width()); ++bit) {
+        എങ്കിൽ (lhs.bitIs1(bit) && rhs.bitIs0(bit)) outc = 1;
+        എങ്കിൽ (rhs.bitIs1(bit) && lhs.bitIs0(bit)) outc = 0;
+        എങ്കിൽ (lhs.bitIsXZ(bit)) outc = 'x';
+        എങ്കിൽ (rhs.bitIsXZ(bit)) outc = 'x';
     }
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opGtS(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opGtS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    char outc = 0;
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്ഷരം outc = 0;
     {
-        const int mbit = std::max(lhs.width() - 1, rhs.width() - 1);
-        if (lhs.bitIsXZ(mbit)) {
+        സ്ഥിരം പൂർണ്ണസംഖ്യ mbit = std::max(lhs.width() - 1, rhs.width() - 1);
+        എങ്കിൽ (lhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (rhs.bitIsXZ(mbit)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (rhs.bitIsXZ(mbit)) {
             outc = 'x';
-        } else if (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs0(mbit) && rhs.bitIs1Extend(mbit)) {
             outc = 1;  // + > -
-        } else if (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.bitIs1Extend(mbit) && rhs.bitIs0(mbit)) {
             outc = 0;  // - !> +
-        } else {
+        } അല്ലെങ്കിൽ {
             // both positive or negative, normal >
-            for (int bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
-                if (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
-                if (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
-                if (lhs.bitIsXZ(bit)) outc = 'x';
-                if (rhs.bitIsXZ(bit)) outc = 'x';
+            വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < std::max(lhs.width() - 1, rhs.width() - 1); ++bit) {
+                എങ്കിൽ (lhs.bitIs1Extend(bit) && rhs.bitIs0(bit)) outc = 1;
+                എങ്കിൽ (rhs.bitIs1Extend(bit) && lhs.bitIs0(bit)) outc = 0;
+                എങ്കിൽ (lhs.bitIsXZ(bit)) outc = 'x';
+                എങ്കിൽ (rhs.bitIsXZ(bit)) outc = 'x';
             }
         }
     }
-    return setSingleBits(outc);
+    തിരികെ setSingleBits(outc);
 }
 
-V3Number& V3Number::opGte(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opGte(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGt(lhs, rhs);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_സംഖ്യ& eq = opEq(lhs, rhs);
+    എങ്കിൽ (eq.isNeqZero()) തിരികെ eq;  // Return true
+    തിരികെ opGt(lhs, rhs);
 }
 
-V3Number& V3Number::opGteS(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opGteS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    V3Number& eq = opEq(lhs, rhs);
-    if (eq.isNeqZero()) return eq;  // Return true
-    return opGtS(lhs, rhs);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    V3_സംഖ്യ& eq = opEq(lhs, rhs);
+    എങ്കിൽ (eq.isNeqZero()) തിരികെ eq;  // Return true
+    തിരികെ opGtS(lhs, rhs);
 }
 
-V3Number& V3Number::opLt(const V3Number& lhs, const V3Number& rhs) { return opGt(rhs, lhs); }
-V3Number& V3Number::opLte(const V3Number& lhs, const V3Number& rhs) { return opGte(rhs, lhs); }
-V3Number& V3Number::opLtS(const V3Number& lhs, const V3Number& rhs) { return opGtS(rhs, lhs); }
-V3Number& V3Number::opLteS(const V3Number& lhs, const V3Number& rhs) { return opGteS(rhs, lhs); }
+V3_സംഖ്യ& V3_സംഖ്യ::opLt(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) { തിരികെ opGt(rhs, lhs); }
+V3_സംഖ്യ& V3_സംഖ്യ::opLte(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) { തിരികെ opGte(rhs, lhs); }
+V3_സംഖ്യ& V3_സംഖ്യ::opLtS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) { തിരികെ opGtS(rhs, lhs); }
+V3_സംഖ്യ& V3_സംഖ്യ::opLteS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) { തിരികെ opGteS(rhs, lhs); }
 
-V3Number& V3Number::opShiftR(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opShiftR(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (rhs.isFourState()) തിരികെ setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
-    const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(lhs.width())) {
-        copyBits(0, lhs, static_cast<int>(rhsval),
-                 std::min(width(), lhs.width() - static_cast<int>(rhsval)));
+    എങ്കിൽ (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) തിരികെ *ഇത്;
+    സ്ഥിരം uint32_t rhsval = rhs.toUInt();
+    എങ്കിൽ (rhsval < static_cast<uint32_t>(lhs.width())) {
+        copyBits(0, lhs, static_cast<പൂർണ്ണസംഖ്യ>(rhsval),
+                 std::min(width(), lhs.width() - static_cast<പൂർണ്ണസംഖ്യ>(rhsval)));
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opShiftRS(const V3Number& lhs, const V3Number& rhs, uint32_t lbits) {
+V3_സംഖ്യ& V3_സംഖ്യ::opShiftRS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs, uint32_t lbits) {
     // Correct number of zero bits/width matters (hence lbits passed)
     // L(lhs) bit return
     // The spec says a unsigned >>> still acts as a normal >>.
     // We presume it is signed; as that's V3Width's job to convert to opShiftR
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (rhs.isFourState()) തിരികെ setAllBitsX();
     setZero();
-    const bool overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
-    if (!overflow) {
-        const uint32_t rhsval = rhs.toUInt();
-        if (rhsval < lbits) {
-            const int copyWidth = std::min(width(), static_cast<int>(lbits - rhsval));
-            copyBits(0, lhs, static_cast<int>(rhsval), copyWidth);
+    സ്ഥിരം തർക്കം overflow = rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32);
+    എങ്കിൽ (!overflow) {
+        സ്ഥിരം uint32_t rhsval = rhs.toUInt();
+        എങ്കിൽ (rhsval < lbits) {
+            സ്ഥിരം പൂർണ്ണസംഖ്യ copyWidth = std::min(width(), static_cast<പൂർണ്ണസംഖ്യ>(lbits - rhsval));
+            copyBits(0, lhs, static_cast<പൂർണ്ണസംഖ്യ>(rhsval), copyWidth);
             fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-            return *this;
+            തിരികെ *ഇത്;
         }
     }
     fillBits(0, width(), lhs.bitIs(lbits - 1));  // '0/'1/'x/'z
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opShiftL(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opShiftL(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // L(lhs) bit return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (rhs.isFourState()) return setAllBitsX();
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (rhs.isFourState()) തിരികെ setAllBitsX();
     setZero();
-    if (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) return *this;
-    const uint32_t rhsval = rhs.toUInt();
-    if (rhsval < static_cast<uint32_t>(width())) {
-        copyBits(static_cast<int>(rhsval), lhs, 0,
-                 std::min(width() - static_cast<int>(rhsval), lhs.width()));
+    എങ്കിൽ (rhs.width() > 32 && !rhs.isBitsZero(rhs.width() - 1, 32)) തിരികെ *ഇത്;
+    സ്ഥിരം uint32_t rhsval = rhs.toUInt();
+    എങ്കിൽ (rhsval < static_cast<uint32_t>(width())) {
+        copyBits(static_cast<പൂർണ്ണസംഖ്യ>(rhsval), lhs, 0,
+                 std::min(width() - static_cast<പൂർണ്ണസംഖ്യ>(rhsval), lhs.width()));
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
 //======================================================================
 // Ops - Arithmetic
 
-V3Number& V3Number::opNegate(const V3Number& lhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opNegate(സ്ഥിരം V3_സംഖ്യ& lhs) {
     // Correct number of zero bits/width matters
     // op i, L(lhs) bit return
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    if (lhs.isFourState()) return setAllBitsX();
-    V3Number notlhs(&lhs, width());
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    എങ്കിൽ (lhs.isFourState()) തിരികെ setAllBitsX();
+    V3_സംഖ്യ notlhs(&lhs, width());
     notlhs.opNot(lhs);
-    const V3Number one(&lhs, width(), 1);
+    സ്ഥിരം V3_സംഖ്യ one(&lhs, width(), 1);
     opAdd(notlhs, one);
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opAdd(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opAdd(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
     setZero();
     // Addem
     uint64_t carry = 0;
-    for (int word = 0; word < words(); ++word) {
-        const uint64_t lwordval = lhs.m_data.num()[word].m_value;
-        const uint64_t rwordval = rhs.m_data.num()[word].m_value;
-        const uint64_t sum = lwordval + rwordval + carry;
-        m_data.num()[word].m_value = sum & 0xffffffffULL;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ word = 0; word < വാക്കുകൾ(); ++word) {
+        സ്ഥിരം uint64_t lwordval = lhs.m_data.അക്കം()[word].m_മൂല്യം;
+        സ്ഥിരം uint64_t rwordval = rhs.m_data.അക്കം()[word].m_മൂല്യം;
+        സ്ഥിരം uint64_t sum = lwordval + rwordval + carry;
+        m_data.അക്കം()[word].m_മൂല്യം = sum & 0xffffffffULL;
         carry = sum > 0xffffffffULL;
     }
     opCleanThis();  // Just in case it produced extra bits in result
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opSub(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opSub(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Correct number of zero bits/width matters
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number negrhs(&rhs, width());
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
+    V3_സംഖ്യ negrhs(&rhs, width());
     negrhs.opNegate(rhs);
-    return opAdd(lhs, negrhs);
+    തിരികെ opAdd(lhs, negrhs);
 }
-V3Number& V3Number::opMul(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opMul(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
     setZero();
-    if (width() <= 64) {
+    എങ്കിൽ (width() <= 64) {
         setQuad(lhs.toUQuad() * rhs.toUQuad());
         opCleanThis();  // Mult produces extra bits in result
-    } else {
-        for (int lword = 0; lword < lhs.words(); ++lword) {
-            const uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.num()[lword].m_value);
-            if (lwordval == 0) continue;
-            for (int rword = 0; rword < rhs.words(); ++rword) {
-                const uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.num()[rword].m_value);
-                if (rwordval == 0) continue;
+    } അല്ലെങ്കിൽ {
+        വേണ്ടി (പൂർണ്ണസംഖ്യ lword = 0; lword < lhs.വാക്കുകൾ(); ++lword) {
+            സ്ഥിരം uint64_t lwordval = static_cast<uint64_t>(lhs.m_data.അക്കം()[lword].m_മൂല്യം);
+            എങ്കിൽ (lwordval == 0) തുടരുക;
+            വേണ്ടി (പൂർണ്ണസംഖ്യ rword = 0; rword < rhs.വാക്കുകൾ(); ++rword) {
+                സ്ഥിരം uint64_t rwordval = static_cast<uint64_t>(rhs.m_data.അക്കം()[rword].m_മൂല്യം);
+                എങ്കിൽ (rwordval == 0) തുടരുക;
                 uint64_t mul = lwordval * rwordval;
-                for (int qword = lword + rword; qword < words(); ++qword) {
-                    mul += static_cast<uint64_t>(m_data.num()[qword].m_value);
-                    m_data.num()[qword].m_value = (mul & 0xffffffffULL);
+                വേണ്ടി (പൂർണ്ണസംഖ്യ qword = lword + rword; qword < വാക്കുകൾ(); ++qword) {
+                    mul += static_cast<uint64_t>(m_data.അക്കം()[qword].m_മൂല്യം);
+                    m_data.അക്കം()[qword].m_മൂല്യം = (mul & 0xffffffffULL);
                     mul = (mul >> 32ULL) & 0xffffffffULL;
-                    if (mul == 0) break;
+                    എങ്കിൽ (mul == 0) നിർത്തുക;
                 }
             }
         }
         opCleanThis();  // Mult produces extra bits in result
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opMulS(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opMulS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Signed multiply
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opMul(lhsNoSign, rhsNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
+    V3_സംഖ്യ lhsNoSign = lhs;
+    എങ്കിൽ (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_സംഖ്യ rhsNoSign = rhs;
+    എങ്കിൽ (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    സ്ഥിരം V3_സംഖ്യ qNoSign = opMul(lhsNoSign, rhsNoSign);
+    എങ്കിൽ ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } അല്ലെങ്കിൽ {
         opAssign(qNoSign);
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opDiv(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
     // UINFO(9, "opdiv " << lhs << " " << rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
+    എങ്കിൽ (rhs.isEqZero()) തിരികെ setAllBitsXRemoved();
+    എങ്കിൽ (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() / rhs.toUQuad());
-        return *this;
-    } else {
+        തിരികെ *ഇത്;
+    } അല്ലെങ്കിൽ {
         // Wide division
-        return opModDivGuts(lhs, rhs, false);
+        തിരികെ opModDivGuts(lhs, rhs, അസത്യം);
     }
 }
-V3Number& V3Number::opDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opDivS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Signed divide
     // Correct number of zero bits/width matters
     // UINFO(9, ">>divs-start " << lhs << " " << rhs);
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opDiv(lhsNoSign, rhsNoSign);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
+    എങ്കിൽ (rhs.isEqZero()) തിരികെ setAllBitsXRemoved();
+    V3_സംഖ്യ lhsNoSign = lhs;
+    എങ്കിൽ (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_സംഖ്യ rhsNoSign = rhs;
+    എങ്കിൽ (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    സ്ഥിരം V3_സംഖ്യ qNoSign = opDiv(lhsNoSign, rhsNoSign);
     // UINFO(9, " >divs-mid " << lhs << " " << rhs << " " << qNoSign);
-    if ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
+    എങ്കിൽ ((lhs.isNegative() && !rhs.isNegative()) || (!lhs.isNegative() && rhs.isNegative())) {
         opNegate(qNoSign);
-    } else {
+    } അല്ലെങ്കിൽ {
         opAssign(qNoSign);
     }
-    UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *this);
-    return *this;
+    UINFO(9, " <divs-out " << lhs << " " << rhs << " =" << *ഇത്);
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opModDiv(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opModDiv(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // i op j, max(L(lhs),L(rhs)) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    if (lhs.width() <= 64) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
+    എങ്കിൽ (rhs.isEqZero()) തിരികെ setAllBitsXRemoved();
+    എങ്കിൽ (lhs.width() <= 64) {
         setQuad(lhs.toUQuad() % rhs.toUQuad());
-        return *this;
-    } else {
+        തിരികെ *ഇത്;
+    } അല്ലെങ്കിൽ {
         // Wide modulus
-        return opModDivGuts(lhs, rhs, true);
+        തിരികെ opModDivGuts(lhs, rhs, സത്യം);
     }
 }
-V3Number& V3Number::opModDivS(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opModDivS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Signed moddiv
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setAllBitsXRemoved();
-    V3Number lhsNoSign = lhs;
-    if (lhs.isNegative()) lhsNoSign.opNegate(lhs);
-    V3Number rhsNoSign = rhs;
-    if (rhs.isNegative()) rhsNoSign.opNegate(rhs);
-    const V3Number qNoSign = opModDiv(lhsNoSign, rhsNoSign);
-    if (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
+    എങ്കിൽ (rhs.isEqZero()) തിരികെ setAllBitsXRemoved();
+    V3_സംഖ്യ lhsNoSign = lhs;
+    എങ്കിൽ (lhs.isNegative()) lhsNoSign.opNegate(lhs);
+    V3_സംഖ്യ rhsNoSign = rhs;
+    എങ്കിൽ (rhs.isNegative()) rhsNoSign.opNegate(rhs);
+    സ്ഥിരം V3_സംഖ്യ qNoSign = opModDiv(lhsNoSign, rhsNoSign);
+    എങ്കിൽ (lhs.isNegative()) {  // Just lhs' sign  (*DIFFERENT FROM PERL, which uses rhs sign*)
         opNegate(qNoSign);
-    } else {
+    } അല്ലെങ്കിൽ {
         opAssign(qNoSign);
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool is_modulus) {
+V3_സംഖ്യ& V3_സംഖ്യ::opModDivGuts(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs, തർക്കം is_modulus) {
     // See Knuth Algorithm D.  Computes u/v = q.r
     // This isn't massively tuned, as wide division is rare
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
     setZero();
     // Find MSB and check for zero.
-    const int lWords = lhs.words();
-    const int umsbp1 = lhs.mostSetBitP1();  // dividend
-    const int vmsbp1 = rhs.mostSetBitP1();  // divisor
-    if (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
+    സ്ഥിരം പൂർണ്ണസംഖ്യ l_വാക്കുകൾ = lhs.വാക്കുകൾ();
+    സ്ഥിരം പൂർണ്ണസംഖ്യ umsbp1 = lhs.mostSetBitP1();  // dividend
+    സ്ഥിരം പൂർണ്ണസംഖ്യ vmsbp1 = rhs.mostSetBitP1();  //ഹാരകം
+    എങ്കിൽ (VL_UNLIKELY(vmsbp1 == 0)  // rwp==0 so division by zero.  Return 0.
         || VL_UNLIKELY(umsbp1 == 0)) {  // 0/x so short circuit and return 0
-        UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        UINFO(9, "  opmoddiv-zero " << lhs << " " << rhs << " now=" << *ഇത്);
+        തിരികെ *ഇത്;
     }
 
-    const int uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
-    const int vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
+    സ്ഥിരം പൂർണ്ണസംഖ്യ uw = (umsbp1 + 31) / 32;  // aka "m" in the algorithm
+    സ്ഥിരം പൂർണ്ണസംഖ്യ vw = (vmsbp1 + 31) / 32;  // aka "n" in the algorithm
 
-    if (vw == 1) {  // Single divisor word breaks rest of algorithm
+    എങ്കിൽ (vw == 1) {  // Single divisor word breaks rest of algorithm
         uint64_t k = 0;
-        for (int j = uw - 1; j >= 0; j--) {
-            const uint64_t unw64
-                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.num()[j].m_value));
-            m_data.num()[j].m_value = unw64 / static_cast<uint64_t>(rhs.m_data.num()[0].m_value);
+        വേണ്ടി (പൂർണ്ണസംഖ്യ j = uw - 1; j >= 0; j--) {
+            സ്ഥിരം uint64_t unw64
+                = ((k << 32ULL) + static_cast<uint64_t>(lhs.m_data.അക്കം()[j].m_മൂല്യം));
+            m_data.അക്കം()[j].m_മൂല്യം = unw64 / static_cast<uint64_t>(rhs.m_data.അക്കം()[0].m_മൂല്യം);
             k = unw64
-                - (static_cast<uint64_t>(m_data.num()[j].m_value)
-                   * static_cast<uint64_t>(rhs.m_data.num()[0].m_value));
+                - (static_cast<uint64_t>(m_data.അക്കം()[j].m_മൂല്യം)
+                   * static_cast<uint64_t>(rhs.m_data.അക്കം()[0].m_മൂല്യം));
         }
-        UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *this << " rem=0x" << std::hex
+        UINFO(9, "  opmoddiv-1w  " << lhs << " " << rhs << " q=" << *ഇത് << " rem=0x" << std::hex
                                    << k << std::dec);
-        if (is_modulus) {
+        എങ്കിൽ (is_modulus) {
             setZero();
-            m_data.num()[0].m_value = k;
+            m_data.അക്കം()[0].m_മൂല്യം = k;
         }
         opCleanThis();
-        return *this;
+        തിരികെ *ഇത്;
     }
 
     // +1 word as we may shift during normalization
-    uint32_t un[VL_MULS_MAX_WORDS + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
-    uint32_t vn[VL_MULS_MAX_WORDS + 1];  // v normalized
+    uint32_t un[VL_MULS_MAX_വാക്കുകൾ + 1];  // Fixed size, as MSVC++ doesn't allow [words] here
+    uint32_t vn[VL_MULS_MAX_വാക്കുകൾ + 1];  // v normalized
 
     // Zero for ease of debugging and to save having to zero for shifts
-    for (int i = 0; i < lWords; ++i) m_data.num()[i].m_value = 0;
-    for (int i = 0; i < lWords + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < l_വാക്കുകൾ; ++i) m_data.അക്കം()[i].m_മൂല്യം = 0;
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < l_വാക്കുകൾ + 1; ++i) { un[i] = vn[i] = 0; }  // +1 as vn may get extra word
 
     // Algorithm requires divisor MSB to be set
     // Copy and shift to normalize divisor so MSB of vn[vw-1] is set
-    const int s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
-    const uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
-    for (int i = vw - 1; i > 0; i--) {
-        vn[i] = (rhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (rhs.m_data.num()[i - 1].m_value >> (32 - s)));
+    സ്ഥിരം പൂർണ്ണസംഖ്യ s = 31 - ((vmsbp1 - 1) & 31);  // shift amount (0...31)
+    സ്ഥിരം uint32_t shift_mask = s ? 0xffffffff : 0;  // otherwise >> 32 won't mask the value
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = vw - 1; i > 0; i--) {
+        vn[i] = (rhs.m_data.അക്കം()[i].m_മൂല്യം << s)
+                | (shift_mask & (rhs.m_data.അക്കം()[i - 1].m_മൂല്യം >> (32 - s)));
     }
-    vn[0] = rhs.m_data.num()[0].m_value << s;
+    vn[0] = rhs.m_data.അക്കം()[0].m_മൂല്യം << s;
 
     // Copy and shift dividend by same amount; may set new upper word
-    if (s) {
-        un[uw] = lhs.m_data.num()[uw - 1].m_value >> (32 - s);
-    } else {
+    എങ്കിൽ (s) {
+        un[uw] = lhs.m_data.അക്കം()[uw - 1].m_മൂല്യം >> (32 - s);
+    } അല്ലെങ്കിൽ {
         un[uw] = 0;
     }
-    for (int i = uw - 1; i > 0; i--) {
-        un[i] = (lhs.m_data.num()[i].m_value << s)
-                | (shift_mask & (lhs.m_data.num()[i - 1].m_value >> (32 - s)));
+    വേണ്ടി (പൂർണ്ണസംഖ്യ i = uw - 1; i > 0; i--) {
+        un[i] = (lhs.m_data.അക്കം()[i].m_മൂല്യം << s)
+                | (shift_mask & (lhs.m_data.അക്കം()[i - 1].m_മൂല്യം >> (32 - s)));
     }
-    un[0] = lhs.m_data.num()[0].m_value << s;
+    un[0] = lhs.m_data.അക്കം()[0].m_മൂല്യം << s;
 
     // printf("  un="); for (int i=5; i>=0; i--) printf(" %08x",un[i]); printf("\n");
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
     // Main loop
-    for (int j = uw - vw; j >= 0; j--) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ j = uw - vw; j >= 0; j--) {
         // Estimate
-        const uint64_t unw64
+        സ്ഥിരം uint64_t unw64
             = (static_cast<uint64_t>(un[j + vw]) << 32ULL | static_cast<uint64_t>(un[j + vw - 1]));
         uint64_t qhat = unw64 / static_cast<uint64_t>(vn[vw - 1]);
         uint64_t rhat = unw64 - qhat * static_cast<uint64_t>(vn[vw - 1]);
 
     again:
-        if (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
+        എങ്കിൽ (qhat >= 0x100000000ULL || ((qhat * vn[vw - 2]) > ((rhat << 32ULL) + un[j + vw - 2]))) {
             qhat = qhat - 1;
             rhat = rhat + vn[vw - 1];
-            if (rhat < 0x100000000ULL) goto again;
+            എങ്കിൽ (rhat < 0x100000000ULL) പോകുക again;
         }
 
         int64_t t = 0;  // Must be signed
         uint64_t k = 0;
-        for (int i = 0; i < vw; ++i) {
-            const uint64_t p = qhat * vn[i];  // Multiply by estimate
+        വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < vw; ++i) {
+            സ്ഥിരം uint64_t p = qhat * vn[i];  // Multiply by estimate
             t = un[i + j] - k - (p & 0xFFFFFFFFULL);  // Subtract
             un[i + j] = t;
             k = (p >> 32ULL) - (t >> 32ULL);
         }
         t = un[j + vw] - k;
         un[j + vw] = t;
-        m_data.num()[j].m_value = qhat;  // Save quotient digit
+        m_data.അക്കം()[j].m_മൂല്യം = qhat;  // Save quotient digit
 
-        if (t < 0) {
+        എങ്കിൽ (t < 0) {
             // Over subtracted; correct by adding back
-            m_data.num()[j].m_value--;
+            m_data.അക്കം()[j].m_മൂല്യം--;
             k = 0;
-            for (int i = 0; i < vw; ++i) {
+            വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < vw; ++i) {
                 t = static_cast<uint64_t>(un[i + j]) + static_cast<uint64_t>(vn[i]) + k;
                 un[i + j] = t;
                 k = t >> 32ULL;
@@ -2407,475 +2407,475 @@ V3Number& V3Number::opModDivGuts(const V3Number& lhs, const V3Number& rhs, bool 
     // printf("  vn="); for (int i=5; i>=0; i--) printf(" %08x",vn[i]); printf("\n");
     // printf("  mv="); for (int i=5; i>=0; i--) printf(" %08x",m_value[i]); printf("\n");
 
-    if (is_modulus) {  // modulus
+    എങ്കിൽ (is_modulus) {  // modulus
         // Need to reverse normalization on copy to output
-        for (int i = 0; i < vw; ++i) {
-            m_data.num()[i].m_value = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
+        വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; i < vw; ++i) {
+            m_data.അക്കം()[i].m_മൂല്യം = (un[i] >> s) | (shift_mask & (un[i + 1] << (32 - s)));
         }
-        for (int i = vw; i < lWords; ++i) m_data.num()[i].m_value = 0;
+        വേണ്ടി (പൂർണ്ണസംഖ്യ i = vw; i < l_വാക്കുകൾ; ++i) m_data.അക്കം()[i].m_മൂല്യം = 0;
         opCleanThis();
-        UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *this);
-        return *this;
-    } else {  // division
+        UINFO(9, "  opmoddiv-mod " << lhs << " " << rhs << " now=" << *ഇത്);
+        തിരികെ *ഇത്;
+    } അല്ലെങ്കിൽ {  // division
         opCleanThis();
-        UINFO(9, "  opmoddiv-div " << lhs << " " << rhs << " now=" << *this);
-        return *this;
+        UINFO(9, "  opmoddiv-div " << lhs << " " << rhs << " now=" << *ഇത്);
+        തിരികെ *ഇത്;
     }
 }
 
-V3Number& V3Number::opPow(const V3Number& lhs, const V3Number& rhs, bool lsign, bool rsign) {
+V3_സംഖ്യ& V3_സംഖ്യ::opPow(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs, തർക്കം lsign, തർക്കം rsign) {
     // Correct number of zero bits/width matters
     // L(i) bit return, if any 4-state, 4-state return
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_LOGIC_ARGS2(lhs, rhs);
-    if (lhs.isFourState() || rhs.isFourState()) return setAllBitsX();
-    if (rhs.isEqZero()) return setValue1();  // Overrides lhs 0 -> return 1
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(lhs, rhs);
+    എങ്കിൽ (lhs.isFourState() || rhs.isFourState()) തിരികെ setAllBitsX();
+    എങ്കിൽ (rhs.isEqZero()) തിരികെ setValue1();  // Overrides lhs 0 -> return 1
     // We may want to special case when the lhs is 2, so we can get larger outputs
-    if (rsign && rhs.isNegative()) {
-        if (lhs.isEqZero()) {
-            return setAllBitsXRemoved();
-        } else if (lhs.isEqOne()) {
-            return setValue1();
-        } else if (lsign && lhs.isEqAllOnes()) {
-            if (rhs.bitIs1(0)) {
-                return setAllBits1();  // -1^odd=-1
-            } else {
-                return setValue1();  // -1^even=1
+    എങ്കിൽ (rsign && rhs.isNegative()) {
+        എങ്കിൽ (lhs.isEqZero()) {
+            തിരികെ setAllBitsXRemoved();
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.isEqOne()) {
+            തിരികെ setValue1();
+        } അല്ലെങ്കിൽ എങ്കിൽ (lsign && lhs.isEqAllOnes()) {
+            എങ്കിൽ (rhs.bitIs1(0)) {
+                തിരികെ setAllBits1();  // -1^odd=-1
+            } അല്ലെങ്കിൽ {
+                തിരികെ setValue1();  // -1^even=1
             }
         }
-        return setZero();
+        തിരികെ setZero();
     }
-    if (lhs.isEqZero()) return setZero();
+    എങ്കിൽ (lhs.isEqZero()) തിരികെ setZero();
     setZero();
-    m_data.num()[0].m_value = 1;
-    V3Number power(&lhs, width());
+    m_data.അക്കം()[0].m_മൂല്യം = 1;
+    V3_സംഖ്യ power(&lhs, width());
     power.opAssign(lhs);
-    for (int bit = 0; bit < rhs.width(); ++bit) {
-        if (bit > 0) {  // power = power*power
-            V3Number lastPower(&lhs, width());
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < rhs.width(); ++bit) {
+        എങ്കിൽ (bit > 0) {  // power = power*power
+            V3_സംഖ്യ lastPower(&lhs, width());
             lastPower.opAssign(power);
             power.opMul(lastPower, lastPower);
         }
-        if (rhs.bitIs1(bit)) {  // out *= power
-            V3Number lastOut(&lhs, width());
-            lastOut.opAssign(*this);
+        എങ്കിൽ (rhs.bitIs1(bit)) {  // out *= power
+            V3_സംഖ്യ lastOut(&lhs, width());
+            lastOut.opAssign(*ഇത്);
             opMul(lastOut, power);
             // UINFO(0, "pow "<<lhs<<" "<<rhs<<" b"<<bit<<" pow="<<power<<" now="<<*this);
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opPowSU(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opPowSU(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, false);
+    തിരികെ opPow(lhs, rhs, സത്യം, അസത്യം);
 }
-V3Number& V3Number::opPowSS(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opPowSS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, true, true);
+    തിരികെ opPow(lhs, rhs, സത്യം, സത്യം);
 }
-V3Number& V3Number::opPowUS(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opPowUS(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // Correct number of zero bits/width matters
-    return opPow(lhs, rhs, false, true);
+    തിരികെ opPow(lhs, rhs, അസത്യം, സത്യം);
 }
 
-V3Number& V3Number::opBufIf1(const V3Number& ens, const V3Number& if1s) {
-    NUM_ASSERT_OP_ARGS2(ens, if1s);
-    NUM_ASSERT_LOGIC_ARGS2(ens, if1s);
+V3_സംഖ്യ& V3_സംഖ്യ::opBufIf1(സ്ഥിരം V3_സംഖ്യ& ens, സ്ഥിരം V3_സംഖ്യ& if1s) {
+    അക്കം_ASSERT_OP_ARGS2(ens, if1s);
+    അക്കം_ASSERT_LOGIC_ARGS2(ens, if1s);
     setZero();
-    for (int bit = 0; bit < width(); ++bit) {
-        if (ens.bitIs1(bit)) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit < width(); ++bit) {
+        എങ്കിൽ (ens.bitIs1(bit)) {
             setBit(bit, if1s.bitIs(bit));
-        } else {
+        } അല്ലെങ്കിൽ {
             setBit(bit, 'z');
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
 // Sets all bits in range to the given value
-V3Number& V3Number::opSetRange(uint32_t lsb, uint32_t width, char bitValue) {
-    if (lsb < static_cast<uint32_t>(this->width())) {
-        fillBits(static_cast<int>(lsb),
-                 static_cast<int>(std::min(width, static_cast<uint32_t>(this->width()) - lsb)),
-                 bitValue);
+V3_സംഖ്യ& V3_സംഖ്യ::opSetRange(uint32_t lsb, uint32_t width, അക്ഷരം bit_മൂല്യം) {
+    എങ്കിൽ (lsb < static_cast<uint32_t>(ഇത്->width())) {
+        fillBits(static_cast<പൂർണ്ണസംഖ്യ>(lsb),
+                 static_cast<പൂർണ്ണസംഖ്യ>(std::min(width, static_cast<uint32_t>(ഇത്->width()) - lsb)),
+                 bit_മൂല്യം);
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opAssign(const V3Number& lhs) { return opAssignNonXZ(lhs, false); }
-V3Number& V3Number::opAssignNonXZ(const V3Number& lhs, bool ignoreXZ) {
+V3_സംഖ്യ& V3_സംഖ്യ::opAssign(സ്ഥിരം V3_സംഖ്യ& lhs) { തിരികെ opAssignNonXZ(lhs, അസത്യം); }
+V3_സംഖ്യ& V3_സംഖ്യ::opAssignNonXZ(സ്ഥിരം V3_സംഖ്യ& lhs, തർക്കം ignoreXZ) {
     // Note may be a width change during the assign.
     // Special case: opAssign unlike other ops, allows this an assignment
     // to itself; V3Simulate does this when hits "foo=foo;"
     // So no: NUM_ASSERT_OP_ARGS1(lhs);
-    if (this != &lhs) {
-        if (VL_UNLIKELY(lhs.isNull())) {
-            m_data.m_isNull = true;
-        } else if (isString()) {
-            if (VL_UNLIKELY(!lhs.isString())) {
+    എങ്കിൽ (ഇത് != &lhs) {
+        എങ്കിൽ (VL_UNLIKELY(lhs.isNull())) {
+            m_data.m_isNull = സത്യം;
+        } അല്ലെങ്കിൽ എങ്കിൽ (isString()) {
+            എങ്കിൽ (VL_UNLIKELY(!lhs.isString())) {
                 // Numbers can still be strings
                 m_data.str() = lhs.toString();
-            } else {
+            } അല്ലെങ്കിൽ {
                 m_data.str() = lhs.m_data.str();
             }
-        } else if (VL_UNLIKELY(lhs.isString())) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (VL_UNLIKELY(lhs.isString())) {
             // Non-compatible types, see also opAToN()
             setZero();
-        } else if (lhs.isDouble()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (lhs.isDouble()) {
             setDouble(lhs.toDouble());
-        } else if (!ignoreXZ) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (!ignoreXZ) {
             setZero();
             copyBits(0, lhs, 0, std::min(width(), lhs.width()));
-        } else {
-            for (int word = 0; word < words(); ++word) {
-                const uint32_t value = word < lhs.words() ? lhs.m_data.num()[word].m_value
-                                                                & ~lhs.m_data.num()[word].m_valueX
+        } അല്ലെങ്കിൽ {
+            വേണ്ടി (പൂർണ്ണസംഖ്യ word = 0; word < വാക്കുകൾ(); ++word) {
+                സ്ഥിരം uint32_t മൂല്യം = word < lhs.വാക്കുകൾ() ? lhs.m_data.അക്കം()[word].m_മൂല്യം
+                                                                & ~lhs.m_data.അക്കം()[word].m_മൂല്യം_X
                                                           : 0;
-                m_data.num()[word] = {value, 0};
+                m_data.അക്കം()[word] = {മൂല്യം, 0};
             }
             opCleanThis();
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opNToI(const V3Number& lhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opNToI(സ്ഥിരം V3_സംഖ്യ& lhs) {
     // String to packed number
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
     setZero();
-    const string& str = lhs.toString();
-    for (size_t n = 0; n < str.length(); ++n) {
-        const char c = str[str.length() - 1 - n];
-        for (size_t cbit = 0; cbit < 8; ++cbit) {
-            const std::bitset<8> sbit{static_cast<unsigned long long>(c)};
+    സ്ഥിരം string& str = lhs.toString();
+    വേണ്ടി (size_t n = 0; n < str.length(); ++n) {
+        സ്ഥിരം അക്ഷരം c = str[str.length() - 1 - n];
+        വേണ്ടി (size_t cbit = 0; cbit < 8; ++cbit) {
+            സ്ഥിരം std::bitset<8> sbit{static_cast<unsigned long long>(c)};
             setBit(n * 8 + cbit, sbit.test(cbit) ? 1 : 0);
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opExtendS(const V3Number& lhs, uint32_t lbits) {
+V3_സംഖ്യ& V3_സംഖ്യ::opExtendS(സ്ഥിരം V3_സംഖ്യ& lhs, uint32_t lbits) {
     // Note may be a width change during the sign extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    സ്ഥിരം പൂർണ്ണസംഖ്യ copyWidth = std::min(width(), static_cast<പൂർണ്ണസംഖ്യ>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opExtendXZ(const V3Number& lhs, uint32_t lbits) {
+V3_സംഖ്യ& V3_സംഖ്യ::opExtendXZ(സ്ഥിരം V3_സംഖ്യ& lhs, uint32_t lbits) {
     // Note may be a width change during the X/Z extension
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    const int copyWidth = std::min(width(), static_cast<int>(lbits));
+    സ്ഥിരം പൂർണ്ണസംഖ്യ copyWidth = std::min(width(), static_cast<പൂർണ്ണസംഖ്യ>(lbits));
     copyBits(0, lhs, 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, lhs.bitIs(lbits - 1));
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opClean(const V3Number& lhs, uint32_t bits) { return opSel(lhs, bits - 1, 0); }
+V3_സംഖ്യ& V3_സംഖ്യ::opClean(സ്ഥിരം V3_സംഖ്യ& lhs, uint32_t bits) { തിരികെ opSel(lhs, bits - 1, 0); }
 
-void V3Number::opCleanThis(bool warnOnTruncation) {
+ശൂന്യം V3_സംഖ്യ::opCleanThis(തർക്കം warnOnTruncation) {
     // Clean MSB of number
-    NUM_ASSERT_LOGIC_ARGS1(*this);
-    const ValueAndX v = m_data.num()[words() - 1];
-    const uint32_t newValueMsb = v.m_value & hiWordMask();
-    const uint32_t newValueXMsb = v.m_valueX & hiWordMask();
-    if (warnOnTruncation && (newValueMsb != v.m_value || newValueXMsb != v.m_valueX)) {
+    അക്കം_ASSERT_LOGIC_ARGS1(*ഇത്);
+    സ്ഥിരം മൂല്യം_And_X v = m_data.അക്കം()[വാക്കുകൾ() - 1];
+    സ്ഥിരം uint32_t new_മൂല്യം_Msb = v.m_മൂല്യം & hiWordMask();
+    സ്ഥിരം uint32_t new_മൂല്യം_XMsb = v.m_മൂല്യം_X & hiWordMask();
+    എങ്കിൽ (warnOnTruncation && (new_മൂല്യം_Msb != v.m_മൂല്യം || new_മൂല്യം_XMsb != v.m_മൂല്യം_X)) {
         // Displaying in decimal avoids hiWordMask truncation
         v3warn(WIDTHTRUNC,
                "Value too large for " << width() << " bit number: " << displayed("%d"));
     }
-    m_data.num()[words() - 1] = {newValueMsb, newValueXMsb};
+    m_data.അക്കം()[വാക്കുകൾ() - 1] = {new_മൂല്യം_Msb, new_മൂല്യം_XMsb};
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, const V3Number& msb, const V3Number& lsb) {
-    NUM_ASSERT_OP_ARGS3(lhs, msb, lsb);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS2(msb, lsb);
-    if (lsb.isFourState() || msb.isFourState()) return setAllBitsX();
-    return opSel(lhs, msb.toUInt(), lsb.toUInt());
+V3_സംഖ്യ& V3_സംഖ്യ::opSel(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& msb, സ്ഥിരം V3_സംഖ്യ& lsb) {
+    അക്കം_ASSERT_OP_ARGS3(lhs, msb, lsb);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS2(msb, lsb);
+    എങ്കിൽ (lsb.isFourState() || msb.isFourState()) തിരികെ setAllBitsX();
+    തിരികെ opSel(lhs, msb.toUInt(), lsb.toUInt());
 }
 
-V3Number& V3Number::opSel(const V3Number& lhs, uint32_t msbval, uint32_t lsbval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opSel(സ്ഥിരം V3_സംഖ്യ& lhs, uint32_t msbval, uint32_t lsbval) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     setZero();
-    int copyWidth = 0;
-    if (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
-        const uint64_t selectedWidth = uint64_t{msbval} - lsbval + 1;
-        copyWidth = static_cast<int>(
+    പൂർണ്ണസംഖ്യ copyWidth = 0;
+    എങ്കിൽ (lsbval <= msbval && lsbval < static_cast<uint32_t>(lhs.width())) {
+        സ്ഥിരം uint64_t selectedWidth = uint64_t{msbval} - lsbval + 1;
+        copyWidth = static_cast<പൂർണ്ണസംഖ്യ>(
             std::min({static_cast<uint64_t>(width()), static_cast<uint64_t>(lhs.width()) - lsbval,
                       selectedWidth}));
     }
-    copyBits(0, lhs, copyWidth ? static_cast<int>(lsbval) : 0, copyWidth);
+    copyBits(0, lhs, copyWidth ? static_cast<പൂർണ്ണസംഖ്യ>(lsbval) : 0, copyWidth);
     fillBits(copyWidth, width() - copyWidth, v3Global.constRemoveXs() ? 0 : 'x');
     // UINFO(0, "RANGE " << lhs << " " << msb << " " << lsb << " = " << *this);
-    return *this;
+    തിരികെ *ഇത്;
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, const V3Number& lsb, int width) {
-    return opSelInto(lhs, lsb.toSInt(), width);
+V3_സംഖ്യ& V3_സംഖ്യ::opSelInto(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& lsb, പൂർണ്ണസംഖ്യ width) {
+    തിരികെ opSelInto(lhs, lsb.toSInt(), width);
 }
 
-V3Number& V3Number::opSelInto(const V3Number& lhs, int lsbval, int width) {
+V3_സംഖ്യ& V3_സംഖ്യ::opSelInto(സ്ഥിരം V3_സംഖ്യ& lhs, പൂർണ്ണസംഖ്യ lsbval, പൂർണ്ണസംഖ്യ width) {
     // this[lsbval+width-1 : lsbval] = lhs;  Other bits of this are not affected
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     UASSERT(lsbval >= 0, "Negative destination bit range");
-    const int copyWidth = std::max(0, std::min({width, lhs.width(), this->width() - lsbval}));
+    സ്ഥിരം പൂർണ്ണസംഖ്യ copyWidth = std::max(0, std::min({width, lhs.width(), ഇത്->width() - lsbval}));
     copyBits(lsbval, lhs, 0, copyWidth);
-    const int fillWidth
-        = std::max(0, std::min(width - copyWidth, this->width() - lsbval - copyWidth));
+    സ്ഥിരം പൂർണ്ണസംഖ്യ fillWidth
+        = std::max(0, std::min(width - copyWidth, ഇത്->width() - lsbval - copyWidth));
     fillBits(lsbval + copyWidth, fillWidth, v3Global.constRemoveXs() ? 0 : 'x');
-    return *this;
+    തിരികെ *ഇത്;
 }
 
 //======================================================================
 // Ops - Floating point
 
-V3Number& V3Number::opIToRD(const V3Number& lhs, bool isSigned) {
+V3_സംഖ്യ& V3_സംഖ്യ::opIToRD(സ്ഥിരം V3_സംഖ്യ& lhs, തർക്കം isSigned) {
     // Correct number of zero bits/width matters
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(lhs);
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(lhs);
     // IEEE says we ignore x/z in real conversions
-    V3Number noxz(lhs);
+    V3_സംഖ്യ noxz(lhs);
     noxz.opAssignNonXZ(lhs);
-    double d = 0;
-    const bool negate = isSigned && noxz.isNegative();
-    if (negate) {
-        const V3Number noxz_signed = noxz;
+    ഇരട്ട d = 0;
+    സ്ഥിരം തർക്കം negate = isSigned && noxz.isNegative();
+    എങ്കിൽ (negate) {
+        സ്ഥിരം V3_സംഖ്യ noxz_signed = noxz;
         noxz.opNegate(noxz_signed);
     }
-    for (int bit = noxz.width() - 1; bit >= 0; bit--) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ bit = noxz.width() - 1; bit >= 0; bit--) {
         // Some precision might be lost in this add, that's what we want
-        if (noxz.bitIs1(bit)) d += exp2(bit);
+        എങ്കിൽ (noxz.bitIs1(bit)) d += exp2(bit);
     }
-    if (negate) d = -d;
-    return setDouble(d);
+    എങ്കിൽ (negate) d = -d;
+    തിരികെ setDouble(d);
 }
-V3Number& V3Number::opRToIS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    const double v = VL_TRUNC(lhs.toDouble());
-    const int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
-    return setLongS(i);
+V3_സംഖ്യ& V3_സംഖ്യ::opRToIS(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_DOUBLE_ARGS1(lhs);
+    സ്ഥിരം ഇരട്ട v = VL_TRUNC(lhs.toDouble());
+    സ്ഥിരം int32_t i = static_cast<int32_t>(v);  // C converts from double to int32_t
+    തിരികെ setLongS(i);
 }
-V3Number& V3Number::opRToIRoundS(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    const double v = VL_ROUND(lhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opRToIRoundS(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_DOUBLE_ARGS1(lhs);
+    സ്ഥിരം ഇരട്ട v = VL_ROUND(lhs.toDouble());
     setZero();
-    union {
-        double d;
+    സംഘം {
+        ഇരട്ട d;
         uint64_t q;
     } u;
     u.d = v;
-    (void)u.d;
+    (ശൂന്യം)u.d;
 
-    const int exp = static_cast<int>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
-    const int lsb = exp - 52;
-    const uint64_t mantissa = (u.q & VL_MASK_Q(52)) | (1ULL << 52);
-    if (v != 0) {
+    സ്ഥിരം പൂർണ്ണസംഖ്യ exp = static_cast<പൂർണ്ണസംഖ്യ>((u.q >> 52ULL) & VL_MASK_Q(11)) - 1023;
+    സ്ഥിരം പൂർണ്ണസംഖ്യ lsb = exp - 52;
+    സ്ഥിരം uint64_t mantissa = (u.q & VL_MASK_Q(52)) | (1ULL << 52);
+    എങ്കിൽ (v != 0) {
         // IEEE format: [63]=sign [62:52]=exp+1023 [51:0]=mantissa
         // This does not need to support subnormals as they are sub-integral
-        for (int bit = 0; bit <= 52; ++bit) {
-            if (mantissa & (1ULL << bit)) {
-                const int outbit = bit + lsb;
-                if (outbit >= 0) setBit(outbit, 1);
+        വേണ്ടി (പൂർണ്ണസംഖ്യ bit = 0; bit <= 52; ++bit) {
+            എങ്കിൽ (mantissa & (1ULL << bit)) {
+                സ്ഥിരം പൂർണ്ണസംഖ്യ outbit = bit + lsb;
+                എങ്കിൽ (outbit >= 0) setBit(outbit, 1);
             }
         }
-        if (v < 0) {
-            const V3Number noSign = *this;
+        എങ്കിൽ (v < 0) {
+            സ്ഥിരം V3_സംഖ്യ noSign = *ഇത്;
             opNegate(noSign);
         }
     }
-    return *this;
+    തിരികെ *ഇത്;
 }
-V3Number& V3Number::opRealToBits(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opRealToBits(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_DOUBLE_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
-    union {
-        double m_d;
+    സംഘം {
+        ഇരട്ട m_d;
         uint64_t m_v;
     } u;
     u.m_d = lhs.toDouble();
-    return setQuad(u.m_v);
+    തിരികെ setQuad(u.m_v);
 }
-V3Number& V3Number::opBitsToRealD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opBitsToRealD(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
     UASSERT(lhs.width() == 64 && width() == 64, "Real operation on wrong sized number");
-    union {
-        double m_d;
+    സംഘം {
+        ഇരട്ട m_d;
         uint64_t m_v;
     } u;
     u.m_v = lhs.toUQuad();
-    return setDouble(u.m_d);
+    തിരികെ setDouble(u.m_d);
 }
-V3Number& V3Number::opNegateD(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_DOUBLE_ARGS1(lhs);
-    return setDouble(-lhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opNegateD(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_DOUBLE_ARGS1(lhs);
+    തിരികെ setDouble(-lhs.toDouble());
 }
-V3Number& V3Number::opAddD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() + rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opAddD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setDouble(lhs.toDouble() + rhs.toDouble());
 }
-V3Number& V3Number::opSubD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() - rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opSubD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setDouble(lhs.toDouble() - rhs.toDouble());
 }
-V3Number& V3Number::opMulD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() * rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opMulD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setDouble(lhs.toDouble() * rhs.toDouble());
 }
-V3Number& V3Number::opDivD(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opDivD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(lhs.toDouble() / rhs.toDouble());
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setDouble(lhs.toDouble() / rhs.toDouble());
 }
-V3Number& V3Number::opPowD(const V3Number& lhs, const V3Number& rhs) {
+V3_സംഖ്യ& V3_സംഖ്യ::opPowD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
     // On exceptions, we just generate 'inf' through floating point
     // IEEE says it's implementation defined what happens
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setDouble(pow(lhs.toDouble(), rhs.toDouble()));
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setDouble(pow(lhs.toDouble(), rhs.toDouble()));
 }
-V3Number& V3Number::opEqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() == rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opEqD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toDouble() == rhs.toDouble());
 }
-V3Number& V3Number::opNeqD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() != rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opNeqD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toDouble() != rhs.toDouble());
 }
-V3Number& V3Number::opGtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() > rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opGtD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toDouble() > rhs.toDouble());
 }
-V3Number& V3Number::opGteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() >= rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opGteD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toDouble() >= rhs.toDouble());
 }
-V3Number& V3Number::opLtD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() < rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opLtD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toDouble() < rhs.toDouble());
 }
-V3Number& V3Number::opLteD(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_DOUBLE_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toDouble() <= rhs.toDouble());
+V3_സംഖ്യ& V3_സംഖ്യ::opLteD(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_DOUBLE_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toDouble() <= rhs.toDouble());
 }
 
 //======================================================================
 // Ops - String
 
-V3Number& V3Number::opConcatN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setString(lhs.toString() + rhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opConcatN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
+    തിരികെ setString(lhs.toString() + rhs.toString());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    NUM_ASSERT_LOGIC_ARGS1(rhs);
-    return opReplN(lhs, rhs.toUInt());
+V3_സംഖ്യ& V3_സംഖ്യ::opReplN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
+    അക്കം_ASSERT_LOGIC_ARGS1(rhs);
+    തിരികെ opReplN(lhs, rhs.toUInt());
 }
-V3Number& V3Number::opReplN(const V3Number& lhs, uint32_t rhsval) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
+V3_സംഖ്യ& V3_സംഖ്യ::opReplN(സ്ഥിരം V3_സംഖ്യ& lhs, uint32_t rhsval) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
     string out;
     out.reserve(lhs.toString().length() * rhsval);
-    for (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
-    return setString(out);
+    വേണ്ടി (unsigned times = 0; times < rhsval; ++times) out += lhs.toString();
+    തിരികെ setString(out);
 }
-V3Number& V3Number::opCvtPackString(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    return setString(lhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opCvtPackString(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    തിരികെ setString(lhs.toString());
 }
-V3Number& V3Number::opToLowerN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const std::string out = VString::downcase(lhs.toString());
-    return setString(out);
+V3_സംഖ്യ& V3_സംഖ്യ::opToLowerN(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
+    സ്ഥിരം std::string out = VString::downcase(lhs.toString());
+    തിരികെ setString(out);
 }
-V3Number& V3Number::opToUpperN(const V3Number& lhs) {
-    NUM_ASSERT_OP_ARGS1(lhs);
-    NUM_ASSERT_STRING_ARGS1(lhs);
-    const std::string out = VString::upcase(lhs.toString());
-    return setString(out);
+V3_സംഖ്യ& V3_സംഖ്യ::opToUpperN(സ്ഥിരം V3_സംഖ്യ& lhs) {
+    അക്കം_ASSERT_OP_ARGS1(lhs);
+    അക്കം_ASSERT_STRING_ARGS1(lhs);
+    സ്ഥിരം std::string out = VString::upcase(lhs.toString());
+    തിരികെ setString(out);
 }
 
-V3Number& V3Number::opEqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() == rhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opEqN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toString() == rhs.toString());
 }
-V3Number& V3Number::opNeqN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() != rhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opNeqN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toString() != rhs.toString());
 }
-V3Number& V3Number::opGtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() > rhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opGtN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toString() > rhs.toString());
 }
-V3Number& V3Number::opGteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() >= rhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opGteN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toString() >= rhs.toString());
 }
-V3Number& V3Number::opLtN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() < rhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opLtN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toString() < rhs.toString());
 }
-V3Number& V3Number::opLteN(const V3Number& lhs, const V3Number& rhs) {
-    NUM_ASSERT_OP_ARGS2(lhs, rhs);
-    NUM_ASSERT_STRING_ARGS2(lhs, rhs);
-    return setSingleBits(lhs.toString() <= rhs.toString());
+V3_സംഖ്യ& V3_സംഖ്യ::opLteN(സ്ഥിരം V3_സംഖ്യ& lhs, സ്ഥിരം V3_സംഖ്യ& rhs) {
+    അക്കം_ASSERT_OP_ARGS2(lhs, rhs);
+    അക്കം_ASSERT_STRING_ARGS2(lhs, rhs);
+    തിരികെ setSingleBits(lhs.toString() <= rhs.toString());
 }
 
 //======================================================================
 
-void V3Number::selfTest() {
+ശൂന്യം V3_സംഖ്യ::selfTest() {
     UINFO(2, __FUNCTION__ << ":");
-    FileLine* const fl = new FileLine{FileLine::builtInFilename()};
-    V3Number num{fl, 32, 0};
-    num.selfTestThis();
+    File_വരി* സ്ഥിരം fl = പുതിയ File_വരി{File_വരി::builtInFilename()};
+    V3_സംഖ്യ അക്കം{fl, 32, 0};
+    അക്കം.selfTestThis();
 }
 
-void V3Number::selfTestThis() {
+ശൂന്യം V3_സംഖ്യ::selfTestThis() {
     // The self test has a "this" so UASSERT_SELFTEST/errorEndFatal works correctly
 
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0, 0), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1e19, 1e19), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(9, 0.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(1, 1 + std::numeric_limits<double>::epsilon()), true);
-    UASSERT_SELFTEST(V3Number::epsilonEqual(0.009, 0.00899999999999999931998839741709), true);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonEqual(0, 0), സത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonEqual(1e19, 1e19), സത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonEqual(9, 0.0001), അസത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonEqual(1, 1 + std::numeric_limits<ഇരട്ട>::epsilon()), സത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonEqual(0.009, 0.00899999999999999931998839741709), സത്യം);
 
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1), true);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(0.9999), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-1.0001), false);
-    UASSERT_SELFTEST(V3Number::epsilonIntegral(-0.9999), false);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonIntegral(0), സത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonIntegral(1), സത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonIntegral(-1), സത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonIntegral(1.0001), അസത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonIntegral(0.9999), അസത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonIntegral(-1.0001), അസത്യം);
+    UASSERT_SELFTEST(V3_സംഖ്യ::epsilonIntegral(-0.9999), അസത്യം);
 
     UASSERT_SELFTEST(log2b(0), 0);
     UASSERT_SELFTEST(log2b(1), 0);

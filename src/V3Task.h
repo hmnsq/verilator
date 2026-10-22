@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3TASK_H_
 #define VERILATOR_V3TASK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Container.h"
-#include "V3Error.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Container.h"
+#അന്തര്ഭാവ "V3Error.h"
 
-#include <utility>
-#include <vector>
+#അന്തര്ഭാവ <utility>
+#അന്തര്ഭാവ <vector>
 
 //============================================================================
 
@@ -35,39 +35,39 @@ using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to]
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_കണ്ണി_FTask*, std::string>, Ast_കണ്ണി_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
-public:
-    V3TaskConnectState() = default;
-    ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
-    void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+പൊതു:
+    V3TaskConnectState() = സ്ഥിരസ്ഥിതി;
+    ~V3TaskConnectState() = സ്ഥിരസ്ഥിതി;
+    ശൂന്യം തള്ളുക_Deletep(Ast_കണ്ണി* nodep) { m_deleter.തള്ളുക_Deletep(nodep); }
+    bool didWrap() സ്ഥിരം { തിരികെ m_didWrap; }
+    ശൂന്യം setDidWrap() { m_didWrap = true; }
+    WrapMap& wrapMap() { തിരികെ m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    സ്ഥിതം സ്ഥിരം അക്ഷരം* സ്ഥിരം s_dpiTemporaryVarSuffix;
 
-public:
-    static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
+പൊതു:
+    സ്ഥിതം ശൂന്യം taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    സ്ഥിതം V3TaskConnects taskConnects(Ast_കണ്ണി_FTask_Ref* nodep, Ast_കണ്ണി* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    സ്ഥിതം ശൂന്യം taskConnectWrap(Ast_കണ്ണി_FTask_Ref* nodep, സ്ഥിരം V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
-                                const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
-                       const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix,
-                                      const string& frPrefix = "") VL_MT_DISABLED;
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+                                സ്ഥിരം VInsertionSet<സ്ഥിരം AstVar*>& argWrap) VL_MT_DISABLED;
+    സ്ഥിതം Ast_കണ്ണി_FTask*
+    taskConnectWrapNew(Ast_കണ്ണി_FTask* taskp, സ്ഥിരം string& newname, സ്ഥിരം V3TaskConnects& tconnects,
+                       സ്ഥിരം VInsertionSet<സ്ഥിരം AstVar*>& argWrap) VL_MT_DISABLED;
+    സ്ഥിതം string assignInternalToDpi(AstVar* portp, bool isPtr, സ്ഥിരം string& frSuffix,
+                                      സ്ഥിരം string& toSuffix,
+                                      സ്ഥിരം string& frPrefix = "") VL_MT_DISABLED;
+    സ്ഥിതം string assignDpiToInternal(സ്ഥിരം string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
+    സ്ഥിതം സ്ഥിരം അക്ഷരം* dpiTemporaryVarSuffix() VL_MT_SAFE { തിരികെ s_dpiTemporaryVarSuffix; }
 };
 
 #endif  // Guard

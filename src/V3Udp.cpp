@@ -22,244 +22,244 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Udp.h"
+#അന്തര്ഭാവ "V3Udp.h"
 
-#include "V3Error.h"
+#അന്തര്ഭാവ "V3Error.h"
 
-#include <vector>
+#അന്തര്ഭാവ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class UdpVisitor final : public VNVisitor {
-    bool m_inInitial = false;  // Is inside of an initial block
+വർഗ്ഗം UdpVisitor final : പൊതു VNVisitor {
+    തർക്കം m_inInitial = അസത്യം;  // Is inside of an initial block
     AstVar* m_oFieldVarp = nullptr;  // Output filed var of table line
-    std::vector<AstVar*> m_inputVars;  // All the input vars in the AstPrimitive
+    std::vector<AstVar*> m_നിവേശം_Vars;  // All the input vars in the AstPrimitive
     std::vector<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
     AstPrimitive* m_primp = nullptr;  // The current primitive
-    bool m_isFirstOutput = false;  // Whether the first IO port is output
+    തർക്കം m_isFirstOutput = അസത്യം;  // Whether the first IO port is output
     AstVarRef* m_outputInitVerfp = nullptr;  // Initial output value for sequential UDP
     AstAlways* m_alwaysBlockp = nullptr;  // Main Always block in UDP transform
 
-    void visit(AstInitial* nodep) override {
+    ശൂന്യം visit(AstInitial* nodep) override {
         VL_RESTORER(m_inInitial);
-        if (m_primp) m_inInitial = true;
+        എങ്കിൽ (m_primp) m_inInitial = സത്യം;
         iterateChildren(nodep);
     }
-    void visit(AstAssign* nodep) override {
-        if (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
+    ശൂന്യം visit(AstAssign* nodep) override {
+        എങ്കിൽ (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
         iterateChildren(nodep);
     }
-    void visit(AstPrimitive* nodep) override {
+    ശൂന്യം visit(AstPrimitive* nodep) override {
         UASSERT_OBJ(!m_primp, nodep, "Primitives cannot nest");
         VL_RESTORER(m_primp);
         VL_RESTORER(m_outputInitVerfp);
         VL_RESTORER(m_isFirstOutput);
-        VL_RESTORER_CLEAR(m_inputVars);
+        VL_RESTORER_CLEAR(m_നിവേശം_Vars);
         VL_RESTORER_CLEAR(m_outputVars);
         m_outputInitVerfp = nullptr;
         m_primp = nodep;
-        m_isFirstOutput = false;
+        m_isFirstOutput = അസത്യം;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
+    ശൂന്യം visit(AstVar* nodep) override {
         // Push the input and output vars for primitive.
-        if (m_primp) {
-            if (nodep->isIO()) {
-                if (nodep->isInput()) {
-                    m_inputVars.push_back(nodep);
-                } else {
-                    m_outputVars.push_back(nodep);
+        എങ്കിൽ (m_primp) {
+            എങ്കിൽ (nodep->isIO()) {
+                എങ്കിൽ (nodep->is_നിവേശം()) {
+                    m_നിവേശം_Vars.തള്ളുക_back(nodep);
+                } അല്ലെങ്കിൽ {
+                    m_outputVars.തള്ളുക_back(nodep);
                 }
-                if ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
-                    m_isFirstOutput = true;
+                എങ്കിൽ ((m_നിവേശം_Vars.size() == 0) && (m_outputVars.size() == 1)) {
+                    m_isFirstOutput = സത്യം;
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstUdpTable* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (m_outputVars.size() != 1) {
+    ശൂന്യം visit(AstUdpTable* nodep) override {
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
+        എങ്കിൽ (m_outputVars.size() != 1) {
             m_outputVars.back()->v3error(
                 m_outputVars.size()
                 << " output ports for UDP table, there must be one output port");
         }
-        if (!m_isFirstOutput && m_outputVars.size()) {
-            m_inputVars[0]->v3error("First UDP port must be the output port");
+        എങ്കിൽ (!m_isFirstOutput && m_outputVars.size()) {
+            m_നിവേശം_Vars[0]->v3error("First UDP port must be the output port");
         }
         m_oFieldVarp = m_outputVars[0];
 
-        m_alwaysBlockp = new AstAlways{fl, VAlwaysKwd::ALWAYS, nullptr, nullptr};
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        m_alwaysBlockp = പുതിയ AstAlways{fl, VAlwaysKwd::ALWAYS, nullptr, nullptr};
+        fl->warnOff(V3ErrorCode::LATCH, സത്യം);
         iterateChildren(nodep);
 
         nodep->replaceWith(m_alwaysBlockp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep), nodep);
     }
-    void visit(AstUdpTableLine* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
+    ശൂന്യം visit(Ast_Udp_Table_വരി* nodep) override {
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
+        എങ്കിൽ (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
             m_oFieldVarp->v3error("For sequential UDP, the output must be of 'reg' data type");
         }
-        if (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
+        എങ്കിൽ (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
             m_oFieldVarp->v3error(
                 "For combinational UDP, the output must not be a 'reg' data type");
         }
-        AstNode* iNodep = nodep->iFieldsp();
-        AstNode* oNodep = nodep->oFieldsp();
-        AstSenTree* edgetrigp = nullptr;
+        Ast_കണ്ണി* iNodep = nodep->iFieldsp();
+        Ast_കണ്ണി* oNodep = nodep->oFieldsp();
+        Ast_Sen_വൃക്ഷം* edgetrigp = nullptr;
 
-        AstLogAnd* logandp = new AstLogAnd{fl, new AstConst{fl, AstConst::BitTrue{}},
-                                           new AstConst{fl, AstConst::BitTrue{}}};
+        AstLogAnd* logandp = പുതിയ AstLogAnd{fl, പുതിയ AstConst{fl, AstConst::BitTrue{}},
+                                           പുതിയ AstConst{fl, AstConst::BitTrue{}}};
 
-        for (AstVar* const varp : m_inputVars) {
-            if (!iNodep) break;
-            if (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
+        വേണ്ടി (AstVar* സ്ഥിരം varp : m_നിവേശം_Vars) {
+            എങ്കിൽ (!iNodep) നിർത്തുക;
+            എങ്കിൽ (Ast_Udp_Table_വരി_Val* linevalp = VN_CAST(iNodep, Udp_Table_വരി_Val)) {
                 string valName = linevalp->name();
-                if (isEdgeTrig(valName)) {
-                    if (nodep->udpIsCombo()) {
+                എങ്കിൽ (isEdgeTrig(valName)) {
+                    എങ്കിൽ (nodep->udpIsCombo()) {
                         linevalp->v3error(
                             "There should not be a edge trigger for combinational UDP table line");
                     }
-                    if (edgetrigp) {
+                    എങ്കിൽ (edgetrigp) {
                         linevalp->v3error("There can be only one edge trigger signal");
-                        VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                        VL_DO_DANGLING(തള്ളുക_Deletep(edgetrigp), edgetrigp);
                     }
-                    edgetrigp = new AstSenTree{
-                        fl, new AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
-                                           new AstVarRef{fl, varp, VAccess::READ}}};
+                    edgetrigp = പുതിയ Ast_Sen_വൃക്ഷം{
+                        fl, പുതിയ AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
+                                           പുതിയ AstVarRef{fl, varp, VAccess::READ}}};
                 }
-                if (valName == "0" || valName == "f") {
-                    logandp = new AstLogAnd{
-                        fl, logandp, new AstLogNot{fl, new AstVarRef{fl, varp, VAccess::READ}}};
-                } else if (valName == "1" || valName == "r") {
-                    logandp = new AstLogAnd{fl, logandp, new AstVarRef{fl, varp, VAccess::READ}};
-                } else if (valName == "x" || valName == "X") {
+                എങ്കിൽ (valName == "0" || valName == "f") {
+                    logandp = പുതിയ AstLogAnd{
+                        fl, logandp, പുതിയ AstLogNot{fl, പുതിയ AstVarRef{fl, varp, VAccess::READ}}};
+                } അല്ലെങ്കിൽ എങ്കിൽ (valName == "1" || valName == "r") {
+                    logandp = പുതിയ AstLogAnd{fl, logandp, പുതിയ AstVarRef{fl, varp, VAccess::READ}};
+                } അല്ലെങ്കിൽ എങ്കിൽ (valName == "x" || valName == "X") {
                     // No x inputs supported yet, so this whole table line
                     // can never match. Drop the whole thing.
-                    if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                    if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                    return;
+                    എങ്കിൽ (edgetrigp) VL_DO_DANGLING(തള്ളുക_Deletep(edgetrigp), edgetrigp);
+                    എങ്കിൽ (logandp) VL_DO_DANGLING(തള്ളുക_Deletep(logandp), logandp);
+                    തിരികെ;
                 }
             }
             iNodep = iNodep->nextp();
         }
 
         uint32_t inputvars = 0;
-        for (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
+        വേണ്ടി (സ്ഥിരം Ast_കണ്ണി* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
             ++inputvars;
-        if (inputvars != m_inputVars.size()) {
-            nodep->v3error("Incorrect number of input values, expected " << m_inputVars.size()
+        എങ്കിൽ (inputvars != m_നിവേശം_Vars.size()) {
+            nodep->v3error("Incorrect number of input values, expected " << m_നിവേശം_Vars.size()
                                                                          << ", got " << inputvars);
         }
 
-        string const oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
-        if (oValName == "-") {
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-            return;
+        string സ്ഥിരം oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
+        എങ്കിൽ (oValName == "-") {
+            എങ്കിൽ (edgetrigp) VL_DO_DANGLING(തള്ളുക_Deletep(edgetrigp), edgetrigp);
+            എങ്കിൽ (logandp) VL_DO_DANGLING(തള്ളുക_Deletep(logandp), logandp);
+            തിരികെ;
         }
 
-        if (!nodep->udpIsCombo()) {
-            if (oNodep->name() == "0") {
-                logandp = new AstLogAnd{
+        എങ്കിൽ (!nodep->udpIsCombo()) {
+            എങ്കിൽ (oNodep->name() == "0") {
+                logandp = പുതിയ AstLogAnd{
                     fl, logandp,
-                    new AstLogNot{fl, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
-            } else if (oNodep->name() == "1") {
+                    പുതിയ AstLogNot{fl, പുതിയ AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
+            } അല്ലെങ്കിൽ എങ്കിൽ (oNodep->name() == "1") {
                 logandp
-                    = new AstLogAnd{fl, logandp, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
-            } else if (oNodep->name() == "x" || oNodep->name() == "X") {
+                    = പുതിയ AstLogAnd{fl, logandp, പുതിയ AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
+            } അല്ലെങ്കിൽ എങ്കിൽ (oNodep->name() == "x" || oNodep->name() == "X") {
                 // No x inputs supported yet, so this whole table line
                 // can never match. Drop the whole thing.
-                if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                return;
+                എങ്കിൽ (edgetrigp) VL_DO_DANGLING(തള്ളുക_Deletep(edgetrigp), edgetrigp);
+                എങ്കിൽ (logandp) VL_DO_DANGLING(തള്ളുക_Deletep(logandp), logandp);
+                തിരികെ;
             }
         }
 
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        fl->warnOff(V3ErrorCode::LATCH, സത്യം);
         // Edge-triggered lines are clocked logic, so update like a flop:
         // other clocked logic reading the output sees the pre-edge value, regardless of ordering
-        AstNodeStmt* const assignp
-            = newOutputAssign(fl, getOutputNum(nodep, oValName), edgetrigp != nullptr);
-        AstIf* const ifp = new AstIf{fl, logandp, assignp};
-        if (nodep->udpIsCombo()) {
-            if (!isCombOutputSig(oValName)) {
+        Ast_കണ്ണി_Stmt* സ്ഥിരം assignp
+            = newOutputAssign(fl, get_Output_അക്കം(nodep, oValName), edgetrigp != nullptr);
+        AstIf* സ്ഥിരം ifp = പുതിയ AstIf{fl, logandp, assignp};
+        എങ്കിൽ (nodep->udpIsCombo()) {
+            എങ്കിൽ (!isCombOutputSig(oValName)) {
                 oNodep->v3error("Illegal value for combinational UDP line output");
             }
             m_alwaysBlockp->addStmtsp(ifp);
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            return;
+            എങ്കിൽ (edgetrigp) VL_DO_DANGLING(തള്ളുക_Deletep(edgetrigp), edgetrigp);
+            തിരികെ;
         }
-        if (!isSequentOutputSig(oValName)) {
+        എങ്കിൽ (!isSequentOutputSig(oValName)) {
             oNodep->nextp()->v3error("Illegal value for sequential UDP line output");
         }
-        m_alwaysBlockp->addNext(new AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
+        m_alwaysBlockp->addNext(പുതിയ AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogNot* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(AstLogNot* nodep) override { iterateChildren(nodep); }
     // For logic processing.
-    static bool isEdgeTrig(std::string& valName) {
-        if (valName == "x" || valName == "X") return false;
-        if (valName == "*") return true;
-        if (valName == "01" || valName == "p" || valName == "P" || valName == "r"
+    സ്ഥിതം തർക്കം isEdgeTrig(std::string& valName) {
+        എങ്കിൽ (valName == "x" || valName == "X") തിരികെ അസത്യം;
+        എങ്കിൽ (valName == "*") തിരികെ സത്യം;
+        എങ്കിൽ (valName == "01" || valName == "p" || valName == "P" || valName == "r"
             || valName == "R") {
             valName = "r";
-            return true;
+            തിരികെ സത്യം;
         }
-        if (valName == "10" || valName == "n" || valName == "N" || valName == "f"
+        എങ്കിൽ (valName == "10" || valName == "n" || valName == "N" || valName == "f"
             || valName == "F") {
             valName = "f";
-            return true;
+            തിരികെ സത്യം;
         }
-        if (valName.size() == 2) {
-            if (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
+        എങ്കിൽ (valName.size() == 2) {
+            എങ്കിൽ (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
                 valName = "x";
-            else if (valName[0] == '1' || valName[1] == '0')
+            അല്ലെങ്കിൽ എങ്കിൽ (valName[0] == '1' || valName[1] == '0')
                 valName = "f";
-            else if (valName[0] == '0' || valName[1] == '1')
+            അല്ലെങ്കിൽ എങ്കിൽ (valName[0] == '0' || valName[1] == '1')
                 valName = "r";
-            return true;
+            തിരികെ സത്യം;
         }
-        if (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
-        return false;
+        എങ്കിൽ (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
+        തിരികെ അസത്യം;
     }
-    static bool isCombOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X");
+    സ്ഥിതം തർക്കം isCombOutputSig(സ്ഥിരം std::string& valName) {
+        തിരികെ (valName == "0" || valName == "1" || valName == "x" || valName == "X");
     }
-    static bool isSequentOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X"
+    സ്ഥിതം തർക്കം isSequentOutputSig(സ്ഥിരം std::string& valName) {
+        തിരികെ (valName == "0" || valName == "1" || valName == "x" || valName == "X"
                 || valName == "-");
     }
-    AstNodeStmt* newOutputAssign(FileLine* fl, const V3Number& outNum, bool isDelayed) const {
-        AstVarRef* const lhsp = new AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
-        AstConst* const rhsp = new AstConst{fl, outNum};
-        if (isDelayed) return new AstAssignDly{fl, lhsp, rhsp};
-        return new AstAssign{fl, lhsp, rhsp};
+    Ast_കണ്ണി_Stmt* newOutputAssign(File_വരി* fl, സ്ഥിരം V3_സംഖ്യ& out_അക്കം, തർക്കം isDelayed) സ്ഥിരം {
+        AstVarRef* സ്ഥിരം lhsp = പുതിയ AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
+        AstConst* സ്ഥിരം rhsp = പുതിയ AstConst{fl, out_അക്കം};
+        എങ്കിൽ (isDelayed) തിരികെ പുതിയ AstAssignDly{fl, lhsp, rhsp};
+        തിരികെ പുതിയ AstAssign{fl, lhsp, rhsp};
     }
-    static V3Number getOutputNum(AstNode* nodep, const std::string& fieldNames) {
-        V3Number outputNum{nodep, 1};
-        if (fieldNames == "0") {
-            outputNum.setBit(0, 0);
-        } else if (fieldNames == "1") {
-            outputNum.setBit(0, 1);
-        } else {
-            outputNum.setBit(0, 'x');
+    സ്ഥിതം V3_സംഖ്യ get_Output_അക്കം(Ast_കണ്ണി* nodep, സ്ഥിരം std::string& fieldNames) {
+        V3_സംഖ്യ output_അക്കം{nodep, 1};
+        എങ്കിൽ (fieldNames == "0") {
+            output_അക്കം.setBit(0, 0);
+        } അല്ലെങ്കിൽ എങ്കിൽ (fieldNames == "1") {
+            output_അക്കം.setBit(0, 1);
+        } അല്ലെങ്കിൽ {
+            output_അക്കം.setBit(0, 'x');
         }
-        return outputNum;
+        തിരികെ output_അക്കം;
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~UdpVisitor() override = default;
+    ~UdpVisitor() override = സ്ഥിരസ്ഥിതി;
 };
 
-void V3Udp::udpResolve(AstNetlist* rootp) {
+ശൂന്യം V3Udp::udpResolve(AstNetlist* rootp) {
     UINFO(4, __FUNCTION__ << ": ");
-    { const UdpVisitor visitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("udp", 0, dumpTreeEitherLevel() >= 3);
+    { സ്ഥിരം UdpVisitor visitor{rootp}; }  // Destruct before checking
+    V3Global::dump_Check_Global_വൃക്ഷം("udp", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

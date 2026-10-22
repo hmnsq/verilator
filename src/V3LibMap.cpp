@@ -18,46 +18,46 @@
 // libmap file location.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LibMap.h"
+#അന്തര്ഭാവ "V3LibMap.h"
 
-#include "V3Graph.h"
-#include "V3Options.h"
-#include "V3Os.h"
-#include "V3Parse.h"
-#include "V3SymTable.h"
+#അന്തര്ഭാവ "V3Graph.h"
+#അന്തര്ഭാവ "V3Options.h"
+#അന്തര്ഭാവ "V3Os.h"
+#അന്തര്ഭാവ "V3Parse.h"
+#അന്തര്ഭാവ "V3SymTable.h"
 
-#include <unordered_set>
-#include <vector>
+#അന്തര്ഭാവ <unordered_set>
+#അന്തര്ഭാവ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class LibMapVisitor final : public VNVisitor {
+വർഗ്ഗം LibMapVisitor final : പൊതു VNVisitor {
     // STATE
     string m_lib;  // Library currently being mapped
     string m_rel;  // Relative path of current libmap file
 
     // VISITORS
-    void visit(AstParseRef* nodep) override {
-        if (!m_lib.empty()) {
-            const string& pattern = nodep->name();
+    ശൂന്യം visit(AstParseRef* nodep) override {
+        എങ്കിൽ (!m_lib.empty()) {
+            സ്ഥിരം string& pattern = nodep->name();
             v3Global.libMapp()->addPattern(pattern, m_lib, m_rel);
         }
     }
 
-    void visit(AstLibrary* nodep) override {
+    ശൂന്യം visit(AstLibrary* nodep) override {
         VL_RESTORER_CLEAR(m_lib);
         VL_RESTORER_CLEAR(m_rel);
         m_lib = nodep->name();
         m_rel = V3Os::filenameDir(nodep->fileline()->filename());
         iterateChildren(nodep);
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit LibMapVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
@@ -65,43 +65,43 @@ public:
 //######################################################################
 // LibMap class functions
 
-string V3LibMap::matchMapping(const string& filename) {
+string V3LibMap::matchMapping(സ്ഥിരം string& filename) {
     // Check explicit mappings first
-    for (const auto& mapping : m_explicitMappings) {
-        const string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
-        if (VString::wildmatch(filepath, mapping.pattern())) { return mapping.libname(); }
+    വേണ്ടി (സ്ഥിരം auto& mapping : m_explicitMappings) {
+        സ്ഥിരം string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
+        എങ്കിൽ (VString::wildmatch(filepath, mapping.pattern())) { തിരികെ mapping.libname(); }
     }
     // Then check wildcard mappings
-    for (const auto& mapping : m_wildcardMappings) {
-        const string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
-        if (VString::wildmatch(filepath, mapping.pattern())) { return mapping.libname(); }
+    വേണ്ടി (സ്ഥിരം auto& mapping : m_wildcardMappings) {
+        സ്ഥിരം string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
+        എങ്കിൽ (VString::wildmatch(filepath, mapping.pattern())) { തിരികെ mapping.libname(); }
     }
     // Then check directory mappings
-    for (const auto& mapping : m_directoryMappings) {
-        const string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
-        const string& dirpart = V3Os::filenameDir(filepath);
-        if (VString::wildmatch(dirpart, mapping.pattern())) { return mapping.libname(); }
+    വേണ്ടി (സ്ഥിരം auto& mapping : m_directoryMappings) {
+        സ്ഥിരം string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
+        സ്ഥിരം string& dirpart = V3Os::filenameDir(filepath);
+        എങ്കിൽ (VString::wildmatch(dirpart, mapping.pattern())) { തിരികെ mapping.libname(); }
     }
-    return "work";
+    തിരികെ "work";
 }
 
-void V3LibMap::addPattern(const string& pattern, const string& libname, const string& base) {
+ശൂന്യം V3LibMap::addPattern(സ്ഥിരം string& pattern, സ്ഥിരം string& libname, സ്ഥിരം string& base) {
     UINFO(4, __FUNCTION__ << ": pattern '" << pattern << "' => library '" << libname << "'");
 
-    const bool isIncDir = pattern.back() == '/';
-    const string& nondir = V3Os::filenameNonDir(pattern);
-    const string& cleanPattern = V3Os::filenameCleanup(pattern);
+    സ്ഥിരം തർക്കം isIncDir = pattern.back() == '/';
+    സ്ഥിരം string& nondir = V3Os::filenameNonDir(pattern);
+    സ്ഥിരം string& cleanPattern = V3Os::filenameCleanup(pattern);
 
-    if (isIncDir) {
-        m_directoryMappings.push_back({cleanPattern, libname, base});
-    } else if (nondir.find('*') != string::npos || nondir.find('?') != string::npos) {
-        m_wildcardMappings.push_back({cleanPattern, libname, base});
-    } else {
-        m_explicitMappings.push_back({cleanPattern, libname, base});
+    എങ്കിൽ (isIncDir) {
+        m_directoryMappings.തള്ളുക_back({cleanPattern, libname, base});
+    } അല്ലെങ്കിൽ എങ്കിൽ (nondir.find('*') != string::npos || nondir.find('?') != string::npos) {
+        m_wildcardMappings.തള്ളുക_back({cleanPattern, libname, base});
+    } അല്ലെങ്കിൽ {
+        m_explicitMappings.തള്ളുക_back({cleanPattern, libname, base});
     }
 }
 
-void V3LibMap::map(AstNetlist* nodep) {
+ശൂന്യം V3LibMap::map(AstNetlist* nodep) {
     UINFO(4, __FUNCTION__ << ": ");
     { LibMapVisitor{nodep}; }
 }

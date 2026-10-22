@@ -15,12 +15,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3InstrCount.h"
+#അന്തര്ഭാവ "V3InstrCount.h"
 
-#include <iomanip>
-#include <unordered_map>
+#അന്തര്ഭാവ <iomanip>
+#അന്തര്ഭാവ <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -30,64 +30,64 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// we'll count instructions from either the 'if' or the 'else' branch,
 /// whichever is larger. We know we won't run both.
 
-class InstrCountVisitor final : public VNVisitorConst {
+വർഗ്ഗം Instr_എണ്ണം_Visitor final : പൊതു VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()        -> bool. Processed if assertNoDups
     //  AstNode::user2()        -> uint64_t.  Path cost + 1, 0 means don't dump
-    const VNUser2InUse m_inuser2;
+    സ്ഥിരം VNUser2InUse m_inuser2;
 
     // MEMBERS
-    uint32_t m_instrCount = 0;  // Running count of instructions
-    const AstNode* const m_startNodep;  // Start node of count
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
-    bool m_inCFunc = false;  // Inside AstCFunc
-    bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
-    const bool m_assertNoDups;  // Check for duplicates
-    const std::ostream* const m_osp;  // Dump file
-    std::unordered_map<const AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
+    uint32_t m_instr_എണ്ണം = 0;  // Running count of instructions
+    സ്ഥിരം Ast_കണ്ണി* സ്ഥിരം m_startNodep;  // Start node of count
+    തർക്കം m_tracingCall = അസത്യം;  // Iterating into a CCall to a CFunc
+    തർക്കം m_inCFunc = അസത്യം;  // Inside AstCFunc
+    തർക്കം m_ignoreRemaining = അസത്യം;  // Ignore remaining statements in the block
+    സ്ഥിരം തർക്കം m_assertNoDups;  // Check for duplicates
+    സ്ഥിരം std::ostream* സ്ഥിരം m_osp;  // Dump file
+    std::unordered_map<സ്ഥിരം AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
 
     // TYPES
     // Little class to cleanly call startVisitBase/endVisitBase
-    class VisitBase final {
+    വർഗ്ഗം VisitBase final {
         // MEMBERS
-        uint32_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node helper is visiting
-        InstrCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint32_t m_saved_എണ്ണം;  // Count before visit applied
+        Ast_കണ്ണി* സ്ഥിരം m_nodep;  // Node helper is visiting
+        Instr_എണ്ണം_Visitor* സ്ഥിരം m_visitor;  // Visitor whose start/endVisitBase are called
 
-    public:
+    പൊതു:
         // CONSTRUCTORS
-        VisitBase(InstrCountVisitor* visitor, AstNode* nodep)
+        VisitBase(Instr_എണ്ണം_Visitor* visitor, Ast_കണ്ണി* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_എണ്ണം = m_visitor->startVisitBase(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~VisitBase() { m_visitor->endVisitBase(m_saved_എണ്ണം, m_nodep); }
 
-    private:
+    സ്വകാര്യ:
         VL_UNCOPYABLE(VisitBase);
     };
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    InstrCountVisitor(AstNode* nodep, bool assertNoDups, std::ostream* osp)
+    Instr_എണ്ണം_Visitor(Ast_കണ്ണി* nodep, തർക്കം assertNoDups, std::ostream* osp)
         : m_startNodep{nodep}
         , m_assertNoDups{assertNoDups}
         , m_osp{osp} {
         iterateConstNull(nodep);
     }
-    ~InstrCountVisitor() override = default;
+    ~Instr_എണ്ണം_Visitor() override = സ്ഥിരസ്ഥിതി;
 
     // METHODS
-    uint32_t instrCount() const { return m_instrCount; }
+    uint32_t instr_എണ്ണം() സ്ഥിരം { തിരികെ m_instr_എണ്ണം; }
 
-private:
-    void reset() {
-        m_instrCount = 0;
-        m_ignoreRemaining = false;
+സ്വകാര്യ:
+    ശൂന്യം reset() {
+        m_instr_എണ്ണം = 0;
+        m_ignoreRemaining = അസത്യം;
     }
-    uint32_t startVisitBase(AstNode* nodep) {
+    uint32_t startVisitBase(Ast_കണ്ണി* nodep) {
         UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
-        if (m_assertNoDups && !m_inCFunc) {
+        എങ്കിൽ (m_assertNoDups && !m_inCFunc) {
             // Ensure we don't count the same node twice
             //
             // We only enable this assert for the initial LogicMTask counts
@@ -101,29 +101,29 @@ private:
             // collisions in CFuncs.
             UASSERT_OBJ(!nodep->user1p(), nodep,
                         "Node originally inserted below logic vertex "
-                            << static_cast<AstNode*>(nodep->user1p()));
-            nodep->user1p(const_cast<void*>(reinterpret_cast<const void*>(m_startNodep)));
+                            << static_cast<Ast_കണ്ണി*>(nodep->user1p()));
+            nodep->user1p(const_cast<ശൂന്യം*>(reinterpret_cast<സ്ഥിരം ശൂന്യം*>(m_startNodep)));
         }
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint32_t savedCount = m_instrCount;
-        m_instrCount = nodep->instrCount();
-        return savedCount;
+        സ്ഥിരം uint32_t saved_എണ്ണം = m_instr_എണ്ണം;
+        m_instr_എണ്ണം = nodep->instr_എണ്ണം();
+        തിരികെ saved_എണ്ണം;
     }
-    void endVisitBase(uint32_t savedCount, AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_instrCount << "  " << nodep);
+    ശൂന്യം endVisitBase(uint32_t saved_എണ്ണം, Ast_കണ്ണി* nodep) {
+        UINFO(8, "cost " << std::setw(6) << std::ഇടത് << m_instr_എണ്ണം << "  " << nodep);
         markCost(nodep);
-        if (!m_ignoreRemaining) m_instrCount += savedCount;
+        എങ്കിൽ (!m_ignoreRemaining) m_instr_എണ്ണം += saved_എണ്ണം;
     }
-    void markCost(AstNode* nodep) {
-        if (m_osp) nodep->user2(m_instrCount + 1);  // Else don't mark to avoid writeback
+    ശൂന്യം markCost(Ast_കണ്ണി* nodep) {
+        എങ്കിൽ (m_osp) nodep->user2(m_instr_എണ്ണം + 1);  // Else don't mark to avoid writeback
     }
 
     // VISITORS
-    void visit(AstNodeSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    ശൂന്യം visit(Ast_കണ്ണി_Sel* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
         // This covers both AstArraySel and AstWordSel
         //
         // If some vector is a bazillion dwords long, and we're selecting 1
@@ -131,20 +131,20 @@ private:
         //
         // Hence, exclude the child of the AstWordSel from the computation,
         // whose cost scales with the size of the entire (maybe large) vector.
-        const VisitBase vb{this, nodep};
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         iterateAndNextConstNull(nodep->bitp());
     }
-    void visit(AstSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    ശൂന്യം visit(AstSel* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
         // Similar to AstNodeSel above, a small select into a large vector
         // is not expensive. Count the cost of the AstSel itself (scales with
         // its width) and the cost of the lsbp() and widthp() nodes, but not
         // the fromp() node which could be disproportionately large.
-        const VisitBase vb{this, nodep};
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         iterateAndNextConstNull(nodep->lsbp());
     }
-    void visit(AstConcat* nodep) override {
-        if (m_ignoreRemaining) return;
+    ശൂന്യം visit(AstConcat* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
         // Ignore the cost of the concat node itself. The problem with
         // counting concat is that when we have many things concatted
         // together, it's not a single operation, but this:
@@ -163,81 +163,81 @@ private:
         iterateChildrenConst(nodep);
         markCost(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ശൂന്യം visit(Ast_കണ്ണി_If* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+        സ്ഥിരം uint32_t saved_എണ്ണം = m_instr_എണ്ണം;
 
         UINFO(8, "thensp:");
         reset();
         iterateAndNextConstNull(nodep->thensp());
-        uint32_t ifCount = m_instrCount;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        uint32_t if_എണ്ണം = m_instr_എണ്ണം;
+        എങ്കിൽ (nodep->branchPred().unlikely()) if_എണ്ണം = 0;
 
         UINFO(8, "elsesp:");
         reset();
         iterateAndNextConstNull(nodep->elsesp());
-        uint32_t elseCount = m_instrCount;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        uint32_t else_എണ്ണം = m_instr_എണ്ണം;
+        എങ്കിൽ (nodep->branchPred().likely()) else_എണ്ണം = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+        എങ്കിൽ (if_എണ്ണം >= else_എണ്ണം) {
+            m_instr_എണ്ണം = saved_എണ്ണം + if_എണ്ണം;
+            എങ്കിൽ (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } അല്ലെങ്കിൽ {
+            m_instr_എണ്ണം = saved_എണ്ണം + else_എണ്ണം;
+            എങ്കിൽ (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+    ശൂന്യം visit(AstCond* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
-        const VisitBase vb{this, nodep};
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+        സ്ഥിരം uint32_t saved_എണ്ണം = m_instr_എണ്ണം;
 
         UINFO(8, "?");
         reset();
         iterateAndNextConstNull(nodep->thenp());
-        const uint32_t ifCount = m_instrCount;
+        സ്ഥിരം uint32_t if_എണ്ണം = m_instr_എണ്ണം;
 
         UINFO(8, ":");
         reset();
         iterateAndNextConstNull(nodep->elsep());
-        const uint32_t elseCount = m_instrCount;
+        സ്ഥിരം uint32_t else_എണ്ണം = m_instr_എണ്ണം;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+        എങ്കിൽ (if_എണ്ണം >= else_എണ്ണം) {
+            m_instr_എണ്ണം = saved_എണ്ണം + if_എണ്ണം;
+            എങ്കിൽ (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } അല്ലെങ്കിൽ {
+            m_instr_എണ്ണം = saved_എണ്ണം + else_എണ്ണം;
+            എങ്കിൽ (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCAwait* nodep) override {
-        if (m_ignoreRemaining) return;
+    ശൂന്യം visit(AstCAwait* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
         iterateChildrenConst(nodep);
         // Anything past a co_await is irrelevant
-        m_ignoreRemaining = true;
+        m_ignoreRemaining = സത്യം;
     }
-    void visit(AstFork* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ശൂന്യം visit(AstFork* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         iterateAndNextConstNull(nodep->stmtsp());
-        uint32_t totalCount = m_instrCount;
+        uint32_t total_എണ്ണം = m_instr_എണ്ണം;
         // Sum counts in each statement until the first await
-        for (AstNode* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
+        വേണ്ടി (Ast_കണ്ണി* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
             reset();
             iterateConst(stmtp);
-            totalCount += m_instrCount;
+            total_എണ്ണം += m_instr_എണ്ണം;
         }
-        m_instrCount = totalCount;
-        m_ignoreRemaining = false;
+        m_instr_എണ്ണം = total_എണ്ണം;
+        m_ignoreRemaining = അസത്യം;
     }
-    void visit(AstActive* nodep) override {
+    ശൂന്യം visit(AstActive* nodep) override {
         // You'd think that the OrderLogicVertex's would be disjoint trees
         // of stuff in the AST, but it isn't so: V3Order makes an
         // OrderLogicVertex for each ACTIVE, and then also makes an
@@ -253,96 +253,96 @@ private:
         markCost(nodep);
         UASSERT_OBJ(nodep == m_startNodep, nodep, "Multiple actives, or not start node");
     }
-    void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ശൂന്യം visit(Ast_കണ്ണി_CCall* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         iterateChildrenConst(nodep);
-        const auto it = m_funcCosts.find(nodep->funcp());
-        if (it == m_funcCosts.end()) {
-            m_tracingCall = true;
+        സ്ഥിരം auto it = m_funcCosts.find(nodep->funcp());
+        എങ്കിൽ (it == m_funcCosts.end()) {
+            m_tracingCall = സത്യം;
             iterateConst(nodep->funcp());
             UASSERT_OBJ(!m_tracingCall, nodep,
                         "visit(AstCFunc) should have cleared m_tracingCall.");
-        } else {
-            m_instrCount += it->second;  // This guards and adds zero cost on recursive calls
+        } അല്ലെങ്കിൽ {
+            m_instr_എണ്ണം += it->second;  // This guards and adds zero cost on recursive calls
         }
     }
-    void visit(AstCFunc* nodep) override {
+    ശൂന്യം visit(AstCFunc* nodep) override {
         // Don't count a CFunc other than by tracing a call or counting it
         // from the root
         UASSERT_OBJ(m_tracingCall || nodep == m_startNodep, nodep,
                     "AstCFunc not under AstCCall, or not start node");
         UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not be ignoring at the start of a CFunc");
-        const auto emplacePair = m_funcCosts.emplace(nodep, 0);
+        സ്ഥിരം auto emplacePair = m_funcCosts.emplace(nodep, 0);
         UASSERT_OBJ(emplacePair.second, nodep, "Should visit every CFunc at most once");
         uint32_t& funcCostr = emplacePair.first->second;
-        m_tracingCall = false;
+        m_tracingCall = അസത്യം;
 
-        const uint32_t savedCount = m_instrCount;
+        സ്ഥിരം uint32_t saved_എണ്ണം = m_instr_എണ്ണം;
         reset();
         {
             VL_RESTORER(m_inCFunc);
-            m_inCFunc = true;
-            const VisitBase vb{this, nodep};
+            m_inCFunc = സത്യം;
+            സ്ഥിരം VisitBase vb{ഇത്, nodep};
             iterateChildrenConst(nodep);
         }
-        funcCostr = m_instrCount;
-        m_instrCount += savedCount;
+        funcCostr = m_instr_എണ്ണം;
+        m_instr_എണ്ണം += saved_എണ്ണം;
 
-        m_ignoreRemaining = false;
+        m_ignoreRemaining = അസത്യം;
     }
-    void visit(AstNodeCons* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ശൂന്യം visit(Ast_കണ്ണി_Cons* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         // A constant value is not built at run time, so its parts cost nothing
-        if (!nodep->isConstantTree()) iterateChildrenConst(nodep);
+        എങ്കിൽ (!nodep->is_Constant_വൃക്ഷം()) iterateChildrenConst(nodep);
     }
-    void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
+        എങ്കിൽ (m_ignoreRemaining) തിരികെ;
+        സ്ഥിരം VisitBase vb{ഇത്, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(InstrCountVisitor);
+    VL_UNCOPYABLE(Instr_എണ്ണം_Visitor);
 };
 
 // Iterate the graph printing the critical path marked by previous visitation
-class InstrCountDumpVisitor final : public VNVisitorConst {
+വർഗ്ഗം Instr_എണ്ണം_Dump_Visitor final : പൊതു VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> int.  Path cost, 0 means don't dump
 
     // MEMBERS
-    std::ostream* const m_osp;  // Dump file
+    std::ostream* സ്ഥിരം m_osp;  // Dump file
     unsigned m_depth = 0;  // Current tree depth for printing indent
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    InstrCountDumpVisitor(AstNode* nodep, std::ostream* osp)
+    Instr_എണ്ണം_Dump_Visitor(Ast_കണ്ണി* nodep, std::ostream* osp)
         : m_osp{osp} {
         // No check for nullptr output, so...
         UASSERT_OBJ(osp, nodep, "Don't call if not dumping");
-        if (nodep) iterateConst(nodep);
+        എങ്കിൽ (nodep) iterateConst(nodep);
     }
-    ~InstrCountDumpVisitor() override = default;
+    ~Instr_എണ്ണം_Dump_Visitor() override = സ്ഥിരസ്ഥിതി;
 
-private:
+സ്വകാര്യ:
     // METHODS
-    string indent() const { return string(m_depth, ':') + " "; }
-    void visit(AstNode* nodep) override {
+    string indent() സ്ഥിരം { തിരികെ string(m_depth, ':') + " "; }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
         ++m_depth;
-        if (const unsigned costPlus1 = nodep->user2()) {
-            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::left << (costPlus1 - 1)
+        എങ്കിൽ (സ്ഥിരം unsigned costPlus1 = nodep->user2()) {
+            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::ഇടത് << (costPlus1 - 1)
                    << "  " << nodep << '\n';
             iterateChildrenConst(nodep);
         }
         --m_depth;
     }
 
-    VL_UNCOPYABLE(InstrCountDumpVisitor);
+    VL_UNCOPYABLE(Instr_എണ്ണം_Dump_Visitor);
 };
 
-uint32_t V3InstrCount::count(AstNode* nodep, bool assertNoDups, std::ostream* osp) {
-    const InstrCountVisitor visitor{nodep, assertNoDups, osp};
-    if (osp) const InstrCountDumpVisitor dumper{nodep, osp};
-    return visitor.instrCount();
+uint32_t V3_Instr_എണ്ണം::എണ്ണം(Ast_കണ്ണി* nodep, തർക്കം assertNoDups, std::ostream* osp) {
+    സ്ഥിരം Instr_എണ്ണം_Visitor visitor{nodep, assertNoDups, osp};
+    എങ്കിൽ (osp) സ്ഥിരം Instr_എണ്ണം_Dump_Visitor dumper{nodep, osp};
+    തിരികെ visitor.instr_എണ്ണം();
 }

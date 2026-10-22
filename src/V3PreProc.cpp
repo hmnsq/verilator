@@ -16,26 +16,26 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3PreProc.h"
+#അന്തര്ഭാവ "V3PreProc.h"
 
-#include "V3Control.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3LanguageWords.h"
-#include "V3PreExpr.h"
-#include "V3PreLex.h"
-#include "V3PreShell.h"
-#include "V3String.h"
+#അന്തര്ഭാവ "V3Control.h"
+#അന്തര്ഭാവ "V3Error.h"
+#അന്തര്ഭാവ "V3File.h"
+#അന്തര്ഭാവ "V3Global.h"
+#അന്തര്ഭാവ "V3LanguageWords.h"
+#അന്തര്ഭാവ "V3PreExpr.h"
+#അന്തര്ഭാവ "V3PreLex.h"
+#അന്തര്ഭാവ "V3PreShell.h"
+#അന്തര്ഭാവ "V3String.h"
 
-#include <algorithm>
-#include <cstdlib>
-#include <fstream>
-#include <stack>
-#include <vector>
+#അന്തര്ഭാവ <algorithm>
+#അന്തര്ഭാവ <cstdlib>
+#അന്തര്ഭാവ <fstream>
+#അന്തര്ഭാവ <stack>
+#അന്തര്ഭാവ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -43,92 +43,92 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Build in LEX script
 
 #define yyFlexLexer V3Lexer
-#include "V3PreLex.yy.cpp"
+#അന്തര്ഭാവ "V3PreLex.yy.cpp"
 #undef yyFlexLexer
 
 // YYSTYPE yylval;
 
 //*************************************************************************
 
-class VDefine final {
+വർഗ്ഗം VDefine final {
     // Define class.  One for each define.
     // string    m_name;         // Name of the define (list is keyed by this)
-    FileLine* const m_fileline;  // Where it was declared
-    const string m_value;  // Value of define
-    const string m_params;  // Parameters
-    const bool m_cmdline;  // Set on command line, don't `undefineall
-public:
-    VDefine(FileLine* fl, const string& value, const string& params, bool cmdline)
+    File_വരി* സ്ഥിരം m_fileline;  // Where it was declared
+    സ്ഥിരം string m_മൂല്യം;  // Value of define
+    സ്ഥിരം string m_params;  // Parameters
+    സ്ഥിരം തർക്കം m_cmdline;  // Set on command line, don't `undefineall
+പൊതു:
+    VDefine(File_വരി* fl, സ്ഥിരം string& മൂല്യം, സ്ഥിരം string& params, തർക്കം cmdline)
         : m_fileline{fl}
-        , m_value{value}
+        , m_മൂല്യം{മൂല്യം}
         , m_params{params}
         , m_cmdline{cmdline} {}
-    FileLine* fileline() const { return m_fileline; }
-    string value() const { return m_value; }
-    string params() const { return m_params; }
-    bool cmdline() const { return m_cmdline; }
+    File_വരി* fileline() സ്ഥിരം { തിരികെ m_fileline; }
+    string മൂല്യം() സ്ഥിരം { തിരികെ m_മൂല്യം; }
+    string params() സ്ഥിരം { തിരികെ m_params; }
+    തർക്കം cmdline() സ്ഥിരം { തിരികെ m_cmdline; }
 };
 
 //*************************************************************************
 
-class VDefineRef final {
+വർഗ്ഗം VDefineRef final {
     // One for each pending define substitution
-    const string m_name;  // Define last name being defined
-    const string m_params;  // Define parameter list for next expansion
+    സ്ഥിരം string m_name;  // Define last name being defined
+    സ്ഥിരം string m_params;  // Define parameter list for next expansion
     string m_nextarg;  // String being built for next argument
-    int m_parenLevel = 0;  // Parenthesis counting inside def args (for PARENT not child)
+    പൂർണ്ണസംഖ്യ m_parenLevel = 0;  // Parenthesis counting inside def args (for PARENT not child)
 
     std::vector<string> m_args;  // List of define arguments
-public:
-    string name() const { return m_name; }
-    string params() const { return m_params; }
-    string nextarg() const { return m_nextarg; }
-    void nextarg(const string& value) { m_nextarg = value; }
-    int parenLevel() const { return m_parenLevel; }
-    void parenLevel(int value) { m_parenLevel = value; }
-    std::vector<string>& args() { return m_args; }
-    VDefineRef(const string& name, const string& params)
+പൊതു:
+    string name() സ്ഥിരം { തിരികെ m_name; }
+    string params() സ്ഥിരം { തിരികെ m_params; }
+    string nextarg() സ്ഥിരം { തിരികെ m_nextarg; }
+    ശൂന്യം nextarg(സ്ഥിരം string& മൂല്യം) { m_nextarg = മൂല്യം; }
+    പൂർണ്ണസംഖ്യ parenLevel() സ്ഥിരം { തിരികെ m_parenLevel; }
+    ശൂന്യം parenLevel(പൂർണ്ണസംഖ്യ മൂല്യം) { m_parenLevel = മൂല്യം; }
+    std::vector<string>& args() { തിരികെ m_args; }
+    VDefineRef(സ്ഥിരം string& name, സ്ഥിരം string& params)
         : m_name{name}
         , m_params{params} {}
-    ~VDefineRef() = default;
+    ~VDefineRef() = സ്ഥിരസ്ഥിതി;
 };
 
 //*************************************************************************
 /// Data for parsing on/off
 
-class VPreIfEntry final {
+വർഗ്ഗം VPreIfEntry final {
     // One for each pending ifdef/ifndef
-    const bool m_on;  // Current parse for this ifdef level is "on"
-    const bool m_everOn;  // Some if term in elsif tree has been on
-public:
-    bool on() const { return m_on; }
-    bool everOn() const { return m_everOn; }
-    VPreIfEntry(bool on, bool everOn)
+    സ്ഥിരം തർക്കം m_on;  // Current parse for this ifdef level is "on"
+    സ്ഥിരം തർക്കം m_everOn;  // Some if term in elsif tree has been on
+പൊതു:
+    തർക്കം on() സ്ഥിരം { തിരികെ m_on; }
+    തർക്കം everOn() സ്ഥിരം { തിരികെ m_everOn; }
+    VPreIfEntry(തർക്കം on, തർക്കം everOn)
         : m_on{on}
         , m_everOn{everOn || on} {}  // Note everOn includes new state
-    ~VPreIfEntry() = default;
+    ~VPreIfEntry() = സ്ഥിരസ്ഥിതി;
 };
 
 //*************************************************************************
 // Data for a preprocessor instantiation.
 
-class V3PreProcImp final : public V3PreProc {
-public:
+വർഗ്ഗം V3PreProcImp final : പൊതു V3PreProc {
+പൊതു:
     // TYPES
-    using DefinesMap = std::map<const std::string, VDefine>;
+    using DefinesMap = std::map<സ്ഥിരം std::string, VDefine>;
     using StrList = VInFilter::StrList;
 
     // Defines list
     DefinesMap m_defines;  ///< Map of defines
 
     // STATE
-    const V3PreProc* m_preprocp = nullptr;  ///< Object we're holding data for
+    സ്ഥിരം V3PreProc* m_preprocp = nullptr;  ///< Object we're holding data for
     V3PreLex* m_lexp = nullptr;  ///< Current lexer state (nullptr = closed)
-    int m_lastLineno = 0;  // Last line number (stall detection)
-    int m_tokensOnLine = 0;  // Number of tokens on line (stall detection)
+    പൂർണ്ണസംഖ്യ m_lastLineno = 0;  // Last line number (stall detection)
+    പൂർണ്ണസംഖ്യ m_tokens_On_വരി = 0;  // Number of tokens on line (stall detection)
 
-    enum ProcState : uint8_t {
-        ps_TOP,
+    എണ്ണൽ ProcState : uint8_t {
+        ps_മുകൾ,
         ps_DEFNAME_UNDEF,
         ps_DEFNAME_DEFINE,
         ps_DEFNAME_IFDEF,
@@ -139,262 +139,262 @@ public:
         ps_DEFPAREN,
         ps_DEFVALUE,
         ps_ERRORNAME,
-        ps_EXPR_IFDEF,
-        ps_EXPR_IFNDEF,
-        ps_EXPR_ELSIF,
+        ps_വ്യഞ്ജകം_IFDEF,
+        ps_വ്യഞ്ജകം_IFNDEF,
+        ps_വ്യഞ്ജകം_ELSIF,
         ps_INCNAME,
         ps_JOIN,
         ps_STRIFY
     };
-    static const char* procStateName(ProcState s) {
-        static const char* const states[]
+    സ്ഥിതം സ്ഥിരം അക്ഷരം* procStateName(ProcState s) {
+        സ്ഥിതം സ്ഥിരം അക്ഷരം* സ്ഥിരം states[]
             = {"ps_TOP",           "ps_DEFNAME_UNDEF",  "ps_DEFNAME_DEFINE",
                "ps_DEFNAME_IFDEF", "ps_DEFNAME_IFNDEF", "ps_DEFNAME_ELSIF",
                "ps_DEFARG",        "ps_DEFFORM",        "ps_DEFPAREN",
                "ps_DEFVALUE",      "ps_ERRORNAME",      "ps_EXPR_IFDEF",
                "ps_EXPR_IFNDEF",   "ps_EXPR_ELSIF",     "ps_INCNAME",
                "ps_JOIN",          "ps_STRIFY"};
-        return states[s];
+        തിരികെ states[s];
     }
 
-    std::stack<ProcState> m_states;  ///< Current state of parser
-    int m_off = 0;  ///< If non-zero, ifdef level is turned off, don't dump text
-    bool m_incError = false;  ///< Include error found
+    std::അട്ടി<ProcState> m_states;  ///< Current state of parser
+    പൂർണ്ണസംഖ്യ m_off = 0;  ///< If non-zero, ifdef level is turned off, don't dump text
+    തർക്കം m_incError = അസത്യം;  ///< Include error found
     string m_lastSym;  ///< Last symbol name found.
     string m_formals;  ///< Last formals found
 
     // For getRawToken/ `line insertion
-    string m_lineCmt;  ///< Line comment(s) to be returned
-    bool m_lineCmtNl = false;  ///< Newline needed before inserting lineCmt
-    int m_lineAdd = 0;  ///< Empty lines to return to maintain line count
-    bool m_rawAtBol = true;  ///< Last rawToken left us at beginning of line
+    string m_വരി_Cmt;  ///< Line comment(s) to be returned
+    തർക്കം m_വരി_Cmt_Nl = അസത്യം;  ///< Newline needed before inserting lineCmt
+    പൂർണ്ണസംഖ്യ m_വരി_Add = 0;  ///< Empty lines to return to maintain line count
+    തർക്കം m_rawAtBol = സത്യം;  ///< Last rawToken left us at beginning of line
 
     // For getFinalToken
-    bool m_finAhead = false;  ///< Have read a token ahead
-    int m_finToken = 0;  ///< Last token read
+    തർക്കം m_finAhead = അസത്യം;  ///< Have read a token ahead
+    പൂർണ്ണസംഖ്യ m_finToken = 0;  ///< Last token read
     string m_finBuf;  ///< Last yytext read
-    bool m_finAtBol = true;  ///< Last getFinalToken left us at beginning of line
-    FileLine* m_finFilelinep = nullptr;  ///< Location of last returned token (internal only)
+    തർക്കം m_finAtBol = സത്യം;  ///< Last getFinalToken left us at beginning of line
+    File_വരി* m_finFilelinep = nullptr;  ///< Location of last returned token (internal only)
 
     // For stringification
     string m_strify;  ///< Text to be stringified
 
     // For defines
-    std::stack<VDefineRef> m_defRefs;  ///< Pending define substitution
-    std::stack<VPreIfEntry> m_ifdefStack;  ///< Stack of true/false emitting evaluations
+    std::അട്ടി<VDefineRef> m_defRefs;  ///< Pending define substitution
+    std::അട്ടി<VPreIfEntry> m_ifdef_അട്ടി;  ///< Stack of true/false emitting evaluations
     unsigned m_defDepth = 0;  ///< How many `defines deep
-    bool m_defPutJoin = false;  ///< Insert `` after substitution
+    തർക്കം m_defPutJoin = അസത്യം;  ///< Insert `` after substitution
 
     // For `` join
-    std::stack<string> m_joinStack;  ///< Text on lhs of join
+    std::അട്ടി<string> m_join_അട്ടി;  ///< Text on lhs of join
 
     // for `ifdef () expressions
-    V3PreExpr m_exprParser;  ///< Parser for () expression
-    int m_exprParenLevel = 0;  ///< Number of ( deep in `ifdef () expression
+    V3_Pre_വ്യഞ്ജകം m_വ്യഞ്ജകം_Parser;  ///< Parser for () expression
+    പൂർണ്ണസംഖ്യ m_വ്യഞ്ജകം_Paren_Level = 0;  ///< Number of ( deep in `ifdef () expression
 
     // For getline()
-    string m_lineChars;  ///< Characters left for next line
+    string m_വരി_Chars;  ///< Characters left for next line
 
     string m_tokenBuf;  // Token buffer, to avoid repeated alloc/free
 
-    void v3errorEnd(std::ostringstream& str) VL_RELEASE(V3Error::s().m_mutex) {
+    ശൂന്യം v3errorEnd(std::ostringstream& str) VL_RELEASE(V3Error::s().m_mutex) {
         fileline()->v3errorEnd(str);
     }
 
-    static const char* tokenName(int tok);
-    void debugToken(int tok, const char* cmtp);
-    void parseTop();
-    void parseUndef();
+    സ്ഥിതം സ്ഥിരം അക്ഷരം* tokenName(പൂർണ്ണസംഖ്യ tok);
+    ശൂന്യം debugToken(പൂർണ്ണസംഖ്യ tok, സ്ഥിരം അക്ഷരം* cmtp);
+    ശൂന്യം parse_മുകൾ();
+    ശൂന്യം parseUndef();
 
-private:
+സ്വകാര്യ:
     // Internal methods
-    void endOfOneFile();
+    ശൂന്യം endOfOneFile();
     string defineSubst(VDefineRef* refp);
 
-    bool defExists(const string& name);
-    bool defCmdline(const string& name);
-    string defValue(const string& name);
-    string defParams(const string& name);
-    FileLine* defFileline(const string& name);
+    തർക്കം defExists(സ്ഥിരം string& name);
+    തർക്കം defCmdline(സ്ഥിരം string& name);
+    string def_മൂല്യം(സ്ഥിരം string& name);
+    string defParams(സ്ഥിരം string& name);
+    File_വരി* defFileline(സ്ഥിരം string& name);
 
-    string commentCleanup(const string& text);
-    bool commentTokenMatch(string& cmdr, const char* strg);
-    static string trimWhitespace(const string& strg, bool trailing);
-    void unputString(const string& strg);
-    void unputDefrefString(const string& strg);
+    string commentCleanup(സ്ഥിരം string& text);
+    തർക്കം commentTokenMatch(string& cmdr, സ്ഥിരം അക്ഷരം* strg);
+    സ്ഥിതം string trimWhitespace(സ്ഥിരം string& strg, തർക്കം trailing);
+    ശൂന്യം unputString(സ്ഥിരം string& strg);
+    ശൂന്യം unputDefrefString(സ്ഥിരം string& strg);
 
-    void parsingOn() {
+    ശൂന്യം parsingOn() {
         m_off--;
-        if (m_off < 0) v3fatalSrc("Underflow of parsing cmds");
+        എങ്കിൽ (m_off < 0) v3fatalSrc("Underflow of parsing cmds");
         // addLineComment no longer needed; getFinalToken will correct.
     }
-    void parsingOff() { m_off++; }
+    ശൂന്യം parsingOff() { m_off++; }
 
-    int getRawToken();
-    int getStateToken();
-    int getFinalToken(string& buf);
+    പൂർണ്ണസംഖ്യ getRawToken();
+    പൂർണ്ണസംഖ്യ getStateToken();
+    പൂർണ്ണസംഖ്യ getFinalToken(string& buf);
 
-    ProcState state() const { return m_states.top(); }
-    bool stateIsDefname() const {
-        return state() == ps_DEFNAME_UNDEF || state() == ps_DEFNAME_DEFINE
+    ProcState state() സ്ഥിരം { തിരികെ m_states.മുകൾ(); }
+    തർക്കം stateIsDefname() സ്ഥിരം {
+        തിരികെ state() == ps_DEFNAME_UNDEF || state() == ps_DEFNAME_DEFINE
                || state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF
                || state() == ps_DEFNAME_ELSIF;
     }
-    void statePush(ProcState state) { m_states.push(state); }
-    void statePop() {
-        m_states.pop();
-        if (VL_UNCOVERABLE(m_states.empty())) {
+    ശൂന്യം state_തള്ളുക(ProcState state) { m_states.തള്ളുക(state); }
+    ശൂന്യം state_എടുക്കുക() {
+        m_states.എടുക്കുക();
+        എങ്കിൽ (VL_UNCOVERABLE(m_states.empty())) {
             fileline()->v3fatalSrc("Pop of parser state with nothing on stack");
-            m_states.push(ps_TOP);  // LCOV_EXCL_LINE
+            m_states.തള്ളുക(ps_മുകൾ);  // LCOV_EXCL_LINE
         }
     }
-    void stateChange(ProcState state) {
-        statePop();
-        statePush(state);
+    ശൂന്യം stateChange(ProcState state) {
+        state_എടുക്കുക();
+        state_തള്ളുക(state);
     }
 
-public:
+പൊതു:
     // METHODS, called from upper level shell
-    void openFile(FileLine* fl, VInFilter* filterp, const string& filename) override;
-    bool isEof() const override { return m_lexp->curStreamp()->m_eof; }
-    void forceEof() { m_lexp->curStreamp()->m_eof = true; }
+    ശൂന്യം openFile(File_വരി* fl, VInFilter* filterp, സ്ഥിരം string& filename) override;
+    തർക്കം isEof() സ്ഥിരം override { തിരികെ m_lexp->curStreamp()->m_eof; }
+    ശൂന്യം forceEof() { m_lexp->curStreamp()->m_eof = സത്യം; }
     string getline() override;
-    void insertUnreadback(const string& text) override { m_lineCmt += text; }
-    void insertUnreadbackAtBol(const string& text);
-    void addLineComment(int enterExit);
-    void dumpDefines(std::ostream& os) override;
-    void candidateDefines(VSpellCheck* spellerp) override;
+    ശൂന്യം തിരുകുക_Unreadback(സ്ഥിരം string& text) override { m_വരി_Cmt += text; }
+    ശൂന്യം തിരുകുക_Unreadback_At_Bol(സ്ഥിരം string& text);
+    ശൂന്യം add_വരി_Comment(പൂർണ്ണസംഖ്യ enterExit);
+    ശൂന്യം dumpDefines(std::ostream& os) override;
+    ശൂന്യം candidateDefines(VSpellCheck* spellerp) override;
 
     // METHODS, callbacks
-    void comment(const string& text) override;  // Comment detected (if keepComments==2)
-    void include(const string& filename) override;  // Request a include file be processed
-    void undef(const string& name) override;
-    virtual void undefineall();
-    void define(FileLine* fl, const string& name, const string& value, const string& params,
-                bool cmdline) override;
-    string removeDefines(const string& text) override;  // Remove defines in a text string
+    ശൂന്യം comment(സ്ഥിരം string& text) override;  // Comment detected (if keepComments==2)
+    ശൂന്യം include(സ്ഥിരം string& filename) override;  // Request a include file be processed
+    ശൂന്യം undef(സ്ഥിരം string& name) override;
+    മായാ ശൂന്യം undefineall();
+    ശൂന്യം define(File_വരി* fl, സ്ഥിരം string& name, സ്ഥിരം string& മൂല്യം, സ്ഥിരം string& params,
+                തർക്കം cmdline) override;
+    string removeDefines(സ്ഥിരം string& text) override;  // Remove defines in a text string
 
     // CONSTRUCTORS
-    V3PreProcImp() { m_states.push(ps_TOP); }
+    V3PreProcImp() { m_states.തള്ളുക(ps_മുകൾ); }
     // cppcheck-suppress duplInheritedMember
-    void configure(FileLine* filelinep) {
+    ശൂന്യം configure(File_വരി* filelinep) {
         // configure() separate from constructor to avoid calling abstract functions
-        m_preprocp = this;  // Silly, but to make code more similar to Verilog-Perl
-        m_finFilelinep = new FileLine{filelinep->filename()};
+        m_preprocp = ഇത്;  // Silly, but to make code more similar to Verilog-Perl
+        m_finFilelinep = പുതിയ File_വരി{filelinep->filename()};
         m_finFilelinep->lineno(1);
         // Create lexer
-        m_lexp = new V3PreLex{this, filelinep};
+        m_lexp = പുതിയ V3PreLex{ഇത്, filelinep};
         m_lexp->m_keepComments = keepComments();
         m_lexp->m_keepWhitespace = keepWhitespace();
         m_lexp->m_pedantic = pedantic();
     }
     ~V3PreProcImp() override {
-        if (m_lexp) VL_DO_CLEAR(delete m_lexp, m_lexp = nullptr);
+        എങ്കിൽ (m_lexp) VL_DO_CLEAR(delete m_lexp, m_lexp = nullptr);
     }
 };
 
 //*************************************************************************
 // Creation
 
-V3PreProc* V3PreProc::createPreProc(FileLine* fl) {
-    V3PreProcImp* const preprocp = new V3PreProcImp;
+V3PreProc* V3PreProc::createPreProc(File_വരി* fl) {
+    V3PreProcImp* സ്ഥിരം preprocp = പുതിയ V3PreProcImp;
     preprocp->configure(fl);
-    return preprocp;
+    തിരികെ preprocp;
 }
 
-void V3PreProc::selfTest() VL_MT_DISABLED { V3PreExpr::selfTest(); }
+ശൂന്യം V3PreProc::selfTest() VL_MT_DISABLED { V3_Pre_വ്യഞ്ജകം::selfTest(); }
 
 //*************************************************************************
 // Defines
 
-void V3PreProcImp::undef(const string& name) {
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
-        insertUnreadback("`undef " + name + "\n");
+ശൂന്യം V3PreProcImp::undef(സ്ഥിരം string& name) {
+    എങ്കിൽ (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
+        തിരുകുക_Unreadback("`undef " + name + "\n");
     m_defines.erase(name);
 }
-void V3PreProcImp::undefineall() {
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
-        insertUnreadback("`undefineall\n");
-    for (DefinesMap::iterator nextit, it = m_defines.begin(); it != m_defines.end(); it = nextit) {
+ശൂന്യം V3PreProcImp::undefineall() {
+    എങ്കിൽ (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines())
+        തിരുകുക_Unreadback("`undefineall\n");
+    വേണ്ടി (DefinesMap::iterator nextit, it = m_defines.begin(); it != m_defines.end(); it = nextit) {
         nextit = it;
         ++nextit;
-        if (!it->second.cmdline()) m_defines.erase(it);
+        എങ്കിൽ (!it->second.cmdline()) m_defines.erase(it);
     }
 }
-bool V3PreProcImp::defExists(const string& name) {
-    const auto iter = m_defines.find(name);
-    return (iter != m_defines.end());
+തർക്കം V3PreProcImp::defExists(സ്ഥിരം string& name) {
+    സ്ഥിരം auto iter = m_defines.find(name);
+    തിരികെ (iter != m_defines.end());
 }
-bool V3PreProcImp::defCmdline(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) { return false; }
-    return iter->second.cmdline();
+തർക്കം V3PreProcImp::defCmdline(സ്ഥിരം string& name) {
+    സ്ഥിരം auto iter = m_defines.find(name);
+    എങ്കിൽ (iter == m_defines.end()) { തിരികെ അസത്യം; }
+    തിരികെ iter->second.cmdline();
 }
-string V3PreProcImp::defValue(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) {
+string V3PreProcImp::def_മൂല്യം(സ്ഥിരം string& name) {
+    സ്ഥിരം auto iter = m_defines.find(name);
+    എങ്കിൽ (iter == m_defines.end()) {
         fileline()->v3error("Define or directive not defined: `" + name);
-        return "";
+        തിരികെ "";
     }
-    return iter->second.value();
+    തിരികെ iter->second.മൂല്യം();
 }
-string V3PreProcImp::defParams(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) {
+string V3PreProcImp::defParams(സ്ഥിരം string& name) {
+    സ്ഥിരം auto iter = m_defines.find(name);
+    എങ്കിൽ (iter == m_defines.end()) {
         fileline()->v3error("Define or directive not defined: `" + name);
-        return "";
+        തിരികെ "";
     }
-    return iter->second.params();
+    തിരികെ iter->second.params();
 }
-FileLine* V3PreProcImp::defFileline(const string& name) {
-    const auto iter = m_defines.find(name);
-    if (iter == m_defines.end()) return nullptr;
-    return iter->second.fileline();
+File_വരി* V3PreProcImp::defFileline(സ്ഥിരം string& name) {
+    സ്ഥിരം auto iter = m_defines.find(name);
+    എങ്കിൽ (iter == m_defines.end()) തിരികെ nullptr;
+    തിരികെ iter->second.fileline();
 }
-void V3PreProcImp::define(FileLine* fl, const string& name, const string& value,
-                          const string& params, bool cmdline) {
-    UINFO(4, "DEFINE '" << name << "' as '" << value << "' params '" << params << "'");
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines()) {
+ശൂന്യം V3PreProcImp::define(File_വരി* fl, സ്ഥിരം string& name, സ്ഥിരം string& മൂല്യം,
+                          സ്ഥിരം string& params, തർക്കം cmdline) {
+    UINFO(4, "DEFINE '" << name << "' as '" << മൂല്യം << "' params '" << params << "'");
+    എങ്കിൽ (v3Global.opt.preprocOnly() && v3Global.opt.preprocDefines()) {
         // Any newlines in the string must have backslash escape so can re-parse properly
         // If there was a comment with backslash, it got stripped because IEEE says
         // the backslash is not part of the value
         string out;
-        out.reserve(value.size());
-        for (string::size_type pos = 0; pos < value.size(); ++pos) {
-            if (value[pos] == '\n' && (pos == 0 || value[pos - 1] != '\\')) out += '\\';
-            out += value[pos];
+        out.reserve(മൂല്യം.size());
+        വേണ്ടി (string::size_type pos = 0; pos < മൂല്യം.size(); ++pos) {
+            എങ്കിൽ (മൂല്യം[pos] == '\n' && (pos == 0 || മൂല്യം[pos - 1] != '\\')) out += '\\';
+            out += മൂല്യം[pos];
         }
-        insertUnreadback("`define " + name + params + (out.empty() ? "" : " ") + out + "\n");
+        തിരുകുക_Unreadback("`define " + name + params + (out.empty() ? "" : " ") + out + "\n");
     }
-    if (!V3LanguageWords::isKeyword("`"s + name).empty()) {
+    എങ്കിൽ (!V3_Language_വാക്കുകൾ::isKeyword("`"s + name).empty()) {
         fl->v3error("Attempting to define built-in directive: '`" << name
                                                                   << "' (IEEE 1800-2023 22.5.1)");
-    } else {
-        if (defExists(name)) {
-            if (defCmdline(name) && !cmdline) {
+    } അല്ലെങ്കിൽ {
+        എങ്കിൽ (defExists(name)) {
+            എങ്കിൽ (defCmdline(name) && !cmdline) {
                 fl->v3warn(DEFOVERRIDE,
                            "Overriding define: '"
-                               << name << "' with value: '" << value
-                               << "' to existing command line define value: '" << defValue(name)
+                               << name << "' with value: '" << മൂല്യം
+                               << "' to existing command line define value: '" << def_മൂല്യം(name)
                                << (params == "" ? "" : " ") << params << "'\n"
                                << fl->warnContextPrimary() << '\n'
                                << defFileline(name)->warnOther()
                                << "... Location of previous definition, with value: '"
-                               << defValue(name) << (defParams(name).empty() ? "" : " ")
+                               << def_മൂല്യം(name) << (defParams(name).empty() ? "" : " ")
                                << defParams(name) << "'\n"
                                << defFileline(name)->warnContextSecondary());
-                return;
-            } else {
-                if (!(defValue(name) == value
+                തിരികെ;
+            } അല്ലെങ്കിൽ {
+                എങ്കിൽ (!(def_മൂല്യം(name) == മൂല്യം
                       && defParams(name) == params)) {  // Duplicate defs are OK
                     fl->v3warn(REDEFMACRO,
                                "Redefining existing define: '"
-                                   << name << "', with different value: '" << value
+                                   << name << "', with different value: '" << മൂല്യം
                                    << (params == "" ? "" : " ") << params << "'\n"
                                    << fl->warnContextPrimary() << '\n'
                                    << defFileline(name)->warnOther()
                                    << "... Location of previous definition, with value: '"
-                                   << defValue(name) << (defParams(name).empty() ? "" : " ")
+                                   << def_മൂല്യം(name) << (defParams(name).empty() ? "" : " ")
                                    << defParams(name) << "'\n"
                                    << defFileline(name)->warnContextSecondary());
                 }
@@ -402,125 +402,125 @@ void V3PreProcImp::define(FileLine* fl, const string& name, const string& value,
             }
         }
 
-        m_defines.emplace(name, VDefine{fl, value, params, cmdline});
+        m_defines.emplace(name, VDefine{fl, മൂല്യം, params, cmdline});
     }
 }
 
-string V3PreProcImp::removeDefines(const string& text) {
+string V3PreProcImp::removeDefines(സ്ഥിരം string& text) {
     string val;
     string rtnsym = text;
-    for (int loopprevent = 0; loopprevent < 100; loopprevent++) {
+    വേണ്ടി (പൂർണ്ണസംഖ്യ loopprevent = 0; loopprevent < 100; loopprevent++) {
         string xsym = rtnsym;
-        if (xsym[0] == '`') xsym.erase(0, 1);
-        if (defExists(xsym)) {
-            val = defValue(xsym);
-            if (val != rtnsym) {
+        എങ്കിൽ (xsym[0] == '`') xsym.erase(0, 1);
+        എങ്കിൽ (defExists(xsym)) {
+            val = def_മൂല്യം(xsym);
+            എങ്കിൽ (val != rtnsym) {
                 rtnsym = val;  // Prevent infinite loop if have `define X X
-            } else {
-                break;
+            } അല്ലെങ്കിൽ {
+                നിർത്തുക;
             }
-        } else {
-            break;
+        } അല്ലെങ്കിൽ {
+            നിർത്തുക;
         }
     }
-    return rtnsym;  // NA
+    തിരികെ rtnsym;  // NA
 }
 
 //**********************************************************************
 // Comments
 
-void V3PreProcImp::include(const string& filename) {
+ശൂന്യം V3PreProcImp::include(സ്ഥിരം string& filename) {
     // Include seen.  Ask the preprocessor shell to call back around to us
     V3PreShell::preprocInclude(fileline(), filename);
 }
 
-string V3PreProcImp::commentCleanup(const string& text) {
+string V3PreProcImp::commentCleanup(സ്ഥിരം string& text) {
     // Cleanup comment for easier parsing (call before commentTokenMatch)
     string cmd = text;
     string::size_type pos;
-    while ((pos = cmd.find("//")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find("/*")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find("*/")) != string::npos) cmd.replace(pos, 2, "");
-    while ((pos = cmd.find('\"')) != string::npos) cmd.replace(pos, 1, " ");
-    while ((pos = cmd.find('\t')) != string::npos) cmd.replace(pos, 1, " ");
-    while ((pos = cmd.find("  ")) != string::npos) cmd.replace(pos, 2, " ");
-    while (!cmd.empty() && std::isspace(cmd[cmd.size() - 1])) cmd.erase(cmd.size() - 1);
-    return cmd;
+    ആകുമ്പോൾ ((pos = cmd.find("//")) != string::npos) cmd.replace(pos, 2, "");
+    ആകുമ്പോൾ ((pos = cmd.find("/*")) != string::npos) cmd.replace(pos, 2, "");
+    ആകുമ്പോൾ ((pos = cmd.find("*/")) != string::npos) cmd.replace(pos, 2, "");
+    ആകുമ്പോൾ ((pos = cmd.find('\"')) != string::npos) cmd.replace(pos, 1, " ");
+    ആകുമ്പോൾ ((pos = cmd.find('\t')) != string::npos) cmd.replace(pos, 1, " ");
+    ആകുമ്പോൾ ((pos = cmd.find("  ")) != string::npos) cmd.replace(pos, 2, " ");
+    ആകുമ്പോൾ (!cmd.empty() && std::isspace(cmd[cmd.size() - 1])) cmd.erase(cmd.size() - 1);
+    തിരികെ cmd;
 }
 
-bool V3PreProcImp::commentTokenMatch(string& cmdr, const char* strg) {
-    int len = std::strlen(strg);
-    if (VString::startsWith(cmdr, strg) && (cmdr[len] == '\0' || std::isspace(cmdr[len]))) {
-        if (std::isspace(cmdr[len])) len++;
+തർക്കം V3PreProcImp::commentTokenMatch(string& cmdr, സ്ഥിരം അക്ഷരം* strg) {
+    പൂർണ്ണസംഖ്യ len = std::strlen(strg);
+    എങ്കിൽ (VString::startsWith(cmdr, strg) && (cmdr[len] == '\0' || std::isspace(cmdr[len]))) {
+        എങ്കിൽ (std::isspace(cmdr[len])) len++;
         cmdr = cmdr.substr(len);
-        return true;
-    } else {
-        return false;
+        തിരികെ സത്യം;
+    } അല്ലെങ്കിൽ {
+        തിരികെ അസത്യം;
     }
 }
 
-void V3PreProcImp::comment(const string& text) {
+ശൂന്യം V3PreProcImp::comment(സ്ഥിരം string& text) {
     // Comment detected.  Only keep relevant data.
-    bool printed = false;
-    if (v3Global.opt.preprocOnly() && v3Global.opt.preprocComments()) {
-        insertUnreadback(text);
-        printed = true;
+    തർക്കം printed = അസത്യം;
+    എങ്കിൽ (v3Global.opt.preprocOnly() && v3Global.opt.preprocComments()) {
+        തിരുകുക_Unreadback(text);
+        printed = സത്യം;
     }
 
-    const char* cp = text.c_str();
-    if (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*')) {
+    സ്ഥിരം അക്ഷരം* cp = text.c_str();
+    എങ്കിൽ (cp[0] == '/' && (cp[1] == '/' || cp[1] == '*')) {
         cp += 2;
-    } else {
-        return;
+    } അല്ലെങ്കിൽ {
+        തിരികെ;
     }
 
-    while (std::isspace(*cp)) ++cp;
+    ആകുമ്പോൾ (std::isspace(*cp)) ++cp;
 
-    bool synth = false;
-    bool vlcomment = false;
-    if ((cp[0] == 'v' || cp[0] == 'V') && VString::startsWith(cp + 1, "erilator")) {
+    തർക്കം synth = അസത്യം;
+    തർക്കം vlcomment = അസത്യം;
+    എങ്കിൽ ((cp[0] == 'v' || cp[0] == 'V') && VString::startsWith(cp + 1, "erilator")) {
         cp += std::strlen("verilator");
-        if (*cp == '_') {
+        എങ്കിൽ (*cp == '_') {
             V3Control::applyIgnores(fileline());
             fileline()->v3warn(BADVLTPRAGMA, "Extra underscore in meta-comment, ignoring comment;"
                                              " use /*verilator {...}*/ not /*verilator_{...}*/");
-            return;
+            തിരികെ;
         }
-        vlcomment = true;
-    } else if (VString::startsWith(cp, "synopsys")) {
+        vlcomment = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (VString::startsWith(cp, "synopsys")) {
         cp += std::strlen("synopsys");
-        if (*cp == '_') {
+        എങ്കിൽ (*cp == '_') {
             V3Control::applyIgnores(fileline());
             fileline()->v3warn(BADVLTPRAGMA, "Extra underscore in meta-comment, ignoring comment;"
                                              " use /*synopsys {...}*/ not /*synopsys_{...}*/");
-            return;
+            തിരികെ;
         }
-        synth = true;
-    } else if (VString::startsWith(cp, "cadence")) {
+        synth = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (VString::startsWith(cp, "cadence")) {
         cp += std::strlen("cadence");
-        synth = true;
-    } else if (VString::startsWith(cp, "pragma")) {
+        synth = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (VString::startsWith(cp, "pragma")) {
         cp += std::strlen("pragma");
-        synth = true;
-    } else if (VString::startsWith(cp, "ambit synthesis")) {
+        synth = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (VString::startsWith(cp, "ambit synthesis")) {
         cp += std::strlen("ambit synthesis");
-        synth = true;
-    } else {
-        return;
+        synth = സത്യം;
+    } അല്ലെങ്കിൽ {
+        തിരികെ;
     }
 
-    while (std::isspace(*cp)) ++cp;
+    ആകുമ്പോൾ (std::isspace(*cp)) ++cp;
     string cmd = commentCleanup(string{cp});
     // cmd now is comment without extra spaces and "verilator" prefix
 
-    if (synth) {
-        if (v3Global.opt.assertOn()) {
+    എങ്കിൽ (synth) {
+        എങ്കിൽ (v3Global.opt.assertOn()) {
             // one_hot, one_cold, (full_case, parallel_case)
-            if (commentTokenMatch(cmd /*ref*/, "full_case")) {
-                if (!printed) insertUnreadback("/*verilator full_case*/");
+            എങ്കിൽ (commentTokenMatch(cmd /*ref*/, "full_case")) {
+                എങ്കിൽ (!printed) തിരുകുക_Unreadback("/*verilator full_case*/");
             }
-            if (commentTokenMatch(cmd /*ref*/, "parallel_case")) {
-                if (!printed) insertUnreadback("/*verilator parallel_case*/");
+            എങ്കിൽ (commentTokenMatch(cmd /*ref*/, "parallel_case")) {
+                എങ്കിൽ (!printed) തിരുകുക_Unreadback("/*verilator parallel_case*/");
             }
             // if (commentTokenMatch(cmd/*ref*/, "one_hot")) {
             //  insertUnreadback ("/*verilator one_hot*/ "+cmd+";");
@@ -530,36 +530,36 @@ void V3PreProcImp::comment(const string& text) {
             //}
             // else ignore the comment we don't recognize
         }  // else no assertions
-    } else if (vlcomment
+    } അല്ലെങ്കിൽ എങ്കിൽ (vlcomment
                // Drop 'public' if disabled on the command line
                && !(v3Global.opt.publicOff() && VString::startsWith(cmd, "public"))
                // Drop 'fargs', they are handled separately during option parsing
                && !VString::startsWith(cmd, "fargs")) {
-        if (VString::startsWith(cmd, "public_flat_rw")) {
+        എങ്കിൽ (VString::startsWith(cmd, "public_flat_rw")) {
             // "/*verilator public_flat_rw @(foo) */" -> "/*verilator public_flat_rw*/ @(foo)"
             string::size_type endOfCmd = std::strlen("public_flat_rw");
-            while (VString::isIdentifierChar(cmd[endOfCmd])) ++endOfCmd;
+            ആകുമ്പോൾ (VString::isIdentifierChar(cmd[endOfCmd])) ++endOfCmd;
             string baseCmd = cmd.substr(0, endOfCmd);
             string arg = cmd.substr(endOfCmd);
-            while (std::isspace(arg[0])) arg = arg.substr(1);
-            if (arg.size() && baseCmd == "public_flat_rw_on")
+            ആകുമ്പോൾ (std::isspace(arg[0])) arg = arg.substr(1);
+            എങ്കിൽ (arg.size() && baseCmd == "public_flat_rw_on")
                 baseCmd += "_sns";  // different cmd for applying sensitivity
-            if (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ " + arg + " /**/");
-        } else if (VString::startsWith(cmd, "dpi_c_decl")) {
+            എങ്കിൽ (!printed) തിരുകുക_Unreadback("/*verilator " + baseCmd + "*/ " + arg + " /**/");
+        } അല്ലെങ്കിൽ എങ്കിൽ (VString::startsWith(cmd, "dpi_c_decl")) {
             // "/*verilator dpi_c_decl foo(bar) */" -> "/*verilator dpi_c_decl*/ \"foo(bar)\""
             string baseCmd = cmd.substr(0, std::strlen("dpi_c_decl"));
             string::size_type startOfArg = baseCmd.size();
-            while (std::isspace(cmd[startOfArg])) startOfArg++;
+            ആകുമ്പോൾ (std::isspace(cmd[startOfArg])) startOfArg++;
             string arg = cmd.substr(startOfArg);
-            if (arg.empty()) {
+            എങ്കിൽ (arg.empty()) {
                 fileline()->v3warn(
                     BADVLTPRAGMA,
                     "No function declaration provided in /*verilator dpi_c_decl*/ meta-comment");
-                return;
+                തിരികെ;
             }
-            if (!printed) insertUnreadback("/*verilator " + baseCmd + "*/ \"" + arg + "\" /**/");
-        } else {
-            if (!printed) insertUnreadback("/*verilator " + cmd + "*/");
+            എങ്കിൽ (!printed) തിരുകുക_Unreadback("/*verilator " + baseCmd + "*/ \"" + arg + "\" /**/");
+        } അല്ലെങ്കിൽ {
+            എങ്കിൽ (!printed) തിരുകുക_Unreadback("/*verilator " + cmd + "*/");
         }
     }
 }
@@ -567,62 +567,62 @@ void V3PreProcImp::comment(const string& text) {
 //*************************************************************************
 // VPreProc Methods.
 
-FileLine* V3PreProc::fileline() {
-    const V3PreProcImp* idatap = static_cast<V3PreProcImp*>(this);
-    return idatap->m_lexp->m_tokFilelinep;
+File_വരി* V3PreProc::fileline() {
+    സ്ഥിരം V3PreProcImp* idatap = static_cast<V3PreProcImp*>(ഇത്);
+    തിരികെ idatap->m_lexp->m_tokFilelinep;
 }
 
 //**********************************************************************
 // Parser Utilities
 
-const char* V3PreProcImp::tokenName(int tok) {
-    switch (tok) {
-    case VP_BACKQUOTE: return ("BACKQUOTE");
-    case VP_COMMENT: return ("COMMENT");
-    case VP_DEFARG: return ("DEFARG");
-    case VP_DEFFORM: return ("DEFFORM");
-    case VP_DEFINE: return ("DEFINE");
-    case VP_DEFREF: return ("DEFREF");
-    case VP_DEFREF_JOIN: return ("DEFREF_JOIN");
-    case VP_DEFVALUE: return ("DEFVALUE");
-    case VP_ELSE: return ("ELSE");
-    case VP_ELSIF: return ("ELSIF");
-    case VP_ENDIF: return ("ENDIF");
-    case VP_EOF: return ("EOF");
-    case VP_EOF_ERROR: return ("EOF_ERROR");
-    case VP_ERROR: return ("ERROR");
-    case VP_IFDEF: return ("IFDEF");
-    case VP_IFNDEF: return ("IFNDEF");
-    case VP_JOIN: return ("JOIN");
-    case VP_INCLUDE: return ("INCLUDE");
-    case VP_LINE: return ("LINE");
-    case VP_STRIFY: return ("STRIFY");
-    case VP_STRING: return ("STRING");
-    case VP_SYMBOL: return ("SYMBOL");
-    case VP_SYMBOL_JOIN: return ("SYMBOL_JOIN");
-    case VP_TEXT: return ("TEXT");
-    case VP_UNDEF: return ("UNDEF");
-    case VP_UNDEFINEALL: return ("UNDEFINEALL");
-    case VP_WHITE: return ("WHITE");
-    default: return ("?");
+സ്ഥിരം അക്ഷരം* V3PreProcImp::tokenName(പൂർണ്ണസംഖ്യ tok) {
+    തിരഞ്ഞെടുപ്പ് (tok) {
+    അവസ്ഥ VP_BACKQUOTE: തിരികെ ("BACKQUOTE");
+    അവസ്ഥ VP_COMMENT: തിരികെ ("COMMENT");
+    അവസ്ഥ VP_DEFARG: തിരികെ ("DEFARG");
+    അവസ്ഥ VP_DEFFORM: തിരികെ ("DEFFORM");
+    അവസ്ഥ VP_DEFINE: തിരികെ ("DEFINE");
+    അവസ്ഥ VP_DEFREF: തിരികെ ("DEFREF");
+    അവസ്ഥ VP_DEFREF_JOIN: തിരികെ ("DEFREF_JOIN");
+    അവസ്ഥ VP_DEFVALUE: തിരികെ ("DEFVALUE");
+    അവസ്ഥ VP_ELSE: തിരികെ ("ELSE");
+    അവസ്ഥ VP_ELSIF: തിരികെ ("ELSIF");
+    അവസ്ഥ VP_ENDIF: തിരികെ ("ENDIF");
+    അവസ്ഥ VP_EOF: തിരികെ ("EOF");
+    അവസ്ഥ VP_EOF_ERROR: തിരികെ ("EOF_ERROR");
+    അവസ്ഥ VP_ERROR: തിരികെ ("ERROR");
+    അവസ്ഥ VP_IFDEF: തിരികെ ("IFDEF");
+    അവസ്ഥ VP_IFNDEF: തിരികെ ("IFNDEF");
+    അവസ്ഥ VP_JOIN: തിരികെ ("JOIN");
+    അവസ്ഥ VP_INCLUDE: തിരികെ ("INCLUDE");
+    അവസ്ഥ VP_വരി: തിരികെ ("LINE");
+    അവസ്ഥ VP_STRIFY: തിരികെ ("STRIFY");
+    അവസ്ഥ VP_STRING: തിരികെ ("STRING");
+    അവസ്ഥ VP_ചിഹ്നം: തിരികെ ("SYMBOL");
+    അവസ്ഥ VP_ചിഹ്നം_JOIN: തിരികെ ("SYMBOL_JOIN");
+    അവസ്ഥ VP_TEXT: തിരികെ ("TEXT");
+    അവസ്ഥ VP_UNDEF: തിരികെ ("UNDEF");
+    അവസ്ഥ VP_UNDEFINEALL: തിരികെ ("UNDEFINEALL");
+    അവസ്ഥ VP_WHITE: തിരികെ ("WHITE");
+    സ്ഥിരസ്ഥിതി: തിരികെ ("?");
     }
 }
 
-void V3PreProcImp::unputString(const string& strg) {
+ശൂന്യം V3PreProcImp::unputString(സ്ഥിരം string& strg) {
     // Note: The preliminary call in ::openFile bypasses this function
     // We used to just m_lexp->unputString(strg.c_str());
     // However this can lead to "flex scanner push-back overflow"
     // so instead we scan from a temporary buffer, then on EOF return.
     // This is also faster than the old scheme, amazingly.
-    if (VL_UNCOVERABLE(m_lexp->m_bufferState != m_lexp->currentBuffer())) {
+    എങ്കിൽ (VL_UNCOVERABLE(m_lexp->m_bufferState != m_lexp->currentBuffer())) {
         v3fatalSrc("bufferStack missing current buffer; will return incorrectly");
         // Hard to debug lost text as won't know till much later
     }
     m_lexp->scanBytes(strg);
 }
 
-void V3PreProcImp::unputDefrefString(const string& strg) {
-    const int multiline = std::count(strg.begin(), strg.end(), '\n');
+ശൂന്യം V3PreProcImp::unputDefrefString(സ്ഥിരം string& strg) {
+    സ്ഥിരം പൂർണ്ണസംഖ്യ multiline = std::എണ്ണം(strg.begin(), strg.end(), '\n');
     unputString(strg);
     // A define that inserts multiple newlines are really attributed to one source line,
     // so temporarily don't increment lineno.
@@ -630,23 +630,23 @@ void V3PreProcImp::unputDefrefString(const string& strg) {
     m_lexp->curStreamp()->m_ignNewlines += multiline;
 }
 
-string V3PreProcImp::trimWhitespace(const string& strg, bool trailing) {
+string V3PreProcImp::trimWhitespace(സ്ഥിരം string& strg, തർക്കം trailing) {
     // Remove leading whitespace
     string out = strg;
     string::size_type leadspace = 0;
-    while (out.length() > leadspace && std::isspace(out[leadspace])) ++leadspace;
-    if (leadspace) out.erase(0, leadspace);
+    ആകുമ്പോൾ (out.length() > leadspace && std::isspace(out[leadspace])) ++leadspace;
+    എങ്കിൽ (leadspace) out.erase(0, leadspace);
     // Remove trailing whitespace
-    if (trailing) {
+    എങ്കിൽ (trailing) {
         string::size_type trailspace = 0;
-        while (out.length() > trailspace && std::isspace(out[out.length() - 1 - trailspace]))
+        ആകുമ്പോൾ (out.length() > trailspace && std::isspace(out[out.length() - 1 - trailspace]))
             ++trailspace;
         // Don't remove \{space_or_newline}
-        if (trailspace && out.length() > trailspace && out[out.length() - 1 - trailspace] == '\\')
+        എങ്കിൽ (trailspace && out.length() > trailspace && out[out.length() - 1 - trailspace] == '\\')
             --trailspace;
-        if (trailspace) out.erase(out.length() - trailspace, trailspace);
+        എങ്കിൽ (trailspace) out.erase(out.length() - trailspace, trailspace);
     }
-    return out;
+    തിരികെ out;
 }
 
 string V3PreProcImp::defineSubst(VDefineRef* refp) {
@@ -659,278 +659,278 @@ string V3PreProcImp::defineSubst(VDefineRef* refp) {
     // parameterized define is used many, many times, we could cache the
     // parsed result.
     UINFO(4, "defineSubstIn  `" << refp->name() << " " << refp->params());
-    for (unsigned i = 0; i < refp->args().size(); i++) {
+    വേണ്ടി (unsigned i = 0; i < refp->args().size(); i++) {
         UINFO(4, "defineArg[" << i << "] = '" << refp->args()[i] << "'");
     }
     // Grab value
-    const string value = defValue(refp->name());
-    UINFO(4, "defineValue    '" << V3PreLex::cleanDbgStrg(value) << "'");
+    സ്ഥിരം string മൂല്യം = def_മൂല്യം(refp->name());
+    UINFO(4, "defineValue    '" << V3PreLex::cleanDbgStrg(മൂല്യം) << "'");
 
-    std::map<const string, string> argValueByName;
+    std::map<സ്ഥിരം string, string> arg_മൂല്യം_By_Name;
     {  // Parse argument list into map
-        unsigned numArgs = 0;
+        unsigned അക്കം_Args = 0;
         string argName;
-        int paren = 1;  // (), {} and [] can use same counter, as must be matched pair per spec
+        പൂർണ്ണസംഖ്യ paren = 1;  // (), {} and [] can use same counter, as must be matched pair per spec
         string token;
-        bool quote = false;
-        bool haveDefault = false;
+        തർക്കം quote = അസത്യം;
+        തർക്കം haveDefault = അസത്യം;
         // Note there's a leading ( and trailing ), so parens==1 is the base parsing level
-        const string params = refp->params();  // Must keep str in scope to get pointer
-        const char* cp = params.c_str();
-        if (*cp == '(') cp++;
-        for (; *cp; cp++) {
+        സ്ഥിരം string params = refp->params();  // Must keep str in scope to get pointer
+        സ്ഥിരം അക്ഷരം* cp = params.c_str();
+        എങ്കിൽ (*cp == '(') cp++;
+        വേണ്ടി (; *cp; cp++) {
             // UINFO(4, "   Parse  Paren=" << paren << "  Arg=" << numArgs << "  token='" << token
             //                             << "' Parse=" << cp);
-            if (!quote && paren == 1) {
-                if (*cp == ')' || *cp == ',') {
-                    string valueDef;
-                    if (haveDefault) {
-                        valueDef = token;
-                    } else {
+            എങ്കിൽ (!quote && paren == 1) {
+                എങ്കിൽ (*cp == ')' || *cp == ',') {
+                    string മൂല്യം_Def;
+                    എങ്കിൽ (haveDefault) {
+                        മൂല്യം_Def = token;
+                    } അല്ലെങ്കിൽ {
                         argName = token;
                     }
-                    argName = trimWhitespace(argName, true);
-                    UINFO(4, "    Got Arg=" << numArgs << "  argName='" << argName
-                                            << "'  default='" << valueDef << "'");
+                    argName = trimWhitespace(argName, സത്യം);
+                    UINFO(4, "    Got Arg=" << അക്കം_Args << "  argName='" << argName
+                                            << "'  default='" << മൂല്യം_Def << "'");
                     // Parse it
-                    if (argName != "") {
-                        if (refp->args().size() > numArgs) {
+                    എങ്കിൽ (argName != "") {
+                        എങ്കിൽ (refp->args().size() > അക്കം_Args) {
                             // A call `def( a ) must be equivalent to `def(a ), so trimWhitespace
                             // At one point we didn't trim trailing
                             // whitespace, but this confuses `"
-                            const string arg = trimWhitespace(refp->args()[numArgs], true);
-                            if (arg != "") valueDef = arg;
-                        } else if (!haveDefault) {
+                            സ്ഥിരം string arg = trimWhitespace(refp->args()[അക്കം_Args], സത്യം);
+                            എങ്കിൽ (arg != "") മൂല്യം_Def = arg;
+                        } അല്ലെങ്കിൽ എങ്കിൽ (!haveDefault) {
                             fileline()->v3error("Define missing argument '" + argName
                                                 + "' for: " + refp->name());
-                            return " `" + refp->name() + " ";
+                            തിരികെ " `" + refp->name() + " ";
                         }
-                        numArgs++;
+                        അക്കം_Args++;
                     }
-                    argValueByName[argName] = valueDef;
+                    arg_മൂല്യം_By_Name[argName] = മൂല്യം_Def;
                     // Prepare for next
                     argName = "";
                     token = "";
-                    haveDefault = false;
-                    continue;
-                } else if (*cp == '=') {
-                    haveDefault = true;
+                    haveDefault = അസത്യം;
+                    തുടരുക;
+                } അല്ലെങ്കിൽ എങ്കിൽ (*cp == '=') {
+                    haveDefault = സത്യം;
                     argName = token;
                     token = "";
-                    continue;
+                    തുടരുക;
                 }
             }
-            if (cp[0] == '\\' && cp[1]) {
+            എങ്കിൽ (cp[0] == '\\' && cp[1]) {
                 token += cp[0];  // \{any} Put out literal next character
                 token += cp[1];
                 cp++;
-                continue;
+                തുടരുക;
             }
-            if (!quote) {
-                if (*cp == '(' || *cp == '{' || *cp == '[') {
+            എങ്കിൽ (!quote) {
+                എങ്കിൽ (*cp == '(' || *cp == '{' || *cp == '[') {
                     paren++;
-                } else if (*cp == ')' || *cp == '}' || *cp == ']') {
+                } അല്ലെങ്കിൽ എങ്കിൽ (*cp == ')' || *cp == '}' || *cp == ']') {
                     paren--;
                 }
             }
-            if (*cp == '"') quote = !quote;
-            if (*cp) token += *cp;
+            എങ്കിൽ (*cp == '"') quote = !quote;
+            എങ്കിൽ (*cp) token += *cp;
         }
-        if (refp->args().size() > numArgs
+        എങ്കിൽ (refp->args().size() > അക്കം_Args
             // `define X() is ok to call with nothing
-            && !(refp->args().size() == 1 && numArgs == 0
-                 && trimWhitespace(refp->args()[0], false) == "")) {
+            && !(refp->args().size() == 1 && അക്കം_Args == 0
+                 && trimWhitespace(refp->args()[0], അസത്യം) == "")) {
             fileline()->v3error("Define passed too many arguments: " + refp->name());
-            return " `" + refp->name() + " ";
+            തിരികെ " `" + refp->name() + " ";
         }
     }
 
     string out;
     {  // Parse substitution define using arguments
         string argName;
-        bool quote = false;
-        bool triquote = false;
-        bool backslashesc = false;  // In \.....{space} block
+        തർക്കം quote = അസത്യം;
+        തർക്കം triquote = അസത്യം;
+        തർക്കം backslashesc = അസത്യം;  // In \.....{space} block
         // Note we go through the loop once more at the nullptr end-of-string
-        for (const char* cp = value.c_str(); (*cp) || argName != ""; cp = (*cp ? cp + 1 : cp)) {
+        വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = മൂല്യം.c_str(); (*cp) || argName != ""; cp = (*cp ? cp + 1 : cp)) {
             // UINFO(4, "CH " << *cp << "  an " << argName);
-            if (!quote && !triquote && *cp == '\\') {
-                backslashesc = true;
-            } else if (std::isspace(*cp)) {
-                backslashesc = false;
+            എങ്കിൽ (!quote && !triquote && *cp == '\\') {
+                backslashesc = സത്യം;
+            } അല്ലെങ്കിൽ എങ്കിൽ (std::isspace(*cp)) {
+                backslashesc = അസത്യം;
             }
-            if (!quote && !triquote) {
-                if (std::isalpha(*cp)  //
+            എങ്കിൽ (!quote && !triquote) {
+                എങ്കിൽ (std::isalpha(*cp)  //
                     || *cp == '_'  //
                     || *cp == '$'  // Won't replace system functions, since no $ in argValueByName
                     || (argName != "" && std::isdigit(*cp))) {
                     argName += *cp;
-                    continue;
+                    തുടരുക;
                 }
-                if (argName != "") {
+                എങ്കിൽ (argName != "") {
                     // Found a possible variable substitution
-                    const auto iter = argValueByName.find(argName);
-                    if (iter != argValueByName.end()) {
+                    സ്ഥിരം auto iter = arg_മൂല്യം_By_Name.find(argName);
+                    എങ്കിൽ (iter != arg_മൂല്യം_By_Name.end()) {
                         // Substitute
-                        const string subst = iter->second;
-                        if (subst == "") {
+                        സ്ഥിരം string subst = iter->second;
+                        എങ്കിൽ (subst == "") {
                             // Normally `` is removed later, but with no token after, we're
                             // otherwise stuck, so remove proceeding ``
-                            if (out.size() >= 2 && out.substr(out.size() - 2) == "``") {
+                            എങ്കിൽ (out.size() >= 2 && out.substr(out.size() - 2) == "``") {
                                 out.resize(out.size() - 2);
                             }
-                        } else {
+                        } അല്ലെങ്കിൽ {
                             out += subst;
                         }
-                    } else {
+                    } അല്ലെങ്കിൽ {
                         out += argName;
                     }
                     argName = "";
                 }
                 // Check for `` only after we've detected end-of-argname
-                if (cp[0] == '`' && cp[1] == '`') {
-                    if (backslashesc) {
+                എങ്കിൽ (cp[0] == '`' && cp[1] == '`') {
+                    എങ്കിൽ (backslashesc) {
                         // Don't put out the ``, we're forming an escape
                         // which will not expand further later
-                    } else {
+                    } അല്ലെങ്കിൽ {
                         out += "``";  // `` must get removed later, as `FOO```BAR must pre-expand
                                       // FOO and BAR
                         // See also removal in empty substitutes above
                     }
                     cp++;
-                    continue;
-                } else if (cp[0] == '`' && cp[1] == '"') {
+                    തുടരുക;
+                } അല്ലെങ്കിൽ എങ്കിൽ (cp[0] == '`' && cp[1] == '"') {
                     out += "`\"";  // `" means to put out a " without enabling quote mode (sort of)
                     // however we must expand any macro calls inside it first.
                     // So keep it `", so we don't enter quote mode.
                     cp++;
-                    continue;
-                } else if (cp[0] == '`' && cp[1] == '\\' && cp[2] == '`' && cp[3] == '"') {
+                    തുടരുക;
+                } അല്ലെങ്കിൽ എങ്കിൽ (cp[0] == '`' && cp[1] == '\\' && cp[2] == '`' && cp[3] == '"') {
                     out += "`\\`\"";  // `\`" means to put out a backslash quote
                     // Leave it literal until we parse the VP_STRIFY string
                     cp += 3;
-                    continue;
-                } else if (cp[0] == '`' && cp[1] == '\\') {
+                    തുടരുക;
+                } അല്ലെങ്കിൽ എങ്കിൽ (cp[0] == '`' && cp[1] == '\\') {
                     out += '\\';  // `\ means to put out a backslash
                     cp++;
-                    continue;
-                } else if (cp[0] == '\\' && cp[1] == '\n') {
+                    തുടരുക;
+                } അല്ലെങ്കിൽ എങ്കിൽ (cp[0] == '\\' && cp[1] == '\n') {
                     // We kept the \\n when we lexed because we don't want whitespace
                     // trimming to mis-drop the final \\n
                     // At replacement time we need the standard newline.
                     out += "\n";  // \\n newline
                     cp++;
-                    continue;
+                    തുടരുക;
                 }
             }
-            if (cp[0] == '\\' && cp[1] == '\"') {
+            എങ്കിൽ (cp[0] == '\\' && cp[1] == '\"') {
                 out += cp[0];  // \{any} Put out literal next character
                 out += cp[1];
                 cp++;
-                continue;
-            } else if (cp[0] == '\\') {
+                തുടരുക;
+            } അല്ലെങ്കിൽ എങ്കിൽ (cp[0] == '\\') {
                 // Normally \{any} would put out literal next character
                 // Instead we allow "`define A(nm) \nm" to expand, per proposed mantis1537
                 out += cp[0];
-                continue;
+                തുടരുക;
             }
-            if (cp[0] == '"' && cp[1] == '"' && cp[2] == '"') {
+            എങ്കിൽ (cp[0] == '"' && cp[1] == '"' && cp[2] == '"') {
                 triquote = !triquote;
                 out += "\"\"\"";
                 cp += 2;
-                continue;
+                തുടരുക;
             }
-            if (*cp == '"') quote = !quote;
-            if (*cp) out += *cp;
+            എങ്കിൽ (*cp == '"') quote = !quote;
+            എങ്കിൽ (*cp) out += *cp;
         }
     }
 
     UINFO(4, "defineSubstOut '" << V3PreLex::cleanDbgStrg(out) << "'");
-    return out;
+    തിരികെ out;
 }
 
 //**********************************************************************
 // Parser routines
 
-void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filename) {
+ശൂന്യം V3PreProcImp::openFile(File_വരി*, VInFilter* filterp, സ്ഥിരം string& filename) {
     // Open a new file, possibly overriding the current one which is active.
-    if (m_incError) return;
+    എങ്കിൽ (m_incError) തിരികെ;
     m_lexp->setYYDebug(debug() >= 5);
     V3File::addSrcDepend(filename);
 
     // Read a list<string> with the whole file.
     StrList wholefile;
-    const bool ok = filterp->readWholefile(filename, wholefile /*ref*/);
-    if (!ok) {
+    സ്ഥിരം തർക്കം ok = filterp->readWholefile(filename, wholefile /*ref*/);
+    എങ്കിൽ (!ok) {
         fileline()->v3error("File not found: " + filename);
-        return;
+        തിരികെ;
     }
 
-    if (!m_preprocp->isEof()) {  // IE not the first file.
+    എങ്കിൽ (!m_preprocp->isEof()) {  // IE not the first file.
         // We allow the same include file twice, because occasionally it pops
         // up, with guards preventing a real recursion.
-        if (m_lexp->m_streampStack.size() > V3PreProc::INCLUDE_DEPTH_MAX) {
+        എങ്കിൽ (m_lexp->m_streamp_അട്ടി.size() > V3PreProc::INCLUDE_DEPTH_MAX) {
             fileline()->v3error("Recursive inclusion of file: " + filename);
             // Include might be a tree of includes that is O(n^2) or worse.
             // Once hit this error then, ignore all further includes so can unwind.
-            m_incError = true;
-            return;
+            m_incError = സത്യം;
+            തിരികെ;
         }
         // There's already a file active.  Push it to work on the new one.
-        addLineComment(0);
+        add_വരി_Comment(0);
     }
 
     // Save file contents for future error reporting
-    FileLine* const flsp = new FileLine{filename};
+    File_വരി* സ്ഥിരം flsp = പുതിയ File_വരി{filename};
     flsp->lineno(1);
     flsp->newContent();
-    for (const string& i : wholefile) flsp->contentp()->pushText(i);
+    വേണ്ടി (സ്ഥിരം string& i : wholefile) flsp->contentp()->തള്ളുക_Text(i);
 
     // Save contents for V3Control --contents
-    if (filename != V3Options::getStdPackagePath()) {
-        bool containsVlt = false;
-        for (const string& i : wholefile) {
+    എങ്കിൽ (filename != V3Options::getStdPackagePath()) {
+        തർക്കം containsVlt = അസത്യം;
+        വേണ്ടി (സ്ഥിരം string& i : wholefile) {
             // TODO this is overly sensitive, might be in a comment
-            if (i.find("`verilator_config") != string::npos) {
-                containsVlt = true;
-                break;
+            എങ്കിൽ (i.find("`verilator_config") != string::npos) {
+                containsVlt = സത്യം;
+                നിർത്തുക;
             }
         }
-        if (!containsVlt) {
-            for (const string& i : wholefile) V3Control::contentsPushText(i);
+        എങ്കിൽ (!containsVlt) {
+            വേണ്ടി (സ്ഥിരം string& i : wholefile) V3Control::contents_തള്ളുക_Text(i);
         }
     }
 
     // Create new stream structure
     m_lexp->scanNewFile(flsp);
-    addLineComment(1);  // Enter
+    add_വരി_Comment(1);  // Enter
 
     // Filter all DOS CR's en masse.  This avoids bugs with lexing CRs in the wrong places.
     // This will also strip them from strings, but strings aren't supposed
     // to be multi-line without a "\"
-    int eof_newline = 0;  // Number of characters following last newline
-    int eof_lineno = 1;
-    for (StrList::iterator it = wholefile.begin(); it != wholefile.end(); ++it) {
+    പൂർണ്ണസംഖ്യ eof_newline = 0;  // Number of characters following last newline
+    പൂർണ്ണസംഖ്യ eof_lineno = 1;
+    വേണ്ടി (StrList::iterator it = wholefile.begin(); it != wholefile.end(); ++it) {
         // We don't end-loop at \0 as we allow and strip mid-string '\0's (for now).
-        bool strip = false;
-        const char* const sp = it->data();
-        const char* const ep = sp + it->length();
+        തർക്കം strip = അസത്യം;
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം sp = it->data();
+        സ്ഥിരം അക്ഷരം* സ്ഥിരം ep = sp + it->length();
         // Only process if needed, as saves extra string allocations
-        for (const char* cp = sp; cp < ep; cp++) {
-            if (VL_UNLIKELY(*cp == '\r' || *cp == '\0')) {
-                strip = true;
-            } else if (VL_UNLIKELY(*cp == '\n')) {
+        വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = sp; cp < ep; cp++) {
+            എങ്കിൽ (VL_UNLIKELY(*cp == '\r' || *cp == '\0')) {
+                strip = സത്യം;
+            } അല്ലെങ്കിൽ എങ്കിൽ (VL_UNLIKELY(*cp == '\n')) {
                 eof_newline = 0;
                 ++eof_lineno;
-            } else {
+            } അല്ലെങ്കിൽ {
                 ++eof_newline;
             }
         }
-        if (strip) {
+        എങ്കിൽ (strip) {
             string out;
             out.reserve(it->length());
-            for (const char* cp = sp; cp < ep; cp++) {
-                if (!(*cp == '\r' || *cp == '\0')) out += *cp;
+            വേണ്ടി (സ്ഥിരം അക്ഷരം* cp = sp; cp < ep; cp++) {
+                എങ്കിൽ (!(*cp == '\r' || *cp == '\0')) out += *cp;
             }
             *it = out;
         }
@@ -942,8 +942,8 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
     }
 
     // Warning check
-    if (eof_newline) {
-        FileLine* const fl = new FileLine{flsp};
+    എങ്കിൽ (eof_newline) {
+        File_വരി* സ്ഥിരം fl = പുതിയ File_വരി{flsp};
         fl->contentLineno(eof_lineno);
         fl->column(eof_newline + 1, eof_newline + 1);
         V3Control::applyIgnores(fl);  // As preprocessor hasn't otherwise applied yet
@@ -952,112 +952,112 @@ void V3PreProcImp::openFile(FileLine*, VInFilter* filterp, const string& filenam
     }
 }
 
-void V3PreProcImp::insertUnreadbackAtBol(const string& text) {
+ശൂന്യം V3PreProcImp::തിരുകുക_Unreadback_At_Bol(സ്ഥിരം string& text) {
     // Insert insuring we're at the beginning of line, for `line
     // We don't always add a leading newline, as it may result in extra unreadback(newlines).
-    if (m_lineCmt == "") {
-        m_lineCmtNl = true;
-    } else if (m_lineCmt[m_lineCmt.length() - 1] != '\n') {
-        insertUnreadback("\n");
+    എങ്കിൽ (m_വരി_Cmt == "") {
+        m_വരി_Cmt_Nl = സത്യം;
+    } അല്ലെങ്കിൽ എങ്കിൽ (m_വരി_Cmt[m_വരി_Cmt.length() - 1] != '\n') {
+        തിരുകുക_Unreadback("\n");
     }
-    insertUnreadback(text);
+    തിരുകുക_Unreadback(text);
 }
 
-void V3PreProcImp::addLineComment(int enterExit) {
-    if (lineDirectives()) {
-        insertUnreadbackAtBol(m_lexp->curFilelinep()->lineDirectiveStrg(enterExit));
+ശൂന്യം V3PreProcImp::add_വരി_Comment(പൂർണ്ണസംഖ്യ enterExit) {
+    എങ്കിൽ (വരി_Directives()) {
+        തിരുകുക_Unreadback_At_Bol(m_lexp->curFilelinep()->വരി_Directive_Strg(enterExit));
     }
 }
 
-void V3PreProcImp::dumpDefines(std::ostream& os) {
-    for (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
+ശൂന്യം V3PreProcImp::dumpDefines(std::ostream& os) {
+    വേണ്ടി (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
         os << "`define " << it->first;
         // No need to print "()" below as already part of params()
-        if (!it->second.params().empty()) os << it->second.params();
-        if (!it->second.value().empty()) os << " " << it->second.value();
+        എങ്കിൽ (!it->second.params().empty()) os << it->second.params();
+        എങ്കിൽ (!it->second.മൂല്യം().empty()) os << " " << it->second.മൂല്യം();
         os << '\n';
     }
 }
 
-void V3PreProcImp::candidateDefines(VSpellCheck* spellerp) {
-    for (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
-        spellerp->pushCandidate("`"s + it->first);
+ശൂന്യം V3PreProcImp::candidateDefines(VSpellCheck* spellerp) {
+    വേണ്ടി (DefinesMap::const_iterator it = m_defines.begin(); it != m_defines.end(); ++it) {
+        spellerp->തള്ളുക_Candidate("`"s + it->first);
     }
 }
 
-int V3PreProcImp::getRawToken() {
+പൂർണ്ണസംഖ്യ V3PreProcImp::getRawToken() {
     // Get a token from the file, whatever it may be.
-    while (true) {
+    ആകുമ്പോൾ (സത്യം) {
     next_tok:
-        if (m_lineAdd) {
-            m_lineAdd--;
-            m_rawAtBol = true;
+        എങ്കിൽ (m_വരി_Add) {
+            m_വരി_Add--;
+            m_rawAtBol = സത്യം;
             yyourtext("\n", 1);
-            if (debug() >= 5) debugToken(VP_WHITE, "LNA");
-            return VP_WHITE;
+            എങ്കിൽ (debug() >= 5) debugToken(VP_WHITE, "LNA");
+            തിരികെ VP_WHITE;
         }
-        if (m_lineCmt != "") {
+        എങ്കിൽ (m_വരി_Cmt != "") {
             // We have some `line directive or other processed data to return to the user.
-            static string s_rtncmt;  // Keep the c string till next call
-            s_rtncmt = m_lineCmt;
-            if (m_lineCmtNl) {
-                if (!m_rawAtBol) s_rtncmt.insert(0, "\n");
-                m_lineCmtNl = false;
+            സ്ഥിതം string s_rtncmt;  // Keep the c string till next call
+            s_rtncmt = m_വരി_Cmt;
+            എങ്കിൽ (m_വരി_Cmt_Nl) {
+                എങ്കിൽ (!m_rawAtBol) s_rtncmt.തിരുകുക(0, "\n");
+                m_വരി_Cmt_Nl = അസത്യം;
             }
             yyourtext(s_rtncmt.c_str(), s_rtncmt.length());
-            m_lineCmt = "";
-            if (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
-            if (state() == ps_DEFVALUE) {
-                V3PreLex::s_currentLexp->appendDefValue(yyourtext(), yyourleng());
-                goto next_tok;
-            } else {
-                if (debug() >= 5) debugToken(VP_TEXT, "LCM");
-                return VP_TEXT;
+            m_വരി_Cmt = "";
+            എങ്കിൽ (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
+            എങ്കിൽ (state() == ps_DEFVALUE) {
+                V3PreLex::s_currentLexp->append_Def_മൂല്യം(yyourtext(), yyourleng());
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ {
+                എങ്കിൽ (debug() >= 5) debugToken(VP_TEXT, "LCM");
+                തിരികെ VP_TEXT;
             }
         }
-        if (isEof()) return VP_EOF;
+        എങ്കിൽ (isEof()) തിരികെ VP_EOF;
 
         // Snarf next token from the file
         m_lexp->curFilelinep()->startToken();
-        int tok = m_lexp->lex();
-        if (debug() >= 5) debugToken(tok, "RAW");
+        പൂർണ്ണസംഖ്യ tok = m_lexp->lex();
+        എങ്കിൽ (debug() >= 5) debugToken(tok, "RAW");
 
-        if (m_lastLineno != m_lexp->m_tokFilelinep->lineno()) {
+        എങ്കിൽ (m_lastLineno != m_lexp->m_tokFilelinep->lineno()) {
             m_lastLineno = m_lexp->m_tokFilelinep->lineno();
-            m_tokensOnLine = 0;
-        } else if (++m_tokensOnLine > v3Global.opt.preprocTokenLimit()) {
+            m_tokens_On_വരി = 0;
+        } അല്ലെങ്കിൽ എങ്കിൽ (++m_tokens_On_വരി > v3Global.opt.preprocTokenLimit()) {
             fileline()->v3error("Too many preprocessor tokens on a line (>"
                                 + cvtToStr(v3Global.opt.preprocTokenLimit())
                                 + "); perhaps recursive `define");
             tok = VP_EOF_ERROR;
         }
 
-        if (tok == VP_EOF || tok == VP_EOF_ERROR) {
+        എങ്കിൽ (tok == VP_EOF || tok == VP_EOF_ERROR) {
             // An error might be in an unexpected point, so stop parsing
-            if (tok == VP_EOF_ERROR) forceEof();
+            എങ്കിൽ (tok == VP_EOF_ERROR) forceEof();
             // A EOF on an include, stream will find the EOF, after adding needed `lines
-            goto next_tok;
+            പോകുക next_tok;
         }
 
-        if (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
-        return tok;
+        എങ്കിൽ (yyourleng()) m_rawAtBol = (yyourtext()[yyourleng() - 1] == '\n');
+        തിരികെ tok;
     }
 }
 
-void V3PreProcImp::debugToken(int tok, const char* cmtp) {
-    const static int s_debugFileline
+ശൂന്യം V3PreProcImp::debugToken(പൂർണ്ണസംഖ്യ tok, സ്ഥിരം അക്ഷരം* cmtp) {
+    സ്ഥിരം സ്ഥിതം പൂർണ്ണസംഖ്യ s_debugFileline
         = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
-    if (debug() >= 5) {
+    എങ്കിൽ (debug() >= 5) {
         string buf{yyourtext(), yyourleng()};
         string::size_type pos;
-        while ((pos = buf.find('\n')) != string::npos) buf.replace(pos, 1, "\\n");
-        while ((pos = buf.find('\r')) != string::npos) buf.replace(pos, 1, "\\r");
-        const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+        ആകുമ്പോൾ ((pos = buf.find('\n')) != string::npos) buf.replace(pos, 1, "\\n");
+        ആകുമ്പോൾ ((pos = buf.find('\r')) != string::npos) buf.replace(pos, 1, "\\r");
+        സ്ഥിരം string flcol = m_lexp->m_tokFilelinep->ascii_വരി_Col();
         UINFO(0, flcol << ": " << cmtp << " " << (m_off ? "of" : "on") << " "
-                       << procStateName(state()) << "(" << static_cast<int>(m_states.size())
+                       << procStateName(state()) << "(" << static_cast<പൂർണ്ണസംഖ്യ>(m_states.size())
                        << ") dr" << m_defRefs.size() << ":  <" << m_lexp->currentStartState()
                        << ">" << tokenName(tok) << ": " << buf);
-        if (s_debugFileline >= 9) {
+        എങ്കിൽ (s_debugFileline >= 9) {
             std::cout << m_lexp->m_tokFilelinep->warnContextSecondary() << endl;
         }
     }
@@ -1066,45 +1066,45 @@ void V3PreProcImp::debugToken(int tok, const char* cmtp) {
 // Sorry, we're not using bison/yacc. It doesn't handle returning white space
 // in the middle of parsing other tokens.
 
-int V3PreProcImp::getStateToken() {
+പൂർണ്ണസംഖ്യ V3PreProcImp::getStateToken() {
     // Return the next state-determined token
-    while (true) {
+    ആകുമ്പോൾ (സത്യം) {
     next_tok:
-        if (isEof()) return VP_EOF;
-        int tok = getRawToken();
+        എങ്കിൽ (isEof()) തിരികെ VP_EOF;
+        പൂർണ്ണസംഖ്യ tok = getRawToken();
 
         // Most states emit white space and comments between tokens. (Unless collecting a string)
-        if (tok == VP_WHITE && state() != ps_STRIFY && state() != ps_JOIN) return tok;
-        if (tok == VP_BACKQUOTE && state() != ps_STRIFY) tok = VP_TEXT;
-        if (tok == VP_COMMENT) {
-            if (!m_off) {
-                if (m_lexp->m_keepComments == KEEPCMT_SUB) {
+        എങ്കിൽ (tok == VP_WHITE && state() != ps_STRIFY && state() != ps_JOIN) തിരികെ tok;
+        എങ്കിൽ (tok == VP_BACKQUOTE && state() != ps_STRIFY) tok = VP_TEXT;
+        എങ്കിൽ (tok == VP_COMMENT) {
+            എങ്കിൽ (!m_off) {
+                എങ്കിൽ (m_lexp->m_keepComments == KEEPCMT_SUB) {
                     string rtn;
                     rtn.assign(yyourtext(), yyourleng());
                     comment(rtn);
                     // Need to ensure "foo/**/bar" becomes two tokens, not one 'foobar'
-                    if (m_lineCmt.empty()) insertUnreadback(" ");
-                } else if (m_lexp->m_keepComments) {
-                    return tok;
-                } else {
+                    എങ്കിൽ (m_വരി_Cmt.empty()) തിരുകുക_Unreadback(" ");
+                } അല്ലെങ്കിൽ എങ്കിൽ (m_lexp->m_keepComments) {
+                    തിരികെ tok;
+                } അല്ലെങ്കിൽ {
                     // Need to ensure "foo/**/bar" becomes two tokens, not one 'foobar'
-                    insertUnreadback(" ");
+                    തിരുകുക_Unreadback(" ");
                 }
             }
             // We're off or processed the comment specially.  If there are newlines
             // in it, we also return the newlines as TEXT so that the linenumber
             // count is maintained for downstream tools
-            for (size_t len = 0; len < static_cast<size_t>(yyourleng()); len++) {
-                if (yyourtext()[len] == '\n') m_lineAdd++;
+            വേണ്ടി (size_t len = 0; len < static_cast<size_t>(yyourleng()); len++) {
+                എങ്കിൽ (yyourtext()[len] == '\n') m_വരി_Add++;
             }
-            goto next_tok;
+            പോകുക next_tok;
         }
-        if (tok == VP_LINE) {
-            addLineComment(m_lexp->m_enterExit);
-            goto next_tok;
+        എങ്കിൽ (tok == VP_വരി) {
+            add_വരി_Comment(m_lexp->m_enterExit);
+            പോകുക next_tok;
         }
 
-        if (tok == VP_DEFREF_JOIN) {
+        എങ്കിൽ (tok == VP_DEFREF_JOIN) {
             // Here's something fun and unspecified as yet:
             // The existence of non-existence of a base define changes `` expansion
             //  `define QA_b zzz
@@ -1116,420 +1116,420 @@ int V3PreProcImp::getStateToken() {
             //  `define Q1 `QA()``_b  // -> a_b
             // This may be a side effect of how `UNDEFINED remains as `UNDEFINED,
             // but it screws up our method here.  So hardcode it.
-            const std::string name(yyourtext() + 1, yyourleng() - 1);
-            if (defExists(name)) {  // JOIN(DEFREF)
+            സ്ഥിരം std::string name(yyourtext() + 1, yyourleng() - 1);
+            എങ്കിൽ (defExists(name)) {  // JOIN(DEFREF)
                 // Put back the `` and process the defref
                 UINFO(5, "```: define " << name << " exists, expand first");
                 // After define, unputString("``").  Not now as would lose yyourtext()
-                m_defPutJoin = true;
+                m_defPutJoin = സത്യം;
                 UINFO(5, "TOKEN now DEFREF");
                 tok = VP_DEFREF;
-            } else {  // DEFREF(JOIN)
+            } അല്ലെങ്കിൽ {  // DEFREF(JOIN)
                 UINFO(5, "```: define " << name << " doesn't exist, join first");
                 // FALLTHRU, handle as with VP_SYMBOL_JOIN
             }
         }
-        if (state() == ps_STRIFY) {
+        എങ്കിൽ (state() == ps_STRIFY) {
             // Ignore joins and symbol joins in stringify as they don't affect the final string
-            if (tok == VP_JOIN) goto next_tok;
-            if (tok == VP_SYMBOL_JOIN) tok = VP_SYMBOL;
+            എങ്കിൽ (tok == VP_JOIN) പോകുക next_tok;
+            എങ്കിൽ (tok == VP_ചിഹ്നം_JOIN) tok = VP_ചിഹ്നം;
         }
-        if (tok == VP_SYMBOL_JOIN  // not else if, can fallthru from above if()
+        എങ്കിൽ (tok == VP_ചിഹ്നം_JOIN  // not else if, can fallthru from above if()
             || tok == VP_DEFREF_JOIN || tok == VP_JOIN) {
             // a`` -> string doesn't include the ``, so can just grab next and continue
-            const std::string out(yyourtext(), yyourleng());
+            സ്ഥിരം std::string out(yyourtext(), yyourleng());
             UINFO(5, "`` LHS:" << out);
             // a``b``c can have multiple joins, so we need a stack
-            m_joinStack.push(out);
-            statePush(ps_JOIN);
-            goto next_tok;
+            m_join_അട്ടി.തള്ളുക(out);
+            state_തള്ളുക(ps_JOIN);
+            പോകുക next_tok;
         }
 
         // Deal with some special parser states
-        switch (state()) {
-        case ps_TOP: {
-            break;
+        തിരഞ്ഞെടുപ്പ് (state()) {
+        അവസ്ഥ ps_മുകൾ: {
+            നിർത്തുക;
         }
-        case ps_DEFNAME_UNDEF:  // FALLTHRU
-        case ps_DEFNAME_DEFINE:  // FALLTHRU
-        case ps_DEFNAME_IFDEF:  // FALLTHRU
-        case ps_DEFNAME_IFNDEF:  // FALLTHRU
-        case ps_DEFNAME_ELSIF: {
-            if (tok == VP_SYMBOL) {
+        അവസ്ഥ ps_DEFNAME_UNDEF:  // FALLTHRU
+        അവസ്ഥ ps_DEFNAME_DEFINE:  // FALLTHRU
+        അവസ്ഥ ps_DEFNAME_IFDEF:  // FALLTHRU
+        അവസ്ഥ ps_DEFNAME_IFNDEF:  // FALLTHRU
+        അവസ്ഥ ps_DEFNAME_ELSIF: {
+            എങ്കിൽ (tok == VP_ചിഹ്നം) {
                 m_lastSym.assign(yyourtext(), yyourleng());
-                if (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF) {
-                    bool enable = defExists(m_lastSym);
+                എങ്കിൽ (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF) {
+                    തർക്കം enable = defExists(m_lastSym);
                     UINFO(4, "Ifdef " << m_lastSym << (enable ? " ON" : " OFF"));
-                    if (state() == ps_DEFNAME_IFNDEF) enable = !enable;
-                    m_ifdefStack.emplace(VPreIfEntry{enable, false});
-                    if (!enable) parsingOff();
-                    statePop();
-                    goto next_tok;
-                } else if (state() == ps_DEFNAME_ELSIF) {
-                    if (m_ifdefStack.empty()) {
+                    എങ്കിൽ (state() == ps_DEFNAME_IFNDEF) enable = !enable;
+                    m_ifdef_അട്ടി.emplace(VPreIfEntry{enable, അസത്യം});
+                    എങ്കിൽ (!enable) parsingOff();
+                    state_എടുക്കുക();
+                    പോകുക next_tok;
+                } അല്ലെങ്കിൽ എങ്കിൽ (state() == ps_DEFNAME_ELSIF) {
+                    എങ്കിൽ (m_ifdef_അട്ടി.empty()) {
                         fileline()->v3error("`elsif with no matching `if");
-                    } else {
+                    } അല്ലെങ്കിൽ {
                         // Handle `else portion
-                        const VPreIfEntry lastIf = m_ifdefStack.top();
-                        m_ifdefStack.pop();
-                        if (!lastIf.on()) parsingOn();
+                        സ്ഥിരം VPreIfEntry lastIf = m_ifdef_അട്ടി.മുകൾ();
+                        m_ifdef_അട്ടി.എടുക്കുക();
+                        എങ്കിൽ (!lastIf.on()) parsingOn();
                         // Handle `if portion
-                        const bool enable = !lastIf.everOn() && defExists(m_lastSym);
+                        സ്ഥിരം തർക്കം enable = !lastIf.everOn() && defExists(m_lastSym);
                         UINFO(4, "Elsif " << m_lastSym << (enable ? " ON" : " OFF"));
-                        m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                        if (!enable) parsingOff();
+                        m_ifdef_അട്ടി.emplace(VPreIfEntry{enable, lastIf.everOn()});
+                        എങ്കിൽ (!enable) parsingOff();
                     }
-                    statePop();
-                    goto next_tok;
-                } else if (state() == ps_DEFNAME_UNDEF) {
-                    if (!m_off) {
+                    state_എടുക്കുക();
+                    പോകുക next_tok;
+                } അല്ലെങ്കിൽ എങ്കിൽ (state() == ps_DEFNAME_UNDEF) {
+                    എങ്കിൽ (!m_off) {
                         UINFO(4, "Undef " << m_lastSym);
                         undef(m_lastSym);
                     }
-                    statePop();
-                    goto next_tok;
-                } else if (state() == ps_DEFNAME_DEFINE) {
+                    state_എടുക്കുക();
+                    പോകുക next_tok;
+                } അല്ലെങ്കിൽ എങ്കിൽ (state() == ps_DEFNAME_DEFINE) {
                     // m_lastSym already set.
                     stateChange(ps_DEFFORM);
-                    m_lexp->pushStateDefForm();
-                    goto next_tok;
-                } else {  // LCOV_EXCL_LINE
+                    m_lexp->തള്ളുക_State_Def_Form();
+                    പോകുക next_tok;
+                } അല്ലെങ്കിൽ {  // LCOV_EXCL_LINE
                     v3fatalSrc("Bad case");
                 }
-                goto next_tok;
-            } else if (tok == VP_TEXT) {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT) {
                 // IE, something like comment between define and symbol
-                if (yyourleng() == 1 && yyourtext()[0] == '('
+                എങ്കിൽ (yyourleng() == 1 && yyourtext()[0] == '('
                     && (state() == ps_DEFNAME_IFDEF || state() == ps_DEFNAME_IFNDEF
                         || state() == ps_DEFNAME_ELSIF)) {
                     UINFO(4, "ifdef() start (");
-                    m_lexp->pushStateExpr();
-                    m_exprParser.reset(fileline());
-                    m_exprParenLevel = 1;
-                    switch (state()) {
-                    case ps_DEFNAME_IFDEF: stateChange(ps_EXPR_IFDEF); break;
-                    case ps_DEFNAME_IFNDEF: stateChange(ps_EXPR_IFNDEF); break;
-                    case ps_DEFNAME_ELSIF: stateChange(ps_EXPR_ELSIF); break;
-                    default: v3fatalSrc("bad case");
+                    m_lexp->തള്ളുക_State_വ്യഞ്ജകം();
+                    m_വ്യഞ്ജകം_Parser.reset(fileline());
+                    m_വ്യഞ്ജകം_Paren_Level = 1;
+                    തിരഞ്ഞെടുപ്പ് (state()) {
+                    അവസ്ഥ ps_DEFNAME_IFDEF: stateChange(ps_വ്യഞ്ജകം_IFDEF); നിർത്തുക;
+                    അവസ്ഥ ps_DEFNAME_IFNDEF: stateChange(ps_വ്യഞ്ജകം_IFNDEF); നിർത്തുക;
+                    അവസ്ഥ ps_DEFNAME_ELSIF: stateChange(ps_വ്യഞ്ജകം_ELSIF); നിർത്തുക;
+                    സ്ഥിരസ്ഥിതി: v3fatalSrc("bad case");
                     }
-                    goto next_tok;
+                    പോകുക next_tok;
                 }
-                if (!m_off) {
-                    return tok;
-                } else {
-                    goto next_tok;
+                എങ്കിൽ (!m_off) {
+                    തിരികെ tok;
+                } അല്ലെങ്കിൽ {
+                    പോകുക next_tok;
                 }
-            } else if (tok == VP_DEFREF) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_DEFREF) {
                 // IE, `ifdef `MACRO(x): Substitute and come back here when state pops.
-                break;
-            } else {
+                നിർത്തുക;
+            } അല്ലെങ്കിൽ {
                 fileline()->v3error("Expecting define name. Found: "s + tokenName(tok));
-                goto next_tok;
+                പോകുക next_tok;
             }
         }
-        case ps_EXPR_IFDEF:  // FALLTHRU
-        case ps_EXPR_IFNDEF:  // FALLTHRU
-        case ps_EXPR_ELSIF: {
+        അവസ്ഥ ps_വ്യഞ്ജകം_IFDEF:  // FALLTHRU
+        അവസ്ഥ ps_വ്യഞ്ജകം_IFNDEF:  // FALLTHRU
+        അവസ്ഥ ps_വ്യഞ്ജകം_ELSIF: {
             // `ifdef ( *here*
-            FileLine* const flp = m_lexp->m_tokFilelinep;
-            if (tok == VP_SYMBOL) {
+            File_വരി* സ്ഥിരം flp = m_lexp->m_tokFilelinep;
+            എങ്കിൽ (tok == VP_ചിഹ്നം) {
                 m_lastSym.assign(yyourtext(), yyourleng());
-                const bool exists = defExists(m_lastSym);
-                if (exists) {
-                    const std::string value = defValue(m_lastSym);
-                    if (VString::removeWhitespace(value) == "0") {
+                സ്ഥിരം തർക്കം exists = defExists(m_lastSym);
+                എങ്കിൽ (exists) {
+                    സ്ഥിരം std::string മൂല്യം = def_മൂല്യം(m_lastSym);
+                    എങ്കിൽ (VString::removeWhitespace(മൂല്യം) == "0") {
                         flp->v3warn(
                             PREPROCZERO,
                             "Preprocessor expression evaluates define with 0: '"
-                                << m_lastSym << "' with value '" << value
+                                << m_lastSym << "' with value '" << മൂല്യം
                                 << "'\n"
                                    "... Suggest change define '"
                                 << m_lastSym
                                 << "' to non-zero value if used in preprocessor expression");
                     }
                 }
-                m_exprParser.pushInput(V3PreExprToken{flp, exists});
-                goto next_tok;
-            } else if (tok == VP_WHITE) {
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == ')') {
-                UASSERT(m_exprParenLevel, "Underflow of ); should have exited ps_EXPR earlier?");
-                if (--m_exprParenLevel > 0) {
-                    m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET});
-                    goto next_tok;
-                } else {
+                m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, exists});
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_WHITE) {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
+                m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::BRA});
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == ')') {
+                UASSERT(m_വ്യഞ്ജകം_Paren_Level, "Underflow of ); should have exited ps_EXPR earlier?");
+                എങ്കിൽ (--m_വ്യഞ്ജകം_Paren_Level > 0) {
+                    m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::KET});
+                    പോകുക next_tok;
+                } അല്ലെങ്കിൽ {
                     // Done with parsing expression
-                    bool enable = m_exprParser.result();
+                    തർക്കം enable = m_വ്യഞ്ജകം_Parser.result();
                     UINFO(4, "ifdef() result=" << enable);
-                    if (state() == ps_EXPR_IFDEF || state() == ps_EXPR_IFNDEF) {
-                        if (state() == ps_EXPR_IFNDEF) enable = !enable;
-                        m_ifdefStack.emplace(VPreIfEntry{enable, false});
-                        if (!enable) parsingOff();
-                        statePop();
-                        goto next_tok;
-                    } else if (state() == ps_EXPR_ELSIF) {
-                        if (m_ifdefStack.empty()) {
+                    എങ്കിൽ (state() == ps_വ്യഞ്ജകം_IFDEF || state() == ps_വ്യഞ്ജകം_IFNDEF) {
+                        എങ്കിൽ (state() == ps_വ്യഞ്ജകം_IFNDEF) enable = !enable;
+                        m_ifdef_അട്ടി.emplace(VPreIfEntry{enable, അസത്യം});
+                        എങ്കിൽ (!enable) parsingOff();
+                        state_എടുക്കുക();
+                        പോകുക next_tok;
+                    } അല്ലെങ്കിൽ എങ്കിൽ (state() == ps_വ്യഞ്ജകം_ELSIF) {
+                        എങ്കിൽ (m_ifdef_അട്ടി.empty()) {
                             fileline()->v3error("`elsif with no matching `if");
-                        } else {
+                        } അല്ലെങ്കിൽ {
                             // Handle `else portion
-                            const VPreIfEntry lastIf = m_ifdefStack.top();
-                            m_ifdefStack.pop();
-                            if (!lastIf.on()) parsingOn();
+                            സ്ഥിരം VPreIfEntry lastIf = m_ifdef_അട്ടി.മുകൾ();
+                            m_ifdef_അട്ടി.എടുക്കുക();
+                            എങ്കിൽ (!lastIf.on()) parsingOn();
                             // Handle `if portion
                             enable = !lastIf.everOn() && enable;
                             UINFO(4, "Elsif " << m_lastSym << (enable ? " ON" : " OFF"));
-                            m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                            if (!enable) parsingOff();
+                            m_ifdef_അട്ടി.emplace(VPreIfEntry{enable, lastIf.everOn()});
+                            എങ്കിൽ (!enable) parsingOff();
                         }
-                        statePop();
+                        state_എടുക്കുക();
                     }
-                    goto next_tok;
+                    പോകുക next_tok;
                 }
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '!') {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "&&", 2)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "||", 2)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "->", 2)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP});
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 3 && 0 == strncmp(yyourtext(), "<->", 3)) {
-                m_exprParser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV});
-                goto next_tok;
-            } else {
-                if (VString::removeWhitespace(string{yyourtext(), yyourleng()}).empty()) {
-                    return tok;
-                } else {
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '!') {
+                m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::LNOT});
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "&&", 2)) {
+                m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::LAND});
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "||", 2)) {
+                m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::LOR});
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 2 && 0 == strncmp(yyourtext(), "->", 2)) {
+                m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::IMP});
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 3 && 0 == strncmp(yyourtext(), "<->", 3)) {
+                m_വ്യഞ്ജകം_Parser.തള്ളുക_നിവേശം(V3_Pre_വ്യഞ്ജകം_Token{flp, V3_Pre_വ്യഞ്ജകം_Token::EQV});
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ {
+                എങ്കിൽ (VString::removeWhitespace(string{yyourtext(), yyourleng()}).empty()) {
+                    തിരികെ tok;
+                } അല്ലെങ്കിൽ {
                     fileline()->v3error("Syntax error in `ifdef () expression; unexpected: '"s
                                         + tokenName(tok) + "'");
                 }
-                goto next_tok;
+                പോകുക next_tok;
             }
         }
-        case ps_DEFFORM: {
-            if (tok == VP_DEFFORM) {
-                m_formals = m_lexp->m_defValue;
-                if (debug() >= 5) {
+        അവസ്ഥ ps_DEFFORM: {
+            എങ്കിൽ (tok == VP_DEFFORM) {
+                m_formals = m_lexp->m_def_മൂല്യം;
+                എങ്കിൽ (debug() >= 5) {
                     cout << "DefFormals='" << V3PreLex::cleanDbgStrg(m_formals) << "'\n";
                 }
                 stateChange(ps_DEFVALUE);
-                m_lexp->pushStateDefValue();
-                goto next_tok;
-            } else if (tok == VP_TEXT) {
+                m_lexp->തള്ളുക_State_Def_മൂല്യം();
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT) {
                 // IE, something like comment in formals
-                if (!m_off) return tok;
-                goto next_tok;
-            } else {
+                എങ്കിൽ (!m_off) തിരികെ tok;
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ {
                 fileline()->v3error("Expecting define formal arguments. Found: "s + tokenName(tok)
                                     + "\n");
-                goto next_tok;
+                പോകുക next_tok;
             }
         }
-        case ps_DEFVALUE: {
-            static string s_newlines;
+        അവസ്ഥ ps_DEFVALUE: {
+            സ്ഥിതം string s_newlines;
             s_newlines = "\n";  // Always start with trailing return
-            if (tok == VP_DEFVALUE) {
-                if (debug() >= 5) {  // LCOV_EXCL_START
-                    cout << "DefValue='" << V3PreLex::cleanDbgStrg(m_lexp->m_defValue)
+            എങ്കിൽ (tok == VP_DEFVALUE) {
+                എങ്കിൽ (debug() >= 5) {  // LCOV_EXCL_START
+                    cout << "DefValue='" << V3PreLex::cleanDbgStrg(m_lexp->m_def_മൂല്യം)
                          << "'  formals='" << V3PreLex::cleanDbgStrg(m_formals) << "'\n";
                 }  // LCOV_EXCL_STOP
                 // Add any formals
-                const string formals = m_formals;
-                string value = m_lexp->m_defValue;
+                സ്ഥിരം string formals = m_formals;
+                string മൂല്യം = m_lexp->m_def_മൂല്യം;
                 // Remove returns
                 // Not removing returns in values has two problems,
                 // 1. we need to correct line numbers with `line after each substitution
                 // 2. Substituting in " .... " with embedded returns requires \ escape.
                 //    This is very difficult in the presence of `", so we
                 //    keep the \ before the newline.
-                for (size_t i = 0; i < formals.length(); i++) {
-                    if (formals[i] == '\n') s_newlines += "\n";
+                വേണ്ടി (size_t i = 0; i < formals.length(); i++) {
+                    എങ്കിൽ (formals[i] == '\n') s_newlines += "\n";
                 }
-                for (size_t i = 0; i < value.length(); i++) {
-                    if (value[i] == '\n') s_newlines += "\n";
+                വേണ്ടി (size_t i = 0; i < മൂല്യം.length(); i++) {
+                    എങ്കിൽ (മൂല്യം[i] == '\n') s_newlines += "\n";
                 }
-                if (!m_off) {
+                എങ്കിൽ (!m_off) {
                     // Remove leading and trailing whitespace
-                    value = trimWhitespace(value, true);
+                    മൂല്യം = trimWhitespace(മൂല്യം, സത്യം);
                     // Define it
                     UINFO(4, "Define " << m_lastSym << " " << formals << " = '"
-                                       << V3PreLex::cleanDbgStrg(value) << "'");
-                    define(fileline(), m_lastSym, value, formals, false);
+                                       << V3PreLex::cleanDbgStrg(മൂല്യം) << "'");
+                    define(fileline(), m_lastSym, മൂല്യം, formals, അസത്യം);
                 }
-            } else {
+            } അല്ലെങ്കിൽ {
                 v3fatalSrc("Bad define text, unexpected "s + tokenName(tok) + "\n");
             }
-            statePop();
+            state_എടുക്കുക();
             // DEFVALUE is terminated by a return, but lex can't return both tokens.
             // Thus, we emit a return here.
             yyourtext(s_newlines.c_str(), s_newlines.length());
-            return VP_WHITE;
+            തിരികെ VP_WHITE;
         }
-        case ps_DEFPAREN: {
-            if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
+        അവസ്ഥ ps_DEFPAREN: {
+            എങ്കിൽ (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '(') {
                 stateChange(ps_DEFARG);
-                goto next_tok;
-            } else {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ {
                 UASSERT(!m_defRefs.empty(), "Shouldn't be in DEFPAREN w/o active defref");
-                const VDefineRef* const refp = &(m_defRefs.top());
+                സ്ഥിരം VDefineRef* സ്ഥിരം refp = &(m_defRefs.മുകൾ());
                 fileline()->v3error("Expecting ( to begin argument list for define reference `"s
                                     + refp->name());
-                statePop();
-                goto next_tok;
+                state_എടുക്കുക();
+                പോകുക next_tok;
             }
         }
-        case ps_DEFARG: {
+        അവസ്ഥ ps_DEFARG: {
             UASSERT(!m_defRefs.empty(), "Shouldn't be in DEFARG w/o active defref");
-            VDefineRef* refp = &(m_defRefs.top());
-            refp->nextarg(refp->nextarg() + m_lexp->m_defValue);
-            m_lexp->m_defValue = "";
+            VDefineRef* refp = &(m_defRefs.മുകൾ());
+            refp->nextarg(refp->nextarg() + m_lexp->m_def_മൂല്യം);
+            m_lexp->m_def_മൂല്യം = "";
             UINFO(4, "defarg++ " << refp->nextarg());
-            if (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ',') {
-                refp->args().push_back(refp->nextarg());
+            എങ്കിൽ (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ',') {
+                refp->args().തള്ളുക_back(refp->nextarg());
                 stateChange(ps_DEFARG);
-                m_lexp->pushStateDefArg(1);
+                m_lexp->തള്ളുക_State_Def_Arg(1);
                 refp->nextarg("");
-                goto next_tok;
-            } else if (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ')') {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_DEFARG && yyourleng() == 1 && yyourtext()[0] == ')') {
                 // Substitute in and prepare for next action
                 // Similar code in non-parenthesized define (Search for END_OF_DEFARG)
-                refp->args().push_back(refp->nextarg());
+                refp->args().തള്ളുക_back(refp->nextarg());
                 string out;
-                if (!m_off) {
+                എങ്കിൽ (!m_off) {
                     out = defineSubst(refp);
                     // NOP: out = m_preprocp->defSubstitute(out);
                 }
-                VL_DO_DANGLING(m_defRefs.pop(), refp);
-                statePop();
-                if (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
-                    if (state()
+                VL_DO_DANGLING(m_defRefs.എടുക്കുക(), refp);
+                state_എടുക്കുക();
+                എങ്കിൽ (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
+                    എങ്കിൽ (state()
                         == ps_JOIN) {  // Handle {left}```FOO(ARG) where `FOO(ARG) might be empty
-                        UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
-                        const string lhs = m_joinStack.top();
-                        m_joinStack.pop();
-                        out.insert(0, lhs);
+                        UASSERT(!m_join_അട്ടി.empty(), "`` join stack empty, but in a ``");
+                        സ്ഥിരം string lhs = m_join_അട്ടി.മുകൾ();
+                        m_join_അട്ടി.എടുക്കുക();
+                        out.തിരുകുക(0, lhs);
                         UINFO(5, "``-end-defarg Out:" << out);
-                        statePop();
+                        state_എടുക്കുക();
                     }
-                    if (!m_off) {
+                    എങ്കിൽ (!m_off) {
                         unputDefrefString(out);
                     }
                     // Prevent problem when EMPTY="" in `ifdef NEVER `define `EMPTY
-                    else if (stateIsDefname()) {
+                    അല്ലെങ്കിൽ എങ്കിൽ (stateIsDefname()) {
                         unputDefrefString("__IF_OFF_IGNORED_DEFINE");
                     }
                     // Stringification may still be inside another macro's argument list.
-                    m_lexp->m_parenLevel = m_defRefs.empty() ? 0 : m_defRefs.top().parenLevel();
-                } else {  // Finished a defref inside a upper defref,
+                    m_lexp->m_parenLevel = m_defRefs.empty() ? 0 : m_defRefs.മുകൾ().parenLevel();
+                } അല്ലെങ്കിൽ {  // Finished a defref inside a upper defref,
                           // and not under stringification or join.
                     // Can't subst now, or
                     // `define a(ign) x,y
                     // foo(`a(ign),`b)  would break because a contains comma
-                    refp = &(m_defRefs.top());  // We popped, so new top
-                    refp->nextarg(refp->nextarg() + m_lexp->m_defValue + out);
-                    m_lexp->m_defValue = "";
+                    refp = &(m_defRefs.മുകൾ());  // We popped, so new top
+                    refp->nextarg(refp->nextarg() + m_lexp->m_def_മൂല്യം + out);
+                    m_lexp->m_def_മൂല്യം = "";
                     m_lexp->m_parenLevel = refp->parenLevel();
                     // Will go to ps_DEFARG, as we're under another define
                 }
-                goto next_tok;
-            } else if (tok == VP_DEFREF) {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_DEFREF) {
                 // Expand it, then state will come back here
                 // Value of building argument is data before the lower defref
                 // we'll append it when we push the argument.
-                break;
-            } else if (tok == VP_SYMBOL || tok == VP_STRING || tok == VP_TEXT || tok == VP_WHITE) {
+                നിർത്തുക;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_ചിഹ്നം || tok == VP_STRING || tok == VP_TEXT || tok == VP_WHITE) {
                 string rtn;
                 rtn.assign(yyourtext(), yyourleng());
                 refp->nextarg(refp->nextarg() + rtn);
-                goto next_tok;
-            } else if (tok == VP_STRIFY) {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_STRIFY) {
                 // We must expand stringification, when done will return to this state
-                statePush(ps_STRIFY);
-                goto next_tok;
-            } else {
+                state_തള്ളുക(ps_STRIFY);
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ {
                 fileline()->v3error(
                     "Expecting ) or , to end argument list for define reference. Found: "s
                     + tokenName(tok));
-                statePop();
-                goto next_tok;
+                state_എടുക്കുക();
+                പോകുക next_tok;
             }
         }
-        case ps_INCNAME: {
-            if (tok == VP_STRING) {
-                statePop();
+        അവസ്ഥ ps_INCNAME: {
+            എങ്കിൽ (tok == VP_STRING) {
+                state_എടുക്കുക();
                 m_lastSym.assign(yyourtext(), yyourleng());
                 UINFO(4, "Include " << m_lastSym);
                 // Drop leading and trailing quotes.
                 m_lastSym.erase(0, 1);
                 m_lastSym.erase(m_lastSym.length() - 1, 1);
                 include(m_lastSym);
-                goto next_tok;
-            } else if (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '<') {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_TEXT && yyourleng() == 1 && yyourtext()[0] == '<') {
                 // include <filename>
                 stateChange(ps_INCNAME);  // Still
-                m_lexp->pushStateIncFilename();
-                goto next_tok;
-            } else if (tok == VP_DEFREF || tok == VP_STRIFY) {
+                m_lexp->തള്ളുക_State_Inc_Filename();
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_DEFREF || tok == VP_STRIFY) {
                 // Expand it, then state will come back here
-                break;
-            } else {
-                statePop();
+                നിർത്തുക;
+            } അല്ലെങ്കിൽ {
+                state_എടുക്കുക();
                 fileline()->v3error("Expecting include filename. Found: "s + tokenName(tok));
-                goto next_tok;
+                പോകുക next_tok;
             }
             // GCC 13.3.0 with -O0 throws a false 'this statement may fall through' without this:
             VL_UNREACHABLE;
         }
-        case ps_ERRORNAME: {
-            if (tok == VP_STRING) {
-                if (!m_off) {
+        അവസ്ഥ ps_ERRORNAME: {
+            എങ്കിൽ (tok == VP_STRING) {
+                എങ്കിൽ (!m_off) {
                     m_lastSym.assign(yyourtext(), yyourleng());
                     fileline()->v3error(m_lastSym);
                 }
-                statePop();
-                goto next_tok;
-            } else {
+                state_എടുക്കുക();
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ {
                 fileline()->v3error("Expecting `error string. Found: "s + tokenName(tok));
-                statePop();
-                goto next_tok;
+                state_എടുക്കുക();
+                പോകുക next_tok;
             }
         }
-        case ps_JOIN: {
-            if (tok == VP_SYMBOL || tok == VP_TEXT || tok == VP_STRING || tok == VP_WHITE) {
-                UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
-                const string lhs = m_joinStack.top();
-                m_joinStack.pop();
+        അവസ്ഥ ps_JOIN: {
+            എങ്കിൽ (tok == VP_ചിഹ്നം || tok == VP_TEXT || tok == VP_STRING || tok == VP_WHITE) {
+                UASSERT(!m_join_അട്ടി.empty(), "`` join stack empty, but in a ``");
+                സ്ഥിരം string lhs = m_join_അട്ടി.മുകൾ();
+                m_join_അട്ടി.എടുക്കുക();
                 UINFO(5, "`` LHS:" << lhs);
-                const string rhs(yyourtext(), yyourleng());
+                സ്ഥിരം string rhs(yyourtext(), yyourleng());
                 UINFO(5, "`` RHS:" << rhs);
-                const string out = lhs + rhs;
+                സ്ഥിരം string out = lhs + rhs;
                 UINFO(5, "`` Out:" << out);
                 unputString(out);
-                statePop();
-                goto next_tok;
-            } else if (tok == VP_EOF || tok == VP_COMMENT) {
+                state_എടുക്കുക();
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_EOF || tok == VP_COMMENT) {
                 // Other compilers just ignore this, so no warning
                 // "Expecting symbol to terminate ``; whitespace etc cannot
                 // follow ``. Found: "+tokenName(tok)+"\n"
-                const string lhs = m_joinStack.top();
-                m_joinStack.pop();
+                സ്ഥിരം string lhs = m_join_അട്ടി.മുകൾ();
+                m_join_അട്ടി.എടുക്കുക();
                 unputString(lhs);
-                statePop();
-                goto next_tok;
-            } else {
+                state_എടുക്കുക();
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ {
                 // `define, etc, fall through and expand.  Pop back here.
-                break;
+                നിർത്തുക;
             }
         }
-        case ps_STRIFY: {
-            if (tok == VP_STRIFY) {
+        അവസ്ഥ ps_STRIFY: {
+            എങ്കിൽ (tok == VP_STRIFY) {
                 // Quote what's in the middle of the stringification
                 // Note a `" MACRO_WITH(`") `" doesn't need to be handled (we don't need a stack)
                 // That behavior isn't specified, and other simulators vary widely
@@ -1540,277 +1540,277 @@ int V3PreProcImp::getStateToken() {
                 // The spec is silent about this either way; simulators vary
                 std::replace(out.begin(), out.end(), '\n', ' ');
                 unputString("\""s + out + "\"");
-                statePop();
-                goto next_tok;
-            } else if (tok == VP_EOF) {
+                state_എടുക്കുക();
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_EOF) {
                 fileline()->v3error("`\" not terminated at EOF");
-                break;
-            } else if (tok == VP_BACKQUOTE) {
+                നിർത്തുക;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_BACKQUOTE) {
                 m_strify += "\\\"";
-                goto next_tok;
-            } else if (tok == VP_DEFREF) {
+                പോകുക next_tok;
+            } അല്ലെങ്കിൽ എങ്കിൽ (tok == VP_DEFREF) {
                 // Spec says to expand macros inside `"
                 // Substitute it into the stream, then return here
-                break;
-            } else {
+                നിർത്തുക;
+            } അല്ലെങ്കിൽ {
                 // Append token to eventual string
                 m_strify.append(yyourtext(), yyourleng());
-                goto next_tok;
+                പോകുക next_tok;
             }
         }
-        default: v3fatalSrc("Bad case");
+        സ്ഥിരസ്ഥിതി: v3fatalSrc("Bad case");
         }
         // Default is to do top level expansion of some tokens
-        switch (tok) {
-        case VP_INCLUDE:
-            if (!m_off) {
-                statePush(ps_INCNAME);
+        തിരഞ്ഞെടുപ്പ് (tok) {
+        അവസ്ഥ VP_INCLUDE:
+            എങ്കിൽ (!m_off) {
+                state_തള്ളുക(ps_INCNAME);
             }  // Else incname looks like normal text, that will be ignored
-            goto next_tok;
-        case VP_UNDEF: statePush(ps_DEFNAME_UNDEF); goto next_tok;
-        case VP_DEFINE:
+            പോകുക next_tok;
+        അവസ്ഥ VP_UNDEF: state_തള്ളുക(ps_DEFNAME_UNDEF); പോകുക next_tok;
+        അവസ്ഥ VP_DEFINE:
             // No m_off check here, as a `ifdef NEVER `define FOO(`endif)  should work
-            statePush(ps_DEFNAME_DEFINE);
-            goto next_tok;
-        case VP_IFDEF: statePush(ps_DEFNAME_IFDEF); goto next_tok;
-        case VP_IFNDEF: statePush(ps_DEFNAME_IFNDEF); goto next_tok;
-        case VP_ELSIF: statePush(ps_DEFNAME_ELSIF); goto next_tok;
-        case VP_ELSE:
-            if (m_ifdefStack.empty()) {
+            state_തള്ളുക(ps_DEFNAME_DEFINE);
+            പോകുക next_tok;
+        അവസ്ഥ VP_IFDEF: state_തള്ളുക(ps_DEFNAME_IFDEF); പോകുക next_tok;
+        അവസ്ഥ VP_IFNDEF: state_തള്ളുക(ps_DEFNAME_IFNDEF); പോകുക next_tok;
+        അവസ്ഥ VP_ELSIF: state_തള്ളുക(ps_DEFNAME_ELSIF); പോകുക next_tok;
+        അവസ്ഥ VP_ELSE:
+            എങ്കിൽ (m_ifdef_അട്ടി.empty()) {
                 fileline()->v3error("`else with no matching `if");
-            } else {
-                const VPreIfEntry lastIf = m_ifdefStack.top();
-                m_ifdefStack.pop();
-                const bool enable = !lastIf.everOn();
+            } അല്ലെങ്കിൽ {
+                സ്ഥിരം VPreIfEntry lastIf = m_ifdef_അട്ടി.മുകൾ();
+                m_ifdef_അട്ടി.എടുക്കുക();
+                സ്ഥിരം തർക്കം enable = !lastIf.everOn();
                 UINFO(4, "Else " << (enable ? " ON" : " OFF"));
-                m_ifdefStack.emplace(VPreIfEntry{enable, lastIf.everOn()});
-                if (!lastIf.on()) parsingOn();
-                if (!enable) parsingOff();
+                m_ifdef_അട്ടി.emplace(VPreIfEntry{enable, lastIf.everOn()});
+                എങ്കിൽ (!lastIf.on()) parsingOn();
+                എങ്കിൽ (!enable) parsingOff();
             }
-            goto next_tok;
-        case VP_ENDIF:
+            പോകുക next_tok;
+        അവസ്ഥ VP_ENDIF:
             UINFO(4, "Endif ");
-            if (m_ifdefStack.empty()) {
+            എങ്കിൽ (m_ifdef_അട്ടി.empty()) {
                 fileline()->v3error("`endif with no matching `if");
-            } else {
-                const VPreIfEntry lastIf = m_ifdefStack.top();
-                m_ifdefStack.pop();
-                if (!lastIf.on()) parsingOn();
+            } അല്ലെങ്കിൽ {
+                സ്ഥിരം VPreIfEntry lastIf = m_ifdef_അട്ടി.മുകൾ();
+                m_ifdef_അട്ടി.എടുക്കുക();
+                എങ്കിൽ (!lastIf.on()) parsingOn();
                 // parsingOn() really only enables parsing if
                 // all ifdef's above this want it on
             }
-            goto next_tok;
+            പോകുക next_tok;
 
-        case VP_DEFREF: {
+        അവസ്ഥ VP_DEFREF: {
             // m_off not right here, but inside substitution, to make this work:
             // `ifdef NEVER `DEFUN(`endif)
-            const string name(yyourtext() + 1, yyourleng() - 1);
+            സ്ഥിരം string name(yyourtext() + 1, yyourleng() - 1);
             UINFO(4, "DefRef " << name);
-            if (m_defPutJoin) {
-                m_defPutJoin = false;
+            എങ്കിൽ (m_defPutJoin) {
+                m_defPutJoin = അസത്യം;
                 unputString("``");
             }
-            if (m_defDepth++ > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
+            എങ്കിൽ (m_defDepth++ > V3PreProc::DEFINE_RECURSION_LEVEL_MAX) {
                 fileline()->v3error("Recursive `define substitution: `" + name);
-                goto next_tok;
+                പോകുക next_tok;
             }
             // Substitute
-            if (!defExists(name)) {  // Not found, return original string as-is
+            എങ്കിൽ (!defExists(name)) {  // Not found, return original string as-is
                 m_defDepth = 0;
                 UINFO(4, "Defref `" << name << " => not_defined");
-                if (m_off) {
-                    goto next_tok;
-                } else {
+                എങ്കിൽ (m_off) {
+                    പോകുക next_tok;
+                } അല്ലെങ്കിൽ {
                     // We want final text of `name, but that would cause
                     // recursion, so use a special character to get it through
                     unputDefrefString("`\032"s + name);
-                    goto next_tok;
+                    പോകുക next_tok;
                 }
-            } else {
-                const string params = defParams(name);
-                if (params == "0" || params == "") {  // Found, as simple substitution
+            } അല്ലെങ്കിൽ {
+                സ്ഥിരം string params = defParams(name);
+                എങ്കിൽ (params == "0" || params == "") {  // Found, as simple substitution
                     string out;
-                    if (!m_off) {
+                    എങ്കിൽ (!m_off) {
                         VDefineRef tempref{name, ""};
                         out = defineSubst(&tempref);
                     }
                     // Similar code in parenthesized define (Search for END_OF_DEFARG)
                     // NOP: out = m_preprocp->defSubstitute(out);
-                    if (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
+                    എങ്കിൽ (m_defRefs.empty() || state() == ps_STRIFY || state() == ps_JOIN) {
                         // Just output the substitution
-                        if (state() == ps_JOIN) {  // Handle {left}```FOO where `FOO might be empty
-                            UASSERT(!m_joinStack.empty(), "`` join stack empty, but in a ``");
-                            const string lhs = m_joinStack.top();
-                            m_joinStack.pop();
-                            out.insert(0, lhs);
+                        എങ്കിൽ (state() == ps_JOIN) {  // Handle {left}```FOO where `FOO might be empty
+                            UASSERT(!m_join_അട്ടി.empty(), "`` join stack empty, but in a ``");
+                            സ്ഥിരം string lhs = m_join_അട്ടി.മുകൾ();
+                            m_join_അട്ടി.എടുക്കുക();
+                            out.തിരുകുക(0, lhs);
                             UINFO(5, "``-end-defref Out:" << out);
-                            statePop();
+                            state_എടുക്കുക();
                         }
-                        if (!m_off) {
+                        എങ്കിൽ (!m_off) {
                             unputDefrefString(out);
                         }
                         // Prevent problem when EMPTY="" in `ifdef NEVER `define `EMPTY
-                        else if (stateIsDefname()) {
+                        അല്ലെങ്കിൽ എങ്കിൽ (stateIsDefname()) {
                             unputDefrefString("__IF_OFF_IGNORED_DEFINE");
                         }
-                    } else {
+                    } അല്ലെങ്കിൽ {
                         // Inside another define, and not under stringification or join.
                         // Can't subst now, or
                         // `define a x,y
                         // foo(`a,`b)  would break because a contains comma
-                        VDefineRef* const refp = &(m_defRefs.top());
-                        refp->nextarg(refp->nextarg() + m_lexp->m_defValue + out);
-                        m_lexp->m_defValue = "";
+                        VDefineRef* സ്ഥിരം refp = &(m_defRefs.മുകൾ());
+                        refp->nextarg(refp->nextarg() + m_lexp->m_def_മൂല്യം + out);
+                        m_lexp->m_def_മൂല്യം = "";
                     }
-                    goto next_tok;
-                } else {  // Found, with parameters
+                    പോകുക next_tok;
+                } അല്ലെങ്കിൽ {  // Found, with parameters
                     UINFO(4, "Defref `" << name << " => parameterized");
                     // The CURRENT macro needs the paren saved, it's not a
                     // property of the child macro
-                    if (!m_defRefs.empty()) m_defRefs.top().parenLevel(m_lexp->m_parenLevel);
+                    എങ്കിൽ (!m_defRefs.empty()) m_defRefs.മുകൾ().parenLevel(m_lexp->m_parenLevel);
                     m_defRefs.emplace(VDefineRef{name, params});
-                    statePush(ps_DEFPAREN);
-                    m_lexp->pushStateDefArg(0);
-                    goto next_tok;
+                    state_തള്ളുക(ps_DEFPAREN);
+                    m_lexp->തള്ളുക_State_Def_Arg(0);
+                    പോകുക next_tok;
                 }
             }
             v3fatalSrc("Bad case");  // FALLTHRU
-            goto next_tok;  // above fatal means unreachable, but fixes static analysis warning
+            പോകുക next_tok;  // above fatal means unreachable, but fixes static analysis warning
         }
-        case VP_ERROR: {
-            statePush(ps_ERRORNAME);
-            goto next_tok;
+        അവസ്ഥ VP_ERROR: {
+            state_തള്ളുക(ps_ERRORNAME);
+            പോകുക next_tok;
         }
-        case VP_EOF:
-            if (!m_ifdefStack.empty()) fileline()->v3error("`ifdef not terminated at EOF");
-            return tok;
-        case VP_UNDEFINEALL:
-            if (!m_off) {
+        അവസ്ഥ VP_EOF:
+            എങ്കിൽ (!m_ifdef_അട്ടി.empty()) fileline()->v3error("`ifdef not terminated at EOF");
+            തിരികെ tok;
+        അവസ്ഥ VP_UNDEFINEALL:
+            എങ്കിൽ (!m_off) {
                 UINFO(4, "Undefineall ");
                 undefineall();
             }
-            goto next_tok;
-        case VP_STRIFY:
+            പോകുക next_tok;
+        അവസ്ഥ VP_STRIFY:
             // We must expand macros in the body of the stringification
             // Then, when done, form a final string to return
             // (it could be used as a include filename, for example, so need the string token)
-            statePush(ps_STRIFY);
-            goto next_tok;
-        case VP_SYMBOL:
-        case VP_STRING:
-        case VP_TEXT: {
+            state_തള്ളുക(ps_STRIFY);
+            പോകുക next_tok;
+        അവസ്ഥ VP_ചിഹ്നം:
+        അവസ്ഥ VP_STRING:
+        അവസ്ഥ VP_TEXT: {
             m_defDepth = 0;
-            if (!m_off) {
-                return tok;
-            } else {
-                goto next_tok;
+            എങ്കിൽ (!m_off) {
+                തിരികെ tok;
+            } അല്ലെങ്കിൽ {
+                പോകുക next_tok;
             }
         }
-        case VP_WHITE:  // Handled at top of loop
-        case VP_COMMENT:  // Handled at top of loop
-        case VP_DEFFORM:  // Handled by state=ps_DEFFORM;
-        case VP_DEFVALUE:  // Handled by state=ps_DEFVALUE;
-        default:  // LCOV_EXCL_LINE
+        അവസ്ഥ VP_WHITE:  // Handled at top of loop
+        അവസ്ഥ VP_COMMENT:  // Handled at top of loop
+        അവസ്ഥ VP_DEFFORM:  // Handled by state=ps_DEFFORM;
+        അവസ്ഥ VP_DEFVALUE:  // Handled by state=ps_DEFVALUE;
+        സ്ഥിരസ്ഥിതി:  // LCOV_EXCL_LINE
             v3fatalSrc("Internal error: Unexpected token "s + tokenName(tok) + "\n");
-            break;  // LCOV_EXCL_LINE
+            നിർത്തുക;  // LCOV_EXCL_LINE
         }
-        return tok;
+        തിരികെ tok;
     }
 }
 
-int V3PreProcImp::getFinalToken(string& buf) {
+പൂർണ്ണസംഖ്യ V3PreProcImp::getFinalToken(string& buf) {
     // Return the next user-visible token in the input stream.
     // Includes and such are handled here, and are never seen by the caller.
-    if (!m_finAhead) {
-        m_finAhead = true;
+    എങ്കിൽ (!m_finAhead) {
+        m_finAhead = സത്യം;
         m_finToken = getStateToken();
         m_finBuf.assign(yyourtext(), yyourleng());
     }
-    const int tok = m_finToken;
+    സ്ഥിരം പൂർണ്ണസംഖ്യ tok = m_finToken;
     buf = m_finBuf;
-    if (false && debug() >= 5) {
-        const string bufcln = V3PreLex::cleanDbgStrg(buf);
-        const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+    എങ്കിൽ (അസത്യം && debug() >= 5) {
+        സ്ഥിരം string bufcln = V3PreLex::cleanDbgStrg(buf);
+        സ്ഥിരം string flcol = m_lexp->m_tokFilelinep->ascii_വരി_Col();
         UINFO(0, flcol << ": FIN:      " << tokenName(tok) << ": " << bufcln);
     }
     // Track `line
-    const char* bufp = buf.c_str();
-    while (*bufp == '\n') bufp++;
-    if ((tok == VP_TEXT || tok == VP_LINE) && VString::startsWith(bufp, "`line ")) {
-        int enter;
-        m_finFilelinep->lineDirective(bufp, enter /*ref*/);
-    } else {
-        if (m_finAtBol && !(tok == VP_TEXT && buf == "\n") && m_preprocp->lineDirectives()) {
-            if (const int outBehind
+    സ്ഥിരം അക്ഷരം* bufp = buf.c_str();
+    ആകുമ്പോൾ (*bufp == '\n') bufp++;
+    എങ്കിൽ ((tok == VP_TEXT || tok == VP_വരി) && VString::startsWith(bufp, "`line ")) {
+        പൂർണ്ണസംഖ്യ enter;
+        m_finFilelinep->വരി_Directive(bufp, enter /*ref*/);
+    } അല്ലെങ്കിൽ {
+        എങ്കിൽ (m_finAtBol && !(tok == VP_TEXT && buf == "\n") && m_preprocp->വരി_Directives()) {
+            എങ്കിൽ (സ്ഥിരം പൂർണ്ണസംഖ്യ outBehind
                 = (m_lexp->m_tokFilelinep->lastLineno() - m_finFilelinep->lastLineno())) {
-                if (debug() >= 5) {
-                    const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+                എങ്കിൽ (debug() >= 5) {
+                    സ്ഥിരം string flcol = m_lexp->m_tokFilelinep->ascii_വരി_Col();
                     UINFO(0, flcol << ": FIN: readjust, fin at " << m_finFilelinep->lastLineno()
                                    << "  request at " << m_lexp->m_tokFilelinep->lastLineno());
                 }
                 m_finFilelinep->filename(m_lexp->m_tokFilelinep->filename());
                 m_finFilelinep->lineno(m_lexp->m_tokFilelinep->lastLineno());
-                if (outBehind > 0
-                    && (outBehind <= static_cast<int>(V3PreProc::NEWLINES_VS_TICKLINE))) {
+                എങ്കിൽ (outBehind > 0
+                    && (outBehind <= static_cast<പൂർണ്ണസംഖ്യ>(V3PreProc::NEWLINES_VS_TICKLINE))) {
                     // Output stream is behind, send newlines to get back in sync
                     // (Most likely because we're completing a disabled `endif)
-                    if (m_preprocp->keepWhitespace()) {
+                    എങ്കിൽ (m_preprocp->keepWhitespace()) {
                         buf = std::string(outBehind, '\n');  // () for char repeat
-                        return VP_TEXT;
+                        തിരികെ VP_TEXT;
                     }
-                } else {
+                } അല്ലെങ്കിൽ {
                     // Need to backup, use `line
-                    buf = m_finFilelinep->lineDirectiveStrg(0);
-                    return VP_LINE;
+                    buf = m_finFilelinep->വരി_Directive_Strg(0);
+                    തിരികെ VP_വരി;
                 }
             }
         }
         // Track newlines in prep for next token
-        for (const char& c : buf) {
-            if (c == '\n') {
-                m_finAtBol = true;
+        വേണ്ടി (സ്ഥിരം അക്ഷരം& c : buf) {
+            എങ്കിൽ (c == '\n') {
+                m_finAtBol = സത്യം;
                 m_finFilelinep->linenoInc();
-            } else {
-                m_finAtBol = false;
+            } അല്ലെങ്കിൽ {
+                m_finAtBol = അസത്യം;
             }
         }
     }
-    m_finAhead = false;  // Consumed the token
-    return tok;
+    m_finAhead = അസത്യം;  // Consumed the token
+    തിരികെ tok;
 }
 
 string V3PreProcImp::getline() {
     // Get a single line from the parse stream.  Buffer unreturned text until the newline.
-    if (isEof()) return "";
-    const char* rtnp;
-    bool gotEof = false;
-    while (nullptr == (rtnp = std::strchr(m_lineChars.c_str(), '\n')) && !gotEof) {
+    എങ്കിൽ (isEof()) തിരികെ "";
+    സ്ഥിരം അക്ഷരം* rtnp;
+    തർക്കം gotEof = അസത്യം;
+    ആകുമ്പോൾ (nullptr == (rtnp = std::strchr(m_വരി_Chars.c_str(), '\n')) && !gotEof) {
         m_tokenBuf.clear();
-        const int tok = getFinalToken(m_tokenBuf /*ref*/);
-        if (debug() >= 5) {
-            const string bufcln = V3PreLex::cleanDbgStrg(m_tokenBuf);
-            const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+        സ്ഥിരം പൂർണ്ണസംഖ്യ tok = getFinalToken(m_tokenBuf /*ref*/);
+        എങ്കിൽ (debug() >= 5) {
+            സ്ഥിരം string bufcln = V3PreLex::cleanDbgStrg(m_tokenBuf);
+            സ്ഥിരം string flcol = m_lexp->m_tokFilelinep->ascii_വരി_Col();
             UINFO(0, flcol << ": GETFETC:  " << tokenName(tok) << ": " << bufcln);
         }
-        if (tok == VP_EOF) {
+        എങ്കിൽ (tok == VP_EOF) {
             // Add a final newline, if the user forgot the final \n.
-            if (m_lineChars != "" && m_lineChars[m_lineChars.length() - 1] != '\n') {
-                m_lineChars.append("\n");
+            എങ്കിൽ (m_വരി_Chars != "" && m_വരി_Chars[m_വരി_Chars.length() - 1] != '\n') {
+                m_വരി_Chars.append("\n");
             }
-            gotEof = true;
-        } else {
-            m_lineChars.append(m_tokenBuf);
+            gotEof = സത്യം;
+        } അല്ലെങ്കിൽ {
+            m_വരി_Chars.append(m_tokenBuf);
         }
     }
 
     // Make new string with data up to the newline.
-    const int len = rtnp - m_lineChars.c_str() + 1;
-    string theLine(m_lineChars, 0, len);
-    m_lineChars = m_lineChars.erase(0, len);  // Remove returned characters
-    if (debug() >= 4) {
-        const string lncln = V3PreLex::cleanDbgStrg(theLine);
-        const string flcol = m_lexp->m_tokFilelinep->asciiLineCol();
+    സ്ഥിരം പൂർണ്ണസംഖ്യ len = rtnp - m_വരി_Chars.c_str() + 1;
+    string the_വരി(m_വരി_Chars, 0, len);
+    m_വരി_Chars = m_വരി_Chars.erase(0, len);  // Remove returned characters
+    എങ്കിൽ (debug() >= 4) {
+        സ്ഥിരം string lncln = V3PreLex::cleanDbgStrg(the_വരി);
+        സ്ഥിരം string flcol = m_lexp->m_tokFilelinep->ascii_വരി_Col();
         UINFO(0, flcol << ": GETLINE:  " << lncln);
     }
-    return theLine;
+    തിരികെ the_വരി;
 }

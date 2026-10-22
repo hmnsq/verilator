@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#അന്തര്ഭാവ "V3Order.h"
+#അന്തര്ഭാവ "V3OrderGraph.h"
+#അന്തര്ഭാവ "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#അന്തര്ഭാവ <string>
+#അന്തര്ഭാവ <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(സ്ഥിരം V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            സ്ഥിരം std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            സ്ഥിരം V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+ശൂന്യം orderOrderGraph(OrderGraph& graph, സ്ഥിരം std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+ശൂന്യം processDomains(OrderGraph& graph,  //
+                    സ്ഥിരം std::string& tag,  //
+                    സ്ഥിരം ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_കണ്ണി_Stmt* createSerial(OrderMoveGraph& moveGraph, സ്ഥിരം std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_കണ്ണി_Stmt* createParallel(OrderMoveGraph& moveGraph, സ്ഥിരം std::string& tag, bool slow);
 
 };  // namespace V3Order
 

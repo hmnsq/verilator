@@ -23,32 +23,32 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Life.h"
+#അന്തര്ഭാവ "V3Life.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#അന്തര്ഭാവ "V3Const.h"
+#അന്തര്ഭാവ "V3Stats.h"
 
-#include <vector>
+#അന്തര്ഭാവ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Structure for global state
 
-class LifeState final {
+വർഗ്ഗം LifeState final {
     // NODE STATE
     //   See below
-    const VNUser1InUse m_inuser1;
+    സ്ഥിരം VNUser1InUse m_inuser1;
 
     // STATE
-public:
+പൊതു:
     VDouble0 m_statAssnDel;  // Statistic tracking
     VDouble0 m_statAssnCon;  // Statistic tracking
 
     // CONSTRUCTORS
-    LifeState() = default;
+    LifeState() = സ്ഥിരസ്ഥിതി;
     ~LifeState() {
         V3Stats::addStatSum("Optimizations, Lifetime assign deletions", m_statAssnDel);
         V3Stats::addStatSum("Optimizations, Lifetime constant prop", m_statAssnCon);
@@ -58,70 +58,70 @@ public:
 //######################################################################
 // Structure for each variable encountered
 
-class LifeVarEntry final {
+വർഗ്ഗം LifeVarEntry final {
     // Last assignment to this varscope, nullptr if no longer relevant
-    AstNodeStmt* m_assignp = nullptr;  // Last simple assignment
+    Ast_കണ്ണി_Stmt* m_assignp = nullptr;  // Last simple assignment
     AstConst* m_constp = nullptr;  // Known constant value
-    bool m_isNew = true;  // Is just created
+    തർക്കം m_isNew = സത്യം;  // Is just created
     // First access was a set (and thus block above may have a set that can be deleted
-    bool m_setBeforeUse = false;
+    തർക്കം m_setBeforeUse = അസത്യം;
     // Was ever assigned (and thus above block may not preserve constant propagation)
-    bool m_everSet = false;
+    തർക്കം m_everSet = അസത്യം;
 
-public:
-    LifeVarEntry() = default;
-    ~LifeVarEntry() = default;
+പൊതു:
+    LifeVarEntry() = സ്ഥിരസ്ഥിതി;
+    ~LifeVarEntry() = സ്ഥിരസ്ഥിതി;
 
-    void init(bool setBeforeUse) {
+    ശൂന്യം init(തർക്കം setBeforeUse) {
         UASSERT(m_isNew, "Not a new entry");
-        m_isNew = false;
+        m_isNew = അസത്യം;
         m_setBeforeUse = setBeforeUse;
     }
-    string ascii() const {  // LCOV_EXCL_START
+    string ascii() സ്ഥിരം {  // LCOV_EXCL_START
         std::ostringstream os;
         os << "[Life ";
-        if (m_isNew) os << " isNew";
-        if (m_setBeforeUse) os << " setBeforeUse";
-        if (m_everSet) os << " everSet";
-        if (m_assignp) os << " assignp=" << AstNode::nodeAddr(m_assignp);
-        if (m_constp) os << " constp=" << AstNode::nodeAddr(m_constp);
+        എങ്കിൽ (m_isNew) os << " isNew";
+        എങ്കിൽ (m_setBeforeUse) os << " setBeforeUse";
+        എങ്കിൽ (m_everSet) os << " everSet";
+        എങ്കിൽ (m_assignp) os << " assignp=" << Ast_കണ്ണി::കണ്ണി_Addr(m_assignp);
+        എങ്കിൽ (m_constp) os << " constp=" << Ast_കണ്ണി::കണ്ണി_Addr(m_constp);
         os << "]";
-        return os.str();
+        തിരികെ os.str();
     }  // LCOV_EXCL_STOP
 
-    void simpleAssign(AstNodeStmt* nodep) {  // New simple A=.... assignment
+    ശൂന്യം simpleAssign(Ast_കണ്ണി_Stmt* nodep) {  // New simple A=.... assignment
         UASSERT_OBJ(!m_isNew, nodep, "Uninitialized new entry");
         m_assignp = nodep;
         m_constp = nullptr;
-        m_everSet = true;
-        if (AstNodeAssign* const assp = VN_CAST(nodep, Assign)) {
-            if (VN_IS(assp->rhsp(), Const)) {
+        m_everSet = സത്യം;
+        എങ്കിൽ (Ast_കണ്ണി_Assign* സ്ഥിരം assp = VN_CAST(nodep, Assign)) {
+            എങ്കിൽ (VN_IS(assp->rhsp(), Const)) {
                 m_constp = VN_AS(assp->rhsp(), Const);
                 UINFO(9, "assign-const " << assp->rhsp() << " = " << m_constp);
             }
         }
     }
-    void complexAssign() {  // A[x]=... or some complicated assignment
+    ശൂന്യം complexAssign() {  // A[x]=... or some complicated assignment
         UASSERT(!m_isNew, "Uninitialized new entry");
         m_assignp = nullptr;
         m_constp = nullptr;
-        m_everSet = true;
+        m_everSet = സത്യം;
     }
-    void consumed() {  // Rvalue read of A
+    ശൂന്യം consumed() {  // Rvalue read of A
         UASSERT(!m_isNew, "Uninitialized new entry");
         m_assignp = nullptr;
     }
-    AstNodeStmt* assignp() const { return m_assignp; }
-    AstConst* constNodep() const { return m_constp; }
-    bool isNew() const { return m_isNew; }
-    bool setBeforeUse() const { return m_setBeforeUse; }
-    bool everSet() const { return m_everSet; }
+    Ast_കണ്ണി_Stmt* assignp() സ്ഥിരം { തിരികെ m_assignp; }
+    AstConst* constNodep() സ്ഥിരം { തിരികെ m_constp; }
+    തർക്കം isNew() സ്ഥിരം { തിരികെ m_isNew; }
+    തർക്കം setBeforeUse() സ്ഥിരം { തിരികെ m_setBeforeUse; }
+    തർക്കം everSet() സ്ഥിരം { തിരികെ m_everSet; }
 };
 
 //######################################################################
 // Structure for all variables under a given meta-basic block
 
-class LifeBlock final {
+വർഗ്ഗം LifeBlock final {
     // NODE STATE
     // Cleared each AstIf:
     //   AstVarScope::user1()   -> uint64_t.  Used in combining to detect duplicates
@@ -130,27 +130,27 @@ class LifeBlock final {
     // For each basic block, we'll make a new map of what variables that if/else is changing
     // Current active lifetime map for current scope
     std::unordered_map<AstVarScope*, LifeVarEntry> m_map;
-    LifeBlock* const m_aboveLifep;  // Upper life, or nullptr
-    LifeState* const m_statep;  // Current global state
-    bool m_noopt = false;  // Opaque operation seen; invalidates the block above at exit
-    bool m_replacedVref = false;  // Replaced a variable reference since last clearing
+    LifeBlock* സ്ഥിരം m_aboveLifep;  // Upper life, or nullptr
+    LifeState* സ്ഥിരം m_statep;  // Current global state
+    തർക്കം m_noopt = അസത്യം;  // Opaque operation seen; invalidates the block above at exit
+    തർക്കം m_replacedVref = അസത്യം;  // Replaced a variable reference since last clearing
     VNDeleter m_deleter;  // Used to delay deletion of nodes
 
-public:
+പൊതു:
     LifeBlock(LifeBlock* aboveLifep, LifeState* statep)
         : m_aboveLifep{aboveLifep}  // Null if top
         , m_statep{statep} {}
-    ~LifeBlock() = default;
+    ~LifeBlock() = സ്ഥിരസ്ഥിതി;
     // METHODS
-    void checkRemoveAssign(const AstVarScope* vscp, LifeVarEntry& entr) {
-        const AstVar* const varp = vscp->varp();
+    ശൂന്യം checkRemoveAssign(സ്ഥിരം AstVarScope* vscp, LifeVarEntry& entr) {
+        സ്ഥിരം AstVar* സ്ഥിരം varp = vscp->varp();
         // We don't optimize any public sigs
-        if (varp->isSigPublic()) return;
-        if (varp->isReadByDpi()) return;
-        if (varp->sensIfacep()) return;
+        എങ്കിൽ (varp->isSigPublic()) തിരികെ;
+        എങ്കിൽ (varp->isReadByDpi()) തിരികെ;
+        എങ്കിൽ (varp->sensIfacep()) തിരികെ;
         // Check the var entry, and remove if appropriate
-        AstNodeStmt* const oldassp = entr.assignp();
-        if (!oldassp) return;
+        Ast_കണ്ണി_Stmt* സ്ഥിരം oldassp = entr.assignp();
+        എങ്കിൽ (!oldassp) തിരികെ;
         UINFO(7, "       PREV: " << oldassp);
         // Redundant assignment, in same level block
         // Don't delete it now as it will confuse iteration since it maybe WAY
@@ -159,113 +159,113 @@ public:
         entr.complexAssign();
         oldassp->unlinkFrBack();
         ++m_statep->m_statAssnDel;
-        VL_DO_DANGLING(m_deleter.pushDeletep(oldassp), oldassp);
+        VL_DO_DANGLING(m_deleter.തള്ളുക_Deletep(oldassp), oldassp);
     }
-    void simpleAssign(AstVarScope* nodep, AstNodeStmt* assp) {
+    ശൂന്യം simpleAssign(AstVarScope* nodep, Ast_കണ്ണി_Stmt* assp) {
         // Do we have a old assignment we can nuke?
         UINFO(4, "     ASSIGNof: " << nodep);
         UINFO(7, "       new: " << assp);
         LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) {
-            entr.init(true);
-        } else {
+        എങ്കിൽ (entr.isNew()) {
+            entr.init(സത്യം);
+        } അല്ലെങ്കിൽ {
             checkRemoveAssign(nodep, entr);
         }
         entr.simpleAssign(assp);
         // lifeDump();
     }
-    void complexAssign(AstVarScope* nodep) {
+    ശൂന്യം complexAssign(AstVarScope* nodep) {
         UINFO(4, "     clearof: " << nodep);
         LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) entr.init(false);
+        എങ്കിൽ (entr.isNew()) entr.init(അസത്യം);
         entr.complexAssign();
     }
-    void clearReplaced() { m_replacedVref = false; }
-    bool replaced() const { return m_replacedVref; }
-    void varUsageReplace(AstVarScope* nodep, AstVarRef* varrefp) {
+    ശൂന്യം clearReplaced() { m_replacedVref = അസത്യം; }
+    തർക്കം replaced() സ്ഥിരം { തിരികെ m_replacedVref; }
+    ശൂന്യം varUsageReplace(AstVarScope* nodep, AstVarRef* varrefp) {
         // Variable rvalue.  If it references a constant, we can replace it
         LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) {
-            entr.init(false);
-        } else {
-            if (AstConst* const constp = entr.constNodep()) {
-                if (!varrefp->varp()->isSigPublic() && !varrefp->varp()->isWrittenByDpi()
+        എങ്കിൽ (entr.isNew()) {
+            entr.init(അസത്യം);
+        } അല്ലെങ്കിൽ {
+            എങ്കിൽ (AstConst* സ്ഥിരം constp = entr.constNodep()) {
+                എങ്കിൽ (!varrefp->varp()->isSigPublic() && !varrefp->varp()->isWrittenByDpi()
                     && !varrefp->varp()->isVirtIface()) {
                     // Aha, variable is constant; substitute in.
                     // We'll later constant propagate
                     UINFO(4, "     replaceconst: " << varrefp);
                     UINFO(9, "     replaceval: " << constp);
-                    varrefp->replaceWith(constp->cloneTree(false));
-                    m_replacedVref = true;
-                    VL_DO_DANGLING(varrefp->deleteTree(), varrefp);
+                    varrefp->replaceWith(constp->clone_വൃക്ഷം(അസത്യം));
+                    m_replacedVref = സത്യം;
+                    VL_DO_DANGLING(varrefp->delete_വൃക്ഷം(), varrefp);
                     ++m_statep->m_statAssnCon;
-                    return;  // **DONE, no longer a var reference**
+                    തിരികെ;  // **DONE, no longer a var reference**
                 }
             }
             UINFO(4, "     usage: " << nodep);
         }
         entr.consumed();
     }
-    void complexAssignFind(AstVarScope* nodep) {
+    ശൂന്യം complexAssignFind(AstVarScope* nodep) {
         UINFO(4, "     casfind: " << nodep);
         LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) entr.init(false);
+        എങ്കിൽ (entr.isNew()) entr.init(അസത്യം);
         entr.complexAssign();
     }
-    void consumedFind(AstVarScope* nodep) {
+    ശൂന്യം consumedFind(AstVarScope* nodep) {
         LifeVarEntry& entr = m_map[nodep];
-        if (entr.isNew()) entr.init(false);
+        എങ്കിൽ (entr.isNew()) entr.init(അസത്യം);
         entr.consumed();
     }
-    void lifeToAbove() {
+    ശൂന്യം lifeToAbove() {
         // Any varrefs under a if/else branch affect statements outside and after the if/else
         UASSERT(m_aboveLifep, "Pushing life when already at the top level");
-        if (m_noopt) m_aboveLifep->noopt();
-        for (auto& itr : m_map) {
-            AstVarScope* const nodep = itr.first;
+        എങ്കിൽ (m_noopt) m_aboveLifep->noopt();
+        വേണ്ടി (auto& itr : m_map) {
+            AstVarScope* സ്ഥിരം nodep = itr.first;
             m_aboveLifep->complexAssignFind(nodep);
-            if (itr.second.everSet()) {
+            എങ്കിൽ (itr.second.everSet()) {
                 // Record there may be an assignment, so we don't constant propagate across the if.
                 complexAssignFind(nodep);
-            } else {
+            } അല്ലെങ്കിൽ {
                 // Record consumption, so we don't eliminate earlier assignments
                 consumedFind(nodep);
             }
         }
     }
-    void dualBranch(LifeBlock* life1p, LifeBlock* life2p) {
+    ശൂന്യം dualBranch(LifeBlock* life1p, LifeBlock* life2p) {
         // Find any common sets on both branches of IF and propagate upwards
         // life1p->lifeDump();
         // life2p->lifeDump();
-        AstNode::user1ClearTree();  // user1p() used on entire tree
-        for (auto& itr : life1p->m_map) {
+        Ast_കണ്ണി::user1_Clear_വൃക്ഷം();  // user1p() used on entire tree
+        വേണ്ടി (auto& itr : life1p->m_map) {
             // When the if branch sets a var before it's used, mark that variable
-            if (itr.second.setBeforeUse()) itr.first->user1(1);
+            എങ്കിൽ (itr.second.setBeforeUse()) itr.first->user1(1);
         }
-        for (auto& itr : life2p->m_map) {
+        വേണ്ടി (auto& itr : life2p->m_map) {
             // When the else branch sets a var before it's used
-            AstVarScope* const nodep = itr.first;
-            if (itr.second.setBeforeUse() && nodep->user1()) {
+            AstVarScope* സ്ഥിരം nodep = itr.first;
+            എങ്കിൽ (itr.second.setBeforeUse() && nodep->user1()) {
                 // Both branches set the var, we can remove the assignment before the IF.
                 UINFO(4, "DUALBRANCH " << nodep);
-                const auto itab = m_map.find(nodep);
-                if (itab != m_map.end()) checkRemoveAssign(nodep, itab->second);
+                സ്ഥിരം auto itab = m_map.find(nodep);
+                എങ്കിൽ (itab != m_map.end()) checkRemoveAssign(nodep, itab->second);
             }
         }
         // this->lifeDump();
     }
-    void noopt() {
+    ശൂന്യം noopt() {
         // The block above is invalidated at exit, see lifeToAbove()
         m_map.clear();
-        m_noopt = true;
+        m_noopt = സത്യം;
     }
     // DEBUG
-    void lifeDump() {
+    ശൂന്യം lifeDump() {
         UINFO(5, "  LifeMap:");
-        for (const auto& itr : m_map) {
+        വേണ്ടി (സ്ഥിരം auto& itr : m_map) {
             UINFO(5,
                   "     Ent:  " << (itr.second.setBeforeUse() ? "[F]  " : "     ") << itr.first);
-            if (itr.second.assignp()) {  //
+            എങ്കിൽ (itr.second.assignp()) {  //
                 UINFO(5, "       Ass: " << itr.second.assignp());
             }
         }
@@ -275,93 +275,93 @@ public:
 //######################################################################
 // Life state, as a visitor of each AstNode
 
-class LifeVisitor final : public VNVisitor {
+വർഗ്ഗം LifeVisitor final : പൊതു VNVisitor {
     // STATE
-    LifeState* const m_statep;  // Current state
-    bool m_containsTiming = false;  // Statement contains timing control
-    bool m_sideEffect = false;  // Side effects discovered in assign RHS
-    bool m_noopt = false;  // Disable optimization of variables in this block
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
+    LifeState* സ്ഥിരം m_statep;  // Current state
+    തർക്കം m_containsTiming = അസത്യം;  // Statement contains timing control
+    തർക്കം m_sideEffect = അസത്യം;  // Side effects discovered in assign RHS
+    തർക്കം m_noopt = അസത്യം;  // Disable optimization of variables in this block
+    തർക്കം m_tracingCall = അസത്യം;  // Iterating into a CCall to a CFunc
     LifeBlock* m_lifep = nullptr;  // Current active lifetime map for current scope
 
     // METHODS
-    void setNoopt(const char* reasonp) {
-        (void)reasonp;
+    ശൂന്യം setNoopt(സ്ഥിരം അക്ഷരം* reasonp) {
+        (ശൂന്യം)reasonp;
         // UINFO(9, "setNoopt " << reasonp);
-        m_noopt = true;
+        m_noopt = സത്യം;
         m_lifep->noopt();
     }
 
-    void processAssignment(AstNodeStmt* nodep, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
+    ശൂന്യം processAssignment(Ast_കണ്ണി_Stmt* nodep, Ast_കണ്ണി_വ്യഞ്ജകം* lhsp, Ast_കണ്ണി_വ്യഞ്ജകം* rhsp) {
         // Collect any used variables first, as lhs may also be on rhs
         // Similar code in V3Dead
         VL_RESTORER(m_sideEffect);
-        m_sideEffect = false;
+        m_sideEffect = അസത്യം;
         m_lifep->clearReplaced();
-        rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp), NodeExpr);
-        if (m_lifep->replaced()) {
+        rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp), കണ്ണി_വ്യഞ്ജകം);
+        എങ്കിൽ (m_lifep->replaced()) {
             // We changed something, try to constant propagate, but don't delete the
             // assignment as we still need nodep to remain.
             V3Const::constifyEdit(rhsp);
             VL_DANGLING(rhsp);  // rhsp may change
         }
         // Has to be direct assignment without any EXTRACTing.
-        if (VN_IS(lhsp, VarRef) && !m_sideEffect && !m_noopt) {
-            AstVarScope* const vscp = VN_AS(lhsp, VarRef)->varScopep();
+        എങ്കിൽ (VN_IS(lhsp, VarRef) && !m_sideEffect && !m_noopt) {
+            AstVarScope* സ്ഥിരം vscp = VN_AS(lhsp, VarRef)->varScopep();
             UASSERT_OBJ(vscp, nodep, "Scope lost on variable");
             m_lifep->simpleAssign(vscp, nodep);
-        } else {
+        } അല്ലെങ്കിൽ {
             iterateAndNextNull(lhsp);
         }
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    ശൂന്യം visit(AstVarRef* nodep) override {
         // Consumption/generation of a variable,
         // it's used so can't elim assignment before this use.
         UASSERT_OBJ(nodep->varScopep(), nodep, "nullptr");
         //
-        AstVarScope* const vscp = nodep->varScopep();
+        AstVarScope* സ്ഥിരം vscp = nodep->varScopep();
         UASSERT_OBJ(vscp, nodep, "Scope not assigned");
-        if (nodep->access().isWriteOrRW()) {
-            m_sideEffect = true;  // $sscanf etc may have RHS vars that are lvalues
+        എങ്കിൽ (nodep->access().isWriteOrRW()) {
+            m_sideEffect = സത്യം;  // $sscanf etc may have RHS vars that are lvalues
             m_lifep->complexAssign(vscp);
-        } else {
+        } അല്ലെങ്കിൽ {
             VL_DO_DANGLING(m_lifep->varUsageReplace(vscp, nodep), nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (nodep->isTimingControl() || VN_IS(nodep, AssignForce)) {
+    ശൂന്യം visit(Ast_കണ്ണി_Assign* nodep) override {
+        എങ്കിൽ (nodep->isTimingControl() || VN_IS(nodep, AssignForce)) {
             // V3Life doesn't understand time sense nor force assigns - don't optimize
             setNoopt("timing|force");
-            if (nodep->isTimingControl()) m_containsTiming = true;
+            എങ്കിൽ (nodep->isTimingControl()) m_containsTiming = സത്യം;
             iterateChildren(nodep);
-            return;
+            തിരികെ;
         }
         processAssignment(nodep, nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstSFormat* nodep) override {
+    ശൂന്യം visit(AstSFormat* nodep) override {
         // AstSFormat is just a special form of assignment
         processAssignment(nodep, nodep->lhsp(), nodep->fmtp());
     }
-    void visit(AstAssignDly* nodep) override {
+    ശൂന്യം visit(AstAssignDly* nodep) override {
         // V3Life doesn't understand time sense
-        if (nodep->isTimingControl()) {
+        എങ്കിൽ (nodep->isTimingControl()) {
             // Don't optimize
             setNoopt("assigndly");
-            m_containsTiming = true;
+            m_containsTiming = സത്യം;
         }
         // Don't treat as normal assign
         iterateChildren(nodep);
     }
 
     //---- Track control flow changes
-    void visit(AstNodeIf* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_If* nodep) override {
         UINFO(4, "   IF " << nodep);
         // Condition is part of PREVIOUS block
         iterateAndNextNull(nodep->condp());
-        LifeBlock* const ifLifep = new LifeBlock{m_lifep, m_statep};
-        LifeBlock* const elseLifep = new LifeBlock{m_lifep, m_statep};
+        LifeBlock* സ്ഥിരം ifLifep = പുതിയ LifeBlock{m_lifep, m_statep};
+        LifeBlock* സ്ഥിരം elseLifep = പുതിയ LifeBlock{m_lifep, m_statep};
         {
             VL_RESTORER(m_lifep);
             m_lifep = ifLifep;
@@ -382,26 +382,26 @@ class LifeVisitor final : public VNVisitor {
         VL_DO_DANGLING(delete elseLifep, elseLifep);
         UINFO(4, "   if-done " << nodep);
     }
-    void visit(AstLoop* nodep) override {
+    ശൂന്യം visit(AstLoop* nodep) override {
         // Similar problem to AstJumpBlock, don't optimize loop bodies - most are unrolled
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
         VL_RESTORER(m_containsTiming);
         {
             VL_RESTORER(m_noopt);
             VL_RESTORER(m_lifep);
-            m_lifep = new LifeBlock{m_lifep, m_statep};
+            m_lifep = പുതിയ LifeBlock{m_lifep, m_statep};
             // Disable optimization in the body, but don't flag the block:
             // a pure body must not invalidate tracking above
-            m_noopt = true;
+            m_noopt = സത്യം;
             iterateAndNextNull(nodep->stmtsp());
             UINFO(4, "   joinloop");
             // For the next assignments, clear any variables that were read or written in the block
             m_lifep->lifeToAbove();
             VL_DO_DANGLING(delete m_lifep, m_lifep);
         }
-        if (m_containsTiming) setNoopt("timing");
+        എങ്കിൽ (m_containsTiming) setNoopt("timing");
     }
-    void visit(AstJumpBlock* nodep) override {
+    ശൂന്യം visit(AstJumpBlock* nodep) override {
         // As with Loop's we can't predict if a JumpGo will kill us or not
         // It's worse though as an IF(..., JUMPGO) may change the control flow.
         // Just don't optimize blocks with labels; they're rare - so far.
@@ -409,119 +409,119 @@ class LifeVisitor final : public VNVisitor {
         {
             VL_RESTORER(m_noopt);
             VL_RESTORER(m_lifep);
-            m_lifep = new LifeBlock{m_lifep, m_statep};
+            m_lifep = പുതിയ LifeBlock{m_lifep, m_statep};
             // Structural only, as for AstLoop above
-            m_noopt = true;
+            m_noopt = സത്യം;
             iterateAndNextNull(nodep->stmtsp());
             UINFO(4, "   joinjump");
             // For the next assignments, clear any variables that were read or written in the block
             m_lifep->lifeToAbove();
             VL_DO_DANGLING(delete m_lifep, m_lifep);
         }
-        if (m_containsTiming) setNoopt("timing");
+        എങ്കിൽ (m_containsTiming) setNoopt("timing");
     }
-    void visit(AstNodeCCall* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_CCall* nodep) override {
         // UINFO(4, "  CCALL " << nodep);
         iterateChildren(nodep);
         // Enter the function and trace it
         // else is non-inline or public function we optimize separately
-        if (nodep->funcp()->entryPoint()) {
+        എങ്കിൽ (nodep->funcp()->entryPoint()) {
             setNoopt("ccall");
-        } else {
-            m_tracingCall = true;
+        } അല്ലെങ്കിൽ {
+            m_tracingCall = സത്യം;
             iterate(nodep->funcp());
         }
     }
-    void visit(AstCFunc* nodep) override {
+    ശൂന്യം visit(AstCFunc* nodep) override {
         // UINFO(4, "  CFUNC " << nodep);
-        if (!m_tracingCall && !nodep->entryPoint()) return;
-        m_tracingCall = false;
-        if (nodep->recursive()) setNoopt("recursive");
-        if (nodep->noLife()) setNoopt("nolife");
-        if (nodep->dpiImportPrototype() && !nodep->dpiPure()) {
-            m_sideEffect = true;  // If appears on assign RHS, don't ever delete the assignment
+        എങ്കിൽ (!m_tracingCall && !nodep->entryPoint()) തിരികെ;
+        m_tracingCall = അസത്യം;
+        എങ്കിൽ (nodep->recursive()) setNoopt("recursive");
+        എങ്കിൽ (nodep->noLife()) setNoopt("nolife");
+        എങ്കിൽ (nodep->dpiImportPrototype() && !nodep->dpiPure()) {
+            m_sideEffect = സത്യം;  // If appears on assign RHS, don't ever delete the assignment
         }
         iterateChildren(nodep);
     }
-    void visit(AstCExprUser* nodep) override {
-        m_sideEffect = true;  // If appears on assign RHS, don't ever delete the assignment
+    ശൂന്യം visit(AstCExprUser* nodep) override {
+        m_sideEffect = സത്യം;  // If appears on assign RHS, don't ever delete the assignment
         iterateChildren(nodep);
     }
-    void visit(AstCExpr* nodep) override {
-        m_sideEffect = true;  // If appears on assign RHS, don't ever delete the assignment
+    ശൂന്യം visit(AstCExpr* nodep) override {
+        m_sideEffect = സത്യം;  // If appears on assign RHS, don't ever delete the assignment
         iterateChildren(nodep);
     }
 
-    void visit(AstVar*) override {}  // Don't want varrefs under it
-    void visit(AstNode* nodep) override {
-        if (nodep->isTimingControl()) {
+    ശൂന്യം visit(AstVar*) override {}  // Don't want varrefs under it
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
+        എങ്കിൽ (nodep->isTimingControl()) {
             // V3Life doesn't understand time sense - don't optimize
             setNoopt("timing");
-            m_containsTiming = true;
+            m_containsTiming = സത്യം;
         }
         iterateChildren(nodep);
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    LifeVisitor(AstNode* nodep, LifeState* statep)
+    LifeVisitor(Ast_കണ്ണി* nodep, LifeState* statep)
         : m_statep{statep} {
         UINFO(4, "  LifeVisitor on " << nodep);
         {
-            m_lifep = new LifeBlock{nullptr, m_statep};
+            m_lifep = പുതിയ LifeBlock{nullptr, m_statep};
             iterate(nodep);
-            if (m_lifep) VL_DO_CLEAR(delete m_lifep, m_lifep = nullptr);
+            എങ്കിൽ (m_lifep) VL_DO_CLEAR(delete m_lifep, m_lifep = nullptr);
         }
     }
     ~LifeVisitor() override {
-        if (m_lifep) VL_DO_CLEAR(delete m_lifep, m_lifep = nullptr);
+        എങ്കിൽ (m_lifep) VL_DO_CLEAR(delete m_lifep, m_lifep = nullptr);
     }
     VL_UNCOPYABLE(LifeVisitor);
 };
 
 //######################################################################
 
-class LifeTopVisitor final : public VNVisitor {
+വർഗ്ഗം Life_മുകൾ_Visitor final : പൊതു VNVisitor {
     // Visit all top nodes searching for functions that are entry points we want to start
     // finding code within.
-private:
+സ്വകാര്യ:
     // STATE
-    LifeState* const m_statep;  // Current state
+    LifeState* സ്ഥിരം m_statep;  // Current state
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
-        if (nodep->entryPoint()) {
+    ശൂന്യം visit(AstCFunc* nodep) override {
+        എങ്കിൽ (nodep->entryPoint()) {
             // Usage model 1: Simulate all C code, doing lifetime analysis
             LifeVisitor{nodep, m_statep};
         }
     }
-    void visit(AstNodeProcedure* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Procedure* nodep) override {
         // Usage model 2: Cleanup basic blocks
         LifeVisitor{nodep, m_statep};
     }
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNodeStmt*) override {}  // Accelerate
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(AstVar*) override {}  // Accelerate
+    ശൂന്യം visit(Ast_കണ്ണി_Stmt*) override {}  // Accelerate
+    ശൂന്യം visit(Ast_കണ്ണി_വ്യഞ്ജകം*) override {}  // Accelerate
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    LifeTopVisitor(AstNetlist* nodep, LifeState* statep)
+    Life_മുകൾ_Visitor(AstNetlist* nodep, LifeState* statep)
         : m_statep{statep} {
         iterate(nodep);
     }
-    ~LifeTopVisitor() override = default;
+    ~Life_മുകൾ_Visitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 // Life class functions
 
-void V3Life::lifeAll(AstNetlist* nodep) {
+ശൂന്യം V3Life::lifeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         LifeState state;
-        LifeTopVisitor{nodep, &state};
+        Life_മുകൾ_Visitor{nodep, &state};
     }  // Destruct before checking
-    VIsCached::clearCacheTree();  // Removing assignments may affect isPure
-    V3Global::dumpCheckGlobalTree("life", 0, dumpTreeEitherLevel() >= 3);
+    VIsCached::clear_Cache_വൃക്ഷം();  // Removing assignments may affect isPure
+    V3Global::dump_Check_Global_വൃക്ഷം("life", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

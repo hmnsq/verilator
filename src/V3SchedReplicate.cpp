@@ -34,21 +34,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Graph.h"
-#include "V3Sched.h"
+#അന്തര്ഭാവ "V3Graph.h"
+#അന്തര്ഭാവ "V3Sched.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+നാമാകാശ V3Sched {
 
-namespace {
+നാമാകാശ {
 
 // Driving region flags
-enum RegionFlags : uint8_t {
+എണ്ണൽ RegionFlags : uint8_t {
     NONE = 0x0,  //
-    INPUT = 0x1,  // Variable/logic is driven from top level input
+    നിവേശം = 0x1,  // Variable/logic is driven from top level input
     ACTIVE = 0x2,  // Variable/logic is driven from 'act' region logic
     NBA = 0x4,  // Variable/logic is driven from 'nba' region logic
     OBSERVED = 0x8,  // Variable/logic is driven from 'obs' region logic
@@ -58,72 +58,72 @@ enum RegionFlags : uint8_t {
 //##############################################################################
 // Data structures (graph types)
 
-class SchedReplicateVertex VL_NOT_FINAL : public V3GraphVertex {
+വർഗ്ഗം SchedReplicateVertex VL_NOT_FINAL : പൊതു V3GraphVertex {
     VL_RTTI_IMPL(SchedReplicateVertex, V3GraphVertex)
     RegionFlags m_drivingRegions{RegionFlags::NONE};  // The regions driving this vertex
 
-public:
+പൊതു:
     explicit SchedReplicateVertex(V3Graph* graphp)
         : V3GraphVertex{graphp} {}
-    uint8_t drivingRegions() const { return m_drivingRegions; }
-    void addDrivingRegions(uint8_t regions) {
+    uint8_t drivingRegions() സ്ഥിരം { തിരികെ m_drivingRegions; }
+    ശൂന്യം addDrivingRegions(uint8_t regions) {
         m_drivingRegions = static_cast<RegionFlags>(m_drivingRegions | regions);
     }
 
     // LCOV_EXCL_START // Debug code
-    string dotColor() const override {
-        switch (static_cast<unsigned>(m_drivingRegions)) {
-        case NONE: return "black";
-        case INPUT: return "red";
-        case ACTIVE: return "green";
-        case NBA: return "blue";
-        case INPUT | ACTIVE: return "yellow";
-        case INPUT | NBA: return "magenta";
-        case ACTIVE | NBA: return "cyan";
-        case INPUT | ACTIVE | NBA: return "gray80";  // don't want white on white background
+    string dotColor() സ്ഥിരം override {
+        തിരഞ്ഞെടുപ്പ് (static_cast<unsigned>(m_drivingRegions)) {
+        അവസ്ഥ NONE: തിരികെ "black";
+        അവസ്ഥ നിവേശം: തിരികെ "red";
+        അവസ്ഥ ACTIVE: തിരികെ "green";
+        അവസ്ഥ NBA: തിരികെ "blue";
+        അവസ്ഥ നിവേശം | ACTIVE: തിരികെ "yellow";
+        അവസ്ഥ നിവേശം | NBA: തിരികെ "magenta";
+        അവസ്ഥ ACTIVE | NBA: തിരികെ "cyan";
+        അവസ്ഥ നിവേശം | ACTIVE | NBA: തിരികെ "gray80";  // don't want white on white background
 
-        case REACTIVE: return "gray60";
-        case REACTIVE | INPUT: return "lightcoral";
-        case REACTIVE | ACTIVE: return "lightgreen";
-        case REACTIVE | NBA: return "lightblue";
-        case REACTIVE | INPUT | ACTIVE: return "lightyellow";
-        case REACTIVE | INPUT | NBA: return "lightpink";
-        case REACTIVE | ACTIVE | NBA: return "lightcyan";
-        case REACTIVE | INPUT | ACTIVE | NBA: return "gray90";
+        അവസ്ഥ REACTIVE: തിരികെ "gray60";
+        അവസ്ഥ REACTIVE | നിവേശം: തിരികെ "lightcoral";
+        അവസ്ഥ REACTIVE | ACTIVE: തിരികെ "lightgreen";
+        അവസ്ഥ REACTIVE | NBA: തിരികെ "lightblue";
+        അവസ്ഥ REACTIVE | നിവേശം | ACTIVE: തിരികെ "lightyellow";
+        അവസ്ഥ REACTIVE | നിവേശം | NBA: തിരികെ "lightpink";
+        അവസ്ഥ REACTIVE | ACTIVE | NBA: തിരികെ "lightcyan";
+        അവസ്ഥ REACTIVE | നിവേശം | ACTIVE | NBA: തിരികെ "gray90";
 
-        case OBSERVED: return "gray20";
-        case OBSERVED | INPUT: return "darkred";
-        case OBSERVED | ACTIVE: return "darkgreen";
-        case OBSERVED | NBA: return "darkblue";
-        case OBSERVED | INPUT | ACTIVE: return "gold";
-        case OBSERVED | INPUT | NBA: return "purple";
-        case OBSERVED | ACTIVE | NBA: return "darkcyan";
-        case OBSERVED | INPUT | ACTIVE | NBA: return "gray30";
+        അവസ്ഥ OBSERVED: തിരികെ "gray20";
+        അവസ്ഥ OBSERVED | നിവേശം: തിരികെ "darkred";
+        അവസ്ഥ OBSERVED | ACTIVE: തിരികെ "darkgreen";
+        അവസ്ഥ OBSERVED | NBA: തിരികെ "darkblue";
+        അവസ്ഥ OBSERVED | നിവേശം | ACTIVE: തിരികെ "gold";
+        അവസ്ഥ OBSERVED | നിവേശം | NBA: തിരികെ "purple";
+        അവസ്ഥ OBSERVED | ACTIVE | NBA: തിരികെ "darkcyan";
+        അവസ്ഥ OBSERVED | നിവേശം | ACTIVE | NBA: തിരികെ "gray30";
 
-        case REACTIVE | OBSERVED: return "gray40";
-        case REACTIVE | OBSERVED | INPUT: return "indianred";
-        case REACTIVE | OBSERVED | ACTIVE: return "olive";
-        case REACTIVE | OBSERVED | NBA: return "dodgerBlue";
-        case REACTIVE | OBSERVED | INPUT | ACTIVE: return "khaki";
-        case REACTIVE | OBSERVED | INPUT | NBA: return "plum";
-        case REACTIVE | OBSERVED | ACTIVE | NBA: return "lightSeaGreen";
-        case REACTIVE | OBSERVED | INPUT | ACTIVE | NBA: return "gray50";
-        default: v3fatalSrc("There are only 5 region bits"); return "";
+        അവസ്ഥ REACTIVE | OBSERVED: തിരികെ "gray40";
+        അവസ്ഥ REACTIVE | OBSERVED | നിവേശം: തിരികെ "indianred";
+        അവസ്ഥ REACTIVE | OBSERVED | ACTIVE: തിരികെ "olive";
+        അവസ്ഥ REACTIVE | OBSERVED | NBA: തിരികെ "dodgerBlue";
+        അവസ്ഥ REACTIVE | OBSERVED | നിവേശം | ACTIVE: തിരികെ "khaki";
+        അവസ്ഥ REACTIVE | OBSERVED | നിവേശം | NBA: തിരികെ "plum";
+        അവസ്ഥ REACTIVE | OBSERVED | ACTIVE | NBA: തിരികെ "lightSeaGreen";
+        അവസ്ഥ REACTIVE | OBSERVED | നിവേശം | ACTIVE | NBA: തിരികെ "gray50";
+        സ്ഥിരസ്ഥിതി: v3fatalSrc("There are only 5 region bits"); തിരികെ "";
         }
     }
     // LCOV_EXCL_STOP
 };
 
-class SchedReplicateLogicVertex final : public SchedReplicateVertex {
+വർഗ്ഗം SchedReplicateLogicVertex final : പൊതു SchedReplicateVertex {
     VL_RTTI_IMPL(SchedReplicateLogicVertex, SchedReplicateVertex)
-    AstScope* const m_scopep;  // The enclosing AstScope of the logic node
-    AstSenTree* const m_senTreep;  // The sensitivity of the logic node
-    AstNode* const m_logicp;  // The logic node this vertex represents
-    RegionFlags const m_assignedRegion;  // The region this logic is originally assigned to
+    AstScope* സ്ഥിരം m_scopep;  // The enclosing AstScope of the logic node
+    Ast_Sen_വൃക്ഷം* സ്ഥിരം m_senTreep;  // The sensitivity of the logic node
+    Ast_കണ്ണി* സ്ഥിരം m_logicp;  // The logic node this vertex represents
+    RegionFlags സ്ഥിരം m_assignedRegion;  // The region this logic is originally assigned to
 
-public:
-    SchedReplicateLogicVertex(V3Graph* graphp, AstScope* scopep, AstSenTree* senTreep,
-                              AstNode* logicp, RegionFlags assignedRegion)
+പൊതു:
+    SchedReplicateLogicVertex(V3Graph* graphp, AstScope* scopep, Ast_Sen_വൃക്ഷം* senTreep,
+                              Ast_കണ്ണി* logicp, RegionFlags assignedRegion)
         : SchedReplicateVertex{graphp}
         , m_scopep{scopep}
         , m_senTreep{senTreep}
@@ -131,107 +131,107 @@ public:
         , m_assignedRegion{assignedRegion} {
         addDrivingRegions(assignedRegion);
     }
-    AstScope* scopep() const { return m_scopep; }
-    AstSenTree* senTreep() const { return m_senTreep; }
-    AstNode* logicp() const { return m_logicp; }
-    RegionFlags assignedRegion() const { return m_assignedRegion; }
+    AstScope* scopep() സ്ഥിരം { തിരികെ m_scopep; }
+    Ast_Sen_വൃക്ഷം* senTreep() സ്ഥിരം { തിരികെ m_senTreep; }
+    Ast_കണ്ണി* logicp() സ്ഥിരം { തിരികെ m_logicp; }
+    RegionFlags assignedRegion() സ്ഥിരം { തിരികെ m_assignedRegion; }
 
     // For graph dumping
-    string name() const override VL_MT_STABLE { return m_logicp->fileline()->ascii(); };
-    string dotShape() const override { return "rectangle"; }
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_logicp->fileline()->ascii(); };
+    string dotShape() സ്ഥിരം override { തിരികെ "rectangle"; }
 };
 
-class SchedReplicateVarVertex final : public SchedReplicateVertex {
+വർഗ്ഗം SchedReplicateVarVertex final : പൊതു SchedReplicateVertex {
     VL_RTTI_IMPL(SchedReplicateVarVertex, SchedReplicateVertex)
-    AstVarScope* const m_vscp;  // The AstVarScope this vertex represents
+    AstVarScope* സ്ഥിരം m_vscp;  // The AstVarScope this vertex represents
 
-public:
+പൊതു:
     SchedReplicateVarVertex(V3Graph* graphp, AstVarScope* vscp)
         : SchedReplicateVertex{graphp}
         , m_vscp{vscp} {
         // Top level inputs are
-        if (varp()->isPrimaryInish() || varp()->isSigUserRWPublic() || varp()->sampled()
+        എങ്കിൽ (varp()->isPrimaryInish() || varp()->isSigUserRWPublic() || varp()->sampled()
             || varp()->isWrittenByDpi() || varp()->sensIfacep() || varp()->isVirtIface()) {
-            addDrivingRegions(INPUT);
+            addDrivingRegions(നിവേശം);
         }
         // Currently we always execute suspendable processes at the beginning of
         // the act region, which means combinational logic driven from a suspendable
         // processes must be present in the 'act' region
-        if (varp()->isWrittenBySuspendable()) addDrivingRegions(ACTIVE);
+        എങ്കിൽ (varp()->isWrittenBySuspendable()) addDrivingRegions(ACTIVE);
     }
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVar* varp() const { return m_vscp->varp(); }
-    AstScope* scopep() const { return m_vscp->scopep(); }
+    AstVarScope* vscp() സ്ഥിരം { തിരികെ m_vscp; }
+    AstVar* varp() സ്ഥിരം { തിരികെ m_vscp->varp(); }
+    AstScope* scopep() സ്ഥിരം { തിരികെ m_vscp->scopep(); }
 
     // For graph dumping
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override { return varp()->isPrimaryInish() ? "invhouse" : "ellipse"; }
+    string name() സ്ഥിരം override VL_MT_STABLE { തിരികെ m_vscp->name(); }
+    string dotShape() സ്ഥിരം override { തിരികെ varp()->isPrimaryInish() ? "invhouse" : "ellipse"; }
 };
 
-class Graph final : public V3Graph {};
+വർഗ്ഗം Graph final : പൊതു V3Graph {};
 
 //##############################################################################
 // Algorithm implementation
 
-std::unique_ptr<Graph> buildGraph(const LogicRegions& logicRegions) {
-    std::unique_ptr<Graph> graphp{new Graph};
+std::unique_ptr<Graph> buildGraph(സ്ഥിരം LogicRegions& logicRegions) {
+    std::unique_ptr<Graph> graphp{പുതിയ Graph};
 
     // AstVarScope::user1() -> VarVertx
-    const VNUser1InUse user1InUse;
-    const auto getVarVertex = [&](AstVarScope* vscp) {
-        if (!vscp->user1p()) vscp->user1p(new SchedReplicateVarVertex{graphp.get(), vscp});
-        return vscp->user1u().to<SchedReplicateVarVertex*>();
+    സ്ഥിരം VNUser1InUse user1InUse;
+    സ്ഥിരം auto getVarVertex = [&](AstVarScope* vscp) {
+        എങ്കിൽ (!vscp->user1p()) vscp->user1p(പുതിയ SchedReplicateVarVertex{graphp.get(), vscp});
+        തിരികെ vscp->user1u().to<SchedReplicateVarVertex*>();
     };
 
-    const auto addEdge = [&](SchedReplicateVertex* fromp, SchedReplicateVertex* top) {
-        new V3GraphEdge{graphp.get(), fromp, top, 1};
+    സ്ഥിരം auto addEdge = [&](SchedReplicateVertex* fromp, SchedReplicateVertex* മുകൾ) {
+        പുതിയ V3GraphEdge{graphp.get(), fromp, മുകൾ, 1};
     };
 
-    const auto addLogic = [&](RegionFlags region, AstScope* scopep, AstActive* activep) {
-        AstSenTree* const senTreep = activep->sentreep();
+    സ്ഥിരം auto addLogic = [&](RegionFlags region, AstScope* scopep, AstActive* activep) {
+        Ast_Sen_വൃക്ഷം* സ്ഥിരം senTreep = activep->sentreep();
 
         // Predicate for whether a read of the given variable triggers this block
-        std::function<bool(AstVarScope*)> readTriggersThisLogic;
+        std::function<തർക്കം(AstVarScope*)> readTriggersThisLogic;
 
-        const VNUser4InUse user4InUse;  // bool: Explicit sensitivity of hybrid logic just below
+        സ്ഥിരം VNUser4InUse user4InUse;  // bool: Explicit sensitivity of hybrid logic just below
 
-        if (senTreep->hasClocked()) {
+        എങ്കിൽ (senTreep->hasClocked()) {
             // Clocked logic is never triggered by reads
-            readTriggersThisLogic = [](AstVarScope*) { return false; };
-        } else if (senTreep->hasCombo()) {
+            readTriggersThisLogic = [](AstVarScope*) { തിരികെ അസത്യം; };
+        } അല്ലെങ്കിൽ എങ്കിൽ (senTreep->hasCombo()) {
             // Combinational logic is always triggered by reads
-            readTriggersThisLogic = [](AstVarScope*) { return true; };
-        } else {
+            readTriggersThisLogic = [](AstVarScope*) { തിരികെ സത്യം; };
+        } അല്ലെങ്കിൽ {
             UASSERT_OBJ(senTreep->hasHybrid(), activep, "unexpected");
             // Hybrid logic is triggered by all reads, except for reads of the explicit
             // sensitivities
-            readTriggersThisLogic = [](AstVarScope* vscp) { return !vscp->user4(); };
-            senTreep->foreach([](const AstVarRef* refp) {  //
-                refp->varScopep()->user4(true);
+            readTriggersThisLogic = [](AstVarScope* vscp) { തിരികെ !vscp->user4(); };
+            senTreep->foreach([](സ്ഥിരം AstVarRef* refp) {  //
+                refp->varScopep()->user4(സത്യം);
             });
         }
 
-        for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
-            SchedReplicateLogicVertex* const lvtxp
-                = new SchedReplicateLogicVertex{graphp.get(), scopep, senTreep, nodep, region};
-            const VNUser2InUse user2InUse;
-            const VNUser3InUse user3InUse;
+        വേണ്ടി (Ast_കണ്ണി* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+            SchedReplicateLogicVertex* സ്ഥിരം lvtxp
+                = പുതിയ SchedReplicateLogicVertex{graphp.get(), scopep, senTreep, nodep, region};
+            സ്ഥിരം VNUser2InUse user2InUse;
+            സ്ഥിരം VNUser3InUse user3InUse;
 
             V3Sched::util::VarScopeSet forceReadEdgeIgnores;
             V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
 
             nodep->foreach([&](AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                SchedReplicateVarVertex* const vvtxp = getVarVertex(vscp);
-                if (refp->access().isReadOrRW() && !vscp->user3SetOnce()
+                AstVarScope* സ്ഥിരം vscp = refp->varScopep();
+                SchedReplicateVarVertex* സ്ഥിരം vvtxp = getVarVertex(vscp);
+                എങ്കിൽ (refp->access().isReadOrRW() && !vscp->user3SetOnce()
                     && readTriggersThisLogic(vscp) && !vscp->user2()
-                    && !forceReadEdgeIgnores.count(vscp)) {  //
+                    && !forceReadEdgeIgnores.എണ്ണം(vscp)) {  //
                     addEdge(vvtxp, lvtxp);
                 }
                 // If written, add logic -> var edge
                 // Note: See V3Order for why AlwaysPostponed is safe to be ignored. We ignore it
                 // as otherwise we would end up with a false cycle.
-                if (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
+                എങ്കിൽ (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
                     && !vscp->user2SetOnce() && !VN_IS(nodep, AlwaysPostponed)) {  //
                     addEdge(lvtxp, vvtxp);
                 }
@@ -239,27 +239,27 @@ std::unique_ptr<Graph> buildGraph(const LogicRegions& logicRegions) {
         }
     };
 
-    for (const auto& entry : logicRegions.m_pre) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_act) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_nba) addLogic(NBA, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_obs)
+    വേണ്ടി (സ്ഥിരം auto& entry : logicRegions.m_pre) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
+    വേണ്ടി (സ്ഥിരം auto& entry : logicRegions.m_act) addLogic(ACTIVE, entry.m_scopep, entry.m_activep);
+    വേണ്ടി (സ്ഥിരം auto& entry : logicRegions.m_nba) addLogic(NBA, entry.m_scopep, entry.m_activep);
+    വേണ്ടി (സ്ഥിരം auto& entry : logicRegions.m_obs)
         addLogic(OBSERVED, entry.m_scopep, entry.m_activep);
-    for (const auto& entry : logicRegions.m_react)
+    വേണ്ടി (സ്ഥിരം auto& entry : logicRegions.m_react)
         addLogic(REACTIVE, entry.m_scopep, entry.m_activep);
 
-    return graphp;
+    തിരികെ graphp;
 }
 
-void propagateDrivingRegions(SchedReplicateVertex* vtxp) {
+ശൂന്യം propagateDrivingRegions(SchedReplicateVertex* vtxp) {
     // Note: The graph is always acyclic, so the recursion will terminate
 
     // Nothing to do if already visited
-    if (vtxp->user()) return;
+    എങ്കിൽ (vtxp->user()) തിരികെ;
 
     // Compute union of driving regions of all inputs
     uint8_t drivingRegions = 0;
-    for (V3GraphEdge& edge : vtxp->inEdges()) {
-        SchedReplicateVertex* const srcp = edge.fromp()->as<SchedReplicateVertex>();
+    വേണ്ടി (V3GraphEdge& edge : vtxp->inEdges()) {
+        SchedReplicateVertex* സ്ഥിരം srcp = edge.fromp()->as<SchedReplicateVertex>();
         propagateDrivingRegions(srcp);
         drivingRegions |= srcp->drivingRegions();
     }
@@ -268,44 +268,44 @@ void propagateDrivingRegions(SchedReplicateVertex* vtxp) {
     vtxp->addDrivingRegions(drivingRegions);
 
     // Mark as visited
-    vtxp->user(true);
+    vtxp->user(സത്യം);
 }
 
 LogicReplicas replicate(Graph* graphp) {
     LogicReplicas result;
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (SchedReplicateLogicVertex* const lvtxp = vtx.cast<SchedReplicateLogicVertex>()) {
-            const auto replicateTo = [&](LogicByScope& lbs) {
-                lbs.add(lvtxp->scopep(), lvtxp->senTreep(), lvtxp->logicp()->cloneTree(false));
+    വേണ്ടി (V3GraphVertex& vtx : graphp->vertices()) {
+        എങ്കിൽ (SchedReplicateLogicVertex* സ്ഥിരം lvtxp = vtx.cast<SchedReplicateLogicVertex>()) {
+            സ്ഥിരം auto replicateTo = [&](LogicByScope& lbs) {
+                lbs.add(lvtxp->scopep(), lvtxp->senTreep(), lvtxp->logicp()->clone_വൃക്ഷം(അസത്യം));
             };
-            const uint8_t targetRegions = lvtxp->drivingRegions() & ~lvtxp->assignedRegion();
+            സ്ഥിരം uint8_t targetRegions = lvtxp->drivingRegions() & ~lvtxp->assignedRegion();
             UASSERT(!lvtxp->senTreep()->hasClocked() || targetRegions == 0,
                     "replicating clocked logic");
-            if (targetRegions & INPUT) replicateTo(result.m_ico);
-            if (targetRegions & ACTIVE) replicateTo(result.m_act);
-            if (targetRegions & NBA) replicateTo(result.m_nba);
-            if (targetRegions & OBSERVED) replicateTo(result.m_obs);
-            if (targetRegions & REACTIVE) replicateTo(result.m_react);
+            എങ്കിൽ (targetRegions & നിവേശം) replicateTo(result.m_ico);
+            എങ്കിൽ (targetRegions & ACTIVE) replicateTo(result.m_act);
+            എങ്കിൽ (targetRegions & NBA) replicateTo(result.m_nba);
+            എങ്കിൽ (targetRegions & OBSERVED) replicateTo(result.m_obs);
+            എങ്കിൽ (targetRegions & REACTIVE) replicateTo(result.m_react);
         }
     }
-    return result;
+    തിരികെ result;
 }
 
 }  // namespace
 
 LogicReplicas replicateLogic(LogicRegions& logicRegionsRegions) {
     // Build the dataflow (dependency) graph
-    const std::unique_ptr<Graph> graphp = buildGraph(logicRegionsRegions);
+    സ്ഥിരം std::unique_ptr<Graph> graphp = buildGraph(logicRegionsRegions);
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate");
+    എങ്കിൽ (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate");
     // Propagate driving region flags
-    for (V3GraphVertex& vtx : graphp->vertices()) {
+    വേണ്ടി (V3GraphVertex& vtx : graphp->vertices()) {
         propagateDrivingRegions(vtx.as<SchedReplicateVertex>());
     }
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate-propagated");
+    എങ്കിൽ (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-replicate-propagated");
     // Replicate the necessary logic
-    return replicate(graphp.get());
+    തിരികെ replicate(graphp.get());
 }
 
 }  // namespace V3Sched

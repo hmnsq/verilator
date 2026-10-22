@@ -21,17 +21,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Table.h"
+#അന്തര്ഭാവ "V3Table.h"
 
-#include "V3ConstPool.h"
-#include "V3SharedTmps.h"
-#include "V3Simulate.h"
-#include "V3Stats.h"
+#അന്തര്ഭാവ "V3ConstPool.h"
+#അന്തര്ഭാവ "V3SharedTmps.h"
+#അന്തര്ഭാവ "V3Simulate.h"
+#അന്തര്ഭാവ "V3Stats.h"
 
-#include <cmath>
-#include <vector>
+#അന്തര്ഭാവ <cmath>
+#അന്തര്ഭാവ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -40,123 +40,123 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // CONFIG
 // 1MB is max table size (better be lots of instructs to be worth it!)
-static constexpr int TABLE_MAX_BYTES = 1 * 1024 * 1024;
+സ്ഥിതം constexpr പൂർണ്ണസംഖ്യ TABLE_MAX_BYTES = 1 * 1024 * 1024;
 // 64MB is close to max memory of some systems (256MB or so), so don't get out of control
-static constexpr int TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
+സ്ഥിതം constexpr പൂർണ്ണസംഖ്യ TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
 // Worth no more than 8 bytes of data to replace an instruction
-static constexpr int TABLE_SPACE_TIME_MULT = 8;
+സ്ഥിതം constexpr പൂർണ്ണസംഖ്യ TABLE_SPACE_TIME_MULT = 8;
 // If < 32 instructions, not worth the effort
-static constexpr int TABLE_MIN_NODE_COUNT = 32;
+സ്ഥിതം constexpr പൂർണ്ണസംഖ്യ TABLE_MIN_കണ്ണി_എണ്ണം = 32;
 // Assume an instruction is 4 bytes
-static constexpr int TABLE_BYTES_PER_INST = 4;
+സ്ഥിതം constexpr പൂർണ്ണസംഖ്യ TABLE_BYTES_PER_INST = 4;
 
 //######################################################################
 
-class TableVisitor;
+വർഗ്ഗം TableVisitor;
 
-class TableSimulateVisitor final : public SimulateVisitor {
+വർഗ്ഗം TableSimulateVisitor final : പൊതു SimulateVisitor {
     // MEMBERS
-    TableVisitor* const m_cbthis;  ///< Class for callback
+    TableVisitor* സ്ഥിരം m_cbthis;  ///< Class for callback
 
-public:
+പൊതു:
     ///< Call other-this function on all new var references
-    void varRefCb(AstVarRef* nodep) override;
+    ശൂന്യം varRefCb(AstVarRef* nodep) override;
 
     // CONSTRUCTORS
     explicit TableSimulateVisitor(TableVisitor* cbthis)
         : m_cbthis{cbthis} {}
-    ~TableSimulateVisitor() override = default;
+    ~TableSimulateVisitor() override = സ്ഥിരസ്ഥിതി;
 };
 
 //######################################################################
 // Class for holding lookup table state during construction
 
-class TableBuilder final {
-    FileLine* const m_fl;  // FileLine used during construction
+വർഗ്ഗം TableBuilder final {
+    File_വരി* സ്ഥിരം m_fl;  // FileLine used during construction
     AstConsArray* m_consp = nullptr;  // The lookup table initializer values
     AstVarScope* m_varScopep = nullptr;  // The scoped variable holding the table
 
-public:
-    explicit TableBuilder(FileLine* fl)
+പൊതു:
+    explicit TableBuilder(File_വരി* fl)
         : m_fl{fl} {}
 
     ~TableBuilder() {
-        if (m_consp) VL_DO_DANGLING(m_consp->deleteTree(), m_consp);
+        എങ്കിൽ (m_consp) VL_DO_DANGLING(m_consp->delete_വൃക്ഷം(), m_consp);
     }
 
-    void setTableSize(AstNodeDType* elemDType, unsigned size) {
+    ശൂന്യം setTableSize(Ast_കണ്ണി_DType* elemDType, unsigned size) {
         UASSERT_OBJ(!m_consp, m_fl, "Table size already set");
         UASSERT_OBJ(size > 0, m_fl, "Size zero");
         // TODO: Assert elemDType is a packed type
         // Create data type
-        const int width = elemDType->width();
-        AstNodeDType* const subDTypep
+        സ്ഥിരം പൂർണ്ണസംഖ്യ width = elemDType->width();
+        Ast_കണ്ണി_DType* സ്ഥിരം subDTypep
             = elemDType->isString() || elemDType->isDouble()
                   ? elemDType
                   : v3Global.rootp()->findBitDType(width, width, VSigning::UNSIGNED);
-        AstUnpackArrayDType* const tableDTypep = new AstUnpackArrayDType{
-            m_fl, subDTypep, new AstRange{m_fl, static_cast<int>(size), 0}};
+        AstUnpackArrayDType* സ്ഥിരം tableDTypep = പുതിയ AstUnpackArrayDType{
+            m_fl, subDTypep, പുതിയ AstRange{m_fl, static_cast<പൂർണ്ണസംഖ്യ>(size), 0}};
         v3Global.rootp()->typeTablep()->addTypesp(tableDTypep);
         // Create table initializer (with default value 0)
-        AstConst* const defaultp
-            = elemDType->isString()   ? new AstConst{m_fl, AstConst::String{}, ""}
-              : elemDType->isDouble() ? new AstConst{m_fl, AstConst::RealDouble{}, 0.0}
-                                      : new AstConst{m_fl, AstConst::WidthedValue{}, width, 0};
-        m_consp = new AstConsArray{m_fl, tableDTypep, defaultp};
+        AstConst* സ്ഥിരം defaultp
+            = elemDType->isString()   ? പുതിയ AstConst{m_fl, AstConst::String{}, ""}
+              : elemDType->isDouble() ? പുതിയ AstConst{m_fl, AstConst::RealDouble{}, 0.0}
+                                      : പുതിയ AstConst{m_fl, AstConst::Widthed_മൂല്യം{}, width, 0};
+        m_consp = പുതിയ AstConsArray{m_fl, tableDTypep, defaultp};
     }
 
-    void addValue(unsigned index, const V3Number& value) {
+    ശൂന്യം add_മൂല്യം(unsigned index, സ്ഥിരം V3_സംഖ്യ& മൂല്യം) {
         UASSERT_OBJ(!m_varScopep, m_fl, "Table variable already created");
         // Default value is zero/empty string so don't add it
-        if (value.isString() ? value.toString().empty() : value.isEqZero()) return;
-        m_consp->valuep(index, new AstConst{m_fl, value});
+        എങ്കിൽ (മൂല്യം.isString() ? മൂല്യം.toString().empty() : മൂല്യം.isEqZero()) തിരികെ;
+        m_consp->valuep(index, പുതിയ AstConst{m_fl, മൂല്യം});
     }
 
     AstVarScope* varScopep() {
-        if (!m_varScopep) {
-            AstVarRef* const refp = V3ConstPool::find(m_consp);
+        എങ്കിൽ (!m_varScopep) {
+            AstVarRef* സ്ഥിരം refp = V3ConstPool::find(m_consp);
             m_varScopep = refp->varScopep();
-            VL_DO_DANGLING(refp->deleteTree(), refp);
+            VL_DO_DANGLING(refp->delete_വൃക്ഷം(), refp);
         }
-        return m_varScopep;
+        തിരികെ m_varScopep;
     }
 };
 
 //######################################################################
 // Class for holding output variable state during table conversion of logic
 
-class TableOutputVar final {
-    AstVarScope* const m_varScopep;  // The output variable
-    const unsigned m_ord;  // Output ordinal number in this block
-    bool m_mayBeUnassigned = false;  // If true, then this variable may be unassigned through
+വർഗ്ഗം TableOutputVar final {
+    AstVarScope* സ്ഥിരം m_varScopep;  // The output variable
+    സ്ഥിരം unsigned m_ord;  // Output ordinal number in this block
+    തർക്കം m_mayBeUnassigned = അസത്യം;  // If true, then this variable may be unassigned through
                                      // some path through the block being table converted
     TableBuilder m_tableBuilder;
 
-public:
+പൊതു:
     TableOutputVar(AstVarScope* varScopep, unsigned ord)
         : m_varScopep{varScopep}
         , m_ord{ord}
         , m_tableBuilder{varScopep->fileline()} {}
 
-    AstVarScope* varScopep() const { return m_varScopep; }
-    string name() const { return varScopep()->varp()->name(); }
-    unsigned ord() const { return m_ord; }
-    void setMayBeUnassigned() { m_mayBeUnassigned = true; }
-    bool mayBeUnassigned() const { return m_mayBeUnassigned; }
-    void setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
-    void addValue(unsigned index, const V3Number& value) { m_tableBuilder.addValue(index, value); }
-    AstVarScope* tabeVarScopep() { return m_tableBuilder.varScopep(); }
+    AstVarScope* varScopep() സ്ഥിരം { തിരികെ m_varScopep; }
+    string name() സ്ഥിരം { തിരികെ varScopep()->varp()->name(); }
+    unsigned ord() സ്ഥിരം { തിരികെ m_ord; }
+    ശൂന്യം setMayBeUnassigned() { m_mayBeUnassigned = സത്യം; }
+    തർക്കം mayBeUnassigned() സ്ഥിരം { തിരികെ m_mayBeUnassigned; }
+    ശൂന്യം setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
+    ശൂന്യം add_മൂല്യം(unsigned index, സ്ഥിരം V3_സംഖ്യ& മൂല്യം) { m_tableBuilder.add_മൂല്യം(index, മൂല്യം); }
+    AstVarScope* tabeVarScopep() { തിരികെ m_tableBuilder.varScopep(); }
 };
 
 //######################################################################
 // Table class functions
 
-class TableVisitor final : public VNVisitor {
+വർഗ്ഗം TableVisitor final : പൊതു VNVisitor {
     // NODE STATE
     // Cleared on each always/assignw
 
     // STATE
-    double m_totalBytes = 0;  // Total bytes in tables created
+    ഇരട്ട m_totalBytes = 0;  // Total bytes in tables created
     VDouble0 m_statTablesCre;  // Statistic tracking
     V3SharedTmps m_indexTmps{"__Vtableidx", VVarType::BLOCKTEMP};  // Table index variables
 
@@ -164,7 +164,7 @@ class TableVisitor final : public VNVisitor {
     AstScope* m_scopep = nullptr;  // Current SCOPE
 
     //  State cleared on each always/assignw
-    bool m_assignDly = false;  // Consists of delayed assignments instead of normal assignments
+    തർക്കം m_assignDly = അസത്യം;  // Consists of delayed assignments instead of normal assignments
     unsigned m_inWidthBits = 0;  // Input table width - in bits
     unsigned m_outWidthBytes = 0;  // Output table width - in bytes
     std::vector<AstVarScope*> m_inVarps;  // Input variable list
@@ -172,25 +172,25 @@ class TableVisitor final : public VNVisitor {
 
     // METHODS
 
-public:
-    void simulateVarRefCb(AstVarRef* nodep) {
+പൊതു:
+    ശൂന്യം simulateVarRefCb(AstVarRef* nodep) {
         // Called by TableSimulateVisitor on each unique varref encountered
         UINFO(9, "   SimVARREF " << nodep);
-        AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOrRW()) {
+        AstVarScope* സ്ഥിരം vscp = nodep->varScopep();
+        എങ്കിൽ (nodep->access().isWriteOrRW()) {
             // We'll make the table with a separate natural alignment for each output var, so
             // always have 8, 16 or 32 bit widths, so use widthTotalBytes
             m_outWidthBytes += nodep->varp()->dtypeSkipRefp()->widthTotalBytes();
             m_outVarps.emplace_back(vscp, static_cast<unsigned>(m_outVarps.size()));
         }
-        if (nodep->access().isReadOrRW()) {
+        എങ്കിൽ (nodep->access().isReadOrRW()) {
             m_inWidthBits += nodep->varp()->width();
-            m_inVarps.push_back(vscp);
+            m_inVarps.തള്ളുക_back(vscp);
         }
     }
 
-private:
-    bool treeTest(AstAlways* nodep) {
+സ്വകാര്യ:
+    തർക്കം വൃക്ഷം_Test(AstAlways* nodep) {
         // Process alw/assign tree
         m_inWidthBits = 0;
         m_outWidthBytes = 0;
@@ -198,7 +198,7 @@ private:
         m_outVarps.clear();
 
         // Collect stats
-        TableSimulateVisitor chkvis{this};
+        TableSimulateVisitor chkvis{ഇത്};
         chkvis.mainTableCheck(nodep);
         m_assignDly = chkvis.isAssignDly();
         // Also sets m_inWidthBits
@@ -207,52 +207,52 @@ private:
         // Also sets m_outVarps
 
         // Calc data storage in bytes
-        const size_t chgWidth = m_outVarps.size();
-        const double space = std::pow<double>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
+        സ്ഥിരം size_t chgWidth = m_outVarps.size();
+        സ്ഥിരം ഇരട്ട space = std::pow<ഇരട്ട>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
         // Instruction count bytes (ok, it's space also not time :)
-        const double time  // max(_, 1), so we won't divide by zero
-            = std::max<double>(chkvis.instrCount() * TABLE_BYTES_PER_INST + chkvis.dataCount(), 1);
-        if (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
-        if (chkvis.isCoverage()) {
+        സ്ഥിരം ഇരട്ട time  // max(_, 1), so we won't divide by zero
+            = std::max<ഇരട്ട>(chkvis.instr_എണ്ണം() * TABLE_BYTES_PER_INST + chkvis.data_എണ്ണം(), 1);
+        എങ്കിൽ (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
+        എങ്കിൽ (chkvis.isCoverage()) {
             chkvis.clearOptimizable(nodep, "Table removes coverage points");
         }
         // cppcheck-suppress knownConditionTrueFalse // set by TableSimulateVisitor
-        if (!m_outWidthBytes || !m_inWidthBits) {
+        എങ്കിൽ (!m_outWidthBytes || !m_inWidthBits) {
             chkvis.clearOptimizable(nodep, "Table has no outputs");
         }
-        if (chkvis.instrCount() < TABLE_MIN_NODE_COUNT) {
+        എങ്കിൽ (chkvis.instr_എണ്ണം() < TABLE_MIN_കണ്ണി_എണ്ണം) {
             chkvis.clearOptimizable(nodep, "Table has too few nodes involved");
         }
         // cppcheck-suppress knownConditionTrueFalse
-        if (space > TABLE_MAX_BYTES) {
+        എങ്കിൽ (space > TABLE_MAX_BYTES) {
             chkvis.clearOptimizable(nodep, "Table takes too much space");
         }
-        if (space > time * TABLE_SPACE_TIME_MULT) {
+        എങ്കിൽ (space > time * TABLE_SPACE_TIME_MULT) {
             chkvis.clearOptimizable(nodep, "Table has bad tradeoff");
         }
-        if (m_totalBytes > TABLE_TOTAL_BYTES) {
+        എങ്കിൽ (m_totalBytes > TABLE_TOTAL_BYTES) {
             chkvis.clearOptimizable(nodep, "Table out of memory");
         }
         UINFO(4, "  Test: Opt=" << (chkvis.optimizable() ? "OK" : "NO") << ", Instrs="
-                                << chkvis.instrCount() << " Data=" << chkvis.dataCount()
+                                << chkvis.instr_എണ്ണം() << " Data=" << chkvis.data_എണ്ണം()
                                 << " in width (bits)=" << m_inWidthBits << " out width (bytes)="
                                 << m_outWidthBytes << " Spacetime=" << (space / time) << "("
                                 << space << "/" << time << ")" << ": " << nodep);
-        if (chkvis.optimizable()) {
+        എങ്കിൽ (chkvis.optimizable()) {
             UINFO(3, " Table Optimize spacetime=" << (space / time) << " " << nodep);
             m_totalBytes += space;
         }
-        return chkvis.optimizable();
+        തിരികെ chkvis.optimizable();
     }
 
-    void replaceWithTable(AstAlways* nodep) {
+    ശൂന്യം replaceWithTable(AstAlways* nodep) {
         // We've determined this table of nodes is optimizable, do it.
         ++m_statTablesCre;
 
-        FileLine* const fl = nodep->fileline();
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
 
         // We will need a table index variable, create it here.
-        AstVarScope* const indexVscp = m_indexTmps.make(fl, m_scopep, m_inWidthBits);
+        AstVarScope* സ്ഥിരം indexVscp = m_indexTmps.make(fl, m_scopep, m_inWidthBits);
 
         // The 'output assigned' table builder
         TableBuilder outputAssignedTableBuilder{fl};
@@ -261,31 +261,31 @@ private:
             VL_MASK_I(m_inWidthBits));
 
         // Set sizes of output tables
-        for (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
+        വേണ്ടി (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
 
         // Populate the tables
         createTables(nodep, outputAssignedTableBuilder);
 
-        AstNode* const stmtsp = createLookupInput(fl, indexVscp);
+        Ast_കണ്ണി* സ്ഥിരം stmtsp = create_Lookup_നിവേശം(fl, indexVscp);
         createOutputAssigns(nodep, stmtsp, indexVscp, outputAssignedTableBuilder.varScopep());
 
         // Link it in.
         // Replace the body, keeping the AstAlways itself under its AstActive
-        nodep->stmtsp()->unlinkFrBackWithNext()->deleteTree();
+        nodep->stmtsp()->unlinkFrBackWithNext()->delete_വൃക്ഷം();
         nodep->addStmtsp(stmtsp);
         UINFOTREE(6, nodep, "", "table_new");
     }
 
-    void createTables(AstAlways* nodep, TableBuilder& outputAssignedTableBuilder) {
+    ശൂന്യം createTables(AstAlways* nodep, TableBuilder& outputAssignedTableBuilder) {
         // Create table
         // There may be a simulation path by which the output doesn't change value.
         // We could bail on these cases, or we can have a "change it" boolean.
         // We've chosen the latter route, since recirc is common in large FSMs.
-        TableSimulateVisitor simvis{this};
-        for (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
-            const uint32_t inValue = i;
+        TableSimulateVisitor simvis{ഇത്};
+        വേണ്ടി (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
+            സ്ഥിരം uint32_t in_മൂല്യം = i;
             // Make a new simulation structure so we can set new input values
-            UINFO(8, " Simulating " << std::hex << inValue);
+            UINFO(8, " Simulating " << std::hex << in_മൂല്യം);
 
             // Above simulateVisitor clears user 3, so
             // all outputs default to nullptr to mean 'recirculating'.
@@ -293,11 +293,11 @@ private:
 
             // Set all inputs to the constant
             uint32_t shift = 0;
-            for (AstVarScope* invscp : m_inVarps) {
+            വേണ്ടി (AstVarScope* invscp : m_inVarps) {
                 // LSB is first variable, so extract it that way
-                const AstConst cnst{invscp->fileline(), AstConst::WidthedValue{}, invscp->width(),
-                                    VL_MASK_I(invscp->width()) & (inValue >> shift)};
-                simvis.newValue(invscp, &cnst);
+                സ്ഥിരം AstConst cnst{invscp->fileline(), AstConst::Widthed_മൂല്യം{}, invscp->width(),
+                                    VL_MASK_I(invscp->width()) & (in_മൂല്യം >> shift)};
+                simvis.new_മൂല്യം(invscp, &cnst);
                 shift += invscp->width();
                 // We are using 32 bit arithmetic, because there's no way the input table can be
                 // 2^32 bytes!
@@ -312,67 +312,67 @@ private:
                             << simvis.whyNotMessage());
 
             // Build output value tables and the assigned flags table
-            V3Number outputAssignedMask{nodep, static_cast<int>(m_outVarps.size()), 0};
-            for (TableOutputVar& tov : m_outVarps) {
-                if (V3Number* const outnump = simvis.fetchOutNumberNull(tov.varScopep())) {
+            V3_സംഖ്യ outputAssignedMask{nodep, static_cast<പൂർണ്ണസംഖ്യ>(m_outVarps.size()), 0};
+            വേണ്ടി (TableOutputVar& tov : m_outVarps) {
+                എങ്കിൽ (V3_സംഖ്യ* സ്ഥിരം outnump = simvis.fetch_Out_സംഖ്യ_Null(tov.varScopep())) {
                     UINFO(8, "   Output " << tov.name() << " = " << *outnump);
                     UASSERT_OBJ(!outnump->isAnyXZ(), outnump, "Table should not contain X/Z");
                     outputAssignedMask.setBit(tov.ord(), 1);  // Mark output as assigned
-                    tov.addValue(inValue, *outnump);
-                } else {
+                    tov.add_മൂല്യം(in_മൂല്യം, *outnump);
+                } അല്ലെങ്കിൽ {
                     UINFO(8, "   Output " << tov.name() << " not set for this input");
                     tov.setMayBeUnassigned();
                 }
             }
 
             // Set changed table
-            outputAssignedTableBuilder.addValue(inValue, outputAssignedMask);
+            outputAssignedTableBuilder.add_മൂല്യം(in_മൂല്യം, outputAssignedMask);
         }  // each value
     }
 
-    AstNode* createLookupInput(FileLine* fl, AstVarScope* indexVscp) {
+    Ast_കണ്ണി* create_Lookup_നിവേശം(File_വരി* fl, AstVarScope* indexVscp) {
         // Concat inputs into a single temp variable (inside always)
         // First var in inVars becomes the LSB of the concat
-        AstNodeExpr* concatp = nullptr;
-        for (AstVarScope* invscp : m_inVarps) {
-            AstVarRef* const refp = new AstVarRef{fl, invscp, VAccess::READ};
-            if (concatp) {
-                concatp = new AstConcat{fl, refp, concatp};
-            } else {
+        Ast_കണ്ണി_വ്യഞ്ജകം* concatp = nullptr;
+        വേണ്ടി (AstVarScope* invscp : m_inVarps) {
+            AstVarRef* സ്ഥിരം refp = പുതിയ AstVarRef{fl, invscp, VAccess::READ};
+            എങ്കിൽ (concatp) {
+                concatp = പുതിയ AstConcat{fl, refp, concatp};
+            } അല്ലെങ്കിൽ {
                 concatp = refp;
             }
         }
 
-        return new AstAssign{fl, new AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
+        തിരികെ പുതിയ AstAssign{fl, പുതിയ AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
     }
 
-    AstArraySel* select(FileLine* fl, AstVarScope* fromp, AstVarScope* indexp) {
-        AstVarRef* const fromRefp = new AstVarRef{fl, fromp, VAccess::READ};
-        AstVarRef* const indexRefp = new AstVarRef{fl, indexp, VAccess::READ};
-        return new AstArraySel{fl, fromRefp, indexRefp};
+    AstArraySel* select(File_വരി* fl, AstVarScope* fromp, AstVarScope* indexp) {
+        AstVarRef* സ്ഥിരം fromRefp = പുതിയ AstVarRef{fl, fromp, VAccess::READ};
+        AstVarRef* സ്ഥിരം indexRefp = പുതിയ AstVarRef{fl, indexp, VAccess::READ};
+        തിരികെ പുതിയ AstArraySel{fl, fromRefp, indexRefp};
     }
 
-    void createOutputAssigns(AstNode* nodep, AstNode* stmtsp, AstVarScope* indexVscp,
+    ശൂന്യം createOutputAssigns(Ast_കണ്ണി* nodep, Ast_കണ്ണി* stmtsp, AstVarScope* indexVscp,
                              AstVarScope* outputAssignedTableVscp) {
-        FileLine* const fl = nodep->fileline();
-        for (TableOutputVar& tov : m_outVarps) {
-            AstNodeExpr* const alhsp = new AstVarRef{fl, tov.varScopep(), VAccess::WRITE};
-            AstNodeExpr* const arhsp = select(fl, tov.tabeVarScopep(), indexVscp);
-            AstNode* outsetp = m_assignDly
-                                   ? static_cast<AstNode*>(new AstAssignDly{fl, alhsp, arhsp})
-                                   : static_cast<AstNode*>(new AstAssign{fl, alhsp, arhsp});
+        File_വരി* സ്ഥിരം fl = nodep->fileline();
+        വേണ്ടി (TableOutputVar& tov : m_outVarps) {
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം alhsp = പുതിയ AstVarRef{fl, tov.varScopep(), VAccess::WRITE};
+            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം arhsp = select(fl, tov.tabeVarScopep(), indexVscp);
+            Ast_കണ്ണി* outsetp = m_assignDly
+                                   ? static_cast<Ast_കണ്ണി*>(പുതിയ AstAssignDly{fl, alhsp, arhsp})
+                                   : static_cast<Ast_കണ്ണി*>(പുതിയ AstAssign{fl, alhsp, arhsp});
 
             // If this output is unassigned on some code paths, wrap the assignment in an If
-            if (tov.mayBeUnassigned()) {
-                V3Number outputChgMask{nodep, static_cast<int>(m_outVarps.size()), 0};
+            എങ്കിൽ (tov.mayBeUnassigned()) {
+                V3_സംഖ്യ outputChgMask{nodep, static_cast<പൂർണ്ണസംഖ്യ>(m_outVarps.size()), 0};
                 outputChgMask.setBit(tov.ord(), 1);
-                AstNodeExpr* const condp
-                    = new AstNeq{fl,
-                                 new AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
-                                            new AstConst{fl, outputChgMask}},
-                                 new AstConst{fl, AstConst::WidthedValue{},
-                                              static_cast<int>(m_outVarps.size()), 0}};
-                outsetp = new AstIf{fl, condp, outsetp};
+                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം condp
+                    = പുതിയ AstNeq{fl,
+                                 പുതിയ AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
+                                            പുതിയ AstConst{fl, outputChgMask}},
+                                 പുതിയ AstConst{fl, AstConst::Widthed_മൂല്യം{},
+                                              static_cast<പൂർണ്ണസംഖ്യ>(m_outVarps.size()), 0}};
+                outsetp = പുതിയ AstIf{fl, condp, outsetp};
             }
 
             stmtsp->addNext(outsetp);
@@ -380,27 +380,27 @@ private:
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstScope* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(AstScope* nodep) override {
         UINFO(4, " SCOPE " << nodep);
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstAlways* nodep) override {
+    ശൂന്യം visit(AstAlways* nodep) override {
         UINFO(4, "  ALWAYS  " << nodep);
-        if (treeTest(nodep)) {
+        എങ്കിൽ (വൃക്ഷം_Test(nodep)) {
             // Well, then, I'll be a memory hog.
             replaceWithTable(nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Assign* nodep) override {
         // It's nearly impossible to have a large enough assign to make this worthwhile
         // For now we won't bother.
         // Accelerated: no iterate
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit TableVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~TableVisitor() override {  //
@@ -410,7 +410,7 @@ public:
 
 //######################################################################
 
-void TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
+ശൂന്യം TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
     // Called by checking on each new varref encountered
     // We cross-call into a TableVisitor function.
     m_cbthis->simulateVarRefCb(nodep);
@@ -419,8 +419,8 @@ void TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
 //######################################################################
 // Table class functions
 
-void V3Table::tableAll(AstNetlist* nodep) {
+ശൂന്യം V3Table::tableAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { TableVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("table", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("table", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

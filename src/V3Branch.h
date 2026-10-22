@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3BRANCH_H_
 #define VERILATOR_V3BRANCH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Branch final {
-public:
+പൊതു:
     // CONSTRUCTORS
-    static void branchAll(AstNetlist* nodep) VL_MT_DISABLED;
+    സ്ഥിതം ശൂന്യം branchAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

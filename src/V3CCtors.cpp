@@ -24,106 +24,106 @@
 //      This transformation honors outputSplitCFuncs.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3CCtors.h"
+#അന്തര്ഭാവ "V3CCtors.h"
 
-#include "V3EmitCBase.h"
+#അന്തര്ഭാവ "V3EmitCBase.h"
 
-#include <list>
+#അന്തര്ഭാവ <list>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class VCtorType final {
-public:
-    enum en : uint8_t { MODULE, CLASS, COVERAGE };
+വർഗ്ഗം VCtorType final {
+പൊതു:
+    എണ്ണൽ en : uint8_t { MODULE, CLASS, COVERAGE };
 
-private:
-    const enum en m_e;
+സ്വകാര്യ:
+    സ്ഥിരം എണ്ണൽ en m_e;
 
-public:
+പൊതു:
     // cppcheck-suppress noExplicitConstructor
     constexpr VCtorType(en _e)
         : m_e{_e} {}
-    bool isClass() const { return m_e == CLASS; }
-    bool isCoverage() const { return m_e == COVERAGE; }
+    തർക്കം isClass() സ്ഥിരം { തിരികെ m_e == CLASS; }
+    തർക്കം isCoverage() സ്ഥിരം { തിരികെ m_e == COVERAGE; }
 };
 
-class V3CCtorsBuilder final {
-    AstNodeModule* const m_modp;  // Current module/class
-    const string m_basename;
-    const VCtorType m_type;  // What kind of constructor are we creating
+വർഗ്ഗം V3CCtorsBuilder final {
+    Ast_കണ്ണി_Module* സ്ഥിരം m_modp;  // Current module/class
+    സ്ഥിരം string m_basename;
+    സ്ഥിരം VCtorType m_type;  // What kind of constructor are we creating
     std::list<AstCFunc*> m_newFunctions;  // Created functions, latest is at back
-    int m_numStmts = 0;  // Number of statements output
+    പൂർണ്ണസംഖ്യ m_അക്കം_Stmts = 0;  // Number of statements output
 
     AstCFunc* makeNewFunc() {
-        const int funcNum = m_newFunctions.size();
-        const string funcName = m_basename + "_" + cvtToStr(funcNum);
-        AstCFunc* const funcp = new AstCFunc{m_modp->fileline(), funcName, nullptr, "void"};
-        funcp->isStatic(false);
+        സ്ഥിരം പൂർണ്ണസംഖ്യ func_അക്കം = m_newFunctions.size();
+        സ്ഥിരം string funcName = m_basename + "_" + cvtToStr(func_അക്കം);
+        AstCFunc* സ്ഥിരം funcp = പുതിയ AstCFunc{m_modp->fileline(), funcName, nullptr, "void"};
+        funcp->isStatic(അസത്യം);
         funcp->isLoose(!m_type.isClass());
-        funcp->keepIfEmpty(true);  // TODO relax
-        funcp->declPrivate(true);
+        funcp->keepIfEmpty(സത്യം);  // TODO relax
+        funcp->declPrivate(സത്യം);
         funcp->slow(!m_type.isClass());  // Only classes construct on fast path
-        if (!m_type.isCoverage()) m_modp->ctorVarReset(true);
+        എങ്കിൽ (!m_type.isCoverage()) m_modp->ctorVarReset(സത്യം);
         string preventUnusedStmt;
-        if (m_type.isClass()) {
+        എങ്കിൽ (m_type.isClass()) {
             funcp->argTypes(EmitCUtil::symClassVar());
             preventUnusedStmt = "(void)vlSymsp;  // Prevent unused variable warning";
-        } else if (m_type.isCoverage()) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (m_type.isCoverage()) {
             funcp->argTypes("bool first");
             preventUnusedStmt = "(void)first;  // Prevent unused variable warning";
         }
-        if (!preventUnusedStmt.empty()) {
-            funcp->addStmtsp(new AstCStmt{m_modp->fileline(), preventUnusedStmt});
+        എങ്കിൽ (!preventUnusedStmt.empty()) {
+            funcp->addStmtsp(പുതിയ AstCStmt{m_modp->fileline(), preventUnusedStmt});
         }
         m_modp->addStmtsp(funcp);
-        m_numStmts = 0;
-        return funcp;
+        m_അക്കം_Stmts = 0;
+        തിരികെ funcp;
     }
 
-public:
-    void add(AstNode* nodep) {
-        if (m_newFunctions.empty()) m_newFunctions.push_back(makeNewFunc());
-        if (v3Global.opt.outputSplitCFuncs() && m_numStmts > v3Global.opt.outputSplitCFuncs()) {
-            m_newFunctions.push_back(makeNewFunc());
+പൊതു:
+    ശൂന്യം add(Ast_കണ്ണി* nodep) {
+        എങ്കിൽ (m_newFunctions.empty()) m_newFunctions.തള്ളുക_back(makeNewFunc());
+        എങ്കിൽ (v3Global.opt.outputSplitCFuncs() && m_അക്കം_Stmts > v3Global.opt.outputSplitCFuncs()) {
+            m_newFunctions.തള്ളുക_back(makeNewFunc());
         }
         m_newFunctions.back()->addStmtsp(nodep);
-        m_numStmts += 1;
+        m_അക്കം_Stmts += 1;
     }
 
-    V3CCtorsBuilder(AstNodeModule* nodep, const string& basename, VCtorType type)
+    V3CCtorsBuilder(Ast_കണ്ണി_Module* nodep, സ്ഥിരം string& basename, VCtorType type)
         : m_modp{nodep}
         , m_basename{basename}
         , m_type{type} {
         // Expect coverage function to always exist, so must always create at least one.
-        if (m_type.isCoverage()) m_newFunctions.push_back(makeNewFunc());
+        എങ്കിൽ (m_type.isCoverage()) m_newFunctions.തള്ളുക_back(makeNewFunc());
     }
 
     ~V3CCtorsBuilder() {
-        if (m_newFunctions.size() == 0) {
-        } else if (m_newFunctions.size() == 1) {
+        എങ്കിൽ (m_newFunctions.size() == 0) {
+        } അല്ലെങ്കിൽ എങ്കിൽ (m_newFunctions.size() == 1) {
             // No split was necessary, rename the one function to the basename
             m_newFunctions.front()->name(m_basename);
-        } else {
+        } അല്ലെങ്കിൽ {
             // Split was necessary, create root function and call all others from that
-            AstCFunc* const rootFuncp = makeNewFunc();
-            rootFuncp->name(m_basename);
-            for (AstCFunc* const funcp : m_newFunctions) {
-                AstCCall* const callp = new AstCCall{m_modp->fileline(), funcp};
+            AstCFunc* സ്ഥിരം വേര്_Funcp = makeNewFunc();
+            വേര്_Funcp->name(m_basename);
+            വേണ്ടി (AstCFunc* സ്ഥിരം funcp : m_newFunctions) {
+                AstCCall* സ്ഥിരം callp = പുതിയ AstCCall{m_modp->fileline(), funcp};
                 callp->dtypeSetVoid();
-                if (m_type.isClass()) {
+                എങ്കിൽ (m_type.isClass()) {
                     callp->argTypes("vlSymsp");
-                } else {
-                    if (m_type.isCoverage()) callp->argTypes("first");
+                } അല്ലെങ്കിൽ {
+                    എങ്കിൽ (m_type.isCoverage()) callp->argTypes("first");
                     callp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
                 }
-                rootFuncp->addStmtsp(callp->makeStmt());
+                വേര്_Funcp->addStmtsp(callp->makeStmt());
             }
         }
     }
 
-private:
+സ്വകാര്യ:
     VL_UNCOPYABLE(V3CCtorsBuilder);
 };
 
@@ -131,31 +131,31 @@ private:
 
 // Link state, as a visitor of each AstNode
 
-class CCtorsVisitor final : public VNVisitor {
+വർഗ്ഗം CCtorsVisitor final : പൊതു VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_കണ്ണി_Module* m_modp = nullptr;  // Current module
     AstCFunc* m_cfuncp = nullptr;  // Current function
     V3CCtorsBuilder* m_varResetp = nullptr;  // Builder of _ctor_var_reset
-    std::map<AstCStmt*, const AstNodeModule*> m_ctorCalls;  // Calls to _ctor_var_reset
+    std::map<AstCStmt*, സ്ഥിരം Ast_കണ്ണി_Module*> m_ctorCalls;  // Calls to _ctor_var_reset
 
     // METHODS
-    static void insertSc(AstCFunc* cfuncp, const AstNodeModule* modp, VSystemCSectionType type) {
-        const auto txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
-        if (txtAndFlp.first.empty()) return;
+    സ്ഥിതം ശൂന്യം തിരുകുക_Sc(AstCFunc* cfuncp, സ്ഥിരം Ast_കണ്ണി_Module* modp, VSystemCSectionType type) {
+        സ്ഥിരം auto txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
+        എങ്കിൽ (txtAndFlp.first.empty()) തിരികെ;
         // Use an AstCStmtUser as this is from user input
-        AstCStmtUser* const cstmtp = new AstCStmtUser{txtAndFlp.second};
+        AstCStmtUser* സ്ഥിരം cstmtp = പുതിയ AstCStmtUser{txtAndFlp.second};
         cstmtp->add(txtAndFlp.first);
         cfuncp->addStmtsp(cstmtp);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->isConstPool()) return;  // Special emit rules
-        if (const AstClass* const classp = VN_CAST(nodep, Class)) {
+    ശൂന്യം visit(Ast_കണ്ണി_Module* nodep) override {
+        എങ്കിൽ (nodep->isConstPool()) തിരികെ;  // Special emit rules
+        എങ്കിൽ (സ്ഥിരം AstClass* സ്ഥിരം classp = VN_CAST(nodep, Class)) {
             // Interface class may only have pure virtuals and params which do not need cctor reset
-            if (classp->isInterfaceClass()) return;
+            എങ്കിൽ (classp->isInterfaceClass()) തിരികെ;
         }
         VL_RESTORER(m_modp);
         VL_RESTORER(m_varResetp);
@@ -166,11 +166,11 @@ class CCtorsVisitor final : public VNVisitor {
         m_varResetp = &var_reset;
         iterateChildren(nodep);
 
-        if (v3Global.opt.coverage()) {
+        എങ്കിൽ (v3Global.opt.coverage()) {
             V3CCtorsBuilder configure_coverage{nodep, "_configure_coverage", VCtorType::COVERAGE};
-            for (AstNode *np = nodep->stmtsp(), *nextp; np; np = nextp) {
+            വേണ്ടി (Ast_കണ്ണി *np = nodep->stmtsp(), *nextp; np; np = nextp) {
                 nextp = np->nextp();
-                if (AstNodeCoverDecl* const coverp = VN_CAST(np, NodeCoverDecl)) {
+                എങ്കിൽ (Ast_കണ്ണി_Cover_Decl* സ്ഥിരം coverp = VN_CAST(np, കണ്ണി_Cover_Decl)) {
                     // ... else we don't have a static VlSym to be able to coverage insert
                     UASSERT_OBJ(!VN_IS(nodep, Class), coverp,
                                 "NodeCoverDecl should be in class's package, not class itself");
@@ -178,101 +178,101 @@ class CCtorsVisitor final : public VNVisitor {
                 }
             }
         }
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            AstCFunc* const funcp = new AstCFunc{classp->fileline(), "~", nullptr, ""};
-            funcp->isDestructor(true);
-            funcp->isStatic(false);
+        എങ്കിൽ (AstClass* സ്ഥിരം classp = VN_CAST(nodep, Class)) {
+            AstCFunc* സ്ഥിരം funcp = പുതിയ AstCFunc{classp->fileline(), "~", nullptr, ""};
+            funcp->isDestructor(സത്യം);
+            funcp->isStatic(അസത്യം);
             // If can be referred to by base pointer, need virtual delete
             funcp->isVirtual(classp->isExtended());
-            funcp->slow(false);
-            insertSc(funcp, classp, VSystemCSectionType::DTOR);
+            funcp->slow(അസത്യം);
+            തിരുകുക_Sc(funcp, classp, VSystemCSectionType::DTOR);
             classp->addStmtsp(funcp);
         }
     }
 
-    void visit(AstCFunc* nodep) override {
+    ശൂന്യം visit(AstCFunc* nodep) override {
         VL_RESTORER(m_varResetp);
         VL_RESTORER(m_cfuncp);
         m_varResetp = nullptr;
         m_cfuncp = nodep;
         iterateChildren(nodep);
-        if (nodep->name() == "new") insertSc(nodep, m_modp, VSystemCSectionType::CTOR);
+        എങ്കിൽ (nodep->name() == "new") തിരുകുക_Sc(nodep, m_modp, VSystemCSectionType::CTOR);
     }
-    void visit(AstCStmt* nodep) override {
-        if (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
+    ശൂന്യം visit(AstCStmt* nodep) override {
+        എങ്കിൽ (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
             UASSERT_OBJ(m_modp, nodep, "ctor_var_reset call not under module");
             m_ctorCalls.emplace(nodep, m_modp);
         }
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (nodep->needsCReset()) {
-            AstNode* const crstp = new AstAssign{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
-                new AstCReset{nodep->fileline(), nodep, true}};
-            if (m_varResetp) {
+    ശൂന്യം visit(AstVar* nodep) override {
+        എങ്കിൽ (nodep->needsCReset()) {
+            Ast_കണ്ണി* സ്ഥിരം crstp = പുതിയ AstAssign{
+                nodep->fileline(), പുതിയ AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+                പുതിയ AstCReset{nodep->fileline(), nodep, സത്യം}};
+            എങ്കിൽ (m_varResetp) {
                 m_varResetp->add(crstp);
-            } else if (m_cfuncp) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (m_cfuncp) {
                 nodep->addNextHere(crstp);
-            } else {
+            } അല്ലെങ്കിൽ {
                 nodep->v3fatalSrc("Var needs CReset but nowhere to place it");
             }
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    explicit CCtorsVisitor(AstNode* nodep) { iterate(nodep); }
+    explicit CCtorsVisitor(Ast_കണ്ണി* nodep) { iterate(nodep); }
     ~CCtorsVisitor() override {
         // Remove CStmts to ctor_var_resets that are no longer needed
-        for (auto& itr : m_ctorCalls) {
-            AstCStmt* const nodep = itr.first;
-            const AstNodeModule* const modp = itr.second;
-            if (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        വേണ്ടി (auto& itr : m_ctorCalls) {
+            AstCStmt* സ്ഥിരം nodep = itr.first;
+            സ്ഥിരം Ast_കണ്ണി_Module* സ്ഥിരം modp = itr.second;
+            എങ്കിൽ (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->delete_വൃക്ഷം(), nodep);
         }
     }
 };
 
 //######################################################################
 
-void V3CCtors::evalAsserts() {
-    AstNodeModule* const modp = v3Global.rootp()->modulesp();  // Top module wrapper
-    AstCFunc* const funcp
-        = new AstCFunc{modp->fileline(), "_eval_debug_assertions", nullptr, "void"};
-    funcp->declPrivate(true);
-    funcp->isStatic(false);
-    funcp->isLoose(true);
-    funcp->keepIfEmpty(true);
-    funcp->slow(false);
+ശൂന്യം V3CCtors::evalAsserts() {
+    Ast_കണ്ണി_Module* സ്ഥിരം modp = v3Global.rootp()->modulesp();  // Top module wrapper
+    AstCFunc* സ്ഥിരം funcp
+        = പുതിയ AstCFunc{modp->fileline(), "_eval_debug_assertions", nullptr, "void"};
+    funcp->declPrivate(സത്യം);
+    funcp->isStatic(അസത്യം);
+    funcp->isLoose(സത്യം);
+    funcp->keepIfEmpty(സത്യം);
+    funcp->slow(അസത്യം);
     funcp->ifdef("VL_DEBUG");
     modp->addStmtsp(funcp);
-    for (AstNode* np = modp->stmtsp(); np; np = np->nextp()) {
-        if (AstVar* const varp = VN_CAST(np, Var)) {
-            if (varp->isPrimaryInish() && !varp->isSc()) {
-                if (const AstBasicDType* const basicp
+    വേണ്ടി (Ast_കണ്ണി* np = modp->stmtsp(); np; np = np->nextp()) {
+        എങ്കിൽ (AstVar* സ്ഥിരം varp = VN_CAST(np, Var)) {
+            എങ്കിൽ (varp->isPrimaryInish() && !varp->isSc()) {
+                എങ്കിൽ (സ്ഥിരം AstBasicDType* സ്ഥിരം basicp
                     = VN_CAST(varp->dtypeSkipRefp(), BasicDType)) {
-                    const int storedWidth = basicp->widthAlignBytes() * 8;
-                    const int lastWordWidth = varp->width() % storedWidth;
-                    if (lastWordWidth != 0) {
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ storedWidth = basicp->widthAlignBytes() * 8;
+                    സ്ഥിരം പൂർണ്ണസംഖ്യ lastWordWidth = varp->width() % storedWidth;
+                    എങ്കിൽ (lastWordWidth != 0) {
                         // if (signal & CONST(upper_non_clean_mask)) { fail; }
-                        AstVarRef* const vrefp
-                            = new AstVarRef{varp->fileline(), varp, VAccess::READ};
+                        AstVarRef* സ്ഥിരം vrefp
+                            = പുതിയ AstVarRef{varp->fileline(), varp, VAccess::READ};
                         vrefp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
-                        AstNodeExpr* newp = vrefp;
-                        if (varp->isWide()) {
-                            newp = new AstWordSel{
+                        Ast_കണ്ണി_വ്യഞ്ജകം* newp = vrefp;
+                        എങ്കിൽ (varp->isWide()) {
+                            newp = പുതിയ AstWordSel{
                                 varp->fileline(), newp,
-                                new AstConst(varp->fileline(), varp->widthWords() - 1)};
+                                പുതിയ AstConst(varp->fileline(), varp->width_വാക്കുകൾ() - 1)};
                         }
-                        const uint64_t value = VL_MASK_Q(storedWidth) & ~VL_MASK_Q(lastWordWidth);
-                        newp = new AstAnd{varp->fileline(), newp,
-                                          new AstConst(varp->fileline(), AstConst::WidthedValue{},
-                                                       storedWidth, value)};
-                        AstNodeIf* const ifp = new AstIf{
+                        സ്ഥിരം uint64_t മൂല്യം = VL_MASK_Q(storedWidth) & ~VL_MASK_Q(lastWordWidth);
+                        newp = പുതിയ AstAnd{varp->fileline(), newp,
+                                          പുതിയ AstConst(varp->fileline(), AstConst::Widthed_മൂല്യം{},
+                                                       storedWidth, മൂല്യം)};
+                        Ast_കണ്ണി_If* സ്ഥിരം ifp = പുതിയ AstIf{
                             varp->fileline(), newp,
-                            new AstCStmt{varp->fileline(), "Verilated::overWidthError(\""
+                            പുതിയ AstCStmt{varp->fileline(), "Verilated::overWidthError(\""
                                                                + varp->prettyName() + "\");"}};
                         ifp->branchPred(VBranchPred::BP_UNLIKELY);
                         funcp->addStmtsp(ifp);
@@ -283,9 +283,9 @@ void V3CCtors::evalAsserts() {
     }
 }
 
-void V3CCtors::cctorsAll() {
+ശൂന്യം V3CCtors::cctorsAll() {
     UINFO(2, __FUNCTION__ << ":");
     evalAsserts();
     { CCtorsVisitor{v3Global.rootp()}; }
-    V3Global::dumpCheckGlobalTree("cctors", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("cctors", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

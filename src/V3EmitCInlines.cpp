@@ -14,53 +14,53 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#അന്തര്ഭാവ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3Stats.h"
+#അന്തര്ഭാവ "V3EmitC.h"
+#അന്തര്ഭാവ "V3EmitCBase.h"
+#അന്തര്ഭാവ "V3Stats.h"
 
-#include <map>
+#അന്തര്ഭാവ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class EmitCInlines final : EmitCBaseVisitorConst {
+വർഗ്ഗം EmitCInlines final : EmitCBaseVisitorConst {
     // STATE
 
     // METHODS
 
     // VISITORS
-    void visit(AstCNew* nodep) override {
-        if (v3Global.opt.savable())
+    ശൂന്യം visit(AstCNew* nodep) override {
+        എങ്കിൽ (v3Global.opt.savable())
             v3warn(E_UNSUPPORTED, "Unsupported: --savable with dynamic new");
         iterateChildrenConst(nodep);
     }
-    void visit(AstDumpCtl* nodep) override {
-        if (v3Global.opt.trace()) v3Global.needTraceDumper(true);
+    ശൂന്യം visit(AstDumpCtl* nodep) override {
+        എങ്കിൽ (v3Global.opt.trace()) v3Global.needTraceDumper(സത്യം);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistBiop* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Dist_Biop* nodep) override {
         v3Global.setUsesProbDist();
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistTriop* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Dist_Triop* nodep) override {
         v3Global.setUsesProbDist();
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+പൊതു:
     explicit EmitCInlines(AstNetlist* nodep) { iterateConst(nodep); }
 };
 
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcInlines() {
+ശൂന്യം V3EmitC::emitcInlines() {
     UINFO(2, __FUNCTION__ << ":");
     { EmitCInlines{v3Global.rootp()}; }
 }

@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#അന്തര്ഭാവ "V3PchAstMT.h"
 
-#include "V3Stats.h"
+#അന്തര്ഭാവ "V3Stats.h"
 
-#include <iomanip>
-#include <map>
+#അന്തര്ഭാവ <iomanip>
+#അന്തര്ഭാവ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -31,121 +31,121 @@ V3Mutex V3Stats::s_mutex;
 //######################################################################
 // Stats class functions
 
-class StatsVisitor final : public VNVisitorConst {
-    struct Counters final {
+വർഗ്ഗം StatsVisitor final : പൊതു VNVisitorConst {
+    ഘടന Counters final {
         // Nodes of given type
-        std::array<uint64_t, VNType::NUM_TYPES()> m_statTypeCount{};
+        std::array<uint64_t, VNType::അക്കം_TYPES()> m_stat_Type_എണ്ണം{};
         // Prediction of given type
         std::array<uint64_t, VBranchPred::_ENUM_END> m_statPred{};
     };
 
     // STATE
-    const bool m_fastOnly;  // When true, consider only fast functions
-    bool m_empty = true;  // Netlist is empty
+    സ്ഥിരം തർക്കം m_fastOnly;  // When true, consider only fast functions
+    തർക്കം m_empty = സത്യം;  // Netlist is empty
     Counters m_counters;  // The actual counts we will display
     Counters m_dumpster;  // Alternate buffer to make discarding parts of the tree easier
     Counters* m_accump;  // The currently active accumulator
     std::vector<uint64_t> m_statVarWidths;  // Variables of given width
-    std::vector<std::map<const std::string, uint32_t>>
+    std::vector<std::map<സ്ഥിരം std::string, uint32_t>>
         m_statVarWidthNames;  // Var names of given width
 
     // METHODS
-    void countThenIterateChildren(AstNode* nodep) {
-        ++m_accump->m_statTypeCount[nodep->type()];
-        if (nodep->type() != VNType::Netlist) m_empty = false;
+    ശൂന്യം എണ്ണം_Then_Iterate_Children(Ast_കണ്ണി* nodep) {
+        ++m_accump->m_stat_Type_എണ്ണം[nodep->type()];
+        എങ്കിൽ (nodep->type() != VNType::Netlist) m_empty = അസത്യം;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        if (nodep->dtypep()) {
-            if (!nodep->constPoolEntry()) {
+    ശൂന്യം visit(AstVar* nodep) override {
+        എങ്കിൽ (nodep->dtypep()) {
+            എങ്കിൽ (!nodep->constPoolEntry()) {
                 // Count proper variables
-                if (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
+                എങ്കിൽ (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
                     m_statVarWidths.resize(nodep->width() + 5);
-                    if (v3Global.opt.statsVars()) {  //
+                    എങ്കിൽ (v3Global.opt.statsVars()) {  //
                         m_statVarWidthNames.resize(nodep->width() + 5);
                     }
                 }
                 ++m_statVarWidths.at(nodep->width());
-                if (v3Global.opt.statsVars()) {
+                എങ്കിൽ (v3Global.opt.statsVars()) {
                     ++m_statVarWidthNames.at(nodep->width())[nodep->prettyName()];
                 }
             }
         }
 
-        countThenIterateChildren(nodep);
+        എണ്ണം_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNodeIf* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_If* nodep) override {
         // Track prediction
         ++m_accump->m_statPred[nodep->branchPred()];
-        countThenIterateChildren(nodep);
+        എണ്ണം_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    ശൂന്യം visit(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
-        if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
-        countThenIterateChildren(nodep);
+        എങ്കിൽ (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
+        എണ്ണം_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNode* nodep) override { countThenIterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { എണ്ണം_Then_Iterate_Children(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    StatsVisitor(AstNetlist* nodep, const std::string& stage, bool fastOnly)
+    StatsVisitor(AstNetlist* nodep, സ്ഥിരം std::string& stage, തർക്കം fastOnly)
         : m_fastOnly{fastOnly}
         , m_accump{fastOnly ? &m_dumpster : &m_counters} {
         UINFO(9, "Starting stats, fastOnly=" << fastOnly);
         iterateConst(nodep);
-        if (m_empty) return;
+        എങ്കിൽ (m_empty) തിരികെ;
 
         // Shorthand
-        const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
-            V3Stats::addStat(stage, name, count, precision);
+        സ്ഥിരം auto addStat = [&](സ്ഥിരം std::string& name, ഇരട്ട എണ്ണം, unsigned precision = 0) {
+            V3Stats::addStat(stage, name, എണ്ണം, precision);
         };
 
         // Variable widths
-        for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+        വേണ്ടി (unsigned i = 0; i < m_statVarWidths.size(); i++) {
+            എങ്കിൽ (സ്ഥിരം uint64_t എണ്ണം = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
-                const std::string prefix = ss.str();
-                if (v3Global.opt.statsVars()) {
-                    for (const auto& it : m_statVarWidthNames.at(i)) {
+                സ്ഥിരം std::string prefix = ss.str();
+                എങ്കിൽ (v3Global.opt.statsVars()) {
+                    വേണ്ടി (സ്ഥിരം auto& it : m_statVarWidthNames.at(i)) {
                         addStat(prefix + " " + it.first, it.second);
                     }
-                } else {
-                    addStat(prefix, count);
+                } അല്ലെങ്കിൽ {
+                    addStat(prefix, എണ്ണം);
                 }
             }
         }
 
         // Node types (also total memory usage)
-        const auto typeName
-            = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
-        const auto typeSize
-            = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
-        size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                totalNodeMemoryUsage += count * typeSize(t);
-                addStat("Node count, " + typeName(t), count);
+        സ്ഥിരം auto typeName
+            = [](size_t t) { തിരികെ std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
+        സ്ഥിരം auto typeSize
+            = [](size_t t) { തിരികെ VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
+        size_t total_കണ്ണി_Memory_Usage = 0;
+        വേണ്ടി (size_t t = 0; t < VNType::അക്കം_TYPES(); ++t) {
+            എങ്കിൽ (സ്ഥിരം uint64_t എണ്ണം = m_counters.m_stat_Type_എണ്ണം[t]) {
+                total_കണ്ണി_Memory_Usage += എണ്ണം * typeSize(t);
+                addStat("Node count, " + typeName(t), എണ്ണം);
             }
         }
-        addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
+        addStat("Node mem TOTAL (MiB)", total_കണ്ണി_Memory_Usage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
+        വേണ്ടി (size_t t = 0; t < VNType::അക്കം_TYPES(); ++t) {
+            എങ്കിൽ (സ്ഥിരം uint64_t എണ്ണം = m_counters.m_stat_Type_എണ്ണം[t]) {
+                സ്ഥിരം ഇരട്ട share = 100.0 * എണ്ണം * typeSize(t) / total_കണ്ണി_Memory_Usage;
                 addStat("Node mem %, " + typeName(t), share, 2);
             }
         }
 
         // Branch predictions
-        for (int t = 0; t < VBranchPred::_ENUM_END; ++t) {
-            if (const uint64_t c = m_counters.m_statPred[t]) {
+        വേണ്ടി (പൂർണ്ണസംഖ്യ t = 0; t < VBranchPred::_ENUM_END; ++t) {
+            എങ്കിൽ (സ്ഥിരം uint64_t c = m_counters.m_statPred[t]) {
                 addStat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
             }
         }
@@ -155,6 +155,6 @@ public:
 //######################################################################
 // Top Stats class
 
-void V3Stats::statsStageAll(AstNetlist* nodep, const std::string& stage, bool fastOnly) {
+ശൂന്യം V3Stats::statsStageAll(AstNetlist* nodep, സ്ഥിരം std::string& stage, തർക്കം fastOnly) {
     StatsVisitor{nodep, stage, fastOnly};
 }

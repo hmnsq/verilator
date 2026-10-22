@@ -22,9 +22,9 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3CUse.h"
+#അന്തര്ഭാവ "V3CUse.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -33,93 +33,93 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Visit within a module all nodes and data types they reference, finding
 // any classes so we can make sure they are defined when Verilated code
 // compiles
-class CUseVisitor final : public VNVisitorConst {
+വർഗ്ഗം CUseVisitor final : പൊതു VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()     -> bool.  True if already visited
-    const VNUser1InUse m_inuser1;
+    സ്ഥിരം VNUser1InUse m_inuser1;
 
     // MEMBERS
-    AstNodeModule* const m_modp;  // Current module
-    std::map<std::string, std::pair<FileLine*, VUseType>> m_didUse;  // What we already used
+    Ast_കണ്ണി_Module* സ്ഥിരം m_modp;  // Current module
+    std::map<std::string, std::pair<File_വരി*, VUseType>> m_didUse;  // What we already used
 
     // METHODS
-    void addNewUse(const AstNode* nodep, VUseType useType, const string& name) {
+    ശൂന്യം addNewUse(സ്ഥിരം Ast_കണ്ണി* nodep, VUseType useType, സ്ഥിരം string& name) {
         auto e = m_didUse.emplace(name, std::make_pair(nodep->fileline(), useType));
-        if (e.second || ((e.first->second.second & useType) != useType)) {
+        എങ്കിൽ (e.second || ((e.first->second.second & useType) != useType)) {
             e.first->second.second = e.first->second.second | useType;
         }
     }
 
     // VISITORS
-    void visit(AstClassRefDType* nodep) override {
+    ശൂന്യം visit(AstClassRefDType* nodep) override {
         addNewUse(nodep, VUseType::INT_FWD_CLASS, nodep->classp()->name());
     }
-    void visit(AstCFunc* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    ശൂന്യം visit(AstCFunc* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;
         iterateAndNextConstNull(nodep->argsp());
         iterateAndNextConstNull(nodep->stmtsp());
     }
-    void visit(AstCCall* /*nodep*/) override {}
-    void visit(AstCReturn* nodep) override {
+    ശൂന്യം visit(AstCCall* /*nodep*/) override {}
+    ശൂന്യം visit(AstCReturn* nodep) override {
         UASSERT_OBJ(!nodep->user1SetOnce(), nodep, "Visited same return twice");
         iterateConst(nodep->lhsp()->dtypep());
     }
-    void visit(AstNodeDType* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->virtRefDTypep()) iterateConst(nodep->virtRefDTypep());
-        if (nodep->virtRefDType2p()) iterateConst(nodep->virtRefDType2p());
+    ശൂന്യം visit(Ast_കണ്ണി_DType* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;  // Process once
+        എങ്കിൽ (nodep->virtRefDTypep()) iterateConst(nodep->virtRefDTypep());
+        എങ്കിൽ (nodep->virtRefDType2p()) iterateConst(nodep->virtRefDType2p());
 
         // Add a CUse for every struct that requires a declaration
-        AstNodeUOrStructDType* const stypep = VN_CAST(nodep->skipRefp(), NodeUOrStructDType);
-        if (stypep && stypep->classOrPackagep()) {
+        Ast_കണ്ണി_UOr_Struct_DType* സ്ഥിരം stypep = VN_CAST(nodep->skipRefp(), കണ്ണി_UOr_Struct_DType);
+        എങ്കിൽ (stypep && stypep->classOrPackagep()) {
             addNewUse(nodep, VUseType::INT_INCLUDE, stypep->classOrPackagep()->name());
             iterateChildrenConst(stypep);
-        } else if (const AstClassRefDType* const classp
+        } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstClassRefDType* സ്ഥിരം classp
                    = VN_CAST(nodep->skipRefp(), ClassRefDType)) {
             addNewUse(nodep, VUseType::INT_FWD_CLASS, classp->name());
         }
     }
-    void visit(AstNode* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->dtypep()) iterateConst(nodep->dtypep());
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;  // Process once
+        എങ്കിൽ (nodep->dtypep()) iterateConst(nodep->dtypep());
         iterateChildrenConst(nodep);
     }
-    void visit(AstCell* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->modp()->isConstPool()) return;  // Special emit rules
+    ശൂന്യം visit(AstCell* nodep) override {
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;  // Process once
+        എങ്കിൽ (nodep->modp()->isConstPool()) തിരികെ;  // Special emit rules
         // Currently no IMP_INCLUDE because we include __Syms which has them all
         addNewUse(nodep, VUseType::INT_FWD_CLASS, nodep->modp()->name());
         iterateChildrenConst(nodep);
     }
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    explicit CUseVisitor(AstNodeModule* modp)
+    explicit CUseVisitor(Ast_കണ്ണി_Module* modp)
         : m_modp{modp} {
         iterateConst(modp);
 
-        for (const auto& used : m_didUse) {
-            AstCUse* const newp = new AstCUse{used.second.first, used.second.second, used.first};
+        വേണ്ടി (സ്ഥിരം auto& used : m_didUse) {
+            AstCUse* സ്ഥിരം newp = പുതിയ AstCUse{used.second.first, used.second.second, used.first};
             m_modp->addStmtsp(newp);
             UINFO(8, "Insert " << newp);
         }
     }
-    ~CUseVisitor() override = default;
+    ~CUseVisitor() override = സ്ഥിരസ്ഥിതി;
     VL_UNCOPYABLE(CUseVisitor);
 };
 
 //######################################################################
 // Class class functions
 
-void V3CUse::cUseAll() {
+ശൂന്യം V3CUse::cUseAll() {
     UINFO(2, __FUNCTION__ << ":");
     // Call visitor separately for each module, so visitor state is cleared
-    for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
-         modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (modp->isConstPool()) continue;  // Special emit rules
+    വേണ്ടി (Ast_കണ്ണി_Module* modp = v3Global.rootp()->modulesp(); modp;
+         modp = VN_AS(modp->nextp(), കണ്ണി_Module)) {
+        എങ്കിൽ (modp->isConstPool()) തുടരുക;  // Special emit rules
         // Insert under this module; someday we should e.g. make Ast
         // for each output file and put under that
         CUseVisitor{modp};
     }
-    V3Global::dumpCheckGlobalTree("cuse", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("cuse", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

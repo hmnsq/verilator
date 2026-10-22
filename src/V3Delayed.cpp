@@ -113,138 +113,138 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Delayed.h"
+#അന്തര്ഭാവ "V3Delayed.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3ClassGraph.h"
-#include "V3Const.h"
-#include "V3LinkLValue.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#അന്തര്ഭാവ "V3AstUserAllocator.h"
+#അന്തര്ഭാവ "V3ClassGraph.h"
+#അന്തര്ഭാവ "V3Const.h"
+#അന്തര്ഭാവ "V3LinkLValue.h"
+#അന്തര്ഭാവ "V3SharedTmps.h"
+#അന്തര്ഭാവ "V3Stats.h"
 
-#include <deque>
-#include <map>
+#അന്തര്ഭാവ <deque>
+#അന്തര്ഭാവ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert AstAssignDlys (NBAs)
 
-class DelayedVisitor final : public VNVisitor {
+വർഗ്ഗം DelayedVisitor final : പൊതു VNVisitor {
     // TYPES
 
     // The various NBA conversion schemes, including error cases
-    enum class Scheme : uint8_t {
+    എണ്ണൽ വർഗ്ഗം Scheme : uint8_t {
         Undecided = 0,
         UnsupportedCompoundArrayInLoop,
         ShadowVar,
         ShadowVarMasked,
         FlagShared,
         FlagUnique,
-        ValueQueueWhole,
-        ValueQueuePartial
+        മൂല്യം_Queue_Whole,
+        മൂല്യം_Queue_Partial
     };
 
     // All info associated with a variable that is the target of an NBA
-    class VarScopeInfo final {
-    public:
+    വർഗ്ഗം VarScopeInfo final {
+    പൊതു:
         // First write reference encountered to the VarScope as the target on an NBA
-        const AstVarRef* m_firstNbaRefp = nullptr;
+        സ്ഥിരം AstVarRef* m_firstNbaRefp = nullptr;
         // Active block 'm_firstNbaRefp' is under
-        const AstActive* m_fistActivep = nullptr;
-        bool m_whole = false;  // Used on LHS of NBA directly via VarRef
-        bool m_partial = false;  // Used on LHS of NBA under a Sel
-        bool m_inLoop = false;  // Used on LHS of NBA in a loop
-        bool m_inSuspOrFork = false;  // Used on LHS of NBA in suspendable process or fork
+        സ്ഥിരം AstActive* m_fistActivep = nullptr;
+        തർക്കം m_whole = അസത്യം;  // Used on LHS of NBA directly via VarRef
+        തർക്കം m_partial = അസത്യം;  // Used on LHS of NBA under a Sel
+        തർക്കം m_inLoop = അസത്യം;  // Used on LHS of NBA in a loop
+        തർക്കം m_inSuspOrFork = അസത്യം;  // Used on LHS of NBA in suspendable process or fork
         Scheme m_scheme = Scheme::Undecided;  // Conversion scheme to use for this variable
 
-    private:
+    സ്വകാര്യ:
         // Combined sensitivities of all NBAs targeting this variable
-        AstSenTree* m_senTreep = nullptr;
+        Ast_Sen_വൃക്ഷം* m_senTreep = nullptr;
 
         // Union of stuff needed for the various schemes - use accessors below!
-        union {
-            struct {  // Stuff needed for Scheme::ShadowVar
+        സംഘം {
+            ഘടന {  // Stuff needed for Scheme::ShadowVar
                 AstVarScope* vscp;  // The shadow variable
             } m_shadowVariableKit;
-            struct {  // Stuff needed for Scheme::ShadowVarMasked
+            ഘടന {  // Stuff needed for Scheme::ShadowVarMasked
                 AstVarScope* vscp;  // The shadow variable
                 AstVarScope* maskp;  // The mask variable
             } m_shadowVarMaskedKit;
-            struct {  // Stuff needed for Scheme::FlagShared
+            ഘടന {  // Stuff needed for Scheme::FlagShared
                 AstActive* activep;  // The active block for the Pre/Post logic
                 AstAlwaysPost* postp;  // The post block for commiting results
                 AstVarScope* commitFlagp;  // The commit flag variable, for reuse
                 AstIf* commitIfp;  // The previous if statement for committing, for reuse
             } m_flagSharedKit;
-            struct {  // Stuff needed for Scheme::FlagUnique
+            ഘടന {  // Stuff needed for Scheme::FlagUnique
                 AstAlwaysPost* postp;  // The post block for commiting results
             } m_flagUniqueKit;
-            struct {  // Stuff needed for Scheme::ValueQueueWhole/Scheme::ValueQueuePartial
+            ഘടന {  // Stuff needed for Scheme::ValueQueueWhole/Scheme::ValueQueuePartial
                 AstVarScope* vscp;  // The commit queue variable
-            } m_valueQueueKit;
+            } m_മൂല്യം_Queue_Kit;
         } m_kitUnion;
 
-    public:
-        VarScopeInfo() = default;
+    പൊതു:
+        VarScopeInfo() = സ്ഥിരസ്ഥിതി;
         ~VarScopeInfo() {
             // Might not be linked if there was an error
-            if (!m_senTreep->backp()) VL_DO_DANGLING(m_senTreep->deleteTree(), m_senTreep);
+            എങ്കിൽ (!m_senTreep->backp()) VL_DO_DANGLING(m_senTreep->delete_വൃക്ഷം(), m_senTreep);
         }
         // Accessors for the above union fields
         auto& shadowVariableKit() {
             UASSERT(m_scheme == Scheme::ShadowVar, "Inconsistent Scheme");
-            return m_kitUnion.m_shadowVariableKit;
+            തിരികെ m_kitUnion.m_shadowVariableKit;
         }
         auto& shadowVarMaskedKit() {
             UASSERT(m_scheme == Scheme::ShadowVarMasked, "Inconsistent Scheme");
-            return m_kitUnion.m_shadowVarMaskedKit;
+            തിരികെ m_kitUnion.m_shadowVarMaskedKit;
         }
         auto& flagSharedKit() {
             UASSERT(m_scheme == Scheme::FlagShared, "Inconsistent Scheme");
-            return m_kitUnion.m_flagSharedKit;
+            തിരികെ m_kitUnion.m_flagSharedKit;
         }
         auto& flagUniqueKit() {
             UASSERT(m_scheme == Scheme::FlagUnique, "Inconsistent Scheme");
-            return m_kitUnion.m_flagUniqueKit;
+            തിരികെ m_kitUnion.m_flagUniqueKit;
         }
-        auto& valueQueueKit() {
-            UASSERT(m_scheme == Scheme::ValueQueuePartial || m_scheme == Scheme::ValueQueueWhole,
+        auto& മൂല്യം_Queue_Kit() {
+            UASSERT(m_scheme == Scheme::മൂല്യം_Queue_Partial || m_scheme == Scheme::മൂല്യം_Queue_Whole,
                     "Inconsistent Scheme");
-            return m_kitUnion.m_valueQueueKit;
+            തിരികെ m_kitUnion.m_മൂല്യം_Queue_Kit;
         }
 
         // Accessor
-        AstSenTree* senTreep() const { return m_senTreep; }
+        Ast_Sen_വൃക്ഷം* senTreep() സ്ഥിരം { തിരികെ m_senTreep; }
 
         // Add sensitivities
-        void addSensitivity(AstSenItem* nodep) {
-            if (!m_senTreep) m_senTreep = new AstSenTree{nodep->fileline(), nullptr};
+        ശൂന്യം addSensitivity(AstSenItem* nodep) {
+            എങ്കിൽ (!m_senTreep) m_senTreep = പുതിയ Ast_Sen_വൃക്ഷം{nodep->fileline(), nullptr};
             // Add a copy of each term
-            m_senTreep->addSensesp(nodep->cloneTree(true));
+            m_senTreep->addSensesp(nodep->clone_വൃക്ഷം(സത്യം));
             // Remove duplicates
             V3Const::constifyExpensiveEdit(m_senTreep);
         }
         // cppcheck-suppress constParameterPointer
-        void addSensitivity(AstSenTree* nodep) { addSensitivity(nodep->sensesp()); }
+        ശൂന്യം addSensitivity(Ast_Sen_വൃക്ഷം* nodep) { addSensitivity(nodep->sensesp()); }
     };
 
     // Data structure to keep track of all writes to
-    struct WriteReference final {
+    ഘടന WriteReference final {
         AstVarRef* m_refp = nullptr;  // The reference
-        bool m_isNBA = false;  // True if an NBA write
-        bool m_inNonComb = false;  // True if reference is known to be in non-combinational logic
-        WriteReference() = default;
-        WriteReference(AstVarRef* refp, bool isNBA, bool inNonComb)
+        തർക്കം m_isNBA = അസത്യം;  // True if an NBA write
+        തർക്കം m_inNonComb = അസത്യം;  // True if reference is known to be in non-combinational logic
+        WriteReference() = സ്ഥിരസ്ഥിതി;
+        WriteReference(AstVarRef* refp, തർക്കം isNBA, തർക്കം inNonComb)
             : m_refp{refp}
             , m_isNBA{isNBA}
             , m_inNonComb{inNonComb} {}
     };
 
     // Data required to lower AstAssignDelay later
-    struct NBA final {
+    ഘടന NBA final {
         AstAssignDly* nodep = nullptr;  // The NBA this record refers to
         AstVarScope* vscp = nullptr;  // The target variable the NBA is updating
     };
@@ -258,17 +258,17 @@ class DelayedVisitor final : public VNVisitor {
     //  AstVarScope::user1p()   -> VarScopeInfo via m_vscpInfo
     //  AstVarScope::user2p()   -> AstVarRef*: First write reference to the Variable
     //  AstVarScope::user3p()   -> std::vector<WriteReference> via m_writeRefs;
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
-    const VNUser3InUse m_user3InUse;
+    സ്ഥിരം VNUser1InUse m_user1InUse;
+    സ്ഥിരം VNUser2InUse m_user2InUse;
+    സ്ഥിരം VNUser3InUse m_user3InUse;
 
-    struct CFuncCache final {
-        VInsertionSet<AstSenTree*> m_timingDomains;  // What shall be added to m_timingDomains
+    ഘടന CFuncCache final {
+        VInsertionSet<Ast_Sen_വൃക്ഷം*> m_timingDomains;  // What shall be added to m_timingDomains
         std::set<AstCFunc*>
             m_includes;  // CFuncs whose CFuncCache shall be included into this - this is used to
                          // break cycles: A->B->A (instead of visiting A while it is still begin
                          // visited B just marks that it includes A)
-        enum State : uint8_t {
+        എണ്ണൽ State : uint8_t {
             UNINITIALIZED = 0,  // Not initialized members are empty
             VISITING,  // Visiting - needed for breaking recursion
             INITIALIZED,  // Members contains correct values
@@ -283,27 +283,27 @@ class DelayedVisitor final : public VNVisitor {
     AstUser3Allocator<AstVarScope, std::vector<WriteReference>> m_writeRefs;
 
     // STATE - across all visitors
-    VInsertionSet<AstSenTree*> m_timingDomains;  // Timing resume domains
+    VInsertionSet<Ast_Sen_വൃക്ഷം*> m_timingDomains;  // Timing resume domains
     V3SharedTmps m_dlyTmps{"__Vdly", VVarType::BLOCKTEMP};  // Temporary variables
     // Commit queue data types, by element type and partial flag. Shared by all instances,
     // as m_dlyTmps only shares variables with the same data type.
-    std::map<std::pair<const AstNodeDType*, bool>, AstNBACommitQueueDType*> m_cqDTypeps;
+    std::map<std::pair<സ്ഥിരം Ast_കണ്ണി_DType*, തർക്കം>, AstNBACommitQueueDType*> m_cqDTypeps;
 
-    const std::unique_ptr<V3ClassGraph>
+    സ്ഥിരം std::unique_ptr<V3ClassGraph>
         m_classGraphp;  // class graph to get possibly called functions from a virtual call
-    std::vector<const AstCFunc*> m_callStack;  // Current callstack of AstCFuncs
+    std::vector<സ്ഥിരം AstCFunc*> m_call_അട്ടി;  // Current callstack of AstCFuncs
 
     // STATE - for current visit position (use VL_RESTORER)
     AstActive* m_activep = nullptr;  // Current activate
-    const AstCFunc* m_cfuncp = nullptr;  // Current public C Function
-    AstNodeProcedure* m_procp = nullptr;  // Current process
+    സ്ഥിരം AstCFunc* m_cfuncp = nullptr;  // Current public C Function
+    Ast_കണ്ണി_Procedure* m_procp = nullptr;  // Current process
     AstScope* m_scopep = nullptr;  // Current scope
-    bool m_inLoop = false;  // True in for loops
-    bool m_inSuspendableOrFork = false;  // True in suspendable processes and forks
-    bool m_ignoreBlkAndNBlk = false;  // Suppress delayed assignment BLKANDNBLK
-    bool m_inNonCombLogic = false;  // We are in non-combinational logic
-    bool m_needsInitialTrigger = false;  // Whether a NodeProcedure needs a initial trigger
-    std::vector<AstSenTree*> m_nbaEventSenTreeps;  // Sensitivities of '->>' in the process
+    തർക്കം m_inLoop = അസത്യം;  // True in for loops
+    തർക്കം m_inSuspendableOrFork = അസത്യം;  // True in suspendable processes and forks
+    തർക്കം m_ignoreBlkAndNBlk = അസത്യം;  // Suppress delayed assignment BLKANDNBLK
+    തർക്കം m_inNonCombLogic = അസത്യം;  // We are in non-combinational logic
+    തർക്കം m_needsInitialTrigger = അസത്യം;  // Whether a NodeProcedure needs a initial trigger
+    std::vector<Ast_Sen_വൃക്ഷം*> m_nbaEventSenTreeps;  // Sensitivities of '->>' in the process
     AstVarRef* m_currNbaLhsRefp = nullptr;  // Current NBA LHS variable reference
 
     // STATE - during NBA conversion (after visit)
@@ -317,11 +317,11 @@ class DelayedVisitor final : public VNVisitor {
     VDouble0 m_nSchemeShadowVarMasked;  // Number of variabels using Scheme::ShadowVarMasked
     VDouble0 m_nSchemeFlagShared;  // Number of variables using Scheme::FlagShared
     VDouble0 m_nSchemeFlagUnique;  // Number of variables using Scheme::FlagUnique
-    VDouble0 m_nSchemeValueQueuesWhole;  //  Number of variables using Scheme::ValueQueueWhole
-    VDouble0 m_nSchemeValueQueuesPartial;  //  Number of variables using Scheme::ValueQueuePartial
+    VDouble0 m_n_Scheme_മൂല്യം_Queues_Whole;  //  Number of variables using Scheme::ValueQueueWhole
+    VDouble0 m_n_Scheme_മൂല്യം_Queues_Partial;  //  Number of variables using Scheme::ValueQueuePartial
     VDouble0 m_nSharedSetFlags;  // "Set" flags actually shared by Scheme::FlagShared variables
     VDouble0 m_nInitialNBA;  // Number of procedural blocks with initial NBA
-    VDouble0 m_nonInlinedCAwaitsWithSenTree;  // Count uses of not inlined co_awaits
+    VDouble0 m_non_Inlined_CAwaits_With_Sen_വൃക്ഷം;  // Count uses of not inlined co_awaits
 
     // METHODS
 
@@ -330,14 +330,14 @@ class DelayedVisitor final : public VNVisitor {
     // assignments are to independent bits and the blocking assignment can be
     // in combinational logic, which is something we can't safely implement
     // still.
-    bool checkMixedUsage(const AstVarScope* vscp, bool isIntegralOrPacked) {
+    തർക്കം checkMixedUsage(സ്ഥിരം AstVarScope* vscp, തർക്കം isIntegralOrPacked) {
 
-        struct Ref final {
+        ഘടന Ref final {
             AstVarRef* m_refp;  // The reference
-            bool m_inNonComb;  // True if known to be in non-combinational logic
-            int m_lsb;  // LSB of accessed range
-            int m_msb;  // MSB of accessed range
-            Ref(AstVarRef* refp, bool inNonComb, int lsb, int msb)
+            തർക്കം m_inNonComb;  // True if known to be in non-combinational logic
+            പൂർണ്ണസംഖ്യ m_lsb;  // LSB of accessed range
+            പൂർണ്ണസംഖ്യ m_msb;  // MSB of accessed range
+            Ref(AstVarRef* refp, തർക്കം inNonComb, പൂർണ്ണസംഖ്യ lsb, പൂർണ്ണസംഖ്യ msb)
                 : m_refp{refp}
                 , m_inNonComb{inNonComb}
                 , m_lsb{lsb}
@@ -347,43 +347,43 @@ class DelayedVisitor final : public VNVisitor {
         std::vector<Ref> blkRefs;  // Blocking writes
         std::vector<Ref> nbaRefs;  // Non-blockign writes
 
-        const int width = isIntegralOrPacked ? vscp->width() : 1;
+        സ്ഥിരം പൂർണ്ണസംഖ്യ width = isIntegralOrPacked ? vscp->width() : 1;
 
-        for (const auto& writeRef : m_writeRefs(vscp)) {
-            int lsb = 0;
-            int msb = width - 1;
-            if (const AstSel* const selp = VN_CAST(writeRef.m_refp->backp(), Sel)) {
-                if (VN_IS(selp->lsbp(), Const)) {
+        വേണ്ടി (സ്ഥിരം auto& writeRef : m_writeRefs(vscp)) {
+            പൂർണ്ണസംഖ്യ lsb = 0;
+            പൂർണ്ണസംഖ്യ msb = width - 1;
+            എങ്കിൽ (സ്ഥിരം AstSel* സ്ഥിരം selp = VN_CAST(writeRef.m_refp->backp(), Sel)) {
+                എങ്കിൽ (VN_IS(selp->lsbp(), Const)) {
                     lsb = selp->lsbConst();
                     msb = selp->msbConst();
                 }
             }
-            if (writeRef.m_isNBA) {
+            എങ്കിൽ (writeRef.m_isNBA) {
                 nbaRefs.emplace_back(writeRef.m_refp, writeRef.m_inNonComb, lsb, msb);
-            } else {
+            } അല്ലെങ്കിൽ {
                 blkRefs.emplace_back(writeRef.m_refp, writeRef.m_inNonComb, lsb, msb);
             }
         }
         // We only run this function on targets of NBAs, so there should be at least one...
         UASSERT_OBJ(!nbaRefs.empty(), vscp, "Did not record NBA write");
         // If no blocking upadte, then we are good
-        if (blkRefs.empty()) return false;
+        എങ്കിൽ (blkRefs.empty()) തിരികെ അസത്യം;
 
         // If the blocking assignment is in non-combinational logic (i.e.:
         // in logic that has an explicit trigger), then we can safely
         // implement it (there is no race between clocked logic and post
         // scheduled logic), so need not error
         blkRefs.erase(std::remove_if(blkRefs.begin(), blkRefs.end(),
-                                     [](const Ref& ref) { return ref.m_inNonComb; }),
+                                     [](സ്ഥിരം Ref& ref) { തിരികെ ref.m_inNonComb; }),
                       blkRefs.end());
 
         // If nothing left, then we need not error
-        if (blkRefs.empty()) return true;
+        എങ്കിൽ (blkRefs.empty()) തിരികെ സത്യം;
 
         // If not a packed variable, warn here as we can't prove independence
-        if (!isIntegralOrPacked) {
-            const Ref& blkRef = blkRefs.front();
-            const Ref& nbaRef = nbaRefs.front();
+        എങ്കിൽ (!isIntegralOrPacked) {
+            സ്ഥിരം Ref& blkRef = blkRefs.front();
+            സ്ഥിരം Ref& nbaRef = nbaRefs.front();
             vscp->v3warn(
                 BLKANDNBLK,
                 "Unsupported: Blocking and non-blocking assignments to same non-packed variable: "
@@ -393,35 +393,35 @@ class DelayedVisitor final : public VNVisitor {
                     << blkRef.m_refp->warnContextSecondary() << '\n'
                     << nbaRef.m_refp->warnOther() << "... Location of nonblocking assignment\n"
                     << nbaRef.m_refp->warnContextSecondary());
-            return true;
+            തിരികെ സത്യം;
         }
 
         // We need to error if we can't prove the written bits are independent
 
         // Sort refs by interval
-        const auto lessThanRef = [](const Ref& a, const Ref& b) {
-            if (a.m_lsb != b.m_lsb) return a.m_lsb < b.m_lsb;
-            return a.m_msb < b.m_msb;
+        സ്ഥിരം auto lessThanRef = [](സ്ഥിരം Ref& a, സ്ഥിരം Ref& b) {
+            എങ്കിൽ (a.m_lsb != b.m_lsb) തിരികെ a.m_lsb < b.m_lsb;
+            തിരികെ a.m_msb < b.m_msb;
         };
         std::stable_sort(blkRefs.begin(), blkRefs.end(), lessThanRef);
         std::stable_sort(nbaRefs.begin(), nbaRefs.end(), lessThanRef);
         // Iterate both vectors, checking for overlap
         auto bIt = blkRefs.begin();
         auto nIt = nbaRefs.begin();
-        while (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
-            if (lessThanRef(*bIt, *nIt)) {
-                if (nIt->m_lsb <= bIt->m_msb) break;  // Stop on Overlap
+        ആകുമ്പോൾ (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
+            എങ്കിൽ (lessThanRef(*bIt, *nIt)) {
+                എങ്കിൽ (nIt->m_lsb <= bIt->m_msb) നിർത്തുക;  // Stop on Overlap
                 ++bIt;
-            } else {
-                if (bIt->m_lsb <= nIt->m_msb) break;  // Stop on Overlap
+            } അല്ലെങ്കിൽ {
+                എങ്കിൽ (bIt->m_lsb <= nIt->m_msb) നിർത്തുക;  // Stop on Overlap
                 ++nIt;
             }
         }
 
         // If we found an overlapping range that cannot be safely implemented, then wran...
-        if (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
-            const Ref& blkRef = *bIt;
-            const Ref& nbaRef = *nIt;
+        എങ്കിൽ (bIt != blkRefs.end() && nIt != nbaRefs.end()) {
+            സ്ഥിരം Ref& blkRef = *bIt;
+            സ്ഥിരം Ref& nbaRef = *nIt;
             vscp->v3warn(BLKANDNBLK, "Unsupported: Blocking and non-blocking assignments to "
                                      "potentially overlapping bits of same packed variable: "
                                          << vscp->varp()->prettyNameQ() << '\n'
@@ -436,71 +436,71 @@ class DelayedVisitor final : public VNVisitor {
                                          << nbaRef.m_refp->warnContextSecondary());
         }
 
-        return true;
+        തിരികെ സത്യം;
     }
 
     // Choose the NBA scheme used for the given variable.
-    Scheme chooseScheme(const AstVarScope* vscp, const VarScopeInfo& vscpInfo) {
+    Scheme chooseScheme(സ്ഥിരം AstVarScope* vscp, സ്ഥിരം VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::Undecided, vscp, "NBA scheme already decided");
 
-        const AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
+        സ്ഥിരം Ast_കണ്ണി_DType* സ്ഥിരം dtypep = vscp->dtypep()->skipRefp();
         // Unpacked arrays
-        if (const AstUnpackArrayDType* const uaDTypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        എങ്കിൽ (സ്ഥിരം AstUnpackArrayDType* സ്ഥിരം uaDTypep = VN_CAST(dtypep, UnpackArrayDType)) {
             // If whole array is target of NBA, use ShadowVar, but not in a suspendable process or
             // fork, which resume outside the 'nba' region, so its 'pre' logic would overwrite the
             // value they write in the shadow variable
-            if (vscpInfo.m_whole) {
-                return vscpInfo.m_inSuspOrFork ? Scheme::FlagUnique : Scheme::ShadowVar;
+            എങ്കിൽ (vscpInfo.m_whole) {
+                തിരികെ vscpInfo.m_inSuspOrFork ? Scheme::FlagUnique : Scheme::ShadowVar;
             }
             // Basic underlying type of elements, if any.
-            const AstBasicDType* const basicp = uaDTypep->basicp();
+            സ്ഥിരം AstBasicDType* സ്ഥിരം basicp = uaDTypep->basicp();
             // If used in a loop, we must have a dynamic commit queue. (Also works in suspendables)
-            if (vscpInfo.m_inLoop) {
+            എങ്കിൽ (vscpInfo.m_inLoop) {
                 // Arrays with compound element types are currently not supported in loops
-                if (!basicp
+                എങ്കിൽ (!basicp
                     || !(basicp->isIntegralOrPacked()  //
                          || basicp->isDouble()  //
                          || basicp->isString())) {
-                    return Scheme::UnsupportedCompoundArrayInLoop;
+                    തിരികെ Scheme::UnsupportedCompoundArrayInLoop;
                 }
-                if (vscpInfo.m_partial) return Scheme::ValueQueuePartial;
-                return Scheme::ValueQueueWhole;
+                എങ്കിൽ (vscpInfo.m_partial) തിരികെ Scheme::മൂല്യം_Queue_Partial;
+                തിരികെ Scheme::മൂല്യം_Queue_Whole;
             }
             // A suspendable process or fork can resume outside the 'nba' region, so the 'pre'
             // logic of the other schemes would undo its updates. The unique flag scheme has none.
-            if (vscpInfo.m_inSuspOrFork) return Scheme::FlagUnique;
+            എങ്കിൽ (vscpInfo.m_inSuspOrFork) തിരികെ Scheme::FlagUnique;
             // Otherwise if an array of packed/basic elements, use the shared flag scheme
-            if (basicp) return Scheme::FlagShared;
+            എങ്കിൽ (basicp) തിരികെ Scheme::FlagShared;
             // Finally fall back on the shadow variable scheme, e.g. for
             // arrays of unpacked structs. This will be slow.
             // TODO: generic LHS scheme as discussed in #5092
-            return Scheme::ShadowVar;
+            തിരികെ Scheme::ShadowVar;
         }
 
         // Likewise, the 'pre' logic of the shadow variable scheme would undo the updates of a
         // suspendable process or fork, so use the unique flag scheme
-        if (vscpInfo.m_inSuspOrFork) return Scheme::FlagUnique;
+        എങ്കിൽ (vscpInfo.m_inSuspOrFork) തിരികെ Scheme::FlagUnique;
 
-        const bool isIntegralOrPacked = dtypep->isIntegralOrPacked();
+        സ്ഥിരം തർക്കം isIntegralOrPacked = dtypep->isIntegralOrPacked();
         // Check for mixed usage (this also warns if not OK)
-        if (checkMixedUsage(vscp, isIntegralOrPacked)) {
+        എങ്കിൽ (checkMixedUsage(vscp, isIntegralOrPacked)) {
             // If it's a variable updated by both blocking and non-blocking
             // assignments, use the ShadowVarMasked schem if masked update is
             // possible. This can handle blocking and non-blocking updates to
             // inpdendent parts correctly at run-time, and always works, even
             // in loops or other dynamic context.
-            if (isIntegralOrPacked) return Scheme::ShadowVarMasked;
+            എങ്കിൽ (isIntegralOrPacked) തിരികെ Scheme::ShadowVarMasked;
             // If it's inside a loop, use Scheme::ShadowVar, which is safe,
             // but will generate incorrect code if a partial update is used
-            if (vscpInfo.m_inLoop) return Scheme::ShadowVar;
+            എങ്കിൽ (vscpInfo.m_inLoop) തിരികെ Scheme::ShadowVar;
             // Otherwise (for not packed variables), use the FlagUnique scheme,
             // which at least handles partial updates correctly, but might break
             // in loops or other dynamic context
-            return Scheme::FlagUnique;
+            തിരികെ Scheme::FlagUnique;
         }
 
         // Otherwise use the simple shadow variable scheme
-        return Scheme::ShadowVar;
+        തിരികെ Scheme::ShadowVar;
     }
 
     // Given an expression 'exprp', return a new expression that always evaluates to the
@@ -510,29 +510,29 @@ class DelayedVisitor final : public VNVisitor {
     //   to the new AstVarScope.
     // - If given a constant, just return that constant.
     // New statements are inserted before 'insertp'
-    AstNodeExpr* captureVal(AstScope* const scopep, AstNodeStmt* const insertp,
-                            AstNodeExpr* const exprp, const std::string& name) {
+    Ast_കണ്ണി_വ്യഞ്ജകം* captureVal(AstScope* സ്ഥിരം scopep, Ast_കണ്ണി_Stmt* സ്ഥിരം insertp,
+                            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം exprp, സ്ഥിരം std::string& name) {
         UASSERT_OBJ(!exprp->backp(), exprp, "Should have been unlinked");
-        FileLine* const flp = exprp->fileline();
-        if (VN_IS(exprp, Const)) return exprp;
+        File_വരി* സ്ഥിരം flp = exprp->fileline();
+        എങ്കിൽ (VN_IS(exprp, Const)) തിരികെ exprp;
         // TODO: there are some const variables that could be simply referenced here
-        AstVarScope* const tmpVscp = m_dlyTmps.make(flp, scopep, exprp->dtypep(), name);
+        AstVarScope* സ്ഥിരം tmpVscp = m_dlyTmps.make(flp, scopep, exprp->dtypep(), name);
         insertp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, tmpVscp, VAccess::WRITE}, exprp});
-        return new AstVarRef{flp, tmpVscp, VAccess::READ};
+            പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, tmpVscp, VAccess::WRITE}, exprp});
+        തിരികെ പുതിയ AstVarRef{flp, tmpVscp, VAccess::READ};
     };
 
     // Similar to 'captureVal', but captures an LValue expression. That is, the returned
     // expression will reference the same location as the input expression, at this point in the
     // program.
-    AstNodeExpr* captureLhs(AstScope* const scopep, AstNodeStmt* const insertp,
-                            AstNodeExpr* const lhsp, const std::string& baseName) {
+    Ast_കണ്ണി_വ്യഞ്ജകം* captureLhs(AstScope* സ്ഥിരം scopep, Ast_കണ്ണി_Stmt* സ്ഥിരം insertp,
+                            Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം lhsp, സ്ഥിരം std::string& baseName) {
         UASSERT_OBJ(!lhsp->backp(), lhsp, "Should have been unlinked");
         // Running node pointer
-        AstNodeExpr* nodep = lhsp;
+        Ast_കണ്ണി_വ്യഞ്ജകം* nodep = lhsp;
         // Capture AstSel indices - there should be only one
-        if (AstSel* const selp = VN_CAST(nodep, Sel)) {
-            const std::string tmpName{"Lsb" + baseName};
+        എങ്കിൽ (AstSel* സ്ഥിരം selp = VN_CAST(nodep, Sel)) {
+            സ്ഥിരം std::string tmpName{"Lsb" + baseName};
             selp->lsbp(captureVal(scopep, insertp, selp->lsbp()->unlinkFrBack(), tmpName));
             // Continue with target
             nodep = selp->fromp();
@@ -542,41 +542,41 @@ class DelayedVisitor final : public VNVisitor {
         // selects the instance the target is a member of, capture the handle instead, as it is
         // only read, to select the target when the NBA is executed (IEEE 1800-2023 10.4.2).
         size_t nArraySels = 0;
-        while (true) {
-            if (AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-                const std::string tmpName{"Dim" + std::to_string(nArraySels++) + baseName};
+        ആകുമ്പോൾ (സത്യം) {
+            എങ്കിൽ (Ast_കണ്ണി_Sel* സ്ഥിരം selp = VN_CAST(nodep, കണ്ണി_Sel)) {
+                സ്ഥിരം std::string tmpName{"Dim" + std::to_string(nArraySels++) + baseName};
                 selp->bitp(captureVal(scopep, insertp, selp->bitp()->unlinkFrBack(), tmpName));
                 nodep = selp->fromp();
-            } else if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
+            } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം AstStructSel* സ്ഥിരം selp = VN_CAST(nodep, StructSel)) {
                 nodep = selp->fromp();
-            } else if (AstMemberSel* const selp = VN_CAST(nodep, MemberSel)) {
-                AstNodeExpr* const handlep = selp->fromp()->unlinkFrBack();
+            } അല്ലെങ്കിൽ എങ്കിൽ (AstMemberSel* സ്ഥിരം selp = VN_CAST(nodep, MemberSel)) {
+                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം handlep = selp->fromp()->unlinkFrBack();
                 V3LinkLValue::linkLValueSet(handlep, VAccess::READ);
-                AstVarRef* const refp
+                AstVarRef* സ്ഥിരം refp
                     = VN_AS(captureVal(scopep, insertp, handlep, "Handle" + baseName), VarRef);
                 refp->varp()->setIgnorePostWrite();
                 // Like the handle it replaces, mark it written, as is the member it selects
                 refp->access(selp->access());
                 selp->fromp(refp);
-                return lhsp;
-            } else {
-                break;
+                തിരികെ lhsp;
+            } അല്ലെങ്കിൽ {
+                നിർത്തുക;
             }
         }
         // What remains must be the variable, or some sort of select, we assume can reuse it
         UASSERT_OBJ(nodep->isPure(), lhsp, "Malformed LHS in NBA");
         // Now have been converted to use the captured values
-        return lhsp;
+        തിരികെ lhsp;
     }
 
-    void addCFuncCachedValues(const AstCFunc* const cfuncp,
-                              std::unordered_set<const AstCFunc*>& visited) {
-        if (!visited.insert(cfuncp).second) return;
-        CFuncCache& value = m_cfuncsCache(cfuncp);
-        m_timingDomains.insert(value.m_timingDomains.begin(), value.m_timingDomains.end());
-        m_nonInlinedCAwaitsWithSenTree += value.m_timingDomains.size();
-        for (const AstCFunc* const includedp : value.m_includes) {
-            addCFuncCachedValues(includedp, visited);
+    ശൂന്യം add_CFunc_Cached_മൂല്യങ്ങൾ(സ്ഥിരം AstCFunc* സ്ഥിരം cfuncp,
+                              std::unordered_set<സ്ഥിരം AstCFunc*>& visited) {
+        എങ്കിൽ (!visited.തിരുകുക(cfuncp).second) തിരികെ;
+        CFuncCache& മൂല്യം = m_cfuncsCache(cfuncp);
+        m_timingDomains.തിരുകുക(മൂല്യം.m_timingDomains.begin(), മൂല്യം.m_timingDomains.end());
+        m_non_Inlined_CAwaits_With_Sen_വൃക്ഷം += മൂല്യം.m_timingDomains.size();
+        വേണ്ടി (സ്ഥിരം AstCFunc* സ്ഥിരം includedp : മൂല്യം.m_includes) {
+            add_CFunc_Cached_മൂല്യങ്ങൾ(includedp, visited);
         }
     }
 
@@ -584,58 +584,58 @@ class DelayedVisitor final : public VNVisitor {
     // type, with the bits selected by 'sLsbp'/'sWidthp' set to 'valuep', other bits set to zero.
     // Insert new statements before 'insertp'.
     // Returns a read reference to the temporary variable.
-    AstVarRef* createWidened(FileLine* flp, AstScope* scopep, AstNodeDType* dtypep,
-                             AstNodeExpr* sLsbp, int sWidth, const std::string& name,
-                             AstNodeExpr* valuep, AstNode* insertp) {
+    AstVarRef* createWidened(File_വരി* flp, AstScope* scopep, Ast_കണ്ണി_DType* dtypep,
+                             Ast_കണ്ണി_വ്യഞ്ജകം* sLsbp, പൂർണ്ണസംഖ്യ sWidth, സ്ഥിരം std::string& name,
+                             Ast_കണ്ണി_വ്യഞ്ജകം* valuep, Ast_കണ്ണി* insertp) {
         // Create temporary variable.
-        AstVarScope* const tp = m_dlyTmps.make(flp, scopep, dtypep, name);
+        AstVarScope* സ്ഥിരം tp = m_dlyTmps.make(flp, scopep, dtypep, name);
         // Zero it
-        AstConst* const zerop = new AstConst{flp, AstConst::DTyped{}, dtypep};
-        zerop->num().setAllBits0();
+        AstConst* സ്ഥിരം zerop = പുതിയ AstConst{flp, AstConst::DTyped{}, dtypep};
+        zerop->അക്കം().setAllBits0();
         insertp->addHereThisAsNext(
-            new AstAssign{flp, new AstVarRef{flp, tp, VAccess::WRITE}, zerop});
+            പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, tp, VAccess::WRITE}, zerop});
         // Set the selected bits to 'valuep'
-        AstSel* const selp = new AstSel{flp, new AstVarRef{flp, tp, VAccess::WRITE},
-                                        sLsbp->cloneTreePure(true), sWidth};
-        insertp->addHereThisAsNext(new AstAssign{flp, selp, valuep});
+        AstSel* സ്ഥിരം selp = പുതിയ AstSel{flp, പുതിയ AstVarRef{flp, tp, VAccess::WRITE},
+                                        sLsbp->clone_വൃക്ഷം_Pure(സത്യം), sWidth};
+        insertp->addHereThisAsNext(പുതിയ AstAssign{flp, selp, valuep});
         // This is the expression to get the value of the temporary
-        return new AstVarRef{flp, tp, VAccess::READ};
+        തിരികെ പുതിയ AstVarRef{flp, tp, VAccess::READ};
     }
 
     // Scheme::ShadowVar
-    void prepareSchemeShadowVar(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    ശൂന്യം prepareSchemeShadowVar(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVar, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = vscp->scopep();
         // Create the shadow variable
-        const std::string name = "_" + vscp->varp()->shortName();
-        AstVarScope* const shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), name);
+        സ്ഥിരം std::string name = "_" + vscp->varp()->shortName();
+        AstVarScope* സ്ഥിരം shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), name);
         vscpInfo.shadowVariableKit().vscp = shadowVscp;
         // Mark both for V3LifePsot
-        vscp->optimizeLifePost(true);
-        shadowVscp->optimizeLifePost(true);
+        vscp->optimizeLifePost(സത്യം);
+        shadowVscp->optimizeLifePost(സത്യം);
         // Create the AstActive for the Pre/Post logic
-        AstActive* const activep = new AstActive{flp, "nba-shadow-variable", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* സ്ഥിരം activep = പുതിയ AstActive{flp, "nba-shadow-variable", vscpInfo.senTreep()};
+        activep->sen_വൃക്ഷം_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Pre' scheduled 'shadowVariable = originalVariable' assignment
-        AstAlwaysPre* const prep = new AstAlwaysPre{flp};
+        AstAlwaysPre* സ്ഥിരം prep = പുതിയ AstAlwaysPre{flp};
         activep->addStmtsp(prep);
-        prep->addStmtsp(new AstAssign{flp, new AstVarRef{flp, shadowVscp, VAccess::WRITE},
-                                      new AstVarRef{flp, vscp, VAccess::READ}});
+        prep->addStmtsp(പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, shadowVscp, VAccess::WRITE},
+                                      പുതിയ AstVarRef{flp, vscp, VAccess::READ}});
         // Add 'Post' scheduled 'originalVariable = shadowVariable' assignment
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* സ്ഥിരം postp = പുതിയ AstAlwaysPost{flp};
         activep->addStmtsp(postp);
-        postp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, vscp, VAccess::WRITE},
-                                       new AstVarRef{flp, shadowVscp, VAccess::READ}});
+        postp->addStmtsp(പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, vscp, VAccess::WRITE},
+                                       പുതിയ AstVarRef{flp, shadowVscp, VAccess::READ}});
     }
-    void convertSchemeShadowVar(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    ശൂന്യം convertSchemeShadowVar(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVar, vscp, "Inconsistent NBA scheme");
-        AstVarScope* const shadowVscp = vscpInfo.shadowVariableKit().vscp;
+        AstVarScope* സ്ഥിരം shadowVscp = vscpInfo.shadowVariableKit().vscp;
 
         // Replace the write ref on the LHS with the shadow variable
-        nodep->lhsp()->foreach([&](AstVarRef* const refp) {
-            if (!refp->access().isWriteOnly()) return;
+        nodep->lhsp()->foreach([&](AstVarRef* സ്ഥിരം refp) {
+            എങ്കിൽ (!refp->access().isWriteOnly()) തിരികെ;
             UASSERT_OBJ(refp->varScopep() == vscp, nodep, "NBA not setting expected variable");
             refp->varScopep(shadowVscp);
             refp->varp(shadowVscp->varp());
@@ -643,111 +643,111 @@ class DelayedVisitor final : public VNVisitor {
     }
 
     // Scheme::ShadowVarMasked
-    void prepareSchemeShadowVarMasked(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    ശൂന്യം prepareSchemeShadowVarMasked(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVarMasked, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = vscp->scopep();
         // Create the shadow variable
-        const std::string shadowName = "_" + vscp->varp()->shortName();
-        AstVarScope* const shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), shadowName);
+        സ്ഥിരം std::string shadowName = "_" + vscp->varp()->shortName();
+        AstVarScope* സ്ഥിരം shadowVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), shadowName);
         vscpInfo.shadowVarMaskedKit().vscp = shadowVscp;
         // Create the makk variable
-        const std::string maskName = "Mask__" + vscp->varp()->shortName();
-        AstVarScope* const maskVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), maskName);
+        സ്ഥിരം std::string maskName = "Mask__" + vscp->varp()->shortName();
+        AstVarScope* സ്ഥിരം maskVscp = m_dlyTmps.make(flp, scopep, vscp->dtypep(), maskName);
         maskVscp->varp()->setIgnorePostWrite();
         vscpInfo.shadowVarMaskedKit().maskp = maskVscp;
         // Create the AstActive for the Post logic
-        AstActive* const activep
-            = new AstActive{flp, "nba-shadow-var-masked", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* സ്ഥിരം activep
+            = പുതിയ AstActive{flp, "nba-shadow-var-masked", vscpInfo.senTreep()};
+        activep->sen_വൃക്ഷം_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Post' scheduled process for the commit and mask clear
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* സ്ഥിരം postp = പുതിയ AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         // Add the commit - vscp = (shadowVscp & maskVscp) | (vscp & ~maskVscp);
-        postp->addStmtsp(new AstAssign{
-            flp, new AstVarRef{flp, vscp, VAccess::WRITE},
-            new AstOr{flp,
-                      new AstAnd{flp, new AstVarRef{flp, shadowVscp, VAccess::READ},
-                                 new AstVarRef{flp, maskVscp, VAccess::READ}},
-                      new AstAnd{flp, new AstVarRef{flp, vscp, VAccess::READ},
-                                 new AstNot{flp, new AstVarRef{flp, maskVscp, VAccess::READ}}}}});
+        postp->addStmtsp(പുതിയ AstAssign{
+            flp, പുതിയ AstVarRef{flp, vscp, VAccess::WRITE},
+            പുതിയ AstOr{flp,
+                      പുതിയ AstAnd{flp, പുതിയ AstVarRef{flp, shadowVscp, VAccess::READ},
+                                 പുതിയ AstVarRef{flp, maskVscp, VAccess::READ}},
+                      പുതിയ AstAnd{flp, പുതിയ AstVarRef{flp, vscp, VAccess::READ},
+                                 പുതിയ AstNot{flp, പുതിയ AstVarRef{flp, maskVscp, VAccess::READ}}}}});
         vscp->varp()->setIgnorePostRead();
         // Clar the mask - maskVscp = '0;
         postp->addStmtsp(
-            new AstAssign{flp, new AstVarRef{flp, maskVscp, VAccess::WRITE},
-                          new AstConst{flp, AstConst::WidthedValue{}, maskVscp->width(), 0}});
+            പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, maskVscp, VAccess::WRITE},
+                          പുതിയ AstConst{flp, AstConst::Widthed_മൂല്യം{}, maskVscp->width(), 0}});
     }
-    void convertSchemeShadowVarMasked(AstAssignDly* nodep, AstVarScope* vscp,
+    ശൂന്യം convertSchemeShadowVarMasked(AstAssignDly* nodep, AstVarScope* vscp,
                                       VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::ShadowVarMasked, vscp, "Inconsistent NBA scheme");
-        AstVarScope* const shadowVscp = vscpInfo.shadowVarMaskedKit().vscp;
-        AstVarScope* const maskVscp = vscpInfo.shadowVarMaskedKit().maskp;
+        AstVarScope* സ്ഥിരം shadowVscp = vscpInfo.shadowVarMaskedKit().vscp;
+        AstVarScope* സ്ഥിരം maskVscp = vscpInfo.shadowVarMaskedKit().maskp;
 
-        AstNodeExpr* lhsClonep = nodep->lhsp()->cloneTree(false);
+        Ast_കണ്ണി_വ്യഞ്ജകം* lhsClonep = nodep->lhsp()->clone_വൃക്ഷം(അസത്യം);
 
         // Replace the write ref on the LHS with the shadow variable
-        nodep->lhsp()->foreach([&](AstVarRef* const refp) {
-            if (!refp->access().isWriteOnly()) return;
+        nodep->lhsp()->foreach([&](AstVarRef* സ്ഥിരം refp) {
+            എങ്കിൽ (!refp->access().isWriteOnly()) തിരികെ;
             UASSERT_OBJ(refp->varScopep() == vscp, nodep, "NBA not setting expected variable");
             refp->varScopep(shadowVscp);
             refp->varp(shadowVscp->varp());
         });
         // Set the same bits in the mask to 1
-        lhsClonep->foreach([&](AstVarRef* const refp) {
-            if (!refp->access().isWriteOnly()) return;
+        lhsClonep->foreach([&](AstVarRef* സ്ഥിരം refp) {
+            എങ്കിൽ (!refp->access().isWriteOnly()) തിരികെ;
             UASSERT_OBJ(refp->varScopep() == vscp, nodep, "NBA not setting expected variable");
             refp->varScopep(maskVscp);
             refp->varp(maskVscp->varp());
         });
-        FileLine* const flp = nodep->fileline();
-        AstConst* const onesp = new AstConst{flp, AstConst::DTyped{}, lhsClonep->dtypep()};
-        onesp->num().setAllBits1();
-        nodep->addNextHere(new AstAssign{flp, lhsClonep, onesp});
+        File_വരി* സ്ഥിരം flp = nodep->fileline();
+        AstConst* സ്ഥിരം onesp = പുതിയ AstConst{flp, AstConst::DTyped{}, lhsClonep->dtypep()};
+        onesp->അക്കം().setAllBits1();
+        nodep->addNextHere(പുതിയ AstAssign{flp, lhsClonep, onesp});
     }
 
     // Scheme::FlagShared
-    void prepareSchemeFlagShared(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    ശൂന്യം prepareSchemeFlagShared(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagShared, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = vscp->scopep();
         // Create the AstActive for the Pre/Post logic
-        AstActive* const activep = new AstActive{flp, "nba-flag-shared", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* സ്ഥിരം activep = പുതിയ AstActive{flp, "nba-flag-shared", vscpInfo.senTreep()};
+        activep->sen_വൃക്ഷം_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         vscpInfo.flagSharedKit().activep = activep;
         // Add 'Post' scheduled process to be populated later
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* സ്ഥിരം postp = പുതിയ AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         vscpInfo.flagSharedKit().postp = postp;
         // Initialize
         vscpInfo.flagSharedKit().commitFlagp = nullptr;
         vscpInfo.flagSharedKit().commitIfp = nullptr;
     }
-    void convertSchemeFlagShared(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    ശൂന്യം convertSchemeFlagShared(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagShared, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = VN_AS(nodep->user2p(), Scope);
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = VN_AS(nodep->user2p(), Scope);
 
         // Base name suffix for signals constructed below
-        const std::string baseName = "__" + vscp->varp()->shortName();
+        സ്ഥിരം std::string baseName = "__" + vscp->varp()->shortName();
 
         // Unlink and capture the RHS value
-        AstNodeExpr* const capturedRhsp
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം capturedRhsp
             = captureVal(scopep, nodep, nodep->rhsp()->unlinkFrBack(), "Val" + baseName);
 
         // Unlink and capture the LHS reference
-        AstNodeExpr* const capturedLhsp
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം capturedLhsp
             = captureLhs(scopep, nodep, nodep->lhsp()->unlinkFrBack(), baseName);
 
         // Is this NBA adjacent after the previously processed NBA?
-        const bool consecutive = nodep == m_nextDlyp;
+        സ്ഥിരം തർക്കം consecutive = nodep == m_nextDlyp;
         m_nextDlyp = VN_CAST(nodep->nextp(), AssignDly);
 
-        VarScopeInfo* const prevVscpInfop = consecutive ? &m_vscpInfo(m_prevVscp) : nullptr;
+        VarScopeInfo* സ്ഥിരം prevVscpInfop = consecutive ? &m_vscpInfo(m_prevVscp) : nullptr;
 
         // We can reuse the flag of the previous assignment if:
-        const bool reuseTheFlag =
+        സ്ഥിരം തർക്കം reuseTheFlag =
             // Consecutive NBAs
             consecutive
             // ... that use the same scheme
@@ -755,38 +755,38 @@ class DelayedVisitor final : public VNVisitor {
             // ... and are in the same scope as the target variable
             && scopep == vscp->scopep()
             // ... and share the same overall update domain
-            && prevVscpInfop->senTreep()->sameTree(vscpInfo.senTreep());
+            && prevVscpInfop->senTreep()->same_വൃക്ഷം(vscpInfo.senTreep());
 
-        if (!reuseTheFlag) {
+        എങ്കിൽ (!reuseTheFlag) {
             // Create new flag
-            AstVarScope* const flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
+            AstVarScope* സ്ഥിരം flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
             // Set the flag at the original NBA
             nodep->addHereThisAsNext(  //
-                new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                              new AstConst{flp, AstConst::BitTrue{}}});
+                പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, flagVscp, VAccess::WRITE},
+                              പുതിയ AstConst{flp, AstConst::BitTrue{}}});
             // Add the 'Pre' scheduled reset for the flag
-            AstAlwaysPre* const prep = new AstAlwaysPre{flp};
+            AstAlwaysPre* സ്ഥിരം prep = പുതിയ AstAlwaysPre{flp};
             vscpInfo.flagSharedKit().activep->addStmtsp(prep);
-            prep->addStmtsp(new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                                          new AstConst{flp, AstConst::BitFalse{}}});
+            prep->addStmtsp(പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, flagVscp, VAccess::WRITE},
+                                          പുതിയ AstConst{flp, AstConst::BitFalse{}}});
             // Add the 'Post' scheduled commit
-            AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, flagVscp, VAccess::READ}};
+            AstIf* സ്ഥിരം ifp = പുതിയ AstIf{flp, പുതിയ AstVarRef{flp, flagVscp, VAccess::READ}};
             vscpInfo.flagSharedKit().postp->addStmtsp(ifp);
             vscpInfo.flagSharedKit().commitFlagp = flagVscp;
             vscpInfo.flagSharedKit().commitIfp = ifp;
-        } else {
-            if (vscp != m_prevVscp) {
+        } അല്ലെങ്കിൽ {
+            എങ്കിൽ (vscp != m_prevVscp) {
                 // Different variable, ensure the commit block exists for this variable,
                 // can reuse existing one with the same flag, otherwise create a new one.
-                AstVarScope* const flagVscp = prevVscpInfop->flagSharedKit().commitFlagp;
+                AstVarScope* സ്ഥിരം flagVscp = prevVscpInfop->flagSharedKit().commitFlagp;
                 UASSERT_OBJ(flagVscp, nodep, "Commit flag of previous assignment should exist");
-                if (vscpInfo.flagSharedKit().commitFlagp != flagVscp) {
-                    AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, flagVscp, VAccess::READ}};
+                എങ്കിൽ (vscpInfo.flagSharedKit().commitFlagp != flagVscp) {
+                    AstIf* സ്ഥിരം ifp = പുതിയ AstIf{flp, പുതിയ AstVarRef{flp, flagVscp, VAccess::READ}};
                     vscpInfo.flagSharedKit().postp->addStmtsp(ifp);
                     vscpInfo.flagSharedKit().commitFlagp = flagVscp;
                     vscpInfo.flagSharedKit().commitIfp = ifp;
                 }
-            } else {
+            } അല്ലെങ്കിൽ {
                 // Same variable, reuse the commit block of the previous assignment
                 vscpInfo.flagSharedKit().commitFlagp = prevVscpInfop->flagSharedKit().commitFlagp;
                 vscpInfo.flagSharedKit().commitIfp = prevVscpInfop->flagSharedKit().commitIfp;
@@ -795,194 +795,194 @@ class DelayedVisitor final : public VNVisitor {
         }
         // Commit the captured value to the captured destination
         vscpInfo.flagSharedKit().commitIfp->addThensp(
-            new AstAssign{flp, capturedLhsp, capturedRhsp});
+            പുതിയ AstAssign{flp, capturedLhsp, capturedRhsp});
 
         // Remember the variable for the next NBA
         m_prevVscp = vscp;
 
         // Delete original NBA
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
     // Scheme::FlagUnique
-    void prepareSchemeFlagUnique(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    ശൂന്യം prepareSchemeFlagUnique(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagUnique, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = vscp->scopep();
         // Create the AstActive for the Pre/Post logic
-        AstActive* const activep = new AstActive{flp, "nba-flag-unique", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* സ്ഥിരം activep = പുതിയ AstActive{flp, "nba-flag-unique", vscpInfo.senTreep()};
+        activep->sen_വൃക്ഷം_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Post' scheduled process to be populated later
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* സ്ഥിരം postp = പുതിയ AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         vscpInfo.flagUniqueKit().postp = postp;
     }
-    void convertSchemeFlagUnique(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+    ശൂന്യം convertSchemeFlagUnique(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo) {
         UASSERT_OBJ(vscpInfo.m_scheme == Scheme::FlagUnique, vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = VN_AS(nodep->user2p(), Scope);
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = VN_AS(nodep->user2p(), Scope);
 
         // Base name suffix for signals constructed below
-        const std::string baseName = "__" + vscp->varp()->shortName();
+        സ്ഥിരം std::string baseName = "__" + vscp->varp()->shortName();
 
         // Unlink and capture the RHS value
-        AstNodeExpr* const capturedRhsp
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം capturedRhsp
             = captureVal(scopep, nodep, nodep->rhsp()->unlinkFrBack(), "Val" + baseName);
 
         // Unlink and capture the LHS reference
-        AstNodeExpr* const capturedLhsp
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം capturedLhsp
             = captureLhs(scopep, nodep, nodep->lhsp()->unlinkFrBack(), baseName);
 
         // Create new flag
-        AstVarScope* const flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
+        AstVarScope* സ്ഥിരം flagVscp = m_dlyTmps.make(flp, scopep, 1, "Set" + baseName);
         flagVscp->varp()->setIgnorePostWrite();
         // Set the flag at the original NBA
         nodep->addHereThisAsNext(  //
-            new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                          new AstConst{flp, AstConst::BitTrue{}}});
+            പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, flagVscp, VAccess::WRITE},
+                          പുതിയ AstConst{flp, AstConst::BitTrue{}}});
         // Add the 'Post' scheduled commit
-        AstIf* const ifp = new AstIf{flp, new AstVarRef{flp, flagVscp, VAccess::READ}};
+        AstIf* സ്ഥിരം ifp = പുതിയ AstIf{flp, പുതിയ AstVarRef{flp, flagVscp, VAccess::READ}};
         vscpInfo.flagUniqueKit().postp->addStmtsp(ifp);
         // Immediately clear the flag
-        ifp->addThensp(new AstAssign{flp, new AstVarRef{flp, flagVscp, VAccess::WRITE},
-                                     new AstConst{flp, AstConst::BitFalse{}}});
+        ifp->addThensp(പുതിയ AstAssign{flp, പുതിയ AstVarRef{flp, flagVscp, VAccess::WRITE},
+                                     പുതിയ AstConst{flp, AstConst::BitFalse{}}});
         // Commit the value
-        ifp->addThensp(new AstAssign{flp, capturedLhsp, capturedRhsp});
+        ifp->addThensp(പുതിയ AstAssign{flp, capturedLhsp, capturedRhsp});
 
         // Delete original NBA
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
     // Scheme::ValueQueuePartial/Scheme::ValueQueueWhole
-    template <bool N_Partial>
-    void prepareSchemeValueQueue(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
-        UASSERT_OBJ(N_Partial ? vscpInfo.m_scheme == Scheme::ValueQueuePartial
-                              : vscpInfo.m_scheme == Scheme::ValueQueueWhole,
+    template <തർക്കം N_Partial>
+    ശൂന്യം prepare_Scheme_മൂല്യം_Queue(AstVarScope* vscp, VarScopeInfo& vscpInfo) {
+        UASSERT_OBJ(N_Partial ? vscpInfo.m_scheme == Scheme::മൂല്യം_Queue_Partial
+                              : vscpInfo.m_scheme == Scheme::മൂല്യം_Queue_Whole,
                     vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = vscp->scopep();
 
         // Create the commit queue variable
-        AstNodeDType* const elemDTypep = vscp->dtypep()->skipRefp();
+        Ast_കണ്ണി_DType* സ്ഥിരം elemDTypep = vscp->dtypep()->skipRefp();
         AstNBACommitQueueDType*& cqDTypep = m_cqDTypeps[{elemDTypep, N_Partial}];
-        if (!cqDTypep) {
-            cqDTypep = new AstNBACommitQueueDType{flp, elemDTypep, N_Partial};
+        എങ്കിൽ (!cqDTypep) {
+            cqDTypep = പുതിയ AstNBACommitQueueDType{flp, elemDTypep, N_Partial};
             v3Global.rootp()->typeTablep()->addTypesp(cqDTypep);
         }
-        const std::string name = "CommitQueue__" + vscp->varp()->shortName();
-        AstVarScope* const queueVscp = m_dlyTmps.make(flp, scopep, cqDTypep, name);
-        queueVscp->varp()->noReset(true);
+        സ്ഥിരം std::string name = "CommitQueue__" + vscp->varp()->shortName();
+        AstVarScope* സ്ഥിരം queueVscp = m_dlyTmps.make(flp, scopep, cqDTypep, name);
+        queueVscp->varp()->noReset(സത്യം);
         queueVscp->varp()->setIgnorePostWrite();
-        vscpInfo.valueQueueKit().vscp = queueVscp;
+        vscpInfo.മൂല്യം_Queue_Kit().vscp = queueVscp;
         // Create the AstActive for the Post logic
-        AstActive* const activep
-            = new AstActive{flp, "nba-value-queue-whole", vscpInfo.senTreep()};
-        activep->senTreeStorep(vscpInfo.senTreep());
+        AstActive* സ്ഥിരം activep
+            = പുതിയ AstActive{flp, "nba-value-queue-whole", vscpInfo.senTreep()};
+        activep->sen_വൃക്ഷം_Storep(vscpInfo.senTreep());
         scopep->addBlocksp(activep);
         // Add 'Post' scheduled process for the commit
-        AstAlwaysPost* const postp = new AstAlwaysPost{flp};
+        AstAlwaysPost* സ്ഥിരം postp = പുതിയ AstAlwaysPost{flp};
         activep->addStmtsp(postp);
         // Add the commit
-        AstCMethodHard* const callp = new AstCMethodHard{
-            flp, new AstVarRef{flp, queueVscp, VAccess::READWRITE}, VCMethod::NBA_COMMIT};
+        AstCMethodHard* സ്ഥിരം callp = പുതിയ AstCMethodHard{
+            flp, പുതിയ AstVarRef{flp, queueVscp, VAccess::READWRITE}, VCMethod::NBA_COMMIT};
         callp->dtypeSetVoid();
         // TODO: this is a partial update, so must be READWRITE, but that breaks scheduling
-        callp->addPinsp(new AstVarRef{flp, vscp, VAccess::WRITE});
+        callp->addPinsp(പുതിയ AstVarRef{flp, vscp, VAccess::WRITE});
         postp->addStmtsp(callp->makeStmt());
     }
 
-    void convertSchemeValueQueue(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo,
-                                 bool partial) {
-        UASSERT_OBJ(partial ? vscpInfo.m_scheme == Scheme::ValueQueuePartial
-                            : vscpInfo.m_scheme == Scheme::ValueQueueWhole,
+    ശൂന്യം convert_Scheme_മൂല്യം_Queue(AstAssignDly* nodep, AstVarScope* vscp, VarScopeInfo& vscpInfo,
+                                 തർക്കം partial) {
+        UASSERT_OBJ(partial ? vscpInfo.m_scheme == Scheme::മൂല്യം_Queue_Partial
+                            : vscpInfo.m_scheme == Scheme::മൂല്യം_Queue_Whole,
                     vscp, "Inconsistent NBA scheme");
-        FileLine* const flp = vscp->fileline();
-        AstScope* const scopep = VN_AS(nodep->user2p(), Scope);
+        File_വരി* സ്ഥിരം flp = vscp->fileline();
+        AstScope* സ്ഥിരം scopep = VN_AS(nodep->user2p(), Scope);
 
         // Base name suffix for signals constructed below
-        const std::string baseName = "__" + vscp->varp()->shortName();
+        സ്ഥിരം std::string baseName = "__" + vscp->varp()->shortName();
 
         // Unlink and capture the RHS value
-        AstNodeExpr* const capturedRhsp
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം capturedRhsp
             = captureVal(scopep, nodep, nodep->rhsp()->unlinkFrBack(), "Val" + baseName);
 
         // Unlink and capture the LHS reference
-        AstNodeExpr* const capturedLhsp
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം capturedLhsp
             = captureLhs(scopep, nodep, nodep->lhsp()->unlinkFrBack(), baseName);
 
         // RHS value (can be widened/masked iff Partial)
-        AstNodeExpr* valuep = capturedRhsp;
+        Ast_കണ്ണി_വ്യഞ്ജകം* valuep = capturedRhsp;
         // RHS mask (iff Partial)
-        AstNodeExpr* maskp = nullptr;
+        Ast_കണ്ണി_വ്യഞ്ജകം* maskp = nullptr;
 
         // Running node for LHS deconstruction
-        AstNodeExpr* lhsNodep = capturedLhsp;
+        Ast_കണ്ണി_വ്യഞ്ജകം* lhsNodep = capturedLhsp;
 
         // If partial updates are required, construct the mask and the widened value
-        if (partial) {
+        എങ്കിൽ (partial) {
             // Type of array element
-            AstNodeDType* const eDTypep = [&]() -> AstNodeDType* {
-                AstNodeDType* dtypep = vscp->dtypep()->skipRefp();
-                while (AstUnpackArrayDType* const ap = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_കണ്ണി_DType* സ്ഥിരം eDTypep = [&]() -> Ast_കണ്ണി_DType* {
+                Ast_കണ്ണി_DType* dtypep = vscp->dtypep()->skipRefp();
+                ആകുമ്പോൾ (AstUnpackArrayDType* സ്ഥിരം ap = VN_CAST(dtypep, UnpackArrayDType)) {
                     dtypep = ap->subDTypep()->skipRefp();
                 }
-                return dtypep;
+                തിരികെ dtypep;
             }();
 
-            if (const AstSel* const lSelp = VN_CAST(lhsNodep, Sel)) {
+            എങ്കിൽ (സ്ഥിരം AstSel* സ്ഥിരം lSelp = VN_CAST(lhsNodep, Sel)) {
                 // This is a partial assignment.
                 // Need to create a mask and widen the value to element size.
                 lhsNodep = lSelp->fromp();
-                AstNodeExpr* const sLsbp = lSelp->lsbp();
-                const int sWidth = lSelp->widthConst();
+                Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം sLsbp = lSelp->lsbp();
+                സ്ഥിരം പൂർണ്ണസംഖ്യ sWidth = lSelp->widthConst();
 
                 // Create mask value
-                maskp = [&]() -> AstNodeExpr* {
+                maskp = [&]() -> Ast_കണ്ണി_വ്യഞ്ജകം* {
                     // Constant mask we can compute here
-                    if (const AstConst* const cLsbp = VN_CAST(sLsbp, Const)) {
-                        AstConst* const cp = new AstConst{flp, AstConst::DTyped{}, eDTypep};
-                        cp->num().setMask(sWidth, cLsbp->toSInt());
-                        return cp;
+                    എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം cLsbp = VN_CAST(sLsbp, Const)) {
+                        AstConst* സ്ഥിരം cp = പുതിയ AstConst{flp, AstConst::DTyped{}, eDTypep};
+                        cp->അക്കം().setMask(sWidth, cLsbp->toSInt());
+                        തിരികെ cp;
                     }
 
                     // A non-constant mask we must compute at run-time.
-                    AstConst* const onesp = new AstConst{flp, AstConst::WidthedValue{}, sWidth, 0};
-                    onesp->num().setAllBits1();
-                    return createWidened(flp, scopep, eDTypep, sLsbp, sWidth, "Mask" + baseName,
+                    AstConst* സ്ഥിരം onesp = പുതിയ AstConst{flp, AstConst::Widthed_മൂല്യം{}, sWidth, 0};
+                    onesp->അക്കം().setAllBits1();
+                    തിരികെ createWidened(flp, scopep, eDTypep, sLsbp, sWidth, "Mask" + baseName,
                                          onesp, nodep);
                 }();
 
                 // Adjust value to element size
-                valuep = [&]() -> AstNodeExpr* {
+                valuep = [&]() -> Ast_കണ്ണി_വ്യഞ്ജകം* {
                     // Constant value with constant select we can compute here
-                    if (AstConst* const cValuep = VN_CAST(valuep, Const)) {
-                        if (const AstConst* const cLsbp = VN_CAST(sLsbp, Const)) {
-                            AstConst* const cp = new AstConst{flp, AstConst::DTyped{}, eDTypep};
-                            cp->num().setAllBits0();
-                            cp->num().opSelInto(cValuep->num(), cLsbp->toSInt(), sWidth);
-                            VL_DO_DANGLING(valuep->deleteTree(), valuep);
-                            return cp;
+                    എങ്കിൽ (AstConst* സ്ഥിരം cValuep = VN_CAST(valuep, Const)) {
+                        എങ്കിൽ (സ്ഥിരം AstConst* സ്ഥിരം cLsbp = VN_CAST(sLsbp, Const)) {
+                            AstConst* സ്ഥിരം cp = പുതിയ AstConst{flp, AstConst::DTyped{}, eDTypep};
+                            cp->അക്കം().setAllBits0();
+                            cp->അക്കം().opSelInto(cValuep->അക്കം(), cLsbp->toSInt(), sWidth);
+                            VL_DO_DANGLING(valuep->delete_വൃക്ഷം(), valuep);
+                            തിരികെ cp;
                         }
                     }
 
                     // A non-constant value we must adjust.
-                    return createWidened(flp, scopep, eDTypep, sLsbp, sWidth,  //
+                    തിരികെ createWidened(flp, scopep, eDTypep, sLsbp, sWidth,  //
                                          "Elem" + baseName, valuep, nodep);
                 }();
-            } else {
+            } അല്ലെങ്കിൽ {
                 // If this assignment is not partial, set mask to ones and we are done
-                AstConst* const ones = new AstConst{flp, AstConst::DTyped{}, eDTypep};
-                ones->num().setAllBits1();
+                AstConst* സ്ഥിരം ones = പുതിയ AstConst{flp, AstConst::DTyped{}, eDTypep};
+                ones->അക്കം().setAllBits1();
                 maskp = ones;
             }
         }
 
         // Extract array indices
-        std::vector<AstNodeExpr*> idxps;
+        std::vector<Ast_കണ്ണി_വ്യഞ്ജകം*> idxps;
         {
             UASSERT_OBJ(VN_IS(lhsNodep, ArraySel), lhsNodep, "Unexpected LHS form");
-            while (AstArraySel* const aSelp = VN_CAST(lhsNodep, ArraySel)) {
+            ആകുമ്പോൾ (AstArraySel* സ്ഥിരം aSelp = VN_CAST(lhsNodep, ArraySel)) {
                 idxps.emplace_back(aSelp->bitp()->unlinkFrBack());
                 lhsNodep = aSelp->fromp();
             }
@@ -991,191 +991,191 @@ class DelayedVisitor final : public VNVisitor {
         }
 
         // Done with the LHS at this point
-        VL_DO_DANGLING(pushDeletep(capturedLhsp), capturedLhsp);
+        VL_DO_DANGLING(തള്ളുക_Deletep(capturedLhsp), capturedLhsp);
 
         // Enqueue the update at the site of the original NBA
-        AstCMethodHard* const callp = new AstCMethodHard{
-            flp, new AstVarRef{flp, vscpInfo.valueQueueKit().vscp, VAccess::READWRITE},
+        AstCMethodHard* സ്ഥിരം callp = പുതിയ AstCMethodHard{
+            flp, പുതിയ AstVarRef{flp, vscpInfo.മൂല്യം_Queue_Kit().vscp, VAccess::READWRITE},
             VCMethod::NBA_ENQUEUE};
         callp->dtypeSetVoid();
         callp->addPinsp(valuep);
-        if (partial) callp->addPinsp(maskp);
-        for (AstNodeExpr* const indexp : idxps) callp->addPinsp(indexp);
+        എങ്കിൽ (partial) callp->addPinsp(maskp);
+        വേണ്ടി (Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം indexp : idxps) callp->addPinsp(indexp);
         nodep->addHereThisAsNext(callp->makeStmt());
 
         // Delete original NBA
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(തള്ളുക_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
     // Record where a variable is assigned
-    void recordWriteRef(AstVarRef* nodep, bool nonBlocking) {
+    ശൂന്യം recordWriteRef(AstVarRef* nodep, തർക്കം nonBlocking) {
         // Ignore references in certain contexts
-        if (m_ignoreBlkAndNBlk) return;
+        എങ്കിൽ (m_ignoreBlkAndNBlk) തിരികെ;
         // Ignore if it's an array
         // TODO: we do this because it used to be the previous behaviour.
         //       Is it still required, or should we warn for arrays as well?
         //       Scheduling is no different for them...
         //       Clarification: This is OK for arrays of primitive types, but
         //       arrays that use the ShadowVar scheme don't work...
-        if (VN_IS(nodep->varScopep()->dtypep()->skipRefp(), UnpackArrayDType)) return;
+        എങ്കിൽ (VN_IS(nodep->varScopep()->dtypep()->skipRefp(), UnpackArrayDType)) തിരികെ;
 
         m_writeRefs(nodep->varScopep()).emplace_back(nodep, nonBlocking, m_inNonCombLogic);
     }
 
     template <typename Procedure_T>
-    static bool isProcedureWithSentreep(const AstNodeProcedure* const nodep) {
-        const Procedure_T* const procedurep = AstNode::cast<Procedure_T>(nodep);
-        return procedurep && procedurep->sentreep();
+    സ്ഥിതം തർക്കം isProcedureWithSentreep(സ്ഥിരം Ast_കണ്ണി_Procedure* സ്ഥിരം nodep) {
+        സ്ഥിരം Procedure_T* സ്ഥിരം procedurep = Ast_കണ്ണി::cast<Procedure_T>(nodep);
+        തിരികെ procedurep && procedurep->sentreep();
     }
 
     // Visit AstCFunc from a AstNodeCCall - this is made into a separate quasi-visitor because
     // AstCFunc that is not called from the code (e.g.: DPI exports) does not need to be visited
     // this way. Also, not visiting such AstCFuncs allows to avoid caching results for them which
     // this function does - which could lead to excessive memory usage
-    void visitCalledCFunc(AstCFunc* const nodep) {
-        CFuncCache& value = m_cfuncsCache(nodep);
-        switch (value.m_state) {
-        case CFuncCache::UNINITIALIZED: {
+    ശൂന്യം visitCalledCFunc(AstCFunc* സ്ഥിരം nodep) {
+        CFuncCache& മൂല്യം = m_cfuncsCache(nodep);
+        തിരഞ്ഞെടുപ്പ് (മൂല്യം.m_state) {
+        അവസ്ഥ CFuncCache::UNINITIALIZED: {
             // Save current state
             VL_RESTORER_CLEAR(m_timingDomains);
 
             // Visit
-            value.m_state = CFuncCache::VISITING;
-            m_callStack.push_back(nodep);
+            മൂല്യം.m_state = CFuncCache::VISITING;
+            m_call_അട്ടി.തള്ളുക_back(nodep);
             {
                 VL_RESTORER(m_cfuncp);
                 m_cfuncp = nodep;
                 iterateChildren(nodep);
             }
-            m_callStack.pop_back();
-            value.m_state = CFuncCache::INITIALIZED;
+            m_call_അട്ടി.എടുക്കുക_back();
+            മൂല്യം.m_state = CFuncCache::INITIALIZED;
 
             // Save a cache
-            std::swap(m_timingDomains, value.m_timingDomains);
-        } break;
-        case CFuncCache::VISITING: {
-            for (size_t i = m_callStack.size() - 1; m_callStack.at(i) != nodep; --i) {
-                m_cfuncsCache(m_callStack[i]).m_includes.insert(nodep);
+            std::swap(m_timingDomains, മൂല്യം.m_timingDomains);
+        } നിർത്തുക;
+        അവസ്ഥ CFuncCache::VISITING: {
+            വേണ്ടി (size_t i = m_call_അട്ടി.size() - 1; m_call_അട്ടി.at(i) != nodep; --i) {
+                m_cfuncsCache(m_call_അട്ടി[i]).m_includes.തിരുകുക(nodep);
             }
-            return;  // Break recursion
+            തിരികെ;  // Break recursion
         }
-        case CFuncCache::INITIALIZED: break;
+        അവസ്ഥ CFuncCache::INITIALIZED: നിർത്തുക;
         }
-        std::unordered_set<const AstCFunc*> visited;
-        addCFuncCachedValues(nodep, visited);
+        std::unordered_set<സ്ഥിരം AstCFunc*> visited;
+        add_CFunc_Cached_മൂല്യങ്ങൾ(nodep, visited);
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    ശൂന്യം visit(AstNetlist* nodep) override {
         iterateChildren(nodep);
         // Decide which scheme to use for each variable and do the 'prepare' step
-        for (AstVarScope* const vscp : m_vscps) {
+        വേണ്ടി (AstVarScope* സ്ഥിരം vscp : m_vscps) {
             VarScopeInfo& vscpInfo = m_vscpInfo(vscp);
             vscpInfo.m_scheme = chooseScheme(vscp, vscpInfo);
             // Run 'prepare' step
-            switch (vscpInfo.m_scheme) {
-            case Scheme::Undecided:  // LCOV_EXCL_START
-                UASSERT_OBJ(false, vscp, "Failed to choose NBA scheme");
-                break;  // LCOV_EXCL_STOP
-            case Scheme::UnsupportedCompoundArrayInLoop: {
+            തിരഞ്ഞെടുപ്പ് (vscpInfo.m_scheme) {
+            അവസ്ഥ Scheme::Undecided:  // LCOV_EXCL_START
+                UASSERT_OBJ(അസത്യം, vscp, "Failed to choose NBA scheme");
+                നിർത്തുക;  // LCOV_EXCL_STOP
+            അവസ്ഥ Scheme::UnsupportedCompoundArrayInLoop: {
                 // Will report error at the site of the NBA
-                break;
+                നിർത്തുക;
             }
-            case Scheme::ShadowVar: {
+            അവസ്ഥ Scheme::ShadowVar: {
                 ++m_nSchemeShadowVar;
                 prepareSchemeShadowVar(vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::ShadowVarMasked: {
+            അവസ്ഥ Scheme::ShadowVarMasked: {
                 ++m_nSchemeShadowVarMasked;
                 prepareSchemeShadowVarMasked(vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::FlagShared: {
+            അവസ്ഥ Scheme::FlagShared: {
                 ++m_nSchemeFlagShared;
                 prepareSchemeFlagShared(vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::FlagUnique: {
+            അവസ്ഥ Scheme::FlagUnique: {
                 ++m_nSchemeFlagUnique;
                 prepareSchemeFlagUnique(vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::ValueQueueWhole: {
-                ++m_nSchemeValueQueuesWhole;
-                prepareSchemeValueQueue</* Partial: */ false>(vscp, vscpInfo);
-                break;
+            അവസ്ഥ Scheme::മൂല്യം_Queue_Whole: {
+                ++m_n_Scheme_മൂല്യം_Queues_Whole;
+                prepare_Scheme_മൂല്യം_Queue</* Partial: */ അസത്യം>(vscp, vscpInfo);
+                നിർത്തുക;
             }
-            case Scheme::ValueQueuePartial: {
-                ++m_nSchemeValueQueuesPartial;
-                prepareSchemeValueQueue</* Partial: */ true>(vscp, vscpInfo);
-                break;
+            അവസ്ഥ Scheme::മൂല്യം_Queue_Partial: {
+                ++m_n_Scheme_മൂല്യം_Queues_Partial;
+                prepare_Scheme_മൂല്യം_Queue</* Partial: */ സത്യം>(vscp, vscpInfo);
+                നിർത്തുക;
             }
             }
         }
         // Convert all NBAs
-        for (const NBA& nba : m_nbas) {
-            AstAssignDly* const nbap = nba.nodep;
-            AstVarScope* const vscp = nba.vscp;
+        വേണ്ടി (സ്ഥിരം NBA& nba : m_nbas) {
+            AstAssignDly* സ്ഥിരം nbap = nba.nodep;
+            AstVarScope* സ്ഥിരം vscp = nba.vscp;
             VarScopeInfo& vscpInfo = m_vscpInfo(vscp);
             // Run 'convert' step
-            switch (vscpInfo.m_scheme) {
-            case Scheme::Undecided: {  // LCOV_EXCL_START
-                UASSERT_OBJ(false, vscp, "Unreachable");
-                break;
+            തിരഞ്ഞെടുപ്പ് (vscpInfo.m_scheme) {
+            അവസ്ഥ Scheme::Undecided: {  // LCOV_EXCL_START
+                UASSERT_OBJ(അസത്യം, vscp, "Unreachable");
+                നിർത്തുക;
             }  // LCOV_EXCL_STOP
-            case Scheme::UnsupportedCompoundArrayInLoop: {
+            അവസ്ഥ Scheme::UnsupportedCompoundArrayInLoop: {
                 // TODO: make this an E_UNSUPPORTED...
                 nbap->v3warn(BLKLOOPINIT, "Unsupported: Non-blocking assignment to array with "
                                           "compound element type inside loop");
-                break;
+                നിർത്തുക;
             }
-            case Scheme::ShadowVar: {
+            അവസ്ഥ Scheme::ShadowVar: {
                 convertSchemeShadowVar(nbap, vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::ShadowVarMasked: {
+            അവസ്ഥ Scheme::ShadowVarMasked: {
                 convertSchemeShadowVarMasked(nbap, vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::FlagShared: {
+            അവസ്ഥ Scheme::FlagShared: {
                 convertSchemeFlagShared(nbap, vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::FlagUnique: {
+            അവസ്ഥ Scheme::FlagUnique: {
                 convertSchemeFlagUnique(nbap, vscp, vscpInfo);
-                break;
+                നിർത്തുക;
             }
-            case Scheme::ValueQueueWhole: {
-                convertSchemeValueQueue(nbap, vscp, vscpInfo, /* partial: */ false);
-                break;
+            അവസ്ഥ Scheme::മൂല്യം_Queue_Whole: {
+                convert_Scheme_മൂല്യം_Queue(nbap, vscp, vscpInfo, /* partial: */ അസത്യം);
+                നിർത്തുക;
             }
-            case Scheme::ValueQueuePartial:
-                convertSchemeValueQueue(nbap, vscp, vscpInfo, /* partial: */ true);
-                break;
+            അവസ്ഥ Scheme::മൂല്യം_Queue_Partial:
+                convert_Scheme_മൂല്യം_Queue(nbap, vscp, vscpInfo, /* partial: */ സത്യം);
+                നിർത്തുക;
             }
         }
     }
-    void visit(AstScope* nodep) override {
+    ശൂന്യം visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
+    ശൂന്യം visit(AstActive* nodep) override {
         UASSERT_OBJ(!m_activep, nodep, "Should not nest");
         VL_RESTORER(m_activep);
         VL_RESTORER(m_ignoreBlkAndNBlk);
         VL_RESTORER(m_inNonCombLogic);
         m_activep = nodep;
-        const AstSenTree* const senTreep = nodep->sentreep();
+        സ്ഥിരം Ast_Sen_വൃക്ഷം* സ്ഥിരം senTreep = nodep->sentreep();
         m_ignoreBlkAndNBlk = senTreep->hasStatic() || senTreep->hasInitial();
         m_inNonCombLogic = senTreep->hasClocked();
         iterateChildren(nodep);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_Procedure* nodep) override {
         VL_RESTORER(m_needsInitialTrigger);
         VL_RESTORER_CLEAR(m_nbaEventSenTreeps);
-        const size_t firstNBAAddedIndex = m_nbas.size();
+        സ്ഥിരം size_t firstNBAAddedIndex = m_nbas.size();
         {
             VL_RESTORER(m_inSuspendableOrFork);
             VL_RESTORER(m_procp);
@@ -1185,25 +1185,25 @@ class DelayedVisitor final : public VNVisitor {
             // treat it as suspendable when we meet a NBA
             m_inSuspendableOrFork = nodep->isSuspendable() || VN_IS(nodep, Initial);
             m_procp = nodep;
-            if (nodep->isSuspendable()) {
-                m_ignoreBlkAndNBlk = false;
-                m_inNonCombLogic = true;
+            എങ്കിൽ (nodep->isSuspendable()) {
+                m_ignoreBlkAndNBlk = അസത്യം;
+                m_inNonCombLogic = സത്യം;
             }
             iterateChildren(nodep);
         }
-        auto containsClocled = [](const AstSenItem* itemp) {
-            while (itemp) {
-                if (itemp->edgeType().clockedStmt()) return true;
+        auto containsClocled = [](സ്ഥിരം AstSenItem* itemp) {
+            ആകുമ്പോൾ (itemp) {
+                എങ്കിൽ (itemp->edgeType().clockedStmt()) തിരികെ സത്യം;
                 itemp = VN_AS(itemp->nextp(), SenItem);
             }
-            return false;
+            തിരികെ അസത്യം;
         };
-        const bool addInitialTrigger = m_needsInitialTrigger
+        സ്ഥിരം തർക്കം addInitialTrigger = m_needsInitialTrigger
                                        && !(isProcedureWithSentreep<AstAlways>(nodep)
                                             || isProcedureWithSentreep<AstAlwaysObserved>(nodep)
                                             || isProcedureWithSentreep<AstAlwaysReactive>(nodep))
                                        && !containsClocled(m_activep->sentreep()->sensesp());
-        if (m_timingDomains.empty() && !addInitialTrigger) return;
+        എങ്കിൽ (m_timingDomains.empty() && !addInitialTrigger) തിരികെ;
 
         // There were some timing domains involved in the process. Add all of them as sensitivities
         // of all NBA targets in this process. Note this is a bit of a sledgehammer, we should only
@@ -1212,112 +1212,112 @@ class DelayedVisitor final : public VNVisitor {
 
         // First gather all senItems
         AstSenItem* senItemp = nullptr;
-        if (addInitialTrigger) {
-            senItemp = new AstSenItem{nodep->fileline(), AstSenItem::InitialNBA{}};
+        എങ്കിൽ (addInitialTrigger) {
+            senItemp = പുതിയ AstSenItem{nodep->fileline(), AstSenItem::InitialNBA{}};
             ++m_nInitialNBA;
         }
 
-        for (const AstSenTree* const domainp : m_timingDomains) {
-            if (domainp->sensesp())
-                senItemp = AstNode::addNext(senItemp, domainp->sensesp()->cloneTree(true));
+        വേണ്ടി (സ്ഥിരം Ast_Sen_വൃക്ഷം* സ്ഥിരം domainp : m_timingDomains) {
+            എങ്കിൽ (domainp->sensesp())
+                senItemp = Ast_കണ്ണി::addNext(senItemp, domainp->sensesp()->clone_വൃക്ഷം(സത്യം));
         }
         m_timingDomains.clear();
         // Add them to all nba targets we gathered in this process
-        for (size_t i = firstNBAAddedIndex; i < m_nbas.size(); ++i) {
+        വേണ്ടി (size_t i = firstNBAAddedIndex; i < m_nbas.size(); ++i) {
             m_vscpInfo(m_nbas[i].vscp).addSensitivity(senItemp);
         }
-        for (AstSenTree* const senTreep : m_nbaEventSenTreeps)
-            senTreep->addSensesp(senItemp->cloneTree(true));
+        വേണ്ടി (Ast_Sen_വൃക്ഷം* സ്ഥിരം senTreep : m_nbaEventSenTreeps)
+            senTreep->addSensesp(senItemp->clone_വൃക്ഷം(സത്യം));
         // Done with these
-        VL_DO_DANGLING(senItemp->deleteTree(), senItemp);
+        VL_DO_DANGLING(senItemp->delete_വൃക്ഷം(), senItemp);
     }
-    void visit(AstFork* nodep) override {
+    ശൂന്യം visit(AstFork* nodep) override {
         VL_RESTORER(m_inSuspendableOrFork);
-        m_inSuspendableOrFork = true;
+        m_inSuspendableOrFork = സത്യം;
         iterateChildren(nodep);
     }
-    void visit(AstCAwait* nodep) override {
-        if (nodep->sentreep()) m_timingDomains.insert(nodep->sentreep());
+    ശൂന്യം visit(AstCAwait* nodep) override {
+        എങ്കിൽ (nodep->sentreep()) m_timingDomains.തിരുകുക(nodep->sentreep());
         iterateChildren(nodep);
     }
-    void visit(AstFireEvent* nodep) override {
+    ശൂന്യം visit(AstFireEvent* nodep) override {
         UASSERT_OBJ(v3Global.hasEvents(), nodep, "Inconsistent");
-        FileLine* const flp = nodep->fileline();
+        File_വരി* സ്ഥിരം flp = nodep->fileline();
 
-        AstNodeExpr* const eventp = nodep->operandp()->unlinkFrBack();
+        Ast_കണ്ണി_വ്യഞ്ജകം* സ്ഥിരം eventp = nodep->operandp()->unlinkFrBack();
 
         // Enqueue for clearing 'triggered' state on next eval
-        AstCStmt* const cstmtp = new AstCStmt{flp};
+        AstCStmt* സ്ഥിരം cstmtp = പുതിയ AstCStmt{flp};
         cstmtp->add("vlSymsp->fireEvent(");
         cstmtp->add(eventp);
         cstmtp->add(");");
 
-        AstNode* newp = cstmtp;
-        const AstVarRef* const vrefp = VN_CAST(eventp, VarRef);
-        if (nodep->isDelayed() && (m_cfuncp || !vrefp)) {
+        Ast_കണ്ണി* newp = cstmtp;
+        സ്ഥിരം AstVarRef* സ്ഥിരം vrefp = VN_CAST(eventp, VarRef);
+        എങ്കിൽ (nodep->isDelayed() && (m_cfuncp || !vrefp)) {
             // V3Timing converts these with --timing
             nodep->v3warn(E_NOTIMING, "Nonblocking event trigger "
                                           << (m_cfuncp ? "in a non-inlined function/task"
                                                        : "of a class or interface member or "
                                                          "array element")
                                           << " requires --timing");
-        } else if (nodep->isDelayed()) {
-            const std::string newvarname = "_" + vrefp->varp()->shortName();
-            AstVarScope* const dlyvscp
+        } അല്ലെങ്കിൽ എങ്കിൽ (nodep->isDelayed()) {
+            സ്ഥിരം std::string newvarname = "_" + vrefp->varp()->shortName();
+            AstVarScope* സ്ഥിരം dlyvscp
                 = m_dlyTmps.make(flp, vrefp->varScopep()->scopep(), 1, newvarname);
 
-            const auto dlyRef = [=](VAccess access) {  //
-                return new AstVarRef{flp, dlyvscp, access};
+            സ്ഥിരം auto dlyRef = [=](VAccess access) {  //
+                തിരികെ പുതിയ AstVarRef{flp, dlyvscp, access};
             };
 
-            AstAlwaysPost* const postp = new AstAlwaysPost{flp};
-            AstIf* const ifp = new AstIf{flp, dlyRef(VAccess::READ)};
+            AstAlwaysPost* സ്ഥിരം postp = പുതിയ AstAlwaysPost{flp};
+            AstIf* സ്ഥിരം ifp = പുതിയ AstIf{flp, dlyRef(VAccess::READ)};
             postp->addStmtsp(ifp);
 
             UASSERT_OBJ(m_activep, nodep, "No active to handle FireEvent");
-            AstSenTree* senTreep = m_activep->sentreep();
+            Ast_Sen_വൃക്ഷം* senTreep = m_activep->sentreep();
             AstActive* activep = nullptr;
-            if (m_inSuspendableOrFork && (senTreep->hasInitial() || senTreep->hasClocked())) {
+            എങ്കിൽ (m_inSuspendableOrFork && (senTreep->hasInitial() || senTreep->hasClocked())) {
                 // Suspendable code can trigger whenever it resumes, so fire when its NBAs are
                 // committed (see visit(AstNodeProcedure*)), clearing the flag like
                 // Scheme::FlagUnique
-                senTreep = new AstSenTree{
-                    flp, senTreep->hasClocked() ? senTreep->sensesp()->cloneTree(true) : nullptr};
-                m_nbaEventSenTreeps.push_back(senTreep);
+                senTreep = പുതിയ Ast_Sen_വൃക്ഷം{
+                    flp, senTreep->hasClocked() ? senTreep->sensesp()->clone_വൃക്ഷം(സത്യം) : nullptr};
+                m_nbaEventSenTreeps.തള്ളുക_back(senTreep);
                 m_needsInitialTrigger |= m_timingDomains.empty();
                 dlyvscp->varp()->setIgnorePostWrite();
-                ifp->addThensp(new AstAssign{flp, dlyRef(VAccess::WRITE),
-                                             new AstConst{flp, AstConst::BitFalse{}}});
-                activep = new AstActive{flp, "nba-event", senTreep};
-                activep->senTreeStorep(senTreep);
-            } else {
-                activep = new AstActive{flp, "nba-event", senTreep};
-                AstAlwaysPre* const prep = new AstAlwaysPre{flp};
-                prep->addStmtsp(new AstAssign{flp, dlyRef(VAccess::WRITE),
-                                              new AstConst{flp, AstConst::BitFalse{}}});
+                ifp->addThensp(പുതിയ AstAssign{flp, dlyRef(VAccess::WRITE),
+                                             പുതിയ AstConst{flp, AstConst::BitFalse{}}});
+                activep = പുതിയ AstActive{flp, "nba-event", senTreep};
+                activep->sen_വൃക്ഷം_Storep(senTreep);
+            } അല്ലെങ്കിൽ {
+                activep = പുതിയ AstActive{flp, "nba-event", senTreep};
+                AstAlwaysPre* സ്ഥിരം prep = പുതിയ AstAlwaysPre{flp};
+                prep->addStmtsp(പുതിയ AstAssign{flp, dlyRef(VAccess::WRITE),
+                                              പുതിയ AstConst{flp, AstConst::BitFalse{}}});
                 activep->addStmtsp(prep);
             }
             ifp->addThensp(newp);
             m_activep->addNextHere(activep);
             activep->addStmtsp(postp);
 
-            newp = new AstAssign{flp, dlyRef(VAccess::WRITE),
-                                 new AstConst{flp, AstConst::BitTrue{}}};
+            newp = പുതിയ AstAssign{flp, dlyRef(VAccess::WRITE),
+                                 പുതിയ AstConst{flp, AstConst::BitTrue{}}};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_വൃക്ഷം(), nodep);
     }
-    void visit(AstAssignDly* nodep) override {
+    ശൂന്യം visit(AstAssignDly* nodep) override {
         // Prevent double processing due to AstExprStmt being moved before this node
-        if (nodep->user1SetOnce()) return;
+        എങ്കിൽ (nodep->user1SetOnce()) തിരികെ;
 
-        if (m_cfuncp) {
-            if (!v3Global.rootp()->nbaEventp()) {
+        എങ്കിൽ (m_cfuncp) {
+            എങ്കിൽ (!v3Global.rootp()->nbaEventp()) {
                 nodep->v3warn(
                     E_NOTIMING,
                     "Delayed assignment in a non-inlined function/task requires --timing");
             }
-            return;
+            തിരികെ;
         }
         UASSERT_OBJ(m_procp, nodep, "Delayed assignment not under process");
         UASSERT_OBJ(m_activep, nodep, "<= not under sensitivity block");
@@ -1333,18 +1333,18 @@ class DelayedVisitor final : public VNVisitor {
         // Grab the reference to the target of the NBA, also lift ExprStmt statements on the LHS
         VL_RESTORER(m_currNbaLhsRefp);
         UASSERT_OBJ(!m_currNbaLhsRefp, nodep, "NBAs should not nest");
-        nodep->lhsp()->foreach([&](AstNode* currp) {
+        nodep->lhsp()->foreach([&](Ast_കണ്ണി* currp) {
             // cppcheck-suppress constVariablePointer
-            if (AstExprStmt* const exprp = VN_CAST(currp, ExprStmt)) {
+            എങ്കിൽ (Ast_വ്യഞ്ജകം_Stmt* സ്ഥിരം exprp = VN_CAST(currp, വ്യഞ്ജകം_Stmt)) {
                 // Move statements before the NBA
                 nodep->addHereThisAsNext(exprp->stmtsp()->unlinkFrBackWithNext());
                 // Replace with result
                 currp->replaceWith(exprp->resultp()->unlinkFrBack());
                 // Get rid of the AstExprStmt
-                VL_DO_DANGLING2(pushDeletep(currp), currp, exprp);
-            } else if (AstVarRef* const refp = VN_CAST(currp, VarRef)) {
+                VL_DO_DANGLING2(തള്ളുക_Deletep(currp), currp, exprp);
+            } അല്ലെങ്കിൽ എങ്കിൽ (AstVarRef* സ്ഥിരം refp = VN_CAST(currp, VarRef)) {
                 // Ignore reads (e.g.: '_[*here*] <= _')
-                if (refp->access().isReadOnly()) return;
+                എങ്കിൽ (refp->access().isReadOnly()) തിരികെ;
                 // A RW ref on the LHS (e.g.: '_[preInc(*here*)] <= _') is asking for trouble at
                 // this point. These should be lowered in an earlier pass into sequenced
                 // temporaries.
@@ -1358,10 +1358,10 @@ class DelayedVisitor final : public VNVisitor {
             }
         });
         // The target variable of the NBA (there can only be one per NBA at this point)
-        AstVarScope* const vscp = m_currNbaLhsRefp->varScopep();
+        AstVarScope* സ്ഥിരം vscp = m_currNbaLhsRefp->varScopep();
         // Record it on first encounter
         VarScopeInfo& vscpInfo = m_vscpInfo(vscp);
-        if (!vscpInfo.m_firstNbaRefp) {
+        എങ്കിൽ (!vscpInfo.m_firstNbaRefp) {
             vscpInfo.m_firstNbaRefp = m_currNbaLhsRefp;
             vscpInfo.m_fistActivep = m_activep;
             m_vscps.emplace_back(vscp);
@@ -1372,10 +1372,10 @@ class DelayedVisitor final : public VNVisitor {
         vscpInfo.m_inLoop |= m_inLoop;
         vscpInfo.m_inSuspOrFork |= m_inSuspendableOrFork;
         // Sensitivity might be non-clocked, in a suspendable process, which are handled elsewhere
-        if (m_activep->sentreep()->hasClocked()) {
-            if (vscpInfo.m_fistActivep != m_activep) {
-                AstVar* const varp = vscp->varp();
-                if (!varp->user1SetOnce()
+        എങ്കിൽ (m_activep->sentreep()->hasClocked()) {
+            എങ്കിൽ (vscpInfo.m_fistActivep != m_activep) {
+                AstVar* സ്ഥിരം varp = vscp->varp();
+                എങ്കിൽ (!varp->user1SetOnce()
                     && !varp->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVEN)) {
                     varp->v3warn(MULTIDRIVEN,
                                  "Signal has multiple driving blocks with different clocking: "
@@ -1399,37 +1399,37 @@ class DelayedVisitor final : public VNVisitor {
         nba.vscp = vscp;
 
         // Record write reference
-        recordWriteRef(m_currNbaLhsRefp, true);
+        recordWriteRef(m_currNbaLhsRefp, സത്യം);
 
         iterateChildren(nodep);
     }
-    void visit(AstVarRef* nodep) override {
+    ശൂന്യം visit(AstVarRef* nodep) override {
         // Already checked the NBA LHS ref, ignore here
-        if (nodep == m_currNbaLhsRefp) return;
+        എങ്കിൽ (nodep == m_currNbaLhsRefp) തിരികെ;
         // Only care about write refs
-        if (!nodep->access().isWriteOrRW()) return;
+        എങ്കിൽ (!nodep->access().isWriteOrRW()) തിരികെ;
         // Record write reference
-        recordWriteRef(nodep, false);
+        recordWriteRef(nodep, അസത്യം);
     }
-    void visit(AstLoop* nodep) override {
+    ശൂന്യം visit(AstLoop* nodep) override {
         VL_RESTORER(m_inLoop);
-        m_inLoop = true;
+        m_inLoop = സത്യം;
         iterateChildren(nodep);
     }
-    void visit(AstNodeCCall* const nodep) override {
+    ശൂന്യം visit(Ast_കണ്ണി_CCall* സ്ഥിരം nodep) override {
         iterateChildren(nodep);
         // We need to visit bodies of non-inlined functions
-        const auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
-        if (cfuncps.empty()) {
+        സ്ഥിരം auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
+        എങ്കിൽ (cfuncps.empty()) {
             visitCalledCFunc(nodep->funcp());
-        } else {
-            for (AstCFunc* const cfuncp : cfuncps) visitCalledCFunc(cfuncp);
+        } അല്ലെങ്കിൽ {
+            വേണ്ടി (AstCFunc* സ്ഥിരം cfuncp : cfuncps) visitCalledCFunc(cfuncp);
         }
     }
-    void visit(AstCFunc* const nodep) override {
-        const auto& value = m_cfuncsCache(nodep);
+    ശൂന്യം visit(AstCFunc* സ്ഥിരം nodep) override {
+        സ്ഥിരം auto& മൂല്യം = m_cfuncsCache(nodep);
         // Check whether it was already visited by visitCalledCFunc()
-        if (value.m_state != CFuncCache::UNINITIALIZED) return;
+        എങ്കിൽ (മൂല്യം.m_state != CFuncCache::UNINITIALIZED) തിരികെ;
         VL_RESTORER(m_cfuncp);
         // Its timing domains are those of the processes calling it, see visitCalledCFunc()
         VL_RESTORER_CLEAR(m_timingDomains);
@@ -1438,13 +1438,13 @@ class DelayedVisitor final : public VNVisitor {
     }
 
     // Pre/Post logic are created here and their content need no further changes, so ignore.
-    void visit(AstAlwaysPre*) override {}
-    void visit(AstAlwaysPost*) override {}
+    ശൂന്യം visit(AstAlwaysPre*) override {}
+    ശൂന്യം visit(AstAlwaysPost*) override {}
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ശൂന്യം visit(Ast_കണ്ണി* nodep) override { iterateChildren(nodep); }
 
-public:
+പൊതു:
     // CONSTRUCTORS
     explicit DelayedVisitor(AstNetlist* nodep)
         : m_classGraphp{V3ClassGraph::build(nodep)} {
@@ -1455,20 +1455,20 @@ public:
         V3Stats::addStat("NBA, variables using ShadowVarMasked scheme", m_nSchemeShadowVarMasked);
         V3Stats::addStat("NBA, variables using FlagShared scheme", m_nSchemeFlagShared);
         V3Stats::addStat("NBA, variables using FlagUnique scheme", m_nSchemeFlagUnique);
-        V3Stats::addStat("NBA, variables using ValueQueueWhole scheme", m_nSchemeValueQueuesWhole);
+        V3Stats::addStat("NBA, variables using ValueQueueWhole scheme", m_n_Scheme_മൂല്യം_Queues_Whole);
         V3Stats::addStat("NBA, variables using ValueQueuePartial scheme",
-                         m_nSchemeValueQueuesPartial);
+                         m_n_Scheme_മൂല്യം_Queues_Partial);
         V3Stats::addStat("Optimizations, NBA flags shared", m_nSharedSetFlags);
         V3Stats::addStat("Procedures needing initial NBA trigger", m_nInitialNBA);
-        V3Stats::addStat("Non-inlined co_awaits with SenTree", m_nonInlinedCAwaitsWithSenTree);
+        V3Stats::addStat("Non-inlined co_awaits with SenTree", m_non_Inlined_CAwaits_With_Sen_വൃക്ഷം);
     }
 };
 
 //######################################################################
 // Delayed class functions
 
-void V3Delayed::delayedAll(AstNetlist* nodep) {
+ശൂന്യം V3Delayed::delayedAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { DelayedVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("delayed", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_വൃക്ഷം("delayed", 0, dump_വൃക്ഷം_Either_Level() >= 3);
 }

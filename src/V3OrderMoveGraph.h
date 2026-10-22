@@ -21,13 +21,13 @@
 #ifndef VERILATOR_V3ORDERMOVEGRAPH_H_
 #define VERILATOR_V3ORDERMOVEGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
-#include "V3Order.h"
-#include "V3OrderGraph.h"
+#അന്തര്ഭാവ "V3Ast.h"
+#അന്തര്ഭാവ "V3Graph.h"
+#അന്തര്ഭാവ "V3Order.h"
+#അന്തര്ഭാവ "V3OrderGraph.h"
 
 class OrderMoveDomScope;
 class OrderMoveGraph;
@@ -35,45 +35,45 @@ class OrderMoveGraph;
 //======================================================================
 // Vertex types
 
-class OrderMoveVertex final : public V3GraphVertex {
+class OrderMoveVertex final : പൊതു V3GraphVertex {
     VL_RTTI_IMPL(OrderMoveVertex, V3GraphVertex)
 
     // The corresponding logic vertex, or nullptr if this MoveVertex stands for a variable vertex.
-    OrderLogicVertex* const m_logicp;
+    OrderLogicVertex* സ്ഥിരം m_logicp;
     OrderMoveDomScope& m_domScope;  // DomScope this vertex is under
     V3ListLinks<OrderMoveVertex> m_links;  // List links to store instances of this class
 
     // METHODS
-    std::string dotColor() const override { return logicp() ? logicp()->dotColor() : "yellow"; }
+    std::string dotColor() സ്ഥിരം override { തിരികെ logicp() ? logicp()->dotColor() : "yellow"; }
 
-    std::string name() const override VL_MT_STABLE {
+    std::string name() സ്ഥിരം override VL_MT_STABLE {
         std::string nm;
-        if (!logicp()) {
+        എങ്കിൽ (!logicp()) {
             nm = "var";
-        } else {
+        } അല്ലെങ്കിൽ {
             nm = logicp()->name() + "\\n";
             nm += "MV:";
             nm += +" d=" + cvtToHex(logicp()->domainp());
             nm += +" s=" + cvtToHex(logicp()->scopep());
         }
-        if (userp()) nm += "\nu=" + cvtToHex(userp());
-        return nm;
+        എങ്കിൽ (userp()) nm += "\nu=" + cvtToHex(userp());
+        തിരികെ nm;
     }
 
-    V3ListLinks<OrderMoveVertex>& links() { return m_links; }
+    V3ListLinks<OrderMoveVertex>& links() { തിരികെ m_links; }
 
-public:
+പൊതു:
     // List type to store instances of this class
     using List = V3List<OrderMoveVertex, &OrderMoveVertex::links>;
 
     // CONSTRUCTORS
     OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                    const OrderDomain* domainp) VL_MT_DISABLED;
-    ~OrderMoveVertex() override = default;
+                    സ്ഥിരം OrderDomain* domainp) VL_MT_DISABLED;
+    ~OrderMoveVertex() override = സ്ഥിരസ്ഥിതി;
     VL_UNCOPYABLE(OrderMoveVertex);
 
-    OrderLogicVertex* logicp() const VL_MT_STABLE { return m_logicp; }
-    OrderMoveDomScope& domScope() const { return m_domScope; }
+    OrderLogicVertex* logicp() സ്ഥിരം VL_MT_STABLE { തിരികെ m_logicp; }
+    OrderMoveDomScope& domScope() സ്ഥിരം { തിരികെ m_domScope; }
 };
 
 //======================================================================
@@ -81,17 +81,17 @@ public:
 
 // OrderMoveGraph is constructed from the fine-grained OrderGraph.
 // It is a slightly coarsened representation of dependencies used to drive serialization.
-class OrderMoveGraph final : public V3Graph {
+class OrderMoveGraph final : പൊതു V3Graph {
     OrderGraph& m_orderGraph;  // The OrderGraph this move graph was built from
 
-public:
+പൊതു:
     explicit OrderMoveGraph(OrderGraph& orderGraph)
         : m_orderGraph{orderGraph} {}
 
-    OrderGraph& orderGraph() const { return m_orderGraph; }
+    OrderGraph& orderGraph() സ്ഥിരം { തിരികെ m_orderGraph; }
 
     // Build an OrderMoveGraph from an OrderGraph
-    static std::unique_ptr<OrderMoveGraph> build(OrderGraph&);
+    സ്ഥിതം std::unique_ptr<OrderMoveGraph> build(OrderGraph&);
 };
 
 //======================================================================
@@ -105,71 +105,71 @@ class OrderMoveDomScope final {
     OrderMoveVertex::List m_readyVertices;  // Ready vertices in this domain/scope
     V3ListLinks<OrderMoveDomScope> m_links;  // List links to store instances of this class
     bool m_isOnList = false;  // True if DomScope is already on a list through m_listEnt
-    const OrderDomain* const m_domainp;  // Domain the vertices belong to
-    const AstScope* const m_scopep;  // Scope the vertices belong to
+    സ്ഥിരം OrderDomain* സ്ഥിരം m_domainp;  // Domain the vertices belong to
+    സ്ഥിരം AstScope* സ്ഥിരം m_scopep;  // Scope the vertices belong to
 
     // Key type for map below
-    class DomScopeMapKey final {
-        const OrderDomain* const m_domainp;  // Domain the vertices belong to
-        const AstScope* const m_scopep;  // Scope the vertices belong to
+    class Dom_Scope_Map_താക്കോൽ final {
+        സ്ഥിരം OrderDomain* സ്ഥിരം m_domainp;  // Domain the vertices belong to
+        സ്ഥിരം AstScope* സ്ഥിരം m_scopep;  // Scope the vertices belong to
 
-    public:
-        DomScopeMapKey(const OrderDomain* domainp, const AstScope* scopep)
+    പൊതു:
+        Dom_Scope_Map_താക്കോൽ(സ്ഥിരം OrderDomain* domainp, സ്ഥിരം AstScope* scopep)
             : m_domainp{domainp}
             , m_scopep{scopep} {}
 
-        struct Hash final {
-            size_t operator()(const DomScopeMapKey& key) const {
+        ഘടന Hash final {
+            size_t operator()(സ്ഥിരം Dom_Scope_Map_താക്കോൽ& താക്കോൽ) സ്ഥിരം {
                 // cppcheck-suppress unreadVariable  // cppcheck bug
-                V3Hash hash{key.m_domainp};
-                hash += key.m_scopep;
-                return hash.value();
+                V3Hash hash{താക്കോൽ.m_domainp};
+                hash += താക്കോൽ.m_scopep;
+                തിരികെ hash.മൂല്യം();
             }
         };
 
-        struct Equal final {
-            bool operator()(const DomScopeMapKey& a, const DomScopeMapKey& b) const {
-                return a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
+        ഘടന Equal final {
+            bool operator()(സ്ഥിരം Dom_Scope_Map_താക്കോൽ& a, സ്ഥിരം Dom_Scope_Map_താക്കോൽ& b) സ്ഥിരം {
+                തിരികെ a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
             }
         };
     };
 
-    using DomScopeMap = std::unordered_map<DomScopeMapKey, OrderMoveDomScope, DomScopeMapKey::Hash,
-                                           DomScopeMapKey::Equal>;
+    using DomScopeMap = std::unordered_map<Dom_Scope_Map_താക്കോൽ, OrderMoveDomScope, Dom_Scope_Map_താക്കോൽ::Hash,
+                                           Dom_Scope_Map_താക്കോൽ::Equal>;
     // Map from Domain/Scope to the corresponding DomScope instance
-    static DomScopeMap s_dsMap;
+    സ്ഥിതം DomScopeMap s_dsMap;
 
-    V3ListLinks<OrderMoveDomScope>& links() { return m_links; }
+    V3ListLinks<OrderMoveDomScope>& links() { തിരികെ m_links; }
 
-public:
+പൊതു:
     // List type to store instances of this class
     using List = V3List<OrderMoveDomScope, &OrderMoveDomScope::links>;
 
     // STATIC MEMBERS
-    static OrderMoveDomScope& getOrCreate(const OrderDomain* domainp, const AstScope* scopep) {
-        return s_dsMap
+    സ്ഥിതം OrderMoveDomScope& getOrCreate(സ്ഥിരം OrderDomain* domainp, സ്ഥിരം AstScope* scopep) {
+        തിരികെ s_dsMap
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(domainp, scopep),  //
                      std::forward_as_tuple(domainp, scopep))
             .first->second;
     }
-    static void clear() { s_dsMap.clear(); }
+    സ്ഥിതം ശൂന്യം clear() { s_dsMap.clear(); }
 
     // CONSTRUCTOR
-    OrderMoveDomScope(const OrderDomain* domainp, const AstScope* scopep)
+    OrderMoveDomScope(സ്ഥിരം OrderDomain* domainp, സ്ഥിരം AstScope* scopep)
         : m_domainp{domainp}
         , m_scopep{scopep} {}
-    ~OrderMoveDomScope() = default;
+    ~OrderMoveDomScope() = സ്ഥിരസ്ഥിതി;
     VL_UNCOPYABLE(OrderMoveDomScope);
     VL_UNMOVABLE(OrderMoveDomScope);
 
     // MEMBERS
-    OrderMoveVertex::List& readyVertices() { return m_readyVertices; }
-    const OrderDomain* domainp() const { return m_domainp; }
-    const AstScope* scopep() const { return m_scopep; }
+    OrderMoveVertex::List& readyVertices() { തിരികെ m_readyVertices; }
+    സ്ഥിരം OrderDomain* domainp() സ്ഥിരം { തിരികെ m_domainp; }
+    സ്ഥിരം AstScope* scopep() സ്ഥിരം { തിരികെ m_scopep; }
 
-    bool isOnList() const { return m_isOnList; }
-    void isOnList(bool value) { m_isOnList = value; }
+    bool isOnList() സ്ഥിരം { തിരികെ m_isOnList; }
+    ശൂന്യം isOnList(bool മൂല്യം) { m_isOnList = മൂല്യം; }
 };
 
 //======================================================================
@@ -182,51 +182,51 @@ class OrderMoveGraphSerializer final {
 
     // METHODS
 
-    void ready(OrderMoveVertex* vtxp) {
+    ശൂന്യം ready(OrderMoveVertex* vtxp) {
         UASSERT_OBJ(!vtxp->user(), vtxp, "'ready' called on vertex with pending dependencies");
-        if (vtxp->logicp()) {
+        എങ്കിൽ (vtxp->logicp()) {
             // Add this vertex to the ready list of its DomScope
             OrderMoveDomScope& domScope = vtxp->domScope();
             domScope.readyVertices().linkBack(vtxp);
             // Add the DomScope to the global ready list if not there yet
-            if (!domScope.isOnList()) {
+            എങ്കിൽ (!domScope.isOnList()) {
                 domScope.isOnList(true);
                 m_readyDomScopeps.linkBack(&domScope);
             }
-        } else {  // This is a bit nonsense at this point, but equivalent to the old version
+        } അല്ലെങ്കിൽ {  // This is a bit nonsense at this point, but equivalent to the old version
             // Remove dependency on vertex we are returning. This might add vertices to
             // currReadyList.
-            for (V3GraphEdge& edge : vtxp->outEdges()) {
+            വേണ്ടി (V3GraphEdge& edge : vtxp->outEdges()) {
                 // The dependent variable
-                OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+                OrderMoveVertex* സ്ഥിരം dVtxp = edge.മുകൾ()->as<OrderMoveVertex>();
                 // Update number of dependencies
-                const uint32_t nDeps = dVtxp->user() - 1;
+                സ്ഥിരം uint32_t nDeps = dVtxp->user() - 1;
                 dVtxp->user(nDeps);
                 // If no more dependencies, mark it ready
-                if (!nDeps) ready(dVtxp);
+                എങ്കിൽ (!nDeps) ready(dVtxp);
             }
         }
     }
 
-public:
+പൊതു:
     // CONSTRUCTOR
     explicit OrderMoveGraphSerializer(OrderMoveGraph& moveGraph) {
         // Set V3GraphVertex::user() to the number of incoming edges (upstream dependencies)
-        for (V3GraphVertex& vtx : moveGraph.vertices()) {
-            const uint32_t nDeps = vtx.inEdges().size();
+        വേണ്ടി (V3GraphVertex& vtx : moveGraph.vertices()) {
+            സ്ഥിരം uint32_t nDeps = vtx.inEdges().size();
             vtx.user(nDeps);
         }
     }
-    ~OrderMoveGraphSerializer() = default;
+    ~OrderMoveGraphSerializer() = സ്ഥിരസ്ഥിതി;
     VL_UNCOPYABLE(OrderMoveGraphSerializer);
 
     // Add a seed vertex to the ready lists
-    void addSeed(OrderMoveVertex* vtxp) { ready(vtxp); }
+    ശൂന്യം addSeed(OrderMoveVertex* vtxp) { ready(vtxp); }
 
     OrderMoveVertex* getNext() {
-        if (!m_nextDomScopep) m_nextDomScopep = m_readyDomScopeps.frontp();
+        എങ്കിൽ (!m_nextDomScopep) m_nextDomScopep = m_readyDomScopeps.frontp();
         // If nothing is ready, we are done
-        if (!m_nextDomScopep) return nullptr;
+        എങ്കിൽ (!m_nextDomScopep) തിരികെ nullptr;
         OrderMoveDomScope& currDomScope = *m_nextDomScopep;
 
         OrderMoveVertex::List& currReadyList = currDomScope.readyVertices();
@@ -236,36 +236,36 @@ public:
         OrderMoveVertex* mVtxp = currReadyList.unlinkFront();
 
         // Nonsesne, but what we used to do
-        if (currReadyList.empty()) {
+        എങ്കിൽ (currReadyList.empty()) {
             currDomScope.isOnList(false);
             m_readyDomScopeps.unlink(&currDomScope);
         }
 
         // Remove dependency on vertex we are returning. This might add vertices to currReadyList.
-        for (V3GraphEdge& edge : mVtxp->outEdges()) {
+        വേണ്ടി (V3GraphEdge& edge : mVtxp->outEdges()) {
             // The dependent variable
-            OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+            OrderMoveVertex* സ്ഥിരം dVtxp = edge.മുകൾ()->as<OrderMoveVertex>();
             // Update number of dependencies
-            const uint32_t nDeps = dVtxp->user() - 1;
+            സ്ഥിരം uint32_t nDeps = dVtxp->user() - 1;
             dVtxp->user(nDeps);
             // If no more dependencies, mark it ready
-            if (!nDeps) ready(dVtxp);
+            എങ്കിൽ (!nDeps) ready(dVtxp);
         }
 
         // If no more ready vertices in the current DomScope, prefer to continue with a new scope
         // under the same domain.
-        if (currReadyList.empty()) {
+        എങ്കിൽ (currReadyList.empty()) {
             m_nextDomScopep = nullptr;
-            for (OrderMoveDomScope& domScope : m_readyDomScopeps) {
-                if (domScope.domainp() == currDomScope.domainp()) {
+            വേണ്ടി (OrderMoveDomScope& domScope : m_readyDomScopeps) {
+                എങ്കിൽ (domScope.domainp() == currDomScope.domainp()) {
                     m_nextDomScopep = &domScope;
-                    break;
+                    നിർത്തുക;
                 }
             }
         }
 
         // Finally yield the selected vertex
-        return mVtxp;
+        തിരികെ mVtxp;
     }
 };
 

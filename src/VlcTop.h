@@ -17,51 +17,51 @@
 #ifndef VERILATOR_VLCTOP_H_
 #define VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#അന്തര്ഭാവ "VlcOptions.h"
+#അന്തര്ഭാവ "VlcPoint.h"
+#അന്തര്ഭാവ "VlcSource.h"
+#അന്തര്ഭാവ "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_മുകൾ final {
+പൊതു:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+സ്വകാര്യ:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    ശൂന്യം annotateCalc();
+    ശൂന്യം annotateCalcNeeded();
+    ശൂന്യം annotateOutputFiles(സ്ഥിരം string& dirname);
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_മുകൾ() = സ്ഥിരസ്ഥിതി;
+    ~Vlc_മുകൾ() = സ്ഥിരസ്ഥിതി;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { തിരികെ m_tests; }
+    VlcPoints& points() { തിരികെ m_points; }
+    VlcSources& sources() { തിരികെ m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    ശൂന്യം annotate(സ്ഥിരം string& dirname);
+    ശൂന്യം printHierarchyReport();
+    ശൂന്യം printTypeSummary();
+    ശൂന്യം readCoverage(സ്ഥിരം string& filename, bool nonfatal = false);
+    ശൂന്യം writeCoverage(സ്ഥിരം string& filename);
+    ശൂന്യം writeInfo(സ്ഥിരം string& filename);
 
-    void rank();
+    ശൂന്യം rank();
 };
 
 //######################################################################

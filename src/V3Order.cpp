@@ -71,44 +71,44 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#അന്തര്ഭാവ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderInternal.h"
-#include "V3Sched.h"
+#അന്തര്ഭാവ "V3OrderInternal.h"
+#അന്തര്ഭാവ "V3Sched.h"
 
-#include <memory>
-#include <vector>
+#അന്തര്ഭാവ <memory>
+#അന്തര്ഭാവ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-void V3Order::orderOrderGraph(OrderGraph& graph, const std::string& tag) {
+ശൂന്യം V3Order::orderOrderGraph(OrderGraph& graph, സ്ഥിരം std::string& tag) {
     // Dump data
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
+    എങ്കിൽ (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
 
     // Break cycles. Note that the OrderGraph only contains cuttable cycles
     // (soft constraints). Actual logic loops must have been eliminated by
     // the introduction of Hybid sensitivity expressions, before invoking
     // ordering (e.g. in V3SchedAcyclic).
     graph.acyclic(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
+    എങ്കിൽ (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
 
     // Assign ranks so we know what to follow, then sort vertices and edges by that ordering
     graph.order();
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
+    എങ്കിൽ (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
 }
 
 //######################################################################
 
-AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
-                         const V3Sched::TriggerKit& trigKit,  //
+AstCFunc* V3Order::order(സ്ഥിരം std::vector<V3Sched::LogicByScope*>& logic,  //
+                         സ്ഥിരം V3Sched::TriggerKit& trigKit,  //
                          AstVarScope* trigVscp,  //
-                         const V3Sched::CovergroupRefBindings& cgRefBindings,
-                         const string& tag,  //
-                         bool parallel,  //
-                         bool slow,  //
-                         const ExternalTriggersProvider& externalTriggers) {
+                         സ്ഥിരം V3Sched::CovergroupRefBindings& cgRefBindings,
+                         സ്ഥിരം string& tag,  //
+                         തർക്കം parallel,  //
+                         തർക്കം slow,  //
+                         സ്ഥിരം ExternalTriggersProvider& externalTriggers) {
     // Build the OrderGraph
-    const std::unique_ptr<OrderGraph> graph
+    സ്ഥിരം std::unique_ptr<OrderGraph> graph
         = buildOrderGraph(trigKit, trigVscp, logic, cgRefBindings, parallel);
     // Order it
     orderOrderGraph(*graph, tag);
@@ -116,15 +116,15 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
     processDomains(*graph, tag, externalTriggers);
     // Build the move graph
     OrderMoveDomScope::clear();
-    const std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
-    if (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
+    സ്ഥിരം std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
+    എങ്കിൽ (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
 
     // The ordered statements, if there are any
-    AstNodeStmt* stmtsp = nullptr;
-    if (!moveGraphp->empty()) {
-        if (parallel) {
+    Ast_കണ്ണി_Stmt* stmtsp = nullptr;
+    എങ്കിൽ (!moveGraphp->empty()) {
+        എങ്കിൽ (parallel) {
             stmtsp = createParallel(*moveGraphp, tag, slow);
-        } else {
+        } അല്ലെങ്കിൽ {
             stmtsp = createSerial(*moveGraphp, tag, slow);
         }
         // Should have consumed all vertices
@@ -133,33 +133,33 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
     OrderMoveDomScope::clear();
 
     // Dump data
-    if (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
+    എങ്കിൽ (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
 
     // Dispose of the remnants of the inputs
-    for (auto* const lbsp : logic) lbsp->deleteActives();
+    വേണ്ടി (auto* സ്ഥിരം lbsp : logic) lbsp->deleteActives();
 
     // If there is no resulting logic, then don't create an empty function
-    if (!stmtsp) return nullptr;
+    എങ്കിൽ (!stmtsp) തിരികെ nullptr;
 
     // Create the result function
-    AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->fileline();
-    AstCFunc* const funcp = [&]() {
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        AstCFunc* const resp = new AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
-        resp->dontCombine(true);
-        resp->isStatic(false);
-        resp->isLoose(true);
+    AstNetlist* സ്ഥിരം netlistp = v3Global.rootp();
+    File_വരി* സ്ഥിരം flp = netlistp->fileline();
+    AstCFunc* സ്ഥിരം funcp = [&]() {
+        AstScope* സ്ഥിരം scopeTopp = netlistp->മുകൾ_Scopep()->scopep();
+        AstCFunc* സ്ഥിരം resp = പുതിയ AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
+        resp->dontCombine(സത്യം);
+        resp->isStatic(അസത്യം);
+        resp->isLoose(സത്യം);
         resp->slow(slow);
-        resp->isConst(false);
-        resp->declPrivate(true);
+        resp->isConst(അസത്യം);
+        resp->declPrivate(സത്യം);
         scopeTopp->addBlocksp(resp);
-        return resp;
+        തിരികെ resp;
     }();
 
     // Assemble the body
     funcp->addStmtsp(stmtsp);
 
     // Done
-    return funcp;
+    തിരികെ funcp;
 }

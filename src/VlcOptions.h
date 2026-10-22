@@ -17,15 +17,15 @@
 #ifndef VERILATOR_VLCOPTIONS_H_
 #define VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#അന്തര്ഭാവ "VlcPoint.h"
+#അന്തര്ഭാവ "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#അന്തര്ഭാവ <map>
+#അന്തര്ഭാവ <set>
+#അന്തര്ഭാവ <vector>
 
 //######################################################################
 // V3Options - Command line options
@@ -37,12 +37,12 @@ class VlcOptions final {
     // clang-format off
     string m_annotateOut;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    പൂർണ്ണസംഖ്യ m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
     VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    പൂർണ്ണസംഖ്യ m_reportLevels = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,42 +52,42 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+സ്വകാര്യ:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    ശൂന്യം parseReportOption() VL_MT_DISABLED;
+    സ്ഥിതം ശൂന്യം showVersion(bool verbose) VL_MT_DISABLED;
 
-public:
+പൊതു:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = സ്ഥിരസ്ഥിതി;
+    ~VlcOptions() = സ്ഥിരസ്ഥിതി;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    ശൂന്യം parseOptsList(പൂർണ്ണസംഖ്യ argc, അക്ഷരം** argv) VL_MT_DISABLED;
+    ശൂന്യം addReadFile(സ്ഥിരം string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    സ്ഥിരം VlStringSet& readFiles() സ്ഥിരം { തിരികെ m_readFiles; }
+    string annotateOut() സ്ഥിരം { തിരികെ m_annotateOut; }
+    bool annotateAll() സ്ഥിരം { തിരികെ m_annotateAll; }
+    പൂർണ്ണസംഖ്യ annotateMin() സ്ഥിരം { തിരികെ m_annotateMin; }
+    bool എണ്ണം_Ok(uint64_t എണ്ണം) സ്ഥിരം { തിരികെ എണ്ണം >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() സ്ഥിരം { തിരികെ m_annotatePoints; }
+    bool includeResetArcs() സ്ഥിരം { തിരികെ m_includeResetArcs; }
+    പൂർണ്ണസംഖ്യ reportLevels() സ്ഥിരം { തിരികെ m_reportLevels; }
+    bool reportSpecified() സ്ഥിരം { തിരികെ !m_report.empty(); }
+    bool reportSummary() സ്ഥിരം { തിരികെ m_reportSummary; }
+    bool reportHierarchy() സ്ഥിരം { തിരികെ m_reportHierarchy; }
+    bool rank() സ്ഥിരം { തിരികെ m_rank; }
+    bool unlink() സ്ഥിരം { തിരികെ m_unlink; }
+    string writeFile() സ്ഥിരം { തിരികെ m_writeFile; }
+    string writeInfoFile() സ്ഥിരം { തിരികെ m_writeInfoFile; }
+    bool isTypeMatch(സ്ഥിരം അക്ഷരം* name) സ്ഥിരം {
+        തിരികെ VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    സ്ഥിതം string version() VL_MT_DISABLED;
 };
 
 //######################################################################

@@ -17,12 +17,12 @@
 #ifndef VERILATOR_V3ORDER_H_
 #define VERILATOR_V3ORDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
-#include <functional>
-#include <set>
-#include <vector>
+#അന്തര്ഭാവ <functional>
+#അന്തര്ഭാവ <set>
+#അന്തര്ഭാവ <vector>
 
 class AstCFunc;
 class AstVarScope;
@@ -38,16 +38,16 @@ class TriggerKit;
 namespace V3Order {
 
 // Callable to add the indices of extra external triggers of a variable to the given set
-using ExternalTriggersProvider = std::function<void(const AstVarScope*, std::set<uint32_t>&)>;
+using ExternalTriggersProvider = std::function<ശൂന്യം(സ്ഥിരം AstVarScope*, std::set<uint32_t>&)>;
 
-AstCFunc* order(const std::vector<V3Sched::LogicByScope*>& logic,  //
-                const V3Sched::TriggerKit& trigKit,  //
+AstCFunc* order(സ്ഥിരം std::vector<V3Sched::LogicByScope*>& logic,  //
+                സ്ഥിരം V3Sched::TriggerKit& trigKit,  //
                 AstVarScope* trigVscp,  //
-                const V3Sched::CovergroupRefBindings& cgRefBindings,  //
-                const string& tag,  //
+                സ്ഥിരം V3Sched::CovergroupRefBindings& cgRefBindings,  //
+                സ്ഥിരം string& tag,  //
                 bool parallel,  //
                 bool slow,  //
-                const ExternalTriggersProvider& externalTriggers) VL_MT_DISABLED;
+                സ്ഥിരം ExternalTriggersProvider& externalTriggers) VL_MT_DISABLED;
 
 };  // namespace V3Order
 

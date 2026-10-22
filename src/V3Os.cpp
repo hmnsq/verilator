@@ -15,7 +15,7 @@
 //*************************************************************************
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
 # ifndef PSAPI_VERSION
 #  define PSAPI_VERSION 1  // Needed for compatibility with Windows 7
 # endif
@@ -25,44 +25,44 @@
 #endif
 // clang-format on
 
-#include "config_build.h"
-#include "verilatedos.h"
+#അന്തര്ഭാവ "config_build.h"
+#അന്തര്ഭാവ "verilatedos.h"
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3Os.h"
-#include "V3String.h"
+#അന്തര്ഭാവ "V3Os.h"
+#അന്തര്ഭാവ "V3String.h"
 
 #ifndef V3ERROR_NO_GLOBAL_
-#include "V3Global.h"
+#അന്തര്ഭാവ "V3Global.h"
 VL_DEFINE_DEBUG_FUNCTIONS;
 #endif
 
-#include <cerrno>
-#include <climits>  // PATH_MAX (especially on FreeBSD)
-#include <cstdarg>
+#അന്തര്ഭാവ <cerrno>
+#അന്തര്ഭാവ <climits>  // PATH_MAX (especially on FreeBSD)
+#അന്തര്ഭാവ <cstdarg>
 #ifdef _MSC_VER
-#include <filesystem>  // C++17
+#അന്തര്ഭാവ <filesystem>  // C++17
 #define PATH_MAX MAX_PATH
-#else
-#include <dirent.h>
-#include <utime.h>
+#അല്ലെങ്കിൽ
+#അന്തര്ഭാവ <dirent.h>
+#അന്തര്ഭാവ <utime.h>
 #endif
-#include <fcntl.h>
-#include <fstream>
-#include <memory>
+#അന്തര്ഭാവ <fcntl.h>
+#അന്തര്ഭാവ <fstream>
+#അന്തര്ഭാവ <memory>
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#അന്തര്ഭാവ <sys/stat.h>
+#അന്തര്ഭാവ <sys/types.h>
 
 #ifdef HAVE_TCMALLOC
-#include <gperftools/malloc_extension.h>
+#അന്തര്ഭാവ <gperftools/malloc_extension.h>
 #endif
 #ifdef HAVE_JEMALLOC
-#include <jemalloc/jemalloc.h>
+#അന്തര്ഭാവ <jemalloc/jemalloc.h>
 #endif
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
 # include <windows.h>   // LONG for bcrypt.h on MINGW
 # include <algorithm>  // replace
 # include <bcrypt.h>  // BCryptGenRandom
@@ -75,12 +75,12 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #  ifdef __MINGW32__
 #   define WIFEXITED(w) (((w) & 0xC0000000) == 0)
 #   define WEXITSTATUS(w) ((w) & ~0xC0000000)
-#  else
+#  അല്ലെങ്കിൽ
 #   define WIFEXITED(w) (((w) & 0377) == 0)
 #   define WEXITSTATUS(w) (((w) >> 8) & 0377)
 #  endif
 # endif
-#else
+#അല്ലെങ്കിൽ
 # include <sys/time.h>
 # ifndef __wasi__
 #  include <sys/wait.h>  // Needed on FreeBSD for WIFEXITED
@@ -90,29 +90,29 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // clang-format on
 
 #define VL_ALLOW_VERILATEDOS_C
-#include "verilatedos_c.h"
+#അന്തര്ഭാവ "verilatedos_c.h"
 
 //######################################################################
 // Environment
 
-string V3Os::getenvStr(const string& envvar, const string& defaultValue) {
-    return VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
+string V3Os::getenvStr(സ്ഥിരം string& envvar, സ്ഥിരം string& default_മൂല്യം) {
+    തിരികെ VString::escapeStringForPath(VlOs::getenvStr(envvar, default_മൂല്യം));
 }
 
-void V3Os::setenvStr(const string& envvar, const string& value, const string& why) {
-    if (why != "") {
-        UINFO(1, "export " << envvar << "='" << value << "'  # " << why);
-    } else {
-        UINFO(1, "export " << envvar << "='" << value << "'");
+ശൂന്യം V3Os::setenvStr(സ്ഥിരം string& envvar, സ്ഥിരം string& മൂല്യം, സ്ഥിരം string& why) {
+    എങ്കിൽ (why != "") {
+        UINFO(1, "export " << envvar << "='" << മൂല്യം << "'  # " << why);
+    } അല്ലെങ്കിൽ {
+        UINFO(1, "export " << envvar << "='" << മൂല്യം << "'");
     }
-#if defined(_WIN32) || defined(__MINGW32__)
-    _putenv_s(envvar.c_str(), value.c_str());
-#elif defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
-    setenv(envvar.c_str(), value.c_str(), true);
-#else
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
+    _putenv_s(envvar.c_str(), മൂല്യം.c_str());
+#അല്ലെങ്കിലെങ്കിൽ defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
+    setenv(envvar.c_str(), മൂല്യം.c_str(), സത്യം);
+#അല്ലെങ്കിൽ
     // setenv() replaced by putenv() in Solaris environment. Prototype is different
     // putenv() requires NAME=VALUE format
-    const string vareq = envvar + "=" + value;
+    സ്ഥിരം string vareq = envvar + "=" + മൂല്യം;
     putenv(strdup(vareq.c_str()));  // will leak if setting the same variable again
 #endif
 }
@@ -120,290 +120,290 @@ void V3Os::setenvStr(const string& envvar, const string& value, const string& wh
 //######################################################################
 // Generic filename utilities
 
-#if defined(_WIN32) || defined(__MINGW32__)
-static constexpr char V3OS_SLASH = '\\';
-#else
-static constexpr char V3OS_SLASH = '/';
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
+സ്ഥിതം constexpr അക്ഷരം V3OS_SLASH = '\\';
+#അല്ലെങ്കിൽ
+സ്ഥിതം constexpr അക്ഷരം V3OS_SLASH = '/';
 #endif
 
-static bool isSlash(char ch) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
-    return ch == '/' || ch == '\\';
-#else
-    return ch == '/';
+സ്ഥിതം തർക്കം isSlash(അക്ഷരം ch) VL_PURE {
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
+    തിരികെ ch == '/' || ch == '\\';
+#അല്ലെങ്കിൽ
+    തിരികെ ch == '/';
 #endif
 }
 
-string V3Os::filenameCleanup(const string& filename) VL_PURE {
+string V3Os::filenameCleanup(സ്ഥിരം string& filename) VL_PURE {
     string str;
     str.reserve(filename.length());
-    bool lastIsSlash = false;
-    for (const char ch : filename) {
-        const bool lastIsSlashOld = lastIsSlash;
+    തർക്കം lastIsSlash = അസത്യം;
+    വേണ്ടി (സ്ഥിരം അക്ഷരം ch : filename) {
+        സ്ഥിരം തർക്കം lastIsSlashOld = lastIsSlash;
         lastIsSlash = isSlash(ch);
-        if (lastIsSlash && lastIsSlashOld) continue;
+        എങ്കിൽ (lastIsSlash && lastIsSlashOld) തുടരുക;
         str += ch;
     }
-    if (str.size() > 1 && isSlash(str.back())) str.pop_back();
-    while (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
-    return str;
+    എങ്കിൽ (str.size() > 1 && isSlash(str.back())) str.എടുക്കുക_back();
+    ആകുമ്പോൾ (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
+    തിരികെ str;
 }
 
-string V3Os::filenameJoin(std::initializer_list<const std::string> paths) VL_PURE {
+string V3Os::filenameJoin(std::initializer_list<സ്ഥിരം std::string> paths) VL_PURE {
     string fullpath;
-    for (const auto& item : paths) {
-        if (item.empty() || item == ".") continue;
-        if (!fullpath.empty()) fullpath += V3OS_SLASH;
+    വേണ്ടി (സ്ഥിരം auto& item : paths) {
+        എങ്കിൽ (item.empty() || item == ".") തുടരുക;
+        എങ്കിൽ (!fullpath.empty()) fullpath += V3OS_SLASH;
         fullpath += item;
     }
-    return fullpath;
+    തിരികെ fullpath;
 }
 
-string V3Os::filenameDir(const string& filename) VL_PURE {
+string V3Os::filenameDir(സ്ഥിരം string& filename) VL_PURE {
     // std::filesystem::path::parent_path
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    വേണ്ടി (; it != filename.rend(); ++it) {
+        എങ്കിൽ (isSlash(*it)) നിർത്തുക;
     }
-    if (it.base() == filename.begin()) return ".";
-    return string{filename.begin(), (++it).base()};
+    എങ്കിൽ (it.base() == filename.begin()) തിരികെ ".";
+    തിരികെ string{filename.begin(), (++it).base()};
 }
 
-string V3Os::filenameExt(const string& filename) VL_PURE {
+string V3Os::filenameExt(സ്ഥിരം string& filename) VL_PURE {
     string base = filenameNonDir(filename);
-    const string::size_type pos = base.find('.');
-    if (pos != string::npos) {
+    സ്ഥിരം string::size_type pos = base.find('.');
+    എങ്കിൽ (pos != string::npos) {
         base.erase(0, pos);
-        return base;
+        തിരികെ base;
     }
-    return "";
+    തിരികെ "";
 }
 
-string V3Os::filenameNonDir(const string& filename) VL_PURE {
+string V3Os::filenameNonDir(സ്ഥിരം string& filename) VL_PURE {
     // std::filesystem::path::filename
     auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    വേണ്ടി (; it != filename.rend(); ++it) {
+        എങ്കിൽ (isSlash(*it)) നിർത്തുക;
     }
-    return string{it.base(), filename.end()};
+    തിരികെ string{it.base(), filename.end()};
 }
 
-string V3Os::filenameNonDirExt(const string& filename) VL_PURE {
+string V3Os::filenameNonDirExt(സ്ഥിരം string& filename) VL_PURE {
     string base = filenameNonDir(filename);
-    const string::size_type pos = base.find('.');
-    if (pos != string::npos) base.erase(pos);
-    return base;
+    സ്ഥിരം string::size_type pos = base.find('.');
+    എങ്കിൽ (pos != string::npos) base.erase(pos);
+    തിരികെ base;
 }
 
-string V3Os::filenameSubstitute(const string& filename) {
+string V3Os::filenameSubstitute(സ്ഥിരം string& filename) {
     string result;
     // cppcheck-has-bug-suppress unusedLabel
-    enum : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
-    for (string::size_type pos = 0; pos < filename.length(); ++pos) {
-        if ((filename[pos] == '$') && (pos + 1 < filename.length())) {
-            switch (filename[pos + 1]) {
-            case '{': brackets = CURLY; break;
-            case '(': brackets = PAREN; break;
-            default: brackets = NONE; break;
+    എണ്ണൽ : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
+    വേണ്ടി (string::size_type pos = 0; pos < filename.length(); ++pos) {
+        എങ്കിൽ ((filename[pos] == '$') && (pos + 1 < filename.length())) {
+            തിരഞ്ഞെടുപ്പ് (filename[pos + 1]) {
+            അവസ്ഥ '{': brackets = CURLY; നിർത്തുക;
+            അവസ്ഥ '(': brackets = PAREN; നിർത്തുക;
+            സ്ഥിരസ്ഥിതി: brackets = NONE; നിർത്തുക;
             }
-            if (brackets != NONE) pos = pos + 1;
+            എങ്കിൽ (brackets != NONE) pos = pos + 1;
             string::size_type endpos = pos + 1;
-            while (((endpos + 1) < filename.length())
+            ആകുമ്പോൾ (((endpos + 1) < filename.length())
                    && (((brackets == NONE)
                         && (std::isalnum(filename[endpos + 1]) || filename[endpos + 1] == '_'))
                        || ((brackets == CURLY) && (filename[endpos + 1] != '}'))
                        || ((brackets == PAREN) && (filename[endpos + 1] != ')'))))
                 ++endpos;
             // Catch bracket errors
-            if (((brackets == CURLY) && (filename[endpos + 1] != '}'))
+            എങ്കിൽ (((brackets == CURLY) && (filename[endpos + 1] != '}'))
                 || ((brackets == PAREN) && (filename[endpos + 1] != ')'))) {
                 v3fatal("Unmatched brackets in variable substitution in file: " + filename);
             }
-            const string envvar = filename.substr(pos + 1, endpos - pos);
+            സ്ഥിരം string envvar = filename.substr(pos + 1, endpos - pos);
             string envvalue;
-            if (!envvar.empty()) envvalue = getenvStr(envvar, "");
-            if (!envvalue.empty()) {
+            എങ്കിൽ (!envvar.empty()) envvalue = getenvStr(envvar, "");
+            എങ്കിൽ (!envvalue.empty()) {
                 result += envvalue;
-                if (brackets == NONE) {
+                എങ്കിൽ (brackets == NONE) {
                     pos = endpos;
-                } else {
+                } അല്ലെങ്കിൽ {
                     pos = endpos + 1;
                 }
-            } else {
+            } അല്ലെങ്കിൽ {
                 result += filename[pos];  // *pos == '$'
             }
-        } else {
+        } അല്ലെങ്കിൽ {
             result += filename[pos];
         }
     }
-    return result;
+    തിരികെ result;
 }
 
-string V3Os::filenameRealPath(const string& filename) VL_PURE {
+string V3Os::filenameRealPath(സ്ഥിരം string& filename) VL_PURE {
     // Get rid of all the ../ behavior in the middle of the paths.
     // If there is a ../ that goes down from the 'root' of this path it is preserved.
-    char retpath[PATH_MAX];
-    if (
-#if defined(_WIN32) || defined(__MINGW32__)
+    അക്ഷരം retpath[PATH_MAX];
+    എങ്കിൽ (
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
         _fullpath(retpath, filename.c_str(), PATH_MAX)
-#else
+#അല്ലെങ്കിൽ
         realpath(filename.c_str(), retpath)
 #endif
     ) {
-        return std::string{retpath};
+        തിരികെ std::string{retpath};
     }
-    return filename;
+    തിരികെ filename;
 }
 
-string V3Os::filenameAbsolutePath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+string V3Os::filenameAbsolutePath(സ്ഥിരം string& filename) VL_PURE {
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
     // _fullpath does not resolve symlinks
-    return filenameRealPath(filename);
-#else
-    if (!filenameIsRel(filename)) return filename;
-    return filenameJoin(filenameRealPath("."), filename);
+    തിരികെ filenameRealPath(filename);
+#അല്ലെങ്കിൽ
+    എങ്കിൽ (!filenameIsRel(filename)) തിരികെ filename;
+    തിരികെ filenameJoin(filenameRealPath("."), filename);
 #endif
 }
 
-string V3Os::filenameRelativePath(const string& filename, const string& base) VL_PURE {
-    const string a = V3Os::filenameRealPath(filename);
-    const string b = V3Os::filenameRealPath(base);
+string V3Os::filenameRelativePath(സ്ഥിരം string& filename, സ്ഥിരം string& base) VL_PURE {
+    സ്ഥിരം string a = V3Os::filenameRealPath(filename);
+    സ്ഥിരം string b = V3Os::filenameRealPath(base);
     string result;
-    if (a == b) return ".";
+    എങ്കിൽ (a == b) തിരികെ ".";
 
     auto aIt = a.begin();
     auto bIt = b.begin();
-    while (aIt != a.end() && bIt != b.end()) {
+    ആകുമ്പോൾ (aIt != a.end() && bIt != b.end()) {
         // UINFO(9, "fnrp scan " << (aIt - a.begin()) << " " << a.substr(aIt - a.begin()));
         // UINFO(9, "fnrp scan " << (bIt - b.begin()) << " " << b.substr(bIt - b.begin()));
         auto aWordIt = aIt;  // position of next slash
-        for (; aWordIt != a.end(); ++aWordIt) {
-            if (isSlash(*aWordIt)) break;
+        വേണ്ടി (; aWordIt != a.end(); ++aWordIt) {
+            എങ്കിൽ (isSlash(*aWordIt)) നിർത്തുക;
         }
 
         auto bWordIt = bIt;  // position of next slash
-        for (; bWordIt != b.end(); ++bWordIt) {
-            if (isSlash(*bWordIt)) break;
+        വേണ്ടി (; bWordIt != b.end(); ++bWordIt) {
+            എങ്കിൽ (isSlash(*bWordIt)) നിർത്തുക;
         }
 
-        const string aWord = a.substr(aIt - a.begin(), aWordIt - aIt);
-        const string bWord = b.substr(bIt - b.begin(), bWordIt - bIt);
-        if (aWord != bWord) break;
+        സ്ഥിരം string aWord = a.substr(aIt - a.begin(), aWordIt - aIt);
+        സ്ഥിരം string bWord = b.substr(bIt - b.begin(), bWordIt - bIt);
+        എങ്കിൽ (aWord != bWord) നിർത്തുക;
         aIt = aWordIt;
         bIt = bWordIt;
-        if (aIt != a.end()) ++aIt;  // Skip slash
-        if (bIt != b.end()) ++bIt;  // Skip slash
+        എങ്കിൽ (aIt != a.end()) ++aIt;  // Skip slash
+        എങ്കിൽ (bIt != b.end()) ++bIt;  // Skip slash
     }
 
-    while (bIt != b.end()) {
-        for (; bIt != b.end(); ++bIt) {
-            if (isSlash(*bIt)) {
+    ആകുമ്പോൾ (bIt != b.end()) {
+        വേണ്ടി (; bIt != b.end(); ++bIt) {
+            എങ്കിൽ (isSlash(*bIt)) {
                 ++bIt;
-                break;
+                നിർത്തുക;
             }
         }
-        if (!result.empty()) result += "/";
+        എങ്കിൽ (!result.empty()) result += "/";
         result += "..";
     }
 
-    const string aLeft = a.substr(aIt - a.begin());
-    if (!aLeft.empty()) {
-        if (!result.empty()) result += "/";
-        result += aLeft;
+    സ്ഥിരം string a_ഇടത് = a.substr(aIt - a.begin());
+    എങ്കിൽ (!a_ഇടത്.empty()) {
+        എങ്കിൽ (!result.empty()) result += "/";
+        result += a_ഇടത്;
     }
-    return filenameCleanup(result);
+    തിരികെ filenameCleanup(result);
 }
 
-bool V3Os::filenameIsRel(const string& filename) VL_PURE {
-#if defined(_MSC_VER)
-    return std::filesystem::path(filename).is_relative();
-#else
-    return (filename.length() > 0 && filename[0] != '/');
+തർക്കം V3Os::filenameIsRel(സ്ഥിരം string& filename) VL_PURE {
+#എങ്കിൽ defined(_MSC_VER)
+    തിരികെ std::filesystem::path(filename).is_relative();
+#അല്ലെങ്കിൽ
+    തിരികെ (filename.length() > 0 && filename[0] != '/');
 #endif
 }
 
-string V3Os::filenameSlashPath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+string V3Os::filenameSlashPath(സ്ഥിരം string& filename) VL_PURE {
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
     string slashedPath = filename;
     std::replace(slashedPath.begin(), slashedPath.end(), '\\', '/');
-    return slashedPath;
-#else
-    return filename;
+    തിരികെ slashedPath;
+#അല്ലെങ്കിൽ
+    തിരികെ filename;
 #endif
 }
 
 //######################################################################
 // File utilities
 
-string V3Os::getline(std::istream& is, char delim) {
-    string line;
+string V3Os::getline(std::istream& is, അക്ഷരം delim) {
+    string വരി;
 #ifdef __CYGWIN__  // Work around buggy implementation of getline
-    char buf[65536];
+    അക്ഷരം buf[65536];
     is.getline(buf, 65535, delim);
-    line = buf;
-#else
-    std::getline(is, line, delim);
+    വരി = buf;
+#അല്ലെങ്കിൽ
+    std::getline(is, വരി, delim);
 #endif
-    return line;
+    തിരികെ വരി;
 }
 
 //######################################################################
 // Directory utilities
 
-void V3Os::createDir(const string& dirname) {
-#if defined(_WIN32) || defined(__MINGW32__)
+ശൂന്യം V3Os::createDir(സ്ഥിരം string& dirname) {
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
     _mkdir(dirname.c_str());
-#else
+#അല്ലെങ്കിൽ
     mkdir(dirname.c_str(), 0777);
 #endif
 }
 
-void V3Os::filesystemFlush(const string& dirname) {
+ശൂന്യം V3Os::filesystemFlush(സ്ഥിരം string& dirname) {
     // NFS caches stat() calls so to get up-to-date information must
     // do a open or opendir on the filename.
-#if defined(_MSC_VER) || defined(__MINGW32__)
-    if (int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+#എങ്കിൽ defined(_MSC_VER) || defined(__MINGW32__)
+    എങ്കിൽ (പൂർണ്ണസംഖ്യ fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        എങ്കിൽ (fd > 0) ::close(fd);
     }
-#else
+#അല്ലെങ്കിൽ
     // Faster to just try both rather than check if a file is a dir.
-    if (DIR* const dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
+    എങ്കിൽ (DIR* സ്ഥിരം dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
         closedir(dirp);  // LCOV_EXCL_LINE
-    } else if (const int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+    } അല്ലെങ്കിൽ എങ്കിൽ (സ്ഥിരം പൂർണ്ണസംഖ്യ fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        എങ്കിൽ (fd > 0) ::close(fd);
     }
 #endif
 }
 
-void V3Os::filesystemFlushBuildDir(const string& dirname) {
+ശൂന്യം V3Os::filesystemFlushBuildDir(സ്ഥിരം string& dirname) {
     // Attempt to force out written directory, for NFS like file systems.
-#if !defined(_MSC_VER) && !defined(__MINGW32__)
+#എങ്കിൽ !defined(_MSC_VER) && !defined(__MINGW32__)
     // Linux kernel may not reread from NFS unless timestamp modified
-    const int err = utimes(dirname.c_str(), nullptr);
+    സ്ഥിരം പൂർണ്ണസംഖ്യ err = utimes(dirname.c_str(), nullptr);
     // Not an error
-    if (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
+    എങ്കിൽ (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
 #endif
     filesystemFlush(dirname);
 }
 
-void V3Os::unlinkRegexp(const string& dir, const string& regexp) {
+ശൂന്യം V3Os::unlinkRegexp(സ്ഥിരം string& dir, സ്ഥിരം string& regexp) {
 #ifdef _MSC_VER
-    try {
-        for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
-            if (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
-                const string fullname = dir + "/" + dirEntry.path().filename().string();
+    ശ്രമിക്കുക {
+        വേണ്ടി (സ്ഥിരം auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
+            എങ്കിൽ (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
+                സ്ഥിരം string fullname = dir + "/" + dirEntry.path().filename().string();
                 _unlink(fullname.c_str());
             }
         }
-    } catch (std::filesystem::filesystem_error const& ex) {}
-#else
-    if (DIR* const dirp = opendir(dir.c_str())) {
-        while (struct dirent* const direntp = readdir(dirp)) {
-            if (VString::wildmatch(direntp->d_name, regexp.c_str())) {
-                const string fullname = dir + "/" + std::string{direntp->d_name};
-#if defined(_WIN32) || defined(__MINGW32__)
+    } പിടിക്കുക (std::filesystem::filesystem_error സ്ഥിരം& ex) {}
+#അല്ലെങ്കിൽ
+    എങ്കിൽ (DIR* സ്ഥിരം dirp = opendir(dir.c_str())) {
+        ആകുമ്പോൾ (ഘടന dirent* സ്ഥിരം direntp = readdir(dirp)) {
+            എങ്കിൽ (VString::wildmatch(direntp->d_name, regexp.c_str())) {
+                സ്ഥിരം string fullname = dir + "/" + std::string{direntp->d_name};
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
                 _unlink(fullname.c_str());
-#else
+#അല്ലെങ്കിൽ
                 unlink(fullname.c_str());
 #endif
             }
@@ -416,20 +416,20 @@ void V3Os::unlinkRegexp(const string& dir, const string& regexp) {
 //######################################################################
 // METHODS (memory)
 
-void V3Os::releaseMemory() {
+ശൂന്യം V3Os::releaseMemory() {
 #ifdef HAVE_TCMALLOC
     MallocExtension::instance()->ReleaseFreeMemory();
 #endif
 #ifdef HAVE_JEMALLOC
     // Purge all unused dirty pages across all arenas
     unsigned narenas = 0;
-    size_t sz = sizeof(narenas);
-    if (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
-        return;  // Failed to get number of arenas, give up
+    size_t sz = വലുപ്പം(narenas);
+    എങ്കിൽ (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
+        തിരികെ;  // Failed to get number of arenas, give up
     }
-    char buf[64];
+    അക്ഷരം buf[64];
     // Index equal to narenas represents all arenas
-    (void)VL_SNPRINTF(buf, sizeof(buf), "arena.%u.purge", narenas);
+    (ശൂന്യം)VL_SNPRINTF(buf, വലുപ്പം(buf), "arena.%u.purge", narenas);
     mallctl(buf, nullptr, nullptr, nullptr, 0);
 #endif
 }
@@ -439,67 +439,67 @@ void V3Os::releaseMemory() {
 
 uint64_t V3Os::rand64(std::array<uint64_t, 2>& stater) {
     // Xoroshiro128+ algorithm
-    const uint64_t result = stater[0] + stater[1];
+    സ്ഥിരം uint64_t result = stater[0] + stater[1];
     stater[1] ^= stater[0];
     stater[0] = (((stater[0] << 55) | (stater[0] >> 9)) ^ stater[1] ^ (stater[1] << 14));
     stater[1] = (stater[1] << 36) | (stater[1] >> 28);
-    return result;
+    തിരികെ result;
 }
 
 string V3Os::trueRandom(size_t size) VL_MT_SAFE {
     string result(size, '\xFF');
-    char* const data = const_cast<char*>(result.data());
+    അക്ഷരം* സ്ഥിരം data = const_cast<അക്ഷരം*>(result.data());
     // Note: std::string.data() returns a non-const Char* from C++17 onwards.
     // For pre-C++17, this cast is OK in practice, even though it's UB.
-#if defined(_WIN32) || defined(__MINGW32__)
-    const NTSTATUS hr = BCryptGenRandom(nullptr, reinterpret_cast<BYTE*>(data), size,
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
+    സ്ഥിരം NTSTATUS hr = BCryptGenRandom(nullptr, reinterpret_cast<BYTE*>(data), size,
                                         BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-    if (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
+    എങ്കിൽ (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#elif defined(__wasi__)
+#അല്ലെങ്കിലെങ്കിൽ defined(__wasi__)
     // WASI has no /dev/urandom. getentropy() rejects sizes over 256 bytes,
     // which is more than any caller asks for, and errors rather than truncates.
-    if (VL_UNCOVERABLE(getentropy(data, size))) {
+    എങ്കിൽ (VL_UNCOVERABLE(getentropy(data, size))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#else
-    std::ifstream is{"/dev/urandom", std::ios::in | std::ios::binary};
+#അല്ലെങ്കിൽ
+    std::ifstream is{"/dev/urandom", std::ios::in | std::ios::ദ്വിമാന};
     // This read uses the size of the buffer.
     // Flawfinder: ignore
-    if (VL_UNCOVERABLE(!is.read(data, size))) {
+    എങ്കിൽ (VL_UNCOVERABLE(!is.പഠ(data, size))) {
         v3fatal("Could not open /dev/urandom, no source of randomness. "  // LCOV_EXCL_LINE
                 "Try specifying a key instead.");
     }
 #endif
-    return result;
+    തിരികെ result;
 }
 
 //######################################################################
 // METHODS (performance)
 
 uint64_t V3Os::timeUsecs() {
-#if defined(_WIN32) || defined(__MINGW32__)
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
     // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
-    static constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
+    സ്ഥിതം constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
 
     FILETIME ft;  // contains number of 0.1us intervals since the beginning of 1601 UTC.
     GetSystemTimeAsFileTime(&ft);
-    const uint64_t us
-        = ((static_cast<uint64_t>(ft.dwHighDateTime) << 32) + ft.dwLowDateTime + 5ULL) / 10ULL;
-    return us - EPOCH_DIFFERENCE_USECS;
-#else
+    സ്ഥിരം uint64_t us
+        = ((static_cast<uint64_t>(ft.dw_മുകളിലെ_Date_Time) << 32) + ft.dw_താഴെയുള്ള_Date_Time + 5ULL) / 10ULL;
+    തിരികെ us - EPOCH_DIFFERENCE_USECS;
+#അല്ലെങ്കിൽ
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     timeval tv;
-    if (gettimeofday(&tv, nullptr) < 0) return 0;
-    return static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
+    എങ്കിൽ (gettimeofday(&tv, nullptr) < 0) തിരികെ 0;
+    തിരികെ static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
 #endif
 }
 
-void V3Os::u_sleep(int64_t usec) {
-#if defined(_WIN32) || defined(__MINGW32__)
+ശൂന്യം V3Os::u_sleep(int64_t usec) {
+#എങ്കിൽ defined(_WIN32) || defined(__MINGW32__)
     std::this_thread::sleep_for(std::chrono::microseconds(usec));
-#else
+#അല്ലെങ്കിൽ
     // cppcheck-suppress obsoleteFunctionsusleep
     // Flawfinder: ignore
     ::usleep(usec);
@@ -509,28 +509,28 @@ void V3Os::u_sleep(int64_t usec) {
 //######################################################################
 // METHODS (sub command)
 
-int V3Os::system(const string& command) {
+പൂർണ്ണസംഖ്യ V3Os::system(സ്ഥിരം string& command) {
 #ifdef __wasi__
     // WASI has no process spawning
     v3fatal("Running subcommands is not supported on this platform: " << command);
-    return -1;
-#else
+    തിരികെ -1;
+#അല്ലെങ്കിൽ
     UINFO(1, "Running system: " << command);
-    const int ret = ::system(command.c_str());
-    if (VL_UNCOVERABLE(ret == -1)) {
+    സ്ഥിരം പൂർണ്ണസംഖ്യ ret = ::system(command.c_str());
+    എങ്കിൽ (VL_UNCOVERABLE(ret == -1)) {
         v3fatal("Failed to execute command:"  // LCOV_EXCL_LINE
                 << command << " " << std::strerror(errno));  // LCOV_EXCL_LINE
-        return -1;  // LCOV_EXCL_LINE
+        തിരികെ -1;  // LCOV_EXCL_LINE
     }
     UASSERT(WIFEXITED(ret), "system(" << command << ") returned unexpected value of " << ret);
-    const int exit_code = WEXITSTATUS(ret);
+    സ്ഥിരം പൂർണ്ണസംഖ്യ exit_code = WEXITSTATUS(ret);
     UINFO(1, command << " returned exit code of " << exit_code);
     UASSERT(exit_code >= 0, "exit code must not be negative");
-    return exit_code;
+    തിരികെ exit_code;
 #endif
 }
 
-void V3Os::selfTest() {
+ശൂന്യം V3Os::selfTest() {
 #ifdef VL_DEBUG
     UASSERT_SELFTEST(filenameCleanup(""), "");
     UASSERT_SELFTEST(filenameCleanup("."), ".");
