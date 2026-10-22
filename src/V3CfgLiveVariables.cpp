@@ -19,188 +19,188 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3Cfg.h"
 
-#include <memory>
+#অন্তর্ভাব <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgLiveVariables final : VNVisitorConst {
+বর্গ CfgLiveVariables final : VNVisitorConst {
     // State associted with each basic block
-    struct BlockState final {
+    সংরচনা BlockState final {
         // Variables used in block, before a complete assignment in the same block
         std::unordered_set<AstVarScope*> m_gen;
         // Variables that are assigned a complete value in the basic block
         std::unordered_set<AstVarScope*> m_kill;
         std::unordered_set<AstVarScope*> m_liveIn;  // Variables live on entry to the block
         std::unordered_set<AstVarScope*> m_liveOut;  // Variables live on exit from the block
-        bool m_isOnWorkList = false;  // Block is on work list
-        bool m_wasProcessed = false;  // Already processed at least once
+        তার্কিক m_isOnWorkList = অসত্য;  // Block is on work list
+        তার্কিক m_wasProcessed = অসত্য;  // Already processed at least once
     };
 
     // STATE
-    const CfgGraph& m_cfg;  // The CFG beign analysed
+    ধ্রুব CfgGraph& m_cfg;  // The CFG beign analysed
     // State for each block
     CfgBlockMap<BlockState> m_blockState{m_cfg.makeBlockMap<BlockState>()};
     BlockState* m_currp = nullptr;  // State of current block being analysed
-    bool m_abort = false;  // Abort analysis - unhandled construct
+    তার্কিক m_abort = অসত্য;  // Abort analysis - unhandled construct
 
     // METHODS
 
-    static bool isPacked(const AstVarScope* vscp) {
-        AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
-            return typep->keyword().isIntNumeric();
+    স্থির তার্কিক isPacked(ধ্রুব AstVarScope* vscp) {
+        Ast_গ্রন্থি_DType* ধ্রুব dtypep = vscp->dtypep()->skipRefp();
+        যদি (ধ্রুব AstBasicDType* ধ্রুব typep = VN_CAST(dtypep, BasicDType)) {
+            প্রত্যাগম typep->keyword().isIntNumeric();
         }
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
-            return typep->packed();
+        যদি (VN_IS(dtypep, PackArrayDType)) প্রত্যাগম সত্য;
+        যদি (ধ্রুব Ast_গ্রন্থি_UOr_Struct_DType* ধ্রুব typep = VN_CAST(dtypep, গ্রন্থি_UOr_Struct_DType)) {
+            প্রত্যাগম typep->packed();
         }
-        return false;
+        প্রত্যাগম অসত্য;
     }
 
-    void updateGen(AstNode* nodep) {
+    শূন্য updateGen(Ast_গ্রন্থি* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ধ্রুব AstVarRef* refp) {
             // Only care about reads
-            if (refp->access().isWriteOnly()) return false;
+            যদি (refp->access().isWriteOnly()) প্রত্যাগম অসত্য;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ধ্রুব vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            যদি (m_currp->m_kill.গুনতি(vscp)) প্রত্যাগম অসত্য;
             m_currp->m_gen.emplace(vscp);
-            return false;
+            প্রত্যাগম অসত্য;
         });
     }
 
-    void updateKill(AstNode* nodep) {
+    শূন্য updateKill(Ast_গ্রন্থি* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ধ্রুব AstVarRef* refp) {
             // Only care about writes
-            if (refp->access().isReadOnly()) return false;
+            যদি (refp->access().isReadOnly()) প্রত্যাগম অসত্য;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ধ্রুব vscp = refp->varScopep();
             // Safety case: bail on variables with unusual semantics
-            if (vscp->varp()->ignoreSchedWrite()) return true;
+            যদি (vscp->varp()->ignoreSchedWrite()) প্রত্যাগম সত্য;
             // If not a packed variable, assume it's not a whole update, don't add to kill set
-            if (!isPacked(vscp)) return false;
+            যদি (!isPacked(vscp)) প্রত্যাগম অসত্য;
             // If packed, and updated partially, don't add to kill set
-            if (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) return false;
+            যদি (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) প্রত্যাগম অসত্য;
             // Whole variable is writen, add to kill set
             m_currp->m_kill.emplace(vscp);
-            return false;
+            প্রত্যাগম অসত্য;
         });
     }
 
-    void single(AstNode* nodep) {
+    শূন্য single(Ast_গ্রন্থি* nodep) {
         // Assume all reads hapen before any writes
-        if (m_abort) return;
+        যদি (m_abort) প্রত্যাগম;
         updateGen(nodep);
-        if (m_abort) return;
+        যদি (m_abort) প্রত্যাগম;
         updateKill(nodep);
     }
 
     // Apply transfer function of block, return true if changed
-    bool transfer(const CfgBlock& bb) {
+    তার্কিক transfer(ধ্রুব CfgBlock& bb) {
         BlockState& state = m_blockState[bb];
 
         // liveIn = gen union (liveOut - kill)
         std::unordered_set<AstVarScope*> liveIn = state.m_gen;
-        for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
-            liveIn.insert(varp);
+        প্রতি (AstVarScope* ধ্রুব varp : state.m_liveOut) {
+            যদি (state.m_kill.গুনতি(varp)) অনুবর্ত;
+            liveIn.ঢোকাও(varp);
         }
-        if (liveIn == state.m_liveIn) return false;
+        যদি (liveIn == state.m_liveIn) প্রত্যাগম অসত্য;
         std::swap(liveIn, state.m_liveIn);
-        return true;
+        প্রত্যাগম সত্য;
     }
 
     // VISIT
-    void visit(AstNode* nodep) override {  //
+    শূন্য visit(Ast_গ্রন্থি* nodep) override {  //
         UASSERT_OBJ(!m_abort, nodep, "Repeat traversal after abort");
-        m_abort = true;
+        m_abort = সত্য;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
     }
 
-    void visit(AstAssign* nodep) override { single(nodep); }
-    void visit(AstAssignW* nodep) override { single(nodep); }
-    void visit(AstDisplay* nodep) override { single(nodep); }
-    void visit(AstFinish* nodep) override { single(nodep); }
-    void visit(AstFinishFork* nodep) override { single(nodep); }
-    void visit(AstStmtExpr* nodep) override { single(nodep); }
-    void visit(AstStop* nodep) override { single(nodep); }
+    শূন্য visit(AstAssign* nodep) override { single(nodep); }
+    শূন্য visit(AstAssignW* nodep) override { single(nodep); }
+    শূন্য visit(AstDisplay* nodep) override { single(nodep); }
+    শূন্য visit(AstFinish* nodep) override { single(nodep); }
+    শূন্য visit(AstFinishFork* nodep) override { single(nodep); }
+    শূন্য visit(Ast_Stmt_রাশিমালা* nodep) override { single(nodep); }
+    শূন্য visit(AstStop* nodep) override { single(nodep); }
 
     // Only the condition check belongs to the terminated basic block
-    void visit(AstIf* nodep) override { single(nodep->condp()); }
-    void visit(AstLoopTest* nodep) override { single(nodep->condp()); }
+    শূন্য visit(AstIf* nodep) override { single(nodep->condp()); }
+    শূন্য visit(AstLoopTest* nodep) override { single(nodep->condp()); }
 
     // CONSTRUCTOR
-    explicit CfgLiveVariables(const CfgGraph& cfg)
+    explicit CfgLiveVariables(ধ্রুব CfgGraph& cfg)
         : m_cfg{cfg} {
         // For each basic block, compute the gen and kill set via visit
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
-            const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-            if (m_abort) return;
+        প্রতি (ধ্রুব V3GraphVertex& vtx : cfg.vertices()) {
+            ধ্রুব CfgBlock& bb = static_cast<ধ্রুব CfgBlock&>(vtx);
+            যদি (m_abort) প্রত্যাগম;
             VL_RESTORER(m_currp);
             m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            প্রতি (Ast_গ্রন্থি* ধ্রুব stmtp : bb.stmtps()) iterateConst(stmtp);
         }
-        if (m_abort) return;
+        যদি (m_abort) প্রত্যাগম;
 
         // Perform the flow analysis
-        std::deque<const CfgBlock*> workList;
-        const auto enqueue = [&](const CfgBlock& bb) {
+        std::deque<ধ্রুব CfgBlock*> workList;
+        ধ্রুব auto enqueue = [&](ধ্রুব CfgBlock& bb) {
             BlockState& state = m_blockState[bb];
-            if (state.m_isOnWorkList) return;
-            state.m_isOnWorkList = true;
+            যদি (state.m_isOnWorkList) প্রত্যাগম;
+            state.m_isOnWorkList = সত্য;
             workList.emplace_back(&bb);
         };
 
         enqueue(cfg.exit());
 
-        while (!workList.empty()) {
-            const CfgBlock* const currp = workList.front();
-            workList.pop_front();
+        যাবত্ (!workList.empty()) {
+            ধ্রুব CfgBlock* ধ্রুব currp = workList.front();
+            workList.বের_করো_front();
             BlockState& state = m_blockState[*currp];
-            state.m_isOnWorkList = false;
+            state.m_isOnWorkList = অসত্য;
 
             // Compute meet (liveOut = union liveIn of successors)
-            currp->forEachSuccessor([&](const CfgBlock& bb) {
+            currp->forEachSuccessor([&](ধ্রুব CfgBlock& bb) {
                 auto& liveIn = m_blockState[bb].m_liveIn;
-                state.m_liveOut.insert(liveIn.begin(), liveIn.end());
+                state.m_liveOut.ঢোকাও(liveIn.begin(), liveIn.end());
             });
 
             // Apply transfer function of block
-            const bool changed = transfer(*currp);
+            ধ্রুব তার্কিক changed = transfer(*currp);
             // Enqueue predecessors
-            if (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
+            যদি (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
             // Mark as done with first visit
-            state.m_wasProcessed = true;
+            state.m_wasProcessed = সত্য;
         }
     }
 
-public:
-    static std::unique_ptr<std::vector<AstVarScope*>> apply(const CfgGraph& cfg) {
+সার্বজনিক:
+    স্থির std::unique_ptr<std::vector<AstVarScope*>> apply(ধ্রুব CfgGraph& cfg) {
         CfgLiveVariables analysis{cfg};
         // If failed, return nullptr
-        if (analysis.m_abort) return nullptr;
+        যদি (analysis.m_abort) প্রত্যাগম nullptr;
         // Gather variables live in to the entry block
-        const std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
-        std::vector<AstVarScope*>* const resultp
-            = new std::vector<AstVarScope*>{lin.begin(), lin.end()};
+        ধ্রুব std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
+        std::vector<AstVarScope*>* ধ্রুব resultp
+            = নূতন std::vector<AstVarScope*>{lin.begin(), lin.end()};
         // Sort for stability
         std::stable_sort(resultp->begin(), resultp->end(),
                          [](AstVarScope* ap, AstVarScope* bp) {  //
-                             return ap->name() < bp->name();
+                             প্রত্যাগম ap->name() < bp->name();
                          });
-        return std::unique_ptr<std::vector<AstVarScope*>>{resultp};
+        প্রত্যাগম std::unique_ptr<std::vector<AstVarScope*>>{resultp};
     }
 };
 
-std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(const CfgGraph& cfg) {
-    return CfgLiveVariables::apply(cfg);
+std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(ধ্রুব CfgGraph& cfg) {
+    প্রত্যাগম CfgLiveVariables::apply(cfg);
 }

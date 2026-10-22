@@ -38,108 +38,108 @@
 #ifndef VERILATOR_V3SHAREDTMPS_H_
 #define VERILATOR_V3SHAREDTMPS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Hash.h"
-#include "V3HashTable.h"
-#include "V3String.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3Hash.h"
+#অন্তর্ভাব "V3HashTable.h"
+#অন্তর্ভাব "V3String.h"
 
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#অন্তর্ভাব <set>
+#অন্তর্ভাব <string>
+#অন্তর্ভাব <unordered_map>
+#অন্তর্ভাব <utility>
+#অন্তর্ভাব <vector>
 
 class V3SharedTmps final {
     // TYPES
     // Temporaries are identified by their module, name and data type
-    struct Key final {
-        const AstNodeModule* m_modp;  // The module of the scopes
+    সংরচনা চাবি_2 final {
+        ধ্রুব Ast_গ্রন্থি_Module* m_modp;  // The module of the scopes
         std::string m_name;  // Name of the temporary
-        const AstNodeDType* m_dtypep;  // Data type of the temporary
+        ধ্রুব Ast_গ্রন্থি_DType* m_dtypep;  // Data type of the temporary
     };
     // Hash and equality of Keys, which can be looked up by their parts, without making one
-    struct KeyHash final {
-        size_t operator()(const AstNodeModule* modp, const std::string& name,
-                          const AstNodeDType* dtypep) const {
+    সংরচনা চাবি_Hash final {
+        size_t operator()(ধ্রুব Ast_গ্রন্থি_Module* modp, ধ্রুব std::string& name,
+                          ধ্রুব Ast_গ্রন্থি_DType* dtypep) ধ্রুব {
             V3Hash hash{modp};
             hash += name;
             hash += dtypep;
-            return hash.value();
+            প্রত্যাগম hash.মান();
         }
-        size_t operator()(const Key& key) const {
-            return (*this)(key.m_modp, key.m_name, key.m_dtypep);
-        }
-    };
-    struct KeyEqual final {
-        bool operator()(const Key& key, const AstNodeModule* modp, const std::string& name,
-                        const AstNodeDType* dtypep) const {
-            return key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
-        }
-        bool operator()(const Key& a, const Key& b) const {
-            return (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+        size_t operator()(ধ্রুব চাবি_2& চাবি) ধ্রুব {
+            প্রত্যাগম (*this)(চাবি.m_modp, চাবি.m_name, চাবি.m_dtypep);
         }
     };
-    struct Tmps final {
+    সংরচনা চাবি_Equal final {
+        bool operator()(ধ্রুব চাবি_2& চাবি, ধ্রুব Ast_গ্রন্থি_Module* modp, ধ্রুব std::string& name,
+                        ধ্রুব Ast_গ্রন্থি_DType* dtypep) ধ্রুব {
+            প্রত্যাগম চাবি.m_modp == modp && চাবি.m_dtypep == dtypep && চাবি.m_name == name;
+        }
+        bool operator()(ধ্রুব চাবি_2& a, ধ্রুব চাবি_2& b) ধ্রুব {
+            প্রত্যাগম (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+        }
+    };
+    সংরচনা Tmps final {
         std::vector<AstVar*> m_varps;  // Variables created so far
         // Number of variables used by each scope
-        std::unordered_map<const AstScope*, size_t> m_nUsed;
+        std::unordered_map<ধ্রুব AstScope*, size_t> m_nUsed;
     };
 
     // STATE
-    const std::string m_prefix;  // Prefix of all variable names
-    const VVarType m_varType;  // Type of all variables
-    V3HashMap<Key, Tmps, KeyHash, KeyEqual> m_tmps;  // The temporaries created so far
+    ধ্রুব std::string m_prefix;  // Prefix of all variable names
+    ধ্রুব VVarType m_varType;  // Type of all variables
+    V3HashMap<চাবি_2, Tmps, চাবি_Hash, চাবি_Equal> m_tmps;  // The temporaries created so far
     size_t m_nVars = 0;  // Number of variables created, used to make unique names
     size_t m_nReused = 0;  // Number of temporaries using an existing variable
 
-public:
+সার্বজনিক:
     // CONSTRUCTORS
-    V3SharedTmps(const std::string& prefix, VVarType varType)
+    V3SharedTmps(ধ্রুব std::string& prefix, VVarType varType)
         : m_prefix{prefix}
         , m_varType{varType} {
         UASSERT(VString::startsWith(prefix, "__V"), "Prefix must start with '__V'");
         UASSERT(!VString::endsWith(prefix, "_"), "Prefix must not end with '_'");
         // Prefixes used so far during the whole of compilation. Must be unique.
-        static std::set<std::string> s_prefixes;
-        const bool isNew = s_prefixes.insert(m_prefix).second;
+        স্থির std::set<std::string> s_prefixes;
+        ধ্রুব bool isNew = s_prefixes.ঢোকাও(m_prefix).second;
         UASSERT(isNew, "V3SharedTmps prefix is not unique: '" << prefix << "'");
     }
 
     // METHODS
     // Create a new temporary of type 'dtypep' in 'scopep', and return its AstVarScope
-    AstVarScope* make(FileLine* flp, AstScope* scopep, AstNodeDType* dtypep,
-                      const std::string& name = "") {
-        const AstNodeModule* const modp = scopep->modp();
-        const auto pair = m_tmps.insertLazy(modp, name, dtypep, [&]() {  //
-            return std::make_pair(Key{modp, name, dtypep}, Tmps{});
+    AstVarScope* make(File_সারি* flp, AstScope* scopep, Ast_গ্রন্থি_DType* dtypep,
+                      ধ্রুব std::string& name = "") {
+        ধ্রুব Ast_গ্রন্থি_Module* ধ্রুব modp = scopep->modp();
+        ধ্রুব auto pair = m_tmps.ঢোকাও_Lazy(modp, name, dtypep, [&]() {  //
+            প্রত্যাগম std::make_pair(চাবি_2{modp, name, dtypep}, Tmps{});
         });
-        Tmps& tmps = pair.first.value();
-        const size_t n = tmps.m_nUsed[scopep]++;
-        if (n < tmps.m_varps.size()) {
+        Tmps& tmps = pair.first.মান();
+        ধ্রুব size_t n = tmps.m_nUsed[scopep]++;
+        যদি (n < tmps.m_varps.size()) {
             ++m_nReused;
-        } else {
+        } অন্যথা {
             std::string uniqueName = m_prefix + "_";
-            if (!name.empty()) uniqueName += name + "_";
+            যদি (!name.empty()) uniqueName += name + "_";
             uniqueName += std::to_string(m_nVars++);
-            AstVar* const varp = new AstVar{flp, m_varType, uniqueName, dtypep};
+            AstVar* ধ্রুব varp = new AstVar{flp, m_varType, uniqueName, dtypep};
             scopep->modp()->addStmtsp(varp);
             tmps.m_varps.emplace_back(varp);
         }
-        AstVarScope* const vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
+        AstVarScope* ধ্রুব vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
         scopep->addVarsp(vscp);
-        return vscp;
+        প্রত্যাগম vscp;
     }
     // Same as above, but with a 2-state unsigned packed type of the given 'width'
-    AstVarScope* make(FileLine* flp, AstScope* scopep, unsigned width,
-                      const std::string& name = "") {
-        return make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
+    AstVarScope* make(File_সারি* flp, AstScope* scopep, unsigned width,
+                      ধ্রুব std::string& name = "") {
+        প্রত্যাগম make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
     }
 
     // Number of temporaries using an existing variable
-    size_t nReused() const { return m_nReused; }
+    size_t nReused() ধ্রুব { প্রত্যাগম m_nReused; }
 };
 
 #endif  // Guard

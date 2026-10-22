@@ -17,23 +17,23 @@
 #ifndef VERILATOR_V3DEAD_H_
 #define VERILATOR_V3DEAD_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Dead final {
-public:
+সার্বজনিক:
     // Modules, no vars/dtypes
-    static void deadifyModules(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির শূন্য deadifyModules(AstNetlist* nodep) VL_MT_DISABLED;
     // Modules, Data types
-    static void deadifyDTypes(AstNetlist* nodep) VL_MT_DISABLED;
-    static void deadifyDTypesScoped(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির শূন্য deadifyDTypes(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির শূন্য deadifyDTypesScoped(AstNetlist* nodep) VL_MT_DISABLED;
     // Everything that's possible
-    static void deadifyAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static void deadifyAllScoped(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির শূন্য deadifyAll(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির শূন্য deadifyAllScoped(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

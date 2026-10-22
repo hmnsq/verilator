@@ -24,33 +24,33 @@
 
 #ifndef VERILATOR_V3AST_H_
 #error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#অন্তর্ভাব "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
-#include <unordered_map>
+#অন্তর্ভাব <unordered_map>
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeConsItem VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_Cons_Item VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // An item of an AstNodeCons,
     // op1 used by some subclasses
     // @astgen op2 := valuep : AstNodeExpr
-    friend class AstNodeExpr;  // For m_knownConstantTree
-    mutable bool m_knownConstantTree = false;  // Known to be a tree of constants
+    friend class Ast_গ্রন্থি_রাশিমালা;  // For m_knownConstantTree
+    mutable bool m_known_Constant_বৃক্ষ = false;  // Known to be a tree of constants
 
-protected:
-    AstNodeConsItem(VNType t, FileLine* fl, AstNodeExpr* valuep)
-        : AstNode{t, fl} {
+রক্ষিত:
+    Ast_গ্রন্থি_Cons_Item(VNType t, File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* valuep)
+        : Ast_গ্রন্থি{t, fl} {
         this->valuep(valuep);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeConsItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+সার্বজনিক:
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_Cons_Item;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstNodeCoverDecl VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_Cover_Decl VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // Coverage analysis point declaration
     //
     // [After V3CoverageJoin] Duplicate declaration to get data from instead
@@ -58,54 +58,54 @@ class AstNodeCoverDecl VL_NOT_FINAL : public AstNode {
     string m_page;  // Coverage point's page tag
     string m_text;  // Coverage point's text
     string m_hier;  // Coverage point's hierarchy
-    int m_binNum = 0;  // Global coverage bin offset in the symbol table coverage array
+    পূর্ণাঙ্ক m_bin_অঙ্ক = 0;  // Global coverage bin offset in the symbol table coverage array
     // Coverage counters are emitted in each module object, so duplicate
     // no-inline instances can keep independent counts for forcePerInstance.
-    int m_localBinNum = 0;  // Per-module coverage bin offset
+    পূর্ণাঙ্ক m_local_Bin_অঙ্ক = 0;  // Per-module coverage bin offset
     bool m_perInstance = false;  // Don't clone during inlining, already per instance
-public:
-    AstNodeCoverDecl(VNType t, FileLine* fl, const string& page, const string& comment)
-        : AstNode(t, fl)
+সার্বজনিক:
+    Ast_গ্রন্থি_Cover_Decl(VNType t, File_সারি* fl, ধ্রুব string& page, ধ্রুব string& comment)
+        : Ast_গ্রন্থি(t, fl)
         , m_page{page}
         , m_text{comment} {}
-    ASTGEN_MEMBERS_AstNodeCoverDecl;
-    const char* broken() const override {
-        if (m_dataDeclp
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_Cover_Decl;
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
+        যদি (m_dataDeclp
             && (m_dataDeclp == this || m_dataDeclp->m_dataDeclp)) {  // Avoid O(n^2) accessing
             v3fatalSrc("dataDeclp should point to real data, not be a list: " << cvtToHex(this));
         }
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 1 + 2 * INSTR_COUNT_LD; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    int binNum() const { return m_binNum; }
-    void binNum(int flag) { m_binNum = flag; }
-    int localBinNum() const { return m_localBinNum; }
-    void localBinNum(int flag) { m_localBinNum = flag; }
-    bool perInstance() const { return m_perInstance; }
-    void perInstance(bool flag) { m_perInstance = flag; }
-    virtual int size() const = 0;
-    const string& comment() const { return m_text; }  // text to insert in code
-    const string& page() const { return m_page; }
-    const string& hier() const { return m_hier; }
-    void hier(const string& flag) { m_hier = flag; }
-    void comment(const string& flag) { m_text = flag; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeCoverDecl* const asamep = VN_DBG_AS(samep, NodeCoverDecl);
-        return (fileline() == asamep->fileline() && hier() == asamep->hier()
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    পূর্ণাঙ্ক instr_গুনতি() ধ্রুব override { প্রত্যাগম 1 + 2 * INSTR_গুনতি_LD; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    পূর্ণাঙ্ক bin_অঙ্ক() ধ্রুব { প্রত্যাগম m_bin_অঙ্ক; }
+    শূন্য bin_অঙ্ক(পূর্ণাঙ্ক flag) { m_bin_অঙ্ক = flag; }
+    পূর্ণাঙ্ক local_Bin_অঙ্ক() ধ্রুব { প্রত্যাগম m_local_Bin_অঙ্ক; }
+    শূন্য local_Bin_অঙ্ক(পূর্ণাঙ্ক flag) { m_local_Bin_অঙ্ক = flag; }
+    bool perInstance() ধ্রুব { প্রত্যাগম m_perInstance; }
+    শূন্য perInstance(bool flag) { m_perInstance = flag; }
+    আভাস পূর্ণাঙ্ক size() ধ্রুব = 0;
+    ধ্রুব string& comment() ধ্রুব { প্রত্যাগম m_text; }  // text to insert in code
+    ধ্রুব string& page() ধ্রুব { প্রত্যাগম m_page; }
+    ধ্রুব string& hier() ধ্রুব { প্রত্যাগম m_hier; }
+    শূন্য hier(ধ্রুব string& flag) { m_hier = flag; }
+    শূন্য comment(ধ্রুব string& flag) { m_text = flag; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        ধ্রুব Ast_গ্রন্থি_Cover_Decl* ধ্রুব asamep = VN_DBG_AS(samep, গ্রন্থি_Cover_Decl);
+        প্রত্যাগম (fileline() == asamep->fileline() && hier() == asamep->hier()
                 && comment() == asamep->comment() && page() == asamep->page()
                 && perInstance() == asamep->perInstance());
     }
-    bool isPredictOptimizable() const override { return false; }
-    void dataDeclp(AstNodeCoverDecl* nodep) { m_dataDeclp = nodep; }
+    bool isPredictOptimizable() ধ্রুব override { প্রত্যাগম false; }
+    শূন্য dataDeclp(Ast_গ্রন্থি_Cover_Decl* nodep) { m_dataDeclp = nodep; }
     // dataDecl nullptr means "use this one", but often you want "this" to
     // indicate to get data from here
-    AstNodeCoverDecl* dataDeclNullp() const { return m_dataDeclp; }
-    AstNodeCoverDecl* dataDeclThisp() { return dataDeclNullp() ? dataDeclNullp() : this; }
+    Ast_গ্রন্থি_Cover_Decl* dataDeclNullp() ধ্রুব { প্রত্যাগম m_dataDeclp; }
+    Ast_গ্রন্থি_Cover_Decl* dataDeclThisp() { প্রত্যাগম dataDeclNullp() ? dataDeclNullp() : this; }
 };
-class AstNodeFTask VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_FTask VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // Output variable in functions, nullptr in tasks
     // @astgen op1 := fvarp : Optional[AstNode]
     // Class/package scope
@@ -150,9 +150,9 @@ class AstNodeFTask VL_NOT_FINAL : public AstNode {
     VLifetime m_lifetime;  // Default lifetime of local vars
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeFTask(VNType t, FileLine* fl, const string& name, AstNode* stmtsp)
-        : AstNode{t, fl}
+রক্ষিত:
+    Ast_গ্রন্থি_FTask(VNType t, File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* stmtsp)
+        : Ast_গ্রন্থি{t, fl}
         , m_name{name}
         , m_taskPublic{false}
         , m_classMethod{false}
@@ -184,89 +184,89 @@ protected:
         cname(name);  // Might be overridden by dpi import/export
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeFTask;
-    virtual AstNodeFTask* cloneType(const string& name) = 0;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool isGateOptimizable() const override {
-        return !((m_dpiExport || m_dpiImport) && !m_dpiPure);
+সার্বজনিক:
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_FTask;
+    আভাস Ast_গ্রন্থি_FTask* cloneType(ধ্রুব string& name) = 0;
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Var name
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    bool isGateOptimizable() ধ্রুব override {
+        প্রত্যাগম !((m_dpiExport || m_dpiImport) && !m_dpiPure);
     }
     // {AstFunc only} op1 = Range output variable
-    void name(const string& name) override { m_name = name; }
-    string cname() const { return m_cname; }
-    void cname(const string& cname) { m_cname = cname; }
-    bool isFunction() const { return fvarp() != nullptr; }
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    string cname() ধ্রুব { প্রত্যাগম m_cname; }
+    শূন্য cname(ধ্রুব string& cname) { m_cname = cname; }
+    bool isFunction() ধ্রুব { প্রত্যাগম fvarp() != nullptr; }
     // MORE ACCESSORS
-    void dpiOpenParentInc() { ++m_dpiOpenParent; }
-    void dpiOpenParentClear() { m_dpiOpenParent = 0; }
-    uint64_t dpiOpenParent() const { return m_dpiOpenParent; }
-    bool taskPublic() const { return m_taskPublic; }
-    void taskPublic(bool flag) { m_taskPublic = flag; }
-    bool classMethod() const { return m_classMethod; }
-    void classMethod(bool flag) { m_classMethod = flag; }
-    bool didProto() const { return m_didProto; }
-    void didProto(bool flag) { m_didProto = flag; }
-    bool isExternProto() const { return m_isExternProto; }
-    void isExternProto(bool flag) { m_isExternProto = flag; }
-    bool isExternDef() const { return m_isExternDef; }
-    void isExternDef(bool flag) { m_isExternDef = flag; }
-    const string& ifacePortName() const { return m_ifacePortName; }
-    void ifacePortName(const string& name) { m_ifacePortName = name; }
-    bool prototype() const { return m_prototype; }
-    void prototype(bool flag) { m_prototype = flag; }
-    bool dpiExport() const { return m_dpiExport; }
-    void dpiExport(bool flag) { m_dpiExport = flag; }
-    bool dpiImport() const { return m_dpiImport; }
-    void dpiImport(bool flag) { m_dpiImport = flag; }
-    bool dpiContext() const { return m_dpiContext; }
-    void dpiContext(bool flag) { m_dpiContext = flag; }
-    bool dpiOpenChild() const { return m_dpiOpenChild; }
-    void dpiOpenChild(bool flag) { m_dpiOpenChild = flag; }
-    bool dpiTask() const { return m_dpiTask; }
-    void dpiTask(bool flag) { m_dpiTask = flag; }
-    bool dpiCDeclOverride() const { return !m_dpiCDecl.empty(); }
-    const string& dpiCDecl() const { return m_dpiCDecl; }
-    void dpiCDecl(const string& cDecl) { m_dpiCDecl = cDecl; }
-    bool isConstructor() const { return m_isConstructor; }
-    void isConstructor(bool flag) { m_isConstructor = flag; }
-    bool isHideLocal() const { return m_isHideLocal; }
-    void isHideLocal(bool flag) { m_isHideLocal = flag; }
-    bool isHideProtected() const { return m_isHideProtected; }
-    void isHideProtected(bool flag) { m_isHideProtected = flag; }
-    bool dpiPure() const { return m_dpiPure; }
-    void dpiPure(bool flag) { m_dpiPure = flag; }
-    bool keepAlive() const { return m_keepAlive; }
-    void keepAlive(bool flag) { m_keepAlive = flag; }
-    bool needsSyms() const { return m_needsSyms; }
-    void needsSyms(bool flag) { m_needsSyms = flag; }
-    bool pureVirtual() const { return m_pureVirtual; }
-    void pureVirtual(bool flag) { m_pureVirtual = flag; }
-    bool recursive() const { return m_recursive; }
-    void recursive(bool flag) { m_recursive = flag; }
-    bool isStatic() const { return m_static; }
-    void isStatic(bool flag) { m_static = flag; }
-    bool underGenerate() const { return m_underGenerate; }
-    void underGenerate(bool flag) { m_underGenerate = flag; }
-    bool verilogFunction() const { return m_verilogFunction; }
-    void verilogFunction(bool flag) { m_verilogFunction = flag; }
-    bool verilogTask() const { return m_verilogTask; }
-    void verilogTask(bool flag) { m_verilogTask = flag; }
-    bool isVirtual() const { return m_virtual; }
-    void isVirtual(bool flag) { m_virtual = flag; }
-    bool needProcess() const { return m_needProcess; }
-    void setNeedProcess() { m_needProcess = true; }
-    bool isCovergroupSample() const { return m_isCovergroupSample; }
-    void isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
-    void baseOverride(const VBaseOverride& flag) { m_baseOverride = flag; }
-    VBaseOverride baseOverride() const { return m_baseOverride; }
-    void lifetime(const VLifetime& flag) { m_lifetime = flag; }
-    VLifetime lifetime() const { return m_lifetime; }
+    শূন্য dpiOpenParentInc() { ++m_dpiOpenParent; }
+    শূন্য dpiOpenParentClear() { m_dpiOpenParent = 0; }
+    uint64_t dpiOpenParent() ধ্রুব { প্রত্যাগম m_dpiOpenParent; }
+    bool taskPublic() ধ্রুব { প্রত্যাগম m_taskPublic; }
+    শূন্য taskPublic(bool flag) { m_taskPublic = flag; }
+    bool classMethod() ধ্রুব { প্রত্যাগম m_classMethod; }
+    শূন্য classMethod(bool flag) { m_classMethod = flag; }
+    bool didProto() ধ্রুব { প্রত্যাগম m_didProto; }
+    শূন্য didProto(bool flag) { m_didProto = flag; }
+    bool isExternProto() ধ্রুব { প্রত্যাগম m_isExternProto; }
+    শূন্য isExternProto(bool flag) { m_isExternProto = flag; }
+    bool isExternDef() ধ্রুব { প্রত্যাগম m_isExternDef; }
+    শূন্য isExternDef(bool flag) { m_isExternDef = flag; }
+    ধ্রুব string& ifacePortName() ধ্রুব { প্রত্যাগম m_ifacePortName; }
+    শূন্য ifacePortName(ধ্রুব string& name) { m_ifacePortName = name; }
+    bool prototype() ধ্রুব { প্রত্যাগম m_prototype; }
+    শূন্য prototype(bool flag) { m_prototype = flag; }
+    bool dpiExport() ধ্রুব { প্রত্যাগম m_dpiExport; }
+    শূন্য dpiExport(bool flag) { m_dpiExport = flag; }
+    bool dpiImport() ধ্রুব { প্রত্যাগম m_dpiImport; }
+    শূন্য dpiImport(bool flag) { m_dpiImport = flag; }
+    bool dpiContext() ধ্রুব { প্রত্যাগম m_dpiContext; }
+    শূন্য dpiContext(bool flag) { m_dpiContext = flag; }
+    bool dpiOpenChild() ধ্রুব { প্রত্যাগম m_dpiOpenChild; }
+    শূন্য dpiOpenChild(bool flag) { m_dpiOpenChild = flag; }
+    bool dpiTask() ধ্রুব { প্রত্যাগম m_dpiTask; }
+    শূন্য dpiTask(bool flag) { m_dpiTask = flag; }
+    bool dpiCDeclOverride() ধ্রুব { প্রত্যাগম !m_dpiCDecl.empty(); }
+    ধ্রুব string& dpiCDecl() ধ্রুব { প্রত্যাগম m_dpiCDecl; }
+    শূন্য dpiCDecl(ধ্রুব string& cDecl) { m_dpiCDecl = cDecl; }
+    bool isConstructor() ধ্রুব { প্রত্যাগম m_isConstructor; }
+    শূন্য isConstructor(bool flag) { m_isConstructor = flag; }
+    bool isHideLocal() ধ্রুব { প্রত্যাগম m_isHideLocal; }
+    শূন্য isHideLocal(bool flag) { m_isHideLocal = flag; }
+    bool isHideProtected() ধ্রুব { প্রত্যাগম m_isHideProtected; }
+    শূন্য isHideProtected(bool flag) { m_isHideProtected = flag; }
+    bool dpiPure() ধ্রুব { প্রত্যাগম m_dpiPure; }
+    শূন্য dpiPure(bool flag) { m_dpiPure = flag; }
+    bool keepAlive() ধ্রুব { প্রত্যাগম m_keepAlive; }
+    শূন্য keepAlive(bool flag) { m_keepAlive = flag; }
+    bool needsSyms() ধ্রুব { প্রত্যাগম m_needsSyms; }
+    শূন্য needsSyms(bool flag) { m_needsSyms = flag; }
+    bool pureVirtual() ধ্রুব { প্রত্যাগম m_pureVirtual; }
+    শূন্য pureVirtual(bool flag) { m_pureVirtual = flag; }
+    bool recursive() ধ্রুব { প্রত্যাগম m_recursive; }
+    শূন্য recursive(bool flag) { m_recursive = flag; }
+    bool isStatic() ধ্রুব { প্রত্যাগম m_static; }
+    শূন্য isStatic(bool flag) { m_static = flag; }
+    bool underGenerate() ধ্রুব { প্রত্যাগম m_underGenerate; }
+    শূন্য underGenerate(bool flag) { m_underGenerate = flag; }
+    bool verilogFunction() ধ্রুব { প্রত্যাগম m_verilogFunction; }
+    শূন্য verilogFunction(bool flag) { m_verilogFunction = flag; }
+    bool verilogTask() ধ্রুব { প্রত্যাগম m_verilogTask; }
+    শূন্য verilogTask(bool flag) { m_verilogTask = flag; }
+    bool isVirtual() ধ্রুব { প্রত্যাগম m_virtual; }
+    শূন্য isVirtual(bool flag) { m_virtual = flag; }
+    bool needProcess() ধ্রুব { প্রত্যাগম m_needProcess; }
+    শূন্য setNeedProcess() { m_needProcess = true; }
+    bool isCovergroupSample() ধ্রুব { প্রত্যাগম m_isCovergroupSample; }
+    শূন্য isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
+    শূন্য baseOverride(ধ্রুব VBaseOverride& flag) { m_baseOverride = flag; }
+    VBaseOverride baseOverride() ধ্রুব { প্রত্যাগম m_baseOverride; }
+    শূন্য lifetime(ধ্রুব VLifetime& flag) { m_lifetime = flag; }
+    VLifetime lifetime() ধ্রুব { প্রত্যাগম m_lifetime; }
     bool isPure() override;
-    const char* broken() const override;
-    void propagateAttrFrom(const AstNodeFTask* fromp) {
+    ধ্রুব বর্ণ* broken() ধ্রুব override;
+    শূন্য propagateAttrFrom(ধ্রুব Ast_গ্রন্থি_FTask* fromp) {
         // Creating a wrapper with e.g. cloneType(); preserve some attributes
         classMethod(fromp->classMethod());
         isHideLocal(fromp->isHideLocal());
@@ -277,46 +277,46 @@ public:
         underGenerate(fromp->underGenerate());
     }
 
-private:
-    bool getPurityRecurse() const;
+গুপ্ত:
+    bool getPurityRecurse() ধ্রুব;
 };
-class AstNodeFile VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_File VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // Emitted Output file
     // Parents:  NETLIST
     // @astgen op1 := tblockp : Optional[AstTextBlock]
     string m_name;  ///< Filename
-public:
-    AstNodeFile(VNType t, FileLine* fl, const string& name)
-        : AstNode{t, fl}
+সার্বজনিক:
+    Ast_গ্রন্থি_File(VNType t, File_সারি* fl, ধ্রুব string& name)
+        : Ast_গ্রন্থি{t, fl}
         , m_name{name} {}
-    ASTGEN_MEMBERS_AstNodeFile;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_File;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* /*samep*/) ধ্রুব override { প্রত্যাগম true; }
 };
-class AstNodeFuncCovItem VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_Func_Cov_Item VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // Base class for functional coverage items (coverpoints, crosses)
-protected:
+রক্ষিত:
     string m_name;  // Item name
 
-public:
-    AstNodeFuncCovItem(VNType t, FileLine* fl, const string& name)
-        : AstNode{t, fl}
+সার্বজনিক:
+    Ast_গ্রন্থি_Func_Cov_Item(VNType t, File_সারি* fl, ধ্রুব string& name)
+        : Ast_গ্রন্থি{t, fl}
         , m_name{name} {}
-    ASTGEN_MEMBERS_AstNodeFuncCovItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    bool maybePointedTo() const override { return true; }
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_Func_Cov_Item;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    bool maybePointedTo() ধ্রুব override { প্রত্যাগম true; }
 };
-class AstNodeGen VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_Gen VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // Generate construct
-public:
-    AstNodeGen(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
-    ASTGEN_MEMBERS_AstNodeGen;
+সার্বজনিক:
+    Ast_গ্রন্থি_Gen(VNType t, File_সারি* fl)
+        : Ast_গ্রন্থি{t, fl} {}
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_Gen;
 };
-class AstNodeModule VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_Module VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // A module, package, program or interface declaration;
     // something that can live directly under the TOP,
     // excluding $unit package stuff
@@ -324,12 +324,12 @@ class AstNodeModule VL_NOT_FINAL : public AstNode {
     // @astgen op2 := scSectionsp : List[AstSystemCSection]
     // op3: Reserved, do not use (including in subclasses)
     string m_name;  // Name of the module
-    const string m_origName;  // Name of the module, ignoring name() changes, for dot lookup
+    ধ্রুব string m_origName;  // Name of the module, ignoring name() changes, for dot lookup
     // dist-ast-dump-suppress  // For some user errors messages only, visible where used
     string m_someInstanceName;  // Hierarchical name of some arbitrary instance of this module.
     string m_libname;  // Work library
-    int m_depth = 0;  // 1=top module, 2=cell off top, shared things low, for -depth options
-    int m_level = 0;  // 1=top module, 2=cell off top, shared things have high number
+    পূর্ণাঙ্ক m_depth = 0;  // 1=top module, 2=cell off top, shared things low, for -depth options
+    পূর্ণাঙ্ক m_level = 0;  // 1=top module, 2=cell off top, shared things have high number
     VLifetime m_lifetime;  // Lifetime
     VTimescale m_timeunit;  // Global time unit
     VOptionBool m_unconnectedDrive;  // State of `unconnected_drive
@@ -350,9 +350,9 @@ class AstNodeModule VL_NOT_FINAL : public AstNode {
                                        // set by V3Param::deepCloneModule. Suppresses
                                        // width/type errors on the unresolved template.
     bool m_verilatorLib : 1;  // Module is a stub for a Verilator produced --lib-create
-protected:
-    AstNodeModule(VNType t, FileLine* fl, const string& name, const string& libname)
-        : AstNode{t, fl}
+রক্ষিত:
+    Ast_গ্রন্থি_Module(VNType t, File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
+        : Ast_গ্রন্থি{t, fl}
         , m_name{name}
         , m_origName{name}
         , m_libname{libname}
@@ -370,105 +370,105 @@ protected:
         , m_parameterizedTemplate{false}
         , m_verilatorLib{false} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeModule;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return m_name; }
-    virtual bool timescaleMatters() const = 0;
-    inline bool isDollarUnit() const;  // Is the $unit package
-    inline bool isConstPool() const;  // Is the constant pool package
+সার্বজনিক:
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_Module;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    আভাস bool timescaleMatters() ধ্রুব = 0;
+    অন্তঃস্থ bool isDollarUnit() ধ্রুব;  // Is the $unit package
+    অন্তঃস্থ bool isConstPool() ধ্রুব;  // Is the constant pool package
     // Prefix of the names of the types declared within, as $typename names them, given 'outer',
     // the prefix for the scope declaring this, which names only a class, e.g. '$unit::',
     // 'ifc#(8).', '$unit::Cls#(8)::', or 'top.', see VDTypeNameScopes
-    string dtypeNameInnerScope(const string& outer) const;
+    string dtypeNameInnerScope(ধ্রুব string& outer) ধ্রুব;
     // ACCESSORS
-    void name(const string& name) override { m_name = name; }
-    string origName() const override { return m_origName; }
-    string someInstanceName() const VL_MT_SAFE { return m_someInstanceName; }
-    void someInstanceName(const string& name) { m_someInstanceName = name; }
-    AstDefaultDisable* defaultDisablep() const { return m_defaultDisablep; }
-    void defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
-    bool inLibrary() const { return m_inLibrary; }
-    void inLibrary(bool flag) { m_inLibrary = flag; }
-    void depth(int value) { m_depth = value; }
-    int depth() const VL_MT_SAFE { return m_depth; }
-    void level(int value) { m_level = value; }
-    int level() const VL_MT_SAFE { return m_level; }
-    string libname() const { return m_libname; }
-    bool isTop() const VL_MT_SAFE { return level() == 1; }
-    bool modPublic() const { return m_modPublic; }
-    void modPublic(bool flag) { m_modPublic = flag; }
-    bool modTrace() const { return m_modTrace; }
-    void modTrace(bool flag) { m_modTrace = flag; }
-    bool ctorVarReset() const { return m_ctorVarReset; }
-    void ctorVarReset(bool flag) { m_ctorVarReset = flag; }
-    bool dead() const { return m_dead; }
-    void dead(bool flag) { m_dead = flag; }
-    bool hasGParam() const { return m_hasGParam; }
-    void hasGParam(bool flag) { m_hasGParam = flag; }
-    bool hasParameterList() const { return m_hasParameterList; }
-    void hasParameterList(bool flag) { m_hasParameterList = flag; }
-    bool hierBlock() const { return m_hierBlock; }
-    void hierBlock(bool flag) { m_hierBlock = flag; }
-    bool hierParams() const { return m_hierParams; }
-    void hierParams(bool flag) { m_hierParams = flag; }
-    bool recursive() const { return m_recursive; }
-    void recursive(bool flag) { m_recursive = flag; }
-    void recursiveClone(bool flag) { m_recursiveClone = flag; }
-    bool recursiveClone() const { return m_recursiveClone; }
-    bool parameterizedTemplate() const { return m_parameterizedTemplate; }
-    void parameterizedTemplate(bool flag) { m_parameterizedTemplate = flag; }
-    void verilatorLib(bool flag) { m_verilatorLib = flag; }
-    bool verilatorLib() const { return m_verilatorLib; }
-    VLifetime lifetime() const { return m_lifetime; }
-    void lifetime(const VLifetime& flag) { m_lifetime = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VOptionBool unconnectedDrive() const { return m_unconnectedDrive; }
-    void unconnectedDrive(const VOptionBool flag) { m_unconnectedDrive = flag; }
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    string origName() ধ্রুব override { প্রত্যাগম m_origName; }
+    string someInstanceName() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_someInstanceName; }
+    শূন্য someInstanceName(ধ্রুব string& name) { m_someInstanceName = name; }
+    AstDefaultDisable* defaultDisablep() ধ্রুব { প্রত্যাগম m_defaultDisablep; }
+    শূন্য defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
+    bool inLibrary() ধ্রুব { প্রত্যাগম m_inLibrary; }
+    শূন্য inLibrary(bool flag) { m_inLibrary = flag; }
+    শূন্য depth(পূর্ণাঙ্ক মান) { m_depth = মান; }
+    পূর্ণাঙ্ক depth() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_depth; }
+    শূন্য level(পূর্ণাঙ্ক মান) { m_level = মান; }
+    পূর্ণাঙ্ক level() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_level; }
+    string libname() ধ্রুব { প্রত্যাগম m_libname; }
+    bool is_শীর্ষ() ধ্রুব VL_MT_SAFE { প্রত্যাগম level() == 1; }
+    bool modPublic() ধ্রুব { প্রত্যাগম m_modPublic; }
+    শূন্য modPublic(bool flag) { m_modPublic = flag; }
+    bool modTrace() ধ্রুব { প্রত্যাগম m_modTrace; }
+    শূন্য modTrace(bool flag) { m_modTrace = flag; }
+    bool ctorVarReset() ধ্রুব { প্রত্যাগম m_ctorVarReset; }
+    শূন্য ctorVarReset(bool flag) { m_ctorVarReset = flag; }
+    bool dead() ধ্রুব { প্রত্যাগম m_dead; }
+    শূন্য dead(bool flag) { m_dead = flag; }
+    bool hasGParam() ধ্রুব { প্রত্যাগম m_hasGParam; }
+    শূন্য hasGParam(bool flag) { m_hasGParam = flag; }
+    bool hasParameterList() ধ্রুব { প্রত্যাগম m_hasParameterList; }
+    শূন্য hasParameterList(bool flag) { m_hasParameterList = flag; }
+    bool hierBlock() ধ্রুব { প্রত্যাগম m_hierBlock; }
+    শূন্য hierBlock(bool flag) { m_hierBlock = flag; }
+    bool hierParams() ধ্রুব { প্রত্যাগম m_hierParams; }
+    শূন্য hierParams(bool flag) { m_hierParams = flag; }
+    bool recursive() ধ্রুব { প্রত্যাগম m_recursive; }
+    শূন্য recursive(bool flag) { m_recursive = flag; }
+    শূন্য recursiveClone(bool flag) { m_recursiveClone = flag; }
+    bool recursiveClone() ধ্রুব { প্রত্যাগম m_recursiveClone; }
+    bool parameterizedTemplate() ধ্রুব { প্রত্যাগম m_parameterizedTemplate; }
+    শূন্য parameterizedTemplate(bool flag) { m_parameterizedTemplate = flag; }
+    শূন্য verilatorLib(bool flag) { m_verilatorLib = flag; }
+    bool verilatorLib() ধ্রুব { প্রত্যাগম m_verilatorLib; }
+    VLifetime lifetime() ধ্রুব { প্রত্যাগম m_lifetime; }
+    শূন্য lifetime(ধ্রুব VLifetime& flag) { m_lifetime = flag; }
+    VTimescale timeunit() ধ্রুব { প্রত্যাগম m_timeunit; }
+    শূন্য timeunit(ধ্রুব VTimescale& flag) { m_timeunit = flag; }
+    VOptionBool unconnectedDrive() ধ্রুব { প্রত্যাগম m_unconnectedDrive; }
+    শূন্য unconnectedDrive(ধ্রুব VOptionBool flag) { m_unconnectedDrive = flag; }
 };
-class AstNodeProcedure VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_Procedure VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // IEEE procedure: initial, final, always
     // @astgen op2 := stmtsp : List[AstNode] // Note: op1 is used in some sub-types only
     bool m_suspendable : 1;  // Is suspendable by a Delay, EventControl, etc.
     bool m_needProcess : 1;  // Uses VlProcess
-protected:
-    AstNodeProcedure(VNType t, FileLine* fl, AstNode* stmtsp)
-        : AstNode{t, fl} {
+রক্ষিত:
+    Ast_গ্রন্থি_Procedure(VNType t, File_সারি* fl, Ast_গ্রন্থি* stmtsp)
+        : Ast_গ্রন্থি{t, fl} {
         m_needProcess = false;
         m_suspendable = false;
         addStmtsp(stmtsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeProcedure;
+সার্বজনিক:
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_Procedure;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isJustOneBodyStmt() const { return stmtsp() && !stmtsp()->nextp(); }
-    bool isSuspendable() const { return m_suspendable; }
-    void setSuspendable() { m_suspendable = true; }
-    bool needProcess() const { return m_needProcess; }
-    void setNeedProcess() { m_needProcess = true; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool isJustOneBodyStmt() ধ্রুব { প্রত্যাগম stmtsp() && !stmtsp()->nextp(); }
+    bool isSuspendable() ধ্রুব { প্রত্যাগম m_suspendable; }
+    শূন্য setSuspendable() { m_suspendable = true; }
+    bool needProcess() ধ্রুব { প্রত্যাগম m_needProcess; }
+    শূন্য setNeedProcess() { m_needProcess = true; }
 };
-class AstNodeRange VL_NOT_FINAL : public AstNode {
+class Ast_গ্রন্থি_Range VL_NOT_FINAL : সার্বজনিক Ast_গ্রন্থি {
     // A range, sized or unsized
-protected:
-    AstNodeRange(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+রক্ষিত:
+    Ast_গ্রন্থি_Range(VNType t, File_সারি* fl)
+        : Ast_গ্রন্থি{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeRange;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+সার্বজনিক:
+    ASTGEN_MEMBERS_Ast_গ্রন্থি_Range;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstActive final : public AstNode {
+class AstActive final : সার্বজনিক Ast_গ্রন্থি {
     // Block of code with sensitivity activation
     // Parents:  MODULE | CFUNC
     // @astgen op1 := senTreeStorep : Optional[AstSenTree] // Moved into m_sensesp in V3Active
@@ -477,55 +477,55 @@ class AstActive final : public AstNode {
     // @astgen ptr := m_sentreep : Optional[AstSenTree]  // Sensitivity list for this process
     string m_name;
 
-public:
-    AstActive(FileLine* fl, const string& name, AstSenTree* sentreep)
+সার্বজনিক:
+    AstActive(File_সারি* fl, ধ্রুব string& name, Ast_Sen_বৃক্ষ* sentreep)
         : ASTGEN_SUPER_Active(fl)
         , m_name{name}
         , m_sentreep{sentreep} {
         UASSERT(sentreep, "Sentreep required arg");
     }
     ASTGEN_MEMBERS_AstActive;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
     // Statements are broken into pieces, as some must come before others.
-    void sentreep(AstSenTree* nodep) { m_sentreep = nodep; }
-    AstSenTree* sentreep() const { return m_sentreep; }
+    শূন্য sentreep(Ast_Sen_বৃক্ষ* nodep) { m_sentreep = nodep; }
+    Ast_Sen_বৃক্ষ* sentreep() ধ্রুব { প্রত্যাগম m_sentreep; }
     // METHODS
-    inline bool hasClocked() const;
-    inline bool hasCombo() const;
-    inline bool hasInitial() const;
-    inline bool hasStatic() const;
+    অন্তঃস্থ bool hasClocked() ধ্রুব;
+    অন্তঃস্থ bool hasCombo() ধ্রুব;
+    অন্তঃস্থ bool hasInitial() ধ্রুব;
+    অন্তঃস্থ bool hasStatic() ধ্রুব;
 };
-class AstAlias final : public AstNode {
+class AstAlias final : সার্বজনিক Ast_গ্রন্থি {
     // Alias construct - Used for source level net alias, and also for variable aliases internally
     // @astgen op1 := itemsp : List[AstNodeExpr]  // Alias operands
-public:
-    AstAlias(FileLine* fl, AstNodeExpr* itemsp)
+সার্বজনিক:
+    AstAlias(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* itemsp)
         : ASTGEN_SUPER_Alias(fl) {
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstAlias;
 };
-class AstAliasScope final : public AstNode {
+class AstAliasScope final : সার্বজনিক Ast_গ্রন্থি {
     // Like AstAlias, but aliases two scopes instead of nets/variables
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := lhsp : AstNodeExpr
-public:
-    AstAliasScope(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+সার্বজনিক:
+    AstAliasScope(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* lhsp, Ast_গ্রন্থি_রাশিমালা* rhsp)
         : ASTGEN_SUPER_AliasScope(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstAliasScope;
 };
-class AstBind final : public AstNode {
+class AstBind final : সার্বজনিক Ast_গ্রন্থি {
     // Parents: MODULE
     // Children: CELL
     // @astgen op1 := cellsp : List[AstNode]
     string m_name;  // Binding to name
-public:
-    AstBind(FileLine* fl, const string& name, AstNode* cellsp)
+সার্বজনিক:
+    AstBind(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* cellsp)
         : ASTGEN_SUPER_Bind(fl)
         , m_name{name} {
         UASSERT_OBJ(VN_IS(cellsp, Cell), cellsp, "Only instances allowed to be bound");
@@ -533,10 +533,10 @@ public:
     }
     ASTGEN_MEMBERS_AstBind;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Bind Target name
-    void name(const string& name) override { m_name = name; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Bind Target name
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
 };
-class AstCFunc final : public AstNode {
+class AstCFunc final : সার্বজনিক Ast_গ্রন্থি {
     // C++ function
     // Parents:  MODULE/SCOPE
     // If adding node accessors, see below emptyBody
@@ -582,9 +582,9 @@ class AstCFunc final : public AstNode {
                         // state
     bool m_isCovergroupSample : 1;  // Automatic covergroup sample() function
     bool m_voidSelf : 1;  // Loose method taking its 'self' pointer as 'void* vlVoidSelf'
-    int m_cost;  // Function call cost
-public:
-    AstCFunc(FileLine* fl, const string& name, AstScope* scopep, const string& rtnType = "")
+    পূর্ণাঙ্ক m_cost;  // Function call cost
+সার্বজনিক:
+    AstCFunc(File_সারি* fl, ধ্রুব string& name, AstScope* scopep, ধ্রুব string& rtnType = "")
         : ASTGEN_SUPER_CFunc(fl) {
         m_isConst = VBoolOrUnknown::BU_UNKNOWN;  // Unknown until analyzed
         m_scopep = scopep;
@@ -615,116 +615,116 @@ public:
         m_noLife = false;
         m_isCovergroupSample = false;
         m_voidSelf = false;
-        m_cost = v3Global.opt.instrCountDpi();  // As proxy for unknown general DPI cost
+        m_cost = v3Global.opt.instr_গুনতি_Dpi();  // As proxy for unknown general DPI cost
     }
     ASTGEN_MEMBERS_AstCFunc;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstCFunc* const asamep = VN_DBG_AS(samep, CFunc);
-        return ((isTrace() == asamep->isTrace()) && (rtnTypeVoid() == asamep->rtnTypeVoid())
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        ধ্রুব AstCFunc* ধ্রুব asamep = VN_DBG_AS(samep, CFunc);
+        প্রত্যাগম ((isTrace() == asamep->isTrace()) && (rtnTypeVoid() == asamep->rtnTypeVoid())
                 && (argTypes() == asamep->argTypes()) && isLoose() == asamep->isLoose()
                 && voidSelf() == asamep->voidSelf()
                 && (!(dpiImportPrototype() || dpiExportImpl()) || name() == asamep->name()));
     }
     //
-    void name(const string& name) override { m_name = name; }
-    int instrCount() const override { return m_cost; }
-    VBoolOrUnknown isConst() const { return m_isConst; }
-    void isConst(bool flag) { m_isConst.setTrueOrFalse(flag); }
-    void isConst(VBoolOrUnknown flag) { m_isConst = flag; }
-    bool isStatic() const { return m_isStatic; }
-    void isStatic(bool flag) { m_isStatic = flag; }
-    bool isTrace() const VL_MT_SAFE { return m_isTrace; }
-    void isTrace(bool flag) { m_isTrace = flag; }
-    void cname(const string& name) { m_cname = name; }
-    string cname() const { return m_cname; }
-    AstScope* scopep() const { return m_scopep; }
-    void scopep(AstScope* nodep) { m_scopep = nodep; }
-    string rtnTypeVoid() const { return ((m_rtnType == "") ? "void" : m_rtnType); }
-    void rtnType(const string& rtnType) { m_rtnType = rtnType; }
-    bool dontCombine() const { return m_dontCombine || isTrace() || entryPoint(); }
-    void dontCombine(bool flag) { m_dontCombine = flag; }
-    bool declPrivate() const { return m_declPrivate; }
-    void declPrivate(bool flag) { m_declPrivate = flag; }
-    bool keepIfEmpty() const VL_MT_SAFE { return m_keepIfEmpty; }
-    void keepIfEmpty(bool flag) { m_keepIfEmpty = flag; }
-    bool slow() const VL_MT_SAFE { return m_slow; }
-    void slow(bool flag) { m_slow = flag; }
-    bool funcPublic() const { return m_funcPublic; }
-    void funcPublic(bool flag) { m_funcPublic = flag; }
-    void argTypes(const string& str) { m_argTypes = str; }
-    string argTypes() const { return m_argTypes; }
-    void ifdef(const string& str) { m_ifdef = str; }
-    string ifdef() const { return m_ifdef; }
-    bool isConstructor() const { return m_isConstructor; }
-    void isConstructor(bool flag) { m_isConstructor = flag; }
-    bool isDestructor() const { return m_isDestructor; }
-    void isDestructor(bool flag) { m_isDestructor = flag; }
-    bool isMethod() const { return m_isMethod; }
-    void isMethod(bool flag) { m_isMethod = flag; }
-    bool isLoose() const { return m_isLoose; }
-    void isLoose(bool flag) { m_isLoose = flag; }
-    bool isProperMethod() const { return isMethod() && !isLoose(); }
-    bool isVirtual() const { return m_isVirtual; }
-    void isVirtual(bool flag) { m_isVirtual = flag; }
-    bool needProcess() const { return m_needProcess; }
-    void setNeedProcess() { m_needProcess = true; }
-    bool entryPoint() const { return m_entryPoint; }
-    void entryPoint(bool flag) { m_entryPoint = flag; }
-    bool dpiPure() const { return m_dpiPure; }
-    void dpiPure(bool flag) { m_dpiPure = flag; }
-    bool dpiContext() const { return m_dpiContext; }
-    void dpiContext(bool flag) { m_dpiContext = flag; }
-    bool dpiExportDispatcher() const VL_MT_SAFE { return m_dpiExportDispatcher; }
-    void dpiExportDispatcher(bool flag) { m_dpiExportDispatcher = flag; }
-    bool dpiExportImpl() const { return m_dpiExportImpl; }
-    void dpiExportImpl(bool flag) { m_dpiExportImpl = flag; }
-    bool dpiImportPrototype() const VL_MT_SAFE { return m_dpiImportPrototype; }
-    void dpiImportPrototype(bool flag) { m_dpiImportPrototype = flag; }
-    bool dpiImportWrapper() const { return m_dpiImportWrapper; }
-    void dpiImportWrapper(bool flag) { m_dpiImportWrapper = flag; }
-    bool dpiCDeclOverride() const { return !m_dpiCDecl.empty(); }
-    const string& dpiCDecl() const { return m_dpiCDecl; }
-    void dpiCDecl(const string& cDecl) { m_dpiCDecl = cDecl; }
-    bool isCoroutine() const { return m_rtnType == "VlCoroutine"; }
-    void recursive(bool flag) { m_recursive = flag; }
-    bool recursive() const { return m_recursive; }
-    void unlikely(bool flag) { m_unlikely = flag; }
-    bool isUnlikely() const override { return m_unlikely; }  // Note virtual override
-    void noLife(bool flag) { m_noLife = flag; }
-    bool noLife() const { return m_noLife; }
-    bool isCovergroupSample() const { return m_isCovergroupSample; }
-    void isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
-    bool voidSelf() const { return m_voidSelf; }
-    void voidSelf(bool flag) { m_voidSelf = flag; }
-    void cost(int cost) { m_cost = cost; }
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    পূর্ণাঙ্ক instr_গুনতি() ধ্রুব override { প্রত্যাগম m_cost; }
+    VBoolOrUnknown isConst() ধ্রুব { প্রত্যাগম m_isConst; }
+    শূন্য isConst(bool flag) { m_isConst.setTrueOrFalse(flag); }
+    শূন্য isConst(VBoolOrUnknown flag) { m_isConst = flag; }
+    bool isStatic() ধ্রুব { প্রত্যাগম m_isStatic; }
+    শূন্য isStatic(bool flag) { m_isStatic = flag; }
+    bool isTrace() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_isTrace; }
+    শূন্য isTrace(bool flag) { m_isTrace = flag; }
+    শূন্য cname(ধ্রুব string& name) { m_cname = name; }
+    string cname() ধ্রুব { প্রত্যাগম m_cname; }
+    AstScope* scopep() ধ্রুব { প্রত্যাগম m_scopep; }
+    শূন্য scopep(AstScope* nodep) { m_scopep = nodep; }
+    string rtnTypeVoid() ধ্রুব { প্রত্যাগম ((m_rtnType == "") ? "void" : m_rtnType); }
+    শূন্য rtnType(ধ্রুব string& rtnType) { m_rtnType = rtnType; }
+    bool dontCombine() ধ্রুব { প্রত্যাগম m_dontCombine || isTrace() || entryPoint(); }
+    শূন্য dontCombine(bool flag) { m_dontCombine = flag; }
+    bool declPrivate() ধ্রুব { প্রত্যাগম m_declPrivate; }
+    শূন্য declPrivate(bool flag) { m_declPrivate = flag; }
+    bool keepIfEmpty() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_keepIfEmpty; }
+    শূন্য keepIfEmpty(bool flag) { m_keepIfEmpty = flag; }
+    bool slow() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_slow; }
+    শূন্য slow(bool flag) { m_slow = flag; }
+    bool funcPublic() ধ্রুব { প্রত্যাগম m_funcPublic; }
+    শূন্য funcPublic(bool flag) { m_funcPublic = flag; }
+    শূন্য argTypes(ধ্রুব string& str) { m_argTypes = str; }
+    string argTypes() ধ্রুব { প্রত্যাগম m_argTypes; }
+    শূন্য ifdef(ধ্রুব string& str) { m_ifdef = str; }
+    string ifdef() ধ্রুব { প্রত্যাগম m_ifdef; }
+    bool isConstructor() ধ্রুব { প্রত্যাগম m_isConstructor; }
+    শূন্য isConstructor(bool flag) { m_isConstructor = flag; }
+    bool isDestructor() ধ্রুব { প্রত্যাগম m_isDestructor; }
+    শূন্য isDestructor(bool flag) { m_isDestructor = flag; }
+    bool isMethod() ধ্রুব { প্রত্যাগম m_isMethod; }
+    শূন্য isMethod(bool flag) { m_isMethod = flag; }
+    bool isLoose() ধ্রুব { প্রত্যাগম m_isLoose; }
+    শূন্য isLoose(bool flag) { m_isLoose = flag; }
+    bool isProperMethod() ধ্রুব { প্রত্যাগম isMethod() && !isLoose(); }
+    bool isVirtual() ধ্রুব { প্রত্যাগম m_isVirtual; }
+    শূন্য isVirtual(bool flag) { m_isVirtual = flag; }
+    bool needProcess() ধ্রুব { প্রত্যাগম m_needProcess; }
+    শূন্য setNeedProcess() { m_needProcess = true; }
+    bool entryPoint() ধ্রুব { প্রত্যাগম m_entryPoint; }
+    শূন্য entryPoint(bool flag) { m_entryPoint = flag; }
+    bool dpiPure() ধ্রুব { প্রত্যাগম m_dpiPure; }
+    শূন্য dpiPure(bool flag) { m_dpiPure = flag; }
+    bool dpiContext() ধ্রুব { প্রত্যাগম m_dpiContext; }
+    শূন্য dpiContext(bool flag) { m_dpiContext = flag; }
+    bool dpiExportDispatcher() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_dpiExportDispatcher; }
+    শূন্য dpiExportDispatcher(bool flag) { m_dpiExportDispatcher = flag; }
+    bool dpiExportImpl() ধ্রুব { প্রত্যাগম m_dpiExportImpl; }
+    শূন্য dpiExportImpl(bool flag) { m_dpiExportImpl = flag; }
+    bool dpiImportPrototype() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_dpiImportPrototype; }
+    শূন্য dpiImportPrototype(bool flag) { m_dpiImportPrototype = flag; }
+    bool dpiImportWrapper() ধ্রুব { প্রত্যাগম m_dpiImportWrapper; }
+    শূন্য dpiImportWrapper(bool flag) { m_dpiImportWrapper = flag; }
+    bool dpiCDeclOverride() ধ্রুব { প্রত্যাগম !m_dpiCDecl.empty(); }
+    ধ্রুব string& dpiCDecl() ধ্রুব { প্রত্যাগম m_dpiCDecl; }
+    শূন্য dpiCDecl(ধ্রুব string& cDecl) { m_dpiCDecl = cDecl; }
+    bool isCoroutine() ধ্রুব { প্রত্যাগম m_rtnType == "VlCoroutine"; }
+    শূন্য recursive(bool flag) { m_recursive = flag; }
+    bool recursive() ধ্রুব { প্রত্যাগম m_recursive; }
+    শূন্য unlikely(bool flag) { m_unlikely = flag; }
+    bool isUnlikely() ধ্রুব override { প্রত্যাগম m_unlikely; }  // Note virtual override
+    শূন্য noLife(bool flag) { m_noLife = flag; }
+    bool noLife() ধ্রুব { প্রত্যাগম m_noLife; }
+    bool isCovergroupSample() ধ্রুব { প্রত্যাগম m_isCovergroupSample; }
+    শূন্য isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
+    bool voidSelf() ধ্রুব { প্রত্যাগম m_voidSelf; }
+    শূন্য voidSelf(bool flag) { m_voidSelf = flag; }
+    শূন্য cost(পূর্ণাঙ্ক cost) { m_cost = cost; }
     // Special methods
-    bool emptyBody() const {
-        return !keepIfEmpty() && !argsp() && !varsp() && !stmtsp() && !scopeNamep() && !isVirtual()
+    bool emptyBody() ধ্রুব {
+        প্রত্যাগম !keepIfEmpty() && !argsp() && !varsp() && !stmtsp() && !scopeNamep() && !isVirtual()
                && !dpiImportPrototype();
     }
 };
-class AstCUse final : public AstNode {
+class AstCUse final : সার্বজনিক Ast_গ্রন্থি {
     // C++ use of a class or #include; indicates need of forward declaration
     // Parents:  NODEMODULE
-    const string m_name;
-    const VUseType m_useType;  // What sort of use this is
+    ধ্রুব string m_name;
+    ধ্রুব VUseType m_useType;  // What sort of use this is
 
-public:
-    AstCUse(FileLine* fl, VUseType useType, const string& name)
+সার্বজনিক:
+    AstCUse(File_সারি* fl, VUseType useType, ধ্রুব string& name)
         : ASTGEN_SUPER_CUse(fl)
         , m_name{name}
         , m_useType{useType} {}
     ASTGEN_MEMBERS_AstCUse;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VUseType useType() const { return m_useType; }
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    VUseType useType() ধ্রুব { প্রত্যাগম m_useType; }
 };
-class AstCell final : public AstNode {
+class AstCell final : সার্বজনিক Ast_গ্রন্থি {
     // A instantiation cell or interface call (don't know which until link)
     // @astgen op1 := pinsp : List[AstPin] // List of port assignments
     // @astgen op2 := paramsp : List[AstPin] // List of parameter assignments
@@ -735,16 +735,16 @@ class AstCell final : public AstNode {
     // @astgen op4 := intfRefsp : List[AstIntfRef] // List of interface references, for tracing/VPI
     //
     // @astgen ptr := m_modp : Optional[AstNodeModule]  // [AfterLink] Pointer to module instanced
-    FileLine* m_modNameFileline;  // Where module the cell instances token was
+    File_সারি* m_modNameFileline;  // Where module the cell instances token was
     string m_name;  // Cell name
     string m_origName;  // Original name before dot addition
     string m_modName;  // Module the cell instances
-    int m_arrayIdx = -1;  // Row-major position in instance array, from the left (V3Param-V3Width)
+    পূর্ণাঙ্ক m_arrayIdx = -1;  // Row-major position in instance array, from the left (V3Param-V3Width)
     bool m_hasIfaceVar : 1;  // True if a Var has been created for this cell
     bool m_recursive : 1;  // Self-recursive module
     bool m_trace : 1;  // Trace this cell
-public:
-    AstCell(FileLine* fl, FileLine* mfl, const string& instName, const string& modName,
+সার্বজনিক:
+    AstCell(File_সারি* fl, File_সারি* mfl, ধ্রুব string& instName, ধ্রুব string& modName,
             AstPin* pinsp, AstPin* paramsp, AstRange* rangep)
         : ASTGEN_SUPER_Cell(fl)
         , m_modNameFileline{mfl}
@@ -760,77 +760,77 @@ public:
     }
     ASTGEN_MEMBERS_AstCell;
     // No cloneRelink, we presume cloneee's want the same module linkages
-    void cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    শূন্য cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Cell name
-    void name(const string& name) override { m_name = name; }
-    string origName() const override { return m_origName; }  // * = Original name
-    void origName(const string& name) { m_origName = name; }
-    string modName() const { return m_modName; }  // * = Instance name
-    void modName(const string& name) { m_modName = name; }
-    FileLine* modNameFileline() const { return m_modNameFileline; }
-    AstNodeModule* modp() const { return m_modp; }  // [AfterLink] = Pointer to module instantiated
-    void modp(AstNodeModule* nodep) { m_modp = nodep; }
-    int arrayIdx() const { return m_arrayIdx; }
-    void arrayIdx(int idx) { m_arrayIdx = idx; }
-    bool hasIfaceVar() const { return m_hasIfaceVar; }
-    void hasIfaceVar(bool flag) { m_hasIfaceVar = flag; }
-    void trace(bool flag) { m_trace = flag; }
-    bool isTrace() const { return m_trace; }
-    void recursive(bool flag) { m_recursive = flag; }
-    bool recursive() const { return m_recursive; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Cell name
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    string origName() ধ্রুব override { প্রত্যাগম m_origName; }  // * = Original name
+    শূন্য origName(ধ্রুব string& name) { m_origName = name; }
+    string modName() ধ্রুব { প্রত্যাগম m_modName; }  // * = Instance name
+    শূন্য modName(ধ্রুব string& name) { m_modName = name; }
+    File_সারি* modNameFileline() ধ্রুব { প্রত্যাগম m_modNameFileline; }
+    Ast_গ্রন্থি_Module* modp() ধ্রুব { প্রত্যাগম m_modp; }  // [AfterLink] = Pointer to module instantiated
+    শূন্য modp(Ast_গ্রন্থি_Module* nodep) { m_modp = nodep; }
+    পূর্ণাঙ্ক arrayIdx() ধ্রুব { প্রত্যাগম m_arrayIdx; }
+    শূন্য arrayIdx(পূর্ণাঙ্ক idx) { m_arrayIdx = idx; }
+    bool hasIfaceVar() ধ্রুব { প্রত্যাগম m_hasIfaceVar; }
+    শূন্য hasIfaceVar(bool flag) { m_hasIfaceVar = flag; }
+    শূন্য trace(bool flag) { m_trace = flag; }
+    bool isTrace() ধ্রুব { প্রত্যাগম m_trace; }
+    শূন্য recursive(bool flag) { m_recursive = flag; }
+    bool recursive() ধ্রুব { প্রত্যাগম m_recursive; }
 };
-class AstCellInline final : public AstNode {
+class AstCellInline final : সার্বজনিক Ast_গ্রন্থি {
     // A named block flattened by V3Begin, for name resolution in V3LinkDot.
     // Deleted by V3LinkDot::linkDotScope, after V3Scope made AstCellInlineScope for VPI.
-    const std::string m_name;  // Block path within the module, possibly {a}__DOT__{b}...
-    const std::string m_origModName;  // __BEGIN__ or __FORK__
-public:
-    AstCellInline(FileLine* fl, const std::string& name, const std::string& origModName)
+    ধ্রুব std::string m_name;  // Block path within the module, possibly {a}__DOT__{b}...
+    ধ্রুব std::string m_origModName;  // __BEGIN__ or __FORK__
+সার্বজনিক:
+    AstCellInline(File_সারি* fl, ধ্রুব std::string& name, ধ্রুব std::string& origModName)
         : ASTGEN_SUPER_CellInline(fl)
         , m_name{name}
         , m_origModName{origModName} {}
     ASTGEN_MEMBERS_AstCellInline;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
     // ACCESSORS
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    std::string origModName() const { return m_origModName; }
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    std::string origModName() ধ্রুব { প্রত্যাগম m_origModName; }
 };
-class AstCellInlineScope final : public AstNode {
+class AstCellInlineScope final : সার্বজনিক Ast_গ্রন্থি {
     // A named block or inlined cell flattened into a scope, kept so it can be
     // reported as a VPI scope. Only created with --vpi, by V3Scope for named
     // blocks, and by V3Inline for inlined cells.
     // Parents: Scope
     // Children: none
     std::string m_name;  // Flattened name relative to the containing scope
-    const std::string m_origModName;  // Original name of module, or __BEGIN__/__FORK__
-public:
-    AstCellInlineScope(FileLine* fl, const std::string& name, const std::string& origModName)
+    ধ্রুব std::string m_origModName;  // Original name of module, or __BEGIN__/__FORK__
+সার্বজনিক:
+    AstCellInlineScope(File_সারি* fl, ধ্রুব std::string& name, ধ্রুব std::string& origModName)
         : ASTGEN_SUPER_CellInlineScope(fl)
         , m_name{name}
         , m_origModName{origModName} {}
     ASTGEN_MEMBERS_AstCellInlineScope;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
     // ACCESSORS
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    std::string origModName() const { return m_origModName; }
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    শূন্য name(ধ্রুব std::string& name) override { m_name = name; }
+    std::string origModName() ধ্রুব { প্রত্যাগম m_origModName; }
 };
-class AstCgOptionAssign final : public AstNode {
+class AstCgOptionAssign final : সার্বজনিক Ast_গ্রন্থি {
     // A covergroup set of option
     // Parents: CLASS(covergroup) or cross
-    const VCoverOptionType m_optType;  // Option type
-    const string m_name;  // Original option name (for diagnostics on unknown options)
-    const bool m_typeOption;  // type_option vs option
+    ধ্রুব VCoverOptionType m_optType;  // Option type
+    ধ্রুব string m_name;  // Original option name (for diagnostics on unknown options)
+    ধ্রুব bool m_typeOption;  // type_option vs option
     // @astgen op1 := valuep : AstNodeExpr
-public:
-    AstCgOptionAssign(FileLine* fl, bool typeOption, VCoverOptionType optType,
-                      const string& rawName, AstNodeExpr* valuep)
+সার্বজনিক:
+    AstCgOptionAssign(File_সারি* fl, bool typeOption, VCoverOptionType optType,
+                      ধ্রুব string& rawName, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_CgOptionAssign(fl)
         , m_optType{optType}
         , m_name{rawName}
@@ -839,41 +839,41 @@ public:
     }
     ASTGEN_MEMBERS_AstCgOptionAssign;
     // ACCESSORS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VCoverOptionType optType() const { return m_optType; }
-    bool typeOption() const { return m_typeOption; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    VCoverOptionType optType() ধ্রুব { প্রত্যাগম m_optType; }
+    bool typeOption() ধ্রুব { প্রত্যাগম m_typeOption; }
 };
-class AstClassExtends final : public AstNode {
+class AstClassExtends final : সার্বজনিক Ast_গ্রন্থি {
     // class extends class name, or class implements class name
     // Children: List of AstParseRef for packages/classes
     // during early parse, then moves to dtype
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := classOrPkgsp : Optional[AstNode]
     // @astgen op3 := argsp : List[AstArg]
-    const bool m_isImplements;  // class implements
+    ধ্রুব bool m_isImplements;  // class implements
     bool m_parameterized = false;  // has parameters in its statement
 
-public:
-    AstClassExtends(FileLine* fl, AstNode* classOrPkgsp, bool isImplements)
+সার্বজনিক:
+    AstClassExtends(File_সারি* fl, Ast_গ্রন্থি* classOrPkgsp, bool isImplements)
         : ASTGEN_SUPER_ClassExtends(fl)
         , m_isImplements{isImplements} {
         this->classOrPkgsp(classOrPkgsp);  // Only for parser
     }
     ASTGEN_MEMBERS_AstClassExtends;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    string verilogKwd() const override { return isImplements() ? "implements" : "extends"; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম isImplements() ? "implements" : "extends"; }
     // Class being extended (after link and instantiation if needed)
-    AstClass* classOrNullp() const;
-    AstClass* classp() const;  // Like above, but throws error if nulll
-    bool isImplements() const { return m_isImplements; }
-    void parameterized(bool flag) { m_parameterized = flag; }
-    bool parameterized() const { return m_parameterized; }
+    AstClass* classOrNullp() ধ্রুব;
+    AstClass* classp() ধ্রুব;  // Like above, but throws error if nulll
+    bool isImplements() ধ্রুব { প্রত্যাগম m_isImplements; }
+    শূন্য parameterized(bool flag) { m_parameterized = flag; }
+    bool parameterized() ধ্রুব { প্রত্যাগম m_parameterized; }
 };
-class AstClocking final : public AstNode {
+class AstClocking final : সার্বজনিক Ast_গ্রন্থি {
     // Parents:  MODULE
     // Children: SENTREE, CLOCKING ITEMs, VARs
     // @astgen op1 := sentreep : AstSenTree
@@ -881,10 +881,10 @@ class AstClocking final : public AstNode {
     // @astgen op3 := eventp : Optional[AstVar]
     std::string m_name;  // Clocking block name
     bool m_isDefault;  // True if default clocking
-    const bool m_isGlobal;  // True if global clocking
+    ধ্রুব bool m_isGlobal;  // True if global clocking
 
-public:
-    AstClocking(FileLine* fl, const std::string& name, AstSenTree* sentreep, AstNode* itemsp,
+সার্বজনিক:
+    AstClocking(File_সারি* fl, ধ্রুব std::string& name, Ast_Sen_বৃক্ষ* sentreep, Ast_গ্রন্থি* itemsp,
                 bool isDefault, bool isGlobal)
         : ASTGEN_SUPER_Clocking(fl)
         , m_name{name}
@@ -894,16 +894,16 @@ public:
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstClocking;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    bool isDefault() const { return m_isDefault; }
-    bool isGlobal() const { return m_isGlobal; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    bool isDefault() ধ্রুব { প্রত্যাগম m_isDefault; }
+    bool isGlobal() ধ্রুব { প্রত্যাগম m_isGlobal; }
     AstVar* ensureEventp(bool childDType = false);
-    void makeDefault() { m_isDefault = true; }
+    শূন্য makeDefault() { m_isDefault = true; }
 };
-class AstClockingItem final : public AstNode {
+class AstClockingItem final : সার্বজনিক Ast_গ্রন্থি {
     // Parents:  CLOCKING
     // Children: EXPRs, ASSIGNs, VARs
     // @astgen op1 := skewp : Optional[AstNodeExpr]
@@ -913,86 +913,86 @@ class AstClockingItem final : public AstNode {
     // @astgen ptr := m_outputp : Optional[AstClockingItem]
     VDirection m_direction;
 
-public:
-    AstClockingItem(FileLine* fl, VDirection direction, AstNodeExpr* skewp, AstNode* clockingDeclp)
+সার্বজনিক:
+    AstClockingItem(File_সারি* fl, VDirection direction, Ast_গ্রন্থি_রাশিমালা* skewp, Ast_গ্রন্থি* clockingDeclp)
         : ASTGEN_SUPER_ClockingItem(fl) {
         m_direction = direction;
         this->skewp(skewp);
-        if (AstAssign* const clkAssignp = VN_CAST(clockingDeclp, Assign)) {
+        যদি (AstAssign* ধ্রুব clkAssignp = VN_CAST(clockingDeclp, Assign)) {
             this->assignp(clkAssignp);
-        } else {
-            exprp(VN_AS(clockingDeclp, NodeExpr));
+        } অন্যথা {
+            exprp(VN_AS(clockingDeclp, গ্রন্থি_রাশিমালা));
         }
     }
     ASTGEN_MEMBERS_AstClockingItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VDirection direction() const { return m_direction; }
-    AstClockingItem* outputp() const { return m_outputp; }
-    void outputp(AstClockingItem* outputp) { m_outputp = outputp; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    VDirection direction() ধ্রুব { প্রত্যাগম m_direction; }
+    AstClockingItem* outputp() ধ্রুব { প্রত্যাগম m_outputp; }
+    শূন্য outputp(AstClockingItem* outputp) { m_outputp = outputp; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
 };
-class AstConfig final : public AstNode {
+class AstConfig final : সার্বজনিক Ast_গ্রন্থি {
     // Parents: NETLIST
     // @astgen op1 := designp : List[AstConfigCell]
     // @astgen op2 := itemsp : List[AstNode]
     std::string m_libname;  // Config library, or ""
     std::string m_configname;  // Config name within library
 
-public:
-    AstConfig(FileLine* fl, const std::string& libname, const std::string& cellname)
+সার্বজনিক:
+    AstConfig(File_সারি* fl, ধ্রুব std::string& libname, ধ্রুব std::string& cellname)
         : ASTGEN_SUPER_Config(fl)
         , m_libname{libname}
         , m_configname{cellname} {}
     ASTGEN_MEMBERS_AstConfig;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    std::string name() const override VL_MT_STABLE { return m_libname + "." + m_configname; }
-    std::string libname() const VL_MT_STABLE { return m_libname; }
-    std::string configname() const VL_MT_STABLE { return m_configname; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_libname + "." + m_configname; }
+    std::string libname() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_libname; }
+    std::string configname() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_configname; }
 };
-class AstConfigCell final : public AstNode {
+class AstConfigCell final : সার্বজনিক Ast_গ্রন্থি {
     // Parents: CONFIGRULE
     std::string m_libname;  // Cell library, or ""
     std::string m_cellname;  // Cell name within library
 
-public:
-    AstConfigCell(FileLine* fl, const std::string& libname, const std::string& cellname)
+সার্বজনিক:
+    AstConfigCell(File_সারি* fl, ধ্রুব std::string& libname, ধ্রুব std::string& cellname)
         : ASTGEN_SUPER_ConfigCell(fl)
         , m_libname{libname}
         , m_cellname{cellname} {}
     ASTGEN_MEMBERS_AstConfigCell;
-    std::string name() const override VL_MT_STABLE { return m_libname + "." + m_cellname; }
-    std::string libname() const VL_MT_STABLE { return m_libname; }
-    std::string cellname() const VL_MT_STABLE { return m_cellname; }
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_libname + "." + m_cellname; }
+    std::string libname() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_libname; }
+    std::string cellname() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_cellname; }
 };
-class AstConfigRule final : public AstNode {
+class AstConfigRule final : সার্বজনিক Ast_গ্রন্থি {
     // Parents: CONFIG
     // @astgen op1 := cellp : Optional[AstNode]  // Cells to apply to, or nullptr=default
     // @astgen op2 := usep : List[AstNode]  // Use or design to apply
-    const bool m_isCell;  // Declared as "cell" versus "instance"
+    ধ্রুব bool m_isCell;  // Declared as "cell" versus "instance"
 
-public:
-    AstConfigRule(FileLine* fl, AstNode* cellp, AstNode* usep, bool isCell)
+সার্বজনিক:
+    AstConfigRule(File_সারি* fl, Ast_গ্রন্থি* cellp, Ast_গ্রন্থি* usep, bool isCell)
         : ASTGEN_SUPER_ConfigRule(fl)
         , m_isCell{isCell} {
         this->cellp(cellp);
         addUsep(usep);
     }
     ASTGEN_MEMBERS_AstConfigRule;
-    bool isCell() const VL_MT_STABLE { return m_isCell; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool isCell() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_isCell; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstConfigUse final : public AstNode {
+class AstConfigUse final : সার্বজনিক Ast_গ্রন্থি {
     // Parents: CONFIGRULE
     // @astgen op1 := paramsp : List[AstPin]
     std::string m_libname;  // Use library, or ""
     std::string m_cellname;  // Use name within library
-    const bool m_isConfig;  // ":config"; Config, not module/primitive name
+    ধ্রুব bool m_isConfig;  // ":config"; Config, not module/primitive name
 
-public:
-    AstConfigUse(FileLine* fl, const std::string& libname, const std::string& cellname,
+সার্বজনিক:
+    AstConfigUse(File_সারি* fl, ধ্রুব std::string& libname, ধ্রুব std::string& cellname,
                  AstPin* paramsp, bool isConfig)
         : ASTGEN_SUPER_ConfigUse(fl)
         , m_libname{libname}
@@ -1001,14 +1001,14 @@ public:
         addParamsp(paramsp);
     }
     ASTGEN_MEMBERS_AstConfigUse;
-    std::string name() const override VL_MT_STABLE { return m_libname + "." + m_cellname; }
-    std::string libname() const VL_MT_STABLE { return m_libname; }
-    std::string cellname() const VL_MT_STABLE { return m_cellname; }
-    bool isConfig() const VL_MT_STABLE { return m_isConfig; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_libname + "." + m_cellname; }
+    std::string libname() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_libname; }
+    std::string cellname() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_cellname; }
+    bool isConfig() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_isConfig; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstConstraint final : public AstNode {
+class AstConstraint final : সার্বজনিক Ast_গ্রন্থি {
     // Constraint
     // @astgen op1 := itemsp : List[AstNode]
     // @astgen op2 := classOrPackagep : Optional[AstNode]
@@ -1019,49 +1019,49 @@ class AstConstraint final : public AstNode {
     bool m_isExternProto = false;  // Prototype declaration (implicit or explicit)
     bool m_isKwdPure = false;  // Pure constraint
     bool m_isStatic = false;  // Static constraint
-public:
-    AstConstraint(FileLine* fl, const string& name, AstNode* itemsp)
+সার্বজনিক:
+    AstConstraint(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* itemsp)
         : ASTGEN_SUPER_Constraint(fl)
         , m_name{name} {
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstConstraint;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Scope name
-    void name(const string& name) override { m_name = name; }  // * = Scope name
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void baseOverride(const VBaseOverride& flag) { m_baseOverride = flag; }
-    VBaseOverride baseOverride() const { return m_baseOverride; }
-    bool isExternDef() const { return m_isExternDef; }
-    void isExternDef(bool flag) { m_isExternDef = flag; }
-    void isExternExplicit(bool flag) { m_isExternExplicit = flag; }
-    bool isExternExplicit() const { return m_isExternExplicit; }
-    void isExternProto(bool flag) { m_isExternProto = flag; }
-    bool isExternProto() const { return m_isExternProto; }
-    void isKwdPure(bool flag) { m_isKwdPure = flag; }
-    bool isKwdPure() const { return m_isKwdPure; }
-    void isStatic(bool flag) { m_isStatic = flag; }
-    bool isStatic() const { return m_isStatic; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Scope name
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }  // * = Scope name
+    bool isGateOptimizable() ধ্রুব override { প্রত্যাগম false; }
+    bool isPredictOptimizable() ধ্রুব override { প্রত্যাগম false; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* /*samep*/) ধ্রুব override { প্রত্যাগম true; }
+    শূন্য baseOverride(ধ্রুব VBaseOverride& flag) { m_baseOverride = flag; }
+    VBaseOverride baseOverride() ধ্রুব { প্রত্যাগম m_baseOverride; }
+    bool isExternDef() ধ্রুব { প্রত্যাগম m_isExternDef; }
+    শূন্য isExternDef(bool flag) { m_isExternDef = flag; }
+    শূন্য isExternExplicit(bool flag) { m_isExternExplicit = flag; }
+    bool isExternExplicit() ধ্রুব { প্রত্যাগম m_isExternExplicit; }
+    শূন্য isExternProto(bool flag) { m_isExternProto = flag; }
+    bool isExternProto() ধ্রুব { প্রত্যাগম m_isExternProto; }
+    শূন্য isKwdPure(bool flag) { m_isKwdPure = flag; }
+    bool isKwdPure() ধ্রুব { প্রত্যাগম m_isKwdPure; }
+    শূন্য isStatic(bool flag) { m_isStatic = flag; }
+    bool isStatic() ধ্রুব { প্রত্যাগম m_isStatic; }
 };
-class AstCoverBin final : public AstNode {
+class AstCoverBin final : সার্বজনিক Ast_গ্রন্থি {
     // Captures data for a coverpoint 'bins' declaration
     // @astgen op1 := rangesp : List[AstNode]
     // @astgen op2 := iffp : Optional[AstNodeExpr]
     // @astgen op3 := arraySizep : Optional[AstNodeExpr]
     // @astgen op4 := transp : List[AstCoverTransSet]
-    const string m_name;  // Base name of the bin
-    const VCoverBinsType m_binsType;  // Bin type (eg AUTO, IGNORE, ILLEGAL)
+    ধ্রুব string m_name;  // Base name of the bin
+    ধ্রুব VCoverBinsType m_binsType;  // Bin type (eg AUTO, IGNORE, ILLEGAL)
     bool m_isArray = false;  // Bin is an array: of a bin per value or transition, or of
                              // arraySizep() bins
     bool m_isWildcard = false;  // Bin uses wildcard matching (independent of ignore/illegal)
 
-public:
-    AstCoverBin(FileLine* fl, const string& name, AstNode* rangesp, bool isIgnore, bool isIllegal,
-                bool isWildcard = false, AstNodeExpr* iffp = nullptr)
+সার্বজনিক:
+    AstCoverBin(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* rangesp, bool isIgnore, bool isIllegal,
+                bool isWildcard = false, Ast_গ্রন্থি_রাশিমালা* iffp = nullptr)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
         , m_binsType{isIllegal ? VCoverBinsType::BINS_ILLEGAL
@@ -1073,7 +1073,7 @@ public:
         this->iffp(iffp);
     }
     // Constructor for automatic bins
-    AstCoverBin(FileLine* fl, const string& name, AstNodeExpr* arraySizep,
+    AstCoverBin(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি_রাশিমালা* arraySizep,
                 VCoverBinsType type = VCoverBinsType::BINS_AUTO)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
@@ -1082,12 +1082,12 @@ public:
         this->arraySizep(arraySizep);
     }
     // Constructor for default bins (catch-all)
-    AstCoverBin(FileLine* fl, const string& name, VCoverBinsType type)
+    AstCoverBin(File_সারি* fl, ধ্রুব string& name, VCoverBinsType type)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
         , m_binsType{type} {}
     // Constructor for transition bins
-    AstCoverBin(FileLine* fl, const string& name, AstCoverTransSet* transp,
+    AstCoverBin(File_সারি* fl, ধ্রুব string& name, AstCoverTransSet* transp,
                 VCoverBinsType type = VCoverBinsType::BINS_TRANSITION, bool isArrayBin = false)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
@@ -1097,50 +1097,50 @@ public:
         addTransp(transp);
     }
     ASTGEN_MEMBERS_AstCoverBin;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VCoverBinsType binsType() const { return m_binsType; }
-    bool isWildcard() const { return m_isWildcard; }
-    bool isArray() const { return m_isArray; }
-    void isArray(bool flag) { m_isArray = flag; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    VCoverBinsType binsType() ধ্রুব { প্রত্যাগম m_binsType; }
+    bool isWildcard() ধ্রুব { প্রত্যাগম m_isWildcard; }
+    bool isArray() ধ্রুব { প্রত্যাগম m_isArray; }
+    শূন্য isArray(bool flag) { m_isArray = flag; }
 };
-class AstCoverBinsof final : public AstNode {
+class AstCoverBinsof final : সার্বজনিক Ast_গ্রন্থি {
     // A binsof selection of a coverpoint or one of its named bins
     // @astgen op1 := pointp : AstCoverpointRef
     // @astgen op2 := rangesp : List[AstNode]  // Optional intersect value ranges
     string m_name;  // Selected bin name, or empty for all bins of the coverpoint
-    const bool m_isNegated;  // Complement the selection within the cross product
+    ধ্রুব bool m_isNegated;  // Complement the selection within the cross product
 
-public:
-    AstCoverBinsof(FileLine* fl, AstCoverpointRef* pointp, bool isNegated = false,
-                   AstNode* rangesp = nullptr)
+সার্বজনিক:
+    AstCoverBinsof(File_সারি* fl, AstCoverpointRef* pointp, bool isNegated = false,
+                   Ast_গ্রন্থি* rangesp = nullptr)
         : ASTGEN_SUPER_CoverBinsof(fl)
         , m_isNegated{isNegated} {
         this->pointp(pointp);
         addRangesp(rangesp);
     }
     ASTGEN_MEMBERS_AstCoverBinsof;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    bool isNegated() const { return m_isNegated; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverBinsof* const asamep = VN_DBG_AS(samep, CoverBinsof);
-        return m_name == asamep->m_name && m_isNegated == asamep->m_isNegated;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    bool isNegated() ধ্রুব { প্রত্যাগম m_isNegated; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {  // LCOV_EXCL_START
+        ধ্রুব AstCoverBinsof* ধ্রুব asamep = VN_DBG_AS(samep, CoverBinsof);
+        প্রত্যাগম m_name == asamep->m_name && m_isNegated == asamep->m_isNegated;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossBin final : public AstNode {
+class AstCoverCrossBin final : সার্বজনিক Ast_গ্রন্থি {
     // A named cross bin and its selection expression
     // @astgen op1 := selectp : Optional[AstNode]  // Null for unsupported selections
     // @astgen op2 := iffp : Optional[AstNodeExpr]
-    const string m_name;  // Declared cross bin name
+    ধ্রুব string m_name;  // Declared cross bin name
     // dist-ast-dump-suppress  // Bin kind is shown by verilogKwd() in emitted Verilog.
-    const VCoverBinsType m_binsType;  // Normal, ignore, or illegal bin
+    ধ্রুব VCoverBinsType m_binsType;  // Normal, ignore, or illegal bin
 
-public:
-    AstCoverCrossBin(FileLine* fl, const string& name, AstNode* selectp, AstNodeExpr* iffp,
+সার্বজনিক:
+    AstCoverCrossBin(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* selectp, Ast_গ্রন্থি_রাশিমালা* iffp,
                      VCoverBinsType binsType = VCoverBinsType::BINS_USER)
         : ASTGEN_SUPER_CoverCrossBin(fl)
         , m_name{name}
@@ -1149,59 +1149,59 @@ public:
         this->iffp(iffp);
     }
     ASTGEN_MEMBERS_AstCoverCrossBin;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string verilogKwd() const override;
-    VCoverBinsType binsType() const { return m_binsType; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverCrossBin* const asamep = VN_DBG_AS(samep, CoverCrossBin);
-        return m_name == asamep->m_name && m_binsType.m_e == asamep->m_binsType.m_e;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    string verilogKwd() ধ্রুব override;
+    VCoverBinsType binsType() ধ্রুব { প্রত্যাগম m_binsType; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {  // LCOV_EXCL_START
+        ধ্রুব AstCoverCrossBin* ধ্রুব asamep = VN_DBG_AS(samep, CoverCrossBin);
+        প্রত্যাগম m_name == asamep->m_name && m_binsType.m_e == asamep->m_binsType.m_e;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossRef final : public AstNode {
+class AstCoverCrossRef final : সার্বজনিক Ast_গ্রন্থি {
     // The complete bin-tuple space of the enclosing cross
-    const string m_name;  // Referenced cross name
+    ধ্রুব string m_name;  // Referenced cross name
 
-public:
-    AstCoverCrossRef(FileLine* fl, const string& name)
+সার্বজনিক:
+    AstCoverCrossRef(File_সারি* fl, ধ্রুব string& name)
         : ASTGEN_SUPER_CoverCrossRef(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstCoverCrossRef;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        return m_name == VN_DBG_AS(samep, CoverCrossRef)->m_name;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {  // LCOV_EXCL_START
+        প্রত্যাগম m_name == VN_DBG_AS(samep, CoverCrossRef)->m_name;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossSelect final : public AstNode {
+class AstCoverCrossSelect final : সার্বজনিক Ast_গ্রন্থি {
     // Intersection or union of two cross-bin selections
     // @astgen op1 := lhsp : Optional[AstNode]  // Null for an unsupported selection
     // @astgen op2 := rhsp : Optional[AstNode]  // Null for an unsupported selection
-    const bool m_isOr;  // Union (||), rather than intersection (&&)
+    ধ্রুব bool m_isOr;  // Union (||), rather than intersection (&&)
 
-public:
-    AstCoverCrossSelect(FileLine* fl, AstNode* lhsp, AstNode* rhsp, bool isOr)
+সার্বজনিক:
+    AstCoverCrossSelect(File_সারি* fl, Ast_গ্রন্থি* lhsp, Ast_গ্রন্থি* rhsp, bool isOr)
         : ASTGEN_SUPER_CoverCrossSelect(fl)
         , m_isOr{isOr} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstCoverCrossSelect;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isOr() const { return m_isOr; }
-    string verilogKwd() const override { return isOr() ? "||" : "&&"; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        return m_isOr == VN_DBG_AS(samep, CoverCrossSelect)->m_isOr;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool isOr() ধ্রুব { প্রত্যাগম m_isOr; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম isOr() ? "||" : "&&"; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {  // LCOV_EXCL_START
+        প্রত্যাগম m_isOr == VN_DBG_AS(samep, CoverCrossSelect)->m_isOr;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossWith final : public AstNode {
+class AstCoverCrossWith final : সার্বজনিক Ast_গ্রন্থি {
     // The bin tuples of a cross-bin selection with enough value tuples for which a 'with' filter
     // is true: one, or as many as a 'matches' clause gives (IEEE 1800-2023 19.6.1.2)
     // @astgen op1 := selectp : Optional[AstNode]  // Selection filtered; null if unsupported
     // @astgen op2 := filterp : AstNodeExpr
     // @astgen op3 := varsp : List[AstVar]  // Candidate value of each cross item, from V3LinkParse
     // @astgen op4 := countp : Optional[AstNodeExpr]  // Of 'matches', AstUnbounded for '$'
-public:
-    AstCoverCrossWith(FileLine* fl, AstNode* selectp, AstNodeExpr* filterp, AstNodeExpr* countp)
+সার্বজনিক:
+    AstCoverCrossWith(File_সারি* fl, Ast_গ্রন্থি* selectp, Ast_গ্রন্থি_রাশিমালা* filterp, Ast_গ্রন্থি_রাশিমালা* countp)
         : ASTGEN_SUPER_CoverCrossWith(fl) {
         this->selectp(selectp);
         this->filterp(filterp);
@@ -1209,95 +1209,95 @@ public:
     }
     ASTGEN_MEMBERS_AstCoverCrossWith;
 };
-class AstCoverOption final : public AstNode {
+class AstCoverOption final : সার্বজনিক Ast_গ্রন্থি {
     // Coverage-option assignment
     // @astgen op1 := valuep : AstNodeExpr
-    const VCoverOptionType m_optType;  // Option being assigned
-    const bool m_typeOption;  // type_option (vs option)
+    ধ্রুব VCoverOptionType m_optType;  // Option being assigned
+    ধ্রুব bool m_typeOption;  // type_option (vs option)
 
-public:
-    AstCoverOption(FileLine* fl, bool typeOption, VCoverOptionType optType, AstNodeExpr* valuep)
+সার্বজনিক:
+    AstCoverOption(File_সারি* fl, bool typeOption, VCoverOptionType optType, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_CoverOption(fl)
         , m_optType{optType}
         , m_typeOption{typeOption} {
         this->valuep(valuep);
     }
     ASTGEN_MEMBERS_AstCoverOption;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VCoverOptionType optType() const { return m_optType; }
-    bool typeOption() const { return m_typeOption; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverOption* const asamep = VN_DBG_AS(samep, CoverOption);
-        return m_optType.m_e == asamep->m_optType.m_e && m_typeOption == asamep->m_typeOption;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    VCoverOptionType optType() ধ্রুব { প্রত্যাগম m_optType; }
+    bool typeOption() ধ্রুব { প্রত্যাগম m_typeOption; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {  // LCOV_EXCL_START
+        ধ্রুব AstCoverOption* ধ্রুব asamep = VN_DBG_AS(samep, CoverOption);
+        প্রত্যাগম m_optType.m_e == asamep->m_optType.m_e && m_typeOption == asamep->m_typeOption;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverToggle final : public AstNode {
+class AstCoverToggle final : সার্বজনিক Ast_গ্রন্থি {
     // Toggle analysis of given signal
     // Parents:  MODULE
     // @astgen op1 := incp : AstCoverInc
     // @astgen op2 := origp : AstNodeExpr
     // @astgen op3 := changep : AstNodeExpr
-public:
-    AstCoverToggle(FileLine* fl, AstCoverInc* incp, AstNodeExpr* origp, AstNodeExpr* changep)
+সার্বজনিক:
+    AstCoverToggle(File_সারি* fl, AstCoverInc* incp, Ast_গ্রন্থি_রাশিমালা* origp, Ast_গ্রন্থি_রাশিমালা* changep)
         : ASTGEN_SUPER_CoverToggle(fl) {
         this->incp(incp);
         this->origp(origp);
         this->changep(changep);
     }
     ASTGEN_MEMBERS_AstCoverToggle;
-    int instrCount() const override { return 3 + INSTR_COUNT_BRANCH + INSTR_COUNT_LD; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
+    পূর্ণাঙ্ক instr_গুনতি() ধ্রুব override { প্রত্যাগম 3 + INSTR_গুনতি_BRANCH + INSTR_গুনতি_LD; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* /*samep*/) ধ্রুব override { প্রত্যাগম true; }
+    bool isGateOptimizable() ধ্রুব override { প্রত্যাগম false; }
+    bool isPredictOptimizable() ধ্রুব override { প্রত্যাগম true; }
     bool isOutputter() override {
-        return false;  // Though the AstCoverInc under this is an outputter
+        প্রত্যাগম false;  // Though the AstCoverInc under this is an outputter
     }
 };
-class AstCoverTransItem final : public AstNode {
+class AstCoverTransItem final : সার্বজনিক Ast_গ্রন্থি {
     // Represents a single transition item: value or value[*N] or value[->N] or value[=N]
     // @astgen op1 := valuesp : List[AstNode]
     // @astgen op2 := repMinp : Optional[AstNodeExpr]
     // @astgen op3 := repMaxp : Optional[AstNodeExpr]
-    const VTransRepType m_repType;
+    ধ্রুব VTransRepType m_repType;
 
-public:
-    AstCoverTransItem(FileLine* fl, AstNode* valuesp, VTransRepType repType = VTransRepType::NONE)
+সার্বজনিক:
+    AstCoverTransItem(File_সারি* fl, Ast_গ্রন্থি* valuesp, VTransRepType repType = VTransRepType::NONE)
         : ASTGEN_SUPER_CoverTransItem(fl)
         , m_repType{repType} {
         addValuesp(valuesp);
     }
     ASTGEN_MEMBERS_AstCoverTransItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstCoverTransSet final : public AstNode {
+class AstCoverTransSet final : সার্বজনিক Ast_গ্রন্থি {
     // Represents a transition set: value1 => value2 => value3
     // @astgen op1 := itemsp : List[AstCoverTransItem]
-public:
-    AstCoverTransSet(FileLine* fl, AstCoverTransItem* itemsp)
+সার্বজনিক:
+    AstCoverTransSet(File_সারি* fl, AstCoverTransItem* itemsp)
         : ASTGEN_SUPER_CoverTransSet(fl) {
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstCoverTransSet;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstCoverWith final : public AstNode {
+class AstCoverWith final : সার্বজনিক Ast_গ্রন্থি {
     // The values of a coverpoint bin for which a 'with' filter is true (IEEE 1800-2023
     // 19.5.1.1), the only range list element of its AstCoverBin
     // @astgen op1 := subp : List[AstNode]  // Range list, or AstCoverpointRef for all values
     // @astgen op2 := filterp : AstNodeExpr
     // @astgen op3 := itemp : Optional[AstVar]  // Candidate value 'item', from V3LinkParse
-public:
-    AstCoverWith(FileLine* fl, AstNode* subp, AstNodeExpr* filterp)
+সার্বজনিক:
+    AstCoverWith(File_সারি* fl, Ast_গ্রন্থি* subp, Ast_গ্রন্থি_রাশিমালা* filterp)
         : ASTGEN_SUPER_CoverWith(fl) {
         addSubp(subp);
         this->filterp(filterp);
     }
     ASTGEN_MEMBERS_AstCoverWith;
 };
-class AstCovergroup final : public AstNode {
+class AstCovergroup final : সার্বজনিক Ast_গ্রন্থি {
     // Represents a covergroup declaration. V3LinkParse transforms this
     // into an AstClass with isCovergroup==true and attaches the clocking
     // event as a new AstCovergroup sentinel in class membersp.
@@ -1307,9 +1307,9 @@ class AstCovergroup final : public AstNode {
     // @astgen op4 := sampleArgsp : List[AstVar]
     string m_name;  // covergroup name
 
-public:
-    AstCovergroup(FileLine* fl, const string& name, AstVar* argsp, AstVar* sampleArgsp,
-                  AstNode* membersp, AstSenTree* eventp)
+সার্বজনিক:
+    AstCovergroup(File_সারি* fl, ধ্রুব string& name, AstVar* argsp, AstVar* sampleArgsp,
+                  Ast_গ্রন্থি* membersp, Ast_Sen_বৃক্ষ* eventp)
         : ASTGEN_SUPER_Covergroup(fl)
         , m_name{name} {
         addArgsp(argsp);
@@ -1318,221 +1318,221 @@ public:
         this->eventp(eventp);
     }
     ASTGEN_MEMBERS_AstCovergroup;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    bool maybePointedTo() const override { return true; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    bool maybePointedTo() ধ্রুব override { প্রত্যাগম true; }
 };
-class AstCoverpointRef final : public AstNode {
+class AstCoverpointRef final : সার্বজনিক Ast_গ্রন্থি {
     // Reference to a coverpoint used in a cross
     // @astgen op1 := exprp : Optional[AstNodeExpr]  // Non-standard: hierarchical/dotted
     //                                               // reference (implicit coverpoint), e.g.
     //                                               // 'cross a.b'; nullptr for a plain coverpoint
     //                                               // name.  An AstDot at parse time, resolved
     //                                               // by the time V3Covergroup runs.
-    const string m_name;  // coverpoint name; empty when exprp() carries a hierarchical reference
+    ধ্রুব string m_name;  // coverpoint name; empty when exprp() carries a hierarchical reference
 
-public:
-    AstCoverpointRef(FileLine* fl, const string& name)
+সার্বজনিক:
+    AstCoverpointRef(File_সারি* fl, ধ্রুব string& name)
         : ASTGEN_SUPER_CoverpointRef(fl)
         , m_name{name} {}
-    AstCoverpointRef(FileLine* fl, AstNodeExpr* exprp)
+    AstCoverpointRef(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* exprp)
         : ASTGEN_SUPER_CoverpointRef(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstCoverpointRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
 };
-class AstDefParam final : public AstNode {
+class AstDefParam final : সার্বজনিক Ast_গ্রন্থি {
     // A defparam assignment
     // Parents: MODULE
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := pathp : AstNodeExpr
     string m_name;  // Name of variable getting set
-public:
-    AstDefParam(FileLine* fl, AstNodeExpr* pathp, const string& name, AstNodeExpr* rhsp)
+সার্বজনিক:
+    AstDefParam(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* pathp, ধ্রুব string& name, Ast_গ্রন্থি_রাশিমালা* rhsp)
         : ASTGEN_SUPER_DefParam(fl)
         , m_name{name} {
         this->rhsp(rhsp);
         this->pathp(pathp);
     }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Scope name
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Scope name
     ASTGEN_MEMBERS_AstDefParam;
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি*) ধ্রুব override { প্রত্যাগম true; }
 };
-class AstDefaultClocking final : public AstNode {
+class AstDefaultClocking final : সার্বজনিক Ast_গ্রন্থি {
     std::string m_name;  // Clocking block name
 
-public:
-    AstDefaultClocking(FileLine* fl, const std::string& name)
+সার্বজনিক:
+    AstDefaultClocking(File_সারি* fl, ধ্রুব std::string& name)
         : ASTGEN_SUPER_DefaultClocking(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstDefaultClocking;
-    std::string name() const override VL_MT_STABLE { return m_name; }
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
 };
-class AstDefaultDisable final : public AstNode {
+class AstDefaultDisable final : সার্বজনিক Ast_গ্রন্থি {
     // @astgen op1 := condp : AstNodeExpr
 
-public:
-    AstDefaultDisable(FileLine* fl, AstNodeExpr* condp)
+সার্বজনিক:
+    AstDefaultDisable(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* condp)
         : ASTGEN_SUPER_DefaultDisable(fl) {
         this->condp(condp);
     }
     ASTGEN_MEMBERS_AstDefaultDisable;
 };
-class AstDpiExport final : public AstNode {
+class AstDpiExport final : সার্বজনিক Ast_গ্রন্থি {
     // We could put an AstNodeFTaskRef instead of the verilog function name,
     // however we're not *calling* it, so that seems somehow wrong.
     // (Probably AstNodeFTaskRef should be renamed AstNodeFTaskCall and have-a AstNodeFTaskRef)
     string m_name;  // Name of function
     string m_cname;  // Name of function on c side
-public:
-    AstDpiExport(FileLine* fl, const string& vname, const string& cname)
+সার্বজনিক:
+    AstDpiExport(File_সারি* fl, ধ্রুব string& vname, ধ্রুব string& cname)
         : ASTGEN_SUPER_DpiExport(fl)
         , m_name{vname}
         , m_cname{cname} {}
     ASTGEN_MEMBERS_AstDpiExport;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    string cname() const { return m_cname; }
-    void cname(const string& cname) { m_cname = cname; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    string cname() ধ্রুব { প্রত্যাগম m_cname; }
+    শূন্য cname(ধ্রুব string& cname) { m_cname = cname; }
 };
-class AstElabDisplay final : public AstNode {
+class AstElabDisplay final : সার্বজনিক Ast_গ্রন্থি {
     // Parents: stmtlist
     // @astgen op1 := fmtp : List[AstSFormatF]
     VDisplayType m_displayType;
 
-public:
-    inline AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* exprsp);
+সার্বজনিক:
+    অন্তঃস্থ AstElabDisplay(File_সারি* fl, VDisplayType dispType, Ast_গ্রন্থি_রাশিমালা* exprsp);
     ASTGEN_MEMBERS_AstElabDisplay;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string verilogKwd() const override { return "$"s + string{displayType().ascii()}; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return displayType() == VN_DBG_AS(samep, ElabDisplay)->displayType();
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "$"s + string{displayType().ascii()}; }
+    bool isGateOptimizable() ধ্রুব override { প্রত্যাগম false; }
+    bool isPredictOptimizable() ধ্রুব override { প্রত্যাগম false; }
+    bool isPure() override { প্রত্যাগম false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { প্রত্যাগম true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ধ্রুব override { প্রত্যাগম true; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        প্রত্যাগম displayType() == VN_DBG_AS(samep, ElabDisplay)->displayType();
     }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    VDisplayType displayType() const { return m_displayType; }
-    void displayType(VDisplayType type) { m_displayType = type; }
+    পূর্ণাঙ্ক instr_গুনতি() ধ্রুব override { প্রত্যাগম INSTR_গুনতি_PLI; }
+    VDisplayType displayType() ধ্রুব { প্রত্যাগম m_displayType; }
+    শূন্য displayType(VDisplayType type) { m_displayType = type; }
 };
-class AstEmpty final : public AstNode {
+class AstEmpty final : সার্বজনিক Ast_গ্রন্থি {
     // Represents something missing, e.g. a missing argument in FOREACH
-public:
-    explicit AstEmpty(FileLine* fl)
+সার্বজনিক:
+    explicit AstEmpty(File_সারি* fl)
         : ASTGEN_SUPER_Empty(fl) {}
     ASTGEN_MEMBERS_AstEmpty;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* /*samep*/) ধ্রুব override { প্রত্যাগম true; }
 };
-class AstGenCaseItem final : public AstNode {
+class AstGenCaseItem final : সার্বজনিক Ast_গ্রন্থি {
     // Single item of an AstGenCase
     // @astgen op1 := condsp : List[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstNode]
-public:
-    AstGenCaseItem(FileLine* fl, AstNodeExpr* condsp, AstNode* itemsp)
+সার্বজনিক:
+    AstGenCaseItem(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* condsp, Ast_গ্রন্থি* itemsp)
         : ASTGEN_SUPER_GenCaseItem(fl) {
         addCondsp(condsp);
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstGenCaseItem;
-    bool isDefault() const { return condsp() == nullptr; }
+    bool isDefault() ধ্রুব { প্রত্যাগম condsp() == nullptr; }
 };
-class AstImplicit final : public AstNode {
+class AstImplicit final : সার্বজনিক Ast_গ্রন্থি {
     // Create implicit wires and do nothing else, for gates that are ignored
     // Parents: MODULE
     // @astgen op1 := exprsp : List[AstNode]
-public:
-    AstImplicit(FileLine* fl, AstNode* exprsp)
+সার্বজনিক:
+    AstImplicit(File_সারি* fl, Ast_গ্রন্থি* exprsp)
         : ASTGEN_SUPER_Implicit(fl) {
         addExprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstImplicit;
 };
-class AstIntfRef final : public AstNode {
+class AstIntfRef final : সার্বজনিক Ast_গ্রন্থি {
     // An interface reference
     string m_name;  // Hierarchical path of the reference
     string m_parentName;  // Hierarchical path of the declaring module, before inlining
     string m_baseName;  // Final component of m_name, i.e. the reference port name
     string m_modportName;  // "" = no modport, else name of the modport referenced
-public:
-    AstIntfRef(FileLine* fl, const string& name, const string& parentName, const string& baseName,
-               const string& modportName)
+সার্বজনিক:
+    AstIntfRef(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& parentName, ধ্রুব string& baseName,
+               ধ্রুব string& modportName)
         : ASTGEN_SUPER_IntfRef(fl)
         , m_name{name}
         , m_parentName{parentName}
         , m_baseName{baseName}
         , m_modportName{modportName} {}
     ASTGEN_MEMBERS_AstIntfRef;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string parentName() const { return m_parentName; }
-    string baseName() const { return m_baseName; }
-    string modportName() const { return m_modportName; }
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    string parentName() ধ্রুব { প্রত্যাগম m_parentName; }
+    string baseName() ধ্রুব { প্রত্যাগম m_baseName; }
+    string modportName() ধ্রুব { প্রত্যাগম m_modportName; }
 };
-class AstLibrary final : public AstNode {
+class AstLibrary final : সার্বজনিক Ast_গ্রন্থি {
     // Parents: NETLIST
     // Library declaration from lib.map file
     // @astgen op1 := filesp : List[AstNodeExpr]
     // @astgen op2 := incdirsp : List[AstNodeExpr]
     std::string m_name;  // Library name
 
-public:
-    AstLibrary(FileLine* fl, const std::string& name, AstNodeExpr* filesp, AstNodeExpr* incdirsp)
+সার্বজনিক:
+    AstLibrary(File_সারি* fl, ধ্রুব std::string& name, Ast_গ্রন্থি_রাশিমালা* filesp, Ast_গ্রন্থি_রাশিমালা* incdirsp)
         : ASTGEN_SUPER_Library(fl)
         , m_name{name} {
         addFilesp(filesp);
         addIncdirsp(incdirsp);
     }
     ASTGEN_MEMBERS_AstLibrary;
-    std::string name() const override VL_MT_STABLE { return m_name; }
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
 };
-class AstModport final : public AstNode {
+class AstModport final : সার্বজনিক Ast_গ্রন্থি {
     // A modport in an interface
     // @astgen op1 := varsp : List[AstNode]
     string m_name;  // Name of the modport
-public:
-    AstModport(FileLine* fl, const string& name, AstNode* varsp)
+সার্বজনিক:
+    AstModport(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* varsp)
         : ASTGEN_SUPER_Modport(fl)
         , m_name{name} {
         addVarsp(varsp);
     }
-    string verilogKwd() const override { return "modport"; }
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "modport"; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
     ASTGEN_MEMBERS_AstModport;
 };
-class AstModportClockingRef final : public AstNode {
+class AstModportClockingRef final : সার্বজনিক Ast_গ্রন্থি {
     // A clocking block referenced under a modport
     // The storage for the clocking block itself is inside the interface, thus this is a reference
     // PARENT: AstModport
     //
     // @astgen ptr := m_clockingp : Optional[AstClocking]  // Link to the actual clocking block
     string m_name;  // Name of the clocking block referenced
-public:
-    AstModportClockingRef(FileLine* fl, const string& name)
+সার্বজনিক:
+    AstModportClockingRef(File_সারি* fl, ধ্রুব string& name)
         : ASTGEN_SUPER_ModportClockingRef(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstModportClockingRef;
-    void dump(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    AstClocking* clockingp() const VL_MT_STABLE {
-        return m_clockingp;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    AstClocking* clockingp() ধ্রুব VL_MT_STABLE {
+        প্রত্যাগম m_clockingp;
     }  // [After Link] Pointer to clocking block
-    void clockingp(AstClocking* clockingp) { m_clockingp = clockingp; }
+    শূন্য clockingp(AstClocking* clockingp) { m_clockingp = clockingp; }
 };
-class AstModportFTaskRef final : public AstNode {
+class AstModportFTaskRef final : সার্বজনিক Ast_গ্রন্থি {
     // An import/export referenced under a modport
     // The storage for the function itself is inside the
     // interface/instantiator, thus this is a reference
@@ -1541,21 +1541,21 @@ class AstModportFTaskRef final : public AstNode {
     // @astgen ptr := m_ftaskp : Optional[AstNodeFTask]  // Link to the function
     string m_name;  // Name of the variable referenced
     bool m_export;  // Type of the function (import/export)
-public:
-    AstModportFTaskRef(FileLine* fl, const string& name, bool isExport)
+সার্বজনিক:
+    AstModportFTaskRef(File_সারি* fl, ধ্রুব string& name, bool isExport)
         : ASTGEN_SUPER_ModportFTaskRef(fl)
         , m_name{name}
         , m_export{isExport} {}
     ASTGEN_MEMBERS_AstModportFTaskRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool isImport() const { return !m_export; }
-    bool isExport() const { return m_export; }
-    AstNodeFTask* ftaskp() const { return m_ftaskp; }  // [After Link] Pointer to variable
-    void ftaskp(AstNodeFTask* ftaskp) { m_ftaskp = ftaskp; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    bool isImport() ধ্রুব { প্রত্যাগম !m_export; }
+    bool isExport() ধ্রুব { প্রত্যাগম m_export; }
+    Ast_গ্রন্থি_FTask* ftaskp() ধ্রুব { প্রত্যাগম m_ftaskp; }  // [After Link] Pointer to variable
+    শূন্য ftaskp(Ast_গ্রন্থি_FTask* ftaskp) { m_ftaskp = ftaskp; }
 };
-class AstModportVarRef final : public AstNode {
+class AstModportVarRef final : সার্বজনিক Ast_গ্রন্থি {
     // A input/output/etc variable referenced under a modport
     // The storage for the variable itself is inside the interface, thus this is a reference
     // PARENT: AstModport
@@ -1563,13 +1563,13 @@ class AstModportVarRef final : public AstNode {
     //
     // @astgen ptr := m_varp : Optional[AstVar]  // Link to the actual Var
     string m_name;  // Name of the variable referenced
-    const VDirection m_direction;  // Direction of the variable (in/out)
-public:
-    AstModportVarRef(FileLine* fl, const string& name, VDirection::en direction)
+    ধ্রুব VDirection m_direction;  // Direction of the variable (in/out)
+সার্বজনিক:
+    AstModportVarRef(File_সারি* fl, ধ্রুব string& name, VDirection::en direction)
         : ASTGEN_SUPER_ModportVarRef(fl)
         , m_name{name}
         , m_direction{direction} {}
-    AstModportVarRef(FileLine* fl, const string& name, AstNodeExpr* exprp,
+    AstModportVarRef(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি_রাশিমালা* exprp,
                      VDirection::en direction)
         : ASTGEN_SUPER_ModportVarRef(fl)
         , m_name{name}
@@ -1577,14 +1577,14 @@ public:
         this->exprp(exprp);
     };
     ASTGEN_MEMBERS_AstModportVarRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VDirection direction() const { return m_direction; }
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* varp) { m_varp = varp; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    VDirection direction() ধ্রুব { প্রত্যাগম m_direction; }
+    AstVar* varp() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_varp; }  // [After Link] Pointer to variable
+    শূন্য varp(AstVar* varp) { m_varp = varp; }
 };
-class AstNetlist final : public AstNode {
+class AstNetlist final : সার্বজনিক Ast_গ্রন্থি {
     // All modules are under this single top node.
     // Parents:   none
     // Children:  MODULEs & CFILEs
@@ -1605,7 +1605,7 @@ class AstNetlist final : public AstNode {
     // @astgen ptr := m_stlFirstIterationp: Optional[AstVarScope]  // Settle first iteration flag
     VTimescale m_timeunit;  // Global time unit
     VTimescale m_timeprecision;  // Global time precision
-    std::string m_resolvedTopModuleName;  // Selected design top before wrapping under $root
+    std::string m_resolved_শীর্ষ_Module_Name;  // Selected design top before wrapping under $root
     bool m_timescaleSpecified = false;  // Input HDL specified timescale
     uint32_t m_nTraceCodes = 0;  // Number of trace codes used by design
     // V3Param-deferred params awaiting V3LinkDot::linkDotParamed scope-resolution.
@@ -1613,114 +1613,114 @@ class AstNetlist final : public AstNode {
     // Sparse metadata for constants produced from named parameters/localparams. Keep this off
     // AstConst itself, as AstConst is a very common node and only a small fraction carry this
     // name.
-    std::unordered_map<const AstConst*, string> m_constOrigParamNames;
+    std::unordered_map<ধ্রুব AstConst*, string> m_constOrigParamNames;
     // Module each node is in, only good while the tree holds still
-    std::unordered_map<const AstNode*, const AstNodeModule*> m_containingModules;
+    std::unordered_map<ধ্রুব Ast_গ্রন্থি*, ধ্রুব Ast_গ্রন্থি_Module*> m_containingModules;
     // The model's evaluation entry point functions
     std::array<AstCFunc*, VEval::_ENUM_END> m_evalFuncps{};
     // The trigger dump function of each region if exists, otherwise nullptr
     std::array<AstCFunc*, VEval::_ENUM_END> m_dumpTriggersFuncps{};
 
-public:
+সার্বজনিক:
     AstNetlist();
     ASTGEN_MEMBERS_AstNetlist;
-    const char* broken() const override;
-    void pushDeferredParamVarp(AstVar* varp) { m_deferredParamVarps.insert(varp); }
-    const std::set<AstVar*>& deferredParamVarps() const { return m_deferredParamVarps; }
-    void clearDeferredParamVarps() { m_deferredParamVarps.clear(); }
-    void deleteContents();
-    void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
-    string name() const override VL_MT_STABLE { return "$root"; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    AstNodeModule* topModulep() const VL_MT_STABLE {  // Top module in hierarchy
-        return modulesp();  // First one in the list, for now
+    ধ্রুব বর্ণ* broken() ধ্রুব override;
+    শূন্য ঠেলো_Deferred_Param_Varp(AstVar* varp) { m_deferredParamVarps.ঢোকাও(varp); }
+    ধ্রুব std::set<AstVar*>& deferredParamVarps() ধ্রুব { প্রত্যাগম m_deferredParamVarps; }
+    শূন্য clearDeferredParamVarps() { m_deferredParamVarps.clear(); }
+    শূন্য deleteContents();
+    শূন্য cloneRelink() override { V3ERROR_NA; }  // Not cloneable
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম "$root"; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    Ast_গ্রন্থি_Module* শীর্ষ_Modulep() ধ্রুব VL_MT_STABLE {  // Top module in hierarchy
+        প্রত্যাগম modulesp();  // First one in the list, for now
     }
-    AstTypeTable* typeTablep() { return m_typeTablep; }
-    string astConstOrigParamName(const AstConst* nodep) const;
-    void astConstOrigParamName(const AstConst* nodep, const string& name);
-    void astConstOrigParamNameErase(const AstConst* nodep);
+    AstTypeTable* typeTablep() { প্রত্যাগম m_typeTablep; }
+    string astConstOrigParamName(ধ্রুব AstConst* nodep) ধ্রুব;
+    শূন্য astConstOrigParamName(ধ্রুব AstConst* nodep, ধ্রুব string& name);
+    শূন্য astConstOrigParamNameErase(ধ্রুব AstConst* nodep);
     // Find the module a node is in, remembering what it passed on the way.
-    const AstNodeModule* containingModule(const AstNode* nodep);
+    ধ্রুব Ast_গ্রন্থি_Module* containingModule(ধ্রুব Ast_গ্রন্থি* nodep);
     // Forget remembered modules, as the tree has moved.
-    void clearContainingModules() { m_containingModules.clear(); }
-    AstPackage* constPoolPkgp() const { return m_constPoolPkgp; }
-    AstPackage* dollarUnitPkgp() const { return m_dollarUnitPkgp; }
-    void dollarUnitPkgp(AstPackage* const packagep) { m_dollarUnitPkgp = packagep; }
+    শূন্য clearContainingModules() { m_containingModules.clear(); }
+    AstPackage* constPoolPkgp() ধ্রুব { প্রত্যাগম m_constPoolPkgp; }
+    AstPackage* dollarUnitPkgp() ধ্রুব { প্রত্যাগম m_dollarUnitPkgp; }
+    শূন্য dollarUnitPkgp(AstPackage* ধ্রুব packagep) { m_dollarUnitPkgp = packagep; }
     // Returns the entry point eval function, lazy constructed on first call
     AstCFunc* evalFuncp(VEval eval);
     // Returns the trigger dump function of the given eval function, lazy constructed
     AstCFunc* dumpTriggersFuncp(VEval eval);
-    AstVarScope* dpiExportTriggerp() const { return m_dpiExportTriggerp; }
-    void dpiExportTriggerp(AstVarScope* varScopep) { m_dpiExportTriggerp = varScopep; }
-    AstVar* delaySchedulerp() const { return m_delaySchedulerp; }
-    void delaySchedulerp(AstVar* const varScopep) { m_delaySchedulerp = varScopep; }
-    AstVarScope* nbaEventp() const { return m_nbaEventp; }
-    void nbaEventp(AstVarScope* const varScopep) { m_nbaEventp = varScopep; }
-    AstVarScope* nbaEventTriggerp() const { return m_nbaEventTriggerp; }
-    void nbaEventTriggerp(AstVarScope* const varScopep) { m_nbaEventTriggerp = varScopep; }
-    void stdPackagep(AstPackage* const packagep) { m_stdPackagep = packagep; }
-    AstPackage* stdPackagep() const { return m_stdPackagep; }
-    void stdPackageProcessp(AstClass* const classp) { m_stdPackageProcessp = classp; }
-    AstClass* stdPackageProcessp() const { return m_stdPackageProcessp; }
-    AstFuncRef* stdPackageProcessSelfp(FileLine*) const;
-    AstTopScope* topScopep() const { return m_topScopep; }
-    void createTopScope(AstScope* scopep);
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& value) { m_timeunit = value; }
-    VTimescale timeprecision() const { return m_timeprecision; }
-    void timeInit() {
+    AstVarScope* dpiExportTriggerp() ধ্রুব { প্রত্যাগম m_dpiExportTriggerp; }
+    শূন্য dpiExportTriggerp(AstVarScope* varScopep) { m_dpiExportTriggerp = varScopep; }
+    AstVar* delaySchedulerp() ধ্রুব { প্রত্যাগম m_delaySchedulerp; }
+    শূন্য delaySchedulerp(AstVar* ধ্রুব varScopep) { m_delaySchedulerp = varScopep; }
+    AstVarScope* nbaEventp() ধ্রুব { প্রত্যাগম m_nbaEventp; }
+    শূন্য nbaEventp(AstVarScope* ধ্রুব varScopep) { m_nbaEventp = varScopep; }
+    AstVarScope* nbaEventTriggerp() ধ্রুব { প্রত্যাগম m_nbaEventTriggerp; }
+    শূন্য nbaEventTriggerp(AstVarScope* ধ্রুব varScopep) { m_nbaEventTriggerp = varScopep; }
+    শূন্য stdPackagep(AstPackage* ধ্রুব packagep) { m_stdPackagep = packagep; }
+    AstPackage* stdPackagep() ধ্রুব { প্রত্যাগম m_stdPackagep; }
+    শূন্য stdPackageProcessp(AstClass* ধ্রুব classp) { m_stdPackageProcessp = classp; }
+    AstClass* stdPackageProcessp() ধ্রুব { প্রত্যাগম m_stdPackageProcessp; }
+    AstFuncRef* stdPackageProcessSelfp(File_সারি*) ধ্রুব;
+    Ast_শীর্ষ_Scope* শীর্ষ_Scopep() ধ্রুব { প্রত্যাগম m_শীর্ষ_Scopep; }
+    শূন্য create_শীর্ষ_Scope(AstScope* scopep);
+    VTimescale timeunit() ধ্রুব { প্রত্যাগম m_timeunit; }
+    শূন্য timeunit(ধ্রুব VTimescale& মান) { m_timeunit = মান; }
+    VTimescale timeprecision() ধ্রুব { প্রত্যাগম m_timeprecision; }
+    শূন্য timeInit() {
         m_timeunit = v3Global.opt.timeDefaultUnit();
         m_timeprecision = v3Global.opt.timeDefaultPrec();
     }
-    void timeprecisionMerge(FileLine*, const VTimescale& value);
-    void timescaleSpecified(bool specified) { m_timescaleSpecified = specified; }
-    bool timescaleSpecified() const { return m_timescaleSpecified; }
-    const std::string& resolvedTopModuleName() const { return m_resolvedTopModuleName; }
-    void resolvedTopModuleName(const std::string& value) { m_resolvedTopModuleName = value; }
-    uint32_t nTraceCodes() const { return m_nTraceCodes; }
-    void nTraceCodes(uint32_t value) { m_nTraceCodes = value; }
+    শূন্য timeprecisionMerge(File_সারি*, ধ্রুব VTimescale& মান);
+    শূন্য timescaleSpecified(bool specified) { m_timescaleSpecified = specified; }
+    bool timescaleSpecified() ধ্রুব { প্রত্যাগম m_timescaleSpecified; }
+    ধ্রুব std::string& resolved_শীর্ষ_Module_Name() ধ্রুব { প্রত্যাগম m_resolved_শীর্ষ_Module_Name; }
+    শূন্য resolved_শীর্ষ_Module_Name(ধ্রুব std::string& মান) { m_resolved_শীর্ষ_Module_Name = মান; }
+    uint32_t nTraceCodes() ধ্রুব { প্রত্যাগম m_nTraceCodes; }
+    শূন্য nTraceCodes(uint32_t মান) { m_nTraceCodes = মান; }
     AstVarScope* stlFirstIterationp();
-    void clearStlFirstIterationp() { m_stlFirstIterationp = nullptr; }
-    const std::string traceLibTopName() const {
-        const std::string& name = resolvedTopModuleName();
-        return prettyName(name.empty() ? v3Global.rootp()->topModulep()->name() : name);
+    শূন্য clearStlFirstIterationp() { m_stlFirstIterationp = nullptr; }
+    ধ্রুব std::string trace_Lib_শীর্ষ_Name() ধ্রুব {
+        ধ্রুব std::string& name = resolved_শীর্ষ_Module_Name();
+        প্রত্যাগম prettyName(name.empty() ? v3Global.rootp()->শীর্ষ_Modulep()->name() : name);
     }
 
     // Record statistics for eval functions
-    void addEvalStats(const std::string& phase);
+    শূন্য addEvalStats(ধ্রুব std::string& phase);
 };
-class AstPackageExport final : public AstNode {
+class AstPackageExport final : সার্বজনিক Ast_গ্রন্থি {
     // A package export declaration
     //
     // @astgen ptr := m_packagep : Optional[AstPackage]  // Package hierarchy
     string m_name;  // What imported e.g. "*"
     string m_pkgName;  // Module the cell instances
 
-public:
-    AstPackageExport(FileLine* fl, const string& pkgName, const string& name)
+সার্বজনিক:
+    AstPackageExport(File_সারি* fl, ধ্রুব string& pkgName, ধ্রুব string& name)
         : ASTGEN_SUPER_PackageExport(fl)
         , m_name{name}
         , m_pkgName{pkgName}
         , m_packagep{nullptr} {}
     ASTGEN_MEMBERS_AstPackageExport;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string pkgName() const VL_MT_STABLE { return m_pkgName; }
-    string prettyPkgNameQ() const { return "'" + prettyName(pkgName()) + "'"; }
-    AstPackage* packagep() const { return m_packagep; }
-    void packagep(AstPackage* nodep) { m_packagep = nodep; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    string pkgName() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_pkgName; }
+    string prettyPkgNameQ() ধ্রুব { প্রত্যাগম "'" + prettyName(pkgName()) + "'"; }
+    AstPackage* packagep() ধ্রুব { প্রত্যাগম m_packagep; }
+    শূন্য packagep(AstPackage* nodep) { m_packagep = nodep; }
 };
-class AstPackageExportStarStar final : public AstNode {
+class AstPackageExportStarStar final : সার্বজনিক Ast_গ্রন্থি {
     // A package export *::* declaration
-public:
+সার্বজনিক:
     // cppcheck-suppress noExplicitConstructor
-    AstPackageExportStarStar(FileLine* fl)
+    AstPackageExportStarStar(File_সারি* fl)
         : ASTGEN_SUPER_PackageExportStarStar(fl) {}
     ASTGEN_MEMBERS_AstPackageExportStarStar;
 };
-class AstPackageImport final : public AstNode {
+class AstPackageImport final : সার্বজনিক Ast_গ্রন্থি {
     // A package import declaration
     // @astgen op1 := resolvedClassp : Optional[AstClassOrPackageRef]
     //
@@ -1728,112 +1728,112 @@ class AstPackageImport final : public AstNode {
     string m_name;  // What imported e.g. "*"
     string m_pkgName;  // Module the cell instances
 
-public:
-    AstPackageImport(FileLine* fl, AstPackage* packagep, const string& name)
+সার্বজনিক:
+    AstPackageImport(File_সারি* fl, AstPackage* packagep, ধ্রুব string& name)
         : ASTGEN_SUPER_PackageImport(fl)
         , m_name{name}
         , m_packagep{packagep} {
         pkgNameFrom();
     }
-    AstPackageImport(FileLine* fl, const string& pkgName, const string& name)
+    AstPackageImport(File_সারি* fl, ধ্রুব string& pkgName, ধ্রুব string& name)
         : ASTGEN_SUPER_PackageImport(fl)
         , m_name{name}
         , m_pkgName{pkgName}
         , m_packagep{nullptr} {}
     ASTGEN_MEMBERS_AstPackageImport;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string pkgName() const VL_MT_STABLE { return m_pkgName; }
-    string prettyPkgNameQ() const { return "'" + prettyName(pkgName()) + "'"; }
-    AstPackage* packagep() const { return m_packagep; }
-    void packagep(AstPackage* nodep) { m_packagep = nodep; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    string pkgName() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_pkgName; }
+    string prettyPkgNameQ() ধ্রুব { প্রত্যাগম "'" + prettyName(pkgName()) + "'"; }
+    AstPackage* packagep() ধ্রুব { প্রত্যাগম m_packagep; }
+    শূন্য packagep(AstPackage* nodep) { m_packagep = nodep; }
 
-private:
-    void pkgNameFrom();
+গুপ্ত:
+    শূন্য pkgNameFrom();
 };
-class AstPin final : public AstNode {
+class AstPin final : সার্বজনিক Ast_গ্রন্থি {
     // A port or parameter assignment on an instantiation
     // @astgen op1 := exprp : Optional[AstNode<AstNodeExpr|AstNodeDType>]  // nullptr=unconnected
     //
     // @astgen ptr := m_modVarp : Optional[AstVar]  // Input/output connects to on submodule
     // @astgen ptr := m_modPTypep : Optional[AstParamTypeDType]  // Param type connects to on sub
-    int m_pinNum;  // Pin number
+    পূর্ণাঙ্ক m_pin_অঙ্ক;  // Pin number
     string m_name;  // Pin name, or "" for number based interconnect
     string m_paramPath;  // Original defparam cell path, if this pin came from a defparam
     bool m_param = false;  // Pin connects to parameter
     bool m_svDotName = false;  // Pin is SystemVerilog .name'ed
     bool m_svImplicit = false;  // Pin is SystemVerilog .name'ed, allow implicit
-public:
-    AstPin(FileLine* fl, int pinNum, const string& name, AstNode* exprp)
+সার্বজনিক:
+    AstPin(File_সারি* fl, পূর্ণাঙ্ক pin_অঙ্ক, ধ্রুব string& name, Ast_গ্রন্থি* exprp)
         : ASTGEN_SUPER_Pin(fl)
-        , m_pinNum{pinNum}
+        , m_pin_অঙ্ক{pin_অঙ্ক}
         , m_name{name} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstPin;
-    void cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Pin name, ""=go by number
-    void name(const string& name) override { m_name = name; }
-    string prettyOperatorName() const override;
-    bool dotStar() const { return name() == ".*"; }  // Fake name for .* connections until linked
-    int pinNum() const { return m_pinNum; }
-    AstVar* modVarp() const { return m_modVarp; }  // [After Link] Pointer to variable
-    void modVarp(AstVar* nodep) { m_modVarp = nodep; }
+    শূন্য cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Pin name, ""=go by number
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    string prettyOperatorName() ধ্রুব override;
+    bool dotStar() ধ্রুব { প্রত্যাগম name() == ".*"; }  // Fake name for .* connections until linked
+    পূর্ণাঙ্ক pin_অঙ্ক() ধ্রুব { প্রত্যাগম m_pin_অঙ্ক; }
+    AstVar* modVarp() ধ্রুব { প্রত্যাগম m_modVarp; }  // [After Link] Pointer to variable
+    শূন্য modVarp(AstVar* nodep) { m_modVarp = nodep; }
     // [After Link] Pointer to variable
-    AstParamTypeDType* modPTypep() const { return m_modPTypep; }
-    void modPTypep(AstParamTypeDType* nodep) { m_modPTypep = nodep; }
-    bool param() const { return m_param; }
-    void param(bool flag) { m_param = flag; }
-    const string& paramPath() const { return m_paramPath; }
-    void paramPath(const string& path) { m_paramPath = path; }
-    bool svDotName() const { return m_svDotName; }
-    void svDotName(bool flag) { m_svDotName = flag; }
-    bool svImplicit() const { return m_svImplicit; }
-    void svImplicit(bool flag) { m_svImplicit = flag; }
+    AstParamTypeDType* modPTypep() ধ্রুব { প্রত্যাগম m_modPTypep; }
+    শূন্য modPTypep(AstParamTypeDType* nodep) { m_modPTypep = nodep; }
+    bool param() ধ্রুব { প্রত্যাগম m_param; }
+    শূন্য param(bool flag) { m_param = flag; }
+    ধ্রুব string& paramPath() ধ্রুব { প্রত্যাগম m_paramPath; }
+    শূন্য paramPath(ধ্রুব string& path) { m_paramPath = path; }
+    bool svDotName() ধ্রুব { প্রত্যাগম m_svDotName; }
+    শূন্য svDotName(bool flag) { m_svDotName = flag; }
+    bool svImplicit() ধ্রুব { প্রত্যাগম m_svImplicit; }
+    শূন্য svImplicit(bool flag) { m_svImplicit = flag; }
 };
-class AstPort final : public AstNode {
+class AstPort final : সার্বজনিক Ast_গ্রন্থি {
     // A port (in/out/inout) on a module
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Expression connected to port
-    const int m_pinNum;  // Pin number
-    const string m_name;  // Name of pin
-public:
-    AstPort(FileLine* fl, int pinnum, const string& name)
+    ধ্রুব পূর্ণাঙ্ক m_pin_অঙ্ক;  // Pin number
+    ধ্রুব string m_name;  // Name of pin
+সার্বজনিক:
+    AstPort(File_সারি* fl, পূর্ণাঙ্ক pinnum, ধ্রুব string& name)
         : ASTGEN_SUPER_Port(fl)
-        , m_pinNum{pinnum}
+        , m_pin_অঙ্ক{pinnum}
         , m_name{name} {}
     ASTGEN_MEMBERS_AstPort;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Port name
-    int pinNum() const { return m_pinNum; }  // * = Pin number, for order based instantiation
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Port name
+    পূর্ণাঙ্ক pin_অঙ্ক() ধ্রুব { প্রত্যাগম m_pin_অঙ্ক; }  // * = Pin number, for order based instantiation
 };
-class AstPragma final : public AstNode {
-    const VPragmaType m_pragType;  // Type of pragma
-    const VTimescale m_timescale;  // For TIMEUNIT_SET
-public:
+class AstPragma final : সার্বজনিক Ast_গ্রন্থি {
+    ধ্রুব VPragmaType m_pragType;  // Type of pragma
+    ধ্রুব VTimescale m_timescale;  // For TIMEUNIT_SET
+সার্বজনিক:
     // Pragmas don't result in any output code, they're just flags that affect
     // other processing in verilator.
-    AstPragma(FileLine* fl, VPragmaType pragType)
+    AstPragma(File_সারি* fl, VPragmaType pragType)
         : ASTGEN_SUPER_Pragma(fl)
         , m_pragType{pragType} {
         UASSERT_OBJ(pragType != VPragmaType::TIMEUNIT_SET, fl, "Should use other constructor");
     }
-    AstPragma(FileLine* fl, const VTimescale& timescale)
+    AstPragma(File_সারি* fl, ধ্রুব VTimescale& timescale)
         : ASTGEN_SUPER_Pragma(fl)
         , m_pragType{VPragmaType::TIMEUNIT_SET}
         , m_timescale{timescale} {}
     ASTGEN_MEMBERS_AstPragma;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VPragmaType pragType() const { return m_pragType; }  // *=type of the pragma
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return pragType() == VN_DBG_AS(samep, Pragma)->pragType();
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    VPragmaType pragType() ধ্রুব { প্রত্যাগম m_pragType; }  // *=type of the pragma
+    bool isPredictOptimizable() ধ্রুব override { প্রত্যাগম false; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        প্রত্যাগম pragType() == VN_DBG_AS(samep, Pragma)->pragType();
     }
-    VTimescale timescale() const { return m_timescale; }
+    VTimescale timescale() ধ্রুব { প্রত্যাগম m_timescale; }
 };
-class AstPropSpec final : public AstNode {
+class AstPropSpec final : সার্বজনিক Ast_গ্রন্থি {
     // A clocked property
     // Parents:  ASSERT|COVER (property)
     // Children: SENITEM, Properties
@@ -1843,8 +1843,8 @@ class AstPropSpec final : public AstNode {
     // @astgen op4 := matchCountp : Optional[AstNodeExpr] // Cover sequence matches this tick
     VPropStrength m_propStrength = VPropStrength::DEFAULT;
 
-public:
-    AstPropSpec(FileLine* fl, AstSenItem* sensesp, AstNodeExpr* disablep, AstNode* propp,
+সার্বজনিক:
+    AstPropSpec(File_সারি* fl, AstSenItem* sensesp, Ast_গ্রন্থি_রাশিমালা* disablep, Ast_গ্রন্থি* propp,
                 VPropStrength propStrength = VPropStrength::DEFAULT)
         : ASTGEN_SUPER_PropSpec(fl)
         , m_propStrength{propStrength} {
@@ -1853,33 +1853,33 @@ public:
         this->propp(propp);
     }
     ASTGEN_MEMBERS_AstPropSpec;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE {
-        return true;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool hasDType() ধ্রুব override VL_MT_SAFE {
+        প্রত্যাগম true;
     }  // Used under Cover, which expects a bool child
-    VPropStrength propStrength() const { return m_propStrength; }
+    VPropStrength propStrength() ধ্রুব { প্রত্যাগম m_propStrength; }
 };
-class AstPull final : public AstNode {
+class AstPull final : সার্বজনিক Ast_গ্রন্থি {
     // @astgen op1 := lhsp : AstNodeExpr
 
-    const bool m_direction;
+    ধ্রুব bool m_direction;
 
-public:
-    AstPull(FileLine* fl, AstNodeExpr* lhsp, bool direction)
+সার্বজনিক:
+    AstPull(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* lhsp, bool direction)
         : ASTGEN_SUPER_Pull(fl)
         , m_direction{direction} {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstPull;
-    bool sameNode(const AstNode* samep) const override {
-        return direction() == VN_DBG_AS(samep, Pull)->direction();
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        প্রত্যাগম direction() == VN_DBG_AS(samep, Pull)->direction();
     }
-    bool direction() const { return m_direction; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool direction() ধ্রুব { প্রত্যাগম m_direction; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstScope final : public AstNode {
+class AstScope final : সার্বজনিক Ast_গ্রন্থি {
     // A particular usage of a cell
     // Parents: MODULE
     // Children: NODEBLOCK
@@ -1894,8 +1894,8 @@ class AstScope final : public AstNode {
 
     // An AstScope->name() is special: . indicates an uninlined scope, __DOT__ an inlined scope
     string m_name;  // Name
-public:
-    AstScope(FileLine* fl, AstNodeModule* modp, const string& name, AstScope* aboveScopep,
+সার্বজনিক:
+    AstScope(File_সারি* fl, Ast_গ্রন্থি_Module* modp, ধ্রুব string& name, AstScope* aboveScopep,
              AstCell* aboveCellp)
         : ASTGEN_SUPER_Scope(fl)
         , m_name{name}
@@ -1903,191 +1903,191 @@ public:
         , m_aboveCellp{aboveCellp}
         , m_modp{modp} {}
     ASTGEN_MEMBERS_AstScope;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         BROKEN_RTN(!m_modp);
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Scope name
-    void name(const string& name) override { m_name = name; }
-    string prettyNameMsg() const override;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override;
-    string nameDotless() const;
-    AstNodeModule* modp() const { return m_modp; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Scope name
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    string pretty_Name_বার্তা() ধ্রুব override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override;
+    string nameDotless() ধ্রুব;
+    Ast_গ্রন্থি_Module* modp() ধ্রুব { প্রত্যাগম m_modp; }
     // The combinational AstActive of the scope. If none, create one if 'create', else nullptr
     AstActive* comboActivep(bool create);
     //
-    AstScope* aboveScopep() const VL_MT_SAFE { return m_aboveScopep; }
-    void aboveScopep(AstScope* nodep) { m_aboveScopep = nodep; }
-    AstCell* aboveCellp() const { return m_aboveCellp; }
-    void aboveCellp(AstCell* nodep) { m_aboveCellp = nodep; }
-    bool isTop() const VL_MT_SAFE { return aboveScopep() == nullptr; }  // At top of hierarchy
+    AstScope* aboveScopep() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_aboveScopep; }
+    শূন্য aboveScopep(AstScope* nodep) { m_aboveScopep = nodep; }
+    AstCell* aboveCellp() ধ্রুব { প্রত্যাগম m_aboveCellp; }
+    শূন্য aboveCellp(AstCell* nodep) { m_aboveCellp = nodep; }
+    bool is_শীর্ষ() ধ্রুব VL_MT_SAFE { প্রত্যাগম aboveScopep() == nullptr; }  // At top of hierarchy
 };
-class AstSenItem final : public AstNode {
+class AstSenItem final : সার্বজনিক Ast_গ্রন্থি {
     // Parents:  SENTREE
     // @astgen op1 := sensp : Optional[AstNodeExpr] // Sensitivity expression
     // @astgen op2 := condp : Optional[AstNodeExpr] // Sensitivity condition
     VEdgeType m_edgeType;  // Edge type
-public:
+সার্বজনিক:
     class Combo {};  // for constructor type-overload selection
     class Static {};  // for constructor type-overload selection
     class Initial {};  // for constructor type-overload selection
     class InitialNBA {};  // for constructor type-overload selection
     class Final {};  // for constructor type-overload selection
     class Never {};  // for constructor type-overload selection
-    AstSenItem(FileLine* fl, VEdgeType edgeType, AstNodeExpr* senp, AstNodeExpr* condp = nullptr)
+    AstSenItem(File_সারি* fl, VEdgeType edgeType, Ast_গ্রন্থি_রাশিমালা* senp, Ast_গ্রন্থি_রাশিমালা* condp = nullptr)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{edgeType} {
         this->sensp(senp);
         this->condp(condp);
     }
-    AstSenItem(FileLine* fl, Combo)
+    AstSenItem(File_সারি* fl, Combo)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_COMBO} {}
-    AstSenItem(FileLine* fl, Static)
+    AstSenItem(File_সারি* fl, Static)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_STATIC} {}
-    AstSenItem(FileLine* fl, Initial)
+    AstSenItem(File_সারি* fl, Initial)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_INITIAL} {}
-    AstSenItem(FileLine* fl, InitialNBA)
+    AstSenItem(File_সারি* fl, InitialNBA)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_INITIAL_NBA} {}
-    AstSenItem(FileLine* fl, Final)
+    AstSenItem(File_সারি* fl, Final)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_FINAL} {}
-    AstSenItem(FileLine* fl, Never)
+    AstSenItem(File_সারি* fl, Never)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_NEVER} {}
     ASTGEN_MEMBERS_AstSenItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        return edgeType() == VN_DBG_AS(samep, SenItem)->edgeType();
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        প্রত্যাগম edgeType() == VN_DBG_AS(samep, SenItem)->edgeType();
     }
-    VEdgeType edgeType() const { return m_edgeType; }
-    void edgeType(VEdgeType type) {
+    VEdgeType edgeType() ধ্রুব { প্রত্যাগম m_edgeType; }
+    শূন্য edgeType(VEdgeType type) {
         m_edgeType = type;
-        editCountInc();
+        edit_গুনতি_Inc();
     }
-    AstNodeVarRef* varrefp() const { return VN_CAST(sensp(), NodeVarRef); }
+    Ast_গ্রন্থি_Var_Ref* varrefp() ধ্রুব { প্রত্যাগম VN_CAST(sensp(), গ্রন্থি_Var_Ref); }
     //
-    bool isClocked() const { return edgeType().clockedStmt(); }
-    bool isComboOrStar() const {
-        return edgeType() == VEdgeType::ET_COMBO || edgeType() == VEdgeType::ET_COMBO_STAR;
+    bool isClocked() ধ্রুব { প্রত্যাগম edgeType().clockedStmt(); }
+    bool isComboOrStar() ধ্রুব {
+        প্রত্যাগম edgeType() == VEdgeType::ET_COMBO || edgeType() == VEdgeType::ET_COMBO_STAR;
     }
-    bool isComboStar() const { return edgeType() == VEdgeType::ET_COMBO_STAR; }
-    bool isHybrid() const { return edgeType() == VEdgeType::ET_HYBRID; }
-    bool isStatic() const { return edgeType() == VEdgeType::ET_STATIC; }
-    bool isInitial() const { return edgeType() == VEdgeType::ET_INITIAL; }
-    bool isFinal() const { return edgeType() == VEdgeType::ET_FINAL; }
-    bool isNever() const { return edgeType() == VEdgeType::ET_NEVER; }
+    bool isComboStar() ধ্রুব { প্রত্যাগম edgeType() == VEdgeType::ET_COMBO_STAR; }
+    bool isHybrid() ধ্রুব { প্রত্যাগম edgeType() == VEdgeType::ET_HYBRID; }
+    bool isStatic() ধ্রুব { প্রত্যাগম edgeType() == VEdgeType::ET_STATIC; }
+    bool isInitial() ধ্রুব { প্রত্যাগম edgeType() == VEdgeType::ET_INITIAL; }
+    bool isFinal() ধ্রুব { প্রত্যাগম edgeType() == VEdgeType::ET_FINAL; }
+    bool isNever() ধ্রুব { প্রত্যাগম edgeType() == VEdgeType::ET_NEVER; }
 };
-class AstSenTree final : public AstNode {
+class Ast_Sen_বৃক্ষ final : সার্বজনিক Ast_গ্রন্থি {
     // A sensitivity list
     // @astgen op1 := sensesp : List[AstSenItem]
-public:
-    AstSenTree(FileLine* fl, AstSenItem* sensesp)
-        : ASTGEN_SUPER_SenTree(fl) {
+সার্বজনিক:
+    Ast_Sen_বৃক্ষ(File_সারি* fl, AstSenItem* sensesp)
+        : ASTGEN_SUPER_Sen_বৃক্ষ(fl) {
         addSensesp(sensesp);
     }
-    ASTGEN_MEMBERS_AstSenTree;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    ASTGEN_MEMBERS_Ast_Sen_বৃক্ষ;
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
     // METHODS
-    bool hasClocked() const;  // Includes a clocked statement
-    bool hasEdge() const;  // Includes a posedge/negedge/bothedge clocked statement
-    bool hasStatic() const;  // Includes a STATIC SenItem
-    bool hasInitial() const;  // Includes a INITIAL SenItem
-    bool hasFinal() const;  // Includes a FINAL SenItem
-    bool hasCombo() const;  // Includes a COMBO SenItem
-    bool hasHybrid() const;  // Includes a HYBRID SenItem
+    bool hasClocked() ধ্রুব;  // Includes a clocked statement
+    bool hasEdge() ধ্রুব;  // Includes a posedge/negedge/bothedge clocked statement
+    bool hasStatic() ধ্রুব;  // Includes a STATIC SenItem
+    bool hasInitial() ধ্রুব;  // Includes a INITIAL SenItem
+    bool hasFinal() ধ্রুব;  // Includes a FINAL SenItem
+    bool hasCombo() ধ্রুব;  // Includes a COMBO SenItem
+    bool hasHybrid() ধ্রুব;  // Includes a HYBRID SenItem
 };
-class AstStrengthSpec final : public AstNode {
+class AstStrengthSpec final : সার্বজনিক Ast_গ্রন্থি {
     VStrength m_s0;  // Drive 0 strength
     VStrength m_s1;  // Drive 1 strength
 
-public:
-    AstStrengthSpec(FileLine* fl, VStrength s0, VStrength s1)
+সার্বজনিক:
+    AstStrengthSpec(File_সারি* fl, VStrength s0, VStrength s1)
         : ASTGEN_SUPER_StrengthSpec(fl)
         , m_s0{s0}
         , m_s1{s1} {}
 
     ASTGEN_MEMBERS_AstStrengthSpec;
-    VStrength strength0() { return m_s0; }
-    VStrength strength1() { return m_s1; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    VStrength strength0() { প্রত্যাগম m_s0; }
+    VStrength strength1() { প্রত্যাগম m_s1; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstSystemCSection final : public AstNode {
+class AstSystemCSection final : সার্বজনিক Ast_গ্রন্থি {
     // Verilator specific "`systemc_* block". This is a "module item"
     // containing arbitrary text that is emitted to the C++ output in various
     // locations depending on the sectionType.
-    const VSystemCSectionType m_sectionType;  // The section type
+    ধ্রুব VSystemCSectionType m_sectionType;  // The section type
     std::string m_text;  // The text content
 
-public:
-    AstSystemCSection(FileLine* fl, VSystemCSectionType sectionType, const std::string& text)
+সার্বজনিক:
+    AstSystemCSection(File_সারি* fl, VSystemCSectionType sectionType, ধ্রুব std::string& text)
         : ASTGEN_SUPER_SystemCSection(fl)
         , m_sectionType{sectionType}
         , m_text{text} {}
     ASTGEN_MEMBERS_AstSystemCSection;
-    VSystemCSectionType sectionType() const { return m_sectionType; }
-    const std::string& text() const { return m_text; }
-    void text(const std::string& value) { m_text = value; }
-    void dump(std::ostream&) const override;
-    void dumpJson(std::ostream&) const override;
-    bool sameNode(const AstNode*) const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
+    VSystemCSectionType sectionType() ধ্রুব { প্রত্যাগম m_sectionType; }
+    ধ্রুব std::string& text() ধ্রুব { প্রত্যাগম m_text; }
+    শূন্য text(ধ্রুব std::string& মান) { m_text = মান; }
+    শূন্য dump(std::ostream&) ধ্রুব override;
+    শূন্য dumpJson(std::ostream&) ধ্রুব override;
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি*) ধ্রুব override { প্রত্যাগম false; }
+    bool isPure() override { প্রত্যাগম false; }
+    bool isOutputter() override { প্রত্যাগম true; }
 };
-class AstText final : public AstNode {
+class AstText final : সার্বজনিক Ast_গ্রন্থি {
     // Represents a piece of text to be emitted into the output
     //
     // Avoid using this directly, internally usually want
     // AstCStmt::add("text") or AstCExpr::add("text") instead
     //
-    const std::string m_text;  // The text to emit
-public:
-    AstText(FileLine* fl, const std::string& text)
+    ধ্রুব std::string m_text;  // The text to emit
+সার্বজনিক:
+    AstText(File_সারি* fl, ধ্রুব std::string& text)
         : ASTGEN_SUPER_Text(fl)
         , m_text{text} {}
     ASTGEN_MEMBERS_AstText;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, Text)->text();
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        প্রত্যাগম text() == VN_DBG_AS(samep, Text)->text();
     }
-    const std::string& text() const VL_MT_SAFE { return m_text; }
+    ধ্রুব std::string& text() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_text; }
 };
-class AstTextBlock final : public AstNode {
+class AstTextBlock final : সার্বজনিক Ast_গ্রন্থি {
     // Text block emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode] // Nodes to print
     // dist-ast-dump-suppress  // Omitting text blocks due to verbosity
-    const std::string m_prefix;  // Prefix to print before first element in 'nodesp'
+    ধ্রুব std::string m_prefix;  // Prefix to print before first element in 'nodesp'
     // dist-ast-dump-suppress  // Omitting text blocks due to verbosity
-    const std::string m_separator;  // Separator to print between each element in 'nodesp'
+    ধ্রুব std::string m_separator;  // Separator to print between each element in 'nodesp'
     // dist-ast-dump-suppress  // Omitting text blocks due to verbosity
-    const std::string m_suffix;  // Suffix to pring after last element in 'nodesp'
-public:
-    explicit AstTextBlock(FileLine* fl,  //
-                          const std::string& prefix = "",  //
-                          const std::string& separator = "",  //
-                          const std::string& suffix = "")
+    ধ্রুব std::string m_suffix;  // Suffix to pring after last element in 'nodesp'
+সার্বজনিক:
+    explicit AstTextBlock(File_সারি* fl,  //
+                          ধ্রুব std::string& prefix = "",  //
+                          ধ্রুব std::string& separator = "",  //
+                          ধ্রুব std::string& suffix = "")
         : ASTGEN_SUPER_TextBlock(fl)
         , m_prefix{prefix}
         , m_separator{separator}
         , m_suffix{suffix} {}
     ASTGEN_MEMBERS_AstTextBlock;
-    const std::string& prefix() const { return m_prefix; }
-    const std::string& separator() const { return m_separator; }
-    const std::string& suffix() const { return m_suffix; }
+    ধ্রুব std::string& prefix() ধ্রুব { প্রত্যাগম m_prefix; }
+    ধ্রুব std::string& separator() ধ্রুব { প্রত্যাগম m_separator; }
+    ধ্রুব std::string& suffix() ধ্রুব { প্রত্যাগম m_suffix; }
     // Add some text, or a node to this block
-    void add(const string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    শূন্য add(ধ্রুব string& text) { addNodesp(new AstText{fileline(), text}); }
+    শূন্য add(Ast_গ্রন্থি* nodep) { addNodesp(nodep); }
 };
-class AstTopScope final : public AstNode {
+class Ast_শীর্ষ_Scope final : সার্বজনিক Ast_গ্রন্থি {
     // A singleton, held under the top level AstModule. Holds the top level
     // AstScope, and after V3ActiveTop, the global list of AstSenTrees (list of
     // unique sensitivity lists).
@@ -2096,19 +2096,19 @@ class AstTopScope final : public AstNode {
     // @astgen op2 := scopep : AstScope // The AstScope of the top-leveL
 
     friend class AstNetlist;  // Only the AstNetlist can create one
-    AstTopScope(FileLine* fl, AstScope* ascopep)
-        : ASTGEN_SUPER_TopScope(fl) {
+    Ast_শীর্ষ_Scope(File_সারি* fl, AstScope* ascopep)
+        : ASTGEN_SUPER_শীর্ষ_Scope(fl) {
         this->scopep(ascopep);
     }
 
-public:
-    ASTGEN_MEMBERS_AstTopScope;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+সার্বজনিক:
+    ASTGEN_MEMBERS_Ast_শীর্ষ_Scope;
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
     // Create new MODULETEMP variable in the top level scope. Name must start with '__V'
-    AstVarScope* createTemp(const string& name, unsigned width);
-    AstVarScope* createTemp(const string& name, AstNodeDType* dtypep);
+    AstVarScope* createTemp(ধ্রুব string& name, unsigned width);
+    AstVarScope* createTemp(ধ্রুব string& name, Ast_গ্রন্থি_DType* dtypep);
 };
-class AstTypeTable final : public AstNode {
+class AstTypeTable final : সার্বজনিক Ast_গ্রন্থি {
     // Container for hash of standard data types
     // @astgen op1 := typesp : List[AstNodeDType]
     //
@@ -2119,50 +2119,50 @@ class AstTypeTable final : public AstNode {
     // @astgen ptr := m_voidp : Optional[AstVoidDType]
     AstBasicDType* m_basicps[VBasicDTypeKwd::_ENUM_MAX]{};
     //
-    using DetailedMap = std::map<VBasicTypeKey, AstBasicDType*>;
+    using DetailedMap = std::map<VBasic_Type_চাবি, AstBasicDType*>;
     // dist-ast-dump-suppress  // Link to other nodes
     DetailedMap m_detailedMap;
 
-public:
-    explicit AstTypeTable(FileLine* fl);
+সার্বজনিক:
+    explicit AstTypeTable(File_সারি* fl);
     ASTGEN_MEMBERS_AstTypeTable;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
-    AstBasicDType* findBasicDType(FileLine* fl, VBasicDTypeKwd kwd);
-    AstBasicDType* findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, int width, int widthMin,
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    শূন্য cloneRelink() override { V3ERROR_NA; }  // Not cloneable
+    AstBasicDType* findBasicDType(File_সারি* fl, VBasicDTypeKwd kwd);
+    AstBasicDType* findLogicBitDType(File_সারি* fl, VBasicDTypeKwd kwd, পূর্ণাঙ্ক width, পূর্ণাঙ্ক widthMin,
                                      VSigning numeric);
-    AstBasicDType* findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, const VNumRange& range,
-                                     int widthMin, VSigning numeric);
-    AstBasicDType* findCreateSameDType(AstBasicDType& node);
-    AstBasicDType* findInsertSameDType(AstBasicDType* nodep);
-    AstConstraintRefDType* findConstraintRefDType(FileLine* fl);
-    AstEmptyQueueDType* findEmptyQueueDType(FileLine* fl);
-    AstQueueDType* findQueueIndexDType(FileLine* fl);
-    AstStreamDType* findStreamDType(FileLine* fl);
-    AstVoidDType* findVoidDType(FileLine* fl);
-    void clearCache();
-    void repairCache();
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    AstBasicDType* findLogicBitDType(File_সারি* fl, VBasicDTypeKwd kwd, ধ্রুব VNumRange& range,
+                                     পূর্ণাঙ্ক widthMin, VSigning numeric);
+    AstBasicDType* findCreateSameDType(AstBasicDType& গ্রন্থি);
+    AstBasicDType* find_ঢোকাও_Same_DType(AstBasicDType* nodep);
+    AstConstraintRefDType* findConstraintRefDType(File_সারি* fl);
+    AstEmptyQueueDType* findEmptyQueueDType(File_সারি* fl);
+    AstQueueDType* findQueueIndexDType(File_সারি* fl);
+    AstStreamDType* findStreamDType(File_সারি* fl);
+    AstVoidDType* findVoidDType(File_সারি* fl);
+    শূন্য clearCache();
+    শূন্য repairCache();
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
 };
-class AstTypedef final : public AstNode {
+class AstTypedef final : সার্বজনিক Ast_গ্রন্থি {
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op4 := attrsp : List[AstNode] // Attributes during early parse
 
     string m_name;  // Name of the typedef
     string m_tag;  // Holds the string of the verilator tag -- used in JSON output.
-    uint32_t m_declTokenNum;  // Declaration token number
+    uint32_t m_decl_Token_অঙ্ক;  // Declaration token number
     bool m_attrPublic = false;  // Marked with public; keep even if unused
     bool m_isHideLocal : 1;  // Verilog local
     bool m_isHideProtected : 1;  // Verilog protected
     bool m_isUnderClass : 1;  // Underneath class
 
-public:
-    AstTypedef(FileLine* fl, const string& name, AstNode* attrsp, VFlagChildDType,
-               AstNodeDType* dtp)
+সার্বজনিক:
+    AstTypedef(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* attrsp, VFlagChildDType,
+               Ast_গ্রন্থি_DType* dtp)
         : ASTGEN_SUPER_Typedef(fl)
         , m_name{name}
-        , m_declTokenNum{fl->tokenNum()}
+        , m_decl_Token_অঙ্ক{fl->token_অঙ্ক()}
         , m_isHideLocal{false}
         , m_isHideProtected{false}
         , m_isUnderClass{false} {
@@ -2170,115 +2170,115 @@ public:
         addAttrsp(attrsp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstTypedef(FileLine* fl, const string& name, AstNodeDType* dtp, bool underClass)
+    AstTypedef(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি_DType* dtp, bool underClass)
         : ASTGEN_SUPER_Typedef(fl)
         , m_name{name}
-        , m_declTokenNum{fl->tokenNum()}
+        , m_decl_Token_অঙ্ক{fl->token_অঙ্ক()}
         , m_isHideLocal{false}
         , m_isHideProtected{false}
         , m_isUnderClass{underClass} {
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstTypedef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
     // Name of the type it declares, with the scope declaring it, so with the values of the
     // parameters of the scope, e.g. '$unit::Cls#(8)::s_t'
-    string dtypeName() const;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    virtual AstNodeDType* subDTypep() const VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    string dtypeName() ধ্রুব;
+    Ast_গ্রন্থি_DType* getChildDTypep() ধ্রুব override { প্রত্যাগম childDTypep(); }
+    আভাস Ast_গ্রন্থি_DType* subDTypep() ধ্রুব VL_MT_STABLE {
+        প্রত্যাগম dtypep() ? dtypep() : childDTypep();
     }
     // METHODS
-    uint32_t declTokenNum() const override { return m_declTokenNum; }
-    void declTokenNumSetMin(uint32_t tokenNum) override {
-        m_declTokenNum = std::min(m_declTokenNum, tokenNum);
+    uint32_t decl_Token_অঙ্ক() ধ্রুব override { প্রত্যাগম m_decl_Token_অঙ্ক; }
+    শূন্য decl_Token_অঙ্ক_Set_Min(uint32_t token_অঙ্ক) override {
+        m_decl_Token_অঙ্ক = std::min(m_decl_Token_অঙ্ক, token_অঙ্ক);
     }
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    void name(const string& flag) override { m_name = flag; }
-    bool attrPublic() const { return m_attrPublic; }
-    void attrPublic(bool flag) { m_attrPublic = flag; }
-    bool isHideLocal() const { return m_isHideLocal; }
-    void isHideLocal(bool flag) { m_isHideLocal = flag; }
-    bool isHideProtected() const { return m_isHideProtected; }
-    void isHideProtected(bool flag) { m_isHideProtected = flag; }
-    bool isUnderClass() const { return m_isUnderClass; }
-    void isUnderClass(bool flag) { m_isUnderClass = flag; }
-    void tag(const string& text) override { m_tag = text; }
-    string tag() const override { return m_tag; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    শূন্য name(ধ্রুব string& flag) override { m_name = flag; }
+    bool attrPublic() ধ্রুব { প্রত্যাগম m_attrPublic; }
+    শূন্য attrPublic(bool flag) { m_attrPublic = flag; }
+    bool isHideLocal() ধ্রুব { প্রত্যাগম m_isHideLocal; }
+    শূন্য isHideLocal(bool flag) { m_isHideLocal = flag; }
+    bool isHideProtected() ধ্রুব { প্রত্যাগম m_isHideProtected; }
+    শূন্য isHideProtected(bool flag) { m_isHideProtected = flag; }
+    bool isUnderClass() ধ্রুব { প্রত্যাগম m_isUnderClass; }
+    শূন্য isUnderClass(bool flag) { m_isUnderClass = flag; }
+    শূন্য tag(ধ্রুব string& text) override { m_tag = text; }
+    string tag() ধ্রুব override { প্রত্যাগম m_tag; }
 };
-class AstTypedefFwd final : public AstNode {
+class AstTypedefFwd final : সার্বজনিক Ast_গ্রন্থি {
     // Forward declaration of a type; stripped after netlist parsing is complete
     string m_name;
-    const VFwdType m_fwdType;  // Forward type for lint check
+    ধ্রুব VFwdType m_fwdType;  // Forward type for lint check
 
-public:
-    AstTypedefFwd(FileLine* fl, const string& name, const VFwdType& fwdType)
+সার্বজনিক:
+    AstTypedefFwd(File_সারি* fl, ধ্রুব string& name, ধ্রুব VFwdType& fwdType)
         : ASTGEN_SUPER_TypedefFwd(fl)
         , m_name{name}
         , m_fwdType{fwdType} {}
     ASTGEN_MEMBERS_AstTypedefFwd;
     // METHODS
-    string name() const override VL_MT_STABLE { return m_name; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    VFwdType fwdType() const { return m_fwdType; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    VFwdType fwdType() ধ্রুব { প্রত্যাগম m_fwdType; }
 };
-class AstUdpTable final : public AstNode {
+class AstUdpTable final : সার্বজনিক Ast_গ্রন্থি {
     // @astgen op1 := linesp : List[AstUdpTableLine]
-public:
-    AstUdpTable(FileLine* fl, AstUdpTableLine* linesp)
+সার্বজনিক:
+    AstUdpTable(File_সারি* fl, Ast_Udp_Table_সারি* linesp)
         : ASTGEN_SUPER_UdpTable(fl) {
         this->addLinesp(linesp);
-        if (!v3Global.hasTable()) v3Global.setHasTable();
+        যদি (!v3Global.hasTable()) v3Global.setHasTable();
     }
     ASTGEN_MEMBERS_AstUdpTable;
 };
-class AstUdpTableLine final : public AstNode {
+class Ast_Udp_Table_সারি final : সার্বজনিক Ast_গ্রন্থি {
     // @astgen op1 := iFieldsp : List[AstUdpTableLineVal]  // Input fields
     // @astgen op2 := oFieldsp : List[AstUdpTableLineVal]  // Output fields
-private:
-    const bool m_udpIsCombo;  // Combinational or sequential UDP
+গুপ্ত:
+    ধ্রুব bool m_udpIsCombo;  // Combinational or sequential UDP
 
-public:
+সার্বজনিক:
     class UdpCombo {};
-    AstUdpTableLine(UdpCombo, FileLine* fl, AstUdpTableLineVal* iFieldsp,
-                    AstUdpTableLineVal* oFieldsp)
-        : ASTGEN_SUPER_UdpTableLine(fl)
+    Ast_Udp_Table_সারি(UdpCombo, File_সারি* fl, Ast_Udp_Table_সারি_Val* iFieldsp,
+                    Ast_Udp_Table_সারি_Val* oFieldsp)
+        : ASTGEN_SUPER_Udp_Table_সারি(fl)
         , m_udpIsCombo{true} {
         addIFieldsp(iFieldsp);
         addOFieldsp(oFieldsp);
     }
     class UdpSequential {};
-    AstUdpTableLine(UdpSequential, FileLine* fl, AstUdpTableLineVal* iFieldsp,
-                    AstUdpTableLineVal* oFieldsp1, AstUdpTableLineVal* oFieldsp2)
-        : ASTGEN_SUPER_UdpTableLine(fl)
+    Ast_Udp_Table_সারি(UdpSequential, File_সারি* fl, Ast_Udp_Table_সারি_Val* iFieldsp,
+                    Ast_Udp_Table_সারি_Val* oFieldsp1, Ast_Udp_Table_সারি_Val* oFieldsp2)
+        : ASTGEN_SUPER_Udp_Table_সারি(fl)
         , m_udpIsCombo{false} {
         addIFieldsp(iFieldsp);
         addOFieldsp(oFieldsp1);
         addOFieldsp(oFieldsp2);
     }
-    ASTGEN_MEMBERS_AstUdpTableLine;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int udpIsCombo() const { return m_udpIsCombo; }
+    ASTGEN_MEMBERS_Ast_Udp_Table_সারি;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    পূর্ণাঙ্ক udpIsCombo() ধ্রুব { প্রত্যাগম m_udpIsCombo; }
 };
-class AstUdpTableLineVal final : public AstNode {
+class Ast_Udp_Table_সারি_Val final : সার্বজনিক Ast_গ্রন্থি {
     string m_text;  // Value character
 
-public:
-    AstUdpTableLineVal(FileLine* fl, const string& text)
-        : ASTGEN_SUPER_UdpTableLineVal(fl)
+সার্বজনিক:
+    Ast_Udp_Table_সারি_Val(File_সারি* fl, ধ্রুব string& text)
+        : ASTGEN_SUPER_Udp_Table_সারি_Val(fl)
         , m_text{text} {}
-    ASTGEN_MEMBERS_AstUdpTableLineVal;
-    string name() const override VL_MT_STABLE { return m_text; }
-    void name(std::string const& text) override VL_MT_STABLE { m_text = text; }
-    string text() const VL_MT_SAFE { return m_text; }
+    ASTGEN_MEMBERS_Ast_Udp_Table_সারি_Val;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_text; }
+    শূন্য name(std::string ধ্রুব& text) override VL_MT_STABLE { m_text = text; }
+    string text() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_text; }
 };
-class AstVar final : public AstNode {
+class AstVar final : সার্বজনিক Ast_গ্রন্থি {
     // A variable (in/out/wire/reg/param) inside a module
     //
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
@@ -2299,8 +2299,8 @@ class AstVar final : public AstNode {
     VDirection m_declDirection;  // Declared direction input/output etc
     VLifetime m_lifetime;  // Lifetime
     VRandAttr m_rand;  // Randomizability of this variable (rand, randc, etc)
-    int m_pinNum = 0;  // For JSON, if non-zero the connection pin number
-    int m_libInoutId = 0;  // Identifies the three ports of a lowered library inout
+    পূর্ণাঙ্ক m_pin_অঙ্ক = 0;  // For JSON, if non-zero the connection pin number
+    পূর্ণাঙ্ক m_libInoutId = 0;  // Identifies the three ports of a lowered library inout
     bool m_libInoutEnable : 1;  // Port is the lowered library inout's enable
     bool m_ansi : 1;  // Params or pins declared in the module header, rather than the body
     bool m_declTyped : 1;  // Declared as type (for dedup check)
@@ -2368,8 +2368,8 @@ class AstVar final : public AstNode {
     bool m_globalConstrained : 1;  // Global constraint per IEEE 1800-2023 18.5.8
     bool m_isStdRandomizeArg : 1;  // Argument variable created for std::randomize (__Varg*)
     bool m_processQueue : 1;  // Process queue variable
-    bool m_mtaskCacheLineAlign : 1;  // Start MTask affinity group on a cache line
-    void init() {
+    bool m_mtask_Cache_সারি_Align : 1;  // Start MTask affinity group on a cache line
+    শূন্য init() {
         m_libInoutEnable = false;
         m_ansi = false;
         m_declTyped = false;
@@ -2436,11 +2436,11 @@ class AstVar final : public AstNode {
         m_globalConstrained = false;
         m_isStdRandomizeArg = false;
         m_processQueue = false;
-        m_mtaskCacheLineAlign = false;
+        m_mtask_Cache_সারি_Align = false;
     }
 
-public:
-    AstVar(FileLine* fl, VVarType type, const string& name, VFlagChildDType, AstNodeDType* dtp)
+সার্বজনিক:
+    AstVar(File_সারি* fl, VVarType type, ধ্রুব string& name, VFlagChildDType, Ast_গ্রন্থি_DType* dtp)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2449,7 +2449,7 @@ public:
         childDTypep(dtp);  // Only for parser
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, AstNodeDType* dtp)
+    AstVar(File_সারি* fl, VVarType type, ধ্রুব string& name, Ast_গ্রন্থি_DType* dtp)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2458,7 +2458,7 @@ public:
         UASSERT(dtp, "AstVar created with no dtype");
         dtypep(dtp);
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, VFlagLogicPacked, int wantwidth)
+    AstVar(File_সারি* fl, VVarType type, ধ্রুব string& name, VFlagLogicPacked, পূর্ণাঙ্ক wantwidth)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2466,7 +2466,7 @@ public:
         combineType(type);
         dtypeSetLogicSized(wantwidth, VSigning::UNSIGNED);
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, VFlagBitPacked, int wantwidth)
+    AstVar(File_সারি* fl, VVarType type, ধ্রুব string& name, VFlagBitPacked, পূর্ণাঙ্ক wantwidth)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2474,285 +2474,285 @@ public:
         combineType(type);
         dtypeSetBitSized(wantwidth, VSigning::UNSIGNED);
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, const AstVar* examplep)
+    AstVar(File_সারি* fl, VVarType type, ধ্রুব string& name, ধ্রুব AstVar* examplep)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
         init();
         combineType(type);
-        if (examplep->childDTypep()) childDTypep(examplep->childDTypep()->cloneTree(true));
+        যদি (examplep->childDTypep()) childDTypep(examplep->childDTypep()->clone_বৃক্ষ(true));
         dtypeFrom(examplep);
     }
     ASTGEN_MEMBERS_AstVar;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    inline bool sameNode(const AstNode* samep) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string origName() const override { return m_origName; }  // * = Original name
-    void origName(const string& name) { m_origName = name; }
-    VVarType varType() const VL_MT_SAFE { return m_varType; }  // * = Type of variable
-    void direction(const VDirection& flag) {
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    অন্তঃস্থ bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override;
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }  // * = Var name
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    string origName() ধ্রুব override { প্রত্যাগম m_origName; }  // * = Original name
+    শূন্য origName(ধ্রুব string& name) { m_origName = name; }
+    VVarType varType() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_varType; }  // * = Type of variable
+    শূন্য direction(ধ্রুব VDirection& flag) {
         m_direction = flag;
-        if (m_direction == VDirection::INOUT) m_tristate = true;
+        যদি (m_direction == VDirection::INOUT) m_tristate = true;
     }
-    VDirection direction() const VL_MT_SAFE { return m_direction; }
-    bool isIO() const VL_MT_SAFE { return m_direction != VDirection::NONE; }
-    bool isVLIO() const {
-        const AstBasicDType* const bdtypep = basicp();
-        return isPrimaryIO() && bdtypep && !bdtypep->isOpaque()
+    VDirection direction() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_direction; }
+    bool isIO() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_direction != VDirection::NONE; }
+    bool isVLIO() ধ্রুব {
+        ধ্রুব AstBasicDType* ধ্রুব bdtypep = basicp();
+        প্রত্যাগম isPrimaryIO() && bdtypep && !bdtypep->isOpaque()
                && !dtypep()->skipRefp()->isCompound()
                && !VN_IS(dtypep()->skipRefp(), UnpackArrayDType);
     }
-    void declDirection(const VDirection& flag) { m_declDirection = flag; }
-    VDirection declDirection() const { return m_declDirection; }
-    int libInoutId() const { return m_libInoutId; }
-    void libInoutId(int id) { m_libInoutId = id; }
-    bool libInoutEnable() const { return m_libInoutEnable; }
-    void libInoutEnable(bool flag) { m_libInoutEnable = flag; }
-    void varType(VVarType type) { m_varType = type; }
-    void varType2Out() {
+    শূন্য declDirection(ধ্রুব VDirection& flag) { m_declDirection = flag; }
+    VDirection declDirection() ধ্রুব { প্রত্যাগম m_declDirection; }
+    পূর্ণাঙ্ক libInoutId() ধ্রুব { প্রত্যাগম m_libInoutId; }
+    শূন্য libInoutId(পূর্ণাঙ্ক id) { m_libInoutId = id; }
+    bool libInoutEnable() ধ্রুব { প্রত্যাগম m_libInoutEnable; }
+    শূন্য libInoutEnable(bool flag) { m_libInoutEnable = flag; }
+    শূন্য varType(VVarType type) { m_varType = type; }
+    শূন্য varType2Out() {
         m_tristate = false;
         m_direction = VDirection::OUTPUT;
     }
-    void varType2In() {
+    শূন্য varType2In() {
         m_tristate = false;
-        m_direction = VDirection::INPUT;
+        m_direction = VDirection::প্রবেশ;
     }
-    string scType() const;  // Return SysC type: bool, uint32_t, uint64_t, sc_bv
+    string scType() ধ্রুব;  // Return SysC type: bool, uint32_t, uint64_t, sc_bv
     // Return C /*public*/ type for argument: bool, uint32_t, uint64_t, etc.
-    string cPubArgType(bool named, bool forReturn) const;
+    string cPubArgType(bool named, bool forReturn) ধ্রুব;
     // Return DPI-C type for argument; if 'cpp', C structures are qualified for C++ class scopes
-    string dpiArgType(bool named, bool forReturn, bool cpp = false) const;
-    string dpiTmpVarType(const string& varName) const;
+    string dpiArgType(bool named, bool forReturn, bool cpp = false) ধ্রুব;
+    string dpiTmpVarType(ধ্রুব string& varName) ধ্রুব;
     // Return Verilator internal type for argument: CData, SData, IData, WData
     string vlArgType(bool named, bool forReturn, bool forFunc, bool asRef = false,
-                     bool constRef = false) const;
-    string vlEnumType() const;  // Return VerilatorVarType: VLVT_UINT32, etc
-    string vlEnumDir(bool forMember = false) const;  // Return VerilatorVarDir: VLVD_INOUT, etc
-    string vlPropDecl(const string& propName) const;  // Return VerilatorVarProps declaration
-    void combineType(VVarType type);
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* dtypeSkipRefp() const VL_MT_STABLE { return subDTypep()->skipRefp(); }
+                     bool constRef = false) ধ্রুব;
+    string vlEnumType() ধ্রুব;  // Return VerilatorVarType: VLVT_UINT32, etc
+    string vlEnumDir(bool forMember = false) ধ্রুব;  // Return VerilatorVarDir: VLVD_INOUT, etc
+    string vlPropDecl(ধ্রুব string& propName) ধ্রুব;  // Return VerilatorVarProps declaration
+    শূন্য combineType(VVarType type);
+    Ast_গ্রন্থি_DType* getChildDTypep() ধ্রুব override { প্রত্যাগম childDTypep(); }
+    Ast_গ্রন্থি_DType* dtypeSkipRefp() ধ্রুব VL_MT_STABLE { প্রত্যাগম subDTypep()->skipRefp(); }
     // (Slow) recurse down to find basic data type (Note don't need virtual -
     // AstVar isn't a NodeDType)
-    AstBasicDType* basicp() const VL_MT_STABLE { return subDTypep()->basicp(); }
-    virtual AstNodeDType* subDTypep() const VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    AstBasicDType* basicp() ধ্রুব VL_MT_STABLE { প্রত্যাগম subDTypep()->basicp(); }
+    আভাস Ast_গ্রন্থি_DType* subDTypep() ধ্রুব VL_MT_STABLE {
+        প্রত্যাগম dtypep() ? dtypep() : childDTypep();
     }
-    void ansi(bool flag) { m_ansi = flag; }
-    void declTyped(bool flag) { m_declTyped = flag; }
-    void sensIfacep(AstIface* nodep) { m_sensIfacep = nodep; }
-    void attrFileDescr(bool flag) { m_attrFileDescr = flag; }
-    void attrScBv(bool flag) { m_attrScBv = flag; }
-    void attrScBigUint(bool flag) { m_attrScBigUint = flag; }
-    void attrSFormat(bool flag) { m_attrSFormat = flag; }
-    void attrSplitVar(bool flag) { m_attrSplitVar = flag; }
-    void attrFsmState(bool flag) { m_attrFsmState = flag; }
-    void attrFsmArcInclCond(bool flag) { m_attrFsmArcInclCond = flag; }
-    void attrFsmStateExpand(const VFsmExpandType flag) {
+    শূন্য ansi(bool flag) { m_ansi = flag; }
+    শূন্য declTyped(bool flag) { m_declTyped = flag; }
+    শূন্য sensIfacep(AstIface* nodep) { m_sensIfacep = nodep; }
+    শূন্য attrFileDescr(bool flag) { m_attrFileDescr = flag; }
+    শূন্য attrScBv(bool flag) { m_attrScBv = flag; }
+    শূন্য attrScBigUint(bool flag) { m_attrScBigUint = flag; }
+    শূন্য attrSFormat(bool flag) { m_attrSFormat = flag; }
+    শূন্য attrSplitVar(bool flag) { m_attrSplitVar = flag; }
+    শূন্য attrFsmState(bool flag) { m_attrFsmState = flag; }
+    শূন্য attrFsmArcInclCond(bool flag) { m_attrFsmArcInclCond = flag; }
+    শূন্য attrFsmStateExpand(ধ্রুব VFsmExpandType flag) {
         UASSERT_OBJ(flag < 4, this, "Expand mode value should be in range [0;3]");
         m_attrFsmStateExpand = flag;
     }
-    bool constPoolEntry() const { return m_constPoolEntry; }
-    void setConstPoolEntry() { m_constPoolEntry = true; }
-    bool covergroupRefMember() const { return m_covergroupRefMember; }
-    void covergroupRefMember(bool flag) { m_covergroupRefMember = flag; }
+    bool constPoolEntry() ধ্রুব { প্রত্যাগম m_constPoolEntry; }
+    শূন্য setConstPoolEntry() { m_constPoolEntry = true; }
+    bool covergroupRefMember() ধ্রুব { প্রত্যাগম m_covergroupRefMember; }
+    শূন্য covergroupRefMember(bool flag) { m_covergroupRefMember = flag; }
     // Instance variable an embedded covergroup declares, of the covergroup's anonymous type
     // (IEEE 1800-2023 19.4)
-    bool embeddedCovergroup() const { return m_embeddedCovergroup; }
-    void embeddedCovergroup(bool flag) { m_embeddedCovergroup = flag; }
-    void rand(const VRandAttr flag) { m_rand = flag; }
-    void usedParam(bool flag) { m_usedParam = flag; }
-    void usedLoopIdx(bool flag) { m_usedLoopIdx = flag; }
-    void sigPublic(bool flag) { m_sigPublic = flag; }
-    void sigModPublic(bool flag) { m_sigModPublic = flag; }
-    void sigUserRdPublic(bool flag) {
+    bool embeddedCovergroup() ধ্রুব { প্রত্যাগম m_embeddedCovergroup; }
+    শূন্য embeddedCovergroup(bool flag) { m_embeddedCovergroup = flag; }
+    শূন্য rand(ধ্রুব VRandAttr flag) { m_rand = flag; }
+    শূন্য usedParam(bool flag) { m_usedParam = flag; }
+    শূন্য usedLoopIdx(bool flag) { m_usedLoopIdx = flag; }
+    শূন্য sigPublic(bool flag) { m_sigPublic = flag; }
+    শূন্য sigModPublic(bool flag) { m_sigModPublic = flag; }
+    শূন্য sigUserRdPublic(bool flag) {
         m_sigUserRdPublic = flag;
-        if (flag) sigPublic(true);
+        যদি (flag) sigPublic(true);
     }
-    void sigUserRWPublic(bool flag) {
+    শূন্য sigUserRWPublic(bool flag) {
         m_sigUserRWPublic = flag;
-        if (flag) sigUserRdPublic(true);
+        যদি (flag) sigUserRdPublic(true);
     }
-    void sc(bool flag) { m_sc = flag; }
-    void scSensitive(bool flag) { m_scSensitive = flag; }
-    void primaryIO(bool flag) { m_primaryIO = flag; }
-    void isConst(bool flag) { m_isConst = flag; }
-    void isContinuously(bool flag) { m_isContinuously = flag; }
-    void isIfaceParent(bool flag) { m_isIfaceParent = flag; }
-    void isIfaceArraySplit(bool flag) { m_isIfaceArraySplit = flag; }
-    void isInternal(bool flag) { m_isInternal = flag; }
-    void isIfaceParam(bool flag) { m_isIfaceParam = flag; }
-    void funcLocal(bool flag) {
+    শূন্য sc(bool flag) { m_sc = flag; }
+    শূন্য scSensitive(bool flag) { m_scSensitive = flag; }
+    শূন্য primaryIO(bool flag) { m_primaryIO = flag; }
+    শূন্য isConst(bool flag) { m_isConst = flag; }
+    শূন্য isContinuously(bool flag) { m_isContinuously = flag; }
+    শূন্য isIfaceParent(bool flag) { m_isIfaceParent = flag; }
+    শূন্য isIfaceArraySplit(bool flag) { m_isIfaceArraySplit = flag; }
+    শূন্য isInternal(bool flag) { m_isInternal = flag; }
+    শূন্য isIfaceParam(bool flag) { m_isIfaceParam = flag; }
+    শূন্য funcLocal(bool flag) {
         m_funcLocal = flag;
-        if (flag) m_funcLocalSticky = true;
+        যদি (flag) m_funcLocalSticky = true;
     }
-    void funcReturn(bool flag) { m_funcReturn = flag; }
-    bool gotNansiType() const { return m_gotNansiType; }
-    void gotNansiType(bool flag) { m_gotNansiType = flag; }
-    bool hasStrengthAssignment() const { return m_hasStrengthAssignment; }
-    void hasStrengthAssignment(bool flag) { m_hasStrengthAssignment = flag; }
-    bool hasUserInit() const { return m_hasUserInit; }
-    void hasUserInit(bool flag) { m_hasUserInit = flag; }
-    void icoMaybeWritten(bool flag) { m_icoMaybeWritten = flag; }
-    bool icoMaybeWritten() const { return m_icoMaybeWritten; }
-    void isClockingDriven(bool flag) { m_isClockingDriven = flag; }
-    bool isClockingDriven() const { return m_isClockingDriven; }
-    bool isDpiOpenArray() const VL_MT_SAFE { return m_isDpiOpenArray; }
-    void isDpiOpenArray(bool flag) { m_isDpiOpenArray = flag; }
-    bool isHideLocal() const { return m_isHideLocal; }
-    void isHideLocal(bool flag) { m_isHideLocal = flag; }
-    bool isHideProtected() const { return m_isHideProtected; }
-    void isHideProtected(bool flag) { m_isHideProtected = flag; }
-    bool noCReset() const { return m_noCReset; }
-    void noCReset(bool flag) { m_noCReset = flag; }
-    bool noReset() const { return m_noReset; }
-    void noReset(bool flag) { m_noReset = flag; }
-    bool noSubst() const { return m_noSubst; }
-    void noSubst(bool flag) { m_noSubst = flag; }
-    bool processQueue() const { return m_processQueue; }
-    void processQueue(bool flag) { m_processQueue = flag; }
-    bool sampled() const { return m_sampled; }
-    void sampled(bool flag) { m_sampled = flag; }
-    bool substConstOnly() const { return m_substConstOnly; }
-    void substConstOnly(bool flag) { m_substConstOnly = flag; }
-    bool overriddenParam() const { return m_overriddenParam; }
-    void overriddenParam(bool flag) { m_overriddenParam = flag; }
-    bool untypedParam() const { return m_untypedParam; }
-    void untypedParam(bool flag) { m_untypedParam = flag; }
-    void trace(bool flag) { m_trace = flag; }
-    void isLatched(bool flag) { m_isLatched = flag; }
-    bool isForceable() const { return m_isForceable; }
-    void setForceable() { m_isForceable = true; }
-    void setForcedByCode() { m_isForcedByCode = true; }
-    bool isForced() const { return m_isForceable || m_isForcedByCode; }
-    bool isReadByDpi() const { return m_isReadByDpi; }
-    void setReadByDpi() { m_isReadByDpi = true; }
-    bool isWrittenByDpi() const { return m_isWrittenByDpi; }
-    void setWrittenByDpi() { m_isWrittenByDpi = true; }
-    bool isWrittenBySuspendable() const { return m_isWrittenBySuspendable; }
-    void setWrittenBySuspendable() { m_isWrittenBySuspendable = true; }
-    bool ignorePostRead() const { return m_ignorePostRead; }
-    void setIgnorePostRead() { m_ignorePostRead = true; }
-    bool ignorePostWrite() const { return m_ignorePostWrite; }
-    void setIgnorePostWrite() { m_ignorePostWrite = true; }
-    bool ignoreSchedWrite() const { return m_ignoreSchedWrite; }
-    void setIgnoreSchedWrite() { m_ignoreSchedWrite = true; }
-    bool dfgTriLowered() const { return m_dfgTriLowered; }
-    void setDfgTriLowered() { m_dfgTriLowered = true; }
-    bool dfgAllowMultidriveTri() const { return m_dfgAllowMultidriveTri; }
-    void setDfgAllowMultidriveTri() { m_dfgAllowMultidriveTri = true; }
-    void globalConstrained(bool flag) { m_globalConstrained = flag; }
-    bool globalConstrained() const { return m_globalConstrained; }
-    bool isStdRandomizeArg() const { return m_isStdRandomizeArg; }
-    void setStdRandomizeArg() { m_isStdRandomizeArg = true; }
+    শূন্য funcReturn(bool flag) { m_funcReturn = flag; }
+    bool gotNansiType() ধ্রুব { প্রত্যাগম m_gotNansiType; }
+    শূন্য gotNansiType(bool flag) { m_gotNansiType = flag; }
+    bool hasStrengthAssignment() ধ্রুব { প্রত্যাগম m_hasStrengthAssignment; }
+    শূন্য hasStrengthAssignment(bool flag) { m_hasStrengthAssignment = flag; }
+    bool hasUserInit() ধ্রুব { প্রত্যাগম m_hasUserInit; }
+    শূন্য hasUserInit(bool flag) { m_hasUserInit = flag; }
+    শূন্য icoMaybeWritten(bool flag) { m_icoMaybeWritten = flag; }
+    bool icoMaybeWritten() ধ্রুব { প্রত্যাগম m_icoMaybeWritten; }
+    শূন্য isClockingDriven(bool flag) { m_isClockingDriven = flag; }
+    bool isClockingDriven() ধ্রুব { প্রত্যাগম m_isClockingDriven; }
+    bool isDpiOpenArray() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_isDpiOpenArray; }
+    শূন্য isDpiOpenArray(bool flag) { m_isDpiOpenArray = flag; }
+    bool isHideLocal() ধ্রুব { প্রত্যাগম m_isHideLocal; }
+    শূন্য isHideLocal(bool flag) { m_isHideLocal = flag; }
+    bool isHideProtected() ধ্রুব { প্রত্যাগম m_isHideProtected; }
+    শূন্য isHideProtected(bool flag) { m_isHideProtected = flag; }
+    bool noCReset() ধ্রুব { প্রত্যাগম m_noCReset; }
+    শূন্য noCReset(bool flag) { m_noCReset = flag; }
+    bool noReset() ধ্রুব { প্রত্যাগম m_noReset; }
+    শূন্য noReset(bool flag) { m_noReset = flag; }
+    bool noSubst() ধ্রুব { প্রত্যাগম m_noSubst; }
+    শূন্য noSubst(bool flag) { m_noSubst = flag; }
+    bool processQueue() ধ্রুব { প্রত্যাগম m_processQueue; }
+    শূন্য processQueue(bool flag) { m_processQueue = flag; }
+    bool sampled() ধ্রুব { প্রত্যাগম m_sampled; }
+    শূন্য sampled(bool flag) { m_sampled = flag; }
+    bool substConstOnly() ধ্রুব { প্রত্যাগম m_substConstOnly; }
+    শূন্য substConstOnly(bool flag) { m_substConstOnly = flag; }
+    bool overriddenParam() ধ্রুব { প্রত্যাগম m_overriddenParam; }
+    শূন্য overriddenParam(bool flag) { m_overriddenParam = flag; }
+    bool untypedParam() ধ্রুব { প্রত্যাগম m_untypedParam; }
+    শূন্য untypedParam(bool flag) { m_untypedParam = flag; }
+    শূন্য trace(bool flag) { m_trace = flag; }
+    শূন্য isLatched(bool flag) { m_isLatched = flag; }
+    bool isForceable() ধ্রুব { প্রত্যাগম m_isForceable; }
+    শূন্য setForceable() { m_isForceable = true; }
+    শূন্য setForcedByCode() { m_isForcedByCode = true; }
+    bool isForced() ধ্রুব { প্রত্যাগম m_isForceable || m_isForcedByCode; }
+    bool isReadByDpi() ধ্রুব { প্রত্যাগম m_isReadByDpi; }
+    শূন্য setReadByDpi() { m_isReadByDpi = true; }
+    bool isWrittenByDpi() ধ্রুব { প্রত্যাগম m_isWrittenByDpi; }
+    শূন্য setWrittenByDpi() { m_isWrittenByDpi = true; }
+    bool isWrittenBySuspendable() ধ্রুব { প্রত্যাগম m_isWrittenBySuspendable; }
+    শূন্য setWrittenBySuspendable() { m_isWrittenBySuspendable = true; }
+    bool ignorePostRead() ধ্রুব { প্রত্যাগম m_ignorePostRead; }
+    শূন্য setIgnorePostRead() { m_ignorePostRead = true; }
+    bool ignorePostWrite() ধ্রুব { প্রত্যাগম m_ignorePostWrite; }
+    শূন্য setIgnorePostWrite() { m_ignorePostWrite = true; }
+    bool ignoreSchedWrite() ধ্রুব { প্রত্যাগম m_ignoreSchedWrite; }
+    শূন্য setIgnoreSchedWrite() { m_ignoreSchedWrite = true; }
+    bool dfgTriLowered() ধ্রুব { প্রত্যাগম m_dfgTriLowered; }
+    শূন্য setDfgTriLowered() { m_dfgTriLowered = true; }
+    bool dfgAllowMultidriveTri() ধ্রুব { প্রত্যাগম m_dfgAllowMultidriveTri; }
+    শূন্য setDfgAllowMultidriveTri() { m_dfgAllowMultidriveTri = true; }
+    শূন্য globalConstrained(bool flag) { m_globalConstrained = flag; }
+    bool globalConstrained() ধ্রুব { প্রত্যাগম m_globalConstrained; }
+    bool isStdRandomizeArg() ধ্রুব { প্রত্যাগম m_isStdRandomizeArg; }
+    শূন্য setStdRandomizeArg() { m_isStdRandomizeArg = true; }
     // METHODS
-    void name(const string& name) override { m_name = name; }
-    void tag(const string& text) override { m_tag = text; }
-    string tag() const override { return m_tag; }
-    bool isAnsi() const { return m_ansi; }
-    bool isContinuously() const { return m_isContinuously; }
-    bool isDeclTyped() const { return m_declTyped; }
-    bool isInout() const { return m_direction.isInout(); }
-    bool isInoutOrRef() const { return m_direction.isInoutOrRef(); }
-    bool isInput() const { return m_direction.isInput(); }
-    bool isNonOutput() const { return m_direction.isNonOutput(); }
-    bool isReadOnly() const VL_MT_SAFE { return m_direction.isReadOnly(); }
-    bool isConstRef() const VL_MT_SAFE { return m_direction.isConstRef(); }
-    bool isRef() const VL_MT_SAFE { return m_direction.isRef(); }
-    bool isWritable() const VL_MT_SAFE { return m_direction.isWritable(); }
-    bool isTristate() const { return m_tristate; }
-    bool isPrimaryIO() const VL_MT_SAFE { return m_primaryIO; }
-    bool isPrimaryInish() const { return isPrimaryIO() && isNonOutput(); }
-    bool isPrimaryClock() const VL_MT_SAFE { return m_primaryClock; }
-    void setPrimaryClock() { m_primaryClock = true; }
-    bool isIfaceRef() const { return varType() == VVarType::IFACEREF; }
-    void setIfaceRef() {
+    শূন্য name(ধ্রুব string& name) override { m_name = name; }
+    শূন্য tag(ধ্রুব string& text) override { m_tag = text; }
+    string tag() ধ্রুব override { প্রত্যাগম m_tag; }
+    bool isAnsi() ধ্রুব { প্রত্যাগম m_ansi; }
+    bool isContinuously() ধ্রুব { প্রত্যাগম m_isContinuously; }
+    bool isDeclTyped() ধ্রুব { প্রত্যাগম m_declTyped; }
+    bool isInout() ধ্রুব { প্রত্যাগম m_direction.isInout(); }
+    bool isInoutOrRef() ধ্রুব { প্রত্যাগম m_direction.isInoutOrRef(); }
+    bool is_প্রবেশ() ধ্রুব { প্রত্যাগম m_direction.is_প্রবেশ(); }
+    bool isNonOutput() ধ্রুব { প্রত্যাগম m_direction.isNonOutput(); }
+    bool isReadOnly() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_direction.isReadOnly(); }
+    bool isConstRef() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_direction.isConstRef(); }
+    bool isRef() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_direction.isRef(); }
+    bool isWritable() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_direction.isWritable(); }
+    bool isTristate() ধ্রুব { প্রত্যাগম m_tristate; }
+    bool isPrimaryIO() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_primaryIO; }
+    bool isPrimaryInish() ধ্রুব { প্রত্যাগম isPrimaryIO() && isNonOutput(); }
+    bool isPrimaryClock() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_primaryClock; }
+    শূন্য setPrimaryClock() { m_primaryClock = true; }
+    bool isIfaceRef() ধ্রুব { প্রত্যাগম varType() == VVarType::IFACEREF; }
+    শূন্য setIfaceRef() {
         m_direction = VDirection::NONE;
         m_varType = VVarType::IFACEREF;
     }
-    bool isIfaceParent() const { return m_isIfaceParent; }
-    bool isIfaceArraySplit() const { return m_isIfaceArraySplit; }
-    bool isInternal() const { return m_isInternal; }
-    bool isIfaceParam() const { return m_isIfaceParam; }
-    bool isSignal() const { return varType().isSignal(); }
-    bool isNet() const { return varType().isNet(); }
-    bool isWor() const { return varType().isWor(); }
-    bool isWiredNet() const { return varType().isWiredNet(); }
-    bool isTemp() const { return varType().isTemp(); }
-    bool isClassMember() const { return varType() == VVarType::MEMBER; }
-    bool isVirtIface() const {
-        if (AstIfaceRefDType* const dtp = VN_CAST(dtypep(), IfaceRefDType)) {
-            return dtp->isVirtual();
+    bool isIfaceParent() ধ্রুব { প্রত্যাগম m_isIfaceParent; }
+    bool isIfaceArraySplit() ধ্রুব { প্রত্যাগম m_isIfaceArraySplit; }
+    bool isInternal() ধ্রুব { প্রত্যাগম m_isInternal; }
+    bool isIfaceParam() ধ্রুব { প্রত্যাগম m_isIfaceParam; }
+    bool isSignal() ধ্রুব { প্রত্যাগম varType().isSignal(); }
+    bool isNet() ধ্রুব { প্রত্যাগম varType().isNet(); }
+    bool isWor() ধ্রুব { প্রত্যাগম varType().isWor(); }
+    bool isWiredNet() ধ্রুব { প্রত্যাগম varType().isWiredNet(); }
+    bool isTemp() ধ্রুব { প্রত্যাগম varType().isTemp(); }
+    bool isClassMember() ধ্রুব { প্রত্যাগম varType() == VVarType::MEMBER; }
+    bool isVirtIface() ধ্রুব {
+        যদি (AstIfaceRefDType* ধ্রুব dtp = VN_CAST(dtypep(), IfaceRefDType)) {
+            প্রত্যাগম dtp->isVirtual();
         }
-        return false;
+        প্রত্যাগম false;
     }
-    bool isStatementTemp() const { return varType() == VVarType::STMTTEMP; }
-    bool isXTemp() const { return varType() == VVarType::XTEMP; }
-    bool isParam() const { return varType().isParam(); }
-    bool isGParam() const { return varType() == VVarType::GPARAM; }
-    bool isGenVar() const { return varType() == VVarType::GENVAR; }
+    bool isStatementTemp() ধ্রুব { প্রত্যাগম varType() == VVarType::STMTTEMP; }
+    bool isXTemp() ধ্রুব { প্রত্যাগম varType() == VVarType::XTEMP; }
+    bool isParam() ধ্রুব { প্রত্যাগম varType().isParam(); }
+    bool isGParam() ধ্রুব { প্রত্যাগম varType() == VVarType::GPARAM; }
+    bool isGenVar() ধ্রুব { প্রত্যাগম varType() == VVarType::GENVAR; }
     // Return whether this variable is emitted as a member of its module's C++ class
-    bool isModelState() const {
-        return isIO() || isSignal() || isClassMember() || isTemp() || isGenVar();
+    bool isModelState() ধ্রুব {
+        প্রত্যাগম isIO() || isSignal() || isClassMember() || isTemp() || isGenVar();
     }
     // Variable needs no C++ constructor/destructor function run when default initialized/deleted
-    bool isTriviallyConstructible() const {
-        return !isSc() && dtypep()->isTriviallyConstructible();
+    bool isTriviallyConstructible() ধ্রুব {
+        প্রত্যাগম !isSc() && dtypep()->isTriviallyConstructible();
     }
-    bool isBitLogic() const {
-        const AstBasicDType* const bdtypep = basicp();
-        return bdtypep && bdtypep->isBitLogic();
+    bool isBitLogic() ধ্রুব {
+        ধ্রুব AstBasicDType* ধ্রুব bdtypep = basicp();
+        প্রত্যাগম bdtypep && bdtypep->isBitLogic();
     }
-    bool isUsedParam() const { return m_usedParam; }
-    bool isUsedLoopIdx() const { return m_usedLoopIdx; }
-    bool mtaskCacheLineAlign() const { return m_mtaskCacheLineAlign; }
-    void mtaskCacheLineAlign(bool flag) { m_mtaskCacheLineAlign = flag; }
-    bool isSc() const VL_MT_SAFE { return m_sc; }
-    bool isScQuad() const;
-    bool isScBv() const VL_MT_STABLE;
-    bool isScUint() const;
-    bool isScUintBool() const;
-    bool isScBigUint() const VL_MT_STABLE;
-    bool isScSensitive() const { return m_scSensitive; }
-    bool isSigPublic() const;
-    bool isSigModPublic() const { return m_sigModPublic && !isIfaceRef(); }
-    bool isSigUserRdPublic() const { return m_sigUserRdPublic && !isIfaceRef(); }
-    bool isSigUserRWPublic() const { return m_sigUserRWPublic && !isIfaceRef(); }
-    bool isTrace() const { return m_trace; }
-    bool isRand() const { return m_rand.isRand(); }
-    bool isRandC() const { return m_rand.isRandC(); }
-    bool isConst() const VL_MT_SAFE { return m_isConst; }
-    bool isLatched() const { return m_isLatched; }
-    bool isFuncLocal() const { return m_funcLocal; }
-    bool isFuncLocalSticky() const { return m_funcLocalSticky; }
-    bool isFuncReturn() const { return m_funcReturn; }
-    bool isPullup() const { return m_isPullup; }
-    bool isPulldown() const { return m_isPulldown; }
-    bool attrScBv() const { return m_attrScBv; }
-    bool attrScBigUint() const { return m_attrScBigUint; }
-    bool attrFileDescr() const { return m_attrFileDescr; }
-    bool attrSFormat() const { return m_attrSFormat; }
-    bool attrSplitVar() const { return m_attrSplitVar; }
-    bool attrFsmState() const { return m_attrFsmState; }
-    bool attrFsmArcInclCond() const { return m_attrFsmArcInclCond; }
-    VFsmExpandType attrFsmStateExpand() const { return m_attrFsmStateExpand; }
-    AstIface* sensIfacep() const { return m_sensIfacep; }
-    VRandAttr rand() const { return m_rand; }
-    string verilogKwd() const override;
-    void lifetime(const VLifetime& flag) { m_lifetime = flag; }
-    VLifetime lifetime() const { return m_lifetime; }
-    void pinNum(int id) { m_pinNum = id; }
-    int pinNum() const { return m_pinNum; }
-    void propagateAttrFrom(const AstVar* fromp) {
+    bool isUsedParam() ধ্রুব { প্রত্যাগম m_usedParam; }
+    bool isUsedLoopIdx() ধ্রুব { প্রত্যাগম m_usedLoopIdx; }
+    bool mtask_Cache_সারি_Align() ধ্রুব { প্রত্যাগম m_mtask_Cache_সারি_Align; }
+    শূন্য mtask_Cache_সারি_Align(bool flag) { m_mtask_Cache_সারি_Align = flag; }
+    bool isSc() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_sc; }
+    bool isScQuad() ধ্রুব;
+    bool isScBv() ধ্রুব VL_MT_STABLE;
+    bool isScUint() ধ্রুব;
+    bool isScUintBool() ধ্রুব;
+    bool isScBigUint() ধ্রুব VL_MT_STABLE;
+    bool isScSensitive() ধ্রুব { প্রত্যাগম m_scSensitive; }
+    bool isSigPublic() ধ্রুব;
+    bool isSigModPublic() ধ্রুব { প্রত্যাগম m_sigModPublic && !isIfaceRef(); }
+    bool isSigUserRdPublic() ধ্রুব { প্রত্যাগম m_sigUserRdPublic && !isIfaceRef(); }
+    bool isSigUserRWPublic() ধ্রুব { প্রত্যাগম m_sigUserRWPublic && !isIfaceRef(); }
+    bool isTrace() ধ্রুব { প্রত্যাগম m_trace; }
+    bool isRand() ধ্রুব { প্রত্যাগম m_rand.isRand(); }
+    bool isRandC() ধ্রুব { প্রত্যাগম m_rand.isRandC(); }
+    bool isConst() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_isConst; }
+    bool isLatched() ধ্রুব { প্রত্যাগম m_isLatched; }
+    bool isFuncLocal() ধ্রুব { প্রত্যাগম m_funcLocal; }
+    bool isFuncLocalSticky() ধ্রুব { প্রত্যাগম m_funcLocalSticky; }
+    bool isFuncReturn() ধ্রুব { প্রত্যাগম m_funcReturn; }
+    bool isPullup() ধ্রুব { প্রত্যাগম m_isPullup; }
+    bool isPulldown() ধ্রুব { প্রত্যাগম m_isPulldown; }
+    bool attrScBv() ধ্রুব { প্রত্যাগম m_attrScBv; }
+    bool attrScBigUint() ধ্রুব { প্রত্যাগম m_attrScBigUint; }
+    bool attrFileDescr() ধ্রুব { প্রত্যাগম m_attrFileDescr; }
+    bool attrSFormat() ধ্রুব { প্রত্যাগম m_attrSFormat; }
+    bool attrSplitVar() ধ্রুব { প্রত্যাগম m_attrSplitVar; }
+    bool attrFsmState() ধ্রুব { প্রত্যাগম m_attrFsmState; }
+    bool attrFsmArcInclCond() ধ্রুব { প্রত্যাগম m_attrFsmArcInclCond; }
+    VFsmExpandType attrFsmStateExpand() ধ্রুব { প্রত্যাগম m_attrFsmStateExpand; }
+    AstIface* sensIfacep() ধ্রুব { প্রত্যাগম m_sensIfacep; }
+    VRandAttr rand() ধ্রুব { প্রত্যাগম m_rand; }
+    string verilogKwd() ধ্রুব override;
+    শূন্য lifetime(ধ্রুব VLifetime& flag) { m_lifetime = flag; }
+    VLifetime lifetime() ধ্রুব { প্রত্যাগম m_lifetime; }
+    শূন্য pin_অঙ্ক(পূর্ণাঙ্ক id) { m_pin_অঙ্ক = id; }
+    পূর্ণাঙ্ক pin_অঙ্ক() ধ্রুব { প্রত্যাগম m_pin_অঙ্ক; }
+    শূন্য propagateAttrFrom(ধ্রুব AstVar* fromp) {
         // This is getting connected to fromp; keep attributes
         // Note the method below too
-        if (fromp->attrFileDescr()) attrFileDescr(true);
-        if (fromp->isContinuously()) isContinuously(true);
+        যদি (fromp->attrFileDescr()) attrFileDescr(true);
+        যদি (fromp->isContinuously()) isContinuously(true);
     }
-    void propagateSplitAttrFrom(const AstVar* fromp) {
+    শূন্য propagateSplitAttrFrom(ধ্রুব AstVar* fromp) {
         // Splitting a variable (element/member/fragment); keep attributes
         propagateAttrFrom(fromp);
         lifetime(fromp->lifetime());
@@ -2762,22 +2762,22 @@ public:
         attrSplitVar(fromp->attrSplitVar());
     }
     // Reason why the properties of the variable prevent splitting it, nullptr if none
-    const char* cannotSplitKindReason() const;
-    void propagateWrapAttrFrom(const AstVar* fromp) {
+    ধ্রুব বর্ণ* cannotSplitKindReason() ধ্রুব;
+    শূন্য propagateWrapAttrFrom(ধ্রুব AstVar* fromp) {
         // Creating a function wrapper; keep attributes
         propagateAttrFrom(fromp);
         direction(fromp->direction());
         declDirection(fromp->declDirection());
         lifetime(fromp->lifetime());
     }
-    void combineType(const AstVar* otherp);
-    bool needsCReset() const {
-        return !isIfaceParent() && !isIfaceRef() && !noReset() && !isParam() && !isStatementTemp()
+    শূন্য combineType(ধ্রুব AstVar* otherp);
+    bool needsCReset() ধ্রুব {
+        প্রত্যাগম !isIfaceParent() && !isIfaceRef() && !noReset() && !isParam() && !isStatementTemp()
                && !noCReset() && !(basicp() && basicp()->isEvent());
     }
-    static AstVar* scVarRecurse(AstNode* nodep);
+    স্থির AstVar* scVarRecurse(Ast_গ্রন্থি* nodep);
 };
-class AstVarScope final : public AstNode {
+class AstVarScope final : সার্বজনিক Ast_গ্রন্থি {
     // A particular scoped usage of a variable
     // That is, as a module is used under multiple cells, we get a different
     // varscope for each var in the module
@@ -2788,9 +2788,9 @@ class AstVarScope final : public AstNode {
     // @astgen ptr := m_varp : Optional[AstVar]  // [AfterLink] Pointer to variable itself
     bool m_trace : 1;  // Tracing is turned on for this scope
     bool m_optimizeLifePost : 1;  // One half of an NBA pair using ShadowVariable scheme. Optimize.
-    bool m_forkByValue : 1;  // Set before a fork, whose processes get it by value
-public:
-    AstVarScope(FileLine* fl, AstScope* scopep, AstVar* varp)
+    bool m_fork_By_মান : 1;  // Set before a fork, whose processes get it by value
+সার্বজনিক:
+    AstVarScope(File_সারি* fl, AstScope* scopep, AstVar* varp)
         : ASTGEN_SUPER_VarScope(fl)
         , m_scopep{scopep}
         , m_varp{varp} {
@@ -2798,141 +2798,141 @@ public:
         UASSERT_OBJ(varp, fl, "Var must be non-null");
         m_trace = true;
         m_optimizeLifePost = false;
-        m_forkByValue = false;
+        m_fork_By_মান = false;
         dtypeFrom(varp);
     }
     ASTGEN_MEMBERS_AstVarScope;
-    void cloneRelink() override {
-        if (m_varp && m_varp->clonep()) {
+    শূন্য cloneRelink() override {
+        যদি (m_varp && m_varp->clonep()) {
             UASSERT(m_scopep->clonep(), "No clone cross link: " << this);
         }
         cloneRelinkGen();
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return scopep()->name() + "->" + varp()->name(); }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* nodep) { m_varp = nodep; }
-    AstScope* scopep() const VL_MT_STABLE { return m_scopep; }  // Pointer to scope it's under
-    void scopep(AstScope* nodep) { m_scopep = nodep; }
-    bool isTrace() const { return m_trace; }
-    void trace(bool flag) { m_trace = flag; }
-    bool optimizeLifePost() const { return m_optimizeLifePost; }
-    void optimizeLifePost(bool flag) { m_optimizeLifePost = flag; }
-    bool forkByValue() const { return m_forkByValue; }
-    void forkByValue(bool flag) { m_forkByValue = flag; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম scopep()->name() + "->" + varp()->name(); }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override;
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    AstVar* varp() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_varp; }  // [After Link] Pointer to variable
+    শূন্য varp(AstVar* nodep) { m_varp = nodep; }
+    AstScope* scopep() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_scopep; }  // Pointer to scope it's under
+    শূন্য scopep(AstScope* nodep) { m_scopep = nodep; }
+    bool isTrace() ধ্রুব { প্রত্যাগম m_trace; }
+    শূন্য trace(bool flag) { m_trace = flag; }
+    bool optimizeLifePost() ধ্রুব { প্রত্যাগম m_optimizeLifePost; }
+    শূন্য optimizeLifePost(bool flag) { m_optimizeLifePost = flag; }
+    bool fork_By_মান() ধ্রুব { প্রত্যাগম m_fork_By_মান; }
+    শূন্য fork_By_মান(bool flag) { m_fork_By_মান = flag; }
 };
 
 // === AstNodeConsItem ===
-class AstConsArrayItem final : public AstNodeConsItem {
+class AstConsArrayItem final : সার্বজনিক Ast_গ্রন্থি_Cons_Item {
     // An element of an AstConsArray, setting the element at the index to the value
     // Parents: CONSARRAY
-    const uint64_t m_index;  // Index of the element, with the array's lo() at 0
-public:
-    AstConsArrayItem(FileLine* fl, uint64_t index, AstNodeExpr* valuep)
+    ধ্রুব uint64_t m_index;  // Index of the element, with the array's lo() at 0
+সার্বজনিক:
+    AstConsArrayItem(File_সারি* fl, uint64_t index, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_ConsArrayItem(fl, valuep)
         , m_index{index} {}
     ASTGEN_MEMBERS_AstConsArrayItem;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsArray) && !VN_IS(backp(), ConsArrayItem));
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        return m_index == VN_DBG_AS(samep, ConsArrayItem)->m_index;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        প্রত্যাগম m_index == VN_DBG_AS(samep, ConsArrayItem)->m_index;
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }  // By AstConsArray's map
-    uint64_t index() const { return m_index; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }  // By AstConsArray's map
+    uint64_t index() ধ্রুব { প্রত্যাগম m_index; }
 };
-class AstConsAssocItem final : public AstNodeConsItem {
+class AstConsAssocItem final : সার্বজনিক Ast_গ্রন্থি_Cons_Item {
     // An element of an AstConsAssoc, setting the key to the value
     // Parents: CONSASSOC
     // @astgen op1 := keyp : AstNodeExpr // Const, or Cons for an aggregate key type
-public:
-    AstConsAssocItem(FileLine* fl, AstNodeExpr* keyp, AstNodeExpr* valuep)
+সার্বজনিক:
+    AstConsAssocItem(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* keyp, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_ConsAssocItem(fl, valuep) {
         this->keyp(keyp);
     }
     ASTGEN_MEMBERS_AstConsAssocItem;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsAssoc) && !VN_IS(backp(), ConsAssocItem));
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
 };
-class AstConsDynArrayItem final : public AstNodeConsItem {
+class AstConsDynArrayItem final : সার্বজনিক Ast_গ্রন্থি_Cons_Item {
     // An element of an AstConsDynArray: a value, an array to splice, or with sizep, the
     // value at index 'keyp'
     // Parents: CONSDYNARRAY
     // @astgen op1 := keyp : Optional[AstConst]
-public:
-    AstConsDynArrayItem(FileLine* fl, AstNodeExpr* valuep)
+সার্বজনিক:
+    AstConsDynArrayItem(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_ConsDynArrayItem(fl, valuep) {}
-    AstConsDynArrayItem(FileLine* fl, AstConst* keyp, AstNodeExpr* valuep)
+    AstConsDynArrayItem(File_সারি* fl, AstConst* keyp, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_ConsDynArrayItem(fl, valuep) {
         this->keyp(keyp);
     }
     ASTGEN_MEMBERS_AstConsDynArrayItem;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsDynArray) && !VN_IS(backp(), ConsDynArrayItem));
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
 };
-class AstConsQueueItem final : public AstNodeConsItem {
+class AstConsQueueItem final : সার্বজনিক Ast_গ্রন্থি_Cons_Item {
     // An element of an AstConsQueue, a value or an array to splice
     // Parents: CONSQUEUE
-public:
-    AstConsQueueItem(FileLine* fl, AstNodeExpr* valuep)
+সার্বজনিক:
+    AstConsQueueItem(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_ConsQueueItem(fl, valuep) {}
     ASTGEN_MEMBERS_AstConsQueueItem;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsQueue) && !VN_IS(backp(), ConsQueueItem));
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
 };
-class AstConsStructItem final : public AstNodeConsItem {
+class AstConsStructItem final : সার্বজনিক Ast_গ্রন্থি_Cons_Item {
     // An element of an AstConsStruct, the value of a member
     // Parents: CONSSTRUCT
     // @astgen ptr := m_memberp : AstMemberDType  // The member set
-public:
-    AstConsStructItem(FileLine* fl, AstMemberDType* memberp, AstNodeExpr* valuep)
+সার্বজনিক:
+    AstConsStructItem(File_সারি* fl, AstMemberDType* memberp, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_ConsStructItem(fl, valuep)
         , m_memberp{memberp} {}
     ASTGEN_MEMBERS_AstConsStructItem;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsStruct) && !VN_IS(backp(), ConsStructItem));
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
-    void dump(std::ostream& str) const override;
-    AstMemberDType* memberp() const { return m_memberp; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    AstMemberDType* memberp() ধ্রুব { প্রত্যাগম m_memberp; }
 };
-class AstConsWildcardItem final : public AstNodeConsItem {
+class AstConsWildcardItem final : সার্বজনিক Ast_গ্রন্থি_Cons_Item {
     // An element of an AstConsWildcard, setting the key to the value
     // Parents: CONSWILDCARD
     // @astgen op1 := keyp : AstConst
-public:
-    AstConsWildcardItem(FileLine* fl, AstConst* keyp, AstNodeExpr* valuep)
+সার্বজনিক:
+    AstConsWildcardItem(File_সারি* fl, AstConst* keyp, Ast_গ্রন্থি_রাশিমালা* valuep)
         : ASTGEN_SUPER_ConsWildcardItem(fl, valuep) {
         this->keyp(keyp);
     }
     ASTGEN_MEMBERS_AstConsWildcardItem;
-    const char* broken() const override {
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsWildcard) && !VN_IS(backp(), ConsWildcardItem));
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
 };
 
 // === AstNodeCoverDecl ===
-class AstCoverOtherDecl final : public AstNodeCoverDecl {
+class AstCoverOtherDecl final : সার্বজনিক Ast_গ্রন্থি_Cover_Decl {
     // Coverage analysis point declaration
     // Used for other than toggle types of coverage
     string m_linescov;
@@ -2940,12 +2940,12 @@ class AstCoverOtherDecl final : public AstNodeCoverDecl {
     string m_fsmFrom;  // FSM source state label
     string m_fsmTo;  // FSM destination state label
     string m_fsmTag;  // FSM arc kind tag (e.g. reset, reset_include, default)
-    int m_offset;  // Offset column numbers to uniq-ify IFs
-public:
-    AstCoverOtherDecl(FileLine* fl, const string& page, const string& comment,
-                      const string& linescov, int offset, const string& fsmVar = "",
-                      const string& fsmFrom = "", const string& fsmTo = "",
-                      const string& fsmTag = "")
+    পূর্ণাঙ্ক m_offset;  // Offset column numbers to uniq-ify IFs
+সার্বজনিক:
+    AstCoverOtherDecl(File_সারি* fl, ধ্রুব string& page, ধ্রুব string& comment,
+                      ধ্রুব string& linescov, পূর্ণাঙ্ক offset, ধ্রুব string& fsmVar = "",
+                      ধ্রুব string& fsmFrom = "", ধ্রুব string& fsmTo = "",
+                      ধ্রুব string& fsmTag = "")
         : ASTGEN_SUPER_CoverOtherDecl(fl, page, comment)
         , m_linescov{linescov}
         , m_fsmVar{fsmVar}
@@ -2954,203 +2954,203 @@ public:
         , m_fsmTag{fsmTag}
         , m_offset{offset} {}
     ASTGEN_MEMBERS_AstCoverOtherDecl;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int offset() const { return m_offset; }
-    int size() const override { return 1; }
-    const string& linescov() const { return m_linescov; }
-    const string& fsmVar() const { return m_fsmVar; }
-    const string& fsmFrom() const { return m_fsmFrom; }
-    const string& fsmTo() const { return m_fsmTo; }
-    const string& fsmTag() const { return m_fsmTag; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCoverOtherDecl* const asamep = VN_DBG_AS(samep, CoverOtherDecl);
-        return Super::sameNode(samep) && linescov() == asamep->linescov();
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    পূর্ণাঙ্ক offset() ধ্রুব { প্রত্যাগম m_offset; }
+    পূর্ণাঙ্ক size() ধ্রুব override { প্রত্যাগম 1; }
+    ধ্রুব string& linescov() ধ্রুব { প্রত্যাগম m_linescov; }
+    ধ্রুব string& fsmVar() ধ্রুব { প্রত্যাগম m_fsmVar; }
+    ধ্রুব string& fsmFrom() ধ্রুব { প্রত্যাগম m_fsmFrom; }
+    ধ্রুব string& fsmTo() ধ্রুব { প্রত্যাগম m_fsmTo; }
+    ধ্রুব string& fsmTag() ধ্রুব { প্রত্যাগম m_fsmTag; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        ধ্রুব AstCoverOtherDecl* ধ্রুব asamep = VN_DBG_AS(samep, CoverOtherDecl);
+        প্রত্যাগম Super::same_গ্রন্থি(samep) && linescov() == asamep->linescov();
     }
 };
-class AstCoverToggleDecl final : public AstNodeCoverDecl {
+class AstCoverToggleDecl final : সার্বজনিক Ast_গ্রন্থি_Cover_Decl {
     // Coverage analysis point declaration
     // Used for toggle coverage
-    const VNumRange m_range;  // Packed array range covering each toggle bit
-public:
-    AstCoverToggleDecl(FileLine* fl, const string& page, const string& comment,
-                       const VNumRange& range)
+    ধ্রুব VNumRange m_range;  // Packed array range covering each toggle bit
+সার্বজনিক:
+    AstCoverToggleDecl(File_সারি* fl, ধ্রুব string& page, ধ্রুব string& comment,
+                       ধ্রুব VNumRange& range)
         : ASTGEN_SUPER_CoverToggleDecl(fl, page, comment)
         , m_range{range} {}
     ASTGEN_MEMBERS_AstCoverToggleDecl;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int size() const override {
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    পূর্ণাঙ্ক size() ধ্রুব override {
         // Changes 0 -> 1 and 1 -> 0 are counted separately
-        return 2 * m_range.elements();
+        প্রত্যাগম 2 * m_range.elements();
     }
-    const VNumRange& range() const { return m_range; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCoverToggleDecl* const asamep = VN_DBG_AS(samep, CoverToggleDecl);
-        return Super::sameNode(samep) && range() == asamep->range();
+    ধ্রুব VNumRange& range() ধ্রুব { প্রত্যাগম m_range; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        ধ্রুব AstCoverToggleDecl* ধ্রুব asamep = VN_DBG_AS(samep, CoverToggleDecl);
+        প্রত্যাগম Super::same_গ্রন্থি(samep) && range() == asamep->range();
     }
 };
 
 // === AstNodeFTask ===
-class AstFunc final : public AstNodeFTask {
+class AstFunc final : সার্বজনিক Ast_গ্রন্থি_FTask {
     // A function inside a module
-public:
-    AstFunc(FileLine* fl, const string& name, AstNode* stmtp, AstNode* fvarp)
+সার্বজনিক:
+    AstFunc(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* stmtp, Ast_গ্রন্থি* fvarp)
         : ASTGEN_SUPER_Func(fl, name, stmtp) {
         this->fvarp(fvarp);
     }
     ASTGEN_MEMBERS_AstFunc;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstFunc{fileline(), name, nullptr, nullptr};
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    Ast_গ্রন্থি_FTask* cloneType(ধ্রুব string& name) override {
+        প্রত্যাগম new AstFunc{fileline(), name, nullptr, nullptr};
     }
-    string verilogKwd() const override { return "function"; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "function"; }
 };
-class AstLet final : public AstNodeFTask {
+class AstLet final : সার্বজনিক Ast_গ্রন্থি_FTask {
     // Verilog "let" statement
     // Parents: MODULE
     // stmtp list first item is returned StmtExpr, as Let always returns AstNodeExpr
-public:
-    AstLet(FileLine* fl, const string& name)
+সার্বজনিক:
+    AstLet(File_সারি* fl, ধ্রুব string& name)
         : ASTGEN_SUPER_Let(fl, name, nullptr) {}
     ASTGEN_MEMBERS_AstLet;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(stmtsp(), StmtExpr));
-        return nullptr;
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    ধ্রুব বর্ণ* broken() ধ্রুব override {
+        BROKEN_RTN(!VN_IS(stmtsp(), Stmt_রাশিমালা));
+        প্রত্যাগম nullptr;
     }
-    AstNodeFTask* cloneType(const string& name) override { return new AstLet{fileline(), name}; }
-    string verilogKwd() const override { return "let"; }
+    Ast_গ্রন্থি_FTask* cloneType(ধ্রুব string& name) override { প্রত্যাগম new AstLet{fileline(), name}; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "let"; }
 };
-class AstProperty final : public AstNodeFTask {
+class AstProperty final : সার্বজনিক Ast_গ্রন্থি_FTask {
     // A property inside a module
-public:
-    AstProperty(FileLine* fl, const string& name, AstNode* stmtp)
+সার্বজনিক:
+    AstProperty(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* stmtp)
         : ASTGEN_SUPER_Property(fl, name, stmtp) {}
     ASTGEN_MEMBERS_AstProperty;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstProperty{fileline(), name, nullptr};
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    Ast_গ্রন্থি_FTask* cloneType(ধ্রুব string& name) override {
+        প্রত্যাগম new AstProperty{fileline(), name, nullptr};
     }
-    string verilogKwd() const override { return "property"; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "property"; }
 };
-class AstSequence final : public AstNodeFTask {
+class AstSequence final : সার্বজনিক Ast_গ্রন্থি_FTask {
     // A sequence inside a module
     // TODO when supported might not want to be a NodeFTask
     bool m_referenced = false;  // Set by V3LinkResolve when referenced; cleared by
                                 // V3AssertPre after inlining; if still set after
                                 // V3AssertPre, the reference is in an unsupported context
-public:
-    AstSequence(FileLine* fl, const string& name, AstNode* stmtp)
+সার্বজনিক:
+    AstSequence(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* stmtp)
         : ASTGEN_SUPER_Sequence(fl, name, stmtp) {}
     ASTGEN_MEMBERS_AstSequence;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstSequence{fileline(), name, nullptr};
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool hasDType() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    Ast_গ্রন্থি_FTask* cloneType(ধ্রুব string& name) override {
+        প্রত্যাগম new AstSequence{fileline(), name, nullptr};
     }
-    string verilogKwd() const override { return "sequence"; }
-    bool isReferenced() const { return m_referenced; }
-    void isReferenced(bool flag) { m_referenced = flag; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "sequence"; }
+    bool isReferenced() ধ্রুব { প্রত্যাগম m_referenced; }
+    শূন্য isReferenced(bool flag) { m_referenced = flag; }
 };
-class AstTask final : public AstNodeFTask {
+class AstTask final : সার্বজনিক Ast_গ্রন্থি_FTask {
     // A task inside a module
-public:
-    AstTask(FileLine* fl, const string& name, AstNode* stmtp)
+সার্বজনিক:
+    AstTask(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* stmtp)
         : ASTGEN_SUPER_Task(fl, name, stmtp) {}
     ASTGEN_MEMBERS_AstTask;
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstTask{fileline(), name, nullptr};
+    Ast_গ্রন্থি_FTask* cloneType(ধ্রুব string& name) override {
+        প্রত্যাগম new AstTask{fileline(), name, nullptr};
     }
-    string verilogKwd() const override { return "task"; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "task"; }
 };
 
 // === AstNodeFile ===
-class AstCFile final : public AstNodeFile {
+class AstCFile final : সার্বজনিক Ast_গ্রন্থি_File {
     // C++ output file
     // Parents:  NETLIST
     uint64_t m_complexityScore = 0;
     bool m_slow : 1;  ///< Compile w/o optimization
     bool m_source : 1;  ///< Source file (vs header file)
     bool m_support : 1;  ///< Support file (non systemc)
-public:
-    AstCFile(FileLine* fl, const string& name)
+সার্বজনিক:
+    AstCFile(File_সারি* fl, ধ্রুব string& name)
         : ASTGEN_SUPER_CFile(fl, name)
         , m_slow{false}
         , m_source{false}
         , m_support{false} {}
     ASTGEN_MEMBERS_AstCFile;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    uint64_t complexityScore() const { return m_complexityScore; }
-    void complexityScore(uint64_t newScore) { m_complexityScore = newScore; }
-    bool slow() const { return m_slow; }
-    void slow(bool flag) { m_slow = flag; }
-    bool source() const { return m_source; }
-    void source(bool flag) { m_source = flag; }
-    bool support() const { return m_support; }
-    void support(bool flag) VL_MT_SAFE { m_support = flag; }
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
+    uint64_t complexityScore() ধ্রুব { প্রত্যাগম m_complexityScore; }
+    শূন্য complexityScore(uint64_t newScore) { m_complexityScore = newScore; }
+    bool slow() ধ্রুব { প্রত্যাগম m_slow; }
+    শূন্য slow(bool flag) { m_slow = flag; }
+    bool source() ধ্রুব { প্রত্যাগম m_source; }
+    শূন্য source(bool flag) { m_source = flag; }
+    bool support() ধ্রুব { প্রত্যাগম m_support; }
+    শূন্য support(bool flag) VL_MT_SAFE { m_support = flag; }
 };
-class AstVFile final : public AstNodeFile {
+class AstVFile final : সার্বজনিক Ast_গ্রন্থি_File {
     // Verilog output file
     // Parents:  NETLIST
-public:
-    AstVFile(FileLine* fl, const string& name)
+সার্বজনিক:
+    AstVFile(File_সারি* fl, ধ্রুব string& name)
         : ASTGEN_SUPER_VFile(fl, name) {}
     ASTGEN_MEMBERS_AstVFile;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    শূন্য dump(std::ostream& str = std::cout) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str = std::cout) ধ্রুব override;
 };
-class AstCoverCross final : public AstNodeFuncCovItem {
+class AstCoverCross final : সার্বজনিক Ast_গ্রন্থি_Func_Cov_Item {
     // @astgen op1 := itemsp   : List[AstCoverpointRef]
     // @astgen op2 := optionsp : List[AstCoverOption]     // post-LinkParse only
     // @astgen op3 := binsp    : List[AstNode]  // Parse: mixed cross bins/options;
     //                                          // post-LinkParse: AstCoverCrossBin only
     // @astgen op4 := iffp     : Optional[AstNodeExpr]  // Conditional sampling guard
-public:
-    AstCoverCross(FileLine* fl, const string& name, AstCoverpointRef* itemsp,
-                  AstNodeExpr* iffp = nullptr)
+সার্বজনিক:
+    AstCoverCross(File_সারি* fl, ধ্রুব string& name, AstCoverpointRef* itemsp,
+                  Ast_গ্রন্থি_রাশিমালা* iffp = nullptr)
         : ASTGEN_SUPER_CoverCross(fl, name) {
         UASSERT(itemsp, "AstCoverCross requires at least one coverpoint reference");
         addItemsp(itemsp);
         this->iffp(iffp);
     }
     ASTGEN_MEMBERS_AstCoverCross;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstCoverpoint final : public AstNodeFuncCovItem {
+class AstCoverpoint final : সার্বজনিক Ast_গ্রন্থি_Func_Cov_Item {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := binsp : List[AstNode]  // Parse: mixed AstCoverBin/AstCgOptionAssign;
     // post-LinkParse: AstCoverBin only
     // @astgen op3 := iffp : Optional[AstNodeExpr]
     // @astgen op4 := optionsp : List[AstCoverOption]
-public:
-    AstCoverpoint(FileLine* fl, const string& name, AstNodeExpr* exprp,
-                  AstNodeExpr* iffp = nullptr, AstNode* binsp = nullptr)
+সার্বজনিক:
+    AstCoverpoint(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি_রাশিমালা* exprp,
+                  Ast_গ্রন্থি_রাশিমালা* iffp = nullptr, Ast_গ্রন্থি* binsp = nullptr)
         : ASTGEN_SUPER_Coverpoint(fl, name) {
         this->exprp(exprp);
         this->iffp(iffp);
         addBinsp(binsp);
     }
     ASTGEN_MEMBERS_AstCoverpoint;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
 
 // === AstNodeGen ===
-class AstGenBlock final : public AstNodeGen {
+class AstGenBlock final : সার্বজনিক Ast_গ্রন্থি_Gen {
     // Generate 'begin'
     // @astgen op1 := genforp : Optional[AstNode]
     // @astgen op2 := itemsp : List[AstNode]
     std::string m_name;  // Name of block
-    const bool m_unnamed;  // Originally unnamed (name change does not affect this)
-    const bool m_implied;  // Not inserted by user
+    ধ্রুব bool m_unnamed;  // Originally unnamed (name change does not affect this)
+    ধ্রুব bool m_implied;  // Not inserted by user
     AstDefaultDisable* m_defaultDisablep = nullptr;  // Default disable iff in this scope
 
-public:
-    AstGenBlock(FileLine* fl, const string& name, AstNode* itemsp, bool implied)
+সার্বজনিক:
+    AstGenBlock(File_সারি* fl, ধ্রুব string& name, Ast_গ্রন্থি* itemsp, bool implied)
         : ASTGEN_SUPER_GenBlock(fl)
         , m_name{name}
         , m_unnamed{name.empty()}
@@ -3158,37 +3158,37 @@ public:
         this->addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstGenBlock;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    bool unnamed() const { return m_unnamed; }
-    bool implied() const { return m_implied; }
-    AstDefaultDisable* defaultDisablep() const { return m_defaultDisablep; }
-    void defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম m_name; }
+    শূন্য name(ধ্রুব std::string& name) override { m_name = name; }
+    bool unnamed() ধ্রুব { প্রত্যাগম m_unnamed; }
+    bool implied() ধ্রুব { প্রত্যাগম m_implied; }
+    AstDefaultDisable* defaultDisablep() ধ্রুব { প্রত্যাগম m_defaultDisablep; }
+    শূন্য defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
     // As AstNodeModule::dtypeNameInnerScope(), e.g. 'top.gen[0].'
-    string dtypeNameInnerScope(const string& outer) const;
+    string dtypeNameInnerScope(ধ্রুব string& outer) ধ্রুব;
 };
-class AstGenCase final : public AstNodeGen {
+class AstGenCase final : সার্বজনিক Ast_গ্রন্থি_Gen {
     // Generate 'case'
     // @astgen op1 := exprp : AstNodeExpr // Condition (scurtinee) expression
     // @astgen op2 := itemsp : List[AstGenCaseItem]
-public:
-    AstGenCase(FileLine* fl, AstNodeExpr* exprp, AstGenCaseItem* itemsp)
+সার্বজনিক:
+    AstGenCase(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* exprp, AstGenCaseItem* itemsp)
         : ASTGEN_SUPER_GenCase(fl) {
         this->exprp(exprp);
         this->addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstGenCase;
 };
-class AstGenFor final : public AstNodeGen {
+class AstGenFor final : সার্বজনিক Ast_গ্রন্থি_Gen {
     // Generate 'for'
     // @astgen op1 := initsp : List[AstNode]
     // @astgen op2 := condp : AstNodeExpr
     // @astgen op3 := incsp : List[AstNode]
     // @astgen op4 := itemsp : List[AstNode]
-public:
-    AstGenFor(FileLine* fl, AstNode* initsp, AstNodeExpr* condp, AstNode* incsp, AstNode* itemsp)
+সার্বজনিক:
+    AstGenFor(File_সারি* fl, Ast_গ্রন্থি* initsp, Ast_গ্রন্থি_রাশিমালা* condp, Ast_গ্রন্থি* incsp, Ast_গ্রন্থি* itemsp)
         : ASTGEN_SUPER_GenFor(fl) {
         this->addInitsp(initsp);
         this->condp(condp);
@@ -3197,13 +3197,13 @@ public:
     }
     ASTGEN_MEMBERS_AstGenFor;
 };
-class AstGenIf final : public AstNodeGen {
+class AstGenIf final : সার্বজনিক Ast_গ্রন্থি_Gen {
     // Generate 'if'
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := thensp : List[AstNode]
     // @astgen op3 := elsesp : List[AstNode]
-public:
-    AstGenIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
+সার্বজনিক:
+    AstGenIf(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* condp, Ast_গ্রন্থি* thensp, Ast_গ্রন্থি* elsesp)
         : ASTGEN_SUPER_GenIf(fl) {
         this->condp(condp);
         this->addThensp(thensp);
@@ -3213,14 +3213,14 @@ public:
 };
 
 // === AstNodeModule ===
-class AstClass final : public AstNodeModule {
+class AstClass final : সার্বজনিক Ast_গ্রন্থি_Module {
     // @astgen op4 := extendsp : List[AstClassExtends]
     // MEMBERS
     // @astgen ptr := m_classOrPackagep : Optional[AstClassPackage]  // Package to be emitted with
     // @astgen ptr := m_covergroupEnclosingClassp : Optional[AstClass]  // Lexical enclosing class
     string m_dtypeNameFull;  // dtypeName(true) once frozen, as parameters may then be gone
     string m_dtypeNameShort;  // dtypeName(false) once frozen, as parameters may then be gone
-    uint32_t m_declTokenNum;  // Declaration token number
+    uint32_t m_decl_Token_অঙ্ক;  // Declaration token number
     VBaseOverride m_baseOverride;  // BaseOverride (inital/final/extends)
     bool m_hasRandVarsUpdate = false;  // Has updateRandVars method,
                                        // which updates pointers to rand variables in clone()
@@ -3234,391 +3234,391 @@ class AstClass final : public AstNodeModule {
     // Mutable, as only a recursion guard of the const dtypeName(), so also not dumped
     mutable bool m_dtypeNameBusy = false;  // In dtypeName(), which a parameter may lead back to
     // Covergroup options (when m_covergroup is true)
-    int m_cgAutoBinMax = -1;  // option.auto_bin_max value (-1 = not set, use default 64)
+    পূর্ণাঙ্ক m_cgAutoBinMax = -1;  // option.auto_bin_max value (-1 = not set, use default 64)
 
     // dtypeName() as computed from the tree, with 'scope', the prefix for the scope declaring the
     // class
-    string dtypeNameCalc(bool full, const string& scope) const;
-    string dtypeNameScope() const;  // Prefix of dtypeName(true) for the scope declaring the class
+    string dtypeNameCalc(bool full, ধ্রুব string& scope) ধ্রুব;
+    string dtypeNameScope() ধ্রুব;  // Prefix of dtypeName(true) for the scope declaring the class
 
-public:
-    AstClass(FileLine* fl, const string& name, const string& libname)
+সার্বজনিক:
+    AstClass(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
         : ASTGEN_SUPER_Class(fl, name, libname)
-        , m_declTokenNum{fl->tokenNum()} {}
+        , m_decl_Token_অঙ্ক{fl->token_অঙ্ক()} {}
     ASTGEN_MEMBERS_AstClass;
-    string verilogKwd() const override { return isCovergroup() ? "covergroup" : "class"; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool timescaleMatters() const override { return false; }
-    AstClassPackage* classOrPackagep() const VL_MT_STABLE { return m_classOrPackagep; }
-    void classOrPackagep(AstClassPackage* classpackagep) { m_classOrPackagep = classpackagep; }
-    AstClass* covergroupEnclosingClassp() const VL_MT_STABLE {
-        return m_covergroupEnclosingClassp;
+    string verilogKwd() ধ্রুব override { প্রত্যাগম isCovergroup() ? "covergroup" : "class"; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম true; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    bool timescaleMatters() ধ্রুব override { প্রত্যাগম false; }
+    AstClassPackage* classOrPackagep() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_classOrPackagep; }
+    শূন্য classOrPackagep(AstClassPackage* classpackagep) { m_classOrPackagep = classpackagep; }
+    AstClass* covergroupEnclosingClassp() ধ্রুব VL_MT_STABLE {
+        প্রত্যাগম m_covergroupEnclosingClassp;
     }
-    void covergroupEnclosingClassp(AstClass* classp) { m_covergroupEnclosingClassp = classp; }
-    AstNode* membersp() const VL_MT_STABLE { return stmtsp(); }
-    void addMembersp(AstNode* nodep) { addStmtsp(nodep); }
-    bool hasRandVarsUpdate() const { return m_hasRandVarsUpdate; }
-    void hasRandVarsUpdate(bool flag) { m_hasRandVarsUpdate = flag; }
-    bool isCovergroup() const { return m_covergroup; }
-    void isCovergroup(bool flag) { m_covergroup = flag; }
-    bool isExtended() const { return m_extended; }
-    void isExtended(bool flag) { m_extended = flag; }
-    bool isInterfaceClass() const { return m_interfaceClass; }
-    void isInterfaceClass(bool flag) { m_interfaceClass = flag; }
-    bool isVirtual() const { return m_virtual; }
-    void isVirtual(bool flag) { m_virtual = flag; }
-    bool needRNG() const { return m_needRNG; }
-    void needRNG(bool flag) { m_needRNG = flag; }
-    bool useVirtualPublic() const { return m_useVirtualPublic; }
-    void useVirtualPublic(bool flag) { m_useVirtualPublic = flag; }
-    void markPrintedFrom() { m_printedFrom = true; }
-    bool isPrintedFrom() const { return m_printedFrom; }
+    শূন্য covergroupEnclosingClassp(AstClass* classp) { m_covergroupEnclosingClassp = classp; }
+    Ast_গ্রন্থি* membersp() ধ্রুব VL_MT_STABLE { প্রত্যাগম stmtsp(); }
+    শূন্য addMembersp(Ast_গ্রন্থি* nodep) { addStmtsp(nodep); }
+    bool hasRandVarsUpdate() ধ্রুব { প্রত্যাগম m_hasRandVarsUpdate; }
+    শূন্য hasRandVarsUpdate(bool flag) { m_hasRandVarsUpdate = flag; }
+    bool isCovergroup() ধ্রুব { প্রত্যাগম m_covergroup; }
+    শূন্য isCovergroup(bool flag) { m_covergroup = flag; }
+    bool isExtended() ধ্রুব { প্রত্যাগম m_extended; }
+    শূন্য isExtended(bool flag) { m_extended = flag; }
+    bool isInterfaceClass() ধ্রুব { প্রত্যাগম m_interfaceClass; }
+    শূন্য isInterfaceClass(bool flag) { m_interfaceClass = flag; }
+    bool isVirtual() ধ্রুব { প্রত্যাগম m_virtual; }
+    শূন্য isVirtual(bool flag) { m_virtual = flag; }
+    bool needRNG() ধ্রুব { প্রত্যাগম m_needRNG; }
+    শূন্য needRNG(bool flag) { m_needRNG = flag; }
+    bool useVirtualPublic() ধ্রুব { প্রত্যাগম m_useVirtualPublic; }
+    শূন্য useVirtualPublic(bool flag) { m_useVirtualPublic = flag; }
+    শূন্য markPrintedFrom() { m_printedFrom = true; }
+    bool isPrintedFrom() ধ্রুব { প্রত্যাগম m_printedFrom; }
     // Name of the class as a data type, with the values of its parameters, e.g. 'Cls#(int,5)'.
     // With 'full', as for $typename (IEEE 1800-2023 20.6.1), prefixed with the scope declaring
     // the class, e.g. '$unit::Cls#(int,5)', and with the types of parameters in full.
-    string dtypeName(bool full) const;
+    string dtypeName(bool full) ধ্রুব;
     // dtypeName(true), given 'scope', the prefix for the scope declaring the class, see
     // AstNodeModule::dtypeNameInnerScope()
-    string dtypeNameIn(const string& scope) const;
+    string dtypeNameIn(ধ্রুব string& scope) ধ্রুব;
     // Fix dtypeName(), as V3WidthCommit moves parameter types to the type table
-    void dtypeNameFreeze();
+    শূন্য dtypeNameFreeze();
     // Whether dtypeName() is fixed, as for a class elaborated from the design
-    bool dtypeNameFrozen() const { return !m_dtypeNameFull.empty(); }
+    bool dtypeNameFrozen() ধ্রুব { প্রত্যাগম !m_dtypeNameFull.empty(); }
     // Named by dtypeName(), as name() is internal for a specialization, unless still a template
-    string prettyNameMsg() const override { return hasGParam() ? prettyName() : dtypeName(false); }
+    string pretty_Name_বার্তা() ধ্রুব override { প্রত্যাগম hasGParam() ? prettyName() : dtypeName(false); }
     // Name of the anonymous type of embedded covergroup 'name', whose instance variable has the
     // covergroup's name (IEEE 1800-2023 19.4), see covergroupEnclosingClassp()
-    static string embeddedCovergroupTypeName(const string& name) { return "__vlAnonCG_" + name; }
+    স্থির string embeddedCovergroupTypeName(ধ্রুব string& name) { প্রত্যাগম "__vlAnonCG_" + name; }
     // Name of the covergroup that this, an embedded covergroup's type, is of
-    string embeddedCovergroupName() const;
+    string embeddedCovergroupName() ধ্রুব;
     // Covergroup options accessors
-    int cgAutoBinMax() const { return m_cgAutoBinMax; }
-    void cgAutoBinMax(int value) { m_cgAutoBinMax = value; }
+    পূর্ণাঙ্ক cgAutoBinMax() ধ্রুব { প্রত্যাগম m_cgAutoBinMax; }
+    শূন্য cgAutoBinMax(পূর্ণাঙ্ক মান) { m_cgAutoBinMax = মান; }
     // Return true if this class is an extension of base class (SLOW)
     // Accepts nullptrs
-    static bool isClassExtendedFrom(const AstClass* refClassp, const AstClass* baseClassp);
-    uint32_t declTokenNum() const override { return m_declTokenNum; }
-    void declTokenNumSetMin(uint32_t tokenNum) override {
-        m_declTokenNum = std::min(m_declTokenNum, tokenNum);
+    স্থির bool isClassExtendedFrom(ধ্রুব AstClass* refClassp, ধ্রুব AstClass* baseClassp);
+    uint32_t decl_Token_অঙ্ক() ধ্রুব override { প্রত্যাগম m_decl_Token_অঙ্ক; }
+    শূন্য decl_Token_অঙ্ক_Set_Min(uint32_t token_অঙ্ক) override {
+        m_decl_Token_অঙ্ক = std::min(m_decl_Token_অঙ্ক, token_অঙ্ক);
     }
-    void baseOverride(const VBaseOverride& flag) { m_baseOverride = flag; }
-    VBaseOverride baseOverride() const { return m_baseOverride; }
+    শূন্য baseOverride(ধ্রুব VBaseOverride& flag) { m_baseOverride = flag; }
+    VBaseOverride baseOverride() ধ্রুব { প্রত্যাগম m_baseOverride; }
     // Return the lowest class extended from, or this class
     AstClass* baseMostClassp();
-    static bool isCacheableChild(const AstNode* nodep);
+    স্থির bool isCacheableChild(ধ্রুব Ast_গ্রন্থি* nodep);
     // Iterates top level members of the class, taking into account inheritance (starting from the
     // root superclass). Note: after V3Scope, several children are moved under an AstScope and will
     // not be found by this.
     template <typename T_Callable>
-    void foreachMember(const T_Callable& f) {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
+    শূন্য foreachMember(ধ্রুব T_Callable& f) {
+        using T_গ্রন্থি = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
         static_assert(
-            vlstd::is_invocable<T_Callable, AstClass*, T_Node*>::value
-                && std::is_base_of<AstNode, T_Node>::value,
+            vlstd::is_invocable<T_Callable, AstClass*, T_গ্রন্থি*>::মান
+                && std::is_base_of<Ast_গ্রন্থি, T_গ্রন্থি>::মান,
             "T_Callable 'f' must have a signature compatible with 'void(AstClass*, T_Node*)', "
             "with 'T_Node' being a subtype of 'AstNode'");
-        if (const AstClassExtends* const cextendsp = this->extendsp()) {
+        যদি (ধ্রুব AstClassExtends* ধ্রুব cextendsp = this->extendsp()) {
             cextendsp->classp()->foreachMember(f);
         }
-        for (AstNode* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstNode::privateTypeTest<T_Node>(stmtp)) f(this, static_cast<T_Node*>(stmtp));
+        প্রতি (Ast_গ্রন্থি* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            যদি (Ast_গ্রন্থি::privateTypeTest<T_গ্রন্থি>(stmtp)) f(this, static_cast<T_গ্রন্থি*>(stmtp));
         }
     }
     // Same as above, but stops after first match
     template <typename T_Callable>
-    bool existsMember(const T_Callable& p) const {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
+    bool existsMember(ধ্রুব T_Callable& p) ধ্রুব {
+        using T_গ্রন্থি = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
         static_assert(
-            vlstd::is_invocable_r<bool, T_Callable, const AstClass*, const T_Node*>::value
-                && std::is_base_of<AstNode, T_Node>::value,
+            vlstd::is_invocable_r<bool, T_Callable, ধ্রুব AstClass*, ধ্রুব T_গ্রন্থি*>::মান
+                && std::is_base_of<Ast_গ্রন্থি, T_গ্রন্থি>::মান,
             "Predicate 'p' must have a signature compatible with 'bool(const AstClass*, "
             "const T_Node*)', with 'T_Node' being a subtype of 'AstNode'");
-        if (const AstClassExtends* const cextendsp = this->extendsp()) {
-            if (cextendsp->classp()->existsMember(p)) return true;
+        যদি (ধ্রুব AstClassExtends* ধ্রুব cextendsp = this->extendsp()) {
+            যদি (cextendsp->classp()->existsMember(p)) প্রত্যাগম true;
         }
-        for (AstNode* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstNode::privateTypeTest<T_Node>(stmtp)) {
-                if (p(this, static_cast<T_Node*>(stmtp))) return true;
+        প্রতি (Ast_গ্রন্থি* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            যদি (Ast_গ্রন্থি::privateTypeTest<T_গ্রন্থি>(stmtp)) {
+                যদি (p(this, static_cast<T_গ্রন্থি*>(stmtp))) প্রত্যাগম true;
             }
         }
-        return false;
+        প্রত্যাগম false;
     }
 };
-class AstClassPackage final : public AstNodeModule {
+class AstClassPackage final : সার্বজনিক Ast_গ্রন্থি_Module {
     // The static information portion of a class (treated similarly to a package)
     //
     // @astgen ptr := m_classp : Optional[AstClass]  // Class package this is under
     //                                     // (weak pointer, hard link is other way)
-public:
-    AstClassPackage(FileLine* fl, const string& name, const string& libname)
+সার্বজনিক:
+    AstClassPackage(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
         : ASTGEN_SUPER_ClassPackage(fl, name, libname) {}
     ASTGEN_MEMBERS_AstClassPackage;
-    string verilogKwd() const override { return "classpackage"; }
-    bool timescaleMatters() const override { return false; }
-    AstClass* classp() const VL_MT_SAFE { return m_classp; }
-    void classp(AstClass* classp) { m_classp = classp; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "classpackage"; }
+    bool timescaleMatters() ধ্রুব override { প্রত্যাগম false; }
+    AstClass* classp() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_classp; }
+    শূন্য classp(AstClass* classp) { m_classp = classp; }
 };
-class AstIface final : public AstNodeModule {
+class AstIface final : সার্বজনিক Ast_গ্রন্থি_Module {
     // An interface declaration
     string m_dtypeNameFull;  // dtypeName(true) once frozen, as parameter types may then be gone
     string m_dtypeNameShort;  // dtypeName(false) once frozen, as parameter types may then be gone
     bool m_hasVirtualRef = false;  // There exists a virtual interface reference for this interface
-public:
-    AstIface(FileLine* fl, const string& name, const string& libname)
+সার্বজনিক:
+    AstIface(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
         : ASTGEN_SUPER_Iface(fl, name, libname) {}
     ASTGEN_MEMBERS_AstIface;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return "interface"; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "interface"; }
     // Interfaces have `timescale applicability but lots of code seems to
     // get false warnings if we enable this
-    bool timescaleMatters() const override { return false; }
-    bool hasVirtualRef() const { return m_hasVirtualRef; }
-    void setHasVirtualRef() { m_hasVirtualRef = true; }
+    bool timescaleMatters() ধ্রুব override { প্রত্যাগম false; }
+    bool hasVirtualRef() ধ্রুব { প্রত্যাগম m_hasVirtualRef; }
+    শূন্য setHasVirtualRef() { m_hasVirtualRef = true; }
     // Name of the interface as a data type, with the values of its parameters, e.g. 'ifc#(8)'
-    string dtypeName(bool full) const;
+    string dtypeName(bool full) ধ্রুব;
     // Fix dtypeName(), as V3WidthCommit moves parameter types to the type table
-    void dtypeNameFreeze();
+    শূন্য dtypeNameFreeze();
 };
-class AstModule final : public AstNodeModule {
+class AstModule final : সার্বজনিক Ast_গ্রন্থি_Module {
     // A module declaration
-    const bool m_isChecker;  // Module represents a checker
-    const bool m_isProgram;  // Module represents a program
+    ধ্রুব bool m_isChecker;  // Module represents a checker
+    ধ্রুব bool m_isProgram;  // Module represents a program
     bool m_hasGenericIface = false;  // Module contains a generic interface
 
-public:
+সার্বজনিক:
     class Checker {};  // for constructor type-overload selection
     class Program {};  // for constructor type-overload selection
-    AstModule(FileLine* fl, const string& name, const string& libname)
+    AstModule(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
         : ASTGEN_SUPER_Module(fl, name, libname)
         , m_isChecker{false}
         , m_isProgram{false} {}
-    AstModule(FileLine* fl, const string& name, const string& libname, Checker)
+    AstModule(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname, Checker)
         : ASTGEN_SUPER_Module(fl, name, libname)
         , m_isChecker{true}
         , m_isProgram{false} {}
-    AstModule(FileLine* fl, const string& name, const string& libname, Program)
+    AstModule(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname, Program)
         : ASTGEN_SUPER_Module(fl, name, libname)
         , m_isChecker{false}
         , m_isProgram{true} {}
     ASTGEN_MEMBERS_AstModule;
-    string verilogKwd() const override {
-        return m_isChecker ? "checker" : m_isProgram ? "program" : "module";
+    string verilogKwd() ধ্রুব override {
+        প্রত্যাগম m_isChecker ? "checker" : m_isProgram ? "program" : "module";
     }
-    bool timescaleMatters() const override { return true; }
-    bool isChecker() const { return m_isChecker; }
-    bool isProgram() const { return m_isProgram; }
-    bool hasGenericIface() const { return m_hasGenericIface; }
-    void hasGenericIface(bool hasGenericIface) { m_hasGenericIface = hasGenericIface; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool timescaleMatters() ধ্রুব override { প্রত্যাগম true; }
+    bool isChecker() ধ্রুব { প্রত্যাগম m_isChecker; }
+    bool isProgram() ধ্রুব { প্রত্যাগম m_isProgram; }
+    bool hasGenericIface() ধ্রুব { প্রত্যাগম m_hasGenericIface; }
+    শূন্য hasGenericIface(bool hasGenericIface) { m_hasGenericIface = hasGenericIface; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
 };
-class AstNotFoundModule final : public AstNodeModule {
+class AstNotFoundModule final : সার্বজনিক Ast_গ্রন্থি_Module {
     // A missing module declaration
-public:
-    AstNotFoundModule(FileLine* fl, const string& name, const string& libname)
+সার্বজনিক:
+    AstNotFoundModule(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
         : ASTGEN_SUPER_NotFoundModule(fl, name, libname) {}
     ASTGEN_MEMBERS_AstNotFoundModule;
-    string verilogKwd() const override { return "/*not-found-*/ module"; }
-    bool timescaleMatters() const override { return false; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "/*not-found-*/ module"; }
+    bool timescaleMatters() ধ্রুব override { প্রত্যাগম false; }
 };
-class AstPackage final : public AstNodeModule {
+class AstPackage final : সার্বজনিক Ast_গ্রন্থি_Module {
     // A package declaration
-public:
-    AstPackage(FileLine* fl, const string& name, const string& libname)
+সার্বজনিক:
+    AstPackage(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
         : ASTGEN_SUPER_Package(fl, name, libname) {}
     ASTGEN_MEMBERS_AstPackage;
-    string verilogKwd() const override { return "package"; }
-    bool timescaleMatters() const override { return !isDollarUnit() && !isConstPool(); }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "package"; }
+    bool timescaleMatters() ধ্রুব override { প্রত্যাগম !isDollarUnit() && !isConstPool(); }
 };
-class AstPrimitive final : public AstNodeModule {
+class AstPrimitive final : সার্বজনিক Ast_গ্রন্থি_Module {
     // A primitive declaration
-public:
-    AstPrimitive(FileLine* fl, const string& name, const string& libname)
+সার্বজনিক:
+    AstPrimitive(File_সারি* fl, ধ্রুব string& name, ধ্রুব string& libname)
         : ASTGEN_SUPER_Primitive(fl, name, libname) {}
     ASTGEN_MEMBERS_AstPrimitive;
-    string verilogKwd() const override { return "primitive"; }
-    bool timescaleMatters() const override { return false; }
+    string verilogKwd() ধ্রুব override { প্রত্যাগম "primitive"; }
+    bool timescaleMatters() ধ্রুব override { প্রত্যাগম false; }
 };
 
 // === AstNodeProcedure ===
-class AstAlways final : public AstNodeProcedure {
+class AstAlways final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // @astgen op1 := sentreep : Optional[AstSenTree] // Sensitivity list iff clocked
-    const VAlwaysKwd m_keyword;
+    ধ্রুব VAlwaysKwd m_keyword;
 
-public:
-    AstAlways(FileLine* fl, VAlwaysKwd keyword, AstSenTree* sentreep, AstNode* stmtsp = nullptr)
+সার্বজনিক:
+    AstAlways(File_সারি* fl, VAlwaysKwd keyword, Ast_Sen_বৃক্ষ* sentreep, Ast_গ্রন্থি* stmtsp = nullptr)
         : ASTGEN_SUPER_Always(fl, stmtsp)
         , m_keyword{keyword} {
         this->sentreep(sentreep);
     }
-    explicit inline AstAlways(AstAssignW* assignp);
+    explicit অন্তঃস্থ AstAlways(AstAssignW* assignp);
     ASTGEN_MEMBERS_AstAlways;
     //
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VAlwaysKwd keyword() const { return m_keyword; }
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    VAlwaysKwd keyword() ধ্রুব { প্রত্যাগম m_keyword; }
 };
-class AstAlwaysObserved final : public AstNodeProcedure {
+class AstAlwaysObserved final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // Like always but Observed scheduling region
     // @astgen op1 := sentreep : Optional[AstSenTree] // Sensitivity list, removed in V3Active
 
-public:
-    AstAlwaysObserved(FileLine* fl, AstSenTree* sentreep, AstNode* bodysp)
+সার্বজনিক:
+    AstAlwaysObserved(File_সারি* fl, Ast_Sen_বৃক্ষ* sentreep, Ast_গ্রন্থি* bodysp)
         : ASTGEN_SUPER_AlwaysObserved(fl, bodysp) {
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstAlwaysObserved;
 };
-class AstAlwaysPost final : public AstNodeProcedure {
+class AstAlwaysPost final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // Like always but 'post' scheduled, e.g. for array NBA commits
 
-public:
-    explicit AstAlwaysPost(FileLine* fl)
+সার্বজনিক:
+    explicit AstAlwaysPost(File_সারি* fl)
         : ASTGEN_SUPER_AlwaysPost(fl, nullptr) {}
     ASTGEN_MEMBERS_AstAlwaysPost;
 };
-class AstAlwaysPostponed final : public AstNodeProcedure {
+class AstAlwaysPostponed final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // Like always but Postponed scheduling region
 
-public:
-    AstAlwaysPostponed(FileLine* fl, AstNode* stmtsp)
+সার্বজনিক:
+    AstAlwaysPostponed(File_সারি* fl, Ast_গ্রন্থি* stmtsp)
         : ASTGEN_SUPER_AlwaysPostponed(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstAlwaysPostponed;
 };
-class AstAlwaysPre final : public AstNodeProcedure {
+class AstAlwaysPre final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // Like always but 'pre' scheduled, e.g. for implementing NBAs
 
-public:
-    explicit AstAlwaysPre(FileLine* fl)
+সার্বজনিক:
+    explicit AstAlwaysPre(File_সারি* fl)
         : ASTGEN_SUPER_AlwaysPre(fl, nullptr) {}
     ASTGEN_MEMBERS_AstAlwaysPre;
 };
-class AstAlwaysReactive final : public AstNodeProcedure {
+class AstAlwaysReactive final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // Like always but Reactive scheduling region
     // @astgen op1 := sentreep : Optional[AstSenTree] // Sensitivity list, removed in V3Active
 
-public:
-    AstAlwaysReactive(FileLine* fl, AstSenTree* sentreep, AstNode* bodysp)
+সার্বজনিক:
+    AstAlwaysReactive(File_সারি* fl, Ast_Sen_বৃক্ষ* sentreep, Ast_গ্রন্থি* bodysp)
         : ASTGEN_SUPER_AlwaysReactive(fl, bodysp) {
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstAlwaysReactive;
 };
-class AstFinal final : public AstNodeProcedure {
-public:
-    AstFinal(FileLine* fl, AstNode* stmtsp)
+class AstFinal final : সার্বজনিক Ast_গ্রন্থি_Procedure {
+সার্বজনিক:
+    AstFinal(File_সারি* fl, Ast_গ্রন্থি* stmtsp)
         : ASTGEN_SUPER_Final(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstFinal;
 };
-class AstInitial final : public AstNodeProcedure {
-public:
-    AstInitial(FileLine* fl, AstNode* stmtsp)
+class AstInitial final : সার্বজনিক Ast_গ্রন্থি_Procedure {
+সার্বজনিক:
+    AstInitial(File_সারি* fl, Ast_গ্রন্থি* stmtsp)
         : ASTGEN_SUPER_Initial(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstInitial;
 };
-class AstInitialAutomatic final : public AstNodeProcedure {
+class AstInitialAutomatic final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // Automatic variable initialization
     // That is, it runs every function start, or class construction
-public:
-    AstInitialAutomatic(FileLine* fl, AstNode* stmtsp)
+সার্বজনিক:
+    AstInitialAutomatic(File_সারি* fl, Ast_গ্রন্থি* stmtsp)
         : ASTGEN_SUPER_InitialAutomatic(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstInitialAutomatic;
 };
-class AstInitialStatic final : public AstNodeProcedure {
+class AstInitialStatic final : সার্বজনিক Ast_গ্রন্থি_Procedure {
     // Static variable initialization
     // That is, it runs at the beginning of simulation, before 'initial' blocks
-public:
-    AstInitialStatic(FileLine* fl, AstNode* stmtsp)
+সার্বজনিক:
+    AstInitialStatic(File_সারি* fl, Ast_গ্রন্থি* stmtsp)
         : ASTGEN_SUPER_InitialStatic(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstInitialStatic;
 };
 
 // === AstNodeRange ===
-class AstBracketRange final : public AstNodeRange {
+class AstBracketRange final : সার্বজনিক Ast_গ্রন্থি_Range {
     // Parser only concept C-style "[lhsp]", an AstUnknownRange, QueueRange or Range,
     // unknown until lhsp type is determined
     // @astgen op1 := elementsp : AstNode<AstNodeExpr|AstNodeDType>
-public:
-    AstBracketRange(FileLine* fl, AstNode* elementsp)
+সার্বজনিক:
+    AstBracketRange(File_সারি* fl, Ast_গ্রন্থি* elementsp)
         : ASTGEN_SUPER_BracketRange(fl) {
         this->elementsp(elementsp);
     }
     ASTGEN_MEMBERS_AstBracketRange;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    virtual string emitVerilog() { V3ERROR_NA_RETURN(""); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    আভাস string emitC() { V3ERROR_NA_RETURN(""); }
+    আভাস string emitVerilog() { V3ERROR_NA_RETURN(""); }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* /*samep*/) ধ্রুব override { প্রত্যাগম true; }
     // Will be removed in V3Width, which relies on this
     // being a child not a dtype pointed node
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
+    bool maybePointedTo() ধ্রুব override VL_MT_SAFE { প্রত্যাগম false; }
 };
-class AstRange final : public AstNodeRange {
+class AstRange final : সার্বজনিক Ast_গ্রন্থি_Range {
     // Range specification, for use under variables and cells
     // @astgen op1 := leftp : AstNodeExpr
     // @astgen op2 := rightp : AstNodeExpr
-    const bool m_fromBracket = false;  // From C-style '[x]' declaration
-public:
-    AstRange(FileLine* fl, AstNodeExpr* leftp, AstNodeExpr* rightp, bool fromBracket = false)
+    ধ্রুব bool m_fromBracket = false;  // From C-style '[x]' declaration
+সার্বজনিক:
+    AstRange(File_সারি* fl, Ast_গ্রন্থি_রাশিমালা* leftp, Ast_গ্রন্থি_রাশিমালা* rightp, bool fromBracket = false)
         : ASTGEN_SUPER_Range(fl)
         , m_fromBracket{fromBracket} {
         this->leftp(leftp);
         this->rightp(rightp);
     }
-    inline AstRange(FileLine* fl, int left, int right);
-    inline AstRange(FileLine* fl, const VNumRange& range);
+    অন্তঃস্থ AstRange(File_সারি* fl, পূর্ণাঙ্ক বাম, পূর্ণাঙ্ক ডান);
+    অন্তঃস্থ AstRange(File_সারি* fl, ধ্রুব VNumRange& range);
     ASTGEN_MEMBERS_AstRange;
-    inline int leftConst() const VL_MT_STABLE;
-    inline int rightConst() const VL_MT_STABLE;
-    int hiConst() const VL_MT_STABLE {
-        const int l = leftConst();
-        const int r = rightConst();
-        return l > r ? l : r;
+    অন্তঃস্থ পূর্ণাঙ্ক বাম_Const() ধ্রুব VL_MT_STABLE;
+    অন্তঃস্থ পূর্ণাঙ্ক ডান_Const() ধ্রুব VL_MT_STABLE;
+    পূর্ণাঙ্ক hiConst() ধ্রুব VL_MT_STABLE {
+        ধ্রুব পূর্ণাঙ্ক l = বাম_Const();
+        ধ্রুব পূর্ণাঙ্ক r = ডান_Const();
+        প্রত্যাগম l > r ? l : r;
     }
-    int loConst() const VL_MT_STABLE {
-        const int l = leftConst();
-        const int r = rightConst();
-        return l > r ? r : l;
+    পূর্ণাঙ্ক loConst() ধ্রুব VL_MT_STABLE {
+        ধ্রুব পূর্ণাঙ্ক l = বাম_Const();
+        ধ্রুব পূর্ণাঙ্ক r = ডান_Const();
+        প্রত্যাগম l > r ? r : l;
     }
-    int elementsConst() const VL_MT_STABLE { return hiConst() - loConst() + 1; }
-    bool ascending() const { return leftConst() < rightConst(); }
+    পূর্ণাঙ্ক elementsConst() ধ্রুব VL_MT_STABLE { প্রত্যাগম hiConst() - loConst() + 1; }
+    bool ascending() ধ্রুব { প্রত্যাগম বাম_Const() < ডান_Const(); }
     // Iterate indices from left to right inclusive, see VNumRange::seqLeftToRight()
-    VNumRange::Sequence seqLeftToRight() const {
-        return VNumRange{leftConst(), rightConst()}.seqLeftToRight();
+    VNumRange::Sequence seq_বাম_To_ডান() ধ্রুব {
+        প্রত্যাগম VNumRange{বাম_Const(), ডান_Const()}.seq_বাম_To_ডান();
     }
     // Iterate indices from right to left inclusive, see VNumRange::seqRightToLeft()
-    VNumRange::Sequence seqRightToLeft() const {
-        return VNumRange{leftConst(), rightConst()}.seqRightToLeft();
+    VNumRange::Sequence seq_ডান_To_বাম() ধ্রুব {
+        প্রত্যাগম VNumRange{বাম_Const(), ডান_Const()}.seq_ডান_To_বাম();
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstRange* const asamep = VN_DBG_AS(samep, Range);
-        return fromBracket() == asamep->fromBracket();
+    শূন্য dump(std::ostream& str) ধ্রুব override;
+    শূন্য dumpJson(std::ostream& str) ধ্রুব override;
+    আভাস string emitC() { V3ERROR_NA_RETURN(""); }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* samep) ধ্রুব override {
+        ধ্রুব AstRange* ধ্রুব asamep = VN_DBG_AS(samep, Range);
+        প্রত্যাগম fromBracket() == asamep->fromBracket();
     }
-    bool fromBracket() const { return m_fromBracket; }
+    bool fromBracket() ধ্রুব { প্রত্যাগম m_fromBracket; }
 };
-class AstUnsizedRange final : public AstNodeRange {
+class AstUnsizedRange final : সার্বজনিক Ast_গ্রন্থি_Range {
     // Unsized range specification, for open arrays
-public:
-    explicit AstUnsizedRange(FileLine* fl)
+সার্বজনিক:
+    explicit AstUnsizedRange(File_সারি* fl)
         : ASTGEN_SUPER_UnsizedRange(fl) {}
     ASTGEN_MEMBERS_AstUnsizedRange;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    virtual string emitVerilog() { return "[]"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    আভাস string emitC() { V3ERROR_NA_RETURN(""); }
+    আভাস string emitVerilog() { প্রত্যাগম "[]"; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* /*samep*/) ধ্রুব override { প্রত্যাগম true; }
 };
-class AstWildcardRange final : public AstNodeRange {
+class AstWildcardRange final : সার্বজনিক Ast_গ্রন্থি_Range {
     // Wildcard range specification, for wildcard index type associative arrays
-public:
-    explicit AstWildcardRange(FileLine* fl)
+সার্বজনিক:
+    explicit AstWildcardRange(File_সারি* fl)
         : ASTGEN_SUPER_WildcardRange(fl) {}
     ASTGEN_MEMBERS_AstWildcardRange;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    virtual string emitVerilog() { return "[*]"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    আভাস string emitC() { V3ERROR_NA_RETURN(""); }
+    আভাস string emitVerilog() { প্রত্যাগম "[*]"; }
+    bool same_গ্রন্থি(ধ্রুব Ast_গ্রন্থি* /*samep*/) ধ্রুব override { প্রত্যাগম true; }
 };
 
 #endif  // Guard

@@ -17,82 +17,82 @@
 #ifndef VERILATOR_VLCSOURCE_H_
 #define VERILATOR_VLCSOURCE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "VlcPoint.h"
+#অন্তর্ভাব "VlcPoint.h"
 
-#include <limits>
-#include <map>
-#include <set>
-#include <utility>
-#include <vector>
+#অন্তর্ভাব <limits>
+#অন্তর্ভাব <map>
+#অন্তর্ভাব <set>
+#অন্তর্ভাব <utility>
+#অন্তর্ভাব <vector>
 
 class VlcPoint;
 
 //********************************************************************
 // VlcColumnCount - count at specific source file, line and column
 
-class VlcSourceCount final {
+class Vlc_Source_গুনতি final {
     // TYPES
-    using PointsSet = std::set<const VlcPoint*>;
+    using PointsSet = std::set<ধ্রুব VlcPoint*>;
 
     // MEMBERS
-    const int m_lineno;  ///< Line number
-    uint64_t m_maxCount = 0;  ///< Max count
-    uint64_t m_minCount = std::numeric_limits<uint64_t>::max();  ///< Min count
+    ধ্রুব পূর্ণাঙ্ক m_lineno;  ///< Line number
+    uint64_t m_max_গুনতি = 0;  ///< Max count
+    uint64_t m_min_গুনতি = std::numeric_limits<uint64_t>::max();  ///< Min count
     PointsSet m_points;  // Points on this line
 
-public:
+সার্বজনিক:
     // CONSTRUCTORS
-    explicit VlcSourceCount(int lineno)
+    explicit Vlc_Source_গুনতি(পূর্ণাঙ্ক lineno)
         : m_lineno{lineno} {}
-    ~VlcSourceCount() = default;
+    ~Vlc_Source_গুনতি() = স্বভাব;
 
     // ACCESSORS
-    int lineno() const { return m_lineno; }
-    uint64_t maxCount() const { return m_maxCount; }
-    uint64_t minCount() const { return m_minCount; }
+    পূর্ণাঙ্ক lineno() ধ্রুব { প্রত্যাগম m_lineno; }
+    uint64_t max_গুনতি() ধ্রুব { প্রত্যাগম m_max_গুনতি; }
+    uint64_t min_গুনতি() ধ্রুব { প্রত্যাগম m_min_গুনতি; }
 
     // METHODS
-    void insertPoint(const VlcPoint* pointp) {
-        m_maxCount = std::max(m_maxCount, pointp->count());
-        m_minCount = std::min(m_minCount, pointp->count());
+    শূন্য ঢোকাও_Point(ধ্রুব VlcPoint* pointp) {
+        m_max_গুনতি = std::max(m_max_গুনতি, pointp->গুনতি());
+        m_min_গুনতি = std::min(m_min_গুনতি, pointp->গুনতি());
         m_points.emplace(pointp);
     }
-    const PointsSet& points() { return m_points; }
+    ধ্রুব PointsSet& points() { প্রত্যাগম m_points; }
 };
 
 //********************************************************************
 // VlcSource - source file to annotate
 
 class VlcSource final {
-public:
+সার্বজনিক:
     // TYPES
-    using LinenoMap = std::map<int, VlcSourceCount>;  // Map of {column}
+    using LinenoMap = std::map<পূর্ণাঙ্ক, Vlc_Source_গুনতি>;  // Map of {column}
 
-private:
+গুপ্ত:
     // MEMBERS
-    const string m_name;  //< Name of the source file
-    LinenoMap m_lines;  //< Map of each annotated line
+    ধ্রুব string m_name;  //< Name of the source file
+    LinenoMap m_সারিগুলি;  //< Map of each annotated line
     bool m_needed = false;  //< Need to annotate; has low coverage
 
-public:
+সার্বজনিক:
     // CONSTRUCTORS
-    explicit VlcSource(const string& name)
+    explicit VlcSource(ধ্রুব string& name)
         : m_name{name} {}
-    ~VlcSource() = default;
+    ~VlcSource() = স্বভাব;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool needed() const { return m_needed; }
-    void needed(bool flag) { m_needed = flag; }
-    LinenoMap& lines() { return m_lines; }
+    ধ্রুব string& name() ধ্রুব { প্রত্যাগম m_name; }
+    bool needed() ধ্রুব { প্রত্যাগম m_needed; }
+    শূন্য needed(bool flag) { m_needed = flag; }
+    LinenoMap& সারিগুলি() { প্রত্যাগম m_সারিগুলি; }
 
     // METHODS
-    void insertPoint(int lineno, const VlcPoint* pointp) {
-        VlcSourceCount& sc = m_lines.emplace(lineno, lineno).first->second;
-        sc.insertPoint(pointp);
+    শূন্য ঢোকাও_Point(পূর্ণাঙ্ক lineno, ধ্রুব VlcPoint* pointp) {
+        Vlc_Source_গুনতি& sc = m_সারিগুলি.emplace(lineno, lineno).first->second;
+        sc.ঢোকাও_Point(pointp);
     }
 };
 
@@ -100,30 +100,30 @@ public:
 // VlcSources - Container of all source files
 
 class VlcSources final {
-public:
+সার্বজনিক:
     // TYPES
-    using NameMap = std::map<const std::string, VlcSource>;
+    using NameMap = std::map<ধ্রুব std::string, VlcSource>;
 
-private:
+গুপ্ত:
     // MEMBERS
     NameMap m_sources;  //< List of all sources
 
-public:
+সার্বজনিক:
     // ITERATORS
     using iterator = NameMap::iterator;
-    NameMap::iterator begin() { return m_sources.begin(); }
-    NameMap::iterator end() { return m_sources.end(); }
+    NameMap::iterator begin() { প্রত্যাগম m_sources.begin(); }
+    NameMap::iterator end() { প্রত্যাগম m_sources.end(); }
 
     // CONSTRUCTORS
-    VlcSources() = default;
-    ~VlcSources() = default;
+    VlcSources() = স্বভাব;
+    ~VlcSources() = স্বভাব;
 
     // METHODS
-    VlcSource& findNewSource(const string& name) {
+    VlcSource& findNewSource(ধ্রুব string& name) {
         NameMap::iterator iter = m_sources.find(name);
-        if (iter != m_sources.end()) return iter->second;
+        যদি (iter != m_sources.end()) প্রত্যাগম iter->second;
         iter = m_sources.emplace(name, VlcSource{name}).first;
-        return iter->second;
+        প্রত্যাগম iter->second;
     }
 };
 

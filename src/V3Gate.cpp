@@ -21,19 +21,19 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাব "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Gate.h"
+#অন্তর্ভাব "V3Gate.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3DupFinder.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
+#অন্তর্ভাব "V3AstUserAllocator.h"
+#অন্তর্ভাব "V3Const.h"
+#অন্তর্ভাব "V3DupFinder.h"
+#অন্তর্ভাব "V3Graph.h"
+#অন্তর্ভাব "V3Stats.h"
 
-#include <list>
-#include <unordered_map>
-#include <unordered_set>
+#অন্তর্ভাব <list>
+#অন্তর্ভাব <unordered_map>
+#অন্তর্ভাব <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -42,212 +42,212 @@ constexpr uint32_t GATE_DEDUP_MAX_DEPTH = 20;
 //######################################################################
 // Gate graph classes
 
-class GateEitherVertex VL_NOT_FINAL : public V3GraphVertex {
+বর্গ GateEitherVertex VL_NOT_FINAL : সার্বজনিক V3GraphVertex {
     VL_RTTI_IMPL(GateEitherVertex, V3GraphVertex)
-    bool m_reducible = true;  // True if this node should be able to be eliminated
-    bool m_dedupable = true;  // True if this node should be able to be deduped
-    bool m_consumed = false;  // Output goes to something meaningful
-    bool m_staticInit = false;  // True if this node is a static initializer
-public:
+    তার্কিক m_reducible = সত্য;  // True if this node should be able to be eliminated
+    তার্কিক m_dedupable = সত্য;  // True if this node should be able to be deduped
+    তার্কিক m_consumed = অসত্য;  // Output goes to something meaningful
+    তার্কিক m_staticInit = অসত্য;  // True if this node is a static initializer
+সার্বজনিক:
     explicit GateEitherVertex(V3Graph* graphp)
         : V3GraphVertex{graphp} {}
-    ~GateEitherVertex() override = default;
+    ~GateEitherVertex() override = স্বভাব;
 
     // ACCESSORS
-    bool reducible() const { return m_reducible; }
-    bool dedupable() const { return m_dedupable; }
-    bool consumed() const { return m_consumed; }
-    bool staticInit() const { return m_staticInit; }
-    void setConsumed(const char* /*consumedReason*/) {
+    তার্কিক reducible() ধ্রুব { প্রত্যাগম m_reducible; }
+    তার্কিক dedupable() ধ্রুব { প্রত্যাগম m_dedupable; }
+    তার্কিক consumed() ধ্রুব { প্রত্যাগম m_consumed; }
+    তার্কিক staticInit() ধ্রুব { প্রত্যাগম m_staticInit; }
+    শূন্য setConsumed(ধ্রুব বর্ণ* /*consumedReason*/) {
         // if (!m_consumed) UINFO(0, "\t\tSetConsumed " << consumedReason << " " << this);
-        m_consumed = true;
+        m_consumed = সত্য;
     }
-    void setStaticInit() { m_staticInit = true; }
-    void clearReducible(const char* /*nonReducibleReason*/) {
+    শূন্য setStaticInit() { m_staticInit = সত্য; }
+    শূন্য clearReducible(ধ্রুব বর্ণ* /*nonReducibleReason*/) {
         // UINFO(0, "     NR: " << nonReducibleReason << "  " << name());
-        m_reducible = false;
+        m_reducible = অসত্য;
     }
-    void clearDedupable(const char* /*nonDedupableReason*/) {
+    শূন্য clearDedupable(ধ্রুব বর্ণ* /*nonDedupableReason*/) {
         // UINFO(0, "     ND: " << nonDedupableReason << "  " << name());
-        m_dedupable = false;
+        m_dedupable = অসত্য;
     }
-    void clearReducibleAndDedupable(const char* nonReducibleReason) {
+    শূন্য clearReducibleAndDedupable(ধ্রুব বর্ণ* nonReducibleReason) {
         clearReducible(nonReducibleReason);
         clearDedupable(nonReducibleReason);
     }
 
     // DOT debug
-    std::string dotStyle() const override { return m_consumed ? "" : "dotted"; }
+    std::string dotStyle() ধ্রুব override { প্রত্যাগম m_consumed ? "" : "dotted"; }
 };
 
-class GateVarVertex final : public GateEitherVertex {
+বর্গ GateVarVertex final : সার্বজনিক GateEitherVertex {
     VL_RTTI_IMPL(GateVarVertex, GateEitherVertex)
-    AstVarScope* const m_varScp;
-    bool m_isTop = false;
-    bool m_isClock = false;
-    AstNode* m_rstSyncNodep = nullptr;  // Used as reset and not in SenItem, in clocked always
-    AstNode* m_rstAsyncNodep = nullptr;  // Used as reset and in SenItem, in clocked always
-public:
+    AstVarScope* ধ্রুব m_varScp;
+    তার্কিক m_is_শীর্ষ = অসত্য;
+    তার্কিক m_isClock = অসত্য;
+    Ast_গ্রন্থি* m_rstSyncNodep = nullptr;  // Used as reset and not in SenItem, in clocked always
+    Ast_গ্রন্থি* m_rstAsyncNodep = nullptr;  // Used as reset and in SenItem, in clocked always
+সার্বজনিক:
     GateVarVertex(V3Graph* graphp, AstVarScope* varScp)
         : GateEitherVertex{graphp}
         , m_varScp{varScp} {}
-    ~GateVarVertex() override = default;
+    ~GateVarVertex() override = স্বভাব;
 
     // ACCESSORS
-    AstVarScope* varScp() const VL_MT_STABLE { return m_varScp; }
-    bool isTop() const { return m_isTop; }
-    void setIsTop() { m_isTop = true; }
-    bool isClock() const { return m_isClock; }
-    void setIsClock() { m_isClock = true; }
-    AstNode* rstSyncNodep() const { return m_rstSyncNodep; }
-    void rstSyncNodep(AstNode* nodep) { m_rstSyncNodep = nodep; }
-    AstNode* rstAsyncNodep() const { return m_rstAsyncNodep; }
-    void rstAsyncNodep(AstNode* nodep) { m_rstAsyncNodep = nodep; }
+    AstVarScope* varScp() ধ্রুব VL_MT_STABLE { প্রত্যাগম m_varScp; }
+    তার্কিক is_শীর্ষ() ধ্রুব { প্রত্যাগম m_is_শীর্ষ; }
+    শূন্য set_Is_শীর্ষ() { m_is_শীর্ষ = সত্য; }
+    তার্কিক isClock() ধ্রুব { প্রত্যাগম m_isClock; }
+    শূন্য setIsClock() { m_isClock = সত্য; }
+    Ast_গ্রন্থি* rstSyncNodep() ধ্রুব { প্রত্যাগম m_rstSyncNodep; }
+    শূন্য rstSyncNodep(Ast_গ্রন্থি* nodep) { m_rstSyncNodep = nodep; }
+    Ast_গ্রন্থি* rstAsyncNodep() ধ্রুব { প্রত্যাগম m_rstAsyncNodep; }
+    শূন্য rstAsyncNodep(Ast_গ্রন্থি* nodep) { m_rstAsyncNodep = nodep; }
 
     // METHODS
-    void propagateAttrFrom(GateVarVertex* fromp) {
+    শূন্য propagateAttrFrom(GateVarVertex* fromp) {
         varScp()->varp()->propagateAttrFrom(fromp->varScp()->varp());
-        if (fromp->isClock()) setIsClock();
+        যদি (fromp->isClock()) setIsClock();
     }
 
     // DOT debug
-    std::string name() const override VL_MT_STABLE { return varScp()->name(); }
-    std::string dotColor() const override { return "green"; }
+    std::string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম varScp()->name(); }
+    std::string dotColor() ধ্রুব override { প্রত্যাগম "green"; }
 };
 
-class GateLogicVertex final : public GateEitherVertex {
+বর্গ GateLogicVertex final : সার্বজনিক GateEitherVertex {
     VL_RTTI_IMPL(GateLogicVertex, GateEitherVertex)
-    AstNode* const m_nodep;
-    AstActive* const m_activep;  // Under what active; nullptr is ok (under cfunc or such)
-    const bool m_slow;  // In slow block
-public:
-    GateLogicVertex(V3Graph* graphp, AstNode* nodep, AstActive* activep, bool slow)
+    Ast_গ্রন্থি* ধ্রুব m_nodep;
+    AstActive* ধ্রুব m_activep;  // Under what active; nullptr is ok (under cfunc or such)
+    ধ্রুব তার্কিক m_slow;  // In slow block
+সার্বজনিক:
+    GateLogicVertex(V3Graph* graphp, Ast_গ্রন্থি* nodep, AstActive* activep, তার্কিক slow)
         : GateEitherVertex{graphp}
         , m_nodep{nodep}
         , m_activep{activep}
         , m_slow{slow} {}
-    ~GateLogicVertex() override = default;
+    ~GateLogicVertex() override = স্বভাব;
 
     // ACCESSORS
-    FileLine* fileline() const override { return nodep()->fileline(); }
-    AstNode* nodep() const { return m_nodep; }
-    AstActive* activep() const { return m_activep; }
-    bool slow() const { return m_slow; }
+    File_সারি* fileline() ধ্রুব override { প্রত্যাগম nodep()->fileline(); }
+    Ast_গ্রন্থি* nodep() ধ্রুব { প্রত্যাগম m_nodep; }
+    AstActive* activep() ধ্রুব { প্রত্যাগম m_activep; }
+    তার্কিক slow() ধ্রুব { প্রত্যাগম m_slow; }
 
     // DOT debug
-    std::string name() const override { return m_nodep->fileline()->ascii(); }
-    std::string dotColor() const override { return "red"; }
+    std::string name() ধ্রুব override { প্রত্যাগম m_nodep->fileline()->ascii(); }
+    std::string dotColor() ধ্রুব override { প্রত্যাগম "red"; }
 };
 
-class GateEdge final : public V3GraphEdge {
-    std::string dotLabel() const override { return std::to_string(weight()); }
+বর্গ GateEdge final : সার্বজনিক V3GraphEdge {
+    std::string dotLabel() ধ্রুব override { প্রত্যাগম std::to_string(weight()); }
 
-public:
-    GateEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight)
-        : V3GraphEdge{graphp, fromp, top, weight} {}
+সার্বজনিক:
+    GateEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* শীর্ষ, পূর্ণাঙ্ক weight)
+        : V3GraphEdge{graphp, fromp, শীর্ষ, weight} {}
 };
 
-class GateGraph final : public V3Graph {
+বর্গ GateGraph final : সার্বজনিক V3Graph {
     // NODE STATE
     // AstVarScope::user1p      -> GateVarVertex* for usage var, 0=not set yet
-    const VNUser1InUse m_inuser1;
+    ধ্রুব VNUser1InUse m_inuser1;
 
-public:
+সার্বজনিক:
     GateVarVertex* makeVarVertex(AstVarScope* vscp) {
         GateVarVertex* vVtxp = reinterpret_cast<GateVarVertex*>(vscp->user1p());
-        if (!vVtxp) {
+        যদি (!vVtxp) {
             UINFO(6, "New vertex " << vscp);
-            vVtxp = new GateVarVertex{this, vscp};
+            vVtxp = নূতন GateVarVertex{এতত্, vscp};
             vscp->user1p(vVtxp);
-            if (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
+            যদি (vscp->varp()->sensIfacep() || vscp->varp()->isVirtIface()) {
                 // Can be read/written to via the referenced actual interface
                 vVtxp->clearReducibleAndDedupable("VirtIface");
                 vVtxp->setConsumed("VirtIface");
             }
-            if (vscp->varp()->isSigPublic()) {
+            যদি (vscp->varp()->isSigPublic()) {
                 // Public signals shouldn't be changed, pli code might be messing with them
                 vVtxp->clearReducibleAndDedupable("SigPublic");
                 vVtxp->setConsumed("SigPublic");
             }
-            if (vscp->varp()->isIO() && vscp->scopep()->isTop()) {
+            যদি (vscp->varp()->isIO() && vscp->scopep()->is_শীর্ষ()) {
                 // We may need to convert to/from sysc/reg sigs
-                vVtxp->setIsTop();
+                vVtxp->set_Is_শীর্ষ();
                 vVtxp->clearReducibleAndDedupable("isTop");
                 vVtxp->setConsumed("isTop");
             }
         }
-        return vVtxp;
+        প্রত্যাগম vVtxp;
     }
 
-    void addEdge(GateVarVertex* srcp, GateLogicVertex* dstp, int weight) {
-        new GateEdge{this, srcp, dstp, weight};
+    শূন্য addEdge(GateVarVertex* srcp, GateLogicVertex* dstp, পূর্ণাঙ্ক weight) {
+        নূতন GateEdge{এতত্, srcp, dstp, weight};
     }
 
-    void addEdge(GateLogicVertex* srcp, GateVarVertex* dstp, int weight) {
-        new GateEdge{this, srcp, dstp, weight};
+    শূন্য addEdge(GateLogicVertex* srcp, GateVarVertex* dstp, পূর্ণাঙ্ক weight) {
+        নূতন GateEdge{এতত্, srcp, dstp, weight};
     }
 };
 
 //######################################################################
 // GateGraph builder
 
-class GateBuildVisitor final : public VNVisitorConst {
+বর্গ GateBuildVisitor final : সার্বজনিক VNVisitorConst {
     // STATE
-    GateGraph* m_graphp = new GateGraph{};  // The graph being built (var usages/dependencies)
+    GateGraph* m_graphp = নূতন GateGraph{};  // The graph being built (var usages/dependencies)
     GateLogicVertex* m_logicVertexp = nullptr;  // Current statement being tracked, nullptr=ignored
-    const AstNodeModule* m_modp = nullptr;  // Current module
-    const AstScope* m_scopep = nullptr;  // Current scope being processed
+    ধ্রুব Ast_গ্রন্থি_Module* m_modp = nullptr;  // Current module
+    ধ্রুব AstScope* m_scopep = nullptr;  // Current scope being processed
     AstActive* m_activep = nullptr;  // Current active
-    bool m_inClockedActive = false;  // Underneath clocked active
-    bool m_inEdgeActive = false;  // Underneath edge active
-    bool m_inStaticActive = false;  // Underneath static active
-    bool m_inInitialActive = false;  // Underneath initial active
-    bool m_inSenItem = false;  // Underneath AstSenItem; any varrefs are clocks
+    তার্কিক m_inClockedActive = অসত্য;  // Underneath clocked active
+    তার্কিক m_inEdgeActive = অসত্য;  // Underneath edge active
+    তার্কিক m_inStaticActive = অসত্য;  // Underneath static active
+    তার্কিক m_inInitialActive = অসত্য;  // Underneath initial active
+    তার্কিক m_inSenItem = অসত্য;  // Underneath AstSenItem; any varrefs are clocks
 
     // METHODS
-    void checkNode(AstNode* nodep) {
-        if (nodep->isOutputter()) m_logicVertexp->setConsumed("outputter");
-        if (nodep->isTimingControl()) {
+    শূন্য check_গ্রন্থি(Ast_গ্রন্থি* nodep) {
+        যদি (nodep->isOutputter()) m_logicVertexp->setConsumed("outputter");
+        যদি (nodep->isTimingControl()) {
             m_logicVertexp->clearReducibleAndDedupable("TimingControl");
             m_logicVertexp->setConsumed("TimingControl");
         }
     }
 
-    void iterateLogic(AstNode* nodep, bool slow = false, const char* nonReducibleReason = nullptr,
-                      const char* consumeReason = nullptr) {
+    শূন্য iterateLogic(Ast_গ্রন্থি* nodep, তার্কিক slow = অসত্য, ধ্রুব বর্ণ* nonReducibleReason = nullptr,
+                      ধ্রুব বর্ণ* consumeReason = nullptr) {
         UASSERT_OBJ(m_scopep, nodep, "Logic not under Scope");
         UASSERT_OBJ(!m_logicVertexp, nodep, "Logic blocks should not nest");
         VL_RESTORER(m_logicVertexp);
 
         // m_activep is null under AstCFunc's, that's ok.
-        m_logicVertexp = new GateLogicVertex{m_graphp, nodep, m_activep, slow};
-        if (nonReducibleReason) {
+        m_logicVertexp = নূতন GateLogicVertex{m_graphp, nodep, m_activep, slow};
+        যদি (nonReducibleReason) {
             m_logicVertexp->clearReducibleAndDedupable(nonReducibleReason);
-        } else if (m_inClockedActive) {
+        } অন্যথা যদি (m_inClockedActive) {
             m_logicVertexp->clearReducible("Clocked logic");  // but dedupable
-        } else if (m_inStaticActive || m_inInitialActive) {
+        } অন্যথা যদি (m_inStaticActive || m_inInitialActive) {
             // Runs only once, so its output must not be treated as live combinational logic
             m_logicVertexp->setStaticInit();
         }
-        if (consumeReason) m_logicVertexp->setConsumed(consumeReason);
-        checkNode(nodep);
+        যদি (consumeReason) m_logicVertexp->setConsumed(consumeReason);
+        check_গ্রন্থি(nodep);
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    শূন্য visit(Ast_গ্রন্থি_Module* nodep) override {
         UASSERT_OBJ(!m_modp, nodep, "Should not nest");
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstScope* nodep) override {
+    শূন্য visit(AstScope* nodep) override {
         UASSERT_OBJ(!m_scopep, nodep, "Should not nest");
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstActive* nodep) override {
+    শূন্য visit(AstActive* nodep) override {
         UASSERT_OBJ(!m_activep, nodep, "Should not nest");
         VL_RESTORER(m_activep);
         VL_RESTORER(m_inClockedActive);
@@ -261,94 +261,94 @@ class GateBuildVisitor final : public VNVisitorConst {
         m_inInitialActive = nodep->hasInitial();
 
         // AstVarScope::user2 -> bool: Signal used in SenItem in *this* active block
-        const VNUser2InUse user2InUse;
+        ধ্রুব VNUser2InUse user2InUse;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {  //
+    শূন্য visit(AstCFunc* nodep) override {  //
         iterateLogic(nodep, nodep->slow(), "C Function", "C Function");
     }
-    void visit(AstNodeProcedure* nodep) override {
-        const bool slow = VN_IS(nodep, Initial) || VN_IS(nodep, Final);
+    শূন্য visit(Ast_গ্রন্থি_Procedure* nodep) override {
+        ধ্রুব তার্কিক slow = VN_IS(nodep, Initial) || VN_IS(nodep, Final);
         iterateLogic(nodep, slow, nodep->isJustOneBodyStmt() ? nullptr : "Multiple Stmts");
     }
-    void visit(AstCoverToggle* nodep) override {
-        iterateLogic(nodep, false, "CoverToggle", "CoverToggle");
+    শূন্য visit(AstCoverToggle* nodep) override {
+        iterateLogic(nodep, অসত্য, "CoverToggle", "CoverToggle");
     }
-    void visit(AstSenItem* nodep) override {
+    শূন্য visit(AstSenItem* nodep) override {
         VL_RESTORER(m_inSenItem);
-        m_inSenItem = true;
-        if (m_logicVertexp) {  // Already under logic, e.g.: AstEventControl
+        m_inSenItem = সত্য;
+        যদি (m_logicVertexp) {  // Already under logic, e.g.: AstEventControl
             iterateChildrenConst(nodep);
-        } else {  // Standalone item, under a SenTree or an Active
-            iterateLogic(nodep, false, nullptr, "senItem");
+        } অন্যথা {  // Standalone item, under a SenTree or an Active
+            iterateLogic(nodep, অসত্য, nullptr, "senItem");
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (!m_logicVertexp) return;
+    শূন্য visit(Ast_গ্রন্থি_Var_Ref* nodep) override {
+        যদি (!m_logicVertexp) প্রত্যাগম;
 
-        AstVarScope* const vscp = nodep->varScopep();
-        GateVarVertex* const vVtxp = m_graphp->makeVarVertex(vscp);
+        AstVarScope* ধ্রুব vscp = nodep->varScopep();
+        GateVarVertex* ধ্রুব vVtxp = m_graphp->makeVarVertex(vscp);
 
-        if (m_inSenItem) {
+        যদি (m_inSenItem) {
             vVtxp->setIsClock();
-            vscp->user2(true);
-        } else if (m_inEdgeActive && nodep->access().isReadOnly()) {
+            vscp->user2(সত্য);
+        } অন্যথা যদি (m_inEdgeActive && nodep->access().isReadOnly()) {
             // For SYNCASYNCNET
-            if (vscp->user2()) {
-                if (!vVtxp->rstAsyncNodep()) vVtxp->rstAsyncNodep(nodep);
-            } else {
-                if (!vVtxp->rstSyncNodep()) vVtxp->rstSyncNodep(nodep);
+            যদি (vscp->user2()) {
+                যদি (!vVtxp->rstAsyncNodep()) vVtxp->rstAsyncNodep(nodep);
+            } অন্যথা {
+                যদি (!vVtxp->rstSyncNodep()) vVtxp->rstSyncNodep(nodep);
             }
         }
 
         // We use weight of one; if we ref the var more than once, when we simplify,
         // the weight will increase
-        if (nodep->access().isWriteOrRW()) m_graphp->addEdge(m_logicVertexp, vVtxp, 1);
-        if (nodep->access().isReadOrRW()) m_graphp->addEdge(vVtxp, m_logicVertexp, 1);
+        যদি (nodep->access().isWriteOrRW()) m_graphp->addEdge(m_logicVertexp, vVtxp, 1);
+        যদি (nodep->access().isReadOrRW()) m_graphp->addEdge(vVtxp, m_logicVertexp, 1);
     }
-    void visit(AstConcat* nodep) override {
-        UASSERT_OBJ(!(VN_IS(nodep->backp(), NodeAssign)
-                      && VN_AS(nodep->backp(), NodeAssign)->lhsp() == nodep),
+    শূন্য visit(AstConcat* nodep) override {
+        UASSERT_OBJ(!(VN_IS(nodep->backp(), গ্রন্থি_Assign)
+                      && VN_AS(nodep->backp(), গ্রন্থি_Assign)->lhsp() == nodep),
                     nodep, "Concat on LHS of assignment; V3Const should have deleted it");
         iterateChildrenConst(nodep);
     }
 
     //--------------------
-    void visit(AstNode* nodep) override {
-        if (m_logicVertexp) checkNode(nodep);
+    শূন্য visit(Ast_গ্রন্থি* nodep) override {
+        যদি (m_logicVertexp) check_গ্রন্থি(nodep);
         iterateChildrenConst(nodep);
     }
 
     // CONSTRUCTORS
     explicit GateBuildVisitor(AstNetlist* nodep) { iterateChildrenConst(nodep); }
 
-public:
-    static std::unique_ptr<GateGraph> apply(AstNetlist* netlistp) {
-        return std::unique_ptr<GateGraph>{GateBuildVisitor{netlistp}.m_graphp};
+সার্বজনিক:
+    স্থির std::unique_ptr<GateGraph> apply(AstNetlist* netlistp) {
+        প্রত্যাগম std::unique_ptr<GateGraph>{GateBuildVisitor{netlistp}.m_graphp};
     }
 };
 
 //######################################################################
 // SYCNASYNC warning
 
-static void v3GateWarnSyncAsync(GateGraph& graph) {
+স্থির শূন্য v3GateWarnSyncAsync(GateGraph& graph) {
     // AstVar::user2            -> bool: Warned about SYNCASYNCNET
-    const VNUser2InUse user2InUse;
-    for (V3GraphVertex& vtx : graph.vertices()) {
-        if (const GateVarVertex* const vvertexp = vtx.cast<GateVarVertex>()) {
-            const AstVarScope* const vscp = vvertexp->varScp();
-            const AstNode* const sp = vvertexp->rstSyncNodep();
-            const AstNode* const ap = vvertexp->rstAsyncNodep();
-            if (ap && sp && !vscp->varp()->user2()) {
+    ধ্রুব VNUser2InUse user2InUse;
+    প্রতি (V3GraphVertex& vtx : graph.vertices()) {
+        যদি (ধ্রুব GateVarVertex* ধ্রুব vvertexp = vtx.cast<GateVarVertex>()) {
+            ধ্রুব AstVarScope* ধ্রুব vscp = vvertexp->varScp();
+            ধ্রুব Ast_গ্রন্থি* ধ্রুব sp = vvertexp->rstSyncNodep();
+            ধ্রুব Ast_গ্রন্থি* ধ্রুব ap = vvertexp->rstAsyncNodep();
+            যদি (ap && sp && !vscp->varp()->user2()) {
                 // This is somewhat wrong, as marking one flop as ok for sync
                 // may mean a different flop now fails.  However it's a pain to
                 // then report a warning in a new place - we should report them all at once.
                 // Instead, we will disable if any disabled
-                if (!vscp->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)
+                যদি (!vscp->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)
                     && !ap->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)
                     && !sp->fileline()->warnIsOff(V3ErrorCode::SYNCASYNCNET)) {
-                    vscp->varp()->user2(true);  // Warn only once per signal
+                    vscp->varp()->user2(সত্য);  // Warn only once per signal
                     vscp->v3warn(SYNCASYNCNET,
                                  "Signal flopped as both synchronous and async: "
                                      << vscp->prettyNameQ() << '\n'
@@ -365,298 +365,298 @@ static void v3GateWarnSyncAsync(GateGraph& graph) {
 //######################################################################
 // Find a var's offset in a concatenation (only used by GateClkDecomp)
 
-class GateConcatVisitor final : public VNVisitorConst {
+বর্গ GateConcatVisitor final : সার্বজনিক VNVisitorConst {
     // STATE
-    const AstVarScope* m_vscp = nullptr;  // Varscope we're trying to find
-    int m_offset = 0;  // Current offset of varscope
-    int m_found_offset = 0;  // Found offset of varscope
-    bool m_found = false;  // Offset found
+    ধ্রুব AstVarScope* m_vscp = nullptr;  // Varscope we're trying to find
+    পূর্ণাঙ্ক m_offset = 0;  // Current offset of varscope
+    পূর্ণাঙ্ক m_found_offset = 0;  // Found offset of varscope
+    তার্কিক m_found = অসত্য;  // Offset found
 
     // VISITORS
     // TODO: This is broken, what if there is logic in between? {a, ~clk}
-    void visit(AstNodeVarRef* nodep) override {
-        if (nodep->varScopep() == m_vscp && !nodep->user2() && !m_found) {
+    শূন্য visit(Ast_গ্রন্থি_Var_Ref* nodep) override {
+        যদি (nodep->varScopep() == m_vscp && !nodep->user2() && !m_found) {
             // A concatenation may use the same var multiple times
             // But the graph will initially have an edge per instance
-            nodep->user2(true);
+            nodep->user2(সত্য);
             m_found_offset = m_offset;
-            m_found = true;
+            m_found = সত্য;
             UINFO(9, "CLK DECOMP Concat found var (off = " << m_offset << ") - " << nodep);
         }
         m_offset += nodep->dtypep()->width();
     }
-    void visit(AstConcat* nodep) override {
+    শূন্য visit(AstConcat* nodep) override {
         iterateConst(nodep->rhsp());
         iterateConst(nodep->lhsp());
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    শূন্য visit(Ast_গ্রন্থি* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+সার্বজনিক:
     // PUBLIC METHODS
-    bool concatOffset(AstConcat* concatp, AstVarScope* vscp, int& offsetr) {
+    তার্কিক concatOffset(AstConcat* concatp, AstVarScope* vscp, পূর্ণাঙ্ক& offsetr) {
         m_vscp = vscp;
         m_offset = 0;
-        m_found = false;
+        m_found = অসত্য;
         // Iterate
         iterateConst(concatp);
         offsetr = m_found_offset;
-        return m_found;
+        প্রত্যাগম m_found;
     }
 };
 
 //######################################################################
 // Is this a simple expression with a single input and single output?
 
-class GateOkVisitor final : public VNVisitorConst {
+বর্গ GateOkVisitor final : সার্বজনিক VNVisitorConst {
     // RETURN STATE
-    bool m_isSimple = true;  // Set false when we know it isn't simple
+    তার্কিক m_isSimple = সত্য;  // Set false when we know it isn't simple
     std::vector<AstVarScope*> m_readVscps;  // Variables read by logic
-    AstNodeExpr* m_substitutionp = nullptr;  // What to replace the variable with
+    Ast_গ্রন্থি_রাশিমালা* m_substitutionp = nullptr;  // What to replace the variable with
 
     // STATE
-    const bool m_dedupe;  // Set when we use isGateDedupable instead of isGateOptimizable
+    ধ্রুব তার্কিক m_dedupe;  // Set when we use isGateDedupable instead of isGateOptimizable
 
     // Set when we only allow simple buffering, no equations (for clocks)
-    const bool m_buffersOnly;
+    ধ্রুব তার্কিক m_buffersOnly;
     // VarRef on lhs of assignment (what we're replacing)
-    const AstNodeVarRef* m_lhsVarRef = nullptr;
-    int m_ops = 0;  // Operation count
+    ধ্রুব Ast_গ্রন্থি_Var_Ref* m_lhsVarRef = nullptr;
+    পূর্ণাঙ্ক m_ops = 0;  // Operation count
 
     // METHODS
-    void clearSimple(const char* because) {
-        if (m_isSimple) UINFO(9, "Clear simple " << because);
-        m_isSimple = false;
+    শূন্য clearSimple(ধ্রুব বর্ণ* because) {
+        যদি (m_isSimple) UINFO(9, "Clear simple " << because);
+        m_isSimple = অসত্য;
     }
 
     // VISITORS
-    void visit(AstNodeVarRef* nodep) override {
-        if (!m_isSimple) return;
+    শূন্য visit(Ast_গ্রন্থি_Var_Ref* nodep) override {
+        যদি (!m_isSimple) প্রত্যাগম;
 
         ++m_ops;
         // Don't want to eliminate the VL_ASSIGN_S*
-        if (nodep->varScopep()->varp()->isSc()) clearSimple("SystemC sig");
+        যদি (nodep->varScopep()->varp()->isSc()) clearSimple("SystemC sig");
 
-        if (nodep->access().isRW()) {
+        যদি (nodep->access().isRW()) {
             clearSimple("R/W");
-            return;
+            প্রত্যাগম;
         }
 
         // We only allow a LHS ref for the var being set, and a RHS ref for
         // something else being read.
-        AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOnly()) {
-            if (m_lhsVarRef) clearSimple(">1 write refs");
+        AstVarScope* ধ্রুব vscp = nodep->varScopep();
+        যদি (nodep->access().isWriteOnly()) {
+            যদি (m_lhsVarRef) clearSimple(">1 write refs");
             m_lhsVarRef = nodep;
-        } else {
+        } অন্যথা {
             // TODO: possible bug, should it be >= 1 as add is below?
-            if (m_readVscps.size() > 1) {
-                if (m_buffersOnly) clearSimple(">1 rhs varRefs");
+            যদি (m_readVscps.size() > 1) {
+                যদি (m_buffersOnly) clearSimple(">1 rhs varRefs");
             }
-            m_readVscps.push_back(vscp);
+            m_readVscps.ঠেলো_back(vscp);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_isSimple) return;
+    শূন্য visit(Ast_গ্রন্থি_Assign* nodep) override {
+        যদি (!m_isSimple) প্রত্যাগম;
 
         m_substitutionp = nodep->rhsp();
-        if (!VN_IS(nodep->lhsp(), NodeVarRef)) {
+        যদি (!VN_IS(nodep->lhsp(), গ্রন্থি_Var_Ref)) {
             clearSimple("ASSIGN(non-VARREF)");
-        } else if (nodep->isTimingControl()) {
+        } অন্যথা যদি (nodep->isTimingControl()) {
             clearSimple("Timing control");
-        } else {
+        } অন্যথা {
             iterateChildrenConst(nodep);
         }
-        if (m_buffersOnly && !VN_IS(nodep->rhsp(), VarRef)) {
+        যদি (m_buffersOnly && !VN_IS(nodep->rhsp(), VarRef)) {
             clearSimple("Not a buffer (goes to a clock)");
         }
     }
-    void visit(AstCReset* /*nodep*/) override {
-        if (!m_isSimple) return;
+    শূন্য visit(AstCReset* /*nodep*/) override {
+        যদি (!m_isSimple) প্রত্যাগম;
         // CReset is pure because we can optimize assignments, but if is
         // the only assignment to a variable we still need to initial
         // assign to get randomization etc
         clearSimple("CReset");
     }
-    void visit(AstMatchMasked* nodep) override {
-        if (!m_isSimple) return;
+    শূন্য visit(AstMatchMasked* nodep) override {
+        যদি (!m_isSimple) প্রত্যাগম;
         // This node can be expensive
         clearSimple("MatchMasked");
     }
     //--------------------
-    void visit(AstNode* nodep) override {
-        if (!m_isSimple) return;  // Fastpath
+    শূন্য visit(Ast_গ্রন্থি* nodep) override {
+        যদি (!m_isSimple) প্রত্যাগম;  // Fastpath
 
-        if (++m_ops > v3Global.opt.gateStmts()) {
+        যদি (++m_ops > v3Global.opt.gateStmts()) {
             clearSimple("--gate-stmts exceeded");
-            return;
+            প্রত্যাগম;
         }
 
-        if (!(m_dedupe ? nodep->isGateDedupable() : nodep->isGateOptimizable())  //
+        যদি (!(m_dedupe ? nodep->isGateDedupable() : nodep->isGateOptimizable())  //
             || !nodep->isPure() || nodep->isBrancher()) {
             UINFO(5, "Non optimizable type: " << nodep);
             clearSimple("Non optimizable type");
-            return;
+            প্রত্যাগম;
         }
 
         iterateChildrenConst(nodep);
     }
 
-public:
+সার্বজনিক:
     // CONSTRUCTORS
-    GateOkVisitor(AstNode* nodep, bool buffersOnly, bool dedupe)
+    GateOkVisitor(Ast_গ্রন্থি* nodep, তার্কিক buffersOnly, তার্কিক dedupe)
         : m_dedupe{dedupe}
         , m_buffersOnly{buffersOnly} {
         // Iterate
         iterateConst(nodep);
         // Check results
-        if (!m_substitutionp) {
+        যদি (!m_substitutionp) {
             clearSimple("No assignment found\n");
-            return;
+            প্রত্যাগম;
         }
-        if (m_isSimple && m_lhsVarRef) {
-            for (const AstVarScope* const vscp : m_readVscps) {
-                if (m_lhsVarRef->varScopep() == vscp) {
+        যদি (m_isSimple && m_lhsVarRef) {
+            প্রতি (ধ্রুব AstVarScope* ধ্রুব vscp : m_readVscps) {
+                যদি (m_lhsVarRef->varScopep() == vscp) {
                     clearSimple("Circular logic\n");
-                    return;
+                    প্রত্যাগম;
                 }
             }
         }
     }
-    ~GateOkVisitor() override = default;
+    ~GateOkVisitor() override = স্বভাব;
     // PUBLIC METHODS
-    bool isSimple() const { return m_isSimple; }
-    AstNodeExpr* substitutionp() const {
+    তার্কিক isSimple() ধ্রুব { প্রত্যাগম m_isSimple; }
+    Ast_গ্রন্থি_রাশিমালা* substitutionp() ধ্রুব {
         UASSERT(m_isSimple, "Can't substitute non-simple");
-        return m_substitutionp;
+        প্রত্যাগম m_substitutionp;
     }
-    const std::vector<AstVarScope*>& readVscps() const { return m_readVscps; }
-    bool varAssigned(const AstVarScope* scopep) const {
-        return m_lhsVarRef && (m_lhsVarRef->varScopep() == scopep);
+    ধ্রুব std::vector<AstVarScope*>& readVscps() ধ্রুব { প্রত্যাগম m_readVscps; }
+    তার্কিক varAssigned(ধ্রুব AstVarScope* scopep) ধ্রুব {
+        প্রত্যাগম m_lhsVarRef && (m_lhsVarRef->varScopep() == scopep);
     }
 };
 
 //######################################################################
 // GateInline
 
-class GateInline final {
-    using Substitutions = std::unordered_map<AstVarScope*, AstNodeExpr*>;
+বর্গ GateInline final {
+    using Substitutions = std::unordered_map<AstVarScope*, Ast_গ্রন্থি_রাশিমালা*>;
 
     // NODE STATE
     // {logic}Node::user2       -> map of substitutions, via m_substitutions
-    const VNUser2InUse m_inuser2;
+    ধ্রুব VNUser2InUse m_inuser2;
 
     // Variable substitutions to apply to a given logic block
-    AstUser2Allocator<AstNode, Substitutions> m_substitutions;
+    AstUser2Allocator<Ast_গ্রন্থি, Substitutions> m_substitutions;
 
     // STATE
     GateGraph& m_graph;
     size_t m_ord = 0;  // Counter for sorting
     // Logic block with pending substitutions are stored in this map, together with their ordinal
-    std::unordered_map<AstNode*, size_t> m_hasPending;
+    std::unordered_map<Ast_গ্রন্থি*, size_t> m_hasPending;
     size_t m_statInlined = 0;  // Statistic tracking - signals inlined
     size_t m_statNotInlined = 0;  // Statistic tracking - signals not inlined due to cost
     size_t m_statRefs = 0;  // Statistic tracking - number of input variable references replaced
 
     // METHODS
-    static bool isCheap(const AstNodeExpr* exprp) {
+    স্থির তার্কিক isCheap(ধ্রুব Ast_গ্রন্থি_রাশিমালা* exprp) {
         // Constant is cheap
-        if (VN_IS(exprp, Const)) return true;
+        যদি (VN_IS(exprp, Const)) প্রত্যাগম সত্য;
         // Variable reference is cheap
-        if (VN_IS(exprp, NodeVarRef)) return true;
+        যদি (VN_IS(exprp, গ্রন্থি_Var_Ref)) প্রত্যাগম সত্য;
         // AstSel is cheap if the fromp is cheap, and not a wide needing bit swizzling
-        if (const AstSel* const selp = VN_CAST(exprp, Sel)) {
-            if (!isCheap(selp->fromp())) return false;
-            if (!selp->isWide()) return true;
-            if (!VN_IS(selp->lsbp(), Const)) return false;
-            if (selp->lsbConst() % VL_EDATASIZE != 0) return false;
-            return true;
+        যদি (ধ্রুব AstSel* ধ্রুব selp = VN_CAST(exprp, Sel)) {
+            যদি (!isCheap(selp->fromp())) প্রত্যাগম অসত্য;
+            যদি (!selp->isWide()) প্রত্যাগম সত্য;
+            যদি (!VN_IS(selp->lsbp(), Const)) প্রত্যাগম অসত্য;
+            যদি (selp->lsbConst() % VL_EDATASIZE != 0) প্রত্যাগম অসত্য;
+            প্রত্যাগম সত্য;
         }
         // AstArraySel is cheap if the fromp is cheap
-        if (const AstArraySel* const aselp = VN_CAST(exprp, ArraySel)) {
-            return isCheap(aselp->fromp());
+        যদি (ধ্রুব AstArraySel* ধ্রুব aselp = VN_CAST(exprp, ArraySel)) {
+            প্রত্যাগম isCheap(aselp->fromp());
         }
         // Otherwise it is not cheap
-        return false;
+        প্রত্যাগম অসত্য;
     }
 
-    bool shouldInline(GateVarVertex* vVtxp, GateLogicVertex* lVtxp, size_t nReads,
-                      AstNodeExpr* substp, bool allowMultiIn) {
+    তার্কিক shouldInline(GateVarVertex* vVtxp, GateLogicVertex* lVtxp, size_t nReads,
+                      Ast_গ্রন্থি_রাশিমালা* substp, তার্কিক allowMultiIn) {
         // Always inline constants
-        if (VN_IS(substp, Const)) return true;
+        যদি (VN_IS(substp, Const)) প্রত্যাগম সত্য;
         // Don't inline non-constant static initializers - these are scheduled differently
-        if (lVtxp->staticInit()) return false;
+        যদি (lVtxp->staticInit()) প্রত্যাগম অসত্য;
         // Inline simple variable references
-        if (VN_IS(substp, VarRef)) return true;
+        যদি (VN_IS(substp, VarRef)) প্রত্যাগম সত্য;
         // Only inline arrays if a simple variable or constant
-        if (VN_IS(vVtxp->varScp()->dtypep()->skipRefp(), UnpackArrayDType)) return false;
+        যদি (VN_IS(vVtxp->varScp()->dtypep()->skipRefp(), UnpackArrayDType)) প্রত্যাগম অসত্য;
         // Inline if reads no variables - unfolded constant expression, nullary builtin e.g.: $time
-        if (nReads == 0) return true;
+        যদি (nReads == 0) প্রত্যাগম সত্য;
         // If it reads one variable, inline if not wide, or if cheap
-        if (nReads == 1 && (!substp->isWide() || isCheap(substp))) return true;
+        যদি (nReads == 1 && (!substp->isWide() || isCheap(substp))) প্রত্যাগম সত্য;
         // Don't inline on first round if reads more than one variable
-        if (nReads > 1 && !allowMultiIn) return false;
+        যদি (nReads > 1 && !allowMultiIn) প্রত্যাগম অসত্য;
         // Reads multiple variables, or is expensive to compute.
         // Inline if used only once, ignoring slow code, or dead code that can be deleted.
-        int n = 0;
-        for (V3GraphEdge& edge : vVtxp->outEdges()) {
-            const GateLogicVertex* const dstVtxp = edge.top()->as<GateLogicVertex>();
+        পূর্ণাঙ্ক n = 0;
+        প্রতি (V3GraphEdge& edge : vVtxp->outEdges()) {
+            ধ্রুব GateLogicVertex* ধ্রুব dstVtxp = edge.শীর্ষ()->as<GateLogicVertex>();
             // Ignore slow code, or if the destination is not used
-            if (dstVtxp->slow()) continue;
-            if (dstVtxp->outEmpty() && !dstVtxp->consumed()) continue;
+            যদি (dstVtxp->slow()) অনুবর্ত;
+            যদি (dstVtxp->outEmpty() && !dstVtxp->consumed()) অনুবর্ত;
             n += edge.weight();
-            if (n > 1) {
+            যদি (n > 1) {
                 ++m_statNotInlined;
-                return false;
+                প্রত্যাগম অসত্য;
             }
         }
-        return true;
+        প্রত্যাগম সত্য;
     }
 
-    void recordSubstitution(AstVarScope* vscp, AstNodeExpr* substp, AstNode* logicp) {
+    শূন্য recordSubstitution(AstVarScope* vscp, Ast_গ্রন্থি_রাশিমালা* substp, Ast_গ্রন্থি* logicp) {
         m_hasPending.emplace(logicp, ++m_ord);  // It's OK if already present
-        const auto pair = m_substitutions(logicp).emplace(vscp, nullptr);
-        if (pair.second) pair.first->second = substp->cloneTreePure(false);
+        ধ্রুব auto pair = m_substitutions(logicp).emplace(vscp, nullptr);
+        যদি (pair.second) pair.first->second = substp->clone_বৃক্ষ_Pure(অসত্য);
     }
 
-    void commitSubstitutions(AstNode* logicp) {
-        if (!m_hasPending.erase(logicp)) return;  // Had no pending substitutions
+    শূন্য commitSubstitutions(Ast_গ্রন্থি* logicp) {
+        যদি (!m_hasPending.erase(logicp)) প্রত্যাগম;  // Had no pending substitutions
 
         Substitutions& substitutions = m_substitutions(logicp);
         UASSERT_OBJ(!substitutions.empty(), logicp, "No pending substitutions");
 
         // Recursion filter holding already replaced variables
-        std::unordered_set<const AstVarScope*> replaced(substitutions.size() * 2);
+        std::unordered_set<ধ্রুব AstVarScope*> replaced(substitutions.size() * 2);
 
-        const std::function<void(AstNodeVarRef*)> visit = [&](AstNodeVarRef* nodep) -> void {
+        ধ্রুব std::function<শূন্য(Ast_গ্রন্থি_Var_Ref*)> visit = [&](Ast_গ্রন্থি_Var_Ref* nodep) -> শূন্য {
             // See if this variable has a substitution
-            AstVarScope* const vscp = nodep->varScopep();
-            const auto& it = substitutions.find(vscp);
-            if (it == substitutions.end()) return;
+            AstVarScope* ধ্রুব vscp = nodep->varScopep();
+            ধ্রুব auto& it = substitutions.find(vscp);
+            যদি (it == substitutions.end()) প্রত্যাগম;
 
             // Do not substitute circular logic
-            if (!replaced.insert(vscp).second) return;
+            যদি (!replaced.ঢোকাও(vscp).second) প্রত্যাগম;
 
             // Substitute nodep with substp
-            AstNodeExpr* const substp = it->second;
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুব substp = it->second;
 
             UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Can't replace write references");
-            UASSERT_OBJ(!VN_IS(substp, NodeVarRef) || !nodep->isSame(substp), substp,
+            UASSERT_OBJ(!VN_IS(substp, গ্রন্থি_Var_Ref) || !nodep->isSame(substp), substp,
                         "Replacing node with itself; perhaps circular logic?");
             // The replacement
-            AstNodeExpr* const newp = substp->cloneTreePure(false);
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুব newp = substp->clone_বৃক্ষ_Pure(অসত্য);
             // Which fileline() to use? If replacing with logic, an error/warning is likely to want
             // to point to the logic IE what we're replacing with. However, a VARREF should point
             // to the original as it's otherwise confusing to throw warnings that point to a PIN
             // rather than where the pin us used.
-            if (VN_IS(newp, VarRef)) newp->fileline(nodep->fileline());
+            যদি (VN_IS(newp, VarRef)) newp->fileline(nodep->fileline());
             // Make the newp an rvalue like nodep.
-            if (AstNodeVarRef* const varrefp = VN_CAST(newp, NodeVarRef)) {
+            যদি (Ast_গ্রন্থি_Var_Ref* ধ্রুব varrefp = VN_CAST(newp, গ্রন্থি_Var_Ref)) {
                 varrefp->access(VAccess::READ);
             }
             // Replace the node
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_বৃক্ষ(), nodep);
             // Recursively substitute the new tree
             newp->foreach(visit);
 
@@ -666,99 +666,99 @@ class GateInline final {
 
         logicp->foreach(visit);
 
-        AstNode* const simplifiedp = V3Const::constifyEdit(logicp);
+        Ast_গ্রন্থি* ধ্রুব simplifiedp = V3Const::constifyEdit(logicp);
         UASSERT_OBJ(simplifiedp == logicp, simplifiedp, "Should not remove whole logic");
-        for (const auto& pair : substitutions) pair.second->deleteTree();
+        প্রতি (ধ্রুব auto& pair : substitutions) pair.second->delete_বৃক্ষ();
         substitutions.clear();
     }
 
-    void optimizeSignals(bool allowMultiIn) {
+    শূন্য optimizeSignals(তার্কিক allowMultiIn) {
         // Consider "inlining" variables
         auto& vertices = m_graph.vertices();
-        const auto ffToVarVtx = [&](V3GraphVertex::List::iterator it) {
-            while (it != vertices.end() && !(*it).is<GateVarVertex>()) ++it;
-            return it;
+        ধ্রুব auto ffToVarVtx = [&](V3GraphVertex::List::iterator it) {
+            যাবত্ (it != vertices.end() && !(*it).is<GateVarVertex>()) ++it;
+            প্রত্যাগম it;
         };
         V3GraphVertex::List::iterator vIt = ffToVarVtx(vertices.begin());
-        while (vIt != vertices.end()) {
-            GateVarVertex* const vVtxp = (*vIt).as<GateVarVertex>();
+        যাবত্ (vIt != vertices.end()) {
+            GateVarVertex* ধ্রুব vVtxp = (*vIt).as<GateVarVertex>();
             // vVtxp and it's driving logic might be deleted, so grab next up front
             vIt = ffToVarVtx(++vIt);
 
             // Nothing to inline if no driver, or multiple drivers ...
-            if (!vVtxp->inSize1()) continue;
+            যদি (!vVtxp->inSize1()) অনুবর্ত;
 
             // Can't inline if non-reducible, etc
-            if (!vVtxp->reducible()) continue;
+            যদি (!vVtxp->reducible()) অনুবর্ত;
 
             // Grab the driving logic
-            GateLogicVertex* const lVtxp
+            GateLogicVertex* ধ্রুব lVtxp
                 = vVtxp->inEdges().frontp()->fromp()->as<GateLogicVertex>();
-            if (!lVtxp->reducible()) continue;
-            AstNode* const logicp = lVtxp->nodep();
+            যদি (!lVtxp->reducible()) অনুবর্ত;
+            Ast_গ্রন্থি* ধ্রুব logicp = lVtxp->nodep();
 
             // Commit pending optimizations to driving logic, as we will re-analyze
             commitSubstitutions(logicp);
 
             // Can we eliminate?
-            const GateOkVisitor okVisitor{logicp, false, false};
+            ধ্রুব GateOkVisitor okVisitor{logicp, অসত্য, অসত্য};
 
             // Was it ok?
-            if (!okVisitor.isSimple()) continue;
+            যদি (!okVisitor.isSimple()) অনুবর্ত;
             // If the varScope is already removed from logicp, no need to try substitution.
-            if (!okVisitor.varAssigned(vVtxp->varScp())) continue;
+            যদি (!okVisitor.varAssigned(vVtxp->varScp())) অনুবর্ত;
 
             // Expression we are considering to substitute with
-            AstNodeExpr* const substp = V3Const::constifyEdit(okVisitor.substitutionp());
+            Ast_গ্রন্থি_রাশিমালা* ধ্রুব substp = V3Const::constifyEdit(okVisitor.substitutionp());
             // Number of variables read by the substitution
-            const size_t nReads = okVisitor.readVscps().size();
+            ধ্রুব size_t nReads = okVisitor.readVscps().size();
 
             // Check if it should be inlined
-            if (!shouldInline(vVtxp, lVtxp, nReads, substp, allowMultiIn)) continue;
+            যদি (!shouldInline(vVtxp, lVtxp, nReads, substp, allowMultiIn)) অনুবর্ত;
 
             // Process it
             ++m_statInlined;
 
             // Variable we are considering to substitute
-            AstVarScope* const vscp = vVtxp->varScp();
+            AstVarScope* ধ্রুব vscp = vVtxp->varScp();
 
-            if (debug() >= 9) {
-                vscp->dumpTree("substituting: ");
-                substp->dumpTree("        with: ");
+            যদি (debug() >= 9) {
+                vscp->dump_বৃক্ষ("substituting: ");
+                substp->dump_বৃক্ষ("        with: ");
             }
 
-            const auto& readVscpsVec = okVisitor.readVscps();
-            const std::unordered_set<AstVarScope*> readVscps{readVscpsVec.begin(),
+            ধ্রুব auto& readVscpsVec = okVisitor.readVscps();
+            ধ্রুব std::unordered_set<AstVarScope*> readVscps{readVscpsVec.begin(),
                                                              readVscpsVec.end()};
 
-            for (V3GraphEdge* const edgep : vVtxp->outEdges().unlinkable()) {
-                GateLogicVertex* const dstVtxp = edgep->top()->as<GateLogicVertex>();
+            প্রতি (V3GraphEdge* ধ্রুব edgep : vVtxp->outEdges().unlinkable()) {
+                GateLogicVertex* ধ্রুব dstVtxp = edgep->শীর্ষ()->as<GateLogicVertex>();
 
                 // Do not inline anything other than buffers and inverters into
                 // sensitivity lists. If the signal becomes constant, we might
                 // miss an initialization time edge.
-                if (VN_IS(dstVtxp->nodep(), SenItem)) {
-                    AstNode* nodep = substp;
-                    if (AstNot* const notp = VN_CAST(nodep, Not)) nodep = notp->lhsp();
-                    if (!VN_IS(nodep, VarRef)) continue;
+                যদি (VN_IS(dstVtxp->nodep(), SenItem)) {
+                    Ast_গ্রন্থি* nodep = substp;
+                    যদি (AstNot* ধ্রুব notp = VN_CAST(nodep, Not)) nodep = notp->lhsp();
+                    যদি (!VN_IS(nodep, VarRef)) অনুবর্ত;
                 }
 
                 // If the consumer logic writes one of the variables that the substitution
                 // is reading, then we would get a cycles, so we cannot do that.
-                bool canInline = true;
-                for (const V3GraphEdge& dedge : dstVtxp->outEdges()) {
-                    const GateVarVertex* const consVVertexp = dedge.top()->as<GateVarVertex>();
-                    if (readVscps.count(consVVertexp->varScp())) {
-                        canInline = false;
-                        break;
+                তার্কিক canInline = সত্য;
+                প্রতি (ধ্রুব V3GraphEdge& dedge : dstVtxp->outEdges()) {
+                    ধ্রুব GateVarVertex* ধ্রুব consVVertexp = dedge.শীর্ষ()->as<GateVarVertex>();
+                    যদি (readVscps.গুনতি(consVVertexp->varScp())) {
+                        canInline = অসত্য;
+                        ভঙ্গ;
                     }
                 }
 
-                if (!canInline) continue;  // Cannot optimize this replacement
+                যদি (!canInline) অনুবর্ত;  // Cannot optimize this replacement
 
                 UINFOTREE(9, dstVtxp->nodep(), "", "inside");
 
-                if (logicp == dstVtxp->nodep()) {
+                যদি (logicp == dstVtxp->nodep()) {
                     // This is a bit involved. The graph tells us that the logic is circular
                     // (driver is same as sink), however, okVisitor rejects a circular driver
                     // and we would not reach here if the driver logic was actually circular.
@@ -769,15 +769,15 @@ class GateInline final {
                     // that the logic is not actually circular, meaning this edge is not
                     // actually needed, can just delete it and move on.
                     VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-                    continue;
+                    অনুবর্ত;
                 }
 
                 recordSubstitution(vscp, substp, dstVtxp->nodep());
 
                 // If the new replacement referred to a signal,
                 // Correct the graph to point to this new generating variable
-                for (AstVarScope* const newVscp : okVisitor.readVscps()) {
-                    GateVarVertex* const varvertexp = m_graph.makeVarVertex(newVscp);
+                প্রতি (AstVarScope* ধ্রুব newVscp : okVisitor.readVscps()) {
+                    GateVarVertex* ধ্রুব varvertexp = m_graph.makeVarVertex(newVscp);
                     m_graph.addEdge(varvertexp, dstVtxp, 1);
                     // Propagate clock attribute onto generating node
                     varvertexp->propagateAttrFrom(vVtxp);
@@ -789,11 +789,11 @@ class GateInline final {
             }
 
             // If removed all usage
-            if (vVtxp->outEmpty()) {
+            যদি (vVtxp->outEmpty()) {
                 // Remove Variable vertex
                 VL_DO_DANGLING(vVtxp->unlinkDelete(&m_graph), vVtxp);
                 // Remove driving logic and vertex
-                VL_DO_DANGLING(logicp->unlinkFrBack()->deleteTree(), logicp);
+                VL_DO_DANGLING(logicp->unlinkFrBack()->delete_বৃক্ষ(), logicp);
                 VL_DO_DANGLING(lVtxp->unlinkDelete(&m_graph), lVtxp);
             }
         }
@@ -804,16 +804,16 @@ class GateInline final {
         // Find gate interconnect and optimize
         graph.userClearVertices();  // vertex->user(): bool. Indicates we've set it as consumed
         // Get rid of buffers first,
-        optimizeSignals(false);
+        optimizeSignals(অসত্য);
         // Then propagate more complicated equations
-        optimizeSignals(true);
+        optimizeSignals(সত্য);
         // Commit substitutions in insertion order for stability
-        using Pair = std::pair<AstNode*, size_t>;
+        using Pair = std::pair<Ast_গ্রন্থি*, size_t>;
         std::vector<Pair> pending{m_hasPending.begin(), m_hasPending.end()};
-        std::sort(pending.begin(), pending.end(), [](const Pair& a, const Pair& b) {  //
-            return a.second < b.second;
+        std::sort(pending.begin(), pending.end(), [](ধ্রুব Pair& a, ধ্রুব Pair& b) {  //
+            প্রত্যাগম a.second < b.second;
         });
-        for (const auto& pair : pending) commitSubstitutions(pair.first);
+        প্রতি (ধ্রুব auto& pair : pending) commitSubstitutions(pair.first);
     }
 
     ~GateInline() {
@@ -822,34 +822,34 @@ class GateInline final {
         V3Stats::addStat("Optimizations, Gate reads replaced", m_statRefs);
     }
 
-public:
-    static void apply(GateGraph& graph) { GateInline{graph}; }
+সার্বজনিক:
+    স্থির শূন্য apply(GateGraph& graph) { GateInline{graph}; }
 };
 
 //######################################################################
 // Auxiliary hash class for GateDedupeVarVisitor
 
-class GateDedupeHash final : public V3DupFinderUserSame {
+বর্গ GateDedupeHash final : সার্বজনিক V3DupFinderUserSame {
     // NODE STATE
     // VNUser2InUse    m_inuser2;      (Allocated in GateDedupe)
-    struct AuxAstNodeExpr final {
+    সংরচনা Aux_Ast_গ্রন্থি_রাশিমালা final {
         // AstActive* of assign, for isSame() in test for duplicate. Set to nullptr if this
         // assign's tree was later replaced
         AstActive* activep = nullptr;
         // AstNodeExpr* of assign if condition, for isSame() in test for duplicate. Set to nullptr
         // if this assign's tree was later replaced
-        AstNodeExpr* condp = nullptr;
+        Ast_গ্রন্থি_রাশিমালা* condp = nullptr;
         // Parent AstNodeAssign* for this rhsp
-        AstNodeAssign* parentp = nullptr;
+        Ast_গ্রন্থি_Assign* parentp = nullptr;
     };
-    AstUser2Allocator<AstNodeExpr, AuxAstNodeExpr> m_auxNodeExpr;
+    AstUser2Allocator<Ast_গ্রন্থি_রাশিমালা, Aux_Ast_গ্রন্থি_রাশিমালা> m_aux_গ্রন্থি_রাশিমালা;
 
-    AstNodeExpr* m_currRhsp = nullptr;  // Current node we are searching for duplicates of
-    AuxAstNodeExpr m_auxCurRhsp;  // Aux of current node
+    Ast_গ্রন্থি_রাশিমালা* m_currRhsp = nullptr;  // Current node we are searching for duplicates of
+    Aux_Ast_গ্রন্থি_রাশিমালা m_auxCurRhsp;  // Aux of current node
 
     V3DupFinder m_dupFinder;  // Duplicate finder for rhs of assigns
 
-    static bool same(AstNode* node1p, AstNode* node2p) {
+    স্থির তার্কিক same(Ast_গ্রন্থি* node1p, Ast_গ্রন্থি* node2p) {
         // Regarding the complexity of this function 'same':
         // Applying this comparison function to a a set of n trees pairwise is O(n^2) in the
         // number of comparisons (number of pairs). AstNode::sameTree itself, is O(sizeOfTree) in
@@ -868,24 +868,24 @@ class GateDedupeHash final : public V3DupFinderUserSame {
         // or having the same sensitivities anyway, so if this becomes a problem, it can be
         // improved which should also speed things up), and AstNodeExpr for if conditions, which
         // are hopefully small.
-        return node1p == node2p || (node1p && node1p->sameTree(node2p));
+        প্রত্যাগম node1p == node2p || (node1p && node1p->same_বৃক্ষ(node2p));
     }
 
     // Callback from V3DupFinder::findDuplicate
-    bool isSame(AstNode* node1p, AstNode* node2p) override {
+    তার্কিক isSame(Ast_গ্রন্থি* node1p, Ast_গ্রন্থি* node2p) override {
         UASSERT_OBJ(node1p == m_currRhsp, m_currRhsp, "Comparing to unexpected node");
-        const auto& aux2 = m_auxNodeExpr(VN_AS(node2p, NodeExpr));
-        return m_auxCurRhsp.parentp->type() == aux2.parentp->type()  //
+        ধ্রুব auto& aux2 = m_aux_গ্রন্থি_রাশিমালা(VN_AS(node2p, গ্রন্থি_রাশিমালা));
+        প্রত্যাগম m_auxCurRhsp.parentp->type() == aux2.parentp->type()  //
                && same(m_auxCurRhsp.activep, aux2.activep)  //
                && same(m_auxCurRhsp.condp, aux2.condp);
     }
 
-public:
-    GateDedupeHash() = default;
-    ~GateDedupeHash() = default;
+সার্বজনিক:
+    GateDedupeHash() = স্বভাব;
+    ~GateDedupeHash() = স্বভাব;
 
-    const AstNodeAssign* hashAndFindDupe(AstNodeAssign* assignp, AstActive* activep,
-                                         AstNodeExpr* condp) {
+    ধ্রুব Ast_গ্রন্থি_Assign* hashAndFindDupe(Ast_গ্রন্থি_Assign* assignp, AstActive* activep,
+                                         Ast_গ্রন্থি_রাশিমালা* condp) {
         // Legal for activep to be nullptr, we'll compare with other assigns with also nullptr
         m_currRhsp = assignp->rhsp();
         m_auxCurRhsp.activep = activep;
@@ -893,20 +893,20 @@ public:
         m_auxCurRhsp.parentp = assignp;
 
         // Check for a duplicate, if found return its assignment
-        const auto it = m_dupFinder.findDuplicate(m_currRhsp, this);
-        if (it != m_dupFinder.end()) return m_auxNodeExpr(VN_AS(it->second, NodeExpr)).parentp;
+        ধ্রুব auto it = m_dupFinder.findDuplicate(m_currRhsp, এতত্);
+        যদি (it != m_dupFinder.end()) প্রত্যাগম m_aux_গ্রন্থি_রাশিমালা(VN_AS(it->second, গ্রন্থি_রাশিমালা)).parentp;
 
         // Insert new node
-        m_dupFinder.insert(m_currRhsp);
-        m_auxNodeExpr(m_currRhsp) = m_auxCurRhsp;
-        return nullptr;
+        m_dupFinder.ঢোকাও(m_currRhsp);
+        m_aux_গ্রন্থি_রাশিমালা(m_currRhsp) = m_auxCurRhsp;
+        প্রত্যাগম nullptr;
     }
 };
 
 //######################################################################
 // Have we seen the rhs of this assign before?
 
-class GateDedupeVarVisitor final : public VNVisitorConst {
+বর্গ GateDedupeVarVisitor final : সার্বজনিক VNVisitorConst {
     // Given a node, it is visited to try to find the AstNodeAssign under
     // it that can used for dedupe.
     // Right now, only the following node trees are supported for dedupe.
@@ -921,148 +921,148 @@ class GateDedupeVarVisitor final : public VNVisitorConst {
 
     // STATE
     GateDedupeHash m_ghash;  // Hash used to find dupes of rhs of assign
-    AstNodeAssign* m_assignp = nullptr;  // Assign found for dedupe
-    AstNodeExpr* m_ifCondp = nullptr;  // IF condition that assign is under
-    bool m_always = false;  // Assign is under an always
-    bool m_dedupable = true;  // Determined the assign to be dedupable
+    Ast_গ্রন্থি_Assign* m_assignp = nullptr;  // Assign found for dedupe
+    Ast_গ্রন্থি_রাশিমালা* m_ifCondp = nullptr;  // IF condition that assign is under
+    তার্কিক m_always = অসত্য;  // Assign is under an always
+    তার্কিক m_dedupable = সত্য;  // Determined the assign to be dedupable
 
     // VISITORS
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_dedupable) return;
+    শূন্য visit(Ast_গ্রন্থি_Assign* nodep) override {
+        যদি (!m_dedupable) প্রত্যাগম;
 
         // I think we could safely dedupe an always block with multiple
         // non-blocking statements, but erring on side of caution here
-        if (!m_assignp) {
+        যদি (!m_assignp) {
             m_assignp = nodep;
-            m_dedupable = !nodep->exists([](AstExprStmt*) { return true; });
-            return;
+            m_dedupable = !nodep->exists([](Ast_রাশিমালা_Stmt*) { প্রত্যাগম সত্য; });
+            প্রত্যাগম;
         }
 
-        m_dedupable = false;
+        m_dedupable = অসত্য;
     }
 
-    void visit(AstAlways* nodep) override {
-        if (!m_dedupable) return;
+    শূন্য visit(AstAlways* nodep) override {
+        যদি (!m_dedupable) প্রত্যাগম;
 
-        if (!m_always) {
-            m_always = true;
+        যদি (!m_always) {
+            m_always = সত্য;
             iterateAndNextConstNull(nodep->stmtsp());
-            return;
+            প্রত্যাগম;
         }
 
-        m_dedupable = false;
+        m_dedupable = অসত্য;
     }
 
     // Ugly support for latches of the specific form -
     //  always @(...)
     //    if (...)
     //       foo = ...; // or foo <= ...;
-    void visit(AstNodeIf* nodep) override {
-        if (!m_dedupable) return;
+    শূন্য visit(Ast_গ্রন্থি_If* nodep) override {
+        যদি (!m_dedupable) প্রত্যাগম;
 
-        if (m_always && !m_ifCondp && !nodep->elsesp()) {
+        যদি (m_always && !m_ifCondp && !nodep->elsesp()) {
             // we're under an always, this is the first IF, and there's no else
             m_ifCondp = nodep->condp();
-            m_dedupable = !m_ifCondp->exists([](AstExprStmt*) { return true; });
+            m_dedupable = !m_ifCondp->exists([](Ast_রাশিমালা_Stmt*) { প্রত্যাগম সত্য; });
             iterateAndNextConstNull(nodep->thensp());
-            return;
+            প্রত্যাগম;
         }
 
-        m_dedupable = false;
+        m_dedupable = অসত্য;
     }
 
-    void visit(AstComment*) override {}  // NOP
+    শূন্য visit(AstComment*) override {}  // NOP
     //--------------------
-    void visit(AstNode*) override { m_dedupable = false; }
+    শূন্য visit(Ast_গ্রন্থি*) override { m_dedupable = অসত্য; }
 
-public:
+সার্বজনিক:
     // CONSTRUCTORS
-    GateDedupeVarVisitor() = default;
-    ~GateDedupeVarVisitor() override = default;
+    GateDedupeVarVisitor() = স্বভাব;
+    ~GateDedupeVarVisitor() override = স্বভাব;
     // PUBLIC METHODS
-    AstNodeVarRef* findDupe(AstNode* logicp, AstVarScope* consumerVscp, AstActive* activep) {
+    Ast_গ্রন্থি_Var_Ref* findDupe(Ast_গ্রন্থি* logicp, AstVarScope* consumerVscp, AstActive* activep) {
         m_assignp = nullptr;
         m_ifCondp = nullptr;
-        m_always = false;
-        m_dedupable = true;
+        m_always = অসত্য;
+        m_dedupable = সত্য;
         iterateConst(logicp);
-        if (m_dedupable && m_assignp) {
-            const AstNode* const lhsp = m_assignp->lhsp();
+        যদি (m_dedupable && m_assignp) {
+            ধ্রুব Ast_গ্রন্থি* ধ্রুব lhsp = m_assignp->lhsp();
             // Possible todo, handle more complex lhs expressions
             // A logic vertex may also contain a function argument assignment.
-            const AstNodeVarRef* const lRefp = VN_CAST(lhsp, NodeVarRef);
-            if (lRefp && lRefp->varScopep() == consumerVscp) {
-                if (const AstNodeAssign* const dup
+            ধ্রুব Ast_গ্রন্থি_Var_Ref* ধ্রুব lRefp = VN_CAST(lhsp, গ্রন্থি_Var_Ref);
+            যদি (lRefp && lRefp->varScopep() == consumerVscp) {
+                যদি (ধ্রুব Ast_গ্রন্থি_Assign* ধ্রুব dup
                     = m_ghash.hashAndFindDupe(m_assignp, activep, m_ifCondp)) {
-                    return static_cast<AstNodeVarRef*>(dup->lhsp());
+                    প্রত্যাগম static_cast<Ast_গ্রন্থি_Var_Ref*>(dup->lhsp());
                 }
             }
         }
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
 };
 
 //######################################################################
 // Recurse through the graph, looking for duplicate expressions on the rhs of an assign
 
-class GateDedupe final {
+বর্গ GateDedupe final {
     // NODE STATE
     // AstVarScope::user2p      -> bool: already visited
-    const VNUser2InUse m_inuser2;
+    ধ্রুব VNUser2InUse m_inuser2;
 
     // STATE
     size_t m_statDedupLogic = 0;  // Statistic tracking
     GateDedupeVarVisitor m_varVisitor;  // Looks for a dupe of the logic
     uint32_t m_depth = 0;  // Iteration depth
 
-    void visit(GateVarVertex* vVtxp) {
+    শূন্য visit(GateVarVertex* vVtxp) {
         // Break loops; before user2 set so hit this vertex later
-        if (m_depth > GATE_DEDUP_MAX_DEPTH) return;
+        যদি (m_depth > GATE_DEDUP_MAX_DEPTH) প্রত্যাগম;
 
         // Check that we haven't been here before
-        if (vVtxp->varScp()->user2SetOnce()) return;
+        যদি (vVtxp->varScp()->user2SetOnce()) প্রত্যাগম;
 
         VL_RESTORER(m_depth);
         ++m_depth;
-        if (!vVtxp->inSize1()) return;
+        যদি (!vVtxp->inSize1()) প্রত্যাগম;
 
-        AstNodeVarRef* dupRefp = nullptr;
-        for (V3GraphEdge& edge : vVtxp->inEdges()) {
+        Ast_গ্রন্থি_Var_Ref* dupRefp = nullptr;
+        প্রতি (V3GraphEdge& edge : vVtxp->inEdges()) {
             dupRefp = visit(edge.fromp()->as<GateLogicVertex>(), vVtxp);
         }
-        if (!dupRefp) return;
+        যদি (!dupRefp) প্রত্যাগম;
 
         UASSERT_OBJ(vVtxp->dedupable(), vVtxp->varScp(),
                     "GateLogicVertex* visit should have returned nullptr "
                     "if consumer var vertex is not dedupable.");
 
-        GateLogicVertex* const lVtxp = vVtxp->inEdges().frontp()->fromp()->as<GateLogicVertex>();
-        const GateOkVisitor okVisitor{lVtxp->nodep(), false, true};
-        if (!okVisitor.isSimple()) return;
+        GateLogicVertex* ধ্রুব lVtxp = vVtxp->inEdges().frontp()->fromp()->as<GateLogicVertex>();
+        ধ্রুব GateOkVisitor okVisitor{lVtxp->nodep(), অসত্য, সত্য};
+        যদি (!okVisitor.isSimple()) প্রত্যাগম;
 
         ++m_statDedupLogic;
-        GateVarVertex* const dupVVtxp = dupRefp->varScopep()->user1u().to<GateVarVertex*>();
+        GateVarVertex* ধ্রুব dupVVtxp = dupRefp->varScopep()->user1u().to<GateVarVertex*>();
         UINFO(4, "replacing " << vVtxp << " with " << dupVVtxp);
 
         // Replace all of this varvertex's consumers with dupRefp
-        for (V3GraphEdge* const edgep : vVtxp->outEdges().unlinkable()) {
-            const GateLogicVertex* const consumerVtxp = edgep->top()->as<GateLogicVertex>();
-            AstNode* const consumerp = consumerVtxp->nodep();
+        প্রতি (V3GraphEdge* ধ্রুব edgep : vVtxp->outEdges().unlinkable()) {
+            ধ্রুব GateLogicVertex* ধ্রুব consumerVtxp = edgep->শীর্ষ()->as<GateLogicVertex>();
+            Ast_গ্রন্থি* ধ্রুব consumerp = consumerVtxp->nodep();
             UINFO(9, "elim src vtx" << lVtxp << " node " << lVtxp->nodep());
             UINFO(9, "elim cons vtx" << consumerVtxp << " node " << consumerp);
             UINFO(9, "elim var vtx " << vVtxp << " node " << vVtxp->varScp());
             UINFO(9, "replace with " << dupRefp);
-            if (lVtxp == consumerVtxp) {
+            যদি (lVtxp == consumerVtxp) {
                 UINFO(9, "skipping as self-recirculates");
-            } else {
+            } অন্যথা {
                 // Substitute consumer logic
-                consumerp->foreach([&](AstNodeVarRef* refp) {
-                    if (refp->varScopep() != vVtxp->varScp()) return;
+                consumerp->foreach([&](Ast_গ্রন্থি_Var_Ref* refp) {
+                    যদি (refp->varScopep() != vVtxp->varScp()) প্রত্যাগম;
 
                     UASSERT_OBJ(refp->access().isReadOnly(), refp, "Can't replace a write ref");
 
                     // The replacement
-                    AstNodeVarRef* const newp = dupRefp->cloneTreePure(false);
+                    Ast_গ্রন্থি_Var_Ref* ধ্রুব newp = dupRefp->clone_বৃক্ষ_Pure(অসত্য);
                     // A VARREF should point to the original as it's otherwise confusing to throw
                     // warnings that point to a PIN rather than where the pin is used.
                     newp->fileline(refp->fileline());
@@ -1070,14 +1070,14 @@ class GateDedupe final {
 
                     // Replace the node
                     refp->replaceWith(newp);
-                    VL_DO_DANGLING(refp->deleteTree(), refp);
+                    VL_DO_DANGLING(refp->delete_বৃক্ষ(), refp);
                 });
             }
             edgep->relinkFromp(dupVVtxp);
         }
 
         // Remove inputs links
-        while (V3GraphEdge* const edgep = vVtxp->inEdges().frontp()) {
+        যাবত্ (V3GraphEdge* ধ্রুব edgep = vVtxp->inEdges().frontp()) {
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
 
@@ -1087,100 +1087,100 @@ class GateDedupe final {
 
     // Given iterated logic, starting at consumerVtxp, returns a varref that
     // has the same logic input, or nullptr if none
-    AstNodeVarRef* visit(GateLogicVertex* lVtxp, const GateVarVertex* consumerVtxp) {
-        for (V3GraphEdge& edge : lVtxp->inEdges()) visit(edge.fromp()->as<GateVarVertex>());
+    Ast_গ্রন্থি_Var_Ref* visit(GateLogicVertex* lVtxp, ধ্রুব GateVarVertex* consumerVtxp) {
+        প্রতি (V3GraphEdge& edge : lVtxp->inEdges()) visit(edge.fromp()->as<GateVarVertex>());
 
-        if (lVtxp->dedupable() && consumerVtxp->dedupable()) {
+        যদি (lVtxp->dedupable() && consumerVtxp->dedupable()) {
             // TODO: Doing a simple pointer comparison of activep won't work
             // optimally for statements under generated clocks. Statements under
             // different generated clocks will never compare as equal, even if the
             // generated clocks are deduped into one clock.
-            return m_varVisitor.findDupe(lVtxp->nodep(), consumerVtxp->varScp(), lVtxp->activep());
+            প্রত্যাগম m_varVisitor.findDupe(lVtxp->nodep(), consumerVtxp->varScp(), lVtxp->activep());
         }
-        return nullptr;
+        প্রত্যাগম nullptr;
     }
 
     explicit GateDedupe(GateGraph& graph) {
         // Traverse starting from each of the clocks
         UINFO(9, "Gate dedupe() clocks:");
-        for (V3GraphVertex& vtx : graph.vertices()) {
-            if (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) {
-                if (vVtxp->isClock()) visit(vVtxp);
+        প্রতি (V3GraphVertex& vtx : graph.vertices()) {
+            যদি (GateVarVertex* ধ্রুব vVtxp = vtx.cast<GateVarVertex>()) {
+                যদি (vVtxp->isClock()) visit(vVtxp);
             }
         }
         // Traverse starting from each of the outputs
         UINFO(9, "Gate dedupe() outputs:");
-        for (V3GraphVertex& vtx : graph.vertices()) {
-            if (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) {
-                if (vVtxp->isTop() && vVtxp->varScp()->varp()->isWritable()) visit(vVtxp);
+        প্রতি (V3GraphVertex& vtx : graph.vertices()) {
+            যদি (GateVarVertex* ধ্রুব vVtxp = vtx.cast<GateVarVertex>()) {
+                যদি (vVtxp->is_শীর্ষ() && vVtxp->varScp()->varp()->isWritable()) visit(vVtxp);
             }
         }
     }
 
     ~GateDedupe() { V3Stats::addStat("Optimizations, Gate sigs deduped", m_statDedupLogic); }
 
-public:
-    static void apply(GateGraph& graph) { GateDedupe{graph}; }
+সার্বজনিক:
+    স্থির শূন্য apply(GateGraph& graph) { GateDedupe{graph}; }
 };
 
 //######################################################################
 // Recurse through the graph, try to merge assigns
 
-class GateMergeAssignments final {
+বর্গ GateMergeAssignments final {
     GateGraph& m_graph;
     size_t m_statAssignMerged = 0;  // Statistic tracking
     std::vector<GateLogicVertex*> m_toRemove;  // Logic vertices to delete
 
     // assemble two Sel into one if possible
     AstSel* merge(AstSel* prevSelp, AstSel* currSelp) {
-        const AstVarRef* const pRefp = VN_CAST(prevSelp->fromp(), VarRef);
-        AstVarRef* const cRefp = VN_CAST(currSelp->fromp(), VarRef);
-        if (!pRefp || !cRefp || !cRefp->sameNode(pRefp)) return nullptr;  // not the same var
+        ধ্রুব AstVarRef* ধ্রুব pRefp = VN_CAST(prevSelp->fromp(), VarRef);
+        AstVarRef* ধ্রুব cRefp = VN_CAST(currSelp->fromp(), VarRef);
+        যদি (!pRefp || !cRefp || !cRefp->same_গ্রন্থি(pRefp)) প্রত্যাগম nullptr;  // not the same var
 
-        const AstConst* const pstart = VN_CAST(prevSelp->lsbp(), Const);
-        const AstConst* const cstart = VN_CAST(currSelp->lsbp(), Const);
-        if (!pstart || !cstart) return nullptr;  // too complicated
+        ধ্রুব AstConst* ধ্রুব pstart = VN_CAST(prevSelp->lsbp(), Const);
+        ধ্রুব AstConst* ধ্রুব cstart = VN_CAST(currSelp->lsbp(), Const);
+        যদি (!pstart || !cstart) প্রত্যাগম nullptr;  // too complicated
 
-        if (currSelp->msbConst() + 1 == prevSelp->lsbConst()) {
-            return new AstSel{cRefp->fileline(), cRefp->cloneTree(false), currSelp->lsbConst(),
+        যদি (currSelp->msbConst() + 1 == prevSelp->lsbConst()) {
+            প্রত্যাগম নূতন AstSel{cRefp->fileline(), cRefp->clone_বৃক্ষ(অসত্য), currSelp->lsbConst(),
                               prevSelp->widthConst() + currSelp->widthConst()};
-        } else {
-            return nullptr;
+        } অন্যথা {
+            প্রত্যাগম nullptr;
         }
     }
 
-    void process(GateVarVertex* vVtxp) {
+    শূন্য process(GateVarVertex* vVtxp) {
         GateLogicVertex* prevLVtxp = nullptr;
         AstAssignW* prevAssignp = nullptr;
 
-        for (V3GraphEdge* const edgep : vVtxp->inEdges().unlinkable()) {
-            GateLogicVertex* const lVtxp = edgep->fromp()->as<GateLogicVertex>();
-            if (!lVtxp->outSize1()) continue;
+        প্রতি (V3GraphEdge* ধ্রুব edgep : vVtxp->inEdges().unlinkable()) {
+            GateLogicVertex* ধ্রুব lVtxp = edgep->fromp()->as<GateLogicVertex>();
+            যদি (!lVtxp->outSize1()) অনুবর্ত;
 
-            AstAlways* const alwaysp = VN_CAST(lVtxp->nodep(), Always);
-            if (!alwaysp || !alwaysp->stmtsp() || alwaysp->stmtsp()->nextp()) return;
-            AstAssignW* const assignp = VN_CAST(alwaysp->stmtsp(), AssignW);
-            if (!assignp) continue;
+            AstAlways* ধ্রুব alwaysp = VN_CAST(lVtxp->nodep(), Always);
+            যদি (!alwaysp || !alwaysp->stmtsp() || alwaysp->stmtsp()->nextp()) প্রত্যাগম;
+            AstAssignW* ধ্রুব assignp = VN_CAST(alwaysp->stmtsp(), AssignW);
+            যদি (!assignp) অনুবর্ত;
 
-            if (!VN_IS(assignp->lhsp(), Sel)) continue;
+            যদি (!VN_IS(assignp->lhsp(), Sel)) অনুবর্ত;
 
             // First assign with Sel-lhs, or not under the same active
-            if (!prevLVtxp || prevLVtxp->activep() != lVtxp->activep()) {
+            যদি (!prevLVtxp || prevLVtxp->activep() != lVtxp->activep()) {
                 prevLVtxp = lVtxp;
                 prevAssignp = assignp;
-                continue;
+                অনুবর্ত;
             }
 
-            AstSel* const prevSelp = VN_AS(prevAssignp->lhsp(), Sel);
-            AstSel* const currSelp = VN_AS(assignp->lhsp(), Sel);
+            AstSel* ধ্রুব prevSelp = VN_AS(prevAssignp->lhsp(), Sel);
+            AstSel* ধ্রুব currSelp = VN_AS(assignp->lhsp(), Sel);
 
-            if (AstSel* const newSelp = merge(prevSelp, currSelp)) {
+            যদি (AstSel* ধ্রুব newSelp = merge(prevSelp, currSelp)) {
                 UINFO(5, "assemble to new sel: " << newSelp);
                 // replace preSel with newSel
                 prevSelp->replaceWith(newSelp);
-                VL_DO_DANGLING(prevSelp->deleteTree(), prevSelp);
+                VL_DO_DANGLING(prevSelp->delete_বৃক্ষ(), prevSelp);
                 // Update RHS of the prev assignment, reusing existing parts (might be impure).
-                prevAssignp->rhsp(new AstConcat{prevAssignp->rhsp()->fileline(),
+                prevAssignp->rhsp(নূতন AstConcat{prevAssignp->rhsp()->fileline(),
                                                 prevAssignp->rhsp()->unlinkFrBack(),
                                                 assignp->rhsp()->unlinkFrBack()});
                 // Why do we care about the type of an assignment?
@@ -1191,8 +1191,8 @@ class GateMergeAssignments final {
                 m_toRemove.emplace_back(lVtxp);
 
                 // Update the graph
-                while (V3GraphEdge* const iedgep = lVtxp->inEdges().frontp()) {
-                    GateVarVertex* const fromVtxp = iedgep->fromp()->as<GateVarVertex>();
+                যাবত্ (V3GraphEdge* ধ্রুব iedgep = lVtxp->inEdges().frontp()) {
+                    GateVarVertex* ধ্রুব fromVtxp = iedgep->fromp()->as<GateVarVertex>();
                     m_graph.addEdge(fromVtxp, prevLVtxp, 1);
                     VL_DO_DANGLING(iedgep->unlinkDelete(), iedgep);
                 }
@@ -1200,7 +1200,7 @@ class GateMergeAssignments final {
                 // Delete the out-edges of lVtxp (there is only one, we checked earlier)
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
                 ++m_statAssignMerged;
-            } else {
+            } অন্যথা {
                 prevLVtxp = lVtxp;
                 prevAssignp = assignp;
             }
@@ -1210,13 +1210,13 @@ class GateMergeAssignments final {
     explicit GateMergeAssignments(GateGraph& graph)
         : m_graph{graph} {
         UINFO(6, "mergeAssigns");
-        for (V3GraphVertex& vtx : graph.vertices()) {
-            if (GateVarVertex* const vVtxp = vtx.cast<GateVarVertex>()) process(vVtxp);
+        প্রতি (V3GraphVertex& vtx : graph.vertices()) {
+            যদি (GateVarVertex* ধ্রুব vVtxp = vtx.cast<GateVarVertex>()) process(vVtxp);
         }
         // Delete merged assignments
-        for (GateLogicVertex* const lVtxp : m_toRemove) {
-            AstNode* const nodep = lVtxp->nodep();
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        প্রতি (GateLogicVertex* ধ্রুব lVtxp : m_toRemove) {
+            Ast_গ্রন্থি* ধ্রুব nodep = lVtxp->nodep();
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_বৃক্ষ(), nodep);
             VL_DO_DANGLING(lVtxp->unlinkDelete(&m_graph), lVtxp);
         }
     }
@@ -1225,62 +1225,62 @@ class GateMergeAssignments final {
         V3Stats::addStat("Optimizations, Gate assign merged", m_statAssignMerged);
     }
 
-public:
-    static void apply(GateGraph& graph) { GateMergeAssignments{graph}; }
+সার্বজনিক:
+    স্থির শূন্য apply(GateGraph& graph) { GateMergeAssignments{graph}; }
 };
 
 //######################################################################
 // GateUnused
 
-class GateUnused final {
+বর্গ GateUnused final {
     // STATE
     GateGraph& m_graph;
 
     // METHODS
 
-    void markRecurse(GateEitherVertex* vtxp) {
-        if (vtxp->user()) return;  // Already marked
-        vtxp->user(true);
+    শূন্য markRecurse(GateEitherVertex* vtxp) {
+        যদি (vtxp->user()) প্রত্যাগম;  // Already marked
+        vtxp->user(সত্য);
         vtxp->setConsumed("propagated");
         // Walk sources and mark them too
-        for (V3GraphEdge& edge : vtxp->inEdges()) {
-            GateEitherVertex* const fromVtxp = static_cast<GateEitherVertex*>(edge.fromp());
+        প্রতি (V3GraphEdge& edge : vtxp->inEdges()) {
+            GateEitherVertex* ধ্রুব fromVtxp = static_cast<GateEitherVertex*>(edge.fromp());
             markRecurse(fromVtxp);
         }
     }
 
     // Mark all vertices that feed a consumed vertex
-    void mark() {
+    শূন্য mark() {
         m_graph.userClearVertices();
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
+        প্রতি (V3GraphVertex& vtx : m_graph.vertices()) {
             GateEitherVertex& eVtx = static_cast<GateEitherVertex&>(vtx);
-            if (eVtx.consumed()) markRecurse(&eVtx);
+            যদি (eVtx.consumed()) markRecurse(&eVtx);
         }
     }
 
-    static void warnUnused(const AstNode* const nodep) {
-        if (nodep->fileline()->warnIsOff(V3ErrorCode::UNUSEDLOOP)) return;
+    স্থির শূন্য warnUnused(ধ্রুব Ast_গ্রন্থি* ধ্রুব nodep) {
+        যদি (nodep->fileline()->warnIsOff(V3ErrorCode::UNUSEDLOOP)) প্রত্যাগম;
 
-        if (const AstNodeProcedure* const procedurep = VN_CAST(nodep, NodeProcedure)) {
-            if (procedurep->stmtsp())
-                procedurep->stmtsp()->foreach([](const AstLoop* const loopp) {  //
+        যদি (ধ্রুব Ast_গ্রন্থি_Procedure* ধ্রুব procedurep = VN_CAST(nodep, গ্রন্থি_Procedure)) {
+            যদি (procedurep->stmtsp())
+                procedurep->stmtsp()->foreach([](ধ্রুব AstLoop* ধ্রুব loopp) {  //
                     loopp->v3warn(UNUSEDLOOP, "Loop is not used and will be optimized out");
-                    loopp->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, true);
+                    loopp->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, সত্য);
                 });
         }
     }
 
     // Remove unused logic
-    void remove() {
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            if (GateLogicVertex* const lVtxp = vtxp->cast<GateLogicVertex>()) {
-                if (!lVtxp->consumed() && lVtxp->activep()) {  // activep is nullptr under cfunc
-                    AstNode* const nodep = lVtxp->nodep();
+    শূন্য remove() {
+        প্রতি (V3GraphVertex* ধ্রুব vtxp : m_graph.vertices().unlinkable()) {
+            যদি (GateLogicVertex* ধ্রুব lVtxp = vtxp->cast<GateLogicVertex>()) {
+                যদি (!lVtxp->consumed() && lVtxp->activep()) {  // activep is nullptr under cfunc
+                    Ast_গ্রন্থি* ধ্রুব nodep = lVtxp->nodep();
                     warnUnused(nodep);
 
                     UINFO(8, "    Remove unconsumed " << nodep);
                     nodep->unlinkFrBack();
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
+                    VL_DO_DANGLING(nodep->delete_বৃক্ষ(), nodep);
                     VL_DO_DANGLING(lVtxp->unlinkDelete(&m_graph), lVtxp);
                 }
             }
@@ -1293,20 +1293,20 @@ class GateUnused final {
         remove();  // Remove unused vertices
     }
 
-public:
-    static void apply(GateGraph& graph) { GateUnused{graph}; }
+সার্বজনিক:
+    স্থির শূন্য apply(GateGraph& graph) { GateUnused{graph}; }
 };
 
 //######################################################################
 // Pass entry point
 
-void V3Gate::gateAll(AstNetlist* netlistp) {
+শূন্য V3Gate::gateAll(AstNetlist* netlistp) {
     UINFO(2, __FUNCTION__ << ":");
 
     {
         // Build the graph
         std::unique_ptr<GateGraph> graphp = GateBuildVisitor::apply(netlistp);
-        if (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_graph");
+        যদি (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_graph");
 
         // Warn, before loss of sync/async pointers
         v3GateWarnSyncAsync(*graphp);
@@ -1314,32 +1314,32 @@ void V3Gate::gateAll(AstNetlist* netlistp) {
         // Remove redundant edges. Edge weighs are added, so a variable read twice by
         // the same logic block will have and edge to the logic block with weight 2
         graphp->removeRedundantEdgesSum(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_simp");
+        যদি (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_simp");
 
         // Remove unused logic
         GateUnused::apply(*graphp);
-        if (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_unused");
+        যদি (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_unused");
 
         // Inline variables
         GateInline::apply(*graphp);
-        if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_inline");
+        যদি (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_inline");
 
         // Remove redundant logic
-        if (v3Global.opt.fDedupe()) {
+        যদি (v3Global.opt.fDedupe()) {
             GateDedupe::apply(*graphp);
-            if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_dedup");
+            যদি (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_dedup");
         }
 
         // Merge assignments
-        if (v3Global.opt.fAssemble()) {
+        যদি (v3Global.opt.fAssemble()) {
             GateMergeAssignments::apply(*graphp);
-            if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_merge");
+            যদি (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("gate_merge");
         }
 
         // Remove unused logic
         GateUnused::apply(*graphp);
-        if (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_final");
+        যদি (dumpGraphLevel() >= 3) graphp->dumpDotFilePrefixed("gate_final");
     }
 
-    V3Global::dumpCheckGlobalTree("gate", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_বৃক্ষ("gate", 0, dump_বৃক্ষ_Either_Level() >= 3);
 }

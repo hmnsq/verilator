@@ -23,11 +23,11 @@
 
 #ifndef VERILATOR_V3CONSTPOOL_H_
 #define VERILATOR_V3CONSTPOOL_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3HashTable.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3HashTable.h"
 
 //============================================================================
 
@@ -36,24 +36,24 @@ class V3ConstPool final {
 
     // TYPES
     // Scoping stage of the design, which determines how entries are referenced
-    enum class Stage : uint8_t {
+    গণনা class Stage : uint8_t {
         UNSCOPED,  // Before V3Scope: reference via the package
         SCOPED,  // Between V3Scope and V3Descope: reference via the VarScope
         DESCOPED  // After V3Descope: plain reference
     };
     // Hash and equality of entries in 'm_entries', by value
-    struct EntryHash final {
-        size_t operator()(const AstVar* varp) const {
-            return (*this)(VN_AS(varp->valuep(), NodeExpr));
+    সংরচনা EntryHash final {
+        size_t operator()(ধ্রুব AstVar* varp) ধ্রুব {
+            প্রত্যাগম (*this)(VN_AS(varp->valuep(), গ্রন্থি_রাশিমালা));
         }
-        size_t operator()(const AstNodeExpr* initp) const { return hashValue(initp).value(); }
+        size_t operator()(ধ্রুব Ast_গ্রন্থি_রাশিমালা* initp) ধ্রুব { প্রত্যাগম hash_মান(initp).মান(); }
     };
-    struct EntryEqual final {
-        bool operator()(const AstVar* ap, const AstVar* bp) const {  // LCOV_EXCL_START
-            return (*this)(ap, VN_AS(bp->valuep(), NodeExpr));  // Only on collision while rebuild
+    সংরচনা EntryEqual final {
+        bool operator()(ধ্রুব AstVar* ap, ধ্রুব AstVar* bp) ধ্রুব {  // LCOV_EXCL_START
+            প্রত্যাগম (*this)(ap, VN_AS(bp->valuep(), গ্রন্থি_রাশিমালা));  // Only on collision while rebuild
         }  // LCOV_EXCL_STOP
-        bool operator()(const AstVar* varp, const AstNodeExpr* initp) const {
-            return equalValue(VN_AS(varp->valuep(), NodeExpr), initp);
+        bool operator()(ধ্রুব AstVar* varp, ধ্রুব Ast_গ্রন্থি_রাশিমালা* initp) ধ্রুব {
+            প্রত্যাগম equal_মান(VN_AS(varp->valuep(), গ্রন্থি_রাশিমালা), initp);
         }
     };
 
@@ -62,48 +62,48 @@ class V3ConstPool final {
     bool m_cacheValid = false;  // Cache below is up to date
     AstScope* m_scopep = nullptr;  // Scope of the constant pool, between V3Scope and V3Descope
     V3HashSet<AstVar*, EntryHash, EntryEqual> m_entries;  // All entries
-    V3HashMap<const AstVar*, AstVarScope*> m_varScopes;  // VarScope of each entry iff m_scopep
-    std::array<uint32_t, VNType::NUM_TYPES()> m_nextNumber{};  // Sequence number for naming
+    V3HashMap<ধ্রুব AstVar*, AstVarScope*> m_varScopes;  // VarScope of each entry iff m_scopep
+    std::array<uint32_t, VNType::অঙ্ক_TYPES()> m_next_সংখ্যা{};  // Sequence number for naming
 
     // METHODS
-    static V3ConstPool& instance() { return *v3Global.constPoolp(); }
+    স্থির V3ConstPool& instance() { প্রত্যাগম *v3Global.constPoolp(); }
     // Hash of a value, consistent with 'equalValue'
-    static V3Hash hashValue(const AstNode* nodep);
+    স্থির V3Hash hash_মান(ধ্রুব Ast_গ্রন্থি* nodep);
     // True if the two values are the same, so can use the same entry
-    static bool equalValue(const AstNode* ap, const AstNode* bp);
+    স্থির bool equal_মান(ধ্রুব Ast_গ্রন্থি* ap, ধ্রুব Ast_গ্রন্থি* bp);
     // Rebuild the lookup cache from the constant pool package
-    void rebuildCache();
+    শূন্য rebuildCache();
 
     // CONSTRUCTORS - only V3Global creates and deletes the instance
-    V3ConstPool() = default;
-    ~V3ConstPool() = default;
+    V3ConstPool() = স্বভাব;
+    ~V3ConstPool() = স্বভাব;
     VL_UNCOPYABLE(V3ConstPool);
     VL_UNMOVABLE(V3ConstPool);
 
-public:
+সার্বজনিক:
     // STATIC METHODS
     // Find a constant pool variable with the given constant value, or create one if one does
     // not already exist, and return a read reference to it. The reference has the same dtype
     // as initp. The referenced variable *might* have a different, but compatible dtype.
-    static AstVarRef* find(AstNodeExpr* initp);
+    স্থির AstVarRef* find(Ast_গ্রন্থি_রাশিমালা* initp);
     // Invalidate the lookup cache. This must be called after deleting any Vars from the pool.
-    static void invalidateCache() { instance().m_cacheValid = false; }
+    স্থির শূন্য invalidateCache() { instance().m_cacheValid = false; }
     // Notify that the design has been scoped, called by V3Scope
-    static void setScoped() {
+    স্থির শূন্য setScoped() {
         V3ConstPool& self = instance();
         UASSERT(self.m_stage == Stage::UNSCOPED, "Constant pool scoped twice");
         self.m_stage = Stage::SCOPED;
         invalidateCache();
     }
     // Notify that the design has been descoped, called by V3Descope
-    static void setDescoped() {
+    স্থির শূন্য setDescoped() {
         V3ConstPool& self = instance();
         UASSERT(self.m_stage == Stage::SCOPED, "Constant pool descoped when not scoped");
         self.m_stage = Stage::DESCOPED;
         invalidateCache();
     }
     // Check the lookup cache refers only to existing nodes, for V3Broken
-    static const char* broken();
+    স্থির ধ্রুব বর্ণ* broken();
 };
 
 #endif  // Guard

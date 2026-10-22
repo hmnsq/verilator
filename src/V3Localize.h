@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3LOCALIZE_H_
 #define VERILATOR_V3LOCALIZE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Localize final {
-public:
-    static void localizeAll(AstNetlist* nodep) VL_MT_DISABLED;
+সার্বজনিক:
+    স্থির শূন্য localizeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

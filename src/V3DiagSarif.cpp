@@ -14,49 +14,49 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#অন্তর্ভাব "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DiagSarif.h"
+#অন্তর্ভাব "V3DiagSarif.h"
 
-#include "V3File.h"
-#include "V3Os.h"
+#অন্তর্ভাব "V3File.h"
+#অন্তর্ভাব "V3Os.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 
-class V3DiagSarifImp final {
+বর্গ V3DiagSarifImp final {
     // MEMBERS
     std::deque<VErrorMessage> m_messages;
     std::set<V3ErrorCode> m_codes;
-    std::map<V3ErrorCode, int> m_codeIndex;
+    std::map<V3ErrorCode, পূর্ণাঙ্ক> m_codeIndex;
 
     // METHODS
-    void calculate() {
-        for (const VErrorMessage& msgr : m_messages)
-            if (msgr.code().isNamed()) m_codes.emplace(msgr.code());
-        int i = 0;
-        for (const V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
+    শূন্য calculate() {
+        প্রতি (ধ্রুব VErrorMessage& msgr : m_messages)
+            যদি (msgr.code().isNamed()) m_codes.emplace(msgr.code());
+        পূর্ণাঙ্ক i = 0;
+        প্রতি (ধ্রুব V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
     }
 
-    void putRules(V3OutJsonFile& of) const {
-        for (const V3ErrorCode& code : m_codes) {
+    শূন্য putRules(V3OutJsonFile& of) ধ্রুব {
+        প্রতি (ধ্রুব V3ErrorCode& code : m_codes) {
             of.begin().put("id", code.ascii()).put("helpUri", code.url()).end();
         }
     }
 
-    void putText(V3OutJsonFile& of, const string& clean, const string& formatted) const {
-        const string markdown = "```\n" + formatted + "\n```\n";
+    শূন্য putText(V3OutJsonFile& of, ধ্রুব string& clean, ধ্রুব string& formatted) ধ্রুব {
+        ধ্রুব string markdown = "```\n" + formatted + "\n```\n";
         of.put("text", VString::trimWhitespace(clean)).put("markdown", markdown);
     }
 
-    void putLocation(V3OutJsonFile& of, const FileLine* fl) const {
-        const string filename = V3Os::filenameRealPath(fl->filename());
+    শূন্য putLocation(V3OutJsonFile& of, ধ্রুব File_সারি* fl) ধ্রুব {
+        ধ্রুব string filename = V3Os::filenameRealPath(fl->filename());
         of.begin("physicalLocation");
         of.begin("artifactLocation");
-        if (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
+        যদি (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
             of.put("uri", "file:" + filename).put("uriBaseId", "%srcroot%");
-        } else {
+        } অন্যথা {
             of.put("uri", "file://" + filename);
         }
         of.end()
@@ -64,64 +64,64 @@ class V3DiagSarifImp final {
             .put("sourceLanguage", "systemverilog")
             .put("startLine", fl->firstLineno())
             .put("startColumn", fl->firstColumn());
-        if (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
+        যদি (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
         of.put("endColumn", fl->lastColumn());
         of.begin("snippit", '{');
-        putText(of, fl->prettySource(), V3Error::stripMetaText(fl->warnContextPrimary(), false));
+        putText(of, fl->prettySource(), V3Error::stripMetaText(fl->warnContextPrimary(), অসত্য));
         of.end();  // snippit
         of.end();  // region
         of.end();  // artifactLocation
     }
 
-    string substrToNextRelated(const string& str) {
-        const size_t pos = str.find("__WARNRELATED(", 0);
-        return (pos == std::string::npos) ? str : str.substr(0, pos);
+    string substrToNextRelated(ধ্রুব string& str) {
+        ধ্রুব size_t pos = str.find("__WARNRELATED(", 0);
+        প্রত্যাগম (pos == std::string::npos) ? str : str.substr(0, pos);
     }
 
-    void putResult(V3OutJsonFile& of, const VErrorMessage& msg) {
+    শূন্য putResult(V3OutJsonFile& of, ধ্রুব VErrorMessage& বার্তা) {
         of.begin();
-        of.put("level", msg.code().severityInfo()             ? "none"
-                        : V3Error::isError(msg.code(), false) ? "error"
+        of.put("level", বার্তা.code().severityInfo()             ? "none"
+                        : V3Error::isError(বার্তা.code(), অসত্য) ? "error"
                                                               : "warning");
 
-        string text = msg.text();
+        string text = বার্তা.text();
         // UINFO(9, "Result raw text " << text);
 
         // We put the entire message including relatedLocations text
         // into the primary message text, because viewers such as
         // https://microsoft.github.io/sarif-web-component/
         // currently appear to ignore relatedLocations.
-        const string first_clean = V3Error::stripMetaText(text, true);
-        const string first_fmt = V3Error::stripMetaText(text, false);
+        ধ্রুব string first_clean = V3Error::stripMetaText(text, সত্য);
+        ধ্রুব string first_fmt = V3Error::stripMetaText(text, অসত্য);
 
         of.begin("message");
         putText(of, first_clean, first_fmt);
         of.end();
-        if (const FileLine* const fl = msg.fileline()) {
+        যদি (ধ্রুব File_সারি* ধ্রুব fl = বার্তা.fileline()) {
             of.begin("locations", '[').begin();
             putLocation(of, fl);
             of.end();
             of.end();
         }
 
-        if (text.find("__WARNRELATED(") != std::string::npos) {
+        যদি (text.find("__WARNRELATED(") != std::string::npos) {
             of.begin("relatedLocations", '[');
             size_t pos = 0;
-            while ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
-                const size_t start = pos + std::strlen("__WARNRELATED(");
+            যাবত্ ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
+                ধ্রুব size_t start = pos + std::strlen("__WARNRELATED(");
                 size_t end = start;
-                while (end < text.size() && text[end] != ')') ++end;
-                const size_t index = std::atoi(text.substr(start, end + 1).c_str());
-                if (end < text.size()) end += std::strlen(")");
+                যাবত্ (end < text.size() && text[end] != ')') ++end;
+                ধ্রুব size_t index = std::atoi(text.substr(start, end + 1).c_str());
+                যদি (end < text.size()) end += std::strlen(")");
                 text = text.substr(end, text.size());
-                UASSERT_STATIC(index < msg.filelines().size(),
+                UASSERT_STATIC(index < বার্তা.filelines().size(),
                                "Error message warnRelated without fileline");
 
-                const string related_clean
-                    = V3Error::stripMetaText(substrToNextRelated(text), true);
-                const string related_fmt
-                    = V3Error::stripMetaText(substrToNextRelated(text), false);
-                const FileLine* fl = msg.filelines()[index];
+                ধ্রুব string related_clean
+                    = V3Error::stripMetaText(substrToNextRelated(text), সত্য);
+                ধ্রুব string related_fmt
+                    = V3Error::stripMetaText(substrToNextRelated(text), অসত্য);
+                ধ্রুব File_সারি* fl = বার্তা.filelines()[index];
                 of.begin().begin("message");
                 putText(of, related_clean, related_fmt);
                 of.end();  // message
@@ -131,22 +131,22 @@ class V3DiagSarifImp final {
             of.end();
         }
 
-        if (msg.code().isNamed())
-            of.put("ruleId", msg.code().ascii()).put("ruleIndex", m_codeIndex[msg.code()]);
+        যদি (বার্তা.code().isNamed())
+            of.put("ruleId", বার্তা.code().ascii()).put("ruleIndex", m_codeIndex[বার্তা.code()]);
 
         of.end();
     }
 
     // STATIC FUNCTIONS
-public:
-    static V3DiagSarifImp& s() {
-        static V3DiagSarifImp s_s;
-        return s_s;
+সার্বজনিক:
+    স্থির V3DiagSarifImp& s() {
+        স্থির V3DiagSarifImp s_s;
+        প্রত্যাগম s_s;
     }
 
-    void pushMessage(const VErrorMessage& msg) { m_messages.push_back(msg); }
+    শূন্য ঠেলো_Message(ধ্রুব VErrorMessage& বার্তা) { m_messages.ঠেলো_back(বার্তা); }
 
-    void output(bool success) {
+    শূন্য output(তার্কিক success) {
         V3OutJsonFile of{v3Global.opt.diagnosticsSarifOutput()};
         calculate();
 
@@ -175,7 +175,7 @@ public:
             .end();
 
         of.begin("results", '[');
-        for (const VErrorMessage& msgr : m_messages) putResult(of, msgr);
+        প্রতি (ধ্রুব VErrorMessage& msgr : m_messages) putResult(of, msgr);
         of.end();
 
         of.end();  // runs ]
@@ -183,13 +183,13 @@ public:
     }
 };
 
-void V3DiagSarif::pushMessage(const VErrorMessage& msg) VL_MT_DISABLED {
-    if (!v3Global.opt.diagnosticsSarif()) return;
-    V3DiagSarifImp::s().pushMessage(msg);
+শূন্য V3DiagSarif::ঠেলো_Message(ধ্রুব VErrorMessage& বার্তা) VL_MT_DISABLED {
+    যদি (!v3Global.opt.diagnosticsSarif()) প্রত্যাগম;
+    V3DiagSarifImp::s().ঠেলো_Message(বার্তা);
 }
 
-void V3DiagSarif::output(bool success) {
-    if (!v3Global.opt.diagnosticsSarif()) return;
+শূন্য V3DiagSarif::output(তার্কিক success) {
+    যদি (!v3Global.opt.diagnosticsSarif()) প্রত্যাগম;
     UINFO(2, __FUNCTION__ << ":");
     V3DiagSarifImp::s().output(success);
 }

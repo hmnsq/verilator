@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#অন্তর্ভাব <unordered_map>
+#অন্তর্ভাব <unordered_set>
+#অন্তর্ভাব <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_চাবি>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_চাবি> m_চাবিগুলি;  // Elements by insertion order
+    std::unordered_set<T_চাবি> m_চাবি_Set;  // Elements by key
+সার্বজনিক:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool ঢোকাও(ধ্রুব T_চাবি& চাবি) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ধ্রুব auto itFoundPair = m_চাবি_Set.ঢোকাও(চাবি);
+        যদি (itFoundPair.second) m_চাবিগুলি.ঠেলো_back(চাবি);
+        প্রত্যাগম itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    শূন্য ঢোকাও(T begin, ধ্রুব T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::মান_type, T_চাবি>::মান,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        যাবত্ (begin != end) {
+            যদি (m_চাবি_Set.ঢোকাও(*begin).second) m_চাবিগুলি.ঠেলো_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    শূন্য clear() {
+        m_চাবিগুলি.clear();
+        m_চাবি_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() ধ্রুব { প্রত্যাগম m_চাবিগুলি.empty(); }
+    size_t size() ধ্রুব { প্রত্যাগম m_চাবিগুলি.size(); }
+    bool exists(ধ্রুব T_চাবি& চাবি) ধ্রুব { প্রত্যাগম m_চাবি_Set.find(চাবি) != m_চাবি_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_চাবি>::const_iterator;
+    const_iterator begin() ধ্রুব { প্রত্যাগম m_চাবিগুলি.begin(); }
+    const_iterator end() ধ্রুব { প্রত্যাগম m_চাবিগুলি.end(); }
 };
 
 //============================================================================

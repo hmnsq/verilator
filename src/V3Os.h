@@ -17,79 +17,79 @@
 #ifndef VERILATOR_V3OS_H_
 #define VERILATOR_V3OS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include <array>
+#অন্তর্ভাব <array>
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3Error.h"
+#অন্তর্ভাব "V3Error.h"
 
 //============================================================================
 // V3Os: OS static class
 
 class V3Os final {
-public:
+সার্বজনিক:
     // METHODS (environment)
-    static string cwd() { return filenameRealPath("."); }
-    static string getenvStr(const string& envvar, const string& defaultValue);
-    static void setenvStr(const string& envvar, const string& value, const string& why);
+    স্থির string cwd() { প্রত্যাগম filenameRealPath("."); }
+    স্থির string getenvStr(ধ্রুব string& envvar, ধ্রুব string& default_মান);
+    স্থির শূন্য setenvStr(ধ্রুব string& envvar, ধ্রুব string& মান, ধ্রুব string& why);
 
     // METHODS (generic filename utilities)
     ///< @return concatenated path
-    static string filenameJoin(std::initializer_list<const std::string> paths) VL_PURE;
+    স্থির string filenameJoin(std::initializer_list<ধ্রুব std::string> paths) VL_PURE;
     template <typename... Args>
-    static string filenameJoin(Args... args) VL_PURE {
-        return filenameJoin({args...});
+    স্থির string filenameJoin(Args... args) VL_PURE {
+        প্রত্যাগম filenameJoin({args...});
     };
     ///< @return file path without repeated separators and ./ prefix
-    static string filenameCleanup(const string& filename) VL_PURE;
+    স্থির string filenameCleanup(ধ্রুব string& filename) VL_PURE;
     ///< @return extension (.) part of filename
-    static string filenameExt(const string& filename) VL_PURE;
+    স্থির string filenameExt(ধ্রুব string& filename) VL_PURE;
     ///< @return non-directory part of filename
-    static string filenameNonDir(const string& filename) VL_PURE;
+    স্থির string filenameNonDir(ধ্রুব string& filename) VL_PURE;
     ///< @return basename of filename
-    static string filenameNonDirExt(const string& filename) VL_PURE;
+    স্থির string filenameNonDirExt(ধ্রুব string& filename) VL_PURE;
     ///< @return directory part of filename
-    static string filenameDir(const string& filename) VL_PURE;
+    স্থির string filenameDir(ধ্রুব string& filename) VL_PURE;
     ///< @return filename with env vars removed
-    static string filenameSubstitute(const string& filename);
+    স্থির string filenameSubstitute(ধ্রুব string& filename);
     ///< @return realpath of filename
-    static string filenameRealPath(const string& filename) VL_PURE;
+    স্থির string filenameRealPath(ধ্রুব string& filename) VL_PURE;
     // @return absolute path of filename, without resolving symlinks
-    static string filenameAbsolutePath(const string& filename) VL_PURE;
+    স্থির string filenameAbsolutePath(ধ্রুব string& filename) VL_PURE;
     ///< @return relative path of filename, relative to base
-    static string filenameRelativePath(const string& filename, const string& base) VL_PURE;
+    স্থির string filenameRelativePath(ধ্রুব string& filename, ধ্রুব string& base) VL_PURE;
     ///< @return filename is relative
-    static bool filenameIsRel(const string& filename) VL_PURE;
+    স্থির bool filenameIsRel(ধ্রুব string& filename) VL_PURE;
     ///< @return path slashed with '/'
-    static string filenameSlashPath(const string& filename) VL_PURE;
+    স্থির string filenameSlashPath(ধ্রুব string& filename) VL_PURE;
 
     // METHODS (file utilities)
-    static string getline(std::istream& is, char delim = '\n');
+    স্থির string getline(std::istream& is, বর্ণ delim = '\n');
 
     // METHODS (directory utilities)
-    static void createDir(const string& dirname);
-    static void filesystemFlush(const string& dirname);
-    static void filesystemFlushBuildDir(const string& dirname);
-    static void unlinkRegexp(const string& dir, const string& regexp);
+    স্থির শূন্য createDir(ধ্রুব string& dirname);
+    স্থির শূন্য filesystemFlush(ধ্রুব string& dirname);
+    স্থির শূন্য filesystemFlushBuildDir(ধ্রুব string& dirname);
+    স্থির শূন্য unlinkRegexp(ধ্রুব string& dir, ধ্রুব string& regexp);
 
     // METHODS (memory)
-    static void releaseMemory();
+    স্থির শূন্য releaseMemory();
 
     // METHODS (random)
-    static uint64_t rand64(std::array<uint64_t, 2>& stater);
-    static string trueRandom(size_t size) VL_MT_SAFE;
+    স্থির uint64_t rand64(std::array<uint64_t, 2>& stater);
+    স্থির string trueRandom(size_t size) VL_MT_SAFE;
 
     // METHODS (time & performance) (See also VlOs methods)
-    static void u_sleep(int64_t usec);  ///< Sleep for a given number of microseconds.
+    স্থির শূন্য u_sleep(int64_t usec);  ///< Sleep for a given number of microseconds.
     /// Return wall time since epoch in microseconds, or 0 if not implemented
-    static uint64_t timeUsecs();
+    স্থির uint64_t timeUsecs();
 
     // METHODS (sub command)
     /// Run system command, returns the exit code of the child process.
-    static int system(const string& command);
-    static void selfTest();
+    স্থির পূর্ণাঙ্ক system(ধ্রুব string& command);
+    স্থির শূন্য selfTest();
 };
 
 #endif  // Guard

@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3DFGOPTIMIZER_H_
 #define VERILATOR_V3DFGOPTIMIZER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
+#অন্তর্ভাব "V3Ast.h"
 
 //============================================================================
 
 namespace V3DfgOptimizer {
 // Optimize the design
-void optimize(AstNetlist*) VL_MT_DISABLED;
+শূন্য optimize(AstNetlist*) VL_MT_DISABLED;
 }  // namespace V3DfgOptimizer
 
 #endif  // Guard

@@ -14,59 +14,59 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"
+#অন্তর্ভাব "V3PchAstNoMT.h"
 
-#include "V3Ast.h"
-#include "V3AstPatterns.h"
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3File.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3AstPatterns.h"
+#অন্তর্ভাব "V3Dfg.h"
+#অন্তর্ভাব "V3DfgPasses.h"
+#অন্তর্ভাব "V3File.h"
 
-#include <memory>
-#include <unordered_map>
-#include <vector>
+#অন্তর্ভাব <memory>
+#অন্তর্ভাব <unordered_map>
+#অন্তর্ভাব <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //============================================================================
 // Accumulates and dumps the pattern statistics
 
-class V3PatternStats VL_NOT_FINAL {
-public:
-    static constexpr uint32_t MIN_PATTERN_DEPTH = 1;
-    static constexpr uint32_t MAX_PATTERN_DEPTH = 4;
+বর্গ V3PatternStats VL_NOT_FINAL {
+সার্বজনিক:
+    স্থির constexpr uint32_t MIN_PATTERN_DEPTH = 1;
+    স্থির constexpr uint32_t MAX_PATTERN_DEPTH = 4;
 
-private:
-    const std::string m_what;  // Description of what is being dumped
+গুপ্ত:
+    ধ্রুব std::string m_what;  // Description of what is being dumped
     // Maps from pattern to the number of times it appears, for each pattern depth
     std::vector<std::unordered_map<std::string, size_t>> m_patternCounts{MAX_PATTERN_DEPTH + 1};
 
-    void dump(std::ostream& os) {
-        using Line = std::pair<std::string, size_t>;
-        for (uint32_t i = MIN_PATTERN_DEPTH; i <= MAX_PATTERN_DEPTH; ++i) {
+    শূন্য dump(std::ostream& os) {
+        using সারি_2 = std::pair<std::string, size_t>;
+        প্রতি (uint32_t i = MIN_PATTERN_DEPTH; i <= MAX_PATTERN_DEPTH; ++i) {
             os << m_what << " patterns with depth " << i << '\n';
 
             // Pick up pattern accumulators with given depth
             auto& patternCounts = m_patternCounts[i];
 
             // Remove patterns also present at shallower depths
-            for (uint32_t j = MIN_PATTERN_DEPTH; j < i; ++j) {
-                for (const auto& pair : m_patternCounts[j]) patternCounts.erase(pair.first);
+            প্রতি (uint32_t j = MIN_PATTERN_DEPTH; j < i; ++j) {
+                প্রতি (ধ্রুব auto& pair : m_patternCounts[j]) patternCounts.erase(pair.first);
             }
 
             // Sort patterns, first by descending frequency, then lexically
-            std::vector<Line> lines;
-            lines.reserve(patternCounts.size());
-            for (const auto& pair : patternCounts) lines.emplace_back(pair);
-            std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) {
-                if (a.second != b.second) return a.second > b.second;
-                return a.first < b.first;
+            std::vector<সারি_2> সারিগুলি;
+            সারিগুলি.reserve(patternCounts.size());
+            প্রতি (ধ্রুব auto& pair : patternCounts) সারিগুলি.emplace_back(pair);
+            std::sort(সারিগুলি.begin(), সারিগুলি.end(), [](ধ্রুব সারি_2& a, ধ্রুব সারি_2& b) {
+                যদি (a.second != b.second) প্রত্যাগম a.second > b.second;
+                প্রত্যাগম a.first < b.first;
             });
 
             // Print each pattern
-            for (const auto& line : lines) {
-                os << ' ' << std::setw(12) << std::right << line.second;
-                os << ' ' << std::left << line.first << '\n';
+            প্রতি (ধ্রুব auto& সারি : সারিগুলি) {
+                os << ' ' << std::setw(12) << std::ডান << সারি.second;
+                os << ' ' << std::বাম << সারি.first << '\n';
             }
 
             // Trailing new-line to separate sections
@@ -74,19 +74,19 @@ private:
         }
     }
 
-public:
-    V3PatternStats(const std::string& what)
+সার্বজনিক:
+    V3PatternStats(ধ্রুব std::string& what)
         : m_what{what} {}
-    ~V3PatternStats() = default;
+    ~V3PatternStats() = স্বভাব;
 
-    void accumulate(const std::string& pattern, uint32_t depth) {
+    শূন্য accumulate(ধ্রুব std::string& pattern, uint32_t depth) {
         m_patternCounts[depth][pattern] += 1;
     }
 
-    void dumpToFile(const std::string& filename) {
+    শূন্য dumpToFile(ধ্রুব std::string& filename) {
         // Open, write, close
-        const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-        if (ofp->fail()) v3fatal("Can't write file: " << filename);
+        ধ্রুব std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+        যদি (ofp->fail()) v3fatal("Can't write file: " << filename);
         dump(*ofp);
     }
 };
@@ -94,36 +94,36 @@ public:
 //============================================================================
 // V3AstPatterns top level
 
-void V3AstPatterns::dumpAll(const AstNetlist* nodep, const std::string& suffix) {
+শূন্য V3AstPatterns::dumpAll(ধ্রুব AstNetlist* nodep, ধ্রুব std::string& suffix) {
     UINFO(2, __FUNCTION__ << ":");
     V3PatternStats patternStats{"AST"};
-    nodep->foreach([&](const AstNodeExpr* exprp) {
-        for (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
+    nodep->foreach([&](ধ্রুব Ast_গ্রন্থি_রাশিমালা* exprp) {
+        প্রতি (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
              i <= V3PatternStats::MAX_PATTERN_DEPTH; ++i) {
             patternStats.accumulate(exprp->patternString(i), i);
         }
     });
-    const std::string fileName = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+    ধ্রুব std::string fileName = v3Global.opt.hier_শীর্ষ_Data_Dir() + "/" + v3Global.opt.prefix()
                                  + "__ast_patterns_" + suffix + ".txt";
     patternStats.dumpToFile(fileName);
-    V3Global::dumpCheckGlobalTree("astpatterns", 0, false, false);
+    V3Global::dump_Check_Global_বৃক্ষ("astpatterns", 0, অসত্য, অসত্য);
 }
 
 //============================================================================
 // V3DfgPasses top level
 
-void V3DfgPasses::dumpPatterns(const std::vector<std::unique_ptr<DfgGraph>>& graphs,
-                               const std::string& suffix) {
+শূন্য V3DfgPasses::dumpPatterns(ধ্রুব std::vector<std::unique_ptr<DfgGraph>>& graphs,
+                               ধ্রুব std::string& suffix) {
     V3PatternStats patternStats{"DFG"};
-    for (auto& cp : graphs) {
-        cp->forEachVertex([&](const DfgVertex& vtx) {
-            for (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
+    প্রতি (auto& cp : graphs) {
+        cp->forEachVertex([&](ধ্রুব DfgVertex& vtx) {
+            প্রতি (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
                  i <= V3PatternStats::MAX_PATTERN_DEPTH; ++i) {
                 patternStats.accumulate(vtx.patternString(i), i);
             }
         });
     }
-    const std::string fileName = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+    ধ্রুব std::string fileName = v3Global.opt.hier_শীর্ষ_Data_Dir() + "/" + v3Global.opt.prefix()
                                  + "__dfg_patterns" + suffix + ".txt";
     patternStats.dumpToFile(fileName);
 }

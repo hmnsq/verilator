@@ -36,29 +36,29 @@
 //      from its owner module and retargets it by name, then clears all tags.
 //
 
-#include "V3LinkDotIfaceCapture.h"
+#অন্তর্ভাব "V3LinkDotIfaceCapture.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Stats.h"
-#include "V3SymTable.h"
+#অন্তর্ভাব "V3Error.h"
+#অন্তর্ভাব "V3Global.h"
+#অন্তর্ভাব "V3Stats.h"
+#অন্তর্ভাব "V3SymTable.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#অন্তর্ভাব <unordered_map>
+#অন্তর্ভাব <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 std::deque<VIfaceCaptureTag> V3LinkDotIfaceCapture::s_tags{};
-bool V3LinkDotIfaceCapture::s_enabled = true;
+তার্কিক V3LinkDotIfaceCapture::s_enabled = সত্য;
 
 // LCOV_EXCL_START
-void V3LinkDotIfaceCapture::enable(bool flag) {
+শূন্য V3LinkDotIfaceCapture::enable(তার্কিক flag) {
     s_enabled = flag;
-    if (!flag) clearModuleCache();
+    যদি (!flag) clearModuleCache();
 }
 // LCOV_EXCL_STOP
 
-void V3LinkDotIfaceCapture::reset() {
+শূন্য V3LinkDotIfaceCapture::reset() {
     s_tags.clear();
     clearModuleCache();
 }
@@ -67,182 +67,182 @@ void V3LinkDotIfaceCapture::reset() {
 // Lazily built on first access for a given module; cleared at phase boundaries.
 // Uses vectors per name to handle rare cases where different node types share a name
 // (e.g. a Typedef and a ParamTypeDType both named 'sc_tag_status_t').
-namespace {
-struct StmtNameMap final {
-    std::unordered_map<string, std::vector<AstNode*>> m_byName;
+নামাকাশ {
+সংরচনা StmtNameMap final {
+    std::unordered_map<string, std::vector<Ast_গ্রন্থি*>> m_byName;
 };
-std::unordered_map<AstNodeModule*, StmtNameMap> s_moduleCache;
+std::unordered_map<Ast_গ্রন্থি_Module*, StmtNameMap> s_moduleCache;
 
-const StmtNameMap& getOrBuild(AstNodeModule* modp) {
+ধ্রুব StmtNameMap& getOrBuild(Ast_গ্রন্থি_Module* modp) {
     auto it = s_moduleCache.find(modp);
-    if (it != s_moduleCache.end()) return it->second;
+    যদি (it != s_moduleCache.end()) প্রত্যাগম it->second;
     StmtNameMap& cache = s_moduleCache[modp];
-    for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        const string& nm = stmtp->name();
-        if (!nm.empty()) cache.m_byName[nm].push_back(stmtp);
+    প্রতি (Ast_গ্রন্থি* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        ধ্রুব string& nm = stmtp->name();
+        যদি (!nm.empty()) cache.m_byName[nm].ঠেলো_back(stmtp);
     }
-    return cache;
+    প্রত্যাগম cache;
 }
 }  // namespace
 
-void V3LinkDotIfaceCapture::clearModuleCache() { s_moduleCache.clear(); }
+শূন্য V3LinkDotIfaceCapture::clearModuleCache() { s_moduleCache.clear(); }
 
-AstIfaceRefDType* V3LinkDotIfaceCapture::ifaceRefFromVarDType(AstNodeDType* dtypep) {
+AstIfaceRefDType* V3LinkDotIfaceCapture::ifaceRefFromVarDType(Ast_গ্রন্থি_DType* dtypep) {
     AstIfaceRefDType* resultp = nullptr;
-    for (AstNodeDType* curp = dtypep; curp;) {
-        if (AstIfaceRefDType* const irefp = VN_CAST(curp, IfaceRefDType)) {
+    প্রতি (Ast_গ্রন্থি_DType* curp = dtypep; curp;) {
+        যদি (AstIfaceRefDType* ধ্রুব irefp = VN_CAST(curp, IfaceRefDType)) {
             resultp = irefp;
-            break;
-        } else if (AstBracketArrayDType* const bracketp = VN_CAST(curp, BracketArrayDType)) {
+            ভঙ্গ;
+        } অন্যথা যদি (AstBracketArrayDType* ধ্রুব bracketp = VN_CAST(curp, BracketArrayDType)) {
             curp = bracketp->subDTypep();
-        } else if (AstUnpackArrayDType* const unpackp = VN_CAST(curp, UnpackArrayDType)) {
+        } অন্যথা যদি (AstUnpackArrayDType* ধ্রুব unpackp = VN_CAST(curp, UnpackArrayDType)) {
             curp = unpackp->subDTypep();
-        } else {
+        } অন্যথা {
             v3fatalSrc("ifaceRefFromVarDType: unexpected dtype " << curp->prettyTypeName()
                                                                  << " in chain");
         }
     }
-    return resultp;
+    প্রত্যাগম resultp;
 }
 
-namespace {
+নামাকাশ {
 // Resolve the owner module name for a typedef/paramType node.
 // Returns hint if non-empty, otherwise walks backp() to find the owner module name.
-string resolveOwnerName(const string& hint, AstNode* nodep) {
-    if (!hint.empty()) return hint;
-    if (!nodep) return "";
-    AstNodeModule* const ownerp = V3LinkDotIfaceCapture::findOwnerModule(nodep);
-    return ownerp ? ownerp->name() : string{};
+string resolveOwnerName(ধ্রুব string& hint, Ast_গ্রন্থি* nodep) {
+    যদি (!hint.empty()) প্রত্যাগম hint;
+    যদি (!nodep) প্রত্যাগম "";
+    Ast_গ্রন্থি_Module* ধ্রুব ownerp = V3LinkDotIfaceCapture::findOwnerModule(nodep);
+    প্রত্যাগম ownerp ? ownerp->name() : string{};
 }
 }  // namespace
 
-AstTypedef* V3LinkDotIfaceCapture::findTypedefInModule(AstNodeModule* modp, const string& name) {
+AstTypedef* V3LinkDotIfaceCapture::findTypedefInModule(Ast_গ্রন্থি_Module* modp, ধ্রুব string& name) {
     AstTypedef* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstTypedef* const tdp = VN_CAST(nodep, Typedef)) {
+    ধ্রুব StmtNameMap& cache = getOrBuild(modp);
+    ধ্রুব auto it = cache.m_byName.find(name);
+    যদি (!(it == cache.m_byName.end())) {
+        প্রতি (Ast_গ্রন্থি* nodep : it->second) {
+            যদি (AstTypedef* ধ্রুব tdp = VN_CAST(nodep, Typedef)) {
                 resultp = tdp;
-                break;
+                ভঙ্গ;
             }
         }
     }
-    return resultp;
+    প্রত্যাগম resultp;
 }
-AstNodeDType* V3LinkDotIfaceCapture::findDTypeInModule(AstNodeModule* modp, const string& name,
+Ast_গ্রন্থি_DType* V3LinkDotIfaceCapture::findDTypeInModule(Ast_গ্রন্থি_Module* modp, ধ্রুব string& name,
                                                        VNType type) {
 
-    AstNodeDType* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstNodeDType* const dtp = VN_CAST(nodep, NodeDType)) {
-                if (dtp->type() == type) {
+    Ast_গ্রন্থি_DType* resultp = nullptr;
+    ধ্রুব StmtNameMap& cache = getOrBuild(modp);
+    ধ্রুব auto it = cache.m_byName.find(name);
+    যদি (!(it == cache.m_byName.end())) {
+        প্রতি (Ast_গ্রন্থি* nodep : it->second) {
+            যদি (Ast_গ্রন্থি_DType* ধ্রুব dtp = VN_CAST(nodep, গ্রন্থি_DType)) {
+                যদি (dtp->type() == type) {
                     resultp = dtp;
-                    break;
+                    ভঙ্গ;
                 }
             }
         }
     }
-    return resultp;
+    প্রত্যাগম resultp;
 }
-AstParamTypeDType* V3LinkDotIfaceCapture::findParamTypeInModule(AstNodeModule* modp,
-                                                                const string& name) {
+AstParamTypeDType* V3LinkDotIfaceCapture::findParamTypeInModule(Ast_গ্রন্থি_Module* modp,
+                                                                ধ্রুব string& name) {
 
     AstParamTypeDType* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstParamTypeDType* const ptdp = VN_CAST(nodep, ParamTypeDType)) {
+    ধ্রুব StmtNameMap& cache = getOrBuild(modp);
+    ধ্রুব auto it = cache.m_byName.find(name);
+    যদি (!(it == cache.m_byName.end())) {
+        প্রতি (Ast_গ্রন্থি* nodep : it->second) {
+            যদি (AstParamTypeDType* ধ্রুব ptdp = VN_CAST(nodep, ParamTypeDType)) {
                 resultp = ptdp;
-                break;
+                ভঙ্গ;
             }
         }
     }
-    return resultp;
+    প্রত্যাগম resultp;
 }
 
-bool V3LinkDotIfaceCapture::retargetRefToModule(AstRefDType* refp, AstNodeModule* targetModp) {
-    const VIfaceCaptureTag* const tagp = refp->captureTagp();
+তার্কিক V3LinkDotIfaceCapture::retargetRefToModule(AstRefDType* refp, Ast_গ্রন্থি_Module* targetModp) {
+    ধ্রুব VIfaceCaptureTag* ধ্রুব tagp = refp->captureTagp();
     UASSERT_OBJ(tagp, refp, "Retarget of a reference that was not captured");
     UASSERT_OBJ(targetModp, refp, "Retarget to a null module");
 
-    if (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE) {
-        AstParamTypeDType* const paramTypep = findParamTypeInModule(targetModp, refp->name());
-        if (!paramTypep) return false;
+    যদি (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE) {
+        AstParamTypeDType* ধ্রুব paramTypep = findParamTypeInModule(targetModp, refp->name());
+        যদি (!paramTypep) প্রত্যাগম অসত্য;
         retargetRefToParamType(refp, paramTypep);
-        return true;
+        প্রত্যাগম সত্য;
     }
 
-    AstTypedef* const typedefp = findTypedefInModule(targetModp, refp->name());
-    if (!typedefp) return false;
+    AstTypedef* ধ্রুব typedefp = findTypedefInModule(targetModp, refp->name());
+    যদি (!typedefp) প্রত্যাগম অসত্য;
     retargetRefToTypedef(refp, typedefp);
-    return true;
+    প্রত্যাগম সত্য;
 }
 
-void V3LinkDotIfaceCapture::retargetRefToParamType(AstRefDType* refp,
+শূন্য V3LinkDotIfaceCapture::retargetRefToParamType(AstRefDType* refp,
                                                    AstParamTypeDType* paramTypep) {
     UASSERT_OBJ(paramTypep, refp, "Retarget to a null parameter type");
     refp->refDTypep(paramTypep);
     refp->dtypep(paramTypep);
 }
 
-void V3LinkDotIfaceCapture::retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp) {
+শূন্য V3LinkDotIfaceCapture::retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp) {
     UASSERT_OBJ(typedefp, refp, "Retarget to a null typedef");
     refp->typedefp(typedefp);
     // An incomplete typedef is still a successful name resolution, but
     // must not erase type links that a later width pass can complete.
-    if (AstNodeDType* const dtypep = typedefp->subDTypep()) {
+    যদি (Ast_গ্রন্থি_DType* ধ্রুব dtypep = typedefp->subDTypep()) {
         refp->refDTypep(dtypep);
         refp->dtypep(dtypep);
     }
 }
 
-namespace {
-using LiveNodes = std::unordered_set<const AstNode*>;
+নামাকাশ {
+using LiveNodes = std::unordered_set<ধ্রুব Ast_গ্রন্থি*>;
 
 // A scoped snapshot of every node currently in the tree.  V3Broken::isLinkable()
 // cannot serve this role: its table is populated only while V3Broken::brokenAll()
 // runs and is cleared before it returns.
 LiveNodes collectLiveNodes() {
     LiveNodes liveNodes;
-    v3Global.rootp()->foreach([&](AstNode* nodep) { liveNodes.insert(nodep); });
-    return liveNodes;
+    v3Global.rootp()->foreach([&](Ast_গ্রন্থি* nodep) { liveNodes.ঢোকাও(nodep); });
+    প্রত্যাগম liveNodes;
 }
 
 // Find the module that owns this node; a snapshot, if given, stops the walk at a stale link.
-AstNodeModule* findOwnerModuleImpl(AstNode* nodep, const LiveNodes* liveNodesp) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (liveNodesp && !liveNodesp->count(curp)) return nullptr;
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+Ast_গ্রন্থি_Module* findOwnerModuleImpl(Ast_গ্রন্থি* nodep, ধ্রুব LiveNodes* liveNodesp) {
+    প্রতি (Ast_গ্রন্থি* curp = nodep; curp; curp = curp->backp()) {
+        যদি (liveNodesp && !liveNodesp->গুনতি(curp)) প্রত্যাগম nullptr;
+        যদি (Ast_গ্রন্থি_Module* ধ্রুব modp = VN_CAST(curp, গ্রন্থি_Module)) প্রত্যাগম modp;
     }
-    return nullptr;
+    প্রত্যাগম nullptr;
 }
 
-AstNodeModule* findOwnerModuleIfLive(AstNode* nodep, const LiveNodes& liveNodes) {
-    return findOwnerModuleImpl(nodep, &liveNodes);
+Ast_গ্রন্থি_Module* findOwnerModuleIfLive(Ast_গ্রন্থি* nodep, ধ্রুব LiveNodes& liveNodes) {
+    প্রত্যাগম findOwnerModuleImpl(nodep, &liveNodes);
 }
 
-bool moduleMatchesOwner(const AstNodeModule* modp, const string& ownerName) {
-    if (!modp || ownerName.empty()) return false;
-    return modp->name() == ownerName || modp->origName() == ownerName;
+তার্কিক moduleMatchesOwner(ধ্রুব Ast_গ্রন্থি_Module* modp, ধ্রুব string& ownerName) {
+    যদি (!modp || ownerName.empty()) প্রত্যাগম অসত্য;
+    প্রত্যাগম modp->name() == ownerName || modp->origName() == ownerName;
 }
 }  // namespace
 
-AstNodeModule* V3LinkDotIfaceCapture::findOwnerModule(AstNode* nodep) {
-    return findOwnerModuleImpl(nodep, nullptr);
+Ast_গ্রন্থি_Module* V3LinkDotIfaceCapture::findOwnerModule(Ast_গ্রন্থি* nodep) {
+    প্রত্যাগম findOwnerModuleImpl(nodep, nullptr);
 }
 
-void V3LinkDotIfaceCapture::dumpEntries(const string& label) {
+শূন্য V3LinkDotIfaceCapture::dumpEntries(ধ্রুব string& label) {
     UINFO(9, "========== iface capture dumpEntries: " << label << " ==========");
-    int idx = 0;
+    পূর্ণাঙ্ক idx = 0;
     v3Global.rootp()->foreach([&](AstRefDType* refp) {
-        const VIfaceCaptureTag* const tagp = captureTag(refp);
-        if (!tagp) return;
-        const AstNodeModule* const ownerModp = findOwnerModule(refp);
+        ধ্রুব VIfaceCaptureTag* ধ্রুব tagp = captureTag(refp);
+        যদি (!tagp) প্রত্যাগম;
+        ধ্রুব Ast_গ্রন্থি_Module* ধ্রুব ownerModp = findOwnerModule(refp);
         UINFO(9, "  [" << idx << "] ref=" << refp->name() << " refp=" << cvtToHex(refp)
                        << " ownerMod=" << (ownerModp ? ownerModp->name() : "<null>")
                        << " cellPath='" << tagp->m_cellPath << "' ownerModName='"
@@ -254,9 +254,9 @@ void V3LinkDotIfaceCapture::dumpEntries(const string& label) {
     UINFO(9, "========== end iface capture dumpEntries (" << idx << " captured) ==========");
 }
 
-void V3LinkDotIfaceCapture::tag(AstRefDType* refp, const AstNodeModule* capturedInp,
-                                VIfaceCaptureTag::Kind kind, const string& cellPath,
-                                const string& ownerModName) {
+শূন্য V3LinkDotIfaceCapture::tag(AstRefDType* refp, ধ্রুব Ast_গ্রন্থি_Module* capturedInp,
+                                VIfaceCaptureTag::Kind kind, ধ্রুব string& cellPath,
+                                ধ্রুব string& ownerModName) {
     UASSERT_OBJ(!refp->captureTagp(), refp, "Reference captured twice");
     UASSERT_OBJ(capturedInp, refp, "Captured reference is not in a module");
     UASSERT_OBJ(!cellPath.empty(), refp, "Captured reference has no cell path");
@@ -264,12 +264,12 @@ void V3LinkDotIfaceCapture::tag(AstRefDType* refp, const AstNodeModule* captured
     refp->captureTagp(&s_tags.back());
 }
 
-const VIfaceCaptureTag* V3LinkDotIfaceCapture::captureTag(AstRefDType* refp) {
-    const VIfaceCaptureTag* const tagp = refp->captureTagp();
-    if (!tagp) return nullptr;
-    const AstNodeModule* const ownerp = findOwnerModule(refp);
-    if (!ownerp || ownerp->origName() != tagp->m_capturedInName) return nullptr;
-    return tagp;
+ধ্রুব VIfaceCaptureTag* V3LinkDotIfaceCapture::captureTag(AstRefDType* refp) {
+    ধ্রুব VIfaceCaptureTag* ধ্রুব tagp = refp->captureTagp();
+    যদি (!tagp) প্রত্যাগম nullptr;
+    ধ্রুব Ast_গ্রন্থি_Module* ধ্রুব ownerp = findOwnerModule(refp);
+    যদি (!ownerp || ownerp->origName() != tagp->m_capturedInName) প্রত্যাগম nullptr;
+    প্রত্যাগম tagp;
 }
 
 // Walk a dot-separated cell path through the cell / IFACEREFDTYPE hierarchy
@@ -277,49 +277,49 @@ const VIfaceCaptureTag* V3LinkDotIfaceCapture::captureTag(AstRefDType* refp) {
 // nullptr if any component cannot be resolved.
 // Cell/port names are preserved across clones by cloneTree, so this works
 // identically on template and cloned modules.
-AstNodeModule* V3LinkDotIfaceCapture::followCellPath(AstNodeModule* startModp,
-                                                     const string& cellPath) {
-    if (cellPath.empty() || !startModp) return nullptr;
-    AstNodeModule* curModp = startModp;
+Ast_গ্রন্থি_Module* V3LinkDotIfaceCapture::followCellPath(Ast_গ্রন্থি_Module* startModp,
+                                                     ধ্রুব string& cellPath) {
+    যদি (cellPath.empty() || !startModp) প্রত্যাগম nullptr;
+    Ast_গ্রন্থি_Module* curModp = startModp;
     string remaining = cellPath;
-    while (!remaining.empty() && curModp) {
+    যাবত্ (!remaining.empty() && curModp) {
         string component;
-        const size_t dotPos = remaining.find('.');
-        if (dotPos == string::npos) {
+        ধ্রুব size_t dotPos = remaining.find('.');
+        যদি (dotPos == string::npos) {
             component = remaining;
             remaining.clear();
-        } else {
+        } অন্যথা {
             component = remaining.substr(0, dotPos);
             remaining = remaining.substr(dotPos + 1);
         }
         // Matched without any array index; the elements of an instance array (see V3Param) all
         // instantiate the same module, so any of them will do
-        const string componentBase = AstNode::nameNoArray(component);
-        AstNodeModule* nextModp = nullptr;
-        for (AstNode* sp = curModp->stmtsp(); sp; sp = sp->nextp()) {
-            if (AstCell* const cellp = VN_CAST(sp, Cell)) {
-                if ((cellp->name() == component
-                     || AstNode::nameNoArray(cellp->name()) == componentBase)
+        ধ্রুব string componentBase = Ast_গ্রন্থি::nameNoArray(component);
+        Ast_গ্রন্থি_Module* nextModp = nullptr;
+        প্রতি (Ast_গ্রন্থি* sp = curModp->stmtsp(); sp; sp = sp->nextp()) {
+            যদি (AstCell* ধ্রুব cellp = VN_CAST(sp, Cell)) {
+                যদি ((cellp->name() == component
+                     || Ast_গ্রন্থি::nameNoArray(cellp->name()) == componentBase)
                     && cellp->modp()) {
                     nextModp = cellp->modp();
-                    break;
+                    ভঙ্গ;
                 }
             }
-            if (AstVar* const varp = VN_CAST(sp, Var)) {
-                if (varp->isIfaceRef() && varp->subDTypep()) {
+            যদি (AstVar* ধ্রুব varp = VN_CAST(sp, Var)) {
+                যদি (varp->isIfaceRef() && varp->subDTypep()) {
                     string varBaseName = varp->name();
-                    const size_t viftopPos = varBaseName.find("__Viftop");
-                    if (viftopPos != string::npos) {
+                    ধ্রুব size_t viftopPos = varBaseName.find("__Viftop");
+                    যদি (viftopPos != string::npos) {
                         varBaseName = varBaseName.substr(0, viftopPos);
                     }
-                    if (varBaseName == component
-                        || AstNode::nameNoArray(varBaseName) == componentBase) {
-                        if (AstIfaceRefDType* const irefp
+                    যদি (varBaseName == component
+                        || Ast_গ্রন্থি::nameNoArray(varBaseName) == componentBase) {
+                        যদি (AstIfaceRefDType* ধ্রুব irefp
                             = ifaceRefFromVarDType(varp->subDTypep())) {
-                            AstIface* const ifacep = irefp->ifaceViaCellp();
-                            if (ifacep) {
+                            AstIface* ধ্রুব ifacep = irefp->ifaceViaCellp();
+                            যদি (ifacep) {
                                 nextModp = ifacep;
-                                break;
+                                ভঙ্গ;
                             }
                         }
                     }
@@ -328,47 +328,47 @@ AstNodeModule* V3LinkDotIfaceCapture::followCellPath(AstNodeModule* startModp,
         }
         curModp = nextModp;
     }
-    return curModp;
+    প্রত্যাগম curModp;
 }
 
 // replaces the lambda used in V3LinkDot.cpp for iface capture
-void V3LinkDotIfaceCapture::captureTypedefContext(AstRefDType* refp, const char* stageLabel,
-                                                  int dotPos, const std::string& dotText,
-                                                  VSymEnt* dotSymp, AstNodeModule* modp,
-                                                  const std::function<std::string()>& indentFn) {
-    if (!enabled() || !refp) return;
+শূন্য V3LinkDotIfaceCapture::captureTypedefContext(AstRefDType* refp, ধ্রুব বর্ণ* stageLabel,
+                                                  পূর্ণাঙ্ক dotPos, ধ্রুব std::string& dotText,
+                                                  VSymEnt* dotSymp, Ast_গ্রন্থি_Module* modp,
+                                                  ধ্রুব std::function<std::string()>& indentFn) {
+    যদি (!enabled() || !refp) প্রত্যাগম;
 
     UINFO(9, indentFn() << "iface capture capture request stage=" << stageLabel
                         << " typedef=" << refp << " name=" << refp->name() << " dotPos=" << dotPos
                         << " dotText='" << dotText << "' dotSym=" << dotSymp);
 
-    const AstCell* ifaceCellp = nullptr;
-    if (dotSymp && VN_IS(dotSymp->nodep(), Cell)) {
-        const AstCell* const cellp = VN_AS(dotSymp->nodep(), Cell);
-        if (cellp->modp() && VN_IS(cellp->modp(), Iface)) ifaceCellp = cellp;
+    ধ্রুব AstCell* ifaceCellp = nullptr;
+    যদি (dotSymp && VN_IS(dotSymp->nodep(), Cell)) {
+        ধ্রুব AstCell* ধ্রুব cellp = VN_AS(dotSymp->nodep(), Cell);
+        যদি (cellp->modp() && VN_IS(cellp->modp(), Iface)) ifaceCellp = cellp;
     }
-    if (!ifaceCellp) {
+    যদি (!ifaceCellp) {
         UINFO(9, indentFn() << "iface capture capture skipped typedef=" << refp
                             << " (no iface context)");
-        return;
+        প্রত্যাগম;
     }
     // Skip internal interface typedef references (typedef used within its own interface)
-    if (ifaceCellp->modp() == modp) {
+    যদি (ifaceCellp->modp() == modp) {
         UINFO(9, indentFn() << "iface capture capture skipped typedef=" << refp
                             << " (internal to interface " << modp->name() << ")");
-        return;
+        প্রত্যাগম;
     }
 
     // dotText is always non-empty for interface typedef captures.  If this
     // fires, the caller resolved to an interface Cell but did not accumulate
     // a dotText path - investigate the dot-state in visitParseRef.
     UASSERT_OBJ(!dotText.empty(), refp, "captureTypedefContext: dotText empty");
-    const string cellPath = dotText;
+    ধ্রুব string cellPath = dotText;
 
     // A reference to a ParamTypeDType is captured as a parameter type, else as a typedef
-    if (AstParamTypeDType* const paramTypep = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
+    যদি (AstParamTypeDType* ধ্রুব paramTypep = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
         V3LinkDotIfaceCapture::addParamType(refp, cellPath, modp, paramTypep, "");
-    } else {
+    } অন্যথা {
         tag(refp, modp, VIfaceCaptureTag::Kind::TYPEDEF, cellPath,
             resolveOwnerName("", refp->typedefp()));
     }
@@ -379,22 +379,22 @@ void V3LinkDotIfaceCapture::captureTypedefContext(AstRefDType* refp, const char*
                         << " dotPos=" << dotPos);
 }
 
-void V3LinkDotIfaceCapture::addParamType(AstRefDType* refp, const string& cellPath,
-                                         AstNodeModule* ownerModp, AstParamTypeDType* paramTypep,
-                                         const string& paramTypeOwnerModName) {
+শূন্য V3LinkDotIfaceCapture::addParamType(AstRefDType* refp, ধ্রুব string& cellPath,
+                                         Ast_গ্রন্থি_Module* ownerModp, AstParamTypeDType* paramTypep,
+                                         ধ্রুব string& paramTypeOwnerModName) {
     UASSERT(refp, "addParamType() called with null refp");
     UASSERT(ownerModp,
             "addParamType() called with null ownerModp for refp='" << refp->prettyNameQ() << "'");
     UASSERT_OBJ(paramTypep, refp,
                 "addParamType() called with null paramTypep for refp='" << refp->prettyNameQ()
                                                                         << "'");
-    const string ptOwnerName = resolveOwnerName(paramTypeOwnerModName, paramTypep);
+    ধ্রুব string ptOwnerName = resolveOwnerName(paramTypeOwnerModName, paramTypep);
     UINFO(9, "addParamType: refp=" << refp << " cellPath='" << cellPath << "'"
                                    << " ownerModp=" << (ownerModp ? ownerModp->name() : "<null>")
                                    << " paramTypep=" << paramTypep << " paramTypeOwnerModName='"
                                    << ptOwnerName << "'");
     UINFO(9, "addParamType: paramTypep subDTypep chain:");
-    if (debug())
+    যদি (debug())
         paramTypep->foreach([&](AstRefDType* innerRefp) {
             UINFO(9,
                   "  inner RefDType: "
@@ -405,8 +405,8 @@ void V3LinkDotIfaceCapture::addParamType(AstRefDType* refp, const string& cellPa
     tag(refp, ownerModp, VIfaceCaptureTag::Kind::PARAM_TYPE, cellPath, ptOwnerName);
 }
 
-int V3LinkDotIfaceCapture::resolveCapturedRefs() {
-    int fixed = 0;
+পূর্ণাঙ্ক V3LinkDotIfaceCapture::resolveCapturedRefs() {
+    পূর্ণাঙ্ক fixed = 0;
 
     // TARGET RESOLUTION.  By this point all cloning is complete and cell
     // pointers are wired to the correct interface clones.  For each tagged
@@ -415,10 +415,10 @@ int V3LinkDotIfaceCapture::resolveCapturedRefs() {
     // See the ARCHITECTURE comment above for the full picture.
 
     v3Global.rootp()->foreach([&](AstRefDType* refp) {
-        const VIfaceCaptureTag* const tagp = captureTag(refp);
-        if (!tagp) return;
-        AstNodeModule* const ownerModp = findOwnerModule(refp);
-        if (!ownerModp || ownerModp->dead() || VN_IS(ownerModp, Package)) return;
+        ধ্রুব VIfaceCaptureTag* ধ্রুব tagp = captureTag(refp);
+        যদি (!tagp) প্রত্যাগম;
+        Ast_গ্রন্থি_Module* ধ্রুব ownerModp = findOwnerModule(refp);
+        যদি (!ownerModp || ownerModp->dead() || VN_IS(ownerModp, Package)) প্রত্যাগম;
 
         UINFO(9, "finalizeIfaceCapture Phase3 entry: refp="
                      << refp->name() << " (" << cvtToHex(refp) << ")" << " ownerMod="
@@ -428,10 +428,10 @@ int V3LinkDotIfaceCapture::resolveCapturedRefs() {
 
         // Prefer the owner itself when its stable template identity matches the
         // captured target owner.  Otherwise resolve and validate the cell path.
-        AstNodeModule* correctModp = nullptr;
-        if (moduleMatchesOwner(ownerModp, tagp->m_ownerModName)) {
+        Ast_গ্রন্থি_Module* correctModp = nullptr;
+        যদি (moduleMatchesOwner(ownerModp, tagp->m_ownerModName)) {
             correctModp = ownerModp;
-        } else {
+        } অন্যথা {
             correctModp = followCellPath(ownerModp, tagp->m_cellPath);
             UINFO(9, "  followCellPath('"
                          << ownerModp->name() << "', '" << tagp->m_cellPath
@@ -449,26 +449,26 @@ int V3LinkDotIfaceCapture::resolveCapturedRefs() {
                         << (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE ? "parameter type "
                                                                                : "typedef ")
                         << refp->prettyNameQ() << " in " << correctModp->prettyNameQ());
-        refp->user3(true);
+        refp->user3(সত্য);
         ++fixed;
     });
 
-    return fixed;
+    প্রত্যাগম fixed;
 }
 
-void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
+শূন্য V3LinkDotIfaceCapture::verifyNoDeadRefs(ধ্রুব LiveNodes& liveNodes) {
     // Assert: no REFDTYPE in any live module should have typedefp or refDTypep
     // pointing to a dead module.
-    for (AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-        if (AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) {
-            if (modp->dead()) continue;
+    প্রতি (Ast_গ্রন্থি* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+        যদি (Ast_গ্রন্থি_Module* ধ্রুব modp = VN_CAST(nodep, গ্রন্থি_Module)) {
+            যদি (modp->dead()) অনুবর্ত;
             modp->foreach([&](AstRefDType* refp) {
-                if (refp->typedefp()) {
-                    UASSERT_OBJ(liveNodes.count(refp->typedefp()), refp,
+                যদি (refp->typedefp()) {
+                    UASSERT_OBJ(liveNodes.গুনতি(refp->typedefp()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has a dangling typedefp");
-                    AstNodeModule* const ownerModp
+                    Ast_গ্রন্থি_Module* ধ্রুব ownerModp
                         = findOwnerModuleIfLive(refp->typedefp(), liveNodes);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
@@ -476,12 +476,12 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
                                              << "' has typedefp pointing to dead module '"
                                              << ownerModp->prettyNameQ() << "'");
                 }
-                if (refp->refDTypep()) {
-                    UASSERT_OBJ(liveNodes.count(refp->refDTypep()), refp,
+                যদি (refp->refDTypep()) {
+                    UASSERT_OBJ(liveNodes.গুনতি(refp->refDTypep()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has a dangling refDTypep");
-                    AstNodeModule* const ownerModp
+                    Ast_গ্রন্থি_Module* ধ্রুব ownerModp
                         = findOwnerModuleIfLive(refp->refDTypep(), liveNodes);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
@@ -492,15 +492,15 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
             });
         }
     }
-    if (v3Global.rootp()->typeTablep()) {
-        for (AstNode* nodep = v3Global.rootp()->typeTablep()->typesp(); nodep;
+    যদি (v3Global.rootp()->typeTablep()) {
+        প্রতি (Ast_গ্রন্থি* nodep = v3Global.rootp()->typeTablep()->typesp(); nodep;
              nodep = nodep->nextp()) {
             nodep->foreach([&](AstRefDType* refp) {
-                if (refp->typedefp()) {
-                    UASSERT_OBJ(liveNodes.count(refp->typedefp()), refp,
+                যদি (refp->typedefp()) {
+                    UASSERT_OBJ(liveNodes.গুনতি(refp->typedefp()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ()
                                              << "' in type table has a dangling typedefp");
-                    AstNodeModule* const ownerModp
+                    Ast_গ্রন্থি_Module* ধ্রুব ownerModp
                         = findOwnerModuleIfLive(refp->typedefp(), liveNodes);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '"
@@ -508,11 +508,11 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
                                     << "' in type table has typedefp pointing to dead module '"
                                     << ownerModp->prettyNameQ() << "'");
                 }
-                if (refp->refDTypep()) {
-                    UASSERT_OBJ(liveNodes.count(refp->refDTypep()), refp,
+                যদি (refp->refDTypep()) {
+                    UASSERT_OBJ(liveNodes.গুনতি(refp->refDTypep()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ()
                                              << "' in type table has a dangling refDTypep");
-                    AstNodeModule* const ownerModp
+                    Ast_গ্রন্থি_Module* ধ্রুব ownerModp
                         = findOwnerModuleIfLive(refp->refDTypep(), liveNodes);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '"
@@ -525,25 +525,25 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
     }
 }
 
-void V3LinkDotIfaceCapture::finalizeIfaceCapture() {
-    if (!s_enabled) return;
+শূন্য V3LinkDotIfaceCapture::finalizeIfaceCapture() {
+    যদি (!s_enabled) প্রত্যাগম;
     UINFO(4, "finalizeIfaceCapture: fixing remaining cross-interface refs");
-    if (!v3Global.rootp()) return;
+    যদি (!v3Global.rootp()) প্রত্যাগম;
     clearModuleCache();  // Ensure fresh view after all cloning/widthing
 
     // Resolve live captured refs from stable path metadata before inspecting
     // any inherited target pointers, which may refer to replaced template nodes.
-    const int capturedFixed = resolveCapturedRefs();
+    ধ্রুব পূর্ণাঙ্ক capturedFixed = resolveCapturedRefs();
     UINFO(4, "finalizeIfaceCapture: structurally resolved " << capturedFixed << " captured refs");
 
-    if (debug() >= 9) dumpEntries("after finalizeIfaceCapture");
+    যদি (debug() >= 9) dumpEntries("after finalizeIfaceCapture");
 
     // Emit statistics for --stats
     V3Stats::addStat("IfaceCapture, Captured refs", s_tags.size());
     V3Stats::addStat("IfaceCapture, Captured refs resolved", capturedFixed);
 
     // No reference may be left pointing into a module about to be removed
-    if (v3Global.opt.debugCheck()) verifyNoDeadRefs(collectLiveNodes());
+    যদি (v3Global.opt.debugCheck()) verifyNoDeadRefs(collectLiveNodes());
     // Drop every tag before its record is freed.
     v3Global.rootp()->foreach([](AstRefDType* refp) { refp->captureTagp(nullptr); });
     reset();

@@ -17,69 +17,69 @@
 #ifndef VERILATOR_V3EXECGRAPH_H_
 #define VERILATOR_V3EXECGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Graph.h"
+#অন্তর্ভাব "V3Graph.h"
 
-#include <atomic>
+#অন্তর্ভাব <atomic>
 
 class AstNetlist;
 class AstCFunc;
 class AstExecGraph;
-class AstNodeStmt;
+class Ast_গ্রন্থি_Stmt;
 class AstScope;
 
 //*************************************************************************
 // MTasks and graph structures
 
-class ExecMTask final : public V3GraphVertex {
+class ExecMTask final : সার্বজনিক V3GraphVertex {
     VL_RTTI_IMPL(ExecMTask, V3GraphVertex)
-private:
-    const uint32_t m_id;  // Unique ID of this ExecMTask.
-    static std::atomic<uint32_t> s_nextId;  // Next ID to use
-    AstCFunc* const m_funcp;  // The function that contains the task body
-    const std::string m_hashName;  // Hashed name based on body for profile-driven optimization
+গুপ্ত:
+    ধ্রুব uint32_t m_id;  // Unique ID of this ExecMTask.
+    স্থির std::atomic<uint32_t> s_nextId;  // Next ID to use
+    AstCFunc* ধ্রুব m_funcp;  // The function that contains the task body
+    ধ্রুব std::string m_hashName;  // Hashed name based on body for profile-driven optimization
     // Predicted critical path from the start of this mtask to the ends of the graph that are
     // reachable from this mtask. In abstract time units.
     uint32_t m_priority = 0;
     // Predicted runtime of this mtask, in the same abstract time units as priority().
     uint32_t m_cost = 0;
     uint64_t m_predictStart = 0;  // Predicted start time of task
-    int m_threads = 1;  // Threads used by this mtask
+    পূর্ণাঙ্ক m_threads = 1;  // Threads used by this mtask
     VL_UNCOPYABLE(ExecMTask);
 
-    static AstCFunc* createCFunc(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp,
+    স্থির AstCFunc* createCFunc(AstExecGraph* execGraphp, AstScope* scopep, Ast_গ্রন্থি_Stmt* stmtsp,
                                  uint32_t id);
 
-public:
-    ExecMTask(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp) VL_MT_DISABLED;
-    AstCFunc* funcp() const { return m_funcp; }
-    uint32_t id() const VL_MT_SAFE { return m_id; }
-    uint32_t priority() const { return m_priority; }
-    void priority(uint32_t pri) { m_priority = pri; }
-    uint32_t cost() const { return m_cost; }
-    void cost(uint32_t cost) { m_cost = cost; }
-    uint64_t predictStart() const { return m_predictStart; }
-    void predictStart(uint64_t time) { m_predictStart = time; }
-    string name() const override VL_MT_STABLE { return "mt"s + std::to_string(id()); }
-    string hashName() const { return m_hashName; }
-    void threads(int threads) { m_threads = threads; }
-    int threads() const { return m_threads; }
-    void dump(std::ostream& str) const;
+সার্বজনিক:
+    ExecMTask(AstExecGraph* execGraphp, AstScope* scopep, Ast_গ্রন্থি_Stmt* stmtsp) VL_MT_DISABLED;
+    AstCFunc* funcp() ধ্রুব { প্রত্যাগম m_funcp; }
+    uint32_t id() ধ্রুব VL_MT_SAFE { প্রত্যাগম m_id; }
+    uint32_t priority() ধ্রুব { প্রত্যাগম m_priority; }
+    শূন্য priority(uint32_t pri) { m_priority = pri; }
+    uint32_t cost() ধ্রুব { প্রত্যাগম m_cost; }
+    শূন্য cost(uint32_t cost) { m_cost = cost; }
+    uint64_t predictStart() ধ্রুব { প্রত্যাগম m_predictStart; }
+    শূন্য predictStart(uint64_t time) { m_predictStart = time; }
+    string name() ধ্রুব override VL_MT_STABLE { প্রত্যাগম "mt"s + std::to_string(id()); }
+    string hashName() ধ্রুব { প্রত্যাগম m_hashName; }
+    শূন্য threads(পূর্ণাঙ্ক threads) { m_threads = threads; }
+    পূর্ণাঙ্ক threads() ধ্রুব { প্রত্যাগম m_threads; }
+    শূন্য dump(std::ostream& str) ধ্রুব;
 
-    static uint32_t numUsedIds() VL_MT_SAFE { return s_nextId; }
+    স্থির uint32_t অঙ্ক_Used_Ids() VL_MT_SAFE { প্রত্যাগম s_nextId; }
 };
 
-inline std::ostream& operator<<(std::ostream& os, const ExecMTask& rhs) {
+অন্তঃস্থ std::ostream& operator<<(std::ostream& os, ধ্রুব ExecMTask& rhs) {
     rhs.dump(os);
-    return os;
+    প্রত্যাগম os;
 }
 
 namespace V3ExecGraph {
-void implement(AstNetlist*) VL_MT_DISABLED;
+শূন্য implement(AstNetlist*) VL_MT_DISABLED;
 
-void selfTest() VL_MT_DISABLED;
+শূন্য selfTest() VL_MT_DISABLED;
 }  //namespace V3ExecGraph
 
 #endif  // Guard

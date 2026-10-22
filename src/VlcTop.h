@@ -17,51 +17,51 @@
 #ifndef VERILATOR_VLCTOP_H_
 #define VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#অন্তর্ভাব "VlcOptions.h"
+#অন্তর্ভাব "VlcPoint.h"
+#অন্তর্ভাব "VlcSource.h"
+#অন্তর্ভাব "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_শীর্ষ final {
+সার্বজনিক:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+গুপ্ত:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    শূন্য annotateCalc();
+    শূন্য annotateCalcNeeded();
+    শূন্য annotateOutputFiles(ধ্রুব string& dirname);
 
-public:
+সার্বজনিক:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_শীর্ষ() = স্বভাব;
+    ~Vlc_শীর্ষ() = স্বভাব;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { প্রত্যাগম m_tests; }
+    VlcPoints& points() { প্রত্যাগম m_points; }
+    VlcSources& sources() { প্রত্যাগম m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    শূন্য annotate(ধ্রুব string& dirname);
+    শূন্য printHierarchyReport();
+    শূন্য printTypeSummary();
+    শূন্য readCoverage(ধ্রুব string& filename, bool nonfatal = false);
+    শূন্য writeCoverage(ধ্রুব string& filename);
+    শূন্য writeInfo(ধ্রুব string& filename);
 
-    void rank();
+    শূন্য rank();
 };
 
 //######################################################################

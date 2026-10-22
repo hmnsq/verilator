@@ -17,27 +17,27 @@
 #ifndef VERILATOR_V3LINKLEVEL_H_
 #define VERILATOR_V3LINKLEVEL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3Error.h"
 
-#include <vector>
+#অন্তর্ভাব <vector>
 
 //============================================================================
 
 class V3LinkLevel final {
-    using ModVec = std::vector<AstNodeModule*>;
+    using ModVec = std::vector<Ast_গ্রন্থি_Module*>;
 
-    static void timescaling(const ModVec& mods) VL_MT_DISABLED;
-    static void wrapTopCell(AstNetlist* rootp) VL_MT_DISABLED;
-    static void wrapTopPackages(AstNetlist* rootp) VL_MT_DISABLED;
+    স্থির শূন্য timescaling(ধ্রুব ModVec& mods) VL_MT_DISABLED;
+    স্থির শূন্য wrap_শীর্ষ_Cell(AstNetlist* rootp) VL_MT_DISABLED;
+    স্থির শূন্য wrap_শীর্ষ_Packages(AstNetlist* rootp) VL_MT_DISABLED;
 
-public:
-    static void modSortByLevel() VL_MT_DISABLED;
-    static void wrapTop(AstNetlist* rootp) VL_MT_DISABLED;
-    static void nonWrapTop(AstNetlist* rootp) VL_MT_DISABLED;
+সার্বজনিক:
+    স্থির শূন্য modSortByLevel() VL_MT_DISABLED;
+    স্থির শূন্য wrap_শীর্ষ(AstNetlist* rootp) VL_MT_DISABLED;
+    স্থির শূন্য non_Wrap_শীর্ষ(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

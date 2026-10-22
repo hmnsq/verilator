@@ -17,13 +17,13 @@
 #ifndef VERILATOR_V3LIST_H_
 #define VERILATOR_V3LIST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Error.h"
+#অন্তর্ভাব "V3Error.h"
 
-#include <type_traits>
-#include <utility>
+#অন্তর্ভাব <type_traits>
+#অন্তর্ভাব <utility>
 
 //============================================================================
 // The list links (just 2 pointers), to be instantiated as a member in the
@@ -39,8 +39,8 @@ class V3ListLinks final {
     T_Base* m_nextp = nullptr;  // Next element in list
     T_Base* m_prevp = nullptr;  // Previous element in list
 
-public:
-    V3ListLinks() = default;
+সার্বজনিক:
+    V3ListLinks() = স্বভাব;
     ~V3ListLinks() {
 #ifdef VL_DEBUG
         m_nextp = reinterpret_cast<T_Base*>(1);
@@ -65,7 +65,7 @@ template <typename T_Base,  //
           V3ListLinks<T_Base>& (T_Base::*LinksGetter)(),  //
           typename T_Element = T_Base>
 class V3List final {
-    static_assert(std::is_base_of<T_Base, T_Element>::value,
+    static_assert(std::is_base_of<T_Base, T_Element>::মান,
                   "'T_Element' must be a subtype of 'T_Base");
 
     using ListType = V3List<T_Base, LinksGetter, T_Element>;
@@ -76,12 +76,12 @@ class V3List final {
 
     // Given the T_Base, return the Links. The links are always mutable, even in const elements.
     VL_ATTR_ALWINLINE
-    static V3ListLinks<T_Base>& toLinks(const T_Base* elementp) {
-        return (const_cast<T_Base*>(elementp)->*LinksGetter)();
+    স্থির V3ListLinks<T_Base>& toLinks(ধ্রুব T_Base* elementp) {
+        প্রত্যাগম (const_cast<T_Base*>(elementp)->*LinksGetter)();
     }
 
     VL_ATTR_ALWINLINE
-    static void prefetch(const T_Base* elementp, const T_Base* fallbackp) {
+    স্থির শূন্য prefetch(ধ্রুব T_Base* elementp, ধ্রুব T_Base* fallbackp) {
         UDEBUGONLY(UASSERT(fallbackp, "Prefetch fallback pointer must be non-nullptr"););
         // This compiles to a branchless prefetch with cmove, with the address always valid
         VL_PREFETCH_RW(elementp ? elementp : fallbackp);
@@ -91,8 +91,8 @@ class V3List final {
     // and basic usage. Feel free to extend as required.
     template <typename T_IteratorElement, bool N_Reverse>
     class SimpleItertatorImpl final {
-        static_assert(std::is_same<T_IteratorElement, T_Element>::value
-                          || std::is_same<T_IteratorElement, const T_Element>::value,
+        static_assert(std::is_same<T_IteratorElement, T_Element>::মান
+                          || std::is_same<T_IteratorElement, ধ্রুব T_Element>::মান,
                       "'SimpleItertatorImpl' must be used with element type only");
 
         // The List itself, but nothing else can construct iterators
@@ -108,45 +108,45 @@ class V3List final {
             : m_currp{elementp} {}
 
         VL_ATTR_ALWINLINE
-        static T_Base* step(T_Base* currp) {
-            if VL_CONSTEXPR_CXX17 (N_Reverse) {
-                return toLinks(currp).m_prevp;
-            } else {
-                return toLinks(currp).m_nextp;
+        স্থির T_Base* step(T_Base* currp) {
+            যদি VL_CONSTEXPR_CXX17 (N_Reverse) {
+                প্রত্যাগম toLinks(currp).m_prevp;
+            } অন্যথা {
+                প্রত্যাগম toLinks(currp).m_nextp;
             }
         }
 
-    public:
+    সার্বজনিক:
         // Dereference
         VL_ATTR_ALWINLINE
-        T_IteratorElement& operator*() const {
+        T_IteratorElement& operator*() ধ্রুব {
             UDEBUGONLY(UASSERT(m_currp, "Dereferencing end of list iterator"););
             prefetch(step(m_currp), m_currp);
-            return *static_cast<T_IteratorElement*>(m_currp);
+            প্রত্যাগম *static_cast<T_IteratorElement*>(m_currp);
         }
         // Pre increment
         VL_ATTR_ALWINLINE
         IteratorType& operator++() {
             UDEBUGONLY(UASSERT(m_currp, "Pre-incrementing end of list iterator"););
             m_currp = step(m_currp);
-            return *this;
+            প্রত্যাগম *this;
         }
         // Post increment
         VL_ATTR_ALWINLINE
-        IteratorType operator++(int) {
+        IteratorType operator++(পূর্ণাঙ্ক) {
             UDEBUGONLY(UASSERT(m_currp, "Post-incrementing end of list iterator"););
-            T_Base* const elementp = m_currp;
+            T_Base* ধ্রুব elementp = m_currp;
             m_currp = step(m_currp);
-            return IteratorType{elementp};
+            প্রত্যাগম IteratorType{elementp};
         }
         VL_ATTR_ALWINLINE
-        bool operator==(const IteratorType& other) const { return m_currp == other.m_currp; }
+        bool operator==(ধ্রুব IteratorType& other) ধ্রুব { প্রত্যাগম m_currp == other.m_currp; }
         VL_ATTR_ALWINLINE
-        bool operator!=(const IteratorType& other) const { return m_currp != other.m_currp; }
+        bool operator!=(ধ্রুব IteratorType& other) ধ্রুব { প্রত্যাগম m_currp != other.m_currp; }
         // Convert to const iterator
         VL_ATTR_ALWINLINE
-        operator SimpleItertatorImpl<const T_IteratorElement, N_Reverse>() const {
-            return SimpleItertatorImpl<const T_IteratorElement, N_Reverse>{m_currp};
+        operator SimpleItertatorImpl<ধ্রুব T_IteratorElement, N_Reverse>() ধ্রুব {
+            প্রত্যাগম SimpleItertatorImpl<ধ্রুব T_IteratorElement, N_Reverse>{m_currp};
         }
     };
 
@@ -166,8 +166,8 @@ class V3List final {
         // If you want something fancier, use and manage the direct iterator manually.
         template <typename T_IteratorElement>
         class UnlinkableItertatorImpl final {
-            static_assert(std::is_same<T_IteratorElement, T_Element>::value
-                              || std::is_same<T_IteratorElement, const T_Element>::value,
+            static_assert(std::is_same<T_IteratorElement, T_Element>::মান
+                              || std::is_same<T_IteratorElement, ধ্রুব T_Element>::মান,
                           "'UnlinkableItertatorImpl' must be used with element type only");
 
             // The UnlinkableProxy, but nothing else can construct unlinkable iterators
@@ -187,13 +187,13 @@ class V3List final {
                 : m_currp{nullptr}
                 , m_nextp{nullptr} {}
 
-        public:
+        সার্বজনিক:
             // Dereference - Note this returns a pointer.
             VL_ATTR_ALWINLINE
-            T_IteratorElement* operator*() const {
+            T_IteratorElement* operator*() ধ্রুব {
                 UDEBUGONLY(UASSERT(m_currp, "Dereferencing end of list iterator"););
                 prefetch(m_nextp, m_currp);
-                return static_cast<T_IteratorElement*>(m_currp);
+                প্রত্যাগম static_cast<T_IteratorElement*>(m_currp);
             }
             // Pre increment - Keeps hold of current next pointer.
             VL_ATTR_ALWINLINE
@@ -201,33 +201,33 @@ class V3List final {
                 UDEBUGONLY(UASSERT(m_currp, "Pre-incrementing end of list iterator"););
                 m_currp = m_nextp;
                 m_nextp = m_currp ? toLinks(m_currp).m_nextp : nullptr;
-                return *this;
+                প্রত্যাগম *this;
             }
             VL_ATTR_ALWINLINE
-            bool operator!=(const IteratorType& other) const { return m_currp != other.m_currp; }
+            bool operator!=(ধ্রুব IteratorType& other) ধ্রুব { প্রত্যাগম m_currp != other.m_currp; }
         };
 
-    public:
+    সার্বজনিক:
         using iterator = UnlinkableItertatorImpl<T_Element>;
-        using const_iterator = UnlinkableItertatorImpl<const T_Element>;
+        using const_iterator = UnlinkableItertatorImpl<ধ্রুব T_Element>;
         iterator begin() {  //
-            return m_list.m_headp ? iterator{m_list.m_headp} : end();
+            প্রত্যাগম m_list.m_headp ? iterator{m_list.m_headp} : end();
         }
-        const_iterator begin() const {
-            return m_list.m_headp ? const_iterator{m_list.m_headp} : end();
+        const_iterator begin() ধ্রুব {
+            প্রত্যাগম m_list.m_headp ? const_iterator{m_list.m_headp} : end();
         }
-        iterator end() { return iterator{nullptr}; }
-        const_iterator end() const { return const_iterator{nullptr}; }
+        iterator end() { প্রত্যাগম iterator{nullptr}; }
+        const_iterator end() ধ্রুব { প্রত্যাগম const_iterator{nullptr}; }
     };
 
-public:
+সার্বজনিক:
     using iterator = SimpleItertatorImpl<T_Element, /* N_Reverse: */ false>;
-    using const_iterator = SimpleItertatorImpl<const T_Element, /* N_Reverse: */ false>;
+    using const_iterator = SimpleItertatorImpl<ধ্রুব T_Element, /* N_Reverse: */ false>;
     using reverse_iterator = SimpleItertatorImpl<T_Element, /* N_Reverse: */ true>;
-    using const_reverse_iterator = SimpleItertatorImpl<const T_Element, /* N_Reverse: */ true>;
+    using const_reverse_iterator = SimpleItertatorImpl<ধ্রুব T_Element, /* N_Reverse: */ true>;
 
     // CONSTRUCTOR
-    V3List() = default;
+    V3List() = স্বভাব;
     ~V3List() {
 #ifdef VL_DEBUG
         m_headp = reinterpret_cast<T_Element*>(1);
@@ -238,92 +238,92 @@ public:
     VL_UNMOVABLE(V3List);
 
     // METHDOS
-    bool empty() const { return !m_headp; }
-    bool hasSingleElement() const { return m_headp && m_headp == m_lastp; }
-    bool hasMultipleElements() const { return m_headp && m_headp != m_lastp; }
-    bool hasTwoElements() const { return m_headp && toLinks(m_headp).m_nextp == m_lastp; }
+    bool empty() ধ্রুব { প্রত্যাগম !m_headp; }
+    bool hasSingleElement() ধ্রুব { প্রত্যাগম m_headp && m_headp == m_lastp; }
+    bool hasMultipleElements() ধ্রুব { প্রত্যাগম m_headp && m_headp != m_lastp; }
+    bool hasTwoElements() ধ্রুব { প্রত্যাগম m_headp && toLinks(m_headp).m_nextp == m_lastp; }
 
     // These return pointers, as we often want to unlink/delete them, and can also signal empty
-    T_Element* frontp() { return static_cast<T_Element*>(m_headp); }
-    const T_Element* frontp() const { return static_cast<T_Element*>(m_headp); }
-    T_Element* backp() { return static_cast<T_Element*>(m_lastp); }
-    const T_Element* backp() const { return static_cast<T_Element*>(m_lastp); }
+    T_Element* frontp() { প্রত্যাগম static_cast<T_Element*>(m_headp); }
+    ধ্রুব T_Element* frontp() ধ্রুব { প্রত্যাগম static_cast<T_Element*>(m_headp); }
+    T_Element* backp() { প্রত্যাগম static_cast<T_Element*>(m_lastp); }
+    ধ্রুব T_Element* backp() ধ্রুব { প্রত্যাগম static_cast<T_Element*>(m_lastp); }
 
     // Standard iterators. The iterator is only invalidated if the element it points to is
     // unlinked. Other list operations do not invalidate the itartor. If you want to be able to
     // unlink the currently iterated element, use 'unlinkable()' below.
-    iterator begin() { return iterator{m_headp}; }
-    const_iterator begin() const { return const_iterator{m_headp}; }
-    iterator end() { return iterator{nullptr}; }
-    const_iterator end() const { return const_iterator{nullptr}; }
-    reverse_iterator rbegin() { return reverse_iterator{m_lastp}; }
-    const_reverse_iterator rbegin() const { return const_reverse_iterator{m_lastp}; }
-    reverse_iterator rend() { return reverse_iterator{nullptr}; }
-    const_reverse_iterator rend() const { return const_reverse_iterator{nullptr}; }
+    iterator begin() { প্রত্যাগম iterator{m_headp}; }
+    const_iterator begin() ধ্রুব { প্রত্যাগম const_iterator{m_headp}; }
+    iterator end() { প্রত্যাগম iterator{nullptr}; }
+    const_iterator end() ধ্রুব { প্রত্যাগম const_iterator{nullptr}; }
+    reverse_iterator rbegin() { প্রত্যাগম reverse_iterator{m_lastp}; }
+    const_reverse_iterator rbegin() ধ্রুব { প্রত্যাগম const_reverse_iterator{m_lastp}; }
+    reverse_iterator rend() { প্রত্যাগম reverse_iterator{nullptr}; }
+    const_reverse_iterator rend() ধ্রুব { প্রত্যাগম const_reverse_iterator{nullptr}; }
 
     // Handle to create unlinkable iterators, which allows unlinking the currently iterated
     // element without invalidating the iterator. However, every other operation that mutates
     // the list invalidates the unlinkable iterator!
-    UnlinkableProxy unlinkable() { return UnlinkableProxy{*this}; }
+    UnlinkableProxy unlinkable() { প্রত্যাগম UnlinkableProxy{*this}; }
 
     // Link (insert) existing element at front
-    void linkFront(const T_Element* elementp) {
+    শূন্য linkFront(ধ্রুব T_Element* elementp) {
         auto& links = toLinks(elementp);
         links.m_nextp = m_headp;
         links.m_prevp = nullptr;
-        if (m_headp) toLinks(m_headp).m_prevp = const_cast<T_Element*>(elementp);
+        যদি (m_headp) toLinks(m_headp).m_prevp = const_cast<T_Element*>(elementp);
         m_headp = const_cast<T_Element*>(elementp);
-        if (!m_lastp) m_lastp = m_headp;
+        যদি (!m_lastp) m_lastp = m_headp;
     }
 
     // Link (insert) existing element at back
-    void linkBack(const T_Element* elementp) {
+    শূন্য linkBack(ধ্রুব T_Element* elementp) {
         auto& links = toLinks(elementp);
         links.m_nextp = nullptr;
         links.m_prevp = m_lastp;
-        if (m_lastp) toLinks(m_lastp).m_nextp = const_cast<T_Element*>(elementp);
+        যদি (m_lastp) toLinks(m_lastp).m_nextp = const_cast<T_Element*>(elementp);
         m_lastp = const_cast<T_Element*>(elementp);
-        if (!m_headp) m_headp = m_lastp;
+        যদি (!m_headp) m_headp = m_lastp;
     }
 
     // Unlink (remove) and return element at the front. Returns 'nullptr' if the list is empty.
     T_Element* unlinkFront() {
-        T_Element* const headp = m_headp;
-        if (headp) unlink(headp);
-        return headp;
+        T_Element* ধ্রুব headp = m_headp;
+        যদি (headp) unlink(headp);
+        প্রত্যাগম headp;
     }
 
     // Unlink (remove) and return element at the back. Returns 'nullptr' if the list is empty.
     T_Element* unlinkBack() {
-        T_Element* const lastp = m_lastp;
-        if (lastp) unlink(lastp);
-        return lastp;
+        T_Element* ধ্রুব lastp = m_lastp;
+        যদি (lastp) unlink(lastp);
+        প্রত্যাগম lastp;
     }
 
     // Unlink (remove) the given element.
-    void unlink(const T_Element* elementp) {
+    শূন্য unlink(ধ্রুব T_Element* elementp) {
         auto& links = toLinks(elementp);
-        if (links.m_nextp) toLinks(links.m_nextp).m_prevp = links.m_prevp;
-        if (links.m_prevp) toLinks(links.m_prevp).m_nextp = links.m_nextp;
-        if (m_headp == elementp) m_headp = links.m_nextp;
-        if (m_lastp == elementp) m_lastp = links.m_prevp;
+        যদি (links.m_nextp) toLinks(links.m_nextp).m_prevp = links.m_prevp;
+        যদি (links.m_prevp) toLinks(links.m_prevp).m_nextp = links.m_nextp;
+        যদি (m_headp == elementp) m_headp = links.m_nextp;
+        যদি (m_lastp == elementp) m_lastp = links.m_prevp;
         links.m_prevp = nullptr;
         links.m_nextp = nullptr;
     }
 
     // Swap elements of 2 lists
-    void swap(ListType& other) {
+    শূন্য swap(ListType& other) {
         std::swap(m_headp, other.m_headp);
         std::swap(m_lastp, other.m_lastp);
     }
 
     // Take elements from 'other' and link (insert) them all before the given position.
-    void splice(const_iterator pos, ListType& other) {
-        if (empty()) {
+    শূন্য splice(const_iterator pos, ListType& other) {
+        যদি (empty()) {
             swap(other);
-        } else if (other.empty()) {
-            return;
-        } else {
+        } অন্যথা যদি (other.empty()) {
+            প্রত্যাগম;
+        } অন্যথা {
             UASSERT(pos == end(), "Sorry, only splicing at the end is implemented at the moment");
             toLinks(m_lastp).m_nextp = other.m_headp;
             toLinks(other.m_headp).m_prevp = m_lastp;
@@ -334,10 +334,10 @@ public:
     }
 
     // This is O(n)!
-    size_t size() const {
+    size_t size() ধ্রুব {
         size_t result = 0;
-        for (auto it = begin(); it != end(); ++it) ++result;
-        return result;
+        প্রতি (auto it = begin(); it != end(); ++it) ++result;
+        প্রত্যাগম result;
     }
 };
 

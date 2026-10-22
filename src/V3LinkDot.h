@@ -17,24 +17,24 @@
 #ifndef VERILATOR_V3LINKDOT_H_
 #define VERILATOR_V3LINKDOT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#অন্তর্ভাব "config_build.h"
+#অন্তর্ভাব "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#অন্তর্ভাব "V3Ast.h"
+#অন্তর্ভাব "V3Error.h"
 
 //============================================================================
 
-enum VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
+গণনা VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
 
 class V3LinkDot final {
-    static void dumpSubstep(const string& name) VL_MT_DISABLED;
-    static void linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
+    স্থির শূন্য dumpSubstep(ধ্রুব string& name) VL_MT_DISABLED;
+    স্থির শূন্য linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
 
-public:
-    static void linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
+সার্বজনিক:
+    স্থির শূন্য linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির শূন্য linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
+    স্থির শূন্য linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard
