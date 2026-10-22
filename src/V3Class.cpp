@@ -63,8 +63,8 @@ class ClassVisitor final : public VNVisitor {
         //   as there is only single ancestor allowed
         // - implements of concrete classes / extends of interface classes: mapped
         //   to virtual inheritance to allow diamond patterns with multiple ancestors
-        if (nodep->useVirtualPublic()) return;  // Short-circuit to exit diamond cycles
-        if (nodep->isInterfaceClass()) { nodep->useVirtualPublic(true); }
+        ᮚᮦᮔ᮪ (nodep->useVirtualPublic()) ᮝᮜᮤ;  // Short-circuit to exit diamond cycles
+        ᮚᮦᮔ᮪ (nodep->isInterfaceClass()) { nodep->useVirtualPublic(true); }
         for (const AstClassExtends* extp = nodep->extendsp(); extp;
              extp = VN_AS(extp->nextp(), ClassExtends)) {
             recurseImplements(extp->classp());
@@ -74,7 +74,7 @@ class ClassVisitor final : public VNVisitor {
     // VISITORS
 
     void visit(AstClass* nodep) override {
-        if (nodep->user1SetOnce()) return;
+        ᮚᮦᮔ᮪ (nodep->user1SetOnce()) ᮝᮜᮤ;
         // Move this class
         nodep->name(m_prefix + nodep->name());
         nodep->unlinkFrBack();
@@ -104,7 +104,7 @@ class ClassVisitor final : public VNVisitor {
         // Alternative would be to move this and related to V3Scope
         const AstScope* classScopep = nullptr;
         for (AstNode* itp = nodep->stmtsp(); itp; itp = itp->nextp()) {
-            if ((classScopep = VN_CAST(itp, Scope))) break;
+            ᮚᮦᮔ᮪ ((classScopep = VN_CAST(itp, Scope))) bha_nga;
         }
         UASSERT_OBJ(classScopep, nodep, "No scope under class");
 
@@ -138,14 +138,14 @@ class ClassVisitor final : public VNVisitor {
 
     void visit(AstVar* nodep) override {
         iterateChildren(nodep);
-        if (m_packageScopep) {
-            if (m_ftaskp && m_ftaskp->isStatic()) {
+        ᮚᮦᮔ᮪ (m_packageScopep) {
+            ᮚᮦᮔ᮪ (m_ftaskp && m_ftaskp->isStatic()) {
                 // Move later, or we wouldn't keep iterating the class
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
                 m_toScopeMoves.emplace_back(nodep, m_packageScopep);
             }
-            if (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
+            ᮚᮦᮔ᮪ (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
                 m_toPackageMoves.emplace_back(nodep, m_classPackagep);
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
@@ -163,7 +163,7 @@ class ClassVisitor final : public VNVisitor {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
-        if (m_packageScopep && nodep->isStatic()) {
+        ᮚᮦᮔ᮪ (m_packageScopep && nodep->isStatic()) {
             m_toScopeMoves.emplace_back(nodep, m_packageScopep);
         }
     }
@@ -178,17 +178,17 @@ class ClassVisitor final : public VNVisitor {
     void visit(AstNodeCoverDecl* nodep) override {
         // Need to declare coverage in package, where we have access to symbol table
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        ᮚᮦᮔ᮪ (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
     }
     void visit(AstInitial* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        ᮚᮦᮔ᮪ (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
     }
     void visit(AstInitialStatic* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        ᮚᮦᮔ᮪ (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
     }
 
     void setStructModulep(AstNodeUOrStructDType* const dtypep) {
@@ -197,27 +197,27 @@ class ClassVisitor final : public VNVisitor {
         dtypep->classOrPackagep(m_classPackagep ? m_classPackagep : m_modp);
         dtypep->name(
             m_names.get(dtypep->name() + (VN_IS(dtypep, UnionDType) ? "__union" : "__struct")));
-        if (dtypep->packed()) m_strDtypeps.insert(dtypep);
+        ᮚᮦᮔ᮪ (dtypep->packed()) m_strDtypeps.insert(dtypep);
 
         for (AstMemberDType* itemp = dtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
             AstNodeUOrStructDType* const subp = itemp->getChildStructp();
             // Recurse only into anonymous structs inside this definition,
             // other structs will be reached from another typedefs
-            if (subp && subp->name().empty()) setStructModulep(subp);
+            ᮚᮦᮔ᮪ (subp && subp->name().empty()) setStructModulep(subp);
         }
     }
     void visit(AstTypedef* nodep) override {
-        if (nodep->user1SetOnce()) return;
+        ᮚᮦᮔ᮪ (nodep->user1SetOnce()) ᮝᮜᮤ;
         AstNodeUOrStructDType* const dtypep = VN_CAST(nodep->dtypep(), NodeUOrStructDType);
-        if (dtypep && dtypep->packed()) {
+        ᮚᮦᮔ᮪ (dtypep && dtypep->packed()) {
             m_typedefps.insert(nodep);
-            if (nodep->attrPublic()) m_pubStrDtypeps.push(dtypep);
+            ᮚᮦᮔ᮪ (nodep->attrPublic()) m_pubStrDtypeps.push(dtypep);
         }
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        ᮚᮦᮔ᮪ (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
 
-        if (dtypep) {
+        ᮚᮦᮔ᮪ (dtypep) {
             dtypep->name(nodep->name());
             setStructModulep(dtypep);
         }
@@ -235,17 +235,17 @@ public:
             AstNode* const nodep = moved.first;
             AstScope* const scopep = moved.second;
             UINFO(9, "moving " << nodep << " to " << scopep);
-            if (VN_IS(nodep, NodeFTask)) {
+            ᮚᮦᮔ᮪ (VN_IS(nodep, NodeFTask)) {
                 scopep->addBlocksp(nodep->unlinkFrBack());
-            } else if (VN_IS(nodep, Var)) {
+            } ᮜᮤᮚ ᮚᮦᮔ᮪ (VN_IS(nodep, Var)) {
                 AstVarScope* const vscp = VN_AS(nodep->user1p(), VarScope);
                 vscp->scopep(scopep);
                 vscp->unlinkFrBack();
                 scopep->addVarsp(vscp);
-            } else if (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
+            } ᮜᮤᮚ ᮚᮦᮔ᮪ (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
                 nodep->unlinkFrBack();
                 scopep->addBlocksp(nodep);
-            } else {
+            } ᮜᮤᮚ {
                 nodep->v3fatalSrc("Bad case");
             }
         }
@@ -258,13 +258,13 @@ public:
         }
         // BFS to mark public typedefs.
         std::set<const AstNodeUOrStructDType*> pubStrDtypeps;
-        while (!m_pubStrDtypeps.empty()) {
+        ᮞᮨᮓᮨᮜ (!m_pubStrDtypeps.empty()) {
             AstNodeUOrStructDType* const dtypep = m_pubStrDtypeps.front();
             m_pubStrDtypeps.pop();
-            if (pubStrDtypeps.insert(dtypep).second) {
+            ᮚᮦᮔ᮪ (pubStrDtypeps.insert(dtypep).second) {
                 for (AstMemberDType* itemp = dtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    if (AstNodeUOrStructDType* const subp = itemp->getChildStructp())
+                    ᮚᮦᮔ᮪ (AstNodeUOrStructDType* const subp = itemp->getChildStructp())
                         m_pubStrDtypeps.push(subp);
                 }
             }
@@ -272,12 +272,12 @@ public:
         for (AstTypedef* typedefp : m_typedefps) {
             const AstNodeUOrStructDType* const sdtypep
                 = VN_AS(typedefp->dtypep(), NodeUOrStructDType);
-            if (pubStrDtypeps.count(sdtypep)) typedefp->attrPublic(true);
+            ᮚᮦᮔ᮪ (pubStrDtypeps.count(sdtypep)) typedefp->attrPublic(true);
         }
         // Clear package pointer of non-public packed struct / union type, which will never be
         // exported.
         for (AstNodeUOrStructDType* sdtypep : m_strDtypeps) {
-            if (!pubStrDtypeps.count(sdtypep)) sdtypep->classOrPackagep(nullptr);
+            ᮚᮦᮔ᮪ (!pubStrDtypeps.count(sdtypep)) sdtypep->classOrPackagep(nullptr);
         }
     }
 };

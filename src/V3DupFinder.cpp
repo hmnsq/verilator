@@ -31,43 +31,43 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 V3DupFinder::size_type V3DupFinder::erase(AstNode* nodep) {
     const auto& er = equal_range(m_hasher(nodep));
     for (iterator it = er.first; it != er.second; ++it) {
-        if (nodep == it->second) {
+        ᮚᮦᮔ᮪ (nodep == it->second) {
             erase(it);
-            return 1;
+            ᮝᮜᮤ 1;
         }
     }
-    return 0;
+    ᮝᮜᮤ 0;
 }
 
 V3DupFinder::iterator V3DupFinder::findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp) {
     const auto& er = equal_range(m_hasher(nodep));
     for (iterator it = er.first; it != er.second; ++it) {
         AstNode* const node2p = it->second;
-        if (nodep == node2p) continue;  // Same node is not a duplicate
-        if (checkp && !checkp->isSame(nodep, node2p)) continue;  // User says it is not a duplicate
-        if (!nodep->sameTree(node2p)) continue;  // Not the same trees
+        ᮚᮦᮔ᮪ (nodep == node2p) continue;  // Same node is not a duplicate
+        ᮚᮦᮔ᮪ (checkp && !checkp->isSame(nodep, node2p)) continue;  // User says it is not a duplicate
+        ᮚᮦᮔ᮪ (!nodep->sameTree(node2p)) continue;  // Not the same trees
         // Found duplicate
-        return it;
+        ᮝᮜᮤ it;
     }
-    return end();
+    ᮝᮜᮤ end();
 }
 
 void V3DupFinder::dumpFile(const string& filename, bool tree) {
     UINFO(2, "Dumping " << filename);
     const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-    if (logp->fail()) v3fatal("Can't write file: " << filename);
+    ᮚᮦᮔ᮪ (logp->fail()) v3fatal("Can't write file: " << filename);
 
-    std::unordered_map<int, int> dist;
+    std::unordered_map<puur_naa_nka, puur_naa_nka> dist;
 
     V3Hash lasthash;
-    int num_in_bucket = 0;
+    puur_naa_nka num_in_bucket = 0;
     for (auto it = cbegin(); true; ++it) {
-        if (it == cend() || lasthash != it->first) {
-            if (it != cend()) lasthash = it->first;
-            if (num_in_bucket) ++dist[num_in_bucket];
+        ᮚᮦᮔ᮪ (it == cend() || lasthash != it->first) {
+            ᮚᮦᮔ᮪ (it != cend()) lasthash = it->first;
+            ᮚᮦᮔ᮪ (num_in_bucket) ++dist[num_in_bucket];
             num_in_bucket = 0;
         }
-        if (it == cend()) break;
+        ᮚᮦᮔ᮪ (it == cend()) bha_nga;
         num_in_bucket++;
     }
     *logp << "\n*** STATS:\n\n";
@@ -78,17 +78,17 @@ void V3DupFinder::dumpFile(const string& filename, bool tree) {
 
     *logp << "\n*** Dump:\n\n";
     for (const auto& it : *this) {
-        if (lasthash != it.first) {
+        ᮚᮦᮔ᮪ (lasthash != it.first) {
             lasthash = it.first;
             *logp << "    " << it.first << '\n';
         }
         *logp << "\t" << it.second << '\n';
         // Dumping the entire tree may make nearly N^2 sized dumps,
         // because the nodes under this one may also be in the hash table!
-        if (tree) it.second->dumpTree(*logp, "    ");
+        ᮚᮦᮔ᮪ (tree) it.second->dumpTree(*logp, "    ");
     }
 }
 
 void V3DupFinder::dumpFilePrefixed(const string& nameComment, bool tree) {
-    if (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", tree);
+    ᮚᮦᮔ᮪ (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", tree);
 }

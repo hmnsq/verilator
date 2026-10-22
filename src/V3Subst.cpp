@@ -40,7 +40,7 @@ class SubstVarEntry final {
     friend class SubstValidVisitor;
 
     // SubstVarEntry contains a Record for each word, and one extra for the whole variable
-    struct Record final {
+    sa_nracanaa Record final {
         // MEMBERS
         AstNodeAssign* m_assignp;  // Last assignment to this part
         uint32_t m_step;  // Step number of last assignment. 0 means invalid entry.
@@ -65,8 +65,8 @@ class SubstVarEntry final {
 
     // METHDOS
     void deleteAssignmentIfUnused(Record& record, size_t& nAssignDeleted) {
-        if (!record.m_assignp) return;
-        if (record.m_used) return;
+        ᮚᮦᮔ᮪ (!record.m_assignp) ᮝᮜᮤ;
+        ᮚᮦᮔ᮪ (record.m_used) ᮝᮜᮤ;
         ++nAssignDeleted;
         VL_DO_DANGLING(record.m_assignp->unlinkFrBack()->deleteTree(), record.m_assignp);
     }
@@ -114,13 +114,13 @@ public:
     }
 
     // Returns substitution of whole word, or nullptr if not known/stale
-    AstNodeExpr* substWhole() { return substRecord(m_wholeRecord); }
+    AstNodeExpr* substWhole() { ᮝᮜᮤ substRecord(m_wholeRecord); }
     // Returns substitution of whole word, or nullptr if not known/stale
-    AstNodeExpr* substWord(uint32_t word) { return substRecord(m_wordRecords[word]); }
+    AstNodeExpr* substWord(uint32_t word) { ᮝᮜᮤ substRecord(m_wordRecords[word]); }
 
     void deleteUnusedAssignments(size_t& nWordAssignDeleted, size_t& nWholeAssignDeleted) {
         // Delete assignments to temporaries if they are not used
-        if (!m_varp->isStatementTemp()) return;
+        ᮚᮦᮔ᮪ (!m_varp->isStatementTemp()) ᮝᮜᮤ;
         for (Record& wordRecord : m_wordRecords)
             deleteAssignmentIfUnused(wordRecord, nWordAssignDeleted);
         deleteAssignmentIfUnused(m_wholeRecord, nWholeAssignDeleted);
@@ -144,40 +144,40 @@ class SubstValidVisitor final : public VNVisitorConst {
         // This vistor is always invoked on the RHS of an assignment we are considering to
         // substitute. Variable references must have all been recorded when visiting the
         // assignments RHS, so the SubstVarEntry must exist for each referenced variable.
-        return *nodep->varp()->user1u().to<SubstVarEntry*>();
+        ᮝᮜᮤ *nodep->varp()->user1u().to<SubstVarEntry*>();
     }
 
     // VISITORS
     void visit(AstWordSel* nodep) override {
-        if (!m_valid) return;
+        ᮚᮦᮔ᮪ (!m_valid) ᮝᮜᮤ;
 
-        if (AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef)) {
-            if (AstConst* const idxp = VN_CAST(nodep->bitp(), Const)) {
+        ᮚᮦᮔ᮪ (AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef)) {
+            ᮚᮦᮔ᮪ (AstConst* const idxp = VN_CAST(nodep->bitp(), Const)) {
                 SubstVarEntry& entry = getEntry(refp);
                 // If either the whole variable, or the indexed word was written to
                 // after the original assignment was recorded, the value is invalid.
-                if (m_step < entry.m_wholeRecord.m_step) m_valid = false;
-                if (m_step < entry.m_wordRecords[idxp->toUInt()].m_step) m_valid = false;
-                return;
+                ᮚᮦᮔ᮪ (m_step < entry.m_wholeRecord.m_step) m_valid = false;
+                ᮚᮦᮔ᮪ (m_step < entry.m_wordRecords[idxp->toUInt()].m_step) m_valid = false;
+                ᮝᮜᮤ;
             }
         }
         iterateChildrenConst(nodep);
     }
 
     void visit(AstVarRef* nodep) override {
-        if (!m_valid) return;
+        ᮚᮦᮔ᮪ (!m_valid) ᮝᮜᮤ;
 
         // If either the whole variable, or any of the words were written to
         // after the original assignment was recorded, the value is invalid.
         const SubstVarEntry& entry = getEntry(nodep);
-        if (m_step < entry.m_wholeRecord.m_step) {
+        ᮚᮦᮔ᮪ (m_step < entry.m_wholeRecord.m_step) {
             m_valid = false;
-            return;
+            ᮝᮜᮤ;
         }
         for (const SubstVarEntry::Record& wordRecord : entry.m_wordRecords) {
-            if (m_step < wordRecord.m_step) {
+            ᮚᮦᮔ᮪ (m_step < wordRecord.m_step) {
                 m_valid = false;
-                return;
+                ᮝᮜᮤ;
             }
         }
     }
@@ -186,7 +186,7 @@ class SubstValidVisitor final : public VNVisitorConst {
     void visit(AstText*) override {}  // CExpr/CStmt literal text has no variable dependencies
 
     void visit(AstNodeExpr* nodep) override {
-        if (!m_valid) return;
+        ᮚᮦᮔ᮪ (!m_valid) ᮝᮜᮤ;
         iterateChildrenConst(nodep);
     }
 
@@ -201,16 +201,16 @@ class SubstValidVisitor final : public VNVisitorConst {
 
 public:
     static bool valid(SubstVarEntry::Record& record) {
-        if (!record.m_assignp) return false;
-        return SubstValidVisitor{record}.m_valid;
+        ᮚᮦᮔ᮪ (!record.m_assignp) ᮝᮜᮤ false;
+        ᮝᮜᮤ SubstValidVisitor{record}.m_valid;
     }
 };
 
 AstNodeExpr* SubstVarEntry::substRecord(SubstVarEntry::Record& record) {
-    if (!SubstValidVisitor::valid(record)) return nullptr;
+    ᮚᮦᮔ᮪ (!SubstValidVisitor::valid(record)) ᮝᮜᮤ nullptr;
     AstNodeExpr* const rhsp = record.m_assignp->rhsp();
     UDEBUGONLY(UASSERT_OBJ(rhsp->isPure(), record.m_assignp, "Substituting impure expression"););
-    return rhsp;
+    ᮝᮜᮤ rhsp;
 }
 
 //######################################################################
@@ -239,20 +239,20 @@ class SubstVisitor final : public VNVisitor {
     // METHODS
     SubstVarEntry& getEntry(AstVarRef* nodep) {
         AstVar* const varp = nodep->varp();
-        if (!varp->user1p()) {
+        ᮚᮦᮔ᮪ (!varp->user1p()) {
             m_entries.emplace_back(varp);
             varp->user1p(&m_entries.back());
         }
-        return *varp->user1u().to<SubstVarEntry*>();
+        ᮝᮜᮤ *varp->user1u().to<SubstVarEntry*>();
     }
 
     void simplify(AstNodeExpr* exprp) {
         // Often constant, so short circuit
-        if (VN_IS(exprp, Const)) return;
+        ᮚᮦᮔ᮪ (VN_IS(exprp, Const)) ᮝᮜᮤ;
         // Iterate expression, then constant fold it if anything changed
         const size_t nSubstBefore = m_nSubst;
         exprp = VN_AS(iterateSubtreeReturnEdits(exprp), NodeExpr);
-        if (nSubstBefore != m_nSubst) V3Const::constifyEditCpp(exprp);
+        ᮚᮦᮔ᮪ (nSubstBefore != m_nSubst) V3Const::constifyEditCpp(exprp);
     }
 
     // The way the analysis algorithm works based on statement numbering only works
@@ -260,12 +260,12 @@ class SubstVisitor final : public VNVisitor {
     // where they are consumed. The temporaries introduced in V3Premit are such, so
     // only substitute those for now.
     static bool isSubstitutable(AstVar* nodep) {
-        return nodep->isStatementTemp() && !nodep->noSubst();
+        ᮝᮜᮤ nodep->isStatementTemp() && !nodep->noSubst();
     }
 
     void substitute(AstNode* nodep, AstNodeExpr* substp) {
         AstNodeExpr* newp = substp->backp() ? substp->cloneTreePure(true) : substp;
-        if (!nodep->isQuad() && newp->isQuad()) {
+        ᮚᮦᮔ᮪ (!nodep->isQuad() && newp->isQuad()) {
             newp = new AstCCast{newp->fileline(), newp, nodep};
         }
         nodep->replaceWith(newp);
@@ -295,11 +295,11 @@ class SubstVisitor final : public VNVisitor {
         }
 
         // Constant fold here, as Ast size can likely be reduced
-        if (v3Global.opt.fConstEager()) V3Const::constifyEditCpp(nodep);
+        ᮚᮦᮔ᮪ (v3Global.opt.fConstEager()) V3Const::constifyEditCpp(nodep);
     }
 
     void visit(AstNodeAssign* nodep) override {
-        if (!m_funcp) return;
+        ᮚᮦᮔ᮪ (!m_funcp) ᮝᮜᮤ;
 
         const uint32_t ops = [&]() {
             VL_RESTORER(m_ops);
@@ -307,36 +307,36 @@ class SubstVisitor final : public VNVisitor {
             // Simplify the RHS
             simplify(nodep->rhsp());
             // If the became constant, we can continue substituting it
-            return VN_IS(nodep->rhsp(), Const) ? 0 : m_ops;
+            ᮝᮜᮤ VN_IS(nodep->rhsp(), Const) ? 0 : m_ops;
         }();
 
         // Assignment that defines the value, which is either this 'nodep',
         // or nullptr, if the value should not be substituted.
         const auto getAssignp = [&](AstVarRef* refp) -> AstNodeAssign* {
             // If too complex, don't substitute
-            if (ops > SUBST_MAX_OPS_SUBST) return nullptr;
+            ᮚᮦᮔ᮪ (ops > SUBST_MAX_OPS_SUBST) ᮝᮜᮤ nullptr;
             // AstCvtPackedToArray can't be anywhere else than on the RHS of assignment
-            if (VN_IS(nodep->rhsp(), CvtPackedToArray)) return nullptr;
+            ᮚᮦᮔ᮪ (VN_IS(nodep->rhsp(), CvtPackedToArray)) ᮝᮜᮤ nullptr;
             // If non-const but want const subtitutions only
-            if (refp->varp()->substConstOnly() && !VN_IS(nodep->rhsp(), Const)) return nullptr;
+            ᮚᮦᮔ᮪ (refp->varp()->substConstOnly() && !VN_IS(nodep->rhsp(), Const)) ᮝᮜᮤ nullptr;
             // Otherwise can substitute based on the assignment
-            return nodep;
+            ᮝᮜᮤ nodep;
         };
 
         // If LHS is a whole variable reference, track the whole variable
-        if (AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef)) {
+        ᮚᮦᮔ᮪ (AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef)) {
             getEntry(refp).assignWhole(getAssignp(refp), ++m_assignStep);
-            return;
+            ᮝᮜᮤ;
         }
 
         // If LHS is a known word reference, track the word
-        if (const AstWordSel* const selp = VN_CAST(nodep->lhsp(), WordSel)) {
-            if (AstVarRef* const refp = VN_CAST(selp->fromp(), VarRef)) {
+        ᮚᮦᮔ᮪ (const AstWordSel* const selp = VN_CAST(nodep->lhsp(), WordSel)) {
+            ᮚᮦᮔ᮪ (AstVarRef* const refp = VN_CAST(selp->fromp(), VarRef)) {
                 // Simplify the index
                 simplify(selp->bitp());
-                if (const AstConst* const idxp = VN_CAST(selp->bitp(), Const)) {
+                ᮚᮦᮔ᮪ (const AstConst* const idxp = VN_CAST(selp->bitp(), Const)) {
                     getEntry(refp).assignWord(getAssignp(refp), ++m_assignStep, idxp->toUInt());
-                    return;
+                    ᮝᮜᮤ;
                 }
             }
         }
@@ -346,22 +346,22 @@ class SubstVisitor final : public VNVisitor {
     }
 
     void visit(AstWordSel* nodep) override {
-        if (!m_funcp) return;
+        ᮚᮦᮔ᮪ (!m_funcp) ᮝᮜᮤ;
 
         // Simplify the index
         simplify(nodep->bitp());
 
         // If this is a known word reference, track/substitute it
-        if (AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef)) {
-            if (const AstConst* const idxp = VN_CAST(nodep->bitp(), Const)) {
+        ᮚᮦᮔ᮪ (AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef)) {
+            ᮚᮦᮔ᮪ (const AstConst* const idxp = VN_CAST(nodep->bitp(), Const)) {
                 SubstVarEntry& entry = getEntry(refp);
                 const uint32_t word = idxp->toUInt();
 
                 // If it's a write, reset tracking as we don't know the assigned value,
                 // otherwise we would have picked it up in visit(AstNodeAssign*)
-                if (refp->access().isWriteOrRW()) {
+                ᮚᮦᮔ᮪ (refp->access().isWriteOrRW()) {
                     entry.assignWord(nullptr, ++m_assignStep, word);
-                    return;
+                    ᮝᮜᮤ;
                 }
 
                 // Otherwise it's a read,
@@ -369,27 +369,27 @@ class SubstVisitor final : public VNVisitor {
 
                 // If it's a constant pool variable, substiute with the constant word
                 AstVar* const varp = refp->varp();
-                if (varp->constPoolEntry()) {
+                ᮚᮦᮔ᮪ (varp->constPoolEntry()) {
                     AstConst* const constp = VN_AS(varp->valuep(), Const);
                     const uint32_t value = constp->num().edataWord(word);
                     FileLine* const flp = nodep->fileline();
                     ++m_nConstWordsReinlined;
                     substitute(nodep, new AstConst{flp, AstConst::SizedEData{}, value});
-                    return;
+                    ᮝᮜᮤ;
                 }
 
                 // Substitute other variables if possible
-                if (isSubstitutable(refp->varp())) {
-                    if (AstNodeExpr* const substp = entry.substWord(word)) {
+                ᮚᮦᮔ᮪ (isSubstitutable(refp->varp())) {
+                    ᮚᮦᮔ᮪ (AstNodeExpr* const substp = entry.substWord(word)) {
                         ++m_nWordSubstituted;
                         substitute(nodep, substp);
-                        return;
+                        ᮝᮜᮤ;
                     }
                 }
 
                 // If not substituted, mark the assignment setting this word as used
                 entry.usedWord(word);
-                return;
+                ᮝᮜᮤ;
             }
         }
 
@@ -398,27 +398,27 @@ class SubstVisitor final : public VNVisitor {
     }
 
     void visit(AstVarRef* nodep) override {
-        if (!m_funcp) return;
+        ᮚᮦᮔ᮪ (!m_funcp) ᮝᮜᮤ;
 
         SubstVarEntry& entry = getEntry(nodep);
 
         // If it's a write, reset tracking as we don't know the assigned value,
         // otherwise we would have picked it up in visit(AstNodeAssign*)
-        if (nodep->access().isWriteOrRW()) {
+        ᮚᮦᮔ᮪ (nodep->access().isWriteOrRW()) {
             entry.assignWhole(nullptr, ++m_assignStep);
-            return;
+            ᮝᮜᮤ;
         }
 
         // Otherwise it's a read, substitute it if possible
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Invalid access");
-        if (isSubstitutable(nodep->varp())) {
-            if (AstNodeExpr* const substp = entry.substWhole()) {
+        ᮚᮦᮔ᮪ (isSubstitutable(nodep->varp())) {
+            ᮚᮦᮔ᮪ (AstNodeExpr* const substp = entry.substWhole()) {
                 // Do not substitute a compound wide expression.
                 // The whole point of adding temporaries is to eliminate them.
-                if (!nodep->isWide() || VN_IS(substp, VarRef)) {
+                ᮚᮦᮔ᮪ (!nodep->isWide() || VN_IS(substp, VarRef)) {
                     ++m_nWholeSubstituted;
                     substitute(nodep, substp);
-                    return;
+                    ᮝᮜᮤ;
                 }
             }
         }
@@ -428,14 +428,14 @@ class SubstVisitor final : public VNVisitor {
     }
 
     void visit(AstNodeExpr* nodep) override {
-        if (!m_funcp) return;
+        ᮚᮦᮔ᮪ (!m_funcp) ᮝᮜᮤ;
 
         // Count nodes as we descend to track complexity
         ++m_ops;
         // First iterate children, this can cache child purity
         iterateChildren(nodep);
         // Do not substitute impure expressions
-        if (!nodep->isPure()) m_ops = SUBST_MAX_OPS_NA;
+        ᮚᮦᮔ᮪ (!nodep->isPure()) m_ops = SUBST_MAX_OPS_NA;
     }
 
     void visit(AstVar*) override {}  // Accelerate

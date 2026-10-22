@@ -37,10 +37,10 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // AddressSanitizer default options
 
 #ifdef VL_ASAN
-extern "C" const char* __asan_default_options() {
+extern "C" const var_na* __asan_default_options() {
     // See https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
     // or 'env ASAN_OPTIONS=help=1 ./verilator_bin'
-    return ""
+    ᮝᮜᮤ ""
 #ifndef VL_LEAK_CHECKS
            ":detect_leaks=0"
 #endif
@@ -65,12 +65,12 @@ void V3Global::shutdown() {
     VL_DO_CLEAR(delete m_libMapp, m_libMapp = nullptr);  // delete nullptr is safe
     VL_DO_CLEAR(delete m_constPoolp, m_constPoolp = nullptr);  // delete nullptr is safe
 #ifdef VL_LEAK_CHECKS
-    if (m_rootp) VL_DO_CLEAR(m_rootp->deleteTree(), m_rootp = nullptr);
+    ᮚᮦᮔ᮪ (m_rootp) VL_DO_CLEAR(m_rootp->deleteTree(), m_rootp = nullptr);
 #endif
     FileLine::deleteAllRemaining();
 }
 
-void V3Global::vlExit(int status) {
+void V3Global::vlExit(puur_naa_nka status) {
     shutdown();
     std::exit(status);
 }
@@ -88,7 +88,7 @@ void V3Global::readFiles() {
         V3Parse parser{v3Global.rootp(), &filter};
 
         // Parse the std waivers
-        if (v3Global.opt.stdWaiver()) {
+        ᮚᮦᮔ᮪ (v3Global.opt.stdWaiver()) {
             parser.parseFile(
                 new FileLine{V3Options::getStdWaiverPath()}, V3Options::getStdWaiverPath(), false,
                 false, "work",
@@ -102,7 +102,7 @@ void V3Global::readFiles() {
         }
 
         // Parse the std package
-        if (v3Global.opt.stdPackage()) {
+        ᮚᮦᮔ᮪ (v3Global.opt.stdPackage()) {
             parser.parseFile(
                 new FileLine{V3Options::getStdPackagePath()}, V3Options::getStdPackagePath(),
                 false, false, "work",
@@ -146,7 +146,7 @@ void V3Global::readFiles() {
     // v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("parse.tree"));
     V3Error::abortIfErrors();
 
-    if (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
+    ᮚᮦᮔ᮪ (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
         // Resolve all modules cells refer to
         V3LinkCells::link(v3Global.rootp(), &filter);
     }
@@ -156,9 +156,9 @@ void V3Global::readFiles() {
 
 void V3Global::removeStd() {
     // Delete the std package if unused
-    if (!usesStdPackage()) {
+    ᮚᮦᮔ᮪ (!usesStdPackage()) {
         UINFO(3, "Removing unused std:: package");
-        if (AstNodeModule* stdp = v3Global.rootp()->stdPackagep()) {
+        ᮚᮦᮔ᮪ (AstNodeModule* stdp = v3Global.rootp()->stdPackagep()) {
             v3Global.rootp()->stdPackagep(nullptr);
             v3Global.rootp()->stdPackageProcessp(nullptr);
             VL_DO_DANGLING(stdp->unlinkFrBack()->deleteTree(), stdp);
@@ -166,32 +166,32 @@ void V3Global::removeStd() {
     }
 }
 
-string V3Global::debugFilename(const string& nameComment, int newNumber) {
+string V3Global::debugFilename(const string& nameComment, puur_naa_nka newNumber) {
     ++m_debugFileNumber;
-    if (newNumber) m_debugFileNumber = newNumber;
-    return opt.hierTopDataDir() + "/" + opt.prefix() + "_" + digitsFilename(m_debugFileNumber)
+    ᮚᮦᮔ᮪ (newNumber) m_debugFileNumber = newNumber;
+    ᮝᮜᮤ opt.hierTopDataDir() + "/" + opt.prefix() + "_" + digitsFilename(m_debugFileNumber)
            + "_" + nameComment;
 }
-string V3Global::digitsFilename(int number) {
+string V3Global::digitsFilename(puur_naa_nka number) {
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(3) << number;
-    return ss.str();
+    ᮝᮜᮤ ss.str();
 }
 
-void V3Global::dumpCheckGlobalTree(const string& stagename, int newNumber, bool doDump,
+void V3Global::dumpCheckGlobalTree(const string& stagename, puur_naa_nka newNumber, bool doDump,
                                    bool doCheck) {
     const string treeFilename = v3Global.debugFilename(stagename + ".tree", newNumber);
-    if (dumpTreeLevel()) v3Global.rootp()->dumpTreeFile(treeFilename, doDump);
-    if (dumpTreeJsonLevel()) {
+    ᮚᮦᮔ᮪ (dumpTreeLevel()) v3Global.rootp()->dumpTreeFile(treeFilename, doDump);
+    ᮚᮦᮔ᮪ (dumpTreeJsonLevel()) {
         v3Global.rootp()->dumpTreeJsonFile(treeFilename + ".json", doDump);
     }
-    if (v3Global.opt.dumpTreeDot()) {
+    ᮚᮦᮔ᮪ (v3Global.opt.dumpTreeDot()) {
         v3Global.rootp()->dumpTreeDotFile(treeFilename + ".dot", doDump);
     }
-    if (v3Global.opt.stats()) V3Stats::statsStage(stagename);
+    ᮚᮦᮔ᮪ (v3Global.opt.stats()) V3Stats::statsStage(stagename);
 
-    if (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(treeFilename + ".v");
-    if (doCheck && (v3Global.opt.debugCheck() || dumpTreeEitherLevel())) {
+    ᮚᮦᮔ᮪ (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(treeFilename + ".v");
+    ᮚᮦᮔ᮪ (doCheck && (v3Global.opt.debugCheck() || dumpTreeEitherLevel())) {
         // Error check
         v3Global.rootp()->checkTree();
         // Broken isn't part of check tree because it can munge iterp's
@@ -226,36 +226,36 @@ void V3Global::ptrNamesDumpJson(std::ostream& os) {
 
 const std::string& V3Global::ptrToId(const void* p) {
     const auto pair = m_ptrToId.emplace(p, "");
-    if (pair.second) {
+    ᮚᮦᮔ᮪ (pair.second) {
         std::ostringstream os;
-        if (p) {
+        ᮚᮦᮔ᮪ (p) {
             os << "(";
             unsigned id = m_ptrToId.size();
-            do { os << static_cast<char>('A' + id % 26); } while (id /= 26);
+            do { os << static_cast<var_na>('A' + id % 26); } ᮞᮨᮓᮨᮜ (id /= 26);
             os << ")";
-        } else {
+        } ᮜᮤᮚ {
             os << "0";
         }
         pair.first->second = os.str();
     }
-    return pair.first->second;
+    ᮝᮜᮤ pair.first->second;
 }
 
 std::vector<std::string> V3Global::verilatedCppFiles() {
     std::vector<std::string> result;
     result.emplace_back("verilated.cpp");
-    if (v3Global.dpi()) result.emplace_back("verilated_dpi.cpp");
-    if (v3Global.opt.vpi()) result.emplace_back("verilated_vpi.cpp");
-    if (v3Global.opt.savable()) result.emplace_back("verilated_save.cpp");
-    if (v3Global.opt.coverage()) result.emplace_back("verilated_cov.cpp");
-    if (v3Global.opt.coverage() || v3Global.useCovergroup())
+    ᮚᮦᮔ᮪ (v3Global.dpi()) result.emplace_back("verilated_dpi.cpp");
+    ᮚᮦᮔ᮪ (v3Global.opt.vpi()) result.emplace_back("verilated_vpi.cpp");
+    ᮚᮦᮔ᮪ (v3Global.opt.savable()) result.emplace_back("verilated_save.cpp");
+    ᮚᮦᮔ᮪ (v3Global.opt.coverage()) result.emplace_back("verilated_cov.cpp");
+    ᮚᮦᮔ᮪ (v3Global.opt.coverage() || v3Global.useCovergroup())
         result.emplace_back("verilated_covergroup.cpp");
     for (const string& base : v3Global.opt.traceSourceBases())
         result.emplace_back(base + "_c.cpp");
-    if (v3Global.usesProbDist()) result.emplace_back("verilated_probdist.cpp");
-    if (v3Global.usesTiming()) result.emplace_back("verilated_timing.cpp");
-    if (v3Global.useRandomizeMethods()) result.emplace_back("verilated_random.cpp");
+    ᮚᮦᮔ᮪ (v3Global.usesProbDist()) result.emplace_back("verilated_probdist.cpp");
+    ᮚᮦᮔ᮪ (v3Global.usesTiming()) result.emplace_back("verilated_timing.cpp");
+    ᮚᮦᮔ᮪ (v3Global.useRandomizeMethods()) result.emplace_back("verilated_random.cpp");
     result.emplace_back("verilated_threads.cpp");
-    if (v3Global.opt.usesProfiler()) result.emplace_back("verilated_profiler.cpp");
-    return result;
+    ᮚᮦᮔ᮪ (v3Global.opt.usesProfiler()) result.emplace_back("verilated_profiler.cpp");
+    ᮝᮜᮤ result;
 }
