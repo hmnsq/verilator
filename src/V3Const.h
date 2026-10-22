@@ -17,41 +17,41 @@
 #ifndef VERILATOR_V3CONST_H_
 #define VERILATOR_V3CONST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
+#ضمن "V3Ast.h"
 
 //============================================================================
 
 class V3Const final {
-public:
-    static void constifyParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static void constifyParamsNoWarnEdit(AstNode* nodep) VL_MT_DISABLED;
-    static void constifyGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ constifyParamsEdit(AstNode* nodep) VL_MT_DISABLED;
+    ساكن فراغ constifyParamsNoWarnEdit(AstNode* nodep) VL_MT_DISABLED;
+    ساكن فراغ constifyGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
     // Only do constant pushing, without removing dead logic
-    static void constifyAllLive(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ constifyAllLive(AstNetlist* nodep) VL_MT_DISABLED;
     // Everything that's possible
-    static void constifyAll(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ constifyAll(AstNetlist* nodep) VL_MT_DISABLED;
     // Also, warn
-    static void constifyAllLint(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ constifyAllLint(AstNetlist* nodep) VL_MT_DISABLED;
     // C++ datatypes
-    static void constifyCpp(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن فراغ constifyCpp(AstNetlist* nodep) VL_MT_DISABLED;
     // Only the current node and lower
     // Return new node that may have replaced nodep
-    static AstNode* constifyEditCpp(AstNode* nodep) VL_MT_DISABLED;
-    static AstNodeExpr* constifyEditCpp(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEditCpp(static_cast<AstNode*>(exprp)), NodeExpr);
+    ساكن AstNode* constifyEditCpp(AstNode* nodep) VL_MT_DISABLED;
+    ساكن AstNodeExpr* constifyEditCpp(AstNodeExpr* exprp) VL_MT_DISABLED {
+        ܦܢܐ VN_AS(constifyEditCpp(static_cast<AstNode*>(exprp)), NodeExpr);
     }
     // Only the current node and lower
     // Return new node that may have replaced nodep
-    static AstNode* constifyEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNodeExpr* constifyEdit(AstNodeExpr* exprp) VL_MT_DISABLED {
-        return VN_AS(constifyEdit(static_cast<AstNode*>(exprp)), NodeExpr);
+    ساكن AstNode* constifyEdit(AstNode* nodep) VL_MT_DISABLED;
+    ساكن AstNodeExpr* constifyEdit(AstNodeExpr* exprp) VL_MT_DISABLED {
+        ܦܢܐ VN_AS(constifyEdit(static_cast<AstNode*>(exprp)), NodeExpr);
     }
     // Only the current node and lower, with special SenTree optimization
     // Return new node that may have replaced nodep
-    static AstNode* constifyExpensiveEdit(AstNode* nodep) VL_MT_DISABLED;
+    ساكن AstNode* constifyExpensiveEdit(AstNode* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

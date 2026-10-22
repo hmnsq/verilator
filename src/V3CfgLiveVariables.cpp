@@ -19,188 +19,188 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Cfg.h"
 
-#include <memory>
+#ضمن <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgLiveVariables final : VNVisitorConst {
+صنف CfgLiveVariables final : VNVisitorConst {
     // State associted with each basic block
-    struct BlockState final {
+    بنية BlockState final {
         // Variables used in block, before a complete assignment in the same block
         std::unordered_set<AstVarScope*> m_gen;
         // Variables that are assigned a complete value in the basic block
         std::unordered_set<AstVarScope*> m_kill;
         std::unordered_set<AstVarScope*> m_liveIn;  // Variables live on entry to the block
         std::unordered_set<AstVarScope*> m_liveOut;  // Variables live on exit from the block
-        bool m_isOnWorkList = false;  // Block is on work list
-        bool m_wasProcessed = false;  // Already processed at least once
+        منطقي m_isOnWorkList = ܕܓܠܐ;  // Block is on work list
+        منطقي m_wasProcessed = ܕܓܠܐ;  // Already processed at least once
     };
 
     // STATE
-    const CfgGraph& m_cfg;  // The CFG beign analysed
+    ثابت CfgGraph& m_cfg;  // The CFG beign analysed
     // State for each block
     CfgBlockMap<BlockState> m_blockState{m_cfg.makeBlockMap<BlockState>()};
     BlockState* m_currp = nullptr;  // State of current block being analysed
-    bool m_abort = false;  // Abort analysis - unhandled construct
+    منطقي m_abort = ܕܓܠܐ;  // Abort analysis - unhandled construct
 
     // METHODS
 
-    static bool isPacked(const AstVarScope* vscp) {
-        AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
-            return typep->keyword().isIntNumeric();
+    ساكن منطقي isPacked(ثابت AstVarScope* vscp) {
+        AstNodeDType* ثابت dtypep = vscp->dtypep()->skipRefp();
+        ܐܢ (ثابت AstBasicDType* ثابت typep = VN_CAST(dtypep, BasicDType)) {
+            ܦܢܐ typep->keyword().isIntNumeric();
         }
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
-            return typep->packed();
+        ܐܢ (VN_IS(dtypep, PackArrayDType)) ܦܢܐ ܫܪܪܐ;
+        ܐܢ (ثابت AstNodeUOrStructDType* ثابت typep = VN_CAST(dtypep, NodeUOrStructDType)) {
+            ܦܢܐ typep->packed();
         }
-        return false;
+        ܦܢܐ ܕܓܠܐ;
     }
 
-    void updateGen(AstNode* nodep) {
+    فراغ updateGen(AstNode* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ثابت AstVarRef* refp) {
             // Only care about reads
-            if (refp->access().isWriteOnly()) return false;
+            ܐܢ (refp->access().isWriteOnly()) ܦܢܐ ܕܓܠܐ;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ثابت vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            ܐܢ (m_currp->m_kill.count(vscp)) ܦܢܐ ܕܓܠܐ;
             m_currp->m_gen.emplace(vscp);
-            return false;
+            ܦܢܐ ܕܓܠܐ;
         });
     }
 
-    void updateKill(AstNode* nodep) {
+    فراغ updateKill(AstNode* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ثابت AstVarRef* refp) {
             // Only care about writes
-            if (refp->access().isReadOnly()) return false;
+            ܐܢ (refp->access().isReadOnly()) ܦܢܐ ܕܓܠܐ;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ثابت vscp = refp->varScopep();
             // Safety case: bail on variables with unusual semantics
-            if (vscp->varp()->ignoreSchedWrite()) return true;
+            ܐܢ (vscp->varp()->ignoreSchedWrite()) ܦܢܐ ܫܪܪܐ;
             // If not a packed variable, assume it's not a whole update, don't add to kill set
-            if (!isPacked(vscp)) return false;
+            ܐܢ (!isPacked(vscp)) ܦܢܐ ܕܓܠܐ;
             // If packed, and updated partially, don't add to kill set
-            if (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) return false;
+            ܐܢ (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) ܦܢܐ ܕܓܠܐ;
             // Whole variable is writen, add to kill set
             m_currp->m_kill.emplace(vscp);
-            return false;
+            ܦܢܐ ܕܓܠܐ;
         });
     }
 
-    void single(AstNode* nodep) {
+    فراغ single(AstNode* nodep) {
         // Assume all reads hapen before any writes
-        if (m_abort) return;
+        ܐܢ (m_abort) ܦܢܐ;
         updateGen(nodep);
-        if (m_abort) return;
+        ܐܢ (m_abort) ܦܢܐ;
         updateKill(nodep);
     }
 
     // Apply transfer function of block, return true if changed
-    bool transfer(const CfgBlock& bb) {
+    منطقي transfer(ثابت CfgBlock& bb) {
         BlockState& state = m_blockState[bb];
 
         // liveIn = gen union (liveOut - kill)
         std::unordered_set<AstVarScope*> liveIn = state.m_gen;
-        for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
+        لكل (AstVarScope* ثابت varp : state.m_liveOut) {
+            ܐܢ (state.m_kill.count(varp)) استمر;
             liveIn.insert(varp);
         }
-        if (liveIn == state.m_liveIn) return false;
+        ܐܢ (liveIn == state.m_liveIn) ܦܢܐ ܕܓܠܐ;
         std::swap(liveIn, state.m_liveIn);
-        return true;
+        ܦܢܐ ܫܪܪܐ;
     }
 
     // VISIT
-    void visit(AstNode* nodep) override {  //
+    فراغ visit(AstNode* nodep) override {  //
         UASSERT_OBJ(!m_abort, nodep, "Repeat traversal after abort");
-        m_abort = true;
+        m_abort = ܫܪܪܐ;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
     }
 
-    void visit(AstAssign* nodep) override { single(nodep); }
-    void visit(AstAssignW* nodep) override { single(nodep); }
-    void visit(AstDisplay* nodep) override { single(nodep); }
-    void visit(AstFinish* nodep) override { single(nodep); }
-    void visit(AstFinishFork* nodep) override { single(nodep); }
-    void visit(AstStmtExpr* nodep) override { single(nodep); }
-    void visit(AstStop* nodep) override { single(nodep); }
+    فراغ visit(AstAssign* nodep) override { single(nodep); }
+    فراغ visit(AstAssignW* nodep) override { single(nodep); }
+    فراغ visit(AstDisplay* nodep) override { single(nodep); }
+    فراغ visit(AstFinish* nodep) override { single(nodep); }
+    فراغ visit(AstFinishFork* nodep) override { single(nodep); }
+    فراغ visit(AstStmtExpr* nodep) override { single(nodep); }
+    فراغ visit(AstStop* nodep) override { single(nodep); }
 
     // Only the condition check belongs to the terminated basic block
-    void visit(AstIf* nodep) override { single(nodep->condp()); }
-    void visit(AstLoopTest* nodep) override { single(nodep->condp()); }
+    فراغ visit(AstIf* nodep) override { single(nodep->condp()); }
+    فراغ visit(AstLoopTest* nodep) override { single(nodep->condp()); }
 
     // CONSTRUCTOR
-    explicit CfgLiveVariables(const CfgGraph& cfg)
+    explicit CfgLiveVariables(ثابت CfgGraph& cfg)
         : m_cfg{cfg} {
         // For each basic block, compute the gen and kill set via visit
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
-            const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-            if (m_abort) return;
+        لكل (ثابت V3GraphVertex& vtx : cfg.vertices()) {
+            ثابت CfgBlock& bb = static_cast<ثابت CfgBlock&>(vtx);
+            ܐܢ (m_abort) ܦܢܐ;
             VL_RESTORER(m_currp);
             m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            لكل (AstNode* ثابت stmtp : bb.stmtps()) iterateConst(stmtp);
         }
-        if (m_abort) return;
+        ܐܢ (m_abort) ܦܢܐ;
 
         // Perform the flow analysis
-        std::deque<const CfgBlock*> workList;
-        const auto enqueue = [&](const CfgBlock& bb) {
+        std::deque<ثابت CfgBlock*> workList;
+        ثابت auto enqueue = [&](ثابت CfgBlock& bb) {
             BlockState& state = m_blockState[bb];
-            if (state.m_isOnWorkList) return;
-            state.m_isOnWorkList = true;
+            ܐܢ (state.m_isOnWorkList) ܦܢܐ;
+            state.m_isOnWorkList = ܫܪܪܐ;
             workList.emplace_back(&bb);
         };
 
         enqueue(cfg.exit());
 
-        while (!workList.empty()) {
-            const CfgBlock* const currp = workList.front();
+        ܟܡܐ (!workList.empty()) {
+            ثابت CfgBlock* ثابت currp = workList.front();
             workList.pop_front();
             BlockState& state = m_blockState[*currp];
-            state.m_isOnWorkList = false;
+            state.m_isOnWorkList = ܕܓܠܐ;
 
             // Compute meet (liveOut = union liveIn of successors)
-            currp->forEachSuccessor([&](const CfgBlock& bb) {
+            currp->forEachSuccessor([&](ثابت CfgBlock& bb) {
                 auto& liveIn = m_blockState[bb].m_liveIn;
                 state.m_liveOut.insert(liveIn.begin(), liveIn.end());
             });
 
             // Apply transfer function of block
-            const bool changed = transfer(*currp);
+            ثابت منطقي changed = transfer(*currp);
             // Enqueue predecessors
-            if (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
+            ܐܢ (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
             // Mark as done with first visit
-            state.m_wasProcessed = true;
+            state.m_wasProcessed = ܫܪܪܐ;
         }
     }
 
-public:
-    static std::unique_ptr<std::vector<AstVarScope*>> apply(const CfgGraph& cfg) {
+عام:
+    ساكن std::unique_ptr<std::vector<AstVarScope*>> apply(ثابت CfgGraph& cfg) {
         CfgLiveVariables analysis{cfg};
         // If failed, return nullptr
-        if (analysis.m_abort) return nullptr;
+        ܐܢ (analysis.m_abort) ܦܢܐ nullptr;
         // Gather variables live in to the entry block
-        const std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
-        std::vector<AstVarScope*>* const resultp
-            = new std::vector<AstVarScope*>{lin.begin(), lin.end()};
+        ثابت std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
+        std::vector<AstVarScope*>* ثابت resultp
+            = جديد std::vector<AstVarScope*>{lin.begin(), lin.end()};
         // Sort for stability
         std::stable_sort(resultp->begin(), resultp->end(),
                          [](AstVarScope* ap, AstVarScope* bp) {  //
-                             return ap->name() < bp->name();
+                             ܦܢܐ ap->name() < bp->name();
                          });
-        return std::unique_ptr<std::vector<AstVarScope*>>{resultp};
+        ܦܢܐ std::unique_ptr<std::vector<AstVarScope*>>{resultp};
     }
 };
 
-std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(const CfgGraph& cfg) {
-    return CfgLiveVariables::apply(cfg);
+std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(ثابت CfgGraph& cfg) {
+    ܦܢܐ CfgLiveVariables::apply(cfg);
 }

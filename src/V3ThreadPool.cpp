@@ -14,35 +14,35 @@
 //
 //*************************************************************************
 
-#include "V3ThreadPool.h"
+#ضمن "V3ThreadPool.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
+#ضمن "V3Error.h"
+#ضمن "V3Global.h"
+#ضمن "V3Mutex.h"
 
-V3ThreadPool::V3ThreadPool(int numThreads) {
+V3ThreadPool::V3ThreadPool(صحيح numThreads) {
     numThreads = std::max(numThreads, 1);
-    if (numThreads == 1) return;
-    for (int i = 0; i < numThreads; ++i) {
-        m_workers.emplace_back(&V3ThreadPool::startWorker, this);
+    ܐܢ (numThreads == 1) ܦܢܐ;
+    لكل (صحيح i = 0; i < numThreads; ++i) {
+        m_workers.emplace_back(&V3ThreadPool::startWorker, هذا);
     }
 }
 
 V3ThreadPool::~V3ThreadPool() {
     {
-        const V3LockGuard lock{m_mutex};
-        m_shutdown = true;
+        ثابت V3LockGuard lock{m_mutex};
+        m_shutdown = ܫܪܪܐ;
     }
     m_cv.notify_all();
     wait();
 }
 
-void V3ThreadPool::enqueue(std::function<void()>&& f) {
-    if (m_workers.empty()) {
+فراغ V3ThreadPool::enqueue(std::function<فراغ()>&& f) {
+    ܐܢ (m_workers.empty()) {
         f();
-    } else {
+    } ܐܚܪܢܐ {
         {
-            const V3LockGuard lock{m_mutex};
+            ثابت V3LockGuard lock{m_mutex};
             m_queue.push(std::move(f));
         }
         m_pendingJobs.fetch_add(1, std::memory_order_release);
@@ -50,20 +50,20 @@ void V3ThreadPool::enqueue(std::function<void()>&& f) {
     }
 }
 
-void V3ThreadPool::wait() {
-    while (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
+فراغ V3ThreadPool::wait() {
+    ܟܡܐ (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
         std::this_thread::yield();
     }
-    if (m_shutdown) {
-        for (auto& worker : m_workers) worker.join();
+    ܐܢ (m_shutdown) {
+        لكل (auto& worker : m_workers) worker.join();
     }
 }
 
-void V3ThreadPool::startWorker(V3ThreadPool* selfThreadp) { selfThreadp->workerJobLoop(); }
+فراغ V3ThreadPool::startWorker(V3ThreadPool* selfThreadp) { selfThreadp->workerJobLoop(); }
 
-void V3ThreadPool::workerJobLoop() {
-    while (true) {
-        std::function<void()> job;
+فراغ V3ThreadPool::workerJobLoop() {
+    ܟܡܐ (ܫܪܪܐ) {
+        std::function<فراغ()> job;
         {
             // Locking before `condition_variable::wait` is required to ensure that the
             // `m_cv` condition will be executed under a lock. Taking a lock
@@ -72,12 +72,12 @@ void V3ThreadPool::workerJobLoop() {
             // before) but, according to C++ standard, the `condition_variable::wait` first checks
             // the condition and then waits for the notification, thus even when notification is
             // missed, the condition still will be checked.
-            const V3LockGuard lock{m_mutex};
+            ثابت V3LockGuard lock{m_mutex};
             m_cv.wait(m_mutex,
-                      [&]() VL_REQUIRES(m_mutex) { return !m_queue.empty() || m_shutdown; });
-            if (m_shutdown) return;  // Terminate if requested
+                      [&]() VL_REQUIRES(m_mutex) { ܦܢܐ !m_queue.empty() || m_shutdown; });
+            ܐܢ (m_shutdown) ܦܢܐ;  // Terminate if requested
             UASSERT(!m_queue.empty(), "Job should be available");
-            if (m_queue.empty()) continue;
+            ܐܢ (m_queue.empty()) استمر;
             job = std::move(m_queue.front());
             m_queue.pop();
         }
@@ -86,35 +86,35 @@ void V3ThreadPool::workerJobLoop() {
     }
 }
 
-void V3ThreadPool::selfTestMtDisabled() {
+فراغ V3ThreadPool::selfTestMtDisabled() {
     // empty
 }
 
-void V3ThreadPool::selfTest() {
+فراغ V3ThreadPool::selfTest() {
     V3Mutex commonMutex;
-    int commonValue{0};
+    صحيح commonValue{0};
 
-    auto firstJob = [&](int sleep) -> void {
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
-        const V3LockGuard lock{commonMutex};
+    auto firstJob = [&](صحيح نوم) -> فراغ {
+        std::this_thread::sleep_for(std::chrono::milliseconds{نوم});
+        ثابت V3LockGuard lock{commonMutex};
         commonValue = 10;
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep + 10});
+        std::this_thread::sleep_for(std::chrono::milliseconds{نوم + 10});
         UASSERT(commonValue == 10, "unexpected commonValue = " << commonValue);
     };
-    auto secondJob = [&](int sleep) -> void {
+    auto secondJob = [&](صحيح نوم) -> فراغ {
         commonMutex.lock();
         commonMutex.unlock();
-        const V3LockGuard lock{commonMutex};
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
+        ثابت V3LockGuard lock{commonMutex};
+        std::this_thread::sleep_for(std::chrono::milliseconds{نوم});
         commonValue = 1000;
     };
-    auto thirdJob = [&](int sleep) -> void {
+    auto thirdJob = [&](صحيح نوم) -> فراغ {
         {
-            const V3LockGuard lock{commonMutex};
-            std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
+            ثابت V3LockGuard lock{commonMutex};
+            std::this_thread::sleep_for(std::chrono::milliseconds{نوم});
         }
-        firstJob(sleep);
-        const V3LockGuard lock{commonMutex};
+        firstJob(نوم);
+        ثابت V3LockGuard lock{commonMutex};
         commonValue = 100;
     };
     {
@@ -146,8 +146,8 @@ void V3ThreadPool::selfTest() {
     UASSERT(commonValue == 10, "unexpected common value = " << commonValue);
 
     {
-        int result = 0;
-        auto forthJob = [&]() -> void { result = 1234; };
+        صحيح result = 0;
+        auto forthJob = [&]() -> فراغ { result = 1234; };
 
         V3ThreadScope scope;
         scope.enqueue(forthJob);
@@ -163,6 +163,6 @@ V3ThreadScope::V3ThreadScope() {
     wait();
 }
 
-void V3ThreadScope::enqueue(std::function<void()>&& f) { m_pool->enqueue(std::move(f)); }
+فراغ V3ThreadScope::enqueue(std::function<فراغ()>&& f) { m_pool->enqueue(std::move(f)); }
 
-void V3ThreadScope::wait() { m_pool->wait(); }
+فراغ V3ThreadScope::wait() { m_pool->wait(); }

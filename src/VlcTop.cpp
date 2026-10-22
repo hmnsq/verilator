@@ -16,25 +16,25 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "VlcTop.h"
+#ضمن "VlcTop.h"
 
-#include "V3Error.h"
-#include "V3Os.h"
+#ضمن "V3Error.h"
+#ضمن "V3Os.h"
 
-#include "VlcOptions.h"
+#ضمن "VlcOptions.h"
 
-#include <algorithm>
-#include <fstream>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <vector>
+#ضمن <algorithm>
+#ضمن <fstream>
+#ضمن <iomanip>
+#ضمن <map>
+#ضمن <set>
+#ضمن <sstream>
+#ضمن <string>
+#ضمن <vector>
 
 //######################################################################
 
-namespace {
+نطاق {
 
 // Report helpers only.  They keep the flat summary and hierarchy report using
 // the same hit/total accounting and output formatting.  These helpers read the
@@ -43,29 +43,29 @@ namespace {
 
 // Coverage of a report row: its covered and total points, and for covergroups, their
 // coverage, which weights coverpoints and crosses rather than counting bins
-class Tally final {
+صنف Tally final {
     // MEMBERS
     uint64_t m_hit = 0;  // Covered points
     uint64_t m_total = 0;  // Points
-    bool m_scored = false;  // Coverage is m_score, not the ratio of the points
-    double m_score = 0.0;  // Percent coverage, if m_scored
+    منطقي m_scored = ܕܓܠܐ;  // Coverage is m_score, not the ratio of the points
+    مزدوج m_score = 0.0;  // Percent coverage, if m_scored
 
-public:
+عام:
     // ACCESSORS
-    uint64_t hit() const { return m_hit; }
-    uint64_t total() const { return m_total; }
-    bool scored() const { return m_scored; }
-    double score() const { return m_score; }
-    void score(double value) {
-        m_scored = true;
+    uint64_t hit() ثابت { ܦܢܐ m_hit; }
+    uint64_t total() ثابت { ܦܢܐ m_total; }
+    منطقي scored() ثابت { ܦܢܐ m_scored; }
+    مزدوج score() ثابت { ܦܢܐ m_score; }
+    فراغ score(مزدوج value) {
+        m_scored = ܫܪܪܐ;
         m_score = value;
     }
     // METHODS
-    void addPoint(bool covered) {
-        if (covered) ++m_hit;
+    فراغ addPoint(منطقي covered) {
+        ܐܢ (covered) ++m_hit;
         ++m_total;
     }
-    void addPoints(const Tally& other) {
+    فراغ addPoints(ثابت Tally& other) {
         m_hit += other.m_hit;
         m_total += other.m_total;
     }
@@ -74,35 +74,35 @@ public:
 // Map coverage type to its tally.
 using TypeTally = std::map<std::string, Tally>;
 
-static constexpr const char* const s_orderedTypes[]
+ساكن constexpr ثابت حرف* ثابت s_orderedTypes[]
     = {"line", "toggle", "branch", "expr", "fsm_state", "fsm_arc"};
-static constexpr const char* const s_covergroupType = "covergroup";
-static constexpr size_t s_summaryIndent = 2;
-static constexpr size_t s_reportRowIndent = 4;
+ساكن constexpr ثابت حرف* ثابت s_covergroupType = "covergroup";
+ساكن constexpr size_t s_summaryIndent = 2;
+ساكن constexpr size_t s_reportRowIndent = 4;
 
-string displayType(const VlcPoint& point) {
-    const string type = point.type();
-    return type.empty() ? "point" : type;
+string displayType(ثابت VlcPoint& point) {
+    ثابت string type = point.type();
+    ܦܢܐ type.empty() ? "point" : type;
 }
 
-bool isCollapsedHier(const string& hier) {
-    return hier.find('*') != string::npos || hier.find('?') != string::npos;
+منطقي isCollapsedHier(ثابت string& hier) {
+    ܦܢܐ hier.find('*') != string::npos || hier.find('?') != string::npos;
 }
 
-bool isOrderedType(const string& type) {
-    for (const char* const typep : s_orderedTypes) {
-        if (type == typep) return true;
+منطقي isOrderedType(ثابت string& type) {
+    لكل (ثابت حرف* ثابت typep : s_orderedTypes) {
+        ܐܢ (type == typep) ܦܢܐ ܫܪܪܐ;
     }
-    return false;
+    ܦܢܐ ܕܓܠܐ;
 }
 
-string reportHier(const VlcPoint& point) {
+string reportHier(ثابت VlcPoint& point) {
     // FSM records currently have useful instance scope in Fv.
-    if (point.isFsmState() || point.isFsmArc()) {
-        const string fsmVar = point.fsmVarName();
-        return fsmVar.substr(0, fsmVar.rfind('.'));
+    ܐܢ (point.isFsmState() || point.isFsmArc()) {
+        ثابت string fsmVar = point.fsmVarName();
+        ܦܢܐ fsmVar.substr(0, fsmVar.rfind('.'));
     }
-    return point.hier();
+    ܦܢܐ point.hier();
 }
 
 // The components of a hierarchy, split at its dots.  A covergroup's is the name of its type, as
@@ -112,73 +112,73 @@ string reportHier(const VlcPoint& point) {
 // within, which V3OutFormatter::quoteNameControls() escapes, as VString::quotedEnd() finds the
 // end of.  A name whose identifiers, parentheses, or quotes do not end is not as $typename writes
 // a type, so splits at each dot.
-std::vector<string> splitHier(const string& hier) {
+std::vector<string> splitHier(ثابت string& hier) {
     std::vector<string> parts;
     string::size_type start = 0;
-    int depth = 0;  // Of the parentheses of the values of parameters
+    صحيح depth = 0;  // Of the parentheses of the values of parameters
     string::size_type pos = 0;
-    while (pos < hier.size()) {
-        const char c = hier[pos];
-        if (c == '\\') {
+    ܟܡܐ (pos < hier.size()) {
+        ثابت حرف c = hier[pos];
+        ܐܢ (c == '\\') {
             pos = hier.find(' ', pos);  // npos if not ended
-            continue;
-        } else if (!depth && hier.compare(pos, 2, "#(") == 0) {
+            استمر;
+        } ܐܚܪܢܐ ܐܢ (!depth && hier.compare(pos, 2, "#(") == 0) {
             depth = 1;
             ++pos;
-        } else if (!depth && c == '.') {
+        } ܐܚܪܢܐ ܐܢ (!depth && c == '.') {
             parts.push_back(hier.substr(start, pos - start));
             start = pos + 1;
-        } else if (depth && c == '"') {
+        } ܐܚܪܢܐ ܐܢ (depth && c == '"') {
             pos = VString::quotedEnd(hier, pos);  // npos if not terminated
-            continue;
-        } else if (depth && c == '(') {
+            استمر;
+        } ܐܚܪܢܐ ܐܢ (depth && c == '(') {
             ++depth;
-        } else if (depth && c == ')') {
+        } ܐܚܪܢܐ ܐܢ (depth && c == ')') {
             --depth;
         }
         ++pos;
     }
-    if (depth || pos != hier.size()) {  // Unbalanced
+    ܐܢ (depth || pos != hier.size()) {  // Unbalanced
         parts.clear();
         start = 0;
-        for (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
+        لكل (string::size_type dot; (dot = hier.find('.', start)) != string::npos;
              start = dot + 1) {
             parts.push_back(hier.substr(start, dot - start));
         }
     }
     parts.push_back(hier.substr(start));
-    return parts;
+    ܦܢܐ parts;
 }
 
-string duName(const VlcPoint& point) {
+string duName(ثابت VlcPoint& point) {
     // Pages are emitted as v_<type>/<design-unit> for RTL coverage.  Use the
     // suffix as the design-unit summary key.
-    const string page = point.page();
-    return page.substr(page.find('/') + 1);
+    ثابت string page = point.page();
+    ܦܢܐ page.substr(page.find('/') + 1);
 }
 
-void tallyPoint(TypeTally& tally, const string& type, uint64_t count) {
+فراغ tallyPoint(TypeTally& tally, ثابت string& type, uint64_t count) {
     tally[type].addPoint(count > 0);
 }
 
 // Keep the percentage calculation in one place so flat summaries and hierarchy
 // reports cannot drift in zero-total handling.
-double pct(uint64_t hit, uint64_t total) {
-    return total ? (100.0 * static_cast<double>(hit) / static_cast<double>(total)) : 0.0;
+مزدوج pct(uint64_t hit, uint64_t total) {
+    ܦܢܐ total ? (100.0 * static_cast<مزدوج>(hit) / static_cast<مزدوج>(total)) : 0.0;
 }
 
 // Return a percentage as a string, handling 100%: coverage not complete shows below it.
-string pctValueString(double value, bool complete) {
-    if (!complete && value > 99.9) value = 99.9;  // Presumes precision 1
+string pctValueString(مزدوج value, منطقي complete) {
+    ܐܢ (!complete && value > 99.9) value = 99.9;  // Presumes precision 1
     std::stringstream os;
     os << std::fixed << std::setprecision(1)  // 1 matters, see above
        << value << "%";
-    return os.str();
+    ܦܢܐ os.str();
 }
 
 // Return percentage as a string, handling 100%, and protecting from div zero.
 string pctString(uint64_t hit, uint64_t total) {
-    return pctValueString(pct(hit, total), hit >= total);
+    ܦܢܐ pctValueString(pct(hit, total), hit >= total);
 }
 
 // Covergroup coverage (IEEE 1800-2023 19.11).  An item, a coverpoint or cross, covers the
@@ -190,18 +190,18 @@ string pctString(uint64_t hit, uint64_t total) {
 // for a single instance.
 
 // A coverable bin of a coverpoint or cross, of all its records
-class CgBin final {
+صنف CgBin final {
     // MEMBERS
     string m_name;  // Name of the bin
     uint64_t m_count = 0;  // Hits, of all the records
     uint64_t m_atLeast = 0;  // option.at_least, the largest of the records
 
-public:
+عام:
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool covered() const { return m_count >= m_atLeast; }
+    ثابت string& name() ثابت { ܦܢܐ m_name; }
+    منطقي covered() ثابت { ܦܢܐ m_count >= m_atLeast; }
     // METHODS
-    void addRecord(const string& name, uint64_t count, uint64_t atLeast) {
+    فراغ addRecord(ثابت string& name, uint64_t count, uint64_t atLeast) {
         m_name = name;
         m_count += count;
         m_atLeast = std::max(m_atLeast, atLeast);
@@ -209,180 +209,180 @@ public:
 };
 
 // A coverpoint or cross
-class CgItem final {
+صنف CgItem final {
     // MEMBERS
     uint64_t m_weight = 0;  // The weight of the records, the largest
     std::map<string, CgBin> m_bins;  // Coverable bins, by binIdentity()
 
-public:
+عام:
     // ACCESSORS
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgBin>& bins() const { return m_bins; }
+    uint64_t weight() ثابت { ܦܢܐ m_weight; }
+    ثابت std::map<string, CgBin>& bins() ثابت { ܦܢܐ m_bins; }
     // METHODS
-    void addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
-    CgBin& findNewBin(const string& identity) { return m_bins[identity]; }
+    فراغ addRecord(uint64_t weight) { m_weight = std::max(m_weight, weight); }
+    CgBin& findNewBin(ثابت string& identity) { ܦܢܐ m_bins[identity]; }
 };
 
 // A covergroup
-class CgGroup final {
+صنف CgGroup final {
     // MEMBERS
     string m_hier;  // Hierarchy above the items
     uint64_t m_weight = 0;  // type_option.weight, the largest of the records
     std::map<string, CgItem> m_items;  // By hierarchy
 
-public:
+عام:
     // ACCESSORS
-    const string& hier() const { return m_hier; }
-    uint64_t weight() const { return m_weight; }
-    const std::map<string, CgItem>& items() const { return m_items; }
+    ثابت string& hier() ثابت { ܦܢܐ m_hier; }
+    uint64_t weight() ثابت { ܦܢܐ m_weight; }
+    ثابت std::map<string, CgItem>& items() ثابت { ܦܢܐ m_items; }
     // METHODS
-    void addRecord(const string& hier, uint64_t weight) {
+    فراغ addRecord(ثابت string& hier, uint64_t weight) {
         m_hier = hier;
         m_weight = std::max(m_weight, weight);
     }
-    CgItem& findNewItem(const string& hier) { return m_items[hier]; }
+    CgItem& findNewItem(ثابت string& hier) { ܦܢܐ m_items[hier]; }
 };
 using CgGroups = std::map<string, CgGroup>;  // By page
 
 // A number of a record, or 1 if the record leaves it out
-uint64_t keyNumber(const string& value) {
-    return value.empty() ? 1 : std::strtoull(value.c_str(), nullptr, 10);
+uint64_t keyNumber(ثابت string& value) {
+    ܦܢܐ value.empty() ? 1 : std::strtoull(value.c_str(), nullptr, 10);
 }
 
 // If a field of a record's name, '\001<key>\002<value>', has a key of the coverage computation
-bool isScoreField(const string& field) {
-    for (const char* const keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
-        const string prefix = string{"\001"} + keyp + "\002";
-        if (field.compare(0, prefix.size(), prefix) == 0) return true;
+منطقي isScoreField(ثابت string& field) {
+    لكل (ثابت حرف* ثابت keyp : {VL_CIK_THRESH, VL_CIK_WEIGHT, VL_CIK_GROUP_WEIGHT}) {
+        ثابت string prefix = string{"\001"} + keyp + "\002";
+        ܐܢ (field.compare(0, prefix.size(), prefix) == 0) ܦܢܐ ܫܪܪܐ;
     }
-    return false;
+    ܦܢܐ ܕܓܠܐ;
 }
 
 // The name of a bin's record without the keys of the coverage computation, which the records of
 // a bin may differ in, so identifying the bin.  Its name does not: covergroups of distinct scopes
 // may share a name.
-string binIdentity(const string& recordName) {
+string binIdentity(ثابت string& recordName) {
     string identity;
     string::size_type start = 0;
-    while (start < recordName.size()) {
+    ܟܡܐ (start < recordName.size()) {
         string::size_type end = recordName.find('\001', start + 1);
-        if (end == string::npos) end = recordName.size();
-        const string field = recordName.substr(start, end - start);
-        if (!isScoreField(field)) identity += field;
+        ܐܢ (end == string::npos) end = recordName.size();
+        ثابت string field = recordName.substr(start, end - start);
+        ܐܢ (!isScoreField(field)) identity += field;
         start = end;
     }
-    return identity;
+    ܦܢܐ identity;
 }
 
-bool isCovergroup(const VlcPoint& point) { return point.type() == s_covergroupType; }
+منطقي isCovergroup(ثابت VlcPoint& point) { ܦܢܐ point.type() == s_covergroupType; }
 
 CgGroups covergroups(VlcPoints& points) {
     CgGroups groups;
-    for (const VlcPoints::ByName::value_type& i : points) {
-        const VlcPoint& pt = points.pointNumber(i.second);
-        if (!isCovergroup(pt)) continue;
+    لكل (ثابت VlcPoints::ByName::value_type& i : points) {
+        ثابت VlcPoint& pt = points.pointNumber(i.second);
+        ܐܢ (!isCovergroup(pt)) استمر;
         // Named '<covergroup>.<item>.<bin>', where only the bin, of its own key, may have dots
-        const string hier = pt.hier();
+        ثابت string hier = pt.hier();
         string bin = pt.bin();
-        if (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
-        const string itemHier
+        ܐܢ (bin.empty() || bin.size() >= hier.size()) bin = hier.substr(hier.rfind('.') + 1);
+        ثابت string itemHier
             = hier.substr(0, hier.size() - std::min(hier.size(), bin.size() + 1));
         CgGroup& group = groups[pt.page()];
         group.addRecord(itemHier.substr(0, itemHier.rfind('.')), keyNumber(pt.groupWeight()));
         CgItem& item = group.findNewItem(itemHier);
         item.addRecord(keyNumber(pt.weight()));
-        if (!pt.binType().empty()) continue;  // Not coverable
+        ܐܢ (!pt.binType().empty()) استمر;  // Not coverable
         item.findNewBin(binIdentity(pt.name())).addRecord(bin, pt.count(), keyNumber(pt.thresh()));
     }
-    return groups;
+    ܦܢܐ groups;
 }
 
-Tally itemTally(const CgItem& item) {
+Tally itemTally(ثابت CgItem& item) {
     Tally tally;
-    for (const std::pair<const string, CgBin>& bin : item.bins()) {
+    لكل (ثابت std::pair<ثابت string, CgBin>& bin : item.bins()) {
         tally.addPoint(bin.second.covered());
     }
     // Without bins, 0.0, or 100.0 if of zero weight (IEEE 1800-2023 19.11.1)
     tally.score(tally.total() ? pct(tally.hit(), tally.total()) : item.weight() ? 0.0 : 100.0);
-    return tally;
+    ܦܢܐ tally;
 }
 
 // The tally of a covergroup; contributesp, if its items have weight and bins, so that it counts
 // in the coverage of covergroups together
-Tally groupTally(const CgGroup& group, bool* contributesp = nullptr) {
+Tally groupTally(ثابت CgGroup& group, منطقي* contributesp = nullptr) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    for (const std::pair<const string, CgItem>& it : group.items()) {
-        const Tally item = itemTally(it.second);
+    مزدوج weighted = 0.0;
+    مزدوج weights = 0.0;
+    لكل (ثابت std::pair<ثابت string, CgItem>& it : group.items()) {
+        ثابت Tally item = itemTally(it.second);
         tally.addPoints(item);
-        if (!item.total()) continue;  // Excluded from both sums
-        weighted += static_cast<double>(it.second.weight()) * item.score();
-        weights += static_cast<double>(it.second.weight());
+        ܐܢ (!item.total()) استمر;  // Excluded from both sums
+        weighted += static_cast<مزدوج>(it.second.weight()) * item.score();
+        weights += static_cast<مزدوج>(it.second.weight());
     }
-    if (contributesp) *contributesp = weights != 0.0;
+    ܐܢ (contributesp) *contributesp = weights != 0.0;
     // Without items of weight and bins, 0.0, or 100.0 if of zero weight
     tally.score(weights != 0.0 ? weighted / weights : group.weight() ? 0.0 : 100.0);
-    return tally;
+    ܦܢܐ tally;
 }
 
-Tally groupsTally(const std::vector<const CgGroup*>& groups) {
+Tally groupsTally(ثابت std::vector<ثابت CgGroup*>& groups) {
     Tally tally;
-    double weighted = 0.0;
-    double weights = 0.0;
-    bool anyWeight = false;
-    for (const CgGroup* const groupp : groups) {
-        bool contributes = false;
-        const Tally group = groupTally(*groupp, &contributes);
+    مزدوج weighted = 0.0;
+    مزدوج weights = 0.0;
+    منطقي anyWeight = ܕܓܠܐ;
+    لكل (ثابت CgGroup* ثابت groupp : groups) {
+        منطقي contributes = ܕܓܠܐ;
+        ثابت Tally group = groupTally(*groupp, &contributes);
         tally.addPoints(group);
-        if (groupp->weight()) anyWeight = true;
-        if (!contributes) continue;
-        weighted += static_cast<double>(groupp->weight()) * group.score();
-        weights += static_cast<double>(groupp->weight());
+        ܐܢ (groupp->weight()) anyWeight = ܫܪܪܐ;
+        ܐܢ (!contributes) استمر;
+        weighted += static_cast<مزدوج>(groupp->weight()) * group.score();
+        weights += static_cast<مزدوج>(groupp->weight());
     }
     // Without covergroups of weight that contribute, 0.0, or 100.0 if all have zero weight
     tally.score(weights != 0.0 ? weighted / weights : anyWeight ? 0.0 : 100.0);
-    return tally;
+    ܦܢܐ tally;
 }
 
 // The tallies of covergroups, of their coverpoints and crosses, and of the coverable bins of
 // those, by name; a covergroup of a dotted name also tallies in each node of its name
-std::map<string, Tally> covergroupTallies(const CgGroups& groups) {
+std::map<string, Tally> covergroupTallies(ثابت CgGroups& groups) {
     std::map<string, Tally> tallies;
-    std::map<string, std::vector<const CgGroup*>> nodeGroups;
-    for (const CgGroups::value_type& it : groups) {
-        const CgGroup& group = it.second;
+    std::map<string, std::vector<ثابت CgGroup*>> nodeGroups;
+    لكل (ثابت CgGroups::value_type& it : groups) {
+        ثابت CgGroup& group = it.second;
         string path;
-        for (const string& part : splitHier(group.hier())) {
+        لكل (ثابت string& part : splitHier(group.hier())) {
             path = path.empty() ? part : path + "." + part;
             nodeGroups[path].push_back(&group);
         }
-        for (const std::pair<const string, CgItem>& item : group.items()) {
+        لكل (ثابت std::pair<ثابت string, CgItem>& item : group.items()) {
             tallies[item.first] = itemTally(item.second);
-            for (const std::pair<const string, CgBin>& bin : item.second.bins()) {
+            لكل (ثابت std::pair<ثابت string, CgBin>& bin : item.second.bins()) {
                 // Of the bins of the name
                 tallies[item.first + "." + bin.second.name()].addPoint(bin.second.covered());
             }
         }
     }
-    for (const std::pair<const string, std::vector<const CgGroup*>>& it : nodeGroups) {
+    لكل (ثابت std::pair<ثابت string, std::vector<ثابت CgGroup*>>& it : nodeGroups) {
         tallies[it.first]
             = it.second.size() == 1 ? groupTally(*it.second.front()) : groupsTally(it.second);
     }
-    return tallies;
+    ܦܢܐ tallies;
 }
 
 // Shared row formatter.  The callers choose which rows to print; this only keeps
 // the text layout identical between the flat and hierarchy reports.
-void printIndent(size_t indent) {
-    for (size_t i = 0; i < indent; ++i) std::cout << ' ';
+فراغ printIndent(size_t indent) {
+    لكل (size_t i = 0; i < indent; ++i) std::cout << ' ';
 }
 
-void printTallyRow(const string& type, const Tally& tally, size_t indent, size_t typeWidth,
+فراغ printTallyRow(ثابت string& type, ثابت Tally& tally, size_t indent, size_t typeWidth,
                    size_t countWidth) {
     printIndent(indent);
     // A score is complete at 100%, which it may reach with bins of no weight uncovered
-    const string percent = tally.scored() ? pctValueString(tally.score(), tally.score() >= 100.0)
+    ثابت string percent = tally.scored() ? pctValueString(tally.score(), tally.score() >= 100.0)
                                           : pctString(tally.hit(), tally.total());
     // Right-align percentages to the width of "100.0%", so that rows line up
     std::cout << std::left << std::setw(typeWidth) << type << " : " << std::right << std::fixed
@@ -390,44 +390,44 @@ void printTallyRow(const string& type, const Tally& tally, size_t indent, size_t
               << std::setw(countWidth) << tally.total() << ")\n";
 }
 
-size_t countWidth(const TypeTally& tally) {
+size_t countWidth(ثابت TypeTally& tally) {
     size_t width = cvtToStr(0).size();
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+    لكل (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
         width = std::max(width, cvtToStr(it->second.hit()).size());
         width = std::max(width, cvtToStr(it->second.total()).size());
     }
-    return width;
+    ܦܢܐ width;
 }
 
-size_t typeWidth(const TypeTally& tally) {
+size_t typeWidth(ثابت TypeTally& tally) {
     size_t typeWidth = 0;
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
+    لكل (ثابت حرف* ثابت typep : s_orderedTypes) {
+        ثابت string type = typep;
         typeWidth = std::max(typeWidth, type.size());
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+    لكل (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
         typeWidth = std::max(typeWidth, it->first.size());
     }
-    return typeWidth;
+    ܦܢܐ typeWidth;
 }
 
-void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOrdered) {
+فراغ printTypeTally(ثابت TypeTally& tally, size_t indent, منطقي includeMissingOrdered) {
     // Print standard coverage types first for stable output.  When requested,
     // missing standard rows are printed with zero counts for compatibility with
     // the historical flat summary output.
-    const size_t typWidth = typeWidth(tally);
-    const size_t cntWidth = countWidth(tally);
-    for (const char* const typep : s_orderedTypes) {
-        const string type = typep;
-        const TypeTally::const_iterator it = tally.find(type);
-        if (it != tally.end()) {
+    ثابت size_t typWidth = typeWidth(tally);
+    ثابت size_t cntWidth = countWidth(tally);
+    لكل (ثابت حرف* ثابت typep : s_orderedTypes) {
+        ثابت string type = typep;
+        ثابت TypeTally::const_iterator it = tally.find(type);
+        ܐܢ (it != tally.end()) {
             printTallyRow(type, it->second, indent, typWidth, cntWidth);
-        } else if (includeMissingOrdered) {
+        } ܐܚܪܢܐ ܐܢ (includeMissingOrdered) {
             printTallyRow(type, Tally{}, indent, typWidth, cntWidth);
         }
     }
-    for (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
-        if (!isOrderedType(it->first)) {
+    لكل (TypeTally::const_iterator it = tally.begin(); it != tally.end(); ++it) {
+        ܐܢ (!isOrderedType(it->first)) {
             printTallyRow(it->first, it->second, indent, typWidth, cntWidth);
         }
     }
@@ -435,62 +435,62 @@ void printTypeTally(const TypeTally& tally, size_t indent, bool includeMissingOr
 
 // Print covergroups, coverpoints, crosses, and bins one per line, so that searching for a name
 // shows its coverage
-void printCovergroupTallies(const std::map<string, Tally>& tallies, int levels) {
+فراغ printCovergroupTallies(ثابت std::map<string, Tally>& tallies, صحيح levels) {
     std::map<string, Tally> shown;
     size_t nameWidth = 0;
-    for (const std::pair<const string, Tally>& it : tallies) {
-        if (levels >= 0 && static_cast<int>(splitHier(it.first).size()) > levels + 1) continue;
+    لكل (ثابت std::pair<ثابت string, Tally>& it : tallies) {
+        ܐܢ (levels >= 0 && static_cast<صحيح>(splitHier(it.first).size()) > levels + 1) استمر;
         shown.insert(it);
         nameWidth = std::max(nameWidth, it.first.size());
     }
-    const size_t cntWidth = countWidth(shown);
+    ثابت size_t cntWidth = countWidth(shown);
     std::cout << "Covergroup Coverage Summary:\n";
-    for (const std::pair<const string, Tally>& it : shown) {
+    لكل (ثابت std::pair<ثابت string, Tally>& it : shown) {
         printTallyRow(it.first, it.second, s_summaryIndent, nameWidth, cntWidth);
     }
 }
 
 }  // namespace
 
-void VlcTop::readCoverage(const string& filename, bool nonfatal) {
+فراغ VlcTop::readCoverage(ثابت string& filename, منطقي nonfatal) {
     UINFO(2, "readCoverage " << filename);
 
     std::ifstream is{filename.c_str()};
-    if (!is) {
-        if (!nonfatal) v3fatal("Can't read coverage file: " << filename);
-        return;
+    ܐܢ (!is) {
+        ܐܢ (!nonfatal) v3fatal("Can't read coverage file: " << filename);
+        ܦܢܐ;
     }
 
     // Testrun and computrons argument unsupported as yet
-    VlcTest* const testp = tests().newTest(filename, 0, 0);
+    VlcTest* ثابت testp = tests().newTest(filename, 0, 0);
 
     uint64_t lineno = 0;
-    while (!is.eof()) {
-        const string line = V3Os::getline(is);
+    ܟܡܐ (!is.eof()) {
+        ثابت string line = V3Os::getline(is);
         ++lineno;
         // UINFO(9, " got " << line);
-        if (line[0] == 'C') {
+        ܐܢ (line[0] == 'C') {
             // The count follows the last "' ": a point may hold one too, as does a covergroup
             // type named with the value of a string parameter
-            const string::size_type secspace = line.rfind("' ");
-            if (secspace == string::npos || secspace < 3) {
+            ثابت string::size_type secspace = line.rfind("' ");
+            ܐܢ (secspace == string::npos || secspace < 3) {
                 v3error("Malformed coverage point, without a count: " << filename << ":"
                                                                       << lineno);
-                continue;
+                استمر;
             }
-            const string point = line.substr(3, secspace - 3);
-            if (!opt.isTypeMatch(point.c_str())) continue;
+            ثابت string point = line.substr(3, secspace - 3);
+            ܐܢ (!opt.isTypeMatch(point.c_str())) استمر;
 
-            const uint64_t hits = std::atoll(line.c_str() + secspace + 1);
+            ثابت uint64_t hits = std::atoll(line.c_str() + secspace + 1);
             // UINFO(9, "   point '" << point << "'" << " " << hits);
 
-            const uint64_t pointnum = points().findAddPoint(point, hits);
-            if (opt.rank()) {  // Only if ranking - uses a lot of memory
+            ثابت uint64_t pointnum = points().findAddPoint(point, hits);
+            ܐܢ (opt.rank()) {  // Only if ranking - uses a lot of memory
                 // A test covers a point with a threshold (option.at_least) when its own hits
                 // reach it
-                const uint64_t needed = std::max(
+                ثابت uint64_t needed = std::max(
                     VlcBuckets::sufficient(), keyNumber(points().pointNumber(pointnum).thresh()));
-                if (hits >= needed) {
+                ܐܢ (hits >= needed) {
                     points().pointNumber(pointnum).testsCoveringInc();
                     testp->buckets().addData(pointnum, hits);
                 }
@@ -499,29 +499,29 @@ void VlcTop::readCoverage(const string& filename, bool nonfatal) {
     }
 }
 
-void VlcTop::writeCoverage(const string& filename) {
+فراغ VlcTop::writeCoverage(ثابت string& filename) {
     UINFO(2, "writeCoverage " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    ܐܢ (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        ܦܢܐ;
     }
 
     os << "# SystemC::Coverage-3\n";
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
+    لكل (ثابت auto& i : m_points) {
+        ثابت VlcPoint& point = m_points.pointNumber(i.second);
         os << "C '" << point.name() << "' " << point.count() << '\n';
     }
 }
 
-void VlcTop::writeInfo(const string& filename) {
+فراغ VlcTop::writeInfo(ثابت string& filename) {
     UINFO(2, "writeInfo " << filename);
 
     std::ofstream os{filename.c_str()};
-    if (!os) {
+    ܐܢ (!os) {
         v3fatal("Can't write file: " << filename);
-        return;
+        ܦܢܐ;
     }
 
     annotateCalc();
@@ -546,33 +546,33 @@ void VlcTop::writeInfo(const string& filename) {
     //   end_of_record
 
     os << "TN:verilator_coverage\n";
-    for (auto& si : m_sources) {
+    لكل (auto& si : m_sources) {
         VlcSource& source = si.second;
         os << "SF:" << source.name() << '\n';
         VlcSource::LinenoMap& lines = source.lines();
-        int branchesFound = 0;
-        int branchesHit = 0;
-        for (auto& li : lines) {
+        صحيح branchesFound = 0;
+        صحيح branchesHit = 0;
+        لكل (auto& li : lines) {
             VlcSourceCount& sc = li.second;
             uint64_t daCount = 0;
-            std::vector<const VlcPoint*> infoPoints;
-            for (const auto& point : sc.points()) {
+            std::vector<ثابت VlcPoint*> infoPoints;
+            لكل (ثابت auto& point : sc.points()) {
                 daCount = std::max(daCount, point->count());
                 infoPoints.push_back(point);
             }
             os << "DA:" << sc.lineno() << "," << daCount << "\n";
-            if (infoPoints.size() <= 1) continue;
-            branchesFound += static_cast<int>(infoPoints.size());
-            int point_num = 0;
-            for (const VlcPoint* point : infoPoints) {
+            ܐܢ (infoPoints.size() <= 1) استمر;
+            branchesFound += static_cast<صحيح>(infoPoints.size());
+            صحيح point_num = 0;
+            لكل (ثابت VlcPoint* point : infoPoints) {
                 os << "BRDA:" << sc.lineno() << ",";
-                if (point->isFsmArc()) {
+                ܐܢ (point->isFsmArc()) {
                     os << "2,";
                     os << point->fsmFromState() << "->" << point->fsmToState();
-                } else if (point->comment().empty()) {
+                } ܐܚܪܢܐ ܐܢ (point->comment().empty()) {
                     os << "0,";
                     os << point_num;
-                } else {
+                } ܐܚܪܢܐ {
                     os << (point->isFsmState() ? '1' : '0') << ',';
                     std::string comment(point->comment());
                     std::replace(comment.begin(), comment.end(), ',', '_');
@@ -593,98 +593,98 @@ void VlcTop::writeInfo(const string& filename) {
 
 //********************************************************************
 
-struct CmpComputrons final {
-    bool operator()(const VlcTest* lhsp, const VlcTest* rhsp) const {
-        if (lhsp->computrons() != rhsp->computrons()) {
-            return lhsp->computrons() < rhsp->computrons();
+بنية CmpComputrons final {
+    منطقي operator()(ثابت VlcTest* lhsp, ثابت VlcTest* rhsp) ثابت {
+        ܐܢ (lhsp->computrons() != rhsp->computrons()) {
+            ܦܢܐ lhsp->computrons() < rhsp->computrons();
         }
-        return lhsp->bucketsCovered() > rhsp->bucketsCovered();
+        ܦܢܐ lhsp->bucketsCovered() > rhsp->bucketsCovered();
     }
 };
 
-void VlcTop::rank() {
+فراغ VlcTop::rank() {
     UINFO(2, "rank...");
     uint64_t nextrank = 1;
 
     // Sort by computrons, so fast tests get selected first
     std::vector<VlcTest*> bytime;
-    for (const auto& testp : m_tests) {
-        if (testp->bucketsCovered()) {  // else no points, so can't help us
+    لكل (ثابت auto& testp : m_tests) {
+        ܐܢ (testp->bucketsCovered()) {  // else no points, so can't help us
             bytime.push_back(testp);
         }
     }
     sort(bytime.begin(), bytime.end(), CmpComputrons());  // Sort the vector
 
     VlcBuckets remaining;
-    for (const auto& i : m_points) {
-        const VlcPoint* const pointp = &points().pointNumber(i.second);
+    لكل (ثابت auto& i : m_points) {
+        ثابت VlcPoint* ثابت pointp = &points().pointNumber(i.second);
         // If any tests hit this point, then we'll need to cover it.
-        if (pointp->testsCovering()) remaining.addData(pointp->pointNum(), 1);
+        ܐܢ (pointp->testsCovering()) remaining.addData(pointp->pointNum(), 1);
     }
 
     // Additional Greedy algorithm
     // O(n^2) Ouch.  Probably the thing to do is randomize the order of data
     // then hierarchically solve a small subset of tests, and take resulting
     // solution and move up to larger subset of tests.  (Aka quick sort.)
-    while (true) {
-        if (debug() >= 9) {
+    ܟܡܐ (ܫܪܪܐ) {
+        ܐܢ (debug() >= 9) {
             UINFO_PREFIX("Left on iter" << nextrank << ": ");  // LCOV_EXCL_LINE
             remaining.dump();  // LCOV_EXCL_LINE
         }
         VlcTest* bestTestp = nullptr;
         uint64_t bestRemain = 0;
-        for (const auto& testp : bytime) {
-            if (!testp->rank()) {
-                const uint64_t remain = testp->buckets().dataPopCount(remaining);
-                if (remain > bestRemain) {
+        لكل (ثابت auto& testp : bytime) {
+            ܐܢ (!testp->rank()) {
+                ثابت uint64_t remain = testp->buckets().dataPopCount(remaining);
+                ܐܢ (remain > bestRemain) {
                     bestTestp = testp;
                     bestRemain = remain;
                 }
             }
         }
-        if (VlcTest* const testp = bestTestp) {
+        ܐܢ (VlcTest* ثابت testp = bestTestp) {
             testp->rank(nextrank++);
             testp->rankPoints(bestRemain);
             remaining.orData(bestTestp->buckets());
-        } else {
-            break;  // No test covering more stuff found
+        } ܐܚܪܢܐ {
+            اكسر;  // No test covering more stuff found
         }
     }
 }
 
-void VlcTop::annotateCalc() {
+فراغ VlcTop::annotateCalc() {
     // Calculate per-line information into filedata structure
-    for (const auto& i : m_points) {
-        const VlcPoint& point = m_points.pointNumber(i.second);
-        const string filename = point.filename();
-        const int lineno = point.lineno();
-        if (!filename.empty() && lineno != 0) {
+    لكل (ثابت auto& i : m_points) {
+        ثابت VlcPoint& point = m_points.pointNumber(i.second);
+        ثابت string filename = point.filename();
+        ثابت صحيح lineno = point.lineno();
+        ܐܢ (!filename.empty() && lineno != 0) {
             VlcSource& source = sources().findNewSource(filename);
             UINFO(9, "AnnoCalc count " << filename << ":" << lineno << ":" << point.column() << " "
                                        << point.count() << " " << point.linescov());
             // Base coverage
             source.insertPoint(lineno, &point);
             // Additional lines covered by this statement
-            bool range = false;
-            int start = 0;
-            int end = 0;
-            const string linescov = point.linescov();
-            for (const char* covp = linescov.c_str(); true; ++covp) {
-                if (!*covp || *covp == ',') {  // Ending
-                    for (int lni = start; start && lni <= end; ++lni) {
+            منطقي range = ܕܓܠܐ;
+            صحيح start = 0;
+            صحيح end = 0;
+            ثابت string linescov = point.linescov();
+            لكل (ثابت حرف* covp = linescov.c_str(); ܫܪܪܐ; ++covp) {
+                ܐܢ (!*covp || *covp == ',') {  // Ending
+                    لكل (صحيح lni = start; start && lni <= end; ++lni) {
                         source.insertPoint(lni, &point);
                     }
-                    if (!*covp) break;
+                    ܐܢ (!*covp) اكسر;
                     start = 0;  // Prep for next
                     end = 0;
-                    range = false;
-                } else if (*covp == '-') {
-                    range = true;
-                } else if (std::isdigit(*covp)) {
-                    const char* const digitsp = covp;
-                    while (std::isdigit(*covp)) ++covp;
+                    range = ܕܓܠܐ;
+                } ܐܚܪܢܐ ܐܢ (*covp == '-') {
+                    range = ܫܪܪܐ;
+                } ܐܚܪܢܐ ܐܢ (std::isdigit(*covp)) {
+                    ثابت حرف* ثابت digitsp = covp;
+                    ܟܡܐ (std::isdigit(*covp)) ++covp;
                     --covp;  // Will inc in for loop
-                    if (!range) start = std::atoi(digitsp);
+                    ܐܢ (!range) start = std::atoi(digitsp);
                     end = std::atoi(digitsp);
                 }
             }
@@ -692,103 +692,103 @@ void VlcTop::annotateCalc() {
     }
 }
 
-void VlcTop::annotateCalcNeeded() {
+فراغ VlcTop::annotateCalcNeeded() {
     // Compute which files are needed.  A file isn't needed if it has appropriate
     // coverage in all categories
-    int totCases = 0;
-    int totOk = 0;
-    for (auto& si : m_sources) {
+    صحيح totCases = 0;
+    صحيح totOk = 0;
+    لكل (auto& si : m_sources) {
         VlcSource& source = si.second;
         // UINFO(1, "Source " << source.name());
-        if (opt.annotateAll()) source.needed(true);
-        const VlcSource::LinenoMap& lines = source.lines();
-        for (auto& li : lines) {
-            const VlcSourceCount& sc = li.second;
+        ܐܢ (opt.annotateAll()) source.needed(ܫܪܪܐ);
+        ثابت VlcSource::LinenoMap& lines = source.lines();
+        لكل (auto& li : lines) {
+            ثابت VlcSourceCount& sc = li.second;
             // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" << sc.column());
             ++totCases;
-            if (opt.countOk(sc.minCount())) {
+            ܐܢ (opt.countOk(sc.minCount())) {
                 ++totOk;
-            } else {
-                source.needed(true);
+            } ܐܚܪܢܐ {
+                source.needed(ܫܪܪܐ);
             }
         }
     }
     std::cout << "Annotation Summary:\n";
     std::cout << "  lines with all attached points covered : ";
     std::cout << pctString(totOk, totCases) << "  (" << totOk << "/" << totCases << ")\n";
-    if (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
+    ܐܢ (totOk != totCases) cout << "See lines with '%00' in " << opt.annotateOut() << '\n';
 }
 
-void VlcTop::annotateOutputFiles(const string& dirname) {
+فراغ VlcTop::annotateOutputFiles(ثابت string& dirname) {
     // Create if uncreated, ignore errors
     V3Os::createDir(dirname);
-    for (auto& si : m_sources) {
+    لكل (auto& si : m_sources) {
         VlcSource& source = si.second;
-        if (!source.needed()) continue;
-        const string filename = source.name();
-        const string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
+        ܐܢ (!source.needed()) استمر;
+        ثابت string filename = source.name();
+        ثابت string outfilename = dirname + "/" + V3Os::filenameNonDir(filename);
 
         UINFO(1, "annotateOutputFile " << filename << " -> " << outfilename);
 
         std::ifstream is{filename.c_str()};
-        if (!is) {
+        ܐܢ (!is) {
             v3error("Can't read annotation file: " << filename);
-            return;
+            ܦܢܐ;
         }
 
         std::ofstream os{outfilename.c_str()};
-        if (!os) {
+        ܐܢ (!os) {
             v3error("Can't write file: " << outfilename);
-            return;
+            ܦܢܐ;
         }
 
         os << "//      // verilator_coverage annotation\n";
 
-        int lineno = 0;
-        while (!is.eof()) {
+        صحيح lineno = 0;
+        ܟܡܐ (!is.eof()) {
             lineno++;
-            const std::string line = V3Os::getline(is);
+            ثابت std::string line = V3Os::getline(is);
 
             VlcSource::LinenoMap& lines = source.lines();
-            const auto lit = lines.find(lineno);
-            if (lit == lines.end()) {
+            ثابت auto lit = lines.find(lineno);
+            ܐܢ (lit == lines.end()) {
                 os << "        " << line << '\n';
-            } else {
+            } ܐܚܪܢܐ {
                 VlcSourceCount& sc = lit->second;
                 // UINFO(0, "Source " << source.name() << ":" << sc.lineno() << ":" <<
                 // sc.column());
-                const bool minOk = opt.countOk(sc.minCount());
-                const bool maxOk = opt.countOk(sc.maxCount());
-                if (minOk) {
+                ثابت منطقي minOk = opt.countOk(sc.minCount());
+                ثابت منطقي maxOk = opt.countOk(sc.maxCount());
+                ܐܢ (minOk) {
                     os << " ";
-                } else if (maxOk) {
+                } ܐܚܪܢܐ ܐܢ (maxOk) {
                     os << "~";
-                } else {
+                } ܐܚܪܢܐ {
                     os << "%";
                 }
                 os << std::setfill('0') << std::setw(6) << sc.maxCount() << " " << line << '\n';
 
-                if (opt.annotatePoints()) {
-                    for (const auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
+                ܐܢ (opt.annotatePoints()) {
+                    لكل (ثابت auto& pit : sc.points()) pit->dumpAnnotate(os, opt.annotateMin());
                 }
-                bool printedFsmHeader = false;
-                for (const auto& pit : sc.points()) {
-                    if (!pit->isFsmState() && !pit->isFsmArc()) continue;
-                    if (!printedFsmHeader) {
+                منطقي printedFsmHeader = ܕܓܠܐ;
+                لكل (ثابت auto& pit : sc.points()) {
+                    ܐܢ (!pit->isFsmState() && !pit->isFsmArc()) استمر;
+                    ܐܢ (!printedFsmHeader) {
                         os << "        // [FSM coverage]\n";
-                        printedFsmHeader = true;
+                        printedFsmHeader = ܫܪܪܐ;
                     }
                     os << (opt.countOk(pit->count()) ? " " : "%");
                     os << std::setfill('0') << std::setw(6) << pit->count() << "        ";
-                    if (pit->isFsmState()) {
+                    ܐܢ (pit->isFsmState()) {
                         os << "// [fsm_state " << pit->comment() << "]";
-                        if (pit->count() == 0) os << " *** UNCOVERED ***";
+                        ܐܢ (pit->count() == 0) os << " *** UNCOVERED ***";
                         os << "\n";
-                    } else if (pit->isFsmDefaultArc()) {
+                    } ܐܚܪܢܐ ܐܢ (pit->isFsmDefaultArc()) {
                         os << "// [SYNTHETIC DEFAULT ARC: " << pit->comment() << "]\n";
-                    } else {
+                    } ܐܚܪܢܐ {
                         os << "// [fsm_arc " << pit->comment() << "]";
-                        if (pit->fsmIsReset() && !opt.includeResetArcs()) {
+                        ܐܢ (pit->fsmIsReset() && !opt.includeResetArcs()) {
                             os << " [reset arc, excluded from %]";
                         }
                         os << "\n";
@@ -799,91 +799,91 @@ void VlcTop::annotateOutputFiles(const string& dirname) {
     }
 }
 
-void VlcTop::annotate(const string& dirname) {
+فراغ VlcTop::annotate(ثابت string& dirname) {
     // Calculate per-line information into filedata structure
     annotateCalc();
     annotateCalcNeeded();
     annotateOutputFiles(dirname);
 }
 
-void VlcTop::printTypeSummary() {
+فراغ VlcTop::printTypeSummary() {
     TypeTally tally;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Tallied below, by covergroup
+    لكل (VlcPoints::ByName::value_type& i : m_points) {
+        ثابت VlcPoint& pt = m_points.pointNumber(i.second);
+        ܐܢ (isCovergroup(pt)) استمر;  // Tallied below, by covergroup
         tallyPoint(tally, displayType(pt), pt.count());
     }
-    const CgGroups groups = covergroups(m_points);
-    if (!groups.empty()) {
-        std::vector<const CgGroup*> groupps;
-        for (const CgGroups::value_type& it : groups) groupps.push_back(&it.second);
+    ثابت CgGroups groups = covergroups(m_points);
+    ܐܢ (!groups.empty()) {
+        std::vector<ثابت CgGroup*> groupps;
+        لكل (ثابت CgGroups::value_type& it : groups) groupps.push_back(&it.second);
         tally[s_covergroupType] = groupsTally(groupps);
     }
-    if (tally.empty()) return;
+    ܐܢ (tally.empty()) ܦܢܐ;
     std::cout << "Coverage Summary:\n";
     // Keep the legacy summary behavior of showing standard coverage types even
     // when the input has no points of that type.
-    printTypeTally(tally, s_summaryIndent, true);
+    printTypeTally(tally, s_summaryIndent, ܫܪܪܐ);
 }
 
-void VlcTop::printHierarchyReport() {
+فراغ VlcTop::printHierarchyReport() {
     std::map<string, TypeTally> hierTallies;
     std::map<string, TypeTally> duTallies;
-    bool hasHier = false;
-    bool hasCollapsedHier = false;
-    for (VlcPoints::ByName::value_type& i : m_points) {
-        const VlcPoint& pt = m_points.pointNumber(i.second);
-        if (isCovergroup(pt)) continue;  // Reported below, by covergroup
-        const string hier = reportHier(pt);
-        if (hier.empty()) continue;
-        hasHier = true;
-        if (isCollapsedHier(hier)) hasCollapsedHier = true;
-        const string type = displayType(pt);
-        const std::vector<string> parts = splitHier(hier);
+    منطقي hasHier = ܕܓܠܐ;
+    منطقي hasCollapsedHier = ܕܓܠܐ;
+    لكل (VlcPoints::ByName::value_type& i : m_points) {
+        ثابت VlcPoint& pt = m_points.pointNumber(i.second);
+        ܐܢ (isCovergroup(pt)) استمر;  // Reported below, by covergroup
+        ثابت string hier = reportHier(pt);
+        ܐܢ (hier.empty()) استمر;
+        hasHier = ܫܪܪܐ;
+        ܐܢ (isCollapsedHier(hier)) hasCollapsedHier = ܫܪܪܐ;
+        ثابت string type = displayType(pt);
+        ثابت std::vector<string> parts = splitHier(hier);
         string path;
-        for (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+        لكل (std::vector<string>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
             path = path.empty() ? *it : path + "." + *it;
             tallyPoint(hierTallies[path], type, pt.count());
         }
         tallyPoint(duTallies[duName(pt)], type, pt.count());
     }
-    const std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
+    ثابت std::map<string, Tally> cgTallies = covergroupTallies(covergroups(m_points));
 
-    if (!hasHier && !cgTallies.empty()) {
+    ܐܢ (!hasHier && !cgTallies.empty()) {
         printCovergroupTallies(cgTallies, opt.reportLevels());
-        return;
+        ܦܢܐ;
     }
-    if (!hasHier) {
+    ܐܢ (!hasHier) {
         std::cout << "%Warning: --report hierarchy input has no hierarchy fields; "
                   << "printing flat summary instead.\n";
         printTypeSummary();
-        return;
+        ܦܢܐ;
     }
 
-    const int levels = opt.reportLevels();
-    if (hasCollapsedHier) {
+    ثابت صحيح levels = opt.reportLevels();
+    ܐܢ (hasCollapsedHier) {
         std::cout << "Note: hierarchy report contains collapsed hierarchy paths; "
                   << "it is not precise per-instance coverage.\n";
     }
     std::cout << "Hierarchy Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
+    لكل (std::map<string, TypeTally>::const_iterator it = hierTallies.begin();
          it != hierTallies.end(); ++it) {
-        const std::vector<string> parts = splitHier(it->first);
-        if (levels >= 0 && static_cast<int>(parts.size()) > levels + 1) continue;
+        ثابت std::vector<string> parts = splitHier(it->first);
+        ܐܢ (levels >= 0 && static_cast<صحيح>(parts.size()) > levels + 1) استمر;
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
         // Hierarchy nodes can be numerous, so only print coverage types present
         // under this node instead of repeating absent zero-count rows.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->second, s_reportRowIndent, ܕܓܠܐ);
     }
     std::cout << "Design Unit Coverage Summary:\n";
-    for (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
+    لكل (std::map<string, TypeTally>::const_iterator it = duTallies.begin(); it != duTallies.end();
          ++it) {
         printIndent(s_summaryIndent);
         std::cout << it->first << "\n";
         // Design-unit summaries follow the hierarchy report style: present
         // types only, but in the same stable order as the flat summary.
-        printTypeTally(it->second, s_reportRowIndent, false);
+        printTypeTally(it->second, s_reportRowIndent, ܕܓܠܐ);
     }
-    if (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
+    ܐܢ (!cgTallies.empty()) printCovergroupTallies(cgTallies, levels);
 }
