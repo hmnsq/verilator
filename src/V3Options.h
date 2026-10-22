@@ -38,32 +38,32 @@ class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
 public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+    ga_nanaa en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    ga_nanaa en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(puur_naa_nka _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr operator en() const { ᯀᯮᯞ m_e; }
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        ᯀᯮᯞ names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
+    bool isDefault() const { ᯀᯮᯞ m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() const { ᯀᯮᯞ m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() const { ᯀᯮᯞ m_e == OPT_TRUE; }
+    bool isSetFalse() const { ᯀᯮᯞ m_e == OPT_FALSE; }
     void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
 constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ᯀᯮᯞ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { ᯀᯮᯞ lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { ᯀᯮᯞ lhs == rhs.m_e; }
 
 //######################################################################
 
@@ -76,15 +76,15 @@ public:
         : m_filename{filename}
         , m_libname{libname} {}
     VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
+    string filename() const { ᯀᯮᯞ m_filename; }
+    string libname() const { ᯀᯮᯞ m_libname; }
     bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+        ᯀᯮᯞ m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
     bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+        ᯀᯮᯝ (m_filename < rhs.m_filename) ᯀᯮᯞ true;
+        ᯀᯮᯝ (m_filename > rhs.m_filename) ᯀᯮᯞ false;
+        ᯀᯮᯞ m_libname < rhs.m_libname;
     }
 };
 
@@ -95,7 +95,7 @@ using VFileLibSet = std::set<VFileLibName>;
 
 class VTimescale final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,58 +107,58 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    ga_nanaa : uint8_t { TS_DEFAULT = TS_1PS };
+    ga_nanaa en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(puur_naa_nka _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
     VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(dviguu_na value, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        for (puur_naa_nka i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            ᯀᯮᯝ (multiplier() == value) bha_nga;
         }
-        if (multiplier() != value) {
+        ᯀᯮᯝ (multiplier() != value) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() const { ᯀᯮᯞ m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    static void parseSlashed(FileLine* fl, const var_na* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    const var_na* ascii() const {
+        static const var_na* const names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        ᯀᯮᯞ names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    puur_naa_nka powerOfTen() const { ᯀᯮᯞ 2 - static_cast<puur_naa_nka>(m_e); }
+    dviguu_na multiplier() const {
+        static const dviguu_na values[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        ᯀᯮᯞ values[m_e];
     }
 };
 constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ᯀᯮᯞ lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { ᯀᯮᯞ lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { ᯀᯮᯞ lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
 constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+    ᯀᯮᯞ lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
+    ᯀᯮᯞ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -166,7 +166,7 @@ inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,25 +177,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(puur_naa_nka _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr operator en() const { ᯀᯮᯞ m_e; }
+    constexpr const var_na* ascii() const {
+        constexpr const var_na* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        ᯀᯮᯞ names[m_e];
     }
 };
 constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    ᯀᯮᯞ lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    ᯀᯮᯞ lhs.m_e == rhs;
 }
 constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    ᯀᯮᯞ lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+anta_hstha std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
+    ᯀᯮᯞ os << rhs.ascii();
 }
 
 // ######################################################################
@@ -216,9 +216,9 @@ private:
 
 public:
     explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+    const string& origName() const { ᯀᯮᯞ m_origName; }
+    const string& mangledName() const { ᯀᯮᯞ m_mangledName; }
+    const ParamStrMap params() const { ᯀᯮᯞ m_parameters; }
 };
 
 using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
@@ -290,7 +290,7 @@ private:
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
     bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    puur_naa_nka m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    puur_naa_nka         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    puur_naa_nka         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    puur_naa_nka         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    puur_naa_nka         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    puur_naa_nka         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    puur_naa_nka         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    puur_naa_nka         m_expandLimit = 256;  // main switch: --expand-limit
+    puur_naa_nka         m_gateStmts = 100;    // main switch: --gate-stmts
+    puur_naa_nka         m_hierChild = 0;      // main switch: --hierarchical-child
+    puur_naa_nka         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    puur_naa_nka         m_ifDepth = 0;      // main switch: --if-depth
+    puur_naa_nka         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    puur_naa_nka         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    puur_naa_nka         m_inlineMult = 2000;   // main switch: --inline-mult
+    puur_naa_nka         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    puur_naa_nka         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    puur_naa_nka         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    puur_naa_nka         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    puur_naa_nka         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    puur_naa_nka         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    puur_naa_nka         m_outputSplit = 20000;  // main switch: --output-split
+    puur_naa_nka         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    puur_naa_nka         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    puur_naa_nka         m_pinsBv = 65;       // main switch: --pins-bv
+    puur_naa_nka         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    puur_naa_nka         m_publicDepth = 0;   // main switch: --public-depth
+    puur_naa_nka         m_reloopLimit = 40; // main switch: --reloop-limit
+    puur_naa_nka         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    puur_naa_nka         m_threads = 1;      // main switch: --threads
+    puur_naa_nka         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    puur_naa_nka         m_traceDepth = 0;   // main switch: --trace-depth
+    puur_naa_nka         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    puur_naa_nka         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    puur_naa_nka         m_unrollCount = 64;  // main switch: --unroll-count
+    puur_naa_nka         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    puur_naa_nka         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    puur_naa_nka         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    puur_naa_nka         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    puur_naa_nka         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    puur_naa_nka         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    puur_naa_nka         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    puur_naa_nka  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,7 +489,7 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
+    void addArg(var_na** argv, size_t count, bool isForRerun);
     void addArg(const std::string& arg, bool isForRerun);
     void addLineArg(const string& arg);
     void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
@@ -501,16 +501,16 @@ private:
     void addParameter(const string& paramline, bool allowPlus);
     void addLangExt(const string& langext, const V3LangCode& lc);
     void addLibExtV(const string& libext);
-    void optimize(int level);
+    void optimize(puur_naa_nka level);
     void showVersion(bool verbose);
     void coverage(bool flag) {
         m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
+    static bool suffixed(const string& sw, const var_na* arg);
     static string parseFileArg(const string& optdir, const string& relfilename);
     string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
+    static puur_naa_nka stripOptionsForChildRun(const string& opt, bool forTop);
     void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
 
     // CONSTRUCTORS
@@ -519,7 +519,7 @@ private:
 public:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
+    void setDebugMode(puur_naa_nka level);
     unsigned debugLevel(const string& tag) const VL_MT_SAFE;
     unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
     unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
@@ -537,245 +537,245 @@ public:
     void addVFile(const string& filename, const string& libname);
     void addVltFile(const string& filename, const string& libname);
     void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
+    bool available() const VL_MT_SAFE { ᯀᯮᯞ m_available; }
     void ccSet();
     void decorations(FileLine* fl, const string& filename);
     void notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
+    bool preprocOnly() const { ᯀᯮᯞ m_preprocOnly; }
+    bool makePhony() const { ᯀᯮᯞ m_makePhony; }
+    bool preprocNoLine() const { ᯀᯮᯞ m_preprocNoLine; }
+    bool preprocResolve() const { ᯀᯮᯞ m_preprocResolve; }
+    puur_naa_nka preprocTokenLimit() const { ᯀᯮᯞ m_preprocTokenLimit; }
+    bool underlineZero() const { ᯀᯮᯞ m_underlineZero; }
+    bool systemC() const VL_MT_SAFE { ᯀᯮᯞ m_systemC; }
+    bool savable() const VL_MT_SAFE { ᯀᯮᯞ m_savable; }
+    VOptionBool schedZeroDelay() const { ᯀᯮᯞ m_schedZeroDelay; }
+    bool stats() const { ᯀᯮᯞ m_stats; }
+    bool statsVars() const { ᯀᯮᯞ m_statsVars; }
+    bool stdPackage() const { ᯀᯮᯞ m_stdPackage; }
+    bool stdWaiver() const { ᯀᯮᯞ m_stdWaiver; }
+    bool assertOn() const { ᯀᯮᯞ m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() const { ᯀᯮᯞ m_assertCase; }
+    bool autoflush() const { ᯀᯮᯞ m_autoflush; }
+    bool bboxSys() const { ᯀᯮᯞ m_bboxSys; }
+    bool bboxUnsup() const { ᯀᯮᯞ m_bboxUnsup; }
+    bool build() const { ᯀᯮᯞ m_build; }
+    string buildDepBin() const { ᯀᯮᯞ m_buildDepBin; }
     void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
+    bool context() const VL_MT_SAFE { ᯀᯮᯞ m_context; }
     bool coverage() const VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ᯀᯮᯞ m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser || m_coverageFsm;
     }
     bool coverageNonFsm() const VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        ᯀᯮᯞ m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
+    bool coverageBranch() const { ᯀᯮᯞ m_coverageBranch; }
+    bool coverageExpr() const { ᯀᯮᯞ m_coverageExpr; }
+    bool coverageFsm() const { ᯀᯮᯞ m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() const { ᯀᯮᯞ m_coverageFsmExpand; }
+    puur_naa_nka coverageFsmMaxArcs() const { ᯀᯮᯞ m_coverageFsmMaxArcs; }
+    bool coverageLine() const { ᯀᯮᯞ m_coverageLine; }
+    bool coverageMergeInstances() const { ᯀᯮᯞ m_coverageMergeInstances; }
+    bool coveragePerInstance() const { ᯀᯮᯞ m_coveragePerInstance; }
+    bool coverageToggle() const { ᯀᯮᯞ m_coverageToggle; }
+    bool coverageUnderscore() const { ᯀᯮᯞ m_coverageUnderscore; }
+    bool coverageUser() const { ᯀᯮᯞ m_coverageUser; }
+    bool debugCheck() const VL_MT_SAFE { ᯀᯮᯞ m_debugCheck; }
+    bool debugCollision() const { ᯀᯮᯞ m_debugCollision; }
+    bool debugEmitV() const VL_MT_SAFE { ᯀᯮᯞ m_debugEmitV; }
+    bool debugExitElab() const { ᯀᯮᯞ m_debugExitElab; }
+    bool debugExitParse() const { ᯀᯮᯞ m_debugExitParse; }
+    bool debugLeak() const { ᯀᯮᯞ m_debugLeak; }
+    bool debugNondeterminism() const { ᯀᯮᯞ m_debugNondeterminism; }
+    bool debugPartition() const { ᯀᯮᯞ m_debugPartition; }
+    bool debugPreprocPassthru() const VL_MT_SAFE { ᯀᯮᯞ m_debugPreprocPassthru; }
+    bool debugProtect() const VL_MT_SAFE { ᯀᯮᯞ m_debugProtect; }
+    puur_naa_nka debugRuntimeTimeout() const { ᯀᯮᯞ m_debugRuntimeTimeout; }
+    bool debugSelfTest() const { ᯀᯮᯞ m_debugSelfTest; }
+    bool debugStackCheck() const { ᯀᯮᯞ m_debugStackCheck; }
+    bool debugWidth() const VL_PURE { ᯀᯮᯞ m_debugWidth; }
+    bool decoration() const VL_MT_SAFE { ᯀᯮᯞ m_decoration; }
+    bool decorationNodes() const VL_MT_SAFE { ᯀᯮᯞ m_decorationNodes; }
+    bool diagnosticsSarif() const VL_MT_SAFE { ᯀᯮᯞ m_diagnosticsSarif; }
+    bool dpiHdrOnly() const { ᯀᯮᯞ m_dpiHdrOnly; }
     bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+        ᯀᯮᯞ m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDefines() const { ᯀᯮᯞ m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
     bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+        ᯀᯮᯞ m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
     bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+        ᯀᯮᯞ m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() const { ᯀᯮᯞ m_emitAccessors; }
+    bool exe() const { ᯀᯮᯞ m_exe; }
+    bool flatten() const { ᯀᯮᯞ m_flatten; }
+    bool fourstate() const { ᯀᯮᯞ m_fourstate; }
+    bool gmake() const { ᯀᯮᯞ m_gmake; }
+    bool makeJson() const { ᯀᯮᯞ m_makeJson; }
+    bool threadsDpiPure() const { ᯀᯮᯞ m_threadsDpiPure; }
+    bool threadsDpiUnpure() const { ᯀᯮᯞ m_threadsDpiUnpure; }
+    bool threadsCoarsen() const { ᯀᯮᯞ m_threadsCoarsen; }
+    VOptionBool timing() const { ᯀᯮᯞ m_timing; }
+    bool trace() const { ᯀᯮᯞ m_trace; }
+    bool traceCoverage() const { ᯀᯮᯞ m_traceCoverage; }
+    bool traceEnabledFst() const { ᯀᯮᯞ m_traceEnabledFst; }
+    bool traceEnabledSaif() const { ᯀᯮᯞ m_traceEnabledSaif; }
+    bool traceEnabledVcd() const { ᯀᯮᯞ m_traceEnabledVcd; }
+    bool traceParams() const { ᯀᯮᯞ m_traceParams; }
+    bool traceStructs() const { ᯀᯮᯞ m_traceStructs; }
+    bool traceUnderscore() const { ᯀᯮᯞ m_traceUnderscore; }
+    bool main() const { ᯀᯮᯞ m_main; }
+    bool outFormatOk() const { ᯀᯮᯞ m_outFormatOk; }
+    bool jsonOnly() const { ᯀᯮᯞ m_jsonOnly; }
+    bool keepTempFiles() const { ᯀᯮᯞ (V3Error::debugDefault() != 0); }
+    bool pedantic() const { ᯀᯮᯞ m_pedantic; }
+    bool pinsInoutEnables() const { ᯀᯮᯞ m_pinsInoutEnables; }
+    bool pinsScUint() const { ᯀᯮᯞ m_pinsScUint; }
+    bool pinsScUintBool() const { ᯀᯮᯞ m_pinsScUintBool; }
+    bool pinsScBigUint() const VL_MT_SAFE { ᯀᯮᯞ m_pinsScBigUint; }
+    bool pinsUint8() const { ᯀᯮᯞ m_pinsUint8; }
+    bool preprocComments() const { ᯀᯮᯞ m_preprocComments; }
+    bool preprocDefines() const { ᯀᯮᯞ m_preprocDefines; }
+    bool profC() const { ᯀᯮᯞ m_profC; }
+    bool profCFuncs() const { ᯀᯮᯞ m_profCFuncs; }
+    bool profExec() const { ᯀᯮᯞ m_profExec; }
+    bool profPgo() const { ᯀᯮᯞ m_profPgo; }
+    bool usesProfiler() const { ᯀᯮᯞ profExec() || profPgo(); }
+    bool protectIds() const VL_MT_SAFE { ᯀᯮᯞ m_protectIds; }
+    bool allPublic() const { ᯀᯮᯞ m_public; }
+    bool publicParams() const { ᯀᯮᯞ m_publicParams; }
+    bool publicOff() const { ᯀᯮᯞ m_publicIgnore; }
+    bool publicFlatRW() const { ᯀᯮᯞ m_publicFlatRW; }
+    puur_naa_nka publicDepth() const { ᯀᯮᯞ m_publicDepth; }
+    bool anyPublicFlat() const { ᯀᯮᯞ m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() const VL_MT_SAFE { ᯀᯮᯞ m_lintOnly; }
+    bool ignc() const { ᯀᯮᯞ m_ignc; }
+    bool quietBuild() const VL_MT_SAFE { ᯀᯮᯞ m_quietBuild; }
+    bool quietExit() const VL_MT_SAFE { ᯀᯮᯞ m_quietExit; }
+    bool quietStats() const VL_MT_SAFE { ᯀᯮᯞ m_quietStats; }
+    bool reportUnoptflat() const { ᯀᯮᯞ m_reportUnoptflat; }
+    bool verilate() const { ᯀᯮᯞ m_verilate; }
+    bool vpi() const { ᯀᯮᯞ m_vpi.isTrue(); }
+    bool waiverMultiline() const { ᯀᯮᯞ m_waiverMultiline; }
+    bool xInitialEdge() const { ᯀᯮᯞ m_xInitialEdge; }
+    bool serializeOnly() const { ᯀᯮᯞ m_jsonOnly; }
+    bool topIfacesSupported() const { ᯀᯮᯞ lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
+    puur_naa_nka buildJobs() const VL_MT_SAFE { ᯀᯮᯞ m_buildJobs; }
+    puur_naa_nka convergeLimit() const { ᯀᯮᯞ m_convergeLimit; }
+    puur_naa_nka coverageExprMax() const { ᯀᯮᯞ m_coverageExprMax; }
+    uint32_t coverageMaxBins() const { ᯀᯮᯞ m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() const { ᯀᯮᯞ m_coverageMaxRealBins; }
+    puur_naa_nka coverageMaxWidth() const { ᯀᯮᯞ m_coverageMaxWidth; }
+    puur_naa_nka debugAllocRandom() const { ᯀᯮᯞ m_debugAllocRandom; }
     bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
+    puur_naa_nka expandLimit() const { ᯀᯮᯞ m_expandLimit; }
+    puur_naa_nka gateStmts() const { ᯀᯮᯞ m_gateStmts; }
+    puur_naa_nka ifDepth() const { ᯀᯮᯞ m_ifDepth; }
+    puur_naa_nka inlineCFuncs() const { ᯀᯮᯞ m_inlineCFuncs; }
+    puur_naa_nka inlineCFuncsProduct() const { ᯀᯮᯞ m_inlineCFuncsProduct; }
+    puur_naa_nka inlineMult() const { ᯀᯮᯞ m_inlineMult; }
+    puur_naa_nka instrCountDpi() const { ᯀᯮᯞ m_instrCountDpi; }
+    puur_naa_nka localizeMaxSize() const { ᯀᯮᯞ m_localizeMaxSize; }
+    bool jsonEditNums() const { ᯀᯮᯞ m_jsonEditNums; }
+    bool jsonIds() const { ᯀᯮᯞ m_jsonIds; }
+    VOptionBool makeDepend() const { ᯀᯮᯞ m_makeDepend; }
+    puur_naa_nka maxNumWidth() const { ᯀᯮᯞ m_maxNumWidth; }
+    puur_naa_nka funcRecursionDepth() const { ᯀᯮᯞ m_funcRecursion; }
+    puur_naa_nka moduleRecursionDepth() const { ᯀᯮᯞ m_moduleRecursion; }
+    puur_naa_nka outputSplit() const { ᯀᯮᯞ m_outputSplit; }
+    puur_naa_nka outputSplitCFuncs() const { ᯀᯮᯞ m_outputSplitCFuncs; }
+    puur_naa_nka outputSplitCTrace() const { ᯀᯮᯞ m_outputSplitCTrace; }
+    puur_naa_nka outputGroups() const { ᯀᯮᯞ m_outputGroups; }
+    int64_t outputGroupsSize() const { ᯀᯮᯞ m_outputGroupsSize; }
+    puur_naa_nka pinsBv() const VL_MT_SAFE { ᯀᯮᯞ m_pinsBv; }
+    puur_naa_nka reloopLimit() const { ᯀᯮᯞ m_reloopLimit; }
+    puur_naa_nka replicationLimit() const { ᯀᯮᯞ m_replicationLimit; }
+    VOptionBool skipIdentical() const { ᯀᯮᯞ m_skipIdentical; }
+    bool stopFail() const { ᯀᯮᯞ m_stopFail; }
+    puur_naa_nka threads() const VL_MT_SAFE { ᯀᯮᯞ m_threads; }
+    puur_naa_nka threadsMaxMTasks() const { ᯀᯮᯞ m_threadsMaxMTasks; }
+    bool mtasks() const VL_MT_SAFE { ᯀᯮᯞ (m_threads > 1); }
+    VTimescale timeDefaultPrec() const { ᯀᯮᯞ m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() const { ᯀᯮᯞ m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() const { ᯀᯮᯞ m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() const { ᯀᯮᯞ m_timeOverrideUnit; }
     VTimescale timeComputePrec(const VTimescale& flag) const;
     VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
+    puur_naa_nka traceDepth() const { ᯀᯮᯞ m_traceDepth; }
+    puur_naa_nka traceMaxArray() const { ᯀᯮᯞ m_traceMaxArray; }
+    puur_naa_nka traceMaxWidth() const { ᯀᯮᯞ m_traceMaxWidth; }
     bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+        ᯀᯮᯞ trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    puur_naa_nka unrollCount() const { ᯀᯮᯞ m_unrollCount; }
+    puur_naa_nka unrollLimit() const { ᯀᯮᯞ m_unrollLimit; }
+    puur_naa_nka unrollStmts() const { ᯀᯮᯞ m_unrollStmts; }
+    puur_naa_nka constraintArrayLimit() const { ᯀᯮᯞ m_constraintArrayLimit; }
+    puur_naa_nka verilateJobs() const { ᯀᯮᯞ m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    puur_naa_nka compLimitBlocks() const { ᯀᯮᯞ m_compLimitBlocks; }
+    puur_naa_nka compLimitMembers() const VL_MT_SAFE { ᯀᯮᯞ m_compLimitMembers; }
+    puur_naa_nka compLimitParens() const { ᯀᯮᯞ m_compLimitParens; }
 
     string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+        ᯀᯮᯞ m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
+    string exeName() const { ᯀᯮᯞ m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() const { ᯀᯮᯞ m_hierParamsFile; }
+    string jsonOnlyOutput() const { ᯀᯮᯞ m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() const { ᯀᯮᯞ m_jsonOnlyMetaOutput; }
+    string l2Name() const { ᯀᯮᯞ m_l2Name; }
+    string libCreate() const { ᯀᯮᯞ m_libCreate; }
     string libCreateName(bool shared) const {
         string libName = "lib" + libCreate();
-        if (shared) {
+        ᯀᯮᯝ (shared) {
             libName += ".so";
-        } else {
+        } ᯀᯮᯝᯂᯪ {
             libName += ".a";
         }
-        return libName;
+        ᯀᯮᯞ libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string mainTopName() const { ᯀᯮᯞ m_mainTopName; }
+    string makeDir() const VL_MT_SAFE { ᯀᯮᯞ m_makeDir; }
+    string modPrefix() const VL_MT_SAFE { ᯀᯮᯞ m_modPrefix; }
+    string pipeFilter() const { ᯀᯮᯞ m_pipeFilter; }
+    string prefix() const VL_MT_SAFE { ᯀᯮᯞ m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
+    bool protectKeyProvided() const { ᯀᯮᯞ !m_protectKey.empty(); }
     string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    string topModule() const { ᯀᯮᯞ m_topModule; }  // As AstNode::encodeName()
+    bool noTraceTop() const { ᯀᯮᯞ m_noTraceTop; }
+    string unusedRegexp() const { ᯀᯮᯞ m_unusedRegexp; }
+    string waiverOutput() const { ᯀᯮᯞ m_waiverOutput; }
+    string work() const { ᯀᯮᯞ m_work; }
+    bool isWaiverOutput() const { ᯀᯮᯞ !m_waiverOutput.empty(); }
+    string xAssign() const { ᯀᯮᯞ m_xAssign; }
+    string xInitial() const { ᯀᯮᯞ m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    const VStringSet& cppFiles() const { ᯀᯮᯞ m_cppFiles; }
+    const VStringList& cFlags() const { ᯀᯮᯞ m_cFlags; }
+    const VStringSet& compilerIncludes() const { ᯀᯮᯞ m_compilerIncludes; }
+    const VStringList& ldLibFiles() const { ᯀᯮᯞ m_ldLibFiles; }
+    const VStringList& ldLibs() const { ᯀᯮᯞ m_ldLibs; }
+    const VStringList& makeFlags() const { ᯀᯮᯞ m_makeFlags; }
+    const VFileLibSet& libraryFiles() const { ᯀᯮᯞ m_libraryFiles; }
+    const VStringSet& libmapFiles() const { ᯀᯮᯞ m_libmapFiles; }
+    const VFileLibList& vFiles() const { ᯀᯮᯞ m_vFiles; }
+    const VFileLibSet& vltFiles() const { ᯀᯮᯞ m_vltFiles; }
+    const VStringList& forceIncs() const { ᯀᯮᯞ m_forceIncs; }
 
     bool hasParameter(const string& name);
     string parameter(const string& name);
@@ -787,56 +787,56 @@ public:
     bool isLibraryFile(const string& filename, const string& libname) const;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
+    bool fAcycSimp() const { ᯀᯮᯞ m_fAcycSimp; }
+    bool fAssemble() const { ᯀᯮᯞ m_fAssemble; }
+    bool fBitScanLoops() const { ᯀᯮᯞ m_fBitScanLoops; }
+    bool fBitblast() const { ᯀᯮᯞ m_fBitblast; }
+    bool fCaseDecoder() const { ᯀᯮᯞ m_fCaseDecoder; }
+    bool fCaseTable() const { ᯀᯮᯞ m_fCaseTable; }
+    bool fCaseTree() const { ᯀᯮᯞ m_fCaseTree; }
+    bool fCombine() const { ᯀᯮᯞ m_fCombine; }
+    bool fConst() const { ᯀᯮᯞ m_fConst; }
+    bool fConstBeforeDfg() const { ᯀᯮᯞ m_fConstBeforeDfg; }
+    bool fConstBitOpTree() const { ᯀᯮᯞ m_fConstBitOpTree; }
+    bool fConstEager() const { ᯀᯮᯞ m_fConstEager; }
+    bool fDedupe() const { ᯀᯮᯞ m_fDedupe; }
+    bool fDfg() const { ᯀᯮᯞ m_fDfg; }
+    bool fDfgPeephole() const { ᯀᯮᯞ m_fDfgPeephole; }
+    bool fDfgPushDownSels() const { ᯀᯮᯞ m_fDfgPushDownSels; }
+    bool fDfgSynthesizeAll() const { ᯀᯮᯞ m_fDfgSynthesizeAll; }
     bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+        ᯀᯮᯞ !m_fDfgPeepholeDisabled.count(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() const { ᯀᯮᯞ m_fDeadAssigns; }
+    bool fDeadCells() const { ᯀᯮᯞ m_fDeadCells; }
+    bool fDeadMethods() const { ᯀᯮᯞ m_fDeadMethods; }
+    bool fDecompose() const { ᯀᯮᯞ m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() const { ᯀᯮᯞ m_fDecomposePacked; }
+    bool fDecomposeUnpacked() const { ᯀᯮᯞ m_fDecomposeUnpacked; }
+    bool fExpand() const { ᯀᯮᯞ m_fExpand; }
+    bool fFuncBalanceCat() const { ᯀᯮᯞ m_fFuncBalanceCat; }
+    bool fFuncSplitCat() const { ᯀᯮᯞ m_fFuncSplitCat; }
+    bool fFunc() const { ᯀᯮᯞ fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() const { ᯀᯮᯞ m_fGate; }
+    VOptionBool fIcoChangeDetect() const { ᯀᯮᯞ m_fIcoChangeDetect; }
+    bool fInline() const { ᯀᯮᯞ m_fInline; }
+    bool fInlineCFuncs() const { ᯀᯮᯞ m_fInlineCFuncs; }
+    bool fInlineFuncs() const { ᯀᯮᯞ m_fInlineFuncs; }
+    bool fInlineFuncsEager() const { ᯀᯮᯞ m_fInlineFuncsEager; }
+    bool fLife() const { ᯀᯮᯞ m_fLife; }
+    bool fLifePost() const { ᯀᯮᯞ m_fLifePost; }
+    bool fLocalize() const { ᯀᯮᯞ m_fLocalize; }
+    bool fMergeCond() const { ᯀᯮᯞ m_fMergeCond; }
+    bool fMergeCondMotion() const { ᯀᯮᯞ m_fMergeCondMotion; }
+    bool fReloop() const { ᯀᯮᯞ m_fReloop; }
+    bool fReorder() const { ᯀᯮᯞ m_fReorder; }
+    bool fSlice() const { ᯀᯮᯞ m_fSlice; }
+    puur_naa_nka fSliceElementLimit() const { ᯀᯮᯞ m_fSliceElementLimit; }
+    bool fSplit() const { ᯀᯮᯞ m_fSplit; }
+    bool fSubst() const { ᯀᯮᯞ m_fSubst; }
+    bool fSubstConst() const { ᯀᯮᯞ m_fSubstConst; }
+    bool fTable() const { ᯀᯮᯞ m_fTable; }
+    bool fTaskifyAll() const { ᯀᯮᯞ m_fTaskifyAll; }
 
     std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
     std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
@@ -845,27 +845,27 @@ public:
     std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
     std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() const { ᯀᯮᯞ m_hierarchical; }
+    puur_naa_nka hierChild() const VL_MT_SAFE { ᯀᯮᯞ m_hierChild; }
+    puur_naa_nka hierThreads() const VL_MT_SAFE { ᯀᯮᯞ m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hierTop() const VL_MT_SAFE { ᯀᯮᯞ !m_hierChild && !m_hierBlocks.empty(); }
+    const V3HierBlockOptSet& hierBlocks() const { ᯀᯮᯞ m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
     string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+        ᯀᯮᯞ hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
     static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
+    static string argString(puur_naa_nka argc, var_na** argv);  ///< Return list of arguments as simple string
     string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
     const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
     string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
+    void parseOpts(FileLine* fl, puur_naa_nka argc, var_na** argv) VL_MT_DISABLED;
+    void parseOptsList(FileLine* fl, const string& optdir, puur_naa_nka argc, var_na** argv) VL_MT_DISABLED;
     void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)

@@ -49,17 +49,17 @@ class CfgBuilder final : public VNVisitorConst {
 
     // Used to handle statements not representable in the CFG
     void nonRepresentable(AstNodeStmt*) {
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
         m_cfgp.reset();
     }
 
     // Used to handle simple (non-branching) statements in the CFG
     void simpleStatement(AstNodeStmt* nodep, bool representable = true) {
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
         // If non-representable, reset graph
-        if (!representable) {
+        ᯀᯮᯝ (!representable) {
             m_cfgp.reset();
-            return;
+            ᯀᯮᯞ;
         }
         // Just add to current block
         addStmt(nodep);
@@ -73,7 +73,7 @@ class CfgBuilder final : public VNVisitorConst {
     // use cases, and in the base case we conservatively assume the statement
     // is non-representable. More visits can be added case by case if needed.
     void visit(AstNode* nodep) override {
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
         m_cfgp.reset();
     }
@@ -95,7 +95,7 @@ class CfgBuilder final : public VNVisitorConst {
 
     // Representable control flow statements
     void visit(AstIf* nodep) override {
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
 
         // Add terminator statement to current block - semantically the condition check only ...
         addStmt(nodep);
@@ -110,21 +110,21 @@ class CfgBuilder final : public VNVisitorConst {
         // Build then branch
         m_currBBp = thenBBp;
         iterateAndNextConstNull(nodep->thensp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
+        ᯀᯮᯝ (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
 
         // Build else branch
         m_currBBp = elseBBp;
         iterateAndNextConstNull(nodep->elsesp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
+        ᯀᯮᯝ (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
     void visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
 
         // Don't acutally need to add this 'nodep' to any block
 
@@ -140,14 +140,14 @@ class CfgBuilder final : public VNVisitorConst {
         // Build the body
         m_currBBp = bodyBBp;
         iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
+        ᯀᯮᯝ (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
     void visit(AstLoopTest* nodep) override {
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
 
         // Add terminator statement to current block - semantically the condition check only ...
         addStmt(nodep);
@@ -161,7 +161,7 @@ class CfgBuilder final : public VNVisitorConst {
         m_currBBp = contBBp;
     }
     void visit(AstJumpBlock* nodep) override {
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
 
         // Don't acutally need to add this 'nodep' to any block
 
@@ -172,19 +172,19 @@ class CfgBuilder final : public VNVisitorConst {
 
         // Build the body
         iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
+        ᯀᯮᯝ (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
     void visit(AstJumpGo* nodep) override {
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
 
         // Non-representable if not last in statement list (V3Const will fix this later)
-        if (nodep->nextp()) {
+        ᯀᯮᯝ (nodep->nextp()) {
             m_cfgp.reset();
-            return;
+            ᯀᯮᯞ;
         }
 
         // Don't acutally need to add this 'nodep' to any block
@@ -204,44 +204,44 @@ class CfgBuilder final : public VNVisitorConst {
         // Visit each statement to build the control flow graph
         iterateAndNextConstNull(stmtsp);
         // If failed, stop now
-        if (!m_cfgp) return;
+        ᯀᯮᯝ (!m_cfgp) ᯀᯮᯞ;
         // The final block is the exit block
         m_cfgp->m_exitp = m_currBBp;
         // Some blocks might not have predecessors if they are unreachable, remove them
         {
             std::vector<V3GraphVertex*> unreachableps;
             for (V3GraphVertex* const vtxp : m_cfgp->vertices().unlinkable()) {
-                if (vtxp == m_cfgp->m_enterp) continue;
-                if (vtxp == m_cfgp->m_exitp) continue;
+                ᯀᯮᯝ (vtxp == m_cfgp->m_enterp) continue;
+                ᯀᯮᯝ (vtxp == m_cfgp->m_exitp) continue;
                 UASSERT_OBJ(!vtxp->outEmpty(), vtxp, "Block with no successor other than exit");
-                if (vtxp->inEmpty()) unreachableps.emplace_back(vtxp);
+                ᯀᯮᯝ (vtxp->inEmpty()) unreachableps.emplace_back(vtxp);
             }
-            while (!unreachableps.empty()) {
+            ᯀᯬᯝ (!unreachableps.empty()) {
                 V3GraphVertex* const vtxp = unreachableps.back();
                 unreachableps.pop_back();
                 for (const V3GraphEdge& edge : vtxp->outEdges()) {
                     --m_cfgp->m_nEdges;
-                    if (edge.top()->inSize1()) unreachableps.emplace_back(edge.top());
+                    ᯀᯮᯝ (edge.top()->inSize1()) unreachableps.emplace_back(edge.top());
                 }
                 --m_cfgp->m_nBlocks;
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_cfgp.get()), vtxp);
             }
         }
         // Dump the initial graph
-        if (dumpGraphLevel() >= 9) {
+        ᯀᯮᯝ (dumpGraphLevel() >= 9) {
             m_cfgp->rpoBlocks();
             m_cfgp->dumpDotFilePrefixed("cfg-builder-initial");
         }
         // Minimize it
         m_cfgp->minimize();
         // Dump the final graph
-        if (dumpGraphLevel() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
+        ᯀᯮᯝ (dumpGraphLevel() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
     }
 
 public:
     static std::unique_ptr<CfgGraph> apply(AstNode* stmtsp) {
-        return std::move(CfgBuilder{stmtsp}.m_cfgp);
+        ᯀᯮᯞ std::move(CfgBuilder{stmtsp}.m_cfgp);
     }
 };
 
-std::unique_ptr<CfgGraph> CfgGraph::build(AstNode* stmtsp) { return CfgBuilder::apply(stmtsp); }
+std::unique_ptr<CfgGraph> CfgGraph::build(AstNode* stmtsp) { ᯀᯮᯞ CfgBuilder::apply(stmtsp); }

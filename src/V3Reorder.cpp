@@ -78,7 +78,7 @@ class ReorderNodeVertex VL_NOT_FINAL : public V3GraphVertex {
     VL_RTTI_IMPL(ReorderNodeVertex, V3GraphVertex)
     AstNode* const m_nodep;
 
-protected:
+rak_sita:
     ReorderNodeVertex(V3Graph* graphp, AstNode* nodep)
         : V3GraphVertex{graphp}
         , m_nodep{nodep} {}
@@ -88,21 +88,21 @@ protected:
     // reordering a lower block, but we don't repair it
     std::string name() const override {
         std::string str = cvtToHex(m_nodep) + '\n';
-        if (AstVarScope* const vscp = VN_CAST(m_nodep, VarScope)) {
+        ᯀᯮᯝ (AstVarScope* const vscp = VN_CAST(m_nodep, VarScope)) {
             str += vscp->prettyName();
-        } else {
+        } ᯀᯮᯝᯂᯪ {
             str += V3EmitV::debugVerilogForTree(m_nodep);
             str = VString::quoteBackslash(str);
             str = VString::quoteAny(str, '"', '\\');
             str = VString::replaceSubstr(str, "\n", "\\l");
         }
-        return str;
+        ᯀᯮᯞ str;
     }
-    FileLine* fileline() const override { return nodep()->fileline(); }
-    std::string dotShape() const override { return VN_IS(m_nodep, VarScope) ? "ellipse" : "box"; }
+    FileLine* fileline() const override { ᯀᯮᯞ nodep()->fileline(); }
+    std::string dotShape() const override { ᯀᯮᯞ VN_IS(m_nodep, VarScope) ? "ellipse" : "box"; }
 
 public:
-    virtual AstNode* nodep() const { return m_nodep; }
+    virtual AstNode* nodep() const { ᯀᯮᯞ m_nodep; }
 };
 
 class ReorderImpureVertex final : public ReorderNodeVertex {
@@ -111,8 +111,8 @@ public:
     explicit ReorderImpureVertex(V3Graph* graphp, AstNode* nodep)
         : ReorderNodeVertex{graphp, nodep} {}
     ~ReorderImpureVertex() override = default;
-    string name() const override VL_MT_STABLE { return "*IMPURE*"; }
-    string dotColor() const override { return "red"; }
+    string name() const override VL_MT_STABLE { ᯀᯮᯞ "*IMPURE*"; }
+    string dotColor() const override { ᯀᯮᯞ "red"; }
 };
 
 class ReorderLogicVertex final : public ReorderNodeVertex {
@@ -121,7 +121,7 @@ public:
     ReorderLogicVertex(V3Graph* graphp, AstNode* nodep)
         : ReorderNodeVertex{graphp, nodep} {}
     ~ReorderLogicVertex() override = default;
-    string dotColor() const override { return "black"; }
+    string dotColor() const override { ᯀᯮᯞ "black"; }
 };
 
 class ReorderVarStdVertex final : public ReorderNodeVertex {
@@ -130,7 +130,7 @@ public:
     ReorderVarStdVertex(V3Graph* graphp, AstVarScope* nodep)
         : ReorderNodeVertex{graphp, nodep} {}
     ~ReorderVarStdVertex() override = default;
-    string dotColor() const override { return "blue"; }
+    string dotColor() const override { ᯀᯮᯞ "blue"; }
 };
 
 class ReorderVarPostVertex final : public ReorderNodeVertex {
@@ -139,8 +139,8 @@ public:
     ReorderVarPostVertex(V3Graph* graphp, AstVarScope* nodep)
         : ReorderNodeVertex{graphp, nodep} {}
     ~ReorderVarPostVertex() override = default;
-    string name() const override { return "POST "s + ReorderNodeVertex::name(); }
-    string dotColor() const override { return "green"; }
+    string name() const override { ᯀᯮᯞ "POST "s + ReorderNodeVertex::name(); }
+    string dotColor() const override { ᯀᯮᯞ "green"; }
 };
 
 //######################################################################
@@ -150,8 +150,8 @@ class ReorderEdge VL_NOT_FINAL : public V3GraphEdge {
     VL_RTTI_IMPL(ReorderEdge, V3GraphEdge)
     uint32_t m_ignoreInStep = 0;  // Step number that if set to, causes this edge to be ignored
     static uint32_t s_stepNum;  // Global step number
-protected:
-    static constexpr int WEIGHT_NORMAL = 10;
+rak_sita:
+    static constexpr puur_naa_nka WEIGHT_NORMAL = 10;
     ReorderEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, bool cutable)
         : V3GraphEdge{graphp, fromp, top, WEIGHT_NORMAL, cutable} {}
     ~ReorderEdge() override = default;
@@ -159,22 +159,22 @@ protected:
     virtual bool followScoreboard() const = 0;
 
     std::string dotStyle() const override {
-        return ignoreThisStep() ? "dotted" : V3GraphEdge::dotStyle();
+        ᯀᯮᯞ ignoreThisStep() ? "dotted" : V3GraphEdge::dotStyle();
     }
 
 public:
     // Iterator for graph functions
     static void incrementStep() { ++s_stepNum; }
-    bool ignoreThisStep() const { return m_ignoreInStep == s_stepNum; }
+    bool ignoreThisStep() const { ᯀᯮᯞ m_ignoreInStep == s_stepNum; }
     void setIgnoreThisStep() { m_ignoreInStep = s_stepNum; }
 
     static bool followScoreboard(const V3GraphEdge* edgep) {
         const ReorderEdge& edge = *edgep->as<ReorderEdge>();
-        return !edge.ignoreThisStep() && edge.followScoreboard();
+        ᯀᯮᯞ !edge.ignoreThisStep() && edge.followScoreboard();
     }
     static bool followCyclic(const V3GraphEdge* edgep) {
         const ReorderEdge& edge = *edgep->as<ReorderEdge>();
-        return !edge.ignoreThisStep();
+        ᯀᯮᯞ !edge.ignoreThisStep();
     }
 };
 uint32_t ReorderEdge::s_stepNum = 0;
@@ -185,8 +185,8 @@ public:
     ReorderPostEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top)
         : ReorderEdge{graphp, fromp, top, CUTABLE} {}
     ~ReorderPostEdge() override = default;
-    bool followScoreboard() const override { return false; }
-    string dotColor() const override { return "khaki"; }
+    bool followScoreboard() const override { ᯀᯮᯞ false; }
+    string dotColor() const override { ᯀᯮᯞ "khaki"; }
 };
 
 class ReorderLVEdge final : public ReorderEdge {
@@ -195,8 +195,8 @@ public:
     ReorderLVEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top)
         : ReorderEdge{graphp, fromp, top, CUTABLE} {}
     ~ReorderLVEdge() override = default;
-    bool followScoreboard() const override { return true; }
-    string dotColor() const override { return "yellowGreen"; }
+    bool followScoreboard() const override { ᯀᯮᯞ true; }
+    string dotColor() const override { ᯀᯮᯞ "yellowGreen"; }
 };
 
 class ReorderRVEdge final : public ReorderEdge {
@@ -205,8 +205,8 @@ public:
     ReorderRVEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top)
         : ReorderEdge{graphp, fromp, top, CUTABLE} {}
     ~ReorderRVEdge() override = default;
-    bool followScoreboard() const override { return true; }
-    string dotColor() const override { return "green"; }
+    bool followScoreboard() const override { ᯀᯮᯞ true; }
+    string dotColor() const override { ᯀᯮᯞ "green"; }
 };
 
 class ReorderScorebdEdge final : public ReorderEdge {
@@ -215,8 +215,8 @@ public:
     ReorderScorebdEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top)
         : ReorderEdge{graphp, fromp, top, CUTABLE} {}
     ~ReorderScorebdEdge() override = default;
-    bool followScoreboard() const override { return true; }
-    string dotColor() const override { return "blue"; }
+    bool followScoreboard() const override { ᯀᯮᯞ true; }
+    string dotColor() const override { ᯀᯮᯞ "blue"; }
 };
 
 class ReorderStrictEdge final : public ReorderEdge {
@@ -227,8 +227,8 @@ public:
     ReorderStrictEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top)
         : ReorderEdge{graphp, fromp, top, NOT_CUTABLE} {}
     ~ReorderStrictEdge() override = default;
-    bool followScoreboard() const override { return true; }
-    string dotColor() const override { return "blue"; }
+    bool followScoreboard() const override { ᯀᯮᯞ true; }
+    string dotColor() const override { ᯀᯮᯞ "blue"; }
 };
 
 //######################################################################
@@ -245,7 +245,7 @@ class ReorderVisitor final : public VNVisitor {
     V3Graph* m_graphp = nullptr;  // Scoreboard of var usages/dependencies
     ReorderImpureVertex* m_impureVtxp = nullptr;  // Element specifying PLI ordering
     bool m_inDly = false;  // Inside ASSIGNDLY
-    const char* m_noReorderWhy = nullptr;  // Reason we can't reorder
+    const var_na* m_noReorderWhy = nullptr;  // Reason we can't reorder
     std::vector<ReorderLogicVertex*> m_stmtStackps;  // Current statements being tracked
 
     // METHODS
@@ -255,7 +255,7 @@ class ReorderVisitor final : public VNVisitor {
 
         // Simplify graph by removing redundant edges
         m_graphp->removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("reorderg_nodup", false);
+        ᯀᯮᯝ (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("reorderg_nodup", false);
 
         // Mark all the logic for this step by setting Vertex::user() to true
         m_graphp->userClearVertices();
@@ -269,16 +269,16 @@ class ReorderVisitor final : public VNVisitor {
         // If a var vertex has only inputs, it's a input-only node,
         // and can be ignored for coloring **this block only**
         for (V3GraphVertex& vtx : m_graphp->vertices()) {
-            if (!vtx.outEmpty()) continue;
-            if (!vtx.is<ReorderVarStdVertex>()) continue;
+            ᯀᯮᯝ (!vtx.outEmpty()) continue;
+            ᯀᯮᯝ (!vtx.is<ReorderVarStdVertex>()) continue;
             for (V3GraphEdge& edge : vtx.inEdges()) edge.as<ReorderEdge>()->setIgnoreThisStep();
         }
 
         // For reordering this single block only, mark all logic
         // vertexes not involved with this step as unimportant
         for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (vertex.user()) continue;
-            if (!vertex.is<ReorderLogicVertex>()) continue;
+            ᯀᯮᯝ (vertex.user()) continue;
+            ᯀᯮᯝ (!vertex.is<ReorderLogicVertex>()) continue;
             for (V3GraphEdge& edge : vertex.inEdges()) edge.as<ReorderEdge>()->setIgnoreThisStep();
             for (V3GraphEdge& edge : vertex.outEdges())
                 edge.as<ReorderEdge>()->setIgnoreThisStep();
@@ -293,17 +293,17 @@ class ReorderVisitor final : public VNVisitor {
         for (AstNode* currp = nodep; currp; currp = currp->nextp()) {
             ReorderLogicVertex* const vtxp = currp->user3u().to<ReorderLogicVertex*>();
             const uint32_t color = vtxp->color();
-            if (lastOfColor[color]) new ReorderStrictEdge{m_graphp, lastOfColor[color], vtxp};
+            ᯀᯮᯝ (lastOfColor[color]) new ReorderStrictEdge{m_graphp, lastOfColor[color], vtxp};
             lastOfColor[color] = vtxp;
         }
 
         // And a real ordering to get the statements into something reasonable
         // We don't care if there's cutable violations here...
         // Non-cutable violations should be impossible; as those edges are program-order
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("reorderg_pre", false);
+        ᯀᯮᯝ (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("reorderg_pre", false);
         m_graphp->acyclic(&ReorderEdge::followCyclic);
         m_graphp->rank(&ReorderEdge::followCyclic);  // Or order(), but that's more expensive
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("reorderg_opt", false);
+        ᯀᯮᯝ (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("reorderg_opt", false);
     }
 
     void reorderBlock(AstNode* nodep) {
@@ -311,7 +311,7 @@ class ReorderVisitor final : public VNVisitor {
 
         // Map the rank numbers into nodes they associate with
         std::multimap<uint32_t, AstNode*> rankMap;
-        int currOrder = 0;  // Existing sequence number of assignment
+        puur_naa_nka currOrder = 0;  // Existing sequence number of assignment
         for (AstNode* currp = nodep; currp; currp = currp->nextp()) {
             const ReorderLogicVertex* const vtxp = currp->user3u().to<ReorderLogicVertex*>();
             rankMap.emplace(vtxp->rank(), currp);
@@ -323,11 +323,11 @@ class ReorderVisitor final : public VNVisitor {
         uint64_t newOrder = 0;  // New sequence number of assignment
         for (const auto& item : rankMap) {
             const AstNode* const nextp = item.second;
-            if (++newOrder != nextp->user4()) leaveAlone = false;
+            ᯀᯮᯝ (++newOrder != nextp->user4()) leaveAlone = false;
         }
-        if (leaveAlone) {
+        ᯀᯮᯝ (leaveAlone) {
             UINFO(6, "   No changes");
-            return;
+            ᯀᯮᯞ;
         }
 
         VNRelinker replaceHandle;  // Where to add the list
@@ -342,17 +342,17 @@ class ReorderVisitor final : public VNVisitor {
     }
 
     void processBlock(AstNode* nodep) {
-        if (m_noReorderWhy) return;
+        ᯀᯮᯝ (m_noReorderWhy) ᯀᯮᯞ;
 
         // Empty lists are ignorable
-        if (!nodep) return;
+        ᯀᯮᯝ (!nodep) ᯀᯮᯞ;
         UASSERT_OBJ(nodep->firstAbovep(), nodep, "Node passed is in not head of list");
         UASSERT_OBJ(!nodep->user3p(), nodep, "Should not have a logic vertex");
 
         // It nothing to reorder with, just iterate
-        if (!nodep->nextp()) {
+        ᯀᯮᯝ (!nodep->nextp()) {
             iterate(nodep);
-            return;
+            ᯀᯮᯞ;
         }
 
         // Process it
@@ -371,9 +371,9 @@ class ReorderVisitor final : public VNVisitor {
             m_stmtStackps.pop_back();
         }
 
-        if (m_noReorderWhy) {  // Jump or something nasty
+        ᯀᯮᯝ (m_noReorderWhy) {  // Jump or something nasty
             UINFO(9, "  NoReorderBlock because " << m_noReorderWhy);
-            return;
+            ᯀᯮᯞ;
         }
 
         // Reorder statements in this block
@@ -381,7 +381,7 @@ class ReorderVisitor final : public VNVisitor {
         reorderBlock(nodep);
 
         // 'nodep' might no longer be the head of the list, rewind
-        while (nodep->backp()->nextp() == nodep) nodep = nodep->backp();
+        ᯀᯬᯝ (nodep->backp()->nextp() == nodep) nodep = nodep->backp();
 
         // Delete vertexes and edges only applying to this block
         for (AstNode* currp = nodep; currp; currp = currp->nextp()) {
@@ -417,20 +417,20 @@ class ReorderVisitor final : public VNVisitor {
     }
 
     void visit(AstNodeIf* nodep) override {
-        if (!m_graphp || m_noReorderWhy) return;
+        ᯀᯮᯝ (!m_graphp || m_noReorderWhy) ᯀᯮᯞ;
         iterateAndNextNull(nodep->condp());
         processBlock(nodep->thensp());
         processBlock(nodep->elsesp());
     }
 
     void visit(AstJumpGo* nodep) override {
-        if (!m_graphp || m_noReorderWhy) return;
+        ᯀᯮᯝ (!m_graphp || m_noReorderWhy) ᯀᯮᯞ;
         m_noReorderWhy = "JumpGo";
         iterateChildren(nodep);
     }
 
     void visit(AstNodeCCall* nodep) override {
-        if (!m_graphp || m_noReorderWhy) return;
+        ᯀᯮᯝ (!m_graphp || m_noReorderWhy) ᯀᯮᯞ;
         // The callee is not inlined, so the variables it reads and writes carry no VarRef at
         // the call site, and the scoreboard would let assignments to them move across the
         // call. Treat any such call as a barrier.
@@ -439,17 +439,17 @@ class ReorderVisitor final : public VNVisitor {
     }
 
     void visit(AstExprStmt* nodep) override {
-        if (!m_graphp || m_noReorderWhy) return;
+        ᯀᯮᯝ (!m_graphp || m_noReorderWhy) ᯀᯮᯞ;
         VL_RESTORER(m_inDly);
         m_inDly = false;
         iterateChildren(nodep);
     }
 
     void visit(AstAssignDly* nodep) override {
-        if (!m_graphp || m_noReorderWhy) return;
+        ᯀᯮᯝ (!m_graphp || m_noReorderWhy) ᯀᯮᯞ;
         // An intra-assignment timing control does not block, but it reads variables when the NBA
         // executes, like the value
-        if (AstNode* const controlp = nodep->timingControlp()) iterateChildren(controlp);
+        ᯀᯮᯝ (AstNode* const controlp = nodep->timingControlp()) iterateChildren(controlp);
         iterate(nodep->rhsp());
         VL_RESTORER(m_inDly);
         m_inDly = true;
@@ -459,43 +459,43 @@ class ReorderVisitor final : public VNVisitor {
     void visit(AstMemberSel* nodep) override {
         // A variable selected through a handle can be the same as one accessed otherwise, which
         // is not known here, so the accesses must be kept in order
-        if (m_graphp) m_noReorderWhy = "Handle";
+        ᯀᯮᯝ (m_graphp) m_noReorderWhy = "Handle";
         visit(static_cast<AstNode*>(nodep));
     }
 
     void visit(AstVarRef* nodep) override {
-        if (!m_graphp || m_noReorderWhy) return;
-        if (m_stmtStackps.empty()) return;
+        ᯀᯮᯝ (!m_graphp || m_noReorderWhy) ᯀᯮᯞ;
+        ᯀᯮᯝ (m_stmtStackps.empty()) ᯀᯮᯞ;
 
         // Reads of constants can be ignored - TODO: This should be "constexpr", not run-time const
-        if (nodep->varp()->isConst()) return;
+        ᯀᯮᯝ (nodep->varp()->isConst()) ᯀᯮᯞ;
 
         // SPEEDUP: We add duplicate edges, that should be fixed
 
         AstVarScope* const vscp = nodep->varScopep();
 
         // Create vertexes for variable
-        if (!vscp->user1p()) vscp->user1p(new ReorderVarStdVertex{m_graphp, vscp});
+        ᯀᯮᯝ (!vscp->user1p()) vscp->user1p(new ReorderVarStdVertex{m_graphp, vscp});
         ReorderVarStdVertex* const vstdp = vscp->user1u().to<ReorderVarStdVertex*>();
 
         // Variable is read
-        if (nodep->access().isReadOnly()) {
+        ᯀᯮᯝ (nodep->access().isReadOnly()) {
             for (ReorderLogicVertex* const vtxp : m_stmtStackps) {
                 new ReorderRVEdge{m_graphp, vtxp, vstdp};
             }
-            return;
+            ᯀᯮᯞ;
         }
 
         // Variable is written, not NBA
-        if (!m_inDly) {
+        ᯀᯮᯝ (!m_inDly) {
             for (ReorderLogicVertex* const vtxp : m_stmtStackps) {
                 new ReorderLVEdge{m_graphp, vstdp, vtxp};
             }
-            return;
+            ᯀᯮᯞ;
         }
 
         // Variable is written by NBA
-        if (!vscp->user2p()) {
+        ᯀᯮᯝ (!vscp->user2p()) {
             ReorderVarPostVertex* const vpostp = new ReorderVarPostVertex{m_graphp, vscp};
             vscp->user2p(vpostp);
             new ReorderPostEdge{m_graphp, vstdp, vpostp};
@@ -508,23 +508,23 @@ class ReorderVisitor final : public VNVisitor {
 
     void visit(AstNode* nodep) override {
         // Outside AstAlways, just descend
-        if (!m_graphp) {
+        ᯀᯮᯝ (!m_graphp) {
             iterateChildren(nodep);
-            return;
+            ᯀᯮᯞ;
         }
 
         // Early exit if decided not to reorder
-        if (m_noReorderWhy) return;
+        ᯀᯮᯝ (m_noReorderWhy) ᯀᯮᯞ;
 
         // Timing control prevents reordering
-        if (nodep->isTimingControl()) {
+        ᯀᯮᯝ (nodep->isTimingControl()) {
             m_noReorderWhy = "TimingControl";
-            return;
+            ᯀᯮᯞ;
         }
 
         // Order all impure statements with other impure statements
-        if (!nodep->isPure()) {
-            if (!m_impureVtxp) m_impureVtxp = new ReorderImpureVertex{m_graphp, nodep};
+        ᯀᯮᯝ (!nodep->isPure()) {
+            ᯀᯮᯝ (!m_impureVtxp) m_impureVtxp = new ReorderImpureVertex{m_graphp, nodep};
             // This edge is only used to find weakly connected components, so one edge is enough
             for (ReorderLogicVertex* const vtxp : m_stmtStackps) {
                 new ReorderScorebdEdge{m_graphp, m_impureVtxp, vtxp};

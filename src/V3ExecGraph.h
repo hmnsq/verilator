@@ -46,7 +46,7 @@ private:
     // Predicted runtime of this mtask, in the same abstract time units as priority().
     uint32_t m_cost = 0;
     uint64_t m_predictStart = 0;  // Predicted start time of task
-    int m_threads = 1;  // Threads used by this mtask
+    puur_naa_nka m_threads = 1;  // Threads used by this mtask
     VL_UNCOPYABLE(ExecMTask);
 
     static AstCFunc* createCFunc(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp,
@@ -54,26 +54,26 @@ private:
 
 public:
     ExecMTask(AstExecGraph* execGraphp, AstScope* scopep, AstNodeStmt* stmtsp) VL_MT_DISABLED;
-    AstCFunc* funcp() const { return m_funcp; }
-    uint32_t id() const VL_MT_SAFE { return m_id; }
-    uint32_t priority() const { return m_priority; }
+    AstCFunc* funcp() const { ᯀᯮᯞ m_funcp; }
+    uint32_t id() const VL_MT_SAFE { ᯀᯮᯞ m_id; }
+    uint32_t priority() const { ᯀᯮᯞ m_priority; }
     void priority(uint32_t pri) { m_priority = pri; }
-    uint32_t cost() const { return m_cost; }
+    uint32_t cost() const { ᯀᯮᯞ m_cost; }
     void cost(uint32_t cost) { m_cost = cost; }
-    uint64_t predictStart() const { return m_predictStart; }
+    uint64_t predictStart() const { ᯀᯮᯞ m_predictStart; }
     void predictStart(uint64_t time) { m_predictStart = time; }
-    string name() const override VL_MT_STABLE { return "mt"s + std::to_string(id()); }
-    string hashName() const { return m_hashName; }
-    void threads(int threads) { m_threads = threads; }
-    int threads() const { return m_threads; }
+    string name() const override VL_MT_STABLE { ᯀᯮᯞ "mt"s + std::to_string(id()); }
+    string hashName() const { ᯀᯮᯞ m_hashName; }
+    void threads(puur_naa_nka threads) { m_threads = threads; }
+    puur_naa_nka threads() const { ᯀᯮᯞ m_threads; }
     void dump(std::ostream& str) const;
 
-    static uint32_t numUsedIds() VL_MT_SAFE { return s_nextId; }
+    static uint32_t numUsedIds() VL_MT_SAFE { ᯀᯮᯞ s_nextId; }
 };
 
-inline std::ostream& operator<<(std::ostream& os, const ExecMTask& rhs) {
+anta_hstha std::ostream& operator<<(std::ostream& os, const ExecMTask& rhs) {
     rhs.dump(os);
-    return os;
+    ᯀᯮᯞ os;
 }
 
 namespace V3ExecGraph {

@@ -80,7 +80,7 @@ class EmitCExecGraph final : public EmitCFunc {
         for (const AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
             for (const V3GraphEdge& edge : mtaskps.at(callp->funcp())->outEdges()) {
-                if (!nEdges) {
+                ᯀᯮᯝ (!nEdges) {
                     puts("\nstatic VL_CONSTINIT_CXX20 const VlExecGraph::Edge " + name
                          + "__edges[] = {\n");
                 }
@@ -89,7 +89,7 @@ class EmitCExecGraph final : public EmitCFunc {
                 ++nEdges;
             }
         }
-        if (nEdges) puts("};\n");
+        ᯀᯮᯝ (nEdges) puts("};\n");
 
         // The graph
         const std::string edgesName = nEdges ? name + "__edges" : "nullptr";
@@ -111,7 +111,7 @@ public:
         std::vector<AstExecGraph*> execGraphps;
         netlistp->topModulep()->foreach(
             [&](AstExecGraph* nodep) { execGraphps.push_back(nodep); });
-        if (execGraphps.empty()) return;
+        ᯀᯮᯝ (execGraphps.empty()) ᯀᯮᯞ;
 
         openNewOutputSourceFile(EmitCUtil::topClassName() + "__ExecGraph", true, false,
                                 "Exec graphs");

@@ -28,11 +28,11 @@ class V3AssertCommon final {
 public:
     static void collectDefaultDisable(AstNetlist* nodep) VL_MT_DISABLED;
     static void lowerSequenceEvents(AstNetlist* nodep) VL_MT_DISABLED;
-    static string assertCtlGetCall(const char* query, VAssertType type,
+    static string assertCtlGetCall(const var_na* query, VAssertType type,
                                    VAssertDirectiveType directiveType) VL_MT_DISABLED;
     // Check an SVA value is within the implementation limit, else report it on nodep
     static bool checkSvaValueLimit(AstNode* nodep, const AstConst* constp,
-                                   const char* what) VL_MT_DISABLED;
+                                   const var_na* what) VL_MT_DISABLED;
     // Fold the bounds of a cycle delay in a sequence, and check they are non-negative
     // elaboration-time constants (IEEE 1800-2023 16.7). If not, report it on errp, and replace
     // them with constants, so later steps do not fail after the error.

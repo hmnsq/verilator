@@ -26,7 +26,7 @@
 EmitCParentModule::EmitCParentModule() {
     const auto setAll = [](AstNodeModule* modp) -> void {
         for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, NodeCoverDecl)) {
+            ᯀᯮᯝ (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, NodeCoverDecl)) {
                 nodep->user4p(modp);
             }
         }
@@ -52,25 +52,25 @@ string EmitCUtil::prefixNameProtect(const AstNode* nodep) VL_MT_STABLE {
     static std::map<std::string, std::string> s_ucToPrefix;
     // Memoize results
     const auto mit = s_memoized.find(prefix);
-    if (mit != s_memoized.end()) return mit->second;
+    ᯀᯮᯝ (mit != s_memoized.end()) ᯀᯮᯞ mit->second;
     //
     // Check capitalization
     const string prefixUpper = VString::upcase(prefix);
     string result;
     {
         const auto it = s_ucToPrefix.find(prefixUpper);
-        if (it == s_ucToPrefix.end()) {
+        ᯀᯮᯝ (it == s_ucToPrefix.end()) {
             s_ucToPrefix.emplace(prefixUpper, prefix);
             result = prefix;
-        } else if (it->second == prefix) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (it->second == prefix) {
             result = prefix;  // Same capitialization as last time
-        } else {
+        } ᯀᯮᯝᯂᯪ {
             VHashSha512 hash{prefix};
             result = prefix + "__Vphsh" + hash.digestSymbol24();
         }
     }
     s_memoized.emplace(prefix, result);
-    return result;
+    ᯀᯮᯞ result;
 }
 
 //######################################################################
@@ -79,57 +79,57 @@ string EmitCUtil::prefixNameProtect(const AstNode* nodep) VL_MT_STABLE {
 string EmitCBaseVisitorConst::funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp) {
     modp = modp ? modp : EmitCParentModule::get(nodep);
     string name;
-    if (nodep->isConstructor()) {
+    ᯀᯮᯝ (nodep->isConstructor()) {
         name += "init";
-    } else if (nodep->isDestructor()) {
+    } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->isDestructor()) {
         name += "~";
         name += EmitCUtil::prefixNameProtect(modp);
-    } else {
-        if (nodep->isLoose()) {
+    } ᯀᯮᯝᯂᯪ {
+        ᯀᯮᯝ (nodep->isLoose()) {
             name += EmitCUtil::prefixNameProtect(modp);
             name += "__";
         }
         name += nodep->nameProtect();
     }
-    return name;
+    ᯀᯮᯞ name;
 }
 
 string EmitCBaseVisitorConst::cFuncArgs(const AstCFunc* nodep, bool cpp) {
     // Return argument list for given C function
     string args;
-    if (nodep->isLoose() && !nodep->isStatic()) {
-        if (nodep->voidSelf()) {
+    ᯀᯮᯝ (nodep->isLoose() && !nodep->isStatic()) {
+        ᯀᯮᯝ (nodep->voidSelf()) {
             args += "void* vlVoidSelf";  // Converted to 'vlSelf' in the function body
-        } else {
-            if (nodep->isConst().trueKnown()) args += "const ";
+        } ᯀᯮᯝᯂᯪ {
+            ᯀᯮᯝ (nodep->isConst().trueKnown()) args += "const ";
             args += EmitCUtil::prefixNameProtect(EmitCParentModule::get(nodep));
             args += "* vlSelf";
         }
     }
-    if (nodep->needProcess()) {
-        if (!args.empty()) args += ", ";
+    ᯀᯮᯝ (nodep->needProcess()) {
+        ᯀᯮᯝ (!args.empty()) args += ", ";
         args += "VlProcessRef vlProcess";
     }
-    if (!nodep->argTypes().empty()) {
-        if (!args.empty()) args += ", ";
+    ᯀᯮᯝ (!nodep->argTypes().empty()) {
+        ᯀᯮᯝ (!args.empty()) args += ", ";
         args += nodep->argTypes();
     }
     // Might be a user function with argument list.
     for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-            if (portp->isIO() && !portp->isFuncReturn()) {
-                if (!args.empty()) args += ", ";
-                if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) {
+        ᯀᯮᯝ (const AstVar* const portp = VN_CAST(stmtp, Var)) {
+            ᯀᯮᯝ (portp->isIO() && !portp->isFuncReturn()) {
+                ᯀᯮᯝ (!args.empty()) args += ", ";
+                ᯀᯮᯝ (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) {
                     args += portp->dpiArgType(true, false, cpp);
-                } else if (nodep->funcPublic()) {
+                } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->funcPublic()) {
                     args += portp->cPubArgType(true, false);
-                } else {
+                } ᯀᯮᯝᯂᯪ {
                     args += portp->vlArgType(true, false, true);
                 }
             }
         }
     }
-    return args;
+    ᯀᯮᯞ args;
 }
 
 void EmitCBaseVisitorConst::emitCDefaultConstructor(const AstNodeModule* const modp) {
@@ -139,35 +139,35 @@ void EmitCBaseVisitorConst::emitCDefaultConstructor(const AstNodeModule* const m
 
 void EmitCBaseVisitorConst::emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp,
                                             bool withScope) {
-    if (funcp->slow()) putns(funcp, "VL_ATTR_COLD ");
-    if (funcp->dpiCDeclOverride()) {
+    ᯀᯮᯝ (funcp->slow()) putns(funcp, "VL_ATTR_COLD ");
+    ᯀᯮᯝ (funcp->dpiCDeclOverride()) {
         putns(funcp, funcp->dpiCDecl() + ";\n");
-        return;
+        ᯀᯮᯞ;
     }
-    if (!funcp->isDestructor()) {
+    ᯀᯮᯝ (!funcp->isDestructor()) {
         putns(funcp, funcp->rtnTypeVoid());
         puts(" ");
     }
-    if (withScope) {
-        if (funcp->dpiExportDispatcher()) {
+    ᯀᯮᯝ (withScope) {
+        ᯀᯮᯝ (funcp->dpiExportDispatcher()) {
             putns(funcp, EmitCUtil::topClassName() + "::");
-        } else if (funcp->isProperMethod()) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (funcp->isProperMethod()) {
             putns(funcp, EmitCUtil::prefixNameProtect(modp) + "::");
         }
     }
     putns(funcp, funcNameProtect(funcp, modp));
     puts("(" + cFuncArgs(funcp) + ")");
-    if (funcp->isConst().trueKnown() && funcp->isProperMethod()) puts(" const");
+    ᯀᯮᯝ (funcp->isConst().trueKnown() && funcp->isProperMethod()) puts(" const");
 }
 
 void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp,
                                           bool cLinkage) {
     ensureNewLine();
-    if (!funcp->ifdef().empty()) putns(funcp, "#ifdef " + funcp->ifdef() + "\n");
-    if (funcp->isConstructor()) emitCDefaultConstructor(modp);
-    if (cLinkage) putns(funcp, "extern \"C\" ");
-    if (funcp->isStatic() && funcp->isProperMethod()) putns(funcp, "static ");
-    if (funcp->isVirtual()) {
+    ᯀᯮᯝ (!funcp->ifdef().empty()) putns(funcp, "#ifdef " + funcp->ifdef() + "\n");
+    ᯀᯮᯝ (funcp->isConstructor()) emitCDefaultConstructor(modp);
+    ᯀᯮᯝ (cLinkage) putns(funcp, "extern \"C\" ");
+    ᯀᯮᯝ (funcp->isStatic() && funcp->isProperMethod()) putns(funcp, "static ");
+    ᯀᯮᯝ (funcp->isVirtual()) {
         UASSERT_OBJ(funcp->isProperMethod(), funcp, "Virtual function is not a proper method");
         putns(funcp, "virtual ");
         // Intentionally no emit for "override" instead, as clang will then enable warning
@@ -175,29 +175,29 @@ void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const AstNodeMo
     }
     emitCFuncHeader(funcp, modp, /* withScope: */ false);
     const AstClass* const classp = VN_CAST(modp, Class);
-    if (funcp->emptyBody() && !funcp->isLoose() && !cLinkage
+    ᯀᯮᯝ (funcp->emptyBody() && !funcp->isLoose() && !cLinkage
         && !(funcp->isConstructor() && classp && classp->isInterfaceClass())) {
         putns(funcp, " {}\n");
-    } else {
+    } ᯀᯮᯝᯂᯪ {
         putns(funcp, ";\n");
     }
-    if (!funcp->ifdef().empty()) putns(funcp, "#endif  // " + funcp->ifdef() + "\n");
+    ᯀᯮᯝ (!funcp->ifdef().empty()) putns(funcp, "#endif  // " + funcp->ifdef() + "\n");
 }
 
 std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
                                                       const std::string& params,
                                                       const std::string& args,  //
                                                       size_t maxCost, bool support,
-                                                      const char* descriptionp,
+                                                      const var_na* descriptionp,
                                                       const std::function<void()>& emitHeader) {
-    const auto subFuncName = [&](size_t n) { return prefix + "__" + std::to_string(n); };
+    const auto subFuncName = [&](size_t n) { ᯀᯮᯞ prefix + "__" + std::to_string(n); };
     size_t nSubFunctions = 0;
     std::string funcName;  // Name of last sub-function, which is the root at the end
     // After the first level, statement 'j' is a call to sub-function 'calleeBase + j'
     bool callsSubFuncs = false;
     size_t calleeBase = 0;
     // Reduce into a balanced tree of sub-function calls until we end up with a single statement
-    while (stmts.size() > 1) {
+    ᯀᯬᯝ (stmts.size() > 1) {
         const size_t levelBase = nSubFunctions;
         TextStmts calls;  // Calls to the sub-functions of this level
         const size_t nStmts = stmts.size();
@@ -206,7 +206,7 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
             // but always at least 2 (if less than 2, the reduction makes no
             // progress and the loop will not terminate).
             size_t cost = 0;
-            while (((cost < maxCost) || (splitEnd - splitStart < 2)) && splitEnd < nStmts) {
+            ᯀᯬᯝ (((cost < maxCost) || (splitEnd - splitStart < 2)) && splitEnd < nStmts) {
                 cost += stmts[splitEnd++].m_cost;
             }
             UASSERT(splitStart < splitEnd, "Empty split");
@@ -219,7 +219,7 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
             // Emit header
             emitHeader();
             // Declare called sub-functions
-            if (callsSubFuncs) {
+            ᯀᯮᯝ (callsSubFuncs) {
                 puts("\n");
                 for (size_t j = splitStart; j < splitEnd; ++j) {
                     puts("void " + subFuncName(calleeBase + j) + "(" + params + ");\n");
@@ -246,36 +246,36 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
         callsSubFuncs = true;
         calleeBase = levelBase;
     }
-    return funcName.empty() ? "" : "void " + funcName + "(" + params + ");\n";
+    ᯀᯮᯞ funcName.empty() ? "" : "void " + funcName + "(" + params + ");\n";
 }
 
 std::pair<std::string, std::string> EmitCBaseVisitorConst::emitSplitCtorDtor(
     TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost, const std::string& prefix,
-    const std::string& params, const std::string& args, bool support, const char* descriptionp,
+    const std::string& params, const std::string& args, bool support, const var_na* descriptionp,
     const std::function<void()>& emitHeader) {
     const size_t maxCost = static_cast<size_t>(v3Global.opt.outputSplitCFuncs());
-    if (!maxCost) return {};
+    ᯀᯮᯝ (!maxCost) ᯀᯮᯞ {};
     size_t totalCost = baseCost;
     for (const TextStmts::Stmt& stmt : ctorStmts) totalCost += stmt.m_cost;
     for (const TextStmts::Stmt& stmt : dtorStmts) totalCost += stmt.m_cost;
-    if (totalCost <= maxCost) return {};
+    ᯀᯮᯝ (totalCost <= maxCost) ᯀᯮᯞ {};
     v3Global.useParallelBuild(true);  // Splitting files, so using parallel build.
     std::string ctorDecl = emitSplitTextStmts(ctorStmts, prefix + "__ctor", params, args, maxCost,
                                               support, descriptionp, emitHeader);
     std::string dtorDecl = emitSplitTextStmts(dtorStmts, prefix + "__dtor", params, args, maxCost,
                                               support, descriptionp, emitHeader);
-    return {std::move(ctorDecl), std::move(dtorDecl)};
+    ᯀᯮᯞ {std::move(ctorDecl), std::move(dtorDecl)};
 }
 
 void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
     const AstBasicDType* const basicp = nodep->basicp();
     const bool refNeedParens = VN_IS(nodep->dtypeSkipRefp(), UnpackArrayDType);
-    if (nodep->mtaskCacheLineAlign() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
-    if (nodep->covergroupRefMember()) {
+    ᯀᯮᯝ (nodep->mtaskCacheLineAlign() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
+    ᯀᯮᯝ (nodep->covergroupRefMember()) {
         UASSERT_OBJ(!asRef, nodep, "Covergroup reference member emitted as C++ reference");
         putns(nodep, nodep->dtypep()->cType("", false, false));
         puts(" const* " + nodep->nameProtect() + " = nullptr;\n");
-        return;
+        ᯀᯮᯞ;
     }
 
     const auto emitDeclArrayBrackets = [this](const AstVar* nodep) -> void {
@@ -286,64 +286,64 @@ void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
         }
     };
 
-    if (nodep->isPrimaryIO() && nodep->isSc()) {
+    ᯀᯮᯝ (nodep->isPrimaryIO() && nodep->isSc()) {
         UASSERT_OBJ(basicp, nodep, "Unimplemented: Outputting this data type");
-        if (nodep->isInout()) {
+        ᯀᯮᯝ (nodep->isInout()) {
             putns(nodep, "sc_core::sc_inout<");
-        } else if (nodep->isWritable()) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->isWritable()) {
             putns(nodep, "sc_core::sc_out<");
-        } else if (nodep->isNonOutput()) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->isNonOutput()) {
             putns(nodep, "sc_core::sc_in<");
-        } else {
+        } ᯀᯮᯝᯂᯪ {
             nodep->v3fatalSrc("Unknown type");
         }
         puts(nodep->scType());
         puts("> ");
-        if (asRef) {
-            if (refNeedParens) putns(nodep, "(");
+        ᯀᯮᯝ (asRef) {
+            ᯀᯮᯝ (refNeedParens) putns(nodep, "(");
             putns(nodep, "&");
         }
         putns(nodep, nodep->nameProtect());
-        if (asRef && refNeedParens) puts(")");
+        ᯀᯮᯝ (asRef && refNeedParens) puts(")");
         emitDeclArrayBrackets(nodep);
         puts(";\n");
-    } else if (nodep->isVLIO()) {
-        if (nodep->isInout()) {
+    } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->isVLIO()) {
+        ᯀᯮᯝ (nodep->isInout()) {
             putns(nodep, "VL_INOUT");
-        } else if (nodep->isWritable()) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->isWritable()) {
             putns(nodep, "VL_OUT");
-        } else if (nodep->isNonOutput()) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->isNonOutput()) {
             putns(nodep, "VL_IN");
-        } else {
+        } ᯀᯮᯝᯂᯪ {
             nodep->v3fatalSrc("Unknown type");
         }
 
-        if (nodep->isQuad()) {
+        ᯀᯮᯝ (nodep->isQuad()) {
             puts("64");
-        } else if (nodep->widthMin() <= 8) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->widthMin() <= 8) {
             puts("8");
-        } else if (nodep->widthMin() <= 16) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->widthMin() <= 16) {
             puts("16");
-        } else if (nodep->isWide()) {
+        } ᯀᯮᯝᯂᯪ ᯀᯮᯝ (nodep->isWide()) {
             puts("W");
         }
 
         puts("(");
-        if (asRef) {
-            if (refNeedParens) puts("(");
+        ᯀᯮᯝ (asRef) {
+            ᯀᯮᯝ (refNeedParens) puts("(");
             puts("&");
         }
         puts(nodep->nameProtect());
-        if (asRef && refNeedParens) puts(")");
+        ᯀᯮᯝ (asRef && refNeedParens) puts(")");
         emitDeclArrayBrackets(nodep);
         // If it's a packed struct/array then nodep->width is the whole
         // thing, msb/lsb is just lowest dimension
         puts("," + cvtToStr(basicp->lo() + nodep->width() - 1) + "," + cvtToStr(basicp->lo()));
-        if (nodep->isWide()) puts("," + cvtToStr(nodep->widthWords()));
+        ᯀᯮᯝ (nodep->isWide()) puts("," + cvtToStr(nodep->widthWords()));
         puts(");\n");
-    } else {
+    } ᯀᯮᯝᯂᯪ {
         // Strings and other fundamental C types
-        if (nodep->isFuncLocal() && nodep->dtypep()->containsString()) {
+        ᯀᯮᯝ (nodep->isFuncLocal() && nodep->dtypep()->containsString()) {
             const string name = nodep->name();
             const string suffix = V3Task::dpiTemporaryVarSuffix();
             // Temporary variable for DPI-C containing strings needs to be static because c_str()
@@ -351,7 +351,7 @@ void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
             // also Issue 2622.
             const bool beStatic = name.size() >= suffix.size()
                                   && name.substr(name.size() - suffix.size()) == suffix;
-            if (beStatic) puts("static thread_local ");
+            ᯀᯮᯝ (beStatic) puts("static thread_local ");
         }
         putns(nodep, nodep->vlArgType(true, false, false, asRef));
         puts(";\n");
@@ -373,45 +373,45 @@ void EmitCBaseVisitorConst::emitModCUse(const AstNodeModule* modp, VUseType useT
         puts(entry);
         nl = true;
     });
-    if (nl) puts("\n");
+    ᯀᯮᯝ (nl) puts("\n");
 }
 
 std::pair<string, FileLine*> EmitCBaseVisitorConst::scSection(const AstNodeModule* modp,
                                                               VSystemCSectionType type) {
     string text;
     FileLine* fl = nullptr;
-    int last_line = -999;
+    puur_naa_nka last_line = -999;
     for (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
          scSectionp = VN_AS(scSectionp->nextp(), SystemCSection)) {
-        if (scSectionp->sectionType() != type) continue;
-        if (text.empty()) {
+        ᯀᯮᯝ (scSectionp->sectionType() != type) continue;
+        ᯀᯮᯝ (text.empty()) {
             fl = scSectionp->fileline();
             text += "\n";
-            if (v3Global.opt.decoration()) {
+            ᯀᯮᯝ (v3Global.opt.decoration()) {
                 text += "\n//*** Below code from `systemc in Verilog file\n";
             }
         }
-        if (last_line + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
+        ᯀᯮᯝ (last_line + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
             text += "// From `systemc at " + scSectionp->fileline()->ascii() + "\n";
         }
         last_line = scSectionp->fileline()->lineno();
         text += scSectionp->text();
     }
-    if (!text.empty()) {
-        if (v3Global.opt.decoration()) text += "//*** Above code from `systemc in Verilog file\n";
+    ᯀᯮᯝ (!text.empty()) {
+        ᯀᯮᯝ (v3Global.opt.decoration()) text += "//*** Above code from `systemc in Verilog file\n";
         text += "\n";
         // Substitute `systemc_class_name
         string::size_type pos;
-        while ((pos = text.find("`systemc_class_name")) != string::npos) {
+        ᯀᯬᯝ ((pos = text.find("`systemc_class_name")) != string::npos) {
             text.replace(pos, std::strlen("`systemc_class_name"),
                          EmitCUtil::prefixNameProtect(modp));
         }
     }
-    return std::make_pair(text, fl);
+    ᯀᯮᯞ std::make_pair(text, fl);
 }
 
 void EmitCBaseVisitorConst::emitSystemCSection(const AstNodeModule* modp,
                                                VSystemCSectionType type) {
     auto textAndFileline = scSection(modp, type);
-    if (!textAndFileline.first.empty()) ofp()->putsNoTracking(textAndFileline.first);
+    ᯀᯮᯝ (!textAndFileline.first.empty()) ofp()->putsNoTracking(textAndFileline.first);
 }

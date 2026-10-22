@@ -50,19 +50,19 @@ class V3EmitMkJsonEmitter final {
         for (AstNodeFile* nodep = v3Global.rootp()->filesp(); nodep;
              nodep = VN_AS(nodep->nextp(), NodeFile)) {
             const AstCFile* const cfilep = VN_CAST(nodep, CFile);
-            if (cfilep && cfilep->source()) {
+            ᯀᯮᯝ (cfilep && cfilep->source()) {
                 const std::string filename
                     = V3Os::filenameSlashPath(V3Os::filenameAbsolutePath(cfilep->name()));
-                if (cfilep->support()) {
-                    if (cfilep->slow()) {
+                ᯀᯮᯝ (cfilep->support()) {
+                    ᯀᯮᯝ (cfilep->slow()) {
                         supportSlow.emplace_back(filename);
-                    } else {
+                    } ᯀᯮᯝᯂᯪ {
                         supportFast.emplace_back(filename);
                     }
-                } else {
-                    if (cfilep->slow()) {
+                } ᯀᯮᯝᯂᯪ {
+                    ᯀᯮᯝ (cfilep->slow()) {
                         classesSlow.emplace_back(filename);
-                    } else {
+                    } ᯀᯮᯝᯂᯪ {
                         classesFast.emplace_back(filename);
                     }
                 }
@@ -73,7 +73,7 @@ class V3EmitMkJsonEmitter final {
             V3Os::filenameAbsolutePath(V3Options::getenvVERILATOR_ROOT()));
         for (const string& cpp : v3Global.verilatedCppFiles())
             global.emplace_back(verilatorRoot + "/include/" + cpp);
-        if (!v3Global.opt.libCreate().empty()) {
+        ᯀᯮᯝ (!v3Global.opt.libCreate().empty()) {
             global.emplace_back(makeDir + "/" + v3Global.opt.libCreate() + ".cpp");
         }
 
@@ -112,7 +112,7 @@ class V3EmitMkJsonEmitter final {
             .putList("user_classes", cppFiles)
             .end();
 
-        if (const V3HierGraph* const graphp = v3Global.hierGraphp()) {
+        ᯀᯮᯝ (const V3HierGraph* const graphp = v3Global.hierGraphp()) {
             of.begin("submodules", '[');
 
             // Enumerate in dependency order, leaves first. TODO: Shouldn't

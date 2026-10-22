@@ -25,7 +25,7 @@
 
 //============================================================================
 
-enum VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
+ga_nanaa VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
 
 class V3LinkDot final {
     static void dumpSubstep(const string& name) VL_MT_DISABLED;

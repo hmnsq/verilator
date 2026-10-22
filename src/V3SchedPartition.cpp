@@ -63,10 +63,10 @@ public:
     string name() const override {
         std::ostringstream os;
         V3EmitV::verilogForTree(const_cast<AstSenItem*>(m_senItemp), os);
-        return os.str();
+        ᯀᯮᯞ os.str();
     }
-    string dotShape() const override { return "doubleoctagon"; }
-    string dotColor() const override { return "red"; }
+    string dotShape() const override { ᯀᯮᯞ "doubleoctagon"; }
+    string dotColor() const override { ᯀᯮᯞ "red"; }
     // LCOV_EXCL_STOP
 };
 
@@ -82,15 +82,15 @@ public:
         , m_scopep{scopep}
         , m_senTreep{senTreep}
         , m_logicp{logicp} {}
-    AstScope* scopep() const { return m_scopep; }
-    AstSenTree* senTreep() const { return m_senTreep; }
-    AstNode* logicp() const { return m_logicp; }
+    AstScope* scopep() const { ᯀᯮᯞ m_scopep; }
+    AstSenTree* senTreep() const { ᯀᯮᯞ m_senTreep; }
+    AstNode* logicp() const { ᯀᯮᯞ m_logicp; }
 
     // LCOV_EXCL_START // Debug code
     string name() const override VL_MT_STABLE {
-        return m_logicp->typeName() + ("\n" + m_logicp->fileline()->ascii());
+        ᯀᯮᯞ m_logicp->typeName() + ("\n" + m_logicp->fileline()->ascii());
     };
-    string dotShape() const override { return "rectangle"; }
+    string dotShape() const override { ᯀᯮᯞ "rectangle"; }
     // LCOV_EXCL_STOP
 };
 
@@ -103,15 +103,15 @@ public:
         : V3GraphVertex{graphp}
         , m_vscp{vscp} {}
 
-    AstVar* varp() const { return m_vscp->varp(); }
+    AstVar* varp() const { ᯀᯮᯞ m_vscp->varp(); }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
+    string name() const override VL_MT_STABLE { ᯀᯮᯞ m_vscp->name(); }
     string dotShape() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
+        ᯀᯮᯞ m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "invhouse" : "ellipse";
     }
     string dotColor() const override {
-        return m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "green" : "black";
+        ᯀᯮᯞ m_vscp->scopep()->isTop() && m_vscp->varp()->isNonOutput() ? "green" : "black";
     }
     // LCOV_EXCL_STOP
 };
@@ -137,21 +137,21 @@ class SchedGraphBuilder final : public VNVisitor {
     AstVarScope* const m_dpiExportTriggerp = v3Global.rootp()->dpiExportTriggerp();
 
     SchedVarVertex* getVarVertex(AstVarScope* vscp) const {
-        if (!vscp->user1p()) {
+        ᯀᯮᯝ (!vscp->user1p()) {
             SchedVarVertex* const vtxp = new SchedVarVertex{m_graphp, vscp};
             // If this variable can be written via a DPI export, add a source edge from the
             // DPI export trigger vertex. This ensures calls to DPI exports that might write a
             // clock end up in the 'act' region.
-            if (vscp->varp()->isWrittenByDpi()) {
+            ᯀᯮᯝ (vscp->varp()->isWrittenByDpi()) {
                 new V3GraphEdge{m_graphp, getVarVertex(m_dpiExportTriggerp), vtxp, 1};
             }
             vscp->user1p(vtxp);
         }
-        return vscp->user1u().to<SchedVarVertex*>();
+        ᯀᯮᯞ vscp->user1u().to<SchedVarVertex*>();
     }
 
     SchedSenVertex* getSenVertex(AstSenItem* senItemp) {
-        if (!senItemp->user1p()) {
+        ᯀᯮᯝ (!senItemp->user1p()) {
             // There is a unique SchedSenVertex for each globally unique AstSenItem. Multiple
             // AstSenTree might use the same AstSenItem (e.g.: posedge clk1 or rst, posedge clk2 or
             // rst), so we use a hash map to get the unique SchedSenVertex. (Note: This creates
@@ -159,12 +159,12 @@ class SchedGraphBuilder final : public VNVisitor {
             // OK for now).
             const auto pair = m_senVertices.emplace(*senItemp, nullptr);
             // If it does not exist, create it
-            if (pair.second) {
+            ᯀᯮᯝ (pair.second) {
                 // Create the vertex
                 SchedSenVertex* const vtxp = new SchedSenVertex{m_graphp, senItemp};
 
                 // Connect up the variable references
-                if (senItemp->sensp()) {
+                ᯀᯮᯝ (senItemp->sensp()) {
                     senItemp->sensp()->foreach([&](AstVarRef* refp) {
                         new V3GraphEdge{m_graphp, getVarVertex(refp->varScopep()), vtxp, 1};
                     });
@@ -177,7 +177,7 @@ class SchedGraphBuilder final : public VNVisitor {
             // Cache sensitivity vertex
             senItemp->user1p(pair.first->second);
         }
-        return senItemp->user1u().to<SchedSenVertex*>();
+        ᯀᯮᯞ senItemp->user1u().to<SchedSenVertex*>();
     }
 
     void visitLogic(AstNode* nodep) {
@@ -187,7 +187,7 @@ class SchedGraphBuilder final : public VNVisitor {
             = new SchedLogicVertex{m_graphp, m_scopep, m_senTreep, nodep};
 
         // Clocked or hybrid logic has explicit sensitivity, so add edge from sensitivity vertex
-        if (!m_senTreep->hasCombo()) {
+        ᯀᯮᯝ (!m_senTreep->hasCombo()) {
             m_senTreep->foreach([this, nodep, logicVtxp](AstSenItem* senItemp) {
                 UASSERT_OBJ(senItemp->isClocked() || senItemp->isHybrid(), nodep,
                             "Non-clocked SenItem under clocked SenTree");
@@ -201,20 +201,20 @@ class SchedGraphBuilder final : public VNVisitor {
         V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
         nodep->foreach([this, logicVtxp, &forceReadEdgeIgnores](const AstVarRef* vrefp) {
             AstVarScope* const vscp = vrefp->varScopep();
-            if (vrefp->access().isReadOrRW() && m_readTriggersThisLogic(vscp)
+            ᯀᯮᯝ (vrefp->access().isReadOrRW() && m_readTriggersThisLogic(vscp)
                 && !forceReadEdgeIgnores.count(vscp)) {
                 new V3GraphEdge{m_graphp, getVarVertex(vscp), logicVtxp, 10};
             }
-            if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite()) {
+            ᯀᯮᯝ (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite()) {
                 new V3GraphEdge{m_graphp, logicVtxp, getVarVertex(vscp), 10};
             }
         });
 
         // If the logic calls a 'context' DPI import, it might fire the DPI Export trigger
-        if (m_dpiExportTriggerp) {
+        ᯀᯮᯝ (m_dpiExportTriggerp) {
             nodep->foreach([this, logicVtxp](const AstCCall* callp) {
-                if (!callp->funcp()->dpiImportWrapper()) return;
-                if (!callp->funcp()->dpiContext()) return;
+                ᯀᯮᯝ (!callp->funcp()->dpiImportWrapper()) ᯀᯮᯞ;
+                ᯀᯮᯝ (!callp->funcp()->dpiContext()) ᯀᯮᯞ;
                 new V3GraphEdge{m_graphp, logicVtxp, getVarVertex(m_dpiExportTriggerp), 10};
             });
         }
@@ -228,7 +228,7 @@ class SchedGraphBuilder final : public VNVisitor {
         UASSERT_OBJ(!m_senTreep, nodep, "Should not nest");
 
         // Mark explicit sensitivities as not triggering these blocks
-        if (senTreep->hasHybrid()) {
+        ᯀᯮᯝ (senTreep->hasHybrid()) {
             AstNode::user2ClearTree();
             senTreep->foreach([](const AstVarRef* refp) {  //
                 refp->varScopep()->user2(true);
@@ -275,13 +275,13 @@ class SchedGraphBuilder final : public VNVisitor {
             }
         };
         // Clocked logic is never triggered by reads
-        m_readTriggersThisLogic = [](AstVarScope*) { return false; };
+        m_readTriggersThisLogic = [](AstVarScope*) { ᯀᯮᯞ false; };
         iter(clockedLogic);
         // Combinational logic is always triggered by reads
-        m_readTriggersThisLogic = [](AstVarScope*) { return true; };
+        m_readTriggersThisLogic = [](AstVarScope*) { ᯀᯮᯞ true; };
         iter(combinationalLogic);
         // Hybrid logic is triggered by all reads, except for reads of the explicit sensitivities
-        m_readTriggersThisLogic = [](AstVarScope* vscp) { return !vscp->user2(); };
+        m_readTriggersThisLogic = [](AstVarScope* vscp) { ᯀᯮᯞ !vscp->user2(); };
         iter(hybridLogic);
     }
 
@@ -291,7 +291,7 @@ public:
                                           const LogicByScope& combinationalLogic,
                                           const LogicByScope& hybridLogic) {
         const SchedGraphBuilder visitor{clockedLogic, combinationalLogic, hybridLogic};
-        return std::unique_ptr<V3Graph>{visitor.m_graphp};
+        ᯀᯮᯞ std::unique_ptr<V3Graph>{visitor.m_graphp};
     }
 };
 
@@ -301,18 +301,18 @@ void colorActiveRegion(V3Graph& graph) {
 
     // Trace from all SchedSenVertex
     for (V3GraphVertex& vtx : graph.vertices()) {
-        if (const auto activeEventVtxp = vtx.cast<SchedSenVertex>()) {
+        ᯀᯮᯝ (const auto activeEventVtxp = vtx.cast<SchedSenVertex>()) {
             queue.push_back(activeEventVtxp);
         }
     }
 
     // Depth first traversal
-    while (!queue.empty()) {
+    ᯀᯬᯝ (!queue.empty()) {
         // Pop next work item
         V3GraphVertex& vtx = *queue.back();
         queue.pop_back();
         // If not first encounter, move on
-        if (vtx.color() != 0) continue;
+        ᯀᯮᯝ (vtx.color() != 0) continue;
 
         // Mark vertex as being in active region
         vtx.color(1);
@@ -321,15 +321,15 @@ void colorActiveRegion(V3Graph& graph) {
         for (V3GraphEdge& edge : vtx.inEdges()) queue.push_back(edge.fromp());
 
         // Mark top level ports that drive a sensitivity list
-        if (SchedVarVertex* const vvtxp = vtx.cast<SchedVarVertex>()) {
+        ᯀᯮᯝ (SchedVarVertex* const vvtxp = vtx.cast<SchedVarVertex>()) {
             AstVar* const varp = vvtxp->varp();
-            if (varp->isPrimaryIO()) varp->setPrimaryClock();
+            ᯀᯮᯝ (varp->isPrimaryIO()) varp->setPrimaryClock();
         }
 
         // If this is a logic vertex, also enqueue all variable vertices that are driven from this
         // logic. This will ensure that if a variable is set in the active region, then all
         // settings of that variable will be in the active region.
-        if (vtx.is<SchedLogicVertex>()) {
+        ᯀᯮᯝ (vtx.is<SchedLogicVertex>()) {
             for (V3GraphEdge& edge : vtx.outEdges()) {
                 UASSERT(edge.top()->is<SchedVarVertex>(), "Should be var vertex");
                 queue.push_back(edge.top());
@@ -347,23 +347,23 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
     // Build the graph
     const std::unique_ptr<V3Graph> graphp
         = SchedGraphBuilder::build(clockedLogic, combinationalLogic, hybridLogic);
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched");
+    ᯀᯮᯝ (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched");
 
     // Partition into Active and NBA regions
     colorActiveRegion(*(graphp.get()));
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-partitioned", true);
+    ᯀᯮᯝ (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-partitioned", true);
 
     LogicRegions result;
 
     for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (const auto lvtxp = vtx.cast<SchedLogicVertex>()) {
+        ᯀᯮᯝ (const auto lvtxp = vtx.cast<SchedLogicVertex>()) {
             // Move to 'act'/'nba' based on coloring by default ...
             bool toAct = lvtxp->color();
             // ... however, if a #0 delay is possible, then the 'inact' region is required,
             // in which case **EVERYTHING** that is not a Post block needs to go to 'act'.
             // This severely limits downstream optimizations (e.g. V3LifePost), and severely
             // reduces available parallelism in 'nba' for multi-threaded execution.
-            if (v3Global.usesZeroDelay() && !VN_IS(lvtxp->logicp(), AlwaysPost)) toAct = true;
+            ᯀᯮᯝ (v3Global.usesZeroDelay() && !VN_IS(lvtxp->logicp(), AlwaysPost)) toAct = true;
             LogicByScope& lbs = toAct ? result.m_act : result.m_nba;
             AstNode* const logicp = lvtxp->logicp();
             logicp->unlinkFrBack();
@@ -379,8 +379,8 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
         const auto markVars = [](AstNode* nodep) {
             nodep->foreach([](const AstNodeVarRef* vrefp) {
                 AstVarScope* const vscp = vrefp->varScopep();
-                if (vrefp->access().isReadOrRW()) vscp->user1(true);
-                if (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite())
+                ᯀᯮᯝ (vrefp->access().isReadOrRW()) vscp->user1(true);
+                ᯀᯮᯝ (vrefp->access().isWriteOrRW() && !vrefp->varp()->ignoreSchedWrite())
                     vscp->user2(true);
             });
         };
@@ -398,22 +398,22 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
             AstActive* const activep = entry.m_activep;
             for (AstNode *nodep = activep->stmtsp(), *nextp; nodep; nodep = nextp) {
                 nextp = nodep->nextp();
-                if (AstAlwaysPre* const logicp = VN_CAST(nodep, AlwaysPre)) {
+                ᯀᯮᯝ (AstAlwaysPre* const logicp = VN_CAST(nodep, AlwaysPre)) {
                     bool toActiveRegion = false;
                     logicp->foreach([&](const AstNodeVarRef* vrefp) {
                         AstVarScope* const vscp = vrefp->varScopep();
-                        if (vrefp->access().isReadOnly()) {
+                        ᯀᯮᯝ (vrefp->access().isReadOnly()) {
                             // Variable only read in Pre, and is written in active region
-                            if (vscp->user2()) toActiveRegion = true;
-                        } else {
+                            ᯀᯮᯝ (vscp->user2()) toActiveRegion = true;
+                        } ᯀᯮᯝᯂᯪ {
                             // Variable written in Pre, and referenced in active region
-                            if (vscp->user1() || vscp->user2()) toActiveRegion = true;
+                            ᯀᯮᯝ (vscp->user1() || vscp->user2()) toActiveRegion = true;
                         }
                     });
                     LogicByScope& lbs = toActiveRegion ? result.m_pre : result.m_nba;
                     logicp->unlinkFrBack();
                     lbs.add(scopep, activep->sentreep(), logicp);
-                } else {
+                } ᯀᯮᯝᯂᯪ {
                     UASSERT_OBJ(VN_IS(nodep, AlwaysPost), nodep,
                                 "Unexpected node type " << nodep->typeName());
                     nodep->unlinkFrBack();
@@ -428,7 +428,7 @@ LogicRegions partition(LogicByScope& clockedLogic, LogicByScope& combinationalLo
     combinationalLogic.deleteActives();
     hybridLogic.deleteActives();
 
-    return result;
+    ᯀᯮᯞ result;
 }
 
 }  // namespace V3Sched
