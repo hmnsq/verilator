@@ -21,17 +21,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Table.h"
+#ضمن "V3Table.h"
 
-#include "V3ConstPool.h"
-#include "V3SharedTmps.h"
-#include "V3Simulate.h"
-#include "V3Stats.h"
+#ضمن "V3ConstPool.h"
+#ضمن "V3SharedTmps.h"
+#ضمن "V3Simulate.h"
+#ضمن "V3Stats.h"
 
-#include <cmath>
-#include <vector>
+#ضمن <cmath>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -40,123 +40,123 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // CONFIG
 // 1MB is max table size (better be lots of instructs to be worth it!)
-static constexpr int TABLE_MAX_BYTES = 1 * 1024 * 1024;
+ساكن constexpr صحيح TABLE_MAX_BYTES = 1 * 1024 * 1024;
 // 64MB is close to max memory of some systems (256MB or so), so don't get out of control
-static constexpr int TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
+ساكن constexpr صحيح TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
 // Worth no more than 8 bytes of data to replace an instruction
-static constexpr int TABLE_SPACE_TIME_MULT = 8;
+ساكن constexpr صحيح TABLE_SPACE_TIME_MULT = 8;
 // If < 32 instructions, not worth the effort
-static constexpr int TABLE_MIN_NODE_COUNT = 32;
+ساكن constexpr صحيح TABLE_MIN_عقدة_تعداد = 32;
 // Assume an instruction is 4 bytes
-static constexpr int TABLE_BYTES_PER_INST = 4;
+ساكن constexpr صحيح TABLE_BYTES_PER_INST = 4;
 
 //######################################################################
 
-class TableVisitor;
+صنف TableVisitor;
 
-class TableSimulateVisitor final : public SimulateVisitor {
+صنف TableSimulateVisitor final : عام SimulateVisitor {
     // MEMBERS
-    TableVisitor* const m_cbthis;  ///< Class for callback
+    TableVisitor* ثابت m_cbthis;  ///< Class for callback
 
-public:
+عام:
     ///< Call other-this function on all new var references
-    void varRefCb(AstVarRef* nodep) override;
+    فراغ varRefCb(AstVarRef* nodep) override;
 
     // CONSTRUCTORS
     explicit TableSimulateVisitor(TableVisitor* cbthis)
         : m_cbthis{cbthis} {}
-    ~TableSimulateVisitor() override = default;
+    ~TableSimulateVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Class for holding lookup table state during construction
 
-class TableBuilder final {
-    FileLine* const m_fl;  // FileLine used during construction
+صنف TableBuilder final {
+    File_سطر* ثابت m_fl;  // FileLine used during construction
     AstConsArray* m_consp = nullptr;  // The lookup table initializer values
     AstVarScope* m_varScopep = nullptr;  // The scoped variable holding the table
 
-public:
-    explicit TableBuilder(FileLine* fl)
+عام:
+    explicit TableBuilder(File_سطر* fl)
         : m_fl{fl} {}
 
     ~TableBuilder() {
-        if (m_consp) VL_DO_DANGLING(m_consp->deleteTree(), m_consp);
+        إذا (m_consp) VL_DO_DANGLING(m_consp->delete_شجرة(), m_consp);
     }
 
-    void setTableSize(AstNodeDType* elemDType, unsigned size) {
+    فراغ setTableSize(Ast_عقدة_DType* elemDType, unsigned size) {
         UASSERT_OBJ(!m_consp, m_fl, "Table size already set");
         UASSERT_OBJ(size > 0, m_fl, "Size zero");
         // TODO: Assert elemDType is a packed type
         // Create data type
-        const int width = elemDType->width();
-        AstNodeDType* const subDTypep
+        ثابت صحيح width = elemDType->width();
+        Ast_عقدة_DType* ثابت subDTypep
             = elemDType->isString() || elemDType->isDouble()
                   ? elemDType
                   : v3Global.rootp()->findBitDType(width, width, VSigning::UNSIGNED);
-        AstUnpackArrayDType* const tableDTypep = new AstUnpackArrayDType{
-            m_fl, subDTypep, new AstRange{m_fl, static_cast<int>(size), 0}};
+        AstUnpackArrayDType* ثابت tableDTypep = جديد AstUnpackArrayDType{
+            m_fl, subDTypep, جديد AstRange{m_fl, static_cast<صحيح>(size), 0}};
         v3Global.rootp()->typeTablep()->addTypesp(tableDTypep);
         // Create table initializer (with default value 0)
-        AstConst* const defaultp
-            = elemDType->isString()   ? new AstConst{m_fl, AstConst::String{}, ""}
-              : elemDType->isDouble() ? new AstConst{m_fl, AstConst::RealDouble{}, 0.0}
-                                      : new AstConst{m_fl, AstConst::WidthedValue{}, width, 0};
-        m_consp = new AstConsArray{m_fl, tableDTypep, defaultp};
+        AstConst* ثابت defaultp
+            = elemDType->isString()   ? جديد AstConst{m_fl, AstConst::String{}, ""}
+              : elemDType->isDouble() ? جديد AstConst{m_fl, AstConst::RealDouble{}, 0.0}
+                                      : جديد AstConst{m_fl, AstConst::Widthed_قيمة{}, width, 0};
+        m_consp = جديد AstConsArray{m_fl, tableDTypep, defaultp};
     }
 
-    void addValue(unsigned index, const V3Number& value) {
+    فراغ add_قيمة(unsigned index, ثابت V3_العدد& قيمة) {
         UASSERT_OBJ(!m_varScopep, m_fl, "Table variable already created");
         // Default value is zero/empty string so don't add it
-        if (value.isString() ? value.toString().empty() : value.isEqZero()) return;
-        m_consp->valuep(index, new AstConst{m_fl, value});
+        إذا (قيمة.isString() ? قيمة.toString().empty() : قيمة.isEqZero()) إرجاع;
+        m_consp->valuep(index, جديد AstConst{m_fl, قيمة});
     }
 
     AstVarScope* varScopep() {
-        if (!m_varScopep) {
-            AstVarRef* const refp = V3ConstPool::find(m_consp);
+        إذا (!m_varScopep) {
+            AstVarRef* ثابت refp = V3ConstPool::find(m_consp);
             m_varScopep = refp->varScopep();
-            VL_DO_DANGLING(refp->deleteTree(), refp);
+            VL_DO_DANGLING(refp->delete_شجرة(), refp);
         }
-        return m_varScopep;
+        إرجاع m_varScopep;
     }
 };
 
 //######################################################################
 // Class for holding output variable state during table conversion of logic
 
-class TableOutputVar final {
-    AstVarScope* const m_varScopep;  // The output variable
-    const unsigned m_ord;  // Output ordinal number in this block
-    bool m_mayBeUnassigned = false;  // If true, then this variable may be unassigned through
+صنف TableOutputVar final {
+    AstVarScope* ثابت m_varScopep;  // The output variable
+    ثابت unsigned m_ord;  // Output ordinal number in this block
+    منطقي m_mayBeUnassigned = خطأ;  // If true, then this variable may be unassigned through
                                      // some path through the block being table converted
     TableBuilder m_tableBuilder;
 
-public:
+عام:
     TableOutputVar(AstVarScope* varScopep, unsigned ord)
         : m_varScopep{varScopep}
         , m_ord{ord}
         , m_tableBuilder{varScopep->fileline()} {}
 
-    AstVarScope* varScopep() const { return m_varScopep; }
-    string name() const { return varScopep()->varp()->name(); }
-    unsigned ord() const { return m_ord; }
-    void setMayBeUnassigned() { m_mayBeUnassigned = true; }
-    bool mayBeUnassigned() const { return m_mayBeUnassigned; }
-    void setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
-    void addValue(unsigned index, const V3Number& value) { m_tableBuilder.addValue(index, value); }
-    AstVarScope* tabeVarScopep() { return m_tableBuilder.varScopep(); }
+    AstVarScope* varScopep() ثابت { إرجاع m_varScopep; }
+    string name() ثابت { إرجاع varScopep()->varp()->name(); }
+    unsigned ord() ثابت { إرجاع m_ord; }
+    فراغ setMayBeUnassigned() { m_mayBeUnassigned = true; }
+    منطقي mayBeUnassigned() ثابت { إرجاع m_mayBeUnassigned; }
+    فراغ setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
+    فراغ add_قيمة(unsigned index, ثابت V3_العدد& قيمة) { m_tableBuilder.add_قيمة(index, قيمة); }
+    AstVarScope* tabeVarScopep() { إرجاع m_tableBuilder.varScopep(); }
 };
 
 //######################################################################
 // Table class functions
 
-class TableVisitor final : public VNVisitor {
+صنف TableVisitor final : عام VNVisitor {
     // NODE STATE
     // Cleared on each always/assignw
 
     // STATE
-    double m_totalBytes = 0;  // Total bytes in tables created
+    مزدوج m_totalBytes = 0;  // Total bytes in tables created
     VDouble0 m_statTablesCre;  // Statistic tracking
     V3SharedTmps m_indexTmps{"__Vtableidx", VVarType::BLOCKTEMP};  // Table index variables
 
@@ -164,7 +164,7 @@ class TableVisitor final : public VNVisitor {
     AstScope* m_scopep = nullptr;  // Current SCOPE
 
     //  State cleared on each always/assignw
-    bool m_assignDly = false;  // Consists of delayed assignments instead of normal assignments
+    منطقي m_assignDly = خطأ;  // Consists of delayed assignments instead of normal assignments
     unsigned m_inWidthBits = 0;  // Input table width - in bits
     unsigned m_outWidthBytes = 0;  // Output table width - in bytes
     std::vector<AstVarScope*> m_inVarps;  // Input variable list
@@ -172,25 +172,25 @@ class TableVisitor final : public VNVisitor {
 
     // METHODS
 
-public:
-    void simulateVarRefCb(AstVarRef* nodep) {
+عام:
+    فراغ simulateVarRefCb(AstVarRef* nodep) {
         // Called by TableSimulateVisitor on each unique varref encountered
         UINFO(9, "   SimVARREF " << nodep);
-        AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOrRW()) {
+        AstVarScope* ثابت vscp = nodep->varScopep();
+        إذا (nodep->access().isWriteOrRW()) {
             // We'll make the table with a separate natural alignment for each output var, so
             // always have 8, 16 or 32 bit widths, so use widthTotalBytes
             m_outWidthBytes += nodep->varp()->dtypeSkipRefp()->widthTotalBytes();
             m_outVarps.emplace_back(vscp, static_cast<unsigned>(m_outVarps.size()));
         }
-        if (nodep->access().isReadOrRW()) {
+        إذا (nodep->access().isReadOrRW()) {
             m_inWidthBits += nodep->varp()->width();
-            m_inVarps.push_back(vscp);
+            m_inVarps.ادفع_back(vscp);
         }
     }
 
-private:
-    bool treeTest(AstAlways* nodep) {
+خاص:
+    منطقي شجرة_Test(AstAlways* nodep) {
         // Process alw/assign tree
         m_inWidthBits = 0;
         m_outWidthBytes = 0;
@@ -198,7 +198,7 @@ private:
         m_outVarps.clear();
 
         // Collect stats
-        TableSimulateVisitor chkvis{this};
+        TableSimulateVisitor chkvis{هذا};
         chkvis.mainTableCheck(nodep);
         m_assignDly = chkvis.isAssignDly();
         // Also sets m_inWidthBits
@@ -207,52 +207,52 @@ private:
         // Also sets m_outVarps
 
         // Calc data storage in bytes
-        const size_t chgWidth = m_outVarps.size();
-        const double space = std::pow<double>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
+        ثابت size_t chgWidth = m_outVarps.size();
+        ثابت مزدوج space = std::pow<مزدوج>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
         // Instruction count bytes (ok, it's space also not time :)
-        const double time  // max(_, 1), so we won't divide by zero
-            = std::max<double>(chkvis.instrCount() * TABLE_BYTES_PER_INST + chkvis.dataCount(), 1);
-        if (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
-        if (chkvis.isCoverage()) {
+        ثابت مزدوج time  // max(_, 1), so we won't divide by zero
+            = std::max<مزدوج>(chkvis.instr_تعداد() * TABLE_BYTES_PER_INST + chkvis.data_تعداد(), 1);
+        إذا (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
+        إذا (chkvis.isCoverage()) {
             chkvis.clearOptimizable(nodep, "Table removes coverage points");
         }
         // cppcheck-suppress knownConditionTrueFalse // set by TableSimulateVisitor
-        if (!m_outWidthBytes || !m_inWidthBits) {
+        إذا (!m_outWidthBytes || !m_inWidthBits) {
             chkvis.clearOptimizable(nodep, "Table has no outputs");
         }
-        if (chkvis.instrCount() < TABLE_MIN_NODE_COUNT) {
+        إذا (chkvis.instr_تعداد() < TABLE_MIN_عقدة_تعداد) {
             chkvis.clearOptimizable(nodep, "Table has too few nodes involved");
         }
         // cppcheck-suppress knownConditionTrueFalse
-        if (space > TABLE_MAX_BYTES) {
+        إذا (space > TABLE_MAX_BYTES) {
             chkvis.clearOptimizable(nodep, "Table takes too much space");
         }
-        if (space > time * TABLE_SPACE_TIME_MULT) {
+        إذا (space > time * TABLE_SPACE_TIME_MULT) {
             chkvis.clearOptimizable(nodep, "Table has bad tradeoff");
         }
-        if (m_totalBytes > TABLE_TOTAL_BYTES) {
+        إذا (m_totalBytes > TABLE_TOTAL_BYTES) {
             chkvis.clearOptimizable(nodep, "Table out of memory");
         }
         UINFO(4, "  Test: Opt=" << (chkvis.optimizable() ? "OK" : "NO") << ", Instrs="
-                                << chkvis.instrCount() << " Data=" << chkvis.dataCount()
+                                << chkvis.instr_تعداد() << " Data=" << chkvis.data_تعداد()
                                 << " in width (bits)=" << m_inWidthBits << " out width (bytes)="
                                 << m_outWidthBytes << " Spacetime=" << (space / time) << "("
                                 << space << "/" << time << ")" << ": " << nodep);
-        if (chkvis.optimizable()) {
+        إذا (chkvis.optimizable()) {
             UINFO(3, " Table Optimize spacetime=" << (space / time) << " " << nodep);
             m_totalBytes += space;
         }
-        return chkvis.optimizable();
+        إرجاع chkvis.optimizable();
     }
 
-    void replaceWithTable(AstAlways* nodep) {
+    فراغ replaceWithTable(AstAlways* nodep) {
         // We've determined this table of nodes is optimizable, do it.
         ++m_statTablesCre;
 
-        FileLine* const fl = nodep->fileline();
+        File_سطر* ثابت fl = nodep->fileline();
 
         // We will need a table index variable, create it here.
-        AstVarScope* const indexVscp = m_indexTmps.make(fl, m_scopep, m_inWidthBits);
+        AstVarScope* ثابت indexVscp = m_indexTmps.make(fl, m_scopep, m_inWidthBits);
 
         // The 'output assigned' table builder
         TableBuilder outputAssignedTableBuilder{fl};
@@ -261,31 +261,31 @@ private:
             VL_MASK_I(m_inWidthBits));
 
         // Set sizes of output tables
-        for (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
+        لكل (TableOutputVar& tov : m_outVarps) tov.setTableSize(VL_MASK_I(m_inWidthBits));
 
         // Populate the tables
         createTables(nodep, outputAssignedTableBuilder);
 
-        AstNode* const stmtsp = createLookupInput(fl, indexVscp);
+        Ast_عقدة* ثابت stmtsp = create_Lookup_إدخال(fl, indexVscp);
         createOutputAssigns(nodep, stmtsp, indexVscp, outputAssignedTableBuilder.varScopep());
 
         // Link it in.
         // Replace the body, keeping the AstAlways itself under its AstActive
-        nodep->stmtsp()->unlinkFrBackWithNext()->deleteTree();
+        nodep->stmtsp()->unlinkFrBackWithNext()->delete_شجرة();
         nodep->addStmtsp(stmtsp);
         UINFOTREE(6, nodep, "", "table_new");
     }
 
-    void createTables(AstAlways* nodep, TableBuilder& outputAssignedTableBuilder) {
+    فراغ createTables(AstAlways* nodep, TableBuilder& outputAssignedTableBuilder) {
         // Create table
         // There may be a simulation path by which the output doesn't change value.
         // We could bail on these cases, or we can have a "change it" boolean.
         // We've chosen the latter route, since recirc is common in large FSMs.
-        TableSimulateVisitor simvis{this};
-        for (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
-            const uint32_t inValue = i;
+        TableSimulateVisitor simvis{هذا};
+        لكل (uint32_t i = 0; i <= VL_MASK_I(m_inWidthBits); ++i) {
+            ثابت uint32_t in_قيمة = i;
             // Make a new simulation structure so we can set new input values
-            UINFO(8, " Simulating " << std::hex << inValue);
+            UINFO(8, " Simulating " << std::hex << in_قيمة);
 
             // Above simulateVisitor clears user 3, so
             // all outputs default to nullptr to mean 'recirculating'.
@@ -293,11 +293,11 @@ private:
 
             // Set all inputs to the constant
             uint32_t shift = 0;
-            for (AstVarScope* invscp : m_inVarps) {
+            لكل (AstVarScope* invscp : m_inVarps) {
                 // LSB is first variable, so extract it that way
-                const AstConst cnst{invscp->fileline(), AstConst::WidthedValue{}, invscp->width(),
-                                    VL_MASK_I(invscp->width()) & (inValue >> shift)};
-                simvis.newValue(invscp, &cnst);
+                ثابت AstConst cnst{invscp->fileline(), AstConst::Widthed_قيمة{}, invscp->width(),
+                                    VL_MASK_I(invscp->width()) & (in_قيمة >> shift)};
+                simvis.new_قيمة(invscp, &cnst);
                 shift += invscp->width();
                 // We are using 32 bit arithmetic, because there's no way the input table can be
                 // 2^32 bytes!
@@ -312,67 +312,67 @@ private:
                             << simvis.whyNotMessage());
 
             // Build output value tables and the assigned flags table
-            V3Number outputAssignedMask{nodep, static_cast<int>(m_outVarps.size()), 0};
-            for (TableOutputVar& tov : m_outVarps) {
-                if (V3Number* const outnump = simvis.fetchOutNumberNull(tov.varScopep())) {
+            V3_العدد outputAssignedMask{nodep, static_cast<صحيح>(m_outVarps.size()), 0};
+            لكل (TableOutputVar& tov : m_outVarps) {
+                إذا (V3_العدد* ثابت outnump = simvis.fetch_Out_العدد_Null(tov.varScopep())) {
                     UINFO(8, "   Output " << tov.name() << " = " << *outnump);
                     UASSERT_OBJ(!outnump->isAnyXZ(), outnump, "Table should not contain X/Z");
                     outputAssignedMask.setBit(tov.ord(), 1);  // Mark output as assigned
-                    tov.addValue(inValue, *outnump);
-                } else {
+                    tov.add_قيمة(in_قيمة, *outnump);
+                } وإلا {
                     UINFO(8, "   Output " << tov.name() << " not set for this input");
                     tov.setMayBeUnassigned();
                 }
             }
 
             // Set changed table
-            outputAssignedTableBuilder.addValue(inValue, outputAssignedMask);
+            outputAssignedTableBuilder.add_قيمة(in_قيمة, outputAssignedMask);
         }  // each value
     }
 
-    AstNode* createLookupInput(FileLine* fl, AstVarScope* indexVscp) {
+    Ast_عقدة* create_Lookup_إدخال(File_سطر* fl, AstVarScope* indexVscp) {
         // Concat inputs into a single temp variable (inside always)
         // First var in inVars becomes the LSB of the concat
-        AstNodeExpr* concatp = nullptr;
-        for (AstVarScope* invscp : m_inVarps) {
-            AstVarRef* const refp = new AstVarRef{fl, invscp, VAccess::READ};
-            if (concatp) {
-                concatp = new AstConcat{fl, refp, concatp};
-            } else {
+        Ast_عقدة_تعبير* concatp = nullptr;
+        لكل (AstVarScope* invscp : m_inVarps) {
+            AstVarRef* ثابت refp = جديد AstVarRef{fl, invscp, VAccess::READ};
+            إذا (concatp) {
+                concatp = جديد AstConcat{fl, refp, concatp};
+            } وإلا {
                 concatp = refp;
             }
         }
 
-        return new AstAssign{fl, new AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
+        إرجاع جديد AstAssign{fl, جديد AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
     }
 
-    AstArraySel* select(FileLine* fl, AstVarScope* fromp, AstVarScope* indexp) {
-        AstVarRef* const fromRefp = new AstVarRef{fl, fromp, VAccess::READ};
-        AstVarRef* const indexRefp = new AstVarRef{fl, indexp, VAccess::READ};
-        return new AstArraySel{fl, fromRefp, indexRefp};
+    AstArraySel* select(File_سطر* fl, AstVarScope* fromp, AstVarScope* indexp) {
+        AstVarRef* ثابت fromRefp = جديد AstVarRef{fl, fromp, VAccess::READ};
+        AstVarRef* ثابت indexRefp = جديد AstVarRef{fl, indexp, VAccess::READ};
+        إرجاع جديد AstArraySel{fl, fromRefp, indexRefp};
     }
 
-    void createOutputAssigns(AstNode* nodep, AstNode* stmtsp, AstVarScope* indexVscp,
+    فراغ createOutputAssigns(Ast_عقدة* nodep, Ast_عقدة* stmtsp, AstVarScope* indexVscp,
                              AstVarScope* outputAssignedTableVscp) {
-        FileLine* const fl = nodep->fileline();
-        for (TableOutputVar& tov : m_outVarps) {
-            AstNodeExpr* const alhsp = new AstVarRef{fl, tov.varScopep(), VAccess::WRITE};
-            AstNodeExpr* const arhsp = select(fl, tov.tabeVarScopep(), indexVscp);
-            AstNode* outsetp = m_assignDly
-                                   ? static_cast<AstNode*>(new AstAssignDly{fl, alhsp, arhsp})
-                                   : static_cast<AstNode*>(new AstAssign{fl, alhsp, arhsp});
+        File_سطر* ثابت fl = nodep->fileline();
+        لكل (TableOutputVar& tov : m_outVarps) {
+            Ast_عقدة_تعبير* ثابت alhsp = جديد AstVarRef{fl, tov.varScopep(), VAccess::WRITE};
+            Ast_عقدة_تعبير* ثابت arhsp = select(fl, tov.tabeVarScopep(), indexVscp);
+            Ast_عقدة* outsetp = m_assignDly
+                                   ? static_cast<Ast_عقدة*>(جديد AstAssignDly{fl, alhsp, arhsp})
+                                   : static_cast<Ast_عقدة*>(جديد AstAssign{fl, alhsp, arhsp});
 
             // If this output is unassigned on some code paths, wrap the assignment in an If
-            if (tov.mayBeUnassigned()) {
-                V3Number outputChgMask{nodep, static_cast<int>(m_outVarps.size()), 0};
+            إذا (tov.mayBeUnassigned()) {
+                V3_العدد outputChgMask{nodep, static_cast<صحيح>(m_outVarps.size()), 0};
                 outputChgMask.setBit(tov.ord(), 1);
-                AstNodeExpr* const condp
-                    = new AstNeq{fl,
-                                 new AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
-                                            new AstConst{fl, outputChgMask}},
-                                 new AstConst{fl, AstConst::WidthedValue{},
-                                              static_cast<int>(m_outVarps.size()), 0}};
-                outsetp = new AstIf{fl, condp, outsetp};
+                Ast_عقدة_تعبير* ثابت condp
+                    = جديد AstNeq{fl,
+                                 جديد AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
+                                            جديد AstConst{fl, outputChgMask}},
+                                 جديد AstConst{fl, AstConst::Widthed_قيمة{},
+                                              static_cast<صحيح>(m_outVarps.size()), 0}};
+                outsetp = جديد AstIf{fl, condp, outsetp};
             }
 
             stmtsp->addNext(outsetp);
@@ -380,27 +380,27 @@ private:
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstScope* nodep) override {
+    فراغ visit(Ast_عقدة* nodep) override { iterateChildren(nodep); }
+    فراغ visit(AstScope* nodep) override {
         UINFO(4, " SCOPE " << nodep);
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstAlways* nodep) override {
+    فراغ visit(AstAlways* nodep) override {
         UINFO(4, "  ALWAYS  " << nodep);
-        if (treeTest(nodep)) {
+        إذا (شجرة_Test(nodep)) {
             // Well, then, I'll be a memory hog.
             replaceWithTable(nodep);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    فراغ visit(Ast_عقدة_Assign* nodep) override {
         // It's nearly impossible to have a large enough assign to make this worthwhile
         // For now we won't bother.
         // Accelerated: no iterate
     }
 
-public:
+عام:
     // CONSTRUCTORS
     explicit TableVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~TableVisitor() override {  //
@@ -410,7 +410,7 @@ public:
 
 //######################################################################
 
-void TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
+فراغ TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
     // Called by checking on each new varref encountered
     // We cross-call into a TableVisitor function.
     m_cbthis->simulateVarRefCb(nodep);
@@ -419,8 +419,8 @@ void TableSimulateVisitor::varRefCb(AstVarRef* nodep) {
 //######################################################################
 // Table class functions
 
-void V3Table::tableAll(AstNetlist* nodep) {
+فراغ V3Table::tableAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { TableVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("table", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_شجرة("table", 0, dump_شجرة_Either_Level() >= 3);
 }

@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3DEPTHBLOCK_H_
 #define VERILATOR_V3DEPTHBLOCK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3DepthBlock final {
-public:
-    static void depthBlockAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ depthBlockAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

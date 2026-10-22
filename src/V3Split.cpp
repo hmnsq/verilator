@@ -61,81 +61,81 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Split.h"
+#ضمن "V3Split.h"
 
-#include "V3Graph.h"
-#include "V3Stats.h"
+#ضمن "V3Graph.h"
+#ضمن "V3Stats.h"
 
-#include <string>
-#include <vector>
+#ضمن <string>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Support classes
 
-class SplitNodeVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(SplitNodeVertex, V3GraphVertex)
-    AstNode* const m_nodep;
+صنف Split_عقدة_Vertex VL_NOT_FINAL : عام V3GraphVertex {
+    VL_RTTI_IMPL(Split_عقدة_Vertex, V3GraphVertex)
+    Ast_عقدة* ثابت m_nodep;
 
-protected:
-    SplitNodeVertex(V3Graph* graphp, AstNode* nodep)
+محمي:
+    Split_عقدة_Vertex(V3Graph* graphp, Ast_عقدة* nodep)
         : V3GraphVertex{graphp}
         , m_nodep{nodep} {}
     // ACCESSORS
-    std::string name() const override {
-        return cvtToHex(m_nodep) + ' ' + m_nodep->prettyTypeName();
+    std::string name() ثابت override {
+        إرجاع cvtToHex(m_nodep) + ' ' + m_nodep->prettyTypeName();
     }
 
-public:
-    AstNode* nodep() const { return m_nodep; }
+عام:
+    Ast_عقدة* nodep() ثابت { إرجاع m_nodep; }
 };
 
-class SplitImpureVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitImpureVertex, SplitNodeVertex)
+صنف SplitImpureVertex final : عام Split_عقدة_Vertex {
+    VL_RTTI_IMPL(SplitImpureVertex, Split_عقدة_Vertex)
 
-    std::string name() const override { return "*IMPURE*"; }
-    std::string dotColor() const override { return "green"; }
+    std::string name() ثابت override { إرجاع "*IMPURE*"; }
+    std::string dotColor() ثابت override { إرجاع "green"; }
 
-public:
-    explicit SplitImpureVertex(V3Graph* graphp, AstNode* nodep)
-        : SplitNodeVertex{graphp, nodep} {}
+عام:
+    explicit SplitImpureVertex(V3Graph* graphp, Ast_عقدة* nodep)
+        : Split_عقدة_Vertex{graphp, nodep} {}
 };
 
-class SplitStmtVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitStmtVertex, SplitNodeVertex)
+صنف SplitStmtVertex final : عام Split_عقدة_Vertex {
+    VL_RTTI_IMPL(SplitStmtVertex, Split_عقدة_Vertex)
 
-    std::string dotColor() const override { return "yellow"; }
+    std::string dotColor() ثابت override { إرجاع "yellow"; }
 
-public:
-    SplitStmtVertex(V3Graph* graphp, AstNode* nodep)
-        : SplitNodeVertex{graphp, nodep} {}
+عام:
+    SplitStmtVertex(V3Graph* graphp, Ast_عقدة* nodep)
+        : Split_عقدة_Vertex{graphp, nodep} {}
 };
 
-class SplitVarStdVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitVarStdVertex, SplitNodeVertex)
+صنف SplitVarStdVertex final : عام Split_عقدة_Vertex {
+    VL_RTTI_IMPL(SplitVarStdVertex, Split_عقدة_Vertex)
 
-    std::string dotColor() const override { return "skyblue"; }
+    std::string dotColor() ثابت override { إرجاع "skyblue"; }
 
-public:
+عام:
     SplitVarStdVertex(V3Graph* graphp, AstVarScope* vscp)
-        : SplitNodeVertex{graphp, vscp} {}
+        : Split_عقدة_Vertex{graphp, vscp} {}
 };
 
-class SplitVarPostVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitVarPostVertex, SplitNodeVertex)
+صنف SplitVarPostVertex final : عام Split_عقدة_Vertex {
+    VL_RTTI_IMPL(SplitVarPostVertex, Split_عقدة_Vertex)
 
-    std::string name() const override { return "POST "s + SplitNodeVertex::name(); }
-    std::string dotColor() const override { return "CadetBlue"; }
+    std::string name() ثابت override { إرجاع "POST "s + Split_عقدة_Vertex::name(); }
+    std::string dotColor() ثابت override { إرجاع "CadetBlue"; }
 
-public:
+عام:
     SplitVarPostVertex(V3Graph* graphp, AstVarScope* vscp)
-        : SplitNodeVertex{graphp, vscp} {}
+        : Split_عقدة_Vertex{graphp, vscp} {}
 };
 
-class SplitVisitor final : public VNVisitor {
+صنف SplitVisitor final : عام VNVisitor {
     // NODE STATE - Only under AstAlways
     // AstVarScope::user1p  -> SplitVarStdVertex*: Regular program-flow variable vertex
     // AstVarScope::user2p  -> SplitVarPostVertex*: NBA written delayed variable vertex
@@ -143,57 +143,57 @@ class SplitVisitor final : public VNVisitor {
 
     // NODE STATE
     // AstAlways::user3     -> bool: Block created by splitting, needs no further splitting
-    const VNUser3InUse m_inuser3;
+    ثابت VNUser3InUse m_inuser3;
 
     // STATE
     V3Graph* m_graphp = nullptr;  // Dependency graph to analyze statement connectivity
     std::vector<SplitStmtVertex*> m_stmtStackps;  // Current statements being tracked
     SplitImpureVertex* m_impureVtxp = nullptr;  // Vertex connecting impure statements
-    const char* m_noSplitWhy = nullptr;  // Reason current block cannot be split
-    bool m_inDly = false;  // Inside AstAssignDly Lhs
-    const AstIf* m_currIfp = nullptr;  // The AstIf whose condition is currently visited
+    ثابت حرف* m_noSplitWhy = nullptr;  // Reason current block cannot be split
+    منطقي m_inDly = خطأ;  // Inside AstAssignDly Lhs
+    ثابت AstIf* m_currIfp = nullptr;  // The AstIf whose condition is currently visited
     VDouble0 m_statSplits;  // Statistic tracking
 
     // METHODS
-    void addEdge(V3GraphVertex* fromp, V3GraphVertex* top) {
-        new V3GraphEdge{m_graphp, fromp, top, 1};
+    فراغ addEdge(V3GraphVertex* fromp, V3GraphVertex* قمة) {
+        جديد V3GraphEdge{m_graphp, fromp, قمة, 1};
     }
 
     // Iterate the given list of statements, building the dependency graph
-    void scanBlock(AstNode* stmtsp) {
-        if (m_noSplitWhy) return;
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+    فراغ scanBlock(Ast_عقدة* stmtsp) {
+        إذا (m_noSplitWhy) إرجاع;
+        لكل (Ast_عقدة* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Skip comments. They have no dependencies at all, so would always
             // form an independent component, and hence a split block, of their
             // own, which would be subsequently deleted as it does nothing.
-            if (VN_IS(stmtp, Comment)) continue;
+            إذا (VN_IS(stmtp, Comment)) استمر;
             UASSERT_OBJ(!stmtp->user1p(), stmtp, "user1p should not be set");
-            SplitStmtVertex* const vtxp = new SplitStmtVertex{m_graphp, stmtp};
+            SplitStmtVertex* ثابت vtxp = جديد SplitStmtVertex{m_graphp, stmtp};
             stmtp->user1p(vtxp);
-            m_stmtStackps.push_back(vtxp);
+            m_stmtStackps.ادفع_back(vtxp);
             iterate(stmtp);
-            m_stmtStackps.pop_back();
+            m_stmtStackps.اسحب_back();
         }
     }
 
     // Remove unnecessary edges, then color to find weakly connected components
     uint32_t colorAlwaysGraph() {
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_built", false);
+        إذا (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_built", خطأ);
 
         // Prune duplicate edges. Not necessary for correctness, but simplifies dumps.
         m_graphp->removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nodup", false);
+        إذا (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nodup", خطأ);
 
         // Remove variable vertices that are not written in the block.
         // These are input-only to the block, so carry no dependency.
-        for (V3GraphVertex* const vtxp : m_graphp->vertices().unlinkable()) {
-            SplitVarStdVertex* const vstdp = vtxp->cast<SplitVarStdVertex>();
-            if (!vstdp || !vstdp->outEmpty()) continue;
+        لكل (V3GraphVertex* ثابت vtxp : m_graphp->vertices().unlinkable()) {
+            SplitVarStdVertex* ثابت vstdp = vtxp->cast<SplitVarStdVertex>();
+            إذا (!vstdp || !vstdp->outEmpty()) استمر;
             UINFOTREE(9, vstdp->nodep(), "", "Will remove deps on block input var:");
             vstdp->nodep()->user1p(nullptr);  // Don't leave a dangling pointer behind
             VL_DO_DANGLING(vstdp->unlinkDelete(m_graphp), vstdp);
         }
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_noinputs", false);
+        إذا (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_noinputs", خطأ);
 
         // A statement under an 'if' also has an edge to the 'if' itself, from
         // each variable it writes, so an 'if' holds its whole body together.
@@ -205,54 +205,54 @@ class SplitVisitor final : public VNVisitor {
         // condition.  This is what allows splitting within an if/else at all,
         // and is what breaks up the reset tree in the example at the top of
         // this file.
-        for (V3GraphVertex* const vtxp : m_graphp->vertices().unlinkable()) {
-            SplitStmtVertex* const stmtVtxp = vtxp->cast<SplitStmtVertex>();
-            if (!stmtVtxp || !VN_IS(stmtVtxp->nodep(), If)) continue;
+        لكل (V3GraphVertex* ثابت vtxp : m_graphp->vertices().unlinkable()) {
+            SplitStmtVertex* ثابت stmtVtxp = vtxp->cast<SplitStmtVertex>();
+            إذا (!stmtVtxp || !VN_IS(stmtVtxp->nodep(), If)) استمر;
             // Can't remove if dependent on a variable written in the block
-            if (!stmtVtxp->outEmpty()) continue;
+            إذا (!stmtVtxp->outEmpty()) استمر;
             // Depends only on block inputs, so can be split. Remove the vertex.
             stmtVtxp->nodep()->user1p(nullptr);
             stmtVtxp->unlinkDelete(m_graphp);
         }
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nofreeifs", false);
+        إذا (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nofreeifs", خطأ);
 
         // Weak coloring to determine what must stay together in a single block
-        const uint32_t numColors = m_graphp->weaklyConnected(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_colored", false);
-        return numColors;
+        ثابت uint32_t رقم_Colors = m_graphp->weaklyConnected(&V3GraphEdge::followAlwaysTrue);
+        إذا (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_colored", خطأ);
+        إرجاع رقم_Colors;
     }
 
     // Take the statements of the given list, and return them distributed into one list per color.
-    static std::vector<AstNode*> splitStatements(AstNode* stmtsp, uint32_t numColors) {
-        std::vector<AstNode*> result{numColors, nullptr};
-        for (AstNode *stmtp = stmtsp, *nextp = nullptr; stmtp; stmtp = nextp) {
+    ساكن std::vector<Ast_عقدة*> splitStatements(Ast_عقدة* stmtsp, uint32_t رقم_Colors) {
+        std::vector<Ast_عقدة*> result{رقم_Colors, nullptr};
+        لكل (Ast_عقدة *stmtp = stmtsp, *nextp = nullptr; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();  // 'stmtp' is unlinked below
 
             // Comments are dropped if the block is split
-            if (VN_IS(stmtp, Comment)) continue;
+            إذا (VN_IS(stmtp, Comment)) استمر;
 
             // Pick up the statement vertex, which might be nullptr after pruning during analysis
-            const SplitStmtVertex* const vtxp = stmtp->user1u().to<SplitStmtVertex*>();
+            ثابت SplitStmtVertex* ثابت vtxp = stmtp->user1u().to<SplitStmtVertex*>();
 
             // If statements are duplicated for each split branch
-            if (AstIf* const ifp = VN_CAST(stmtp, If)) {
-                const auto thens = splitStatements(ifp->thensp(), numColors);
-                const auto elses = splitStatements(ifp->elsesp(), numColors);
-                FileLine* const flp = ifp->fileline();
+            إذا (AstIf* ثابت ifp = VN_CAST(stmtp, If)) {
+                ثابت auto thens = splitStatements(ifp->thensp(), رقم_Colors);
+                ثابت auto elses = splitStatements(ifp->elsesp(), رقم_Colors);
+                File_سطر* ثابت flp = ifp->fileline();
                 // Rebuild the 'if' for each color present in either branch
-                bool empty = true;
-                for (uint32_t color = 0; color < numColors; ++color) {
-                    if (!thens[color] && !elses[color]) continue;
-                    empty = false;
+                منطقي empty = true;
+                لكل (uint32_t color = 0; color < رقم_Colors; ++color) {
+                    إذا (!thens[color] && !elses[color]) استمر;
+                    empty = خطأ;
                     // The condition is cloned for each color. An impure condition
                     // keeps the 'if' and all it holds in one component, so just once.
-                    AstIf* const clonep = new AstIf{flp, ifp->condp()->cloneTree(true),
+                    AstIf* ثابت clonep = جديد AstIf{flp, ifp->condp()->clone_شجرة(true),
                                                     thens[color], elses[color]};
                     // Preserve pragmas from unique if's so assertions work properly
                     clonep->uniquePragma(ifp->uniquePragma());
                     clonep->unique0Pragma(ifp->unique0Pragma());
                     clonep->priorityPragma(ifp->priorityPragma());
-                    result[color] = AstNode::addNext(result[color], clonep);
+                    result[color] = Ast_عقدة::addNext(result[color], clonep);
                 }
                 // There is nothing under the 'if' to guard. If its vertex was
                 // removed as having no dependencies at all, then its
@@ -260,26 +260,26 @@ class SplitVisitor final : public VNVisitor {
                 // 'if' can go. Otherwise the condition might have a side
                 // effect, so keep just the condition, evaluated as a
                 // statement, under the color of the 'if' itself.
-                if (empty && vtxp) {
-                    const uint32_t color = vtxp->color();
-                    AstNodeExpr* const condp = ifp->condp();
+                إذا (empty && vtxp) {
+                    ثابت uint32_t color = vtxp->color();
+                    Ast_عقدة_تعبير* ثابت condp = ifp->condp();
                     condp->unlinkFrBack();
-                    result[color] = AstNode::addNext(result[color], new AstStmtExpr{flp, condp});
+                    result[color] = Ast_عقدة::addNext(result[color], جديد Ast_Stmt_تعبير{flp, condp});
                 }
-                continue;
+                استمر;
             }
 
             // Move the leaf into its color's list
-            const uint32_t color = vtxp->color();
-            result[color] = AstNode::addNext(result[color], stmtp->unlinkFrBack());
+            ثابت uint32_t color = vtxp->color();
+            result[color] = Ast_عقدة::addNext(result[color], stmtp->unlinkFrBack());
         }
-        return result;
+        إرجاع result;
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
+    فراغ visit(AstAlways* nodep) override {
         // Skip blocks created below
-        if (nodep->user3()) return;
+        إذا (nodep->user3()) إرجاع;
 
         UASSERT_OBJ(!m_graphp, nodep, "AstAlways should not nest");
         VL_RESTORER(m_graphp);
@@ -290,58 +290,58 @@ class SplitVisitor final : public VNVisitor {
         m_graphp = &graph;
         m_impureVtxp = nullptr;
         m_noSplitWhy = nullptr;
-        m_inDly = false;
+        m_inDly = خطأ;
         UASSERT_OBJ(m_stmtStackps.empty(), nodep, "Statement stack not empty");
 
         // Build the graph
-        const VNUser1InUse user1InUse;
-        const VNUser2InUse user2InUse;
+        ثابت VNUser1InUse user1InUse;
+        ثابت VNUser2InUse user2InUse;
         scanBlock(nodep->stmtsp());
 
         // We might have to give up
-        if (m_noSplitWhy) {
+        إذا (m_noSplitWhy) {
             UINFO(9, "  NoSplitBlock because " << m_noSplitWhy);
-            return;
+            إرجاع;
         }
 
         // Color the graph to identify separable statements
-        const uint32_t numColors = colorAlwaysGraph();
+        ثابت uint32_t رقم_Colors = colorAlwaysGraph();
         // If the whole block is one component (or empty), then nothing to split
-        if (numColors <= 1) return;
+        إذا (رقم_Colors <= 1) إرجاع;
 
         UINFO(6, "  splitting always " << nodep);
 
         // Count the number of new blocks inserted into the Ast: '1 -> n' split, so 'n - 1' extra
-        m_statSplits += numColors - 1;
+        m_statSplits += رقم_Colors - 1;
 
         // Unpick the statements out of the original block, into one list per color
-        const auto lists = splitStatements(nodep->stmtsp(), numColors);
-        UASSERT_OBJ(lists.size() == numColors, nodep, "Inconsistent split");
+        ثابت auto lists = splitStatements(nodep->stmtsp(), رقم_Colors);
+        UASSERT_OBJ(lists.size() == رقم_Colors, nodep, "Inconsistent split");
 
         // Whatever 'splitStatements' did not take, (comments, empty ifs) is not needed any more
-        if (AstNode* const restp = nodep->stmtsp()) {
-            VL_DO_DANGLING(restp->unlinkFrBackWithNext()->deleteTree(), restp);
+        إذا (Ast_عقدة* ثابت restp = nodep->stmtsp()) {
+            VL_DO_DANGLING(restp->unlinkFrBackWithNext()->delete_شجرة(), restp);
         }
 
         // Every color has a statement in it. Reuse the original block for the
         // first color, and add a new block after it for each of the rest.
         UASSERT_OBJ(lists.front(), nodep, "Color with no statements");
         nodep->addStmtsp(lists.front());
-        AstNode* lastp = nodep;
-        FileLine* const flp = nodep->fileline();
-        const VAlwaysKwd kwd = nodep->keyword();
-        for (size_t i = 1; i < numColors; ++i) {
-            AstNode* const stmtsp = lists[i];
+        Ast_عقدة* lastp = nodep;
+        File_سطر* ثابت flp = nodep->fileline();
+        ثابت VAlwaysKwd kwd = nodep->keyword();
+        لكل (size_t i = 1; i < رقم_Colors; ++i) {
+            Ast_عقدة* ثابت stmtsp = lists[i];
             UASSERT_OBJ(stmtsp, nodep, "Color with no statements");
-            AstAlways* const newp = new AstAlways{flp, kwd, nullptr, stmtsp};
+            AstAlways* ثابت newp = جديد AstAlways{flp, kwd, nullptr, stmtsp};
             newp->user3(1);  // Do not split again
             lastp->addNextHere(newp);
             lastp = newp;
         }
     }
 
-    void visit(AstIf* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    فراغ visit(AstIf* nodep) override {
+        إذا (!m_graphp || m_noSplitWhy) إرجاع;
         {
             VL_RESTORER(m_currIfp);
             m_currIfp = nodep;
@@ -351,98 +351,98 @@ class SplitVisitor final : public VNVisitor {
         scanBlock(nodep->elsesp());
     }
 
-    void visit(AstExprStmt* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    فراغ visit(Ast_تعبير_Stmt* nodep) override {
+        إذا (!m_graphp || m_noSplitWhy) إرجاع;
         VL_RESTORER(m_inDly);
-        m_inDly = false;
+        m_inDly = خطأ;
         iterateChildren(nodep);
     }
 
-    void visit(AstAssignDly* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    فراغ visit(AstAssignDly* nodep) override {
+        إذا (!m_graphp || m_noSplitWhy) إرجاع;
         // An intra-assignment timing control does not block, but it reads variables when the NBA
         // executes, like the value
-        if (AstNode* const controlp = nodep->timingControlp()) iterateChildren(controlp);
+        إذا (Ast_عقدة* ثابت controlp = nodep->timingControlp()) iterateChildren(controlp);
         iterate(nodep->rhsp());
         VL_RESTORER(m_inDly);
         m_inDly = true;
         iterate(nodep->lhsp());
     }
 
-    void visit(AstMemberSel* nodep) override {
+    فراغ visit(AstMemberSel* nodep) override {
         // A variable selected through a handle can be the same as one accessed otherwise, which
         // is not known here, so the accesses must be kept in order
-        if (m_graphp) m_noSplitWhy = "Handle";
-        visit(static_cast<AstNode*>(nodep));
+        إذا (m_graphp) m_noSplitWhy = "Handle";
+        visit(static_cast<Ast_عقدة*>(nodep));
     }
 
-    void visit(AstJumpGo*) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    فراغ visit(AstJumpGo*) override {
+        إذا (!m_graphp || m_noSplitWhy) إرجاع;
         m_noSplitWhy = "JumpGo";
     }
 
-    void visit(AstVarRef* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    فراغ visit(AstVarRef* nodep) override {
+        إذا (!m_graphp || m_noSplitWhy) إرجاع;
         UASSERT_OBJ(!m_stmtStackps.empty(), nodep, "Not under a statement");
 
         // Constant lookups can be ignored
-        if (nodep->varp()->isConst()) return;
+        إذا (nodep->varp()->isConst()) إرجاع;
 
-        AstVarScope* const vscp = nodep->varScopep();
+        AstVarScope* ثابت vscp = nodep->varScopep();
 
         // SPEEDUP: We add duplicate edges, that should be fixed
-        if (m_inDly && nodep->access().isWriteOrRW()) {
+        إذا (m_inDly && nodep->access().isWriteOrRW()) {
             // Delayed variable: is different from non-delayed variable, writes to it
             // are not observable while executing this block (NBA not yet committed),
             // so add only a write edge to a separate 'post' vertex.
-            if (!vscp->user2p()) vscp->user2p(new SplitVarPostVertex{m_graphp, vscp});
-            SplitVarPostVertex* const vpostp = vscp->user2u().to<SplitVarPostVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vpostp, vtxp);
-        } else if (nodep->access().isWriteOrRW()) {
+            إذا (!vscp->user2p()) vscp->user2p(جديد SplitVarPostVertex{m_graphp, vscp});
+            SplitVarPostVertex* ثابت vpostp = vscp->user2u().to<SplitVarPostVertex*>();
+            لكل (SplitStmtVertex* ثابت vtxp : m_stmtStackps) addEdge(vpostp, vtxp);
+        } وإلا إذا (nodep->access().isWriteOrRW()) {
             // Regular (non-blocking) write: Need to maintain program-flow order
-            if (!vscp->user1p()) vscp->user1p(new SplitVarStdVertex{m_graphp, vscp});
-            SplitVarStdVertex* const vstdp = vscp->user1u().to<SplitVarStdVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vstdp, vtxp);
-        } else {
+            إذا (!vscp->user1p()) vscp->user1p(جديد SplitVarStdVertex{m_graphp, vscp});
+            SplitVarStdVertex* ثابت vstdp = vscp->user1u().to<SplitVarStdVertex*>();
+            لكل (SplitStmtVertex* ثابت vtxp : m_stmtStackps) addEdge(vstdp, vtxp);
+        } وإلا {
             // Regular (non-blocking) read: Need to maintain program-flow order
-            if (!vscp->user1p()) vscp->user1p(new SplitVarStdVertex{m_graphp, vscp});
-            SplitVarStdVertex* const vstdp = vscp->user1u().to<SplitVarStdVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) {
+            إذا (!vscp->user1p()) vscp->user1p(جديد SplitVarStdVertex{m_graphp, vscp});
+            SplitVarStdVertex* ثابت vstdp = vscp->user1u().to<SplitVarStdVertex*>();
+            لكل (SplitStmtVertex* ثابت vtxp : m_stmtStackps) {
                 // If this is an if statement it only depends on refs in its
                 // own condition only (not those in its branches). For other
                 // statements, just record the referene as normal.
-                if (const AstIf* const ifp = VN_CAST(vtxp->nodep(), If)) {
-                    if (ifp != m_currIfp) continue;
+                إذا (ثابت AstIf* ثابت ifp = VN_CAST(vtxp->nodep(), If)) {
+                    إذا (ifp != m_currIfp) استمر;
                 }
                 addEdge(vtxp, vstdp);
             }
         }
     }
 
-    void visit(AstNode* nodep) override {
+    فراغ visit(Ast_عقدة* nodep) override {
         // Outside AstAlways, just descend
-        if (!m_graphp) {
+        إذا (!m_graphp) {
             iterateChildren(nodep);
-            return;
+            إرجاع;
         }
         // Early exit if decided not to split
-        if (m_noSplitWhy) return;
+        إذا (m_noSplitWhy) إرجاع;
 
         UASSERT_OBJ(!m_stmtStackps.empty(), nodep, "Not under a statement");
 
         // Timing control prevents splitting
-        if (nodep->isTimingControl()) {
+        إذا (nodep->isTimingControl()) {
             m_noSplitWhy = "TimingControl";
-            return;
+            إرجاع;
         }
 
         // All impure statements must be grouped together.
-        if (!nodep->isPure()) {
-            if (!m_impureVtxp) m_impureVtxp = new SplitImpureVertex{m_graphp, nodep};
+        إذا (!nodep->isPure()) {
+            إذا (!m_impureVtxp) m_impureVtxp = جديد SplitImpureVertex{m_graphp, nodep};
             // One edge is enough to find the weakly connected components, but
             // it must point at the impure vertex, so it is an out edge (input
             // dependency) of any enclosing 'if' to prevent pruning.
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vtxp, m_impureVtxp);
+            لكل (SplitStmtVertex* ثابت vtxp : m_stmtStackps) addEdge(vtxp, m_impureVtxp);
         }
 
         iterateChildren(nodep);
@@ -453,15 +453,15 @@ class SplitVisitor final : public VNVisitor {
     ~SplitVisitor() override { V3Stats::addStat("Optimizations, Split always", m_statSplits); }
     VL_UNCOPYABLE(SplitVisitor);
 
-public:
-    static void apply(AstNetlist* nodep) { SplitVisitor{nodep}; }
+عام:
+    ساكن فراغ apply(AstNetlist* nodep) { SplitVisitor{nodep}; }
 };
 
 //######################################################################
 // Split class functions
 
-void V3Split::splitAll(AstNetlist* nodep) {
+فراغ V3Split::splitAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     SplitVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("split", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_شجرة("split", 0, dump_شجرة_Either_Level() >= 3);
 }

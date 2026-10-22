@@ -29,42 +29,42 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ضمن "V3PchAstMT.h"
 
-#include "V3FuncOpt.h"
+#ضمن "V3FuncOpt.h"
 
-#include "V3Global.h"
-#include "V3Stats.h"
+#ضمن "V3Global.h"
+#ضمن "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class BalanceConcatTree final {
+صنف Balance_Concat_شجرة final {
     // STATELESS
 
     // We keep the expressions, together with their offsets within a concatenation tree
-    struct Term final {
-        AstNodeExpr* exprp = nullptr;
+    بنية Term final {
+        Ast_عقدة_تعبير* exprp = nullptr;
         size_t offset = 0;
 
-        Term() = default;
-        Term(AstNodeExpr* exprp, size_t offset)
+        Term() = افتراضي;
+        Term(Ast_عقدة_تعبير* exprp, size_t offset)
             : exprp{exprp}
             , offset{offset} {}
     };
 
     // Recursive implementation of 'gatherTerms' below.
-    static void gatherTermsRecursive(AstNodeExpr* exprp, std::vector<AstNodeExpr*>& terms) {
-        if (AstConcat* const catp = VN_CAST(exprp, Concat)) {
+    ساكن فراغ gatherTermsRecursive(Ast_عقدة_تعبير* exprp, std::vector<Ast_عقدة_تعبير*>& terms) {
+        إذا (AstConcat* ثابت catp = VN_CAST(exprp, Concat)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-            return;
+            إرجاع;
         }
-        if (AstExtend* const extp = VN_CAST(exprp, Extend)) {
+        إذا (AstExtend* ثابت extp = VN_CAST(exprp, Extend)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(extp->lhsp(), terms);
             terms.emplace_back(extp);
-            return;
+            إرجاع;
         }
 
         // Base case: different operation
@@ -75,62 +75,62 @@ class BalanceConcatTree final {
     // Results are right to left, that is, index 0 in the returned vector
     // is the rightmost term, index size()-1 is the leftmost term.
     // If a term is an AstExtend, it represents the extension part only.
-    static std::vector<AstNodeExpr*> gatherTerms(AstNodeExpr* rootp) {
-        std::vector<AstNodeExpr*> terms;
-        if (AstConcat* const catp = VN_CAST(rootp, Concat)) {
+    ساكن std::vector<Ast_عقدة_تعبير*> gatherTerms(Ast_عقدة_تعبير* rootp) {
+        std::vector<Ast_عقدة_تعبير*> terms;
+        إذا (AstConcat* ثابت catp = VN_CAST(rootp, Concat)) {
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-        } else if (AstExtend* const extp = VN_CAST(rootp, Extend)) {
+        } وإلا إذا (AstExtend* ثابت extp = VN_CAST(rootp, Extend)) {
             gatherTermsRecursive(extp->lhsp(), terms);
             terms.emplace_back(extp);
-        } else {
+        } وإلا {
             rootp->v3fatalSrc("Unexpected node type");
         }
-        return terms;
+        إرجاع terms;
     }
 
     // Construct a balanced concatenation from the given terms,
     // between indices begin (inclusive), and end (exclusive).
     // Note term[end].offset must be valid. term[end].vtxp is
     // never referenced.
-    static AstNodeExpr* construct(const std::vector<Term>& terms, const size_t begin,
-                                  const size_t end) {
+    ساكن Ast_عقدة_تعبير* construct(ثابت std::vector<Term>& terms, ثابت size_t begin,
+                                  ثابت size_t end) {
         UASSERT(end < terms.size(), "Invalid end");
         UASSERT(begin < end, "Invalid range");
         // Base case: just return the term
-        if (end == begin + 1) return terms[begin].exprp;
+        إذا (end == begin + 1) إرجاع terms[begin].exprp;
 
         // Recursive case:
         // Compute the mid-point, trying to create roughly equal width intermediates
-        const size_t width = terms[end].offset - terms[begin].offset;
-        const size_t midOffset = width / 2 + terms[begin].offset;
-        const auto beginIt = terms.begin() + begin;
-        const auto endIt = terms.begin() + end;
-        const auto midIt = std::lower_bound(beginIt + 1, endIt - 1, midOffset,  //
-                                            [&](const Term& term, size_t value) {  //
-                                                return term.offset < value;
+        ثابت size_t width = terms[end].offset - terms[begin].offset;
+        ثابت size_t midOffset = width / 2 + terms[begin].offset;
+        ثابت auto beginIt = terms.begin() + begin;
+        ثابت auto endIt = terms.begin() + end;
+        ثابت auto midIt = std::lower_bound(beginIt + 1, endIt - 1, midOffset,  //
+                                            [&](ثابت Term& term, size_t قيمة) {  //
+                                                إرجاع term.offset < قيمة;
                                             });
-        const size_t mid = begin + std::distance(beginIt, midIt);
+        ثابت size_t mid = begin + std::distance(beginIt, midIt);
         UASSERT(begin < mid && mid < end, "Must make some progress");
         // Construct the subtrees
-        AstNodeExpr* const rhsp = construct(terms, begin, mid);
-        AstNodeExpr* const lhsp = construct(terms, mid, end);
+        Ast_عقدة_تعبير* ثابت rhsp = construct(terms, begin, mid);
+        Ast_عقدة_تعبير* ثابت lhsp = construct(terms, mid, end);
         // Construct new node
-        AstNodeExpr* newp = new AstConcat{lhsp->fileline(), lhsp, rhsp};
+        Ast_عقدة_تعبير* newp = جديد AstConcat{lhsp->fileline(), lhsp, rhsp};
         newp->user1(true);  // Must not attempt to balance again.
-        return newp;
+        إرجاع newp;
     }
 
     // Returns replacement node, or nullptr if no change
-    static AstConcat* balance(AstNodeExpr* const rootp) {
+    ساكن AstConcat* balance(Ast_عقدة_تعبير* ثابت rootp) {
         UINFO(9, "balanceConcat " << rootp);
         // Gather all input vertices of the tree
-        const std::vector<AstNodeExpr*> exprps = gatherTerms(rootp);
+        ثابت std::vector<Ast_عقدة_تعبير*> exprps = gatherTerms(rootp);
         // Don't bother with trivial trees
-        if (exprps.size() <= 3) return nullptr;
+        إذا (exprps.size() <= 3) إرجاع nullptr;
         // Don't do it if any of the terms are impure
-        for (AstNodeExpr* const exprp : exprps) {
-            if (!exprp->isPure()) return nullptr;
+        لكل (Ast_عقدة_تعبير* ثابت exprp : exprps) {
+            إذا (!exprp->isPure()) إرجاع nullptr;
         }
 
         // Construct the terms Vector that we are going to do processing on
@@ -138,13 +138,13 @@ class BalanceConcatTree final {
         // These are redundant (constructor does the same), but here they are for clarity
         terms[0].offset = 0;
         terms[exprps.size()].exprp = nullptr;
-        for (size_t i = 0; i < exprps.size(); ++i) {
-            AstNodeExpr* const exprp = [&]() -> AstNodeExpr* {
-                if (AstExtend* const extp = VN_CAST(exprps[i], Extend)) {
-                    const int width = extp->width() - extp->lhsp()->width();
-                    return new AstConst{extp->fileline(), AstConst::WidthedValue{}, width, 0};
+        لكل (size_t i = 0; i < exprps.size(); ++i) {
+            Ast_عقدة_تعبير* ثابت exprp = [&]() -> Ast_عقدة_تعبير* {
+                إذا (AstExtend* ثابت extp = VN_CAST(exprps[i], Extend)) {
+                    ثابت صحيح width = extp->width() - extp->lhsp()->width();
+                    إرجاع جديد AstConst{extp->fileline(), AstConst::Widthed_قيمة{}, width, 0};
                 }
-                return exprps[i]->cloneTreePure(false);
+                إرجاع exprps[i]->clone_شجرة_Pure(خطأ);
             }();
             terms[i].exprp = exprp;
             terms[i + 1].offset = terms[i].offset + exprp->width();
@@ -162,16 +162,16 @@ class BalanceConcatTree final {
             size_t offset = 0;  // Offset of current range considered
 
             // Create a term from the current range
-            const auto makeTerm = [&]() {
-                AstNodeExpr* const exprp = construct(terms, begin, end);
+            ثابت auto makeTerm = [&]() {
+                Ast_عقدة_تعبير* ثابت exprp = construct(terms, begin, end);
                 terms2.emplace_back(exprp, offset);
                 offset += exprp->width();
                 begin = end;
             };
 
             // Create all terms ending on a boundary.
-            while (++end < terms.size() - 1) {
-                if (terms[end].offset % VL_EDATASIZE == 0) makeTerm();
+            بينما (++end < terms.size() - 1) {
+                إذا (terms[end].offset % VL_EDATASIZE == 0) makeTerm();
             }
             // Final term. Loop condition above ensures this always exists,
             // and might or might not be on a boundary.
@@ -183,34 +183,34 @@ class BalanceConcatTree final {
         }
 
         // Round 2: Combine the partial terms
-        return VN_AS(construct(terms2, 0, terms2.size() - 1), Concat);
+        إرجاع VN_AS(construct(terms2, 0, terms2.size() - 1), Concat);
     }
 
-public:
-    static AstNodeExpr* apply(AstNodeExpr* nodep) {
-        if (!v3Global.opt.fFuncBalanceCat()) return nullptr;
-        if (nodep->user1()) return nullptr;  // Created by us, don't try to balance again
-        if (VN_IS(nodep->backp(), Concat)) return nullptr;  // Not root of tree
-        if (VN_IS(nodep->backp(), Extend)) return nullptr;  // Not root of tree
-        AstNodeExpr* const exprp = balance(nodep);
-        if (exprp) exprp->user1(true);  // Must not attempt again.
-        return exprp;
+عام:
+    ساكن Ast_عقدة_تعبير* apply(Ast_عقدة_تعبير* nodep) {
+        إذا (!v3Global.opt.fFuncBalanceCat()) إرجاع nullptr;
+        إذا (nodep->user1()) إرجاع nullptr;  // Created by us, don't try to balance again
+        إذا (VN_IS(nodep->backp(), Concat)) إرجاع nullptr;  // Not root of tree
+        إذا (VN_IS(nodep->backp(), Extend)) إرجاع nullptr;  // Not root of tree
+        Ast_عقدة_تعبير* ثابت exprp = balance(nodep);
+        إذا (exprp) exprp->user1(true);  // Must not attempt again.
+        إرجاع exprp;
     }
 };
 
-struct FuncOptStats final {
+بنية FuncOptStats final {
     // STATE - Statistic tracking
     VDouble0 m_balancedConcats;  // Number of concatenations balanced
     VDouble0 m_concatSplits;  // Number of splits in assignments with Concat on RHS
 
-    FuncOptStats() = default;
+    FuncOptStats() = افتراضي;
     ~FuncOptStats() {
         V3Stats::addStat("Optimizations, FuncOpt concat trees balanced", m_balancedConcats);
         V3Stats::addStat("Optimizations, FuncOpt concat splits", m_concatSplits);
     }
 };
 
-class FuncOptVisitor final : public VNVisitor {
+صنف FuncOptVisitor final : عام VNVisitor {
     // NODE STATE
     //  AstNodeAssign::user()     -> bool.  Already checked, safe to split. Omit expensive check.
     //  AstConcat::user()         -> bool.  Already balanced.
@@ -219,151 +219,151 @@ class FuncOptVisitor final : public VNVisitor {
     FuncOptStats& m_stats;  // Statistics
 
     // True for e.g.: foo = foo >> 1; or foo[foo[0]] = ...;
-    static bool readsLhs(AstNodeAssign* nodep) {
+    ساكن منطقي readsLhs(Ast_عقدة_Assign* nodep) {
         // It is expected that the number of vars written on the LHS is very small (should be 1).
-        std::unordered_set<const AstVar*> lhsWrVarps;
-        std::unordered_set<const AstVar*> lhsRdVarps;
-        nodep->lhsp()->foreach([&](const AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
-            if (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
+        std::unordered_set<ثابت AstVar*> lhsWrVarps;
+        std::unordered_set<ثابت AstVar*> lhsRdVarps;
+        nodep->lhsp()->foreach([&](ثابت AstVarRef* refp) {
+            إذا (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
+            إذا (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
         });
 
         // Common case of 1 variable on the LHS - special handling for speed
-        if (lhsWrVarps.size() == 1) {
-            const AstVar* const lhsWrVarp = *lhsWrVarps.begin();
+        إذا (lhsWrVarps.size() == 1) {
+            ثابت AstVar* ثابت lhsWrVarp = *lhsWrVarps.begin();
             // Check Rhs doesn't read the written var
-            const bool rhsReadsWritten = nodep->rhsp()->exists([=](const AstVarRef* refp) {  //
-                return refp->varp() == lhsWrVarp;
+            ثابت منطقي rhsReadsWritten = nodep->rhsp()->exists([=](ثابت AstVarRef* refp) {  //
+                إرجاع refp->varp() == lhsWrVarp;
             });
-            if (rhsReadsWritten) return true;
+            إذا (rhsReadsWritten) إرجاع true;
             // Check Lhs doesn't read the written var
-            return lhsRdVarps.count(lhsWrVarp);
+            إرجاع lhsRdVarps.تعداد_2(lhsWrVarp);
         }
 
         // Generic case of multiple vars written on LHS
         // TODO: this might be impossible due to earlier transforms, not sure
         // Check Rhs doesn't read the written vars
-        const bool rhsReadsWritten = nodep->rhsp()->exists([&](const AstVarRef* refp) {  //
-            return lhsWrVarps.count(refp->varp());
+        ثابت منطقي rhsReadsWritten = nodep->rhsp()->exists([&](ثابت AstVarRef* refp) {  //
+            إرجاع lhsWrVarps.تعداد_2(refp->varp());
         });
-        if (rhsReadsWritten) return true;
+        إذا (rhsReadsWritten) إرجاع true;
         // Check Lhs doesn't read the written vars
-        for (const AstVar* const lhsWrVarp : lhsWrVarps) {
-            if (lhsRdVarps.count(lhsWrVarp)) return true;
+        لكل (ثابت AstVar* ثابت lhsWrVarp : lhsWrVarps) {
+            إذا (lhsRdVarps.تعداد_2(lhsWrVarp)) إرجاع true;
         }
-        return false;
+        إرجاع خطأ;
     }
 
     // METHODS
     // Split wide assignments with a wide concatenation on the RHS.
     // Returns true if 'nodep' was deleted
-    bool splitConcat(AstNodeAssign* nodep) {
+    منطقي splitConcat(Ast_عقدة_Assign* nodep) {
         UINFO(9, "splitConcat " << nodep);
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_عقدة_تعبير* ثابت rhsp = nodep->rhsp();
         // Only care about concatenations an zero extend on the RHS
-        if (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) return false;
+        إذا (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) إرجاع خطأ;
         // Will need the LHS
-        AstNodeExpr* lhsp = nodep->lhsp();
-        if (!VN_IS(lhsp->dtypep()->skipRefp(), QueueDType))
+        Ast_عقدة_تعبير* lhsp = nodep->lhsp();
+        إذا (!VN_IS(lhsp->dtypep()->skipRefp(), QueueDType))
             UASSERT_OBJ(lhsp->width() == rhsp->width(), nodep, "Inconsistent assignment");
         // Only consider pure assignments. Nodes inserted below are safe.
-        if (!nodep->user1() && (!lhsp->isPure() || !rhsp->isPure())) return false;
+        إذا (!nodep->user1() && (!lhsp->isPure() || !rhsp->isPure())) إرجاع خطأ;
         // Do not split assignments to SC variables, they cannot be assigned in parts
-        if (lhsp->exists([](AstVarRef* refp) { return refp->varp()->isSc(); })) return false;
+        إذا (lhsp->exists([](AstVarRef* refp) { إرجاع refp->varp()->isSc(); })) إرجاع خطأ;
         // Check for a Sel on the LHS if present, and skip over it
         uint32_t lsb = 0;
-        if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (AstConst* const lsbp = VN_CAST(selp->lsbp(), Const)) {
+        إذا (AstSel* ثابت selp = VN_CAST(lhsp, Sel)) {
+            إذا (AstConst* ثابت lsbp = VN_CAST(selp->lsbp(), Const)) {
                 lhsp = selp->fromp();
                 lsb = lsbp->toUInt();
-            } else {
+            } وإلا {
                 // Don't optimize if it's a variable select
-                return false;
+                إرجاع خطأ;
             }
         }
         // No need to split assignments targeting storage smaller than a machine register
-        if (lhsp->width() <= VL_QUADSIZE) return false;
+        إذا (lhsp->width() <= VL_QUADSIZE) إرجاع خطأ;
 
         // If it's a concat straddling a word boundary, try to split it.
         // The next visit on the new nodes will split it recursively.
         // Otherwise, keep the original assignment.
-        const int lsbWord = lsb / VL_EDATASIZE;
-        const int msbWord = (lsb + rhsp->width() - 1) / VL_EDATASIZE;
-        if (lsbWord == msbWord) return false;
+        ثابت صحيح lsbWord = lsb / VL_EDATASIZE;
+        ثابت صحيح msbWord = (lsb + rhsp->width() - 1) / VL_EDATASIZE;
+        إذا (lsbWord == msbWord) إرجاع خطأ;
 
         // If the RHS reads the LHS, we can't actually do this. Nodes inserted below are safe.
-        if (!nodep->user1() && readsLhs(nodep)) return false;
+        إذا (!nodep->user1() && readsLhs(nodep)) إرجاع خطأ;
 
         // Ok, actually split it now
         UINFO(5, "splitConcat optimizing " << nodep);
         ++m_stats.m_concatSplits;
         // The 2 parts and their offsets
-        AstNodeExpr* const rrp = [rhsp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->rhsp()->unlinkFrBack();
+        Ast_عقدة_تعبير* ثابت rrp = [rhsp]() -> Ast_عقدة_تعبير* {
+            إذا (AstConcat* ثابت catp = VN_CAST(rhsp, Concat)) {
+                إرجاع catp->rhsp()->unlinkFrBack();
             }
-            return VN_AS(rhsp, Extend)->lhsp()->unlinkFrBack();
+            إرجاع VN_AS(rhsp, Extend)->lhsp()->unlinkFrBack();
         }();
-        AstNodeExpr* const rlp = [rhsp, rrp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->lhsp()->unlinkFrBack();
+        Ast_عقدة_تعبير* ثابت rlp = [rhsp, rrp]() -> Ast_عقدة_تعبير* {
+            إذا (AstConcat* ثابت catp = VN_CAST(rhsp, Concat)) {
+                إرجاع catp->lhsp()->unlinkFrBack();
             }
-            const int lWidth = rhsp->width() - rrp->width();
-            return new AstConst{rhsp->fileline(), AstConst::WidthedValue{}, lWidth, 0};
+            ثابت صحيح lWidth = rhsp->width() - rrp->width();
+            إرجاع جديد AstConst{rhsp->fileline(), AstConst::Widthed_قيمة{}, lWidth, 0};
         }();
-        const int rLsb = lsb;
-        const int lLsb = lsb + rrp->width();
+        ثابت صحيح rLsb = lsb;
+        ثابت صحيح lLsb = lsb + rrp->width();
         // Insert the 2 assignment right after the original. They will be visited next.
-        AstAssign* const arp = new AstAssign{
+        AstAssign* ثابت arp = جديد AstAssign{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->cloneTreePure(false), rLsb, rrp->width()}, rrp};
-        AstAssign* const alp = new AstAssign{
+            جديد AstSel{lhsp->fileline(), lhsp->clone_شجرة_Pure(خطأ), rLsb, rrp->width()}, rrp};
+        AstAssign* ثابت alp = جديد AstAssign{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->unlinkFrBack(), lLsb, rlp->width()}, rlp};
+            جديد AstSel{lhsp->fileline(), lhsp->unlinkFrBack(), lLsb, rlp->width()}, rlp};
         nodep->addNextHere(arp);
         arp->addNextHere(alp);
         // Safe to split these.
         arp->user1(true);
         alp->user1(true);
         // Nuke what is left
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        return true;
+        VL_DO_DANGLING(ادفع_Deletep(nodep->unlinkFrBack()), nodep);
+        إرجاع true;
     }
 
     // VISIT
-    void visit(AstNodeAssign* nodep) override {
+    فراغ visit(Ast_عقدة_Assign* nodep) override {
         // TODO: Only thing remaining inside functions should be AstAssign (that is, an actual
         //       assignment statement), but we stil use AstAssignW, AstAssignDly, and all, fix.
         iterateChildren(nodep);
 
-        if (v3Global.opt.fFuncSplitCat()) {
-            if (splitConcat(nodep)) return;  // Must return here, in case more code is added below
+        إذا (v3Global.opt.fFuncSplitCat()) {
+            إذا (splitConcat(nodep)) إرجاع;  // Must return here, in case more code is added below
         }
     }
 
-    void visit(AstConcat* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    فراغ visit(AstConcat* nodep) override {
+        إذا (Ast_عقدة_تعبير* ثابت newp = Balance_Concat_شجرة::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
             ++m_stats.m_balancedConcats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(ادفع_Deletep(nodep), nodep);
+            إرجاع;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstExtend* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    فراغ visit(AstExtend* nodep) override {
+        إذا (Ast_عقدة_تعبير* ثابت newp = Balance_Concat_شجرة::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
             ++m_stats.m_balancedConcats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(ادفع_Deletep(nodep), nodep);
+            إرجاع;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ visit(Ast_عقدة* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
     explicit FuncOptVisitor(FuncOptStats& stats, AstCFunc* funcp)
@@ -371,27 +371,27 @@ class FuncOptVisitor final : public VNVisitor {
         iterateChildren(funcp);
     }
 
-public:
-    static void apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
+عام:
+    ساكن فراغ apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
 };
 
 //######################################################################
 
-void V3FuncOpt::funcOptAll(AstNetlist* nodep) {
+فراغ V3FuncOpt::funcOptAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         // NODE STATE
         //  AstNode::user1()     -> bool.  Processed
-        const VNUser1InUse user1InUse;
+        ثابت VNUser1InUse user1InUse;
         FuncOptStats stats;
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstCFunc* const cfuncp = VN_CAST(stmtp, CFunc)) {
+        لكل (Ast_عقدة_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), عقدة_Module)) {
+            لكل (Ast_عقدة* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                إذا (AstCFunc* ثابت cfuncp = VN_CAST(stmtp, CFunc)) {
                     FuncOptVisitor::apply(stats, cfuncp);
                 }
             }
         }
     }
-    V3Global::dumpCheckGlobalTree("funcopt", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_شجرة("funcopt", 0, dump_شجرة_Either_Level() >= 3);
 }

@@ -20,27 +20,27 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3OrderMTaskGraph.h"
-#include "V3PairingHeap.h"
-#include "V3PoolAllocator.h"
+#ضمن "V3Global.h"
+#ضمن "V3Graph.h"
+#ضمن "V3OrderMTaskGraph.h"
+#ضمن "V3PairingHeap.h"
+#ضمن "V3PoolAllocator.h"
 
-#include <algorithm>
-#include <array>
-#include <limits>
-#include <memory>
-#include <type_traits>
-#include <unordered_set>
-#include <utility>
+#ضمن <algorithm>
+#ضمن <array>
+#ضمن <limits>
+#ضمن <memory>
+#ضمن <type_traits>
+#ضمن <unordered_set>
+#ضمن <utility>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class MergeCandidate;
-class SiblingMC;
-class EdgeMC;
+صنف MergeCandidate;
+صنف SiblingMC;
+صنف EdgeMC;
 
 //######################################################################
 // Tunable settings
@@ -70,25 +70,25 @@ constexpr unsigned PART_DEFAULT_MAX_MTASKS_PER_THREAD = 50;
 //######################################################################
 // MTask utility classes
 
-struct MergeCandidateKey final {
+بنية Merge_Candidate_مفتاح final {
     // Note: Structure layout chosen to minimize padding in PairingHeap<*>::Node
     uint64_t m_id;  // Unique ID part of the key
     uint64_t m_score;  // Score part of the key
-    bool operator<(const MergeCandidateKey& other) const {
+    منطقي operator<(ثابت Merge_Candidate_مفتاح& other) ثابت {
         // First by Score then by ID, but notice that we want minimums using a max-heap, so reverse
-        return m_score > other.m_score || (m_score == other.m_score && m_id > other.m_id);
+        إرجاع m_score > other.m_score || (m_score == other.m_score && m_id > other.m_id);
     }
 };
 
 // For efficiency, MergeCandidateScoreboard elements must derive from
 // PairingHeap<MergeCandidateKey>::Node
-using MergeCandidateHeapNode = PairingHeap<MergeCandidateKey>::Node;
+using Merge_Candidate_Heap_عقدة = PairingHeap<Merge_Candidate_مفتاح>::عقدة_2;
 
 // Information associated with scoreboarding a merge candidate
-class MergeCandidate VL_NOT_FINAL : public MergeCandidateHeapNode {
+صنف MergeCandidate VL_NOT_FINAL : عام Merge_Candidate_Heap_عقدة {
     // Only the known subclasses can create or delete one of these
-    friend class SiblingMC;
-    friend class EdgeMC;
+    friend صنف SiblingMC;
+    friend صنف EdgeMC;
 
     // This structure is extremely hot. To save 8 bytes by not having a virtual
     // function table, we implement the few polymorphic methods over the two
@@ -97,92 +97,92 @@ class MergeCandidate VL_NOT_FINAL : public MergeCandidateHeapNode {
 
     // By using the bottom bits for flags, we can still use < to compare IDs without masking.
     // <63:1> Serial number for ordering, <0> subtype (SiblingMC)
-    static constexpr uint64_t IS_SIBLING_MASK = 1ULL << 0;
-    static constexpr uint64_t ID_INCREMENT = 1ULL << 1;
+    ساكن constexpr uint64_t IS_SIBLING_MASK = 1ULL << 0;
+    ساكن constexpr uint64_t ID_INCREMENT = 1ULL << 1;
 
-    bool isSiblingMC() const { return m_key.m_id & IS_SIBLING_MASK; }
+    منطقي isSiblingMC() ثابت { إرجاع m_مفتاح.m_id & IS_SIBLING_MASK; }
 
     // CONSTRUCTORS
-    explicit MergeCandidate(bool isSiblingMC) {
-        static uint64_t s_serial = 0;
+    explicit MergeCandidate(منطقي isSiblingMC) {
+        ساكن uint64_t s_serial = 0;
         s_serial += ID_INCREMENT;  // +ID_INCREMENT so doesn't set the special bottom bits
-        m_key.m_id = s_serial | (isSiblingMC * IS_SIBLING_MASK);
+        m_مفتاح.m_id = s_serial | (isSiblingMC * IS_SIBLING_MASK);
     }
-    ~MergeCandidate() = default;
+    ~MergeCandidate() = افتراضي;
 
-public:
+عام:
     // METHODS
     SiblingMC* toSiblingMC();  // Instead of cast<>/as<>
     EdgeMC* toEdgeMC();  // Instead of cast<>/as<>
-    bool mergeWouldCreateCycle(OrderMTaskGraph& graph);
+    منطقي mergeWouldCreateCycle(OrderMTaskGraph& graph);
 
     // The current score of this candidate, which changes as the graph is contracted
-    inline uint64_t currentScore();
+    مضمن uint64_t currentScore();
     // The score this candidate was last given, which is its key in the scoreboard heap
-    uint64_t score() const { return m_key.m_score; }
+    uint64_t score() ثابت { إرجاع m_مفتاح.m_score; }
     // Set the score of this candidate to its current value. Only valid while it is not in a heap.
-    void updateScore() { m_key.m_score = currentScore(); }
+    فراغ updateScore() { m_مفتاح.m_score = currentScore(); }
 
-    static MergeCandidate* heapNodeToElem(MergeCandidateHeapNode* nodep) {
-        return static_cast<MergeCandidate*>(nodep);
+    ساكن MergeCandidate* heap_عقدة_To_Elem(Merge_Candidate_Heap_عقدة* nodep) {
+        إرجاع static_cast<MergeCandidate*>(nodep);
     }
 };
 
-static_assert(sizeof(MergeCandidate) == sizeof(MergeCandidateHeapNode),
+static_assert(حجم(MergeCandidate) == حجم(Merge_Candidate_Heap_عقدة),
               "Should not have a vtable");
 
 // A pair of associated LogicMTask's that are merge candidates for sibling
 // contraction
-class SiblingMC final : public MergeCandidate {
-    LogicMTask* const m_ap;  // The higher ID MTask
-    LogicMTask* const m_bp;  // The lower ID MTask
+صنف SiblingMC final : عام MergeCandidate {
+    LogicMTask* ثابت m_ap;  // The higher ID MTask
+    LogicMTask* ثابت m_bp;  // The lower ID MTask
 
     V3ListLinks<SiblingMC> m_aLinks;  // List links to store instances of this class
     V3ListLinks<SiblingMC> m_bLinks;  // List links to store instances of this class
 
-    V3ListLinks<SiblingMC>& aLinks() { return m_aLinks; }
-    V3ListLinks<SiblingMC>& bLinks() { return m_bLinks; }
+    V3ListLinks<SiblingMC>& aLinks() { إرجاع m_aLinks; }
+    V3ListLinks<SiblingMC>& bLinks() { إرجاع m_bLinks; }
 
-public:
+عام:
     // List type to store instances of this class
     using AList = V3List<SiblingMC, &SiblingMC::aLinks>;
     using BList = V3List<SiblingMC, &SiblingMC::bLinks>;
 
     // CONSTRUCTORS
     SiblingMC(LogicMTask* ap, LogicMTask* bp);
-    ~SiblingMC() = default;
+    ~SiblingMC() = افتراضي;
 
     // METHODS
-    void unlinkA();
-    void unlinkB();
+    فراغ unlinkA();
+    فراغ unlinkB();
 
-    LogicMTask* ap() const { return m_ap; }
-    LogicMTask* bp() const { return m_bp; }
+    LogicMTask* ap() ثابت { إرجاع m_ap; }
+    LogicMTask* bp() ثابت { إرجاع m_bp; }
 };
 
-static_assert(!std::is_polymorphic<SiblingMC>::value, "Should not have a vtable");
+static_assert(!std::is_polymorphic<SiblingMC>::قيمة, "Should not have a vtable");
 
 // A merge candidate associated with an MTaskEdge (edge contraction candidate)
-class EdgeMC final : public MergeCandidate {
-    MTaskEdge* const m_edgep;  // The associated edge
+صنف EdgeMC final : عام MergeCandidate {
+    MTaskEdge* ثابت m_edgep;  // The associated edge
 
-public:
+عام:
     // CONSTRUCTORS
     explicit EdgeMC(MTaskEdge* edgep)
-        : MergeCandidate{/* isSiblingMC: */ false}
+        : MergeCandidate{/* isSiblingMC: */ خطأ}
         , m_edgep{edgep} {}
-    ~EdgeMC() = default;
+    ~EdgeMC() = افتراضي;
 
     // METHODS
-    MTaskEdge* edgep() const { return m_edgep; }
+    MTaskEdge* edgep() ثابت { إرجاع m_edgep; }
 };
 
-static_assert(!std::is_polymorphic<EdgeMC>::value, "Should not have a vtable");
+static_assert(!std::is_polymorphic<EdgeMC>::قيمة, "Should not have a vtable");
 
 // Auxiliary data associated with each LogicMTask during Contraction, attached via
 // LogicMTask::userp(). Kept out of LogicMTask itself so that LogicMTask does not depend on the
 // MergeCandidate hierarchy (which the SiblingMC lists reference).
-struct MTaskContractionData final {
+بنية MTaskContractionData final {
     // MTasks for which a SiblingMC exists with the owning MTask as the higher ID MTask (m_ap)
     std::unordered_set<LogicMTask*> siblings;
     // SiblingMCs for which the owning MTask is the higher ID MTask (m_ap in SiblingMC)
@@ -192,31 +192,31 @@ struct MTaskContractionData final {
 };
 
 // The MTaskContractionData attached to 'mtaskp' (see LogicMTask::userp)
-static MTaskContractionData& mtaskData(const LogicMTask* mtaskp) {
-    return *static_cast<MTaskContractionData*>(mtaskp->userp());
+ساكن MTaskContractionData& mtaskData(ثابت LogicMTask* mtaskp) {
+    إرجاع *static_cast<MTaskContractionData*>(mtaskp->userp());
 }
 
 // The EdgeMC associated with 'edgep' while it is on the scoreboard, or nullptr otherwise. Held in
 // the edge's user pointer (see MTaskEdge), kept here so MTaskEdge does not depend on EdgeMC.
-static EdgeMC* edgeMC(const MTaskEdge* edgep) { return static_cast<EdgeMC*>(edgep->userp()); }
+ساكن EdgeMC* edgeMC(ثابت MTaskEdge* edgep) { إرجاع static_cast<EdgeMC*>(edgep->userp()); }
 
 // Instead of dynamic cast
 SiblingMC* MergeCandidate::toSiblingMC() {
-    return isSiblingMC() ? static_cast<SiblingMC*>(this) : nullptr;
+    إرجاع isSiblingMC() ? static_cast<SiblingMC*>(هذا) : nullptr;
 }
 
-EdgeMC* MergeCandidate::toEdgeMC() { return isSiblingMC() ? nullptr : static_cast<EdgeMC*>(this); }
+EdgeMC* MergeCandidate::toEdgeMC() { إرجاع isSiblingMC() ? nullptr : static_cast<EdgeMC*>(هذا); }
 
-bool MergeCandidate::mergeWouldCreateCycle(OrderMTaskGraph& graph) {
+منطقي MergeCandidate::mergeWouldCreateCycle(OrderMTaskGraph& graph) {
     // Sibling merge: merging creates a cycle if either sibling is reachable from the other
-    if (const SiblingMC* const sibp = toSiblingMC()) {
-        return graph.pathExists(sibp->ap(), sibp->bp(), nullptr)
+    إذا (ثابت SiblingMC* ثابت sibp = toSiblingMC()) {
+        إرجاع graph.pathExists(sibp->ap(), sibp->bp(), nullptr)
                || graph.pathExists(sibp->bp(), sibp->ap(), nullptr);
     }
 
     // Edge merge: merging creates a cycle if there is another path between the two MTasks
-    MTaskEdge* const edgep = toEdgeMC()->edgep();
-    return graph.pathExists(edgep->fromMTaskp(), edgep->toMTaskp(), edgep);
+    MTaskEdge* ثابت edgep = toEdgeMC()->edgep();
+    إرجاع graph.pathExists(edgep->fromMTaskp(), edgep->toMTaskp(), edgep);
 }
 
 uint64_t MergeCandidate::currentScore() {
@@ -224,29 +224,29 @@ uint64_t MergeCandidate::currentScore() {
     // ("Local" means the longest critical path running through the merged node.)
 
     // Sibling merge
-    if (const SiblingMC* const sibp = toSiblingMC()) {
-        const LogicMTask* const ap = sibp->ap();
-        const LogicMTask* const bp = sibp->bp();
-        const uint64_t mergedCpFwd
+    إذا (ثابت SiblingMC* ثابت sibp = toSiblingMC()) {
+        ثابت LogicMTask* ثابت ap = sibp->ap();
+        ثابت LogicMTask* ثابت bp = sibp->bp();
+        ثابت uint64_t mergedCpFwd
             = std::max(ap->cpExclusive<GraphWay::FORWARD>(), bp->cpExclusive<GraphWay::FORWARD>());
-        const uint64_t mergedCpRev
+        ثابت uint64_t mergedCpRev
             = std::max(ap->cpExclusive<GraphWay::REVERSE>(), bp->cpExclusive<GraphWay::REVERSE>());
-        return mergedCpRev + mergedCpFwd + ap->cost() + bp->cost();
+        إرجاع mergedCpRev + mergedCpFwd + ap->cost() + bp->cost();
     }
 
     // Edge merge
     {
-        MTaskEdge* const edgep = toEdgeMC()->edgep();
-        const LogicMTask* const fromp = edgep->fromMTaskp();
-        const LogicMTask* const top = edgep->toMTaskp();
-        const uint64_t mergedCpFwd = std::max(fromp->cpExclusive<GraphWay::FORWARD>(),
-                                              top->cpExclusiveWithout<GraphWay::FORWARD>(edgep));
-        const uint64_t mergedCpRev = std::max(fromp->cpExclusiveWithout<GraphWay::REVERSE>(edgep),
-                                              top->cpExclusive<GraphWay::REVERSE>());
+        MTaskEdge* ثابت edgep = toEdgeMC()->edgep();
+        ثابت LogicMTask* ثابت fromp = edgep->fromMTaskp();
+        ثابت LogicMTask* ثابت قمة = edgep->toMTaskp();
+        ثابت uint64_t mergedCpFwd = std::max(fromp->cpExclusive<GraphWay::FORWARD>(),
+                                              قمة->cpExclusiveWithout<GraphWay::FORWARD>(edgep));
+        ثابت uint64_t mergedCpRev = std::max(fromp->cpExclusiveWithout<GraphWay::REVERSE>(edgep),
+                                              قمة->cpExclusive<GraphWay::REVERSE>());
         // Give a slight preference to sibling merges by increasing the cost of edge merges.
         // This biases towards sibling merges in case they are equal score with edge merges.
         // This avoid a central node growing while many leaves remain due to edge merges.
-        return 1 + mergedCpRev + mergedCpFwd + fromp->cost() + top->cost();
+        إرجاع 1 + mergedCpRev + mergedCpFwd + fromp->cost() + قمة->cost();
     }
 }
 
@@ -256,18 +256,18 @@ SiblingMC::SiblingMC(LogicMTask* ap, LogicMTask* bp)
     , m_bp{bp} {
     // Storage management depends on this
     UASSERT(ap->id() > bp->id(), "Should be ordered");
-    UDEBUGONLY(UASSERT(mtaskData(ap).siblings.count(bp), "Should be in sibling map"););
-    mtaskData(m_ap).aSiblingMCs.linkBack(this);
-    mtaskData(m_bp).bSiblingMCs.linkBack(this);
+    UDEBUGONLY(UASSERT(mtaskData(ap).siblings.تعداد_2(bp), "Should be in sibling map"););
+    mtaskData(m_ap).aSiblingMCs.linkBack(هذا);
+    mtaskData(m_bp).bSiblingMCs.linkBack(هذا);
 }
 
-void SiblingMC::unlinkA() {
-    VL_ATTR_UNUSED const size_t removed = mtaskData(m_ap).siblings.erase(m_bp);
+فراغ SiblingMC::unlinkA() {
+    VL_ATTR_UNUSED ثابت size_t removed = mtaskData(m_ap).siblings.erase(m_bp);
     UDEBUGONLY(UASSERT(removed == 1, "Should have been in sibling set"););
-    mtaskData(m_ap).aSiblingMCs.unlink(this);
+    mtaskData(m_ap).aSiblingMCs.unlink(هذا);
 }
 
-void SiblingMC::unlinkB() { mtaskData(m_bp).bSiblingMCs.unlink(this); }
+فراغ SiblingMC::unlinkB() { mtaskData(m_bp).bSiblingMCs.unlink(هذا); }
 
 // Scoreboard of MTask merge candidates.
 //
@@ -287,9 +287,9 @@ void SiblingMC::unlinkB() { mtaskData(m_bp).bSiblingMCs.unlink(this); }
 // via the methods below and never allocate or free them directly. For edges this maintains the
 // invariant that an MTaskEdge has an associated EdgeMC (held in its userp()), if and only if it is
 // currently on the scoreboard.
-class MergeCandidateScoreboard final {
+صنف MergeCandidateScoreboard final {
     // TYPES
-    using Heap = PairingHeap<MergeCandidateKey>;
+    using Heap = PairingHeap<Merge_Candidate_مفتاح>;
 
     // MEMBERS
     Heap m_heap;  // The heap of candidates, keyed on their score (see class comment above)
@@ -299,61 +299,61 @@ class MergeCandidateScoreboard final {
     // METHODS
     // Set the score of a candidate and add it to the heap. The score is computed from the critical
     // paths of the MTasks, which are up to date while the graph is being contracted.
-    void insert(MergeCandidate* nodep) {
+    فراغ أدرج(MergeCandidate* nodep) {
         nodep->updateScore();
-        m_heap.insert(nodep);
+        m_heap.أدرج(nodep);
     }
 
     // Remove a candidate from the scoreboard.
-    void remove(MergeCandidate* nodep) { m_heap.remove(nodep); }
+    فراغ remove(MergeCandidate* nodep) { m_heap.remove(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    MergeCandidateScoreboard() = default;
-    ~MergeCandidateScoreboard() = default;
+    MergeCandidateScoreboard() = افتراضي;
+    ~MergeCandidateScoreboard() = افتراضي;
     VL_UNCOPYABLE(MergeCandidateScoreboard);
 
     // The candidate with the lowest score it was given, or nullptr if the scoreboard is empty.
     // Note this is only a lower bound on the best current score, see the class comment above.
-    MergeCandidate* best() const { return MergeCandidate::heapNodeToElem(m_heap.max()); }
+    MergeCandidate* best() ثابت { إرجاع MergeCandidate::heap_عقدة_To_Elem(m_heap.max()); }
 
     // Update the score of a candidate to its current value, and reposition it in the heap
-    void rescore(MergeCandidate* nodep) {
+    فراغ rescore(MergeCandidate* nodep) {
         remove(nodep);
-        insert(nodep);
+        أدرج(nodep);
     }
 
     // Create a merge candidate for 'edgep' and add it to the scoreboard
-    void addEdgeMC(MTaskEdge* edgep) {
+    فراغ addEdgeMC(MTaskEdge* edgep) {
         UDEBUGONLY(UASSERT(!edgep->userp(), "Edge already has a merge candidate"););
-        EdgeMC* const edgeMCp = m_edgeMCPool.alloc(edgep);
+        EdgeMC* ثابت edgeMCp = m_edgeMCPool.alloc(edgep);
         edgep->userp(edgeMCp);
-        insert(edgeMCp);
+        أدرج(edgeMCp);
     }
     // Remove 'edgep's merge candidate from the scoreboard and release it
-    void removeEdgeMC(MTaskEdge* edgep) {
-        EdgeMC* const edgeMCp = edgeMC(edgep);
+    فراغ removeEdgeMC(MTaskEdge* edgep) {
+        EdgeMC* ثابت edgeMCp = edgeMC(edgep);
         UDEBUGONLY(UASSERT(edgeMCp, "Edge has no merge candidate"););
         edgep->userp(nullptr);
         remove(edgeMCp);
-        VL_DO_DANGLING(m_edgeMCPool.free(edgeMCp), edgeMCp);
+        VL_DO_DANGLING(m_edgeMCPool.حرر(edgeMCp), edgeMCp);
     }
 
     // Create a sibling merge candidate for 'ap' and 'bp' and add it to the scoreboard
-    void addSiblingMC(LogicMTask* ap, LogicMTask* bp) { insert(m_siblingMCPool.alloc(ap, bp)); }
+    فراغ addSiblingMC(LogicMTask* ap, LogicMTask* bp) { أدرج(m_siblingMCPool.alloc(ap, bp)); }
     // Remove sibling merge candidate 'smcp' from the scoreboard and release it
-    void removeSiblingMC(SiblingMC* smcp) {
+    فراغ removeSiblingMC(SiblingMC* smcp) {
         remove(smcp);
         smcp->unlinkA();
         smcp->unlinkB();
-        VL_DO_DANGLING(m_siblingMCPool.free(smcp), smcp);
+        VL_DO_DANGLING(m_siblingMCPool.حرر(smcp), smcp);
     }
 
     // Remove the given merge candidate, whichever kind it is, from the scoreboard and release it
-    void removeMC(MergeCandidate* nodep) {
-        if (SiblingMC* const smcp = nodep->toSiblingMC()) {
+    فراغ removeMC(MergeCandidate* nodep) {
+        إذا (SiblingMC* ثابت smcp = nodep->toSiblingMC()) {
             removeSiblingMC(smcp);
-        } else {
+        } وإلا {
             removeEdgeMC(nodep->toEdgeMC()->edgep());
         }
     }
@@ -361,7 +361,7 @@ public:
 
 //######################################################################
 // Contraction - Perform greedy edge or sibling merges on the MTask graph
-class Contraction final {
+صنف Contraction final {
     // MEMBERS
     OrderMTaskGraph& m_mTaskGraph;  // The Mtask graph
     uint64_t m_scoreLimit;  // Critical path limit for merges
@@ -372,52 +372,52 @@ class Contraction final {
     std::unique_ptr<MTaskContractionData[]> m_mtaskDatap;
 
     // Add merge candidates for all edges of 'mtaskp' to the scoreboard
-    void addEdgeMCs(LogicMTask* mtaskp) {
-        for (V3GraphEdge& e : mtaskp->outEdges()) m_sb.addEdgeMC(static_cast<MTaskEdge*>(&e));
-        for (V3GraphEdge& e : mtaskp->inEdges()) m_sb.addEdgeMC(static_cast<MTaskEdge*>(&e));
+    فراغ addEdgeMCs(LogicMTask* mtaskp) {
+        لكل (V3GraphEdge& e : mtaskp->outEdges()) m_sb.addEdgeMC(static_cast<MTaskEdge*>(&e));
+        لكل (V3GraphEdge& e : mtaskp->inEdges()) m_sb.addEdgeMC(static_cast<MTaskEdge*>(&e));
     }
 
     // Remove the merge candidates of all edges of 'mtaskp' from the scoreboard.
-    void removeEdgeMCs(LogicMTask* mtaskp) {
+    فراغ removeEdgeMCs(LogicMTask* mtaskp) {
         // Note not all edges have a merge candidate:
         // those rejected by the main contraction loop had theirs removed there.
-        for (V3GraphEdge& edge : mtaskp->outEdges()) {
-            MTaskEdge* const edgep = static_cast<MTaskEdge*>(&edge);
-            if (edgeMC(edgep)) m_sb.removeEdgeMC(edgep);
+        لكل (V3GraphEdge& edge : mtaskp->outEdges()) {
+            MTaskEdge* ثابت edgep = static_cast<MTaskEdge*>(&edge);
+            إذا (edgeMC(edgep)) m_sb.removeEdgeMC(edgep);
         }
-        for (V3GraphEdge& edge : mtaskp->inEdges()) {
-            MTaskEdge* const edgep = static_cast<MTaskEdge*>(&edge);
-            if (edgeMC(edgep)) m_sb.removeEdgeMC(edgep);
+        لكل (V3GraphEdge& edge : mtaskp->inEdges()) {
+            MTaskEdge* ثابت edgep = static_cast<MTaskEdge*>(&edge);
+            إذا (edgeMC(edgep)) m_sb.removeEdgeMC(edgep);
         }
     }
 
-    void makeSiblingMC(LogicMTask* ap, LogicMTask* bp) {
-        if (ap->id() < bp->id()) std::swap(ap, bp);
+    فراغ makeSiblingMC(LogicMTask* ap, LogicMTask* bp) {
+        إذا (ap->id() < bp->id()) std::swap(ap, bp);
         // The higher id vertex owns the association set
-        const bool first = mtaskData(ap).siblings.insert(bp).second;
-        if (first) {
+        ثابت منطقي first = mtaskData(ap).siblings.أدرج(bp).second;
+        إذا (first) {
             m_sb.addSiblingMC(ap, bp);
-            return;
+            إرجاع;
         }
 
-        if (VL_UNLIKELY(m_mTaskGraph.slowAsserts())) {
+        إذا (VL_UNLIKELY(m_mTaskGraph.slowAsserts())) {
             // It's fine if we already have this SiblingMC, we may have
             // created it earlier. Just confirm that we have associated data.
-            bool found = false;
-            for (const SiblingMC& smc : mtaskData(ap).aSiblingMCs) {
+            منطقي found = خطأ;
+            لكل (ثابت SiblingMC& smc : mtaskData(ap).aSiblingMCs) {
                 UASSERT_OBJ(smc.ap() == ap, ap, "Inconsistent SiblingMC");
-                if (smc.bp() == bp) found = true;
+                إذا (smc.bp() == bp) found = true;
             }
             UASSERT_OBJ(found, ap, "Sibling not found");
         }
     }
 
-    template <GraphWay::en N_Way, bool N_Exhaustive>
-    void addSiblingMCsFromRelatives(LogicMTask* mtaskp) {
+    template <GraphWay::en N_Way, منطقي N_Exhaustive>
+    فراغ addSiblingMCsFromRelatives(LogicMTask* mtaskp) {
         constexpr GraphWay way{N_Way};
         // Need at least 2 edges
         auto& edges = mtaskp->edges<way>();
-        if (!edges.hasMultipleElements()) return;
+        إذا (!edges.hasMultipleElements()) إرجاع;
 
         std::array<LogicMTask*, PART_SIBLING_EDGE_LIMIT> neighbors;
 
@@ -428,92 +428,92 @@ class Contraction final {
         // and swap these sorting records very efficiently. With this the standard library sorting
         // functions are efficient enough and using more optimized methods (e.g.: sorting networks)
         // has no measurable benefit.
-        struct alignas(16) SortingRecord final {
+        بنية alignas(16) SortingRecord final {
             uint64_t m_cp;  // Critical path cost of the neighbor (primary sort key)
             uint32_t m_id;  // Id of the neighbor (tiebreaker sort key)
             uint8_t m_idx;  // Index of the neighbor within 'neighbors'
             static_assert(PART_SIBLING_EDGE_LIMIT <= std::numeric_limits<uint8_t>::max(),
                           "m_idx must fit all indices into 'neighbors'");
-            bool operator<(const SortingRecord& that) const {
-                return m_cp < that.m_cp || (m_cp == that.m_cp && m_id < that.m_id);
+            منطقي operator<(ثابت SortingRecord& that) ثابت {
+                إرجاع m_cp < that.m_cp || (m_cp == that.m_cp && m_id < that.m_id);
             }
         };
-        static_assert(sizeof(SortingRecord) <= 16, "How could this be padded to more than 16?");
+        static_assert(حجم(SortingRecord) <= 16, "How could this be padded to more than 16?");
 
         std::array<SortingRecord, PART_SIBLING_EDGE_LIMIT> sortRecs;
         size_t n = 0;
 
         // Populate the buffers
-        for (V3GraphEdge& edge : mtaskp->edges<way>()) {
-            LogicMTask* const otherp = static_cast<LogicMTask*>(edge.furtherp<way>());
+        لكل (V3GraphEdge& edge : mtaskp->edges<way>()) {
+            LogicMTask* ثابت otherp = static_cast<LogicMTask*>(edge.furtherp<way>());
             neighbors[n] = otherp;
             sortRecs[n].m_id = otherp->id();
             sortRecs[n].m_cp = otherp->cpInclusive<way>();
             sortRecs[n].m_idx = n;
             ++n;
             // Prevent nodes with huge numbers of edges from massively slowing down us down
-            if (n >= PART_SIBLING_EDGE_LIMIT) break;
+            إذا (n >= PART_SIBLING_EDGE_LIMIT) اكسر;
         }
 
         // Don't make all possible pairs of siblings when not requested (non-exhaustive).
         // Just make a few pairs.
         constexpr size_t MAX_NONEXHAUSTIVE_PAIRS = 3;
 
-        if (N_Exhaustive || n <= 2 * MAX_NONEXHAUSTIVE_PAIRS) {
-            const size_t end = n & ~static_cast<size_t>(1);  // Round down to even, (we want pairs)
+        إذا (N_Exhaustive || n <= 2 * MAX_NONEXHAUSTIVE_PAIRS) {
+            ثابت size_t end = n & ~static_cast<size_t>(1);  // Round down to even, (we want pairs)
             std::sort(sortRecs.begin(), sortRecs.begin() + n);
-            for (size_t i = 0; i < end; i += 2) {
+            لكل (size_t i = 0; i < end; i += 2) {
                 makeSiblingMC(neighbors[sortRecs[i].m_idx], neighbors[sortRecs[i + 1].m_idx]);
             }
-        } else {
+        } وإلا {
             constexpr size_t end = 2 * MAX_NONEXHAUSTIVE_PAIRS;
             std::partial_sort(sortRecs.begin(), sortRecs.begin() + end, sortRecs.begin() + n);
-            for (size_t i = 0; i < end; i += 2) {
+            لكل (size_t i = 0; i < end; i += 2) {
                 makeSiblingMC(neighbors[sortRecs[i].m_idx], neighbors[sortRecs[i + 1].m_idx]);
             }
         }
     }
 
-    void removeSiblingMCs(LogicMTask* mtaskp) {
+    فراغ removeSiblingMCs(LogicMTask* mtaskp) {
         // Note: 'removeSiblingMC' unlinks the candidate from both of its MTasks' lists, so taking
         // the front element repeatedly does terminate. It also erases the candidate from the
         // owning (higher id) MTask's sibling set as it goes, so both the sets and the lists are
         // left consistent, whichever side of the candidate 'mtaskp' happens to be on.
-        while (SiblingMC* const smcp = mtaskData(mtaskp).aSiblingMCs.frontp()) {
+        بينما (SiblingMC* ثابت smcp = mtaskData(mtaskp).aSiblingMCs.frontp()) {
             m_sb.removeSiblingMC(smcp);
         }
-        while (SiblingMC* const smcp = mtaskData(mtaskp).bSiblingMCs.frontp()) {
+        بينما (SiblingMC* ثابت smcp = mtaskData(mtaskp).bSiblingMCs.frontp()) {
             m_sb.removeSiblingMC(smcp);
         }
     }
 
     // Merge the two MTasks of 'mergeCanp'
-    void contract(MergeCandidate* mergeCanp) {
+    فراغ contract(MergeCandidate* mergeCanp) {
         // The two MTasks to merge. Note the order of the two decides which of them becomes the
         // recipient below when their costs are equal, so keep it stable.
         LogicMTask* fromp;
-        LogicMTask* top;
-        if (const EdgeMC* const edgeMCp = mergeCanp->toEdgeMC()) {
+        LogicMTask* قمة;
+        إذا (ثابت EdgeMC* ثابت edgeMCp = mergeCanp->toEdgeMC()) {
             fromp = edgeMCp->edgep()->fromMTaskp();
-            top = edgeMCp->edgep()->toMTaskp();
-        } else {
-            const SiblingMC* const sibMCp = mergeCanp->toSiblingMC();
+            قمة = edgeMCp->edgep()->toMTaskp();
+        } وإلا {
+            ثابت SiblingMC* ثابت sibMCp = mergeCanp->toSiblingMC();
             fromp = sibMCp->bp();
-            top = sibMCp->ap();
+            قمة = sibMCp->ap();
         }
 
         // Merge the smaller mtask into the larger mtask.
         LogicMTask* recipientp;
         LogicMTask* donorp;
-        if (fromp->cost() > top->cost()) {
+        إذا (fromp->cost() > قمة->cost()) {
             recipientp = fromp;
-            donorp = top;
-        } else {
+            donorp = قمة;
+        } وإلا {
             donorp = fromp;
-            recipientp = top;
+            recipientp = قمة;
         }
         VL_DANGLING(fromp);
-        VL_DANGLING(top);  // Use donorp and recipientp now instead
+        VL_DANGLING(قمة);  // Use donorp and recipientp now instead
 
         // Remove all SiblingMCs that include either MTask
         removeSiblingMCs(recipientp);
@@ -529,7 +529,7 @@ class Contraction final {
 
         // Confirm we haven't botched the CP updates. This is a whole graph walk after every single
         // merge, so it is quadratic in the size of the graph, hence only under '--debug 9'.
-        if (VL_UNLIKELY(debug() >= 9)) m_mTaskGraph.validate();
+        إذا (VL_UNLIKELY(debug() >= 9)) m_mTaskGraph.validate();
 
         // Add the EdgeMCs of the merged MTask
         addEdgeMCs(recipientp);
@@ -542,18 +542,18 @@ class Contraction final {
         addSiblingMCsFromRelatives<GraphWay::REVERSE, true>(recipientp);
         addSiblingMCsFromRelatives<GraphWay::FORWARD, true>(recipientp);
         unsigned edges = 0;
-        for (V3GraphEdge& edge : recipientp->outEdges()) {
-            LogicMTask* const postreqp = static_cast<LogicMTask*>(edge.top());
-            addSiblingMCsFromRelatives<GraphWay::REVERSE, false>(postreqp);
+        لكل (V3GraphEdge& edge : recipientp->outEdges()) {
+            LogicMTask* ثابت postreqp = static_cast<LogicMTask*>(edge.قمة());
+            addSiblingMCsFromRelatives<GraphWay::REVERSE, خطأ>(postreqp);
             ++edges;
-            if (edges >= PART_SIBLING_EDGE_LIMIT) break;
+            إذا (edges >= PART_SIBLING_EDGE_LIMIT) اكسر;
         }
         edges = 0;
-        for (V3GraphEdge& edge : recipientp->inEdges()) {
-            LogicMTask* const prereqp = static_cast<LogicMTask*>(edge.fromp());
-            addSiblingMCsFromRelatives<GraphWay::FORWARD, false>(prereqp);
+        لكل (V3GraphEdge& edge : recipientp->inEdges()) {
+            LogicMTask* ثابت prereqp = static_cast<LogicMTask*>(edge.fromp());
+            addSiblingMCsFromRelatives<GraphWay::FORWARD, خطأ>(prereqp);
             ++edges;
-            if (edges >= PART_SIBLING_EDGE_LIMIT) break;
+            إذا (edges >= PART_SIBLING_EDGE_LIMIT) اكسر;
         }
     }
 
@@ -566,84 +566,84 @@ class Contraction final {
         m_mTaskGraph.validate();
 
         // Figure out maximum number of MTasks
-        const uint32_t maxMTasks = []() -> uint32_t {
+        ثابت uint32_t maxMTasks = []() -> uint32_t {
             // If specified, use the given value
-            const int given = v3Global.opt.threadsMaxMTasks();
-            if (given > 0) return given;
+            ثابت صحيح given = v3Global.opt.threadsMaxMTasks();
+            إذا (given > 0) إرجاع given;
             // Unspecified so estimate
-            return PART_DEFAULT_MAX_MTASKS_PER_THREAD * v3Global.opt.threads();
+            إرجاع PART_DEFAULT_MAX_MTASKS_PER_THREAD * v3Global.opt.threads();
         }();
 
         // Allocate and assign the auxiliary data for every LogicMTask.
         {
-            const size_t nMTasks = m_mTaskGraph.vertices().size();
-            m_mtaskDatap.reset(new MTaskContractionData[nMTasks]);
+            ثابت size_t nMTasks = m_mTaskGraph.vertices().size();
+            m_mtaskDatap.reset(جديد MTaskContractionData[nMTasks]);
             size_t i = 0;
-            for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) vtx.userp(&m_mtaskDatap[i++]);
+            لكل (V3GraphVertex& vtx : m_mTaskGraph.vertices()) vtx.userp(&m_mtaskDatap[i++]);
             UASSERT(i == nMTasks, "Inconsistent MTask count");
         }
 
         // Add initial candidates
-        for (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
-            for (V3GraphEdge& edge : vtx.outEdges())
+        لكل (V3GraphVertex& vtx : m_mTaskGraph.vertices()) {
+            لكل (V3GraphEdge& edge : vtx.outEdges())
                 m_sb.addEdgeMC(static_cast<MTaskEdge*>(&edge));
-            LogicMTask* const mtaskp = static_cast<LogicMTask*>(&vtx);
+            LogicMTask* ثابت mtaskp = static_cast<LogicMTask*>(&vtx);
             addSiblingMCsFromRelatives<GraphWay::REVERSE, true>(mtaskp);
             addSiblingMCsFromRelatives<GraphWay::FORWARD, true>(mtaskp);
         }
 
-        while (true) {
+        بينما (true) {
             // Pick the candidate yielding the lowest local critical path.
-            MergeCandidate* const mergeCanp = m_sb.best();
-            if (!mergeCanp) break;  // No more candidates
+            MergeCandidate* ثابت mergeCanp = m_sb.best();
+            إذا (!mergeCanp) اكسر;  // No more candidates
 
             // If the score has changed since it was inserted into the scoreboard, rescore it and
             // pick again. (The real scores can differ from the one used to insert it into the
             // scoreboard, due to merges between insertion and retrieval.)
-            const uint64_t score = mergeCanp->currentScore();
-            if (score != mergeCanp->score()) {
+            ثابت uint64_t score = mergeCanp->currentScore();
+            إذا (score != mergeCanp->score()) {
                 m_sb.rescore(mergeCanp);
-                continue;
+                استمر;
             }
 
             // Check if the critical path limit is reached.
-            if (score > m_scoreLimit) {
+            إذا (score > m_scoreLimit) {
 
                 // If there are still too many MTasks, raise the limit and keep going
-                const unsigned mtaskCount = m_mTaskGraph.vertices().size();
-                if (mtaskCount > maxMTasks) {
+                ثابت unsigned mtask_تعداد = m_mTaskGraph.vertices().size();
+                إذا (mtask_تعداد > maxMTasks) {
                     m_scoreLimit = (m_scoreLimit * 120) / 100;
-                    FileLine* const flp = v3Global.rootp()->fileline();
-                    if (!flp->warnIsOff(V3ErrorCode::UNOPTTHREADS)) {
+                    File_سطر* ثابت flp = v3Global.rootp()->fileline();
+                    إذا (!flp->warnIsOff(V3ErrorCode::UNOPTTHREADS)) {
                         flp->v3warn(UNOPTTHREADS,
                                     "Thread scheduler is unable to provide requested "
                                     "parallelism; suggest asking for fewer threads.");
                         flp->modifyWarnOff(V3ErrorCode::UNOPTTHREADS, true);
                     }
-                    continue;
+                    استمر;
                 }
 
                 // MTasks limit and CP limit reached. Stop.
-                break;
+                اكسر;
             }
 
             // Avoid merging the entry/exit nodes. This would create serialization, by forcing the
             // merged MTask to run before/after everything else. Empirically this helps performance
             // in a modest way by allowing other MTasks to start earlier.
-            if (EdgeMC* const edgeMCp = mergeCanp->toEdgeMC()) {
-                MTaskEdge* const edgep = edgeMCp->edgep();
-                if (edgep->fromp() == m_mTaskGraph.entryp()
-                    || edgep->top() == m_mTaskGraph.exitp()) {
+            إذا (EdgeMC* ثابت edgeMCp = mergeCanp->toEdgeMC()) {
+                MTaskEdge* ثابت edgep = edgeMCp->edgep();
+                إذا (edgep->fromp() == m_mTaskGraph.entryp()
+                    || edgep->قمة() == m_mTaskGraph.exitp()) {
                     m_sb.removeEdgeMC(edgep);
-                    continue;
+                    استمر;
                 }
             }
 
             // Avoid merging any edge that would create a cycle. For example suppose we begin with
             // vertices A, B, C and edges A->B, B->C, A->C. Merging A->C would create a cycle.
-            if (mergeCanp->mergeWouldCreateCycle(m_mTaskGraph)) {
+            إذا (mergeCanp->mergeWouldCreateCycle(m_mTaskGraph)) {
                 m_sb.removeMC(mergeCanp);
-                continue;
+                استمر;
             }
 
             // Merge this candidate
@@ -651,11 +651,11 @@ class Contraction final {
         }
 
         // Free all remaining merge candidates.
-        while (MergeCandidate* const mergeCanp = m_sb.best()) m_sb.removeMC(mergeCanp);
+        بينما (MergeCandidate* ثابت mergeCanp = m_sb.best()) m_sb.removeMC(mergeCanp);
     }
 
-public:
-    static void apply(OrderMTaskGraph& mTaskGraph, uint64_t scoreLimit) {
+عام:
+    ساكن فراغ apply(OrderMTaskGraph& mTaskGraph, uint64_t scoreLimit) {
         Contraction{mTaskGraph, scoreLimit};
     }
 };
@@ -663,6 +663,6 @@ public:
 //######################################################################
 // OrderMTaskGraph entry point
 
-void OrderMTaskGraph::contract(OrderMTaskGraph& mtaskGraph, uint64_t scoreLimit) {
+فراغ OrderMTaskGraph::contract(OrderMTaskGraph& mtaskGraph, uint64_t scoreLimit) {
     Contraction::apply(mtaskGraph, scoreLimit);
 }

@@ -26,114 +26,114 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Begin.h"
+#ضمن "V3Begin.h"
 
-#include "V3Stats.h"
-#include "V3String.h"
-#include "V3UniqueNames.h"
+#ضمن "V3Stats.h"
+#ضمن "V3String.h"
+#ضمن "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class BeginState final {
+صنف BeginState final {
     // NODE STATE
     // Entire netlist:
     // AstNodeFTask::user1      -> bool, 1=processed
-    const VNUser1InUse m_inuser1;
-    bool m_anyFuncInBegin = false;
+    ثابت VNUser1InUse m_inuser1;
+    منطقي m_anyFuncInBegin = خطأ;
 
-public:
-    BeginState() = default;
-    ~BeginState() = default;
-    void userMarkChanged(AstNode* nodep) {
+عام:
+    BeginState() = افتراضي;
+    ~BeginState() = افتراضي;
+    فراغ userMarkChanged(Ast_عقدة* nodep) {
         nodep->user1(true);
         m_anyFuncInBegin = true;
     }
-    bool anyFuncInBegin() const { return m_anyFuncInBegin; }
+    منطقي anyFuncInBegin() ثابت { إرجاع m_anyFuncInBegin; }
 };
 
 //######################################################################
 
-class BeginVisitor final : public VNVisitor {
+صنف BeginVisitor final : عام VNVisitor {
     // NODE STATE
     // AstCase::user1   -> bool, if already purified
 
     // STATE - across all visitors
-    BeginState* const m_statep;  // Current global state
+    BeginState* ثابت m_statep;  // Current global state
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_عقدة_Module* m_modp = nullptr;  // Current module
     AstCellInline* m_inlinesp = nullptr;  // AstCellInlines to add to m_modp
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNodeProcedure* m_procedurep = nullptr;  // Current procedure
-    AstNode* m_liftedp = nullptr;  // Local nodes we are lifting into m_ftaskp
+    Ast_عقدة_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_عقدة_Procedure* m_procedurep = nullptr;  // Current procedure
+    Ast_عقدة* m_liftedp = nullptr;  // Local nodes we are lifting into m_ftaskp
     string m_displayScope;  // Name of %m in $display/AstScopeName
     string m_namedScope;  // Name of begin blocks above us
     string m_unnamedScope;  // Name of begin blocks, including unnamed blocks
-    int m_ifDepth = 0;  // Current if depth
-    bool m_keepBegins = false;  // True if begins should not be inlined
+    صحيح m_ifDepth = 0;  // Current if depth
+    منطقي m_keepBegins = خطأ;  // True if begins should not be inlined
 
     // METHODS
 
-    string dot(const string& a, const string& b) { return VString::dot(a, "__DOT__", b); }
+    string dot(ثابت string& a, ثابت string& b) { إرجاع VString::dot(a, "__DOT__", b); }
 
-    void dotNames(const std::string& name, FileLine* const flp, const char* const blockName) {
+    فراغ dotNames(ثابت std::string& name, File_سطر* ثابت flp, ثابت حرف* ثابت blockName) {
         UINFO(8, "nname " << m_namedScope);
         // If unneeded unnamed block, whatever that means :)
-        if (name == "") return;
+        إذا (name == "") إرجاع;
 
         // Create data for dotted variable resolution
         std::string dottedname = name + "__DOT__";  // So always found
         std::string::size_type pos;
-        while ((pos = dottedname.find("__DOT__")) != std::string::npos) {
-            const std::string ident = dottedname.substr(0, pos);
+        بينما ((pos = dottedname.find("__DOT__")) != std::string::npos) {
+            ثابت std::string ident = dottedname.substr(0, pos);
             dottedname = dottedname.substr(pos + std::strlen("__DOT__"));
-            if (name != "") {
+            إذا (name != "") {
                 m_displayScope = dot(m_displayScope, ident);
                 m_namedScope = dot(m_namedScope, ident);
             }
             m_unnamedScope = dot(m_unnamedScope, ident);
             // Create CellInline for dotted var resolution
-            if (!m_ftaskp) {
-                AstCellInline* const inlinep = new AstCellInline{flp, m_unnamedScope, blockName};
-                m_inlinesp = AstNode::addNextNull(m_inlinesp, inlinep);
+            إذا (!m_ftaskp) {
+                AstCellInline* ثابت inlinep = جديد AstCellInline{flp, m_unnamedScope, blockName};
+                m_inlinesp = Ast_عقدة::addNextNull(m_inlinesp, inlinep);
             }
         }
     }
 
-    void liftNode(AstNode* nodep) {
+    فراغ lift_عقدة(Ast_عقدة* nodep) {
         nodep->unlinkFrBack();
-        if (m_ftaskp) {
+        إذا (m_ftaskp) {
             // AstBegin under ftask, just move into the ftask
-            if (!m_liftedp) {
+            إذا (!m_liftedp) {
                 m_liftedp = nodep;
-            } else {
+            } وإلا {
                 m_liftedp->addNext(nodep);
             }
-        } else {
+        } وإلا {
             // Move to module
             m_modp->addStmtsp(nodep);
         }
     }
 
     // VISITORS
-    void visit(AstForeach* nodep) override {
+    فراغ visit(AstForeach* nodep) override {
         VL_DO_DANGLING(V3Begin::convertToWhile(nodep), nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
+    فراغ visit(Ast_عقدة_Assign* nodep) override {
         // Keep begin under assignment (in nodep->timingControlp())
         VL_RESTORER(m_keepBegins);
         m_keepBegins = true;
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    فراغ visit(Ast_عقدة_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         // Rename it (e.g. class under a generate)
-        if (m_unnamedScope != "") {
+        إذا (m_unnamedScope != "") {
             nodep->name(dot(m_unnamedScope, nodep->name()));
             UINFO(8, "     rename to " << nodep->name());
             m_statep->userMarkChanged(nodep);
@@ -147,15 +147,15 @@ class BeginVisitor final : public VNVisitor {
         // Must be parsed before any AstCells, so put them first
         nodep->prependStmtsp(m_inlinesp);
     }
-    void visit(AstNodeProcedure* nodep) override {
+    فراغ visit(Ast_عقدة_Procedure* nodep) override {
         VL_RESTORER(m_procedurep);
         m_procedurep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    فراغ visit(Ast_عقدة_FTask* nodep) override {
         UINFO(8, "  " << nodep);
         // Rename it
-        if (m_unnamedScope != "") {
+        إذا (m_unnamedScope != "") {
             nodep->name(dot(m_unnamedScope, nodep->name()));
             UINFO(8, "     rename to " << nodep->name());
             m_statep->userMarkChanged(nodep);
@@ -175,14 +175,14 @@ class BeginVisitor final : public VNVisitor {
         m_ftaskp = nodep;
         m_liftedp = nullptr;
         iterateChildren(nodep);
-        nodep->foreach([&](AstInitialStatic* const initp) {
+        nodep->foreach([&](AstInitialStatic* ثابت initp) {
             initp->unlinkFrBack();
             m_ftaskp->addHereThisAsNext(initp);
         });
         // Place lifted nodes at beginning of stmtsp, so Var nodes appear before referenced
         nodep->prependStmtsp(m_liftedp);
     }
-    void visit(AstGenBlock* nodep) override {
+    فراغ visit(AstGenBlock* nodep) override {
         // GenBlocks were only useful in variable creation, change names and delete
         UINFO(8, "  " << nodep);
         VL_RESTORER_COPY(m_displayScope);
@@ -192,12 +192,12 @@ class BeginVisitor final : public VNVisitor {
         dotNames(nodep->name(), nodep->fileline(), "__BEGIN__");
         iterateAndNextNull(nodep->itemsp());
         // Repalce node with body then delete
-        if (AstNode* const itemsp = nodep->itemsp()) {
+        إذا (Ast_عقدة* ثابت itemsp = nodep->itemsp()) {
             nodep->addNextHere(itemsp->unlinkFrBackWithNext());
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ادفع_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstFork* nodep) override {
+    فراغ visit(AstFork* nodep) override {
         dotNames(nodep->name(), nodep->fileline(), "__FORK__");
         iterateAndNextNull(nodep->stmtsp());
         {
@@ -206,19 +206,19 @@ class BeginVisitor final : public VNVisitor {
             m_keepBegins = true;
             iterateAndNextNull(nodep->forksp());
         }
-        AstNode* addsp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
+        Ast_عقدة* addsp = nullptr;
+        إذا (Ast_عقدة* ثابت declsp = nodep->declsp()) {
             declsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, declsp);
+            addsp = Ast_عقدة::addNext(addsp, declsp);
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        إذا (Ast_عقدة* ثابت stmtsp = nodep->stmtsp()) {
             stmtsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, stmtsp);
+            addsp = Ast_عقدة::addNext(addsp, stmtsp);
         }
-        if (addsp) nodep->addHereThisAsNext(addsp);
+        إذا (addsp) nodep->addHereThisAsNext(addsp);
         nodep->name("");
     }
-    void visit(AstBegin* nodep) override {
+    فراغ visit(AstBegin* nodep) override {
         // Begin blocks were only useful in variable creation, change names and delete
         UINFO(8, "  " << nodep);
         VL_RESTORER_COPY(m_displayScope);
@@ -226,33 +226,33 @@ class BeginVisitor final : public VNVisitor {
         VL_RESTORER_COPY(m_unnamedScope);
         {
             VL_RESTORER(m_keepBegins);
-            m_keepBegins = false;
+            m_keepBegins = خطأ;
             dotNames(nodep->name(), nodep->fileline(), "__BEGIN__");
             iterateChildren(nodep);
         }
 
         // Cleanup
-        if (m_keepBegins) {
+        إذا (m_keepBegins) {
             nodep->name("");
-            return;
+            إرجاع;
         }
-        AstNode* addsp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
+        Ast_عقدة* addsp = nullptr;
+        إذا (Ast_عقدة* ثابت declsp = nodep->declsp()) {
             declsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, declsp);
+            addsp = Ast_عقدة::addNext(addsp, declsp);
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        إذا (Ast_عقدة* ثابت stmtsp = nodep->stmtsp()) {
             stmtsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, stmtsp);
+            addsp = Ast_عقدة::addNext(addsp, stmtsp);
         }
-        if (addsp) {
+        إذا (addsp) {
             nodep->replaceWith(addsp);
-        } else {
+        } وإلا {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ادفع_Deletep(nodep), nodep);
     }
-    void visit(AstNodeBlock* nodep) override {
+    فراغ visit(Ast_عقدة_Block* nodep) override {
         // Begin/Fork blocks were only useful in variable creation, change names and delete
         UINFO(8, "  " << nodep);
         VL_RESTORER_COPY(m_displayScope);
@@ -267,104 +267,104 @@ class BeginVisitor final : public VNVisitor {
         }
 
         // Cleanup
-        if (m_keepBegins) {
+        إذا (m_keepBegins) {
             nodep->name("");
-            return;
+            إرجاع;
         }
-        AstNode* addsp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
+        Ast_عقدة* addsp = nullptr;
+        إذا (Ast_عقدة* ثابت declsp = nodep->declsp()) {
             declsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, declsp);
+            addsp = Ast_عقدة::addNext(addsp, declsp);
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        إذا (Ast_عقدة* ثابت stmtsp = nodep->stmtsp()) {
             stmtsp->unlinkFrBackWithNext();
-            addsp = AstNode::addNext(addsp, stmtsp);
+            addsp = Ast_عقدة::addNext(addsp, stmtsp);
         }
-        if (addsp) {
+        إذا (addsp) {
             nodep->replaceWith(addsp);
-        } else {
+        } وإلا {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ادفع_Deletep(nodep), nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (nodep->user1SetOnce()) { return; }
+    فراغ visit(AstVar* nodep) override {
+        إذا (nodep->user1SetOnce()) { إرجاع; }
         // If static variable, move it outside a function.
-        if (nodep->lifetime().isStatic() && m_ftaskp) {
-            const std::string newName
+        إذا (nodep->lifetime().isStatic() && m_ftaskp) {
+            ثابت std::string newName
                 = m_ftaskp->name() + "__Vstatic__" + dot(m_unnamedScope, nodep->name());
-            if (nodep->isIO()) {
-                if (nodep->direction().isRef()) {
+            إذا (nodep->isIO()) {
+                إذا (nodep->direction().isRef()) {
                     nodep->v3error(
                         "It is illegal to use argument passing by reference for subroutines with "
                         "a lifetime of static (IEEE 1800-2023 13.5.2)");
                 }
                 // Create a port that is used for passing value between argument and static
                 // variable
-                AstVar* const portp = nodep->cloneTreePure(false);
+                AstVar* ثابت portp = nodep->clone_شجرة_Pure(خطأ);
                 nodep->replaceWith(portp);
 
-                if (nodep->isInput() || nodep->isInout()) {
-                    AstAssign* const initAssignp = new AstAssign{
-                        nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
-                        new AstVarRef{portp->fileline(), portp, VAccess::READ}};
+                إذا (nodep->is_إدخال() || nodep->isInout()) {
+                    AstAssign* ثابت initAssignp = جديد AstAssign{
+                        nodep->fileline(), جديد AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+                        جديد AstVarRef{portp->fileline(), portp, VAccess::READ}};
                     portp->addNextHere(initAssignp);
                 }
 
-                if (nodep->isWritable()) {
-                    AstAssign* const endAssignp = new AstAssign{
-                        nodep->fileline(), new AstVarRef{portp->fileline(), portp, VAccess::WRITE},
-                        new AstVarRef{nodep->fileline(), nodep, VAccess::READ}};
+                إذا (nodep->isWritable()) {
+                    AstAssign* ثابت endAssignp = جديد AstAssign{
+                        nodep->fileline(), جديد AstVarRef{portp->fileline(), portp, VAccess::WRITE},
+                        جديد AstVarRef{nodep->fileline(), nodep, VAccess::READ}};
                     m_ftaskp->addStmtsp(endAssignp);
                 }
-            } else {
+            } وإلا {
                 nodep->unlinkFrBack();
             }
             nodep->name(newName);
             m_ftaskp->addHereThisAsNext(nodep);
-            nodep->funcLocal(false);
-        } else if (m_unnamedScope != "") {
+            nodep->funcLocal(خطأ);
+        } وإلا إذا (m_unnamedScope != "") {
             // Rename it
             nodep->name(dot(m_unnamedScope, nodep->name()));
             m_statep->userMarkChanged(nodep);
             // Move it under enclosing tree
-            liftNode(nodep);
+            lift_عقدة(nodep);
         }
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
+    فراغ visit(AstInitialAutomaticStmt* nodep) override {
         // Automatic sets go at the current location
         nodep->replaceWith(nodep->stmtsp()->unlinkFrBackWithNext());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ادفع_Deletep(nodep), nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
+    فراغ visit(AstInitialStaticStmt* nodep) override {
         // As we moved static variables, move static initializers too
-        if (nodep->user1SetOnce()) return;  // Don't double-add text's
-        AstNode* wasUnderp = m_ftaskp;
-        if (!m_ftaskp) wasUnderp = m_procedurep;
-        if (wasUnderp) {
-            if (nodep->stmtsp()) {
-                AstNode* const newp = new AstInitialStatic{
+        إذا (nodep->user1SetOnce()) إرجاع;  // Don't double-add text's
+        Ast_عقدة* wasUnderp = m_ftaskp;
+        إذا (!m_ftaskp) wasUnderp = m_procedurep;
+        إذا (wasUnderp) {
+            إذا (nodep->stmtsp()) {
+                Ast_عقدة* ثابت newp = جديد AstInitialStatic{
                     nodep->fileline(), nodep->stmtsp()->unlinkFrBackWithNext()};
                 wasUnderp->addHereThisAsNext(newp);
                 iterateChildren(newp);
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+            VL_DO_DANGLING(ادفع_Deletep(nodep->unlinkFrBack()), nodep);
+        } وإلا {
             nodep->v3fatalSrc("InitialStaticStmt under unexpected grand-parent");
         }
     }
-    void visit(AstTypedef* nodep) override {
-        if (m_unnamedScope != "") {
+    فراغ visit(AstTypedef* nodep) override {
+        إذا (m_unnamedScope != "") {
             // Rename it
             nodep->name(dot(m_unnamedScope, nodep->name()));
             m_statep->userMarkChanged(nodep);
             // Move it under enclosing tree
-            liftNode(nodep);
+            lift_عقدة(nodep);
         }
     }
-    void visit(AstCell* nodep) override {
+    فراغ visit(AstCell* nodep) override {
         UINFO(8, "   CELL " << nodep);
-        if (m_namedScope != "") {
+        إذا (m_namedScope != "") {
             m_statep->userMarkChanged(nodep);
             // Rename it
             nodep->name(dot(m_namedScope, nodep->name()));
@@ -375,47 +375,47 @@ class BeginVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstVarXRef* nodep) override {
+    فراغ visit(AstVarXRef* nodep) override {
         UINFO(9, "   VARXREF " << nodep);
-        if (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
+        إذا (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
             nodep->inlinedDots(m_namedScope);
             UINFO(9, "    rescope to " << nodep);
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    فراغ visit(Ast_عقدة_FTask_Ref* nodep) override {
         UINFO(9, "   FTASKREF " << nodep);
-        if (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
+        إذا (m_namedScope != "" && nodep->inlinedDots() == "" && !m_ftaskp) {
             nodep->inlinedDots(m_namedScope);
             UINFO(9, "    rescope to " << nodep);
         }
         iterateChildren(nodep);
     }
-    void visit(AstScopeName* nodep) override {
+    فراغ visit(AstScopeName* nodep) override {
         // If there's a %m in the display text, we add a special node that will contain the name()
         // Similar code in V3Inline
-        if (nodep->user1SetOnce()) return;  // Don't double-add text's
+        إذا (nodep->user1SetOnce()) إرجاع;  // Don't double-add text's
         // DPI svGetScope doesn't include function name, but %m does
-        const std::string scname = nodep->forFormat() ? m_displayScope : m_namedScope;
+        ثابت std::string scname = nodep->forFormat() ? m_displayScope : m_namedScope;
         // To keep correct visual order, must add before exising
-        if (!scname.empty()) nodep->scopeAttr("__DOT__"s + scname + nodep->scopeAttr());
+        إذا (!scname.empty()) nodep->scopeAttr("__DOT__"s + scname + nodep->scopeAttr());
         iterateChildren(nodep);
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    فراغ visit(Ast_عقدة_Cover_Decl* nodep) override {
         // Don't need to fix path in coverage statements, they're not under
         // any BEGINs, but V3Coverage adds them all under the module itself.
         iterateChildren(nodep);
     }
-    void visit(AstCase* nodep) override { iterateChildren(nodep); }
+    فراغ visit(AstCase* nodep) override { iterateChildren(nodep); }
     // VISITORS - LINT CHECK
-    void visit(AstIf* nodep) override {  // not AstNodeIf; other types not covered
+    فراغ visit(AstIf* nodep) override {  // not AstNodeIf; other types not covered
         VL_RESTORER(m_keepBegins);
-        m_keepBegins = false;
+        m_keepBegins = خطأ;
         // Check IFDEPTH warning - could be in other transform files if desire
         VL_RESTORER(m_ifDepth);
-        if (m_ifDepth == -1 || v3Global.opt.ifDepth() < 1) {  // Turned off
-        } else if (nodep->uniquePragma() || nodep->unique0Pragma() || nodep->priorityPragma()) {
+        إذا (m_ifDepth == -1 || v3Global.opt.ifDepth() < 1) {  // Turned off
+        } وإلا إذا (nodep->uniquePragma() || nodep->unique0Pragma() || nodep->priorityPragma()) {
             m_ifDepth = -1;
-        } else if (++m_ifDepth > v3Global.opt.ifDepth()) {
+        } وإلا إذا (++m_ifDepth > v3Global.opt.ifDepth()) {
             nodep->v3warn(IFDEPTH,
                           "Deep 'if' statement; suggest unique/priority to avoid slow logic");
             nodep->fileline()->modifyWarnOff(V3ErrorCode::IFDEPTH, true);  // Warn only once
@@ -423,186 +423,186 @@ class BeginVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override {
+    فراغ visit(Ast_عقدة* nodep) override {
         VL_RESTORER(m_keepBegins);
-        m_keepBegins = false;
+        m_keepBegins = خطأ;
         iterateChildren(nodep);
     }
 
-public:
+عام:
     // CONSTRUCTORS
     BeginVisitor(AstNetlist* nodep, BeginState* statep)
         : m_statep{statep} {
         iterate(nodep);
     }
-    ~BeginVisitor() override = default;
+    ~BeginVisitor() override = افتراضي;
 };
 
 //######################################################################
 
-class BeginRelinkVisitor final : public VNVisitorConst {
+صنف BeginRelinkVisitor final : عام VNVisitorConst {
     // Replace tasks with new pointer
-private:
+خاص:
     // NODE STATE
     //  Input:
     //   AstNodeFTask::user1p           // bool.  Node replaced, rename it
 
     // VISITORS
-    void visit(AstNodeFTaskRef* nodep) override {
+    فراغ visit(Ast_عقدة_FTask_Ref* nodep) override {
         UASSERT_OBJ(nodep->taskp(), nodep, "unlinked");
-        if (nodep->taskp()->user1()) {  // It was converted
+        إذا (nodep->taskp()->user1()) {  // It was converted
             UINFO(9, "    relinkFTask " << nodep);
             nodep->name(nodep->taskp()->name());
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstVarRef* nodep) override {
-        if (nodep->varp()->user1()) {  // It was converted
+    فراغ visit(AstVarRef* nodep) override {
+        إذا (nodep->varp()->user1()) {  // It was converted
             UINFO(9, "    relinVarRef " << nodep);
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstIfaceRefDType* nodep) override {
+    فراغ visit(AstIfaceRefDType* nodep) override {
         // May have changed cell names
         // TypeTable is always after all modules, so names are stable
         UINFO(8, "   IFACEREFDTYPE " << nodep);
-        if (nodep->cellp()) nodep->cellName(nodep->cellp()->name());
+        إذا (nodep->cellp()) nodep->cellName(nodep->cellp()->name());
         UINFO(8, "       rename to " << nodep);
         iterateChildrenConst(nodep);
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ visit(Ast_عقدة* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
     BeginRelinkVisitor(AstNetlist* nodep, BeginState*) { iterateConst(nodep); }
-    ~BeginRelinkVisitor() override = default;
+    ~BeginRelinkVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Task class functions
 
-void V3Begin::debeginAll(AstNetlist* nodep) {
+فراغ V3Begin::debeginAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         BeginState state;
         { BeginVisitor{nodep, &state}; }
-        if (state.anyFuncInBegin()) BeginRelinkVisitor{nodep, &state};
+        إذا (state.anyFuncInBegin()) BeginRelinkVisitor{nodep, &state};
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("begin", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_شجرة("begin", 0, dump_شجرة_Either_Level() >= 3);
 }
 
-static AstNode* createForeachLoop(AstNodeForeach* /*nodep*/, AstNode* bodysp, bool arrayMayResize,
-                                  AstNodeExpr* subfromp, AstVar* varp, AstNodeExpr* leftp,
-                                  AstNodeExpr* rightp, VNType nodeType) {
-    FileLine* const fl = varp->fileline();
-    AstNodeExpr* varRefp = new AstVarRef{fl, varp, VAccess::READ};
-    AstNodeExpr* condp;
-    bool inc = true;
-    switch (nodeType) {
-    case VNType::LteS: condp = new AstLteS{fl, varRefp, rightp}; break;
-    case VNType::Lt: condp = new AstLt{fl, varRefp, rightp}; break;
-    case VNType::GteS:
-        condp = new AstGteS{fl, varRefp, rightp};
-        inc = false;
-        break;
-    default: varp->v3fatalSrc("Missing comparison handling"); break;
+ساكن Ast_عقدة* createForeachLoop(Ast_عقدة_Foreach* /*nodep*/, Ast_عقدة* bodysp, منطقي arrayMayResize,
+                                  Ast_عقدة_تعبير* subfromp, AstVar* varp, Ast_عقدة_تعبير* leftp,
+                                  Ast_عقدة_تعبير* rightp, VNType عقدة_Type) {
+    File_سطر* ثابت fl = varp->fileline();
+    Ast_عقدة_تعبير* varRefp = جديد AstVarRef{fl, varp, VAccess::READ};
+    Ast_عقدة_تعبير* condp;
+    منطقي inc = true;
+    بدل (عقدة_Type) {
+    حالة VNType::LteS: condp = جديد AstLteS{fl, varRefp, rightp}; اكسر;
+    حالة VNType::Lt: condp = جديد AstLt{fl, varRefp, rightp}; اكسر;
+    حالة VNType::GteS:
+        condp = جديد AstGteS{fl, varRefp, rightp};
+        inc = خطأ;
+        اكسر;
+    افتراضي: varp->v3fatalSrc("Missing comparison handling"); اكسر;
     }
-    AstNodeExpr* incp;
-    if (inc)
-        incp = new AstAdd{fl, varRefp->cloneTree(false), new AstConst{fl, 1}};
-    else
-        incp = new AstSub{fl, varRefp->cloneTree(false), new AstConst{fl, 1}};
+    Ast_عقدة_تعبير* incp;
+    إذا (inc)
+        incp = جديد AstAdd{fl, varRefp->clone_شجرة(خطأ), جديد AstConst{fl, 1}};
+    وإلا
+        incp = جديد AstSub{fl, varRefp->clone_شجرة(خطأ), جديد AstConst{fl, 1}};
 
-    AstLoop* const loopp = new AstLoop{fl};
-    loopp->addStmtsp(new AstLoopTest{fl, loopp, condp});
+    AstLoop* ثابت loopp = جديد AstLoop{fl};
+    loopp->addStmtsp(جديد AstLoopTest{fl, loopp, condp});
     AstVar* sizeVarp = nullptr;
-    AstNodeExpr* sizeGetp = nullptr;
-    if (arrayMayResize) {
-        sizeVarp = new AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vloopsize",
+    Ast_عقدة_تعبير* sizeGetp = nullptr;
+    إذا (arrayMayResize) {
+        sizeVarp = جديد AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vloopsize",
                               varp->findUInt32DType()};
         sizeVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         sizeVarp->usedLoopIdx(true);  // Not technically an index, but used only inside loop
         varp->addNext(sizeVarp);
         sizeGetp
-            = new AstCMethodHard{fl, subfromp->cloneTreePure(false), VCMethod::DYN_SIZE, nullptr};
+            = جديد AstCMethodHard{fl, subfromp->clone_شجرة_Pure(خطأ), VCMethod::DYN_SIZE, nullptr};
         sizeGetp->dtypeSetUInt32();
-        loopp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, sizeVarp, VAccess::WRITE}, sizeGetp});
+        loopp->addStmtsp(جديد AstAssign{fl, جديد AstVarRef{fl, sizeVarp, VAccess::WRITE}, sizeGetp});
     }
     loopp->addStmtsp(bodysp);
-    AstNodeStmt* incStmtp = new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, incp};
-    if (arrayMayResize) {
-        incStmtp = new AstIf{fl,
-                             new AstLte{fl, new AstVarRef{fl, sizeVarp, VAccess::READ},
-                                        sizeGetp->cloneTreePure(false)},
+    Ast_عقدة_Stmt* incStmtp = جديد AstAssign{fl, جديد AstVarRef{fl, varp, VAccess::WRITE}, incp};
+    إذا (arrayMayResize) {
+        incStmtp = جديد AstIf{fl,
+                             جديد AstLte{fl, جديد AstVarRef{fl, sizeVarp, VAccess::READ},
+                                        sizeGetp->clone_شجرة_Pure(خطأ)},
                              incStmtp};
     }
     loopp->addStmtsp(incStmtp);
-    AstNode* const stmtsp = varp;  // New statements for outer loop
-    stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE}, leftp});
+    Ast_عقدة* ثابت stmtsp = varp;  // New statements for outer loop
+    stmtsp->addNext(جديد AstAssign{fl, جديد AstVarRef{fl, varp, VAccess::WRITE}, leftp});
     stmtsp->addNext(loopp);
-    return stmtsp;
+    إرجاع stmtsp;
 }
-static AstNode* createForeachLoopRanged(AstNodeForeach* nodep, AstNode* bodysp,
-                                        AstNodeExpr* subfromp, AstVar* varp,
-                                        const VNumRange& declRange) {
-    FileLine* const fl = varp->fileline();
-    V3Number left{nodep, 32};
-    V3Number right{nodep, 32};
-    left.isSigned(true);
-    right.isSigned(true);
-    left.setLongS(declRange.left());
-    right.setLongS(declRange.right());
-    AstNodeExpr* const leftp = new AstConst{fl, left};
-    AstNodeExpr* const rightp = new AstConst{fl, right};
-    return createForeachLoop(nodep, bodysp, false /*fixed array size*/, subfromp, varp, leftp,
+ساكن Ast_عقدة* createForeachLoopRanged(Ast_عقدة_Foreach* nodep, Ast_عقدة* bodysp,
+                                        Ast_عقدة_تعبير* subfromp, AstVar* varp,
+                                        ثابت VNumRange& declRange) {
+    File_سطر* ثابت fl = varp->fileline();
+    V3_العدد يسار{nodep, 32};
+    V3_العدد يمين{nodep, 32};
+    يسار.isSigned(true);
+    يمين.isSigned(true);
+    يسار.setLongS(declRange.يسار());
+    يمين.setLongS(declRange.يمين());
+    Ast_عقدة_تعبير* ثابت leftp = جديد AstConst{fl, يسار};
+    Ast_عقدة_تعبير* ثابت rightp = جديد AstConst{fl, يمين};
+    إرجاع createForeachLoop(nodep, bodysp, خطأ /*fixed array size*/, subfromp, varp, leftp,
                              rightp,
-                             declRange.left() <= declRange.right() ? VNType::LteS : VNType::GteS);
+                             declRange.يسار() <= declRange.يمين() ? VNType::LteS : VNType::GteS);
 }
-static AstNode* createForeachAssoc(FileLine* fl, AstVar* varp, AstNodeExpr* subfromp,
-                                   AstNodeDType* fromDtp, AstNode* bodyPointp) {
-    AstNode* loopp = varp;
-    AstVar* const next_varp  // Iterator containing next element (to handle mid-array delete)
-        = new AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vnext", varp};
+ساكن Ast_عقدة* createForeachAssoc(File_سطر* fl, AstVar* varp, Ast_عقدة_تعبير* subfromp,
+                                   Ast_عقدة_DType* fromDtp, Ast_عقدة* bodyPointp) {
+    Ast_عقدة* loopp = varp;
+    AstVar* ثابت next_varp  // Iterator containing next element (to handle mid-array delete)
+        = جديد AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vnext", varp};
     next_varp->usedLoopIdx(true);
     next_varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
     loopp->addNext(next_varp);
 
-    AstVar* const more_varp  // bool var. 0 = loop empty/done, 1 = continue with loop
-        = new AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vmore", VFlagBitPacked{}, 1};
+    AstVar* ثابت more_varp  // bool var. 0 = loop empty/done, 1 = continue with loop
+        = جديد AstVar{fl, VVarType::BLOCKTEMP, varp->name() + "__Vmore", VFlagBitPacked{}, 1};
     more_varp->usedLoopIdx(true);  // Not technically an index, but used only inside loop
     more_varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
     loopp->addNext(more_varp);
 
-    AstNodeExpr* const firstp
-        = new AstCMethodHard{fl, subfromp->cloneTreePure(false), VCMethod::ASSOC_FIRST,
-                             new AstVarRef{fl, next_varp, VAccess::READWRITE}};
+    Ast_عقدة_تعبير* ثابت firstp
+        = جديد AstCMethodHard{fl, subfromp->clone_شجرة_Pure(خطأ), VCMethod::ASSOC_FIRST,
+                             جديد AstVarRef{fl, next_varp, VAccess::READWRITE}};
     firstp->dtypeSetInt();
-    AstNodeExpr* const nextp
-        = new AstCMethodHard{fl, subfromp->cloneTreePure(false), VCMethod::ASSOC_NEXT,
-                             new AstVarRef{fl, next_varp, VAccess::READWRITE}};
+    Ast_عقدة_تعبير* ثابت nextp
+        = جديد AstCMethodHard{fl, subfromp->clone_شجرة_Pure(خطأ), VCMethod::ASSOC_NEXT,
+                             جديد AstVarRef{fl, next_varp, VAccess::READWRITE}};
     nextp->dtypeSetInt();
 
     // _Vmore = array.first(__Vnext)
-    loopp->addNext(new AstAssign{fl, new AstVarRef{fl, more_varp, VAccess::WRITE},
-                                 new AstNeq{fl, new AstConst{fl, 0}, firstp}});
+    loopp->addNext(جديد AstAssign{fl, جديد AstVarRef{fl, more_varp, VAccess::WRITE},
+                                 جديد AstNeq{fl, جديد AstConst{fl, 0}, firstp}});
 
     // LOOP(if (!_Vmore) break;  ...)
-    AstLoop* const lp = new AstLoop{fl};
+    AstLoop* ثابت lp = جديد AstLoop{fl};
     loopp->addNext(lp);
-    lp->addStmtsp(new AstLoopTest{fl, lp, new AstVarRef{fl, more_varp, VAccess::READ}});
+    lp->addStmtsp(جديد AstLoopTest{fl, lp, جديد AstVarRef{fl, more_varp, VAccess::READ}});
 
     // index = __Vnext
-    lp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                new AstVarRef{fl, next_varp, VAccess::READ}});
+    lp->addStmtsp(جديد AstAssign{fl, جديد AstVarRef{fl, varp, VAccess::WRITE},
+                                جديد AstVarRef{fl, next_varp, VAccess::READ}});
     // _Vmore = array.next(__Vnext)
-    lp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, more_varp, VAccess::WRITE},
-                                new AstNeq{fl, new AstConst{fl, 0}, nextp}});
+    lp->addStmtsp(جديد AstAssign{fl, جديد AstVarRef{fl, more_varp, VAccess::WRITE},
+                                جديد AstNeq{fl, جديد AstConst{fl, 0}, nextp}});
     lp->addStmtsp(bodyPointp);
-    return loopp;
+    إرجاع loopp;
 }
 
-static bool arrayMayResizeCheck(AstNode* nodesp, AstVar* fromVarp) {
+ساكن منطقي arrayMayResizeCheck(Ast_عقدة* nodesp, AstVar* fromVarp) {
     // IEEE 1800-2023 12.7.3 "If the dimensions of a dynamically sized
     // array are changed while iterating over a foreach-loop construct, th
     // results are undefined".  However UVM calls delete within a foreach
@@ -615,120 +615,120 @@ static bool arrayMayResizeCheck(AstNode* nodesp, AstVar* fromVarp) {
     // flight. Could use generation counter and each loop checks, but adds
     // time to every array modification. So, we assume if the array
     // shrinks, we should repeat the loop.
-    if (!nodesp) return false;
-    return nodesp->existsAndNext([&](const AstNode* nodep) -> bool {
-        if (const AstNodeVarRef* varrefp = VN_CAST(nodep, NodeVarRef)) {
+    إذا (!nodesp) إرجاع خطأ;
+    إرجاع nodesp->existsAndNext([&](ثابت Ast_عقدة* nodep) -> منطقي {
+        إذا (ثابت Ast_عقدة_Var_Ref* varrefp = VN_CAST(nodep, عقدة_Var_Ref)) {
             // Any variable written, as might have indirect ref to array
-            if (varrefp->access().isWriteOrRW()) {
-                if (!fromVarp) return true;
-                if (varrefp->varp() == fromVarp) return true;
+            إذا (varrefp->access().isWriteOrRW()) {
+                إذا (!fromVarp) إرجاع true;
+                إذا (varrefp->varp() == fromVarp) إرجاع true;
             }
         }
         // No idea what a function might be doing
-        if (VN_IS(nodep, MethodCall) || VN_IS(nodep, NodeFTaskRef)) return true;
-        return false;
+        إذا (VN_IS(nodep, MethodCall) || VN_IS(nodep, عقدة_FTask_Ref)) إرجاع true;
+        إرجاع خطأ;
     });
 }
 
-AstNode* V3Begin::convertToWhile(AstForeach* nodep) {
+Ast_عقدة* V3Begin::convertToWhile(AstForeach* nodep) {
     // UINFOTREE(1, nodep, "", "foreach-old");
-    const AstForeachHeader* const headerp = nodep->headerp();
-    AstNodeExpr* const fromp = headerp->fromp();
+    ثابت AstForeachHeader* ثابت headerp = nodep->headerp();
+    Ast_عقدة_تعبير* ثابت fromp = headerp->fromp();
     UASSERT_OBJ(fromp->dtypep(), fromp, "Missing data type");
-    AstVar* const fromVarp = VN_IS(fromp, VarRef) ? VN_CAST(fromp, VarRef)->varp() : nullptr;
-    AstNodeDType* fromDtp = fromp->dtypep()->skipRefp();
-    const bool arrayMayResize = arrayMayResizeCheck(nodep->bodyp(), fromVarp);
+    AstVar* ثابت fromVarp = VN_IS(fromp, VarRef) ? VN_CAST(fromp, VarRef)->varp() : nullptr;
+    Ast_عقدة_DType* fromDtp = fromp->dtypep()->skipRefp();
+    ثابت منطقي arrayMayResize = arrayMayResizeCheck(nodep->bodyp(), fromVarp);
     // Split into for loop
     // We record where the body needs to eventually go with bodyPointp
-    AstNode* bodyPointp = new AstBegin{nodep->fileline(), "[EditWrapper]", nullptr, false};
-    AstNode* newp = nullptr;
-    AstNode* lastp = nodep;
+    Ast_عقدة* bodyPointp = جديد AstBegin{nodep->fileline(), "[EditWrapper]", nullptr, خطأ};
+    Ast_عقدة* newp = nullptr;
+    Ast_عقدة* lastp = nodep;
     AstVar* nestedIndexp = nullptr;
     // subfromp used to traverse each dimension of multi-d variable-sized unpacked array (queue,
     // dyn-arr and associative-arr)
-    AstNodeExpr* subfromp = fromp->cloneTreePure(false);
+    Ast_عقدة_تعبير* subfromp = fromp->clone_شجرة_Pure(خطأ);
     // Major dimension first
-    for (AstNode *argsp = headerp->elementsp(), *next_argsp; argsp; argsp = next_argsp) {
+    لكل (Ast_عقدة *argsp = headerp->elementsp(), *next_argsp; argsp; argsp = next_argsp) {
         next_argsp = argsp->nextp();
-        const bool empty = VN_IS(argsp, Empty);
-        AstVar* const varp = VN_CAST(argsp, Var);
+        ثابت منطقي empty = VN_IS(argsp, Empty);
+        AstVar* ثابت varp = VN_CAST(argsp, Var);
         UASSERT_OBJ(varp || empty, argsp, "Missing foreach loop variable");
-        if (varp) varp->unlinkFrBack()->usedLoopIdx(true);
+        إذا (varp) varp->unlinkFrBack()->usedLoopIdx(true);
         UASSERT_OBJ(fromDtp, argsp, "more loop vars than dimensions");
         fromDtp = fromDtp->skipRefp();
 
-        FileLine* const fl = argsp->fileline();
-        if (varp) {
-            AstNode* loopp = nullptr;
+        File_سطر* ثابت fl = argsp->fileline();
+        إذا (varp) {
+            Ast_عقدة* loopp = nullptr;
             VNRelinker handle;
             lastp->unlinkFrBack(&handle);
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(fromDtp, NodeArrayDType)) {
+            إذا (ثابت Ast_عقدة_Array_DType* ثابت adtypep = VN_CAST(fromDtp, عقدة_Array_DType)) {
                 loopp = createForeachLoopRanged(nodep, bodyPointp, subfromp, varp,
                                                 adtypep->declRange());
-            } else if (const AstBasicDType* const adtypep = VN_CAST(fromDtp, BasicDType)) {
-                if (adtypep->isString()) {
-                    AstConst* const leftp = new AstConst{fl, 0};
-                    AstNodeExpr* const rightp = new AstLenN{fl, fromp->cloneTreePure(false)};
+            } وإلا إذا (ثابت AstBasicDType* ثابت adtypep = VN_CAST(fromDtp, BasicDType)) {
+                إذا (adtypep->isString()) {
+                    AstConst* ثابت leftp = جديد AstConst{fl, 0};
+                    Ast_عقدة_تعبير* ثابت rightp = جديد AstLenN{fl, fromp->clone_شجرة_Pure(خطأ)};
                     loopp = createForeachLoop(nodep, bodyPointp, arrayMayResize, subfromp, varp,
                                               leftp, rightp, VNType::Lt);
-                } else {
+                } وإلا {
                     UASSERT_OBJ(adtypep->isRanged(), varp, "foreach on basic " << adtypep);
                     loopp = createForeachLoopRanged(nodep, bodyPointp, subfromp, varp,
                                                     adtypep->declRange());
                 }
-            } else if (VN_IS(fromDtp, DynArrayDType) || VN_IS(fromDtp, QueueDType)) {
-                AstConst* const leftp = new AstConst{fl, 0};
-                AstNodeExpr* const rightp = new AstCMethodHard{
+            } وإلا إذا (VN_IS(fromDtp, DynArrayDType) || VN_IS(fromDtp, QueueDType)) {
+                AstConst* ثابت leftp = جديد AstConst{fl, 0};
+                Ast_عقدة_تعبير* ثابت rightp = جديد AstCMethodHard{
                     fl,
-                    VN_IS(subfromp->dtypep(), NodeArrayDType)
-                        ? new AstArraySel{fl, subfromp->cloneTreePure(false),
-                                          new AstVarRef{fl, nestedIndexp, VAccess::READ}}
-                        : subfromp->cloneTreePure(false),
+                    VN_IS(subfromp->dtypep(), عقدة_Array_DType)
+                        ? جديد AstArraySel{fl, subfromp->clone_شجرة_Pure(خطأ),
+                                          جديد AstVarRef{fl, nestedIndexp, VAccess::READ}}
+                        : subfromp->clone_شجرة_Pure(خطأ),
                     VCMethod::DYN_SIZE};
-                AstVarRef* varRefp = new AstVarRef{fl, varp, VAccess::READ};
+                AstVarRef* varRefp = جديد AstVarRef{fl, varp, VAccess::READ};
                 rightp->dtypeSetInt();
-                rightp->protect(false);
+                rightp->protect(خطأ);
                 loopp = createForeachLoop(nodep, bodyPointp, arrayMayResize, subfromp, varp, leftp,
                                           rightp, VNType::Lt);
-                subfromp = new AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
+                subfromp = جديد AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
                 subfromp->dtypep(fromDtp);
-            } else if (VN_IS(fromDtp, AssocArrayDType)) {
+            } وإلا إذا (VN_IS(fromDtp, AssocArrayDType)) {
                 // Make this: var KEY_TYPE index;
                 //            bit index__Vfirst;
                 //            index__Vfirst = 0;
                 //            if (0 != array.first(index))
                 //                 do body while (index__Vfirst || 0 != array.next(index))
                 loopp = createForeachAssoc(fl, varp, subfromp, fromDtp, bodyPointp);
-                AstVarRef* varRefp = new AstVarRef{fl, varp, VAccess::READ};
-                subfromp = new AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
+                AstVarRef* varRefp = جديد AstVarRef{fl, varp, VAccess::READ};
+                subfromp = جديد AstCMethodHard{fl, subfromp, VCMethod::ARRAY_AT, varRefp};
                 subfromp->dtypep(fromDtp);
             }
             UASSERT_OBJ(loopp, argsp, "unable to foreach " << fromDtp);
             // New loop goes UNDER previous loop
             handle.relink(loopp);
             lastp = bodyPointp;
-            if (!newp) newp = loopp;
+            إذا (!newp) newp = loopp;
         }
         // Prep for next
         nestedIndexp = varp;
         fromDtp = fromDtp->subDTypep();
     }
-    VL_DO_DANGLING(subfromp->deleteTree(), subfromp);
+    VL_DO_DANGLING(subfromp->delete_شجرة(), subfromp);
     // The parser validates we don't have "foreach (array[,,,])"
-    AstNode* const bodyp = nodep->bodyp();
-    if (!newp) {
+    Ast_عقدة* ثابت bodyp = nodep->bodyp();
+    إذا (!newp) {
         nodep->v3warn(NOEFFECT, "foreach with no loop variable has no effect");
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-        if (!bodyPointp->backp()) VL_DO_DANGLING(bodyPointp->deleteTree(), bodyPointp);
-        return nullptr;
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_شجرة(), nodep);
+        إذا (!bodyPointp->backp()) VL_DO_DANGLING(bodyPointp->delete_شجرة(), bodyPointp);
+        إرجاع nullptr;
     }
-    if (bodyp) {
+    إذا (bodyp) {
         bodyPointp->replaceWith(bodyp->unlinkFrBackWithNext());
-    } else {
+    } وإلا {
         bodyPointp->unlinkFrBack();
     }
-    VL_DO_DANGLING(bodyPointp->deleteTree(), bodyPointp);
-    VL_DO_DANGLING(nodep->deleteTree(), nodep);
+    VL_DO_DANGLING(bodyPointp->delete_شجرة(), bodyPointp);
+    VL_DO_DANGLING(nodep->delete_شجرة(), nodep);
     // UINFOTREE(1, newp, "", "foreach-new");
-    return newp;
+    إرجاع newp;
 }
