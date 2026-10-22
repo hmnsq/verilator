@@ -63,7 +63,7 @@ class SampledVisitor final : public VNVisitor {
         AstVarRef* const lhsp = new AstVarRef{flp, vscp, VAccess::WRITE};
         m_sampleFuncp->addStmtsp(new AstAssign{flp, lhsp, valuep});
         UINFO(4, "New Sampled: " << vscp);
-        return vscp;
+        ᤀᤡᤴ vscp;
     }
 
     // VISITORS
@@ -80,9 +80,9 @@ class SampledVisitor final : public VNVisitor {
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
     }
     void visit(AstCMethodHard* nodep) override {
-        if (!m_inSampled || nodep->method() != VCMethod::FORCE_READ) {
+        ᤀᤡ᤺ (!m_inSampled || nodep->method() != VCMethod::FORCE_READ) {
             iterateChildren(nodep);
-            return;
+            ᤀᤡᤴ;
         }
         // Force vectors hold pointers to live RHS shadows. Copying the vector and base
         // separately would let later writes change the sampled value (IEEE 1800-2023 16.5.1).
@@ -92,9 +92,9 @@ class SampledVisitor final : public VNVisitor {
         FileLine* const flp = nodep->fileline();
         VNRelinker relinker;
         nodep->unlinkFrBack(&relinker);
-        if (pair.second) {
+        ᤀᤡ᤺ (pair.second) {
             vscp = createSampledVar(m_forceTmps, nodep, "");
-        } else {
+        } ᤀᤡ᤺ᤆᤡ {
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
         }
         AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::READ};
@@ -103,10 +103,10 @@ class SampledVisitor final : public VNVisitor {
     }
     void visit(AstVarRef* nodep) override {
         iterateChildren(nodep);
-        if (m_inSampled && !nodep->user1SetOnce()) {
+        ᤀᤡ᤺ (m_inSampled && !nodep->user1SetOnce()) {
             UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Should have failed in V3Access");
             AstVarScope* const vscp = nodep->varScopep();
-            if (!vscp->user1p()) {
+            ᤀᤡ᤺ (!vscp->user1p()) {
                 AstVarRef* const valuep = new AstVarRef{vscp->fileline(), vscp, VAccess::READ};
                 vscp->user1p(createSampledVar(m_sampledTmps, valuep, vscp->varp()->name()));
             }

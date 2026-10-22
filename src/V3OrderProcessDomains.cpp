@@ -49,7 +49,7 @@ class V3OrderProcessDomains final {
         for (V3GraphVertex& it : m_graph.vertices()) {
             OrderEitherVertex* const vtxp = it.as<OrderEitherVertex>();
             // Sequential logic already has its domain set
-            if (vtxp->domainp()) continue;
+            ᤀᤡ᤺ (vtxp->domainp()) continue;
 
             // Reset state
             triggers.clear();
@@ -57,7 +57,7 @@ class V3OrderProcessDomains final {
             OrderLogicVertex* const lvtxp = vtxp->cast<OrderLogicVertex>();
 
             // For logic vertices, start with the explicit hybrid sensitivities, if any
-            if (const OrderDomain* const hybridp = lvtxp ? lvtxp->hybridp() : nullptr) {
+            ᤀᤡ᤺ (const OrderDomain* const hybridp = lvtxp ? lvtxp->hybridp() : nullptr) {
                 const std::set<uint32_t>& hybridTriggers = hybridp->triggers();
                 triggers.insert(hybridTriggers.begin(), hybridTriggers.end());
             }
@@ -66,9 +66,9 @@ class V3OrderProcessDomains final {
             for (V3GraphEdge& edge : vtxp->inEdges()) {
                 OrderEitherVertex* const fromVtxp = edge.fromp()->as<OrderEitherVertex>();
                 // Cut edge
-                if (!edge.weight()) continue;
+                ᤀᤡ᤺ (!edge.weight()) continue;
                 // some edges can be ignored as they only encode ordering constraints
-                if (!fromVtxp->domainMatters()) continue;
+                ᤀᤡ᤺ (!fromVtxp->domainMatters()) continue;
 
                 // Add driver's domains
                 const OrderDomain* const fromDomainp = fromVtxp->domainp();
@@ -76,7 +76,7 @@ class V3OrderProcessDomains final {
                 triggers.insert(fromTriggers.begin(), fromTriggers.end());
 
                 // Add in any external domains of variables
-                if (OrderVarVertex* const varVtxp = fromVtxp->cast<OrderVarVertex>()) {
+                ᤀᤡ᤺ (OrderVarVertex* const varVtxp = fromVtxp->cast<OrderVarVertex>()) {
                     m_externalTriggers(varVtxp->vscp(), triggers);
                 }
             }
@@ -86,7 +86,7 @@ class V3OrderProcessDomains final {
             vtxp->domainp(domainp);
 
             // If nothing triggers this vertex, we can delete the corresponding logic
-            if (domainp->triggers().empty() && lvtxp) m_untriggeredps.push_back(lvtxp);
+            ᤀᤡ᤺ (domainp->triggers().empty() && lvtxp) m_untriggeredps.push_back(lvtxp);
         }
     }
 
@@ -99,7 +99,7 @@ class V3OrderProcessDomains final {
 
         // Assign vertices to their sensitivity domains
         processDomains();
-        if (dumpGraphLevel()) m_graph.dumpDotFilePrefixed(m_tag + "_orderg_domain");
+        ᤀᤡ᤺ (dumpGraphLevel()) m_graph.dumpDotFilePrefixed(m_tag + "_orderg_domain");
 
         // Delete logic that is never triggered
         for (OrderLogicVertex* const lVtxp : m_untriggeredps) {

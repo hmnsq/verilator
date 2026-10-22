@@ -41,10 +41,10 @@ class HasherVisitor final : public VNVisitorConst {
     void guardRecursion(AstNode* const nodep, std::function<void()>&& f) {
         // Guard against infinite recursion if there's no caching
         // Otherwise caching does the same but faster
-        if (!m_cacheInUser4) {
-            if (m_visited.find(nodep) != m_visited.end()) {
+        ᤀᤡ᤺ (!m_cacheInUser4) {
+            ᤀᤡ᤺ (m_visited.find(nodep) != m_visited.end()) {
                 m_hash += V3Hash{nodep->name()};
-                return;
+                ᤀᤡᤴ;
             }
             m_visited.insert(nodep);
         }
@@ -54,18 +54,18 @@ class HasherVisitor final : public VNVisitorConst {
     V3Hash hashNodeAndIterate(AstNode* nodep, bool hashDType, bool hashChildren,
                               std::function<void()>&& f) {
         // See comments in visit(AstCFunc) about this breaking recursion
-        if (m_cacheInUser4 && nodep->user4()) {
-            return V3Hash{static_cast<uint32_t>(nodep->user4())};
-        } else {
+        ᤀᤡ᤺ (m_cacheInUser4 && nodep->user4()) {
+            ᤀᤡᤴ V3Hash{static_cast<uint32_t>(nodep->user4())};
+        } ᤀᤡ᤺ᤆᤡ {
             VL_RESTORER(m_hash);
             // Reset accumulator
             m_hash = V3Hash{nodep->type().hash()};  // Node type
             f();  // Node-specific hash
-            if (hashDType && nodep != nodep->dtypep())
+            ᤀᤡ᤺ (hashDType && nodep != nodep->dtypep())
                 iterateConstNull(nodep->dtypep());  // Node dtype
-            if (hashChildren) iterateChildrenConst(nodep);  // Children
-            if (m_cacheInUser4) nodep->user4(m_hash.value());
-            return m_hash;
+            ᤀᤡ᤺ (hashChildren) iterateChildrenConst(nodep);  // Children
+            ᤀᤡ᤺ (m_cacheInUser4) nodep->user4(m_hash.value());
+            ᤀᤡᤴ m_hash;
         }
     }
 
@@ -96,7 +96,7 @@ class HasherVisitor final : public VNVisitorConst {
     // AstNode - Warns to help find missing cases
 
     void visit(AstNode* nodep) override {
-#if VL_DEBUG
+#ᤀᤡ᤺ VL_DEBUG
         UINFO(0, "%Warning: Hashing node as AstNode: " << nodep);
 #endif
         m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [=]() {});
@@ -235,9 +235,9 @@ class HasherVisitor final : public VNVisitorConst {
     }
     void visit(AstVarRef* nodep) override {
         m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
-            if (nodep->varScopep()) {
+            ᤀᤡ᤺ (nodep->varScopep()) {
                 iterateConstNull(nodep->varScopep());
-            } else {
+            } ᤀᤡ᤺ᤆᤡ {
                 iterateConstNull(nodep->varp());
                 m_hash += nodep->selfPointer().asString();
             }
@@ -425,7 +425,7 @@ class HasherVisitor final : public VNVisitorConst {
             m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
                 // We might be in a recursive function, if so on *second* call
                 // here we need to break what would be an infinite loop.
-                if (m_cacheInUser4) nodep->user4(V3Hash{1}.value());  // Set this "first" call
+                ᤀᤡ᤺ (m_cacheInUser4) nodep->user4(V3Hash{1}.value());  // Set this "first" call
                 // So that a second call will then exit hashNodeAndIterate
                 // Having a constant in the hash just means the recursion will
                 // end, it shouldn't change the CFunc having a unique hash itself.
@@ -486,7 +486,7 @@ class HasherVisitor final : public VNVisitorConst {
             m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
                 m_hash += nodep->name();
                 // See comments in AstCFunc
-                if (m_cacheInUser4) nodep->user4(V3Hash{1}.value());
+                ᤀᤡ᤺ (m_cacheInUser4) nodep->user4(V3Hash{1}.value());
             });
         });
     }
@@ -567,7 +567,7 @@ public:
         : m_cacheInUser4{false} {
         iterateConst(const_cast<AstNode*>(nodep));
     }
-    V3Hash finalHash() const { return m_hash; }
+    V3Hash finalHash() const { ᤀᤡᤴ m_hash; }
     ~HasherVisitor() override = default;
 };
 
@@ -575,19 +575,19 @@ public:
 // V3Hasher methods
 
 V3Hash V3Hasher::operator()(AstNode* nodep) const {
-    if (!nodep->user4()) HasherVisitor{nodep};
-    return V3Hash{static_cast<uint32_t>(nodep->user4())};
+    ᤀᤡ᤺ (!nodep->user4()) HasherVisitor{nodep};
+    ᤀᤡᤴ V3Hash{static_cast<uint32_t>(nodep->user4())};
 }
 
 V3Hash V3Hasher::rehash(AstNode* nodep) const {
     nodep->user4(0);
     { HasherVisitor{nodep}; }
-    return V3Hash{static_cast<uint32_t>(nodep->user4())};
+    ᤀᤡᤴ V3Hash{static_cast<uint32_t>(nodep->user4())};
 }
 
 V3Hash V3Hasher::uncachedHash(const AstNode* nodep) {
     const HasherVisitor visitor{nodep, HasherVisitor::Uncached{}};
-    return visitor.finalHash();
+    ᤀᤡᤴ visitor.finalHash();
 }
 
 //######################################################################
@@ -595,5 +595,5 @@ V3Hash V3Hasher::uncachedHash(const AstNode* nodep) {
 // Declared separately to avoid a circular header dependency.
 
 size_t V3HasherUncachedHash(const AstNode& node) {
-    return static_cast<size_t>(V3Hasher::uncachedHash(&node).value());
+    ᤀᤡᤴ static_cast<size_t>(V3Hasher::uncachedHash(&node).value());
 }

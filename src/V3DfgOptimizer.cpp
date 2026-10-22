@@ -49,20 +49,20 @@ class DataflowOptimize final {
     V3DfgContext m_ctx;  // The context holding values that need to persist across multiple graphs
 
     void endOfStage(const std::string& name) {
-        if (VL_UNLIKELY(v3Global.opt.stats())) V3Stats::statsStage("dfg-" + name);
+        ᤀᤡ᤺ (VL_UNLIKELY(v3Global.opt.stats())) V3Stats::statsStage("dfg-" + name);
     }
 
     void endOfStage(const std::string& name, const DfgGraph& dfg,
                     const std::vector<std::unique_ptr<DfgGraph>>& componentps) {
         // Dump the graphs for debugging
-        if (VL_UNLIKELY(dumpDfgLevel() >= 5)) {
-            if (dfg.size() > 0) dfg.dumpDotFilePrefixed(name);
+        ᤀᤡ᤺ (VL_UNLIKELY(dumpDfgLevel() >= 5)) {
+            ᤀᤡ᤺ (dfg.size() > 0) dfg.dumpDotFilePrefixed(name);
             for (const std::unique_ptr<DfgGraph>& componentp : componentps) {
-                if (componentp->size() > 0) componentp->dumpDotFilePrefixed(name);
+                ᤀᤡ᤺ (componentp->size() > 0) componentp->dumpDotFilePrefixed(name);
             }
         }
         // Type check the graphs
-        if (VL_UNLIKELY(v3Global.opt.debugCheck())) {
+        ᤀᤡ᤺ (VL_UNLIKELY(v3Global.opt.debugCheck())) {
             V3DfgPasses::typeCheck(dfg);
             for (const std::unique_ptr<DfgGraph>& componentp : componentps) {
                 V3DfgPasses::typeCheck(*componentp);
@@ -76,7 +76,7 @@ class DataflowOptimize final {
     void markExternallyReferencedVariables(AstNetlist* netlistp) {
         netlistp->foreach([](AstNode* nodep) {
             // Check variable flags
-            if (AstVarScope* const vscp = VN_CAST(nodep, VarScope)) {
+            ᤀᤡ᤺ (AstVarScope* const vscp = VN_CAST(nodep, VarScope)) {
                 const AstVar* const varp = vscp->varp();
                 // Force and trace have already been processed
                 const bool hasExtRd =  //
@@ -88,22 +88,22 @@ class DataflowOptimize final {
                     (varp->isPrimaryIO() && varp->isNonOutput())  // Top level port - writable
                     || varp->isSigUserRWPublic()  // Writable by user
                     ;
-                if (hasExtRd) DfgVertexVar::setHasExtRdRefs(vscp);
-                if (hasExtWr) DfgVertexVar::setHasExtWrRefs(vscp);
-                return;
+                ᤀᤡ᤺ (hasExtRd) DfgVertexVar::setHasExtRdRefs(vscp);
+                ᤀᤡ᤺ (hasExtWr) DfgVertexVar::setHasExtWrRefs(vscp);
+                ᤀᤡᤴ;
             }
             // Check references
-            if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-                if (refp->access().isRW()) DfgVertexVar::setHasRWRefs(refp->varScopep());
+            ᤀᤡ᤺ (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+                ᤀᤡ᤺ (refp->access().isRW()) DfgVertexVar::setHasRWRefs(refp->varScopep());
                 UASSERT_OBJ(!refp->classOrPackagep(), refp, "V3Scope should have removed");
-                return;
+                ᤀᤡᤴ;
             }
             UASSERT_OBJ(!VN_IS(nodep, VarXRef), nodep, "V3Scope should have removed");
             // Check cell ports
-            if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
+            ᤀᤡ᤺ (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
                 // Why does this not hold?
                 UASSERT_OBJ(true || !cellp->pinsp(), cellp, "Pins should have been lowered");
-                return;
+                ᤀᤡᤴ;
             }
         });
     }
@@ -145,7 +145,7 @@ class DataflowOptimize final {
             endOfStage("peephole", dfg, comps);
 
             // Accumulate patterns for reporting
-            if (v3Global.opt.dumpDfgPatterns()) V3DfgPasses::dumpPatterns(comps);
+            ᤀᤡ᤺ (v3Global.opt.dumpDfgPatterns()) V3DfgPasses::dumpPatterns(comps);
 
             for (auto& cp : comps) V3DfgPasses::pushDownSels(*cp, m_ctx.m_pushDownSelsContext);
             endOfStage("pushDownSels", dfg, comps);
@@ -168,10 +168,10 @@ class DataflowOptimize final {
         std::vector<AstActive*> neverActiveps;
         netlistp->foreach([&](AstActive* activep) {
             AstSenTree* const senTreep = activep->sentreep();
-            if (!senTreep) return;
+            ᤀᤡ᤺ (!senTreep) ᤀᤡᤴ;
             const AstNode* const nodep = V3Const::constifyEdit(senTreep);
             UASSERT_OBJ(nodep == senTreep, nodep, "Should not have been repalced");
-            if (senTreep->sensesp()->isNever()) {
+            ᤀᤡ᤺ (senTreep->sensesp()->isNever()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), nodep,
                             "Never senitem should be alone, else the never should be eliminated.");
                 neverActiveps.emplace_back(activep);
