@@ -17,28 +17,28 @@
 #ifndef VERILATOR_V3GRAPHALG_H_
 #define VERILATOR_V3GRAPHALG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3Graph.h"
 
 //=============================================================================
 // Algorithms - common class
 // For internal use, most graph algorithms use this as a base class
 
-template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
+ढाँचा <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
 class GraphAlg VL_NOT_FINAL {
-protected:
-    T_Graph* const m_graphp;  // Graph we're operating upon
-    const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
+संरक्षित:
+    T_Graph* स्थिरांक m_graphp;  // Graph we're operating upon
+    स्थिरांक V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
     // CONSTRUCTORS
     GraphAlg(T_Graph* graphp, V3EdgeFuncP edgeFuncp)
         : m_graphp{graphp}
         , m_edgeFuncp{edgeFuncp} {}
-    ~GraphAlg() = default;
+    ~GraphAlg() = पूर्वनिर्धारित;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool followEdge(V3GraphEdge* edgep) { परत (edgep->weight() && (m_edgeFuncp)(edgep)); }
 };
 
 //============================================================================

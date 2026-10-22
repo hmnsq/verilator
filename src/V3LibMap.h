@@ -17,10 +17,10 @@
 #ifndef VERILATOR_V3LIBMAP_H_
 #define VERILATOR_V3LIBMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <vector>
+#अन्तर्भाव <vector>
 
 class AstNetlist;
 class VInFilter;
@@ -30,22 +30,22 @@ class V3ParseSym;
 
 // State to pass between config parsing and cell linking visitors.
 class LibMapping final {
-    const string m_pattern;  // Pattern to match
-    const string m_libname;  // Library name
-    const string m_base;  // Relative path of the libmap file
+    स्थिरांक string m_pattern;  // Pattern to match
+    स्थिरांक string m_libname;  // Library name
+    स्थिरांक string m_base;  // Relative path of the libmap file
 
-public:
-    LibMapping(const string& pattern_, const string& libname_, const string& base_)
+सार्वजनिक:
+    LibMapping(स्थिरांक string& pattern_, स्थिरांक string& libname_, स्थिरांक string& base_)
         : m_pattern{pattern_}
         , m_libname{libname_}
         , m_base{base_} {}
-    string pattern() const { return m_pattern; }
-    string libname() const { return m_libname; }
-    string base() const { return m_base; }
+    string pattern() स्थिरांक { परत m_pattern; }
+    string libname() स्थिरांक { परत m_libname; }
+    string base() स्थिरांक { परत m_base; }
 };
 
 class V3LibMap final {
-private:
+खाजगी:
     // STATE
     // 33.3.1.1 File path resolution
     //   If a file name potentially matches multiple file path specifications, the path
@@ -57,11 +57,11 @@ private:
     std::vector<LibMapping> m_directoryMappings;
 
     // METHODS
-public:
-    string matchMapping(const string& filename);
-    void addPattern(const string& pattern, const string& libname, const string& base);
+सार्वजनिक:
+    string matchMapping(स्थिरांक string& filename);
+    शून्य addPattern(स्थिरांक string& pattern, स्थिरांक string& libname, स्थिरांक string& base);
 
-    static void map(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य map(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

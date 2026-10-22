@@ -14,197 +14,197 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3EmitCBase.h"
-#include "V3Error.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3EmitCBase.h"
+#अन्तर्भाव "V3Error.h"
 
-#include <cinttypes>
+#अन्तर्भाव <cinttypes>
 
 //######################################################################
 // Emitter that can emit NodeCons expressions
 
-class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
+class EmitCConstInit VL_NOT_FINAL : सार्वजनिक EmitCBaseVisitorConst {
     // METHODS
-    static uint32_t tabModulus(const AstNodeDType* dtypep) {
-        const uint32_t elemBytes = dtypep->widthTotalBytes();
-        return dtypep->isString() ? 1  // String
+    स्थिर uint32_t tabModulus(स्थिरांक Ast_गाठ_DType* dtypep) {
+        स्थिरांक uint32_t elemBytes = dtypep->widthTotalBytes();
+        परत dtypep->isString() ? 1  // String
                : elemBytes <= 2   ? 8  // CData, SData
                : elemBytes <= 4   ? 4  // IData
                : elemBytes <= 8   ? 2  // QData
                                   : 1;
     }
 
-    void emitConsArray(AstConsArray* nodep) {
-        const AstUnpackArrayDType* const dtypep
+    शून्य emitConsArray(AstConsArray* nodep) {
+        स्थिरांक AstUnpackArrayDType* स्थिरांक dtypep
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        const uint64_t size = dtypep->elementsConst();
+        स्थिरांक uint64_t size = dtypep->elementsConst();
         uint32_t tabMod = tabModulus(dtypep->subDTypep());
-        if (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+        जर (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
+        साठी (स्थिरांक AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+            जर (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         ofp()->putsNoTracking("{");
-        puts("\n");
-        for (uint64_t n = 0; n < size; ++n) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(nodep->valuep(n));
+        माला_दो("\n");
+        साठी (uint64_t n = 0; n < size; ++n) {
+            जर (n) माला_दो((n % tabMod) ? ", " : ",\n");
+            emit_मूल्य(nodep->valuep(n));
         }
-        puts("\n");
+        माला_दो("\n");
         ofp()->putsNoTracking("}");
     }
 
     // 'size, default, {{key, value}, ...}', where the size and default are optional, or nothing
     // if empty
-    template <typename T_Item>
-    void emitKeyedConsItems(AstNodeExpr* sizep, AstNodeExpr* defaultp, T_Item* itemsp) {
-        if (!sizep && !defaultp && !itemsp) return;
-        puts("\n");
-        for (AstNodeExpr* const valuep : {sizep, defaultp}) {
-            if (!valuep) continue;
-            emitValue(valuep);
-            puts(",\n");
+    ढाँचा <typename T_Item>
+    शून्य emit_Keyed_Cons_वस्तुसंच(Ast_गाठ_अभिव्यक्ती* sizep, Ast_गाठ_अभिव्यक्ती* defaultp, T_Item* itemsp) {
+        जर (!sizep && !defaultp && !itemsp) परत;
+        माला_दो("\n");
+        साठी (Ast_गाठ_अभिव्यक्ती* स्थिरांक valuep : {sizep, defaultp}) {
+            जर (!valuep) सुरूठेवा;
+            emit_मूल्य(valuep);
+            माला_दो(",\n");
         }
-        puts("{");
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (itemp != itemsp) puts(",");
-            puts("\n{");
-            emitValue(itemp->keyp());
-            puts(", ");
-            emitValue(itemp->valuep());
-            puts("}");
+        माला_दो("{");
+        साठी (T_Item* itemp = itemsp; itemp; itemp = Ast_गाठ::as<T_Item>(itemp->nextp())) {
+            जर (itemp != itemsp) माला_दो(",");
+            माला_दो("\n{");
+            emit_मूल्य(itemp->keyp());
+            माला_दो(", ");
+            emit_मूल्य(itemp->valuep());
+            माला_दो("}");
         }
-        puts("\n}");
-        puts("\n");
+        माला_दो("\n}");
+        माला_दो("\n");
     }
 
     // The items, 'tabMod' per line if all are constants, otherwise one per line
-    template <typename T_Item>
-    void emitUnkeyedConsItems(T_Item* itemsp, uint32_t tabMod) {
-        if (!itemsp) return;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+    ढाँचा <typename T_Item>
+    शून्य emit_Unkeyed_Cons_वस्तुसंच(T_Item* itemsp, uint32_t tabMod) {
+        जर (!itemsp) परत;
+        साठी (T_Item* itemp = itemsp; itemp; itemp = Ast_गाठ::as<T_Item>(itemp->nextp())) {
+            जर (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
-        puts("\n");
+        माला_दो("\n");
         uint64_t n = 0;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(itemp->valuep());
+        साठी (T_Item* itemp = itemsp; itemp; itemp = Ast_गाठ::as<T_Item>(itemp->nextp())) {
+            जर (n) माला_दो((n % tabMod) ? ", " : ",\n");
+            emit_मूल्य(itemp->valuep());
             ++n;
         }
-        puts("\n");
+        माला_दो("\n");
     }
 
     // Emit a value
-    void emitValue(AstNodeExpr* nodep) {
+    शून्य emit_मूल्य(Ast_गाठ_अभिव्यक्ती* nodep) {
         // Either a value constructor
-        if (AstNodeCons* const consp = VN_CAST(nodep, NodeCons)) {
+        जर (Ast_गाठ_Cons* स्थिरांक consp = VN_CAST(nodep, गाठ_Cons)) {
             emitValCons(consp);
-            return;
+            परत;
         }
         // Or a constant
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
+        जर (स्थिरांक AstConst* स्थिरांक constp = VN_CAST(nodep, Const)) {
+            स्थिरांक V3_संख्या& अंक = constp->अंक();
+            UASSERT_OBJ(!अंक.isFourState(), constp, "4-state value in emitted constant");
             // A narrow constant is a literal, which converts implicitly wherever a value is used
             // (This also covers string, double and null, which don't need type prefix)
-            if (!constp->isWide()) {
-                putns(constp, num.emitC());
-                return;
+            जर (!constp->isWide()) {
+                putns(constp, अंक.emitC());
+                परत;
             }
             // Otherwise need the type prefix (naked braced lists cannot be deduced by templates)
             putnbs(constp, constp->dtypep()->cType("", false, false));
             emitInitializer(nodep);
-            return;
+            परत;
         }
         // Or an arbitrary expression, emitted via the derived visitor
         iterateConst(nodep);
     }
 
-    void emitInitializerBody(AstNodeExpr* nodep) {
-        if (AstConsArray* const arrayp = VN_CAST(nodep, ConsArray)) {
+    शून्य emitInitializerBody(Ast_गाठ_अभिव्यक्ती* nodep) {
+        जर (AstConsArray* स्थिरांक arrayp = VN_CAST(nodep, ConsArray)) {
             emitConsArray(arrayp);
-            return;
+            परत;
         }
-        if (AstConsAssoc* const assocp = VN_CAST(nodep, ConsAssoc)) {
-            emitKeyedConsItems(nullptr, assocp->defaultp(), assocp->itemsp());
-            return;
+        जर (AstConsAssoc* स्थिरांक assocp = VN_CAST(nodep, ConsAssoc)) {
+            emit_Keyed_Cons_वस्तुसंच(nullptr, assocp->defaultp(), assocp->itemsp());
+            परत;
         }
-        if (AstConsWildcard* const wildp = VN_CAST(nodep, ConsWildcard)) {
-            emitKeyedConsItems(nullptr, wildp->defaultp(), wildp->itemsp());
-            return;
+        जर (AstConsWildcard* स्थिरांक wildp = VN_CAST(nodep, ConsWildcard)) {
+            emit_Keyed_Cons_वस्तुसंच(nullptr, wildp->defaultp(), wildp->itemsp());
+            परत;
         }
-        AstConsDynArray* const dynp = VN_CAST(nodep, ConsDynArray);
-        if (dynp && dynp->sizep()) {
-            emitKeyedConsItems(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
-            return;
+        AstConsDynArray* स्थिरांक dynp = VN_CAST(nodep, ConsDynArray);
+        जर (dynp && dynp->sizep()) {
+            emit_Keyed_Cons_वस्तुसंच(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
+            परत;
         }
-        if (dynp) {
-            emitUnkeyedConsItems(dynp->itemsp(),
+        जर (dynp) {
+            emit_Unkeyed_Cons_वस्तुसंच(dynp->itemsp(),
                                  tabModulus(dynp->dtypep()->skipRefp()->subDTypep()));
-            return;
+            परत;
         }
-        if (AstConsQueue* const queuep = VN_CAST(nodep, ConsQueue)) {
-            emitUnkeyedConsItems(queuep->itemsp(),
+        जर (AstConsQueue* स्थिरांक queuep = VN_CAST(nodep, ConsQueue)) {
+            emit_Unkeyed_Cons_वस्तुसंच(queuep->itemsp(),
                                  tabModulus(queuep->dtypep()->skipRefp()->subDTypep()));
-            return;
+            परत;
         }
-        if (AstConsStruct* const structp = VN_CAST(nodep, ConsStruct)) {
-            emitUnkeyedConsItems(structp->itemsp(), 1);  // Members of mixed types
-            return;
+        जर (AstConsStruct* स्थिरांक structp = VN_CAST(nodep, ConsStruct)) {
+            emit_Unkeyed_Cons_वस्तुसंच(structp->itemsp(), 1);  // Members of mixed types
+            परत;
         }
-        if (VN_IS(nodep, Unbounded)) {
+        जर (VN_IS(nodep, Unbounded)) {
             // A public parameter's '$', which is only special during elaboration, so use zero
-            puts("0");
-            return;
+            माला_दो("0");
+            परत;
         }
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
-            if (!constp->isWide()) {
-                puts(num.emitC());
-                return;
+        जर (स्थिरांक AstConst* स्थिरांक constp = VN_CAST(nodep, Const)) {
+            स्थिरांक V3_संख्या& अंक = constp->अंक();
+            UASSERT_OBJ(!अंक.isFourState(), constp, "4-state value in emitted constant");
+            जर (!constp->isWide()) {
+                माला_दो(अंक.emitC());
+                परत;
             }
 
             ofp()->putsNoTracking("{");  // The initializer of m_storage within the VlWide
-            const int words = constp->widthWords();
-            const int tabMod = 4;
-            if (words > tabMod) puts("\n");
-            for (int n = 0; n < words; ++n) {
-                if (n) puts((n % tabMod) ? ", " : ",\n");
-                ofp()->printf("0x%08" PRIx32, num.edataWord(n));
+            स्थिरांक पूर्णांक शब्द = constp->width_शब्द();
+            स्थिरांक पूर्णांक tabMod = 4;
+            जर (शब्द > tabMod) माला_दो("\n");
+            साठी (पूर्णांक n = 0; n < शब्द; ++n) {
+                जर (n) माला_दो((n % tabMod) ? ", " : ",\n");
+                ofp()->म_लिखो("0x%08" PRIx32, अंक.edataWord(n));
             }
-            if (words > tabMod) puts("\n");
+            जर (शब्द > tabMod) माला_दो("\n");
             ofp()->putsNoTracking("}");
-            return;
+            परत;
         }
         nodep->v3fatalSrc("Unknown node type in emitInitializerBody: " << nodep->prettyTypeName());
     }
 
     // Emit the braced initializer for the given value '{...}'
-    void emitInitializer(AstNodeExpr* nodep) {
+    शून्य emitInitializer(Ast_गाठ_अभिव्यक्ती* nodep) {
         putns(nodep, "{");
         emitInitializerBody(nodep);
-        puts("}");
+        माला_दो("}");
     }
 
-protected:
+संरक्षित:
     // Emit a C++ value constructor: 'Type{...}'
-    void emitValCons(AstNodeCons* nodep) {
+    शून्य emitValCons(Ast_गाठ_Cons* nodep) {
         putnbs(nodep, nodep->dtypep()->cType("", false, false));
         emitInitializer(nodep);
     }
 
     // Emit the C++ variable definition 'Type name{...}'
-    void emitVarDefn(const AstVar* varp) {
-        const std::string name = varp->constPoolEntry()
+    शून्य emitVarDefn(स्थिरांक AstVar* varp) {
+        स्थिरांक std::string name = varp->constPoolEntry()
                                      ? EmitCUtil::constPoolName(varp)
                                      : EmitCUtil::prefixNameProtect(EmitCParentModule::get(varp))
                                            + "::" + varp->nameProtect();
         putnbs(varp, varp->dtypep()->cType(name, false, false));
-        emitInitializer(VN_AS(varp->valuep(), NodeExpr));
+        emitInitializer(VN_AS(varp->valuep(), गाठ_अभिव्यक्ती));
     }
 };

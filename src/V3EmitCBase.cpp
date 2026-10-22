@@ -14,199 +14,199 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3EmitCBase.h"
+#अन्तर्भाव "V3EmitCBase.h"
 
-#include "V3Task.h"
+#अन्तर्भाव "V3Task.h"
 
 //######################################################################
 // EmitCParentModule implementation
 
 EmitCParentModule::EmitCParentModule() {
-    const auto setAll = [](AstNodeModule* modp) -> void {
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, NodeCoverDecl)) {
+    स्थिरांक स्वतः setAll = [](Ast_गाठ_Module* modp) -> शून्य {
+        साठी (Ast_गाठ* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            जर (VN_IS(nodep, CFunc) || VN_IS(nodep, Var) || VN_IS(nodep, गाठ_Cover_Decl)) {
                 nodep->user4p(modp);
             }
         }
-        modp->foreach([&](AstNodeCoverDecl* nodep) { nodep->user4p(modp); });
+        modp->foreach([&](Ast_गाठ_Cover_Decl* nodep) { nodep->user4p(modp); });
     };
-    for (AstNode* modp = v3Global.rootp()->modulesp(); modp; modp = modp->nextp()) {
-        setAll(VN_AS(modp, NodeModule));
+    साठी (Ast_गाठ* modp = v3Global.rootp()->modulesp(); modp; modp = modp->nextp()) {
+        setAll(VN_AS(modp, गाठ_Module));
     }
 }
 
 //######################################################################
 // EmitCUtil implementation
 
-string EmitCUtil::prefixNameProtect(const AstNode* nodep) VL_MT_STABLE {
-    const string prefix = v3Global.opt.modPrefix() + "_" + VIdProtect::protect(nodep->name());
+string EmitCUtil::prefixNameProtect(स्थिरांक Ast_गाठ* nodep) VL_MT_STABLE {
+    स्थिरांक string prefix = v3Global.opt.modPrefix() + "_" + VIdProtect::protect(nodep->name());
     // If all-uppercase prefix conflicts with a previous usage of the
     // prefix with different capitalization, rename to avoid conflict.
     // This is to support OSes where filename compares are non-case significant.
     // STATIC:
-    static V3Mutex s_mutex;
-    const V3LockGuard lock{s_mutex};  // Otherwise map access is unsafe
-    static std::map<std::string, std::string> s_memoized;
-    static std::map<std::string, std::string> s_ucToPrefix;
+    स्थिर V3Mutex s_mutex;
+    स्थिरांक V3LockGuard lock{s_mutex};  // Otherwise map access is unsafe
+    स्थिर std::map<std::string, std::string> s_memoized;
+    स्थिर std::map<std::string, std::string> s_ucToPrefix;
     // Memoize results
-    const auto mit = s_memoized.find(prefix);
-    if (mit != s_memoized.end()) return mit->second;
+    स्थिरांक स्वतः mit = s_memoized.find(prefix);
+    जर (mit != s_memoized.end()) परत mit->second;
     //
     // Check capitalization
-    const string prefixUpper = VString::upcase(prefix);
+    स्थिरांक string prefixUpper = VString::upcase(prefix);
     string result;
     {
-        const auto it = s_ucToPrefix.find(prefixUpper);
-        if (it == s_ucToPrefix.end()) {
+        स्थिरांक स्वतः it = s_ucToPrefix.find(prefixUpper);
+        जर (it == s_ucToPrefix.end()) {
             s_ucToPrefix.emplace(prefixUpper, prefix);
             result = prefix;
-        } else if (it->second == prefix) {
+        } अन्यथा जर (it->second == prefix) {
             result = prefix;  // Same capitialization as last time
-        } else {
+        } अन्यथा {
             VHashSha512 hash{prefix};
             result = prefix + "__Vphsh" + hash.digestSymbol24();
         }
     }
     s_memoized.emplace(prefix, result);
-    return result;
+    परत result;
 }
 
 //######################################################################
 // EmitCBaseVisitor implementation
 
-string EmitCBaseVisitorConst::funcNameProtect(const AstCFunc* nodep, const AstNodeModule* modp) {
+string EmitCBaseVisitorConst::funcNameProtect(स्थिरांक AstCFunc* nodep, स्थिरांक Ast_गाठ_Module* modp) {
     modp = modp ? modp : EmitCParentModule::get(nodep);
     string name;
-    if (nodep->isConstructor()) {
+    जर (nodep->isConstructor()) {
         name += "init";
-    } else if (nodep->isDestructor()) {
+    } अन्यथा जर (nodep->isDestructor()) {
         name += "~";
         name += EmitCUtil::prefixNameProtect(modp);
-    } else {
-        if (nodep->isLoose()) {
+    } अन्यथा {
+        जर (nodep->isLoose()) {
             name += EmitCUtil::prefixNameProtect(modp);
             name += "__";
         }
         name += nodep->nameProtect();
     }
-    return name;
+    परत name;
 }
 
-string EmitCBaseVisitorConst::cFuncArgs(const AstCFunc* nodep, bool cpp) {
+string EmitCBaseVisitorConst::cFuncArgs(स्थिरांक AstCFunc* nodep, तार्किक cpp) {
     // Return argument list for given C function
     string args;
-    if (nodep->isLoose() && !nodep->isStatic()) {
-        if (nodep->voidSelf()) {
+    जर (nodep->isLoose() && !nodep->isStatic()) {
+        जर (nodep->voidSelf()) {
             args += "void* vlVoidSelf";  // Converted to 'vlSelf' in the function body
-        } else {
-            if (nodep->isConst().trueKnown()) args += "const ";
+        } अन्यथा {
+            जर (nodep->isConst().trueKnown()) args += "const ";
             args += EmitCUtil::prefixNameProtect(EmitCParentModule::get(nodep));
             args += "* vlSelf";
         }
     }
-    if (nodep->needProcess()) {
-        if (!args.empty()) args += ", ";
+    जर (nodep->needProcess()) {
+        जर (!args.empty()) args += ", ";
         args += "VlProcessRef vlProcess";
     }
-    if (!nodep->argTypes().empty()) {
-        if (!args.empty()) args += ", ";
+    जर (!nodep->argTypes().empty()) {
+        जर (!args.empty()) args += ", ";
         args += nodep->argTypes();
     }
     // Might be a user function with argument list.
-    for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-            if (portp->isIO() && !portp->isFuncReturn()) {
-                if (!args.empty()) args += ", ";
-                if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) {
-                    args += portp->dpiArgType(true, false, cpp);
-                } else if (nodep->funcPublic()) {
-                    args += portp->cPubArgType(true, false);
-                } else {
-                    args += portp->vlArgType(true, false, true);
+    साठी (स्थिरांक Ast_गाठ* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
+        जर (स्थिरांक AstVar* स्थिरांक portp = VN_CAST(stmtp, Var)) {
+            जर (portp->isIO() && !portp->isFuncReturn()) {
+                जर (!args.empty()) args += ", ";
+                जर (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) {
+                    args += portp->dpiArgType(सत्य, असत्य, cpp);
+                } अन्यथा जर (nodep->funcPublic()) {
+                    args += portp->cPubArgType(सत्य, असत्य);
+                } अन्यथा {
+                    args += portp->vlArgType(सत्य, असत्य, सत्य);
                 }
             }
         }
     }
-    return args;
+    परत args;
 }
 
-void EmitCBaseVisitorConst::emitCDefaultConstructor(const AstNodeModule* const modp) {
-    puts(EmitCUtil::prefixNameProtect(modp));
-    puts("() = default;\n");
+शून्य EmitCBaseVisitorConst::emitCDefaultConstructor(स्थिरांक Ast_गाठ_Module* स्थिरांक modp) {
+    माला_दो(EmitCUtil::prefixNameProtect(modp));
+    माला_दो("() = default;\n");
 }
 
-void EmitCBaseVisitorConst::emitCFuncHeader(const AstCFunc* funcp, const AstNodeModule* modp,
-                                            bool withScope) {
-    if (funcp->slow()) putns(funcp, "VL_ATTR_COLD ");
-    if (funcp->dpiCDeclOverride()) {
+शून्य EmitCBaseVisitorConst::emitCFuncHeader(स्थिरांक AstCFunc* funcp, स्थिरांक Ast_गाठ_Module* modp,
+                                            तार्किक withScope) {
+    जर (funcp->slow()) putns(funcp, "VL_ATTR_COLD ");
+    जर (funcp->dpiCDeclOverride()) {
         putns(funcp, funcp->dpiCDecl() + ";\n");
-        return;
+        परत;
     }
-    if (!funcp->isDestructor()) {
+    जर (!funcp->isDestructor()) {
         putns(funcp, funcp->rtnTypeVoid());
-        puts(" ");
+        माला_दो(" ");
     }
-    if (withScope) {
-        if (funcp->dpiExportDispatcher()) {
-            putns(funcp, EmitCUtil::topClassName() + "::");
-        } else if (funcp->isProperMethod()) {
+    जर (withScope) {
+        जर (funcp->dpiExportDispatcher()) {
+            putns(funcp, EmitCUtil::शीर्ष_Class_Name() + "::");
+        } अन्यथा जर (funcp->isProperMethod()) {
             putns(funcp, EmitCUtil::prefixNameProtect(modp) + "::");
         }
     }
     putns(funcp, funcNameProtect(funcp, modp));
-    puts("(" + cFuncArgs(funcp) + ")");
-    if (funcp->isConst().trueKnown() && funcp->isProperMethod()) puts(" const");
+    माला_दो("(" + cFuncArgs(funcp) + ")");
+    जर (funcp->isConst().trueKnown() && funcp->isProperMethod()) माला_दो(" const");
 }
 
-void EmitCBaseVisitorConst::emitCFuncDecl(const AstCFunc* funcp, const AstNodeModule* modp,
-                                          bool cLinkage) {
-    ensureNewLine();
-    if (!funcp->ifdef().empty()) putns(funcp, "#ifdef " + funcp->ifdef() + "\n");
-    if (funcp->isConstructor()) emitCDefaultConstructor(modp);
-    if (cLinkage) putns(funcp, "extern \"C\" ");
-    if (funcp->isStatic() && funcp->isProperMethod()) putns(funcp, "static ");
-    if (funcp->isVirtual()) {
+शून्य EmitCBaseVisitorConst::emitCFuncDecl(स्थिरांक AstCFunc* funcp, स्थिरांक Ast_गाठ_Module* modp,
+                                          तार्किक cLinkage) {
+    ensure_New_ओळ();
+    जर (!funcp->ifdef().empty()) putns(funcp, "#ifdef " + funcp->ifdef() + "\n");
+    जर (funcp->isConstructor()) emitCDefaultConstructor(modp);
+    जर (cLinkage) putns(funcp, "extern \"C\" ");
+    जर (funcp->isStatic() && funcp->isProperMethod()) putns(funcp, "static ");
+    जर (funcp->isVirtual()) {
         UASSERT_OBJ(funcp->isProperMethod(), funcp, "Virtual function is not a proper method");
         putns(funcp, "virtual ");
         // Intentionally no emit for "override" instead, as clang will then enable warning
         // on other methods where virtual vs override is needed, and this is not tracked yet
     }
-    emitCFuncHeader(funcp, modp, /* withScope: */ false);
-    const AstClass* const classp = VN_CAST(modp, Class);
-    if (funcp->emptyBody() && !funcp->isLoose() && !cLinkage
+    emitCFuncHeader(funcp, modp, /* withScope: */ असत्य);
+    स्थिरांक AstClass* स्थिरांक classp = VN_CAST(modp, Class);
+    जर (funcp->emptyBody() && !funcp->isLoose() && !cLinkage
         && !(funcp->isConstructor() && classp && classp->isInterfaceClass())) {
         putns(funcp, " {}\n");
-    } else {
+    } अन्यथा {
         putns(funcp, ";\n");
     }
-    if (!funcp->ifdef().empty()) putns(funcp, "#endif  // " + funcp->ifdef() + "\n");
+    जर (!funcp->ifdef().empty()) putns(funcp, "#endif  // " + funcp->ifdef() + "\n");
 }
 
-std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const std::string& prefix,
-                                                      const std::string& params,
-                                                      const std::string& args,  //
-                                                      size_t maxCost, bool support,
-                                                      const char* descriptionp,
-                                                      const std::function<void()>& emitHeader) {
-    const auto subFuncName = [&](size_t n) { return prefix + "__" + std::to_string(n); };
-    size_t nSubFunctions = 0;
+std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, स्थिरांक std::string& prefix,
+                                                      स्थिरांक std::string& params,
+                                                      स्थिरांक std::string& args,  //
+                                                      माप_प्रकार maxCost, तार्किक support,
+                                                      स्थिरांक अक्षर* descriptionp,
+                                                      स्थिरांक std::function<शून्य()>& emitHeader) {
+    स्थिरांक स्वतः subFuncName = [&](माप_प्रकार n) { परत prefix + "__" + std::to_string(n); };
+    माप_प्रकार nSubFunctions = 0;
     std::string funcName;  // Name of last sub-function, which is the root at the end
     // After the first level, statement 'j' is a call to sub-function 'calleeBase + j'
-    bool callsSubFuncs = false;
-    size_t calleeBase = 0;
+    तार्किक callsSubFuncs = असत्य;
+    माप_प्रकार calleeBase = 0;
     // Reduce into a balanced tree of sub-function calls until we end up with a single statement
-    while (stmts.size() > 1) {
-        const size_t levelBase = nSubFunctions;
+    पर्यंत (stmts.size() > 1) {
+        स्थिरांक माप_प्रकार levelBase = nSubFunctions;
         TextStmts calls;  // Calls to the sub-functions of this level
-        const size_t nStmts = stmts.size();
-        for (size_t splitStart = 0, splitEnd = 0; splitStart < nStmts; splitStart = splitEnd) {
+        स्थिरांक माप_प्रकार nStmts = stmts.size();
+        साठी (माप_प्रकार splitStart = 0, splitEnd = 0; splitStart < nStmts; splitStart = splitEnd) {
             // Gather up at at most 'maxCost' worth of statements in this split,
             // but always at least 2 (if less than 2, the reduction makes no
             // progress and the loop will not terminate).
-            size_t cost = 0;
-            while (((cost < maxCost) || (splitEnd - splitStart < 2)) && splitEnd < nStmts) {
+            माप_प्रकार cost = 0;
+            पर्यंत (((cost < maxCost) || (splitEnd - splitStart < 2)) && splitEnd < nStmts) {
                 cost += stmts[splitEnd++].m_cost;
             }
             UASSERT(splitStart < splitEnd, "Empty split");
@@ -215,27 +215,27 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
             funcName = subFuncName(nSubFunctions++);
 
             // Open split file
-            openNewOutputSourceFile(funcName, true, support, descriptionp);
+            openNewOutputSourceFile(funcName, सत्य, support, descriptionp);
             // Emit header
             emitHeader();
             // Declare called sub-functions
-            if (callsSubFuncs) {
-                puts("\n");
-                for (size_t j = splitStart; j < splitEnd; ++j) {
-                    puts("void " + subFuncName(calleeBase + j) + "(" + params + ");\n");
+            जर (callsSubFuncs) {
+                माला_दो("\n");
+                साठी (माप_प्रकार j = splitStart; j < splitEnd; ++j) {
+                    माला_दो("void " + subFuncName(calleeBase + j) + "(" + params + ");\n");
                 }
-                puts("\n");
+                माला_दो("\n");
             }
             // Open sub-function definition in the split file
-            puts("void " + funcName + "(" + params + ") {\n");
+            माला_दो("void " + funcName + "(" + params + ") {\n");
             // Emit statements
-            for (size_t j = splitStart; j < splitEnd; ++j) {
+            साठी (माप_प्रकार j = splitStart; j < splitEnd; ++j) {
                 ofp()->putsNoTracking("    ");
                 ofp()->putsNoTracking(stmts[j].m_text);
                 ofp()->putsNoTracking("\n");
             }
             // Close sub-function
-            puts("}\n");
+            माला_दो("}\n");
             // Close split file
             closeOutputFile();
 
@@ -243,175 +243,175 @@ std::string EmitCBaseVisitorConst::emitSplitTextStmts(TextStmts& stmts, const st
             calls.add(funcName + "(" + args + ");");
         }
         stmts = std::move(calls);
-        callsSubFuncs = true;
+        callsSubFuncs = सत्य;
         calleeBase = levelBase;
     }
-    return funcName.empty() ? "" : "void " + funcName + "(" + params + ");\n";
+    परत funcName.empty() ? "" : "void " + funcName + "(" + params + ");\n";
 }
 
 std::pair<std::string, std::string> EmitCBaseVisitorConst::emitSplitCtorDtor(
-    TextStmts& ctorStmts, TextStmts& dtorStmts, size_t baseCost, const std::string& prefix,
-    const std::string& params, const std::string& args, bool support, const char* descriptionp,
-    const std::function<void()>& emitHeader) {
-    const size_t maxCost = static_cast<size_t>(v3Global.opt.outputSplitCFuncs());
-    if (!maxCost) return {};
-    size_t totalCost = baseCost;
-    for (const TextStmts::Stmt& stmt : ctorStmts) totalCost += stmt.m_cost;
-    for (const TextStmts::Stmt& stmt : dtorStmts) totalCost += stmt.m_cost;
-    if (totalCost <= maxCost) return {};
-    v3Global.useParallelBuild(true);  // Splitting files, so using parallel build.
+    TextStmts& ctorStmts, TextStmts& dtorStmts, माप_प्रकार baseCost, स्थिरांक std::string& prefix,
+    स्थिरांक std::string& params, स्थिरांक std::string& args, तार्किक support, स्थिरांक अक्षर* descriptionp,
+    स्थिरांक std::function<शून्य()>& emitHeader) {
+    स्थिरांक माप_प्रकार maxCost = static_cast<माप_प्रकार>(v3Global.opt.outputSplitCFuncs());
+    जर (!maxCost) परत {};
+    माप_प्रकार totalCost = baseCost;
+    साठी (स्थिरांक TextStmts::Stmt& stmt : ctorStmts) totalCost += stmt.m_cost;
+    साठी (स्थिरांक TextStmts::Stmt& stmt : dtorStmts) totalCost += stmt.m_cost;
+    जर (totalCost <= maxCost) परत {};
+    v3Global.useParallelBuild(सत्य);  // Splitting files, so using parallel build.
     std::string ctorDecl = emitSplitTextStmts(ctorStmts, prefix + "__ctor", params, args, maxCost,
                                               support, descriptionp, emitHeader);
     std::string dtorDecl = emitSplitTextStmts(dtorStmts, prefix + "__dtor", params, args, maxCost,
                                               support, descriptionp, emitHeader);
-    return {std::move(ctorDecl), std::move(dtorDecl)};
+    परत {std::move(ctorDecl), std::move(dtorDecl)};
 }
 
-void EmitCBaseVisitorConst::emitVarDecl(const AstVar* nodep, bool asRef) {
-    const AstBasicDType* const basicp = nodep->basicp();
-    const bool refNeedParens = VN_IS(nodep->dtypeSkipRefp(), UnpackArrayDType);
-    if (nodep->mtaskCacheLineAlign() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
-    if (nodep->covergroupRefMember()) {
+शून्य EmitCBaseVisitorConst::emitVarDecl(स्थिरांक AstVar* nodep, तार्किक asRef) {
+    स्थिरांक AstBasicDType* स्थिरांक basicp = nodep->basicp();
+    स्थिरांक तार्किक refNeedParens = VN_IS(nodep->dtypeSkipRefp(), UnpackArrayDType);
+    जर (nodep->mtask_Cache_ओळ_Align() && !asRef) putns(nodep, "alignas(VL_CACHE_LINE_BYTES) ");
+    जर (nodep->covergroupRefMember()) {
         UASSERT_OBJ(!asRef, nodep, "Covergroup reference member emitted as C++ reference");
-        putns(nodep, nodep->dtypep()->cType("", false, false));
-        puts(" const* " + nodep->nameProtect() + " = nullptr;\n");
-        return;
+        putns(nodep, nodep->dtypep()->cType("", असत्य, असत्य));
+        माला_दो(" const* " + nodep->nameProtect() + " = nullptr;\n");
+        परत;
     }
 
-    const auto emitDeclArrayBrackets = [this](const AstVar* nodep) -> void {
+    स्थिरांक स्वतः emitDeclArrayBrackets = [हे](स्थिरांक AstVar* nodep) -> शून्य {
         // This isn't very robust and may need cleanup for other data types
-        for (const AstUnpackArrayDType* arrayp = VN_CAST(nodep->dtypeSkipRefp(), UnpackArrayDType);
+        साठी (स्थिरांक AstUnpackArrayDType* arrayp = VN_CAST(nodep->dtypeSkipRefp(), UnpackArrayDType);
              arrayp; arrayp = VN_CAST(arrayp->subDTypep()->skipRefp(), UnpackArrayDType)) {
             putns(arrayp, "[" + cvtToStr(arrayp->elementsConst()) + "]");
         }
     };
 
-    if (nodep->isPrimaryIO() && nodep->isSc()) {
+    जर (nodep->isPrimaryIO() && nodep->isSc()) {
         UASSERT_OBJ(basicp, nodep, "Unimplemented: Outputting this data type");
-        if (nodep->isInout()) {
+        जर (nodep->isInout()) {
             putns(nodep, "sc_core::sc_inout<");
-        } else if (nodep->isWritable()) {
+        } अन्यथा जर (nodep->isWritable()) {
             putns(nodep, "sc_core::sc_out<");
-        } else if (nodep->isNonOutput()) {
+        } अन्यथा जर (nodep->isNonOutput()) {
             putns(nodep, "sc_core::sc_in<");
-        } else {
+        } अन्यथा {
             nodep->v3fatalSrc("Unknown type");
         }
-        puts(nodep->scType());
-        puts("> ");
-        if (asRef) {
-            if (refNeedParens) putns(nodep, "(");
+        माला_दो(nodep->scType());
+        माला_दो("> ");
+        जर (asRef) {
+            जर (refNeedParens) putns(nodep, "(");
             putns(nodep, "&");
         }
         putns(nodep, nodep->nameProtect());
-        if (asRef && refNeedParens) puts(")");
+        जर (asRef && refNeedParens) माला_दो(")");
         emitDeclArrayBrackets(nodep);
-        puts(";\n");
-    } else if (nodep->isVLIO()) {
-        if (nodep->isInout()) {
+        माला_दो(";\n");
+    } अन्यथा जर (nodep->isVLIO()) {
+        जर (nodep->isInout()) {
             putns(nodep, "VL_INOUT");
-        } else if (nodep->isWritable()) {
+        } अन्यथा जर (nodep->isWritable()) {
             putns(nodep, "VL_OUT");
-        } else if (nodep->isNonOutput()) {
+        } अन्यथा जर (nodep->isNonOutput()) {
             putns(nodep, "VL_IN");
-        } else {
+        } अन्यथा {
             nodep->v3fatalSrc("Unknown type");
         }
 
-        if (nodep->isQuad()) {
-            puts("64");
-        } else if (nodep->widthMin() <= 8) {
-            puts("8");
-        } else if (nodep->widthMin() <= 16) {
-            puts("16");
-        } else if (nodep->isWide()) {
-            puts("W");
+        जर (nodep->isQuad()) {
+            माला_दो("64");
+        } अन्यथा जर (nodep->widthMin() <= 8) {
+            माला_दो("8");
+        } अन्यथा जर (nodep->widthMin() <= 16) {
+            माला_दो("16");
+        } अन्यथा जर (nodep->isWide()) {
+            माला_दो("W");
         }
 
-        puts("(");
-        if (asRef) {
-            if (refNeedParens) puts("(");
-            puts("&");
+        माला_दो("(");
+        जर (asRef) {
+            जर (refNeedParens) माला_दो("(");
+            माला_दो("&");
         }
-        puts(nodep->nameProtect());
-        if (asRef && refNeedParens) puts(")");
+        माला_दो(nodep->nameProtect());
+        जर (asRef && refNeedParens) माला_दो(")");
         emitDeclArrayBrackets(nodep);
         // If it's a packed struct/array then nodep->width is the whole
         // thing, msb/lsb is just lowest dimension
-        puts("," + cvtToStr(basicp->lo() + nodep->width() - 1) + "," + cvtToStr(basicp->lo()));
-        if (nodep->isWide()) puts("," + cvtToStr(nodep->widthWords()));
-        puts(");\n");
-    } else {
+        माला_दो("," + cvtToStr(basicp->lo() + nodep->width() - 1) + "," + cvtToStr(basicp->lo()));
+        जर (nodep->isWide()) माला_दो("," + cvtToStr(nodep->width_शब्द()));
+        माला_दो(");\n");
+    } अन्यथा {
         // Strings and other fundamental C types
-        if (nodep->isFuncLocal() && nodep->dtypep()->containsString()) {
-            const string name = nodep->name();
-            const string suffix = V3Task::dpiTemporaryVarSuffix();
+        जर (nodep->isFuncLocal() && nodep->dtypep()->containsString()) {
+            स्थिरांक string name = nodep->name();
+            स्थिरांक string suffix = V3Task::dpiTemporaryVarSuffix();
             // Temporary variable for DPI-C containing strings needs to be static because c_str()
             // will be passed to C code and the lifetime of the variable must be long enough. See
             // also Issue 2622.
-            const bool beStatic = name.size() >= suffix.size()
+            स्थिरांक तार्किक beStatic = name.size() >= suffix.size()
                                   && name.substr(name.size() - suffix.size()) == suffix;
-            if (beStatic) puts("static thread_local ");
+            जर (beStatic) माला_दो("static thread_local ");
         }
-        putns(nodep, nodep->vlArgType(true, false, false, asRef));
-        puts(";\n");
+        putns(nodep, nodep->vlArgType(सत्य, असत्य, असत्य, asRef));
+        माला_दो(";\n");
     }
 }
 
-void EmitCBaseVisitorConst::emitVarAccessors(const AstVar* nodep) {
-    assert(nodep->name().rfind("__Vm_sig_") == 0 && nodep->isIO());
-    const string privateName = nodep->name();
-    const string publicName = nodep->name().substr(strlen("__Vm_sig_"));
+शून्य EmitCBaseVisitorConst::emitVarAccessors(स्थिरांक AstVar* nodep) {
+    प्रतिज्ञा(nodep->name().rfind("__Vm_sig_") == 0 && nodep->isIO());
+    स्थिरांक string privateName = nodep->name();
+    स्थिरांक string publicName = nodep->name().substr(म_माप("__Vm_sig_"));
 
-    puts("decltype("s + privateName + ") "s + publicName + "() {return "s + privateName + ";}\n");
-    puts("void "s + publicName + "(decltype(" + privateName + ") v) {"s + privateName + "=v;}\n");
+    माला_दो("decltype("s + privateName + ") "s + publicName + "() {return "s + privateName + ";}\n");
+    माला_दो("void "s + publicName + "(decltype(" + privateName + ") v) {"s + privateName + "=v;}\n");
 }
 
-void EmitCBaseVisitorConst::emitModCUse(const AstNodeModule* modp, VUseType useType) {
-    bool nl = false;
-    forModCUse(modp, useType, [&](const string& entry) {
-        puts(entry);
-        nl = true;
+शून्य EmitCBaseVisitorConst::emitModCUse(स्थिरांक Ast_गाठ_Module* modp, VUseType useType) {
+    तार्किक nl = असत्य;
+    forModCUse(modp, useType, [&](स्थिरांक string& entry) {
+        माला_दो(entry);
+        nl = सत्य;
     });
-    if (nl) puts("\n");
+    जर (nl) माला_दो("\n");
 }
 
-std::pair<string, FileLine*> EmitCBaseVisitorConst::scSection(const AstNodeModule* modp,
+std::pair<string, File_ओळ*> EmitCBaseVisitorConst::scSection(स्थिरांक Ast_गाठ_Module* modp,
                                                               VSystemCSectionType type) {
     string text;
-    FileLine* fl = nullptr;
-    int last_line = -999;
-    for (const AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
+    File_ओळ* fl = nullptr;
+    पूर्णांक last_ओळ = -999;
+    साठी (स्थिरांक AstSystemCSection* scSectionp = modp->scSectionsp(); scSectionp;
          scSectionp = VN_AS(scSectionp->nextp(), SystemCSection)) {
-        if (scSectionp->sectionType() != type) continue;
-        if (text.empty()) {
+        जर (scSectionp->sectionType() != type) सुरूठेवा;
+        जर (text.empty()) {
             fl = scSectionp->fileline();
             text += "\n";
-            if (v3Global.opt.decoration()) {
+            जर (v3Global.opt.decoration()) {
                 text += "\n//*** Below code from `systemc in Verilog file\n";
             }
         }
-        if (last_line + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
+        जर (last_ओळ + 1 != scSectionp->fileline()->lineno() && v3Global.opt.decoration()) {
             text += "// From `systemc at " + scSectionp->fileline()->ascii() + "\n";
         }
-        last_line = scSectionp->fileline()->lineno();
+        last_ओळ = scSectionp->fileline()->lineno();
         text += scSectionp->text();
     }
-    if (!text.empty()) {
-        if (v3Global.opt.decoration()) text += "//*** Above code from `systemc in Verilog file\n";
+    जर (!text.empty()) {
+        जर (v3Global.opt.decoration()) text += "//*** Above code from `systemc in Verilog file\n";
         text += "\n";
         // Substitute `systemc_class_name
         string::size_type pos;
-        while ((pos = text.find("`systemc_class_name")) != string::npos) {
-            text.replace(pos, std::strlen("`systemc_class_name"),
+        पर्यंत ((pos = text.find("`systemc_class_name")) != string::npos) {
+            text.replace(pos, std::म_माप("`systemc_class_name"),
                          EmitCUtil::prefixNameProtect(modp));
         }
     }
-    return std::make_pair(text, fl);
+    परत std::make_pair(text, fl);
 }
 
-void EmitCBaseVisitorConst::emitSystemCSection(const AstNodeModule* modp,
+शून्य EmitCBaseVisitorConst::emitSystemCSection(स्थिरांक Ast_गाठ_Module* modp,
                                                VSystemCSectionType type) {
-    auto textAndFileline = scSection(modp, type);
-    if (!textAndFileline.first.empty()) ofp()->putsNoTracking(textAndFileline.first);
+    स्वतः textAndFileline = scSection(modp, type);
+    जर (!textAndFileline.first.empty()) ofp()->putsNoTracking(textAndFileline.first);
 }

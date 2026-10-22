@@ -21,11 +21,11 @@
 #ifndef VERILATOR_VPRELEX_H_  // Guard
 #define VERILATOR_VPRELEX_H_
 
-#include "V3Error.h"
-#include "V3FileLine.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3FileLine.h"
 
-#include <deque>
-#include <stack>
+#अन्तर्भाव <deque>
+#अन्तर्भाव <stack>
 
 //======================================================================
 
@@ -46,10 +46,10 @@ class V3PreProcImp;
 #define VP_DEFINE       261
 #define VP_ELSE         262
 #define VP_ELSIF        263
-#define VP_LINE         264
+#define VP_ओळ         264
 #define VP_UNDEFINEALL  265
 
-#define VP_SYMBOL       300
+#define VP_चिन्ह       300
 #define VP_STRING       301
 #define VP_DEFVALUE     302
 #define VP_COMMENT      303
@@ -61,7 +61,7 @@ class V3PreProcImp;
 #define VP_DEFFORM      309
 #define VP_STRIFY       310
 #define VP_BACKQUOTE    311
-#define VP_SYMBOL_JOIN  312
+#define VP_चिन्ह_JOIN  312
 #define VP_DEFREF_JOIN  313
 #define VP_JOIN         314
 
@@ -101,24 +101,24 @@ class V3PreProcImp;
 #endif
 
 #ifndef YY_BUFFER_STATE
-struct yy_buffer_state;
-typedef struct yy_buffer_state* YY_BUFFER_STATE;
+संरचना yy_buffer_state;
+प्रकारव्याख्या संरचना yy_buffer_state* YY_BUFFER_STATE;
 # define YY_BUF_SIZE 16384
 #endif
 // clang-format on
 
-extern int yylex();
-extern void yyrestart(FILE*);
+बाह्य पूर्णांक yylex();
+बाह्य शून्य yyrestart(खाता*);
 
 // Accessors, because flex keeps changing the type of yyleng
-extern char* yyourtext();
-extern size_t yyourleng();
-extern void yyourtext(const char* textp, size_t size);  // Must call with static
+बाह्य अक्षर* yyourtext();
+बाह्य माप_प्रकार yyourleng();
+बाह्य शून्य yyourtext(स्थिरांक अक्षर* textp, माप_प्रकार size);  // Must call with static
 
-YY_BUFFER_STATE yy_create_buffer(FILE* file, int size);
-void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
-void yy_delete_buffer(YY_BUFFER_STATE b);
-int yylex_destroy();
+YY_BUFFER_STATE yy_create_buffer(खाता* file, पूर्णांक size);
+शून्य yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
+शून्य yy_delete_buffer(YY_BUFFER_STATE b);
+पूर्णांक yylex_destroy();
 
 //======================================================================
 
@@ -129,123 +129,123 @@ int yylex_destroy();
 // Entry for each file processed; a stack of entries included
 
 class VPreStream final {
-public:
-    FileLine* m_curFilelinep;  // Current processing point (see also m_tokFilelinep)
-    V3PreLex* const m_lexp;  // Lexer, for resource tracking
+सार्वजनिक:
+    File_ओळ* m_curFilelinep;  // Current processing point (see also m_tokFilelinep)
+    V3PreLex* स्थिरांक m_lexp;  // Lexer, for resource tracking
     std::deque<string> m_buffers;  // Buffer of characters to process
-    int m_ignNewlines = 0;  // Ignore multiline newlines
-    int m_termState = 0;  // Termination fsm
+    पूर्णांक m_ignNewlines = 0;  // Ignore multiline newlines
+    पूर्णांक m_termState = 0;  // Termination fsm
     bool m_eof = false;  // "EOF" buffer
     bool m_file = false;  // Buffer is start of new file
-    VPreStream(FileLine* fl, V3PreLex* lexp)
+    VPreStream(File_ओळ* fl, V3PreLex* lexp)
         : m_curFilelinep{fl}
         , m_lexp{lexp} {
         lexStreamDepthAdd(1);
     }
     ~VPreStream() { lexStreamDepthAdd(-1); }
 
-private:
-    inline void lexStreamDepthAdd(int delta);
+खाजगी:
+    ओळीत शून्य lexStreamDepthAdd(पूर्णांक delta);
 };
 
 //======================================================================
 // Enum Class for `pragma protect encoding types
-enum class Enctype : uint8_t { UUENCODE, BASE64, QUOTE_PRINTABLE, RAW, ERR };
+गणना class Enctype : uint8_t { UUENCODE, BASE64, QUOTE_PRINTABLE, RAW, ERR };
 
 //======================================================================
 // Class entry for each per-lexer state
 
 class V3PreLex final {
-public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
-    V3PreProcImp* const m_preimpp;  // Preprocessor lexor belongs to
-    std::stack<VPreStream*> m_streampStack;  // Stack of processing files
-    int m_streamDepth = 0;  // Depth of stream processing
+सार्वजनिक:  // Used only by V3PreLex.cpp and V3PreProc.cpp
+    V3PreProcImp* स्थिरांक m_preimpp;  // Preprocessor lexor belongs to
+    std::चळत<VPreStream*> m_streamp_चळत;  // Stack of processing files
+    पूर्णांक m_streamDepth = 0;  // Depth of stream processing
     YY_BUFFER_STATE m_bufferState;  // Flex state
-    FileLine* m_tokFilelinep;  // Starting position of current token
-    std::deque<FileLine> m_lexLintState;  // Current lint state for save/restore
+    File_ओळ* m_tokFilelinep;  // Starting position of current token
+    std::deque<File_ओळ> m_lexLintState;  // Current lint state for save/restore
 
     // State to lexer
-    static V3PreLex* s_currentLexp;  ///< Current lexing point
-    int m_keepComments = 0;  ///< Emit comments in output text
-    int m_keepWhitespace = 1;  ///< Emit all whitespace in output text
+    स्थिर V3PreLex* s_currentLexp;  ///< Current lexing point
+    पूर्णांक m_keepComments = 0;  ///< Emit comments in output text
+    पूर्णांक m_keepWhitespace = 1;  ///< Emit all whitespace in output text
     bool m_pedantic = false;  ///< Obey standard; don't Substitute `error
 
     // State from lexer
-    int m_formalLevel = 0;  // Parenthesis counting inside def formals
-    int m_parenLevel = 0;  // Parenthesis counting inside def args
+    पूर्णांक m_formalLevel = 0;  // Parenthesis counting inside def formals
+    पूर्णांक m_parenLevel = 0;  // Parenthesis counting inside def args
     bool m_defCmtSlash = false;  // /*...*/ comment in define had \ ending
     bool m_defQuote = false;  // Definition value inside quote
-    string m_defValue;  // Definition value being built.
-    int m_enterExit = 0;  // For VL_LINE, the enter/exit level
-    int m_protLength = 0;  // unencoded length for BASE64
-    int m_protBytes = 0;  // decoded length for BASE64
+    string m_def_मूल्य;  // Definition value being built.
+    पूर्णांक m_enterExit = 0;  // For VL_LINE, the enter/exit level
+    पूर्णांक m_protLength = 0;  // unencoded length for BASE64
+    पूर्णांक m_protBytes = 0;  // decoded length for BASE64
     Enctype m_encType{};  // encoding type for `pragma protect
 
     // CONSTRUCTORS
-    V3PreLex(V3PreProcImp* preimpp, FileLine* filelinep)
+    V3PreLex(V3PreProcImp* preimpp, File_ओळ* filelinep)
         : m_preimpp{preimpp}
         , m_tokFilelinep{filelinep} {
         initFirstBuffer(filelinep);
     }
     ~V3PreLex() {
-        while (!m_streampStack.empty()) {
-            delete m_streampStack.top();
-            m_streampStack.pop();
+        पर्यंत (!m_streamp_चळत.empty()) {
+            delete m_streamp_चळत.शीर्ष();
+            m_streamp_चळत.काढा();
         }
         VL_DO_CLEAR(yy_delete_buffer(m_bufferState), m_bufferState = nullptr);
         yylex_destroy();
     }
-    VPreStream* newStream(FileLine* fl, V3PreLex* lexp);
+    VPreStream* newStream(File_ओळ* fl, V3PreLex* lexp);
 
     // Called by V3PreLex.l from lexer
-    VPreStream* curStreamp() { return m_streampStack.top(); }  // Can't be empty, "EOF" is on top
-    FileLine* curFilelinep() { return curStreamp()->m_curFilelinep; }
-    void curFilelinep(FileLine* fl) { curStreamp()->m_curFilelinep = fl; }
-    void appendDefValue(const char* textp, size_t len) { m_defValue.append(textp, len); }
-    void lineDirective(const char* textp);
-    void linenoInc() {
-        if (curStreamp()->m_ignNewlines) {
+    VPreStream* curStreamp() { परत m_streamp_चळत.शीर्ष(); }  // Can't be empty, "EOF" is on top
+    File_ओळ* curFilelinep() { परत curStreamp()->m_curFilelinep; }
+    शून्य curFilelinep(File_ओळ* fl) { curStreamp()->m_curFilelinep = fl; }
+    शून्य append_Def_मूल्य(स्थिरांक अक्षर* textp, माप_प्रकार len) { m_def_मूल्य.append(textp, len); }
+    शून्य ओळ_Directive(स्थिरांक अक्षर* textp);
+    शून्य linenoInc() {
+        जर (curStreamp()->m_ignNewlines) {
             curStreamp()->m_ignNewlines--;
-        } else {
+        } अन्यथा {
             curFilelinep()->linenoInc();
         }
     }
-    void warnBackslashSpace();
-    void verilatorCmtLint(const char* textp, bool turnOff);
-    void verilatorCmtLintRestore();
-    void verilatorCmtLintSave();
+    शून्य warnBackslashSpace();
+    शून्य verilatorCmtLint(स्थिरांक अक्षर* textp, bool turnOff);
+    शून्य verilatorCmtLintRestore();
+    शून्य verilatorCmtLintSave();
     // Called by V3PreProc.cpp to inform lexer
-    void pushStateDefArg(int level);
-    void pushStateDefForm();
-    void pushStateDefValue();
-    void pushStateExpr();
-    void pushStateIncFilename();
-    void pushStatePassthru();
-    void scanNewFile(FileLine* filelinep);
-    void scanBytes(const string& str);
-    void scanBytesBack(const string& str);
-    size_t inputToLex(char* buf, size_t max_size);
+    शून्य ढकला_State_Def_Arg(पूर्णांक level);
+    शून्य ढकला_State_Def_Form();
+    शून्य ढकला_State_Def_मूल्य();
+    शून्य ढकला_State_अभिव्यक्ती();
+    शून्य ढकला_State_Inc_Filename();
+    शून्य ढकला_State_Passthru();
+    शून्य scanNewFile(File_ओळ* filelinep);
+    शून्य scanBytes(स्थिरांक string& str);
+    शून्य scanBytesBack(स्थिरांक string& str);
+    माप_प्रकार आदान_To_Lex(अक्षर* buf, माप_प्रकार max_size);
     /// Called by V3PreProc.cpp to get data from lexer
     YY_BUFFER_STATE currentBuffer();
-    int lex();
-    int currentStartState() const;
-    void dumpSummary();
-    void dumpStack();
-    void unused();
+    पूर्णांक lex();
+    पूर्णांक currentStartState() स्थिरांक;
+    शून्य dumpSummary();
+    शून्य dump_चळत();
+    शून्य unused();
     // Called by VPreStream
-    void streamDepthAdd(int delta) { m_streamDepth += delta; }
-    int streamDepth() const { return m_streamDepth; }
+    शून्य streamDepthAdd(पूर्णांक delta) { m_streamDepth += delta; }
+    पूर्णांक streamDepth() स्थिरांक { परत m_streamDepth; }
     // Utility
-    static void setYYDebug(bool on);
-    static string cleanDbgStrg(const string& in);
+    स्थिर शून्य setYYDebug(bool on);
+    स्थिर string cleanDbgStrg(स्थिरांक string& in);
 
-private:
+खाजगी:
     string currentUnreadChars();
     string endOfStream(bool& againr);
-    void initFirstBuffer(FileLine* filelinep);
-    void scanSwitchStream(VPreStream* streamp);
+    शून्य initFirstBuffer(File_ओळ* filelinep);
+    शून्य scanSwitchStream(VPreStream* streamp);
 };
 
-void VPreStream::lexStreamDepthAdd(int delta) { m_lexp->streamDepthAdd(delta); }
+शून्य VPreStream::lexStreamDepthAdd(पूर्णांक delta) { m_lexp->streamDepthAdd(delta); }
 
 #endif  // Guard

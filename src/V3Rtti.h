@@ -17,38 +17,38 @@
 #ifndef VERILATOR_V3RTTI_H_
 #define VERILATOR_V3RTTI_H_
 
-#include "verilatedos.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <cstdint>
-#include <type_traits>
+#अन्तर्भाव <cstdint>
+#अन्तर्भाव <type_traits>
 
 namespace V3Rtti {
 
 // Use 'V3Rtti::isInstanceOf<T>(objp)' to check if 'objp' is of subtype 'T' (downcasting)
-template <typename SubClass, typename SuperClass>
+ढाँचा <typename SubClass, typename SuperClass>
 bool isInstanceOf(SuperClass* objp) {
-    static_assert(std::is_base_of<SuperClass, SubClass>::value, "Impossible 'isInstanceOf'");
-    static_assert(!std::is_same<SuperClass, SubClass>::value, "Useless 'isInstanceOf'");
+    static_assert(std::is_base_of<SuperClass, SubClass>::मूल्य, "Impossible 'isInstanceOf'");
+    static_assert(!std::is_same<SuperClass, SubClass>::मूल्य, "Useless 'isInstanceOf'");
     static_assert(std::is_same<  //
                       typename std::remove_cv<SubClass>::type,  //
                       typename SubClass::V3RttiThisClass  //
-                      >::value,
+                      >::मूल्य,
                   "Missing VL_RTTI_IMPL(...) in 'SubClass'");
-    return objp->v3RttiIsInstanceOfImpl(SubClass::v3RttiClassId());
+    परत objp->v3RttiIsInstanceOfImpl(SubClass::v3RttiClassId());
 }
 
 namespace internal {
 
 // Returns true iff 'id' equals the 'rttiClassId()' of either 'T', or any of its base classes
-template <typename T>
-inline bool matchClassId(uintptr_t id) VL_PURE {
-    return id == T::v3RttiClassId() || matchClassId<typename T::V3RttiBaseClass>(id);
+ढाँचा <typename T>
+ओळीत bool matchClassId(uintptr_t id) VL_PURE {
+    परत id == T::v3RttiClassId() || matchClassId<typename T::V3RttiBaseClass>(id);
 }
 
 // Specialization for the root class, which have 'void' for 'V3RttiBaseClass'
-template <>
-inline bool matchClassId<void>(uintptr_t) VL_PURE {
-    return false;
+ढाँचा <>
+ओळीत bool matchClassId<शून्य>(uintptr_t) VL_PURE {
+    परत false;
 }
 
 }  // namespace internal
@@ -59,41 +59,41 @@ inline bool matchClassId<void>(uintptr_t) VL_PURE {
 #define V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, OVERRIDE) \
     using V3RttiThisClass = ThisClass; \
     /* A type used only for implementation of the static_assert below. */ \
-    struct RttiUniqueTypeForThisClass {}; \
+    संरचना RttiUniqueTypeForThisClass {}; \
     static_assert( \
-        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::value, \
+        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::मूल्य, \
         "'ThisClass' argument (" #ThisClass ") does not match the class name"); \
     /* The implementation can pick up the private members */ \
-    template <typename T> \
-    friend bool V3Rtti::internal::matchClassId(uintptr_t id); \
-    template <typename T, typename U> \
-    friend bool V3Rtti::isInstanceOf(U*); \
+    ढाँचा <typename T> \
+    मित्र bool V3Rtti::internal::matchClassId(uintptr_t id); \
+    ढाँचा <typename T, typename U> \
+    मित्र bool V3Rtti::isInstanceOf(U*); \
     /* Returns unique type ID of the class. */ \
-    static uintptr_t v3RttiClassId() VL_PURE { \
-        /* Don't complain this function is unused */ (void)&v3RttiClassId; \
+    स्थिर uintptr_t v3RttiClassId() VL_PURE { \
+        /* Don't complain this function is unused */ (शून्य)&v3RttiClassId; \
         /* The address of this static variable is used as the unique class type ID. */ \
-        static char s_vlrttiClassId; \
-        return reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
+        स्थिर अक्षर s_vlrttiClassId; \
+        परत reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
     } \
     /* Dispatch to matchClassId with the correct sub type (this type) */ \
-    virtual bool v3RttiIsInstanceOfImpl(uintptr_t id) const OVERRIDE VL_PURE { \
-        return ::V3Rtti::internal::matchClassId<ThisClass>(id); \
+    आभासी bool v3RttiIsInstanceOfImpl(uintptr_t id) स्थिरांक OVERRIDE VL_PURE { \
+        परत ::V3Rtti::internal::matchClassId<ThisClass>(id); \
     }
 
 // Call this macro at the beginning of class definition if the class derives
 // from a class with VL_RTTI_IMPL or VL_RTTI_IMPL_BASE calls.
 #define VL_RTTI_IMPL(ThisClass, DirectBaseClass) \
-private: \
+खाजगी: \
     using V3RttiBaseClass = DirectBaseClass; \
     V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, override) \
-private:
+खाजगी:
 
 // Call this macro at the beginning of a base class to implement class type
 // usable with V3Rtti::InstanceOf
 #define VL_RTTI_IMPL_BASE(ThisClass) \
-private: \
-    using V3RttiBaseClass = void; \
+खाजगी: \
+    using V3RttiBaseClass = शून्य; \
     V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, /* base */) \
-private:
+खाजगी:
 
 #endif  // Guard

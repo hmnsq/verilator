@@ -23,81 +23,81 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"
+#अन्तर्भाव "V3PchAstNoMT.h"
 
-#include "V3FsmDetect.h"
+#अन्तर्भाव "V3FsmDetect.h"
 
-#include "V3Ast.h"
-#include "V3Control.h"
-#include "V3Graph.h"
-#include "V3SharedTmps.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Control.h"
+#अन्तर्भाव "V3Graph.h"
+#अन्तर्भाव "V3SharedTmps.h"
 
-#include <algorithm>
-#include <cctype>
-#include <map>
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <cctype>
+#अन्तर्भाव <map>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+नामाकाश {
 
 // Width-preserving FSM state identity. FSM detection needs a stable key for
 // graph vertices and lookup tables, but lowering still needs the original
 // folded Verilog value so emitted comparisons keep the correct width and bits.
-class FsmStateValue final {
+वर्ग Fsm_State_मूल्य final {
     // Hash/equality key only. It deliberately ignores signedness because
     // signed and unsigned constants with the same width and bits denote the
     // same encoded FSM state.
-    string m_key;  // Canonical "width:value" identity, independent of signedness
+    string m_किल्ली;  // Canonical "width:value" identity, independent of signedness
 
     // Semantic value. This is what diagnostics and lowering use when printing
     // values or rebuilding AstConst nodes for instrumentation.
-    V3Number m_num;  // Original folded value, preserving width for lowered comparisons
+    V3_संख्या m_अंक;  // Original folded value, preserving width for lowered comparisons
 
-    static string makeKey(const V3Number& num) {
-        V3Number keyNum = num;
+    स्थिर string make_किल्ली(स्थिरांक V3_संख्या& अंक) {
+        V3_संख्या किल्ली_अंक = अंक;
         // Signedness does not change FSM state identity: same width and bits
         // should address the same graph vertex.
-        keyNum.isSigned(false);
-        return cvtToStr(keyNum.width()) + ":" + keyNum.ascii(true, true);
+        किल्ली_अंक.isSigned(असत्य);
+        परत cvtToStr(किल्ली_अंक.width()) + ":" + किल्ली_अंक.ascii(सत्य, सत्य);
     }
 
-public:
+सार्वजनिक:
     // Default value is used only for synthetic pseudo-states such as ANY and
     // default, which never use m_num as a real Verilog state encoding.
-    FsmStateValue()
-        : m_key{"1:1'h0"}
-        , m_num{static_cast<AstNode*>(nullptr), 1, 0} {}
-    explicit FsmStateValue(const V3Number& num)
-        : m_key{makeKey(num)}
-        , m_num{num} {}
+    Fsm_State_मूल्य()
+        : m_किल्ली{"1:1'h0"}
+        , m_अंक{static_cast<Ast_गाठ*>(nullptr), 1, 0} {}
+    explicit Fsm_State_मूल्य(स्थिरांक V3_संख्या& अंक)
+        : m_किल्ली{make_किल्ली(अंक)}
+        , m_अंक{अंक} {}
 
-    const string& key() const { return m_key; }
-    const V3Number& num() const { return m_num; }
-    string ascii() const { return m_num.ascii(true, true); }
-    string warnText() const {
+    स्थिरांक string& किल्ली() स्थिरांक { परत m_किल्ली; }
+    स्थिरांक V3_संख्या& अंक() स्थिरांक { परत m_अंक; }
+    string ascii() स्थिरांक { परत m_अंक.ascii(सत्य, सत्य); }
+    string warnText() स्थिरांक {
         // Preserve legacy diagnostics for old <=32-bit FSMs, but print wide
         // values without truncation.
-        if (m_num.width() <= 32) return cvtToStr(m_num.toUInt());
-        return ascii();
+        जर (m_अंक.width() <= 32) परत cvtToStr(m_अंक.toUInt());
+        परत ascii();
     }
 
-    bool operator==(const FsmStateValue& rhs) const { return m_key == rhs.m_key; }
+    तार्किक चालक==(स्थिरांक Fsm_State_मूल्य& rhs) स्थिरांक { परत m_किल्ली == rhs.m_किल्ली; }
 };
 
 // unordered_map needs an explicit hash for this custom key type. Keep the
 // hash definition paired with operator== by hashing the same canonical key.
-struct FsmStateValueHash final {
-    size_t operator()(const FsmStateValue& value) const {
-        return std::hash<string>{}(value.key());
+संरचना Fsm_State_मूल्य_Hash final {
+    माप_प्रकार चालक()(स्थिरांक Fsm_State_मूल्य& मूल्य) स्थिरांक {
+        परत std::hash<string>{}(मूल्य.किल्ली());
     }
 };
 
 // Captures one sensitivity-list entry so the lowering phase can later rebuild
 // an active block with the same triggering event control.
-struct FsmSenDesc final {
+संरचना FsmSenDesc final {
     // Encoded edge kind copied from AstSenItem::edgeType() so lowering can
     // rebuild the same trigger semantics on the synthesized coverage block.
     VEdgeType::en edgeType = static_cast<VEdgeType::en>(0);
@@ -107,77 +107,77 @@ struct FsmSenDesc final {
 
 // Captures the simple reset predicate shape that survives to this pass after
 // earlier normalization so reset arcs can be reconstructed during lowering.
-struct FsmResetCondDesc final {
+संरचना FsmResetCondDesc final {
     // Reset signal used by the FSM in the saved scoped AST.
     AstVarScope* varScopep = nullptr;
-    bool activeLow = false;
+    तार्किक active_खालचा = असत्य;
 };
 
-class FsmResetArcDesc final {
-    FsmStateValue m_toValue;  // Encoded reset target state.
-    AstNode* m_nodep = nullptr;  // Source node for warnings and emitted metadata.
-    AstNodeExpr* m_valuep = nullptr;  // Expression that provided the reset value.
+वर्ग FsmResetArcDesc final {
+    Fsm_State_मूल्य m_to_मूल्य;  // Encoded reset target state.
+    Ast_गाठ* m_nodep = nullptr;  // Source node for warnings and emitted metadata.
+    Ast_गाठ_अभिव्यक्ती* m_valuep = nullptr;  // Expression that provided the reset value.
 
-public:
-    FsmResetArcDesc() = default;
-    FsmResetArcDesc(FsmStateValue toValue, AstNodeAssign* nodep)
-        : m_toValue{toValue}
+सार्वजनिक:
+    FsmResetArcDesc() = पूर्वनिर्धारित;
+    FsmResetArcDesc(Fsm_State_मूल्य to_मूल्य, Ast_गाठ_Assign* nodep)
+        : m_to_मूल्य{to_मूल्य}
         , m_nodep{nodep}
         , m_valuep{nodep->rhsp()} {}
-    FsmResetArcDesc(FsmStateValue toValue, AstNode* nodep, AstNodeExpr* valuep)
-        : m_toValue{toValue}
+    FsmResetArcDesc(Fsm_State_मूल्य to_मूल्य, Ast_गाठ* nodep, Ast_गाठ_अभिव्यक्ती* valuep)
+        : m_to_मूल्य{to_मूल्य}
         , m_nodep{nodep}
         , m_valuep{valuep} {}
 
-    FsmStateValue toValue() const { return m_toValue; }
-    AstNode* nodep() const { return m_nodep; }
-    AstNodeExpr* valuep() const { return m_valuep; }
+    Fsm_State_मूल्य to_मूल्य() स्थिरांक { परत m_to_मूल्य; }
+    Ast_गाठ* nodep() स्थिरांक { परत m_nodep; }
+    Ast_गाठ_अभिव्यक्ती* valuep() स्थिरांक { परत m_valuep; }
 };
 
-struct FsmWrapperRoles final {
+संरचना FsmWrapperRoles final {
     string dPort;
     string qPort;
     string clkPort;
     string rstPort;
     string rstValParam;
-    bool hasRstActiveLow = false;
-    bool rstActiveLow = false;
+    तार्किक has_Rst_Active_खालचा = असत्य;
+    तार्किक rst_Active_खालचा = असत्य;
 };
 
-static bool fsmWrapperResetPolarityFromWrapperAst(AstCell* cellp, const string& portName,
-                                                  bool& activeLow) {
-    bool matched = false;
+स्थिर तार्किक fsmWrapperResetPolarityFromWrapperAst(AstCell* cellp, स्थिरांक string& portName,
+                                                  तार्किक& active_खालचा) {
+    तार्किक matched = असत्य;
     cellp->modp()->foreach([&](AstSenItem* itemp) {
-        AstNodeVarRef* const vrefp = itemp->varrefp();
-        if (!vrefp) return;
-        if (vrefp->varp()->name() != portName) return;
-        activeLow = itemp->edgeType() == VEdgeType::ET_NEGEDGE;
-        matched = true;
+        Ast_गाठ_Var_Ref* स्थिरांक vrefp = itemp->varrefp();
+        जर (!vrefp) परत;
+        जर (vrefp->varp()->name() != portName) परत;
+        active_खालचा = itemp->edgeType() == VEdgeType::ET_NEGEDGE;
+        matched = सत्य;
     });
-    return matched;
+    परत matched;
 }
 
-static const V3Control::FsmRegisterWrapper* fsmRegisterWrapperDesc(AstCell* cellp) {
-    AstNodeModule* const modp = cellp->modp();
-    const string origName = modp->origName();
-    if (const V3Control::FsmRegisterWrapper* const descp
+स्थिर स्थिरांक V3Control::FsmRegisterWrapper* fsmRegisterWrapperDesc(AstCell* cellp) {
+    Ast_गाठ_Module* स्थिरांक modp = cellp->modp();
+    स्थिरांक string origName = modp->origName();
+    जर (स्थिरांक V3Control::FsmRegisterWrapper* स्थिरांक descp
         = V3Control::getFsmRegisterWrapper(origName)) {
-        return descp;
+        परत descp;
     }
-    return V3Control::getFsmRegisterWrapper(modp->prettyDehashOrigOrName());
+    परत V3Control::getFsmRegisterWrapper(modp->prettyDehashOrigOrName());
 }
 
-static FsmWrapperRoles rolesFromDesc(const V3Control::FsmRegisterWrapper& desc) {
+स्थिर FsmWrapperRoles rolesFromDesc(स्थिरांक V3Control::FsmRegisterWrapper& desc) {
     FsmWrapperRoles roles;
     roles.dPort = desc.d;
     roles.qPort = desc.q;
-    roles.clkPort = desc.clock;
+    roles.clkPort = desc.घड़ी;
     roles.rstPort = desc.reset;
-    roles.rstValParam = desc.resetValue;
-    return roles;
+    roles.rstValParam = desc.reset_मूल्य;
+    परत roles;
 }
 
-class FsmRegisterCandidate final {
+वर्ग FsmRegisterCandidate final {
     AstScope* m_scopep = nullptr;  // Owning scope for the paired FSM.
     AstAlways* m_alwaysp = nullptr;  // Register process that commits the state.
     AstVarScope* m_stateVscp = nullptr;  // Registered FSM state variable.
@@ -186,144 +186,144 @@ class FsmRegisterCandidate final {
     std::vector<FsmSenDesc> m_senses;  // Event controls for recreated coverage blocks.
     FsmResetCondDesc m_resetCond;  // Saved reset predicate, if any.
     std::vector<FsmResetArcDesc> m_resetArcs;  // Reset target arcs recovered during detect.
-    bool m_hasResetCond = false;  // Whether the FSM had a modeled reset predicate.
-    bool m_inclCond = false;  // Whether conditional/default arcs are kept explicitly.
-    FileLine* m_flp = nullptr;  // Representative source location.
+    तार्किक m_hasResetCond = असत्य;  // Whether the FSM had a modeled reset predicate.
+    तार्किक m_inclCond = असत्य;  // Whether conditional/default arcs are kept explicitly.
+    File_ओळ* m_flp = nullptr;  // Representative source location.
 
-public:
-    AstScope* scopep() const { return m_scopep; }
-    void scopep(AstScope* scopep) { m_scopep = scopep; }
-    AstAlways* alwaysp() const { return m_alwaysp; }
-    void alwaysp(AstAlways* alwaysp) { m_alwaysp = alwaysp; }
-    AstVarScope* stateVscp() const { return m_stateVscp; }
-    void stateVscp(AstVarScope* vscp) { m_stateVscp = vscp; }
-    AstVarScope* sampleVscp() const { return m_sampleVscp ? m_sampleVscp : m_stateVscp; }
-    void sampleVscp(AstVarScope* vscp) { m_sampleVscp = vscp; }
-    AstVarScope* nextVscp() const { return m_nextVscp; }
-    void nextVscp(AstVarScope* vscp) { m_nextVscp = vscp; }
-    const std::vector<FsmSenDesc>& senses() const { return m_senses; }
-    std::vector<FsmSenDesc>& senses() { return m_senses; }
-    const FsmResetCondDesc& resetCond() const { return m_resetCond; }
-    FsmResetCondDesc& resetCond() { return m_resetCond; }
-    const std::vector<FsmResetArcDesc>& resetArcs() const { return m_resetArcs; }
-    std::vector<FsmResetArcDesc>& resetArcs() { return m_resetArcs; }
-    bool hasResetCond() const { return m_hasResetCond; }
-    void hasResetCond(bool flag) { m_hasResetCond = flag; }
-    bool inclCond() const { return m_inclCond; }
-    void inclCond(bool flag) { m_inclCond = flag; }
-    FileLine* fileline() const { return m_flp; }
-    void fileline(FileLine* flp) { m_flp = flp; }
+सार्वजनिक:
+    AstScope* scopep() स्थिरांक { परत m_scopep; }
+    शून्य scopep(AstScope* scopep) { m_scopep = scopep; }
+    AstAlways* alwaysp() स्थिरांक { परत m_alwaysp; }
+    शून्य alwaysp(AstAlways* alwaysp) { m_alwaysp = alwaysp; }
+    AstVarScope* stateVscp() स्थिरांक { परत m_stateVscp; }
+    शून्य stateVscp(AstVarScope* vscp) { m_stateVscp = vscp; }
+    AstVarScope* sampleVscp() स्थिरांक { परत m_sampleVscp ? m_sampleVscp : m_stateVscp; }
+    शून्य sampleVscp(AstVarScope* vscp) { m_sampleVscp = vscp; }
+    AstVarScope* nextVscp() स्थिरांक { परत m_nextVscp; }
+    शून्य nextVscp(AstVarScope* vscp) { m_nextVscp = vscp; }
+    स्थिरांक std::vector<FsmSenDesc>& senses() स्थिरांक { परत m_senses; }
+    std::vector<FsmSenDesc>& senses() { परत m_senses; }
+    स्थिरांक FsmResetCondDesc& resetCond() स्थिरांक { परत m_resetCond; }
+    FsmResetCondDesc& resetCond() { परत m_resetCond; }
+    स्थिरांक std::vector<FsmResetArcDesc>& resetArcs() स्थिरांक { परत m_resetArcs; }
+    std::vector<FsmResetArcDesc>& resetArcs() { परत m_resetArcs; }
+    तार्किक hasResetCond() स्थिरांक { परत m_hasResetCond; }
+    शून्य hasResetCond(तार्किक flag) { m_hasResetCond = flag; }
+    तार्किक inclCond() स्थिरांक { परत m_inclCond; }
+    शून्य inclCond(तार्किक flag) { m_inclCond = flag; }
+    File_ओळ* fileline() स्थिरांक { परत m_flp; }
+    शून्य fileline(File_ओळ* flp) { m_flp = flp; }
 };
 
-class FsmComboAlways final {
-    AstScope* const m_scopep = nullptr;  // Owning scope for the combinational process.
-    AstAlways* const m_alwaysp = nullptr;  // Candidate transition process.
+वर्ग FsmComboAlways final {
+    AstScope* स्थिरांक m_scopep = nullptr;  // Owning scope for the combinational process.
+    AstAlways* स्थिरांक m_alwaysp = nullptr;  // Candidate transition process.
 
-public:
-    FsmComboAlways() = default;
+सार्वजनिक:
+    FsmComboAlways() = पूर्वनिर्धारित;
     FsmComboAlways(AstScope* scopep, AstAlways* alwaysp)
         : m_scopep{scopep}
         , m_alwaysp{alwaysp} {}
 
-    AstScope* scopep() const { return m_scopep; }
-    AstAlways* alwaysp() const { return m_alwaysp; }
+    AstScope* scopep() स्थिरांक { परत m_scopep; }
+    AstAlways* alwaysp() स्थिरांक { परत m_alwaysp; }
 };
 
-class FsmGraph;
+वर्ग FsmGraph;
 
-class FsmVertex VL_NOT_FINAL : public V3GraphVertex {
+वर्ग FsmVertex VL_NOT_FINAL : सार्वजनिक V3GraphVertex {
     VL_RTTI_IMPL(FsmVertex, V3GraphVertex)
 
-public:
-    enum class Kind : uint8_t { STATE, RESET_ANY, DEFAULT_ANY };
+सार्वजनिक:
+    गणना वर्ग Kind : uint8_t { STATE, RESET_ANY, DEFAULT_ANY };
 
-private:
+खाजगी:
     Kind m_kind;  // State vs synthetic ANY/default vertex role.
     string m_label;  // User-facing state or pseudo-state label.
-    FsmStateValue m_value;  // Encoded state value for real state vertices.
+    Fsm_State_मूल्य m_मूल्य;  // Encoded state value for real state vertices.
 
-protected:
-    FsmVertex(V3Graph* graphp, Kind kind, string label, FsmStateValue value) VL_MT_DISABLED
+संरक्षित:
+    FsmVertex(V3Graph* graphp, Kind kind, string label, Fsm_State_मूल्य मूल्य) VL_MT_DISABLED
         : V3GraphVertex{graphp},
           m_kind{kind},
           m_label{label},
-          m_value{value} {}
-    ~FsmVertex() override = default;
+          m_मूल्य{मूल्य} {}
+    ~FsmVertex() override = पूर्वनिर्धारित;
 
-public:
-    Kind kind() const { return m_kind; }
-    bool isState() const { return m_kind == Kind::STATE; }
-    bool isResetAny() const { return m_kind == Kind::RESET_ANY; }
-    bool isDefaultAny() const { return m_kind == Kind::DEFAULT_ANY; }
-    const string& label() const { return m_label; }
-    const FsmStateValue& value() const { return m_value; }
+सार्वजनिक:
+    Kind kind() स्थिरांक { परत m_kind; }
+    तार्किक isState() स्थिरांक { परत m_kind == Kind::STATE; }
+    तार्किक isResetAny() स्थिरांक { परत m_kind == Kind::RESET_ANY; }
+    तार्किक isDefaultAny() स्थिरांक { परत m_kind == Kind::DEFAULT_ANY; }
+    स्थिरांक string& label() स्थिरांक { परत m_label; }
+    स्थिरांक Fsm_State_मूल्य& मूल्य() स्थिरांक { परत m_मूल्य; }
 
-    string name() const override VL_MT_SAFE { return m_label + "=" + m_value.ascii(); }
+    string name() स्थिरांक override VL_MT_SAFE { परत m_label + "=" + m_मूल्य.ascii(); }
 };
 
-class FsmStateVertex final : public FsmVertex {
+वर्ग FsmStateVertex final : सार्वजनिक FsmVertex {
     VL_RTTI_IMPL(FsmStateVertex, FsmVertex)
 
-public:
-    FsmStateVertex(V3Graph* graphp, string label, FsmStateValue value) VL_MT_DISABLED
-        : FsmVertex{graphp, Kind::STATE, label, value} {}
-    ~FsmStateVertex() override = default;
+सार्वजनिक:
+    FsmStateVertex(V3Graph* graphp, string label, Fsm_State_मूल्य मूल्य) VL_MT_DISABLED
+        : FsmVertex{graphp, Kind::STATE, label, मूल्य} {}
+    ~FsmStateVertex() override = पूर्वनिर्धारित;
 
-    string dotColor() const override { return "lightblue"; }
-    string dotShape() const override { return "ellipse"; }
+    string dotColor() स्थिरांक override { परत "lightblue"; }
+    string dotShape() स्थिरांक override { परत "ellipse"; }
 };
 
-class FsmPseudoVertex final : public FsmVertex {
+वर्ग FsmPseudoVertex final : सार्वजनिक FsmVertex {
     VL_RTTI_IMPL(FsmPseudoVertex, FsmVertex)
 
-public:
+सार्वजनिक:
     FsmPseudoVertex(V3Graph* graphp, Kind kind, string label) VL_MT_DISABLED
-        : FsmVertex{graphp, kind, label, FsmStateValue{}} {}
-    ~FsmPseudoVertex() override = default;
+        : FsmVertex{graphp, kind, label, Fsm_State_मूल्य{}} {}
+    ~FsmPseudoVertex() override = पूर्वनिर्धारित;
 
-    string name() const override VL_MT_SAFE { return label(); }
-    string dotColor() const override { return isResetAny() ? "darkgreen" : "orange"; }
-    string dotShape() const override { return "diamond"; }
+    string name() स्थिरांक override VL_MT_SAFE { परत label(); }
+    string dotColor() स्थिरांक override { परत isResetAny() ? "darkgreen" : "orange"; }
+    string dotShape() स्थिरांक override { परत "diamond"; }
 };
 
-class FsmArcEdge final : public V3GraphEdge {
+वर्ग FsmArcEdge final : सार्वजनिक V3GraphEdge {
     VL_RTTI_IMPL(FsmArcEdge, V3GraphEdge)
-    bool m_isReset = false;  // Arc originates from the synthetic reset source.
-    bool m_isCond = false;  // Arc came from a conditional next-state split.
-    bool m_isDefault = false;  // Arc represents a case default source.
-    FileLine* m_flp = nullptr;  // Source location for emitted coverage metadata.
+    तार्किक m_isReset = असत्य;  // Arc originates from the synthetic reset source.
+    तार्किक m_isCond = असत्य;  // Arc came from a conditional next-state split.
+    तार्किक m_isDefault = असत्य;  // Arc represents a case default source.
+    File_ओळ* m_flp = nullptr;  // Source location for emitted coverage metadata.
 
-public:
-    FsmArcEdge(V3Graph* graphp, FsmVertex* fromp, FsmStateVertex* top, bool isReset, bool isCond,
-               bool isDefault, FileLine* flp) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, top, 1},
+सार्वजनिक:
+    FsmArcEdge(V3Graph* graphp, FsmVertex* fromp, FsmStateVertex* शीर्ष, तार्किक isReset, तार्किक isCond,
+               तार्किक isDefault, File_ओळ* flp) VL_MT_DISABLED : V3GraphEdge{graphp, fromp, शीर्ष, 1},
                                                                m_isReset{isReset},
                                                                m_isCond{isCond},
                                                                m_isDefault{isDefault},
                                                                m_flp{flp} {}
-    ~FsmArcEdge() override = default;
+    ~FsmArcEdge() override = पूर्वनिर्धारित;
 
-    bool isReset() const { return m_isReset; }
-    bool isCond() const { return m_isCond; }
-    bool isDefault() const { return m_isDefault; }
-    FileLine* fileline() const { return m_flp; }
+    तार्किक isReset() स्थिरांक { परत m_isReset; }
+    तार्किक isCond() स्थिरांक { परत m_isCond; }
+    तार्किक isDefault() स्थिरांक { परत m_isDefault; }
+    File_ओळ* fileline() स्थिरांक { परत m_flp; }
 
-    string dotLabel() const override {
-        if (m_isReset) return "reset";
-        if (m_isDefault) return "default";
-        if (m_isCond) return "cond";
-        return "";
+    string dotLabel() स्थिरांक override {
+        जर (m_isReset) परत "reset";
+        जर (m_isDefault) परत "default";
+        जर (m_isCond) परत "cond";
+        परत "";
     }
-    string dotColor() const override {
-        if (m_isReset) return "darkgreen";
-        if (m_isDefault) return "orange";
-        if (m_isCond) return "blue";
-        return "black";
+    string dotColor() स्थिरांक override {
+        जर (m_isReset) परत "darkgreen";
+        जर (m_isDefault) परत "orange";
+        जर (m_isCond) परत "blue";
+        परत "black";
     }
 };
 
 // One graph per detected FSM. Graph-level metadata captures the non-graph
 // context needed to lower states/arcs back into the AST after detection.
-class FsmGraph final : public V3Graph {
+वर्ग FsmGraph final : सार्वजनिक V3Graph {
     AstScope* m_scopep = nullptr;  // Owning scoped block for the detected FSM.
     AstAlways* m_stateAlwaysp = nullptr;  // Register always block being instrumented.
     string m_stateVarName;  // Pretty state variable name for user-visible output.
@@ -332,155 +332,155 @@ class FsmGraph final : public V3Graph {
     AstVarScope* m_sampleVarScopep = nullptr;  // Scoped variable sampled by coverage logic.
     std::vector<FsmSenDesc> m_senses;  // Saved event controls for recreated active blocks.
     FsmResetCondDesc m_resetCond;  // Saved reset predicate shape, if one exists.
-    bool m_hasResetCond = false;  // Whether the detected FSM had a reset branch.
-    bool m_inclCond = false;  // Whether conditional arcs should be kept explicitly.
-    FileLine* m_flp = nullptr;  // Representative source location for declarations/arcs.
-    std::unordered_map<FsmStateValue, FsmStateVertex*, FsmStateValueHash>
+    तार्किक m_hasResetCond = असत्य;  // Whether the detected FSM had a reset branch.
+    तार्किक m_inclCond = असत्य;  // Whether conditional arcs should be kept explicitly.
+    File_ओळ* m_flp = nullptr;  // Representative source location for declarations/arcs.
+    std::unordered_map<Fsm_State_मूल्य, FsmStateVertex*, Fsm_State_मूल्य_Hash>
         m_stateVertices;  // Value to state map.
     FsmPseudoVertex* m_resetVertexp = nullptr;  // Synthetic ANY source for reset arcs.
     FsmPseudoVertex* m_defaultVertexp = nullptr;  // Synthetic default source for case defaults.
 
-public:
+सार्वजनिक:
     FsmGraph() VL_MT_DISABLED
-        : m_resetVertexp{new FsmPseudoVertex{this, FsmVertex::Kind::RESET_ANY, "ANY"}},
-          m_defaultVertexp{new FsmPseudoVertex{this, FsmVertex::Kind::DEFAULT_ANY, "default"}} {}
+        : m_resetVertexp{नवीन FsmPseudoVertex{हे, FsmVertex::Kind::RESET_ANY, "ANY"}},
+          m_defaultVertexp{नवीन FsmPseudoVertex{हे, FsmVertex::Kind::DEFAULT_ANY, "default"}} {}
 
-    AstScope* scopep() const { return m_scopep; }
-    void scopep(AstScope* scopep) { m_scopep = scopep; }
-    AstAlways* stateAlwaysp() const { return m_stateAlwaysp; }
-    void stateAlwaysp(AstAlways* alwaysp) { m_stateAlwaysp = alwaysp; }
-    const string& stateVarName() const { return m_stateVarName; }
-    void stateVarName(const string& name) { m_stateVarName = name; }
-    const string& stateVarInternalName() const { return m_stateVarInternalName; }
-    void stateVarInternalName(const string& name) { m_stateVarInternalName = name; }
-    AstVarScope* stateVarScopep() const { return m_stateVarScopep; }
-    void stateVarScopep(AstVarScope* vscp) { m_stateVarScopep = vscp; }
-    AstVarScope* sampleVarScopep() const {
-        return m_sampleVarScopep ? m_sampleVarScopep : m_stateVarScopep;
+    AstScope* scopep() स्थिरांक { परत m_scopep; }
+    शून्य scopep(AstScope* scopep) { m_scopep = scopep; }
+    AstAlways* stateAlwaysp() स्थिरांक { परत m_stateAlwaysp; }
+    शून्य stateAlwaysp(AstAlways* alwaysp) { m_stateAlwaysp = alwaysp; }
+    स्थिरांक string& stateVarName() स्थिरांक { परत m_stateVarName; }
+    शून्य stateVarName(स्थिरांक string& name) { m_stateVarName = name; }
+    स्थिरांक string& stateVarInternalName() स्थिरांक { परत m_stateVarInternalName; }
+    शून्य stateVarInternalName(स्थिरांक string& name) { m_stateVarInternalName = name; }
+    AstVarScope* stateVarScopep() स्थिरांक { परत m_stateVarScopep; }
+    शून्य stateVarScopep(AstVarScope* vscp) { m_stateVarScopep = vscp; }
+    AstVarScope* sampleVarScopep() स्थिरांक {
+        परत m_sampleVarScopep ? m_sampleVarScopep : m_stateVarScopep;
     }
-    void sampleVarScopep(AstVarScope* vscp) { m_sampleVarScopep = vscp; }
-    const std::vector<FsmSenDesc>& senses() const { return m_senses; }
-    std::vector<FsmSenDesc>& senses() { return m_senses; }
-    const FsmResetCondDesc& resetCond() const { return m_resetCond; }
-    FsmResetCondDesc& resetCond() { return m_resetCond; }
-    bool hasResetCond() const { return m_hasResetCond; }
-    void hasResetCond(bool flag) { m_hasResetCond = flag; }
-    bool inclCond() const { return m_inclCond; }
-    void inclCond(bool flag) { m_inclCond = flag; }
-    FileLine* fileline() const { return m_flp; }
-    void fileline(FileLine* flp) { m_flp = flp; }
+    शून्य sampleVarScopep(AstVarScope* vscp) { m_sampleVarScopep = vscp; }
+    स्थिरांक std::vector<FsmSenDesc>& senses() स्थिरांक { परत m_senses; }
+    std::vector<FsmSenDesc>& senses() { परत m_senses; }
+    स्थिरांक FsmResetCondDesc& resetCond() स्थिरांक { परत m_resetCond; }
+    FsmResetCondDesc& resetCond() { परत m_resetCond; }
+    तार्किक hasResetCond() स्थिरांक { परत m_hasResetCond; }
+    शून्य hasResetCond(तार्किक flag) { m_hasResetCond = flag; }
+    तार्किक inclCond() स्थिरांक { परत m_inclCond; }
+    शून्य inclCond(तार्किक flag) { m_inclCond = flag; }
+    File_ओळ* fileline() स्थिरांक { परत m_flp; }
+    शून्य fileline(File_ओळ* flp) { m_flp = flp; }
 
-    FsmStateVertex* addStateVertex(string label, FsmStateValue value) VL_MT_DISABLED {
-        FsmStateVertex* const vertexp = new FsmStateVertex{this, label, value};
-        m_stateVertices.emplace(value, vertexp);
-        return vertexp;
+    FsmStateVertex* addStateVertex(string label, Fsm_State_मूल्य मूल्य) VL_MT_DISABLED {
+        FsmStateVertex* स्थिरांक vertexp = नवीन FsmStateVertex{हे, label, मूल्य};
+        m_stateVertices.emplace(मूल्य, vertexp);
+        परत vertexp;
     }
-    FsmPseudoVertex* resetAnyVertex() VL_MT_DISABLED { return m_resetVertexp; }
-    FsmPseudoVertex* defaultAnyVertex() VL_MT_DISABLED { return m_defaultVertexp; }
-    FsmArcEdge* addArc(FsmStateValue fromValue, FsmStateValue toValue, bool isReset, bool isCond,
-                       bool isDefault, FileLine* flp) VL_MT_DISABLED {
-        FsmStateVertex* const top = m_stateVertices.at(toValue);
+    FsmPseudoVertex* resetAnyVertex() VL_MT_DISABLED { परत m_resetVertexp; }
+    FsmPseudoVertex* defaultAnyVertex() VL_MT_DISABLED { परत m_defaultVertexp; }
+    FsmArcEdge* addArc(Fsm_State_मूल्य from_मूल्य, Fsm_State_मूल्य to_मूल्य, तार्किक isReset, तार्किक isCond,
+                       तार्किक isDefault, File_ओळ* flp) VL_MT_DISABLED {
+        FsmStateVertex* स्थिरांक शीर्ष = m_stateVertices.at(to_मूल्य);
         FsmVertex* fromp = nullptr;
-        if (isReset) {
+        जर (isReset) {
             fromp = resetAnyVertex();
-        } else if (isDefault) {
+        } अन्यथा जर (isDefault) {
             fromp = defaultAnyVertex();
-        } else {
-            fromp = m_stateVertices.at(fromValue);
+        } अन्यथा {
+            fromp = m_stateVertices.at(from_मूल्य);
         }
-        return new FsmArcEdge{this, fromp, top, isReset, isCond, isDefault, flp};
+        परत नवीन FsmArcEdge{हे, fromp, शीर्ष, isReset, isCond, isDefault, flp};
     }
 
-    string name() const VL_MT_SAFE {
-        return "FSM "
+    string name() स्थिरांक VL_MT_SAFE {
+        परत "FSM "
                + (m_stateVarName.empty() ? (m_stateVarScopep ? m_stateVarScopep->name() : "")
                                          : m_stateVarName);
     }
-    string dumpTag(size_t index) const {
+    string dumpTag(माप_प्रकार index) स्थिरांक {
         string tag = stateVarInternalName();
-        for (char& ch : tag) {
-            if (!std::isalnum(static_cast<unsigned char>(ch))) ch = '_';
+        साठी (अक्षर& ch : tag) {
+            जर (!std::है_अक्षर_अंक(static_cast<अचिन्हित अक्षर>(ch))) ch = '_';
         }
-        return "fsm_" + cvtToStr(index) + "_" + tag;
+        परत "fsm_" + cvtToStr(index) + "_" + tag;
     }
 };
 
-struct DetectedFsm final {
+संरचना DetectedFsm final {
     std::unique_ptr<FsmGraph> graphp;  // Extracted graph for one detected FSM candidate.
 };
 
-struct FsmCaseCandidate final {
-    AstNode* warnNodep = nullptr;  // Transition node that made the candidate supported.
+संरचना FsmCaseCandidate final {
+    Ast_गाठ* warnNodep = nullptr;  // Transition node that made the candidate supported.
     AstVarScope* stateVscp = nullptr;  // FSM state variable associated with that candidate.
 };
 
 // Keep the source expression with the encoded value so inferred literal FSMs can
 // reuse the same state-space policy as case-item dispatch.
-struct FsmStateComparison final {
+संरचना FsmStateComparison final {
     AstVarScope* stateVscp = nullptr;  // Compared state variable
-    AstNodeExpr* valuep = nullptr;  // Compared constant value expression
-    FsmStateValue value;  // Encoded compared state value
+    Ast_गाठ_अभिव्यक्ती* valuep = nullptr;  // Compared constant value expression
+    Fsm_State_मूल्य मूल्य;  // Encoded compared state value
 };
 
 // A branch is usable only after its predicate has exactly one state comparison;
 // any extra predicate term is treated as an arc guard.
-struct FsmIfBranch final {
+संरचना FsmIfBranch final {
     AstIf* ifp = nullptr;  // Source if/else-if node
-    AstNode* stmtsp = nullptr;  // Branch body
-    AstNodeExpr* valuep = nullptr;  // Source state value expression
-    FsmStateValue fromValue;  // Encoded source state value
-    bool hasTopGuard = false;  // Branch condition had extra guard terms
+    Ast_गाठ* stmtsp = nullptr;  // Branch body
+    Ast_गाठ_अभिव्यक्ती* valuep = nullptr;  // Source state value expression
+    Fsm_State_मूल्य from_मूल्य;  // Encoded source state value
+    तार्किक has_शीर्ष_Guard = असत्य;  // Branch condition had extra guard terms
 };
 
 // If-chains are kept separate from cases until graph construction so the
 // existing case path remains the preferred candidate when both forms appear.
-struct FsmIfChainCandidate final {
+संरचना FsmIfChainCandidate final {
     AstIf* ifp = nullptr;  // Top-level if-chain node
     AstVarScope* compareVscp = nullptr;  // Variable used by every state comparison
     std::vector<FsmIfBranch> branches;  // Recognized state-dispatch branches
-    AstNode* defaultStmtsp = nullptr;  // Optional final else body
+    Ast_गाठ* defaultStmtsp = nullptr;  // Optional final else body
 };
 
 // Aliases are accepted only when they are equivalent to spelling the state
 // comparison inline; this avoids inferring FSM semantics from arbitrary logic.
-using FsmAliasMap = std::unordered_map<const AstVarScope*, FsmStateComparison>;
+using FsmAliasMap = std::unordered_map<स्थिरांक AstVarScope*, FsmStateComparison>;
 using FsmCellPortMap = std::unordered_map<string, AstVarScope*>;
-using FsmCellPortAliasMap = std::unordered_map<const AstCell*, FsmCellPortMap>;
+using FsmCellPortAliasMap = std::unordered_map<स्थिरांक AstCell*, FsmCellPortMap>;
 
-struct StateConstLabel final {
+संरचना StateConstLabel final {
     string text;
-    bool fromParam = false;
-    size_t stateIndex = 0;
+    तार्किक fromParam = असत्य;
+    माप_प्रकार stateIndex = 0;
 };
 
-struct FsmStateSpace final {
-    std::vector<std::pair<string, FsmStateValue>> states;  // User label and encoded value
-    std::unordered_map<FsmStateValue, StateConstLabel, FsmStateValueHash>
+संरचना FsmStateSpace final {
+    std::vector<std::pair<string, Fsm_State_मूल्य>> states;  // User label and encoded value
+    std::unordered_map<Fsm_State_मूल्य, StateConstLabel, Fsm_State_मूल्य_Hash>
         labels;  // Encoded value to label
     AstVar* stateVarp = nullptr;  // Tracked FSM state variable
-    bool enumBacked = false;  // Whether states came from an enum declaration
+    तार्किक enumBacked = असत्य;  // Whether states came from an enum declaration
 };
 
 // Local shared state between the two adjacent FSM coverage phases. Detection
 // fills this with recovered FSM graphs; lowering consumes the completed graphs
 // immediately afterward without needing any AST serialization bridge.
-class FsmState final {
+वर्ग FsmState final {
     // All detected FSMs in discovery order. This is the only bridge between
     // the adjacent detect and lower phases, so the second phase never needs to
     // rediscover or serialize the extracted machine.
     std::vector<DetectedFsm> m_fsms;
-    std::map<const AstVarScope*, size_t> m_fsmIndex;
+    std::map<स्थिरांक AstVarScope*, माप_प्रकार> m_fsmIndex;
 
-public:
+सार्वजनिक:
     DetectedFsm& fsmFor(AstVarScope* stateVscp) {
-        const std::map<const AstVarScope*, size_t>::const_iterator it = m_fsmIndex.find(stateVscp);
-        if (it != m_fsmIndex.end()) return m_fsms.at(it->second);
-        const size_t index = m_fsms.size();
+        स्थिरांक std::map<स्थिरांक AstVarScope*, माप_प्रकार>::const_iterator it = m_fsmIndex.find(stateVscp);
+        जर (it != m_fsmIndex.end()) परत m_fsms.at(it->second);
+        स्थिरांक माप_प्रकार index = m_fsms.size();
         m_fsmIndex.emplace(stateVscp, index);
         m_fsms.emplace_back();
-        return m_fsms.back();
+        परत m_fsms.back();
     }
-    const std::vector<DetectedFsm>& fsms() const { return m_fsms; }
+    स्थिरांक std::vector<DetectedFsm>& fsms() स्थिरांक { परत m_fsms; }
 };
 
 // Detection runs while the original clocked/case structure is still intact and
@@ -489,7 +489,7 @@ public:
 // small set of transition/selector forms that are already stable in the
 // normalized AST we see here. The remaining reject branches are therefore
 // mostly future-feature boundaries, not accidental dead code.
-class FsmDetectVisitor final : public VNVisitor {
+वर्ग FsmDetectVisitor final : सार्वजनिक VNVisitor {
     // STATE - for current visit position (use VL_RESTORER)
     FsmState& m_state;
     AstScope* m_scopep = nullptr;
@@ -504,11 +504,11 @@ class FsmDetectVisitor final : public VNVisitor {
     // remember candidate cells and resolve them only after the surrounding
     // transition logic and post-link port wiring have both been seen.
     std::vector<std::pair<AstScope*, AstCell*>> m_wrapperCells;
-    std::unordered_map<const AstVarScope*, FsmCaseCandidate> m_comboPaired;
+    std::unordered_map<स्थिरांक AstVarScope*, FsmCaseCandidate> m_comboPaired;
     // Continuous aliases are order-independent, while procedural aliases must
     // remain source-order scoped to avoid using assignments not yet executed.
     FsmAliasMap m_stateAliases;
-    std::unordered_set<const AstVarScope*> m_ambiguousStateAliases;
+    std::unordered_set<स्थिरांक AstVarScope*> m_ambiguousStateAliases;
     // A surviving wrapper's semantic d/q relationship is split across the
     // parent scope and the child module scope. This table is the narrow bridge
     // between those scopes: only transparent port aliases are recorded, so the
@@ -519,79 +519,79 @@ class FsmDetectVisitor final : public VNVisitor {
     // METHODS
     // Enum-backed FSMs may be wrapped in refs/typedefs; normalize to the
     // underlying enum type before deciding whether a case is a candidate.
-    static AstNodeDType* unwrapEnumCandidate(AstNodeDType* dtypep) {
-        return dtypep->skipRefToEnump();
+    स्थिर Ast_गाठ_DType* unwrapEnumCandidate(Ast_गाठ_DType* dtypep) {
+        परत dtypep->skipRefToEnump();
     }
 
-    static string candidateConflictContext(AstNode* laterNodep,
-                                           const FsmCaseCandidate& firstCand) {
-        return '\n' + laterNodep->warnContextPrimary() + firstCand.warnNodep->warnOther()
+    स्थिर string candidateConflictContext(Ast_गाठ* laterNodep,
+                                           स्थिरांक FsmCaseCandidate& firstCand) {
+        परत '\n' + laterNodep->warnContextPrimary() + firstCand.warnNodep->warnOther()
                + "... Location of first supported candidate for "
                + firstCand.stateVscp->prettyNameQ() + '\n'
                + firstCand.warnNodep->warnContextSecondary();
     }
 
-    static bool rejectFsmWrapperCell(AstCell* cellp, const string& reason) {
+    स्थिर तार्किक rejectFsmWrapperCell(AstCell* cellp, स्थिरांक string& reason) {
         cellp->v3warn(COVERIGN, "Ignoring unsupported: " + reason);
-        return false;
+        परत असत्य;
     }
 
-    static bool simpleParamStateValue(AstCell* cellp, const string& name, FsmStateValue& value,
-                                      AstNodeExpr*& valuepr) {
+    स्थिर तार्किक simple_Param_State_मूल्य(AstCell* cellp, स्थिरांक string& name, Fsm_State_मूल्य& मूल्य,
+                                      Ast_गाठ_अभिव्यक्ती*& valuepr) {
         // Cell-path reset recovery must behave like the inlined path when the
         // instance relies on a parameter default. Looking into the linked module
         // default preserves that equivalence while keeping the cell detector's
         // contract narrow: only static, known reset encodings become reset arcs.
         valuepr = nullptr;
-        for (AstNode* stmtp = cellp->modp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isParam() || varp->name() != name) continue;
-            valuepr = VN_AS(varp->valuep(), NodeExpr);
-            return constValueStatus(valuepr, value) == ConstValueStatus::OK;
+        साठी (Ast_गाठ* stmtp = cellp->modp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstVar* स्थिरांक varp = VN_CAST(stmtp, Var);
+            जर (!varp || !varp->isParam() || varp->name() != name) सुरूठेवा;
+            valuepr = VN_AS(varp->valuep(), गाठ_अभिव्यक्ती);
+            परत const_मूल्य_Status(valuepr, मूल्य) == Const_मूल्य_Status::OK;
         }
-        return false;
+        परत असत्य;
     }
 
-    static bool childPortInScope(AstVarScope* vscp, AstScope* parentScopep, AstCell*& cellpr) {
-        if (!vscp->varp()->isIO()) return false;
-        AstScope* const scopep = vscp->scopep();
+    स्थिर तार्किक childPortInScope(AstVarScope* vscp, AstScope* parentScopep, AstCell*& cellpr) {
+        जर (!vscp->varp()->isIO()) परत असत्य;
+        AstScope* स्थिरांक scopep = vscp->scopep();
         UASSERT_OBJ(scopep, vscp, "VarScope without scope");
-        if (scopep->aboveScopep() != parentScopep) return false;
+        जर (scopep->aboveScopep() != parentScopep) परत असत्य;
         UASSERT_OBJ(scopep->aboveCellp(), vscp,
                     "Child port scope should retain the instance that created it");
         cellpr = scopep->aboveCellp();
-        return true;
+        परत सत्य;
     }
 
-    static AstVarScope* simpleAssignVarScope(AstNodeExpr* exprp) {
-        AstVarRef* const vrefp = VN_CAST(exprp, VarRef);
-        return vrefp ? vrefp->varScopep() : nullptr;
+    स्थिर AstVarScope* simpleAssignVarScope(Ast_गाठ_अभिव्यक्ती* exprp) {
+        AstVarRef* स्थिरांक vrefp = VN_CAST(exprp, VarRef);
+        परत vrefp ? vrefp->varScopep() : nullptr;
     }
 
-    void addWrapperCell(AstScope* scopep, AstCell* cellp) {
+    शून्य addWrapperCell(AstScope* scopep, AstCell* cellp) {
         m_cellPortAliases.emplace(cellp, FsmCellPortMap{});
         m_cellPortChildAliases.emplace(cellp, FsmCellPortMap{});
-        const std::pair<AstScope*, AstCell*> item{scopep, cellp};
-        if (std::find(m_wrapperCells.cbegin(), m_wrapperCells.cend(), item)
+        स्थिरांक std::pair<AstScope*, AstCell*> item{scopep, cellp};
+        जर (std::find(m_wrapperCells.cbegin(), m_wrapperCells.cend(), item)
             != m_wrapperCells.cend()) {
-            return;
+            परत;
         }
         m_wrapperCells.emplace_back(item);
     }
 
-    void collectCellPortAlias(AstAssignW* nodep) {
+    शून्य collectCellPortAlias(AstAssignW* nodep) {
         UASSERT_OBJ(m_scopep, nodep, "Cell port alias collection requires a scoped assignment");
-        AstVarScope* const lhsVscp = simpleAssignVarScope(nodep->lhsp());
-        AstVarScope* const rhsVscp = simpleAssignVarScope(nodep->rhsp());
-        if (!lhsVscp || !rhsVscp) return;
+        AstVarScope* स्थिरांक lhsVscp = simpleAssignVarScope(nodep->lhsp());
+        AstVarScope* स्थिरांक rhsVscp = simpleAssignVarScope(nodep->rhsp());
+        जर (!lhsVscp || !rhsVscp) परत;
         AstCell* cellp = nullptr;
         // The cell path is intentionally a transparent-wrapper recognizer. A
         // direct parent<->child variable assignment preserves the register's
         // identity across the hierarchy boundary; any expression, slice, or
         // transform is outside this phase's contract and therefore not recorded.
-        if (childPortInScope(lhsVscp, m_scopep, cellp)) {
-            if (!fsmRegisterWrapperDesc(cellp)) return;
-            UASSERT_OBJ(lhsVscp->varp()->isInput(), nodep,
+        जर (childPortInScope(lhsVscp, m_scopep, cellp)) {
+            जर (!fsmRegisterWrapperDesc(cellp)) परत;
+            UASSERT_OBJ(lhsVscp->varp()->is_आदान(), nodep,
                         "Child-side port alias lhs should be an input");
             // Note the connected variable can live in a scope further up, as V3Inst
             // aliases a port connection, merging the port variable of an instance into
@@ -599,8 +599,8 @@ class FsmDetectVisitor final : public VNVisitor {
             m_cellPortAliases[cellp][lhsVscp->varp()->name()] = rhsVscp;
             m_cellPortChildAliases[cellp][lhsVscp->varp()->name()] = lhsVscp;
             addWrapperCell(m_scopep, cellp);
-        } else if (childPortInScope(rhsVscp, m_scopep, cellp)) {
-            if (!fsmRegisterWrapperDesc(cellp)) return;
+        } अन्यथा जर (childPortInScope(rhsVscp, m_scopep, cellp)) {
+            जर (!fsmRegisterWrapperDesc(cellp)) परत;
             UASSERT_OBJ(rhsVscp->varp()->isWritable(), nodep,
                         "Child-side port alias rhs should be writable");
             m_cellPortAliases[cellp][rhsVscp->varp()->name()] = lhsVscp;
@@ -609,57 +609,57 @@ class FsmDetectVisitor final : public VNVisitor {
         }
     }
 
-    AstVarScope* roleVarScope(AstCell* cellp, const string& portName) const {
+    AstVarScope* roleVarScope(AstCell* cellp, स्थिरांक string& portName) स्थिरांक {
         // At this point explicit AstPin expressions have been lowered away, so
         // role resolution crosses the wrapper boundary only through the
         // transparent alias table above. This keeps wrapper support aligned with
         // direct-register detection instead of growing into interprocedural FSM
         // inference.
-        const FsmCellPortMap& ports = m_cellPortAliases.at(cellp);
-        const FsmCellPortMap::const_iterator portIt = ports.find(portName);
-        return portIt == ports.end() ? nullptr : portIt->second;
+        स्थिरांक FsmCellPortMap& ports = m_cellPortAliases.at(cellp);
+        स्थिरांक FsmCellPortMap::const_iterator portIt = ports.find(portName);
+        परत portIt == ports.end() ? nullptr : portIt->second;
     }
 
-    AstVarScope* childRoleVarScope(AstCell* cellp, const string& portName) const {
-        const FsmCellPortMap& ports = m_cellPortChildAliases.at(cellp);
-        const FsmCellPortMap::const_iterator portIt = ports.find(portName);
-        return portIt == ports.end() ? nullptr : portIt->second;
+    AstVarScope* childRoleVarScope(AstCell* cellp, स्थिरांक string& portName) स्थिरांक {
+        स्थिरांक FsmCellPortMap& ports = m_cellPortChildAliases.at(cellp);
+        स्थिरांक FsmCellPortMap::const_iterator portIt = ports.find(portName);
+        परत portIt == ports.end() ? nullptr : portIt->second;
     }
 
-    class RegisterAlwaysAnalyzer final {
-        AstScope* const m_scopep;  // Scope containing the always block(s) being analyzed
+    वर्ग RegisterAlwaysAnalyzer final {
+        AstScope* स्थिरांक m_scopep;  // Scope containing the always block(s) being analyzed
 
-    public:
+    सार्वजनिक:
         explicit RegisterAlwaysAnalyzer(AstScope* scopep)
             : m_scopep{scopep} {}
 
-        std::vector<std::pair<AstCase*, AstNodeExpr*>>
-        oneBlockCandidates(AstAlways* alwaysp) const {
-            std::vector<std::pair<AstCase*, AstNodeExpr*>> candidates;
-            AstNode* const stmtsp = alwaysp->stmtsp();
-            if (AstIf* const firstIfp = VN_CAST(stmtsp, If)) {
-                if (AstCase* const casep = VN_CAST(firstIfp->elsesp(), Case)) {
+        std::vector<std::pair<AstCase*, Ast_गाठ_अभिव्यक्ती*>>
+        oneBlockCandidates(AstAlways* alwaysp) स्थिरांक {
+            std::vector<std::pair<AstCase*, Ast_गाठ_अभिव्यक्ती*>> candidates;
+            Ast_गाठ* स्थिरांक stmtsp = alwaysp->stmtsp();
+            जर (AstIf* स्थिरांक firstIfp = VN_CAST(stmtsp, If)) {
+                जर (AstCase* स्थिरांक casep = VN_CAST(firstIfp->elsesp(), Case)) {
                     candidates.emplace_back(casep,
                                             FsmDetectVisitor::isSimpleResetCond(firstIfp->condp())
                                                 ? firstIfp->condp()
                                                 : nullptr);
                 }
             }
-            for (AstNode* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
-                if (AstCase* const casep = VN_CAST(nodep, Case))
+            साठी (Ast_गाठ* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
+                जर (AstCase* स्थिरांक casep = VN_CAST(nodep, Case))
                     candidates.emplace_back(casep, nullptr);
             }
-            return candidates;
+            परत candidates;
         }
 
-        std::vector<std::pair<AstIf*, AstNodeExpr*>>
-        oneBlockIfCandidates(AstAlways* alwaysp) const {
-            std::vector<std::pair<AstIf*, AstNodeExpr*>> candidates;
-            AstNode* const stmtsp = alwaysp->stmtsp();
+        std::vector<std::pair<AstIf*, Ast_गाठ_अभिव्यक्ती*>>
+        oneBlockIfCandidates(AstAlways* alwaysp) स्थिरांक {
+            std::vector<std::pair<AstIf*, Ast_गाठ_अभिव्यक्ती*>> candidates;
+            Ast_गाठ* स्थिरांक stmtsp = alwaysp->stmtsp();
             // Reset-else FSMs should behave like the existing case path: reset
             // information is metadata, not part of steady-state dispatch.
-            if (AstIf* const firstIfp = VN_CAST(stmtsp, If)) {
-                if (AstIf* const chainp
+            जर (AstIf* स्थिरांक firstIfp = VN_CAST(stmtsp, If)) {
+                जर (AstIf* स्थिरांक chainp
                     = VN_CAST(FsmDetectVisitor::singleMeaningfulBranch(firstIfp->elsesp()), If)) {
                     candidates.emplace_back(chainp,
                                             FsmDetectVisitor::isSimpleResetCond(firstIfp->condp())
@@ -667,111 +667,111 @@ class FsmDetectVisitor final : public VNVisitor {
                                                 : nullptr);
                 }
             }
-            for (AstNode* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
-                if (AstIf* const ifp = VN_CAST(nodep, If)) candidates.emplace_back(ifp, nullptr);
+            साठी (Ast_गाठ* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
+                जर (AstIf* स्थिरांक ifp = VN_CAST(nodep, If)) candidates.emplace_back(ifp, nullptr);
             }
-            return candidates;
+            परत candidates;
         }
 
-        bool matchRegisterCandidate(AstAlways* alwaysp, FsmRegisterCandidate& cand) const {
-            return FsmDetectVisitor::matchRegisterAlways(alwaysp, m_scopep, cand);
+        तार्किक matchRegisterCandidate(AstAlways* alwaysp, FsmRegisterCandidate& cand) स्थिरांक {
+            परत FsmDetectVisitor::matchRegisterAlways(alwaysp, m_scopep, cand);
         }
 
-        void buildOneBlockCandidate(AstAlways* alwaysp, AstVarScope* vscp, AstNodeExpr* resetCondp,
-                                    FsmRegisterCandidate& reg) const {
+        शून्य buildOneBlockCandidate(AstAlways* alwaysp, AstVarScope* vscp, Ast_गाठ_अभिव्यक्ती* resetCondp,
+                                    FsmRegisterCandidate& reg) स्थिरांक {
             reg.scopep(m_scopep);
             reg.alwaysp(alwaysp);
             reg.stateVscp(vscp);
             reg.sampleVscp(vscp);
             reg.nextVscp(vscp);
-            reg.senses() = FsmDetectVisitor::describeSenTree(alwaysp->sentreep());
+            reg.senses() = FsmDetectVisitor::describe_Sen_वृक्ष(alwaysp->sentreep());
             reg.resetCond() = FsmDetectVisitor::describeResetCond(resetCondp);
             reg.hasResetCond(reg.resetCond().varScopep != nullptr);
             reg.inclCond(vscp->varp()->attrFsmArcInclCond());
-            AstIf* const firstIfp = VN_CAST(alwaysp->stmtsp(), If);
-            if (firstIfp && reg.hasResetCond()) {
+            AstIf* स्थिरांक firstIfp = VN_CAST(alwaysp->stmtsp(), If);
+            जर (firstIfp && reg.hasResetCond()) {
                 AstVarScope* resetStateVscp = nullptr;
-                const ResetAssignStatus resetStatus = FsmDetectVisitor::collectConstStateAssigns(
+                स्थिरांक ResetAssignStatus resetStatus = FsmDetectVisitor::collectConstStateAssigns(
                     firstIfp->thensp(), resetStateVscp, reg.resetArcs());
-                if (resetStatus == ResetAssignStatus::EMPTY) {
+                जर (resetStatus == ResetAssignStatus::EMPTY) {
                     reg.resetArcs().clear();
-                } else if (resetStatus == ResetAssignStatus::NONE || resetStateVscp != vscp) {
+                } अन्यथा जर (resetStatus == ResetAssignStatus::NONE || resetStateVscp != vscp) {
                     reg.resetArcs().clear();
-                    FsmStateValue resetValue;
-                    AstNode* const thenNodep
+                    Fsm_State_मूल्य reset_मूल्य;
+                    Ast_गाठ* स्थिरांक thenNodep
                         = FsmDetectVisitor::singleMeaningfulBranch(firstIfp->thensp());
                     UASSERT_OBJ(thenNodep, firstIfp,
                                 "one-block reset fallback requires a non-empty reset branch");
-                    AstNodeAssign* const resetAssp = FsmDetectVisitor::directConstStateAssignNode(
-                        thenNodep, resetStateVscp, resetValue);
-                    if (resetAssp && resetStateVscp == vscp) {
-                        reg.resetArcs().emplace_back(resetValue, resetAssp);
+                    Ast_गाठ_Assign* स्थिरांक resetAssp = FsmDetectVisitor::direct_Const_State_Assign_गाठ(
+                        thenNodep, resetStateVscp, reset_मूल्य);
+                    जर (resetAssp && resetStateVscp == vscp) {
+                        reg.resetArcs().emplace_back(reset_मूल्य, resetAssp);
                     }
-                } else if (resetStatus == ResetAssignStatus::MULTI_SAME_STATE) {
+                } अन्यथा जर (resetStatus == ResetAssignStatus::MULTI_SAME_STATE) {
                     reg.resetArcs().clear();
                 }
             }
         }
     };
 
-    bool matchFsmWrapperCell(AstScope* scopep, AstCell* cellp, FsmRegisterCandidate& cand) const {
+    तार्किक matchFsmWrapperCell(AstScope* scopep, AstCell* cellp, FsmRegisterCandidate& cand) स्थिरांक {
         FsmWrapperRoles roles = rolesFromDesc(*fsmRegisterWrapperDesc(cellp));
 
-        AstVarScope* const nextVscp = roleVarScope(cellp, roles.dPort);
-        AstVarScope* const stateVscp = roleVarScope(cellp, roles.qPort);
-        if (!nextVscp || !stateVscp) {
-            return rejectFsmWrapperCell(
+        AstVarScope* स्थिरांक nextVscp = roleVarScope(cellp, roles.dPort);
+        AstVarScope* स्थिरांक stateVscp = roleVarScope(cellp, roles.qPort);
+        जर (!nextVscp || !stateVscp) {
+            परत rejectFsmWrapperCell(
                 cellp, "fsm_register_wrapper d and q connections must be simple variables");
         }
-        AstVarScope* const clkVscp = roleVarScope(cellp, roles.clkPort);
-        if (!clkVscp) {
-            return rejectFsmWrapperCell(
+        AstVarScope* स्थिरांक clkVscp = roleVarScope(cellp, roles.clkPort);
+        जर (!clkVscp) {
+            परत rejectFsmWrapperCell(
                 cellp, "fsm_register_wrapper instance requires a simple clock connection");
         }
 
         FsmSenDesc clkSense;
         clkSense.edgeType = VEdgeType::ET_POSEDGE;
         clkSense.varScopep = clkVscp;
-        cand.senses().push_back(clkSense);
+        cand.senses().ढकला_back(clkSense);
 
         AstVarScope* resetVscp = nullptr;
-        if (!roles.rstPort.empty()) resetVscp = roleVarScope(cellp, roles.rstPort);
-        if (resetVscp) {
+        जर (!roles.rstPort.empty()) resetVscp = roleVarScope(cellp, roles.rstPort);
+        जर (resetVscp) {
             // The descriptor identifies the reset port but not its polarity. Use
             // the wrapper's own event control AST as the contract for sampling
             // the connected parent signal.
-            bool inferredActiveLow = false;
-            if (fsmWrapperResetPolarityFromWrapperAst(cellp, roles.rstPort, inferredActiveLow)) {
-                roles.hasRstActiveLow = true;
-                roles.rstActiveLow = inferredActiveLow;
+            तार्किक inferred_Active_खालचा = असत्य;
+            जर (fsmWrapperResetPolarityFromWrapperAst(cellp, roles.rstPort, inferred_Active_खालचा)) {
+                roles.has_Rst_Active_खालचा = सत्य;
+                roles.rst_Active_खालचा = inferred_Active_खालचा;
             }
         }
 
-        AstNodeExpr* resetValuep = nullptr;
-        FsmStateValue resetValue;
-        const bool hasResetValue
+        Ast_गाठ_अभिव्यक्ती* resetValuep = nullptr;
+        Fsm_State_मूल्य reset_मूल्य;
+        स्थिरांक तार्किक has_Reset_मूल्य
             = !roles.rstValParam.empty()
-              && simpleParamStateValue(cellp, roles.rstValParam, resetValue, resetValuep);
-        if (resetVscp && roles.hasRstActiveLow && hasResetValue) {
+              && simple_Param_State_मूल्य(cellp, roles.rstValParam, reset_मूल्य, resetValuep);
+        जर (resetVscp && roles.has_Rst_Active_खालचा && has_Reset_मूल्य) {
             FsmSenDesc rstSense;
-            rstSense.edgeType = roles.rstActiveLow ? VEdgeType::ET_NEGEDGE : VEdgeType::ET_POSEDGE;
+            rstSense.edgeType = roles.rst_Active_खालचा ? VEdgeType::ET_NEGEDGE : VEdgeType::ET_POSEDGE;
             rstSense.varScopep = resetVscp;
-            cand.senses().push_back(rstSense);
+            cand.senses().ढकला_back(rstSense);
             cand.resetCond().varScopep = resetVscp;
-            cand.resetCond().activeLow = roles.rstActiveLow;
-            cand.hasResetCond(true);
-            cand.resetArcs().emplace_back(resetValue, cellp, resetValuep);
-        } else if (!roles.rstPort.empty() || !roles.rstValParam.empty()) {
+            cand.resetCond().active_खालचा = roles.rst_Active_खालचा;
+            cand.hasResetCond(सत्य);
+            cand.resetArcs().emplace_back(reset_मूल्य, cellp, resetValuep);
+        } अन्यथा जर (!roles.rstPort.empty() || !roles.rstValParam.empty()) {
             string reason;
-            if (roles.rstPort.empty()) {
+            जर (roles.rstPort.empty()) {
                 reason = "reset port is not configured";
-            } else if (!resetVscp) {
+            } अन्यथा जर (!resetVscp) {
                 reason = "reset connection is missing or not a simple variable";
-            } else if (!roles.hasRstActiveLow) {
+            } अन्यथा जर (!roles.has_Rst_Active_खालचा) {
                 reason = "reset polarity could not be inferred from the wrapper";
-            } else if (roles.rstValParam.empty()) {
+            } अन्यथा जर (roles.rstValParam.empty()) {
                 reason = "reset_value parameter is not configured";
-            } else {
+            } अन्यथा {
                 reason = "reset_value parameter is missing or not static";
             }
             cellp->v3warn(COVERIGN,
@@ -791,84 +791,84 @@ class FsmDetectVisitor final : public VNVisitor {
         cand.nextVscp(nextVscp);
         cand.inclCond(stateVscp->varp()->attrFsmArcInclCond());
         cand.fileline(cellp->fileline());
-        return true;
+        परत सत्य;
     }
 
-    class ComboAlwaysAnalyzer final {
-    public:
-        struct ComboMatch final {
-            const FsmRegisterCandidate* matchedp = nullptr;
-            AstNode* warnNodep = nullptr;
+    वर्ग ComboAlwaysAnalyzer final {
+    सार्वजनिक:
+        संरचना ComboMatch final {
+            स्थिरांक FsmRegisterCandidate* matchedp = nullptr;
+            Ast_गाठ* warnNodep = nullptr;
         };
 
-    private:
-        const std::vector<FsmRegisterCandidate>& m_registerCandidates;
+    खाजगी:
+        स्थिरांक std::vector<FsmRegisterCandidate>& m_registerCandidates;
 
-    public:
-        explicit ComboAlwaysAnalyzer(const std::vector<FsmRegisterCandidate>& registerCandidates)
+    सार्वजनिक:
+        explicit ComboAlwaysAnalyzer(स्थिरांक std::vector<FsmRegisterCandidate>& registerCandidates)
             : m_registerCandidates{registerCandidates} {}
 
-        ComboMatch matchCase(AstNode* stmtsp, AstCase* casep) const {
+        ComboMatch matchCase(Ast_गाठ* stmtsp, AstCase* casep) स्थिरांक {
             ComboMatch match;
-            AstVarRef* const selp = VN_CAST(casep->exprp(), VarRef);
-            if (!selp) return match;
-            for (const FsmRegisterCandidate& reg : m_registerCandidates) {
-                if (selp->varScopep() == reg.nextVscp()) {
-                    if (!FsmDetectVisitor::hasCanonicalNextStateDefaultBeforeCase(
+            AstVarRef* स्थिरांक selp = VN_CAST(casep->exprp(), VarRef);
+            जर (!selp) परत match;
+            साठी (स्थिरांक FsmRegisterCandidate& reg : m_registerCandidates) {
+                जर (selp->varScopep() == reg.nextVscp()) {
+                    जर (!FsmDetectVisitor::hasCanonicalNextStateDefaultBeforeCase(
                             stmtsp, casep, reg.stateVscp(), reg.nextVscp())) {
-                        continue;
+                        सुरूठेवा;
                     }
-                } else if (selp->varScopep() != reg.stateVscp()) {
-                    continue;
+                } अन्यथा जर (selp->varScopep() != reg.stateVscp()) {
+                    सुरूठेवा;
                 }
-                AstNode* const warnNodep = FsmDetectVisitor::caseSupportedTransitionNode(
+                Ast_गाठ* स्थिरांक warnNodep = FsmDetectVisitor::case_Supported_Transition_गाठ(
                     casep, reg.nextVscp(), reg.inclCond());
-                if (!warnNodep) continue;
+                जर (!warnNodep) सुरूठेवा;
                 match.matchedp = &reg;
                 match.warnNodep = warnNodep;
             }
-            return match;
+            परत match;
         }
 
-        ComboMatch matchIfChain(AstNode* stmtsp, const FsmIfChainCandidate& chain) const {
+        ComboMatch matchIfChain(Ast_गाठ* stmtsp, स्थिरांक FsmIfChainCandidate& chain) स्थिरांक {
             ComboMatch match;
-            for (const FsmRegisterCandidate& reg : m_registerCandidates) {
+            साठी (स्थिरांक FsmRegisterCandidate& reg : m_registerCandidates) {
                 // Comparing state_d is safe only with the canonical default;
                 // otherwise the chain may be dispatching on already-mutated data.
-                if (chain.compareVscp == reg.nextVscp()) {
-                    if (!FsmDetectVisitor::hasCanonicalNextStateDefaultBeforeCase(
+                जर (chain.compareVscp == reg.nextVscp()) {
+                    जर (!FsmDetectVisitor::hasCanonicalNextStateDefaultBeforeCase(
                             stmtsp, chain.ifp, reg.stateVscp(), reg.nextVscp())) {
-                        continue;
+                        सुरूठेवा;
                     }
-                } else if (chain.compareVscp != reg.stateVscp()) {
-                    continue;
+                } अन्यथा जर (chain.compareVscp != reg.stateVscp()) {
+                    सुरूठेवा;
                 }
-                AstNode* const warnNodep
-                    = FsmDetectVisitor::ifChainSupportedTransitionNode(chain, reg.nextVscp());
-                if (!warnNodep) continue;
+                Ast_गाठ* स्थिरांक warnNodep
+                    = FsmDetectVisitor::if_Chain_Supported_Transition_गाठ(chain, reg.nextVscp());
+                जर (!warnNodep) सुरूठेवा;
                 match.matchedp = &reg;
                 match.warnNodep = warnNodep;
             }
-            return match;
+            परत match;
         }
 
-        bool shouldWarnUnsupported(AstNode* stmtsp, AstCase* casep) const {
-            const AstVarRef* const selp = VN_CAST(casep->exprp(), VarRef);
-            if (!selp) return false;
+        तार्किक shouldWarnUnsupported(Ast_गाठ* stmtsp, AstCase* casep) स्थिरांक {
+            स्थिरांक AstVarRef* स्थिरांक selp = VN_CAST(casep->exprp(), VarRef);
+            जर (!selp) परत असत्य;
 
-            return std::any_of(
+            परत std::any_of(
                 m_registerCandidates.cbegin(), m_registerCandidates.cend(),
-                [&](const FsmRegisterCandidate& reg) -> bool {
-                    const bool matchesNext = selp->varScopep() == reg.nextVscp();
-                    const bool matchesState = selp->varScopep() == reg.stateVscp();
+                [&](स्थिरांक FsmRegisterCandidate& reg) -> तार्किक {
+                    स्थिरांक तार्किक matchesNext = selp->varScopep() == reg.nextVscp();
+                    स्थिरांक तार्किक matchesState = selp->varScopep() == reg.stateVscp();
 
-                    if (!matchesNext && !matchesState) return false;
-                    if (matchesNext
+                    जर (!matchesNext && !matchesState) परत असत्य;
+                    जर (matchesNext
                         && !FsmDetectVisitor::hasCanonicalNextStateDefaultBeforeCase(
                             stmtsp, casep, reg.stateVscp(), reg.nextVscp())) {
-                        return false;
+                        परत असत्य;
                     }
-                    return FsmDetectVisitor::caseSupportedTransitionNode(casep, reg.nextVscp(),
+                    परत FsmDetectVisitor::case_Supported_Transition_गाठ(casep, reg.nextVscp(),
                                                                          reg.inclCond());
                 });
         }
@@ -876,154 +876,154 @@ class FsmDetectVisitor final : public VNVisitor {
 
     // Reset arcs are only modeled for the simple signal form that survives to
     // this pass after earlier normalization.
-    static bool isSimpleResetCond(AstNodeExpr* condp) { return VN_IS(condp, VarRef); }
+    स्थिर तार्किक isSimpleResetCond(Ast_गाठ_अभिव्यक्ती* condp) { परत VN_IS(condp, VarRef); }
 
     // Normalize the reset condition into a compact description so the lowering
     // phase can regenerate the same predicate after detection. By the time
     // this pass runs, active-low source forms such as "!rst_n" have already
     // been canonicalized to a positive-condition if/else shape, so only a
     // plain VarRef survives here.
-    static FsmResetCondDesc describeResetCond(AstNodeExpr* condp) {
+    स्थिर FsmResetCondDesc describeResetCond(Ast_गाठ_अभिव्यक्ती* condp) {
         FsmResetCondDesc desc;
-        if (AstVarRef* const vrefp = VN_CAST(condp, VarRef)) {
+        जर (AstVarRef* स्थिरांक vrefp = VN_CAST(condp, VarRef)) {
             desc.varScopep = vrefp->varScopep();
         }
-        return desc;
+        परत desc;
     }
 
     // Snapshot the original event control so the lowering phase can rebuild an
     // active block with the same edge semantics.
-    static std::vector<FsmSenDesc> describeSenTree(AstSenTree* sentreep) {
+    स्थिर std::vector<FsmSenDesc> describe_Sen_वृक्ष(Ast_Sen_वृक्ष* sentreep) {
         std::vector<FsmSenDesc> senses;
-        for (AstSenItem* itemp = sentreep->sensesp(); itemp;
+        साठी (AstSenItem* itemp = sentreep->sensesp(); itemp;
              itemp = VN_AS(itemp->nextp(), SenItem)) {
-            AstNodeVarRef* const vrefp = itemp->varrefp();
-            if (!vrefp) continue;
+            Ast_गाठ_Var_Ref* स्थिरांक vrefp = itemp->varrefp();
+            जर (!vrefp) सुरूठेवा;
             FsmSenDesc desc;
             desc.edgeType = itemp->edgeType().m_e;
             desc.varScopep = vrefp->varScopep();
-            senses.push_back(desc);
+            senses.ढकला_back(desc);
         }
-        return senses;
+        परत senses;
     }
 
     // Ignore existing coverage increments so FSM detection sees the user logic
     // rather than other instrumentation already attached to the block.
-    static bool isIgnorableStmt(AstNode* nodep) { return VN_IS(nodep, CoverInc); }
+    स्थिर तार्किक isIgnorableStmt(Ast_गाठ* nodep) { परत VN_IS(nodep, CoverInc); }
 
-    static AstNode* skipLeadingIgnorableStmt(AstNode* nodep) {
-        while (nodep && isIgnorableStmt(nodep)) nodep = nodep->nextp();
-        return nodep;
+    स्थिर Ast_गाठ* skipLeadingIgnorableStmt(Ast_गाठ* nodep) {
+        पर्यंत (nodep && isIgnorableStmt(nodep)) nodep = nodep->nextp();
+        परत nodep;
     }
 
     // Conservative extractor for statement lists: only treat a list as simple
     // when exactly one non-coverage statement remains after unwrapping.
     // Richer multi-statement or control-flow forms are intentionally left for
     // follow-on FSM-detection work instead of being partially inferred here.
-    static AstNode* singleMeaningfulStmt(AstNode* stmtp) {
-        AstNode* resultp = nullptr;
-        for (AstNode* nodep = stmtp; nodep; nodep = nodep->nextp()) {
-            if (isIgnorableStmt(nodep)) continue;
-            if (resultp) return nullptr;
+    स्थिर Ast_गाठ* singleMeaningfulStmt(Ast_गाठ* stmtp) {
+        Ast_गाठ* resultp = nullptr;
+        साठी (Ast_गाठ* nodep = stmtp; nodep; nodep = nodep->nextp()) {
+            जर (isIgnorableStmt(nodep)) सुरूठेवा;
+            जर (resultp) परत nullptr;
             resultp = nodep;
         }
-        return resultp;
+        परत resultp;
     }
 
     // If/else branches are a single subtree, not a statement list, so do not
     // walk nextp() here or we may accidentally consume the sibling else-arm.
-    static AstNode* singleMeaningfulBranch(AstNode* branchp) {
-        if (!branchp) return nullptr;
-        return branchp;
+    स्थिर Ast_गाठ* singleMeaningfulBranch(Ast_गाठ* branchp) {
+        जर (!branchp) परत nullptr;
+        परत branchp;
     }
 
     // By fsm-detect time, non-clocked always @* blocks are already admitted through
     // a missing sentree. This helper therefore only needs to recognize
     // explicit changed-sensitivity lists such as always @(a or b); clocked and
     // event-driven forms remain out of scope.
-    static bool isPlainComboSentree(const AstSenTree* sentreep) {
+    स्थिर तार्किक isPlainComboSentree(स्थिरांक Ast_Sen_वृक्ष* sentreep) {
         UASSERT(sentreep, "plain combo sensitivity check requires a sensitivity tree");
-        for (const AstSenItem* senp = sentreep->sensesp(); senp;
+        साठी (स्थिरांक AstSenItem* senp = sentreep->sensesp(); senp;
              senp = VN_AS(senp->nextp(), SenItem)) {
-            if (senp->edgeType() == VEdgeType::ET_CHANGED) continue;
-            return false;
+            जर (senp->edgeType() == VEdgeType::ET_CHANGED) सुरूठेवा;
+            परत असत्य;
         }
-        return true;
+        परत सत्य;
     }
 
-    void warnUnsupportedComboAlways(const FsmComboAlways& combo) {
-        const ComboAlwaysAnalyzer analyzer{m_registerCandidates};
-        AstNode* const stmtsp = skipLeadingIgnorableStmt(combo.alwaysp()->stmtsp());
-        bool warned = false;
-        for (AstNode* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
-            AstCase* const casep = VN_CAST(nodep, Case);
-            if (!casep) continue;
-            if (analyzer.shouldWarnUnsupported(stmtsp, casep)) {
+    शून्य warnUnsupportedComboAlways(स्थिरांक FsmComboAlways& combo) {
+        स्थिरांक ComboAlwaysAnalyzer analyzer{m_registerCandidates};
+        Ast_गाठ* स्थिरांक stmtsp = skipLeadingIgnorableStmt(combo.alwaysp()->stmtsp());
+        तार्किक warned = असत्य;
+        साठी (Ast_गाठ* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
+            AstCase* स्थिरांक casep = VN_CAST(nodep, Case);
+            जर (!casep) सुरूठेवा;
+            जर (analyzer.shouldWarnUnsupported(stmtsp, casep)) {
                 casep->v3warn(COVERIGN, "Ignoring unsupported: FSM coverage on non-clocked always "
                                         "blocks requires a combinational sensitivity list or "
                                         "always_comb");
-                warned = true;
+                warned = सत्य;
             }
-            if (warned) break;
+            जर (warned) थांबा;
         }
     }
 
     // Case-item bodies are single subtrees like if/else arms, not statement
     // lists, so unwrap only local begin/end wrappers here rather than walking
     // sibling case items via nextp().
-    static AstNodeAssign* directStateAssign(AstNode* stmtp, AstVarScope* stateVscp) {
-        AstNode* const nodep = singleMeaningfulBranch(stmtp);
-        if (!nodep) return nullptr;
-        AstNodeAssign* const assp = VN_CAST(nodep, NodeAssign);
-        if (!assp) return nullptr;
-        AstVarRef* const vrefp = VN_CAST(assp->lhsp(), VarRef);
-        if (!vrefp || vrefp->varScopep() != stateVscp) return nullptr;
-        return assp;
+    स्थिर Ast_गाठ_Assign* directStateAssign(Ast_गाठ* stmtp, AstVarScope* stateVscp) {
+        Ast_गाठ* स्थिरांक nodep = singleMeaningfulBranch(stmtp);
+        जर (!nodep) परत nullptr;
+        Ast_गाठ_Assign* स्थिरांक assp = VN_CAST(nodep, गाठ_Assign);
+        जर (!assp) परत nullptr;
+        AstVarRef* स्थिरांक vrefp = VN_CAST(assp->lhsp(), VarRef);
+        जर (!vrefp || vrefp->varScopep() != stateVscp) परत nullptr;
+        परत assp;
     }
 
-    static AstNodeAssign* nodeStateVarAssign(AstNode* nodep, AstVarScope*& stateVscp,
+    स्थिर Ast_गाठ_Assign* गाठ_State_Var_Assign(Ast_गाठ* nodep, AstVarScope*& stateVscp,
                                              AstVarScope*& fromVscp) {
-        AstNodeAssign* const assp = VN_CAST(nodep, NodeAssign);
-        if (!assp) return nullptr;
-        AstVarRef* const lhsp = VN_CAST(assp->lhsp()->baseFromp(true), VarRef);
-        AstVarRef* const rhsp = VN_CAST(assp->rhsp(), VarRef);
-        if (!rhsp || !lhsp) return nullptr;
+        Ast_गाठ_Assign* स्थिरांक assp = VN_CAST(nodep, गाठ_Assign);
+        जर (!assp) परत nullptr;
+        AstVarRef* स्थिरांक lhsp = VN_CAST(assp->lhsp()->baseFromp(सत्य), VarRef);
+        AstVarRef* स्थिरांक rhsp = VN_CAST(assp->rhsp(), VarRef);
+        जर (!rhsp || !lhsp) परत nullptr;
         stateVscp = lhsp->varScopep();
         fromVscp = rhsp->varScopep();
-        return assp;
+        परत assp;
     }
 
     // Match 'state = reset ? CONST : next', an active high reset folded into the commit
-    static AstNodeAssign* directCondStateVarAssign(AstNode* nodep, AstVarScope*& stateVscp,
-                                                   AstVarScope*& fromVscp, AstNodeExpr*& condp,
-                                                   FsmStateValue& resetValue) {
-        AstNodeAssign* const assp = VN_CAST(nodep, NodeAssign);
-        if (!assp) return nullptr;
-        AstVarRef* const lhsp = VN_CAST(assp->lhsp()->baseFromp(true), VarRef);
-        AstCond* const rhsp = VN_CAST(assp->rhsp(), Cond);
-        if (!rhsp || !lhsp) return nullptr;
-        AstVarRef* const elsep = VN_CAST(rhsp->elsep(), VarRef);
-        if (!elsep) return nullptr;
-        if (constValueStatus(rhsp->thenp(), resetValue) != ConstValueStatus::OK) return nullptr;
+    स्थिर Ast_गाठ_Assign* directCondStateVarAssign(Ast_गाठ* nodep, AstVarScope*& stateVscp,
+                                                   AstVarScope*& fromVscp, Ast_गाठ_अभिव्यक्ती*& condp,
+                                                   Fsm_State_मूल्य& reset_मूल्य) {
+        Ast_गाठ_Assign* स्थिरांक assp = VN_CAST(nodep, गाठ_Assign);
+        जर (!assp) परत nullptr;
+        AstVarRef* स्थिरांक lhsp = VN_CAST(assp->lhsp()->baseFromp(सत्य), VarRef);
+        AstCond* स्थिरांक rhsp = VN_CAST(assp->rhsp(), Cond);
+        जर (!rhsp || !lhsp) परत nullptr;
+        AstVarRef* स्थिरांक elsep = VN_CAST(rhsp->elsep(), VarRef);
+        जर (!elsep) परत nullptr;
+        जर (const_मूल्य_Status(rhsp->thenp(), reset_मूल्य) != Const_मूल्य_Status::OK) परत nullptr;
         fromVscp = elsep->varScopep();
         stateVscp = lhsp->varScopep();
         condp = rhsp->condp();
-        return assp;
+        परत assp;
     }
 
-    static AstNodeAssign* directConstStateAssignNode(AstNode* nodep, AstVarScope*& stateVscp,
-                                                     FsmStateValue& value) {
-        AstNodeAssign* const assp = VN_CAST(nodep, NodeAssign);
-        if (!assp) return nullptr;
-        AstVarRef* const lhsp = VN_CAST(assp->lhsp()->baseFromp(true), VarRef);
+    स्थिर Ast_गाठ_Assign* direct_Const_State_Assign_गाठ(Ast_गाठ* nodep, AstVarScope*& stateVscp,
+                                                     Fsm_State_मूल्य& मूल्य) {
+        Ast_गाठ_Assign* स्थिरांक assp = VN_CAST(nodep, गाठ_Assign);
+        जर (!assp) परत nullptr;
+        AstVarRef* स्थिरांक lhsp = VN_CAST(assp->lhsp()->baseFromp(सत्य), VarRef);
         UASSERT_OBJ(lhsp, assp,
                     "direct constant state assignment lhs should be normalized to a VarRef");
-        if (constValueStatus(assp->rhsp(), value) != ConstValueStatus::OK) return nullptr;
+        जर (const_मूल्य_Status(assp->rhsp(), मूल्य) != Const_मूल्य_Status::OK) परत nullptr;
         stateVscp = lhsp->varScopep();
-        return assp;
+        परत assp;
     }
 
-    enum class ResetAssignStatus : uint8_t {
+    गणना वर्ग ResetAssignStatus : uint8_t {
         EMPTY,  // Reset branch had no non-coverage statements.
         NONE,  // Reset branch was not the supported direct-constant shape.
         SINGLE,  // Exactly one supported reset assignment was collected.
@@ -1034,399 +1034,399 @@ class FsmDetectVisitor final : public VNVisitor {
     // user RTL assigns the same state register multiple times in the reset
     // branch, warn and skip reset-arc modeling rather than inventing multiple
     // reset transitions for an odd but legal coding style.
-    static ResetAssignStatus collectConstStateAssigns(AstNode* stmtp, AstVarScope*& stateVscp,
+    स्थिर ResetAssignStatus collectConstStateAssigns(Ast_गाठ* stmtp, AstVarScope*& stateVscp,
                                                       std::vector<FsmResetArcDesc>& resetArcs) {
-        AstNode* nodep = skipLeadingIgnorableStmt(stmtp);
-        if (!nodep) return ResetAssignStatus::EMPTY;
-        for (;; nodep = nodep->nextp()) {
+        Ast_गाठ* nodep = skipLeadingIgnorableStmt(stmtp);
+        जर (!nodep) परत ResetAssignStatus::EMPTY;
+        साठी (;; nodep = nodep->nextp()) {
             AstVarScope* assignStateVscp = nullptr;
-            FsmStateValue value;
-            AstNodeAssign* const assp = directConstStateAssignNode(nodep, assignStateVscp, value);
-            if (!assp) return ResetAssignStatus::NONE;
-            if (!stateVscp) stateVscp = assignStateVscp;
-            if (assignStateVscp != stateVscp) return ResetAssignStatus::NONE;
-            if (!resetArcs.empty()) {
+            Fsm_State_मूल्य मूल्य;
+            Ast_गाठ_Assign* स्थिरांक assp = direct_Const_State_Assign_गाठ(nodep, assignStateVscp, मूल्य);
+            जर (!assp) परत ResetAssignStatus::NONE;
+            जर (!stateVscp) stateVscp = assignStateVscp;
+            जर (assignStateVscp != stateVscp) परत ResetAssignStatus::NONE;
+            जर (!resetArcs.empty()) {
                 assp->v3warn(COVERIGN, "Ignoring unsupported: FSM coverage on reset branches with "
                                        "multiple assignments to the state variable");
                 resetArcs.clear();
-                return ResetAssignStatus::MULTI_SAME_STATE;
+                परत ResetAssignStatus::MULTI_SAME_STATE;
             }
-            resetArcs.emplace_back(value, assp);
-            if (!nodep->nextp()) return ResetAssignStatus::SINGLE;
+            resetArcs.emplace_back(मूल्य, assp);
+            जर (!nodep->nextp()) परत ResetAssignStatus::SINGLE;
         }
     }
 
-    static bool hasCanonicalNextStateDefaultBeforeCase(AstNode* stmtsp, AstNode* targetp,
+    स्थिर तार्किक hasCanonicalNextStateDefaultBeforeCase(Ast_गाठ* stmtsp, Ast_गाठ* targetp,
                                                        AstVarScope* stateVscp,
                                                        AstVarScope* nextVscp) {
-        AstNode* const bodyp = skipLeadingIgnorableStmt(stmtsp);
-        bool sawCanonicalDefault = false;
-        for (AstNode* nodep = bodyp;; nodep = nodep->nextp()) {
+        Ast_गाठ* स्थिरांक bodyp = skipLeadingIgnorableStmt(stmtsp);
+        तार्किक sawCanonicalDefault = असत्य;
+        साठी (Ast_गाठ* nodep = bodyp;; nodep = nodep->nextp()) {
             UASSERT_OBJ(nodep, targetp,
                         "next-state candidate not found in scanned statement list");
-            if (nodep == targetp) return sawCanonicalDefault;
-            if (AstNodeAssign* const assp = VN_CAST(nodep, NodeAssign)) {
-                AstVarRef* const lhsp = VN_CAST(assp->lhsp(), VarRef);
-                AstVarRef* const rhsp = VN_CAST(assp->rhsp(), VarRef);
-                if (!lhsp || lhsp->varScopep() != nextVscp) continue;
-                if (sawCanonicalDefault) {
-                    const string nextName = nextVscp->varp()->prettyNameQ();
-                    const string stateName = stateVscp->varp()->prettyNameQ();
+            जर (nodep == targetp) परत sawCanonicalDefault;
+            जर (Ast_गाठ_Assign* स्थिरांक assp = VN_CAST(nodep, गाठ_Assign)) {
+                AstVarRef* स्थिरांक lhsp = VN_CAST(assp->lhsp(), VarRef);
+                AstVarRef* स्थिरांक rhsp = VN_CAST(assp->rhsp(), VarRef);
+                जर (!lhsp || lhsp->varScopep() != nextVscp) सुरूठेवा;
+                जर (sawCanonicalDefault) {
+                    स्थिरांक string nextName = nextVscp->varp()->prettyNameQ();
+                    स्थिरांक string stateName = stateVscp->varp()->prettyNameQ();
                     assp->v3warn(COVERIGN,
                                  "Ignoring unsupported: FSM coverage on case(" + nextName
                                      + ") when the canonical " + nextName + " = " + stateName
                                      + " default is overwritten before the case statement");
-                    return false;
+                    परत असत्य;
                 }
-                if (!rhsp || rhsp->varScopep() != stateVscp) return false;
-                sawCanonicalDefault = true;
+                जर (!rhsp || rhsp->varScopep() != stateVscp) परत असत्य;
+                sawCanonicalDefault = सत्य;
             }
         }
     }
 
-    static bool ifStateConstAssign(AstNode* stmtp, AstVarScope* stateVscp,
-                                   FsmStateValue& thenValue, FsmStateValue& elseValue) {
-        AstIf* const ifp = VN_CAST(singleMeaningfulBranch(stmtp), If);
-        if (!ifp || !ifp->elsesp()) return false;
+    स्थिर तार्किक ifStateConstAssign(Ast_गाठ* stmtp, AstVarScope* stateVscp,
+                                   Fsm_State_मूल्य& then_मूल्य, Fsm_State_मूल्य& else_मूल्य) {
+        AstIf* स्थिरांक ifp = VN_CAST(singleMeaningfulBranch(stmtp), If);
+        जर (!ifp || !ifp->elsesp()) परत असत्य;
         AstVarScope* thenVscp = nullptr;
         AstVarScope* elseVscp = nullptr;
-        AstNode* const thenNodep = singleMeaningfulBranch(skipLeadingIgnorableStmt(ifp->thensp()));
-        AstNode* const elseNodep = singleMeaningfulBranch(skipLeadingIgnorableStmt(ifp->elsesp()));
-        if (!thenNodep || !elseNodep) return false;
-        if (!directConstStateAssignNode(thenNodep, thenVscp, thenValue)) return false;
-        if (!directConstStateAssignNode(elseNodep, elseVscp, elseValue)) return false;
-        if (thenVscp == stateVscp && elseVscp == stateVscp) return true;
-        if (thenVscp != elseVscp) return false;
-        AstNode* const followp = skipLeadingIgnorableStmt(ifp->nextp());
+        Ast_गाठ* स्थिरांक thenNodep = singleMeaningfulBranch(skipLeadingIgnorableStmt(ifp->thensp()));
+        Ast_गाठ* स्थिरांक elseNodep = singleMeaningfulBranch(skipLeadingIgnorableStmt(ifp->elsesp()));
+        जर (!thenNodep || !elseNodep) परत असत्य;
+        जर (!direct_Const_State_Assign_गाठ(thenNodep, thenVscp, then_मूल्य)) परत असत्य;
+        जर (!direct_Const_State_Assign_गाठ(elseNodep, elseVscp, else_मूल्य)) परत असत्य;
+        जर (thenVscp == stateVscp && elseVscp == stateVscp) परत सत्य;
+        जर (thenVscp != elseVscp) परत असत्य;
+        Ast_गाठ* स्थिरांक followp = skipLeadingIgnorableStmt(ifp->nextp());
         AstVarScope* finalStateVscp = nullptr;
         AstVarScope* finalFromVscp = nullptr;
-        AstNode* const finalNodep = singleMeaningfulBranch(followp);
-        if (!finalNodep) return false;
-        if (!nodeStateVarAssign(finalNodep, finalStateVscp, finalFromVscp)) return false;
-        if (finalStateVscp != stateVscp) return false;
-        if (finalFromVscp != thenVscp) return false;
-        return true;
+        Ast_गाठ* स्थिरांक finalNodep = singleMeaningfulBranch(followp);
+        जर (!finalNodep) परत असत्य;
+        जर (!गाठ_State_Var_Assign(finalNodep, finalStateVscp, finalFromVscp)) परत असत्य;
+        जर (finalStateVscp != stateVscp) परत असत्य;
+        जर (finalFromVscp != thenVscp) परत असत्य;
+        परत सत्य;
     }
 
-    static bool directStateCondConstAssign(AstNode* stmtp, AstVarScope* stateVscp,
-                                           FsmStateValue& thenValue, FsmStateValue& elseValue) {
-        AstNodeAssign* const assp = directStateAssign(stmtp, stateVscp);
-        if (!assp) return false;
-        AstCond* const condp = VN_CAST(assp->rhsp(), Cond);
-        if (!condp) return false;
-        return constValueStatus(condp->thenp(), thenValue) == ConstValueStatus::OK
-               && constValueStatus(condp->elsep(), elseValue) == ConstValueStatus::OK;
+    स्थिर तार्किक directStateCondConstAssign(Ast_गाठ* stmtp, AstVarScope* stateVscp,
+                                           Fsm_State_मूल्य& then_मूल्य, Fsm_State_मूल्य& else_मूल्य) {
+        Ast_गाठ_Assign* स्थिरांक assp = directStateAssign(stmtp, stateVscp);
+        जर (!assp) परत असत्य;
+        AstCond* स्थिरांक condp = VN_CAST(assp->rhsp(), Cond);
+        जर (!condp) परत असत्य;
+        परत const_मूल्य_Status(condp->thenp(), then_मूल्य) == Const_मूल्य_Status::OK
+               && const_मूल्य_Status(condp->elsep(), else_मूल्य) == Const_मूल्य_Status::OK;
     }
 
-    static AstNode* caseItemSupportedArcNode(AstCaseItem* itemp, AstVarScope* stateVscp,
-                                             bool inclCond) {
-        if (itemp->isDefault()) {
-            if (!inclCond) return nullptr;
+    स्थिर Ast_गाठ* case_Item_Supported_Arc_गाठ(AstCaseItem* itemp, AstVarScope* stateVscp,
+                                             तार्किक inclCond) {
+        जर (itemp->isDefault()) {
+            जर (!inclCond) परत nullptr;
         }
-        AstNodeAssign* const assp = directStateAssign(itemp->stmtsp(), stateVscp);
-        if (assp) {
-            FsmStateValue toValue;
-            if (constValueStatus(assp->rhsp(), toValue) == ConstValueStatus::OK) return assp;
+        Ast_गाठ_Assign* स्थिरांक assp = directStateAssign(itemp->stmtsp(), stateVscp);
+        जर (assp) {
+            Fsm_State_मूल्य to_मूल्य;
+            जर (const_मूल्य_Status(assp->rhsp(), to_मूल्य) == Const_मूल्य_Status::OK) परत assp;
         }
-        FsmStateValue thenValue;
-        FsmStateValue elseValue;
-        if (directStateCondConstAssign(itemp->stmtsp(), stateVscp, thenValue, elseValue)) {
-            return assp;
+        Fsm_State_मूल्य then_मूल्य;
+        Fsm_State_मूल्य else_मूल्य;
+        जर (directStateCondConstAssign(itemp->stmtsp(), stateVscp, then_मूल्य, else_मूल्य)) {
+            परत assp;
         }
-        if (ifStateConstAssign(itemp->stmtsp(), stateVscp, thenValue, elseValue)) {
-            return singleMeaningfulBranch(itemp->stmtsp());
+        जर (ifStateConstAssign(itemp->stmtsp(), stateVscp, then_मूल्य, else_मूल्य)) {
+            परत singleMeaningfulBranch(itemp->stmtsp());
         }
-        return nullptr;
+        परत nullptr;
     }
 
     // Combinational transition blocks are paired only through supported case
     // items that assign to the recorded next-state variable.
-    static AstNode* caseSupportedTransitionNode(AstCase* casep, AstVarScope* stateVscp,
-                                                bool inclCond) {
-        for (AstCaseItem* itemp = casep->itemsp(); itemp;
+    स्थिर Ast_गाठ* case_Supported_Transition_गाठ(AstCase* casep, AstVarScope* stateVscp,
+                                                तार्किक inclCond) {
+        साठी (AstCaseItem* itemp = casep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), CaseItem)) {
-            if (AstNode* const nodep = caseItemSupportedArcNode(itemp, stateVscp, inclCond))
-                return nodep;
+            जर (Ast_गाठ* स्थिरांक nodep = case_Item_Supported_Arc_गाठ(itemp, stateVscp, inclCond))
+                परत nodep;
         }
-        return nullptr;
+        परत nullptr;
     }
 
-    static AstNode* caseItemSupportedArcNodeLike(AstNode* stmtsp, AstVarScope* stateVscp) {
-        if (AstNodeAssign* const assp = directStateAssign(stmtsp, stateVscp)) {
-            FsmStateValue toValue;
-            if (constValueStatus(assp->rhsp(), toValue) == ConstValueStatus::OK) return assp;
-            FsmStateValue thenValue;
-            FsmStateValue elseValue;
-            if (directStateCondConstAssign(stmtsp, stateVscp, thenValue, elseValue)) return assp;
+    स्थिर Ast_गाठ* case_Item_Supported_Arc_गाठ_Like(Ast_गाठ* stmtsp, AstVarScope* stateVscp) {
+        जर (Ast_गाठ_Assign* स्थिरांक assp = directStateAssign(stmtsp, stateVscp)) {
+            Fsm_State_मूल्य to_मूल्य;
+            जर (const_मूल्य_Status(assp->rhsp(), to_मूल्य) == Const_मूल्य_Status::OK) परत assp;
+            Fsm_State_मूल्य then_मूल्य;
+            Fsm_State_मूल्य else_मूल्य;
+            जर (directStateCondConstAssign(stmtsp, stateVscp, then_मूल्य, else_मूल्य)) परत assp;
         }
-        return nullptr;
+        परत nullptr;
     }
 
-    static AstNode* ifChainSupportedTransitionNode(const FsmIfChainCandidate& chain,
+    स्थिर Ast_गाठ* if_Chain_Supported_Transition_गाठ(स्थिरांक FsmIfChainCandidate& chain,
                                                    AstVarScope* stateVscp) {
-        for (size_t i = 0; i < chain.branches.size(); ++i) {
-            const FsmIfBranch& branch = chain.branches[i];
-            AstNode* const nodep = caseItemSupportedArcNodeLike(branch.stmtsp, stateVscp);
-            if (!nodep) return nullptr;
+        साठी (माप_प्रकार i = 0; i < chain.branches.size(); ++i) {
+            स्थिरांक FsmIfBranch& branch = chain.branches[i];
+            Ast_गाठ* स्थिरांक nodep = case_Item_Supported_Arc_गाठ_Like(branch.stmtsp, stateVscp);
+            जर (!nodep) परत nullptr;
         }
-        return chain.branches.front().ifp;
+        परत chain.branches.front().ifp;
     }
 
     // Prefer user labels in reports. Forced non-enum FSMs prepopulate synthetic
     // labels, so all emitted arcs should already have a known label here.
-    static string labelForValue(
-        const std::unordered_map<FsmStateValue, StateConstLabel, FsmStateValueHash>& labels,
-        const FsmStateValue& value) {
-        return labels.at(value).text;
+    स्थिर string label_For_मूल्य(
+        स्थिरांक std::unordered_map<Fsm_State_मूल्य, StateConstLabel, Fsm_State_मूल्य_Hash>& labels,
+        स्थिरांक Fsm_State_मूल्य& मूल्य) {
+        परत labels.at(मूल्य).text;
     }
 
     // The extractor only models constant-valued state transitions, and by the
     // time detect runs those values have already been constant-folded.
-    enum class ConstValueStatus : uint8_t { OK, NOT_CONST, XZ };
+    गणना वर्ग Const_मूल्य_Status : uint8_t { OK, NOT_CONST, XZ };
 
-    static ConstValueStatus constValueStatus(AstNodeExpr* exprp, FsmStateValue& value) {
-        const AstConst* const constp = VN_CAST(exprp, Const);
-        if (!constp) return ConstValueStatus::NOT_CONST;
-        const V3Number& num = constp->num();
-        if (num.isAnyXZ()) return ConstValueStatus::XZ;
-        value = FsmStateValue{num};
-        return ConstValueStatus::OK;
+    स्थिर Const_मूल्य_Status const_मूल्य_Status(Ast_गाठ_अभिव्यक्ती* exprp, Fsm_State_मूल्य& मूल्य) {
+        स्थिरांक AstConst* स्थिरांक constp = VN_CAST(exprp, Const);
+        जर (!constp) परत Const_मूल्य_Status::NOT_CONST;
+        स्थिरांक V3_संख्या& अंक = constp->अंक();
+        जर (अंक.isAnyXZ()) परत Const_मूल्य_Status::XZ;
+        मूल्य = Fsm_State_मूल्य{अंक};
+        परत Const_मूल्य_Status::OK;
     }
 
-    static bool pureStateComparisonNoAlias(AstNodeExpr* exprp, FsmStateComparison& cmp) {
-        AstEq* const eqp = VN_CAST(exprp, Eq);
-        if (!eqp) return false;
+    स्थिर तार्किक pureStateComparisonNoAlias(Ast_गाठ_अभिव्यक्ती* exprp, FsmStateComparison& cmp) {
+        AstEq* स्थिरांक eqp = VN_CAST(exprp, Eq);
+        जर (!eqp) परत असत्य;
 
         // Operand order is not semantically meaningful for state dispatch, so
         // both normalized forms should classify identically.
         AstVarRef* vrefp = VN_CAST(eqp->lhsp(), VarRef);
-        AstNodeExpr* valuep = eqp->rhsp();
-        if (!vrefp) {
-            vrefp = VN_CAST(eqp->rhsp()->baseFromp(true), VarRef);
-            if (!vrefp) { return false; }
+        Ast_गाठ_अभिव्यक्ती* valuep = eqp->rhsp();
+        जर (!vrefp) {
+            vrefp = VN_CAST(eqp->rhsp()->baseFromp(सत्य), VarRef);
+            जर (!vrefp) { परत असत्य; }
             valuep = eqp->lhsp();
         }
 
-        FsmStateValue value;
-        if (constValueStatus(valuep, value) != ConstValueStatus::OK) return false;
+        Fsm_State_मूल्य मूल्य;
+        जर (const_मूल्य_Status(valuep, मूल्य) != Const_मूल्य_Status::OK) परत असत्य;
         cmp.stateVscp = vrefp->varScopep();
         cmp.valuep = valuep;
-        cmp.value = value;
-        return true;
+        cmp.मूल्य = मूल्य;
+        परत सत्य;
     }
 
-    static bool pureStateComparison(AstNodeExpr* exprp, const FsmAliasMap& aliases,
+    स्थिर तार्किक pureStateComparison(Ast_गाठ_अभिव्यक्ती* exprp, स्थिरांक FsmAliasMap& aliases,
                                     FsmStateComparison& cmp) {
-        if (pureStateComparisonNoAlias(exprp, cmp)) return true;
+        जर (pureStateComparisonNoAlias(exprp, cmp)) परत सत्य;
         // Bare predicates are too broad for FSM inference unless a prior alias
         // proves they are exactly a state comparison.
-        if (AstVarRef* const vrefp = VN_CAST(exprp, VarRef)) {
-            const FsmAliasMap::const_iterator it = aliases.find(vrefp->varScopep());
-            if (it == aliases.end()) return false;
+        जर (AstVarRef* स्थिरांक vrefp = VN_CAST(exprp, VarRef)) {
+            स्थिरांक FsmAliasMap::const_iterator it = aliases.find(vrefp->varScopep());
+            जर (it == aliases.end()) परत असत्य;
             cmp = it->second;
-            return true;
+            परत सत्य;
         }
-        return false;
+        परत असत्य;
     }
 
-    static bool supportedTopLevelGuard(AstNodeExpr* exprp) {
+    स्थिर तार्किक supported_शीर्ष_Level_Guard(Ast_गाठ_अभिव्यक्ती* exprp) {
         // These terms can combine multiple dispatch choices into one branch, so
         // treating them as ordinary guards would over-infer the FSM shape.
-        if (VN_IS(exprp, Or)) return false;
-        if (VN_IS(exprp, RedAnd)) return false;
-        if (VN_IS(exprp, RedOr)) return false;
-        if (VN_IS(exprp, RedXor)) return false;
-        return true;
+        जर (VN_IS(exprp, Or)) परत असत्य;
+        जर (VN_IS(exprp, RedAnd)) परत असत्य;
+        जर (VN_IS(exprp, RedOr)) परत असत्य;
+        जर (VN_IS(exprp, RedXor)) परत असत्य;
+        परत सत्य;
     }
 
-    static bool resolveIfPredicate(AstNodeExpr* exprp, const FsmAliasMap& aliases,
-                                   FsmStateComparison& cmp, bool& hasGuard) {
-        std::vector<AstNodeExpr*> terms;
-        std::vector<AstNodeExpr*> pending;
-        pending.push_back(exprp);
+    स्थिर तार्किक resolveIfPredicate(Ast_गाठ_अभिव्यक्ती* exprp, स्थिरांक FsmAliasMap& aliases,
+                                   FsmStateComparison& cmp, तार्किक& hasGuard) {
+        std::vector<Ast_गाठ_अभिव्यक्ती*> terms;
+        std::vector<Ast_गाठ_अभिव्यक्ती*> pending;
+        pending.ढकला_back(exprp);
         // Top-level conjunction is the only decomposition we can map cleanly to
         // one source state plus optional transition guards.
-        while (!pending.empty()) {
-            AstNodeExpr* const nodep = pending.back();
-            pending.pop_back();
-            if (AstAnd* const andp = VN_CAST(nodep, And)) {
-                pending.push_back(andp->rhsp());
-                pending.push_back(andp->lhsp());
-            } else {
-                terms.push_back(nodep);
+        पर्यंत (!pending.empty()) {
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक nodep = pending.back();
+            pending.काढा_back();
+            जर (AstAnd* स्थिरांक andp = VN_CAST(nodep, And)) {
+                pending.ढकला_back(andp->rhsp());
+                pending.ढकला_back(andp->lhsp());
+            } अन्यथा {
+                terms.ढकला_back(nodep);
             }
         }
 
-        bool sawComparison = false;
-        for (size_t i = 0; i < terms.size(); ++i) {
-            AstNodeExpr* const termp = terms[i];
+        तार्किक sawComparison = असत्य;
+        साठी (माप_प्रकार i = 0; i < terms.size(); ++i) {
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक termp = terms[i];
             FsmStateComparison termCmp;
-            if (pureStateComparison(termp, aliases, termCmp /*ref*/)) {
-                if (sawComparison) return false;
+            जर (pureStateComparison(termp, aliases, termCmp /*ref*/)) {
+                जर (sawComparison) परत असत्य;
                 cmp = termCmp;
-                sawComparison = true;
-                continue;
+                sawComparison = सत्य;
+                सुरूठेवा;
             }
-            if (!supportedTopLevelGuard(termp)) return false;
-            hasGuard = true;
+            जर (!supported_शीर्ष_Level_Guard(termp)) परत असत्य;
+            hasGuard = सत्य;
         }
-        return sawComparison;
+        परत sawComparison;
     }
 
-    static void addAlias(FsmAliasMap& aliases, std::unordered_set<const AstVarScope*>& ambiguous,
-                         AstVarScope* aliasVscp, const FsmStateComparison& cmp) {
-        if (ambiguous.find(aliasVscp) != ambiguous.end()) return;
-        const FsmAliasMap::iterator it = aliases.find(aliasVscp);
-        if (it == aliases.end()) {
+    स्थिर शून्य addAlias(FsmAliasMap& aliases, std::unordered_set<स्थिरांक AstVarScope*>& ambiguous,
+                         AstVarScope* aliasVscp, स्थिरांक FsmStateComparison& cmp) {
+        जर (ambiguous.find(aliasVscp) != ambiguous.end()) परत;
+        स्थिरांक FsmAliasMap::iterator it = aliases.find(aliasVscp);
+        जर (it == aliases.end()) {
             aliases.emplace(aliasVscp, cmp);
-            return;
+            परत;
         }
         // Conflicting alias definitions make the predicate ambiguous, and
         // ambiguous aliases are worse than missing an optional FSM.
-        if (it->second.stateVscp == cmp.stateVscp && it->second.value == cmp.value) return;
+        जर (it->second.stateVscp == cmp.stateVscp && it->second.मूल्य == cmp.मूल्य) परत;
         aliases.erase(aliasVscp);
         ambiguous.emplace(aliasVscp);
-        return;
+        परत;
     }
 
-    static void collectAliasFromAssign(AstNodeAssign* assp, FsmAliasMap& aliases,
-                                       std::unordered_set<const AstVarScope*>& ambiguous) {
-        AstVarRef* const lhsp = VN_CAST(assp->lhsp(), VarRef);
-        if (!lhsp) return;
+    स्थिर शून्य collectAliasFromAssign(Ast_गाठ_Assign* assp, FsmAliasMap& aliases,
+                                       std::unordered_set<स्थिरांक AstVarScope*>& ambiguous) {
+        AstVarRef* स्थिरांक lhsp = VN_CAST(assp->lhsp(), VarRef);
+        जर (!lhsp) परत;
         FsmStateComparison cmp;
         // Guarded aliases blur dispatch and transition conditions, so require a
         // pure comparison and let guards live at the use site.
-        if (!pureStateComparisonNoAlias(assp->rhsp(), cmp /*ref*/)) return;
+        जर (!pureStateComparisonNoAlias(assp->rhsp(), cmp /*ref*/)) परत;
         addAlias(aliases /*ref*/, ambiguous /*ref*/, lhsp->varScopep(), cmp);
     }
 
-    FsmAliasMap localAliasesBefore(AstNode* stmtsp, AstNode* limitp) const {
+    FsmAliasMap localAliasesBefore(Ast_गाठ* stmtsp, Ast_गाठ* limitp) स्थिरांक {
         FsmAliasMap aliases = m_stateAliases;
-        std::unordered_set<const AstVarScope*> ambiguous = m_ambiguousStateAliases;
+        std::unordered_set<स्थिरांक AstVarScope*> ambiguous = m_ambiguousStateAliases;
         // Procedural aliases cannot be applied before their assignment without
         // changing the meaning of the surrounding always block.
-        for (AstNode* nodep = skipLeadingIgnorableStmt(stmtsp); nodep && nodep != limitp;
+        साठी (Ast_गाठ* nodep = skipLeadingIgnorableStmt(stmtsp); nodep && nodep != limitp;
              nodep = nodep->nextp()) {
-            if (AstNodeAssign* const assp = VN_CAST(nodep, NodeAssign)) {
+            जर (Ast_गाठ_Assign* स्थिरांक assp = VN_CAST(nodep, गाठ_Assign)) {
                 collectAliasFromAssign(assp, aliases /*ref*/, ambiguous /*ref*/);
             }
         }
-        for (const AstVarScope* const vscp : ambiguous) aliases.erase(vscp);
-        return aliases;
+        साठी (स्थिरांक AstVarScope* स्थिरांक vscp : ambiguous) aliases.erase(vscp);
+        परत aliases;
     }
 
-    static bool collectIfChain(AstIf* ifp, const FsmAliasMap& aliases,
+    स्थिर तार्किक collectIfChain(AstIf* ifp, स्थिरांक FsmAliasMap& aliases,
                                FsmIfChainCandidate& chain) {
         chain.ifp = ifp;
-        std::unordered_set<string> seenValues;
+        std::unordered_set<string> seen_मूल्ये;
         AstIf* curp = ifp;
         // Only the top-level spine represents dispatch; treating nested branch
         // logic as additional source states would invent transitions.
-        while (true) {
+        पर्यंत (सत्य) {
             FsmStateComparison cmp;
-            bool hasGuard = false;
-            if (!resolveIfPredicate(curp->condp(), aliases, cmp, hasGuard)) return false;
-            if (chain.compareVscp && chain.compareVscp != cmp.stateVscp) return false;
-            if (!seenValues.insert(cmp.value.key()).second) return false;
+            तार्किक hasGuard = असत्य;
+            जर (!resolveIfPredicate(curp->condp(), aliases, cmp, hasGuard)) परत असत्य;
+            जर (chain.compareVscp && chain.compareVscp != cmp.stateVscp) परत असत्य;
+            जर (!seen_मूल्ये.घाला(cmp.मूल्य.किल्ली()).second) परत असत्य;
             chain.compareVscp = cmp.stateVscp;
-            chain.branches.push_back(
-                FsmIfBranch{curp, curp->thensp(), cmp.valuep, cmp.value, hasGuard});
+            chain.branches.ढकला_back(
+                FsmIfBranch{curp, curp->thensp(), cmp.valuep, cmp.मूल्य, hasGuard});
 
-            AstNode* const elseNodep
+            Ast_गाठ* स्थिरांक elseNodep
                 = singleMeaningfulBranch(skipLeadingIgnorableStmt(curp->elsesp()));
-            if (!elseNodep) break;
-            if (AstIf* const elseIfp = VN_CAST(elseNodep, If)) {
+            जर (!elseNodep) थांबा;
+            जर (AstIf* स्थिरांक elseIfp = VN_CAST(elseNodep, If)) {
                 curp = elseIfp;
-                continue;
+                सुरूठेवा;
             }
             chain.defaultStmtsp = elseNodep;
-            break;
+            थांबा;
         }
-        return chain.branches.size() >= 2;
+        परत chain.branches.size() >= 2;
     }
 
     // Enum-backed FSMs should only use values that were interned as known states.
     // If a constant transition references some other encoding, warn and skip FSM
     // instrumentation for that edge rather than silently dropping it or turning
     // optional coverage into a hard compile failure.
-    static bool validateKnownStateValue(AstNode* nodep, const FsmStateSpace& stateSpace,
-                                        const FsmStateValue& value, const string& role) {
-        if (stateSpace.labels.find(value) != stateSpace.labels.end()) return true;
-        if (stateSpace.enumBacked) {
-            const string enumRole = role == "source" ? "case item value" : "assigned value";
+    स्थिर तार्किक validate_Known_State_मूल्य(Ast_गाठ* nodep, स्थिरांक FsmStateSpace& stateSpace,
+                                        स्थिरांक Fsm_State_मूल्य& मूल्य, स्थिरांक string& role) {
+        जर (stateSpace.labels.find(मूल्य) != stateSpace.labels.end()) परत सत्य;
+        जर (stateSpace.enumBacked) {
+            स्थिरांक string enumRole = role == "source" ? "case item value" : "assigned value";
             nodep->v3warn(COVERIGN, "Ignoring unsupported: FSM coverage on enum state variable "
                                         + stateSpace.stateVarp->prettyNameQ() + ": " + enumRole
-                                        + " " + value.warnText()
+                                        + " " + मूल्य.warnText()
                                         + " is not present in the declared enum");
-            return false;
+            परत असत्य;
         }
         nodep->v3warn(COVERIGN, "Ignoring unsupported: FSM coverage on non-enum state variable "
                                     + stateSpace.stateVarp->prettyNameQ() + ": " + role + " value "
-                                    + value.warnText()
+                                    + मूल्य.warnText()
                                     + " is not present in the inferred state space");
-        return false;
+        परत असत्य;
     }
 
-    static StateConstLabel stateLabelForConst(AstConst* constp) {
-        const string name = constp->origParamName();
-        if (!name.empty()) return StateConstLabel{AstNode::prettyName(name), true, 0};
-        return StateConstLabel{constp->name(), false, 0};
+    स्थिर StateConstLabel stateLabelForConst(AstConst* constp) {
+        स्थिरांक string name = constp->origParamName();
+        जर (!name.empty()) परत StateConstLabel{Ast_गाठ::prettyName(name), सत्य, 0};
+        परत StateConstLabel{constp->name(), असत्य, 0};
     }
 
-    static void updateStateLabel(FsmStateSpace& stateSpace, const FsmStateValue& value,
-                                 const StateConstLabel& label) {
-        stateSpace.states.at(stateSpace.labels.at(value).stateIndex).first = label.text;
+    स्थिर शून्य updateStateLabel(FsmStateSpace& stateSpace, स्थिरांक Fsm_State_मूल्य& मूल्य,
+                                 स्थिरांक StateConstLabel& label) {
+        stateSpace.states.at(stateSpace.labels.at(मूल्य).stateIndex).first = label.text;
     }
 
     // Strict Phase 1 matcher for register processes: either a bare state
     // commit, or a top-level reset guard whose else path is that commit.
-    static bool matchRegisterAlways(AstAlways* alwaysp, AstScope* scopep,
+    स्थिर तार्किक matchRegisterAlways(AstAlways* alwaysp, AstScope* scopep,
                                     FsmRegisterCandidate& cand) {
-        if (!alwaysp->sentreep() || !alwaysp->sentreep()->hasEdge()) return false;
+        जर (!alwaysp->sentreep() || !alwaysp->sentreep()->hasEdge()) परत असत्य;
 
-        AstNode* const stmtsp = skipLeadingIgnorableStmt(alwaysp->stmtsp());
-        AstNode* const nodep = singleMeaningfulStmt(stmtsp);
-        if (!nodep) return false;
+        Ast_गाठ* स्थिरांक stmtsp = skipLeadingIgnorableStmt(alwaysp->stmtsp());
+        Ast_गाठ* स्थिरांक nodep = singleMeaningfulStmt(stmtsp);
+        जर (!nodep) परत असत्य;
 
         AstVarScope* stateVscp = nullptr;
         AstVarScope* nextVscp = nullptr;
-        if (AstIf* const ifp = VN_CAST(nodep, If)) {
-            if (!ifp->elsesp() || !isSimpleResetCond(ifp->condp())) return false;
+        जर (AstIf* स्थिरांक ifp = VN_CAST(nodep, If)) {
+            जर (!ifp->elsesp() || !isSimpleResetCond(ifp->condp())) परत असत्य;
             AstVarScope* resetStateVscp = nullptr;
-            const ResetAssignStatus resetStatus
+            स्थिरांक ResetAssignStatus resetStatus
                 = collectConstStateAssigns(ifp->thensp(), resetStateVscp, cand.resetArcs());
-            const bool emptyResetBranch = resetStatus == ResetAssignStatus::EMPTY;
-            if (emptyResetBranch) {
+            स्थिरांक तार्किक emptyResetBranch = resetStatus == ResetAssignStatus::EMPTY;
+            जर (emptyResetBranch) {
                 cand.resetArcs().clear();
-            } else if (resetStatus == ResetAssignStatus::NONE) {
+            } अन्यथा जर (resetStatus == ResetAssignStatus::NONE) {
                 cand.resetArcs().clear();
-                FsmStateValue resetValue;
-                AstNode* const thenNodep = singleMeaningfulBranch(ifp->thensp());
+                Fsm_State_मूल्य reset_मूल्य;
+                Ast_गाठ* स्थिरांक thenNodep = singleMeaningfulBranch(ifp->thensp());
                 UASSERT_OBJ(thenNodep, ifp, "reset fallback requires a non-empty reset branch");
-                AstNodeAssign* const resetAssp
-                    = directConstStateAssignNode(thenNodep, resetStateVscp, resetValue);
-                if (!resetAssp) return false;
-                cand.resetArcs().emplace_back(resetValue, resetAssp);
-            } else if (resetStatus == ResetAssignStatus::MULTI_SAME_STATE) {
+                Ast_गाठ_Assign* स्थिरांक resetAssp
+                    = direct_Const_State_Assign_गाठ(thenNodep, resetStateVscp, reset_मूल्य);
+                जर (!resetAssp) परत असत्य;
+                cand.resetArcs().emplace_back(reset_मूल्य, resetAssp);
+            } अन्यथा जर (resetStatus == ResetAssignStatus::MULTI_SAME_STATE) {
                 cand.resetArcs().clear();
             }
-            AstNode* const elseNodep = singleMeaningfulBranch(ifp->elsesp());
+            Ast_गाठ* स्थिरांक elseNodep = singleMeaningfulBranch(ifp->elsesp());
             UASSERT_OBJ(elseNodep, ifp, "register reset match requires a non-empty commit branch");
-            if (!nodeStateVarAssign(elseNodep, stateVscp, nextVscp)) return false;
-            if (!emptyResetBranch && resetStateVscp != stateVscp) return false;
+            जर (!गाठ_State_Var_Assign(elseNodep, stateVscp, nextVscp)) परत असत्य;
+            जर (!emptyResetBranch && resetStateVscp != stateVscp) परत असत्य;
             cand.resetCond() = describeResetCond(ifp->condp());
             cand.hasResetCond(cand.resetCond().varScopep != nullptr);
-        } else {
-            AstNodeExpr* resetCondp = nullptr;
-            FsmStateValue resetValue;
+        } अन्यथा {
+            Ast_गाठ_अभिव्यक्ती* resetCondp = nullptr;
+            Fsm_State_मूल्य reset_मूल्य;
             // Note the active low 'reset ? next : CONST' form is not accepted
-            if (AstNodeAssign* const assp
-                = directCondStateVarAssign(nodep, stateVscp, nextVscp, resetCondp, resetValue)) {
-                cand.resetArcs().emplace_back(resetValue, assp);
+            जर (Ast_गाठ_Assign* स्थिरांक assp
+                = directCondStateVarAssign(nodep, stateVscp, nextVscp, resetCondp, reset_मूल्य)) {
+                cand.resetArcs().emplace_back(reset_मूल्य, assp);
                 cand.resetCond() = describeResetCond(resetCondp);
                 cand.hasResetCond(cand.resetCond().varScopep != nullptr);
-            } else if (!nodeStateVarAssign(nodep, stateVscp, nextVscp)) {
-                return false;
+            } अन्यथा जर (!गाठ_State_Var_Assign(nodep, stateVscp, nextVscp)) {
+                परत असत्य;
             }
         }
         cand.scopep(scopep);
@@ -1434,200 +1434,200 @@ class FsmDetectVisitor final : public VNVisitor {
         cand.stateVscp(stateVscp);
         cand.sampleVscp(stateVscp);
         cand.nextVscp(nextVscp);
-        cand.senses() = describeSenTree(alwaysp->sentreep());
+        cand.senses() = describe_Sen_वृक्ष(alwaysp->sentreep());
         cand.inclCond(stateVscp->varp()->attrFsmArcInclCond());
         cand.fileline(alwaysp->fileline());
-        return true;
+        परत सत्य;
     }
 
-    static bool addValueToStateSpace(AstNode* nodep, FsmStateSpace& stateSpace,
-                                     const FsmStateValue& value, StateConstLabel label) {
-        const auto labelIt = stateSpace.labels.find(value);
-        if (labelIt != stateSpace.labels.end()) {
+    स्थिर तार्किक add_मूल्य_To_State_Space(Ast_गाठ* nodep, FsmStateSpace& stateSpace,
+                                     स्थिरांक Fsm_State_मूल्य& मूल्य, StateConstLabel label) {
+        स्थिरांक स्वतः labelIt = stateSpace.labels.find(मूल्य);
+        जर (labelIt != stateSpace.labels.end()) {
             StateConstLabel& existingLabel = labelIt->second;
-            if (existingLabel.text != label.text && existingLabel.fromParam && label.fromParam) {
+            जर (existingLabel.text != label.text && existingLabel.fromParam && label.fromParam) {
                 nodep->v3warn(COVERIGN, "Ignoring unsupported: FSM coverage on non-enum "
                                         "state variable "
                                             + stateSpace.stateVarp->prettyNameQ()
                                             + " with multiple labels for the same value "
-                                            + value.warnText() + ": " + existingLabel.text
+                                            + मूल्य.warnText() + ": " + existingLabel.text
                                             + " and " + label.text);
-                return false;
+                परत असत्य;
             }
-            if (!existingLabel.fromParam && label.fromParam) {
+            जर (!existingLabel.fromParam && label.fromParam) {
                 existingLabel.text = label.text;
                 existingLabel.fromParam = label.fromParam;
-                updateStateLabel(stateSpace, value, label);
+                updateStateLabel(stateSpace, मूल्य, label);
             }
-        } else {
+        } अन्यथा {
             StateConstLabel storedLabel = label;
             storedLabel.stateIndex = stateSpace.states.size();
-            stateSpace.states.emplace_back(label.text, value);
-            stateSpace.labels.emplace(value, storedLabel);
+            stateSpace.states.emplace_back(label.text, मूल्य);
+            stateSpace.labels.emplace(मूल्य, storedLabel);
         }
-        return true;
+        परत सत्य;
     }
 
     // Helper: process a single observed state expression and add it to the state space
     // Returns true on success, false if the state space is invalid
-    static bool addExprToStateSpace(AstNodeExpr* valuep, FsmStateSpace& stateSpace) {
-        FsmStateValue value;
-        const ConstValueStatus status = constValueStatus(valuep, value);
-        if (status != ConstValueStatus::OK) {
-            if (status == ConstValueStatus::XZ) {
+    स्थिर तार्किक add_अभिव्यक्ती_To_State_Space(Ast_गाठ_अभिव्यक्ती* valuep, FsmStateSpace& stateSpace) {
+        Fsm_State_मूल्य मूल्य;
+        स्थिरांक Const_मूल्य_Status status = const_मूल्य_Status(valuep, मूल्य);
+        जर (status != Const_मूल्य_Status::OK) {
+            जर (status == Const_मूल्य_Status::XZ) {
                 valuep->v3warn(COVERIGN, "Ignoring unsupported: FSM coverage on non-enum "
                                          "state variable "
                                              + stateSpace.stateVarp->prettyNameQ()
                                              + " with X/Z state encoding values");
             }
-            return false;
+            परत असत्य;
         }
-        AstConst* const constp = VN_AS(valuep, Const);
-        return addValueToStateSpace(valuep, stateSpace, value, stateLabelForConst(constp));
+        AstConst* स्थिरांक constp = VN_AS(valuep, Const);
+        परत add_मूल्य_To_State_Space(valuep, stateSpace, मूल्य, stateLabelForConst(constp));
     }
 
-    static bool addOptionalTargetExprToStateSpace(AstNodeExpr* valuep, FsmStateSpace& stateSpace) {
-        FsmStateValue value;
-        const ConstValueStatus status = constValueStatus(valuep, value);
-        if (status != ConstValueStatus::OK) {
+    स्थिर तार्किक add_Optional_Target_अभिव्यक्ती_To_State_Space(Ast_गाठ_अभिव्यक्ती* valuep, FsmStateSpace& stateSpace) {
+        Fsm_State_मूल्य मूल्य;
+        स्थिरांक Const_मूल्य_Status status = const_मूल्य_Status(valuep, मूल्य);
+        जर (status != Const_मूल्य_Status::OK) {
             valuep->v3warn(COVERIGN, "Ignoring unsupported: FSM coverage on non-enum "
                                      "state variable "
                                          + stateSpace.stateVarp->prettyNameQ()
                                          + " with non-constant target state values");
-            return false;
+            परत असत्य;
         }
-        AstConst* const constp = VN_AS(valuep, Const);
-        return addValueToStateSpace(valuep, stateSpace, value, stateLabelForConst(constp));
+        AstConst* स्थिरांक constp = VN_AS(valuep, Const);
+        परत add_मूल्य_To_State_Space(valuep, stateSpace, मूल्य, stateLabelForConst(constp));
     }
 
-    static void addResetTargetsToStateSpace(const std::vector<FsmResetArcDesc>& resetArcs,
+    स्थिर शून्य addResetTargetsToStateSpace(स्थिरांक std::vector<FsmResetArcDesc>& resetArcs,
                                             FsmStateSpace& stateSpace) {
-        for (const FsmResetArcDesc& resetArc : resetArcs) {
-            StateConstLabel label{resetArc.toValue().ascii(), false, 0};
-            if (AstConst* const constp = VN_CAST(resetArc.valuep(), Const)) {
+        साठी (स्थिरांक FsmResetArcDesc& resetArc : resetArcs) {
+            StateConstLabel label{resetArc.to_मूल्य().ascii(), असत्य, 0};
+            जर (AstConst* स्थिरांक constp = VN_CAST(resetArc.valuep(), Const)) {
                 label = stateLabelForConst(constp);
             }
             UASSERT_OBJ(
-                addValueToStateSpace(resetArc.nodep(), stateSpace, resetArc.toValue(), label),
+                add_मूल्य_To_State_Space(resetArc.nodep(), stateSpace, resetArc.to_मूल्य(), label),
                 resetArc.nodep(), "reset target labels should be unambiguous");
         }
     }
 
     // Build the Phase 1 state space from the tracked registered state
     // variable, not from whichever signal the transition statement happened to use.
-    static bool collectDeclaredStateSpace(AstNode* warnNodep, AstVarScope* stateVscp,
-                                          FsmStateSpace& stateSpace, bool& needsSourceValues) {
-        AstVar* const stateVarp = stateVscp->varp();
+    स्थिर तार्किक collectDeclaredStateSpace(Ast_गाठ* warnNodep, AstVarScope* stateVscp,
+                                          FsmStateSpace& stateSpace, तार्किक& needs_Source_मूल्ये) {
+        AstVar* स्थिरांक stateVarp = stateVscp->varp();
         AstEnumDType* enump = VN_CAST(unwrapEnumCandidate(stateVscp->dtypep()), EnumDType);
-        if (!enump) enump = VN_CAST(unwrapEnumCandidate(stateVarp->dtypep()), EnumDType);
-        const bool forced = stateVarp->attrFsmState();
+        जर (!enump) enump = VN_CAST(unwrapEnumCandidate(stateVarp->dtypep()), EnumDType);
+        स्थिरांक तार्किक forced = stateVarp->attrFsmState();
         stateSpace.stateVarp = stateVarp;
 
-        if (enump) {
-            stateSpace.enumBacked = true;
-            for (AstEnumItem* itemp = enump->itemsp(); itemp;
+        जर (enump) {
+            stateSpace.enumBacked = सत्य;
+            साठी (AstEnumItem* itemp = enump->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                const AstConst* const constp = VN_AS(itemp->valuep(), Const);
-                const FsmStateValue value{constp->num()};
-                const size_t stateIndex = stateSpace.states.size();
-                stateSpace.states.emplace_back(itemp->name(), value);
-                stateSpace.labels.emplace(value,
-                                          StateConstLabel{itemp->name(), false, stateIndex});
+                स्थिरांक AstConst* स्थिरांक constp = VN_AS(itemp->valuep(), Const);
+                स्थिरांक Fsm_State_मूल्य मूल्य{constp->अंक()};
+                स्थिरांक माप_प्रकार stateIndex = stateSpace.states.size();
+                stateSpace.states.emplace_back(itemp->name(), मूल्य);
+                stateSpace.labels.emplace(मूल्य,
+                                          StateConstLabel{itemp->name(), असत्य, stateIndex});
             }
-            return stateSpace.states.size() >= 2;
+            परत stateSpace.states.size() >= 2;
         }
 
-        if (forced) {
-            needsSourceValues = true;
-            return true;
+        जर (forced) {
+            needs_Source_मूल्ये = सत्य;
+            परत सत्य;
         }
 
-        needsSourceValues = true;
-        return true;
+        needs_Source_मूल्ये = सत्य;
+        परत सत्य;
     }
 
-    template <typename T_ValuepVisitor>
-    static bool collectStateSpaceFromValues(AstNode* warnNodep, AstVarScope* stateVscp,
-                                            const std::vector<FsmResetArcDesc>& resetArcs,
+    ढाँचा <typename T_ValuepVisitor>
+    स्थिर तार्किक collect_State_Space_From_मूल्ये(Ast_गाठ* warnNodep, AstVarScope* stateVscp,
+                                            स्थिरांक std::vector<FsmResetArcDesc>& resetArcs,
                                             FsmStateSpace& stateSpace,
-                                            const T_ValuepVisitor& visitValueps) {
-        bool needsSourceValues = false;
+                                            स्थिरांक T_ValuepVisitor& visitValueps) {
+        तार्किक needs_Source_मूल्ये = असत्य;
         // Cases and if-chains should share the same state-space policy; only
         // the source of inferred literal values differs between the forms.
-        if (!collectDeclaredStateSpace(warnNodep, stateVscp, stateSpace, needsSourceValues)) {
-            return false;
+        जर (!collectDeclaredStateSpace(warnNodep, stateVscp, stateSpace, needs_Source_मूल्ये)) {
+            परत असत्य;
         }
-        if (!needsSourceValues) return true;
+        जर (!needs_Source_मूल्ये) परत सत्य;
         addResetTargetsToStateSpace(resetArcs, stateSpace);
-        if (!visitValueps(
-                [&](AstNodeExpr* valuep) { return addExprToStateSpace(valuep, stateSpace); })) {
-            return false;
+        जर (!visitValueps(
+                [&](Ast_गाठ_अभिव्यक्ती* valuep) { परत add_अभिव्यक्ती_To_State_Space(valuep, stateSpace); })) {
+            परत असत्य;
         }
-        return stateSpace.states.size() >= 2;
+        परत stateSpace.states.size() >= 2;
     }
 
-    static bool collectStateSpace(AstCase* casep, AstVarScope* stateVscp, AstVarScope* assignVscp,
-                                  const std::vector<FsmResetArcDesc>& resetArcs,
+    स्थिर तार्किक collectStateSpace(AstCase* casep, AstVarScope* stateVscp, AstVarScope* assignVscp,
+                                  स्थिरांक std::vector<FsmResetArcDesc>& resetArcs,
                                   FsmStateSpace& stateSpace) {
-        return collectStateSpaceFromValues(
+        परत collect_State_Space_From_मूल्ये(
             casep, stateVscp, resetArcs, stateSpace,
-            [casep, assignVscp, &stateSpace](const auto& visitValuep) {
-                for (AstCaseItem* itemp = casep->itemsp(); itemp;
+            [casep, assignVscp, &stateSpace](स्थिरांक स्वतः& visitValuep) {
+                साठी (AstCaseItem* itemp = casep->itemsp(); itemp;
                      itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                    if (!itemp->isDefault()) {
-                        for (AstNodeExpr* condp = itemp->condsp(); condp;
-                             condp = VN_AS(condp->nextp(), NodeExpr)) {
-                            if (!visitValuep(condp)) return false;
+                    जर (!itemp->isDefault()) {
+                        साठी (Ast_गाठ_अभिव्यक्ती* condp = itemp->condsp(); condp;
+                             condp = VN_AS(condp->nextp(), गाठ_अभिव्यक्ती)) {
+                            जर (!visitValuep(condp)) परत असत्य;
                         }
                     }
-                    if (AstNodeAssign* const assp
+                    जर (Ast_गाठ_Assign* स्थिरांक assp
                         = directStateAssign(itemp->stmtsp(), assignVscp)) {
-                        FsmStateValue thenValue;
-                        FsmStateValue elseValue;
-                        AstCond* const condp = VN_CAST(assp->rhsp(), Cond);
-                        if (condp
-                            && directStateCondConstAssign(itemp->stmtsp(), assignVscp, thenValue,
-                                                          elseValue)) {
-                            if (!visitValuep(condp->thenp())) return false;
-                            if (!visitValuep(condp->elsep())) return false;
-                        } else if (!addOptionalTargetExprToStateSpace(assp->rhsp(), stateSpace)) {
-                            return false;
+                        Fsm_State_मूल्य then_मूल्य;
+                        Fsm_State_मूल्य else_मूल्य;
+                        AstCond* स्थिरांक condp = VN_CAST(assp->rhsp(), Cond);
+                        जर (condp
+                            && directStateCondConstAssign(itemp->stmtsp(), assignVscp, then_मूल्य,
+                                                          else_मूल्य)) {
+                            जर (!visitValuep(condp->thenp())) परत असत्य;
+                            जर (!visitValuep(condp->elsep())) परत असत्य;
+                        } अन्यथा जर (!add_Optional_Target_अभिव्यक्ती_To_State_Space(assp->rhsp(), stateSpace)) {
+                            परत असत्य;
                         }
                     }
                 }
-                return true;
+                परत सत्य;
             });
     }
 
-    static bool collectStateSpace(const FsmIfChainCandidate& chain, AstVarScope* stateVscp,
+    स्थिर तार्किक collectStateSpace(स्थिरांक FsmIfChainCandidate& chain, AstVarScope* stateVscp,
                                   AstVarScope* assignVscp,
-                                  const std::vector<FsmResetArcDesc>& resetArcs,
+                                  स्थिरांक std::vector<FsmResetArcDesc>& resetArcs,
                                   FsmStateSpace& stateSpace) {
-        return collectStateSpaceFromValues(
+        परत collect_State_Space_From_मूल्ये(
             chain.ifp, stateVscp, resetArcs, stateSpace,
-            [&chain, assignVscp, &stateSpace](const auto& visitValuep) {
-                for (const FsmIfBranch& branch : chain.branches) {
+            [&chain, assignVscp, &stateSpace](स्थिरांक स्वतः& visitValuep) {
+                साठी (स्थिरांक FsmIfBranch& branch : chain.branches) {
                     // Reaching this point with an unresolvable source value
                     // would mean the if-chain classifier and emitter disagree.
                     UASSERT_OBJ(visitValuep(branch.valuep), branch.valuep,
                                 "FSM if-chain source values should be prevalidated");
-                    AstNodeAssign* const assp = directStateAssign(branch.stmtsp, assignVscp);
+                    Ast_गाठ_Assign* स्थिरांक assp = directStateAssign(branch.stmtsp, assignVscp);
                     UASSERT_OBJ(assp, branch.stmtsp,
                                 "FSM if-chain target values should be prevalidated");
-                    FsmStateValue thenValue;
-                    FsmStateValue elseValue;
-                    AstCond* const condp = VN_CAST(assp->rhsp(), Cond);
-                    if (condp) {
+                    Fsm_State_मूल्य then_मूल्य;
+                    Fsm_State_मूल्य else_मूल्य;
+                    AstCond* स्थिरांक condp = VN_CAST(assp->rhsp(), Cond);
+                    जर (condp) {
                         UASSERT_OBJ(directStateCondConstAssign(branch.stmtsp, assignVscp,
-                                                               thenValue, elseValue),
+                                                               then_मूल्य, else_मूल्य),
                                     condp, "FSM if-chain ternary targets should be prevalidated");
-                        if (!visitValuep(condp->thenp())) return false;
-                        if (!visitValuep(condp->elsep())) return false;
-                    } else if (!addOptionalTargetExprToStateSpace(assp->rhsp(), stateSpace)) {
-                        return false;
+                        जर (!visitValuep(condp->thenp())) परत असत्य;
+                        जर (!visitValuep(condp->elsep())) परत असत्य;
+                    } अन्यथा जर (!add_Optional_Target_अभिव्यक्ती_To_State_Space(assp->rhsp(), stateSpace)) {
+                        परत असत्य;
                     }
                 }
-                return true;
+                परत सत्य;
             });
     }
 
@@ -1635,106 +1635,106 @@ class FsmDetectVisitor final : public VNVisitor {
     // policy for direct and ternary forms stays consistent. The false exits in
     // this helper are deliberate subset boundaries: they document shapes we do
     // not yet model in this PR and that future FSM-detection work may widen.
-    static bool emitCaseItemArcs(FsmGraph& graph, AstCaseItem* itemp, AstVarScope* stateVscp,
-                                 const FsmStateSpace& stateSpace, bool inclCond) {
-        std::vector<std::pair<string, FsmStateValue>> froms;
-        if (itemp->isDefault()) {
-            if (!inclCond) return false;
-            froms.emplace_back("default", FsmStateValue{});
-        } else {
-            for (AstNodeExpr* condp = itemp->condsp(); condp;
-                 condp = VN_AS(condp->nextp(), NodeExpr)) {
-                FsmStateValue value;
-                if (constValueStatus(condp, value) != ConstValueStatus::OK) continue;
-                if (!validateKnownStateValue(condp, stateSpace, value, "source")) return true;
-                froms.emplace_back(labelForValue(stateSpace.labels, value), value);
+    स्थिर तार्किक emitCaseItemArcs(FsmGraph& graph, AstCaseItem* itemp, AstVarScope* stateVscp,
+                                 स्थिरांक FsmStateSpace& stateSpace, तार्किक inclCond) {
+        std::vector<std::pair<string, Fsm_State_मूल्य>> froms;
+        जर (itemp->isDefault()) {
+            जर (!inclCond) परत असत्य;
+            froms.emplace_back("default", Fsm_State_मूल्य{});
+        } अन्यथा {
+            साठी (Ast_गाठ_अभिव्यक्ती* condp = itemp->condsp(); condp;
+                 condp = VN_AS(condp->nextp(), गाठ_अभिव्यक्ती)) {
+                Fsm_State_मूल्य मूल्य;
+                जर (const_मूल्य_Status(condp, मूल्य) != Const_मूल्य_Status::OK) सुरूठेवा;
+                जर (!validate_Known_State_मूल्य(condp, stateSpace, मूल्य, "source")) परत सत्य;
+                froms.emplace_back(label_For_मूल्य(stateSpace.labels, मूल्य), मूल्य);
             }
-            if (froms.empty()) return false;
+            जर (froms.empty()) परत असत्य;
         }
 
-        if (AstNodeAssign* const assp = directStateAssign(itemp->stmtsp(), stateVscp)) {
-            FsmStateValue toValue;
-            const ConstValueStatus status = constValueStatus(assp->rhsp(), toValue);
-            if (status == ConstValueStatus::OK) {
-                if (!validateKnownStateValue(assp, stateSpace, toValue, "target")) return true;
-                for (const std::pair<string, FsmStateValue>& from : froms) {
-                    graph.addArc(from.second, toValue, false, false, itemp->isDefault(),
+        जर (Ast_गाठ_Assign* स्थिरांक assp = directStateAssign(itemp->stmtsp(), stateVscp)) {
+            Fsm_State_मूल्य to_मूल्य;
+            स्थिरांक Const_मूल्य_Status status = const_मूल्य_Status(assp->rhsp(), to_मूल्य);
+            जर (status == Const_मूल्य_Status::OK) {
+                जर (!validate_Known_State_मूल्य(assp, stateSpace, to_मूल्य, "target")) परत सत्य;
+                साठी (स्थिरांक std::pair<string, Fsm_State_मूल्य>& from : froms) {
+                    graph.addArc(from.second, to_मूल्य, असत्य, असत्य, itemp->isDefault(),
                                  assp->fileline());
                 }
-                return true;
+                परत सत्य;
             }
         }
 
-        FsmStateValue thenValue;
-        FsmStateValue elseValue;
-        if (directStateCondConstAssign(itemp->stmtsp(), stateVscp, thenValue, elseValue)
-            || ifStateConstAssign(itemp->stmtsp(), stateVscp, thenValue, elseValue)) {
-            if (!validateKnownStateValue(itemp->stmtsp(), stateSpace, thenValue, "target"))
-                return true;
-            if (!validateKnownStateValue(itemp->stmtsp(), stateSpace, elseValue, "target"))
-                return true;
-            for (const FsmStateValue& branchValue : {thenValue, elseValue}) {
-                for (const std::pair<string, FsmStateValue>& from : froms) {
-                    graph.addArc(from.second, branchValue, false, true, itemp->isDefault(),
+        Fsm_State_मूल्य then_मूल्य;
+        Fsm_State_मूल्य else_मूल्य;
+        जर (directStateCondConstAssign(itemp->stmtsp(), stateVscp, then_मूल्य, else_मूल्य)
+            || ifStateConstAssign(itemp->stmtsp(), stateVscp, then_मूल्य, else_मूल्य)) {
+            जर (!validate_Known_State_मूल्य(itemp->stmtsp(), stateSpace, then_मूल्य, "target"))
+                परत सत्य;
+            जर (!validate_Known_State_मूल्य(itemp->stmtsp(), stateSpace, else_मूल्य, "target"))
+                परत सत्य;
+            साठी (स्थिरांक Fsm_State_मूल्य& branch_मूल्य : {then_मूल्य, else_मूल्य}) {
+                साठी (स्थिरांक std::pair<string, Fsm_State_मूल्य>& from : froms) {
+                    graph.addArc(from.second, branch_मूल्य, असत्य, सत्य, itemp->isDefault(),
                                  itemp->stmtsp()->fileline());
                 }
             }
-            return true;
+            परत सत्य;
         }
 
-        return false;
+        परत असत्य;
     }
 
-    static void emitStmtArcsFrom(FsmGraph& graph, AstNode* stmtsp, AstVarScope* stateVscp,
-                                 const FsmStateSpace& stateSpace, FsmStateValue fromValue,
-                                 bool isDefault, bool forceCond) {
-        AstNodeAssign* const assp = directStateAssign(stmtsp, stateVscp);
+    स्थिर शून्य emitStmtArcsFrom(FsmGraph& graph, Ast_गाठ* stmtsp, AstVarScope* stateVscp,
+                                 स्थिरांक FsmStateSpace& stateSpace, Fsm_State_मूल्य from_मूल्य,
+                                 तार्किक isDefault, तार्किक forceCond) {
+        Ast_गाठ_Assign* स्थिरांक assp = directStateAssign(stmtsp, stateVscp);
         UASSERT_OBJ(assp, stmtsp, "FSM if-chain branch should have been prevalidated");
-        FsmStateValue toValue;
-        const ConstValueStatus status = constValueStatus(assp->rhsp(), toValue);
-        if (status == ConstValueStatus::OK) {
-            if (!validateKnownStateValue(assp, stateSpace, toValue, "target")) return;
+        Fsm_State_मूल्य to_मूल्य;
+        स्थिरांक Const_मूल्य_Status status = const_मूल्य_Status(assp->rhsp(), to_मूल्य);
+        जर (status == Const_मूल्य_Status::OK) {
+            जर (!validate_Known_State_मूल्य(assp, stateSpace, to_मूल्य, "target")) परत;
             // Preserve the user's guard in coverage by marking this arc
             // conditional even when the branch body is a direct assignment.
-            graph.addArc(fromValue, toValue, false, forceCond, isDefault, assp->fileline());
-            return;
+            graph.addArc(from_मूल्य, to_मूल्य, असत्य, forceCond, isDefault, assp->fileline());
+            परत;
         }
 
-        FsmStateValue thenValue;
-        FsmStateValue elseValue;
-        const bool condAssign
-            = directStateCondConstAssign(stmtsp, stateVscp, thenValue, elseValue);
+        Fsm_State_मूल्य then_मूल्य;
+        Fsm_State_मूल्य else_मूल्य;
+        स्थिरांक तार्किक condAssign
+            = directStateCondConstAssign(stmtsp, stateVscp, then_मूल्य, else_मूल्य);
         UASSERT_OBJ(condAssign, stmtsp,
                     "FSM if-chain branch should be a direct constant transition");
-        if (!validateKnownStateValue(stmtsp, stateSpace, thenValue, "target")) return;
-        if (!validateKnownStateValue(stmtsp, stateSpace, elseValue, "target")) return;
-        for (const FsmStateValue& branchValue : {thenValue, elseValue}) {
-            graph.addArc(fromValue, branchValue, false, true, isDefault, stmtsp->fileline());
+        जर (!validate_Known_State_मूल्य(stmtsp, stateSpace, then_मूल्य, "target")) परत;
+        जर (!validate_Known_State_मूल्य(stmtsp, stateSpace, else_मूल्य, "target")) परत;
+        साठी (स्थिरांक Fsm_State_मूल्य& branch_मूल्य : {then_मूल्य, else_मूल्य}) {
+            graph.addArc(from_मूल्य, branch_मूल्य, असत्य, सत्य, isDefault, stmtsp->fileline());
         }
     }
 
-    static void emitIfChainArcs(FsmGraph& graph, const FsmIfChainCandidate& chain,
-                                AstVarScope* stateVscp, const FsmStateSpace& stateSpace) {
-        for (size_t i = 0; i < chain.branches.size(); ++i) {
-            const FsmIfBranch& branch = chain.branches[i];
+    स्थिर शून्य emitIfChainArcs(FsmGraph& graph, स्थिरांक FsmIfChainCandidate& chain,
+                                AstVarScope* stateVscp, स्थिरांक FsmStateSpace& stateSpace) {
+        साठी (माप_प्रकार i = 0; i < chain.branches.size(); ++i) {
+            स्थिरांक FsmIfBranch& branch = chain.branches[i];
             // Invalid source labels mean the extracted graph would no longer
             // match the resolved state space, so abandon the candidate.
-            if (!validateKnownStateValue(branch.ifp, stateSpace, branch.fromValue, "source"))
-                return;
-            emitStmtArcsFrom(graph, branch.stmtsp, stateVscp, stateSpace, branch.fromValue, false,
-                             branch.hasTopGuard);
+            जर (!validate_Known_State_मूल्य(branch.ifp, stateSpace, branch.from_मूल्य, "source"))
+                परत;
+            emitStmtArcsFrom(graph, branch.stmtsp, stateVscp, stateSpace, branch.from_मूल्य, असत्य,
+                             branch.has_शीर्ष_Guard);
         }
     }
 
     // Reset transitions are described separately because they live in the reset
     // branch outside the steady-state case statement.
-    static void addResetArcs(FsmGraph& graph, const std::vector<FsmResetArcDesc>& resetArcs,
-                             const FsmStateSpace& stateSpace) {
-        for (const FsmResetArcDesc& resetArc : resetArcs) {
-            if (!validateKnownStateValue(resetArc.nodep(), stateSpace, resetArc.toValue(),
+    स्थिर शून्य addResetArcs(FsmGraph& graph, स्थिरांक std::vector<FsmResetArcDesc>& resetArcs,
+                             स्थिरांक FsmStateSpace& stateSpace) {
+        साठी (स्थिरांक FsmResetArcDesc& resetArc : resetArcs) {
+            जर (!validate_Known_State_मूल्य(resetArc.nodep(), stateSpace, resetArc.to_मूल्य(),
                                          "target"))
-                continue;
-            graph.addArc(FsmStateValue{}, resetArc.toValue(), true, false, false,
+                सुरूठेवा;
+            graph.addArc(Fsm_State_मूल्य{}, resetArc.to_मूल्य(), सत्य, असत्य, असत्य,
                          resetArc.nodep()->fileline());
         }
     }
@@ -1742,14 +1742,14 @@ class FsmDetectVisitor final : public VNVisitor {
     // Turn one candidate case statement into the graph representation that the
     // later lowering phase will consume directly, while reviewers can still
     // inspect the extracted machine via DOT dumps.
-    void processCase(AstCase* casep, AstVarScope* assignVscp, const FsmRegisterCandidate& reg) {
+    शून्य processCase(AstCase* casep, AstVarScope* assignVscp, स्थिरांक FsmRegisterCandidate& reg) {
         UASSERT_OBJ(assignVscp, casep, "FSM case processing requires a non-null assignment var");
-        AstVarScope* const stateVscp = reg.stateVscp();
+        AstVarScope* स्थिरांक stateVscp = reg.stateVscp();
         FsmStateSpace stateSpace;
-        if (!collectStateSpace(casep, stateVscp, assignVscp, reg.resetArcs(), stateSpace)) return;
+        जर (!collectStateSpace(casep, stateVscp, assignVscp, reg.resetArcs(), stateSpace)) परत;
         DetectedFsm& entry = m_state.fsmFor(stateVscp);
-        if (!entry.graphp) {
-            entry.graphp.reset(new FsmGraph{});
+        जर (!entry.graphp) {
+            entry.graphp.reset(नवीन FsmGraph{});
             entry.graphp->scopep(reg.scopep());
             entry.graphp->stateAlwaysp(reg.alwaysp());
             entry.graphp->stateVarName(stateVscp->prettyName());
@@ -1761,30 +1761,30 @@ class FsmDetectVisitor final : public VNVisitor {
             entry.graphp->hasResetCond(reg.hasResetCond());
             entry.graphp->inclCond(reg.inclCond());
             entry.graphp->fileline(casep->fileline());
-            for (const std::pair<string, FsmStateValue>& state : stateSpace.states) {
+            साठी (स्थिरांक std::pair<string, Fsm_State_मूल्य>& state : stateSpace.states) {
                 entry.graphp->addStateVertex(state.first, state.second);
             }
             addResetArcs(*entry.graphp, reg.resetArcs(), stateSpace);
         }
-        for (AstCaseItem* itemp = casep->itemsp(); itemp;
+        साठी (AstCaseItem* itemp = casep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), CaseItem)) {
             emitCaseItemArcs(*entry.graphp, itemp, assignVscp, stateSpace,
                              entry.graphp->inclCond());
         }
     }
 
-    void processIfChain(const FsmIfChainCandidate& chain, AstVarScope* assignVscp,
-                        const FsmRegisterCandidate& reg) {
+    शून्य processIfChain(स्थिरांक FsmIfChainCandidate& chain, AstVarScope* assignVscp,
+                        स्थिरांक FsmRegisterCandidate& reg) {
         UASSERT_OBJ(assignVscp, chain.ifp,
                     "FSM if-chain processing requires a non-null assignment var");
-        AstVarScope* const stateVscp = reg.stateVscp();
+        AstVarScope* स्थिरांक stateVscp = reg.stateVscp();
         FsmStateSpace stateSpace;
-        if (!collectStateSpace(chain, stateVscp, assignVscp, reg.resetArcs(), stateSpace)) return;
+        जर (!collectStateSpace(chain, stateVscp, assignVscp, reg.resetArcs(), stateSpace)) परत;
         DetectedFsm& entry = m_state.fsmFor(stateVscp);
         // Case candidates keep ownership of existing graphs; reaching this path
         // means the if-chain is the only supported dispatch for this FSM.
         UASSERT_OBJ(!entry.graphp, chain.ifp, "FSM if-chain graph should not already exist");
-        entry.graphp.reset(new FsmGraph{});
+        entry.graphp.reset(नवीन FsmGraph{});
         entry.graphp->scopep(reg.scopep());
         entry.graphp->stateAlwaysp(reg.alwaysp());
         entry.graphp->stateVarName(stateVscp->prettyName());
@@ -1796,7 +1796,7 @@ class FsmDetectVisitor final : public VNVisitor {
         entry.graphp->hasResetCond(reg.hasResetCond());
         entry.graphp->inclCond(reg.inclCond());
         entry.graphp->fileline(chain.ifp->fileline());
-        for (const std::pair<string, FsmStateValue>& state : stateSpace.states) {
+        साठी (स्थिरांक std::pair<string, Fsm_State_मूल्य>& state : stateSpace.states) {
             entry.graphp->addStateVertex(state.first, state.second);
         }
         addResetArcs(*entry.graphp, reg.resetArcs(), stateSpace);
@@ -1808,31 +1808,31 @@ class FsmDetectVisitor final : public VNVisitor {
     // filtering stays narrow on purpose: we prefer to skip ambiguous shapes now
     // and expand detection in a later PR rather than over-infer coverage from
     // forms we do not yet model confidently.
-    void processOneBlockAlways(const FsmComboAlways& oneBlock) {
-        const RegisterAlwaysAnalyzer analyzer{oneBlock.scopep()};
-        AstAlways* const alwaysp = oneBlock.alwaysp();
-        if (!alwaysp->sentreep() || !alwaysp->sentreep()->hasEdge()) return;
-        const std::vector<std::pair<AstCase*, AstNodeExpr*>> candidates
+    शून्य processOneBlockAlways(स्थिरांक FsmComboAlways& oneBlock) {
+        स्थिरांक RegisterAlwaysAnalyzer analyzer{oneBlock.scopep()};
+        AstAlways* स्थिरांक alwaysp = oneBlock.alwaysp();
+        जर (!alwaysp->sentreep() || !alwaysp->sentreep()->hasEdge()) परत;
+        स्थिरांक std::vector<std::pair<AstCase*, Ast_गाठ_अभिव्यक्ती*>> candidates
             = analyzer.oneBlockCandidates(alwaysp);
 
         FsmCaseCandidate firstCand;
-        for (const std::pair<AstCase*, AstNodeExpr*>& cand : candidates) {
-            AstVarRef* const selp = VN_CAST(cand.first->exprp(), VarRef);
-            AstVarScope* const vscp = selp ? selp->varScopep() : nullptr;
-            if (!vscp) continue;
-            if (!firstCand.stateVscp) {
+        साठी (स्थिरांक std::pair<AstCase*, Ast_गाठ_अभिव्यक्ती*>& cand : candidates) {
+            AstVarRef* स्थिरांक selp = VN_CAST(cand.first->exprp(), VarRef);
+            AstVarScope* स्थिरांक vscp = selp ? selp->varScopep() : nullptr;
+            जर (!vscp) सुरूठेवा;
+            जर (!firstCand.stateVscp) {
                 firstCand.warnNodep = cand.first;
                 firstCand.stateVscp = vscp;
                 FsmRegisterCandidate reg;
                 analyzer.buildOneBlockCandidate(alwaysp, vscp, cand.second, reg);
                 processCase(cand.first, vscp, reg);
-            } else if (vscp != firstCand.stateVscp) {
+            } अन्यथा जर (vscp != firstCand.stateVscp) {
                 cand.first->v3warn(FSMMULTI,
                                    "FSM coverage: multiple enum-typed case statements found in "
                                    "the same always block. Only the first candidate will be "
                                    "instrumented."
                                        << candidateConflictContext(cand.first, firstCand));
-            } else {
+            } अन्यथा {
                 cand.first->v3warn(COVERIGN,
                                    "Ignoring unsupported: FSM coverage on multiple supported case "
                                    "statements found in the same always block. Only the first "
@@ -1841,31 +1841,31 @@ class FsmDetectVisitor final : public VNVisitor {
             }
         }
 
-        if (firstCand.stateVscp) return;
+        जर (firstCand.stateVscp) परत;
 
         // Case dispatch is more explicit and pre-existing behavior depends on
         // it winning when both shapes are present.
-        const std::vector<std::pair<AstIf*, AstNodeExpr*>> ifCandidates
+        स्थिरांक std::vector<std::pair<AstIf*, Ast_गाठ_अभिव्यक्ती*>> ifCandidates
             = analyzer.oneBlockIfCandidates(alwaysp);
-        for (const std::pair<AstIf*, AstNodeExpr*>& cand : ifCandidates) {
-            const FsmAliasMap aliases = localAliasesBefore(alwaysp->stmtsp(), cand.first);
+        साठी (स्थिरांक std::pair<AstIf*, Ast_गाठ_अभिव्यक्ती*>& cand : ifCandidates) {
+            स्थिरांक FsmAliasMap aliases = localAliasesBefore(alwaysp->stmtsp(), cand.first);
             FsmIfChainCandidate chain;
-            if (!collectIfChain(cand.first, aliases, chain)) continue;
-            AstVarScope* const vscp = chain.compareVscp;
-            if (!ifChainSupportedTransitionNode(chain, vscp)) continue;
-            if (!firstCand.stateVscp) {
+            जर (!collectIfChain(cand.first, aliases, chain)) सुरूठेवा;
+            AstVarScope* स्थिरांक vscp = chain.compareVscp;
+            जर (!if_Chain_Supported_Transition_गाठ(chain, vscp)) सुरूठेवा;
+            जर (!firstCand.stateVscp) {
                 firstCand.warnNodep = cand.first;
                 firstCand.stateVscp = vscp;
                 FsmRegisterCandidate reg;
                 analyzer.buildOneBlockCandidate(alwaysp, vscp, cand.second, reg);
                 processIfChain(chain, vscp, reg);
-            } else if (vscp != firstCand.stateVscp) {
+            } अन्यथा जर (vscp != firstCand.stateVscp) {
                 cand.first->v3warn(FSMMULTI,
                                    "FSM coverage: multiple enum-typed transition candidates found "
                                    "in the same always block. Only the first candidate will be "
                                    "instrumented."
                                        << candidateConflictContext(cand.first, firstCand));
-            } else {
+            } अन्यथा {
                 cand.first->v3warn(COVERIGN,
                                    "Ignoring unsupported: FSM coverage on multiple supported "
                                    "transition candidates found in the same always block. Only "
@@ -1878,7 +1878,7 @@ class FsmDetectVisitor final : public VNVisitor {
     // Phase 1 two-process pairing scans combinational always blocks only after
     // all strict register candidates have been collected, so source order does
     // not matter.
-    static void warnComboSameAlways(AstNode* warnNodep, const FsmCaseCandidate& firstCand) {
+    स्थिर शून्य warnComboSameAlways(Ast_गाठ* warnNodep, स्थिरांक FsmCaseCandidate& firstCand) {
         warnNodep->v3warn(FSMMULTI,
                           "FSM coverage: multiple supported transition candidates found in "
                           "the same combinational always block. Only the first candidate "
@@ -1886,39 +1886,39 @@ class FsmDetectVisitor final : public VNVisitor {
                               << candidateConflictContext(warnNodep, firstCand));
     }
 
-    void processComboAlways(const FsmComboAlways& combo) {
-        const ComboAlwaysAnalyzer analyzer{m_registerCandidates};
-        AstNode* const stmtsp = skipLeadingIgnorableStmt(combo.alwaysp()->stmtsp());
+    शून्य processComboAlways(स्थिरांक FsmComboAlways& combo) {
+        स्थिरांक ComboAlwaysAnalyzer analyzer{m_registerCandidates};
+        Ast_गाठ* स्थिरांक stmtsp = skipLeadingIgnorableStmt(combo.alwaysp()->stmtsp());
         FsmCaseCandidate firstCand;
-        for (AstNode* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
-            AstCase* const casep = VN_CAST(nodep, Case);
-            if (!casep) continue;
-            const ComboAlwaysAnalyzer::ComboMatch match = analyzer.matchCase(stmtsp, casep);
-            const FsmRegisterCandidate* const matchedp = match.matchedp;
-            AstNode* const matchedWarnNodep = match.warnNodep;
-            if (!matchedp) continue;
-            if (!firstCand.stateVscp) {
-                const auto insertPair = m_comboPaired.emplace(
+        साठी (Ast_गाठ* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
+            AstCase* स्थिरांक casep = VN_CAST(nodep, Case);
+            जर (!casep) सुरूठेवा;
+            स्थिरांक ComboAlwaysAnalyzer::ComboMatch match = analyzer.matchCase(stmtsp, casep);
+            स्थिरांक FsmRegisterCandidate* स्थिरांक matchedp = match.matchedp;
+            Ast_गाठ* स्थिरांक matchedWarnNodep = match.warnNodep;
+            जर (!matchedp) सुरूठेवा;
+            जर (!firstCand.stateVscp) {
+                स्थिरांक स्वतः घाला_Pair = m_comboPaired.emplace(
                     matchedp->stateVscp(),
                     FsmCaseCandidate{matchedWarnNodep,
                                      const_cast<AstVarScope*>(matchedp->stateVscp())});
-                if (!insertPair.second) {
+                जर (!घाला_Pair.second) {
                     matchedWarnNodep->v3warn(
                         FSMMULTI, "FSM coverage: multiple supported transition candidates found "
                                   "for the same FSM in combinational always blocks. Only the "
                                   "first candidate will be instrumented."
                                       << candidateConflictContext(matchedWarnNodep,
-                                                                  insertPair.first->second));
-                    continue;
+                                                                  घाला_Pair.first->second));
+                    सुरूठेवा;
                 }
                 firstCand.warnNodep = matchedWarnNodep;
                 firstCand.stateVscp = const_cast<AstVarScope*>(matchedp->stateVscp());
                 processCase(casep, matchedp->nextVscp(), *matchedp);
-                continue;
+                सुरूठेवा;
             }
-            if (matchedp->stateVscp() != firstCand.stateVscp) {
+            जर (matchedp->stateVscp() != firstCand.stateVscp) {
                 warnComboSameAlways(matchedWarnNodep, firstCand);
-                continue;
+                सुरूठेवा;
             }
             matchedWarnNodep->v3warn(COVERIGN,
                                      "Ignoring unsupported: FSM coverage on multiple "
@@ -1927,44 +1927,44 @@ class FsmDetectVisitor final : public VNVisitor {
                                      "candidate will be instrumented."
                                          << candidateConflictContext(matchedWarnNodep, firstCand));
         }
-        if (firstCand.stateVscp) return;
+        जर (firstCand.stateVscp) परत;
 
         // Keep the same priority in paired combinational logic: if-chain
         // support must not change which existing case FSM is instrumented.
-        for (AstNode* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
-            AstIf* const ifp = VN_CAST(nodep, If);
-            if (!ifp) continue;
+        साठी (Ast_गाठ* nodep = stmtsp; nodep; nodep = nodep->nextp()) {
+            AstIf* स्थिरांक ifp = VN_CAST(nodep, If);
+            जर (!ifp) सुरूठेवा;
             FsmIfChainCandidate chain;
-            const FsmAliasMap aliases = localAliasesBefore(stmtsp, nodep);
-            if (!collectIfChain(ifp, aliases, chain)) continue;
-            const ComboAlwaysAnalyzer::ComboMatch match = analyzer.matchIfChain(stmtsp, chain);
-            const FsmRegisterCandidate* const matchedp = match.matchedp;
-            AstNode* const matchedWarnNodep = match.warnNodep;
-            if (!matchedp) continue;
-            if (!firstCand.stateVscp) {
-                const std::pair<std::unordered_map<const AstVarScope*, FsmCaseCandidate>::iterator,
-                                bool>
-                    insertPair = m_comboPaired.emplace(
+            स्थिरांक FsmAliasMap aliases = localAliasesBefore(stmtsp, nodep);
+            जर (!collectIfChain(ifp, aliases, chain)) सुरूठेवा;
+            स्थिरांक ComboAlwaysAnalyzer::ComboMatch match = analyzer.matchIfChain(stmtsp, chain);
+            स्थिरांक FsmRegisterCandidate* स्थिरांक matchedp = match.matchedp;
+            Ast_गाठ* स्थिरांक matchedWarnNodep = match.warnNodep;
+            जर (!matchedp) सुरूठेवा;
+            जर (!firstCand.stateVscp) {
+                स्थिरांक std::pair<std::unordered_map<स्थिरांक AstVarScope*, FsmCaseCandidate>::iterator,
+                                तार्किक>
+                    घाला_Pair = m_comboPaired.emplace(
                         matchedp->stateVscp(),
                         FsmCaseCandidate{matchedWarnNodep,
                                          const_cast<AstVarScope*>(matchedp->stateVscp())});
-                if (!insertPair.second) {
+                जर (!घाला_Pair.second) {
                     matchedWarnNodep->v3warn(
                         FSMMULTI, "FSM coverage: multiple supported transition candidates found "
                                   "for the same FSM in combinational always blocks. Only the "
                                   "first candidate will be instrumented."
                                       << candidateConflictContext(matchedWarnNodep,
-                                                                  insertPair.first->second));
-                    continue;
+                                                                  घाला_Pair.first->second));
+                    सुरूठेवा;
                 }
                 firstCand.warnNodep = matchedWarnNodep;
                 firstCand.stateVscp = const_cast<AstVarScope*>(matchedp->stateVscp());
                 processIfChain(chain, matchedp->nextVscp(), *matchedp);
-                continue;
+                सुरूठेवा;
             }
-            if (matchedp->stateVscp() != firstCand.stateVscp) {
+            जर (matchedp->stateVscp() != firstCand.stateVscp) {
                 warnComboSameAlways(matchedWarnNodep, firstCand);
-                continue;
+                सुरूठेवा;
             }
             matchedWarnNodep->v3warn(COVERIGN,
                                      "Ignoring unsupported: FSM coverage on multiple "
@@ -1977,7 +1977,7 @@ class FsmDetectVisitor final : public VNVisitor {
 
     // Track the current scope so each detected FSM records the module/scope
     // where instrumentation must later be inserted.
-    void visit(AstScope* nodep) override {
+    शून्य visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
@@ -1985,37 +1985,37 @@ class FsmDetectVisitor final : public VNVisitor {
 
     // Collect processes first, then analyze FSM candidates once all alias and
     // register information is available.
-    void visit(AstAlways* nodep) override {
-        if (nodep->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+    शून्य visit(AstAlways* nodep) override {
+        जर (nodep->keyword() == VAlwaysKwd::CONT_ASSIGN) {
             iterateChildren(nodep);
-            return;
+            परत;
         }
         // This avoids making one-block if-chain detection sensitive to whether
         // a continuous alias appears before or after the always block.
         m_oneBlockAlwayss.emplace_back(m_scopep, nodep);
-        const RegisterAlwaysAnalyzer analyzer{m_scopep};
+        स्थिरांक RegisterAlwaysAnalyzer analyzer{m_scopep};
         FsmRegisterCandidate reg;
-        if (analyzer.matchRegisterCandidate(nodep, reg)) {
-            AstVarScope* const stateVscp = reg.stateVscp();
-            const bool found
+        जर (analyzer.matchRegisterCandidate(nodep, reg)) {
+            AstVarScope* स्थिरांक stateVscp = reg.stateVscp();
+            स्थिरांक तार्किक found
                 = std::any_of(m_registerCandidates.cbegin(), m_registerCandidates.cend(),
-                              [stateVscp](const FsmRegisterCandidate& existing) {
-                                  return existing.stateVscp() == stateVscp;
+                              [stateVscp](स्थिरांक FsmRegisterCandidate& existing) {
+                                  परत existing.stateVscp() == stateVscp;
                               });
-            if (!found) { m_registerCandidates.emplace_back(reg); }
+            जर (!found) { m_registerCandidates.emplace_back(reg); }
         }
-        if (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
+        जर (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
             m_comboAlwayss.emplace_back(m_scopep, nodep);
-        } else if (nodep->keyword() == VAlwaysKwd::ALWAYS) {
-            if (!nodep->sentreep() || isPlainComboSentree(nodep->sentreep())) {
+        } अन्यथा जर (nodep->keyword() == VAlwaysKwd::ALWAYS) {
+            जर (!nodep->sentreep() || isPlainComboSentree(nodep->sentreep())) {
                 m_comboAlwayss.emplace_back(m_scopep, nodep);
-            } else {
+            } अन्यथा {
                 m_nonComboAlwayss.emplace_back(m_scopep, nodep);
             }
         }
     }
 
-    void visit(AstAssignW* nodep) override {
+    शून्य visit(AstAssignW* nodep) override {
         // Continuous aliases are unordered hardware connections, so source
         // order should not affect whether an if-chain FSM is recognized.
         collectAliasFromAssign(nodep, m_stateAliases, m_ambiguousStateAliases);
@@ -2023,168 +2023,168 @@ class FsmDetectVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    void visit(AstCell* nodep) override {
+    शून्य visit(AstCell* nodep) override {
         // Cells are matched after the full traversal because linkdot lowers
         // uninlined port connections into sibling continuous assignments.
-        if (m_scopep && fsmRegisterWrapperDesc(nodep)) addWrapperCell(m_scopep, nodep);
+        जर (m_scopep && fsmRegisterWrapperDesc(nodep)) addWrapperCell(m_scopep, nodep);
         iterateChildren(nodep);
     }
 
     // Continue the walk through the rest of the design hierarchy.
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     // Collect all FSM graphs into the shared local state before the lowering
     // phase starts mutating the AST with coverage machinery.
     FsmDetectVisitor(FsmState& state, AstNetlist* rootp)
         : m_state{state} {
         iterate(rootp);
-        for (const std::pair<AstScope*, AstCell*>& wrapperCell : m_wrapperCells) {
+        साठी (स्थिरांक std::pair<AstScope*, AstCell*>& wrapperCell : m_wrapperCells) {
             FsmRegisterCandidate reg;
-            if (matchFsmWrapperCell(wrapperCell.first, wrapperCell.second, reg)) {
+            जर (matchFsmWrapperCell(wrapperCell.first, wrapperCell.second, reg)) {
                 m_registerCandidates.emplace_back(reg);
             }
         }
-        for (const FsmComboAlways& oneBlock : m_oneBlockAlwayss) processOneBlockAlways(oneBlock);
-        for (const FsmComboAlways& combo : m_comboAlwayss) processComboAlways(combo);
-        for (const FsmComboAlways& combo : m_nonComboAlwayss) warnUnsupportedComboAlways(combo);
+        साठी (स्थिरांक FsmComboAlways& oneBlock : m_oneBlockAlwayss) processOneBlockAlways(oneBlock);
+        साठी (स्थिरांक FsmComboAlways& combo : m_comboAlwayss) processComboAlways(combo);
+        साठी (स्थिरांक FsmComboAlways& combo : m_nonComboAlwayss) warnUnsupportedComboAlways(combo);
     }
 };
 
 // Builder of statements that will handle incrementation of proper AstNodeCoverDecls - which will
 // be also created here
-class FsmCoverIncBuilder final {
-    const FsmGraph& m_graph;  // Fsm graph
-    std::vector<const FsmStateVertex*> m_states;  // States vertexes inside fsm graph
+वर्ग FsmCoverIncBuilder final {
+    स्थिरांक FsmGraph& m_graph;  // Fsm graph
+    std::vector<स्थिरांक FsmStateVertex*> m_states;  // States vertexes inside fsm graph
     std::unordered_set<uint64_t>
         m_undefinedStates;  // States that have no enum value but are possible to represent with a
                             // variable of given width.
                             // This variable keeps uint64_t instead of V3Numebr because it is safe
                             // to assume that nobody has over 16M TB of RAM
-    const FsmVertex* m_defaultVertexp = nullptr;  // Default vertex
-    const FsmVertex* m_resetVertexp = nullptr;  // Reset vertex
-    size_t m_edgesCount = 0;  // Total count of edges
-    AstVarScope* const m_prevVscp;  // Previous state of fsm
-    FileLine* const m_flp;  // Fileline pointer to use across the builder
-    const std::string m_modPrettyName;  // Pretty fsm mode name
-    AstNodeStmt* m_coverIncp = nullptr;  // Increments proper CoverDecl after each change
-    AstNodeStmt* m_initialCoverIncp = nullptr;  // Increments CoverDecl at the beggining of the sim
+    स्थिरांक FsmVertex* m_defaultVertexp = nullptr;  // Default vertex
+    स्थिरांक FsmVertex* m_resetVertexp = nullptr;  // Reset vertex
+    माप_प्रकार m_edges_मोजणी = 0;  // Total count of edges
+    AstVarScope* स्थिरांक m_prevVscp;  // Previous state of fsm
+    File_ओळ* स्थिरांक m_flp;  // Fileline pointer to use across the builder
+    स्थिरांक std::string m_modPrettyName;  // Pretty fsm mode name
+    Ast_गाठ_Stmt* m_coverIncp = nullptr;  // Increments proper CoverDecl after each change
+    Ast_गाठ_Stmt* m_initialCoverIncp = nullptr;  // Increments CoverDecl at the beggining of the sim
     AstCoverOtherDecl* m_declsp = nullptr;  // List of CoverDecls
-    bool m_isComplete;  // Whether all possible values of state variable are covered by some state
+    तार्किक m_isComplete;  // Whether all possible values of state variable are covered by some state
     // (e.g.: when state variable has two bits this will be true if exactly
     // four states exist)
 
-    AstConst* makeConst(const uint64_t value) {
-        V3Number num{static_cast<AstNode*>(nullptr), m_prevVscp->width()};
-        num.setQuad(value);
-        num.isSigned(m_prevVscp->dtypep()->isSigned());
-        return new AstConst{m_flp, num};
+    AstConst* makeConst(स्थिरांक uint64_t मूल्य) {
+        V3_संख्या अंक{static_cast<Ast_गाठ*>(nullptr), m_prevVscp->width()};
+        अंक.setQuad(मूल्य);
+        अंक.isSigned(m_prevVscp->dtypep()->isSigned());
+        परत नवीन AstConst{m_flp, अंक};
     }
 
-    std::string quadToBitStirngLabel(const uint64_t val) {
-        int width = m_prevVscp->width();
+    std::string quadToBitStirngLabel(स्थिरांक uint64_t val) {
+        पूर्णांक width = m_prevVscp->width();
         UASSERT(width < 64, "We should not expand values that wide");
         std::string result = std::to_string(width) + "'b";
         // Binary not hex because in future we want to represent
         // four-state values accuratelly as well
-        while (--width >= 0) result.push_back("01"[(val >> width) & 1]);
-        return result;
+        पर्यंत (--width >= 0) result.ढकला_back("01"[(val >> width) & 1]);
+        परत result;
     }
 
-    void initExistingStates() {
-        for (const V3GraphVertex& vtx : m_graph.vertices()) {
-            const FsmVertex* const vertexp = vtx.as<FsmVertex>();
-            m_edgesCount += vertexp->inEdges().size();
-            if (const FsmStateVertex* const statep = vertexp->cast<FsmStateVertex>()) {
-                m_states.push_back(statep);
-            } else if (vertexp->isDefaultAny()) {
+    शून्य initExistingStates() {
+        साठी (स्थिरांक V3GraphVertex& vtx : m_graph.vertices()) {
+            स्थिरांक FsmVertex* स्थिरांक vertexp = vtx.as<FsmVertex>();
+            m_edges_मोजणी += vertexp->inEdges().size();
+            जर (स्थिरांक FsmStateVertex* स्थिरांक statep = vertexp->cast<FsmStateVertex>()) {
+                m_states.ढकला_back(statep);
+            } अन्यथा जर (vertexp->isDefaultAny()) {
                 UASSERT_OBJ(!std::exchange(m_defaultVertexp, vertexp), m_graph.sampleVarScopep(),
                             "Two defaults?");
-            } else /* if (vertexp->isResetAny()) */ {
+            } अन्यथा /* if (vertexp->isResetAny()) */ {
                 UASSERT_OBJ(!std::exchange(m_resetVertexp, vertexp), m_graph.sampleVarScopep(),
                             "Two resets?");
             }
         }
-        const int width = m_graph.sampleVarScopep()->width();
-        m_isComplete = width < 64 && m_states.size() == (static_cast<size_t>(1) << width);
+        स्थिरांक पूर्णांक width = m_graph.sampleVarScopep()->width();
+        m_isComplete = width < 64 && m_states.size() == (static_cast<माप_प्रकार>(1) << width);
     }
 
-    void initUndefinedStates() {
+    शून्य initUndefinedStates() {
         UASSERT_OBJ(m_graph.sampleVarScopep()->width() < 64, m_graph.sampleVarScopep(),
                     "This FSM is too wide to expand - this should be caught earlier");
-        const uint64_t combinationsCount = static_cast<size_t>(1)
+        स्थिरांक uint64_t combinations_मोजणी = static_cast<माप_प्रकार>(1)
                                            << m_graph.sampleVarScopep()->width();
         // Rolling trick allows to cut peak memory usage
-        bool undefRolled = false;
-        auto rollUndefs = [this, combinationsCount] {
-            for (uint64_t i = 0; i < combinationsCount; ++i) {
-                const auto insert = m_undefinedStates.insert(i);
-                if (!insert.second) m_undefinedStates.erase(insert.first);
+        तार्किक undefRolled = असत्य;
+        स्वतः rollUndefs = [हे, combinations_मोजणी] {
+            साठी (uint64_t i = 0; i < combinations_मोजणी; ++i) {
+                स्थिरांक स्वतः घाला = m_undefinedStates.घाला(i);
+                जर (!घाला.second) m_undefinedStates.erase(घाला.first);
             }
         };
-        for (const FsmStateVertex* const statep : m_states) {
-            const V3Number& num = statep->value().num();
-            const uint64_t value = num.toUQuad();
-            if (!m_isComplete) {
-                if (undefRolled) {
-                    UASSERT_OBJ(m_undefinedStates.erase(value) == 1, m_graph.sampleVarScopep(),
+        साठी (स्थिरांक FsmStateVertex* स्थिरांक statep : m_states) {
+            स्थिरांक V3_संख्या& अंक = statep->मूल्य().अंक();
+            स्थिरांक uint64_t मूल्य = अंक.toUQuad();
+            जर (!m_isComplete) {
+                जर (undefRolled) {
+                    UASSERT_OBJ(m_undefinedStates.erase(मूल्य) == 1, m_graph.sampleVarScopep(),
                                 "Two states has the same value?");
-                } else {
-                    UASSERT_OBJ(m_undefinedStates.insert(value).second, m_graph.sampleVarScopep(),
+                } अन्यथा {
+                    UASSERT_OBJ(m_undefinedStates.घाला(मूल्य).second, m_graph.sampleVarScopep(),
                                 "Two states has the same value?");
-                    if (m_undefinedStates.size() * 2 >= combinationsCount) {
-                        undefRolled = true;
+                    जर (m_undefinedStates.size() * 2 >= combinations_मोजणी) {
+                        undefRolled = सत्य;
                         rollUndefs();
                     }
                 }
             }
         }
-        if (!(m_isComplete || undefRolled)) rollUndefs();
+        जर (!(m_isComplete || undefRolled)) rollUndefs();
     }
 
-    AstNodeExpr* buildResetCond() const {
-        AstNodeExpr* const refp
-            = new AstVarRef{m_flp, m_graph.resetCond().varScopep, VAccess::READ};
-        return m_graph.resetCond().activeLow
-                   ? static_cast<AstNodeExpr*>(new AstLogNot{m_flp, refp})
+    Ast_गाठ_अभिव्यक्ती* buildResetCond() स्थिरांक {
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक refp
+            = नवीन AstVarRef{m_flp, m_graph.resetCond().varScopep, VAccess::READ};
+        परत m_graph.resetCond().active_खालचा
+                   ? static_cast<Ast_गाठ_अभिव्यक्ती*>(नवीन AstLogNot{m_flp, refp})
                    : refp;
     }
 
-    size_t getArcCountWithExpansion(const VFsmExpandType expand) const {
-        size_t arcCountWithExpansion = ~0ULL;
-        switch (expand) {
-        case VFsmExpandType::DEFAULT: {  // LCOV_EXCL_LINE
+    माप_प्रकार get_Arc_मोजणी_With_Expansion(स्थिरांक VFsmExpandType expand) स्थिरांक {
+        माप_प्रकार arc_मोजणी_With_Expansion = ~0ULL;
+        निवड (expand) {
+        स्थिती VFsmExpandType::DEFAULT: {  // LCOV_EXCL_LINE
             m_graph.sampleVarScopep()->v3fatalSrc(
                 "At this point default should be substituted with a value it defaults to");
-            break;
+            थांबा;
         }
-        case VFsmExpandType::AUTO: {
-            arcCountWithExpansion = m_edgesCount;
-            if (m_defaultVertexp) {
+        स्थिती VFsmExpandType::AUTO: {
+            arc_मोजणी_With_Expansion = m_edges_मोजणी;
+            जर (m_defaultVertexp) {
                 UASSERT_OBJ(m_states.size() >= m_defaultVertexp->outEdges().size(),
                             m_graph.sampleVarScopep(),
                             "Default has more out edges than possible states?");
-                arcCountWithExpansion -= m_defaultVertexp->outEdges().size();
-                for (const FsmStateVertex* const statep : m_states) {
-                    arcCountWithExpansion += static_cast<size_t>(statep->outEdges().empty())
+                arc_मोजणी_With_Expansion -= m_defaultVertexp->outEdges().size();
+                साठी (स्थिरांक FsmStateVertex* स्थिरांक statep : m_states) {
+                    arc_मोजणी_With_Expansion += static_cast<माप_प्रकार>(statep->outEdges().empty())
                                              * m_defaultVertexp->outEdges().size();
                 }
             }
-            if (m_resetVertexp) {
+            जर (m_resetVertexp) {
                 UASSERT_OBJ(m_states.size() >= m_resetVertexp->outEdges().size(),
                             m_graph.sampleVarScopep(),
                             "Reset has more out edges than possible states?");
-                arcCountWithExpansion += m_states.size() - m_resetVertexp->outEdges().size();
+                arc_मोजणी_With_Expansion += m_states.size() - m_resetVertexp->outEdges().size();
             }
-            break;
+            थांबा;
         }
-        case VFsmExpandType::AUTO_EXPAND: {
-            arcCountWithExpansion = m_states.size() * m_states.size() - m_states.size();
-            break;
+        स्थिती VFsmExpandType::AUTO_EXPAND: {
+            arc_मोजणी_With_Expansion = m_states.size() * m_states.size() - m_states.size();
+            थांबा;
         }
-        case VFsmExpandType::FULL: {
-            const int width = m_graph.sampleVarScopep()->width();
+        स्थिती VFsmExpandType::FULL: {
+            स्थिरांक पूर्णांक width = m_graph.sampleVarScopep()->width();
             // 32 is derived from:
             // tranitionsCount <= std::numeric_limits<uint64_t>::max()
             // (2^width)^2 - (2^width) <= 2^64 - 1
@@ -2192,20 +2192,20 @@ class FsmCoverIncBuilder final {
             // log_2((2^width)^2 - (2^width)) < 64
             // log_2((2^width)^2) < 64 - `(2^width)` is negigible so, it may be dropped
             // 2width < 64
-            if (width < 32) {
-                const uint64_t combinationsCount = static_cast<size_t>(1) << width;
-                arcCountWithExpansion = combinationsCount * combinationsCount - combinationsCount;
+            जर (width < 32) {
+                स्थिरांक uint64_t combinations_मोजणी = static_cast<माप_प्रकार>(1) << width;
+                arc_मोजणी_With_Expansion = combinations_मोजणी * combinations_मोजणी - combinations_मोजणी;
             }
-            break;
+            थांबा;
         }
         }
-        return arcCountWithExpansion;
+        परत arc_मोजणी_With_Expansion;
     }
 
-    AstCoverOtherDecl* buildStateCoverDecl(const std::string& label,
-                                           const std::string& fsmTag = "") {
-        AstCoverOtherDecl* const declp
-            = new AstCoverOtherDecl{m_flp,
+    AstCoverOtherDecl* buildStateCoverDecl(स्थिरांक std::string& label,
+                                           स्थिरांक std::string& fsmTag = "") {
+        AstCoverOtherDecl* स्थिरांक declp
+            = नवीन AstCoverOtherDecl{m_flp,
                                     "v_fsm_state/" + m_modPrettyName,
                                     m_graph.stateVarName() + "::" + label,
                                     "",
@@ -2215,18 +2215,18 @@ class FsmCoverIncBuilder final {
                                     label,
                                     fsmTag};
         // We run after scoping, so this is declared for one instance only
-        declp->perInstance(true);
-        m_declsp = AstNode::addNext(m_declsp, declp);
-        return declp;
+        declp->perInstance(सत्य);
+        m_declsp = Ast_गाठ::addNext(m_declsp, declp);
+        परत declp;
     }
 
-    AstNodeStmt* buildCoverIncStmtp(const std::string& fromStateLabel,
-                                    const std::string& toStateLabel,
-                                    const std::string& baseLabel = "") {
+    Ast_गाठ_Stmt* buildCoverIncStmtp(स्थिरांक std::string& fromStateLabel,
+                                    स्थिरांक std::string& toStateLabel,
+                                    स्थिरांक std::string& baseLabel = "") {
         // Whole builder is designed in such a way that this function won't be called twice with
         // the same arguments - but if it will ever change in future, `AstCoverOtherDecl` shall be
         // cached for particular args set
-        AstCoverOtherDecl* const declp = new AstCoverOtherDecl{
+        AstCoverOtherDecl* स्थिरांक declp = नवीन AstCoverOtherDecl{
             m_flp,
             "v_fsm_arc/" + m_modPrettyName,
             m_graph.stateVarName() + "::" + fromStateLabel + "->" + toStateLabel,
@@ -2237,298 +2237,298 @@ class FsmCoverIncBuilder final {
             toStateLabel,
             baseLabel};
         // We run after scoping, so this is declared for one instance only
-        declp->perInstance(true);
-        m_declsp = AstNode::addNext(m_declsp, declp);
-        return new AstCoverInc{m_flp, declp};
+        declp->perInstance(सत्य);
+        m_declsp = Ast_गाठ::addNext(m_declsp, declp);
+        परत नवीन AstCoverInc{m_flp, declp};
     }
-    AstNodeStmt* buildExpandedTransitionHandler(const std::string& toStateLabel,
-                                                const bool considerUndefs,
-                                                const bool expandOnlyWithTerminalVerticies,
-                                                const FsmStateVertex* const toStatep = nullptr) {
-        AstCase* const arcCasep = new AstCase{
-            m_flp, VCaseType::CT_CASE, new AstVarRef{m_flp, m_prevVscp, VAccess::READ}, nullptr};
-        std::unordered_set<const FsmStateVertex*> handledSoureces;
-        if (toStatep) {
-            for (const V3GraphEdge& edge : toStatep->inEdges()) {
-                if (const FsmStateVertex* const fromp = edge.fromp()->cast<FsmStateVertex>()) {
-                    if (!handledSoureces.emplace(fromp).second) continue;
-                    arcCasep->addItemsp(new AstCaseItem{
-                        m_flp, makeConst(fromp->value().num().toUQuad()),
+    Ast_गाठ_Stmt* buildExpandedTransitionHandler(स्थिरांक std::string& toStateLabel,
+                                                स्थिरांक तार्किक considerUndefs,
+                                                स्थिरांक तार्किक expandOnlyWithTerminalVerticies,
+                                                स्थिरांक FsmStateVertex* स्थिरांक toStatep = nullptr) {
+        AstCase* स्थिरांक arcCasep = नवीन AstCase{
+            m_flp, VCaseType::CT_CASE, नवीन AstVarRef{m_flp, m_prevVscp, VAccess::READ}, nullptr};
+        std::unordered_set<स्थिरांक FsmStateVertex*> handledSoureces;
+        जर (toStatep) {
+            साठी (स्थिरांक V3GraphEdge& edge : toStatep->inEdges()) {
+                जर (स्थिरांक FsmStateVertex* स्थिरांक fromp = edge.fromp()->cast<FsmStateVertex>()) {
+                    जर (!handledSoureces.emplace(fromp).second) सुरूठेवा;
+                    arcCasep->addItemsp(नवीन AstCaseItem{
+                        m_flp, makeConst(fromp->मूल्य().अंक().toUQuad()),
                         (fromp != toStatep) ? buildCoverIncStmtp(fromp->label(), toStateLabel)
                                             : nullptr});
                 }
             }
         }
-        for (const FsmStateVertex* const fromp : m_states) {
-            if (handledSoureces.find(fromp) != handledSoureces.end()) continue;
-            arcCasep->addItemsp(new AstCaseItem{
-                m_flp, makeConst(fromp->value().num().toUQuad()),
+        साठी (स्थिरांक FsmStateVertex* स्थिरांक fromp : m_states) {
+            जर (handledSoureces.find(fromp) != handledSoureces.end()) सुरूठेवा;
+            arcCasep->addItemsp(नवीन AstCaseItem{
+                m_flp, makeConst(fromp->मूल्य().अंक().toUQuad()),
                 (fromp != toStatep
                  && (!expandOnlyWithTerminalVerticies || fromp->outEdges().empty()))
                     ? buildCoverIncStmtp(fromp->label(), toStateLabel, "artificial")
                     : nullptr});
         }
-        if (!m_isComplete) {
-            if (considerUndefs) {
-                for (const uint64_t from : m_undefinedStates) {
-                    const std::string& label = quadToBitStirngLabel(from);
+        जर (!m_isComplete) {
+            जर (considerUndefs) {
+                साठी (स्थिरांक uint64_t from : m_undefinedStates) {
+                    स्थिरांक std::string& label = quadToBitStirngLabel(from);
                     arcCasep->addItemsp(
-                        new AstCaseItem{m_flp, makeConst(from),
+                        नवीन AstCaseItem{m_flp, makeConst(from),
                                         (label != toStateLabel)
                                             ? buildCoverIncStmtp(label, toStateLabel, "artificial")
                                             : nullptr});
                 }
-            } else {
-                arcCasep->addItemsp(new AstCaseItem{m_flp, nullptr, nullptr});
+            } अन्यथा {
+                arcCasep->addItemsp(नवीन AstCaseItem{m_flp, nullptr, nullptr});
             }
         }
-        return arcCasep;
+        परत arcCasep;
     }
-    AstNodeStmt* buildUnxpandedTransitionHandler(const FsmStateVertex* const toStatep) {
-        AstCase* const arcCasep = new AstCase{
-            m_flp, VCaseType::CT_CASE, new AstVarRef{m_flp, m_prevVscp, VAccess::READ}, nullptr};
-        for (const V3GraphEdge& edge : toStatep->inEdges()) {
-            const FsmArcEdge* const arcp = edge.as<FsmArcEdge>();
+    Ast_गाठ_Stmt* buildUnxpandedTransitionHandler(स्थिरांक FsmStateVertex* स्थिरांक toStatep) {
+        AstCase* स्थिरांक arcCasep = नवीन AstCase{
+            m_flp, VCaseType::CT_CASE, नवीन AstVarRef{m_flp, m_prevVscp, VAccess::READ}, nullptr};
+        साठी (स्थिरांक V3GraphEdge& edge : toStatep->inEdges()) {
+            स्थिरांक FsmArcEdge* स्थिरांक arcp = edge.as<FsmArcEdge>();
             UASSERT_OBJ(!arcp->isReset(), m_graph.stateVarScopep(),
                         "This function should never be called on a target of a reset arc");
             UASSERT_OBJ(!arcp->isDefault(), m_graph.stateVarScopep(),
                         "This function should never be called on a target of a default arc");
-            const FsmStateVertex* const fromp = arcp->fromp()->as<FsmStateVertex>();
-            if (fromp != toStatep) {
+            स्थिरांक FsmStateVertex* स्थिरांक fromp = arcp->fromp()->as<FsmStateVertex>();
+            जर (fromp != toStatep) {
                 arcCasep->addItemsp(
-                    new AstCaseItem{m_flp, makeConst(fromp->value().num().toUQuad()),
+                    नवीन AstCaseItem{m_flp, makeConst(fromp->मूल्य().अंक().toUQuad()),
                                     buildCoverIncStmtp(fromp->label(), toStatep->label())});
             }
         }
-        arcCasep->addItemsp(new AstCaseItem{m_flp, nullptr, nullptr});
-        return arcCasep;
+        arcCasep->addItemsp(नवीन AstCaseItem{m_flp, nullptr, nullptr});
+        परत arcCasep;
     }
 
-public:
-    FsmCoverIncBuilder(const FsmGraph& graph, AstVarScope* const prevVscp)
+सार्वजनिक:
+    FsmCoverIncBuilder(स्थिरांक FsmGraph& graph, AstVarScope* स्थिरांक prevVscp)
         : m_graph{graph}
         , m_prevVscp{prevVscp}
         , m_flp{graph.fileline()}
         , m_modPrettyName{graph.scopep()->modp()->prettyName()} {
         initExistingStates();
-        AstVarScope* const sampleVscp = graph.sampleVarScopep();
-        const VFsmExpandType expand
+        AstVarScope* स्थिरांक sampleVscp = graph.sampleVarScopep();
+        स्थिरांक VFsmExpandType expand
             = graph.stateVarScopep()->varp()->attrFsmStateExpand() != VFsmExpandType::DEFAULT
                   ? graph.stateVarScopep()->varp()->attrFsmStateExpand()
                   : v3Global.opt.coverageFsmExpand();
 
         {
-            const size_t arcCountWithExpansion = getArcCountWithExpansion(expand);
-            if (VL_UNLIKELY(v3Global.opt.coverageFsmMaxArcs() < 0 || ~arcCountWithExpansion == 0ULL
-                            || arcCountWithExpansion
-                                   > static_cast<size_t>(v3Global.opt.coverageFsmMaxArcs()))) {
+            स्थिरांक माप_प्रकार arc_मोजणी_With_Expansion = get_Arc_मोजणी_With_Expansion(expand);
+            जर (VL_UNLIKELY(v3Global.opt.coverageFsmMaxArcs() < 0 || ~arc_मोजणी_With_Expansion == 0ULL
+                            || arc_मोजणी_With_Expansion
+                                   > static_cast<माप_प्रकार>(v3Global.opt.coverageFsmMaxArcs()))) {
                 sampleVscp->v3error("Exceeded size of --coverage-fsm-max-arcs "
                                     << v3Global.opt.coverageFsmMaxArcs()
-                                    << " with: " << arcCountWithExpansion);
-                return;
+                                    << " with: " << arc_मोजणी_With_Expansion);
+                परत;
             }
         }
 
-        AstCase* const arcCasep
-            = new AstCase{m_flp, VCaseType::CT_CASE,
-                          new AstVarRef{m_flp, graph.sampleVarScopep(), VAccess::READ}, nullptr};
-        AstCase* const initialStateCasep
-            = new AstCase{m_flp, VCaseType::CT_CASE,
-                          new AstVarRef{m_flp, graph.sampleVarScopep(), VAccess::READ}, nullptr};
+        AstCase* स्थिरांक arcCasep
+            = नवीन AstCase{m_flp, VCaseType::CT_CASE,
+                          नवीन AstVarRef{m_flp, graph.sampleVarScopep(), VAccess::READ}, nullptr};
+        AstCase* स्थिरांक initialStateCasep
+            = नवीन AstCase{m_flp, VCaseType::CT_CASE,
+                          नवीन AstVarRef{m_flp, graph.sampleVarScopep(), VAccess::READ}, nullptr};
 
-        const bool expandAll = expand != VFsmExpandType::AUTO;
-        std::unordered_set<const FsmStateVertex*>
+        स्थिरांक तार्किक expandAll = expand != VFsmExpandType::AUTO;
+        std::unordered_set<स्थिरांक FsmStateVertex*>
             defaultTargets;  // States that have edge incoming from default vertex
-        std::unordered_set<const FsmStateVertex*>
+        std::unordered_set<स्थिरांक FsmStateVertex*>
             resetTargets;  // States that have edge incoming from reset vertex
-        if (!expandAll) {
-            if (m_defaultVertexp) {
-                for (const V3GraphEdge& edge : m_defaultVertexp->outEdges()) {
-                    defaultTargets.emplace(edge.top()->as<FsmStateVertex>());
+        जर (!expandAll) {
+            जर (m_defaultVertexp) {
+                साठी (स्थिरांक V3GraphEdge& edge : m_defaultVertexp->outEdges()) {
+                    defaultTargets.emplace(edge.शीर्ष()->as<FsmStateVertex>());
                 }
             }
-            if (m_resetVertexp) {
-                for (const V3GraphEdge& edge : m_resetVertexp->outEdges()) {
-                    resetTargets.emplace(edge.top()->as<FsmStateVertex>());
+            जर (m_resetVertexp) {
+                साठी (स्थिरांक V3GraphEdge& edge : m_resetVertexp->outEdges()) {
+                    resetTargets.emplace(edge.शीर्ष()->as<FsmStateVertex>());
                 }
             }
         }
-        const bool isFullExpansion = expand == VFsmExpandType::FULL;
-        if (isFullExpansion) initUndefinedStates();
-        for (const FsmStateVertex* const statep : m_states) {
+        स्थिरांक तार्किक isFullExpansion = expand == VFsmExpandType::FULL;
+        जर (isFullExpansion) initUndefinedStates();
+        साठी (स्थिरांक FsmStateVertex* स्थिरांक statep : m_states) {
             // State coverage fires when the FSM enters a state from any other
             // value, so repeated self-holds do not count as new entries.
-            AstCoverOtherDecl* const declp = buildStateCoverDecl(statep->label());
+            AstCoverOtherDecl* स्थिरांक declp = buildStateCoverDecl(statep->label());
             initialStateCasep->addItemsp(
-                new AstCaseItem{m_flp, makeConst(statep->value().num().toUQuad()),
-                                new AstCoverInc{m_flp, declp, true}});
-            const bool expandAllOrReset
+                नवीन AstCaseItem{m_flp, makeConst(statep->मूल्य().अंक().toUQuad()),
+                                नवीन AstCoverInc{m_flp, declp, सत्य}});
+            स्थिरांक तार्किक expandAllOrReset
                 = expandAll || (resetTargets.find(statep) != resetTargets.end());
-            const bool defaultExpantion
+            स्थिरांक तार्किक defaultExpantion
                 = !expandAllOrReset && (defaultTargets.find(statep) != defaultTargets.end());
-            arcCasep->addItemsp(new AstCaseItem{
-                m_flp, makeConst(statep->value().num().toUQuad()),
-                AstNode::addNext<AstNodeStmt>(
-                    new AstCoverInc{m_flp, declp},
+            arcCasep->addItemsp(नवीन AstCaseItem{
+                m_flp, makeConst(statep->मूल्य().अंक().toUQuad()),
+                Ast_गाठ::addNext<Ast_गाठ_Stmt>(
+                    नवीन AstCoverInc{m_flp, declp},
                     expandAllOrReset || defaultExpantion
                         ? buildExpandedTransitionHandler(statep->label(), isFullExpansion,
                                                          defaultExpantion, statep)
                         : buildUnxpandedTransitionHandler(statep))});
         }
-        if (!m_isComplete) {
+        जर (!m_isComplete) {
             // Case is incomplete default CaseItem is needed
-            if (isFullExpansion) {
-                for (const uint64_t value : m_undefinedStates) {
-                    const std::string& label = quadToBitStirngLabel(value);
-                    AstCoverOtherDecl* const declp = buildStateCoverDecl(label);
-                    initialStateCasep->addItemsp(new AstCaseItem{
-                        m_flp, makeConst(value), new AstCoverInc{m_flp, declp, true}});
+            जर (isFullExpansion) {
+                साठी (स्थिरांक uint64_t मूल्य : m_undefinedStates) {
+                    स्थिरांक std::string& label = quadToBitStirngLabel(मूल्य);
+                    AstCoverOtherDecl* स्थिरांक declp = buildStateCoverDecl(label);
+                    initialStateCasep->addItemsp(नवीन AstCaseItem{
+                        m_flp, makeConst(मूल्य), नवीन AstCoverInc{m_flp, declp, सत्य}});
                     arcCasep->addItemsp(
-                        new AstCaseItem{m_flp, makeConst(value),
-                                        AstNode::addNext<AstNodeStmt>(
-                                            new AstCoverInc{m_flp, declp},
-                                            buildExpandedTransitionHandler(label, true, false))});
+                        नवीन AstCaseItem{m_flp, makeConst(मूल्य),
+                                        Ast_गाठ::addNext<Ast_गाठ_Stmt>(
+                                            नवीन AstCoverInc{m_flp, declp},
+                                            buildExpandedTransitionHandler(label, सत्य, असत्य))});
                 }
-            } else {
+            } अन्यथा {
                 // No expansion
-                arcCasep->addItemsp(new AstCaseItem{m_flp, nullptr, nullptr});
-                initialStateCasep->addItemsp(new AstCaseItem{m_flp, nullptr, nullptr});
+                arcCasep->addItemsp(नवीन AstCaseItem{m_flp, nullptr, nullptr});
+                initialStateCasep->addItemsp(नवीन AstCaseItem{m_flp, nullptr, nullptr});
             }
         }
         m_coverIncp = arcCasep;
         m_initialCoverIncp = initialStateCasep;
     }
     VL_UNCOPYABLE(FsmCoverIncBuilder);
-    ~FsmCoverIncBuilder() = default;
-    AstNodeCoverDecl* getCoverDeclsp() const { return m_declsp; }
-    AstNodeStmt* getCoverIncp() const { return m_coverIncp; }
-    AstNodeStmt* getInitialCoverIncp() const { return m_initialCoverIncp; }
+    ~FsmCoverIncBuilder() = पूर्वनिर्धारित;
+    Ast_गाठ_Cover_Decl* getCoverDeclsp() स्थिरांक { परत m_declsp; }
+    Ast_गाठ_Stmt* getCoverIncp() स्थिरांक { परत m_coverIncp; }
+    Ast_गाठ_Stmt* getInitialCoverIncp() स्थिरांक { परत m_initialCoverIncp; }
 };
 
 // Lower the completed FSM graphs into the concrete coverage declarations,
 // previous-state tracking, and pre/post-triggered instrumentation that the
 // runtime uses to record state and transition coverage.
-class FsmLowerVisitor final {
+वर्ग FsmLowerVisitor final {
     // STATE - across all visitors
-    const FsmState& m_state;
+    स्थिरांक FsmState& m_state;
     V3SharedTmps m_prevTmps{"__VfsmCovPrev", VVarType::MODULETEMP};  // Previous states
 
     // METHODS
     // Rebuild the original event control from the saved sense description so
     // post-state coverage sampling runs on the same triggering edges.
-    static AstSenTree* buildSenTree(FileLine* flp, const std::vector<FsmSenDesc>& senses) {
-        AstSenTree* const sentreep = new AstSenTree{flp, nullptr};
-        for (const FsmSenDesc& sense : senses) {
-            AstSenItem* const senItemp
-                = new AstSenItem{flp, VEdgeType{sense.edgeType},
-                                 new AstVarRef{flp, sense.varScopep, VAccess::READ}};
+    स्थिर Ast_Sen_वृक्ष* build_Sen_वृक्ष(File_ओळ* flp, स्थिरांक std::vector<FsmSenDesc>& senses) {
+        Ast_Sen_वृक्ष* स्थिरांक sentreep = नवीन Ast_Sen_वृक्ष{flp, nullptr};
+        साठी (स्थिरांक FsmSenDesc& sense : senses) {
+            AstSenItem* स्थिरांक senItemp
+                = नवीन AstSenItem{flp, VEdgeType{sense.edgeType},
+                                 नवीन AstVarRef{flp, sense.varScopep, VAccess::READ}};
             sentreep->addSensesp(senItemp);
         }
-        return sentreep;
+        परत sentreep;
     }
 
     // Lower one fully detected FSM graph into the concrete coverage machinery
     // used by generated models: declarations, previous-state tracking, and the
     // pre/post-triggered increment logic for states and arcs.
-    void buildOne(const FsmGraph& graph) {
+    शून्य buildOne(स्थिरांक FsmGraph& graph) {
         UINFO(1, "buildOne lowering FSM " << graph.stateVarName()
                                           << " vertices=" << graph.vertices().size() << endl);
-        AstAlways* const alwaysp = graph.stateAlwaysp();
-        AstScope* const scopep = graph.scopep();
-        AstVarScope* const stateVscp = graph.stateVarScopep();
-        AstVarScope* const sampleVscp = graph.sampleVarScopep();
-        FileLine* const flp = graph.fileline();
-        AstNodeModule* const modp = scopep->modp();
-        AstVarScope* const prevVscp
+        AstAlways* स्थिरांक alwaysp = graph.stateAlwaysp();
+        AstScope* स्थिरांक scopep = graph.scopep();
+        AstVarScope* स्थिरांक stateVscp = graph.stateVarScopep();
+        AstVarScope* स्थिरांक sampleVscp = graph.sampleVarScopep();
+        File_ओळ* स्थिरांक flp = graph.fileline();
+        Ast_गाठ_Module* स्थिरांक modp = scopep->modp();
+        AstVarScope* स्थिरांक prevVscp
             = m_prevTmps.make(flp, scopep, sampleVscp->dtypep(), stateVscp->varp()->shortName());
         // The saved previous-state temp crosses the scheduler's pre/post split
         // in the same way as Verilator's built-in NBA shadow variables, so keep
         // both vars marked as post-life participants for stable MT ordering.
-        stateVscp->optimizeLifePost(true);
-        sampleVscp->optimizeLifePost(true);
-        prevVscp->optimizeLifePost(true);
+        stateVscp->optimizeLifePost(सत्य);
+        sampleVscp->optimizeLifePost(सत्य);
+        prevVscp->optimizeLifePost(सत्य);
 
-        AstActive* const initActivep
-            = new AstActive{flp, "fsm-coverage-init",
-                            new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Initial{}}}};
-        initActivep->senTreeStorep(initActivep->sentreep());
+        AstActive* स्थिरांक initActivep
+            = नवीन AstActive{flp, "fsm-coverage-init",
+                            नवीन Ast_Sen_वृक्ष{flp, नवीन AstSenItem{flp, AstSenItem::Initial{}}}};
+        initActivep->sen_वृक्ष_Storep(initActivep->sentreep());
         // Seed the previous-state temp during initialization so the first
         // clock edge compares against a defined state value.
-        initActivep->addStmtsp(new AstInitialStatic{
-            flp, new AstAssign{flp, new AstVarRef{flp, prevVscp, VAccess::WRITE},
-                               new AstVarRef{flp, sampleVscp, VAccess::READ}}});
+        initActivep->addStmtsp(नवीन AstInitialStatic{
+            flp, नवीन AstAssign{flp, नवीन AstVarRef{flp, prevVscp, VAccess::WRITE},
+                               नवीन AstVarRef{flp, sampleVscp, VAccess::READ}}});
         scopep->addBlocksp(initActivep);
 
-        AstAlwaysPost* const covPostp = new AstAlwaysPost{flp};
-        bool updatePrevAfterPost = false;
-        if (alwaysp) {
+        AstAlwaysPost* स्थिरांक covPostp = नवीन AstAlwaysPost{flp};
+        तार्किक updatePrevAfterPost = असत्य;
+        जर (alwaysp) {
             // Save the previous state as plain sequential logic at the front of
             // the original always_ff body, then evaluate coverage in post logic
             // after the delayed state update commits. This avoids a scheduler
             // race between a separate AstAlwaysPre task and the real state
             // commit for direct parent-level registers.
-            alwaysp->prependStmtsp(new AstAssign{flp, new AstVarRef{flp, prevVscp, VAccess::WRITE},
-                                                 new AstVarRef{flp, sampleVscp, VAccess::READ}});
-        } else {
+            alwaysp->prependStmtsp(नवीन AstAssign{flp, नवीन AstVarRef{flp, prevVscp, VAccess::WRITE},
+                                                 नवीन AstVarRef{flp, sampleVscp, VAccess::READ}});
+        } अन्यथा {
             // Wrapper-derived register candidates do not have a parent
             // always_ff body to splice into. Sample coverage first, then save
             // the current state for the next clock tick; this survives cell
             // boundary scheduling where the real flop update lives elsewhere.
-            updatePrevAfterPost = true;
+            updatePrevAfterPost = सत्य;
             prevVscp->varp()->setIgnorePostRead();
         }
 
         {
             // Create and increment proper AstNodeCoverDecls
-            const FsmCoverIncBuilder coverIncBuilder{graph, prevVscp};
+            स्थिरांक FsmCoverIncBuilder coverIncBuilder{graph, prevVscp};
             modp->addStmtsp(coverIncBuilder.getCoverDeclsp());
             initActivep->addStmtsp(coverIncBuilder.getInitialCoverIncp());
             covPostp->addStmtsp(
-                new AstIf{flp,
-                          new AstNeq{flp, new AstVarRef{flp, prevVscp, VAccess::READ},
-                                     new AstVarRef{flp, sampleVscp, VAccess::READ}},
+                नवीन AstIf{flp,
+                          नवीन AstNeq{flp, नवीन AstVarRef{flp, prevVscp, VAccess::READ},
+                                     नवीन AstVarRef{flp, sampleVscp, VAccess::READ}},
                           coverIncBuilder.getCoverIncp()});
         }
 
-        if (updatePrevAfterPost) {
-            covPostp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, prevVscp, VAccess::WRITE},
-                                              new AstVarRef{flp, sampleVscp, VAccess::READ}});
+        जर (updatePrevAfterPost) {
+            covPostp->addStmtsp(नवीन AstAssign{flp, नवीन AstVarRef{flp, prevVscp, VAccess::WRITE},
+                                              नवीन AstVarRef{flp, sampleVscp, VAccess::READ}});
         }
 
-        AstSenTree* const sentreep = buildSenTree(flp, graph.senses());
-        AstActive* const activep = new AstActive{flp, "fsm-coverage", sentreep};
-        activep->senTreeStorep(sentreep);
+        Ast_Sen_वृक्ष* स्थिरांक sentreep = build_Sen_वृक्ष(flp, graph.senses());
+        AstActive* स्थिरांक activep = नवीन AstActive{flp, "fsm-coverage", sentreep};
+        activep->sen_वृक्ष_Storep(sentreep);
         scopep->addBlocksp(activep);
         activep->addStmtsp(covPostp);
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     // Lower every detected FSM graph from the shared local state into
     // concrete coverage instrumentation while the saved scoped pointers are
     // still valid in the same pass.
-    explicit FsmLowerVisitor(const FsmState& state)
+    explicit FsmLowerVisitor(स्थिरांक FsmState& state)
         : m_state{state} {
-        for (const DetectedFsm& fsm : m_state.fsms()) { buildOne(*fsm.graphp); }
+        साठी (स्थिरांक DetectedFsm& fsm : m_state.fsms()) { buildOne(*fsm.graphp); }
     }
 };
 
 }  // namespace
 
-void V3FsmDetect::detect(AstNetlist* rootp) {
+शून्य V3FsmDetect::detect(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     FsmState state;
     // Phase 1: recover each supported FSM into a complete graph while the
     // original clocked/case structure is still easy to recognize.
     FsmDetectVisitor detect{state, rootp};
-    if (dumpGraphLevel() >= 6) {
-        size_t index = 0;
-        for (const DetectedFsm& fsm : state.fsms()) {
+    जर (dumpGraphLevel() >= 6) {
+        माप_प्रकार index = 0;
+        साठी (स्थिरांक DetectedFsm& fsm : state.fsms()) {
             fsm.graphp->dumpDotFilePrefixed(fsm.graphp->dumpTag(index++));
         }
     }
     // Phase 2: lower the completed in-memory graph state immediately, without
     // crossing into another pass owner or serializing through AST placeholders.
     { FsmLowerVisitor lower{state}; }
-    V3Global::dumpCheckGlobalTree("fsm-detect", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("fsm-detect", 0, dump_वृक्ष_Either_Level() >= 3);
 }

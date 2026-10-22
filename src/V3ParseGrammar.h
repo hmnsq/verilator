@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#include "V3Ast.h"
-#include "V3Const.h"
-#include "V3Control.h"
-#include "V3Global.h"
-#include "V3ParseImp.h"  // Defines YYTYPE; before including bison header
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Control.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3ParseImp.h"  // Defines YYTYPE; before including bison header
 
-#include <stack>
-#include <vector>
+#अन्तर्भाव <stack>
+#अन्तर्भाव <vector>
 
 class V3ParseGrammar final {
-public:
+सार्वजनिक:
     AstVar* m_varAttrp = nullptr;  // Current variable for attribute adding
     AstRange* m_gateRangep = nullptr;  // Current range for gate declarations
-    AstNode* m_scopedSigAttr = nullptr;  // Pointer to default signal attribute
+    Ast_गाठ* m_scopedSigAttr = nullptr;  // Pointer to default signal attribute
     AstCase* m_caseAttrp = nullptr;  // Current case statement for attribute adding
-    AstNodeDType* m_varDTypep = nullptr;  // Pointer to data type for next signal declaration
-    AstNodeDType* m_memDTypep = nullptr;  // Pointer to data type for next member declaration
+    Ast_गाठ_DType* m_varDTypep = nullptr;  // Pointer to data type for next signal declaration
+    Ast_गाठ_DType* m_memDTypep = nullptr;  // Pointer to data type for next member declaration
     VRandAttr m_memRand;  // 'rand'/'randc' qualifier for next member declaration
     AstDelay* m_netDelayp = nullptr;  // Pointer to delay for next signal declaration
     AstStrengthSpec* m_netStrengthp = nullptr;  // Pointer to strength for next net declaration
-    FileLine* m_instModuleFl = nullptr;  // Fileline of module referenced for instantiations
+    File_ओळ* m_instModuleFl = nullptr;  // Fileline of module referenced for instantiations
     AstPin* m_instParamp = nullptr;  // Parameters for instantiations
     string m_instModule;  // Name of module referenced for instantiations
     VVarType m_varDecl = VVarType::UNKNOWN;  // Type for next signal declaration (reg/wire/etc)
@@ -53,260 +53,260 @@ public:
         = false;  // Standalone ID is a tf_identifier instead of port_identifier
     bool m_modportImpExpLastIsExport
         = false;  // Last import_export statement in modportPortsDecl is an export
-    AstNode* m_modportProtoTasksp
+    Ast_गाठ* m_modportProtoTasksp
         = nullptr;  // Prototype tasks from modport import/export with prototype
 
-    int m_pinNum = -1;  // Pin number currently parsing
-    std::stack<int> m_pinStack;  // Queue of pin numbers being parsed
+    पूर्णांक m_pin_अंक = -1;  // Pin number currently parsing
+    std::चळत<पूर्णांक> m_pin_चळत;  // Queue of pin numbers being parsed
 
-    static int s_typeImpNum;  // Implicit type number, incremented each module
+    स्थिर पूर्णांक s_type_Imp_अंक;  // Implicit type number, incremented each module
 
     // CONSTRUCTORS
-    V3ParseGrammar() = default;
-    static V3ParseGrammar* singletonp() {
-        static V3ParseGrammar singleton;
-        return &singleton;
+    V3ParseGrammar() = पूर्वनिर्धारित;
+    स्थिर V3ParseGrammar* singletonp() {
+        स्थिर V3ParseGrammar singleton;
+        परत &singleton;
     }
 
     // METHODS
-    AstArg* argWrapList(AstNodeExpr* nodep) VL_MT_DISABLED;
-    bool allTracingOn(const FileLine* fl) const {
-        return v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
+    AstArg* argWrapList(Ast_गाठ_अभिव्यक्ती* nodep) VL_MT_DISABLED;
+    bool allTracingOn(स्थिरांक File_ओळ* fl) स्थिरांक {
+        परत v3Global.opt.trace() && m_tracingParse && fl->tracingOn();
     }
-    AstRange* scrubRange(AstNodeRange* rangep) VL_MT_DISABLED;
-    AstRange* scrubRangeMulti(AstNodeRange* rangep) VL_MT_DISABLED;
-    AstNodePreSel* scrubSel(AstNodeExpr* fromp, AstNodePreSel* selp) VL_MT_DISABLED;
-    AstNodeDType* createArray(AstNodeDType* basep, AstNodeRange* rangep,
+    AstRange* scrubRange(Ast_गाठ_Range* rangep) VL_MT_DISABLED;
+    AstRange* scrubRangeMulti(Ast_गाठ_Range* rangep) VL_MT_DISABLED;
+    Ast_गाठ_Pre_Sel* scrubSel(Ast_गाठ_अभिव्यक्ती* fromp, Ast_गाठ_Pre_Sel* selp) VL_MT_DISABLED;
+    Ast_गाठ_DType* createArray(Ast_गाठ_DType* basep, Ast_गाठ_Range* rangep,
                               bool isPacked) VL_MT_DISABLED;
-    AstVar* createVariable(FileLine* fileline, const string& name, AstNodeRange* arrayp,
-                           AstNode* attrsp) VL_MT_DISABLED;
-    AstAssignW* createSupplyExpr(FileLine* fileline, const string& name, int value) VL_MT_DISABLED;
-    std::string textQuoted(FileLine* fileline, const std::string& text) {
-        return singletonp()->unquoteString(fileline, text);
+    AstVar* createVariable(File_ओळ* fileline, स्थिरांक string& name, Ast_गाठ_Range* arrayp,
+                           Ast_गाठ* attrsp) VL_MT_DISABLED;
+    AstAssignW* create_Supply_अभिव्यक्ती(File_ओळ* fileline, स्थिरांक string& name, पूर्णांक मूल्य) VL_MT_DISABLED;
+    std::string textQuoted(File_ओळ* fileline, स्थिरांक std::string& text) {
+        परत singletonp()->unquoteString(fileline, text);
     }
-    AstNode* createCell(FileLine* fileline, const string& name, AstPin* pinlistp,
-                        AstNodeRange* rangelistp) {
+    Ast_गाठ* createCell(File_ओळ* fileline, स्थिरांक string& name, AstPin* pinlistp,
+                        Ast_गाठ_Range* rangelistp) {
         // Must clone m_instParamp as may be comma'ed list of instances
-        AstCell* const nodep = new AstCell{
+        AstCell* स्थिरांक nodep = new AstCell{
             fileline,
             singletonp()->m_instModuleFl,
             name,
             singletonp()->m_instModule,
             pinlistp,
-            (singletonp()->m_instParamp ? singletonp()->m_instParamp->cloneTree(true) : nullptr),
+            (singletonp()->m_instParamp ? singletonp()->m_instParamp->clone_वृक्ष(true) : nullptr),
             singletonp()->scrubRangeMulti(rangelistp)};
         nodep->trace(singletonp()->allTracingOn(fileline));
-        return nodep;
+        परत nodep;
     }
-    static AstNode* createPatternKey(AstNodeExpr* exprp) {
+    स्थिर Ast_गाठ* create_Pattern_किल्ली(Ast_गाठ_अभिव्यक्ती* exprp) {
         // Assignment pattern key.  A bare identifier may name a structure
         // member rather than a constant, so pass it on as a Text node for
         // V3LinkDot to resolve; anything else is a constant expression.
-        if (const AstParseRef* const refp = VN_CAST(exprp, ParseRef)) {
-            if (!refp->lhsp() && !refp->ftaskrefp()) {
-                AstNode* const textp = new AstText{refp->fileline(), refp->name()};
-                VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                return textp;
+        जर (स्थिरांक AstParseRef* स्थिरांक refp = VN_CAST(exprp, ParseRef)) {
+            जर (!refp->lhsp() && !refp->ftaskrefp()) {
+                Ast_गाठ* स्थिरांक textp = new AstText{refp->fileline(), refp->name()};
+                VL_DO_DANGLING(exprp->delete_वृक्ष(), exprp);
+                परत textp;
             }
         }
-        return exprp;
+        परत exprp;
     }
-    AstDisplay* createDisplayError(FileLine* fileline) {
+    AstDisplay* createDisplayError(File_ओळ* fileline) {
         AstDisplay* nodep = new AstDisplay{fileline, VDisplayType::DT_ERROR, "", nullptr, nullptr};
-        AstNode::addNext<AstNode, AstNode>(nodep, new AstStop{fileline, false});
-        return nodep;
+        Ast_गाठ::addNext<Ast_गाठ, Ast_गाठ>(nodep, new AstStop{fileline, false});
+        परत nodep;
     }
     // Apply the array marker of a bins declaration of values: '[]' creates a bin per value, and
     // '[N]' N bins holding the values (IEEE 1800-2023 19.5.1)
-    static AstCoverBin* coverBinArray(AstCoverBin* binp, AstNodeExpr* sizep) {
-        if (!sizep) return binp;
+    स्थिर AstCoverBin* coverBinArray(AstCoverBin* binp, Ast_गाठ_अभिव्यक्ती* sizep) {
+        जर (!sizep) परत binp;
         binp->isArray(true);
-        if (VN_IS(sizep, Unbounded)) {
-            VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        } else {
+        जर (VN_IS(sizep, Unbounded)) {
+            VL_DO_DANGLING(sizep->delete_वृक्ष(), sizep);
+        } अन्यथा {
             binp->arraySizep(sizep);
         }
-        return binp;
+        परत binp;
     }
     // The array marker of another bins declaration, which supports only '[]'; true if present
-    static bool coverBinArrayUnsized(AstNodeExpr* sizep) {
-        if (!sizep) return false;
-        if (!VN_IS(sizep, Unbounded)) {
+    स्थिर bool coverBinArrayUnsized(Ast_गाठ_अभिव्यक्ती* sizep) {
+        जर (!sizep) परत false;
+        जर (!VN_IS(sizep, Unbounded)) {
             sizep->v3warn(COVERIGN, "Unsupported: 'bins' explicit array size (treated as '[]')");
         }
-        VL_DO_DANGLING(sizep->deleteTree(), sizep);
-        return true;
+        VL_DO_DANGLING(sizep->delete_वृक्ष(), sizep);
+        परत true;
     }
-    AstNodeExpr* createGatePin(AstNodeExpr* exprp) {
-        AstRange* const rangep = m_gateRangep;
-        if (!rangep) return exprp;
-        return new AstGatePin{rangep->fileline(), exprp, rangep->cloneTree(true)};
+    Ast_गाठ_अभिव्यक्ती* createGatePin(Ast_गाठ_अभिव्यक्ती* exprp) {
+        AstRange* स्थिरांक rangep = m_gateRangep;
+        जर (!rangep) परत exprp;
+        परत new AstGatePin{rangep->fileline(), exprp, rangep->clone_वृक्ष(true)};
     }
-    AstSenTree* createSenTreeChanged(FileLine* fl, AstNodeExpr* exprp) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_CHANGED, exprp}};
+    Ast_Sen_वृक्ष* create_Sen_वृक्ष_Changed(File_ओळ* fl, Ast_गाठ_अभिव्यक्ती* exprp) {
+        परत new Ast_Sen_वृक्ष{fl, new AstSenItem{fl, VEdgeType::ET_CHANGED, exprp}};
     }
-    AstSenTree* createSenTreeDotStar(FileLine* fl) {
-        return new AstSenTree{fl, new AstSenItem{fl, VEdgeType::ET_COMBO_STAR, nullptr}};
+    Ast_Sen_वृक्ष* create_Sen_वृक्ष_Dot_Star(File_ओळ* fl) {
+        परत new Ast_Sen_वृक्ष{fl, new AstSenItem{fl, VEdgeType::ET_COMBO_STAR, nullptr}};
     }
-    AstNodeExpr* createGlobalClockParseRef(FileLine* fl) {
-        return new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
+    Ast_गाठ_अभिव्यक्ती* createGlobalClockParseRef(File_ओळ* fl) {
+        परत new AstParseRef{fl, "__024global_clock", nullptr, nullptr};
     }
-    AstSenTree* createGlobalClockSenTree(FileLine* fl) {
-        return createSenTreeChanged(fl, createGlobalClockParseRef(fl));
+    Ast_Sen_वृक्ष* create_Global_Clock_Sen_वृक्ष(File_ओळ* fl) {
+        परत create_Sen_वृक्ष_Changed(fl, createGlobalClockParseRef(fl));
     }
-    AstNode* createNettype(FileLine* fl, const string& name) {
+    Ast_गाठ* createNettype(File_ओळ* fl, स्थिरांक string& name) {
         // As nettypes are unsupported, we just alias to logic
-        AstTypedef* const nodep = new AstTypedef{fl, name, nullptr, VFlagChildDType{},
+        AstTypedef* स्थिरांक nodep = new AstTypedef{fl, name, nullptr, VFlagChildDType{},
                                                  new AstBasicDType{fl, VFlagLogicPacked{}, 1}};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        परत nodep;
     }
-    AstNode* createTypedef(FileLine* fl, const string& name, AstNode* attrsp, AstNodeDType* basep,
-                           AstNodeRange* rangep) {
-        AstTypedef* const nodep = new AstTypedef{fl, name, attrsp, VFlagChildDType{},
+    Ast_गाठ* createTypedef(File_ओळ* fl, स्थिरांक string& name, Ast_गाठ* attrsp, Ast_गाठ_DType* basep,
+                           Ast_गाठ_Range* rangep) {
+        AstTypedef* स्थिरांक nodep = new AstTypedef{fl, name, attrsp, VFlagChildDType{},
                                                  singletonp()->createArray(basep, rangep, false)};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        परत nodep;
     }
-    AstNode* createTypedefFwd(FileLine* fl, const string& name, const VFwdType& fwdType) {
-        AstTypedefFwd* const nodep = new AstTypedefFwd{fl, name, fwdType};
+    Ast_गाठ* createTypedefFwd(File_ओळ* fl, स्थिरांक string& name, स्थिरांक VFwdType& fwdType) {
+        AstTypedefFwd* स्थिरांक nodep = new AstTypedefFwd{fl, name, fwdType};
         V3ParseImp::parsep()->tagNodep(nodep);
-        return nodep;
+        परत nodep;
     }
-    static void endLabel(FileLine* fl, const AstNode* nodep, const string* endnamep) {
+    स्थिर शून्य endLabel(File_ओळ* fl, स्थिरांक Ast_गाठ* nodep, स्थिरांक string* endnamep) {
         endLabel(fl, nodep->prettyName(), endnamep);
     }
-    static void endLabel(FileLine* fl, const string& name, const string* endnamep) {
-        if (fl && endnamep && *endnamep != "" && name != *endnamep
-            && name != AstNode::prettyName(*endnamep)) {
+    स्थिर शून्य endLabel(File_ओळ* fl, स्थिरांक string& name, स्थिरांक string* endnamep) {
+        जर (fl && endnamep && *endnamep != "" && name != *endnamep
+            && name != Ast_गाठ::prettyName(*endnamep)) {
             fl->v3warn(ENDLABEL, "End label '" << *endnamep << "' does not match begin label '"
                                                << name << "'");
         }
     }
-    void setDType(AstNodeDType* dtypep) {
-        if (m_varDTypep) {
+    शून्य setDType(Ast_गाठ_DType* dtypep) {
+        जर (m_varDTypep) {
             UASSERT_OBJ(!m_varDTypep->backp(), m_varDTypep, "Should not link directly");
-            VL_DO_CLEAR(m_varDTypep->deleteTree(), m_varDTypep = nullptr);
+            VL_DO_CLEAR(m_varDTypep->delete_वृक्ष(), m_varDTypep = nullptr);
         }
         m_varDTypep = dtypep;
     }
-    void setNetDelay(AstDelay* netDelayp) {
-        if (m_netDelayp) {
+    शून्य setNetDelay(AstDelay* netDelayp) {
+        जर (m_netDelayp) {
             UASSERT_OBJ(!m_netDelayp->backp(), m_netDelayp, "Should not link directly");
-            VL_DO_CLEAR(m_netDelayp->deleteTree(), m_netDelayp = nullptr);
+            VL_DO_CLEAR(m_netDelayp->delete_वृक्ष(), m_netDelayp = nullptr);
         }
         m_netDelayp = netDelayp;
     }
-    void setNetStrength(AstStrengthSpec* netStrengthp) { m_netStrengthp = netStrengthp; }
-    void pinPush() {
-        m_pinStack.push(m_pinNum);
-        m_pinNum = 1;
+    शून्य setNetStrength(AstStrengthSpec* netStrengthp) { m_netStrengthp = netStrengthp; }
+    शून्य pin_ढकला() {
+        m_pin_चळत.ढकला(m_pin_अंक);
+        m_pin_अंक = 1;
     }
-    void pinPop(FileLine* fl) {
-        if (VL_UNCOVERABLE(m_pinStack.empty())) fl->v3fatalSrc("Underflow of pin stack");
-        m_pinNum = m_pinStack.top();
-        m_pinStack.pop();
+    शून्य pin_काढा(File_ओळ* fl) {
+        जर (VL_UNCOVERABLE(m_pin_चळत.empty())) fl->v3fatalSrc("Underflow of pin stack");
+        m_pin_अंक = m_pin_चळत.शीर्ष();
+        m_pin_चळत.काढा();
     }
-    AstNodeDType* addRange(AstBasicDType* dtypep, AstNodeRange* rangesp, bool isPacked) {
+    Ast_गाठ_DType* addRange(AstBasicDType* dtypep, Ast_गाठ_Range* rangesp, bool isPacked) {
         // If dtypep isn't basic, don't use this, call createArray() instead
-        if (!rangesp) return dtypep;
+        जर (!rangesp) परत dtypep;
 
         // If rangesp is "wire [3:3][2:2][1:1] foo [5:5][4:4]"
         // then [1:1] becomes the basicdtype range; everything else is arraying
         // the final [5:5][4:4] will be passed in another call to createArray
-        AstNodeRange* rangearraysp = nullptr;
-        if (dtypep->isRanged()) {
+        Ast_गाठ_Range* rangearraysp = nullptr;
+        जर (dtypep->isRanged()) {
             rangearraysp = rangesp;  // Already a range; everything is an array
-        } else {
-            AstNodeRange* finalp = rangesp;
-            while (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
-            if (finalp != rangesp) {
+        } अन्यथा {
+            Ast_गाठ_Range* finalp = rangesp;
+            पर्यंत (finalp->nextp()) finalp = VN_CAST(finalp->nextp(), Range);
+            जर (finalp != rangesp) {
                 finalp->unlinkFrBack();
                 rangearraysp = rangesp;
             }
-            if (AstRange* const finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
-                if (dtypep->implicit()) {
+            जर (AstRange* स्थिरांक finalRangep = VN_CAST(finalp, Range)) {  // not an UnsizedRange
+                जर (dtypep->implicit()) {
                     // It's no longer implicit but a wire logic type
-                    AstBasicDType* const newp = new AstBasicDType{
+                    AstBasicDType* स्थिरांक newp = new AstBasicDType{
                         dtypep->fileline(), VBasicDTypeKwd::LOGIC, dtypep->numeric(),
                         dtypep->width(), dtypep->widthMin()};
-                    VL_DO_DANGLING(dtypep->deleteTree(), dtypep);
+                    VL_DO_DANGLING(dtypep->delete_वृक्ष(), dtypep);
                     dtypep = newp;
                 }
                 dtypep->rangep(finalRangep);
             }
         }
-        return createArray(dtypep, rangearraysp, isPacked);
+        परत createArray(dtypep, rangearraysp, isPacked);
     }
-    string unquoteString(FileLine* fileline, const std::string& text) VL_MT_DISABLED;
-    void checkDpiVer(FileLine* fileline, const string& str) {
-        if (str != "DPI-C" && !v3Global.opt.bboxSys())
+    string unquoteString(File_ओळ* fileline, स्थिरांक std::string& text) VL_MT_DISABLED;
+    शून्य checkDpiVer(File_ओळ* fileline, स्थिरांक string& str) {
+        जर (str != "DPI-C" && !v3Global.opt.bboxSys())
             fileline->v3warn(E_UNSUPPORTED, "Unsupported DPI type '"
                                                 << str
                                                 << "': Use 'DPI-C' (IEEE 1800-2023 35.5.4)");
     }
     // Given a list of clocking declarations, put them in clocking items
-    AstClockingItem* makeClockingItemList(FileLine* flp, const VDirection direction,
-                                          AstNodeExpr* skewp, AstNode* const clockingDeclps) {
+    AstClockingItem* makeClockingItemList(File_ओळ* flp, स्थिरांक VDirection direction,
+                                          Ast_गाठ_अभिव्यक्ती* skewp, Ast_गाठ* स्थिरांक clockingDeclps) {
         AstClockingItem* itemsp = nullptr;
-        for (AstNode *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
+        साठी (Ast_गाठ *nodep = clockingDeclps, *nextp; nodep; nodep = nextp) {
             nextp = nodep->nextp();
-            if (nextp) nextp->unlinkFrBackWithNext();
-            if (itemsp && skewp) skewp = skewp->cloneTree(false);
+            जर (nextp) nextp->unlinkFrBackWithNext();
+            जर (itemsp && skewp) skewp = skewp->clone_वृक्ष(false);
             AstClockingItem* itemp = new AstClockingItem{flp, direction, skewp, nodep};
-            itemsp = AstNode::addNextNull(itemsp, itemp);
+            itemsp = Ast_गाठ::addNextNull(itemsp, itemp);
         }
-        return itemsp;
+        परत itemsp;
     }
 
-    void setScopedSigAttr(AstNode* attrsp) {
-        if (m_scopedSigAttr) {  // clearing set attribute
+    शून्य setScopedSigAttr(Ast_गाठ* attrsp) {
+        जर (m_scopedSigAttr) {  // clearing set attribute
             UASSERT_OBJ(!m_scopedSigAttr->backp(), m_scopedSigAttr, "Should not link directly");
-            VL_DO_DANGLING(m_scopedSigAttr->deleteTree(), m_scopedSigAttr);
+            VL_DO_DANGLING(m_scopedSigAttr->delete_वृक्ष(), m_scopedSigAttr);
         }
         m_scopedSigAttr = attrsp;
     }
 
-    void createScopedSigAttr(VAttrType vattrT) {
+    शून्य createScopedSigAttr(VAttrType vattrT) {
         setScopedSigAttr(new AstAttrOf{V3ParseImp::parsep()->lexFileline(), vattrT});
     }
 
-    AstNode* cloneScopedSigAttr() const {
-        return m_scopedSigAttr ? m_scopedSigAttr->cloneTree(true) : nullptr;
+    Ast_गाठ* cloneScopedSigAttr() स्थिरांक {
+        परत m_scopedSigAttr ? m_scopedSigAttr->clone_वृक्ष(true) : nullptr;
     }
 
-    void createGenericIface(AstNode* const nodep, AstNodeRange* const rangep,
-                            AstNode* sigAttrListp, FileLine* const modportFileline = nullptr,
-                            const string& modportstrp = "") {
+    शून्य createGenericIface(Ast_गाठ* स्थिरांक nodep, Ast_गाठ_Range* स्थिरांक rangep,
+                            Ast_गाठ* sigAttrListp, File_ओळ* स्थिरांक modportFileline = nullptr,
+                            स्थिरांक string& modportstrp = "") {
         m_varDecl = VVarType::GPARAM;
         m_varIO = VDirection::NONE;
         setDType(new AstParseTypeDType{nodep->fileline(), VFwdType::GENERIC_INTERFACE});
         m_varDeclTyped = true;
-        const std::string uniqueName = "__VGIfaceParam" + nodep->name();
-        AstNode::addNext(nodep,
+        स्थिरांक std::string uniqueName = "__VGIfaceParam" + nodep->name();
+        Ast_गाठ::addNext(nodep,
                          createVariable(nodep->fileline(), uniqueName, nullptr,
-                                        sigAttrListp ? sigAttrListp->cloneTree(true) : nullptr));
+                                        sigAttrListp ? sigAttrListp->clone_वृक्ष(true) : nullptr));
         m_varDecl = VVarType::IFACEREF;
-        AstIfaceGenericDType* const refdtypep
+        AstIfaceGenericDType* स्थिरांक refdtypep
             = new AstIfaceGenericDType{nodep->fileline(), modportFileline, modportstrp};
         setDType(refdtypep);
         m_varDeclTyped = true;
-        m_varIO = VDirection::INPUT;
-        AstNode::addNext(nodep,
+        m_varIO = VDirection::आदान;
+        Ast_गाठ::addNext(nodep,
                          createVariable(nodep->fileline(), nodep->name(), rangep, sigAttrListp));
         m_varDecl = VVarType::VAR;
     }
 
     // Wrap all statements in the given list in an AstBegin (except those already an AstBegin)
-    static AstBegin* wrapInBegin(AstNodeStmt* stmtsp) {
+    स्थिर AstBegin* wrapInBegin(Ast_गाठ_Stmt* stmtsp) {
         AstBegin* resp = nullptr;
-        for (AstNodeStmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
-            nextp = VN_AS(nodep->nextp(), NodeStmt);
-            if (nextp) nextp->unlinkFrBackWithNext();
+        साठी (Ast_गाठ_Stmt *nodep = stmtsp, *nextp; nodep; nodep = nextp) {
+            nextp = VN_AS(nodep->nextp(), गाठ_Stmt);
+            जर (nextp) nextp->unlinkFrBackWithNext();
             AstBegin* beginp = VN_CAST(nodep, Begin);
-            if (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
-            resp = AstNode::addNext(resp, beginp);
+            जर (!beginp) beginp = new AstBegin{nodep->fileline(), "", nodep, true};
+            resp = Ast_गाठ::addNext(resp, beginp);
         }
-        return resp;
+        परत resp;
     }
 };

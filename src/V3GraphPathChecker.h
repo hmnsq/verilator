@@ -17,9 +17,9 @@
 #ifndef VERILATOR_V3GRAPHPATHCHECKER_H_
 #define VERILATOR_V3GRAPHPATHCHECKER_H_
 
-#include "V3Error.h"
-#include "V3Graph.h"
-#include "V3GraphAlg.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3Graph.h"
+#अन्तर्भाव "V3GraphAlg.h"
 
 //######################################################################
 
@@ -36,26 +36,26 @@ class GraphPathChecker final : GraphAlg<V3Graph> {
     // through the same node twice while searching for a path.
     uint64_t m_generation = 0;
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp
                                                = V3GraphEdge::followAlwaysTrue) VL_MT_DISABLED;
     ~GraphPathChecker() VL_MT_DISABLED;
 
     // METHODS
-    bool pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) VL_MT_DISABLED;
+    bool pathExistsFrom(स्थिरांक V3GraphVertex* fromp, स्थिरांक V3GraphVertex* शीर्ष) VL_MT_DISABLED;
 
     // If have edges A->B, B->C, and A->C then A->C is considered a
     // "transitive" edge (implied by A->B and B->C) and it could be safely
     // removed. Detect such an edge.
-    bool isTransitiveEdge(const V3GraphEdge* edgep) VL_MT_DISABLED;
+    bool isTransitiveEdge(स्थिरांक V3GraphEdge* edgep) VL_MT_DISABLED;
 
-private:
-    bool pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                            unsigned* costp = nullptr) VL_MT_DISABLED;
-    template <GraphWay::en N_Way>
-    void initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
-    void incGeneration() { ++m_generation; }
+खाजगी:
+    bool pathExistsInternal(स्थिरांक V3GraphVertex* ap, स्थिरांक V3GraphVertex* bp,
+                            अचिन्हित* costp = nullptr) VL_MT_DISABLED;
+    ढाँचा <GraphWay::en N_Way>
+    शून्य initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
+    शून्य incGeneration() { ++m_generation; }
 
     VL_UNCOPYABLE(GraphPathChecker);
 };

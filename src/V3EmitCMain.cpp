@@ -14,164 +14,164 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitCMain.h"
+#अन्तर्भाव "V3EmitCMain.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
+#अन्तर्भाव "V3EmitC.h"
+#अन्तर्भाव "V3EmitCBase.h"
 
-#include <map>
+#अन्तर्भाव <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class EmitCMain final : EmitCBaseVisitorConst {
+वर्ग EmitCMain final : EmitCBaseVisitorConst {
     // METHODS
 
     // VISITORS
     // This visitor doesn't really iterate, but exist to appease base class
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }  // LCOV_EXCL_LINE
+    शून्य visit(Ast_गाठ* nodep) override { iterateChildrenConst(nodep); }  // LCOV_EXCL_LINE
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     EmitCMain() { emitInt(); }
 
-private:
+खाजगी:
     // MAIN METHOD
-    void emitInt() {
+    शून्य emitInt() {
         // Not defining main_time/vl_time_stamp, so
         v3Global.opt.addCFlags("-DVL_TIME_CONTEXT");  // On MSVC++ anyways
 
         // Optional main top name argument, with empty string replacement
-        string topName = v3Global.opt.mainTopName();
-        if (topName == "-") topName = "";
+        string शीर्ष_Name = v3Global.opt.main_शीर्ष_Name();
+        जर (शीर्ष_Name == "-") शीर्ष_Name = "";
 
-        openNewOutputSourceFile(EmitCUtil::topClassName() + "__main", false, false,
+        openNewOutputSourceFile(EmitCUtil::शीर्ष_Class_Name() + "__main", असत्य, असत्य,
                                 "main() simulation loop, created with --main");
-        puts("\n");
+        माला_दो("\n");
 
         // Heavily commented output, as users are likely to look at or copy this code
 
-        puts("#include \"verilated.h\"\n");
-        if (v3Global.opt.vpi()) puts("#include \"verilated_vpi.h\"\n");
-        puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
-        if (v3Global.opt.debugRuntimeTimeout()) {
-            puts("\n");
-            puts("#include <csignal>\n");
+        माला_दो("#include \"verilated.h\"\n");
+        जर (v3Global.opt.vpi()) माला_दो("#include \"verilated_vpi.h\"\n");
+        माला_दो("#include \"" + EmitCUtil::शीर्ष_Class_Name() + ".h\"\n");
+        जर (v3Global.opt.debugRuntimeTimeout()) {
+            माला_दो("\n");
+            माला_दो("#include <csignal>\n");
         }
-        puts("\n");
+        माला_दो("\n");
 
-        if (v3Global.opt.vpi()) {
-            puts("// User VPI code adds to this array to get startup main() callbacks\n");
-            puts("extern \"C\" void (*vlog_startup_routines[])() VL_ATTR_WEAK;\n");
-            puts("\n");
+        जर (v3Global.opt.vpi()) {
+            माला_दो("// User VPI code adds to this array to get startup main() callbacks\n");
+            माला_दो("extern \"C\" void (*vlog_startup_routines[])() VL_ATTR_WEAK;\n");
+            माला_दो("\n");
         }
 
-        puts("//======================\n\n");
+        माला_दो("//======================\n\n");
 
-        if (v3Global.opt.debugRuntimeTimeout()) {
-            puts("void alarmHandler(int signum) {\n");
+        जर (v3Global.opt.debugRuntimeTimeout()) {
+            माला_दो("void alarmHandler(int signum) {\n");
             // Add newline so %Error is at beginning-of-line, as might get the alarm
             // when in the middle of some other print with no newline
-            puts("    VL_PRINTF_MT(\"\\n\");\n");
-            puts("    VL_FATAL_MT(\"\", 0, \"\", \"Alarm signal received,"s
+            माला_दो("    VL_PRINTF_MT(\"\\n\");\n");
+            माला_दो("    VL_FATAL_MT(\"\", 0, \"\", \"Alarm signal received,"s
                  + " '--debug-runtime-timeout "s
                  + std::to_string(v3Global.opt.debugRuntimeTimeout()) + "' exceeded\\n\");\n");
-            puts("}\n");
-            puts("\n");
+            माला_दो("}\n");
+            माला_दो("\n");
         }
 
-        puts("int main(int argc, char** argv, char**) {\n");
-        puts("// Setup context, defaults, and parse command line\n");
-        puts("Verilated::debug(0);\n");
-        puts("const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};\n");
-        if (v3Global.opt.trace()) puts("contextp->traceEverOn(true);\n");
-        puts("contextp->threads(" + std::to_string(v3Global.opt.threads()) + ");\n");
-        puts("contextp->commandArgs(argc, argv);\n");
-        puts("\n");
+        माला_दो("int main(int argc, char** argv, char**) {\n");
+        माला_दो("// Setup context, defaults, and parse command line\n");
+        माला_दो("Verilated::debug(0);\n");
+        माला_दो("const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};\n");
+        जर (v3Global.opt.trace()) माला_दो("contextp->traceEverOn(true);\n");
+        माला_दो("contextp->threads(" + std::to_string(v3Global.opt.threads()) + ");\n");
+        माला_दो("contextp->commandArgs(argc, argv);\n");
+        माला_दो("\n");
 
-        if (v3Global.opt.debugRuntimeTimeout()) {
-            puts("signal(SIGALRM, alarmHandler);\n");
-            puts("alarm("s + std::to_string(v3Global.opt.debugRuntimeTimeout()) + ");\n");
-            puts("\n");
+        जर (v3Global.opt.debugRuntimeTimeout()) {
+            माला_दो("signal(SIGALRM, alarmHandler);\n");
+            माला_दो("alarm("s + std::to_string(v3Global.opt.debugRuntimeTimeout()) + ");\n");
+            माला_दो("\n");
         }
 
-        puts("// Construct the Verilated model, from Vtop.h generated from Verilating\n");
-        puts("const std::unique_ptr<" + EmitCUtil::topClassName() + "> topp{new "
-             + EmitCUtil::topClassName() + "{contextp.get(), \"" + topName + "\"}};\n");
-        puts("\n");
+        माला_दो("// Construct the Verilated model, from Vtop.h generated from Verilating\n");
+        माला_दो("const std::unique_ptr<" + EmitCUtil::शीर्ष_Class_Name() + "> topp{new "
+             + EmitCUtil::शीर्ष_Class_Name() + "{contextp.get(), \"" + शीर्ष_Name + "\"}};\n");
+        माला_दो("\n");
 
-        if (v3Global.opt.vpi()) {
+        जर (v3Global.opt.vpi()) {
             // VPI shared libraries requested via +verilator+vpi+<lib> are loaded by
             // contextp->commandArgs() above, before the statically-linked startup routines.
-            puts("// Hook VPI startup routines and invoke callback\n");
-            puts("if (vlog_startup_routines) {\n");
-            puts(/**/ "for (auto routinep = &vlog_startup_routines[0]; *routinep; routinep++)"
+            माला_दो("// Hook VPI startup routines and invoke callback\n");
+            माला_दो("if (vlog_startup_routines) {\n");
+            माला_दो(/**/ "for (auto routinep = &vlog_startup_routines[0]; *routinep; routinep++)"
                       " (*routinep)();\n");
-            puts("}\n");
-            puts("VerilatedVpi::callCbs(cbStartOfSimulation);\n");
-            puts("\n");
+            माला_दो("}\n");
+            माला_दो("VerilatedVpi::callCbs(cbStartOfSimulation);\n");
+            माला_दो("\n");
         }
 
-        puts("// Simulate until $finish\n");
-        puts("while (VL_LIKELY(!contextp->gotFinish())) {\n");
-        if (v3Global.opt.vpi()) {
-            puts(/**/ "// VPI callbacks\n");
-            puts(/**/ "VerilatedVpi::callTimedCbs();\n");
-            puts(/**/ "VerilatedVpi::callCbs(cbNextSimTime);\n");  // Before next event queue
-            puts(/**/ "VerilatedVpi::callCbs(cbAtStartOfSimTime);\n");  // Before time queue
+        माला_दो("// Simulate until $finish\n");
+        माला_दो("while (VL_LIKELY(!contextp->gotFinish())) {\n");
+        जर (v3Global.opt.vpi()) {
+            माला_दो(/**/ "// VPI callbacks\n");
+            माला_दो(/**/ "VerilatedVpi::callTimedCbs();\n");
+            माला_दो(/**/ "VerilatedVpi::callCbs(cbNextSimTime);\n");  // Before next event queue
+            माला_दो(/**/ "VerilatedVpi::callCbs(cbAtStartOfSimTime);\n");  // Before time queue
         }
-        puts(/**/ "// Evaluate model\n");
-        puts(/**/ "topp->eval();\n");
-        if (v3Global.opt.vpi()) {
-            puts(/**/ "// VPI callbacks\n");
-            puts(/**/ "VerilatedVpi::callValueCbs();\n");
-            puts(/**/ "VerilatedVpi::callCbs(cbAtEndOfSimTime);\n");  // After nonblocking events
-            puts(/**/ "VerilatedVpi::callCbs(cbReadWriteSynch);\n");  // After a specified time
-            puts(/**/ "VerilatedVpi::callCbs(cbReadOnlySynch);\n");  // After cbReadWriteSynch
+        माला_दो(/**/ "// Evaluate model\n");
+        माला_दो(/**/ "topp->eval();\n");
+        जर (v3Global.opt.vpi()) {
+            माला_दो(/**/ "// VPI callbacks\n");
+            माला_दो(/**/ "VerilatedVpi::callValueCbs();\n");
+            माला_दो(/**/ "VerilatedVpi::callCbs(cbAtEndOfSimTime);\n");  // After nonblocking events
+            माला_दो(/**/ "VerilatedVpi::callCbs(cbReadWriteSynch);\n");  // After a specified time
+            माला_दो(/**/ "VerilatedVpi::callCbs(cbReadOnlySynch);\n");  // After cbReadWriteSynch
         }
-        puts(/**/ "// Advance time\n");
-        if (v3Global.rootp()->delaySchedulerp() || v3Global.opt.timing()) {
-            puts("if (!topp->eventsPending()) break;\n");
+        माला_दो(/**/ "// Advance time\n");
+        जर (v3Global.rootp()->delaySchedulerp() || v3Global.opt.timing()) {
+            माला_दो("if (!topp->eventsPending()) break;\n");
         }
-        const std::string nextSlot = v3Global.rootp()->delaySchedulerp() ? "topp->nextTimeSlot()"
+        स्थिरांक std::string nextSlot = v3Global.rootp()->delaySchedulerp() ? "topp->nextTimeSlot()"
                                                                          : "contextp->time() + 1";
-        if (v3Global.opt.vpi()) {
-            puts("contextp->time(std::min("s + nextSlot + ", VerilatedVpi::cbNextDeadline()));\n");
-        } else {
-            puts("contextp->time("s + nextSlot + ");\n");
+        जर (v3Global.opt.vpi()) {
+            माला_दो("contextp->time(std::min("s + nextSlot + ", VerilatedVpi::cbNextDeadline()));\n");
+        } अन्यथा {
+            माला_दो("contextp->time("s + nextSlot + ");\n");
         }
 
-        puts("}\n");
-        puts("\n");
+        माला_दो("}\n");
+        माला_दो("\n");
 
-        puts("if (VL_LIKELY(!contextp->gotFinish())) {\n");
-        puts(/**/ "VL_DEBUG_IF(VL_PRINTF(\"+ Exiting without $finish; no events left\\n\"););\n");
-        puts("}\n");
-        puts("\n");
+        माला_दो("if (VL_LIKELY(!contextp->gotFinish())) {\n");
+        माला_दो(/**/ "VL_DEBUG_IF(VL_PRINTF(\"+ Exiting without $finish; no events left\\n\"););\n");
+        माला_दो("}\n");
+        माला_दो("\n");
 
-        puts("// Execute 'final' processes\n");
-        puts("topp->final();\n");
-        if (v3Global.opt.vpi()) puts("VerilatedVpi::callCbs(cbEndOfSimulation);\n");
-        puts("\n");
+        माला_दो("// Execute 'final' processes\n");
+        माला_दो("topp->final();\n");
+        जर (v3Global.opt.vpi()) माला_दो("VerilatedVpi::callCbs(cbEndOfSimulation);\n");
+        माला_दो("\n");
 
-        if (v3Global.opt.coverage()) {
-            puts("// Write coverage data (since Verilated with --coverage)\n");
-            if (v3Global.opt.coveragePerInstance()) {
-                puts("contextp->coveragep()->forcePerInstance(true);\n");
+        जर (v3Global.opt.coverage()) {
+            माला_दो("// Write coverage data (since Verilated with --coverage)\n");
+            जर (v3Global.opt.coveragePerInstance()) {
+                माला_दो("contextp->coveragep()->forcePerInstance(true);\n");
             }
-            puts("contextp->coveragep()->write();\n");
-            puts("\n");
+            माला_दो("contextp->coveragep()->write();\n");
+            माला_दो("\n");
         }
 
-        puts("// Print statistical summary report\n");
-        puts("contextp->statsPrintSummary();\n");
-        puts("\n");
+        माला_दो("// Print statistical summary report\n");
+        माला_दो("contextp->statsPrintSummary();\n");
+        माला_दो("\n");
 
-        puts("return 0;\n");
-        puts("}\n");
+        माला_दो("return 0;\n");
+        माला_दो("}\n");
 
         closeOutputFile();
     }
@@ -180,7 +180,7 @@ private:
 //######################################################################
 // EmitC class functions
 
-void V3EmitCMain::emit() {
+शून्य V3EmitCMain::emit() {
     UINFO(2, __FUNCTION__ << ":");
-    { const EmitCMain visitor; }
+    { स्थिरांक EmitCMain visitor; }
 }

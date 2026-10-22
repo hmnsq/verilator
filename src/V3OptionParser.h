@@ -17,12 +17,12 @@
 #ifndef VERILATOR_V3OPTION_PARSER_H_
 #define VERILATOR_V3OPTION_PARSER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <functional>
-#include <memory>
-#include <string>
+#अन्तर्भाव <functional>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <string>
 
 // Not to include V3Option.h here so that VlcMain or other executables can use this file easily.
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
@@ -52,37 +52,37 @@ class VOptionBool;
 // V3 OptionParser
 
 class V3OptionParser final {
-public:
+सार्वजनिक:
     // TYPES
     class ActionIfs;
     // Functor to register options to V3OptionParser
     class AppendHelper;
-    struct Impl;
+    संरचना Impl;
 
-private:
+खाजगी:
     // MEMBERS
-    const std::unique_ptr<Impl> m_pimpl;  // Implementation class
+    स्थिरांक std::unique_ptr<Impl> m_pimpl;  // Implementation class
 
     // METHODS
-    ActionIfs* find(const char* optp) VL_MT_DISABLED;
-    template <typename T_Act, typename T_Arg>
-    ActionIfs& add(const string& opt, T_Arg arg) VL_MT_DISABLED;
+    ActionIfs* find(स्थिरांक अक्षर* optp) VL_MT_DISABLED;
+    ढाँचा <typename T_Act, typename T_Arg>
+    ActionIfs& add(स्थिरांक string& opt, T_Arg arg) VL_MT_DISABLED;
     // Returns true if strp starts with "-fno"
-    static bool hasPrefixFNo(const char* strp) VL_MT_DISABLED;
+    स्थिर bool hasPrefixFNo(स्थिरांक अक्षर* strp) VL_MT_DISABLED;
     // Returns true if strp starts with "-no"
-    static bool hasPrefixNo(const char* strp) VL_MT_DISABLED;
+    स्थिर bool hasPrefixNo(स्थिरांक अक्षर* strp) VL_MT_DISABLED;
 
-public:
+सार्वजनिक:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<पूर्णांक, bool> parse(पूर्णांक idx, पूर्णांक argc, अक्षर* argv[]) VL_MT_DISABLED;
     // Find the most similar option
-    string getSuggestion(const char* str) const VL_MT_DISABLED;
-    void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
+    string getSuggestion(स्थिरांक अक्षर* str) स्थिरांक VL_MT_DISABLED;
+    शून्य addSuggestionCandidate(स्थिरांक string& s) VL_MT_DISABLED;
     // Call this function after all options are registered.
-    void finalize() VL_MT_DISABLED;
-    void dumpOptions() VL_MT_DISABLED;
+    शून्य finalize() VL_MT_DISABLED;
+    शून्य dumpOptions() VL_MT_DISABLED;
 
     // CONSTRUCTORS
     V3OptionParser() VL_MT_DISABLED;
@@ -90,71 +90,71 @@ public:
 };
 
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
-public:
-    virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
-    virtual bool isFOnOffAllowed() const = 0;  // true if "-fno-opt" is allowed
-    virtual bool isNotForRerun() const = 0;  // Will not be dumped with --dump-inputs
-    virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowed
-    virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
-    virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
+सार्वजनिक:
+    आभासी ~ActionIfs() = पूर्वनिर्धारित;
+    आभासी bool is_मूल्य_Needed() स्थिरांक = 0;  // Need val of "-opt val"
+    आभासी bool isFOnOffAllowed() स्थिरांक = 0;  // true if "-fno-opt" is allowed
+    आभासी bool isNotForRerun() स्थिरांक = 0;  // Will not be dumped with --dump-inputs
+    आभासी bool isOnOffAllowed() स्थिरांक = 0;  // true if "-no-opt" is allowed
+    आभासी bool isPartialMatchAllowed() स्थिरांक = 0;  // true if "-Wno-" matches "-Wno-fatal"
+    आभासी bool isUndocumented() स्थिरांक = 0;  // Will not be suggested in typo
     // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
+    आभासी शून्य exec(स्थिरांक अक्षर* optp, स्थिरांक अक्षर* valp) = 0;
     // Mark this option undocumented. (Exclude this option from suggestion list).
-    virtual ActionIfs& undocumented() = 0;
+    आभासी ActionIfs& undocumented() = 0;
     // Mark this as not needed for rerunning with preprocessed sources
-    virtual ActionIfs& notForRerun() = 0;
+    आभासी ActionIfs& notForRerun() = 0;
 };
 
 // A helper class to register options
 class V3OptionParser::AppendHelper final {
-public:
+सार्वजनिक:
     // TYPES
     // Tag to specify which operator() to call
-    struct FOnOff {};  // For ActionFOnOff
-    struct OnOff {};  // For ActionOnOff
-    struct Set {};  // For ActionSet
+    संरचना FOnOff {};  // For ActionFOnOff
+    संरचना OnOff {};  // For ActionOnOff
+    संरचना Set {};  // For ActionSet
 
-    struct CbCall {};  // For ActionCbCall
-    struct CbFOnOff {};  // For ActionCbFOnOff
-    struct CbOnOff {};  // For ActionCbOnOff
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
-    struct CbVal {};  // For ActionCbVal
+    संरचना CbCall {};  // For ActionCbCall
+    संरचना CbFOnOff {};  // For ActionCbFOnOff
+    संरचना CbOnOff {};  // For ActionCbOnOff
+    संरचना CbPartialMatch {};  // For ActionCbPartialMatch
+    संरचना CbPartialMatchVal {};  // For ActionCbPartialMatchVal
+    संरचना CbVal {};  // For ActionCbVal
 
-private:
+खाजगी:
     // MEMBERS
     V3OptionParser& m_parser;  // The actual option registry
 
-public:
+सार्वजनिक:
     // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, Set, bool*) स्थिरांक VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, Set, VOptionBool*) स्थिरांक VL_MT_DISABLED;
 #endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, Set, पूर्णांक*) स्थिरांक VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, Set, string*) स्थिरांक VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, FOnOff, bool*) स्थिरांक VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, OnOff, bool*) स्थिरांक VL_MT_DISABLED;
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, OnOff, VOptionBool*) स्थिरांक VL_MT_DISABLED;
 #endif
 
-    ActionIfs& operator()(const char* optp, CbCall,
-                          std::function<void(void)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbFOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, CbCall,
+                          std::function<शून्य(शून्य)>) स्थिरांक VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, CbFOnOff,
+                          std::function<शून्य(bool)>) स्थिरांक VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, CbOnOff,
+                          std::function<शून्य(bool)>) स्थिरांक VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, CbVal, std::function<शून्य(पूर्णांक)>) स्थिरांक VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, CbVal,
+                          std::function<शून्य(स्थिरांक अक्षर*)>) स्थिरांक VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, CbPartialMatch,
+                          std::function<शून्य(स्थिरांक अक्षर*)>) स्थिरांक VL_MT_DISABLED;
+    ActionIfs& चालक()(स्थिरांक अक्षर* optp, CbPartialMatchVal,
+                          std::function<शून्य(स्थिरांक अक्षर*, स्थिरांक अक्षर*)>) स्थिरांक VL_MT_DISABLED;
 
     // CONSTRUCTORS
     explicit AppendHelper(V3OptionParser& parser)
@@ -162,16 +162,16 @@ public:
 };
 
 #define V3OPTION_PARSER_DECL_TAGS \
-    const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
-    const auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
-    const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
-    const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
-    const auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
-    const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
-    const auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
-    const auto CbPartialMatchVal VL_ATTR_UNUSED \
+    स्थिरांक स्वतः Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
+    स्थिरांक स्वतः FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
+    स्थिरांक स्वतः OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
+    स्थिरांक स्वतः CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
+    स्थिरांक स्वतः CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
+    स्थिरांक स्वतः CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
+    स्थिरांक स्वतः CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
+    स्थिरांक स्वतः CbPartialMatchVal VL_ATTR_UNUSED \
         = V3OptionParser::AppendHelper::CbPartialMatchVal{}; \
-    const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
+    स्थिरांक स्वतः CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
 
 //######################################################################
 

@@ -17,74 +17,74 @@
 #ifndef VERILATOR_V3OPTIONS_H_
 #define VERILATOR_V3OPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3LangCode.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3LangCode.h"
 
-#include <list>
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+#अन्तर्भाव <list>
+#अन्तर्भाव <map>
+#अन्तर्भाव <set>
+#अन्तर्भाव <string>
+#अन्तर्भाव <vector>
 
 class V3OptionsImp;
-class FileLine;
+class File_ओळ;
 
 //######################################################################
 
 class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
-public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    गणना en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर स्थिरांक अक्षर* स्थिरांक names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        परत names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
+    bool isDefault() स्थिरांक { परत m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() स्थिरांक { परत m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() स्थिरांक { परत m_e == OPT_TRUE; }
+    bool isSetFalse() स्थिरांक { परत m_e == OPT_FALSE; }
+    शून्य setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
-constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VOptionBool& lhs, स्थिरांक VOptionBool& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VOptionBool& lhs, VOptionBool::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VOptionBool::en lhs, स्थिरांक VOptionBool& rhs) { परत lhs == rhs.m_e; }
 
 //######################################################################
 
 class VFileLibName final {
     // Filename and libname pair
-    const string m_filename;  // Filename
-    const string m_libname;  // Libname
-public:
-    VFileLibName(const string& filename, const string& libname)
+    स्थिरांक string m_filename;  // Filename
+    स्थिरांक string m_libname;  // Libname
+सार्वजनिक:
+    VFileLibName(स्थिरांक string& filename, स्थिरांक string& libname)
         : m_filename{filename}
         , m_libname{libname} {}
-    VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
-    bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+    VFileLibName(स्थिरांक VFileLibName& rhs) = पूर्वनिर्धारित;
+    string filename() स्थिरांक { परत m_filename; }
+    string libname() स्थिरांक { परत m_libname; }
+    bool चालक==(स्थिरांक VFileLibName& rhs) स्थिरांक {
+        परत m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
-    bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+    bool चालक<(स्थिरांक VFileLibName& rhs) स्थिरांक {
+        जर (m_filename < rhs.m_filename) परत true;
+        जर (m_filename > rhs.m_filename) परत false;
+        परत m_libname < rhs.m_libname;
     }
 };
 
@@ -94,8 +94,8 @@ using VFileLibSet = std::set<VFileLibName>;
 // ######################################################################
 
 class VTimescale final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,66 +107,66 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    गणना : uint8_t { TS_DEFAULT = TS_1PS };
+    गणना en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
-    VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(स्थिरांक string& मूल्य, bool& badr);
+    VTimescale(द्विगुण मूल्य, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        साठी (पूर्णांक i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            जर (multiplier() == मूल्य) थांबा;
         }
-        if (multiplier() != value) {
+        जर (multiplier() != मूल्य) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() स्थिरांक { परत m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    स्थिर शून्य parseSlashed(File_ओळ* fl, स्थिरांक अक्षर* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर स्थिरांक अक्षर* स्थिरांक names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        परत names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    पूर्णांक powerOfTen() स्थिरांक { परत 2 - static_cast<पूर्णांक>(m_e); }
+    द्विगुण multiplier() स्थिरांक {
+        स्थिर स्थिरांक द्विगुण मूल्ये[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
 };
-constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VTimescale& lhs, स्थिरांक VTimescale& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VTimescale& lhs, VTimescale::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VTimescale::en lhs, स्थिरांक VTimescale& rhs) { परत lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
-constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+constexpr bool चालक<(स्थिरांक VTimescale& lhs, स्थिरांक VTimescale& rhs) {
+    परत lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VTimescale& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,36 +177,36 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    constexpr स्थिरांक अक्षर* ascii() स्थिरांक {
+        constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VFsmExpandType& lhs, स्थिरांक VFsmExpandType& rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VFsmExpandType::en lhs, स्थिरांक VFsmExpandType& rhs) VL_MT_SAFE {
+    परत lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VFsmExpandType& rhs) VL_MT_SAFE {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Information given by --hierarchical-block option
 class V3HierarchicalBlockOption final {
-public:
+सार्वजनिक:
     // key:parameter name, value:value (as string)
-    using ParamStrMap = std::map<const std::string, std::string>;
+    using ParamStrMap = std::map<स्थिरांक std::string, std::string>;
 
-private:
+खाजगी:
     string m_origName;  // module name
     // module name after uniquified
     // same as m_origName for non-parameterized module
@@ -214,23 +214,23 @@ private:
     // overriding parameter values specified by -G option
     ParamStrMap m_parameters;
 
-public:
-    explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+सार्वजनिक:
+    explicit V3HierarchicalBlockOption(स्थिरांक string& optstring);
+    स्थिरांक string& origName() स्थिरांक { परत m_origName; }
+    स्थिरांक string& mangledName() स्थिरांक { परत m_mangledName; }
+    स्थिरांक ParamStrMap params() स्थिरांक { परत m_parameters; }
 };
 
-using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
+using V3HierBlockOptSet = std::map<स्थिरांक std::string, V3HierarchicalBlockOption>;
 
 //######################################################################
 // V3Options - Command line options
 
 class V3Options final {
-public:
-private:
+सार्वजनिक:
+खाजगी:
     // TYPES
-    using DebugLevelMap = std::map<const std::string, unsigned>;
+    using DebugLevelMap = std::map<स्थिरांक std::string, अचिन्हित>;
 
     // MEMBERS (general options)
     V3OptionsImp* m_impp;  // Slow hidden options
@@ -252,26 +252,26 @@ private:
     VStringList m_forceIncs;   // argument: -FI
     DebugLevelMap m_debugLevel; // argument: --debugi-<srcfile/tag> <level>
     DebugLevelMap m_dumpLevel;  // argument: --dumpi-<srcfile/tag> <level>
-    std::map<const string, string> m_parameters;  // Parameters
-    std::map<const string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
+    std::map<स्थिरांक string, string> m_parameters;  // Parameters
+    std::map<स्थिरांक string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
     VStringSet m_fDfgPeepholeDisabled; // argument: -f[no-]dfg-peephole-<name>
 
     bool m_preprocOnly = false;     // main switch: -E
     bool m_preprocResolve = false;  // main switch: --preproc-resolve
     bool m_makePhony = false;       // main switch: -MP
-    bool m_preprocNoLine = false;   // main switch: -P
+    bool m_preproc_No_ओळ = false;   // main switch: -P
     bool m_assert = true;           // main switch: --assert
     bool m_assertCase = true;       // main switch: --assert-case
     bool m_autoflush = false;       // main switch: --autoflush
     bool m_bboxSys = false;         // main switch: --bbox-sys
     bool m_bboxUnsup = false;       // main switch: --bbox-unsup
-    bool m_binary = false;          // main switch: --binary
+    bool m_द्विमान = false;          // main switch: --binary
     bool m_build = false;           // main switch: --build
     bool m_context = true;          // main switch: --Wcontext
     bool m_coverageBranch = false;  // main switch: --coverage-branch
-    bool m_coverageExpr = false;    // main switch: --coverage-expr
+    bool m_coverage_अभिव्यक्ती = false;    // main switch: --coverage-expr
     bool m_coverageFsm = false;     // main switch: --coverage-fsm
-    bool m_coverageLine = false;    // main switch: --coverage-block
+    bool m_coverage_ओळ = false;    // main switch: --coverage-block
     bool m_coverageMergeInstances = false;  // main switch: --coverage-merge-instances
     bool m_coveragePerInstance = false;  // main switch: --coverage-per-instance
     bool m_coverageToggle = false;  // main switch: --coverage-toggle
@@ -289,8 +289,8 @@ private:
     bool m_debugPreprocPassthru = false;  // main switch: --debug-preproc-passthru
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
-    bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    bool m_debug_चळत_Check = false;  // main switch: --debug-stack-check
+    पूर्णांक m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -348,7 +348,7 @@ private:
     bool m_traceEnabledVcd = false;  // main switch: --trace-vcd
     bool m_traceParams = true;      // main switch: --trace-params
     bool m_traceStructs = false;    // main switch: --trace-structs
-    bool m_noTraceTop = false;      // main switch: --no-trace-top
+    bool m_no_Trace_शीर्ष = false;      // main switch: --no-trace-top
     bool m_traceUnderscore = false; // main switch: --trace-underscore
     bool m_underlineZero = false;   // main switch: --underline-zero; undocumented old Verilator 2
     bool m_verilate = true;         // main switch: --verilate
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    पूर्णांक         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    पूर्णांक         m_coverage_अभिव्यक्ती_Max = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    पूर्णांक         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    पूर्णांक         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    पूर्णांक         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    पूर्णांक         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    पूर्णांक         m_expandLimit = 256;  // main switch: --expand-limit
+    पूर्णांक         m_gateStmts = 100;    // main switch: --gate-stmts
+    पूर्णांक         m_hierChild = 0;      // main switch: --hierarchical-child
+    पूर्णांक         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    पूर्णांक         m_ifDepth = 0;      // main switch: --if-depth
+    पूर्णांक         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    पूर्णांक         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    पूर्णांक         m_inlineMult = 2000;   // main switch: --inline-mult
+    पूर्णांक         m_instr_मोजणी_Dpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    पूर्णांक         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    पूर्णांक         m_max_अंक_Width = 65536;  // main switch: --max-num-width
+    पूर्णांक         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    पूर्णांक         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    पूर्णांक         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    पूर्णांक         m_outputSplit = 20000;  // main switch: --output-split
+    पूर्णांक         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    पूर्णांक         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    पूर्णांक         m_pinsBv = 65;       // main switch: --pins-bv
+    पूर्णांक         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    पूर्णांक         m_publicDepth = 0;   // main switch: --public-depth
+    पूर्णांक         m_reloopLimit = 40; // main switch: --reloop-limit
+    पूर्णांक         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    पूर्णांक         m_threads = 1;      // main switch: --threads
+    पूर्णांक         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    पूर्णांक         m_traceDepth = 0;   // main switch: --trace-depth
+    पूर्णांक         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    पूर्णांक         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    पूर्णांक         m_unroll_मोजणी = 64;  // main switch: --unroll-count
+    पूर्णांक         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    पूर्णांक         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    पूर्णांक         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    पूर्णांक         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    पूर्णांक         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    पूर्णांक         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    पूर्णांक         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -420,13 +420,13 @@ private:
     string      m_jsonOnlyMetaOutput;    // main switch: --json-only-meta-output
     string      m_l2Name;       // main switch: --l2name; "" for top-module's name
     string      m_libCreate;    // main switch: --lib-create {lib_name}
-    string      m_mainTopName;  // main switch: --main-top-name
+    string      m_main_शीर्ष_Name;  // main switch: --main-top-name
     string      m_makeDir;      // main switch: -Mdir
     string      m_modPrefix;    // main switch: --mod-prefix
     string      m_pipeFilter;   // main switch: --pipe-filter
     string      m_prefix;       // main switch: --prefix
-    string      m_protectKey;   // main switch: --protect-key
-    string      m_topModule;    // main switch: --top-module
+    string      m_protect_किल्ली;   // main switch: --protect-key
+    string      m_शीर्ष_Module;    // main switch: --top-module
     string      m_unusedRegexp; // main switch: --unused-regexp
     string      m_waiverOutput;  // main switch: --waiver-output {filename}
     string      m_work = "work";  // main switch: --work {libname}
@@ -444,15 +444,15 @@ private:
     bool m_fBitblast;    // main switch: -fno-bitblast: split packed variables into bit ranges
     bool m_fCaseDecoder; // main switch: -fno-case-decoder: case decoder conversion
     bool m_fCaseTable;   // main switch: -fno-case-table: case table conversion
-    bool m_fCaseTree;    // main switch: -fno-case-tree: case tree conversion
+    bool m_f_Case_वृक्ष;    // main switch: -fno-case-tree: case tree conversion
     bool m_fCombine;     // main switch: -fno-combine: common icode packing
     bool m_fConst;       // main switch: -fno-const: constant folding
     bool m_fConstBeforeDfg = true;  // main switch: -fno-const-before-dfg for testing only!
-    bool m_fConstBitOpTree;  // main switch: -fno-const-bit-op-tree constant bit op tree
+    bool m_f_Const_Bit_Op_वृक्ष;  // main switch: -fno-const-bit-op-tree constant bit op tree
     bool m_fConstEager = true;  // main switch: -fno-const-eagerly run V3Const during passes
     bool m_fDedupe;      // main switch: -fno-dedupe: logic deduplication
     bool m_fDfgPeephole = true; // main switch: -fno-dfg-peephole
-    bool m_fDfgPushDownSels = true; // main switch: -fno-dfg-push-down-sels
+    bool m_f_Dfg_ढकला_Down_Sels = true; // main switch: -fno-dfg-push-down-sels
     bool m_fDfg;         // main switch: -fno-dfg
     bool m_fDfgSynthesizeAll = false;  // main switch: -fdfg-synthesize-all
     bool m_fDeadAssigns;     // main switch: -fno-dead-assigns: remove dead assigns
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    पूर्णांक  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,420 +489,420 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
-    void addArg(const std::string& arg, bool isForRerun);
-    void addLineArg(const string& arg);
-    void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
-    void addFuture(const string& flag);
-    void addFuture0(const string& flag);
-    void addFuture1(const string& flag);
-    void addIncDirUser(const string& incdir);  // User requested
-    void addIncDirFallback(const string& incdir);  // Low priority if not found otherwise
-    void addParameter(const string& paramline, bool allowPlus);
-    void addLangExt(const string& langext, const V3LangCode& lc);
-    void addLibExtV(const string& libext);
-    void optimize(int level);
-    void showVersion(bool verbose);
-    void coverage(bool flag) {
-        m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
+    शून्य addArg(अक्षर** argv, माप_प्रकार मोजणी, bool isForRerun);
+    शून्य addArg(स्थिरांक std::string& arg, bool isForRerun);
+    शून्य add_ओळ_Arg(स्थिरांक string& arg);
+    शून्य addDefine(स्थिरांक string& defline, bool allowPlus) VL_MT_DISABLED;
+    शून्य addFuture(स्थिरांक string& flag);
+    शून्य addFuture0(स्थिरांक string& flag);
+    शून्य addFuture1(स्थिरांक string& flag);
+    शून्य addIncDirUser(स्थिरांक string& incdir);  // User requested
+    शून्य addIncDirFallback(स्थिरांक string& incdir);  // Low priority if not found otherwise
+    शून्य addParameter(स्थिरांक string& paramline, bool allowPlus);
+    शून्य addLangExt(स्थिरांक string& langext, स्थिरांक V3LangCode& lc);
+    शून्य addLibExtV(स्थिरांक string& libext);
+    शून्य optimize(पूर्णांक level);
+    शून्य showVersion(bool verbose);
+    शून्य coverage(bool flag) {
+        m_coverage_ओळ = m_coverageBranch = m_coverageToggle = m_coverage_अभिव्यक्ती = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
-    static string parseFileArg(const string& optdir, const string& relfilename);
-    string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
-    void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
+    स्थिर bool suffixed(स्थिरांक string& sw, स्थिरांक अक्षर* arg);
+    स्थिर string parseFileArg(स्थिरांक string& optdir, स्थिरांक string& relfilename);
+    string filePathCheckOneDir(स्थिरांक string& modname, स्थिरांक string& स_नाम);
+    स्थिर पूर्णांक stripOptionsForChildRun(स्थिरांक string& opt, bool for_शीर्ष);
+    शून्य validateIdentifier(File_ओळ* fl, स्थिरांक string& arg, स्थिरांक string& opt);
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(V3Options);
 
-public:
+सार्वजनिक:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
-    unsigned debugLevel(const string& tag) const VL_MT_SAFE;
-    unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
-    unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
-    unsigned dumpSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
+    शून्य setDebugMode(पूर्णांक level);
+    अचिन्हित debugLevel(स्थिरांक string& tag) स्थिरांक VL_MT_SAFE;
+    अचिन्हित debugSrcLevel(स्थिरांक string& srcfile_path) स्थिरांक VL_MT_SAFE;
+    अचिन्हित dumpLevel(स्थिरांक string& tag) स्थिरांक VL_MT_SAFE;
+    अचिन्हित dumpSrcLevel(स्थिरांक string& srcfile_path) स्थिरांक VL_MT_SAFE;
 
     // METHODS
-    void addCppFile(const string& filename);
-    void addCFlags(const string& filename);
-    void addCompilerIncludes(const string& filename);
-    void addLdLibFile(const string& filename);
-    void addLdLibs(const string& filename);
-    void addMakeFlags(const string& filename);
-    void addLibMapFile(const string& filename);
-    void addLibraryFile(const string& filename, const string& libname);
-    void addVFile(const string& filename, const string& libname);
-    void addVltFile(const string& filename, const string& libname);
-    void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
-    void ccSet();
-    void decorations(FileLine* fl, const string& filename);
-    void notify() VL_MT_DISABLED;
+    शून्य addCppFile(स्थिरांक string& filename);
+    शून्य addCFlags(स्थिरांक string& filename);
+    शून्य addCompilerIncludes(स्थिरांक string& filename);
+    शून्य addLdLibFile(स्थिरांक string& filename);
+    शून्य addLdLibs(स्थिरांक string& filename);
+    शून्य addMakeFlags(स्थिरांक string& filename);
+    शून्य addLibMapFile(स्थिरांक string& filename);
+    शून्य addLibraryFile(स्थिरांक string& filename, स्थिरांक string& libname);
+    शून्य addVFile(स्थिरांक string& filename, स्थिरांक string& libname);
+    शून्य addVltFile(स्थिरांक string& filename, स्थिरांक string& libname);
+    शून्य addForceInc(स्थिरांक string& filename);
+    bool available() स्थिरांक VL_MT_SAFE { परत m_available; }
+    शून्य ccSet();
+    शून्य decorations(File_ओळ* fl, स्थिरांक string& filename);
+    शून्य notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
-    void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
-    bool coverage() const VL_MT_SAFE {
+    bool preprocOnly() स्थिरांक { परत m_preprocOnly; }
+    bool makePhony() स्थिरांक { परत m_makePhony; }
+    bool preproc_No_ओळ() स्थिरांक { परत m_preproc_No_ओळ; }
+    bool preprocResolve() स्थिरांक { परत m_preprocResolve; }
+    पूर्णांक preprocTokenLimit() स्थिरांक { परत m_preprocTokenLimit; }
+    bool underlineZero() स्थिरांक { परत m_underlineZero; }
+    bool systemC() स्थिरांक VL_MT_SAFE { परत m_systemC; }
+    bool savable() स्थिरांक VL_MT_SAFE { परत m_savable; }
+    VOptionBool schedZeroDelay() स्थिरांक { परत m_schedZeroDelay; }
+    bool stats() स्थिरांक { परत m_stats; }
+    bool statsVars() स्थिरांक { परत m_statsVars; }
+    bool stdPackage() स्थिरांक { परत m_stdPackage; }
+    bool stdWaiver() स्थिरांक { परत m_stdWaiver; }
+    bool assertOn() स्थिरांक { परत m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() स्थिरांक { परत m_assertCase; }
+    bool autoflush() स्थिरांक { परत m_autoflush; }
+    bool bboxSys() स्थिरांक { परत m_bboxSys; }
+    bool bboxUnsup() स्थिरांक { परत m_bboxUnsup; }
+    bool build() स्थिरांक { परत m_build; }
+    string buildDepBin() स्थिरांक { परत m_buildDepBin; }
+    शून्य buildDepBin(स्थिरांक string& flag) { m_buildDepBin = flag; }
+    bool context() स्थिरांक VL_MT_SAFE { परत m_context; }
+    bool coverage() स्थिरांक VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        परत m_coverage_ओळ || m_coverageBranch || m_coverageToggle || m_coverage_अभिव्यक्ती
                || m_coverageUser || m_coverageFsm;
     }
-    bool coverageNonFsm() const VL_MT_SAFE {
+    bool coverageNonFsm() स्थिरांक VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        परत m_coverage_ओळ || m_coverageBranch || m_coverageToggle || m_coverage_अभिव्यक्ती
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
-    bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+    bool coverageBranch() स्थिरांक { परत m_coverageBranch; }
+    bool coverage_अभिव्यक्ती() स्थिरांक { परत m_coverage_अभिव्यक्ती; }
+    bool coverageFsm() स्थिरांक { परत m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() स्थिरांक { परत m_coverageFsmExpand; }
+    पूर्णांक coverageFsmMaxArcs() स्थिरांक { परत m_coverageFsmMaxArcs; }
+    bool coverage_ओळ() स्थिरांक { परत m_coverage_ओळ; }
+    bool coverageMergeInstances() स्थिरांक { परत m_coverageMergeInstances; }
+    bool coveragePerInstance() स्थिरांक { परत m_coveragePerInstance; }
+    bool coverageToggle() स्थिरांक { परत m_coverageToggle; }
+    bool coverageUnderscore() स्थिरांक { परत m_coverageUnderscore; }
+    bool coverageUser() स्थिरांक { परत m_coverageUser; }
+    bool debugCheck() स्थिरांक VL_MT_SAFE { परत m_debugCheck; }
+    bool debugCollision() स्थिरांक { परत m_debugCollision; }
+    bool debugEmitV() स्थिरांक VL_MT_SAFE { परत m_debugEmitV; }
+    bool debugExitElab() स्थिरांक { परत m_debugExitElab; }
+    bool debugExitParse() स्थिरांक { परत m_debugExitParse; }
+    bool debugLeak() स्थिरांक { परत m_debugLeak; }
+    bool debugNondeterminism() स्थिरांक { परत m_debugNondeterminism; }
+    bool debugPartition() स्थिरांक { परत m_debugPartition; }
+    bool debugPreprocPassthru() स्थिरांक VL_MT_SAFE { परत m_debugPreprocPassthru; }
+    bool debugProtect() स्थिरांक VL_MT_SAFE { परत m_debugProtect; }
+    पूर्णांक debugRuntimeTimeout() स्थिरांक { परत m_debugRuntimeTimeout; }
+    bool debugSelfTest() स्थिरांक { परत m_debugSelfTest; }
+    bool debug_चळत_Check() स्थिरांक { परत m_debug_चळत_Check; }
+    bool debugWidth() स्थिरांक VL_PURE { परत m_debugWidth; }
+    bool decoration() स्थिरांक VL_MT_SAFE { परत m_decoration; }
+    bool decorationNodes() स्थिरांक VL_MT_SAFE { परत m_decorationNodes; }
+    bool diagnosticsSarif() स्थिरांक VL_MT_SAFE { परत m_diagnosticsSarif; }
+    bool dpiHdrOnly() स्थिरांक { परत m_dpiHdrOnly; }
+    bool dumpAstPatterns() स्थिरांक {
+        परत m_dumpLevel.मोजणी("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
-    bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+    bool dumpDefines() स्थिरांक { परत m_dumpLevel.मोजणी("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDfgPatterns() स्थिरांक {
+        परत m_dumpLevel.मोजणी("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
-    bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+    bool dump_वृक्ष_Dot() स्थिरांक {
+        परत m_dumpLevel.मोजणी("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() स्थिरांक { परत m_emitAccessors; }
+    bool exe() स्थिरांक { परत m_exe; }
+    bool flatten() स्थिरांक { परत m_flatten; }
+    bool fourstate() स्थिरांक { परत m_fourstate; }
+    bool gmake() स्थिरांक { परत m_gmake; }
+    bool makeJson() स्थिरांक { परत m_makeJson; }
+    bool threadsDpiPure() स्थिरांक { परत m_threadsDpiPure; }
+    bool threadsDpiUnpure() स्थिरांक { परत m_threadsDpiUnpure; }
+    bool threadsCoarsen() स्थिरांक { परत m_threadsCoarsen; }
+    VOptionBool timing() स्थिरांक { परत m_timing; }
+    bool trace() स्थिरांक { परत m_trace; }
+    bool traceCoverage() स्थिरांक { परत m_traceCoverage; }
+    bool traceEnabledFst() स्थिरांक { परत m_traceEnabledFst; }
+    bool traceEnabledSaif() स्थिरांक { परत m_traceEnabledSaif; }
+    bool traceEnabledVcd() स्थिरांक { परत m_traceEnabledVcd; }
+    bool traceParams() स्थिरांक { परत m_traceParams; }
+    bool traceStructs() स्थिरांक { परत m_traceStructs; }
+    bool traceUnderscore() स्थिरांक { परत m_traceUnderscore; }
+    bool main() स्थिरांक { परत m_main; }
+    bool outFormatOk() स्थिरांक { परत m_outFormatOk; }
+    bool jsonOnly() स्थिरांक { परत m_jsonOnly; }
+    bool keepTempFiles() स्थिरांक { परत (V3Error::debugDefault() != 0); }
+    bool pedantic() स्थिरांक { परत m_pedantic; }
+    bool pinsInoutEnables() स्थिरांक { परत m_pinsInoutEnables; }
+    bool pinsScUint() स्थिरांक { परत m_pinsScUint; }
+    bool pinsScUintBool() स्थिरांक { परत m_pinsScUintBool; }
+    bool pinsScBigUint() स्थिरांक VL_MT_SAFE { परत m_pinsScBigUint; }
+    bool pinsUint8() स्थिरांक { परत m_pinsUint8; }
+    bool preprocComments() स्थिरांक { परत m_preprocComments; }
+    bool preprocDefines() स्थिरांक { परत m_preprocDefines; }
+    bool profC() स्थिरांक { परत m_profC; }
+    bool profCFuncs() स्थिरांक { परत m_profCFuncs; }
+    bool profExec() स्थिरांक { परत m_profExec; }
+    bool profPgo() स्थिरांक { परत m_profPgo; }
+    bool usesProfiler() स्थिरांक { परत profExec() || profPgo(); }
+    bool protectIds() स्थिरांक VL_MT_SAFE { परत m_protectIds; }
+    bool allPublic() स्थिरांक { परत m_public; }
+    bool publicParams() स्थिरांक { परत m_publicParams; }
+    bool publicOff() स्थिरांक { परत m_publicIgnore; }
+    bool publicFlatRW() स्थिरांक { परत m_publicFlatRW; }
+    पूर्णांक publicDepth() स्थिरांक { परत m_publicDepth; }
+    bool anyPublicFlat() स्थिरांक { परत m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() स्थिरांक VL_MT_SAFE { परत m_lintOnly; }
+    bool ignc() स्थिरांक { परत m_ignc; }
+    bool quietBuild() स्थिरांक VL_MT_SAFE { परत m_quietBuild; }
+    bool quietExit() स्थिरांक VL_MT_SAFE { परत m_quietExit; }
+    bool quietStats() स्थिरांक VL_MT_SAFE { परत m_quietStats; }
+    bool reportUnoptflat() स्थिरांक { परत m_reportUnoptflat; }
+    bool verilate() स्थिरांक { परत m_verilate; }
+    bool vpi() स्थिरांक { परत m_vpi.isTrue(); }
+    bool waiverMultiline() स्थिरांक { परत m_waiverMultiline; }
+    bool xInitialEdge() स्थिरांक { परत m_xInitialEdge; }
+    bool serializeOnly() स्थिरांक { परत m_jsonOnly; }
+    bool शीर्ष_Ifaces_Supported() स्थिरांक { परत lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
-    bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
-    VTimescale timeComputePrec(const VTimescale& flag) const;
-    VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
-    bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+    पूर्णांक buildJobs() स्थिरांक VL_MT_SAFE { परत m_buildJobs; }
+    पूर्णांक convergeLimit() स्थिरांक { परत m_convergeLimit; }
+    पूर्णांक coverage_अभिव्यक्ती_Max() स्थिरांक { परत m_coverage_अभिव्यक्ती_Max; }
+    uint32_t coverageMaxBins() स्थिरांक { परत m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() स्थिरांक { परत m_coverageMaxRealBins; }
+    पूर्णांक coverageMaxWidth() स्थिरांक { परत m_coverageMaxWidth; }
+    पूर्णांक debugAllocRandom() स्थिरांक { परत m_debugAllocRandom; }
+    bool dump_वृक्ष_Addrids() स्थिरांक VL_MT_SAFE;
+    पूर्णांक expandLimit() स्थिरांक { परत m_expandLimit; }
+    पूर्णांक gateStmts() स्थिरांक { परत m_gateStmts; }
+    पूर्णांक ifDepth() स्थिरांक { परत m_ifDepth; }
+    पूर्णांक inlineCFuncs() स्थिरांक { परत m_inlineCFuncs; }
+    पूर्णांक inlineCFuncsProduct() स्थिरांक { परत m_inlineCFuncsProduct; }
+    पूर्णांक inlineMult() स्थिरांक { परत m_inlineMult; }
+    पूर्णांक instr_मोजणी_Dpi() स्थिरांक { परत m_instr_मोजणी_Dpi; }
+    पूर्णांक localizeMaxSize() स्थिरांक { परत m_localizeMaxSize; }
+    bool jsonEditNums() स्थिरांक { परत m_jsonEditNums; }
+    bool jsonIds() स्थिरांक { परत m_jsonIds; }
+    VOptionBool makeDepend() स्थिरांक { परत m_makeDepend; }
+    पूर्णांक max_अंक_Width() स्थिरांक { परत m_max_अंक_Width; }
+    पूर्णांक funcRecursionDepth() स्थिरांक { परत m_funcRecursion; }
+    पूर्णांक moduleRecursionDepth() स्थिरांक { परत m_moduleRecursion; }
+    पूर्णांक outputSplit() स्थिरांक { परत m_outputSplit; }
+    पूर्णांक outputSplitCFuncs() स्थिरांक { परत m_outputSplitCFuncs; }
+    पूर्णांक outputSplitCTrace() स्थिरांक { परत m_outputSplitCTrace; }
+    पूर्णांक outputGroups() स्थिरांक { परत m_outputGroups; }
+    int64_t outputGroupsSize() स्थिरांक { परत m_outputGroupsSize; }
+    पूर्णांक pinsBv() स्थिरांक VL_MT_SAFE { परत m_pinsBv; }
+    पूर्णांक reloopLimit() स्थिरांक { परत m_reloopLimit; }
+    पूर्णांक replicationLimit() स्थिरांक { परत m_replicationLimit; }
+    VOptionBool skipIdentical() स्थिरांक { परत m_skipIdentical; }
+    bool stopFail() स्थिरांक { परत m_stopFail; }
+    पूर्णांक threads() स्थिरांक VL_MT_SAFE { परत m_threads; }
+    पूर्णांक threadsMaxMTasks() स्थिरांक { परत m_threadsMaxMTasks; }
+    bool mtasks() स्थिरांक VL_MT_SAFE { परत (m_threads > 1); }
+    VTimescale timeDefaultPrec() स्थिरांक { परत m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() स्थिरांक { परत m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() स्थिरांक { परत m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() स्थिरांक { परत m_timeOverrideUnit; }
+    VTimescale timeComputePrec(स्थिरांक VTimescale& flag) स्थिरांक;
+    VTimescale timeComputeUnit(स्थिरांक VTimescale& flag) स्थिरांक;
+    पूर्णांक traceDepth() स्थिरांक { परत m_traceDepth; }
+    पूर्णांक traceMaxArray() स्थिरांक { परत m_traceMaxArray; }
+    पूर्णांक traceMaxWidth() स्थिरांक { परत m_traceMaxWidth; }
+    bool useTraceParallel() स्थिरांक {
+        परत trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    पूर्णांक unroll_मोजणी() स्थिरांक { परत m_unroll_मोजणी; }
+    पूर्णांक unrollLimit() स्थिरांक { परत m_unrollLimit; }
+    पूर्णांक unrollStmts() स्थिरांक { परत m_unrollStmts; }
+    पूर्णांक constraintArrayLimit() स्थिरांक { परत m_constraintArrayLimit; }
+    पूर्णांक verilateJobs() स्थिरांक { परत m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    पूर्णांक compLimitBlocks() स्थिरांक { परत m_compLimitBlocks; }
+    पूर्णांक compLimitMembers() स्थिरांक VL_MT_SAFE { परत m_compLimitMembers; }
+    पूर्णांक compLimitParens() स्थिरांक { परत m_compLimitParens; }
 
-    string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+    string diagnosticsSarifOutput() स्थिरांक VL_MT_SAFE {
+        परत m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
-    string libCreateName(bool shared) const {
+    string exeName() स्थिरांक { परत m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() स्थिरांक { परत m_hierParamsFile; }
+    string jsonOnlyOutput() स्थिरांक { परत m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() स्थिरांक { परत m_jsonOnlyMetaOutput; }
+    string l2Name() स्थिरांक { परत m_l2Name; }
+    string libCreate() स्थिरांक { परत m_libCreate; }
+    string libCreateName(bool shared) स्थिरांक {
         string libName = "lib" + libCreate();
-        if (shared) {
+        जर (shared) {
             libName += ".so";
-        } else {
+        } अन्यथा {
             libName += ".a";
         }
-        return libName;
+        परत libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string main_शीर्ष_Name() स्थिरांक { परत m_main_शीर्ष_Name; }
+    string makeDir() स्थिरांक VL_MT_SAFE { परत m_makeDir; }
+    string modPrefix() स्थिरांक VL_MT_SAFE { परत m_modPrefix; }
+    string pipeFilter() स्थिरांक { परत m_pipeFilter; }
+    string prefix() स्थिरांक VL_MT_SAFE { परत m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
-    string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    bool protect_किल्ली_Provided() स्थिरांक { परत !m_protect_किल्ली.empty(); }
+    string protect_किल्ली_Defaulted() VL_MT_SAFE;  // Set default key if not set by user
+    string शीर्ष_Module() स्थिरांक { परत m_शीर्ष_Module; }  // As AstNode::encodeName()
+    bool no_Trace_शीर्ष() स्थिरांक { परत m_no_Trace_शीर्ष; }
+    string unusedRegexp() स्थिरांक { परत m_unusedRegexp; }
+    string waiverOutput() स्थिरांक { परत m_waiverOutput; }
+    string work() स्थिरांक { परत m_work; }
+    bool isWaiverOutput() स्थिरांक { परत !m_waiverOutput.empty(); }
+    string xAssign() स्थिरांक { परत m_xAssign; }
+    string xInitial() स्थिरांक { परत m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    स्थिरांक VStringSet& cppFiles() स्थिरांक { परत m_cppFiles; }
+    स्थिरांक VStringList& cFlags() स्थिरांक { परत m_cFlags; }
+    स्थिरांक VStringSet& compilerIncludes() स्थिरांक { परत m_compilerIncludes; }
+    स्थिरांक VStringList& ldLibFiles() स्थिरांक { परत m_ldLibFiles; }
+    स्थिरांक VStringList& ldLibs() स्थिरांक { परत m_ldLibs; }
+    स्थिरांक VStringList& makeFlags() स्थिरांक { परत m_makeFlags; }
+    स्थिरांक VFileLibSet& libraryFiles() स्थिरांक { परत m_libraryFiles; }
+    स्थिरांक VStringSet& libmapFiles() स्थिरांक { परत m_libmapFiles; }
+    स्थिरांक VFileLibList& vFiles() स्थिरांक { परत m_vFiles; }
+    स्थिरांक VFileLibSet& vltFiles() स्थिरांक { परत m_vltFiles; }
+    स्थिरांक VStringList& forceIncs() स्थिरांक { परत m_forceIncs; }
 
-    bool hasParameter(const string& name);
-    string parameter(const string& name);
-    void checkParameters();
+    bool hasParameter(स्थिरांक string& name);
+    string parameter(स्थिरांक string& name);
+    शून्य checkParameters();
 
-    bool isFuture(const string& flag) const;
-    bool isFuture0(const string& flag) const;
-    bool isFuture1(const string& flag) const;
-    bool isLibraryFile(const string& filename, const string& libname) const;
+    bool isFuture(स्थिरांक string& flag) स्थिरांक;
+    bool isFuture0(स्थिरांक string& flag) स्थिरांक;
+    bool isFuture1(स्थिरांक string& flag) स्थिरांक;
+    bool isLibraryFile(स्थिरांक string& filename, स्थिरांक string& libname) स्थिरांक;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
-    bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+    bool fAcycSimp() स्थिरांक { परत m_fAcycSimp; }
+    bool fAssemble() स्थिरांक { परत m_fAssemble; }
+    bool fBitScanLoops() स्थिरांक { परत m_fBitScanLoops; }
+    bool fBitblast() स्थिरांक { परत m_fBitblast; }
+    bool fCaseDecoder() स्थिरांक { परत m_fCaseDecoder; }
+    bool fCaseTable() स्थिरांक { परत m_fCaseTable; }
+    bool f_Case_वृक्ष() स्थिरांक { परत m_f_Case_वृक्ष; }
+    bool fCombine() स्थिरांक { परत m_fCombine; }
+    bool fConst() स्थिरांक { परत m_fConst; }
+    bool fConstBeforeDfg() स्थिरांक { परत m_fConstBeforeDfg; }
+    bool f_Const_Bit_Op_वृक्ष() स्थिरांक { परत m_f_Const_Bit_Op_वृक्ष; }
+    bool fConstEager() स्थिरांक { परत m_fConstEager; }
+    bool fDedupe() स्थिरांक { परत m_fDedupe; }
+    bool fDfg() स्थिरांक { परत m_fDfg; }
+    bool fDfgPeephole() स्थिरांक { परत m_fDfgPeephole; }
+    bool f_Dfg_ढकला_Down_Sels() स्थिरांक { परत m_f_Dfg_ढकला_Down_Sels; }
+    bool fDfgSynthesizeAll() स्थिरांक { परत m_fDfgSynthesizeAll; }
+    bool fDfgPeepholeEnabled(स्थिरांक std::string& name) स्थिरांक {
+        परत !m_fDfgPeepholeDisabled.मोजणी(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() स्थिरांक { परत m_fDeadAssigns; }
+    bool fDeadCells() स्थिरांक { परत m_fDeadCells; }
+    bool fDeadMethods() स्थिरांक { परत m_fDeadMethods; }
+    bool fDecompose() स्थिरांक { परत m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() स्थिरांक { परत m_fDecomposePacked; }
+    bool fDecomposeUnpacked() स्थिरांक { परत m_fDecomposeUnpacked; }
+    bool fExpand() स्थिरांक { परत m_fExpand; }
+    bool fFuncBalanceCat() स्थिरांक { परत m_fFuncBalanceCat; }
+    bool fFuncSplitCat() स्थिरांक { परत m_fFuncSplitCat; }
+    bool fFunc() स्थिरांक { परत fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() स्थिरांक { परत m_fGate; }
+    VOptionBool fIcoChangeDetect() स्थिरांक { परत m_fIcoChangeDetect; }
+    bool fInline() स्थिरांक { परत m_fInline; }
+    bool fInlineCFuncs() स्थिरांक { परत m_fInlineCFuncs; }
+    bool fInlineFuncs() स्थिरांक { परत m_fInlineFuncs; }
+    bool fInlineFuncsEager() स्थिरांक { परत m_fInlineFuncsEager; }
+    bool fLife() स्थिरांक { परत m_fLife; }
+    bool fLifePost() स्थिरांक { परत m_fLifePost; }
+    bool fLocalize() स्थिरांक { परत m_fLocalize; }
+    bool fMergeCond() स्थिरांक { परत m_fMergeCond; }
+    bool fMergeCondMotion() स्थिरांक { परत m_fMergeCondMotion; }
+    bool fReloop() स्थिरांक { परत m_fReloop; }
+    bool fReorder() स्थिरांक { परत m_fReorder; }
+    bool fSlice() स्थिरांक { परत m_fSlice; }
+    पूर्णांक fSliceElementLimit() स्थिरांक { परत m_fSliceElementLimit; }
+    bool fSplit() स्थिरांक { परत m_fSplit; }
+    bool fSubst() स्थिरांक { परत m_fSubst; }
+    bool fSubstConst() स्थिरांक { परत m_fSubstConst; }
+    bool fTable() स्थिरांक { परत m_fTable; }
+    bool fTaskifyAll() स्थिरांक { परत m_fTaskifyAll; }
 
-    std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
-    std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
-    std::vector<std::string> traceClassBases() const VL_MT_SAFE;
-    std::vector<std::string> traceClassLangs() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
+    std::string traceClassBase() स्थिरांक VL_MT_SAFE;  // Deprecated
+    std::string traceClassLang() स्थिरांक VL_MT_SAFE;  // Deprecated
+    std::vector<std::string> traceClassBases() स्थिरांक VL_MT_SAFE;
+    std::vector<std::string> traceClassLangs() स्थिरांक VL_MT_SAFE;
+    std::vector<std::string> traceSourceBases() स्थिरांक VL_MT_SAFE;
+    std::vector<std::string> traceSourceLangs() स्थिरांक VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() स्थिरांक { परत m_hierarchical; }
+    पूर्णांक hierChild() स्थिरांक VL_MT_SAFE { परत m_hierChild; }
+    पूर्णांक hierThreads() स्थिरांक VL_MT_SAFE { परत m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hier_शीर्ष() स्थिरांक VL_MT_SAFE { परत !m_hierChild && !m_hierBlocks.empty(); }
+    स्थिरांक V3HierBlockOptSet& hierBlocks() स्थिरांक { परत m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
-    string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+    string hier_शीर्ष_Data_Dir() स्थिरांक VL_MT_SAFE {
+        परत hier_शीर्ष() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
-    static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
-    string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
-    const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
+    स्थिर string version() VL_PURE;
+    स्थिर string argString(पूर्णांक argc, अक्षर** argv);  ///< Return list of arguments as simple string
+    string allArgsString() स्थिरांक VL_MT_SAFE;  ///< Return all passed arguments as simple string
+    स्थिरांक std::list<std::pair<std::list<std::string>, bool>>& allArgs() स्थिरांक;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
-    string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
+    string allArgsStringForHierBlock(bool for_शीर्ष) स्थिरांक;
+    शून्य parseOpts(File_ओळ* fl, पूर्णांक argc, अक्षर** argv) VL_MT_DISABLED;
+    शून्य parseOptsList(File_ओळ* fl, स्थिरांक string& optdir, पूर्णांक argc, अक्षर** argv) VL_MT_DISABLED;
+    शून्य parseOptsFile(File_ओळ* fl, स्थिरांक string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)
     // Most of these may be built into the executable with --enable-defenv,
     // see the README.  If adding new variables, also see src/Makefile_obj.in
     // Also add to V3Options::showVersion()
-    static string getenvBuiltins(const string& var);
-    static string getenvMAKE();
-    static string getenvMAKEFLAGS();
-    static string getenvPERL();
-    static string getenvPYTHON3();
-    static string getenvSYSTEMC();
-    static string getenvSYSTEMC_ARCH();
-    static string getenvSYSTEMC_INCLUDE();
-    static string getenvSYSTEMC_LIBDIR();
-    static string getenvVERILATOR_ROOT();
-    static string getenvVERILATOR_SOLVER();
-    static string getStdPackagePath();
-    static string getStdWaiverPath();
-    static string getSupported(const string& var);
-    static bool systemCSystemWide();
-    static bool systemCFound();  // SystemC installed, or environment points to it
-    static bool coroutineSupport();  // Configured C++ compiler supports coroutines
-    static bool devAsan();  // 'verilator_bin' built with AddressSanitizer
-    static bool devGcov();  // 'verilator_bin' built with code coverage for gcov
-    static bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
+    स्थिर string getenvBuiltins(स्थिरांक string& var);
+    स्थिर string getenvMAKE();
+    स्थिर string getenvMAKEFLAGS();
+    स्थिर string getenvPERL();
+    स्थिर string getenvPYTHON3();
+    स्थिर string getenvSYSTEMC();
+    स्थिर string getenvSYSTEMC_ARCH();
+    स्थिर string getenvSYSTEMC_INCLUDE();
+    स्थिर string getenvSYSTEMC_LIBDIR();
+    स्थिर string getenv_VERILATOR_मूळ();
+    स्थिर string getenvVERILATOR_SOLVER();
+    स्थिर string getStdPackagePath();
+    स्थिर string getStdWaiverPath();
+    स्थिर string getSupported(स्थिरांक string& var);
+    स्थिर bool systemCSystemWide();
+    स्थिर bool systemCFound();  // SystemC installed, or environment points to it
+    स्थिर bool coroutineSupport();  // Configured C++ compiler supports coroutines
+    स्थिर bool devAsan();  // 'verilator_bin' built with AddressSanitizer
+    स्थिर bool devGcov();  // 'verilator_bin' built with code coverage for gcov
+    स्थिर bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
 
     // METHODS (file utilities using these options)
-    string fileExists(const string& filename);
-    string filePath(FileLine* fl, const string& modname, const string& lastpath,
-                    const string& errmsg);
-    string filePathLookedMsg(FileLine* fl, const string& modname);
-    V3LangCode fileLanguage(const string& filename);
-    static bool fileStatNormal(const string& filename);
+    string fileExists(स्थिरांक string& filename);
+    string filePath(File_ओळ* fl, स्थिरांक string& modname, स्थिरांक string& lastpath,
+                    स्थिरांक string& errmsg);
+    string file_Path_Looked_संदेश(File_ओळ* fl, स्थिरांक string& modname);
+    V3LangCode fileLanguage(स्थिरांक string& filename);
+    स्थिर bool fileStatNormal(स्थिरांक string& filename);
 
     // METHODS (other OS)
-    static void throwSigsegv();
+    स्थिर शून्य throwSigsegv();
 };
 
 //######################################################################

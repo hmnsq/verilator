@@ -19,14 +19,14 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
+#अन्तर्भाव "V3Dfg.h"
+#अन्तर्भाव "V3DfgPasses.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class DfgRegularize final {
+वर्ग DfgRegularize final {
     // STATE
     DfgGraph& m_dfg;  // The graph being processed
     V3DfgRegularizeContext& m_ctx;  // The optimization context for stats
@@ -36,17 +36,17 @@ class DfgRegularize final {
 
     // For all operation vetices, if they drive multiple variables, pick
     // a "canonical" one and uninline the logic through that variable.
-    void uninlineVariables() {
+    शून्य uninlineVariables() {
         // Variable vertices, would have been inlined if equivalent,
         // so no need to process them here, they are where they must be.
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
+        साठी (DfgVertex& vtx : m_dfg.opVertices()) {
             // Don't process LValue operations
-            if (vtx.is<DfgVertexSplice>()) continue;
-            if (vtx.is<DfgUnitArray>()) continue;
+            जर (vtx.is<DfgVertexSplice>()) सुरूठेवा;
+            जर (vtx.is<DfgUnitArray>()) सुरूठेवा;
 
             // The prefered result variable is the canonical one if exists
-            DfgVertexVar* const varp = vtx.getResultVar();
-            if (!varp) continue;
+            DfgVertexVar* स्थिरांक varp = vtx.getResultVar();
+            जर (!varp) सुरूठेवा;
 
             // Relink all other sinks reading this vertex to read 'varp'
             varp->srcp(nullptr);
@@ -55,16 +55,16 @@ class DfgRegularize final {
         }
     }
 
-    static bool isUnused(const DfgVertex& vtx) {
-        if (vtx.hasSinks()) return false;
-        if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
+    स्थिर तार्किक isUnused(स्थिरांक DfgVertex& vtx) {
+        जर (vtx.hasSinks()) परत असत्य;
+        जर (स्थिरांक DfgVertexVar* स्थिरांक varp = vtx.cast<DfgVertexVar>()) {
             // There is only one Dfg when running this pass
             UASSERT_OBJ(!varp->hasDfgRefs(), varp, "Should not have refs in other DfgGraph");
-            if (varp->hasModWrRefs()) return false;
-            if (varp->hasExtRefs()) return false;
-            if (varp->hasPrev()) return false;
+            जर (varp->hasModWrRefs()) परत असत्य;
+            जर (varp->hasExtRefs()) परत असत्य;
+            जर (varp->hasPrev()) परत असत्य;
         }
-        return true;
+        परत सत्य;
     }
 
     // Predicate to determine if a temporary should be inserted or if a variable
@@ -72,65 +72,65 @@ class DfgRegularize final {
     // the sole driver of bVtx, or aVtxp is cheaper to recompute and might have
     // multiple sinks. In either case, bVtx can be used to check sinks, and aVtx
     // can be used to check the operation.
-    bool needsTemporary(DfgVertex& aVtx, DfgVertex& bVtx) {
+    तार्किक needsTemporary(DfgVertex& aVtx, DfgVertex& bVtx) {
         UASSERT_OBJ(&aVtx == &bVtx || aVtx.isCheaperThanLoad() || aVtx.singleSink() == &bVtx,
                     &aVtx, "Mismatched vertices");
         UASSERT_OBJ(!aVtx.is<DfgVertexVar>(), &aVtx, "Should be an operation vertex");
 
         // Prev is just a variable reference
-        if (aVtx.is<DfgPrev>()) return false;
+        जर (aVtx.is<DfgPrev>()) परत असत्य;
 
-        if (bVtx.hasMultipleSinks()) {
+        जर (bVtx.hasMultipleSinks()) {
             // Add a temporary if it's cheaper to store and load from memory than recompute
-            if (!aVtx.isCheaperThanLoad()) return true;
+            जर (!aVtx.isCheaperThanLoad()) परत सत्य;
 
             // Not adding temporary
-            return false;
+            परत असत्य;
         }
 
         DfgVertex& sink = *bVtx.singleSink();
 
         // No need to add a temporary if the single sink is a variable already
-        if (sink.is<DfgVertexVar>()) return false;
+        जर (sink.is<DfgVertexVar>()) परत असत्य;
 
         // CReset always needs to be driving a variable
-        if (aVtx.is<DfgCReset>()) return true;
+        जर (aVtx.is<DfgCReset>()) परत सत्य;
 
         // Do not inline expressions into a loop body
-        if (const DfgAstRd* const astRdp = sink.cast<DfgAstRd>()) { return astRdp->inLoop(); }
+        जर (स्थिरांक DfgAstRd* स्थिरांक astRdp = sink.cast<DfgAstRd>()) { परत astRdp->inLoop(); }
 
         // Make sure roots of wide concatenation trees are written to variables,
         // this enables V3FuncOpt to split them which can be a big speed gain
         // without expanding them.
-        if (aVtx.is<DfgConcat>()) {
-            if (sink.is<DfgConcat>()) return false;  // Not root of tree
-            return VL_WORDS_I(static_cast<int>(aVtx.width())) > v3Global.opt.expandLimit();
+        जर (aVtx.is<DfgConcat>()) {
+            जर (sink.is<DfgConcat>()) परत असत्य;  // Not root of tree
+            परत VL_शब्द_I(static_cast<पूर्णांक>(aVtx.width())) > v3Global.opt.expandLimit();
         }
 
         // No need for a temporary otherwise
-        return false;
+        परत असत्य;
     }
 
-    void eliminateVars() {
+    शून्य eliminateVars() {
         // Worklist based algoritm
         DfgWorklist workList{m_dfg};
 
         // Add all variables and all vertices with no sinks to the worklist
         m_dfg.forEachVertex([&](DfgVertex& vtx) {
-            if (vtx.is<DfgVertexAst>()) return;
-            if (vtx.is<DfgVertexVar>() || !vtx.hasSinks()) workList.push_front(vtx);
+            जर (vtx.is<DfgVertexAst>()) परत;
+            जर (vtx.is<DfgVertexVar>() || !vtx.hasSinks()) workList.ढकला_front(vtx);
         });
 
         // Remove vertex, enqueue it's sources
-        const auto removeVertex = [&](DfgVertex& vtx) {
+        स्थिरांक स्वतः removeVertex = [&](DfgVertex& vtx) {
             // Add sources of removed vertex to work list
             vtx.foreachSource([&](DfgVertex& src) {
-                workList.push_front(src);
-                return false;
+                workList.ढकला_front(src);
+                परत असत्य;
             });
             // Delete corresponsing Ast variable at the end
-            if (const DfgVertexVar* const varp = vtx.cast<DfgVertexVar>()) {
-                if (!varp->hasPrev()) m_ctx.m_deleteps.push_back(varp->vscp());
+            जर (स्थिरांक DfgVertexVar* स्थिरांक varp = vtx.cast<DfgVertexVar>()) {
+                जर (!varp->hasPrev()) m_ctx.m_deleteps.ढकला_back(varp->vscp());
             }
             // Remove the unused vertex
             vtx.unlinkDelete(m_dfg);
@@ -139,49 +139,49 @@ class DfgRegularize final {
         // Process the work list
         workList.foreach([&](DfgVertex& vtx) {
             // Remove unused vertices
-            if (isUnused(vtx)) {
+            जर (isUnused(vtx)) {
                 ++m_ctx.m_unusedRemoved;
                 removeVertex(vtx);
-                return;
+                परत;
             }
 
             // Consider eliminating variables
-            DfgVertexVar* const varp = vtx.cast<DfgVertexVar>();
-            if (!varp) return;
+            DfgVertexVar* स्थिरांक varp = vtx.cast<DfgVertexVar>();
+            जर (!varp) परत;
 
             // If it has no driver (in this Dfg), there is nothing further we can optimize
-            DfgVertex* const srcp = varp->srcp();
-            if (!srcp) return;
+            DfgVertex* स्थिरांक srcp = varp->srcp();
+            जर (!srcp) परत;
 
             // Can't eliminate if referenced external to the module - can't replace those refs
-            if (varp->hasExtRefs()) return;
+            जर (varp->hasExtRefs()) परत;
             // Can't eliminate if written in the module - the write needs to go somewhere, and
             // we need to observe the write in this graph if the variable has sinks
-            if (varp->hasModWrRefs()) return;
+            जर (varp->hasModWrRefs()) परत;
             // There is only one Dfg when running this pass
             UASSERT_OBJ(!varp->hasDfgRefs(), varp, "Should not have refs in other DfgGraph");
 
             // Do not eliminate circular variables - need to preserve UNOPTFLAT traces
-            if (varp->hasPrev()) return;
+            जर (varp->hasPrev()) परत;
 
             // Do not inline if partially driven (the partial driver network can't be fed into
             // arbitrary logic. TODO: we should peeophole these away entirely)
-            if (varp->defaultp()) return;
-            if (srcp->is<DfgVertexSplice>()) return;
-            if (srcp->is<DfgUnitArray>()) return;
+            जर (varp->defaultp()) परत;
+            जर (srcp->is<DfgVertexSplice>()) परत;
+            जर (srcp->is<DfgUnitArray>()) परत;
 
             // Do not eliminate variables that are driven from a vertex that needs a temporary
-            if (!srcp->is<DfgVertexVar>() && needsTemporary(*srcp, *varp)) return;
+            जर (!srcp->is<DfgVertexVar>() && needsTemporary(*srcp, *varp)) परत;
 
             // Inline this variable into its single sink
             ++m_ctx.m_usedVarsInlined;
             varp->replaceWith(varp->srcp());
             removeVertex(*varp);
-            return;
+            परत;
         });
     }
 
-    void insertTemporaries() {
+    शून्य घाला_Temporaries() {
         // Insert a temporary variable for all vertices that have multiple non-variable sinks
 
         // Scope cache for below
@@ -189,27 +189,27 @@ class DfgRegularize final {
 
         // Build map from fanout to list of vertices with that fanout
         std::vector<std::vector<DfgVertex*>> fanout2Vtxps;
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
+        साठी (DfgVertex& vtx : m_dfg.opVertices()) {
             // LValue vertices feed into variables eventually and need no temporaries
-            if (vtx.is<DfgVertexSplice>()) continue;
-            if (vtx.is<DfgUnitArray>()) continue;
+            जर (vtx.is<DfgVertexSplice>()) सुरूठेवा;
+            जर (vtx.is<DfgUnitArray>()) सुरूठेवा;
             // Add to map
-            const uint32_t fanout = vtx.fanout();
-            if (!fanout) continue;
-            if (fanout >= fanout2Vtxps.size()) fanout2Vtxps.resize(2 * fanout);
-            fanout2Vtxps[fanout].push_back(&vtx);
+            स्थिरांक uint32_t fanout = vtx.fanout();
+            जर (!fanout) सुरूठेवा;
+            जर (fanout >= fanout2Vtxps.size()) fanout2Vtxps.resize(2 * fanout);
+            fanout2Vtxps[fanout].ढकला_back(&vtx);
         }
-        if (fanout2Vtxps.empty()) return;
+        जर (fanout2Vtxps.empty()) परत;
 
         // Ensure intermediate values used multiple times are written to variables
-        for (size_t fanout = fanout2Vtxps.size() - 1; fanout > 0; --fanout) {
-            for (DfgVertex* const vtxp : fanout2Vtxps[fanout]) {
-                if (!needsTemporary(*vtxp, *vtxp)) continue;
+        साठी (माप_प्रकार fanout = fanout2Vtxps.size() - 1; fanout > 0; --fanout) {
+            साठी (DfgVertex* स्थिरांक vtxp : fanout2Vtxps[fanout]) {
+                जर (!needsTemporary(*vtxp, *vtxp)) सुरूठेवा;
                 // Need to create an intermediate variable
                 ++m_ctx.m_temporariesIntroduced;
-                FileLine* const flp = vtxp->fileline();
-                AstScope* const scopep = vtxp->scopep(scopeCache);
-                DfgVertexVar* const newp
+                File_ओळ* स्थिरांक flp = vtxp->fileline();
+                AstScope* स्थिरांक scopep = vtxp->scopep(scopeCache);
+                DfgVertexVar* स्थिरांक newp
                     = m_dfg.makeNewVar(flp, "Regularize", vtxp->dtype(), scopep);
                 // Replace vertex with the variable, make it drive the variable
                 vtxp->replaceWith(newp);
@@ -224,19 +224,19 @@ class DfgRegularize final {
         , m_ctx{ctx} {
 
         uninlineVariables();
-        if (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-uninlined");
+        जर (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-uninlined");
 
         eliminateVars();
-        if (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-eliminate");
+        जर (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-eliminate");
 
-        insertTemporaries();
-        if (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-inserttmp");
+        घाला_Temporaries();
+        जर (dumpDfgLevel() >= 9) dfg.dumpDotFilePrefixed("regularize-inserttmp");
     }
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgRegularizeContext& ctx) { DfgRegularize{dfg, ctx}; }
+सार्वजनिक:
+    स्थिर शून्य apply(DfgGraph& dfg, V3DfgRegularizeContext& ctx) { DfgRegularize{dfg, ctx}; }
 };
 
-void V3DfgPasses::regularize(DfgGraph& dfg, V3DfgRegularizeContext& ctx) {
+शून्य V3DfgPasses::regularize(DfgGraph& dfg, V3DfgRegularizeContext& ctx) {
     DfgRegularize::apply(dfg, ctx);
 }

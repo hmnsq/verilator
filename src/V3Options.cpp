@@ -14,45 +14,45 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3Options.h"
+#अन्तर्भाव "V3Options.h"
 
-#include "V3Container.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3OptionParser.h"
-#include "V3Os.h"
-#include "V3PreShell.h"
-#include "V3String.h"
+#अन्तर्भाव "V3Container.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3File.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3Mutex.h"
+#अन्तर्भाव "V3OptionParser.h"
+#अन्तर्भाव "V3Os.h"
+#अन्तर्भाव "V3PreShell.h"
+#अन्तर्भाव "V3String.h"
 
 // clang-format off
-#include <sys/types.h>
-#include <sys/stat.h>
+#अन्तर्भाव <sys/types.h>
+#अन्तर्भाव <sys/stat.h>
 #ifndef _WIN32
 # include <sys/utsname.h>
 #endif
-#include <algorithm>
-#include <cctype>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <cctype>
 #ifdef _MSC_VER
 # include <filesystem> // C++17
 # define S_ISDIR(mode) (((mode) & _S_IFMT) == _S_IFDIR)
-#else
+#अन्यथा
 # include <dirent.h>
 #endif
-#include <fcntl.h>
-#include <list>
-#include <map>
-#include <memory>
-#include <thread>
-#include <set>
-#include <string>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <list>
+#अन्तर्भाव <map>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <thread>
+#अन्तर्भाव <set>
+#अन्तर्भाव <string>
 
-#include "config_rev.h"
+#अन्तर्भाव "config_rev.h"
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#जर defined(_WIN32) || defined(__MINGW32__)
 # include <io.h>  // open, close
 #endif
 // clang-format on
@@ -62,62 +62,62 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // V3 Internal state
 
-class V3OptionsImp final {
-public:
+वर्ग V3OptionsImp final {
+सार्वजनिक:
     // TYPES
-    using DirMap = std::map<const string, std::set<std::string>>;  // Directory listing
+    using DirMap = std::map<स्थिरांक string, std::set<std::string>>;  // Directory listing
 
     // STATE
-    std::list<string> m_lineArgs;  // List of command line argument encountered
+    std::list<string> m_ओळ_Args;  // List of command line argument encountered
     // List of arguments encounterd, and a bool in needed for rerunning --dump-inputs
-    std::list<std::pair<std::list<std::string>, bool>> m_allArgs;
+    std::list<std::pair<std::list<std::string>, तार्किक>> m_allArgs;
     VInsertionSet<std::string> m_incDirUsers;  // Include directories (ordered)
     std::list<string> m_incDirFallbacks;  // Include directories (ordered)
     std::set<string> m_incDirFallbackSet;  // Include directories (for removing duplicates)
-    std::map<const string, V3LangCode> m_langExts;  // Language extension map
+    std::map<स्थिरांक string, V3LangCode> m_langExts;  // Language extension map
     VInsertionSet<std::string> m_libExtVs;  // Library extensions (ordered)
     DirMap m_dirMap;  // Directory listing
 
     // ACCESSOR METHODS
-    void addIncDirUser(const string& incdir) {
-        const string& dir = V3Os::filenameCleanup(incdir);
-        const bool inserted = m_incDirUsers.insert(dir);
-        if (inserted) {
+    शून्य addIncDirUser(स्थिरांक string& incdir) {
+        स्थिरांक string& dir = V3Os::filenameCleanup(incdir);
+        स्थिरांक तार्किक inserted = m_incDirUsers.घाला(dir);
+        जर (inserted) {
             // cppcheck-suppress stlFindInsert  // cppcheck 1.90 bug
-            m_incDirFallbacks.remove(dir);  // User has priority over Fallback
+            m_incDirFallbacks.हटाओ(dir);  // User has priority over Fallback
             m_incDirFallbackSet.erase(dir);  // User has priority over Fallback
         }
     }
-    void addIncDirFallback(const string& incdir) {
-        const string& dir = V3Os::filenameCleanup(incdir);
-        if (!m_incDirUsers.exists(dir)) {  // User has priority over Fallback
-            const auto itFoundPair = m_incDirFallbackSet.insert(dir);
-            if (itFoundPair.second) m_incDirFallbacks.push_back(dir);
+    शून्य addIncDirFallback(स्थिरांक string& incdir) {
+        स्थिरांक string& dir = V3Os::filenameCleanup(incdir);
+        जर (!m_incDirUsers.exists(dir)) {  // User has priority over Fallback
+            स्थिरांक स्वतः itFoundPair = m_incDirFallbackSet.घाला(dir);
+            जर (itFoundPair.second) m_incDirFallbacks.ढकला_back(dir);
         }
     }
-    void addLangExt(const string& langext, const V3LangCode& lc) {
+    शून्य addLangExt(स्थिरांक string& langext, स्थिरांक V3LangCode& lc) {
         // New language extension replaces any pre-existing one.
         string addext = langext;
-        if (addext[0] == '.') addext = addext.substr(1);
-        (void)m_langExts.erase(addext);
+        जर (addext[0] == '.') addext = addext.substr(1);
+        (शून्य)m_langExts.erase(addext);
         m_langExts[addext] = lc;
     }
 
-    void addLibExtV(const string& libext) { m_libExtVs.insert(libext); }
-    V3OptionsImp() = default;
-    ~V3OptionsImp() = default;
+    शून्य addLibExtV(स्थिरांक string& libext) { m_libExtVs.घाला(libext); }
+    V3OptionsImp() = पूर्वनिर्धारित;
+    ~V3OptionsImp() = पूर्वनिर्धारित;
 };
 
 //######################################################################
 // V3LangCode class functions
 
-V3LangCode::V3LangCode(const char* textp) {
+V3LangCode::V3LangCode(स्थिरांक अक्षर* textp) {
     // Return code for given string, or ERROR, which is a bad code
-    for (int codei = V3LangCode::L_ERROR; codei < V3LangCode::_ENUM_END; ++codei) {
-        const V3LangCode code{codei};
-        if (0 == VL_STRCASECMP(textp, code.ascii())) {
+    साठी (पूर्णांक codei = V3LangCode::L_ERROR; codei < V3LangCode::_ENUM_END; ++codei) {
+        स्थिरांक V3LangCode code{codei};
+        जर (0 == VL_STRCASECMP(textp, code.ascii())) {
             m_e = code;
-            return;
+            परत;
         }
     }
     m_e = V3LangCode::L_ERROR;
@@ -126,16 +126,16 @@ V3LangCode::V3LangCode(const char* textp) {
 //######################################################################
 // VTimescale class functions
 
-VTimescale::VTimescale(const string& value, bool& badr)
+VTimescale::VTimescale(स्थिरांक string& मूल्य, तार्किक& badr)
     : m_e{VTimescale::NONE} {
-    badr = true;
-    const string spaceless = VString::removeWhitespace(value);
-    for (int i = TS_100S; i < _ENUM_END; ++i) {
-        const VTimescale ts{i};
-        if (spaceless == ts.ascii()) {
-            badr = false;
+    badr = सत्य;
+    स्थिरांक string spaceless = VString::removeWhitespace(मूल्य);
+    साठी (पूर्णांक i = TS_100S; i < _ENUM_END; ++i) {
+        स्थिरांक VTimescale ts{i};
+        जर (spaceless == ts.ascii()) {
+            badr = असत्य;
             m_e = ts.m_e;
-            break;
+            थांबा;
         }
     }
 }
@@ -145,82 +145,82 @@ VTimescale::VTimescale(const string& value, bool& badr)
 
 // Parse "--hierarchical-block orig_name,mangled_name,param0_name,param0_value,... " option.
 // The format of value is as same as -G option. (can be string literal surrounded by ")
-V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
+V3HierarchicalBlockOption::V3HierarchicalBlockOption(स्थिरांक string& opts) {
     VStringList vals;
-    bool inStr = false;
+    तार्किक inStr = असत्य;
     string cur;
-    static const string hierBlock("--hierarchical-block");
-    FileLine cmdfl(FileLine::commandLineFilename());
+    स्थिर स्थिरांक string hierBlock("--hierarchical-block");
+    File_ओळ cmdfl(File_ओळ::command_ओळ_Filename());
     // Split by ','. If ',' appears between "", that is not a separator.
-    for (string::const_iterator it = opts.begin(); it != opts.end();) {
-        if (inStr) {
-            if (*it == '\\') {
+    साठी (string::const_iterator it = opts.begin(); it != opts.end();) {
+        जर (inStr) {
+            जर (*it == '\\') {
                 ++it;
-                if (it == opts.end()) {
+                जर (it == opts.end()) {
                     cmdfl.v3error(hierBlock + " must not end with \\");
-                    break;
+                    थांबा;
                 }
-                if (*it != '"' && *it != '\\') {
+                जर (*it != '"' && *it != '\\') {
                     cmdfl.v3error(hierBlock + " does not allow '" + *it + "' after \\");
-                    break;
+                    थांबा;
                 }
-                cur.push_back(*it);
+                cur.ढकला_back(*it);
                 ++it;
-            } else if (*it == '"') {  // end of string
-                cur.push_back(*it);
-                vals.push_back(cur);
+            } अन्यथा जर (*it == '"') {  // end of string
+                cur.ढकला_back(*it);
+                vals.ढकला_back(cur);
                 cur.clear();
                 ++it;
-                if (it != opts.end()) {
-                    if (*it != ',') {
+                जर (it != opts.end()) {
+                    जर (*it != ',') {
                         cmdfl.v3error(hierBlock + " expects ',', but '" + *it + "' is passed");
-                        break;
+                        थांबा;
                     }
                     ++it;
-                    if (it == opts.end()) {
+                    जर (it == opts.end()) {
                         cmdfl.v3error(hierBlock + " must not end with ','");
-                        break;
+                        थांबा;
                     }
                     inStr = *it == '"';
-                    cur.push_back(*it);
+                    cur.ढकला_back(*it);
                     ++it;
                 }
-            } else {
-                cur.push_back(*it);
+            } अन्यथा {
+                cur.ढकला_back(*it);
                 ++it;
             }
-        } else {
-            if (*it == '"') {
+        } अन्यथा {
+            जर (*it == '"') {
                 cmdfl.v3error(hierBlock + " does not allow '\"' in the middle of literal");
-                break;
+                थांबा;
             }
-            if (*it == ',') {  // end of this parameter
-                vals.push_back(cur);
+            जर (*it == ',') {  // end of this parameter
+                vals.ढकला_back(cur);
                 cur.clear();
                 ++it;
-                if (it == opts.end()) {
+                जर (it == opts.end()) {
                     cmdfl.v3error(hierBlock + " must not end with ','");
-                    break;
+                    थांबा;
                 }
                 inStr = *it == '"';
             }
-            cur.push_back(*it);
+            cur.ढकला_back(*it);
             ++it;
         }
     }
-    if (!cur.empty()) vals.push_back(cur);
-    if (vals.size() >= 2) {
-        if (vals.size() % 2) {
+    जर (!cur.empty()) vals.ढकला_back(cur);
+    जर (vals.size() >= 2) {
+        जर (vals.size() % 2) {
             cmdfl.v3error(hierBlock + " requires the number of entries to be even");
         }
         m_origName = vals[0];
         m_mangledName = vals[1];
-    } else {
+    } अन्यथा {
         cmdfl.v3error(hierBlock + " requires at least two comma-separated values");
     }
-    for (size_t i = 2; i + 1 < vals.size(); i += 2) {
-        const bool inserted = m_parameters.emplace(vals[i], vals[i + 1]).second;
-        if (!inserted) {
+    साठी (माप_प्रकार i = 2; i + 1 < vals.size(); i += 2) {
+        स्थिरांक तार्किक inserted = m_parameters.emplace(vals[i], vals[i + 1]).second;
+        जर (!inserted) {
             cmdfl.v3error("Module name '" + vals[i] + "' is duplicated in " + hierBlock);
         }
     }
@@ -229,53 +229,53 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
 //######################################################################
 // V3Options class functions
 
-void VTimescale::parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr,
-                              VTimescale& precr, bool allowEmpty) {
+शून्य VTimescale::parseSlashed(File_ओळ* fl, स्थिरांक अक्षर* textp, VTimescale& unitr,
+                              VTimescale& precr, तार्किक allowEmpty) {
     // Parse `timescale of <number><units> / <number><units>
     unitr = VTimescale::NONE;
     precr = VTimescale::NONE;
 
-    const char* cp = textp;
-    for (; std::isspace(*cp); ++cp) {}
-    const char* const unitp = cp;
-    for (; *cp && *cp != '/'; ++cp) {}
-    const string unitStr(unitp, cp - unitp);
-    for (; std::isspace(*cp); ++cp) {}
+    स्थिरांक अक्षर* cp = textp;
+    साठी (; std::है_खाली(*cp); ++cp) {}
+    स्थिरांक अक्षर* स्थिरांक unitp = cp;
+    साठी (; *cp && *cp != '/'; ++cp) {}
+    स्थिरांक string unitStr(unitp, cp - unitp);
+    साठी (; std::है_खाली(*cp); ++cp) {}
     string precStr;
-    if (*cp == '/') {
+    जर (*cp == '/') {
         ++cp;
-        for (; std::isspace(*cp); ++cp) {}
-        const char* const precp = cp;
-        for (; *cp && *cp != '/'; ++cp) {}
+        साठी (; std::है_खाली(*cp); ++cp) {}
+        स्थिरांक अक्षर* स्थिरांक precp = cp;
+        साठी (; *cp && *cp != '/'; ++cp) {}
         precStr = string(precp, cp - precp);
     }
-    for (; std::isspace(*cp); ++cp) {}
-    if (*cp) {
+    साठी (; std::है_खाली(*cp); ++cp) {}
+    जर (*cp) {
         fl->v3error("`timescale syntax error: '" << textp << "'");
-        return;
+        परत;
     }
 
-    bool unitbad = false;
-    const VTimescale unit{unitStr, unitbad /*ref*/};
-    if (unitbad && !(unitStr.empty() && allowEmpty)) {
+    तार्किक unitbad = असत्य;
+    स्थिरांक VTimescale unit{unitStr, unitbad /*ref*/};
+    जर (unitbad && !(unitStr.empty() && allowEmpty)) {
         fl->v3error("`timescale timeunit syntax error: '" << unitStr << "'");
-        return;
+        परत;
     }
     unitr = unit;
 
-    if (!precStr.empty()) {
+    जर (!precStr.empty()) {
         VTimescale prec{VTimescale::NONE};
-        bool precbad;
+        तार्किक precbad;
         prec = VTimescale{precStr, precbad /*ref*/};
-        if (precbad) {
+        जर (precbad) {
             fl->v3error("`timescale timeprecision syntax error: '" << precStr << "'");
-            return;
+            परत;
         }
-        if (!unit.isNone() && !prec.isNone() && unit < prec) {
+        जर (!unit.isNone() && !prec.isNone() && unit < prec) {
             fl->v3error("`timescale timeunit '"
                         << unitStr << "' must be greater than or equal to timeprecision '"
                         << precStr << "'");
-            return;
+            परत;
         }
         precr = prec;
     }
@@ -284,315 +284,315 @@ void VTimescale::parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr
 //######################################################################
 // V3Options class functions
 
-void V3Options::addIncDirUser(const string& incdir) { m_impp->addIncDirUser(incdir); }
-void V3Options::addIncDirFallback(const string& incdir) { m_impp->addIncDirFallback(incdir); }
-void V3Options::addLangExt(const string& langext, const V3LangCode& lc) {
+शून्य V3Options::addIncDirUser(स्थिरांक string& incdir) { m_impp->addIncDirUser(incdir); }
+शून्य V3Options::addIncDirFallback(स्थिरांक string& incdir) { m_impp->addIncDirFallback(incdir); }
+शून्य V3Options::addLangExt(स्थिरांक string& langext, स्थिरांक V3LangCode& lc) {
     m_impp->addLangExt(langext, lc);
 }
-void V3Options::addLibExtV(const string& libext) { m_impp->addLibExtV(libext); }
-void V3Options::addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED {
+शून्य V3Options::addLibExtV(स्थिरांक string& libext) { m_impp->addLibExtV(libext); }
+शून्य V3Options::addDefine(स्थिरांक string& defline, तार्किक allowPlus) VL_MT_DISABLED {
     // Split +define+foo=value into the appropriate parts and parse
     // Optional + says to allow multiple defines on the line
     // + is not quotable, as other simulators do not allow that
-    string left = defline;
-    while (left != "") {
-        string def = left;
+    string डावा = defline;
+    पर्यंत (डावा != "") {
+        string def = डावा;
         string::size_type pos;
-        if (allowPlus && ((pos = left.find('+')) != string::npos)) {
-            left = left.substr(pos + 1);
+        जर (allowPlus && ((pos = डावा.find('+')) != string::npos)) {
+            डावा = डावा.substr(pos + 1);
             def.erase(pos);
-        } else {
-            left = "";
+        } अन्यथा {
+            डावा = "";
         }
-        string value;
-        if ((pos = def.find('=')) != string::npos) {
-            value = def.substr(pos + 1);
+        string मूल्य;
+        जर ((pos = def.find('=')) != string::npos) {
+            मूल्य = def.substr(pos + 1);
             def.erase(pos);
         }
-        V3PreShell::defineCmdLine(def, value);
+        V3PreShell::define_Cmd_ओळ(def, मूल्य);
     }
 }
-void V3Options::addParameter(const string& paramline, bool allowPlus) {
+शून्य V3Options::addParameter(स्थिरांक string& paramline, तार्किक allowPlus) {
     // Split +define+foo=value into the appropriate parts and parse
     // Optional + says to allow multiple defines on the line
     // + is not quotable, as other simulators do not allow that
-    string left = paramline;
-    while (left != "") {
-        string param = left;
+    string डावा = paramline;
+    पर्यंत (डावा != "") {
+        string param = डावा;
         string::size_type pos;
-        if (allowPlus && ((pos = left.find('+')) != string::npos)) {
-            left = left.substr(pos + 1);
+        जर (allowPlus && ((pos = डावा.find('+')) != string::npos)) {
+            डावा = डावा.substr(pos + 1);
             param.erase(pos);
-        } else {
-            left = "";
+        } अन्यथा {
+            डावा = "";
         }
-        string value;
-        if ((pos = param.find('=')) != string::npos) {
-            value = param.substr(pos + 1);
+        string मूल्य;
+        जर ((pos = param.find('=')) != string::npos) {
+            मूल्य = param.substr(pos + 1);
             param.erase(pos);
         }
-        UINFO(4, "Add parameter" << param << "=" << value);
-        (void)m_parameters.erase(param);
-        m_parameters[param] = value;
+        UINFO(4, "Add parameter" << param << "=" << मूल्य);
+        (शून्य)m_parameters.erase(param);
+        m_parameters[param] = मूल्य;
     }
 }
 
-bool V3Options::hasParameter(const string& name) {
-    return m_parameters.find(name) != m_parameters.end();
+तार्किक V3Options::hasParameter(स्थिरांक string& name) {
+    परत m_parameters.find(name) != m_parameters.end();
 }
 
-string V3Options::parameter(const string& name) {
-    string value = m_parameters.find(name)->second;
+string V3Options::parameter(स्थिरांक string& name) {
+    string मूल्य = m_parameters.find(name)->second;
     m_parameters.erase(m_parameters.find(name));
-    return value;
+    परत मूल्य;
 }
 
-void V3Options::checkParameters() {
-    if (!m_parameters.empty()) {
-        std::stringstream msg;
-        msg << "Parameters from the command line were not found in the design:";
-        for (const auto& i : m_parameters) msg << " " << i.first;
-        v3error(msg.str());
+शून्य V3Options::checkParameters() {
+    जर (!m_parameters.empty()) {
+        std::stringstream संदेश;
+        संदेश << "Parameters from the command line were not found in the design:";
+        साठी (स्थिरांक स्वतः& i : m_parameters) संदेश << " " << i.first;
+        v3error(संदेश.str());
     }
 }
 
-void V3Options::addCppFile(const string& filename) { m_cppFiles.insert(filename); }
-void V3Options::addCFlags(const string& filename) { m_cFlags.push_back(filename); }
-void V3Options::addLibMapFile(const string& filename) { m_libmapFiles.insert(filename); }
-void V3Options::addCompilerIncludes(const string& filename) {
-    m_compilerIncludes.insert(filename);
+शून्य V3Options::addCppFile(स्थिरांक string& filename) { m_cppFiles.घाला(filename); }
+शून्य V3Options::addCFlags(स्थिरांक string& filename) { m_cFlags.ढकला_back(filename); }
+शून्य V3Options::addLibMapFile(स्थिरांक string& filename) { m_libmapFiles.घाला(filename); }
+शून्य V3Options::addCompilerIncludes(स्थिरांक string& filename) {
+    m_compilerIncludes.घाला(filename);
 }
-void V3Options::addLdLibFile(const string& filename) {
-    m_ldLibFiles.push_back(filename);
+शून्य V3Options::addLdLibFile(स्थिरांक string& filename) {
+    m_ldLibFiles.ढकला_back(filename);
     addLdLibs(filename);
 }
-void V3Options::addLdLibs(const string& filename) { m_ldLibs.push_back(filename); }
-void V3Options::addMakeFlags(const string& filename) { m_makeFlags.push_back(filename); }
-void V3Options::addFuture(const string& flag) { m_futures.insert(flag); }
-void V3Options::addFuture0(const string& flag) { m_future0s.insert(flag); }
-void V3Options::addFuture1(const string& flag) { m_future1s.insert(flag); }
-bool V3Options::isFuture(const string& flag) const {
-    return m_futures.find(flag) != m_futures.end();
+शून्य V3Options::addLdLibs(स्थिरांक string& filename) { m_ldLibs.ढकला_back(filename); }
+शून्य V3Options::addMakeFlags(स्थिरांक string& filename) { m_makeFlags.ढकला_back(filename); }
+शून्य V3Options::addFuture(स्थिरांक string& flag) { m_futures.घाला(flag); }
+शून्य V3Options::addFuture0(स्थिरांक string& flag) { m_future0s.घाला(flag); }
+शून्य V3Options::addFuture1(स्थिरांक string& flag) { m_future1s.घाला(flag); }
+तार्किक V3Options::isFuture(स्थिरांक string& flag) स्थिरांक {
+    परत m_futures.find(flag) != m_futures.end();
 }
-bool V3Options::isFuture0(const string& flag) const {
-    return m_future0s.find(flag) != m_future0s.end();
+तार्किक V3Options::isFuture0(स्थिरांक string& flag) स्थिरांक {
+    परत m_future0s.find(flag) != m_future0s.end();
 }
-bool V3Options::isFuture1(const string& flag) const {
-    return m_future1s.find(flag) != m_future1s.end();
+तार्किक V3Options::isFuture1(स्थिरांक string& flag) स्थिरांक {
+    परत m_future1s.find(flag) != m_future1s.end();
 }
-bool V3Options::isLibraryFile(const string& filename, const string& libname) const {
-    return m_libraryFiles.find({filename, libname}) != m_libraryFiles.end();
+तार्किक V3Options::isLibraryFile(स्थिरांक string& filename, स्थिरांक string& libname) स्थिरांक {
+    परत m_libraryFiles.find({filename, libname}) != m_libraryFiles.end();
 }
-void V3Options::addLibraryFile(const string& filename, const string& libname) {
-    m_libraryFiles.insert({filename, libname});
+शून्य V3Options::addLibraryFile(स्थिरांक string& filename, स्थिरांक string& libname) {
+    m_libraryFiles.घाला({filename, libname});
 }
-void V3Options::addVFile(const string& filename, const string& libname) {
+शून्य V3Options::addVFile(स्थिरांक string& filename, स्थिरांक string& libname) {
     // We use a list for v files, because it's legal to have includes
     // in a specific order and multiple of them.
-    m_vFiles.push_back({filename, libname});  // Not emplace
+    m_vFiles.ढकला_back({filename, libname});  // Not emplace
 }
-void V3Options::addVltFile(const string& filename, const string& libname) {
-    m_vltFiles.insert({filename, libname});
+शून्य V3Options::addVltFile(स्थिरांक string& filename, स्थिरांक string& libname) {
+    m_vltFiles.घाला({filename, libname});
 }
-void V3Options::addForceInc(const string& filename) { m_forceIncs.push_back(filename); }
+शून्य V3Options::addForceInc(स्थिरांक string& filename) { m_forceIncs.ढकला_back(filename); }
 
-void V3Options::addLineArg(const string& arg) { m_impp->m_lineArgs.push_back(arg); }
+शून्य V3Options::add_ओळ_Arg(स्थिरांक string& arg) { m_impp->m_ओळ_Args.ढकला_back(arg); }
 
-void V3Options::addArg(char** argv, size_t count, bool isForRerun) {
+शून्य V3Options::addArg(अक्षर** argv, माप_प्रकार मोजणी, तार्किक isForRerun) {
     m_impp->m_allArgs.emplace_back();
-    std::pair<std::list<std::string>, bool>& pair = m_impp->m_allArgs.back();
+    std::pair<std::list<std::string>, तार्किक>& pair = m_impp->m_allArgs.back();
     pair.second = isForRerun;
-    for (size_t n = 0; n < count; ++n) pair.first.emplace_back(argv[n]);
+    साठी (माप_प्रकार n = 0; n < मोजणी; ++n) pair.first.emplace_back(argv[n]);
 }
 
-void V3Options::addArg(const std::string& arg, bool isForRerun) {
+शून्य V3Options::addArg(स्थिरांक std::string& arg, तार्किक isForRerun) {
     m_impp->m_allArgs.emplace_back();
-    std::pair<std::list<std::string>, bool>& pair = m_impp->m_allArgs.back();
+    std::pair<std::list<std::string>, तार्किक>& pair = m_impp->m_allArgs.back();
     pair.second = isForRerun;
     pair.first.emplace_back(arg);
 }
 
-const std::list<std::pair<std::list<std::string>, bool>>& V3Options::allArgs() const {
-    return m_impp->m_allArgs;
+स्थिरांक std::list<std::pair<std::list<std::string>, तार्किक>>& V3Options::allArgs() स्थिरांक {
+    परत m_impp->m_allArgs;
 }
 
-string V3Options::allArgsString() const VL_MT_SAFE {
+string V3Options::allArgsString() स्थिरांक VL_MT_SAFE {
     string result;
-    for (const auto& pair : m_impp->m_allArgs) {
-        for (const string& arg : pair.first) {
-            if (!result.empty()) result += " ";
+    साठी (स्थिरांक स्वतः& pair : m_impp->m_allArgs) {
+        साठी (स्थिरांक string& arg : pair.first) {
+            जर (!result.empty()) result += " ";
             result += arg;
         }
     }
-    return result;
+    परत result;
 }
 
 // Delete some options for Verilation of the hierarchical blocks.
-string V3Options::allArgsStringForHierBlock(bool forTop) const {
+string V3Options::allArgsStringForHierBlock(तार्किक for_शीर्ष) स्थिरांक {
     // cppcheck-suppress shadowFunction
     std::set<string> vFiles;
-    for (const auto& vFile : m_vFiles) vFiles.insert(vFile.filename());
+    साठी (स्थिरांक स्वतः& vFile : m_vFiles) vFiles.घाला(vFile.filename());
     string out;
-    bool stripArg = false;
-    bool stripArgIfNum = false;
-    for (const auto& pair : m_impp->m_allArgs) {
-        for (const string& arg : pair.first) {
-            if (stripArg) {
-                stripArg = false;
-                continue;
+    तार्किक stripArg = असत्य;
+    तार्किक strip_Arg_If_अंक = असत्य;
+    साठी (स्थिरांक स्वतः& pair : m_impp->m_allArgs) {
+        साठी (स्थिरांक string& arg : pair.first) {
+            जर (stripArg) {
+                stripArg = असत्य;
+                सुरूठेवा;
             }
-            if (stripArgIfNum) {
-                stripArgIfNum = false;
-                if (isdigit(arg[0])) continue;
+            जर (strip_Arg_If_अंक) {
+                strip_Arg_If_अंक = असत्य;
+                जर (है_अंक(arg[0])) सुरूठेवा;
             }
-            int skip = 0;
-            if (arg.length() >= 2 && arg[0] == '-' && arg[1] == '-') {
+            पूर्णांक skip = 0;
+            जर (arg.length() >= 2 && arg[0] == '-' && arg[1] == '-') {
                 skip = 2;
-            } else if (arg.length() >= 1 && arg[0] == '-') {
+            } अन्यथा जर (arg.length() >= 1 && arg[0] == '-') {
                 skip = 1;
             }
-            if (skip > 0) {  // arg is an option
-                const string opt = arg.substr(skip);  // Remove '-' in the beginning
-                const int numStrip = stripOptionsForChildRun(opt, forTop);
-                if (numStrip) {
-                    UASSERT(0 <= numStrip && numStrip <= 3, "should be one of 0, 1, 2, 3");
-                    if (numStrip == 2) stripArg = true;
-                    if (numStrip == 3) stripArgIfNum = true;
-                    continue;
+            जर (skip > 0) {  // arg is an option
+                स्थिरांक string opt = arg.substr(skip);  // Remove '-' in the beginning
+                स्थिरांक पूर्णांक अंक_Strip = stripOptionsForChildRun(opt, for_शीर्ष);
+                जर (अंक_Strip) {
+                    UASSERT(0 <= अंक_Strip && अंक_Strip <= 3, "should be one of 0, 1, 2, 3");
+                    जर (अंक_Strip == 2) stripArg = सत्य;
+                    जर (अंक_Strip == 3) strip_Arg_If_अंक = सत्य;
+                    सुरूठेवा;
                 }
-            } else {  // Not an option
-                if (vFiles.find(arg) != vFiles.end()  // Remove HDL
+            } अन्यथा {  // Not an option
+                जर (vFiles.find(arg) != vFiles.end()  // Remove HDL
                     || m_cppFiles.find(arg) != m_cppFiles.end()) {  // Remove C++
-                    continue;
+                    सुरूठेवा;
                 }
             }
-            if (out != "") out += " ";
+            जर (out != "") out += " ";
             // Don't use opt here because '-' is removed in arg
             // Use double quote because arg may contain whitespaces
             out += '"' + VString::quoteAny(arg, '"', '\\') + '"';
         }
     }
-    return out;
+    परत out;
 }
 
-void V3Options::ccSet() {  // --cc
-    m_outFormatOk = true;
-    m_systemC = false;
+शून्य V3Options::ccSet() {  // --cc
+    m_outFormatOk = सत्य;
+    m_systemC = असत्य;
 }
 
-void V3Options::decorations(FileLine* fl, const string& arg) {  // --decorations
-    if (arg == "none") {
-        m_decoration = false;
-        m_decorationNodes = false;
-    } else if (arg == "node") {
-        m_decoration = true;
-        m_decorationNodes = true;
-    } else if (arg == "medium") {
-        m_decoration = true;
-        m_decorationNodes = false;
-    } else {
+शून्य V3Options::decorations(File_ओळ* fl, स्थिरांक string& arg) {  // --decorations
+    जर (arg == "none") {
+        m_decoration = असत्य;
+        m_decorationNodes = असत्य;
+    } अन्यथा जर (arg == "node") {
+        m_decoration = सत्य;
+        m_decorationNodes = सत्य;
+    } अन्यथा जर (arg == "medium") {
+        m_decoration = सत्य;
+        m_decorationNodes = असत्य;
+    } अन्यथा {
         fl->v3error("Unknown setting for --decorations: '"
                     << arg << "'\n"
                     << fl->warnMore() << "... Suggest 'none', 'medium', or 'node'");
     }
 }
 
-std::vector<std::string> V3Options::traceClassBases() const VL_MT_SAFE {
+std::vector<std::string> V3Options::traceClassBases() स्थिरांक VL_MT_SAFE {
     std::vector<std::string> result;
-    if (traceEnabledFst()) result.emplace_back("VerilatedFst");
-    if (traceEnabledSaif()) result.emplace_back("VerilatedSaif");
-    if (traceEnabledVcd()) result.emplace_back("VerilatedVcd");
-    return result;
+    जर (traceEnabledFst()) result.emplace_back("VerilatedFst");
+    जर (traceEnabledSaif()) result.emplace_back("VerilatedSaif");
+    जर (traceEnabledVcd()) result.emplace_back("VerilatedVcd");
+    परत result;
 }
-std::vector<std::string> V3Options::traceClassLangs() const VL_MT_SAFE {
+std::vector<std::string> V3Options::traceClassLangs() स्थिरांक VL_MT_SAFE {
     std::vector<std::string> result;
-    for (const auto& cbase : traceClassBases())
+    साठी (स्थिरांक स्वतः& cbase : traceClassBases())
         result.emplace_back(cbase + (systemC() ? "Sc" : "C"));
-    return result;
+    परत result;
 }
-std::vector<std::string> V3Options::traceSourceBases() const VL_MT_SAFE {
+std::vector<std::string> V3Options::traceSourceBases() स्थिरांक VL_MT_SAFE {
     std::vector<std::string> result;
-    if (traceEnabledFst()) result.emplace_back("verilated_fst");
-    if (traceEnabledSaif()) result.emplace_back("verilated_saif");
-    if (traceEnabledVcd()) result.emplace_back("verilated_vcd");
-    return result;
+    जर (traceEnabledFst()) result.emplace_back("verilated_fst");
+    जर (traceEnabledSaif()) result.emplace_back("verilated_saif");
+    जर (traceEnabledVcd()) result.emplace_back("verilated_vcd");
+    परत result;
 }
-std::vector<std::string> V3Options::traceSourceLangs() const VL_MT_SAFE {
+std::vector<std::string> V3Options::traceSourceLangs() स्थिरांक VL_MT_SAFE {
     std::vector<std::string> result = traceSourceBases();
-    for (std::string& str : result) str += systemC() ? "_sc"s : "_c"s;
-    return result;
+    साठी (std::string& str : result) str += systemC() ? "_sc"s : "_c"s;
+    परत result;
 }
-std::string V3Options::traceClassBase() const VL_MT_SAFE {
+std::string V3Options::traceClassBase() स्थिरांक VL_MT_SAFE {
     // Deprecated - Needs to be fixed to support multiple trace, issue #5813
     UASSERT(!traceClassBases().empty(), "Call traceClassBase only when trace() enabled");
-    return traceClassBases().front();
+    परत traceClassBases().front();
 }
-std::string V3Options::traceClassLang() const VL_MT_SAFE {
+std::string V3Options::traceClassLang() स्थिरांक VL_MT_SAFE {
     // Deprecated - Needs to be fixed to support multiple trace, issue #5813
     UASSERT(!traceClassBases().empty(), "Call traceClassLang only when trace() enabled");
-    return traceClassLangs().front();
+    परत traceClassLangs().front();
 }
 
 //######################################################################
 // File searching
 
-bool V3Options::fileStatNormal(const string& filename) {
+तार्किक V3Options::fileStatNormal(स्थिरांक string& filename) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-    struct stat sstat;  // Stat information
-    const int err = stat(filename.c_str(), &sstat);
-    if (err != 0) return false;
-    if (S_ISDIR(sstat.st_mode)) return false;
-    return true;
+    संरचना stat sstat;  // Stat information
+    स्थिरांक पूर्णांक err = stat(filename.c_str(), &sstat);
+    जर (err != 0) परत असत्य;
+    जर (S_ISDIR(sstat.st_mode)) परत असत्य;
+    परत सत्य;
 }
 
-string V3Options::fileExists(const string& filename) {
+string V3Options::fileExists(स्थिरांक string& filename) {
     // Surprisingly, for some other simulators, this process
     // is quite slow; presumably because of re-reading each directory
     // many times.  So we read a whole dir at once and cache it
 
-    const string dir = V3Os::filenameDir(filename);
-    const string basename = V3Os::filenameNonDir(filename);
+    स्थिरांक string dir = V3Os::filenameDir(filename);
+    स्थिरांक string basename = V3Os::filenameNonDir(filename);
 
-    auto diriter = m_impp->m_dirMap.find(dir);
-    if (diriter == m_impp->m_dirMap.end()) {
+    स्वतः diriter = m_impp->m_dirMap.find(dir);
+    जर (diriter == m_impp->m_dirMap.end()) {
         // Read the listing
         m_impp->m_dirMap.emplace(dir, std::set<string>());
         diriter = m_impp->m_dirMap.find(dir);
 
-        std::set<string>* const setp = &(diriter->second);
+        std::set<string>* स्थिरांक setp = &(diriter->second);
 
 #ifdef _MSC_VER
-        try {
-            for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str()))
-                setp->insert(dirEntry.path().filename().string());
-        } catch (std::filesystem::filesystem_error const& ex) {
-            (void)ex;
-            return "";
+        प्रयत्न {
+            साठी (स्थिरांक स्वतः& dirEntry : std::filesystem::directory_iterator(dir.c_str()))
+                setp->घाला(dirEntry.path().filename().string());
+        } पकडा (std::filesystem::filesystem_error स्थिरांक& ex) {
+            (शून्य)ex;
+            परत "";
         }
-#else
-        if (DIR* const dirp = opendir(dir.c_str())) {
-            while (struct dirent* direntp = readdir(dirp)) setp->insert(direntp->d_name);
-            closedir(dirp);
+#अन्यथा
+        जर (सूची* स्थिरांक dirp = सूची_खोलो(dir.c_str())) {
+            पर्यंत (संरचना dirent* direntp = सूची_पढ़ो(dirp)) setp->घाला(direntp->d_name);
+            बंद_सूची(dirp);
         }
 #endif
     }
     // Find it
-    const std::set<string>* const filesetp = &(diriter->second);
-    const auto fileiter = filesetp->find(basename);
-    if (fileiter == filesetp->end()) return "";  // Not found
+    स्थिरांक std::set<string>* स्थिरांक filesetp = &(diriter->second);
+    स्थिरांक स्वतः fileiter = filesetp->find(basename);
+    जर (fileiter == filesetp->end()) परत "";  // Not found
     // Check if it is a directory, ignore if so
-    const string filenameOut = V3Os::filenameJoin(dir, basename);
-    if (!fileStatNormal(filenameOut)) return "";  // Directory
-    return filenameOut;
+    स्थिरांक string filenameOut = V3Os::filenameJoin(dir, basename);
+    जर (!fileStatNormal(filenameOut)) परत "";  // Directory
+    परत filenameOut;
 }
 
-string V3Options::filePathCheckOneDir(const string& modname, const string& dirname) {
-    for (const string& i : m_impp->m_libExtVs) {
-        const string fn = V3Os::filenameJoin(dirname, modname + i);
-        const string exists = fileExists(fn);
-        if (exists != "") return exists;
+string V3Options::filePathCheckOneDir(स्थिरांक string& modname, स्थिरांक string& स_नाम) {
+    साठी (स्थिरांक string& i : m_impp->m_libExtVs) {
+        स्थिरांक string fn = V3Os::filenameJoin(स_नाम, modname + i);
+        स्थिरांक string exists = fileExists(fn);
+        जर (exists != "") परत exists;
     }
-    return "";
+    परत "";
 }
 
 // Checks if a option needs to be stripped for child run of hierarchical Verilation.
@@ -600,9 +600,9 @@ string V3Options::filePathCheckOneDir(const string& modname, const string& dirna
 // 1: Delete the option which has no argument
 // 2: Delete the option and its argument
 // 3: Delete the option and its argument if it is a number
-int V3Options::stripOptionsForChildRun(const string& opt, bool forTop) {
+पूर्णांक V3Options::stripOptionsForChildRun(स्थिरांक string& opt, तार्किक for_शीर्ष) {
     // Options to strip for both the top wrapper, and hier blocks
-    static const std::unordered_map<std::string, int> commonOpts{
+    स्थिर स्थिरांक std::unordered_map<std::string, पूर्णांक> commonOpts{
         //
         {"j", 3},
         //
@@ -623,411 +623,411 @@ int V3Options::stripOptionsForChildRun(const string& opt, bool forTop) {
         {"build", 1},
         {"hierarchical", 1},
     };
-    if (commonOpts.count(opt)) return commonOpts.at(opt);
+    जर (commonOpts.मोजणी(opt)) परत commonOpts.at(opt);
 
     // Options to strip only for hier blocks
-    if (!forTop) {
-        static const std::unordered_map<std::string, int> subOpts{
+    जर (!for_शीर्ष) {
+        स्थिर स्थिरांक std::unordered_map<std::string, पूर्णांक> subOpts{
             {"cc", 1},
             {"exe", 1},
             {"sc", 1},
             {"binary", 1},
         };
-        if (subOpts.count(opt)) return subOpts.at(opt);
-        if (VString::startsWith(opt, "G")) return 1;
-        if (VString::startsWith(opt, "pvalue")) return 1;
+        जर (subOpts.मोजणी(opt)) परत subOpts.at(opt);
+        जर (VString::startsWith(opt, "G")) परत 1;
+        जर (VString::startsWith(opt, "pvalue")) परत 1;
     }
 
     // Do not strip
-    return 0;
+    परत 0;
 }
 
-void V3Options::validateIdentifier(FileLine* fl, const string& arg, const string& opt) {
-    if (!VString::isIdentifier(arg)) {
+शून्य V3Options::validateIdentifier(File_ओळ* fl, स्थिरांक string& arg, स्थिरांक string& opt) {
+    जर (!VString::isIdentifier(arg)) {
         fl->v3error(opt << " argument must be a legal C++ identifier: '" << arg << "'");
     }
 }
 
-string V3Options::filePath(FileLine* fl, const string& modname, const string& lastpath,
-                           const string& errmsg) {  // Error prefix or "" to suppress error
+string V3Options::filePath(File_ओळ* fl, स्थिरांक string& modname, स्थिरांक string& lastpath,
+                           स्थिरांक string& errmsg) {  // Error prefix or "" to suppress error
     // Find a filename to read the specified module name,
     // using the incdir and libext's.
     // Return "" if not found.
-    const string filename = V3Os::filenameCleanup(VName::dehash(modname));
-    if (!V3Os::filenameIsRel(filename)) {
+    स्थिरांक string filename = V3Os::filenameCleanup(VName::dehash(modname));
+    जर (!V3Os::filenameIsRel(filename)) {
         // filename is an absolute path, so can find getStdPackagePath()/getStdWaiverPath()
-        const string exists = filePathCheckOneDir(filename, "");
-        if (exists != "") return exists;
+        स्थिरांक string exists = filePathCheckOneDir(filename, "");
+        जर (exists != "") परत exists;
     }
-    for (const string& dir : m_impp->m_incDirUsers) {
-        const string exists = filePathCheckOneDir(filename, dir);
-        if (exists != "") return exists;
+    साठी (स्थिरांक string& dir : m_impp->m_incDirUsers) {
+        स्थिरांक string exists = filePathCheckOneDir(filename, dir);
+        जर (exists != "") परत exists;
     }
-    for (const string& dir : m_impp->m_incDirFallbacks) {
-        const string exists = filePathCheckOneDir(filename, dir);
-        if (exists != "") return exists;
+    साठी (स्थिरांक string& dir : m_impp->m_incDirFallbacks) {
+        स्थिरांक string exists = filePathCheckOneDir(filename, dir);
+        जर (exists != "") परत exists;
     }
 
-    if (m_relativeIncludes) {
-        const string exists = filePathCheckOneDir(filename, lastpath);
-        if (exists != "") return V3Os::filenameRealPath(exists);
+    जर (m_relativeIncludes) {
+        स्थिरांक string exists = filePathCheckOneDir(filename, lastpath);
+        जर (exists != "") परत V3Os::filenameRealPath(exists);
     }
 
     // Warn and return not found
-    if (errmsg != "") {
+    जर (errmsg != "") {
         fl->v3error(errmsg << "'"s << filename << "'\n"s << fl->warnContextPrimary()
-                           << V3Error::warnAdditionalInfo() << filePathLookedMsg(fl, filename));
+                           << V3Error::warnAdditionalInfo() << file_Path_Looked_संदेश(fl, filename));
     }
-    return "";
+    परत "";
 }
 
-string V3Options::filePathLookedMsg(FileLine* /*fl*/, const string& modname) {
-    static bool s_shown_notfound_msg = false;
+string V3Options::file_Path_Looked_संदेश(File_ओळ* /*fl*/, स्थिरांक string& modname) {
+    स्थिर तार्किक s_shown_notfound_संदेश = असत्य;
     std::ostringstream ss;
-    if (modname.find("__Vhsh") != string::npos) {
+    जर (modname.find("__Vhsh") != string::npos) {
         ss << V3Error::warnMore() << "... Note: Name is longer than 127 characters; automatic"
            << " file lookup may have failed due to OS filename length limits.\n";
         ss << V3Error::warnMore() << "... Suggest putting filename with this module/package"
            << " onto command line instead.\n";
-    } else if (!s_shown_notfound_msg) {
-        s_shown_notfound_msg = true;
-        if (m_impp->m_incDirUsers.empty()) {
+    } अन्यथा जर (!s_shown_notfound_संदेश) {
+        s_shown_notfound_संदेश = सत्य;
+        जर (m_impp->m_incDirUsers.empty()) {
             ss << V3Error::warnMore()
                << "... This may be because there's no search path specified with -I<dir>.\n";
         }
         ss << V3Error::warnMore() << "... Looked in:\n";
-        for (const string& dir : m_impp->m_incDirUsers) {
-            for (const string& ext : m_impp->m_libExtVs) {
-                const string fn = V3Os::filenameJoin(dir, modname + ext);
+        साठी (स्थिरांक string& dir : m_impp->m_incDirUsers) {
+            साठी (स्थिरांक string& ext : m_impp->m_libExtVs) {
+                स्थिरांक string fn = V3Os::filenameJoin(dir, modname + ext);
                 ss << V3Error::warnMore() << "     " << fn << "\n";
             }
         }
-        for (const string& dir : m_impp->m_incDirFallbacks) {
-            for (const string& ext : m_impp->m_libExtVs) {
-                const string fn = V3Os::filenameJoin(dir, modname + ext);
+        साठी (स्थिरांक string& dir : m_impp->m_incDirFallbacks) {
+            साठी (स्थिरांक string& ext : m_impp->m_libExtVs) {
+                स्थिरांक string fn = V3Os::filenameJoin(dir, modname + ext);
                 ss << V3Error::warnMore() << "     " << fn << "\n";
             }
         }
         ss << V3Error::warnMore() << "... With current working directory '" << V3Os::cwd()
            << "'\n";
     }
-    return ss.str();
+    परत ss.str();
 }
 
 //! Determine what language is associated with a filename
 
 //! If we recognize the extension, use its language, otherwise, use the
 //! default language.
-V3LangCode V3Options::fileLanguage(const string& filename) {
+V3LangCode V3Options::fileLanguage(स्थिरांक string& filename) {
     string ext = V3Os::filenameNonDir(filename);
     string::size_type pos;
-    if (filename == V3Options::getStdPackagePath() || filename == V3Options::getStdWaiverPath()) {
-        return V3LangCode::mostRecent();
-    } else if ((pos = ext.rfind('.')) != string::npos) {
+    जर (filename == V3Options::getStdPackagePath() || filename == V3Options::getStdWaiverPath()) {
+        परत V3LangCode::mostRecent();
+    } अन्यथा जर ((pos = ext.rfind('.')) != string::npos) {
         ext.erase(0, pos + 1);
-        const auto it = m_impp->m_langExts.find(ext);
-        if (it != m_impp->m_langExts.end()) return it->second;
+        स्थिरांक स्वतः it = m_impp->m_langExts.find(ext);
+        जर (it != m_impp->m_langExts.end()) परत it->second;
     }
-    return m_defaultLanguage;
+    परत m_defaultLanguage;
 }
 
 //######################################################################
 // Environment
 
-string V3Options::getenvBuiltins(const string& var) {
+string V3Options::getenvBuiltins(स्थिरांक string& var) {
     // If update below, also update V3Options::showVersion()
-    if (var == "MAKE") {
-        return getenvMAKE();
-    } else if (var == "PERL") {
-        return getenvPERL();
-    } else if (var == "PYTHON3") {
-        return getenvPYTHON3();
-    } else if (var == "SYSTEMC") {
-        return getenvSYSTEMC();
-    } else if (var == "SYSTEMC_ARCH") {
-        return getenvSYSTEMC_ARCH();
-    } else if (var == "SYSTEMC_INCLUDE") {
-        return getenvSYSTEMC_INCLUDE();
-    } else if (var == "SYSTEMC_LIBDIR") {
-        return getenvSYSTEMC_LIBDIR();
-    } else if (var == "VERILATOR_ROOT") {
-        return getenvVERILATOR_ROOT();
-    } else {
-        return V3Os::getenvStr(var, "");
+    जर (var == "MAKE") {
+        परत getenvMAKE();
+    } अन्यथा जर (var == "PERL") {
+        परत getenvPERL();
+    } अन्यथा जर (var == "PYTHON3") {
+        परत getenvPYTHON3();
+    } अन्यथा जर (var == "SYSTEMC") {
+        परत getenvSYSTEMC();
+    } अन्यथा जर (var == "SYSTEMC_ARCH") {
+        परत getenvSYSTEMC_ARCH();
+    } अन्यथा जर (var == "SYSTEMC_INCLUDE") {
+        परत getenvSYSTEMC_INCLUDE();
+    } अन्यथा जर (var == "SYSTEMC_LIBDIR") {
+        परत getenvSYSTEMC_LIBDIR();
+    } अन्यथा जर (var == "VERILATOR_ROOT") {
+        परत getenv_VERILATOR_मूळ();
+    } अन्यथा {
+        परत V3Os::getenvStr(var, "");
     }
 }
 
 #ifdef __FreeBSD__
-string V3Options::getenvMAKE() { return V3Os::getenvStr("MAKE", "gmake"); }
-#else
-string V3Options::getenvMAKE() { return V3Os::getenvStr("MAKE", "make"); }
+string V3Options::getenvMAKE() { परत V3Os::getenvStr("MAKE", "gmake"); }
+#अन्यथा
+string V3Options::getenvMAKE() { परत V3Os::getenvStr("MAKE", "make"); }
 #endif
 
 string V3Options::getenvMAKEFLAGS() {  //
-    return V3Os::getenvStr("MAKEFLAGS", "");
+    परत V3Os::getenvStr("MAKEFLAGS", "");
 }
 
 string V3Options::getenvPERL() {  //
-    return V3Os::filenameCleanup(V3Os::getenvStr("PERL", "perl"));
+    परत V3Os::filenameCleanup(V3Os::getenvStr("PERL", "perl"));
 }
 
 string V3Options::getenvPYTHON3() {  //
-    return V3Os::filenameCleanup(V3Os::getenvStr("PYTHON3", "python3"));
+    परत V3Os::filenameCleanup(V3Os::getenvStr("PYTHON3", "python3"));
 }
 
 string V3Options::getenvSYSTEMC() {
     string var = V3Os::getenvStr("SYSTEMC", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC};
-    if (var == "" && defenv != "") {
+    स्थिरांक string defenv = string{DEFENV_SYSTEMC};
+    जर (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC", var, "Hardcoded at build time");
     }
-    return V3Os::filenameCleanup(var);
+    परत V3Os::filenameCleanup(var);
 }
 
 string V3Options::getenvSYSTEMC_ARCH() {
     string var = V3Os::getenvStr("SYSTEMC_ARCH", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC_ARCH};
-    if (var == "" && defenv != "") {
+    स्थिरांक string defenv = string{DEFENV_SYSTEMC_ARCH};
+    जर (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC_ARCH", var, "Hardcoded at build time");
     }
-    if (var == "") {
-#if defined(__MINGW32__)
+    जर (var == "") {
+#जर defined(__MINGW32__)
         // Hardcoded with MINGW current version. Would like a better way.
-        const string sysname = "MINGW32_NT-5.0";
+        स्थिरांक string sysname = "MINGW32_NT-5.0";
         var = "mingw32";
-#elif defined(_WIN32)
-        const string sysname = "WIN32";
+#किंवाजर defined(_WIN32)
+        स्थिरांक string sysname = "WIN32";
         var = "win32";
-#else
+#अन्यथा
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-        struct utsname uts;
+        संरचना utsname uts;
         uname(&uts);
-        const string sysname = VString::downcase(uts.sysname);  // aka  'uname -s'
-        if (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*solaris*"))) {
+        स्थिरांक string sysname = VString::downcase(uts.sysname);  // aka  'uname -s'
+        जर (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*solaris*"))) {
             var = "gccsparcOS5";  // LCOV_EXCL_LINE
-        } else if (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*cygwin*"))) {
+        } अन्यथा जर (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*cygwin*"))) {
             var = "cygwin";  // LCOV_EXCL_LINE
-        } else {
+        } अन्यथा {
             var = "linux";
         }
 #endif
         V3Os::setenvStr("SYSTEMC_ARCH", var, "From sysname '" + sysname + "'");
     }
-    return var;
+    परत var;
 }
 
 string V3Options::getenvSYSTEMC_INCLUDE() {
     string var = V3Os::getenvStr("SYSTEMC_INCLUDE", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC_INCLUDE};
-    if (var == "" && defenv != "") {
+    स्थिरांक string defenv = string{DEFENV_SYSTEMC_INCLUDE};
+    जर (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC_INCLUDE", var, "Hardcoded at build time");
     }
-    if (var == "") {
-        const string sc = getenvSYSTEMC();
-        if (sc != "") var = V3Os::filenameJoin(sc, "include");
+    जर (var == "") {
+        स्थिरांक string sc = getenvSYSTEMC();
+        जर (sc != "") var = V3Os::filenameJoin(sc, "include");
     }
-    return V3Os::filenameCleanup(var);
+    परत V3Os::filenameCleanup(var);
 }
 
 string V3Options::getenvSYSTEMC_LIBDIR() {
     string var = V3Os::getenvStr("SYSTEMC_LIBDIR", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC_LIBDIR};
-    if (var == "" && defenv != "") {
+    स्थिरांक string defenv = string{DEFENV_SYSTEMC_LIBDIR};
+    जर (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC_LIBDIR", var, "Hardcoded at build time");
     }
-    if (var == "") {
-        const string sc = getenvSYSTEMC();
-        const string arch = getenvSYSTEMC_ARCH();
-        if (sc != "" && arch != "") var = V3Os::filenameJoin(sc, "lib-" + arch);
+    जर (var == "") {
+        स्थिरांक string sc = getenvSYSTEMC();
+        स्थिरांक string arch = getenvSYSTEMC_ARCH();
+        जर (sc != "" && arch != "") var = V3Os::filenameJoin(sc, "lib-" + arch);
     }
-    return V3Os::filenameCleanup(var);
+    परत V3Os::filenameCleanup(var);
 }
 
-string V3Options::getenvVERILATOR_ROOT() {
+string V3Options::getenv_VERILATOR_मूळ() {
     string var = V3Os::getenvStr("VERILATOR_ROOT", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_VERILATOR_ROOT};
-    if (var == "" && defenv != "") {
+    स्थिरांक string defenv = string{DEFENV_VERILATOR_मूळ};
+    जर (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("VERILATOR_ROOT", var, "Hardcoded at build time");
     }
-    if (var == "") v3fatal("$VERILATOR_ROOT needs to be in environment\n");
-    return V3Os::filenameCleanup(var);
+    जर (var == "") v3fatal("$VERILATOR_ROOT needs to be in environment\n");
+    परत V3Os::filenameCleanup(var);
 }
 
 string V3Options::getenvVERILATOR_SOLVER() {
     string var = V3Os::getenvStr("VERILATOR_SOLVER", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_VERILATOR_SOLVER};
-    if (var == "" && defenv != "") {
+    स्थिरांक string defenv = string{DEFENV_VERILATOR_SOLVER};
+    जर (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("VERILATOR_SOLVER", var, "Hardcoded at build time");
     }
-    return var;
+    परत var;
 }
 
 string V3Options::getStdPackagePath() {
-    return V3Os::filenameJoin(getenvVERILATOR_ROOT(), "include", "verilated_std.sv");
+    परत V3Os::filenameJoin(getenv_VERILATOR_मूळ(), "include", "verilated_std.sv");
 }
 string V3Options::getStdWaiverPath() {
-    return V3Os::filenameJoin(getenvVERILATOR_ROOT(), "include", "verilated_std_waiver.vlt");
+    परत V3Os::filenameJoin(getenv_VERILATOR_मूळ(), "include", "verilated_std_waiver.vlt");
 }
 
-string V3Options::getSupported(const string& var) {
+string V3Options::getSupported(स्थिरांक string& var) {
     // If update below, also update V3Options::showVersion()
-    if (var == "COROUTINES" && coroutineSupport()) {
-        return "1";
-    } else if (var == "TSAN" && tsanSupport()) {
-        return "1";
-    } else if (var == "DEV_ASAN" && devAsan()) {
-        return "1";
-    } else if (var == "DEV_GCOV" && devGcov()) {
-        return "1";
+    जर (var == "COROUTINES" && coroutineSupport()) {
+        परत "1";
+    } अन्यथा जर (var == "TSAN" && tsanSupport()) {
+        परत "1";
+    } अन्यथा जर (var == "DEV_ASAN" && devAsan()) {
+        परत "1";
+    } अन्यथा जर (var == "DEV_GCOV" && devGcov()) {
+        परत "1";
         // cppcheck-suppress knownConditionTrueFalse
-    } else if (var == "SYSTEMC" && systemCFound()) {
-        return "1";
-    } else {
-        return "";
+    } अन्यथा जर (var == "SYSTEMC" && systemCFound()) {
+        परत "1";
+    } अन्यथा {
+        परत "";
     }
 }
 
-bool V3Options::systemCSystemWide() {
+तार्किक V3Options::systemCSystemWide() {
 #ifdef HAVE_SYSTEMC
-    return true;
-#else
-    return false;
+    परत सत्य;
+#अन्यथा
+    परत असत्य;
 #endif
 }
 
-bool V3Options::systemCFound() {
-    return (systemCSystemWide()
+तार्किक V3Options::systemCFound() {
+    परत (systemCSystemWide()
             || (!getenvSYSTEMC_INCLUDE().empty() && !getenvSYSTEMC_LIBDIR().empty()));
 }
 
-bool V3Options::coroutineSupport() {
+तार्किक V3Options::coroutineSupport() {
 #ifdef HAVE_COROUTINES
-    return true;
-#else
-    return false;
+    परत सत्य;
+#अन्यथा
+    परत असत्य;
 #endif
 }
 
-bool V3Options::devAsan() {
+तार्किक V3Options::devAsan() {
 #ifdef HAVE_DEV_ASAN
-    return true;
-#else
-    return false;
+    परत सत्य;
+#अन्यथा
+    परत असत्य;
 #endif
 }
 
-bool V3Options::devGcov() {
+तार्किक V3Options::devGcov() {
 #ifdef HAVE_DEV_GCOV
-    return true;
-#else
-    return false;
+    परत सत्य;
+#अन्यथा
+    परत असत्य;
 #endif
 }
 
-bool V3Options::tsanSupport() {
+तार्किक V3Options::tsanSupport() {
 #ifdef HAVE_TSAN
-    return true;
-#else
-    return false;
+    परत सत्य;
+#अन्यथा
+    परत असत्य;
 #endif
 }
 
 //######################################################################
 // V3 Options notification methods
 
-void V3Options::notify() VL_MT_DISABLED {
+शून्य V3Options::notify() VL_MT_DISABLED {
     // Notify that all arguments have been passed and final modification can be made.
-    FileLine* const cmdfl = new FileLine{FileLine::commandLineFilename()};
+    File_ओळ* स्थिरांक cmdfl = नवीन File_ओळ{File_ओळ::command_ओळ_Filename()};
 
-    if (!outFormatOk() && v3Global.opt.main()) ccSet();  // --main implies --cc if not provided
-    if (!outFormatOk() && !dpiHdrOnly() && !lintOnly() && !preprocOnly() && !serializeOnly()) {
+    जर (!outFormatOk() && v3Global.opt.main()) ccSet();  // --main implies --cc if not provided
+    जर (!outFormatOk() && !dpiHdrOnly() && !lintOnly() && !preprocOnly() && !serializeOnly()) {
         v3fatal("verilator: Need --binary, --cc, --sc, --dpi-hdr-only, --lint-only, "
                 "--json-only or --E option");
     }
 
-    if (m_build && (m_gmake || m_makeJson)) {
+    जर (m_build && (m_gmake || m_makeJson)) {
         cmdfl->v3error("--make cannot be used together with --build. Suggest see manual");
     }
 
     // m_build, m_preprocOnly, m_dpiHdrOnly, m_lintOnly, and m_jsonOnly are mutually
     // exclusive
     std::vector<std::string> backendFlags;
-    if (m_build) {
-        if (m_binary)
+    जर (m_build) {
+        जर (m_द्विमान)
             backendFlags.emplace_back("--binary");
-        else
+        अन्यथा
             backendFlags.emplace_back("--build");
     }
-    if (m_preprocOnly) backendFlags.emplace_back("-E");
-    if (m_dpiHdrOnly) backendFlags.emplace_back("--dpi-hdr-only");
-    if (m_lintOnly) backendFlags.emplace_back("--lint-only");
-    if (m_jsonOnly) backendFlags.emplace_back("--json-only");
-    if (backendFlags.size() > 1) {
+    जर (m_preprocOnly) backendFlags.emplace_back("-E");
+    जर (m_dpiHdrOnly) backendFlags.emplace_back("--dpi-hdr-only");
+    जर (m_lintOnly) backendFlags.emplace_back("--lint-only");
+    जर (m_jsonOnly) backendFlags.emplace_back("--json-only");
+    जर (backendFlags.size() > 1) {
         std::string backendFlagsString = backendFlags.front();
-        for (size_t i = 1; i < backendFlags.size(); i++) {
+        साठी (माप_प्रकार i = 1; i < backendFlags.size(); i++) {
             backendFlagsString += ", " + backendFlags[i];
         }
         v3error("The following cannot be used together: " + backendFlagsString
                 + ". Suggest see manual");
     }
 
-    if (m_exe && !v3Global.opt.libCreate().empty()) {
+    जर (m_exe && !v3Global.opt.libCreate().empty()) {
         cmdfl->v3error("--exe cannot be used together with --lib-create. Suggest see manual");
     }
 
     // Make sure at least one make system is enabled
-    if (!m_gmake && !m_makeJson) m_gmake = true;
+    जर (!m_gmake && !m_makeJson) m_gmake = सत्य;
 
-    if (m_hierarchical && (m_hierChild || !m_hierBlocks.empty())) {
+    जर (m_hierarchical && (m_hierChild || !m_hierBlocks.empty())) {
         cmdfl->v3error(
             "--hierarchical must not be set with --hierarchical-child or --hierarchical-block");
     }
-    if (m_hierChild) {
-        if (m_hierBlocks.empty()) {
+    जर (m_hierChild) {
+        जर (m_hierBlocks.empty()) {
             cmdfl->v3error("--hierarchical-block must be set when --hierarchical-child is set");
         }
-        m_main = false;
+        m_main = असत्य;
     }
 
-    if (trace() && !traceEnabledFst() && !traceEnabledSaif() && !traceEnabledVcd()) {
-        m_traceEnabledVcd = true;  // No format, with --trace means wanted --trace-vcd
+    जर (trace() && !traceEnabledFst() && !traceEnabledSaif() && !traceEnabledVcd()) {
+        m_traceEnabledVcd = सत्य;  // No format, with --trace means wanted --trace-vcd
     }
-    if (traceEnabledFst() || traceEnabledSaif() || traceEnabledVcd()) m_trace = true;
-    const int ntraces = traceEnabledFst() + traceEnabledSaif() + traceEnabledVcd();
-    if (ntraces > 1)  // Issue #5813
+    जर (traceEnabledFst() || traceEnabledSaif() || traceEnabledVcd()) m_trace = सत्य;
+    स्थिरांक पूर्णांक ntraces = traceEnabledFst() + traceEnabledSaif() + traceEnabledVcd();
+    जर (ntraces > 1)  // Issue #5813
         cmdfl->v3error("Only one of --trace-fst, --trace-saif or --trace--vcd may be used");
 
-    if (protectIds()) {
-        if (allPublic()) {
+    जर (protectIds()) {
+        जर (allPublic()) {
             // We always call protect() on names, we don't check if public or not
             // Hence any external references wouldn't be able to find the refed public object.
             cmdfl->v3warn(E_UNSUPPORTED, "Unsupported: Using --protect-ids with --public\n"  //
                                              + cmdfl->warnMore() + "... Suggest remove --public.");
         }
-        if (trace()) {
+        जर (trace()) {
             cmdfl->v3warn(INSECURE,
                           "Using --protect-ids with --trace may expose private design details\n"
                               + cmdfl->warnMore() + "... Suggest remove --trace.");
         }
-        if (vpi()) {
+        जर (vpi()) {
             cmdfl->v3warn(INSECURE,
                           "Using --protect-ids with --vpi may expose private design details\n"
                               + cmdfl->warnMore() + "... Suggest remove --vpi.");
@@ -1035,14 +1035,14 @@ void V3Options::notify() VL_MT_DISABLED {
     }
 
     // Default some options if not turned on or off
-    if (v3Global.opt.skipIdentical().isDefault()) {
+    जर (v3Global.opt.skipIdentical().isDefault()) {
         v3Global.opt.m_skipIdentical.setTrueOrFalse(  //
             !v3Global.opt.dpiHdrOnly()  //
             && !v3Global.opt.lintOnly()  //
             && !v3Global.opt.preprocOnly()  //
             && !v3Global.opt.serializeOnly());
     }
-    if (v3Global.opt.makeDepend().isDefault()) {
+    जर (v3Global.opt.makeDepend().isDefault()) {
         v3Global.opt.m_makeDepend.setTrueOrFalse(  //
             !v3Global.opt.dpiHdrOnly()  //
             && !v3Global.opt.lintOnly()  //
@@ -1050,53 +1050,53 @@ void V3Options::notify() VL_MT_DISABLED {
             && !v3Global.opt.serializeOnly());
     }
 
-    if (m_timing.isDefault() && (v3Global.opt.jsonOnly() || v3Global.opt.lintOnly()))
-        v3Global.opt.m_timing.setTrueOrFalse(true);
+    जर (m_timing.isDefault() && (v3Global.opt.jsonOnly() || v3Global.opt.lintOnly()))
+        v3Global.opt.m_timing.setTrueOrFalse(सत्य);
 
     // Default split limits if not specified
-    if (m_outputSplitCFuncs < 0) m_outputSplitCFuncs = m_outputSplit;
-    if (m_outputSplitCTrace < 0) m_outputSplitCTrace = m_outputSplit;
+    जर (m_outputSplitCFuncs < 0) m_outputSplitCFuncs = m_outputSplit;
+    जर (m_outputSplitCTrace < 0) m_outputSplitCTrace = m_outputSplit;
 
-    if (v3Global.opt.main() && v3Global.opt.systemC()) {
+    जर (v3Global.opt.main() && v3Global.opt.systemC()) {
         cmdfl->v3warn(E_UNSUPPORTED,
                       "--main not usable with SystemC. Suggest see examples for sc_main().");
     }
 
-    if (fourstate()) {
+    जर (fourstate()) {
         cmdfl->v3warn(FUTURE, "--fourstate is not supported as is under development");
-        if (hierarchical()) {
+        जर (hierarchical()) {
             cmdfl->v3warn(E_UNSUPPORTED,
                           "--fourstate is not supported with hierarchical Verilation");
         }
     }
 
-    if (coverage() && savable()) {
+    जर (coverage() && savable()) {
         cmdfl->v3error("Unsupported: --coverage and --savable not supported together");
     }
-    if (v3Global.opt.timing().isSetTrue() && savable()) {
+    जर (v3Global.opt.timing().isSetTrue() && savable()) {
         cmdfl->v3error("Unsupported: --timing and --savable not supported together");
     }
 
     // --dump-tree-dot will turn on tree dumping.
-    if (!m_dumpLevel.count("tree") && m_dumpLevel.count("tree-dot")) {
+    जर (!m_dumpLevel.मोजणी("tree") && m_dumpLevel.मोजणी("tree-dot")) {
         m_dumpLevel["tree"] = m_dumpLevel["tree-dot"];
     }
 
     // Sanity check of expected configuration
     UASSERT(threads() >= 1, "'threads()' must return a value >= 1");
-    if (m_outputGroups == -1) m_outputGroups = (m_buildJobs != -1) ? m_buildJobs : 0;
-    if (m_buildJobs == -1) m_buildJobs = 1;
-    if (m_verilateJobs == -1) m_verilateJobs = 1;
+    जर (m_outputGroups == -1) m_outputGroups = (m_buildJobs != -1) ? m_buildJobs : 0;
+    जर (m_buildJobs == -1) m_buildJobs = 1;
+    जर (m_verilateJobs == -1) m_verilateJobs = 1;
 
     // Preprocessor defines based on options used
-    if (timing().isSetTrue()) V3PreShell::defineCmdLine("VERILATOR_TIMING", "1");
+    जर (timing().isSetTrue()) V3PreShell::define_Cmd_ओळ("VERILATOR_TIMING", "1");
 
     // If VPI is used, and no explicit ico change detect option was passed, disable it by default
-    if (m_vpi.isTrue() && m_fIcoChangeDetect.isDefault()) m_fIcoChangeDetect.setTrueOrFalse(false);
+    जर (m_vpi.isTrue() && m_fIcoChangeDetect.isDefault()) m_fIcoChangeDetect.setTrueOrFalse(असत्य);
 
     // === Leave last
     // Mark options as available
-    m_available = true;
+    m_available = सत्य;
 }
 
 //######################################################################
@@ -1105,68 +1105,68 @@ void V3Options::notify() VL_MT_DISABLED {
 string V3Options::version() VL_PURE {
     string ver = PACKAGE_STRING;
     ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    परत ver;
 }
 
-string V3Options::protectKeyDefaulted() VL_MT_SAFE {
-    static V3Mutex s_mutex;
-    const V3LockGuard lock{s_mutex};
-    if (m_protectKey.empty()) {
+string V3Options::protect_किल्ली_Defaulted() VL_MT_SAFE {
+    स्थिर V3Mutex s_mutex;
+    स्थिरांक V3LockGuard lock{s_mutex};
+    जर (m_protect_किल्ली.empty()) {
         // Create a key with a human-readable symbol-like name.
         // This conversion drops ~2 bits of entropy out of 256, shouldn't matter.
         VHashSha512 digest{V3Os::trueRandom(64)};
-        m_protectKey = "VL-KEY-" + digest.digestBase64();
+        m_protect_किल्ली = "VL-KEY-" + digest.digestBase64();
     }
-    return m_protectKey;
+    परत m_protect_किल्ली;
 }
 
-void V3Options::throwSigsegv() {  // LCOV_EXCL_START
-#if !(defined(VL_CPPCHECK) || defined(__clang_analyzer__))
+शून्य V3Options::throwSigsegv() {  // LCOV_EXCL_START
+#जर !(defined(VL_CPPCHECK) || defined(__clang_analyzer__))
     // clang-format off
-    *static_cast<volatile char*>(nullptr) = 0;  // Intentional core dump, ignore warnings here
+    *static_cast<अस्थिर अक्षर*>(nullptr) = 0;  // Intentional core dump, ignore warnings here
     // clang-format on
 #endif
 }  // LCOV_EXCL_STOP
 
-VTimescale V3Options::timeComputePrec(const VTimescale& flag) const {
-    if (!timeOverridePrec().isNone()) {
-        return timeOverridePrec();
-    } else if (flag.isNone()) {
-        return timeDefaultPrec();
-    } else {
-        return flag;
+VTimescale V3Options::timeComputePrec(स्थिरांक VTimescale& flag) स्थिरांक {
+    जर (!timeOverridePrec().isNone()) {
+        परत timeOverridePrec();
+    } अन्यथा जर (flag.isNone()) {
+        परत timeDefaultPrec();
+    } अन्यथा {
+        परत flag;
     }
 }
 
-VTimescale V3Options::timeComputeUnit(const VTimescale& flag) const {
-    if (!timeOverrideUnit().isNone()) {
-        return timeOverrideUnit();
-    } else if (flag.isNone()) {
-        return timeDefaultUnit();
-    } else {
-        return flag;
+VTimescale V3Options::timeComputeUnit(स्थिरांक VTimescale& flag) स्थिरांक {
+    जर (!timeOverrideUnit().isNone()) {
+        परत timeOverrideUnit();
+    } अन्यथा जर (flag.isNone()) {
+        परत timeDefaultUnit();
+    } अन्यथा {
+        परत flag;
     }
 }
 
 //######################################################################
 // V3 Options utilities
 
-string V3Options::argString(int argc, char** argv) {
+string V3Options::argString(पूर्णांक argc, अक्षर** argv) {
     // Return list of arguments as simple string
     string opts;
-    for (int i = 0; i < argc; ++i) {
-        if (i != 0) opts += " ";
+    साठी (पूर्णांक i = 0; i < argc; ++i) {
+        जर (i != 0) opts += " ";
         opts += string{argv[i]};
     }
-    return opts;
+    परत opts;
 }
 
 //######################################################################
 // V3 Options Parsing
 
-void V3Options::parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED {
+शून्य V3Options::parseOpts(File_ओळ* fl, पूर्णांक argc, अक्षर** argv) VL_MT_DISABLED {
     // Save command line options
-    for (int i = 0; i < argc; ++i) addLineArg(argv[i]);
+    साठी (पूर्णांक i = 0; i < argc; ++i) add_ओळ_Arg(argv[i]);
 
     // Parse all options
     // Initial entry point from Verilator.cpp
@@ -1174,17 +1174,17 @@ void V3Options::parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED {
 
     // Default certain options and error check
     // Detailed error, since this is what we often get when run with minimal arguments
-    if (vFiles().empty()) {
+    जर (vFiles().empty()) {
         v3fatal("verilator: No input Verilog file specified on command line, "
                 "see 'verilator --help' for more information\n");
     }
 
     // Default prefix to the filename
-    if (prefix() == "" && topModule() != "") m_prefix = "V"s + topModule();  // Already encoded
-    if (prefix() == "" && vFiles().size() >= 1)
+    जर (prefix() == "" && शीर्ष_Module() != "") m_prefix = "V"s + शीर्ष_Module();  // Already encoded
+    जर (prefix() == "" && vFiles().size() >= 1)
         m_prefix
-            = "V"s + AstNode::encodeName(V3Os::filenameNonDirExt(vFiles().begin()->filename()));
-    if (modPrefix() == "") m_modPrefix = prefix();
+            = "V"s + Ast_गाठ::encodeName(V3Os::filenameNonDirExt(vFiles().begin()->filename()));
+    जर (modPrefix() == "") m_modPrefix = prefix();
 
     // Find files in makedir
     addIncDirFallback(makeDir());
@@ -1192,23 +1192,23 @@ void V3Options::parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED {
 
 //======================================================================
 
-bool V3Options::suffixed(const string& sw, const char* arg) {
-    if (std::strlen(arg) > sw.length()) return false;
-    return (0 == std::strcmp(sw.c_str() + sw.length() - std::strlen(arg), arg));
+तार्किक V3Options::suffixed(स्थिरांक string& sw, स्थिरांक अक्षर* arg) {
+    जर (std::म_माप(arg) > sw.length()) परत असत्य;
+    परत (0 == std::म_भेद(sw.c_str() + sw.length() - std::म_माप(arg), arg));
 }
 
-void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
-                              char** argv) VL_MT_DISABLED {
+शून्य V3Options::parseOptsList(File_ओळ* fl, स्थिरांक string& optdir, पूर्णांक argc,
+                              अक्षर** argv) VL_MT_DISABLED {
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
 
     V3OptionParser parser;
-    const V3OptionParser::AppendHelper DECL_OPTION{parser};
+    स्थिरांक V3OptionParser::AppendHelper DECL_OPTION{parser};
     V3OPTION_PARSER_DECL_TAGS;
 
-    const auto callStrSetter = [this](void (V3Options::*cbStr)(const string&)) {
-        return [this, cbStr](const string& v) { (this->*cbStr)(v); };
+    स्थिरांक स्वतः callStrSetter = [हे](शून्य (V3Options::*cbStr)(स्थिरांक string&)) {
+        परत [हे, cbStr](स्थिरांक string& v) { (हे->*cbStr)(v); };
     };
     // Usage
     // DECL_OPTION("-option", action, pointer_or_lambda);
@@ -1243,22 +1243,22 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     // (If DECL_OPTION is a macro, then lambda would be collapsed into a single line).
 
     // Plus options
-    DECL_OPTION("+define+", CbPartialMatch, [this](const char* optp) VL_MT_DISABLED {
-        addDefine(optp, true);
+    DECL_OPTION("+define+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) VL_MT_DISABLED {
+        addDefine(optp, सत्य);
     }).notForRerun();
-    DECL_OPTION("+incdir+", CbPartialMatch, [this, &optdir](const char* optp) {
+    DECL_OPTION("+incdir+", CbPartialMatch, [हे, &optdir](स्थिरांक अक्षर* optp) {
         string dirs = optp;
         string::size_type pos;
-        while ((pos = dirs.find('+')) != string::npos) {
+        पर्यंत ((pos = dirs.find('+')) != string::npos) {
             addIncDirUser(parseFileArg(optdir, dirs.substr(0, pos)));
             dirs = dirs.substr(pos + 1);
         }
         addIncDirUser(parseFileArg(optdir, dirs));
     }).notForRerun();
-    DECL_OPTION("+libext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+libext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         string exts = optp;
         string::size_type pos;
-        while ((pos = exts.find('+')) != string::npos) {
+        पर्यंत ((pos = exts.find('+')) != string::npos) {
             addLibExtV(exts.substr(0, pos));
             exts = exts.substr(pos + 1);
         }
@@ -1266,84 +1266,84 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     }).notForRerun();
     DECL_OPTION("+librescan", CbCall, []() {}).notForRerun();  // NOP
     DECL_OPTION("+notimingchecks", CbCall, []() {}).notForRerun();  // NOP
-    DECL_OPTION("+systemverilogext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+systemverilogext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1800_2017);
     }).notForRerun();
-    DECL_OPTION("+verilog1995ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+verilog1995ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1364_1995);
     }).notForRerun();
-    DECL_OPTION("+verilog2001ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+verilog2001ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1364_2001);
     }).notForRerun();
-    DECL_OPTION("+1364-1995ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1364-1995ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1364_1995);
     }).notForRerun();
-    DECL_OPTION("+1364-2001ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1364-2001ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1364_2001);
     }).notForRerun();
-    DECL_OPTION("+1364-2005ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1364-2005ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1364_2005);
     }).notForRerun();
-    DECL_OPTION("+1800-2005ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1800-2005ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1800_2005);
     }).notForRerun();
-    DECL_OPTION("+1800-2009ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1800-2009ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1800_2009);
     }).notForRerun();
-    DECL_OPTION("+1800-2012ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1800-2012ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1800_2012);
     }).notForRerun();
-    DECL_OPTION("+1800-2017ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1800-2017ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1800_2017);
     }).notForRerun();
-    DECL_OPTION("+1800-2023ext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+1800-2023ext+", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         addLangExt(optp, V3LangCode::L1800_2023);
     }).notForRerun();
 
     // Minus options
-    DECL_OPTION("-aslr", CbOnOff, [](bool) {});  // Processed only in bin/verilator shell
-    DECL_OPTION("-assert", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-aslr", CbOnOff, [](तार्किक) {});  // Processed only in bin/verilator shell
+    DECL_OPTION("-assert", CbOnOff, [हे](तार्किक flag) {
         m_assert = flag;
         m_assertCase = flag;
     });
     DECL_OPTION("-assert-case", OnOff, &m_assertCase);
-    DECL_OPTION("-assert-unroll-limit", CbVal, [fl](const char*) {
+    DECL_OPTION("-assert-unroll-limit", CbVal, [fl](स्थिरांक अक्षर*) {
         fl->v3warn(DEPRECATED, "Option '--assert-unroll-limit' is deprecated and has no effect.");
     }).notForRerun();
     DECL_OPTION("-autoflush", OnOff, &m_autoflush);
 
     DECL_OPTION("-bbox-sys", OnOff, &m_bboxSys);
-    DECL_OPTION("-bbox-unsup", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-bbox-unsup", CbOnOff, [हे](तार्किक flag) {
         m_bboxUnsup = flag;
-        FileLine::globalWarnOff(V3ErrorCode::E_UNSUPPORTED, true);
+        File_ओळ::globalWarnOff(V3ErrorCode::E_UNSUPPORTED, सत्य);
     });
-    DECL_OPTION("-binary", CbCall, [this]() {
-        m_binary = true;
-        m_build = true;
-        m_exe = true;
-        m_main = true;
-        if (m_timing.isDefault()) m_timing = VOptionBool::OPT_TRUE;
+    DECL_OPTION("-binary", CbCall, [हे]() {
+        m_द्विमान = सत्य;
+        m_build = सत्य;
+        m_exe = सत्य;
+        m_main = सत्य;
+        जर (m_timing.isDefault()) m_timing = VOptionBool::OPT_TRUE;
     });
     DECL_OPTION("-build", Set, &m_build);
     DECL_OPTION("-build-dep-bin", Set, &m_buildDepBin);
-    DECL_OPTION("-build-jobs", CbVal, [this, fl](const char* valp) {
-        int val = std::atoi(valp);
-        if (val < 0) {
+    DECL_OPTION("-build-jobs", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        पूर्णांक val = std::म_से_प(valp);
+        जर (val < 0) {
             fl->v3error("--build-jobs requires a non-negative integer, but '" << valp
                                                                               << "' was passed");
             val = 1;
-        } else if (val == 0) {
+        } अन्यथा जर (val == 0) {
             val = VlOs::getProcessDefaultParallelism();
         }
         m_buildJobs = val;
     });
 
     DECL_OPTION("-CFLAGS", CbVal, callStrSetter(&V3Options::addCFlags));
-    DECL_OPTION("-cc", CbCall, [this]() { ccSet(); });
-    DECL_OPTION("-clk", CbVal, [fl](const std::string&) {
+    DECL_OPTION("-cc", CbCall, [हे]() { ccSet(); });
+    DECL_OPTION("-clk", CbVal, [fl](स्थिरांक std::string&) {
         fl->v3warn(DEPRECATED, "Option '--clk' is deprecated and has no effect.");
     });
-    DECL_OPTION("-no-clk", CbVal, [fl](const std::string&) {
+    DECL_OPTION("-no-clk", CbVal, [fl](स्थिरांक std::string&) {
         fl->v3warn(DEPRECATED, "Option '--no-clk' is deprecated and has no effect.");
     });
     DECL_OPTION("-comp-limit-blocks", Set, &m_compLimitBlocks).undocumented();
@@ -1351,21 +1351,21 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
                 &m_compLimitMembers)
         .undocumented();  // Ideally power-of-two so structs stay aligned
     DECL_OPTION("-comp-limit-parens", Set, &m_compLimitParens).undocumented();
-    DECL_OPTION("-comp-limit-syms", CbVal, [](int val) { VName::maxLength(val); }).undocumented();
-    DECL_OPTION("-compiler", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "clang")) {
+    DECL_OPTION("-comp-limit-syms", CbVal, [](पूर्णांक val) { VName::maxLength(val); }).undocumented();
+    DECL_OPTION("-compiler", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        जर (!std::म_भेद(valp, "clang")) {
             m_compLimitBlocks = 80;  // limit unknown
             m_compLimitMembers = 64;  // soft limit, has slowdown bug as of clang++ 3.8
             m_compLimitParens = 240;  // controlled by -fbracket-depth, which defaults to 256
-        } else if (!std::strcmp(valp, "gcc")) {
+        } अन्यथा जर (!std::म_भेद(valp, "gcc")) {
             m_compLimitBlocks = 0;  // Bug free
             m_compLimitMembers = 64;  // soft limit, has slowdown bug as of g++ 7.1
             m_compLimitParens = 240;  // Unlimited, but generate same code as for clang
-        } else if (!std::strcmp(valp, "msvc")) {
+        } अन्यथा जर (!std::म_भेद(valp, "msvc")) {
             m_compLimitBlocks = 80;  // 128, but allow some room
             m_compLimitMembers = 0;  // probably ok, and AFAIK doesn't support anon structs
             m_compLimitParens = 80;  // 128, but allow some room
-        } else {
+        } अन्यथा {
             fl->v3error("Unknown setting for --compiler: '"
                         << valp << "'\n"
                         << fl->warnMore() << "... Suggest 'clang', 'gcc', or 'msvc'");
@@ -1373,42 +1373,42 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     });
     DECL_OPTION("-compiler-include", CbVal, callStrSetter(&V3Options::addCompilerIncludes));
     DECL_OPTION("-converge-limit", Set, &m_convergeLimit);
-    DECL_OPTION("-coverage", CbOnOff, [this](bool flag) { coverage(flag); });
+    DECL_OPTION("-coverage", CbOnOff, [हे](तार्किक flag) { coverage(flag); });
     DECL_OPTION("-coverage-branch", OnOff, &m_coverageBranch);
-    DECL_OPTION("-coverage-expr", OnOff, &m_coverageExpr);
-    DECL_OPTION("-coverage-expr-max", Set, &m_coverageExprMax);
+    DECL_OPTION("-coverage-expr", OnOff, &m_coverage_अभिव्यक्ती);
+    DECL_OPTION("-coverage-expr-max", Set, &m_coverage_अभिव्यक्ती_Max);
     DECL_OPTION("-coverage-fsm", OnOff, &m_coverageFsm);
-    DECL_OPTION("-coverage-fsm-expand", CbVal, [this, fl](const char* const valp) {
-        if (!std::strcmp(valp, "auto")) {
+    DECL_OPTION("-coverage-fsm-expand", CbVal, [हे, fl](स्थिरांक अक्षर* स्थिरांक valp) {
+        जर (!std::म_भेद(valp, "auto")) {
             m_coverageFsmExpand = VFsmExpandType::AUTO;
-        } else if (!std::strcmp(valp, "auto-expand")) {
+        } अन्यथा जर (!std::म_भेद(valp, "auto-expand")) {
             m_coverageFsmExpand = VFsmExpandType::AUTO_EXPAND;
-        } else if (!std::strcmp(valp, "full")) {
+        } अन्यथा जर (!std::म_भेद(valp, "full")) {
             m_coverageFsmExpand = VFsmExpandType::FULL;
-        } else {
+        } अन्यथा {
             fl->v3error("Unknown setting for --coverage-fsm-expand: '"
                         << valp << "'\n"
                         << fl->warnMore() << "... Suggest 'auto', 'auto-expand', or 'full'");
         }
     });
     DECL_OPTION("-coverage-fsm-max-arcs", Set, &m_coverageFsmMaxArcs);
-    DECL_OPTION("-coverage-line", OnOff, &m_coverageLine);
+    DECL_OPTION("-coverage-line", OnOff, &m_coverage_ओळ);
     // Covergroup bins limits; the runtime indexes bins with 32 bits
-    const auto parseBinsLimit = [fl](const char* optp, const char* valp, uint32_t& limitr) {
-        char* endp = nullptr;
-        const unsigned long long value = std::strtoull(valp, &endp, 10);
-        if (*endp || value < 1 || value > std::numeric_limits<uint32_t>::max()) {
+    स्थिरांक स्वतः parseBinsLimit = [fl](स्थिरांक अक्षर* optp, स्थिरांक अक्षर* valp, uint32_t& limitr) {
+        अक्षर* endp = nullptr;
+        स्थिरांक अचिन्हित दीर्घ दीर्घ मूल्य = std::strtoull(valp, &endp, 10);
+        जर (*endp || मूल्य < 1 || मूल्य > std::numeric_limits<uint32_t>::max()) {
             fl->v3error(optp << " requires an integer from 1 to "
                              << std::numeric_limits<uint32_t>::max() << ", but '" << valp
                              << "' was passed");
-            return;
+            परत;
         }
-        limitr = static_cast<uint32_t>(value);
+        limitr = static_cast<uint32_t>(मूल्य);
     };
-    DECL_OPTION("-coverage-max-bins", CbVal, [this, parseBinsLimit](const char* valp) {
+    DECL_OPTION("-coverage-max-bins", CbVal, [हे, parseBinsLimit](स्थिरांक अक्षर* valp) {
         parseBinsLimit("--coverage-max-bins", valp, m_coverageMaxBins);
     });
-    DECL_OPTION("-coverage-max-real-bins", CbVal, [this, parseBinsLimit](const char* valp) {
+    DECL_OPTION("-coverage-max-real-bins", CbVal, [हे, parseBinsLimit](स्थिरांक अक्षर* valp) {
         parseBinsLimit("--coverage-max-real-bins", valp, m_coverageMaxRealBins);
     });
     DECL_OPTION("-coverage-max-width", Set, &m_coverageMaxWidth);
@@ -1418,13 +1418,13 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-coverage-underscore", OnOff, &m_coverageUnderscore);
     DECL_OPTION("-coverage-user", OnOff, &m_coverageUser);
 
-    DECL_OPTION("-D", CbPartialMatch, [this](const char* valp) VL_MT_DISABLED {
-        addDefine(valp, false);
+    DECL_OPTION("-D", CbPartialMatch, [हे](स्थिरांक अक्षर* valp) VL_MT_DISABLED {
+        addDefine(valp, असत्य);
     }).notForRerun();
-    DECL_OPTION("-debug", CbCall, [this]() { setDebugMode(3); }).notForRerun();
-    DECL_OPTION("-debugi", CbVal, [this](int v) { setDebugMode(v); }).notForRerun();
-    DECL_OPTION("-debugi-", CbPartialMatchVal, [this](const char* optp, const char* valp) {
-        m_debugLevel[optp] = std::atoi(valp);
+    DECL_OPTION("-debug", CbCall, [हे]() { setDebugMode(3); }).notForRerun();
+    DECL_OPTION("-debugi", CbVal, [हे](पूर्णांक v) { setDebugMode(v); }).notForRerun();
+    DECL_OPTION("-debugi-", CbPartialMatchVal, [हे](स्थिरांक अक्षर* optp, स्थिरांक अक्षर* valp) {
+        m_debugLevel[optp] = std::म_से_प(valp);
     });
     DECL_OPTION("-debug-abort", CbCall, []() {
         V3Error::vlAbort();  // LCOV_EXCL_LINE
@@ -1449,112 +1449,112 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-debug-runtime-timeout", Set, &m_debugRuntimeTimeout).undocumented();
     DECL_OPTION("-debug-self-test", OnOff, &m_debugSelfTest).undocumented();
     DECL_OPTION("-debug-sigsegv", CbCall, throwSigsegv).undocumented();  // See also --debug-abort
-    DECL_OPTION("-debug-stack-check", OnOff, &m_debugStackCheck).undocumented();
+    DECL_OPTION("-debug-stack-check", OnOff, &m_debug_चळत_Check).undocumented();
     DECL_OPTION("-debug-width", OnOff, &m_debugWidth).undocumented();
-    DECL_OPTION("-decoration", CbCall, [this, fl]() { decorations(fl, "medium"); });
-    DECL_OPTION("-decorations", CbVal, [this, fl](const char* optp) { decorations(fl, optp); });
-    DECL_OPTION("-no-decoration", CbCall, [this, fl]() { decorations(fl, "none"); });
+    DECL_OPTION("-decoration", CbCall, [हे, fl]() { decorations(fl, "medium"); });
+    DECL_OPTION("-decorations", CbVal, [हे, fl](स्थिरांक अक्षर* optp) { decorations(fl, optp); });
+    DECL_OPTION("-no-decoration", CbCall, [हे, fl]() { decorations(fl, "none"); });
     DECL_OPTION("-diagnostics-sarif", OnOff, &m_diagnosticsSarif);
-    DECL_OPTION("-diagnostics-sarif-output", CbVal, [this](const char* optp) {
+    DECL_OPTION("-diagnostics-sarif-output", CbVal, [हे](स्थिरांक अक्षर* optp) {
         m_diagnosticsSarifOutput = optp;
-        m_diagnosticsSarif = true;
+        m_diagnosticsSarif = सत्य;
     });
     DECL_OPTION("-dpi-hdr-only", OnOff, &m_dpiHdrOnly);
-    DECL_OPTION("-dump-", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("-dump-", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         m_dumpLevel[optp] = 3;
     }).notForRerun();
-    DECL_OPTION("-no-dump-", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("-no-dump-", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         m_dumpLevel[optp] = 0;
     }).notForRerun();
-    DECL_OPTION("-dumpi-", CbPartialMatchVal, [this](const char* optp, const char* valp) {
-        m_dumpLevel[optp] = std::atoi(valp);
+    DECL_OPTION("-dumpi-", CbPartialMatchVal, [हे](स्थिरांक अक्षर* optp, स्थिरांक अक्षर* valp) {
+        m_dumpLevel[optp] = std::म_से_प(valp);
     }).notForRerun();
 
-    DECL_OPTION("-E", CbOnOff, [this](bool flag) {
-        if (flag) {
-            m_stdPackage = false;
-            m_stdWaiver = false;
+    DECL_OPTION("-E", CbOnOff, [हे](तार्किक flag) {
+        जर (flag) {
+            m_stdPackage = असत्य;
+            m_stdWaiver = असत्य;
         }
         m_preprocOnly = flag;
     });
     DECL_OPTION("-emit-accessors", OnOff, &m_emitAccessors);
-    DECL_OPTION("-error-limit", CbVal, static_cast<void (*)(int)>(&V3Error::errorLimit));
+    DECL_OPTION("-error-limit", CbVal, static_cast<शून्य (*)(पूर्णांक)>(&V3Error::errorLimit));
     DECL_OPTION("-exe", OnOff, &m_exe);
     DECL_OPTION("-expand-limit", CbVal,
-                [this](const char* valp) { m_expandLimit = std::atoi(valp); });
+                [हे](स्थिरांक अक्षर* valp) { m_expandLimit = std::म_से_प(valp); });
 
-    DECL_OPTION("-F", CbVal, [this, fl, &optdir](const char* valp) VL_MT_DISABLED {
-        parseOptsFile(fl, parseFileArg(optdir, valp), true);
+    DECL_OPTION("-F", CbVal, [हे, fl, &optdir](स्थिरांक अक्षर* valp) VL_MT_DISABLED {
+        parseOptsFile(fl, parseFileArg(optdir, valp), सत्य);
     }).notForRerun();
     DECL_OPTION("-FI", CbVal,
-                [this, &optdir](const char* valp) { addForceInc(parseFileArg(optdir, valp)); });
-    DECL_OPTION("-f", CbVal, [this, fl, &optdir](const char* valp) VL_MT_DISABLED {
-        parseOptsFile(fl, parseFileArg(optdir, valp), false);
+                [हे, &optdir](स्थिरांक अक्षर* valp) { addForceInc(parseFileArg(optdir, valp)); });
+    DECL_OPTION("-f", CbVal, [हे, fl, &optdir](स्थिरांक अक्षर* valp) VL_MT_DISABLED {
+        parseOptsFile(fl, parseFileArg(optdir, valp), असत्य);
     }).notForRerun();
     DECL_OPTION("-flatten", OnOff, &m_flatten);
     DECL_OPTION("-fourstate", OnOff, &m_fourstate).undocumented();
-    DECL_OPTION("-future0", CbVal, [this](const char* valp) { addFuture0(valp); });
-    DECL_OPTION("-future1", CbVal, [this](const char* valp) { addFuture1(valp); });
+    DECL_OPTION("-future0", CbVal, [हे](स्थिरांक अक्षर* valp) { addFuture0(valp); });
+    DECL_OPTION("-future1", CbVal, [हे](स्थिरांक अक्षर* valp) { addFuture1(valp); });
 
     DECL_OPTION("-facyc-simp", FOnOff, &m_fAcycSimp);
     DECL_OPTION("-fassemble", FOnOff, &m_fAssemble);
     DECL_OPTION("-fbit-scan-loops", FOnOff, &m_fBitScanLoops);
     DECL_OPTION("-fbitblast", FOnOff, &m_fBitblast);
-    DECL_OPTION("-fcase", CbFOnOff, [this](bool flag) {
+    DECL_OPTION("-fcase", CbFOnOff, [हे](तार्किक flag) {
         m_fCaseDecoder = flag;
         m_fCaseTable = flag;
-        m_fCaseTree = flag;
+        m_f_Case_वृक्ष = flag;
     });
     DECL_OPTION("-fcase-decoder", FOnOff, &m_fCaseDecoder);
     DECL_OPTION("-fcase-table", FOnOff, &m_fCaseTable);
-    DECL_OPTION("-fcase-tree", FOnOff, &m_fCaseTree);
+    DECL_OPTION("-fcase-tree", FOnOff, &m_f_Case_वृक्ष);
     DECL_OPTION("-fcombine", FOnOff, &m_fCombine);
     DECL_OPTION("-fconst", FOnOff, &m_fConst);
     DECL_OPTION("-fconst-before-dfg", FOnOff, &m_fConstBeforeDfg);
-    DECL_OPTION("-fconst-bit-op-tree", FOnOff, &m_fConstBitOpTree);
+    DECL_OPTION("-fconst-bit-op-tree", FOnOff, &m_f_Const_Bit_Op_वृक्ष);
     DECL_OPTION("-fconst-eager", FOnOff, &m_fConstEager);
     DECL_OPTION("-fdead-assigns", FOnOff, &m_fDeadAssigns);
     DECL_OPTION("-fdead-cells", FOnOff, &m_fDeadCells);
     DECL_OPTION("-fdead-methods", FOnOff, &m_fDeadMethods);
-    DECL_OPTION("-fdecompose", CbFOnOff, [this](bool flag) {
+    DECL_OPTION("-fdecompose", CbFOnOff, [हे](तार्किक flag) {
         m_fDecomposePacked = flag;
         m_fDecomposeUnpacked = flag;
     });
     DECL_OPTION("-fdecompose-packed", FOnOff, &m_fDecomposePacked);
     DECL_OPTION("-fdecompose-unpacked", FOnOff, &m_fDecomposeUnpacked);
     DECL_OPTION("-fdedup", FOnOff, &m_fDedupe);
-    DECL_OPTION("-fdfg", CbFOnOff, [this](bool flag) { m_fDfg = flag; });
-    DECL_OPTION("-fdfg-break-cycles", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fdfg", CbFOnOff, [हे](तार्किक flag) { m_fDfg = flag; });
+    DECL_OPTION("-fdfg-break-cycles", CbFOnOff, [fl](तार्किक) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-break-cycles' is deprecated and has no effect");
     });
     DECL_OPTION("-fdfg-peephole", FOnOff, &m_fDfgPeephole);
-    DECL_OPTION("-fdfg-peephole-", CbPartialMatch, [this](const char* optp) {  //
+    DECL_OPTION("-fdfg-peephole-", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {  //
         m_fDfgPeepholeDisabled.erase(optp);
     });
-    DECL_OPTION("-fno-dfg-peephole-", CbPartialMatch, [this](const char* optp) {  //
+    DECL_OPTION("-fno-dfg-peephole-", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {  //
         m_fDfgPeepholeDisabled.emplace(optp);
     });
-    DECL_OPTION("-fdfg-pre-inline", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fdfg-pre-inline", CbFOnOff, [fl](तार्किक) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-pre-inline' is deprecated and has no effect");
     });
-    DECL_OPTION("-fdfg-post-inline", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fdfg-post-inline", CbFOnOff, [fl](तार्किक) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-post-inline' is deprecated and has no effect");
     });
-    DECL_OPTION("-fdfg-push-down-sels", FOnOff, &m_fDfgPushDownSels);
+    DECL_OPTION("-fdfg-push-down-sels", FOnOff, &m_f_Dfg_ढकला_Down_Sels);
     DECL_OPTION("-fdfg-synthesize-all", FOnOff, &m_fDfgSynthesizeAll);
-    DECL_OPTION("-fdfg-scoped", CbFOnOff, [this, fl](bool flag) {
+    DECL_OPTION("-fdfg-scoped", CbFOnOff, [हे, fl](तार्किक flag) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-scoped' is deprecated, use '-fno-dfg' instead.");
         m_fDfg = flag;
     });
     DECL_OPTION("-fexpand", FOnOff, &m_fExpand);
-    DECL_OPTION("-ffunc-opt", CbFOnOff, [this](bool flag) {  //
+    DECL_OPTION("-ffunc-opt", CbFOnOff, [हे](तार्किक flag) {  //
         m_fFuncSplitCat = flag;
         m_fFuncBalanceCat = flag;
     });
     DECL_OPTION("-ffunc-opt-balance-cat", FOnOff, &m_fFuncBalanceCat);
     DECL_OPTION("-ffunc-opt-split-cat", FOnOff, &m_fFuncSplitCat);
     DECL_OPTION("-fgate", FOnOff, &m_fGate);
-    DECL_OPTION("-fico-change-detect", CbFOnOff, [this](bool flag) {  //
+    DECL_OPTION("-fico-change-detect", CbFOnOff, [हे](तार्किक flag) {  //
         m_fIcoChangeDetect.setTrueOrFalse(flag);
     });
     DECL_OPTION("-finline", FOnOff, &m_fInline);
@@ -1563,57 +1563,57 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-finline-funcs-eager", FOnOff, &m_fInlineFuncsEager);
     DECL_OPTION("-flife", FOnOff, &m_fLife);
     DECL_OPTION("-flife-post", FOnOff, &m_fLifePost);
-    DECL_OPTION("-flift-expr", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-flift-expr", CbFOnOff, [fl](तार्किक) {
         fl->v3warn(DEPRECATED, "Option '-fno-lift-expr' is deprecated and has no effect");
     });
     DECL_OPTION("-flocalize", FOnOff, &m_fLocalize);
     DECL_OPTION("-fmerge-cond", FOnOff, &m_fMergeCond);
     DECL_OPTION("-fmerge-cond-motion", FOnOff, &m_fMergeCondMotion);
-    DECL_OPTION("-fmerge-const-pool", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fmerge-const-pool", CbFOnOff, [fl](तार्किक) {
         fl->v3warn(DEPRECATED, "Option '-fno-merge-const-pool' is deprecated and has no effect");
     });
     DECL_OPTION("-freloop", FOnOff, &m_fReloop);
     DECL_OPTION("-freorder", FOnOff, &m_fReorder);
     DECL_OPTION("-fslice", FOnOff, &m_fSlice);
-    DECL_OPTION("-fslice-element-limit", CbVal, [this, fl](const char* valp) {
-        m_fSliceElementLimit = std::atoi(valp);
-        if (m_fSliceElementLimit < 0) fl->v3fatal("--fslice-element-limit must be >= 0: " << valp);
+    DECL_OPTION("-fslice-element-limit", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_fSliceElementLimit = std::म_से_प(valp);
+        जर (m_fSliceElementLimit < 0) fl->v3fatal("--fslice-element-limit must be >= 0: " << valp);
     });
     DECL_OPTION("-fsplit", FOnOff, &m_fSplit);
     DECL_OPTION("-fsubst", FOnOff, &m_fSubst);
     DECL_OPTION("-fsubst-const", FOnOff, &m_fSubstConst);
     DECL_OPTION("-ftable", FOnOff, &m_fTable);
     DECL_OPTION("-ftaskify-all-forked", FOnOff, &m_fTaskifyAll).undocumented();  // Debug
-    DECL_OPTION("-fvar-split", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fvar-split", CbFOnOff, [fl](तार्किक) {
         fl->v3warn(DEPRECATED, "Option '-fno-var-split' is deprecated and has no effect");
     });
-    DECL_OPTION("-G", CbPartialMatch, [this](const char* optp) { addParameter(optp, false); });
+    DECL_OPTION("-G", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) { addParameter(optp, असत्य); });
     DECL_OPTION("-gate-stmts", Set, &m_gateStmts);
     DECL_OPTION("-gdb", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-gdbbt", CbCall, []() {});  // Processed only in bin/verilator shell
-    DECL_OPTION("-generate-key", CbCall, [this]() {
-        cout << protectKeyDefaulted() << '\n';
+    DECL_OPTION("-generate-key", CbCall, [हे]() {
+        cout << protect_किल्ली_Defaulted() << '\n';
         v3Global.vlExit(0);
     });
-    DECL_OPTION("-getenv", CbVal, [](const char* valp) {
+    DECL_OPTION("-getenv", CbVal, [](स्थिरांक अक्षर* valp) {
         cout << V3Options::getenvBuiltins(valp) << '\n';
         v3Global.vlExit(0);
     });
-    DECL_OPTION("-get-supported", CbVal, [](const char* valp) {
+    DECL_OPTION("-get-supported", CbVal, [](स्थिरांक अक्षर* valp) {
         cout << V3Options::getSupported(valp) << '\n';
         v3Global.vlExit(0);
     });
 
     DECL_OPTION("-hierarchical", OnOff, &m_hierarchical);
-    DECL_OPTION("-hierarchical-block", CbVal, [this](const char* valp) {
-        const V3HierarchicalBlockOption opt{valp};
+    DECL_OPTION("-hierarchical-block", CbVal, [हे](स्थिरांक अक्षर* valp) {
+        स्थिरांक V3HierarchicalBlockOption opt{valp};
         m_hierBlocks.emplace(opt.mangledName(), opt);
     });
     DECL_OPTION("-hierarchical-child", Set, &m_hierChild);
     DECL_OPTION("-hierarchical-params-file", CbVal,
-                [this](const char* optp) { m_hierParamsFile.push_back({optp, work()}); });
+                [हे](स्थिरांक अक्षर* optp) { m_hierParamsFile.ढकला_back({optp, work()}); });
 
-    DECL_OPTION("-I", CbPartialMatch, [this, &optdir](const char* optp) {
+    DECL_OPTION("-I", CbPartialMatch, [हे, &optdir](स्थिरांक अक्षर* optp) {
         addIncDirUser(parseFileArg(optdir, optp));
     }).notForRerun();
     DECL_OPTION("-if-depth", Set, &m_ifDepth);
@@ -1621,43 +1621,43 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-inline-cfuncs", Set, &m_inlineCFuncs);
     DECL_OPTION("-inline-cfuncs-product", Set, &m_inlineCFuncsProduct);
     DECL_OPTION("-inline-mult", Set, &m_inlineMult);
-    DECL_OPTION("-instr-count-dpi", CbVal, [this, fl](int val) {
-        m_instrCountDpi = val;
-        if (m_instrCountDpi < 0) fl->v3fatal("--instr-count-dpi must be non-negative: " << val);
+    DECL_OPTION("-instr-count-dpi", CbVal, [हे, fl](पूर्णांक val) {
+        m_instr_मोजणी_Dpi = val;
+        जर (m_instr_मोजणी_Dpi < 0) fl->v3fatal("--instr-count-dpi must be non-negative: " << val);
     });
 
     DECL_OPTION("-json-edit-nums", OnOff, &m_jsonEditNums);
     DECL_OPTION("-json-ids", OnOff, &m_jsonIds);
     DECL_OPTION("-json-only", OnOff, &m_jsonOnly);
-    DECL_OPTION("-json-only-meta-output", CbVal, [this](const char* valp) {
+    DECL_OPTION("-json-only-meta-output", CbVal, [हे](स्थिरांक अक्षर* valp) {
         m_jsonOnlyMetaOutput = valp;
-        m_jsonOnly = true;
+        m_jsonOnly = सत्य;
     });
-    DECL_OPTION("-json-only-output", CbVal, [this](const char* valp) {
+    DECL_OPTION("-json-only-output", CbVal, [हे](स्थिरांक अक्षर* valp) {
         m_jsonOnlyOutput = valp;
-        m_jsonOnly = true;
+        m_jsonOnly = सत्य;
     });
 
     DECL_OPTION("-LDFLAGS", CbVal, callStrSetter(&V3Options::addLdLibs));
     DECL_OPTION("-l2-name", Set, &m_l2Name);
-    DECL_OPTION("-no-l2name", CbCall, [this]() { m_l2Name = ""; }).undocumented();  // Historical
-    DECL_OPTION("-l2name", CbCall, [this]() { m_l2Name = "v"; }).undocumented();  // Historical
-    const auto setLang = [this, fl](const char* valp) {
-        const V3LangCode optval{valp};
-        if (optval.legal()) {
+    DECL_OPTION("-no-l2name", CbCall, [हे]() { m_l2Name = ""; }).undocumented();  // Historical
+    DECL_OPTION("-l2name", CbCall, [हे]() { m_l2Name = "v"; }).undocumented();  // Historical
+    स्थिरांक स्वतः setLang = [हे, fl](स्थिरांक अक्षर* valp) {
+        स्थिरांक V3LangCode optval{valp};
+        जर (optval.legal()) {
             m_defaultLanguage = optval;
-        } else {
+        } अन्यथा {
             VSpellCheck spell;
-            for (int i = V3LangCode::L_ERROR + 1; i < V3LangCode::_ENUM_END; ++i) {
-                spell.pushCandidate(V3LangCode{i}.ascii());
+            साठी (पूर्णांक i = V3LangCode::L_ERROR + 1; i < V3LangCode::_ENUM_END; ++i) {
+                spell.ढकला_Candidate(V3LangCode{i}.ascii());
             }
-            fl->v3error("Unknown language specified: " << valp << spell.bestCandidateMsg(valp));
+            fl->v3error("Unknown language specified: " << valp << spell.best_Candidate_संदेश(valp));
         }
     };
     DECL_OPTION("-default-language", CbVal, setLang).notForRerun();
     DECL_OPTION("-language", CbVal, setLang).notForRerun();
-    DECL_OPTION("-libmap", CbVal, [this](const char* valp) { addLibMapFile(valp); });
-    DECL_OPTION("-lib-create", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-libmap", CbVal, [हे](स्थिरांक अक्षर* valp) { addLibMapFile(valp); });
+    DECL_OPTION("-lib-create", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
         validateIdentifier(fl, valp, "--lib-create");
         m_libCreate = valp;
     });
@@ -1667,120 +1667,120 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-MAKEFLAGS", CbVal, callStrSetter(&V3Options::addMakeFlags));
     DECL_OPTION("-MMD", OnOff, &m_makeDepend);
     DECL_OPTION("-MP", OnOff, &m_makePhony);
-    DECL_OPTION("-Mdir", CbVal, [this](const char* valp) {
+    DECL_OPTION("-Mdir", CbVal, [हे](स्थिरांक अक्षर* valp) {
         m_makeDir = valp;
         addIncDirFallback(m_makeDir);  // Need to find generated files there too
     }).notForRerun();
     DECL_OPTION("-main", OnOff, &m_main);
-    DECL_OPTION("-main-top-name", Set, &m_mainTopName);
-    DECL_OPTION("-make", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "gmake")) {
-            m_gmake = true;
-        } else if (!std::strcmp(valp, "json")) {
-            m_makeJson = true;
-        } else {
+    DECL_OPTION("-main-top-name", Set, &m_main_शीर्ष_Name);
+    DECL_OPTION("-make", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        जर (!std::म_भेद(valp, "gmake")) {
+            m_gmake = सत्य;
+        } अन्यथा जर (!std::म_भेद(valp, "json")) {
+            m_makeJson = सत्य;
+        } अन्यथा {
             fl->v3error("Unknown --make system specified: '" << valp << "'");
         }
     });
     DECL_OPTION("-func-recursion-depth", Set, &m_funcRecursion);
-    DECL_OPTION("-max-num-width", Set, &m_maxNumWidth);
-    DECL_OPTION("-mod-prefix", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-max-num-width", Set, &m_max_अंक_Width);
+    DECL_OPTION("-mod-prefix", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
         validateIdentifier(fl, valp, "--mod-prefix");
         m_modPrefix = valp;
     });
 
-    DECL_OPTION("-O0", CbCall, [this]() { optimize(0); });
-    DECL_OPTION("-O1", CbCall, [this]() { optimize(1); });
-    DECL_OPTION("-O2", CbCall, [this]() { optimize(2); });
-    DECL_OPTION("-O3", CbCall, [this]() { optimize(3); });
+    DECL_OPTION("-O0", CbCall, [हे]() { optimize(0); });
+    DECL_OPTION("-O1", CbCall, [हे]() { optimize(1); });
+    DECL_OPTION("-O2", CbCall, [हे]() { optimize(2); });
+    DECL_OPTION("-O3", CbCall, [हे]() { optimize(3); });
 
     DECL_OPTION("-o", Set, &m_exeName);
-    DECL_OPTION("-order-clock-delay", CbOnOff, [fl](bool /*flag*/) {
+    DECL_OPTION("-order-clock-delay", CbOnOff, [fl](तार्किक /*flag*/) {
         fl->v3warn(DEPRECATED, "Option order-clock-delay is deprecated and has no effect.");
     }).undocumented();
-    DECL_OPTION("-output-groups", CbVal, [this, fl](const char* valp) {
-        m_outputGroups = std::atoi(valp);
-        if (m_outputGroups < -1) fl->v3error("--output-groups must be >= -1: " << valp);
+    DECL_OPTION("-output-groups", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_outputGroups = std::म_से_प(valp);
+        जर (m_outputGroups < -1) fl->v3error("--output-groups must be >= -1: " << valp);
     });
-    DECL_OPTION("-output-groups-size", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-output-groups-size", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
         m_outputGroupsSize = std::atoll(valp);
-        if (m_outputGroupsSize < 0) fl->v3error("--output-groups-size must be >= 0: " << valp);
+        जर (m_outputGroupsSize < 0) fl->v3error("--output-groups-size must be >= 0: " << valp);
     });
     DECL_OPTION("-output-split", Set, &m_outputSplit);
-    DECL_OPTION("-output-split-cfuncs", CbVal, [this, fl](const char* valp) {
-        m_outputSplitCFuncs = std::atoi(valp);
-        if (m_outputSplitCFuncs < 0) {
+    DECL_OPTION("-output-split-cfuncs", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_outputSplitCFuncs = std::म_से_प(valp);
+        जर (m_outputSplitCFuncs < 0) {
             fl->v3error("--output-split-cfuncs must be >= 0: " << valp);
         }
     });
-    DECL_OPTION("-output-split-ctrace", CbVal, [this, fl](const char* valp) {
-        m_outputSplitCTrace = std::atoi(valp);
-        if (m_outputSplitCTrace < 0) {
+    DECL_OPTION("-output-split-ctrace", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_outputSplitCTrace = std::म_से_प(valp);
+        जर (m_outputSplitCTrace < 0) {
             fl->v3error("--output-split-ctrace must be >= 0: " << valp);
         }
     });
 
-    DECL_OPTION("-P", Set, &m_preprocNoLine);
-    DECL_OPTION("-pins64", CbCall, [this]() { m_pinsBv = 65; });
-    DECL_OPTION("-no-pins64", CbCall, [this]() { m_pinsBv = 33; });
-    DECL_OPTION("-pins-bv", CbVal, [this, fl](const char* valp) {
-        m_pinsBv = std::atoi(valp);
-        if (m_pinsBv > 65) fl->v3error("--pins-bv maximum is 65: " << valp);
+    DECL_OPTION("-P", Set, &m_preproc_No_ओळ);
+    DECL_OPTION("-pins64", CbCall, [हे]() { m_pinsBv = 65; });
+    DECL_OPTION("-no-pins64", CbCall, [हे]() { m_pinsBv = 33; });
+    DECL_OPTION("-pins-bv", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_pinsBv = std::म_से_प(valp);
+        जर (m_pinsBv > 65) fl->v3error("--pins-bv maximum is 65: " << valp);
     });
     DECL_OPTION("-pins-inout-enables", OnOff, &m_pinsInoutEnables);
-    DECL_OPTION("-pins-sc-uint", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-pins-sc-uint", CbOnOff, [हे](तार्किक flag) {
         m_pinsScUint = flag;
-        if (!m_pinsScBigUint) m_pinsBv = 65;
+        जर (!m_pinsScBigUint) m_pinsBv = 65;
     });
-    DECL_OPTION("-pins-sc-uint-bool", CbOnOff, [this](bool flag) { m_pinsScUintBool = flag; });
-    DECL_OPTION("-pins-sc-biguint", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-pins-sc-uint-bool", CbOnOff, [हे](तार्किक flag) { m_pinsScUintBool = flag; });
+    DECL_OPTION("-pins-sc-biguint", CbOnOff, [हे](तार्किक flag) {
         m_pinsScBigUint = flag;
         m_pinsBv = 513;
     });
     DECL_OPTION("-pins-uint8", OnOff, &m_pinsUint8);
     DECL_OPTION("-pipe-filter", Set, &m_pipeFilter);
     DECL_OPTION("-pp-comments", OnOff, &m_preprocComments).undocumented();  // Renamed
-    DECL_OPTION("-prefix", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-prefix", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
         validateIdentifier(fl, valp, "--prefix");
         m_prefix = valp;
     });
     DECL_OPTION("-preproc-comments", OnOff, &m_preprocComments);
     DECL_OPTION("-preproc-defines", OnOff, &m_preprocDefines);
     DECL_OPTION("-preproc-resolve", OnOff, &m_preprocResolve);
-    DECL_OPTION("-preproc-token-limit", CbVal, [this, fl](const char* valp) {
-        m_preprocTokenLimit = std::atoi(valp);
-        if (m_preprocTokenLimit <= 0) fl->v3error("--preproc-token-limit must be > 0: " << valp);
+    DECL_OPTION("-preproc-token-limit", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_preprocTokenLimit = std::म_से_प(valp);
+        जर (m_preprocTokenLimit <= 0) fl->v3error("--preproc-token-limit must be > 0: " << valp);
     });
-    DECL_OPTION("-private", CbCall, [this]() { m_public = false; });
+    DECL_OPTION("-private", CbCall, [हे]() { m_public = असत्य; });
     DECL_OPTION("-prof-c", OnOff, &m_profC);
-    DECL_OPTION("-prof-cfuncs", CbCall, [this]() { m_profC = m_profCFuncs = true; });
+    DECL_OPTION("-prof-cfuncs", CbCall, [हे]() { m_profC = m_profCFuncs = सत्य; });
     DECL_OPTION("-prof-exec", OnOff, &m_profExec);
     DECL_OPTION("-prof-pgo", OnOff, &m_profPgo);
-    DECL_OPTION("-profile-cfuncs", CbCall, [this]() {
-        m_profC = m_profCFuncs = true;
+    DECL_OPTION("-profile-cfuncs", CbCall, [हे]() {
+        m_profC = m_profCFuncs = सत्य;
     }).undocumented();  // Renamed
     DECL_OPTION("-protect-ids", OnOff, &m_protectIds);
-    DECL_OPTION("-protect-key", Set, &m_protectKey);
-    DECL_OPTION("-protect-lib", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-protect-key", Set, &m_protect_किल्ली);
+    DECL_OPTION("-protect-lib", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
         validateIdentifier(fl, valp, "--protect-lib");
         m_libCreate = valp;
-        m_protectIds = true;
+        m_protectIds = सत्य;
     });
     DECL_OPTION("-public", OnOff, &m_public);
     DECL_OPTION("-public-depth", Set, &m_publicDepth);
-    DECL_OPTION("-public-flat-rw", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-public-flat-rw", CbOnOff, [हे](तार्किक flag) {
         m_publicFlatRW = flag;
-        v3Global.dpi(true);
+        v3Global.dpi(सत्य);
     });
-    DECL_OPTION("-public-ignore", CbOnOff, [this](bool flag) { m_publicIgnore = flag; });
-    DECL_OPTION("-public-params", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-public-ignore", CbOnOff, [हे](तार्किक flag) { m_publicIgnore = flag; });
+    DECL_OPTION("-public-params", CbOnOff, [हे](तार्किक flag) {
         m_publicParams = flag;
-        v3Global.dpi(true);
+        v3Global.dpi(सत्य);
     });
     DECL_OPTION("-pvalue+", CbPartialMatch,
-                [this](const char* varp) { addParameter(varp, false); });
+                [हे](स्थिरांक अक्षर* varp) { addParameter(varp, असत्य); });
 
-    DECL_OPTION("-quiet", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-quiet", CbOnOff, [हे](तार्किक flag) {
         m_quietBuild = flag;
         m_quietExit = flag;
         m_quietStats = flag;
@@ -1790,17 +1790,17 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-quiet-stats", OnOff, &m_quietStats);
 
     DECL_OPTION("-relative-includes", OnOff, &m_relativeIncludes);
-    DECL_OPTION("-reloop-limit", CbVal, [this, fl](const char* valp) {
-        m_reloopLimit = std::atoi(valp);
-        if (m_reloopLimit < 2) fl->v3error("--reloop-limit must be >= 2: " << valp);
+    DECL_OPTION("-reloop-limit", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_reloopLimit = std::म_से_प(valp);
+        जर (m_reloopLimit < 2) fl->v3error("--reloop-limit must be >= 2: " << valp);
     });
     DECL_OPTION("-report-unoptflat", OnOff, &m_reportUnoptflat);
-    DECL_OPTION("-replication-limit", CbVal, [this, fl](const char* valp) {
-        m_replicationLimit = std::atoi(valp);
-        if (m_replicationLimit < 0) fl->v3error("--replication-limit must be >= 0: " << valp);
+    DECL_OPTION("-replication-limit", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_replicationLimit = std::म_से_प(valp);
+        जर (m_replicationLimit < 0) fl->v3error("--replication-limit must be >= 0: " << valp);
     });
     DECL_OPTION("-rr", CbCall, []() {});  // Processed only in bin/verilator shell
-    DECL_OPTION("-runtime-debug", CbCall, [this, fl]() {
+    DECL_OPTION("-runtime-debug", CbCall, [हे, fl]() {
         decorations(fl, "node");
         addCFlags("-ggdb");
         addLdLibs("-ggdb");
@@ -1811,95 +1811,95 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     });
 
     DECL_OPTION("-savable", OnOff, &m_savable);
-    DECL_OPTION("-sc", CbCall, [this]() {
-        m_outFormatOk = true;
-        m_systemC = true;
+    DECL_OPTION("-sc", CbCall, [हे]() {
+        m_outFormatOk = सत्य;
+        m_systemC = सत्य;
     });
     DECL_OPTION("-sched-zero-delay", OnOff, &m_schedZeroDelay);
     DECL_OPTION("-skip-identical", OnOff, &m_skipIdentical);
     DECL_OPTION("-stats", OnOff, &m_stats);
-    DECL_OPTION("-stats-vars", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-stats-vars", CbOnOff, [हे](तार्किक flag) {
         m_statsVars = flag;
         m_stats |= flag;
     });
-    DECL_OPTION("-std", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-std", CbOnOff, [हे](तार्किक flag) {
         m_stdPackage = flag;
         m_stdWaiver = flag;
     });
     DECL_OPTION("-std-package", OnOff, &m_stdPackage);
     DECL_OPTION("-std-waiver", OnOff, &m_stdWaiver);
     DECL_OPTION("-stop-fail", OnOff, &m_stopFail);
-    DECL_OPTION("-sv", CbCall, [this]() { m_defaultLanguage = V3LangCode::L1800_2023; });
+    DECL_OPTION("-sv", CbCall, [हे]() { m_defaultLanguage = V3LangCode::L1800_2023; });
 
-    DECL_OPTION("-no-threads", CbCall, [this, fl]() {
+    DECL_OPTION("-no-threads", CbCall, [हे, fl]() {
         fl->v3warn(DEPRECATED, "Option --no-threads is deprecated, use '--threads 1' instead");
         m_threads = 1;
     });
-    DECL_OPTION("-threads", CbVal, [this, fl](const char* valp) {
-        m_threads = std::atoi(valp);
-        if (m_threads < 0) fl->v3fatal("--threads must be >= 0: " << valp);
-        if (m_threads == 0) {
+    DECL_OPTION("-threads", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_threads = std::म_से_प(valp);
+        जर (m_threads < 0) fl->v3fatal("--threads must be >= 0: " << valp);
+        जर (m_threads == 0) {
             fl->v3warn(DEPRECATED, "Option --threads 0 is deprecated, use '--threads 1' instead");
             m_threads = 1;
         }
     });
-    DECL_OPTION("-hierarchical-threads", CbVal, [this, fl](const char* valp) {
-        m_hierThreads = std::atoi(valp);
-        if (m_hierThreads < 0) fl->v3fatal("--hierarchical-threads must be >= 0: " << valp);
+    DECL_OPTION("-hierarchical-threads", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_hierThreads = std::म_से_प(valp);
+        जर (m_hierThreads < 0) fl->v3fatal("--hierarchical-threads must be >= 0: " << valp);
     });
     DECL_OPTION("-threads-coarsen", OnOff, &m_threadsCoarsen).undocumented();  // Debug
-    DECL_OPTION("-threads-dpi", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "all")) {
-            m_threadsDpiPure = true;
-            m_threadsDpiUnpure = true;
-        } else if (!std::strcmp(valp, "none")) {
-            m_threadsDpiPure = false;
-            m_threadsDpiUnpure = false;
-        } else if (!std::strcmp(valp, "pure")) {
-            m_threadsDpiPure = true;
-            m_threadsDpiUnpure = false;
-        } else {
+    DECL_OPTION("-threads-dpi", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        जर (!std::म_भेद(valp, "all")) {
+            m_threadsDpiPure = सत्य;
+            m_threadsDpiUnpure = सत्य;
+        } अन्यथा जर (!std::म_भेद(valp, "none")) {
+            m_threadsDpiPure = असत्य;
+            m_threadsDpiUnpure = असत्य;
+        } अन्यथा जर (!std::म_भेद(valp, "pure")) {
+            m_threadsDpiPure = सत्य;
+            m_threadsDpiUnpure = असत्य;
+        } अन्यथा {
             fl->v3error("Unknown setting for --threads-dpi: '"
                         << valp << "'\n"
                         << fl->warnMore() << "... Suggest 'all', 'none', or 'pure'");
         }
     });
-    DECL_OPTION("-threads-max-mtasks", CbVal, [this, fl](const char* valp) {
-        m_threadsMaxMTasks = std::atoi(valp);
-        if (m_threadsMaxMTasks < 1) fl->v3fatal("--threads-max-mtasks must be >= 1: " << valp);
+    DECL_OPTION("-threads-max-mtasks", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        m_threadsMaxMTasks = std::म_से_प(valp);
+        जर (m_threadsMaxMTasks < 1) fl->v3fatal("--threads-max-mtasks must be >= 1: " << valp);
     });
-    DECL_OPTION("-timescale", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-timescale", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
         VTimescale unit;
         VTimescale prec;
         VTimescale::parseSlashed(fl, valp, unit /*ref*/, prec /*ref*/);
-        if (!unit.isNone() && timeOverrideUnit().isNone()) m_timeDefaultUnit = unit;
-        if (!prec.isNone() && timeOverridePrec().isNone()) m_timeDefaultPrec = prec;
+        जर (!unit.isNone() && timeOverrideUnit().isNone()) m_timeDefaultUnit = unit;
+        जर (!prec.isNone() && timeOverridePrec().isNone()) m_timeDefaultPrec = prec;
     });
-    DECL_OPTION("-timescale-override", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-timescale-override", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
         VTimescale unit;
         VTimescale prec;
-        VTimescale::parseSlashed(fl, valp, unit /*ref*/, prec /*ref*/, true);
-        if (!unit.isNone()) {
+        VTimescale::parseSlashed(fl, valp, unit /*ref*/, prec /*ref*/, सत्य);
+        जर (!unit.isNone()) {
             m_timeDefaultUnit = unit;
             m_timeOverrideUnit = unit;
         }
-        if (!prec.isNone()) {
+        जर (!prec.isNone()) {
             m_timeDefaultPrec = prec;
             m_timeOverridePrec = prec;
         }
     });
     DECL_OPTION("-timing", OnOff, &m_timing);
     DECL_OPTION("-top", CbVal,
-                [this](const std::string& flag) { m_topModule = AstNode::encodeName(flag); });
+                [हे](स्थिरांक std::string& flag) { m_शीर्ष_Module = Ast_गाठ::encodeName(flag); });
     DECL_OPTION("-top-module", CbVal,
-                [this](const std::string& flag) { m_topModule = AstNode::encodeName(flag); });
-    DECL_OPTION("-top-module-encoded", Set, &m_topModule).undocumented();
+                [हे](स्थिरांक std::string& flag) { m_शीर्ष_Module = Ast_गाठ::encodeName(flag); });
+    DECL_OPTION("-top-module-encoded", Set, &m_शीर्ष_Module).undocumented();
     DECL_OPTION("-trace", OnOff, &m_trace);
-    DECL_OPTION("-trace-saif", CbCall, [this]() { m_traceEnabledSaif = true; });
+    DECL_OPTION("-trace-saif", CbCall, [हे]() { m_traceEnabledSaif = सत्य; });
     DECL_OPTION("-trace-coverage", OnOff, &m_traceCoverage);
     DECL_OPTION("-trace-depth", Set, &m_traceDepth);
-    DECL_OPTION("-trace-fst", CbCall, [this]() {
-        m_traceEnabledFst = true;
+    DECL_OPTION("-trace-fst", CbCall, [हे]() {
+        m_traceEnabledFst = सत्य;
         addLdLibs("-lz");
     });
     DECL_OPTION("-trace-fst-thread", CbCall, [fl]() {
@@ -1909,127 +1909,127 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-trace-max-width", Set, &m_traceMaxWidth);
     DECL_OPTION("-trace-params", OnOff, &m_traceParams);
     DECL_OPTION("-trace-structs", OnOff, &m_traceStructs);
-    DECL_OPTION("-trace-threads", CbVal, [fl](const char*) {
+    DECL_OPTION("-trace-threads", CbVal, [fl](स्थिरांक अक्षर*) {
         fl->v3warn(DEPRECATED, "Option '--trace-threads' is deprecated and has no effect.");
     }).undocumented();
-    DECL_OPTION("-no-trace-top", Set, &m_noTraceTop);
+    DECL_OPTION("-no-trace-top", Set, &m_no_Trace_शीर्ष);
     DECL_OPTION("-trace-underscore", OnOff, &m_traceUnderscore);
-    DECL_OPTION("-trace-vcd", CbCall, [this]() { m_traceEnabledVcd = true; });
+    DECL_OPTION("-trace-vcd", CbCall, [हे]() { m_traceEnabledVcd = सत्य; });
 
     DECL_OPTION("-U", CbPartialMatch, &V3PreShell::undef);
     DECL_OPTION("-underline-zero", OnOff, &m_underlineZero).undocumented();  // Deprecated
     DECL_OPTION("-no-unlimited-stack", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-constraint-array-limit", Set, &m_constraintArrayLimit);
-    DECL_OPTION("-unroll-count", Set, &m_unrollCount).undocumented();  // Optimization tweak
+    DECL_OPTION("-unroll-count", Set, &m_unroll_मोजणी).undocumented();  // Optimization tweak
     DECL_OPTION("-unroll-limit", Set, &m_unrollLimit);
     DECL_OPTION("-unroll-stmts", Set, &m_unrollStmts).undocumented();  // Optimization tweak
     DECL_OPTION("-unused-regexp", Set, &m_unusedRegexp);
 
-    DECL_OPTION("-V", CbCall, [this]() {
-        showVersion(true);
+    DECL_OPTION("-V", CbCall, [हे]() {
+        showVersion(सत्य);
         v3Global.vlExit(0);
     });
-    DECL_OPTION("-v", CbVal, [this, &optdir](const char* valp) {
+    DECL_OPTION("-v", CbVal, [हे, &optdir](स्थिरांक अक्षर* valp) {
         V3Options::addLibraryFile(parseFileArg(optdir, valp), work());
     }).notForRerun();
     DECL_OPTION("-valgrind", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-verilate", OnOff, &m_verilate);
-    DECL_OPTION("-verilate-jobs", CbVal, [this, fl](const char* valp) {
-        int val = std::atoi(valp);
-        if (val < 0) {
+    DECL_OPTION("-verilate-jobs", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        पूर्णांक val = std::म_से_प(valp);
+        जर (val < 0) {
             fl->v3error("--verilate-jobs requires a non-negative integer, but '"
                         << valp << "' was passed");
             val = 1;
-        } else if (val == 0) {
+        } अन्यथा जर (val == 0) {
             val = VlOs::getProcessDefaultParallelism();
         }
         m_verilateJobs = val;
     });
-    DECL_OPTION("-version", CbCall, [this]() {
-        showVersion(false);
+    DECL_OPTION("-version", CbCall, [हे]() {
+        showVersion(असत्य);
         v3Global.vlExit(0);
     });
     DECL_OPTION("-vpi", OnOff, &m_vpi);
 
-    DECL_OPTION("-Wall", CbCall, []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, false); });
-    DECL_OPTION("-Werror-", CbPartialMatch, [this, fl](const char* optp) {
-        const V3ErrorCode code{optp};
-        if (code == V3ErrorCode::EC_ERROR) {
-            if (!isFuture(optp)) fl->v3fatal("Unknown warning specified: -Werror-" << optp);
-        } else {
-            V3Error::pretendError(code, true);
+    DECL_OPTION("-Wall", CbCall, []() { File_ओळ::globalWarnOff(V3ErrorCode::I_LINT, असत्य); });
+    DECL_OPTION("-Werror-", CbPartialMatch, [हे, fl](स्थिरांक अक्षर* optp) {
+        स्थिरांक V3ErrorCode code{optp};
+        जर (code == V3ErrorCode::EC_ERROR) {
+            जर (!isFuture(optp)) fl->v3fatal("Unknown warning specified: -Werror-" << optp);
+        } अन्यथा {
+            V3Error::pretendError(code, सत्य);
         }
     });
-    DECL_OPTION("-Wfuture-", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("-Wfuture-", CbPartialMatch, [हे](स्थिरांक अक्षर* optp) {
         // Note it may not be a future option, but one that is currently implemented.
         addFuture(optp);
     });
-    DECL_OPTION("-Wno-", CbPartialMatch, [fl, &parser](const char* optp) VL_MT_DISABLED {
-        const string err = FileLine::globalWarnOffParse(optp, true);
-        if (!err.empty()) {
-            const string fullopt = "-Wno-"s + optp;
+    DECL_OPTION("-Wno-", CbPartialMatch, [fl, &parser](स्थिरांक अक्षर* optp) VL_MT_DISABLED {
+        स्थिरांक string err = File_ओळ::globalWarnOffParse(optp, सत्य);
+        जर (!err.empty()) {
+            स्थिरांक string fullopt = "-Wno-"s + optp;
             fl->v3fatal("Unknown warning specified: " << fullopt
                                                       << parser.getSuggestion(fullopt.c_str()));
         }
     });
-    for (int i = V3ErrorCode::EC_FIRST_WARN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+    साठी (पूर्णांक i = V3ErrorCode::EC_FIRST_WARN; i < V3ErrorCode::_ENUM_MAX; ++i) {
         // cppcheck-suppress shadowFunction
-        for (const string prefix : {"-Wno-", "-Wwarn-"})
+        साठी (स्थिरांक string prefix : {"-Wno-", "-Wwarn-"})
             parser.addSuggestionCandidate(prefix + V3ErrorCode{i}.ascii());
     }
-    DECL_OPTION("-Wno-context", CbCall, [this]() { m_context = false; });
-    DECL_OPTION("-Wno-fatal", CbCall, []() { V3Error::warnFatal(false); });
-    DECL_OPTION("-Wno-lint", CbCall, []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, true); });
+    DECL_OPTION("-Wno-context", CbCall, [हे]() { m_context = असत्य; });
+    DECL_OPTION("-Wno-fatal", CbCall, []() { V3Error::warnFatal(असत्य); });
+    DECL_OPTION("-Wno-lint", CbCall, []() { File_ओळ::globalWarnOff(V3ErrorCode::I_LINT, सत्य); });
     DECL_OPTION("-Wno-style", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_STYLE, true); });
+                []() { File_ओळ::globalWarnOff(V3ErrorCode::I_STYLE, सत्य); });
     DECL_OPTION("-work", Set, &m_work);
-    DECL_OPTION("-Wpedantic", CbCall, [this]() {
-        m_pedantic = true;
-        V3Error::pretendError(V3ErrorCode::ASSIGNIN, false);
+    DECL_OPTION("-Wpedantic", CbCall, [हे]() {
+        m_pedantic = सत्य;
+        V3Error::pretendError(V3ErrorCode::ASSIGNIN, असत्य);
     });
-    DECL_OPTION("-Wwarn-", CbPartialMatch, [this, fl, &parser](const char* optp) VL_MT_DISABLED {
-        const V3ErrorCode code{optp};
-        if (code == V3ErrorCode::EC_ERROR) {
-            if (!isFuture(optp)) {
-                const string fullopt = "-Wwarn-"s + optp;
+    DECL_OPTION("-Wwarn-", CbPartialMatch, [हे, fl, &parser](स्थिरांक अक्षर* optp) VL_MT_DISABLED {
+        स्थिरांक V3ErrorCode code{optp};
+        जर (code == V3ErrorCode::EC_ERROR) {
+            जर (!isFuture(optp)) {
+                स्थिरांक string fullopt = "-Wwarn-"s + optp;
                 fl->v3fatal("Unknown warning specified: "
                             << fullopt << parser.getSuggestion(fullopt.c_str()));
             }
-        } else {
-            FileLine::globalWarnOff(code, false);
-            V3Error::pretendError(code, false);
+        } अन्यथा {
+            File_ओळ::globalWarnOff(code, असत्य);
+            V3Error::pretendError(code, असत्य);
         }
     });
     DECL_OPTION("-Wwarn-lint", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, false); });
+                []() { File_ओळ::globalWarnOff(V3ErrorCode::I_LINT, असत्य); });
     DECL_OPTION("-Wwarn-style", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_STYLE, false); });
+                []() { File_ओळ::globalWarnOff(V3ErrorCode::I_STYLE, असत्य); });
     DECL_OPTION("-waiver-multiline", OnOff, &m_waiverMultiline);
     DECL_OPTION("-waiver-output", Set, &m_waiverOutput);
 
-    DECL_OPTION("-x-assign", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "0")) {
+    DECL_OPTION("-x-assign", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        जर (!std::म_भेद(valp, "0")) {
             m_xAssign = "0";
-        } else if (!std::strcmp(valp, "1")) {
+        } अन्यथा जर (!std::म_भेद(valp, "1")) {
             m_xAssign = "1";
-        } else if (!std::strcmp(valp, "fast")) {
+        } अन्यथा जर (!std::म_भेद(valp, "fast")) {
             m_xAssign = "fast";
-        } else if (!std::strcmp(valp, "unique")) {
+        } अन्यथा जर (!std::म_भेद(valp, "unique")) {
             m_xAssign = "unique";
-        } else {
+        } अन्यथा {
             fl->v3error("Unknown setting for --x-assign: '"
                         << valp << "'\n"
                         << fl->warnMore() << "... Suggest '0', '1', 'fast', or 'unique'");
         }
     });
-    DECL_OPTION("-x-initial", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "0")) {
+    DECL_OPTION("-x-initial", CbVal, [हे, fl](स्थिरांक अक्षर* valp) {
+        जर (!std::म_भेद(valp, "0")) {
             m_xInitial = "0";
-        } else if (!std::strcmp(valp, "fast")) {
+        } अन्यथा जर (!std::म_भेद(valp, "fast")) {
             m_xInitial = "fast";
-        } else if (!std::strcmp(valp, "unique")) {
+        } अन्यथा जर (!std::म_भेद(valp, "unique")) {
             m_xInitial = "unique";
-        } else {
+        } अन्यथा {
             fl->v3error("Unknown setting for --x-initial: '"
                         << valp << "'\n"
                         << fl->warnMore() << "... Suggest '0', 'fast', or 'unique'");
@@ -2037,80 +2037,80 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     });
     DECL_OPTION("-x-initial-edge", OnOff, &m_xInitialEdge);
 
-    DECL_OPTION("-y", CbVal, [this, &optdir](const char* valp) {
+    DECL_OPTION("-y", CbVal, [हे, &optdir](स्थिरांक अक्षर* valp) {
         addIncDirUser(parseFileArg(optdir, string{valp}));
     }).notForRerun();
 
     parser.finalize();
 
-    for (int i = 0; i < argc;) {
+    साठी (पूर्णांक i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
 
         // Option
-        if (argv[i][0] == '-' || argv[i][0] == '+') {
-            const std::string argName = argv[i] + (argv[i][0] == argv[i][1] ? 2 : 1);
-            int consumed = 0;
-            bool isForRerun = true;
+        जर (argv[i][0] == '-' || argv[i][0] == '+') {
+            स्थिरांक std::string argName = argv[i] + (argv[i][0] == argv[i][1] ? 2 : 1);
+            पूर्णांक consumed = 0;
+            तार्किक isForRerun = सत्य;
 
             // Special case for -j which has an optional argument
-            if (argv[i][0] == '-' && argName == "j") {
+            जर (argv[i][0] == '-' && argName == "j") {
                 consumed = 1;
-                int val = 0;
-                if (i + 1 < argc && std::isdigit(argv[i + 1][0])) {
-                    val = std::atoi(argv[i + 1]);  // Can't be negative due to isdigit above
-                    if (val == 0) val = VlOs::getProcessDefaultParallelism();
+                पूर्णांक val = 0;
+                जर (i + 1 < argc && std::है_अंक(argv[i + 1][0])) {
+                    val = std::म_से_प(argv[i + 1]);  // Can't be negative due to isdigit above
+                    जर (val == 0) val = VlOs::getProcessDefaultParallelism();
                     consumed = 2;
                 }
-                if (m_buildJobs == -1) m_buildJobs = val;
-                if (m_verilateJobs == -1) m_verilateJobs = val;
-                if (m_outputGroups == -1) m_outputGroups = val;
-            } else {
-                const auto pair = parser.parse(i, argc, argv);
+                जर (m_buildJobs == -1) m_buildJobs = val;
+                जर (m_verilateJobs == -1) m_verilateJobs = val;
+                जर (m_outputGroups == -1) m_outputGroups = val;
+            } अन्यथा {
+                स्थिरांक स्वतः pair = parser.parse(i, argc, argv);
                 consumed = pair.first;
                 isForRerun = pair.second;
-                if (consumed) {
+                जर (consumed) {
                     // Already processed
-                } else if (isFuture0(argName)) {
+                } अन्यथा जर (isFuture0(argName)) {
                     consumed = 1;
-                } else if (isFuture1(argName)) {
+                } अन्यथा जर (isFuture1(argName)) {
                     consumed = 2;
-                } else {
+                } अन्यथा {
                     fl->v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                     consumed = 1;
                 }
             }
             UASSERT(consumed, "Failed to consume argument: " << argv[i]);
             // Record all arguments except for -f and -F (their contents will be recorded instead)
-            if (argName != "f" && argName != "F") addArg(argv + i, consumed, isForRerun);
+            जर (argName != "f" && argName != "F") addArg(argv + i, consumed, isForRerun);
             i += consumed;
-            continue;
+            सुरूठेवा;
         }
 
         // Filename
-        const std::string filename = parseFileArg(optdir, argv[i]);
-        bool isForRerun = true;
-        if (suffixed(filename, ".cpp")  //
+        स्थिरांक std::string filename = parseFileArg(optdir, argv[i]);
+        तार्किक isForRerun = सत्य;
+        जर (suffixed(filename, ".cpp")  //
             || suffixed(filename, ".cxx")  //
             || suffixed(filename, ".cc")  //
             || suffixed(filename, ".c")  //
             || suffixed(filename, ".sp")) {
             V3Options::addCppFile(filename);
-        } else if (suffixed(filename, ".a")  //
+        } अन्यथा जर (suffixed(filename, ".a")  //
                    || suffixed(filename, ".o")  //
                    || suffixed(filename, ".so")) {
             V3Options::addLdLibFile(filename);
-        } else if (suffixed(filename, ".vlt")) {
+        } अन्यथा जर (suffixed(filename, ".vlt")) {
             V3Options::addVltFile(filename, work());
-            isForRerun = false;
-        } else {
+            isForRerun = असत्य;
+        } अन्यथा {
             V3Options::addVFile(filename, work());
-            isForRerun = false;
+            isForRerun = असत्य;
         }
         addArg(filename, isForRerun);
         ++i;
     }
 
-    if (m_debugOptions) {
+    जर (m_debugOptions) {
         parser.dumpOptions();
         v3Global.vlExit(0);
     }
@@ -2118,44 +2118,44 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
 
 //======================================================================
 
-void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED {
+शून्य V3Options::parseOptsFile(File_ओळ* fl, स्थिरांक string& filename, तार्किक rel) VL_MT_DISABLED {
     // Read the specified -f filename and process as arguments
     UINFO(1, "Reading Options File " << filename);
 
-    const std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream(filename)};
-    if (ifp->fail()) {
+    स्थिरांक std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream(filename)};
+    जर (ifp->fail()) {
         fl->v3error("Cannot open -f command file: " + filename);
-        return;
+        परत;
     }
 
     // If we find any '// verilator fargs' line in the file, we will only use these,
     // otherwise we will use the file contents. This enables rerunning the output
     // produced by --dump-inptus with:
     //   verilator -f <prefix>__inputs.vpp <prefix>__inputs.vpp
-    bool has_fargs = false;
+    तार्किक has_fargs = असत्य;
     std::string whole_file;
 
     // Parses a '// verilator fargs' or '/* verilator fargs */' comment
-    const auto parse_fargs_cmt = [&](const char* p) -> void {
-        const bool blockCmt = p[1] == '*';
+    स्थिरांक स्वतः parse_fargs_cmt = [&](स्थिरांक अक्षर* p) -> शून्य {
+        स्थिरांक तार्किक blockCmt = p[1] == '*';
         p += 2;
-        while (std::isspace(*p)) ++p;
-        if (VString::startsWith(p, "verilator")) {
-            p += std::strlen("verilator");
-            if (std::isspace(*p)) {
-                while (std::isspace(*p)) ++p;
-                if (VString::startsWith(p, "fargs")) {
-                    p += std::strlen("fargs");
-                    if (std::isspace(*p)) {
-                        while (std::isspace(*p)) ++p;
-                        if (!has_fargs) {
-                            has_fargs = true;
+        पर्यंत (std::है_खाली(*p)) ++p;
+        जर (VString::startsWith(p, "verilator")) {
+            p += std::म_माप("verilator");
+            जर (std::है_खाली(*p)) {
+                पर्यंत (std::है_खाली(*p)) ++p;
+                जर (VString::startsWith(p, "fargs")) {
+                    p += std::म_माप("fargs");
+                    जर (std::है_खाली(*p)) {
+                        पर्यंत (std::है_खाली(*p)) ++p;
+                        जर (!has_fargs) {
+                            has_fargs = सत्य;
                             whole_file.clear();
                         }
                         whole_file += p;
-                        if (blockCmt) {
-                            const std::string::size_type pos = whole_file.find("*/");
-                            if (pos == std::string::npos) {
+                        जर (blockCmt) {
+                            स्थिरांक std::string::size_type pos = whole_file.find("*/");
+                            जर (pos == std::string::npos) {
                                 fl->v3fatal("/* verilator fargs */ must be on single line");
                             }
                             whole_file.resize(pos);
@@ -2167,39 +2167,39 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
         }
     };
 
-    bool inCmt = false;
-    while (!ifp->eof()) {
-        const std::string line = V3Os::getline(*ifp);
+    तार्किक inCmt = असत्य;
+    पर्यंत (!ifp->eof()) {
+        स्थिरांक std::string ओळ = V3Os::getline(*ifp);
         // Strip simple comments
-        char lastch = ' ';  // 'std::isspace(lastch)' is true at the start of the line
-        bool space_begin = true;  // At beginning or leading spaces only
-        for (const char* p = line.c_str(); *p; lastch = *p++) {
-            if (inCmt) {
-                if (p[0] == '*' && p[1] == '/') {
-                    inCmt = false;
+        अक्षर lastch = ' ';  // 'std::isspace(lastch)' is true at the start of the line
+        तार्किक space_begin = सत्य;  // At beginning or leading spaces only
+        साठी (स्थिरांक अक्षर* p = ओळ.c_str(); *p; lastch = *p++) {
+            जर (inCmt) {
+                जर (p[0] == '*' && p[1] == '/') {
+                    inCmt = असत्य;
                     ++p;
                 }
-            } else if (p[0] == '/' && p[1] == '/' && std::isspace(lastch)) {  // Allow /file//path
+            } अन्यथा जर (p[0] == '/' && p[1] == '/' && std::है_खाली(lastch)) {  // Allow /file//path
                 parse_fargs_cmt(p);
-                break;  // Ignore to EOL
-            } else if (p[0] == '#' && space_begin) {  // Only # at [spaced] begin of line
-                break;  // Ignore to EOL
-            } else if (p[0] == '/' && p[1] == '*') {
+                थांबा;  // Ignore to EOL
+            } अन्यथा जर (p[0] == '#' && space_begin) {  // Only # at [spaced] begin of line
+                थांबा;  // Ignore to EOL
+            } अन्यथा जर (p[0] == '/' && p[1] == '*') {
                 parse_fargs_cmt(p);
-                inCmt = true;
-                space_begin = false;
+                inCmt = सत्य;
+                space_begin = असत्य;
                 ++p;
-            } else {
-                if (!std::isspace(*p)) space_begin = false;
-                if (!has_fargs) whole_file += *p;
+            } अन्यथा {
+                जर (!std::है_खाली(*p)) space_begin = असत्य;
+                जर (!has_fargs) whole_file += *p;
             }
         }
-        if (!has_fargs) whole_file += " ";
+        जर (!has_fargs) whole_file += " ";
     }
     whole_file += "\n";  // So string match below is simplified
-    if (inCmt) fl->v3error("Unterminated /* comment inside -f file.");
+    जर (inCmt) fl->v3error("Unterminated /* comment inside -f file.");
 
-    fl = new FileLine{filename};
+    fl = नवीन File_ओळ{filename};
 
     // Split into argument list and process
     // Note we try to respect escaped char, double/simple quoted strings
@@ -2209,7 +2209,7 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
     std::vector<string> args;
 
     // Parse file using a state machine, taking into account quoted strings and escaped chars
-    enum state : uint8_t {
+    गणना state : uint8_t {
         ST_IN_OPTION,
         ST_ESCAPED_CHAR,
         ST_IN_QUOTED_STR,
@@ -2219,97 +2219,97 @@ void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL
     state st = ST_IN_OPTION;
     state last_st = ST_IN_OPTION;
     string arg;
-    for (string::size_type pos = 0; pos < whole_file.length(); ++pos) {
-        char curr_char = whole_file[pos];
-        switch (st) {
-        case ST_IN_OPTION:  // Get all chars up to a white space or a "="
-            if (std::isspace(curr_char)) {  // End of option
-                if (!arg.empty()) {  // End of word
-                    args.push_back(arg);
+    साठी (string::size_type pos = 0; pos < whole_file.length(); ++pos) {
+        अक्षर curr_char = whole_file[pos];
+        निवड (st) {
+        स्थिती ST_IN_OPTION:  // Get all chars up to a white space or a "="
+            जर (std::है_खाली(curr_char)) {  // End of option
+                जर (!arg.empty()) {  // End of word
+                    args.ढकला_back(arg);
                 }
                 arg = "";
-                break;
+                थांबा;
             }
-            if (curr_char == '\\') {  // Escape char, we wait for next char
+            जर (curr_char == '\\') {  // Escape char, we wait for next char
                 last_st = st;  // Memorize current state
                 st = ST_ESCAPED_CHAR;
-                break;
+                थांबा;
             }
-            if (curr_char == '\'') {  // Find begin of quoted string
+            जर (curr_char == '\'') {  // Find begin of quoted string
                 // Examine next char in order to decide between
                 // a string or a base specifier for integer literal
                 ++pos;
-                if (pos < whole_file.length()) curr_char = whole_file[pos];
-                if (curr_char == '"') {  // String
+                जर (pos < whole_file.length()) curr_char = whole_file[pos];
+                जर (curr_char == '"') {  // String
                     st = ST_IN_QUOTED_STR;
-                } else {  // Base specifier
+                } अन्यथा {  // Base specifier
                     arg += '\'';
                 }
                 arg += curr_char;
-                break;
+                थांबा;
             }
-            if (curr_char == '"') {  // Find begin of double quoted string
+            जर (curr_char == '"') {  // Find begin of double quoted string
                 // Doesn't insert the quote
                 st = ST_IN_DOUBLE_QUOTED_STR;
-                break;
+                थांबा;
             }
             arg += curr_char;
-            break;
-        case ST_IN_QUOTED_STR:  // Just store all chars inside string
-            if (curr_char != '\'') {
+            थांबा;
+        स्थिती ST_IN_QUOTED_STR:  // Just store all chars inside string
+            जर (curr_char != '\'') {
                 arg += curr_char;
-            } else {  // End of quoted string
+            } अन्यथा {  // End of quoted string
                 st = ST_IN_OPTION;
             }
-            break;
-        case ST_IN_DOUBLE_QUOTED_STR:  // Take into account escaped chars
-            if (curr_char != '"') {
-                if (curr_char == '\\') {
+            थांबा;
+        स्थिती ST_IN_DOUBLE_QUOTED_STR:  // Take into account escaped chars
+            जर (curr_char != '"') {
+                जर (curr_char == '\\') {
                     last_st = st;
                     st = ST_ESCAPED_CHAR;
-                } else {
+                } अन्यथा {
                     arg += curr_char;
                 }
-            } else {  // End of double quoted string
+            } अन्यथा {  // End of double quoted string
                 st = ST_IN_OPTION;
             }
-            break;
-        case ST_ESCAPED_CHAR:  // Just add the escaped char
+            थांबा;
+        स्थिती ST_ESCAPED_CHAR:  // Just add the escaped char
             arg += curr_char;
             st = last_st;
-            break;
+            थांबा;
         }
     }
-    if (!arg.empty()) {  // Add last word
-        args.push_back(arg);
+    जर (!arg.empty()) {  // Add last word
+        args.ढकला_back(arg);
     }
 
     // Path
-    const string optdir = (rel ? V3Os::filenameDir(filename) : ".");
+    स्थिरांक string optdir = (rel ? V3Os::filenameDir(filename) : ".");
 
     // Convert to argv style arg list and parse them
-    std::vector<char*> argv;
+    std::vector<अक्षर*> argv;
     argv.reserve(args.size() + 1);
-    for (const string& i : args) argv.push_back(const_cast<char*>(i.c_str()));
-    argv.push_back(nullptr);  // argv is nullptr-terminated
-    parseOptsList(fl, optdir, static_cast<int>(argv.size() - 1), argv.data());
+    साठी (स्थिरांक string& i : args) argv.ढकला_back(const_cast<अक्षर*>(i.c_str()));
+    argv.ढकला_back(nullptr);  // argv is nullptr-terminated
+    parseOptsList(fl, optdir, static_cast<पूर्णांक>(argv.size() - 1), argv.data());
 }
 
 //======================================================================
 
-string V3Options::parseFileArg(const string& optdir, const string& relfilename) {
+string V3Options::parseFileArg(स्थिरांक string& optdir, स्थिरांक string& relfilename) {
     string filename = V3Os::filenameSubstitute(relfilename);
-    if (optdir != "." && V3Os::filenameIsRel(filename))
+    जर (optdir != "." && V3Os::filenameIsRel(filename))
         filename = V3Os::filenameJoin(optdir, filename);
-    return filename;
+    परत filename;
 }
 
 //======================================================================
 
-void V3Options::showVersion(bool verbose) {
+शून्य V3Options::showVersion(तार्किक verbose) {
     cout << version();
     cout << "\n";
-    if (!verbose) return;
+    जर (!verbose) परत;
 
     cout << "\n";
     cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
@@ -2327,7 +2327,7 @@ void V3Options::showVersion(bool verbose) {
     cout << "    SYSTEMC_ARCH       = " << DEFENV_SYSTEMC_ARCH << "\n";
     cout << "    SYSTEMC_INCLUDE    = " << DEFENV_SYSTEMC_INCLUDE << "\n";
     cout << "    SYSTEMC_LIBDIR     = " << DEFENV_SYSTEMC_LIBDIR << "\n";
-    cout << "    VERILATOR_ROOT     = " << DEFENV_VERILATOR_ROOT << "\n";
+    cout << "    VERILATOR_ROOT     = " << DEFENV_VERILATOR_मूळ << "\n";
     cout << "    VERILATOR_SOLVER   = " << DEFENV_VERILATOR_SOLVER << "\n";
     cout << "    SystemC system-wide = " << cvtToStr(systemCSystemWide()) << "\n";
 
@@ -2357,7 +2357,7 @@ void V3Options::showVersion(bool verbose) {
 //======================================================================
 
 V3Options::V3Options() {
-    m_impp = new V3OptionsImp;
+    m_impp = नवीन V3OptionsImp;
 
     m_coverageFsmExpand = VFsmExpandType::AUTO;  // Auto is a default global default
     m_makeDir = "obj_dir";
@@ -2380,62 +2380,62 @@ V3Options::V3Options() {
 
 V3Options::~V3Options() { VL_DO_CLEAR(delete m_impp, m_impp = nullptr); }
 
-void V3Options::setDebugMode(int level) {
+शून्य V3Options::setDebugMode(पूर्णांक level) {
     V3Error::debugDefault(level);
-    if (!m_dumpLevel.count("tree")) m_dumpLevel["tree"] = 3;  // Don't override if already set.
-    m_stats = true;
-    m_debugCheck = true;
-    if (level) {
+    जर (!m_dumpLevel.मोजणी("tree")) m_dumpLevel["tree"] = 3;  // Don't override if already set.
+    m_stats = सत्य;
+    m_debugCheck = सत्य;
+    जर (level) {
         cout << "- Starting " << version() << "\n";
         UINFO(1, "Current working directory (CWD) is " << V3Os::cwd());
     }
 }
 
-unsigned V3Options::debugLevel(const string& tag) const VL_MT_SAFE {
-    const auto iter = m_debugLevel.find(tag);
-    return iter != m_debugLevel.end() ? iter->second : V3Error::debugDefault();
+अचिन्हित V3Options::debugLevel(स्थिरांक string& tag) स्थिरांक VL_MT_SAFE {
+    स्थिरांक स्वतः iter = m_debugLevel.find(tag);
+    परत iter != m_debugLevel.end() ? iter->second : V3Error::debugDefault();
 }
 
-unsigned V3Options::debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE {
+अचिन्हित V3Options::debugSrcLevel(स्थिरांक string& srcfile_path) स्थिरांक VL_MT_SAFE {
     // For simplicity, calling functions can just use __FILE__ for srcfile.
     // That means we need to strip the filenames: ../Foo.cpp -> Foo
-    return debugLevel(V3Os::filenameNonDirExt(srcfile_path));
+    परत debugLevel(V3Os::filenameNonDirExt(srcfile_path));
 }
 
-unsigned V3Options::dumpLevel(const string& tag) const VL_MT_SAFE {
-    const auto iter = m_dumpLevel.find(tag);
-    return iter != m_dumpLevel.end() ? iter->second : 0;
+अचिन्हित V3Options::dumpLevel(स्थिरांक string& tag) स्थिरांक VL_MT_SAFE {
+    स्थिरांक स्वतः iter = m_dumpLevel.find(tag);
+    परत iter != m_dumpLevel.end() ? iter->second : 0;
 }
 
-unsigned V3Options::dumpSrcLevel(const string& srcfile_path) const VL_MT_SAFE {
+अचिन्हित V3Options::dumpSrcLevel(स्थिरांक string& srcfile_path) स्थिरांक VL_MT_SAFE {
     // For simplicity, calling functions can just use __FILE__ for srcfile.
     // That means we need to strip the filenames: ../Foo.cpp -> Foo
-    return dumpLevel(V3Os::filenameNonDirExt(srcfile_path));
+    परत dumpLevel(V3Os::filenameNonDirExt(srcfile_path));
 }
 
-bool V3Options::dumpTreeAddrids() const VL_MT_SAFE {
-    static int s_level = -1;
-    if (VL_UNLIKELY(s_level < 0)) {
-        const unsigned value = dumpLevel("tree-addrids");
-        if (!available()) return value > 0;
-        s_level = static_cast<unsigned>(value);
+तार्किक V3Options::dump_वृक्ष_Addrids() स्थिरांक VL_MT_SAFE {
+    स्थिर पूर्णांक s_level = -1;
+    जर (VL_UNLIKELY(s_level < 0)) {
+        स्थिरांक अचिन्हित मूल्य = dumpLevel("tree-addrids");
+        जर (!available()) परत मूल्य > 0;
+        s_level = static_cast<अचिन्हित>(मूल्य);
     }
-    return s_level > 0;
+    परत s_level > 0;
 }
 
-void V3Options::optimize(int level) {
+शून्य V3Options::optimize(पूर्णांक level) {
     // Set all optimizations to on/off
-    const bool flag = level > 0;
+    स्थिरांक तार्किक flag = level > 0;
     m_fAcycSimp = flag;
     m_fAssemble = flag;
     m_fBitScanLoops = flag;
     m_fBitblast = flag;
     m_fCaseDecoder = flag;
     m_fCaseTable = flag;
-    m_fCaseTree = flag;
+    m_f_Case_वृक्ष = flag;
     m_fCombine = flag;
     m_fConst = flag;
-    m_fConstBitOpTree = flag;
+    m_f_Const_Bit_Op_वृक्ष = flag;
     m_fDedupe = flag;
     m_fDfg = flag;
     m_fDeadAssigns = flag;
@@ -2458,7 +2458,7 @@ void V3Options::optimize(int level) {
     m_fSubstConst = flag;
     m_fTable = flag;
     // And set specific optimization levels
-    if (level >= 3) {
+    जर (level >= 3) {
         m_inlineMult = -1;  // Maximum inlining
     }
 }

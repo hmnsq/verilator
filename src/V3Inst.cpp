@@ -21,19 +21,19 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Inst.h"
+#अन्तर्भाव "V3Inst.h"
 
-#include "V3Const.h"
-#include "V3Control.h"
-#include "V3Width.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Control.h"
+#अन्तर्भाव "V3Width.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-static void markContinuousLhs(AstNode* const nodep) {
-    nodep->foreach([](AstNodeVarRef* refp) {
-        if (refp->access().isWriteOrRW()) refp->varp()->isContinuously(true);
+स्थिर शून्य markContinuousLhs(Ast_गाठ* स्थिरांक nodep) {
+    nodep->foreach([](Ast_गाठ_Var_Ref* refp) {
+        जर (refp->access().isWriteOrRW()) refp->varp()->isContinuously(सत्य);
     });
 }
 
@@ -43,42 +43,42 @@ static void markContinuousLhs(AstNode* const nodep) {
 // read-only. Struct-member selects cannot appear here: V3Width lowers them to
 // selects before V3Inst. Returns false if the connection cannot be driven
 // (e.g. arithmetic), in which case the expression is left unmodified.
-static bool markConnectionLhs(AstNodeExpr* const nodep) {
-    if (AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
-        if (!refp->access().isReadOnly()) return false;
+स्थिर तार्किक markConnectionLhs(Ast_गाठ_अभिव्यक्ती* स्थिरांक nodep) {
+    जर (Ast_गाठ_Var_Ref* स्थिरांक refp = VN_CAST(nodep, गाठ_Var_Ref)) {
+        जर (!refp->access().isReadOnly()) परत असत्य;
         refp->access(VAccess::WRITE);
-        return true;
+        परत सत्य;
     }
     // Note AstSel (bit/part select) is not an AstNodeSel (array select);
     // both expose fromp() for the selected value.
-    if (AstSel* const selp = VN_CAST(nodep, Sel)) return markConnectionLhs(selp->fromp());
-    if (AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-        return markConnectionLhs(selp->fromp());
+    जर (AstSel* स्थिरांक selp = VN_CAST(nodep, Sel)) परत markConnectionLhs(selp->fromp());
+    जर (Ast_गाठ_Sel* स्थिरांक selp = VN_CAST(nodep, गाठ_Sel)) {
+        परत markConnectionLhs(selp->fromp());
     }
-    if (AstConcat* const concatp = VN_CAST(nodep, Concat)) {
-        return markConnectionLhs(concatp->lhsp()) && markConnectionLhs(concatp->rhsp());
+    जर (AstConcat* स्थिरांक concatp = VN_CAST(nodep, Concat)) {
+        परत markConnectionLhs(concatp->lhsp()) && markConnectionLhs(concatp->rhsp());
     }
-    return false;
+    परत असत्य;
 }
 
 // Prepare a pin connection expression as the LHS of the reverse (inside-out)
 // assignment. Returns the flipped expression on success, nullptr if the
 // connection cannot be driven. The input is left unmodified on failure.
-static AstNodeExpr* tryConnectionLhs(AstNodeExpr* const nodep) {
-    AstNodeExpr* const clonep = nodep->cloneTree(false);
-    if (markConnectionLhs(clonep)) return clonep;
-    VL_DO_DANGLING(clonep->deleteTree(), clonep);
-    return nullptr;
+स्थिर Ast_गाठ_अभिव्यक्ती* tryConnectionLhs(Ast_गाठ_अभिव्यक्ती* स्थिरांक nodep) {
+    Ast_गाठ_अभिव्यक्ती* स्थिरांक clonep = nodep->clone_वृक्ष(असत्य);
+    जर (markConnectionLhs(clonep)) परत clonep;
+    VL_DO_DANGLING(clonep->delete_वृक्ष(), clonep);
+    परत nullptr;
 }
 
 //######################################################################
 // Inst state, as a visitor of each AstNode
 
-class InstVisitor final : public VNVisitor {
+वर्ग InstVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE
     // Cleared each Cell:
     //  AstPin::user1p()        -> bool.  True if created assignment already
-    const VNUser1InUse m_inuser1;
+    स्थिरांक VNUser1InUse m_inuser1;
 
     // STATE
     AstCell* m_cellp = nullptr;  // Current cell
@@ -86,308 +86,308 @@ class InstVisitor final : public VNVisitor {
     // METHODS
     // If appropriate, add an AstAlias to connect the given Cell pin to the given expression.
     // Returns true if an alias was made, in which case there is nothing else to do for this pin.
-    bool tryAliasPin(AstPin* nodep, AstNodeExpr* exprp) {
-        AstVar* const modVarp = nodep->modVarp();
+    तार्किक tryAliasPin(AstPin* nodep, Ast_गाठ_अभिव्यक्ती* exprp) {
+        AstVar* स्थिरांक modVarp = nodep->modVarp();
         // An interface reference is aliased via AstAliasScope below, not as a variable
-        if (modVarp->isIfaceRef()) return false;
+        जर (modVarp->isIfaceRef()) परत असत्य;
         // Only a whole variable can be aliased, anything else needs the assignment
-        AstVarRef* const refp = VN_CAST(exprp, VarRef);
-        if (!refp) return false;
-        AstVar* const exprVarp = refp->varp();
+        AstVarRef* स्थिरांक refp = VN_CAST(exprp, VarRef);
+        जर (!refp) परत असत्य;
+        AstVar* स्थिरांक अभिव्यक्ती_Varp = refp->varp();
         // A virtual interface port connected to a real interface can't be an alias
-        if (exprVarp->isIfaceRef()) return false;
+        जर (अभिव्यक्ती_Varp->isIfaceRef()) परत असत्य;
         // A ref port must become an alias
-        if (!modVarp->direction().isRef()) {
+        जर (!modVarp->direction().isRef()) {
             // V3FsmDetect recognizes the registers of an fsm_register_wrapper instance via
             // the assignments of its pins, so leave those as assignments
-            AstNodeModule* const cellModp = m_cellp->modp();
-            if (V3Control::getFsmRegisterWrapper(cellModp->origName())
+            Ast_गाठ_Module* स्थिरांक cellModp = m_cellp->modp();
+            जर (V3Control::getFsmRegisterWrapper(cellModp->origName())
                 || V3Control::getFsmRegisterWrapper(cellModp->prettyDehashOrigOrName())) {
-                return false;
+                परत असत्य;
             }
             // A virtual interface method call is dispatched at run time, so the body of an
             // interface reached that way must use the signals of the instance it is called
             // on, not those of whichever instance this connection happens to be made to
-            if (const AstIface* const ifacep = VN_CAST(m_cellp->modp(), Iface)) {
-                if (ifacep->hasVirtualRef()) return false;
+            जर (स्थिरांक AstIface* स्थिरांक ifacep = VN_CAST(m_cellp->modp(), Iface)) {
+                जर (ifacep->hasVirtualRef()) परत असत्य;
             }
             // Forced signals must keep their own storage, the two sides can be forced separately
-            if (modVarp->isForced() || exprVarp->isForced()) return false;
+            जर (modVarp->isForced() || अभिव्यक्ती_Varp->isForced()) परत असत्य;
             // Same for public
-            if (modVarp->isSigUserRWPublic() || exprVarp->isSigUserRWPublic()) return false;
+            जर (modVarp->isSigUserRWPublic() || अभिव्यक्ती_Varp->isSigUserRWPublic()) परत असत्य;
             // V3Tristate resolved the connected net already, and drives it from the
             // resolution it built for it, so a port merged into it would be driven by
             // the resolution of the instance as well
-            if (exprVarp->isTristate()) return false;
+            जर (अभिव्यक्ती_Varp->isTristate()) परत असत्य;
         }
         // They will become the same variable, so propagate file-line and attributes
-        exprVarp->fileline()->modifyStateInherit(modVarp->fileline());
-        modVarp->fileline()->modifyStateInherit(exprVarp->fileline());
-        exprVarp->propagateAttrFrom(modVarp);
-        modVarp->propagateAttrFrom(exprVarp);
+        अभिव्यक्ती_Varp->fileline()->modifyStateInherit(modVarp->fileline());
+        modVarp->fileline()->modifyStateInherit(अभिव्यक्ती_Varp->fileline());
+        अभिव्यक्ती_Varp->propagateAttrFrom(modVarp);
+        modVarp->propagateAttrFrom(अभिव्यक्ती_Varp);
         refp->access(VAccess::READWRITE);
-        FileLine* const flp = exprp->fileline();
-        AstNodeExpr* const itemsp
-            = new AstVarXRef{flp, modVarp, m_cellp->name(), VAccess::READWRITE};
+        File_ओळ* स्थिरांक flp = exprp->fileline();
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक itemsp
+            = नवीन AstVarXRef{flp, modVarp, m_cellp->name(), VAccess::READWRITE};
         itemsp->addNext(exprp);
-        m_cellp->addNextHere(new AstAlias{flp, itemsp});
-        return true;
+        m_cellp->addNextHere(नवीन AstAlias{flp, itemsp});
+        परत सत्य;
     }
 
     // VISITORS
-    void visit(AstCell* nodep) override {
+    शून्य visit(AstCell* nodep) override {
         UINFO(4, "  CELL   " << nodep);
         VL_RESTORER(m_cellp);
         m_cellp = nodep;
         // VV*****  We reset user1p() on each cell!!!
-        AstNode::user1ClearTree();
+        Ast_गाठ::user1_Clear_वृक्ष();
         iterateChildren(nodep);
     }
 
-    void visit(AstPin* nodep) override {
+    शून्य visit(AstPin* nodep) override {
         // PIN(p,expr) -> ASSIGNW(VARXREF(p),expr)    (if sub's input)
         //            or  ASSIGNW(expr,VARXREF(p))    (if sub's output)
         UINFO(4, "   PIN  " << nodep);
-        if (!nodep->user1()) {
+        जर (!nodep->user1()) {
             // Simplify it
-            V3Inst::pinReconnectSimple(nodep, m_cellp, false);
+            V3Inst::pinReconnectSimple(nodep, m_cellp, असत्य);
         }
         UINFOTREE(9, nodep, "", "Pin_oldb");
-        if (!nodep->exprp()) return;  // No-connect
+        जर (!nodep->exprp()) परत;  // No-connect
         V3Inst::checkOutputShort(nodep);
-        if (!nodep->exprp()) return;  // Connection removed by checkOutputShort
+        जर (!nodep->exprp()) परत;  // Connection removed by checkOutputShort
         // Use user1p on the PIN to indicate we created an assign for this pin
-        if (!nodep->user1SetOnce()) {
+        जर (!nodep->user1SetOnce()) {
             // Make an ASSIGNW (expr, pin)
-            AstNodeExpr* const exprp = VN_AS(nodep->exprp(), NodeExpr)->cloneTree(false);
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक exprp = VN_AS(nodep->exprp(), गाठ_अभिव्यक्ती)->clone_वृक्ष(असत्य);
             UASSERT_OBJ(exprp->width() == nodep->modVarp()->width(), nodep,
                         "Width mismatch, should have been handled in pinReconnectSimple");
-            if (nodep->modVarp()->isInout()) {
+            जर (nodep->modVarp()->isInout()) {
                 nodep->v3fatalSrc("Unsupported: Verilator is a 2-state simulator");
-            } else if (nodep->modVarp()->isWritable()) {
-                if (!tryAliasPin(nodep, exprp)) {
-                    AstNodeExpr* const rhsp = new AstVarXRef{exprp->fileline(), nodep->modVarp(),
+            } अन्यथा जर (nodep->modVarp()->isWritable()) {
+                जर (!tryAliasPin(nodep, exprp)) {
+                    Ast_गाठ_अभिव्यक्ती* स्थिरांक rhsp = नवीन AstVarXRef{exprp->fileline(), nodep->modVarp(),
                                                              m_cellp->name(), VAccess::READ};
                     markContinuousLhs(exprp);
-                    AstAssignW* const assp = new AstAssignW{exprp->fileline(), exprp, rhsp};
-                    m_cellp->addNextHere(new AstAlways{assp});
+                    AstAssignW* स्थिरांक assp = नवीन AstAssignW{exprp->fileline(), exprp, rhsp};
+                    m_cellp->addNextHere(नवीन AstAlways{assp});
                 }
-            } else if (nodep->modVarp()->isNonOutput()) {
-                if (!tryAliasPin(nodep, exprp)) {
+            } अन्यथा जर (nodep->modVarp()->isNonOutput()) {
+                जर (!tryAliasPin(nodep, exprp)) {
                     // Don't bother moving constants now,
                     // we'll be pushing the const down to the cell soon enough.
-                    AstVarXRef* const lhsp = new AstVarXRef{exprp->fileline(), nodep->modVarp(),
+                    AstVarXRef* स्थिरांक lhsp = नवीन AstVarXRef{exprp->fileline(), nodep->modVarp(),
                                                             m_cellp->name(), VAccess::WRITE};
 
                     markContinuousLhs(lhsp);
-                    AstAssignW* const assp = new AstAssignW{exprp->fileline(), lhsp, exprp};
-                    m_cellp->addNextHere(new AstAlways{assp});
+                    AstAssignW* स्थिरांक assp = नवीन AstAssignW{exprp->fileline(), lhsp, exprp};
+                    m_cellp->addNextHere(नवीन AstAlways{assp});
                     UINFOTREE(9, assp, "", "_new");
                 }
-            } else if (nodep->modVarp()->isIfaceRef()) {
+            } अन्यथा जर (nodep->modVarp()->isIfaceRef()) {
                 // Create an AstAliasScope for Vars to Cells so we can
                 // link with their scope later
-                AstNodeExpr* const lhsp = new AstVarXRef{exprp->fileline(), nodep->modVarp(),
+                Ast_गाठ_अभिव्यक्ती* स्थिरांक lhsp = नवीन AstVarXRef{exprp->fileline(), nodep->modVarp(),
                                                          m_cellp->name(), VAccess::READ};
-                const AstVarRef* const refp = VN_CAST(exprp, VarRef);
-                const AstVarXRef* const xrefp = VN_CAST(exprp, VarXRef);
+                स्थिरांक AstVarRef* स्थिरांक refp = VN_CAST(exprp, VarRef);
+                स्थिरांक AstVarXRef* स्थिरांक xrefp = VN_CAST(exprp, VarXRef);
                 UASSERT_OBJ(refp || xrefp, exprp,
                             "Interfaces: Pin is not connected to a VarRef or VarXRef");
-                m_cellp->addNextHere(new AstAliasScope{exprp->fileline(), lhsp, exprp});
-            } else {
+                m_cellp->addNextHere(नवीन AstAliasScope{exprp->fileline(), lhsp, exprp});
+            } अन्यथा {
                 nodep->v3error("Assigned pin is neither input nor output");
             }
         }
 
         // We're done with the pin
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_वृक्ष(), nodep);
     }
 
     // Save some time
-    void visit(AstNodeExpr*) override {}
-    void visit(AstNodeAssign*) override {}
-    void visit(AstAlways*) override {}
+    शून्य visit(Ast_गाठ_अभिव्यक्ती*) override {}
+    शून्य visit(Ast_गाठ_Assign*) override {}
+    शून्य visit(AstAlways*) override {}
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit InstVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~InstVisitor() override = default;
+    ~InstVisitor() override = पूर्वनिर्धारित;
 };
 
 //######################################################################
 // Inst static function
 
-class InstStatic final {
-    InstStatic() = default;  // Static class
+वर्ग InstStatic final {
+    InstStatic() = पूर्वनिर्धारित;  // Static class
 
-    static AstNodeExpr* extendOrSel(FileLine* fl, AstNodeExpr* rhsp, const AstNode* cmpWidthp) {
-        if (cmpWidthp->width() > rhsp->width()) {
-            rhsp = (rhsp->isSigned() ? static_cast<AstNodeExpr*>(new AstExtendS{fl, rhsp})
-                                     : static_cast<AstNodeExpr*>(new AstExtend{fl, rhsp}));
+    स्थिर Ast_गाठ_अभिव्यक्ती* extendOrSel(File_ओळ* fl, Ast_गाठ_अभिव्यक्ती* rhsp, स्थिरांक Ast_गाठ* cmpWidthp) {
+        जर (cmpWidthp->width() > rhsp->width()) {
+            rhsp = (rhsp->isSigned() ? static_cast<Ast_गाठ_अभिव्यक्ती*>(नवीन AstExtendS{fl, rhsp})
+                                     : static_cast<Ast_गाठ_अभिव्यक्ती*>(नवीन AstExtend{fl, rhsp}));
             // Need proper widthMin, which may differ from AstSel created above
             rhsp->dtypeFrom(cmpWidthp);
-        } else if (cmpWidthp->width() < rhsp->width()) {
-            rhsp = new AstSel{fl, rhsp, 0, cmpWidthp->width()};
+        } अन्यथा जर (cmpWidthp->width() < rhsp->width()) {
+            rhsp = नवीन AstSel{fl, rhsp, 0, cmpWidthp->width()};
             // Need proper widthMin, which may differ from AstSel created above
             rhsp->dtypeFrom(cmpWidthp);
         }
         // else don't change dtype, as might be e.g. array of something
-        return rhsp;
+        परत rhsp;
     }
 
-public:
-    static AstAssignW* pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
-                                          bool alwaysCvt) {
+सार्वजनिक:
+    स्थिर AstAssignW* pinReconnectSimple(AstPin* pinp, AstCell* cellp, तार्किक forTristate,
+                                          तार्किक alwaysCvt) {
         // If a pin connection is "simple" leave it as-is
         // Else create a intermediate wire to perform the interconnect
         // Return the new assignment, if one was made
         // Note this module calls cloneTree() via new AstVar
-        AstVar* const pinVarp = pinp->modVarp();
-        if (!pinp->exprp()) {
+        AstVar* स्थिरांक pinVarp = pinp->modVarp();
+        जर (!pinp->exprp()) {
             // No-connect, perhaps promote based on `unconnected_drive,
             // otherwise done
-            if (pinVarp->direction() == VDirection::INPUT
+            जर (pinVarp->direction() == VDirection::आदान
                 && cellp->modp()->unconnectedDrive().isSetTrue()) {
-                pinp->exprp(new AstConst{pinp->fileline(), AstConst::All1{}});
-            } else if (pinVarp->direction() == VDirection::INPUT
+                pinp->exprp(नवीन AstConst{pinp->fileline(), AstConst::All1{}});
+            } अन्यथा जर (pinVarp->direction() == VDirection::आदान
                        && cellp->modp()->unconnectedDrive().isSetFalse()) {
-                pinp->exprp(new AstConst{pinp->fileline(), AstConst::All0{}});
-            } else {
-                return nullptr;
+                pinp->exprp(नवीन AstConst{pinp->fileline(), AstConst::All0{}});
+            } अन्यथा {
+                परत nullptr;
             }
         }
-        const AstVarRef* const connectRefp = VN_CAST(pinp->exprp(), VarRef);
-        const AstVarXRef* const connectXRefp = VN_CAST(pinp->exprp(), VarXRef);
-        const AstNodeDType* const pinDTypep = pinVarp->dtypep()->skipRefp();
-        const AstBasicDType* const pinBasicp = VN_CAST(pinDTypep, BasicDType);
-        const AstNodeDType* const connDTypep
+        स्थिरांक AstVarRef* स्थिरांक connectRefp = VN_CAST(pinp->exprp(), VarRef);
+        स्थिरांक AstVarXRef* स्थिरांक connectXRefp = VN_CAST(pinp->exprp(), VarXRef);
+        स्थिरांक Ast_गाठ_DType* स्थिरांक pinDTypep = pinVarp->dtypep()->skipRefp();
+        स्थिरांक AstBasicDType* स्थिरांक pinBasicp = VN_CAST(pinDTypep, BasicDType);
+        स्थिरांक Ast_गाठ_DType* स्थिरांक connDTypep
             = connectRefp ? connectRefp->varp()->dtypep()->skipRefp() : nullptr;
-        const AstBasicDType* const connBasicp = VN_CAST(connDTypep, BasicDType);
+        स्थिरांक AstBasicDType* स्थिरांक connBasicp = VN_CAST(connDTypep, BasicDType);
         AstAssignW* assignp = nullptr;
         //
-        if (!alwaysCvt && connectRefp && connDTypep->sameTree(pinDTypep)
+        जर (!alwaysCvt && connectRefp && connDTypep->same_वृक्ष(pinDTypep)
             && !connectRefp->varp()->isSc()) {  // Need the signal as a 'shell' to convert types
             // Done. Same data type
-        } else if (!alwaysCvt && connectRefp && connectRefp->varp()->isIfaceRef()) {
+        } अन्यथा जर (!alwaysCvt && connectRefp && connectRefp->varp()->isIfaceRef()) {
             // Done. Interface
-        } else if (!alwaysCvt && connectXRefp && connectXRefp->varp()
+        } अन्यथा जर (!alwaysCvt && connectXRefp && connectXRefp->varp()
                    && connectXRefp->varp()->isIfaceRef()) {
-        } else if (!alwaysCvt && connBasicp && pinBasicp
+        } अन्यथा जर (!alwaysCvt && connBasicp && pinBasicp
                    && connBasicp->width() == pinBasicp->width()
                    && connBasicp->lo() == pinBasicp->lo()
                    && !connectRefp->varp()
                            ->isSc()  // Need the signal as a 'shell' to convert types
                    && connBasicp->width() == pinVarp->width()) {
             // Done. One to one interconnect won't need a temporary variable.
-        } else if (!alwaysCvt && !forTristate && VN_IS(pinp->exprp(), Const)) {
+        } अन्यथा जर (!alwaysCvt && !forTristate && VN_IS(pinp->exprp(), Const)) {
             // Done. Constant. Still check for driving an output, like below.
             V3Inst::checkOutputShort(pinp);
-            if (!pinp->exprp()) return nullptr;
-        } else {
+            जर (!pinp->exprp()) परत nullptr;
+        } अन्यथा {
             // Make a new temp wire
             // UINFOTREE(9, pinp, "", "in_pin");
             V3Inst::checkOutputShort(pinp);
-            if (!pinp->exprp()) return nullptr;
+            जर (!pinp->exprp()) परत nullptr;
             // Simplify, so stuff like '{a[0], b[0]}[1]' produced during
             // instance array expansion are brought to normal 'a[0]'
-            AstNodeExpr* const pinexprp
-                = V3Const::constifyEdit(VN_AS(pinp->exprp(), NodeExpr)->unlinkFrBack());
-            const string newvarname
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक pinexprp
+                = V3Const::constifyEdit(VN_AS(pinp->exprp(), गाठ_अभिव्यक्ती)->unlinkFrBack());
+            स्थिरांक string newvarname
                 = (string{pinVarp->isWritable() ? "__Vcellout" : "__Vcellinp"}
                    // Prevent name conflict if both tri & non-tri add signals
                    + (forTristate ? "t" : "") + "__" + cellp->name() + "__" + pinp->name());
-            AstVar* const newvarp
-                = new AstVar{pinVarp->fileline(), VVarType::MODULETEMP, newvarname, pinVarp};
+            AstVar* स्थिरांक newvarp
+                = नवीन AstVar{pinVarp->fileline(), VVarType::MODULETEMP, newvarname, pinVarp};
             // Important to add statement next to cell, in case there is a
             // generate with same named cell
             cellp->addNextHere(newvarp);
-            if (pinVarp->isInout()) {
+            जर (pinVarp->isInout()) {
                 pinVarp->v3fatalSrc("Unsupported: Inout connections to pins must be"
                                     " direct one-to-one connection (without any expression)");
                 // V3Tristate should have cleared up before this point
-            } else if (pinVarp->isWritable()) {
+            } अन्यथा जर (pinVarp->isWritable()) {
                 // See also V3Inst
-                AstNodeExpr* rhsp = new AstVarRef{pinp->fileline(), newvarp, VAccess::READ};
+                Ast_गाठ_अभिव्यक्ती* rhsp = नवीन AstVarRef{pinp->fileline(), newvarp, VAccess::READ};
                 UINFO(5, "pinRecon width " << pinVarp->width() << " >? " << rhsp->width() << " >? "
                                            << pinexprp->width());
                 rhsp = extendOrSel(pinp->fileline(), rhsp, pinVarp);
-                pinp->exprp(new AstVarRef{newvarp->fileline(), newvarp, VAccess::WRITE});
+                pinp->exprp(नवीन AstVarRef{newvarp->fileline(), newvarp, VAccess::WRITE});
                 markContinuousLhs(pinexprp);
-                if (VN_IS(pinexprp, NodeStream)) {
-                    assignp = new AstAssignW{pinp->fileline(), pinexprp, rhsp};
+                जर (VN_IS(pinexprp, गाठ_Stream)) {
+                    assignp = नवीन AstAssignW{pinp->fileline(), pinexprp, rhsp};
                     V3Width::streamAssignLowerEdit(assignp);
-                } else {
-                    AstNodeExpr* rhsSelp = extendOrSel(pinp->fileline(), rhsp, pinexprp);
+                } अन्यथा {
+                    Ast_गाठ_अभिव्यक्ती* rhsSelp = extendOrSel(pinp->fileline(), rhsp, pinexprp);
                     // A reversed array is assigned by the left-to-right order of elements
                     // (IEEE 1800-2023 7.6)
-                    const AstUnpackArrayDType* const arrayp
+                    स्थिरांक AstUnpackArrayDType* स्थिरांक arrayp
                         = VN_CAST(pinexprp->dtypep()->skipRefp(), UnpackArrayDType);
-                    if (arrayp && arrayp->isReverseOf(rhsSelp->dtypep())) {
-                        rhsSelp = new AstCvtUnpackToUnpack{pinp->fileline(), rhsSelp,
+                    जर (arrayp && arrayp->isReverseOf(rhsSelp->dtypep())) {
+                        rhsSelp = नवीन AstCvtUnpackToUnpack{pinp->fileline(), rhsSelp,
                                                            pinexprp->dtypep()};
                     }
-                    assignp = new AstAssignW{pinp->fileline(), pinexprp, rhsSelp};
+                    assignp = नवीन AstAssignW{pinp->fileline(), pinexprp, rhsSelp};
                 }
-            } else {
+            } अन्यथा {
                 // V3 width should have range/extended to make the widths correct
-                newvarp->isContinuously(true);
+                newvarp->isContinuously(सत्य);
                 // An input port driven from inside the cell by a clocking block
                 // output flows out through the connection; V3Tristate split
                 // pins resolve separately.
-                AstNodeExpr* lhsp = nullptr;  // LHS of the interconnect assign
-                AstNodeExpr* rhsp = nullptr;  // RHS of the interconnect assign
-                if (forTristate || !pinVarp->isClockingDriven()) {
+                Ast_गाठ_अभिव्यक्ती* lhsp = nullptr;  // LHS of the interconnect assign
+                Ast_गाठ_अभिव्यक्ती* rhsp = nullptr;  // RHS of the interconnect assign
+                जर (forTristate || !pinVarp->isClockingDriven()) {
                     // Input-side wiring: temp fed from the connection
-                    lhsp = new AstVarRef{pinp->fileline(), newvarp, VAccess::WRITE};
+                    lhsp = नवीन AstVarRef{pinp->fileline(), newvarp, VAccess::WRITE};
                     rhsp = pinexprp;
-                } else if (AstNodeExpr* const drivenp = tryConnectionLhs(pinexprp)) {
+                } अन्यथा जर (Ast_गाठ_अभिव्यक्ती* स्थिरांक drivenp = tryConnectionLhs(pinexprp)) {
                     // Reverse wiring: connection leaves fed from the temp.
                     // The original connection is consumed by the clone above.
-                    VL_DO_DANGLING(pinexprp->deleteTree(), pinexprp);
+                    VL_DO_DANGLING(pinexprp->delete_वृक्ष(), pinexprp);
                     markContinuousLhs(drivenp);
                     lhsp = drivenp;
                     rhsp = extendOrSel(pinp->fileline(),
-                                       new AstVarRef{pinp->fileline(), newvarp, VAccess::READ},
+                                       नवीन AstVarRef{pinp->fileline(), newvarp, VAccess::READ},
                                        drivenp);
-                } else {
+                } अन्यथा {
                     pinp->v3error("Unsupported: Clocking block output driving input port "
                                   "through non-decomposable connection "
                                   << pinp->prettyNameQ());
-                    VL_DO_DANGLING(pinexprp->deleteTree(), pinexprp);
-                    return nullptr;
+                    VL_DO_DANGLING(pinexprp->delete_वृक्ष(), pinexprp);
+                    परत nullptr;
                 }
-                pinp->exprp(new AstVarRef{pinp->fileline(), newvarp, VAccess::READ});
-                assignp = new AstAssignW{pinp->fileline(), lhsp, rhsp};
+                pinp->exprp(नवीन AstVarRef{pinp->fileline(), newvarp, VAccess::READ});
+                assignp = नवीन AstAssignW{pinp->fileline(), lhsp, rhsp};
             }
-            if (assignp) cellp->addNextHere(new AstAlways{assignp});
+            जर (assignp) cellp->addNextHere(नवीन AstAlways{assignp});
             // UINFOTREE(1, pinp, "", "out");
             // UINFOTREE(1, assignp, "", "aout");
         }
-        return assignp;
+        परत assignp;
     }
 };
 
 //######################################################################
 // Inst class functions
 
-AstAssignW* V3Inst::pinReconnectSimple(AstPin* pinp, AstCell* cellp, bool forTristate,
-                                       bool alwaysCvt) {
-    return InstStatic::pinReconnectSimple(pinp, cellp, forTristate, alwaysCvt);
+AstAssignW* V3Inst::pinReconnectSimple(AstPin* pinp, AstCell* cellp, तार्किक forTristate,
+                                       तार्किक alwaysCvt) {
+    परत InstStatic::pinReconnectSimple(pinp, cellp, forTristate, alwaysCvt);
 }
 
-void V3Inst::checkOutputShort(const AstPin* nodep) {
-    if (nodep->modVarp()->direction() == VDirection::OUTPUT) {
-        if (VN_IS(nodep->exprp(), Const) || VN_IS(nodep->exprp(), Extend)
+शून्य V3Inst::checkOutputShort(स्थिरांक AstPin* nodep) {
+    जर (nodep->modVarp()->direction() == VDirection::OUTPUT) {
+        जर (VN_IS(nodep->exprp(), Const) || VN_IS(nodep->exprp(), Extend)
             || (VN_IS(nodep->exprp(), Concat)
                 && (VN_IS(VN_AS(nodep->exprp(), Concat)->lhsp(), Const)))) {
             // Uses v3warn for error, as might be found multiple times
             nodep->v3warn(E_PORTSHORT, "Output port is connected to a constant pin,"
                                        " electrical short");
             // Delete so we don't create a 'CONST = ...' assignment
-            nodep->exprp()->unlinkFrBack()->deleteTree();
+            nodep->exprp()->unlinkFrBack()->delete_वृक्ष();
         }
     }
 }
@@ -395,8 +395,8 @@ void V3Inst::checkOutputShort(const AstPin* nodep) {
 //######################################################################
 // Inst class visitor
 
-void V3Inst::instAll(AstNetlist* nodep) {
+शून्य V3Inst::instAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { InstVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("inst", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("inst", 0, dump_वृक्ष_Either_Level() >= 3);
 }

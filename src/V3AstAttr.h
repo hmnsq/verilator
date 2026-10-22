@@ -28,7 +28,7 @@
 
 #ifndef VERILATOR_V3AST_H_
 #error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#अन्तर्भाव "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
@@ -41,31 +41,31 @@ class VFlagLogic2StatePacked {};
 // ######################################################################
 
 class VAbortKind final {
-public:
+सार्वजनिक:
     // IEEE 1800-2023 16.12.14 property abort operators.
-    enum en : uint8_t {
+    गणना en : uint8_t {
         ACCEPT_ON,  // accept_on(cond) prop: async abort, property succeeds
         REJECT_ON,  // reject_on(cond) prop: async abort, property fails
         SYNC_ACCEPT_ON,  // sync_accept_on(cond) prop: sampled at matured clock, succeeds
         SYNC_REJECT_ON  // sync_reject_on(cond) prop: sampled at matured clock, fails
     };
-    enum en m_e;
+    गणना en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VAbortKind(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static const char* const names[]
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर स्थिरांक अक्षर* स्थिरांक names[]
             = {"accept_on", "reject_on", "sync_accept_on", "sync_reject_on"};
-        return names[m_e];
+        परत names[m_e];
     }
-    bool isAccept() const { return m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
+    bool isAccept() स्थिरांक { परत m_e == ACCEPT_ON || m_e == SYNC_ACCEPT_ON; }
 };
 
 //######################################################################
 
 class VAccess final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         READ,  // Read/Consumed, variable not changed
         WRITE,  // Written/Updated, variable might be updated, but not consumed
         //      // so variable might be removable if not consumed elsewhere
@@ -74,69 +74,69 @@ public:
         //          // For non-simple data types only e.g. no tristates/delayed vars.
         NOCHANGE  // No change to previous state, used only in V3LinkLValue
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"RD", "WR", "RW", "--"};
-        return names[m_e];
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"RD", "WR", "RW", "--"};
+        परत names[m_e];
     }
-    const char* arrow() const {
-        static constexpr const char* const names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
-        return names[m_e];
+    स्थिरांक अक्षर* arrow() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"[RV] <-", "[LV] =>", "[LRV] <=>", "--"};
+        परत names[m_e];
     }
     VAccess()
         : m_e{READ} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAccess(en _e)
         : m_e{_e} {}
-    explicit VAccess(int _e)
+    explicit VAccess(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    VAccess invert() const {
-        return (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    VAccess invert() स्थिरांक {
+        परत (m_e == READWRITE) ? VAccess{m_e} : (m_e == WRITE ? VAccess{READ} : VAccess{WRITE});
     }
-    bool isReadOnly() const { return m_e == READ; }  // False with READWRITE
-    bool isWriteOnly() const { return m_e == WRITE; }  // False with READWRITE
-    bool isReadOrRW() const { return m_e == READ || m_e == READWRITE; }
-    bool isWriteOrRW() const { return m_e == WRITE || m_e == READWRITE; }
-    bool isRW() const { return m_e == READWRITE; }
+    bool isReadOnly() स्थिरांक { परत m_e == READ; }  // False with READWRITE
+    bool isWriteOnly() स्थिरांक { परत m_e == WRITE; }  // False with READWRITE
+    bool isReadOrRW() स्थिरांक { परत m_e == READ || m_e == READWRITE; }
+    bool isWriteOrRW() स्थिरांक { परत m_e == WRITE || m_e == READWRITE; }
+    bool isRW() स्थिरांक { परत m_e == READWRITE; }
 };
-constexpr bool operator==(const VAccess& lhs, const VAccess& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VAccess& lhs, VAccess::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAccess::en lhs, const VAccess& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VAccess& rhs) { return os << rhs.ascii(); }
+constexpr bool चालक==(स्थिरांक VAccess& lhs, स्थिरांक VAccess& rhs) { परत lhs.m_e == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VAccess& lhs, VAccess::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VAccess::en lhs, स्थिरांक VAccess& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VAccess& rhs) { परत os << rhs.ascii(); }
 
 //######################################################################
 
 class VAlwaysKwd final {
-public:
-    enum en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { ALWAYS, ALWAYS_FF, ALWAYS_LATCH, ALWAYS_COMB, CONT_ASSIGN };
+    गणना en m_e;
     VAlwaysKwd()
         : m_e{ALWAYS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAlwaysKwd(en _e)
         : m_e{_e} {}
-    explicit VAlwaysKwd(int _e)
+    explicit VAlwaysKwd(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"always", "always_ff", "always_latch", "always_comb", "cont_assign"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VAlwaysKwd& lhs, const VAlwaysKwd& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VAlwaysKwd& lhs, स्थिरांक VAlwaysKwd& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAlwaysKwd::en lhs, const VAlwaysKwd& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VAlwaysKwd& lhs, VAlwaysKwd::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VAlwaysKwd::en lhs, स्थिरांक VAlwaysKwd& rhs) { परत lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VAssertCtlType final {
-public:
+सार्वजनिक:
     // IEEE 1800-2023 Table 20-5
-    enum en : uint8_t {
+    गणना en : uint8_t {
         _TO_BE_EVALUATED = 0,
         LOCK = 1,
         UNLOCK = 2,
@@ -150,18 +150,18 @@ public:
         NONVACUOUS_ON = 10,
         VACUOUS_OFF = 11
     };
-    enum en m_e;
+    गणना en m_e;
     VAssertCtlType()
         : m_e{_TO_BE_EVALUATED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertCtlType(en _e)
         : m_e{_e} {}
-    explicit VAssertCtlType(int _e)
+    explicit VAssertCtlType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
         // IEEE 1800-2023 20.11
-        static constexpr const char* const names[] = {"",
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"",
                                                       "",
                                                       "",
                                                       "$asserton",
@@ -173,25 +173,25 @@ public:
                                                       "$assertfailoff",
                                                       "$assertnonvacuouson",
                                                       "$assertvacuousoff"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VAssertCtlType& lhs, const VAssertCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VAssertCtlType& lhs, स्थिरांक VAssertCtlType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertCtlType& lhs, VAssertCtlType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VAssertCtlType& lhs, VAssertCtlType::en rhs) {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertCtlType::en lhs, const VAssertCtlType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VAssertCtlType::en lhs, स्थिरांक VAssertCtlType& rhs) {
+    परत lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 class VAssertDirectiveType final {
-public:
+सार्वजनिक:
     // IEEE 1800-2023 Table 20-7
-    enum en : uint8_t {
+    गणना en : uint8_t {
         INTERNAL = 0,  // Non IEEE type, for directives to be evaluated from expression.
         ASSERT = (1 << 0),
         COVER = (1 << 1),
@@ -203,53 +203,53 @@ public:
         INTRINSIC = (1 << 5),  // Non IEEE type, for intrinsic assertions.
         RESTRICT = (1 << 6),  // Non IEEE type, for ignored restrict assertions.
     };
-    enum en m_e;
+    गणना en m_e;
     VAssertDirectiveType()
         : m_e{ASSERT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertDirectiveType(en _e)
         : m_e{_e} {}
-    explicit VAssertDirectiveType(int _e)
+    explicit VAssertDirectiveType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    string ascii() const {
+    string ascii() स्थिरांक {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        जर (m_e == INTERNAL)
             types << "INTERNAL ";
-        else {
-            if (m_e & ASSERT) types << "ASSERT ";
-            if (m_e & COVER) types << "COVER ";
-            if (m_e & ASSUME) types << "ASSUME ";
-            if (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
-            if (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
-            if (m_e & INTRINSIC) types << "INTRINSIC ";
-            if (m_e & RESTRICT) types << "RESTRICT ";
+        अन्यथा {
+            जर (m_e & ASSERT) types << "ASSERT ";
+            जर (m_e & COVER) types << "COVER ";
+            जर (m_e & ASSUME) types << "ASSUME ";
+            जर (m_e & VIOLATION_CASE) types << "VIOLATION_CASE ";
+            जर (m_e & VIOLATION_IF) types << "VIOLATION_IF ";
+            जर (m_e & INTRINSIC) types << "INTRINSIC ";
+            जर (m_e & RESTRICT) types << "RESTRICT ";
         }
-        const string str = types.str();
+        स्थिरांक string str = types.str();
         UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        परत str.substr(0, str.size() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
 };
-constexpr bool operator==(const VAssertDirectiveType& lhs, const VAssertDirectiveType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VAssertDirectiveType& lhs, स्थिरांक VAssertDirectiveType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VAssertDirectiveType& lhs, VAssertDirectiveType::en rhs) {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VAssertDirectiveType::en lhs, const VAssertDirectiveType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VAssertDirectiveType::en lhs, स्थिरांक VAssertDirectiveType& rhs) {
+    परत lhs == rhs.m_e;
 }
-constexpr VAssertDirectiveType::en operator|(VAssertDirectiveType::en lhs,
+constexpr VAssertDirectiveType::en चालक|(VAssertDirectiveType::en lhs,
                                              VAssertDirectiveType::en rhs) {
-    return VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+    परत VAssertDirectiveType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VAssertType final {
-public:
+सार्वजनिक:
     // IEEE 1800-2023 Table 20-6
-    enum en : uint8_t {
+    गणना en : uint8_t {
         INTERNAL = 0,  // Non IEEE type, for assertions that should not be controlled.
         CONCURRENT = (1 << 0),
         SIMPLE_IMMEDIATE = (1 << 1),
@@ -260,88 +260,88 @@ public:
         UNIQUE0 = (1 << 6),
         PRIORITY = (1 << 7),
     };
-    enum en m_e;
+    गणना en m_e;
     VAssertType()
         : m_e{INTERNAL} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VAssertType(en _e)
         : m_e{_e} {}
-    explicit VAssertType(int _e)
+    explicit VAssertType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    bool containsAny(VAssertType other) const { return m_e & other.m_e; }
-    string ascii() const {
+    bool containsAny(VAssertType other) स्थिरांक { परत m_e & other.m_e; }
+    string ascii() स्थिरांक {
         std::stringstream types;
-        if (m_e == INTERNAL)
+        जर (m_e == INTERNAL)
             types << "INTERNAL ";
-        else {
-            if (m_e & CONCURRENT) types << "CONCURRENT ";
-            if (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
-            if (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
-            if (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
-            if (m_e & EXPECT) types << "EXPECT ";
-            if (m_e & UNIQUE) types << "UNIQUE ";
-            if (m_e & UNIQUE0) types << "UNIQUE0 ";
-            if (m_e & PRIORITY) types << "PRIORITY ";
+        अन्यथा {
+            जर (m_e & CONCURRENT) types << "CONCURRENT ";
+            जर (m_e & SIMPLE_IMMEDIATE) types << "SIMPLE_IMMEDIATE ";
+            जर (m_e & OBSERVED_DEFERRED_IMMEDIATE) types << "OBSERVED_DEFERRED_IMMEDIATE ";
+            जर (m_e & FINAL_DEFERRED_IMMEDIATE) types << "FINAL_DEFERRED_IMMEDIATE ";
+            जर (m_e & EXPECT) types << "EXPECT ";
+            जर (m_e & UNIQUE) types << "UNIQUE ";
+            जर (m_e & UNIQUE0) types << "UNIQUE0 ";
+            जर (m_e & PRIORITY) types << "PRIORITY ";
         }
-        const string str = types.str();
+        स्थिरांक string str = types.str();
         UASSERT(!str.empty(), "Assert should be of one of types");
-        return str.substr(0, str.size() - 1);
+        परत str.substr(0, str.size() - 1);
     }
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
 };
-constexpr bool operator==(const VAssertType& lhs, const VAssertType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VAssertType& lhs, स्थिरांक VAssertType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAssertType& lhs, VAssertType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAssertType::en lhs, const VAssertType& rhs) { return lhs == rhs.m_e; }
-constexpr VAssertType::en operator|(VAssertType::en lhs, VAssertType::en rhs) {
-    return VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+constexpr bool चालक==(स्थिरांक VAssertType& lhs, VAssertType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VAssertType::en lhs, स्थिरांक VAssertType& rhs) { परत lhs == rhs.m_e; }
+constexpr VAssertType::en चालक|(VAssertType::en lhs, VAssertType::en rhs) {
+    परत VAssertType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
 
 // ######################################################################
 
 class VPropStrength final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         DEFAULT = 0,  // Resolve from assertion/coverage context
         WEAK,
         STRONG,
     };
-    enum en m_e;
+    गणना en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VPropStrength(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"default", "weak", "strong"};
-        return names[m_e];
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"default", "weak", "strong"};
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VPropStrength& lhs, const VPropStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VPropStrength& lhs, स्थिरांक VPropStrength& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VPropStrength& lhs, VPropStrength::en rhs) {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator!=(const VPropStrength& lhs, VPropStrength::en rhs) {
-    return lhs.m_e != rhs;
+constexpr bool चालक!=(स्थिरांक VPropStrength& lhs, VPropStrength::en rhs) {
+    परत lhs.m_e != rhs;
 }
 
 // ######################################################################
 
 class VAttrType final {
-public:
+सार्वजनिक:
     // clang-format off
-    enum en: uint8_t  {
+    गणना en: uint8_t  {
         ILLEGAL,
         //
         DIM_BITS,                       // V3Const converts to constant
-        DIM_BITS_OR_NUMBER,             // V3Const converts to constant
+        DIM_BITS_OR_संख्या,             // V3Const converts to constant
         DIM_DIMENSIONS,                 // V3Width converts to constant
-        DIM_HIGH,                       // V3Width processes
+        DIM_वरचा,                       // V3Width processes
         DIM_INCREMENT,                  // V3Width processes
-        DIM_LEFT,                       // V3Width processes
-        DIM_LOW,                        // V3Width processes
-        DIM_RIGHT,                      // V3Width processes
+        DIM_डावा,                       // V3Width processes
+        DIM_खालचा,                        // V3Width processes
+        DIM_उजवा,                      // V3Width processes
         DIM_SIZE,                       // V3Width processes
         DIM_UNPK_DIMENSIONS,            // V3Width converts to constant
         //
@@ -349,7 +349,7 @@ public:
         //
         ENUM_FIRST,                     // V3Width processes
         ENUM_LAST,                      // V3Width processes
-        ENUM_NUM,                       // V3Width processes
+        ENUM_अंक,                       // V3Width processes
         ENUM_NEXT,                      // V3Width processes
         ENUM_PREV,                      // V3Width processes
         ENUM_NAME,                      // V3Width processes
@@ -382,10 +382,10 @@ public:
         VAR_SPLIT_VAR                   // V3LinkParse moves to AstVar::attrSplitVar
     };
     // clang-format on
-    enum en m_e;
-    const char* ascii() const {
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
         // clang-format off
-        static constexpr const char* const names[] = {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {
             "%E-AT",
             "DIM_BITS", "DIM_BITS_OR_NUMBER", "DIM_DIMENSIONS",
             "DIM_HIGH", "DIM_INCREMENT", "DIM_LEFT",
@@ -406,24 +406,24 @@ public:
             "VAR_SC_BIGUINT", "VAR_SC_BV", "VAR_SFORMAT", "VAR_SPLIT_VAR"
         };
         // clang-format on
-        return names[m_e];
+        परत names[m_e];
     }
     // True for attributes that read an operand's type rather than its value, such as $bits.
-    bool isTypeQuery() const {
-        switch (m_e) {
-        case DIM_BITS:
-        case DIM_BITS_OR_NUMBER:
-        case DIM_DIMENSIONS:
-        case DIM_HIGH:
-        case DIM_INCREMENT:
-        case DIM_LEFT:
-        case DIM_LOW:
-        case DIM_RIGHT:
-        case DIM_SIZE:
-        case DIM_UNPK_DIMENSIONS:
-        case TYPEID:
-        case TYPENAME: return true;
-        default: return false;
+    bool isTypeQuery() स्थिरांक {
+        निवड (m_e) {
+        स्थिती DIM_BITS:
+        स्थिती DIM_BITS_OR_संख्या:
+        स्थिती DIM_DIMENSIONS:
+        स्थिती DIM_वरचा:
+        स्थिती DIM_INCREMENT:
+        स्थिती DIM_डावा:
+        स्थिती DIM_खालचा:
+        स्थिती DIM_उजवा:
+        स्थिती DIM_SIZE:
+        स्थिती DIM_UNPK_DIMENSIONS:
+        स्थिती TYPEID:
+        स्थिती TYPENAME: परत true;
+        पूर्वनिर्धारित: परत false;
         }
     }
     VAttrType()
@@ -431,15 +431,15 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VAttrType(en _e)
         : m_e{_e} {}
-    explicit VAttrType(int _e)
+    explicit VAttrType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
 };
-constexpr bool operator==(const VAttrType& lhs, const VAttrType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VAttrType& lhs, स्थिरांक VAttrType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VAttrType& lhs, VAttrType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VAttrType::en lhs, const VAttrType& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VAttrType& lhs, VAttrType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VAttrType::en lhs, स्थिरांक VAttrType& rhs) { परत lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -448,7 +448,7 @@ class VBaseOverride final {
     bool m_final : 1;
     bool m_initial : 1;
 
-public:
+सार्वजनिक:
     VBaseOverride()
         : m_extends{false}
         , m_final{false}
@@ -468,29 +468,29 @@ public:
         : m_extends{false}
         , m_final{false}
         , m_initial{true} {}
-    void combine(const VBaseOverride& other) {
+    शून्य combine(स्थिरांक VBaseOverride& other) {
         m_extends |= other.m_extends;
         m_final |= other.m_final;
         m_initial |= other.m_initial;
     }
-    bool isAny() const { return m_extends | m_final | m_initial; }
-    bool isExtends() const { return m_extends; }
-    bool isFinal() const { return m_final; }
-    bool isInitial() const { return m_initial; }
-    string ascii() const {
+    bool isAny() स्थिरांक { परत m_extends | m_final | m_initial; }
+    bool isExtends() स्थिरांक { परत m_extends; }
+    bool isFinal() स्थिरांक { परत m_final; }
+    bool isInitial() स्थिरांक { परत m_initial; }
+    string ascii() स्थिरांक {
         string out;
-        if (m_initial) out = VString::dot(out, " ", "initial");
-        if (m_extends) out = VString::dot(out, " ", "extends");
-        if (m_final) out = VString::dot(out, " ", "final");
-        return out;
+        जर (m_initial) out = VString::dot(out, " ", "initial");
+        जर (m_extends) out = VString::dot(out, " ", "extends");
+        जर (m_final) out = VString::dot(out, " ", "final");
+        परत out;
     }
 };
 
 // ######################################################################
 
 class VBasicDTypeKwd final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         UNKNOWN,
         BIT,
         BYTE,
@@ -533,9 +533,9 @@ public:
         // Leave last
         _ENUM_MAX
     };
-    enum en m_e;
-    const char* ascii() const VL_MT_SAFE {
-        static constexpr const char* const names[] = {"%E-unk",
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक VL_MT_SAFE {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"%E-unk",
                                                       "bit",
                                                       "byte",
                                                       "chandle",
@@ -569,18 +569,18 @@ public:
                                                       "QData",
                                                       "LOGIC_IMPLICIT",
                                                       " MAX"};
-        return names[m_e];
+        परत names[m_e];
     }
-    const char* typeName() const VL_MT_SAFE {
-        switch (m_e) {
-        case LOGIC2STATE: return VBasicDTypeKwd{LOGIC}.ascii();
-        case INTEGER2STATE: return VBasicDTypeKwd{INTEGER}.ascii();
-        case TIME2STATE: return VBasicDTypeKwd{TIME}.ascii();
-        default: return ascii();
+    स्थिरांक अक्षर* typeName() स्थिरांक VL_MT_SAFE {
+        निवड (m_e) {
+        स्थिती LOGIC2STATE: परत VBasicDTypeKwd{LOGIC}.ascii();
+        स्थिती INTEGER2STATE: परत VBasicDTypeKwd{INTEGER}.ascii();
+        स्थिती TIME2STATE: परत VBasicDTypeKwd{TIME}.ascii();
+        पूर्वनिर्धारित: परत ascii();
         }
     }
-    const char* dpiType() const {
-        static constexpr const char* const names[] = {"%E-unk",
+    स्थिरांक अक्षर* dpiType() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"%E-unk",
                                                       "svBit",
                                                       "char",
                                                       "void*",
@@ -614,137 +614,137 @@ public:
                                                       "QData",
                                                       "%E-logic-implct",
                                                       " MAX"};
-        return names[m_e];
+        परत names[m_e];
     }
-    static void selfTest() {
-        UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.ascii(), " MAX"),
+    स्थिर शून्य selfTest() {
+        UASSERT(0 == std::म_भेद(VBasicDTypeKwd{_ENUM_MAX}.ascii(), " MAX"),
                 "SelfTest: Enum mismatch");
-        UASSERT(0 == std::strcmp(VBasicDTypeKwd{_ENUM_MAX}.dpiType(), " MAX"),
+        UASSERT(0 == std::म_भेद(VBasicDTypeKwd{_ENUM_MAX}.dpiType(), " MAX"),
                 "SelfTest: Enum mismatch");
     }
     VBasicDTypeKwd() VL_MT_SAFE : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBasicDTypeKwd(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VBasicDTypeKwd(int _e) VL_MT_SAFE  //
+    explicit VBasicDTypeKwd(पूर्णांक _e) VL_MT_SAFE  //
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    int width() const {
-        switch (m_e) {
-        case BIT: return 1;  // scalar, can't bit extract unless ranged
-        case BYTE: return 8;
-        case CHANDLE: return 64;
-        case NULLTYPE: return 1;  // Historical - bit was used instead of NULLTYPE
-        case EVENT: return 1;
-        case INT: return 32;
-        case INTEGER: return 32;
-        case INTEGER2STATE: return 32;
-        case LOGIC: return 1;  // scalar, can't bit extract unless ranged
-        case LOGIC2STATE: return 1;  // scalar, can't bit extract unless ranged
-        case LONGINT: return 64;
-        case DOUBLE: return 64;  // opaque
-        case SHORTINT: return 16;
-        case TIME: return 64;
-        case TIME2STATE: return 64;
-        case STRING: return 64;  // opaque  // Just the pointer, for today
-        case SCOPEPTR: return 0;  // opaque
-        case CHARPTR: return 0;  // opaque
-        case MTASKSTATE: return 0;  // opaque
-        case DELAY_SCHEDULER: return 0;  // opaque
-        case TRIGGER_SCHEDULER: return 0;  // opaque
-        case DYNAMIC_TRIGGER_SCHEDULER: return 0;  // opaque
-        case FORK_SYNC: return 0;  // opaque
-        case PROCESS_REFERENCE: return 0;  // opaque
-        case RANDOM_GENERATOR: return 0;  // opaque
-        case RANDOM_STDGENERATOR: return 0;  // opaque
-        case COVERGROUP_INSTHANDLE: return 0;  // opaque
-        case UINT32: return 32;
-        case UINT64: return 64;
-        default: return 0;
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    पूर्णांक width() स्थिरांक {
+        निवड (m_e) {
+        स्थिती BIT: परत 1;  // scalar, can't bit extract unless ranged
+        स्थिती BYTE: परत 8;
+        स्थिती CHANDLE: परत 64;
+        स्थिती NULLTYPE: परत 1;  // Historical - bit was used instead of NULLTYPE
+        स्थिती EVENT: परत 1;
+        स्थिती INT: परत 32;
+        स्थिती INTEGER: परत 32;
+        स्थिती INTEGER2STATE: परत 32;
+        स्थिती LOGIC: परत 1;  // scalar, can't bit extract unless ranged
+        स्थिती LOGIC2STATE: परत 1;  // scalar, can't bit extract unless ranged
+        स्थिती LONGINT: परत 64;
+        स्थिती DOUBLE: परत 64;  // opaque
+        स्थिती SHORTINT: परत 16;
+        स्थिती TIME: परत 64;
+        स्थिती TIME2STATE: परत 64;
+        स्थिती STRING: परत 64;  // opaque  // Just the pointer, for today
+        स्थिती SCOPEPTR: परत 0;  // opaque
+        स्थिती CHARPTR: परत 0;  // opaque
+        स्थिती MTASKSTATE: परत 0;  // opaque
+        स्थिती DELAY_SCHEDULER: परत 0;  // opaque
+        स्थिती TRIGGER_SCHEDULER: परत 0;  // opaque
+        स्थिती DYNAMIC_TRIGGER_SCHEDULER: परत 0;  // opaque
+        स्थिती FORK_SYNC: परत 0;  // opaque
+        स्थिती PROCESS_REFERENCE: परत 0;  // opaque
+        स्थिती RANDOM_GENERATOR: परत 0;  // opaque
+        स्थिती RANDOM_STDGENERATOR: परत 0;  // opaque
+        स्थिती COVERGROUP_INSTHANDLE: परत 0;  // opaque
+        स्थिती UINT32: परत 32;
+        स्थिती UINT64: परत 64;
+        पूर्वनिर्धारित: परत 0;
         }
     }
-    bool isSigned() const {
-        return m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isSigned() स्थिरांक {
+        परत m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                || m_e == INTEGER2STATE || m_e == DOUBLE;
     }
-    bool isUnsigned() const {
-        return m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+    bool isUnsigned() स्थिरांक {
+        परत m_e == CHANDLE || m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                || m_e == UINT32 || m_e == UINT64 || m_e == BIT || m_e == LOGIC
                || m_e == LOGIC2STATE || m_e == TIME || m_e == TIME2STATE;
     }
-    bool isFourstate() const {
-        return m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
+    bool isFourstate() स्थिरांक {
+        परत m_e == INTEGER || m_e == LOGIC || m_e == LOGIC_IMPLICIT || m_e == TIME;
     }
-    bool isZeroInit() const {  // Otherwise initializes to X
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
+    bool isZeroInit() स्थिरांक {  // Otherwise initializes to X
+        परत (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == NULLTYPE || m_e == EVENT
                 || m_e == INT || m_e == LONGINT || m_e == SHORTINT || m_e == STRING
                 || m_e == DOUBLE);
     }
-    bool isIntNumeric() const {  // Enum increment supported
-        return (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
+    bool isIntNumeric() स्थिरांक {  // Enum increment supported
+        परत (m_e == BIT || m_e == BYTE || m_e == INT || m_e == INTEGER || m_e == INTEGER2STATE
                 || m_e == LOGIC || m_e == LOGIC2STATE || m_e == LONGINT || m_e == SHORTINT
                 || m_e == UINT32 || m_e == UINT64 || m_e == TIME || m_e == TIME2STATE);
     }
-    bool isBit() const { return m_e == BIT; }
-    bool isBitLogic() const {  // Bit/logic vector types; can form a packed array
-        return (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
+    bool isBit() स्थिरांक { परत m_e == BIT; }
+    bool isBitLogic() स्थिरांक {  // Bit/logic vector types; can form a packed array
+        परत (m_e == LOGIC || m_e == LOGIC2STATE || m_e == BIT);
     }
-    bool isDpiUnsignable() const {  // Can add "unsigned" to DPI
-        return (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
+    bool isDpiUnsignable() स्थिरांक {  // Can add "unsigned" to DPI
+        परत (m_e == BYTE || m_e == SHORTINT || m_e == INT || m_e == LONGINT || m_e == INTEGER
                 || m_e == INTEGER2STATE);
     }
-    bool isDpiCLayout() const {  // Uses standard C layout, for DPI runtime access
-        return (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
+    bool isDpiCLayout() स्थिरांक {  // Uses standard C layout, for DPI runtime access
+        परत (m_e == BIT || m_e == BYTE || m_e == CHANDLE || m_e == INT || m_e == LONGINT
                 || m_e == DOUBLE || m_e == SHORTINT || m_e == UINT32 || m_e == UINT64);
     }
-    bool isOpaque() const VL_MT_SAFE {  // IE not a simple number we can bit optimize
-        return (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
+    bool isOpaque() स्थिरांक VL_MT_SAFE {  // IE not a simple number we can bit optimize
+        परत (m_e == EVENT || m_e == STRING || m_e == SCOPEPTR || m_e == CHARPTR
                 || m_e == MTASKSTATE || m_e == DELAY_SCHEDULER || m_e == TRIGGER_SCHEDULER
                 || m_e == DYNAMIC_TRIGGER_SCHEDULER || m_e == FORK_SYNC || m_e == PROCESS_REFERENCE
                 || m_e == RANDOM_GENERATOR || m_e == RANDOM_STDGENERATOR
                 || m_e == COVERGROUP_INSTHANDLE || m_e == DOUBLE || m_e == UNTYPED);
     }
-    bool isCHandle() const VL_MT_SAFE { return m_e == CHANDLE; }
-    bool isDouble() const VL_MT_SAFE { return m_e == DOUBLE; }
-    bool isEvent() const { return m_e == EVENT; }
-    bool isString() const VL_MT_SAFE { return m_e == STRING; }
-    bool isMTaskState() const VL_MT_SAFE { return m_e == MTASKSTATE; }
-    bool isSameish(const VBasicDTypeKwd& other) const VL_MT_SAFE {
-        switch (other.m_e) {
-        case LOGIC:
-        case LOGIC2STATE:
-        case LOGIC_IMPLICIT: return m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
-        case INTEGER:
-        case INTEGER2STATE: return m_e == INTEGER || m_e == INTEGER2STATE;
-        case TIME:
-        case TIME2STATE: return m_e == TIME || m_e == TIME2STATE;
-        default: return m_e == other.m_e;
+    bool isCHandle() स्थिरांक VL_MT_SAFE { परत m_e == CHANDLE; }
+    bool isDouble() स्थिरांक VL_MT_SAFE { परत m_e == DOUBLE; }
+    bool isEvent() स्थिरांक { परत m_e == EVENT; }
+    bool isString() स्थिरांक VL_MT_SAFE { परत m_e == STRING; }
+    bool isMTaskState() स्थिरांक VL_MT_SAFE { परत m_e == MTASKSTATE; }
+    bool isSameish(स्थिरांक VBasicDTypeKwd& other) स्थिरांक VL_MT_SAFE {
+        निवड (other.m_e) {
+        स्थिती LOGIC:
+        स्थिती LOGIC2STATE:
+        स्थिती LOGIC_IMPLICIT: परत m_e == LOGIC || m_e == LOGIC2STATE || m_e == LOGIC_IMPLICIT;
+        स्थिती INTEGER:
+        स्थिती INTEGER2STATE: परत m_e == INTEGER || m_e == INTEGER2STATE;
+        स्थिती TIME:
+        स्थिती TIME2STATE: परत m_e == TIME || m_e == TIME2STATE;
+        पूर्वनिर्धारित: परत m_e == other.m_e;
         }
     }
     // Does this represent a C++ LiteralType? (can be constexpr)
-    bool isLiteralType() const VL_MT_SAFE {
-        switch (m_e) {
-        case BIT:
-        case BYTE:
-        case CHANDLE:
-        case INT:
-        case INTEGER:
-        case INTEGER2STATE:
-        case LOGIC:
-        case LOGIC2STATE:
-        case LONGINT:
-        case DOUBLE:
-        case SHORTINT:
-        case SCOPEPTR:
-        case CHARPTR:
-        case UINT32:
-        case UINT64: return true;
-        default: return false;
+    bool isLiteralType() स्थिरांक VL_MT_SAFE {
+        निवड (m_e) {
+        स्थिती BIT:
+        स्थिती BYTE:
+        स्थिती CHANDLE:
+        स्थिती INT:
+        स्थिती INTEGER:
+        स्थिती INTEGER2STATE:
+        स्थिती LOGIC:
+        स्थिती LOGIC2STATE:
+        स्थिती LONGINT:
+        स्थिती DOUBLE:
+        स्थिती SHORTINT:
+        स्थिती SCOPEPTR:
+        स्थिती CHARPTR:
+        स्थिती UINT32:
+        स्थिती UINT64: परत true;
+        पूर्वनिर्धारित: परत false;
         }
     }
 
-    const char* traceSigType() const {
+    स्थिरांक अक्षर* traceSigType() स्थिरांक {
         // VerilatedTraceSigType to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक lut[] = {
             /* UNKNOWN:                   */ "",  // Should not be traced
             /* BIT:                       */ "BIT",
             /* BYTE:                      */ "BYTE",
@@ -779,95 +779,95 @@ public:
             /* UINT64:                    */ "BIT",
             /* LOGIC_IMPLICIT:            */ "",  // Should not be traced
         };
-        static_assert(sizeof(lut) / sizeof(lut[0]) == _ENUM_MAX, "Missing trace signal type");
-        return lut[m_e];
+        static_assert(आकार(lut) / आकार(lut[0]) == _ENUM_MAX, "Missing trace signal type");
+        परत lut[m_e];
     }
 };
-constexpr bool operator==(const VBasicDTypeKwd& lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VBasicDTypeKwd& lhs, स्थिरांक VBasicDTypeKwd& rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VBasicDTypeKwd& lhs, VBasicDTypeKwd::en rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VBasicDTypeKwd::en lhs, const VBasicDTypeKwd& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VBasicDTypeKwd::en lhs, स्थिरांक VBasicDTypeKwd& rhs) VL_MT_SAFE {
+    परत lhs == rhs.m_e;
 }
 
 // ######################################################################
 
 /// Boolean or unknown
 class VBoolOrUnknown final {
-public:
-    enum en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { BU_FALSE = 0, BU_TRUE = 1, BU_UNKNOWN = 2, _ENUM_END };
+    गणना en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBoolOrUnknown()
         : m_e{BU_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBoolOrUnknown(en _e)
         : m_e{_e} {}
-    explicit VBoolOrUnknown(int _e)
+    explicit VBoolOrUnknown(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FALSE", "TRUE", "UNK"};
-        return names[m_e];
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"FALSE", "TRUE", "UNK"};
+        परत names[m_e];
     }
-    bool isKnown() const { return m_e != BU_UNKNOWN; }
-    bool trueKnown() const { return m_e == BU_TRUE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
+    bool isKnown() स्थिरांक { परत m_e != BU_UNKNOWN; }
+    bool trueKnown() स्थिरांक { परत m_e == BU_TRUE; }
+    शून्य setTrueOrFalse(bool flag) { m_e = flag ? BU_TRUE : BU_FALSE; }
 };
-constexpr bool operator==(const VBoolOrUnknown& lhs, const VBoolOrUnknown& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VBoolOrUnknown& lhs, स्थिरांक VBoolOrUnknown& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VBoolOrUnknown& lhs, VBoolOrUnknown::en rhs) {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VBoolOrUnknown::en lhs, const VBoolOrUnknown& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VBoolOrUnknown::en lhs, स्थिरांक VBoolOrUnknown& rhs) {
+    परत lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VBoolOrUnknown& rhs) {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VBoolOrUnknown& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VBranchPred final {
-public:
-    enum en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { BP_UNKNOWN = 0, BP_LIKELY, BP_UNLIKELY, _ENUM_END };
+    गणना en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VBranchPred()
         : m_e{BP_UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VBranchPred(en _e)
         : m_e{_e} {}
-    explicit VBranchPred(int _e)
+    explicit VBranchPred(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool unknown() const { return m_e == BP_UNKNOWN; }
-    bool likely() const { return m_e == BP_LIKELY; }
-    bool unlikely() const { return m_e == BP_UNLIKELY; }
-    VBranchPred invert() const {
-        if (m_e == BP_UNLIKELY) return BP_LIKELY;
-        if (m_e == BP_LIKELY) return BP_UNLIKELY;
-        return m_e;
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    bool unknown() स्थिरांक { परत m_e == BP_UNKNOWN; }
+    bool likely() स्थिरांक { परत m_e == BP_LIKELY; }
+    bool unlikely() स्थिरांक { परत m_e == BP_UNLIKELY; }
+    VBranchPred invert() स्थिरांक {
+        जर (m_e == BP_UNLIKELY) परत BP_LIKELY;
+        जर (m_e == BP_LIKELY) परत BP_UNLIKELY;
+        परत m_e;
     }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
-        return names[m_e];
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"", "VL_LIKELY", "VL_UNLIKELY"};
+        परत names[m_e];
     }
-    const char* asciiShort() const {
-        static constexpr const char* const names[] = {"", "L", "!L"};
-        return names[m_e];
+    स्थिरांक अक्षर* asciiShort() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"", "L", "!L"};
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VBranchPred& lhs, const VBranchPred& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VBranchPred& lhs, स्थिरांक VBranchPred& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VBranchPred& lhs, VBranchPred::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VBranchPred::en lhs, const VBranchPred& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VBranchPred& lhs, VBranchPred::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VBranchPred::en lhs, स्थिरांक VBranchPred& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VBranchPred& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
@@ -875,18 +875,18 @@ inline std::ostream& operator<<(std::ostream& os, const VBranchPred& rhs) {
 namespace {
 // Validate the arguments descriptor
 // LCOV_EXCL_START
-static constexpr bool validateArgsDescriptor(const char* descrp) {
+स्थिर constexpr bool validateArgsDescriptor(स्थिरांक अक्षर* descrp) {
     // Is "TODO"
-    if (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
+    जर (descrp[0] == 'T' && descrp[1] == 'O' && descrp[2] == 'D' && descrp[3] == 'O'
         && !descrp[4]) {
-        return true;
+        परत true;
     }
     // Is a sequence of 'r'/'w'/'m' with an optional trailing '+'
-    for (const char* cp = descrp; *cp; ++cp) {
-        if (*cp == '+') return cp != descrp && !cp[1];
-        if (*cp != 'r' && *cp != 'w' && *cp != 'm') return false;
+    साठी (स्थिरांक अक्षर* cp = descrp; *cp; ++cp) {
+        जर (*cp == '+') परत cp != descrp && !cp[1];
+        जर (*cp != 'r' && *cp != 'w' && *cp != 'm') परत false;
     }
-    return true;
+    परत true;
 }
 // LCOV_EXCL_STOP
 };  //namespace
@@ -921,11 +921,11 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(ARRAY_MAX,                          "max",                    PURE,   CLEAN,  "") \
     macro(ARRAY_MIN,                          "min",                    PURE,   CLEAN,  "") \
     macro(ARRAY_NEXT,                         "next",                   false,  CLEAN,  "m") \
-    macro(ARRAY_POP_BACK,                     "pop_back",               false,  CLEAN,  "") \
-    macro(ARRAY_POP_FRONT,                    "pop_front",              false,  CLEAN,  "") \
+    macro(ARRAY_काढा_BACK,                     "pop_back",               false,  CLEAN,  "") \
+    macro(ARRAY_काढा_FRONT,                    "pop_front",              false,  CLEAN,  "") \
     macro(ARRAY_PREV,                         "prev",                   false,  CLEAN,  "m") \
-    macro(ARRAY_PUSH_BACK,                    "push_back",              false,  CLEAN,  "r") \
-    macro(ARRAY_PUSH_FRONT,                   "push_front",             false,  CLEAN,  "r") \
+    macro(ARRAY_ढकला_BACK,                    "push_back",              false,  CLEAN,  "r") \
+    macro(ARRAY_ढकला_FRONT,                   "push_front",             false,  CLEAN,  "r") \
     macro(ARRAY_REVERSE,                      "reverse",                false,  CLEAN,  "") \
     macro(ARRAY_RSORT,                        "rsort",                  false,  CLEAN,  "") \
     macro(ARRAY_R_AND,                        "r_and",                  PURE,   CLEAN,  "") \
@@ -958,8 +958,8 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(COVERGROUP_CROSS_WITH_BEGIN,        "withBegin",              false,  CLEAN,  "r+") \
     macro(COVERGROUP_CROSS_WITH_END,          "withEnd",                false,  CLEAN,  "") \
     macro(COVERGROUP_CROSS_WITH_TEST,         "withTest",               false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE,        "withValue",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_CROSS_WITH_VALUE_W,      "withValueW",             false,  CLEAN,  "rw") \
+    macro(COVERGROUP_CROSS_WITH_मूल्य,        "withValue",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_CROSS_WITH_मूल्य_W,      "withValueW",             false,  CLEAN,  "rw") \
     macro(COVERGROUP_FINALIZE_BINS,           "finalizeBins",           false,  CLEAN,  "") \
     macro(COVERGROUP_INCREMENT_BIN,           "incrementBin",           false,  CLEAN,  "r") \
     macro(COVERGROUP_INIT,                    "init",                   false,  CLEAN,  "r+") \
@@ -986,15 +986,15 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(COVERGROUP_SIZED_SAMPLE_W,          "sizedSampleW",           false,  CLEAN,  "rrr") \
     macro(COVERGROUP_TYPE_COVERAGE,           "typeCoverage",           false,  CLEAN,  "rrrr") \
     macro(COVERGROUP_TYPE_WEIGHT,             "typeWeight",             false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
-    macro(COVERGROUP_VALUE_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
-    macro(COVERGROUP_VALUE_TYPE,              "valueType",              false,  CLEAN,  "rr") \
+    macro(COVERGROUP_मूल्य_EXCLUDED,          "valueExcluded",          PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_मूल्य_EXCLUDED_W,        "valueExcludedW",         PURE,   CLEAN,  "r") \
+    macro(COVERGROUP_मूल्य_FINALIZE,          "valueFinalize",          false,  CLEAN,  "") \
+    macro(COVERGROUP_मूल्य_PATTERNS,          "valuePatterns",          false,  CLEAN,  "r") \
+    macro(COVERGROUP_मूल्य_RANGES,            "valueRanges",            false,  CLEAN,  "r") \
+    macro(COVERGROUP_मूल्य_RELEASE,           "valueRelease",           false,  CLEAN,  "") \
+    macro(COVERGROUP_मूल्य_RUNS,              "valueRuns",              false,  CLEAN,  "r") \
+    macro(COVERGROUP_मूल्य_TRANSITIONS,       "valueTransitions",       false,  CLEAN,  "r") \
+    macro(COVERGROUP_मूल्य_TYPE,              "valueType",              false,  CLEAN,  "rr") \
     macro(COVERGROUP_WEIGHT,                  "weight",                 false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_BEGIN,              "withBegin",              false,  CLEAN,  "rr") \
     macro(COVERGROUP_WITH_FINISH,             "withFinish",             false,  CLEAN,  "r+") \
@@ -1009,11 +1009,11 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
     macro(DYN_AT_WRITE_APPEND_BACK,           "atWriteAppendBack",      false,  CLEAN,  "r") \
     macro(DYN_CLEAR,                          "clear",                  false,  CLEAN,  "") \
     macro(DYN_ERASE,                          "erase",                  false,  CLEAN,  "r") \
-    macro(DYN_INSERT,                         "insert",                 false,  CLEAN,  "rr") \
-    macro(DYN_POP,                            "pop",                    false,  CLEAN,  "rrm") \
-    macro(DYN_POP_FRONT,                      "pop_front",              false,  CLEAN,  "") \
-    macro(DYN_PUSH,                           "push",                   false,  CLEAN,  "rr") \
-    macro(DYN_PUSH_FRONT,                     "push_front",             false,  CLEAN,  "r") \
+    macro(DYN_घाला,                         "insert",                 false,  CLEAN,  "rr") \
+    macro(DYN_काढा,                            "pop",                    false,  CLEAN,  "rrm") \
+    macro(DYN_काढा_FRONT,                      "pop_front",              false,  CLEAN,  "") \
+    macro(DYN_ढकला,                           "push",                   false,  CLEAN,  "rr") \
+    macro(DYN_ढकला_FRONT,                     "push_front",             false,  CLEAN,  "r") \
     macro(DYN_RENEW,                          "renew",                  false,  CLEAN,  "r") \
     macro(DYN_RENEW_COPY,                     "renew_copy",             false,  CLEAN,  "rr") \
     macro(DYN_RESIZE,                         "resize",                 false,  CLEAN,  "TODO") \
@@ -1080,69 +1080,69 @@ static constexpr bool validateArgsDescriptor(const char* descrp) {
 // clang-format on
 
 class VCMethod final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
-    static constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
+    स्थिर constexpr bool PURE = true;  // For macro expansion of 'pure' field only
+    स्थिर constexpr bool CLEAN = true;  // For macro expansion of 'clean' field only
 
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
 #define VL_CMETHOD_ID(id, method, pure, clean, args) id,
         FOR_EACH_CMETHOD(VL_CMETHOD_ID)
 #undef VL_CMETHOD_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    गणना en m_e;
     VCMethod()
         : m_e{_NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCMethod(en _e)
         : m_e{_e} {}
-    explicit VCMethod(int _e)
+    explicit VCMethod(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const values[] = {
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक VL_PURE {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक मूल्ये[] = {
 #define VL_CMETHOD_NAME(id, method, pure, clean, args) method,
             FOR_EACH_CMETHOD(VL_CMETHOD_NAME)
 #undef VL_CMETHOD_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    bool isPure() const VL_PURE {
-        static constexpr bool values[] = {
+    bool isPure() स्थिरांक VL_PURE {
+        स्थिर constexpr bool मूल्ये[] = {
 #define VL_CMETHOD_PURE(id, method, pure, clean, args) pure,
             FOR_EACH_CMETHOD(VL_CMETHOD_PURE)
 #undef VL_CMETHOD_PURE
                 false  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    bool isClean() const VL_PURE {
-        static constexpr bool values[] = {
+    bool isClean() स्थिरांक VL_PURE {
+        स्थिर constexpr bool मूल्ये[] = {
 #define VL_CMETHOD_CLEAN(id, method, pure, clean, args) clean,
             FOR_EACH_CMETHOD(VL_CMETHOD_CLEAN)
 #undef VL_CMETHOD_CLEAN
                 false  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    const char* args() const VL_PURE {
-        static constexpr const char* const values[] = {
+    स्थिरांक अक्षर* args() स्थिरांक VL_PURE {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक मूल्ये[] = {
 #define VL_CMETHOD_ARGS(id, method, pure, clean, args) args,
             FOR_EACH_CMETHOD(VL_CMETHOD_ARGS)
 #undef VL_CMETHOD_ARGS
                 ""  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
     // Return array method for given name
-    static VCMethod arrayMethod(const string& name);
+    स्थिर VCMethod arrayMethod(स्थिरांक string& name);
 };
-constexpr bool operator==(const VCMethod& lhs, const VCMethod& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VCMethod& lhs, VCMethod::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCMethod::en lhs, const VCMethod& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCMethod& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VCMethod& lhs, स्थिरांक VCMethod& rhs) { परत lhs.m_e == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VCMethod& lhs, VCMethod::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VCMethod::en lhs, स्थिरांक VCMethod& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VCMethod& rhs) {
+    परत os << rhs.ascii();
 }
 
 // Static assert all argument descriptors are well formed
@@ -1161,45 +1161,45 @@ FOR_EACH_CMETHOD(VL_CMETHOD_ARGS_CHECK)
 // clang-format on
 
 class VCFunction final {
-    static constexpr bool PURE = true;  // For macro expansion of 'pure' field only
+    स्थिर constexpr bool PURE = true;  // For macro expansion of 'pure' field only
 
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
 #define VL_CFUNCTION_ID(id, method, pure, args) id,
         FOR_EACH_CFUNCTION(VL_CFUNCTION_ID)
 #undef VL_CFUNCTION_ID
             _ENUM_MAX  // Leave last
     };
-    enum en m_e;
+    गणना en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCFunction(en _e)
         : m_e{_e} {}
-    const char* ascii() const VL_PURE {
-        static const char* const values[] = {
+    स्थिरांक अक्षर* ascii() स्थिरांक VL_PURE {
+        स्थिर स्थिरांक अक्षर* स्थिरांक मूल्ये[] = {
 #define VL_CFUNCTION_NAME(id, function, pure, args) function,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_NAME)
 #undef VL_CFUNCTION_NAME
                 "_ENUM_MAX"  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    bool isPure() const VL_PURE {
-        static const bool values[] = {
+    bool isPure() स्थिरांक VL_PURE {
+        स्थिर स्थिरांक bool मूल्ये[] = {
 #define VL_CFUNCTION_PURE(id, method, pure, args) pure,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_PURE)
 #undef VL_CFUNCTION_PURE
                 false  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    const char* args() const VL_PURE {
-        static const char* const values[] = {
+    स्थिरांक अक्षर* args() स्थिरांक VL_PURE {
+        स्थिर स्थिरांक अक्षर* स्थिरांक मूल्ये[] = {
 #define VL_CFUNCTION_ARGS(id, method, pure, args) args,
             FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS)
 #undef VL_CFUNCTION_ARGS
                 ""  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
 };
 
@@ -1214,50 +1214,50 @@ FOR_EACH_CFUNCTION(VL_CFUNCTION_ARGS_CHECK)
 // ######################################################################
 
 class VCStmtType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         NONE,  // Unknown or not applicable
         CTOR_VAR_RESET_CALL,
         _ENUM_MAX  // Leave last
     };
 
-private:
-    struct Item final {
-        enum en m_e;  // Statement's enum mnemonic, for checking
-        const char* m_name;  // Statements name, for debugging
+खाजगी:
+    संरचना Item final {
+        गणना en m_e;  // Statement's enum mnemonic, for checking
+        स्थिरांक अक्षर* m_name;  // Statements name, for debugging
     };
-    static Item s_itemData[];
+    स्थिर Item s_itemData[];
 
-public:
-    enum en m_e;
+सार्वजनिक:
+    गणना en m_e;
     VCStmtType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCStmtType(en _e)
         : m_e{_e} {}
-    explicit VCStmtType(int _e)
+    explicit VCStmtType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[] = {"none", "ctor_var_reset_call"};
-        return names[m_e];
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक VL_PURE {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"none", "ctor_var_reset_call"};
+        परत names[m_e];
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() स्थिरांक { परत m_e == NONE; }
 };
-constexpr bool operator==(const VCStmtType& lhs, const VCStmtType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VCStmtType& lhs, स्थिरांक VCStmtType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCStmtType& lhs, VCStmtType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCStmtType::en lhs, const VCStmtType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCStmtType& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VCStmtType& lhs, VCStmtType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VCStmtType::en lhs, स्थिरांक VCStmtType& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VCStmtType& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VCaseType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         CT_CASE,
         CT_CASEX,
         CT_CASEZ,
@@ -1265,32 +1265,32 @@ public:
         CT_CASEMATCHES,
         CT_RANDSEQUENCE
     };
-    enum en m_e;
+    गणना en m_e;
     VCaseType()
         : m_e{CT_CASE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCaseType(en _e)
         : m_e{_e} {}
-    explicit VCaseType(int _e)
+    explicit VCaseType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const VL_PURE {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक VL_PURE {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"CASE", "CASEX", "CASEZ", "CASEINSIDE", "CASEMATCHES", "RANDSEQUENCE"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VCaseType& lhs, const VCaseType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VCaseType& lhs, स्थिरांक VCaseType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCaseType& lhs, VCaseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCaseType::en lhs, const VCaseType& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VCaseType& lhs, VCaseType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VCaseType::en lhs, स्थिरांक VCaseType& rhs) { परत lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VCastable final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         UNSUPPORTED,
         SAMEISH,
         COMPATIBLE,
@@ -1300,37 +1300,37 @@ public:
         INCOMPATIBLE,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"UNSUPPORTED",   "SAMEISH",       "COMPATIBLE",  "ENUM_IMPLICIT",
                "ENUM_EXPLICIT", "DYNAMIC_CLASS", "INCOMPATIBLE"};
-        return names[m_e];
+        परत names[m_e];
     }
-    bool isAssignable() const { return m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
+    bool isAssignable() स्थिरांक { परत m_e != UNSUPPORTED && m_e != INCOMPATIBLE; }
     VCastable()
         : m_e{UNSUPPORTED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VCastable(en _e)
         : m_e{_e} {}
-    explicit VCastable(int _e)
+    explicit VCastable(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
 };
-constexpr bool operator==(const VCastable& lhs, const VCastable& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VCastable& lhs, स्थिरांक VCastable& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VCastable& lhs, VCastable::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VCastable::en lhs, const VCastable& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VCastable& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VCastable& lhs, VCastable::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VCastable::en lhs, स्थिरांक VCastable& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VCastable& rhs) {
+    परत os << rhs.ascii();
 }
 
 //######################################################################
 
 class VCoverBinsType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         BINS_ARRAY,  // Array of bins with user-speciifed size
         BINS_AUTO,  // Automatic bins of a 'bins auto[N]' declaration
         BINS_AUTO_IMPLICIT,  // Automatic bins of a coverpoint without bins (IEEE 1800-2023 19.5.3)
@@ -1341,48 +1341,48 @@ public:
         BINS_USER,  // Single bin with one or more values/ranges
         BINS_WILDCARD  // Wildcard bin
     };
-    enum en m_e;
+    गणना en m_e;
     VCoverBinsType()  // LCOV_EXCL_START
         : m_e{BINS_USER} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverBinsType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }  // LCOV_EXCL_LINE
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"array",        "auto",       "auto_implicit", "default", "ignore_bins",
                "illegal_bins", "transition", "bins",          "wildcard"};
-        return names[m_e];
+        परत names[m_e];
     }
     // Keyword declaring the bins, without any 'wildcard' prefix
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    स्थिरांक अक्षर* verilogKwd() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {
             "bins", "bins", "bins", "bins", "ignore_bins", "illegal_bins", "bins", "bins", "bins"};
-        return names[m_e];
+        परत names[m_e];
     }
     // VlCovBinKind enumerator naming the bin's set
-    const char* binSetEnum() const {
-        switch (m_e) {
-        case BINS_IGNORE: return "VlCovBinKind::KIND_IGNORE";
-        case BINS_ILLEGAL: return "VlCovBinKind::KIND_ILLEGAL";
-        case BINS_DEFAULT: return "VlCovBinKind::KIND_DEFAULT";
-        default: return "VlCovBinKind::KIND_NORMAL";
+    स्थिरांक अक्षर* binSetEnum() स्थिरांक {
+        निवड (m_e) {
+        स्थिती BINS_IGNORE: परत "VlCovBinKind::KIND_IGNORE";
+        स्थिती BINS_ILLEGAL: परत "VlCovBinKind::KIND_ILLEGAL";
+        स्थिती BINS_DEFAULT: परत "VlCovBinKind::KIND_DEFAULT";
+        पूर्वनिर्धारित: परत "VlCovBinKind::KIND_NORMAL";
         }
     }
     // Normal bins (feed coverage) are anything but ignore/illegal/default
-    bool binIsNormal() const {
-        return m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
+    bool binIsNormal() स्थिरांक {
+        परत m_e != BINS_IGNORE && m_e != BINS_ILLEGAL && m_e != BINS_DEFAULT;
     }
 };
-constexpr bool operator==(const VCoverBinsType& lhs, VCoverBinsType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VCoverBinsType& lhs, VCoverBinsType::en rhs) {
+    परत lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VCoverOptionType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         // Shared by option.* and type_option.*
         WEIGHT,
         GOAL,
@@ -1392,7 +1392,7 @@ public:
         COMMENT,
         // option.* only (IEEE 1800-2023 Table 19-1)
         NAME,
-        CROSS_NUM_PRINT_MISSING,
+        CROSS_अंक_PRINT_MISSING,
         CROSS_RETAIN_AUTO_BINS,
         DETECT_OVERLAP,
         GET_INST_COVERAGE,
@@ -1406,12 +1406,12 @@ public:
         // sentinel - should never appear after parse-time validation
         UNKNOWN
     };
-    enum en m_e;
+    गणना en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VCoverOptionType(en _e)
         : m_e{_e} {}
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"weight",
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"weight",
                                                       "goal",
                                                       "at_least",
                                                       "auto_bin_max",
@@ -1428,120 +1428,120 @@ public:
                                                       "real_interval",
                                                       "cross_auto_bin_max",
                                                       "unknown"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VCoverOptionType& lhs, VCoverOptionType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VCoverOptionType& lhs, VCoverOptionType::en rhs) {
+    परत lhs.m_e == rhs;
 }
 
 //######################################################################
 
 class VTransRepType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         NONE,  // No repetition
         CONSEC,  // Consecutive repetition [*]
         GOTO,  // Goto repetition [->]
         NONCONS  // Nonconsecutive repetition [=]
     };
-    enum en m_e;
+    गणना en m_e;
     VTransRepType()  // LCOV_EXCL_START
         : m_e{NONE} {}  // LCOV_EXCL_STOP
     // cppcheck-suppress noExplicitConstructor
     constexpr VTransRepType(en _e)
         : m_e{_e} {}
-    explicit VTransRepType(int _e)  // LCOV_EXCL_START
+    explicit VTransRepType(पूर्णांक _e)  // LCOV_EXCL_START
         : m_e(static_cast<en>(_e)) {}  // LCOV_EXCL_STOP  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }  // LCOV_EXCL_LINE
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"", "[*]", "[->]", "[=]"};
-        return names[m_e];
+    constexpr चालक en() स्थिरांक { परत m_e; }  // LCOV_EXCL_LINE
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"", "[*]", "[->]", "[=]"};
+        परत names[m_e];
     }
-    const char* asciiJson() const {
-        static constexpr const char* const names[]
+    स्थिरांक अक्षर* asciiJson() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"\"none\"", "\"consec\"", "\"goto\"", "\"noncons\""};
-        return names[m_e];
+        परत names[m_e];
     }
 };
 
 //######################################################################
 
 class VDirection final {
-public:
-    enum en : uint8_t { NONE, INPUT, OUTPUT, INOUT, REF, CONSTREF };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { NONE, आदान, OUTPUT, INOUT, REF, CONSTREF };
+    गणना en m_e;
     VDirection()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDirection(en _e)
         : m_e{_e} {}
-    explicit VDirection(int _e)
+    explicit VDirection(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const VL_MT_SAFE { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक VL_MT_SAFE { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"NONE", "INPUT", "OUTPUT", "INOUT", "REF", "CONSTREF"};
-        return names[m_e];
+        परत names[m_e];
     }
-    string verilogKwd() const {
-        static constexpr const char* const names[]
+    string verilogKwd() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"", "input", "output", "inout", "ref", "const ref"};
-        return names[m_e];
+        परत names[m_e];
     }
-    string prettyName() const { return verilogKwd(); }
-    bool isAny() const { return m_e != NONE; }
-    bool isInout() const { return m_e == INOUT; }
-    bool isInoutOrRef() const { return m_e == INOUT || m_e == REF || m_e == CONSTREF; }
-    bool isInput() const { return m_e == INPUT; }
-    bool isNonOutput() const {
-        return m_e == INPUT || m_e == INOUT || m_e == REF || m_e == CONSTREF;
+    string prettyName() स्थिरांक { परत verilogKwd(); }
+    bool isAny() स्थिरांक { परत m_e != NONE; }
+    bool isInout() स्थिरांक { परत m_e == INOUT; }
+    bool isInoutOrRef() स्थिरांक { परत m_e == INOUT || m_e == REF || m_e == CONSTREF; }
+    bool is_आदान() स्थिरांक { परत m_e == आदान; }
+    bool isNonOutput() स्थिरांक {
+        परत m_e == आदान || m_e == INOUT || m_e == REF || m_e == CONSTREF;
     }
-    bool isOutput() const { return m_e == OUTPUT; }
-    bool isReadOnly() const VL_MT_SAFE { return m_e == INPUT || m_e == CONSTREF; }
-    bool isWritable() const VL_MT_SAFE { return m_e == OUTPUT || m_e == INOUT || m_e == REF; }
-    bool isRef() const VL_MT_SAFE { return m_e == REF; }
-    bool isConstRef() const VL_MT_SAFE { return m_e == CONSTREF; }
-    string traceSigDirection() const {
-        if (isInout()) {
-            return "VerilatedTraceSigDirection::INOUT";
-        } else if (isWritable()) {
-            return "VerilatedTraceSigDirection::OUTPUT";
-        } else if (isNonOutput()) {
-            return "VerilatedTraceSigDirection::INPUT";
+    bool isOutput() स्थिरांक { परत m_e == OUTPUT; }
+    bool isReadOnly() स्थिरांक VL_MT_SAFE { परत m_e == आदान || m_e == CONSTREF; }
+    bool isWritable() स्थिरांक VL_MT_SAFE { परत m_e == OUTPUT || m_e == INOUT || m_e == REF; }
+    bool isRef() स्थिरांक VL_MT_SAFE { परत m_e == REF; }
+    bool isConstRef() स्थिरांक VL_MT_SAFE { परत m_e == CONSTREF; }
+    string traceSigDirection() स्थिरांक {
+        जर (isInout()) {
+            परत "VerilatedTraceSigDirection::INOUT";
+        } अन्यथा जर (isWritable()) {
+            परत "VerilatedTraceSigDirection::OUTPUT";
+        } अन्यथा जर (isNonOutput()) {
+            परत "VerilatedTraceSigDirection::INPUT";
         }
-        return "VerilatedTraceSigDirection::NONE";
+        परत "VerilatedTraceSigDirection::NONE";
     }
-    VAccess pinAccess() const {
-        switch (m_e) {
-        case NONE: return VAccess::NOCHANGE;
-        case INPUT:
-        case CONSTREF: return VAccess::READ;
-        case OUTPUT: return VAccess::WRITE;
-        case INOUT:
-        case REF: return VAccess::READWRITE;
+    VAccess pinAccess() स्थिरांक {
+        निवड (m_e) {
+        स्थिती NONE: परत VAccess::NOCHANGE;
+        स्थिती आदान:
+        स्थिती CONSTREF: परत VAccess::READ;
+        स्थिती OUTPUT: परत VAccess::WRITE;
+        स्थिती INOUT:
+        स्थिती REF: परत VAccess::READWRITE;
         }
         v3fatalSrc("Unhandled VDirection");
     }
 };
-constexpr bool operator==(const VDirection& lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VDirection& lhs, स्थिरांक VDirection& rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDirection& lhs, VDirection::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VDirection& lhs, VDirection::en rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VDirection::en lhs, const VDirection& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VDirection::en lhs, स्थिरांक VDirection& rhs) VL_MT_SAFE {
+    परत lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VDirection& rhs) {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VDirection& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VDisplayType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         DT_DISPLAY,
         DT_WRITE,
         DT_MONITOR,
@@ -1551,62 +1551,62 @@ public:
         DT_WARNING,
         DT_FATAL
     };
-    enum en m_e;
+    गणना en m_e;
     VDisplayType()
         : m_e{DT_DISPLAY} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDisplayType(en _e)
         : m_e{_e} {}
-    explicit VDisplayType(int _e)
+    explicit VDisplayType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool addNewline() const { return m_e != DT_WRITE; }
-    bool needScopeTracking() const { return m_e != DT_DISPLAY && m_e != DT_WRITE; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    bool addNewline() स्थिरांक { परत m_e != DT_WRITE; }
+    bool needScopeTracking() स्थिरांक { परत m_e != DT_DISPLAY && m_e != DT_WRITE; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"display", "write", "monitor", "strobe", "info", "error", "warning", "fatal"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VDisplayType& lhs, const VDisplayType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VDisplayType& lhs, स्थिरांक VDisplayType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDisplayType& lhs, VDisplayType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDisplayType::en lhs, const VDisplayType& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VDisplayType& lhs, VDisplayType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VDisplayType::en lhs, स्थिरांक VDisplayType& rhs) { परत lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VDumpCtlType final {
-public:
-    enum en : uint8_t { FILE, VARS, ALL, FLUSH, LIMIT, OFF, ON };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { खाता, VARS, ALL, FLUSH, LIMIT, OFF, ON };
+    गणना en m_e;
     VDumpCtlType()
         : m_e{ON} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VDumpCtlType(en _e)
         : m_e{_e} {}
-    explicit VDumpCtlType(int _e)
+    explicit VDumpCtlType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"$dumpfile",  "$dumpvars", "$dumpall", "$dumpflush",
                "$dumplimit", "$dumpoff",  "$dumpon"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VDumpCtlType& lhs, const VDumpCtlType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VDumpCtlType& lhs, स्थिरांक VDumpCtlType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VDumpCtlType& lhs, VDumpCtlType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDumpCtlType::en lhs, const VDumpCtlType& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VDumpCtlType& lhs, VDumpCtlType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VDumpCtlType::en lhs, स्थिरांक VDumpCtlType& rhs) { परत lhs == rhs.m_e; }
 
 // ######################################################################
 
 class VEdgeType final {
-public:
+सार्वजनिक:
     // REMEMBER to edit the strings below too
-    enum en : uint8_t {
+    गणना en : uint8_t {
         // These must be in general -> most specific order, as we sort by it
         // in V3Const::visit AstSenTree
         // Involving a variable
@@ -1627,9 +1627,9 @@ public:
         ET_FINAL,  // 'final' statements
         ET_NEVER  // Never occurs (optimized away)
     };
-    enum en m_e;
-    bool clockedStmt() const {
-        static constexpr bool clocked[] = {
+    गणना en m_e;
+    bool clockedStmt() स्थिरांक {
+        स्थिर constexpr bool clocked[] = {
             true,  // ET_CHANGED
             true,  // ET_BOTHEDGE
             true,  // ET_POSEDGE
@@ -1646,55 +1646,55 @@ public:
             false,  // ET_FINAL
             false,  // ET_NEVER
         };
-        return clocked[m_e];
+        परत clocked[m_e];
     }
-    bool anEdge() const { return m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
-    VEdgeType invert() const {
-        switch (m_e) {
-        case ET_CHANGED: return ET_CHANGED;
-        case ET_BOTHEDGE: return ET_BOTHEDGE;
-        case ET_POSEDGE: return ET_NEGEDGE;
-        case ET_NEGEDGE: return ET_POSEDGE;
-        default: UASSERT_STATIC(0, "Inverting bad edgeType()"); return ET_NEGEDGE;
+    bool anEdge() स्थिरांक { परत m_e == ET_BOTHEDGE || m_e == ET_POSEDGE || m_e == ET_NEGEDGE; }
+    VEdgeType invert() स्थिरांक {
+        निवड (m_e) {
+        स्थिती ET_CHANGED: परत ET_CHANGED;
+        स्थिती ET_BOTHEDGE: परत ET_BOTHEDGE;
+        स्थिती ET_POSEDGE: परत ET_NEGEDGE;
+        स्थिती ET_NEGEDGE: परत ET_POSEDGE;
+        पूर्वनिर्धारित: UASSERT_STATIC(0, "Inverting bad edgeType()"); परत ET_NEGEDGE;
         }
     }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"CHANGED", "BOTH",       "POS",    "NEG",    "EVENT",   "TRUE",  "ET_INITIAL_NBA",
                "COMBO",   "COMBO_STAR", "HYBRID", "STATIC", "INITIAL", "FINAL", "NEVER"};
-        return names[m_e];
+        परत names[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {
+    स्थिरांक अक्षर* verilogKwd() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {
             "[changed]", "edge", "posedge",  "negedge",  "[event]",   "[true]",  "[initial_nba]",
             "*",         "*",    "[hybrid]", "[static]", "[initial]", "[final]", "[never]"};
-        return names[m_e];
+        परत names[m_e];
     }
     // Return true iff this and the other have mutually exclusive transitions
-    bool exclusiveEdge(const VEdgeType& other) const {
-        switch (m_e) {
-        case VEdgeType::ET_POSEDGE:
-            if (other.m_e == VEdgeType::ET_NEGEDGE) return true;
-            break;
-        case VEdgeType::ET_NEGEDGE:
-            if (other.m_e == VEdgeType::ET_POSEDGE) return true;
-            break;
-        default: break;
+    bool exclusiveEdge(स्थिरांक VEdgeType& other) स्थिरांक {
+        निवड (m_e) {
+        स्थिती VEdgeType::ET_POSEDGE:
+            जर (other.m_e == VEdgeType::ET_NEGEDGE) परत true;
+            थांबा;
+        स्थिती VEdgeType::ET_NEGEDGE:
+            जर (other.m_e == VEdgeType::ET_POSEDGE) परत true;
+            थांबा;
+        पूर्वनिर्धारित: थांबा;
         }
-        return false;
+        परत false;
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VEdgeType(en _e)
         : m_e{_e} {}
-    explicit VEdgeType(int _e)
+    explicit VEdgeType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
 };
-constexpr bool operator==(const VEdgeType& lhs, const VEdgeType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VEdgeType& lhs, स्थिरांक VEdgeType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VEdgeType& lhs, VEdgeType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VEdgeType& lhs, VEdgeType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VEdgeType::en lhs, स्थिरांक VEdgeType& rhs) { परत lhs == rhs.m_e; }
 
 // ######################################################################
 
@@ -1718,83 +1718,83 @@ constexpr bool operator==(VEdgeType::en lhs, const VEdgeType& rhs) { return lhs 
 // clang-format on
 
 class VEval final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
 #define VL_EVAL_ID(id, iterated, triggers, first, slow) id,
         FOR_EACH_EVAL(VL_EVAL_ID)
 #undef VL_EVAL_ID
             _ENUM_END
     };
-    enum en m_e;
+    गणना en m_e;
 
-    const char* ascii() const {
-        static constexpr const char* const values[] = {
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक मूल्ये[] = {
 #define VL_EVAL_NAME(id, iterated, triggers, first, slow) #id,
             FOR_EACH_EVAL(VL_EVAL_NAME)
 #undef VL_EVAL_NAME
                 "_ENUM_END"  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    bool isIterated() const {
-        static constexpr bool values[] = {
+    bool isIterated() स्थिरांक {
+        स्थिर constexpr bool मूल्ये[] = {
 #define VL_EVAL_IS_ITERATED(id, iterated, triggers, first, slow) iterated,
             FOR_EACH_EVAL(VL_EVAL_IS_ITERATED)
 #undef VL_EVAL_IS_ITERATED
                 false  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    bool hasTriggers() const {
-        static constexpr bool values[] = {
+    bool hasTriggers() स्थिरांक {
+        स्थिर constexpr bool मूल्ये[] = {
 #define VL_EVAL_HAS_TRIGGERS(id, iterated, triggers, first, slow) triggers,
             FOR_EACH_EVAL(VL_EVAL_HAS_TRIGGERS)
 #undef VL_EVAL_HAS_TRIGGERS
                 false  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    bool firstIteration() const {
-        static constexpr bool values[] = {
+    bool firstIteration() स्थिरांक {
+        स्थिर constexpr bool मूल्ये[] = {
 #define VL_EVAL_FIRST(id, iterated, triggers, first, slow) first,
             FOR_EACH_EVAL(VL_EVAL_FIRST)
 #undef VL_EVAL_FIRST
                 false  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
-    bool slow() const {
-        static constexpr bool values[] = {
+    bool slow() स्थिरांक {
+        स्थिर constexpr bool मूल्ये[] = {
 #define VL_EVAL_SLOW(id, iterated, triggers, first, slow) slow,
             FOR_EACH_EVAL(VL_EVAL_SLOW)
 #undef VL_EVAL_SLOW
                 false  //
         };
-        return values[m_e];
+        परत मूल्ये[m_e];
     }
 
     // Short name
-    std::string tag() const { return VString::downcase(ascii()); }
+    std::string tag() स्थिरांक { परत VString::downcase(ascii()); }
     // Name of the generated entry point function
-    std::string funcName() const { return "_eval_" + tag(); }
+    std::string funcName() स्थिरांक { परत "_eval_" + tag(); }
     // Name of the VerilatedModel virtual method invoking the entry point
-    std::string evalMethod() const { return "eval" + capitalizedTag(); }
+    std::string evalMethod() स्थिरांक { परत "eval" + capitalizedTag(); }
     // Name of the function dumping the triggers of this region
-    std::string dumpTriggersFuncName() const { return "_eval_dump_triggers__" + tag(); }
+    std::string dumpTriggersFuncName() स्थिरांक { परत "_eval_dump_triggers__" + tag(); }
     // Name of the VerilatedModel virtual method dumping this region's triggers
-    std::string dumpTriggersMethod() const { return "dumpTriggers" + capitalizedTag(); }
+    std::string dumpTriggersMethod() स्थिरांक { परत "dumpTriggers" + capitalizedTag(); }
 
     // cppcheck-suppress noExplicitConstructor
     VEval(en _e)
         : m_e{_e} {}
-    explicit VEval(int _e)
+    explicit VEval(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}
-    operator en() const { return m_e; }
+    चालक en() स्थिरांक { परत m_e; }
 
-private:
-    std::string capitalizedTag() const {
-        const std::string name = ascii();
-        return name.substr(0, 1) + VString::downcase(name.substr(1));
+खाजगी:
+    std::string capitalizedTag() स्थिरांक {
+        स्थिरांक std::string name = ascii();
+        परत name.substr(0, 1) + VString::downcase(name.substr(1));
     }
 };
 
@@ -1803,30 +1803,30 @@ private:
 // ######################################################################
 
 class VFwdType final {
-public:
-    enum en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+सार्वजनिक:
+    गणना en : uint8_t { NONE, ENUM, STRUCT, UNION, CLASS, INTERFACE_CLASS, GENERIC_INTERFACE };
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"none", "enum", "struct", "union", "class", "interface class", "generic interface"};
-        return names[m_e];
+        परत names[m_e];
     }
     VFwdType()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VFwdType(en _e)
         : m_e{_e} {}
-    explicit VFwdType(int _e)
+    explicit VFwdType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
     // Is a node type compatible with the declaration
-    bool isNodeCompatible(const AstNode* nodep) const;
+    bool is_गाठ_Compatible(स्थिरांक Ast_गाठ* nodep) स्थिरांक;
 };
-constexpr bool operator==(const VFwdType& lhs, const VFwdType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VFwdType& lhs, VFwdType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VFwdType::en lhs, const VFwdType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VFwdType& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VFwdType& lhs, स्थिरांक VFwdType& rhs) { परत lhs.m_e == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VFwdType& lhs, VFwdType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VFwdType::en lhs, स्थिरांक VFwdType& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VFwdType& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1837,23 +1837,23 @@ class VIsCached final {
     // else if cachedCnt == s_cachedCntGbl, then m_state is if cached
     uint64_t m_cachedCnt : 63;  // Mark of when cache was computed
     uint64_t m_state : 1;
-    static uint64_t s_cachedCntGbl;  // Global computed count
+    स्थिर uint64_t s_cachedCntGbl;  // Global computed count
 
-public:
+सार्वजनिक:
     VIsCached()
         : m_cachedCnt{0}
         , m_state{0} {}
-    bool isCached() const { return m_cachedCnt == s_cachedCntGbl; }
-    bool get() const { return m_state; }
-    void set(bool flag) {
+    bool isCached() स्थिरांक { परत m_cachedCnt == s_cachedCntGbl; }
+    bool get() स्थिरांक { परत m_state; }
+    शून्य set(bool flag) {
         m_cachedCnt = s_cachedCntGbl;
         m_state = flag;
     }
-    void clearCache() {
+    शून्य clearCache() {
         m_cachedCnt = 0;
         m_state = 0;
     }
-    static void clearCacheTree() {
+    स्थिर शून्य clear_Cache_वृक्ष() {
         ++s_cachedCntGbl;
         // 64 bits so won't overflow
         // UASSERT_STATIC(s_cachedCntGbl < MAX_CNT, "Overflow of cache counting");
@@ -1864,83 +1864,83 @@ public:
 
 /// Join type
 class VJoinType final {
-public:
-    enum en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { JOIN = 0, JOIN_ANY = 1, JOIN_NONE = 2 };
+    गणना en m_e;
     // CONSTRUCTOR - note defaults to *UNKNOWN*
     VJoinType()
         : m_e{JOIN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VJoinType(en _e)
         : m_e{_e} {}
-    explicit VJoinType(int _e)
+    explicit VJoinType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
-        return names[m_e];
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"JOIN", "JOIN_ANY", "JOIN_NONE"};
+        परत names[m_e];
     }
-    const char* verilogKwd() const {
-        static constexpr const char* const names[] = {"join", "join_any", "join_none"};
-        return names[m_e];
+    स्थिरांक अक्षर* verilogKwd() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"join", "join_any", "join_none"};
+        परत names[m_e];
     }
-    bool join() const { return m_e == JOIN; }
-    bool joinAny() const { return m_e == JOIN_ANY; }
-    bool joinNone() const { return m_e == JOIN_NONE; }
+    bool join() स्थिरांक { परत m_e == JOIN; }
+    bool joinAny() स्थिरांक { परत m_e == JOIN_ANY; }
+    bool joinNone() स्थिरांक { परत m_e == JOIN_NONE; }
 };
-constexpr bool operator==(const VJoinType& lhs, const VJoinType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VJoinType& lhs, स्थिरांक VJoinType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VJoinType& lhs, VJoinType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VJoinType::en lhs, const VJoinType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VJoinType& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VJoinType& lhs, VJoinType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VJoinType::en lhs, स्थिरांक VJoinType& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VJoinType& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VLifetime final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         NONE,
         AUTOMATIC_EXPLICIT,  // Automatic assigned by user
         AUTOMATIC_IMPLICIT,  // AUtomatic propagated from above
         STATIC_EXPLICIT,  // Static assigned by user
         STATIC_IMPLICIT
     };  // Static propagated from above
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"NONE", "VAUTOM", "VAUTOMI", "VSTATIC", "VSTATICI"};
-        return names[m_e];
+        परत names[m_e];
     }
     VLifetime()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VLifetime(en _e)
         : m_e{_e} {}
-    explicit VLifetime(int _e)
+    explicit VLifetime(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isNone() const { return m_e == NONE; }
-    bool isAutomatic() const { return m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
-    bool isStatic() const { return m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
-    bool isStaticExplicit() const { return m_e == STATIC_EXPLICIT; }
-    VLifetime makeImplicit() const {
-        switch (m_e) {
-        case AUTOMATIC_EXPLICIT: return AUTOMATIC_IMPLICIT;
-        case STATIC_EXPLICIT: return STATIC_IMPLICIT;
-        default: return m_e;
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    bool isNone() स्थिरांक { परत m_e == NONE; }
+    bool isAutomatic() स्थिरांक { परत m_e == AUTOMATIC_EXPLICIT || m_e == AUTOMATIC_IMPLICIT; }
+    bool isStatic() स्थिरांक { परत m_e == STATIC_EXPLICIT || m_e == STATIC_IMPLICIT; }
+    bool isStaticExplicit() स्थिरांक { परत m_e == STATIC_EXPLICIT; }
+    VLifetime makeImplicit() स्थिरांक {
+        निवड (m_e) {
+        स्थिती AUTOMATIC_EXPLICIT: परत AUTOMATIC_IMPLICIT;
+        स्थिती STATIC_EXPLICIT: परत STATIC_IMPLICIT;
+        पूर्वनिर्धारित: परत m_e;
         }
     }
 };
-constexpr bool operator==(const VLifetime& lhs, const VLifetime& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VLifetime& lhs, स्थिरांक VLifetime& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VLifetime& lhs, VLifetime::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VLifetime::en lhs, const VLifetime& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VLifetime& lhs, VLifetime::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VLifetime::en lhs, स्थिरांक VLifetime& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VLifetime& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
@@ -1948,107 +1948,107 @@ inline std::ostream& operator<<(std::ostream& os, const VLifetime& rhs) {
 //  See also AstRange, which is a symbolic version of this
 
 class VNumRange final {
-public:
+सार्वजनिक:
     // Iterable sequence of integers
     class Sequence final {
         class Iterator final {
-            int m_index;  // Current index
-            const int m_inc;  // Step, +1 or -1
-        public:
-            Iterator(int index, int inc)
+            पूर्णांक m_index;  // Current index
+            स्थिरांक पूर्णांक m_inc;  // Step, +1 or -1
+        सार्वजनिक:
+            Iterator(पूर्णांक index, पूर्णांक inc)
                 : m_index{index}
                 , m_inc{inc} {}
-            int operator*() const { return m_index; }
-            Iterator& operator++() {
+            पूर्णांक चालक*() स्थिरांक { परत m_index; }
+            Iterator& चालक++() {
                 m_index += m_inc;
-                return *this;
+                परत *this;
             }
-            bool operator!=(const Iterator& that) const { return m_index != that.m_index; }
+            bool चालक!=(स्थिरांक Iterator& that) स्थिरांक { परत m_index != that.m_index; }
         };
-        const int m_begin;  // First index
-        const int m_end;  // One past the last index
-        const int m_inc;  // Step, +1 or -1
-    public:
-        Sequence(int first, int last, int inc)
+        स्थिरांक पूर्णांक m_begin;  // First index
+        स्थिरांक पूर्णांक m_end;  // One past the last index
+        स्थिरांक पूर्णांक m_inc;  // Step, +1 or -1
+    सार्वजनिक:
+        Sequence(पूर्णांक first, पूर्णांक last, पूर्णांक inc)
             : m_begin{first}
             , m_end{last + inc}
             , m_inc{inc} {}
-        Iterator begin() const { return Iterator{m_begin, m_inc}; }
-        Iterator end() const { return Iterator{m_end, m_inc}; }
+        Iterator begin() स्थिरांक { परत Iterator{m_begin, m_inc}; }
+        Iterator end() स्थिरांक { परत Iterator{m_end, m_inc}; }
     };
 
-    int m_left = 0;  // Left side of range (pre-':')
-    int m_right = 0;  // Right side of range (post-':')
+    पूर्णांक m_डावा = 0;  // Left side of range (pre-':')
+    पूर्णांक m_उजवा = 0;  // Right side of range (post-':')
     bool m_ranged = false;  // Has a range
-    bool operator==(const VNumRange& rhs) const {
-        return m_left == rhs.m_left && m_right == rhs.m_right && m_ranged == rhs.m_ranged;
+    bool चालक==(स्थिरांक VNumRange& rhs) स्थिरांक {
+        परत m_डावा == rhs.m_डावा && m_उजवा == rhs.m_उजवा && m_ranged == rhs.m_ranged;
     }
-    bool operator<(const VNumRange& rhs) const {
-        if ((m_left < rhs.m_left)) return true;
-        if (!(m_left == rhs.m_left)) return false;  // lhs > rhs
-        if ((m_right < rhs.m_right)) return true;
-        if (!(m_right == rhs.m_right)) return false;  // lhs > rhs
-        if ((m_ranged < rhs.m_ranged)) return true;
-        if (!(m_ranged == rhs.m_ranged)) return false;  // lhs > rhs
-        return false;
+    bool चालक<(स्थिरांक VNumRange& rhs) स्थिरांक {
+        जर ((m_डावा < rhs.m_डावा)) परत true;
+        जर (!(m_डावा == rhs.m_डावा)) परत false;  // lhs > rhs
+        जर ((m_उजवा < rhs.m_उजवा)) परत true;
+        जर (!(m_उजवा == rhs.m_उजवा)) परत false;  // lhs > rhs
+        जर ((m_ranged < rhs.m_ranged)) परत true;
+        जर (!(m_ranged == rhs.m_ranged)) परत false;  // lhs > rhs
+        परत false;
     }
     //
-    VNumRange() = default;
-    VNumRange(int hi, int lo, bool ascending) { init(hi, lo, ascending); }
-    VNumRange(int left, int right)
-        : m_left{left}
-        , m_right{right}
+    VNumRange() = पूर्वनिर्धारित;
+    VNumRange(पूर्णांक hi, पूर्णांक lo, bool ascending) { init(hi, lo, ascending); }
+    VNumRange(पूर्णांक डावा, पूर्णांक उजवा)
+        : m_डावा{डावा}
+        , m_उजवा{उजवा}
         , m_ranged{true} {}
-    ~VNumRange() = default;
+    ~VNumRange() = पूर्वनिर्धारित;
     // MEMBERS
-    void init(int hi, int lo, bool ascending) {
-        if (lo > hi) std::swap(hi, lo);
-        m_left = ascending ? lo : hi;
-        m_right = ascending ? hi : lo;
+    शून्य init(पूर्णांक hi, पूर्णांक lo, bool ascending) {
+        जर (lo > hi) std::swap(hi, lo);
+        m_डावा = ascending ? lo : hi;
+        m_उजवा = ascending ? hi : lo;
         m_ranged = true;
     }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    int hi() const VL_MT_SAFE {
-        return m_left > m_right ? m_left : m_right;
+    पूर्णांक डावा() स्थिरांक { परत m_डावा; }
+    पूर्णांक उजवा() स्थिरांक { परत m_उजवा; }
+    पूर्णांक hi() स्थिरांक VL_MT_SAFE {
+        परत m_डावा > m_उजवा ? m_डावा : m_उजवा;
     }  // How to show a declaration
-    int lo() const VL_MT_SAFE {
-        return m_left > m_right ? m_right : m_left;
+    पूर्णांक lo() स्थिरांक VL_MT_SAFE {
+        परत m_डावा > m_उजवा ? m_उजवा : m_डावा;
     }  // How to show a declaration
-    int leftToRightInc() const { return ascending() ? 1 : -1; }
+    पूर्णांक डावा_To_उजवा_Inc() स्थिरांक { परत ascending() ? 1 : -1; }
     // Iterate indices from left() to right() inclusive: 'for (int i : range.seqLeftToRight())'
-    Sequence seqLeftToRight() const { return {m_left, m_right, leftToRightInc()}; }
+    Sequence seq_डावा_To_उजवा() स्थिरांक { परत {m_डावा, m_उजवा, डावा_To_उजवा_Inc()}; }
     // Iterate indices from right() to left() inclusive: 'for (int i : range.seqRightToLeft())'
-    Sequence seqRightToLeft() const { return {m_right, m_left, -leftToRightInc()}; }
+    Sequence seq_उजवा_To_डावा() स्थिरांक { परत {m_उजवा, m_डावा, -डावा_To_उजवा_Inc()}; }
     // Iterate indices from lo() to hi() inclusive: 'for (int i : range.seqLoToHi())'
-    Sequence seqLoToHi() const { return {lo(), hi(), 1}; }
+    Sequence seqLoToHi() स्थिरांक { परत {lo(), hi(), 1}; }
     // Iterate indices from hi() to lo() inclusive: 'for (int i : range.seqHiToLo())'
-    Sequence seqHiToLo() const { return {hi(), lo(), -1}; }
-    int elements() const VL_MT_SAFE { return hi() - lo() + 1; }
-    bool ranged() const { return m_ranged; }
-    bool ascending() const { return m_left < m_right; }
-    int hiMaxSelect() const {
-        return (lo() < 0 ? hi() - lo() : hi());
+    Sequence seqHiToLo() स्थिरांक { परत {hi(), lo(), -1}; }
+    पूर्णांक elements() स्थिरांक VL_MT_SAFE { परत hi() - lo() + 1; }
+    bool ranged() स्थिरांक { परत m_ranged; }
+    bool ascending() स्थिरांक { परत m_डावा < m_उजवा; }
+    पूर्णांक hiMaxSelect() स्थिरांक {
+        परत (lo() < 0 ? hi() - lo() : hi());
     }  // Maximum value a [] select may index
-    string ascii() const {
-        if (ranged()) {
-            return "["s + std::to_string(left()) + ":" + std::to_string(right()) + "]";
-        } else {
-            return "[norg]";
+    string ascii() स्थिरांक {
+        जर (ranged()) {
+            परत "["s + std::to_string(डावा()) + ":" + std::to_string(उजवा()) + "]";
+        } अन्यथा {
+            परत "[norg]";
         }
     }
-    void dump(std::ostream& str) const { str << ascii(); }
+    शून्य dump(std::ostream& str) स्थिरांक { str << ascii(); }
 };
-inline std::ostream& operator<<(std::ostream& os, const VNumRange& rhs) {
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VNumRange& rhs) {
     rhs.dump(os);
-    return os;
+    परत os;
 }
 
 // ######################################################################
 
 class VPragmaType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         COVERAGE_BLOCK_OFF,
         HIER_BLOCK,
         HIER_PARAMS,
@@ -2065,9 +2065,9 @@ public:
         VERILATOR_LIB,
         _ENUM_SIZE
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {
             "COVERAGE_BLOCK_OFF",  //
             "HIER_BLOCK",  //
             "HIER_PARAMS",  //
@@ -2084,52 +2084,52 @@ public:
             "VERILATOR_LIB",  //
             "_ENUM_SIZE"  //
         };
-        return names[m_e];
+        परत names[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VPragmaType(en _e)
         : m_e{_e} {}
-    explicit VPragmaType(int _e)
+    explicit VPragmaType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
 };
-constexpr bool operator==(const VPragmaType& lhs, const VPragmaType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VPragmaType& lhs, स्थिरांक VPragmaType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VPragmaType& lhs, VPragmaType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VPragmaType::en lhs, const VPragmaType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VPragmaType& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VPragmaType& lhs, VPragmaType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VPragmaType::en lhs, स्थिरांक VPragmaType& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VPragmaType& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 // Defines what kind of randomization is done on a variable
 
 class VRandAttr final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         NONE,  // Not randomizable
         RAND,  // Has a rand modifier
         RAND_CYCLIC,  // Has a randc modifier
         RAND_INLINE  // Not rand/randc, but used in inline random variable control
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
-        return names[m_e];
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"NONE", "RAND", "RANDC", "RAND_INLINE"};
+        परत names[m_e];
     }
     VRandAttr()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VRandAttr(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    bool isRandomizable() const { return m_e != NONE; }
-    bool isRand() const { return m_e == RAND || m_e == RAND_CYCLIC; }
-    bool isRandC() const { return m_e == RAND_CYCLIC; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    bool isRandomizable() स्थिरांक { परत m_e != NONE; }
+    bool isRand() स्थिरांक { परत m_e == RAND || m_e == RAND_CYCLIC; }
+    bool isRandC() स्थिरांक { परत m_e == RAND_CYCLIC; }
 };
-inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VRandAttr& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
@@ -2140,13 +2140,13 @@ inline std::ostream& operator<<(std::ostream& os, const VRandAttr& rhs) {
 class VSelfPointerText final {
     // STATIC MEMBERS
     // Keep these in shared pointers to avoid branching for special cases
-    static const std::shared_ptr<const string> s_emptyp;  // Holds ""
-    static const std::shared_ptr<const string> s_thisp;  // Holds "this"
+    स्थिर स्थिरांक std::shared_ptr<स्थिरांक string> s_emptyp;  // Holds ""
+    स्थिर स्थिरांक std::shared_ptr<स्थिरांक string> s_thisp;  // Holds "this"
 
     // MEMBERS
-    std::shared_ptr<const string> m_strp;
+    std::shared_ptr<स्थिरांक string> m_strp;
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     class Empty {};  // for creator type-overload selection
     explicit VSelfPointerText(Empty)
@@ -2154,93 +2154,93 @@ public:
     class This {};  // for creator type-overload selection
     explicit VSelfPointerText(This)
         : m_strp{s_thisp} {}
-    VSelfPointerText(This, const string& field)
-        : m_strp{std::make_shared<const string>("this->" + field)} {}
+    VSelfPointerText(This, स्थिरांक string& field)
+        : m_strp{std::make_shared<स्थिरांक string>("this->" + field)} {}
     class VlSyms {};  // for creator type-overload selection
-    VSelfPointerText(VlSyms, const string& field)
-        : m_strp{std::make_shared<const string>("(&vlSymsp->vlInst." + field + ')')} {}
+    VSelfPointerText(VlSyms, स्थिरांक string& field)
+        : m_strp{std::make_shared<स्थिरांक string>("(&vlSymsp->vlInst." + field + ')')} {}
 
     // METHODS
-    bool isEmpty() const { return m_strp == s_emptyp; }
-    bool isVlSym() const { return m_strp->find("vlSymsp") != string::npos; }
-    bool hasThis() const { return m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
-    string protect(bool useSelfForThis, bool protect) const;
-    static string replaceThis(bool useSelfForThis, const string& text);
-    const std::string& asString() const { return *m_strp; }
-    bool operator==(const VSelfPointerText& other) const { return *m_strp == *other.m_strp; }
+    bool isEmpty() स्थिरांक { परत m_strp == s_emptyp; }
+    bool isVlSym() स्थिरांक { परत m_strp->find("vlSymsp") != string::npos; }
+    bool hasThis() स्थिरांक { परत m_strp == s_thisp || VString::startsWith(*m_strp, "this"); }
+    string protect(bool useSelfForThis, bool protect) स्थिरांक;
+    स्थिर string replaceThis(bool useSelfForThis, स्थिरांक string& text);
+    स्थिरांक std::string& asString() स्थिरांक { परत *m_strp; }
+    bool चालक==(स्थिरांक VSelfPointerText& other) स्थिरांक { परत *m_strp == *other.m_strp; }
 };
 
 // ######################################################################
 
 class VSigning final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         UNSIGNED,
         SIGNED,
         NOSIGN,
         _ENUM_MAX  // Leave last
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
-        return names[m_e];
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"UNSIGNED", "SIGNED", "NOSIGN"};
+        परत names[m_e];
     }
     VSigning()
         : m_e{UNSIGNED} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VSigning(en _e)
         : m_e{_e} {}
-    static VSigning fromBool(bool isSigned) {  // Factory method
-        return isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
+    स्थिर VSigning fromBool(bool isSigned) {  // Factory method
+        परत isSigned ? VSigning{SIGNED} : VSigning{UNSIGNED};
     }
-    explicit VSigning(int _e)
+    explicit VSigning(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool isSigned() const VL_MT_SAFE { return m_e == SIGNED; }
-    bool isNosign() const VL_MT_SAFE { return m_e == NOSIGN; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    bool isSigned() स्थिरांक VL_MT_SAFE { परत m_e == SIGNED; }
+    bool isNosign() स्थिरांक VL_MT_SAFE { परत m_e == NOSIGN; }
     // No isUnsigned() as it's ambiguous if NOSIGN should be included or not.
 };
-constexpr bool operator==(const VSigning& lhs, const VSigning& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VSigning& lhs, VSigning::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VSigning::en lhs, const VSigning& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VSigning& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VSigning& lhs, स्थिरांक VSigning& rhs) { परत lhs.m_e == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VSigning& lhs, VSigning::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VSigning::en lhs, स्थिरांक VSigning& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VSigning& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VStrength final {
-public:
-    enum en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
-    enum en m_e;
+सार्वजनिक:
+    गणना en : uint8_t { HIGHZ, SMALL, MEDIUM, WEAK, LARGE, PULL, STRONG, SUPPLY };
+    गणना en m_e;
 
     // cppcheck-suppress noExplicitConstructor
     constexpr VStrength(en strengthLevel)
         : m_e{strengthLevel} {}
-    explicit VStrength(int _e)
+    explicit VStrength(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"highz", "small", "medium", "weak", "large", "pull", "strong", "supply"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VStrength& lhs, const VStrength& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VStrength& lhs, स्थिरांक VStrength& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VStrength& lhs, VStrength::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VStrength::en lhs, const VStrength& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VStrength& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VStrength& lhs, VStrength::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VStrength::en lhs, स्थिरांक VStrength& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VStrength& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 //  VSystemCSectionType - Represents the type of a `systemc_* block (Verilator specific extension)
 
 class VSystemCSectionType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         CTOR,  // `systemc_ctor
         DTOR,  // `systemc_dtor
         HDR,  // `systemc_header
@@ -2249,28 +2249,28 @@ public:
         IMP_HDR,  // `systemc_imp_header
         INT  // `systemc_interface
     };
-    enum en m_e;
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"`systemc_ctor",  //
+    गणना en m_e;
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"`systemc_ctor",  //
                                                       "`systemc_dtor",  //
                                                       "`systemc_header",  //
                                                       "`systemc_header_post",  //
                                                       "`systemc_implementation",  //
                                                       "`systemc_imp_header",  //
                                                       "`systemc_interface"};
-        return names[m_e];
+        परत names[m_e];
     }
     // cppcheck-suppress noExplicitConstructor
     constexpr VSystemCSectionType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr चालक en() स्थिरांक { परत m_e; }
 };
 
 //######################################################################
 
 class VTracePrefixType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         // Note: Entries must match VerilatedTracePrefixType
         ARRAY_PACKED,
         ARRAY_UNPACKED,
@@ -2280,109 +2280,109 @@ public:
         STRUCT_UNPACKED,
         UNION_PACKED,
     };
-    enum en m_e;
+    गणना en m_e;
     // cppcheck-suppress noExplicitConstructor
     constexpr VTracePrefixType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"ARRAY_PACKED",  "ARRAY_UNPACKED",  "SCOPE_MODULE", "SCOPE_INTERFACE",
                "STRUCT_PACKED", "STRUCT_UNPACKED", "UNION_PACKED"};
-        return names[m_e];
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VTracePrefixType& lhs, const VTracePrefixType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VTracePrefixType& lhs, स्थिरांक VTracePrefixType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTracePrefixType& lhs, VTracePrefixType::en rhs) {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VTracePrefixType& lhs, VTracePrefixType::en rhs) {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VTracePrefixType::en lhs, const VTracePrefixType& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VTracePrefixType::en lhs, स्थिरांक VTracePrefixType& rhs) {
+    परत lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTracePrefixType& rhs) {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VTracePrefixType& rhs) {
+    परत os << rhs.ascii();
 }
 
 //######################################################################
 
 class VTraceType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         CONSTANT,  // Constant value dump (once at the beginning)
         FULL,  // Full value dump (always emitted)
         CHANGE  // Incremental value dump (emitted only if the value changed)
     };
-    enum en m_e;
+    गणना en m_e;
     VTraceType()
         : m_e{CONSTANT} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTraceType(en _e)
         : m_e{_e} {}
-    explicit VTraceType(int _e)
+    explicit VTraceType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"CONSTANT", "FULL", "CHANGE"};
-        return names[m_e];
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"CONSTANT", "FULL", "CHANGE"};
+        परत names[m_e];
     }
-    const char* func_prefix() const {
-        static constexpr const char* const names[] = {"trace_const", "trace_full", "trace_chg"};
-        return names[m_e];
+    स्थिरांक अक्षर* func_prefix() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"trace_const", "trace_full", "trace_chg"};
+        परत names[m_e];
     }
 };
-constexpr bool operator==(const VTraceType& lhs, const VTraceType& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VTraceType& lhs, स्थिरांक VTraceType& rhs) {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTraceType& lhs, VTraceType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTraceType::en lhs, const VTraceType& rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VTraceType& rhs) {
-    return os << rhs.ascii();
+constexpr bool चालक==(स्थिरांक VTraceType& lhs, VTraceType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VTraceType::en lhs, स्थिरांक VTraceType& rhs) { परत lhs == rhs.m_e; }
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VTraceType& rhs) {
+    परत os << rhs.ascii();
 }
 
 //######################################################################
 
 class VUseType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         // Enum values are compared with <, so order matters
         INT_FWD_CLASS = 1 << 0,  // Interface (.h) needs a forward class declaration
         INT_INCLUDE = 1 << 1,  // Interface (.h) needs an include
     };
-    enum en m_e;
+    गणना en m_e;
     VUseType()
         : m_e{INT_FWD_CLASS} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VUseType(en _e)
         : m_e{_e} {}
-    explicit VUseType(int _e)
+    explicit VUseType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    bool containsAny(VUseType other) const { return m_e & other.m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
-        return names[m_e - 1];
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    bool containsAny(VUseType other) स्थिरांक { परत m_e & other.m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[] = {"INT_FWD", "INT_INC", "INT_FWD_INC"};
+        परत names[m_e - 1];
     }
 };
-constexpr bool operator==(const VUseType& lhs, const VUseType& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const VUseType& lhs, VUseType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VUseType::en lhs, const VUseType& rhs) { return lhs == rhs.m_e; }
-constexpr VUseType::en operator|(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+constexpr bool चालक==(स्थिरांक VUseType& lhs, स्थिरांक VUseType& rhs) { परत lhs.m_e == rhs.m_e; }
+constexpr bool चालक==(स्थिरांक VUseType& lhs, VUseType::en rhs) { परत lhs.m_e == rhs; }
+constexpr bool चालक==(VUseType::en lhs, स्थिरांक VUseType& rhs) { परत lhs == rhs.m_e; }
+constexpr VUseType::en चालक|(VUseType::en lhs, VUseType::en rhs) {
+    परत VUseType::en(static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
 }
-constexpr VUseType::en operator&(VUseType::en lhs, VUseType::en rhs) {
-    return VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+constexpr VUseType::en चालक&(VUseType::en lhs, VUseType::en rhs) {
+    परत VUseType::en(static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
 }
-inline std::ostream& operator<<(std::ostream& os, const VUseType& rhs) {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VUseType& rhs) {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VVarType final {
-public:
-    enum en : uint8_t {
+सार्वजनिक:
+    गणना en : uint8_t {
         UNKNOWN,
         GPARAM,
         LPARAM,
@@ -2406,54 +2406,54 @@ public:
         IFACEREF,  // Used to link Interfaces between modules
         MEMBER
     };
-    enum en m_e;
+    गणना en m_e;
     VVarType() VL_MT_SAFE : m_e{UNKNOWN} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VVarType(en _e) VL_MT_SAFE : m_e{_e} {}
-    explicit VVarType(int _e)
+    explicit VVarType(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[]
+    constexpr चालक en() स्थिरांक { परत m_e; }
+    स्थिरांक अक्षर* ascii() स्थिरांक {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक names[]
             = {"?",        "GPARAM",  "LPARAM",   "SPECPARAM", "GENVAR",    "VAR",
                "SUPPLY0",  "SUPPLY1", "WIRE",     "WREAL",     "TRIAND",    "TRIOR",
                "TRIWIRE",  "TRI0",    "TRI1",     "PORT",      "BLOCKTEMP", "MODULETEMP",
                "STMTTEMP", "XTEMP",   "IFACEREF", "MEMBER"};
-        return names[m_e];
+        परत names[m_e];
     }
-    bool isParam() const { return m_e == GPARAM || m_e == LPARAM; }
-    bool isSignal() const {
-        return (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
+    bool isParam() स्थिरांक { परत m_e == GPARAM || m_e == LPARAM; }
+    bool isSignal() स्थिरांक {
+        परत (m_e == WIRE || m_e == WREAL || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1
                 || m_e == PORT || m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == VAR || m_e == TRIOR
                 || m_e == TRIAND);
     }
-    bool isNet() const {
-        return (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
+    bool isNet() स्थिरांक {
+        परत (m_e == WIRE || m_e == TRIWIRE || m_e == TRI0 || m_e == TRI1 || m_e == SUPPLY0
                 || m_e == SUPPLY1 || m_e == TRIOR || m_e == TRIAND);
     }
-    bool isWor() const { return (m_e == TRIOR); }
-    bool isWiredNet() const { return (m_e == TRIOR || m_e == TRIAND); }
-    bool isContAssignable() const {  // In Verilog, always ok in SystemVerilog
-        return (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
+    bool isWor() स्थिरांक { परत (m_e == TRIOR); }
+    bool isWiredNet() स्थिरांक { परत (m_e == TRIOR || m_e == TRIAND); }
+    bool isContAssignable() स्थिरांक {  // In Verilog, always ok in SystemVerilog
+        परत (m_e == SUPPLY0 || m_e == SUPPLY1 || m_e == WIRE || m_e == WREAL || m_e == TRIWIRE
                 || m_e == TRI0 || m_e == TRI1 || m_e == PORT || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF);
     }
-    bool isProcAssignable() const {
-        return (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
+    bool isProcAssignable() स्थिरांक {
+        परत (m_e == GPARAM || m_e == LPARAM || m_e == GENVAR || m_e == VAR || m_e == BLOCKTEMP
                 || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP || m_e == IFACEREF
                 || m_e == MEMBER);
     }
-    bool isTemp() const {
-        return (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
+    bool isTemp() स्थिरांक {
+        परत (m_e == BLOCKTEMP || m_e == MODULETEMP || m_e == STMTTEMP || m_e == XTEMP);
     }
-    bool isVPIAccessible() const {
-        return (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
+    bool isVPIAccessible() स्थिरांक {
+        परत (m_e == VAR || m_e == GPARAM || m_e == LPARAM || m_e == SPECPARAM || m_e == PORT
                 || m_e == WIRE || m_e == TRI0 || m_e == TRI1);
     }
 
-    const char* traceSigKind() const {
+    स्थिरांक अक्षर* traceSigKind() स्थिरांक {
         // VerilatedTraceSigKind to used in trace signal declaration
-        static constexpr const char* const lut[] = {
+        स्थिर constexpr स्थिरांक अक्षर* स्थिरांक lut[] = {
             /* UNKNOWN:      */ "",  // Should not be traced
             /* GPARAM:       */ "PARAMETER",
             /* LPARAM:       */ "PARAMETER",
@@ -2477,57 +2477,57 @@ public:
             /* IFACEREF:     */ "",  // Should not be traced directly
             /* MEMBER:       */ "VAR",
         };
-        return lut[m_e];
+        परत lut[m_e];
     }
 };
-constexpr bool operator==(const VVarType& lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिरांक VVarType& lhs, स्थिरांक VVarType& rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VVarType& lhs, VVarType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिरांक VVarType& lhs, VVarType::en rhs) VL_MT_SAFE {
+    परत lhs.m_e == rhs;
 }
-constexpr bool operator==(VVarType::en lhs, const VVarType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VVarType::en lhs, स्थिरांक VVarType& rhs) VL_MT_SAFE {
+    परत lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VVarType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+ओळीत std::ostream& चालक<<(std::ostream& os, स्थिरांक VVarType& rhs) VL_MT_SAFE {
+    परत os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Not in sorted order, as depends on above classes
-class VBasicTypeKey final {
-public:
-    const int m_width;  // From AstNodeDType: Bit width of operation
-    const int m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
-    const VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
-    const VSigning m_numeric;  // From AstNodeDType: Node is signed
-    const VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
-    bool operator==(const VBasicTypeKey& rhs) const {
-        return m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
+class VBasic_Type_किल्ली final {
+सार्वजनिक:
+    स्थिरांक पूर्णांक m_width;  // From AstNodeDType: Bit width of operation
+    स्थिरांक पूर्णांक m_widthMin;  // From AstNodeDType: If unsized, bitwidth of minimum implementation
+    स्थिरांक VNumRange m_nrange;  // From AstBasicDType: Numeric msb/lsb (if non-opaque keyword)
+    स्थिरांक VSigning m_numeric;  // From AstNodeDType: Node is signed
+    स्थिरांक VBasicDTypeKwd m_keyword;  // From AstBasicDType: What keyword created basic type
+    bool चालक==(स्थिरांक VBasic_Type_किल्ली& rhs) स्थिरांक {
+        परत m_width == rhs.m_width && m_widthMin == rhs.m_widthMin && m_numeric == rhs.m_numeric
                && m_keyword == rhs.m_keyword && m_nrange == rhs.m_nrange;
     }
-    bool operator<(const VBasicTypeKey& rhs) const {
-        if ((m_width < rhs.m_width)) return true;
-        if (!(m_width == rhs.m_width)) return false;  // lhs > rhs
-        if ((m_widthMin < rhs.m_widthMin)) return true;
-        if (!(m_widthMin == rhs.m_widthMin)) return false;  // lhs > rhs
-        if ((m_numeric < rhs.m_numeric)) return true;
-        if (!(m_numeric == rhs.m_numeric)) return false;  // lhs > rhs
-        if ((m_keyword < rhs.m_keyword)) return true;
-        if (!(m_keyword == rhs.m_keyword)) return false;  // lhs > rhs
-        if ((m_nrange < rhs.m_nrange)) return true;
-        if (!(m_nrange == rhs.m_nrange)) return false;  // lhs > rhs
-        return false;
+    bool चालक<(स्थिरांक VBasic_Type_किल्ली& rhs) स्थिरांक {
+        जर ((m_width < rhs.m_width)) परत true;
+        जर (!(m_width == rhs.m_width)) परत false;  // lhs > rhs
+        जर ((m_widthMin < rhs.m_widthMin)) परत true;
+        जर (!(m_widthMin == rhs.m_widthMin)) परत false;  // lhs > rhs
+        जर ((m_numeric < rhs.m_numeric)) परत true;
+        जर (!(m_numeric == rhs.m_numeric)) परत false;  // lhs > rhs
+        जर ((m_keyword < rhs.m_keyword)) परत true;
+        जर (!(m_keyword == rhs.m_keyword)) परत false;  // lhs > rhs
+        जर ((m_nrange < rhs.m_nrange)) परत true;
+        जर (!(m_nrange == rhs.m_nrange)) परत false;  // lhs > rhs
+        परत false;
     }
-    VBasicTypeKey(int width, int widthMin, VSigning numeric, VBasicDTypeKwd kwd,
-                  const VNumRange& nrange)
+    VBasic_Type_किल्ली(पूर्णांक width, पूर्णांक widthMin, VSigning numeric, VBasicDTypeKwd kwd,
+                  स्थिरांक VNumRange& nrange)
         : m_width{width}
         , m_widthMin{widthMin}
         , m_nrange{nrange}
         , m_numeric{numeric}
         , m_keyword{kwd} {}
-    ~VBasicTypeKey() = default;
+    ~VBasic_Type_किल्ली() = पूर्वनिर्धारित;
 };
 
 #endif  // Guard

@@ -34,53 +34,53 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Case.h"
+#अन्तर्भाव "V3Case.h"
 
-#include "V3ConstPool.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#अन्तर्भाव "V3ConstPool.h"
+#अन्तर्भाव "V3SharedTmps.h"
+#अन्तर्भाव "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class CaseLintVisitor final : public VNVisitorConst {
+वर्ग CaseLintVisitor final : सार्वजनिक VNVisitorConst {
     // Under a CASE value node, if so the relevant case statement
-    const AstNode* m_casep = nullptr;
+    स्थिरांक Ast_गाठ* m_casep = nullptr;
 
     // METHODS
-    template <typename CaseItem>
-    static void detectMultipleDefaults(CaseItem* itemsp) {
-        bool hitDefault = false;
-        for (CaseItem* itemp = itemsp; itemp; itemp = AstNode::as<CaseItem>(itemp->nextp())) {
-            if (!itemp->isDefault()) continue;
-            if (hitDefault) itemp->v3error("Multiple default statements in case statement.");
-            hitDefault = true;
+    ढाँचा <typename CaseItem>
+    स्थिर शून्य detectMultipleDefaults(CaseItem* itemsp) {
+        तार्किक hitDefault = असत्य;
+        साठी (CaseItem* itemp = itemsp; itemp; itemp = Ast_गाठ::as<CaseItem>(itemp->nextp())) {
+            जर (!itemp->isDefault()) सुरूठेवा;
+            जर (hitDefault) itemp->v3error("Multiple default statements in case statement.");
+            hitDefault = सत्य;
         }
     }
 
-    template <typename CaseItem>
-    void checkXZinNonCaseX(AstNode* casep, AstNodeExpr* exprp, CaseItem* itemsp) {
+    ढाँचा <typename CaseItem>
+    शून्य checkXZinNonCaseX(Ast_गाठ* casep, Ast_गाठ_अभिव्यक्ती* exprp, CaseItem* itemsp) {
         VL_RESTORER(m_casep);
         m_casep = casep;
         iterateConst(exprp);
-        for (CaseItem* itemp = itemsp; itemp; itemp = AstNode::as<CaseItem>(itemp->nextp())) {
+        साठी (CaseItem* itemp = itemsp; itemp; itemp = Ast_गाठ::as<CaseItem>(itemp->nextp())) {
             iterateAndNextConstNull(itemp->condsp());
         }
     }
 
     // VISITORS
-    void visit(AstGenCase* nodep) override {
+    शून्य visit(AstGenCase* nodep) override {
         // Detect multiple defaults
         detectMultipleDefaults(nodep->itemsp());
         // Check for X/Z in non-casex statements
         checkXZinNonCaseX(nodep, nodep->exprp(), nodep->itemsp());
     }
 
-    void visit(AstCase* nodep) override {
-        if (nodep->casex()) {
+    शून्य visit(AstCase* nodep) override {
+        जर (nodep->casex()) {
             nodep->v3warn(CASEX, "Suggest casez (with ?'s) in place of casex (with X's)");
         }
         // Detect multiple defaults
@@ -88,78 +88,78 @@ class CaseLintVisitor final : public VNVisitorConst {
         // Check for X/Z in non-casex statements
         checkXZinNonCaseX(nodep, nodep->exprp(), nodep->itemsp());
     }
-    void visit(AstConst* nodep) override {
-        if (!nodep->num().isFourState()) return;
+    शून्य visit(AstConst* nodep) override {
+        जर (!nodep->अंक().isFourState()) परत;
 
         // Error if generate case
-        if (VN_IS(m_casep, GenCase)) {
+        जर (VN_IS(m_casep, GenCase)) {
             nodep->v3error("Use of x/? constant in generate case statement, "
                            "(no such thing as 'generate casez')");
-            return;
+            परत;
         }
 
         // Otherwise must be a case statement
-        const AstCase* const casep = VN_AS(m_casep, Case);
+        स्थिरांक AstCase* स्थिरांक casep = VN_AS(m_casep, Case);
 
         // Don't sweat it, we already complained about casex in general
-        if (casep->casex()) return;
+        जर (casep->casex()) परत;
 
-        if (casep->casez() || casep->caseInside()) {
-            if (nodep->num().isAnyX()) {
+        जर (casep->casez() || casep->caseInside()) {
+            जर (nodep->अंक().isAnyX()) {
                 nodep->v3warn(CASEWITHX, "Use of x constant in casez statement, "
                                          "(perhaps intended ?/z in constant)");
             }
-            return;
+            परत;
         }
 
         nodep->v3warn(CASEWITHX, "Use of x/? constant in case statement, "
                                  "(perhaps intended casex/casez)");
     }
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    शून्य visit(Ast_गाठ* nodep) override { iterateChildrenConst(nodep); }
 
     // CONSTRUCTORS
     explicit CaseLintVisitor(AstCase* nodep) { iterateConst(nodep); }
     explicit CaseLintVisitor(AstGenCase* nodep) { iterateConst(nodep); }
-    ~CaseLintVisitor() override = default;
+    ~CaseLintVisitor() override = पूर्वनिर्धारित;
 
-public:
-    static void apply(AstCase* nodep) { CaseLintVisitor{nodep}; }
-    static void apply(AstGenCase* nodep) { CaseLintVisitor{nodep}; }
+सार्वजनिक:
+    स्थिर शून्य apply(AstCase* nodep) { CaseLintVisitor{nodep}; }
+    स्थिर शून्य apply(AstGenCase* nodep) { CaseLintVisitor{nodep}; }
 };
 
 //######################################################################
 // Case state, as a visitor of each AstNode
 
-class CaseVisitor final : public VNVisitor {
+वर्ग CaseVisitor final : सार्वजनिक VNVisitor {
     // Maximum width for detailed analysis
-    constexpr static int CASE_DETAILS_MAX_WIDTH = 16;
+    constexpr स्थिर पूर्णांक CASE_DETAILS_MAX_WIDTH = 16;
     // Levels of priority to be ORed together in top IF tree
-    constexpr static int CASE_ENCODER_GROUP_DEPTH = 8;
+    constexpr स्थिर पूर्णांक CASE_ENCODER_GROUP_DEPTH = 8;
     // Maximum size for tiny lookup tables - materialized in code
-    constexpr static size_t CASE_TABLE_TINY_BITS = 32;  // Up to 2 instructions to materialize
+    constexpr स्थिर माप_प्रकार CASE_TABLE_TINY_BITS = 32;  // Up to 2 instructions to materialize
     // Maximum size for normal lookup tables - stored in constant pool
-    constexpr static size_t CASE_TABLE_MAX_BITS = 1ULL << 16;  // 64Kbits / 8KBytes
+    constexpr स्थिर माप_प्रकार CASE_TABLE_MAX_BITS = 1ULL << 16;  // 64Kbits / 8KBytes
     // Minimum number of the branches a table must replace to be worth a load
-    constexpr static size_t CASE_TABLE_MIN_BRANCHES = 3;
+    constexpr स्थिर माप_प्रकार CASE_TABLE_MIN_BRANCHES = 3;
 
     // TYPES
     // Record for each case value
-    struct CaseRecord final {
+    संरचना CaseRecord final {
         AstCaseItem* itemp;  // Case item that covers value
         AstConst* constp;  // Expression within 'itemp' that covers value (nullptr for default)
-        AstNode* stmtsp;  // Statements of 'itemp' (might be nullptr if case is empty)
+        Ast_गाठ* stmtsp;  // Statements of 'itemp' (might be nullptr if case is empty)
     };
 
     // Record for each LHS of a decoder pattern
-    struct LhsRecord final {
-        AstNodeExpr* lhsp = nullptr;  // LHS of the assignment
-        AstNodeAssign* preDefaultp = nullptr;  // Default assignment *before the case statement*
-        size_t nCaseAssigns = 0;  // Number of AstAssigns to this LHS in case clauses
-        size_t nCaseAssignDlys = 0;  // Number of AstAssignDlys to this LHS in case clauses
-        size_t offset = 0;  // Offset in the table for this LHS
+    संरचना LhsRecord final {
+        Ast_गाठ_अभिव्यक्ती* lhsp = nullptr;  // LHS of the assignment
+        Ast_गाठ_Assign* preDefaultp = nullptr;  // Default assignment *before the case statement*
+        माप_प्रकार nCaseAssigns = 0;  // Number of AstAssigns to this LHS in case clauses
+        माप_प्रकार nCaseAssignDlys = 0;  // Number of AstAssignDlys to this LHS in case clauses
+        माप_प्रकार offset = 0;  // Offset in the table for this LHS
 
-        static size_t s_nextId;  // Static unique Id counter
-        size_t id = ++s_nextId;  // Unique Id for sorting
+        स्थिर माप_प्रकार s_nextId;  // Static unique Id counter
+        माप_प्रकार id = ++s_nextId;  // Unique Id for sorting
     };
 
     // NODE STATE:
@@ -167,7 +167,7 @@ class CaseVisitor final : public VNVisitor {
 
     // STATE
     // Statistics tracking, as a struct so can be passed to 'const' methods
-    struct Stats final {
+    संरचना Stats final {
         VDouble0 caseDecoder;  // Cases using decoder method
         VDouble0 caseTableNormal;  // Cases using table method with normal table
         VDouble0 caseTableTiny;  // Cases using table method with tiny table
@@ -175,7 +175,7 @@ class CaseVisitor final : public VNVisitor {
         VDouble0 caseGeneric;  // Cases using generic if/else tree method
         VDouble0 provenAssertions;  // Assertions proven to hold
     } m_stats;
-    const AstNode* m_alwaysp = nullptr;  // Always in which case is located
+    स्थिरांक Ast_गाठ* m_alwaysp = nullptr;  // Always in which case is located
     // Temporary variables, shared by instances
     // For table lookup results
     V3SharedTmps m_tableOutTmps{"__VcaseTableOut", VVarType::MODULETEMP};
@@ -184,21 +184,21 @@ class CaseVisitor final : public VNVisitor {
     AstScope* m_scopep = nullptr;  // Current scope
 
     // STATE - per AstCase. Update by 'analyzeCase', treat 'const' otherwise
-    bool m_caseOpaque = false;  // Case statement is opaque (non-packed, or non-const conditions)
-    bool m_caseHasDefault = false;  // Indicates the case statement has a default case
-    size_t m_caseNCaseItems = 0;  // Number of AstCaseItems in the case statement
-    size_t m_caseNConditions = 0;  // Number of conditions in the case statement
+    तार्किक m_caseOpaque = असत्य;  // Case statement is opaque (non-packed, or non-const conditions)
+    तार्किक m_caseHasDefault = असत्य;  // Indicates the case statement has a default case
+    माप_प्रकार m_case_NCase_वस्तुसंच = 0;  // Number of AstCaseItems in the case statement
+    माप_प्रकार m_caseNConditions = 0;  // Number of conditions in the case statement
     // Map from LHSs of decoder pattern to corresponding LhsRecord.
-    std::unordered_map<VNRef<AstNodeExpr>, LhsRecord> m_caseLhsRecords;
+    std::unordered_map<VNRef<Ast_गाठ_अभिव्यक्ती>, LhsRecord> m_caseLhsRecords;
     // Values of 'm_caseLhsRecords' in sorted order, if case statement is a decoder pattern
     std::vector<LhsRecord> m_caseDecoderRecords;
-    size_t m_caseDecoderEntryWidth = 0;  // Width of each entry in the decoder table
-    size_t m_caseTableWidth = 0;  // Total width of the case table - 0 means can't optimize
-    bool m_caseDetailsValid = false;  // Indicates m_caseDetails is valid
-    struct final {
-        bool exhaustive = false;  // Proven exhaustive
-        bool exhaustiveOverEnumOnly = false;  // Exhaustive over enum values only
-        bool noOverlaps = false;  // Proven no overlaps between cases
+    माप_प्रकार m_caseDecoderEntryWidth = 0;  // Width of each entry in the decoder table
+    माप_प्रकार m_caseTableWidth = 0;  // Total width of the case table - 0 means can't optimize
+    तार्किक m_caseDetailsValid = असत्य;  // Indicates m_caseDetails is valid
+    संरचना final {
+        तार्किक exhaustive = असत्य;  // Proven exhaustive
+        तार्किक exhaustiveOverEnumOnly = असत्य;  // Exhaustive over enum values only
+        तार्किक noOverlaps = असत्य;  // Proven no overlaps between cases
         // Map from value (index) to the CaseRecord that covers this value
         std::array<CaseRecord, 1U << CASE_DETAILS_MAX_WIDTH> records;
     } m_caseDetails;
@@ -207,210 +207,210 @@ class CaseVisitor final : public VNVisitor {
 
     // Xs in case or casez are impossible due to two state simulations.
     // Returns true if the item is never possible
-    static bool neverItem(const AstCase* casep, const AstNodeExpr* itemExprp) {
-        const AstConst* const constp = VN_CAST(itemExprp, Const);
-        if (!constp) return false;
-        if (casep->casex() || casep->caseInside()) return false;
-        if (casep->casez()) return constp->num().isAnyX();
-        return constp->num().isFourState();
+    स्थिर तार्किक neverItem(स्थिरांक AstCase* casep, स्थिरांक Ast_गाठ_अभिव्यक्ती* itemExprp) {
+        स्थिरांक AstConst* स्थिरांक constp = VN_CAST(itemExprp, Const);
+        जर (!constp) परत असत्य;
+        जर (casep->casex() || casep->caseInside()) परत असत्य;
+        जर (casep->casez()) परत constp->अंक().isAnyX();
+        परत constp->अंक().isFourState();
     }
 
     // Returns the matching mask and bits for a case item constant condition
     // TODO: with 'neverItem' checked, this is alway the same for all types of cases
     //       4-state will have to fix this up
-    static std::pair<V3Number, V3Number> matchPattern(const AstCase* /*casep*/,
-                                                      const AstConst* condp) {
+    स्थिर std::pair<V3_संख्या, V3_संख्या> matchPattern(स्थिरांक AstCase* /*casep*/,
+                                                      स्थिरांक AstConst* condp) {
         // As one to encourage NRVO/move
-        std::pair<V3Number, V3Number> pairMaskBits{
+        std::pair<V3_संख्या, V3_संख्या> pairMaskBits{
             std::piecewise_construct,  //
             std::forward_as_tuple(condp->fileline(), condp->width(), 0),
             std::forward_as_tuple(condp->fileline(), condp->width(), 0)};
-        pairMaskBits.first.opBitsNonXZ(condp->num());
-        pairMaskBits.second.opBitsOne(condp->num());
-        return pairMaskBits;
+        pairMaskBits.first.opBitsNonXZ(condp->अंक());
+        pairMaskBits.second.opBitsOne(condp->अंक());
+        परत pairMaskBits;
     }
 
     // If the given statement is an assignment that fits the decoder pattern,
     // return it, otherwise return nullptr
-    static AstNodeAssign* checkDecoderAssign(AstNode* stmtp) {
+    स्थिर Ast_गाठ_Assign* checkDecoderAssign(Ast_गाठ* stmtp) {
         // Only Assign and AssignDly are supported
-        if (!VN_IS(stmtp, Assign) && !VN_IS(stmtp, AssignDly)) return nullptr;
-        AstNodeAssign* const assp = VN_AS(stmtp, NodeAssign);
+        जर (!VN_IS(stmtp, Assign) && !VN_IS(stmtp, AssignDly)) परत nullptr;
+        Ast_गाठ_Assign* स्थिरांक assp = VN_AS(stmtp, गाठ_Assign);
         // Only if no timing control
-        if (assp->timingControlp()) return nullptr;
+        जर (assp->timingControlp()) परत nullptr;
         // Only if assigning a constant
-        if (!VN_IS(assp->rhsp(), Const)) return nullptr;
+        जर (!VN_IS(assp->rhsp(), Const)) परत nullptr;
         // Only if it's a packed value
-        AstNodeDType* const dtypep = assp->rhsp()->dtypep();
-        if (dtypep->isString() || dtypep->isDouble()) return nullptr;
+        Ast_गाठ_DType* स्थिरांक dtypep = assp->rhsp()->dtypep();
+        जर (dtypep->isString() || dtypep->isDouble()) परत nullptr;
         // Only if the LHS has no reads (can be relaxed, but need to prove there is no r/w hazard)
-        if (assp->lhsp()->exists([](AstVarRef* refp) { return refp->access().isReadOrRW(); })) {
-            return nullptr;
+        जर (assp->lhsp()->exists([](AstVarRef* refp) { परत refp->access().isReadOrRW(); })) {
+            परत nullptr;
         }
         // This is an assignment that fits the decoder pattern
-        return assp;
+        परत assp;
     }
 
     // Analyze if the given case item fits the decoder pattern, return true iff so.
     // Updates 'm_caseLhsRecords'.
-    bool analyzeDecoderCaseItem(AstCaseItem* cip) {
+    तार्किक analyzeDecoderCaseItem(AstCaseItem* cip) {
         // AstVarScope::user1() -> bool: true if written to
-        const VNUser1InUse user1InUse;
-        for (AstNode* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        स्थिरांक VNUser1InUse user1InUse;
+        साठी (Ast_गाठ* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             // Must be an assignment that fits the decoder pattern
-            AstNodeAssign* const assp = checkDecoderAssign(stmtp);
-            if (!assp) return false;
+            Ast_गाठ_Assign* स्थिरांक assp = checkDecoderAssign(stmtp);
+            जर (!assp) परत असत्य;
             // Must assign each LHS exactly once - RHS is Const
-            const bool multipleAssignments = assp->lhsp()->exists([](AstVarRef* refp) {  //
-                return refp->varScopep()->user1SetOnce();
+            स्थिरांक तार्किक multipleAssignments = assp->lhsp()->exists([](AstVarRef* refp) {  //
+                परत refp->varScopep()->user1SetOnce();
             });
-            if (multipleAssignments) return false;
+            जर (multipleAssignments) परत असत्य;
             // Update LhsRecord
             LhsRecord& lhsRecord = m_caseLhsRecords[*assp->lhsp()];
-            if (!lhsRecord.lhsp) lhsRecord.lhsp = assp->lhsp();
+            जर (!lhsRecord.lhsp) lhsRecord.lhsp = assp->lhsp();
             lhsRecord.nCaseAssigns += VN_IS(assp, Assign);
             lhsRecord.nCaseAssignDlys += VN_IS(assp, AssignDly);
         }
-        return true;
+        परत सत्य;
     }
 
     // Determine whether we should check case items are complete
     // Returns enum's dtype if should check, nullptr if shouldn't
-    static const AstEnumDType* getEnumCompletionCheckDType(const AstCase* const nodep) {
-        if (!nodep->uniquePragma() && !nodep->unique0Pragma()) return nullptr;
-        const AstEnumDType* const enumDtp
+    स्थिर स्थिरांक AstEnumDType* getEnumCompletionCheckDType(स्थिरांक AstCase* स्थिरांक nodep) {
+        जर (!nodep->uniquePragma() && !nodep->unique0Pragma()) परत nullptr;
+        स्थिरांक AstEnumDType* स्थिरांक enumDtp
             = VN_CAST(nodep->exprp()->dtypep()->skipRefToEnump(), EnumDType);
-        if (!enumDtp) return nullptr;  // Case isn't enum
-        const AstBasicDType* const basicp = enumDtp->subDTypep()->basicp();
-        if (!basicp) return nullptr;  // Not simple type (perhaps IEEE illegal)
-        return enumDtp;
+        जर (!enumDtp) परत nullptr;  // Case isn't enum
+        स्थिरांक AstBasicDType* स्थिरांक basicp = enumDtp->subDTypep()->basicp();
+        जर (!basicp) परत nullptr;  // Not simple type (perhaps IEEE illegal)
+        परत enumDtp;
     }
 
     // Check and warn if case items are not complete over the given enum type.
     // Returns true iff the case items cover all enum values/patterns.
-    bool checkExhaustiveEnum(const AstCase* const nodep, const AstEnumDType* const enump) {
-        const uint32_t numCases = 1UL << nodep->exprp()->width();
-        bool fullyCovered = true;
-        string missingItems;
-        for (AstEnumItem* eip = enump->itemsp(); eip; eip = VN_AS(eip->nextp(), EnumItem)) {
-            const auto& match = matchPattern(nodep, VN_AS(eip->valuep(), Const));
-            const uint32_t mask = match.first.toUInt();
-            const uint32_t bits = match.second.toUInt();
+    तार्किक checkExhaustiveEnum(स्थिरांक AstCase* स्थिरांक nodep, स्थिरांक AstEnumDType* स्थिरांक enump) {
+        स्थिरांक uint32_t अंक_Cases = 1UL << nodep->exprp()->width();
+        तार्किक fullyCovered = सत्य;
+        string missing_वस्तुसंच;
+        साठी (AstEnumItem* eip = enump->itemsp(); eip; eip = VN_AS(eip->nextp(), EnumItem)) {
+            स्थिरांक स्वतः& match = matchPattern(nodep, VN_AS(eip->valuep(), Const));
+            स्थिरांक uint32_t mask = match.first.toUInt();
+            स्थिरांक uint32_t bits = match.second.toUInt();
 
             // Check all cases to see if they cover this enum value/pattern
-            for (uint32_t i = 0; i < numCases; ++i) {
-                if ((i & mask) != bits) continue;  // This case is not for this enum value
-                if (m_caseDetails.records[i].itemp) continue;  // Covered case
-                if (!missingItems.empty()) missingItems += ", ";
-                missingItems += eip->prettyNameQ();
-                fullyCovered = false;
-                break;
+            साठी (uint32_t i = 0; i < अंक_Cases; ++i) {
+                जर ((i & mask) != bits) सुरूठेवा;  // This case is not for this enum value
+                जर (m_caseDetails.records[i].itemp) सुरूठेवा;  // Covered case
+                जर (!missing_वस्तुसंच.empty()) missing_वस्तुसंच += ", ";
+                missing_वस्तुसंच += eip->prettyNameQ();
+                fullyCovered = असत्य;
+                थांबा;
             }
         }
-        if (!missingItems.empty() && !nodep->unique0Pragma()) {
-            nodep->v3warn(CASEINCOMPLETE, "Enum item(s) not covered by case: " << missingItems);
+        जर (!missing_वस्तुसंच.empty() && !nodep->unique0Pragma()) {
+            nodep->v3warn(CASEINCOMPLETE, "Enum item(s) not covered by case: " << missing_वस्तुसंच);
         }
-        return fullyCovered;  // enum is fully covered
+        परत fullyCovered;  // enum is fully covered
     }
 
     // Check and warn if case items are not complete over all possible values.
     // Returns true iff the case items cover all values of the case expression.
-    bool checkExhaustivePacked(AstCase* nodep) {
-        const uint32_t numCases = 1UL << nodep->exprp()->width();
-        for (uint32_t i = 0; i < numCases; ++i) {
-            if (m_caseDetails.records[i].itemp) continue;  // Covered case
-            if (!nodep->unique0Pragma()) {
+    तार्किक checkExhaustivePacked(AstCase* nodep) {
+        स्थिरांक uint32_t अंक_Cases = 1UL << nodep->exprp()->width();
+        साठी (uint32_t i = 0; i < अंक_Cases; ++i) {
+            जर (m_caseDetails.records[i].itemp) सुरूठेवा;  // Covered case
+            जर (!nodep->unique0Pragma()) {
                 nodep->v3warn(CASEINCOMPLETE,
                               "Case values incompletely covered (example pattern 0x" << std::hex
                                                                                      << i << ")");
             }
             // TODO: warn for more than one uncovered case, not just the first
-            return false;
+            परत असत्य;
         }
 
         // It's an exhaustive case statement
-        return true;
+        परत सत्य;
     }
 
     // Analyze each value in the case statement. Updates 'm_caseDetails' and issues warnings.
-    void analyzeCaseDetails(AstCase* nodep) {
-        const uint32_t numValues = 1UL << nodep->exprp()->width();
+    शून्य analyzeCaseDetails(AstCase* nodep) {
+        स्थिरांक uint32_t अंक_मूल्ये = 1UL << nodep->exprp()->width();
         // Clear case records
-        for (uint32_t i = 0; i < numValues; ++i) {
+        साठी (uint32_t i = 0; i < अंक_मूल्ये; ++i) {
             m_caseDetails.records[i].itemp = nullptr;
             m_caseDetails.records[i].constp = nullptr;
             m_caseDetails.records[i].stmtsp = nullptr;
         }
         // Now pick up the values for each assignment
         // We can cheat and use uint32_t's because we only support narrow case's
-        bool reportedOverlap = false;
-        bool hasDefault = false;
-        m_caseDetails.noOverlaps = true;
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+        तार्किक reportedOverlap = असत्य;
+        तार्किक hasDefault = असत्य;
+        m_caseDetails.noOverlaps = सत्य;
+        साठी (AstCaseItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), CaseItem)) {
 
             // Default case
-            if (itemp->isDefault()) {
+            जर (itemp->isDefault()) {
                 // Default was moved to be the last item by V3LinkDot. Fill remaining cases
-                for (uint32_t i = 0; i < numValues; ++i) {
+                साठी (uint32_t i = 0; i < अंक_मूल्ये; ++i) {
                     CaseRecord& caseRecord = m_caseDetails.records[i];
-                    if (!caseRecord.itemp) {
+                    जर (!caseRecord.itemp) {
                         caseRecord.itemp = itemp;
                         caseRecord.stmtsp = itemp->stmtsp();
                     }
                 }
-                hasDefault = true;
-                continue;
+                hasDefault = सत्य;
+                सुरूठेवा;
             }
 
-            for (AstConst* iconstp = VN_AS(itemp->condsp(), Const); iconstp;
+            साठी (AstConst* iconstp = VN_AS(itemp->condsp(), Const); iconstp;
                  iconstp = VN_AS(iconstp->nextp(), Const)) {
                 // Some items can never match due to 2-state simulation
-                if (neverItem(nodep, iconstp)) continue;
+                जर (neverItem(nodep, iconstp)) सुरूठेवा;
 
-                const auto& match = matchPattern(nodep, iconstp);
-                const uint32_t mask = match.first.toUInt();
-                const uint32_t bits = match.second.toUInt();
+                स्थिरांक स्वतः& match = matchPattern(nodep, iconstp);
+                स्थिरांक uint32_t mask = match.first.toUInt();
+                स्थिरांक uint32_t bits = match.second.toUInt();
 
-                bool foundNewCase = false;
-                const AstConst* firstOverlapConstp = nullptr;
-                uint32_t firstOverlapValue = 0;
-                for (uint32_t i = 0; i < numValues; ++i) {
-                    if ((i & mask) != bits) continue;
+                तार्किक foundNewCase = असत्य;
+                स्थिरांक AstConst* firstOverlapConstp = nullptr;
+                uint32_t first_Overlap_मूल्य = 0;
+                साठी (uint32_t i = 0; i < अंक_मूल्ये; ++i) {
+                    जर ((i & mask) != bits) सुरूठेवा;
 
                     CaseRecord& caseRecord = m_caseDetails.records[i];
 
                     // If this is the first case that covers this value, record it
-                    if (!caseRecord.itemp) {
+                    जर (!caseRecord.itemp) {
                         caseRecord.itemp = itemp;
                         caseRecord.constp = iconstp;
                         caseRecord.stmtsp = itemp->stmtsp();
-                        foundNewCase = true;
-                        continue;
+                        foundNewCase = सत्य;
+                        सुरूठेवा;
                     }
 
                     // There is an overlap. If it's within the same CaseItem, it is legal
-                    if (caseRecord.itemp == itemp) continue;
+                    जर (caseRecord.itemp == itemp) सुरूठेवा;
 
                     // Otherwise record the first overlapping case
-                    if (!firstOverlapConstp) {
+                    जर (!firstOverlapConstp) {
                         firstOverlapConstp = caseRecord.constp;
-                        firstOverlapValue = i;
-                        m_caseDetails.noOverlaps = false;
+                        first_Overlap_मूल्य = i;
+                        m_caseDetails.noOverlaps = असत्य;
                     }
                 }
 
                 // Only report first overlap
-                if (reportedOverlap || !firstOverlapConstp) continue;
+                जर (reportedOverlap || !firstOverlapConstp) सुरूठेवा;
 
                 // Report first overlap
-                if (nodep->priorityPragma()) {
+                जर (nodep->priorityPragma()) {
                     // If this is a priority case, we only want to complain if every possible
                     // value for this item is already hit by some other item. This is true if
                     // 'foundNewCase' is false. 'firstOverlapConstp' is null when the only
                     // covering item is this item itself, which is legal overlap within one
                     // item.
-                    if (!foundNewCase) {
+                    जर (!foundNewCase) {
                         iconstp->v3warn(CASEOVERLAP,
                                         "Case item ignored: every matching value is covered "
                                         "by an earlier condition\n"
@@ -418,14 +418,14 @@ class CaseVisitor final : public VNVisitor {
                                             << firstOverlapConstp->warnOther()
                                             << "... Location of previous condition\n"
                                             << firstOverlapConstp->warnContextPrimary());
-                        reportedOverlap = true;
+                        reportedOverlap = सत्य;
                     }
-                } else {
+                } अन्यथा {
                     // If this case statement doesn't have the priority keyword,
                     // we want to warn on any overlap.
                     std::ostringstream examplePattern;
-                    if (iconstp->num().isAnyXZ()) {
-                        examplePattern << " (example pattern 0x" << std::hex << firstOverlapValue
+                    जर (iconstp->अंक().isAnyXZ()) {
+                        examplePattern << " (example pattern 0x" << std::hex << first_Overlap_मूल्य
                                        << ")";
                     }
                     iconstp->v3warn(CASEOVERLAP,
@@ -435,75 +435,75 @@ class CaseVisitor final : public VNVisitor {
                                         << firstOverlapConstp->warnOther()
                                         << "... Location of overlapping condition\n"
                                         << firstOverlapConstp->warnContextSecondary());
-                    reportedOverlap = true;
+                    reportedOverlap = सत्य;
                 }
             }
         }
 
         // If there was no default, check exhaustiveness
-        m_caseDetails.exhaustiveOverEnumOnly = false;
+        m_caseDetails.exhaustiveOverEnumOnly = असत्य;
         m_caseDetails.exhaustive = hasDefault;
-        if (!hasDefault) {
-            if (const AstEnumDType* const enump = getEnumCompletionCheckDType(nodep)) {
+        जर (!hasDefault) {
+            जर (स्थिरांक AstEnumDType* स्थिरांक enump = getEnumCompletionCheckDType(nodep)) {
                 // Only checks enum values are covered, not all bit patterns of the case expression
-                const bool exhaustiveOverEnum = checkExhaustiveEnum(nodep, enump);
+                स्थिरांक तार्किक exhaustiveOverEnum = checkExhaustiveEnum(nodep, enump);
                 m_caseDetails.exhaustiveOverEnumOnly = exhaustiveOverEnum;
                 m_caseDetails.exhaustive = exhaustiveOverEnum;
-            } else {
+            } अन्यथा {
                 m_caseDetails.exhaustive = checkExhaustivePacked(nodep);
             }
         }
 
         // Records now valid
-        m_caseDetailsValid = true;
+        m_caseDetailsValid = सत्य;
     }
 
-    void analyzeDecoderPattern(AstCase* nodep) {
+    शून्य analyzeDecoderPattern(AstCase* nodep) {
         // Check each LHS record
-        for (auto it = m_caseLhsRecords.cbegin(); it != m_caseLhsRecords.cend();) {
-            const LhsRecord& lhsRecord = it->second;
+        साठी (स्वतः it = m_caseLhsRecords.cbegin(); it != m_caseLhsRecords.cend();) {
+            स्थिरांक LhsRecord& lhsRecord = it->second;
 
             // Delete records that have no assignments in any case item (only pre-defaults)
-            if (!lhsRecord.nCaseAssigns && !lhsRecord.nCaseAssignDlys) {
+            जर (!lhsRecord.nCaseAssigns && !lhsRecord.nCaseAssignDlys) {
                 it = m_caseLhsRecords.erase(it);
-                continue;
+                सुरूठेवा;
             }
             ++it;
 
             // If mixed assignments, it's not a decoder pattern
-            if (lhsRecord.nCaseAssigns && lhsRecord.nCaseAssignDlys) return;
+            जर (lhsRecord.nCaseAssigns && lhsRecord.nCaseAssignDlys) परत;
 
             // If assigned in all branches, it's good - but only if every table entry will be
             // covered, i.e. the case has a default, or is exhaustive over all bit patterns.
             // Enum-only exhaustiveness is not enough: out-of-enum values leave entries
             // uncovered.
-            if (m_caseHasDefault
+            जर (m_caseHasDefault
                 || (m_caseDetailsValid && m_caseDetails.exhaustive
                     && !m_caseDetails.exhaustiveOverEnumOnly)) {
-                if (lhsRecord.nCaseAssigns == m_caseNCaseItems) continue;
-                if (lhsRecord.nCaseAssignDlys == m_caseNCaseItems) continue;
+                जर (lhsRecord.nCaseAssigns == m_case_NCase_वस्तुसंच) सुरूठेवा;
+                जर (lhsRecord.nCaseAssignDlys == m_case_NCase_वस्तुसंच) सुरूठेवा;
             }
 
             // Otherwise it needs to have a pre-default assignment
-            AstNode* const preDefaultp = lhsRecord.preDefaultp;
-            if (!preDefaultp) return;
+            Ast_गाठ* स्थिरांक preDefaultp = lhsRecord.preDefaultp;
+            जर (!preDefaultp) परत;
             // And the pre-default needs to be the same type
-            if (lhsRecord.nCaseAssigns && !VN_IS(preDefaultp, Assign)) return;
-            if (lhsRecord.nCaseAssignDlys && !VN_IS(preDefaultp, AssignDly)) return;
+            जर (lhsRecord.nCaseAssigns && !VN_IS(preDefaultp, Assign)) परत;
+            जर (lhsRecord.nCaseAssignDlys && !VN_IS(preDefaultp, AssignDly)) परत;
         }
         // All cases check out, can optimize if there are some entries left
-        if (m_caseLhsRecords.empty()) return;
+        जर (m_caseLhsRecords.empty()) परत;
 
         // Gather all the LhsRecords and sort them - there is a copy here, it's ok, won't be many
         m_caseDecoderRecords.reserve(m_caseLhsRecords.size());
-        for (const auto& item : m_caseLhsRecords) m_caseDecoderRecords.emplace_back(item.second);
+        साठी (स्थिरांक स्वतः& item : m_caseLhsRecords) m_caseDecoderRecords.emplace_back(item.second);
         std::sort(m_caseDecoderRecords.begin(), m_caseDecoderRecords.end(),
-                  [](const LhsRecord& a, const LhsRecord& b) {
+                  [](स्थिरांक LhsRecord& a, स्थिरांक LhsRecord& b) {
                       // Sort by width, then id
-                      const int aWidth = a.lhsp->width();
-                      const int bWidth = b.lhsp->width();
-                      if (aWidth != bWidth) return aWidth < bWidth;
-                      return a.id < b.id;
+                      स्थिरांक पूर्णांक aWidth = a.lhsp->width();
+                      स्थिरांक पूर्णांक bWidth = b.lhsp->width();
+                      जर (aWidth != bWidth) परत aWidth < bWidth;
+                      परत a.id < b.id;
                   });
 
         // We can either create a single lookup table for all LHSs, or one for each LHS.
@@ -511,84 +511,84 @@ class CaseVisitor final : public VNVisitor {
         // With one table per LHS, we need to do multiple loads. The table is likely to incur a
         // D-cache miss on large designs, so we choose single table.
 
-        const int caseWidth = nodep->exprp()->width();
+        स्थिरांक पूर्णांक caseWidth = nodep->exprp()->width();
 
         // Safely check if table with 'entryWidth' entries would fit within 'maxWidth' bits
-        const auto fitsLimit = [&](size_t entryWidth, size_t maxWidth) -> bool {
-            size_t totalWidth = entryWidth;
+        स्थिरांक स्वतः fitsLimit = [&](माप_प्रकार entryWidth, माप_प्रकार maxWidth) -> तार्किक {
+            माप_प्रकार totalWidth = entryWidth;
             // Multiply cases - iterative to avoid overflow
-            for (int i = 0; i < caseWidth; ++i) {
+            साठी (पूर्णांक i = 0; i < caseWidth; ++i) {
                 totalWidth <<= 1;
-                if (totalWidth > maxWidth) return false;
+                जर (totalWidth > maxWidth) परत असत्य;
             }
-            return true;
+            परत सत्य;
         };
 
         // Check if the whole table would fit in a tiny table packed tightly
         m_caseDecoderEntryWidth = 0;
-        for (LhsRecord& lhsRecord : m_caseDecoderRecords) {
+        साठी (LhsRecord& lhsRecord : m_caseDecoderRecords) {
             lhsRecord.offset = m_caseDecoderEntryWidth;
             m_caseDecoderEntryWidth += lhsRecord.lhsp->width();
         }
         // If it fits, we will pack it tightly
-        if (fitsLimit(m_caseDecoderEntryWidth, CASE_TABLE_TINY_BITS)) {
+        जर (fitsLimit(m_caseDecoderEntryWidth, CASE_TABLE_TINY_BITS)) {
             m_caseTableWidth = m_caseDecoderEntryWidth << caseWidth;  // Can optimize
-            return;
+            परत;
         }
 
         // Tabel will be bigish. To avoid expensive bit swizzling, align each entry to a
         // word boundary if it would cross a word boundary.
         m_caseDecoderEntryWidth = 0;
-        for (LhsRecord& lhsRecord : m_caseDecoderRecords) {
-            const size_t width = lhsRecord.lhsp->width();
-            const size_t lsbWord = VL_BITWORD_E(m_caseDecoderEntryWidth);
-            const size_t msbWord = VL_BITWORD_E(m_caseDecoderEntryWidth + width - 1);
-            if (lsbWord != msbWord) {
-                m_caseDecoderEntryWidth = VL_WORDS_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
+        साठी (LhsRecord& lhsRecord : m_caseDecoderRecords) {
+            स्थिरांक माप_प्रकार width = lhsRecord.lhsp->width();
+            स्थिरांक माप_प्रकार lsbWord = VL_BITWORD_E(m_caseDecoderEntryWidth);
+            स्थिरांक माप_प्रकार msbWord = VL_BITWORD_E(m_caseDecoderEntryWidth + width - 1);
+            जर (lsbWord != msbWord) {
+                m_caseDecoderEntryWidth = VL_शब्द_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
             }
             lhsRecord.offset = m_caseDecoderEntryWidth;
             m_caseDecoderEntryWidth += width;
         }
         // Check the table fits max size
-        const size_t alignedEntryWidth = VL_WORDS_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
-        if (fitsLimit(alignedEntryWidth, CASE_TABLE_MAX_BITS)) {
+        स्थिरांक माप_प्रकार alignedEntryWidth = VL_शब्द_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
+        जर (fitsLimit(alignedEntryWidth, CASE_TABLE_MAX_BITS)) {
             m_caseTableWidth = alignedEntryWidth << caseWidth;  // Can optimize
-            return;
+            परत;
         }
 
         // Can optimize as AstMatchMasked, no other info needed
     }
 
     // Analyze case statement. Updates 'm_case*' members. Reports warnings.
-    void analyzeCase(AstCase* nodep) {
+    शून्य analyzeCase(AstCase* nodep) {
         // Reset all analysis results
-        m_caseOpaque = false;
-        m_caseHasDefault = false;
-        m_caseNCaseItems = 0;
+        m_caseOpaque = असत्य;
+        m_caseHasDefault = असत्य;
+        m_case_NCase_वस्तुसंच = 0;
         m_caseNConditions = 0;
         m_caseDecoderRecords.clear();
         m_caseDecoderEntryWidth = 0;
         m_caseTableWidth = 0;
         m_caseLhsRecords.clear();
-        m_caseDetailsValid = false;
+        m_caseDetailsValid = असत्य;
 
-        AstNode* const caseExprp = nodep->exprp();
+        Ast_गाठ* स्थिरांक caseExprp = nodep->exprp();
 
         // Mark opaque if not a packed value - TODO: can this be a class?
-        if (caseExprp->isDouble() || caseExprp->isString()) m_caseOpaque = true;
+        जर (caseExprp->isDouble() || caseExprp->isString()) m_caseOpaque = सत्य;
 
         // Gather pre-default assignments of decoder pattern
         {
             // AstVarScope::user1() -> bool: true if written to
-            const VNUser1InUse user1InUse;
-            for (AstNode* prevp = nodep->prevp(); prevp; prevp = prevp->prevp()) {
-                AstNodeAssign* const assp = checkDecoderAssign(prevp);
-                if (!assp) break;  // Stop if not a decoder assignment
+            स्थिरांक VNUser1InUse user1InUse;
+            साठी (Ast_गाठ* prevp = nodep->prevp(); prevp; prevp = prevp->prevp()) {
+                Ast_गाठ_Assign* स्थिरांक assp = checkDecoderAssign(prevp);
+                जर (!assp) थांबा;  // Stop if not a decoder assignment
                 // Stop if multiple assignments
-                const bool multipleAssignments = assp->lhsp()->exists([&](AstVarRef* refp) {  //
-                    return refp->varScopep()->user1SetOnce();
+                स्थिरांक तार्किक multipleAssignments = assp->lhsp()->exists([&](AstVarRef* refp) {  //
+                    परत refp->varScopep()->user1SetOnce();
                 });
-                if (multipleAssignments) break;
+                जर (multipleAssignments) थांबा;
                 // Store pre-default assignment
                 LhsRecord& lhsRecord = m_caseLhsRecords[*assp->lhsp()];
                 lhsRecord.lhsp = assp->lhsp();
@@ -597,189 +597,189 @@ class CaseVisitor final : public VNVisitor {
         }
 
         // Check each case item
-        bool canBeDecoder = true;
-        for (AstCaseItem* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), CaseItem)) {
+        तार्किक canBeDecoder = सत्य;
+        साठी (AstCaseItem* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), CaseItem)) {
             // Check conditions
-            for (AstNode* condp = cip->condsp(); condp; condp = condp->nextp()) {
+            साठी (Ast_गाठ* condp = cip->condsp(); condp; condp = condp->nextp()) {
                 // Count conditions that can actually match.
-                if (!neverItem(nodep, VN_AS(condp, NodeExpr))) ++m_caseNConditions;
+                जर (!neverItem(nodep, VN_AS(condp, गाठ_अभिव्यक्ती))) ++m_caseNConditions;
                 // Mark opaque if non-constant condition
-                if (!VN_IS(condp, Const)) {
-                    m_caseOpaque = true;
-                    canBeDecoder = false;  // Can't be a decoder if opaque
+                जर (!VN_IS(condp, Const)) {
+                    m_caseOpaque = सत्य;
+                    canBeDecoder = असत्य;  // Can't be a decoder if opaque
                 }
             }
             // Check if it has a default case
-            if (cip->isDefault()) m_caseHasDefault = true;
+            जर (cip->isDefault()) m_caseHasDefault = सत्य;
             // Count case items
-            ++m_caseNCaseItems;
+            ++m_case_NCase_वस्तुसंच;
             // Check if it fits the decoder pattern, if still possible
-            if (canBeDecoder) canBeDecoder = analyzeDecoderCaseItem(cip);
+            जर (canBeDecoder) canBeDecoder = analyzeDecoderCaseItem(cip);
         }
 
         // Nothing else to do if not a packed type, or non-const conditions
-        if (m_caseOpaque) return;
+        जर (m_caseOpaque) परत;
 
         // If small enough, analyse details
-        if (caseExprp->width() <= CASE_DETAILS_MAX_WIDTH) analyzeCaseDetails(nodep);
+        जर (caseExprp->width() <= CASE_DETAILS_MAX_WIDTH) analyzeCaseDetails(nodep);
 
         // Check if it actually fits a full decoder pattern
-        if (canBeDecoder) analyzeDecoderPattern(nodep);
+        जर (canBeDecoder) analyzeDecoderPattern(nodep);
     }
 
-    AstNodeStmt* connectDecoderOutputs(AstCase* nodep, AstNodeExpr* exprp, V3SharedTmps& tmps) {
-        FileLine* const flp = nodep->fileline();
+    Ast_गाठ_Stmt* connectDecoderOutputs(AstCase* nodep, Ast_गाठ_अभिव्यक्ती* exprp, V3SharedTmps& tmps) {
+        File_ओळ* स्थिरांक flp = nodep->fileline();
 
         // If there is only one LHS, just use the result
-        if (m_caseDecoderRecords.size() == 1) {
-            const LhsRecord& lhsRecord = m_caseDecoderRecords[0];
-            const int width = lhsRecord.lhsp->width();
-            AstNodeExpr* const rhsp
-                = exprp->width() == width ? exprp : new AstSel{flp, exprp, 0, width};
-            AstNodeExpr* const lhsp = lhsRecord.lhsp->cloneTreePure(false);
-            if (lhsRecord.nCaseAssigns) {
-                return new AstAssign{flp, lhsp, rhsp};
-            } else if (lhsRecord.nCaseAssignDlys) {
-                return new AstAssignDly{flp, lhsp, rhsp};
-            } else {
+        जर (m_caseDecoderRecords.size() == 1) {
+            स्थिरांक LhsRecord& lhsRecord = m_caseDecoderRecords[0];
+            स्थिरांक पूर्णांक width = lhsRecord.lhsp->width();
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक rhsp
+                = exprp->width() == width ? exprp : नवीन AstSel{flp, exprp, 0, width};
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक lhsp = lhsRecord.lhsp->clone_वृक्ष_Pure(असत्य);
+            जर (lhsRecord.nCaseAssigns) {
+                परत नवीन AstAssign{flp, lhsp, rhsp};
+            } अन्यथा जर (lhsRecord.nCaseAssignDlys) {
+                परत नवीन AstAssignDly{flp, lhsp, rhsp};
+            } अन्यथा {
                 nodep->v3fatalSrc("Unknown assignment type");
             }
         }
 
         // There are multiple LHSs, store the lookup result in a temporary
-        AstVarScope* const tempVscp = tmps.make(flp, m_scopep, m_caseDecoderEntryWidth);
-        AstNodeExpr* const tempWritep = new AstVarRef{flp, tempVscp, VAccess::WRITE};
-        AstNodeStmt* const resultp = new AstAssign{flp, tempWritep, exprp};
+        AstVarScope* स्थिरांक tempVscp = tmps.make(flp, m_scopep, m_caseDecoderEntryWidth);
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक tempWritep = नवीन AstVarRef{flp, tempVscp, VAccess::WRITE};
+        Ast_गाठ_Stmt* स्थिरांक resultp = नवीन AstAssign{flp, tempWritep, exprp};
 
         // For each LHS, select out the result
-        for (const LhsRecord& lhsRecord : m_caseDecoderRecords) {
-            const int width = lhsRecord.lhsp->width();
-            const int lsb = lhsRecord.offset;
-            AstNodeExpr* const tempReadp = new AstVarRef{flp, tempVscp, VAccess::READ};
-            AstNodeExpr* const rhsp = new AstSel{flp, tempReadp, lsb, width};
-            AstNodeExpr* const lhsp = lhsRecord.lhsp->cloneTreePure(false);
-            if (lhsRecord.nCaseAssigns) {
-                resultp->addNext(new AstAssign{flp, lhsp, rhsp});
-            } else if (lhsRecord.nCaseAssignDlys) {
-                resultp->addNext(new AstAssignDly{flp, lhsp, rhsp});
-            } else {
+        साठी (स्थिरांक LhsRecord& lhsRecord : m_caseDecoderRecords) {
+            स्थिरांक पूर्णांक width = lhsRecord.lhsp->width();
+            स्थिरांक पूर्णांक lsb = lhsRecord.offset;
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक tempReadp = नवीन AstVarRef{flp, tempVscp, VAccess::READ};
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक rhsp = नवीन AstSel{flp, tempReadp, lsb, width};
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक lhsp = lhsRecord.lhsp->clone_वृक्ष_Pure(असत्य);
+            जर (lhsRecord.nCaseAssigns) {
+                resultp->addNext(नवीन AstAssign{flp, lhsp, rhsp});
+            } अन्यथा जर (lhsRecord.nCaseAssignDlys) {
+                resultp->addNext(नवीन AstAssignDly{flp, lhsp, rhsp});
+            } अन्यथा {
                 nodep->v3fatalSrc("Unknown assignment type");
             }
         }
-        return resultp;
+        परत resultp;
     }
 
-    AstNodeStmt* convertCaseTable(AstCase* nodep) {
+    Ast_गाठ_Stmt* convertCaseTable(AstCase* nodep) {
         // Create the table constant
-        FileLine* const flp = nodep->fileline();
-        AstConst* const tablep
-            = new AstConst{flp, AstConst::WidthedValue{}, static_cast<int>(m_caseTableWidth), 0};
-        const uint32_t tableEntries = 1U << nodep->exprp()->width();
+        File_ओळ* स्थिरांक flp = nodep->fileline();
+        AstConst* स्थिरांक tablep
+            = नवीन AstConst{flp, AstConst::Widthed_मूल्य{}, static_cast<पूर्णांक>(m_caseTableWidth), 0};
+        स्थिरांक uint32_t tableEntries = 1U << nodep->exprp()->width();
 
-        const bool isTinyTable = m_caseTableWidth <= CASE_TABLE_TINY_BITS;
-        if (isTinyTable) {
+        स्थिरांक तार्किक isTinyTable = m_caseTableWidth <= CASE_TABLE_TINY_BITS;
+        जर (isTinyTable) {
             ++m_stats.caseTableTiny;
-        } else {
+        } अन्यथा {
             ++m_stats.caseTableNormal;
         }
 
         // Populate the table. Align entries to a word boundary to avoid bit swizzling at runtime.
-        const uint32_t entryWidth = isTinyTable
+        स्थिरांक uint32_t entryWidth = isTinyTable
                                         ? m_caseDecoderEntryWidth
-                                        : VL_WORDS_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
-        for (const LhsRecord& lhsRecord : m_caseDecoderRecords) {
-            const int lhsWidth = lhsRecord.lhsp->width();
-            const int lhsOffset = lhsRecord.offset;
+                                        : VL_शब्द_I(m_caseDecoderEntryWidth) * VL_EDATASIZE;
+        साठी (स्थिरांक LhsRecord& lhsRecord : m_caseDecoderRecords) {
+            स्थिरांक पूर्णांक lhsWidth = lhsRecord.lhsp->width();
+            स्थिरांक पूर्णांक lhsOffset = lhsRecord.offset;
 
             // Broadcast the pre-default assignment
-            if (lhsRecord.preDefaultp) {
-                AstConst* const rhsp = VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
-                for (uint32_t index = 0; index < tableEntries; ++index) {
-                    const uint32_t tableOffset = index * entryWidth + lhsOffset;
-                    tablep->num().opSelInto(rhsp->num(), tableOffset, lhsWidth);
+            जर (lhsRecord.preDefaultp) {
+                AstConst* स्थिरांक rhsp = VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
+                साठी (uint32_t index = 0; index < tableEntries; ++index) {
+                    स्थिरांक uint32_t tableOffset = index * entryWidth + lhsOffset;
+                    tablep->अंक().opSelInto(rhsp->अंक(), tableOffset, lhsWidth);
                 }
             }
 
             // Populate table based on each case item. In reverse order so earlier items win
-            for (AstCaseItem* cip = VN_AS(nodep->itemsp()->lastp(), CaseItem); cip;
+            साठी (AstCaseItem* cip = VN_AS(nodep->itemsp()->lastp(), CaseItem); cip;
                  cip = VN_AS(cip->prevp(), CaseItem)) {
                 // Find the RHS in this case
-                AstConst* const rhsp = [&]() -> AstConst* {
-                    for (AstNode* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                        AstNodeAssign* const ap = VN_AS(stmtp, NodeAssign);
-                        if (lhsRecord.lhsp->sameTree(ap->lhsp())) return VN_AS(ap->rhsp(), Const);
+                AstConst* स्थिरांक rhsp = [&]() -> AstConst* {
+                    साठी (Ast_गाठ* stmtp = cip->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                        Ast_गाठ_Assign* स्थिरांक ap = VN_AS(stmtp, गाठ_Assign);
+                        जर (lhsRecord.lhsp->same_वृक्ष(ap->lhsp())) परत VN_AS(ap->rhsp(), Const);
                     }
                     // Not assigned in this case, use the pre-assigned default
-                    return VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
+                    परत VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
                 }();
 
                 // If default, broadcast it
-                if (cip->isDefault()) {
-                    for (uint32_t index = 0; index < tableEntries; ++index) {
-                        const uint32_t tableOffset = index * entryWidth + lhsOffset;
-                        tablep->num().opSelInto(rhsp->num(), tableOffset, lhsWidth);
+                जर (cip->isDefault()) {
+                    साठी (uint32_t index = 0; index < tableEntries; ++index) {
+                        स्थिरांक uint32_t tableOffset = index * entryWidth + lhsOffset;
+                        tablep->अंक().opSelInto(rhsp->अंक(), tableOffset, lhsWidth);
                     }
-                    continue;
+                    सुरूठेवा;
                 }
 
                 // Iterate case conditions in reverse order
-                for (AstConst* condp = VN_AS(cip->condsp()->lastp(), Const); condp;
+                साठी (AstConst* condp = VN_AS(cip->condsp()->lastp(), Const); condp;
                      condp = VN_AS(condp->prevp(), Const)) {
-                    if (neverItem(nodep, condp)) continue;  // If item never matches, ignore it
-                    const auto& match = matchPattern(nodep, condp);
-                    const uint32_t matchMask = match.first.toUInt();
-                    const uint32_t matchBits = match.second.toUInt();
-                    const uint32_t inverseMask = ~matchMask & ((1U << condp->width()) - 1);
+                    जर (neverItem(nodep, condp)) सुरूठेवा;  // If item never matches, ignore it
+                    स्थिरांक स्वतः& match = matchPattern(nodep, condp);
+                    स्थिरांक uint32_t matchMask = match.first.toUInt();
+                    स्थिरांक uint32_t matchBits = match.second.toUInt();
+                    स्थिरांक uint32_t inverseMask = ~matchMask & ((1U << condp->width()) - 1);
                     // This iterates through all integers that are a subset of the inverse mask,
                     // i.e.: all don't care values masked out
-                    for (uint32_t i = inverseMask; true; i = (i - 1) & inverseMask) {
-                        const uint32_t index = i | matchBits;
-                        const uint32_t tableOffset = index * entryWidth + lhsOffset;
-                        tablep->num().opSelInto(rhsp->num(), tableOffset, lhsWidth);
-                        if (!i) break;
+                    साठी (uint32_t i = inverseMask; सत्य; i = (i - 1) & inverseMask) {
+                        स्थिरांक uint32_t index = i | matchBits;
+                        स्थिरांक uint32_t tableOffset = index * entryWidth + lhsOffset;
+                        tablep->अंक().opSelInto(rhsp->अंक(), tableOffset, lhsWidth);
+                        जर (!i) थांबा;
                     }
                 }
             }
         }
 
         // Create the lookup table reference, in the constant pool unless using an inline table
-        AstNodeExpr* const tableRefp = [&]() -> AstNodeExpr* {
-            if (isTinyTable) return tablep;
-            AstVarRef* const refp = V3ConstPool::find(tablep);
-            VL_DO_DANGLING(tablep->deleteTree(), tablep);  // V3ConstPool::find clones
-            return refp;
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक tableRefp = [&]() -> Ast_गाठ_अभिव्यक्ती* {
+            जर (isTinyTable) परत tablep;
+            AstVarRef* स्थिरांक refp = V3ConstPool::find(tablep);
+            VL_DO_DANGLING(tablep->delete_वृक्ष(), tablep);  // V3ConstPool::find clones
+            परत refp;
         }();
 
         // Create the lookup index
-        AstNodeExpr* const caseExprp
-            = new AstExtend{flp, nodep->exprp()->cloneTreePure(false), 32};
-        AstNodeExpr* const scalep = new AstConst{flp, entryWidth};
-        AstNodeExpr* const tableLsbp = new AstMul{flp, scalep, caseExprp};
-        AstNodeExpr* const tableSelp
-            = new AstSel{flp, tableRefp, tableLsbp, static_cast<int>(m_caseDecoderEntryWidth)};
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक caseExprp
+            = नवीन AstExtend{flp, nodep->exprp()->clone_वृक्ष_Pure(असत्य), 32};
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक scalep = नवीन AstConst{flp, entryWidth};
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक tableLsbp = नवीन AstMul{flp, scalep, caseExprp};
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक tableSelp
+            = नवीन AstSel{flp, tableRefp, tableLsbp, static_cast<पूर्णांक>(m_caseDecoderEntryWidth)};
 
         // Connect outputs
-        return connectDecoderOutputs(nodep, tableSelp, m_tableOutTmps);
+        परत connectDecoderOutputs(nodep, tableSelp, m_tableOutTmps);
     }
 
-    AstNodeStmt* convertCaseDecoder(AstCase* nodep) {
+    Ast_गाठ_Stmt* convertCaseDecoder(AstCase* nodep) {
         ++m_stats.caseDecoder;
 
-        FileLine* const flp = nodep->fileline();
+        File_ओळ* स्थिरांक flp = nodep->fileline();
 
         // Gather all the case conditions, paird with their statements. A 'nullptr' condition
         // matches anything (the default case, or the catch-all added below).
-        std::vector<std::pair<AstConst*, AstNode*>> clauses;  // (condition, item statements)
+        std::vector<std::pair<AstConst*, Ast_गाठ*>> clauses;  // (condition, item statements)
         clauses.reserve(m_caseNConditions + 1);
-        for (AstCaseItem* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), CaseItem)) {
-            if (cip->isDefault()) {
+        साठी (AstCaseItem* cip = nodep->itemsp(); cip; cip = VN_AS(cip->nextp(), CaseItem)) {
+            जर (cip->isDefault()) {
                 clauses.emplace_back(nullptr, cip->stmtsp());
-                continue;
+                सुरूठेवा;
             }
-            for (AstNode* condp = cip->condsp(); condp; condp = condp->nextp()) {
-                AstConst* const iconstp = VN_AS(condp, Const);
+            साठी (Ast_गाठ* condp = cip->condsp(); condp; condp = condp->nextp()) {
+                AstConst* स्थिरांक iconstp = VN_AS(condp, Const);
                 // Skip items that can never match in 2-state simulation (e.g. X in casez)
-                if (neverItem(nodep, iconstp)) continue;
+                जर (neverItem(nodep, iconstp)) सुरूठेवा;
                 clauses.emplace_back(iconstp, cip->stmtsp());
             }
         }
@@ -787,182 +787,182 @@ class CaseVisitor final : public VNVisitor {
         // values fall back to the pre-defaults. Represent that with a catch-all clause (null
         // condition and no statements, so every LHS uses its pre-default). 'analyzeDecoderPattern'
         // guarantees every LHS has a pre-default in this case.
-        const bool provenExhaustive = m_caseDetailsValid && m_caseDetails.exhaustive
+        स्थिरांक तार्किक provenExhaustive = m_caseDetailsValid && m_caseDetails.exhaustive
                                       && !m_caseDetails.exhaustiveOverEnumOnly;
-        if (clauses.back().first && !provenExhaustive) clauses.emplace_back(nullptr, nullptr);
+        जर (clauses.back().first && !provenExhaustive) clauses.emplace_back(nullptr, nullptr);
 
         // Number of entries in decoder table
-        const int decoderEnries = clauses.size();
+        स्थिरांक पूर्णांक decoderEnries = clauses.size();
 
         // Build the match table: a {matchBits, matchMask} packed pair per clause, shared by all
         // LHSs. Each field is rounded up to a whole EDATA word boundary to avoid bit swizzling
         // at runtime. We use a packed value so the runtime function can take a VlWide pointer
         // without templating on the array size.
-        const int condWidth = nodep->exprp()->width();
-        const int matchWidth = 2 * VL_WORDS_I(condWidth) * VL_EDATASIZE;
-        AstConst* const matchp
-            = new AstConst{flp, AstConst::WidthedValue{}, decoderEnries * matchWidth, 0};
-        for (int i = 0; i < decoderEnries; ++i) {
-            const int entryLsb = i * matchWidth;
+        स्थिरांक पूर्णांक condWidth = nodep->exprp()->width();
+        स्थिरांक पूर्णांक matchWidth = 2 * VL_शब्द_I(condWidth) * VL_EDATASIZE;
+        AstConst* स्थिरांक matchp
+            = नवीन AstConst{flp, AstConst::Widthed_मूल्य{}, decoderEnries * matchWidth, 0};
+        साठी (पूर्णांक i = 0; i < decoderEnries; ++i) {
+            स्थिरांक पूर्णांक entryLsb = i * matchWidth;
 
             // If the entry has a condition, use it's match bits and mask
-            if (AstConst* const condp = clauses[i].first) {
-                const auto& match = matchPattern(nodep, condp);
-                matchp->num().opSelInto(match.first, entryLsb, condWidth);
-                matchp->num().opSelInto(match.second, entryLsb + matchWidth / 2, condWidth);
-                continue;
+            जर (AstConst* स्थिरांक condp = clauses[i].first) {
+                स्थिरांक स्वतः& match = matchPattern(nodep, condp);
+                matchp->अंक().opSelInto(match.first, entryLsb, condWidth);
+                matchp->अंक().opSelInto(match.second, entryLsb + matchWidth / 2, condWidth);
+                सुरूठेवा;
             }
 
             // Otherwise use zero for mask and bits, which matches anything
-            V3Number numZero{flp, condWidth, 0};
-            matchp->num().opSelInto(numZero, entryLsb, condWidth);
-            matchp->num().opSelInto(numZero, entryLsb + matchWidth / 2, condWidth);
+            V3_संख्या अंक_Zero{flp, condWidth, 0};
+            matchp->अंक().opSelInto(अंक_Zero, entryLsb, condWidth);
+            matchp->अंक().opSelInto(अंक_Zero, entryLsb + matchWidth / 2, condWidth);
         }
 
         // Create the table initializer
-        AstRange* const rangep = new AstRange{flp, decoderEnries - 1, 0};
-        AstNodeDType* const entryDtypep = nodep->findBitDType(
+        AstRange* स्थिरांक rangep = नवीन AstRange{flp, decoderEnries - 1, 0};
+        Ast_गाठ_DType* स्थिरांक entryDtypep = nodep->findBitDType(
             m_caseDecoderEntryWidth, m_caseDecoderEntryWidth, VSigning::UNSIGNED);
-        AstNodeDType* const tableDtypep = new AstUnpackArrayDType{flp, entryDtypep, rangep};
+        Ast_गाठ_DType* स्थिरांक tableDtypep = नवीन AstUnpackArrayDType{flp, entryDtypep, rangep};
         v3Global.rootp()->typeTablep()->addTypesp(tableDtypep);
-        AstConsArray* const tablep = new AstConsArray{flp, tableDtypep};
+        AstConsArray* स्थिरांक tablep = नवीन AstConsArray{flp, tableDtypep};
 
         // Build a single value table for all LHSs: one entry per clause, packing each LHS's value
         // at its offset. The entry width is the table packing computed by 'analyzeDecoderPattern'
         // Rounded up to a whole EDATA word boundary to avoid bit swizzling at runtime.
-        for (int i = 0; i < decoderEnries; ++i) {
-            AstNode* const stmtsp = clauses[i].second;
-            AstConst* const entryp = new AstConst{flp, AstConst::WidthedValue{},
-                                                  static_cast<int>(m_caseDecoderEntryWidth), 0};
-            for (const LhsRecord& lhsRecord : m_caseDecoderRecords) {
-                AstNodeExpr* const lhsp = lhsRecord.lhsp;
+        साठी (पूर्णांक i = 0; i < decoderEnries; ++i) {
+            Ast_गाठ* स्थिरांक stmtsp = clauses[i].second;
+            AstConst* स्थिरांक entryp = नवीन AstConst{flp, AstConst::Widthed_मूल्य{},
+                                                  static_cast<पूर्णांक>(m_caseDecoderEntryWidth), 0};
+            साठी (स्थिरांक LhsRecord& lhsRecord : m_caseDecoderRecords) {
+                Ast_गाठ_अभिव्यक्ती* स्थिरांक lhsp = lhsRecord.lhsp;
                 // Find the value assigned to this LHS in the clause's statements
                 AstConst* valConstp = nullptr;
-                for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
-                    AstNodeAssign* const assignp = VN_AS(stmtp, NodeAssign);
-                    if (!lhsp->sameTree(assignp->lhsp())) continue;
+                साठी (Ast_गाठ* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+                    Ast_गाठ_Assign* स्थिरांक assignp = VN_AS(stmtp, गाठ_Assign);
+                    जर (!lhsp->same_वृक्ष(assignp->lhsp())) सुरूठेवा;
                     valConstp = VN_AS(assignp->rhsp(), Const);
-                    break;
+                    थांबा;
                 }
                 // Not assigned in this clause, so use the pre-assigned default
-                if (!valConstp) {
+                जर (!valConstp) {
                     UASSERT_OBJ(lhsRecord.preDefaultp, nodep,
                                 "Decoder LHS unassigned in case item without a pre-default");
                     valConstp = VN_AS(lhsRecord.preDefaultp->rhsp(), Const);
                 }
-                entryp->num().opSelInto(valConstp->num(), lhsRecord.offset, lhsp->width());
+                entryp->अंक().opSelInto(valConstp->अंक(), lhsRecord.offset, lhsp->width());
             }
             tablep->valuep(i, entryp);
         }
 
         // Create the tables
-        AstVarRef* const matchRefp = V3ConstPool::find(matchp);
-        AstVarRef* const tableRefp = V3ConstPool::find(tablep);
-        VL_DO_DANGLING(matchp->deleteTree(), matchp);
-        VL_DO_DANGLING(tablep->deleteTree(), tablep);
+        AstVarRef* स्थिरांक matchRefp = V3ConstPool::find(matchp);
+        AstVarRef* स्थिरांक tableRefp = V3ConstPool::find(tablep);
+        VL_DO_DANGLING(matchp->delete_वृक्ष(), matchp);
+        VL_DO_DANGLING(tablep->delete_वृक्ष(), tablep);
 
         // AstMatchMasked produces the index of the matching entry
-        AstNodeExpr* const caseExprp = nodep->exprp()->cloneTreePure(false);
-        AstMatchMasked* const indexp = new AstMatchMasked{flp, caseExprp, matchRefp};
-        AstNodeExpr* const entryp = new AstArraySel{flp, tableRefp, indexp};
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक caseExprp = nodep->exprp()->clone_वृक्ष_Pure(असत्य);
+        AstMatchMasked* स्थिरांक indexp = नवीन AstMatchMasked{flp, caseExprp, matchRefp};
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक entryp = नवीन AstArraySel{flp, tableRefp, indexp};
 
-        return connectDecoderOutputs(nodep, entryp, m_decoderOutTmps);
+        परत connectDecoderOutputs(nodep, entryp, m_decoderOutTmps);
     }
 
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCaseFastRecurse(AstNodeExpr* cexprp, int msb, uint32_t upperValue) const {
+    Ast_गाठ* convertCaseFastRecurse(Ast_गाठ_अभिव्यक्ती* cexprp, पूर्णांक msb, uint32_t upper_मूल्य) स्थिरांक {
         // Base case: If reached the last bit, upperValue equals an exact value, just return
         // the statements from that CaseItem. Note: Not cloning here as the caller will do
         // an identity check.
-        if (msb < 0) return m_caseDetails.records[upperValue].stmtsp;
+        जर (msb < 0) परत m_caseDetails.records[upper_मूल्य].stmtsp;
 
         // Recursive case:
         // Make left and right subtrees assuming cexpr[msb] is 0 and 1 respectively
-        const uint32_t upperValue0 = upperValue;
-        const uint32_t upperValue1 = upperValue | (1UL << msb);
-        AstNode* tree0p = convertCaseFastRecurse(cexprp, msb - 1, upperValue0);
-        AstNode* tree1p = convertCaseFastRecurse(cexprp, msb - 1, upperValue1);
+        स्थिरांक uint32_t upperValue0 = upper_मूल्य;
+        स्थिरांक uint32_t upperValue1 = upper_मूल्य | (1UL << msb);
+        Ast_गाठ* tree0p = convertCaseFastRecurse(cexprp, msb - 1, upperValue0);
+        Ast_गाठ* tree1p = convertCaseFastRecurse(cexprp, msb - 1, upperValue1);
 
         // If same logic on both sides, we can just return one of them
-        if (tree0p == tree1p) return tree0p;
+        जर (tree0p == tree1p) परत tree0p;
 
         // We could have a "checkerboard" with A B A B, we can use the same IF on both edges
         {
-            bool same = true;
-            for (uint32_t a = upperValue0, b = upperValue1; a < upperValue1; ++a, ++b) {
-                if (m_caseDetails.records[a].stmtsp != m_caseDetails.records[b].stmtsp) {
-                    same = false;
-                    break;
+            तार्किक same = सत्य;
+            साठी (uint32_t a = upperValue0, b = upperValue1; a < upperValue1; ++a, ++b) {
+                जर (m_caseDetails.records[a].stmtsp != m_caseDetails.records[b].stmtsp) {
+                    same = असत्य;
+                    थांबा;
                 }
             }
-            if (same) {
-                VL_DO_DANGLING(tree1p->deleteTree(), tree1p);
-                return tree0p;
+            जर (same) {
+                VL_DO_DANGLING(tree1p->delete_वृक्ष(), tree1p);
+                परत tree0p;
             }
         }
 
         // Must have differing logic. Test the bit and convert to an If.
 
         // Clone if needed
-        if (tree0p && tree0p->backp()) tree0p = tree0p->cloneTree(true);
-        if (tree1p && tree1p->backp()) tree1p = tree1p->cloneTree(true);
+        जर (tree0p && tree0p->backp()) tree0p = tree0p->clone_वृक्ष(सत्य);
+        जर (tree1p && tree1p->backp()) tree1p = tree1p->clone_वृक्ष(सत्य);
         // Create the If statement
-        FileLine* const flp = cexprp->fileline();
-        AstNodeExpr* const condp = new AstSel{flp, cexprp->cloneTreePure(false), msb, 1};
-        AstIf* const ifp = new AstIf{flp, condp, tree1p, tree0p};
-        return ifp;
+        File_ओळ* स्थिरांक flp = cexprp->fileline();
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक condp = नवीन AstSel{flp, cexprp->clone_वृक्ष_Pure(असत्य), msb, 1};
+        AstIf* स्थिरांक ifp = नवीन AstIf{flp, condp, tree1p, tree0p};
+        परत ifp;
     }
 
     // CASEx(cexpr,....
     // ->  tree of IF(msb,  IF(msb-1, 11, 10)
     //                      IF(msb-1, 01, 00))
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCaseFast(AstCase* nodep) {
+    Ast_गाठ* convertCaseFast(AstCase* nodep) {
         ++m_stats.caseFast;
-        const int caseWidth = nodep->exprp()->width();
-        AstNode* const ifrootp = convertCaseFastRecurse(nodep->exprp(), caseWidth - 1, 0UL);
-        return ifrootp && ifrootp->backp() ? ifrootp->cloneTree(true) : ifrootp;
+        स्थिरांक पूर्णांक caseWidth = nodep->exprp()->width();
+        Ast_गाठ* स्थिरांक ifrootp = convertCaseFastRecurse(nodep->exprp(), caseWidth - 1, 0UL);
+        परत ifrootp && ifrootp->backp() ? ifrootp->clone_वृक्ष(सत्य) : ifrootp;
     }
 
-    AstNodeExpr* newCaseCompare(const AstCase* casep, AstNodeExpr* itemExprp) {
-        FileLine* const flp = itemExprp->fileline();
-        if (neverItem(casep, itemExprp)) {
-            VL_DO_DANGLING(pushDeletep(itemExprp), itemExprp);
-            return new AstConst{flp, AstConst::BitFalse{}};
+    Ast_गाठ_अभिव्यक्ती* newCaseCompare(स्थिरांक AstCase* casep, Ast_गाठ_अभिव्यक्ती* itemExprp) {
+        File_ओळ* स्थिरांक flp = itemExprp->fileline();
+        जर (neverItem(casep, itemExprp)) {
+            VL_DO_DANGLING(ढकला_Deletep(itemExprp), itemExprp);
+            परत नवीन AstConst{flp, AstConst::BitFalse{}};
         }
 
-        if (AstCond* const condp = VN_CAST(itemExprp, Cond)) {
+        जर (AstCond* स्थिरांक condp = VN_CAST(itemExprp, Cond)) {
             // Bounds checks can leave X-valued branches in case items. Compare each
             // branch using case semantics before lowering to two-state expressions.
-            AstNodeExpr* const testp = condp->condp()->unlinkFrBack();
-            AstNodeExpr* const thenp = newCaseCompare(casep, condp->thenp()->unlinkFrBack());
-            AstNodeExpr* const elsep = newCaseCompare(casep, condp->elsep()->unlinkFrBack());
-            VL_DO_DANGLING2(pushDeletep(itemExprp), itemExprp, condp);
-            return new AstCond{flp, testp, thenp, elsep};
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक testp = condp->condp()->unlinkFrBack();
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक thenp = newCaseCompare(casep, condp->thenp()->unlinkFrBack());
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक elsep = newCaseCompare(casep, condp->elsep()->unlinkFrBack());
+            VL_DO_DANGLING2(ढकला_Deletep(itemExprp), itemExprp, condp);
+            परत नवीन AstCond{flp, testp, thenp, elsep};
         }
 
-        AstNodeExpr* const caseExprp = casep->exprp()->cloneTreePure(false);
+        Ast_गाठ_अभिव्यक्ती* स्थिरांक caseExprp = casep->exprp()->clone_वृक्ष_Pure(असत्य);
         // InsideRange: Similar logic in V3Width::visit(AstInside)
-        if (AstInsideRange* const itemRangep = VN_CAST(itemExprp, InsideRange)) {
-            AstNodeExpr* const resultp = itemRangep->newAndFromInside(
+        जर (AstInsideRange* स्थिरांक itemRangep = VN_CAST(itemExprp, InsideRange)) {
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक resultp = itemRangep->newAndFromInside(
                 caseExprp, itemRangep->lhsp()->unlinkFrBack(), itemRangep->rhsp()->unlinkFrBack());
-            VL_DO_DANGLING2(pushDeletep(itemExprp), itemExprp, itemRangep);
-            return resultp;
+            VL_DO_DANGLING2(ढकला_Deletep(itemExprp), itemExprp, itemRangep);
+            परत resultp;
         }
 
-        if (AstConst* const itemConstp = VN_CAST(itemExprp, Const)) {
+        जर (AstConst* स्थिरांक itemConstp = VN_CAST(itemExprp, Const)) {
             // neverItem has already rejected X/Z values that cannot match.
-            if (itemConstp->num().isFourState()) {
-                const auto& match = matchPattern(casep, itemConstp);
-                const V3Number& matchMask = match.first;
-                const V3Number& matchBits = match.second;
-                VL_DO_DANGLING2(pushDeletep(itemExprp), itemExprp, itemConstp);
-                return AstEq::newTyped(flp, new AstConst{flp, matchBits},
-                                       new AstAnd{flp, caseExprp, new AstConst{flp, matchMask}});
+            जर (itemConstp->अंक().isFourState()) {
+                स्थिरांक स्वतः& match = matchPattern(casep, itemConstp);
+                स्थिरांक V3_संख्या& matchMask = match.first;
+                स्थिरांक V3_संख्या& matchBits = match.second;
+                VL_DO_DANGLING2(ढकला_Deletep(itemExprp), itemExprp, itemConstp);
+                परत AstEq::newTyped(flp, नवीन AstConst{flp, matchBits},
+                                       नवीन AstAnd{flp, caseExprp, नवीन AstConst{flp, matchMask}});
             }
         }
 
-        return AstEq::newTyped(flp, caseExprp, itemExprp);
+        परत AstEq::newTyped(flp, caseExprp, itemExprp);
     }
 
     // Convet case statement using generic if/else tree
@@ -971,61 +971,61 @@ class CaseVisitor final : public VNVisitor {
     //                       IF((EQ (AND MASK cexpr) (AND MASK icond1)
     //                              ,istmts2, istmts3
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCaseGeneric(AstCase* nodep) {
+    Ast_गाठ* convertCaseGeneric(AstCase* nodep) {
         ++m_stats.caseGeneric;
         // We'll do this in two stages.
         // First stage, convert the conditions to the appropriate IF AND terms.
-        bool hasDefault = false;
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+        तार्किक hasDefault = असत्य;
+        साठी (AstCaseItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), CaseItem)) {
 
-            FileLine* const flp = itemp->fileline();
+            File_ओळ* स्थिरांक flp = itemp->fileline();
 
             // Default clause. Just make true, we'll optimize it away later
-            if (itemp->isDefault()) {
-                itemp->addCondsp(new AstConst{flp, AstConst::BitTrue{}});
-                hasDefault = true;
-                continue;
+            जर (itemp->isDefault()) {
+                itemp->addCondsp(नवीन AstConst{flp, AstConst::BitTrue{}});
+                hasDefault = सत्य;
+                सुरूठेवा;
             }
 
             // Regular clause. Construct the condition expression.
-            AstNodeExpr* newCondp = nullptr;
-            for (AstNodeExpr *itemExprp = itemp->condsp(), *nextp; itemExprp; itemExprp = nextp) {
-                nextp = VN_AS(itemExprp->nextp(), NodeExpr);
+            Ast_गाठ_अभिव्यक्ती* newCondp = nullptr;
+            साठी (Ast_गाठ_अभिव्यक्ती *itemExprp = itemp->condsp(), *nextp; itemExprp; itemExprp = nextp) {
+                nextp = VN_AS(itemExprp->nextp(), गाठ_अभिव्यक्ती);
                 itemExprp->unlinkFrBack();
 
                 // If case never matches, ignore it
-                if (neverItem(nodep, itemExprp)) {
-                    VL_DO_DANGLING(pushDeletep(itemExprp), itemExprp);
-                    continue;
+                जर (neverItem(nodep, itemExprp)) {
+                    VL_DO_DANGLING(ढकला_Deletep(itemExprp), itemExprp);
+                    सुरूठेवा;
                 }
 
                 // Compute the term to add to the condition expression
-                AstNodeExpr* const termp = newCaseCompare(nodep, itemExprp);
+                Ast_गाठ_अभिव्यक्ती* स्थिरांक termp = newCaseCompare(nodep, itemExprp);
 
                 // 'Or' new term with previous terms
-                newCondp = newCondp ? new AstLogOr{flp, newCondp, termp} : termp;
+                newCondp = newCondp ? नवीन AstLogOr{flp, newCondp, termp} : termp;
             }
             // Replace expression in tree. Needs to be non-null, so add a constant false if
             // needed
-            if (!newCondp) newCondp = new AstConst{flp, AstConst::BitFalse{}};
+            जर (!newCondp) newCondp = नवीन AstConst{flp, AstConst::BitFalse{}};
             itemp->addCondsp(newCondp);
         }
 
         // If there was no default, make one up, this greatly simplifies below code
         // and constant propagation will just eliminate it for us later.
-        if (!hasDefault) {
-            if (m_caseDetailsValid && m_caseDetails.exhaustive
+        जर (!hasDefault) {
+            जर (m_caseDetailsValid && m_caseDetails.exhaustive
                 && !m_caseDetails.exhaustiveOverEnumOnly) {
                 // Case is proven exhaustive, so the last is reached only when its test holds,
                 // make it unconditional
-                AstCaseItem* const lastp = VN_AS(nodep->itemsp()->lastp(), CaseItem);
-                pushDeletep(lastp->condsp()->unlinkFrBackWithNext());
-                lastp->addCondsp(new AstConst{lastp->fileline(), AstConst::BitTrue{}});
-            } else {
+                AstCaseItem* स्थिरांक lastp = VN_AS(nodep->itemsp()->lastp(), CaseItem);
+                ढकला_Deletep(lastp->condsp()->unlinkFrBackWithNext());
+                lastp->addCondsp(नवीन AstConst{lastp->fileline(), AstConst::BitTrue{}});
+            } अन्यथा {
                 // Otherwise needs an explicit empty default
-                nodep->addItemsp(new AstCaseItem{
-                    nodep->fileline(), new AstConst{nodep->fileline(), AstConst::BitTrue{}},
+                nodep->addItemsp(नवीन AstCaseItem{
+                    nodep->fileline(), नवीन AstConst{nodep->fileline(), AstConst::BitTrue{}},
                     nullptr});
             }
         }
@@ -1036,121 +1036,121 @@ class CaseVisitor final : public VNVisitor {
         // some of the top elements.  If we ever have profiling data, we
         // should pull out the most common item from here and instead make
         // it the first IF branch.
-        int depth = 0;
+        पूर्णांक depth = 0;
         AstIf* grouprootp = nullptr;
         AstIf* groupnextp = nullptr;
         AstIf* itemnextp = nullptr;
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+        साठी (AstCaseItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), CaseItem)) {
 
             // Grab the statements from this item. May be empty.
-            AstNode* const istmtsp = itemp->stmtsp();
-            if (istmtsp) istmtsp->unlinkFrBackWithNext();
+            Ast_गाठ* स्थिरांक istmtsp = itemp->stmtsp();
+            जर (istmtsp) istmtsp->unlinkFrBackWithNext();
 
             // Expressioned clause
-            AstNodeExpr* const ifexprp = itemp->condsp()->unlinkFrBack();
+            Ast_गाठ_अभिव्यक्ती* स्थिरांक ifexprp = itemp->condsp()->unlinkFrBack();
             {  // Prepare for next group
-                if (++depth > CASE_ENCODER_GROUP_DEPTH) depth = 1;
-                if (depth == 1) {  // First group or starting new group
+                जर (++depth > CASE_ENCODER_GROUP_DEPTH) depth = 1;
+                जर (depth == 1) {  // First group or starting new group
                     itemnextp = nullptr;
-                    AstIf* const newp = new AstIf{itemp->fileline(), ifexprp->cloneTreePure(true)};
-                    if (groupnextp) {
+                    AstIf* स्थिरांक newp = नवीन AstIf{itemp->fileline(), ifexprp->clone_वृक्ष_Pure(सत्य)};
+                    जर (groupnextp) {
                         groupnextp->addElsesp(newp);
-                    } else {
+                    } अन्यथा {
                         grouprootp = newp;
                     }
                     groupnextp = newp;
-                } else {  // Continue group, modify if condition to OR in this new condition
-                    AstNodeExpr* const condp = groupnextp->condp()->unlinkFrBack();
+                } अन्यथा {  // Continue group, modify if condition to OR in this new condition
+                    Ast_गाठ_अभिव्यक्ती* स्थिरांक condp = groupnextp->condp()->unlinkFrBack();
                     groupnextp->condp(
-                        new AstOr{ifexprp->fileline(), condp, ifexprp->cloneTreePure(true)});
+                        नवीन AstOr{ifexprp->fileline(), condp, ifexprp->clone_वृक्ष_Pure(सत्य)});
                 }
             }
             {  // Make the new lower IF and attach in the tree
-                AstNodeExpr* itemexprp = ifexprp;
+                Ast_गाठ_अभिव्यक्ती* itemexprp = ifexprp;
                 VL_DANGLING(ifexprp);
-                if (depth == CASE_ENCODER_GROUP_DEPTH) {  // End of group - can skip the condition
-                    VL_DO_DANGLING(itemexprp->deleteTree(), itemexprp);
-                    itemexprp = new AstConst{itemp->fileline(), AstConst::BitTrue{}};
+                जर (depth == CASE_ENCODER_GROUP_DEPTH) {  // End of group - can skip the condition
+                    VL_DO_DANGLING(itemexprp->delete_वृक्ष(), itemexprp);
+                    itemexprp = नवीन AstConst{itemp->fileline(), AstConst::BitTrue{}};
                 }
-                AstIf* const newp = new AstIf{itemp->fileline(), itemexprp, istmtsp};
-                if (itemnextp) {
+                AstIf* स्थिरांक newp = नवीन AstIf{itemp->fileline(), itemexprp, istmtsp};
+                जर (itemnextp) {
                     itemnextp->addElsesp(newp);
-                } else {
+                } अन्यथा {
                     groupnextp->addThensp(newp);  // First in a new group
                 }
                 itemnextp = newp;
             }
         }
-        return grouprootp;
+        परत grouprootp;
     }
 
     // Convert the given case statement to a representation not using AstCase
     // TODO: should return AstNodeStmt after #6280
-    AstNode* convertCase(AstCase* nodep) {
+    Ast_गाठ* convertCase(AstCase* nodep) {
         // Determine if we should use the lookup table method
-        const bool useTable = [&]() {
+        स्थिरांक तार्किक useTable = [&]() {
             // Not if disabled
-            if (!v3Global.opt.fCaseTable()) return false;
+            जर (!v3Global.opt.fCaseTable()) परत असत्य;
             // Not if analysis tells us we can't
-            if (!m_caseTableWidth) return false;
+            जर (!m_caseTableWidth) परत असत्य;
             // Always if tiny - it is materialized inline, so there is no load to amortize
-            if (m_caseTableWidth <= CASE_TABLE_TINY_BITS) return true;
+            जर (m_caseTableWidth <= CASE_TABLE_TINY_BITS) परत सत्य;
             // For a normal (constant-pool) table, weigh the indexed load against the branch
             // lowering it would replace. That lowering's depth is bounded by the selector
             // width (a balanced bit tree tests ~one bit per level) and by the number of
             // distinct values (a generic if/else does ~one compare per value). A few compares
             // are cheaper than a load that is likely to be a cache miss, so only table once that
             // depth is exceeded.
-            const size_t branches = std::min<size_t>(nodep->exprp()->width(), m_caseNConditions);
-            if (branches < CASE_TABLE_MIN_BRANCHES) return false;
-            return true;
+            स्थिरांक माप_प्रकार branches = std::min<माप_प्रकार>(nodep->exprp()->width(), m_caseNConditions);
+            जर (branches < CASE_TABLE_MIN_BRANCHES) परत असत्य;
+            परत सत्य;
         }();
-        if (useTable) return convertCaseTable(nodep);
+        जर (useTable) परत convertCaseTable(nodep);
 
         // Determine if we should use the decoder method.
-        const bool useDecoder = [&]() {
+        स्थिरांक तार्किक useDecoder = [&]() {
             // Not if disabled
-            if (!v3Global.opt.fCaseDecoder()) return false;
+            जर (!v3Global.opt.fCaseDecoder()) परत असत्य;
             // Not if not a decoder pattern
-            if (m_caseDecoderRecords.empty()) return false;
+            जर (m_caseDecoderRecords.empty()) परत असत्य;
             // Only worth it once the branch lowering it would replace is deep enough (see
             // useTable)
-            const size_t branches = std::min<size_t>(nodep->exprp()->width(), m_caseNConditions);
-            if (branches < CASE_TABLE_MIN_BRANCHES) return false;
-            return true;
+            स्थिरांक माप_प्रकार branches = std::min<माप_प्रकार>(nodep->exprp()->width(), m_caseNConditions);
+            जर (branches < CASE_TABLE_MIN_BRANCHES) परत असत्य;
+            परत सत्य;
         }();
-        if (useDecoder) return convertCaseDecoder(nodep);
+        जर (useDecoder) परत convertCaseDecoder(nodep);
 
         // Determine if we should use the fast bitwise branching tree method
-        const bool useFastBitTree = [&]() {
+        स्थिरांक तार्किक use_Fast_Bit_वृक्ष = [&]() {
             // Not if disabled
-            if (!v3Global.opt.fCaseTree()) return false;
+            जर (!v3Global.opt.f_Case_वृक्ष()) परत असत्य;
             // Can't do it without the detailed analysis
-            if (!m_caseDetailsValid) return false;
+            जर (!m_caseDetailsValid) परत असत्य;
             // Can't do it if not exhaustive
-            if (!m_caseDetails.exhaustive) return false;
+            जर (!m_caseDetails.exhaustive) परत असत्य;
             // Not worth doing if there are few conditions
-            if (m_caseNConditions <= 3) return false;
+            जर (m_caseNConditions <= 3) परत असत्य;
             // Avoid e.g. priority expanders from going crazy in expansion
-            const size_t caseWidth = nodep->exprp()->width();
-            if (caseWidth >= 8 && m_caseNConditions <= (caseWidth + 1)) return false;
+            स्थिरांक माप_प्रकार caseWidth = nodep->exprp()->width();
+            जर (caseWidth >= 8 && m_caseNConditions <= (caseWidth + 1)) परत असत्य;
             // Otherwise use the bit tree
-            return true;
+            परत सत्य;
         }();
-        if (useFastBitTree) return convertCaseFast(nodep);
+        जर (use_Fast_Bit_वृक्ष) परत convertCaseFast(nodep);
 
         // Convert using the generic if/else tree method
         // If a case statement is exhaustive, presume signals involved aren't forming a latch
         // TODO: this is broken, but it is as was before
-        if (m_alwaysp && (!m_caseDetailsValid || m_caseDetails.exhaustive)) {
-            m_alwaysp->fileline()->warnOff(V3ErrorCode::LATCH, true);
+        जर (m_alwaysp && (!m_caseDetailsValid || m_caseDetails.exhaustive)) {
+            m_alwaysp->fileline()->warnOff(V3ErrorCode::LATCH, सत्य);
         }
-        return convertCaseGeneric(nodep);
+        परत convertCaseGeneric(nodep);
     }
 
     // VISITORS
-    void visit(AstCase* nodep) override {
+    शून्य visit(AstCase* nodep) override {
         UASSERT_OBJ(nodep->exprp()->isPure(), nodep,
                     "Impure case expression should have been removed by V3LiftExpr");
 
@@ -1165,39 +1165,39 @@ class CaseVisitor final : public VNVisitor {
         // Take the 'notParallelp' statements under the case statement created by V3Assert.
         // If the statement was proven to have no overlaps and all cases covered,
         // it can be removed. Otherwise insert the assertion after the case statement.
-        if (AstNode* const stmtp = nodep->notParallelp()) {
+        जर (Ast_गाठ* स्थिरांक stmtp = nodep->notParallelp()) {
             stmtp->unlinkFrBackWithNext();
-            if (m_caseDetailsValid && m_caseDetails.exhaustive && m_caseDetails.noOverlaps) {
+            जर (m_caseDetailsValid && m_caseDetails.exhaustive && m_caseDetails.noOverlaps) {
                 ++m_stats.provenAssertions;
-                VL_DO_DANGLING(stmtp->deleteTree(), stmtp);
-            } else {
+                VL_DO_DANGLING(stmtp->delete_वृक्ष(), stmtp);
+            } अन्यथा {
                 nodep->addNextHere(stmtp);
             }
         }
 
         // Convert the case statement and replace the original
-        if (AstNode* const replacementp = convertCase(nodep)) {
+        जर (Ast_गाठ* स्थिरांक replacementp = convertCase(nodep)) {
             nodep->replaceWith(replacementp);
-        } else {
+        } अन्यथा {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_वृक्ष(), nodep);
     }
 
-    void visit(AstScope* nodep) override {
+    शून्य visit(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstAlways* nodep) override {
+    शून्य visit(AstAlways* nodep) override {
         VL_RESTORER(m_alwaysp);
         m_alwaysp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit CaseVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~CaseVisitor() override {
@@ -1210,17 +1210,17 @@ public:
     }
 };
 
-size_t CaseVisitor::LhsRecord::s_nextId = 0;
+माप_प्रकार CaseVisitor::LhsRecord::s_nextId = 0;
 
 //######################################################################
 // Case class functions
 
-void V3Case::caseAll(AstNetlist* nodep) {
+शून्य V3Case::caseAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CaseVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("case", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("case", 0, dump_वृक्ष_Either_Level() >= 3);
 }
-void V3Case::caseLint(AstGenCase* nodep) {
+शून्य V3Case::caseLint(AstGenCase* nodep) {
     UINFO(4, __FUNCTION__ << ": ");
     CaseLintVisitor::apply(nodep);
 }

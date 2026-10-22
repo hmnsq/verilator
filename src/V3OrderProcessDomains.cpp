@@ -18,110 +18,110 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderGraph.h"
-#include "V3OrderInternal.h"
+#अन्तर्भाव "V3OrderGraph.h"
+#अन्तर्भाव "V3OrderInternal.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // ProcessDomains class
 
-class V3OrderProcessDomains final {
+वर्ग V3OrderProcessDomains final {
     // STATE
     OrderGraph& m_graph;  // The ordering graph
-    const string m_tag;  // Substring to add to generated names
+    स्थिरांक string m_tag;  // Substring to add to generated names
     // This is a function provided by the invoker of the ordering that can provide additional
     // trigger indices that when set indicate the passed AstVarScope might have changed external
     // to the code being ordered, hence dependent logic needs to be evaluated.
-    const V3Order::ExternalTriggersProvider m_externalTriggers;
+    स्थिरांक V3Order::ExternalTriggersProvider m_externalTriggers;
     std::vector<OrderLogicVertex*> m_untriggeredps;  // Logic never triggered and can be deleted
 
     // METHODS
 
     // Compute the OrderDomain for combinational and hybrid logic vertices.
-    void processDomains() {
+    शून्य processDomains() {
         // The triggers of the current vertex
         std::set<uint32_t> triggers;
 
         // The graph is already in topological order, so can walk vertices once
-        for (V3GraphVertex& it : m_graph.vertices()) {
-            OrderEitherVertex* const vtxp = it.as<OrderEitherVertex>();
+        साठी (V3GraphVertex& it : m_graph.vertices()) {
+            OrderEitherVertex* स्थिरांक vtxp = it.as<OrderEitherVertex>();
             // Sequential logic already has its domain set
-            if (vtxp->domainp()) continue;
+            जर (vtxp->domainp()) सुरूठेवा;
 
             // Reset state
             triggers.clear();
 
-            OrderLogicVertex* const lvtxp = vtxp->cast<OrderLogicVertex>();
+            OrderLogicVertex* स्थिरांक lvtxp = vtxp->cast<OrderLogicVertex>();
 
             // For logic vertices, start with the explicit hybrid sensitivities, if any
-            if (const OrderDomain* const hybridp = lvtxp ? lvtxp->hybridp() : nullptr) {
-                const std::set<uint32_t>& hybridTriggers = hybridp->triggers();
-                triggers.insert(hybridTriggers.begin(), hybridTriggers.end());
+            जर (स्थिरांक OrderDomain* स्थिरांक hybridp = lvtxp ? lvtxp->hybridp() : nullptr) {
+                स्थिरांक std::set<uint32_t>& hybridTriggers = hybridp->triggers();
+                triggers.घाला(hybridTriggers.begin(), hybridTriggers.end());
             }
 
             // For each incoming edge, union the source vertex's domain into the current domain
-            for (V3GraphEdge& edge : vtxp->inEdges()) {
-                OrderEitherVertex* const fromVtxp = edge.fromp()->as<OrderEitherVertex>();
+            साठी (V3GraphEdge& edge : vtxp->inEdges()) {
+                OrderEitherVertex* स्थिरांक fromVtxp = edge.fromp()->as<OrderEitherVertex>();
                 // Cut edge
-                if (!edge.weight()) continue;
+                जर (!edge.weight()) सुरूठेवा;
                 // some edges can be ignored as they only encode ordering constraints
-                if (!fromVtxp->domainMatters()) continue;
+                जर (!fromVtxp->domainMatters()) सुरूठेवा;
 
                 // Add driver's domains
-                const OrderDomain* const fromDomainp = fromVtxp->domainp();
-                const std::set<uint32_t>& fromTriggers = fromDomainp->triggers();
-                triggers.insert(fromTriggers.begin(), fromTriggers.end());
+                स्थिरांक OrderDomain* स्थिरांक fromDomainp = fromVtxp->domainp();
+                स्थिरांक std::set<uint32_t>& fromTriggers = fromDomainp->triggers();
+                triggers.घाला(fromTriggers.begin(), fromTriggers.end());
 
                 // Add in any external domains of variables
-                if (OrderVarVertex* const varVtxp = fromVtxp->cast<OrderVarVertex>()) {
+                जर (OrderVarVertex* स्थिरांक varVtxp = fromVtxp->cast<OrderVarVertex>()) {
                     m_externalTriggers(varVtxp->vscp(), triggers);
                 }
             }
 
             // Set the domain of the vertex
-            const OrderDomain* const domainp = m_graph.domainp(triggers);
+            स्थिरांक OrderDomain* स्थिरांक domainp = m_graph.domainp(triggers);
             vtxp->domainp(domainp);
 
             // If nothing triggers this vertex, we can delete the corresponding logic
-            if (domainp->triggers().empty() && lvtxp) m_untriggeredps.push_back(lvtxp);
+            जर (domainp->triggers().empty() && lvtxp) m_untriggeredps.ढकला_back(lvtxp);
         }
     }
 
     // CONSTRUCTOR
-    V3OrderProcessDomains(OrderGraph& graph, const string& tag,
-                          const V3Order::ExternalTriggersProvider& externalTriggers)
+    V3OrderProcessDomains(OrderGraph& graph, स्थिरांक string& tag,
+                          स्थिरांक V3Order::ExternalTriggersProvider& externalTriggers)
         : m_graph{graph}
         , m_tag{tag}
         , m_externalTriggers{externalTriggers} {
 
         // Assign vertices to their sensitivity domains
         processDomains();
-        if (dumpGraphLevel()) m_graph.dumpDotFilePrefixed(m_tag + "_orderg_domain");
+        जर (dumpGraphLevel()) m_graph.dumpDotFilePrefixed(m_tag + "_orderg_domain");
 
         // Delete logic that is never triggered
-        for (OrderLogicVertex* const lVtxp : m_untriggeredps) {
+        साठी (OrderLogicVertex* स्थिरांक lVtxp : m_untriggeredps) {
             UASSERT_OBJ(lVtxp->domainp()->triggers().empty(), lVtxp,
                         "Deleted logic should not be triggered");
-            lVtxp->nodep()->unlinkFrBack()->deleteTree();
+            lVtxp->nodep()->unlinkFrBack()->delete_वृक्ष();
             lVtxp->unlinkDelete(&m_graph);
         }
     }
 
-    ~V3OrderProcessDomains() = default;
+    ~V3OrderProcessDomains() = पूर्वनिर्धारित;
 
-public:
+सार्वजनिक:
     // Order the logic
-    static void apply(OrderGraph& graph, const string& tag,
-                      const V3Order::ExternalTriggersProvider& externalTriggers) {
+    स्थिर शून्य apply(OrderGraph& graph, स्थिरांक string& tag,
+                      स्थिरांक V3Order::ExternalTriggersProvider& externalTriggers) {
         V3OrderProcessDomains{graph, tag, externalTriggers};
     }
 };
 
-void V3Order::processDomains(OrderGraph& graph,  //
-                             const std::string& tag,  //
-                             const ExternalTriggersProvider& externalTriggers) {
+शून्य V3Order::processDomains(OrderGraph& graph,  //
+                             स्थिरांक std::string& tag,  //
+                             स्थिरांक ExternalTriggersProvider& externalTriggers) {
     V3OrderProcessDomains::apply(graph, tag, externalTriggers);
 }

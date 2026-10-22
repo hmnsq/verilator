@@ -17,79 +17,79 @@
 #ifndef VERILATOR_V3CONFIG_H_
 #define VERILATOR_V3CONFIG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Mutex.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3FileLine.h"
+#अन्तर्भाव "V3Mutex.h"
 
 //######################################################################
 
 class V3Control final {
-public:
-    struct FsmRegisterWrapper final {
+सार्वजनिक:
+    संरचना FsmRegisterWrapper final {
         string moduleName;
         string d;
         string q;
-        string clock;
+        string घड़ी;
         string reset;
-        string resetValue;
+        string reset_मूल्य;
     };
 
-    enum class VarSpecKind : uint8_t {
+    गणना class VarSpecKind : uint8_t {
         PARAM,  // Select only matching parameters
         PORT,  // Select only matching ports
         VAR  // Select any matching AstVar (including params and ports)
     };
 
-    static void addCaseFull(const string& file, int lineno);
-    static void addCaseParallel(const string& file, int lineno);
-    static void addCoverageBlockOff(const string& file, int lineno);
-    static void addCoverageBlockOff(const string& module, const string& blockname);
-    static void addHierWorkers(FileLine* fl, const string& model, int workers);
-    static void addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
-                                      const string& q, const string& clock, const string& reset,
-                                      const string& resetValue);
-    static void addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max);
-    static void addIgnoreMatch(V3ErrorCode code, const string& filename, const string& contents,
-                               const string& match);
-    static void addInline(FileLine* fl, const string& module, const string& ftask, bool on);
-    static void addModulePragma(const string& module, VPragmaType pragma);
-    static void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost);
-    static void addProfileData(FileLine* fl, const string& model, const string& key,
+    स्थिर शून्य addCaseFull(स्थिरांक string& file, पूर्णांक lineno);
+    स्थिर शून्य addCaseParallel(स्थिरांक string& file, पूर्णांक lineno);
+    स्थिर शून्य addCoverageBlockOff(स्थिरांक string& file, पूर्णांक lineno);
+    स्थिर शून्य addCoverageBlockOff(स्थिरांक string& module, स्थिरांक string& blockname);
+    स्थिर शून्य addHierWorkers(File_ओळ* fl, स्थिरांक string& model, पूर्णांक workers);
+    स्थिर शून्य addFsmRegisterWrapper(File_ओळ* fl, स्थिरांक string& module, स्थिरांक string& d,
+                                      स्थिरांक string& q, स्थिरांक string& घड़ी, स्थिरांक string& reset,
+                                      स्थिरांक string& reset_मूल्य);
+    स्थिर शून्य addIgnore(V3ErrorCode code, bool on, स्थिरांक string& filename, पूर्णांक min, पूर्णांक max);
+    स्थिर शून्य addIgnoreMatch(V3ErrorCode code, स्थिरांक string& filename, स्थिरांक string& contents,
+                               स्थिरांक string& match);
+    स्थिर शून्य addInline(File_ओळ* fl, स्थिरांक string& module, स्थिरांक string& ftask, bool on);
+    स्थिर शून्य addModulePragma(स्थिरांक string& module, VPragmaType pragma);
+    स्थिर शून्य addProfileData(File_ओळ* fl, स्थिरांक string& hierDpi, uint64_t cost);
+    स्थिर शून्य addProfileData(File_ओळ* fl, स्थिरांक string& model, स्थिरांक string& किल्ली,
                                uint64_t cost);
-    static void addScopeTraceOn(bool on, const string& scope, int levels);
-    static void addVarAttr(FileLine* fl, const string& module, const string& ftask,
-                           VarSpecKind kind, const string& pattern, VAttrType type,
-                           AstSenTree* nodep);
+    स्थिर शून्य addScopeTraceOn(bool on, स्थिरांक string& scope, पूर्णांक levels);
+    स्थिर शून्य addVarAttr(File_ओळ* fl, स्थिरांक string& module, स्थिरांक string& ftask,
+                           VarSpecKind kind, स्थिरांक string& pattern, VAttrType type,
+                           Ast_Sen_वृक्ष* nodep);
 
-    static void applyCase(AstCase* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep);
-    static void applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp);
-    static void applyIgnores(FileLine* filelinep);
-    static void applyModule(AstNodeModule* modulep);
-    static void applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
+    स्थिर शून्य applyCase(AstCase* nodep);
+    स्थिर शून्य applyCoverageBlock(Ast_गाठ_Module* modulep, AstBegin* nodep);
+    स्थिर शून्य applyCoverageBlock(Ast_गाठ_Module* modulep, AstGenBlock* nodep);
+    स्थिर शून्य applyFTask(Ast_गाठ_Module* modulep, Ast_गाठ_FTask* ftaskp);
+    स्थिर शून्य applyIgnores(File_ओळ* filelinep);
+    स्थिर शून्य applyModule(Ast_गाठ_Module* modulep);
+    स्थिर शून्य applyVarAttr(स्थिरांक Ast_गाठ_Module* modulep, स्थिरांक Ast_गाठ_FTask* ftaskp,
                              AstVar* varp);
 
-    static int getHierWorkers(const string& model);
-    static FileLine* getHierWorkersFileLine(const string& model);
-    static const FsmRegisterWrapper* getFsmRegisterWrapper(const string& module);
-    static uint64_t getProfileData(const string& hierDpi);
-    static uint64_t getProfileData(const string& model, const string& key);
-    static FileLine* getProfileDataFileLine();
-    static bool getScopeTraceOn(const string& scope);
+    स्थिर पूर्णांक getHierWorkers(स्थिरांक string& model);
+    स्थिर File_ओळ* get_Hier_Workers_File_ओळ(स्थिरांक string& model);
+    स्थिर स्थिरांक FsmRegisterWrapper* getFsmRegisterWrapper(स्थिरांक string& module);
+    स्थिर uint64_t getProfileData(स्थिरांक string& hierDpi);
+    स्थिर uint64_t getProfileData(स्थिरांक string& model, स्थिरांक string& किल्ली);
+    स्थिर File_ओळ* get_Profile_Data_File_ओळ();
+    स्थिर bool getScopeTraceOn(स्थिरांक string& scope);
 
-    static void contentsPushText(const string& text);
+    स्थिर शून्य contents_ढकला_Text(स्थिरांक string& text);
 
-    static bool containsMTaskProfileData();
-    static uint64_t getCurrentHierBlockCost();
+    स्थिर bool containsMTaskProfileData();
+    स्थिर uint64_t getCurrentHierBlockCost();
 
-    static bool waive(const FileLine* filelinep, V3ErrorCode code, const string& message);
+    स्थिर bool waive(स्थिरांक File_ओळ* filelinep, V3ErrorCode code, स्थिरांक string& message);
 
-    static void selfTest();
+    स्थिर शून्य selfTest();
 };
 
 #endif  // Guard

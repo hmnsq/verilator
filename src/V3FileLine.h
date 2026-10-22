@@ -17,169 +17,169 @@
 #ifndef VERILATOR_V3FILELINE_H_
 #define VERILATOR_V3FILELINE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Hash.h"
-#include "V3LangCode.h"
-#include "V3Mutex.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3Hash.h"
+#अन्तर्भाव "V3LangCode.h"
+#अन्तर्भाव "V3Mutex.h"
 
-#include <atomic>
-#include <deque>
-#include <map>
-#include <memory>
-#include <set>
-#include <sstream>
-#include <unordered_map>
-#include <vector>
+#अन्तर्भाव <atomic>
+#अन्तर्भाव <deque>
+#अन्तर्भाव <map>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <set>
+#अन्तर्भाव <sstream>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <vector>
 
 // ######################################################################
 
-class FileLine;
+class File_ओळ;
 
 //! Singleton class with tables of per-file data.
 
 //! This singleton class contains tables of data that are unchanging in each
 //! source file (each with its own unique filename number).
-class FileLineSingleton final {
-    friend class FileLine;
+class File_ओळ_Singleton final {
+    मित्र class File_ओळ;
 
     // TYPES
     using fileNameIdx_t = uint16_t;  // Increase width if 64K input files are not enough
-    using msgEnSetIdx_t = uint16_t;  // Increase width if 64K unique message sets are not enough
-    class MsgEnBitSet final {
+    using संदेश_En_Set_Idx_t = uint16_t;  // Increase width if 64K unique message sets are not enough
+    class संदेश_En_Bit_Set final {
         VErrorBitSet m_codeEn;  // Enabled by code directives/metacomments
         VErrorBitSet m_ctrlEn;  // Enabled by control file
 
-    public:
-        enum class Subset : uint8_t {
+    सार्वजनिक:
+        गणना class Subset : uint8_t {
             CODE = 0,  // Selects m_codeEn, the enable bits used by in-code directives/metacomments
             CTRL = 1,  // Selects m_ctrlEn, the enable bits used by control files
         };
 
         // Create empty set
-        MsgEnBitSet() = default;
+        संदेश_En_Bit_Set() = पूर्वनिर्धारित;
         // Create intersection set
-        MsgEnBitSet(const MsgEnBitSet& a, const MsgEnBitSet& b)
+        संदेश_En_Bit_Set(स्थिरांक संदेश_En_Bit_Set& a, स्थिरांक संदेश_En_Bit_Set& b)
             : m_codeEn{a.m_codeEn & b.m_codeEn}
             , m_ctrlEn{a.m_ctrlEn & b.m_ctrlEn} {}
 
-        struct Hash final {
-            size_t operator()(const MsgEnBitSet& item) const {
+        संरचना Hash final {
+            माप_प्रकार चालक()(स्थिरांक संदेश_En_Bit_Set& item) स्थिरांक {
                 V3Hash hash{item.m_codeEn.hash()};
                 hash += item.m_ctrlEn.hash();
-                return hash.value();
+                परत hash.मूल्य();
             }
         };
 
-        struct Equal final {
-            bool operator()(const MsgEnBitSet& a, const MsgEnBitSet& b) const { return a == b; }
+        संरचना Equal final {
+            bool चालक()(स्थिरांक संदेश_En_Bit_Set& a, स्थिरांक संदेश_En_Bit_Set& b) स्थिरांक { परत a == b; }
         };
 
-        bool operator==(const MsgEnBitSet& other) const {
-            return m_codeEn == other.m_codeEn && m_ctrlEn == other.m_ctrlEn;
+        bool चालक==(स्थिरांक संदेश_En_Bit_Set& other) स्थिरांक {
+            परत m_codeEn == other.m_codeEn && m_ctrlEn == other.m_ctrlEn;
         }
 
-        const VErrorBitSet& getAll(Subset subset) const {
-            return subset == Subset::CODE ? m_codeEn : m_ctrlEn;
+        स्थिरांक VErrorBitSet& getAll(Subset subset) स्थिरांक {
+            परत subset == Subset::CODE ? m_codeEn : m_ctrlEn;
         }
-        bool test(Subset subset, V3ErrorCode code) const {
-            return subset == Subset::CODE ? m_codeEn.test(code) : m_ctrlEn.test(code);
+        bool test(Subset subset, V3ErrorCode code) स्थिरांक {
+            परत subset == Subset::CODE ? m_codeEn.test(code) : m_ctrlEn.test(code);
         }
-        void setAll(Subset subset, const VErrorBitSet& bitset) {
-            if (subset == Subset::CODE) {  // LCOV_EXCL_BR_LINE
+        शून्य setAll(Subset subset, स्थिरांक VErrorBitSet& bitset) {
+            जर (subset == Subset::CODE) {  // LCOV_EXCL_BR_LINE
                 m_codeEn = bitset;  // LCOV_EXCL_LINE
-            } else {
+            } अन्यथा {
                 m_ctrlEn = bitset;
             }
         }
-        void set(Subset subset, V3ErrorCode code, bool value) {
-            if (subset == Subset::CODE) {
-                m_codeEn.set(code, value);
-            } else {
-                m_ctrlEn.set(code, value);
+        शून्य set(Subset subset, V3ErrorCode code, bool मूल्य) {
+            जर (subset == Subset::CODE) {
+                m_codeEn.set(code, मूल्य);
+            } अन्यथा {
+                m_ctrlEn.set(code, मूल्य);
             }
         }
 
         // Enabled iff enabled by both in-code dierctives/metacomments and control file
-        bool enabled(V3ErrorCode code) const { return m_codeEn.test(code) && m_ctrlEn.test(code); }
+        bool enabled(V3ErrorCode code) स्थिरांक { परत m_codeEn.test(code) && m_ctrlEn.test(code); }
     };
 
     // MEMBERS
     V3Mutex m_mutex;  // protects members
-    std::map<const std::string, fileNameIdx_t> m_namemap;  // filenameno for each filename
+    std::map<स्थिरांक std::string, fileNameIdx_t> m_namemap;  // filenameno for each filename
     std::deque<string> m_names;  // filename text for each filenameno
     std::deque<V3LangCode> m_languages;  // language for each filenameno
 
     // Map from flag set to the index in m_internedMsgEns for interning
-    std::unordered_map<MsgEnBitSet, msgEnSetIdx_t, MsgEnBitSet::Hash, MsgEnBitSet::Equal>
-        m_internedMsgEnIdxs VL_GUARDED_BY(m_mutex);
+    std::unordered_map<संदेश_En_Bit_Set, संदेश_En_Set_Idx_t, संदेश_En_Bit_Set::Hash, संदेश_En_Bit_Set::Equal>
+        m_interned_संदेश_En_Idxs VL_GUARDED_BY(m_mutex);
     // Interned message enablement flag sets
-    std::vector<MsgEnBitSet> m_internedMsgEns;
+    std::vector<संदेश_En_Bit_Set> m_interned_संदेश_Ens;
 
     // CONSTRUCTORS
-    FileLineSingleton() = default;
-    ~FileLineSingleton() = default;
+    File_ओळ_Singleton() = पूर्वनिर्धारित;
+    ~File_ओळ_Singleton() = पूर्वनिर्धारित;
 
-    fileNameIdx_t nameToNumber(const string& filename);
-    const std::string& numberToName(fileNameIdx_t filenameno) const VL_MT_SAFE {
-        return m_names[filenameno];
+    fileNameIdx_t name_To_संख्या(स्थिरांक string& filename);
+    स्थिरांक std::string& संख्या_To_Name(fileNameIdx_t filenameno) स्थिरांक VL_MT_SAFE {
+        परत m_names[filenameno];
     }
-    V3LangCode numberToLang(fileNameIdx_t filenameno) const { return m_languages[filenameno]; }
-    void numberToLang(fileNameIdx_t filenameno, const V3LangCode& l) {
+    V3LangCode संख्या_To_Lang(fileNameIdx_t filenameno) स्थिरांक { परत m_languages[filenameno]; }
+    शून्य संख्या_To_Lang(fileNameIdx_t filenameno, स्थिरांक V3LangCode& l) {
         m_languages[filenameno] = l;
     }
-    void clear() {
+    शून्य clear() {
         m_namemap.clear();
         m_names.clear();
         m_languages.clear();
     }
-    void fileNameNumMapDumpJson(std::ostream& os);
-    static string filenameLetters(fileNameIdx_t fileno) VL_PURE;
+    शून्य file_Name_अंक_Map_Dump_Json(std::ostream& os);
+    स्थिर string filenameLetters(fileNameIdx_t fileno) VL_PURE;
 
     // Add given bitset to the interned bitsets, return interned index
-    msgEnSetIdx_t addMsgEnBitSet(const MsgEnBitSet& bitSet) VL_MT_SAFE_EXCLUDES(m_mutex);
+    संदेश_En_Set_Idx_t add_संदेश_En_Bit_Set(स्थिरांक संदेश_En_Bit_Set& bitSet) VL_MT_SAFE_EXCLUDES(m_mutex);
     // Add index of default bitset
-    msgEnSetIdx_t defaultMsgEnIndex() VL_MT_SAFE;
+    संदेश_En_Set_Idx_t default_संदेश_En_Index() VL_MT_SAFE;
     // Set code to value in bitset at interned index setIdx, return interned index of result
-    msgEnSetIdx_t msgEnSetBit(msgEnSetIdx_t setIdx, MsgEnBitSet::Subset subset, V3ErrorCode code,
-                              bool value);
+    संदेश_En_Set_Idx_t संदेश_En_Set_Bit(संदेश_En_Set_Idx_t setIdx, संदेश_En_Bit_Set::Subset subset, V3ErrorCode code,
+                              bool मूल्य);
     // Bulk-set all control codes to given bitset
-    msgEnSetIdx_t msgSetCtrlBitSet(msgEnSetIdx_t setIdx, const VErrorBitSet& bitset);
+    संदेश_En_Set_Idx_t संदेश_Set_Ctrl_Bit_Set(संदेश_En_Set_Idx_t setIdx, स्थिरांक VErrorBitSet& bitset);
     // Return index to intersection set
-    msgEnSetIdx_t msgEnAnd(msgEnSetIdx_t lhsIdx, msgEnSetIdx_t rhsIdx);
+    संदेश_En_Set_Idx_t संदेश_En_And(संदेश_En_Set_Idx_t lhsIdx, संदेश_En_Set_Idx_t rhsIdx);
     // Retrieve interned bitset at given interned index. The returned reference is not persistent.
-    const MsgEnBitSet& msgEn(msgEnSetIdx_t idx) const VL_MT_SAFE {
-        return m_internedMsgEns.at(idx);
+    स्थिरांक संदेश_En_Bit_Set& संदेश_En(संदेश_En_Set_Idx_t idx) स्थिरांक VL_MT_SAFE {
+        परत m_interned_संदेश_Ens.at(idx);
     }
 };
 
 // All source lines from a file/stream, to enable errors to show sources
 class VFileContent final {
-    friend class FileLine;
+    मित्र class File_ओळ;
     // MEMBERS
-    int m_id;  // Content ID number
+    पूर्णांक m_id;  // Content ID number
     // Reference count for sharing (shared_ptr has size overhead that we don't want)
-    std::atomic<size_t> m_refCount{0};
-    std::deque<string> m_lines;  // Source text lines
+    std::atomic<माप_प्रकार> m_ref_मोजणी{0};
+    std::deque<string> m_ओळी;  // Source text lines
     VFileContent() {
-        static int s_id = 0;
+        स्थिर पूर्णांक s_id = 0;
         m_id = ++s_id;
     }
-    ~VFileContent() = default;
+    ~VFileContent() = पूर्वनिर्धारित;
     // METHODS
-    void refInc() { ++m_refCount; }
-    void refDec() {
-        if (!--m_refCount) delete this;
+    शून्य refInc() { ++m_ref_मोजणी; }
+    शून्य refDec() {
+        जर (!--m_ref_मोजणी) delete this;
     }
 
-public:
-    void pushText(const string& text);  // Add arbitrary text (need not be line-by-line)
-    string getLine(int lineno) const VL_MT_SAFE;
-    string ascii() const { return "ct" + cvtToStr(m_id); }
+सार्वजनिक:
+    शून्य ढकला_Text(स्थिरांक string& text);  // Add arbitrary text (need not be line-by-line)
+    string get_ओळ(पूर्णांक lineno) स्थिरांक VL_MT_SAFE;
+    string ascii() स्थिरांक { परत "ct" + cvtToStr(m_id); }
 };
-std::ostream& operator<<(std::ostream& os, VFileContent* contentp);
+std::ostream& चालक<<(std::ostream& os, VFileContent* contentp);
 
 // File and line number of an object, mostly for error reporting
 
@@ -189,303 +189,303 @@ std::ostream& operator<<(std::ostream& os, VFileContent* contentp);
 // Similarly, message enablement flags are interned in FileLineSingleton.
 
 // WARNING: Avoid increasing the size of this class as much as possible.
-class FileLine final {
+class File_ओळ final {
 
     // CONSTANTS
-    static constexpr unsigned SHOW_SOURCE_MAX_LENGTH = 400;  // Don't show source lines > this long
+    स्थिर constexpr अचिन्हित SHOW_SOURCE_MAX_LENGTH = 400;  // Don't show source lines > this long
 
     // TYPES
-    using fileNameIdx_t = FileLineSingleton::fileNameIdx_t;
-    using msgEnSetIdx_t = FileLineSingleton::msgEnSetIdx_t;
-    using MsgEnBitSet = FileLineSingleton::MsgEnBitSet;
+    using fileNameIdx_t = File_ओळ_Singleton::fileNameIdx_t;
+    using संदेश_En_Set_Idx_t = File_ओळ_Singleton::संदेश_En_Set_Idx_t;
+    using संदेश_En_Bit_Set = File_ओळ_Singleton::संदेश_En_Bit_Set;
 
     // MEMBERS
     // Columns here means number of chars from beginning (i.e. tabs count as one)
     // 64-bit word # 0
-    msgEnSetIdx_t m_msgEnIdx = 0;  // Message enable bit set (index into interned array)
+    संदेश_En_Set_Idx_t m_संदेश_En_Idx = 0;  // Message enable bit set (index into interned array)
     fileNameIdx_t m_filenameno = 0;  // `line corrected filename number
     bool m_waive : 1;  // Waive warning - pack next to the line number to save 8 bytes of storage
-    unsigned m_contentLineno : 31;  // Line number within source stream
+    अचिन्हित m_contentLineno : 31;  // Line number within source stream
     // 64-bit word # 1
-    uint32_t m_tokenNum = 0;  // Token number in processing order
-    int m_firstLineno = 0;  // `line corrected token's first line number
+    uint32_t m_token_अंक = 0;  // Token number in processing order
+    पूर्णांक m_firstLineno = 0;  // `line corrected token's first line number
     // 64-bit word # 2
     uint32_t m_firstColumn : 24;  // `line corrected token's first column number
     uint32_t m_lastColumn : 24;  // `line corrected token's last column number
     uint16_t m_lastLinenoAdder = 0;  // Last line number as offset from m_firstLineno
     // 64-bit word # 3/4
     VFileContent* m_contentp = nullptr;  // Source text contents line is within
-    FileLine* m_parent = nullptr;  // Parent line that included this line
+    File_ओळ* m_parent = nullptr;  // Parent line that included this line
 
-protected:
+संरक्षित:
     // User routines should never need to change line numbers
     // We are storing pointers, so we CAN'T change them after initial reading.
-    friend class FileLineSingleton;
-    friend class V3ParseImp;
-    friend class V3PreLex;
-    friend class V3PreProcImp;
-    friend class V3PreShellImp;
+    मित्र class File_ओळ_Singleton;
+    मित्र class V3ParseImp;
+    मित्र class V3PreLex;
+    मित्र class V3PreProcImp;
+    मित्र class V3PreShellImp;
 
-private:
+खाजगी:
     // CONSTRUCTORS
-    static FileLineSingleton& singleton() VL_MT_SAFE {
-        static FileLineSingleton s;
-        return s;
+    स्थिर File_ओळ_Singleton& singleton() VL_MT_SAFE {
+        स्थिर File_ओळ_Singleton s;
+        परत s;
     }
-    static FileLine& defaultFileLine() VL_MT_SAFE {
-        static FileLine s;
-        return s;
+    स्थिर File_ओळ& default_File_ओळ() VL_MT_SAFE {
+        स्थिर File_ओळ s;
+        परत s;
     }
 
-    FileLine()  // Only used for defaultFileLine above
-        : m_msgEnIdx{singleton().defaultMsgEnIndex()}
-        , m_filenameno{singleton().nameToNumber(FileLine::builtInFilename())}
+    File_ओळ()  // Only used for defaultFileLine above
+        : m_संदेश_En_Idx{singleton().default_संदेश_En_Index()}
+        , m_filenameno{singleton().name_To_संख्या(File_ओळ::builtInFilename())}
         , m_waive{false}
         , m_contentLineno{0}
         , m_firstColumn{0}
         , m_lastColumn{0} {}
 
-public:
-    explicit FileLine(const string& filename)
-        : m_msgEnIdx{defaultFileLine().m_msgEnIdx}
-        , m_filenameno{singleton().nameToNumber(filename)}
+सार्वजनिक:
+    explicit File_ओळ(स्थिरांक string& filename)
+        : m_संदेश_En_Idx{default_File_ओळ().m_संदेश_En_Idx}
+        , m_filenameno{singleton().name_To_संख्या(filename)}
         , m_waive{false}
         , m_contentLineno{0}
         , m_firstColumn{0}
         , m_lastColumn{0} {}
-    explicit FileLine(const FileLine& from)
-        : m_msgEnIdx{from.m_msgEnIdx}
+    explicit File_ओळ(स्थिरांक File_ओळ& from)
+        : m_संदेश_En_Idx{from.m_संदेश_En_Idx}
         , m_filenameno{from.m_filenameno}
         , m_waive{from.m_waive}
         , m_contentLineno{from.m_contentLineno}
-        , m_tokenNum{from.m_tokenNum}
+        , m_token_अंक{from.m_token_अंक}
         , m_firstLineno{from.m_firstLineno}
         , m_firstColumn{from.m_firstColumn}
         , m_lastColumn{from.m_lastColumn}
         , m_lastLinenoAdder{from.m_lastLinenoAdder}
         , m_contentp{from.m_contentp}
         , m_parent{from.m_parent} {
-        if (m_contentp) m_contentp->refInc();
+        जर (m_contentp) m_contentp->refInc();
     }
-    explicit FileLine(FileLine* fromp)
-        : m_msgEnIdx{fromp->m_msgEnIdx}
+    explicit File_ओळ(File_ओळ* fromp)
+        : m_संदेश_En_Idx{fromp->m_संदेश_En_Idx}
         , m_filenameno{fromp->m_filenameno}
         , m_waive{fromp->m_waive}
         , m_contentLineno{fromp->m_contentLineno}
-        , m_tokenNum{fromp->m_tokenNum}
+        , m_token_अंक{fromp->m_token_अंक}
         , m_firstLineno{fromp->m_firstLineno}
         , m_firstColumn{fromp->m_firstColumn}
         , m_lastColumn{fromp->m_lastColumn}
         , m_lastLinenoAdder{fromp->m_lastLinenoAdder}
         , m_contentp{fromp->m_contentp}
         , m_parent{fromp->m_parent} {
-        if (m_contentp) m_contentp->refInc();
+        जर (m_contentp) m_contentp->refInc();
     }
-    void applyIgnores();
-    FileLine* copyOrSameFileLine();
-    FileLine* copyOrSameFileLineApplied();
-    static void deleteAllRemaining();
-    static void stats();
-    ~FileLine();
+    शून्य applyIgnores();
+    File_ओळ* copy_Or_Same_File_ओळ();
+    File_ओळ* copy_Or_Same_File_ओळ_Applied();
+    स्थिर शून्य deleteAllRemaining();
+    स्थिर शून्य stats();
+    ~File_ओळ();
 #ifdef VL_LEAK_CHECKS
-    static void* operator new(size_t size);
-    static void operator delete(void* obj, size_t size);
+    स्थिर शून्य* चालक new(माप_प्रकार size);
+    स्थिर शून्य चालक delete(शून्य* obj, माप_प्रकार size);
 #endif
     // METHODS
-    void newContent();
-    void contentLineno(int num) {
-        lineno(num);
-        m_contentLineno = static_cast<unsigned>(num);
+    शून्य newContent();
+    शून्य contentLineno(पूर्णांक अंक) {
+        lineno(अंक);
+        m_contentLineno = static_cast<अचिन्हित>(अंक);
     }
-    void contentLinenoFrom(const FileLine* fromp) { m_contentLineno = fromp->m_contentLineno; }
-    void lineno(int num) {
-        m_firstLineno = num;
+    शून्य contentLinenoFrom(स्थिरांक File_ओळ* fromp) { m_contentLineno = fromp->m_contentLineno; }
+    शून्य lineno(पूर्णांक अंक) {
+        m_firstLineno = अंक;
         m_lastLinenoAdder = 0;
         m_firstColumn = 1;
         m_lastColumn = 1;
     }
-    void column(int firstColumn, int lastColumn) {
+    शून्य column(पूर्णांक firstColumn, पूर्णांक lastColumn) {
         m_firstColumn = firstColumn;
         m_lastColumn = lastColumn;
     }
-    void language(V3LangCode lang) const { singleton().numberToLang(filenameno(), lang); }
-    void filename(const string& name) { m_filenameno = singleton().nameToNumber(name); }
-    void parent(FileLine* fileline) { m_parent = fileline; }
-    void lineDirective(const char* textp, int& enterExitRef);
-    void lineDirectiveParse(const char* textp, string& filenameRef, int& linenoRef,
-                            int& enterExitRef);
-    void linenoInc() {
-        if (m_lastLinenoAdder == 65535) {
+    शून्य language(V3LangCode lang) स्थिरांक { singleton().संख्या_To_Lang(filenameno(), lang); }
+    शून्य filename(स्थिरांक string& name) { m_filenameno = singleton().name_To_संख्या(name); }
+    शून्य parent(File_ओळ* fileline) { m_parent = fileline; }
+    शून्य ओळ_Directive(स्थिरांक अक्षर* textp, पूर्णांक& enterExitRef);
+    शून्य ओळ_Directive_Parse(स्थिरांक अक्षर* textp, string& filenameRef, पूर्णांक& linenoRef,
+                            पूर्णांक& enterExitRef);
+    शून्य linenoInc() {
+        जर (m_lastLinenoAdder == 65535) {
             // Overflow can only happen on super-long comment, adjust
             // starting first line to deal with it this will make token
             // start later than in reality, but nothing should refer to it,
             // and the overall line number will not drift.
             m_firstLineno += 65535 + 1;
             m_lastLinenoAdder = 0;
-        } else {
+        } अन्यथा {
             ++m_lastLinenoAdder;
         }
         m_lastColumn = 1;
         ++m_contentLineno;
     }
-    void startToken() {
+    शून्य startToken() {
         m_firstLineno = lastLineno();
         m_firstColumn = m_lastColumn;
         m_lastLinenoAdder = 0;
     }
     // Advance last line/column based on given text
-    void forwardToken(const char* textp, size_t size, bool trackLines = true);
-    uint32_t tokenNum() const VL_MT_SAFE { return m_tokenNum; }
-    int firstLineno() const VL_MT_SAFE { return m_firstLineno; }
-    int firstColumn() const VL_MT_SAFE { return static_cast<int>(m_firstColumn); }
-    int lastLineno() const VL_MT_SAFE { return m_firstLineno + m_lastLinenoAdder; }
-    int lastColumn() const VL_MT_SAFE { return static_cast<int>(m_lastColumn); }
-    VFileContent* contentp() const { return m_contentp; }
+    शून्य forwardToken(स्थिरांक अक्षर* textp, माप_प्रकार size, bool track_ओळी = true);
+    uint32_t token_अंक() स्थिरांक VL_MT_SAFE { परत m_token_अंक; }
+    पूर्णांक firstLineno() स्थिरांक VL_MT_SAFE { परत m_firstLineno; }
+    पूर्णांक firstColumn() स्थिरांक VL_MT_SAFE { परत static_cast<पूर्णांक>(m_firstColumn); }
+    पूर्णांक lastLineno() स्थिरांक VL_MT_SAFE { परत m_firstLineno + m_lastLinenoAdder; }
+    पूर्णांक lastColumn() स्थिरांक VL_MT_SAFE { परत static_cast<पूर्णांक>(m_lastColumn); }
+    VFileContent* contentp() स्थिरांक { परत m_contentp; }
     // If not otherwise more specific, use last lineno for errors etc,
     // as the parser errors etc generally make more sense pointing at the last parse point
-    int lineno() const VL_MT_SAFE { return lastLineno(); }
-    string source() const VL_MT_SAFE;
-    string sourcePrefix(int toColumn) const VL_MT_SAFE;
-    string prettySource() const VL_MT_SAFE;  // Source, w/stripped unprintables and newlines
-    FileLine* parent() const VL_MT_SAFE { return m_parent; }
-    V3LangCode language() const { return singleton().numberToLang(filenameno()); }
-    string ascii() const VL_MT_SAFE;
-    string asciiLineCol() const;
-    int filenameno() const VL_MT_SAFE { return m_filenameno; }
-    const std::string& filename() const VL_MT_SAFE {
-        return singleton().numberToName(filenameno());
+    पूर्णांक lineno() स्थिरांक VL_MT_SAFE { परत lastLineno(); }
+    string source() स्थिरांक VL_MT_SAFE;
+    string sourcePrefix(पूर्णांक toColumn) स्थिरांक VL_MT_SAFE;
+    string prettySource() स्थिरांक VL_MT_SAFE;  // Source, w/stripped unprintables and newlines
+    File_ओळ* parent() स्थिरांक VL_MT_SAFE { परत m_parent; }
+    V3LangCode language() स्थिरांक { परत singleton().संख्या_To_Lang(filenameno()); }
+    string ascii() स्थिरांक VL_MT_SAFE;
+    string ascii_ओळ_Col() स्थिरांक;
+    पूर्णांक filenameno() स्थिरांक VL_MT_SAFE { परत m_filenameno; }
+    स्थिरांक std::string& filename() स्थिरांक VL_MT_SAFE {
+        परत singleton().संख्या_To_Name(filenameno());
     }
     // Filename with C string escapes
-    string filenameEsc() const VL_MT_SAFE { return VString::quoteBackslash(filename()); }
-    bool filenameIsGlobal() const VL_MT_SAFE {
-        return (filename() == commandLineFilename() || filename() == builtInFilename());
+    string filenameEsc() स्थिरांक VL_MT_SAFE { परत VString::quoteBackslash(filename()); }
+    bool filenameIsGlobal() स्थिरांक VL_MT_SAFE {
+        परत (filename() == command_ओळ_Filename() || filename() == builtInFilename());
     }
-    string filenameLetters() const VL_MT_SAFE {
-        return FileLineSingleton::filenameLetters(filenameno());
+    string filenameLetters() स्थिरांक VL_MT_SAFE {
+        परत File_ओळ_Singleton::filenameLetters(filenameno());
     }
-    string filebasename() const VL_MT_SAFE;
-    string filebasenameNoExt() const;
-    string firstColumnLetters() const VL_MT_SAFE;
-    string profileFuncname() const;
-    string lineDirectiveStrg(int enterExit) const;
+    string filebasename() स्थिरांक VL_MT_SAFE;
+    string filebasenameNoExt() स्थिरांक;
+    string firstColumnLetters() स्थिरांक VL_MT_SAFE;
+    string profileFuncname() स्थिरांक;
+    string ओळ_Directive_Strg(पूर्णांक enterExit) स्थिरांक;
 
     // Turn on/off warning messages on this line.
-private:
-    void warnSet(MsgEnBitSet::Subset subset, V3ErrorCode code, bool flag) {
-        m_msgEnIdx = singleton().msgEnSetBit(m_msgEnIdx, subset, code, flag);
+खाजगी:
+    शून्य warnSet(संदेश_En_Bit_Set::Subset subset, V3ErrorCode code, bool flag) {
+        m_संदेश_En_Idx = singleton().संदेश_En_Set_Bit(m_संदेश_En_Idx, subset, code, flag);
     }
 
-public:
-    void warnOn(V3ErrorCode code, bool flag) { warnSet(MsgEnBitSet::Subset::CODE, code, flag); }
-    void warnSetCtrlBitSet(const VErrorBitSet& bitset) {
-        m_msgEnIdx = singleton().msgSetCtrlBitSet(m_msgEnIdx, bitset);
+सार्वजनिक:
+    शून्य warnOn(V3ErrorCode code, bool flag) { warnSet(संदेश_En_Bit_Set::Subset::CODE, code, flag); }
+    शून्य warnSetCtrlBitSet(स्थिरांक VErrorBitSet& bitset) {
+        m_संदेश_En_Idx = singleton().संदेश_Set_Ctrl_Bit_Set(m_संदेश_En_Idx, bitset);
     }
-    void warnOff(V3ErrorCode code, bool turnOff) { warnOn(code, !turnOff); }
-    string warnOffParse(const string& msgs, bool turnOff);  // Returns "" if ok
-    bool warnIsOff(V3ErrorCode code) const VL_MT_SAFE;
-    void warnLintOff(bool turnOff);
-    void warnStyleOff(bool turnOff);
-    void warnStateFrom(const FileLine& from) { m_msgEnIdx = from.m_msgEnIdx; }
-    void warnResetDefault() { warnStateFrom(defaultFileLine()); }
+    शून्य warnOff(V3ErrorCode code, bool turnOff) { warnOn(code, !turnOff); }
+    string warnOffParse(स्थिरांक string& msgs, bool turnOff);  // Returns "" if ok
+    bool warnIsOff(V3ErrorCode code) स्थिरांक VL_MT_SAFE;
+    शून्य warnLintOff(bool turnOff);
+    शून्य warnStyleOff(bool turnOff);
+    शून्य warnStateFrom(स्थिरांक File_ओळ& from) { m_संदेश_En_Idx = from.m_संदेश_En_Idx; }
+    शून्य warnResetDefault() { warnStateFrom(default_File_ओळ()); }
 
     // Specific flag ACCESSORS/METHODS
-    bool celldefineOn() const { return msgEn().enabled(V3ErrorCode::I_CELLDEFINE); }
-    void celldefineOn(bool flag) { warnOn(V3ErrorCode::I_CELLDEFINE, flag); }
-    bool coverageOn() const { return msgEn().enabled(V3ErrorCode::I_COVERAGE); }
-    void coverageOn(bool flag) { warnOn(V3ErrorCode::I_COVERAGE, flag); }
-    bool erroringOn() const { return msgEn().enabled(V3ErrorCode::I_ERRORING); }
-    void erroringOn(bool flag) { warnOn(V3ErrorCode::I_ERRORING, flag); }
-    bool tracingOn() const { return msgEn().enabled(V3ErrorCode::I_TRACING); }
-    void tracingOn(bool flag) { warnOn(V3ErrorCode::I_TRACING, flag); }
-    bool timingOn() const { return msgEn().enabled(V3ErrorCode::I_TIMING); }
-    void timingOn(bool flag) { warnOn(V3ErrorCode::I_TIMING, flag); }
+    bool celldefineOn() स्थिरांक { परत संदेश_En().enabled(V3ErrorCode::I_CELLDEFINE); }
+    शून्य celldefineOn(bool flag) { warnOn(V3ErrorCode::I_CELLDEFINE, flag); }
+    bool coverageOn() स्थिरांक { परत संदेश_En().enabled(V3ErrorCode::I_COVERAGE); }
+    शून्य coverageOn(bool flag) { warnOn(V3ErrorCode::I_COVERAGE, flag); }
+    bool erroringOn() स्थिरांक { परत संदेश_En().enabled(V3ErrorCode::I_ERRORING); }
+    शून्य erroringOn(bool flag) { warnOn(V3ErrorCode::I_ERRORING, flag); }
+    bool tracingOn() स्थिरांक { परत संदेश_En().enabled(V3ErrorCode::I_TRACING); }
+    शून्य tracingOn(bool flag) { warnOn(V3ErrorCode::I_TRACING, flag); }
+    bool timingOn() स्थिरांक { परत संदेश_En().enabled(V3ErrorCode::I_TIMING); }
+    शून्य timingOn(bool flag) { warnOn(V3ErrorCode::I_TIMING, flag); }
 
     // METHODS - Global
     // <command-line> and <built-in> match what GCC outputs
-    static string commandLineFilename() VL_MT_SAFE { return "<command-line>"; }
-    static string builtInFilename() VL_MT_SAFE { return "<built-in>"; }
-    static void globalWarnOff(V3ErrorCode code, bool turnOff) {
-        defaultFileLine().warnOff(code, turnOff);
+    स्थिर string command_ओळ_Filename() VL_MT_SAFE { परत "<command-line>"; }
+    स्थिर string builtInFilename() VL_MT_SAFE { परत "<built-in>"; }
+    स्थिर शून्य globalWarnOff(V3ErrorCode code, bool turnOff) {
+        default_File_ओळ().warnOff(code, turnOff);
     }
-    static string globalWarnOffParse(const string& msgs, bool turnOff) {
-        return defaultFileLine().warnOffParse(msgs, turnOff);
+    स्थिर string globalWarnOffParse(स्थिरांक string& msgs, bool turnOff) {
+        परत default_File_ओळ().warnOffParse(msgs, turnOff);
     }
-    static void fileNameNumMapDumpJson(std::ostream& os) {
-        singleton().fileNameNumMapDumpJson(os);
+    स्थिर शून्य file_Name_अंक_Map_Dump_Json(std::ostream& os) {
+        singleton().file_Name_अंक_Map_Dump_Json(os);
     }
 
     // METHODS - Called from netlist
     // Merge warning disables from another fileline
-    void modifyStateInherit(const FileLine* fromp) {
-        m_msgEnIdx = singleton().msgEnAnd(m_msgEnIdx, fromp->m_msgEnIdx);
+    शून्य modifyStateInherit(स्थिरांक File_ओळ* fromp) {
+        m_संदेश_En_Idx = singleton().संदेश_En_And(m_संदेश_En_Idx, fromp->m_संदेश_En_Idx);
     }
     // Change the current fileline due to actions discovered after parsing
     // and may have side effects on other nodes sharing this FileLine.
     // Use only when this is intended
-    void modifyWarnOff(V3ErrorCode code, bool turnOff) { warnOff(code, turnOff); }
+    शून्य modifyWarnOff(V3ErrorCode code, bool turnOff) { warnOff(code, turnOff); }
 
     // OPERATORS
-    void v3errorEnd(std::ostringstream& str, const string& extra = "")
+    शून्य v3errorEnd(std::ostringstream& str, स्थिरांक string& extra = "")
         VL_RELEASE(V3Error::s().m_mutex);
-    void v3errorEndFatal(std::ostringstream& str) VL_ATTR_NORETURN
+    शून्य v3errorEndFatal(std::ostringstream& str) VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex) {
         v3errorEnd(str);
-        assert(0);  // LCOV_EXCL_LINE
+        प्रतिज्ञा(0);  // LCOV_EXCL_LINE
         VL_UNREACHABLE;
     }
     /// When building an error, prefix for printing continuation lines
     /// e.g. information referring to the same FileLine as before
-    string warnMore() const VL_REQUIRES(V3Error::s().m_mutex);
+    string warnMore() स्थिरांक VL_REQUIRES(V3Error::s().m_mutex);
     /// When building an error, prefix for printing secondary information
     /// from a different FileLine than the original error
-    string warnOther() const VL_REQUIRES(V3Error::s().m_mutex);
+    string warnOther() स्थिरांक VL_REQUIRES(V3Error::s().m_mutex);
     /// When building an error, current location in include etc
     /// If not used in a given error, automatically pasted at end of error
-    string warnContextPrimary() const VL_REQUIRES(V3Error::s().m_mutex) {
+    string warnContextPrimary() स्थिरांक VL_REQUIRES(V3Error::s().m_mutex) {
         V3Error::s().errorContexted(true);
-        return warnContext() + warnContextParent();
+        परत warnContext() + warnContextParent();
     }
     /// When building an error, additional location for additional references
     /// Simplified information vs warnContextPrimary() to make dump clearer
-    string warnContextSecondary() const { return warnContext(); }
-    bool operator==(const FileLine& rhs) const {
-        return (m_tokenNum == rhs.m_tokenNum && m_firstLineno == rhs.m_firstLineno
+    string warnContextSecondary() स्थिरांक { परत warnContext(); }
+    bool चालक==(स्थिरांक File_ओळ& rhs) स्थिरांक {
+        परत (m_token_अंक == rhs.m_token_अंक && m_firstLineno == rhs.m_firstLineno
                 && m_firstColumn == rhs.m_firstColumn && m_lastLinenoAdder == rhs.m_lastLinenoAdder
                 && m_lastColumn == rhs.m_lastColumn && m_filenameno == rhs.m_filenameno
-                && m_msgEnIdx == rhs.m_msgEnIdx);
+                && m_संदेश_En_Idx == rhs.m_संदेश_En_Idx);
     }
-    bool equalFirstLineCol(const FileLine& rhs) const {
-        return (m_filenameno == rhs.m_filenameno && m_firstLineno == rhs.m_firstLineno
+    bool equal_First_ओळ_Col(स्थिरांक File_ओळ& rhs) स्थिरांक {
+        परत (m_filenameno == rhs.m_filenameno && m_firstLineno == rhs.m_firstLineno
                 && m_firstColumn == rhs.m_firstColumn);
     }
     // Returns -1 if (*this) should come before rhs after sorted. 1 for the opposite case. 0 for
     // equivalent.
-    int operatorCompare(const FileLine& rhs) const {
-        if (m_filenameno != rhs.m_filenameno) return (m_filenameno < rhs.m_filenameno) ? -1 : 1;
-        if (m_firstLineno != rhs.m_firstLineno)
-            return (m_firstLineno < rhs.m_firstLineno) ? -1 : 1;
-        if (m_firstColumn != rhs.m_firstColumn)
-            return (m_firstColumn < rhs.m_firstColumn) ? -1 : 1;
-        if (m_lastLinenoAdder != rhs.m_lastLinenoAdder)
-            return (m_lastLinenoAdder < rhs.m_lastLinenoAdder) ? -1 : 1;
-        if (m_lastColumn != rhs.m_lastColumn) return (m_lastColumn < rhs.m_lastColumn) ? -1 : 1;
-        const MsgEnBitSet& lhsMsgEn = msgEn();
-        const MsgEnBitSet& rhsMsgEn = rhs.msgEn();
-        for (size_t i = 0; i < V3ErrorCode::_ENUM_MAX; ++i) {
-            const V3ErrorCode code = static_cast<V3ErrorCode>(i);
-            if (lhsMsgEn.enabled(code) != rhsMsgEn.enabled(code))
-                return rhsMsgEn.enabled(code) ? -1 : 1;
+    पूर्णांक operatorCompare(स्थिरांक File_ओळ& rhs) स्थिरांक {
+        जर (m_filenameno != rhs.m_filenameno) परत (m_filenameno < rhs.m_filenameno) ? -1 : 1;
+        जर (m_firstLineno != rhs.m_firstLineno)
+            परत (m_firstLineno < rhs.m_firstLineno) ? -1 : 1;
+        जर (m_firstColumn != rhs.m_firstColumn)
+            परत (m_firstColumn < rhs.m_firstColumn) ? -1 : 1;
+        जर (m_lastLinenoAdder != rhs.m_lastLinenoAdder)
+            परत (m_lastLinenoAdder < rhs.m_lastLinenoAdder) ? -1 : 1;
+        जर (m_lastColumn != rhs.m_lastColumn) परत (m_lastColumn < rhs.m_lastColumn) ? -1 : 1;
+        स्थिरांक संदेश_En_Bit_Set& lhs_संदेश_En = संदेश_En();
+        स्थिरांक संदेश_En_Bit_Set& rhs_संदेश_En = rhs.संदेश_En();
+        साठी (माप_प्रकार i = 0; i < V3ErrorCode::_ENUM_MAX; ++i) {
+            स्थिरांक V3ErrorCode code = static_cast<V3ErrorCode>(i);
+            जर (lhs_संदेश_En.enabled(code) != rhs_संदेश_En.enabled(code))
+                परत rhs_संदेश_En.enabled(code) ? -1 : 1;
         }
         // TokenNum is compared last as makes more logical sort order by file/line first
-        if (m_tokenNum != rhs.m_tokenNum) return (m_tokenNum < rhs.m_tokenNum) ? -1 : 1;
-        return 0;  // (*this) and rhs are equivalent
+        जर (m_token_अंक != rhs.m_token_अंक) परत (m_token_अंक < rhs.m_token_अंक) ? -1 : 1;
+        परत 0;  // (*this) and rhs are equivalent
     }
 
-private:
-    string warnContext() const;
-    string warnContextParent() const VL_REQUIRES(V3Error::s().m_mutex);
-    const MsgEnBitSet& msgEn() const VL_MT_SAFE { return singleton().msgEn(m_msgEnIdx); }
+खाजगी:
+    string warnContext() स्थिरांक;
+    string warnContextParent() स्थिरांक VL_REQUIRES(V3Error::s().m_mutex);
+    स्थिरांक संदेश_En_Bit_Set& संदेश_En() स्थिरांक VL_MT_SAFE { परत singleton().संदेश_En(m_संदेश_En_Idx); }
 };
-std::ostream& operator<<(std::ostream& os, FileLine* fileline);
+std::ostream& चालक<<(std::ostream& os, File_ओळ* fileline);
 
 #endif  // Guard
