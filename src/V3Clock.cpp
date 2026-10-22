@@ -42,7 +42,7 @@ class ConvertWriteRefsToRead final : public VNVisitor {
     // VISITORS
     void visit(AstVarRef* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Cannot handle a READWRITE reference");
-        if (nodep->access().isWriteOnly()) {
+        ᬬᬾᬦ᭄ (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
                 new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
@@ -52,7 +52,7 @@ class ConvertWriteRefsToRead final : public VNVisitor {
     void visit(AstNode* nodep) override { iterateChildren(nodep); }
 
 public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+    static AstNodeExpr* main(AstNodeExpr* nodep) { ᬯᬮᬶ ConvertWriteRefsToRead{nodep}.m_result; }
 };
 
 //######################################################################
@@ -74,14 +74,14 @@ class ClockVisitor final : public VNVisitor {
         FileLine* const flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
-        if (const AstBasicDType* const bdtypep
+        ᬬᬾᬦ᭄ (const AstBasicDType* const bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
-            if (!bdtypep->isOpaque()) {
+            ᬬᬾᬦ᭄ (!bdtypep->isOpaque()) {
                 AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
                 comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
             }
         }
-        if (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
+        ᬬᬾᬦ᭄ (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
         AstIf* const newp = new AstIf{flp, comparedp, incp};
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.

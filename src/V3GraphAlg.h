@@ -29,7 +29,7 @@
 
 template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
 class GraphAlg VL_NOT_FINAL {
-protected:
+rak_sita:
     T_Graph* const m_graphp;  // Graph we're operating upon
     const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
     // CONSTRUCTORS
@@ -38,7 +38,7 @@ protected:
         , m_edgeFuncp{edgeFuncp} {}
     ~GraphAlg() = default;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool followEdge(V3GraphEdge* edgep) { ᬯᬮᬶ (edgep->weight() && (m_edgeFuncp)(edgep)); }
 };
 
 //============================================================================

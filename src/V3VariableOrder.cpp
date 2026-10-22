@@ -73,7 +73,7 @@ class GatherMTaskWriters final : VNVisitorConst {
     // VISIT
     void visit(AstNodeVarRef* nodep) override {
         // Cheaper than relying on emplace().second
-        if (nodep->user1SetOnce()) return;
+        ᬬᬾᬦ᭄ (nodep->user1SetOnce()) ᬯᬮᬶ;
         AstVar* const varp = nodep->varp();
         // Record the access, and the writer bit if written
         MTaskIdVec& writers = m_results
@@ -81,11 +81,11 @@ class GatherMTaskWriters final : VNVisitorConst {
                                            std::forward_as_tuple(varp),  //
                                            std::forward_as_tuple(m_usedIds))
                                   .first->second;
-        if (nodep->access().isWriteOrRW()) writers[m_id] = true;
+        ᬬᬾᬦ᭄ (nodep->access().isWriteOrRW()) writers[m_id] = true;
     }
 
     void visit(AstCFunc* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Prevent repeat traversals/recursion
+        ᬬᬾᬦ᭄ (nodep->user1SetOnce()) ᬯᬮᬶ;  // Prevent repeat traversals/recursion
         iterateChildrenConst(nodep);
     }
 
@@ -122,7 +122,7 @@ class VariableOrder final {
     // Simple sort by stratum
     void simpleSortVars(std::vector<AstVar*>& varps) {
         stable_sort(varps.begin(), varps.end(), [](const AstVar* ap, const AstVar* bp) -> bool {
-            return ap->user1() < bp->user1();
+            ᬯᬮᬶ ap->user1() < bp->user1();
         });
     }
 
@@ -134,9 +134,9 @@ class VariableOrder final {
         std::vector<AstVar*> noAffinityVarps;
         for (AstVar* const varp : varps) {
             const auto it = m_mTaskWriters.find(varp);
-            if (it == m_mTaskWriters.end()) {
+            ᬬᬾᬦ᭄ (it == m_mTaskWriters.end()) {
                 noAffinityVarps.push_back(varp);
-            } else {
+            } ᬮᬶᬬ {
                 m2v[it->second].push_back(varp);
             }
         }
@@ -150,7 +150,7 @@ class VariableOrder final {
                   bool aligned = !alignFirst;
                   for (AstVar* const varp : subVarps) {
                       // Align the first variable with instance storage
-                      if (!aligned && varp->isModelState()) {
+                      ᬬᬾᬦ᭄ (!aligned && varp->isModelState()) {
                           varp->mtaskCacheLineAlign(true);
                           V3Stats::addStatSum("VariableOrder, MTask aligned group starts", 1);
                           aligned = true;
@@ -183,24 +183,24 @@ class VariableOrder final {
         // Gather variables, compute stratum
         for (AstNode *nodep = modp->stmtsp(), *nextp; nodep; nodep = nextp) {
             nextp = nodep->nextp();
-            if (AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isPrimaryIO()) {
+            ᬬᬾᬦ᭄ (AstVar* const varp = VN_CAST(nodep, Var)) {
+                ᬬᬾᬦ᭄ (varp->isPrimaryIO()) {
                     portps.push_back(varp);
                     continue;
                 }
-                if (!varp->isModelState()) {
+                ᬬᬾᬦ᭄ (!varp->isModelState()) {
                     restps.push_back(varp);
                     continue;
                 }
 
-                if (varp->isTriviallyConstructible()) {
+                ᬬᬾᬦ᭄ (varp->isTriviallyConstructible()) {
                     trivps.push_back(varp);
-                } else {
+                } ᬮᬶᬬ {
                     nontps.push_back(varp);
                 }
 
                 AstNodeDType* const dtypep = varp->dtypeSkipRefp();
-                const int sigbytes = dtypep->widthAlignBytes();
+                const puur_naa_nka sigbytes = dtypep->widthAlignBytes();
                 const uint64_t stratum = VN_IS(dtypep, UnpackArrayDType)                  ? 9
                                          : (varp->basicp() && varp->basicp()->isString()) ? 4
                                          : (varp->basicp() && varp->basicp()->isOpaque()) ? 8
@@ -215,10 +215,10 @@ class VariableOrder final {
 
         // Sort them
         for (std::vector<AstVar*>* const varpsp : {&trivps, &nontps}) {
-            if (varpsp->empty()) continue;
-            if (!v3Global.opt.mtasks()) {
+            ᬬᬾᬦ᭄ (varpsp->empty()) continue;
+            ᬬᬾᬦ᭄ (!v3Global.opt.mtasks()) {
                 simpleSortVars(*varpsp);
-            } else {
+            } ᬮᬶᬬ {
                 mtaskSortVars(*varpsp);
             }
         }
@@ -249,7 +249,7 @@ void V3VariableOrder::orderAll(AstNetlist* netlistp) {
     MTaskWritersMap mTaskWriters;
 
     // Gather writing MTasks
-    if (v3Global.opt.mtasks()) {
+    ᬬᬾᬦ᭄ (v3Global.opt.mtasks()) {
         netlistp->topModulep()->foreach([&](AstExecGraph* execGraphp) {
             for (const V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
                 GatherMTaskWriters::apply(vtx.as<const ExecMTask>(), mTaskWriters);
@@ -260,7 +260,7 @@ void V3VariableOrder::orderAll(AstNetlist* netlistp) {
     // Sort variables of each module
     for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
          modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (modp->isConstPool()) continue;
+        ᬬᬾᬦ᭄ (modp->isConstPool()) continue;
         VariableOrder::apply(modp, mTaskWriters);
     }
 

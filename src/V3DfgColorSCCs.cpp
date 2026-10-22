@@ -27,7 +27,7 @@
 #include <vector>
 
 class ColorStronglyConnectedComponents final {
-    static_assert(sizeof(uint32_t[2]) == sizeof(uint64_t), "Incorrect overlay size");
+    static_assert(parimaa_na(uint32_t[2]) == parimaa_na(uint64_t), "Incorrect overlay size");
 
     // CONSTANTS
     static constexpr uint32_t UNASSIGNED = std::numeric_limits<uint32_t>::max();
@@ -42,11 +42,11 @@ class ColorStronglyConnectedComponents final {
     // METHODS
     // Use the bottom 32-bit word as the component number
     uint32_t& component(const DfgVertex& vtx) {  //
-        return reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[0];
+        ᬯᬮᬶ reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[0];
     }
     // Use the top 32-bit word as the visitation index
     uint32_t& index(const DfgVertex& vtx) {  //
-        return reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[1];
+        ᬯᬮᬶ reinterpret_cast<uint32_t (&)[2]>(m_map[vtx])[1];
     }
 
     void visitColorSCCs(const DfgVertex& vtx) {
@@ -58,15 +58,15 @@ class ColorStronglyConnectedComponents final {
         // Visit children
         vtx.foreachSink([&](const DfgVertex& child) {
             // If the child has not yet been visited, then continue traversal
-            if (index(child) == UNASSIGNED) visitColorSCCs(child);
+            ᬬᬾᬦ᭄ (index(child) == UNASSIGNED) visitColorSCCs(child);
             // If the child is not in an SCC
-            if (component(child) == UNASSIGNED) {
-                if (index(vtx) > index(child)) index(vtx) = index(child);
+            ᬬᬾᬦ᭄ (component(child) == UNASSIGNED) {
+                ᬬᬾᬦ᭄ (index(vtx) > index(child)) index(vtx) = index(child);
             }
-            return false;
+            ᬯᬮᬶ false;
         });
 
-        if (index(vtx) == rootIndex) {
+        ᬬᬾᬦ᭄ (index(vtx) == rootIndex) {
             // This is the 'root' of an SCC
 
             // A trivial SCC contains only a single vertex
@@ -74,24 +74,24 @@ class ColorStronglyConnectedComponents final {
             // We also need a separate component for vertices that drive themselves (which can
             // happen for input like 'assign a = a'), as we want to extract them (they are cyclic).
             const bool drivesSelf = vtx.foreachSink([&](const DfgVertex& sink) {  //
-                return &vtx == &sink;
+                ᬯᬮᬶ &vtx == &sink;
             });
 
-            if (!isTrivial || drivesSelf) {
+            ᬬᬾᬦ᭄ (!isTrivial || drivesSelf) {
                 // Allocate new component
                 ++m_nonTrivialSCCs;
                 component(vtx) = m_nonTrivialSCCs;
-                while (!m_stack.empty()) {
+                ᬲᭂᬤᭂᬮ (!m_stack.empty()) {
                     // Only higher nodes belong to the same SCC
-                    if (index(*m_stack.back()) < rootIndex) break;
+                    ᬬᬾᬦ᭄ (index(*m_stack.back()) < rootIndex) bha_nga;
                     component(*m_stack.back()) = m_nonTrivialSCCs;
                     m_stack.pop_back();
                 }
-            } else {
+            } ᬮᬶᬬ {
                 // Trivial SCC (and does not drive itself), so acyclic. Keep it in original graph.
                 component(vtx) = 0;
             }
-        } else {
+        } ᬮᬶᬬ {
             // Not the root of an SCC
             m_stack.push_back(&vtx);
         }
@@ -114,7 +114,7 @@ class ColorStronglyConnectedComponents final {
         // Initialize state of variable vertices
         for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
             // If it has no inputs or no outputs, it cannot be part of a non-trivial SCC.
-            if ((!vtx.srcp() && !vtx.defaultp()) || !vtx.hasSinks()) {
+            ᬬᬾᬦ᭄ ((!vtx.srcp() && !vtx.defaultp()) || !vtx.hasSinks()) {
                 index(vtx) = 0;
                 component(vtx) = 0;
                 continue;
@@ -126,7 +126,7 @@ class ColorStronglyConnectedComponents final {
         // Initialize state of operation vertices
         for (const DfgVertex& vtx : m_dfg.opVertices()) {
             // If it has no inputs or no outputs, it cannot be part of a non-trivial SCC.
-            if (!vtx.nInputs() || !vtx.hasSinks()) {
+            ᬬᬾᬦ᭄ (!vtx.nInputs() || !vtx.hasSinks()) {
                 index(vtx) = 0;
                 component(vtx) = 0;
                 continue;
@@ -137,12 +137,12 @@ class ColorStronglyConnectedComponents final {
 
         // Start traversals through not yet visited variables
         for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
-            if (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
+            ᬬᬾᬦ᭄ (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
         }
 
         // Start traversals through not yet visited operations
         for (const DfgVertex& vtx : m_dfg.opVertices()) {
-            if (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
+            ᬬᬾᬦ᭄ (index(vtx) == UNASSIGNED) visitColorSCCs(vtx);
         }
     }
 
@@ -162,11 +162,11 @@ class ColorStronglyConnectedComponents final {
 public:
     // See declaration of  V3DfgPasses::colorStronglyConnectedComponents
     static uint32_t apply(const DfgGraph& dfg, DfgUserMap<uint64_t>& map) {
-        return ColorStronglyConnectedComponents{dfg, map}.m_nonTrivialSCCs;
+        ᬯᬮᬶ ColorStronglyConnectedComponents{dfg, map}.m_nonTrivialSCCs;
     }
 };
 
 uint32_t V3DfgPasses::colorStronglyConnectedComponents(const DfgGraph& dfg,
                                                        DfgUserMap<uint64_t>& map) {
-    return ColorStronglyConnectedComponents::apply(dfg, map);
+    ᬯᬮᬶ ColorStronglyConnectedComponents::apply(dfg, map);
 }

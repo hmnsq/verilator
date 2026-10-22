@@ -39,9 +39,9 @@ public:
         : m_pattern{pattern_}
         , m_libname{libname_}
         , m_base{base_} {}
-    string pattern() const { return m_pattern; }
-    string libname() const { return m_libname; }
-    string base() const { return m_base; }
+    string pattern() const { ᬯᬮᬶ m_pattern; }
+    string libname() const { ᬯᬮᬶ m_libname; }
+    string base() const { ᬯᬮᬶ m_base; }
 };
 
 class V3LibMap final {

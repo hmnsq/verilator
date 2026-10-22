@@ -69,14 +69,14 @@ class ReloopVisitor final : public VNVisitor {
         AstVar* const varp
             = new AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
         cfuncp->addVarsp(varp);
-        return varp;
+        ᬯᬮᬶ varp;
     }
     void mergeEnd() {
-        if (!m_mgAssignps.empty()) {
+        ᬬᬾᬦ᭄ (!m_mgAssignps.empty()) {
             const uint32_t items = m_mgIndexHi - m_mgIndexLo + 1;
             UINFO(9, "End merge iter=" << items << " " << m_mgIndexHi << ":" << m_mgIndexLo << " "
                                        << m_mgOffset << " " << m_mgAssignps[0]);
-            if (items >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
+            ᬬᬾᬦ᭄ (items >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
                 UINFO(6, "Reloop merging items=" << items << " " << m_mgIndexHi << ":"
                                                  << m_mgIndexLo << " " << m_mgOffset << " "
                                                  << m_mgAssignps[0]);
@@ -89,7 +89,7 @@ class ReloopVisitor final : public VNVisitor {
                 FileLine* const fl = bodyp->fileline();
                 AstVar* const itp = createVarTemp(fl, m_mgCfuncp);
 
-                if (m_mgOffset > 0) {
+                ᬬᬾᬦ᭄ (m_mgOffset > 0) {
                     UASSERT_OBJ(m_mgIndexLo >= m_mgOffset, bodyp,
                                 "Reloop iteration starts at negative index");
                     m_mgIndexLo -= m_mgOffset;
@@ -117,7 +117,7 @@ class ReloopVisitor final : public VNVisitor {
                 AstNodeExpr* const lvrefp = new AstVarRef{fl, itp, VAccess::READ};
                 lbitp->replaceWith(m_mgOffset > 0 ? new AstAdd{fl, lvrefp, offsetp} : lvrefp);
                 VL_DO_DANGLING(lbitp->deleteTree(), lbitp);
-                if (m_mgSelRp) {  // else constant and no replace
+                ᬬᬾᬦ᭄ (m_mgSelRp) {  // else constant and no replace
                     AstNodeExpr* const rbitp = m_mgSelRp->bitp();
                     AstNodeExpr* const rvrefp = new AstVarRef{fl, itp, VAccess::READ};
                     rbitp->replaceWith(m_mgOffset < 0 ? new AstAdd{fl, rvrefp, offsetp} : rvrefp);
@@ -128,7 +128,7 @@ class ReloopVisitor final : public VNVisitor {
 
                 // Remove remaining assigns
                 for (AstNodeAssign* assp : m_mgAssignps) {
-                    if (assp != bodyp) {
+                    ᬬᬾᬦ᭄ (assp != bodyp) {
                         VL_DO_DANGLING(assp->unlinkFrBack()->deleteTree(), assp);
                     }
                 }
@@ -152,30 +152,30 @@ class ReloopVisitor final : public VNVisitor {
         mergeEnd();  // Finish last pending merge, if any
     }
     void visit(AstNodeAssign* nodep) override {
-        if (!m_cfuncp) return;
+        ᬬᬾᬦ᭄ (!m_cfuncp) ᬯᬮᬶ;
 
         // Left select WordSel or ArraySel
         AstNodeSel* const lselp = VN_CAST(nodep->lhsp(), NodeSel);
-        if (!lselp) {  // Not ever merged
+        ᬬᬾᬦ᭄ (!lselp) {  // Not ever merged
             mergeEnd();
-            return;
+            ᬯᬮᬶ;
         }
         // Of a constant index
         const AstConst* const lbitp = VN_CAST(lselp->bitp(), Const);
-        if (!lbitp) {
+        ᬬᬾᬦ᭄ (!lbitp) {
             mergeEnd();
-            return;
+            ᬯᬮᬶ;
         }
-        if (lbitp->width() > 32) {  // Assoc arrays can do this
+        ᬬᬾᬦ᭄ (lbitp->width() > 32) {  // Assoc arrays can do this
             mergeEnd();
-            return;
+            ᬯᬮᬶ;
         }
         const uint32_t lindex = lbitp->toUInt();
         // Of variable
         const AstNodeVarRef* const lvarrefp = VN_CAST(lselp->fromp(), NodeVarRef);
-        if (!lvarrefp) {
+        ᬬᬾᬦ᭄ (!lvarrefp) {
             mergeEnd();
-            return;
+            ᬯᬮᬶ;
         }
 
         // RHS is a constant or a select
@@ -183,22 +183,22 @@ class ReloopVisitor final : public VNVisitor {
         const AstNodeSel* const rselp = VN_CAST(nodep->rhsp(), NodeSel);
         const AstNodeVarRef* rvarrefp = nullptr;
         uint32_t rindex = lindex;
-        if (rconstp) {  // Ok
-        } else if (rselp) {
+        ᬬᬾᬦ᭄ (rconstp) {  // Ok
+        } ᬮᬶᬬ ᬬᬾᬦ᭄ (rselp) {
             const AstConst* const rbitp = VN_CAST(rselp->bitp(), Const);
             rvarrefp = VN_CAST(rselp->fromp(), NodeVarRef);
-            if (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
+            ᬬᬾᬦ᭄ (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
                 mergeEnd();
-                return;
+                ᬯᬮᬶ;
             }
             rindex = rbitp->toUInt();
-        } else {
+        } ᬮᬶᬬ {
             mergeEnd();
-            return;
+            ᬯᬮᬶ;
         }
 
-        if (m_mgSelLp) {  // Old merge
-            if (m_mgCfuncp == m_cfuncp  // In same function
+        ᬬᬾᬦ᭄ (m_mgSelLp) {  // Old merge
+            ᬬᬾᬦ᭄ (m_mgCfuncp == m_cfuncp  // In same function
                 && m_mgNextp == nodep  // Consecutive node
                 && m_mgVarrefLp->isSame(lvarrefp)  // Same array on left hand side
                 && (m_mgConstRp  // On the right hand side either ...
@@ -208,17 +208,17 @@ class ReloopVisitor final : public VNVisitor {
                 && (m_mgConstRp || lindex == rindex + m_mgOffset)  // Same right index offset
             ) {
                 // Sequentially next to last assign; continue merge
-                if (lindex == m_mgIndexLo - 1) {
+                ᬬᬾᬦ᭄ (lindex == m_mgIndexLo - 1) {
                     m_mgIndexLo = lindex;
-                } else if (lindex == m_mgIndexHi + 1) {
+                } ᬮᬶᬬ ᬬᬾᬦ᭄ (lindex == m_mgIndexHi + 1) {
                     m_mgIndexHi = lindex;
                 }
                 UINFO(9, "Continue merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
                                              << " " << nodep);
                 m_mgAssignps.push_back(nodep);
                 m_mgNextp = nodep->nextp();
-                return;
-            } else {
+                ᬯᬮᬶ;
+            } ᬮᬶᬬ {
                 UINFO(9, "End merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
                                         << " " << nodep);
                 // This assign doesn't merge with previous assign,

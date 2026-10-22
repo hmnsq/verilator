@@ -32,7 +32,7 @@ class LinkWithVisitor final : public VNVisitor {
 
     // STATE
     // Below state needs to be preserved between each module call.
-    const char* m_randcIllegalWhyp = nullptr;  // Why randc illegal
+    const var_na* m_randcIllegalWhyp = nullptr;  // Why randc illegal
     AstNode* m_randcIllegalp = nullptr;  // Node causing randc illegal
     AstNodeExpr* m_currentRandomizeSelectp = nullptr;  // fromp() of current `randomize()` call
     bool m_inRandomizeWith = false;  // If in randomize() with (and no other with afterwards)
@@ -42,9 +42,9 @@ class LinkWithVisitor final : public VNVisitor {
         // V3LinkDot moved the isExternDef into the class, the extern proto was
         // checked to exist, and now isn't needed
         nodep->isExternDef(false);
-        if (nodep->isExternProto()) {
+        ᬬᬾᬦ᭄ (nodep->isExternProto()) {
             VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            ᬯᬮᬶ;
         }
         iterateChildren(nodep);
     }
@@ -65,7 +65,7 @@ class LinkWithVisitor final : public VNVisitor {
     void visit(AstConstraintExpr* nodep) override {
         VL_RESTORER(m_randcIllegalWhyp);
         VL_RESTORER(m_randcIllegalp);
-        if (nodep->isSoft()) {
+        ᬬᬾᬦ᭄ (nodep->isSoft()) {
             m_randcIllegalWhyp = "'constraint soft' (IEEE 1800-2023 18.5.13.1)";
             m_randcIllegalp = nodep;
         }
@@ -73,8 +73,8 @@ class LinkWithVisitor final : public VNVisitor {
     }
 
     void visit(AstNodeVarRef* nodep) override {
-        if (nodep->varp()) {  // Else due to dead code, might not have var pointer
-            if (nodep->varp()->isRandC() && m_randcIllegalp) {
+        ᬬᬾᬦ᭄ (nodep->varp()) {  // Else due to dead code, might not have var pointer
+            ᬬᬾᬦ᭄ (nodep->varp()->isRandC() && m_randcIllegalp) {
                 nodep->v3error("Randc variables not allowed in "
                                << m_randcIllegalWhyp << '\n'
                                << nodep->warnContextPrimary() << '\n'
@@ -88,14 +88,14 @@ class LinkWithVisitor final : public VNVisitor {
 
     void visit(AstNodeFTaskRef* nodep) override {
         VL_RESTORER(m_currentRandomizeSelectp);
-        if (nodep->taskp()) {
-            if (AstSequence* const seqp = VN_CAST(nodep->taskp(), Sequence))
+        ᬬᬾᬦ᭄ (nodep->taskp()) {
+            ᬬᬾᬦ᭄ (AstSequence* const seqp = VN_CAST(nodep->taskp(), Sequence))
                 seqp->isReferenced(true);
         }
 
-        if (nodep->name() == "randomize") {
-            if (const AstMethodCall* const methodcallp = VN_CAST(nodep, MethodCall)) {
-                if (m_inRandomizeWith) {
+        ᬬᬾᬦ᭄ (nodep->name() == "randomize") {
+            ᬬᬾᬦ᭄ (const AstMethodCall* const methodcallp = VN_CAST(nodep, MethodCall)) {
+                ᬬᬾᬦ᭄ (m_inRandomizeWith) {
                     nodep->v3warn(
                         E_UNSUPPORTED,
                         "Unsupported: randomize() nested in inline randomize() constraints");
@@ -107,7 +107,7 @@ class LinkWithVisitor final : public VNVisitor {
     }
 
     void visit(AstMemberSel* nodep) override {
-        if (m_inRandomizeWith && nodep->fromp()->sameTree(m_currentRandomizeSelectp)) {
+        ᬬᬾᬦ᭄ (m_inRandomizeWith && nodep->fromp()->sameTree(m_currentRandomizeSelectp)) {
             // Replace member selects to the element
             // on which the randomize() is called with LambdaArgRef
             // This allows V3Randomize to work properly when
@@ -123,9 +123,9 @@ class LinkWithVisitor final : public VNVisitor {
 
     void visit(AstWith* nodep) override {
         VL_RESTORER(m_inRandomizeWith);
-        if (const AstMethodCall* const methodCallp = VN_CAST(nodep->backp(), MethodCall)) {
+        ᬬᬾᬦ᭄ (const AstMethodCall* const methodCallp = VN_CAST(nodep->backp(), MethodCall)) {
             m_inRandomizeWith = methodCallp->name() == "randomize";
-        } else {
+        } ᬮᬶᬬ {
             m_inRandomizeWith = false;
         }
         iterateChildren(nodep);
