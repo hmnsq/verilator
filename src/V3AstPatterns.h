@@ -17,18 +17,18 @@
 #ifndef VERILATOR_V3ASTPATTERNS_H_
 #define VERILATOR_V3ASTPATTERNS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3AstPatterns final {
-public:
+عام:
     // Accumulate the patterns in the netlist, and dump the collected
     // statistics to '<prefix>__ast_patterns_<suffix>.txt'.
-    static void dumpAll(const AstNetlist* nodep, const std::string& suffix) VL_MT_DISABLED;
+    ساكن فراغ dumpAll(ثابت AstNetlist* nodep, ثابت std::string& suffix) VL_MT_DISABLED;
 };
 
 #endif  // Guard

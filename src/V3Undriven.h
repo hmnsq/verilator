@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3UNDRIVEN_H_
 #define VERILATOR_V3UNDRIVEN_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Undriven final {
-public:
-    static void undrivenAll(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ undrivenAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard
