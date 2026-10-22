@@ -29,7 +29,7 @@ class V3PreExprToken final {
 public:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    ga_nanaa token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
 private:
     // MEMBERS
@@ -44,16 +44,16 @@ public:
         : m_fileline{fileline}
         , m_token{value ? ONE : ZERO} {}
     ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+    const var_na* ascii() const {
+        static const var_na* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        ᨀᨘᨒ names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
+    FileLine* fileline() const { ᨀᨘᨒ m_fileline; }
+    token_t token() const { ᨀᨘᨒ m_token; }
+    bool isValue() const { ᨀᨘᨒ m_token == ZERO || m_token == ONE; }
     bool value() const {
         UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+        ᨀᨘᨒ m_token == ONE;
     }
 };
 
@@ -67,16 +67,16 @@ class V3PreExpr final {
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
+    ga_nanaa action_t : uint8_t {
         VV,  // Value
         AA,  // Accept
         RR,  // Reduce
         SS,  // Shift
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    static const var_na* actionAscii(action_t en) {
+        static constexpr const var_na* names[] = {"VV", "AA", "RR", "SS", "EE"};
+        ᨀᨘᨒ names[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -139,22 +139,22 @@ class V3PreExpr final {
         V3PreExpr parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        for (const var_na* cp = expr.c_str(); *cp; ++cp) {
+            ᨀᨘ (tstart) {
                 tstart = false;
                 switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                pak_sa '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); bha_nga;
+                pak_sa '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); bha_nga;
+                pak_sa '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); bha_nga;
+                pak_sa '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); bha_nga;
+                pak_sa '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); bha_nga;
+                pak_sa '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); bha_nga;
+                pak_sa '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); bha_nga;
+                pak_sa '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); bha_nga;
+                pak_sa ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); bha_nga;
+                default: bha_nga;
                 }
-            } else if (*cp == ' ') {
+            } ᨀᨘᨁ ᨀᨘ (*cp == ' ') {
                 tstart = true;
             }
         }
@@ -172,14 +172,14 @@ class V3PreExpr final {
         m_values.push_back(token);
     }
     V3PreExprToken popValue() {
-        if (m_values.empty()) {
+        ᨀᨘ (m_values.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            ᨀᨘᨒ V3PreExprToken{m_firstFileline, false};
         }
         const V3PreExprToken tok = m_values.back();
         m_values.pop_back();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        ᨀᨘᨒ tok;
     }
     void reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
@@ -187,60 +187,60 @@ class V3PreExpr final {
         // UINFO(9, "Reduce " << tok.ascii());
         m_ops.pop_back();
         switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
+        pak_sa V3PreExprToken::KET: {
+            ᨀᨛ (m_ops.back().token() != V3PreExprToken::END
                    && m_ops.back().token() != V3PreExprToken::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
+            ᨀᨘ (m_ops.back().token() == V3PreExprToken::BRA) {
                 m_ops.pop_back();
-            } else {
+            } ᨀᨘᨁ {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                ᨀᨘᨒ;
             }
-            break;
+            bha_nga;
         }
-        case V3PreExprToken::LNOT: {
+        pak_sa V3PreExprToken::LNOT: {
             const V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+            bha_nga;
         }
-        case V3PreExprToken::LAND: {
+        pak_sa V3PreExprToken::LAND: {
             const V3PreExprToken rhs = popValue();
             const V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+            bha_nga;
         }
-        case V3PreExprToken::LOR: {
+        pak_sa V3PreExprToken::LOR: {
             const V3PreExprToken rhs = popValue();
             const V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+            bha_nga;
         }
-        case V3PreExprToken::IMP: {
+        pak_sa V3PreExprToken::IMP: {
             const V3PreExprToken rhs = popValue();
             const V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+            bha_nga;
         }
-        case V3PreExprToken::EQV: {
+        pak_sa V3PreExprToken::EQV: {
             const V3PreExprToken rhs = popValue();
             const V3PreExprToken lhs = popValue();
             pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+            bha_nga;
         }
         default: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            bha_nga;
         }
         }
     }
     void parse() {
-        while (!m_inputs.empty()) {
+        ᨀᨛ (!m_inputs.empty()) {
             const V3PreExprToken tok = m_inputs.front();
             m_inputs.pop_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
+            ᨀᨘ (tok.isValue()) {
                 pushValue(tok);
                 continue;
             }
@@ -251,15 +251,15 @@ class V3PreExpr final {
             UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
                                    << "][" << tok.ascii() << "]");
             switch (action) {
-            case RR:  // Reduce
+            pak_sa RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
+                bha_nga;
+            pak_sa SS:  // Shift
                 m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                bha_nga;
+            pak_sa AA:  // Accept
+                bha_nga;
+            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); ᨀᨘᨒ;
             }
         }
     }
@@ -276,14 +276,14 @@ public:
         pushOp(V3PreExprToken{flp, V3PreExprToken::END});
     }
     void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+        ᨀᨘ (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
         m_inputs.push_back(token);
     }
     bool result() {
         pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
         parse();
-        return popValue().value();
+        ᨀᨘᨒ popValue().value();
     }
     static void selfTest() VL_MT_DISABLED { selfTestImp(); }
 };

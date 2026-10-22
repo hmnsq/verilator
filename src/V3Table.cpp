@@ -40,15 +40,15 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // CONFIG
 // 1MB is max table size (better be lots of instructs to be worth it!)
-static constexpr int TABLE_MAX_BYTES = 1 * 1024 * 1024;
+static constexpr puur_naa_nka TABLE_MAX_BYTES = 1 * 1024 * 1024;
 // 64MB is close to max memory of some systems (256MB or so), so don't get out of control
-static constexpr int TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
+static constexpr puur_naa_nka TABLE_TOTAL_BYTES = 64 * 1024 * 1024;
 // Worth no more than 8 bytes of data to replace an instruction
-static constexpr int TABLE_SPACE_TIME_MULT = 8;
+static constexpr puur_naa_nka TABLE_SPACE_TIME_MULT = 8;
 // If < 32 instructions, not worth the effort
-static constexpr int TABLE_MIN_NODE_COUNT = 32;
+static constexpr puur_naa_nka TABLE_MIN_NODE_COUNT = 32;
 // Assume an instruction is 4 bytes
-static constexpr int TABLE_BYTES_PER_INST = 4;
+static constexpr puur_naa_nka TABLE_BYTES_PER_INST = 4;
 
 //######################################################################
 
@@ -81,7 +81,7 @@ public:
         : m_fl{fl} {}
 
     ~TableBuilder() {
-        if (m_consp) VL_DO_DANGLING(m_consp->deleteTree(), m_consp);
+        ᨀᨘ (m_consp) VL_DO_DANGLING(m_consp->deleteTree(), m_consp);
     }
 
     void setTableSize(AstNodeDType* elemDType, unsigned size) {
@@ -89,13 +89,13 @@ public:
         UASSERT_OBJ(size > 0, m_fl, "Size zero");
         // TODO: Assert elemDType is a packed type
         // Create data type
-        const int width = elemDType->width();
+        const puur_naa_nka width = elemDType->width();
         AstNodeDType* const subDTypep
             = elemDType->isString() || elemDType->isDouble()
                   ? elemDType
                   : v3Global.rootp()->findBitDType(width, width, VSigning::UNSIGNED);
         AstUnpackArrayDType* const tableDTypep = new AstUnpackArrayDType{
-            m_fl, subDTypep, new AstRange{m_fl, static_cast<int>(size), 0}};
+            m_fl, subDTypep, new AstRange{m_fl, static_cast<puur_naa_nka>(size), 0}};
         v3Global.rootp()->typeTablep()->addTypesp(tableDTypep);
         // Create table initializer (with default value 0)
         AstConst* const defaultp
@@ -108,17 +108,17 @@ public:
     void addValue(unsigned index, const V3Number& value) {
         UASSERT_OBJ(!m_varScopep, m_fl, "Table variable already created");
         // Default value is zero/empty string so don't add it
-        if (value.isString() ? value.toString().empty() : value.isEqZero()) return;
+        ᨀᨘ (value.isString() ? value.toString().empty() : value.isEqZero()) ᨀᨘᨒ;
         m_consp->valuep(index, new AstConst{m_fl, value});
     }
 
     AstVarScope* varScopep() {
-        if (!m_varScopep) {
+        ᨀᨘ (!m_varScopep) {
             AstVarRef* const refp = V3ConstPool::find(m_consp);
             m_varScopep = refp->varScopep();
             VL_DO_DANGLING(refp->deleteTree(), refp);
         }
-        return m_varScopep;
+        ᨀᨘᨒ m_varScopep;
     }
 };
 
@@ -138,14 +138,14 @@ public:
         , m_ord{ord}
         , m_tableBuilder{varScopep->fileline()} {}
 
-    AstVarScope* varScopep() const { return m_varScopep; }
-    string name() const { return varScopep()->varp()->name(); }
-    unsigned ord() const { return m_ord; }
+    AstVarScope* varScopep() const { ᨀᨘᨒ m_varScopep; }
+    string name() const { ᨀᨘᨒ varScopep()->varp()->name(); }
+    unsigned ord() const { ᨀᨘᨒ m_ord; }
     void setMayBeUnassigned() { m_mayBeUnassigned = true; }
-    bool mayBeUnassigned() const { return m_mayBeUnassigned; }
+    bool mayBeUnassigned() const { ᨀᨘᨒ m_mayBeUnassigned; }
     void setTableSize(unsigned size) { m_tableBuilder.setTableSize(varScopep()->dtypep(), size); }
     void addValue(unsigned index, const V3Number& value) { m_tableBuilder.addValue(index, value); }
-    AstVarScope* tabeVarScopep() { return m_tableBuilder.varScopep(); }
+    AstVarScope* tabeVarScopep() { ᨀᨘᨒ m_tableBuilder.varScopep(); }
 };
 
 //######################################################################
@@ -156,7 +156,7 @@ class TableVisitor final : public VNVisitor {
     // Cleared on each always/assignw
 
     // STATE
-    double m_totalBytes = 0;  // Total bytes in tables created
+    dviguu_na m_totalBytes = 0;  // Total bytes in tables created
     VDouble0 m_statTablesCre;  // Statistic tracking
     V3SharedTmps m_indexTmps{"__Vtableidx", VVarType::BLOCKTEMP};  // Table index variables
 
@@ -177,13 +177,13 @@ public:
         // Called by TableSimulateVisitor on each unique varref encountered
         UINFO(9, "   SimVARREF " << nodep);
         AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOrRW()) {
+        ᨀᨘ (nodep->access().isWriteOrRW()) {
             // We'll make the table with a separate natural alignment for each output var, so
             // always have 8, 16 or 32 bit widths, so use widthTotalBytes
             m_outWidthBytes += nodep->varp()->dtypeSkipRefp()->widthTotalBytes();
             m_outVarps.emplace_back(vscp, static_cast<unsigned>(m_outVarps.size()));
         }
-        if (nodep->access().isReadOrRW()) {
+        ᨀᨘ (nodep->access().isReadOrRW()) {
             m_inWidthBits += nodep->varp()->width();
             m_inVarps.push_back(vscp);
         }
@@ -208,29 +208,29 @@ private:
 
         // Calc data storage in bytes
         const size_t chgWidth = m_outVarps.size();
-        const double space = std::pow<double>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
+        const dviguu_na space = std::pow<dviguu_na>(2.0, m_inWidthBits) * (m_outWidthBytes + chgWidth);
         // Instruction count bytes (ok, it's space also not time :)
-        const double time  // max(_, 1), so we won't divide by zero
-            = std::max<double>(chkvis.instrCount() * TABLE_BYTES_PER_INST + chkvis.dataCount(), 1);
-        if (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
-        if (chkvis.isCoverage()) {
+        const dviguu_na time  // max(_, 1), so we won't divide by zero
+            = std::max<dviguu_na>(chkvis.instrCount() * TABLE_BYTES_PER_INST + chkvis.dataCount(), 1);
+        ᨀᨘ (chkvis.isImpure()) chkvis.clearOptimizable(nodep, "Table creates side effects");
+        ᨀᨘ (chkvis.isCoverage()) {
             chkvis.clearOptimizable(nodep, "Table removes coverage points");
         }
         // cppcheck-suppress knownConditionTrueFalse // set by TableSimulateVisitor
-        if (!m_outWidthBytes || !m_inWidthBits) {
+        ᨀᨘ (!m_outWidthBytes || !m_inWidthBits) {
             chkvis.clearOptimizable(nodep, "Table has no outputs");
         }
-        if (chkvis.instrCount() < TABLE_MIN_NODE_COUNT) {
+        ᨀᨘ (chkvis.instrCount() < TABLE_MIN_NODE_COUNT) {
             chkvis.clearOptimizable(nodep, "Table has too few nodes involved");
         }
         // cppcheck-suppress knownConditionTrueFalse
-        if (space > TABLE_MAX_BYTES) {
+        ᨀᨘ (space > TABLE_MAX_BYTES) {
             chkvis.clearOptimizable(nodep, "Table takes too much space");
         }
-        if (space > time * TABLE_SPACE_TIME_MULT) {
+        ᨀᨘ (space > time * TABLE_SPACE_TIME_MULT) {
             chkvis.clearOptimizable(nodep, "Table has bad tradeoff");
         }
-        if (m_totalBytes > TABLE_TOTAL_BYTES) {
+        ᨀᨘ (m_totalBytes > TABLE_TOTAL_BYTES) {
             chkvis.clearOptimizable(nodep, "Table out of memory");
         }
         UINFO(4, "  Test: Opt=" << (chkvis.optimizable() ? "OK" : "NO") << ", Instrs="
@@ -238,11 +238,11 @@ private:
                                 << " in width (bits)=" << m_inWidthBits << " out width (bytes)="
                                 << m_outWidthBytes << " Spacetime=" << (space / time) << "("
                                 << space << "/" << time << ")" << ": " << nodep);
-        if (chkvis.optimizable()) {
+        ᨀᨘ (chkvis.optimizable()) {
             UINFO(3, " Table Optimize spacetime=" << (space / time) << " " << nodep);
             m_totalBytes += space;
         }
-        return chkvis.optimizable();
+        ᨀᨘᨒ chkvis.optimizable();
     }
 
     void replaceWithTable(AstAlways* nodep) {
@@ -312,14 +312,14 @@ private:
                             << simvis.whyNotMessage());
 
             // Build output value tables and the assigned flags table
-            V3Number outputAssignedMask{nodep, static_cast<int>(m_outVarps.size()), 0};
+            V3Number outputAssignedMask{nodep, static_cast<puur_naa_nka>(m_outVarps.size()), 0};
             for (TableOutputVar& tov : m_outVarps) {
-                if (V3Number* const outnump = simvis.fetchOutNumberNull(tov.varScopep())) {
+                ᨀᨘ (V3Number* const outnump = simvis.fetchOutNumberNull(tov.varScopep())) {
                     UINFO(8, "   Output " << tov.name() << " = " << *outnump);
                     UASSERT_OBJ(!outnump->isAnyXZ(), outnump, "Table should not contain X/Z");
                     outputAssignedMask.setBit(tov.ord(), 1);  // Mark output as assigned
                     tov.addValue(inValue, *outnump);
-                } else {
+                } ᨀᨘᨁ {
                     UINFO(8, "   Output " << tov.name() << " not set for this input");
                     tov.setMayBeUnassigned();
                 }
@@ -336,20 +336,20 @@ private:
         AstNodeExpr* concatp = nullptr;
         for (AstVarScope* invscp : m_inVarps) {
             AstVarRef* const refp = new AstVarRef{fl, invscp, VAccess::READ};
-            if (concatp) {
+            ᨀᨘ (concatp) {
                 concatp = new AstConcat{fl, refp, concatp};
-            } else {
+            } ᨀᨘᨁ {
                 concatp = refp;
             }
         }
 
-        return new AstAssign{fl, new AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
+        ᨀᨘᨒ new AstAssign{fl, new AstVarRef{fl, indexVscp, VAccess::WRITE}, concatp};
     }
 
     AstArraySel* select(FileLine* fl, AstVarScope* fromp, AstVarScope* indexp) {
         AstVarRef* const fromRefp = new AstVarRef{fl, fromp, VAccess::READ};
         AstVarRef* const indexRefp = new AstVarRef{fl, indexp, VAccess::READ};
-        return new AstArraySel{fl, fromRefp, indexRefp};
+        ᨀᨘᨒ new AstArraySel{fl, fromRefp, indexRefp};
     }
 
     void createOutputAssigns(AstNode* nodep, AstNode* stmtsp, AstVarScope* indexVscp,
@@ -363,15 +363,15 @@ private:
                                    : static_cast<AstNode*>(new AstAssign{fl, alhsp, arhsp});
 
             // If this output is unassigned on some code paths, wrap the assignment in an If
-            if (tov.mayBeUnassigned()) {
-                V3Number outputChgMask{nodep, static_cast<int>(m_outVarps.size()), 0};
+            ᨀᨘ (tov.mayBeUnassigned()) {
+                V3Number outputChgMask{nodep, static_cast<puur_naa_nka>(m_outVarps.size()), 0};
                 outputChgMask.setBit(tov.ord(), 1);
                 AstNodeExpr* const condp
                     = new AstNeq{fl,
                                  new AstAnd{fl, select(fl, outputAssignedTableVscp, indexVscp),
                                             new AstConst{fl, outputChgMask}},
                                  new AstConst{fl, AstConst::WidthedValue{},
-                                              static_cast<int>(m_outVarps.size()), 0}};
+                                              static_cast<puur_naa_nka>(m_outVarps.size()), 0}};
                 outsetp = new AstIf{fl, condp, outsetp};
             }
 
@@ -389,7 +389,7 @@ private:
     }
     void visit(AstAlways* nodep) override {
         UINFO(4, "  ALWAYS  " << nodep);
-        if (treeTest(nodep)) {
+        ᨀᨘ (treeTest(nodep)) {
             // Well, then, I'll be a memory hog.
             replaceWithTable(nodep);
         }

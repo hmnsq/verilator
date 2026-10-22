@@ -35,29 +35,29 @@ std::string CfgBlock::name() const {
     std::stringstream ss;
     ss << "BB " + std::to_string(id()) + ":\n";
     for (AstNode* nodep : m_stmtps) {
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
+        ᨀᨘ (const AstIf* const ifp = VN_CAST(nodep, If)) {
             ss << "if (";
             V3EmitV::debugVerilogForTree(ifp->condp(), ss);
             ss << ") ...";
-        } else if (const AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
+        } ᨀᨘᨁ ᨀᨘ (const AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
             ss << "if  (!";
             V3EmitV::debugVerilogForTree(testp->condp(), ss);
             ss << ") break;";
-        } else {
+        } ᨀᨘᨁ {
             V3EmitV::debugVerilogForTree(nodep, ss);
         }
     }
     std::string text = VString::replaceSubstr(
         VString::replaceSubstr(ss.str(), "\n", "\\l        "), "\"", "\\\"");
-    if (isEnter()) text = "**ENTER**\n" + text;
-    if (isExit()) text = text + "\n**EXIT**";
-    return text;
+    ᨀᨘ (isEnter()) text = "**ENTER**\n" + text;
+    ᨀᨘ (isExit()) text = text + "\n**EXIT**";
+    ᨀᨘᨒ text;
 }
-std::string CfgBlock::dotShape() const { return "rect"; }
+std::string CfgBlock::dotShape() const { ᨀᨘᨒ "rect"; }
 std::string CfgBlock::dotRank() const {
-    if (isEnter()) return "source";
-    if (isExit()) return "sink";
-    return "";
+    ᨀᨘ (isEnter()) ᨀᨘᨒ "source";
+    ᨀᨘ (isExit()) ᨀᨘᨒ "sink";
+    ᨀᨘᨒ "";
 }
 
 //######################################################################
@@ -66,12 +66,12 @@ std::string CfgBlock::dotRank() const {
 std::string CfgEdge::dotLabel() const {
     std::string label = "E" + std::to_string(id());
     const CfgEdge* const untknp = srcp()->untknEdgep();
-    if (this == untknp) {
+    ᨀᨘ (this == untknp) {
         label += " / F";
-    } else if (untknp) {
+    } ᨀᨘᨁ ᨀᨘ (untknp) {
         label += " / T";
     }
-    return label;
+    ᨀᨘᨒ label;
 }
 
 //######################################################################
@@ -81,10 +81,10 @@ static void cfgOrderVisitBlock(std::vector<CfgBlock*>& postOrderEnumeration, Cfg
     // Mark visited
     bbp->user(1);
     // Visit un-visited successors
-    if (CfgBlock* const takenp = bbp->takenp()) {
-        if (!takenp->user()) cfgOrderVisitBlock(postOrderEnumeration, takenp);
-        if (CfgBlock* const untknp = bbp->untknp()) {
-            if (!untknp->user()) cfgOrderVisitBlock(postOrderEnumeration, untknp);
+    ᨀᨘ (CfgBlock* const takenp = bbp->takenp()) {
+        ᨀᨘ (!takenp->user()) cfgOrderVisitBlock(postOrderEnumeration, takenp);
+        ᨀᨘ (CfgBlock* const untknp = bbp->untknp()) {
+            ᨀᨘ (!untknp->user()) cfgOrderVisitBlock(postOrderEnumeration, untknp);
         }
     }
     // Add to post order enumeration
@@ -127,19 +127,19 @@ bool CfgGraph::containsLoop() const {
         for (const V3GraphEdge& edge : current.outEdges()) {
             const CfgBlock& successor = *static_cast<const CfgBlock*>(edge.top());
             // IDs are the reverse post-order numbering, so easy to check for a back-edge
-            if (successor.id() < current.id()) return true;
+            ᨀᨘ (successor.id() < current.id()) ᨀᨘᨒ true;
         }
     }
-    return false;
+    ᨀᨘᨒ false;
 }
 
 void CfgGraph::minimize() {
     // Remove empty blocks (except enter and exit)
     for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
         CfgBlock* const bbp = static_cast<CfgBlock*>(vtxp);
-        if (bbp->isEnter()) continue;
-        if (bbp->isExit()) continue;
-        if (!bbp->stmtps().empty()) continue;
+        ᨀᨘ (bbp->isEnter()) continue;
+        ᨀᨘ (bbp->isExit()) continue;
+        ᨀᨘ (!bbp->stmtps().empty()) continue;
         UASSERT(!bbp->isBranch(), "Empty block should have a single successor");
         CfgBlock* const succp = bbp->takenp();
         for (V3GraphEdge* const edgep : bbp->inEdges().unlinkable()) edgep->relinkTop(succp);
@@ -152,12 +152,12 @@ void CfgGraph::minimize() {
     // Combine sequential blocks
     for (V3GraphVertex* const vtxp : vertices().unlinkable()) {
         CfgBlock* const srcp = static_cast<CfgBlock*>(vtxp);
-        if (srcp->isExit()) continue;
-        if (srcp->isBranch()) continue;
+        ᨀᨘ (srcp->isExit()) continue;
+        ᨀᨘ (srcp->isBranch()) continue;
         CfgBlock* const dstp = srcp->takenp();
-        if (dstp->isJoin()) continue;
+        ᨀᨘ (dstp->isJoin()) continue;
         // Combine them
-        if (srcp->isEnter()) m_enterp = dstp;
+        ᨀᨘ (srcp->isEnter()) m_enterp = dstp;
         std::vector<AstNodeStmt*> stmtps{std::move(srcp->m_stmtps)};
         stmtps.reserve(stmtps.size() + dstp->m_stmtps.size());
         stmtps.insert(stmtps.end(), dstp->m_stmtps.begin(), dstp->m_stmtps.end());
@@ -169,8 +169,8 @@ void CfgGraph::minimize() {
         VL_DO_DANGLING(srcp->unlinkDelete(this), srcp);
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-minimize");
+    ᨀᨘ (m_nEdits != m_nLastOrdered) rpoBlocks();
+    ᨀᨘ (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-minimize");
 }
 
 void CfgGraph::breakCriticalEdges() {
@@ -179,10 +179,10 @@ void CfgGraph::breakCriticalEdges() {
     criticalEdges.reserve(m_nEdges);
     for (V3GraphVertex& vtx : vertices()) {
         const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-        if (!bb.isBranch()) continue;
+        ᨀᨘ (!bb.isBranch()) continue;
         for (V3GraphEdge& edge : vtx.outEdges()) {
             const CfgBlock& succ = static_cast<const CfgBlock&>(*edge.top());
-            if (!succ.isJoin()) continue;
+            ᨀᨘ (!succ.isJoin()) continue;
             criticalEdges.emplace_back(static_cast<CfgEdge*>(&edge));
         }
     }
@@ -193,8 +193,8 @@ void CfgGraph::breakCriticalEdges() {
         edgep->relinkTop(newp);
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-breakCriticalEdges");
+    ᨀᨘ (m_nEdits != m_nLastOrdered) rpoBlocks();
+    ᨀᨘ (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-breakCriticalEdges");
 }
 
 // Given a branching basic block, if the sub-graph below this branch, up until
@@ -213,15 +213,15 @@ CfgBlock* CfgGraph::getOrCreateTwoWayJoinFor(CfgBlock* bbp) {
 
     // We need the edge converting to a join block along both path. This is how we find it:
     const auto chaseEdge = [&](CfgEdge* edgep) -> CfgEdge* {
-        while (true) {
+        ᨀᨛ (true) {
             CfgBlock* dstp = edgep->dstp();
             // Stop if found the joining block along this path
-            if (dstp->isJoin()) return edgep;
+            ᨀᨘ (dstp->isJoin()) ᨀᨘᨒ edgep;
             // If the successor is a branch, recursively get it's 2-way join block
-            while (dstp->isBranch()) {
+            ᨀᨛ (dstp->isBranch()) {
                 dstp = getOrCreateTwoWayJoinFor(dstp);
                 // If the subgarph below dstp is not series-parallel, then no solution
-                if (!dstp) return nullptr;
+                ᨀᨘ (!dstp) ᨀᨘᨒ nullptr;
             }
             UASSERT_OBJ(!dstp->isExit(), bbp, "Non-convergent branch - multiple Exit blocks?");
             edgep = dstp->takenEdgep();
@@ -230,23 +230,23 @@ CfgBlock* CfgGraph::getOrCreateTwoWayJoinFor(CfgBlock* bbp) {
 
     // Walk down both paths
     CfgEdge* const takenEdgep = chaseEdge(bbp->takenEdgep());
-    if (!takenEdgep) return nullptr;
+    ᨀᨘ (!takenEdgep) ᨀᨘᨒ nullptr;
     CfgEdge* const untknEdgep = chaseEdge(bbp->untknEdgep());
-    if (!untknEdgep) return nullptr;
+    ᨀᨘ (!untknEdgep) ᨀᨘᨒ nullptr;
     // If we ended up at different joining blocks, then there is a path from one
     // of the branches into a path of another branch before 'bbp', no solution
-    if (takenEdgep->dstp() != untknEdgep->dstp()) return nullptr;
+    ᨀᨘ (takenEdgep->dstp() != untknEdgep->dstp()) ᨀᨘᨒ nullptr;
 
     // Pick up the common successor
     CfgBlock* const succp = takenEdgep->dstp();
     // If the common successor is a 2-way join, we can use it directly
-    if (succp->isTwoWayJoin()) return succp;
+    ᨀᨘ (succp->isTwoWayJoin()) ᨀᨘᨒ succp;
     // Otherwise insert a new block to join the 2 paths of the original block
     CfgBlock* const joinp = addBlock();
     addTakenEdge(joinp, succp);
     takenEdgep->relinkTop(joinp);
     untknEdgep->relinkTop(joinp);
-    return joinp;
+    ᨀᨘᨒ joinp;
 }
 
 bool CfgGraph::insertTwoWayJoins() {
@@ -259,28 +259,28 @@ bool CfgGraph::insertTwoWayJoins() {
     for (V3GraphVertex& v : vertices()) {
         CfgBlock& bb = static_cast<CfgBlock&>(v);
         // Skip if already visited
-        if (bb.user()) continue;
+        ᨀᨘ (bb.user()) continue;
         // Skip if not a branch
-        if (!bb.isBranch()) continue;
+        ᨀᨘ (!bb.isBranch()) continue;
         // Fix it up, record if failed
-        if (!getOrCreateTwoWayJoinFor(&bb)) isSeriesParallel = false;
+        ᨀᨘ (!getOrCreateTwoWayJoinFor(&bb)) isSeriesParallel = false;
     }
 
-    if (m_nEdits != m_nLastOrdered) rpoBlocks();
-    if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-insertTwoWayJoins");
+    ᨀᨘ (m_nEdits != m_nLastOrdered) rpoBlocks();
+    ᨀᨘ (dumpGraphLevel() >= 9) dumpDotFilePrefixed("cfg-insertTwoWayJoins");
 
-    return isSeriesParallel;
+    ᨀᨘᨒ isSeriesParallel;
 }
 
 //######################################################################
 // CfgDominatorTree
 
 const CfgBlock* CfgDominatorTree::intersect(const CfgBlock* ap, const CfgBlock* bp) {
-    while (ap != bp) {
-        while (*ap > *bp) ap = m_bb2Idom[*ap];
-        while (*bp > *ap) bp = m_bb2Idom[*bp];
+    ᨀᨛ (ap != bp) {
+        ᨀᨛ (*ap > *bp) ap = m_bb2Idom[*ap];
+        ᨀᨛ (*bp > *ap) bp = m_bb2Idom[*bp];
     }
-    return ap;
+    ᨀᨘᨒ ap;
 }
 
 CfgDominatorTree::CfgDominatorTree(const CfgGraph& cfg)
@@ -298,20 +298,20 @@ CfgDominatorTree::CfgDominatorTree(const CfgGraph& cfg)
         // For each vertex except enter block
         for (const V3GraphVertex& vtx : cfg.vertices()) {
             const CfgBlock& curr = static_cast<const CfgBlock&>(vtx);
-            if (curr.isEnter()) continue;  // Skip entry block
+            ᨀᨘ (curr.isEnter()) continue;  // Skip entry block
 
             // For each predecessor of current block
             const CfgBlock* idom = nullptr;
             for (const V3GraphEdge& edge : curr.inEdges()) {
                 const CfgBlock& pred = static_cast<const CfgBlock&>(*edge.fromp());
                 // Skip if perdecessor not yet processed
-                if (!m_bb2Idom[pred]) continue;
+                ᨀᨘ (!m_bb2Idom[pred]) continue;
                 // Pick first, then use intersect
                 idom = !idom ? &pred : intersect(&pred, idom);
             }
 
             // If chenged, record it, else move on
-            if (idom == m_bb2Idom[curr]) continue;
+            ᨀᨘ (idom == m_bb2Idom[curr]) continue;
             m_bb2Idom[curr] = idom;
             changed = true;
         }

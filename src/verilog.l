@@ -32,7 +32,7 @@
 #define PARSEP V3ParseImp::parsep()
 
 #define YY_INPUT(buf, result, max_size) \
-    do { result = PARSEP->flexPpInputToLex(buf, max_size); } while (false)
+    do { result = PARSEP->flexPpInputToLex(buf, max_size); } ᨀᨛ (false)
 
 //======================================================================
 
@@ -46,37 +46,37 @@
     do { \
         FL_FWD; \
         yylval.fl = CRELINE(); \
-    } while (false)
+    } ᨀᨛ (false)
 
 #define STR \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(AstNode::encodeName(str)); \
-    } while (false)
+    } ᨀᨛ (false)
 
 #define STR_FILEPATH \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(str); \
-    } while (false)
+    } ᨀᨛ (false)
 
 #define ERROR_RSVD_WORD(language) \
     do { \
         yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: " << language \
                                                          << " reserved word not implemented: '" \
                                                          << yytext << "'"); \
-    } while (0)
+    } ᨀᨛ (0)
 
 //======================================================================
 
-static double lexParseDouble(FileLine* fl, const char* textp, size_t length) {
+static dviguu_na lexParseDouble(FileLine* fl, const var_na* textp, size_t length) {
     const string text = std::string{textp, length};
     bool success = false;
-    const double d = VString::parseDouble(text, &success);
+    const dviguu_na d = VString::parseDouble(text, &success);
     // Below never fails, instead can't lex the number
-    if (VL_UNCOVERABLE(!success))
+    ᨀᨘ (VL_UNCOVERABLE(!success))
         fl->v3error("Syntax error parsing real: '" << textp << "'");  // LCOV_EXCL_LINE
-    return d;
+    ᨀᨘᨒ d;
 }
 
 // clang-format off
@@ -118,10 +118,10 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <FILEPATH>{
   {ws}            { FL_FWD; FL_BRK; }
   {crnl}          { FL_FWD; FL_BRK; }
-  "-incdir"       { FL; return yINCDIR; }
-  ";"             { yy_pop_state(); return ';'; }
-  ","             { FL; return ','; }
-  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; return yaSTRING; }
+  "-incdir"       { FL; ᨀᨘᨒ yINCDIR; }
+  ";"             { yy_pop_state(); ᨀᨘᨒ ';'; }
+  ","             { FL; ᨀᨘᨒ ','; }
+  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; ᨀᨘᨒ yaSTRING; }
 }
 
   /************************************************************************/
@@ -130,70 +130,70 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
 
-  "clock_enable"        { FL; return yVLT_CLOCK_ENABLE; }
-  "clocker"             { FL; return yVLT_CLOCKER; }
-  "coverage_block_off"  { FL; return yVLT_COVERAGE_BLOCK_OFF; }
-  "coverage_off"        { FL; return yVLT_COVERAGE_OFF; }
-  "coverage_on"         { FL; return yVLT_COVERAGE_ON; }
-  "forceable"           { FL; return yVLT_FORCEABLE; }
-  "fsm_register_wrapper" { FL; return yVLT_FSM_REGISTER_WRAPPER; }
-  "full_case"           { FL; return yVLT_FULL_CASE; }
-  "hier_block"          { FL; return yVLT_HIER_BLOCK; }
-  "hier_params"         { FL; return yVLT_HIER_PARAMS; }
-  "hier_workers"        { FL; return yVLT_HIER_WORKERS; }
-  "inline"              { FL; return yVLT_INLINE; }
-  "isolate_assignments" { FL; return yVLT_ISOLATE_ASSIGNMENTS; }
-  "lint_off"            { FL; return yVLT_LINT_OFF; }
-  "lint_on"             { FL; return yVLT_LINT_ON; }
-  "no_clocker"          { FL; return yVLT_NO_CLOCKER; }
-  "no_inline"           { FL; return yVLT_NO_INLINE; }
-  "parallel_case"       { FL; return yVLT_PARALLEL_CASE; }
-  "profile_data"        { FL; return yVLT_PROFILE_DATA; }
-  "public"              { FL; return yVLT_PUBLIC; }
-  "public_flat"         { FL; return yVLT_PUBLIC_FLAT; }
-  "public_flat_rd"      { FL; return yVLT_PUBLIC_FLAT_RD; }
-  "public_flat_rw"      { FL; return yVLT_PUBLIC_FLAT_RW; }
-  "public_module"       { FL; return yVLT_PUBLIC_MODULE; }
-  "sc_biguint"          { FL; return yVLT_SC_BIGUINT; }
-  "sc_bv"               { FL; return yVLT_SC_BV; }
-  "sformat"             { FL; return yVLT_SFORMAT; }
-  "split_var"           { FL; return yVLT_SPLIT_VAR; }
-  "timing_off"          { FL; return yVLT_TIMING_OFF; }
-  "timing_on"           { FL; return yVLT_TIMING_ON; }
-  "tracing_off"         { FL; return yVLT_TRACING_OFF; }
-  "tracing_on"          { FL; return yVLT_TRACING_ON; }
-  "verilator_lib"       { FL; return yVLT_VERILATOR_LIB; }
+  "clock_enable"        { FL; ᨀᨘᨒ yVLT_CLOCK_ENABLE; }
+  "clocker"             { FL; ᨀᨘᨒ yVLT_CLOCKER; }
+  "coverage_block_off"  { FL; ᨀᨘᨒ yVLT_COVERAGE_BLOCK_OFF; }
+  "coverage_off"        { FL; ᨀᨘᨒ yVLT_COVERAGE_OFF; }
+  "coverage_on"         { FL; ᨀᨘᨒ yVLT_COVERAGE_ON; }
+  "forceable"           { FL; ᨀᨘᨒ yVLT_FORCEABLE; }
+  "fsm_register_wrapper" { FL; ᨀᨘᨒ yVLT_FSM_REGISTER_WRAPPER; }
+  "full_case"           { FL; ᨀᨘᨒ yVLT_FULL_CASE; }
+  "hier_block"          { FL; ᨀᨘᨒ yVLT_HIER_BLOCK; }
+  "hier_params"         { FL; ᨀᨘᨒ yVLT_HIER_PARAMS; }
+  "hier_workers"        { FL; ᨀᨘᨒ yVLT_HIER_WORKERS; }
+  "inline"              { FL; ᨀᨘᨒ yVLT_INLINE; }
+  "isolate_assignments" { FL; ᨀᨘᨒ yVLT_ISOLATE_ASSIGNMENTS; }
+  "lint_off"            { FL; ᨀᨘᨒ yVLT_LINT_OFF; }
+  "lint_on"             { FL; ᨀᨘᨒ yVLT_LINT_ON; }
+  "no_clocker"          { FL; ᨀᨘᨒ yVLT_NO_CLOCKER; }
+  "no_inline"           { FL; ᨀᨘᨒ yVLT_NO_INLINE; }
+  "parallel_case"       { FL; ᨀᨘᨒ yVLT_PARALLEL_CASE; }
+  "profile_data"        { FL; ᨀᨘᨒ yVLT_PROFILE_DATA; }
+  "public"              { FL; ᨀᨘᨒ yVLT_PUBLIC; }
+  "public_flat"         { FL; ᨀᨘᨒ yVLT_PUBLIC_FLAT; }
+  "public_flat_rd"      { FL; ᨀᨘᨒ yVLT_PUBLIC_FLAT_RD; }
+  "public_flat_rw"      { FL; ᨀᨘᨒ yVLT_PUBLIC_FLAT_RW; }
+  "public_module"       { FL; ᨀᨘᨒ yVLT_PUBLIC_MODULE; }
+  "sc_biguint"          { FL; ᨀᨘᨒ yVLT_SC_BIGUINT; }
+  "sc_bv"               { FL; ᨀᨘᨒ yVLT_SC_BV; }
+  "sformat"             { FL; ᨀᨘᨒ yVLT_SFORMAT; }
+  "split_var"           { FL; ᨀᨘᨒ yVLT_SPLIT_VAR; }
+  "timing_off"          { FL; ᨀᨘᨒ yVLT_TIMING_OFF; }
+  "timing_on"           { FL; ᨀᨘᨒ yVLT_TIMING_ON; }
+  "tracing_off"         { FL; ᨀᨘᨒ yVLT_TRACING_OFF; }
+  "tracing_on"          { FL; ᨀᨘᨒ yVLT_TRACING_ON; }
+  "verilator_lib"       { FL; ᨀᨘᨒ yVLT_VERILATOR_LIB; }
 
-  -?"-block"            { FL; return yVLT_D_BLOCK; }
-  -?"-contents"         { FL; return yVLT_D_CONTENTS; }
-  -?"-cost"             { FL; return yVLT_D_COST; }
-  -?"-clock"            { FL; return yVLT_D_CLOCK; }
-  -?"-d"                { FL; return yVLT_D_D; }
-  -?"-file"             { FL; return yVLT_D_FILE; }
-  -?"-function"         { FL; return yVLT_D_FUNCTION; }
-  -?"-hier-dpi"         { FL; return yVLT_D_HIER_DPI; }
-  -?"-levels"           { FL; return yVLT_D_LEVELS; }
-  -?"-lines"            { FL; return yVLT_D_LINES; }
-  -?"-match"            { FL; return yVLT_D_MATCH; }
-  -?"-model"            { FL; return yVLT_D_MODEL; }
-  -?"-module"           { FL; return yVLT_D_MODULE; }
-  -?"-mtask"            { FL; return yVLT_D_MTASK; }
-  -?"-param"            { FL; return yVLT_D_PARAM; }
-  -?"-port"             { FL; return yVLT_D_PORT; }
-  -?"-rule"             { FL; return yVLT_D_RULE; }
-  -?"-q"                { FL; return yVLT_D_Q; }
-  -?"-reset"            { FL; return yVLT_D_RESET; }
-  -?"-reset_value"      { FL; return yVLT_D_RESET_VALUE; }
-  -?"-scope"            { FL; return yVLT_D_SCOPE; }
-  -?"-task"             { FL; return yVLT_D_TASK; }
-  -?"-var"              { FL; return yVLT_D_VAR; }
-  -?"-workers"          { FL; return yVLT_D_WORKERS; }
+  -?"-block"            { FL; ᨀᨘᨒ yVLT_D_BLOCK; }
+  -?"-contents"         { FL; ᨀᨘᨒ yVLT_D_CONTENTS; }
+  -?"-cost"             { FL; ᨀᨘᨒ yVLT_D_COST; }
+  -?"-clock"            { FL; ᨀᨘᨒ yVLT_D_CLOCK; }
+  -?"-d"                { FL; ᨀᨘᨒ yVLT_D_D; }
+  -?"-file"             { FL; ᨀᨘᨒ yVLT_D_FILE; }
+  -?"-function"         { FL; ᨀᨘᨒ yVLT_D_FUNCTION; }
+  -?"-hier-dpi"         { FL; ᨀᨘᨒ yVLT_D_HIER_DPI; }
+  -?"-levels"           { FL; ᨀᨘᨒ yVLT_D_LEVELS; }
+  -?"-lines"            { FL; ᨀᨘᨒ yVLT_D_LINES; }
+  -?"-match"            { FL; ᨀᨘᨒ yVLT_D_MATCH; }
+  -?"-model"            { FL; ᨀᨘᨒ yVLT_D_MODEL; }
+  -?"-module"           { FL; ᨀᨘᨒ yVLT_D_MODULE; }
+  -?"-mtask"            { FL; ᨀᨘᨒ yVLT_D_MTASK; }
+  -?"-param"            { FL; ᨀᨘᨒ yVLT_D_PARAM; }
+  -?"-port"             { FL; ᨀᨘᨒ yVLT_D_PORT; }
+  -?"-rule"             { FL; ᨀᨘᨒ yVLT_D_RULE; }
+  -?"-q"                { FL; ᨀᨘᨒ yVLT_D_Q; }
+  -?"-reset"            { FL; ᨀᨘᨒ yVLT_D_RESET; }
+  -?"-reset_value"      { FL; ᨀᨘᨒ yVLT_D_RESET_VALUE; }
+  -?"-scope"            { FL; ᨀᨘᨒ yVLT_D_SCOPE; }
+  -?"-task"             { FL; ᨀᨘᨒ yVLT_D_TASK; }
+  -?"-var"              { FL; ᨀᨘᨒ yVLT_D_VAR; }
+  -?"-workers"          { FL; ᨀᨘᨒ yVLT_D_WORKERS; }
 
   /* Reachable by attr_event_control */
-  "edge"                { FL; return yEDGE; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "or"                  { FL; return yOR; }
-  "posedge"             { FL; return yPOSEDGE; }
+  "edge"                { FL; ᨀᨘᨒ yEDGE; }
+  "negedge"             { FL; ᨀᨘᨒ yNEGEDGE; }
+  "or"                  { FL; ᨀᨘᨒ yOR; }
+  "posedge"             { FL; ᨀᨘᨒ yPOSEDGE; }
 }
 
   /************************************************************************/
@@ -202,296 +202,296 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
   /*     Extensions to Verilog set, some specified by PSL */
-  "$c"[0-9]*            { FL; return yD_C; }      /*Verilator only*/
-  "$cpure"[0-9]*        { FL; return yD_CPURE; }  /*Verilator only*/
+  "$c"[0-9]*            { FL; ᨀᨘᨒ yD_C; }      /*Verilator only*/
+  "$cpure"[0-9]*        { FL; ᨀᨘᨒ yD_CPURE; }  /*Verilator only*/
   /*     System Tasks */
-  "$acos"               { FL; return yD_ACOS; }
-  "$acosh"              { FL; return yD_ACOSH; }
-  "$asin"               { FL; return yD_ASIN; }
-  "$asinh"              { FL; return yD_ASINH; }
-  "$atan"               { FL; return yD_ATAN; }
-  "$atan2"              { FL; return yD_ATAN2; }
-  "$atanh"              { FL; return yD_ATANH; }
-  "$bitstoreal"         { FL; return yD_BITSTOREAL; }
-  "$bitstoshortreal"    { FL; return yD_BITSTOSHORTREAL; }
-  "$cast"               { FL; return yD_CAST; }
-  "$ceil"               { FL; return yD_CEIL; }
-  "$cos"                { FL; return yD_COS; }
-  "$cosh"               { FL; return yD_COSH; }
-  "$display"            { FL; return yD_DISPLAY; }
-  "$displayb"           { FL; return yD_DISPLAYB; }
-  "$displayh"           { FL; return yD_DISPLAYH; }
-  "$displayo"           { FL; return yD_DISPLAYO; }
-  "$dist_chi_square"    { FL; return yD_DIST_CHI_SQUARE; }
-  "$dist_erlang"        { FL; return yD_DIST_ERLANG; }
-  "$dist_exponential"   { FL; return yD_DIST_EXPONENTIAL; }
-  "$dist_normal"        { FL; return yD_DIST_NORMAL; }
-  "$dist_poisson"       { FL; return yD_DIST_POISSON; }
-  "$dist_t"             { FL; return yD_DIST_T; }
-  "$dist_uniform"       { FL; return yD_DIST_UNIFORM; }
-  "$dumpall"            { FL; return yD_DUMPALL; }
-  "$dumpfile"           { FL; return yD_DUMPFILE; }
-  "$dumpflush"          { FL; return yD_DUMPFLUSH; }
-  "$dumplimit"          { FL; return yD_DUMPLIMIT; }
-  "$dumpoff"            { FL; return yD_DUMPOFF; }
-  "$dumpon"             { FL; return yD_DUMPON; }
-  "$dumpports"          { FL; return yD_DUMPPORTS; }
-  "$dumpportsall"       { FL; return yD_DUMPALL; }
-  "$dumpportsflush"     { FL; return yD_DUMPFLUSH; }
-  "$dumpportslimit"     { FL; return yD_DUMPLIMIT; }
-  "$dumpportsoff"       { FL; return yD_DUMPOFF; }
-  "$dumpportson"        { FL; return yD_DUMPON; }
-  "$dumpvars"           { FL; return yD_DUMPVARS; }
-  "$exit"               { FL; return yD_EXIT; }
-  "$exp"                { FL; return yD_EXP; }
-  "$fclose"             { FL; return yD_FCLOSE; }
-  "$fdisplay"           { FL; return yD_FDISPLAY; }
-  "$fdisplayb"          { FL; return yD_FDISPLAYB; }
-  "$fdisplayh"          { FL; return yD_FDISPLAYH; }
-  "$fdisplayo"          { FL; return yD_FDISPLAYO; }
-  "$feof"               { FL; return yD_FEOF; }
-  "$ferror"             { FL; return yD_FERROR; }
-  "$fflush"             { FL; return yD_FFLUSH; }
-  "$fgetc"              { FL; return yD_FGETC; }
-  "$fgets"              { FL; return yD_FGETS; }
-  "$finish"             { FL; return yD_FINISH; }
-  "$floor"              { FL; return yD_FLOOR; }
-  "$fmonitor"           { FL; return yD_FMONITOR; }
-  "$fmonitorb"          { FL; return yD_FMONITORB; }
-  "$fmonitorh"          { FL; return yD_FMONITORH; }
-  "$fmonitoro"          { FL; return yD_FMONITORO; }
-  "$fopen"              { FL; return yD_FOPEN; }
-  "$fread"              { FL; return yD_FREAD; }
-  "$frewind"            { FL; return yD_FREWIND; }
-  "$fscanf"             { FL; return yD_FSCANF; }
-  "$fseek"              { FL; return yD_FSEEK; }
-  "$fstrobe"            { FL; return yD_FSTROBE; }
-  "$fstrobeb"           { FL; return yD_FSTROBEB; }
-  "$fstrobeh"           { FL; return yD_FSTROBEH; }
-  "$fstrobeo"           { FL; return yD_FSTROBEO; }
-  "$ftell"              { FL; return yD_FTELL; }
-  "$fullskew"           { FL; return yaTIMINGSPEC; }
-  "$fwrite"             { FL; return yD_FWRITE; }
-  "$fwriteb"            { FL; return yD_FWRITEB; }
-  "$fwriteh"            { FL; return yD_FWRITEH; }
-  "$fwriteo"            { FL; return yD_FWRITEO; }
-  "$global_clock"       { FL; return yD_GLOBAL_CLOCK; }
-  "$hold"               { FL; return yaTIMINGSPEC; }
-  "$hypot"              { FL; return yD_HYPOT; }
-  "$itor"               { FL; return yD_ITOR; }
-  "$ln"                 { FL; return yD_LN; }
-  "$log10"              { FL; return yD_LOG10; }
-  "$monitor"            { FL; return yD_MONITOR; }
-  "$monitorb"           { FL; return yD_MONITORB; }
-  "$monitorh"           { FL; return yD_MONITORH; }
-  "$monitoro"           { FL; return yD_MONITORO; }
-  "$monitoroff"         { FL; return yD_MONITOROFF; }
-  "$monitoron"          { FL; return yD_MONITORON; }
-  "$nochange"           { FL; return yaTIMINGSPEC; }
-  "$period"             { FL; return yaTIMINGSPEC; }
-  "$pow"                { FL; return yD_POW; }
-  "$printtimescale"     { FL; return yD_PRINTTIMESCALE; }
+  "$acos"               { FL; ᨀᨘᨒ yD_ACOS; }
+  "$acosh"              { FL; ᨀᨘᨒ yD_ACOSH; }
+  "$asin"               { FL; ᨀᨘᨒ yD_ASIN; }
+  "$asinh"              { FL; ᨀᨘᨒ yD_ASINH; }
+  "$atan"               { FL; ᨀᨘᨒ yD_ATAN; }
+  "$atan2"              { FL; ᨀᨘᨒ yD_ATAN2; }
+  "$atanh"              { FL; ᨀᨘᨒ yD_ATANH; }
+  "$bitstoreal"         { FL; ᨀᨘᨒ yD_BITSTOREAL; }
+  "$bitstoshortreal"    { FL; ᨀᨘᨒ yD_BITSTOSHORTREAL; }
+  "$cast"               { FL; ᨀᨘᨒ yD_CAST; }
+  "$ceil"               { FL; ᨀᨘᨒ yD_CEIL; }
+  "$cos"                { FL; ᨀᨘᨒ yD_COS; }
+  "$cosh"               { FL; ᨀᨘᨒ yD_COSH; }
+  "$display"            { FL; ᨀᨘᨒ yD_DISPLAY; }
+  "$displayb"           { FL; ᨀᨘᨒ yD_DISPLAYB; }
+  "$displayh"           { FL; ᨀᨘᨒ yD_DISPLAYH; }
+  "$displayo"           { FL; ᨀᨘᨒ yD_DISPLAYO; }
+  "$dist_chi_square"    { FL; ᨀᨘᨒ yD_DIST_CHI_SQUARE; }
+  "$dist_erlang"        { FL; ᨀᨘᨒ yD_DIST_ERLANG; }
+  "$dist_exponential"   { FL; ᨀᨘᨒ yD_DIST_EXPONENTIAL; }
+  "$dist_normal"        { FL; ᨀᨘᨒ yD_DIST_NORMAL; }
+  "$dist_poisson"       { FL; ᨀᨘᨒ yD_DIST_POISSON; }
+  "$dist_t"             { FL; ᨀᨘᨒ yD_DIST_T; }
+  "$dist_uniform"       { FL; ᨀᨘᨒ yD_DIST_UNIFORM; }
+  "$dumpall"            { FL; ᨀᨘᨒ yD_DUMPALL; }
+  "$dumpfile"           { FL; ᨀᨘᨒ yD_DUMPFILE; }
+  "$dumpflush"          { FL; ᨀᨘᨒ yD_DUMPFLUSH; }
+  "$dumplimit"          { FL; ᨀᨘᨒ yD_DUMPLIMIT; }
+  "$dumpoff"            { FL; ᨀᨘᨒ yD_DUMPOFF; }
+  "$dumpon"             { FL; ᨀᨘᨒ yD_DUMPON; }
+  "$dumpports"          { FL; ᨀᨘᨒ yD_DUMPPORTS; }
+  "$dumpportsall"       { FL; ᨀᨘᨒ yD_DUMPALL; }
+  "$dumpportsflush"     { FL; ᨀᨘᨒ yD_DUMPFLUSH; }
+  "$dumpportslimit"     { FL; ᨀᨘᨒ yD_DUMPLIMIT; }
+  "$dumpportsoff"       { FL; ᨀᨘᨒ yD_DUMPOFF; }
+  "$dumpportson"        { FL; ᨀᨘᨒ yD_DUMPON; }
+  "$dumpvars"           { FL; ᨀᨘᨒ yD_DUMPVARS; }
+  "$exit"               { FL; ᨀᨘᨒ yD_EXIT; }
+  "$exp"                { FL; ᨀᨘᨒ yD_EXP; }
+  "$fclose"             { FL; ᨀᨘᨒ yD_FCLOSE; }
+  "$fdisplay"           { FL; ᨀᨘᨒ yD_FDISPLAY; }
+  "$fdisplayb"          { FL; ᨀᨘᨒ yD_FDISPLAYB; }
+  "$fdisplayh"          { FL; ᨀᨘᨒ yD_FDISPLAYH; }
+  "$fdisplayo"          { FL; ᨀᨘᨒ yD_FDISPLAYO; }
+  "$feof"               { FL; ᨀᨘᨒ yD_FEOF; }
+  "$ferror"             { FL; ᨀᨘᨒ yD_FERROR; }
+  "$fflush"             { FL; ᨀᨘᨒ yD_FFLUSH; }
+  "$fgetc"              { FL; ᨀᨘᨒ yD_FGETC; }
+  "$fgets"              { FL; ᨀᨘᨒ yD_FGETS; }
+  "$finish"             { FL; ᨀᨘᨒ yD_FINISH; }
+  "$floor"              { FL; ᨀᨘᨒ yD_FLOOR; }
+  "$fmonitor"           { FL; ᨀᨘᨒ yD_FMONITOR; }
+  "$fmonitorb"          { FL; ᨀᨘᨒ yD_FMONITORB; }
+  "$fmonitorh"          { FL; ᨀᨘᨒ yD_FMONITORH; }
+  "$fmonitoro"          { FL; ᨀᨘᨒ yD_FMONITORO; }
+  "$fopen"              { FL; ᨀᨘᨒ yD_FOPEN; }
+  "$fread"              { FL; ᨀᨘᨒ yD_FREAD; }
+  "$frewind"            { FL; ᨀᨘᨒ yD_FREWIND; }
+  "$fscanf"             { FL; ᨀᨘᨒ yD_FSCANF; }
+  "$fseek"              { FL; ᨀᨘᨒ yD_FSEEK; }
+  "$fstrobe"            { FL; ᨀᨘᨒ yD_FSTROBE; }
+  "$fstrobeb"           { FL; ᨀᨘᨒ yD_FSTROBEB; }
+  "$fstrobeh"           { FL; ᨀᨘᨒ yD_FSTROBEH; }
+  "$fstrobeo"           { FL; ᨀᨘᨒ yD_FSTROBEO; }
+  "$ftell"              { FL; ᨀᨘᨒ yD_FTELL; }
+  "$fullskew"           { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$fwrite"             { FL; ᨀᨘᨒ yD_FWRITE; }
+  "$fwriteb"            { FL; ᨀᨘᨒ yD_FWRITEB; }
+  "$fwriteh"            { FL; ᨀᨘᨒ yD_FWRITEH; }
+  "$fwriteo"            { FL; ᨀᨘᨒ yD_FWRITEO; }
+  "$global_clock"       { FL; ᨀᨘᨒ yD_GLOBAL_CLOCK; }
+  "$hold"               { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$hypot"              { FL; ᨀᨘᨒ yD_HYPOT; }
+  "$itor"               { FL; ᨀᨘᨒ yD_ITOR; }
+  "$ln"                 { FL; ᨀᨘᨒ yD_LN; }
+  "$log10"              { FL; ᨀᨘᨒ yD_LOG10; }
+  "$monitor"            { FL; ᨀᨘᨒ yD_MONITOR; }
+  "$monitorb"           { FL; ᨀᨘᨒ yD_MONITORB; }
+  "$monitorh"           { FL; ᨀᨘᨒ yD_MONITORH; }
+  "$monitoro"           { FL; ᨀᨘᨒ yD_MONITORO; }
+  "$monitoroff"         { FL; ᨀᨘᨒ yD_MONITOROFF; }
+  "$monitoron"          { FL; ᨀᨘᨒ yD_MONITORON; }
+  "$nochange"           { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$period"             { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$pow"                { FL; ᨀᨘᨒ yD_POW; }
+  "$printtimescale"     { FL; ᨀᨘᨒ yD_PRINTTIMESCALE; }
   "$psprintf"           { FL; yylval.fl->v3warn(NONSTD, "Non-standard system function '" << yytext << "';"
                                                 " suggest use standard '$sformatf' (IEEE 1800-2023 21.3.3)");
-                          return yD_SFORMATF; }
-  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$random"             { FL; return yD_RANDOM; }
-  "$readmemb"           { FL; return yD_READMEMB; }
-  "$readmemh"           { FL; return yD_READMEMH; }
-  "$realtime"           { FL; return yD_REALTIME; }
-  "$realtobits"         { FL; return yD_REALTOBITS; }
-  "$recovery"           { FL; return yaTIMINGSPEC; }
-  "$recrem"             { FL; return yaTIMINGSPEC; }
-  "$removal"            { FL; return yaTIMINGSPEC; }
-  "$rewind"             { FL; return yD_REWIND; }
-  "$rtoi"               { FL; return yD_RTOI; }
-  "$sampled"            { FL; return yD_SAMPLED; }
-  "$sdf_annotate"       { FL; return yD_SDF_ANNOTATE; }
-  "$setup"              { FL; return yaTIMINGSPEC; }
-  "$setuphold"          { FL; return yD_SETUPHOLD; }
-  "$sformat"            { FL; return yD_SFORMAT; }
-  "$sformatf"           { FL; return yD_SFORMATF; }
-  "$shortrealtobits"    { FL; return yD_SHORTREALTOBITS; }
-  "$sin"                { FL; return yD_SIN; }
-  "$sinh"               { FL; return yD_SINH; }
-  "$skew"               { FL; return yaTIMINGSPEC; }
-  "$sqrt"               { FL; return yD_SQRT; }
-  "$sscanf"             { FL; return yD_SSCANF; }
-  "$stacktrace"         { FL; return yD_STACKTRACE; }
-  "$stime"              { FL; return yD_STIME; }
-  "$stop"               { FL; return yD_STOP; }
-  "$strobe"             { FL; return yD_STROBE; }
-  "$strobeb"            { FL; return yD_STROBEB; }
-  "$strobeh"            { FL; return yD_STROBEH; }
-  "$strobeo"            { FL; return yD_STROBEO; }
-  "$swrite"             { FL; return yD_SWRITE; }
-  "$swriteb"            { FL; return yD_SWRITEB; }
-  "$swriteh"            { FL; return yD_SWRITEH; }
-  "$swriteo"            { FL; return yD_SWRITEO; }
-  "$system"             { FL; return yD_SYSTEM; }
-  "$tan"                { FL; return yD_TAN; }
-  "$tanh"               { FL; return yD_TANH; }
-  "$test$plusargs"      { FL; return yD_TESTPLUSARGS; }
-  "$time"               { FL; return yD_TIME; }
-  "$timeformat"         { FL; return yD_TIMEFORMAT; }
-  "$timeprecision"      { FL; return yD_TIMEPRECISION; }
-  "$timeskew"           { FL; return yaTIMINGSPEC; }
-  "$timeunit"           { FL; return yD_TIMEUNIT; }
-  "$typename"           { FL; return yD_TYPENAME; }
-  "$ungetc"             { FL; return yD_UNGETC; }
-  "$urandom"            { FL; return yD_URANDOM; }
-  "$urandom_range"      { FL; return yD_URANDOM_RANGE; }
-  "$value$plusargs"     { FL; return yD_VALUEPLUSARGS; }
-  "$width"              { FL; return yaTIMINGSPEC; }
-  "$write"              { FL; return yD_WRITE; }
-  "$writeb"             { FL; return yD_WRITEB; }
-  "$writeh"             { FL; return yD_WRITEH; }
-  "$writememb"          { FL; return yD_WRITEMEMB; }
-  "$writememh"          { FL; return yD_WRITEMEMH; }
-  "$writeo"             { FL; return yD_WRITEO; }
+                          ᨀᨘᨒ yD_SFORMATF; }
+  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ᨀᨘᨒ yaD_PLI; }
+  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ᨀᨘᨒ yaD_PLI; }
+  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ᨀᨘᨒ yaD_PLI; }
+  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ᨀᨘᨒ yaD_PLI; }
+  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); ᨀᨘᨒ yaD_PLI; }
+  "$random"             { FL; ᨀᨘᨒ yD_RANDOM; }
+  "$readmemb"           { FL; ᨀᨘᨒ yD_READMEMB; }
+  "$readmemh"           { FL; ᨀᨘᨒ yD_READMEMH; }
+  "$realtime"           { FL; ᨀᨘᨒ yD_REALTIME; }
+  "$realtobits"         { FL; ᨀᨘᨒ yD_REALTOBITS; }
+  "$recovery"           { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$recrem"             { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$removal"            { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$rewind"             { FL; ᨀᨘᨒ yD_REWIND; }
+  "$rtoi"               { FL; ᨀᨘᨒ yD_RTOI; }
+  "$sampled"            { FL; ᨀᨘᨒ yD_SAMPLED; }
+  "$sdf_annotate"       { FL; ᨀᨘᨒ yD_SDF_ANNOTATE; }
+  "$setup"              { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$setuphold"          { FL; ᨀᨘᨒ yD_SETUPHOLD; }
+  "$sformat"            { FL; ᨀᨘᨒ yD_SFORMAT; }
+  "$sformatf"           { FL; ᨀᨘᨒ yD_SFORMATF; }
+  "$shortrealtobits"    { FL; ᨀᨘᨒ yD_SHORTREALTOBITS; }
+  "$sin"                { FL; ᨀᨘᨒ yD_SIN; }
+  "$sinh"               { FL; ᨀᨘᨒ yD_SINH; }
+  "$skew"               { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$sqrt"               { FL; ᨀᨘᨒ yD_SQRT; }
+  "$sscanf"             { FL; ᨀᨘᨒ yD_SSCANF; }
+  "$stacktrace"         { FL; ᨀᨘᨒ yD_STACKTRACE; }
+  "$stime"              { FL; ᨀᨘᨒ yD_STIME; }
+  "$stop"               { FL; ᨀᨘᨒ yD_STOP; }
+  "$strobe"             { FL; ᨀᨘᨒ yD_STROBE; }
+  "$strobeb"            { FL; ᨀᨘᨒ yD_STROBEB; }
+  "$strobeh"            { FL; ᨀᨘᨒ yD_STROBEH; }
+  "$strobeo"            { FL; ᨀᨘᨒ yD_STROBEO; }
+  "$swrite"             { FL; ᨀᨘᨒ yD_SWRITE; }
+  "$swriteb"            { FL; ᨀᨘᨒ yD_SWRITEB; }
+  "$swriteh"            { FL; ᨀᨘᨒ yD_SWRITEH; }
+  "$swriteo"            { FL; ᨀᨘᨒ yD_SWRITEO; }
+  "$system"             { FL; ᨀᨘᨒ yD_SYSTEM; }
+  "$tan"                { FL; ᨀᨘᨒ yD_TAN; }
+  "$tanh"               { FL; ᨀᨘᨒ yD_TANH; }
+  "$test$plusargs"      { FL; ᨀᨘᨒ yD_TESTPLUSARGS; }
+  "$time"               { FL; ᨀᨘᨒ yD_TIME; }
+  "$timeformat"         { FL; ᨀᨘᨒ yD_TIMEFORMAT; }
+  "$timeprecision"      { FL; ᨀᨘᨒ yD_TIMEPRECISION; }
+  "$timeskew"           { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$timeunit"           { FL; ᨀᨘᨒ yD_TIMEUNIT; }
+  "$typename"           { FL; ᨀᨘᨒ yD_TYPENAME; }
+  "$ungetc"             { FL; ᨀᨘᨒ yD_UNGETC; }
+  "$urandom"            { FL; ᨀᨘᨒ yD_URANDOM; }
+  "$urandom_range"      { FL; ᨀᨘᨒ yD_URANDOM_RANGE; }
+  "$value$plusargs"     { FL; ᨀᨘᨒ yD_VALUEPLUSARGS; }
+  "$width"              { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "$write"              { FL; ᨀᨘᨒ yD_WRITE; }
+  "$writeb"             { FL; ᨀᨘᨒ yD_WRITEB; }
+  "$writeh"             { FL; ᨀᨘᨒ yD_WRITEH; }
+  "$writememb"          { FL; ᨀᨘᨒ yD_WRITEMEMB; }
+  "$writememh"          { FL; ᨀᨘᨒ yD_WRITEMEMH; }
+  "$writeo"             { FL; ᨀᨘᨒ yD_WRITEO; }
   /*     Keywords */
-  "always"              { FL; return yALWAYS; }
-  "and"                 { FL; return yAND; }
-  "assign"              { FL; return yASSIGN; }
-  "begin"               { FL; return yBEGIN; }
-  "buf"                 { FL; return yBUF; }
-  "bufif0"              { FL; return yBUFIF0; }
-  "bufif1"              { FL; return yBUFIF1; }
-  "case"                { FL; return yCASE; }
-  "casex"               { FL; return yCASEX; }
-  "casez"               { FL; return yCASEZ; }
-  "cmos"                { FL; return yCMOS; }
-  "deassign"            { FL; return yDEASSIGN; }
-  "default"             { FL; return yDEFAULT; }
-  "defparam"            { FL; return yDEFPARAM; }
-  "disable"             { FL; return yDISABLE; }
-  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); return yEDGE; }
-  "edge"                { FL; return yEDGE; }
-  "else"                { FL; return yELSE; }
-  "end"                 { FL; return yEND; }
-  "endcase"             { FL; return yENDCASE; }
-  "endfunction"         { FL; return yENDFUNCTION; }
-  "endmodule"           { FL; return yENDMODULE; }
-  "endprimitive"        { FL; return yENDPRIMITIVE; }
-  "endspecify"          { FL; return yENDSPECIFY; }
+  "always"              { FL; ᨀᨘᨒ yALWAYS; }
+  "and"                 { FL; ᨀᨘᨒ yAND; }
+  "assign"              { FL; ᨀᨘᨒ yASSIGN; }
+  "begin"               { FL; ᨀᨘᨒ yBEGIN; }
+  "buf"                 { FL; ᨀᨘᨒ yBUF; }
+  "bufif0"              { FL; ᨀᨘᨒ yBUFIF0; }
+  "bufif1"              { FL; ᨀᨘᨒ yBUFIF1; }
+  "case"                { FL; ᨀᨘᨒ yCASE; }
+  "casex"               { FL; ᨀᨘᨒ yCASEX; }
+  "casez"               { FL; ᨀᨘᨒ yCASEZ; }
+  "cmos"                { FL; ᨀᨘᨒ yCMOS; }
+  "deassign"            { FL; ᨀᨘᨒ yDEASSIGN; }
+  "default"             { FL; ᨀᨘᨒ yDEFAULT; }
+  "defparam"            { FL; ᨀᨘᨒ yDEFPARAM; }
+  "disable"             { FL; ᨀᨘᨒ yDISABLE; }
+  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); ᨀᨘᨒ yEDGE; }
+  "edge"                { FL; ᨀᨘᨒ yEDGE; }
+  "else"                { FL; ᨀᨘᨒ yELSE; }
+  "end"                 { FL; ᨀᨘᨒ yEND; }
+  "endcase"             { FL; ᨀᨘᨒ yENDCASE; }
+  "endfunction"         { FL; ᨀᨘᨒ yENDFUNCTION; }
+  "endmodule"           { FL; ᨀᨘᨒ yENDMODULE; }
+  "endprimitive"        { FL; ᨀᨘᨒ yENDPRIMITIVE; }
+  "endspecify"          { FL; ᨀᨘᨒ yENDSPECIFY; }
   "endtable"            { FL; yylval.fl->v3error("Syntax error: 'endtable' outside of 'table'"); FL_BRK; }
-  "endtask"             { FL; return yENDTASK; }
-  "event"               { FL; return yEVENT; }
-  "for"                 { FL; return yFOR; }
-  "force"               { FL; return yFORCE; }
-  "foreach"             { FL; return yFOREACH; }
-  "forever"             { FL; return yFOREVER; }
-  "fork"                { FL; return yFORK; }
-  "function"            { FL; return yFUNCTION; }
-  "highz0"              { FL; return yHIGHZ0; }
-  "highz1"              { FL; return yHIGHZ1; }
-  "if"                  { FL; return yIF; }
-  "initial"             { FL; return yINITIAL; }
-  "inout"               { FL; return yINOUT; }
-  "input"               { FL; return yINPUT; }
-  "integer"             { FL; return yINTEGER; }
-  "join"                { FL; return yJOIN; }
-  "large"               { FL; return ygenSTRENGTH; }
-  "macromodule"         { FL; return yMODULE; }
-  "medium"              { FL; return ygenSTRENGTH; }
-  "module"              { FL; return yMODULE; }
-  "nand"                { FL; return yNAND; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "nmos"                { FL; return yNMOS; }
-  "nor"                 { FL; return yNOR; }
-  "not"                 { FL; return yNOT; }
-  "notif0"              { FL; return yNOTIF0; }
-  "notif1"              { FL; return yNOTIF1; }
-  "or"                  { FL; return yOR; }
-  "output"              { FL; return yOUTPUT; }
-  "parameter"           { FL; return yPARAMETER; }
-  "pmos"                { FL; return yPMOS; }
-  "posedge"             { FL; return yPOSEDGE; }
-  "primitive"           { FL; return yPRIMITIVE; }
-  "pull0"               { FL; return yPULL0; }
-  "pull1"               { FL; return yPULL1; }
-  "pulldown"            { FL; return yPULLDOWN; }
-  "pullup"              { FL; return yPULLUP; }
-  "rcmos"               { FL; return yRCMOS; }
-  "real"                { FL; return yREAL; }
-  "realtime"            { FL; return yREALTIME; }
-  "reg"                 { FL; return yREG; }
-  "release"             { FL; return yRELEASE; }
-  "repeat"              { FL; return yREPEAT; }
-  "rnmos"               { FL; return yRNMOS; }
-  "rpmos"               { FL; return yRPMOS; }
-  "rtran"               { FL; return yRTRAN; }
-  "rtranif0"            { FL; return yRTRANIF0; }
-  "rtranif1"            { FL; return yRTRANIF1; }
-  "scalared"            { FL; return ySCALARED; }
-  "small"               { FL; return ygenSTRENGTH; }
-  "specify"             { FL; return ySPECIFY; }
-  "specparam"           { FL; return ySPECPARAM; }
-  "strong0"             { FL; return ySTRONG0; }
-  "strong1"             { FL; return ySTRONG1; }
-  "supply0"             { FL; return ySUPPLY0; }
-  "supply1"             { FL; return ySUPPLY1; }
-  "table"               { FL; yy_push_state(TABLE); return yTABLE; }
-  "task"                { FL; return yTASK; }
-  "time"                { FL; return yTIME; }
-  "tran"                { FL; return yTRAN; }
-  "tranif0"             { FL; return yTRANIF0; }
-  "tranif1"             { FL; return yTRANIF1; }
-  "tri"                 { FL; return yTRI; }
-  "tri0"                { FL; return yTRI0; }
-  "tri1"                { FL; return yTRI1; }
-  "triand"              { FL; return yTRIAND; }
-  "trior"               { FL; return yTRIOR; }
-  "trireg"              { FL; return yTRIREG; }
-  "vectored"            { FL; return yVECTORED; }
-  "wait"                { FL; return yWAIT; }
-  "wand"                { FL; return yWAND; }
-  "weak0"               { FL; return yWEAK0; }
-  "weak1"               { FL; return yWEAK1; }
-  "while"               { FL; return yWHILE; }
-  "wire"                { FL; return yWIRE; }
-  "wor"                 { FL; return yWOR; }
-  "xnor"                { FL; return yXNOR; }
-  "xor"                 { FL; return yXOR; }
+  "endtask"             { FL; ᨀᨘᨒ yENDTASK; }
+  "event"               { FL; ᨀᨘᨒ yEVENT; }
+  "for"                 { FL; ᨀᨘᨒ yFOR; }
+  "force"               { FL; ᨀᨘᨒ yFORCE; }
+  "foreach"             { FL; ᨀᨘᨒ yFOREACH; }
+  "forever"             { FL; ᨀᨘᨒ yFOREVER; }
+  "fork"                { FL; ᨀᨘᨒ yFORK; }
+  "function"            { FL; ᨀᨘᨒ yFUNCTION; }
+  "highz0"              { FL; ᨀᨘᨒ yHIGHZ0; }
+  "highz1"              { FL; ᨀᨘᨒ yHIGHZ1; }
+  "if"                  { FL; ᨀᨘᨒ yIF; }
+  "initial"             { FL; ᨀᨘᨒ yINITIAL; }
+  "inout"               { FL; ᨀᨘᨒ yINOUT; }
+  "input"               { FL; ᨀᨘᨒ yINPUT; }
+  "integer"             { FL; ᨀᨘᨒ yINTEGER; }
+  "join"                { FL; ᨀᨘᨒ yJOIN; }
+  "large"               { FL; ᨀᨘᨒ ygenSTRENGTH; }
+  "macromodule"         { FL; ᨀᨘᨒ yMODULE; }
+  "medium"              { FL; ᨀᨘᨒ ygenSTRENGTH; }
+  "module"              { FL; ᨀᨘᨒ yMODULE; }
+  "nand"                { FL; ᨀᨘᨒ yNAND; }
+  "negedge"             { FL; ᨀᨘᨒ yNEGEDGE; }
+  "nmos"                { FL; ᨀᨘᨒ yNMOS; }
+  "nor"                 { FL; ᨀᨘᨒ yNOR; }
+  "not"                 { FL; ᨀᨘᨒ yNOT; }
+  "notif0"              { FL; ᨀᨘᨒ yNOTIF0; }
+  "notif1"              { FL; ᨀᨘᨒ yNOTIF1; }
+  "or"                  { FL; ᨀᨘᨒ yOR; }
+  "output"              { FL; ᨀᨘᨒ yOUTPUT; }
+  "parameter"           { FL; ᨀᨘᨒ yPARAMETER; }
+  "pmos"                { FL; ᨀᨘᨒ yPMOS; }
+  "posedge"             { FL; ᨀᨘᨒ yPOSEDGE; }
+  "primitive"           { FL; ᨀᨘᨒ yPRIMITIVE; }
+  "pull0"               { FL; ᨀᨘᨒ yPULL0; }
+  "pull1"               { FL; ᨀᨘᨒ yPULL1; }
+  "pulldown"            { FL; ᨀᨘᨒ yPULLDOWN; }
+  "pullup"              { FL; ᨀᨘᨒ yPULLUP; }
+  "rcmos"               { FL; ᨀᨘᨒ yRCMOS; }
+  "real"                { FL; ᨀᨘᨒ yREAL; }
+  "realtime"            { FL; ᨀᨘᨒ yREALTIME; }
+  "reg"                 { FL; ᨀᨘᨒ yREG; }
+  "release"             { FL; ᨀᨘᨒ yRELEASE; }
+  "repeat"              { FL; ᨀᨘᨒ yREPEAT; }
+  "rnmos"               { FL; ᨀᨘᨒ yRNMOS; }
+  "rpmos"               { FL; ᨀᨘᨒ yRPMOS; }
+  "rtran"               { FL; ᨀᨘᨒ yRTRAN; }
+  "rtranif0"            { FL; ᨀᨘᨒ yRTRANIF0; }
+  "rtranif1"            { FL; ᨀᨘᨒ yRTRANIF1; }
+  "scalared"            { FL; ᨀᨘᨒ ySCALARED; }
+  "small"               { FL; ᨀᨘᨒ ygenSTRENGTH; }
+  "specify"             { FL; ᨀᨘᨒ ySPECIFY; }
+  "specparam"           { FL; ᨀᨘᨒ ySPECPARAM; }
+  "strong0"             { FL; ᨀᨘᨒ ySTRONG0; }
+  "strong1"             { FL; ᨀᨘᨒ ySTRONG1; }
+  "supply0"             { FL; ᨀᨘᨒ ySUPPLY0; }
+  "supply1"             { FL; ᨀᨘᨒ ySUPPLY1; }
+  "table"               { FL; yy_push_state(TABLE); ᨀᨘᨒ yTABLE; }
+  "task"                { FL; ᨀᨘᨒ yTASK; }
+  "time"                { FL; ᨀᨘᨒ yTIME; }
+  "tran"                { FL; ᨀᨘᨒ yTRAN; }
+  "tranif0"             { FL; ᨀᨘᨒ yTRANIF0; }
+  "tranif1"             { FL; ᨀᨘᨒ yTRANIF1; }
+  "tri"                 { FL; ᨀᨘᨒ yTRI; }
+  "tri0"                { FL; ᨀᨘᨒ yTRI0; }
+  "tri1"                { FL; ᨀᨘᨒ yTRI1; }
+  "triand"              { FL; ᨀᨘᨒ yTRIAND; }
+  "trior"               { FL; ᨀᨘᨒ yTRIOR; }
+  "trireg"              { FL; ᨀᨘᨒ yTRIREG; }
+  "vectored"            { FL; ᨀᨘᨒ yVECTORED; }
+  "wait"                { FL; ᨀᨘᨒ yWAIT; }
+  "wand"                { FL; ᨀᨘᨒ yWAND; }
+  "weak0"               { FL; ᨀᨘᨒ yWEAK0; }
+  "weak1"               { FL; ᨀᨘᨒ yWEAK1; }
+  "while"               { FL; ᨀᨘᨒ yWHILE; }
+  "wire"                { FL; ᨀᨘᨒ yWIRE; }
+  "wor"                 { FL; ᨀᨘᨒ yWOR; }
+  "xnor"                { FL; ᨀᨘᨒ yXNOR; }
+  "xor"                 { FL; ᨀᨘᨒ yXOR; }
 }
 
   /* Verilog 2001 */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$signed"             { FL; return yD_SIGNED; }
-  "$unsigned"           { FL; return yD_UNSIGNED; }
+  "$signed"             { FL; ᨀᨘᨒ yD_SIGNED; }
+  "$unsigned"           { FL; ᨀᨘᨒ yD_UNSIGNED; }
   /*     Keywords */
-  "automatic"           { FL; return yAUTOMATIC; }
-  "endgenerate"         { FL; return yENDGENERATE; }
-  "generate"            { FL; return yGENERATE; }
-  "genvar"              { FL; return yGENVAR; }
-  "ifnone"              { FL; return yaTIMINGSPEC; }
-  "localparam"          { FL; return yLOCALPARAM; }
-  "noshowcancelled"     { FL; return yaTIMINGSPEC; }
-  "pulsestyle_ondetect" { FL; return yaTIMINGSPEC; }
-  "pulsestyle_onevent"  { FL; return yaTIMINGSPEC; }
-  "showcancelled"       { FL; return yaTIMINGSPEC; }
-  "signed"              { FL; return ySIGNED; }
-  "unsigned"            { FL; return yUNSIGNED; }
+  "automatic"           { FL; ᨀᨘᨒ yAUTOMATIC; }
+  "endgenerate"         { FL; ᨀᨘᨒ yENDGENERATE; }
+  "generate"            { FL; ᨀᨘᨒ yGENERATE; }
+  "genvar"              { FL; ᨀᨘᨒ yGENVAR; }
+  "ifnone"              { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "localparam"          { FL; ᨀᨘᨒ yLOCALPARAM; }
+  "noshowcancelled"     { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "pulsestyle_ondetect" { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "pulsestyle_onevent"  { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "showcancelled"       { FL; ᨀᨘᨒ yaTIMINGSPEC; }
+  "signed"              { FL; ᨀᨘᨒ ySIGNED; }
+  "unsigned"            { FL; ᨀᨘᨒ yUNSIGNED; }
 }
 
   /* Verilog 2001 Config */
 <V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     Generic unsupported keywords */
-  "cell"                { FL; return yCELL; }
-  "config"              { FL; return yCONFIG; }
-  "design"              { FL; return yDESIGN; }
-  "endconfig"           { FL; return yENDCONFIG; }
-  "incdir"              { FL; yy_push_state(FILEPATH); return yINCDIR; }
+  "cell"                { FL; ᨀᨘᨒ yCELL; }
+  "config"              { FL; ᨀᨘᨒ yCONFIG; }
+  "design"              { FL; ᨀᨘᨒ yDESIGN; }
+  "endconfig"           { FL; ᨀᨘᨒ yENDCONFIG; }
+  "incdir"              { FL; yy_push_state(FILEPATH); ᨀᨘᨒ yINCDIR; }
   "include"             { FL;
-                          if (PARSEP->inLibMap()) {
+                          ᨀᨘ (PARSEP->inLibMap()) {
                                 yy_push_state(FILEPATH);
-                                return yINCLUDE;
-                          } else {
+                                ᨀᨘᨒ yINCLUDE;
+                          } ᨀᨘᨁ {
                                 yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: IEEE 1800-2001-config lib.map"
                                                                  " reserved word not implemented: 'include'\n"
                                                                  << yylval.fl->warnMore() << "... Suggest unless in a lib.map file,"
@@ -499,218 +499,218 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                 FL_BRK;
                           }
                         }
-  "instance"            { FL; return yINSTANCE; }
-  "liblist"             { FL; return yLIBLIST; }
-  "library"             { FL; yy_push_state(FILEPATH); return yLIBRARY; }
-  "use"                 { FL; return yUSE; }
+  "instance"            { FL; ᨀᨘᨒ yINSTANCE; }
+  "liblist"             { FL; ᨀᨘᨒ yLIBLIST; }
+  "library"             { FL; yy_push_state(FILEPATH); ᨀᨘᨒ yLIBRARY; }
+  "use"                 { FL; ᨀᨘᨒ yUSE; }
 }
 
   /* Verilog 2005 */
 <V05,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$clog2"              { FL; return yD_CLOG2; }
+  "$clog2"              { FL; ᨀᨘᨒ yD_CLOG2; }
   /*     Keywords */
-  "uwire"               { FL; return yWIRE; }
+  "uwire"               { FL; ᨀᨘᨒ yWIRE; }
 }
 
   /* System Verilog 2005 */
 <S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$bits"               { FL; return yD_BITS; }
-  "$changed"            { FL; return yD_CHANGED; }
-  "$changed_gclk"       { FL; return yD_CHANGED_GCLK; }
-  "$changing_gclk"      { FL; return yD_CHANGING_GCLK; }
-  "$countbits"          { FL; return yD_COUNTBITS; }
-  "$countones"          { FL; return yD_COUNTONES; }
-  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$dimensions"         { FL; return yD_DIMENSIONS; }
-  "$error"              { FL; return yD_ERROR; }
-  "$falling_gclk"       { FL; return yD_FALLING_GCLK; }
-  "$fatal"              { FL; return yD_FATAL; }
-  "$fell"               { FL; return yD_FELL; }
-  "$fell_gclk"          { FL; return yD_FELL_GCLK; }
-  "$future_gclk"        { FL; return yD_FUTURE_GCLK; }
-  "$get_initial_random_seed" { FL; return yD_GET_INITIAL_RANDOM_SEED; }
-  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$high"               { FL; return yD_HIGH; }
-  "$increment"          { FL; return yD_INCREMENT; }
-  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$inferred_disable"   { FL; return yD_INFERRED_DISABLE; }
-  "$info"               { FL; return yD_INFO; }
-  "$isunbounded"        { FL; return yD_ISUNBOUNDED; }
-  "$isunknown"          { FL; return yD_ISUNKNOWN; }
-  "$left"               { FL; return yD_LEFT; }
-  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$low"                { FL; return yD_LOW; }
-  "$onehot"             { FL; return yD_ONEHOT; }
-  "$onehot0"            { FL; return yD_ONEHOT0; }
-  "$past"               { FL; return yD_PAST; }
-  "$past_gclk"          { FL; return yD_PAST_GCLK; }
-  "$right"              { FL; return yD_RIGHT; }
-  "$rising_gclk"        { FL; return yD_RISING_GCLK; }
-  "$root"               { FL; return yD_ROOT; }
-  "$rose"               { FL; return yD_ROSE; }
-  "$rose_gclk"          { FL; return yD_ROSE_GCLK; }
-  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$size"               { FL; return yD_SIZE; }
-  "$stable"             { FL; return yD_STABLE; }
-  "$stable_gclk"        { FL; return yD_STABLE_GCLK; }
-  "$steady_gclk"        { FL; return yD_STEADY_GCLK; }
-  "$unpacked_dimensions" { FL; return yD_UNPACKED_DIMENSIONS; }
-  "$warning"            { FL; return yD_WARNING; }
+  "$bits"               { FL; ᨀᨘᨒ yD_BITS; }
+  "$changed"            { FL; ᨀᨘᨒ yD_CHANGED; }
+  "$changed_gclk"       { FL; ᨀᨘᨒ yD_CHANGED_GCLK; }
+  "$changing_gclk"      { FL; ᨀᨘᨒ yD_CHANGING_GCLK; }
+  "$countbits"          { FL; ᨀᨘᨒ yD_COUNTBITS; }
+  "$countones"          { FL; ᨀᨘᨒ yD_COUNTONES; }
+  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$dimensions"         { FL; ᨀᨘᨒ yD_DIMENSIONS; }
+  "$error"              { FL; ᨀᨘᨒ yD_ERROR; }
+  "$falling_gclk"       { FL; ᨀᨘᨒ yD_FALLING_GCLK; }
+  "$fatal"              { FL; ᨀᨘᨒ yD_FATAL; }
+  "$fell"               { FL; ᨀᨘᨒ yD_FELL; }
+  "$fell_gclk"          { FL; ᨀᨘᨒ yD_FELL_GCLK; }
+  "$future_gclk"        { FL; ᨀᨘᨒ yD_FUTURE_GCLK; }
+  "$get_initial_random_seed" { FL; ᨀᨘᨒ yD_GET_INITIAL_RANDOM_SEED; }
+  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$high"               { FL; ᨀᨘᨒ yD_HIGH; }
+  "$increment"          { FL; ᨀᨘᨒ yD_INCREMENT; }
+  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$inferred_disable"   { FL; ᨀᨘᨒ yD_INFERRED_DISABLE; }
+  "$info"               { FL; ᨀᨘᨒ yD_INFO; }
+  "$isunbounded"        { FL; ᨀᨘᨒ yD_ISUNBOUNDED; }
+  "$isunknown"          { FL; ᨀᨘᨒ yD_ISUNKNOWN; }
+  "$left"               { FL; ᨀᨘᨒ yD_LEFT; }
+  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$low"                { FL; ᨀᨘᨒ yD_LOW; }
+  "$onehot"             { FL; ᨀᨘᨒ yD_ONEHOT; }
+  "$onehot0"            { FL; ᨀᨘᨒ yD_ONEHOT0; }
+  "$past"               { FL; ᨀᨘᨒ yD_PAST; }
+  "$past_gclk"          { FL; ᨀᨘᨒ yD_PAST_GCLK; }
+  "$right"              { FL; ᨀᨘᨒ yD_RIGHT; }
+  "$rising_gclk"        { FL; ᨀᨘᨒ yD_RISING_GCLK; }
+  "$root"               { FL; ᨀᨘᨒ yD_ROOT; }
+  "$rose"               { FL; ᨀᨘᨒ yD_ROSE; }
+  "$rose_gclk"          { FL; ᨀᨘᨒ yD_ROSE_GCLK; }
+  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); ᨀᨘᨒ yaD_PLI; }
+  "$size"               { FL; ᨀᨘᨒ yD_SIZE; }
+  "$stable"             { FL; ᨀᨘᨒ yD_STABLE; }
+  "$stable_gclk"        { FL; ᨀᨘᨒ yD_STABLE_GCLK; }
+  "$steady_gclk"        { FL; ᨀᨘᨒ yD_STEADY_GCLK; }
+  "$unpacked_dimensions" { FL; ᨀᨘᨒ yD_UNPACKED_DIMENSIONS; }
+  "$warning"            { FL; ᨀᨘᨒ yD_WARNING; }
   /*     SV2005 Keywords */
   /* Note assert_strobe was in SystemVerilog 3.1, but removed for SystemVerilog 2005 */
-  "$unit"               { FL; return yD_UNIT; }  /* Yes, a keyword, not task */
-  "alias"               { FL; return yALIAS; }
-  "always_comb"         { FL; return yALWAYS_COMB; }
-  "always_ff"           { FL; return yALWAYS_FF; }
-  "always_latch"        { FL; return yALWAYS_LATCH; }
-  "assert"              { FL; return yASSERT; }
-  "assume"              { FL; return yASSUME; }
-  "before"              { FL; return yBEFORE; }
-  "bind"                { FL; return yBIND; }
-  "bins"                { FL; return yBINS; }
-  "binsof"              { FL; return yBINSOF; }
-  "bit"                 { FL; return yBIT; }
-  "break"               { FL; return yBREAK; }
-  "byte"                { FL; return yBYTE; }
-  "chandle"             { FL; return yCHANDLE; }
-  "class"               { FL; return yCLASS; }
-  "clocking"            { FL; return yCLOCKING; }
-  "const"               { FL; return yCONST__LEX; }
-  "constraint"          { FL; return yCONSTRAINT; }
-  "context"             { FL; return yCONTEXT; }
-  "continue"            { FL; return yCONTINUE; }
-  "cover"               { FL; return yCOVER; }
-  "covergroup"          { FL; return yCOVERGROUP; }
-  "coverpoint"          { FL; return yCOVERPOINT; }
-  "cross"               { FL; return yCROSS; }
-  "dist"                { FL; return yDIST; }
-  "do"                  { FL; return yDO; }
-  "endclass"            { FL; return yENDCLASS; }
-  "endclocking"         { FL; return yENDCLOCKING; }
-  "endgroup"            { FL; return yENDGROUP; }
-  "endinterface"        { FL; return yENDINTERFACE; }
-  "endpackage"          { FL; return yENDPACKAGE; }
-  "endprogram"          { FL; return yENDPROGRAM; }
-  "endproperty"         { FL; return yENDPROPERTY; }
-  "endsequence"         { FL; return yENDSEQUENCE; }
-  "enum"                { FL; return yENUM; }
-  "expect"              { FL; return yEXPECT; }
-  "export"              { FL; return yEXPORT; }
-  "extends"             { FL; return yEXTENDS; }
-  "extern"              { FL; return yEXTERN; }
-  "final"               { FL; return yFINAL; }
-  "first_match"         { FL; return yFIRST_MATCH; }
-  "forkjoin"            { FL; return yFORKJOIN; }
-  "iff"                 { FL; return yIFF; }
-  "ignore_bins"         { FL; return yIGNORE_BINS; }
-  "illegal_bins"        { FL; return yILLEGAL_BINS; }
-  "import"              { FL; return yIMPORT; }
-  "inside"              { FL; return yINSIDE; }
-  "int"                 { FL; return yINT; }
-  "interface"           { FL; return yINTERFACE; }
-  "intersect"           { FL; return yINTERSECT; }
-  "join_any"            { FL; return yJOIN_ANY; }
-  "join_none"           { FL; return yJOIN_NONE; }
-  "local"               { FL; return yLOCAL__LEX; }
-  "logic"               { FL; return yLOGIC; }
-  "longint"             { FL; return yLONGINT; }
-  "matches"             { FL; return yMATCHES; }
-  "modport"             { FL; return yMODPORT; }
-  "new"                 { FL; return yNEW__LEX; }
-  "null"                { FL; return yNULL; }
-  "package"             { FL; return yPACKAGE; }
-  "packed"              { FL; return yPACKED; }
-  "priority"            { FL; return yPRIORITY; }
-  "program"             { FL; return yPROGRAM; }
-  "property"            { FL; return yPROPERTY; }
-  "protected"           { FL; return yPROTECTED; }
-  "pure"                { FL; return yPURE; }
-  "rand"                { FL; return yRAND; }
-  "randc"               { FL; return yRANDC; }
-  "randcase"            { FL; return yRANDCASE; }
-  "randomize"           { FL; return yRANDOMIZE; }
-  "randsequence"        { FL; return yRANDSEQUENCE; }
-  "ref"                 { FL; return yREF; }
-  "restrict"            { FL; return yRESTRICT; }
-  "return"              { FL; return yRETURN; }
-  "sequence"            { FL; return ySEQUENCE; }
-  "shortint"            { FL; return ySHORTINT; }
-  "shortreal"           { FL; return ySHORTREAL; }
-  "solve"               { FL; return ySOLVE; }
-  "static"              { FL; return ySTATIC__LEX; }
-  "string"              { FL; return ySTRING; }
-  "struct"              { FL; return ySTRUCT; }
-  "super"               { FL; return ySUPER; }
-  "tagged"              { FL; return yTAGGED__LEX; }
-  "this"                { FL; return yTHIS; }
-  "throughout"          { FL; return yTHROUGHOUT; }
-  "timeprecision"       { FL; return yTIMEPRECISION; }
-  "timeunit"            { FL; return yTIMEUNIT; }
-  "type"                { FL; return yTYPE__LEX; }
-  "typedef"             { FL; return yTYPEDEF; }
-  "union"               { FL; return yUNION; }
-  "unique"              { FL; return yUNIQUE; }
-  "var"                 { FL; return yVAR; }
-  "virtual"             { FL; return yVIRTUAL__LEX; }
-  "void"                { FL; return yVOID; }
-  "wait_order"          { FL; return yWAIT_ORDER; }
-  "wildcard"            { FL; return yWILDCARD; }
-  "with"                { FL; return yWITH__LEX; }
-  "within"              { FL; return yWITHIN; }
+  "$unit"               { FL; ᨀᨘᨒ yD_UNIT; }  /* Yes, a keyword, not task */
+  "alias"               { FL; ᨀᨘᨒ yALIAS; }
+  "always_comb"         { FL; ᨀᨘᨒ yALWAYS_COMB; }
+  "always_ff"           { FL; ᨀᨘᨒ yALWAYS_FF; }
+  "always_latch"        { FL; ᨀᨘᨒ yALWAYS_LATCH; }
+  "assert"              { FL; ᨀᨘᨒ yASSERT; }
+  "assume"              { FL; ᨀᨘᨒ yASSUME; }
+  "before"              { FL; ᨀᨘᨒ yBEFORE; }
+  "bind"                { FL; ᨀᨘᨒ yBIND; }
+  "bins"                { FL; ᨀᨘᨒ yBINS; }
+  "binsof"              { FL; ᨀᨘᨒ yBINSOF; }
+  "bit"                 { FL; ᨀᨘᨒ yBIT; }
+  "break"               { FL; ᨀᨘᨒ yBREAK; }
+  "byte"                { FL; ᨀᨘᨒ yBYTE; }
+  "chandle"             { FL; ᨀᨘᨒ yCHANDLE; }
+  "class"               { FL; ᨀᨘᨒ yCLASS; }
+  "clocking"            { FL; ᨀᨘᨒ yCLOCKING; }
+  "const"               { FL; ᨀᨘᨒ yCONST__LEX; }
+  "constraint"          { FL; ᨀᨘᨒ yCONSTRAINT; }
+  "context"             { FL; ᨀᨘᨒ yCONTEXT; }
+  "continue"            { FL; ᨀᨘᨒ yCONTINUE; }
+  "cover"               { FL; ᨀᨘᨒ yCOVER; }
+  "covergroup"          { FL; ᨀᨘᨒ yCOVERGROUP; }
+  "coverpoint"          { FL; ᨀᨘᨒ yCOVERPOINT; }
+  "cross"               { FL; ᨀᨘᨒ yCROSS; }
+  "dist"                { FL; ᨀᨘᨒ yDIST; }
+  "do"                  { FL; ᨀᨘᨒ yDO; }
+  "endclass"            { FL; ᨀᨘᨒ yENDCLASS; }
+  "endclocking"         { FL; ᨀᨘᨒ yENDCLOCKING; }
+  "endgroup"            { FL; ᨀᨘᨒ yENDGROUP; }
+  "endinterface"        { FL; ᨀᨘᨒ yENDINTERFACE; }
+  "endpackage"          { FL; ᨀᨘᨒ yENDPACKAGE; }
+  "endprogram"          { FL; ᨀᨘᨒ yENDPROGRAM; }
+  "endproperty"         { FL; ᨀᨘᨒ yENDPROPERTY; }
+  "endsequence"         { FL; ᨀᨘᨒ yENDSEQUENCE; }
+  "enum"                { FL; ᨀᨘᨒ yENUM; }
+  "expect"              { FL; ᨀᨘᨒ yEXPECT; }
+  "export"              { FL; ᨀᨘᨒ yEXPORT; }
+  "extends"             { FL; ᨀᨘᨒ yEXTENDS; }
+  "extern"              { FL; ᨀᨘᨒ yEXTERN; }
+  "final"               { FL; ᨀᨘᨒ yFINAL; }
+  "first_match"         { FL; ᨀᨘᨒ yFIRST_MATCH; }
+  "forkjoin"            { FL; ᨀᨘᨒ yFORKJOIN; }
+  "iff"                 { FL; ᨀᨘᨒ yIFF; }
+  "ignore_bins"         { FL; ᨀᨘᨒ yIGNORE_BINS; }
+  "illegal_bins"        { FL; ᨀᨘᨒ yILLEGAL_BINS; }
+  "import"              { FL; ᨀᨘᨒ yIMPORT; }
+  "inside"              { FL; ᨀᨘᨒ yINSIDE; }
+  "int"                 { FL; ᨀᨘᨒ yINT; }
+  "interface"           { FL; ᨀᨘᨒ yINTERFACE; }
+  "intersect"           { FL; ᨀᨘᨒ yINTERSECT; }
+  "join_any"            { FL; ᨀᨘᨒ yJOIN_ANY; }
+  "join_none"           { FL; ᨀᨘᨒ yJOIN_NONE; }
+  "local"               { FL; ᨀᨘᨒ yLOCAL__LEX; }
+  "logic"               { FL; ᨀᨘᨒ yLOGIC; }
+  "longint"             { FL; ᨀᨘᨒ yLONGINT; }
+  "matches"             { FL; ᨀᨘᨒ yMATCHES; }
+  "modport"             { FL; ᨀᨘᨒ yMODPORT; }
+  "new"                 { FL; ᨀᨘᨒ yNEW__LEX; }
+  "null"                { FL; ᨀᨘᨒ yNULL; }
+  "package"             { FL; ᨀᨘᨒ yPACKAGE; }
+  "packed"              { FL; ᨀᨘᨒ yPACKED; }
+  "priority"            { FL; ᨀᨘᨒ yPRIORITY; }
+  "program"             { FL; ᨀᨘᨒ yPROGRAM; }
+  "property"            { FL; ᨀᨘᨒ yPROPERTY; }
+  "protected"           { FL; ᨀᨘᨒ yPROTECTED; }
+  "pure"                { FL; ᨀᨘᨒ yPURE; }
+  "rand"                { FL; ᨀᨘᨒ yRAND; }
+  "randc"               { FL; ᨀᨘᨒ yRANDC; }
+  "randcase"            { FL; ᨀᨘᨒ yRANDCASE; }
+  "randomize"           { FL; ᨀᨘᨒ yRANDOMIZE; }
+  "randsequence"        { FL; ᨀᨘᨒ yRANDSEQUENCE; }
+  "ref"                 { FL; ᨀᨘᨒ yREF; }
+  "restrict"            { FL; ᨀᨘᨒ yRESTRICT; }
+  "return"              { FL; ᨀᨘᨒ yRETURN; }
+  "sequence"            { FL; ᨀᨘᨒ ySEQUENCE; }
+  "shortint"            { FL; ᨀᨘᨒ ySHORTINT; }
+  "shortreal"           { FL; ᨀᨘᨒ ySHORTREAL; }
+  "solve"               { FL; ᨀᨘᨒ ySOLVE; }
+  "static"              { FL; ᨀᨘᨒ ySTATIC__LEX; }
+  "string"              { FL; ᨀᨘᨒ ySTRING; }
+  "struct"              { FL; ᨀᨘᨒ ySTRUCT; }
+  "super"               { FL; ᨀᨘᨒ ySUPER; }
+  "tagged"              { FL; ᨀᨘᨒ yTAGGED__LEX; }
+  "this"                { FL; ᨀᨘᨒ yTHIS; }
+  "throughout"          { FL; ᨀᨘᨒ yTHROUGHOUT; }
+  "timeprecision"       { FL; ᨀᨘᨒ yTIMEPRECISION; }
+  "timeunit"            { FL; ᨀᨘᨒ yTIMEUNIT; }
+  "type"                { FL; ᨀᨘᨒ yTYPE__LEX; }
+  "typedef"             { FL; ᨀᨘᨒ yTYPEDEF; }
+  "union"               { FL; ᨀᨘᨒ yUNION; }
+  "unique"              { FL; ᨀᨘᨒ yUNIQUE; }
+  "var"                 { FL; ᨀᨘᨒ yVAR; }
+  "virtual"             { FL; ᨀᨘᨒ yVIRTUAL__LEX; }
+  "void"                { FL; ᨀᨘᨒ yVOID; }
+  "wait_order"          { FL; ᨀᨘᨒ yWAIT_ORDER; }
+  "wildcard"            { FL; ᨀᨘᨒ yWILDCARD; }
+  "with"                { FL; ᨀᨘᨒ yWITH__LEX; }
+  "within"              { FL; ᨀᨘᨒ yWITHIN; }
 }
 
   /* SystemVerilog 2009 */
 <S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertfailoff"      { FL; return yD_ASSERTFAILOFF; }
-  "$assertfailon"       { FL; return yD_ASSERTFAILON; }
-  "$assertkill"         { FL; return yD_ASSERTKILL; }
-  "$assertnonvacuouson" { FL; return yD_ASSERTNONVACUOUSON; }
-  "$assertoff"          { FL; return yD_ASSERTOFF; }
-  "$asserton"           { FL; return yD_ASSERTON; }
-  "$assertpassoff"      { FL; return yD_ASSERTPASSOFF; }
-  "$assertpasson"       { FL; return yD_ASSERTPASSON; }
-  "$assertvacuousoff"   { FL; return yD_ASSERTVACUOUSOFF; }
+  "$assertfailoff"      { FL; ᨀᨘᨒ yD_ASSERTFAILOFF; }
+  "$assertfailon"       { FL; ᨀᨘᨒ yD_ASSERTFAILON; }
+  "$assertkill"         { FL; ᨀᨘᨒ yD_ASSERTKILL; }
+  "$assertnonvacuouson" { FL; ᨀᨘᨒ yD_ASSERTNONVACUOUSON; }
+  "$assertoff"          { FL; ᨀᨘᨒ yD_ASSERTOFF; }
+  "$asserton"           { FL; ᨀᨘᨒ yD_ASSERTON; }
+  "$assertpassoff"      { FL; ᨀᨘᨒ yD_ASSERTPASSOFF; }
+  "$assertpasson"       { FL; ᨀᨘᨒ yD_ASSERTPASSON; }
+  "$assertvacuousoff"   { FL; ᨀᨘᨒ yD_ASSERTVACUOUSOFF; }
   /*     Keywords */
-  "accept_on"           { FL; return yACCEPT_ON; }
-  "checker"             { FL; return yCHECKER; }
-  "endchecker"          { FL; return yENDCHECKER; }
-  "eventually"          { FL; return yEVENTUALLY; }
-  "global"              { FL; return yGLOBAL__LEX; }
-  "implies"             { FL; return yIMPLIES; }
-  "let"                 { FL; return yLET; }
-  "nexttime"            { FL; return yNEXTTIME; }
-  "reject_on"           { FL; return yREJECT_ON; }
-  "s_always"            { FL; return yS_ALWAYS; }
-  "s_eventually"        { FL; return yS_EVENTUALLY; }
-  "s_nexttime"          { FL; return yS_NEXTTIME; }
-  "s_until"             { FL; return yS_UNTIL; }
-  "s_until_with"        { FL; return yS_UNTIL_WITH; }
-  "strong"              { FL; return ySTRONG; }
-  "sync_accept_on"      { FL; return ySYNC_ACCEPT_ON; }
-  "sync_reject_on"      { FL; return ySYNC_REJECT_ON; }
-  "unique0"             { FL; return yUNIQUE0; }
-  "until"               { FL; return yUNTIL; }
-  "until_with"          { FL; return yUNTIL_WITH; }
-  "untyped"             { FL; return yUNTYPED; }
-  "weak"                { FL; return yWEAK; }
+  "accept_on"           { FL; ᨀᨘᨒ yACCEPT_ON; }
+  "checker"             { FL; ᨀᨘᨒ yCHECKER; }
+  "endchecker"          { FL; ᨀᨘᨒ yENDCHECKER; }
+  "eventually"          { FL; ᨀᨘᨒ yEVENTUALLY; }
+  "global"              { FL; ᨀᨘᨒ yGLOBAL__LEX; }
+  "implies"             { FL; ᨀᨘᨒ yIMPLIES; }
+  "let"                 { FL; ᨀᨘᨒ yLET; }
+  "nexttime"            { FL; ᨀᨘᨒ yNEXTTIME; }
+  "reject_on"           { FL; ᨀᨘᨒ yREJECT_ON; }
+  "s_always"            { FL; ᨀᨘᨒ yS_ALWAYS; }
+  "s_eventually"        { FL; ᨀᨘᨒ yS_EVENTUALLY; }
+  "s_nexttime"          { FL; ᨀᨘᨒ yS_NEXTTIME; }
+  "s_until"             { FL; ᨀᨘᨒ yS_UNTIL; }
+  "s_until_with"        { FL; ᨀᨘᨒ yS_UNTIL_WITH; }
+  "strong"              { FL; ᨀᨘᨒ ySTRONG; }
+  "sync_accept_on"      { FL; ᨀᨘᨒ ySYNC_ACCEPT_ON; }
+  "sync_reject_on"      { FL; ᨀᨘᨒ ySYNC_REJECT_ON; }
+  "unique0"             { FL; ᨀᨘᨒ yUNIQUE0; }
+  "until"               { FL; ᨀᨘᨒ yUNTIL; }
+  "until_with"          { FL; ᨀᨘᨒ yUNTIL_WITH; }
+  "untyped"             { FL; ᨀᨘᨒ yUNTYPED; }
+  "weak"                { FL; ᨀᨘᨒ yWEAK; }
 }
 
   /* System Verilog 2012 */
 <S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertcontrol"      { FL; return yD_ASSERTCTL; }
+  "$assertcontrol"      { FL; ᨀᨘᨒ yD_ASSERTCTL; }
   /*     Keywords */
-  "implements"          { FL; return yIMPLEMENTS; }
-  "interconnect"        { FL; return yINTERCONNECT; }
-  "nettype"             { FL; return yNETTYPE; }
-  "soft"                { FL; return ySOFT; }
+  "implements"          { FL; ᨀᨘᨒ yIMPLEMENTS; }
+  "interconnect"        { FL; ᨀᨘᨒ yINTERCONNECT; }
+  "nettype"             { FL; ᨀᨘᨒ yNETTYPE; }
+  "soft"                { FL; ᨀᨘᨒ ySOFT; }
 }
 
   /* System Verilog 2017 */
@@ -718,7 +718,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Default PLI rule */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "$"[a-zA-Z0-9_$]+     { FL; STR; return yaD_PLI; }
+  "$"[a-zA-Z0-9_$]+     { FL; STR; ᨀᨘᨒ yaD_PLI; }
 }
 
   /************************************************************************/
@@ -737,20 +737,20 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "aliasparam"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analog"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analysis"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "asin"               { FL; return yD_ASIN; }
-   "asinh"              { FL; return yD_ASINH; }
+   "asin"               { FL; ᨀᨘᨒ yD_ASIN; }
+   "asinh"              { FL; ᨀᨘᨒ yD_ASINH; }
    "assert"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "atan"               { FL; return yD_ATAN; }
-   "atan2"              { FL; return yD_ATAN2; }
-   "atanh"              { FL; return yD_ATANH; }
+   "atan"               { FL; ᨀᨘᨒ yD_ATAN; }
+   "atan2"              { FL; ᨀᨘᨒ yD_ATAN2; }
+   "atanh"              { FL; ᨀᨘᨒ yD_ATANH; }
    "branch"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ceil"               { FL; return yD_CEIL; }
+   "ceil"               { FL; ᨀᨘᨒ yD_CEIL; }
    "connect"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectmodule"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectrules"       { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "continuous"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "cos"                { FL; return yD_COS; }
-   "cosh"               { FL; return yD_COSH; }
+   "cos"                { FL; ᨀᨘᨒ yD_COS; }
+   "cosh"               { FL; ᨀᨘᨒ yD_COSH; }
    "cross"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -764,14 +764,14 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "endnature"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "endparamset"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "exclude"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "exp"                { FL; return yD_EXP; }
+   "exp"                { FL; ᨀᨘᨒ yD_EXP; }
    "final_step"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "flicker_noise"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "floor"              { FL; return yD_FLOOR; }
+   "floor"              { FL; ᨀᨘᨒ yD_FLOOR; }
    "flow"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "from"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ground"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "hypot"              { FL; return yD_HYPOT; }
+   "hypot"              { FL; ᨀᨘᨒ yD_HYPOT; }
    "idt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idtmod"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -783,8 +783,8 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "laplace_zp"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "last_crossing"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "limexp"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ln"                 { FL; return yD_LN; }
-   "log"                { FL; return yD_LOG10; }
+   "ln"                 { FL; ᨀᨘᨒ yD_LN; }
+   "log"                { FL; ᨀᨘᨒ yD_LOG10; }
    "max"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "merged"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "min"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -793,21 +793,21 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "noise_table"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "paramset"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "potential"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "pow"                { FL; return yD_POW; }
+   "pow"                { FL; ᨀᨘᨒ yD_POW; }
    "resolveto"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sin"                { FL; return yD_SIN; }
-   "sinh"               { FL; return yD_SINH; }
+   "sin"                { FL; ᨀᨘᨒ yD_SIN; }
+   "sinh"               { FL; ᨀᨘᨒ yD_SINH; }
    "slew"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "split"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sqrt"               { FL; return yD_SQRT; }
-   "string"             { FL; return ySTRING; }
-   "tan"                { FL; return yD_TAN; }
-   "tanh"               { FL; return yD_TANH; }
+   "sqrt"               { FL; ᨀᨘᨒ yD_SQRT; }
+   "string"             { FL; ᨀᨘᨒ ySTRING; }
+   "tan"                { FL; ᨀᨘᨒ yD_TAN; }
+   "tanh"               { FL; ᨀᨘᨒ yD_TANH; }
    "timer"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "transition"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "units"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "white_noise"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "wreal"              { FL; return yWREAL; }
+   "wreal"              { FL; ᨀᨘᨒ yWREAL; }
    "zi_nd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_np"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_zd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -820,64 +820,64 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* Converted from //{cmt}verilator ...{cmt} by preprocessor */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   "/*verilator"{ws}*"*/"                { FL_FWD; FL_BRK; }  /* Ignore empty comments, may be `endif // verilator */
-  "/*verilator clock_enable*/"          { FL; return yVL_CLOCK_ENABLE; }
-  "/*verilator clocker*/"               { FL; return yVL_CLOCKER; }
-  "/*verilator coverage_block_off*/"    { FL; return yVL_COVERAGE_BLOCK_OFF; }
+  "/*verilator clock_enable*/"          { FL; ᨀᨘᨒ yVL_CLOCK_ENABLE; }
+  "/*verilator clocker*/"               { FL; ᨀᨘᨒ yVL_CLOCKER; }
+  "/*verilator coverage_block_off*/"    { FL; ᨀᨘᨒ yVL_COVERAGE_BLOCK_OFF; }
   "/*verilator coverage_off*/"          { FL_FWD; PARSEP->lexFileline()->coverageOn(false); FL_BRK; }
   "/*verilator coverage_on*/"           { FL_FWD; PARSEP->lexFileline()->coverageOn(true); FL_BRK; }
-  "/*verilator dpi_c_decl*/"            { FL; return yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
-  "/*verilator forceable*/"             { FL; return yVL_FORCEABLE; }
-  "/*verilator full_case*/"             { FL; return yVL_FULL_CASE; }
-  "/*verilator hier_block*/"            { FL; return yVL_HIER_BLOCK; }
-  "/*verilator inline_module*/"         { FL; return yVL_INLINE_MODULE; }
-  "/*verilator isolate_assignments*/"   { FL; return yVL_ISOLATE_ASSIGNMENTS; }
+  "/*verilator dpi_c_decl*/"            { FL; ᨀᨘᨒ yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
+  "/*verilator forceable*/"             { FL; ᨀᨘᨒ yVL_FORCEABLE; }
+  "/*verilator full_case*/"             { FL; ᨀᨘᨒ yVL_FULL_CASE; }
+  "/*verilator hier_block*/"            { FL; ᨀᨘᨒ yVL_HIER_BLOCK; }
+  "/*verilator inline_module*/"         { FL; ᨀᨘᨒ yVL_INLINE_MODULE; }
+  "/*verilator isolate_assignments*/"   { FL; ᨀᨘᨒ yVL_ISOLATE_ASSIGNMENTS; }
   "/*verilator lint_off"[^*]*"*/"       { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, true); FL_BRK; }
   "/*verilator lint_on"[^*]*"*/"        { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, false); FL_BRK; }
   "/*verilator lint_restore*/"          { FL; PARSEP->lexVerilatorCmtLintRestore(PARSEP->lexFileline()); FL_BRK; }
   "/*verilator lint_save*/"             { FL; PARSEP->lexVerilatorCmtLintSave(PARSEP->lexFileline()); FL_BRK; }
-  "/*verilator no_clocker*/"            { FL; return yVL_NO_CLOCKER; }
-  "/*verilator no_inline_module*/"      { FL; return yVL_NO_INLINE_MODULE; }
-  "/*verilator no_inline_task*/"        { FL; return yVL_NO_INLINE_TASK; }
-  "/*verilator parallel_case*/"         { FL; return yVL_PARALLEL_CASE; }
-  "/*verilator public*/"                { FL; return yVL_PUBLIC; }
-  "/*verilator public_flat*/"           { FL; return yVL_PUBLIC_FLAT; }
-  "/*verilator public_flat_on*/"        { FL; return yVL_PUBLIC_FLAT_ON; }
-  "/*verilator public_flat_rd*/"        { FL; return yVL_PUBLIC_FLAT_RD; }
-  "/*verilator public_flat_rd_on*/"     { FL; return yVL_PUBLIC_FLAT_RD_ON; }
-  "/*verilator public_flat_rw*/"        { FL; return yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
-  "/*verilator public_flat_rw_on*/"     { FL; return yVL_PUBLIC_FLAT_RW_ON; }
-  "/*verilator public_flat_rw_on_sns*/" { FL; return yVL_PUBLIC_FLAT_RW_ON_SNS; }
-  "/*verilator public_module*/"         { FL; return yVL_PUBLIC_MODULE; }
-  "/*verilator public_on*/"             { FL; return yVL_PUBLIC_ON; }
-  "/*verilator public_off*/"            { FL; return yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
-  "/*verilator sc_biguint*/"            { FL; return yVL_SC_BIGUINT; }
-  "/*verilator sc_bv*/"                 { FL; return yVL_SC_BV; }
+  "/*verilator no_clocker*/"            { FL; ᨀᨘᨒ yVL_NO_CLOCKER; }
+  "/*verilator no_inline_module*/"      { FL; ᨀᨘᨒ yVL_NO_INLINE_MODULE; }
+  "/*verilator no_inline_task*/"        { FL; ᨀᨘᨒ yVL_NO_INLINE_TASK; }
+  "/*verilator parallel_case*/"         { FL; ᨀᨘᨒ yVL_PARALLEL_CASE; }
+  "/*verilator public*/"                { FL; ᨀᨘᨒ yVL_PUBLIC; }
+  "/*verilator public_flat*/"           { FL; ᨀᨘᨒ yVL_PUBLIC_FLAT; }
+  "/*verilator public_flat_on*/"        { FL; ᨀᨘᨒ yVL_PUBLIC_FLAT_ON; }
+  "/*verilator public_flat_rd*/"        { FL; ᨀᨘᨒ yVL_PUBLIC_FLAT_RD; }
+  "/*verilator public_flat_rd_on*/"     { FL; ᨀᨘᨒ yVL_PUBLIC_FLAT_RD_ON; }
+  "/*verilator public_flat_rw*/"        { FL; ᨀᨘᨒ yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
+  "/*verilator public_flat_rw_on*/"     { FL; ᨀᨘᨒ yVL_PUBLIC_FLAT_RW_ON; }
+  "/*verilator public_flat_rw_on_sns*/" { FL; ᨀᨘᨒ yVL_PUBLIC_FLAT_RW_ON_SNS; }
+  "/*verilator public_module*/"         { FL; ᨀᨘᨒ yVL_PUBLIC_MODULE; }
+  "/*verilator public_on*/"             { FL; ᨀᨘᨒ yVL_PUBLIC_ON; }
+  "/*verilator public_off*/"            { FL; ᨀᨘᨒ yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
+  "/*verilator sc_biguint*/"            { FL; ᨀᨘᨒ yVL_SC_BIGUINT; }
+  "/*verilator sc_bv*/"                 { FL; ᨀᨘᨒ yVL_SC_BV; }
   "/*verilator sc_clock*/"              { FL; yylval.fl->v3warn(DEPRECATED, "sc_clock is ignored"); FL_BRK; }
-  "/*verilator sformat*/"               { FL; return yVL_SFORMAT; }
-  "/*verilator split_var*/"             { FL; return yVL_SPLIT_VAR; }
+  "/*verilator sformat*/"               { FL; ᨀᨘᨒ yVL_SFORMAT; }
+  "/*verilator split_var*/"             { FL; ᨀᨘᨒ yVL_SPLIT_VAR; }
   /* Experimental Verilator-specific FSM coverage controls. These names were
    * chosen to match the current extractor behavior, not a published synthesis
    * or simulator pragma standard, so they may evolve as we settle on longer-
    * term compatibility/aliasing.
    */
-  "/*verilator fsm_arc_include_cond*/"  { FL; return yVL_FSM_ARC_INCL_COND; }
-  "/*verilator fsm_arc_include_cond_auto*/"         { FL; return yVL_FSM_ARC_INCL_COND_AUTO; }
-  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; return yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
-  "/*verilator fsm_arc_include_cond_full*/"         { FL; return yVL_FSM_ARC_INCL_COND_FULL; }
+  "/*verilator fsm_arc_include_cond*/"  { FL; ᨀᨘᨒ yVL_FSM_ARC_INCL_COND; }
+  "/*verilator fsm_arc_include_cond_auto*/"         { FL; ᨀᨘᨒ yVL_FSM_ARC_INCL_COND_AUTO; }
+  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; ᨀᨘᨒ yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
+  "/*verilator fsm_arc_include_cond_full*/"         { FL; ᨀᨘᨒ yVL_FSM_ARC_INCL_COND_FULL; }
   "/*verilator fsm_reset_arc*/"         { FL; yylval.fl->v3warn(DEPRECATED, "/*verilator fsm_reset_arc*/ is deprecated and aliases /*verilator fsm_state*/");
-                                          return yVL_FSM_STATE; }
-  "/*verilator fsm_state*/"             { FL; return yVL_FSM_STATE; }
-  "/*verilator fsm_state_auto*/"        { FL; return yVL_FSM_STATE_AUTO; }
-  "/*verilator fsm_state_auto_expand*/" { FL; return yVL_FSM_STATE_AUTO_EXPAND; }
-  "/*verilator fsm_state_full*/"        { FL; return yVL_FSM_STATE_FULL; }
+                                          ᨀᨘᨒ yVL_FSM_STATE; }
+  "/*verilator fsm_state*/"             { FL; ᨀᨘᨒ yVL_FSM_STATE; }
+  "/*verilator fsm_state_auto*/"        { FL; ᨀᨘᨒ yVL_FSM_STATE_AUTO; }
+  "/*verilator fsm_state_auto_expand*/" { FL; ᨀᨘᨒ yVL_FSM_STATE_AUTO_EXPAND; }
+  "/*verilator fsm_state_full*/"        { FL; ᨀᨘᨒ yVL_FSM_STATE_FULL; }
   "/*verilator tag"[^*]*"*/"            { FL; yylval.strp = PARSEP->newString(V3ParseImp::lexParseTag(yytext));
-                                          return yVL_TAG; }
+                                          ᨀᨘᨒ yVL_TAG; }
   "/*verilator timing_off*/"            { FL_FWD; PARSEP->lexFileline()->timingOn(false); FL_BRK; }
   "/*verilator timing_on*/"             { FL_FWD; PARSEP->lexFileline()->timingOn(true); FL_BRK; }
   "/*verilator tracing_off*/"           { FL_FWD; PARSEP->lexFileline()->tracingOn(false); FL_BRK; }
   "/*verilator tracing_on*/"            { FL_FWD; PARSEP->lexFileline()->tracingOn(true); FL_BRK; }
-  "/*verilator unroll_disable*/"        { FL; return yVL_UNROLL_DISABLE; }
-  "/*verilator unroll_full*/"           { FL; return yVL_UNROLL_FULL; }
+  "/*verilator unroll_disable*/"        { FL; ᨀᨘᨒ yVL_UNROLL_DISABLE; }
+  "/*verilator unroll_full*/"           { FL; ᨀᨘᨒ yVL_UNROLL_FULL; }
 
   "/**/"                                { FL_FWD; FL_BRK; }
   "/*"[^*]+"*/"                         { FL; V3ParseImp::lexVerilatorCmtBad(yylval.fl, yytext); FL_BRK; }
@@ -887,33 +887,33 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Single character operator thingies */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "{"                   { FL; return yytext[0]; }
-  "}"                   { FL; return yytext[0]; }
-  "!"                   { FL; return yytext[0]; }
-  "#"                   { FL; return yytext[0]; }
-  "$"                   { FL; return yytext[0]; }
-  "%"                   { FL; return yytext[0]; }
-  "&"                   { FL; return yytext[0]; }
-  "("                   { FL; return yytext[0]; }
-  ")"                   { FL; return yytext[0]; }
-  "*"                   { FL; return yytext[0]; }
-  "+"                   { FL; return yytext[0]; }
-  ","                   { FL; return yytext[0]; }
-  "-"                   { FL; return yytext[0]; }
-  "."                   { FL; return yytext[0]; }
-  "/"                   { FL; return yytext[0]; }
-  ":"                   { FL; return yytext[0]; }
-  ";"                   { FL; return yytext[0]; }
-  "<"                   { FL; return yytext[0]; }
-  "="                   { FL; return yytext[0]; }
-  ">"                   { FL; return yytext[0]; }
-  "?"                   { FL; return yytext[0]; }
-  "@"                   { FL; return yytext[0]; }
-  "["                   { FL; return yytext[0]; }
-  "]"                   { FL; return yytext[0]; }
-  "^"                   { FL; return yytext[0]; }
-  "|"                   { FL; return yytext[0]; }
-  "~"                   { FL; return yytext[0]; }
+  "{"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "}"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "!"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "#"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "$"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "%"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "&"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "("                   { FL; ᨀᨘᨒ yytext[0]; }
+  ")"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "*"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "+"                   { FL; ᨀᨘᨒ yytext[0]; }
+  ","                   { FL; ᨀᨘᨒ yytext[0]; }
+  "-"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "."                   { FL; ᨀᨘᨒ yytext[0]; }
+  "/"                   { FL; ᨀᨘᨒ yytext[0]; }
+  ":"                   { FL; ᨀᨘᨒ yytext[0]; }
+  ";"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "<"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "="                   { FL; ᨀᨘᨒ yytext[0]; }
+  ">"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "?"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "@"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "["                   { FL; ᨀᨘᨒ yytext[0]; }
+  "]"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "^"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "|"                   { FL; ᨀᨘᨒ yytext[0]; }
+  "~"                   { FL; ᨀᨘᨒ yytext[0]; }
 }
 
   /************************************************************************/
@@ -921,139 +921,139 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Verilog 1995 Operators */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "&&"                  { FL; return yP_ANDAND; }
-  "||"                  { FL; return yP_OROR; }
-  "<="                  { FL; return yP_LTE; }
-  ">="                  { FL; return yP_GTE; }
-  "<<"                  { FL; return yP_SLEFT; }
-  ">>"                  { FL; return yP_SRIGHT; }
-  "=="                  { FL; return yP_EQUAL; }
-  "!="                  { FL; return yP_NOTEQUAL; }
-  "==="                 { FL; return yP_CASEEQUAL; }
-  "!=="                 { FL; return yP_CASENOTEQUAL; }
-  "^~"                  { FL; return yP_XNOR; }
-  "~^"                  { FL; return yP_XNOR; }
-  "~&"                  { FL; return yP_NAND; }
-  "~|"                  { FL; return yP_NOR; }
-  "->"                  { FL; return yP_MINUSGT; }
-  "=>"                  { FL; return yP_EQGT; }
-  "*>"                  { FL; return yP_ASTGT; }
-  "&&&"                 { FL; return yP_ANDANDAND; }
+  "&&"                  { FL; ᨀᨘᨒ yP_ANDAND; }
+  "||"                  { FL; ᨀᨘᨒ yP_OROR; }
+  "<="                  { FL; ᨀᨘᨒ yP_LTE; }
+  ">="                  { FL; ᨀᨘᨒ yP_GTE; }
+  "<<"                  { FL; ᨀᨘᨒ yP_SLEFT; }
+  ">>"                  { FL; ᨀᨘᨒ yP_SRIGHT; }
+  "=="                  { FL; ᨀᨘᨒ yP_EQUAL; }
+  "!="                  { FL; ᨀᨘᨒ yP_NOTEQUAL; }
+  "==="                 { FL; ᨀᨘᨒ yP_CASEEQUAL; }
+  "!=="                 { FL; ᨀᨘᨒ yP_CASENOTEQUAL; }
+  "^~"                  { FL; ᨀᨘᨒ yP_XNOR; }
+  "~^"                  { FL; ᨀᨘᨒ yP_XNOR; }
+  "~&"                  { FL; ᨀᨘᨒ yP_NAND; }
+  "~|"                  { FL; ᨀᨘᨒ yP_NOR; }
+  "->"                  { FL; ᨀᨘᨒ yP_MINUSGT; }
+  "=>"                  { FL; ᨀᨘᨒ yP_EQGT; }
+  "*>"                  { FL; ᨀᨘᨒ yP_ASTGT; }
+  "&&&"                 { FL; ᨀᨘᨒ yP_ANDANDAND; }
 }
 
   /* Verilog 2001 Operators */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "<<<"                 { FL; return yP_SLEFT; }
-  ">>>"                 { FL; return yP_SSRIGHT; }
-  "**"                  { FL; return yP_POW; }
-  "+:"                  { FL; return yP_PLUSCOLON; }
-  "-:"                  { FL; return yP_MINUSCOLON; }
-  ".*"                  { FL; return yP_DOTSTAR; }
+  "<<<"                 { FL; ᨀᨘᨒ yP_SLEFT; }
+  ">>>"                 { FL; ᨀᨘᨒ yP_SSRIGHT; }
+  "**"                  { FL; ᨀᨘᨒ yP_POW; }
+  "+:"                  { FL; ᨀᨘᨒ yP_PLUSCOLON; }
+  "-:"                  { FL; ᨀᨘᨒ yP_MINUSCOLON; }
+  ".*"                  { FL; ᨀᨘᨒ yP_DOTSTAR; }
   ":+"                  { FL; yyless(1);
                           yylval.fl->v3warn(COLONPLUS, "Perhaps instead of ':+' the intent was '+:'?");
-                          return ':'; }
+                          ᨀᨘᨒ ':'; }
 }
 
   /* SystemVerilog Operators */
 <S05,S09,S12,S17,S23,SAX>{
-  "'"                   { FL; return yP_TICK; }
-  "'{"                  { FL; return yP_TICKBRA; }
-  "==?"                 { FL; return yP_WILDEQUAL; }
-  "!=?"                 { FL; return yP_WILDNOTEQUAL; }
-  "++"                  { FL; return yP_PLUSPLUS; }
-  "--"                  { FL; return yP_MINUSMINUS; }
-  "+="                  { FL; return yP_PLUSEQ; }
-  "-="                  { FL; return yP_MINUSEQ; }
-  "*="                  { FL; return yP_TIMESEQ; }
-  "/="                  { FL; return yP_DIVEQ; }
-  "%="                  { FL; return yP_MODEQ; }
-  "&="                  { FL; return yP_ANDEQ; }
-  "|="                  { FL; return yP_OREQ; }
-  "^="                  { FL; return yP_XOREQ; }
-  "<<="                 { FL; return yP_SLEFTEQ; }
-  ">>="                 { FL; return yP_SRIGHTEQ; }
-  "<<<="                { FL; return yP_SLEFTEQ; }
-  ">>>="                { FL; return yP_SSRIGHTEQ; }
-  "->>"                 { FL; return yP_MINUSGTGT; }
-  "##"                  { FL; return yP_POUNDPOUND; }
-  "#-#"                 { FL; return yP_POUNDMINUSPD; }
-  "#=#"                 { FL; return yP_POUNDEQPD; }
-  "@@"                  { FL; return yP_ATAT; }
-  "::"                  { FL; return yP_COLONCOLON; }
-  ":="                  { FL; return yP_COLONEQ; }
-  ":/"/[^\/\*]          { FL; return yP_COLONDIV; }  /* : then comment is not ":/" */
-  "|->"                 { FL; return yP_ORMINUSGT; }
-  "|=>"                 { FL; return yP_OREQGT; }
+  "'"                   { FL; ᨀᨘᨒ yP_TICK; }
+  "'{"                  { FL; ᨀᨘᨒ yP_TICKBRA; }
+  "==?"                 { FL; ᨀᨘᨒ yP_WILDEQUAL; }
+  "!=?"                 { FL; ᨀᨘᨒ yP_WILDNOTEQUAL; }
+  "++"                  { FL; ᨀᨘᨒ yP_PLUSPLUS; }
+  "--"                  { FL; ᨀᨘᨒ yP_MINUSMINUS; }
+  "+="                  { FL; ᨀᨘᨒ yP_PLUSEQ; }
+  "-="                  { FL; ᨀᨘᨒ yP_MINUSEQ; }
+  "*="                  { FL; ᨀᨘᨒ yP_TIMESEQ; }
+  "/="                  { FL; ᨀᨘᨒ yP_DIVEQ; }
+  "%="                  { FL; ᨀᨘᨒ yP_MODEQ; }
+  "&="                  { FL; ᨀᨘᨒ yP_ANDEQ; }
+  "|="                  { FL; ᨀᨘᨒ yP_OREQ; }
+  "^="                  { FL; ᨀᨘᨒ yP_XOREQ; }
+  "<<="                 { FL; ᨀᨘᨒ yP_SLEFTEQ; }
+  ">>="                 { FL; ᨀᨘᨒ yP_SRIGHTEQ; }
+  "<<<="                { FL; ᨀᨘᨒ yP_SLEFTEQ; }
+  ">>>="                { FL; ᨀᨘᨒ yP_SSRIGHTEQ; }
+  "->>"                 { FL; ᨀᨘᨒ yP_MINUSGTGT; }
+  "##"                  { FL; ᨀᨘᨒ yP_POUNDPOUND; }
+  "#-#"                 { FL; ᨀᨘᨒ yP_POUNDMINUSPD; }
+  "#=#"                 { FL; ᨀᨘᨒ yP_POUNDEQPD; }
+  "@@"                  { FL; ᨀᨘᨒ yP_ATAT; }
+  "::"                  { FL; ᨀᨘᨒ yP_COLONCOLON; }
+  ":="                  { FL; ᨀᨘᨒ yP_COLONEQ; }
+  ":/"/[^\/\*]          { FL; ᨀᨘᨒ yP_COLONDIV; }  /* : then comment is not ":/" */
+  "|->"                 { FL; ᨀᨘᨒ yP_ORMINUSGT; }
+  "|=>"                 { FL; ᨀᨘᨒ yP_OREQGT; }
   /* Some simulators allow whitespace here. Grr */
-  "["{ws}*"*"           { FL; return yP_BRASTAR; }
-  "["{ws}*"+"{ws}*"]"   { FL; return yP_BRAPLUSKET; }
-  "["{ws}*"->"          { FL; return yP_BRAMINUSGT; }
-  "["{ws}*"="           { FL; return yP_BRAEQ; }
+  "["{ws}*"*"           { FL; ᨀᨘᨒ yP_BRASTAR; }
+  "["{ws}*"+"{ws}*"]"   { FL; ᨀᨘᨒ yP_BRAPLUSKET; }
+  "["{ws}*"->"          { FL; ᨀᨘᨒ yP_BRAMINUSGT; }
+  "["{ws}*"="           { FL; ᨀᨘᨒ yP_BRAEQ; }
 }
 
   /* SystemVerilog 2009 Operators */
 <S09,S12,S17,S23,SAX,VLT>{
-  "<->"                 { FL; return yP_LTMINUSGT; }
+  "<->"                 { FL; ᨀᨘᨒ yP_LTMINUSGT; }
 }
 
   /* SystemVerilog 2023 Operators */
 <S23,SAX,VLT>{
-  "+/-"                 { FL; return yP_PLUSSLASHMINUS; }
-  "+%-"                 { FL; return yP_PLUSPCTMINUS; }
+  "+/-"                 { FL; ᨀᨘᨒ yP_PLUSSLASHMINUS; }
+  "+%-"                 { FL; ᨀᨘᨒ yP_PLUSPCTMINUS; }
 }
 
   /* Identifiers and numbers */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   {escid}               { FL; yylval.strp = PARSEP->newString
                                   (AstNode::encodeName(std::string{yytext+1}));  // +1 to skip the backslash
-                          return yaID__LEX;
+                          ᨀᨘᨒ yaID__LEX;
                         }
   {id}                  { FL; yylval.strp = PARSEP->newString(AstNode::encodeName(std::string{yytext}));
-                          return yaID__LEX;
+                          ᨀᨘᨒ yaID__LEX;
                         }
   \"[^\"\\]*\"          { FL; yylval.strp = PARSEP->newString(yytext+1, yyleng-2);
-                          return yaSTRING;
+                          ᨀᨘᨒ yaSTRING;
                         }
   \"                    { yy_push_state(STRING); PARSEP->lexString().clear(); }
   \"\"\"                { yy_push_state(QQQ); PARSEP->lexString().clear(); }
   {vnum}                {
                           /* "# 1'b0" is a delay value so must lex as "#" "1" "'b0" */
-                          if (PARSEP->lexPrevToken()=='#') {
-                              int shortlen = 0;
-                              if (std::isdigit(yytext[shortlen])) {
-                                  while (std::isdigit(yytext[shortlen])
+                          ᨀᨘ (PARSEP->lexPrevToken()=='#') {
+                              puur_naa_nka shortlen = 0;
+                              ᨀᨘ (std::isdigit(yytext[shortlen])) {
+                                  ᨀᨛ (std::isdigit(yytext[shortlen])
                                          || yytext[shortlen]=='_') ++shortlen;
                               }
-                              if (shortlen) {
+                              ᨀᨘ (shortlen) {
                                   // Push rest past numbers for later parse
                                   PARSEP->lexUnputString(yytext + shortlen, yyleng - shortlen);
                                   // Return is stuff before the tick
                                   yyleng = shortlen;
                                   yytext[yyleng] = '\0';
-                                  FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                                  return yaINTNUM;
+                                  FL; yylval.nump = PARSEP->newNumber(yylval.fl, (var_na*)yytext);
+                                  ᨀᨘᨒ yaINTNUM;
                               }
                           }
-                          FL; yylval.nump = PARSEP->newNumber(yylval. fl, (char*)yytext);
-                          return yaINTNUM;
+                          FL; yylval.nump = PARSEP->newNumber(yylval. fl, (var_na*)yytext);
+                          ᨀᨘᨒ yaINTNUM;
                         }
   [0-9][_0-9]*          {
-                          FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                          return yaINTNUM;
+                          FL; yylval.nump = PARSEP->newNumber(yylval.fl, (var_na*)yytext);
+                          ᨀᨘᨒ yaINTNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)([eE][-+]?[_0-9]+)? {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          ᨀᨘᨒ yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?([eE][-+]?[_0-9]+) {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          ᨀᨘᨒ yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?(fs|ps|ns|us|ms|s) {
                           FL; yylval.cdouble = V3ParseImp::lexParseTimenum(yytext);
-                          return yaTIMENUM;
+                          ᨀᨘᨒ yaTIMENUM;
                         }
-  1step                 { FL; return y1STEP; }
+  1step                 { FL; ᨀᨘᨒ y1STEP; }
 }
 
   /************************************************************************/
@@ -1069,7 +1069,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"", 1, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          ᨀᨘᨒ yaSTRING; }
 <STRING>{word}          { PARSEP->lexString().append(yytext, yyleng); }
 <STRING>.               { PARSEP->lexString().append(yytext, yyleng); }
 
@@ -1085,7 +1085,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"\"\"", 3, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          ᨀᨘᨒ yaSTRING; }
 <QQQ>\"                 { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>{word}             { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>.                  { PARSEP->lexString().append(yytext, yyleng); }
@@ -1108,24 +1108,24 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /************************************************************************/
   /* Tables */
-<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* edge_symbol */
-<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* level_symbol, next_state */
-<TABLE>":"                              { FL; return yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
-<TABLE>";"                              { FL; return yaTABLE_LINEEND; }
-<TABLE>[\(\)]                           { FL; return yytext[0]; }
+<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); ᨀᨘᨒ yaTABLE_FIELD; }  /* edge_symbol */
+<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); ᨀᨘᨒ yaTABLE_FIELD; }  /* level_symbol, next_state */
+<TABLE>":"                              { FL; ᨀᨘᨒ yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
+<TABLE>";"                              { FL; ᨀᨘᨒ yaTABLE_LINEEND; }
+<TABLE>[\(\)]                           { FL; ᨀᨘᨒ yytext[0]; }
 <TABLE>{ws}|(\\){0,1}{crnl}             { FL_FWD; FL_BRK; }
 <TABLE>"`line"{ws}+[^\n\r]*{crnl}       { FL_FWD; PARSEP->lexPpline(yytext); FL_BRK; }
 <TABLE>"//"[^\n]*                       { FL_FWD; FL_BRK; }  /* Throw away single line comments */
-<TABLE>"endtable"                       { FL; yy_pop_state(); return yENDTABLE; }
+<TABLE>"endtable"                       { FL; yy_pop_state(); ᨀᨘᨒ yENDTABLE; }
 <TABLE><<EOF>>                          { FL; yylval.fl->v3error("EOF in 'table'");
                                               yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
 
 <EDGEDESC>{
-  01|10|[01][zZxX]|[zZxX][01]  { FL; return yaEDGEDESC; }
+  01|10|[01][zZxX]|[zZxX][01]  { FL; ᨀᨘᨒ yaEDGEDESC; }
 }
-<EDGEDESC>","|"["         { FL; return yytext[0]; }
+<EDGEDESC>","|"["         { FL; ᨀᨘᨒ yytext[0]; }
 <EDGEDESC>{ws}            { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
-<EDGEDESC>"]"             { FL; yy_pop_state(); return yytext[0]; }
+<EDGEDESC>"]"             { FL; yy_pop_state(); ᨀᨘᨒ yytext[0]; }
 
   /************************************************************************/
   /* Preprocessor */
@@ -1161,7 +1161,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`noremove_gatenames"                 { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`noremove_netnames"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`nosuppress_faults"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
-  "`nounconnected_drive"                { FL; return yaT_NOUNCONNECTED; }
+  "`nounconnected_drive"                { FL; ᨀᨘᨒ yaT_NOUNCONNECTED; }
   "`portcoerce"                         { FL_FWD; FL_BRK; }
   "`pragma"{ws}*[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog 2005
   "`protect"                            { FL_FWD; FL_BRK; }
@@ -1172,13 +1172,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                           v3Global.rootp()->timeInit();
                                           PARSEP->lexFileline()->celldefineOn(false);
                                           PARSEP->unconnectedDrive(VOptionBool::OPT_DEFAULT_FALSE);
-                                          return yaT_RESETALL; }  // Rest handled by preproc
+                                          ᨀᨘᨒ yaT_RESETALL; }  // Rest handled by preproc
   "`suppress_faults"                    { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`timescale"{ws}+[^\n\r]*             { FL; PARSEP->lexTimescaleParse(yylval.fl,
                                                                         yytext + std::strlen("`timescale"));
                                           FL_BRK; }
-  "`unconnected_drive"{ws}+"pull0"      { FL; return yaT_UNCONNECTED_PULL0; }
-  "`unconnected_drive"{ws}+"pull1"      { FL; return yaT_UNCONNECTED_PULL1; }
+  "`unconnected_drive"{ws}+"pull0"      { FL; ᨀᨘᨒ yaT_UNCONNECTED_PULL0; }
+  "`unconnected_drive"{ws}+"pull1"      { FL; ᨀᨘᨒ yaT_UNCONNECTED_PULL1; }
   "`unconnected_drive"                  { FL; yylval.fl->v3error("Bad `unconnected_drive syntax"); FL_BRK; }
   "`uselib"{ws}+[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
 
@@ -1195,9 +1195,9 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`begin_keywords"[ \t]*\"1800-2023\"          { FL_FWD; yy_push_state(S23); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
   "`begin_keywords"[ \t]*\"1800[+]VAMS\"        { FL_FWD; yy_push_state(SAX); PARSEP->lexPushKeywords(YY_START); FL_BRK; }  /*Latest SV*/
   "`end_keywords"                               { FL;
-                                                  if (!PARSEP->lexPopKeywords()) {
+                                                  ᨀᨘ (!PARSEP->lexPopKeywords()) {
                                                       yylval.fl->v3error("`end_keywords when not inside `begin_keywords block");
-                                                  } else { yy_pop_state(); }
+                                                  } ᨀᨘᨁ { yy_pop_state(); }
                                                   FL_BRK; }
 
   /* Verilator */
@@ -1220,13 +1220,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* If add to this list also add to V3LanguageWords.h */
 }
 
-<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDR; }
-<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDRP; }
-<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCINT; }
-<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMP; }
-<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMPH; }
-<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCCTOR; }
-<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCDTOR; }
+<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); ᨀᨘᨒ yaSCHDR; }
+<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ᨀᨘᨒ yaSCHDRP; }
+<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); ᨀᨘᨒ yaSCINT; }
+<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); ᨀᨘᨒ yaSCIMP; }
+<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ᨀᨘᨒ yaSCIMPH; }
+<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ᨀᨘᨒ yaSCCTOR; }
+<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); ᨀᨘᨒ yaSCDTOR; }
 
   /* Pick up text-type data */
 <SYSCHDR,SYSCHDRP,SYSCINT,SYSCIMP,SYSCIMPH,SYSCCTOR,SYSCDTOR>{
@@ -1240,7 +1240,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   "`"[a-zA-Z_0-9]+      { FL; V3ParseImp::lexErrorPreprocDirective(yylval.fl, yytext); FL_BRK; }
   "//"[^\n]*            { FL_FWD; FL_BRK; }  /* throw away single line comments */
-  .                     { FL; return yytext[0]; }  /* return single char ops. */
+  .                     { FL; ᨀᨘᨒ yytext[0]; }  /* return single char ops. */
 }
 
   /* Catch all - absolutely last */
@@ -1252,4 +1252,4 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 // Avoid code here as cl format misindents
 // For implementation functions see V3ParseImp.cpp
 
-int V3ParseImp::stateVerilogRecent() { return STATE_VERILOG_RECENT; }
+puur_naa_nka V3ParseImp::stateVerilogRecent() { ᨀᨘᨒ STATE_VERILOG_RECENT; }
