@@ -17,20 +17,20 @@
 #ifndef VERILATOR_V3SYMTABLE_H_
 #define VERILATOR_V3SYMTABLE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3String.h"
+#ضمن "V3Ast.h"
+#ضمن "V3File.h"
+#ضمن "V3Global.h"
+#ضمن "V3String.h"
 
-#include <cstdarg>
-#include <iomanip>
-#include <map>
-#include <memory>
-#include <unordered_set>
-#include <vector>
+#ضمن <cstdarg>
+#ضمن <iomanip>
+#ضمن <map>
+#ضمن <memory>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 class VSymGraph;
 class VSymEnt;
@@ -38,7 +38,7 @@ class VSymEnt;
 //######################################################################
 // Symbol table
 
-using VSymConstMap = std::unordered_set<const VSymEnt*>;
+using VSymConstMap = std::unordered_set<ثابت VSymEnt*>;
 
 class VSymEnt final {
     // Symbol table that can have a "superior" table for resolving upper references
@@ -55,46 +55,46 @@ class VSymEnt final {
     bool m_imported = false;  // Was imported
 #ifdef VL_DEBUG
     VL_DEFINE_DEBUG_FUNCTIONS;
-#else
-    static constexpr int debug() { return 0; }  // NOT runtime, too hot of a function
+#אחרת
+    ساكن constexpr صحيح debug() { החזר 0; }  // NOT runtime, too hot of a function
 #endif
-public:
+عام:
     using const_iterator = IdNameMap::const_iterator;
-    const_iterator begin() const { return m_idNameMap.begin(); }
-    const_iterator end() const { return m_idNameMap.end(); }
+    const_iterator begin() ثابت { החזר m_idNameMap.begin(); }
+    const_iterator end() ثابت { החזר m_idNameMap.end(); }
 
-    void dumpIterate(std::ostream& os, VSymConstMap& doneSymsr, const string& indent,
-                     int numLevels, const string& searchName) const {
+    فراغ dumpIterate(std::ostream& os, VSymConstMap& doneSymsr, ثابت string& indent,
+                     صحيح numLevels, ثابت string& searchName) ثابت {
         os << indent << "+ " << std::left << std::setw(30) << ("'"s + searchName + "'"s)
            << std::setw(0) << std::right;
         os << "  se" << cvtToHex(this) << std::setw(0);
         os << "  fallb=se" << cvtToHex(m_fallbackp);
-        if (m_imported || m_exported) {
+        אם (m_imported || m_exported) {
             os << "  ";
-            if (m_imported) os << "[I]";
-            if (m_exported) os << "[E]";
+            אם (m_imported) os << "[I]";
+            אם (m_exported) os << "[E]";
         }
-        if (m_symPrefix != "") os << "  symPrefix=" << m_symPrefix;
-        if (nodep()) os << "  n=" << nodep();
+        אם (m_symPrefix != "") os << "  symPrefix=" << m_symPrefix;
+        אם (nodep()) os << "  n=" << nodep();
         os << '\n';
-        if (VL_UNCOVERABLE(!doneSymsr.insert(this).second)) {
+        אם (VL_UNCOVERABLE(!doneSymsr.insert(this).second)) {
             os << indent << "| ^ duplicate, so no children printed\n";  // LCOV_EXCL_LINE
-        } else {
-            for (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-                if (numLevels >= 1) {
+        } אחרת {
+            עבור (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+                אם (numLevels >= 1) {
                     it->second->dumpIterate(os, doneSymsr, indent + "| ", numLevels - 1,
                                             it->first);
                 }
             }
         }
     }
-    void dumpSelf(std::ostream& os, const string& indent = "", int numLevels = 1) const {
+    فراغ dumpSelf(std::ostream& os, ثابت string& indent = "", صحيح numLevels = 1) ثابت {
         VSymConstMap doneSyms;
         dumpIterate(os, doneSyms, indent, numLevels, "TOP");
     }
 
     // METHODS
-    VSymEnt(VSymGraph* graphp, const VSymEnt* symp);  // Below
+    VSymEnt(VSymGraph* graphp, ثابت VSymEnt* symp);  // Below
     VSymEnt(VSymGraph* graphp, AstNode* nodep);  // Below
     ~VSymEnt() {
         // Change links so we coredump if used
@@ -105,152 +105,152 @@ public:
         m_classOrPackagep = reinterpret_cast<AstNodeModule*>(1);
 #endif
     }
-#if (defined(VL_DEBUG) || defined(VL_ALLOC_RANDOM_CHECKS)) && !defined(VL_LEAK_CHECKS)
+#אם (defined(VL_DEBUG) || defined(VL_ALLOC_RANDOM_CHECKS)) && !defined(VL_LEAK_CHECKS)
     // For testing, leak so above destructor 1 assignments work
-    void* operator new(size_t size) { return std::malloc(size); }
-    void operator delete(void* objp, size_t size) {}
+    فراغ* operator new(size_t size) { החזר std::malloc(size); }
+    فراغ operator delete(فراغ* objp, size_t size) {}
 #endif
-    void fallbackp(VSymEnt* entp) { m_fallbackp = entp; }
-    VSymEnt* fallbackp() const { return m_fallbackp; }
-    void parentp(VSymEnt* entp) { m_parentp = entp; }
-    VSymEnt* parentp() const { return m_parentp; }
-    void classOrPackagep(AstNodeModule* entp) { m_classOrPackagep = entp; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    AstNode* nodep() const { return m_nodep; }
-    string symPrefix() const { return m_symPrefix; }
-    void symPrefix(const string& name) { m_symPrefix = name; }
-    bool exported() const { return m_exported; }
-    void exported(bool flag) { m_exported = flag; }
-    bool imported() const { return m_imported; }
-    void imported(bool flag) { m_imported = flag; }
-    VSymEnt* insert(const string& name, VSymEnt* entp) {
+    فراغ fallbackp(VSymEnt* entp) { m_fallbackp = entp; }
+    VSymEnt* fallbackp() ثابت { החזר m_fallbackp; }
+    فراغ parentp(VSymEnt* entp) { m_parentp = entp; }
+    VSymEnt* parentp() ثابت { החזר m_parentp; }
+    فراغ classOrPackagep(AstNodeModule* entp) { m_classOrPackagep = entp; }
+    AstNodeModule* classOrPackagep() ثابت { החזר m_classOrPackagep; }
+    AstNode* nodep() ثابت { החזר m_nodep; }
+    string symPrefix() ثابت { החזר m_symPrefix; }
+    فراغ symPrefix(ثابت string& name) { m_symPrefix = name; }
+    bool exported() ثابت { החזר m_exported; }
+    فراغ exported(bool flag) { m_exported = flag; }
+    bool imported() ثابت { החזר m_imported; }
+    فراغ imported(bool flag) { m_imported = flag; }
+    VSymEnt* insert(ثابت string& name, VSymEnt* entp) {
         UINFO(9, "     SymInsert se" << cvtToHex(this) << " '" << name << "' se" << cvtToHex(entp)
                                      << "  " << entp->nodep());
-        if (name != "" && m_idNameMap.find(name) != m_idNameMap.end()) {
+        אם (name != "" && m_idNameMap.find(name) != m_idNameMap.end()) {
             // If didn't already report warning
-            if (!V3Error::errorCount()) {  // LCOV_EXCL_START
-                if (debug() >= 9 || V3Error::debugDefault())
+            אם (!V3Error::errorCount()) {  // LCOV_EXCL_START
+                אם (debug() >= 9 || V3Error::debugDefault())
                     dumpSelf(std::cout, "- err-dump: ", 1);
                 entp->nodep()->v3fatalSrc("Inserting two symbols with same name: " << name);
             }  // LCOV_EXCL_STOP
-        } else {
+        } אחרת {
             m_idNameMap.emplace(name, entp);
         }
-        if (!name.empty() && name.find("__DOT__") == std::string::npos  // ignore hierarchical
+        אם (!name.empty() && name.find("__DOT__") == std::string::npos  // ignore hierarchical
             && checkSimilarname(entp->nodep())) {
             string lc = name;
-            for (auto& c : lc) c = (char)tolower(c);
-            if (m_idNameSimilarMap.find(lc) == m_idNameSimilarMap.end())
+            עבור (auto& c : lc) c = (حرف)tolower(c);
+            אם (m_idNameSimilarMap.find(lc) == m_idNameSimilarMap.end())
                 m_idNameSimilarMap.insert(lc);
         }
 
-        return entp;
+        החזר entp;
     }
-    void reinsert(const string& name, VSymEnt* entp) {
-        const auto it = m_idNameMap.find(name);
-        if (name != "" && it != m_idNameMap.end()) {
+    فراغ reinsert(ثابت string& name, VSymEnt* entp) {
+        ثابت auto it = m_idNameMap.find(name);
+        אם (name != "" && it != m_idNameMap.end()) {
             UINFO(9, "     SymReinsert se" << cvtToHex(this) << " '" << name << "' se"
                                            << cvtToHex(entp) << "  " << entp->nodep());
             it->second = entp;  // Replace
-        } else {
+        } אחרת {
             insert(name, entp);
         }
     }
-    VSymEnt* findIdFlat(const string& name) const {
+    VSymEnt* findIdFlat(ثابت string& name) ثابت {
         // Find identifier without looking upward through symbol hierarchy
         // First, scan this begin/end block or module for the name
-        const auto it = m_idNameMap.find(name);
+        ثابت auto it = m_idNameMap.find(name);
         UINFO(9, "     SymFind   se"
                      << cvtToHex(this) << " '" << name << "' -> "
                      << (it == m_idNameMap.end() ? "NONE"
                                                  : "se" + cvtToHex(it->second)
                                                        + " n=" + cvtToHex(it->second->nodep())));
-        if (it != m_idNameMap.end()) return it->second;
-        return nullptr;
+        אם (it != m_idNameMap.end()) החזר it->second;
+        החזר nullptr;
     }
-    static bool checkSimilarname(const AstNode* nodep) {
+    ساكن bool checkSimilarname(ثابت AstNode* nodep) {
         // Only declarations that can contribute a name to the netlist handed
         // to a backend tool.
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-            return !varp->isParam() && !varp->isGenVar();
+        אם (ثابت AstVar* ثابت varp = VN_CAST(nodep, Var)) {
+            החזר !varp->isParam() && !varp->isGenVar();
         }
-        return VN_IS(nodep, Cell)  //
+        החזר VN_IS(nodep, Cell)  //
                || VN_IS(nodep, NodeBlock)  //
                || VN_IS(nodep, GenBlock)  //
                || VN_IS(nodep, Func)  // Note: not AstNodeFTask (Property/Sequence)
                || VN_IS(nodep, Task);
     }
-    VSymEnt* findSimilarIdFlat(const string& name) const {
+    VSymEnt* findSimilarIdFlat(ثابت string& name) ثابت {
         // Find identifier without looking upward through symbol hierarchy
         // Were looking for symbols that are the same when compared without
         // caring about case, but that are not the same name
-        if (name.find("__DOT__") != std::string::npos)  // ignore hierarchical equivalents
-            return nullptr;
+        אם (name.find("__DOT__") != std::string::npos)  // ignore hierarchical equivalents
+            החזר nullptr;
         string s = name;
-        for (auto& c : s) c = (char)tolower(c);
-        if (m_idNameSimilarMap.find(s) == m_idNameSimilarMap.end()) return nullptr;
-        for (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+        עבור (auto& c : s) c = (حرف)tolower(c);
+        אם (m_idNameSimilarMap.find(s) == m_idNameSimilarMap.end()) החזר nullptr;
+        עבור (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
             // Only report a declaration that is itself checked, otherwise we
             // might point at e.g. a localparam that merely sorts first
-            if (!checkSimilarname(it->second->nodep())) continue;
+            אם (!checkSimilarname(it->second->nodep())) استمر;
             string t = it->first;
-            for (auto& c : t) c = (char)tolower(c);
-            if (t == s && name != it->first) { return it->second; }
+            עבור (auto& c : t) c = (حرف)tolower(c);
+            אם (t == s && name != it->first) { החזר it->second; }
         }
-        return nullptr;
+        החזר nullptr;
     }
-    VSymEnt* findIdFallback(const string& name) const {
+    VSymEnt* findIdFallback(ثابت string& name) ثابت {
         // Find identifier looking upward through symbol hierarchy
         // First, scan this begin/end block or module for the name
-        if (VSymEnt* const entp = findIdFlat(name)) return entp;
+        אם (VSymEnt* ثابت entp = findIdFlat(name)) החזר entp;
         // Then scan the upper begin/end block or module for the name
-        if (m_fallbackp) return m_fallbackp->findIdFallback(name);
-        return nullptr;
+        אם (m_fallbackp) החזר m_fallbackp->findIdFallback(name);
+        החזר nullptr;
     }
-    void candidateIdFlat(VSpellCheck* spellerp, const VNodeMatcher* matcherp,
-                         bool includeType) const {
+    فراغ candidateIdFlat(VSpellCheck* spellerp, ثابت VNodeMatcher* matcherp,
+                         bool includeType) ثابت {
         // Suggest alternative symbol candidates without looking upward through symbol
         // hierarchy
-        for (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-            const AstNode* const itemp = it->second->nodep();
-            if (itemp && (!matcherp || matcherp->nodeMatch(itemp))) {
-                if (includeType) {
+        עבור (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+            ثابت AstNode* ثابت itemp = it->second->nodep();
+            אם (itemp && (!matcherp || matcherp->nodeMatch(itemp))) {
+                אם (includeType) {
                     spellerp->pushCandidate(itemp->prettyName(), itemp->prettyTypeName());
-                } else {
+                } אחרת {
                     spellerp->pushCandidate(itemp->prettyName());
                 }
             }
         }
     }
-    void candidateIdFallback(VSpellCheck* spellerp, const VNodeMatcher* matcherp) const {
+    فراغ candidateIdFallback(VSpellCheck* spellerp, ثابت VNodeMatcher* matcherp) ثابت {
         // Suggest alternative symbol candidates with looking upward through symbol hierarchy
         // Note VSpellCheck wants the most important (closest) items pushed first
         candidateIdFlat(spellerp, matcherp, false);
         // Then suggest the upper begin/end block or module
-        if (m_fallbackp) m_fallbackp->candidateIdFallback(spellerp, matcherp);
+        אם (m_fallbackp) m_fallbackp->candidateIdFallback(spellerp, matcherp);
     }
 
-private:
-    void importOneSymbol(VSymGraph* graphp, const string& name, const VSymEnt* srcp,
+خاص:
+    فراغ importOneSymbol(VSymGraph* graphp, ثابت string& name, ثابت VSymEnt* srcp,
                          bool honorExport) {
-        if ((!honorExport || srcp->exported())
+        אם ((!honorExport || srcp->exported())
             && !findIdFlat(name)) {  // Don't insert over existing entry
-            VSymEnt* const symp = new VSymEnt{graphp, srcp};
+            VSymEnt* ثابت symp = new VSymEnt{graphp, srcp};
             symp->exported(false);  // Can't reimport an import without an export
             symp->imported(true);
             reinsert(name, symp);
         }
     }
-    void exportOneSymbol(VSymGraph* /*graphp*/, const string& name, const VSymEnt* srcp) const {
-        if (srcp->exported()) {
-            if (VSymEnt* const symp = findIdFlat(name)) {  // Should already exist in current table
-                if (!symp->exported()) symp->exported(true);
+    فراغ exportOneSymbol(VSymGraph* /*graphp*/, ثابت string& name, ثابت VSymEnt* srcp) ثابت {
+        אם (srcp->exported()) {
+            אם (VSymEnt* ثابت symp = findIdFlat(name)) {  // Should already exist in current table
+                אם (!symp->exported()) symp->exported(true);
             }
         }
     }
 
-public:
-    void importFromClass(VSymGraph* graphp, const VSymEnt* srcp) {
+عام:
+    فراغ importFromClass(VSymGraph* graphp, ثابت VSymEnt* srcp) {
         // Import tokens from source symbol table into this symbol table
         // Used for classes in early parsing only to handle "extends"
 
@@ -258,78 +258,78 @@ public:
         // But ok for "extern foo" and "foo" to both come from base (so must check before
         // insert)
         std::unordered_set<std::string> haveExterns;
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        עבור (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
              it != srcp->m_idNameMap.end(); ++it) {
-            if (m_idNameMap.count("extern " + it->first)) haveExterns.emplace(it->first);
+            אם (m_idNameMap.count("extern " + it->first)) haveExterns.emplace(it->first);
         }
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        עבור (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
              it != srcp->m_idNameMap.end(); ++it) {
-            if (!haveExterns.count(it->first))
+            אם (!haveExterns.count(it->first))
                 importOneSymbol(graphp, it->first, it->second, false);
         }
     }
-    void importFromPackage(VSymGraph* graphp, const VSymEnt* srcp, const string& id_or_star) {
+    فراغ importFromPackage(VSymGraph* graphp, ثابت VSymEnt* srcp, ثابت string& id_or_star) {
         // Import tokens from source symbol table into this symbol table
-        if (id_or_star != "*") {
-            const auto it = srcp->m_idNameMap.find(id_or_star);
-            if (it != srcp->m_idNameMap.end()) {
+        אם (id_or_star != "*") {
+            ثابت auto it = srcp->m_idNameMap.find(id_or_star);
+            אם (it != srcp->m_idNameMap.end()) {
                 importOneSymbol(graphp, it->first, it->second, true);
             }
-        } else {
-            for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        } אחרת {
+            עבור (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
                  it != srcp->m_idNameMap.end(); ++it) {
                 importOneSymbol(graphp, it->first, it->second, true);
             }
         }
     }
-    void exportFromPackage(VSymGraph* graphp, const VSymEnt* srcp, const string& id_or_star) {
+    فراغ exportFromPackage(VSymGraph* graphp, ثابت VSymEnt* srcp, ثابت string& id_or_star) {
         // Export tokens from source symbol table into this symbol table
-        if (id_or_star != "*") {
-            const auto it = vlstd::as_const(srcp->m_idNameMap).find(id_or_star);
-            if (it != srcp->m_idNameMap.end()) exportOneSymbol(graphp, it->first, it->second);
-        } else {
-            for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        אם (id_or_star != "*") {
+            ثابت auto it = vlstd::as_const(srcp->m_idNameMap).find(id_or_star);
+            אם (it != srcp->m_idNameMap.end()) exportOneSymbol(graphp, it->first, it->second);
+        } אחרת {
+            עבור (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
                  it != srcp->m_idNameMap.end(); ++it) {
                 exportOneSymbol(graphp, it->first, it->second);
             }
         }
     }
-    void exportStarStar(VSymGraph* /*graphp*/) {
+    فراغ exportStarStar(VSymGraph* /*graphp*/) {
         // Export *:*: Export all tokens from imported packages
-        for (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-            VSymEnt* const symp = it->second;
-            if (!symp->exported()) symp->exported(true);
+        עבור (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+            VSymEnt* ثابت symp = it->second;
+            אם (!symp->exported()) symp->exported(true);
         }
     }
-    void importFromIface(VSymGraph* graphp, const VSymEnt* srcp, bool onlyUnmodportable = false) {
+    فراغ importFromIface(VSymGraph* graphp, ثابت VSymEnt* srcp, bool onlyUnmodportable = false) {
         // Import interface tokens from source symbol table into this symbol table, recursively
         UINFO(9, "     importIf  se" << cvtToHex(this) << " from se" << cvtToHex(srcp));
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+        עבור (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
              it != srcp->m_idNameMap.end(); ++it) {
-            const string& name = it->first;
-            VSymEnt* const subSrcp = it->second;
-            const AstVar* const varp = VN_CAST(subSrcp->nodep(), Var);
-            if (!onlyUnmodportable || (varp && varp->isParam())) {
-                VSymEnt* const subSymp = new VSymEnt{graphp, subSrcp};
+            ثابت string& name = it->first;
+            VSymEnt* ثابت subSrcp = it->second;
+            ثابت AstVar* ثابت varp = VN_CAST(subSrcp->nodep(), Var);
+            אם (!onlyUnmodportable || (varp && varp->isParam())) {
+                VSymEnt* ثابت subSymp = new VSymEnt{graphp, subSrcp};
                 reinsert(name, subSymp);
                 // And recurse to create children
                 subSymp->importFromIface(graphp, subSrcp);
             }
         }
     }
-    string cellErrorScopes(const AstNode* lookp, string prettyName = "") {
-        if (prettyName == "") prettyName = lookp->prettyName();
+    string cellErrorScopes(ثابت AstNode* lookp, string prettyName = "") {
+        אם (prettyName == "") prettyName = lookp->prettyName();
         string scopes;
-        for (IdNameMap::iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-            const AstNode* const itemp = it->second->nodep();
-            if (VN_IS(itemp, Cell) || (VN_IS(itemp, Module) && VN_AS(itemp, Module)->isTop())) {
-                if (scopes != "") scopes += ", ";
+        עבור (IdNameMap::iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+            ثابت AstNode* ثابت itemp = it->second->nodep();
+            אם (VN_IS(itemp, Cell) || (VN_IS(itemp, Module) && VN_AS(itemp, Module)->isTop())) {
+                אם (scopes != "") scopes += ", ";
                 scopes += AstNode::prettyName(it->first);
             }
         }
-        if (scopes == "") scopes = "<no instances found>";
-        if (debug()) dumpSelf(std::cerr, "       KnownScope: ", 1);
-        return V3Error::warnMore() + "... Known scopes under '" + prettyName + "': " + scopes
+        אם (scopes == "") scopes = "<no instances found>";
+        אם (debug()) dumpSelf(std::cerr, "       KnownScope: ", 1);
+        החזר V3Error::warnMore() + "... Known scopes under '" + prettyName + "': " + scopes
                + '\n';
     }
 };
@@ -351,23 +351,23 @@ class VSymGraph final {
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
+عام:
     explicit VSymGraph(AstNetlist* nodep) { m_symRootp = new VSymEnt{this, nodep}; }
     ~VSymGraph() {
-        for (const VSymEnt* entp : m_symsp) delete entp;
+        עבור (ثابت VSymEnt* entp : m_symsp) delete entp;
     }
 
     // METHODS
-    VSymEnt* rootp() const { return m_symRootp; }
+    VSymEnt* rootp() ثابت { החזר m_symRootp; }
     // Debug
-    void dumpSelf(std::ostream& os, const string& indent = "") {
+    فراغ dumpSelf(std::ostream& os, ثابت string& indent = "") {
         VSymConstMap doneSyms;
         os << "SymEnt Dump:\n";
         m_symRootp->dumpIterate(os, doneSyms, indent, 9999, "$root");
         bool first = true;
-        for (SymStack::iterator it = m_symsp.begin(); it != m_symsp.end(); ++it) {
-            if (doneSyms.find(*it) == doneSyms.end()) {
-                if (first) {
+        עבור (SymStack::iterator it = m_symsp.begin(); it != m_symsp.end(); ++it) {
+            אם (doneSyms.find(*it) == doneSyms.end()) {
+                אם (first) {
                     first = false;
                     os << "%%Warning: SymEnt Orphans:\n";
                 }
@@ -375,24 +375,24 @@ public:
             }
         }
     }
-    void dumpFilePrefixed(const string& nameComment) {
-        if (dumpTreeLevel()) {
-            const string filename = v3Global.debugFilename(nameComment) + ".txt";
+    فراغ dumpFilePrefixed(ثابت string& nameComment) {
+        אם (dumpTreeLevel()) {
+            ثابت string filename = v3Global.debugFilename(nameComment) + ".txt";
             UINFO(2, "Dumping " << filename);
-            const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-            if (logp->fail()) v3fatal("Can't write file: " << filename);
+            ثابت std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+            אם (logp->fail()) v3fatal("Can't write file: " << filename);
             dumpSelf(*logp, "");
         }
     }
 
-protected:
+محمي:
     friend class VSymEnt;
-    void pushNewEnt(VSymEnt* entp) { m_symsp.push_back(entp); }
+    فراغ pushNewEnt(VSymEnt* entp) { m_symsp.push_back(entp); }
 };
 
 //######################################################################
 
-inline VSymEnt::VSymEnt(VSymGraph* graphp, AstNode* nodep)
+مضمن VSymEnt::VSymEnt(VSymGraph* graphp, AstNode* nodep)
     : m_nodep{nodep} {
     // No argument to set fallbackp, as generally it's wrong to set it in the new call,
     // Instead it needs to be set on a "findOrNew()" return, as it may have been new'ed
@@ -400,7 +400,7 @@ inline VSymEnt::VSymEnt(VSymGraph* graphp, AstNode* nodep)
     graphp->pushNewEnt(this);
 }
 
-inline VSymEnt::VSymEnt(VSymGraph* graphp, const VSymEnt* symp)
+مضمن VSymEnt::VSymEnt(VSymGraph* graphp, ثابت VSymEnt* symp)
     : m_nodep{symp->m_nodep}
     , m_fallbackp{symp->m_fallbackp}
     , m_parentp{symp->m_parentp}

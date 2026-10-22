@@ -17,10 +17,10 @@
 #ifndef VERILATOR_V3DFGPEEPHOLE_H_
 #define VERILATOR_V3DFGPEEPHOLE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <V3Stats.h>
+#ضمن <V3Stats.h>
 
 #define _FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION_APPLY(macro, arg) macro(arg, #arg)
 
@@ -192,28 +192,28 @@
 // clang-format on
 
 class VDfgPeepholePattern final {
-public:
-    enum en : unsigned {
+عام:
+    تعداد en : unsigned {
 #define OPTIMIZATION_ID(id, name) id,
         FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION(OPTIMIZATION_ID)
 #undef OPTIMIZATION_ID
             _ENUM_END
     };
-    enum en m_e;
-    const char* ascii() const {
-        static const char* const names[] = {
+    تعداد en m_e;
+    ثابت حرف* ascii() ثابت {
+        ساكن ثابت حرف* ثابت names[] = {
 #define OPTIMIZATION_NAME(id, name) name,
             FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION(OPTIMIZATION_NAME)
 #undef OPTIMIZATION_NAME
                 "_ENUM_END"  //
         };
-        return names[m_e];
+        החזר names[m_e];
     }
 
     // cppcheck-suppress noExplicitConstructor
     VDfgPeepholePattern(en _e)
         : m_e{_e} {}
-    operator en() const { return m_e; }
+    operator en() ثابت { החזר m_e; }
 };
 
 #endif

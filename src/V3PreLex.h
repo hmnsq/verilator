@@ -21,11 +21,11 @@
 #ifndef VERILATOR_VPRELEX_H_  // Guard
 #define VERILATOR_VPRELEX_H_
 
-#include "V3Error.h"
-#include "V3FileLine.h"
+#ضمن "V3Error.h"
+#ضمن "V3FileLine.h"
 
-#include <deque>
-#include <stack>
+#ضمن <deque>
+#ضمن <stack>
 
 //======================================================================
 
@@ -101,24 +101,24 @@ class V3PreProcImp;
 #endif
 
 #ifndef YY_BUFFER_STATE
-struct yy_buffer_state;
-typedef struct yy_buffer_state* YY_BUFFER_STATE;
+بنية yy_buffer_state;
+تعريفنوع بنية yy_buffer_state* YY_BUFFER_STATE;
 # define YY_BUF_SIZE 16384
 #endif
 // clang-format on
 
-extern int yylex();
-extern void yyrestart(FILE*);
+خارجي صحيح yylex();
+خارجي فراغ yyrestart(FILE*);
 
 // Accessors, because flex keeps changing the type of yyleng
-extern char* yyourtext();
-extern size_t yyourleng();
-extern void yyourtext(const char* textp, size_t size);  // Must call with static
+خارجي حرف* yyourtext();
+خارجي size_t yyourleng();
+خارجي فراغ yyourtext(ثابت حرف* textp, size_t size);  // Must call with static
 
-YY_BUFFER_STATE yy_create_buffer(FILE* file, int size);
-void yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
-void yy_delete_buffer(YY_BUFFER_STATE b);
-int yylex_destroy();
+YY_BUFFER_STATE yy_create_buffer(FILE* file, صحيح size);
+فراغ yy_switch_to_buffer(YY_BUFFER_STATE new_buffer);
+فراغ yy_delete_buffer(YY_BUFFER_STATE b);
+صحيح yylex_destroy();
 
 //======================================================================
 
@@ -129,12 +129,12 @@ int yylex_destroy();
 // Entry for each file processed; a stack of entries included
 
 class VPreStream final {
-public:
+عام:
     FileLine* m_curFilelinep;  // Current processing point (see also m_tokFilelinep)
-    V3PreLex* const m_lexp;  // Lexer, for resource tracking
+    V3PreLex* ثابت m_lexp;  // Lexer, for resource tracking
     std::deque<string> m_buffers;  // Buffer of characters to process
-    int m_ignNewlines = 0;  // Ignore multiline newlines
-    int m_termState = 0;  // Termination fsm
+    صحيح m_ignNewlines = 0;  // Ignore multiline newlines
+    صحيح m_termState = 0;  // Termination fsm
     bool m_eof = false;  // "EOF" buffer
     bool m_file = false;  // Buffer is start of new file
     VPreStream(FileLine* fl, V3PreLex* lexp)
@@ -144,41 +144,41 @@ public:
     }
     ~VPreStream() { lexStreamDepthAdd(-1); }
 
-private:
-    inline void lexStreamDepthAdd(int delta);
+خاص:
+    مضمن فراغ lexStreamDepthAdd(صحيح delta);
 };
 
 //======================================================================
 // Enum Class for `pragma protect encoding types
-enum class Enctype : uint8_t { UUENCODE, BASE64, QUOTE_PRINTABLE, RAW, ERR };
+تعداد class Enctype : uint8_t { UUENCODE, BASE64, QUOTE_PRINTABLE, RAW, ERR };
 
 //======================================================================
 // Class entry for each per-lexer state
 
 class V3PreLex final {
-public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
-    V3PreProcImp* const m_preimpp;  // Preprocessor lexor belongs to
+عام:  // Used only by V3PreLex.cpp and V3PreProc.cpp
+    V3PreProcImp* ثابت m_preimpp;  // Preprocessor lexor belongs to
     std::stack<VPreStream*> m_streampStack;  // Stack of processing files
-    int m_streamDepth = 0;  // Depth of stream processing
+    صحيح m_streamDepth = 0;  // Depth of stream processing
     YY_BUFFER_STATE m_bufferState;  // Flex state
     FileLine* m_tokFilelinep;  // Starting position of current token
     std::deque<FileLine> m_lexLintState;  // Current lint state for save/restore
 
     // State to lexer
-    static V3PreLex* s_currentLexp;  ///< Current lexing point
-    int m_keepComments = 0;  ///< Emit comments in output text
-    int m_keepWhitespace = 1;  ///< Emit all whitespace in output text
+    ساكن V3PreLex* s_currentLexp;  ///< Current lexing point
+    صحيح m_keepComments = 0;  ///< Emit comments in output text
+    صحيح m_keepWhitespace = 1;  ///< Emit all whitespace in output text
     bool m_pedantic = false;  ///< Obey standard; don't Substitute `error
 
     // State from lexer
-    int m_formalLevel = 0;  // Parenthesis counting inside def formals
-    int m_parenLevel = 0;  // Parenthesis counting inside def args
+    صحيح m_formalLevel = 0;  // Parenthesis counting inside def formals
+    صحيح m_parenLevel = 0;  // Parenthesis counting inside def args
     bool m_defCmtSlash = false;  // /*...*/ comment in define had \ ending
     bool m_defQuote = false;  // Definition value inside quote
     string m_defValue;  // Definition value being built.
-    int m_enterExit = 0;  // For VL_LINE, the enter/exit level
-    int m_protLength = 0;  // unencoded length for BASE64
-    int m_protBytes = 0;  // decoded length for BASE64
+    صحيح m_enterExit = 0;  // For VL_LINE, the enter/exit level
+    صحيح m_protLength = 0;  // unencoded length for BASE64
+    صحيح m_protBytes = 0;  // decoded length for BASE64
     Enctype m_encType{};  // encoding type for `pragma protect
 
     // CONSTRUCTORS
@@ -188,7 +188,7 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
         initFirstBuffer(filelinep);
     }
     ~V3PreLex() {
-        while (!m_streampStack.empty()) {
+        כלעוד (!m_streampStack.empty()) {
             delete m_streampStack.top();
             m_streampStack.pop();
         }
@@ -198,54 +198,54 @@ public:  // Used only by V3PreLex.cpp and V3PreProc.cpp
     VPreStream* newStream(FileLine* fl, V3PreLex* lexp);
 
     // Called by V3PreLex.l from lexer
-    VPreStream* curStreamp() { return m_streampStack.top(); }  // Can't be empty, "EOF" is on top
-    FileLine* curFilelinep() { return curStreamp()->m_curFilelinep; }
-    void curFilelinep(FileLine* fl) { curStreamp()->m_curFilelinep = fl; }
-    void appendDefValue(const char* textp, size_t len) { m_defValue.append(textp, len); }
-    void lineDirective(const char* textp);
-    void linenoInc() {
-        if (curStreamp()->m_ignNewlines) {
+    VPreStream* curStreamp() { החזר m_streampStack.top(); }  // Can't be empty, "EOF" is on top
+    FileLine* curFilelinep() { החזר curStreamp()->m_curFilelinep; }
+    فراغ curFilelinep(FileLine* fl) { curStreamp()->m_curFilelinep = fl; }
+    فراغ appendDefValue(ثابت حرف* textp, size_t len) { m_defValue.append(textp, len); }
+    فراغ lineDirective(ثابت حرف* textp);
+    فراغ linenoInc() {
+        אם (curStreamp()->m_ignNewlines) {
             curStreamp()->m_ignNewlines--;
-        } else {
+        } אחרת {
             curFilelinep()->linenoInc();
         }
     }
-    void warnBackslashSpace();
-    void verilatorCmtLint(const char* textp, bool turnOff);
-    void verilatorCmtLintRestore();
-    void verilatorCmtLintSave();
+    فراغ warnBackslashSpace();
+    فراغ verilatorCmtLint(ثابت حرف* textp, bool turnOff);
+    فراغ verilatorCmtLintRestore();
+    فراغ verilatorCmtLintSave();
     // Called by V3PreProc.cpp to inform lexer
-    void pushStateDefArg(int level);
-    void pushStateDefForm();
-    void pushStateDefValue();
-    void pushStateExpr();
-    void pushStateIncFilename();
-    void pushStatePassthru();
-    void scanNewFile(FileLine* filelinep);
-    void scanBytes(const string& str);
-    void scanBytesBack(const string& str);
-    size_t inputToLex(char* buf, size_t max_size);
+    فراغ pushStateDefArg(صحيح level);
+    فراغ pushStateDefForm();
+    فراغ pushStateDefValue();
+    فراغ pushStateExpr();
+    فراغ pushStateIncFilename();
+    فراغ pushStatePassthru();
+    فراغ scanNewFile(FileLine* filelinep);
+    فراغ scanBytes(ثابت string& str);
+    فراغ scanBytesBack(ثابت string& str);
+    size_t inputToLex(حرف* buf, size_t max_size);
     /// Called by V3PreProc.cpp to get data from lexer
     YY_BUFFER_STATE currentBuffer();
-    int lex();
-    int currentStartState() const;
-    void dumpSummary();
-    void dumpStack();
-    void unused();
+    صحيح lex();
+    صحيح currentStartState() ثابت;
+    فراغ dumpSummary();
+    فراغ dumpStack();
+    فراغ unused();
     // Called by VPreStream
-    void streamDepthAdd(int delta) { m_streamDepth += delta; }
-    int streamDepth() const { return m_streamDepth; }
+    فراغ streamDepthAdd(صحيح delta) { m_streamDepth += delta; }
+    صحيح streamDepth() ثابت { החזר m_streamDepth; }
     // Utility
-    static void setYYDebug(bool on);
-    static string cleanDbgStrg(const string& in);
+    ساكن فراغ setYYDebug(bool on);
+    ساكن string cleanDbgStrg(ثابت string& in);
 
-private:
+خاص:
     string currentUnreadChars();
     string endOfStream(bool& againr);
-    void initFirstBuffer(FileLine* filelinep);
-    void scanSwitchStream(VPreStream* streamp);
+    فراغ initFirstBuffer(FileLine* filelinep);
+    فراغ scanSwitchStream(VPreStream* streamp);
 };
 
-void VPreStream::lexStreamDepthAdd(int delta) { m_lexp->streamDepthAdd(delta); }
+فراغ VPreStream::lexStreamDepthAdd(صحيح delta) { m_lexp->streamDepthAdd(delta); }
 
 #endif  // Guard

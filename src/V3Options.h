@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3OPTIONS_H_
 #define VERILATOR_V3OPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3LangCode.h"
+#ضمن "V3Error.h"
+#ضمن "V3LangCode.h"
 
-#include <list>
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
+#ضمن <list>
+#ضمن <map>
+#ضمن <set>
+#ضمن <string>
+#ضمن <vector>
 
 class V3OptionsImp;
 class FileLine;
@@ -37,54 +37,54 @@ class FileLine;
 class VOptionBool final {
     // Class to track options that are either not specified (and default
     // true/false), versus user setting the option to true or false
-public:
-    enum en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
-    enum en m_e;
+عام:
+    تعداد en : uint8_t { OPT_DEFAULT_FALSE = 0, OPT_DEFAULT_TRUE, OPT_TRUE, OPT_FALSE };
+    تعداد en m_e;
     VOptionBool()
         : m_e{OPT_DEFAULT_FALSE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static const char* const names[]
+    constexpr operator en() ثابت { החזר m_e; }
+    ثابت حرف* ascii() ثابت {
+        ساكن ثابت حرف* ثابت names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        החזר names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
-    void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
+    bool isDefault() ثابت { החזר m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() ثابت { החזר m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() ثابت { החזר m_e == OPT_TRUE; }
+    bool isSetFalse() ثابت { החזר m_e == OPT_FALSE; }
+    فراغ setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
-constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ثابت VOptionBool& lhs, ثابت VOptionBool& rhs) {
+    החזר lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ثابت VOptionBool& lhs, VOptionBool::en rhs) { החזר lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, ثابت VOptionBool& rhs) { החזר lhs == rhs.m_e; }
 
 //######################################################################
 
 class VFileLibName final {
     // Filename and libname pair
-    const string m_filename;  // Filename
-    const string m_libname;  // Libname
-public:
-    VFileLibName(const string& filename, const string& libname)
+    ثابت string m_filename;  // Filename
+    ثابت string m_libname;  // Libname
+عام:
+    VFileLibName(ثابت string& filename, ثابت string& libname)
         : m_filename{filename}
         , m_libname{libname} {}
-    VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
-    bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+    VFileLibName(ثابت VFileLibName& rhs) = افتراضي;
+    string filename() ثابت { החזר m_filename; }
+    string libname() ثابت { החזר m_libname; }
+    bool operator==(ثابت VFileLibName& rhs) ثابت {
+        החזר m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
-    bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+    bool operator<(ثابت VFileLibName& rhs) ثابت {
+        אם (m_filename < rhs.m_filename) החזר true;
+        אם (m_filename > rhs.m_filename) החזר false;
+        החזר m_libname < rhs.m_libname;
     }
 };
 
@@ -94,8 +94,8 @@ using VFileLibSet = std::set<VFileLibName>;
 // ######################################################################
 
 class VTimescale final {
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         // clang-format off
         TS_100S = 0, TS_10S = 1, TS_1S = 2,
         TS_100MS = 3, TS_10MS = 4, TS_1MS = 5,
@@ -107,66 +107,66 @@ public:
         NONE = 18,
         _ENUM_END
     };
-    enum : uint8_t { TS_DEFAULT = TS_1PS };
-    enum en m_e;
+    تعداد : uint8_t { TS_DEFAULT = TS_1PS };
+    تعداد en m_e;
     // CONSTRUCTOR
     VTimescale()
         : m_e{NONE} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
-    VTimescale(const string& value, bool& badr);
-    VTimescale(double value, bool& badr) {
+    VTimescale(ثابت string& value, bool& badr);
+    VTimescale(مزدوج value, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        עבור (صحيح i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            אם (multiplier() == value) اكسر;
         }
-        if (multiplier() != value) {
+        אם (multiplier() != value) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() ثابت { החזר m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
-    static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
+    ساكن فراغ parseSlashed(FileLine* fl, ثابت حرف* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
-    const char* ascii() const {
-        static const char* const names[]
+    ثابت حرف* ascii() ثابت {
+        ساكن ثابت حرف* ثابت names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        החזר names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
-    double multiplier() const {
-        static const double values[]
+    صحيح powerOfTen() ثابت { החזר 2 - static_cast<صحيح>(m_e); }
+    مزدوج multiplier() ثابت {
+        ساكن ثابت مزدوج values[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        החזר values[m_e];
     }
 };
-constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ثابت VTimescale& lhs, ثابت VTimescale& rhs) {
+    החזר lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(ثابت VTimescale& lhs, VTimescale::en rhs) { החזר lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, ثابت VTimescale& rhs) { החזר lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
-constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+constexpr bool operator<(ثابت VTimescale& lhs, ثابت VTimescale& rhs) {
+    החזר lhs.m_e > rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+مضمن std::ostream& operator<<(std::ostream& os, ثابت VTimescale& rhs) {
+    החזר os << rhs.ascii();
 }
 
 // ######################################################################
 
 class VFsmExpandType final {
     // Defined here since it is used in V3Options which does not include V3Ast.h
-public:
-    enum en : uint8_t {
+عام:
+    تعداد en : uint8_t {
         DEFAULT = 0,  // Use the global default expansion type
         AUTO,  // Expands only reset and default
         AUTO_EXPAND,  // Expands transitions between all possible states
@@ -177,36 +177,36 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(صحيح _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr const char* ascii() const {
-        constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+    constexpr operator en() ثابت { החזר m_e; }
+    constexpr ثابت حرف* ascii() ثابت {
+        constexpr ثابت حرف* ثابت names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
+        החזר names[m_e];
     }
 };
-constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+constexpr bool operator==(ثابت VFsmExpandType& lhs, ثابت VFsmExpandType& rhs) VL_MT_SAFE {
+    החזר lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+constexpr bool operator==(ثابت VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
+    החזר lhs.m_e == rhs;
 }
-constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+constexpr bool operator==(VFsmExpandType::en lhs, ثابت VFsmExpandType& rhs) VL_MT_SAFE {
+    החזר lhs == rhs.m_e;
 }
-inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+مضمن std::ostream& operator<<(std::ostream& os, ثابت VFsmExpandType& rhs) VL_MT_SAFE {
+    החזר os << rhs.ascii();
 }
 
 // ######################################################################
 
 // Information given by --hierarchical-block option
 class V3HierarchicalBlockOption final {
-public:
+عام:
     // key:parameter name, value:value (as string)
-    using ParamStrMap = std::map<const std::string, std::string>;
+    using ParamStrMap = std::map<ثابت std::string, std::string>;
 
-private:
+خاص:
     string m_origName;  // module name
     // module name after uniquified
     // same as m_origName for non-parameterized module
@@ -214,23 +214,23 @@ private:
     // overriding parameter values specified by -G option
     ParamStrMap m_parameters;
 
-public:
-    explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+عام:
+    explicit V3HierarchicalBlockOption(ثابت string& optstring);
+    ثابت string& origName() ثابت { החזר m_origName; }
+    ثابت string& mangledName() ثابت { החזר m_mangledName; }
+    ثابت ParamStrMap params() ثابت { החזר m_parameters; }
 };
 
-using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
+using V3HierBlockOptSet = std::map<ثابت std::string, V3HierarchicalBlockOption>;
 
 //######################################################################
 // V3Options - Command line options
 
 class V3Options final {
-public:
-private:
+عام:
+خاص:
     // TYPES
-    using DebugLevelMap = std::map<const std::string, unsigned>;
+    using DebugLevelMap = std::map<ثابت std::string, unsigned>;
 
     // MEMBERS (general options)
     V3OptionsImp* m_impp;  // Slow hidden options
@@ -252,8 +252,8 @@ private:
     VStringList m_forceIncs;   // argument: -FI
     DebugLevelMap m_debugLevel; // argument: --debugi-<srcfile/tag> <level>
     DebugLevelMap m_dumpLevel;  // argument: --dumpi-<srcfile/tag> <level>
-    std::map<const string, string> m_parameters;  // Parameters
-    std::map<const string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
+    std::map<ثابت string, string> m_parameters;  // Parameters
+    std::map<ثابت string, V3HierarchicalBlockOption> m_hierBlocks;  // main switch: --hierarchical-block
     VStringSet m_fDfgPeepholeDisabled; // argument: -f[no-]dfg-peephole-<name>
 
     bool m_preprocOnly = false;     // main switch: -E
@@ -290,7 +290,7 @@ private:
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
     bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    صحيح m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    صحيح         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    صحيح         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    صحيح         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    صحيح         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    صحيح         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    صحيح         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    صحيح         m_expandLimit = 256;  // main switch: --expand-limit
+    صحيح         m_gateStmts = 100;    // main switch: --gate-stmts
+    صحيح         m_hierChild = 0;      // main switch: --hierarchical-child
+    صحيح         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    صحيح         m_ifDepth = 0;      // main switch: --if-depth
+    صحيح         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    صحيح         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    صحيح         m_inlineMult = 2000;   // main switch: --inline-mult
+    صحيح         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    صحيح         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    صحيح         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    صحيح         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    صحيح         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    صحيح         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    صحيح         m_outputSplit = 20000;  // main switch: --output-split
+    صحيح         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    صحيح         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    صحيح         m_pinsBv = 65;       // main switch: --pins-bv
+    صحيح         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    صحيح         m_publicDepth = 0;   // main switch: --public-depth
+    صحيح         m_reloopLimit = 40; // main switch: --reloop-limit
+    صحيح         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    صحيح         m_threads = 1;      // main switch: --threads
+    صحيح         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    صحيح         m_traceDepth = 0;   // main switch: --trace-depth
+    صحيح         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    صحيح         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    صحيح         m_unrollCount = 64;  // main switch: --unroll-count
+    صحيح         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    صحيح         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    صحيح         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    صحيح         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    صحيح         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    صحيح         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    صحيح         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    صحيح  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -489,420 +489,420 @@ private:
     bool m_available = false;  // Set to true at the end of option parsing
 
     // METHODS
-    void addArg(char** argv, size_t count, bool isForRerun);
-    void addArg(const std::string& arg, bool isForRerun);
-    void addLineArg(const string& arg);
-    void addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED;
-    void addFuture(const string& flag);
-    void addFuture0(const string& flag);
-    void addFuture1(const string& flag);
-    void addIncDirUser(const string& incdir);  // User requested
-    void addIncDirFallback(const string& incdir);  // Low priority if not found otherwise
-    void addParameter(const string& paramline, bool allowPlus);
-    void addLangExt(const string& langext, const V3LangCode& lc);
-    void addLibExtV(const string& libext);
-    void optimize(int level);
-    void showVersion(bool verbose);
-    void coverage(bool flag) {
+    فراغ addArg(حرف** argv, size_t count, bool isForRerun);
+    فراغ addArg(ثابت std::string& arg, bool isForRerun);
+    فراغ addLineArg(ثابت string& arg);
+    فراغ addDefine(ثابت string& defline, bool allowPlus) VL_MT_DISABLED;
+    فراغ addFuture(ثابت string& flag);
+    فراغ addFuture0(ثابت string& flag);
+    فراغ addFuture1(ثابت string& flag);
+    فراغ addIncDirUser(ثابت string& incdir);  // User requested
+    فراغ addIncDirFallback(ثابت string& incdir);  // Low priority if not found otherwise
+    فراغ addParameter(ثابت string& paramline, bool allowPlus);
+    فراغ addLangExt(ثابت string& langext, ثابت V3LangCode& lc);
+    فراغ addLibExtV(ثابت string& libext);
+    فراغ optimize(صحيح level);
+    فراغ showVersion(bool verbose);
+    فراغ coverage(bool flag) {
         m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
             = m_coverageUser = flag;
     }
-    static bool suffixed(const string& sw, const char* arg);
-    static string parseFileArg(const string& optdir, const string& relfilename);
-    string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
-    void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
+    ساكن bool suffixed(ثابت string& sw, ثابت حرف* arg);
+    ساكن string parseFileArg(ثابت string& optdir, ثابت string& relfilename);
+    string filePathCheckOneDir(ثابت string& modname, ثابت string& dirname);
+    ساكن صحيح stripOptionsForChildRun(ثابت string& opt, bool forTop);
+    فراغ validateIdentifier(FileLine* fl, ثابت string& arg, ثابت string& opt);
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(V3Options);
 
-public:
+عام:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
-    unsigned debugLevel(const string& tag) const VL_MT_SAFE;
-    unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
-    unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
-    unsigned dumpSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
+    فراغ setDebugMode(صحيح level);
+    unsigned debugLevel(ثابت string& tag) ثابت VL_MT_SAFE;
+    unsigned debugSrcLevel(ثابت string& srcfile_path) ثابت VL_MT_SAFE;
+    unsigned dumpLevel(ثابت string& tag) ثابت VL_MT_SAFE;
+    unsigned dumpSrcLevel(ثابت string& srcfile_path) ثابت VL_MT_SAFE;
 
     // METHODS
-    void addCppFile(const string& filename);
-    void addCFlags(const string& filename);
-    void addCompilerIncludes(const string& filename);
-    void addLdLibFile(const string& filename);
-    void addLdLibs(const string& filename);
-    void addMakeFlags(const string& filename);
-    void addLibMapFile(const string& filename);
-    void addLibraryFile(const string& filename, const string& libname);
-    void addVFile(const string& filename, const string& libname);
-    void addVltFile(const string& filename, const string& libname);
-    void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
-    void ccSet();
-    void decorations(FileLine* fl, const string& filename);
-    void notify() VL_MT_DISABLED;
+    فراغ addCppFile(ثابت string& filename);
+    فراغ addCFlags(ثابت string& filename);
+    فراغ addCompilerIncludes(ثابت string& filename);
+    فراغ addLdLibFile(ثابت string& filename);
+    فراغ addLdLibs(ثابت string& filename);
+    فراغ addMakeFlags(ثابت string& filename);
+    فراغ addLibMapFile(ثابت string& filename);
+    فراغ addLibraryFile(ثابت string& filename, ثابت string& libname);
+    فراغ addVFile(ثابت string& filename, ثابت string& libname);
+    فراغ addVltFile(ثابت string& filename, ثابت string& libname);
+    فراغ addForceInc(ثابت string& filename);
+    bool available() ثابت VL_MT_SAFE { החזר m_available; }
+    فراغ ccSet();
+    فراغ decorations(FileLine* fl, ثابت string& filename);
+    فراغ notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
-    void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
-    bool coverage() const VL_MT_SAFE {
+    bool preprocOnly() ثابت { החזר m_preprocOnly; }
+    bool makePhony() ثابت { החזר m_makePhony; }
+    bool preprocNoLine() ثابت { החזר m_preprocNoLine; }
+    bool preprocResolve() ثابت { החזר m_preprocResolve; }
+    صحيح preprocTokenLimit() ثابت { החזר m_preprocTokenLimit; }
+    bool underlineZero() ثابت { החזר m_underlineZero; }
+    bool systemC() ثابت VL_MT_SAFE { החזר m_systemC; }
+    bool savable() ثابت VL_MT_SAFE { החזר m_savable; }
+    VOptionBool schedZeroDelay() ثابت { החזר m_schedZeroDelay; }
+    bool stats() ثابت { החזר m_stats; }
+    bool statsVars() ثابت { החזר m_statsVars; }
+    bool stdPackage() ثابت { החזר m_stdPackage; }
+    bool stdWaiver() ثابت { החזר m_stdWaiver; }
+    bool assertOn() ثابت { החזר m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() ثابت { החזר m_assertCase; }
+    bool autoflush() ثابت { החזר m_autoflush; }
+    bool bboxSys() ثابت { החזר m_bboxSys; }
+    bool bboxUnsup() ثابت { החזר m_bboxUnsup; }
+    bool build() ثابت { החזר m_build; }
+    string buildDepBin() ثابت { החזר m_buildDepBin; }
+    فراغ buildDepBin(ثابت string& flag) { m_buildDepBin = flag; }
+    bool context() ثابت VL_MT_SAFE { החזר m_context; }
+    bool coverage() ثابت VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        החזר m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser || m_coverageFsm;
     }
-    bool coverageNonFsm() const VL_MT_SAFE {
+    bool coverageNonFsm() ثابت VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        החזר m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
-    bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+    bool coverageBranch() ثابت { החזר m_coverageBranch; }
+    bool coverageExpr() ثابت { החזר m_coverageExpr; }
+    bool coverageFsm() ثابت { החזר m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() ثابت { החזר m_coverageFsmExpand; }
+    صحيح coverageFsmMaxArcs() ثابت { החזר m_coverageFsmMaxArcs; }
+    bool coverageLine() ثابت { החזר m_coverageLine; }
+    bool coverageMergeInstances() ثابت { החזר m_coverageMergeInstances; }
+    bool coveragePerInstance() ثابت { החזר m_coveragePerInstance; }
+    bool coverageToggle() ثابت { החזר m_coverageToggle; }
+    bool coverageUnderscore() ثابت { החזר m_coverageUnderscore; }
+    bool coverageUser() ثابت { החזר m_coverageUser; }
+    bool debugCheck() ثابت VL_MT_SAFE { החזר m_debugCheck; }
+    bool debugCollision() ثابت { החזר m_debugCollision; }
+    bool debugEmitV() ثابت VL_MT_SAFE { החזר m_debugEmitV; }
+    bool debugExitElab() ثابت { החזר m_debugExitElab; }
+    bool debugExitParse() ثابت { החזר m_debugExitParse; }
+    bool debugLeak() ثابت { החזר m_debugLeak; }
+    bool debugNondeterminism() ثابت { החזר m_debugNondeterminism; }
+    bool debugPartition() ثابت { החזר m_debugPartition; }
+    bool debugPreprocPassthru() ثابت VL_MT_SAFE { החזר m_debugPreprocPassthru; }
+    bool debugProtect() ثابت VL_MT_SAFE { החזר m_debugProtect; }
+    صحيح debugRuntimeTimeout() ثابت { החזר m_debugRuntimeTimeout; }
+    bool debugSelfTest() ثابت { החזר m_debugSelfTest; }
+    bool debugStackCheck() ثابت { החזר m_debugStackCheck; }
+    bool debugWidth() ثابت VL_PURE { החזר m_debugWidth; }
+    bool decoration() ثابت VL_MT_SAFE { החזר m_decoration; }
+    bool decorationNodes() ثابت VL_MT_SAFE { החזר m_decorationNodes; }
+    bool diagnosticsSarif() ثابت VL_MT_SAFE { החזר m_diagnosticsSarif; }
+    bool dpiHdrOnly() ثابت { החזר m_dpiHdrOnly; }
+    bool dumpAstPatterns() ثابت {
+        החזר m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
-    bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+    bool dumpDefines() ثابت { החזר m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDfgPatterns() ثابت {
+        החזר m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
-    bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+    bool dumpTreeDot() ثابت {
+        החזר m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() ثابت { החזר m_emitAccessors; }
+    bool exe() ثابت { החזר m_exe; }
+    bool flatten() ثابت { החזר m_flatten; }
+    bool fourstate() ثابت { החזר m_fourstate; }
+    bool gmake() ثابت { החזר m_gmake; }
+    bool makeJson() ثابت { החזר m_makeJson; }
+    bool threadsDpiPure() ثابت { החזר m_threadsDpiPure; }
+    bool threadsDpiUnpure() ثابت { החזר m_threadsDpiUnpure; }
+    bool threadsCoarsen() ثابت { החזר m_threadsCoarsen; }
+    VOptionBool timing() ثابت { החזר m_timing; }
+    bool trace() ثابت { החזר m_trace; }
+    bool traceCoverage() ثابت { החזר m_traceCoverage; }
+    bool traceEnabledFst() ثابت { החזר m_traceEnabledFst; }
+    bool traceEnabledSaif() ثابت { החזר m_traceEnabledSaif; }
+    bool traceEnabledVcd() ثابت { החזר m_traceEnabledVcd; }
+    bool traceParams() ثابت { החזר m_traceParams; }
+    bool traceStructs() ثابت { החזר m_traceStructs; }
+    bool traceUnderscore() ثابت { החזר m_traceUnderscore; }
+    bool main() ثابت { החזר m_main; }
+    bool outFormatOk() ثابت { החזר m_outFormatOk; }
+    bool jsonOnly() ثابت { החזר m_jsonOnly; }
+    bool keepTempFiles() ثابت { החזר (V3Error::debugDefault() != 0); }
+    bool pedantic() ثابت { החזר m_pedantic; }
+    bool pinsInoutEnables() ثابت { החזר m_pinsInoutEnables; }
+    bool pinsScUint() ثابت { החזר m_pinsScUint; }
+    bool pinsScUintBool() ثابت { החזר m_pinsScUintBool; }
+    bool pinsScBigUint() ثابت VL_MT_SAFE { החזר m_pinsScBigUint; }
+    bool pinsUint8() ثابت { החזר m_pinsUint8; }
+    bool preprocComments() ثابت { החזר m_preprocComments; }
+    bool preprocDefines() ثابت { החזר m_preprocDefines; }
+    bool profC() ثابت { החזר m_profC; }
+    bool profCFuncs() ثابت { החזר m_profCFuncs; }
+    bool profExec() ثابت { החזר m_profExec; }
+    bool profPgo() ثابت { החזר m_profPgo; }
+    bool usesProfiler() ثابت { החזר profExec() || profPgo(); }
+    bool protectIds() ثابت VL_MT_SAFE { החזר m_protectIds; }
+    bool allPublic() ثابت { החזר m_public; }
+    bool publicParams() ثابت { החזר m_publicParams; }
+    bool publicOff() ثابت { החזר m_publicIgnore; }
+    bool publicFlatRW() ثابت { החזר m_publicFlatRW; }
+    صحيح publicDepth() ثابت { החזר m_publicDepth; }
+    bool anyPublicFlat() ثابت { החזר m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() ثابت VL_MT_SAFE { החזר m_lintOnly; }
+    bool ignc() ثابت { החזר m_ignc; }
+    bool quietBuild() ثابت VL_MT_SAFE { החזר m_quietBuild; }
+    bool quietExit() ثابت VL_MT_SAFE { החזר m_quietExit; }
+    bool quietStats() ثابت VL_MT_SAFE { החזר m_quietStats; }
+    bool reportUnoptflat() ثابت { החזר m_reportUnoptflat; }
+    bool verilate() ثابت { החזר m_verilate; }
+    bool vpi() ثابت { החזר m_vpi.isTrue(); }
+    bool waiverMultiline() ثابت { החזר m_waiverMultiline; }
+    bool xInitialEdge() ثابت { החזר m_xInitialEdge; }
+    bool serializeOnly() ثابت { החזר m_jsonOnly; }
+    bool topIfacesSupported() ثابت { החזר lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
-    bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
-    VTimescale timeComputePrec(const VTimescale& flag) const;
-    VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
-    bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+    صحيح buildJobs() ثابت VL_MT_SAFE { החזר m_buildJobs; }
+    صحيح convergeLimit() ثابت { החזר m_convergeLimit; }
+    صحيح coverageExprMax() ثابت { החזר m_coverageExprMax; }
+    uint32_t coverageMaxBins() ثابت { החזר m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() ثابت { החזר m_coverageMaxRealBins; }
+    صحيح coverageMaxWidth() ثابت { החזר m_coverageMaxWidth; }
+    صحيح debugAllocRandom() ثابت { החזר m_debugAllocRandom; }
+    bool dumpTreeAddrids() ثابت VL_MT_SAFE;
+    صحيح expandLimit() ثابت { החזר m_expandLimit; }
+    صحيح gateStmts() ثابت { החזר m_gateStmts; }
+    صحيح ifDepth() ثابت { החזר m_ifDepth; }
+    صحيح inlineCFuncs() ثابت { החזר m_inlineCFuncs; }
+    صحيح inlineCFuncsProduct() ثابت { החזר m_inlineCFuncsProduct; }
+    صحيح inlineMult() ثابت { החזר m_inlineMult; }
+    صحيح instrCountDpi() ثابت { החזר m_instrCountDpi; }
+    صحيح localizeMaxSize() ثابت { החזר m_localizeMaxSize; }
+    bool jsonEditNums() ثابت { החזר m_jsonEditNums; }
+    bool jsonIds() ثابت { החזר m_jsonIds; }
+    VOptionBool makeDepend() ثابت { החזר m_makeDepend; }
+    صحيح maxNumWidth() ثابت { החזר m_maxNumWidth; }
+    صحيح funcRecursionDepth() ثابت { החזר m_funcRecursion; }
+    صحيح moduleRecursionDepth() ثابت { החזר m_moduleRecursion; }
+    صحيح outputSplit() ثابت { החזר m_outputSplit; }
+    صحيح outputSplitCFuncs() ثابت { החזר m_outputSplitCFuncs; }
+    صحيح outputSplitCTrace() ثابت { החזר m_outputSplitCTrace; }
+    صحيح outputGroups() ثابت { החזר m_outputGroups; }
+    int64_t outputGroupsSize() ثابت { החזר m_outputGroupsSize; }
+    صحيح pinsBv() ثابت VL_MT_SAFE { החזר m_pinsBv; }
+    صحيح reloopLimit() ثابت { החזר m_reloopLimit; }
+    صحيح replicationLimit() ثابت { החזר m_replicationLimit; }
+    VOptionBool skipIdentical() ثابت { החזר m_skipIdentical; }
+    bool stopFail() ثابت { החזר m_stopFail; }
+    صحيح threads() ثابت VL_MT_SAFE { החזר m_threads; }
+    صحيح threadsMaxMTasks() ثابت { החזר m_threadsMaxMTasks; }
+    bool mtasks() ثابت VL_MT_SAFE { החזר (m_threads > 1); }
+    VTimescale timeDefaultPrec() ثابت { החזר m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() ثابت { החזר m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() ثابت { החזר m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() ثابت { החזר m_timeOverrideUnit; }
+    VTimescale timeComputePrec(ثابت VTimescale& flag) ثابت;
+    VTimescale timeComputeUnit(ثابت VTimescale& flag) ثابت;
+    صحيح traceDepth() ثابت { החזר m_traceDepth; }
+    صحيح traceMaxArray() ثابت { החזר m_traceMaxArray; }
+    صحيح traceMaxWidth() ثابت { החזר m_traceMaxWidth; }
+    bool useTraceParallel() ثابت {
+        החזר trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    صحيح unrollCount() ثابت { החזר m_unrollCount; }
+    صحيح unrollLimit() ثابت { החזר m_unrollLimit; }
+    صحيح unrollStmts() ثابت { החזר m_unrollStmts; }
+    صحيح constraintArrayLimit() ثابت { החזר m_constraintArrayLimit; }
+    صحيح verilateJobs() ثابت { החזר m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    صحيح compLimitBlocks() ثابت { החזר m_compLimitBlocks; }
+    صحيح compLimitMembers() ثابت VL_MT_SAFE { החזר m_compLimitMembers; }
+    صحيح compLimitParens() ثابت { החזר m_compLimitParens; }
 
-    string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+    string diagnosticsSarifOutput() ثابت VL_MT_SAFE {
+        החזר m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
-    string libCreateName(bool shared) const {
+    string exeName() ثابت { החזר m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() ثابت { החזר m_hierParamsFile; }
+    string jsonOnlyOutput() ثابت { החזר m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() ثابت { החזר m_jsonOnlyMetaOutput; }
+    string l2Name() ثابت { החזר m_l2Name; }
+    string libCreate() ثابت { החזר m_libCreate; }
+    string libCreateName(bool shared) ثابت {
         string libName = "lib" + libCreate();
-        if (shared) {
+        אם (shared) {
             libName += ".so";
-        } else {
+        } אחרת {
             libName += ".a";
         }
-        return libName;
+        החזר libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string mainTopName() ثابت { החזר m_mainTopName; }
+    string makeDir() ثابت VL_MT_SAFE { החזר m_makeDir; }
+    string modPrefix() ثابت VL_MT_SAFE { החזר m_modPrefix; }
+    string pipeFilter() ثابت { החזר m_pipeFilter; }
+    string prefix() ثابت VL_MT_SAFE { החזר m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
+    bool protectKeyProvided() ثابت { החזר !m_protectKey.empty(); }
     string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    string topModule() ثابت { החזר m_topModule; }  // As AstNode::encodeName()
+    bool noTraceTop() ثابت { החזר m_noTraceTop; }
+    string unusedRegexp() ثابت { החזר m_unusedRegexp; }
+    string waiverOutput() ثابت { החזר m_waiverOutput; }
+    string work() ثابت { החזר m_work; }
+    bool isWaiverOutput() ثابت { החזר !m_waiverOutput.empty(); }
+    string xAssign() ثابت { החזר m_xAssign; }
+    string xInitial() ثابت { החזר m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    ثابت VStringSet& cppFiles() ثابت { החזר m_cppFiles; }
+    ثابت VStringList& cFlags() ثابت { החזר m_cFlags; }
+    ثابت VStringSet& compilerIncludes() ثابت { החזר m_compilerIncludes; }
+    ثابت VStringList& ldLibFiles() ثابت { החזר m_ldLibFiles; }
+    ثابت VStringList& ldLibs() ثابت { החזר m_ldLibs; }
+    ثابت VStringList& makeFlags() ثابت { החזר m_makeFlags; }
+    ثابت VFileLibSet& libraryFiles() ثابت { החזר m_libraryFiles; }
+    ثابت VStringSet& libmapFiles() ثابت { החזר m_libmapFiles; }
+    ثابت VFileLibList& vFiles() ثابت { החזר m_vFiles; }
+    ثابت VFileLibSet& vltFiles() ثابت { החזר m_vltFiles; }
+    ثابت VStringList& forceIncs() ثابت { החזר m_forceIncs; }
 
-    bool hasParameter(const string& name);
-    string parameter(const string& name);
-    void checkParameters();
+    bool hasParameter(ثابت string& name);
+    string parameter(ثابت string& name);
+    فراغ checkParameters();
 
-    bool isFuture(const string& flag) const;
-    bool isFuture0(const string& flag) const;
-    bool isFuture1(const string& flag) const;
-    bool isLibraryFile(const string& filename, const string& libname) const;
+    bool isFuture(ثابت string& flag) ثابت;
+    bool isFuture0(ثابت string& flag) ثابت;
+    bool isFuture1(ثابت string& flag) ثابت;
+    bool isLibraryFile(ثابت string& filename, ثابت string& libname) ثابت;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
-    bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+    bool fAcycSimp() ثابت { החזר m_fAcycSimp; }
+    bool fAssemble() ثابت { החזר m_fAssemble; }
+    bool fBitScanLoops() ثابت { החזר m_fBitScanLoops; }
+    bool fBitblast() ثابت { החזר m_fBitblast; }
+    bool fCaseDecoder() ثابت { החזר m_fCaseDecoder; }
+    bool fCaseTable() ثابت { החזר m_fCaseTable; }
+    bool fCaseTree() ثابت { החזר m_fCaseTree; }
+    bool fCombine() ثابت { החזר m_fCombine; }
+    bool fConst() ثابت { החזר m_fConst; }
+    bool fConstBeforeDfg() ثابت { החזר m_fConstBeforeDfg; }
+    bool fConstBitOpTree() ثابت { החזר m_fConstBitOpTree; }
+    bool fConstEager() ثابت { החזר m_fConstEager; }
+    bool fDedupe() ثابت { החזר m_fDedupe; }
+    bool fDfg() ثابت { החזר m_fDfg; }
+    bool fDfgPeephole() ثابت { החזר m_fDfgPeephole; }
+    bool fDfgPushDownSels() ثابت { החזר m_fDfgPushDownSels; }
+    bool fDfgSynthesizeAll() ثابت { החזר m_fDfgSynthesizeAll; }
+    bool fDfgPeepholeEnabled(ثابت std::string& name) ثابت {
+        החזר !m_fDfgPeepholeDisabled.count(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() ثابت { החזר m_fDeadAssigns; }
+    bool fDeadCells() ثابت { החזר m_fDeadCells; }
+    bool fDeadMethods() ثابت { החזר m_fDeadMethods; }
+    bool fDecompose() ثابت { החזר m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() ثابت { החזר m_fDecomposePacked; }
+    bool fDecomposeUnpacked() ثابت { החזר m_fDecomposeUnpacked; }
+    bool fExpand() ثابت { החזר m_fExpand; }
+    bool fFuncBalanceCat() ثابت { החזר m_fFuncBalanceCat; }
+    bool fFuncSplitCat() ثابت { החזר m_fFuncSplitCat; }
+    bool fFunc() ثابت { החזר fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() ثابت { החזר m_fGate; }
+    VOptionBool fIcoChangeDetect() ثابت { החזר m_fIcoChangeDetect; }
+    bool fInline() ثابت { החזר m_fInline; }
+    bool fInlineCFuncs() ثابت { החזר m_fInlineCFuncs; }
+    bool fInlineFuncs() ثابت { החזר m_fInlineFuncs; }
+    bool fInlineFuncsEager() ثابت { החזר m_fInlineFuncsEager; }
+    bool fLife() ثابت { החזר m_fLife; }
+    bool fLifePost() ثابت { החזר m_fLifePost; }
+    bool fLocalize() ثابت { החזר m_fLocalize; }
+    bool fMergeCond() ثابت { החזר m_fMergeCond; }
+    bool fMergeCondMotion() ثابت { החזר m_fMergeCondMotion; }
+    bool fReloop() ثابت { החזר m_fReloop; }
+    bool fReorder() ثابت { החזר m_fReorder; }
+    bool fSlice() ثابت { החזר m_fSlice; }
+    صحيح fSliceElementLimit() ثابت { החזר m_fSliceElementLimit; }
+    bool fSplit() ثابت { החזר m_fSplit; }
+    bool fSubst() ثابت { החזר m_fSubst; }
+    bool fSubstConst() ثابت { החזר m_fSubstConst; }
+    bool fTable() ثابت { החזר m_fTable; }
+    bool fTaskifyAll() ثابت { החזר m_fTaskifyAll; }
 
-    std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
-    std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
-    std::vector<std::string> traceClassBases() const VL_MT_SAFE;
-    std::vector<std::string> traceClassLangs() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
-    std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
+    std::string traceClassBase() ثابت VL_MT_SAFE;  // Deprecated
+    std::string traceClassLang() ثابت VL_MT_SAFE;  // Deprecated
+    std::vector<std::string> traceClassBases() ثابت VL_MT_SAFE;
+    std::vector<std::string> traceClassLangs() ثابت VL_MT_SAFE;
+    std::vector<std::string> traceSourceBases() ثابت VL_MT_SAFE;
+    std::vector<std::string> traceSourceLangs() ثابت VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() ثابت { החזר m_hierarchical; }
+    صحيح hierChild() ثابت VL_MT_SAFE { החזר m_hierChild; }
+    صحيح hierThreads() ثابت VL_MT_SAFE { החזר m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hierTop() ثابت VL_MT_SAFE { החזר !m_hierChild && !m_hierBlocks.empty(); }
+    ثابت V3HierBlockOptSet& hierBlocks() ثابت { החזר m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
-    string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+    string hierTopDataDir() ثابت VL_MT_SAFE {
+        החזר hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
-    static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
-    string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
-    const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
+    ساكن string version() VL_PURE;
+    ساكن string argString(صحيح argc, حرف** argv);  ///< Return list of arguments as simple string
+    string allArgsString() ثابت VL_MT_SAFE;  ///< Return all passed arguments as simple string
+    ثابت std::list<std::pair<std::list<std::string>, bool>>& allArgs() ثابت;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
-    string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
+    string allArgsStringForHierBlock(bool forTop) ثابت;
+    فراغ parseOpts(FileLine* fl, صحيح argc, حرف** argv) VL_MT_DISABLED;
+    فراغ parseOptsList(FileLine* fl, ثابت string& optdir, صحيح argc, حرف** argv) VL_MT_DISABLED;
+    فراغ parseOptsFile(FileLine* fl, ثابت string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)
     // Most of these may be built into the executable with --enable-defenv,
     // see the README.  If adding new variables, also see src/Makefile_obj.in
     // Also add to V3Options::showVersion()
-    static string getenvBuiltins(const string& var);
-    static string getenvMAKE();
-    static string getenvMAKEFLAGS();
-    static string getenvPERL();
-    static string getenvPYTHON3();
-    static string getenvSYSTEMC();
-    static string getenvSYSTEMC_ARCH();
-    static string getenvSYSTEMC_INCLUDE();
-    static string getenvSYSTEMC_LIBDIR();
-    static string getenvVERILATOR_ROOT();
-    static string getenvVERILATOR_SOLVER();
-    static string getStdPackagePath();
-    static string getStdWaiverPath();
-    static string getSupported(const string& var);
-    static bool systemCSystemWide();
-    static bool systemCFound();  // SystemC installed, or environment points to it
-    static bool coroutineSupport();  // Configured C++ compiler supports coroutines
-    static bool devAsan();  // 'verilator_bin' built with AddressSanitizer
-    static bool devGcov();  // 'verilator_bin' built with code coverage for gcov
-    static bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
+    ساكن string getenvBuiltins(ثابت string& var);
+    ساكن string getenvMAKE();
+    ساكن string getenvMAKEFLAGS();
+    ساكن string getenvPERL();
+    ساكن string getenvPYTHON3();
+    ساكن string getenvSYSTEMC();
+    ساكن string getenvSYSTEMC_ARCH();
+    ساكن string getenvSYSTEMC_INCLUDE();
+    ساكن string getenvSYSTEMC_LIBDIR();
+    ساكن string getenvVERILATOR_ROOT();
+    ساكن string getenvVERILATOR_SOLVER();
+    ساكن string getStdPackagePath();
+    ساكن string getStdWaiverPath();
+    ساكن string getSupported(ثابت string& var);
+    ساكن bool systemCSystemWide();
+    ساكن bool systemCFound();  // SystemC installed, or environment points to it
+    ساكن bool coroutineSupport();  // Configured C++ compiler supports coroutines
+    ساكن bool devAsan();  // 'verilator_bin' built with AddressSanitizer
+    ساكن bool devGcov();  // 'verilator_bin' built with code coverage for gcov
+    ساكن bool tsanSupport();  // Configured C++ compiler supports ThreadSanitizer
 
     // METHODS (file utilities using these options)
-    string fileExists(const string& filename);
-    string filePath(FileLine* fl, const string& modname, const string& lastpath,
-                    const string& errmsg);
-    string filePathLookedMsg(FileLine* fl, const string& modname);
-    V3LangCode fileLanguage(const string& filename);
-    static bool fileStatNormal(const string& filename);
+    string fileExists(ثابت string& filename);
+    string filePath(FileLine* fl, ثابت string& modname, ثابت string& lastpath,
+                    ثابت string& errmsg);
+    string filePathLookedMsg(FileLine* fl, ثابت string& modname);
+    V3LangCode fileLanguage(ثابت string& filename);
+    ساكن bool fileStatNormal(ثابت string& filename);
 
     // METHODS (other OS)
-    static void throwSigsegv();
+    ساكن فراغ throwSigsegv();
 };
 
 //######################################################################
