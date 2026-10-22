@@ -26,15 +26,15 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Active.h"
+#अन्तर्भाव "V3Active.h"
 
-#include "V3Const.h"
-#include "V3Graph.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Graph.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -44,44 +44,44 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 // Extend V3GraphVertex class for use in latch detection graph
 
-class LatchDetectGraphVertex final : public V3GraphVertex {
+वर्ग LatchDetectGraphVertex final : सार्वजनिक V3GraphVertex {
     VL_RTTI_IMPL(LatchDetectGraphVertex, V3GraphVertex)
-public:
-    enum VertexType : uint8_t { VT_BLOCK, VT_BRANCH, VT_OUTPUT };
+सार्वजनिक:
+    गणना VertexType : uint8_t { VT_BLOCK, VT_BRANCH, VT_OUTPUT };
 
-private:
-    const string m_name;  // Only used for .dot file generation
-    const VertexType m_type;  // Vertex type (BLOCK/BRANCH/OUTPUT)
+गुप्त:
+    ध्रुव string m_name;  // Only used for .dot file generation
+    ध्रुव VertexType m_type;  // Vertex type (BLOCK/BRANCH/OUTPUT)
 
-    string typestr() const VL_MT_SAFE {  //   "
-        switch (m_type) {
-        case VT_BLOCK: return "(||)";  // basic block node
-        case VT_BRANCH: return "(&&)";  // if/else branch mode
-        case VT_OUTPUT: return "(out)";  // var assignment
-        default: return "??";  // unknown
+    string typestr() ध्रुव VL_MT_SAFE {  //   "
+        विकल्प (m_type) {
+        पक्ष VT_BLOCK: प्रत्यागम "(||)";  // basic block node
+        पक्ष VT_BRANCH: प्रत्यागम "(&&)";  // if/else branch mode
+        पक्ष VT_OUTPUT: प्रत्यागम "(out)";  // var assignment
+        स्वभाव: प्रत्यागम "??";  // unknown
         }
     }
 
-public:
-    LatchDetectGraphVertex(V3Graph* graphp, const string& name, VertexType type = VT_BLOCK)
+सार्वजनिक:
+    LatchDetectGraphVertex(V3Graph* graphp, ध्रुव string& name, VertexType type = VT_BLOCK)
         : V3GraphVertex{graphp}
         , m_name{name}
         , m_type{type} {}
-    string name() const override VL_MT_STABLE { return m_name + " " + typestr(); }
-    string dotColor() const override { return user() ? "green" : "black"; }
-    virtual int type() const { return m_type; }
+    string name() ध्रुव override VL_MT_STABLE { प्रत्यागम m_name + " " + typestr(); }
+    string dotColor() ध्रुव override { प्रत्यागम user() ? "green" : "black"; }
+    आभास पूर्णाङ्क type() ध्रुव { प्रत्यागम m_type; }
 };
 
 //######################################################################
 // Extend V3Graph class for use as a latch detection graph
 
-class LatchDetectGraph final : public V3Graph {
-protected:
+वर्ग LatchDetectGraph final : सार्वजनिक V3Graph {
+रक्षित:
     LatchDetectGraphVertex* m_curVertexp = nullptr;  // Current latch detection graph vertex
     std::vector<AstVarRef*> m_outputs;  // Vector of lvalues encountered on this pass
 
-    static LatchDetectGraphVertex* castVertexp(void* vertexp) {
-        return reinterpret_cast<LatchDetectGraphVertex*>(vertexp);
+    स्थिर LatchDetectGraphVertex* castVertexp(शून्य* vertexp) {
+        प्रत्यागम reinterpret_cast<LatchDetectGraphVertex*>(vertexp);
     }
 
     // Recursively traverse the graph to determine whether every control 'BLOCK' has an assignment
@@ -91,89 +91,89 @@ protected:
     // siblings to evaluate true in order to evaluate true itself. On output vertex only evaluates
     // true if it is the vertex we are analyzing on this check
 
-    bool latchCheckInternal(LatchDetectGraphVertex* vertexp) {
-        bool result = false;
-        switch (vertexp->type()) {
-        case LatchDetectGraphVertex::VT_OUTPUT:  // Base case
+    तार्किक latchCheckInternal(LatchDetectGraphVertex* vertexp) {
+        तार्किक result = असत्य;
+        विकल्प (vertexp->type()) {
+        पक्ष LatchDetectGraphVertex::VT_OUTPUT:  // Base case
             result = vertexp->user();
-            break;
-        case LatchDetectGraphVertex::VT_BLOCK:  // (OR of potentially many siblings)
+            भङ्ग;
+        पक्ष LatchDetectGraphVertex::VT_BLOCK:  // (OR of potentially many siblings)
             // cppcheck-suppress constVariableReference
-            for (V3GraphEdge& edge : vertexp->outEdges()) {
-                if (latchCheckInternal(castVertexp(edge.top()))) {
-                    result = true;
-                    break;
+            प्रति (V3GraphEdge& edge : vertexp->outEdges()) {
+                यदि (latchCheckInternal(castVertexp(edge.शीर्ष()))) {
+                    result = सत्य;
+                    भङ्ग;
                 }
             }
-            break;
-        case LatchDetectGraphVertex::VT_BRANCH:  // (AND of both sibling)
+            भङ्ग;
+        पक्ष LatchDetectGraphVertex::VT_BRANCH:  // (AND of both sibling)
                                                  // A BRANCH vertex always has exactly 2 siblings
-            LatchDetectGraphVertex* const ifp = castVertexp(vertexp->outEdges().frontp()->top());
-            LatchDetectGraphVertex* const elsp = castVertexp(vertexp->outEdges().backp()->top());
+            LatchDetectGraphVertex* ध्रुव ifp = castVertexp(vertexp->outEdges().frontp()->शीर्ष());
+            LatchDetectGraphVertex* ध्रुव elsp = castVertexp(vertexp->outEdges().backp()->शीर्ष());
             result = latchCheckInternal(ifp) && latchCheckInternal(elsp);
-            break;
+            भङ्ग;
         }
         vertexp->user(result);
-        return result;
+        प्रत्यागम result;
     }
 
-public:
+सार्वजनिक:
     LatchDetectGraph() { clear(); }
     ~LatchDetectGraph() override { clear(); }
     // ACCESSORS
-    LatchDetectGraphVertex* currentp() { return m_curVertexp; }
-    void currentp(LatchDetectGraphVertex* vertex) { m_curVertexp = vertex; }
+    LatchDetectGraphVertex* currentp() { प्रत्यागम m_curVertexp; }
+    शून्य currentp(LatchDetectGraphVertex* vertex) { m_curVertexp = vertex; }
     // METHODS
-    void begin() {
+    शून्य begin() {
         // Start a new if/else tracking graph
-        m_curVertexp = new LatchDetectGraphVertex{this, "ROOT"};
+        m_curVertexp = नूतन LatchDetectGraphVertex{एतत्, "ROOT"};
     }
     // Clear out userp field of referenced outputs on destruction
     // (occurs at the end of each combinational always block)
     // cppcheck-suppress duplInheritedMember
-    void clear() {
+    शून्य clear() {
         m_outputs.clear();
         // Calling base class clear will unlink & delete all edges & vertices
         V3Graph::clear();
         m_curVertexp = nullptr;
     }
     // Add a new control path and connect it to its parent
-    LatchDetectGraphVertex* addPathVertex(LatchDetectGraphVertex* parent, const string& name,
-                                          bool branch = false) {
-        m_curVertexp = new LatchDetectGraphVertex{this, name,
+    LatchDetectGraphVertex* addPathVertex(LatchDetectGraphVertex* parent, ध्रुव string& name,
+                                          तार्किक branch = असत्य) {
+        m_curVertexp = नूतन LatchDetectGraphVertex{एतत्, name,
                                                   branch ? LatchDetectGraphVertex::VT_BRANCH
                                                          : LatchDetectGraphVertex::VT_BLOCK};
-        new V3GraphEdge{this, parent, m_curVertexp, 1};
-        return m_curVertexp;
+        नूतन V3GraphEdge{एतत्, parent, m_curVertexp, 1};
+        प्रत्यागम m_curVertexp;
     }
     // Add a new output variable vertex and store a pointer to it in the user1 field of the
     // variables AstNode
     LatchDetectGraphVertex* addOutputVertex(AstVarRef* nodep) {
-        LatchDetectGraphVertex* const outVertexp
-            = new LatchDetectGraphVertex{this, nodep->name(), LatchDetectGraphVertex::VT_OUTPUT};
+        LatchDetectGraphVertex* ध्रुव outVertexp
+            = नूतन LatchDetectGraphVertex{एतत्, nodep->name(), LatchDetectGraphVertex::VT_OUTPUT};
         nodep->varp()->user1p(outVertexp);
-        m_outputs.push_back(nodep);
-        return outVertexp;
+        m_outputs.धकेलो_back(nodep);
+        प्रत्यागम outVertexp;
     }
     // Connect an output assignment to its parent control block
-    void addAssignment(AstVarRef* nodep) {
+    शून्य addAssignment(AstVarRef* nodep) {
         LatchDetectGraphVertex* outVertexp;
-        if (!nodep->varp()->user1p()) {  // Not seen this output before
+        यदि (!nodep->varp()->user1p()) {  // Not seen this output before
             outVertexp = addOutputVertex(nodep);
-        } else {
+        } अन्यथा {
             outVertexp = castVertexp(nodep->varp()->user1p());
         }
-        new V3GraphEdge{this, m_curVertexp, outVertexp, 1};
+        नूतन V3GraphEdge{एतत्, m_curVertexp, outVertexp, 1};
     }
     // Run latchCheckInternal on each variable assigned by the always block to see if all control
     // paths make an assignment. Detected latches are flagged in the variables AstVar
-    void latchCheck(AstNode* nodep, bool latch_expected) {
-        bool latch_detected = false;
-        for (const AstVarRef* const vrp : m_outputs) {
-            LatchDetectGraphVertex* const vertp = castVertexp(vrp->varp()->user1p());
-            vertp->user(true);  // Identify the output vertex we are checking paths _to_
-            if (!latchCheckInternal(castVertexp(vertices().frontp()))) latch_detected = true;
-            if (latch_detected && !latch_expected) {
+    शून्य latchCheck(Ast_गाँठ* nodep, तार्किक latch_expected) {
+        तार्किक latch_detected = असत्य;
+        प्रति (ध्रुव AstVarRef* ध्रुव vrp : m_outputs) {
+            LatchDetectGraphVertex* ध्रुव vertp = castVertexp(vrp->varp()->user1p());
+            vertp->user(सत्य);  // Identify the output vertex we are checking paths _to_
+            यदि (!latchCheckInternal(castVertexp(vertices().frontp()))) latch_detected = सत्य;
+            यदि (latch_detected && !latch_expected) {
                 nodep->v3warn(
                     LATCH,
                     "Latch inferred for signal "
@@ -181,14 +181,14 @@ public:
                         << " (not all control paths of combinational always assign a value)\n"
                         << nodep->warnMore()
                         << "... Suggest use of always_latch for intentional latches");
-                if (dumpGraphLevel() >= 9) dumpDotFilePrefixed("latch_" + vrp->name());
+                यदि (dumpGraphLevel() >= 9) dumpDotFilePrefixed("latch_" + vrp->name());
             }
-            vertp->user(false);  // Clear again (see above)
+            vertp->user(असत्य);  // Clear again (see above)
             vrp->varp()->isLatched(latch_detected);
         }
         // Should _all_ variables assigned in always_latch be latches? Probably, but this only
         // warns if none of them are
-        if (latch_expected && !latch_detected)
+        यदि (latch_expected && !latch_detected)
             nodep->v3warn(NOLATCH, "No latches detected in always_latch block");
     }
 };
@@ -196,7 +196,7 @@ public:
 //######################################################################
 // Collect existing active names
 
-class ActiveNamer final : public VNVisitor {
+वर्ग ActiveNamer final : सार्वजनिक VNVisitor {
     // STATE
     AstScope* m_scopep = nullptr;  // Current scope to add statement to
     AstActive* m_sActivep = nullptr;  // For current scope, the Static active we're building
@@ -205,16 +205,16 @@ class ActiveNamer final : public VNVisitor {
     AstActive* m_cActivep = nullptr;  // For current scope, the Combo active we're building
 
     // Map from AstSenTree (equivalence) to the corresponding AstActive created.
-    std::unordered_map<VNRef<AstSenTree>, AstActive*> m_activeMap;
+    std::unordered_map<VNRef<Ast_Sen_वृक्ष>, AstActive*> m_activeMap;
 
     // METHODS
-    void addActive(AstActive* nodep) {
+    शून्य addActive(AstActive* nodep) {
         UASSERT_OBJ(m_scopep, nodep, "nullptr scope");
         m_scopep->addBlocksp(nodep);
     }
 
     // VISITORS
-    void visit(AstScope* nodep) override {
+    शून्य visit(AstScope* nodep) override {
         m_scopep = nodep;
         m_sActivep = nullptr;
         m_iActivep = nullptr;
@@ -224,146 +224,146 @@ class ActiveNamer final : public VNVisitor {
         iterateChildren(nodep);
         // Don't clear scopep, the namer persists beyond this visit
     }
-    void visit(AstSenTree* nodep) override {
+    शून्य visit(Ast_Sen_वृक्ष* nodep) override {
         // Simplify sensitivity list
         VL_DO_DANGLING(V3Const::constifyExpensiveEdit(nodep), nodep);
     }
     //--------------------
-    void visit(AstNodeStmt*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ_Stmt*) override {}  // Accelerate
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
     // Specialized below for the special sensitivity classes
-    template <typename T_SenItemKind>
+    ढाँचा <typename T_SenItemKind>
     AstActive*& getSpecialActive();
 
-public:
+सार्वजनिक:
     // METHODS
-    AstScope* scopep() { return m_scopep; }
+    AstScope* scopep() { प्रत्यागम m_scopep; }
 
     // Make a new AstActive sensitive to the given sentree and return it
-    AstActive* makeActive(FileLine* const fl, AstSenTree* const senTreep) {
-        AstActive* const activep = new AstActive{fl, "", senTreep};
-        activep->senTreeStorep(activep->sentreep());
+    AstActive* makeActive(File_पंक्ति* ध्रुव fl, Ast_Sen_वृक्ष* ध्रुव senTreep) {
+        AstActive* ध्रुव activep = नूतन AstActive{fl, "", senTreep};
+        activep->sen_वृक्ष_Storep(activep->sentreep());
         addActive(activep);
-        return activep;
+        प्रत्यागम activep;
     }
 
     // Make a new AstActive sensitive to the given special sensitivity class and return it
-    template <typename T_SenItemKind>
-    AstActive* makeSpecialActive(FileLine* const fl) {
-        AstSenTree* const senTreep = new AstSenTree{fl, new AstSenItem{fl, T_SenItemKind{}}};
-        return makeActive(fl, senTreep);
+    ढाँचा <typename T_SenItemKind>
+    AstActive* makeSpecialActive(File_पंक्ति* ध्रुव fl) {
+        Ast_Sen_वृक्ष* ध्रुव senTreep = नूतन Ast_Sen_वृक्ष{fl, नूतन AstSenItem{fl, T_SenItemKind{}}};
+        प्रत्यागम makeActive(fl, senTreep);
     }
 
     // Return an AstActive sensitive to the given special sensitivity class (possibly pre-created)
-    template <typename T_SenItemKind>
-    AstActive* getSpecialActive(FileLine* fl) {
+    ढाँचा <typename T_SenItemKind>
+    AstActive* getSpecialActive(File_पंक्ति* fl) {
         AstActive*& cachep = getSpecialActive<T_SenItemKind>();
-        if (!cachep) cachep = makeSpecialActive<T_SenItemKind>(fl);
-        return cachep;
+        यदि (!cachep) cachep = makeSpecialActive<T_SenItemKind>(fl);
+        प्रत्यागम cachep;
     }
 
     // Return an AstActive that is sensitive to a SenTree equivalent to the given sentreep.
-    AstActive* getActive(FileLine* fl, AstSenTree* sentreep) {
+    AstActive* getActive(File_पंक्ति* fl, Ast_Sen_वृक्ष* sentreep) {
         UASSERT(sentreep, "Must be non-null");
 
-        auto it = m_activeMap.find(*sentreep);
+        स्वतः it = m_activeMap.find(*sentreep);
         // If found matching AstActive, return it
-        if (it != m_activeMap.end()) return it->second;
+        यदि (it != m_activeMap.end()) प्रत्यागम it->second;
 
         // No such AstActive yet, creat it, and add to map.
-        AstSenTree* const newsenp = sentreep->cloneTree(false);
-        AstActive* const activep = new AstActive{fl, "sequent", newsenp};
-        activep->senTreeStorep(activep->sentreep());
+        Ast_Sen_वृक्ष* ध्रुव newsenp = sentreep->clone_वृक्ष(असत्य);
+        AstActive* ध्रुव activep = नूतन AstActive{fl, "sequent", newsenp};
+        activep->sen_वृक्ष_Storep(activep->sentreep());
         addActive(activep);
         m_activeMap.emplace(*newsenp, activep);
-        return activep;
+        प्रत्यागम activep;
     }
 
     // CONSTRUCTORS
-    ActiveNamer() = default;
-    ~ActiveNamer() override = default;
-    void main(AstScope* nodep) { iterate(nodep); }
+    ActiveNamer() = स्वभाव;
+    ~ActiveNamer() override = स्वभाव;
+    शून्य main(AstScope* nodep) { iterate(nodep); }
 };
 
-template <>
+ढाँचा <>
 AstActive*& ActiveNamer::getSpecialActive<AstSenItem::Static>() {
-    return m_sActivep;
+    प्रत्यागम m_sActivep;
 }
-template <>
+ढाँचा <>
 AstActive*& ActiveNamer::getSpecialActive<AstSenItem::Initial>() {
-    return m_iActivep;
+    प्रत्यागम m_iActivep;
 }
-template <>
+ढाँचा <>
 AstActive*& ActiveNamer::getSpecialActive<AstSenItem::Final>() {
-    return m_fActivep;
+    प्रत्यागम m_fActivep;
 }
-template <>
+ढाँचा <>
 AstActive*& ActiveNamer::getSpecialActive<AstSenItem::Combo>() {
-    return m_cActivep;
+    प्रत्यागम m_cActivep;
 }
 
 //######################################################################
 // Latch checking visitor
 
-class ActiveLatchCheckVisitor final : public VNVisitorConst {
+वर्ग ActiveLatchCheckVisitor final : सार्वजनिक VNVisitorConst {
     // NODE STATE
     // Input:
     //  AstVar::user1p // V2LatchGraphVertex* The vertex handling this node
-    const VNUser1InUse m_inuser1;
+    ध्रुव VNUser1InUse m_inuser1;
     // STATE
     LatchDetectGraph m_graph;  // Graph used to detect latches in combo always
     // VISITORS
-    void visit(AstVarRef* nodep) override {
-        const AstVar* const varp = nodep->varp();
-        if (nodep->access().isWriteOrRW() && varp->isSignal() && !varp->isUsedLoopIdx()
+    शून्य visit(AstVarRef* nodep) override {
+        ध्रुव AstVar* ध्रुव varp = nodep->varp();
+        यदि (nodep->access().isWriteOrRW() && varp->isSignal() && !varp->isUsedLoopIdx()
             && !varp->isFuncLocalSticky() && !varp->lifetime().isAutomatic()) {
             m_graph.addAssignment(nodep);
         }
     }
-    void visit(AstNodeIf* nodep) override {
-        if (!nodep->isBoundsCheck()) {
-            LatchDetectGraphVertex* const parentp = m_graph.currentp();
-            LatchDetectGraphVertex* const branchp = m_graph.addPathVertex(parentp, "BRANCH", true);
+    शून्य visit(Ast_गाँठ_If* nodep) override {
+        यदि (!nodep->isBoundsCheck()) {
+            LatchDetectGraphVertex* ध्रुव parentp = m_graph.currentp();
+            LatchDetectGraphVertex* ध्रुव branchp = m_graph.addPathVertex(parentp, "BRANCH", सत्य);
             m_graph.addPathVertex(branchp, "IF");
             iterateAndNextConstNull(nodep->thensp());
             m_graph.addPathVertex(branchp, "ELSE");
             iterateAndNextConstNull(nodep->elsesp());
             m_graph.currentp(parentp);
-        } else {
+        } अन्यथा {
             iterateChildrenConst(nodep);
         }
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    ActiveLatchCheckVisitor(AstNode* nodep, bool expectLatch) {
+    ActiveLatchCheckVisitor(Ast_गाँठ* nodep, तार्किक expectLatch) {
         m_graph.begin();
         iterateConst(nodep);
         m_graph.latchCheck(nodep, expectLatch);
     }
-    ~ActiveLatchCheckVisitor() override = default;
+    ~ActiveLatchCheckVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // Replace unsupported non-blocking assignments with blocking assignments
 
-class ActiveDlyVisitor final : public VNVisitor {
-public:
-    enum CheckType : uint8_t { CT_COMB, CT_FINAL };
+वर्ग ActiveDlyVisitor final : सार्वजनिक VNVisitor {
+सार्वजनिक:
+    गणना CheckType : uint8_t { CT_COMB, CT_FINAL };
 
-private:
+गुप्त:
     // MEMBERS
-    const CheckType m_check;  // Process type we are checking
+    ध्रुव CheckType m_check;  // Process type we are checking
 
     // VISITORS
-    void visit(AstAssignDly* nodep) override {
+    शून्य visit(AstAssignDly* nodep) override {
         // Issue appropriate warning
-        if (m_check == CT_FINAL) {
+        यदि (m_check == CT_FINAL) {
             nodep->v3warn(FINALDLY, "Non-blocking assignment '<=' in final block");
-        } else {
+        } अन्यथा {
             nodep->v3warn(COMBDLY,
                           "Non-blocking assignment '<=' in combinational logic process\n"
                               << nodep->warnMore()
@@ -371,30 +371,30 @@ private:
         }
 
         // Convert to blocking assignment
-        nodep->replaceWith(new AstAssign{
+        nodep->replaceWith(नूतन AstAssign{
             nodep->fileline(),  //
             nodep->lhsp()->unlinkFrBack(),  //
             nodep->rhsp()->unlinkFrBack(),  //
             nodep->timingControlp() ? nodep->timingControlp()->unlinkFrBack() : nullptr});
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_वृक्ष(), nodep);
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    ActiveDlyVisitor(AstNode* nodep, CheckType check)
+    ActiveDlyVisitor(Ast_गाँठ* nodep, CheckType check)
         : m_check{check} {
         iterate(nodep);
     }
-    ~ActiveDlyVisitor() override = default;
+    ~ActiveDlyVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // Active class functions
 
-class ActiveVisitor final : public VNVisitor {
+वर्ग ActiveVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE
     //  Each call to V3Const::constify
     //   AstVarScope::user1()           bool: This VarScope is referenced in the sensitivity list
@@ -403,53 +403,53 @@ class ActiveVisitor final : public VNVisitor {
 
     // STATE
     ActiveNamer m_namer;  // Tracking of active names
-    bool m_clockedProcess = false;  // Whether current process is a clocked process
-    bool m_allChanged = false;  // Whether all SenItem in the SenTree are ET_CHANGED
-    bool m_walkingBody = false;  // Walking body of a process
-    bool m_canBeComb = false;  // Whether current clocked process can be turned into a comb process
+    तार्किक m_clockedProcess = असत्य;  // Whether current process is a clocked process
+    तार्किक m_allChanged = असत्य;  // Whether all SenItem in the SenTree are ET_CHANGED
+    तार्किक m_walkingBody = असत्य;  // Walking body of a process
+    तार्किक m_canBeComb = असत्य;  // Whether current clocked process can be turned into a comb process
 
     // METHODS
-    template <typename T>
-    void moveUnderSpecial(AstNode* nodep) {
-        AstActive* const wantactivep = m_namer.getSpecialActive<T>(nodep->fileline());
+    ढाँचा <typename T>
+    शून्य moveUnderSpecial(Ast_गाँठ* nodep) {
+        AstActive* ध्रुव wantactivep = m_namer.getSpecialActive<T>(nodep->fileline());
         nodep->unlinkFrBack();
         wantactivep->addStmtsp(nodep);
     }
 
-    void visitAlways(AstNode* nodep, AstSenTree* oldsentreep, VAlwaysKwd kwd) {
+    शून्य visitAlways(Ast_गाँठ* nodep, Ast_Sen_वृक्ष* oldsentreep, VAlwaysKwd kwd) {
         // Move always to appropriate ACTIVE based on its sense list
-        if (oldsentreep && oldsentreep->sensesp() && oldsentreep->sensesp()->isNever()) {
+        यदि (oldsentreep && oldsentreep->sensesp() && oldsentreep->sensesp()->isNever()) {
             // Never executing.  Kill it.
             UASSERT_OBJ(!oldsentreep->sensesp()->nextp(), nodep,
                         "Never senitem should be alone, else the never should be eliminated.");
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_वृक्ष(), nodep);
+            प्रत्यागम;
         }
 
         {
-            const VNUser1InUse user1InUse;
+            ध्रुव VNUser1InUse user1InUse;
 
             // Walk sensitivity list
-            m_clockedProcess = false;
-            m_allChanged = true;
-            if (oldsentreep) {
+            m_clockedProcess = असत्य;
+            m_allChanged = सत्य;
+            यदि (oldsentreep) {
                 oldsentreep->unlinkFrBack();
                 iterateChildrenConst(oldsentreep);
             }
 
             // If all SenItems are ET_CHANGE, then walk the body to determine if this process
             // could be turned into a combinational process instead.
-            if (m_allChanged) {
-                const VNUser2InUse user2InUse;
-                m_walkingBody = true;
-                m_canBeComb = true;
+            यदि (m_allChanged) {
+                ध्रुव VNUser2InUse user2InUse;
+                m_walkingBody = सत्य;
+                m_canBeComb = सत्य;
                 iterateChildrenConst(nodep);
-                m_walkingBody = false;
-                if (m_canBeComb) m_clockedProcess = false;
+                m_walkingBody = असत्य;
+                यदि (m_canBeComb) m_clockedProcess = असत्य;
             }
         }
 
-        AstActive* const wantactivep
+        AstActive* ध्रुव wantactivep
             = !m_clockedProcess ? m_namer.getSpecialActive<AstSenItem::Combo>(nodep->fileline())
               : oldsentreep     ? m_namer.getActive(nodep->fileline(), oldsentreep)
                             // Clocked, no sensitivity lists, it's a suspendable, put it in initial
@@ -460,176 +460,176 @@ class ActiveVisitor final : public VNVisitor {
         wantactivep->addStmtsp(nodep);
 
         // Warn and convert any delayed assignments
-        if (!m_clockedProcess) ActiveDlyVisitor{nodep, ActiveDlyVisitor::CT_COMB};
+        यदि (!m_clockedProcess) ActiveDlyVisitor{nodep, ActiveDlyVisitor::CT_COMB};
 
         // Delete sensitivity list
-        if (oldsentreep) VL_DO_DANGLING(oldsentreep->deleteTree(), oldsentreep);
+        यदि (oldsentreep) VL_DO_DANGLING(oldsentreep->delete_वृक्ष(), oldsentreep);
 
         // check combinational processes for latches
-        if (!m_clockedProcess || kwd == VAlwaysKwd::ALWAYS_LATCH) {
-            const ActiveLatchCheckVisitor latchvisitor{nodep, kwd == VAlwaysKwd::ALWAYS_LATCH};
+        यदि (!m_clockedProcess || kwd == VAlwaysKwd::ALWAYS_LATCH) {
+            ध्रुव ActiveLatchCheckVisitor latchvisitor{nodep, kwd == VAlwaysKwd::ALWAYS_LATCH};
         }
     }
 
-    void visitSenItems(AstNode* nodep) {
-        if (v3Global.opt.timing().isSetTrue()) {
-            nodep->foreach([this](AstSenItem* senItemp) { visit(senItemp); });
+    शून्य visit_Sen_वस्तुएँ(Ast_गाँठ* nodep) {
+        यदि (v3Global.opt.timing().isSetTrue()) {
+            nodep->foreach([एतत्](AstSenItem* senItemp) { visit(senItemp); });
         }
     }
 
-    static void markEventEdges(AstSenTree* sentreep) {
-        for (AstSenItem* senip = sentreep->sensesp(); senip;
+    स्थिर शून्य markEventEdges(Ast_Sen_वृक्ष* sentreep) {
+        प्रति (AstSenItem* senip = sentreep->sensesp(); senip;
              senip = VN_AS(senip->nextp(), SenItem)) {
-            if (!senip->sensp()) continue;
-            if (const AstNodeDType* const dtypep = senip->sensp()->dtypep()) {
-                if (const AstBasicDType* const basicp = dtypep->basicp()) {
-                    if (basicp->isEvent()) senip->edgeType(VEdgeType::ET_EVENT);
+            यदि (!senip->sensp()) अनुवर्त;
+            यदि (ध्रुव Ast_गाँठ_DType* ध्रुव dtypep = senip->sensp()->dtypep()) {
+                यदि (ध्रुव AstBasicDType* ध्रुव basicp = dtypep->basicp()) {
+                    यदि (basicp->isEvent()) senip->edgeType(VEdgeType::ET_EVENT);
                 }
             }
         }
     }
 
     // VISITORS
-    void visit(AstScope* nodep) override {
+    शून्य visit(AstScope* nodep) override {
         m_namer.main(nodep);  // Clear last scope's names, and collect this scope's existing names
         iterateChildren(nodep);
     }
-    void visit(AstActive* nodep) override {
+    शून्य visit(AstActive* nodep) override {
         // Actives are being formed, so we can ignore any already made
     }
 
-    void visit(AstInitialStatic* nodep) override { moveUnderSpecial<AstSenItem::Static>(nodep); }
-    void visit(AstInitial* nodep) override {
-        visitSenItems(nodep);
+    शून्य visit(AstInitialStatic* nodep) override { moveUnderSpecial<AstSenItem::Static>(nodep); }
+    शून्य visit(AstInitial* nodep) override {
+        visit_Sen_वस्तुएँ(nodep);
         moveUnderSpecial<AstSenItem::Initial>(nodep);
     }
-    void visit(AstFinal* nodep) override {
-        const ActiveDlyVisitor dlyvisitor{nodep, ActiveDlyVisitor::CT_FINAL};
+    शून्य visit(AstFinal* nodep) override {
+        ध्रुव ActiveDlyVisitor dlyvisitor{nodep, ActiveDlyVisitor::CT_FINAL};
         moveUnderSpecial<AstSenItem::Final>(nodep);
     }
-    void visit(AstCoverToggle* nodep) override { moveUnderSpecial<AstSenItem::Combo>(nodep); }
-    void visit(AstAlways* nodep) override {
-        if (!nodep->stmtsp()) {  // Empty always. Remove it now.
-            VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            return;
+    शून्य visit(AstCoverToggle* nodep) override { moveUnderSpecial<AstSenItem::Combo>(nodep); }
+    शून्य visit(AstAlways* nodep) override {
+        यदि (!nodep->stmtsp()) {  // Empty always. Remove it now.
+            VL_DO_DANGLING(nodep->unlinkFrBack()->delete_वृक्ष(), nodep);
+            प्रत्यागम;
         }
-        if (nodep->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+        यदि (nodep->keyword() == VAlwaysKwd::CONT_ASSIGN) {
             moveUnderSpecial<AstSenItem::Combo>(nodep);
-            return;
+            प्रत्यागम;
         }
-        visitSenItems(nodep);
+        visit_Sen_वस्तुएँ(nodep);
         visitAlways(nodep, nodep->sentreep(), nodep->keyword());
     }
-    void visit(AstAlwaysPostponed* nodep) override {
+    शून्य visit(AstAlwaysPostponed* nodep) override {
         // Might be empty with later optimizations, so this assertion can be removed,
         // but for now it is guaranteed to be not empty.
         UASSERT_OBJ(nodep->stmtsp(), nodep, "Should not be empty");
         // Make a new active for it, needs to be the only item under the active for V3Sched
-        AstActive* const activep = m_namer.makeSpecialActive<AstSenItem::Combo>(nodep->fileline());
+        AstActive* ध्रुव activep = m_namer.makeSpecialActive<AstSenItem::Combo>(nodep->fileline());
         activep->addStmtsp(nodep->unlinkFrBack());
     }
-    void visit(AstAlwaysObserved* nodep) override {
+    शून्य visit(AstAlwaysObserved* nodep) override {
         UASSERT_OBJ(nodep->sentreep(), nodep, "Should have a sentree");
         markEventEdges(nodep->sentreep());
-        AstSenTree* const sentreep = nodep->sentreep();
+        Ast_Sen_वृक्ष* ध्रुव sentreep = nodep->sentreep();
         sentreep->unlinkFrBack();
         // Make a new active for it, needs to be the only item under the active for V3Sched
-        AstActive* const activep = m_namer.makeActive(nodep->fileline(), sentreep);
+        AstActive* ध्रुव activep = m_namer.makeActive(nodep->fileline(), sentreep);
         activep->addStmtsp(nodep->unlinkFrBack());
     }
-    void visit(AstAlwaysReactive* nodep) override {
+    शून्य visit(AstAlwaysReactive* nodep) override {
         UASSERT_OBJ(nodep->sentreep(), nodep, "Should have a sentree");
         markEventEdges(nodep->sentreep());
-        AstSenTree* const sentreep = nodep->sentreep();
+        Ast_Sen_वृक्ष* ध्रुव sentreep = nodep->sentreep();
         sentreep->unlinkFrBack();
         // Make a new active for it, needs to be the only item under the active for V3Sched
-        AstActive* const activep = m_namer.makeActive(nodep->fileline(), sentreep);
+        AstActive* ध्रुव activep = m_namer.makeActive(nodep->fileline(), sentreep);
         activep->addStmtsp(nodep->unlinkFrBack());
     }
-    void visit(AstCFunc* nodep) override { visitSenItems(nodep); }
-    void visit(AstSenItem* nodep) override {
+    शून्य visit(AstCFunc* nodep) override { visit_Sen_वस्तुएँ(nodep); }
+    शून्य visit(AstSenItem* nodep) override {
         UASSERT_OBJ(!m_walkingBody, nodep,
                     "Should not reach here when walking body without --timing");
-        if (!nodep->sensp()) return;  // Ignore sequential items (e.g.: initial, comb, etc.)
+        यदि (!nodep->sensp()) प्रत्यागम;  // Ignore sequential items (e.g.: initial, comb, etc.)
 
-        m_clockedProcess = true;
-        if (nodep->edgeType() != VEdgeType::ET_CHANGED) m_allChanged = false;
+        m_clockedProcess = सत्य;
+        यदि (nodep->edgeType() != VEdgeType::ET_CHANGED) m_allChanged = असत्य;
 
-        if (const AstNodeDType* const dtypep = nodep->sensp()->dtypep()) {
-            if (const AstBasicDType* const basicp = dtypep->basicp()) {
-                if (basicp->isEvent()) nodep->edgeType(VEdgeType::ET_EVENT);
+        यदि (ध्रुव Ast_गाँठ_DType* ध्रुव dtypep = nodep->sensp()->dtypep()) {
+            यदि (ध्रुव AstBasicDType* ध्रुव basicp = dtypep->basicp()) {
+                यदि (basicp->isEvent()) nodep->edgeType(VEdgeType::ET_EVENT);
             }
         }
 
-        nodep->sensp()->foreach([](const AstVarRef* refp) { refp->varScopep()->user1(true); });
+        nodep->sensp()->foreach([](ध्रुव AstVarRef* refp) { refp->varScopep()->user1(सत्य); });
     }
 
-    void visit(AstVarRef* nodep) override {
-        AstVarScope* const vscp = nodep->varScopep();
-        if (nodep->access().isWriteOnly()) {
-            vscp->user2(true);
-        } else {
+    शून्य visit(AstVarRef* nodep) override {
+        AstVarScope* ध्रुव vscp = nodep->varScopep();
+        यदि (nodep->access().isWriteOnly()) {
+            vscp->user2(सत्य);
+        } अन्यथा {
             // If the variable is read before it is written (and is not a never-changing value,
             // including an X randomization temporary set once at initialization), and is not
             // in the sensitivity list, then this cannot be optimized into a combinational process
             // TODO: live variable analysis would be more precise
-            const AstVar* const varp = vscp->varp();
-            if (!vscp->user2() && !varp->valuep() && !varp->isXTemp() && !vscp->user1()) {
-                m_canBeComb = false;
+            ध्रुव AstVar* ध्रुव varp = vscp->varp();
+            यदि (!vscp->user2() && !varp->valuep() && !varp->isXTemp() && !vscp->user1()) {
+                m_canBeComb = असत्य;
             }
         }
     }
-    void visit(AstAssignDly* nodep) override {
-        m_canBeComb = false;
-        if (nodep->isTimingControl()) m_clockedProcess = true;
+    शून्य visit(AstAssignDly* nodep) override {
+        m_canBeComb = असत्य;
+        यदि (nodep->isTimingControl()) m_clockedProcess = सत्य;
         iterateChildrenConst(nodep);
     }
-    void visit(AstFireEvent* nodep) override {
-        m_canBeComb = false;
+    शून्य visit(AstFireEvent* nodep) override {
+        m_canBeComb = असत्य;
         iterateChildrenConst(nodep);
     }
-    void visit(AstAssignForce* nodep) override {
-        m_canBeComb = false;
+    शून्य visit(AstAssignForce* nodep) override {
+        m_canBeComb = असत्य;
         iterateChildrenConst(nodep);
     }
-    void visit(AstRelease* nodep) override {
-        m_canBeComb = false;
+    शून्य visit(AstRelease* nodep) override {
+        m_canBeComb = असत्य;
         iterateChildrenConst(nodep);
     }
-    void visit(AstFork* nodep) override {
-        if (nodep->isTimingControl()) {
-            m_canBeComb = false;
-            m_clockedProcess = true;
+    शून्य visit(AstFork* nodep) override {
+        यदि (nodep->isTimingControl()) {
+            m_canBeComb = असत्य;
+            m_clockedProcess = सत्य;
         }
         // Do not iterate children, technically not part of this process
     }
 
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstVarScope*) override {}  // Accelerate
-    void visit(AstNode* nodep) override {
-        if (!v3Global.opt.timing().isSetTrue() && m_walkingBody && !m_canBeComb) {
-            return;  // Accelerate
+    शून्य visit(AstVar*) override {}  // Accelerate
+    शून्य visit(AstVarScope*) override {}  // Accelerate
+    शून्य visit(Ast_गाँठ* nodep) override {
+        यदि (!v3Global.opt.timing().isSetTrue() && m_walkingBody && !m_canBeComb) {
+            प्रत्यागम;  // Accelerate
         }
-        if (!nodep->isPure()) m_canBeComb = false;
-        if (nodep->isTimingControl()) {
-            m_canBeComb = false;
-            m_clockedProcess = true;
-            return;
+        यदि (!nodep->isPure()) m_canBeComb = असत्य;
+        यदि (nodep->isTimingControl()) {
+            m_canBeComb = असत्य;
+            m_clockedProcess = सत्य;
+            प्रत्यागम;
         }
         iterateChildren(nodep);
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit ActiveVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~ActiveVisitor() override = default;
+    ~ActiveVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // Pass 1: collect sample CFuncs and sampling events from covergroup class scopes
 
-class CovergroupCollectVisitor final : public VNVisitor {
+वर्ग CovergroupCollectVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE
     // Netlist:
     //  AstClass::user1p()  -> AstCFunc*.    The sample() CFunc for this covergroup class
@@ -639,68 +639,68 @@ class CovergroupCollectVisitor final : public VNVisitor {
     AstClass* m_classp = nullptr;  // Current covergroup class context, or nullptr
 
     // VISITORS
-    void visit(AstClass* nodep) override {
-        if (!nodep->isCovergroup()) return;
+    शून्य visit(AstClass* nodep) override {
+        यदि (!nodep->isCovergroup()) प्रत्यागम;
         VL_RESTORER(m_classp);
         m_classp = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstScope* nodep) override { iterateChildren(nodep); }
+    शून्य visit(AstScope* nodep) override { iterateChildren(nodep); }
 
-    void visit(AstCFunc* nodep) override {
-        if (!m_classp) return;
-        if (nodep->isCovergroupSample()) m_classp->user1p(nodep);
+    शून्य visit(AstCFunc* nodep) override {
+        यदि (!m_classp) प्रत्यागम;
+        यदि (nodep->isCovergroupSample()) m_classp->user1p(nodep);
     }
 
-    void visit(AstCovergroup* nodep) override {
+    शून्य visit(AstCovergroup* nodep) override {
         // V3Covergroup guarantees: only supported-event covergroups survive to V3Active,
         // and they are always inside a covergroup class (so m_classp is set).
         // Unlink eventp from cgp so it survives cgp's deletion,
         // then store it in user2p for use during the second pass.
         m_classp->user2p(nodep->eventp()->unlinkFrBack());
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit CovergroupCollectVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~CovergroupCollectVisitor() override = default;
+    ~CovergroupCollectVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // Pass 2: inject automatic sample() calls for covergroup instances
 
-class CovergroupEventBindVisitor final : public VNVisitor {
-    AstVarScope* const m_instancep;  // Variable scope for the covergroup instance being sampled
-    std::unordered_set<const AstVar*> m_memberps;  // Non-static variables in the covergroup class
+वर्ग CovergroupEventBindVisitor final : सार्वजनिक VNVisitor {
+    AstVarScope* ध्रुव m_instancep;  // Variable scope for the covergroup instance being sampled
+    std::unordered_set<ध्रुव AstVar*> m_memberps;  // Non-static variables in the covergroup class
 
-    void visit(AstVarRef* nodep) override {
-        if (!m_memberps.count(nodep->varp())) return;
-        FileLine* const fl = nodep->fileline();
-        AstMemberSel* const selp
-            = new AstMemberSel{fl, new AstVarRef{fl, m_instancep, VAccess::READ}, nodep->varp()};
+    शून्य visit(AstVarRef* nodep) override {
+        यदि (!m_memberps.गिनती(nodep->varp())) प्रत्यागम;
+        File_पंक्ति* ध्रुव fl = nodep->fileline();
+        AstMemberSel* ध्रुव selp
+            = नूतन AstMemberSel{fl, नूतन AstVarRef{fl, m_instancep, VAccess::READ}, nodep->varp()};
         selp->access(nodep->access());
         nodep->replaceWith(selp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
-    CovergroupEventBindVisitor(AstSenTree* eventp, AstClass* classp, AstVarScope* instancep)
+सार्वजनिक:
+    CovergroupEventBindVisitor(Ast_Sen_वृक्ष* eventp, AstClass* classp, AstVarScope* instancep)
         : m_instancep{instancep} {
-        classp->foreachMember([&](AstClass* const, AstVar* const varp) {  //
+        classp->foreachMember([&](AstClass* ध्रुव, AstVar* ध्रुव varp) {  //
             m_memberps.emplace(varp);
         });
         iterate(eventp);
     }
-    ~CovergroupEventBindVisitor() override = default;
+    ~CovergroupEventBindVisitor() override = स्वभाव;
 };
 
-class CovergroupInjectVisitor final : public VNVisitor {
+वर्ग CovergroupInjectVisitor final : सार्वजनिक VNVisitor {
     // NODE STATE  (set by CovergroupCollectVisitor, consumed here)
     //  AstClass::user1p()  -> AstCFunc*.    The sample() CFunc for this covergroup class
     //  AstClass::user2p()  -> AstSenTree*.  Owned sampling event template (if any)
@@ -709,42 +709,42 @@ class CovergroupInjectVisitor final : public VNVisitor {
     ActiveNamer m_namer;  // Reuse active naming infrastructure
 
     // VISITORS
-    void visit(AstScope* nodep) override {
+    शून्य visit(AstScope* nodep) override {
         m_namer.main(nodep);  // Initialize active naming for this scope
         iterateChildren(nodep);
     }
 
-    void visit(AstVarScope* nodep) override {
+    शून्य visit(AstVarScope* nodep) override {
         // Get the underlying var
-        AstVar* const varp = nodep->varp();
+        AstVar* ध्रुव varp = nodep->varp();
         UASSERT_OBJ(varp, nodep, "AstVarScope must have non-null varp");
 
         // Check if the variable is of covergroup class type
-        const AstNodeDType* const dtypep = varp->dtypep();
+        ध्रुव Ast_गाँठ_DType* ध्रुव dtypep = varp->dtypep();
         UASSERT_OBJ(dtypep, nodep, "AstVar must have non-null dtypep after V3Width");
 
-        const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType);
-        if (!classRefp) return;
+        ध्रुव AstClassRefDType* ध्रुव classRefp = VN_CAST(dtypep, ClassRefDType);
+        यदि (!classRefp) प्रत्यागम;
 
-        AstClass* const classp = classRefp->classp();
+        AstClass* ध्रुव classp = classRefp->classp();
 
         // Check if this covergroup has an automatic sampling event
-        AstSenTree* const eventp = VN_CAST(classp->user2p(), SenTree);
-        if (!eventp) return;  // No automatic sampling for this covergroup
+        Ast_Sen_वृक्ष* ध्रुव eventp = VN_CAST(classp->user2p(), Sen_वृक्ष);
+        यदि (!eventp) प्रत्यागम;  // No automatic sampling for this covergroup
 
         // V3Covergroup guarantees every supported-event covergroup has a registered sample CFunc
-        AstCFunc* const sampleCFuncp = VN_AS(classp->user1p(), CFunc);
+        AstCFunc* ध्रुव sampleCFuncp = VN_AS(classp->user1p(), CFunc);
         UASSERT_OBJ(sampleCFuncp, nodep,
                     "No sample() CFunc found for covergroup " << classp->name());
 
         // Create a VarRef to the covergroup instance for the method call
-        FileLine* const fl = nodep->fileline();
-        AstVarRef* const varrefp = new AstVarRef{fl, nodep, VAccess::READ};
+        File_पंक्ति* ध्रुव fl = nodep->fileline();
+        AstVarRef* ध्रुव varrefp = नूतन AstVarRef{fl, nodep, VAccess::READ};
 
         // Create the CMethodCall to sample()
         // Note: We don't pass arguments in argsp since vlSymsp is passed via argTypes
-        AstCMethodCall* const cmethodCallp
-            = new AstCMethodCall{fl, varrefp, sampleCFuncp, nullptr};
+        AstCMethodCall* ध्रुव cmethodCallp
+            = नूतन AstCMethodCall{fl, varrefp, sampleCFuncp, nullptr};
 
         cmethodCallp->dtypeSetVoid();
         cmethodCallp->argTypes("vlSymsp");
@@ -752,51 +752,51 @@ class CovergroupInjectVisitor final : public VNVisitor {
         // Clone the sensitivity for this active block. References to covergroup members need
         // to select through this particular instance; all other VarRefs retain the VarScopes
         // resolved by V3Scope.
-        AstSenTree* senTreep = eventp->cloneTree(false);
+        Ast_Sen_वृक्ष* senTreep = eventp->clone_वृक्ष(असत्य);
         CovergroupEventBindVisitor{senTreep, classp, nodep};
 
         // Get or create the AstActive node for this sensitivity
         // senTreep is a template used by getActive() which clones it into the AstActive;
         // delete it afterwards as it is not added to the AST directly.
-        AstActive* const activep = m_namer.getActive(fl, senTreep);
-        VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
+        AstActive* ध्रुव activep = m_namer.getActive(fl, senTreep);
+        VL_DO_DANGLING(धकेलो_Deletep(senTreep), senTreep);
 
         // Wrap the sample() call in an AstAlways so SchedPartition handles it
         // via visit(AstNodeProcedure*) like any other clocked always block.
         activep->addStmtsp(
-            new AstAlways{fl, VAlwaysKwd::ALWAYS_FF, nullptr, cmethodCallp->makeStmt()});
+            नूतन AstAlways{fl, VAlwaysKwd::ALWAYS_FF, nullptr, cmethodCallp->makeStmt()});
     }
 
-    void visit(AstClass* nodep) override {
+    शून्य visit(AstClass* nodep) override {
         iterateChildren(nodep);
         // Delete the owned sampling event template stored during collection
-        if (AstSenTree* const eventp = VN_CAST(nodep->user2p(), SenTree)) {
-            VL_DO_DANGLING(pushDeletep(eventp), eventp);
+        यदि (Ast_Sen_वृक्ष* ध्रुव eventp = VN_CAST(nodep->user2p(), Sen_वृक्ष)) {
+            VL_DO_DANGLING(धकेलो_Deletep(eventp), eventp);
         }
     }
 
-    void visit(AstActive*) override {}  // Don't iterate into actives
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य visit(AstActive*) override {}  // Don't iterate into actives
+    शून्य visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     explicit CovergroupInjectVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~CovergroupInjectVisitor() override = default;
+    ~CovergroupInjectVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // Active class functions
 
-void V3Active::activeAll(AstNetlist* nodep) {
+शून्य V3Active::activeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ActiveVisitor{nodep}; }  // Destruct before checking
-    if (v3Global.useCovergroup()) {
+    यदि (v3Global.useCovergroup()) {
         // Add automatic covergroup sampling in two focused passes.
         // user1p/user2p on AstClass span both passes; guards must outlive both visitors.
-        const VNUser1InUse user1InUse;
-        const VNUser2InUse user2InUse;
+        ध्रुव VNUser1InUse user1InUse;
+        ध्रुव VNUser2InUse user2InUse;
         CovergroupCollectVisitor{nodep};  // Pass 1: collect CFuncs and events into user#p
         CovergroupInjectVisitor{nodep};  // Pass 2: inject sample() calls, delete user2p events
     }
-    V3Global::dumpCheckGlobalTree("active", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("active", 0, dump_वृक्ष_Either_Level() >= 3);
 }
