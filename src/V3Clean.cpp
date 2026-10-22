@@ -24,66 +24,66 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#समावेश "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clean.h"
+#समावेश "V3Clean.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Clean state, as a visitor of each AstNode
 
-class CleanVisitor final : public VNVisitor {
+श्रेणी CleanVisitor final : खुला VNVisitor {
     // NODE STATE
     // Entire netlist:
     //  AstNode::user1()        -> CleanState.  For this node, 0==UNKNOWN
     //  AstNode::user2()        -> bool.  True indicates widthMin has been propagated
     //  AstNodeDType::user3()   -> AstNodeDType*.  Alternative node with C size
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
+    स्थिर VNUser1InUse m_inuser1;
+    स्थिर VNUser2InUse m_inuser2;
+    स्थिर VNUser3InUse m_inuser3;
 
     // TYPES
-    enum CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
+    क्रमागत CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;
+    स्थिर Ast_गाँठ_Module* m_modp = nullptr;
 
     // METHODS
 
     // Width resetting
-    int cppWidth(const AstNode* nodep) {
-        if (nodep->width() <= VL_IDATASIZE) {
-            return VL_IDATASIZE;
-        } else if (nodep->width() <= VL_QUADSIZE) {
-            return VL_QUADSIZE;
-        } else {
-            return nodep->widthWords() * VL_EDATASIZE;
+    पूर्णांक cppWidth(स्थिर Ast_गाँठ* nodep) {
+        अगर (nodep->width() <= VL_IDATASIZE) {
+            वापस VL_IDATASIZE;
+        } अन्यथा अगर (nodep->width() <= VL_QUADSIZE) {
+            वापस VL_QUADSIZE;
+        } अन्यथा {
+            वापस nodep->width_शब्दगण() * VL_EDATASIZE;
         }
     }
-    void setCppWidth(AstNode* nodep) {
+    व्योम setCppWidth(Ast_गाँठ* nodep) {
         nodep->user2(true);  // Don't resize it again
-        AstNodeDType* const old_dtypep = nodep->dtypep();
-        const int width = cppWidth(nodep);  // widthMin is unchanged
-        if (old_dtypep->width() != width) {
+        Ast_गाँठ_DType* स्थिर old_dtypep = nodep->dtypep();
+        स्थिर पूर्णांक width = cppWidth(nodep);  // widthMin is unchanged
+        अगर (old_dtypep->width() != width) {
             // Since any given dtype's cppWidth() is the same, we can just
             // remember one conversion for each, and reuse it
-            if (AstNodeDType* const new_dtypep = VN_CAST(old_dtypep->user3p(), NodeDType)) {
+            अगर (Ast_गाँठ_DType* स्थिर new_dtypep = VN_CAST(old_dtypep->user3p(), गाँठ_DType)) {
                 nodep->dtypep(new_dtypep);
-            } else {
+            } अन्यथा {
                 nodep->dtypeChgWidth(width, nodep->widthMin());
-                AstNodeDType* const new_dtypep2 = nodep->dtypep();
+                Ast_गाँठ_DType* स्थिर new_dtypep2 = nodep->dtypep();
                 UASSERT_OBJ(new_dtypep2 != old_dtypep, nodep,
                             "Dtype didn't change when width changed");
                 old_dtypep->user3p(new_dtypep2);  // Remember for next time
             }
         }
     }
-    void computeCppWidth(AstNode* nodep) {
-        if (!nodep->user2() && nodep->hasDType()) {
-            if (VN_IS(nodep, Var)  //
-                || VN_IS(nodep, NodeDType)  // Don't want to change variable widths!
-                || VN_IS(nodep, NodeSel)  // Array selects should reflect variable widths
+    व्योम computeCppWidth(Ast_गाँठ* nodep) {
+        अगर (!nodep->user2() && nodep->hasDType()) {
+            अगर (VN_IS(nodep, Var)  //
+                || VN_IS(nodep, गाँठ_DType)  // Don't want to change variable widths!
+                || VN_IS(nodep, गाँठ_Sel)  // Array selects should reflect variable widths
                 || VN_IS(nodep, SFormatArg)  // Retain the logical argument type, not storage width
                 || VN_IS(nodep->dtypep()->skipRefp(), AssocArrayDType)  // Or arrays
                 || VN_IS(nodep->dtypep()->skipRefp(), WildcardArrayDType)
@@ -95,267 +95,267 @@ class CleanVisitor final : public VNVisitor {
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverCrossDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverpointDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) {
-            } else {
-                const AstNodeUOrStructDType* const dtypep
-                    = VN_CAST(nodep->dtypep()->skipRefp(), NodeUOrStructDType);
-                if (!dtypep || dtypep->packed()) setCppWidth(nodep);
+            } अन्यथा {
+                स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर dtypep
+                    = VN_CAST(nodep->dtypep()->skipRefp(), गाँठ_UOr_Struct_DType);
+                अगर (!dtypep || dtypep->packed()) setCppWidth(nodep);
             }
         }
     }
 
     // Store the clean state in the userp on each node
-    void setCleanState(AstNode* nodep, CleanState clean) { nodep->user1(clean); }
-    CleanState getCleanState(const AstNode* nodep) {
-        return static_cast<CleanState>(nodep->user1());
+    व्योम setCleanState(Ast_गाँठ* nodep, CleanState clean) { nodep->user1(clean); }
+    CleanState getCleanState(स्थिर Ast_गाँठ* nodep) {
+        वापस static_cast<CleanState>(nodep->user1());
     }
-    bool isClean(AstNode* nodep) {
-        const CleanState clstate = getCleanState(nodep);
-        if (clstate == CS_CLEAN) return true;
-        if (clstate == CS_DIRTY) return false;
+    bool isClean(Ast_गाँठ* nodep) {
+        स्थिर CleanState clstate = getCleanState(nodep);
+        अगर (clstate == CS_CLEAN) वापस true;
+        अगर (clstate == CS_DIRTY) वापस false;
         nodep->v3fatalSrc("Unknown clean state on node: " + nodep->prettyTypeName());
-        return false;
+        वापस false;
     }
-    void setClean(AstNode* nodep, bool isClean) {
+    व्योम setClean(Ast_गाँठ* nodep, bool isClean) {
         computeCppWidth(nodep);  // Just to be sure it's in widthMin
-        const bool wholeUint
+        स्थिर bool wholeUint
             = (nodep->widthMin() == VL_IDATASIZE || nodep->widthMin() == VL_QUADSIZE
                || (nodep->widthMin() % VL_EDATASIZE) == 0);
         setCleanState(nodep, ((isClean || wholeUint) ? CS_CLEAN : CS_DIRTY));
     }
 
     // Operate on nodes
-    void insertClean(AstNodeExpr* nodep) {  // We'll insert ABOVE passed node
+    व्योम जोड़ो_Clean(Ast_गाँठ_व्यंजक* nodep) {  // We'll insert ABOVE passed node
         UINFO(4, "  NeedClean " << nodep);
         VNRelinker relinkHandle;
         nodep->unlinkFrBack(&relinkHandle);
         //
         computeCppWidth(nodep);
-        V3Number mask{nodep, cppWidth(nodep)};
+        V3_संख्या mask{nodep, cppWidth(nodep)};
         mask.setMask(nodep->widthMin());
-        AstNode* const cleanp
-            = new AstAnd{nodep->fileline(), new AstConst{nodep->fileline(), mask}, nodep};
+        Ast_गाँठ* स्थिर cleanp
+            = नया AstAnd{nodep->fileline(), नया AstConst{nodep->fileline(), mask}, nodep};
         cleanp->dtypeFrom(nodep);  // Otherwise the AND normally picks LHS
         relinkHandle.relink(cleanp);
     }
-    void ensureClean(AstNodeExpr* nodep) {
+    व्योम ensureClean(Ast_गाँठ_व्यंजक* nodep) {
         computeCppWidth(nodep);
-        if (!isClean(nodep)) insertClean(nodep);
+        अगर (!isClean(nodep)) जोड़ो_Clean(nodep);
     }
-    void ensureCleanAndNext(AstNode* nodep) {
+    व्योम ensure_Clean_And_अग्र(Ast_गाँठ* nodep) {
         // Editing list, careful looping!
-        for (AstNode* argp = nodep; argp;) {
-            AstNode* const nextp = argp->nextp();
-            if (AstNodeExpr* const exprp = VN_CAST(argp, NodeExpr)) ensureClean(exprp);
+        क्रम (Ast_गाँठ* argp = nodep; argp;) {
+            Ast_गाँठ* स्थिर nextp = argp->nextp();
+            अगर (Ast_गाँठ_व्यंजक* स्थिर exprp = VN_CAST(argp, गाँठ_व्यंजक)) ensureClean(exprp);
             argp = nextp;
         }
     }
 
     // Base type handling methods
-    void operandBiop(AstNodeBiop* nodep) {
+    व्योम operandBiop(Ast_गाँठ_Biop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        अगर (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        अगर (nodep->cleanRhs()) ensureClean(nodep->rhsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandTriop(AstNodeTriop* nodep) {
+    व्योम operandTriop(Ast_गाँठ_Triop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
+        अगर (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        अगर (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        अगर (nodep->cleanThs()) ensureClean(nodep->thsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandQuadop(AstNodeQuadop* nodep) {
+    व्योम operandQuadop(Ast_गाँठ_Quadop* nodep) {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
-        if (nodep->cleanFhs()) ensureClean(nodep->fhsp());
+        अगर (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        अगर (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        अगर (nodep->cleanThs()) ensureClean(nodep->thsp());
+        अगर (nodep->cleanFhs()) ensureClean(nodep->fhsp());
         // no setClean.. must do it in each user routine.
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    व्योम visit(Ast_गाँठ_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeUniop* nodep) override {
+    व्योम visit(Ast_गाँठ_Uniop* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        अगर (nodep->cleanLhs()) ensureClean(nodep->lhsp());
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstNodeBiop* nodep) override {
+    व्योम visit(Ast_गाँठ_Biop* nodep) override {
         operandBiop(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstAnd* nodep) override {
+    व्योम visit(AstAnd* nodep) override {
         operandBiop(nodep);
         setClean(nodep, isClean(nodep->lhsp()) || isClean(nodep->rhsp()));
     }
-    void visit(AstXor* nodep) override {
+    व्योम visit(AstXor* nodep) override {
         operandBiop(nodep);
         setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstOr* nodep) override {
+    व्योम visit(AstOr* nodep) override {
         operandBiop(nodep);
         setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstNodeQuadop* nodep) override {
+    व्योम visit(Ast_गाँठ_Quadop* nodep) override {
         operandQuadop(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstExprStmt* nodep) override {
+    व्योम visit(Ast_व्यंजक_Stmt* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
         setClean(nodep, isClean(nodep->resultp()));
     }
-    void visit(AstNodeExpr* nodep) override {
+    व्योम visit(Ast_गाँठ_व्यंजक* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstNodeAssign* nodep) override {
+    व्योम visit(Ast_गाँठ_Assign* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        अगर (nodep->cleanRhs()) ensureClean(nodep->rhsp());
     }
-    void visit(AstScopeName* nodep) override {  //
+    व्योम visit(AstScopeName* nodep) override {  //
         setClean(nodep, true);
     }
-    void visit(AstCNew* nodep) override {
+    व्योम visit(AstCNew* nodep) override {
         iterateChildren(nodep);
         setClean(nodep, true);
     }
     // Constructor values are stored, so must be clean
-    void visit(AstConsAssoc* nodep) override {
+    व्योम visit(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        अगर (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
-    void visit(AstConsDynArray* nodep) override {
+    व्योम visit(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        अगर (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
-    void visit(AstConsWildcard* nodep) override {
+    व्योम visit(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
+        अगर (nodep->defaultp()) ensureClean(nodep->defaultp());
         setClean(nodep, true);
     }
-    void visit(AstNodeConsItem* nodep) override {
+    व्योम visit(Ast_गाँठ_Cons_Item* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->valuep());
     }
-    void visit(AstMatchMasked* nodep) override {
+    व्योम visit(AstMatchMasked* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
         setClean(nodep, true);
     }
-    void visit(AstSel* nodep) override {
+    व्योम visit(AstSel* nodep) override {
         operandBiop(nodep);
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstCExprUser* nodep) override {
+    व्योम visit(AstCExprUser* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
         setClean(nodep, false);
         // We always clean, as we don't trust those pesky users.
-        if (!VN_IS(nodep->backp(), And)) insertClean(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        अगर (!VN_IS(nodep->backp(), And)) जोड़ो_Clean(nodep);
+        ensure_Clean_And_अग्र(nodep->nodesp());
     }
-    void visit(AstTraceDecl* nodep) override {}  // Nothing to do here
-    void visit(AstTraceInc* nodep) override {
+    व्योम visit(AstTraceDecl* nodep) override {}  // Nothing to do here
+    व्योम visit(AstTraceInc* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->valuep());
+        ensure_Clean_And_अग्र(nodep->valuep());
     }
-    void visit(AstTypedef* nodep) override {
+    व्योम visit(AstTypedef* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
-    void visit(AstParamTypeDType* nodep) override {
+    व्योम visit(AstParamTypeDType* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
 
     // Control flow operators
-    void visit(AstCond* nodep) override {
+    व्योम visit(AstCond* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
         setClean(nodep, isClean(nodep->thenp()) && isClean(nodep->elsep()));
     }
-    void visit(AstLoop* nodep) override { iterateChildren(nodep); }
-    void visit(AstLoopTest* nodep) override {
+    व्योम visit(AstLoop* nodep) override { iterateChildren(nodep); }
+    व्योम visit(AstLoopTest* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
     }
-    void visit(AstNodeIf* nodep) override {
+    व्योम visit(Ast_गाँठ_If* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
     }
-    void visit(AstSFormatArg* nodep) override {
+    व्योम visit(AstSFormatArg* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->exprp());
+        ensure_Clean_And_अग्र(nodep->exprp());
         setClean(nodep, true);
     }
-    void visit(AstSFormatF* nodep) override {
+    व्योम visit(AstSFormatF* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->exprsp());
+        ensure_Clean_And_अग्र(nodep->exprsp());
         setClean(nodep, true);  // generates a string, so not relevant
     }
-    void visit(AstCStmt* nodep) override {
+    व्योम visit(AstCStmt* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ensure_Clean_And_अग्र(nodep->nodesp());
     }
-    void visit(AstCStmtUser* nodep) override {
+    व्योम visit(AstCStmtUser* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ensure_Clean_And_अग्र(nodep->nodesp());
     }
-    void visit(AstNodeCCall* nodep) override {
+    व्योम visit(Ast_गाँठ_CCall* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->argsp());
+        ensure_Clean_And_अग्र(nodep->argsp());
         setClean(nodep, true);
     }
-    void visit(AstCMethodHard* nodep) override {
+    व्योम visit(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->pinsp());
+        ensure_Clean_And_अग्र(nodep->pinsp());
         setClean(nodep, nodep->cleanOut());
     }
-    void visit(AstWith* nodep) override {
+    व्योम visit(AstWith* nodep) override {
         iterateChildren(nodep);
         setClean(nodep, true);
     }
-    void visit(AstCReturn* nodep) override {
+    व्योम visit(AstCReturn* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
         setClean(nodep, true);
     }
-    void visit(AstIntfRef* nodep) override {
+    व्योम visit(AstIntfRef* nodep) override {
         iterateChildren(nodep);
         setClean(nodep, true);  // generates a string, so not relevant
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstNode* nodep) override {
+    व्योम visit(Ast_गाँठ* nodep) override {
         iterateChildren(nodep);
         computeCppWidth(nodep);
     }
 
-public:
+खुला:
     // CONSTRUCTORS
     explicit CleanVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~CleanVisitor() override = default;
+    ~CleanVisitor() override = शेष;
 };
 
 //######################################################################
 // Clean class functions
 
-void V3Clean::cleanAll(AstNetlist* nodep) {
+व्योम V3Clean::cleanAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CleanVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clean", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("clean", 0, dump_वृक्ष_Either_Level() >= 3);
 }

@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#घोषणा VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#समावेश "V3Global.h"
+#समावेश "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -28,82 +28,82 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Test class
 
-class V3GraphTest VL_NOT_FINAL {
-protected:
+श्रेणी V3GraphTest VL_NOT_FINAL {
+रक्षित:
     // MEMBERS
     V3Graph m_graph;
 
     // METHODS - for children
-    virtual void runTest() = 0;  // Run the test
-    virtual string name() = 0;  // Name of the test
+    भव व्योम runTest() = 0;  // Run the test
+    भव string name() = 0;  // Name of the test
 
     // Utilities
-    void dumpSelf() {
-        if (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
+    व्योम dumpSelf() {
+        अगर (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
     }
 
-public:
-    V3GraphTest() = default;
-    virtual ~V3GraphTest() = default;
+खुला:
+    V3GraphTest() = शेष;
+    भव ~V3GraphTest() = शेष;
 
-    void run() { runTest(); }
+    व्योम run() { runTest(); }
 };
 
 //######################################################################
 //######################################################################
 // Vertices and nodes
 
-class V3GraphTestVertex VL_NOT_FINAL : public V3GraphVertex {
+श्रेणी V3GraphTestVertex VL_NOT_FINAL : खुला V3GraphVertex {
     VL_RTTI_IMPL(V3GraphTestVertex, V3GraphVertex)
-    const string m_name;
+    स्थिर string m_name;
 
-public:
-    V3GraphTestVertex(V3Graph* graphp, const string& name)
+खुला:
+    V3GraphTestVertex(V3Graph* graphp, स्थिर string& name)
         : V3GraphVertex{graphp}
         , m_name{name} {}
-    ~V3GraphTestVertex() override = default;
+    ~V3GraphTestVertex() override = शेष;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
 };
 
-class V3GraphTestVarVertex final : public V3GraphTestVertex {
-public:
-    V3GraphTestVarVertex(V3Graph* graphp, const string& name)
+श्रेणी V3GraphTestVarVertex final : खुला V3GraphTestVertex {
+खुला:
+    V3GraphTestVarVertex(V3Graph* graphp, स्थिर string& name)
         : V3GraphTestVertex{graphp, name} {}
-    ~V3GraphTestVarVertex() override = default;
+    ~V3GraphTestVarVertex() override = शेष;
     // ACCESSORS
-    string dotColor() const override { return "blue"; }
+    string dotColor() स्थिर override { वापस "blue"; }
 };
 
 //######################################################################
 //######################################################################
 // Test vertices and nodes
 
-class V3GraphTestStrong final : public V3GraphTest {
-public:
-    string name() override { return "strong"; }
-    void runTest() override {
+श्रेणी V3GraphTestStrong final : खुला V3GraphTest {
+खुला:
+    string name() override { वापस "strong"; }
+    व्योम runTest() override {
         V3Graph* gp = &m_graph;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        V3GraphTestVertex* q = new V3GraphTestVarVertex{gp, "q"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g3, g2, 2, true};
-        new V3GraphEdge{gp, g2, g3, 2, true};
-        new V3GraphEdge{gp, g1, q, 2, true};
-        new V3GraphEdge{gp, g2, q, 2, true};
-        new V3GraphEdge{gp, g3, q, 2, true};
+        V3GraphTestVertex* i = नया V3GraphTestVarVertex{gp, "*INPUTS*"};
+        V3GraphTestVertex* a = नया V3GraphTestVarVertex{gp, "a"};
+        V3GraphTestVertex* b = नया V3GraphTestVarVertex{gp, "b"};
+        V3GraphTestVertex* g1 = नया V3GraphTestVarVertex{gp, "g1"};
+        V3GraphTestVertex* g2 = नया V3GraphTestVarVertex{gp, "g2"};
+        V3GraphTestVertex* g3 = नया V3GraphTestVarVertex{gp, "g3"};
+        V3GraphTestVertex* q = नया V3GraphTestVarVertex{gp, "q"};
+        नया V3GraphEdge{gp, i, a, 2, true};
+        नया V3GraphEdge{gp, a, b, 2, true};
+        नया V3GraphEdge{gp, b, g1, 2, true};
+        नया V3GraphEdge{gp, b, g2, 2, true};
+        नया V3GraphEdge{gp, b, g3, 2, true};
+        नया V3GraphEdge{gp, g1, a, 2, true};
+        नया V3GraphEdge{gp, g3, g2, 2, true};
+        नया V3GraphEdge{gp, g2, g3, 2, true};
+        नया V3GraphEdge{gp, g1, q, 2, true};
+        नया V3GraphEdge{gp, g2, q, 2, true};
+        नया V3GraphEdge{gp, g3, q, 2, true};
 
         gp->stronglyConnected(&V3GraphEdge::followAlwaysTrue);
         dumpSelf();
@@ -117,27 +117,27 @@ public:
     }
 };
 
-class V3GraphTestAcyc final : public V3GraphTest {
-public:
-    string name() override { return "acyc"; }
-    void runTest() override {
+श्रेणी V3GraphTestAcyc final : खुला V3GraphTest {
+खुला:
+    string name() override { वापस "acyc"; }
+    व्योम runTest() override {
         V3Graph* gp = &m_graph;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g2, a, 2, true};
-        new V3GraphEdge{gp, g3, a, 2, true};
+        V3GraphTestVertex* i = नया V3GraphTestVarVertex{gp, "*INPUTS*"};
+        V3GraphTestVertex* a = नया V3GraphTestVarVertex{gp, "a"};
+        V3GraphTestVertex* b = नया V3GraphTestVarVertex{gp, "b"};
+        V3GraphTestVertex* g1 = नया V3GraphTestVarVertex{gp, "g1"};
+        V3GraphTestVertex* g2 = नया V3GraphTestVarVertex{gp, "g2"};
+        V3GraphTestVertex* g3 = नया V3GraphTestVarVertex{gp, "g3"};
+        नया V3GraphEdge{gp, i, a, 2, true};
+        नया V3GraphEdge{gp, a, b, 2, true};
+        नया V3GraphEdge{gp, b, g1, 2, true};
+        नया V3GraphEdge{gp, b, g2, 2, true};
+        नया V3GraphEdge{gp, b, g3, 2, true};
+        नया V3GraphEdge{gp, g1, a, 2, true};
+        नया V3GraphEdge{gp, g2, a, 2, true};
+        नया V3GraphEdge{gp, g3, a, 2, true};
 
         gp->acyclic(&V3GraphEdge::followAlwaysTrue);
         gp->order();
@@ -145,26 +145,26 @@ public:
     }
 };
 
-class V3GraphTestVars final : public V3GraphTest {
-public:
-    string name() override { return "vars"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+श्रेणी V3GraphTestVars final : खुला V3GraphTest {
+खुला:
+    string name() override { वापस "vars"; }
+    व्योम runTest() override {
+        V3Graph* स्थिर gp = &m_graph;
 
-        V3GraphTestVertex* const clk = new V3GraphTestVarVertex{gp, "$clk"};
+        V3GraphTestVertex* स्थिर clk = नया V3GraphTestVarVertex{gp, "$clk"};
 
-        V3GraphTestVertex* const a = new V3GraphTestVarVertex{gp, "$a"};
-        V3GraphTestVertex* const a_dly = new V3GraphTestVarVertex{gp, "$a_dly"};
-        V3GraphTestVertex* const a_dlyblk = new V3GraphTestVarVertex{gp, "$a_dlyblk"};
-        V3GraphTestVertex* const b = new V3GraphTestVarVertex{gp, "$b"};
-        V3GraphTestVertex* const b_dly = new V3GraphTestVarVertex{gp, "$b_dly"};
-        V3GraphTestVertex* const b_dlyblk = new V3GraphTestVarVertex{gp, "$b_dlyblk"};
-        V3GraphTestVertex* const c = new V3GraphTestVarVertex{gp, "$c"};
-        V3GraphTestVertex* const i = new V3GraphTestVarVertex{gp, "$i"};
+        V3GraphTestVertex* स्थिर a = नया V3GraphTestVarVertex{gp, "$a"};
+        V3GraphTestVertex* स्थिर a_dly = नया V3GraphTestVarVertex{gp, "$a_dly"};
+        V3GraphTestVertex* स्थिर a_dlyblk = नया V3GraphTestVarVertex{gp, "$a_dlyblk"};
+        V3GraphTestVertex* स्थिर b = नया V3GraphTestVarVertex{gp, "$b"};
+        V3GraphTestVertex* स्थिर b_dly = नया V3GraphTestVarVertex{gp, "$b_dly"};
+        V3GraphTestVertex* स्थिर b_dlyblk = नया V3GraphTestVarVertex{gp, "$b_dlyblk"};
+        V3GraphTestVertex* स्थिर c = नया V3GraphTestVarVertex{gp, "$c"};
+        V3GraphTestVertex* स्थिर i = नया V3GraphTestVarVertex{gp, "$i"};
 
-        V3GraphTestVertex* const ap = new V3GraphTestVarVertex{gp, "$a_pre"};
-        V3GraphTestVertex* const bp = new V3GraphTestVarVertex{gp, "$b_pre"};
-        V3GraphTestVertex* const cp = new V3GraphTestVarVertex{gp, "$c_pre"};
+        V3GraphTestVertex* स्थिर ap = नया V3GraphTestVarVertex{gp, "$a_pre"};
+        V3GraphTestVertex* स्थिर bp = नया V3GraphTestVarVertex{gp, "$b_pre"};
+        V3GraphTestVertex* स्थिर cp = नया V3GraphTestVarVertex{gp, "$c_pre"};
 
         V3GraphTestVertex* n;
 
@@ -179,68 +179,68 @@ public:
         // Desired order between different _DLY blocks so we can elim temporaries
         //   implemented by cutable "pre" signal dependencies
 
-        n = new V3GraphTestVertex{gp, "*INPUTS*"};
+        n = नया V3GraphTestVertex{gp, "*INPUTS*"};
         {
-            new V3GraphEdge{gp, n, clk, 2};
-            new V3GraphEdge{gp, n, i, 2};
+            नया V3GraphEdge{gp, n, clk, 2};
+            नया V3GraphEdge{gp, n, i, 2};
         }
 
-        V3GraphTestVertex* const posedge = n = new V3GraphTestVertex{gp, "*posedge clk*"};
-        { new V3GraphEdge{gp, clk, n, 2}; }
+        V3GraphTestVertex* स्थिर posedge = n = नया V3GraphTestVertex{gp, "*posedge clk*"};
+        { नया V3GraphEdge{gp, clk, n, 2}; }
 
         // AlwaysPre's     VarRefs on LHS:  generate special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume 'pre' (required to save cutable tests)
-        n = new V3GraphTestVertex{gp, "a_dly<PRE=a"};
+        n = नया V3GraphTestVertex{gp, "a_dly<PRE=a"};
         {
-            new V3GraphEdge{gp, n, a_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, a_dly, 2};
-            new V3GraphEdge{gp, ap, n, 2, true};  // DESIRED delayed ordering (inp is required)
-            new V3GraphEdge{gp, posedge, n, 2};
+            नया V3GraphEdge{gp, n, a_dlyblk, 2};  // Block ordering
+            नया V3GraphEdge{gp, n, a_dly, 2};
+            नया V3GraphEdge{gp, ap, n, 2, true};  // DESIRED delayed ordering (inp is required)
+            नया V3GraphEdge{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<PRE=b"};
+        n = नया V3GraphTestVertex{gp, "b_dly<PRE=b"};
         {
-            new V3GraphEdge{gp, n, b_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, bp, n, 2, true};  // DESIRED delayed ordering
-            new V3GraphEdge{gp, posedge, n, 2};
+            नया V3GraphEdge{gp, n, b_dlyblk, 2};  // Block ordering
+            नया V3GraphEdge{gp, n, b_dly, 2};
+            नया V3GraphEdge{gp, bp, n, 2, true};  // DESIRED delayed ordering
+            नया V3GraphEdge{gp, posedge, n, 2};
         }
 
         // AssignDly's     VarRefs on LHS:  consume special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  generate 'pre' signals (cutable)
         //    SenItems:    consume CLOCK dependency
-        n = new V3GraphTestVertex{gp, "a_dly<=b|c"};
+        n = नया V3GraphTestVertex{gp, "a_dly<=b|c"};
         {
-            new V3GraphEdge{gp, a_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, a_dly, 2};
+            नया V3GraphEdge{gp, a_dlyblk, n, 2};  // Block ordering in
+            नया V3GraphEdge{gp, n, a_dly, 2};
             // Note we don't include ap as we're generating a_dly
-            new V3GraphEdge{gp, n, bp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, n, cp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            नया V3GraphEdge{gp, n, bp, 2};  // DESIRED delayed usage
+            नया V3GraphEdge{gp, n, cp, 2};  // DESIRED delayed usage
+            नया V3GraphEdge{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<=a"};
+        n = नया V3GraphTestVertex{gp, "b_dly<=a"};
         {
-            new V3GraphEdge{gp, b_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, n, ap, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            नया V3GraphEdge{gp, b_dlyblk, n, 2};  // Block ordering in
+            नया V3GraphEdge{gp, n, b_dly, 2};
+            नया V3GraphEdge{gp, n, ap, 2};  // DESIRED delayed usage
+            नया V3GraphEdge{gp, posedge, n, 2};
         }
 
         // AlwaysPost's
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume normal
-        n = new V3GraphTestVertex{gp, "a=POST=a_dly"};
+        n = नया V3GraphTestVertex{gp, "a=POST=a_dly"};
         {
-            new V3GraphEdge{gp, n, a, 3};
-            new V3GraphEdge{gp, a_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            नया V3GraphEdge{gp, n, a, 3};
+            नया V3GraphEdge{gp, a_dly, n, 3};
+            नया V3GraphEdge{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b=POST=b_dly"};
+        n = नया V3GraphTestVertex{gp, "b=POST=b_dly"};
         {
-            new V3GraphEdge{gp, n, b, 3};
-            new V3GraphEdge{gp, b_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            नया V3GraphEdge{gp, n, b, 3};
+            नया V3GraphEdge{gp, b_dly, n, 3};
+            नया V3GraphEdge{gp, posedge, n, 2};
         }
 
         // COMBO
@@ -248,18 +248,18 @@ public:
         // Outbound are cutable, as we may need to evaluate multiple times
 
         {
-            n = new V3GraphTestVertex{gp, "c=a|b|i"};
-            new V3GraphEdge{gp, n, c, 1, true};
-            new V3GraphEdge{gp, a, n, 1, false};
-            new V3GraphEdge{gp, b, n, 1, false};
-            new V3GraphEdge{gp, i, n, 1, false};
+            n = नया V3GraphTestVertex{gp, "c=a|b|i"};
+            नया V3GraphEdge{gp, n, c, 1, true};
+            नया V3GraphEdge{gp, a, n, 1, false};
+            नया V3GraphEdge{gp, b, n, 1, false};
+            नया V3GraphEdge{gp, i, n, 1, false};
         }
 
         gp->acyclic(&V3GraphEdge::followAlwaysTrue);
         gp->order();
 
         // Test debug function
-        gp->dumpEdges(std::cout, *ap);
+        gp->dumpEdges(std::अ_बाहर, *ap);
 
         dumpSelf();
     }
@@ -267,18 +267,18 @@ public:
 
 //======================================================================
 
-class V3GraphTestImport final : public V3GraphTest {
+श्रेणी V3GraphTestImport final : खुला V3GraphTest {
 
-#ifdef GRAPH_IMPORT
-    void dotImport();
-#else
-    void dotImport() {}
-#endif
+#अगर_घोषित GRAPH_IMPORT
+    व्योम dotImport();
+#अन्यथा
+    व्योम dotImport() {}
+#पूर्ण_अगर
 
-public:
-    string name() override { return "import"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+खुला:
+    string name() override { वापस "import"; }
+    व्योम runTest() override {
+        V3Graph* स्थिर gp = &m_graph;
         dotImport();
         dumpSelf();
         gp->acyclic(&V3GraphEdge::followAlwaysTrue);
@@ -289,14 +289,14 @@ public:
 };
 
 // clang-format off
-#ifdef GRAPH_IMPORT
+#अगर_घोषित GRAPH_IMPORT
 # include "graph_export.cpp"
-#endif
+#पूर्ण_अगर
 // clang-format on
 
 //======================================================================
 
-void V3Graph::selfTest() {
+व्योम V3Graph::selfTest() {
     // Execute all of the tests
     UINFO(2, __FUNCTION__ << ":");
     { V3GraphTestStrong{}.run(); }

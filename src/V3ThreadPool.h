@@ -14,43 +14,43 @@
 //
 //*************************************************************************
 
-#ifndef _V3THREADPOOL_H_
-#define _V3THREADPOOL_H_ 1
+#अगर_अघोषित _V3THREADPOOL_H_
+#घोषणा _V3THREADPOOL_H_ 1
 
-#ifdef VL_MT_DISABLED_CODE_UNIT
-#error "Source file has been declared as MT_DISABLED, threads use is prohibited."
-#endif
+#अगर_घोषित VL_MT_DISABLED_CODE_UNIT
+#त्रुटि "Source file has been declared as MT_DISABLED, threads use is prohibited."
+#पूर्ण_अगर
 
-#include "V3Mutex.h"
+#समावेश "V3Mutex.h"
 
-#include <atomic>
-#include <condition_variable>
-#include <functional>
-#include <queue>
-#include <thread>
+#समावेश <atomic>
+#समावेश <condition_variable>
+#समावेश <functional>
+#समावेश <queue>
+#समावेश <thread>
 
 //============================================================================
 
 class V3ThreadPool final {
     // MEMBERS
     std::vector<std::thread> m_workers;  // Worker threads
-    std::queue<std::function<void()>> m_queue VL_GUARDED_BY(m_mutex);  // Job queue
+    std::queue<std::function<व्योम()>> m_queue VL_GUARDED_BY(m_mutex);  // Job queue
     std::condition_variable_any m_cv;  // Conditions to wake up workers
     std::atomic<bool> m_shutdown{false};  // Termination pending
-    std::atomic<size_t> m_pendingJobs{0};  // Number of started and not yet finished jobs
+    std::atomic<माप_प्रकार> m_pendingJobs{0};  // Number of started and not yet finished jobs
     V3Mutex m_mutex;  // Mutex for use by m_queue
 
-public:
+खुला:
     // CONSTRUCTORS
-    explicit V3ThreadPool(int numThreads);
+    explicit V3ThreadPool(पूर्णांक अंक_Threads);
     ~V3ThreadPool() VL_EXCLUDES(m_mutex);
     VL_UNCOPYABLE(V3ThreadPool);
     VL_UNMOVABLE(V3ThreadPool);
 
-    static void selfTest();
-    static void selfTestMtDisabled() VL_MT_DISABLED;
+    अटल व्योम selfTest();
+    अटल व्योम selfTestMtDisabled() VL_MT_DISABLED;
 
-private:
+निजी:
     // METHODS
     // Enqueue a job for asynchronous execution
     // Due to missing support for lambda annotations in c++11,
@@ -59,20 +59,20 @@ private:
     // will call it. `VL_MT_START` here indicates that
     // every function call inside this `std::function` requires
     // annotations.
-    void enqueue(std::function<void()>&& f) VL_MT_START VL_EXCLUDES(m_mutex);
+    व्योम enqueue(std::function<व्योम()>&& f) VL_MT_START VL_EXCLUDES(m_mutex);
 
     // Wait for all enqueued jobs to finish
-    void wait() VL_MT_SAFE;
+    व्योम रुको() VL_MT_SAFE;
 
     // Job execution loop
     // Each worker wait for available job and executes it when it is available.
-    void workerJobLoop() VL_MT_SAFE VL_EXCLUDES(m_mutex);
+    व्योम workerJobLoop() VL_MT_SAFE VL_EXCLUDES(m_mutex);
 
     // Start worker thread
-    static void startWorker(V3ThreadPool* selfThreadp) VL_MT_SAFE VL_EXCLUDES(m_mutex);
+    अटल व्योम startWorker(V3ThreadPool* selfThreadp) VL_MT_SAFE VL_EXCLUDES(m_mutex);
 
     // For access to enqueue() and wait()
-    friend class V3ThreadScope;
+    मित्र class V3ThreadScope;
 };
 
 // The actual interface for submitting jobs and ensuring their completion.
@@ -81,18 +81,18 @@ class V3ThreadScope final {
     // MEMBERS
     V3ThreadPool* m_pool = nullptr;  // Global thread pool instance
 
-public:
+खुला:
     // CONSTRUCTORS
     V3ThreadScope() VL_MT_SAFE VL_ACQUIRE(VlOs::MtScopeMutex::s_haveThreadScope);
-    ~V3ThreadScope() VL_MT_SAFE VL_RELEASE(VlOs::MtScopeMutex::s_haveThreadScope) { wait(); }
+    ~V3ThreadScope() VL_MT_SAFE VL_RELEASE(VlOs::MtScopeMutex::s_haveThreadScope) { रुको(); }
     VL_UNCOPYABLE(V3ThreadScope);
     VL_UNMOVABLE(V3ThreadScope);
 
     // METHODS
     // Submit job to the thread pool instance
-    void enqueue(std::function<void()>&& f) VL_MT_START;
+    व्योम enqueue(std::function<व्योम()>&& f) VL_MT_START;
     // Wait for thread pool's jobs completion
-    void wait() VL_MT_SAFE VL_REQUIRES(VlOs::MtScopeMutex::s_haveThreadScope);
+    व्योम रुको() VL_MT_SAFE VL_REQUIRES(VlOs::MtScopeMutex::s_haveThreadScope);
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

@@ -14,49 +14,49 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTHREMOVE_H_
-#define VERILATOR_V3WIDTHREMOVE_H_
+#अगर_अघोषित VERILATOR_V3WIDTHREMOVE_H_
+#घोषणा VERILATOR_V3WIDTHREMOVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#समावेश "V3Ast.h"
+#समावेश "V3Error.h"
 
 // clang-format off
-#ifndef VERILATOR_V3WIDTH_CPP_
+#अगर_अघोषित VERILATOR_V3WIDTH_CPP_
 # error "V3WidthRemove for V3Width internal use only"
-#endif
+#पूर्ण_अगर
 // clang-format on
 
 //######################################################################
 
-class WidthRemoveVisitor final : public VNVisitor {
+class WidthRemoveVisitor final : खुला VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    व्योम replaceWithSignedVersion(Ast_गाँठ* nodep, Ast_गाँठ* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
 
     // VISITORS
-    void visit(AstSigned* nodep) override {
+    व्योम visit(AstSigned* nodep) override {
         VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
     }
-    void visit(AstUnsigned* nodep) override {
+    व्योम visit(AstUnsigned* nodep) override {
         VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    व्योम visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+खुला:
     // CONSTRUCTORS
-    WidthRemoveVisitor() = default;
-    ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    WidthRemoveVisitor() = शेष;
+    ~WidthRemoveVisitor() override = शेष;
+    Ast_गाँठ* mainAcceptEdit(Ast_गाँठ* nodep) { वापस iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

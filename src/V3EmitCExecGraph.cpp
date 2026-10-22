@@ -21,104 +21,104 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#समावेश "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCFunc.h"
-#include "V3ExecGraph.h"
+#समावेश "V3EmitC.h"
+#समावेश "V3EmitCFunc.h"
+#समावेश "V3ExecGraph.h"
 
-#include <unordered_map>
-#include <vector>
+#समावेश <unordered_map>
+#समावेश <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Exec graph emitter
 
-class EmitCExecGraph final : public EmitCFunc {
+श्रेणी EmitCExecGraph final : खुला EmitCFunc {
     // METHODS
-    void emitGraph(AstExecGraph* nodep) {
-        const std::string name = EmitCUtil::execGraphName(nodep);
-        const AstUnpackArrayDType* const trigDtypep
+    व्योम emitGraph(AstExecGraph* nodep) {
+        स्थिर std::string name = EmitCUtil::execGraphName(nodep);
+        स्थिर AstUnpackArrayDType* स्थिर trigDtypep
             = VN_AS(nodep->triggerp()->varp()->dtypep()->skipRefp(), UnpackArrayDType);
 
         // MTask of each function, and the index of each function in the topological order
-        std::unordered_map<const AstCFunc*, const ExecMTask*> mtaskps;
-        for (const V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
-            const ExecMTask* const mtaskp = vtx.as<ExecMTask>();
+        std::unordered_map<स्थिर AstCFunc*, स्थिर ExecMTask*> mtaskps;
+        क्रम (स्थिर V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
+            स्थिर ExecMTask* स्थिर mtaskp = vtx.as<ExecMTask>();
             mtaskps.emplace(mtaskp->funcp(), mtaskp);
         }
-        std::unordered_map<const AstCFunc*, uint32_t> indices;
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        std::unordered_map<स्थिर AstCFunc*, uint32_t> indices;
+        क्रम (स्थिर AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
-            indices.emplace(callp->funcp(), indices.size());
+            indices.emplace(callp->funcp(), indices.आकार());
         }
 
         // Declare the MTask functions and their trigger masks, and the dispatch function
-        puts("\n");
+        माला_दो("\n");
         m_lazyDecls.emit(nodep);
-        emitCFuncDecl(nodep->runfuncp(), EmitCParentModule::get(nodep->runfuncp()));
+        emitCFuncDecl(nodep->runfuncp(), EmitCParentModule::लो(nodep->runfuncp()));
 
         // The MTasks
-        puts("\n");
+        माला_दो("\n");
         putns(nodep, "static VL_CONSTINIT_CXX20 const VlExecGraph::Vertex " + name
                          + "__vertices[] = {\n");
         AstVarRef* maskp = nodep->maskps();
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        क्रम (स्थिर AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
             UASSERT_OBJ(maskp, callp, "MTask call without trigger mask");
             putns(callp, "{&" + funcNameProtect(callp->funcp()) + ", ");
-            puts(std::to_string(mtaskps.at(callp->funcp())->cost()) + ", ");
+            माला_दो(std::to_string(mtaskps.at(callp->funcp())->cost()) + ", ");
             iterateConst(maskp);
-            puts(".data()},\n");
+            माला_दो(".data()},\n");
             maskp = VN_AS(maskp->nextp(), VarRef);
         }
-        puts("};\n");
+        माला_दो("};\n");
 
         // The dependencies between MTasks
         uint32_t nEdges = 0;
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        क्रम (स्थिर AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
-            for (const V3GraphEdge& edge : mtaskps.at(callp->funcp())->outEdges()) {
-                if (!nEdges) {
-                    puts("\nstatic VL_CONSTINIT_CXX20 const VlExecGraph::Edge " + name
+            क्रम (स्थिर V3GraphEdge& edge : mtaskps.at(callp->funcp())->outEdges()) {
+                अगर (!nEdges) {
+                    माला_दो("\nstatic VL_CONSTINIT_CXX20 const VlExecGraph::Edge " + name
                          + "__edges[] = {\n");
                 }
-                puts("{" + std::to_string(indices.at(callp->funcp())) + ", "
-                     + std::to_string(indices.at(edge.top()->as<ExecMTask>()->funcp())) + "},\n");
+                माला_दो("{" + std::to_string(indices.at(callp->funcp())) + ", "
+                     + std::to_string(indices.at(edge.शीर्ष()->as<ExecMTask>()->funcp())) + "},\n");
                 ++nEdges;
             }
         }
-        if (nEdges) puts("};\n");
+        अगर (nEdges) माला_दो("};\n");
 
         // The graph
-        const std::string edgesName = nEdges ? name + "__edges" : "nullptr";
+        स्थिर std::string edgesName = nEdges ? name + "__edges" : "nullptr";
         putns(nodep, "\nVL_CONSTINIT_CXX20 VlExecGraph " + name + "{\n");
-        puts(name + "__vertices, " + std::to_string(indices.size()) + ",\n");
-        puts(edgesName + ", " + std::to_string(nEdges) + ",\n");
-        puts(std::to_string(trigDtypep->elementsConst()) + ",\n");
+        माला_दो(name + "__vertices, " + std::to_string(indices.आकार()) + ",\n");
+        माला_दो(edgesName + ", " + std::to_string(nEdges) + ",\n");
+        माला_दो(std::to_string(trigDtypep->elementsConst()) + ",\n");
         iterateConst(nodep->triggerCostsp());
-        puts(".data(),\n");
-        puts("&" + funcNameProtect(nodep->runfuncp()) + ",\n");
+        माला_दो(".data(),\n");
+        माला_दो("&" + funcNameProtect(nodep->runfuncp()) + ",\n");
         // Profiling measures the parallel execution, so never run serially
-        const bool profiling = v3Global.opt.profExec() || v3Global.opt.profPgo();
-        puts(profiling ? "0" : "VL_THREADS_SERIAL_COST");
-        puts("\n};\n");
+        स्थिर bool profiling = v3Global.opt.profExec() || v3Global.opt.profPgo();
+        माला_दो(profiling ? "0" : "VL_THREADS_SERIAL_COST");
+        माला_दो("\n};\n");
     }
 
-public:
+खुला:
     explicit EmitCExecGraph(AstNetlist* netlistp) {
         std::vector<AstExecGraph*> execGraphps;
-        netlistp->topModulep()->foreach(
-            [&](AstExecGraph* nodep) { execGraphps.push_back(nodep); });
-        if (execGraphps.empty()) return;
+        netlistp->शीर्ष_Modulep()->foreach(
+            [&](AstExecGraph* nodep) { execGraphps.धकेलो_back(nodep); });
+        अगर (execGraphps.empty()) वापस;
 
-        openNewOutputSourceFile(EmitCUtil::topClassName() + "__ExecGraph", true, false,
+        openNewOutputSourceFile(EmitCUtil::शीर्ष_Class_Name() + "__ExecGraph", true, false,
                                 "Exec graphs");
-        puts("\n");
-        puts("#include \"verilated.h\"\n");
-        puts("#include \"verilated_threads.h\"\n");
-        for (AstExecGraph* const nodep : execGraphps) emitGraph(nodep);
+        माला_दो("\n");
+        माला_दो("#include \"verilated.h\"\n");
+        माला_दो("#include \"verilated_threads.h\"\n");
+        क्रम (AstExecGraph* स्थिर nodep : execGraphps) emitGraph(nodep);
         closeOutputFile();
     }
 };
@@ -126,7 +126,7 @@ public:
 //######################################################################
 // EmitC static functions
 
-void V3EmitC::emitcExecGraph() {
+व्योम V3EmitC::emitcExecGraph() {
     UINFO(2, __FUNCTION__ << ":");
     EmitCExecGraph{v3Global.rootp()};
 }

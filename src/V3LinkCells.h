@@ -14,11 +14,11 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKCELLS_H_
-#define VERILATOR_V3LINKCELLS_H_
+#अगर_अघोषित VERILATOR_V3LINKCELLS_H_
+#घोषणा VERILATOR_V3LINKCELLS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
 class AstNetlist;
 class VInFilter;
@@ -27,8 +27,8 @@ class V3ParseSym;
 //============================================================================
 
 class V3LinkCells final {
-public:
-    static void link(AstNetlist* nodep, VInFilter* filterp) VL_MT_DISABLED;
+खुला:
+    अटल व्योम link(AstNetlist* nodep, VInFilter* filterp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

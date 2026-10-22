@@ -15,105 +15,105 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTUSERALLOCATOR_H_
-#define VERILATOR_V3ASTUSERALLOCATOR_H_
+#अगर_अघोषित VERILATOR_V3ASTUSERALLOCATOR_H_
+#घोषणा VERILATOR_V3ASTUSERALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Ast.h"
+#समावेश "V3Ast.h"
 
-#include <type_traits>
-#include <utility>
-#include <vector>
+#समावेश <type_traits>
+#समावेश <utility>
+#समावेश <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
+ढाँचा <typename T_गाँठ, typename T_तथ्य, पूर्णांक N_UserN>
 class AstUserAllocatorBase VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
-    static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
+    static_assert(std::is_base_of<Ast_गाँठ, T_गाँठ>::मूल्य, "T_Node must be an AstNode type");
 
-private:
-    std::deque<T_Data> m_allocated;
+निजी:
+    std::deque<T_तथ्य> m_allocated;
 
-    T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
-            const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+    T_तथ्य* getUserp(स्थिर T_गाँठ* nodep) स्थिर {
+        अगर VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            स्थिर VNUser user = nodep->user1u();
+            वापस user.to<T_तथ्य*>();
+        } अन्यथा अगर VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            स्थिर VNUser user = nodep->user2u();
+            वापस user.to<T_तथ्य*>();
+        } अन्यथा अगर VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            स्थिर VNUser user = nodep->user3u();
+            वापस user.to<T_तथ्य*>();
+        } अन्यथा {
+            स्थिर VNUser user = nodep->user4u();
+            वापस user.to<T_तथ्य*>();
         }
     }
 
-    void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+    व्योम setUserp(T_गाँठ* nodep, T_तथ्य* userp) स्थिर {
+        अगर VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } अन्यथा अगर VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } अन्यथा अगर VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } अन्यथा {
             nodep->user4u(VNUser{userp});
         }
     }
 
-protected:
+रक्षित:
     AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+        अगर VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } अन्यथा अगर VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } अन्यथा अगर VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             VNUser3InUse::check();
-        } else {
+        } अन्यथा {
             VNUser4InUse::check();
         }
     }
 
     VL_UNCOPYABLE(AstUserAllocatorBase);
 
-public:
+खुला:
     // Get a reference to the user data. If does not exist, construct it with given arguments.
-    template <typename... Args>
-    T_Data& operator()(T_Node* nodep, Args&&... args) {
-        T_Data* userp = getUserp(nodep);
-        if (!userp) {
+    ढाँचा <typename... Args>
+    T_तथ्य& चालक()(T_गाँठ* nodep, Args&&... args) {
+        T_तथ्य* userp = getUserp(nodep);
+        अगर (!userp) {
             m_allocated.emplace_back(std::forward<Args>(args)...);
             userp = &m_allocated.back();
             setUserp(nodep, userp);
         }
-        return *userp;
+        वापस *userp;
     }
 
     // Get a reference to the user data
-    T_Data& operator()(const T_Node* nodep) const {
-        T_Data* const userp = getUserp(nodep);
+    T_तथ्य& चालक()(स्थिर T_गाँठ* nodep) स्थिर {
+        T_तथ्य* स्थिर userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        वापस *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_तथ्य* tryGet(स्थिर T_गाँठ* nodep) स्थिर { वापस getUserp(nodep); }
 
-    void clear() { m_allocated.clear(); }
+    व्योम clear() { m_allocated.clear(); }
 };
 
 // User pointer allocator classes. T_Node is the type of node the allocator should be applied to
 // and is there for a bit of extra type safety. T_Data is the type of the data structure
 // managed by the allocator.
-template <typename T_Node, typename T_Data>
-class AstUser1Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 1> {};
-template <typename T_Node, typename T_Data>
-class AstUser2Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 2> {};
-template <typename T_Node, typename T_Data>
-class AstUser3Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 3> {};
-template <typename T_Node, typename T_Data>
-class AstUser4Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 4> {};
+ढाँचा <typename T_गाँठ, typename T_तथ्य>
+class AstUser1Allocator final : खुला AstUserAllocatorBase<T_गाँठ, T_तथ्य, 1> {};
+ढाँचा <typename T_गाँठ, typename T_तथ्य>
+class AstUser2Allocator final : खुला AstUserAllocatorBase<T_गाँठ, T_तथ्य, 2> {};
+ढाँचा <typename T_गाँठ, typename T_तथ्य>
+class AstUser3Allocator final : खुला AstUserAllocatorBase<T_गाँठ, T_तथ्य, 3> {};
+ढाँचा <typename T_गाँठ, typename T_तथ्य>
+class AstUser4Allocator final : खुला AstUserAllocatorBase<T_गाँठ, T_तथ्य, 4> {};
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

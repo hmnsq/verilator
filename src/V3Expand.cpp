@@ -25,15 +25,15 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#समावेश "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Expand.h"
+#समावेश "V3Expand.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#समावेश "V3Const.h"
+#समावेश "V3Stats.h"
 
-#include <algorithm>
-#include <array>
+#समावेश <algorithm>
+#समावेश <array>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -42,7 +42,7 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // unique transformation ExpandVisitor applies. Keep sorted.
 
 // clang-format off
-#define FOR_EACH_EXPAND_PATTERN(macro) \
+#घोषणा FOR_EACH_EXPAND_PATTERN(macro) \
     macro(ASSIGN_AND) \
     macro(ASSIGN_ARRAYSEL) \
     macro(ASSIGN_CONCAT) \
@@ -76,45 +76,45 @@ VL_DEFINE_DEBUG_FUNCTIONS;
     macro(WORDIZE_REDXOR)
 // clang-format on
 
-class VExpandPattern final {
-public:
-    enum en : uint8_t {
-#define EXPAND_PATTERN_ID(id) id,
+श्रेणी VExpandPattern final {
+खुला:
+    क्रमागत en : uint8_t {
+#घोषणा EXPAND_PATTERN_ID(id) id,
         FOR_EACH_EXPAND_PATTERN(EXPAND_PATTERN_ID)
-#undef EXPAND_PATTERN_ID
+#अघोषित EXPAND_PATTERN_ID
             _ENUM_END
     };
-    enum en m_e;
-    const char* ascii() const {
-        static const char* const names[] = {
-#define EXPAND_PATTERN_NAME(id) #id,
+    क्रमागत en m_e;
+    स्थिर अक्षर* ascii() स्थिर {
+        अटल स्थिर अक्षर* स्थिर names[] = {
+#घोषणा EXPAND_PATTERN_NAME(id) #id,
             FOR_EACH_EXPAND_PATTERN(EXPAND_PATTERN_NAME)
-#undef EXPAND_PATTERN_NAME
+#अघोषित EXPAND_PATTERN_NAME
                 "_ENUM_END"  //
         };
-        return names[m_e];
+        वापस names[m_e];
     }
 
     // cppcheck-suppress noExplicitConstructor
     VExpandPattern(en _e)
         : m_e{_e} {}
-    operator en() const { return m_e; }
+    चालक en() स्थिर { वापस m_e; }
 };
 
 //######################################################################
 // Find nodes with side effects, to mark as non-expandable
 
-class ExpandOkVisitor final : public VNVisitorConst {
+श्रेणी ExpandOkVisitor final : खुला VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> bool.  Is pure (along with all children)
-    const VNUser2InUse m_inuser2;
+    स्थिर VNUser2InUse m_inuser2;
 
     // STATE - for current visit position (use VL_RESTORER)
     // Tracks similar to AstNode::isTreePureRecurse(), but avoid O(n^2)
     // False = pure, as nodes that ExpandVisitor inserts preserve pureness
     bool m_isImpure = true;  // Currently pure
 
-    void visit(AstNode* nodep) override {
+    व्योम visit(Ast_गाँठ* nodep) override {
         bool selfImpure = !nodep->isPure();
         {
             VL_RESTORER(m_isImpure);
@@ -126,201 +126,201 @@ class ExpandOkVisitor final : public VNVisitorConst {
         m_isImpure |= selfImpure;
     }
 
-public:
+खुला:
     // CONSTRUCTORS
     explicit ExpandOkVisitor(AstNetlist* nodep) { iterateConst(nodep); }
-    ~ExpandOkVisitor() = default;
+    ~ExpandOkVisitor() = शेष;
 };
 
 //######################################################################
 // Expand state, as a visitor of each AstNode
 
-class ExpandVisitor final : public VNVisitor {
+श्रेणी ExpandVisitor final : खुला VNVisitor {
     // NODE STATE
     //  AstNode::user1()        -> bool.  Processed
     //  AstNode::user2()        -> See ExpandOkVisitor
-    const VNUser1InUse m_inuser1;
+    स्थिर VNUser1InUse m_inuser1;
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNode* m_stmtp = nullptr;  // Current statement
+    Ast_गाँठ* m_stmtp = nullptr;  // Current statement
 
     // STATE - across all visitors
     AstCFunc* m_funcp = nullptr;  // Current function
     VDouble0 m_statImpure;  // Statistic tracking
     VDouble0 m_statWides;  // Statistic tracking
-    VDouble0 m_statWideWords;  // Statistic tracking
+    VDouble0 m_stat_Wide_शब्दगण;  // Statistic tracking
     VDouble0 m_statWideLimited;  // Statistic tracking
     VDouble0 m_statTemps;  // Statistic tracking
     // Number of applications of each expansion pattern for statistics
     std::array<VDouble0, VExpandPattern::_ENUM_END> m_statPatterns;
 
     // STATE - for current function
-    size_t m_nTmps = 0;  // Sequence numbers for temopraries
+    माप_प्रकार m_nTmps = 0;  // Sequence numbers for temopraries
 
     // METHODS
     // Note the application of the given expansion pattern to 'nodep'
-    void didPattern(VExpandPattern pattern, AstNode* nodep) {
+    व्योम didPattern(VExpandPattern pattern, Ast_गाँठ* nodep) {
         UINFO(8, "    " << pattern.ascii() << " " << nodep);
         ++m_statPatterns[pattern];
     }
 
     // Use state that ExpandOkVisitor calculated
-    static bool isImpure(AstNode* nodep) {
-        const bool impure = nodep->user2();
-        if (impure) UINFO(9, "      impure " << nodep);
-        return impure;
+    अटल bool isImpure(Ast_गाँठ* nodep) {
+        स्थिर bool impure = nodep->user2();
+        अगर (impure) UINFO(9, "      impure " << nodep);
+        वापस impure;
     }
 
-    bool doExpandWide(AstNode* nodep) {
-        if (isImpure(nodep)) {
+    bool doExpandWide(Ast_गाँठ* nodep) {
+        अगर (isImpure(nodep)) {
             ++m_statImpure;
-            return false;
+            वापस false;
         }
-        if (nodep->widthWords() <= v3Global.opt.expandLimit()) {
+        अगर (nodep->width_शब्दगण() <= v3Global.opt.expandLimit()) {
             ++m_statWides;
-            m_statWideWords += nodep->widthWords();
-            return true;
-        } else {
+            m_stat_Wide_शब्दगण += nodep->width_शब्दगण();
+            वापस true;
+        } अन्यथा {
             ++m_statWideLimited;
-            return false;
+            वापस false;
         }
     }
 
-    static int longOrQuadWidth(AstNode* nodep) {
-        return (nodep->width() + (VL_EDATASIZE - 1)) & ~(VL_EDATASIZE - 1);
+    अटल पूर्णांक longOrQuadWidth(Ast_गाँठ* nodep) {
+        वापस (nodep->width() + (VL_EDATASIZE - 1)) & ~(VL_EDATASIZE - 1);
     }
-    static V3Number notWideMask(AstNode* nodep) {
-        return V3Number{nodep, VL_EDATASIZE, ~VL_MASK_E(nodep->widthMin())};
+    अटल V3_संख्या notWideMask(Ast_गाँठ* nodep) {
+        वापस V3_संख्या{nodep, VL_EDATASIZE, ~VL_MASK_E(nodep->widthMin())};
     }
-    static V3Number wordMask(AstNode* nodep) {
-        if (nodep->isWide()) {
-            return V3Number{nodep, VL_EDATASIZE, VL_MASK_E(nodep->widthMin())};
-        } else {
-            V3Number mask{nodep, longOrQuadWidth(nodep)};
+    अटल V3_संख्या wordMask(Ast_गाँठ* nodep) {
+        अगर (nodep->isWide()) {
+            वापस V3_संख्या{nodep, VL_EDATASIZE, VL_MASK_E(nodep->widthMin())};
+        } अन्यथा {
+            V3_संख्या mask{nodep, longOrQuadWidth(nodep)};
             mask.setMask(nodep->widthMin());
-            return mask;
+            वापस mask;
         }
     }
 
-    static void insertBefore(AstNode* placep, AstNode* newp) {
+    अटल व्योम जोड़ो_Before(Ast_गाँठ* placep, Ast_गाँठ* newp) {
         newp->user1(1);  // Already processed, don't need to re-iterate
-        placep->addHereThisAsNext(newp);
+        placep->add_Here_This_As_अग्र(newp);
     }
-    static void replaceWithDelete(AstNode* nodep, AstNode* newp) {
+    अटल व्योम replaceWithDelete(Ast_गाँठ* nodep, Ast_गाँठ* newp) {
         newp->user1(1);  // Already processed, don't need to re-iterate
-        if (newp->width() != nodep->width()) {
+        अगर (newp->width() != nodep->width()) {
             UASSERT_OBJ(newp->widthMin() == nodep->widthMin(), nodep,
                         "Replacement width mismatch");
             newp->dtypeChgWidth(nodep->width(), nodep->widthMin());
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_वृक्ष(), nodep);
     }
-    static AstNode* newWordAssign(AstNodeAssign* placep, int word, AstNodeExpr* lhsp,
-                                  AstNodeExpr* rhsp) {
-        FileLine* const fl = placep->fileline();
-        return new AstAssign{fl,
-                             new AstWordSel{fl, lhsp->cloneTreePure(true),
-                                            new AstConst{fl, static_cast<uint32_t>(word)}},
+    अटल Ast_गाँठ* newWordAssign(Ast_गाँठ_Assign* placep, पूर्णांक word, Ast_गाँठ_व्यंजक* lhsp,
+                                  Ast_गाँठ_व्यंजक* rhsp) {
+        File_पंक्ति* स्थिर fl = placep->fileline();
+        वापस नया AstAssign{fl,
+                             नया AstWordSel{fl, lhsp->clone_वृक्ष_Pure(true),
+                                            नया AstConst{fl, static_cast<uint32_t>(word)}},
                              rhsp};
     }
-    static void addWordAssign(AstNodeAssign* placep, int word, AstNodeExpr* lhsp,
-                              AstNodeExpr* rhsp) {
-        insertBefore(placep, newWordAssign(placep, word, lhsp, rhsp));
+    अटल व्योम addWordAssign(Ast_गाँठ_Assign* placep, पूर्णांक word, Ast_गाँठ_व्यंजक* lhsp,
+                              Ast_गाँठ_व्यंजक* rhsp) {
+        जोड़ो_Before(placep, newWordAssign(placep, word, lhsp, rhsp));
     }
-    static void addWordAssign(AstNodeAssign* placep, int word, AstNodeExpr* rhsp) {
+    अटल व्योम addWordAssign(Ast_गाँठ_Assign* placep, पूर्णांक word, Ast_गाँठ_व्यंजक* rhsp) {
         addWordAssign(placep, word, placep->lhsp(), rhsp);
     }
 
-    AstVar* addLocalTmp(AstNode* placep, const char* namep, AstNodeExpr* valuep) {
-        const std::string name = "__V"s + namep + "_"s + std::to_string(m_nTmps);
-        FileLine* const flp = placep->fileline();
-        AstVar* const tmpp = new AstVar{flp, VVarType::STMTTEMP, name, valuep->dtypep()};
+    AstVar* addLocalTmp(Ast_गाँठ* placep, स्थिर अक्षर* namep, Ast_गाँठ_व्यंजक* valuep) {
+        स्थिर std::string name = "__V"s + namep + "_"s + std::to_string(m_nTmps);
+        File_पंक्ति* स्थिर flp = placep->fileline();
+        AstVar* स्थिर tmpp = नया AstVar{flp, VVarType::STMTTEMP, name, valuep->dtypep()};
         tmpp->funcLocal(true);
         tmpp->isInternal(true);
         tmpp->noReset(true);
         tmpp->substConstOnly(true);
         m_funcp->addVarsp(tmpp);
-        insertBefore(placep, new AstAssign{flp, new AstVarRef{flp, tmpp, VAccess::WRITE}, valuep});
+        जोड़ो_Before(placep, नया AstAssign{flp, नया AstVarRef{flp, tmpp, VAccess::WRITE}, valuep});
         ++m_statTemps;
-        return tmpp;
+        वापस tmpp;
     }
 
-    static void fixCloneLvalue(AstNode* nodep) {
+    अटल व्योम fixCloneLvalue(Ast_गाँठ* nodep) {
         // In AstSel transforms, we call clone() on VarRefs that were lvalues,
         // but are now being used on the RHS of the assignment
-        if (VN_IS(nodep, VarRef)) VN_AS(nodep, VarRef)->access(VAccess::READ);
+        अगर (VN_IS(nodep, VarRef)) VN_AS(nodep, VarRef)->access(VAccess::READ);
         // Iterate
-        if (AstNode* const refp = nodep->op1p()) fixCloneLvalue(refp);
-        if (AstNode* const refp = nodep->op2p()) fixCloneLvalue(refp);
-        if (AstNode* const refp = nodep->op3p()) fixCloneLvalue(refp);
-        if (AstNode* const refp = nodep->op4p()) fixCloneLvalue(refp);
+        अगर (Ast_गाँठ* स्थिर refp = nodep->op1p()) fixCloneLvalue(refp);
+        अगर (Ast_गाँठ* स्थिर refp = nodep->op2p()) fixCloneLvalue(refp);
+        अगर (Ast_गाँठ* स्थिर refp = nodep->op3p()) fixCloneLvalue(refp);
+        अगर (Ast_गाँठ* स्थिर refp = nodep->op4p()) fixCloneLvalue(refp);
     }
 
-    static AstNodeExpr* newAstWordSelClone(AstNodeExpr* nodep, int word) {
+    अटल Ast_गाँठ_व्यंजक* newAstWordSelClone(Ast_गाँठ_व्यंजक* nodep, पूर्णांक word) {
         // Get the specified word number from a wide array
         // Or, if it's a long/quad, do appropriate conversion to wide
         // Concat may pass negative word numbers, that means it wants a zero
-        FileLine* const fl = nodep->fileline();
-        if (nodep->isWide() && word >= 0 && word < nodep->widthWords()) {
-            return new AstWordSel{fl, nodep->cloneTreePure(true),
-                                  new AstConst{fl, static_cast<uint32_t>(word)}};
-        } else if (nodep->isQuad() && word == 0) {
-            AstNodeExpr* const quadfromp = nodep->cloneTreePure(true);
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        अगर (nodep->isWide() && word >= 0 && word < nodep->width_शब्दगण()) {
+            वापस नया AstWordSel{fl, nodep->clone_वृक्ष_Pure(true),
+                                  नया AstConst{fl, static_cast<uint32_t>(word)}};
+        } अन्यथा अगर (nodep->isQuad() && word == 0) {
+            Ast_गाँठ_व्यंजक* स्थिर quadfromp = nodep->clone_वृक्ष_Pure(true);
             quadfromp->dtypeSetBitUnsized(VL_QUADSIZE, quadfromp->widthMin(), VSigning::UNSIGNED);
-            return new AstCCast{fl, quadfromp, VL_EDATASIZE};
-        } else if (nodep->isQuad() && word == 1) {
-            AstNodeExpr* const quadfromp = nodep->cloneTreePure(true);
+            वापस नया AstCCast{fl, quadfromp, VL_EDATASIZE};
+        } अन्यथा अगर (nodep->isQuad() && word == 1) {
+            Ast_गाँठ_व्यंजक* स्थिर quadfromp = nodep->clone_वृक्ष_Pure(true);
             quadfromp->dtypeSetBitUnsized(VL_QUADSIZE, quadfromp->widthMin(), VSigning::UNSIGNED);
-            return new AstCCast{
-                fl, new AstShiftR{fl, quadfromp, new AstConst{fl, VL_EDATASIZE}, VL_EDATASIZE},
+            वापस नया AstCCast{
+                fl, नया AstShiftR{fl, quadfromp, नया AstConst{fl, VL_EDATASIZE}, VL_EDATASIZE},
                 VL_EDATASIZE};
-        } else if (!nodep->isWide() && !nodep->isQuad() && word == 0) {
-            return nodep->cloneTreePure(true);
-        } else {  // Out of bounds
-            return new AstConst{fl, 0};
+        } अन्यथा अगर (!nodep->isWide() && !nodep->isQuad() && word == 0) {
+            वापस nodep->clone_वृक्ष_Pure(true);
+        } अन्यथा {  // Out of bounds
+            वापस नया AstConst{fl, 0};
         }
     }
 
-    static AstNodeExpr* newWordGrabShift(FileLine* fl, int word, AstNodeExpr* lhsp, int shift) {
+    अटल Ast_गाँठ_व्यंजक* newWordGrabShift(File_पंक्ति* fl, पूर्णांक word, Ast_गाँठ_व्यंजक* lhsp, पूर्णांक shift) {
         // Extract the expression to grab the value for the specified word, if it's the shift
         // of shift bits from lhsp
         // Negative word numbers requested for lhs when it's "before" what we want.
         // We get a 0 then.
-        const int othword = word - shift / VL_EDATASIZE;
-        AstNodeExpr* const lop = newAstWordSelClone(lhsp, othword);
-        const uint32_t loShift = VL_BITBIT_E(shift);
-        if (!loShift) return lop;
-        AstNodeExpr* const hip = newAstWordSelClone(lhsp, othword - 1);
-        const uint32_t hiShift = VL_EDATASIZE - loShift;  // Complement offset
-        AstNodeExpr* const newp
-            = new AstOr{fl,  //
-                        new AstShiftR{fl, hip, new AstConst{fl, hiShift}, VL_EDATASIZE},
-                        new AstShiftL{fl, lop, new AstConst{fl, loShift}, VL_EDATASIZE}};
-        return V3Const::constifyEditCpp(newp);
+        स्थिर पूर्णांक othword = word - shift / VL_EDATASIZE;
+        Ast_गाँठ_व्यंजक* स्थिर lop = newAstWordSelClone(lhsp, othword);
+        स्थिर uint32_t loShift = VL_BITBIT_E(shift);
+        अगर (!loShift) वापस lop;
+        Ast_गाँठ_व्यंजक* स्थिर hip = newAstWordSelClone(lhsp, othword - 1);
+        स्थिर uint32_t hiShift = VL_EDATASIZE - loShift;  // Complement offset
+        Ast_गाँठ_व्यंजक* स्थिर newp
+            = नया AstOr{fl,  //
+                        नया AstShiftR{fl, hip, नया AstConst{fl, hiShift}, VL_EDATASIZE},
+                        नया AstShiftL{fl, lop, नया AstConst{fl, loShift}, VL_EDATASIZE}};
+        वापस V3Const::constifyEditCpp(newp);
     }
 
     // Return expression indexing the word that contains 'lsbp' + the given word offset
-    static AstNodeExpr* newWordIndex(AstNodeExpr* lsbp, uint32_t wordOffset = 0) {
+    अटल Ast_गाँठ_व्यंजक* new_Word_सूचकांक(Ast_गाँठ_व्यंजक* lsbp, uint32_t wordOffset = 0) {
         // This is indexing a WordSel, so a 32 bit constants are fine
-        FileLine* const flp = lsbp->fileline();
-        if (const AstConst* constp = VN_CAST(lsbp, Const)) {
-            return new AstConst{flp, wordOffset + VL_BITWORD_E(constp->toUInt())};
+        File_पंक्ति* स्थिर flp = lsbp->fileline();
+        अगर (स्थिर AstConst* constp = VN_CAST(lsbp, Const)) {
+            वापस नया AstConst{flp, wordOffset + VL_BITWORD_E(constp->toUInt())};
         }
 
-        if (lsbp->backp()) lsbp = lsbp->cloneTreePure(false);
-        AstNodeExpr* const wwl2p = new AstConst{flp, VL_EDATASIZE_LOG2};  // Word width log 2
-        AstNodeExpr* indexp = new AstShiftR{flp, lsbp, wwl2p, VL_EDATASIZE};
-        if (wordOffset) indexp = new AstAdd{flp, new AstConst{flp, wordOffset}, indexp};
-        return indexp;
+        अगर (lsbp->backp()) lsbp = lsbp->clone_वृक्ष_Pure(false);
+        Ast_गाँठ_व्यंजक* स्थिर wwl2p = नया AstConst{flp, VL_EDATASIZE_LOG2};  // Word width log 2
+        Ast_गाँठ_व्यंजक* indexp = नया AstShiftR{flp, lsbp, wwl2p, VL_EDATASIZE};
+        अगर (wordOffset) indexp = नया AstAdd{flp, नया AstConst{flp, wordOffset}, indexp};
+        वापस indexp;
     }
 
     // Return word of fromp that contains word indexp + the given word offset.
-    static AstNodeExpr* newWordSelWord(FileLine* flp, AstNodeExpr* fromp, AstNodeExpr* indexp,
+    अटल Ast_गाँठ_व्यंजक* newWordSelWord(File_पंक्ति* flp, Ast_गाँठ_व्यंजक* fromp, Ast_गाँठ_व्यंजक* indexp,
                                        uint32_t wordOffset = 0) {
         UASSERT_OBJ(fromp->isWide(), fromp, "Only need AstWordSel on wide from's");
 
-        if (const AstConst* const constp = VN_CAST(indexp, Const)) {
+        अगर (स्थिर AstConst* स्थिर constp = VN_CAST(indexp, Const)) {
             indexp = nullptr;
             wordOffset += constp->toUInt();
         }
@@ -329,214 +329,214 @@ class ExpandVisitor final : public VNVisitor {
         // Squash before C++ to avoid getting a C++ compiler warning
         // (even though code would be unreachable as presumably a
         // AstCond is protecting above this node.
-        if (wordOffset >= static_cast<uint32_t>(fromp->widthWords())) {
-            return new AstConst{flp, AstConst::SizedEData{}, 0};
+        अगर (wordOffset >= static_cast<uint32_t>(fromp->width_शब्दगण())) {
+            वापस नया AstConst{flp, AstConst::SizedEData{}, 0};
         }
 
-        if (fromp->backp()) fromp = fromp->cloneTreePure(false);
+        अगर (fromp->backp()) fromp = fromp->clone_वृक्ष_Pure(false);
 
         // If indexp was constant, just use it
-        if (!indexp) return new AstWordSel{flp, fromp, new AstConst{flp, wordOffset}};
+        अगर (!indexp) वापस नया AstWordSel{flp, fromp, नया AstConst{flp, wordOffset}};
 
         // Otherwise compute at runtime
-        if (indexp->backp()) indexp = indexp->cloneTreePure(false);
-        if (wordOffset) indexp = new AstAdd{flp, new AstConst{flp, wordOffset}, indexp};
-        return new AstWordSel{flp, fromp, indexp};
+        अगर (indexp->backp()) indexp = indexp->clone_वृक्ष_Pure(false);
+        अगर (wordOffset) indexp = नया AstAdd{flp, नया AstConst{flp, wordOffset}, indexp};
+        वापस नया AstWordSel{flp, fromp, indexp};
     }
 
     // Return word of fromp that contains bit lsbp + the given word offset.
-    static AstNodeExpr* newWordSelBit(FileLine* flp, AstNodeExpr* fromp, AstNodeExpr* lsbp,
+    अटल Ast_गाँठ_व्यंजक* newWordSelBit(File_पंक्ति* flp, Ast_गाँठ_व्यंजक* fromp, Ast_गाँठ_व्यंजक* lsbp,
                                       uint32_t wordOffset = 0) {
-        AstNodeExpr* const indexp = newWordIndex(lsbp, wordOffset);
-        AstNodeExpr* const wordSelp = newWordSelWord(flp, fromp, indexp);
-        if (!indexp->backp()) VL_DO_DANGLING(indexp->deleteTree(), indexp);
-        return wordSelp;
+        Ast_गाँठ_व्यंजक* स्थिर indexp = new_Word_सूचकांक(lsbp, wordOffset);
+        Ast_गाँठ_व्यंजक* स्थिर wordSelp = newWordSelWord(flp, fromp, indexp);
+        अगर (!indexp->backp()) VL_DO_DANGLING(indexp->delete_वृक्ष(), indexp);
+        वापस wordSelp;
     }
 
-    static AstNodeExpr* newSelBitBit(AstNodeExpr* lsbp) {
+    अटल Ast_गाँठ_व्यंजक* newSelBitBit(Ast_गाँठ_व्यंजक* lsbp) {
         // Return equation to get the VL_BITBIT of a constant or non-constant
-        FileLine* const fl = lsbp->fileline();
-        if (VN_IS(lsbp, Const)) {
-            return new AstConst{fl, VL_BITBIT_E(VN_AS(lsbp, Const)->toUInt())};
-        } else {
-            return new AstAnd{fl, new AstConst{fl, VL_EDATASIZE - 1}, lsbp->cloneTreePure(true)};
+        File_पंक्ति* स्थिर fl = lsbp->fileline();
+        अगर (VN_IS(lsbp, Const)) {
+            वापस नया AstConst{fl, VL_BITBIT_E(VN_AS(lsbp, Const)->toUInt())};
+        } अन्यथा {
+            वापस नया AstAnd{fl, नया AstConst{fl, VL_EDATASIZE - 1}, lsbp->clone_वृक्ष_Pure(true)};
         }
     }
 
     //====================
 
-    bool expandWide(AstNodeAssign* nodep, AstConst* rhsp) {
-        if (!doExpandWide(nodep)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstConst* rhsp) {
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_CONST, nodep);
         // -> {for each_word{ ASSIGN(WORDSEL(wide,#),WORDSEL(CONST,#))}}
-        if (rhsp->num().isFourState()) {
+        अगर (rhsp->अंक().isFourState()) {
             rhsp->v3warn(E_UNSUPPORTED,  // LCOV_EXCL_LINE  // impossible?
                          "Unsupported: 4-state numbers in this context");
         }
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w,
-                          new AstConst{fl, AstConst::SizedEData{}, rhsp->num().edataWord(w)});
+                          नया AstConst{fl, AstConst::SizedEData{}, rhsp->अंक().edataWord(w)});
         }
-        return true;
+        वापस true;
     }
     //-------- Uniops
-    bool expandWide(AstNodeAssign* nodep, AstVarRef* rhsp) {
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstVarRef* rhsp) {
         // Special case: do not expand assignment of constant pool variables.
         // V3Subst undestands these directly.
-        if (rhsp->varp()->constPoolEntry()) return false;
-        if (!doExpandWide(nodep)) return false;
+        अगर (rhsp->varp()->constPoolEntry()) वापस false;
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_VARREF, nodep);
-        for (int w = 0; w < nodep->widthWords(); ++w) {
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w, newAstWordSelClone(rhsp, w));
         }
-        return true;
+        वापस true;
     }
-    bool expandWide(AstNodeAssign* nodep, AstArraySel* rhsp) {
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstArraySel* rhsp) {
         UASSERT_OBJ(!VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType), nodep,
                     "ArraySel with unpacked arrays should have been removed in V3Slice");
-        if (!doExpandWide(nodep)) return false;
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_ARRAYSEL, nodep);
-        for (int w = 0; w < nodep->widthWords(); ++w) {
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w, newAstWordSelClone(rhsp, w));
         }
-        return true;
+        वापस true;
     }
-    bool expandWide(AstNodeAssign* nodep, AstNot* rhsp) {
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstNot* rhsp) {
         // -> {for each_word{ ASSIGN(WORDSEL(wide,#),NOT(WORDSEL(lhs,#))) }}
-        if (!doExpandWide(nodep)) return false;
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_NOT, nodep);
-        FileLine* const fl = rhsp->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w, new AstNot{fl, newAstWordSelClone(rhsp->lhsp(), w)});
+        File_पंक्ति* स्थिर fl = rhsp->fileline();
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
+            addWordAssign(nodep, w, नया AstNot{fl, newAstWordSelClone(rhsp->lhsp(), w)});
         }
-        return true;
+        वापस true;
     }
     //-------- Biops
-    bool expandWide(AstNodeAssign* nodep, AstAnd* rhsp) {
-        if (!doExpandWide(nodep)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstAnd* rhsp) {
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_AND, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w,
-                          new AstAnd{fl, newAstWordSelClone(rhsp->lhsp(), w),
+                          नया AstAnd{fl, newAstWordSelClone(rhsp->lhsp(), w),
                                      newAstWordSelClone(rhsp->rhsp(), w)});
         }
-        return true;
+        वापस true;
     }
-    bool expandWide(AstNodeAssign* nodep, AstOr* rhsp) {
-        if (!doExpandWide(nodep)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstOr* rhsp) {
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_OR, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w,
-                          new AstOr{fl, newAstWordSelClone(rhsp->lhsp(), w),
+                          नया AstOr{fl, newAstWordSelClone(rhsp->lhsp(), w),
                                     newAstWordSelClone(rhsp->rhsp(), w)});
         }
-        return true;
+        वापस true;
     }
-    bool expandWide(AstNodeAssign* nodep, AstXor* rhsp) {
-        if (!doExpandWide(nodep)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstXor* rhsp) {
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_XOR, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w,
-                          new AstXor{fl, newAstWordSelClone(rhsp->lhsp(), w),
+                          नया AstXor{fl, newAstWordSelClone(rhsp->lhsp(), w),
                                      newAstWordSelClone(rhsp->rhsp(), w)});
         }
-        return true;
+        वापस true;
     }
-    bool expandWideShift(AstNodeAssign* nodep, AstNodeBiop* rhsp, bool isLeftShift) {
-        if (!doExpandWide(nodep)) return false;
+    bool expandWideShift(Ast_गाँठ_Assign* nodep, Ast_गाँठ_Biop* rhsp, bool is_बायाँ_Shift) {
+        अगर (!doExpandWide(nodep)) वापस false;
 
         // Simplify the shift amount, in case it becomes a constant
         V3Const::constifyEditCpp(rhsp->rhsp());
 
         // If it's a constant shift by whole words, expand it so V3Subst can substitute it
-        if (const AstConst* const rhsConstp = VN_CAST(rhsp->rhsp(), Const)) {
-            const uint32_t shiftBits = rhsConstp->toUInt();
-            if (VL_BITBIT_E(shiftBits) == 0) {
-                const int widthWords = nodep->widthWords();
-                const int shiftWords = std::min<int>(VL_BITWORD_E(shiftBits), widthWords);
-                FileLine* const flp = rhsp->fileline();
-                if (isLeftShift) {
+        अगर (स्थिर AstConst* स्थिर rhsConstp = VN_CAST(rhsp->rhsp(), Const)) {
+            स्थिर uint32_t shiftBits = rhsConstp->toUInt();
+            अगर (VL_BITBIT_E(shiftBits) == 0) {
+                स्थिर पूर्णांक width_शब्दगण = nodep->width_शब्दगण();
+                स्थिर पूर्णांक shift_शब्दगण = std::min<पूर्णांक>(VL_BITWORD_E(shiftBits), width_शब्दगण);
+                File_पंक्ति* स्थिर flp = rhsp->fileline();
+                अगर (is_बायाँ_Shift) {
                     didPattern(VExpandPattern::ASSIGN_SHIFTL, nodep);
                     // Low words of the result are zero
-                    for (int w = 0; w < shiftWords; ++w) {
-                        addWordAssign(nodep, w, new AstConst{flp, AstConst::SizedEData{}, 0});
+                    क्रम (पूर्णांक w = 0; w < shift_शब्दगण; ++w) {
+                        addWordAssign(nodep, w, नया AstConst{flp, AstConst::SizedEData{}, 0});
                     }
                     // High words of the result are copied from higher words of the source
-                    for (int w = shiftWords; w < widthWords; ++w) {
-                        addWordAssign(nodep, w, newAstWordSelClone(rhsp->lhsp(), w - shiftWords));
+                    क्रम (पूर्णांक w = shift_शब्दगण; w < width_शब्दगण; ++w) {
+                        addWordAssign(nodep, w, newAstWordSelClone(rhsp->lhsp(), w - shift_शब्दगण));
                     }
-                } else {
+                } अन्यथा {
                     didPattern(VExpandPattern::ASSIGN_SHIFTR, nodep);
                     // Low words of the result are copied from higher words of the source
-                    for (int w = 0; w < widthWords - shiftWords; ++w) {
-                        addWordAssign(nodep, w, newAstWordSelClone(rhsp->lhsp(), w + shiftWords));
+                    क्रम (पूर्णांक w = 0; w < width_शब्दगण - shift_शब्दगण; ++w) {
+                        addWordAssign(nodep, w, newAstWordSelClone(rhsp->lhsp(), w + shift_शब्दगण));
                     }
                     // High words of the result are zero
-                    for (int w = widthWords - shiftWords; w < widthWords; ++w) {
-                        addWordAssign(nodep, w, new AstConst{flp, AstConst::SizedEData{}, 0});
+                    क्रम (पूर्णांक w = width_शब्दगण - shift_शब्दगण; w < width_शब्दगण; ++w) {
+                        addWordAssign(nodep, w, नया AstConst{flp, AstConst::SizedEData{}, 0});
                     }
                 }
-                return true;
+                वापस true;
             }
         }
 
-        return false;
+        वापस false;
     }
 
     //-------- Triops
-    bool expandWide(AstNodeAssign* nodep, AstCond* rhsp) {
-        if (!doExpandWide(nodep)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstCond* rhsp) {
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_COND, nodep);
-        FileLine* const fl = nodep->fileline();
-        for (int w = 0; w < nodep->widthWords(); ++w) {
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w,
-                          new AstCond{fl, rhsp->condp()->cloneTreePure(true),
+                          नया AstCond{fl, rhsp->condp()->clone_वृक्ष_Pure(true),
                                       newAstWordSelClone(rhsp->thenp(), w),
                                       newAstWordSelClone(rhsp->elsep(), w)});
         }
-        return true;
+        वापस true;
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
+    व्योम visit(AstNetlist* nodep) override { iterate_And_अग्र_Null(nodep->modulesp()); }
 
-    void visit(AstCFunc* nodep) override {
+    व्योम visit(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
         VL_RESTORER(m_nTmps);
         m_funcp = nodep;
         m_nTmps = 0;
-        const VDouble0 statWidesBefore = m_statWides;
+        स्थिर VDouble0 statWidesBefore = m_statWides;
         iterateChildren(nodep);
 
         // Constant fold here if anything was expanded, as Ast size can likely be reduced
-        if (v3Global.opt.fConstEager() && m_statWides != statWidesBefore) {
-            AstNode* const editedp = V3Const::constifyEditCpp(nodep);
+        अगर (v3Global.opt.fConstEager() && m_statWides != statWidesBefore) {
+            Ast_गाँठ* स्थिर editedp = V3Const::constifyEditCpp(nodep);
             UASSERT_OBJ(editedp == nodep, editedp, "Should not have replaced CFunc");
         }
     }
 
-    void visit(AstExtend* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(AstExtend* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
-        if (nodep->isWide()) {
+        अगर (nodep->isWide()) {
             // See under ASSIGN(EXTEND)
-        } else {
-            if (isImpure(nodep)) return;
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* newp = lhsp;
-            if (nodep->isQuad()) {
-                if (lhsp->isQuad()) {
+        } अन्यथा {
+            अगर (isImpure(nodep)) वापस;
+            Ast_गाँठ_व्यंजक* स्थिर lhsp = nodep->lhsp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* newp = lhsp;
+            अगर (nodep->isQuad()) {
+                अगर (lhsp->isQuad()) {
                     lhsp->dtypeFrom(nodep);  // Just mark it, else nop
-                } else if (lhsp->isWide()) {
+                } अन्यथा अगर (lhsp->isWide()) {
                     nodep->v3fatalSrc("extending larger thing into smaller?");
-                } else {
-                    newp = new AstCCast{nodep->fileline(), lhsp, nodep};
+                } अन्यथा {
+                    newp = नया AstCCast{nodep->fileline(), lhsp, nodep};
                 }
-            } else {  // Long
+            } अन्यथा {  // Long
                 UASSERT_OBJ(!(lhsp->isQuad() || lhsp->isWide()), nodep,
                             "extending larger thing into smaller?");
                 lhsp->dtypeFrom(nodep);  // Just mark it, else nop
@@ -544,48 +544,48 @@ class ExpandVisitor final : public VNVisitor {
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    bool expandWide(AstNodeAssign* nodep, AstExtend* rhsp) {
-        if (!doExpandWide(nodep)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstExtend* rhsp) {
+        अगर (!doExpandWide(nodep)) वापस false;
         didPattern(VExpandPattern::ASSIGN_EXTEND, nodep);
-        AstNodeExpr* const rlhsp = rhsp->lhsp();
-        for (int w = 0; w < rlhsp->widthWords(); ++w) {
+        Ast_गाँठ_व्यंजक* स्थिर rlhsp = rhsp->lhsp();
+        क्रम (पूर्णांक w = 0; w < rlhsp->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w, newAstWordSelClone(rlhsp, w));
         }
-        for (int w = rlhsp->widthWords(); w < nodep->widthWords(); ++w) {
-            addWordAssign(nodep, w, new AstConst{nodep->fileline(), AstConst::SizedEData{}, 0});
+        क्रम (पूर्णांक w = rlhsp->width_शब्दगण(); w < nodep->width_शब्दगण(); ++w) {
+            addWordAssign(nodep, w, नया AstConst{nodep->fileline(), AstConst::SizedEData{}, 0});
         }
-        return true;
+        वापस true;
     }
 
-    void visit(AstSel* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(AstSel* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
 
-        const uint32_t width = static_cast<uint32_t>(nodep->widthConst());
-        UASSERT_OBJ(nodep->widthMin() == static_cast<int>(width), nodep, "Width mismatch");
+        स्थिर uint32_t width = static_cast<uint32_t>(nodep->widthConst());
+        UASSERT_OBJ(nodep->widthMin() == static_cast<पूर्णांक>(width), nodep, "Width mismatch");
 
         // Skip if Sel is an LHS assignment select
-        if (AstNodeAssign* const assignp = VN_CAST(nodep->backp(), NodeAssign)) {
-            if (nodep == assignp->lhsp()) return;
+        अगर (Ast_गाँठ_Assign* स्थिर assignp = VN_CAST(nodep->backp(), गाँठ_Assign)) {
+            अगर (nodep == assignp->lhsp()) वापस;
         }
 
         // Skip if wide: See under ASSIGN(WIDE)
-        if (nodep->isWide()) return;
+        अगर (nodep->isWide()) वापस;
 
         // Skip Sel from stream or queue
-        if (VN_IS(nodep->fromp()->dtypep(), StreamDType)) return;
-        if (VN_IS(nodep->fromp()->dtypep(), QueueDType)) return;
+        अगर (VN_IS(nodep->fromp()->dtypep(), StreamDType)) वापस;
+        अगर (VN_IS(nodep->fromp()->dtypep(), QueueDType)) वापस;
 
         // Result must be non-wide after skipping all the above
         UASSERT_OBJ(width <= 64, nodep, "Inconsistent result width");
 
-        if (nodep->fromp()->isWide()) {  // Long/Quad from Wide
-            if (isImpure(nodep)) return;
+        अगर (nodep->fromp()->isWide()) {  // Long/Quad from Wide
+            अगर (isImpure(nodep)) वापस;
             didPattern(VExpandPattern::SEL_FROM_WIDE, nodep);
-            FileLine* const nfl = nodep->fileline();
-            FileLine* const lfl = nodep->lsbp()->fileline();
-            FileLine* const ffl = nodep->fromp()->fileline();
-            AstNodeExpr* const fromp = nodep->fromp();
+            File_पंक्ति* स्थिर nfl = nodep->fileline();
+            File_पंक्ति* स्थिर lfl = nodep->lsbp()->fileline();
+            File_पंक्ति* स्थिर ffl = nodep->fromp()->fileline();
+            Ast_गाँठ_व्यंजक* स्थिर fromp = nodep->fromp();
 
             // To extract an up-to-64-bit value from a wide source, up to 3 words might be needed
             // from the source operand. Each word might need to be shifted by a different amount.
@@ -600,339 +600,339 @@ class ExpandVisitor final : public VNVisitor {
             // is bounded linearly with the number of nested Sels (instead of exponentially).
 
             // Return simplified 'exprp' if it simplifies to a small tree, otherwise nullptr
-            const auto tryFold = [&](AstNodeExpr* exprp) -> AstNodeExpr* {
+            स्थिर स्वतः tryFold = [&](Ast_गाँठ_व्यंजक* exprp) -> Ast_गाँठ_व्यंजक* {
                 // Size limit for inlining expressions (any arbitrary value results in
                 // a bounded expansion. Picked a value to allow common simple forms.)
-                static constexpr int EXPAND_SEL_LSB_LIMIT = 8;
+                अटल constexpr पूर्णांक EXPAND_SEL_LSB_LIMIT = 8;
                 // Simplify
                 exprp = V3Const::constifyEditCpp(exprp);
                 // Accept if not larger than the limit
-                if (!exprp->isLargerThan(EXPAND_SEL_LSB_LIMIT)) return exprp;
+                अगर (!exprp->isLargerThan(EXPAND_SEL_LSB_LIMIT)) वापस exprp;
                 // Delete if rejected
-                VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                return nullptr;
+                VL_DO_DANGLING(exprp->delete_वृक्ष(), exprp);
+                वापस nullptr;
             };
 
             // Return the index of the word holding the bit 'offset' bits above the LSB
-            const auto wordIdx = [&](uint32_t offset) -> AstNodeExpr* {
-                AstNodeExpr* const msbp = new AstAdd{lfl, new AstConst{lfl, offset},
-                                                     nodep->lsbp()->cloneTreePure(false)};
-                AstNodeExpr* const idxp = newWordIndex(msbp);
-                if (!msbp->backp()) VL_DO_DANGLING(msbp->deleteTree(), msbp);
-                return idxp;
+            स्थिर स्वतः wordIdx = [&](uint32_t offset) -> Ast_गाँठ_व्यंजक* {
+                Ast_गाँठ_व्यंजक* स्थिर msbp = नया AstAdd{lfl, नया AstConst{lfl, offset},
+                                                     nodep->lsbp()->clone_वृक्ष_Pure(false)};
+                Ast_गाँठ_व्यंजक* स्थिर idxp = new_Word_सूचकांक(msbp);
+                अगर (!msbp->backp()) VL_DO_DANGLING(msbp->delete_वृक्ष(), msbp);
+                वापस idxp;
             };
 
             // Bit index of the selected LSB within its word
-            AstNodeExpr* lBitp = tryFold(newSelBitBit(nodep->lsbp()));
-            const bool aligned = lBitp && lBitp->isZero();
+            Ast_गाँठ_व्यंजक* lBitp = tryFold(newSelBitBit(nodep->lsbp()));
+            स्थिर bool aligned = lBitp && lBitp->isZero();
 
             // Which of the other 2 words the expansion might need
-            const bool mNeeded = width > 1 && !aligned;
-            const bool hNeeded = width > VL_EDATASIZE;
+            स्थिर bool mNeeded = width > 1 && !aligned;
+            स्थिर bool hNeeded = width > VL_EDATASIZE;
             UASSERT_OBJ(!hNeeded || nodep->isQuad(), nodep, "Width mismatch");
 
             // Word indices
-            const uint32_t mMsbOffset = std::min<uint32_t>(width, VL_EDATASIZE) - 1;
-            const uint32_t hMsbOffset = width - 1;
-            AstNodeExpr* lIdxp = tryFold(newWordIndex(nodep->lsbp()));
-            AstNodeExpr* mIdxp = mNeeded ? tryFold(wordIdx(mMsbOffset)) : nullptr;
-            AstNodeExpr* hIdxp = hNeeded ? tryFold(wordIdx(hMsbOffset)) : nullptr;
+            स्थिर uint32_t mMsbOffset = std::min<uint32_t>(width, VL_EDATASIZE) - 1;
+            स्थिर uint32_t hMsbOffset = width - 1;
+            Ast_गाँठ_व्यंजक* lIdxp = tryFold(new_Word_सूचकांक(nodep->lsbp()));
+            Ast_गाँठ_व्यंजक* mIdxp = mNeeded ? tryFold(wordIdx(mMsbOffset)) : nullptr;
+            Ast_गाँठ_व्यंजक* hIdxp = hNeeded ? tryFold(wordIdx(hMsbOffset)) : nullptr;
 
             // If the LSB expression is needed multiple times, evaluate it into a temporary
-            const int nCopies = !lBitp + !lIdxp + (mNeeded && !mIdxp) + (hNeeded && !hIdxp);
-            if (nCopies > 1 && m_funcp && m_stmtp && !isImpure(m_stmtp)) {
+            स्थिर पूर्णांक nCopies = !lBitp + !lIdxp + (mNeeded && !mIdxp) + (hNeeded && !hIdxp);
+            अगर (nCopies > 1 && m_funcp && m_stmtp && !isImpure(m_stmtp)) {
                 ++m_nTmps;  // Use fresh set of temporaries
-                AstNodeExpr* const lsbp = nodep->lsbp()->unlinkFrBack();
-                AstVar* const tmpp = addLocalTmp(m_stmtp, "ExpandSel_Lsb", lsbp);
-                nodep->lsbp(new AstVarRef{lfl, tmpp, VAccess::READ});
+                Ast_गाँठ_व्यंजक* स्थिर lsbp = nodep->lsbp()->unlinkFrBack();
+                AstVar* स्थिर tmpp = addLocalTmp(m_stmtp, "ExpandSel_Lsb", lsbp);
+                nodep->lsbp(नया AstVarRef{lfl, tmpp, VAccess::READ});
             }
 
             // Rebuild remaining expressions derived from LSB if needed, now using the temporary
-            if (!lBitp) lBitp = newSelBitBit(nodep->lsbp());
-            if (!lIdxp) lIdxp = newWordIndex(nodep->lsbp());
-            if (!mIdxp) mIdxp = mNeeded ? wordIdx(mMsbOffset) : nullptr;
-            if (!hIdxp) hIdxp = hNeeded ? wordIdx(hMsbOffset) : nullptr;
+            अगर (!lBitp) lBitp = newSelBitBit(nodep->lsbp());
+            अगर (!lIdxp) lIdxp = new_Word_सूचकांक(nodep->lsbp());
+            अगर (!mIdxp) mIdxp = mNeeded ? wordIdx(mMsbOffset) : nullptr;
+            अगर (!hIdxp) hIdxp = hNeeded ? wordIdx(hMsbOffset) : nullptr;
 
             // Return word 'idxp' of 'fromp', without consuming 'idxp'
-            const auto wordSel = [&](AstNodeExpr* idxp) -> AstNodeExpr* {
-                AstNodeExpr* const clonep = idxp->cloneTreePure(false);
-                AstNodeExpr* const wordp = newWordSelWord(ffl, fromp, clonep);
-                if (!clonep->backp()) VL_DO_DANGLING(clonep->deleteTree(), clonep);
-                return wordp;
+            स्थिर स्वतः wordSel = [&](Ast_गाँठ_व्यंजक* idxp) -> Ast_गाँठ_व्यंजक* {
+                Ast_गाँठ_व्यंजक* स्थिर clonep = idxp->clone_वृक्ष_Pure(false);
+                Ast_गाँठ_व्यंजक* स्थिर wordp = newWordSelWord(ffl, fromp, clonep);
+                अगर (!clonep->backp()) VL_DO_DANGLING(clonep->delete_वृक्ष(), clonep);
+                वापस wordp;
             };
 
             // Construct term containing the bits of the low word - always needed
-            AstNodeExpr* const lTermp = [&]() -> AstNodeExpr* {
-                AstNodeExpr* lWordp = wordSel(lIdxp);
-                if (nodep->isQuad()) lWordp = new AstCCast{nfl, lWordp, nodep};
-                return new AstShiftR{nfl, lWordp, lBitp->cloneTreePure(false), nodep->width()};
+            Ast_गाँठ_व्यंजक* स्थिर lTermp = [&]() -> Ast_गाँठ_व्यंजक* {
+                Ast_गाँठ_व्यंजक* lWordp = wordSel(lIdxp);
+                अगर (nodep->isQuad()) lWordp = नया AstCCast{nfl, lWordp, nodep};
+                वापस नया AstShiftR{nfl, lWordp, lBitp->clone_वृक्ष_Pure(false), nodep->width()};
             }();
 
             // Construct term containing the bits of the middle word - if needed
-            AstNodeExpr* const mTermp = [&]() -> AstNodeExpr* {
-                if (!mNeeded) return nullptr;
+            Ast_गाँठ_व्यंजक* स्थिर mTermp = [&]() -> Ast_गाँठ_व्यंजक* {
+                अगर (!mNeeded) वापस nullptr;
 
-                AstNodeExpr* mWordp = wordSel(mIdxp);
-                if (nodep->isQuad()) mWordp = new AstCCast{nfl, mWordp, nodep};
-                AstNodeExpr* const mShiftp = new AstSub{lfl, new AstConst{lfl, VL_EDATASIZE},
-                                                        lBitp->cloneTreePure(false)};
+                Ast_गाँठ_व्यंजक* mWordp = wordSel(mIdxp);
+                अगर (nodep->isQuad()) mWordp = नया AstCCast{nfl, mWordp, nodep};
+                Ast_गाँठ_व्यंजक* स्थिर mShiftp = नया AstSub{lfl, नया AstConst{lfl, VL_EDATASIZE},
+                                                        lBitp->clone_वृक्ष_Pure(false)};
                 // If we're selecting bit zero, then all 32 bits in the mid word
                 // get shifted << by 32 bits, so ignore them.
-                const V3Number zero{nodep, longOrQuadWidth(nodep)};
-                return new AstCond{
+                स्थिर V3_संख्या zero{nodep, longOrQuadWidth(nodep)};
+                वापस नया AstCond{
                     nfl,
                     // lsb % VL_EDATASIZE == 0 ?
-                    new AstEq{nfl, new AstConst{nfl, 0}, lBitp->cloneTreePure(false)},
+                    नया AstEq{nfl, नया AstConst{nfl, 0}, lBitp->clone_वृक्ष_Pure(false)},
                     // 0 :
-                    new AstConst{nfl, zero},
+                    नया AstConst{nfl, zero},
                     //  midword >> (VL_EDATASIZE - (lbs % VL_EDATASIZE))
-                    new AstShiftL{nfl, mWordp, mShiftp, nodep->width()}};
+                    नया AstShiftL{nfl, mWordp, mShiftp, nodep->width()}};
             }();
 
             // Construct term containing the bits of the high word - if needed
-            AstNodeExpr* const hTermp = [&]() -> AstNodeExpr* {
-                if (!hNeeded) return nullptr;
+            Ast_गाँठ_व्यंजक* स्थिर hTermp = [&]() -> Ast_गाँठ_व्यंजक* {
+                अगर (!hNeeded) वापस nullptr;
 
-                AstNodeExpr* hWordp = wordSel(hIdxp);
-                hWordp = new AstCCast{nfl, hWordp, nodep};
-                AstNodeExpr* const hShiftp = new AstCond{
+                Ast_गाँठ_व्यंजक* hWordp = wordSel(hIdxp);
+                hWordp = नया AstCCast{nfl, hWordp, nodep};
+                Ast_गाँठ_व्यंजक* स्थिर hShiftp = नया AstCond{
                     nfl,
                     // lsb % VL_EDATASIZE == 0 ?
-                    new AstEq{nfl, new AstConst{nfl, 0}, lBitp->cloneTreePure(false)},
+                    नया AstEq{nfl, नया AstConst{nfl, 0}, lBitp->clone_वृक्ष_Pure(false)},
                     // VL_EDATASIZE :
-                    new AstConst{lfl, VL_EDATASIZE},
+                    नया AstConst{lfl, VL_EDATASIZE},
                     // 64 - (lbs % VL_EDATASIZE)
-                    new AstSub{lfl, new AstConst{lfl, 64}, lBitp->cloneTreePure(false)}};
-                return new AstShiftL{nfl, hWordp, hShiftp, nodep->width()};
+                    नया AstSub{lfl, नया AstConst{lfl, 64}, lBitp->clone_वृक्ष_Pure(false)}};
+                वापस नया AstShiftL{nfl, hWordp, hShiftp, nodep->width()};
             }();
 
             // Delete parts not captured during construction
-            VL_DO_DANGLING(lBitp->deleteTree(), lBitp);
-            VL_DO_DANGLING(lIdxp->deleteTree(), lIdxp);
-            if (mIdxp) VL_DO_DANGLING(mIdxp->deleteTree(), mIdxp);
-            if (hIdxp) VL_DO_DANGLING(hIdxp->deleteTree(), hIdxp);
+            VL_DO_DANGLING(lBitp->delete_वृक्ष(), lBitp);
+            VL_DO_DANGLING(lIdxp->delete_वृक्ष(), lIdxp);
+            अगर (mIdxp) VL_DO_DANGLING(mIdxp->delete_वृक्ष(), mIdxp);
+            अगर (hIdxp) VL_DO_DANGLING(hIdxp->delete_वृक्ष(), hIdxp);
 
             // Or reduce the terms
-            AstNodeExpr* newp = lTermp;
-            if (mTermp) newp = new AstOr{nfl, mTermp, newp};
-            if (hTermp) newp = new AstOr{nfl, hTermp, newp};
+            Ast_गाँठ_व्यंजक* newp = lTermp;
+            अगर (mTermp) newp = नया AstOr{nfl, mTermp, newp};
+            अगर (hTermp) newp = नया AstOr{nfl, hTermp, newp};
             newp->dtypeFrom(nodep);
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
-        } else {  // Long/Quad from Long/Quad
+        } अन्यथा {  // Long/Quad from Long/Quad
             // No isImpure() check - can handle side effects in below
             didPattern(VExpandPattern::SEL_FROM_NARROW, nodep);
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* fromp = nodep->fromp()->unlinkFrBack();
-            AstNodeExpr* const lsbp = nodep->lsbp()->unlinkFrBack();
-            if (nodep->isQuad() && !fromp->isQuad()) fromp = new AstCCast{fl, fromp, nodep};
+            File_पंक्ति* स्थिर fl = nodep->fileline();
+            Ast_गाँठ_व्यंजक* fromp = nodep->fromp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* स्थिर lsbp = nodep->lsbp()->unlinkFrBack();
+            अगर (nodep->isQuad() && !fromp->isQuad()) fromp = नया AstCCast{fl, fromp, nodep};
             // {large}>>32 requires 64-bit shift operation; then cast
-            AstNodeExpr* newp = new AstShiftR{fl, fromp, lsbp, fromp->width()};
+            Ast_गाँठ_व्यंजक* newp = नया AstShiftR{fl, fromp, lsbp, fromp->width()};
             newp->dtypeFrom(fromp);
-            if (!nodep->isQuad() && fromp->isQuad()) newp = new AstCCast{fl, newp, nodep};
+            अगर (!nodep->isQuad() && fromp->isQuad()) newp = नया AstCCast{fl, newp, nodep};
             newp->dtypeFrom(nodep);
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
 
-    bool expandWide(AstNodeAssign* nodep, AstSel* rhsp) {
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstSel* rhsp) {
         UASSERT_OBJ(nodep->widthMin() == rhsp->widthConst(), nodep, "Width mismatch");
-        if (!doExpandWide(nodep)) return false;
+        अगर (!doExpandWide(nodep)) वापस false;
 
         // Simplify the index, in case it becomes a constant
         V3Const::constifyEditCpp(rhsp->lsbp());
 
         // If it's a constant select and aligned, we can just copy the words
-        if (const AstConst* const lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
-            const uint32_t lsb = lsbConstp->toUInt();
-            if (VL_BITBIT_E(lsb) == 0) {
+        अगर (स्थिर AstConst* स्थिर lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
+            स्थिर uint32_t lsb = lsbConstp->toUInt();
+            अगर (VL_BITBIT_E(lsb) == 0) {
                 didPattern(VExpandPattern::ASSIGN_SEL_ALIGNED, nodep);
-                const uint32_t word = VL_BITWORD_E(lsb);
-                for (int w = 0; w < nodep->widthWords(); ++w) {
+                स्थिर uint32_t word = VL_BITWORD_E(lsb);
+                क्रम (पूर्णांक w = 0; w < nodep->width_शब्दगण(); ++w) {
                     addWordAssign(nodep, w, newAstWordSelClone(rhsp->fromp(), w + word));
                 }
-                return true;
+                वापस true;
             }
         }
 
         didPattern(VExpandPattern::ASSIGN_SEL_UNALIGNED, nodep);
-        FileLine* const flp = rhsp->fileline();
+        File_पंक्ति* स्थिर flp = rhsp->fileline();
 
         // Use fresh set of temporaries
         ++m_nTmps;
 
         // Compute word index of LSB, store to temporary if not constant
-        AstNodeExpr* const wordLsbp = rhsp->lsbp()->cloneTreePure(false);
-        AstNodeExpr* wordIdxp = newWordIndex(wordLsbp);
-        if (!wordLsbp->backp()) VL_DO_DANGLING(wordLsbp->deleteTree(), wordLsbp);
+        Ast_गाँठ_व्यंजक* स्थिर wordLsbp = rhsp->lsbp()->clone_वृक्ष_Pure(false);
+        Ast_गाँठ_व्यंजक* wordIdxp = new_Word_सूचकांक(wordLsbp);
+        अगर (!wordLsbp->backp()) VL_DO_DANGLING(wordLsbp->delete_वृक्ष(), wordLsbp);
         wordIdxp = V3Const::constifyEditCpp(wordIdxp);
-        if (!VN_IS(wordIdxp, Const)) {
-            AstVar* const tmpp = addLocalTmp(nodep, "ExpandSel_WordIdx", wordIdxp);
-            wordIdxp = new AstVarRef{flp, tmpp, VAccess::READ};
+        अगर (!VN_IS(wordIdxp, Const)) {
+            AstVar* स्थिर tmpp = addLocalTmp(nodep, "ExpandSel_WordIdx", wordIdxp);
+            wordIdxp = नया AstVarRef{flp, tmpp, VAccess::READ};
         }
 
         // Compute shift amounts and mask, store to temporaries if not constants
-        AstNodeExpr* loShftp = nullptr;
-        AstNodeExpr* hiShftp = nullptr;
-        AstNodeExpr* hiMaskp = nullptr;
-        if (const AstConst* const lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
-            const uint32_t bitOffset = VL_BITBIT_E(lsbConstp->toUInt());
+        Ast_गाँठ_व्यंजक* loShftp = nullptr;
+        Ast_गाँठ_व्यंजक* hiShftp = nullptr;
+        Ast_गाँठ_व्यंजक* hiMaskp = nullptr;
+        अगर (स्थिर AstConst* स्थिर lsbConstp = VN_CAST(rhsp->lsbp(), Const)) {
+            स्थिर uint32_t bitOffset = VL_BITBIT_E(lsbConstp->toUInt());
             // Must be unaligned, otherwise we would have handled it above
             UASSERT_OBJ(bitOffset, nodep, "Missed aligned wide select");
-            loShftp = new AstConst{flp, bitOffset};
-            hiShftp = new AstConst{flp, VL_EDATASIZE - bitOffset};
+            loShftp = नया AstConst{flp, bitOffset};
+            hiShftp = नया AstConst{flp, VL_EDATASIZE - bitOffset};
             hiMaskp = nullptr;
-        } else {
+        } अन्यथा {
             // Compute Low word shift amount: bottom bits of lsb index
-            AstNodeExpr* const lsbp = rhsp->lsbp()->cloneTreePure(false);
-            loShftp = new AstAnd{flp, new AstConst{flp, VL_SIZEBITS_E}, lsbp};
-            AstVar* const loTmpp = addLocalTmp(nodep, "ExpandSel_LoShift", loShftp);
-            loShftp = new AstVarRef{flp, loTmpp, VAccess::READ};
+            Ast_गाँठ_व्यंजक* स्थिर lsbp = rhsp->lsbp()->clone_वृक्ष_Pure(false);
+            loShftp = नया AstAnd{flp, नया AstConst{flp, VL_SIZEBITS_E}, lsbp};
+            AstVar* स्थिर loTmpp = addLocalTmp(nodep, "ExpandSel_LoShift", loShftp);
+            loShftp = नया AstVarRef{flp, loTmpp, VAccess::READ};
 
             // Compute if aligned: Low word shift amount is 0
-            AstNodeExpr* const zerop = new AstConst{flp, 0};
-            AstNodeExpr* alignedp = new AstEq{flp, zerop, loShftp->cloneTreePure(false)};
-            AstVar* const alignedTmpp = addLocalTmp(nodep, "ExpandSel_Aligned", alignedp);
-            alignedp = new AstVarRef{flp, alignedTmpp, VAccess::READ};
+            Ast_गाँठ_व्यंजक* स्थिर zerop = नया AstConst{flp, 0};
+            Ast_गाँठ_व्यंजक* alignedp = नया AstEq{flp, zerop, loShftp->clone_वृक्ष_Pure(false)};
+            AstVar* स्थिर alignedTmpp = addLocalTmp(nodep, "ExpandSel_Aligned", alignedp);
+            alignedp = नया AstVarRef{flp, alignedTmpp, VAccess::READ};
 
             // Computed High word shift amount: 0 if aligned else VL_EDATASIZE - Low word shift
-            AstNodeExpr* const edsp = new AstConst{flp, VL_EDATASIZE};
-            AstNodeExpr* const subp = new AstSub{flp, edsp, loShftp->cloneTreePure(false)};
-            hiShftp = new AstCond{flp, alignedp, new AstConst{flp, 0}, subp};
-            AstVar* const hiTmpp = addLocalTmp(nodep, "ExpandSel_HiShift", hiShftp);
-            hiShftp = new AstVarRef{flp, hiTmpp, VAccess::READ};
+            Ast_गाँठ_व्यंजक* स्थिर edsp = नया AstConst{flp, VL_EDATASIZE};
+            Ast_गाँठ_व्यंजक* स्थिर subp = नया AstSub{flp, edsp, loShftp->clone_वृक्ष_Pure(false)};
+            hiShftp = नया AstCond{flp, alignedp, नया AstConst{flp, 0}, subp};
+            AstVar* स्थिर hiTmpp = addLocalTmp(nodep, "ExpandSel_HiShift", hiShftp);
+            hiShftp = नया AstVarRef{flp, hiTmpp, VAccess::READ};
 
             // Compute the High word mask: 0 if aligned, ones otherwise
-            hiMaskp = new AstCond{flp, alignedp->cloneTreePure(false),
-                                  new AstConst{flp, AstConst::SizedEData{}, 0},
-                                  new AstConst{flp, AstConst::SizedEData{}, -1ULL}};
-            AstVar* const maskTmpp = addLocalTmp(nodep, "ExpandSel_HiMask", hiMaskp);
-            hiMaskp = new AstVarRef{flp, maskTmpp, VAccess::READ};
+            hiMaskp = नया AstCond{flp, alignedp->clone_वृक्ष_Pure(false),
+                                  नया AstConst{flp, AstConst::SizedEData{}, 0},
+                                  नया AstConst{flp, AstConst::SizedEData{}, -1ULL}};
+            AstVar* स्थिर maskTmpp = addLocalTmp(nodep, "ExpandSel_HiMask", hiMaskp);
+            hiMaskp = नया AstVarRef{flp, maskTmpp, VAccess::READ};
         }
 
         // Create each word of the selected result
-        AstNodeExpr* const fromp = rhsp->fromp();
-        const int selWords = nodep->widthWords();
-        for (int w = 0; w < selWords; ++w) {
+        Ast_गाँठ_व्यंजक* स्थिर fromp = rhsp->fromp();
+        स्थिर पूर्णांक sel_शब्दगण = nodep->width_शब्दगण();
+        क्रम (पूर्णांक w = 0; w < sel_शब्दगण; ++w) {
             // Grab bits from word 'VL_BITWORD_E(lsb) + w'
-            AstNodeExpr* const loWordp = newWordSelWord(fromp->fileline(), fromp, wordIdxp, w);
-            AstNodeExpr* const loShftClonep = loShftp->cloneTreePure(false);
-            AstNodeExpr* const lop = new AstShiftR{flp, loWordp, loShftClonep, VL_EDATASIZE};
+            Ast_गाँठ_व्यंजक* स्थिर loWordp = newWordSelWord(fromp->fileline(), fromp, wordIdxp, w);
+            Ast_गाँठ_व्यंजक* स्थिर loShftClonep = loShftp->clone_वृक्ष_Pure(false);
+            Ast_गाँठ_व्यंजक* स्थिर lop = नया AstShiftR{flp, loWordp, loShftClonep, VL_EDATASIZE};
             // Grab bits from word 'VL_BITWORD_E(lsb) + w + 1'
-            AstNodeExpr* hiWordp = newWordSelWord(fromp->fileline(), fromp, wordIdxp, w + 1);
+            Ast_गाँठ_व्यंजक* hiWordp = newWordSelWord(fromp->fileline(), fromp, wordIdxp, w + 1);
             // For the last word of the result, avoid an OOB access when the Sel is not OOB
-            if (w == selWords - 1) {
-                const uint32_t max = fromp->widthWords() - w - 1;
-                AstNodeExpr* const maxp = new AstConst{flp, max};
-                AstNodeExpr* const condp = new AstGte{flp, wordIdxp->cloneTreePure(false), maxp};
-                AstNodeExpr* const zerop = new AstConst{flp, AstConst::SizedEData{}, 0};
-                hiWordp = new AstCond{flp, condp, zerop, hiWordp};
+            अगर (w == sel_शब्दगण - 1) {
+                स्थिर uint32_t max = fromp->width_शब्दगण() - w - 1;
+                Ast_गाँठ_व्यंजक* स्थिर maxp = नया AstConst{flp, max};
+                Ast_गाँठ_व्यंजक* स्थिर condp = नया AstGte{flp, wordIdxp->clone_वृक्ष_Pure(false), maxp};
+                Ast_गाँठ_व्यंजक* स्थिर zerop = नया AstConst{flp, AstConst::SizedEData{}, 0};
+                hiWordp = नया AstCond{flp, condp, zerop, hiWordp};
             }
-            AstNodeExpr* const hiShftClonep = hiShftp->cloneTreePure(false);
-            AstNodeExpr* const hiPartp = new AstShiftL{flp, hiWordp, hiShftClonep, VL_EDATASIZE};
-            AstNodeExpr* const hip
-                = hiMaskp ? new AstAnd{flp, hiPartp, hiMaskp->cloneTreePure(false)} : hiPartp;
+            Ast_गाँठ_व्यंजक* स्थिर hiShftClonep = hiShftp->clone_वृक्ष_Pure(false);
+            Ast_गाँठ_व्यंजक* स्थिर hiPartp = नया AstShiftL{flp, hiWordp, hiShftClonep, VL_EDATASIZE};
+            Ast_गाँठ_व्यंजक* स्थिर hip
+                = hiMaskp ? नया AstAnd{flp, hiPartp, hiMaskp->clone_वृक्ष_Pure(false)} : hiPartp;
             // Combine them
-            addWordAssign(nodep, w, new AstOr{nodep->fileline(), hip, lop});
+            addWordAssign(nodep, w, नया AstOr{nodep->fileline(), hip, lop});
         }
 
         // Delete parts not captured during construction
-        if (!wordIdxp->backp()) VL_DO_DANGLING(wordIdxp->deleteTree(), wordIdxp);
-        if (!loShftp->backp()) VL_DO_DANGLING(loShftp->deleteTree(), loShftp);
-        if (!hiShftp->backp()) VL_DO_DANGLING(hiShftp->deleteTree(), hiShftp);
-        if (hiMaskp && !hiMaskp->backp()) VL_DO_DANGLING(hiMaskp->deleteTree(), hiMaskp);
+        अगर (!wordIdxp->backp()) VL_DO_DANGLING(wordIdxp->delete_वृक्ष(), wordIdxp);
+        अगर (!loShftp->backp()) VL_DO_DANGLING(loShftp->delete_वृक्ष(), loShftp);
+        अगर (!hiShftp->backp()) VL_DO_DANGLING(hiShftp->delete_वृक्ष(), hiShftp);
+        अगर (hiMaskp && !hiMaskp->backp()) VL_DO_DANGLING(hiMaskp->delete_वृक्ष(), hiMaskp);
 
-        return true;
+        वापस true;
     }
 
-    bool expandLhs(AstNodeAssign* nodep, AstSel* lhsp) {
+    bool expandLhs(Ast_गाँठ_Assign* nodep, AstSel* lhsp) {
         // Possibilities
         //      destp: wide or narrow
         //      rhsp:  wide (destp must be wide), narrow, or 1 bit wide
         //      rhsp:  may be allones and can remove AND NOT gate
         //      lsbp:  constant or variable
         // Yuk.
-        if (isImpure(nodep)) return false;
-        FileLine* const nfl = nodep->fileline();
-        FileLine* const lfl = lhsp->fileline();
-        const bool destwide = lhsp->fromp()->isWide();
-        const bool ones = nodep->rhsp()->isAllOnesV();
-        if (VN_IS(lhsp->lsbp(), Const)) {
+        अगर (isImpure(nodep)) वापस false;
+        File_पंक्ति* स्थिर nfl = nodep->fileline();
+        File_पंक्ति* स्थिर lfl = lhsp->fileline();
+        स्थिर bool destwide = lhsp->fromp()->isWide();
+        स्थिर bool ones = nodep->rhsp()->isAllOnesV();
+        अगर (VN_IS(lhsp->lsbp(), Const)) {
             // The code should work without this constant test, but it won't
             // constify as nicely as we'd like.
-            AstNodeExpr* rhsp = nodep->rhsp()->unlinkFrBack();
-            AstNodeExpr* const destp = lhsp->fromp()->unlinkFrBack();
-            const int lsb = lhsp->lsbConst();
-            const int msb = lhsp->msbConst();
-            V3Number maskset{nodep, destp->widthMin()};
+            Ast_गाँठ_व्यंजक* rhsp = nodep->rhsp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* स्थिर destp = lhsp->fromp()->unlinkFrBack();
+            स्थिर पूर्णांक lsb = lhsp->lsbConst();
+            स्थिर पूर्णांक msb = lhsp->msbConst();
+            V3_संख्या maskset{nodep, destp->widthMin()};
             maskset.setMask(msb + 1 - lsb, lsb);
-            V3Number maskold{nodep, destp->widthMin()};
+            V3_संख्या maskold{nodep, destp->widthMin()};
             maskold.opNot(maskset);
-            if (destwide) {
+            अगर (destwide) {
                 didPattern(VExpandPattern::ASSIGN_TO_SEL_CONST_WIDE, nodep);
-                for (int w = 0; w < destp->widthWords(); ++w) {
-                    if (w >= VL_BITWORD_E(lsb) && w <= VL_BITWORD_E(msb)) {
+                क्रम (पूर्णांक w = 0; w < destp->width_शब्दगण(); ++w) {
+                    अगर (w >= VL_BITWORD_E(lsb) && w <= VL_BITWORD_E(msb)) {
                         // else we would just be setting it to the same exact value
-                        AstNodeExpr* oldvalp = newAstWordSelClone(destp, w);
+                        Ast_गाँठ_व्यंजक* oldvalp = newAstWordSelClone(destp, w);
                         fixCloneLvalue(oldvalp);
-                        if (!ones) {
-                            oldvalp = new AstAnd{
+                        अगर (!ones) {
+                            oldvalp = नया AstAnd{
                                 lfl,
-                                new AstConst{lfl, AstConst::SizedEData{}, maskold.edataWord(w)},
+                                नया AstConst{lfl, AstConst::SizedEData{}, maskold.edataWord(w)},
                                 oldvalp};
                         }
 
                         // Appropriate word of new value to insert:
-                        AstNodeExpr* newp = newWordGrabShift(lfl, w, rhsp, lsb);
+                        Ast_गाँठ_व्यंजक* newp = newWordGrabShift(lfl, w, rhsp, lsb);
 
                         // Apply cleaning at the top word of the destination
                         // (no cleaning to do if dst's width is a whole number
                         // of words).
-                        if (w == destp->widthWords() - 1 && VL_BITBIT_E(destp->widthMin()) != 0) {
-                            V3Number cleanmask{nodep, VL_EDATASIZE};
+                        अगर (w == destp->width_शब्दगण() - 1 && VL_BITBIT_E(destp->widthMin()) != 0) {
+                            V3_संख्या cleanmask{nodep, VL_EDATASIZE};
                             cleanmask.setMask(VL_BITBIT_E(destp->widthMin()));
-                            newp = new AstAnd{lfl, newp, new AstConst{lfl, cleanmask}};
+                            newp = नया AstAnd{lfl, newp, नया AstConst{lfl, cleanmask}};
                         }
-                        AstNodeExpr* const orp
-                            = V3Const::constifyEditCpp(new AstOr{lfl, oldvalp, newp});
+                        Ast_गाँठ_व्यंजक* स्थिर orp
+                            = V3Const::constifyEditCpp(नया AstOr{lfl, oldvalp, newp});
                         addWordAssign(nodep, w, destp, orp);
                     }
                 }
-                VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-                VL_DO_DANGLING(destp->deleteTree(), destp);
-            } else {
+                VL_DO_DANGLING(rhsp->delete_वृक्ष(), rhsp);
+                VL_DO_DANGLING(destp->delete_वृक्ष(), destp);
+            } अन्यथा {
                 didPattern(VExpandPattern::ASSIGN_TO_SEL_CONST_NARROW, nodep);
-                if (destp->isQuad() && !rhsp->isQuad()) rhsp = new AstCCast{nfl, rhsp, nodep};
-                AstNodeExpr* oldvalp = destp->cloneTreePure(true);
+                अगर (destp->isQuad() && !rhsp->isQuad()) rhsp = नया AstCCast{nfl, rhsp, nodep};
+                Ast_गाँठ_व्यंजक* oldvalp = destp->clone_वृक्ष_Pure(true);
                 fixCloneLvalue(oldvalp);
-                if (!ones) oldvalp = new AstAnd{lfl, new AstConst{lfl, maskold}, oldvalp};
+                अगर (!ones) oldvalp = नया AstAnd{lfl, नया AstConst{lfl, maskold}, oldvalp};
 
                 // The bit-select can refer to bits outside the width of nodep
                 // which we aren't allowed to assign to.  This is a mask of the
                 // valid range of nodep which we apply to the new shifted RHS.
-                V3Number cleanmask{nodep, destp->widthMin()};
+                V3_संख्या cleanmask{nodep, destp->widthMin()};
                 cleanmask.setMask(destp->widthMin());
-                AstNodeExpr* const shifted = new AstShiftL{
-                    lfl, rhsp, new AstConst{lfl, static_cast<uint32_t>(lsb)}, destp->width()};
-                AstNodeExpr* const cleaned
-                    = new AstAnd{lfl, shifted, new AstConst{lfl, cleanmask}};
-                AstNodeExpr* const orp
-                    = V3Const::constifyEditCpp(new AstOr{lfl, oldvalp, cleaned});
-                insertBefore(nodep, new AstAssign{nfl, destp, orp});
+                Ast_गाँठ_व्यंजक* स्थिर shifted = नया AstShiftL{
+                    lfl, rhsp, नया AstConst{lfl, static_cast<uint32_t>(lsb)}, destp->width()};
+                Ast_गाँठ_व्यंजक* स्थिर cleaned
+                    = नया AstAnd{lfl, shifted, नया AstConst{lfl, cleanmask}};
+                Ast_गाँठ_व्यंजक* स्थिर orp
+                    = V3Const::constifyEditCpp(नया AstOr{lfl, oldvalp, cleaned});
+                जोड़ो_Before(nodep, नया AstAssign{nfl, destp, orp});
             }
-            return true;
-        } else {  // non-const select offset
-            if (destwide && lhsp->widthConst() == 1) {
+            वापस true;
+        } अन्यथा {  // non-const select offset
+            अगर (destwide && lhsp->widthConst() == 1) {
                 didPattern(VExpandPattern::ASSIGN_TO_SEL_VAR_WIDE_ONE_BIT, nodep);
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                AstNodeExpr* const destp = lhsp->fromp()->unlinkFrBack();
-                AstNodeExpr* oldvalp
-                    = newWordSelBit(lfl, destp->cloneTreePure(false), lhsp->lsbp());
+                Ast_गाँठ_व्यंजक* स्थिर rhsp = nodep->rhsp()->unlinkFrBack();
+                Ast_गाँठ_व्यंजक* स्थिर destp = lhsp->fromp()->unlinkFrBack();
+                Ast_गाँठ_व्यंजक* oldvalp
+                    = newWordSelBit(lfl, destp->clone_वृक्ष_Pure(false), lhsp->lsbp());
                 fixCloneLvalue(oldvalp);
-                if (!ones) {
-                    oldvalp = new AstAnd{
+                अगर (!ones) {
+                    oldvalp = नया AstAnd{
                         lfl,
-                        new AstNot{
-                            lfl, new AstShiftL{lfl, new AstConst{nfl, 1},
+                        नया AstNot{
+                            lfl, नया AstShiftL{lfl, नया AstConst{nfl, 1},
                                                // newSelBitBit may exceed the MSB of this variable.
                                                // That's ok as we'd just AND with a larger value,
                                                // but oldval would clip the upper bits to sanity
@@ -940,14 +940,14 @@ class ExpandVisitor final : public VNVisitor {
                         oldvalp};
                 }
                 // Restrict the shift amount to 0-31, see bug804.
-                AstNodeExpr* const shiftp = new AstAnd{nfl, lhsp->lsbp()->cloneTreePure(true),
-                                                       new AstConst{nfl, VL_EDATASIZE - 1}};
-                AstNode* const newp = new AstAssign{
+                Ast_गाँठ_व्यंजक* स्थिर shiftp = नया AstAnd{nfl, lhsp->lsbp()->clone_वृक्ष_Pure(true),
+                                                       नया AstConst{nfl, VL_EDATASIZE - 1}};
+                Ast_गाँठ* स्थिर newp = नया AstAssign{
                     nfl, newWordSelBit(nfl, destp, lhsp->lsbp()),
-                    new AstOr{lfl, oldvalp, new AstShiftL{lfl, rhsp, shiftp, VL_EDATASIZE}}};
-                insertBefore(nodep, newp);
-                return true;
-            } else if (destwide) {
+                    नया AstOr{lfl, oldvalp, नया AstShiftL{lfl, rhsp, shiftp, VL_EDATASIZE}}};
+                जोड़ो_Before(nodep, newp);
+                वापस true;
+            } अन्यथा अगर (destwide) {
                 UINFO(8, "    ASSIGNSEL(varlsb,wide) -- NoOp -- " << nodep);
                 //   For wide destp, we can either form a equation for every destination word,
                 // with the appropriate long equation of if it's being written or not.
@@ -958,252 +958,252 @@ class ExpandVisitor final : public VNVisitor {
                 // since it may result in better substitution optimizations later.
                 //   This results in so much code, we're better off leaving a function call.
                 // Reconsider if we get subexpression elimination.
-                return false;
-            } else {
+                वापस false;
+            } अन्यथा {
                 didPattern(VExpandPattern::ASSIGN_TO_SEL_VAR_NARROW, nodep);
                 // nodep->dumpTree("-  old: ");
-                AstNodeExpr* rhsp = nodep->rhsp()->unlinkFrBack();
-                AstNodeExpr* const destp = lhsp->fromp()->unlinkFrBack();
-                AstNodeExpr* oldvalp = destp->cloneTreePure(true);
+                Ast_गाँठ_व्यंजक* rhsp = nodep->rhsp()->unlinkFrBack();
+                Ast_गाँठ_व्यंजक* स्थिर destp = lhsp->fromp()->unlinkFrBack();
+                Ast_गाँठ_व्यंजक* oldvalp = destp->clone_वृक्ष_Pure(true);
                 fixCloneLvalue(oldvalp);
 
-                V3Number maskwidth{nodep, destp->widthMin()};
+                V3_संख्या maskwidth{nodep, destp->widthMin()};
                 maskwidth.setMask(lhsp->widthConst());
 
-                if (destp->isQuad() && !rhsp->isQuad()) rhsp = new AstCCast{nfl, rhsp, nodep};
-                if (!ones) {
-                    oldvalp = new AstAnd{
+                अगर (destp->isQuad() && !rhsp->isQuad()) rhsp = नया AstCCast{nfl, rhsp, nodep};
+                अगर (!ones) {
+                    oldvalp = नया AstAnd{
                         lfl,
-                        new AstNot{lfl, new AstShiftL{lfl, new AstConst{nfl, maskwidth},
-                                                      lhsp->lsbp()->cloneTreePure(true),
+                        नया AstNot{lfl, नया AstShiftL{lfl, नया AstConst{nfl, maskwidth},
+                                                      lhsp->lsbp()->clone_वृक्ष_Pure(true),
                                                       destp->width()}},
                         oldvalp};
                 }
-                AstNodeExpr* newp
-                    = new AstShiftL{lfl, rhsp, lhsp->lsbp()->cloneTreePure(true), destp->width()};
+                Ast_गाँठ_व्यंजक* newp
+                    = नया AstShiftL{lfl, rhsp, lhsp->lsbp()->clone_वृक्ष_Pure(true), destp->width()};
                 // Apply cleaning to the new value being inserted.  Mask is
                 // slightly wider than necessary to avoid an AND with all ones
                 // being optimized out.  No need to clean if destp is
                 // quad-sized as there are no extra bits to contaminate
-                if (destp->widthMin() != 64) {
-                    V3Number cleanmask{nodep, destp->widthMin() + 1};
+                अगर (destp->widthMin() != 64) {
+                    V3_संख्या cleanmask{nodep, destp->widthMin() + 1};
                     cleanmask.setMask(destp->widthMin());
-                    newp = new AstAnd{lfl, newp, new AstConst{lfl, cleanmask}};
+                    newp = नया AstAnd{lfl, newp, नया AstConst{lfl, cleanmask}};
                 }
 
-                insertBefore(nodep, new AstAssign{nfl, destp, new AstOr{lfl, oldvalp, newp}});
-                return true;
+                जोड़ो_Before(nodep, नया AstAssign{nfl, destp, नया AstOr{lfl, oldvalp, newp}});
+                वापस true;
             }
         }
     }
 
-    void visit(AstConcat* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(AstConcat* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
-        if (nodep->isWide()) {
+        अगर (nodep->isWide()) {
             // See under ASSIGN(WIDE)
-        } else {
+        } अन्यथा {
             // No isImpure() check - can handle side effects in below
             didPattern(VExpandPattern::CONCAT, nodep);
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* rhsp = nodep->rhsp()->unlinkFrBack();
-            const uint32_t rhsshift = rhsp->widthMin();
-            if (nodep->isQuad() && !lhsp->isQuad()) lhsp = new AstCCast{fl, lhsp, nodep};
-            if (nodep->isQuad() && !rhsp->isQuad()) rhsp = new AstCCast{fl, rhsp, nodep};
-            AstNodeExpr* const newp = new AstOr{
-                fl, new AstShiftL{fl, lhsp, new AstConst{fl, rhsshift}, nodep->width()}, rhsp};
+            File_पंक्ति* स्थिर fl = nodep->fileline();
+            Ast_गाँठ_व्यंजक* lhsp = nodep->lhsp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* rhsp = nodep->rhsp()->unlinkFrBack();
+            स्थिर uint32_t rhsshift = rhsp->widthMin();
+            अगर (nodep->isQuad() && !lhsp->isQuad()) lhsp = नया AstCCast{fl, lhsp, nodep};
+            अगर (nodep->isQuad() && !rhsp->isQuad()) rhsp = नया AstCCast{fl, rhsp, nodep};
+            Ast_गाँठ_व्यंजक* स्थिर newp = नया AstOr{
+                fl, नया AstShiftL{fl, lhsp, नया AstConst{fl, rhsshift}, nodep->width()}, rhsp};
             newp->dtypeFrom(nodep);  // Unsigned
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    bool expandWide(AstNodeAssign* nodep, AstConcat* rhsp) {
-        if (!doExpandWide(rhsp)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstConcat* rhsp) {
+        अगर (!doExpandWide(rhsp)) वापस false;
         didPattern(VExpandPattern::ASSIGN_CONCAT, nodep);
-        FileLine* const fl = rhsp->fileline();
+        File_पंक्ति* स्थिर fl = rhsp->fileline();
         // Lhs or Rhs may be word, long, or quad.
         // newAstWordSelClone nicely abstracts the difference.
-        const int rhsshift = rhsp->rhsp()->widthMin();
+        स्थिर पूर्णांक rhsshift = rhsp->rhsp()->widthMin();
         // Sometimes doing the words backwards is preferable.
         // When we have x={x,foo} backwards is better, when x={foo,x} forward is better
         // However V3Subst tends to rip this up, so not worth optimizing now.
-        for (int w = 0; w < rhsp->widthWords(); ++w) {
+        क्रम (पूर्णांक w = 0; w < rhsp->width_शब्दगण(); ++w) {
             addWordAssign(nodep, w,
-                          new AstOr{fl, newWordGrabShift(fl, w, rhsp->lhsp(), rhsshift),
+                          नया AstOr{fl, newWordGrabShift(fl, w, rhsp->lhsp(), rhsshift),
                                     newAstWordSelClone(rhsp->rhsp(), w)});
         }
-        return true;
+        वापस true;
     }
 
-    void visit(AstReplicate* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(AstReplicate* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
-        if (nodep->isWide()) {
+        अगर (nodep->isWide()) {
             // See under ASSIGN(WIDE)
-        } else {
-            if (isImpure(nodep)) return;
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* lhsp = nodep->srcp()->unlinkFrBack();
-            AstNodeExpr* newp;
-            const int lhswidth = lhsp->widthMin();
-            if (lhswidth == 1) {
+        } अन्यथा {
+            अगर (isImpure(nodep)) वापस;
+            File_पंक्ति* स्थिर fl = nodep->fileline();
+            Ast_गाँठ_व्यंजक* lhsp = nodep->srcp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* newp;
+            स्थिर पूर्णांक lhswidth = lhsp->widthMin();
+            अगर (lhswidth == 1) {
                 didPattern(VExpandPattern::REPLICATE_ONE_BIT, nodep);
-                newp = new AstNegate{fl, lhsp};
-            } else {
+                newp = नया AstNegate{fl, lhsp};
+            } अन्यथा {
                 didPattern(VExpandPattern::REPLICATE, nodep);
-                const AstConst* const constp = VN_AS(nodep->countp(), Const);
+                स्थिर AstConst* स्थिर constp = VN_AS(nodep->countp(), Const);
                 UASSERT_OBJ(constp, nodep,
                             "Replication value isn't a constant.  Checked earlier!");
-                const uint32_t times = constp->toUInt();
-                if (nodep->isQuad() && !lhsp->isQuad()) lhsp = new AstCCast{fl, lhsp, nodep};
-                newp = lhsp->cloneTreePure(true);
-                for (unsigned repnum = 1; repnum < times; repnum++) {
-                    const int rhsshift = repnum * lhswidth;
-                    newp = new AstOr{
+                स्थिर uint32_t बार = constp->toUInt();
+                अगर (nodep->isQuad() && !lhsp->isQuad()) lhsp = नया AstCCast{fl, lhsp, nodep};
+                newp = lhsp->clone_वृक्ष_Pure(true);
+                क्रम (अचिन्हित repnum = 1; repnum < बार; repnum++) {
+                    स्थिर पूर्णांक rhsshift = repnum * lhswidth;
+                    newp = नया AstOr{
                         fl,
-                        new AstShiftL{fl, lhsp->cloneTreePure(true),
-                                      new AstConst{fl, static_cast<uint32_t>(rhsshift)},
+                        नया AstShiftL{fl, lhsp->clone_वृक्ष_Pure(true),
+                                      नया AstConst{fl, static_cast<uint32_t>(rhsshift)},
                                       nodep->width()},
                         newp};
                     newp->dtypeFrom(nodep);  // Unsigned
                 }
-                VL_DO_DANGLING(lhsp->deleteTree(), lhsp);  // Never used
+                VL_DO_DANGLING(lhsp->delete_वृक्ष(), lhsp);  // Never used
             }
             newp->dtypeFrom(nodep);  // Unsigned
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    bool expandWide(AstNodeAssign* nodep, AstReplicate* rhsp) {
-        if (!doExpandWide(rhsp)) return false;
+    bool expandWide(Ast_गाँठ_Assign* nodep, AstReplicate* rhsp) {
+        अगर (!doExpandWide(rhsp)) वापस false;
         didPattern(VExpandPattern::ASSIGN_REPLICATE, nodep);
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const lhsp = rhsp->srcp();
-        const int lhswidth = lhsp->widthMin();
-        const AstConst* const constp = VN_AS(rhsp->countp(), Const);
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        Ast_गाँठ_व्यंजक* स्थिर lhsp = rhsp->srcp();
+        स्थिर पूर्णांक lhswidth = lhsp->widthMin();
+        स्थिर AstConst* स्थिर constp = VN_AS(rhsp->countp(), Const);
         UASSERT_OBJ(constp, rhsp, "Replication value isn't a constant.  Checked earlier!");
-        const uint32_t times = constp->toUInt();
-        for (int w = 0; w < rhsp->widthWords(); ++w) {
-            AstNodeExpr* newp;
-            if (lhswidth == 1) {
-                newp = new AstNegate{fl, lhsp->cloneTreePure(true)};
+        स्थिर uint32_t बार = constp->toUInt();
+        क्रम (पूर्णांक w = 0; w < rhsp->width_शब्दगण(); ++w) {
+            Ast_गाँठ_व्यंजक* newp;
+            अगर (lhswidth == 1) {
+                newp = नया AstNegate{fl, lhsp->clone_वृक्ष_Pure(true)};
                 // Replicate always unsigned
                 newp->dtypeChgWidthSigned(VL_EDATASIZE, VL_EDATASIZE, VSigning::UNSIGNED);
-            } else {
+            } अन्यथा {
                 newp = newAstWordSelClone(lhsp, w);
-                FileLine* const rfl = rhsp->fileline();
-                for (unsigned repnum = 1; repnum < times; repnum++) {
-                    newp = new AstOr{fl, newWordGrabShift(rfl, w, lhsp, lhswidth * repnum), newp};
+                File_पंक्ति* स्थिर rfl = rhsp->fileline();
+                क्रम (अचिन्हित repnum = 1; repnum < बार; repnum++) {
+                    newp = नया AstOr{fl, newWordGrabShift(rfl, w, lhsp, lhswidth * repnum), newp};
                 }
             }
             addWordAssign(nodep, w, newp);
         }
-        return true;
+        वापस true;
     }
 
-    void visitEqNeq(AstNodeBiop* nodep) {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visitEqNeq(Ast_गाँठ_Biop* nodep) {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
-        if (nodep->lhsp()->isWide()
+        अगर (nodep->lhsp()->isWide()
             && !(VN_IS(nodep->lhsp()->dtypep()->skipRefp(), StreamDType)
                  || VN_IS(nodep->rhsp()->dtypep()->skipRefp(), StreamDType))) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
-            if (!doExpandWide(nodep->rhsp())) return;
+            अगर (isImpure(nodep)) वापस;
+            अगर (!doExpandWide(nodep->lhsp())) वापस;
+            अगर (!doExpandWide(nodep->rhsp())) वापस;
             didPattern(VN_IS(nodep, Neq) ? VExpandPattern::WORDIZE_NEQ
                                          : VExpandPattern::WORDIZE_EQ,
                        nodep);
             // -> (0=={or{for each_word{WORDSEL(lhs,#)^WORDSEL(rhs,#)}}}
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* const eqp = new AstXor{fl, newAstWordSelClone(nodep->lhsp(), w),
+            File_पंक्ति* स्थिर fl = nodep->fileline();
+            Ast_गाँठ_व्यंजक* newp = nullptr;
+            क्रम (पूर्णांक w = 0; w < nodep->lhsp()->width_शब्दगण(); ++w) {
+                Ast_गाँठ_व्यंजक* स्थिर eqp = नया AstXor{fl, newAstWordSelClone(nodep->lhsp(), w),
                                                     newAstWordSelClone(nodep->rhsp(), w)};
-                newp = newp ? new AstOr{fl, newp, eqp} : eqp;
+                newp = newp ? नया AstOr{fl, newp, eqp} : eqp;
             }
-            if (VN_IS(nodep, Neq)) {
-                newp = new AstNeq{fl, new AstConst{fl, AstConst::SizedEData{}, 0}, newp};
-            } else {
-                newp = new AstEq{fl, new AstConst{fl, AstConst::SizedEData{}, 0}, newp};
+            अगर (VN_IS(nodep, Neq)) {
+                newp = नया AstNeq{fl, नया AstConst{fl, AstConst::SizedEData{}, 0}, newp};
+            } अन्यथा {
+                newp = नया AstEq{fl, नया AstConst{fl, AstConst::SizedEData{}, 0}, newp};
             }
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    void visit(AstEq* nodep) override { visitEqNeq(nodep); }
-    void visit(AstNeq* nodep) override { visitEqNeq(nodep); }
+    व्योम visit(AstEq* nodep) override { visitEqNeq(nodep); }
+    व्योम visit(AstNeq* nodep) override { visitEqNeq(nodep); }
 
-    void visit(AstRedOr* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(AstRedOr* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
-        FileLine* const fl = nodep->fileline();
-        if (nodep->lhsp()->isWide()) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        अगर (nodep->lhsp()->isWide()) {
+            अगर (isImpure(nodep)) वापस;
+            अगर (!doExpandWide(nodep->lhsp())) वापस;
             didPattern(VExpandPattern::WORDIZE_REDOR, nodep);
             // -> (0!={or{for each_word{WORDSEL(lhs,#)}}}
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* const eqp = newAstWordSelClone(nodep->lhsp(), w);
-                newp = newp ? new AstOr{fl, newp, eqp} : eqp;
+            Ast_गाँठ_व्यंजक* newp = nullptr;
+            क्रम (पूर्णांक w = 0; w < nodep->lhsp()->width_शब्दगण(); ++w) {
+                Ast_गाँठ_व्यंजक* स्थिर eqp = newAstWordSelClone(nodep->lhsp(), w);
+                newp = newp ? नया AstOr{fl, newp, eqp} : eqp;
             }
-            newp = new AstNeq{fl, new AstConst{fl, AstConst::SizedEData{}, 0}, newp};
+            newp = नया AstNeq{fl, नया AstConst{fl, AstConst::SizedEData{}, 0}, newp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
-        } else {
+        } अन्यथा {
             // No isImpure() check - can handle side effects in below
             didPattern(VExpandPattern::REDOR_TO_NEQ, nodep);
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const newp = new AstNeq{
-                fl, new AstConst{fl, AstConst::WidthedValue{}, longOrQuadWidth(nodep), 0}, lhsp};
+            Ast_गाँठ_व्यंजक* स्थिर lhsp = nodep->lhsp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* स्थिर newp = नया AstNeq{
+                fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, longOrQuadWidth(nodep), 0}, lhsp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    void visit(AstRedAnd* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(AstRedAnd* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
-        FileLine* const fl = nodep->fileline();
-        if (nodep->lhsp()->isWide()) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
+        File_पंक्ति* स्थिर fl = nodep->fileline();
+        अगर (nodep->lhsp()->isWide()) {
+            अगर (isImpure(nodep)) वापस;
+            अगर (!doExpandWide(nodep->lhsp())) वापस;
             didPattern(VExpandPattern::WORDIZE_REDAND, nodep);
             // -> (0!={and{for each_word{WORDSEL(lhs,#)}}}
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* eqp = newAstWordSelClone(nodep->lhsp(), w);
-                if (w == nodep->lhsp()->widthWords() - 1) {
+            Ast_गाँठ_व्यंजक* newp = nullptr;
+            क्रम (पूर्णांक w = 0; w < nodep->lhsp()->width_शब्दगण(); ++w) {
+                Ast_गाँठ_व्यंजक* eqp = newAstWordSelClone(nodep->lhsp(), w);
+                अगर (w == nodep->lhsp()->width_शब्दगण() - 1) {
                     // Rather than doing a (slowish) ==##, we OR in the
                     // bits that aren't part of the mask
-                    eqp = new AstOr{fl, new AstConst{fl, notWideMask(nodep->lhsp())},
+                    eqp = नया AstOr{fl, नया AstConst{fl, notWideMask(nodep->lhsp())},
                                     // Bug in cppcheck
                                     // cppcheck-suppress memleak
                                     eqp};
                 }
-                newp = newp ? new AstAnd{fl, newp, eqp} : eqp;
+                newp = newp ? नया AstAnd{fl, newp, eqp} : eqp;
             }
-            newp = new AstEq{fl, new AstConst{fl, AstConst::SizedEData{}, VL_MASK_E(VL_EDATASIZE)},
+            newp = नया AstEq{fl, नया AstConst{fl, AstConst::SizedEData{}, VL_MASK_E(VL_EDATASIZE)},
                              newp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
-        } else {
+        } अन्यथा {
             // No isImpure() check - can handle side effects in below
             didPattern(VExpandPattern::REDAND_TO_EQ, nodep);
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const newp = new AstEq{fl, new AstConst{fl, wordMask(lhsp)}, lhsp};
+            Ast_गाँठ_व्यंजक* स्थिर lhsp = nodep->lhsp()->unlinkFrBack();
+            Ast_गाँठ_व्यंजक* स्थिर newp = नया AstEq{fl, नया AstConst{fl, wordMask(lhsp)}, lhsp};
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
     }
-    void visit(AstRedXor* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(AstRedXor* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         iterateChildren(nodep);
-        if (nodep->lhsp()->isWide()) {
-            if (isImpure(nodep)) return;
-            if (!doExpandWide(nodep->lhsp())) return;
+        अगर (nodep->lhsp()->isWide()) {
+            अगर (isImpure(nodep)) वापस;
+            अगर (!doExpandWide(nodep->lhsp())) वापस;
             didPattern(VExpandPattern::WORDIZE_REDXOR, nodep);
             // -> (0!={redxor{for each_word{XOR(WORDSEL(lhs,#))}}}
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* newp = nullptr;
-            for (int w = 0; w < nodep->lhsp()->widthWords(); ++w) {
-                AstNodeExpr* const eqp = newAstWordSelClone(nodep->lhsp(), w);
-                newp = newp ? new AstXor{fl, newp, eqp} : eqp;
+            File_पंक्ति* स्थिर fl = nodep->fileline();
+            Ast_गाँठ_व्यंजक* newp = nullptr;
+            क्रम (पूर्णांक w = 0; w < nodep->lhsp()->width_शब्दगण(); ++w) {
+                Ast_गाँठ_व्यंजक* स्थिर eqp = newAstWordSelClone(nodep->lhsp(), w);
+                newp = newp ? नया AstXor{fl, newp, eqp} : eqp;
             }
-            newp = new AstRedXor{fl, newp};
+            newp = नया AstRedXor{fl, newp};
             UINFO(8, "    Wordize REDXORnew " << newp);
             VL_DO_DANGLING(replaceWithDelete(nodep, newp), nodep);
         }
@@ -1211,96 +1211,96 @@ class ExpandVisitor final : public VNVisitor {
         // which the inlined function does nicely.
     }
 
-    void visit(AstNodeStmt* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    व्योम visit(Ast_गाँठ_Stmt* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType)) {
-            return;  // Skip for UnpackArrayDType
+    व्योम visit(Ast_गाँठ_Assign* nodep) override {
+        अगर (nodep->user1SetOnce()) वापस;  // Process once
+        अगर (VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType)) {
+            वापस;  // Skip for UnpackArrayDType
         }
 
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
         bool did = false;
-        if (nodep->isWide()  //
+        अगर (nodep->isWide()  //
             && ((VN_IS(nodep->lhsp(), VarRef) || VN_IS(nodep->lhsp(), ArraySel)))
             && !AstVar::scVarRecurse(nodep->lhsp())  // Need special function for SC
             && !AstVar::scVarRecurse(nodep->rhsp())) {
-            if (AstConst* const rhsp = VN_CAST(nodep->rhsp(), Const)) {
+            अगर (AstConst* स्थिर rhsp = VN_CAST(nodep->rhsp(), Const)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+            } अन्यथा अगर (AstVarRef* स्थिर rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstSel* const rhsp = VN_CAST(nodep->rhsp(), Sel)) {
+            } अन्यथा अगर (AstSel* स्थिर rhsp = VN_CAST(nodep->rhsp(), Sel)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstArraySel* const rhsp = VN_CAST(nodep->rhsp(), ArraySel)) {
+            } अन्यथा अगर (AstArraySel* स्थिर rhsp = VN_CAST(nodep->rhsp(), ArraySel)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstConcat* const rhsp = VN_CAST(nodep->rhsp(), Concat)) {
+            } अन्यथा अगर (AstConcat* स्थिर rhsp = VN_CAST(nodep->rhsp(), Concat)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstExtend* const rhsp = VN_CAST(nodep->rhsp(), Extend)) {
+            } अन्यथा अगर (AstExtend* स्थिर rhsp = VN_CAST(nodep->rhsp(), Extend)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstReplicate* const rhsp = VN_CAST(nodep->rhsp(), Replicate)) {
+            } अन्यथा अगर (AstReplicate* स्थिर rhsp = VN_CAST(nodep->rhsp(), Replicate)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstAnd* const rhsp = VN_CAST(nodep->rhsp(), And)) {
+            } अन्यथा अगर (AstAnd* स्थिर rhsp = VN_CAST(nodep->rhsp(), And)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstOr* const rhsp = VN_CAST(nodep->rhsp(), Or)) {
+            } अन्यथा अगर (AstOr* स्थिर rhsp = VN_CAST(nodep->rhsp(), Or)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstNot* const rhsp = VN_CAST(nodep->rhsp(), Not)) {
+            } अन्यथा अगर (AstNot* स्थिर rhsp = VN_CAST(nodep->rhsp(), Not)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstXor* const rhsp = VN_CAST(nodep->rhsp(), Xor)) {
+            } अन्यथा अगर (AstXor* स्थिर rhsp = VN_CAST(nodep->rhsp(), Xor)) {
                 did = expandWide(nodep, rhsp);
-            } else if (AstShiftL* const rhsp = VN_CAST(nodep->rhsp(), ShiftL)) {
+            } अन्यथा अगर (AstShiftL* स्थिर rhsp = VN_CAST(nodep->rhsp(), ShiftL)) {
                 did = expandWideShift(nodep, rhsp, /* isLeftShift: */ true);
-            } else if (AstShiftR* const rhsp = VN_CAST(nodep->rhsp(), ShiftR)) {
+            } अन्यथा अगर (AstShiftR* स्थिर rhsp = VN_CAST(nodep->rhsp(), ShiftR)) {
                 did = expandWideShift(nodep, rhsp, /* isLeftShift: */ false);
-            } else if (AstCond* const rhsp = VN_CAST(nodep->rhsp(), Cond)) {
+            } अन्यथा अगर (AstCond* स्थिर rhsp = VN_CAST(nodep->rhsp(), Cond)) {
                 did = expandWide(nodep, rhsp);
             }
-        } else if (AstSel* const lhsp = VN_CAST(nodep->lhsp(), Sel)) {
+        } अन्यथा अगर (AstSel* स्थिर lhsp = VN_CAST(nodep->lhsp(), Sel)) {
             did = expandLhs(nodep, lhsp);
         }
         // Cleanup common code
-        if (did) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        अगर (did) VL_DO_DANGLING(nodep->unlinkFrBack()->delete_वृक्ष(), nodep);
     }
 
     //--------------------
-    void visit(AstVar*) override {}  // Don't hit varrefs under vars
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    व्योम visit(AstVar*) override {}  // Don't hit varrefs under vars
+    व्योम visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+खुला:
     // CONSTRUCTORS
     explicit ExpandVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ExpandVisitor() override {
         V3Stats::addStat("Optimizations, Expand, expanded wides", m_statWides);
-        V3Stats::addStat("Optimizations, Expand, expanded wide words", m_statWideWords);
+        V3Stats::addStat("Optimizations, Expand, expanded wide words", m_stat_Wide_शब्दगण);
         V3Stats::addStat("Optimizations, Expand, not expanded impure", m_statImpure);
         V3Stats::addStat("Optimizations, Expand, not expanded limit", m_statWideLimited);
         V3Stats::addStat("Optimizations, Expand, temporaries created", m_statTemps);
-        const auto emitStat = [this](VExpandPattern pattern) {
+        स्थिर स्वतः emitStat = [यह](VExpandPattern pattern) {
             std::string str{pattern.ascii()};
-            std::transform(str.begin(), str.end(), str.begin(), [](unsigned char c) {  //
-                return c == '_' ? ' ' : std::tolower(c);
+            std::transform(str.begin(), str.end(), str.begin(), [](अचिन्हित अक्षर c) {  //
+                वापस c == '_' ? ' ' : std::छोटे(c);
             });
             V3Stats::addStat("Optimizations, Expand, pattern " + str, m_statPatterns[pattern]);
         };
-#define EXPAND_PATTERN_EMIT_STAT(id) emitStat(VExpandPattern::id);
+#घोषणा EXPAND_PATTERN_EMIT_STAT(id) emitStat(VExpandPattern::id);
         FOR_EACH_EXPAND_PATTERN(EXPAND_PATTERN_EMIT_STAT)
-#undef EXPAND_PATTERN_EMIT_STAT
+#अघोषित EXPAND_PATTERN_EMIT_STAT
     }
 };
 
 //######################################################################
 // Expand class functions
 
-void V3Expand::expandAll(AstNetlist* nodep) {
+व्योम V3Expand::expandAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        const ExpandOkVisitor okVisitor{nodep};
+        स्थिर ExpandOkVisitor okVisitor{nodep};
         ExpandVisitor{nodep};
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("expand", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्ष("expand", 0, dump_वृक्ष_Either_Level() >= 3);
 }

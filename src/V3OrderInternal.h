@@ -14,18 +14,18 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERINTERNAL_H_
-#define VERILATOR_V3ORDERINTERNAL_H_
+#अगर_अघोषित VERILATOR_V3ORDERINTERNAL_H_
+#घोषणा VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#समावेश "V3Order.h"
+#समावेश "V3OrderGraph.h"
+#समावेश "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#समावेश <string>
+#समावेश <vector>
 
 class AstVarScope;
 
@@ -37,22 +37,22 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(स्थिर V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            स्थिर std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            स्थिर V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+व्योम orderOrderGraph(OrderGraph& graph, स्थिर std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+व्योम processDomains(OrderGraph& graph,  //
+                    स्थिर std::string& tag,  //
+                    स्थिर ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_गाँठ_Stmt* createSerial(OrderMoveGraph& moveGraph, स्थिर std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_गाँठ_Stmt* createParallel(OrderMoveGraph& moveGraph, स्थिर std::string& tag, bool slow);
 
 };  // namespace V3Order
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

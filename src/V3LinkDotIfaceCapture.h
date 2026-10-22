@@ -16,24 +16,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKDOTIFACECAPTURE_H_
-#define VERILATOR_V3LINKDOTIFACECAPTURE_H_
+#अगर_अघोषित VERILATOR_V3LINKDOTIFACECAPTURE_H_
+#घोषणा VERILATOR_V3LINKDOTIFACECAPTURE_H_
 
-#include "config_build.h"
+#समावेश "config_build.h"
 
-#include "V3Ast.h"
+#समावेश "V3Ast.h"
 
-#include <deque>
-#include <functional>
-#include <string>
-#include <unordered_set>
+#समावेश <deque>
+#समावेश <functional>
+#समावेश <string>
+#समावेश <unordered_set>
 
 class VSymEnt;
 
 // Capture record of an AstRefDType, shared by all clones of that reference
 class VIfaceCaptureTag final {
-public:
-    enum class Kind : uint8_t {
+खुला:
+    क्रमागत class Kind : uint8_t {
         TYPEDEF,  // Refers to a typedef in the interface
         PARAM_TYPE  // Refers to a type parameter of the interface
     };
@@ -44,57 +44,57 @@ public:
 };
 
 class V3LinkDotIfaceCapture final {
-    static std::deque<VIfaceCaptureTag> s_tags;  // Owns every tag; a deque keeps addresses stable
-    static bool s_enabled;
+    अटल std::deque<VIfaceCaptureTag> s_tags;  // Owns every tag; a deque keeps addresses stable
+    अटल bool s_enabled;
 
     // --- Internal-only methods (not called outside V3LinkDotIfaceCapture.cpp) ---
-    static void enable(bool flag);  // LCOV_EXCL_LINE
-    static void reset();
-    static void clearModuleCache();
-    static AstIfaceRefDType* ifaceRefFromVarDType(AstNodeDType* dtypep);
+    अटल व्योम enable(bool flag);  // LCOV_EXCL_LINE
+    अटल व्योम reset();
+    अटल व्योम clearModuleCache();
+    अटल AstIfaceRefDType* ifaceRefFromVarDType(Ast_गाँठ_DType* dtypep);
     // Point a reference at a typedef and fix its other links.
-    static void retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp);
+    अटल व्योम retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp);
     // Same, for a parameter type.
-    static void retargetRefToParamType(AstRefDType* refp, AstParamTypeDType* paramTypep);
+    अटल व्योम retargetRefToParamType(AstRefDType* refp, AstParamTypeDType* paramTypep);
     // Tag a reference captured in capturedInp
-    static void tag(AstRefDType* refp, const AstNodeModule* capturedInp,
-                    VIfaceCaptureTag::Kind kind, const string& cellPath,
-                    const string& ownerModName);
-    static int resolveCapturedRefs();
-    static void verifyNoDeadRefs(const std::unordered_set<const AstNode*>& liveNodes);
+    अटल व्योम tag(AstRefDType* refp, स्थिर Ast_गाँठ_Module* capturedInp,
+                    VIfaceCaptureTag::Kind kind, स्थिर string& cellPath,
+                    स्थिर string& ownerModName);
+    अटल पूर्णांक resolveCapturedRefs();
+    अटल व्योम verifyNoDeadRefs(स्थिर std::unordered_set<स्थिर Ast_गाँठ*>& liveNodes);
 
-public:
-    static bool enabled() { return s_enabled; }
+खुला:
+    अटल bool enabled() { वापस s_enabled; }
     // Tag of a reference, or nullptr if untagged or copied into another module
-    static const VIfaceCaptureTag* captureTag(AstRefDType* refp);
-    static AstNodeModule* findOwnerModule(AstNode* nodep);
+    अटल स्थिर VIfaceCaptureTag* captureTag(AstRefDType* refp);
+    अटल Ast_गाँठ_Module* findOwnerModule(Ast_गाँठ* nodep);
     // Find a Typedef by name in a module's top-level statements
-    static AstTypedef* findTypedefInModule(AstNodeModule* modp, const string& name);
+    अटल AstTypedef* findTypedefInModule(Ast_गाँठ_Module* modp, स्थिर string& name);
     // Find a NodeDType by name and VNType in a module's top-level statements
-    static AstNodeDType* findDTypeInModule(AstNodeModule* modp, const string& name, VNType type);
+    अटल Ast_गाँठ_DType* findDTypeInModule(Ast_गाँठ_Module* modp, स्थिर string& name, VNType type);
     // Find a ParamTypeDType by name in a module's top-level statements
-    static AstParamTypeDType* findParamTypeInModule(AstNodeModule* modp, const string& name);
+    अटल AstParamTypeDType* findParamTypeInModule(Ast_गाँठ_Module* modp, स्थिर string& name);
     // Retarget a captured reference at the same-named target in targetModp.
-    static bool retargetRefToModule(AstRefDType* refp, AstNodeModule* targetModp);
-    static void addParamType(AstRefDType* refp, const string& cellPath, AstNodeModule* ownerModp,
-                             AstParamTypeDType* paramTypep, const string& paramTypeOwnerModName);
+    अटल bool retargetRefToModule(AstRefDType* refp, Ast_गाँठ_Module* targetModp);
+    अटल व्योम addParamType(AstRefDType* refp, स्थिर string& cellPath, Ast_गाँठ_Module* ownerModp,
+                             AstParamTypeDType* paramTypep, स्थिर string& paramTypeOwnerModName);
 
     // Walk a dot-separated cell path (e.g. "cca_io.tlb_io") starting from
     // startModp, returning the module at the end of the path.  Returns
     // nullptr if any component cannot be resolved.
-    static AstNodeModule* followCellPath(AstNodeModule* startModp, const string& cellPath);
+    अटल Ast_गाँठ_Module* followCellPath(Ast_गाँठ_Module* startModp, स्थिर string& cellPath);
 
-    static void captureTypedefContext(AstRefDType* refp, const char* stageLabel, int dotPos,
-                                      const std::string& dotText, VSymEnt* dotSymp,
-                                      AstNodeModule* modp,
-                                      const std::function<std::string()>& indentFn);
+    अटल व्योम captureTypedefContext(AstRefDType* refp, स्थिर अक्षर* stageLabel, पूर्णांक dotPos,
+                                      स्थिर std::string& dotText, VSymEnt* dotSymp,
+                                      Ast_गाँठ_Module* modp,
+                                      स्थिर std::function<std::string()>& indentFn);
 
     // Debug: dump all captured references
-    static void dumpEntries(const string& label);
+    अटल व्योम dumpEntries(स्थिर string& label);
 
     // Called after V3Param but before V3Dead to fix any remaining cross-interface refs
     // that still point to template nodes (which will be deleted by V3Dead).
-    static void finalizeIfaceCapture();
+    अटल व्योम finalizeIfaceCapture();
 };
 
-#endif  // VERILATOR_V3LINKDOTIFACECAPTURE_H_
+#पूर्ण_अगर  // VERILATOR_V3LINKDOTIFACECAPTURE_H_

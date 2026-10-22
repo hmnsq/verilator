@@ -14,55 +14,55 @@
 //
 //*************************************************************************
 
-#include "V3UndrivenCapture.h"
+#समावेश "V3UndrivenCapture.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
+#समावेश "V3Error.h"
+#समावेश "V3Global.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 namespace {
 
-class CaptureUtil final {
-public:
-    static std::string taskNameQ(const AstNodeFTask* taskp) {
-        if (!taskp) return "<null>";
-        return taskp->prettyNameQ();
+श्रेणी CaptureUtil final {
+खुला:
+    अटल std::string taskNameQ(स्थिर Ast_गाँठ_FTask* taskp) {
+        अगर (!taskp) वापस "<null>";
+        वापस taskp->prettyNameQ();
     }
 };
 
-class CaptureVisitor final : public VNVisitorConst {
+श्रेणी CaptureVisitor final : खुला VNVisitorConst {
     V3UndrivenCapture& m_cap;
-    const AstNodeFTask* m_curTaskp = nullptr;  // Current task
+    स्थिर Ast_गाँठ_FTask* m_curTaskp = nullptr;  // Current task
     bool m_inInitialSetup = false;  // In InitialAutomatic*/InitialStatic* assignment LHS
 
-public:
+खुला:
     explicit CaptureVisitor(V3UndrivenCapture& cap, AstNetlist* netlistp)
         : m_cap{cap} {
         iterateConst(netlistp);
     }
 
-private:
+निजी:
     // Visit a task/function definition and collect direct writes and direct callees.
-    void visit(AstNodeFTask* nodep) override {
+    व्योम visit(Ast_गाँठ_FTask* nodep) override {
         VL_RESTORER(m_curTaskp);
         m_curTaskp = nodep;
         UINFO(9, "undriven capture enter ftask " << nodep << " " << nodep->prettyNameQ());
         m_cap.noteTask(nodep);
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
     }
 
-    void visit(AstInitialAutomaticStmt* nodep) override {
+    व्योम visit(AstInitialAutomaticStmt* nodep) override {
         VL_RESTORER(m_inInitialSetup);
         m_inInitialSetup = true;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
+    व्योम visit(AstInitialStaticStmt* nodep) override {
         VL_RESTORER(m_inInitialSetup);
         m_inInitialSetup = true;
         iterateChildrenConst(nodep);
     }
-    void visit(AstAssign* nodep) override {
+    व्योम visit(AstAssign* nodep) override {
         {
             VL_RESTORER(m_inInitialSetup);
             m_inInitialSetup = false;
@@ -71,8 +71,8 @@ private:
         iterateConst(nodep->lhsp());
     }
 
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_curTaskp && nodep->access().isWriteOrRW()
+    व्योम visit(Ast_गाँठ_Var_Ref* nodep) override {
+        अगर (m_curTaskp && nodep->access().isWriteOrRW()
             && (nodep->varp()->hasUserInit() || !m_inInitialSetup)) {
             UINFO(9, "undriven capture direct write in " << CaptureUtil::taskNameQ(m_curTaskp)
                                                          << " var=" << nodep->varp()->prettyNameQ()
@@ -83,10 +83,10 @@ private:
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeFTaskRef* nodep) override {
+    व्योम visit(Ast_गाँठ_FTask_Ref* nodep) override {
         // Record the call edge if resolved
-        if (m_curTaskp) {
-            if (const AstNodeFTask* const calleep = nodep->taskp()) {
+        अगर (m_curTaskp) {
+            अगर (स्थिर Ast_गाँठ_FTask* स्थिर calleep = nodep->taskp()) {
                 UINFO(9, "undriven capture call edge " << CaptureUtil::taskNameQ(
                              m_curTaskp) << " -> " << CaptureUtil::taskNameQ(calleep));
                 m_cap.noteCallEdge(m_curTaskp, calleep);
@@ -95,7 +95,7 @@ private:
         iterateChildrenConst(nodep);  // still scan pins/args
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(Ast_गाँठ* nodep) override { iterateChildrenConst(nodep); }
 };
 
 }  // namespace
@@ -104,95 +104,95 @@ V3UndrivenCapture::V3UndrivenCapture(AstNetlist* netlistp) {
     gather(netlistp);
 
     // Compute summaries for all tasks
-    for (const auto& kv : m_info) (void)computeWriteSummary(kv.first);
+    क्रम (स्थिर स्वतः& kv : m_info) (व्योम)computeWriteSummary(kv.first);
 
     // Release the filter memory
-    for (auto& kv : m_info) {
-        kv.second.calleesSet.clear();
+    क्रम (स्वतः& kv : m_info) {
+        kv.second.calleesSet.सफा();
         kv.second.calleesSet.rehash(0);
-        kv.second.directWritesSet.clear();
+        kv.second.directWritesSet.सफा();
         kv.second.directWritesSet.rehash(0);
     }
 }
 
-void V3UndrivenCapture::gather(AstNetlist* netlistp) {
+व्योम V3UndrivenCapture::gather(AstNetlist* netlistp) {
     // Walk netlist and populate m_info with direct writes + call edges
-    CaptureVisitor{*this, netlistp};
+    CaptureVisitor{*यह, netlistp};
 }
 
-const std::vector<AstVar*>& V3UndrivenCapture::writeSummary(const AstNodeFTask* taskp) {
+स्थिर std::vector<AstVar*>& V3UndrivenCapture::writeSummary(स्थिर Ast_गाँठ_FTask* taskp) {
     // Ensure entry exists even if empty
-    (void)m_info[taskp];
-    return computeWriteSummary(taskp);
+    (व्योम)m_info[taskp];
+    वापस computeWriteSummary(taskp);
 }
 
-const std::vector<AstVar*>& V3UndrivenCapture::computeWriteSummary(const AstNodeFTask* taskp) {
+स्थिर std::vector<AstVar*>& V3UndrivenCapture::computeWriteSummary(स्थिर Ast_गाँठ_FTask* taskp) {
     FTaskInfo& info = m_info[taskp];
 
-    if (info.state == State::DONE) {
+    अगर (info.state == State::DONE) {
         UINFO(9, "undriven capture writeSummary cached size="
-                     << info.writeSummary.size() << " for " << CaptureUtil::taskNameQ(taskp));
-        return info.writeSummary;
+                     << info.writeSummary.आकार() << " for " << CaptureUtil::taskNameQ(taskp));
+        वापस info.writeSummary;
     }
-    if (info.state == State::VISITING) {
+    अगर (info.state == State::VISITING) {
         UINFO(9, "undriven capture recursion detected at "
                      << CaptureUtil::taskNameQ(taskp)
-                     << " returning directWrites size=" << info.directWrites.size());
+                     << " returning directWrites size=" << info.directWrites.आकार());
         // Cycle detected. return directWrites only to guarantee termination.
-        if (info.writeSummary.empty()) info.writeSummary = info.directWrites;
-        return info.writeSummary;
+        अगर (info.writeSummary.empty()) info.writeSummary = info.directWrites;
+        वापस info.writeSummary;
     }
 
     info.state = State::VISITING;
 
-    info.writeSummary.clear();
+    info.writeSummary.सफा();
 
     // Prevent duplicates across all sources that can contribute to a write summary (direct writes
     // and call chains)
     std::unordered_set<AstVar*> seen;
 
     // Simple lambda for filtering duplicates
-    auto addVar = [&](AstVar* v) {
-        if (seen.insert(v).second) info.writeSummary.push_back(v);
+    स्वतः addVar = [&](AstVar* v) {
+        अगर (seen.जोड़ो(v).second) info.writeSummary.धकेलो_back(v);
     };
 
     // Start with direct writes
-    for (AstVar* v : info.directWrites) addVar(v);
+    क्रम (AstVar* v : info.directWrites) addVar(v);
 
     // Add callee summaries
-    for (const AstNodeFTask* calleep : info.callees) {
-        if (m_info.find(calleep) == m_info.end()) continue;
-        const std::vector<AstVar*>& sub = computeWriteSummary(calleep);
-        for (AstVar* v : sub) addVar(v);
+    क्रम (स्थिर Ast_गाँठ_FTask* calleep : info.callees) {
+        अगर (m_info.find(calleep) == m_info.end()) जारी;
+        स्थिर std::vector<AstVar*>& sub = computeWriteSummary(calleep);
+        क्रम (AstVar* v : sub) addVar(v);
     }
 
-    UINFO(9, "undriven capture writeSummary computed size=" << info.writeSummary.size() << " for "
+    UINFO(9, "undriven capture writeSummary computed size=" << info.writeSummary.आकार() << " for "
                                                             << CaptureUtil::taskNameQ(taskp));
 
     // We are done, so set the m_info state correctly and return the vector of variables
     info.state = State::DONE;
-    return info.writeSummary;
+    वापस info.writeSummary;
 }
 
-void V3UndrivenCapture::noteTask(const AstNodeFTask* taskp) { (void)m_info[taskp]; }
+व्योम V3UndrivenCapture::noteTask(स्थिर Ast_गाँठ_FTask* taskp) { (व्योम)m_info[taskp]; }
 
-void V3UndrivenCapture::noteDirectWrite(const AstNodeFTask* taskp, AstVar* varp) {
+व्योम V3UndrivenCapture::noteDirectWrite(स्थिर Ast_गाँठ_FTask* taskp, AstVar* varp) {
     FTaskInfo& info = m_info[taskp];
 
     // Exclude function return variable (not an externally visible side-effect)
-    AstVar* const retVarp = VN_CAST(taskp->fvarp(), Var);
-    if (retVarp && varp == retVarp) return;
+    AstVar* स्थिर retVarp = VN_CAST(taskp->fvarp(), Var);
+    अगर (retVarp && varp == retVarp) वापस;
 
     // Filter out duplicates.
-    if (info.directWritesSet.insert(varp).second) info.directWrites.push_back(varp);
+    अगर (info.directWritesSet.जोड़ो(varp).second) info.directWrites.धकेलो_back(varp);
 }
 
-void V3UndrivenCapture::noteCallEdge(const AstNodeFTask* callerp, const AstNodeFTask* calleep) {
+व्योम V3UndrivenCapture::noteCallEdge(स्थिर Ast_गाँठ_FTask* callerp, स्थिर Ast_गाँठ_FTask* calleep) {
     FTaskInfo& callerInfo = m_info[callerp];
     // Prevents duplicate entries from being appended, if calleep already exists then insert will
     // return false, and then is not inserted into the callees vector.
-    if (callerInfo.calleesSet.insert(calleep).second) { callerInfo.callees.push_back(calleep); }
+    अगर (callerInfo.calleesSet.जोड़ो(calleep).second) { callerInfo.callees.धकेलो_back(calleep); }
     // Ensure callee entry exists, if already exists then this is a no-op.  unordered_map<> so
     // cheap.
-    (void)m_info[calleep];
+    (व्योम)m_info[calleep];
 }

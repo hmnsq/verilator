@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITV_H_
-#define VERILATOR_V3EMITV_H_
+#अगर_अघोषित VERILATOR_V3EMITV_H_
+#घोषणा VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_गाँठ;
+class Ast_Sen_वृक्ष;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+खुला:
+    अटल व्योम verilog_For_वृक्ष(स्थिर Ast_गाँठ* nodep, std::ostream& os = std::cout);
+    अटल व्योम debug_Verilog_For_वृक्ष(स्थिर Ast_गाँठ* nodep, std::ostream& os);
+    अटल std::string debug_Verilog_For_वृक्ष(स्थिर Ast_गाँठ* nodep);
+    अटल व्योम emitvFiles();
+    अटल व्योम debugEmitV(स्थिर string& filename);
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

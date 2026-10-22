@@ -19,607 +19,607 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTNODEDTYPE_H_
-#define VERILATOR_V3ASTNODEDTYPE_H_
+#अगर_अघोषित VERILATOR_V3ASTNODEDTYPE_H_
+#घोषणा VERILATOR_V3ASTNODEDTYPE_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#अगर_अघोषित VERILATOR_V3AST_H_
+#त्रुटि "Use V3Ast.h as the include"
+#समावेश "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#घोषणा VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#पूर्ण_अगर
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeDType VL_NOT_FINAL : public AstNode {
+class Ast_गाँठ_DType VL_NOT_FINAL : खुला Ast_गाँठ {
     // Ideally width() would migrate to BasicDType as that's where it makes sense,
     // but it's currently so prevalent in the code we leave it here.
     // Note the below members are included in AstTypeTable::Key lookups
     // dist-ast-dump-suppress  // Part of dumpSmall
-    int m_width = 0;  // (also in AstTypeTable::Key) Bit width of operation
+    पूर्णांक m_width = 0;  // (also in AstTypeTable::Key) Bit width of operation
     // (also in AstTypeTable::Key) If unsized, bitwidth of minimum implementation
     // dist-ast-dump-suppress  // Part of dumpSmall
-    int m_widthMin = 0;
+    पूर्णांक m_widthMin = 0;
     // dist-ast-dump-suppress  // Part of dumpSmall
     VSigning m_numeric;  // (also in AstTypeTable::Key) Node is signed
     // dist-ast-dump-suppress  // Part of dumpSmall
     bool m_generic = false;  // Simple globally referenced type, don't garbage collect
     // Unique number assigned to each dtype during creation for IEEE matching
-    static int s_uniqueNum;
+    अटल पूर्णांक s_unique_अंक;
 
-protected:
+रक्षित:
     // CONSTRUCTORS
-    AstNodeDType(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+    Ast_गाँठ_DType(VNType t, File_पंक्ति* fl)
+        : Ast_गाँठ{t, fl} {}
 
-private:
+निजी:
     // METHODS
-    const AstNodeDType* skipRefIterp(bool skipConst, bool skipEnum,
-                                     bool assertOn = true) const VL_MT_STABLE;
+    स्थिर Ast_गाँठ_DType* skipRefIterp(bool skipConst, bool skipEnum,
+                                     bool assertOn = true) स्थिर VL_MT_STABLE;
 
-protected:
+रक्षित:
     // METHODS
-    virtual bool similarDTypeNode(const AstNodeDType* samep) const = 0;
+    भव bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर = 0;
 
-public:
-    ASTGEN_MEMBERS_AstNodeDType;
+खुला:
+    ASTGEN_MEMBERS_Ast_गाँठ_DType;
     // ACCESSORS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    virtual void dumpSmall(std::ostream& str) const VL_MT_STABLE;
-    bool hasDType() const override VL_MT_SAFE { return true; }
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
+    भव व्योम dumpSmall(std::ostream& str) स्थिर VL_MT_STABLE;
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
     /// Require VlUnpacked, instead of [] for POD elements.
     /// A non-POD object is always compound, but some POD elements
     /// are compound when methods calls operate on object, or when
     /// under another compound-requiring object e.g. class
-    virtual bool isCompound() const = 0;
+    भव bool isCompound() स्थिर = 0;
     // Integral or packed, allowed inside an unpacked union/struct
-    virtual bool isIntegralOrPacked() const { return !isCompound(); }
+    भव bool isIntegralOrPacked() स्थिर { वापस !isCompound(); }
     // (Slow) recurse down to find basic data type
-    virtual AstBasicDType* basicp() const VL_MT_STABLE = 0;
+    भव AstBasicDType* basicp() स्थिर VL_MT_STABLE = 0;
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType|EnumDType to other type
-    const AstNodeDType* skipRefp() const VL_MT_STABLE { return skipRefIterp(true, true); }
-    AstNodeDType* skipRefp() VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(true, true));
+    स्थिर Ast_गाँठ_DType* skipRefp() स्थिर VL_MT_STABLE { वापस skipRefIterp(true, true); }
+    Ast_गाँठ_DType* skipRefp() VL_MT_STABLE {
+        वापस const_cast<Ast_गाँठ_DType*>(
+            static_cast<स्थिर Ast_गाँठ_DType*>(this)->skipRefIterp(true, true));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType|EnumDType to other type,
     // Returns null if not resolved
-    const AstNodeDType* skipRefOrNullp() const VL_MT_STABLE {
-        return skipRefIterp(true, true, false);
+    स्थिर Ast_गाँठ_DType* skipRefOrNullp() स्थिर VL_MT_STABLE {
+        वापस skipRefIterp(true, true, false);
     }
-    AstNodeDType* skipRefOrNullp() VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(true, true, false));
+    Ast_गाँठ_DType* skipRefOrNullp() VL_MT_STABLE {
+        वापस const_cast<Ast_गाँठ_DType*>(
+            static_cast<स्थिर Ast_गाँठ_DType*>(this)->skipRefIterp(true, true, false));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|EnumDType to ConstDType
-    const AstNodeDType* skipRefToConstp() const { return skipRefIterp(false, true); }
-    AstNodeDType* skipRefToConstp() {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(false, true));
+    स्थिर Ast_गाँठ_DType* skipRefToConstp() स्थिर { वापस skipRefIterp(false, true); }
+    Ast_गाँठ_DType* skipRefToConstp() {
+        वापस const_cast<Ast_गाँठ_DType*>(
+            static_cast<स्थिर Ast_गाँठ_DType*>(this)->skipRefIterp(false, true));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType to EnumDType
-    const AstNodeDType* skipRefToEnump() const { return skipRefIterp(true, false); }
-    AstNodeDType* skipRefToEnump() {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(true, false));
+    स्थिर Ast_गाँठ_DType* skipRefToEnump() स्थिर { वापस skipRefIterp(true, false); }
+    Ast_गाँठ_DType* skipRefToEnump() {
+        वापस const_cast<Ast_गाँठ_DType*>(
+            static_cast<स्थिर Ast_गाँठ_DType*>(this)->skipRefIterp(true, false));
     }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType|ConstDType to EnumDType,
     // Returns null if not resolved
-    const AstNodeDType* skipRefToEnumOrNullp() const { return skipRefIterp(true, false, false); }
+    स्थिर Ast_गाँठ_DType* skipRefToEnumOrNullp() स्थिर { वापस skipRefIterp(true, false, false); }
     // (Slow) Recurse over MemberDType|ParamTypeDType|RefDType to other type
-    const AstNodeDType* skipRefToNonRefp() const { return skipRefIterp(false, false); }
-    AstNodeDType* skipRefToNonRefp() {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->skipRefIterp(false, false));
+    स्थिर Ast_गाँठ_DType* skipRefToNonRefp() स्थिर { वापस skipRefIterp(false, false); }
+    Ast_गाँठ_DType* skipRefToNonRefp() {
+        वापस const_cast<Ast_गाँठ_DType*>(
+            static_cast<स्थिर Ast_गाँठ_DType*>(this)->skipRefIterp(false, false));
     }
     // If array, returns element dtype, otherwise returns skipRef dtype
     // If skipRef is false, RefDTypes are not followed (safe before typedef linking)
-    const AstNodeDType* elemDTypep(bool skipRef = true) const VL_MT_STABLE;
-    AstNodeDType* elemDTypep(bool skipRef = true) VL_MT_STABLE {
-        return const_cast<AstNodeDType*>(
-            static_cast<const AstNodeDType*>(this)->elemDTypep(skipRef));
+    स्थिर Ast_गाँठ_DType* elemDTypep(bool skipRef = true) स्थिर VL_MT_STABLE;
+    Ast_गाँठ_DType* elemDTypep(bool skipRef = true) VL_MT_STABLE {
+        वापस const_cast<Ast_गाँठ_DType*>(
+            static_cast<स्थिर Ast_गाँठ_DType*>(this)->elemDTypep(skipRef));
     }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    virtual int widthAlignBytes() const = 0;
+    भव पूर्णांक widthAlignBytes() स्थिर = 0;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    virtual int widthTotalBytes() const = 0;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    भव पूर्णांक width_योग_Bytes() स्थिर = 0;
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
     // Iff has a non-null refDTypep(), as generic node function
-    virtual AstNodeDType* virtRefDTypep() const { return nullptr; }
+    भव Ast_गाँठ_DType* virtRefDTypep() स्थिर { वापस nullptr; }
     // Iff has refDTypep(), set as generic node function
-    virtual void virtRefDTypep(AstNodeDType* nodep) {}
+    भव व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) {}
     // Iff has a non-null second dtypep, as generic node function
-    virtual AstNodeDType* virtRefDType2p() const { return nullptr; }
+    भव Ast_गाँठ_DType* virtRefDType2p() स्थिर { वापस nullptr; }
     // Iff has second dtype, set as generic node function
-    virtual void virtRefDType2p(AstNodeDType* nodep) {}
+    भव व्योम virtRefDType2p(Ast_गाँठ_DType* nodep) {}
     // Assignable equivalence.  Calls skipRefToNonRefp() during comparisons.
-    bool similarDType(const AstNodeDType* samep) const;
+    bool similarDType(स्थिर Ast_गाँठ_DType* samep) स्थिर;
     // Iff has a non-null subDTypep(), as generic node function
-    virtual AstNodeDType* subDTypep() const VL_MT_STABLE { return nullptr; }
-    virtual AstNodeDType* subDType2p() const VL_MT_STABLE { return nullptr; }
-    virtual bool isAggregateType() const { return false; }
+    भव Ast_गाँठ_DType* subDTypep() स्थिर VL_MT_STABLE { वापस nullptr; }
+    भव Ast_गाँठ_DType* subDType2p() स्थिर VL_MT_STABLE { वापस nullptr; }
+    भव bool isAggregateType() स्थिर { वापस false; }
     // True for unpacked, dynamic, queue, and associative arrays (not packed arrays)
-    bool isNonPackedArray() const;
-    virtual bool isFourstate() const;
+    bool isNonPackedArray() स्थिर;
+    भव bool isFourstate() स्थिर;
     // Ideally an IEEE $typename
-    virtual string prettyDTypeName(bool) const { return prettyTypeName(); }
-    string prettyDTypeNameQ(bool full = false) const { return "'" + prettyDTypeName(full) + "'"; }
-    string stateDTypeName() const { return this->isFourstate() ? "(4-state)" : "(2-state)"; }
+    भव string prettyDTypeName(bool) स्थिर { वापस prettyTypeName(); }
+    string prettyDTypeNameQ(bool full = false) स्थिर { वापस "'" + prettyDTypeName(full) + "'"; }
+    string stateDTypeName() स्थिर { वापस this->isFourstate() ? "(4-state)" : "(2-state)"; }
     //
     // Changing the width may confuse the data type resolution, so must clear
     // TypeTable cache after use.
-    void widthForce(int width, int widthMin) {
+    व्योम widthForce(पूर्णांक width, पूर्णांक widthMin) {
         m_width = width;
         m_widthMin = widthMin;
     }
     // For backward compatibility inherit width and signing from the subDType/base type
-    void widthFromSub(const AstNodeDType* nodep) {
+    व्योम widthFromSub(स्थिर Ast_गाँठ_DType* nodep) {
         m_width = nodep->m_width;
         m_widthMin = nodep->m_widthMin;
         m_numeric = nodep->m_numeric;
     }
     //
-    int width() const VL_MT_STABLE { return m_width; }
-    void numeric(VSigning flag) { m_numeric = flag; }
-    bool isSigned() const VL_MT_STABLE { return m_numeric.isSigned(); }
-    bool isNosign() const VL_MT_SAFE { return m_numeric.isNosign(); }
-    VSigning numeric() const VL_MT_STABLE { return m_numeric; }
-    int widthWords() const VL_MT_STABLE { return VL_WORDS_I(width()); }
-    int widthMin() const VL_MT_STABLE {  // If sized, the size,
+    पूर्णांक width() स्थिर VL_MT_STABLE { वापस m_width; }
+    व्योम numeric(VSigning flag) { m_numeric = flag; }
+    bool isSigned() स्थिर VL_MT_STABLE { वापस m_numeric.isSigned(); }
+    bool isNosign() स्थिर VL_MT_SAFE { वापस m_numeric.isNosign(); }
+    VSigning numeric() स्थिर VL_MT_STABLE { वापस m_numeric; }
+    पूर्णांक width_शब्दगण() स्थिर VL_MT_STABLE { वापस VL_शब्दगण_I(width()); }
+    पूर्णांक widthMin() स्थिर VL_MT_STABLE {  // If sized, the size,
                                          // if unsized the min digits to represent it
-        return m_widthMin ? m_widthMin : m_width;
+        वापस m_widthMin ? m_widthMin : m_width;
     }
-    int widthPow2() const;
-    void widthMinFromWidth() { m_widthMin = m_width; }
-    bool widthSized() const VL_MT_SAFE { return !m_widthMin || m_widthMin == m_width; }
-    bool generic() const VL_MT_SAFE { return m_generic; }
-    void generic(bool flag) { m_generic = flag; }
-    std::pair<uint32_t, uint32_t> dimensions(bool includeBasic) const;
-    uint32_t arrayUnpackedElements() const;  // 1, or total multiplication of all dimensions
+    पूर्णांक widthPow2() स्थिर;
+    व्योम widthMinFromWidth() { m_widthMin = m_width; }
+    bool widthSized() स्थिर VL_MT_SAFE { वापस !m_widthMin || m_widthMin == m_width; }
+    bool generic() स्थिर VL_MT_SAFE { वापस m_generic; }
+    व्योम generic(bool flag) { m_generic = flag; }
+    std::pair<uint32_t, uint32_t> dimensions(bool includeBasic) स्थिर;
+    uint32_t arrayUnpackedElements() स्थिर;  // 1, or total multiplication of all dimensions
     // Fixed aggregate streaming properties
-    bool isStreamableFixedAggregate() const;
+    bool isStreamableFixedAggregate() स्थिर;
     // Whether is a string, or an unpacked array or structure containing one
-    bool containsString() const;
-    bool containsUnpackedStruct() const;
-    int widthStream() const;
-    string vlEnumType() const;  // Return VerilatedVarType: VLVT_UINT32, etc
-    string vlEnumPackedAgg() const;  // Return VLVF_PACKED_AGG etc flags, or empty
-    static int uniqueNumInc() { return ++s_uniqueNum; }
-    const char* charIQWN() const {
-        return (isString() ? "N" : isWide() ? "W" : isDouble() ? "D" : isQuad() ? "Q" : "I");
+    bool containsString() स्थिर;
+    bool containsUnpackedStruct() स्थिर;
+    पूर्णांक widthStream() स्थिर;
+    string vlEnumType() स्थिर;  // Return VerilatedVarType: VLVT_UINT32, etc
+    string vlEnumPackedAgg() स्थिर;  // Return VLVF_PACKED_AGG etc flags, or empty
+    अटल पूर्णांक unique_अंक_Inc() { वापस ++s_unique_अंक; }
+    स्थिर अक्षर* charIQWN() स्थिर {
+        वापस (isString() ? "N" : isWide() ? "W" : isDouble() ? "D" : isQuad() ? "Q" : "I");
     }
-    string cType(const string& name, bool forFunc, bool isRef, bool packed = false) const;
+    string cType(स्थिर string& name, bool forFunc, bool isRef, bool packed = false) स्थिर;
     // Represents a C++ LiteralType? (can be constexpr)
-    bool isLiteralType() const VL_MT_STABLE;
+    bool isLiteralType() स्थिर VL_MT_STABLE;
     // C++ type (as emitted by cType) is trivially default constructible and destructible?
-    bool isTriviallyConstructible() const VL_MT_STABLE;
-    virtual bool isDynamicallySized() const { return false; }
+    bool isTriviallyConstructible() स्थिर VL_MT_STABLE;
+    भव bool isDynamicallySized() स्थिर { वापस false; }
 
-private:
+निजी:
     class CTypeRecursed;
-    CTypeRecursed cTypeRecurse(bool compound, bool packed) const;
+    CTypeRecursed cTypeRecurse(bool compound, bool packed) स्थिर;
 };
-class AstNodeArrayDType VL_NOT_FINAL : public AstNodeDType {
+class Ast_गाँठ_Array_DType VL_NOT_FINAL : खुला Ast_गाँठ_DType {
     // Array data type, ie "some_dtype var_name [2:0]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := rangep : Optional[AstRange] // array bounds
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-    AstNode* rangenp() const { return reinterpret_cast<AstNode*>(rangep()); }
+    Ast_गाँठ* rangenp() स्थिर { वापस reinterpret_cast<Ast_गाँठ*>(rangep()); }
 
-protected:
-    AstNodeArrayDType(VNType t, FileLine* fl)
-        : AstNodeDType{t, fl} {}
+रक्षित:
+    Ast_गाँठ_Array_DType(VNType t, File_पंक्ति* fl)
+        : Ast_गाँठ_DType{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeArrayDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void dumpSmall(std::ostream& str) const override;
-    const char* broken() const override {
+खुला:
+    ASTGEN_MEMBERS_Ast_गाँठ_Array_DType;
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeArrayDType* const asamep = VN_DBG_AS(samep, NodeArrayDType);
-        return hi() == asamep->hi() && rangenp()->sameTree(asamep->rangenp())
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर Ast_गाँठ_Array_DType* स्थिर asamep = VN_DBG_AS(samep, गाँठ_Array_DType);
+        वापस hi() == asamep->hi() && rangenp()->same_वृक्ष(asamep->rangenp())
                && subDTypep() == asamep->subDTypep();
     }  // HashedDT doesn't recurse, so need to check children
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstNodeArrayDType* const asamep = VN_DBG_AS(samep, NodeArrayDType);
-        return elementsConst() == asamep->elementsConst()
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        स्थिर Ast_गाँठ_Array_DType* स्थिर asamep = VN_DBG_AS(samep, गाँठ_Array_DType);
+        वापस elementsConst() == asamep->elementsConst()
                && subDTypep()->similarDType(asamep->subDTypep());
     }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE {
-        return subDTypep()->basicp();
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE {
+        वापस subDTypep()->basicp();
     }  // (Slow) recurse down to find basic data type
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override {
-        return elementsConst() * subDTypep()->widthTotalBytes();
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override {
+        वापस elementsConst() * subDTypep()->width_योग_Bytes();
     }
-    inline int left() const VL_MT_STABLE;
-    inline int right() const VL_MT_STABLE;
-    inline int hi() const VL_MT_STABLE;
-    inline int lo() const VL_MT_STABLE;
-    inline int elementsConst() const VL_MT_STABLE;
-    inline VNumRange declRange() const VL_MT_STABLE;
+    अंतरभूत पूर्णांक बायाँ() स्थिर VL_MT_STABLE;
+    अंतरभूत पूर्णांक दायाँ() स्थिर VL_MT_STABLE;
+    अंतरभूत पूर्णांक hi() स्थिर VL_MT_STABLE;
+    अंतरभूत पूर्णांक lo() स्थिर VL_MT_STABLE;
+    अंतरभूत पूर्णांक elementsConst() स्थिर VL_MT_STABLE;
+    अंतरभूत VNumRange declRange() स्थिर VL_MT_STABLE;
 };
-class AstNodeUOrStructDType VL_NOT_FINAL : public AstNodeDType {
+class Ast_गाँठ_UOr_Struct_DType VL_NOT_FINAL : खुला Ast_गाँठ_DType {
     // A struct or union; common handling
     // @astgen op1 := membersp : List[AstMemberDType]
     //
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Package emitted with
     string m_name;  // Name from upper typedef, if any
     string m_typedefName;  // Typedef's dtypeName() once moved off the typedef declaring it
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    स्थिर पूर्णांक m_unique_अंक;  // Unique ID distinguishing this dtype instance, for hashing/naming
     bool m_packed;  // Packed struct/union, else unpacked
     bool m_isFourstate = false;  // V3Width computes; true if any member is 4-state
     bool m_constrainedRand = false;  // True if struct has constraint expression
     bool m_emitToString = false;  // Generate to_string() for this struct/union if set
 
-protected:
-    AstNodeUOrStructDType(VNType t, FileLine* fl, VSigning numericUnpack)
-        : AstNodeDType{t, fl}
-        , m_uniqueNum{uniqueNumInc()} {
+रक्षित:
+    Ast_गाँठ_UOr_Struct_DType(VNType t, File_पंक्ति* fl, VSigning numericUnpack)
+        : Ast_गाँठ_DType{t, fl}
+        , m_unique_अंक{unique_अंक_Inc()} {
         // VSigning::NOSIGN overloaded to indicate not packed
         m_packed = (numericUnpack != VSigning::NOSIGN);
         numeric(VSigning::fromBool(numericUnpack.isSigned()));
     }
-    AstNodeUOrStructDType(const AstNodeUOrStructDType& other)
-        : AstNodeDType{other}
+    Ast_गाँठ_UOr_Struct_DType(स्थिर Ast_गाँठ_UOr_Struct_DType& other)
+        : Ast_गाँठ_DType{other}
         , m_name{other.m_name}
         , m_typedefName{other.m_typedefName}
-        , m_uniqueNum{uniqueNumInc()}
+        , m_unique_अंक{unique_अंक_Inc()}
         , m_packed{other.m_packed}
         , m_isFourstate{other.m_isFourstate} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeUOrStructDType;
-    int uniqueNum() const { return m_uniqueNum; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string prettyDTypeName(bool) const override;
-    bool isCompound() const override { return !packed(); }
+खुला:
+    ASTGEN_MEMBERS_Ast_गाँठ_UOr_Struct_DType;
+    पूर्णांक unique_अंक() स्थिर { वापस m_unique_अंक; }
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool) स्थिर override;
+    bool isCompound() स्थिर override { वापस !packed(); }
     // For basicp() we reuse the size to indicate a "fake" basic type of same size
-    AstBasicDType* basicp() const override VL_MT_STABLE {
-        if (!m_packed) return nullptr;
-        return (isFourstate()
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE {
+        अगर (!m_packed) वापस nullptr;
+        वापस (isFourstate()
                     ? VN_AS(findLogicRangeDType(VNumRange{width() - 1, 0}, width(), numeric()),
                             BasicDType)
                     : VN_AS(findBitRangeDType(VNumRange{width() - 1, 0}, width(), numeric()),
                             BasicDType));
     }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override;
+    पूर्णांक widthAlignBytes() स्थिर override;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& flag) override { m_name = flag; }
+    पूर्णांक width_योग_Bytes() स्थिर override;
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override;
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
+    व्योम name(स्थिर string& flag) override { m_name = flag; }
     // Keep the name the typedef declaring it gives, as it moves off it to the type table
-    void typedefName(const string& name) { m_typedefName = name; }
+    व्योम typedefName(स्थिर string& name) { m_typedefName = name; }
     // Name of the C structure for DPI, empty if no typedef names it, so declared where used
-    string dpiName() const;
+    string dpiName() स्थिर;
     // C typedef of the unpacked structure for DPI (IEEE 1800-2023 H.7.3)
-    string dpiTypedef() const;
-    bool packed() const VL_MT_SAFE { return m_packed; }
-    void packed(bool flag) { m_packed = flag; }
+    string dpiTypedef() स्थिर;
+    bool packed() स्थिर VL_MT_SAFE { वापस m_packed; }
+    व्योम packed(bool flag) { m_packed = flag; }
     // packed() but as don't support unpacked, presently all structs
-    static bool packedUnsup() { return true; }
-    void isFourstate(bool flag) { m_isFourstate = flag; }
-    bool isFourstate() const override VL_MT_SAFE { return m_isFourstate; }
-    static int lo() VL_MT_STABLE { return 0; }
-    int hi() const VL_MT_STABLE {
-        return dtypep()->width() - 1;
+    अटल bool packedUnsup() { वापस true; }
+    व्योम isFourstate(bool flag) { m_isFourstate = flag; }
+    bool isFourstate() स्थिर override VL_MT_SAFE { वापस m_isFourstate; }
+    अटल पूर्णांक lo() VL_MT_STABLE { वापस 0; }
+    पूर्णांक hi() स्थिर VL_MT_STABLE {
+        वापस dtypep()->width() - 1;
     }  // Packed classes look like arrays
-    VNumRange declRange() const VL_MT_STABLE { return VNumRange{hi(), lo()}; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* classpackagep) { m_classOrPackagep = classpackagep; }
-    bool isConstrainedRand() const { return m_constrainedRand; }
-    void markConstrainedRand(bool flag) { m_constrainedRand = flag; }
-    bool emitToString() const { return m_emitToString; }
-    void setEmitToString() { m_emitToString = true; }
-    bool isAggregateType() const override { return !packed(); }
+    VNumRange declRange() स्थिर VL_MT_STABLE { वापस VNumRange{hi(), lo()}; }
+    Ast_गाँठ_Module* classOrPackagep() स्थिर { वापस m_classOrPackagep; }
+    व्योम classOrPackagep(Ast_गाँठ_Module* classpackagep) { m_classOrPackagep = classpackagep; }
+    bool isConstrainedRand() स्थिर { वापस m_constrainedRand; }
+    व्योम markConstrainedRand(bool flag) { m_constrainedRand = flag; }
+    bool emitToString() स्थिर { वापस m_emitToString; }
+    व्योम setEmitToString() { m_emitToString = true; }
+    bool isAggregateType() स्थिर override { वापस !packed(); }
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstEnumItem final : public AstNode {
+class AstEnumItem final : खुला Ast_गाँठ {
     // @astgen op1 := rangep : Optional[AstRange] // Range for name appending
     // @astgen op2 := valuep : Optional[AstNodeExpr]
     string m_name;  // Name of item
 
-public:
+खुला:
     // Parents: ENUM
-    AstEnumItem(FileLine* fl, const string& name, AstRange* rangep, AstNodeExpr* valuep)
+    AstEnumItem(File_पंक्ति* fl, स्थिर string& name, AstRange* rangep, Ast_गाँठ_व्यंजक* valuep)
         : ASTGEN_SUPER_EnumItem(fl)
         , m_name{name} {
         this->rangep(rangep);
         this->valuep(valuep);
     }
     ASTGEN_MEMBERS_AstEnumItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    void name(const string& flag) override { m_name = flag; }
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    व्योम name(स्थिर string& flag) override { m_name = flag; }
 };
 
 // === AstNodeDType ===
-class AstAssocArrayDType final : public AstNodeDType {
+class AstAssocArrayDType final : खुला Ast_गाँठ_DType {
     // Associative array data type, ie "[some_dtype]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := keyChildDTypep : Optional[AstNodeDType]
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     // @astgen ptr := m_keyDTypep : Optional[AstNodeDType]  // Keys of this type (post-width)
-public:
-    AstAssocArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstNodeDType* keyDtp)
+खुला:
+    AstAssocArrayDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp, Ast_गाँठ_DType* कुंजी_Dtp)
         : ASTGEN_SUPER_AssocArrayDType(fl) {
         childDTypep(dtp);  // Only for parser
-        keyChildDTypep(keyDtp);  // Only for parser
+        कुंजी_Child_DTypep(कुंजी_Dtp);  // Only for parser
         refDTypep(nullptr);
-        keyDTypep(nullptr);
+        कुंजी_DTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstAssocArrayDType(FileLine* fl, AstNodeDType* dtp, AstNodeDType* keyDtp)
+    AstAssocArrayDType(File_पंक्ति* fl, Ast_गाँठ_DType* dtp, Ast_गाँठ_DType* कुंजी_Dtp)
         : ASTGEN_SUPER_AssocArrayDType(fl) {
         refDTypep(dtp);
-        keyDTypep(keyDtp);
+        कुंजी_DTypep(कुंजी_Dtp);
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstAssocArrayDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        BROKEN_RTN(!((m_keyDTypep && !childDTypep()) || (!m_keyDTypep && childDTypep())));
-        return nullptr;
+        BROKEN_RTN(!((m_कुंजी_DTypep && !childDTypep()) || (!m_कुंजी_DTypep && childDTypep())));
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstAssocArrayDType* const asamep = VN_DBG_AS(samep, AssocArrayDType);
-        if (!asamep->subDTypep()) return false;
-        if (!asamep->keyDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep() && keyDTypep() == asamep->keyDTypep());
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstAssocArrayDType* स्थिर asamep = VN_DBG_AS(samep, AssocArrayDType);
+        अगर (!asamep->subDTypep()) वापस false;
+        अगर (!asamep->कुंजी_DTypep()) वापस false;
+        वापस (subDTypep() == asamep->subDTypep() && कुंजी_DTypep() == asamep->कुंजी_DTypep());
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstAssocArrayDType* const asamep = VN_DBG_AS(samep, AssocArrayDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep())
-               && asamep->keyDTypep() && keyDTypep()->similarDType(asamep->keyDTypep());
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        स्थिर AstAssocArrayDType* स्थिर asamep = VN_DBG_AS(samep, AssocArrayDType);
+        वापस asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep())
+               && asamep->कुंजी_DTypep() && कुंजी_DTypep()->similarDType(asamep->कुंजी_DTypep());
     }
-    string prettyDTypeName(bool full) const override;
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* getChild2DTypep() const override { return keyChildDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    string prettyDTypeName(bool full) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* getChild2DTypep() स्थिर override { वापस कुंजी_Child_DTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    AstNodeDType* subDType2p() const override VL_MT_STABLE {
-        return m_keyDTypep ? m_keyDTypep : keyChildDTypep();
+    Ast_गाँठ_DType* subDType2p() स्थिर override VL_MT_STABLE {
+        वापस m_कुंजी_DTypep ? m_कुंजी_DTypep : कुंजी_Child_DTypep();
     }
-    bool isAggregateType() const override { return true; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    AstNodeDType* virtRefDType2p() const override { return m_keyDTypep; }
-    void virtRefDType2p(AstNodeDType* nodep) override { keyDTypep(nodep); }
+    bool isAggregateType() स्थिर override { वापस true; }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
+    Ast_गाँठ_DType* virtRefDType2p() स्थिर override { वापस m_कुंजी_DTypep; }
+    व्योम virtRefDType2p(Ast_गाँठ_DType* nodep) override { कुंजी_DTypep(nodep); }
     //
-    AstNodeDType* keyDTypep() const VL_MT_STABLE {
-        return m_keyDTypep ? m_keyDTypep : keyChildDTypep();
+    Ast_गाँठ_DType* कुंजी_DTypep() स्थिर VL_MT_STABLE {
+        वापस m_कुंजी_DTypep ? m_कुंजी_DTypep : कुंजी_Child_DTypep();
     }
-    void keyDTypep(AstNodeDType* nodep) { m_keyDTypep = nodep; }
+    व्योम कुंजी_DTypep(Ast_गाँठ_DType* nodep) { m_कुंजी_DTypep = nodep; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस subDTypep()->width_योग_Bytes(); }
+    bool isCompound() स्थिर override { वापस true; }
+    bool isDynamicallySized() स्थिर override { वापस true; }
 };
-class AstBasicDType final : public AstNodeDType {
+class AstBasicDType final : खुला Ast_गाँठ_DType {
     // Builtin atomic/vectored data type
     // @astgen op1 := rangep : Optional[AstRange] // Range of variable
-    struct Members final {
+    काष्ठा Members final {
         VBasicDTypeKwd m_keyword;  // (also in VBasicTypeKey) What keyword created basic type
         // dist-ast-dump-suppress  // Part of dumpSmall
         VNumRange m_nrange;  // (also in VBasicTypeKey) Numeric msb/lsb (if non-opaque keyword)
-        bool operator==(const Members& rhs) const {
-            return rhs.m_keyword == m_keyword && rhs.m_nrange == m_nrange;
+        bool चालक==(स्थिर Members& rhs) स्थिर {
+            वापस rhs.m_keyword == m_keyword && rhs.m_nrange == m_nrange;
         }
     } m;
     // See also in AstNodeDType: m_width, m_widthMin, m_numeric(issigned)
-public:
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, const VSigning& signst = VSigning::NOSIGN)
+खुला:
+    AstBasicDType(File_पंक्ति* fl, VBasicDTypeKwd kwd, स्थिर VSigning& signst = VSigning::NOSIGN)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, signst, 0, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagLogicPacked, int wantwidth)
+    AstBasicDType(File_पंक्ति* fl, VFlagLogicPacked, पूर्णांक wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::LOGIC, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagLogic2StatePacked, int wantwidth)
+    AstBasicDType(File_पंक्ति* fl, VFlagLogic2StatePacked, पूर्णांक wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::LOGIC2STATE, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VFlagBitPacked, int wantwidth)
+    AstBasicDType(File_पंक्ति* fl, VFlagBitPacked, पूर्णांक wantwidth)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(VBasicDTypeKwd::BIT, VSigning::NOSIGN, wantwidth, -1, nullptr);
     }
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int widthmin)
+    AstBasicDType(File_पंक्ति* fl, VBasicDTypeKwd kwd, VSigning numer, पूर्णांक wantwidth, पूर्णांक widthmin)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, numer, wantwidth, widthmin, nullptr);
     }
-    AstBasicDType(FileLine* fl, VBasicDTypeKwd kwd, VSigning numer, VNumRange range, int widthmin)
+    AstBasicDType(File_पंक्ति* fl, VBasicDTypeKwd kwd, VSigning numer, VNumRange range, पूर्णांक widthmin)
         : ASTGEN_SUPER_BasicDType(fl) {
         init(kwd, numer, range.elements(), widthmin, nullptr);
         m.m_nrange = range;  // as init() presumes lsb==0, but range.lsb() might not be
     }
     // See also addRange in verilog.y
-private:
-    void init(VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int wantwidthmin,
+निजी:
+    व्योम init(VBasicDTypeKwd kwd, VSigning numer, पूर्णांक wantwidth, पूर्णांक wantwidthmin,
               AstRange* rangep);
 
-public:
+खुला:
     ASTGEN_MEMBERS_AstBasicDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
     // width/widthMin/numeric compared elsewhere
-    bool sameNode(const AstNode* samep) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    string name() const override VL_MT_STABLE { return m.m_keyword.typeName(); }
-    string prettyDTypeName(bool full) const override;
-    const char* broken() const override {
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override;
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override;
+    string name() स्थिर override VL_MT_STABLE { वापस m.m_keyword.typeName(); }
+    string prettyDTypeName(bool full) स्थिर override;
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(dtypep() != this);
         BROKEN_RTN(v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH
                    && widthMin() > width());
-        return nullptr;
+        वापस nullptr;
     }
-    void setSignedState(const VSigning& signst) {
+    व्योम setSignedState(स्थिर VSigning& signst) {
         // Note NOSIGN does NOT change the state; this is required by the parser
-        if (signst == VSigning::UNSIGNED) {
+        अगर (signst == VSigning::UNSIGNED) {
             numeric(signst);
-        } else if (signst == VSigning::SIGNED) {
+        } अन्यथा अगर (signst == VSigning::SIGNED) {
             numeric(signst);
         }
     }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return (AstBasicDType*)this; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस (AstBasicDType*)this; }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override;
+    पूर्णांक widthAlignBytes() स्थिर override;
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override;
-    bool isFourstate() const override { return keyword().isFourstate(); }
-    VBasicDTypeKwd keyword() const VL_MT_SAFE {  // Avoid using - use isSomething accessors instead
-        return m.m_keyword;
+    पूर्णांक width_योग_Bytes() स्थिर override;
+    bool isFourstate() स्थिर override { वापस keyword().isFourstate(); }
+    VBasicDTypeKwd keyword() स्थिर VL_MT_SAFE {  // Avoid using - use isSomething accessors instead
+        वापस m.m_keyword;
     }
-    bool isBitLogic() const { return keyword().isBitLogic(); }
-    bool isBit() const { return keyword().isBit(); }
-    bool isCHandle() const VL_MT_STABLE { return keyword().isCHandle(); }
-    bool isDouble() const VL_MT_STABLE { return keyword().isDouble(); }
-    bool isEvent() const VL_MT_STABLE { return keyword() == VBasicDTypeKwd::EVENT; }
-    bool isForkSync() const VL_MT_SAFE { return keyword() == VBasicDTypeKwd::FORK_SYNC; }
-    bool isProcessRef() const VL_MT_SAFE { return keyword() == VBasicDTypeKwd::PROCESS_REFERENCE; }
-    bool isDelayScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::DELAY_SCHEDULER;
+    bool isBitLogic() स्थिर { वापस keyword().isBitLogic(); }
+    bool isBit() स्थिर { वापस keyword().isBit(); }
+    bool isCHandle() स्थिर VL_MT_STABLE { वापस keyword().isCHandle(); }
+    bool isDouble() स्थिर VL_MT_STABLE { वापस keyword().isDouble(); }
+    bool isEvent() स्थिर VL_MT_STABLE { वापस keyword() == VBasicDTypeKwd::EVENT; }
+    bool isForkSync() स्थिर VL_MT_SAFE { वापस keyword() == VBasicDTypeKwd::FORK_SYNC; }
+    bool isProcessRef() स्थिर VL_MT_SAFE { वापस keyword() == VBasicDTypeKwd::PROCESS_REFERENCE; }
+    bool isDelayScheduler() स्थिर VL_MT_SAFE {
+        वापस keyword() == VBasicDTypeKwd::DELAY_SCHEDULER;
     }
-    bool isTriggerScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::TRIGGER_SCHEDULER;
+    bool isTriggerScheduler() स्थिर VL_MT_SAFE {
+        वापस keyword() == VBasicDTypeKwd::TRIGGER_SCHEDULER;
     }
-    bool isDynamicTriggerScheduler() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER;
+    bool isDynamicTriggerScheduler() स्थिर VL_MT_SAFE {
+        वापस keyword() == VBasicDTypeKwd::DYNAMIC_TRIGGER_SCHEDULER;
     }
-    bool isRandomGenerator() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::RANDOM_GENERATOR;
+    bool isRandomGenerator() स्थिर VL_MT_SAFE {
+        वापस keyword() == VBasicDTypeKwd::RANDOM_GENERATOR;
     }
-    bool isStdRandomGenerator() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::RANDOM_STDGENERATOR;
+    bool isStdRandomGenerator() स्थिर VL_MT_SAFE {
+        वापस keyword() == VBasicDTypeKwd::RANDOM_STDGENERATOR;
     }
-    bool isCovergroupInstHandle() const VL_MT_SAFE {
-        return keyword() == VBasicDTypeKwd::COVERGROUP_INSTHANDLE;
+    bool isCovergroupInstHandle() स्थिर VL_MT_SAFE {
+        वापस keyword() == VBasicDTypeKwd::COVERGROUP_INSTHANDLE;
     }
-    bool isOpaque() const VL_MT_SAFE { return keyword().isOpaque(); }
-    bool isString() const VL_MT_STABLE { return keyword().isString(); }
-    bool isZeroInit() const { return keyword().isZeroInit(); }
-    bool isRanged() const { return rangep() || m.m_nrange.ranged(); }
-    bool isDpiBitVec() const {  // DPI uses svBitVecVal
-        return keyword() == VBasicDTypeKwd::BIT && isRanged();
+    bool isOpaque() स्थिर VL_MT_SAFE { वापस keyword().isOpaque(); }
+    bool isString() स्थिर VL_MT_STABLE { वापस keyword().isString(); }
+    bool isZeroInit() स्थिर { वापस keyword().isZeroInit(); }
+    bool isRanged() स्थिर { वापस rangep() || m.m_nrange.ranged(); }
+    bool isDpiBitVec() स्थिर {  // DPI uses svBitVecVal
+        वापस keyword() == VBasicDTypeKwd::BIT && isRanged();
     }
-    bool isDpiLogicVec() const {  // DPI uses svLogicVecVal
-        return keyword().isFourstate() && !(keyword() == VBasicDTypeKwd::LOGIC && !isRanged());
+    bool isDpiLogicVec() स्थिर {  // DPI uses svLogicVecVal
+        वापस keyword().isFourstate() && !(keyword() == VBasicDTypeKwd::LOGIC && !isRanged());
     }
-    bool isDpiCLayout() const {
-        return keyword().isDpiCLayout()
+    bool isDpiCLayout() स्थिर {
+        वापस keyword().isDpiCLayout()
                || (keyword().isSameish(VBasicDTypeKwd::LOGIC) && !isRanged());
     }
-    bool isDpiPrimitive() const {  // DPI uses a primitive type
-        return !isDpiBitVec() && !isDpiLogicVec();
+    bool isDpiPrimitive() स्थिर {  // DPI uses a primitive type
+        वापस !isDpiBitVec() && !isDpiLogicVec();
     }
     // Generally the lo/hi/left/right funcs should be used instead of nrange()
-    const VNumRange& nrange() const { return m.m_nrange; }
-    inline int hi() const;
-    inline int lo() const;
-    inline int elements() const;
-    int left() const { return ascending() ? lo() : hi(); }  // How to show a declaration
-    int right() const { return ascending() ? hi() : lo(); }
-    inline bool ascending() const;
-    bool implicit() const { return keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT; }
-    bool untyped() const { return keyword() == VBasicDTypeKwd::UNTYPED; }
-    VNumRange declRange() const { return isRanged() ? VNumRange{left(), right()} : VNumRange{}; }
-    void cvtRangeConst();  // Convert to smaller representation
-    bool isCompound() const override { return isString(); }
-    bool isIntegralOrPacked() const override { return keyword().isIntNumeric(); }
+    स्थिर VNumRange& nrange() स्थिर { वापस m.m_nrange; }
+    अंतरभूत पूर्णांक hi() स्थिर;
+    अंतरभूत पूर्णांक lo() स्थिर;
+    अंतरभूत पूर्णांक elements() स्थिर;
+    पूर्णांक बायाँ() स्थिर { वापस ascending() ? lo() : hi(); }  // How to show a declaration
+    पूर्णांक दायाँ() स्थिर { वापस ascending() ? hi() : lo(); }
+    अंतरभूत bool ascending() स्थिर;
+    bool implicit() स्थिर { वापस keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT; }
+    bool untyped() स्थिर { वापस keyword() == VBasicDTypeKwd::UNTYPED; }
+    VNumRange declRange() स्थिर { वापस isRanged() ? VNumRange{बायाँ(), दायाँ()} : VNumRange{}; }
+    व्योम cvtRangeConst();  // Convert to smaller representation
+    bool isCompound() स्थिर override { वापस isString(); }
+    bool isIntegralOrPacked() स्थिर override { वापस keyword().isIntNumeric(); }
 };
-class AstBracketArrayDType final : public AstNodeDType {
+class AstBracketArrayDType final : खुला Ast_गाँठ_DType {
     // Associative/Queue/Normal array data type, ie "[dtype_or_expr]"
     // only for early parsing then becomes another data type
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := elementsp : AstNode  // Number of elements in array
-public:
-    AstBracketArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* childDTypep,
-                         AstNode* elementsp)
+खुला:
+    AstBracketArrayDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* childDTypep,
+                         Ast_गाँठ* elementsp)
         : ASTGEN_SUPER_BracketArrayDType(fl) {
         this->childDTypep(childDTypep);
         this->elementsp(elementsp);
     }
     ASTGEN_MEMBERS_AstBracketArrayDType;
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return childDTypep(); }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस childDTypep(); }
     // METHODS
     // Will be removed in V3Width, which relies on this
     // being a child not a dtype pointed node
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { V3ERROR_NA_RETURN(0); }
-    int widthTotalBytes() const override { V3ERROR_NA_RETURN(0); }
-    bool isCompound() const override { return true; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस false; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { V3ERROR_NA_RETURN(0); }
+    पूर्णांक width_योग_Bytes() स्थिर override { V3ERROR_NA_RETURN(0); }
+    bool isCompound() स्थिर override { वापस true; }
 };
-class AstCDType final : public AstNodeDType {
+class AstCDType final : खुला Ast_गाँठ_DType {
     // Raw "C" data type passed directly to output
     string m_name;  // Name of data type, printed when do V3EmitC
-public:
-    AstCDType(FileLine* fl, const string& name)
+खुला:
+    AstCDType(File_पंक्ति* fl, स्थिर string& name)
         : ASTGEN_SUPER_CDType(fl)
         , m_name{name} {
         dtypep(this);
     }
 
     ASTGEN_MEMBERS_AstCDType;
-    bool sameNode(const AstNode* samep) const override {
-        const AstCDType* const asamep = VN_DBG_AS(samep, CDType);
-        return m_name == asamep->m_name;
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstCDType* स्थिर asamep = VN_DBG_AS(samep, CDType);
+        वापस m_name == asamep->m_name;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    string name() const override VL_MT_STABLE { return m_name; }
-    string prettyDTypeName(bool) const override { return m_name; }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस same_गाँठ(samep); }
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
+    string prettyDTypeName(bool) स्थिर override { वापस m_name; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 8; }  // Assume
-    int widthTotalBytes() const override { return 8; }  // Assume
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 8; }  // Assume
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 8; }  // Assume
+    bool isCompound() स्थिर override { वापस true; }
     // Return the global runtime type storing the requested number of bits.
-    static string typeToHold(int width) {
-        if (width <= 8) return "::CData";
-        if (width <= 16) return "::SData";
-        if (width <= VL_IDATASIZE) return "::IData";
-        if (width <= VL_QUADSIZE) return "::QData";
+    अटल string typeToHold(पूर्णांक width) {
+        अगर (width <= 8) वापस "::CData";
+        अगर (width <= 16) वापस "::SData";
+        अगर (width <= VL_IDATASIZE) वापस "::IData";
+        अगर (width <= VL_QUADSIZE) वापस "::QData";
 
-        return "::VlWide<" + std::to_string(VL_WORDS_I(width)) + ">";
+        वापस "::VlWide<" + std::to_string(VL_शब्दगण_I(width)) + ">";
     }
 };
-class AstClassRefDType final : public AstNodeDType {
+class AstClassRefDType final : खुला Ast_गाँठ_DType {
     // Reference to a class
     // @astgen op1 := paramsp: List[AstPin]
     //
     // @astgen ptr := m_classp : Optional[AstClass]  // data type pointed to, BELOW the AstTypedef
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Package hierarchy
     bool m_rawPointer = false;  // Emit as a non-owning C++ pointer rather than VlClassRef
-public:
-    AstClassRefDType(FileLine* fl, AstClass* classp, AstPin* paramsp)
+खुला:
+    AstClassRefDType(File_पंक्ति* fl, AstClass* classp, AstPin* paramsp)
         : ASTGEN_SUPER_ClassRefDType(fl)
         , m_classp{classp} {
         dtypep(this);
@@ -627,42 +627,42 @@ public:
     }
     ASTGEN_MEMBERS_AstClassRefDType;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        const AstClassRefDType* const asamep = VN_DBG_AS(samep, ClassRefDType);
-        return (m_classp == asamep->m_classp && m_classOrPackagep == asamep->m_classOrPackagep
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstClassRefDType* स्थिर asamep = VN_DBG_AS(samep, ClassRefDType);
+        वापस (m_classp == asamep->m_classp && m_classOrPackagep == asamep->m_classOrPackagep
                 && m_rawPointer == asamep->m_rawPointer);
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    string prettyNameMsg() const override;
-    string name() const override VL_MT_STABLE;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    AstClass* classp() const VL_MT_STABLE { return m_classp; }
-    void classp(AstClass* nodep) { m_classp = nodep; }
-    bool rawPointer() const { return m_rawPointer; }
-    void rawPointer(bool flag) { m_rawPointer = flag; }
-    static void selfTest();
-    bool isCompound() const override { return true; }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override;
+    व्योम dump(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpJson(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
+    string pretty_Name_संदेश() स्थिर override;
+    string name() स्थिर override VL_MT_STABLE;
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 0; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 0; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस nullptr; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override {}
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    Ast_गाँठ_Module* classOrPackagep() स्थिर { वापस m_classOrPackagep; }
+    व्योम classOrPackagep(Ast_गाँठ_Module* nodep) { m_classOrPackagep = nodep; }
+    AstClass* classp() स्थिर VL_MT_STABLE { वापस m_classp; }
+    व्योम classp(AstClass* nodep) { m_classp = nodep; }
+    bool rawPointer() स्थिर { वापस m_rawPointer; }
+    व्योम rawPointer(bool flag) { m_rawPointer = flag; }
+    अटल व्योम selfTest();
+    bool isCompound() स्थिर override { वापस true; }
 };
-class AstConstDType final : public AstNodeDType {
+class AstConstDType final : खुला Ast_गाँठ_DType {
     // const data type, ie "const some_dtype var_name [2:0]"
     // ConstDType are removed in V3LinkLValue and become AstVar::isConst.
     // When more generic types are supported AstConstDType will be propagated further.
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Inherit from this base data type
-public:
-    AstConstDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+खुला:
+    AstConstDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_ConstDType(fl) {
         childDTypep(dtp);  // Only for parser
         refDTypep(nullptr);  // V3Width will resolve
@@ -670,240 +670,240 @@ public:
         widthFromSub(subDTypep());
     }
     ASTGEN_MEMBERS_AstConstDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstConstDType* const sp = VN_DBG_AS(samep, ConstDType);
-        return (m_refDTypep == sp->m_refDTypep);
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstConstDType* स्थिर sp = VN_DBG_AS(samep, ConstDType);
+        वापस (m_refDTypep == sp->m_refDTypep);
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        return skipRefp()->similarDType(samep->skipRefp());
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        वापस skipRefp()->similarDType(samep->skipRefp());
     }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override {
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस subDTypep()->width_योग_Bytes(); }
+    bool isCompound() स्थिर override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        वापस false;
     }
 };
-class AstConstraintRefDType final : public AstNodeDType {
+class AstConstraintRefDType final : खुला Ast_गाँठ_DType {
     // For e.g. a reference to constraint for constraint_mode
-public:
-    explicit AstConstraintRefDType(FileLine* fl)
+खुला:
+    explicit AstConstraintRefDType(File_पंक्ति* fl)
         : ASTGEN_SUPER_ConstraintRefDType(fl) {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstConstraintRefDType;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    bool undead() स्थिर override { वापस true; }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस nullptr; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override {}
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 1; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 1; }
+    bool isCompound() स्थिर override { वापस false; }
 };
-class AstCoverCrossDType final : public AstNodeDType {
+class AstCoverCrossDType final : खुला Ast_गाँठ_DType {
     // Borrowed pointer to VlCoverCrossT<...> or construction-time VlCoverCrossDyn.
-    const uint32_t m_dimensions;
-    const uint32_t m_tuples;  // Fixed capacity number of cross tuples (VlCoverCrossT's Tuples)
-    const uint32_t m_bins;  // Fixed capacity number of explicit bins (VlCoverCrossT's Bins)
-    const uint32_t m_autoBins;  // Fixed capacity number of auto bins (VlCoverCrossT's AutoBins)
-    const uint64_t m_binWords;  // Fixed capacity selection words (VlCoverCrossT's BinWords)
-    const bool m_dynamic;  // Bin layout is determined at covergroup construction
+    स्थिर uint32_t m_dimensions;
+    स्थिर uint32_t m_tuples;  // Fixed capacity number of cross tuples (VlCoverCrossT's Tuples)
+    स्थिर uint32_t m_bins;  // Fixed capacity number of explicit bins (VlCoverCrossT's Bins)
+    स्थिर uint32_t m_autoBins;  // Fixed capacity number of auto bins (VlCoverCrossT's AutoBins)
+    स्थिर uint64_t m_bin_शब्दगण;  // Fixed capacity selection words (VlCoverCrossT's BinWords)
+    स्थिर bool m_dynamic;  // Bin layout is determined at covergroup construction
 
-public:
-    AstCoverCrossDType(FileLine* fl, uint32_t dimensions, uint32_t tuples, uint32_t bins,
-                       uint32_t autoBins, uint64_t binWords, bool dynamic = false)
+खुला:
+    AstCoverCrossDType(File_पंक्ति* fl, uint32_t dimensions, uint32_t tuples, uint32_t bins,
+                       uint32_t autoBins, uint64_t bin_शब्दगण, bool dynamic = false)
         : ASTGEN_SUPER_CoverCrossDType(fl)
         , m_dimensions{dimensions}
         , m_tuples{tuples}
         , m_bins{bins}
         , m_autoBins{autoBins}
-        , m_binWords{binWords}
+        , m_bin_शब्दगण{bin_शब्दगण}
         , m_dynamic{dynamic} {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstCoverCrossDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(m_dimensions == 0);
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverCrossDType* const sp = VN_DBG_AS(samep, CoverCrossDType);
-        return dimensions() == sp->dimensions() && tuples() == sp->tuples() && bins() == sp->bins()
-               && autoBins() == sp->autoBins() && binWords() == sp->binWords()
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {  // LCOV_EXCL_START
+        स्थिर AstCoverCrossDType* स्थिर sp = VN_DBG_AS(samep, CoverCrossDType);
+        वापस dimensions() == sp->dimensions() && tuples() == sp->tuples() && bins() == sp->bins()
+               && autoBins() == sp->autoBins() && bin_शब्दगण() == sp->bin_शब्दगण()
                && isDynamic() == sp->isDynamic();
     }  // LCOV_EXCL_STOP
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void dumpSmall(std::ostream& str) const override;
-    uint32_t dimensions() const { return m_dimensions; }
-    uint32_t tuples() const { return m_tuples; }
-    uint32_t bins() const { return m_bins; }
-    uint32_t autoBins() const { return m_autoBins; }
-    uint64_t binWords() const { return m_binWords; }
-    bool isDynamic() const { return m_dynamic; }
-    string cppTemplateArgs() const;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return sizeof(void*); }
-    int widthTotalBytes() const override { return sizeof(void*); }
-    bool isCompound() const override { return true; }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    uint32_t dimensions() स्थिर { वापस m_dimensions; }
+    uint32_t tuples() स्थिर { वापस m_tuples; }
+    uint32_t bins() स्थिर { वापस m_bins; }
+    uint32_t autoBins() स्थिर { वापस m_autoBins; }
+    uint64_t bin_शब्दगण() स्थिर { वापस m_bin_शब्दगण; }
+    bool isDynamic() स्थिर { वापस m_dynamic; }
+    string cppTemplateArgs() स्थिर;
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस माप(व्योम*); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस माप(व्योम*); }
+    bool isCompound() स्थिर override { वापस true; }
 };
-class AstCoverpointDType final : public AstNodeDType {
+class AstCoverpointDType final : खुला Ast_गाँठ_DType {
     // Borrowed pointer to a covergroup coverpoint runtime, 'VlCoverpointT<hitBound>*'.
     // Follows pattern of AstQueueDType in capturing the compile-time max bin overlap
     // template argument.
     uint32_t m_hitBound;  // VlCoverpointT<> template argument; hit list size, >= 1
-public:
-    AstCoverpointDType(FileLine* fl, uint32_t hitBound)
+खुला:
+    AstCoverpointDType(File_पंक्ति* fl, uint32_t hitBound)
         : ASTGEN_SUPER_CoverpointDType(fl)
         , m_hitBound{hitBound} {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstCoverpointDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(m_hitBound < 1);
-        return nullptr;
+        वापस nullptr;
     }
     // V3Covergroup interns these one-per-hitBound into the type table, so identity is
     // equality; there is never a second node with the same bound to compare against.
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    void dumpSmall(std::ostream& str) const override;
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
     // ACCESSORS
-    uint32_t hitBound() const { return m_hitBound; }
+    uint32_t hitBound() स्थिर { वापस m_hitBound; }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return sizeof(void*); }
-    int widthTotalBytes() const override { return sizeof(void*); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस माप(व्योम*); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस माप(व्योम*); }
+    bool isCompound() स्थिर override { वापस true; }
 };
-class AstDefImplicitDType final : public AstNodeDType {
+class AstDefImplicitDType final : खुला Ast_गाँठ_DType {
     // For parsing enum/struct/unions that are declared with a variable rather than typedef
     // This allows "var enum {...} a,b" to share the enum definition for both variables
     // After link, these become typedefs
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     string m_name;  // Data type name
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    स्थिर पूर्णांक m_unique_अंक;  // Unique ID distinguishing this dtype instance, for hashing/naming
 
-public:
-    AstDefImplicitDType(FileLine* fl, const string& name, VFlagChildDType, AstNodeDType* dtp)
+खुला:
+    AstDefImplicitDType(File_पंक्ति* fl, स्थिर string& name, VFlagChildDType, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_DefImplicitDType(fl)
         , m_name{name}
-        , m_uniqueNum{uniqueNumInc()} {
+        , m_unique_अंक{unique_अंक_Inc()} {
         childDTypep(dtp);  // Only for parser
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstDefImplicitDType(const AstDefImplicitDType& other)
-        : AstNodeDType(other)
+    AstDefImplicitDType(स्थिर AstDefImplicitDType& other)
+        : Ast_गाँठ_DType(other)
         , m_name{other.m_name}
-        , m_uniqueNum{uniqueNumInc()} {}
+        , m_unique_अंक{unique_अंक_Inc()} {}
     ASTGEN_MEMBERS_AstDefImplicitDType;
-    int uniqueNum() const { return m_uniqueNum; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstDefImplicitDType* const sp = VN_DBG_AS(samep, DefImplicitDType);
-        return uniqueNum() == sp->uniqueNum();
+    पूर्णांक unique_अंक() स्थिर { वापस m_unique_अंक; }
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstDefImplicitDType* स्थिर sp = VN_DBG_AS(samep, DefImplicitDType);
+        वापस unique_अंक() == sp->unique_अंक();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस same_गाँठ(samep); }
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस dtypep() ? dtypep() : childDTypep();
     }
     // METHODS
     // op1 = Range of variable
-    AstNodeDType* dtypeSkipRefp() const { return dtypep()->skipRefp(); }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return dtypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypep()->widthTotalBytes(); }
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& flag) override { m_name = flag; }
-    bool isCompound() const override { return false; }
+    Ast_गाँठ_DType* dtypeSkipRefp() स्थिर { वापस dtypep()->skipRefp(); }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस dtypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस dtypep()->width_योग_Bytes(); }
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
+    व्योम name(स्थिर string& flag) override { m_name = flag; }
+    bool isCompound() स्थिर override { वापस false; }
 };
-class AstDynArrayDType final : public AstNodeDType {
+class AstDynArrayDType final : खुला Ast_गाँठ_DType {
     // Dynamic array data type, ie "[]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstDynArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+खुला:
+    AstDynArrayDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_DynArrayDType(fl) {
         childDTypep(dtp);  // Only for parser
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstDynArrayDType(FileLine* fl, AstNodeDType* dtp)
+    AstDynArrayDType(File_पंक्ति* fl, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_DynArrayDType(fl) {
         refDTypep(dtp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstDynArrayDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstDynArrayDType* const asamep = VN_DBG_AS(samep, DynArrayDType);
-        if (!asamep->subDTypep()) return false;
-        return subDTypep() == asamep->subDTypep();
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstDynArrayDType* स्थिर asamep = VN_DBG_AS(samep, DynArrayDType);
+        अगर (!asamep->subDTypep()) वापस false;
+        वापस subDTypep() == asamep->subDTypep();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstDynArrayDType* const asamep = VN_DBG_AS(samep, DynArrayDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        स्थिर AstDynArrayDType* स्थिर asamep = VN_DBG_AS(samep, DynArrayDType);
+        वापस asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
-    string prettyDTypeName(bool full) const override;
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    string prettyDTypeName(bool full) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    bool isAggregateType() const override { return true; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    bool isAggregateType() स्थिर override { वापस true; }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस subDTypep()->width_योग_Bytes(); }
+    bool isCompound() स्थिर override { वापस true; }
+    bool isDynamicallySized() स्थिर override { वापस true; }
 };
-class AstEmptyQueueDType final : public AstNodeDType {
+class AstEmptyQueueDType final : खुला Ast_गाँठ_DType {
     // For EmptyQueue
-public:
-    explicit AstEmptyQueueDType(FileLine* fl)
+खुला:
+    explicit AstEmptyQueueDType(File_पंक्ति* fl)
         : ASTGEN_SUPER_EmptyQueueDType(fl) {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstEmptyQueueDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    bool undead() स्थिर override { वापस true; }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस nullptr; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override {}
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 1; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 1; }
+    bool isCompound() स्थिर override { वापस false; }
 };
-class AstEnumDType final : public AstNodeDType {
+class AstEnumDType final : खुला Ast_गाँठ_DType {
     // Parents: TYPEDEF/MODULE
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := itemsp : List[AstEnumItem]
@@ -911,122 +911,122 @@ class AstEnumDType final : public AstNodeDType {
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     string m_name;  // Name from upper typedef, if any
     string m_typedefName;  // Typedef's dtypeName() once moved off the typedef declaring it
-    const int m_uniqueNum;  // Unique ID distinguishing this dtype instance, for hashing/naming
+    स्थिर पूर्णांक m_unique_अंक;  // Unique ID distinguishing this dtype instance, for hashing/naming
 
-public:
-    AstEnumDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstEnumItem* itemsp)
+खुला:
+    AstEnumDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp, AstEnumItem* itemsp)
         : ASTGEN_SUPER_EnumDType(fl)
-        , m_uniqueNum{uniqueNumInc()} {
+        , m_unique_अंक{unique_अंक_Inc()} {
         childDTypep(dtp);  // Only for parser
         refDTypep(nullptr);
         addItemsp(itemsp);
         dtypep(nullptr);  // V3Width will resolve
         widthFromSub(subDTypep());
     }
-    AstEnumDType(const AstEnumDType& other)
-        : AstNodeDType{other}
+    AstEnumDType(स्थिर AstEnumDType& other)
+        : Ast_गाँठ_DType{other}
         , m_name{other.m_name}
         , m_typedefName{other.m_typedefName}
-        , m_uniqueNum{uniqueNumInc()} {}
+        , m_unique_अंक{unique_अंक_Inc()} {}
     ASTGEN_MEMBERS_AstEnumDType;
 
-    const char* broken() const override;
-    int uniqueNum() const { return m_uniqueNum; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstEnumDType* const sp = VN_DBG_AS(samep, EnumDType);
-        return uniqueNum() == sp->uniqueNum();
+    स्थिर अक्षर* broken() स्थिर override;
+    पूर्णांक unique_अंक() स्थिर { वापस m_unique_अंक; }
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstEnumDType* स्थिर sp = VN_DBG_AS(samep, EnumDType);
+        वापस unique_अंक() == sp->unique_अंक();
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return sameNode(samep); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस same_गाँठ(samep); }
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& flag) override { m_name = flag; }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
+    व्योम name(स्थिर string& flag) override { m_name = flag; }
     // Keep the name the typedef declaring it gives, as it moves off it to the type table
-    void typedefName(const string& name) { m_typedefName = name; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
+    व्योम typedefName(स्थिर string& name) { m_typedefName = name; }
+    व्योम dump(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpJson(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    size_t itemCount() const {
-        size_t count = 0;
-        for (AstNode* itemp = itemsp(); itemp; itemp = itemp->nextp()) ++count;
-        return count;
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस subDTypep()->width_योग_Bytes(); }
+    माप_प्रकार item_गिनती() स्थिर {
+        माप_प्रकार गिनती = 0;
+        क्रम (Ast_गाँठ* itemp = itemsp(); itemp; itemp = itemp->nextp()) ++गिनती;
+        वापस गिनती;
     }
-    bool isCompound() const override { return false; }
+    bool isCompound() स्थिर override { वापस false; }
 };
 
-class AstIfaceGenericDType final : public AstNodeDType {
+class AstIfaceGenericDType final : खुला Ast_गाँठ_DType {
     // Generic interface that will be replaced with AstIfaceRefDType
-    FileLine* m_modportFileline;  // Where modport token was
+    File_पंक्ति* m_modportFileline;  // Where modport token was
     // dist-ast-dump-suppress  // Part of name()
     string m_modportName;  // "" = no modport
-public:
-    explicit AstIfaceGenericDType(FileLine* fl)
+खुला:
+    explicit AstIfaceGenericDType(File_पंक्ति* fl)
         : ASTGEN_SUPER_IfaceGenericDType(fl) {
         dtypep(this);
     }
-    AstIfaceGenericDType(FileLine* fl, FileLine* modportFl, const string& modport)
+    AstIfaceGenericDType(File_पंक्ति* fl, File_पंक्ति* modportFl, स्थिर string& modport)
         : ASTGEN_SUPER_IfaceGenericDType(fl)
         , m_modportFileline{modportFl}
         , m_modportName{modport} {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstIfaceGenericDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    string modportName() const { return m_modportName; }
-    bool isModport() { return !m_modportName.empty(); }
-    bool isCompound() const override { return true; }
-    FileLine* modportFileline() const { return m_modportFileline; }
-    string name() const override { return m_modportName; }
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    bool undead() स्थिर override { वापस true; }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस nullptr; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override {}
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 1; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 1; }
+    string modportName() स्थिर { वापस m_modportName; }
+    bool isModport() { वापस !m_modportName.empty(); }
+    bool isCompound() स्थिर override { वापस true; }
+    File_पंक्ति* modportFileline() स्थिर { वापस m_modportFileline; }
+    string name() स्थिर override { वापस m_modportName; }
 };
 
-class AstIfaceRefDType final : public AstNodeDType {
+class AstIfaceRefDType final : खुला Ast_गाँठ_DType {
     // Reference to an interface, either for a port, or inside parent cell
     // @astgen op1 := paramsp : List[AstPin]
     //
     // @astgen ptr := m_ifacep : Optional[AstIface]  // Interface; cellp() should override
     // @astgen ptr := m_cellp : Optional[AstCell]  // When exact parent cell known; not a guess
     // @astgen ptr := m_modportp : Optional[AstModport]  // nullptr = unlinked or no modport
-    FileLine* m_modportFileline;  // Where modport token was
+    File_पंक्ति* m_modportFileline;  // Where modport token was
     string m_cellName;  // "" = no cell, such as when connects to 'input' iface
     string m_ifaceName;  // Interface name
     string m_modportName;  // "" = no modport
     bool m_virtual = false;  // True if virtual interface
-public:
-    AstIfaceRefDType(FileLine* fl, const string& cellName, const string& ifaceName)
+खुला:
+    AstIfaceRefDType(File_पंक्ति* fl, स्थिर string& cellName, स्थिर string& ifaceName)
         : ASTGEN_SUPER_IfaceRefDType(fl)
         , m_modportFileline{nullptr}
         , m_cellName{cellName}
         , m_ifaceName{ifaceName}
         , m_modportName{""} {}
-    AstIfaceRefDType(FileLine* fl, FileLine* modportFl, const string& cellName,
-                     const string& ifaceName, const string& modport)
+    AstIfaceRefDType(File_पंक्ति* fl, File_पंक्ति* modportFl, स्थिर string& cellName,
+                     स्थिर string& ifaceName, स्थिर string& modport)
         : ASTGEN_SUPER_IfaceRefDType(fl)
         , m_modportFileline{modportFl}
         , m_cellName{cellName}
         , m_ifaceName{ifaceName}
         , m_modportName{modport} {}
-    AstIfaceRefDType(FileLine* fl, FileLine* modportFl, const string& cellName,
-                     const string& ifaceName, const string& modport, AstPin* paramsp)
+    AstIfaceRefDType(File_पंक्ति* fl, File_पंक्ति* modportFl, स्थिर string& cellName,
+                     स्थिर string& ifaceName, स्थिर string& modport, AstPin* paramsp)
         : ASTGEN_SUPER_IfaceRefDType(fl)
         , m_modportFileline{modportFl}
         , m_cellName{cellName}
@@ -1037,46 +1037,46 @@ public:
     ASTGEN_MEMBERS_AstIfaceRefDType;
 
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
+    व्योम dump(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpJson(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
         // Each occurrence of a virtual interface type parses to its own node,
         // so pointer identity is insufficient; compare the referenced
         // interface instead, same equivalence as AstNode::computeCastable uses.
-        const AstIfaceRefDType* const asamep = VN_DBG_AS(samep, IfaceRefDType);
-        return ifaceViaCellp() && ifaceViaCellp() == asamep->ifaceViaCellp()
+        स्थिर AstIfaceRefDType* स्थिर asamep = VN_DBG_AS(samep, IfaceRefDType);
+        वापस ifaceViaCellp() && ifaceViaCellp() == asamep->ifaceViaCellp()
                && modportName() == asamep->modportName() && isVirtual() == asamep->isVirtual();
     }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    bool isVirtual() const { return m_virtual; }
-    void isVirtual(bool flag) {
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 0; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 0; }
+    bool isVirtual() स्थिर { वापस m_virtual; }
+    व्योम isVirtual(bool flag) {
         m_virtual = flag;
-        if (flag) v3Global.setHasVirtIfaces();
+        अगर (flag) v3Global.setHasVirtIfaces();
     }
-    FileLine* modportFileline() const { return m_modportFileline; }
-    void modportFileline(FileLine* const modportFileline) { m_modportFileline = modportFileline; }
-    string cellName() const { return m_cellName; }
-    void cellName(const string& name) { m_cellName = name; }
-    string ifaceName() const { return m_ifaceName; }
-    string ifaceNameQ() const { return "'" + prettyName(ifaceName()) + "'"; }
-    void ifaceName(const string& name) { m_ifaceName = name; }
-    void modportName(const string& modportName) { m_modportName = modportName; }
-    string modportName() const { return m_modportName; }
-    AstIface* ifaceViaCellp() const;  // Use cellp or ifacep
-    AstIface* ifacep() const { return m_ifacep; }
-    void ifacep(AstIface* nodep) { m_ifacep = nodep; }
-    AstCell* cellp() const { return m_cellp; }
-    void cellp(AstCell* nodep) { m_cellp = nodep; }
-    AstModport* modportp() const { return m_modportp; }
-    void modportp(AstModport* modportp) { m_modportp = modportp; }
-    bool isModport() { return !m_modportName.empty(); }
-    bool isCompound() const override { return true; }  // But not relevant
+    File_पंक्ति* modportFileline() स्थिर { वापस m_modportFileline; }
+    व्योम modportFileline(File_पंक्ति* स्थिर modportFileline) { m_modportFileline = modportFileline; }
+    string cellName() स्थिर { वापस m_cellName; }
+    व्योम cellName(स्थिर string& name) { m_cellName = name; }
+    string ifaceName() स्थिर { वापस m_ifaceName; }
+    string ifaceNameQ() स्थिर { वापस "'" + prettyName(ifaceName()) + "'"; }
+    व्योम ifaceName(स्थिर string& name) { m_ifaceName = name; }
+    व्योम modportName(स्थिर string& modportName) { m_modportName = modportName; }
+    string modportName() स्थिर { वापस m_modportName; }
+    AstIface* ifaceViaCellp() स्थिर;  // Use cellp or ifacep
+    AstIface* ifacep() स्थिर { वापस m_ifacep; }
+    व्योम ifacep(AstIface* nodep) { m_ifacep = nodep; }
+    AstCell* cellp() स्थिर { वापस m_cellp; }
+    व्योम cellp(AstCell* nodep) { m_cellp = nodep; }
+    AstModport* modportp() स्थिर { वापस m_modportp; }
+    व्योम modportp(AstModport* modportp) { m_modportp = modportp; }
+    bool isModport() { वापस !m_modportName.empty(); }
+    bool isCompound() स्थिर override { वापस true; }  // But not relevant
 };
-class AstMemberDType final : public AstNodeDType {
+class AstMemberDType final : खुला Ast_गाँठ_DType {
     // A member of a struct/union
     // PARENT: AstNodeUOrStructDType
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
@@ -1085,12 +1085,12 @@ class AstMemberDType final : public AstNodeDType {
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
     string m_name;  // Name of variable
     string m_tag;  // Holds the string of the verilator tag -- used in JSON output.
-    int m_lsb = -1;  // Within this level's packed struct, the LSB of the first bit of the member
+    पूर्णांक m_lsb = -1;  // Within this level's packed struct, the LSB of the first bit of the member
     bool m_constrainedRand = false;  // Member has a constraint expression
     VRandAttr m_rand;  // Randomizability of this member (rand, randc, etc)
-public:
-    AstMemberDType(FileLine* fl, const string& name, VFlagChildDType, AstNodeDType* dtp,
-                   AstNode* valuep)
+खुला:
+    AstMemberDType(File_पंक्ति* fl, स्थिर string& name, VFlagChildDType, Ast_गाँठ_DType* dtp,
+                   Ast_गाँठ* valuep)
         : ASTGEN_SUPER_MemberDType(fl)
         , m_name{name} {
         childDTypep(dtp);  // Only for parser
@@ -1098,7 +1098,7 @@ public:
         dtypep(nullptr);  // V3Width will resolve
         refDTypep(nullptr);
     }
-    AstMemberDType(FileLine* fl, const string& name, AstNodeDType* dtp)
+    AstMemberDType(File_पंक्ति* fl, स्थिर string& name, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_MemberDType(fl)
         , m_name{name} {
         UASSERT(dtp, "AstMember created with no dtype");
@@ -1107,83 +1107,83 @@ public:
         widthFromSub(subDTypep());
     }
     ASTGEN_MEMBERS_AstMemberDType;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeUOrStructDType* getChildStructp();
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    व्योम dump(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpJson(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }  // * = Var name
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_UOr_Struct_DType* getChildStructp();
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
     //
     // (Slow) recurse down to find basic data type (Note don't need virtual -
     // AstVar isn't a NodeDType)
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
     // op1 = Range of variable (Note don't need virtual - AstVar isn't a NodeDType)
-    AstNodeDType* dtypeSkipRefp() const { return subDTypep()->skipRefp(); }
+    Ast_गाँठ_DType* dtypeSkipRefp() स्थिर { वापस subDTypep()->skipRefp(); }
     // (Slow) recurses - Structure alignment 1,2,4 or 8 bytes (arrays affect this)
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
     // (Slow) recurses - Width in bytes rounding up 1,2,4,8,12,...
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस subDTypep()->width_योग_Bytes(); }
     // METHODS
-    void name(const string& name) override { m_name = name; }
-    string tag() const override { return m_tag; }
-    void tag(const string& text) override { m_tag = text; }
-    int lsb() const { return m_lsb; }
-    void lsb(int lsb) { m_lsb = lsb; }
-    bool isCompound() const override {
+    व्योम name(स्थिर string& name) override { m_name = name; }
+    string tag() स्थिर override { वापस m_tag; }
+    व्योम tag(स्थिर string& text) override { m_tag = text; }
+    पूर्णांक lsb() स्थिर { वापस m_lsb; }
+    व्योम lsb(पूर्णांक lsb) { m_lsb = lsb; }
+    bool isCompound() स्थिर override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        वापस false;
     }
-    bool isConstrainedRand() const { return m_constrainedRand; }
-    void markConstrainedRand(bool flag) { m_constrainedRand = flag; }
-    VRandAttr rand() const { return m_rand; }
-    void rand(const VRandAttr flag) { m_rand = flag; }
+    bool isConstrainedRand() स्थिर { वापस m_constrainedRand; }
+    व्योम markConstrainedRand(bool flag) { m_constrainedRand = flag; }
+    VRandAttr अक्रम() स्थिर { वापस m_rand; }
+    व्योम अक्रम(स्थिर VRandAttr flag) { m_rand = flag; }
 };
-class AstNBACommitQueueDType final : public AstNodeDType {
+class AstNBACommitQueueDType final : खुला Ast_गाँठ_DType {
     // @astgen ptr := m_subDTypep : AstNodeDType  // Type of the corresponding variable
-    const bool m_partial;  // Partial element update required
+    स्थिर bool m_partial;  // Partial element update required
 
-public:
-    AstNBACommitQueueDType(FileLine* fl, AstNodeDType* subDTypep, bool partial)
+खुला:
+    AstNBACommitQueueDType(File_पंक्ति* fl, Ast_गाँठ_DType* subDTypep, bool partial)
         : ASTGEN_SUPER_NBACommitQueueDType(fl)
         , m_partial{partial}
         , m_subDTypep{subDTypep} {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstNBACommitQueueDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return m_subDTypep; }
-    bool partial() const { return m_partial; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNBACommitQueueDType* const asamep = VN_DBG_AS(samep, NBACommitQueueDType);
-        return m_partial == asamep->m_partial;
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस m_subDTypep; }
+    bool partial() स्थिर { वापस m_partial; }
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstNBACommitQueueDType* स्थिर asamep = VN_DBG_AS(samep, NBACommitQueueDType);
+        वापस m_partial == asamep->m_partial;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 24; }
-    bool isCompound() const override { return true; }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 1; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 24; }
+    bool isCompound() स्थिर override { वापस true; }
 };
-class AstParamTypeDType final : public AstNodeDType {
+class AstParamTypeDType final : खुला Ast_गाँठ_DType {
     // Parents: MODULE
     // A parameter type statement; much like a var or typedef
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
-    const VVarType m_varType;  // Type of variable (for localparam vs. param)
-    const VFwdType m_fwdType;  // Forward type for lint check
+    स्थिर VVarType m_varType;  // Type of variable (for localparam vs. param)
+    स्थिर VFwdType m_fwdType;  // Forward type for lint check
     string m_name;  // Name of variable
-public:
-    AstParamTypeDType(FileLine* fl, VVarType type, VFwdType fwdType, const string& name,
-                      VFlagChildDType, AstNodeDType* dtp)
+खुला:
+    AstParamTypeDType(File_पंक्ति* fl, VVarType type, VFwdType fwdType, स्थिर string& name,
+                      VFlagChildDType, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_ParamTypeDType(fl)
         , m_varType{type}
         , m_fwdType{fwdType}
@@ -1192,111 +1192,111 @@ public:
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstParamTypeDType;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    व्योम dump(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpJson(std::ostream& str = std::cout) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस dtypep() ? dtypep() : childDTypep();
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstParamTypeDType* const sp = VN_DBG_AS(samep, ParamTypeDType);
-        return this->subDTypep()->similarDType(sp->subDTypep());
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        स्थिर AstParamTypeDType* स्थिर sp = VN_DBG_AS(samep, ParamTypeDType);
+        वापस this->subDTypep()->similarDType(sp->subDTypep());
     }
-    int widthAlignBytes() const override { return dtypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypep()->widthTotalBytes(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस dtypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस dtypep()->width_योग_Bytes(); }
     // METHODS
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    void name(const string& flag) override { m_name = flag; }
-    VVarType varType() const { return m_varType; }  // * = Type of variable
-    VFwdType fwdType() const { return m_fwdType; }
-    bool isParam() const { return true; }
-    bool isGParam() const { return (varType() == VVarType::GPARAM); }
-    bool isCompound() const override {
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    व्योम name(स्थिर string& flag) override { m_name = flag; }
+    VVarType varType() स्थिर { वापस m_varType; }  // * = Type of variable
+    VFwdType fwdType() स्थिर { वापस m_fwdType; }
+    bool isParam() स्थिर { वापस true; }
+    bool isGParam() स्थिर { वापस (varType() == VVarType::GPARAM); }
+    bool isCompound() स्थिर override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        वापस false;
     }
 };
-class AstParseTypeDType final : public AstNodeDType {
+class AstParseTypeDType final : खुला Ast_गाँठ_DType {
     // Parents: VAR
     // During parsing, this indicates the type of a parameter is a "parameter type"
     // e.g. the data type is a container of any data type
-    const VFwdType m_fwdType;  // Forward type for lint check
-public:
-    explicit AstParseTypeDType(FileLine* fl, VFwdType fwdType = VFwdType::NONE)
+    स्थिर VFwdType m_fwdType;  // Forward type for lint check
+खुला:
+    explicit AstParseTypeDType(File_पंक्ति* fl, VFwdType fwdType = VFwdType::NONE)
         : ASTGEN_SUPER_ParseTypeDType(fl)
         , m_fwdType{fwdType} {}
     ASTGEN_MEMBERS_AstParseTypeDType;
-    AstNodeDType* dtypep() const VL_MT_STABLE { return nullptr; }
+    Ast_गाँठ_DType* dtypep() स्थिर VL_MT_STABLE { वापस nullptr; }
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 0; }
-    int widthTotalBytes() const override { return 0; }
-    bool isCompound() const override {
+    व्योम dump(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpJson(std::ostream& str = std::cout) स्थिर override;
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 0; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 0; }
+    bool isCompound() स्थिर override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        वापस false;
     }
-    VFwdType fwdType() const { return m_fwdType; }
+    VFwdType fwdType() स्थिर { वापस m_fwdType; }
 };
-class AstQueueDType final : public AstNodeDType {
+class AstQueueDType final : खुला Ast_गाँठ_DType {
     // Queue array data type, ie "[ $ ]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     // @astgen op2 := boundp : Optional[AstNodeExpr]
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstQueueDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstNodeExpr* boundp)
+खुला:
+    AstQueueDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp, Ast_गाँठ_व्यंजक* boundp)
         : ASTGEN_SUPER_QueueDType(fl) {
         childDTypep(dtp);
         this->boundp(boundp);
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstQueueDType(FileLine* fl, AstNodeDType* dtp, AstNodeExpr* boundp)
+    AstQueueDType(File_पंक्ति* fl, Ast_गाँठ_DType* dtp, Ast_गाँठ_व्यंजक* boundp)
         : ASTGEN_SUPER_QueueDType(fl) {
         this->boundp(boundp);
         refDTypep(dtp);
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstQueueDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstQueueDType* const asamep = VN_DBG_AS(samep, QueueDType);
-        if (!asamep->subDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep());
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstQueueDType* स्थिर asamep = VN_DBG_AS(samep, QueueDType);
+        अगर (!asamep->subDTypep()) वापस false;
+        वापस (subDTypep() == asamep->subDTypep());
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstQueueDType* const asamep = VN_DBG_AS(samep, QueueDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        स्थिर AstQueueDType* स्थिर asamep = VN_DBG_AS(samep, QueueDType);
+        वापस asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    bool isAggregateType() const override { return true; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    inline int boundConst() const VL_MT_STABLE;
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    bool isAggregateType() स्थिर override { वापस true; }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    अंतरभूत पूर्णांक boundConst() स्थिर VL_MT_STABLE;
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस subDTypep()->width_योग_Bytes(); }
+    bool isCompound() स्थिर override { वापस true; }
+    bool isDynamicallySized() स्थिर override { वापस true; }
 };
-class AstRefDType final : public AstNodeDType {
+class AstRefDType final : खुला Ast_गाँठ_DType {
     // @astgen op1 := typeofp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     // @astgen op2 := classOrPackageOpp : Optional[AstNodeExpr]
     // @astgen op3 := paramsp : List[AstPin]
@@ -1310,263 +1310,263 @@ class AstRefDType final : public AstNodeDType {
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package defined in
     string m_name;  // Name of an AstTypedef
     // Interface capture tag, owned by V3LinkDotIfaceCapture; cloning copies it
-    const VIfaceCaptureTag* m_captureTagp = nullptr;
+    स्थिर VIfaceCaptureTag* m_captureTagp = nullptr;
 
-public:
-    AstRefDType(FileLine* fl, const string& name)
+खुला:
+    AstRefDType(File_पंक्ति* fl, स्थिर string& name)
         : ASTGEN_SUPER_RefDType(fl)
         , m_name{name} {}
-    AstRefDType(FileLine* fl, const string& name, AstNodeExpr* classOrPackagep, AstPin* paramsp)
+    AstRefDType(File_पंक्ति* fl, स्थिर string& name, Ast_गाँठ_व्यंजक* classOrPackagep, AstPin* paramsp)
         : ASTGEN_SUPER_RefDType(fl)
         , m_name{name} {
         classOrPackageOpp(classOrPackagep);
         addParamsp(paramsp);
     }
-    class FlagTypeOfExpr {};  // type(expr) for parser only
-    AstRefDType(FileLine* fl, FlagTypeOfExpr, AstNode* typeofp)
+    class Flag_Type_Of_व्यंजक {};  // type(expr) for parser only
+    AstRefDType(File_पंक्ति* fl, Flag_Type_Of_व्यंजक, Ast_गाँठ* typeofp)
         : ASTGEN_SUPER_RefDType(fl) {
         this->typeofp(typeofp);
-        if (AstNodeDType* const dtp = VN_CAST(typeofp, NodeDType)) refDTypep(dtp);
+        अगर (Ast_गाँठ_DType* स्थिर dtp = VN_CAST(typeofp, गाँठ_DType)) refDTypep(dtp);
     }
     ASTGEN_MEMBERS_AstRefDType;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        const AstRefDType* const asamep = VN_DBG_AS(samep, RefDType);
-        return (m_typedefp == asamep->m_typedefp && m_refDTypep == asamep->m_refDTypep
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstRefDType* स्थिर asamep = VN_DBG_AS(samep, RefDType);
+        वापस (m_typedefp == asamep->m_typedefp && m_refDTypep == asamep->m_refDTypep
                 && m_name == asamep->m_name && m_classOrPackagep == asamep->m_classOrPackagep);
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        return subDTypep()->similarDType(samep->subDTypep());
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        वापस subDTypep()->similarDType(samep->subDTypep());
     }
-    const char* broken() const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string prettyDTypeName(bool full) const override {
-        return subDTypep() ? subDTypep()->prettyDTypeName(full) : prettyName();
+    स्थिर अक्षर* broken() स्थिर override;
+    व्योम dump(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpJson(std::ostream& str = std::cout) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    string name() स्थिर override VL_MT_STABLE { वापस m_name; }
+    string prettyDTypeName(bool full) स्थिर override {
+        वापस subDTypep() ? subDTypep()->prettyDTypeName(full) : prettyName();
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE {
-        return subDTypep() ? subDTypep()->basicp() : nullptr;
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE {
+        वापस subDTypep() ? subDTypep()->basicp() : nullptr;
     }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE;
-    AstNodeDType* getChildDTypep() const override { return VN_CAST(typeofp(), NodeDType); }
-    int widthAlignBytes() const override { return dtypeSkipRefp()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return dtypeSkipRefp()->widthTotalBytes(); }
-    void name(const string& flag) override { m_name = flag; }
-    AstNodeDType* dtypeSkipRefp() const { return subDTypep()->skipRefp(); }
-    AstTypedef* typedefp() const VL_MT_SAFE { return m_typedefp; }
-    void typedefp(AstTypedef* nodep) { m_typedefp = nodep; }
-    AstNodeDType* refDTypep() const VL_MT_SAFE { return m_refDTypep; }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return refDTypep(); }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    const VIfaceCaptureTag* captureTagp() const { return m_captureTagp; }
-    void captureTagp(const VIfaceCaptureTag* tagp) { m_captureTagp = tagp; }
-    bool isCompound() const override {
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस VN_CAST(typeofp(), गाँठ_DType); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस dtypeSkipRefp()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस dtypeSkipRefp()->width_योग_Bytes(); }
+    व्योम name(स्थिर string& flag) override { m_name = flag; }
+    Ast_गाँठ_DType* dtypeSkipRefp() स्थिर { वापस subDTypep()->skipRefp(); }
+    AstTypedef* typedefp() स्थिर VL_MT_SAFE { वापस m_typedefp; }
+    व्योम typedefp(AstTypedef* nodep) { m_typedefp = nodep; }
+    Ast_गाँठ_DType* refDTypep() स्थिर VL_MT_SAFE { वापस m_refDTypep; }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस refDTypep(); }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
+    Ast_गाँठ_Module* classOrPackagep() स्थिर { वापस m_classOrPackagep; }
+    व्योम classOrPackagep(Ast_गाँठ_Module* nodep) { m_classOrPackagep = nodep; }
+    स्थिर VIfaceCaptureTag* captureTagp() स्थिर { वापस m_captureTagp; }
+    व्योम captureTagp(स्थिर VIfaceCaptureTag* tagp) { m_captureTagp = tagp; }
+    bool isCompound() स्थिर override {
         v3fatalSrc("call isCompound on subdata type, not reference");
-        return false;
+        वापस false;
     }
 };
-class AstRequireDType final : public AstNodeDType {
+class AstRequireDType final : खुला Ast_गाँठ_DType {
     // @astgen op1 := lhsp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     //
     // Require a generic node type (typically AstParseRef become a type.
-public:
-    AstRequireDType(FileLine* fl, AstNode* lhsp)
+खुला:
+    AstRequireDType(File_पंक्ति* fl, Ast_गाँठ* lhsp)
         : ASTGEN_SUPER_RequireDType(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstRequireDType;
     // METHODS
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstRequireDType* const asamep = VN_DBG_AS(samep, RequireDType);
-        return subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        स्थिर AstRequireDType* स्थिर asamep = VN_DBG_AS(samep, RequireDType);
+        वापस subDTypep()->similarDType(asamep->subDTypep());
     }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
         // Used for recursive definition checking
-        if (AstNodeDType* const dtp = VN_CAST(lhsp(), NodeDType)) return dtp;
+        अगर (Ast_गाँठ_DType* स्थिर dtp = VN_CAST(lhsp(), गाँठ_DType)) वापस dtp;
 
-        return nullptr;
+        वापस nullptr;
     }
-    int widthAlignBytes() const override { V3ERROR_NA_RETURN(1); }
-    int widthTotalBytes() const override { V3ERROR_NA_RETURN(1); }
-    bool isCompound() const override { V3ERROR_NA_RETURN(false); }
+    पूर्णांक widthAlignBytes() स्थिर override { V3ERROR_NA_RETURN(1); }
+    पूर्णांक width_योग_Bytes() स्थिर override { V3ERROR_NA_RETURN(1); }
+    bool isCompound() स्थिर override { V3ERROR_NA_RETURN(false); }
 };
-class AstSampleQueueDType final : public AstNodeDType {
+class AstSampleQueueDType final : खुला Ast_गाँठ_DType {
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstSampleQueueDType(FileLine* fl, AstNodeDType* dtp)
+खुला:
+    AstSampleQueueDType(File_पंक्ति* fl, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_SampleQueueDType(fl) {
         refDTypep(dtp);
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstSampleQueueDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstSampleQueueDType* const asamep = VN_DBG_AS(samep, SampleQueueDType);
-        if (!asamep->subDTypep()) return false;
-        return (subDTypep() == asamep->subDTypep());
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstSampleQueueDType* स्थिर asamep = VN_DBG_AS(samep, SampleQueueDType);
+        अगर (!asamep->subDTypep()) वापस false;
+        वापस (subDTypep() == asamep->subDTypep());
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override {
-        const AstSampleQueueDType* const asamep = VN_DBG_AS(samep, SampleQueueDType);
-        return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override {
+        स्थिर AstSampleQueueDType* स्थिर asamep = VN_DBG_AS(samep, SampleQueueDType);
+        वापस asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
     }
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
     // op1 = Range of variable
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    int widthTotalBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस माप(std::map<std::string, std::string>); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस माप(std::map<std::string, std::string>); }
+    bool isCompound() स्थिर override { वापस true; }
 };
-class AstStreamDType final : public AstNodeDType {
+class AstStreamDType final : खुला Ast_गाँठ_DType {
     // Stream data type, used only as data type of stream operations
     // Should behave like AstPackArrayDType, but it doesn't have a size
-public:
-    explicit AstStreamDType(FileLine* fl)
+खुला:
+    explicit AstStreamDType(File_पंक्ति* fl)
         : ASTGEN_SUPER_StreamDType(fl) {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstStreamDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return this == samep; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    bool undead() स्थिर override { वापस true; }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस nullptr; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override {}
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस this == samep; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 1; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 1; }
+    bool isCompound() स्थिर override { वापस false; }
 };
-class AstUnsizedArrayDType final : public AstNodeDType {
+class AstUnsizedArrayDType final : खुला Ast_गाँठ_DType {
     // Unsized/open-range Array data type, ie "some_dtype var_name []"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstUnsizedArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+खुला:
+    AstUnsizedArrayDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_UnsizedArrayDType(fl) {
         childDTypep(dtp);  // Only for parser
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstUnsizedArrayDType(FileLine* fl, AstNodeDType* dtp)
+    AstUnsizedArrayDType(File_पंक्ति* fl, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_UnsizedArrayDType(fl) {
         refDTypep(dtp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstUnsizedArrayDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    void dumpSmall(std::ostream& str) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override;
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return subDTypep()->widthAlignBytes(); }
-    int widthTotalBytes() const override { return subDTypep()->widthTotalBytes(); }
-    bool isCompound() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस subDTypep()->widthAlignBytes(); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस subDTypep()->width_योग_Bytes(); }
+    bool isCompound() स्थिर override { वापस true; }
 };
-class AstVoidDType final : public AstNodeDType {
+class AstVoidDType final : खुला Ast_गाँठ_DType {
     // For e.g. a function returning void
-public:
-    explicit AstVoidDType(FileLine* fl)
+खुला:
+    explicit AstVoidDType(File_पंक्ति* fl)
         : ASTGEN_SUPER_VoidDType(fl) {
         dtypep(this);
     }
     ASTGEN_MEMBERS_AstVoidDType;
-    void dumpSmall(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool undead() const override { return true; }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE { return nullptr; }
-    AstNodeDType* virtRefDTypep() const override { return nullptr; }
-    void virtRefDTypep(AstNodeDType* nodep) override {}
-    bool similarDTypeNode(const AstNodeDType* samep) const override { return true; }
-    AstBasicDType* basicp() const override VL_MT_STABLE { return nullptr; }
-    int widthAlignBytes() const override { return 1; }
-    int widthTotalBytes() const override { return 1; }
-    bool isCompound() const override { return false; }
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    bool hasDType() स्थिर override VL_MT_SAFE { वापस true; }
+    bool maybePointedTo() स्थिर override VL_MT_SAFE { वापस true; }
+    bool undead() स्थिर override { वापस true; }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस nullptr; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override {}
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override { वापस true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस nullptr; }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस 1; }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस 1; }
+    bool isCompound() स्थिर override { वापस false; }
 };
-class AstWildcardArrayDType final : public AstNodeDType {
+class AstWildcardArrayDType final : खुला Ast_गाँठ_DType {
     // Wildcard index type associative array data type, ie "some_dtype var_name [*]"
     // @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width
     //
     // @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width)
-public:
-    AstWildcardArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp)
+खुला:
+    AstWildcardArrayDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp)
         : ASTGEN_SUPER_WildcardArrayDType(fl) {
         childDTypep(dtp);  // Only for parser
         refDTypep(nullptr);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstWildcardArrayDType;
-    const char* broken() const override {
+    स्थिर अक्षर* broken() स्थिर override {
         BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-        return nullptr;
+        वापस nullptr;
     }
-    bool sameNode(const AstNode* samep) const override;
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    void dumpSmall(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const override VL_MT_STABLE {
-        return m_refDTypep ? m_refDTypep : childDTypep();
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override;
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override;
+    व्योम dumpSmall(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
+    Ast_गाँठ_DType* getChildDTypep() स्थिर override { वापस childDTypep(); }
+    Ast_गाँठ_DType* subDTypep() स्थिर override VL_MT_STABLE {
+        वापस m_refDTypep ? m_refDTypep : childDTypep();
     }
-    void refDTypep(AstNodeDType* nodep) { m_refDTypep = nodep; }
-    AstNodeDType* virtRefDTypep() const override { return m_refDTypep; }
-    void virtRefDTypep(AstNodeDType* nodep) override { refDTypep(nodep); }
+    व्योम refDTypep(Ast_गाँठ_DType* nodep) { m_refDTypep = nodep; }
+    Ast_गाँठ_DType* virtRefDTypep() स्थिर override { वापस m_refDTypep; }
+    व्योम virtRefDTypep(Ast_गाँठ_DType* nodep) override { refDTypep(nodep); }
     // METHODS
-    AstBasicDType* basicp() const override VL_MT_STABLE { return subDTypep()->basicp(); }
-    int widthAlignBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    int widthTotalBytes() const override { return sizeof(std::map<std::string, std::string>); }
-    bool isCompound() const override { return true; }
-    bool isDynamicallySized() const override { return true; }
+    AstBasicDType* basicp() स्थिर override VL_MT_STABLE { वापस subDTypep()->basicp(); }
+    पूर्णांक widthAlignBytes() स्थिर override { वापस माप(std::map<std::string, std::string>); }
+    पूर्णांक width_योग_Bytes() स्थिर override { वापस माप(std::map<std::string, std::string>); }
+    bool isCompound() स्थिर override { वापस true; }
+    bool isDynamicallySized() स्थिर override { वापस true; }
 };
 
 // === AstNodeArrayDType ===
-class AstPackArrayDType final : public AstNodeArrayDType {
+class AstPackArrayDType final : खुला Ast_गाँठ_Array_DType {
     // Packed array data type, ie "some_dtype [2:0] var_name"
-public:
-    inline AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstRange* rangep);
-    inline AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep);
+खुला:
+    अंतरभूत AstPackArrayDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp, AstRange* rangep);
+    अंतरभूत AstPackArrayDType(File_पंक्ति* fl, Ast_गाँठ_DType* dtp, AstRange* rangep);
     ASTGEN_MEMBERS_AstPackArrayDType;
-    string prettyDTypeName(bool full) const override;
-    bool isCompound() const override { return false; }
+    string prettyDTypeName(bool full) स्थिर override;
+    bool isCompound() स्थिर override { वापस false; }
 };
-class AstUnpackArrayDType final : public AstNodeArrayDType {
+class AstUnpackArrayDType final : खुला Ast_गाँठ_Array_DType {
     // Array data type, ie "some_dtype var_name [2:0]"
     bool m_isCompound = false;  // Non-POD subDType, or parent requires compound
-public:
-    AstUnpackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp, AstRange* rangep)
+खुला:
+    AstUnpackArrayDType(File_पंक्ति* fl, VFlagChildDType, Ast_गाँठ_DType* dtp, AstRange* rangep)
         : ASTGEN_SUPER_UnpackArrayDType(fl) {
         childDTypep(dtp);  // Only for parser
         this->rangep(rangep);
@@ -1576,7 +1576,7 @@ public:
         // width and signing from the subDType/base type
         widthFromSub(subDTypep());
     }
-    AstUnpackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
+    AstUnpackArrayDType(File_पंक्ति* fl, Ast_गाँठ_DType* dtp, AstRange* rangep)
         : ASTGEN_SUPER_UnpackArrayDType(fl) {
         this->rangep(rangep);
         refDTypep(dtp);
@@ -1586,54 +1586,54 @@ public:
         widthFromSub(subDTypep());
     }
     ASTGEN_MEMBERS_AstUnpackArrayDType;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string prettyDTypeName(bool full) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstUnpackArrayDType* const sp = VN_DBG_AS(samep, UnpackArrayDType);
-        return m_isCompound == sp->m_isCompound;
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
+    string prettyDTypeName(bool full) स्थिर override;
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override {
+        स्थिर AstUnpackArrayDType* स्थिर sp = VN_DBG_AS(samep, UnpackArrayDType);
+        वापस m_isCompound == sp->m_isCompound;
     }
-    bool similarDTypeNode(const AstNodeDType* samep) const override;
-    bool isAggregateType() const override { return true; }
+    bool similar_DType_गाँठ(स्थिर Ast_गाँठ_DType* samep) स्थिर override;
+    bool isAggregateType() स्थिर override { वापस true; }
     // True iff 'otherp' is an array of the same shape, with
     // at least one dimension reversed ascending/descending.
-    bool isReverseOf(const AstNodeDType* otherp) const;
+    bool isReverseOf(स्थिर Ast_गाँठ_DType* otherp) स्थिर;
     // Outer dimension comes first. The first element is this node.
     std::vector<AstUnpackArrayDType*> unpackDimensions();
-    void isCompound(bool flag) { m_isCompound = flag; }
-    bool isCompound() const override VL_MT_SAFE { return m_isCompound; }
-    bool isIntegralOrPacked() const override { return false; }
+    व्योम isCompound(bool flag) { m_isCompound = flag; }
+    bool isCompound() स्थिर override VL_MT_SAFE { वापस m_isCompound; }
+    bool isIntegralOrPacked() स्थिर override { वापस false; }
 };
 
 // === AstNodeUOrStructDType ===
-class AstStructDType final : public AstNodeUOrStructDType {
-public:
+class AstStructDType final : खुला Ast_गाँठ_UOr_Struct_DType {
+खुला:
     // VSigning below is mispurposed to indicate if packed or not
-    AstStructDType(FileLine* fl, VSigning numericUnpack)
+    AstStructDType(File_पंक्ति* fl, VSigning numericUnpack)
         : ASTGEN_SUPER_StructDType(fl, numericUnpack) {}
     ASTGEN_MEMBERS_AstStructDType;
-    string verilogKwd() const override { return "struct"; }
+    string verilogKwd() स्थिर override { वापस "struct"; }
 };
-class AstUnionDType final : public AstNodeUOrStructDType {
+class AstUnionDType final : खुला Ast_गाँठ_UOr_Struct_DType {
     bool m_isSoft;  // Is a "union soft"
     bool m_isTagged;  // Is a "union tagged"
 
-public:
+खुला:
     // VSigning below is mispurposed to indicate if packed or not
     // isSoft implies packed
-    AstUnionDType(FileLine* fl, bool isSoft, bool isTagged, VSigning numericUnpack)
+    AstUnionDType(File_पंक्ति* fl, bool isSoft, bool isTagged, VSigning numericUnpack)
         : ASTGEN_SUPER_UnionDType(fl, numericUnpack)
         , m_isSoft{isSoft}
         , m_isTagged{isTagged} {
         packed(packed() | m_isSoft);
     }
     ASTGEN_MEMBERS_AstUnionDType;
-    string verilogKwd() const override { return "union"; }
-    bool isSoft() const { return m_isSoft; }
-    bool isTagged() const { return m_isTagged; }
-    bool sameNode(const AstNode* samep) const override;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    string verilogKwd() स्थिर override { वापस "union"; }
+    bool isSoft() स्थिर { वापस m_isSoft; }
+    bool isTagged() स्थिर { वापस m_isTagged; }
+    bool same_गाँठ(स्थिर Ast_गाँठ* samep) स्थिर override;
+    व्योम dump(std::ostream& str) स्थिर override;
+    व्योम dumpJson(std::ostream& str) स्थिर override;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

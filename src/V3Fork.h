@@ -15,24 +15,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FORK_H_
-#define VERILATOR_V3FORK_H_
+#अगर_अघोषित VERILATOR_V3FORK_H_
+#घोषणा VERILATOR_V3FORK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Fork final {
-public:
+खुला:
     // Move/copy variables to "anonymous" objects if their lifetime might exceed the scope of a
     // procedure that declared them. Update the references appropriately.
-    static void makeDynamicScopes(AstNetlist* nodep) VL_MT_DISABLED;
+    अटल व्योम makeDynamicScopes(AstNetlist* nodep) VL_MT_DISABLED;
     // Create tasks out of blocks/statments that can outlive processes in which they were forked.
     // Return value: number of tasks created
-    static void makeTasks(AstNetlist* nodep) VL_MT_DISABLED;
+    अटल व्योम makeTasks(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3COMMON_H_
-#define VERILATOR_V3COMMON_H_
+#अगर_अघोषित VERILATOR_V3COMMON_H_
+#घोषणा VERILATOR_V3COMMON_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-class AstNodeDType;
+class Ast_गाँठ_DType;
 
 //============================================================================
 
 class V3Common final {
-public:
-    static void commonAll() VL_MT_DISABLED;
-    static string makeToStringCall(AstNodeDType* nodep, const std::string& lhs);
+खुला:
+    अटल व्योम commonAll() VL_MT_DISABLED;
+    अटल string makeToStringCall(Ast_गाँठ_DType* nodep, स्थिर std::string& lhs);
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

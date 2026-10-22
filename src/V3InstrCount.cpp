@@ -15,12 +15,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#समावेश "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3InstrCount.h"
+#समावेश "V3InstrCount.h"
 
-#include <iomanip>
-#include <unordered_map>
+#समावेश <iomanip>
+#समावेश <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -30,64 +30,64 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// we'll count instructions from either the 'if' or the 'else' branch,
 /// whichever is larger. We know we won't run both.
 
-class InstrCountVisitor final : public VNVisitorConst {
+श्रेणी Instr_गिनती_Visitor final : खुला VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()        -> bool. Processed if assertNoDups
     //  AstNode::user2()        -> uint64_t.  Path cost + 1, 0 means don't dump
-    const VNUser2InUse m_inuser2;
+    स्थिर VNUser2InUse m_inuser2;
 
     // MEMBERS
-    uint32_t m_instrCount = 0;  // Running count of instructions
-    const AstNode* const m_startNodep;  // Start node of count
+    uint32_t m_instr_गिनती = 0;  // Running count of instructions
+    स्थिर Ast_गाँठ* स्थिर m_startNodep;  // Start node of count
     bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
     bool m_inCFunc = false;  // Inside AstCFunc
     bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
-    const bool m_assertNoDups;  // Check for duplicates
-    const std::ostream* const m_osp;  // Dump file
-    std::unordered_map<const AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
+    स्थिर bool m_assertNoDups;  // Check for duplicates
+    स्थिर std::ब_प्रवाह* स्थिर m_osp;  // Dump file
+    std::unordered_map<स्थिर AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
 
     // TYPES
     // Little class to cleanly call startVisitBase/endVisitBase
-    class VisitBase final {
+    श्रेणी VisitBase final {
         // MEMBERS
-        uint32_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node helper is visiting
-        InstrCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint32_t m_saved_गिनती;  // Count before visit applied
+        Ast_गाँठ* स्थिर m_nodep;  // Node helper is visiting
+        Instr_गिनती_Visitor* स्थिर m_visitor;  // Visitor whose start/endVisitBase are called
 
-    public:
+    खुला:
         // CONSTRUCTORS
-        VisitBase(InstrCountVisitor* visitor, AstNode* nodep)
+        VisitBase(Instr_गिनती_Visitor* visitor, Ast_गाँठ* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_गिनती = m_visitor->startVisitBase(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~VisitBase() { m_visitor->endVisitBase(m_saved_गिनती, m_nodep); }
 
-    private:
+    निजी:
         VL_UNCOPYABLE(VisitBase);
     };
 
-public:
+खुला:
     // CONSTRUCTORS
-    InstrCountVisitor(AstNode* nodep, bool assertNoDups, std::ostream* osp)
+    Instr_गिनती_Visitor(Ast_गाँठ* nodep, bool assertNoDups, std::ब_प्रवाह* osp)
         : m_startNodep{nodep}
         , m_assertNoDups{assertNoDups}
         , m_osp{osp} {
         iterateConstNull(nodep);
     }
-    ~InstrCountVisitor() override = default;
+    ~Instr_गिनती_Visitor() override = शेष;
 
     // METHODS
-    uint32_t instrCount() const { return m_instrCount; }
+    uint32_t instr_गिनती() स्थिर { वापस m_instr_गिनती; }
 
-private:
-    void reset() {
-        m_instrCount = 0;
+निजी:
+    व्योम reset() {
+        m_instr_गिनती = 0;
         m_ignoreRemaining = false;
     }
-    uint32_t startVisitBase(AstNode* nodep) {
+    uint32_t startVisitBase(Ast_गाँठ* nodep) {
         UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
-        if (m_assertNoDups && !m_inCFunc) {
+        अगर (m_assertNoDups && !m_inCFunc) {
             // Ensure we don't count the same node twice
             //
             // We only enable this assert for the initial LogicMTask counts
@@ -101,29 +101,29 @@ private:
             // collisions in CFuncs.
             UASSERT_OBJ(!nodep->user1p(), nodep,
                         "Node originally inserted below logic vertex "
-                            << static_cast<AstNode*>(nodep->user1p()));
-            nodep->user1p(const_cast<void*>(reinterpret_cast<const void*>(m_startNodep)));
+                            << static_cast<Ast_गाँठ*>(nodep->user1p()));
+            nodep->user1p(const_cast<व्योम*>(reinterpret_cast<स्थिर व्योम*>(m_startNodep)));
         }
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint32_t savedCount = m_instrCount;
-        m_instrCount = nodep->instrCount();
-        return savedCount;
+        स्थिर uint32_t saved_गिनती = m_instr_गिनती;
+        m_instr_गिनती = nodep->instr_गिनती();
+        वापस saved_गिनती;
     }
-    void endVisitBase(uint32_t savedCount, AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_instrCount << "  " << nodep);
+    व्योम endVisitBase(uint32_t saved_गिनती, Ast_गाँठ* nodep) {
+        UINFO(8, "cost " << std::रखो_चौड़ाई(6) << std::बाँए << m_instr_गिनती << "  " << nodep);
         markCost(nodep);
-        if (!m_ignoreRemaining) m_instrCount += savedCount;
+        अगर (!m_ignoreRemaining) m_instr_गिनती += saved_गिनती;
     }
-    void markCost(AstNode* nodep) {
-        if (m_osp) nodep->user2(m_instrCount + 1);  // Else don't mark to avoid writeback
+    व्योम markCost(Ast_गाँठ* nodep) {
+        अगर (m_osp) nodep->user2(m_instr_गिनती + 1);  // Else don't mark to avoid writeback
     }
 
     // VISITORS
-    void visit(AstNodeSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    व्योम visit(Ast_गाँठ_Sel* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
         // This covers both AstArraySel and AstWordSel
         //
         // If some vector is a bazillion dwords long, and we're selecting 1
@@ -131,20 +131,20 @@ private:
         //
         // Hence, exclude the child of the AstWordSel from the computation,
         // whose cost scales with the size of the entire (maybe large) vector.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->bitp());
+        स्थिर VisitBase vb{यह, nodep};
+        iterate_And_अग्र_Const_Null(nodep->bitp());
     }
-    void visit(AstSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    व्योम visit(AstSel* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
         // Similar to AstNodeSel above, a small select into a large vector
         // is not expensive. Count the cost of the AstSel itself (scales with
         // its width) and the cost of the lsbp() and widthp() nodes, but not
         // the fromp() node which could be disproportionately large.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->lsbp());
+        स्थिर VisitBase vb{यह, nodep};
+        iterate_And_अग्र_Const_Null(nodep->lsbp());
     }
-    void visit(AstConcat* nodep) override {
-        if (m_ignoreRemaining) return;
+    व्योम visit(AstConcat* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
         // Ignore the cost of the concat node itself. The problem with
         // counting concat is that when we have many things concatted
         // together, it's not a single operation, but this:
@@ -163,81 +163,81 @@ private:
         iterateChildrenConst(nodep);
         markCost(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+    व्योम visit(Ast_गाँठ_If* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
+        स्थिर VisitBase vb{यह, nodep};
+        iterate_And_अग्र_Const_Null(nodep->condp());
+        स्थिर uint32_t saved_गिनती = m_instr_गिनती;
 
         UINFO(8, "thensp:");
         reset();
-        iterateAndNextConstNull(nodep->thensp());
-        uint32_t ifCount = m_instrCount;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        iterate_And_अग्र_Const_Null(nodep->thensp());
+        uint32_t if_गिनती = m_instr_गिनती;
+        अगर (nodep->branchPred().unlikely()) if_गिनती = 0;
 
         UINFO(8, "elsesp:");
         reset();
-        iterateAndNextConstNull(nodep->elsesp());
-        uint32_t elseCount = m_instrCount;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        iterate_And_अग्र_Const_Null(nodep->elsesp());
+        uint32_t else_गिनती = m_instr_गिनती;
+        अगर (nodep->branchPred().likely()) else_गिनती = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+        अगर (if_गिनती >= else_गिनती) {
+            m_instr_गिनती = saved_गिनती + if_गिनती;
+            अगर (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } अन्यथा {
+            m_instr_गिनती = saved_गिनती + else_गिनती;
+            अगर (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+    व्योम visit(AstCond* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+        स्थिर VisitBase vb{यह, nodep};
+        iterate_And_अग्र_Const_Null(nodep->condp());
+        स्थिर uint32_t saved_गिनती = m_instr_गिनती;
 
         UINFO(8, "?");
         reset();
-        iterateAndNextConstNull(nodep->thenp());
-        const uint32_t ifCount = m_instrCount;
+        iterate_And_अग्र_Const_Null(nodep->thenp());
+        स्थिर uint32_t if_गिनती = m_instr_गिनती;
 
         UINFO(8, ":");
         reset();
-        iterateAndNextConstNull(nodep->elsep());
-        const uint32_t elseCount = m_instrCount;
+        iterate_And_अग्र_Const_Null(nodep->elsep());
+        स्थिर uint32_t else_गिनती = m_instr_गिनती;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+        अगर (if_गिनती >= else_गिनती) {
+            m_instr_गिनती = saved_गिनती + if_गिनती;
+            अगर (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } अन्यथा {
+            m_instr_गिनती = saved_गिनती + else_गिनती;
+            अगर (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCAwait* nodep) override {
-        if (m_ignoreRemaining) return;
+    व्योम visit(AstCAwait* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
         iterateChildrenConst(nodep);
         // Anything past a co_await is irrelevant
         m_ignoreRemaining = true;
     }
-    void visit(AstFork* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->stmtsp());
-        uint32_t totalCount = m_instrCount;
+    व्योम visit(AstFork* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
+        स्थिर VisitBase vb{यह, nodep};
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
+        uint32_t योग_गिनती = m_instr_गिनती;
         // Sum counts in each statement until the first await
-        for (AstNode* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
+        क्रम (Ast_गाँठ* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
             reset();
             iterateConst(stmtp);
-            totalCount += m_instrCount;
+            योग_गिनती += m_instr_गिनती;
         }
-        m_instrCount = totalCount;
+        m_instr_गिनती = योग_गिनती;
         m_ignoreRemaining = false;
     }
-    void visit(AstActive* nodep) override {
+    व्योम visit(AstActive* nodep) override {
         // You'd think that the OrderLogicVertex's would be disjoint trees
         // of stuff in the AST, but it isn't so: V3Order makes an
         // OrderLogicVertex for each ACTIVE, and then also makes an
@@ -253,96 +253,96 @@ private:
         markCost(nodep);
         UASSERT_OBJ(nodep == m_startNodep, nodep, "Multiple actives, or not start node");
     }
-    void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    व्योम visit(Ast_गाँठ_CCall* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
+        स्थिर VisitBase vb{यह, nodep};
         iterateChildrenConst(nodep);
-        const auto it = m_funcCosts.find(nodep->funcp());
-        if (it == m_funcCosts.end()) {
+        स्थिर स्वतः it = m_funcCosts.find(nodep->funcp());
+        अगर (it == m_funcCosts.end()) {
             m_tracingCall = true;
             iterateConst(nodep->funcp());
             UASSERT_OBJ(!m_tracingCall, nodep,
                         "visit(AstCFunc) should have cleared m_tracingCall.");
-        } else {
-            m_instrCount += it->second;  // This guards and adds zero cost on recursive calls
+        } अन्यथा {
+            m_instr_गिनती += it->second;  // This guards and adds zero cost on recursive calls
         }
     }
-    void visit(AstCFunc* nodep) override {
+    व्योम visit(AstCFunc* nodep) override {
         // Don't count a CFunc other than by tracing a call or counting it
         // from the root
         UASSERT_OBJ(m_tracingCall || nodep == m_startNodep, nodep,
                     "AstCFunc not under AstCCall, or not start node");
         UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not be ignoring at the start of a CFunc");
-        const auto emplacePair = m_funcCosts.emplace(nodep, 0);
+        स्थिर स्वतः emplacePair = m_funcCosts.emplace(nodep, 0);
         UASSERT_OBJ(emplacePair.second, nodep, "Should visit every CFunc at most once");
         uint32_t& funcCostr = emplacePair.first->second;
         m_tracingCall = false;
 
-        const uint32_t savedCount = m_instrCount;
+        स्थिर uint32_t saved_गिनती = m_instr_गिनती;
         reset();
         {
             VL_RESTORER(m_inCFunc);
             m_inCFunc = true;
-            const VisitBase vb{this, nodep};
+            स्थिर VisitBase vb{यह, nodep};
             iterateChildrenConst(nodep);
         }
-        funcCostr = m_instrCount;
-        m_instrCount += savedCount;
+        funcCostr = m_instr_गिनती;
+        m_instr_गिनती += saved_गिनती;
 
         m_ignoreRemaining = false;
     }
-    void visit(AstNodeCons* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    व्योम visit(Ast_गाँठ_Cons* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
+        स्थिर VisitBase vb{यह, nodep};
         // A constant value is not built at run time, so its parts cost nothing
-        if (!nodep->isConstantTree()) iterateChildrenConst(nodep);
+        अगर (!nodep->is_Constant_वृक्ष()) iterateChildrenConst(nodep);
     }
-    void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    व्योम visit(Ast_गाँठ* nodep) override {
+        अगर (m_ignoreRemaining) वापस;
+        स्थिर VisitBase vb{यह, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(InstrCountVisitor);
+    VL_UNCOPYABLE(Instr_गिनती_Visitor);
 };
 
 // Iterate the graph printing the critical path marked by previous visitation
-class InstrCountDumpVisitor final : public VNVisitorConst {
+श्रेणी Instr_गिनती_Dump_Visitor final : खुला VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> int.  Path cost, 0 means don't dump
 
     // MEMBERS
-    std::ostream* const m_osp;  // Dump file
-    unsigned m_depth = 0;  // Current tree depth for printing indent
+    std::ब_प्रवाह* स्थिर m_osp;  // Dump file
+    अचिन्हित m_depth = 0;  // Current tree depth for printing indent
 
-public:
+खुला:
     // CONSTRUCTORS
-    InstrCountDumpVisitor(AstNode* nodep, std::ostream* osp)
+    Instr_गिनती_Dump_Visitor(Ast_गाँठ* nodep, std::ब_प्रवाह* osp)
         : m_osp{osp} {
         // No check for nullptr output, so...
         UASSERT_OBJ(osp, nodep, "Don't call if not dumping");
-        if (nodep) iterateConst(nodep);
+        अगर (nodep) iterateConst(nodep);
     }
-    ~InstrCountDumpVisitor() override = default;
+    ~Instr_गिनती_Dump_Visitor() override = शेष;
 
-private:
+निजी:
     // METHODS
-    string indent() const { return string(m_depth, ':') + " "; }
-    void visit(AstNode* nodep) override {
+    string indent() स्थिर { वापस string(m_depth, ':') + " "; }
+    व्योम visit(Ast_गाँठ* nodep) override {
         ++m_depth;
-        if (const unsigned costPlus1 = nodep->user2()) {
-            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::left << (costPlus1 - 1)
+        अगर (स्थिर अचिन्हित costPlus1 = nodep->user2()) {
+            *m_osp << "  " << indent() << "cost " << std::रखो_चौड़ाई(6) << std::बाँए << (costPlus1 - 1)
                    << "  " << nodep << '\n';
             iterateChildrenConst(nodep);
         }
         --m_depth;
     }
 
-    VL_UNCOPYABLE(InstrCountDumpVisitor);
+    VL_UNCOPYABLE(Instr_गिनती_Dump_Visitor);
 };
 
-uint32_t V3InstrCount::count(AstNode* nodep, bool assertNoDups, std::ostream* osp) {
-    const InstrCountVisitor visitor{nodep, assertNoDups, osp};
-    if (osp) const InstrCountDumpVisitor dumper{nodep, osp};
-    return visitor.instrCount();
+uint32_t V3_Instr_गिनती::गिनती(Ast_गाँठ* nodep, bool assertNoDups, std::ब_प्रवाह* osp) {
+    स्थिर Instr_गिनती_Visitor visitor{nodep, assertNoDups, osp};
+    अगर (osp) स्थिर Instr_गिनती_Dump_Visitor dumper{nodep, osp};
+    वापस visitor.instr_गिनती();
 }

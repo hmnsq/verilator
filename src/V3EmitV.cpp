@@ -14,41 +14,41 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#समावेश "V3PchAstMT.h"
 
-#include "V3EmitV.h"
+#समावेश "V3EmitV.h"
 
-#include "V3EmitCBase.h"
+#समावेश "V3EmitCBase.h"
 
-#include <unordered_map>
-#include <vector>
+#समावेश <unordered_map>
+#समावेश <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Emit statements and expressions
 
-class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
+श्रेणी EmitVBaseVisitorConst VL_NOT_FINAL : खुला VNVisitorConst {
     // STATE - across all visitors
-    const bool m_suppressUnknown;  // Do not error on unknown node
+    स्थिर bool m_suppressUnknown;  // Do not error on unknown node
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstSenTree* m_sentreep = nullptr;  // Domain for printing one a ALWAYS under a ACTIVE
+    Ast_Sen_वृक्ष* m_sentreep = nullptr;  // Domain for printing one a ALWAYS under a ACTIVE
     bool m_suppressSemi = false;  // Non-statement, don't print ;
     bool m_suppressVarSemi = false;  // Suppress emitting semicolon for AstVars
     bool m_suppressSampled = false;  // Suppress emitting sampled in assertion properties
     bool m_arrayPost = false;  // Print array information that goes after identifier (vs after)
     bool m_prefixed = true;  // Whether constants need to be prefixed
-    std::deque<AstNodeArrayDType*> m_packedps;  // Packed arrays to print with BasicDType
-    std::unordered_map<AstJumpBlock*, size_t> m_labelNumbers;  // Label numbers for JumpBlocks
+    std::deque<Ast_गाँठ_Array_DType*> m_packedps;  // Packed arrays to print with BasicDType
+    std::unordered_map<AstJumpBlock*, माप_प्रकार> m_labelNumbers;  // Label numbers for JumpBlocks
 
     // METHODS
-    virtual void puts(const string& str) = 0;
-    virtual void putbs(const string& str) = 0;
-    virtual void putfs(AstNode* nodep, const string& str) = 0;  // Fileline and node %% mark
-    virtual void putqs(AstNode* nodep, const string& str) = 0;  // Fileline quiet w/o %% mark
-    virtual void putsNoTracking(const string& str) = 0;
-    virtual void putsQuoted(const string& str) {
+    भव व्योम माला_दो(स्थिर string& str) = 0;
+    भव व्योम putbs(स्थिर string& str) = 0;
+    भव व्योम putfs(Ast_गाँठ* nodep, स्थिर string& str) = 0;  // Fileline and node %% mark
+    भव व्योम putqs(Ast_गाँठ* nodep, स्थिर string& str) = 0;  // Fileline quiet w/o %% mark
+    भव व्योम putsNoTracking(स्थिर string& str) = 0;
+    भव व्योम putsQuoted(स्थिर string& str) {
         // Quote \ and " for use inside C programs
         // Don't use to quote a filename for #include - #include doesn't \ escape.
         // Duplicate in V3File - here so we can print to string
@@ -57,739 +57,739 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         putsNoTracking("\"");
     }
 
-    void iterateAndCommaConstNull(AstNode* nodep) {
-        for (; nodep; nodep = nodep->nextp()) {
+    व्योम iterateAndCommaConstNull(Ast_गाँठ* nodep) {
+        क्रम (; nodep; nodep = nodep->nextp()) {
             iterateConst(nodep);
-            if (nodep->nextp()) puts(", ");
+            अगर (nodep->nextp()) माला_दो(", ");
         }
     }
-    void emitPacked() {
-        for (AstNodeArrayDType* packedp : m_packedps) {
-            puts(" ");
+    व्योम emitPacked() {
+        क्रम (Ast_गाँठ_Array_DType* packedp : m_packedps) {
+            माला_दो(" ");
             iterateConstNull(packedp->rangep());
         }
-        m_packedps.clear();
+        m_packedps.सफा();
     }
-    void emitNodesWithText(AstNode* nodesp, bool tracking, const std::string& separator) {
-        for (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
-            if (const AstText* const textp = VN_CAST(nodep, Text)) {
-                if (tracking) {
-                    puts(textp->text());
-                } else {
+    व्योम emitNodesWithText(Ast_गाँठ* nodesp, bool tracking, स्थिर std::string& separator) {
+        क्रम (Ast_गाँठ* nodep = nodesp; nodep; nodep = nodep->nextp()) {
+            अगर (स्थिर AstText* स्थिर textp = VN_CAST(nodep, Text)) {
+                अगर (tracking) {
+                    माला_दो(textp->text());
+                } अन्यथा {
                     putsNoTracking(textp->text());
                 }
-            } else {
+            } अन्यथा {
                 iterateConst(nodep);
             }
-            if (nodep->nextp()) puts(separator);
+            अगर (nodep->nextp()) माला_दो(separator);
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override { iterateAndNextConstNull(nodep->modulesp()); }
-    void visit(AstNodeModule* nodep) override {
+    व्योम visit(AstNetlist* nodep) override { iterate_And_अग्र_Const_Null(nodep->modulesp()); }
+    व्योम visit(Ast_गाँठ_Module* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " " + EmitCUtil::prefixNameProtect(nodep) + ";\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end" + nodep->verilogKwd() + "\n");
     }
-    void visit(AstPort* nodep) override {}
-    void visit(AstNodeFTask* nodep) override {
+    व्योम visit(AstPort* nodep) override {}
+    व्योम visit(Ast_गाँठ_FTask* nodep) override {
         putfs(nodep, nodep->verilogKwd());
-        puts(" ");
-        puts(nodep->prettyName());
-        puts(";\n");
+        माला_दो(" ");
+        माला_दो(nodep->prettyName());
+        माला_दो(";\n");
         // Only putfs the first time for each visitor; later for same node is putqs
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
         putqs(nodep, "end" + nodep->verilogKwd() + "\n");
     }
 
-    void visit(AstGenBlock* nodep) override {
-        const std::string name = nodep->name().empty() ? "" : " : " + nodep->name();
+    व्योम visit(AstGenBlock* nodep) override {
+        स्थिर std::string name = nodep->name().empty() ? "" : " : " + nodep->name();
         putbs("/* generate */ begin" + name + '\n');
         iterateChildrenConst(nodep);
-        puts("end" + name + '\n');
+        माला_दो("end" + name + '\n');
     }
-    void visit(AstGenCase* nodep) override {
+    व्योम visit(AstGenCase* nodep) override {
         putfs(nodep, "/* generate */ case (");
-        iterateAndNextConstNull(nodep->exprp());
-        puts(")\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        माला_दो(")\n");
+        iterate_And_अग्र_Const_Null(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
-    void visit(AstGenCaseItem* nodep) override {
-        if (nodep->condsp()) {
-            iterateAndNextConstNull(nodep->condsp());
-        } else {
+    व्योम visit(AstGenCaseItem* nodep) override {
+        अगर (nodep->condsp()) {
+            iterate_And_अग्र_Const_Null(nodep->condsp());
+        } अन्यथा {
             putbs("default");
         }
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_अग्र_Const_Null(nodep->itemsp());
     }
-    void visit(AstGenFor* nodep) override {
+    व्योम visit(AstGenFor* nodep) override {
         putfs(nodep, "/* generate */ for (");
         {
             VL_RESTORER(m_suppressSemi);
             m_suppressSemi = true;
-            iterateAndNextConstNull(nodep->initsp());
-            puts(";");
-            iterateAndNextConstNull(nodep->condp());
-            puts(";");
-            iterateAndNextConstNull(nodep->incsp());
+            iterate_And_अग्र_Const_Null(nodep->initsp());
+            माला_दो(";");
+            iterate_And_अग्र_Const_Null(nodep->condp());
+            माला_दो(";");
+            iterate_And_अग्र_Const_Null(nodep->incsp());
         }
-        puts(") begin\n");
-        iterateAndNextConstNull(nodep->itemsp());
+        माला_दो(") begin\n");
+        iterate_And_अग्र_Const_Null(nodep->itemsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstGenIf* nodep) override {
+    व्योम visit(AstGenIf* nodep) override {
         putfs(nodep, "");
-        puts("/* generate */ if (");
-        iterateAndNextConstNull(nodep->condp());
-        puts(") begin\n");
-        iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        माला_दो("/* generate */ if (");
+        iterate_And_अग्र_Const_Null(nodep->condp());
+        माला_दो(") begin\n");
+        iterate_And_अग्र_Const_Null(nodep->thensp());
+        अगर (nodep->elsesp()) {
             putqs(nodep, "end else begin\n");
-            iterateAndNextConstNull(nodep->elsesp());
+            iterate_And_अग्र_Const_Null(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
-    void visit(AstBegin* nodep) override {
-        if (nodep->name() == "") {
+    व्योम visit(AstBegin* nodep) override {
+        अगर (nodep->name() == "") {
             putbs("begin\n");
-        } else {
+        } अन्यथा {
             putbs("begin : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
-        puts("end\n");
+        माला_दो("end\n");
     }
-    void visit(AstFork* nodep) override {
-        if (nodep->name() == "") {
+    व्योम visit(AstFork* nodep) override {
+        अगर (nodep->name() == "") {
             putbs("fork\n");
-        } else {
+        } अन्यथा {
             putbs("fork : " + nodep->name() + "\n");
         }
         iterateChildrenConst(nodep);
-        puts(nodep->joinType().verilogKwd());
-        puts("\n");
+        माला_दो(nodep->joinType().verilogKwd());
+        माला_दो("\n");
     }
-    void visit(AstFinal* nodep) override {
+    व्योम visit(AstFinal* nodep) override {
         putfs(nodep, "final begin\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end\n");
     }
-    void visit(AstInitial* nodep) override {
+    व्योम visit(AstInitial* nodep) override {
         putfs(nodep, "initial begin\n");
         iterateChildrenConst(nodep);
         putqs(nodep, "end\n");
     }
-    void visit(AstInitialAutomatic* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialStatic* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstAlways* nodep) override {
-        if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-            if (!ap->nextp()) {
+    व्योम visit(AstInitialAutomatic* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstInitialStatic* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstInitialAutomaticStmt* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstInitialStaticStmt* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstAlways* nodep) override {
+        अगर (स्थिर AstAssignW* स्थिर ap = VN_CAST(nodep->stmtsp(), AssignW)) {
+            अगर (!ap->nextp()) {
                 putfs(nodep, "assign ");
-                if (AstNode* const tcp = ap->timingControlp()) {
-                    iterateAndNextConstNull(tcp);
+                अगर (Ast_गाँठ* स्थिर tcp = ap->timingControlp()) {
+                    iterate_And_अग्र_Const_Null(tcp);
                     putbs(" ");
                 }
-                iterateAndNextConstNull(ap->lhsp());
+                iterate_And_अग्र_Const_Null(ap->lhsp());
                 putbs(" = ");
-                iterateAndNextConstNull(ap->rhsp());
-                if (!m_suppressSemi) puts(";\n");
-                return;
+                iterate_And_अग्र_Const_Null(ap->rhsp());
+                अगर (!m_suppressSemi) माला_दो(";\n");
+                वापस;
             }
         }
         putfs(nodep, "always ");
-        if (m_sentreep) {
-            iterateAndNextConstNull(m_sentreep);
+        अगर (m_sentreep) {
+            iterate_And_अग्र_Const_Null(m_sentreep);
         }  // In active
-        else {
-            iterateAndNextConstNull(nodep->sentreep());
+        अन्यथा {
+            iterate_And_अग्र_Const_Null(nodep->sentreep());
         }
         putbs(" begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstAlwaysPre* nodep) override {
+    व्योम visit(AstAlwaysPre* nodep) override {
         putfs(nodep, "always /* PRE */ begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstAlwaysPost* nodep) override {
+    व्योम visit(AstAlwaysPost* nodep) override {
         putfs(nodep, "always /* POST */ begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (VN_IS(nodep, AssignForce)) puts("force ");
-        iterateAndNextConstNull(nodep->lhsp());
+    व्योम visit(Ast_गाँठ_Assign* nodep) override {
+        अगर (VN_IS(nodep, AssignForce)) माला_दो("force ");
+        iterate_And_अग्र_Const_Null(nodep->lhsp());
         putfs(nodep, " " + nodep->verilogKwd() + " ");
-        iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_अग्र_Const_Null(nodep->rhsp());
+        अगर (!m_suppressSemi) माला_दो(";\n");
     }
-    void visit(AstAlias* nodep) override {
+    व्योम visit(AstAlias* nodep) override {
         putbs("alias ");
         iterateConst(nodep->itemsp());
-        for (AstNode* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
+        क्रम (Ast_गाँठ* itemp = nodep->itemsp()->nextp(); itemp; itemp = itemp->nextp()) {
             putfs(nodep, " = ");
             iterateConst(itemp);
         }
-        if (!m_suppressSemi) puts(";\n");
+        अगर (!m_suppressSemi) माला_दो(";\n");
     }
-    void visit(AstAssignW* nodep) override {
+    व्योम visit(AstAssignW* nodep) override {
         putfs(nodep, "continuous assign ");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_अग्र_Const_Null(nodep->lhsp());
         putbs(" = ");
-        iterateAndNextConstNull(nodep->rhsp());
-        if (!m_suppressSemi) puts(";\n");
+        iterate_And_अग्र_Const_Null(nodep->rhsp());
+        अगर (!m_suppressSemi) माला_दो(";\n");
     }
-    void visit(AstRelease* nodep) override {
-        puts("release ");
-        iterateAndNextConstNull(nodep->lhsp());
-        if (!m_suppressSemi) puts(";\n");
+    व्योम visit(AstRelease* nodep) override {
+        माला_दो("release ");
+        iterate_And_अग्र_Const_Null(nodep->lhsp());
+        अगर (!m_suppressSemi) माला_दो(";\n");
     }
-    void visit(AstBreak*) override {
+    व्योम visit(AstBreak*) override {
         putbs("break");
-        if (!m_suppressSemi) puts(";\n");
+        अगर (!m_suppressSemi) माला_दो(";\n");
     }
-    void visit(AstSenTree* nodep) override {
+    व्योम visit(Ast_Sen_वृक्ष* nodep) override {
         // AstSenItem is called for dumping in isolation by V3Order
         putfs(nodep, "@(");
-        for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+        क्रम (Ast_गाँठ* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
             iterateConst(expp);
-            if (expp->nextp()) putqs(expp->nextp(), " or ");
+            अगर (expp->nextp()) putqs(expp->nextp(), " or ");
         }
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstSenItem* nodep) override {
+    व्योम visit(AstSenItem* nodep) override {
         putfs(nodep, "");
-        if (nodep->edgeType() != VEdgeType::ET_CHANGED) puts(nodep->edgeType().verilogKwd());
-        if (nodep->sensp()) puts(" ");
+        अगर (nodep->edgeType() != VEdgeType::ET_CHANGED) माला_दो(nodep->edgeType().verilogKwd());
+        अगर (nodep->sensp()) माला_दो(" ");
         iterateChildrenConst(nodep);
     }
-    void visit(AstCReset* /*nodep*/) override { puts("/*CRESET*/"); }
-    void visit(AstCase* nodep) override {
+    व्योम visit(AstCReset* /*nodep*/) override { माला_दो("/*CRESET*/"); }
+    व्योम visit(AstCase* nodep) override {
         putfs(nodep, "");
-        if (nodep->priorityPragma()) puts("priority ");
-        if (nodep->uniquePragma()) puts("unique ");
-        if (nodep->unique0Pragma()) puts("unique0 ");
-        puts(nodep->verilogKwd());
-        puts(" (");
-        iterateAndNextConstNull(nodep->exprp());
-        puts(")\n");
-        if (nodep->fullPragma() || nodep->parallelPragma()) {
-            puts(" // synopsys");
-            if (nodep->fullPragma()) puts(" full_case");
-            if (nodep->parallelPragma()) puts(" parallel_case");
+        अगर (nodep->priorityPragma()) माला_दो("priority ");
+        अगर (nodep->uniquePragma()) माला_दो("unique ");
+        अगर (nodep->unique0Pragma()) माला_दो("unique0 ");
+        माला_दो(nodep->verilogKwd());
+        माला_दो(" (");
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        माला_दो(")\n");
+        अगर (nodep->fullPragma() || nodep->parallelPragma()) {
+            माला_दो(" // synopsys");
+            अगर (nodep->fullPragma()) माला_दो(" full_case");
+            अगर (nodep->parallelPragma()) माला_दो(" parallel_case");
         }
-        iterateAndNextConstNull(nodep->itemsp());
+        iterate_And_अग्र_Const_Null(nodep->itemsp());
         putqs(nodep, "endcase\n");
     }
-    void visit(AstCaseItem* nodep) override {
-        if (nodep->condsp()) {
-            iterateAndNextConstNull(nodep->condsp());
-        } else {
+    व्योम visit(AstCaseItem* nodep) override {
+        अगर (nodep->condsp()) {
+            iterate_And_अग्र_Const_Null(nodep->condsp());
+        } अन्यथा {
             putbs("default");
         }
         putfs(nodep, ": begin ");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
         putqs(nodep, "end\n");
     }
-    void visit(AstComment* nodep) override {
-        puts("// "s + nodep->name() + "\n");
+    व्योम visit(AstComment* nodep) override {
+        माला_दो("// "s + nodep->name() + "\n");
         iterateChildrenConst(nodep);
     }
-    void visit(AstContinue*) override {
+    व्योम visit(AstContinue*) override {
         putbs("continue");
-        if (!m_suppressSemi) puts(";\n");
+        अगर (!m_suppressSemi) माला_दो(";\n");
     }
-    void visit(AstNodeCoverDecl*) override {}  // N/A
-    void visit(AstCoverInc*) override {}  // N/A
-    void visit(AstCoverToggle*) override {}  // N/A
+    व्योम visit(Ast_गाँठ_Cover_Decl*) override {}  // N/A
+    व्योम visit(AstCoverInc*) override {}  // N/A
+    व्योम visit(AstCoverToggle*) override {}  // N/A
 
-    void visit(AstCovergroup* nodep) override {
+    व्योम visit(AstCovergroup* nodep) override {
         // AstCovergroup appears as a member inside the lowered AstClass body.
         // The outer covergroup/endcovergroup wrapper is already emitted by the
         // AstNodeModule visitor (verilogKwd()="covergroup" on AstClass::isCovergroup).
         // Here we only emit the clocking event, if any.
-        if (nodep->eventp()) {
+        अगर (nodep->eventp()) {
             putfs(nodep, "");
             iterateConst(nodep->eventp());
         }
     }
-    void visit(AstCoverpoint* nodep) override {
+    व्योम visit(AstCoverpoint* nodep) override {
         putfs(nodep, nodep->name() + ": coverpoint ");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->binsp() || nodep->optionsp()) {
-            puts(" {\n");
-            iterateAndNextConstNull(nodep->optionsp());
-            iterateAndNextConstNull(nodep->binsp());
-            puts("}");
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        अगर (nodep->binsp() || nodep->optionsp()) {
+            माला_दो(" {\n");
+            iterate_And_अग्र_Const_Null(nodep->optionsp());
+            iterate_And_अग्र_Const_Null(nodep->binsp());
+            माला_दो("}");
         }
-        puts(";\n");
+        माला_दो(";\n");
     }
     // An option or type_option assignment, from a covergroup, coverpoint, or cross
-    void emitCoverageOption(AstNode* nodep, bool typeOption, VCoverOptionType optType,
-                            AstNodeExpr* valuep) {
+    व्योम emitCoverageOption(Ast_गाँठ* nodep, bool typeOption, VCoverOptionType optType,
+                            Ast_गाँठ_व्यंजक* valuep) {
         putfs(nodep,
               std::string{typeOption ? "type_option." : "option."} + optType.ascii() + " = ");
         iterateConst(valuep);
-        puts(";\n");
+        माला_दो(";\n");
     }
-    void visit(AstCgOptionAssign* nodep) override {
+    व्योम visit(AstCgOptionAssign* nodep) override {
         emitCoverageOption(nodep, nodep->typeOption(), nodep->optType(), nodep->valuep());
     }
-    void visit(AstCoverOption* nodep) override {
+    व्योम visit(AstCoverOption* nodep) override {
         emitCoverageOption(nodep, nodep->typeOption(), nodep->optType(), nodep->valuep());
     }
-    void visit(AstCoverBin* nodep) override {
+    व्योम visit(AstCoverBin* nodep) override {
         putfs(nodep, std::string{nodep->isWildcard() ? "wildcard " : ""}
                          + nodep->binsType().verilogKwd() + " ");
-        puts(nodep->name());
-        if (nodep->isArray()) {
-            puts("[");
-            if (nodep->arraySizep()) iterateConst(nodep->arraySizep());
-            puts("]");
+        माला_दो(nodep->name());
+        अगर (nodep->isArray()) {
+            माला_दो("[");
+            अगर (nodep->arraySizep()) iterateConst(nodep->arraySizep());
+            माला_दो("]");
         }
-        if (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
-            puts(" = default");
-        } else if (nodep->transp()) {
-            puts(" = ");
-            for (AstNode* setp = nodep->transp(); setp; setp = setp->nextp()) {
-                if (setp != nodep->transp()) puts(", ");
+        अगर (nodep->binsType() == VCoverBinsType::BINS_DEFAULT) {
+            माला_दो(" = default");
+        } अन्यथा अगर (nodep->transp()) {
+            माला_दो(" = ");
+            क्रम (Ast_गाँठ* setp = nodep->transp(); setp; setp = setp->nextp()) {
+                अगर (setp != nodep->transp()) माला_दो(", ");
                 iterateConst(setp);
             }
-        } else if (VN_IS(nodep->rangesp(), CoverWith)) {
-            puts(" = ");
+        } अन्यथा अगर (VN_IS(nodep->rangesp(), CoverWith)) {
+            माला_दो(" = ");
             iterateConst(nodep->rangesp());
-        } else if (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
+        } अन्यथा अगर (nodep->rangesp()) {  // LCOV_EXCL_BR_LINE - false: CoverBin always has
                                         // transp/rangesp/default
-            puts(" = {");
-            for (AstNode* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
-                if (rangep != nodep->rangesp()) puts(", ");
+            माला_दो(" = {");
+            क्रम (Ast_गाँठ* rangep = nodep->rangesp(); rangep; rangep = rangep->nextp()) {
+                अगर (rangep != nodep->rangesp()) माला_दो(", ");
                 iterateConst(rangep);
             }
-            puts("}");
+            माला_दो("}");
         }
-        if (nodep->iffp()) {
-            puts(" iff (");
+        अगर (nodep->iffp()) {
+            माला_दो(" iff (");
             iterateConst(nodep->iffp());
-            puts(")");
+            माला_दो(")");
         }
-        puts(";\n");
+        माला_दो(";\n");
     }
-    void visit(AstCoverWith* nodep) override {
-        const bool rangeList = !VN_IS(nodep->subp(), CoverpointRef);
-        if (rangeList) putfs(nodep, "{");
+    व्योम visit(AstCoverWith* nodep) override {
+        स्थिर bool rangeList = !VN_IS(nodep->subp(), CoverpointRef);
+        अगर (rangeList) putfs(nodep, "{");
         iterateAndCommaConstNull(nodep->subp());
-        if (rangeList) puts("}");
-        puts(" with (");
+        अगर (rangeList) माला_दो("}");
+        माला_दो(" with (");
         iterateConst(nodep->filterp());
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstCoverBinsof* nodep) override {
+    व्योम visit(AstCoverBinsof* nodep) override {
         putfs(nodep, nodep->isNegated() ? "!binsof(" : "binsof(");
         iterateConst(nodep->pointp());
-        if (!nodep->name().empty()) puts("." + nodep->name());
-        puts(")");
-        if (nodep->rangesp()) {
-            puts(" intersect {");
+        अगर (!nodep->name().empty()) माला_दो("." + nodep->name());
+        माला_दो(")");
+        अगर (nodep->rangesp()) {
+            माला_दो(" intersect {");
             iterateAndCommaConstNull(nodep->rangesp());
-            puts("}");
+            माला_दो("}");
         }
     }
-    void visit(AstCoverCrossBin* nodep) override {
+    व्योम visit(AstCoverCrossBin* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " " + nodep->name() + " = ");
         iterateConstNull(nodep->selectp());
-        if (nodep->iffp()) {
-            puts(" iff (");
+        अगर (nodep->iffp()) {
+            माला_दो(" iff (");
             iterateConst(nodep->iffp());
-            puts(")");
+            माला_दो(")");
         }
-        puts(";\n");
+        माला_दो(";\n");
     }
-    void visit(AstCoverCrossRef* nodep) override { putfs(nodep, nodep->name()); }
-    void visit(AstCoverCrossSelect* nodep) override {
+    व्योम visit(AstCoverCrossRef* nodep) override { putfs(nodep, nodep->name()); }
+    व्योम visit(AstCoverCrossSelect* nodep) override {
         putfs(nodep, "(");
         iterateConstNull(nodep->lhsp());
         putbs(" " + nodep->verilogKwd() + " ");
         iterateConstNull(nodep->rhsp());
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstCoverCrossWith* nodep) override {
+    व्योम visit(AstCoverCrossWith* nodep) override {
         // A selection with a count is filtered further only in parentheses
-        if (nodep->countp()) putfs(nodep, "(");
+        अगर (nodep->countp()) putfs(nodep, "(");
         iterateConstNull(nodep->selectp());
         putfs(nodep, " with (");
         iterateConst(nodep->filterp());
-        puts(")");
-        if (nodep->countp()) {
-            puts(" matches ");
+        माला_दो(")");
+        अगर (nodep->countp()) {
+            माला_दो(" matches ");
             iterateConst(nodep->countp());
-            puts(")");
+            माला_दो(")");
         }
     }
-    void visit(AstCoverpointRef* nodep) override {
+    व्योम visit(AstCoverpointRef* nodep) override {
         putfs(nodep, nodep->name());
         iterateConstNull(nodep->exprp());
     }
-    void visit(AstCoverCross* nodep) override {
+    व्योम visit(AstCoverCross* nodep) override {
         putfs(nodep, nodep->name() + ": cross ");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(", ");
+        क्रम (Ast_गाँठ* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            अगर (itemp != nodep->itemsp()) माला_दो(", ");
             iterateConst(itemp);
         }
-        if (nodep->iffp()) {
-            puts(" iff (");
+        अगर (nodep->iffp()) {
+            माला_दो(" iff (");
             iterateConst(nodep->iffp());
-            puts(")");
+            माला_दो(")");
         }
-        if (nodep->binsp() || nodep->optionsp()) {
-            puts(" {\n");
-            iterateAndNextConstNull(nodep->optionsp());
-            iterateAndNextConstNull(nodep->binsp());
-            puts("}\n");
-        } else {
-            puts(";\n");
+        अगर (nodep->binsp() || nodep->optionsp()) {
+            माला_दो(" {\n");
+            iterate_And_अग्र_Const_Null(nodep->optionsp());
+            iterate_And_अग्र_Const_Null(nodep->binsp());
+            माला_दो("}\n");
+        } अन्यथा {
+            माला_दो(";\n");
         }
     }
-    void visit(AstCoverTransSet* nodep) override {
-        puts("(");
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-            if (itemp != nodep->itemsp()) puts(" => ");
+    व्योम visit(AstCoverTransSet* nodep) override {
+        माला_दो("(");
+        क्रम (Ast_गाँठ* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            अगर (itemp != nodep->itemsp()) माला_दो(" => ");
             iterateConst(itemp);
         }
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstCoverTransItem* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstCoverTransItem* nodep) override { iterateChildrenConst(nodep); }
 
-    void visit(AstCvtPackString* nodep) override {
+    व्योम visit(AstCvtPackString* nodep) override {
         putfs(nodep, "");
-        if (AstConst* const lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
-            putsQuoted(lhsConstp->num().toString());
-        } else {
-            puts("string'(");
-            iterateAndNextConstNull(nodep->lhsp());
-            puts(")");
+        अगर (AstConst* स्थिर lhsConstp = VN_CAST(nodep->lhsp(), Const)) {
+            putsQuoted(lhsConstp->अंक().toString());
+        } अन्यथा {
+            माला_दो("string'(");
+            iterate_And_अग्र_Const_Null(nodep->lhsp());
+            माला_दो(")");
         }
     }
-    void visit(AstTestPlusArgs* nodep) override {
+    व्योम visit(AstTestPlusArgs* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
         iterateChildrenConst(nodep);
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstValuePlusArgs* nodep) override {
+    व्योम visit(Ast_मूल्य_Plus_Args* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
         iterateConstNull(nodep->searchp());
         putbs(", ");
         iterateConstNull(nodep->outp());
-        puts(")");
+        माला_दो(")");
     }
-    void visitNodeDisplay(AstNode* nodep, AstNode* fileOrStrgp, const string& text,
-                          AstNode* exprsp) {
+    व्योम visit_गाँठ_Display(Ast_गाँठ* nodep, Ast_गाँठ* fileOrStrgp, स्थिर string& text,
+                          Ast_गाँठ* exprsp) {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (fileOrStrgp) {
+        अगर (fileOrStrgp) {
             iterateConstNull(fileOrStrgp);
             putbs(", ");
         }
         putsQuoted(text);
-        for (AstNode* expp = exprsp; expp; expp = expp->nextp()) {
-            puts(", ");
+        क्रम (Ast_गाँठ* expp = exprsp; expp; expp = expp->nextp()) {
+            माला_दो(", ");
             iterateConstNull(expp);
         }
-        puts(");\n");
+        माला_दो(");\n");
     }
-    void visit(AstDisable* nodep) override { putbs("disable " + nodep->name() + ";\n"); }
-    void visit(AstDisplay* nodep) override {
-        visitNodeDisplay(nodep, nodep->filep(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    व्योम visit(AstDisable* nodep) override { putbs("disable " + nodep->name() + ";\n"); }
+    व्योम visit(AstDisplay* nodep) override {
+        visit_गाँठ_Display(nodep, nodep->filep(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
     }
-    void visit(AstElabDisplay* nodep) override {
-        visitNodeDisplay(nodep, nullptr, nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    व्योम visit(AstElabDisplay* nodep) override {
+        visit_गाँठ_Display(nodep, nullptr, nodep->fmtp()->text(), nodep->fmtp()->exprsp());
     }
-    void visit(AstFScanF* nodep) override {
-        visitNodeDisplay(nodep, nodep->filep(), nodep->text(), nodep->exprsp());
+    व्योम visit(AstFScanF* nodep) override {
+        visit_गाँठ_Display(nodep, nodep->filep(), nodep->text(), nodep->exprsp());
     }
-    void visit(AstSScanF* nodep) override {
-        visitNodeDisplay(nodep, nodep->fromp(), nodep->text(), nodep->exprsp());
+    व्योम visit(AstSScanF* nodep) override {
+        visit_गाँठ_Display(nodep, nodep->fromp(), nodep->text(), nodep->exprsp());
     }
-    void visit(AstSFormat* nodep) override {
-        visitNodeDisplay(nodep, nodep->lhsp(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
+    व्योम visit(AstSFormat* nodep) override {
+        visit_गाँठ_Display(nodep, nodep->lhsp(), nodep->fmtp()->text(), nodep->fmtp()->exprsp());
     }
-    void visit(AstToStringN* nodep) override { iterateConst(nodep->lhsp()); }
-    void visit(AstSFormatArg* nodep) override { iterateConst(nodep->exprp()); }
-    void visit(AstSFormatF* nodep) override {
-        visitNodeDisplay(nodep, nullptr, nodep->text(), nodep->exprsp());
+    व्योम visit(AstToStringN* nodep) override { iterateConst(nodep->lhsp()); }
+    व्योम visit(AstSFormatArg* nodep) override { iterateConst(nodep->exprp()); }
+    व्योम visit(AstSFormatF* nodep) override {
+        visit_गाँठ_Display(nodep, nullptr, nodep->text(), nodep->exprsp());
     }
-    void visit(AstFOpen* nodep) override {
+    व्योम visit(AstFOpen* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->filenamep());
+        iterate_And_अग्र_Const_Null(nodep->filenamep());
         putbs(", ");
-        iterateAndNextConstNull(nodep->modep());
-        puts(");\n");
+        iterate_And_अग्र_Const_Null(nodep->modep());
+        माला_दो(");\n");
     }
-    void visit(AstFOpenMcd* nodep) override {
+    व्योम visit(AstFOpenMcd* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->filenamep());
-        puts(");\n");
+        iterate_And_अग्र_Const_Null(nodep->filenamep());
+        माला_दो(");\n");
     }
-    void visit(AstFClose* nodep) override {
+    व्योम visit(AstFClose* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
-        puts(");\n");
+        अगर (nodep->filep()) iterate_And_अग्र_Const_Null(nodep->filep());
+        माला_दो(");\n");
     }
-    void visit(AstFFlush* nodep) override {
+    व्योम visit(AstFFlush* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filep()) iterateAndNextConstNull(nodep->filep());
-        puts(");\n");
+        अगर (nodep->filep()) iterate_And_अग्र_Const_Null(nodep->filep());
+        माला_दो(");\n");
     }
-    void visit(AstJumpBlock* nodep) override {
+    व्योम visit(AstJumpBlock* nodep) override {
         // Allocate label number
-        const size_t n = m_labelNumbers.size();
-        const bool newEntry = m_labelNumbers.emplace(nodep, n).second;
+        स्थिर माप_प्रकार n = m_labelNumbers.आकार();
+        स्थिर bool newEntry = m_labelNumbers.emplace(nodep, n).second;
         UASSERT_OBJ(newEntry, nodep, "AstJumpBlock visited twide");
         // Emit
         putbs("begin : label" + std::to_string(n) + "\n");
-        iterateAndNextConstNull(nodep->stmtsp());
-        puts("end\n");
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
+        माला_दो("end\n");
     }
-    void visit(AstJumpGo* nodep) override {
+    व्योम visit(AstJumpGo* nodep) override {
         // Retrieve target label number - Sometimes EmitV is used by debug code,
         // so allow printing with an unknown target
-        const auto it = m_labelNumbers.find(nodep->blockp());
-        const std::string label
+        स्थिर स्वतः it = m_labelNumbers.find(nodep->blockp());
+        स्थिर std::string label
             = it != m_labelNumbers.end() ? "label" + std::to_string(it->second) : "<UNKNOWN>";
         putbs("disable " + label + ";\n");
     }
-    void visit(AstNodeReadWriteMem* nodep) override {
+    व्योम visit(Ast_गाँठ_Read_Write_Mem* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        if (nodep->filenamep()) iterateAndNextConstNull(nodep->filenamep());
+        अगर (nodep->filenamep()) iterate_And_अग्र_Const_Null(nodep->filenamep());
         putbs(", ");
-        if (nodep->memp()) iterateAndNextConstNull(nodep->memp());
-        if (nodep->lsbp()) {
+        अगर (nodep->memp()) iterate_And_अग्र_Const_Null(nodep->memp());
+        अगर (nodep->lsbp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->lsbp());
+            iterate_And_अग्र_Const_Null(nodep->lsbp());
         }
-        if (nodep->msbp()) {
+        अगर (nodep->msbp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->msbp());
+            iterate_And_अग्र_Const_Null(nodep->msbp());
         }
-        puts(");\n");
+        माला_दो(");\n");
     }
-    void visit(AstSysIgnore* nodep) override {
+    व्योम visit(AstSysIgnore* nodep) override {
         putfs(nodep, nodep->verilogKwd());
         putbs("(");
-        iterateAndNextConstNull(nodep->exprsp());
-        puts(");\n");
+        iterate_And_अग्र_Const_Null(nodep->exprsp());
+        माला_दो(");\n");
     }
-    void visit(AstRepeat* nodep) override {
+    व्योम visit(AstRepeat* nodep) override {
         putfs(nodep, "repeat (");
-        iterateAndNextConstNull(nodep->countp());
-        puts(") begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->countp());
+        माला_दो(") begin\n");
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
         putfs(nodep, "end\n");
     }
-    void visit(AstLoop* nodep) override {
+    व्योम visit(AstLoop* nodep) override {
         // Special case when the AstLoopTest is first for output readability
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+        अगर (AstLoopTest* स्थिर testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
             putfs(nodep, "while (");
             iterateConst(testp->condp());
-            puts(") begin\n");
-            iterateAndNextConstNull(testp->nextp());
-            puts("end\n");
-            return;
+            माला_दो(") begin\n");
+            iterate_And_अग्र_Const_Null(testp->nextp());
+            माला_दो("end\n");
+            वापस;
         }
         // Special case when the AstLoopTest is last for output readability
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
+        अगर (Ast_गाँठ* lastp = nodep->stmtsp()) {
+            जबतक (Ast_गाँठ* स्थिर nextp = lastp->nextp()) lastp = nextp;
+            अगर (AstLoopTest* स्थिर testp = VN_CAST(lastp, LoopTest)) {
                 putfs(nodep, "do begin\n");
-                for (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
-                puts("end while (");
+                क्रम (Ast_गाँठ* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
+                माला_दो("end while (");
                 iterateConst(testp->condp());
-                puts(")\n");
-                return;
+                माला_दो(")\n");
+                वापस;
             }
         }
         // Generic case
         putfs(nodep, "while (true) begin\n");
-        iterateAndNextConstNull(nodep->stmtsp());
-        iterateAndNextConstNull(nodep->contsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->contsp());
         putfs(nodep, "end\n");
     }
-    void visit(AstLoopTest* nodep) override {
+    व्योम visit(AstLoopTest* nodep) override {
         putfs(nodep, "if (!(");
-        iterateAndNextConstNull(nodep->condp());
-        puts(")) break;\n");
+        iterate_And_अग्र_Const_Null(nodep->condp());
+        माला_दो(")) break;\n");
     }
-    void visit(AstNodeIf* nodep) override {
+    व्योम visit(Ast_गाँठ_If* nodep) override {
         putfs(nodep, "");
-        if (const AstIf* const ifp = VN_CAST(nodep, If)) {
-            if (ifp->priorityPragma()) puts("priority ");
-            if (ifp->uniquePragma()) puts("unique ");
-            if (ifp->unique0Pragma()) puts("unique0 ");
+        अगर (स्थिर AstIf* स्थिर ifp = VN_CAST(nodep, If)) {
+            अगर (ifp->priorityPragma()) माला_दो("priority ");
+            अगर (ifp->uniquePragma()) माला_दो("unique ");
+            अगर (ifp->unique0Pragma()) माला_दो("unique0 ");
         }
-        puts("if (");
-        iterateAndNextConstNull(nodep->condp());
-        puts(") begin\n");
-        iterateAndNextConstNull(nodep->thensp());
-        if (nodep->elsesp()) {
+        माला_दो("if (");
+        iterate_And_अग्र_Const_Null(nodep->condp());
+        माला_दो(") begin\n");
+        iterate_And_अग्र_Const_Null(nodep->thensp());
+        अगर (nodep->elsesp()) {
             putqs(nodep, "end\n");
             putqs(nodep, "else begin\n");
-            iterateAndNextConstNull(nodep->elsesp());
+            iterate_And_अग्र_Const_Null(nodep->elsesp());
         }
         putqs(nodep, "end\n");
     }
-    void visit(AstPast* nodep) override {
+    व्योम visit(AstPast* nodep) override {
         putfs(nodep, "$past(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->ticksp() || nodep->sentreep()) {
-            puts(", ");
-            iterateAndNextConstNull(nodep->ticksp());
-            if (nodep->sentreep()) {
-                puts(", ");
-                iterateAndNextConstNull(nodep->sentreep());
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        अगर (nodep->ticksp() || nodep->sentreep()) {
+            माला_दो(", ");
+            iterate_And_अग्र_Const_Null(nodep->ticksp());
+            अगर (nodep->sentreep()) {
+                माला_दो(", ");
+                iterate_And_अग्र_Const_Null(nodep->sentreep());
             }
         }
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstSampled* nodep) override {
-        if (!m_suppressSampled) {
+    व्योम visit(AstSampled* nodep) override {
+        अगर (!m_suppressSampled) {
             putfs(nodep, "$sampled(");
-            iterateAndNextConstNull(nodep->exprp());
-            puts(")");
+            iterate_And_अग्र_Const_Null(nodep->exprp());
+            माला_दो(")");
         }
     }
-    void visit(AstRising* nodep) override {
+    व्योम visit(AstRising* nodep) override {
         putfs(nodep, "$rising(");
-        iterateAndNextConstNull(nodep->exprp());
-        puts(")");
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        माला_दो(")");
     }
-    void visit(AstRose* nodep) override {
+    व्योम visit(AstRose* nodep) override {
         putfs(nodep, "$rose(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
-            puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        अगर (nodep->sentreep()) {
+            माला_दो(", ");
+            iterate_And_अग्र_Const_Null(nodep->sentreep());
         }
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstFell* nodep) override {
+    व्योम visit(AstFell* nodep) override {
         putfs(nodep, "$fell(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
-            puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        अगर (nodep->sentreep()) {
+            माला_दो(", ");
+            iterate_And_अग्र_Const_Null(nodep->sentreep());
         }
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstFalling* nodep) override {
+    व्योम visit(AstFalling* nodep) override {
         putfs(nodep, "$falling(");
-        iterateAndNextConstNull(nodep->exprp());
-        puts(")");
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        माला_दो(")");
     }
-    void visit(AstFuture* nodep) override {
+    व्योम visit(AstFuture* nodep) override {
         putfs(nodep, "$future(");
-        iterateAndNextConstNull(nodep->exprp());
-        puts(")");
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        माला_दो(")");
     }
-    void visit(AstStable* nodep) override {
+    व्योम visit(AstStable* nodep) override {
         putfs(nodep, "$stable(");
-        iterateAndNextConstNull(nodep->exprp());
-        if (nodep->sentreep()) {
-            puts(", ");
-            iterateAndNextConstNull(nodep->sentreep());
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        अगर (nodep->sentreep()) {
+            माला_दो(", ");
+            iterate_And_अग्र_Const_Null(nodep->sentreep());
         }
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstSteady* nodep) override {
+    व्योम visit(AstSteady* nodep) override {
         putfs(nodep, "$steady(");
-        iterateAndNextConstNull(nodep->exprp());
-        puts(")");
+        iterate_And_अग्र_Const_Null(nodep->exprp());
+        माला_दो(")");
     }
-    void visit(AstReturn* nodep) override {
+    व्योम visit(AstReturn* nodep) override {
         putfs(nodep, "return ");
-        iterateAndNextConstNull(nodep->lhsp());
-        puts(";\n");
+        iterate_And_अग्र_Const_Null(nodep->lhsp());
+        माला_दो(";\n");
     }
-    void visit(AstStop* nodep) override {
+    व्योम visit(AstStop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog());
-        puts(";\n");
+        माला_दो(";\n");
     }
-    void visit(AstFinish* nodep) override { putfs(nodep, "$finish;\n"); }
-    void visit(AstFinishFork* nodep) override { putfs(nodep, "$finish;\n"); }
-    void visit(AstStmtExpr* nodep) override {
+    व्योम visit(AstFinish* nodep) override { putfs(nodep, "$finish;\n"); }
+    व्योम visit(AstFinishFork* nodep) override { putfs(nodep, "$finish;\n"); }
+    व्योम visit(Ast_Stmt_व्यंजक* nodep) override {
         iterateConst(nodep->exprp());
-        puts(";\n");
+        माला_दो(";\n");
     }
 
     // Nodes involing AstText
-    void visit(AstText* nodep) override {
+    व्योम visit(AstText* nodep) override {
         // All Text should be under TextBlock/CStmt/CStmtUser/CExpr/CExprUser
         nodep->v3fatalSrc("Text node in unexpected position");
     }
-    void visit(AstTextBlock* nodep) override {
+    व्योम visit(AstTextBlock* nodep) override {
         VL_RESTORER(m_suppressVarSemi);
         m_suppressVarSemi = !nodep->separator().empty();
-        puts(nodep->prefix());
+        माला_दो(nodep->prefix());
         emitNodesWithText(nodep->nodesp(), true, nodep->separator());
-        puts(nodep->suffix());
+        माला_दो(nodep->suffix());
     }
-    void visit(AstCStmt* nodep) override {
+    व्योम visit(AstCStmt* nodep) override {
         putfs(nodep, "$_CSTMT(");
         emitNodesWithText(nodep->nodesp(), true, "");
-        puts(");\n");
+        माला_दो(");\n");
     }
-    void visit(AstCExpr* nodep) override {
+    व्योम visit(AstCExpr* nodep) override {
         putfs(nodep, "$_CEXPR(");
         emitNodesWithText(nodep->nodesp(), true, "");
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstCStmtUser* nodep) override {
+    व्योम visit(AstCStmtUser* nodep) override {
         putfs(nodep, "$c(");
         emitNodesWithText(nodep->nodesp(), false, "");
-        puts(");\n");
+        माला_दो(");\n");
     }
-    void visit(AstCExprUser* nodep) override {
+    व्योम visit(AstCExprUser* nodep) override {
         putfs(nodep, "$c(");
         emitNodesWithText(nodep->nodesp(), false, "");
-        puts(")");
+        माला_दो(")");
     }
 
-    void visit(AstScopeName* nodep) override {}
-    void visit(AstExprStmt* nodep) override {
+    व्योम visit(AstScopeName* nodep) override {}
+    व्योम visit(Ast_व्यंजक_Stmt* nodep) override {
         putfs(nodep, "$_EXPRSTMT(\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
         putbs(", ");
-        iterateAndNextConstNull(nodep->resultp());
-        puts(");\n");
+        iterate_And_अग्र_Const_Null(nodep->resultp());
+        माला_दो(");\n");
     }
 
-    void visit(AstCMethodHard* nodep) override {
+    व्योम visit(AstCMethodHard* nodep) override {
         iterateConst(nodep->fromp());
-        puts("." + nodep->name() + "(");
+        माला_दो("." + nodep->name() + "(");
         iterateAndCommaConstNull(nodep->pinsp());
-        puts(")");
+        माला_दो(")");
         iterateConstNull(nodep->withp());
     }
-    void visit(AstCMethodCall* nodep) override {
+    व्योम visit(AstCMethodCall* nodep) override {
         iterateConst(nodep->fromp());
-        puts("." + nodep->name() + "(");
+        माला_दो("." + nodep->name() + "(");
         iterateAndCommaConstNull(nodep->argsp());
-        puts(")");
+        माला_दो(")");
     }
 
     // Operators
-    virtual void emitVerilogFormat(AstNode* nodep, const string& format, AstNode* lhsp = nullptr,
-                                   AstNode* const rhsp = nullptr, AstNode* thsp = nullptr,
-                                   AstNode* fhsp = nullptr) {
+    भव व्योम emitVerilogFormat(Ast_गाँठ* nodep, स्थिर string& format, Ast_गाँठ* lhsp = nullptr,
+                                   Ast_गाँठ* स्थिर rhsp = nullptr, Ast_गाँठ* thsp = nullptr,
+                                   Ast_गाँठ* fhsp = nullptr) {
         // Look at emitVerilog() format for term/uni/dual/triops,
         // and write out appropriate text.
         //      %f      Potential fileline-if-change and line break
@@ -801,459 +801,459 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         //      %k      Potential line break
         bool inPct = false;
         putbs("");
-        for (const char c : format) {
-            if (!inPct && c == '%') {
+        क्रम (स्थिर अक्षर c : format) {
+            अगर (!inPct && c == '%') {
                 inPct = true;
-            } else if (!inPct) {  // Normal text
+            } अन्यथा अगर (!inPct) {  // Normal text
                 string s;
                 s += c;
-                puts(s);
-            } else {  // Format character
+                माला_दो(s);
+            } अन्यथा {  // Format character
                 inPct = false;
-                switch (c) {
-                case '%': puts("%"); break;
-                case 'f': putfs(nodep, ""); break;
-                case 'k': putbs(""); break;
-                case 'l': {
+                चयन (c) {
+                हाल '%': माला_दो("%"); अवरोध;
+                हाल 'f': putfs(nodep, ""); अवरोध;
+                हाल 'k': putbs(""); अवरोध;
+                हाल 'l': {
                     UASSERT_OBJ(lhsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(lhsp);
-                    break;
+                    iterate_And_अग्र_Const_Null(lhsp);
+                    अवरोध;
                 }
-                case 'r': {
+                हाल 'r': {
                     UASSERT_OBJ(rhsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(rhsp);
-                    break;
+                    iterate_And_अग्र_Const_Null(rhsp);
+                    अवरोध;
                 }
-                case 't': {
+                हाल 't': {
                     UASSERT_OBJ(thsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(thsp);
-                    break;
+                    iterate_And_अग्र_Const_Null(thsp);
+                    अवरोध;
                 }
-                case 'o': {
+                हाल 'o': {
                     UASSERT_OBJ(thsp, nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(fhsp);
-                    break;
+                    iterate_And_अग्र_Const_Null(fhsp);
+                    अवरोध;
                 }
-                case 'd': {
+                हाल 'd': {
                     UASSERT_OBJ(nodep->dtypep(), nodep, "emitVerilog() references undef node");
-                    iterateAndNextConstNull(nodep->dtypep());
-                    break;
+                    iterate_And_अग्र_Const_Null(nodep->dtypep());
+                    अवरोध;
                 }
-                default: nodep->v3fatalSrc("Unknown emitVerilog format code: %" << c); break;
+                शेष: nodep->v3fatalSrc("Unknown emitVerilog format code: %" << c); अवरोध;
                 }
             }
         }
     }
 
-    void visit(AstNodeTermop* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
-    void visit(AstNodeUniop* nodep) override {
+    व्योम visit(Ast_गाँठ_Termop* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
+    व्योम visit(Ast_गाँठ_Uniop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp());
     }
-    void visit(AstNodeBiop* nodep) override {
+    व्योम visit(Ast_गाँठ_Biop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstNodeTriop* nodep) override {
+    व्योम visit(Ast_गाँठ_Triop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp(),
                           nodep->thsp());
     }
-    void visit(AstNodeQuadop* nodep) override {
+    व्योम visit(Ast_गाँठ_Quadop* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->lhsp(), nodep->rhsp(), nodep->thsp(),
                           nodep->fhsp());
     }
-    void visit(AstMemberSel* nodep) override {
+    व्योम visit(AstMemberSel* nodep) override {
         iterateConst(nodep->fromp());
-        puts(".");
-        puts(nodep->prettyName());
+        माला_दो(".");
+        माला_दो(nodep->prettyName());
     }
-    void visit(AstStructSel* nodep) override {
+    व्योम visit(AstStructSel* nodep) override {
         iterateConst(nodep->fromp());
-        puts(".");
-        puts(nodep->prettyName());
+        माला_दो(".");
+        माला_दो(nodep->prettyName());
     }
-    void visit(AstAttrOf* nodep) override {
+    व्योम visit(AstAttrOf* nodep) override {
         putfs(nodep, "$_ATTROF(");
-        iterateAndNextConstNull(nodep->fromp());
-        if (nodep->dimp()) {
+        iterate_And_अग्र_Const_Null(nodep->fromp());
+        अगर (nodep->dimp()) {
             putbs(", ");
-            iterateAndNextConstNull(nodep->dimp());
+            iterate_And_अग्र_Const_Null(nodep->dimp());
         }
-        puts(")");
+        माला_दो(")");
     }
-    void visit(AstConsArray* nodep) override {
+    व्योम visit(AstConsArray* nodep) override {
         putfs(nodep, "'{");
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+        क्रम (स्थिर AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (itemp != nodep->itemsp()) putbs(", ");
-            puts(cvtToStr(itemp->index()));
-            puts(":");
+            अगर (itemp != nodep->itemsp()) putbs(", ");
+            माला_दो(cvtToStr(itemp->सूचकांक_2()));
+            माला_दो(":");
             iterateConst(itemp->valuep());
         }
-        puts("}");
+        माला_दो("}");
     }
-    void visit(AstCond* nodep) override {
+    व्योम visit(AstCond* nodep) override {
         putbs("(");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_अग्र_Const_Null(nodep->condp());
         putfs(nodep, " ? ");
-        iterateAndNextConstNull(nodep->thenp());
+        iterate_And_अग्र_Const_Null(nodep->thenp());
         putbs(" : ");
-        iterateAndNextConstNull(nodep->elsep());
-        puts(")");
+        iterate_And_अग्र_Const_Null(nodep->elsep());
+        माला_दो(")");
     }
-    void visit(AstInsideRange* nodep) override {
-        puts("[");
-        iterateAndNextConstNull(nodep->lhsp());
-        puts(":");
-        iterateAndNextConstNull(nodep->rhsp());
-        puts("]");
+    व्योम visit(AstInsideRange* nodep) override {
+        माला_दो("[");
+        iterate_And_अग्र_Const_Null(nodep->lhsp());
+        माला_दो(":");
+        iterate_And_अग्र_Const_Null(nodep->rhsp());
+        माला_दो("]");
     }
-    void visit(AstRange* nodep) override {
-        puts("[");
-        if (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
+    व्योम visit(AstRange* nodep) override {
+        माला_दो("[");
+        अगर (VN_IS(nodep->leftp(), Const) && VN_IS(nodep->rightp(), Const)) {
             // Looks nicer if we print [1:0] rather than [32'sh1:32sh0]
-            puts(cvtToStr(nodep->leftConst()));
-            puts(":");
-            puts(cvtToStr(nodep->rightConst()));
-        } else {
-            iterateAndNextConstNull(nodep->leftp());
-            puts(":");
-            iterateAndNextConstNull(nodep->rightp());
+            माला_दो(cvtToStr(nodep->बायाँ_Const()));
+            माला_दो(":");
+            माला_दो(cvtToStr(nodep->दायाँ_Const()));
+        } अन्यथा {
+            iterate_And_अग्र_Const_Null(nodep->leftp());
+            माला_दो(":");
+            iterate_And_अग्र_Const_Null(nodep->rightp());
         }
-        puts("]");
+        माला_दो("]");
     }
-    void visit(AstRand* nodep) override {
+    व्योम visit(AstRand* nodep) override {
         emitVerilogFormat(nodep, nodep->emitVerilog(), nodep->seedp());
     }
-    void visit(AstSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        int offset = 0;
-        AstNodeDType* const dtypep = nodep->fromp()->dtypep();
-        if (VN_IS(dtypep, BasicDType)) {
-            AstBasicDType* const basicDtypep = VN_AS(dtypep, BasicDType);
+    व्योम visit(AstSel* nodep) override {
+        iterate_And_अग्र_Const_Null(nodep->fromp());
+        पूर्णांक offset = 0;
+        Ast_गाँठ_DType* स्थिर dtypep = nodep->fromp()->dtypep();
+        अगर (VN_IS(dtypep, BasicDType)) {
+            AstBasicDType* स्थिर basicDtypep = VN_AS(dtypep, BasicDType);
             offset = basicDtypep->lo();
         }
-        puts("[");
-        if (VN_IS(nodep->lsbp(), Const)) {
-            if (nodep->widthConst() == 1) {
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
-            } else {
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + nodep->widthConst() + offset
+        माला_दो("[");
+        अगर (VN_IS(nodep->lsbp(), Const)) {
+            अगर (nodep->widthConst() == 1) {
+                माला_दो(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
+            } अन्यथा {
+                माला_दो(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + nodep->widthConst() + offset
                               - 1));
-                puts(":");
-                puts(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
+                माला_दो(":");
+                माला_दो(cvtToStr(VN_AS(nodep->lsbp(), Const)->toSInt() + offset));
             }
-        } else {
-            iterateAndNextConstNull(nodep->lsbp());
-            if (offset != 0) {
-                puts(" + ");
-                puts(cvtToStr(offset));
+        } अन्यथा {
+            iterate_And_अग्र_Const_Null(nodep->lsbp());
+            अगर (offset != 0) {
+                माला_दो(" + ");
+                माला_दो(cvtToStr(offset));
             }
             putfs(nodep, "+:");
-            puts(cvtToStr(nodep->widthConst()));
+            माला_दो(cvtToStr(nodep->widthConst()));
         }
-        puts("]");
+        माला_दो("]");
     }
-    void visit(AstSliceSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        puts(cvtToStr(nodep->declRange()));
+    व्योम visit(AstSliceSel* nodep) override {
+        iterate_And_अग्र_Const_Null(nodep->fromp());
+        माला_दो(cvtToStr(nodep->declRange()));
     }
-    void visit(AstThisRef* /*nodep*/) override { puts("this"); }
-    void visit(AstTypedef* nodep) override {
+    व्योम visit(AstThisRef* /*nodep*/) override { माला_दो("this"); }
+    व्योम visit(AstTypedef* nodep) override {
         putfs(nodep, "typedef ");
         iterateConstNull(nodep->subDTypep());
-        puts(" ");
-        puts(nodep->prettyName());
-        puts(";\n");
+        माला_दो(" ");
+        माला_दो(nodep->prettyName());
+        माला_दो(";\n");
     }
-    void visit(AstNodeCoverOrAssert* nodep) override {
+    व्योम visit(Ast_गाँठ_Cover_Or_Assert* nodep) override {
         putfs(nodep, nodep->verilogKwd() + " ");
-        if (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
-            puts("#0 ");
-        } else if (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
-            puts("final ");
-        } else if (nodep->userType() == VAssertType::CONCURRENT) {
-            puts("property ");
+        अगर (nodep->userType() == VAssertType::OBSERVED_DEFERRED_IMMEDIATE) {
+            माला_दो("#0 ");
+        } अन्यथा अगर (nodep->userType() == VAssertType::FINAL_DEFERRED_IMMEDIATE) {
+            माला_दो("final ");
+        } अन्यथा अगर (nodep->userType() == VAssertType::CONCURRENT) {
+            माला_दो("property ");
         }
         iterateConstNull(nodep->sentreep());
-        puts("(");
-        if (AstSampled* const sampledp = VN_CAST(nodep->propp(), Sampled)) {
-            iterateAndNextConstNull(sampledp->exprp());
-        } else {
-            iterateAndNextConstNull(nodep->propp());
+        माला_दो("(");
+        अगर (AstSampled* स्थिर sampledp = VN_CAST(nodep->propp(), Sampled)) {
+            iterate_And_अग्र_Const_Null(sampledp->exprp());
+        } अन्यथा {
+            iterate_And_अग्र_Const_Null(nodep->propp());
         }
-        if (!VN_IS(nodep, Restrict)) {
-            puts(") begin\n");
-            iterateAndNextConstNull(nodep->passsp());
-            puts("end\n");
-        } else {
-            puts(");\n");
+        अगर (!VN_IS(nodep, Restrict)) {
+            माला_दो(") begin\n");
+            iterate_And_अग्र_Const_Null(nodep->passsp());
+            माला_दो("end\n");
+        } अन्यथा {
+            माला_दो(");\n");
         }
 
-        if (const AstAssert* const assertp = VN_CAST(nodep, Assert)) {
-            puts("else begin\n");
-            iterateAndNextConstNull(assertp->failsp());
-            puts("end\n");
-        } else if (const AstAssertIntrinsic* const assertp = VN_CAST(nodep, AssertIntrinsic)) {
-            puts("else begin\n");
-            iterateAndNextConstNull(assertp->failsp());
-            puts("end\n");
+        अगर (स्थिर AstAssert* स्थिर assertp = VN_CAST(nodep, Assert)) {
+            माला_दो("else begin\n");
+            iterate_And_अग्र_Const_Null(assertp->failsp());
+            माला_दो("end\n");
+        } अन्यथा अगर (स्थिर AstAssertIntrinsic* स्थिर assertp = VN_CAST(nodep, AssertIntrinsic)) {
+            माला_दो("else begin\n");
+            iterate_And_अग्र_Const_Null(assertp->failsp());
+            माला_दो("end\n");
         }
     }
-    void visit(AstAssocArrayDType* nodep) override {
-        if (!m_arrayPost) {
+    व्योम visit(AstAssocArrayDType* nodep) override {
+        अगर (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } अन्यथा {
             VL_RESTORER(m_arrayPost);
             m_arrayPost = false;
-            puts("[");
-            iterateConst(nodep->keyDTypep());
-            puts("]");
+            माला_दो("[");
+            iterateConst(nodep->कुंजी_DTypep());
+            माला_दो("]");
             m_arrayPost = true;
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstBasicDType* nodep) override {
-        if (m_arrayPost) return;
+    व्योम visit(AstBasicDType* nodep) override {
+        अगर (m_arrayPost) वापस;
         putfs(nodep, nodep->prettyName());
-        if (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
+        अगर (nodep->isSigned() && !nodep->keyword().isDouble()) putfs(nodep, " signed");
         // Do not emit ranges for integer atoms.
-        if (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) return;
+        अगर (nodep->keyword().isIntNumeric() && !nodep->keyword().isBitLogic()) वापस;
         emitPacked();
-        if (nodep->rangep()) {
-            puts(" ");
-            iterateAndNextConstNull(nodep->rangep());
-            puts(" ");
-        } else if (nodep->isRanged()) {
-            puts(" [");
-            puts(cvtToStr(nodep->left()));
-            puts(":");
-            puts(cvtToStr(nodep->right()));
-            puts("] ");
+        अगर (nodep->rangep()) {
+            माला_दो(" ");
+            iterate_And_अग्र_Const_Null(nodep->rangep());
+            माला_दो(" ");
+        } अन्यथा अगर (nodep->isRanged()) {
+            माला_दो(" [");
+            माला_दो(cvtToStr(nodep->बाँए()));
+            माला_दो(":");
+            माला_दो(cvtToStr(nodep->दाँए()));
+            माला_दो("] ");
         }
     }
-    void visit(AstConstDType* nodep) override {
-        if (m_arrayPost) return;
+    व्योम visit(AstConstDType* nodep) override {
+        अगर (m_arrayPost) वापस;
         putfs(nodep, "const ");
         iterateConst(nodep->subDTypep());
     }
-    void visit(AstDynArrayDType* nodep) override {
-        if (!m_arrayPost) {
+    व्योम visit(AstDynArrayDType* nodep) override {
+        अगर (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
-            puts("[]");
+        } अन्यथा {
+            माला_दो("[]");
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstEnumDType* nodep) override {
-        if (m_arrayPost) return;
+    व्योम visit(AstEnumDType* nodep) override {
+        अगर (m_arrayPost) वापस;
         putfs(nodep, "enum ");
         iterateConst(nodep->subDTypep());
-        puts("{\n");
-        iterateAndNextConstNull(nodep->itemsp());
-        puts("}");
+        माला_दो("{\n");
+        iterate_And_अग्र_Const_Null(nodep->itemsp());
+        माला_दो("}");
     }
-    void visit(AstEnumItemRef* nodep) override {
-        if (AstNodeModule* const classOrPackagep = nodep->classOrPackagep()) {
+    व्योम visit(AstEnumItemRef* nodep) override {
+        अगर (Ast_गाँठ_Module* स्थिर classOrPackagep = nodep->classOrPackagep()) {
             putfs(nodep, classOrPackagep->prettyName());
-            puts("::");
+            माला_दो("::");
         }
         putfs(nodep, nodep->name());
     }
-    void visit(AstEnumItem* nodep) override {
+    व्योम visit(AstEnumItem* nodep) override {
         putfs(nodep, nodep->name());
         iterateConstNull(nodep->rangep());
-        puts(" = ");
+        माला_दो(" = ");
         iterateConstNull(nodep->valuep());
-        if (nodep->nextp()) puts(",");
-        puts("\n");
+        अगर (nodep->nextp()) माला_दो(",");
+        माला_दो("\n");
     }
-    void visit(AstNodeArrayDType* nodep) override {
-        if (!m_arrayPost) {
-            if (VN_IS(nodep, PackArrayDType)) {
+    व्योम visit(Ast_गाँठ_Array_DType* nodep) override {
+        अगर (!m_arrayPost) {
+            अगर (VN_IS(nodep, PackArrayDType)) {
                 // Unpacked ranges handled in BasicDType, as they print "backwards"
-                m_packedps.push_back(nodep);
+                m_packedps.धकेलो_back(nodep);
             }
             iterateConst(nodep->subDTypep());
-        } else {
-            if (VN_IS(nodep, UnpackArrayDType)) {
+        } अन्यथा {
+            अगर (VN_IS(nodep, UnpackArrayDType)) {
                 VL_RESTORER(m_arrayPost);
                 m_arrayPost = false;
-                iterateAndNextConstNull(nodep->rangep());
+                iterate_And_अग्र_Const_Null(nodep->rangep());
                 m_arrayPost = true;
             }
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstIfaceRefDType* nodep) override {
-        if (m_arrayPost) {
-            puts(" (");
-            if (nodep->cellp()) {
+    व्योम visit(AstIfaceRefDType* nodep) override {
+        अगर (m_arrayPost) {
+            माला_दो(" (");
+            अगर (nodep->cellp()) {
                 iterateConst(nodep->cellp());
-            } else {
-                puts("????");
+            } अन्यथा {
+                माला_दो("????");
             }
-            puts(")");
-            return;
+            माला_दो(")");
+            वापस;
         }
-        puts(nodep->ifaceName());
+        माला_दो(nodep->ifaceName());
     }
-    void visit(AstRefDType* nodep) override {
-        if (nodep->subDTypep()) {
+    व्योम visit(AstRefDType* nodep) override {
+        अगर (nodep->subDTypep()) {
             iterateConst(nodep->skipRefp());
-        } else {
-            puts("\n???? // "s + nodep->prettyTypeName() + " -> UNLINKED\n");
+        } अन्यथा {
+            माला_दो("\n???? // "s + nodep->prettyTypeName() + " -> UNLINKED\n");
         }
     }
-    void visit(AstClassRefDType* nodep) override {
+    व्योम visit(AstClassRefDType* nodep) override {
         UASSERT_OBJ(nodep->classp(), nodep, "AstClassRefDType not linked");
         putfs(nodep, EmitCUtil::prefixNameProtect(nodep->classp()));
     }
-    void visit(AstRequireDType* nodep) override { iterateConst(nodep->lhsp()); }
-    void visit(AstModport* nodep) override {
-        puts(nodep->verilogKwd());
-        puts(" ");
-        puts(nodep->prettyName());
-        puts(" (\n");
-        if (nodep->varsp()) {
+    व्योम visit(AstRequireDType* nodep) override { iterateConst(nodep->lhsp()); }
+    व्योम visit(AstModport* nodep) override {
+        माला_दो(nodep->verilogKwd());
+        माला_दो(" ");
+        माला_दो(nodep->prettyName());
+        माला_दो(" (\n");
+        अगर (nodep->varsp()) {
             iterateConst(nodep->varsp());
-        } else {
-            puts("????");
+        } अन्यथा {
+            माला_दो("????");
         }
-        puts(");\n");
+        माला_दो(");\n");
     }
-    void visit(AstModportVarRef* nodep) override {
-        puts(nodep->direction().verilogKwd());
-        puts(" ");
-        if (nodep->varp()) {
+    व्योम visit(AstModportVarRef* nodep) override {
+        माला_दो(nodep->direction().verilogKwd());
+        माला_दो(" ");
+        अगर (nodep->varp()) {
             VL_RESTORER(m_suppressVarSemi);
             m_suppressVarSemi = true;
             iterateConst(nodep->varp());
-        } else {
-            puts(nodep->prettyName());
+        } अन्यथा {
+            माला_दो(nodep->prettyName());
         }
-        if (nodep->nextp()) puts(", ");
+        अगर (nodep->nextp()) माला_दो(", ");
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        if (m_arrayPost) return;
-        puts(nodep->verilogKwd() + " ");
-        if (nodep->packed()) puts("packed ");
+    व्योम visit(Ast_गाँठ_UOr_Struct_DType* nodep) override {
+        अगर (m_arrayPost) वापस;
+        माला_दो(nodep->verilogKwd() + " ");
+        अगर (nodep->packed()) माला_दो("packed ");
         {
-            puts("{\n");
+            माला_दो("{\n");
             VL_RESTORER_CLEAR(m_packedps);
-            for (AstMemberDType* itemp = nodep->membersp(); itemp;
+            क्रम (AstMemberDType* itemp = nodep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
                 iterateConst(itemp);
             }
-            puts("}");
+            माला_दो("}");
         }
         emitPacked();
     }
-    void visit(AstMemberDType* nodep) override {
-        if (m_arrayPost) return;
+    व्योम visit(AstMemberDType* nodep) override {
+        अगर (m_arrayPost) वापस;
         iterateConst(nodep->subDTypep());
-        puts(" ");
-        puts(nodep->name());
-        puts(";\n");
+        माला_दो(" ");
+        माला_दो(nodep->name());
+        माला_दो(";\n");
     }
-    void visit(AstQueueDType* nodep) override {
-        if (!m_arrayPost) {
+    व्योम visit(AstQueueDType* nodep) override {
+        अगर (!m_arrayPost) {
             iterateConst(nodep->subDTypep());
-        } else {
+        } अन्यथा {
             VL_RESTORER(m_arrayPost);
             m_arrayPost = false;
-            puts("[$");
-            if (nodep->boundp()) {
-                puts(":");
+            माला_दो("[$");
+            अगर (nodep->boundp()) {
+                माला_दो(":");
                 iterateConst(nodep->boundp());
             }
-            puts("]");
+            माला_दो("]");
             m_arrayPost = true;
             iterateConst(nodep->subDTypep());  // For post's key
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->dotted() != "") {
+    व्योम visit(Ast_गाँठ_FTask_Ref* nodep) override {
+        अगर (nodep->dotted() != "") {
             putfs(nodep, nodep->dotted());
-            puts(".");
-            puts(nodep->prettyName());
-        } else {
+            माला_दो(".");
+            माला_दो(nodep->prettyName());
+        } अन्यथा {
             putfs(nodep, nodep->prettyName());
         }
-        if (!VN_IS(nodep->taskp(), Property)) {
-            puts("(");
-            iterateAndNextConstNull(nodep->argsp());
-            puts(")");
+        अगर (!VN_IS(nodep->taskp(), Property)) {
+            माला_दो("(");
+            iterate_And_अग्र_Const_Null(nodep->argsp());
+            माला_दो(")");
             iterateConstNull(nodep->withp());
         }
     }
-    void visit(AstCCall* nodep) override {
-        puts(nodep->funcp()->name());
-        puts("(");
-        iterateAndNextConstNull(nodep->argsp());
-        puts(")");
+    व्योम visit(AstCCall* nodep) override {
+        माला_दो(nodep->funcp()->name());
+        माला_दो("(");
+        iterate_And_अग्र_Const_Null(nodep->argsp());
+        माला_दो(")");
     }
-    void visit(AstArg* nodep) override { iterateAndNextConstNull(nodep->exprp()); }
-    void visit(AstWith* nodep) override {
+    व्योम visit(AstArg* nodep) override { iterate_And_अग्र_Const_Null(nodep->exprp()); }
+    व्योम visit(AstWith* nodep) override {
         putfs(nodep, " with (");
         iterateConstNull(nodep->exprp());
-        puts(") ");
+        माला_दो(") ");
     }
-    void visit(AstLambdaArgRef* nodep) override { putfs(nodep, nodep->name()); }
-    void visit(AstPrintTimeScale* nodep) override {
-        puts(nodep->verilogKwd());
-        puts(";\n");
+    व्योम visit(AstLambdaArgRef* nodep) override { putfs(nodep, nodep->name()); }
+    व्योम visit(AstPrintTimeScale* nodep) override {
+        माला_दो(nodep->verilogKwd());
+        माला_दो(";\n");
     }
-    void visit(AstPropSpec* nodep) override {
-        if (!VN_IS(nodep->propp(), FuncRef)) {
+    व्योम visit(AstPropSpec* nodep) override {
+        अगर (!VN_IS(nodep->propp(), FuncRef)) {
             // Same dumping as in AstSenTree
             putfs(nodep, "@(");
-            for (AstNode* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
+            क्रम (Ast_गाँठ* expp = nodep->sensesp(); expp; expp = expp->nextp()) {
                 iterateConst(expp);
-                if (expp->nextp()) putqs(expp->nextp(), " or ");
+                अगर (expp->nextp()) putqs(expp->nextp(), " or ");
             }
-            puts(")");
+            माला_दो(")");
         }
-        if (nodep->disablep()) {
-            puts(" disable iff ");
+        अगर (nodep->disablep()) {
+            माला_दो(" disable iff ");
             iterateConst(nodep->disablep());
         }
 
-        puts(" ");
-        if (nodep->propStrength() != VPropStrength::DEFAULT) {
-            puts(nodep->propStrength().ascii());
-            puts("(");
+        माला_दो(" ");
+        अगर (nodep->propStrength() != VPropStrength::DEFAULT) {
+            माला_दो(nodep->propStrength().ascii());
+            माला_दो("(");
         }
         iterateConstNull(nodep->propp());
-        if (nodep->propStrength() != VPropStrength::DEFAULT) puts(")");
-        puts("\n");
+        अगर (nodep->propStrength() != VPropStrength::DEFAULT) माला_दो(")");
+        माला_दो("\n");
     }
-    void visit(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
-    void visit(AstAbortOn* nodep) override {
-        puts(nodep->kind().ascii());
-        puts(" (");
+    व्योम visit(AstPExpr* nodep) override { iterateConst(nodep->bodyp()); }
+    व्योम visit(AstAbortOn* nodep) override {
+        माला_दो(nodep->kind().ascii());
+        माला_दो(" (");
         iterateConst(nodep->condp());
-        puts(") ");
+        माला_दो(") ");
         iterateConst(nodep->propp());
     }
-    void visit(AstSClocked* nodep) override {
-        puts("@(");
+    व्योम visit(AstSClocked* nodep) override {
+        माला_दो("@(");
         iterateConst(nodep->sensesp());
-        puts(") ");
+        माला_दो(") ");
         iterateConst(nodep->exprp());
-        puts("\n");
+        माला_दो("\n");
     }
-    void visit(AstPropAlways* nodep) override {
-        puts(nodep->isStrong() ? "s_always" : "always");
-        if (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
-            puts(" [");
+    व्योम visit(AstPropAlways* nodep) override {
+        माला_दो(nodep->isStrong() ? "s_always" : "always");
+        अगर (!VN_IS(nodep->loBoundp(), Unbounded) || !VN_IS(nodep->hiBoundp(), Unbounded)) {
+            माला_दो(" [");
             iterateConst(nodep->loBoundp());
-            puts(":");
+            माला_दो(":");
             iterateConst(nodep->hiBoundp());
-            puts("]");
+            माला_दो("]");
         }
-        puts(" ");
+        माला_दो(" ");
         iterateConst(nodep->propp());
     }
-    void visit(AstSExpr* nodep) override {
+    व्योम visit(AstSExpr* nodep) override {
         iterateConstNull(nodep->preExprp());
         {
             VL_RESTORER(m_suppressSemi);
@@ -1263,206 +1263,206 @@ class EmitVBaseVisitorConst VL_NOT_FINAL : public VNVisitorConst {
         iterateConst(nodep->exprp());
     }
     // Terminals
-    void visit(AstVarRef* nodep) override {
-        if (nodep->varScopep()) {
+    व्योम visit(AstVarRef* nodep) override {
+        अगर (nodep->varScopep()) {
             putfs(nodep, nodep->varScopep()->prettyName());
-        } else {
-            if (nodep->varp()) {
-                if (nodep->selfPointer().isEmpty()) {
+        } अन्यथा {
+            अगर (nodep->varp()) {
+                अगर (nodep->selfPointer().isEmpty()) {
                     putfs(nodep, nodep->varp()->prettyName());
-                } else {
+                } अन्यथा {
                     putfs(nodep, nodep->selfPointer().asString());
                     putfs(nodep, "->");
-                    puts(nodep->varp()->prettyName());
+                    माला_दो(nodep->varp()->prettyName());
                 }
-            } else {
+            } अन्यथा {
                 putfs(nodep, nodep->name());
             }
         }
     }
-    void visit(AstVarXRef* nodep) override {
+    व्योम visit(AstVarXRef* nodep) override {
         putfs(nodep, nodep->prettyName(nodep->dotted()));
-        puts(".");
-        if (nodep->varp()) {
-            puts(nodep->varp()->prettyName());
-        } else {
-            puts(nodep->prettyName());
+        माला_दो(".");
+        अगर (nodep->varp()) {
+            माला_दो(nodep->varp()->prettyName());
+        } अन्यथा {
+            माला_दो(nodep->prettyName());
         }
     }
-    void visit(AstConst* nodep) override { putfs(nodep, nodep->num().ascii(m_prefixed, true)); }
-    void visit(AstUnbounded* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
+    व्योम visit(AstConst* nodep) override { putfs(nodep, nodep->अंक().ascii(m_prefixed, true)); }
+    व्योम visit(AstUnbounded* nodep) override { emitVerilogFormat(nodep, nodep->emitVerilog()); }
 
     // Just iterate
-    void visit(AstTopScope* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstScope* nodep) override { iterateChildrenConst(nodep); }
-    void visit(AstVar* nodep) override {
-        if (nodep->isIO()) {
+    व्योम visit(Ast_शीर्ष_Scope* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstScope* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstVar* nodep) override {
+        अगर (nodep->isIO()) {
             putfs(nodep, nodep->verilogKwd());
-            puts(" ");
+            माला_दो(" ");
         }
         VL_RESTORER(m_arrayPost);
         m_arrayPost = false;
         iterateConstNull(nodep->dtypep());  // Dtype part before identifier
-        puts(" ");
-        puts(nodep->prettyName());
+        माला_दो(" ");
+        माला_दो(nodep->prettyName());
         m_arrayPost = true;
         iterateConstNull(nodep->dtypep());  // Dtype part after identifier
-        puts(m_suppressVarSemi ? "\n" : ";\n");
+        माला_दो(m_suppressVarSemi ? "\n" : ";\n");
     }
-    void visit(AstActive* nodep) override {
+    व्योम visit(AstActive* nodep) override {
         VL_RESTORER(m_sentreep);
         m_sentreep = nodep->sentreep();
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
     }
-    void visit(AstDelay* nodep) override {
-        puts("");  // this is for proper alignment
-        if (nodep->isCycleDelay()) {
-            puts("##");
-        } else {
-            puts("#");
+    व्योम visit(AstDelay* nodep) override {
+        माला_दो("");  // this is for proper alignment
+        अगर (nodep->isCycleDelay()) {
+            माला_दो("##");
+        } अन्यथा {
+            माला_दो("#");
         }
         VL_RESTORER(m_prefixed);
         m_prefixed = false;
-        if (AstNodeExpr* const fallDelayp = nodep->fallDelay()) {
-            puts("(");
+        अगर (Ast_गाँठ_व्यंजक* स्थिर fallDelayp = nodep->fallDelay()) {
+            माला_दो("(");
             iterateConst(nodep->lhsp());
-            puts(", ");
+            माला_दो(", ");
             iterateConst(fallDelayp);
-            puts(")");
-        } else {
+            माला_दो(")");
+        } अन्यथा {
             iterateConst(nodep->lhsp());
         }
-        if (!m_suppressSemi) {
-            puts(";\n");
-        } else {
-            puts(" ");
+        अगर (!m_suppressSemi) {
+            माला_दो(";\n");
+        } अन्यथा {
+            माला_दो(" ");
         }
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
     }
-    void visit(AstWait* nodep) override {
-        puts("wait(");
+    व्योम visit(AstWait* nodep) override {
+        माला_दो("wait(");
         iterateConst(nodep->condp());
-        puts(")");
-        if (nodep->stmtsp()) {
-            puts(" ");
-            iterateAndNextConstNull(nodep->stmtsp());
-        } else {
-            puts(";\n");
+        माला_दो(")");
+        अगर (nodep->stmtsp()) {
+            माला_दो(" ");
+            iterate_And_अग्र_Const_Null(nodep->stmtsp());
+        } अन्यथा {
+            माला_दो(";\n");
         }
     }
-    void visit(AstCAwait* nodep) override {
+    व्योम visit(AstCAwait* nodep) override {
         AstCMethodHard* methodp = VN_CAST(nodep->exprp(), CMethodHard);
         UASSERT_OBJ(methodp, nodep, "AstCAwait expression must be an AstCMethodHard");
-        puts("");  // this is for proper alignment
-        puts("#");
+        माला_दो("");  // this is for proper alignment
+        माला_दो("#");
         iterateConst(methodp->pinsp());
     }
-    void visit(AstParseRef* nodep) override { puts(nodep->prettyName()); }
-    void visit(AstVarScope*) override {}
-    void visit(AstTraceDecl*) override {}
-    void visit(AstTraceInc*) override {}
+    व्योम visit(AstParseRef* nodep) override { माला_दो(nodep->prettyName()); }
+    व्योम visit(AstVarScope*) override {}
+    व्योम visit(AstTraceDecl*) override {}
+    व्योम visit(AstTraceInc*) override {}
     // NOPs
-    void visit(AstPragma*) override {}
-    void visit(AstStmtPragma*) override {}
-    void visit(AstCell*) override {}  // Handled outside the Visit class
+    व्योम visit(AstPragma*) override {}
+    व्योम visit(AstStmtPragma*) override {}
+    व्योम visit(AstCell*) override {}  // Handled outside the Visit class
     // Default
-    void visit(AstNode* nodep) override {
-        puts("\n???? // "s + nodep->prettyTypeName() + "\n");
+    व्योम visit(Ast_गाँठ* nodep) override {
+        माला_दो("\n???? // "s + nodep->prettyTypeName() + "\n");
         iterateChildrenConst(nodep);
         // Not v3fatalSrc so we keep processing
-        if (!m_suppressUnknown) {
+        अगर (!m_suppressUnknown) {
             nodep->v3error(
                 "Internal: Unknown node type reached emitter: " << nodep->prettyTypeName());
         }
     }
 
-public:
+खुला:
     explicit EmitVBaseVisitorConst(bool suppressUnknown)
         : m_suppressUnknown{suppressUnknown} {}
-    ~EmitVBaseVisitorConst() override = default;
+    ~EmitVBaseVisitorConst() override = शेष;
 };
 
 //######################################################################
 // Emit to an output file
 
-class EmitVFileVisitor final : public EmitVBaseVisitorConst {
+श्रेणी EmitVFileVisitor final : खुला EmitVBaseVisitorConst {
     // STATE
     V3OutVFile& m_of;  // The output file
     // METHODS
-    void putsNoTracking(const string& str) override { m_of.putsNoTracking(str); }
-    void puts(const string& str) override { m_of.puts(str); }
-    void putbs(const string& str) override { m_of.putbs(str); }
-    void putfs(AstNode*, const string& str) override { putbs(str); }
-    void putqs(AstNode*, const string& str) override { putbs(str); }
+    व्योम putsNoTracking(स्थिर string& str) override { m_of.putsNoTracking(str); }
+    व्योम माला_दो(स्थिर string& str) override { m_of.माला_दो(str); }
+    व्योम putbs(स्थिर string& str) override { m_of.putbs(str); }
+    व्योम putfs(Ast_गाँठ*, स्थिर string& str) override { putbs(str); }
+    व्योम putqs(Ast_गाँठ*, स्थिर string& str) override { putbs(str); }
 
-public:
-    EmitVFileVisitor(AstNode* nodep, V3OutVFile& of, bool suppressUnknown)
+खुला:
+    EmitVFileVisitor(Ast_गाँठ* nodep, V3OutVFile& of, bool suppressUnknown)
         : EmitVBaseVisitorConst{suppressUnknown}
         , m_of{of} {
         iterateConst(nodep);
     }
-    ~EmitVFileVisitor() override = default;
+    ~EmitVFileVisitor() override = शेष;
 };
 
 //######################################################################
 // Emit to a stream (perhaps stringstream)
 
-class EmitVStreamVisitor final : public EmitVBaseVisitorConst {
+श्रेणी EmitVStreamVisitor final : खुला EmitVBaseVisitorConst {
     // STATE
     V3OutStream m_os;  // The output stream formatter
-    const bool m_tracking;  // Use line tracking
+    स्थिर bool m_tracking;  // Use line tracking
     // METHODS
-    void putsNoTracking(const string& str) override { m_os.putsNoTracking(str); }
-    void puts(const string& str) override {
-        m_tracking ? m_os.puts(str) : m_os.putsNoTracking(str);
+    व्योम putsNoTracking(स्थिर string& str) override { m_os.putsNoTracking(str); }
+    व्योम माला_दो(स्थिर string& str) override {
+        m_tracking ? m_os.माला_दो(str) : m_os.putsNoTracking(str);
     }
-    void putbs(const string& str) override {
+    व्योम putbs(स्थिर string& str) override {
         m_tracking ? m_os.putbs(str) : m_os.putsNoTracking(str);
     }
-    void putfs(AstNode*, const string& str) override { putbs(str); }
-    void putqs(AstNode*, const string& str) override { putbs(str); }
+    व्योम putfs(Ast_गाँठ*, स्थिर string& str) override { putbs(str); }
+    व्योम putqs(Ast_गाँठ*, स्थिर string& str) override { putbs(str); }
 
-public:
-    EmitVStreamVisitor(const AstNode* nodep, std::ostream& os, bool tracking, bool suppressUnknown)
+खुला:
+    EmitVStreamVisitor(स्थिर Ast_गाँठ* nodep, std::ब_प्रवाह& os, bool tracking, bool suppressUnknown)
         : EmitVBaseVisitorConst{suppressUnknown}
         , m_os{os, V3OutFormatter::LA_VERILOG}
         , m_tracking{tracking} {
-        iterateConst(const_cast<AstNode*>(nodep));
+        iterateConst(const_cast<Ast_गाँठ*>(nodep));
     }
-    ~EmitVStreamVisitor() override = default;
+    ~EmitVStreamVisitor() override = शेष;
 };
 
 //######################################################################
 // EmitV class functions
 
-void V3EmitV::verilogForTree(const AstNode* nodep, std::ostream& os) {
+व्योम V3EmitV::verilog_For_वृक्ष(स्थिर Ast_गाँठ* nodep, std::ब_प्रवाह& os) {
     { EmitVStreamVisitor{nodep, os, /* tracking: */ false, false}; }
 }
 
-void V3EmitV::debugVerilogForTree(const AstNode* nodep, std::ostream& os) {
+व्योम V3EmitV::debug_Verilog_For_वृक्ष(स्थिर Ast_गाँठ* nodep, std::ब_प्रवाह& os) {
     { EmitVStreamVisitor{nodep, os, /* tracking: */ true, true}; }
 }
 
-std::string V3EmitV::debugVerilogForTree(const AstNode* nodep) {
+std::string V3EmitV::debug_Verilog_For_वृक्ष(स्थिर Ast_गाँठ* nodep) {
     std::stringstream ss;
-    debugVerilogForTree(nodep, ss);
-    return ss.str();
+    debug_Verilog_For_वृक्ष(nodep, ss);
+    वापस ss.str();
 }
 
-void V3EmitV::emitvFiles() {
+व्योम V3EmitV::emitvFiles() {
     UINFO(2, __FUNCTION__ << ":");
-    for (AstNodeFile* filep = v3Global.rootp()->filesp(); filep;
-         filep = VN_AS(filep->nextp(), NodeFile)) {
-        AstVFile* const vfilep = VN_CAST(filep, VFile);
-        if (vfilep && vfilep->tblockp()) {
+    क्रम (Ast_गाँठ_File* filep = v3Global.rootp()->filesp(); filep;
+         filep = VN_AS(filep->nextp(), गाँठ_File)) {
+        AstVFile* स्थिर vfilep = VN_CAST(filep, VFile);
+        अगर (vfilep && vfilep->tblockp()) {
             V3OutVFile of{vfilep->name()};
-            of.puts("// DESCRIPTION: Verilator generated Verilog\n");
+            of.माला_दो("// DESCRIPTION: Verilator generated Verilog\n");
             EmitVFileVisitor{vfilep->tblockp(), of, false};
         }
     }
 }
 
-void V3EmitV::debugEmitV(const string& filename) {
+व्योम V3EmitV::debugEmitV(स्थिर string& filename) {
     UINFO(2, __FUNCTION__ << ":");
     V3OutVFile of{filename};
     EmitVFileVisitor{v3Global.rootp(), of, true};

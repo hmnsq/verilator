@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SAMPLED_H_
-#define VERILATOR_V3SAMPLED_H_
+#अगर_अघोषित VERILATOR_V3SAMPLED_H_
+#घोषणा VERILATOR_V3SAMPLED_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Sampled final {
-public:
-    static void sampledAll(AstNetlist* nodep) VL_MT_DISABLED;
+खुला:
+    अटल व्योम sampledAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

@@ -71,82 +71,82 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#समावेश "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderInternal.h"
-#include "V3Sched.h"
+#समावेश "V3OrderInternal.h"
+#समावेश "V3Sched.h"
 
-#include <memory>
-#include <vector>
+#समावेश <memory>
+#समावेश <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-void V3Order::orderOrderGraph(OrderGraph& graph, const std::string& tag) {
+व्योम V3Order::orderOrderGraph(OrderGraph& graph, स्थिर std::string& tag) {
     // Dump data
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
+    अगर (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
 
     // Break cycles. Note that the OrderGraph only contains cuttable cycles
     // (soft constraints). Actual logic loops must have been eliminated by
     // the introduction of Hybid sensitivity expressions, before invoking
     // ordering (e.g. in V3SchedAcyclic).
     graph.acyclic(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
+    अगर (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
 
     // Assign ranks so we know what to follow, then sort vertices and edges by that ordering
     graph.order();
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
+    अगर (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
 }
 
 //######################################################################
 
-AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
-                         const V3Sched::TriggerKit& trigKit,  //
+AstCFunc* V3Order::order(स्थिर std::vector<V3Sched::LogicByScope*>& logic,  //
+                         स्थिर V3Sched::TriggerKit& trigKit,  //
                          AstVarScope* trigVscp,  //
-                         const V3Sched::CovergroupRefBindings& cgRefBindings,
-                         const string& tag,  //
+                         स्थिर V3Sched::CovergroupRefBindings& cgRefBindings,
+                         स्थिर string& tag,  //
                          bool parallel,  //
                          bool slow,  //
-                         const ExternalTriggersProvider& externalTriggers) {
+                         स्थिर ExternalTriggersProvider& externalTriggers) {
     // Build the OrderGraph
-    const std::unique_ptr<OrderGraph> graph
+    स्थिर std::unique_ptr<OrderGraph> graph
         = buildOrderGraph(trigKit, trigVscp, logic, cgRefBindings, parallel);
     // Order it
     orderOrderGraph(*graph, tag);
     // Assign sensitivity domains to combinational logic
     processDomains(*graph, tag, externalTriggers);
     // Build the move graph
-    OrderMoveDomScope::clear();
-    const std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
-    if (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
+    OrderMoveDomScope::सफा();
+    स्थिर std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
+    अगर (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
 
     // The ordered statements, if there are any
-    AstNodeStmt* stmtsp = nullptr;
-    if (!moveGraphp->empty()) {
-        if (parallel) {
+    Ast_गाँठ_Stmt* stmtsp = nullptr;
+    अगर (!moveGraphp->empty()) {
+        अगर (parallel) {
             stmtsp = createParallel(*moveGraphp, tag, slow);
-        } else {
+        } अन्यथा {
             stmtsp = createSerial(*moveGraphp, tag, slow);
         }
         // Should have consumed all vertices
         UASSERT(moveGraphp->empty(), "Unconsumed vertices remain in OrderMoveGraph");
     }
-    OrderMoveDomScope::clear();
+    OrderMoveDomScope::सफा();
 
     // Dump data
-    if (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
+    अगर (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
 
     // Dispose of the remnants of the inputs
-    for (auto* const lbsp : logic) lbsp->deleteActives();
+    क्रम (स्वतः* स्थिर lbsp : logic) lbsp->deleteActives();
 
     // If there is no resulting logic, then don't create an empty function
-    if (!stmtsp) return nullptr;
+    अगर (!stmtsp) वापस nullptr;
 
     // Create the result function
-    AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->fileline();
-    AstCFunc* const funcp = [&]() {
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        AstCFunc* const resp = new AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
+    AstNetlist* स्थिर netlistp = v3Global.rootp();
+    File_पंक्ति* स्थिर flp = netlistp->fileline();
+    AstCFunc* स्थिर funcp = [&]() {
+        AstScope* स्थिर scopeTopp = netlistp->शीर्ष_Scopep()->scopep();
+        AstCFunc* स्थिर resp = नया AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
         resp->dontCombine(true);
         resp->isStatic(false);
         resp->isLoose(true);
@@ -154,12 +154,12 @@ AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
         resp->isConst(false);
         resp->declPrivate(true);
         scopeTopp->addBlocksp(resp);
-        return resp;
+        वापस resp;
     }();
 
     // Assemble the body
     funcp->addStmtsp(stmtsp);
 
     // Done
-    return funcp;
+    वापस funcp;
 }

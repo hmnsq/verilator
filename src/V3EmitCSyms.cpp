@@ -14,21 +14,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#समावेश "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3ExecGraph.h"
-#include "V3LanguageWords.h"
-#include "V3StackCount.h"
-#include "V3Stats.h"
+#समावेश "V3EmitC.h"
+#समावेश "V3EmitCBase.h"
+#समावेश "V3ExecGraph.h"
+#समावेश "V3LanguageWords.h"
+#समावेश "V3StackCount.h"
+#समावेश "V3Stats.h"
 
-#include <algorithm>
-#include <cstring>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <vector>
+#समावेश <algorithm>
+#समावेश <cstring>
+#समावेश <map>
+#समावेश <set>
+#समावेश <unordered_map>
+#समावेश <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -36,25 +36,25 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Symbol table emitting
 
 // Some handy short-hands to reduce verbosity
-static constexpr auto symClassName = &EmitCUtil::symClassName;
-static constexpr auto topClassName = &EmitCUtil::topClassName;
+अटल constexpr स्वतः symClassName = &EmitCUtil::symClassName;
+अटल constexpr स्वतः शीर्ष_Class_Name = &EmitCUtil::शीर्ष_Class_Name;
 
-class EmitCSyms final : EmitCBaseVisitorConst {
+श्रेणी EmitCSyms final : EmitCBaseVisitorConst {
     // NODE STATE
     // Cleared on Netlist
     //  AstNodeModule::user1()  -> bool.  Set true __Vconfigure called
-    const VNUser1InUse m_inuser1;
+    स्थिर VNUser1InUse m_inuser1;
 
     // TYPES
-    struct ScopeData final {
-        const AstNode* m_nodep;  // Scope symbol-table entry corresponds to
-        const std::string m_symName;  // Mangled name used to build __Vscopep_ variable
-        const std::string m_prettyName;  // Pretty (unprotected) name for display
-        const std::string m_defName;  // Name registered for this scope
-        const int m_timeunit;  // Timeunit of this scope
+    काष्ठा Scope_तथ्य final {
+        स्थिर Ast_गाँठ* m_nodep;  // Scope symbol-table entry corresponds to
+        स्थिर std::string m_symName;  // Mangled name used to build __Vscopep_ variable
+        स्थिर std::string m_prettyName;  // Pretty (unprotected) name for display
+        स्थिर std::string m_defName;  // Name registered for this scope
+        स्थिर पूर्णांक m_timeunit;  // Timeunit of this scope
         std::string m_type;  // TODO: this should be an enum
-        ScopeData(const AstNode* nodep, const std::string& symName, const std::string& prettyName,
-                  const std::string& defName, int timeunit, const std::string& type)
+        Scope_तथ्य(स्थिर Ast_गाँठ* nodep, स्थिर std::string& symName, स्थिर std::string& prettyName,
+                  स्थिर std::string& defName, पूर्णांक timeunit, स्थिर std::string& type)
             : m_nodep{nodep}
             , m_symName{symName}
             , m_prettyName{prettyName}
@@ -62,72 +62,72 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             , m_timeunit{timeunit}
             , m_type{type} {}
     };
-    struct IfaceRefData final {
-        const AstScope* m_scopep;  // Concrete interface scope referred to
+    काष्ठा Iface_Ref_तथ्य final {
+        स्थिर AstScope* m_scopep;  // Concrete interface scope referred to
         std::string m_parentSym;  // Declaring scope symbol, including inlined levels
         std::string m_suffix;  // Path relative to the model instance
         std::string m_name;  // Name of the reference port
         std::string m_modportName;  // "" = no modport
-        IfaceRefData(const AstScope* scopep, const std::string& parentSym,
-                     const std::string& suffix, const std::string& name,
-                     const std::string& modportName)
+        Iface_Ref_तथ्य(स्थिर AstScope* scopep, स्थिर std::string& parentSym,
+                     स्थिर std::string& suffix, स्थिर std::string& name,
+                     स्थिर std::string& modportName)
             : m_scopep{scopep}
             , m_parentSym{parentSym}
             , m_suffix{suffix}
             , m_name{name}
             , m_modportName{modportName} {}
     };
-    struct ScopeFuncData final {
-        const AstScopeName* const m_scopep;  // Scope the DPI export function is registered under
-        const AstCFunc* const m_cfuncp;  // DPI export function
-        const AstNodeModule* const m_modp;  // Module containing the DPI export function
-        ScopeFuncData(const AstScopeName* scopep, const AstCFunc* funcp, const AstNodeModule* modp)
+    काष्ठा Scope_Func_तथ्य final {
+        स्थिर AstScopeName* स्थिर m_scopep;  // Scope the DPI export function is registered under
+        स्थिर AstCFunc* स्थिर m_cfuncp;  // DPI export function
+        स्थिर Ast_गाँठ_Module* स्थिर m_modp;  // Module containing the DPI export function
+        Scope_Func_तथ्य(स्थिर AstScopeName* scopep, स्थिर AstCFunc* funcp, स्थिर Ast_गाँठ_Module* modp)
             : m_scopep{scopep}
             , m_cfuncp{funcp}
             , m_modp{modp} {}
     };
-    struct ScopeVarData final {
-        const std::string m_scopeName;  // Full name of the scope containing the variable
-        const std::string m_varBasePretty;  // Pretty base name of the variable, without scope
-        const AstVar* const m_varp;  // Public variable
-        const AstNodeModule* const m_modp;  // Module containing the variable
-        const AstScope* const m_scopep;  // Scope containing the variable
-        ScopeVarData(const std::string& scopeName, const std::string& varBasePretty,
-                     const AstVar* varp, const AstNodeModule* modp, const AstScope* scopep)
+    काष्ठा Scope_Var_तथ्य final {
+        स्थिर std::string m_scopeName;  // Full name of the scope containing the variable
+        स्थिर std::string m_varBasePretty;  // Pretty base name of the variable, without scope
+        स्थिर AstVar* स्थिर m_varp;  // Public variable
+        स्थिर Ast_गाँठ_Module* स्थिर m_modp;  // Module containing the variable
+        स्थिर AstScope* स्थिर m_scopep;  // Scope containing the variable
+        Scope_Var_तथ्य(स्थिर std::string& scopeName, स्थिर std::string& varBasePretty,
+                     स्थिर AstVar* varp, स्थिर Ast_गाँठ_Module* modp, स्थिर AstScope* scopep)
             : m_scopeName{scopeName}
             , m_varBasePretty{varBasePretty}
             , m_varp{varp}
             , m_modp{modp}
             , m_scopep{scopep} {}
     };
-    using ScopeNames = std::map<const std::string, ScopeData>;
-    using ScopeModPair = std::pair<const AstScope*, AstNodeModule*>;
-    using ModVarPair = std::pair<const AstNodeModule*, const AstVar*>;
+    using ScopeNames = std::map<स्थिर std::string, Scope_तथ्य>;
+    using ScopeModPair = std::pair<स्थिर AstScope*, Ast_गाँठ_Module*>;
+    using ModVarPair = std::pair<स्थिर Ast_गाँठ_Module*, स्थिर AstVar*>;
 
     // Vars with more dims take the residual per-statement path.
-    static constexpr int VPI_TABLE_MAX_DIMS = 3;
+    अटल constexpr पूर्णांक VPI_TABLE_MAX_DIMS = 3;
 
     // STATE
     AstCFunc* m_cfuncp = nullptr;  // Current function
-    AstNodeModule* m_modp = nullptr;  // Current module
-    const AstScope* m_scopep = nullptr;  // Current scope
+    Ast_गाँठ_Module* m_modp = nullptr;  // Current module
+    स्थिर AstScope* m_scopep = nullptr;  // Current scope
     std::vector<ScopeModPair> m_scopes;  // Every scope by module
     std::vector<AstCFunc*> m_dpis;  // DPI functions
     std::vector<ModVarPair> m_modVars;  // Each public {mod,var}
-    std::map<const std::string, ScopeFuncData> m_scopeFuncs;  // Each {scope,dpi-export-func}
-    std::map<const std::string, ScopeVarData> m_scopeVars;  // Each {scope,public-var}
+    std::map<स्थिर std::string, Scope_Func_तथ्य> m_scopeFuncs;  // Each {scope,dpi-export-func}
+    std::map<स्थिर std::string, Scope_Var_तथ्य> m_scopeVars;  // Each {scope,public-var}
     ScopeNames m_scopeNames;  // Each unique AstScopeName. Dpi scopes added later
     ScopeNames m_dpiScopeNames;  // Each unique AstScopeName for DPI export
     ScopeNames m_vpiScopeCandidates;  // All scopes for VPI
-    std::vector<IfaceRefData> m_ifaceRefs;  // Each interface reference, for VPI
+    std::vector<Iface_Ref_तथ्य> m_ifaceRefs;  // Each interface reference, for VPI
     // The actual hierarchy of scopes
-    std::map<const std::string, std::vector<std::string>> m_vpiScopeHierarchy;
-    int m_coverBins = 0;  // Global coverage bin number for non-object helper functions
+    std::map<स्थिर std::string, std::vector<std::string>> m_vpiScopeHierarchy;
+    पूर्णांक m_coverBins = 0;  // Global coverage bin number for non-object helper functions
     // Counts bins within the current module. Coverage storage is also emitted
     // on each module object so no-inline instances keep independent counters
     // when forcePerInstance is used.
-    int m_modCoverBins = 0;  // Per-module coverage bin number
-    const bool m_dpiHdrOnly;  // Only emit the DPI header
+    पूर्णांक m_modCoverBins = 0;  // Per-module coverage bin number
+    स्थिर bool m_dpiHdrOnly;  // Only emit the DPI header
     VDouble0 m_statVarScopeBytes;  // Statistic tracking
     // name -> initializer rows, built in getSymCtorStmts()
     std::vector<std::pair<std::string, std::vector<std::string>>> m_varTables;
@@ -138,25 +138,25 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     std::vector<std::string> m_ifaceRefTableRows;
 
     // METHODS
-    void emitSymHdr();
-    void emitSymImpPreamble();
-    void emitVarTables();
-    void emitScopeHier(TextStmts& stmts, bool destroy);
-    void emitSymImp(const AstNetlist* netlistp);
-    void emitDpiHdr();
-    void emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr);
-    void emitDpiImp();
+    व्योम emitSymHdr();
+    व्योम emitSymImpPreamble();
+    व्योम emitVarTables();
+    व्योम emitScopeHier(TextStmts& stmts, bool destroy);
+    व्योम emitSymImp(स्थिर AstNetlist* netlistp);
+    व्योम emitDpiHdr();
+    व्योम emitDpiStruct(स्थिर Ast_गाँठ_DType* dtypep, std::set<std::string>& namesr);
+    व्योम emitDpiImp();
 
     TextStmts getSymCtorStmts();
     TextStmts getSymDtorStmts();
 
-    static void nameCheck(AstNode* nodep) {
+    अटल व्योम nameCheck(Ast_गाँठ* nodep) {
         // Prevent GCC compile time error; name check all things that reach C++ code
-        if (nodep->name().empty()) return;
-        const AstCFunc* const cfuncp = VN_CAST(nodep, CFunc);
-        if (!cfuncp || (!cfuncp->isConstructor() && !cfuncp->isDestructor())) {
-            const std::string rsvd = V3LanguageWords::isKeyword(nodep->name());
-            if (rsvd != "") {
+        अगर (nodep->name().empty()) वापस;
+        स्थिर AstCFunc* स्थिर cfuncp = VN_CAST(nodep, CFunc);
+        अगर (!cfuncp || (!cfuncp->isConstructor() && !cfuncp->isDestructor())) {
+            स्थिर std::string rsvd = V3_Language_शब्दगण::isKeyword(nodep->name());
+            अगर (rsvd != "") {
                 // Generally V3Name should find all of these and throw SYMRSVDWORD.
                 // We'll still check here because the compiler errors
                 // resulting if we miss this warning are SO nasty
@@ -168,197 +168,197 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         }
     }
 
-    static std::string scopeSymString(const std::string& scpname) {
+    अटल std::string scopeSymString(स्थिर std::string& scpname) {
         std::string out = scpname;
-        std::string::size_type pos;
-        while ((pos = out.find("__PVT__")) != std::string::npos) out.replace(pos, 7, "");
-        if (VString::startsWith(out, "TOP__DOT__")) out.replace(0, 10, "");
-        if (VString::startsWith(out, "TOP.")) out.replace(0, 4, "");
-        while ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
-        while ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
-        return out;
+        std::string::आकार_type pos;
+        जबतक ((pos = out.find("__PVT__")) != std::string::npos) out.replace(pos, 7, "");
+        अगर (VString::startsWith(out, "TOP__DOT__")) out.replace(0, 10, "");
+        अगर (VString::startsWith(out, "TOP.")) out.replace(0, 4, "");
+        जबतक ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
+        जबतक ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
+        वापस out;
     }
 
-    static string scopeDecodeIdentifier(const std::string& scpname) {
-        std::string::size_type pos = std::string::npos;
+    अटल string scopeDecodeIdentifier(स्थिर std::string& scpname) {
+        std::string::आकार_type pos = std::string::npos;
 
         // Remove hierarchy
-        size_t i = 0;
+        माप_प्रकार i = 0;
         // always makes progress
-        while (i < scpname.length()) {
-            if (scpname[i] == '\\') {
-                while (i < scpname.length() && scpname[i] != ' ') ++i;
+        जबतक (i < scpname.लंबाई()) {
+            अगर (scpname[i] == '\\') {
+                जबतक (i < scpname.लंबाई() && scpname[i] != ' ') ++i;
                 ++i;  // Proc ' ', it should always be there. Then grab '.' on next cycle
-            } else {
-                while (i < scpname.length() && scpname[i] != '.') ++i;
-                if (i < scpname.length()) pos = i++;
+            } अन्यथा {
+                जबतक (i < scpname.लंबाई() && scpname[i] != '.') ++i;
+                अगर (i < scpname.लंबाई()) pos = i++;
             }
         }
 
-        return pos != std::string::npos ? scpname.substr(pos + 1) : scpname;
+        वापस pos != std::string::npos ? scpname.substr(pos + 1) : scpname;
     }
 
     // Encounter order of one dtype-chain walk: unpacked (outer), then packed,
     // then a ranged basic leaf.
-    struct VarDims final {
-        int pdim = 0;  // Packed array dims plus a ranged basic leaf
-        int udim = 0;
-        std::vector<std::pair<int, int>> unpackedLR;  // (left,right), outer-first
-        std::vector<std::pair<int, int>> packedLR;  // (left,right), inner then leaf
+    काष्ठा VarDims final {
+        पूर्णांक pdim = 0;  // Packed array dims plus a ranged basic leaf
+        पूर्णांक udim = 0;
+        std::vector<std::pair<पूर्णांक, पूर्णांक>> unpackedLR;  // (left,right), outer-first
+        std::vector<std::pair<पूर्णांक, पूर्णांक>> packedLR;  // (left,right), inner then leaf
 
         // Shared order used by both boundsString() and the table-row dv[] fill.
-        std::vector<std::pair<int, int>> flatten() const {
-            std::vector<std::pair<int, int>> flat(unpackedLR);
-            flat.insert(flat.end(), packedLR.cbegin(), packedLR.cend());
-            return flat;
+        std::vector<std::pair<पूर्णांक, पूर्णांक>> flatten() स्थिर {
+            std::vector<std::pair<पूर्णांक, पूर्णांक>> flat(unpackedLR);
+            flat.जोड़ो(flat.end(), packedLR.cbegin(), packedLR.cend());
+            वापस flat;
         }
     };
-    static VarDims getVarDims(const AstNodeDType* const rootDtypep) {
+    अटल VarDims getVarDims(स्थिर Ast_गाँठ_DType* स्थिर मूल_Dtypep) {
         VarDims d;
         // Range is always first, it's not in "C" order
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+        क्रम (स्थिर Ast_गाँठ_DType* dtypep = मूल_Dtypep; dtypep;) {
             // Skip AstRefDType/AstTypedef, or return same node
             dtypep = dtypep->skipRefp();
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
-                if (VN_IS(dtypep, PackArrayDType)) {
-                    d.packedLR.emplace_back(adtypep->left(), adtypep->right());
+            अगर (स्थिर Ast_गाँठ_Array_DType* स्थिर adtypep = VN_CAST(dtypep, गाँठ_Array_DType)) {
+                अगर (VN_IS(dtypep, PackArrayDType)) {
+                    d.packedLR.emplace_back(adtypep->बाँए(), adtypep->दाँए());
                     ++d.pdim;
-                } else {
-                    d.unpackedLR.emplace_back(adtypep->left(), adtypep->right());
+                } अन्यथा {
+                    d.unpackedLR.emplace_back(adtypep->बाँए(), adtypep->दाँए());
                     ++d.udim;
                 }
                 dtypep = adtypep->subDTypep();
-            } else {
-                if (const AstBasicDType* const basicp = dtypep->basicp()) {
-                    if (basicp->isRanged()) {
-                        d.packedLR.emplace_back(basicp->left(), basicp->right());
+            } अन्यथा {
+                अगर (स्थिर AstBasicDType* स्थिर basicp = dtypep->basicp()) {
+                    अगर (basicp->isRanged()) {
+                        d.packedLR.emplace_back(basicp->बाँए(), basicp->दाँए());
                         ++d.pdim;
                     }
                 }
-                break;  // Non-array leaf
+                अवरोध;  // Non-array leaf
             }
         }
-        return d;
+        वापस d;
     }
 
-    static VarDims dimsFor(const ScopeVarData& svd) { return getVarDims(svd.m_varp->dtypep()); }
+    अटल VarDims dimsFor(स्थिर Scope_Var_तथ्य& svd) { वापस getVarDims(svd.m_varp->dtypep()); }
 
     // Only needed on the residual path; the table path uses dims.flatten() directly.
-    static std::string boundsString(const VarDims& d) {
+    अटल std::string boundsString(स्थिर VarDims& d) {
         std::string bounds;
-        for (const std::pair<int, int>& lr : d.flatten()) {
+        क्रम (स्थिर std::pair<पूर्णांक, पूर्णांक>& lr : d.flatten()) {
             bounds += " ,";
             bounds += std::to_string(lr.first);
             bounds += ",";
             bounds += std::to_string(lr.second);
         }
-        return bounds;
+        वापस bounds;
     }
 
-    static int getUnpackedElements(const AstNodeDType* rootDtypep) {
-        int elements = 1;
-        for (const AstNodeDType* dtypep = rootDtypep; dtypep;) {
+    अटल पूर्णांक getUnpackedElements(स्थिर Ast_गाँठ_DType* मूल_Dtypep) {
+        पूर्णांक elements = 1;
+        क्रम (स्थिर Ast_गाँठ_DType* dtypep = मूल_Dtypep; dtypep;) {
             dtypep = dtypep->skipRefp();
-            const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType);
-            if (!adtypep) break;
+            स्थिर AstUnpackArrayDType* स्थिर adtypep = VN_CAST(dtypep, UnpackArrayDType);
+            अगर (!adtypep) अवरोध;
             elements *= adtypep->elementsConst();
             dtypep = adtypep->subDTypep();
         }
-        return elements;
+        वापस elements;
     }
 
-    static bool needsEmittedEntSize(const std::string& vlEnumType) {
-        return vlEnumType == "VLVT_STRUCT" || vlEnumType == "VLVT_UNION";
+    अटल bool needs_Emitted_Ent_आकार(स्थिर std::string& vlEnumType) {
+        वापस vlEnumType == "VLVT_STRUCT" || vlEnumType == "VLVT_UNION";
     }
 
-    static std::pair<bool, std::string> isForceControlSignal(const AstVar* const signalVarp) {
+    अटल std::pair<bool, std::string> isForceControlSignal(स्थिर AstVar* स्थिर signalVarp) {
         // __VforceRd should not show up here because it is never public, but just in case it does,
         // it should be skipped because forceableVarInsert creates its VerilatedVar.
-        for (const std::string forceControlSuffix : {"__VforceEn", "__VforceVal", "__VforceRd"}) {
-            const std::size_t suffixPos = signalVarp->name().find(forceControlSuffix);
-            const bool suffixFound = suffixPos != std::string::npos;
-            const bool suffixIsAtEnd
-                = suffixPos + forceControlSuffix.length() == signalVarp->name().length();
-            if (!(suffixFound && suffixIsAtEnd)) continue;
-            const std::string baseSignalName = signalVarp->name().substr(0, suffixPos);
-            return std::pair<bool, std::string>{true, baseSignalName};
+        क्रम (स्थिर std::string forceControlSuffix : {"__VforceEn", "__VforceVal", "__VforceRd"}) {
+            स्थिर std::माप_प्रकार suffixPos = signalVarp->name().find(forceControlSuffix);
+            स्थिर bool suffixFound = suffixPos != std::string::npos;
+            स्थिर bool suffixIsAtEnd
+                = suffixPos + forceControlSuffix.लंबाई() == signalVarp->name().लंबाई();
+            अगर (!(suffixFound && suffixIsAtEnd)) जारी;
+            स्थिर std::string baseSignalName = signalVarp->name().substr(0, suffixPos);
+            वापस std::pair<bool, std::string>{true, baseSignalName};
         }
-        return std::pair<bool, std::string>{false, ""};
+        वापस std::pair<bool, std::string>{false, ""};
     }
 
-    static void appendVarProperties(std::string& stmt, const std::string& vlEnumType,
-                                    const std::string& vlEnumDir, const int udim, const int pdim,
-                                    const std::string& bounds, const std::string& entSize = "") {
+    अटल व्योम appendVarProperties(std::string& stmt, स्थिर std::string& vlEnumType,
+                                    स्थिर std::string& vlEnumDir, स्थिर पूर्णांक udim, स्थिर पूर्णांक pdim,
+                                    स्थिर std::string& bounds, स्थिर std::string& ent_आकार = "") {
         stmt += vlEnumType;  // VLVT_UINT32 etc
         stmt += ", ";
         stmt += vlEnumDir;  // VLVD_IN etc
         stmt += ", ";
         stmt += std::to_string(udim);
-        if (!entSize.empty()) {
+        अगर (!ent_आकार.empty()) {
             stmt += ", ";
-            stmt += entSize;
-        } else {
+            stmt += ent_आकार;
+        } अन्यथा {
             stmt += ", ";
             stmt += std::to_string(pdim);
         }
         stmt += bounds;
         stmt += ")";
     }
-    static std::string memberVlEnumDir(const AstVar* const varp,
-                                       const AstNodeDType* const dtypep) {
+    अटल std::string memberVlEnumDir(स्थिर AstVar* स्थिर varp,
+                                       स्थिर Ast_गाँठ_DType* स्थिर dtypep) {
         std::string out = '(' + varp->vlEnumDir(/*forMember=*/true);
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
-        if (skipDTypep->isSigned()) out += "|VLVF_SIGNED";
-        if (const AstBasicDType* const basicp = skipDTypep->basicp()) {
-            if (basicp->keyword() == VBasicDTypeKwd::BIT) out += "|VLVF_BITVAR";
+        स्थिर Ast_गाँठ_DType* स्थिर skipDTypep = dtypep->skipRefp();
+        अगर (skipDTypep->isSigned()) out += "|VLVF_SIGNED";
+        अगर (स्थिर AstBasicDType* स्थिर basicp = skipDTypep->basicp()) {
+            अगर (basicp->keyword() == VBasicDTypeKwd::BIT) out += "|VLVF_BITVAR";
         }
         out += skipDTypep->vlEnumPackedAgg();
-        return out + ')';
+        वापस out + ')';
     }
 
     // Name of the instance member for the given scope
-    static std::string instName(const AstScope* scopep) {
-        return "vlInst." + VIdProtect::protectIf(scopep->nameDotless(), scopep->protect());
+    अटल std::string instName(स्थिर AstScope* scopep) {
+        वापस "vlInst." + VIdProtect::protectIf(scopep->nameDotless(), scopep->protect());
     }
 
-    static std::string insertVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
-                                          const AstVar* const varp, const int udim, const int pdim,
-                                          const std::string& bounds) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
-        const std::string vlEnumType = varp->vlEnumType();
-        const bool needsEntSize = needsEmittedEntSize(vlEnumType);
+    अटल std::string जोड़ो_Var_Statement(स्थिर Scope_Var_तथ्य& svd, स्थिर AstScope* स्थिर scopep,
+                                          स्थिर AstVar* स्थिर varp, स्थिर पूर्णांक udim, स्थिर पूर्णांक pdim,
+                                          स्थिर std::string& bounds) {
+        स्थिर std::string var_व्यंजक = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        स्थिर std::string vlEnumType = varp->vlEnumType();
+        स्थिर bool needs_Ent_आकार = needs_Emitted_Ent_आकार(vlEnumType);
 
         std::string stmt;
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
-        stmt += needsEntSize ? "->varInsertSized(\"" : "->varInsert(\"";
+        stmt += needs_Ent_आकार ? "->varInsertSized(\"" : "->varInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty)) + '"';
 
-        if (!varp->isParam()) {
+        अगर (!varp->isParam()) {
             stmt += ", &(";
-            stmt += varExpr;
+            stmt += var_व्यंजक;
             stmt += "), false, ";
-        } else if (varp->vlEnumType() == "VLVT_STRING"
+        } अन्यथा अगर (varp->vlEnumType() == "VLVT_STRING"
                    && !VN_IS(varp->subDTypep(), UnpackArrayDType)) {
             stmt += ", const_cast<void*>(static_cast<const void*>(";
-            stmt += varExpr;
+            stmt += var_व्यंजक;
             stmt += ".c_str())), true, ";
-        } else {
+        } अन्यथा {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
-            stmt += varExpr;
+            stmt += var_व्यंजक;
             stmt += "))), true, ";
         }
 
-        const std::string entSize = needsEntSize
-                                        ? "sizeof(" + varExpr + ") / "
+        स्थिर std::string ent_आकार = needs_Ent_आकार
+                                        ? "sizeof(" + var_व्यंजक + ") / "
                                               + std::to_string(getUnpackedElements(varp->dtypep()))
                                         : "";
-        appendVarProperties(stmt, vlEnumType, varp->vlEnumDir(), udim, pdim, bounds, entSize);
-        return stmt;
+        appendVarProperties(stmt, vlEnumType, varp->vlEnumDir(), udim, pdim, bounds, ent_आकार);
+        वापस stmt;
     }
 
     // tryBuildTableEntry() classifies each public var once, so the caller does
     // not re-derive (and risk desyncing) the forceable-eligibility test.
-    enum class TableEntryKind : uint8_t {
+    क्रमागत श्रेणी TableEntryKind : uint8_t {
         TABLE_ROW,  // Registered via a VlVarTableEntry[] table row
         FORCEABLE_RESIDUAL,  // Residual, via insertForceableVarStatement()
         PLAIN_RESIDUAL,  // Residual, via insertVarStatement() (+ struct/array expansion)
@@ -366,35 +366,35 @@ class EmitCSyms final : EmitCBaseVisitorConst {
 
     // Builds one VlVarTableEntry row for 'varp', or reports which residual
     // path it must take instead.
-    TableEntryKind tryBuildTableEntry(const ScopeVarData& svd, const AstVar* const varp,
-                                      const AstScope* const scopep,
-                                      const std::string& modClassName, const VarDims& dims,
-                                      std::string& rowOut) const {
-        const int pdim = dims.pdim;
-        const int udim = dims.udim;
-        if (varp->isForceable() && forceControlSignalsAreValid(scopep, varp)) {
-            return TableEntryKind::FORCEABLE_RESIDUAL;
+    TableEntryKind tryBuildTableEntry(स्थिर Scope_Var_तथ्य& svd, स्थिर AstVar* स्थिर varp,
+                                      स्थिर AstScope* स्थिर scopep,
+                                      स्थिर std::string& modClassName, स्थिर VarDims& dims,
+                                      std::string& rowOut) स्थिर {
+        स्थिर पूर्णांक pdim = dims.pdim;
+        स्थिर पूर्णांक udim = dims.udim;
+        अगर (varp->isForceable() && forceControlSignalsAreValid(scopep, varp)) {
+            वापस TableEntryKind::FORCEABLE_RESIDUAL;
         }
-        if (udim + pdim > VPI_TABLE_MAX_DIMS) return TableEntryKind::PLAIN_RESIDUAL;
+        अगर (udim + pdim > VPI_TABLE_MAX_DIMS) वापस TableEntryKind::PLAIN_RESIDUAL;
 
-        const std::string vlEnumType = varp->vlEnumType();
-        if (needsEmittedEntSize(vlEnumType))
-            return TableEntryKind::PLAIN_RESIDUAL;  // struct/union whole
+        स्थिर std::string vlEnumType = varp->vlEnumType();
+        अगर (needs_Emitted_Ent_आकार(vlEnumType))
+            वापस TableEntryKind::PLAIN_RESIDUAL;  // struct/union whole
         // Params are static members (offsetof is invalid on those);
         // string params also need a runtime .c_str().
-        if (varp->isParam()) return TableEntryKind::PLAIN_RESIDUAL;
+        अगर (varp->isParam()) वापस TableEntryKind::PLAIN_RESIDUAL;
 
-        const std::string name = V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty));
+        स्थिर std::string name = V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty));
         // nameProtect() (not protect(name())) so the offsetof member matches the
         // emitted struct field: a primary I/O port keeps its unprotected name
         // under --protect-ids, whereas protect() would always hash it.
-        const std::string member = varName(varp);
-        const std::string dir = varp->vlEnumDir();
+        स्थिर std::string member = varName(varp);
+        स्थिर std::string dir = varp->vlEnumDir();
         // Flat dim (left,right) ints in varInsert() order: unpacked then packed.
-        std::vector<int> dv;
-        for (const std::pair<int, int>& lr : dims.flatten()) {
-            dv.push_back(lr.first);
-            dv.push_back(lr.second);
+        std::vector<पूर्णांक> dv;
+        क्रम (स्थिर std::pair<पूर्णांक, पूर्णांक>& lr : dims.flatten()) {
+            dv.धकेलो_back(lr.first);
+            dv.धकेलो_back(lr.second);
         }
 
         std::string row = "{\"" + name + "\", ";
@@ -402,88 +402,88 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         row += vlEnumType + ", ";
         row += "(" + dir + "), ";
         row += std::to_string(udim) + ", " + std::to_string(pdim) + ", {";
-        for (int i = 0; i < VPI_TABLE_MAX_DIMS * 2; ++i) {
-            if (i) row += ", ";
-            row += std::to_string(i < static_cast<int>(dv.size()) ? dv[i] : 0);
+        क्रम (पूर्णांक i = 0; i < VPI_TABLE_MAX_DIMS * 2; ++i) {
+            अगर (i) row += ", ";
+            row += std::to_string(i < static_cast<पूर्णांक>(dv.आकार()) ? dv[i] : 0);
         }
         row += "}}";
         rowOut = row;
-        return TableEntryKind::TABLE_ROW;
+        वापस TableEntryKind::TABLE_ROW;
     }
 
-    static std::string insertDTypeVarStatement(const ScopeVarData& svd,
-                                               const AstScope* const scopep,
-                                               const std::string& prettyName,
-                                               const std::string& cName,
-                                               const AstNodeDType* const dtypep, const int udim,
-                                               const int pdim, const std::string& bounds) {
-        const std::string vlEnumType = dtypep->vlEnumType();
-        const bool needsEntSize = needsEmittedEntSize(vlEnumType);
+    अटल std::string जोड़ो_DType_Var_Statement(स्थिर Scope_Var_तथ्य& svd,
+                                               स्थिर AstScope* स्थिर scopep,
+                                               स्थिर std::string& prettyName,
+                                               स्थिर std::string& cName,
+                                               स्थिर Ast_गाँठ_DType* स्थिर dtypep, स्थिर पूर्णांक udim,
+                                               स्थिर पूर्णांक pdim, स्थिर std::string& bounds) {
+        स्थिर std::string vlEnumType = dtypep->vlEnumType();
+        स्थिर bool needs_Ent_आकार = needs_Emitted_Ent_आकार(vlEnumType);
         std::string stmt;
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
-        stmt += needsEntSize ? "->varInsertSized(\"" : "->varInsert(\"";
+        stmt += needs_Ent_आकार ? "->varInsertSized(\"" : "->varInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(prettyName) + '"';
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
+        स्थिर std::string var_व्यंजक = "vlSymsp->" + instName(scopep) + "." + cName;
         // A parameter is emitted 'static const', so its members are const too and
         // need the same cast the whole-parameter insert uses.
-        if (svd.m_varp->isParam()) {
+        अगर (svd.m_varp->isParam()) {
             stmt += ", const_cast<void*>(static_cast<const void*>(&(";
-            stmt += varExpr;
+            stmt += var_व्यंजक;
             stmt += "))), true, ";
-        } else {
+        } अन्यथा {
             stmt += ", &(";
-            stmt += varExpr;
+            stmt += var_व्यंजक;
             stmt += "), false, ";
         }
-        const std::string entSize
-            = needsEntSize
-                  ? "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep))
+        स्थिर std::string ent_आकार
+            = needs_Ent_आकार
+                  ? "sizeof(" + var_व्यंजक + ") / " + std::to_string(getUnpackedElements(dtypep))
                   : "";
         appendVarProperties(stmt, vlEnumType, memberVlEnumDir(svd.m_varp, dtypep), udim, pdim,
-                            bounds, entSize);
-        return stmt;
+                            bounds, ent_आकार);
+        वापस stmt;
     }
 
-    static void addUOrStructMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                       const AstScope* const scopep,
-                                       const std::string& prettyPrefix, const std::string& cPrefix,
-                                       const AstNodeUOrStructDType* const sdtypep) {
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    अटल व्योम addUOrStructMemberVars(std::vector<std::string>& stmts, स्थिर Scope_Var_तथ्य& svd,
+                                       स्थिर AstScope* स्थिर scopep,
+                                       स्थिर std::string& prettyPrefix, स्थिर std::string& cPrefix,
+                                       स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर sdtypep) {
+        क्रम (स्थिर AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
-            if (itemDTypep->vlEnumType().empty()) continue;
-            const std::string prettyName
-                = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
-            const std::string cName = cPrefix + "." + itemp->nameProtect();
-            const VarDims dims = getVarDims(itemDTypep);
-            stmts.emplace_back(insertDTypeVarStatement(svd, scopep, prettyName, cName, itemDTypep,
+            स्थिर Ast_गाँठ_DType* स्थिर itemDTypep = itemp->dtypep();
+            अगर (itemDTypep->vlEnumType().empty()) जारी;
+            स्थिर std::string prettyName
+                = prettyPrefix + "." + Ast_गाँठ::vpiName(itemp->shortName());
+            स्थिर std::string cName = cPrefix + "." + itemp->nameProtect();
+            स्थिर VarDims dims = getVarDims(itemDTypep);
+            stmts.emplace_back(जोड़ो_DType_Var_Statement(svd, scopep, prettyName, cName, itemDTypep,
                                                        dims.udim, dims.pdim, boundsString(dims))
                                + ";");
             addPackedAggMemberVars(stmts, svd, scopep, prettyName, cName, itemDTypep);
-            if (const AstNodeUOrStructDType* const subp
-                = VN_CAST(itemDTypep->skipRefp(), NodeUOrStructDType)) {
-                if (!subp->packed())
+            अगर (स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर subp
+                = VN_CAST(itemDTypep->skipRefp(), गाँठ_UOr_Struct_DType)) {
+                अगर (!subp->packed())
                     addUOrStructMemberVars(stmts, svd, scopep, prettyName, cName, subp);
-            } else if (VN_IS(itemDTypep->skipRefp(), UnpackArrayDType)) {
+            } अन्यथा अगर (VN_IS(itemDTypep->skipRefp(), UnpackArrayDType)) {
                 addUnpackedArrayUOrStructMemberVars(stmts, svd, scopep, prettyName, cName,
                                                     itemDTypep);
             }
         }
     }
 
-    static void addUnpackedArrayUOrStructMemberVars(std::vector<std::string>& stmts,
-                                                    const ScopeVarData& svd,
-                                                    const AstScope* const scopep,
-                                                    const std::string& prettyPrefix,
-                                                    const std::string& cPrefix,
-                                                    const AstNodeDType* const dtypep) {
-        const AstNodeDType* const skipDTypep = dtypep->skipRefp();
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(skipDTypep, UnpackArrayDType)) {
+    अटल व्योम addUnpackedArrayUOrStructMemberVars(std::vector<std::string>& stmts,
+                                                    स्थिर Scope_Var_तथ्य& svd,
+                                                    स्थिर AstScope* स्थिर scopep,
+                                                    स्थिर std::string& prettyPrefix,
+                                                    स्थिर std::string& cPrefix,
+                                                    स्थिर Ast_गाँठ_DType* स्थिर dtypep) {
+        स्थिर Ast_गाँठ_DType* स्थिर skipDTypep = dtypep->skipRefp();
+        अगर (स्थिर AstUnpackArrayDType* स्थिर adtypep = VN_CAST(skipDTypep, UnpackArrayDType)) {
             addUnpackedArrayUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix + "[0]",
                                                 adtypep->subDTypep());
-        } else if (const AstNodeUOrStructDType* const sdtypep
-                   = VN_CAST(skipDTypep, NodeUOrStructDType)) {
-            if (!sdtypep->packed())
+        } अन्यथा अगर (स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर sdtypep
+                   = VN_CAST(skipDTypep, गाँठ_UOr_Struct_DType)) {
+            अगर (!sdtypep->packed())
                 addUOrStructMemberVars(stmts, svd, scopep, prettyPrefix, cPrefix, sdtypep);
         }
     }
@@ -492,127 +492,127 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     // slice of the parent's storage 'cName', with the parent's storage type and entSize, and its
     // bit offset within the parent's element 0. VPI adds any packed/unpacked index offset.
     // 'needsIndex' if an ancestor is an array, so the members are only valid after an index.
-    static void addPackedMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                    const AstScope* const scopep, const std::string& prettyPrefix,
-                                    const std::string& cName, const std::string& vlEnumType,
-                                    const std::string& entSize,
-                                    const AstNodeUOrStructDType* const sdtypep,
-                                    const int parentBitOffset, const bool needsIndex) {
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    अटल व्योम addPackedMemberVars(std::vector<std::string>& stmts, स्थिर Scope_Var_तथ्य& svd,
+                                    स्थिर AstScope* स्थिर scopep, स्थिर std::string& prettyPrefix,
+                                    स्थिर std::string& cName, स्थिर std::string& vlEnumType,
+                                    स्थिर std::string& ent_आकार,
+                                    स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर sdtypep,
+                                    स्थिर पूर्णांक parentBitOffset, स्थिर bool needs_सूचकांक) {
+        स्थिर std::string var_व्यंजक = "vlSymsp->" + instName(scopep) + "." + cName;
+        क्रम (स्थिर AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            const AstNodeDType* const itemDTypep = itemp->dtypep();
-            const std::string prettyName
-                = prettyPrefix + "." + AstNode::vpiName(itemp->shortName());
+            स्थिर Ast_गाँठ_DType* स्थिर itemDTypep = itemp->dtypep();
+            स्थिर std::string prettyName
+                = prettyPrefix + "." + Ast_गाँठ::vpiName(itemp->shortName());
             // Union members all have lsb 0, so share the parent's offset
-            const int bitOffset = parentBitOffset + itemp->lsb();
-            const VarDims dims = getVarDims(itemDTypep);
+            स्थिर पूर्णांक bitOffset = parentBitOffset + itemp->lsb();
+            स्थिर VarDims dims = getVarDims(itemDTypep);
             UASSERT_OBJ(dims.udim == 0, itemp, "Unpacked dimension in packed struct/union");
             std::string stmt;
             stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName);
             stmt += "->varInsertMember(\"";
             stmt += V3OutFormatter::quoteNameControls(prettyName) + '"';
             // A parameter is emitted 'static const', see insertDTypeVarStatement
-            if (svd.m_varp->isParam()) {
+            अगर (svd.m_varp->isParam()) {
                 stmt
-                    += ", const_cast<void*>(static_cast<const void*>(&(" + varExpr + "))), true, ";
-            } else {
-                stmt += ", &(" + varExpr + "), false, ";
+                    += ", const_cast<void*>(static_cast<const void*>(&(" + var_व्यंजक + "))), true, ";
+            } अन्यथा {
+                stmt += ", &(" + var_व्यंजक + "), false, ";
             }
             stmt += vlEnumType + ", ";
             stmt += memberVlEnumDir(svd.m_varp, itemDTypep);
-            if (needsIndex) stmt += "|VLVF_PACKED_NEEDS_INDEX";
+            अगर (needs_सूचकांक) stmt += "|VLVF_PACKED_NEEDS_INDEX";
             stmt += ", ";
             stmt += std::to_string(bitOffset) + ", ";
-            stmt += entSize + ", ";
+            stmt += ent_आकार + ", ";
             stmt += std::to_string(dims.pdim);
             stmt += boundsString(dims);
             stmt += ");";
             stmts.emplace_back(stmt);
             // Nested packed struct/union, or packed array of them: register the members of
             // the element at index offset 0
-            const AstNodeDType* subDTypep = itemDTypep->skipRefp();
+            स्थिर Ast_गाँठ_DType* subDTypep = itemDTypep->skipRefp();
             bool isArray = false;
-            while (const AstPackArrayDType* const adtypep = VN_CAST(subDTypep, PackArrayDType)) {
+            जबतक (स्थिर AstPackArrayDType* स्थिर adtypep = VN_CAST(subDTypep, PackArrayDType)) {
                 subDTypep = adtypep->subDTypep()->skipRefp();
                 isArray = true;
             }
-            if (const AstNodeUOrStructDType* const subp = VN_CAST(subDTypep, NodeUOrStructDType)) {
-                addPackedMemberVars(stmts, svd, scopep, prettyName, cName, vlEnumType, entSize,
-                                    subp, bitOffset, needsIndex || isArray);
+            अगर (स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर subp = VN_CAST(subDTypep, गाँठ_UOr_Struct_DType)) {
+                addPackedMemberVars(stmts, svd, scopep, prettyName, cName, vlEnumType, ent_आकार,
+                                    subp, bitOffset, needs_सूचकांक || isArray);
             }
         }
     }
 
     // If 'dtypep' (the type of storage 'cName') has packed struct/union elements, register the
     // members of its element 0
-    static void addPackedAggMemberVars(std::vector<std::string>& stmts, const ScopeVarData& svd,
-                                       const AstScope* const scopep,
-                                       const std::string& prettyPrefix, const std::string& cName,
-                                       const AstNodeDType* const dtypep) {
+    अटल व्योम addPackedAggMemberVars(std::vector<std::string>& stmts, स्थिर Scope_Var_तथ्य& svd,
+                                       स्थिर AstScope* स्थिर scopep,
+                                       स्थिर std::string& prettyPrefix, स्थिर std::string& cName,
+                                       स्थिर Ast_गाँठ_DType* स्थिर dtypep) {
         std::string elemCName = cName;
-        const AstNodeDType* elemDTypep = dtypep->skipRefp();
+        स्थिर Ast_गाँठ_DType* elemDTypep = dtypep->skipRefp();
         bool isArray = false;
-        while (const AstNodeArrayDType* const adtypep = VN_CAST(elemDTypep, NodeArrayDType)) {
-            if (VN_IS(adtypep, UnpackArrayDType)) elemCName += "[0]";
+        जबतक (स्थिर Ast_गाँठ_Array_DType* स्थिर adtypep = VN_CAST(elemDTypep, गाँठ_Array_DType)) {
+            अगर (VN_IS(adtypep, UnpackArrayDType)) elemCName += "[0]";
             elemDTypep = adtypep->subDTypep()->skipRefp();
             isArray = true;
         }
-        const AstNodeUOrStructDType* const sdtypep = VN_CAST(elemDTypep, NodeUOrStructDType);
-        if (!sdtypep || !sdtypep->packed()) return;
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + cName;
-        const std::string entSize
-            = "sizeof(" + varExpr + ") / " + std::to_string(getUnpackedElements(dtypep));
+        स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर sdtypep = VN_CAST(elemDTypep, गाँठ_UOr_Struct_DType);
+        अगर (!sdtypep || !sdtypep->packed()) वापस;
+        स्थिर std::string var_व्यंजक = "vlSymsp->" + instName(scopep) + "." + cName;
+        स्थिर std::string ent_आकार
+            = "sizeof(" + var_व्यंजक + ") / " + std::to_string(getUnpackedElements(dtypep));
         addPackedMemberVars(stmts, svd, scopep, prettyPrefix, elemCName, dtypep->vlEnumType(),
-                            entSize, sdtypep, 0, isArray);
+                            ent_आकार, sdtypep, 0, isArray);
     }
 
-    std::string insertForceableVarStatement(const ScopeVarData& svd, const AstScope* const scopep,
-                                            const AstVar* const varp, const int udim,
-                                            const int pdim, const std::string& bounds) {
+    std::string जोड़ो_Forceable_Var_Statement(स्थिर Scope_Var_तथ्य& svd, स्थिर AstScope* स्थिर scopep,
+                                            स्थिर AstVar* स्थिर varp, स्थिर पूर्णांक udim,
+                                            स्थिर पूर्णांक pdim, स्थिर std::string& bounds) {
         std::string stmt;
 
         stmt += "vlSymsp->" + protect("__Vscopep_" + svd.m_scopeName) + "->forceableVarInsert(\"";
         stmt += V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty)) + '"';
 
-        const std::string varExpr = "vlSymsp->" + instName(scopep) + "." + varName(varp);
+        स्थिर std::string var_व्यंजक = "vlSymsp->" + instName(scopep) + "." + varName(varp);
 
-        assert(!varp->isParam());  // Forceable params do not make sense
+        निश्चित(!varp->isParam());  // Forceable params do not make sense
         stmt += ", &(";
-        stmt += varExpr;
+        stmt += var_व्यंजक;
         stmt += "), false, ";
 
         stmt += varp->vlEnumType();  // VLVT_UINT32 etc
         stmt += ", ";
         stmt += varp->vlEnumDir();  // VLVD_IN etc
         stmt += ", &(";
-        stmt += varExpr + "__VforceRd";
+        stmt += var_व्यंजक + "__VforceRd";
         stmt += "), \"" + V3OutFormatter::quoteNameControls(protect(svd.m_varBasePretty))
                 + "__VforceRd" + '"';
         stmt += ", {";
 
-        for (const std::string forceControlSuffix : {"__VforceEn", "__VforceVal"}) {
-            const std::string enableSignalKey
-                = getKeyName(scopep, varp->name() + forceControlSuffix);
-            const std::map<const std::string, ScopeVarData>::const_iterator itpair
-                = m_scopeVars.find(enableSignalKey);
+        क्रम (स्थिर std::string forceControlSuffix : {"__VforceEn", "__VforceVal"}) {
+            स्थिर std::string enable_Signal_कुंजी
+                = get_कुंजी_Name(scopep, varp->name() + forceControlSuffix);
+            स्थिर std::map<स्थिर std::string, Scope_Var_तथ्य>::const_iterator itpair
+                = m_scopeVars.find(enable_Signal_कुंजी);
 
-            if (itpair == m_scopeVars.end()) {
+            अगर (itpair == m_scopeVars.end()) {
                 varp->v3fatalSrc("Signal "
                                  << varp->prettyNameQ()
                                  << " is marked forceable, but the force control signal '"
                                  << varp->name() << forceControlSuffix
                                  << "' can not be found in m_scopeVars with key '"
-                                 << enableSignalKey << "'.");
+                                 << enable_Signal_कुंजी << "'.");
             }
 
-            const ScopeVarData& svd = itpair->second;
-            const AstScope* const scopep = svd.m_scopep;
-            const AstVar* const varp = svd.m_varp;
-            const VarDims dims = dimsFor(svd);
+            स्थिर Scope_Var_तथ्य& svd = itpair->second;
+            स्थिर AstScope* स्थिर scopep = svd.m_scopep;
+            स्थिर AstVar* स्थिर varp = svd.m_varp;
+            स्थिर VarDims dims = dimsFor(svd);
             stmt
-                += insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, boundsString(dims));
-            if (forceControlSuffix == "__VforceEn") stmt += ",";
+                += जोड़ो_Var_Statement(svd, scopep, varp, dims.udim, dims.pdim, boundsString(dims));
+            अगर (forceControlSuffix == "__VforceEn") stmt += ",";
         }
 
         stmt += "}";
@@ -622,147 +622,147 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         stmt += std::to_string(pdim);
         stmt += bounds;
         stmt += ")";
-        return stmt;
+        वापस stmt;
     }
 
-    static std::string getKeyName(const AstScope* const scopep, const std::string& signal_name) {
+    अटल std::string get_कुंजी_Name(स्थिर AstScope* स्थिर scopep, स्थिर std::string& signal_name) {
         // Copies the process from `addScopeVarEntry` which created the keys in the first place, in
         // order
         // signal can be found.
         std::string whole = scopep->name() + "__DOT__" + signal_name;
         std::string scpName;
-        if (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
-        const std::string::size_type dpos = whole.rfind("__DOT__");
-        if (dpos != std::string::npos) { scpName = whole.substr(0, dpos); }
-        const std::string scpSym = scopeSymString(VName::dehash(scpName));
-        return scpSym + " " + signal_name;
+        अगर (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
+        स्थिर std::string::आकार_type dpos = whole.rfind("__DOT__");
+        अगर (dpos != std::string::npos) { scpName = whole.substr(0, dpos); }
+        स्थिर std::string scpSym = scopeSymString(VName::dehash(scpName));
+        वापस scpSym + " " + signal_name;
     }
 
-    bool baseSignalIsValid(const AstScope* const scopep, const AstVar* const controlSignalVarp,
-                           const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
-        const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
-            = m_scopeVars.find(baseSignalKey);
-        if (baseSignalIt == m_scopeVars.end()) {
+    bool baseSignalIsValid(स्थिर AstScope* स्थिर scopep, स्थिर AstVar* स्थिर controlSignalVarp,
+                           स्थिर std::string& baseSignalName) स्थिर {
+        स्थिर std::string base_Signal_कुंजी = get_कुंजी_Name(scopep, baseSignalName);
+        स्थिर std::map<स्थिर std::string, Scope_Var_तथ्य>::const_iterator baseSignalIt
+            = m_scopeVars.find(base_Signal_कुंजी);
+        अगर (baseSignalIt == m_scopeVars.end()) {
             // This means that the signal is forceable, but not public, so only the force control
             // signals show up in the m_scopeVars, but not the base signal itself.
             // Expect this branch not to be hit, because `baseSignalIsPublic` is checked before
             // this, so this function will not get called in that case.
-            return false;
-        } else {
-            const AstVar* const baseSignalVarp = baseSignalIt->second.m_varp;
-            if (m_scopeVars.count(baseSignalName) > 1) {
+            वापस false;
+        } अन्यथा {
+            स्थिर AstVar* स्थिर baseSignalVarp = baseSignalIt->second.m_varp;
+            अगर (m_scopeVars.गिनती(baseSignalName) > 1) {
                 baseSignalVarp->v3fatalSrc(
                     "Found Signal " << baseSignalName
                                     << ", but also found at least one other signal with name"
                                     << baseSignalName << " occurring in the same scope.");
-                return false;
+                वापस false;
             }
-            if (!baseSignalVarp->isForceable()) {
+            अगर (!baseSignalVarp->isForceable()) {
                 controlSignalVarp->v3fatalSrc(
                     "Found signal " << controlSignalVarp->prettyNameQ()
                                     << " which is a force control signal, but the base signal "
                                     << baseSignalVarp->prettyNameQ()
                                     << " is not marked as forceable.");
-                return false;
+                वापस false;
             }
         }
-        return true;
+        वापस true;
     }
 
-    bool baseSignalIsPublic(const AstScope* const scopep,
-                            const std::string& baseSignalName) const {
-        const std::string baseSignalKey = getKeyName(scopep, baseSignalName);
-        const std::map<const std::string, ScopeVarData>::const_iterator baseSignalIt
-            = m_scopeVars.find(baseSignalKey);
-        if (baseSignalIt == m_scopeVars.end()) {
-            return false;
-        } else {
-            const AstVar* const baseSignalVarp = baseSignalIt->second.m_varp;
+    bool baseSignalIsPublic(स्थिर AstScope* स्थिर scopep,
+                            स्थिर std::string& baseSignalName) स्थिर {
+        स्थिर std::string base_Signal_कुंजी = get_कुंजी_Name(scopep, baseSignalName);
+        स्थिर std::map<स्थिर std::string, Scope_Var_तथ्य>::const_iterator baseSignalIt
+            = m_scopeVars.find(base_Signal_कुंजी);
+        अगर (baseSignalIt == m_scopeVars.end()) {
+            वापस false;
+        } अन्यथा {
+            स्थिर AstVar* स्थिर baseSignalVarp = baseSignalIt->second.m_varp;
             // Should not actually occur if the variable is in the m_scopeVars
-            if (!baseSignalVarp->isSigPublic()) return false;
+            अगर (!baseSignalVarp->isSigPublic()) वापस false;
         }
-        return true;
+        वापस true;
     }
 
-    bool forceControlSignalsAreValid(const AstScope* const scopep,
-                                     const AstVar* const baseSignalVarp) const {
-        constexpr std::array<const char*, 2> forceControlSuffixes = {"__VforceEn", "__VforceVal"};
-        return std::all_of(
+    bool forceControlSignalsAreValid(स्थिर AstScope* स्थिर scopep,
+                                     स्थिर AstVar* स्थिर baseSignalVarp) स्थिर {
+        constexpr std::array<स्थिर अक्षर*, 2> forceControlSuffixes = {"__VforceEn", "__VforceVal"};
+        वापस std::all_of(
             forceControlSuffixes.begin(), forceControlSuffixes.end(),
-            [scopep, baseSignalVarp, this](const std::string& forceControlSuffix) {
-                const std::string controlSignalName = baseSignalVarp->name() + forceControlSuffix;
-                const std::string controlSignalKey = getKeyName(scopep, controlSignalName);
-                const std::size_t controlSignalCount = m_scopeVars.count(controlSignalKey);
-                if (controlSignalCount == 0) {
+            [scopep, baseSignalVarp, यह](स्थिर std::string& forceControlSuffix) {
+                स्थिर std::string controlSignalName = baseSignalVarp->name() + forceControlSuffix;
+                स्थिर std::string control_Signal_कुंजी = get_कुंजी_Name(scopep, controlSignalName);
+                स्थिर std::माप_प्रकार control_Signal_गिनती = m_scopeVars.गिनती(control_Signal_कुंजी);
+                अगर (control_Signal_गिनती == 0) {
                     baseSignalVarp->v3fatalSrc("Signal "
                                                << baseSignalVarp->prettyNameQ()
                                                << " is marked forceable, but the control signal '"
                                                << controlSignalName
                                                << "' can not be found in m_scopeVars with key '"
-                                               << controlSignalKey << "'.");
-                    return false;
+                                               << control_Signal_कुंजी << "'.");
+                    वापस false;
                 }
-                if (controlSignalCount > 1) {
+                अगर (control_Signal_गिनती > 1) {
                     baseSignalVarp->v3fatalSrc("The control signal '"
                                                << controlSignalName << "' for forceable signal "
                                                << baseSignalVarp->prettyNameQ()
                                                << " occurs several times within the same scope.");
-                    return false;
+                    वापस false;
                 }
-                return true;
+                वापस true;
             });
     }
 
     /// (scp, m_vpiScopeCandidates, m_scopeNames) -> m_scopeNames
     /// Look for parent scopes of scp in m_vpiScopeCandidates (separated by __DOT__ or ".")
     /// Then add/update entry in m_scopeNames if not already there
-    void varHierarchyScopes(std::string scp) {
+    व्योम varHierarchyScopes(std::string scp) {
 
-        std::string::size_type prd_pos = scp.rfind('.');
-        std::string::size_type dot_pos = scp.rfind("__DOT__");
+        std::string::आकार_type prd_pos = scp.rfind('.');
+        std::string::आकार_type dot_pos = scp.rfind("__DOT__");
 
-        while (!scp.empty()) {
-            const auto scpit = m_vpiScopeCandidates.find(scopeSymString(scp));
-            if ((scpit != m_vpiScopeCandidates.end())
+        जबतक (!scp.empty()) {
+            स्थिर स्वतः scpit = m_vpiScopeCandidates.find(scopeSymString(scp));
+            अगर ((scpit != m_vpiScopeCandidates.end())
                 && (m_scopeNames.find(scp) == m_scopeNames.end())) {
                 // If not in m_scopeNames, add it, otherwise just update m_type
-                const auto pair = m_scopeNames.emplace(scpit->second.m_symName, scpit->second);
-                if (!pair.second) pair.first->second.m_type = scpit->second.m_type;
+                स्थिर स्वतः pair = m_scopeNames.emplace(scpit->second.m_symName, scpit->second);
+                अगर (!pair.second) pair.first->second.m_type = scpit->second.m_type;
             }
 
             // resize and advance pointers
-            if ((prd_pos < dot_pos || prd_pos == string::npos) && dot_pos != string::npos) {
+            अगर ((prd_pos < dot_pos || prd_pos == string::npos) && dot_pos != string::npos) {
                 scp.resize(dot_pos);
                 dot_pos = scp.rfind("__DOT__");
-            } else {
-                if (prd_pos == string::npos) break;
+            } अन्यथा {
+                अगर (prd_pos == string::npos) अवरोध;
                 scp.resize(prd_pos);
                 prd_pos = scp.rfind('.');
             }
         }
     }
 
-    void addScopeVarEntry(const AstScope* const scopep, const AstNodeModule* const modp,
-                          const AstVar* const varp) {
+    व्योम addScopeVarEntry(स्थिर AstScope* स्थिर scopep, स्थिर Ast_गाँठ_Module* स्थिर modp,
+                          स्थिर AstVar* स्थिर varp) {
         // Need to split the module + var name into the original-ish full scope
         // and variable name under that scope. The module instance name is
         // included later, when we know the scopes this module is under.
         std::string whole = scopep->name() + "__DOT__" + varp->name();
-        if (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
-        const std::string::size_type dpos = whole.rfind("__DOT__");
+        अगर (VString::startsWith(whole, "__DOT__TOP")) whole.replace(0, 10, "");
+        स्थिर std::string::आकार_type dpos = whole.rfind("__DOT__");
         UASSERT_OBJ(dpos != std::string::npos, varp,
                     "Scope/variable name lost its appended __DOT__ separator");
-        const std::string scpName = whole.substr(0, dpos);
-        const std::string varBase = whole.substr(dpos + std::strlen("__DOT__"));
+        स्थिर std::string scpName = whole.substr(0, dpos);
+        स्थिर std::string varBase = whole.substr(dpos + std::म_माप("__DOT__"));
         // UINFO(9, "For " << scopep->name() << " - " << varp->name() << "  Scp "
         // << scpName << "Var " << varBase);
-        const std::string varBasePretty = AstNode::vpiName(VName::dehash(varBase));
-        const std::string scpPretty = AstNode::prettyName(VName::dehash(scpName));
-        const std::string scpSym = scopeSymString(VName::dehash(scpName));
+        स्थिर std::string varBasePretty = Ast_गाँठ::vpiName(VName::dehash(varBase));
+        स्थिर std::string scpPretty = Ast_गाँठ::prettyName(VName::dehash(scpName));
+        स्थिर std::string scpSym = scopeSymString(VName::dehash(scpName));
         // UINFO(9, " scnameins sp " << scpName << " sp " << scpPretty << " ss "
         // << scpSym);
-        if (v3Global.opt.vpi()) varHierarchyScopes(scpName);
+        अगर (v3Global.opt.vpi()) varHierarchyScopes(scpName);
 
         m_scopeNames.emplace(  //
             std::piecewise_construct,  //
@@ -775,97 +775,97 @@ class EmitCSyms final : EmitCBaseVisitorConst {
             std::forward_as_tuple(scpSym, varBasePretty, varp, modp, scopep));
     }
 
-    void varsExpand() {
+    व्योम varsExpand() {
         // We didn't have all m_scopes loaded when we encountered variables, so expand them now
         // It would be less code if each module inserted its own variables.
         // Someday.
-        for (const ScopeModPair& smPair : m_scopes) {
-            const AstScope* const scopep = smPair.first;
-            const AstNodeModule* const smodp = smPair.second;
-            for (const ModVarPair& mvPair : m_modVars) {
-                const AstNodeModule* const modp = mvPair.first;
-                const AstVar* const varp = mvPair.second;
-                if (modp != smodp) continue;
+        क्रम (स्थिर ScopeModPair& smPair : m_scopes) {
+            स्थिर AstScope* स्थिर scopep = smPair.first;
+            स्थिर Ast_गाँठ_Module* स्थिर smodp = smPair.second;
+            क्रम (स्थिर ModVarPair& mvPair : m_modVars) {
+                स्थिर Ast_गाँठ_Module* स्थिर modp = mvPair.first;
+                स्थिर AstVar* स्थिर varp = mvPair.second;
+                अगर (modp != smodp) जारी;
                 addScopeVarEntry(scopep, modp, varp);
             }
         }
     }
 
-    void collectIfaceRefs(const AstScope* nodep) {
-        const AstCell* const cellp = nodep->aboveCellp();
+    व्योम collectIfaceRefs(स्थिर AstScope* nodep) {
+        स्थिर AstCell* स्थिर cellp = nodep->aboveCellp();
         // Exclude classes inside interfaces; the cell's modp is the interface, not the Class
-        if (!cellp || !VN_IS(cellp->modp(), Iface) || !VN_IS(nodep->modp(), Iface)) return;
+        अगर (!cellp || !VN_IS(cellp->modp(), Iface) || !VN_IS(nodep->modp(), Iface)) वापस;
 
         // vpiName() to match the scope table these are looked up alongside. Inlining
         // flattens the hierarchy but leaves the inlined levels in the scope name, which
         // therefore carries the full enclosing path.
-        const std::string path = AstNode::vpiName(nodep->name());
-        const std::string instName = AstNode::vpiName(cellp->origName());
-        UASSERT_OBJ(path.length() > instName.length() && VString::endsWith(path, instName), nodep,
+        स्थिर std::string path = Ast_गाँठ::vpiName(nodep->name());
+        स्थिर std::string instName = Ast_गाँठ::vpiName(cellp->origName());
+        UASSERT_OBJ(path.लंबाई() > instName.लंबाई() && VString::endsWith(path, instName), nodep,
                     "Interface scope name " << path << " does not end with instance name "
                                             << instName);
-        const std::string parentPath = path.substr(0, path.length() - instName.length());
+        स्थिर std::string parentPath = path.substr(0, path.लंबाई() - instName.लंबाई());
 
-        for (AstIntfRef* intfRefp = cellp->intfRefsp(); intfRefp;
+        क्रम (AstIntfRef* intfRefp = cellp->intfRefsp(); intfRefp;
              intfRefp = VN_AS(intfRefp->nextp(), IntfRef)) {
-            const std::string refName = AstNode::vpiName(intfRefp->name());
+            स्थिर std::string refName = Ast_गाँठ::vpiName(intfRefp->name());
             // Assume only references under the same parent scope reference the
             // same interface. Same limitation as the trace path in V3TraceDecl.
-            if (!VString::startsWith(refName, parentPath)) continue;
+            अगर (!VString::startsWith(refName, parentPath)) जारी;
             m_ifaceRefs.emplace_back(nodep, scopeSymString(intfRefp->parentName()), refName,
-                                     AstNode::vpiName(intfRefp->baseName()),
+                                     Ast_गाँठ::vpiName(intfRefp->baseName()),
                                      intfRefp->modportName());
         }
     }
 
-    void buildIfaceRefTable() {
-        if (m_ifaceRefs.empty()) return;
-        const std::string symClass = symClassName();
+    व्योम buildIfaceRefTable() {
+        अगर (m_ifaceRefs.empty()) वापस;
+        स्थिर std::string symClass = symClassName();
         // Sorted by path, as VPI iteration yields references in table order
         std::stable_sort(
             m_ifaceRefs.begin(), m_ifaceRefs.end(),
-            [](const IfaceRefData& a, const IfaceRefData& b) { return a.m_suffix < b.m_suffix; });
-        for (const IfaceRefData& ird : m_ifaceRefs) {
-            const std::string scopeSym = scopeSymString(ird.m_scopep->name());
+            [](स्थिर Iface_Ref_तथ्य& a, स्थिर Iface_Ref_तथ्य& b) { वापस a.m_suffix < b.m_suffix; });
+        क्रम (स्थिर Iface_Ref_तथ्य& ird : m_ifaceRefs) {
+            स्थिर std::string scopeSym = scopeSymString(ird.m_scopep->name());
             // Only reference scopes that actually made it into the scope table
-            if (m_scopeNames.find(scopeSym) == m_scopeNames.end()) continue;
+            अगर (m_scopeNames.find(scopeSym) == m_scopeNames.end()) जारी;
             // The declaring scope may have been omitted from the public scope table.
             // Keep such references reachable by name, without attaching them to a scope.
             std::string parentOffset = "VL_IFACEREF_NO_PARENT";
-            const auto parent = m_scopeNames.find(ird.m_parentSym);
-            if (parent != m_scopeNames.end()) {
+            स्थिर स्वतः parent = m_scopeNames.find(ird.m_parentSym);
+            अगर (parent != m_scopeNames.end()) {
                 parentOffset = "offsetof(" + symClass + ", "
                                + protect("__Vscopep_" + parent->second.m_symName) + ")";
             }
             std::string row
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + scopeSym) + "), ";
             row += parentOffset + ", \"";
-            row += V3OutFormatter::quoteNameControls(VIdProtect::protectWordsIf(ird.m_name, true));
+            row += V3OutFormatter::quoteNameControls(VIdProtect::protect_शब्दगण_If(ird.m_name, true));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_suffix, true));
+                VIdProtect::protect_शब्दगण_If(ird.m_suffix, true));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(ird.m_modportName, true));
+                VIdProtect::protect_शब्दगण_If(ird.m_modportName, true));
             row += "\"}";
             m_ifaceRefTableRows.emplace_back(std::move(row));
         }
-        if (!m_ifaceRefTableRows.empty()) m_ifaceRefTableName = symClass + "__VpiIfaceRefTable";
+        अगर (!m_ifaceRefTableRows.empty()) m_ifaceRefTableName = symClass + "__VpiIfaceRefTable";
     }
 
-    void buildVpiHierarchy() {
-        for (const auto& itpair : m_scopeNames) {
-            const std::string symName = itpair.second.m_symName;
+    व्योम buildVpiHierarchy() {
+        क्रम (स्थिर स्वतः& itpair : m_scopeNames) {
+            स्थिर std::string symName = itpair.second.m_symName;
             std::string above = symName;
-            if (VString::startsWith(above, "TOP.")) above.replace(0, 4, "");
+            अगर (VString::startsWith(above, "TOP.")) above.replace(0, 4, "");
 
-            while (!above.empty()) {
-                const std::string::size_type pos = above.rfind("__");
-                if (pos == std::string::npos) break;
+            जबतक (!above.empty()) {
+                स्थिर std::string::आकार_type pos = above.rfind("__");
+                अगर (pos == std::string::npos) अवरोध;
                 above.resize(pos);
-                if (m_vpiScopeHierarchy.find(above) != m_vpiScopeHierarchy.end()) {
-                    m_vpiScopeHierarchy[above].push_back(symName);
-                    break;
+                अगर (m_vpiScopeHierarchy.find(above) != m_vpiScopeHierarchy.end()) {
+                    m_vpiScopeHierarchy[above].धकेलो_back(symName);
+                    अवरोध;
                 }
             }
             m_vpiScopeHierarchy[symName] = std::vector<string>();
@@ -873,44 +873,44 @@ class EmitCSyms final : EmitCBaseVisitorConst {
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    व्योम visit(AstNetlist* nodep) override {
         // Collect list of scopes
         iterateChildrenConst(nodep);
         varsExpand();
 
-        if (v3Global.opt.vpi()) buildVpiHierarchy();
+        अगर (v3Global.opt.vpi()) buildVpiHierarchy();
 
-        if (v3Global.dpi()) {
+        अगर (v3Global.dpi()) {
             // add dpi scopes to m_scopeNames if not already there
-            for (const auto& scp : m_dpiScopeNames) m_scopeNames.emplace(scp.first, scp.second);
+            क्रम (स्थिर स्वतः& scp : m_dpiScopeNames) m_scopeNames.emplace(scp.first, scp.second);
         }
 
         // Sort by names, so line/process order matters less
         std::stable_sort(m_scopes.begin(), m_scopes.end(),
-                         [](const ScopeModPair& a, const ScopeModPair& b) {
-                             return a.first->name() < b.first->name();
+                         [](स्थिर ScopeModPair& a, स्थिर ScopeModPair& b) {
+                             वापस a.first->name() < b.first->name();
                          });
         std::stable_sort(m_dpis.begin(), m_dpis.end(),  //
-                         [](const AstCFunc* ap, const AstCFunc* bp) {
-                             if (ap->dpiImportPrototype() != bp->dpiImportPrototype()) {
-                                 return bp->dpiImportPrototype();
+                         [](स्थिर AstCFunc* ap, स्थिर AstCFunc* bp) {
+                             अगर (ap->dpiImportPrototype() != bp->dpiImportPrototype()) {
+                                 वापस bp->dpiImportPrototype();
                              }
-                             return ap->name() < bp->name();
+                             वापस ap->name() < bp->name();
                          });
 
         // Output
-        if (!m_dpiHdrOnly) {
+        अगर (!m_dpiHdrOnly) {
             // Must emit implementation first to determine number of splits
             emitSymImp(nodep);
             emitSymHdr();
         }
-        if (v3Global.dpi()) {
+        अगर (v3Global.dpi()) {
             emitDpiHdr();
-            if (!m_dpiHdrOnly) emitDpiImp();
+            अगर (!m_dpiHdrOnly) emitDpiImp();
         }
     }
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->isConstPool()) return;  // Special emit rules
+    व्योम visit(Ast_गाँठ_Module* nodep) override {
+        अगर (nodep->isConstPool()) वापस;  // Special emit rules
         nameCheck(nodep);
         VL_RESTORER(m_modp);
         VL_RESTORER(m_modCoverBins);
@@ -920,34 +920,34 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_modCoverBins = 0;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCellInlineScope* nodep) override {
-        const std::string type = (nodep->origModName() == "__BEGIN__") ? "SCOPE_OTHER"  //
+    व्योम visit(AstCellInlineScope* nodep) override {
+        स्थिर std::string type = (nodep->origModName() == "__BEGIN__") ? "SCOPE_OTHER"  //
                                                                        : "SCOPE_MODULE";
-        const std::string name = m_scopep->shortName() + "__DOT__" + nodep->name();
-        const int timeunit = m_modp->timeunit().powerOfTen();
+        स्थिर std::string name = m_scopep->shortName() + "__DOT__" + nodep->name();
+        स्थिर पूर्णांक timeunit = m_modp->timeunit().powerOfTen();
         m_vpiScopeCandidates.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(scopeSymString(name)),  //
-            std::forward_as_tuple(nodep, scopeSymString(name), AstNode::vpiName(name),
+            std::forward_as_tuple(nodep, scopeSymString(name), Ast_गाँठ::vpiName(name),
                                   type == "SCOPE_MODULE" ? nodep->origModName() : "<null>",
                                   timeunit, type));
     }
-    void visit(AstScope* nodep) override {
-        if (VN_IS(m_modp, Class)) return;  // The ClassPackage is what is visible
+    व्योम visit(AstScope* nodep) override {
+        अगर (VN_IS(m_modp, Class)) वापस;  // The ClassPackage is what is visible
         nameCheck(nodep);
 
         m_scopes.emplace_back(nodep, m_modp);
 
-        if (v3Global.opt.vpi() && !nodep->isTop()) {
-            const std::string type = VN_IS(nodep->modp(), Package) ? "SCOPE_PACKAGE"  //
+        अगर (v3Global.opt.vpi() && !nodep->is_शीर्ष()) {
+            स्थिर std::string type = VN_IS(nodep->modp(), Package) ? "SCOPE_PACKAGE"  //
                                      : VN_IS(nodep->modp(), Iface) ? "SCOPE_INTERFACE"  //
                                                                    : "SCOPE_MODULE";
-            const int timeunit = m_modp->timeunit().powerOfTen();
+            स्थिर पूर्णांक timeunit = m_modp->timeunit().powerOfTen();
             m_vpiScopeCandidates.emplace(  //
                 std::piecewise_construct,  //
                 std::forward_as_tuple(scopeSymString(nodep->name())),  //
                 std::forward_as_tuple(nodep, scopeSymString(nodep->name()),
-                                      AstNode::vpiName(nodep->shortName()),
+                                      Ast_गाँठ::vpiName(nodep->shortName()),
                                       nodep->modp()->origName(), timeunit, type));
             collectIfaceRefs(nodep);
         }
@@ -955,25 +955,25 @@ class EmitCSyms final : EmitCBaseVisitorConst {
         m_scopep = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstScopeName* nodep) override {
-        if (nodep->selfRelative()) return;  // Its absolute copy is under the scope
-        const std::string name = nodep->scopeSymName();
+    व्योम visit(AstScopeName* nodep) override {
+        अगर (nodep->selfRelative()) वापस;  // Its absolute copy is under the scope
+        स्थिर std::string name = nodep->scopeSymName();
         // UINFO(9, "scnameins sp " << nodep->name() << " sp " << nodep->scopePrettySymName()
         // << " ss" << name);
-        const int timeunit = m_modp ? m_modp->timeunit().powerOfTen() : 0;
+        स्थिर पूर्णांक timeunit = m_modp ? m_modp->timeunit().powerOfTen() : 0;
         m_dpiScopeNames.emplace(  //
             std::piecewise_construct,  //
             std::forward_as_tuple(name),  //
             std::forward_as_tuple(nodep, name, nodep->scopePrettySymName(), "<null>", timeunit,
                                   "SCOPE_OTHER"));
 
-        if (nodep->dpiExport()) {
+        अगर (nodep->dpiExport()) {
             UASSERT_OBJ(m_cfuncp, nodep, "ScopeName not under DPI function");
             m_scopeFuncs.emplace(  //
                 std::piecewise_construct,  //
                 std::forward_as_tuple(name + " " + m_cfuncp->name()),  //
                 std::forward_as_tuple(nodep, m_cfuncp, m_modp));
-        } else {
+        } अन्यथा {
             // Note emplace does not construct when duplicate key
             m_dpiScopeNames.emplace(  //
                 std::piecewise_construct,  //
@@ -982,339 +982,339 @@ class EmitCSyms final : EmitCBaseVisitorConst {
                                       "<null>", timeunit, "SCOPE_OTHER"));
         }
     }
-    void visit(AstVar* nodep) override {
+    व्योम visit(AstVar* nodep) override {
         nameCheck(nodep);
         iterateChildrenConst(nodep);
         // Record if public, ignoring locals and types VPI cannot represent
-        if ((nodep->isSigUserRdPublic() || nodep->isSigUserRWPublic()) && !m_cfuncp
+        अगर ((nodep->isSigUserRdPublic() || nodep->isSigUserRWPublic()) && !m_cfuncp
             && !nodep->vlEnumType().empty()) {
             m_modVars.emplace_back(m_modp, nodep);
         }
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    व्योम visit(Ast_गाँठ_Cover_Decl* nodep) override {
         // Assign both global and module-local bin numbers. Most generated
         // coverage uses module-local counters, but static/package/class helper
         // functions may have no vlSelf and still need the global array.
-        if (!nodep->dataDeclNullp()) {  // else duplicate we don't need code for
-            nodep->binNum(m_coverBins);
-            m_coverBins += nodep->size();
-            nodep->localBinNum(m_modCoverBins);
-            m_modCoverBins += nodep->size();
+        अगर (!nodep->तथ्य_Decl_Nullp()) {  // else duplicate we don't need code for
+            nodep->bin_अंक(m_coverBins);
+            m_coverBins += nodep->आकार();
+            nodep->local_Bin_अंक(m_modCoverBins);
+            m_modCoverBins += nodep->आकार();
         }
     }
-    void visit(AstCFunc* nodep) override {
+    व्योम visit(AstCFunc* nodep) override {
         nameCheck(nodep);
-        if (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.push_back(nodep);
+        अगर (nodep->dpiImportPrototype() || nodep->dpiExportDispatcher()) m_dpis.धकेलो_back(nodep);
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstConst*) override {}
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    व्योम visit(AstConst*) override {}
+    व्योम visit(Ast_गाँठ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+खुला:
     explicit EmitCSyms(AstNetlist* nodep, bool dpiHdrOnly)
         : m_dpiHdrOnly{dpiHdrOnly} {
         iterateConst(nodep);
     }
 };
 
-void EmitCSyms::emitSymHdr() {
+व्योम EmitCSyms::emitSymHdr() {
     UINFO(6, __FUNCTION__ << ": ");
     openNewOutputHeaderFile(symClassName(), "Symbol table internal header");
-    puts("//\n");
-    puts("// Internal details; most calling programs do not need this header,\n");
-    puts("// unless using verilator public meta comments.\n");
+    माला_दो("//\n");
+    माला_दो("// Internal details; most calling programs do not need this header,\n");
+    माला_दो("// unless using verilator public meta comments.\n");
 
     ofp()->putsGuard();
 
-    puts("\n");
-    ofp()->putsIntTopInclude();
-    puts("#include \"verilated.h\"\n");
-    if (v3Global.needTraceDumper()) {
-        for (const string& base : v3Global.opt.traceSourceLangs())
-            puts("#include \"" + base + ".h\"\n");
+    माला_दो("\n");
+    ofp()->puts_Int_शीर्ष_Include();
+    माला_दो("#include \"verilated.h\"\n");
+    अगर (v3Global.needTraceDumper()) {
+        क्रम (स्थिर string& base : v3Global.opt.traceSourceLangs())
+            माला_दो("#include \"" + base + ".h\"\n");
     }
-    if (v3Global.opt.usesProfiler()) puts("#include \"verilated_profiler.h\"\n");
+    अगर (v3Global.opt.usesProfiler()) माला_दो("#include \"verilated_profiler.h\"\n");
 
-    puts("\n// INCLUDE MODEL CLASS\n");
-    puts("\n#include \"" + topClassName() + ".h\"\n");
+    माला_दो("\n// INCLUDE MODEL CLASS\n");
+    माला_दो("\n#include \"" + शीर्ष_Class_Name() + ".h\"\n");
 
-    puts("\n// INCLUDE MODULE CLASSES\n");
-    for (AstNodeModule *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
-        nextp = VN_AS(nodep->nextp(), NodeModule);
-        if (VN_IS(nodep, Class)) continue;  // Class included earlier
-        if (nodep->isConstPool()) continue;  // Special emit rules
+    माला_दो("\n// INCLUDE MODULE CLASSES\n");
+    क्रम (Ast_गाँठ_Module *nodep = v3Global.rootp()->modulesp(), *nextp; nodep; nodep = nextp) {
+        nextp = VN_AS(nodep->nextp(), गाँठ_Module);
+        अगर (VN_IS(nodep, Class)) जारी;  // Class included earlier
+        अगर (nodep->isConstPool()) जारी;  // Special emit rules
         putns(nodep, "#include \"" + EmitCUtil::prefixNameProtect(nodep) + ".h\"\n");
     }
 
-    if (v3Global.dpi()) {
-        puts("\n// DPI TYPES for DPI Export callbacks (Internal use)\n");
+    अगर (v3Global.dpi()) {
+        माला_दो("\n// DPI TYPES for DPI Export callbacks (Internal use)\n");
         std::set<std::string> types;  // Remove duplicates and sort
-        for (const auto& itpair : m_scopeFuncs) {
-            const AstCFunc* const funcp = itpair.second.m_cfuncp;
-            if (!funcp->dpiExportImpl()) continue;
-            const std::string cbtype
+        क्रम (स्थिर स्वतः& itpair : m_scopeFuncs) {
+            स्थिर AstCFunc* स्थिर funcp = itpair.second.m_cfuncp;
+            अगर (!funcp->dpiExportImpl()) जारी;
+            स्थिर std::string cbtype
                 = protect(v3Global.opt.prefix() + "__Vcb_" + funcp->cname() + "_t");
-            const std::string functype = funcp->rtnTypeVoid() + " (*) (" + cFuncArgs(funcp) + ")";
+            स्थिर std::string functype = funcp->rtnTypeVoid() + " (*) (" + cFuncArgs(funcp) + ")";
             types.emplace("using " + cbtype + " = " + functype + ";\n");
         }
-        for (const std::string& type : types) puts(type);
+        क्रम (स्थिर std::string& type : types) माला_दो(type);
     }
 
-    puts("\n// SYMS CLASS (contains all model state)\n");
-    puts("class alignas(VL_CACHE_LINE_BYTES) " + symClassName()
+    माला_दो("\n// SYMS CLASS (contains all model state)\n");
+    माला_दो("class alignas(VL_CACHE_LINE_BYTES) " + symClassName()
          + " final : public VerilatedSyms {\n");
     ofp()->putsPrivate(false);  // public:
 
-    puts("// INTERNAL STATE\n");
-    puts(topClassName() + "* const __Vm_modelp;\n");
+    माला_दो("// INTERNAL STATE\n");
+    माला_दो(शीर्ष_Class_Name() + "* const __Vm_modelp;\n");
 
-    if (v3Global.needTraceDumper()) {
+    अगर (v3Global.needTraceDumper()) {
         // __Vm_dumperp is local, otherwise we wouldn't know what design's eval()
         // should call a global dumpperp
-        puts("bool __Vm_dumping = false;  // Dumping is active\n");
-        puts("VerilatedMutex __Vm_dumperMutex;  // Protect __Vm_dumperp\n");
-        puts(v3Global.opt.traceClassLang()
+        माला_दो("bool __Vm_dumping = false;  // Dumping is active\n");
+        माला_दो("VerilatedMutex __Vm_dumperMutex;  // Protect __Vm_dumperp\n");
+        माला_दो(v3Global.opt.traceClassLang()
              + "* __Vm_dumperp VL_GUARDED_BY(__Vm_dumperMutex) = nullptr;"
                "  /// Trace class for $dump*\n");
     }
-    if (v3Global.opt.trace()) {
-        puts("bool __Vm_activity = false;"
+    अगर (v3Global.opt.trace()) {
+        माला_दो("bool __Vm_activity = false;"
              "  ///< Used by trace routines to determine change occurred\n");
-        puts("uint32_t __Vm_baseCode = 0;"
+        माला_दो("uint32_t __Vm_baseCode = 0;"
              "  ///< Used by trace routines when tracing multiple models\n");
     }
-    if (v3Global.hasEvents()) {
-        if (v3Global.assignsEvents()) {
-            puts("std::vector<VlAssignableEvent> __Vm_triggeredEvents;\n");
-        } else {
-            puts("std::vector<VlEvent*> __Vm_triggeredEvents;\n");
+    अगर (v3Global.hasEvents()) {
+        अगर (v3Global.assignsEvents()) {
+            माला_दो("std::vector<VlAssignableEvent> __Vm_triggeredEvents;\n");
+        } अन्यथा {
+            माला_दो("std::vector<VlEvent*> __Vm_triggeredEvents;\n");
         }
     }
-    if (v3Global.hasClasses()) puts("VlDeleter __Vm_deleter;\n");
-    puts("bool& __Vm_didInit;\n");
-    if (v3Global.opt.systemC()) puts("sc_core::sc_event __Vm_wakeEvent;\n");
+    अगर (v3Global.hasClasses()) माला_दो("VlDeleter __Vm_deleter;\n");
+    माला_दो("bool& __Vm_didInit;\n");
+    अगर (v3Global.opt.systemC()) माला_दो("sc_core::sc_event __Vm_wakeEvent;\n");
 
-    if (v3Global.opt.mtasks()) {
-        puts("\n// MULTI-THREADING\n");
-        puts("VlThreadPool* __Vm_threadPoolp;\n");
-        puts("bool __Vm_even_cycle__ico = false;\n");
-        puts("bool __Vm_even_cycle__act = false;\n");
-        puts("bool __Vm_even_cycle__nba = false;\n");
+    अगर (v3Global.opt.mtasks()) {
+        माला_दो("\n// MULTI-THREADING\n");
+        माला_दो("VlThreadPool* __Vm_threadPoolp;\n");
+        माला_दो("bool __Vm_even_cycle__ico = false;\n");
+        माला_दो("bool __Vm_even_cycle__act = false;\n");
+        माला_दो("bool __Vm_even_cycle__nba = false;\n");
     }
 
-    if (v3Global.opt.profExec()) {
-        puts("\n// EXECUTION PROFILING\n");
-        puts("VlExecutionProfiler* const __Vm_executionProfilerp;\n");
+    अगर (v3Global.opt.profExec()) {
+        माला_दो("\n// EXECUTION PROFILING\n");
+        माला_दो("VlExecutionProfiler* const __Vm_executionProfilerp;\n");
     }
 
-    if (v3Global.opt.profPgo()) {
-        puts("\n// PGO PROFILING\n");
-        puts("VlPgoProfiler<" + std::to_string(ExecMTask::numUsedIds()) + "> _vm_pgoProfiler;\n");
+    अगर (v3Global.opt.profPgo()) {
+        माला_दो("\n// PGO PROFILING\n");
+        माला_दो("VlPgoProfiler<" + std::to_string(ExecMTask::अंक_Used_Ids()) + "> _vm_pgoProfiler;\n");
     }
 
-    puts("\n// MODULE INSTANCE STATE\n");
+    माला_दो("\n// MODULE INSTANCE STATE\n");
     // In an anonymous union so the C++ compiler does not construct them implicitly,
     // they are constructed/destroyed explicitly in the ctor/dtor functions.
-    puts("union {\nstruct {\n");
-    for (const ScopeModPair& itpair : m_scopes) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (VN_IS(modp, Class)) continue;
-        ofp()->printf("%-30s ", EmitCUtil::prefixNameProtect(modp).c_str());
+    माला_दो("union {\nstruct {\n");
+    क्रम (स्थिर ScopeModPair& itpair : m_scopes) {
+        स्थिर AstScope* स्थिर scopep = itpair.first;
+        स्थिर Ast_गाँठ_Module* स्थिर modp = itpair.second;
+        अगर (VN_IS(modp, Class)) जारी;
+        ofp()->म_लिखो("%-30s ", EmitCUtil::prefixNameProtect(modp).c_str());
         putns(scopep, VIdProtect::protectIf(scopep->nameDotless(), scopep->protect()) + ";\n");
     }
-    puts("} vlInst;\n};\n");
+    माला_दो("} vlInst;\n};\n");
 
-    if (m_coverBins) {
-        puts("\n// COVERAGE\n");
-        puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
-        puts(" __Vcoverage[");
-        puts(std::to_string(m_coverBins));
-        puts("];\n");
+    अगर (m_coverBins) {
+        माला_दो("\n// COVERAGE\n");
+        माला_दो(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
+        माला_दो(" __Vcoverage[");
+        माला_दो(std::to_string(m_coverBins));
+        माला_दो("];\n");
     }
 
-    if (!m_scopeNames.empty()) {  // Scope names
-        puts("\n// SCOPE NAMES\n");
-        for (const auto& itpair : m_scopeNames) {
-            const ScopeData& sd = itpair.second;
+    अगर (!m_scopeNames.empty()) {  // Scope names
+        माला_दो("\n// SCOPE NAMES\n");
+        क्रम (स्थिर स्वतः& itpair : m_scopeNames) {
+            स्थिर Scope_तथ्य& sd = itpair.second;
             putns(sd.m_nodep, "::VerilatedScope* " + protect("__Vscopep_" + sd.m_symName) + ";\n");
         }
     }
 
-    if (v3Global.opt.vpi()) {
-        puts("\n// SCOPE HIERARCHY\n");
-        puts("VerilatedHierarchy __Vhier;\n");
+    अगर (v3Global.opt.vpi()) {
+        माला_दो("\n// SCOPE HIERARCHY\n");
+        माला_दो("VerilatedHierarchy __Vhier;\n");
     }
 
-    puts("\n// CONSTRUCTORS\n");
-    puts(symClassName() + "(VerilatedContext* contextp, const char* namep, " + topClassName()
+    माला_दो("\n// CONSTRUCTORS\n");
+    माला_दो(symClassName() + "(VerilatedContext* contextp, const char* namep, " + शीर्ष_Class_Name()
          + "* modelp);\n");
-    puts("~" + symClassName() + "();\n");
+    माला_दो("~" + symClassName() + "();\n");
 
-    puts("\n// METHODS\n");
-    puts("const char* name() const { return vlInst.TOP.vlNamep; }\n");
+    माला_दो("\n// METHODS\n");
+    माला_दो("const char* name() const { return vlInst.TOP.vlNamep; }\n");
 
-    if (v3Global.hasEvents()) {
-        if (v3Global.assignsEvents()) {
-            puts("void fireEvent(VlAssignableEvent& event) {\n");
-        } else {
-            puts("void fireEvent(VlEvent& event) {\n");
+    अगर (v3Global.hasEvents()) {
+        अगर (v3Global.assignsEvents()) {
+            माला_दो("void fireEvent(VlAssignableEvent& event) {\n");
+        } अन्यथा {
+            माला_दो("void fireEvent(VlEvent& event) {\n");
         }
-        puts("if (VL_LIKELY(!event.isTriggered())) {\n");
-        if (v3Global.assignsEvents()) {
-            puts("__Vm_triggeredEvents.push_back(event);\n");
-        } else {
-            puts("__Vm_triggeredEvents.push_back(&event);\n");
+        माला_दो("if (VL_LIKELY(!event.isTriggered())) {\n");
+        अगर (v3Global.assignsEvents()) {
+            माला_दो("__Vm_triggeredEvents.push_back(event);\n");
+        } अन्यथा {
+            माला_दो("__Vm_triggeredEvents.push_back(&event);\n");
         }
-        puts("}\n");
-        puts("event.fire();\n");
-        puts("}\n");
-        puts("void clearTriggeredEvents() {\n");
-        if (v3Global.assignsEvents()) {
-            puts("for (auto& event : __Vm_triggeredEvents) event.clearTriggered();\n");
-        } else {
-            puts("for (const auto eventp : __Vm_triggeredEvents) eventp->clearTriggered();\n");
+        माला_दो("}\n");
+        माला_दो("event.fire();\n");
+        माला_दो("}\n");
+        माला_दो("void clearTriggeredEvents() {\n");
+        अगर (v3Global.assignsEvents()) {
+            माला_दो("for (auto& event : __Vm_triggeredEvents) event.clearTriggered();\n");
+        } अन्यथा {
+            माला_दो("for (const auto eventp : __Vm_triggeredEvents) eventp->clearTriggered();\n");
         }
-        puts("__Vm_triggeredEvents.clear();\n");
-        puts("}\n");
+        माला_दो("__Vm_triggeredEvents.clear();\n");
+        माला_दो("}\n");
     }
 
-    if (v3Global.needTraceDumper()) {
-        if (!optSystemC()) puts("void _traceDump();\n");
-        puts("void _traceDumpOpen();\n");
-        puts("void _traceDumpClose();\n");
+    अगर (v3Global.needTraceDumper()) {
+        अगर (!optSystemC()) माला_दो("void _traceDump();\n");
+        माला_दो("void _traceDumpOpen();\n");
+        माला_दो("void _traceDumpClose();\n");
     }
 
-    if (v3Global.opt.savable()) {
-        puts("void " + protect("__Vserialize") + "(VerilatedSerialize& os);\n");
-        puts("void " + protect("__Vdeserialize") + "(VerilatedDeserialize& os);\n");
+    अगर (v3Global.opt.savable()) {
+        माला_दो("void " + protect("__Vserialize") + "(VerilatedSerialize& os);\n");
+        माला_दो("void " + protect("__Vdeserialize") + "(VerilatedDeserialize& os);\n");
     }
-    puts("};\n");
+    माला_दो("};\n");
 
     ofp()->putsEndGuard();
     closeOutputFile();
 }
 
-void EmitCSyms::emitSymImpPreamble() {
-    puts("\n");
+व्योम EmitCSyms::emitSymImpPreamble() {
+    माला_दो("\n");
 
     // Includes
-    puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
-    puts("\n");
+    माला_दो("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
+    माला_दो("\n");
     // Declarations for DPI Export implementation functions
-    bool needsNewLine = false;
-    for (const auto& itpair : m_scopeFuncs) {
-        const AstCFunc* const funcp = itpair.second.m_cfuncp;
-        if (!funcp->dpiExportImpl()) continue;
+    bool needs_New_पंक्ति = false;
+    क्रम (स्थिर स्वतः& itpair : m_scopeFuncs) {
+        स्थिर AstCFunc* स्थिर funcp = itpair.second.m_cfuncp;
+        अगर (!funcp->dpiExportImpl()) जारी;
         emitCFuncDecl(funcp, itpair.second.m_modp);
-        needsNewLine = true;
+        needs_New_पंक्ति = true;
     }
-    if (needsNewLine) puts("\n");
+    अगर (needs_New_पंक्ति) माला_दो("\n");
     // Declarations of the Verilator library functions called at construction
     std::set<std::string> libNames;
-    for (const ScopeModPair& itpair : m_scopes) {
-        if (itpair.second->verilatorLib()) libNames.emplace(itpair.second->origName());
+    क्रम (स्थिर ScopeModPair& itpair : m_scopes) {
+        अगर (itpair.second->verilatorLib()) libNames.emplace(itpair.second->origName());
     }
-    for (const std::string& libName : libNames) {
-        puts("extern \"C\" void " + libName + "_protectlib_check_hash(int protectlib_hash__V);\n");
-        puts("extern \"C\" void* " + libName + "_protectlib_create(const char* scopep__V);\n");
+    क्रम (स्थिर std::string& libName : libNames) {
+        माला_दो("extern \"C\" void " + libName + "_protectlib_check_hash(int protectlib_hash__V);\n");
+        माला_दो("extern \"C\" void* " + libName + "_protectlib_create(const char* scopep__V);\n");
     }
-    if (!libNames.empty()) puts("\n");
+    अगर (!libNames.empty()) माला_दो("\n");
 
     // So split ctor sub-functions in other translation units can reference
     // the VPI variable tables defined below.
-    if (!m_varTables.empty() || !m_scopeTableRows.empty() || !m_ifaceRefTableRows.empty()) {
-        for (const auto& kv : m_varTables) {
-            puts("extern const VlVarTableEntry " + kv.first + "[];\n");
+    अगर (!m_varTables.empty() || !m_scopeTableRows.empty() || !m_ifaceRefTableRows.empty()) {
+        क्रम (स्थिर स्वतः& kv : m_varTables) {
+            माला_दो("extern const VlVarTableEntry " + kv.first + "[];\n");
         }
-        if (!m_scopeTableRows.empty()) {
-            puts("extern const VlScopeTableEntry " + m_scopeTableName + "[];\n");
+        अगर (!m_scopeTableRows.empty()) {
+            माला_दो("extern const VlScopeTableEntry " + m_scopeTableName + "[];\n");
         }
-        if (!m_ifaceRefTableRows.empty()) {
-            puts("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[];\n");
+        अगर (!m_ifaceRefTableRows.empty()) {
+            माला_दो("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[];\n");
         }
-        puts("\n");
+        माला_दो("\n");
     }
 }
 
-void EmitCSyms::emitVarTables() {
-    if (m_varTables.empty() && m_scopeTableRows.empty() && m_ifaceRefTableRows.empty()) return;
-    puts("\n// VPI VARIABLE/SCOPE TABLES\n");
+व्योम EmitCSyms::emitVarTables() {
+    अगर (m_varTables.empty() && m_scopeTableRows.empty() && m_ifaceRefTableRows.empty()) वापस;
+    माला_दो("\n// VPI VARIABLE/SCOPE TABLES\n");
     // offsetof on the (non-standard-layout) generated module/Syms classes is well
     // defined on all supported compilers but warns; suppress just here.
-    puts("#if defined(__GNUC__)\n");
-    puts("# pragma GCC diagnostic push\n");
-    puts("# pragma GCC diagnostic ignored \"-Winvalid-offsetof\"\n");
-    puts("#endif\n");
-    for (const auto& kv : m_varTables) {
-        puts("extern const VlVarTableEntry " + kv.first + "[] = {\n");
-        for (const std::string& row : kv.second) {
+    माला_दो("#if defined(__GNUC__)\n");
+    माला_दो("# pragma GCC diagnostic push\n");
+    माला_दो("# pragma GCC diagnostic ignored \"-Winvalid-offsetof\"\n");
+    माला_दो("#endif\n");
+    क्रम (स्थिर स्वतः& kv : m_varTables) {
+        माला_दो("extern const VlVarTableEntry " + kv.first + "[] = {\n");
+        क्रम (स्थिर std::string& row : kv.second) {
             ofp()->putsNoTracking("    ");
             ofp()->putsNoTracking(row);
             ofp()->putsNoTracking(",\n");
         }
-        puts("};\n");
+        माला_दो("};\n");
     }
-    if (!m_scopeTableRows.empty()) {
-        puts("extern const VlScopeTableEntry " + m_scopeTableName + "[] = {\n");
-        for (const std::string& row : m_scopeTableRows) {
+    अगर (!m_scopeTableRows.empty()) {
+        माला_दो("extern const VlScopeTableEntry " + m_scopeTableName + "[] = {\n");
+        क्रम (स्थिर std::string& row : m_scopeTableRows) {
             ofp()->putsNoTracking("    ");
             ofp()->putsNoTracking(row);
             ofp()->putsNoTracking(",\n");
         }
-        puts("};\n");
+        माला_दो("};\n");
     }
-    if (!m_ifaceRefTableRows.empty()) {
-        puts("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[] = {\n");
-        for (const std::string& row : m_ifaceRefTableRows) {
+    अगर (!m_ifaceRefTableRows.empty()) {
+        माला_दो("extern const VlIfaceRefTableEntry " + m_ifaceRefTableName + "[] = {\n");
+        क्रम (स्थिर std::string& row : m_ifaceRefTableRows) {
             ofp()->putsNoTracking("    ");
             ofp()->putsNoTracking(row);
             ofp()->putsNoTracking(",\n");
         }
-        puts("};\n");
+        माला_दो("};\n");
     }
-    puts("#if defined(__GNUC__)\n");
-    puts("# pragma GCC diagnostic pop\n");
-    puts("#endif\n");
+    माला_दो("#if defined(__GNUC__)\n");
+    माला_दो("# pragma GCC diagnostic pop\n");
+    माला_दो("#endif\n");
 }
 
-void EmitCSyms::emitScopeHier(TextStmts& stmts, bool destroy) {
-    if (!v3Global.opt.vpi()) return;
+व्योम EmitCSyms::emitScopeHier(TextStmts& stmts, bool destroy) {
+    अगर (!v3Global.opt.vpi()) वापस;
 
-    if (destroy) {
+    अगर (destroy) {
         stmts.add("// Tear down scope hierarchy");
-    } else {
+    } अन्यथा {
         stmts.add("// Set up scope hierarchy");
     }
 
-    const std::string method = destroy ? "remove" : "add";
-    for (const auto& itpair : m_scopeNames) {
-        if (itpair.first == "TOP") continue;
-        const ScopeData& sd = itpair.second;
-        const std::string& name = sd.m_prettyName;
-        const std::string& scopeType = sd.m_type;
-        if (name.find('.') != string::npos) continue;
-        if (scopeType != "SCOPE_MODULE" && scopeType != "SCOPE_PACKAGE") continue;
-        const std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
+    स्थिर std::string method = destroy ? "remove" : "add";
+    क्रम (स्थिर स्वतः& itpair : m_scopeNames) {
+        अगर (itpair.first == "TOP") जारी;
+        स्थिर Scope_तथ्य& sd = itpair.second;
+        स्थिर std::string& name = sd.m_prettyName;
+        स्थिर std::string& scopeType = sd.m_type;
+        अगर (name.find('.') != string::npos) जारी;
+        अगर (scopeType != "SCOPE_MODULE" && scopeType != "SCOPE_PACKAGE") जारी;
+        स्थिर std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
         stmts.add("vlSymsp->__Vhier." + method + "(0, " + id + ");");
     }
-    for (const auto& itpair : m_vpiScopeHierarchy) {
-        const std::string fromName = scopeSymString(itpair.first);
-        const std::string fromId
+    क्रम (स्थिर स्वतः& itpair : m_vpiScopeHierarchy) {
+        स्थिर std::string fromName = scopeSymString(itpair.first);
+        स्थिर std::string fromId
             = "vlSymsp->" + protect("__Vscopep_" + m_scopeNames.at(fromName).m_symName);
-        for (const std::string& name : itpair.second) {
-            const std::string toName = scopeSymString(name);
-            const std::string toId
+        क्रम (स्थिर std::string& name : itpair.second) {
+            स्थिर std::string toName = scopeSymString(name);
+            स्थिर std::string toId
                 = "vlSymsp->" + protect("__Vscopep_" + m_scopeNames.at(toName).m_symName);
             stmts.add("vlSymsp->__Vhier." + method + "(" + fromId + ", " + toId + ");");
         }
     }
 
-    if (destroy) {
+    अगर (destroy) {
         stmts.add("// Clear keys from hierarchy map after values have been removed");
         stmts.add("vlSymsp->__Vhier.clear();");
     }
@@ -1324,38 +1324,38 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     TextStmts stmts;
 
     {
-        uint64_t stackSize = V3StackCount::count(v3Global.rootp());
-        if (v3Global.opt.debugStackCheck()) stackSize += 1024 * 1024 * 1024;
-        V3Stats::addStat("Size prediction, Stack (bytes)", stackSize);
+        uint64_t ढेर_आकार = V3_ढेर_गिनती::गिनती(v3Global.rootp());
+        अगर (v3Global.opt.debug_ढेर_Check()) ढेर_आकार += 1024 * 1024 * 1024;
+        V3Stats::addStat("Size prediction, Stack (bytes)", ढेर_आकार);
         // TODO: 'm_statVarScopeBytes' is always 0, AstVarScope doesn't reach here (V3Descope)
         V3Stats::addStat("Size prediction, Heap, from Var Scopes (bytes)", m_statVarScopeBytes);
-        V3Stats::addStat(V3Stats::STAT_MODEL_SIZE, stackSize + m_statVarScopeBytes);
+        V3Stats::addStat(V3Stats::STAT_MODEL_आकार, ढेर_आकार + m_statVarScopeBytes);
 
         stmts.add("// Check resources");
-        stmts.add("Verilated::stackCheck(" + std::to_string(stackSize) + ");");
+        stmts.add("Verilated::stackCheck(" + std::to_string(ढेर_आकार) + ");");
     }
 
     stmts.add("// Setup sub module instances");
-    for (const ScopeModPair& itpair : m_scopes) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
-        const std::string name = V3OutFormatter::quoteNameControls(
-            VIdProtect::protectWordsIf(scopep->prettyName(), scopep->protect()));
+    क्रम (स्थिर ScopeModPair& itpair : m_scopes) {
+        स्थिर AstScope* स्थिर scopep = itpair.first;
+        स्थिर Ast_गाँठ_Module* स्थिर modp = itpair.second;
+        अगर (modp->is_शीर्ष()) जारी;
+        स्थिर std::string name = V3OutFormatter::quoteNameControls(
+            VIdProtect::protect_शब्दगण_If(scopep->prettyName(), scopep->protect()));
         stmts.add("VL_INPLACE_CONSTRUCT(vlSymsp->" + instName(scopep) + ", vlSymsp, \"" + name
                   + "\");");
     }
 
-    if (v3Global.opt.profPgo()) {
+    अगर (v3Global.opt.profPgo()) {
         stmts.add("// Configure profiling for PGO\n");
-        if (!v3Global.opt.hierChild()) {
+        अगर (!v3Global.opt.hierChild()) {
             stmts.add("vlSymsp->_vm_pgoProfiler.writeHeader("
                       "vlSymsp->_vm_contextp__->profVltFilename());");
         }
-        if (v3Global.opt.mtasks()) {
-            v3Global.rootp()->topModulep()->foreach([&](const AstExecGraph* execGraphp) {
-                for (const V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
-                    const ExecMTask& mt = static_cast<const ExecMTask&>(vtx);
+        अगर (v3Global.opt.mtasks()) {
+            v3Global.rootp()->शीर्ष_Modulep()->foreach([&](स्थिर AstExecGraph* execGraphp) {
+                क्रम (स्थिर V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
+                    स्थिर ExecMTask& mt = static_cast<स्थिर ExecMTask&>(vtx);
                     stmts.add("vlSymsp->_vm_pgoProfiler.addCounter(" + std::to_string(mt.id())
                               + ", \"" + mt.hashName() + "\");");
                 }
@@ -1364,28 +1364,28 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     }
 
     stmts.add("// Configure time unit / time precision");
-    if (!v3Global.rootp()->timeunit().isNone()) {
-        const std::string unit = std::to_string(v3Global.rootp()->timeunit().powerOfTen());
+    अगर (!v3Global.rootp()->timeunit().isNone()) {
+        स्थिर std::string unit = std::to_string(v3Global.rootp()->timeunit().powerOfTen());
         stmts.add("vlSymsp->_vm_contextp__->timeunit(" + unit + ");");
     }
-    if (!v3Global.rootp()->timeprecision().isNone()) {
-        const std::string prec = std::to_string(v3Global.rootp()->timeprecision().powerOfTen());
+    अगर (!v3Global.rootp()->timeprecision().isNone()) {
+        स्थिर std::string prec = std::to_string(v3Global.rootp()->timeprecision().powerOfTen());
         stmts.add("vlSymsp->_vm_contextp__->timeprecision(" + prec + ");");
     }
 
     stmts.add("// Setup each module's pointers to their submodules");
-    for (const auto& i : m_scopes) {
-        const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
-        const AstScope* const abovep = scopep->aboveScopep();
-        if (!abovep) continue;
+    क्रम (स्थिर स्वतः& i : m_scopes) {
+        स्थिर AstScope* स्थिर scopep = i.first;
+        स्थिर Ast_गाँठ_Module* स्थिर modp = i.second;
+        स्थिर AstScope* स्थिर abovep = scopep->aboveScopep();
+        अगर (!abovep) जारी;
 
-        const std::string protName = VIdProtect::protectWordsIf(scopep->name(), scopep->protect());
+        स्थिर std::string protName = VIdProtect::protect_शब्दगण_If(scopep->name(), scopep->protect());
         std::string stmt = "vlSymsp->";
-        if (VN_IS(modp, ClassPackage)) {
+        अगर (VN_IS(modp, ClassPackage)) {
             // ClassPackage modules seem to be a bit out of place, so hard code...
             stmt += "vlInst.TOP";
-        } else {
+        } अन्यथा {
             stmt += instName(abovep);
         }
         stmt += ".";
@@ -1395,13 +1395,13 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
         stmts.add(stmt);
     }
 
-    if (v3Global.opt.coverage()) {
+    अगर (v3Global.opt.coverage()) {
         stmts.add("// Setup each module's pointer back to symbol table (for public functions)");
-        for (const ScopeModPair& i : m_scopes) {
-            const AstScope* const scopep = i.first;
-            AstNodeModule* const modp = i.second;
+        क्रम (स्थिर ScopeModPair& i : m_scopes) {
+            स्थिर AstScope* स्थिर scopep = i.first;
+            Ast_गाँठ_Module* स्थिर modp = i.second;
             // first is used by AstCoverDecl's call to __vlCoverInsert
-            const bool first = !modp->user1();
+            स्थिर bool first = !modp->user1();
             modp->user1(true);
             stmts.add("vlSymsp->" + instName(scopep) + "." + protect("__Vconfigure") + "("
                       + (first ? "true" : "false") + ");");
@@ -1411,28 +1411,28 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     // Check the hash and create the library model of each Verilator library wrapper, as its
     // initial process would, but already at construction, so the library model exists before
     // the first evaluation
-    for (const ScopeModPair& i : m_scopes) {
-        const AstScope* const scopep = i.first;
-        const AstNodeModule* const modp = i.second;
-        if (!modp->verilatorLib()) continue;
-        const AstVar* hashp = nullptr;
-        const AstVar* handlep = nullptr;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (!varp) continue;
-            if (varp->prettyName() == "protectlib_hash__V") hashp = varp;
-            if (varp->prettyName() == "handle__V") handlep = varp;
+    क्रम (स्थिर ScopeModPair& i : m_scopes) {
+        स्थिर AstScope* स्थिर scopep = i.first;
+        स्थिर Ast_गाँठ_Module* स्थिर modp = i.second;
+        अगर (!modp->verilatorLib()) जारी;
+        स्थिर AstVar* hashp = nullptr;
+        स्थिर AstVar* handlep = nullptr;
+        क्रम (स्थिर Ast_गाँठ* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            स्थिर AstVar* स्थिर varp = VN_CAST(nodep, Var);
+            अगर (!varp) जारी;
+            अगर (varp->prettyName() == "protectlib_hash__V") hashp = varp;
+            अगर (varp->prettyName() == "handle__V") handlep = varp;
         }
         UASSERT_OBJ(hashp, modp, "Verilator library wrapper without 'protectlib_hash__V'");
         UASSERT_OBJ(handlep, modp, "Verilator library wrapper without 'handle__V'");
-        const uint32_t hash = VN_AS(hashp->valuep(), Const)->toUInt();
+        स्थिर uint32_t hash = VN_AS(hashp->valuep(), Const)->toUInt();
         stmts.add(modp->origName() + "_protectlib_check_hash(static_cast<int>("
                   + std::to_string(hash) + "U));");
         // The library model is named after the %m of the instance, which in a --lib-create
         // library omits the top module (see V3Scope)
         std::string path = scopep->prettyName();
-        if (!v3Global.opt.libCreate().empty()) {
-            path.erase(0, v3Global.rootp()->traceLibTopName().size() + 1);
+        अगर (!v3Global.opt.libCreate().empty()) {
+            path.erase(0, v3Global.rootp()->trace_Lib_शीर्ष_Name().आकार() + 1);
         }
         stmts.add("vlSymsp->" + instName(scopep) + "." + varName(handlep) + " = VL_CVT_VP_Q("
                   + modp->origName()
@@ -1443,15 +1443,15 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
 
     // Every scope has the same construction shape, so all fold into one table with no
     // residual; offsetof bakes the target __Vscopep_* member address into each row.
-    if (!m_scopeNames.empty()) {
+    अगर (!m_scopeNames.empty()) {
         stmts.add("// Setup scopes");
-        const std::string symClass = symClassName();
-        for (const auto& itpair : m_scopeNames) {
-            const ScopeData& sd = itpair.second;
+        स्थिर std::string symClass = symClassName();
+        क्रम (स्थिर स्वतः& itpair : m_scopeNames) {
+            स्थिर Scope_तथ्य& sd = itpair.second;
             std::string row
                 = "{offsetof(" + symClass + ", " + protect("__Vscopep_" + sd.m_symName) + "), \"";
             row += V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(sd.m_prettyName, true));
+                VIdProtect::protect_शब्दगण_If(sd.m_prettyName, true));
             row += "\", \"";
             row += V3OutFormatter::quoteNameControls(
                 protect(scopeDecodeIdentifier(sd.m_prettyName)));
@@ -1464,28 +1464,28 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
         }
         m_scopeTableName = symClass + "__VpiScopeTable";
         stmts.add("VerilatedScope::scopesConstructFromTable(" + m_scopeTableName + ", "
-                  + std::to_string(m_scopeNames.size()) + ", vlSymsp);");
+                  + std::to_string(m_scopeNames.आकार()) + ", vlSymsp);");
     }
 
     // After the scopes above, as each row points at an already-built VerilatedScope
     buildIfaceRefTable();
-    if (!m_ifaceRefTableRows.empty()) {
+    अगर (!m_ifaceRefTableRows.empty()) {
         stmts.add("// Setup interface references");
         stmts.add("VerilatedScope::ifaceRefsInsertFromTable(" + m_ifaceRefTableName + ", "
-                  + std::to_string(m_ifaceRefTableRows.size()) + ", vlSymsp);");
+                  + std::to_string(m_ifaceRefTableRows.आकार()) + ", vlSymsp);");
     }
 
     emitScopeHier(stmts, false);
 
-    if (v3Global.dpi()) {
-        for (const std::string vfinal : {"0", "1"}) {
+    अगर (v3Global.dpi()) {
+        क्रम (स्थिर std::string vfinal : {"0", "1"}) {
             stmts.add("// Setup export functions - final: " + vfinal);
-            for (const auto& itpair : m_scopeFuncs) {
-                const ScopeFuncData& sfd = itpair.second;
-                const AstScopeName* const scopep = sfd.m_scopep;
-                const AstCFunc* const funcp = sfd.m_cfuncp;
-                const AstNodeModule* const modp = sfd.m_modp;
-                if (!funcp->dpiExportImpl()) continue;
+            क्रम (स्थिर स्वतः& itpair : m_scopeFuncs) {
+                स्थिर Scope_Func_तथ्य& sfd = itpair.second;
+                स्थिर AstScopeName* स्थिर scopep = sfd.m_scopep;
+                स्थिर AstCFunc* स्थिर funcp = sfd.m_cfuncp;
+                स्थिर Ast_गाँठ_Module* स्थिर modp = sfd.m_modp;
+                अगर (!funcp->dpiExportImpl()) जारी;
 
                 std::string stmt;
                 stmt += "vlSymsp->" + protect("__Vscopep_" + scopep->scopeSymName())
@@ -1507,144 +1507,144 @@ EmitCSyms::TextStmts EmitCSyms::getSymCtorStmts() {
     // contiguous. Tables are deduplicated by row content, not by scope, so
     // distinct scopes mapping to the same C++ class (e.g. --public-flat-rw)
     // still share a table when their rows are identical.
-    if (!m_scopeVars.empty()) {
+    अगर (!m_scopeVars.empty()) {
         stmts.add("// Setup public variables");
         // Keyed by '\0'-joined row text so identical rows share one table.
         std::unordered_map<std::string, std::string> tableByRows;
-        int tableCounter = 0;
+        पूर्णांक table_गणक = 0;
 
-        auto it = m_scopeVars.cbegin();
-        while (it != m_scopeVars.cend()) {
-            const std::string scopeName = it->second.m_scopeName;
-            const AstScope* const instScopep = it->second.m_scopep;
-            const AstNodeModule* const modp = it->second.m_modp;
-            const std::string modClassName = EmitCUtil::prefixNameProtect(modp);
+        स्वतः it = m_scopeVars.cbegin();
+        जबतक (it != m_scopeVars.cend()) {
+            स्थिर std::string scopeName = it->second.m_scopeName;
+            स्थिर AstScope* स्थिर instScopep = it->second.m_scopep;
+            स्थिर Ast_गाँठ_Module* स्थिर modp = it->second.m_modp;
+            स्थिर std::string modClassName = EmitCUtil::prefixNameProtect(modp);
 
             std::vector<std::string> rows;
             std::vector<std::string> residual;
 
-            for (; it != m_scopeVars.cend() && it->second.m_scopeName == scopeName; ++it) {
-                const ScopeVarData& svd = it->second;
-                const AstScope* const scopep = svd.m_scopep;
+            क्रम (; it != m_scopeVars.cend() && it->second.m_scopeName == scopeName; ++it) {
+                स्थिर Scope_Var_तथ्य& svd = it->second;
+                स्थिर AstScope* स्थिर scopep = svd.m_scopep;
                 UASSERT(scopep == instScopep && svd.m_modp == modp,
                         "VPI scope '" << scopeName << "' spans multiple C++ instances");
-                const AstVar* const varp = svd.m_varp;
-                const VarDims dims = dimsFor(svd);
+                स्थिर AstVar* स्थिर varp = svd.m_varp;
+                स्थिर VarDims dims = dimsFor(svd);
 
                 // Force-control signals fold into the base signal's forceable insert.
-                const std::pair<bool, std::string> fc = isForceControlSignal(varp);
-                if (fc.first && baseSignalIsPublic(scopep, fc.second)
+                स्थिर std::pair<bool, std::string> fc = isForceControlSignal(varp);
+                अगर (fc.first && baseSignalIsPublic(scopep, fc.second)
                     && baseSignalIsValid(scopep, varp, fc.second)) {
-                    continue;
+                    जारी;
                 }
 
                 std::string row;
-                const TableEntryKind kind
+                स्थिर TableEntryKind kind
                     = tryBuildTableEntry(svd, varp, scopep, modClassName, dims, row);
-                switch (kind) {
-                case TableEntryKind::TABLE_ROW:
+                चयन (kind) {
+                हाल TableEntryKind::TABLE_ROW:
                     rows.emplace_back(row);
                     addPackedAggMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                            varName(varp), varp->dtypep());
-                    break;
-                case TableEntryKind::FORCEABLE_RESIDUAL: {
-                    const std::string bounds = boundsString(dims);
-                    residual.emplace_back(insertForceableVarStatement(svd, scopep, varp, dims.udim,
+                    अवरोध;
+                हाल TableEntryKind::FORCEABLE_RESIDUAL: {
+                    स्थिर std::string bounds = boundsString(dims);
+                    residual.emplace_back(जोड़ो_Forceable_Var_Statement(svd, scopep, varp, dims.udim,
                                                                       dims.pdim, bounds)
                                           + ";");
-                    break;
+                    अवरोध;
                 }
-                case TableEntryKind::PLAIN_RESIDUAL: {
-                    const std::string bounds = boundsString(dims);
+                हाल TableEntryKind::PLAIN_RESIDUAL: {
+                    स्थिर std::string bounds = boundsString(dims);
                     residual.emplace_back(
-                        insertVarStatement(svd, scopep, varp, dims.udim, dims.pdim, bounds) + ";");
-                    break;
+                        जोड़ो_Var_Statement(svd, scopep, varp, dims.udim, dims.pdim, bounds) + ";");
+                    अवरोध;
                 }
-                default: v3fatalSrc("Bad case");
+                शेष: v3fatalSrc("Bad case");
                 }
-                if (kind == TableEntryKind::TABLE_ROW) continue;
-                if (const AstNodeUOrStructDType* const sdtypep
-                    = VN_CAST(varp->dtypeSkipRefp(), NodeUOrStructDType)) {
-                    if (!sdtypep->packed()) {
+                अगर (kind == TableEntryKind::TABLE_ROW) जारी;
+                अगर (स्थिर Ast_गाँठ_UOr_Struct_DType* स्थिर sdtypep
+                    = VN_CAST(varp->dtypeSkipRefp(), गाँठ_UOr_Struct_DType)) {
+                    अगर (!sdtypep->packed()) {
                         addUOrStructMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                                varName(varp), sdtypep);
                     }
-                } else if (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+                } अन्यथा अगर (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
                     addUnpackedArrayUOrStructMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                                         varName(varp), varp->dtypep());
                 }
-                if (kind == TableEntryKind::PLAIN_RESIDUAL) {
+                अगर (kind == TableEntryKind::PLAIN_RESIDUAL) {
                     addPackedAggMemberVars(residual, svd, scopep, svd.m_varBasePretty,
                                            varName(varp), varp->dtypep());
                 }
             }
 
-            if (!rows.empty()) {
-                const size_t rowCount = rows.size();
-                std::string key;
-                for (const std::string& r : rows) {
-                    key += r;
-                    key += '\0';
+            अगर (!rows.empty()) {
+                स्थिर माप_प्रकार row_गिनती = rows.आकार();
+                std::string कुंजी;
+                क्रम (स्थिर std::string& r : rows) {
+                    कुंजी += r;
+                    कुंजी += '\0';
                 }
-                const auto itt = tableByRows.find(key);
+                स्थिर स्वतः itt = tableByRows.find(कुंजी);
                 std::string tableName;
-                if (itt != tableByRows.end()) {
+                अगर (itt != tableByRows.end()) {
                     tableName = itt->second;
-                } else {
-                    tableName = modClassName + "__VpiVarTable" + std::to_string(tableCounter++);
-                    tableByRows.emplace(std::move(key), tableName);
+                } अन्यथा {
+                    tableName = modClassName + "__VpiVarTable" + std::to_string(table_गणक++);
+                    tableByRows.emplace(std::move(कुंजी), tableName);
                     m_varTables.emplace_back(tableName, std::move(rows));
                 }
 
                 std::string call = "vlSymsp->" + protect("__Vscopep_" + scopeName)
                                    + "->varsInsertFromTable(" + tableName + ", "
-                                   + std::to_string(rowCount) + ", &(vlSymsp->"
+                                   + std::to_string(row_गिनती) + ", &(vlSymsp->"
                                    + instName(instScopep) + "));";
                 stmts.add(call);
             }
-            for (const std::string& r : residual) stmts.add(r);
+            क्रम (स्थिर std::string& r : residual) stmts.add(r);
         }
     }
 
-    return stmts;
+    वापस stmts;
 }
 
 EmitCSyms::TextStmts EmitCSyms::getSymDtorStmts() {
     TextStmts stmts;
 
     emitScopeHier(stmts, true);
-    if (v3Global.needTraceDumper()) {
+    अगर (v3Global.needTraceDumper()) {
         stmts.add("if (vlSymsp->__Vm_dumping) vlSymsp->_traceDumpClose();");
     }
-    if (v3Global.opt.profPgo()) {
-        stmts.add("vlSymsp->_vm_pgoProfiler.write(\"" + topClassName()
+    अगर (v3Global.opt.profPgo()) {
+        stmts.add("vlSymsp->_vm_pgoProfiler.write(\"" + शीर्ष_Class_Name()
                   + "\", vlSymsp->_vm_contextp__->profVltFilename());");
     }
     // Before the scopes below, as each row names a scope being torn down
-    if (!m_ifaceRefTableRows.empty()) {
+    अगर (!m_ifaceRefTableRows.empty()) {
         stmts.add("// Tear down interface references");
         stmts.add("VerilatedScope::ifaceRefsEraseFromTable(" + m_ifaceRefTableName + ", "
-                  + std::to_string(m_ifaceRefTableRows.size()) + ", vlSymsp);");
+                  + std::to_string(m_ifaceRefTableRows.आकार()) + ", vlSymsp);");
     }
 
     stmts.add("// Tear down scopes");
-    for (const auto& itpair : m_scopeNames) {
-        const ScopeData& sd = itpair.second;
-        const std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
+    क्रम (स्थिर स्वतः& itpair : m_scopeNames) {
+        स्थिर Scope_तथ्य& sd = itpair.second;
+        स्थिर std::string id = "vlSymsp->" + protect("__Vscopep_" + sd.m_symName);
         stmts.add("VL_DO_CLEAR(delete " + id + ", " + id + " = nullptr);");
     }
 
     stmts.add("// Tear down sub module instances");
-    for (const ScopeModPair& itpair : vlstd::reverse_view(m_scopes)) {
-        const AstScope* const scopep = itpair.first;
-        const AstNodeModule* const modp = itpair.second;
-        if (modp->isTop()) continue;
+    क्रम (स्थिर ScopeModPair& itpair : vlstd::reverse_view(m_scopes)) {
+        स्थिर AstScope* स्थिर scopep = itpair.first;
+        स्थिर Ast_गाँठ_Module* स्थिर modp = itpair.second;
+        अगर (modp->is_शीर्ष()) जारी;
         stmts.add("VL_INPLACE_DESTRUCT(vlSymsp->" + instName(scopep) + ");");
     }
-    return stmts;
+    वापस stmts;
 }
 
-void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
+व्योम EmitCSyms::emitSymImp(स्थिर AstNetlist* netlistp) {
     UINFO(6, __FUNCTION__ << ": ");
 
     // Get the body of the constructor and destructor
@@ -1652,118 +1652,118 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
     TextStmts dtorStmts = getSymDtorStmts();
 
     // Split into sub-functions if needed
-    const std::pair<std::string, std::string> splitCtorDtorDecls  //
+    स्थिर std::pair<std::string, std::string> splitCtorDtorDecls  //
         = emitSplitCtorDtor(ctorStmts, dtorStmts,
                             // Base cost 200 to consider other contents in main file.
                             200, symClassName(), symClassName() + "* vlSymsp", "vlSymsp",  //
                             true, "Symbol table implementation internals",
-                            [this]() { emitSymImpPreamble(); });
+                            [यह]() { emitSymImpPreamble(); });
 
     openNewOutputSourceFile(symClassName(), true, true, "Symbol table implementation internals");
     emitSymImpPreamble();
     emitVarTables();
 
-    const AstScope* const topScopep = netlistp->topScopep()->scopep();
-    const std::string topInst = "vlSymsp->" + instName(topScopep);
+    स्थिर AstScope* स्थिर शीर्ष_Scopep = netlistp->शीर्ष_Scopep()->scopep();
+    स्थिर std::string शीर्ष_Inst = "vlSymsp->" + instName(शीर्ष_Scopep);
 
     // Constructor contents, in a loose function, so all statements access the members through
     // 'vlSymsp', as they do when split into sub-functions
-    if (!splitCtorDtorDecls.first.empty()) puts("\n" + splitCtorDtorDecls.first + "\n");
-    puts("\nvoid " + symClassName() + "__ctor(" + symClassName()
+    अगर (!splitCtorDtorDecls.first.empty()) माला_दो("\n" + splitCtorDtorDecls.first + "\n");
+    माला_दो("\nvoid " + symClassName() + "__ctor(" + symClassName()
          + "* vlSymsp, const char* namep) {\n");
-    puts("// Setup top module instance\n");
-    puts("VL_INPLACE_CONSTRUCT(" + topInst + ", vlSymsp, namep);\n");
-    for (const TextStmts::Stmt& stmt : ctorStmts) {
+    माला_दो("// Setup top module instance\n");
+    माला_दो("VL_INPLACE_CONSTRUCT(" + शीर्ष_Inst + ", vlSymsp, namep);\n");
+    क्रम (स्थिर TextStmts::Stmt& stmt : ctorStmts) {
         ofp()->putsNoTracking("    ");
         ofp()->putsNoTracking(stmt.m_text);
         ofp()->putsNoTracking("\n");
     }
-    puts("}\n");
+    माला_दो("}\n");
 
     // Constructor
-    puts("\n");
-    puts(symClassName() + "::" + symClassName()
-         + "(VerilatedContext* contextp, const char* namep, " + topClassName() + "* modelp)\n");
-    puts("    : VerilatedSyms{contextp}\n");
-    puts("    // Setup internal state of the Syms class\n");
-    puts("    , __Vm_modelp{modelp}\n");
-    puts("    , __Vm_didInit{modelp->m_didInit}\n");
-    if (v3Global.opt.mtasks()) {
-        puts("    , __Vm_threadPoolp{static_cast<VlThreadPool*>(contextp->threadPoolp("
+    माला_दो("\n");
+    माला_दो(symClassName() + "::" + symClassName()
+         + "(VerilatedContext* contextp, const char* namep, " + शीर्ष_Class_Name() + "* modelp)\n");
+    माला_दो("    : VerilatedSyms{contextp}\n");
+    माला_दो("    // Setup internal state of the Syms class\n");
+    माला_दो("    , __Vm_modelp{modelp}\n");
+    माला_दो("    , __Vm_didInit{modelp->m_didInit}\n");
+    अगर (v3Global.opt.mtasks()) {
+        माला_दो("    , __Vm_threadPoolp{static_cast<VlThreadPool*>(contextp->threadPoolp("
              "modelp->threads()))}\n");
     }
-    if (v3Global.opt.profExec()) {
-        puts("    , __Vm_executionProfilerp{static_cast<VlExecutionProfiler*>(contextp->"
+    अगर (v3Global.opt.profExec()) {
+        माला_दो("    , __Vm_executionProfilerp{static_cast<VlExecutionProfiler*>(contextp->"
              "enableExecutionProfiler(&VlExecutionProfiler::construct))}\n");
     }
-    if (v3Global.opt.profPgo() && !v3Global.opt.libCreate().empty()) {
-        puts("    , _vm_pgoProfiler{" + std::to_string(v3Global.currentHierBlockCost()) + "}\n");
+    अगर (v3Global.opt.profPgo() && !v3Global.opt.libCreate().empty()) {
+        माला_दो("    , _vm_pgoProfiler{" + std::to_string(v3Global.currentHierBlockCost()) + "}\n");
     }
-    puts("{\n");
-    puts(symClassName() + "__ctor(this, namep);\n");
-    puts("}\n");
+    माला_दो("{\n");
+    माला_दो(symClassName() + "__ctor(this, namep);\n");
+    माला_दो("}\n");
 
     // Destructor contents, in a loose function, see constructor
-    if (!splitCtorDtorDecls.second.empty()) puts("\n" + splitCtorDtorDecls.second + "\n");
-    puts("\nvoid " + symClassName() + "__dtor(" + symClassName() + "* vlSymsp) {\n");
-    for (const TextStmts::Stmt& stmt : dtorStmts) {
+    अगर (!splitCtorDtorDecls.second.empty()) माला_दो("\n" + splitCtorDtorDecls.second + "\n");
+    माला_दो("\nvoid " + symClassName() + "__dtor(" + symClassName() + "* vlSymsp) {\n");
+    क्रम (स्थिर TextStmts::Stmt& stmt : dtorStmts) {
         ofp()->putsNoTracking("    ");
         ofp()->putsNoTracking(stmt.m_text);
         ofp()->putsNoTracking("\n");
     }
-    puts("// Tear down top module instance\n");
-    puts("VL_INPLACE_DESTRUCT(" + topInst + ");\n");
-    puts("}\n");
+    माला_दो("// Tear down top module instance\n");
+    माला_दो("VL_INPLACE_DESTRUCT(" + शीर्ष_Inst + ");\n");
+    माला_दो("}\n");
 
     // Destructor
-    puts("\n");
-    puts(symClassName() + "::~" + symClassName() + "() {\n");
-    puts(symClassName() + "__dtor(this);\n");
-    puts("}\n");
+    माला_दो("\n");
+    माला_दो(symClassName() + "::~" + symClassName() + "() {\n");
+    माला_दो(symClassName() + "__dtor(this);\n");
+    माला_दो("}\n");
 
     // Methods
-    if (v3Global.needTraceDumper()) {
-        if (!optSystemC()) {
-            puts("\nvoid " + symClassName() + "::_traceDump() {\n");
-            puts("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
+    अगर (v3Global.needTraceDumper()) {
+        अगर (!optSystemC()) {
+            माला_दो("\nvoid " + symClassName() + "::_traceDump() {\n");
+            माला_दो("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
             // Caller checked for __Vm_dumperp non-nullptr
-            puts("__Vm_dumperp->dump(VL_TIME_Q());\n");
-            puts("}\n");
+            माला_दो("__Vm_dumperp->dump(VL_TIME_Q());\n");
+            माला_दो("}\n");
         }
 
-        puts("\nvoid " + symClassName() + "::_traceDumpOpen() {\n");
-        puts("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
-        puts("if (VL_UNLIKELY(!__Vm_dumperp)) {\n");
-        puts("__Vm_dumperp = new " + v3Global.opt.traceClassLang() + "();\n");
-        puts("__Vm_modelp->trace(__Vm_dumperp, 0, 0);\n");
-        puts("const std::string dumpfile = _vm_contextp__->dumpfileCheck();\n");
-        puts("__Vm_dumperp->open(dumpfile.c_str());\n");
-        puts("__Vm_dumping = true;\n");
-        puts("}\n");
-        puts("}\n");
+        माला_दो("\nvoid " + symClassName() + "::_traceDumpOpen() {\n");
+        माला_दो("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
+        माला_दो("if (VL_UNLIKELY(!__Vm_dumperp)) {\n");
+        माला_दो("__Vm_dumperp = new " + v3Global.opt.traceClassLang() + "();\n");
+        माला_दो("__Vm_modelp->trace(__Vm_dumperp, 0, 0);\n");
+        माला_दो("const std::string dumpfile = _vm_contextp__->dumpfileCheck();\n");
+        माला_दो("__Vm_dumperp->open(dumpfile.c_str());\n");
+        माला_दो("__Vm_dumping = true;\n");
+        माला_दो("}\n");
+        माला_दो("}\n");
 
-        puts("\nvoid " + symClassName() + "::_traceDumpClose() {\n");
-        puts("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
-        puts("__Vm_dumping = false;\n");
-        puts("VL_DO_CLEAR(delete __Vm_dumperp, __Vm_dumperp = nullptr);\n");
-        puts("}\n");
+        माला_दो("\nvoid " + symClassName() + "::_traceDumpClose() {\n");
+        माला_दो("const VerilatedLockGuard lock{__Vm_dumperMutex};\n");
+        माला_दो("__Vm_dumping = false;\n");
+        माला_दो("VL_DO_CLEAR(delete __Vm_dumperp, __Vm_dumperp = nullptr);\n");
+        माला_दो("}\n");
     }
 
-    if (v3Global.opt.savable()) {
-        for (const bool& de : {false, true}) {
-            const std::string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
-            const std::string funcname = protect(de ? "__Vdeserialize" : "__Vserialize");
-            const std::string op = de ? ">>" : "<<";
-            puts("\nvoid " + symClassName() + "::" + funcname + "(" + classname + "& os) {\n");
-            puts("// Internal state\n");
-            if (v3Global.opt.trace()) puts("os" + op + "__Vm_activity;\n");
-            puts("os " + op + " __Vm_didInit;\n");
-            puts("// Module instance state\n");
-            for (const ScopeModPair& itpair : m_scopes) {
-                const AstScope* const scopep = itpair.first;
-                puts(instName(scopep) + "." + funcname + "(os);\n");
+    अगर (v3Global.opt.savable()) {
+        क्रम (स्थिर bool& de : {false, true}) {
+            स्थिर std::string classname = de ? "VerilatedDeserialize" : "VerilatedSerialize";
+            स्थिर std::string funcname = protect(de ? "__Vdeserialize" : "__Vserialize");
+            स्थिर std::string op = de ? ">>" : "<<";
+            माला_दो("\nvoid " + symClassName() + "::" + funcname + "(" + classname + "& os) {\n");
+            माला_दो("// Internal state\n");
+            अगर (v3Global.opt.trace()) माला_दो("os" + op + "__Vm_activity;\n");
+            माला_दो("os " + op + " __Vm_didInit;\n");
+            माला_दो("// Module instance state\n");
+            क्रम (स्थिर ScopeModPair& itpair : m_scopes) {
+                स्थिर AstScope* स्थिर scopep = itpair.first;
+                माला_दो(instName(scopep) + "." + funcname + "(os);\n");
             }
-            puts("}\n");
+            माला_दो("}\n");
         }
     }
 
@@ -1772,138 +1772,138 @@ void EmitCSyms::emitSymImp(const AstNetlist* netlistp) {
 
 //######################################################################
 
-void EmitCSyms::emitDpiHdr() {
+व्योम EmitCSyms::emitDpiHdr() {
     UINFO(6, __FUNCTION__ << ": ");
 
-    openNewOutputHeaderFile(topClassName() + "__Dpi",
+    openNewOutputHeaderFile(शीर्ष_Class_Name() + "__Dpi",
                             "Prototypes for DPI import and export functions.");
-    puts("//\n");
-    puts("// Verilator includes this file in all generated .cpp files that use DPI functions.\n");
-    puts("// Manually include this file where DPI .c import functions are declared to ensure\n");
-    puts("// the C functions match the expectations of the DPI imports.\n");
+    माला_दो("//\n");
+    माला_दो("// Verilator includes this file in all generated .cpp files that use DPI functions.\n");
+    माला_दो("// Manually include this file where DPI .c import functions are declared to ensure\n");
+    माला_दो("// the C functions match the expectations of the DPI imports.\n");
 
     ofp()->putsGuard();
 
-    puts("\n");
-    puts("#include \"svdpi.h\"\n");
-    puts("\n");
+    माला_दो("\n");
+    माला_दो("#include \"svdpi.h\"\n");
+    माला_दो("\n");
 
     // Unpacked structures passed as C structures (IEEE 1800-2023 H.7.8)
     std::set<std::string> structNames;
-    for (const AstCFunc* const nodep : m_dpis) {
-        for (const AstNode* argp = nodep->argsp(); argp; argp = argp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(argp, Var)) {
+    क्रम (स्थिर AstCFunc* स्थिर nodep : m_dpis) {
+        क्रम (स्थिर Ast_गाँठ* argp = nodep->argsp(); argp; argp = argp->nextp()) {
+            अगर (स्थिर AstVar* स्थिर portp = VN_CAST(argp, Var)) {
                 emitDpiStruct(portp->dtypep(), structNames);
             }
         }
     }
-    if (!structNames.empty()) puts("\n");
+    अगर (!structNames.empty()) माला_दो("\n");
 
-    puts("#ifdef __cplusplus\n");
-    puts("extern \"C\" {\n");
-    puts("#endif\n");
-    puts("\n");
+    माला_दो("#ifdef __cplusplus\n");
+    माला_दो("extern \"C\" {\n");
+    माला_दो("#endif\n");
+    माला_दो("\n");
 
-    int firstExp = 0;
-    int firstImp = 0;
-    for (const AstCFunc* const nodep : m_dpis) {
-        if (!nodep->dpiExportDispatcher() && !nodep->dpiImportPrototype()) continue;
+    पूर्णांक firstExp = 0;
+    पूर्णांक firstImp = 0;
+    क्रम (स्थिर AstCFunc* स्थिर nodep : m_dpis) {
+        अगर (!nodep->dpiExportDispatcher() && !nodep->dpiImportPrototype()) जारी;
 
-        const std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
-        if (nodep->dpiExportDispatcher()) {
-            if (!firstExp++) puts("\n// DPI EXPORTS\n");
+        स्थिर std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
+        अगर (nodep->dpiExportDispatcher()) {
+            अगर (!firstExp++) माला_दो("\n// DPI EXPORTS\n");
             putsDecoration(nodep, "// DPI export" + sourceLoc + "\n");
-        } else {
-            if (!firstImp++) puts("\n// DPI IMPORTS\n");
+        } अन्यथा {
+            अगर (!firstImp++) माला_दो("\n// DPI IMPORTS\n");
             putsDecoration(nodep, "// DPI import" + sourceLoc + "\n");
         }
-        if (nodep->dpiCDeclOverride()) {
+        अगर (nodep->dpiCDeclOverride()) {
             putns(nodep, "extern " + nodep->dpiCDecl() + ";\n");
-        } else {
+        } अन्यथा {
             putns(nodep, "extern " + nodep->rtnTypeVoid() + " " + nodep->nameProtect() + "("
                              + cFuncArgs(nodep, false) + ");\n");
         }
     }
 
-    puts("\n");
-    puts("#ifdef __cplusplus\n");
-    puts("}\n");
-    puts("#endif\n");
+    माला_दो("\n");
+    माला_दो("#ifdef __cplusplus\n");
+    माला_दो("}\n");
+    माला_दो("#endif\n");
 
     ofp()->putsEndGuard();
 
     closeOutputFile();
 }
 
-void EmitCSyms::emitDpiStruct(const AstNodeDType* dtypep, std::set<std::string>& namesr) {
-    if (!dtypep->containsUnpackedStruct()) return;
-    const AstStructDType* const sdtypep = VN_AS(dtypep->elemDTypep(), StructDType);
-    const std::string name = sdtypep->dpiName();
+व्योम EmitCSyms::emitDpiStruct(स्थिर Ast_गाँठ_DType* dtypep, std::set<std::string>& namesr) {
+    अगर (!dtypep->containsUnpackedStruct()) वापस;
+    स्थिर AstStructDType* स्थिर sdtypep = VN_AS(dtypep->elemDTypep(), StructDType);
+    स्थिर std::string name = sdtypep->dpiName();
     // Once per name, as V3Task checked structures of the same name are the same
-    if (namesr.count(name)) return;
+    अगर (namesr.गिनती(name)) वापस;
     // After the structures it contains
-    for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    क्रम (स्थिर AstMemberDType* itemp = sdtypep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
         emitDpiStruct(itemp->subDTypep(), namesr);
     }
-    if (name.empty()) return;  // Declared where used
-    if (namesr.empty()) puts("// DPI TYPES\n");
-    namesr.insert(name);
+    अगर (name.empty()) वापस;  // Declared where used
+    अगर (namesr.empty()) माला_दो("// DPI TYPES\n");
+    namesr.जोड़ो(name);
     // Guarded, so the user, or another model, may declare it instead
-    puts("#ifndef VL_DPITYPE_" + name + "_\n");
-    puts("#define VL_DPITYPE_" + name + "_\n");
+    माला_दो("#ifndef VL_DPITYPE_" + name + "_\n");
+    माला_दो("#define VL_DPITYPE_" + name + "_\n");
     putns(sdtypep, sdtypep->dpiTypedef());
-    puts("#endif\n");
+    माला_दो("#endif\n");
 }
 
 //######################################################################
 
-void EmitCSyms::emitDpiImp() {
+व्योम EmitCSyms::emitDpiImp() {
     UINFO(6, __FUNCTION__ << ": ");
-    openNewOutputSourceFile(topClassName() + "__Dpi", false, true,
+    openNewOutputSourceFile(शीर्ष_Class_Name() + "__Dpi", false, true,
                             "Implementation of DPI export functions");
-    puts("//\n");
-    puts("// Verilator compiles this file in when DPI functions are used.\n");
-    puts("// If you have multiple Verilated designs with the same DPI exported\n");
-    puts("// function names, you will get multiple definition link errors from here.\n");
-    puts("// This is an unfortunate result of the DPI specification.\n");
-    puts("// To solve this, either\n");
-    puts("//    1. Call " + topClassName() + "::{export_function} instead,\n");
-    puts("//       and do not even bother to compile this file\n");
-    puts("// or 2. Compile all __Dpi.cpp files in the same compiler run,\n");
-    puts("//       and #ifdefs already inserted here will sort everything out.\n");
-    puts("\n");
+    माला_दो("//\n");
+    माला_दो("// Verilator compiles this file in when DPI functions are used.\n");
+    माला_दो("// If you have multiple Verilated designs with the same DPI exported\n");
+    माला_दो("// function names, you will get multiple definition link errors from here.\n");
+    माला_दो("// This is an unfortunate result of the DPI specification.\n");
+    माला_दो("// To solve this, either\n");
+    माला_दो("//    1. Call " + शीर्ष_Class_Name() + "::{export_function} instead,\n");
+    माला_दो("//       and do not even bother to compile this file\n");
+    माला_दो("// or 2. Compile all __Dpi.cpp files in the same compiler run,\n");
+    माला_दो("//       and #ifdefs already inserted here will sort everything out.\n");
+    माला_दो("\n");
 
-    puts("#include \"" + topClassName() + "__Dpi.h\"\n");
-    puts("#include \"" + topClassName() + ".h\"\n");
-    puts("\n");
+    माला_दो("#include \"" + शीर्ष_Class_Name() + "__Dpi.h\"\n");
+    माला_दो("#include \"" + शीर्ष_Class_Name() + ".h\"\n");
+    माला_दो("\n");
 
-    for (const AstCFunc* const nodep : m_dpis) {
-        if (!nodep->dpiExportDispatcher()) continue;
+    क्रम (स्थिर AstCFunc* स्थिर nodep : m_dpis) {
+        अगर (!nodep->dpiExportDispatcher()) जारी;
 
-        const std::string name = nodep->name();
-        const std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
+        स्थिर std::string name = nodep->name();
+        स्थिर std::string sourceLoc = VIdProtect::ifNoProtect(" at " + nodep->fileline()->ascii());
 
         // Prevent multi-definition if used by multiple models
-        puts("#ifndef VL_DPIDECL_" + name + "_\n");
-        puts("#define VL_DPIDECL_" + name + "_\n");
+        माला_दो("#ifndef VL_DPIDECL_" + name + "_\n");
+        माला_दो("#define VL_DPIDECL_" + name + "_\n");
         putns(nodep, nodep->rtnTypeVoid() + " " + name + "(" + cFuncArgs(nodep) + ") {\n");
-        puts("// DPI export" + sourceLoc + "\n");
-        putns(nodep, "return " + topClassName() + "::" + name + "(");
+        माला_दो("// DPI export" + sourceLoc + "\n");
+        putns(nodep, "return " + शीर्ष_Class_Name() + "::" + name + "(");
         std::string comma;
-        for (const AstNode* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (const AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO() && !portp->isFuncReturn()) {
-                    puts(comma);
+        क्रम (स्थिर Ast_गाँठ* stmtp = nodep->argsp(); stmtp; stmtp = stmtp->nextp()) {
+            अगर (स्थिर AstVar* स्थिर portp = VN_CAST(stmtp, Var)) {
+                अगर (portp->isIO() && !portp->isFuncReturn()) {
+                    माला_दो(comma);
                     comma = ", ";
                     putns(portp, portp->name());
                 }
             }
         }
-        puts(");\n");
-        puts("}\n");
-        puts("#endif\n");
-        puts("\n");
+        माला_दो(");\n");
+        माला_दो("}\n");
+        माला_दो("#endif\n");
+        माला_दो("\n");
     }
     closeOutputFile();
 }
@@ -1911,7 +1911,7 @@ void EmitCSyms::emitDpiImp() {
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcSyms(bool dpiHdrOnly) {
+व्योम V3EmitC::emitcSyms(bool dpiHdrOnly) {
     UINFO(2, __FUNCTION__ << ":");
     EmitCSyms{v3Global.rootp(), dpiHdrOnly};
 }

@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTOP_H_
-#define VERILATOR_VLCTOP_H_
+#अगर_अघोषित VERILATOR_VLCTOP_H_
+#घोषणा VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#समावेश "VlcOptions.h"
+#समावेश "VlcPoint.h"
+#समावेश "VlcSource.h"
+#समावेश "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_शीर्ष final {
+खुला:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+निजी:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    व्योम annotateCalc();
+    व्योम annotateCalcNeeded();
+    व्योम annotateOutputFiles(स्थिर string& स_नाम);
 
-public:
+खुला:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_शीर्ष() = शेष;
+    ~Vlc_शीर्ष() = शेष;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { वापस m_tests; }
+    VlcPoints& points() { वापस m_points; }
+    VlcSources& sources() { वापस m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    व्योम annotate(स्थिर string& स_नाम);
+    व्योम printHierarchyReport();
+    व्योम printTypeSummary();
+    व्योम readCoverage(स्थिर string& filename, bool nonfatal = false);
+    व्योम writeCoverage(स्थिर string& filename);
+    व्योम writeInfo(स्थिर string& filename);
 
-    void rank();
+    व्योम rank();
 };
 
 //######################################################################
 
-#endif  // guard
+#पूर्ण_अगर  // guard

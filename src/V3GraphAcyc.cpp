@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#घोषणा VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#समावेश "V3Global.h"
+#समावेश "V3Graph.h"
 
-#include <algorithm>
-#include <list>
-#include <vector>
+#समावेश <algorithm>
+#समावेश <list>
+#समावेश <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -33,75 +33,75 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Algorithms - acyclic
 //      Break the minimal number of backward edges to make the graph acyclic
 
-class GraphAcycVertex final : public V3GraphVertex {
+श्रेणी GraphAcycVertex final : खुला V3GraphVertex {
     VL_RTTI_IMPL(GraphAcycVertex, V3GraphVertex)
     // user() is used for various sub-algorithm pieces
-    V3GraphVertex* const m_origVertexp;  // Pointer to first vertex this represents
-protected:
-    friend class GraphAcyc;
+    V3GraphVertex* स्थिर m_origVertexp;  // Pointer to first vertex this represents
+रक्षित:
+    मित्र श्रेणी GraphAcyc;
     V3ListLinks<GraphAcycVertex> m_links;  // List links to store instances of this class
     uint32_t m_storedRank = 0;  // Rank held until commit to edge placement
     bool m_onWorkList = false;  // True if already on list of work to do
     bool m_deleted = false;  // True if deleted
 
-private:
-    V3ListLinks<GraphAcycVertex>& links() { return m_links; }
+निजी:
+    V3ListLinks<GraphAcycVertex>& links() { वापस m_links; }
 
-public:
+खुला:
     // List type to store instances of this class
     using List = V3List<GraphAcycVertex, &GraphAcycVertex::links>;
 
     GraphAcycVertex(V3Graph* graphp, V3GraphVertex* origVertexp)
         : V3GraphVertex{graphp}
         , m_origVertexp{origVertexp} {}
-    ~GraphAcycVertex() override = default;
-    V3GraphVertex* origVertexp() const { return m_origVertexp; }
-    void setDelete() { m_deleted = true; }
-    bool isDelete() const { return m_deleted; }
+    ~GraphAcycVertex() override = शेष;
+    V3GraphVertex* origVertexp() स्थिर { वापस m_origVertexp; }
+    व्योम setDelete() { m_deleted = true; }
+    bool isDelete() स्थिर { वापस m_deleted; }
     // cppcheck-suppress uselessOverride // cppcheck is wrong ...
-    string name() const override { return m_origVertexp->name(); }
+    string name() स्थिर override { वापस m_origVertexp->name(); }
     // cppcheck-suppress uselessOverride // cppcheck is wrong ...
-    string dotColor() const override { return m_origVertexp->dotColor(); }
+    string dotColor() स्थिर override { वापस m_origVertexp->dotColor(); }
     // cppcheck-suppress uselessOverride // cppcheck is wrong ...
-    FileLine* fileline() const override { return m_origVertexp->fileline(); }
+    File_पंक्ति* fileline() स्थिर override { वापस m_origVertexp->fileline(); }
 };
 
 //--------------------------------------------------------------------
 
-class GraphAcycEdge final : public V3GraphEdge {
+श्रेणी GraphAcycEdge final : खुला V3GraphEdge {
     VL_RTTI_IMPL(GraphAcycEdge, V3GraphEdge)
     // userp() is always used to point to the head original graph edge
-private:
+निजी:
     using OrigEdgeList = std::list<V3GraphEdge*>;  // List of orig edges, see also GraphAcyc's decl
-    V3GraphEdge* origEdgep() const {
-        const OrigEdgeList* const oEListp = static_cast<OrigEdgeList*>(userp());
-        UASSERT(oEListp, "No original edge associated with acyc edge " << this);
-        return (oEListp->front());
+    V3GraphEdge* origEdgep() स्थिर {
+        स्थिर OrigEdgeList* स्थिर oEListp = static_cast<OrigEdgeList*>(userp());
+        UASSERT(oEListp, "No original edge associated with acyc edge " << यह);
+        वापस (oEListp->front());
     }
 
-public:
-    GraphAcycEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+खुला:
+    GraphAcycEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* शीर्ष, पूर्णांक weight,
                   bool cutable = false)
-        : V3GraphEdge{graphp, fromp, top, weight, cutable} {}
-    ~GraphAcycEdge() override = default;
+        : V3GraphEdge{graphp, fromp, शीर्ष, weight, cutable} {}
+    ~GraphAcycEdge() override = शेष;
     // yellow=we might still cut it, else oldEdge: yellowGreen=made uncutable, red=uncutable
-    string dotColor() const override { return (cutable() ? "yellow" : origEdgep()->dotColor()); }
+    string dotColor() स्थिर override { वापस (cutable() ? "yellow" : origEdgep()->dotColor()); }
 };
 
 //--------------------------------------------------------------------
 
-struct GraphAcycEdgeCmp final {
-    bool operator()(const V3GraphEdge* lhsp, const V3GraphEdge* rhsp) const {
-        if (lhsp->weight() > rhsp->weight()) return true;  // LHS goes first
-        if (lhsp->weight() < rhsp->weight()) return false;  // RHS goes first
-        return false;
+काष्ठा GraphAcycEdgeCmp final {
+    bool चालक()(स्थिर V3GraphEdge* lhsp, स्थिर V3GraphEdge* rhsp) स्थिर {
+        अगर (lhsp->weight() > rhsp->weight()) वापस true;  // LHS goes first
+        अगर (lhsp->weight() < rhsp->weight()) वापस false;  // RHS goes first
+        वापस false;
     }
 };
 
 //--------------------------------------------------------------------
 
 // CLASSES
-class GraphAcyc final {
+श्रेणी GraphAcyc final {
     using OrigEdgeList
         = std::list<V3GraphEdge*>;  // List of orig edges, see also GraphAcycEdge's decl
     // GRAPH USERS
@@ -111,133 +111,133 @@ class GraphAcyc final {
     //    GraphEdge::user()     OrigEdgeList*   Old graph edges
     //    GraphVertex::user     bool            Detection of loops in simplifyDupIterate
     // MEMBERS
-    V3Graph* const m_origGraphp;  // Original graph
+    V3Graph* स्थिर m_origGraphp;  // Original graph
     V3Graph m_breakGraph;  // Graph with only breakable edges represented
     GraphAcycVertex::List m_work;  // List of vertices with optimization work left
     std::vector<OrigEdgeList*> m_origEdgeDelp;  // List of deletions to do when done
-    const V3EdgeFuncP
+    स्थिर V3EdgeFuncP
         m_origEdgeFuncp;  // Function that says we follow this edge (in original graph)
     uint32_t m_placeStep = 0;  // Number that user() must be equal to to indicate processing
 
     // METHODS
-    void buildGraph(V3Graph* origGraphp);
-    void buildGraphIterate(V3GraphVertex* overtexp, GraphAcycVertex* avertexp);
-    void simplify(bool allowCut);
-    void simplifyNone(GraphAcycVertex* avertexp);
-    void simplifyOne(GraphAcycVertex* avertexp);
-    void simplifyOut(GraphAcycVertex* avertexp);
-    void simplifyDup(GraphAcycVertex* avertexp);
-    void cutBasic(GraphAcycVertex* avertexp);
-    void cutBackward(GraphAcycVertex* avertexp);
-    void deleteMarked();
-    void place();
-    void placeTryEdge(V3GraphEdge* edgep);
+    व्योम buildGraph(V3Graph* origGraphp);
+    व्योम buildGraphIterate(V3GraphVertex* overtexp, GraphAcycVertex* avertexp);
+    व्योम simplify(bool allowCut);
+    व्योम simplifyNone(GraphAcycVertex* avertexp);
+    व्योम simplifyOne(GraphAcycVertex* avertexp);
+    व्योम simplifyOut(GraphAcycVertex* avertexp);
+    व्योम simplifyDup(GraphAcycVertex* avertexp);
+    व्योम cutBasic(GraphAcycVertex* avertexp);
+    व्योम cutBackward(GraphAcycVertex* avertexp);
+    व्योम deleteMarked();
+    व्योम place();
+    व्योम placeTryEdge(V3GraphEdge* edgep);
     bool placeIterate(GraphAcycVertex* vertexp, uint32_t currentRank);
 
     bool origFollowEdge(V3GraphEdge* edgep) {
-        return (edgep->weight() && (m_origEdgeFuncp)(edgep));
+        वापस (edgep->weight() && (m_origEdgeFuncp)(edgep));
     }
-    void edgeFromEdge(V3GraphEdge* oldedgep, V3GraphVertex* fromp, V3GraphVertex* top) {
+    व्योम edgeFromEdge(V3GraphEdge* oldedgep, V3GraphVertex* fromp, V3GraphVertex* शीर्ष) {
         // Make new breakGraph edge, with old edge as a template
-        GraphAcycEdge* const newEdgep = new GraphAcycEdge{&m_breakGraph, fromp, top,
+        GraphAcycEdge* स्थिर newEdgep = नया GraphAcycEdge{&m_breakGraph, fromp, शीर्ष,
                                                           oldedgep->weight(), oldedgep->cutable()};
         newEdgep->userp(oldedgep->userp());  // Keep pointer to OrigEdgeList
     }
-    void addOrigEdgep(V3GraphEdge* toEdgep, V3GraphEdge* addEdgep) {
+    व्योम addOrigEdgep(V3GraphEdge* toEdgep, V3GraphEdge* addEdgep) {
         // Add addEdge (or it's list) to list of edges that break edge represents
         // Note addEdge may already have a bunch of similar linked edge representations.  Yuk.
         UASSERT(addEdgep, "Adding nullptr");
-        if (!toEdgep->userp()) {
-            OrigEdgeList* const oep = new OrigEdgeList;
-            m_origEdgeDelp.push_back(oep);
+        अगर (!toEdgep->userp()) {
+            OrigEdgeList* स्थिर oep = नया OrigEdgeList;
+            m_origEdgeDelp.धकेलो_back(oep);
             toEdgep->userp(oep);
         }
-        OrigEdgeList* const oEListp = static_cast<OrigEdgeList*>(toEdgep->userp());
-        if (OrigEdgeList* const addListp = static_cast<OrigEdgeList*>(addEdgep->userp())) {
-            for (const auto& itr : *addListp) oEListp->push_back(itr);
-            addListp->clear();  // Done with it
-        } else {
-            oEListp->push_back(addEdgep);
+        OrigEdgeList* स्थिर oEListp = static_cast<OrigEdgeList*>(toEdgep->userp());
+        अगर (OrigEdgeList* स्थिर addListp = static_cast<OrigEdgeList*>(addEdgep->userp())) {
+            क्रम (स्थिर स्वतः& itr : *addListp) oEListp->धकेलो_back(itr);
+            addListp->सफा();  // Done with it
+        } अन्यथा {
+            oEListp->धकेलो_back(addEdgep);
         }
     }
-    void cutOrigEdge(V3GraphEdge* breakEdgep, const char* why) {
+    व्योम cutOrigEdge(V3GraphEdge* breakEdgep, स्थिर अक्षर* why) {
         // From the break edge, cut edges in original graph it represents
         UINFO(8, why << " CUT " << breakEdgep->fromp());
         breakEdgep->cut();
-        const OrigEdgeList* const oEListp = static_cast<OrigEdgeList*>(breakEdgep->userp());
-        if (!oEListp) {
+        स्थिर OrigEdgeList* स्थिर oEListp = static_cast<OrigEdgeList*>(breakEdgep->userp());
+        अगर (!oEListp) {
             v3fatalSrc("No original edge associated with cutting edge " << breakEdgep);
         }
         // The breakGraph edge may represent multiple real edges; cut them all
-        for (const auto& origEdgep : *oEListp) {
+        क्रम (स्थिर स्वतः& origEdgep : *oEListp) {
             origEdgep->cut();
-            UINFO(8, "  " << why << "   " << origEdgep->fromp() << " ->" << origEdgep->top());
+            UINFO(8, "  " << why << "   " << origEdgep->fromp() << " ->" << origEdgep->शीर्ष());
         }
     }
     // Work Queue
-    void workPush(V3GraphVertex* vertexp) {
-        GraphAcycVertex* const avertexp = static_cast<GraphAcycVertex*>(vertexp);
+    व्योम work_धकेलो(V3GraphVertex* vertexp) {
+        GraphAcycVertex* स्थिर avertexp = static_cast<GraphAcycVertex*>(vertexp);
         // Add vertex to list of nodes needing further optimization trials
-        if (!avertexp->m_onWorkList) {
+        अगर (!avertexp->m_onWorkList) {
             avertexp->m_onWorkList = true;
             m_work.linkBack(avertexp);
         }
     }
-    GraphAcycVertex* workBeginp() { return m_work.frontp(); }
-    void workPop() {
-        GraphAcycVertex* const avertexp = workBeginp();
+    GraphAcycVertex* workBeginp() { वापस m_work.frontp(); }
+    व्योम work_निकालो() {
+        GraphAcycVertex* स्थिर avertexp = workBeginp();
         avertexp->m_onWorkList = false;
         m_work.unlink(avertexp);
     }
 
-public:
+खुला:
     // CONSTRUCTORS
     GraphAcyc(V3Graph* origGraphp, V3EdgeFuncP edgeFuncp)
         : m_origGraphp{origGraphp}
         , m_origEdgeFuncp{edgeFuncp} {}
     ~GraphAcyc() {
-        for (OrigEdgeList* ip : m_origEdgeDelp) delete ip;
-        m_origEdgeDelp.clear();
+        क्रम (OrigEdgeList* ip : m_origEdgeDelp) मिटाओ ip;
+        m_origEdgeDelp.सफा();
     }
-    void main();
+    व्योम मुख्य();
 };
 
 //--------------------------------------------------------------------
 
-void GraphAcyc::buildGraph(V3Graph* origGraphp) {
+व्योम GraphAcyc::buildGraph(V3Graph* origGraphp) {
     // Presumes the graph has been strongly ordered,
     // and thus there's a unique color if there are loops in this subgraph.
 
     // For each old node, make a new graph node for optimization
     origGraphp->userClearVertices();
     origGraphp->userClearEdges();
-    for (V3GraphVertex& overtex : origGraphp->vertices()) {
-        if (overtex.color()) {
-            GraphAcycVertex* const avertexp = new GraphAcycVertex{&m_breakGraph, &overtex};
+    क्रम (V3GraphVertex& overtex : origGraphp->vertices()) {
+        अगर (overtex.color()) {
+            GraphAcycVertex* स्थिर avertexp = नया GraphAcycVertex{&m_breakGraph, &overtex};
             overtex.userp(avertexp);  // Stash so can look up later
         }
     }
 
     // Build edges between logic vertices
-    for (V3GraphVertex& overtex : origGraphp->vertices()) {
-        if (overtex.color()) {
-            GraphAcycVertex* const avertexp = static_cast<GraphAcycVertex*>(overtex.userp());
+    क्रम (V3GraphVertex& overtex : origGraphp->vertices()) {
+        अगर (overtex.color()) {
+            GraphAcycVertex* स्थिर avertexp = static_cast<GraphAcycVertex*>(overtex.userp());
             buildGraphIterate(&overtex, avertexp);
         }
     }
 }
 
-void GraphAcyc::buildGraphIterate(V3GraphVertex* overtexp, GraphAcycVertex* avertexp) {
+व्योम GraphAcyc::buildGraphIterate(V3GraphVertex* overtexp, GraphAcycVertex* avertexp) {
     // Make new edges
-    for (V3GraphEdge& edge : overtexp->outEdges()) {
-        if (origFollowEdge(&edge)) {  // not cut
-            const V3GraphVertex* toVertexp = edge.top();
-            if (toVertexp->color()) {
-                GraphAcycVertex* const toAVertexp
+    क्रम (V3GraphEdge& edge : overtexp->outEdges()) {
+        अगर (origFollowEdge(&edge)) {  // not cut
+            स्थिर V3GraphVertex* toVertexp = edge.शीर्ष();
+            अगर (toVertexp->color()) {
+                GraphAcycVertex* स्थिर toAVertexp
                     = static_cast<GraphAcycVertex*>(toVertexp->userp());
                 // Replicate the old edge into the new graph
                 // There may be multiple edges between same pairs of vertices
-                V3GraphEdge* breakEdgep = new GraphAcycEdge{&m_breakGraph, avertexp, toAVertexp,
+                V3GraphEdge* breakEdgep = नया GraphAcycEdge{&m_breakGraph, avertexp, toAVertexp,
                                                             edge.weight(), edge.cutable()};
                 addOrigEdgep(breakEdgep, &edge);  // So can find original edge
             }
@@ -245,20 +245,20 @@ void GraphAcyc::buildGraphIterate(V3GraphVertex* overtexp, GraphAcycVertex* aver
     }
 }
 
-void GraphAcyc::simplify(bool allowCut) {
+व्योम GraphAcyc::simplify(bool allowCut) {
     // Add all nodes to list of work to do
-    for (V3GraphVertex& vertex : m_breakGraph.vertices()) workPush(&vertex);
+    क्रम (V3GraphVertex& vertex : m_breakGraph.vertices()) work_धकेलो(&vertex);
     // Optimize till everything finished
-    while (GraphAcycVertex* vertexp = workBeginp()) {
-        workPop();
+    जबतक (GraphAcycVertex* vertexp = workBeginp()) {
+        work_निकालो();
         simplifyNone(vertexp);
         simplifyOne(vertexp);
         simplifyOut(vertexp);
         simplifyDup(vertexp);
-        if (allowCut) {
+        अगर (allowCut) {
             // The main algorithm works without these, though slower
             // So if changing the main algorithm, comment these out for a test run
-            if (v3Global.opt.fAcycSimp()) {
+            अगर (v3Global.opt.fAcycSimp()) {
                 cutBasic(vertexp);
                 cutBackward(vertexp);
             }
@@ -267,46 +267,46 @@ void GraphAcyc::simplify(bool allowCut) {
     deleteMarked();
 }
 
-void GraphAcyc::deleteMarked() {
+व्योम GraphAcyc::deleteMarked() {
     // Delete nodes marked for removal
-    for (V3GraphVertex* const vtxp : m_breakGraph.vertices().unlinkable()) {
-        GraphAcycVertex* const avertexp = static_cast<GraphAcycVertex*>(vtxp);
-        if (avertexp->isDelete()) {
+    क्रम (V3GraphVertex* स्थिर vtxp : m_breakGraph.vertices().unlinkable()) {
+        GraphAcycVertex* स्थिर avertexp = static_cast<GraphAcycVertex*>(vtxp);
+        अगर (avertexp->isDelete()) {
             VL_DO_DANGLING(avertexp->unlinkDelete(&m_breakGraph), avertexp);
         }
     }
 }
 
-void GraphAcyc::simplifyNone(GraphAcycVertex* avertexp) {
+व्योम GraphAcyc::simplifyNone(GraphAcycVertex* avertexp) {
     // Don't need any vertices with no inputs, There's no way they can have a loop.
     // Likewise, vertices with no outputs
-    if (avertexp->isDelete()) return;
-    if (avertexp->inEmpty() || avertexp->outEmpty()) {
+    अगर (avertexp->isDelete()) वापस;
+    अगर (avertexp->inEmpty() || avertexp->outEmpty()) {
         UINFO(9, "  SimplifyNoneRemove " << avertexp);
         avertexp->setDelete();  // Mark so we won't delete it twice
         // Remove edges
-        while (V3GraphEdge* const edgep = avertexp->outEdges().frontp()) {
-            workPush(edgep->top());
+        जबतक (V3GraphEdge* स्थिर edgep = avertexp->outEdges().frontp()) {
+            work_धकेलो(edgep->शीर्ष());
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
-        while (V3GraphEdge* const edgep = avertexp->inEdges().frontp()) {
-            workPush(edgep->fromp());
+        जबतक (V3GraphEdge* स्थिर edgep = avertexp->inEdges().frontp()) {
+            work_धकेलो(edgep->fromp());
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         }
     }
 }
 
-void GraphAcyc::simplifyOne(GraphAcycVertex* avertexp) {
+व्योम GraphAcyc::simplifyOne(GraphAcycVertex* avertexp) {
     // If a node has one input and one output, we can remove it and change the edges
-    if (avertexp->isDelete()) return;
-    if (avertexp->inSize1() && avertexp->outSize1()) {
-        V3GraphEdge* const inEdgep = avertexp->inEdges().frontp();
-        V3GraphEdge* const outEdgep = avertexp->outEdges().frontp();
-        V3GraphVertex* const inVertexp = inEdgep->fromp();
-        V3GraphVertex* const outVertexp = outEdgep->top();
+    अगर (avertexp->isDelete()) वापस;
+    अगर (avertexp->inSize1() && avertexp->outSize1()) {
+        V3GraphEdge* स्थिर inEdgep = avertexp->inEdges().frontp();
+        V3GraphEdge* स्थिर outEdgep = avertexp->outEdges().frontp();
+        V3GraphVertex* स्थिर inVertexp = inEdgep->fromp();
+        V3GraphVertex* स्थिर outVertexp = outEdgep->शीर्ष();
         // The in and out may be the same node; we'll make a loop
         // The in OR out may be THIS node; we can't delete it then.
-        if (inVertexp != avertexp && outVertexp != avertexp) {
+        अगर (inVertexp != avertexp && outVertexp != avertexp) {
             UINFO(9, "  SimplifyOneRemove " << avertexp);
             avertexp->setDelete();  // Mark so we won't delete it twice
             // Make a new edge connecting the two vertices directly
@@ -314,7 +314,7 @@ void GraphAcyc::simplifyOne(GraphAcycVertex* avertexp) {
             // We can forget about the origEdge list for the "non-selected" set of edges,
             // as we need to break only one set or the other set of edges, not both.
             // (This is why we must give preference to the cutable set.)
-            V3GraphEdge* const templateEdgep
+            V3GraphEdge* स्थिर templateEdgep
                 = ((inEdgep->cutable()
                     && (!outEdgep->cutable() || inEdgep->weight() < outEdgep->weight()))
                        ? inEdgep
@@ -325,132 +325,132 @@ void GraphAcyc::simplifyOne(GraphAcycVertex* avertexp) {
             VL_DO_DANGLING(inEdgep->unlinkDelete(), inEdgep);
             VL_DO_DANGLING(outEdgep->unlinkDelete(), outEdgep);
             VL_DANGLING(templateEdgep);
-            workPush(inVertexp);
-            workPush(outVertexp);
+            work_धकेलो(inVertexp);
+            work_धकेलो(outVertexp);
         }
     }
 }
 
-void GraphAcyc::simplifyOut(GraphAcycVertex* avertexp) {
+व्योम GraphAcyc::simplifyOut(GraphAcycVertex* avertexp) {
     // If a node has one output that's not cutable, all its inputs can be reassigned
     // to the next node in the list
-    if (avertexp->isDelete()) return;
-    if (avertexp->outSize1()) {
-        V3GraphEdge* const outEdgep = avertexp->outEdges().frontp();
-        if (!outEdgep->cutable()) {
-            V3GraphVertex* outVertexp = outEdgep->top();
+    अगर (avertexp->isDelete()) वापस;
+    अगर (avertexp->outSize1()) {
+        V3GraphEdge* स्थिर outEdgep = avertexp->outEdges().frontp();
+        अगर (!outEdgep->cutable()) {
+            V3GraphVertex* outVertexp = outEdgep->शीर्ष();
             UINFO(9, "  SimplifyOutRemove " << avertexp);
             avertexp->setDelete();  // Mark so we won't delete it twice
-            for (V3GraphEdge* const inEdgep : avertexp->inEdges().unlinkable()) {
+            क्रम (V3GraphEdge* स्थिर inEdgep : avertexp->inEdges().unlinkable()) {
                 V3GraphVertex* inVertexp = inEdgep->fromp();
-                if (inVertexp == avertexp) {
-                    if (debug()) v3error("Non-cutable vertex=" << avertexp);  // LCOV_EXCL_LINE
+                अगर (inVertexp == avertexp) {
+                    अगर (debug()) v3error("Non-cutable vertex=" << avertexp);  // LCOV_EXCL_LINE
                     v3error("Circular logic when ordering code (non-cutable edge loop)\n"
                             << m_origGraphp->reportLoops(  // calls OrderGraph::loopsVertexCb
                                    &V3GraphEdge::followNotCutable, avertexp->origVertexp()));
                     // Things are unlikely to end well at this point,
                     // but we'll try something to get to further errors...
                     inEdgep->cutable(true);
-                    return;
+                    वापस;
                 }
                 // Make a new edge connecting the two vertices directly
                 // cppcheck-suppress leakReturnValNotUsed
                 edgeFromEdge(inEdgep, inVertexp, outVertexp);
                 // Remove old edge
                 VL_DO_DANGLING(inEdgep->unlinkDelete(), inEdgep);
-                workPush(inVertexp);
+                work_धकेलो(inVertexp);
             }
             VL_DO_DANGLING(outEdgep->unlinkDelete(), outEdgep);
-            workPush(outVertexp);
+            work_धकेलो(outVertexp);
         }
     }
 }
 
-void GraphAcyc::simplifyDup(GraphAcycVertex* avertexp) {
+व्योम GraphAcyc::simplifyDup(GraphAcycVertex* avertexp) {
     // Remove redundant edges
-    if (avertexp->isDelete()) return;
+    अगर (avertexp->isDelete()) वापस;
     // Clear marks
-    for (V3GraphEdge& edge : avertexp->outEdges()) edge.top()->userp(nullptr);
+    क्रम (V3GraphEdge& edge : avertexp->outEdges()) edge.शीर्ष()->userp(nullptr);
     // Mark edges and detect duplications
-    for (V3GraphEdge* const edgep : avertexp->outEdges().unlinkable()) {
-        V3GraphVertex* outVertexp = edgep->top();
-        V3GraphEdge* prevEdgep = static_cast<V3GraphEdge*>(outVertexp->userp());
-        if (prevEdgep) {
-            if (!prevEdgep->cutable()) {
+    क्रम (V3GraphEdge* स्थिर edgep : avertexp->outEdges().unlinkable()) {
+        V3GraphVertex* outVertexp = edgep->शीर्ष();
+        V3GraphEdge* पूर्व_Edgep = static_cast<V3GraphEdge*>(outVertexp->userp());
+        अगर (पूर्व_Edgep) {
+            अगर (!पूर्व_Edgep->cutable()) {
                 // !cutable duplicates prev !cutable: we can ignore it, redundant
                 //  cutable duplicates prev !cutable: know it's not a relevant loop, ignore it
-                UINFO(8, "    DelDupEdge " << avertexp << " -> " << edgep->top());
+                UINFO(8, "    DelDupEdge " << avertexp << " -> " << edgep->शीर्ष());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-            } else if (!edgep->cutable()) {
+            } अन्यथा अगर (!edgep->cutable()) {
                 // !cutable duplicates prev  cutable: delete the earlier cutable
-                UINFO(8, "    DelDupPrev " << avertexp << " -> " << prevEdgep->top());
-                VL_DO_DANGLING(prevEdgep->unlinkDelete(), prevEdgep);
+                UINFO(8, "    DelDupPrev " << avertexp << " -> " << पूर्व_Edgep->शीर्ष());
+                VL_DO_DANGLING(पूर्व_Edgep->unlinkDelete(), पूर्व_Edgep);
                 outVertexp->userp(edgep);
-            } else {
+            } अन्यथा {
                 //  cutable duplicates prev  cutable: combine weights
-                UINFO(8, "    DelDupComb " << avertexp << " -> " << edgep->top());
-                prevEdgep->weight(prevEdgep->weight() + edgep->weight());
-                addOrigEdgep(prevEdgep, edgep);
+                UINFO(8, "    DelDupComb " << avertexp << " -> " << edgep->शीर्ष());
+                पूर्व_Edgep->weight(पूर्व_Edgep->weight() + edgep->weight());
+                addOrigEdgep(पूर्व_Edgep, edgep);
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
-            workPush(outVertexp);
-            workPush(avertexp);
-        } else {
+            work_धकेलो(outVertexp);
+            work_धकेलो(avertexp);
+        } अन्यथा {
             // No previous assignment
             outVertexp->userp(edgep);
         }
     }
 }
 
-void GraphAcyc::cutBasic(GraphAcycVertex* avertexp) {
+व्योम GraphAcyc::cutBasic(GraphAcycVertex* avertexp) {
     // Detect and cleanup any loops from node to itself
-    if (avertexp->isDelete()) return;
-    for (V3GraphEdge* const edgep : avertexp->outEdges().unlinkable()) {
-        if (edgep->cutable() && edgep->top() == avertexp) {
+    अगर (avertexp->isDelete()) वापस;
+    क्रम (V3GraphEdge* स्थिर edgep : avertexp->outEdges().unlinkable()) {
+        अगर (edgep->cutable() && edgep->शीर्ष() == avertexp) {
             cutOrigEdge(edgep, "  Cut Basic");
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-            workPush(avertexp);
+            work_धकेलो(avertexp);
         }
     }
 }
 
-void GraphAcyc::cutBackward(GraphAcycVertex* avertexp) {
+व्योम GraphAcyc::cutBackward(GraphAcycVertex* avertexp) {
     // If a cutable edge is from A->B, and there's a non-cutable edge B->A, then must cut!
-    if (avertexp->isDelete()) return;
+    अगर (avertexp->isDelete()) वापस;
     // Clear marks
-    for (V3GraphEdge& edge : avertexp->outEdges()) edge.top()->user(false);
-    for (V3GraphEdge& edge : avertexp->inEdges()) {
-        if (!edge.cutable()) edge.fromp()->user(true);
+    क्रम (V3GraphEdge& edge : avertexp->outEdges()) edge.शीर्ष()->user(false);
+    क्रम (V3GraphEdge& edge : avertexp->inEdges()) {
+        अगर (!edge.cutable()) edge.fromp()->user(true);
     }
     // Detect duplications
-    for (V3GraphEdge* const edgep : avertexp->outEdges().unlinkable()) {
-        if (edgep->cutable() && edgep->top()->user()) {
+    क्रम (V3GraphEdge* स्थिर edgep : avertexp->outEdges().unlinkable()) {
+        अगर (edgep->cutable() && edgep->शीर्ष()->user()) {
             cutOrigEdge(edgep, "  Cut A->B->A");
             VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-            workPush(avertexp);
+            work_धकेलो(avertexp);
         }
     }
 }
 
-void GraphAcyc::place() {
+व्योम GraphAcyc::place() {
     // Input is m_breakGraph with ranks already assigned on non-breakable edges
 
     // Make a list of all cutable edges in the graph
-    int numEdges = 0;
-    for (V3GraphVertex& vertex : m_breakGraph.vertices()) {
-        for (V3GraphEdge& edge : vertex.outEdges()) {
-            if (edge.weight() && edge.cutable()) ++numEdges;
+    पूर्णांक अंक_Edges = 0;
+    क्रम (V3GraphVertex& vertex : m_breakGraph.vertices()) {
+        क्रम (V3GraphEdge& edge : vertex.outEdges()) {
+            अगर (edge.weight() && edge.cutable()) ++अंक_Edges;
         }
     }
-    UINFO(4, "    Cutable edges = " << numEdges);
+    UINFO(4, "    Cutable edges = " << अंक_Edges);
 
     std::vector<V3GraphEdge*> edges;  // List of all edges to be processed
     // Make the vector properly sized right off the bat -- faster than reallocating
-    edges.reserve(numEdges + 1);
-    for (V3GraphVertex& vertex : m_breakGraph.vertices()) {
+    edges.reserve(अंक_Edges + 1);
+    क्रम (V3GraphVertex& vertex : m_breakGraph.vertices()) {
         vertex.user(0);  // Clear in prep of next step
-        for (V3GraphEdge& edge : vertex.outEdges()) {
-            if (edge.weight() && edge.cutable()) edges.push_back(&edge);
+        क्रम (V3GraphEdge& edge : vertex.outEdges()) {
+            अगर (edge.weight() && edge.cutable()) edges.धकेलो_back(&edge);
         }
     }
 
@@ -459,10 +459,10 @@ void GraphAcyc::place() {
 
     // Process each edge in weighted order
     m_placeStep = 10;
-    for (V3GraphEdge* edgep : edges) placeTryEdge(edgep);
+    क्रम (V3GraphEdge* edgep : edges) placeTryEdge(edgep);
 }
 
-void GraphAcyc::placeTryEdge(V3GraphEdge* edgep) {
+व्योम GraphAcyc::placeTryEdge(V3GraphEdge* edgep) {
     // Try to make this edge uncutable
     m_placeStep++;
     UINFO(8, "    PlaceEdge s" << m_placeStep << " w" << edgep->weight() << " " << edgep->fromp());
@@ -471,22 +471,22 @@ void GraphAcyc::placeTryEdge(V3GraphEdge* edgep) {
     // Vertex::m_user begin: number indicates this edge was completed
     // Try to assign ranks, presuming this edge is in place
     // If we come across user()==placestep, we've detected a loop and must back out
-    const bool loop
-        = placeIterate(static_cast<GraphAcycVertex*>(edgep->top()), edgep->fromp()->rank() + 1);
-    if (!loop) {
+    स्थिर bool loop
+        = placeIterate(static_cast<GraphAcycVertex*>(edgep->शीर्ष()), edgep->fromp()->rank() + 1);
+    अगर (!loop) {
         // No loop, we can keep it as uncutable
         // Commit the new ranks we calculated
         // Just cleanup the list.  If this is slow, we can add another set of
         // user counters to avoid cleaning up the list.
-        while (workBeginp()) workPop();
-    } else {
+        जबतक (workBeginp()) work_निकालो();
+    } अन्यथा {
         // Adding this edge would cause a loop, kill it
         edgep->cutable(true);  // So graph still looks pretty
         cutOrigEdge(edgep, "  Cut loop");
         VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
         // Back out the ranks we calculated
-        while (GraphAcycVertex* vertexp = workBeginp()) {
-            workPop();
+        जबतक (GraphAcycVertex* vertexp = workBeginp()) {
+            work_निकालो();
             vertexp->rank(vertexp->m_storedRank);
         }
     }
@@ -497,31 +497,31 @@ bool GraphAcyc::placeIterate(GraphAcycVertex* vertexp, uint32_t currentRank) {
     //   rank() is the "committed rank" of the graph known without loops
     // If larger rank is found, assign it and loop back through
     // If we hit a back node make a list of all loops
-    if (vertexp->rank() >= currentRank) return false;  // Already processed it
-    if (vertexp->user() == m_placeStep) return true;  // Loop detected
+    अगर (vertexp->rank() >= currentRank) वापस false;  // Already processed it
+    अगर (vertexp->user() == m_placeStep) वापस true;  // Loop detected
     vertexp->user(m_placeStep);
     // Remember we're changing the rank of this node; might need to back out
-    if (!vertexp->m_onWorkList) {
+    अगर (!vertexp->m_onWorkList) {
         vertexp->m_storedRank = vertexp->rank();
-        workPush(vertexp);
+        work_धकेलो(vertexp);
     }
     vertexp->rank(currentRank);
     // Follow all edges and increase their ranks
-    for (V3GraphEdge& edge : vertexp->outEdges()) {
-        if (edge.weight() && !edge.cutable()) {
-            if (placeIterate(static_cast<GraphAcycVertex*>(edge.top()), currentRank + 1)) {
+    क्रम (V3GraphEdge& edge : vertexp->outEdges()) {
+        अगर (edge.weight() && !edge.cutable()) {
+            अगर (placeIterate(static_cast<GraphAcycVertex*>(edge.शीर्ष()), currentRank + 1)) {
                 // We don't need to reset user(); we'll use a different placeStep for the next edge
-                return true;  // Loop detected
+                वापस true;  // Loop detected
             }
         }
     }
     vertexp->user(0);
-    return false;
+    वापस false;
 }
 
 //----- Main algorithm entry point
 
-void GraphAcyc::main() {
+व्योम GraphAcyc::मुख्य() {
     m_breakGraph.userClearEdges();
 
     // Color based on possible loops
@@ -532,33 +532,33 @@ void GraphAcyc::main() {
     // edges (and thus can't represent loops - if we did the unbreakable
     // marking right, anyways)
     buildGraph(m_origGraphp);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_pre");
+    अगर (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_pre");
 
     // Perform simple optimizations before any cuttings
     simplify(false);
-    if (dumpGraphLevel() >= 5) m_breakGraph.dumpDotFilePrefixed("acyc_simp");
+    अगर (dumpGraphLevel() >= 5) m_breakGraph.dumpDotFilePrefixed("acyc_simp");
 
     UINFO(4, " Cutting trivial loops");
     simplify(true);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_mid");
+    अगर (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_mid");
 
     UINFO(4, " Ranking");
     m_breakGraph.rank(&V3GraphEdge::followNotCutable);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_rank");
+    अगर (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_rank");
 
     UINFO(4, " Placement");
     place();
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_place");
+    अगर (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_place");
 
     UINFO(4, " Final Ranking");
     // Only needed to assert there are no loops in completed graph
     m_breakGraph.rank(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_done");
+    अगर (dumpGraphLevel() >= 6) m_breakGraph.dumpDotFilePrefixed("acyc_done");
 }
 
-void V3Graph::acyclic(V3EdgeFuncP edgeFuncp) {
+व्योम V3Graph::acyclic(V3EdgeFuncP edgeFuncp) {
     UINFO(4, "Acyclic");
-    GraphAcyc acyc{this, edgeFuncp};
-    acyc.main();
+    GraphAcyc acyc{यह, edgeFuncp};
+    acyc.मुख्य();
     UINFO(4, "Acyclic done");
 }

@@ -14,46 +14,46 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LANGUAGEWORDS_H_
-#define VERILATOR_V3LANGUAGEWORDS_H_
+#अगर_अघोषित VERILATOR_V3LANGUAGEWORDS_H_
+#घोषणा VERILATOR_V3LANGUAGEWORDS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include <map>
+#समावेश <map>
 
 //============================================================================
 
-class V3LanguageWords final {
+class V3_Language_शब्दगण final {
     // List of common reserved keywords
-private:
-    using KeywordMap = std::map<const string, std::string>;
-    struct Singleton final {
+निजी:
+    using KeywordMap = std::map<स्थिर string, std::string>;
+    काष्ठा Singleton final {
         KeywordMap s_kwdMap;  // List of keywords, and what language applies
         Singleton() { init(); }
-        void addKwd(const string& kwd, const string& why) { s_kwdMap.emplace(kwd, why); }
-        void init();
+        व्योम addKwd(स्थिर string& kwd, स्थिर string& why) { s_kwdMap.emplace(kwd, why); }
+        व्योम init();
     };
 
-public:
+खुला:
     using const_iterator = KeywordMap::const_iterator;
     // METHODS
-    static const_iterator begin() { return s().s_kwdMap.begin(); }
-    static const_iterator end() { return s().s_kwdMap.end(); }
-    static string isKeyword(const string& kwd) {
-        const auto it = vlstd::as_const(s().s_kwdMap).find(kwd);
-        if (it == s().s_kwdMap.end()) return "";
-        return it->second;
+    अटल const_iterator begin() { वापस s().s_kwdMap.begin(); }
+    अटल const_iterator end() { वापस s().s_kwdMap.end(); }
+    अटल string isKeyword(स्थिर string& kwd) {
+        स्थिर स्वतः it = vlstd::as_const(s().s_kwdMap).find(kwd);
+        अगर (it == s().s_kwdMap.end()) वापस "";
+        वापस it->second;
     }
 
-private:
-    static Singleton& s() {
-        static Singleton s_s;  // LCOV_EXCL_BR_LINE
-        return s_s;
+निजी:
+    अटल Singleton& s() {
+        अटल Singleton s_s;  // LCOV_EXCL_BR_LINE
+        वापस s_s;
     }
 };
 
-inline void V3LanguageWords::Singleton::init() {
+अंतरभूत व्योम V3_Language_शब्दगण::Singleton::init() {
     // C++ keywords
     // clang-format off
     addKwd("abort",                 "C++ common word");
@@ -250,4 +250,4 @@ inline void V3LanguageWords::Singleton::init() {
     // clang-format on
 }
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

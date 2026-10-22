@@ -14,30 +14,30 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKLEVEL_H_
-#define VERILATOR_V3LINKLEVEL_H_
+#अगर_अघोषित VERILATOR_V3LINKLEVEL_H_
+#घोषणा VERILATOR_V3LINKLEVEL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#समावेश "V3Ast.h"
+#समावेश "V3Error.h"
 
-#include <vector>
+#समावेश <vector>
 
 //============================================================================
 
 class V3LinkLevel final {
-    using ModVec = std::vector<AstNodeModule*>;
+    using ModVec = std::vector<Ast_गाँठ_Module*>;
 
-    static void timescaling(const ModVec& mods) VL_MT_DISABLED;
-    static void wrapTopCell(AstNetlist* rootp) VL_MT_DISABLED;
-    static void wrapTopPackages(AstNetlist* rootp) VL_MT_DISABLED;
+    अटल व्योम timescaling(स्थिर ModVec& mods) VL_MT_DISABLED;
+    अटल व्योम wrap_शीर्ष_Cell(AstNetlist* rootp) VL_MT_DISABLED;
+    अटल व्योम wrap_शीर्ष_Packages(AstNetlist* rootp) VL_MT_DISABLED;
 
-public:
-    static void modSortByLevel() VL_MT_DISABLED;
-    static void wrapTop(AstNetlist* rootp) VL_MT_DISABLED;
-    static void nonWrapTop(AstNetlist* rootp) VL_MT_DISABLED;
+खुला:
+    अटल व्योम modSortByLevel() VL_MT_DISABLED;
+    अटल व्योम wrap_शीर्ष(AstNetlist* rootp) VL_MT_DISABLED;
+    अटल व्योम non_Wrap_शीर्ष(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

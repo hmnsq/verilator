@@ -18,16 +18,16 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERMOVEGRAPH_H_
-#define VERILATOR_V3ORDERMOVEGRAPH_H_
+#अगर_अघोषित VERILATOR_V3ORDERMOVEGRAPH_H_
+#घोषणा VERILATOR_V3ORDERMOVEGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
-#include "V3Order.h"
-#include "V3OrderGraph.h"
+#समावेश "V3Ast.h"
+#समावेश "V3Graph.h"
+#समावेश "V3Order.h"
+#समावेश "V3OrderGraph.h"
 
 class OrderMoveDomScope;
 class OrderMoveGraph;
@@ -35,45 +35,45 @@ class OrderMoveGraph;
 //======================================================================
 // Vertex types
 
-class OrderMoveVertex final : public V3GraphVertex {
+class OrderMoveVertex final : खुला V3GraphVertex {
     VL_RTTI_IMPL(OrderMoveVertex, V3GraphVertex)
 
     // The corresponding logic vertex, or nullptr if this MoveVertex stands for a variable vertex.
-    OrderLogicVertex* const m_logicp;
+    OrderLogicVertex* स्थिर m_logicp;
     OrderMoveDomScope& m_domScope;  // DomScope this vertex is under
     V3ListLinks<OrderMoveVertex> m_links;  // List links to store instances of this class
 
     // METHODS
-    std::string dotColor() const override { return logicp() ? logicp()->dotColor() : "yellow"; }
+    std::string dotColor() स्थिर override { वापस logicp() ? logicp()->dotColor() : "yellow"; }
 
-    std::string name() const override VL_MT_STABLE {
+    std::string name() स्थिर override VL_MT_STABLE {
         std::string nm;
-        if (!logicp()) {
+        अगर (!logicp()) {
             nm = "var";
-        } else {
+        } अन्यथा {
             nm = logicp()->name() + "\\n";
             nm += "MV:";
             nm += +" d=" + cvtToHex(logicp()->domainp());
             nm += +" s=" + cvtToHex(logicp()->scopep());
         }
-        if (userp()) nm += "\nu=" + cvtToHex(userp());
-        return nm;
+        अगर (userp()) nm += "\nu=" + cvtToHex(userp());
+        वापस nm;
     }
 
-    V3ListLinks<OrderMoveVertex>& links() { return m_links; }
+    V3ListLinks<OrderMoveVertex>& links() { वापस m_links; }
 
-public:
+खुला:
     // List type to store instances of this class
     using List = V3List<OrderMoveVertex, &OrderMoveVertex::links>;
 
     // CONSTRUCTORS
     OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                    const OrderDomain* domainp) VL_MT_DISABLED;
-    ~OrderMoveVertex() override = default;
+                    स्थिर OrderDomain* domainp) VL_MT_DISABLED;
+    ~OrderMoveVertex() override = शेष;
     VL_UNCOPYABLE(OrderMoveVertex);
 
-    OrderLogicVertex* logicp() const VL_MT_STABLE { return m_logicp; }
-    OrderMoveDomScope& domScope() const { return m_domScope; }
+    OrderLogicVertex* logicp() स्थिर VL_MT_STABLE { वापस m_logicp; }
+    OrderMoveDomScope& domScope() स्थिर { वापस m_domScope; }
 };
 
 //======================================================================
@@ -81,17 +81,17 @@ public:
 
 // OrderMoveGraph is constructed from the fine-grained OrderGraph.
 // It is a slightly coarsened representation of dependencies used to drive serialization.
-class OrderMoveGraph final : public V3Graph {
+class OrderMoveGraph final : खुला V3Graph {
     OrderGraph& m_orderGraph;  // The OrderGraph this move graph was built from
 
-public:
+खुला:
     explicit OrderMoveGraph(OrderGraph& orderGraph)
         : m_orderGraph{orderGraph} {}
 
-    OrderGraph& orderGraph() const { return m_orderGraph; }
+    OrderGraph& orderGraph() स्थिर { वापस m_orderGraph; }
 
     // Build an OrderMoveGraph from an OrderGraph
-    static std::unique_ptr<OrderMoveGraph> build(OrderGraph&);
+    अटल std::unique_ptr<OrderMoveGraph> build(OrderGraph&);
 };
 
 //======================================================================
@@ -105,71 +105,71 @@ class OrderMoveDomScope final {
     OrderMoveVertex::List m_readyVertices;  // Ready vertices in this domain/scope
     V3ListLinks<OrderMoveDomScope> m_links;  // List links to store instances of this class
     bool m_isOnList = false;  // True if DomScope is already on a list through m_listEnt
-    const OrderDomain* const m_domainp;  // Domain the vertices belong to
-    const AstScope* const m_scopep;  // Scope the vertices belong to
+    स्थिर OrderDomain* स्थिर m_domainp;  // Domain the vertices belong to
+    स्थिर AstScope* स्थिर m_scopep;  // Scope the vertices belong to
 
     // Key type for map below
-    class DomScopeMapKey final {
-        const OrderDomain* const m_domainp;  // Domain the vertices belong to
-        const AstScope* const m_scopep;  // Scope the vertices belong to
+    class Dom_Scope_Map_कुंजी final {
+        स्थिर OrderDomain* स्थिर m_domainp;  // Domain the vertices belong to
+        स्थिर AstScope* स्थिर m_scopep;  // Scope the vertices belong to
 
-    public:
-        DomScopeMapKey(const OrderDomain* domainp, const AstScope* scopep)
+    खुला:
+        Dom_Scope_Map_कुंजी(स्थिर OrderDomain* domainp, स्थिर AstScope* scopep)
             : m_domainp{domainp}
             , m_scopep{scopep} {}
 
-        struct Hash final {
-            size_t operator()(const DomScopeMapKey& key) const {
+        काष्ठा Hash final {
+            माप_प्रकार चालक()(स्थिर Dom_Scope_Map_कुंजी& कुंजी) स्थिर {
                 // cppcheck-suppress unreadVariable  // cppcheck bug
-                V3Hash hash{key.m_domainp};
-                hash += key.m_scopep;
-                return hash.value();
+                V3Hash hash{कुंजी.m_domainp};
+                hash += कुंजी.m_scopep;
+                वापस hash.मूल्य();
             }
         };
 
-        struct Equal final {
-            bool operator()(const DomScopeMapKey& a, const DomScopeMapKey& b) const {
-                return a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
+        काष्ठा Equal final {
+            bool चालक()(स्थिर Dom_Scope_Map_कुंजी& a, स्थिर Dom_Scope_Map_कुंजी& b) स्थिर {
+                वापस a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
             }
         };
     };
 
-    using DomScopeMap = std::unordered_map<DomScopeMapKey, OrderMoveDomScope, DomScopeMapKey::Hash,
-                                           DomScopeMapKey::Equal>;
+    using DomScopeMap = std::unordered_map<Dom_Scope_Map_कुंजी, OrderMoveDomScope, Dom_Scope_Map_कुंजी::Hash,
+                                           Dom_Scope_Map_कुंजी::Equal>;
     // Map from Domain/Scope to the corresponding DomScope instance
-    static DomScopeMap s_dsMap;
+    अटल DomScopeMap s_dsMap;
 
-    V3ListLinks<OrderMoveDomScope>& links() { return m_links; }
+    V3ListLinks<OrderMoveDomScope>& links() { वापस m_links; }
 
-public:
+खुला:
     // List type to store instances of this class
     using List = V3List<OrderMoveDomScope, &OrderMoveDomScope::links>;
 
     // STATIC MEMBERS
-    static OrderMoveDomScope& getOrCreate(const OrderDomain* domainp, const AstScope* scopep) {
-        return s_dsMap
+    अटल OrderMoveDomScope& getOrCreate(स्थिर OrderDomain* domainp, स्थिर AstScope* scopep) {
+        वापस s_dsMap
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(domainp, scopep),  //
                      std::forward_as_tuple(domainp, scopep))
             .first->second;
     }
-    static void clear() { s_dsMap.clear(); }
+    अटल व्योम clear() { s_dsMap.clear(); }
 
     // CONSTRUCTOR
-    OrderMoveDomScope(const OrderDomain* domainp, const AstScope* scopep)
+    OrderMoveDomScope(स्थिर OrderDomain* domainp, स्थिर AstScope* scopep)
         : m_domainp{domainp}
         , m_scopep{scopep} {}
-    ~OrderMoveDomScope() = default;
+    ~OrderMoveDomScope() = शेष;
     VL_UNCOPYABLE(OrderMoveDomScope);
     VL_UNMOVABLE(OrderMoveDomScope);
 
     // MEMBERS
-    OrderMoveVertex::List& readyVertices() { return m_readyVertices; }
-    const OrderDomain* domainp() const { return m_domainp; }
-    const AstScope* scopep() const { return m_scopep; }
+    OrderMoveVertex::List& readyVertices() { वापस m_readyVertices; }
+    स्थिर OrderDomain* domainp() स्थिर { वापस m_domainp; }
+    स्थिर AstScope* scopep() स्थिर { वापस m_scopep; }
 
-    bool isOnList() const { return m_isOnList; }
-    void isOnList(bool value) { m_isOnList = value; }
+    bool isOnList() स्थिर { वापस m_isOnList; }
+    व्योम isOnList(bool मूल्य) { m_isOnList = मूल्य; }
 };
 
 //======================================================================
@@ -178,56 +178,56 @@ public:
 class OrderMoveGraphSerializer final {
     // STATE
     OrderMoveDomScope::List m_readyDomScopeps;  // List of DomScopes which have ready vertices
-    OrderMoveDomScope* m_nextDomScopep = nullptr;  // Next DomScope to yield from
+    OrderMoveDomScope* m_अग्र_Dom_Scopep = nullptr;  // Next DomScope to yield from
 
     // METHODS
 
-    void ready(OrderMoveVertex* vtxp) {
+    व्योम ready(OrderMoveVertex* vtxp) {
         UASSERT_OBJ(!vtxp->user(), vtxp, "'ready' called on vertex with pending dependencies");
-        if (vtxp->logicp()) {
+        अगर (vtxp->logicp()) {
             // Add this vertex to the ready list of its DomScope
             OrderMoveDomScope& domScope = vtxp->domScope();
             domScope.readyVertices().linkBack(vtxp);
             // Add the DomScope to the global ready list if not there yet
-            if (!domScope.isOnList()) {
+            अगर (!domScope.isOnList()) {
                 domScope.isOnList(true);
                 m_readyDomScopeps.linkBack(&domScope);
             }
-        } else {  // This is a bit nonsense at this point, but equivalent to the old version
+        } अन्यथा {  // This is a bit nonsense at this point, but equivalent to the old version
             // Remove dependency on vertex we are returning. This might add vertices to
             // currReadyList.
-            for (V3GraphEdge& edge : vtxp->outEdges()) {
+            क्रम (V3GraphEdge& edge : vtxp->outEdges()) {
                 // The dependent variable
-                OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+                OrderMoveVertex* स्थिर dVtxp = edge.शीर्ष()->as<OrderMoveVertex>();
                 // Update number of dependencies
-                const uint32_t nDeps = dVtxp->user() - 1;
+                स्थिर uint32_t nDeps = dVtxp->user() - 1;
                 dVtxp->user(nDeps);
                 // If no more dependencies, mark it ready
-                if (!nDeps) ready(dVtxp);
+                अगर (!nDeps) ready(dVtxp);
             }
         }
     }
 
-public:
+खुला:
     // CONSTRUCTOR
     explicit OrderMoveGraphSerializer(OrderMoveGraph& moveGraph) {
         // Set V3GraphVertex::user() to the number of incoming edges (upstream dependencies)
-        for (V3GraphVertex& vtx : moveGraph.vertices()) {
-            const uint32_t nDeps = vtx.inEdges().size();
+        क्रम (V3GraphVertex& vtx : moveGraph.vertices()) {
+            स्थिर uint32_t nDeps = vtx.inEdges().आकार();
             vtx.user(nDeps);
         }
     }
-    ~OrderMoveGraphSerializer() = default;
+    ~OrderMoveGraphSerializer() = शेष;
     VL_UNCOPYABLE(OrderMoveGraphSerializer);
 
     // Add a seed vertex to the ready lists
-    void addSeed(OrderMoveVertex* vtxp) { ready(vtxp); }
+    व्योम addSeed(OrderMoveVertex* vtxp) { ready(vtxp); }
 
-    OrderMoveVertex* getNext() {
-        if (!m_nextDomScopep) m_nextDomScopep = m_readyDomScopeps.frontp();
+    OrderMoveVertex* get_अग्र() {
+        अगर (!m_अग्र_Dom_Scopep) m_अग्र_Dom_Scopep = m_readyDomScopeps.frontp();
         // If nothing is ready, we are done
-        if (!m_nextDomScopep) return nullptr;
-        OrderMoveDomScope& currDomScope = *m_nextDomScopep;
+        अगर (!m_अग्र_Dom_Scopep) वापस nullptr;
+        OrderMoveDomScope& currDomScope = *m_अग्र_Dom_Scopep;
 
         OrderMoveVertex::List& currReadyList = currDomScope.readyVertices();
         UASSERT(!currReadyList.empty(), "DomScope on ready list, but has no ready vertices");
@@ -236,37 +236,37 @@ public:
         OrderMoveVertex* mVtxp = currReadyList.unlinkFront();
 
         // Nonsesne, but what we used to do
-        if (currReadyList.empty()) {
+        अगर (currReadyList.empty()) {
             currDomScope.isOnList(false);
             m_readyDomScopeps.unlink(&currDomScope);
         }
 
         // Remove dependency on vertex we are returning. This might add vertices to currReadyList.
-        for (V3GraphEdge& edge : mVtxp->outEdges()) {
+        क्रम (V3GraphEdge& edge : mVtxp->outEdges()) {
             // The dependent variable
-            OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+            OrderMoveVertex* स्थिर dVtxp = edge.शीर्ष()->as<OrderMoveVertex>();
             // Update number of dependencies
-            const uint32_t nDeps = dVtxp->user() - 1;
+            स्थिर uint32_t nDeps = dVtxp->user() - 1;
             dVtxp->user(nDeps);
             // If no more dependencies, mark it ready
-            if (!nDeps) ready(dVtxp);
+            अगर (!nDeps) ready(dVtxp);
         }
 
         // If no more ready vertices in the current DomScope, prefer to continue with a new scope
         // under the same domain.
-        if (currReadyList.empty()) {
-            m_nextDomScopep = nullptr;
-            for (OrderMoveDomScope& domScope : m_readyDomScopeps) {
-                if (domScope.domainp() == currDomScope.domainp()) {
-                    m_nextDomScopep = &domScope;
-                    break;
+        अगर (currReadyList.empty()) {
+            m_अग्र_Dom_Scopep = nullptr;
+            क्रम (OrderMoveDomScope& domScope : m_readyDomScopeps) {
+                अगर (domScope.domainp() == currDomScope.domainp()) {
+                    m_अग्र_Dom_Scopep = &domScope;
+                    अवरोध;
                 }
             }
         }
 
         // Finally yield the selected vertex
-        return mVtxp;
+        वापस mVtxp;
     }
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

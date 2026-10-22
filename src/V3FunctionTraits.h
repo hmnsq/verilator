@@ -14,45 +14,45 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FUNCTIONTRAITS_H_
-#define VERILATOR_V3FUNCTIONTRAITS_H_
+#अगर_अघोषित VERILATOR_V3FUNCTIONTRAITS_H_
+#घोषणा VERILATOR_V3FUNCTIONTRAITS_H_
 
-#include "verilatedos.h"
+#समावेश "verilatedos.h"
 
-#include <cstddef>
-#include <tuple>
-#include <type_traits>
+#समावेश <cstddef>
+#समावेश <tuple>
+#समावेश <type_traits>
 
-template <typename T>
-struct FunctionTraits;
+ढाँचा <typename T>
+काष्ठा FunctionTraits;
 
 // For generic types, directly use the result of the signature of its 'operator()'
-template <typename T>
-struct FunctionTraits final
-    : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
+ढाँचा <typename T>
+काष्ठा FunctionTraits final
+    : खुला FunctionTraits<decltype(&std::remove_reference<T>::type::चालक())> {};
 
 // Specialization for pointers to member function
-template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+ढाँचा <typename T_ClassType, typename T_ReturnType, typename... Args>
+काष्ठा FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) स्थिर> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    अटल constexpr माप_प्रकार arity = माप...(Args);
 
     // Type of result
-    using result_type = T_ReturnType;
+    using परिणाम_type = T_ReturnType;
 
     // Type of arguments
-    template <std::size_t N>
-    struct arg final {
+    ढाँचा <std::माप_प्रकार N>
+    काष्ठा arg final {
         using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
     };
 };
 
-template <typename T_Callable, size_t N_Index>
-struct FunctionArgNoPointerNoCV final {
+ढाँचा <typename T_Callable, माप_प्रकार N_सूचकांक>
+काष्ठा FunctionArgNoPointerNoCV final {
     using Traits = FunctionTraits<T_Callable>;
-    using T_Arg = typename Traits::template arg<N_Index>::type;
+    using T_Arg = typename Traits::ढाँचा arg<N_सूचकांक>::type;
     using T_ArgNoPtr = typename std::remove_pointer<T_Arg>::type;
     using type = typename std::remove_cv<T_ArgNoPtr>::type;
 };
 
-#endif
+#पूर्ण_अगर

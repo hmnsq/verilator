@@ -14,18 +14,18 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TASK_H_
-#define VERILATOR_V3TASK_H_
+#अगर_अघोषित VERILATOR_V3TASK_H_
+#घोषणा VERILATOR_V3TASK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Container.h"
-#include "V3Error.h"
+#समावेश "V3Ast.h"
+#समावेश "V3Container.h"
+#समावेश "V3Error.h"
 
-#include <utility>
-#include <vector>
+#समावेश <utility>
+#समावेश <vector>
 
 //============================================================================
 
@@ -35,39 +35,39 @@ using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to]
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_गाँठ_FTask*, std::string>, Ast_गाँठ_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
-public:
-    V3TaskConnectState() = default;
-    ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
-    void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+खुला:
+    V3TaskConnectState() = शेष;
+    ~V3TaskConnectState() = शेष;
+    व्योम धकेलो_Deletep(Ast_गाँठ* nodep) { m_deleter.धकेलो_Deletep(nodep); }
+    bool didWrap() स्थिर { वापस m_didWrap; }
+    व्योम setDidWrap() { m_didWrap = true; }
+    WrapMap& wrapMap() { वापस m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    अटल स्थिर अक्षर* स्थिर s_dpiTemporaryVarSuffix;
 
-public:
-    static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
+खुला:
+    अटल व्योम taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    अटल V3TaskConnects taskConnects(Ast_गाँठ_FTask_Ref* nodep, Ast_गाँठ* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    अटल व्योम taskConnectWrap(Ast_गाँठ_FTask_Ref* nodep, स्थिर V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
-                                const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
-                       const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix,
-                                      const string& frPrefix = "") VL_MT_DISABLED;
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+                                स्थिर VInsertionSet<स्थिर AstVar*>& argWrap) VL_MT_DISABLED;
+    अटल Ast_गाँठ_FTask*
+    taskConnectWrapNew(Ast_गाँठ_FTask* taskp, स्थिर string& newname, स्थिर V3TaskConnects& tconnects,
+                       स्थिर VInsertionSet<स्थिर AstVar*>& argWrap) VL_MT_DISABLED;
+    अटल string assignInternalToDpi(AstVar* portp, bool isPtr, स्थिर string& frSuffix,
+                                      स्थिर string& toSuffix,
+                                      स्थिर string& frPrefix = "") VL_MT_DISABLED;
+    अटल string assignDpiToInternal(स्थिर string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
+    अटल स्थिर अक्षर* dpiTemporaryVarSuffix() VL_MT_SAFE { वापस s_dpiTemporaryVarSuffix; }
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

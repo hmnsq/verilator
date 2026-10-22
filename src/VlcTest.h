@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTEST_H_
-#define VERILATOR_VLCTEST_H_
+#अगर_अघोषित VERILATOR_VLCTEST_H_
+#घोषणा VERILATOR_VLCTEST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "VlcBucket.h"
-#include "VlcPoint.h"
+#समावेश "VlcBucket.h"
+#समावेश "VlcPoint.h"
 
-#include <map>
-#include <vector>
+#समावेश <map>
+#समावेश <vector>
 
 //********************************************************************
 // VlcTest - a single testrun i.e. a file containing coverage data
@@ -32,42 +32,42 @@
 class VlcTest final {
     // MEMBERS
     string m_name;  //< Name of the test
-    double m_computrons;  //< Runtime for the test
+    द्विगुन m_computrons;  //< Runtime for the test
     uint64_t m_testrun;  //< Test run number, for database use
     uint64_t m_rank = 0;  //< Execution rank suggestion
     uint64_t m_rankPoints = 0;  //< Ranked additional points
     uint64_t m_user = 0;  //< User data for algorithms (not persisted in .dat file)
     VlcBuckets m_buckets;  //< Coverage data for each coverage point
 
-public:
+खुला:
     // CONSTRUCTORS
-    VlcTest(const string& name, uint64_t testrun, double comp)
+    VlcTest(स्थिर string& name, uint64_t testrun, द्विगुन comp)
         : m_name{name}
         , m_computrons{comp}
         , m_testrun{testrun} {}
-    ~VlcTest() = default;
+    ~VlcTest() = शेष;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    double computrons() const { return m_computrons; }
-    uint64_t testrun() const { return m_testrun; }
-    VlcBuckets& buckets() { return m_buckets; }
-    uint64_t bucketsCovered() const { return m_buckets.bucketsCovered(); }
-    uint64_t rank() const { return m_rank; }
-    void rank(uint64_t flag) { m_rank = flag; }
-    uint64_t rankPoints() const { return m_rankPoints; }
-    void rankPoints(uint64_t flag) { m_rankPoints = flag; }
-    uint64_t user() const { return m_user; }
-    void user(uint64_t flag) { m_user = flag; }
+    स्थिर string& name() स्थिर { वापस m_name; }
+    द्विगुन computrons() स्थिर { वापस m_computrons; }
+    uint64_t testrun() स्थिर { वापस m_testrun; }
+    VlcBuckets& buckets() { वापस m_buckets; }
+    uint64_t bucketsCovered() स्थिर { वापस m_buckets.bucketsCovered(); }
+    uint64_t rank() स्थिर { वापस m_rank; }
+    व्योम rank(uint64_t flag) { m_rank = flag; }
+    uint64_t rankPoints() स्थिर { वापस m_rankPoints; }
+    व्योम rankPoints(uint64_t flag) { m_rankPoints = flag; }
+    uint64_t user() स्थिर { वापस m_user; }
+    व्योम user(uint64_t flag) { m_user = flag; }
 
     // METHODS
-    static void dumpHeader() {
+    अटल व्योम dumpHeader() {
         std::cout << "Tests:\n";
         // std::cout<<"  Testrun, Computrons,";  // Currently not loaded
         std::cout << "  Covered,     Rank,  RankPts,  Filename\n";
     }
-    void dump(bool bucketsToo) const {
-        if (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
+    व्योम dump(bool bucketsToo) स्थिर {
+        अगर (testrun() || computrons() != 0.0) {  // currently unused // LCOV_EXCL_LINE
             std::cout << "  " << std::setw(8) << std::setfill('0') << testrun()  // LCOV_EXCL_LINE
                       << ",  " << std::setw(7) << std::setfill(' ')
                       << computrons()  // LCOV_EXCL_LINE
@@ -77,7 +77,7 @@ public:
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rank();
         std::cout << ",  " << std::setw(7) << std::setfill(' ') << rankPoints();
         std::cout << ",  \"" << name() << "\"\n";
-        if (bucketsToo) m_buckets.dump();
+        अगर (bucketsToo) m_buckets.dump();
     }
 };
 
@@ -85,44 +85,44 @@ public:
 // VlcTests - Container of all tests
 
 class VlcTests final {
-public:
+खुला:
     // TYPES
     using ByName = std::vector<VlcTest*>;
 
-private:
+निजी:
     // MEMBERS
     ByName m_tests;  //< List of all tests
 
-    static int debug() { return V3Error::debugDefault(); }
+    अटल पूर्णांक debug() { वापस V3Error::debugDefault(); }
 
-public:
+खुला:
     // ITERATORS
     using iterator = ByName::iterator;
-    ByName::iterator begin() { return m_tests.begin(); }
-    ByName::iterator end() { return m_tests.end(); }
+    ByName::iterator begin() { वापस m_tests.begin(); }
+    ByName::iterator end() { वापस m_tests.end(); }
 
     // CONSTRUCTORS
-    VlcTests() = default;
+    VlcTests() = शेष;
     ~VlcTests() {
-        for (auto it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
+        क्रम (स्वतः it = begin(); it != end(); ++it) VL_DO_CLEAR(delete *it, *it = nullptr);
     }
 
     // METHODS
-    void dump(bool bucketsToo) {
+    व्योम dump(bool bucketsToo) {
         UINFO(2, "dumpTests...");
         VlcTest::dumpHeader();
-        for (const VlcTest* const testp : m_tests) testp->dump(bucketsToo);
+        क्रम (स्थिर VlcTest* स्थिर testp : m_tests) testp->dump(bucketsToo);
     }
-    VlcTest* newTest(const string& name, uint64_t testrun, double comp) {
-        VlcTest* const testp = new VlcTest{name, testrun, comp};
-        m_tests.push_back(testp);
-        return testp;
+    VlcTest* newTest(स्थिर string& name, uint64_t testrun, द्विगुन comp) {
+        VlcTest* स्थिर testp = new VlcTest{name, testrun, comp};
+        m_tests.धकेलो_back(testp);
+        वापस testp;
     }
-    void clearUser() {
-        for (const auto& testp : m_tests) testp->user(0);
+    व्योम clearUser() {
+        क्रम (स्थिर स्वतः& testp : m_tests) testp->user(0);
     }
 };
 
 //######################################################################
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

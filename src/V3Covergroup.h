@@ -14,17 +14,17 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3COVERGROUP_H_
-#define VERILATOR_V3COVERGROUP_H_
+#अगर_अघोषित VERILATOR_V3COVERGROUP_H_
+#घोषणा VERILATOR_V3COVERGROUP_H_
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#समावेश "V3Ast.h"
+#समावेश "V3Error.h"
 
 //============================================================================
 
 class V3Covergroup final {
-public:
-    static void covergroup(AstNetlist* nodep);
+खुला:
+    अटल व्योम covergroup(AstNetlist* nodep);
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKDOT_H_
-#define VERILATOR_V3LINKDOT_H_
+#अगर_अघोषित VERILATOR_V3LINKDOT_H_
+#घोषणा VERILATOR_V3LINKDOT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#समावेश "V3Ast.h"
+#समावेश "V3Error.h"
 
 //============================================================================
 
-enum VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
+क्रमागत VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
 
 class V3LinkDot final {
-    static void dumpSubstep(const string& name) VL_MT_DISABLED;
-    static void linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
+    अटल व्योम dumpSubstep(स्थिर string& name) VL_MT_DISABLED;
+    अटल व्योम linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
 
-public:
-    static void linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
+खुला:
+    अटल व्योम linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
+    अटल व्योम linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
+    अटल व्योम linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

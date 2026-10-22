@@ -48,90 +48,90 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#समावेश "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "verilatedos.h"
+#समावेश "verilatedos.h"
 
-#include "V3RandSequence.h"
+#समावेश "V3RandSequence.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#समावेश "V3Ast.h"
+#समावेश "V3Error.h"
+#समावेश "V3FileLine.h"
+#समावेश "V3Global.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Matcher classes (for suggestion matching)
 
-class RSProdMatcher final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, RSProd); }
+श्रेणी RSProdMatcher final : खुला VNodeMatcher {
+खुला:
+    bool गाँठ_Match(स्थिर Ast_गाँठ* nodep) स्थिर override { वापस VN_IS(nodep, RSProd); }
 };
 
 //######################################################################
 // Visitor that marks classes needing a randomize() method
 
-class RandSequenceVisitor final : public VNVisitor {
+श्रेणी RandSequenceVisitor final : खुला VNVisitor {
     // STATE - global
-    std::map<AstRSProd*, AstNodeFTask*> m_prodFuncps;  // Generated production functions
+    std::map<AstRSProd*, Ast_गाँठ_FTask*> m_prodFuncps;  // Generated production functions
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
+    Ast_गाँठ_Module* m_modp = nullptr;  // Current module
     AstRandSequence* m_rsp = nullptr;  // Current randsequence
     AstRSProd* m_startProdp = nullptr;  // Starting production
-    AstNodeFTask* m_prodFuncp = nullptr;  // Production function being built
+    Ast_गाँठ_FTask* m_prodFuncp = nullptr;  // Production function being built
     AstJumpBlock* m_jumpBlockp = nullptr;  // Building jumpblock for return/break
     AstVar* m_breakVarp = nullptr;  // Break variable
     std::unordered_set<AstVar*> m_localizes;  // Variables to become function inouts
     std::map<std::string, AstVar*> m_localizeNames;  // Ordered names of function inouts
-    std::unordered_map<const AstVar*, AstVar*> m_localizeRemaps;  // New ports for old vars
+    std::unordered_map<स्थिर AstVar*, AstVar*> m_localizeRemaps;  // New ports for old vars
 
     // METHODS
-    void findLocalizes(AstRandSequence* nodep) {
+    व्योम findLocalizes(AstRandSequence* nodep) {
         std::set<AstVar*> localVars;
-        nodep->foreach([&](AstNode* const nodep) {
-            if (const AstVarRef* const anodep = VN_CAST(nodep, VarRef)) {
+        nodep->foreach([&](Ast_गाँठ* स्थिर nodep) {
+            अगर (स्थिर AstVarRef* स्थिर anodep = VN_CAST(nodep, VarRef)) {
                 m_localizes.emplace(anodep->varp());
-            } else if (AstVar* const anodep = VN_CAST(nodep, Var)) {
+            } अन्यथा अगर (AstVar* स्थिर anodep = VN_CAST(nodep, Var)) {
                 localVars.emplace(anodep);
             }
         });
         // Clear every variable allocated in the RandSequence
-        for (AstVar* varp : localVars) m_localizes.erase(varp);
+        क्रम (AstVar* varp : localVars) m_localizes.erase(varp);
         // Sort by name, so function arguments are stable
-        for (AstVar* varp : m_localizes) {
+        क्रम (AstVar* varp : m_localizes) {
             UINFO(9, "localize " << varp);
             m_localizeNames.emplace(varp->name(), varp);
         }
     }
 
-    AstVar* newBreakVar(FileLine* fl, bool asOutput) {
-        AstVar* const varp = new AstVar{fl, VVarType::PORT, "__VrsBreak", VFlagBitPacked{}, 1};
+    AstVar* newBreakVar(File_पंक्ति* fl, bool asOutput) {
+        AstVar* स्थिर varp = नया AstVar{fl, VVarType::PORT, "__VrsBreak", VFlagBitPacked{}, 1};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         varp->funcLocal(true);
-        if (asOutput) varp->direction(VDirection::OUTPUT);
-        AstNode* outp = varp;
-        outp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                    new AstConst{fl, AstConst::BitFalse{}}});
+        अगर (asOutput) varp->direction(VDirection::OUTPUT);
+        Ast_गाँठ* outp = varp;
+        outp->add_अग्र(नया AstAssign{fl, नया AstVarRef{fl, varp, VAccess::WRITE},
+                                    नया AstConst{fl, AstConst::BitFalse{}}});
 
         // Also add arguments as next's
-        for (const auto& itr : m_localizeNames) {
-            const AstVar* const lvarp = itr.second;
-            AstVar* const iovarp
-                = new AstVar{fl, VVarType::PORT, "__Vrsarg_" + lvarp->name(), lvarp};
+        क्रम (स्थिर स्वतः& itr : m_localizeNames) {
+            स्थिर AstVar* स्थिर lvarp = itr.second;
+            AstVar* स्थिर iovarp
+                = नया AstVar{fl, VVarType::PORT, "__Vrsarg_" + lvarp->name(), lvarp};
             iovarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             iovarp->funcLocal(true);
             iovarp->direction(VDirection::REF);
-            varp->addNext(iovarp);
+            varp->add_अग्र(iovarp);
             m_localizeRemaps.emplace(lvarp, iovarp);
         }
-        return varp;
+        वापस varp;
     }
 
     AstTask* newStartFunc(AstRandSequence* nodep) {
         // Create wrapper that is called by the sequence
-        AstTask* const taskp = new AstTask{m_startProdp->fileline(), m_rsp->name(), nullptr};
+        AstTask* स्थिर taskp = नया AstTask{m_startProdp->fileline(), m_rsp->name(), nullptr};
         taskp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         m_modp->addStmtsp(taskp);
 
@@ -144,272 +144,272 @@ class RandSequenceVisitor final : public VNVisitor {
         taskp->addStmtsp(newProdFuncRef(nodep, m_startProdp, breakVarp, nullptr));
 
         UINFOTREE(9, taskp, "newStart", "");
-        return taskp;
+        वापस taskp;
     }
 
-    AstNode* newProdFuncRef(AstNode* nodep, AstRSProd* prodp, AstVar* breakVarp,
+    Ast_गाँठ* newProdFuncRef(Ast_गाँठ* nodep, AstRSProd* prodp, AstVar* breakVarp,
                             AstArg* userArgsp) {
-        auto it = m_prodFuncps.find(prodp);
+        स्वतः it = m_prodFuncps.find(prodp);
         UASSERT_OBJ(it != m_prodFuncps.end(), nodep, "No production function made");
-        AstNodeFTask* const prodFuncp = it->second;
-        FileLine* const fl = nodep->fileline();
+        Ast_गाँठ_FTask* स्थिर prodFuncp = it->second;
+        File_पंक्ति* स्थिर fl = nodep->fileline();
         // V3Width already ran before V3RandSequence, so VarRefs we create here
         // need dtype set explicitly, V3Broken later checks width == widthMin.
-        AstVarRef* const breakRefp = new AstVarRef{fl, breakVarp, VAccess::WRITE};
+        AstVarRef* स्थिर breakRefp = नया AstVarRef{fl, breakVarp, VAccess::WRITE};
         breakRefp->dtypeFrom(breakVarp);
-        AstArg* const argsp = new AstArg{fl, breakVarp->name(), breakRefp};
-        for (const auto& itr : m_localizeNames) {
-            const AstVar* const lvarp = itr.second;
-            AstVar* const iovarp = m_localizeRemaps[lvarp];
+        AstArg* स्थिर argsp = नया AstArg{fl, breakVarp->name(), breakRefp};
+        क्रम (स्थिर स्वतः& itr : m_localizeNames) {
+            स्थिर AstVar* स्थिर lvarp = itr.second;
+            AstVar* स्थिर iovarp = m_localizeRemaps[lvarp];
             UASSERT_OBJ(iovarp, nodep, "No new port variable for local variable" << lvarp);
-            AstVarRef* const refp = new AstVarRef{fl, iovarp, VAccess::READWRITE};
+            AstVarRef* स्थिर refp = नया AstVarRef{fl, iovarp, VAccess::READWRITE};
             refp->dtypeFrom(iovarp);
-            argsp->addNext(new AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(), refp});
+            argsp->add_अग्र(नया AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(), refp});
         }
-        if (userArgsp) argsp->addNext(userArgsp);
-        AstNode* const newp
-            = new AstStmtExpr{fl, new AstTaskRef{fl, VN_AS(prodFuncp, Task), argsp}};
-        return newp;
+        अगर (userArgsp) argsp->add_अग्र(userArgsp);
+        Ast_गाँठ* स्थिर newp
+            = नया Ast_Stmt_व्यंजक{fl, नया AstTaskRef{fl, VN_AS(prodFuncp, Task), argsp}};
+        वापस newp;
     }
 
-    void newProdFunc(AstRSProd* nodep) {
+    व्योम newProdFunc(AstRSProd* nodep) {
         // Task, as time may pass
-        AstTask* const newp
-            = new AstTask{nodep->fileline(), m_rsp->name() + "_" + nodep->name(), nullptr};
+        AstTask* स्थिर newp
+            = नया AstTask{nodep->fileline(), m_rsp->name() + "_" + nodep->name(), nullptr};
         m_modp->addStmtsp(newp);
         m_prodFuncps.emplace(nodep, newp);
         UINFOTREE(9, newp, "newProd", "");
     }
 
-    AstNode* newProdRandJoin(AstRSProd* /*prodp*/, AstRSProdList* prodlistp) {
+    Ast_गाँठ* newProdRandJoin(AstRSProd* /*prodp*/, AstRSProdList* prodlistp) {
         // For weight == 1.0 longer sequence (favor stay in a)
         // For weight == 0.0 shorter squence (favor change a/b)
         UASSERT_OBJ(prodlistp->weightp(), prodlistp, "Weight should have default CONST(0.5)");
-        AstNodeExpr* weightp = prodlistp->weightp()->unlinkFrBack();
+        Ast_गाँठ_व्यंजक* weightp = prodlistp->weightp()->unlinkFrBack();
 
         // Build map of production lists and productions we need to join
         // Must mainain the relative order of each sequence.
         std::deque<AstRSProdItem*> lists;
-        std::unordered_map<AstRSProdItem*, std::deque<AstNodeStmt*>> listStmts;
-        for (AstRSProdItem* proditemp = VN_AS(prodlistp->prodsp(), RSProdItem); proditemp;
+        std::unordered_map<AstRSProdItem*, std::deque<Ast_गाँठ_Stmt*>> listStmts;
+        क्रम (AstRSProdItem* proditemp = VN_AS(prodlistp->prodsp(), RSProdItem); proditemp;
              proditemp = VN_AS(proditemp->nextp(), RSProdItem)) {
-            lists.push_back(proditemp);
-            const AstRSProd* const subProdp = proditemp->prodp();
-            if (!subProdp) continue;
-            if (!subProdp->rulesp()) continue;
-            if (!subProdp->rulesp()->prodlistsp()) continue;
-            for (AstNodeStmt* subStmtp
-                 = VN_AS(subProdp->rulesp()->prodlistsp()->prodsp(), NodeStmt);
-                 subStmtp; subStmtp = VN_AS(subStmtp->nextp(), NodeStmt)) {
-                listStmts[proditemp].push_back(subStmtp);
+            lists.धकेलो_back(proditemp);
+            स्थिर AstRSProd* स्थिर subProdp = proditemp->prodp();
+            अगर (!subProdp) जारी;
+            अगर (!subProdp->rulesp()) जारी;
+            अगर (!subProdp->rulesp()->prodlistsp()) जारी;
+            क्रम (Ast_गाँठ_Stmt* subStmtp
+                 = VN_AS(subProdp->rulesp()->prodlistsp()->prodsp(), गाँठ_Stmt);
+                 subStmtp; subStmtp = VN_AS(subStmtp->nextp(), गाँठ_Stmt)) {
+                listStmts[proditemp].धकेलो_back(subStmtp);
             }
         }
 
         UINFO(9, "RandJoin productions called:");
-        for (AstRSProdItem* proditemp : lists) {
+        क्रम (AstRSProdItem* proditemp : lists) {
             UINFO(9, "  list " << proditemp);
-            for (const AstNodeStmt* prodip : listStmts[proditemp])
+            क्रम (स्थिर Ast_गाँठ_Stmt* prodip : listStmts[proditemp])
                 UINFO(9, "    calls " << prodip);
         }
 
         // Need to clone all nodes used
 
-        FileLine* fl = prodlistp->fileline();
-        AstNode* newp = nullptr;
+        File_पंक्ति* fl = prodlistp->fileline();
+        Ast_गाँठ* newp = nullptr;
 
         // "bool _Vjoin_repick = true;"  // Pick a new longer sequence
-        AstVar* repickVarp = new AstVar{fl, VVarType::VAR, "_Vjoin_repick", VFlagBitPacked{}, 1};
+        AstVar* repickVarp = नया AstVar{fl, VVarType::VAR, "_Vjoin_repick", VFlagBitPacked{}, 1};
         repickVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         repickVarp->funcLocal(true);
-        m_breakVarp->addNextHere(repickVarp);  // Add to function top, not newp
-        newp = AstNode::addNext(newp,
-                                new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                              new AstConst{fl, AstConst::BitTrue{}}});
+        m_breakVarp->add_अग्र_Here(repickVarp);  // Add to function top, not newp
+        newp = Ast_गाँठ::add_अग्र(newp,
+                                नया AstAssign{fl, नया AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                              नया AstConst{fl, AstConst::BitTrue{}}});
 
         // "int _Vjoin_nleft_0 = N(items);"  // N(a) Number left to generate in list 0, starts at
         // N(list0)
         std::deque<AstVar*> nleftVarps;
-        int i = 0;
-        for (AstRSProdItem* proditemp : lists) {
+        पूर्णांक i = 0;
+        क्रम (AstRSProdItem* proditemp : lists) {
             // 'rand join arule arule arule' is legal, so need numbered, not non-unique named
             // nleft's
-            AstVar* const varp = new AstVar{
+            AstVar* स्थिर varp = नया AstVar{
                 fl, VVarType::VAR, "_Vjoin_nleft_" + std::to_string(i++), VFlagBitPacked{}, 32};
             varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             varp->funcLocal(true);
-            m_breakVarp->addNextHere(varp);  // Add to function top, not newp
-            nleftVarps.push_back(varp);
+            m_breakVarp->add_अग्र_Here(varp);  // Add to function top, not newp
+            nleftVarps.धकेलो_back(varp);
 
-            newp = AstNode::addNext(
+            newp = Ast_गाँठ::add_अग्र(
                 newp,
-                new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::WidthedValue{}, 32,
-                                           static_cast<uint32_t>(listStmts[proditemp].size())}});
+                नया AstAssign{fl, नया AstVarRef{fl, varp, VAccess::WRITE},
+                              नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32,
+                                           static_cast<uint32_t>(listStmts[proditemp].आकार())}});
         }
 
         // "int _Vjoin_picked_elist = 0;"  // 0 = pick first eligible (non-finished) list, 1 = pick
         // second, etc
-        AstVar* const pickedVarp
-            = new AstVar{fl, VVarType::VAR, "_Vjoin_picked_elist", VFlagBitPacked{}, 1};
+        AstVar* स्थिर pickedVarp
+            = नया AstVar{fl, VVarType::VAR, "_Vjoin_picked_elist", VFlagBitPacked{}, 1};
         pickedVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         pickedVarp->funcLocal(true);
-        m_breakVarp->addNextHere(pickedVarp);  // Add to function top, not newp
+        m_breakVarp->add_अग्र_Here(pickedVarp);  // Add to function top, not newp
 
         // "while(1) {"  // Generate until make complete sequence
-        AstJumpBlock* const whilep = new AstJumpBlock{fl, nullptr};
-        newp = AstNode::addNext(newp, new AstLoop{fl, whilep});
+        AstJumpBlock* स्थिर whilep = नया AstJumpBlock{fl, nullptr};
+        newp = Ast_गाँठ::add_अग्र(newp, नया AstLoop{fl, whilep});
         {
             // "if ((std::rand() & 0xffffUL) > (0xffff * weight)) _Vjoin_repick = true;"
-            whilep->addStmtsp(new AstIf{
+            whilep->addStmtsp(नया AstIf{
                 fl,
-                new AstGt{
-                    fl, new AstRand{fl, AstRand::SRandomU32{}},
-                    new AstRToIS{fl, new AstMulD{fl,
-                                                 new AstConst{fl, AstConst::RealDouble{},
-                                                              static_cast<double>(0xffffffffUL)},
+                नया AstGt{
+                    fl, नया AstRand{fl, AstRand::SRandomU32{}},
+                    नया AstRToIS{fl, नया AstMulD{fl,
+                                                 नया AstConst{fl, AstConst::RealDouble{},
+                                                              static_cast<द्विगुन>(0xffffffffUL)},
                                                  weightp}}},
-                new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::BitTrue{}}}});
+                नया AstAssign{fl, नया AstVarRef{fl, repickVarp, VAccess::WRITE},
+                              नया AstConst{fl, AstConst::BitTrue{}}}});
 
             // "if (_Vjoin_repick) {"
-            AstIf* ifp = new AstIf{fl, new AstVarRef{fl, repickVarp, VAccess::READ}};
+            AstIf* ifp = नया AstIf{fl, नया AstVarRef{fl, repickVarp, VAccess::READ}};
             whilep->addStmtsp(ifp);
             {
                 // "// _Vjoin_nlists_eligible is how many lists eligable for picking"
                 // "int _Vjoin_nlists_eligible = 0;"
-                AstVar* const eligibleVarp = new AstVar{
+                AstVar* स्थिर eligibleVarp = नया AstVar{
                     fl, VVarType::VAR, "_Vjoin_nlists_eligible", VFlagBitPacked{}, 32};
                 eligibleVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                 eligibleVarp->funcLocal(true);
-                m_breakVarp->addNextHere(eligibleVarp);  // Add to function top, not newp
-                ifp->addThensp(new AstAssign{fl, new AstVarRef{fl, eligibleVarp, VAccess::WRITE},
-                                             new AstConst{fl, AstConst::WidthedValue{}, 32, 0}});
+                m_breakVarp->add_अग्र_Here(eligibleVarp);  // Add to function top, not newp
+                ifp->addThensp(नया AstAssign{fl, नया AstVarRef{fl, eligibleVarp, VAccess::WRITE},
+                                             नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 0}});
 
                 i = 0;
-                for (AstRSProdItem* proditemp : lists) {
-                    (void)proditemp;
+                क्रम (AstRSProdItem* proditemp : lists) {
+                    (व्योम)proditemp;
                     // "_Vjoin_nlists_eligible += _Vjoin_nleft_0 ? 1 : 0;"
-                    ifp->addThensp(new AstAssign{
-                        fl, new AstVarRef{fl, eligibleVarp, VAccess::WRITE},
-                        new AstAdd{
-                            fl, new AstVarRef{fl, eligibleVarp, VAccess::READ},
-                            new AstCond{
+                    ifp->addThensp(नया AstAssign{
+                        fl, नया AstVarRef{fl, eligibleVarp, VAccess::WRITE},
+                        नया AstAdd{
+                            fl, नया AstVarRef{fl, eligibleVarp, VAccess::READ},
+                            नया AstCond{
                                 fl,
-                                new AstNeq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                           new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                new AstConst{fl, AstConst::WidthedValue{}, 32, 1},
-                                new AstConst{fl, AstConst::WidthedValue{}, 32, 0}}}});
+                                नया AstNeq{fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 0},
+                                           नया AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 1},
+                                नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 0}}}});
                     ++i;
                 }
 
                 // "if (!_Vjoin_nlists_eligible) break;"  // Out of elements
                 ifp->addThensp(
-                    new AstIf{fl,
-                              new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                        new AstVarRef{fl, eligibleVarp, VAccess::READ}},
-                              new AstJumpGo{fl, m_jumpBlockp}});
+                    नया AstIf{fl,
+                              नया AstEq{fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 0},
+                                        नया AstVarRef{fl, eligibleVarp, VAccess::READ}},
+                              नया AstJumpGo{fl, m_jumpBlockp}});
 
                 // "// +1 to simplify usage, so 0 = done"
                 // "_Vjoin_picked_elist = 1 + (std::rand() % _Vjoin_nlists_eligible);"
-                ifp->addThensp(new AstAssign{
-                    fl, new AstVarRef{fl, pickedVarp, VAccess::WRITE},
-                    new AstAdd{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 1},
-                               new AstModDiv{fl, new AstRand{fl, AstRand::SRandomU32{}},
-                                             new AstVarRef{fl, eligibleVarp, VAccess::READ}}}});
+                ifp->addThensp(नया AstAssign{
+                    fl, नया AstVarRef{fl, pickedVarp, VAccess::WRITE},
+                    नया AstAdd{fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 1},
+                               नया AstModDiv{fl, नया AstRand{fl, AstRand::SRandomU32{}},
+                                             नया AstVarRef{fl, eligibleVarp, VAccess::READ}}}});
 
                 // "_Vjoin_repick = false;
-                ifp->addThensp(new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                             new AstConst{fl, AstConst::BitFalse{}}});
+                ifp->addThensp(नया AstAssign{fl, नया AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                             नया AstConst{fl, AstConst::BitFalse{}}});
             }
 
             // "// Number of eligible lists left before hit _Vjoin_picked one"
             // "int _Vjoin_sel_elist = _Vjoin_picked_elist;"
-            AstVar* const selVarp
-                = new AstVar{fl, VVarType::VAR, "_Vjoin_sel_elist", VFlagBitPacked{}, 32};
+            AstVar* स्थिर selVarp
+                = नया AstVar{fl, VVarType::VAR, "_Vjoin_sel_elist", VFlagBitPacked{}, 32};
             selVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             selVarp->funcLocal(true);
-            m_breakVarp->addNextHere(selVarp);  // Add to function top, not newp
-            whilep->addStmtsp(new AstAssign{fl, new AstVarRef{fl, selVarp, VAccess::WRITE},
-                                            new AstVarRef{fl, pickedVarp, VAccess::READ}});
+            m_breakVarp->add_अग्र_Here(selVarp);  // Add to function top, not newp
+            whilep->addStmtsp(नया AstAssign{fl, नया AstVarRef{fl, selVarp, VAccess::WRITE},
+                                            नया AstVarRef{fl, pickedVarp, VAccess::READ}});
 
             i = -1;
-            for (AstRSProdItem* proditemp : lists) {
+            क्रम (AstRSProdItem* proditemp : lists) {
                 ++i;
                 // "if (_Vjoin_nleft_0) {"
-                ifp = new AstIf{fl,
-                                new AstNeq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                           new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                ifp = नया AstIf{fl,
+                                नया AstNeq{fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 0},
+                                           नया AstVarRef{fl, nleftVarps[i], VAccess::READ}},
                                 nullptr, nullptr};
                 whilep->addStmtsp(ifp);
                 {
                     // "--_Vjoin_sel_elist;"
-                    ifp->addThensp(new AstAssign{
-                        fl, new AstVarRef{fl, selVarp, VAccess::WRITE},
-                        new AstSub{fl, new AstVarRef{fl, selVarp, VAccess::READ},
-                                   new AstConst{fl, AstConst::WidthedValue{}, 32, 1}}});
+                    ifp->addThensp(नया AstAssign{
+                        fl, नया AstVarRef{fl, selVarp, VAccess::WRITE},
+                        नया AstSub{fl, नया AstVarRef{fl, selVarp, VAccess::READ},
+                                   नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 1}}});
 
                     // "if (_Vjoin_sel_elist == 0) {"
-                    AstIf* const jIfp = new AstIf{
+                    AstIf* स्थिर jIfp = नया AstIf{
                         fl,
-                        new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                  new AstVarRef{fl, selVarp, VAccess::READ}},
+                        नया AstEq{fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 0},
+                                  नया AstVarRef{fl, selVarp, VAccess::READ}},
                         nullptr, nullptr};
                     ifp->addThensp(jIfp);
                     {
                         // "switch (_Vjoin_nleft_0) {"
                         //     "case 2 / * N(a)  * /: {statement}; break;"
                         //     "case 1 / * N(a) - 1 * /: {statement}; break;"
-                        uint32_t j = static_cast<uint32_t>(listStmts[proditemp].size());
-                        for (AstNodeStmt* iprodp : listStmts[proditemp]) {
-                            jIfp->addThensp(new AstIf{
+                        uint32_t j = static_cast<uint32_t>(listStmts[proditemp].आकार());
+                        क्रम (Ast_गाँठ_Stmt* iprodp : listStmts[proditemp]) {
+                            jIfp->addThensp(नया AstIf{
                                 fl,
-                                new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, j},
-                                          new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                iprodp->cloneTree(false)});
+                                नया AstEq{fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, j},
+                                          नया AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                iprodp->clone_वृक्ष(false)});
                             --j;
                         }
 
                         // "--_Vjoin_nleft_0;"
-                        jIfp->addThensp(new AstAssign{
-                            fl, new AstVarRef{fl, nleftVarps[i], VAccess::WRITE},
-                            new AstSub{fl, new AstVarRef{fl, nleftVarps[i], VAccess::READ},
-                                       new AstConst{fl, AstConst::WidthedValue{}, 32, 1}}});
+                        jIfp->addThensp(नया AstAssign{
+                            fl, नया AstVarRef{fl, nleftVarps[i], VAccess::WRITE},
+                            नया AstSub{fl, नया AstVarRef{fl, nleftVarps[i], VAccess::READ},
+                                       नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 1}}});
 
                         // "if (0 == _Vjoin_nleft_0) _Vjoin_repick = true;"
-                        jIfp->addThensp(new AstIf{
+                        jIfp->addThensp(नया AstIf{
                             fl,
-                            new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                      new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                            new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                          new AstConst{fl, AstConst::BitTrue{}}}});
+                            नया AstEq{fl, नया AstConst{fl, AstConst::Widthed_मूल्य{}, 32, 0},
+                                      नया AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                            नया AstAssign{fl, नया AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                          नया AstConst{fl, AstConst::BitTrue{}}}});
 
                         // "continue;"
-                        jIfp->addThensp(new AstJumpGo{fl, whilep});
+                        jIfp->addThensp(नया AstJumpGo{fl, whilep});
                     }
                 }
             }
         }
 
         UINFOTREE(9, newp, "ForkJoin new", "-");
-        return newp;
+        वापस newp;
     }
 
     // VISITORS
 
-    void visit(AstNodeModule* nodep) override {
+    व्योम visit(Ast_गाँठ_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstRandSequence* nodep) override {
+    व्योम visit(AstRandSequence* nodep) override {
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_modp, nodep, "randsequence not under module");
-        if (m_rsp) {
+        अगर (m_rsp) {
             // No examples found in the wild
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: randsequence under randsequence");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(धकेलो_Deletep(nodep->unlinkFrBack()), nodep);
+            वापस;
         }
 
         UINFOTREE(9, nodep, "rsIn", "");
@@ -424,10 +424,10 @@ class RandSequenceVisitor final : public VNVisitor {
 
         // Find first production
         m_startProdp = nodep->prodsp();
-        if (nodep->prodp()) m_startProdp = nodep->prodp();  // Has a start production selected
+        अगर (nodep->prodp()) m_startProdp = nodep->prodp();  // Has a start production selected
 
         // Build production functions
-        for (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
+        क्रम (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
             newProdFunc(prodp);
             // Don't iterate yet, need to have tasks we can reference
         }
@@ -437,44 +437,44 @@ class RandSequenceVisitor final : public VNVisitor {
         // before they are removed.  (Alternative would be to keep them until the end).
         UINFOTREE(9, nodep, "RS Tree pre-it", "-");
         std::unordered_set<AstRSProd*> prodHasRandJoin;
-        for (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
-            prodp->foreach([&](const AstRSProdList* const prodlistp) {
-                if (prodlistp->randJoin()) prodHasRandJoin.emplace(prodp);
+        क्रम (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
+            prodp->foreach([&](स्थिर AstRSProdList* स्थिर prodlistp) {
+                अगर (prodlistp->randJoin()) prodHasRandJoin.emplace(prodp);
             });
         }
-        for (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
+        क्रम (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
             nextp = VN_AS(prodp->nextp(), RSProd);
-            if (prodHasRandJoin.count(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
+            अगर (prodHasRandJoin.गिनती(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
         }
-        for (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
+        क्रम (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
             nextp = VN_AS(prodp->nextp(), RSProd);
-            if (!prodHasRandJoin.count(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
+            अगर (!prodHasRandJoin.गिनती(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
         }
         UINFOTREE(9, nodep, "RS Tree post-it", "-");
 
         // Replace randsequence with call to randsequence start function
-        AstTask* const startFuncp = newStartFunc(nodep);
+        AstTask* स्थिर startFuncp = newStartFunc(nodep);
         AstArg* argsp = nullptr;
-        for (auto& itr : m_localizeNames) {
-            AstVar* const lvarp = itr.second;
-            argsp = AstNode::addNext(
-                argsp, new AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(),
-                                  new AstVarRef{nodep->fileline(), lvarp, VAccess::READWRITE}});
+        क्रम (स्वतः& itr : m_localizeNames) {
+            AstVar* स्थिर lvarp = itr.second;
+            argsp = Ast_गाँठ::add_अग्र(
+                argsp, नया AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(),
+                                  नया AstVarRef{nodep->fileline(), lvarp, VAccess::READWRITE}});
         }
-        AstTaskRef* const callStartp
-            = new AstTaskRef{nodep->fileline(), startFuncp->name(), argsp};
+        AstTaskRef* स्थिर callStartp
+            = नया AstTaskRef{nodep->fileline(), startFuncp->name(), argsp};
         callStartp->taskp(startFuncp);
-        nodep->replaceWith(new AstStmtExpr{nodep->fileline(), callStartp});
+        nodep->replaceWith(नया Ast_Stmt_व्यंजक{nodep->fileline(), callStartp});
 
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstRSProd* nodep) override {
+    व्योम visit(AstRSProd* nodep) override {
         // Production, immediately under a randsequence
         UINFO(9, "visit " << nodep);
         UINFOTREE(9, nodep, "visit " << nodep, "-");
         UASSERT_OBJ(!m_prodFuncp, nodep, "recursive production definition?");
         VL_RESTORER(m_prodFuncp);
-        auto it = m_prodFuncps.find(nodep);
+        स्वतः it = m_prodFuncps.find(nodep);
         UASSERT_OBJ(it != m_prodFuncps.end(), nodep, "No production function made");
         m_prodFuncp = it->second;
 
@@ -489,11 +489,11 @@ class RandSequenceVisitor final : public VNVisitor {
         // Production formal ports become real input ports on the generated task.
         // Must be added after m_breakVarp / localize ports so positional argument
         // order in newProdFuncRef stays consistent: [break, localize..., user...].
-        if (AstNode* const portsp = nodep->portsp()) {
-            portsp->unlinkFrBackWithNext();
+        अगर (Ast_गाँठ* स्थिर portsp = nodep->portsp()) {
+            portsp->unlink_Fr_Back_With_अग्र();
             m_prodFuncp->addStmtsp(portsp);
-            for (AstNode* itp = portsp; itp; itp = itp->nextp()) {
-                AstVar* const portVarp = VN_AS(itp, Var);
+            क्रम (Ast_गाँठ* itp = portsp; itp; itp = itp->nextp()) {
+                AstVar* स्थिर portVarp = VN_AS(itp, Var);
                 portVarp->funcLocal(true);
                 portVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             }
@@ -502,152 +502,152 @@ class RandSequenceVisitor final : public VNVisitor {
         // Put JumpBlock immediately under the new function to support
         // a future break/return.  V3Const will rip it out if unneeded.
         VL_RESTORER(m_jumpBlockp);
-        m_jumpBlockp = new AstJumpBlock{nodep->fileline(), nullptr};
+        m_jumpBlockp = नया AstJumpBlock{nodep->fileline(), nullptr};
         m_prodFuncp->addStmtsp(m_jumpBlockp);
 
-        if (nodep->fvarp())
+        अगर (nodep->fvarp())
             nodep->fvarp()->v3warn(E_UNSUPPORTED,
                                    "Unsupported: randsequence production function variable");
 
         // Move children into m_prodFuncp, and iterate there
-        if (!nodep->rulesp()) {  // Nothing to do
-        } else if (nodep->rulesp()->prodlistsp() && nodep->rulesp()->prodlistsp()->randJoin()) {
-            AstRSProdList* const prodlistp = nodep->rulesp()->prodlistsp();
-            AstNode* const itemsp = newProdRandJoin(nodep, prodlistp);
+        अगर (!nodep->rulesp()) {  // Nothing to do
+        } अन्यथा अगर (nodep->rulesp()->prodlistsp() && nodep->rulesp()->prodlistsp()->randJoin()) {
+            AstRSProdList* स्थिर prodlistp = nodep->rulesp()->prodlistsp();
+            Ast_गाँठ* स्थिर itemsp = newProdRandJoin(nodep, prodlistp);
             m_jumpBlockp->addStmtsp(itemsp);
-            iterateAndNextNull(itemsp);
-        } else if (!nodep->rulesp()->nextp()) {  // Single rule/list, can just do it
+            iterate_And_अग्र_Null(itemsp);
+        } अन्यथा अगर (!nodep->rulesp()->nextp()) {  // Single rule/list, can just do it
             // RSPROD(RSRULE(weight, stmt)) -> IF(weight != 0, stmt)
-            const AstRSRule* const rulep = nodep->rulesp();
-            AstNode* itemsp = nullptr;
-            if (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlinkFrBackWithNext();
-            if (rulep->prodlistsp())
-                itemsp = AstNode::addNext(itemsp, rulep->prodlistsp()->unlinkFrBackWithNext());
+            स्थिर AstRSRule* स्थिर rulep = nodep->rulesp();
+            Ast_गाँठ* itemsp = nullptr;
+            अगर (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlink_Fr_Back_With_अग्र();
+            अगर (rulep->prodlistsp())
+                itemsp = Ast_गाँठ::add_अग्र(itemsp, rulep->prodlistsp()->unlink_Fr_Back_With_अग्र());
             // Can ignore rulep->weightp() unless is zero, in which case noop, add if
-            if (rulep->weightp())
-                itemsp = new AstIf{rulep->weightp()->fileline(),
-                                   new AstNeq{rulep->weightp()->fileline(),
-                                              new AstConst{rulep->weightp()->fileline(), 0},
+            अगर (rulep->weightp())
+                itemsp = नया AstIf{rulep->weightp()->fileline(),
+                                   नया AstNeq{rulep->weightp()->fileline(),
+                                              नया AstConst{rulep->weightp()->fileline(), 0},
                                               rulep->weightp()->unlinkFrBack()},
                                    itemsp};
             // Move prodlist to parent (m_prodFunc) and process
-            if (itemsp) {
+            अगर (itemsp) {
                 UINFOTREE(9, itemsp, "additems", "-");
                 m_jumpBlockp->addStmtsp(itemsp);
-                iterateAndNextNull(itemsp);
+                iterate_And_अग्र_Null(itemsp);
                 UINFOTREE(9, m_jumpBlockp, "jumpBlockNow", "-");
             }
-        } else {
+        } अन्यथा {
             // List of rules with "OR", need to random-weight them
             // RSPROD(RSRULE(weight1, stmt!), RSRULE(weight2, stmt2))
             //   -> RANDCASE(CASEITEM(weight1, stmt1), CASEITEM(weight2, stmt2))
-            AstRandCase* const randcasep = new AstRandCase{nodep->fileline(), nullptr};
-            for (AstRSRule* rulep = nodep->rulesp(); rulep;
+            AstRandCase* स्थिर randcasep = नया AstRandCase{nodep->fileline(), nullptr};
+            क्रम (AstRSRule* rulep = nodep->rulesp(); rulep;
                  rulep = VN_AS(rulep->nextp(), RSRule)) {
-                AstNode* itemsp = nullptr;
-                if (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlinkFrBackWithNext();
-                if (rulep->prodlistsp())
-                    itemsp = AstNode::addNext(itemsp, rulep->prodlistsp()->unlinkFrBackWithNext());
-                if (itemsp) {
-                    AstNodeExpr* const weightp = rulep->weightp()
+                Ast_गाँठ* itemsp = nullptr;
+                अगर (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlink_Fr_Back_With_अग्र();
+                अगर (rulep->prodlistsp())
+                    itemsp = Ast_गाँठ::add_अग्र(itemsp, rulep->prodlistsp()->unlink_Fr_Back_With_अग्र());
+                अगर (itemsp) {
+                    Ast_गाँठ_व्यंजक* स्थिर weightp = rulep->weightp()
                                                      ? rulep->weightp()->unlinkFrBack()
-                                                     : new AstConst{rulep->fileline(), 1};
-                    randcasep->addItemsp(new AstCaseItem{rulep->fileline(), weightp, itemsp});
+                                                     : नया AstConst{rulep->fileline(), 1};
+                    randcasep->addItemsp(नया AstCaseItem{rulep->fileline(), weightp, itemsp});
                 }
             }
             m_jumpBlockp->addStmtsp(randcasep);
-            iterateAndNextNull(randcasep);
+            iterate_And_अग्र_Null(randcasep);
         }
 
         // V3Task needs to know if we ended up making a recursive function
-        m_prodFuncp->foreach([&](AstNodeFTaskRef* const nodep) {
-            if (nodep->taskp() == m_prodFuncp) m_prodFuncp->recursive(true);
+        m_prodFuncp->foreach([&](Ast_गाँठ_FTask_Ref* स्थिर nodep) {
+            अगर (nodep->taskp() == m_prodFuncp) m_prodFuncp->recursive(true);
         });
         UINFOTREE(9, m_prodFuncp, "rsprod-task-done " << nodep, "-");
 
         // Done with production, should have moved everything to new task
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstRSRule* nodep) override {
+    व्योम visit(AstRSRule* nodep) override {
         // Rule of what to produce (as a list) under a production
         nodep->v3fatalSrc("randsequence rule should be iterated and deleted by AstRSProd");
     }
-    void visit(AstRSProdList* nodep) override {
+    व्योम visit(AstRSProdList* nodep) override {
         // List of productions to call, potentially with a weight
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_prodFuncp, nodep, "RSProdList not under production");
 
         // Move prodlist to parent (m_prodFunc) and process
-        if (AstNode* const itemsp = nodep->prodsp()) {
+        अगर (Ast_गाँठ* स्थिर itemsp = nodep->prodsp()) {
             UASSERT_OBJ(!nodep->randJoin(), nodep,
                         "rand join should have been handled in visit(RSRule)");
-            nodep->replaceWith(itemsp->unlinkFrBackWithNext());
+            nodep->replaceWith(itemsp->unlink_Fr_Back_With_अग्र());
             // Will soon iterate itemsp as part of normal visit process
             // These will become sequential in the generated task
-        } else {
+        } अन्यथा {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstRSProdItem* nodep) override {
+    व्योम visit(AstRSProdItem* nodep) override {
         // "call" to generate using another production
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_prodFuncp, nodep, "RSProdItem not under production");
-        AstRSProd* const foundp = nodep->prodp();
+        AstRSProd* स्थिर foundp = nodep->prodp();
         UASSERT_OBJ(foundp, nodep, "Unlinked production reference");
         // Pass through caller-side argument list (IEEE 1800-2023 18.17.7).
-        AstArg* const userArgsp
-            = nodep->argsp() ? nodep->argsp()->unlinkFrBackWithNext() : nullptr;
+        AstArg* स्थिर userArgsp
+            = nodep->argsp() ? nodep->argsp()->unlink_Fr_Back_With_अग्र() : nullptr;
         // Convert to task call
-        AstNode* const newp = newProdFuncRef(nodep, foundp, m_breakVarp, userArgsp);
+        Ast_गाँठ* स्थिर newp = newProdFuncRef(nodep, foundp, m_breakVarp, userArgsp);
         // The production might have done a "break;", skip other steps if so
-        newp->addNext(new AstIf{nodep->fileline(),
-                                new AstVarRef{nodep->fileline(), m_breakVarp, VAccess::READ},
-                                new AstJumpGo{nodep->fileline(), m_jumpBlockp}});
+        newp->add_अग्र(नया AstIf{nodep->fileline(),
+                                नया AstVarRef{nodep->fileline(), m_breakVarp, VAccess::READ},
+                                नया AstJumpGo{nodep->fileline(), m_jumpBlockp}});
 
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
 
-    void visit(AstRSBreak* nodep) override {
+    व्योम visit(AstRSBreak* nodep) override {
         UASSERT_OBJ(m_jumpBlockp, nodep, "RSBreak not under production jump block");
         UASSERT_OBJ(m_breakVarp, nodep, "no break variable");
-        AstNodeStmt* const newp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), m_breakVarp, VAccess::WRITE},
-            new AstConst{nodep->fileline(), AstConst::BitTrue{}}};
-        newp->addNext(new AstJumpGo{nodep->fileline(), m_jumpBlockp});
+        Ast_गाँठ_Stmt* स्थिर newp = नया AstAssign{
+            nodep->fileline(), नया AstVarRef{nodep->fileline(), m_breakVarp, VAccess::WRITE},
+            नया AstConst{nodep->fileline(), AstConst::BitTrue{}}};
+        newp->add_अग्र(नया AstJumpGo{nodep->fileline(), m_jumpBlockp});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstRSReturn* nodep) override {
+    व्योम visit(AstRSReturn* nodep) override {
         UASSERT_OBJ(m_jumpBlockp, nodep, "RSReturn not under production jump block");
-        nodep->replaceWith(new AstJumpGo{nodep->fileline(), m_jumpBlockp});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(नया AstJumpGo{nodep->fileline(), m_jumpBlockp});
+        VL_DO_DANGLING(धकेलो_Deletep(nodep), nodep);
     }
-    void visit(AstVarRef* nodep) override {
+    व्योम visit(AstVarRef* nodep) override {
         // Change references to variables inside randsequence to references to
         // ref variables on the new task
-        const auto it = m_localizeRemaps.find(nodep->varp());
-        if (it != m_localizeRemaps.end()) {
-            AstVar* const iovarp = it->second;
+        स्थिर स्वतः it = m_localizeRemaps.find(nodep->varp());
+        अगर (it != m_localizeRemaps.end()) {
+            AstVar* स्थिर iovarp = it->second;
             UINFO(9, "VARREF remap " << nodep << " -> " << iovarp);
             nodep->varp(iovarp);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    व्योम visit(Ast_गाँठ* nodep) override { iterateChildren(nodep); }
 
-public:
+खुला:
     // CONSTRUCTORS
     explicit RandSequenceVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~RandSequenceVisitor() override = default;
+    ~RandSequenceVisitor() override = शेष;
 };
 
 //######################################################################
 // RandSequence method class functions
 
-void V3RandSequence::randSequenceNetlist(AstNetlist* nodep) {
+व्योम V3RandSequence::randSequenceNetlist(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { const RandSequenceVisitor randSequenceVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("randsequence", 0, dumpTreeEitherLevel() >= 3);
+    { स्थिर RandSequenceVisitor randSequenceVisitor{nodep}; }
+    V3Global::dump_Check_Global_वृक्ष("randsequence", 0, dump_वृक्ष_Either_Level() >= 3);
 }

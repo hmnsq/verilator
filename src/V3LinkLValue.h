@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKLVALUE_H_
-#define VERILATOR_V3LINKLVALUE_H_
+#अगर_अघोषित VERILATOR_V3LINKLVALUE_H_
+#घोषणा VERILATOR_V3LINKLVALUE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#include "V3Ast.h"
+#समावेश "V3Ast.h"
 
 //============================================================================
 
 class V3LinkLValue final {
-public:
-    static void linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkLValueSet(AstNode* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
+खुला:
+    अटल व्योम linkLValue(AstNetlist* nodep) VL_MT_DISABLED;
+    अटल व्योम linkLValueSet(Ast_गाँठ* nodep, VAccess access = VAccess::WRITE) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard

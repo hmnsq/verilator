@@ -14,16 +14,16 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCBUCKET_H_
-#define VERILATOR_VLCBUCKET_H_
+#अगर_अघोषित VERILATOR_VLCBUCKET_H_
+#घोषणा VERILATOR_VLCBUCKET_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
-#ifndef V3ERROR_NO_GLOBAL_
-#define V3ERROR_NO_GLOBAL_
-#endif
-#include "V3Error.h"
+#अगर_अघोषित V3ERROR_NO_GLOBAL_
+#घोषणा V3ERROR_NO_GLOBAL_
+#पूर्ण_अगर
+#समावेश "V3Error.h"
 
 //********************************************************************
 // VlcBuckets - Container of all coverage point hits for a given test
@@ -33,83 +33,83 @@
 class VlcBuckets final {
     // MEMBERS
     uint64_t* m_datap = nullptr;  ///< Pointer to first bucket (dynamically allocated)
-    uint64_t m_dataSize = 0;  ///< Current entries in m_datap
+    uint64_t m_तथ्य_आकार = 0;  ///< Current entries in m_datap
     uint64_t m_bucketsCovered = 0;  ///< Num buckets with sufficient coverage
 
-    static uint64_t covBit(uint64_t point) { return 1ULL << (point & 63); }
-    uint64_t allocSize() const { return sizeof(uint64_t) * m_dataSize / 64; }
-    void allocate(uint64_t point) {
-        const uint64_t oldsize = m_dataSize;
-        if (m_dataSize < point) m_dataSize = (point + 64) & ~63ULL;  // Keep power of two
-        m_dataSize *= 2;
+    अटल uint64_t covBit(uint64_t point) { वापस 1ULL << (point & 63); }
+    uint64_t alloc_आकार() स्थिर { वापस माप(uint64_t) * m_तथ्य_आकार / 64; }
+    व्योम allocate(uint64_t point) {
+        स्थिर uint64_t oldsize = m_तथ्य_आकार;
+        अगर (m_तथ्य_आकार < point) m_तथ्य_आकार = (point + 64) & ~63ULL;  // Keep power of two
+        m_तथ्य_आकार *= 2;
         // UINFO(9, "Realloc " << allocSize() << " for " << point << "  " << cvtToHex(m_datap));
-        uint64_t* const newp = static_cast<uint64_t*>(std::realloc(m_datap, allocSize()));
-        if (VL_UNCOVERABLE(!newp)) {
+        uint64_t* स्थिर newp = static_cast<uint64_t*>(std::पुनः_स्मृति(m_datap, alloc_आकार()));
+        अगर (VL_UNCOVERABLE(!newp)) {
             // cppcheck-suppress doubleFree  // cppcheck 1.90 bug - realloc doesn't free on fail
-            free(m_datap);  // LCOV_EXCL_LINE
+            मुक्त(m_datap);  // LCOV_EXCL_LINE
             v3fatal("Out of memory increasing buckets");  // LCOV_EXCL_LINE
         }
         m_datap = newp;
-        for (uint64_t i = oldsize; i < m_dataSize; i += 64) m_datap[i / 64] = 0;
+        क्रम (uint64_t i = oldsize; i < m_तथ्य_आकार; i += 64) m_datap[i / 64] = 0;
     }
 
-public:
+खुला:
     // CONSTRUCTORS
     VlcBuckets() { allocate(1024); }
     ~VlcBuckets() {
-        m_dataSize = 0;
-        VL_DO_CLEAR(free(m_datap), m_datap = nullptr);
+        m_तथ्य_आकार = 0;
+        VL_DO_CLEAR(मुक्त(m_datap), m_datap = nullptr);
     }
 
     // ACCESSORS
-    static uint64_t sufficient() { return 1; }
-    uint64_t bucketsCovered() const { return m_bucketsCovered; }
+    अटल uint64_t sufficient() { वापस 1; }
+    uint64_t bucketsCovered() स्थिर { वापस m_bucketsCovered; }
 
     // METHODS
-    void addData(uint64_t point, uint64_t hits) {
-        if (hits >= sufficient()) {
+    व्योम add_तथ्य(uint64_t point, uint64_t hits) {
+        अगर (hits >= sufficient()) {
             // UINFO(9, "     addData " << point << " " << hits << " size=" << m_dataSize);
-            if (point >= m_dataSize) allocate(point);
+            अगर (point >= m_तथ्य_आकार) allocate(point);
             m_datap[point / 64] |= covBit(point);
             m_bucketsCovered++;
         }
     }
-    void clearHits(uint64_t point) const {
-        if (point >= m_dataSize) return;
+    व्योम clearHits(uint64_t point) स्थिर {
+        अगर (point >= m_तथ्य_आकार) वापस;
         m_datap[point / 64] &= ~covBit(point);
     }
-    bool exists(uint64_t point) const {
-        if (point >= m_dataSize) return false;
-        return (m_datap[point / 64] & covBit(point)) ? true : false;
+    bool exists(uint64_t point) स्थिर {
+        अगर (point >= m_तथ्य_आकार) वापस false;
+        वापस (m_datap[point / 64] & covBit(point)) ? true : false;
     }
-    uint64_t hits(uint64_t point) const {
-        if (point >= m_dataSize) return 0;
-        return (m_datap[point / 64] & covBit(point)) ? 1 : 0;
+    uint64_t hits(uint64_t point) स्थिर {
+        अगर (point >= m_तथ्य_आकार) वापस 0;
+        वापस (m_datap[point / 64] & covBit(point)) ? 1 : 0;
     }
-    uint64_t popCount() const {
-        uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) ++pop;
+    uint64_t निकालो_गिनती() स्थिर {
+        uint64_t निकालो = 0;
+        क्रम (uint64_t i = 0; i < m_तथ्य_आकार; ++i) {
+            अगर (hits(i)) ++निकालो;
         }
-        return pop;
+        वापस निकालो;
     }
-    uint64_t dataPopCount(const VlcBuckets& remaining) const {
-        uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && remaining.hits(i)) ++pop;
+    uint64_t तथ्य_निकालो_गिनती(स्थिर VlcBuckets& remaining) स्थिर {
+        uint64_t निकालो = 0;
+        क्रम (uint64_t i = 0; i < m_तथ्य_आकार; ++i) {
+            अगर (hits(i) && remaining.hits(i)) ++निकालो;
         }
-        return pop;
+        वापस निकालो;
     }
-    void orData(const VlcBuckets& ordata) {
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && ordata.hits(i)) clearHits(i);
+    व्योम or_तथ्य(स्थिर VlcBuckets& ordata) {
+        क्रम (uint64_t i = 0; i < m_तथ्य_आकार; ++i) {
+            अगर (hits(i) && ordata.hits(i)) clearHits(i);
         }
     }
 
-    void dump() const {
+    व्योम dump() स्थिर {
         std::cout << "#     ";
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) std::cout << "," << i;
+        क्रम (uint64_t i = 0; i < m_तथ्य_आकार; ++i) {
+            अगर (hits(i)) std::cout << "," << i;
         }
         std::cout << "\n";
     }
@@ -117,4 +117,4 @@ public:
 
 //######################################################################
 
-#endif  // guard
+#पूर्ण_अगर  // guard

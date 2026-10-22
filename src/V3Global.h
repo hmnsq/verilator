@@ -14,28 +14,28 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GLOBAL_H_
-#define VERILATOR_V3GLOBAL_H_
+#अगर_अघोषित VERILATOR_V3GLOBAL_H_
+#घोषणा VERILATOR_V3GLOBAL_H_
 
 // clang-format off
-#include "config_build.h"
-#ifndef HAVE_CONFIG_PACKAGE
+#समावेश "config_build.h"
+#अगर_अघोषित HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
-#endif
+#पूर्ण_अगर
 // clang-format on
 
-#include "verilatedos.h"
+#समावेश "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Mutex.h"
-#include "V3Options.h"
+#समावेश "V3Error.h"
+#समावेश "V3FileLine.h"
+#समावेश "V3Mutex.h"
+#समावेश "V3Options.h"
 
-#include <string>
-#include <thread>
-#include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
+#समावेश <string>
+#समावेश <thread>
+#समावेश <type_traits>
+#समावेश <unordered_map>
+#समावेश <unordered_set>
 
 class AstNetlist;
 class V3ConstPool;
@@ -51,74 +51,74 @@ class V3ThreadPool;
 // Copy given variable's value on the stack, copy saved value back at end-of-scope.
 // Only usable for trivially copyable types; use VL_RESTORER_COPY/VL_RESTORER_CLEAR for
 // non-trivially copyable types, which are more efficient.
-#define VL_RESTORER(var) \
-    const VRestorerTrivial<typename std::decay_t<decltype(var)>> restorer_##var(var);
+#घोषणा VL_RESTORER(var) \
+    स्थिर VRestorerTrivial<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // This is the equivalent of VL_RESTORER for non-trivially copyable types. Still more efficient
 // than VL_RESTORER as uses move to restore.
-#define VL_RESTORER_COPY(var) \
-    const VRestorerCopy<typename std::decay_t<decltype(var)>> restorer_##var(var);
+#घोषणा VL_RESTORER_COPY(var) \
+    स्थिर VRestorerCopy<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // Swap 'var' with a no-args constructed object of the same type, effectively clearing it, then
 // swap back at end-of-scope. No copying involved. Use this e.g. for std containers where they
 // would be .clear()'d right after the VL_RESTORER instance.
-#define VL_RESTORER_CLEAR(var) \
-    const VRestorerClear<typename std::decay_t<decltype(var)>> restorer_##var(var);
+#घोषणा VL_RESTORER_CLEAR(var) \
+    स्थिर VRestorerClear<typename std::decay_t<decltype(var)>> restorer_##var(var);
 
 // Get const reference to the saved copy
-#define VL_RESTORER_PREV(var) restorer_##var.saved()
+#घोषणा VL_RESTORER_पूर्व(var) restorer_##var.saved()
 
 // Implementation of VL_RESTORER
-template <typename T>
+ढाँचा <typename T>
 class VRestorerTrivial final {
-    static_assert(std::is_trivially_copyable<T>::value,
+    static_assert(std::is_trivially_copyable<T>::मूल्य,
                   "Use VL_RESTORER_{COPY,CLEAR} for non trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
-    const T m_saved;  // Value saved, for later restore
+    स्थिर T m_saved;  // Value saved, for later restore
 
-public:
+खुला:
     explicit VRestorerTrivial(T& val)
         : m_ref{val}
         , m_saved{val} {}
     ~VRestorerTrivial() { m_ref = m_saved; }
     VL_UNCOPYABLE(VRestorerTrivial);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    व्योम* चालक new(माप_प्रकार) = delete;
+    व्योम चालक delete(व्योम*) = delete;
 
-    const T& saved() const { return m_saved; }
+    स्थिर T& saved() स्थिर { वापस m_saved; }
 };
 
 // Implementation of VL_RESTORER_COPY
-template <typename T>
+ढाँचा <typename T>
 class VRestorerCopy final {
-    static_assert(!std::is_trivially_copyable<T>::value,
+    static_assert(!std::is_trivially_copyable<T>::मूल्य,
                   "Use VL_RESTORER for trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved;  // Value saved, for later restore
 
-public:
+खुला:
     explicit VRestorerCopy(T& val)
         : m_ref{val}
         , m_saved{val} {}
     ~VRestorerCopy() { m_ref = std::move(m_saved); }
     VL_UNCOPYABLE(VRestorerCopy);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    व्योम* चालक new(माप_प्रकार) = delete;
+    व्योम चालक delete(व्योम*) = delete;
 
-    const T& saved() const { return m_saved; }
+    स्थिर T& saved() स्थिर { वापस m_saved; }
 };
 
 // Implementation of VL_RESTORER_CLEAR.
-template <typename T>
+ढाँचा <typename T>
 class VRestorerClear final {
-    static_assert(!std::is_trivially_copyable<T>::value,
+    static_assert(!std::is_trivially_copyable<T>::मूल्य,
                   "Use VL_RESTORER for trivially copyable types");
     T& m_ref;  // Reference to object we're saving and restoring
     T m_saved{};  // Owns the swapped-out value; starts empty
 
-public:
+खुला:
     explicit VRestorerClear(T& val)
         : m_ref{val} {
         std::swap(m_ref, m_saved);
@@ -126,36 +126,36 @@ public:
     ~VRestorerClear() { std::swap(m_ref, m_saved); }
     VL_UNCOPYABLE(VRestorerClear);
     // Must be stack allocated
-    void* operator new(size_t) = delete;
-    void operator delete(void*) = delete;
+    व्योम* चालक new(माप_प्रकार) = delete;
+    व्योम चालक delete(व्योम*) = delete;
 
-    const T& saved() const { return m_saved; }
+    स्थिर T& saved() स्थिर { वापस m_saved; }
 };
 
 //######################################################################
 
 class VWidthMinUsage final {
-public:
-    enum en : uint8_t { LINT_WIDTH, MATCHES_WIDTH, VERILOG_WIDTH };
-    enum en m_e;
+खुला:
+    क्रमागत en : uint8_t { LINT_WIDTH, MATCHES_WIDTH, VERILOG_WIDTH };
+    क्रमागत en m_e;
     VWidthMinUsage()
         : m_e{LINT_WIDTH} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VWidthMinUsage(en _e) VL_PURE : m_e{_e} {}
-    constexpr VWidthMinUsage(const VWidthMinUsage& _e) VL_PURE = default;
-    explicit VWidthMinUsage(int _e)
+    constexpr VWidthMinUsage(स्थिर VWidthMinUsage& _e) VL_PURE = शेष;
+    explicit VWidthMinUsage(पूर्णांक _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    constexpr VWidthMinUsage& operator=(const VWidthMinUsage& _e) VL_PURE = default;
+    constexpr चालक en() स्थिर { वापस m_e; }
+    constexpr VWidthMinUsage& चालक=(स्थिर VWidthMinUsage& _e) VL_PURE = शेष;
 };
-constexpr bool operator==(const VWidthMinUsage& lhs, const VWidthMinUsage& rhs) {
-    return lhs.m_e == rhs.m_e;
+constexpr bool चालक==(स्थिर VWidthMinUsage& lhs, स्थिर VWidthMinUsage& rhs) {
+    वापस lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_PURE {
-    return lhs.m_e == rhs;
+constexpr bool चालक==(स्थिर VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_PURE {
+    वापस lhs.m_e == rhs;
 }
-constexpr bool operator==(VWidthMinUsage::en lhs, const VWidthMinUsage& rhs) {
-    return lhs == rhs.m_e;
+constexpr bool चालक==(VWidthMinUsage::en lhs, स्थिर VWidthMinUsage& rhs) {
+    वापस lhs == rhs.m_e;
 }
 
 //######################################################################
@@ -176,7 +176,7 @@ class V3Global final {
     VWidthMinUsage m_widthMinUsage
         = VWidthMinUsage::LINT_WIDTH;  // What AstNode::widthMin() is used for
 
-    std::atomic_int m_debugFileNumber{0};  // Number to append to debug files created
+    std::atomic_int m_debug_File_संख्या{0};  // Number to append to debug files created
     bool m_assertDTypesResolved = false;  // Tree should have dtypep()'s
     bool m_assertScoped = false;  // Tree is scoped
     bool m_staticsLifted = false;  // Static variables have been lifted to module scope
@@ -205,109 +205,109 @@ class V3Global final {
     uint64_t m_currentHierBlockCost = 0;  // Total cost of this hier block, used for scheduling
 
     // Memory address to short string mapping (for debug)
-    std::unordered_map<const void*, std::string>
+    std::unordered_map<स्थिर व्योम*, std::string>
         m_ptrToId;  // The actual 'address' <=> 'short string' bijection
 
     // Names of fields that were dumped by dumpJsonPtr()
     std::unordered_set<std::string> m_jsonPtrNames;
 
     // Id of the main thread
-    const std::thread::id m_mainThreadId = std::this_thread::get_id();
+    स्थिर std::thread::id m_mainThreadId = std::this_thread::get_id();
 
-public:
+खुला:
     // Options
     V3Options opt;  // All options; let user see them directly
 
     // CONSTRUCTORS
-    V3Global() = default;
-    void boot();
-    void shutdown();  // Release allocated resources
+    V3Global() = शेष;
+    व्योम boot();
+    व्योम shutdown();  // Release allocated resources
 
-    void vlExit(int status);
+    व्योम vlExit(पूर्णांक status);
 
     // ACCESSORS (general)
-    AstNetlist* rootp() const VL_MT_SAFE { return m_rootp; }
+    AstNetlist* rootp() स्थिर VL_MT_SAFE { वापस m_rootp; }
     // Use V3ConstPool:: static methods instead
-    V3ConstPool* constPoolp() const VL_PURE { return m_constPoolp; }
-    V3LibMap* libMapp() const VL_PURE { return m_libMapp; }
-    V3ThreadPool* threadPoolp() const VL_PURE { return m_threadPoolp; }
-    void threadPoolp(V3ThreadPool* threadPoolp) {
+    V3ConstPool* constPoolp() स्थिर VL_PURE { वापस m_constPoolp; }
+    V3LibMap* libMapp() स्थिर VL_PURE { वापस m_libMapp; }
+    V3ThreadPool* threadPoolp() स्थिर VL_PURE { वापस m_threadPoolp; }
+    व्योम threadPoolp(V3ThreadPool* threadPoolp) {
         UASSERT(!m_threadPoolp, "attempted to create multiple threadPool singletons");
         m_threadPoolp = threadPoolp;
     }
-    VWidthMinUsage widthMinUsage() const VL_PURE { return m_widthMinUsage; }
-    bool assertDTypesResolved() const { return m_assertDTypesResolved; }
-    bool assertScoped() const { return m_assertScoped; }
-    bool staticsLifted() const { return m_staticsLifted; }
+    VWidthMinUsage widthMinUsage() स्थिर VL_PURE { वापस m_widthMinUsage; }
+    bool assertDTypesResolved() स्थिर { वापस m_assertDTypesResolved; }
+    bool assertScoped() स्थिर { वापस m_assertScoped; }
+    bool staticsLifted() स्थिर { वापस m_staticsLifted; }
 
     // METHODS
-    void readFiles() VL_MT_DISABLED;
-    void removeStd() VL_MT_DISABLED;
-    void checkTree() const;
-    static void dumpCheckGlobalTree(const string& stagename, int newNumber = 0, bool doDump = true,
+    व्योम readFiles() VL_MT_DISABLED;
+    व्योम removeStd() VL_MT_DISABLED;
+    व्योम check_वृक्ष() स्थिर;
+    अटल व्योम dump_Check_Global_वृक्ष(स्थिर string& stagename, पूर्णांक new_संख्या = 0, bool doDump = true,
                                     bool doCheck = true);
-    void assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
-    void assertScoped(bool flag) { m_assertScoped = flag; }
-    void staticsLifted(bool flag) { m_staticsLifted = flag; }
-    void widthMinUsage(const VWidthMinUsage& flag) { m_widthMinUsage = flag; }
-    bool constRemoveXs() const { return m_constRemoveXs; }
-    void constRemoveXs(bool flag) { m_constRemoveXs = flag; }
-    string debugFilename(const string& nameComment, int newNumber = 0);
-    static string digitsFilename(int number);
-    bool needTraceDumper() const { return m_needTraceDumper; }
-    void needTraceDumper(bool flag) { m_needTraceDumper = flag; }
-    bool dpi() const VL_MT_SAFE { return m_dpi; }
-    void dpi(bool flag) { m_dpi = flag; }
-    bool assignsEvents() const { return m_assignsEvents; }
-    void setAssignsEvents() { m_assignsEvents = true; }
-    bool hasEvents() const { return m_hasEvents; }
-    void setHasEvents() { m_hasEvents = true; }
-    bool hasClasses() const { return m_hasClasses; }
-    void setHasClasses() { m_hasClasses = true; }
-    bool hasSampled() const { return m_hasSampled; }
-    void setHasSampled() { m_hasSampled = true; }
-    bool hasTable() const { return m_hasTable; }
-    void setHasTable() { m_hasTable = true; }
-    bool hasVirtIfaces() const { return m_hasVirtIfaces; }
-    void setHasVirtIfaces() { m_hasVirtIfaces = true; }
-    bool usesProbDist() const { return m_usesProbDist; }
-    void setUsesProbDist() { m_usesProbDist = true; }
-    bool usesStdPackage() const { return m_usesStdPackage; }
-    void setUsesStdPackage() { m_usesStdPackage = true; }
-    bool usesTiming() const { return m_usesTiming; }
-    void setUsesTiming() { m_usesTiming = true; }
-    bool usesZeroDelay() const { return m_usesZeroDelay; }
-    void setUsesZeroDelay() { m_usesZeroDelay = true; }
-    bool hasForceableSignals() const { return m_hasForceableSignals; }
-    void setHasForceableSignals() { m_hasForceableSignals = true; }
-    bool hasAssignDeassign() const { return m_hasAssignDeassign; }
-    void setHasAssignDeassign() { m_hasAssignDeassign = true; }
-    bool usesForce() const { return m_usesForce; }
-    void setUsesForce() { m_usesForce = true; }
-    V3HierGraph* hierGraphp() const { return m_hierGraphp; }
-    void hierGraphp(V3HierGraph* graphp) { m_hierGraphp = graphp; }
-    bool useParallelBuild() const { return m_useParallelBuild; }
-    void useParallelBuild(bool flag) { m_useParallelBuild = flag; }
-    bool useRandSequence() const { return m_useRandSequence; }
-    void useRandSequence(bool flag) { m_useRandSequence = flag; }
-    bool useCovergroup() const { return m_useCovergroup; }
-    void useCovergroup(bool flag) { m_useCovergroup = flag; }
-    bool useRandomizeMethods() const { return m_useRandomizeMethods; }
-    void useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
-    bool hasPrintedObjects() const { return m_hasPrintedObjects; }
-    void hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
-    void saveJsonPtrFieldName(const std::string& fieldName);
-    void ptrNamesDumpJson(std::ostream& os);
-    void idPtrMapDumpJson(std::ostream& os);
-    const std::string& ptrToId(const void* p);
-    std::thread::id mainThreadId() const { return m_mainThreadId; }
-    static std::vector<std::string> verilatedCppFiles();
-    uint64_t currentHierBlockCost() const { return m_currentHierBlockCost; }
-    void currentHierBlockCost(uint64_t cost) { m_currentHierBlockCost = cost; }
+    व्योम assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
+    व्योम assertScoped(bool flag) { m_assertScoped = flag; }
+    व्योम staticsLifted(bool flag) { m_staticsLifted = flag; }
+    व्योम widthMinUsage(स्थिर VWidthMinUsage& flag) { m_widthMinUsage = flag; }
+    bool constRemoveXs() स्थिर { वापस m_constRemoveXs; }
+    व्योम constRemoveXs(bool flag) { m_constRemoveXs = flag; }
+    string debugFilename(स्थिर string& nameComment, पूर्णांक new_संख्या = 0);
+    अटल string digitsFilename(पूर्णांक संख्या);
+    bool needTraceDumper() स्थिर { वापस m_needTraceDumper; }
+    व्योम needTraceDumper(bool flag) { m_needTraceDumper = flag; }
+    bool dpi() स्थिर VL_MT_SAFE { वापस m_dpi; }
+    व्योम dpi(bool flag) { m_dpi = flag; }
+    bool assignsEvents() स्थिर { वापस m_assignsEvents; }
+    व्योम setAssignsEvents() { m_assignsEvents = true; }
+    bool hasEvents() स्थिर { वापस m_hasEvents; }
+    व्योम setHasEvents() { m_hasEvents = true; }
+    bool hasClasses() स्थिर { वापस m_hasClasses; }
+    व्योम setHasClasses() { m_hasClasses = true; }
+    bool hasSampled() स्थिर { वापस m_hasSampled; }
+    व्योम setHasSampled() { m_hasSampled = true; }
+    bool hasTable() स्थिर { वापस m_hasTable; }
+    व्योम setHasTable() { m_hasTable = true; }
+    bool hasVirtIfaces() स्थिर { वापस m_hasVirtIfaces; }
+    व्योम setHasVirtIfaces() { m_hasVirtIfaces = true; }
+    bool usesProbDist() स्थिर { वापस m_usesProbDist; }
+    व्योम setUsesProbDist() { m_usesProbDist = true; }
+    bool usesStdPackage() स्थिर { वापस m_usesStdPackage; }
+    व्योम setUsesStdPackage() { m_usesStdPackage = true; }
+    bool usesTiming() स्थिर { वापस m_usesTiming; }
+    व्योम setUsesTiming() { m_usesTiming = true; }
+    bool usesZeroDelay() स्थिर { वापस m_usesZeroDelay; }
+    व्योम setUsesZeroDelay() { m_usesZeroDelay = true; }
+    bool hasForceableSignals() स्थिर { वापस m_hasForceableSignals; }
+    व्योम setHasForceableSignals() { m_hasForceableSignals = true; }
+    bool hasAssignDeassign() स्थिर { वापस m_hasAssignDeassign; }
+    व्योम setHasAssignDeassign() { m_hasAssignDeassign = true; }
+    bool usesForce() स्थिर { वापस m_usesForce; }
+    व्योम setUsesForce() { m_usesForce = true; }
+    V3HierGraph* hierGraphp() स्थिर { वापस m_hierGraphp; }
+    व्योम hierGraphp(V3HierGraph* graphp) { m_hierGraphp = graphp; }
+    bool useParallelBuild() स्थिर { वापस m_useParallelBuild; }
+    व्योम useParallelBuild(bool flag) { m_useParallelBuild = flag; }
+    bool useRandSequence() स्थिर { वापस m_useRandSequence; }
+    व्योम useRandSequence(bool flag) { m_useRandSequence = flag; }
+    bool useCovergroup() स्थिर { वापस m_useCovergroup; }
+    व्योम useCovergroup(bool flag) { m_useCovergroup = flag; }
+    bool useRandomizeMethods() स्थिर { वापस m_useRandomizeMethods; }
+    व्योम useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
+    bool hasPrintedObjects() स्थिर { वापस m_hasPrintedObjects; }
+    व्योम hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
+    व्योम saveJsonPtrFieldName(स्थिर std::string& fieldName);
+    व्योम ptrNamesDumpJson(std::ostream& os);
+    व्योम idPtrMapDumpJson(std::ostream& os);
+    स्थिर std::string& ptrToId(स्थिर व्योम* p);
+    std::thread::id mainThreadId() स्थिर { वापस m_mainThreadId; }
+    अटल std::vector<std::string> verilatedCppFiles();
+    uint64_t currentHierBlockCost() स्थिर { वापस m_currentHierBlockCost; }
+    व्योम currentHierBlockCost(uint64_t cost) { m_currentHierBlockCost = cost; }
 };
 
-extern V3Global v3Global;
+बाह्य V3Global v3Global;
 
 //######################################################################
 
-#endif  // guard
+#पूर्ण_अगर  // guard

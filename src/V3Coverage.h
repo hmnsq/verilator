@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3COVERAGE_H_
-#define VERILATOR_V3COVERAGE_H_
+#अगर_अघोषित VERILATOR_V3COVERAGE_H_
+#घोषणा VERILATOR_V3COVERAGE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#समावेश "config_build.h"
+#समावेश "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Coverage final {
-public:
+खुला:
     // CONSTRUCTORS
-    static void coverage(AstNetlist* rootp) VL_MT_DISABLED;
+    अटल व्योम coverage(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#पूर्ण_अगर  // Guard
