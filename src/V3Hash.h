@@ -14,74 +14,74 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3HASH_H_
-#define VERILATOR_V3HASH_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3HASH_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#ಅನ್ತರ್ಭಾವ <cstdint>
+#ಅನ್ತರ್ಭಾವ <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_ಮೌಲ್ಯ;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    ಸ್ಥಿರ uint32_t combine(uint32_t a, uint32_t b) {
+        ಹಿಂತಿರುಗಿ a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_ಮೌಲ್ಯ{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_ಮೌಲ್ಯ{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_ಮೌಲ್ಯ{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(ಸ್ಥಿರಾಂಕ std::string& val);
+    explicit V3Hash(ದ್ವಿಗುಣ val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t ಮೌಲ್ಯ() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ m_ಮೌಲ್ಯ; }
+    std::string ಗಮ್ಯ_String() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ V3Hash& rh) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಮೌಲ್ಯ == rh.m_ಮೌಲ್ಯ; }
+    bool ಕ್ರಿಯಾಕಾರಕ!=(ಸ್ಥಿರಾಂಕ V3Hash& rh) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಮೌಲ್ಯ != rh.m_ಮೌಲ್ಯ; }
+    bool ಕ್ರಿಯಾಕಾರಕ<(ಸ್ಥಿರಾಂಕ V3Hash& rh) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಮೌಲ್ಯ < rh.m_ಮೌಲ್ಯ; }
 
     // '+' combines hashes
-    template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    ಮಾದರಿ <typename T>
+    V3Hash ಕ್ರಿಯಾಕಾರಕ+(T that) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ V3Hash{combine(m_ಮೌಲ್ಯ, V3Hash{that}.m_ಮೌಲ್ಯ)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash ಕ್ರಿಯಾಕಾರಕ+(ಸ್ಥಿರಾಂಕ std::string& that) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ V3Hash{combine(m_ಮೌಲ್ಯ, V3Hash{that}.m_ಮೌಲ್ಯ)};
     }
 
     // '+=' combines in place
-    template <typename T>
-    V3Hash& operator+=(T that) {
-        return *this = *this + that;
+    ಮಾದರಿ <typename T>
+    V3Hash& ಕ್ರಿಯಾಕಾರಕ+=(T that) {
+        ಹಿಂತಿರುಗಿ *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& ಕ್ರಿಯಾಕಾರಕ+=(ಸ್ಥಿರಾಂಕ std::string& that) { ಹಿಂತಿರುಗಿ *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& ಕ್ರಿಯಾಕಾರಕ<<(std::ostream& os, ಸ್ಥಿರಾಂಕ V3Hash& rhs) VL_MT_ಸುರಕ್ಷಿತ;
 
-template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+ಮಾದರಿ <>
+ರಚನೆ std::hash<V3Hash> {
+    std::ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ V3Hash& h) ಸ್ಥಿರಾಂಕ noexcept { ಹಿಂತಿರುಗಿ h.ಮೌಲ್ಯ(); }
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

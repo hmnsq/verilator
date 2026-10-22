@@ -14,339 +14,339 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SENEXPRBUILDER_H_
-#define VERILATOR_V3SENEXPRBUILDER_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3SENEXPRBUILDER_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3SENEXPRBUILDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
 
 //######################################################################
 // SenExprBuilder constructs the expressions used to compute if an
 // AstSenTree have triggered
 
-class SenExprBuilder final {
-public:
+class Sen_ಅಭಿವ್ಯಕ್ತಿ_Builder final {
+ಸಾರ್ವಜನಿಕ:
     // TYPES
-    struct Results final {
-        std::vector<AstNodeStmt*> m_inits;  // Initialization statements for previous values
-        std::vector<AstNodeStmt*> m_preUpdates;  // Pre update assignments
-        std::vector<AstNodeStmt*> m_postUpdates;  // Post update assignments
+    ರಚನೆ Results final {
+        std::ಸದಿಶ<Ast_ಗಂಟು_Stmt*> m_inits;  // Initialization statements for previous values
+        std::ಸದಿಶ<Ast_ಗಂಟು_Stmt*> m_preUpdates;  // Pre update assignments
+        std::ಸದಿಶ<Ast_ಗಂಟು_Stmt*> m_postUpdates;  // Post update assignments
         // Aliases of destructive post updates (for example event clearFired) that may need
         // to run once before entering a fresh dynamic wait loop.
-        std::vector<AstNodeStmt*> m_destructivePostUpdates;
-        std::vector<AstVar*> m_vars;  // Created temporary variables
+        std::ಸದಿಶ<Ast_ಗಂಟು_Stmt*> m_destructivePostUpdates;
+        std::ಸದಿಶ<AstVar*> m_vars;  // Created temporary variables
     };
 
-private:
+ಖಾಸಗಿ:
     // STATE
-    AstScope* const m_scopep;  // The scope
+    AstScope* ಸ್ಥಿರಾಂಕ m_scopep;  // The scope
 
     Results m_results;  // The builder result
 
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_prev;  // The 'previous value' signals
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_curr;  // The 'current value' signals
-    std::unordered_set<VNRef<AstNode>> m_hasPreUpdate;  // Whether the given sen expression already
+    std::unordered_map<VNRef<Ast_ಗಂಟು>, AstVarScope*> m_prev;  // The 'previous value' signals
+    std::unordered_map<VNRef<Ast_ಗಂಟು>, AstVarScope*> m_curr;  // The 'current value' signals
+    std::unordered_ಗಣ<VNRef<Ast_ಗಂಟು>> m_hasPreUpdate;  // Whether the given sen expression already
                                                         // has an update statement in m_preUpdates
-    std::unordered_set<VNRef<AstNode>> m_hasPostUpdate;  // Likewise for m_postUpdates
+    std::unordered_ಗಣ<VNRef<Ast_ಗಂಟು>> m_hasPostUpdate;  // Likewise for m_postUpdates
 
-    V3UniqueNames m_prevNames{"__Vtrigprevexpr"};  // For generating unique temporary names
+    V3_Unique_ಹೆಸರುಗಳು m_prev_ಹೆಸರುಗಳು{"__Vtrigprevexpr"};  // For generating unique temporary names
 
-    static bool isSupportedDType(AstNodeDType* dtypep) {
+    ಸ್ಥಿರ bool isSupportedDType(Ast_ಗಂಟು_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, BasicDType)) return true;
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (VN_IS(dtypep, UnpackArrayDType)) return isSupportedDType(dtypep->subDTypep());
-        if (VN_IS(dtypep, NodeUOrStructDType)) return true;  // All are packed at the moment
+        ಆದರೆ (VN_IS(dtypep, BasicDType)) ಹಿಂತಿರುಗಿ true;
+        ಆದರೆ (VN_IS(dtypep, PackArrayDType)) ಹಿಂತಿರುಗಿ true;
+        ಆದರೆ (VN_IS(dtypep, UnpackArrayDType)) ಹಿಂತಿರುಗಿ isSupportedDType(dtypep->subDTypep());
+        ಆದರೆ (VN_IS(dtypep, ಗಂಟು_UOr_Struct_DType)) ಹಿಂತಿರುಗಿ true;  // All are packed at the moment
         // Per IEEE, detects reference object pointer changes, not contents of the class changes
-        if (VN_IS(dtypep, ClassRefDType)) return true;
-        return false;
+        ಆದರೆ (VN_IS(dtypep, ClassRefDType)) ಹಿಂತಿರುಗಿ true;
+        ಹಿಂತಿರುಗಿ false;
     }
 
-    static bool isSimpleExpr(const AstNode* const exprp) {
-        return exprp->forall([](const AstNode* const nodep) {
-            return VN_IS(nodep, Const) || VN_IS(nodep, NodeVarRef) || VN_IS(nodep, Sel)
-                   || VN_IS(nodep, NodeSel) || VN_IS(nodep, MemberSel)
+    ಸ್ಥಿರ bool is_Simple_ಅಭಿವ್ಯಕ್ತಿ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ exprp) {
+        ಹಿಂತಿರುಗಿ exprp->forall([](ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep) {
+            ಹಿಂತಿರುಗಿ VN_IS(nodep, Const) || VN_IS(nodep, ಗಂಟು_Var_Ref) || VN_IS(nodep, Sel)
+                   || VN_IS(nodep, ಗಂಟು_Sel) || VN_IS(nodep, MemberSel)
                    || VN_IS(nodep, CMethodHard);
         });
     }
 
     // Whether a reference may be null: a class reference or a virtual interface
-    static bool isNullableRef(const AstNodeExpr* const refp) {
-        if (!refp->dtypep()) return false;
-        const AstNodeDType* const dtypep = refp->dtypep()->skipRefp();
-        const AstIfaceRefDType* const ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
-        return VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
+    ಸ್ಥಿರ bool isNullableRef(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ refp) {
+        ಆದರೆ (!refp->dtypep()) ಹಿಂತಿರುಗಿ false;
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = refp->dtypep()->skipRefp();
+        ಸ್ಥಿರಾಂಕ AstIfaceRefDType* ಸ್ಥಿರಾಂಕ ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
+        ಹಿಂತಿರುಗಿ VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
     }
 
     // Check if expression contains a member access through a reference that could be null
     // (e.g., accessing an event through a class reference that may not be initialized)
-    static bool hasNullableMemberAccess(const AstNode* const exprp) {
-        return exprp && exprp->exists([](const AstNode* const nodep) {
-            const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel);
-            return mselp && isNullableRef(mselp->fromp());
+    ಸ್ಥಿರ bool hasNullableMemberAccess(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ exprp) {
+        ಹಿಂತಿರುಗಿ exprp && exprp->exists([](ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep) {
+            ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mselp = VN_CAST(nodep, MemberSel);
+            ಹಿಂತಿರುಗಿ mselp && isNullableRef(mselp->fromp());
         });
     }
 
     // Get the base reference expression from a member selection chain
     // Returns the outermost reference that needs to be null-checked
     // Note: Returns a pointer into the original tree - caller must clone if needed
-    static const AstNodeExpr* getBaseNullableRef(const AstNodeExpr* exprp) {
-        while (exprp) {
-            if (const AstMemberSel* const mselp = VN_CAST(exprp, MemberSel)) {
-                const AstNodeExpr* const fromp = mselp->fromp();
-                if (isNullableRef(fromp)) {
+    ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* get_ತಳ_Nullable_Ref(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಆಗ (exprp) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mselp = VN_CAST(exprp, MemberSel)) {
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = mselp->fromp();
+                ಆದರೆ (isNullableRef(fromp)) {
                     // Check if the base itself has a member access through a nullable reference
-                    if (hasNullableMemberAccess(fromp)) {
+                    ಆದರೆ (hasNullableMemberAccess(fromp)) {
                         exprp = fromp;
-                        continue;
+                        ಮುಂದುವರಿ;
                     }
-                    return fromp;
+                    ಹಿಂತಿರುಗಿ fromp;
                 }
                 exprp = fromp;
-            } else {
-                return nullptr;
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಹಿಂತಿರುಗಿ nullptr;
             }
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ nullptr;
     }
 
     // METHODS
-    AstVarScope* crateTemp(AstNodeExpr* exprp) {
+    AstVarScope* crate_ತಾತ್ಕಾಲಿಕ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
         // For readability, use the scoped signal name if the trigger is a simple AstVarRef
         string name;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
-            AstVarScope* const vscp = refp->varScopep();
+        ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(exprp, VarRef)) {
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
             name = "__" + vscp->scopep()->nameDotless() + "__" + vscp->varp()->name();
-            name = m_prevNames.get(name);
-        } else {
-            name = m_prevNames.get(exprp);
+            name = m_prev_ಹೆಸರುಗಳು.get(name);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            name = m_prev_ಹೆಸರುಗಳು.get(exprp);
         }
         // Not shared between instances, as the users might move the variables into processes
-        FileLine* const flp = m_scopep->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
-        varp->isInternal(true);
-        m_scopep->modp()->addStmtsp(varp);
-        AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
-        m_scopep->addVarsp(vscp);
-        m_results.m_vars.push_back(varp);
-        return vscp;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = m_scopep->fileline();
+        AstVar* ಸ್ಥಿರಾಂಕ varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+        varp->is_ಆಂತರಿಕ(true);
+        m_scopep->modp()->ಕೂಡಿಸು_Stmtsp(varp);
+        AstVarScope* ಸ್ಥಿರಾಂಕ vscp = new AstVarScope{flp, m_scopep, varp};
+        m_scopep->ಕೂಡಿಸು_Varsp(vscp);
+        m_results.m_vars.ತಳ್ಳು_ಹಿಂಭಾಗ(varp);
+        ಹಿಂತಿರುಗಿ vscp;
     }
 
     // Helper to wrap a statement with a null check: if (baseRef != null) stmt
-    AstNodeStmt* wrapStmtWithNullCheck(FileLine* flp, AstNodeStmt* stmtp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return stmtp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_ಗಂಟು_Stmt* wrapStmtWithNullCheck(File_ಸಾಲು* flp, Ast_ಗಂಟು_Stmt* stmtp,
+                                       ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ತಳ_Refp) {
+        ಆದರೆ (!ತಳ_Refp) ಹಿಂತಿರುಗಿ stmtp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        return new AstIf{flp, checkp, stmtp};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ checkp
+            = new AstNeq{flp, const_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ತಳ_Refp)->clone_ವೃಕ್ಷ(false), nullp};
+        ಹಿಂತಿರುಗಿ new AstIf{flp, checkp, stmtp};
     }
 
     // Helper to wrap a trigger expression with a null check if needed
     // Returns the expression wrapped in: (baseRef != null) ? expr : 0
-    AstNodeExpr* wrapExprWithNullCheck(FileLine* flp, AstNodeExpr* exprp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return exprp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* wrap_ಅಭಿವ್ಯಕ್ತಿ_With_Null_Check(File_ಸಾಲು* flp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp,
+                                       ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ತಳ_Refp) {
+        ಆದರೆ (!ತಳ_Refp) ಹಿಂತಿರುಗಿ exprp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        AstNodeExpr* const falsep = new AstConst{flp, AstConst::BitFalse{}};
-        AstNodeExpr* const condp = new AstCond{flp, checkp, exprp, falsep};
-        condp->dtypeSetBit();
-        return condp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ checkp
+            = new AstNeq{flp, const_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ತಳ_Refp)->clone_ವೃಕ್ಷ(false), nullp};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ falsep = new AstConst{flp, AstConst::ಬಿಟ್_False{}};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp = new AstCond{flp, checkp, exprp, falsep};
+        condp->dtype_ಗಣ_ಬಿಟ್();
+        ಹಿಂತಿರುಗಿ condp;
     }
 
-    AstNodeExpr* getCurr(AstNodeExpr* exprp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getCurr(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
         // For simple expressions like varrefs or selects, just use them directly
-        if (isSimpleExpr(exprp)) return exprp->cloneTree(false);
+        ಆದರೆ (is_Simple_ಅಭಿವ್ಯಕ್ತಿ(exprp)) ಹಿಂತಿರುಗಿ exprp->clone_ವೃಕ್ಷ(false);
 
         // Create the 'current value' variable
-        FileLine* const flp = exprp->fileline();
-        auto result = m_curr.emplace(*exprp, nullptr);
-        if (result.second) result.first->second = crateTemp(exprp);
-        AstVarScope* const currp = result.first->second;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = exprp->fileline();
+        ಸ್ವಯಂಚಾಲಿತ ಫಲಿತಾಂಶ = m_curr.emplace(*exprp, nullptr);
+        ಆದರೆ (ಫಲಿತಾಂಶ.ಎರಡನೇ) ಫಲಿತಾಂಶ.ಮೊದಲ->ಎರಡನೇ = crate_ತಾತ್ಕಾಲಿಕ(exprp);
+        AstVarScope* ಸ್ಥಿರಾಂಕ currp = ಫಲಿತಾಂಶ.ಮೊದಲ->ಎರಡನೇ;
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ತಳ_Refp
+            = hasNullableMemberAccess(exprp) ? get_ತಳ_Nullable_Ref(exprp) : nullptr;
 
         // Add pre update if it does not exist yet in this round
-        if (m_hasPreUpdate.emplace(*currp).second) {
-            m_results.m_preUpdates.push_back(
+        ಆದರೆ (m_hasPreUpdate.emplace(*currp).ಎರಡನೇ) {
+            m_results.m_preUpdates.ತಳ್ಳು_ಹಿಂಭಾಗ(
                 wrapStmtWithNullCheck(flp,
-                                      new AstAssign{flp, new AstVarRef{flp, currp, VAccess::WRITE},
-                                                    exprp->cloneTree(false)},
-                                      baseRefp));
+                                      new Ast_ನಿಯೋಜಿಸು{flp, new AstVarRef{flp, currp, VAccess::WRITE},
+                                                    exprp->clone_ವೃಕ್ಷ(false)},
+                                      ತಳ_Refp));
         }
-        return new AstVarRef{flp, currp, VAccess::READ};
+        ಹಿಂತಿರುಗಿ new AstVarRef{flp, currp, VAccess::READ};
     }
 
-    AstVarScope* getPrev(AstNodeExpr* exprp) {
-        FileLine* const flp = exprp->fileline();
-        const auto rdCurr = [this, exprp]() { return getCurr(exprp); };
+    AstVarScope* getPrev(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = exprp->fileline();
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ rdCurr = [this, exprp]() { ಹಿಂತಿರುಗಿ getCurr(exprp); };
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ತಳ_Refp
+            = hasNullableMemberAccess(exprp) ? get_ತಳ_Nullable_Ref(exprp) : nullptr;
 
-        AstNode* scopeExprp = exprp;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
+        Ast_ಗಂಟು* scopeExprp = exprp;
+        ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
         // Create the 'previous value' variable
-        const auto pair = m_prev.emplace(*scopeExprp, nullptr);
-        if (pair.second) {
-            AstVarScope* const prevp = crateTemp(exprp);
-            pair.first->second = prevp;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ pair = m_prev.emplace(*scopeExprp, nullptr);
+        ಆದರೆ (pair.ಎರಡನೇ) {
+            AstVarScope* ಸ್ಥಿರಾಂಕ prevp = crate_ತಾತ್ಕಾಲಿಕ(exprp);
+            pair.ಮೊದಲ->ಎರಡನೇ = prevp;
             // Add the initializer init (guarded if through a nullable reference)
-            AstAssign* const initp = new AstAssign{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
-                                                   exprp->cloneTree(false)};
-            m_results.m_inits.push_back(wrapStmtWithNullCheck(flp, initp, baseRefp));
+            Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ initp = new Ast_ನಿಯೋಜಿಸು{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
+                                                   exprp->clone_ವೃಕ್ಷ(false)};
+            m_results.m_inits.ತಳ್ಳು_ಹಿಂಭಾಗ(wrapStmtWithNullCheck(flp, initp, ತಳ_Refp));
         }
 
-        AstVarScope* const prevp = pair.first->second;
+        AstVarScope* ಸ್ಥಿರಾಂಕ prevp = pair.ಮೊದಲ->ಎರಡನೇ;
 
-        const auto wrPrev = [=]() { return new AstVarRef{flp, prevp, VAccess::WRITE}; };
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ wrPrev = [=]() { ಹಿಂತಿರುಗಿ new AstVarRef{flp, prevp, VAccess::WRITE}; };
 
         // Add post update if it does not exist yet
-        if (m_hasPostUpdate.emplace(*exprp).second) {
-            AstNodeDType* const exprDtp = exprp->dtypep()->skipRefp();
-            if (!isSupportedDType(exprDtp)) {
+        ಆದರೆ (m_hasPostUpdate.emplace(*exprp).ಎರಡನೇ) {
+            Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ ಅಭಿವ್ಯಕ್ತಿ_Dtp = exprp->dtypep()->skipRefp();
+            ಆದರೆ (!isSupportedDType(ಅಭಿವ್ಯಕ್ತಿ_Dtp)) {
                 exprp->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Cannot detect changes on expression of complex type "
-                        << exprDtp->prettyDTypeNameQ() << "\n"
-                        << exprp->warnMore()
+                        << ಅಭಿವ್ಯಕ್ತಿ_Dtp->prettyDTypeNameQ() << "\n"
+                        << exprp->warn_ಇನ್ನಷ್ಟು()
                         << "... May be caused by combinational cycles reported with UNOPTFLAT");
-                return prevp;
+                ಹಿಂತಿರುಗಿ prevp;
             }
-            if (VN_IS(exprDtp, UnpackArrayDType)) {
-                AstCMethodHard* const cmhp
-                    = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ASSIGN, rdCurr()};
-                cmhp->dtypeSetVoid();
-                m_results.m_postUpdates.push_back(
-                    wrapStmtWithNullCheck(flp, cmhp->makeStmt(), baseRefp));
-            } else {
-                m_results.m_postUpdates.push_back(
-                    wrapStmtWithNullCheck(flp, new AstAssign{flp, wrPrev(), rdCurr()}, baseRefp));
+            ಆದರೆ (VN_IS(ಅಭಿವ್ಯಕ್ತಿ_Dtp, UnpackArrayDType)) {
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ cmhp
+                    = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ನಿಯೋಜಿಸು, rdCurr()};
+                cmhp->dtype_ಗಣ_Void();
+                m_results.m_postUpdates.ತಳ್ಳು_ಹಿಂಭಾಗ(
+                    wrapStmtWithNullCheck(flp, cmhp->makeStmt(), ತಳ_Refp));
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                m_results.m_postUpdates.ತಳ್ಳು_ಹಿಂಭಾಗ(
+                    wrapStmtWithNullCheck(flp, new Ast_ನಿಯೋಜಿಸು{flp, wrPrev(), rdCurr()}, ತಳ_Refp));
             }
         }
 
-        return prevp;
+        ಹಿಂತಿರುಗಿ prevp;
     }
 
-    std::pair<AstNodeExpr*, bool> createTerm(const AstSenItem* senItemp) {
-        FileLine* const flp = senItemp->fileline();
-        AstNodeExpr* const senp = senItemp->sensp();
+    std::pair<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*, bool> create_ಪದ(ಸ್ಥಿರಾಂಕ Ast_Sen_ಅಂಶ* senItemp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = senItemp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ senp = senItemp->sensp();
 
         // Check if the sensitivity expression involves accessing through a class reference
         // that may be null (e.g., DynScope handles created in fork blocks, or class member
         // virtual interfaces). If so, we need to guard against null pointer dereference.
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(senp) ? getBaseNullableRef(senp) : nullptr;
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ತಳ_Refp
+            = hasNullableMemberAccess(senp) ? get_ತಳ_Nullable_Ref(senp) : nullptr;
 
-        const auto currp = [this, senp]() { return getCurr(senp); };
-        const auto prevp
-            = [this, flp, senp]() { return new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
-        const auto lsb = [=](AstNodeExpr* opp) { return new AstSel{flp, opp, 0, 1}; };
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ currp = [this, senp]() { ಹಿಂತಿರುಗಿ getCurr(senp); };
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ prevp
+            = [this, flp, senp]() { ಹಿಂತಿರುಗಿ new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ lsb = [=](Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* opp) { ಹಿಂತಿರುಗಿ new AstSel{flp, opp, 0, 1}; };
 
         // All event signals should be 1-bit at this point
-        switch (senItemp->edgeType()) {
-        case VEdgeType::ET_CHANGED:
-        case VEdgeType::ET_HYBRID:  //
-            if (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
+        ಆಯ್ಕೆ (senItemp->ಅಂಚು_Type()) {
+        ಸ್ಥಿತಿ VEdgeType::ET_ಬದಲಾಯಿತು:
+        ಸ್ಥಿತಿ VEdgeType::ET_HYBRID:  //
+            ಆದರೆ (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // operand order reversed to avoid calling neq() method on non-VlUnpacked type, see
                 // issue #5125
-                AstCMethodHard* const resultp
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ resultp
                     = new AstCMethodHard{flp, prevp(), VCMethod::UNPACKED_NEQ, currp()};
-                resultp->dtypeSetBit();
-                return {wrapExprWithNullCheck(flp, resultp, baseRefp), true};
+                resultp->dtype_ಗಣ_ಬಿಟ್();
+                ಹಿಂತಿರುಗಿ {wrap_ಅಭಿವ್ಯಕ್ತಿ_With_Null_Check(flp, resultp, ತಳ_Refp), true};
             }
-            return {wrapExprWithNullCheck(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
-        case VEdgeType::ET_BOTHEDGE:  //
-            return {wrapExprWithNullCheck(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
+            ಹಿಂತಿರುಗಿ {wrap_ಅಭಿವ್ಯಕ್ತಿ_With_Null_Check(flp, new AstNeq{flp, currp(), prevp()}, ತಳ_Refp), true};
+        ಸ್ಥಿತಿ VEdgeType::ET_BOTHEDGE:  //
+            ಹಿಂತಿರುಗಿ {wrap_ಅಭಿವ್ಯಕ್ತಿ_With_Null_Check(flp, lsb(new AstXor{flp, currp(), prevp()}), ತಳ_Refp),
                     false};
-        case VEdgeType::ET_POSEDGE:  //
-            return {wrapExprWithNullCheck(
-                        flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), baseRefp),
+        ಸ್ಥಿತಿ VEdgeType::ET_POSEDGE:  //
+            ಹಿಂತಿರುಗಿ {wrap_ಅಭಿವ್ಯಕ್ತಿ_With_Null_Check(
+                        flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), ತಳ_Refp),
                     false};
-        case VEdgeType::ET_NEGEDGE:  //
-            return {wrapExprWithNullCheck(
-                        flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), baseRefp),
+        ಸ್ಥಿತಿ VEdgeType::ET_NEGEDGE:  //
+            ಹಿಂತಿರುಗಿ {wrap_ಅಭಿವ್ಯಕ್ತಿ_With_Null_Check(
+                        flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), ತಳ_Refp),
                     false};
-        case VEdgeType::ET_EVENT: {
+        ಸ್ಥಿತಿ VEdgeType::ET_EVENT: {
             UASSERT_OBJ(v3Global.hasEvents(), senItemp, "Inconsistent");
 
             // Clear 'fired' state when done (guarded if through a nullable reference)
             // The event is modified, so the select (e.g. assoc array) must be an lvalue
-            AstNodeExpr* const clearFromp = currp();
-            if (AstNodeVarRef* const refp
-                = VN_CAST(clearFromp->getVAccessTargetRecurse(), NodeVarRef)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ clearFromp = currp();
+            ಆದರೆ (Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ refp
+                = VN_CAST(clearFromp->get_VAccess_ಗುರಿ_Recurse(), ಗಂಟು_Var_Ref)) {
                 refp->access(VAccess::WRITE);
             }
-            AstCMethodHard* const clearp
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ clearp
                 = new AstCMethodHard{flp, clearFromp, VCMethod::EVENT_CLEAR_FIRED};
-            clearp->dtypeSetVoid();
-            AstNodeStmt* const clearStmtp
-                = wrapStmtWithNullCheck(flp, clearp->makeStmt(), baseRefp);
-            m_results.m_postUpdates.push_back(clearStmtp);
-            m_results.m_destructivePostUpdates.push_back(clearStmtp);
+            clearp->dtype_ಗಣ_Void();
+            Ast_ಗಂಟು_Stmt* ಸ್ಥಿರಾಂಕ clearStmtp
+                = wrapStmtWithNullCheck(flp, clearp->makeStmt(), ತಳ_Refp);
+            m_results.m_postUpdates.ತಳ್ಳು_ಹಿಂಭಾಗ(clearStmtp);
+            m_results.m_destructivePostUpdates.ತಳ್ಳು_ಹಿಂಭಾಗ(clearStmtp);
 
             // Get 'fired' state
-            AstCMethodHard* const callp
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ callp
                 = new AstCMethodHard{flp, currp(), VCMethod::EVENT_IS_FIRED};
-            callp->dtypeSetBit();
-            AstNodeExpr* const firedp = wrapExprWithNullCheck(flp, callp, baseRefp);
-            if (const AstVarRef* const refp = VN_CAST(senp, VarRef)) {
+            callp->dtype_ಗಣ_ಬಿಟ್();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ firedp = wrap_ಅಭಿವ್ಯಕ್ತಿ_With_Null_Check(flp, callp, ತಳ_Refp);
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(senp, VarRef)) {
                 // The private NBA event must run so pending assignments finish settling.
-                if (refp->varScopep() == v3Global.rootp()->nbaEventp()) return {firedp, false};
+                ಆದರೆ (refp->varScopep() == v3Global.rootp()->nbaEventp()) ಹಿಂತಿರುಗಿ {firedp, false};
             }
             // Do not trigger user named-event processes after $finish.
-            AstNodeExpr* const notFinishp
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ notFinishp
                 = new AstCExpr{flp,
                                "VL_LIKELY(!vlSymsp->_vm_contextp__->gotFinish() && "
                                "!vlSymsp->_vm_contextp__->finishPending())",
                                1};
-            return {new AstLogAnd{flp, notFinishp, firedp}, false};
+            ಹಿಂತಿರುಗಿ {new AstLogAnd{flp, notFinishp, firedp}, false};
         }
-        case VEdgeType::ET_TRUE:  //
-            return {currp(), false};
-        case VEdgeType::ET_INITIAL_NBA:  //
-            return {new AstConst{flp, AstConst::BitFalse{}}, true};
-        default:  // LCOV_EXCL_START
+        ಸ್ಥಿತಿ VEdgeType::ET_TRUE:  //
+            ಹಿಂತಿರುಗಿ {currp(), false};
+        ಸ್ಥಿತಿ VEdgeType::ET_INITIAL_NBA:  //
+            ಹಿಂತಿರುಗಿ {new AstConst{flp, AstConst::ಬಿಟ್_False{}}, true};
+        ಪೂರ್ವನಿಯೋಜಿತ:  // LCOV_EXCL_START
             senItemp->v3fatalSrc("Unknown edge type");
-            return {nullptr, false};
+            ಹಿಂತಿರುಗಿ {nullptr, false};
         }  // LCOV_EXCL_STOP
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Returns the expression computing the trigger, and a bool indicating that
     // this trigger should be fired on the first evaluation (at initialization)
-    std::pair<AstNodeExpr*, bool> build(const AstSenItem* senItemp) {
-        auto term = createTerm(senItemp);
-        if (AstNodeExpr* const condp = senItemp->condp()) {
-            term.first = new AstAnd{senItemp->fileline(), condp->cloneTreePure(false), term.first};
+    std::pair<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*, bool> build(ಸ್ಥಿರಾಂಕ Ast_Sen_ಅಂಶ* senItemp) {
+        ಸ್ವಯಂಚಾಲಿತ ಪದ = create_ಪದ(senItemp);
+        ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp = senItemp->condp()) {
+            ಪದ.ಮೊದಲ = new AstAnd{senItemp->fileline(), condp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(false), ಪದ.ಮೊದಲ};
         }
-        return term;
+        ಹಿಂತಿರುಗಿ ಪದ;
     }
 
     // Like above, but for a whole SenTree
-    std::pair<AstNodeExpr*, bool> build(const AstSenTree* senTreep) {
-        FileLine* const flp = senTreep->fileline();
-        AstNodeExpr* resultp = nullptr;
+    std::pair<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*, bool> build(ಸ್ಥಿರಾಂಕ Ast_Sen_ವೃಕ್ಷ* senTreep) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = senTreep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resultp = nullptr;
         bool firedAtInitialization = false;
-        for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
-             senItemp = VN_AS(senItemp->nextp(), SenItem)) {
-            const auto& pair = build(senItemp);
-            if (AstNodeExpr* termp = pair.first) {
+        ಗಾಗಿ (Ast_Sen_ಅಂಶ* senItemp = senTreep->sensesp(); senItemp;
+             senItemp = VN_AS(senItemp->nextp(), Sen_ಅಂಶ)) {
+            ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair = build(senItemp);
+            ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* termp = pair.ಮೊದಲ) {
                 resultp = resultp ? new AstOr{flp, resultp, termp} : termp;
-                firedAtInitialization |= pair.second;
+                firedAtInitialization |= pair.ಎರಡನೇ;
             }
         }
-        return {resultp, firedAtInitialization};
+        ಹಿಂತಿರುಗಿ {resultp, firedAtInitialization};
     }
 
     Results getResultsAndClearUpdates() {
@@ -354,7 +354,7 @@ public:
         m_hasPostUpdate.clear();
         Results ans = std::move(m_results);
         m_results = {};
-        return ans;
+        ಹಿಂತಿರುಗಿ ans;
     }
 
     Results getAndClearResults() {
@@ -362,12 +362,12 @@ public:
         m_prev.clear();
         m_hasPreUpdate.clear();
         m_hasPostUpdate.clear();
-        return std::move(m_results);
+        ಹಿಂತಿರುಗಿ std::move(m_results);
     }
 
     // CONSTRUCTOR
-    explicit SenExprBuilder(AstScope* scopep)
+    explicit Sen_ಅಭಿವ್ಯಕ್ತಿ_Builder(AstScope* scopep)
         : m_scopep{scopep} {}
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

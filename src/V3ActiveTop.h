@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ACTIVETOP_H_
-#define VERILATOR_V3ACTIVETOP_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3ACTIVETOP_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3ACTIVETOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3ActiveTop final {
-public:
-    static void activeTopAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ಸಕ್ರಿಯ_ತುದಿ final {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ ಸಕ್ರಿಯ_ತುದಿ_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

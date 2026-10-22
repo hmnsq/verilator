@@ -22,35 +22,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DFGCACHE_H_
-#define VERILATOR_V3DFGCACHE_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3DFGCACHE_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3DFGCACHE_H_
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Dfg.h"
-#include "V3DfgDataType.h"
-#include "V3HashTable.h"
+#ಅನ್ತರ್ಭಾವ "V3Dfg.h"
+#ಅನ್ತರ್ಭಾವ "V3DfgDataType.h"
+#ಅನ್ತರ್ಭಾವ "V3HashTable.h"
 
-#include <type_traits>
+#ಅನ್ತರ್ಭಾವ <type_traits>
 
 // Type predicate true for cached vertex types
-template <typename Vertex>
+ಮಾದರಿ <typename ಶೃಂಗ_2>
 using V3DfgCacheIsCached
-    = std::integral_constant<bool, std::is_base_of<DfgVertexUnary, Vertex>::value
-                                       || std::is_base_of<DfgVertexBinary, Vertex>::value
-                                       || std::is_base_of<DfgVertexTernary, Vertex>::value>;
+    = std::integral_constant<bool, std::is_ತಳ_ದ<Dfg_ಶೃಂಗ_Unary, ಶೃಂಗ_2>::ಮೌಲ್ಯ
+                                       || std::is_ತಳ_ದ<Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ, ಶೃಂಗ_2>::ಮೌಲ್ಯ
+                                       || std::is_ತಳ_ದ<Dfg_ಶೃಂಗ_Ternary, ಶೃಂಗ_2>::ಮೌಲ್ಯ>;
 
 // Helper template to determine the cache type for a vertex type
-template <typename Vertex, typename CacheBase, typename... Pairs>
-struct V3DfgCacheType final {
-    using Type = CacheBase;
+ಮಾದರಿ <typename ಶೃಂಗ_2, typename Cache_ತಳ, typename... ಜೋಡಿಗಳು>
+ರಚನೆ V3DfgCacheType final {
+    using Type = Cache_ತಳ;
 };
 
-template <typename Vertex, typename CacheBase, typename VertexBase, typename Cache,
-          typename... Pairs>
-struct V3DfgCacheType<Vertex, CacheBase, VertexBase, Cache, Pairs...> final {
-    using Type = std::conditional_t<std::is_base_of<VertexBase, Vertex>::value, Cache,
-                                    typename V3DfgCacheType<Vertex, CacheBase, Pairs...>::Type>;
+ಮಾದರಿ <typename ಶೃಂಗ_2, typename Cache_ತಳ, typename ಶೃಂಗ_ತಳ, typename Cache,
+          typename... ಜೋಡಿಗಳು>
+ರಚನೆ V3DfgCacheType<ಶೃಂಗ_2, Cache_ತಳ, ಶೃಂಗ_ತಳ, Cache, ಜೋಡಿಗಳು...> final {
+    using Type = std::conditional_t<std::is_ತಳ_ದ<ಶೃಂಗ_ತಳ, ಶೃಂಗ_2>::ಮೌಲ್ಯ, Cache,
+                                    typename V3DfgCacheType<ಶೃಂಗ_2, Cache_ತಳ, ಜೋಡಿಗಳು...>::Type>;
 };
 
 class V3DfgCache final {
@@ -59,264 +59,264 @@ class V3DfgCache final {
     // parts a vertex would be created from, so a lookup needs no vertex and no key object.
 
     // DfgSel
-    struct HashSel final {
-        size_t operator()(const DfgSel* vtxp) const {
-            return operator()(vtxp->dtype(), vtxp->fromp(), vtxp->lsb());
+    ರಚನೆ HashSel final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ DfgSel* vtxp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(vtxp->dtype(), vtxp->fromp(), vtxp->lsb());
         }
-        size_t operator()(const DfgDataType& dtype, const DfgVertex* fromp, uint32_t lsb) const {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* fromp, uint32_t lsb) ಸ್ಥಿರಾಂಕ {
             // cppcheck-suppress unreadVariable  // cppcheck bug
             V3Hash hash = dtype.hash();
-            hash += vertexHash(fromp);
+            hash += ಶೃಂಗ_Hash(fromp);
             hash += lsb;
-            return hash.value();
+            ಹಿಂತಿರುಗಿ hash.ಮೌಲ್ಯ();
         }
     };
-    struct EqualSel final {
-        bool operator()(const DfgSel* ap, const DfgSel* bp) const {
-            return operator()(ap, bp->dtype(), bp->fromp(), bp->lsb());
+    ರಚನೆ EqualSel final {
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ DfgSel* ap, ಸ್ಥಿರಾಂಕ DfgSel* bp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ap, bp->dtype(), bp->fromp(), bp->lsb());
         }
-        bool operator()(const DfgSel* vtxp, const DfgDataType& dtype, const DfgVertex* fromp,
-                        uint32_t lsb) const {
-            return vtxp->lsb() == lsb && vtxp->dtype() == dtype
-                   && vertexEqual(vtxp->fromp(), fromp);
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ DfgSel* vtxp, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* fromp,
+                        uint32_t lsb) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ vtxp->lsb() == lsb && vtxp->dtype() == dtype
+                   && ಶೃಂಗ_Equal(vtxp->fromp(), fromp);
         }
     };
 
     // DfgVertexUnary
-    struct HashUnary final {
-        size_t operator()(const DfgVertexUnary* vtxp) const {
-            return operator()(vtxp->dtype(), vtxp->inputp(0));
+    ರಚನೆ HashUnary final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Unary* vtxp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(vtxp->dtype(), vtxp->inputp(0));
         }
-        size_t operator()(const DfgDataType& dtype, const DfgVertex* source0p) const {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source0p) ಸ್ಥಿರಾಂಕ {
             V3Hash hash = dtype.hash();
-            hash += vertexHash(source0p);
-            return hash.value();
+            hash += ಶೃಂಗ_Hash(source0p);
+            ಹಿಂತಿರುಗಿ hash.ಮೌಲ್ಯ();
         }
     };
-    struct EqualUnary final {
-        bool operator()(const DfgVertexUnary* ap, const DfgVertexUnary* bp) const {
-            return operator()(ap, bp->dtype(), bp->inputp(0));
+    ರಚನೆ EqualUnary final {
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Unary* ap, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Unary* bp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ap, bp->dtype(), bp->inputp(0));
         }
-        bool operator()(const DfgVertexUnary* vtxp, const DfgDataType& dtype,
-                        const DfgVertex* source0p) const {
-            return vtxp->dtype() == dtype && vertexEqual(vtxp->inputp(0), source0p);
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Unary* vtxp, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype,
+                        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source0p) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ vtxp->dtype() == dtype && ಶೃಂಗ_Equal(vtxp->inputp(0), source0p);
         }
     };
 
     // DfgVertexBinary
-    struct HashBinary final {
-        size_t operator()(const DfgVertexBinary* vtxp) const {
-            return operator()(vtxp->dtype(), vtxp->inputp(0), vtxp->inputp(1));
+    ರಚನೆ Hash_ದ್ವಿಮಾನ final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ* vtxp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(vtxp->dtype(), vtxp->inputp(0), vtxp->inputp(1));
         }
-        size_t operator()(const DfgDataType& dtype, const DfgVertex* source0p,
-                          const DfgVertex* source1p) const {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source0p,
+                          ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source1p) ಸ್ಥಿರಾಂಕ {
             V3Hash hash = dtype.hash();
-            hash += vertexHash(source0p);
-            hash += vertexHash(source1p);
-            return hash.value();
+            hash += ಶೃಂಗ_Hash(source0p);
+            hash += ಶೃಂಗ_Hash(source1p);
+            ಹಿಂತಿರುಗಿ hash.ಮೌಲ್ಯ();
         }
     };
-    struct EqualBinary final {
-        bool operator()(const DfgVertexBinary* ap, const DfgVertexBinary* bp) const {
-            return operator()(ap, bp->dtype(), bp->inputp(0), bp->inputp(1));
+    ರಚನೆ Equal_ದ್ವಿಮಾನ final {
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ* ap, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ* bp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ap, bp->dtype(), bp->inputp(0), bp->inputp(1));
         }
-        bool operator()(const DfgVertexBinary* vtxp, const DfgDataType& dtype,
-                        const DfgVertex* source0p, const DfgVertex* source1p) const {
-            return vtxp->dtype() == dtype && vertexEqual(vtxp->inputp(0), source0p)
-                   && vertexEqual(vtxp->inputp(1), source1p);
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ* vtxp, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype,
+                        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source0p, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source1p) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ vtxp->dtype() == dtype && ಶೃಂಗ_Equal(vtxp->inputp(0), source0p)
+                   && ಶೃಂಗ_Equal(vtxp->inputp(1), source1p);
         }
     };
 
     // DfgVertexTernary
-    struct HashTernary final {
-        size_t operator()(const DfgVertexTernary* vtxp) const {
-            return operator()(vtxp->dtype(), vtxp->inputp(0), vtxp->inputp(1), vtxp->inputp(2));
+    ರಚನೆ HashTernary final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Ternary* vtxp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(vtxp->dtype(), vtxp->inputp(0), vtxp->inputp(1), vtxp->inputp(2));
         }
-        size_t operator()(const DfgDataType& dtype, const DfgVertex* source0p,
-                          const DfgVertex* source1p, const DfgVertex* source2p) const {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source0p,
+                          ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source1p, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source2p) ಸ್ಥಿರಾಂಕ {
             V3Hash hash = dtype.hash();
-            hash += vertexHash(source0p);
-            hash += vertexHash(source1p);
-            hash += vertexHash(source2p);
-            return hash.value();
+            hash += ಶೃಂಗ_Hash(source0p);
+            hash += ಶೃಂಗ_Hash(source1p);
+            hash += ಶೃಂಗ_Hash(source2p);
+            ಹಿಂತಿರುಗಿ hash.ಮೌಲ್ಯ();
         }
     };
 
-    struct EqualTernary final {
-        bool operator()(const DfgVertexTernary* ap, const DfgVertexTernary* bp) const {
-            return operator()(ap, bp->dtype(), bp->inputp(0), bp->inputp(1), bp->inputp(2));
+    ರಚನೆ EqualTernary final {
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Ternary* ap, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Ternary* bp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ap, bp->dtype(), bp->inputp(0), bp->inputp(1), bp->inputp(2));
         }
-        bool operator()(const DfgVertexTernary* vtxp, const DfgDataType& dtype,
-                        const DfgVertex* source0p, const DfgVertex* source1p,
-                        const DfgVertex* source2p) const {
-            return vtxp->dtype() == dtype && vertexEqual(vtxp->inputp(0), source0p)
-                   && vertexEqual(vtxp->inputp(1), source1p)
-                   && vertexEqual(vtxp->inputp(2), source2p);
+        bool ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Ternary* vtxp, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype,
+                        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source0p, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source1p,
+                        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* source2p) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ vtxp->dtype() == dtype && ಶೃಂಗ_Equal(vtxp->inputp(0), source0p)
+                   && ಶೃಂಗ_Equal(vtxp->inputp(1), source1p)
+                   && ಶೃಂಗ_Equal(vtxp->inputp(2), source2p);
         }
     };
 
     // Base class of vertex caches
-    class CacheBase VL_NOT_FINAL{protected :
+    class Cache_ತಳ VL_NOT_FINAL{ಸಂರಕ್ಷಿತ :
                                      // These set the operands of a new vertex
-                                     static void setOperands(DfgSel * vtxp, DfgVertex* fromp,
+                                     ಸ್ಥಿರ ಶೂನ್ಯ ಗಣ_Operands(DfgSel * vtxp, Dfg_ಶೃಂಗ* fromp,
                                                              uint32_t lsb){vtxp->fromp(fromp);
     vtxp->lsb(lsb);
 }
 
-static void
-setOperands(DfgVertexUnary* vtxp, DfgVertex* src0p) {  //
+ಸ್ಥಿರ ಶೂನ್ಯ
+ಗಣ_Operands(Dfg_ಶೃಂಗ_Unary* vtxp, Dfg_ಶೃಂಗ* src0p) {  //
     vtxp->inputp(0, src0p);
 }
 
-static void setOperands(DfgVertexBinary* vtxp, DfgVertex* src0p, DfgVertex* src1p) {
+ಸ್ಥಿರ ಶೂನ್ಯ ಗಣ_Operands(Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ* vtxp, Dfg_ಶೃಂಗ* src0p, Dfg_ಶೃಂಗ* src1p) {
     vtxp->inputp(0, src0p);
     vtxp->inputp(1, src1p);
 }
 
-static void setOperands(DfgVertexTernary* vtxp, DfgVertex* src0p, DfgVertex* src1p,
-                        DfgVertex* src2p) {
+ಸ್ಥಿರ ಶೂನ್ಯ ಗಣ_Operands(Dfg_ಶೃಂಗ_Ternary* vtxp, Dfg_ಶೃಂಗ* src0p, Dfg_ಶೃಂಗ* src1p,
+                        Dfg_ಶೃಂಗ* src2p) {
     vtxp->inputp(0, src0p);
     vtxp->inputp(1, src1p);
     vtxp->inputp(2, src2p);
 }
 
-public:
+ಸಾರ್ವಜನಿಕ:
 // CacheBase does not cache anything
-virtual DfgVertex* cache(DfgVertex*) { return nullptr; }
-virtual void invalidate(DfgVertex*) {}
+ವಾಸ್ತವಿಕ Dfg_ಶೃಂಗ* cache(Dfg_ಶೃಂಗ*) { ಹಿಂತಿರುಗಿ nullptr; }
+ವಾಸ್ತವಿಕ ಶೂನ್ಯ invalidate(Dfg_ಶೃಂಗ*) {}
 }
 ;
 
-template <typename T_Vertex, typename T_Hash, typename T_Equal>
-class Cache final : public CacheBase {
-    static_assert(std::is_base_of<DfgVertex, T_Vertex>::value, "T_Vertex must be a DfgVertex");
+ಮಾದರಿ <typename T_ಶೃಂಗ, typename T_Hash, typename T_Equal>
+class Cache final : ಸಾರ್ವಜನಿಕ Cache_ತಳ {
+    static_assert(std::is_ತಳ_ದ<Dfg_ಶೃಂಗ, T_ಶೃಂಗ>::ಮೌಲ್ಯ, "T_Vertex must be a DfgVertex");
 
     // STATE
-    V3HashSet<T_Vertex*, T_Hash, T_Equal> m_set;
+    V3_Hash_ಗಣ<T_ಶೃಂಗ*, T_Hash, T_Equal> m_ಗಣ;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Add an existing vertex to the cache. If an equivalent but different vertex exists,
     // it is returned and the cache is not updated. Returns nullptr if the vertex is inserted.
-    DfgVertex* cache(DfgVertex* vtxp) override {
-        UDEBUGONLY(UASSERT_OBJ(vtxp->is<T_Vertex>(), vtxp, "Vertex is wrong type"););
-        T_Vertex* const typedp = static_cast<T_Vertex*>(vtxp);
-        T_Vertex* const cachedp = *m_set.insert(typedp).first;
-        return cachedp != vtxp ? cachedp : nullptr;
+    Dfg_ಶೃಂಗ* cache(Dfg_ಶೃಂಗ* vtxp) override {
+        UDEBUGONLY(UASSERT_OBJ(vtxp->is<T_ಶೃಂಗ>(), vtxp, "Vertex is wrong type"););
+        T_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ typedp = static_cast<T_ಶೃಂಗ*>(vtxp);
+        T_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ cachedp = *m_ಗಣ.ಸೇರಿಸು(typedp).ಮೊದಲ;
+        ಹಿಂತಿರುಗಿ cachedp != vtxp ? cachedp : nullptr;
     }
     // Remove an existing vertex from the cache, if it is the cached vertex, otherwise no-op
-    void invalidate(DfgVertex* vtxp) override {
-        UDEBUGONLY(UASSERT_OBJ(vtxp->is<T_Vertex>(), vtxp, "Vertex is wrong type"););
-        T_Vertex* const typedp = static_cast<T_Vertex*>(vtxp);
-        const auto it = m_set.find(typedp);
-        if (it != m_set.end() && *it == typedp) m_set.erase(it);
+    ಶೂನ್ಯ invalidate(Dfg_ಶೃಂಗ* vtxp) override {
+        UDEBUGONLY(UASSERT_OBJ(vtxp->is<T_ಶೃಂಗ>(), vtxp, "Vertex is wrong type"););
+        T_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ typedp = static_cast<T_ಶೃಂಗ*>(vtxp);
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_ಗಣ.ಕಂಡುಹಿಡಿ(typedp);
+        ಆದರೆ (it != m_ಗಣ.ಕೊನೆ() && *it == typedp) m_ಗಣ.erase(it);
     }
     // Get vertex with given operands, return nullptr if not in cache
-    template <typename Vertex, typename... Operands>
-    Vertex* get(const DfgDataType& dtype, Operands... operands) {
-        const auto it = m_set.find(dtype, operands...);
-        return it != m_set.end() ? static_cast<Vertex*>(*it) : nullptr;
+    ಮಾದರಿ <typename ಶೃಂಗ_2, typename... Operands>
+    ಶೃಂಗ_2* get(ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, Operands... operands) {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_ಗಣ.ಕಂಡುಹಿಡಿ(dtype, operands...);
+        ಹಿಂತಿರುಗಿ it != m_ಗಣ.ಕೊನೆ() ? static_cast<ಶೃಂಗ_2*>(*it) : nullptr;
     }
     // Get vertex with given operands, if does not exist, create it
-    template <typename Vertex, typename... Operands>
-    Vertex* getOrCreate(DfgGraph& dfg, FileLine* flp, const DfgDataType& dtype,
+    ಮಾದರಿ <typename ಶೃಂಗ_2, typename... Operands>
+    ಶೃಂಗ_2* getOrCreate(Dfg_ನಕ್ಷೆ& dfg, File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype,
                         Operands... operands) {
-        const auto pair = m_set.insertLazy(dtype, operands..., [&]() -> T_Vertex* {
-            Vertex* const newp = new Vertex{dfg, flp, dtype};
-            setOperands(newp, operands...);
-            return newp;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ pair = m_ಗಣ.ಸೇರಿಸು_Lazy(dtype, operands..., [&]() -> T_ಶೃಂಗ* {
+            ಶೃಂಗ_2* ಸ್ಥಿರಾಂಕ newp = new ಶೃಂಗ_2{dfg, flp, dtype};
+            ಗಣ_Operands(newp, operands...);
+            ಹಿಂತಿರುಗಿ newp;
         });
-        T_Vertex* const vtxp = *pair.first;
-        UDEBUGONLY(UASSERT_OBJ(vtxp->template is<Vertex>(), vtxp, "Vertex is wrong type"););
-        return static_cast<Vertex*>(vtxp);
+        T_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = *pair.ಮೊದಲ;
+        UDEBUGONLY(UASSERT_OBJ(vtxp->ಮಾದರಿ is<ಶೃಂಗ_2>(), vtxp, "Vertex is wrong type"););
+        ಹಿಂತಿರುಗಿ static_cast<ಶೃಂಗ_2*>(vtxp);
     }
 };
 
 // Map from Vertex type to cache type
 // clang-format off
-    template <typename Vertex>
-    using CacheType = typename V3DfgCacheType<Vertex, CacheBase,
+    ಮಾದರಿ <typename ಶೃಂಗ_2>
+    using CacheType = typename V3DfgCacheType<ಶೃಂಗ_2, Cache_ತಳ,
         DfgSel,           /* -> */  Cache<DfgSel, HashSel, EqualSel>,
-        DfgVertexUnary,   /* -> */  Cache<DfgVertexUnary, HashUnary, EqualUnary>,
-        DfgVertexBinary,  /* -> */  Cache<DfgVertexBinary, HashBinary, EqualBinary>,
-        DfgVertexTernary, /* -> */  Cache<DfgVertexTernary, HashTernary, EqualTernary>
+        Dfg_ಶೃಂಗ_Unary,   /* -> */  Cache<Dfg_ಶೃಂಗ_Unary, HashUnary, EqualUnary>,
+        Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ,  /* -> */  Cache<Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ, Hash_ದ್ವಿಮಾನ, Equal_ದ್ವಿಮಾನ>,
+        Dfg_ಶೃಂಗ_Ternary, /* -> */  Cache<Dfg_ಶೃಂಗ_Ternary, HashTernary, EqualTernary>
     >::Type;
 // clang-format on
 
 // STATE
-DfgGraph& m_dfg;  // The DfgGraph we are caching the vertices of
+Dfg_ನಕ್ಷೆ& m_dfg;  // The DfgGraph we are caching the vertices of
 
 // The per type caches
-#define VERTEX_CACHE_DECLARE_CACHE(t) CacheType<t> m_cache##t;
-FOREACH_DFG_VERTEX_TYPE(VERTEX_CACHE_DECLARE_CACHE)
-#undef VERTEX_CACHE_DECLARE_CACHE
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೃಂಗ_CACHE_DECLARE_CACHE(t) CacheType<t> m_cache##t;
+FOREACH_DFG_ಶೃಂಗ_TYPE(ಶೃಂಗ_CACHE_DECLARE_CACHE)
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು ಶೃಂಗ_CACHE_DECLARE_CACHE
 
 // Map from vertex type to m_cache* instances for dynamic lookup
-std::array<CacheBase*, VDfgType::NUM_TYPES()> m_vtxType2Cachep{};
+std::array<Cache_ತಳ*, VDfgType::ಅಂಕೆ_TYPES()> m_vtxType2Cachep{};
 
 // METHODS
 
 // Map from vertex type to m_cache* instances for static lookup
-template <typename Vertex>
-CacheType<Vertex>* cacheForType() {
-#define VERTEX_CACHE_DECLARE_CACHE(t) \
-    if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, t>::value) \
-        return reinterpret_cast<CacheType<Vertex>*>(&m_cache##t);
-    FOREACH_DFG_VERTEX_TYPE(VERTEX_CACHE_DECLARE_CACHE)
-#undef VERTEX_CACHE_DECLARE_CACHE
-    return nullptr;  // LCOV_EXCL_LINE
+ಮಾದರಿ <typename ಶೃಂಗ_2>
+CacheType<ಶೃಂಗ_2>* cacheForType() {
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೃಂಗ_CACHE_DECLARE_CACHE(t) \
+    ಆದರೆ VL_CONSTEXPR_CXX17 (std::is_same<ಶೃಂಗ_2, t>::ಮೌಲ್ಯ) \
+        ಹಿಂತಿರುಗಿ reinterpret_cast<CacheType<ಶೃಂಗ_2>*>(&m_cache##t);
+    FOREACH_DFG_ಶೃಂಗ_TYPE(ಶೃಂಗ_CACHE_DECLARE_CACHE)
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು ಶೃಂಗ_CACHE_DECLARE_CACHE
+    ಹಿಂತಿರುಗಿ nullptr;  // LCOV_EXCL_LINE
 }
 
 // Hash constants by value, everything else by identity
-static V3Hash vertexHash(const DfgVertex* vtxp) {
-    if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->num().toHash();
-    return V3Hash{reinterpret_cast<uint64_t>(vtxp)};
+ಸ್ಥಿರ V3Hash ಶೃಂಗ_Hash(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* vtxp) {
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ DfgConst* ಸ್ಥಿರಾಂಕ constp = vtxp->cast<DfgConst>()) ಹಿಂತಿರುಗಿ constp->ಅಂಕೆ().ಗಮ್ಯ_Hash();
+    ಹಿಂತಿರುಗಿ V3Hash{reinterpret_cast<uint64_t>(vtxp)};
 }
 
 // Constants are equal by value, everything else is equal by identity
-static bool vertexEqual(const DfgVertex* ap, const DfgVertex* bp) {
-    if (ap == bp) return true;
-    if (ap->type() != bp->type()) return false;
-    if (const DfgConst* const aConstp = ap->cast<DfgConst>()) {
-        const DfgConst* const bConstp = bp->as<DfgConst>();
-        return aConstp->num().isCaseEq(bConstp->num());
+ಸ್ಥಿರ bool ಶೃಂಗ_Equal(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ap, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* bp) {
+    ಆದರೆ (ap == bp) ಹಿಂತಿರುಗಿ true;
+    ಆದರೆ (ap->type() != bp->type()) ಹಿಂತಿರುಗಿ false;
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ DfgConst* ಸ್ಥಿರಾಂಕ aConstp = ap->cast<DfgConst>()) {
+        ಸ್ಥಿರಾಂಕ DfgConst* ಸ್ಥಿರಾಂಕ bConstp = bp->as<DfgConst>();
+        ಹಿಂತಿರುಗಿ aConstp->ಅಂಕೆ().isCaseEq(bConstp->ಅಂಕೆ());
     }
-    return false;
+    ಹಿಂತಿರುಗಿ false;
 }
 
-public:
+ಸಾರ್ವಜನಿಕ:
 // Note: the cache starts out empty. If the caller wants existing vertices
 // to be found, it must add them itself by calling 'cache' on each.
-explicit V3DfgCache(DfgGraph& dfg)
+explicit V3DfgCache(Dfg_ನಕ್ಷೆ& dfg)
     : m_dfg{dfg} {
     // Initialize the type to cache lookup table
-#define VERTEX_CACHE_DECLARE_CACHE_PTR(t) m_vtxType2Cachep[t::dfgType()] = &m_cache##t;
-    FOREACH_DFG_VERTEX_TYPE(VERTEX_CACHE_DECLARE_CACHE_PTR)
-#undef VERTEX_CACHE_DECLARE_CACHE_PTR
+#ವ್ಯಾಖ್ಯಾನಿಸು ಶೃಂಗ_CACHE_DECLARE_CACHE_PTR(t) m_vtxType2Cachep[t::dfgType()] = &m_cache##t;
+    FOREACH_DFG_ಶೃಂಗ_TYPE(ಶೃಂಗ_CACHE_DECLARE_CACHE_PTR)
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು ಶೃಂಗ_CACHE_DECLARE_CACHE_PTR
 }
 
 // Add an existing vertex to the cache. If an equivalent (but different) already exists,
 // it is returned and the cache is not updated.
-DfgVertex* cache(DfgVertex* vtxp) { return m_vtxType2Cachep[vtxp->type()]->cache(vtxp); }
+Dfg_ಶೃಂಗ* cache(Dfg_ಶೃಂಗ* vtxp) { ಹಿಂತಿರುಗಿ m_vtxType2Cachep[vtxp->type()]->cache(vtxp); }
 
 // Remove an exiting vertex, it is the cached vertex.
-void invalidate(DfgVertex* vtxp) { m_vtxType2Cachep[vtxp->type()]->invalidate(vtxp); }
+ಶೂನ್ಯ invalidate(Dfg_ಶೃಂಗ* vtxp) { m_vtxType2Cachep[vtxp->type()]->invalidate(vtxp); }
 
 // Find a vertex of type 'Vertex', with the given operands, or create a new one and add it.
-template <typename Vertex, typename... Operands>
-Vertex* getOrCreate(FileLine* flp, const DfgDataType& dtype, Operands... operands) {
-    static_assert(std::is_final<Vertex>::value, "Must invoke on final vertex type");
-    static_assert(V3DfgCacheIsCached<Vertex>::value, "Not a cached vertex type");
-    return cacheForType<Vertex>()->template getOrCreate<Vertex>(m_dfg, flp, dtype, operands...);
+ಮಾದರಿ <typename ಶೃಂಗ_2, typename... Operands>
+ಶೃಂಗ_2* getOrCreate(File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, Operands... operands) {
+    static_assert(std::is_final<ಶೃಂಗ_2>::ಮೌಲ್ಯ, "Must invoke on final vertex type");
+    static_assert(V3DfgCacheIsCached<ಶೃಂಗ_2>::ಮೌಲ್ಯ, "Not a cached vertex type");
+    ಹಿಂತಿರುಗಿ cacheForType<ಶೃಂಗ_2>()->ಮಾದರಿ getOrCreate<ಶೃಂಗ_2>(m_dfg, flp, dtype, operands...);
 }
 
 // Find a vertex of type 'Vertex', with the given operands, return nullptr if not in cache.
-template <typename Vertex, typename... Operands>
-Vertex* get(const DfgDataType& dtype, Operands... operands) {
-    static_assert(std::is_final<Vertex>::value, "Must invoke on final vertex type");
-    static_assert(V3DfgCacheIsCached<Vertex>::value, "Not a cached vertex type");
-    return cacheForType<Vertex>()->template get<Vertex>(dtype, operands...);
+ಮಾದರಿ <typename ಶೃಂಗ_2, typename... Operands>
+ಶೃಂಗ_2* get(ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype, Operands... operands) {
+    static_assert(std::is_final<ಶೃಂಗ_2>::ಮೌಲ್ಯ, "Must invoke on final vertex type");
+    static_assert(V3DfgCacheIsCached<ಶೃಂಗ_2>::ಮೌಲ್ಯ, "Not a cached vertex type");
+    ಹಿಂತಿರುಗಿ cacheForType<ಶೃಂಗ_2>()->ಮಾದರಿ get<ಶೃಂಗ_2>(dtype, operands...);
 }
 }
 ;
 
-#endif  // VERILATOR_V3DFGCACHE_H_
+#ಆದರೆ_ಅಂತ್ಯ  // VERILATOR_V3DFGCACHE_H_

@@ -14,45 +14,45 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FUNCTIONTRAITS_H_
-#define VERILATOR_V3FUNCTIONTRAITS_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3FUNCTIONTRAITS_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3FUNCTIONTRAITS_H_
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <cstddef>
-#include <tuple>
-#include <type_traits>
+#ಅನ್ತರ್ಭಾವ <cstddef>
+#ಅನ್ತರ್ಭಾವ <tuple>
+#ಅನ್ತರ್ಭಾವ <type_traits>
 
-template <typename T>
-struct FunctionTraits;
+ಮಾದರಿ <typename T>
+ರಚನೆ FunctionTraits;
 
 // For generic types, directly use the result of the signature of its 'operator()'
-template <typename T>
-struct FunctionTraits final
-    : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
+ಮಾದರಿ <typename T>
+ರಚನೆ FunctionTraits final
+    : ಸಾರ್ವಜನಿಕ FunctionTraits<decltype(&std::remove_reference<T>::type::ಕ್ರಿಯಾಕಾರಕ())> {};
 
 // Specialization for pointers to member function
-template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+ಮಾದರಿ <typename T_ClassType, typename T_ReturnType, typename... ವಾದಗಳು_2>
+ರಚನೆ FunctionTraits<T_ReturnType (T_ClassType::*)(ವಾದಗಳು_2...) ಸ್ಥಿರಾಂಕ> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    ಸ್ಥಿರ constexpr ಗಾತ್ರ_t arity = ಗಾತ್ರ...(ವಾದಗಳು_2);
 
     // Type of result
-    using result_type = T_ReturnType;
+    using ಫಲಿತಾಂಶ_type = T_ReturnType;
 
     // Type of arguments
-    template <std::size_t N>
-    struct arg final {
-        using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+    ಮಾದರಿ <std::ಗಾತ್ರ_t N>
+    ರಚನೆ arg final {
+        using type = typename std::tuple_element<N, std::tuple<ವಾದಗಳು_2...>>::type;
     };
 };
 
-template <typename T_Callable, size_t N_Index>
-struct FunctionArgNoPointerNoCV final {
+ಮಾದರಿ <typename T_Callable, ಗಾತ್ರ_t N_ಸೂಚ್ಯಂಕ>
+ರಚನೆ Function_Arg_No_ಸೂಚಕ_No_CV final {
     using Traits = FunctionTraits<T_Callable>;
-    using T_Arg = typename Traits::template arg<N_Index>::type;
-    using T_ArgNoPtr = typename std::remove_pointer<T_Arg>::type;
+    using T_Arg = typename Traits::ಮಾದರಿ arg<N_ಸೂಚ್ಯಂಕ>::type;
+    using T_ArgNoPtr = typename std::remove_ಸೂಚಕ<T_Arg>::type;
     using type = typename std::remove_cv<T_ArgNoPtr>::type;
 };
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

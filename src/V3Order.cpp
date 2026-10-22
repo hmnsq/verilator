@@ -71,95 +71,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderInternal.h"
-#include "V3Sched.h"
+#ಅನ್ತರ್ಭಾವ "V3OrderInternal.h"
+#ಅನ್ತರ್ಭಾವ "V3Sched.h"
 
-#include <memory>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <memory>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-void V3Order::orderOrderGraph(OrderGraph& graph, const std::string& tag) {
+ಶೂನ್ಯ V3_ಕ್ರಮ::ಕ್ರಮ_ಕ್ರಮ_ನಕ್ಷೆ(ಕ್ರಮ_ನಕ್ಷೆ& ನಕ್ಷೆ, ಸ್ಥಿರಾಂಕ std::string& ಟ್ಯಾಗ್) {
     // Dump data
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_pre");
+    ಆದರೆ (dump_ನಕ್ಷೆ_Level()) ನಕ್ಷೆ.dumpDotFilePrefixed(ಟ್ಯಾಗ್ + "_orderg_pre");
 
     // Break cycles. Note that the OrderGraph only contains cuttable cycles
     // (soft constraints). Actual logic loops must have been eliminated by
     // the introduction of Hybid sensitivity expressions, before invoking
     // ordering (e.g. in V3SchedAcyclic).
-    graph.acyclic(&V3GraphEdge::followAlwaysTrue);
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_acyc");
+    ನಕ್ಷೆ.acyclic(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
+    ಆದರೆ (dump_ನಕ್ಷೆ_Level()) ನಕ್ಷೆ.dumpDotFilePrefixed(ಟ್ಯಾಗ್ + "_orderg_acyc");
 
     // Assign ranks so we know what to follow, then sort vertices and edges by that ordering
-    graph.order();
-    if (dumpGraphLevel()) graph.dumpDotFilePrefixed(tag + "_orderg_order");
+    ನಕ್ಷೆ.ಕ್ರಮ();
+    ಆದರೆ (dump_ನಕ್ಷೆ_Level()) ನಕ್ಷೆ.dumpDotFilePrefixed(ಟ್ಯಾಗ್ + "_orderg_order");
 }
 
 //######################################################################
 
-AstCFunc* V3Order::order(const std::vector<V3Sched::LogicByScope*>& logic,  //
-                         const V3Sched::TriggerKit& trigKit,  //
+AstCFunc* V3_ಕ್ರಮ::ಕ್ರಮ(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<V3Sched::LogicByScope*>& logic,  //
+                         ಸ್ಥಿರಾಂಕ V3Sched::TriggerKit& trigKit,  //
                          AstVarScope* trigVscp,  //
-                         const V3Sched::CovergroupRefBindings& cgRefBindings,
-                         const string& tag,  //
-                         bool parallel,  //
-                         bool slow,  //
-                         const ExternalTriggersProvider& externalTriggers) {
+                         ಸ್ಥಿರಾಂಕ V3Sched::CovergroupRefBindings& cgRefBindings,
+                         ಸ್ಥಿರಾಂಕ string& ಟ್ಯಾಗ್,  //
+                         ತಾರ್ಕಿಕ parallel,  //
+                         ತಾರ್ಕಿಕ slow,  //
+                         ಸ್ಥಿರಾಂಕ ExternalTriggersProvider& externalTriggers) {
     // Build the OrderGraph
-    const std::unique_ptr<OrderGraph> graph
-        = buildOrderGraph(trigKit, trigVscp, logic, cgRefBindings, parallel);
+    ಸ್ಥಿರಾಂಕ std::unique_ptr<ಕ್ರಮ_ನಕ್ಷೆ> ನಕ್ಷೆ
+        = build_ಕ್ರಮ_ನಕ್ಷೆ(trigKit, trigVscp, logic, cgRefBindings, parallel);
     // Order it
-    orderOrderGraph(*graph, tag);
+    ಕ್ರಮ_ಕ್ರಮ_ನಕ್ಷೆ(*ನಕ್ಷೆ, ಟ್ಯಾಗ್);
     // Assign sensitivity domains to combinational logic
-    processDomains(*graph, tag, externalTriggers);
+    processDomains(*ನಕ್ಷೆ, ಟ್ಯಾಗ್, externalTriggers);
     // Build the move graph
-    OrderMoveDomScope::clear();
-    const std::unique_ptr<OrderMoveGraph> moveGraphp = OrderMoveGraph::build(*graph);
-    if (dumpGraphLevel() >= 9) moveGraphp->dumpDotFilePrefixed(tag + "_ordermv");
+    ಕ್ರಮ_Move_Dom_Scope::clear();
+    ಸ್ಥಿರಾಂಕ std::unique_ptr<ಕ್ರಮ_Move_ನಕ್ಷೆ> moveGraphp = ಕ್ರಮ_Move_ನಕ್ಷೆ::build(*ನಕ್ಷೆ);
+    ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 9) moveGraphp->dumpDotFilePrefixed(ಟ್ಯಾಗ್ + "_ordermv");
 
     // The ordered statements, if there are any
-    AstNodeStmt* stmtsp = nullptr;
-    if (!moveGraphp->empty()) {
-        if (parallel) {
-            stmtsp = createParallel(*moveGraphp, tag, slow);
-        } else {
-            stmtsp = createSerial(*moveGraphp, tag, slow);
+    Ast_ಗಂಟು_Stmt* stmtsp = ಶೂನ್ಯಸೂಚಕ;
+    ಆದರೆ (!moveGraphp->ಖಾಲಿಗಳು()) {
+        ಆದರೆ (parallel) {
+            stmtsp = createParallel(*moveGraphp, ಟ್ಯಾಗ್, slow);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            stmtsp = createSerial(*moveGraphp, ಟ್ಯಾಗ್, slow);
         }
         // Should have consumed all vertices
-        UASSERT(moveGraphp->empty(), "Unconsumed vertices remain in OrderMoveGraph");
+        UASSERT(moveGraphp->ಖಾಲಿಗಳು(), "Unconsumed vertices remain in OrderMoveGraph");
     }
-    OrderMoveDomScope::clear();
+    ಕ್ರಮ_Move_Dom_Scope::clear();
 
     // Dump data
-    if (dumpGraphLevel()) graph->dumpDotFilePrefixed(tag + "_orderg_done");
+    ಆದರೆ (dump_ನಕ್ಷೆ_Level()) ನಕ್ಷೆ->dumpDotFilePrefixed(ಟ್ಯಾಗ್ + "_orderg_done");
 
     // Dispose of the remnants of the inputs
-    for (auto* const lbsp : logic) lbsp->deleteActives();
+    ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ lbsp : logic) lbsp->deleteActives();
 
     // If there is no resulting logic, then don't create an empty function
-    if (!stmtsp) return nullptr;
+    ಆದರೆ (!stmtsp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 
     // Create the result function
-    AstNetlist* const netlistp = v3Global.rootp();
-    FileLine* const flp = netlistp->fileline();
-    AstCFunc* const funcp = [&]() {
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        AstCFunc* const resp = new AstCFunc{flp, "_eval_body__" + tag, scopeTopp, ""};
-        resp->dontCombine(true);
-        resp->isStatic(false);
-        resp->isLoose(true);
+    AstNetlist* ಸ್ಥಿರಾಂಕ netlistp = v3Global.rootp();
+    File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = netlistp->fileline();
+    AstCFunc* ಸ್ಥಿರಾಂಕ funcp = [&]() {
+        AstScope* ಸ್ಥಿರಾಂಕ scopeTopp = netlistp->ತುದಿ_Scopep()->scopep();
+        AstCFunc* ಸ್ಥಿರಾಂಕ resp = ಹೊಸ AstCFunc{flp, "_eval_body__" + ಟ್ಯಾಗ್, scopeTopp, ""};
+        resp->dontCombine(ನಿಜ);
+        resp->isStatic(ಸುಳ್ಳು);
+        resp->isLoose(ನಿಜ);
         resp->slow(slow);
-        resp->isConst(false);
-        resp->declPrivate(true);
-        scopeTopp->addBlocksp(resp);
-        return resp;
+        resp->isConst(ಸುಳ್ಳು);
+        resp->decl_ಖಾಸಗಿ(ನಿಜ);
+        scopeTopp->ಕೂಡಿಸು_Blocksp(resp);
+        ಹಿಂತಿರುಗಿ resp;
     }();
 
     // Assemble the body
-    funcp->addStmtsp(stmtsp);
+    funcp->ಕೂಡಿಸು_Stmtsp(stmtsp);
 
-    // Done
-    return funcp;
+    //ಮುಗಿದ
+    ಹಿಂತಿರುಗಿ funcp;
 }

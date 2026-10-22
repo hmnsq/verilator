@@ -14,35 +14,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCOPTIONS_H_
-#define VERILATOR_VLCOPTIONS_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_VLCOPTIONS_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#ಅನ್ತರ್ಭಾವ "VlcPoint.h"
+#ಅನ್ತರ್ಭಾವ "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 //######################################################################
 // V3Options - Command line options
 
-using VlStringSet = std::set<std::string>;
+using Vl_String_ಗಣ = std::ಗಣ<std::string>;
 
 class VlcOptions final {
     // MEMBERS (general options)
     // clang-format off
-    string m_annotateOut;       // main switch: --annotate I<output_directory>
+    string m_annotate_ಹೊರಹೋಗು;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    ಪೂರ್ಣಾಂಕ m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
-    VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    Vl_String_ಗಣ m_readFiles;    // main switch: --read
+    ಪೂರ್ಣಾಂಕ m_report_ಮಟ್ಟಗಳು = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,44 +52,44 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+ಖಾಸಗಿ:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    ಶೂನ್ಯ parseReportOption() VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ show_ಆವೃತ್ತಿ(bool verbose) VL_MT_DISABLED;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~VlcOptions() = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    ಶೂನ್ಯ parseOptsList(ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ** argv) VL_MT_DISABLED;
+    ಶೂನ್ಯ ಕೂಡಿಸು_Read_File(ಸ್ಥಿರಾಂಕ string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    ಸ್ಥಿರಾಂಕ Vl_String_ಗಣ& readFiles() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_readFiles; }
+    string annotate_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_annotate_ಹೊರಹೋಗು; }
+    bool annotateAll() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_annotateAll; }
+    ಪೂರ್ಣಾಂಕ annotateMin() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_annotateMin; }
+    bool ಎಣಿಕೆ_Ok(uint64_t ಎಣಿಕೆ_2) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಎಣಿಕೆ_2 >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_annotatePoints; }
+    bool includeResetArcs() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_includeResetArcs; }
+    ಪೂರ್ಣಾಂಕ report_ಮಟ್ಟಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_report_ಮಟ್ಟಗಳು; }
+    bool reportSpecified() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ !m_report.ಖಾಲಿಗಳು(); }
+    bool reportSummary() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_reportSummary; }
+    bool reportHierarchy() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_reportHierarchy; }
+    bool rank() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_rank; }
+    bool unlink() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_unlink; }
+    string writeFile() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_writeFile; }
+    string writeInfoFile() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_writeInfoFile; }
+    bool is_Type_ಹೊಂದಿಕೆ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* name) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ VString::wildmatch(Vlc_ಬಿಂದು::type_ಹೊರತೆಗೆ(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    ಸ್ಥಿರ string ಆವೃತ್ತಿ() VL_MT_DISABLED;
 };
 
 //######################################################################
 
-#endif  // guard
+#ಆದರೆ_ಅಂತ್ಯ  // guard

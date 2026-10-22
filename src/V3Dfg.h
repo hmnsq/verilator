@@ -27,218 +27,218 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DFG_H_
-#define VERILATOR_V3DFG_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3DFG_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3DFG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
-#include "V3DfgDataType.h"
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Hash.h"
-#include "V3List.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Cfg.h"
+#ಅನ್ತರ್ಭಾವ "V3DfgDataType.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Hash.h"
+#ಅನ್ತರ್ಭಾವ "V3List.h"
 
-#include "V3Dfg__gen_forward_class_decls.h"  // From ./astgen
+#ಅನ್ತರ್ಭಾವ "V3Dfg__gen_forward_class_decls.h"  // From ./astgen
 
-#include <algorithm>
-#include <array>
-#include <functional>
-#include <new>
-#include <type_traits>
-#include <unordered_map>
-#include <utility>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <array>
+#ಅನ್ತರ್ಭಾವ <functional>
+#ಅನ್ತರ್ಭಾವ <new>
+#ಅನ್ತರ್ಭಾವ <type_traits>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <utility>
+#ಅನ್ತರ್ಭಾವ <vector>
 
-#ifndef VL_NOT_FINAL
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VL_NOT_FINAL
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#ಆದರೆ_ಅಂತ್ಯ
 
 // Can T be stored in the memory allocted for U?
-template <typename T, typename U>
-inline constexpr bool fitsSpaceAllocatedFor() {
-    return sizeof(T) <= sizeof(U) && alignof(T) <= alignof(U);
+ಮಾದರಿ <typename T, typename U>
+ಸಾಲೊಳಗೆ constexpr bool ಹೊಂದುತ್ತದೆ_Space_Allocated_For() {
+    ಹಿಂತಿರುಗಿ ಗಾತ್ರ(T) <= ಗಾತ್ರ(U) && alignof(T) <= alignof(U);
 }
 
-class DfgEdge;
-class DfgVertex;
-class DfgGraph;
+class Dfg_ಅಂಚು;
+class Dfg_ಶೃಂಗ;
+class Dfg_ನಕ್ಷೆ;
 class DfgVisitor;
 class V3DfgContext;
-template <typename T_User, bool = fitsSpaceAllocatedFor<T_User, void*>()>
+ಮಾದರಿ <typename T_User, bool = ಹೊಂದುತ್ತದೆ_Space_Allocated_For<T_User, ಶೂನ್ಯ*>()>
 class DfgUserMap;
 
 //------------------------------------------------------------------------------
 // Dataflow graph vertex type enum
 
 class VDfgType final {
-public:
-#include "V3Dfg__gen_type_enum.h"  // From ./astgen
-    const en m_e;
+ಸಾರ್ವಜನಿಕ:
+#ಅನ್ತರ್ಭಾವ "V3Dfg__gen_type_enum.h"  // From ./astgen
+    ಸ್ಥಿರಾಂಕ en m_e;
     VDfgType() = delete;
 
     // VDfgType is interconvetible with VDfgType::en
     // cppcheck-suppress noExplicitConstructor
     constexpr VDfgType(en _e)
         : m_e{_e} {}
-    constexpr operator en() const { return m_e; }
+    constexpr ಕ್ರಿಯಾಕಾರಕ en() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_e; }
 };
-constexpr bool operator==(VDfgType lhs, VDfgType rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(VDfgType lhs, VDfgType::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VDfgType::en lhs, VDfgType rhs) { return lhs == rhs.m_e; }
-inline std::ostream& operator<<(std::ostream& os, const VDfgType& t) { return os << t.ascii(); }
+constexpr bool ಕ್ರಿಯಾಕಾರಕ==(VDfgType lhs, VDfgType rhs) { ಹಿಂತಿರುಗಿ lhs.m_e == rhs.m_e; }
+constexpr bool ಕ್ರಿಯಾಕಾರಕ==(VDfgType lhs, VDfgType::en rhs) { ಹಿಂತಿರುಗಿ lhs.m_e == rhs; }
+constexpr bool ಕ್ರಿಯಾಕಾರಕ==(VDfgType::en lhs, VDfgType rhs) { ಹಿಂತಿರುಗಿ lhs == rhs.m_e; }
+ಸಾಲೊಳಗೆ std::ostream& ಕ್ರಿಯಾಕಾರಕ<<(std::ostream& os, ಸ್ಥಿರಾಂಕ VDfgType& t) { ಹಿಂತಿರುಗಿ os << t.ascii(); }
 
 //------------------------------------------------------------------------------
 // Dataflow graph edge
-class DfgEdge final {
-    friend class DfgVertex;
+class Dfg_ಅಂಚು final {
+    ಮಿತ್ರ class Dfg_ಶೃಂಗ;
 
-    DfgVertex* m_srcp = nullptr;  // The source vertex driving this edge - might be unconnected
-    DfgVertex* const m_dstp;  // The vertex driven by this edge, which owns this edge, so immutable
-    V3ListLinks<DfgEdge> m_links;  // V3List links in the list of sinks of m_srcp
+    Dfg_ಶೃಂಗ* m_srcp = nullptr;  // The source vertex driving this edge - might be unconnected
+    Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ m_dstp;  // The vertex driven by this edge, which owns this edge, so immutable
+    V3ListLinks<Dfg_ಅಂಚು> m_links;  // V3List links in the list of sinks of m_srcp
 
-    VL_UNCOPYABLE(DfgEdge);
-    VL_UNMOVABLE(DfgEdge);
+    VL_UNCOPYABLE(Dfg_ಅಂಚು);
+    VL_UNMOVABLE(Dfg_ಅಂಚು);
 
-    V3ListLinks<DfgEdge>& links() { return m_links; }
-    using List = V3List<DfgEdge, &DfgEdge::links>;
+    V3ListLinks<Dfg_ಅಂಚು>& links() { ಹಿಂತಿರುಗಿ m_links; }
+    using List = V3List<Dfg_ಅಂಚು, &Dfg_ಅಂಚು::links>;
 
-public:
-    explicit DfgEdge(DfgVertex* dstp)
+ಸಾರ್ವಜನಿಕ:
+    explicit Dfg_ಅಂಚು(Dfg_ಶೃಂಗ* dstp)
         : m_dstp{dstp} {}
-    ~DfgEdge() { unlinkSrcp(); }
-    DfgEdge() = delete;
+    ~Dfg_ಅಂಚು() { unlinkSrcp(); }
+    Dfg_ಅಂಚು() = delete;
 
     // The source (driver) of this edge
-    DfgVertex* srcp() const { return m_srcp; }
+    Dfg_ಶೃಂಗ* srcp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_srcp; }
     // The sink (consumer) of this edge
-    DfgVertex* dstp() const { return m_dstp; }
+    Dfg_ಶೃಂಗ* dstp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dstp; }
     // Remove driver of this edge
-    inline void unlinkSrcp();
+    ಸಾಲೊಳಗೆ ಶೂನ್ಯ unlinkSrcp();
     // Relink this edge to be driven from the given new source vertex
-    inline void relinkSrcp(DfgVertex* srcp);
+    ಸಾಲೊಳಗೆ ಶೂನ್ಯ relinkSrcp(Dfg_ಶೃಂಗ* srcp);
 };
 
 //------------------------------------------------------------------------------
 // Input edge storage of a fixed arity vertices, embedded in the vertex itself.
-template <uint32_t N_Edges>
-class DfgInlineEdgeStorage final {
-    static_assert(N_Edges > 0, "'DfgInlineEdgeStorage' must hold at least one edge");
-    VL_UNCOPYABLE(DfgInlineEdgeStorage);
-    VL_UNMOVABLE(DfgInlineEdgeStorage);
+ಮಾದರಿ <uint32_t N_ಅಂಚುಗಳು>
+class Dfg_Inline_ಅಂಚು_Storage final {
+    static_assert(N_ಅಂಚುಗಳು > 0, "'DfgInlineEdgeStorage' must hold at least one edge");
+    VL_UNCOPYABLE(Dfg_Inline_ಅಂಚು_Storage);
+    VL_UNMOVABLE(Dfg_Inline_ಅಂಚು_Storage);
 
-public:
-    union {  // Union, for manual memory management, so DfgEdge need no implicit constructor
-        DfgEdge m_edges[N_Edges];  // The input edges of the owning vertex
+ಸಾರ್ವಜನಿಕ:
+    ಒಕ್ಕೂಟ {  // Union, for manual memory management, so DfgEdge need no implicit constructor
+        Dfg_ಅಂಚು m_ಅಂಚುಗಳು[N_ಅಂಚುಗಳು];  // The input edges of the owning vertex
     };
 
-    explicit DfgInlineEdgeStorage(DfgVertex* vtxp) {
-        for (uint32_t i = 0; i < N_Edges; ++i) new (&m_edges[i]) DfgEdge{vtxp};
+    explicit Dfg_Inline_ಅಂಚು_Storage(Dfg_ಶೃಂಗ* vtxp) {
+        ಗಾಗಿ (uint32_t i = 0; i < N_ಅಂಚುಗಳು; ++i) new (&m_ಅಂಚುಗಳು[i]) Dfg_ಅಂಚು{vtxp};
     }
-    ~DfgInlineEdgeStorage() {
-        for (uint32_t i = 0; i < N_Edges; ++i) m_edges[i].~DfgEdge();
+    ~Dfg_Inline_ಅಂಚು_Storage() {
+        ಗಾಗಿ (uint32_t i = 0; i < N_ಅಂಚುಗಳು; ++i) m_ಅಂಚುಗಳು[i].~Dfg_ಅಂಚು();
     }
-    DfgInlineEdgeStorage() = delete;
+    Dfg_Inline_ಅಂಚು_Storage() = delete;
 };
 
 //------------------------------------------------------------------------------
 // Dataflow graph vertex
-class DfgVertex VL_NOT_FINAL {
-    friend class DfgGraph;
-    friend class DfgEdge;
-    friend class DfgVisitor;
-    template <typename, bool>
-    friend class DfgUserMap;
-    friend class DfgVertexVariadic;
+class Dfg_ಶೃಂಗ VL_NOT_FINAL {
+    ಮಿತ್ರ class Dfg_ನಕ್ಷೆ;
+    ಮಿತ್ರ class Dfg_ಅಂಚು;
+    ಮಿತ್ರ class DfgVisitor;
+    ಮಾದರಿ <typename, bool>
+    ಮಿತ್ರ class DfgUserMap;
+    ಮಿತ್ರ class Dfg_ಶೃಂಗ_Variadic;
 
     // STATE
-    V3ListLinks<DfgVertex> m_links;  // V3List links in the DfgGraph
-    DfgEdge* const m_inlineInputsp;  // Input edges stored inline in the vertex (iff fixed arity)
+    V3ListLinks<Dfg_ಶೃಂಗ> m_links;  // V3List links in the DfgGraph
+    Dfg_ಅಂಚು* ಸ್ಥಿರಾಂಕ m_inlineInputsp;  // Input edges stored inline in the vertex (iff fixed arity)
     uint32_t m_nInputs;  // Number of input edges
-    DfgEdge::List m_sinks;  // List of sink edges of this vertex
+    Dfg_ಅಂಚು::List m_sinks;  // List of sink edges of this vertex
 
-    FileLine* const m_filelinep;  // Source location
-    const DfgDataType& m_dtype;  // Data type of the result of this vertex
-    const VDfgType m_type;  // Vertex type tag
+    File_ಸಾಲು* ಸ್ಥಿರಾಂಕ m_filelinep;  // Source location
+    ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& m_dtype;  // Data type of the result of this vertex
+    ಸ್ಥಿರಾಂಕ VDfgType m_type;  // Vertex type tag
 
     // The only way to access thes is via DfgUserMap, so mutable is appropriate,
     // the map can change while the keys (DfgVertex) are const.
     mutable uint32_t m_userGeneration = 0;  // User data generation number
-    mutable void* m_userStorage = nullptr;  // User data storage - one pointer worth
+    mutable ಶೂನ್ಯ* m_userStorage = nullptr;  // User data storage - one pointer worth
 
-#ifdef VL_DEBUG
-    DfgGraph* m_dfgp = nullptr;  // Graph this vertex belongs to
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
+    Dfg_ನಕ್ಷೆ* m_dfgp = nullptr;  // Graph this vertex belongs to
+#ಆದರೆ_ಅಂತ್ಯ
 
     // METHODS
     // Visitor accept method
-    virtual void accept(DfgVisitor& v) = 0;
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ accept(DfgVisitor& v) = 0;
 
     // Acessor for type List
-    V3ListLinks<DfgVertex>& links() { return m_links; }
+    V3ListLinks<Dfg_ಶೃಂಗ>& links() { ಹಿಂತಿರುಗಿ m_links; }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // List type that can store Vertex (which must be a DfgVertex) instances via m_links
-    template <typename Vertex>
-    using List = V3List<DfgVertex, &DfgVertex::links, Vertex>;
+    ಮಾದರಿ <typename ಶೃಂಗ_2>
+    using List = V3List<Dfg_ಶೃಂಗ, &Dfg_ಶೃಂಗ::links, ಶೃಂಗ_2>;
 
-protected:
+ಸಂರಕ್ಷಿತ:
     // CONSTRUCTOR
-    DfgVertex(DfgGraph& dfg, VDfgType type, FileLine* flp, const DfgDataType& dt,
-              DfgEdge* inlineInputsp, uint32_t nInputs) VL_MT_DISABLED;
+    Dfg_ಶೃಂಗ(Dfg_ನಕ್ಷೆ& dfg, VDfgType type, File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dt,
+              Dfg_ಅಂಚು* inlineInputsp, uint32_t nInputs) VL_MT_DISABLED;
     // Use unlinkDelete instead
-    virtual ~DfgVertex() VL_MT_DISABLED = default;
+    ವಾಸ್ತವಿಕ ~Dfg_ಶೃಂಗ() VL_MT_DISABLED = ಪೂರ್ವನಿಯೋಜಿತ;
 
-private:
+ಖಾಸಗಿ:
     // Get input edge 'i'
-    inline DfgEdge* inputEdgep(size_t i) const;
+    ಸಾಲೊಳಗೆ Dfg_ಅಂಚು* ಒಳಹರಿವು_Edgep(ಗಾತ್ರ_t i) ಸ್ಥಿರಾಂಕ;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Get input 'i'
-    DfgVertex* inputp(size_t i) const { return inputEdgep(i)->srcp(); }
+    Dfg_ಶೃಂಗ* inputp(ಗಾತ್ರ_t i) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಒಳಹರಿವು_Edgep(i)->srcp(); }
     // Relink input 'i'
-    void inputp(size_t i, DfgVertex* vtxp) { inputEdgep(i)->relinkSrcp(vtxp); }
+    ಶೂನ್ಯ inputp(ಗಾತ್ರ_t i, Dfg_ಶೃಂಗ* vtxp) { ಒಳಹರಿವು_Edgep(i)->relinkSrcp(vtxp); }
     // The number of inputs this vertex has. Some might be unconnected.
-    size_t nInputs() const { return m_nInputs; }
+    ಗಾತ್ರ_t nInputs() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_nInputs; }
 
     // The type of this vertex
-    VDfgType type() const { return m_type; }
+    VDfgType type() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_type; }
     // Source location
-    FileLine* fileline() const { return m_filelinep; }
+    File_ಸಾಲು* fileline() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_filelinep; }
     // The data type of the result of the vertex
-    const DfgDataType& dtype() const { return m_dtype; }
+    ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type& dtype() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dtype; }
     // Shorthands for accessors of 'dtype()'
-    bool isPacked() const { return m_dtype.isPacked(); }
-    bool isArray() const { return m_dtype.isArray(); }
-    uint32_t size() const { return m_dtype.size(); }
+    bool isPacked() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dtype.isPacked(); }
+    bool isArray() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dtype.isArray(); }
+    uint32_t ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dtype.ಗಾತ್ರ_2(); }
     // Type check + size
-    uint32_t width() const {
+    uint32_t ಅಗಲ() ಸ್ಥಿರಾಂಕ {
         UASSERT_OBJ(m_dtype.isPacked(), this, "Non packed vertex has no 'width'");
-        return m_dtype.size();
+        ಹಿಂತಿರುಗಿ m_dtype.ಗಾತ್ರ_2();
     }
     // Has terminating side-effect
-    bool unsafe() const;
+    bool unsafe() ಸ್ಥಿರಾಂಕ;
 
     // Type check vertex (for debugging)
-    void typeCheck(const DfgGraph& dfg) const;
+    ಶೂನ್ಯ typeCheck(ಸ್ಥಿರಾಂಕ Dfg_ನಕ್ಷೆ& dfg) ಸ್ಥಿರಾಂಕ;
 
     // Predicate: has 1 or more sinks
-    bool hasSinks() const { return !m_sinks.empty(); }
+    bool hasSinks() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ !m_sinks.ಖಾಲಿಗಳು(); }
 
     // Predicate: has 2 or more sinks
-    bool hasMultipleSinks() const { return m_sinks.hasMultipleElements(); }
+    bool has_ಅಪವರ್ತ್ಯ_Sinks() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_sinks.has_ಅಪವರ್ತ್ಯ_Elements(); }
 
     // Fanout (number of sinks) of this vertex (expensive to compute)
-    uint32_t fanout() const VL_MT_DISABLED;
+    uint32_t fanout() ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
 
     // Return a canonical variable vertex that holds the value of this vertex,
     // or nullptr if no such variable exists in the graph. This is O(fanout).
-    DfgVertexVar* getResultVar() VL_MT_DISABLED;
+    Dfg_ಶೃಂಗ_Var* get_ಫಲಿತಾಂಶ_Var() VL_MT_DISABLED;
 
     // Cache type for 'scopep' below
-    using ScopeCache = std::unordered_map<const DfgVertex*, AstScope*>;
+    using ScopeCache = std::unordered_map<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*, AstScope*>;
 
     // Retrieve the prefred AstScope this vertex belongs to. For variable
     // vertices this is defined. For operation vertices, we try to find a
@@ -247,175 +247,175 @@ public:
     // then the root scope is returned. If 'tryResultVar' is true, we will
     // condier the scope of 'getResultVar' first, if it exists.
     // Only call this with a scoped DfgGraph
-    AstScope* scopep(ScopeCache& cache, bool tryResultVar = false) VL_MT_DISABLED;
+    AstScope* scopep(ScopeCache& cache, bool try_ಫಲಿತಾಂಶ_Var = false) VL_MT_DISABLED;
 
     // If the node has a single sink, return it, otherwise return nullptr
-    DfgVertex* singleSink() const {
-        return m_sinks.hasSingleElement() ? m_sinks.frontp()->dstp() : nullptr;
+    Dfg_ಶೃಂಗ* singleSink() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ m_sinks.hasSingleElement() ? m_sinks.frontp()->dstp() : nullptr;
     }
 
     // First sink of the vertex, if any, otherwise nullptr
-    DfgVertex* firtsSinkp() { return m_sinks.empty() ? nullptr : m_sinks.frontp()->dstp(); }
+    Dfg_ಶೃಂಗ* firtsSinkp() { ಹಿಂತಿರುಗಿ m_sinks.ಖಾಲಿಗಳು() ? nullptr : m_sinks.frontp()->dstp(); }
 
     // Unlink from container (graph or builder), then delete this vertex
-    void unlinkDelete(DfgGraph& dfg) VL_MT_DISABLED;
+    ಶೂನ್ಯ unlinkDelete(Dfg_ನಕ್ಷೆ& dfg) VL_MT_DISABLED;
 
     // Relink all sinks to be driven from the given new source
-    void replaceWith(DfgVertex* vtxp) {
+    ಶೂನ್ಯ replaceWith(Dfg_ಶೃಂಗ* vtxp) {
         UASSERT_OBJ(vtxp != this, this, "Replacing DfgVertex with itself");
         UASSERT_OBJ(vtxp->dtype() == dtype(), this, "Replacement DfgVertex has different type");
-        while (!m_sinks.empty()) m_sinks.frontp()->relinkSrcp(vtxp);
+        ಆಗ (!m_sinks.ಖಾಲಿಗಳು()) m_sinks.frontp()->relinkSrcp(vtxp);
     }
 
     // Calls given function 'f' for each source vertex of this vertex. If 'f'
     // returns true, further sources are not iterated and this method returns
     // true itself. Unconnected source edges are not iterated.
-    template <typename T_Callable>
-    bool foreachSource(T_Callable&& f) {
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, DfgVertex&>::value,
+    ಮಾದರಿ <typename T_Callable>
+    bool foreach_ಮೂಲ(T_Callable&& f) {
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, Dfg_ಶೃಂಗ&>::ಮೌಲ್ಯ,
                       "T_Callable 'f' must have a signature compatible with 'bool(DfgVertex&)'");
-        for (size_t i = 0; i < m_nInputs; ++i) {
-            if (DfgVertex* const srcp = inputEdgep(i)->srcp()) {
-                if (f(*srcp)) return true;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < m_nInputs; ++i) {
+            ಆದರೆ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ srcp = ಒಳಹರಿವು_Edgep(i)->srcp()) {
+                ಆದರೆ (f(*srcp)) ಹಿಂತಿರುಗಿ true;
             }
         }
-        return false;
+        ಹಿಂತಿರುಗಿ false;
     }
 
     // Calls given function 'f' for each source vertex of this vertex. If 'f'
     // returns true, further sources are not iterated and this method returns
     // true itself. Unconnected source edges are not iterated.
-    template <typename T_Callable>
-    bool foreachSource(T_Callable&& f) const {
+    ಮಾದರಿ <typename T_Callable>
+    bool foreach_ಮೂಲ(T_Callable&& f) ಸ್ಥಿರಾಂಕ {
         static_assert(
-            vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&>::value,
+            vlstd::is_invocable_r<bool, T_Callable, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ&>::ಮೌಲ್ಯ,
             "T_Callable 'f' must have a signature compatible with 'bool(const DfgVertex&)'");
-        for (size_t i = 0; i < m_nInputs; ++i) {
-            if (const DfgVertex* const srcp = inputEdgep(i)->srcp()) {
-                if (f(*srcp)) return true;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < m_nInputs; ++i) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ srcp = ಒಳಹರಿವು_Edgep(i)->srcp()) {
+                ಆದರೆ (f(*srcp)) ಹಿಂತಿರುಗಿ true;
             }
         }
-        return false;
+        ಹಿಂತಿರುಗಿ false;
     }
 
     // Calls given function 'f' for each sink vertex of this vertex. If 'f'
     // returns true, further sinks are not iterated and this method returns
     // true itself. Unlinking/deleting the given sink during iteration is safe,
     // but not other sinks of this vertex.
-    template <typename T_Callable>
+    ಮಾದರಿ <typename T_Callable>
     bool foreachSink(T_Callable&& f) {
-        static_assert(vlstd::is_invocable_r<bool, T_Callable, DfgVertex&>::value,
+        static_assert(vlstd::is_invocable_r<bool, T_Callable, Dfg_ಶೃಂಗ&>::ಮೌಲ್ಯ,
                       "T_Callable 'f' must have a signature compatible with 'bool(DfgVertex&)'");
-        for (const DfgEdge* const edgep : m_sinks.unlinkable()) {
-            if (f(*edgep->dstp())) return true;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Dfg_ಅಂಚು* ಸ್ಥಿರಾಂಕ edgep : m_sinks.unlinkable()) {
+            ಆದರೆ (f(*edgep->dstp())) ಹಿಂತಿರುಗಿ true;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ false;
     }
 
     // Calls given function 'f' for each sink vertex of this vertex. If 'f'
     // returns true, further sinks are not iterated and this method returns
     // true itself.
-    template <typename T_Callable>
-    bool foreachSink(T_Callable&& f) const {
+    ಮಾದರಿ <typename T_Callable>
+    bool foreachSink(T_Callable&& f) ಸ್ಥಿರಾಂಕ {
         static_assert(
-            vlstd::is_invocable_r<bool, T_Callable, const DfgVertex&>::value,
+            vlstd::is_invocable_r<bool, T_Callable, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ&>::ಮೌಲ್ಯ,
             "T_Callable 'f' must have a signature compatible with 'bool(const DfgVertex&)'");
-        for (const DfgEdge& edge : m_sinks) {
-            if (f(*edge.dstp())) return true;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Dfg_ಅಂಚು& ಅಂಚು : m_sinks) {
+            ಆದರೆ (f(*ಅಂಚು.dstp())) ಹಿಂತಿರುಗಿ true;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ false;
     }
 
     // Is this vertex cheaper to re-compute than to load out of memoy
-    inline bool isCheaperThanLoad() const;
+    ಸಾಲೊಳಗೆ bool is_Cheaper_Than_ತುಂಬು() ಸ್ಥಿರಾಂಕ;
 
     // Methods that allow DfgVertex to participate in error reporting/messaging
     // LCOV_EXCL_START
-    void v3errorEnd(std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
-        m_filelinep->v3errorEnd(str);
+    ಶೂನ್ಯ v3error_ಕೊನೆ(std::ostringstream& str) ಸ್ಥಿರಾಂಕ VL_RELEASE(V3Error::s().m_mutex) {
+        m_filelinep->v3error_ಕೊನೆ(str);
     }
-    void v3errorEndFatal(std::ostringstream& str) const VL_ATTR_NORETURN
+    ಶೂನ್ಯ v3error_ಕೊನೆ_Fatal(std::ostringstream& str) ಸ್ಥಿರಾಂಕ VL_ATTR_NORETURN
         VL_RELEASE(V3Error::s().m_mutex) {
-        m_filelinep->v3errorEndFatal(str);
+        m_filelinep->v3error_ಕೊನೆ_Fatal(str);
     }
-    string warnContextPrimary() const VL_REQUIRES(V3Error::s().m_mutex) {
-        return fileline()->warnContextPrimary();
+    string warnContextPrimary() ಸ್ಥಿರಾಂಕ VL_REQUIRES(V3Error::s().m_mutex) {
+        ಹಿಂತಿರುಗಿ fileline()->warnContextPrimary();
     }
-    string warnContextSecondary() const { return fileline()->warnContextSecondary(); }
-    string warnMore() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnMore(); }
-    string warnOther() const VL_REQUIRES(V3Error::s().m_mutex) { return fileline()->warnOther(); }
+    string warnContextSecondary() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ fileline()->warnContextSecondary(); }
+    string warn_ಇನ್ನಷ್ಟು() ಸ್ಥಿರಾಂಕ VL_REQUIRES(V3Error::s().m_mutex) { ಹಿಂತಿರುಗಿ fileline()->warn_ಇನ್ನಷ್ಟು(); }
+    string warnOther() ಸ್ಥಿರಾಂಕ VL_REQUIRES(V3Error::s().m_mutex) { ಹಿಂತಿರುಗಿ fileline()->warnOther(); }
     // LCOV_EXCL_STOP
 
-private:
+ಖಾಸಗಿ:
     // For internal use only.
     // Note: specializations for particular vertex types are provided by 'astgen'
-    template <typename T>
-    inline static bool privateTypeTest(const DfgVertex* nodep);
+    ಮಾದರಿ <typename T>
+    ಸಾಲೊಳಗೆ ಸ್ಥಿರ bool ಖಾಸಗಿ_Type_Test(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* nodep);
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Subtype test
-    template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<DfgVertex, T>::value, "'T' must be a subtype of DfgVertex");
-        return privateTypeTest<typename std::remove_cv<T>::type>(this);
+    ಮಾದರಿ <typename T>
+    bool is() ಸ್ಥಿರಾಂಕ {
+        static_assert(std::is_ತಳ_ದ<Dfg_ಶೃಂಗ, T>::ಮೌಲ್ಯ, "'T' must be a subtype of DfgVertex");
+        ಹಿಂತಿರುಗಿ ಖಾಸಗಿ_Type_Test<typename std::remove_cv<T>::type>(this);
     }
 
     // Ensure subtype, then cast to that type
-    template <typename T>
+    ಮಾದರಿ <typename T>
     T* as() {
         UASSERT_OBJ(is<T>(), this,
                     "DfgVertex is not of expected type, but instead has type '" << typeName()
                                                                                 << "'");
-        return static_cast<T*>(this);
+        ಹಿಂತಿರುಗಿ static_cast<T*>(this);
     }
-    template <typename T>
-    const T* as() const {
+    ಮಾದರಿ <typename T>
+    ಸ್ಥಿರಾಂಕ T* as() ಸ್ಥಿರಾಂಕ {
         UASSERT_OBJ(is<T>(), this,
                     "DfgVertex is not of expected type, but instead has type '" << typeName()
                                                                                 << "'");
-        return static_cast<const T*>(this);
+        ಹಿಂತಿರುಗಿ static_cast<ಸ್ಥಿರಾಂಕ T*>(this);
     }
 
     // Cast to subtype, or null if different
-    template <typename T>
+    ಮಾದರಿ <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        ಹಿಂತಿರುಗಿ is<T>() ? static_cast<T*>(this) : nullptr;
     }
-    template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    ಮಾದರಿ <typename T>
+    ಸ್ಥಿರಾಂಕ T* cast() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ is<T>() ? static_cast<ಸ್ಥಿರಾಂಕ T*>(this) : nullptr;
     }
 
     // Human-readable vertex type as string for debugging
-    std::string typeName() const { return m_type.ascii(); }
+    std::string typeName() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_type.ascii(); }
 
     // Human-readable name for source operand with given index for debugging
-    virtual std::string srcName(size_t idx) const = 0;
+    ವಾಸ್ತವಿಕ std::string srcName(ಗಾತ್ರ_t idx) ಸ್ಥಿರಾಂಕ = 0;
 
     // S-expression inspired dump of vertex and operands for debugging
-    std::string patternString(uint32_t depth = 0) const;
+    std::string ನಮೂನೆ_String(uint32_t ಆಳ = 0) ಸ್ಥಿರಾಂಕ;
 };
 
 // DfgVertex visitor
 class DfgVisitor VL_NOT_FINAL {
-public:
+ಸಾರ್ವಜನಿಕ:
     // Dispatch to most specific 'visit' method on 'vtxp'
-    void iterate(DfgVertex* vtxp) { vtxp->accept(*this); }
+    ಶೂನ್ಯ iterate(Dfg_ಶೃಂಗ* vtxp) { vtxp->accept(*this); }
     // Least specific visit method is abstract
-    virtual void visit(DfgVertex* nodep) = 0;
-#include "V3Dfg__gen_visitor_decls.h"  // From ./astgen
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಭೇಟಿ(Dfg_ಶೃಂಗ* nodep) = 0;
+#ಅನ್ತರ್ಭಾವ "V3Dfg__gen_visitor_decls.h"  // From ./astgen
 };
 
 // DfgVertex subclasses
-#include "V3DfgVertices.h"
+#ಅನ್ತರ್ಭಾವ "V3DfgVertices.h"
 
 // Specializations of privateTypeTest
-#include "V3Dfg__gen_type_tests.h"  // From ./astgen
+#ಅನ್ತರ್ಭಾವ "V3Dfg__gen_type_tests.h"  // From ./astgen
 
 //------------------------------------------------------------------------------
 // Dataflow graph
-class DfgGraph final {
-    friend class DfgUserMapBase;
+class Dfg_ನಕ್ಷೆ final {
+    ಮಿತ್ರ class Dfg_User_Map_ತಳ;
 
     // MEMBERS
 
@@ -423,123 +423,123 @@ class DfgGraph final {
     // in large designs), and they can often be treated specially in algorithms, which in turn
     // enables significant Verilation performance gains, so we keep these in separate lists for
     // direct access.
-    DfgVertex::List<DfgVertexVar> m_varVertices;  // The variable vertices in the graph
-    DfgVertex::List<DfgVertexAst> m_astVertices;  // The ast reference vertices in the graph
-    DfgVertex::List<DfgConst> m_constVertices;  // The constant vertices in the graph
-    DfgVertex::List<DfgVertex> m_opVertices;  // The operation vertices in the graph
-    size_t m_size = 0;  // Number of vertices in the graph
+    Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ_Var> m_varVertices;  // The variable vertices in the graph
+    Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ_Ast> m_astVertices;  // The ast reference vertices in the graph
+    Dfg_ಶೃಂಗ::List<DfgConst> m_constVertices;  // The constant vertices in the graph
+    Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ> m_opVertices;  // The operation vertices in the graph
+    ಗಾತ್ರ_t m_ಗಾತ್ರ = 0;  // Number of vertices in the graph
     V3DfgContext& m_ctx;  // The DFG context this graph is optimized in
-    const std::string m_name;  // Name of graph - need not be unique
+    ಸ್ಥಿರಾಂಕ std::string m_name;  // Name of graph - need not be unique
 
     // The only way to access thes is via DfgUserMap, so mutable is appropriate,
     // the map can change while the graph is const.
-    mutable bool m_vertexUserInUse = false;  // Vertex user data currently in use
-    mutable uint32_t m_vertexUserGeneration = 0;  // Vertex user data generation counter
+    mutable bool m_ಶೃಂಗ_User_ಒಳ_Use = false;  // Vertex user data currently in use
+    mutable uint32_t m_ಶೃಂಗ_User_Generation = 0;  // Vertex user data generation counter
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTOR
-    DfgGraph(V3DfgContext& ctx, const string& name) VL_MT_DISABLED;
-    ~DfgGraph() VL_MT_DISABLED;
-    VL_UNCOPYABLE(DfgGraph);
+    Dfg_ನಕ್ಷೆ(V3DfgContext& ctx, ಸ್ಥಿರಾಂಕ string& name) VL_MT_DISABLED;
+    ~Dfg_ನಕ್ಷೆ() VL_MT_DISABLED;
+    VL_UNCOPYABLE(Dfg_ನಕ್ಷೆ);
 
     // METHODS
     // Number of vertices in this graph
-    size_t size() const { return m_size; }
+    ಗಾತ್ರ_t ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಗಾತ್ರ; }
     // Name of this graph
-    const string& name() const { return m_name; }
-    V3DfgContext& ctx() const { return m_ctx; }
+    ಸ್ಥಿರಾಂಕ string& name() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_name; }
+    V3DfgContext& ctx() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ctx; }
 
     // Create a new DfgUserMap
-    template <typename T_User>
-    inline DfgUserMap<T_User> makeUserMap() const;
+    ಮಾದರಿ <typename T_User>
+    ಸಾಲೊಳಗೆ DfgUserMap<T_User> makeUserMap() ಸ್ಥಿರಾಂಕ;
 
     // Access to vertex lists
-    DfgVertex::List<DfgVertexVar>& varVertices() { return m_varVertices; }
-    const DfgVertex::List<DfgVertexVar>& varVertices() const { return m_varVertices; }
-    DfgVertex::List<DfgVertexAst>& astVertices() { return m_astVertices; }
-    const DfgVertex::List<DfgVertexAst>& astVertices() const { return m_astVertices; }
-    DfgVertex::List<DfgConst>& constVertices() { return m_constVertices; }
-    const DfgVertex::List<DfgConst>& constVertices() const { return m_constVertices; }
-    DfgVertex::List<DfgVertex>& opVertices() { return m_opVertices; }
-    const DfgVertex::List<DfgVertex>& opVertices() const { return m_opVertices; }
+    Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ_Var>& varVertices() { ಹಿಂತಿರುಗಿ m_varVertices; }
+    ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ_Var>& varVertices() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_varVertices; }
+    Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ_Ast>& astVertices() { ಹಿಂತಿರುಗಿ m_astVertices; }
+    ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ_Ast>& astVertices() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_astVertices; }
+    Dfg_ಶೃಂಗ::List<DfgConst>& constVertices() { ಹಿಂತಿರುಗಿ m_constVertices; }
+    ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ::List<DfgConst>& constVertices() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_constVertices; }
+    Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ>& opVertices() { ಹಿಂತಿರುಗಿ m_opVertices; }
+    ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ::List<Dfg_ಶೃಂಗ>& opVertices() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_opVertices; }
 
     // Add DfgVertex to this graph (assumes not yet contained).
-    void addVertex(DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    ಶೂನ್ಯ ಕೂಡಿಸು_ಶೃಂಗ(Dfg_ಶೃಂಗ& vtx) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         UASSERT_OBJ(!vtx.m_dfgp, &vtx, "Vertex already in a graph");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         // Note: changes here need to be replicated in DfgGraph::mergeGraphs
-        ++m_size;
-        if (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
-            m_varVertices.linkBack(vVtxp);
-        } else if (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
-            m_astVertices.linkBack(aVtxp);
-        } else if (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
-            m_constVertices.linkBack(cVtxp);
-        } else {
-            m_opVertices.linkBack(&vtx);
+        ++m_ಗಾತ್ರ;
+        ಆದರೆ (Dfg_ಶೃಂಗ_Var* ಸ್ಥಿರಾಂಕ vVtxp = vtx.cast<Dfg_ಶೃಂಗ_Var>()) {
+            m_varVertices.link_ಹಿಂಭಾಗ(vVtxp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (Dfg_ಶೃಂಗ_Ast* ಸ್ಥಿರಾಂಕ aVtxp = vtx.cast<Dfg_ಶೃಂಗ_Ast>()) {
+            m_astVertices.link_ಹಿಂಭಾಗ(aVtxp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (DfgConst* ಸ್ಥಿರಾಂಕ cVtxp = vtx.cast<DfgConst>()) {
+            m_constVertices.link_ಹಿಂಭಾಗ(cVtxp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            m_opVertices.link_ಹಿಂಭಾಗ(&vtx);
         }
         vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         vtx.m_dfgp = this;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
     }
 
     // Remove DfgVertex form this graph (assumes it is contained).
-    void removeVertex(DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    ಶೂನ್ಯ remove_ಶೃಂಗ(Dfg_ಶೃಂಗ& vtx) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == this, &vtx, "Vertex not in this graph");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         // Note: changes here need to be replicated in DfgGraph::mergeGraphs
-        --m_size;
-        if (DfgVertexVar* const vVtxp = vtx.cast<DfgVertexVar>()) {
+        --m_ಗಾತ್ರ;
+        ಆದರೆ (Dfg_ಶೃಂಗ_Var* ಸ್ಥಿರಾಂಕ vVtxp = vtx.cast<Dfg_ಶೃಂಗ_Var>()) {
             m_varVertices.unlink(vVtxp);
-        } else if (DfgVertexAst* const aVtxp = vtx.cast<DfgVertexAst>()) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (Dfg_ಶೃಂಗ_Ast* ಸ್ಥಿರಾಂಕ aVtxp = vtx.cast<Dfg_ಶೃಂಗ_Ast>()) {
             m_astVertices.unlink(aVtxp);
-        } else if (DfgConst* const cVtxp = vtx.cast<DfgConst>()) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (DfgConst* ಸ್ಥಿರಾಂಕ cVtxp = vtx.cast<DfgConst>()) {
             m_constVertices.unlink(cVtxp);
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             m_opVertices.unlink(&vtx);
         }
         vtx.m_userGeneration = 0;
-#ifdef VL_DEBUG
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         vtx.m_dfgp = nullptr;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
     }
 
     // Calls given function 'f' for each vertex in the graph. It is safe to manipulate any vertices
     // in the graph, or to delete/unlink the vertex passed to 'f' during iteration. It is however
     // not safe to delete/unlink any vertex in the same graph other than the one passed to 'f'.
-    void forEachVertex(std::function<void(DfgVertex&)> f) {
-        for (DfgVertexVar* const vtxp : m_varVertices.unlinkable()) f(*vtxp);
-        for (DfgVertexAst* const vtxp : m_astVertices.unlinkable()) f(*vtxp);
-        for (DfgConst* const vtxp : m_constVertices.unlinkable()) f(*vtxp);
-        for (DfgVertex* const vtxp : m_opVertices.unlinkable()) f(*vtxp);
+    ಶೂನ್ಯ for_Each_ಶೃಂಗ(std::function<ಶೂನ್ಯ(Dfg_ಶೃಂಗ&)> f) {
+        ಗಾಗಿ (Dfg_ಶೃಂಗ_Var* ಸ್ಥಿರಾಂಕ vtxp : m_varVertices.unlinkable()) f(*vtxp);
+        ಗಾಗಿ (Dfg_ಶೃಂಗ_Ast* ಸ್ಥಿರಾಂಕ vtxp : m_astVertices.unlinkable()) f(*vtxp);
+        ಗಾಗಿ (DfgConst* ಸ್ಥಿರಾಂಕ vtxp : m_constVertices.unlinkable()) f(*vtxp);
+        ಗಾಗಿ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : m_opVertices.unlinkable()) f(*vtxp);
     }
 
     // 'const' variant of 'forEachVertex'. No mutation allowed.
-    void forEachVertex(std::function<void(const DfgVertex&)> f) const {
-        for (const DfgVertexVar& vtx : m_varVertices) f(vtx);
-        for (const DfgVertexAst& vtx : m_astVertices) f(vtx);
-        for (const DfgConst& vtx : m_constVertices) f(vtx);
-        for (const DfgVertex& vtx : m_opVertices) f(vtx);
+    ಶೂನ್ಯ for_Each_ಶೃಂಗ(std::function<ಶೂನ್ಯ(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ&)> f) ಸ್ಥಿರಾಂಕ {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Var& vtx : m_varVertices) f(vtx);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Ast& vtx : m_astVertices) f(vtx);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ DfgConst& vtx : m_constVertices) f(vtx);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx : m_opVertices) f(vtx);
     }
 
     // Merge contents of other graphs into this graph. Deletes the other graphs.
     // DfgVertexVar instances representing the same Ast variable are unified.
-    void mergeGraphs(std::vector<std::unique_ptr<DfgGraph>>&& otherps) VL_MT_DISABLED;
+    ಶೂನ್ಯ ವಿಲೀನ_Graphs(std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>>&& otherps) VL_MT_DISABLED;
 
     // Create a new temporary variable in the given scope. Temporaries are shared between
     // instances via the context, keyed by 'prefix', so callers must set identical AstVar
     // attributes on all temporaries created with the same prefix.
-    DfgVertexVar* makeNewVar(FileLine*, const std::string& prefix, const DfgDataType&,
+    Dfg_ಶೃಂಗ_Var* makeNewVar(File_ಸಾಲು*, ಸ್ಥಿರಾಂಕ std::string& ಪೂರ್ವಪ್ರತ್ಯಯ, ಸ್ಥಿರಾಂಕ Dfg_ದತ್ತಾಂಶ_Type&,
                              AstScope*) VL_MT_DISABLED;
 
     // Split this graph into individual components (unique sub-graphs with no edges between them).
     // Also removes any vertices that are not weakly connected to any variable.
     // Leaves 'this' graph empty.
-    std::vector<std::unique_ptr<DfgGraph>>
-    splitIntoComponents(const std::string& label) VL_MT_DISABLED;
+    std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>>
+    ವಿಭಜಿಸು_Into_Components(ಸ್ಥಿರಾಂಕ std::string& label) VL_MT_DISABLED;
 
     // Extract cyclic sub-graphs from 'this' graph. Cyclic sub-graphs are those that contain at
     // least one strongly connected component (SCC) plus any other vertices that feed or sink from
@@ -549,8 +549,8 @@ public:
     // of a cycle) are left in 'this' graph. This means that at the end 'this' graph is guaranteed
     // to be a DAG (acyclic). 'this' will not necessarily be a connected graph at the end, even if
     // it was originally connected.
-    std::vector<std::unique_ptr<DfgGraph>>
-    extractCyclicComponents(const std::string& label) VL_MT_DISABLED;
+    std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>>
+    ಹೊರತೆಗೆ_Cyclic_Components(ಸ್ಥಿರಾಂಕ std::string& label) VL_MT_DISABLED;
 
     //-----------------------------------------------------------------------
     // Debug dumping
@@ -558,31 +558,31 @@ public:
     // Dump graph in Graphviz format into the given stream 'os'. 'label' is added to the name of
     // the graph which is included in the output.
     // If the predicate function 'p' is provided, only those vertices are dumped that satifty it.
-    void dumpDot(std::ostream& os, const std::string& label,
-                 std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    ಶೂನ್ಯ dumpDot(std::ostream& os, ಸ್ಥಿರಾಂಕ std::string& label,
+                 std::function<bool(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ&)> p = {}) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
     // Dump graph in Graphviz format into a new file with the given 'filename'. 'label' is added to
     // the name of the graph which is included in the output.
     // If the predicate function 'p' is provided, only those vertices are dumped that satifty it.
-    void dumpDotFile(const std::string& filename, const std::string& label,
-                     std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    ಶೂನ್ಯ dumpDotFile(ಸ್ಥಿರಾಂಕ std::string& filename, ಸ್ಥಿರಾಂಕ std::string& label,
+                     std::function<bool(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ&)> p = {}) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
     // Same as dumpDotFile, but returns the contents as a string.
-    std::string dumpDotString(const std::string& label,
-                              std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    std::string dumpDotString(ಸ್ಥಿರಾಂಕ std::string& label,
+                              std::function<bool(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ&)> p = {}) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
     // Dump graph in Graphviz format into a new automatically numbered debug file. 'label' is
     // added to the name of the graph, which is included in the file name and the output.
     // If the predicate function 'p' is provided, only those vertices are dumped that satifty it.
-    void dumpDotFilePrefixed(const std::string& label,
-                             std::function<bool(const DfgVertex&)> p = {}) const VL_MT_DISABLED;
+    ಶೂನ್ಯ dumpDotFilePrefixed(ಸ್ಥಿರಾಂಕ std::string& label,
+                             std::function<bool(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ&)> p = {}) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
 
     // Returns the set of vertices in the upstream cones of the given vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>>
-    sourceCone(const std::vector<const DfgVertex*>&) const VL_MT_DISABLED;
+    std::unique_ptr<std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*>>
+    ಮೂಲ_Cone(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*>&) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
     // Returns the set of vertices in the downstream cones of the given vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>>
-    sinkCone(const std::vector<const DfgVertex*>&) const VL_MT_DISABLED;
+    std::unique_ptr<std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*>>
+    sinkCone(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*>&) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
     // Returns the set of vertices within an 'n' hop neighborhood of the given vertices
-    std::unique_ptr<std::unordered_set<const DfgVertex*>>
-    neighborhood(const std::vector<const DfgVertex*>&, size_t n) const VL_MT_DISABLED;
+    std::unique_ptr<std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*>>
+    neighborhood(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*>&, ಗಾತ್ರ_t n) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
 };
 
 namespace V3Dfg {
@@ -590,24 +590,24 @@ namespace V3Dfg {
 // Functions for compatibility tests
 
 // Returns true if variable can be represented in the graph
-inline bool isSupported(const AstVarScope* vscp) {
-    const AstNodeModule* const modp = vscp->scopep()->modp();
-    if (VN_IS(modp, Module) || VN_IS(modp, Package)) {
+ಸಾಲೊಳಗೆ bool isSupported(ಸ್ಥಿರಾಂಕ AstVarScope* vscp) {
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ modp = vscp->scopep()->modp();
+    ಆದರೆ (VN_IS(modp, Module) || VN_IS(modp, Package)) {
         // Regular modules and packages supported
-    } else if (const AstIface* const ifacep = VN_CAST(modp, Iface)) {
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstIface* ಸ್ಥಿರಾಂಕ ifacep = VN_CAST(modp, Iface)) {
         // Interfaces supported if there are no virtual interfaces for
         // them, otherwise they cannot be resovled statically.
-        if (ifacep->hasVirtualRef()) return false;
-    } else {
-        return false;  // Anything else (class, etc) not supported
+        ಆದರೆ (ifacep->hasVirtualRef()) ಹಿಂತಿರುಗಿ false;
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        ಹಿಂತಿರುಗಿ false;  // Anything else (class, etc) not supported
     }
-    if (DfgVertexVar::hasRWRefs(vscp)) return false;  // Referenced via READWRITE references
+    ಆದರೆ (Dfg_ಶೃಂಗ_Var::hasRWRefs(vscp)) ಹಿಂತಿರುಗಿ false;  // Referenced via READWRITE references
     // Check the AstVar
-    AstVar* const varp = vscp->varp();
-    if (varp->isIfaceRef()) return false;  // Cannot handle interface references
-    if (varp->delayp()) return false;  // Cannot handle delayed variables
-    if (varp->isSc()) return false;  // SystemC variables are special and rare, we can ignore
-    return DfgDataType::fromAst(varp->dtypep());
+    AstVar* ಸ್ಥಿರಾಂಕ varp = vscp->varp();
+    ಆದರೆ (varp->isIfaceRef()) ಹಿಂತಿರುಗಿ false;  // Cannot handle interface references
+    ಆದರೆ (varp->delayp()) ಹಿಂತಿರುಗಿ false;  // Cannot handle delayed variables
+    ಆದರೆ (varp->isSc()) ಹಿಂತಿರುಗಿ false;  // SystemC variables are special and rare, we can ignore
+    ಹಿಂತಿರುಗಿ Dfg_ದತ್ತಾಂಶ_Type::fromAst(varp->dtypep());
 }
 
 }  //namespace V3Dfg
@@ -616,131 +616,131 @@ inline bool isSupported(const AstVarScope* vscp) {
 // Map from DfgVertices to T_Value implemeneted via DfgVertex::m_userStorage
 
 // Base class with common behavour
-class DfgUserMapBase VL_NOT_FINAL {
-    template <typename, bool>
-    friend class DfgUserMap;
+class Dfg_User_Map_ತಳ VL_NOT_FINAL {
+    ಮಾದರಿ <typename, bool>
+    ಮಿತ್ರ class DfgUserMap;
 
-protected:
+ಸಂರಕ್ಷಿತ:
     // STATE
-    const DfgGraph* m_dfgp;  // The graph this map is for
+    ಸ್ಥಿರಾಂಕ Dfg_ನಕ್ಷೆ* m_dfgp;  // The graph this map is for
     // The current generation number
-    const uint32_t m_currentGeneration;
+    ಸ್ಥಿರಾಂಕ uint32_t m_currentGeneration;
 
     // CONSTRUCTOR
-    explicit DfgUserMapBase(const DfgGraph* dfgp)
+    explicit Dfg_User_Map_ತಳ(ಸ್ಥಿರಾಂಕ Dfg_ನಕ್ಷೆ* dfgp)
         : m_dfgp{dfgp}
-        , m_currentGeneration{++m_dfgp->m_vertexUserGeneration} {
+        , m_currentGeneration{++m_dfgp->m_ಶೃಂಗ_User_Generation} {
         UASSERT(m_currentGeneration, "DfgGraph user data generation number overflow");
-        UASSERT(!m_dfgp->m_vertexUserInUse, "DfgUserMap already in use for this DfgGraph");
-        m_dfgp->m_vertexUserInUse = true;
+        UASSERT(!m_dfgp->m_ಶೃಂಗ_User_ಒಳ_Use, "DfgUserMap already in use for this DfgGraph");
+        m_dfgp->m_ಶೃಂಗ_User_ಒಳ_Use = true;
     }
-    VL_UNCOPYABLE(DfgUserMapBase);
-    DfgUserMapBase(DfgUserMapBase&& that)
+    VL_UNCOPYABLE(Dfg_User_Map_ತಳ);
+    Dfg_User_Map_ತಳ(Dfg_User_Map_ತಳ&& that)
         : m_dfgp{that.m_dfgp}
         , m_currentGeneration{that.m_currentGeneration} {
         that.m_dfgp = nullptr;
     }
 
-public:
-    ~DfgUserMapBase() {
-        if (m_dfgp) m_dfgp->m_vertexUserInUse = false;
+ಸಾರ್ವಜನಿಕ:
+    ~Dfg_User_Map_ತಳ() {
+        ಆದರೆ (m_dfgp) m_dfgp->m_ಶೃಂಗ_User_ಒಳ_Use = false;
     }
-    DfgUserMapBase& operator=(DfgUserMapBase&&) = delete;
+    Dfg_User_Map_ತಳ& ಕ್ರಿಯಾಕಾರಕ=(Dfg_User_Map_ತಳ&&) = delete;
 };
 
 // Specialization where T_Value fits in DfgVertex::m_userStorage directly
-template <typename T_Value>
-class DfgUserMap<T_Value, true> final : public DfgUserMapBase {
-    static_assert(fitsSpaceAllocatedFor<T_Value, decltype(DfgVertex::m_userStorage)>(),
+ಮಾದರಿ <typename T_ಮೌಲ್ಯ>
+class DfgUserMap<T_ಮೌಲ್ಯ, true> final : ಸಾರ್ವಜನಿಕ Dfg_User_Map_ತಳ {
+    static_assert(ಹೊಂದುತ್ತದೆ_Space_Allocated_For<T_ಮೌಲ್ಯ, decltype(Dfg_ಶೃಂಗ::m_userStorage)>(),
                   "'T_Value' does not fit 'DfgVertex::m_userStorage'");
-    friend class DfgGraph;
+    ಮಿತ್ರ class Dfg_ನಕ್ಷೆ;
 
     // CONSTRUCTOR
-    explicit DfgUserMap(const DfgGraph* dfgp)
-        : DfgUserMapBase{dfgp} {}
+    explicit DfgUserMap(ಸ್ಥಿರಾಂಕ Dfg_ನಕ್ಷೆ* dfgp)
+        : Dfg_User_Map_ತಳ{dfgp} {}
     VL_UNCOPYABLE(DfgUserMap);
 
-public:
-    DfgUserMap(DfgUserMap&&) = default;
-    ~DfgUserMap() = default;
-    DfgUserMap& operator=(DfgUserMap&&) = delete;
+ಸಾರ್ವಜನಿಕ:
+    DfgUserMap(DfgUserMap&&) = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~DfgUserMap() = ಪೂರ್ವನಿಯೋಜಿತ;
+    DfgUserMap& ಕ್ರಿಯಾಕಾರಕ=(DfgUserMap&&) = delete;
 
     // METHODS
     // Retrieve mapped value for 'vtx', value initializing it on first access
-    T_Value& operator[](const DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    T_ಮೌಲ್ಯ& ಕ್ರಿಯಾಕಾರಕ[](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
-        T_Value* const storagep = reinterpret_cast<T_Value*>(&vtx.m_userStorage);
-        if (vtx.m_userGeneration != m_currentGeneration) {
-            new (storagep) T_Value{};
+#ಆದರೆ_ಅಂತ್ಯ
+        T_ಮೌಲ್ಯ* ಸ್ಥಿರಾಂಕ storagep = reinterpret_cast<T_ಮೌಲ್ಯ*>(&vtx.m_userStorage);
+        ಆದರೆ (vtx.m_userGeneration != m_currentGeneration) {
+            new (storagep) T_ಮೌಲ್ಯ{};
             vtx.m_userGeneration = m_currentGeneration;
         }
-        return *storagep;
+        ಹಿಂತಿರುಗಿ *storagep;
     }
     // Same as above with pointer as key
-    T_Value& operator[](const DfgVertex* vtxp) { return (*this)[*vtxp]; }
+    T_ಮೌಲ್ಯ& ಕ್ರಿಯಾಕಾರಕ[](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* vtxp) { ಹಿಂತಿರುಗಿ (*this)[*vtxp]; }
 
     // Retrieve mapped value of 'vtx', must be alerady present
-    T_Value& at(const DfgVertex& vtx) const {
-#ifdef VL_DEBUG
+    T_ಮೌಲ್ಯ& at(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx) ಸ್ಥಿರಾಂಕ {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         UASSERT_OBJ(vtx.m_userGeneration == m_currentGeneration, &vtx, "Vertex not in map");
-        T_Value* const storagep = reinterpret_cast<T_Value*>(&vtx.m_userStorage);
-        return *storagep;
+        T_ಮೌಲ್ಯ* ಸ್ಥಿರಾಂಕ storagep = reinterpret_cast<T_ಮೌಲ್ಯ*>(&vtx.m_userStorage);
+        ಹಿಂತಿರುಗಿ *storagep;
     }
     // Same as above with pointer as key
-    T_Value& at(const DfgVertex* vtxp) const { return (*this).at(*vtxp); }
+    T_ಮೌಲ್ಯ& at(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* vtxp) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (*this).at(*vtxp); }
 };
 
 // Specialization where T_Value does not fit in DfgVertex::m_userStorage directly
-template <typename T_Value>
-class DfgUserMap<T_Value, false> final : public DfgUserMapBase {
-    static_assert(fitsSpaceAllocatedFor<T_Value*, decltype(DfgVertex::m_userStorage)>(),
+ಮಾದರಿ <typename T_ಮೌಲ್ಯ>
+class DfgUserMap<T_ಮೌಲ್ಯ, false> final : ಸಾರ್ವಜನಿಕ Dfg_User_Map_ತಳ {
+    static_assert(ಹೊಂದುತ್ತದೆ_Space_Allocated_For<T_ಮೌಲ್ಯ*, decltype(Dfg_ಶೃಂಗ::m_userStorage)>(),
                   "'T_Value*' does not fit 'DfgVertex::m_userStorage'");
-    friend class DfgGraph;
+    ಮಿತ್ರ class Dfg_ನಕ್ಷೆ;
 
     // STATE
-    std::deque<T_Value> m_storage;  // Storage for T_Value instances
+    std::deque<T_ಮೌಲ್ಯ> m_storage;  // Storage for T_Value instances
 
     // CONSTRUCTOR
-    explicit DfgUserMap(const DfgGraph* dfgp)
-        : DfgUserMapBase{dfgp} {}
+    explicit DfgUserMap(ಸ್ಥಿರಾಂಕ Dfg_ನಕ್ಷೆ* dfgp)
+        : Dfg_User_Map_ತಳ{dfgp} {}
     VL_UNCOPYABLE(DfgUserMap);
 
-public:
-    DfgUserMap(DfgUserMap&&) = default;
-    ~DfgUserMap() = default;
-    DfgUserMap& operator=(DfgUserMap&&) = delete;
+ಸಾರ್ವಜನಿಕ:
+    DfgUserMap(DfgUserMap&&) = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~DfgUserMap() = ಪೂರ್ವನಿಯೋಜಿತ;
+    DfgUserMap& ಕ್ರಿಯಾಕಾರಕ=(DfgUserMap&&) = delete;
 
     // METHODS
     // Retrieve mapped value for 'vtx', value initializing it on first access
-    T_Value& operator[](const DfgVertex& vtx) {
-#ifdef VL_DEBUG
+    T_ಮೌಲ್ಯ& ಕ್ರಿಯಾಕಾರಕ[](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx) {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
-        T_Value*& storagepr = reinterpret_cast<T_Value*&>(vtx.m_userStorage);
-        if (vtx.m_userGeneration != m_currentGeneration) {
-            m_storage.emplace_back();
-            storagepr = &m_storage.back();
+#ಆದರೆ_ಅಂತ್ಯ
+        T_ಮೌಲ್ಯ*& storagepr = reinterpret_cast<T_ಮೌಲ್ಯ*&>(vtx.m_userStorage);
+        ಆದರೆ (vtx.m_userGeneration != m_currentGeneration) {
+            m_storage.emplace_ಹಿಂಭಾಗ();
+            storagepr = &m_storage.ಹಿಂಭಾಗ();
             vtx.m_userGeneration = m_currentGeneration;
         }
-        return *storagepr;
+        ಹಿಂತಿರುಗಿ *storagepr;
     }
     // Same as above with pointer as key
-    T_Value& operator[](const DfgVertex* vtxp) { return (*this)[*vtxp]; }
+    T_ಮೌಲ್ಯ& ಕ್ರಿಯಾಕಾರಕ[](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* vtxp) { ಹಿಂತಿರುಗಿ (*this)[*vtxp]; }
 
     // Retrieve mapped value of 'vtx', must be alerady present
-    T_Value& at(const DfgVertex& vtx) const {
-#ifdef VL_DEBUG
+    T_ಮೌಲ್ಯ& at(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx) ಸ್ಥಿರಾಂಕ {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
         UASSERT_OBJ(vtx.m_dfgp == m_dfgp, &vtx, "Vertex not in this graph");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         UASSERT_OBJ(vtx.m_userGeneration == m_currentGeneration, &vtx, "Vertex not in map");
-        return *reinterpret_cast<T_Value*&>(vtx.m_userStorage);
+        ಹಿಂತಿರುಗಿ *reinterpret_cast<T_ಮೌಲ್ಯ*&>(vtx.m_userStorage);
     }
     // Same as above with pointer as key
-    T_Value& at(const DfgVertex* vtxp) const { return (*this).at(*vtxp); }
+    T_ಮೌಲ್ಯ& at(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* vtxp) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (*this).at(*vtxp); }
 };
 
 //------------------------------------------------------------------------------
@@ -750,58 +750,58 @@ class DfgWorklist final {
     // STATE
 
     // The Graph being processed
-    DfgGraph& m_dfg;
+    Dfg_ನಕ್ಷೆ& m_dfg;
     // Map from vertex to next vertex in the work list
-    DfgUserMap<DfgVertex*> m_nextp = m_dfg.makeUserMap<DfgVertex*>();
+    DfgUserMap<Dfg_ಶೃಂಗ*> m_nextp = m_dfg.makeUserMap<Dfg_ಶೃಂಗ*>();
     // We want all 'nextp' pointers for vertices that are in the worklist to be
     // non-zero (including that of the last element). This allows us to do two
     // important things: detect if an element is in the list by checking for a
     // non-zero 'nextp'', and easy prefetching without conditionals. The
     // address of the worklist itself is a good sentinel as it is a valid
     // memory address, and we can easily check for the end of the list.
-    DfgVertex* const m_sentinelp = reinterpret_cast<DfgVertex*>(this);
+    Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ m_sentinelp = reinterpret_cast<Dfg_ಶೃಂಗ*>(this);
     // Head of work list
-    DfgVertex* m_headp = m_sentinelp;
+    Dfg_ಶೃಂಗ* m_headp = m_sentinelp;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTOR
-    explicit DfgWorklist(DfgGraph& dfg)
+    explicit DfgWorklist(Dfg_ನಕ್ಷೆ& dfg)
         : m_dfg{dfg} {}
     VL_UNCOPYABLE(DfgWorklist);
     VL_UNMOVABLE(DfgWorklist);
-    ~DfgWorklist() = default;
+    ~DfgWorklist() = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // METHODS
 
     // If 'vtx' is not in the worklist already, add it at the head of the list
     // and return ture. If 'vtx' is already in the work list, then do nothing
     // and return false.
-    bool push_front(DfgVertex& vtx) {
+    bool ತಳ್ಳು_front(Dfg_ಶೃಂಗ& vtx) {
         // Pick up reference to the next pointer
-        DfgVertex*& nextpr = m_nextp[vtx];
+        Dfg_ಶೃಂಗ*& nextpr = m_nextp[vtx];
         // If already in work list then nothing to do
-        if (nextpr) return false;
+        ಆದರೆ (nextpr) ಹಿಂತಿರುಗಿ false;
         // Prepend to work list
         nextpr = m_headp;
         m_headp = &vtx;
-        return true;
+        ಹಿಂತಿರುಗಿ true;
     }
 
     // Returns ture iff 'vtx' is in the worklist
-    bool contains(const DfgVertex& vtx) { return m_nextp[vtx]; }
+    bool ಒಳಗೊಂಡಿದೆ(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx) { ಹಿಂತಿರುಗಿ m_nextp[vtx]; }
 
     // Process the worklist by removing the first element, calling on it the
     // given callable 'f', and repeat until the worklist is empty. The callable
     // 'f' can add furthere vertices to the worklist.
-    template <typename T_Callable>
-    void foreach(T_Callable&& f) {
-        static_assert(vlstd::is_invocable_r<void, T_Callable, DfgVertex&>::value,
+    ಮಾದರಿ <typename T_Callable>
+    ಶೂನ್ಯ foreach(T_Callable&& f) {
+        static_assert(vlstd::is_invocable_r<ಶೂನ್ಯ, T_Callable, Dfg_ಶೃಂಗ&>::ಮೌಲ್ಯ,
                       "T_Callable 'f' must have a signature compatible with 'void(DfgVertex&)'");
 
         // Process the work list
-        while (m_headp != m_sentinelp) {
+        ಆಗ (m_headp != m_sentinelp) {
             // Pick up the head
-            DfgVertex& vtx = *m_headp;
+            Dfg_ಶೃಂಗ& vtx = *m_headp;
             // Detach the head
             m_headp = m_nextp.at(vtx);
             // Prefetch next item
@@ -819,82 +819,82 @@ public:
 
 // DfgEdge {{{
 
-void DfgEdge::unlinkSrcp() {
-    if (!m_srcp) return;
-#ifdef VL_DEBUG
+ಶೂನ್ಯ Dfg_ಅಂಚು::unlinkSrcp() {
+    ಆದರೆ (!m_srcp) ಹಿಂತಿರುಗಿ;
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_DEBUG
     bool contained = false;
-    for (const DfgEdge& edge : m_srcp->m_sinks) {
-        if (&edge != this) continue;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Dfg_ಅಂಚು& ಅಂಚು : m_srcp->m_sinks) {
+        ಆದರೆ (&ಅಂಚು != this) ಮುಂದುವರಿ;
         contained = true;
-        break;
+        ನಿಲ್ಲಿಸು;
     }
     UASSERT_OBJ(contained, m_srcp, "'m_srcp' does not have this as sink");
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
     m_srcp->m_sinks.unlink(this);
     m_srcp = nullptr;
 }
 
-void DfgEdge::relinkSrcp(DfgVertex* srcp) {
+ಶೂನ್ಯ Dfg_ಅಂಚು::relinkSrcp(Dfg_ಶೃಂಗ* srcp) {
     // Unlink current source, if any
     unlinkSrcp();
     m_srcp = srcp;
-    if (m_srcp) m_srcp->m_sinks.linkFront(this);
+    ಆದರೆ (m_srcp) m_srcp->m_sinks.linkFront(this);
 }
 
 // }}}
 
 // DfgVertex {{{
 
-DfgEdge* DfgVertex::inputEdgep(size_t i) const {
+Dfg_ಅಂಚು* Dfg_ಶೃಂಗ::ಒಳಹರಿವು_Edgep(ಗಾತ್ರ_t i) ಸ್ಥಿರಾಂಕ {
     UDEBUGONLY(UASSERT_OBJ(i < m_nInputs, this, "Input index out of range"););
-    if (VL_LIKELY(m_inlineInputsp)) return m_inlineInputsp + i;
+    ಆದರೆ (VL_LIKELY(m_inlineInputsp)) ಹಿಂತಿರುಗಿ m_inlineInputsp + i;
     // 'm_inlineInputsp' is null exactly for a DfgVertexVariadic
-    UDEBUGONLY(UASSERT_OBJ(is<DfgVertexVariadic>(), this, "Vertex without input edge storage"););
-    return static_cast<const DfgVertexVariadic*>(this)->m_edgeps[i].get();
+    UDEBUGONLY(UASSERT_OBJ(is<Dfg_ಶೃಂಗ_Variadic>(), this, "Vertex without input edge storage"););
+    ಹಿಂತಿರುಗಿ static_cast<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Variadic*>(this)->m_edgeps[i].get();
 }
 
-bool DfgVertex::isCheaperThanLoad() const {
+bool Dfg_ಶೃಂಗ::is_Cheaper_Than_ತುಂಬು() ಸ್ಥಿರಾಂಕ {
     // Constants
-    if (is<DfgConst>()) return true;
+    ಆದರೆ (is<DfgConst>()) ಹಿಂತಿರುಗಿ true;
     // Variables
-    if (is<DfgVertexVar>()) return true;
-    if (is<DfgPrev>()) return true;
+    ಆದರೆ (is<Dfg_ಶೃಂಗ_Var>()) ಹಿಂತಿರುಗಿ true;
+    ಆದರೆ (is<DfgPrev>()) ಹಿಂತಿರುಗಿ true;
     // Array sels are just address computation, but the address itself can be expensive
-    if (const DfgArraySel* aselp = cast<DfgArraySel>()) {
-        if (aselp->bitp()->is<DfgMatchMasked>()) return false;
-        return true;
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ DfgArraySel* aselp = cast<DfgArraySel>()) {
+        ಆದರೆ (aselp->bitp()->is<Dfg_ಹೊಂದಿಕೆ_Masked>()) ಹಿಂತಿರುಗಿ false;
+        ಹಿಂತಿರುಗಿ true;
     }
     // Small select from variable
-    if (const DfgSel* const selp = cast<DfgSel>()) {
-        if (!selp->fromp()->is<DfgVarPacked>()) return false;
-        if (selp->fromp()->width() <= VL_QUADSIZE) return true;
-        const uint32_t lsb = selp->lsb();
-        const uint32_t msb = lsb + selp->width() - 1;
-        return VL_BITWORD_E(msb) == VL_BITWORD_E(lsb);
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ DfgSel* ಸ್ಥಿರಾಂಕ selp = cast<DfgSel>()) {
+        ಆದರೆ (!selp->fromp()->is<DfgVarPacked>()) ಹಿಂತಿರುಗಿ false;
+        ಆದರೆ (selp->fromp()->ಅಗಲ() <= VL_QUADSIZE) ಹಿಂತಿರುಗಿ true;
+        ಸ್ಥಿರಾಂಕ uint32_t lsb = selp->lsb();
+        ಸ್ಥಿರಾಂಕ uint32_t msb = lsb + selp->ಅಗಲ() - 1;
+        ಹಿಂತಿರುಗಿ VL_BITWORD_E(msb) == VL_BITWORD_E(lsb);
     }
     // Replication of a single cheap bit. Each word of the result is the same
     // mask computed by negating that bit, so recomputing it at each use costs
     // no more than the load it replaces.
-    if (const DfgRep* const repp = cast<DfgRep>()) {
-        const DfgVertex* const srcp = repp->srcp();
-        return srcp->width() == 1 && srcp->isCheaperThanLoad();
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ DfgRep* ಸ್ಥಿರಾಂಕ repp = cast<DfgRep>()) {
+        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ srcp = repp->srcp();
+        ಹಿಂತಿರುಗಿ srcp->ಅಗಲ() == 1 && srcp->is_Cheaper_Than_ತುಂಬು();
     }
     // Zero extend of a cheap vertex - Extend(_) was converted to Concat(0, _)
-    if (const DfgConcat* const catp = cast<DfgConcat>()) {
-        if (catp->width() > VL_QUADSIZE) return false;
-        const DfgConst* const lConstp = catp->lhsp()->cast<DfgConst>();
-        if (!lConstp || !lConstp->isZero()) return false;
-        return catp->rhsp()->isCheaperThanLoad();
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ DfgConcat* ಸ್ಥಿರಾಂಕ catp = cast<DfgConcat>()) {
+        ಆದರೆ (catp->ಅಗಲ() > VL_QUADSIZE) ಹಿಂತಿರುಗಿ false;
+        ಸ್ಥಿರಾಂಕ DfgConst* ಸ್ಥಿರಾಂಕ lConstp = catp->lhsp()->cast<DfgConst>();
+        ಆದರೆ (!lConstp || !lConstp->isZero()) ಹಿಂತಿರುಗಿ false;
+        ಹಿಂತಿರುಗಿ catp->rhsp()->is_Cheaper_Than_ತುಂಬು();
     }
     // Reduction of a narrow cheap vertex
-    if (is<DfgRedOr>()  //
+    ಆದರೆ (is<DfgRedOr>()  //
         || is<DfgRedAnd>()  //
         || is<DfgRedXor>()) {
-        const DfgVertex* const srcp = as<DfgVertexUnary>()->srcp();
-        return srcp->width() <= VL_QUADSIZE && srcp->isCheaperThanLoad();
+        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ srcp = as<Dfg_ಶೃಂಗ_Unary>()->srcp();
+        ಹಿಂತಿರುಗಿ srcp->ಅಗಲ() <= VL_QUADSIZE && srcp->is_Cheaper_Than_ತುಂಬು();
     }
     // Comparisons of a narrow cheap vertex with constant
-    if (is<DfgEq>()  //
+    ಆದರೆ (is<DfgEq>()  //
         || is<DfgNeq>()  //
         || is<DfgLt>()  //
         || is<DfgLte>()  //
@@ -904,24 +904,24 @@ bool DfgVertex::isCheaperThanLoad() const {
         || is<DfgLteS>()  //
         || is<DfgGtS>()  //
         || is<DfgGteS>()) {
-        const DfgVertexBinary* const binp = as<DfgVertexBinary>();
-        const DfgVertex* const lhsp = binp->inputp(0);
-        const DfgVertex* const rhsp = binp->inputp(1);
-        return lhsp->width() <= VL_QUADSIZE && lhsp->is<DfgConst>() && rhsp->isCheaperThanLoad();
+        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ* ಸ್ಥಿರಾಂಕ binp = as<Dfg_ಶೃಂಗ_ದ್ವಿಮಾನ>();
+        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ lhsp = binp->inputp(0);
+        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ rhsp = binp->inputp(1);
+        ಹಿಂತಿರುಗಿ lhsp->ಅಗಲ() <= VL_QUADSIZE && lhsp->is<DfgConst>() && rhsp->is_Cheaper_Than_ತುಂಬು();
     }
     // Otherwise probably not
-    return false;
+    ಹಿಂತಿರುಗಿ false;
 }
 
 // }}}
 
 // DfgGraph {{{
 
-template <typename T_User>
-DfgUserMap<T_User> DfgGraph::makeUserMap() const {
-    return DfgUserMap<T_User>{this};
+ಮಾದರಿ <typename T_User>
+DfgUserMap<T_User> Dfg_ನಕ್ಷೆ::makeUserMap() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ DfgUserMap<T_User>{this};
 }
 
 // }}}
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

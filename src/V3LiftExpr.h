@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIFTEXPR_H_
-#define VERILATOR_V3LIFTEXPR_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3LIFTEXPR_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3LIFTEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3LiftExpr final {
-public:
-    static void liftExprAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_Lift_ಅಭಿವ್ಯಕ್ತಿ final {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ lift_ಅಭಿವ್ಯಕ್ತಿ_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

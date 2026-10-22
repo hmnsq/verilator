@@ -28,16 +28,16 @@
 ///
 //*************************************************************************
 
-#ifndef VERILATOR_V3MUTEX_H_
-#define VERILATOR_V3MUTEX_H_ 1
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3MUTEX_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3MUTEX_H_ 1
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <cstdlib>
-#include <functional>
-#include <mutex>
+#ಅನ್ತರ್ಭಾವ <cstdlib>
+#ಅನ್ತರ್ಭಾವ <functional>
+#ಅನ್ತರ್ಭಾವ <mutex>
 
-#define VL_LOCK_SPINS 50000  /// Number of times to spin for a mutex before yielding
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_ಬೀಗ_SPINS 50000  /// Number of times to spin for a mutex before yielding
 
 // MutexConfig class that allows to configure how mutex and lockguards behave
 // once configured and locked, it cannot be changed. Configuration and lock needs to be
@@ -47,97 +47,97 @@ class V3MutexConfig final {
     // Use carefully as it can cause undefined behavior when used inappropriately.
     // All mutexes needs to be unlocked.
     bool m_enable = false;  // Allows locking on mutexes, default don't lock mutexes
-    bool m_lockConfig = false;  // After set, configuration cannot be changed
+    bool m_ಬೀಗ_Config = false;  // After set, configuration cannot be changed
 
-    V3MutexConfig() = default;
-    ~V3MutexConfig() = default;
+    V3MutexConfig() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~V3MutexConfig() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-public:
-    static V3MutexConfig& s() VL_MT_SAFE {
-        static V3MutexConfig s{};
-        return s;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ V3MutexConfig& s() VL_MT_ಸುರಕ್ಷಿತ {
+        ಸ್ಥಿರ V3MutexConfig s{};
+        ಹಿಂತಿರುಗಿ s;
     }
 
     // configures class
-    void configure(bool enable) VL_MT_UNSAFE {
-        if (!s().m_lockConfig) {
+    ಶೂನ್ಯ configure(bool enable) VL_MT_UNSAFE {
+        ಆದರೆ (!s().m_ಬೀಗ_Config) {
             s().m_enable = enable;
-            s().m_lockConfig = true;
-        } else {
+            s().m_ಬೀಗ_Config = true;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // requires <iostream>
             // avoided to reduce compile time
             // std::cerr << "%Error: V3Mutex already configured." << std::endl;
             std::abort();  // LCOV_EXCL_LINE
         }
     }
-    bool enable() const VL_MT_SAFE { return m_enable; }
+    bool enable() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ m_enable; }
 };
 
 /// Mutex, wrapped to allow -fthread_safety checks
-template <typename T>
+ಮಾದರಿ <typename T>
 class VL_CAPABILITY("mutex") V3MutexImp final {
     T m_mutex;  // Mutex
 
-public:
+ಸಾರ್ವಜನಿಕ:
     /// Construct mutex (without locking it)
-    V3MutexImp() = default;
-    ~V3MutexImp() = default;
+    V3MutexImp() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~V3MutexImp() = ಪೂರ್ವನಿಯೋಜಿತ;
     VL_UNCOPYABLE(V3MutexImp);
-    const V3MutexImp& operator!() const { return *this; }  // For -fthread_safety
+    ಸ್ಥಿರಾಂಕ V3MutexImp& ಕ್ರಿಯಾಕಾರಕ!() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ *this; }  // For -fthread_safety
     /// Acquire/lock mutex
-    void lock() VL_ACQUIRE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) {
+    ಶೂನ್ಯ ಬೀಗ_2() VL_ACQUIRE() VL_MT_ಸುರಕ್ಷಿತ {
+        ಆದರೆ (V3MutexConfig::s().enable()) {
             // Try to acquire the lock by spinning.  If the wait is short,
             // avoids a trap to the OS plus OS scheduler overhead.
-            if (VL_LIKELY(try_lock())) return;  // Short circuit loop
-            for (int i = 0; i < VL_LOCK_SPINS; ++i) {
-                if (VL_LIKELY(try_lock())) return;
+            ಆದರೆ (VL_LIKELY(try_ಬೀಗ())) ಹಿಂತಿರುಗಿ;  // Short circuit loop
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < VL_ಬೀಗ_SPINS; ++i) {
+                ಆದರೆ (VL_LIKELY(try_ಬೀಗ())) ಹಿಂತಿರುಗಿ;
                 VL_CPU_RELAX();
             }
             // Spinning hasn't worked, pay the cost of blocking.
-            m_mutex.lock();
+            m_mutex.ಬೀಗ_2();
         }
     }
     /// Release/unlock mutex
-    void unlock() VL_RELEASE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) m_mutex.unlock();
+    ಶೂನ್ಯ unlock() VL_RELEASE() VL_MT_ಸುರಕ್ಷಿತ {
+        ಆದರೆ (V3MutexConfig::s().enable()) m_mutex.unlock();
     }
     /// Try to acquire mutex.  Returns true on success, and false on failure.
-    bool try_lock() VL_TRY_ACQUIRE(true) VL_MT_SAFE {
-        return V3MutexConfig::s().enable() ? m_mutex.try_lock() : true;
+    bool try_ಬೀಗ() VL_TRY_ACQUIRE(true) VL_MT_ಸುರಕ್ಷಿತ {
+        ಹಿಂತಿರುಗಿ V3MutexConfig::s().enable() ? m_mutex.try_ಬೀಗ() : true;
     }
     /// Assume that the mutex is already held. Purely for Clang thread safety analyzer.
-    void assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_SAFE {}
+    ಶೂನ್ಯ assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_ಸುರಕ್ಷಿತ {}
     /// Pretend that the mutex is being unlocked. Purely for Clang thread safety analyzer.
-    void pretendUnlock() VL_RELEASE() VL_MT_SAFE {}
+    ಶೂನ್ಯ pretendUnlock() VL_RELEASE() VL_MT_ಸುರಕ್ಷಿತ {}
 };
 
 /// Lock guard for mutex (ala std::unique_lock), wrapped to allow -fthread_safety checks
-template <typename T>
-class VL_SCOPED_CAPABILITY V3LockGuardImp final {
-    VL_UNCOPYABLE(V3LockGuardImp);
+ಮಾದರಿ <typename T>
+class VL_SCOPED_CAPABILITY V3_ಬೀಗ_Guard_Imp final {
+    VL_UNCOPYABLE(V3_ಬೀಗ_Guard_Imp);
 
-private:
+ಖಾಸಗಿ:
     T& m_mutexr;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     /// Lock given mutex and hold it for the object lifetime.
-    explicit V3LockGuardImp(T& mutexr) VL_ACQUIRE(mutexr) VL_MT_SAFE
+    explicit V3_ಬೀಗ_Guard_Imp(T& mutexr) VL_ACQUIRE(mutexr) VL_MT_ಸುರಕ್ಷಿತ
         : m_mutexr(mutexr) {  // Need () or GCC 4.8 false warning
-        mutexr.lock();
+        mutexr.ಬೀಗ_2();
     }
     /// Take already locked mutex, and and hold the lock for the object lifetime.
-    explicit V3LockGuardImp(T& mutexr, std::adopt_lock_t) VL_REQUIRES(mutexr) VL_MT_SAFE
+    explicit V3_ಬೀಗ_Guard_Imp(T& mutexr, std::adopt_ಬೀಗ_t) VL_REQUIRES(mutexr) VL_MT_ಸುರಕ್ಷಿತ
         : m_mutexr(mutexr) {  // Need () or GCC 4.8 false warning
     }
 
     /// Unlock the mutex
-    ~V3LockGuardImp() VL_RELEASE() { m_mutexr.unlock(); }
+    ~V3_ಬೀಗ_Guard_Imp() VL_RELEASE() { m_mutexr.unlock(); }
 };
 
 using V3Mutex = V3MutexImp<std::mutex>;
 using V3RecursiveMutex = V3MutexImp<std::recursive_mutex>;
-using V3LockGuard = V3LockGuardImp<V3Mutex>;
-using V3RecursiveLockGuard = V3LockGuardImp<V3RecursiveMutex>;
+using V3_ಬೀಗ_Guard = V3_ಬೀಗ_Guard_Imp<V3Mutex>;
+using V3_Recursive_ಬೀಗ_Guard = V3_ಬೀಗ_Guard_Imp<V3RecursiveMutex>;
 
-#endif  // guard
+#ಆದರೆ_ಅಂತ್ಯ  // guard

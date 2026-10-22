@@ -22,244 +22,244 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Udp.h"
+#ಅನ್ತರ್ಭಾವ "V3Udp.h"
 
-#include "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
 
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class UdpVisitor final : public VNVisitor {
-    bool m_inInitial = false;  // Is inside of an initial block
-    AstVar* m_oFieldVarp = nullptr;  // Output filed var of table line
-    std::vector<AstVar*> m_inputVars;  // All the input vars in the AstPrimitive
-    std::vector<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
-    AstPrimitive* m_primp = nullptr;  // The current primitive
-    bool m_isFirstOutput = false;  // Whether the first IO port is output
-    AstVarRef* m_outputInitVerfp = nullptr;  // Initial output value for sequential UDP
-    AstAlways* m_alwaysBlockp = nullptr;  // Main Always block in UDP transform
+ವರ್ಗ UdpVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
+    ತಾರ್ಕಿಕ m_ಒಳ_Initial = ಸುಳ್ಳು;  // Is inside of an initial block
+    AstVar* m_o_ಕ್ಷೇತ್ರ_Varp = ಶೂನ್ಯಸೂಚಕ;  // Output filed var of table line
+    std::ಸದಿಶ<AstVar*> m_ಒಳಹರಿವು_Vars;  // All the input vars in the AstPrimitive
+    std::ಸದಿಶ<AstVar*> m_outputVars;  // All the output vars in the AstPrimitive
+    AstPrimitive* m_primp = ಶೂನ್ಯಸೂಚಕ;  // The current primitive
+    ತಾರ್ಕಿಕ m_is_ಮೊದಲ_Output = ಸುಳ್ಳು;  // Whether the first IO port is output
+    AstVarRef* m_outputInitVerfp = ಶೂನ್ಯಸೂಚಕ;  // Initial output value for sequential UDP
+    AstAlways* m_alwaysBlockp = ಶೂನ್ಯಸೂಚಕ;  // Main Always block in UDP transform
 
-    void visit(AstInitial* nodep) override {
-        VL_RESTORER(m_inInitial);
-        if (m_primp) m_inInitial = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstInitial* nodep) override {
+        VL_RESTORER(m_ಒಳ_Initial);
+        ಆದರೆ (m_primp) m_ಒಳ_Initial = ನಿಜ;
         iterateChildren(nodep);
     }
-    void visit(AstAssign* nodep) override {
-        if (m_inInitial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು* nodep) override {
+        ಆದರೆ (m_ಒಳ_Initial) { m_outputInitVerfp = VN_CAST(nodep->lhsp(), VarRef); }
         iterateChildren(nodep);
     }
-    void visit(AstPrimitive* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstPrimitive* nodep) override {
         UASSERT_OBJ(!m_primp, nodep, "Primitives cannot nest");
         VL_RESTORER(m_primp);
         VL_RESTORER(m_outputInitVerfp);
-        VL_RESTORER(m_isFirstOutput);
-        VL_RESTORER_CLEAR(m_inputVars);
+        VL_RESTORER(m_is_ಮೊದಲ_Output);
+        VL_RESTORER_CLEAR(m_ಒಳಹರಿವು_Vars);
         VL_RESTORER_CLEAR(m_outputVars);
-        m_outputInitVerfp = nullptr;
+        m_outputInitVerfp = ಶೂನ್ಯಸೂಚಕ;
         m_primp = nodep;
-        m_isFirstOutput = false;
+        m_is_ಮೊದಲ_Output = ಸುಳ್ಳು;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar* nodep) override {
         // Push the input and output vars for primitive.
-        if (m_primp) {
-            if (nodep->isIO()) {
-                if (nodep->isInput()) {
-                    m_inputVars.push_back(nodep);
-                } else {
-                    m_outputVars.push_back(nodep);
+        ಆದರೆ (m_primp) {
+            ಆದರೆ (nodep->isIO()) {
+                ಆದರೆ (nodep->is_ಒಳಹರಿವು()) {
+                    m_ಒಳಹರಿವು_Vars.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    m_outputVars.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
                 }
-                if ((m_inputVars.size() == 0) && (m_outputVars.size() == 1)) {
-                    m_isFirstOutput = true;
+                ಆದರೆ ((m_ಒಳಹರಿವು_Vars.ಗಾತ್ರ_2() == 0) && (m_outputVars.ಗಾತ್ರ_2() == 1)) {
+                    m_is_ಮೊದಲ_Output = ನಿಜ;
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstUdpTable* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (m_outputVars.size() != 1) {
-            m_outputVars.back()->v3error(
-                m_outputVars.size()
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Udp_ಕೋಷ್ಟಕ* nodep) override {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        ಆದರೆ (m_outputVars.ಗಾತ್ರ_2() != 1) {
+            m_outputVars.ಹಿಂಭಾಗ()->v3error(
+                m_outputVars.ಗಾತ್ರ_2()
                 << " output ports for UDP table, there must be one output port");
         }
-        if (!m_isFirstOutput && m_outputVars.size()) {
-            m_inputVars[0]->v3error("First UDP port must be the output port");
+        ಆದರೆ (!m_is_ಮೊದಲ_Output && m_outputVars.ಗಾತ್ರ_2()) {
+            m_ಒಳಹರಿವು_Vars[0]->v3error("First UDP port must be the output port");
         }
-        m_oFieldVarp = m_outputVars[0];
+        m_o_ಕ್ಷೇತ್ರ_Varp = m_outputVars[0];
 
-        m_alwaysBlockp = new AstAlways{fl, VAlwaysKwd::ALWAYS, nullptr, nullptr};
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        m_alwaysBlockp = ಹೊಸ AstAlways{fl, VAlwaysKwd::ALWAYS, ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ};
+        fl->warnOff(V3_Error_ಸಂಕೇತ::LATCH, ನಿಜ);
         iterateChildren(nodep);
 
         nodep->replaceWith(m_alwaysBlockp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstUdpTableLine* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        if (!nodep->udpIsCombo() && !m_oFieldVarp->isBitLogic()) {
-            m_oFieldVarp->v3error("For sequential UDP, the output must be of 'reg' data type");
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Udp_ಕೋಷ್ಟಕ_ಸಾಲು* nodep) override {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        ಆದರೆ (!nodep->udpIsCombo() && !m_o_ಕ್ಷೇತ್ರ_Varp->is_ಬಿಟ್_Logic()) {
+            m_o_ಕ್ಷೇತ್ರ_Varp->v3error("For sequential UDP, the output must be of 'reg' data type");
         }
-        if (nodep->udpIsCombo() && m_oFieldVarp->isBitLogic()) {
-            m_oFieldVarp->v3error(
+        ಆದರೆ (nodep->udpIsCombo() && m_o_ಕ್ಷೇತ್ರ_Varp->is_ಬಿಟ್_Logic()) {
+            m_o_ಕ್ಷೇತ್ರ_Varp->v3error(
                 "For combinational UDP, the output must not be a 'reg' data type");
         }
-        AstNode* iNodep = nodep->iFieldsp();
-        AstNode* oNodep = nodep->oFieldsp();
-        AstSenTree* edgetrigp = nullptr;
+        Ast_ಗಂಟು* iNodep = nodep->iFieldsp();
+        Ast_ಗಂಟು* oNodep = nodep->oFieldsp();
+        Ast_Sen_ವೃಕ್ಷ* edgetrigp = ಶೂನ್ಯಸೂಚಕ;
 
-        AstLogAnd* logandp = new AstLogAnd{fl, new AstConst{fl, AstConst::BitTrue{}},
-                                           new AstConst{fl, AstConst::BitTrue{}}};
+        AstLogAnd* logandp = ಹೊಸ AstLogAnd{fl, ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}},
+                                           ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}}};
 
-        for (AstVar* const varp : m_inputVars) {
-            if (!iNodep) break;
-            if (AstUdpTableLineVal* linevalp = VN_CAST(iNodep, UdpTableLineVal)) {
+        ಗಾಗಿ (AstVar* ಸ್ಥಿರಾಂಕ varp : m_ಒಳಹರಿವು_Vars) {
+            ಆದರೆ (!iNodep) ನಿಲ್ಲಿಸು;
+            ಆದರೆ (Ast_Udp_ಕೋಷ್ಟಕ_ಸಾಲು_Val* linevalp = VN_CAST(iNodep, Udp_ಕೋಷ್ಟಕ_ಸಾಲು_Val)) {
                 string valName = linevalp->name();
-                if (isEdgeTrig(valName)) {
-                    if (nodep->udpIsCombo()) {
+                ಆದರೆ (is_ಅಂಚು_Trig(valName)) {
+                    ಆದರೆ (nodep->udpIsCombo()) {
                         linevalp->v3error(
                             "There should not be a edge trigger for combinational UDP table line");
                     }
-                    if (edgetrigp) {
+                    ಆದರೆ (edgetrigp) {
                         linevalp->v3error("There can be only one edge trigger signal");
-                        VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(edgetrigp), edgetrigp);
                     }
-                    edgetrigp = new AstSenTree{
-                        fl, new AstSenItem{fl, VEdgeType::ET_BOTHEDGE,
-                                           new AstVarRef{fl, varp, VAccess::READ}}};
+                    edgetrigp = ಹೊಸ Ast_Sen_ವೃಕ್ಷ{
+                        fl, ಹೊಸ Ast_Sen_ಅಂಶ{fl, VEdgeType::ET_BOTHEDGE,
+                                           ಹೊಸ AstVarRef{fl, varp, VAccess::READ}}};
                 }
-                if (valName == "0" || valName == "f") {
-                    logandp = new AstLogAnd{
-                        fl, logandp, new AstLogNot{fl, new AstVarRef{fl, varp, VAccess::READ}}};
-                } else if (valName == "1" || valName == "r") {
-                    logandp = new AstLogAnd{fl, logandp, new AstVarRef{fl, varp, VAccess::READ}};
-                } else if (valName == "x" || valName == "X") {
+                ಆದರೆ (valName == "0" || valName == "f") {
+                    logandp = ಹೊಸ AstLogAnd{
+                        fl, logandp, ಹೊಸ AstLogNot{fl, ಹೊಸ AstVarRef{fl, varp, VAccess::READ}}};
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (valName == "1" || valName == "r") {
+                    logandp = ಹೊಸ AstLogAnd{fl, logandp, ಹೊಸ AstVarRef{fl, varp, VAccess::READ}};
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (valName == "x" || valName == "X") {
                     // No x inputs supported yet, so this whole table line
                     // can never match. Drop the whole thing.
-                    if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                    if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                    return;
+                    ಆದರೆ (edgetrigp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(edgetrigp), edgetrigp);
+                    ಆದರೆ (logandp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(logandp), logandp);
+                    ಹಿಂತಿರುಗಿ;
                 }
             }
             iNodep = iNodep->nextp();
         }
 
         uint32_t inputvars = 0;
-        for (const AstNode* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* icountp = nodep->iFieldsp(); icountp; icountp = icountp->nextp())
             ++inputvars;
-        if (inputvars != m_inputVars.size()) {
-            nodep->v3error("Incorrect number of input values, expected " << m_inputVars.size()
+        ಆದರೆ (inputvars != m_ಒಳಹರಿವು_Vars.ಗಾತ್ರ_2()) {
+            nodep->v3error("Incorrect number of input values, expected " << m_ಒಳಹರಿವು_Vars.ಗಾತ್ರ_2()
                                                                          << ", got " << inputvars);
         }
 
-        string const oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
-        if (oValName == "-") {
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-            return;
+        string ಸ್ಥಿರಾಂಕ oValName = nodep->udpIsCombo() ? oNodep->name() : oNodep->nextp()->name();
+        ಆದರೆ (oValName == "-") {
+            ಆದರೆ (edgetrigp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(edgetrigp), edgetrigp);
+            ಆದರೆ (logandp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(logandp), logandp);
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (!nodep->udpIsCombo()) {
-            if (oNodep->name() == "0") {
-                logandp = new AstLogAnd{
+        ಆದರೆ (!nodep->udpIsCombo()) {
+            ಆದರೆ (oNodep->name() == "0") {
+                logandp = ಹೊಸ AstLogAnd{
                     fl, logandp,
-                    new AstLogNot{fl, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}}};
-            } else if (oNodep->name() == "1") {
+                    ಹೊಸ AstLogNot{fl, ಹೊಸ AstVarRef{fl, m_o_ಕ್ಷೇತ್ರ_Varp, VAccess::READ}}};
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (oNodep->name() == "1") {
                 logandp
-                    = new AstLogAnd{fl, logandp, new AstVarRef{fl, m_oFieldVarp, VAccess::READ}};
-            } else if (oNodep->name() == "x" || oNodep->name() == "X") {
+                    = ಹೊಸ AstLogAnd{fl, logandp, ಹೊಸ AstVarRef{fl, m_o_ಕ್ಷೇತ್ರ_Varp, VAccess::READ}};
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (oNodep->name() == "x" || oNodep->name() == "X") {
                 // No x inputs supported yet, so this whole table line
                 // can never match. Drop the whole thing.
-                if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-                if (logandp) VL_DO_DANGLING(pushDeletep(logandp), logandp);
-                return;
+                ಆದರೆ (edgetrigp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(edgetrigp), edgetrigp);
+                ಆದರೆ (logandp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(logandp), logandp);
+                ಹಿಂತಿರುಗಿ;
             }
         }
 
-        fl->warnOff(V3ErrorCode::LATCH, true);
+        fl->warnOff(V3_Error_ಸಂಕೇತ::LATCH, ನಿಜ);
         // Edge-triggered lines are clocked logic, so update like a flop:
         // other clocked logic reading the output sees the pre-edge value, regardless of ordering
-        AstNodeStmt* const assignp
-            = newOutputAssign(fl, getOutputNum(nodep, oValName), edgetrigp != nullptr);
-        AstIf* const ifp = new AstIf{fl, logandp, assignp};
-        if (nodep->udpIsCombo()) {
-            if (!isCombOutputSig(oValName)) {
+        Ast_ಗಂಟು_Stmt* ಸ್ಥಿರಾಂಕ assignp
+            = new_Output_ನಿಯೋಜಿಸು(fl, get_Output_ಅಂಕೆ(nodep, oValName), edgetrigp != ಶೂನ್ಯಸೂಚಕ);
+        AstIf* ಸ್ಥಿರಾಂಕ ifp = ಹೊಸ AstIf{fl, logandp, assignp};
+        ಆದರೆ (nodep->udpIsCombo()) {
+            ಆದರೆ (!isCombOutputSig(oValName)) {
                 oNodep->v3error("Illegal value for combinational UDP line output");
             }
-            m_alwaysBlockp->addStmtsp(ifp);
-            if (edgetrigp) VL_DO_DANGLING(pushDeletep(edgetrigp), edgetrigp);
-            return;
+            m_alwaysBlockp->ಕೂಡಿಸು_Stmtsp(ifp);
+            ಆದರೆ (edgetrigp) VL_DO_DANGLING(ತಳ್ಳು_Deletep(edgetrigp), edgetrigp);
+            ಹಿಂತಿರುಗಿ;
         }
-        if (!isSequentOutputSig(oValName)) {
+        ಆದರೆ (!isSequentOutputSig(oValName)) {
             oNodep->nextp()->v3error("Illegal value for sequential UDP line output");
         }
-        m_alwaysBlockp->addNext(new AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
+        m_alwaysBlockp->ಕೂಡಿಸು_ಮುಂದಿನ(ಹೊಸ AstAlways{fl, VAlwaysKwd::ALWAYS, edgetrigp, ifp});
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogAnd* nodep) override { iterateChildren(nodep); }
-    void visit(AstLogNot* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstLogAnd* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstLogNot* nodep) override { iterateChildren(nodep); }
     // For logic processing.
-    static bool isEdgeTrig(std::string& valName) {
-        if (valName == "x" || valName == "X") return false;
-        if (valName == "*") return true;
-        if (valName == "01" || valName == "p" || valName == "P" || valName == "r"
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ is_ಅಂಚು_Trig(std::string& valName) {
+        ಆದರೆ (valName == "x" || valName == "X") ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಆದರೆ (valName == "*") ಹಿಂತಿರುಗಿ ನಿಜ;
+        ಆದರೆ (valName == "01" || valName == "p" || valName == "P" || valName == "r"
             || valName == "R") {
             valName = "r";
-            return true;
+            ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        if (valName == "10" || valName == "n" || valName == "N" || valName == "f"
+        ಆದರೆ (valName == "10" || valName == "n" || valName == "N" || valName == "f"
             || valName == "F") {
             valName = "f";
-            return true;
+            ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        if (valName.size() == 2) {
-            if (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
+        ಆದರೆ (valName.ಗಾತ್ರ_2() == 2) {
+            ಆದರೆ (valName[0] == 'x' || valName[0] == 'X' || valName[1] == 'x' || valName[1] == 'X')
                 valName = "x";
-            else if (valName[0] == '1' || valName[1] == '0')
+            ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (valName[0] == '1' || valName[1] == '0')
                 valName = "f";
-            else if (valName[0] == '0' || valName[1] == '1')
+            ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (valName[0] == '0' || valName[1] == '1')
                 valName = "r";
-            return true;
+            ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        if (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
-        return false;
+        ಆದರೆ (valName[0] != '0' && valName[0] != '1') { valName = "?"; }
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
-    static bool isCombOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X");
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isCombOutputSig(ಸ್ಥಿರಾಂಕ std::string& valName) {
+        ಹಿಂತಿರುಗಿ (valName == "0" || valName == "1" || valName == "x" || valName == "X");
     }
-    static bool isSequentOutputSig(const std::string& valName) {
-        return (valName == "0" || valName == "1" || valName == "x" || valName == "X"
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isSequentOutputSig(ಸ್ಥಿರಾಂಕ std::string& valName) {
+        ಹಿಂತಿರುಗಿ (valName == "0" || valName == "1" || valName == "x" || valName == "X"
                 || valName == "-");
     }
-    AstNodeStmt* newOutputAssign(FileLine* fl, const V3Number& outNum, bool isDelayed) const {
-        AstVarRef* const lhsp = new AstVarRef{fl, m_oFieldVarp, VAccess::WRITE};
-        AstConst* const rhsp = new AstConst{fl, outNum};
-        if (isDelayed) return new AstAssignDly{fl, lhsp, rhsp};
-        return new AstAssign{fl, lhsp, rhsp};
+    Ast_ಗಂಟು_Stmt* new_Output_ನಿಯೋಜಿಸು(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು_ಅಂಕೆ, ತಾರ್ಕಿಕ isDelayed) ಸ್ಥಿರಾಂಕ {
+        AstVarRef* ಸ್ಥಿರಾಂಕ lhsp = ಹೊಸ AstVarRef{fl, m_o_ಕ್ಷೇತ್ರ_Varp, VAccess::WRITE};
+        AstConst* ಸ್ಥಿರಾಂಕ rhsp = ಹೊಸ AstConst{fl, ಹೊರಹೋಗು_ಅಂಕೆ};
+        ಆದರೆ (isDelayed) ಹಿಂತಿರುಗಿ ಹೊಸ Ast_ನಿಯೋಜಿಸು_Dly{fl, lhsp, rhsp};
+        ಹಿಂತಿರುಗಿ ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, lhsp, rhsp};
     }
-    static V3Number getOutputNum(AstNode* nodep, const std::string& fieldNames) {
-        V3Number outputNum{nodep, 1};
-        if (fieldNames == "0") {
-            outputNum.setBit(0, 0);
-        } else if (fieldNames == "1") {
-            outputNum.setBit(0, 1);
-        } else {
-            outputNum.setBit(0, 'x');
+    ಸ್ಥಿರ V3_ಸಂಖ್ಯೆ get_Output_ಅಂಕೆ(Ast_ಗಂಟು* nodep, ಸ್ಥಿರಾಂಕ std::string& ಕ್ಷೇತ್ರ_ಹೆಸರುಗಳು) {
+        V3_ಸಂಖ್ಯೆ output_ಅಂಕೆ{nodep, 1};
+        ಆದರೆ (ಕ್ಷೇತ್ರ_ಹೆಸರುಗಳು == "0") {
+            output_ಅಂಕೆ.ಗಣ_ಬಿಟ್(0, 0);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಕ್ಷೇತ್ರ_ಹೆಸರುಗಳು == "1") {
+            output_ಅಂಕೆ.ಗಣ_ಬಿಟ್(0, 1);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            output_ಅಂಕೆ.ಗಣ_ಬಿಟ್(0, 'x');
         }
-        return outputNum;
+        ಹಿಂತಿರುಗಿ output_ಅಂಕೆ;
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~UdpVisitor() override = default;
+    ಸ್ಪಷ್ಟ UdpVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~UdpVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
-void V3Udp::udpResolve(AstNetlist* rootp) {
+ಶೂನ್ಯ V3Udp::udpResolve(AstNetlist* rootp) {
     UINFO(4, __FUNCTION__ << ": ");
-    { const UdpVisitor visitor{rootp}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("udp", 0, dumpTreeEitherLevel() >= 3);
+    { ಸ್ಥಿರಾಂಕ UdpVisitor visitor{rootp}; }  // Destruct before checking
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("udp", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

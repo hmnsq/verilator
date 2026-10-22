@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ಅನ್ತರ್ಭಾವ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCConstInit.h"
-#include "V3File.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitC.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitCConstInit.h"
+#ಅನ್ತರ್ಭಾವ "V3File.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
 
-#include <algorithm>
-#include <cinttypes>
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <cinttypes>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Const pool emitter
 
-class EmitCConstPool final : public EmitCConstInit {
+ವರ್ಗ EmitCConstPool final : ಸಾರ್ವಜನಿಕ EmitCConstInit {
     // TYPES
-    using OutCFilePair = std::pair<V3OutCFile*, AstCFile*>;
+    ಬಳಸಿ ಹೊರಹೋಗು_CFile_Pair = std::pair<V3_ಹೊರಹೋಗು_CFile*, AstCFile*>;
 
     // MEMBERS
-    std::array<VDouble0, VNType::NUM_TYPES()> m_emitted;  // Entries emitted, by value type
-    V3UniqueNames m_uniqueNames;  // Generates unique file names
-    const std::string m_fileBaseName = EmitCUtil::topClassName() + "__ConstPool";
+    std::array<VDouble0, VNType::ಅಂಕೆ_TYPES()> m_emitted;  // Entries emitted, by value type
+    V3_Unique_ಹೆಸರುಗಳು m_unique_ಹೆಸರುಗಳು;  // Generates unique file names
+    ಸ್ಥಿರಾಂಕ std::string m_file_ತಳ_Name = EmitCUtil::ತುದಿ_Class_Name() + "__ConstPool";
 
     // METHODS
-    void emitVars(const AstPackage* poolp) {
+    ಶೂನ್ಯ emitVars(ಸ್ಥಿರಾಂಕ AstPackage* poolp) {
         UASSERT(!ofp(), "Output file should not be open");
 
-        std::vector<const AstVar*> varps;
-        for (AstNode* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) varps.push_back(varp);
+        std::ಸದಿಶ<ಸ್ಥಿರಾಂಕ AstVar*> varps;
+        ಗಾಗಿ (Ast_ಗಂಟು* nodep = poolp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ varp = VN_CAST(nodep, Var)) varps.ತಳ್ಳು_ಹಿಂಭಾಗ(varp);
         }
 
-        if (varps.empty()) return;  // Constant pool is empty, so we are done
+        ಆದರೆ (varps.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ;  // Constant pool is empty, so we are done
 
-        stable_sort(varps.begin(), varps.end(), [](const AstVar* ap, const AstVar* bp) {  //
-            return ap->name() < bp->name();
+        stable_ವಿಂಗಡಿಸು(varps.begin(), varps.ಕೊನೆ(), [](ಸ್ಥಿರಾಂಕ AstVar* ap, ಸ್ಥಿರಾಂಕ AstVar* bp) {  //
+            ಹಿಂತಿರುಗಿ ap->name() < bp->name();
         });
 
-        for (const AstVar* varp : varps) {
-            if (splitNeeded()) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstVar* varp : varps) {
+            ಆದರೆ (ವಿಭಜಿಸು_Needed()) {
                 // Splitting file, so using parallel build.
-                v3Global.useParallelBuild(true);
+                v3Global.useParallelBuild(ನಿಜ);
                 // Close old file
                 closeOutputFile();
             }
 
-            if (!ofp()) {
-                openNewOutputSourceFile(m_uniqueNames.get(m_fileBaseName), true, false,
+            ಆದರೆ (!ofp()) {
+                open_New_Output_ಮೂಲ_File(m_unique_ಹೆಸರುಗಳು.get(m_file_ತಳ_Name), ನಿಜ, ಸುಳ್ಳು,
                                         "Constant pool");
                 puts("\n");
                 puts("#include \"verilated.h\"\n");
@@ -72,17 +72,17 @@ class EmitCConstPool final : public EmitCConstInit {
             puts("\n");
             putns(varp, "extern ");
             // Literal types should be constinit (no code generation needed)
-            if (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
+            ಆದರೆ (varp->dtypep()->isLiteralType()) putns(varp, "VL_CONSTINIT_CXX20 ");
             putns(varp, "const ");
             emitVarDefn(varp);
             // Account for file splitting
-            varp->valuep()->foreach([this](const AstConst* constp) {
-                if (constp->num().isString()) {
-                    splitSizeInc(AstNode::INSTR_COUNT_STR);
-                } else if (constp->isWide()) {
-                    splitSizeInc(constp->widthWords());
-                } else {
-                    splitSizeInc(1);
+            varp->valuep()->foreach([ಇದು](ಸ್ಥಿರಾಂಕ AstConst* constp) {
+                ಆದರೆ (constp->ಅಂಕೆ().isString()) {
+                    ವಿಭಜಿಸು_ಗಾತ್ರ_Inc(Ast_ಗಂಟು::INSTR_ಎಣಿಕೆ_STR);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (constp->isWide()) {
+                    ವಿಭಜಿಸು_ಗಾತ್ರ_Inc(constp->ಅಗಲ_ಪದಗಳು());
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ವಿಭಜಿಸು_ಗಾತ್ರ_Inc(1);
                 }
             });
             putns(varp, ";\n");
@@ -90,23 +90,23 @@ class EmitCConstPool final : public EmitCConstInit {
             ++m_emitted[varp->valuep()->type()];
         }
 
-        if (ofp()) closeOutputFile();
+        ಆದರೆ (ofp()) closeOutputFile();
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override {  // LCOV_EXCL_START
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override {  // LCOV_EXCL_START
         nodep->v3fatalSrc("Unknown node type reached EmitCConstPool: " << nodep->prettyTypeName());
     }  // LCOV_EXCL_STOP
 
-public:
-    explicit EmitCConstPool(const AstPackage* poolp) {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಪಷ್ಟ EmitCConstPool(ಸ್ಥಿರಾಂಕ AstPackage* poolp) {
         emitVars(poolp);
-        const auto addStat = [this](VNType type) {
-            V3Stats::addStat("ConstPool, "s + type.ascii() + " emitted", m_emitted[type]);
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಕೂಡಿಸು_Stat = [ಇದು](VNType type) {
+            V3Stats::ಕೂಡಿಸು_Stat("ConstPool, "s + type.ascii() + " emitted", m_emitted[type]);
         };
-        addStat(VNType::Const);
-        for (int t = VNType::firstNodeCons; t <= VNType::lastNodeCons; ++t) {
-            addStat(static_cast<VNType::en>(t));
+        ಕೂಡಿಸು_Stat(VNType::Const);
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ t = VNType::ಮೊದಲ_ಗಂಟು_Cons; t <= VNType::ಕೊನೆಯ_ಗಂಟು_Cons; ++t) {
+            ಕೂಡಿಸು_Stat(static_cast<VNType::en>(t));
         }
     }
 };
@@ -114,7 +114,7 @@ public:
 //######################################################################
 // EmitC static functions
 
-void V3EmitC::emitcConstPool() {
+ಶೂನ್ಯ V3EmitC::emitcConstPool() {
     UINFO(2, __FUNCTION__ << ":");
     EmitCConstPool(v3Global.rootp()->constPoolPkgp());
 }

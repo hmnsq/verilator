@@ -48,386 +48,386 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3RandSequence.h"
+#ಅನ್ತರ್ಭಾವ "V3RandSequence.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3FileLine.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 //  Matcher classes (for suggestion matching)
 
-class RSProdMatcher final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, RSProd); }
+ವರ್ಗ RSProdMatcher final : ಸಾರ್ವಜನಿಕ VNodeMatcher {
+ಸಾರ್ವಜನಿಕ:
+    ತಾರ್ಕಿಕ ಗಂಟು_ಹೊಂದಿಕೆ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ VN_IS(nodep, RSProd); }
 };
 
 //######################################################################
 // Visitor that marks classes needing a randomize() method
 
-class RandSequenceVisitor final : public VNVisitor {
+ವರ್ಗ RandSequenceVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // STATE - global
-    std::map<AstRSProd*, AstNodeFTask*> m_prodFuncps;  // Generated production functions
+    std::map<AstRSProd*, Ast_ಗಂಟು_FTask*> m_prodFuncps;  // Generated production functions
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstRandSequence* m_rsp = nullptr;  // Current randsequence
-    AstRSProd* m_startProdp = nullptr;  // Starting production
-    AstNodeFTask* m_prodFuncp = nullptr;  // Production function being built
-    AstJumpBlock* m_jumpBlockp = nullptr;  // Building jumpblock for return/break
-    AstVar* m_breakVarp = nullptr;  // Break variable
-    std::unordered_set<AstVar*> m_localizes;  // Variables to become function inouts
-    std::map<std::string, AstVar*> m_localizeNames;  // Ordered names of function inouts
-    std::unordered_map<const AstVar*, AstVar*> m_localizeRemaps;  // New ports for old vars
+    Ast_ಗಂಟು_Module* m_modp = ಶೂನ್ಯಸೂಚಕ;  // Current module
+    AstRandSequence* m_rsp = ಶೂನ್ಯಸೂಚಕ;  // Current randsequence
+    AstRSProd* m_ಆರಂಭ_Prodp = ಶೂನ್ಯಸೂಚಕ;  // Starting production
+    Ast_ಗಂಟು_FTask* m_prodFuncp = ಶೂನ್ಯಸೂಚಕ;  // Production function being built
+    Ast_Jump_ಖಂಡ* m_jumpBlockp = ಶೂನ್ಯಸೂಚಕ;  // Building jumpblock for return/break
+    AstVar* m_breakVarp = ಶೂನ್ಯಸೂಚಕ;  // Break variable
+    std::unordered_ಗಣ<AstVar*> m_localizes;  // Variables to become function inouts
+    std::map<std::string, AstVar*> m_localize_ಹೆಸರುಗಳು;  // Ordered names of function inouts
+    std::unordered_map<ಸ್ಥಿರಾಂಕ AstVar*, AstVar*> m_localizeRemaps;  // New ports for old vars
 
     // METHODS
-    void findLocalizes(AstRandSequence* nodep) {
-        std::set<AstVar*> localVars;
-        nodep->foreach([&](AstNode* const nodep) {
-            if (const AstVarRef* const anodep = VN_CAST(nodep, VarRef)) {
+    ಶೂನ್ಯ ಕಂಡುಹಿಡಿ_Localizes(AstRandSequence* nodep) {
+        std::ಗಣ<AstVar*> localVars;
+        nodep->foreach([&](Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ anodep = VN_CAST(nodep, VarRef)) {
                 m_localizes.emplace(anodep->varp());
-            } else if (AstVar* const anodep = VN_CAST(nodep, Var)) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ anodep = VN_CAST(nodep, Var)) {
                 localVars.emplace(anodep);
             }
         });
         // Clear every variable allocated in the RandSequence
-        for (AstVar* varp : localVars) m_localizes.erase(varp);
+        ಗಾಗಿ (AstVar* varp : localVars) m_localizes.erase(varp);
         // Sort by name, so function arguments are stable
-        for (AstVar* varp : m_localizes) {
+        ಗಾಗಿ (AstVar* varp : m_localizes) {
             UINFO(9, "localize " << varp);
-            m_localizeNames.emplace(varp->name(), varp);
+            m_localize_ಹೆಸರುಗಳು.emplace(varp->name(), varp);
         }
     }
 
-    AstVar* newBreakVar(FileLine* fl, bool asOutput) {
-        AstVar* const varp = new AstVar{fl, VVarType::PORT, "__VrsBreak", VFlagBitPacked{}, 1};
+    AstVar* newBreakVar(File_ಸಾಲು* fl, ತಾರ್ಕಿಕ asOutput) {
+        AstVar* ಸ್ಥಿರಾಂಕ varp = ಹೊಸ AstVar{fl, VVarType::ಪೋರ್ಟ್, "__VrsBreak", VFlag_ಬಿಟ್_Packed{}, 1};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        varp->funcLocal(true);
-        if (asOutput) varp->direction(VDirection::OUTPUT);
-        AstNode* outp = varp;
-        outp->addNext(new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                                    new AstConst{fl, AstConst::BitFalse{}}});
+        varp->funcLocal(ನಿಜ);
+        ಆದರೆ (asOutput) varp->direction(VDirection::OUTPUT);
+        Ast_ಗಂಟು* outp = varp;
+        outp->ಕೂಡಿಸು_ಮುಂದಿನ(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, varp, VAccess::WRITE},
+                                    ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_False{}}});
 
         // Also add arguments as next's
-        for (const auto& itr : m_localizeNames) {
-            const AstVar* const lvarp = itr.second;
-            AstVar* const iovarp
-                = new AstVar{fl, VVarType::PORT, "__Vrsarg_" + lvarp->name(), lvarp};
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& itr : m_localize_ಹೆಸರುಗಳು) {
+            ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ lvarp = itr.ಎರಡನೇ;
+            AstVar* ಸ್ಥಿರಾಂಕ iovarp
+                = ಹೊಸ AstVar{fl, VVarType::ಪೋರ್ಟ್, "__Vrsarg_" + lvarp->name(), lvarp};
             iovarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            iovarp->funcLocal(true);
+            iovarp->funcLocal(ನಿಜ);
             iovarp->direction(VDirection::REF);
-            varp->addNext(iovarp);
+            varp->ಕೂಡಿಸು_ಮುಂದಿನ(iovarp);
             m_localizeRemaps.emplace(lvarp, iovarp);
         }
-        return varp;
+        ಹಿಂತಿರುಗಿ varp;
     }
 
-    AstTask* newStartFunc(AstRandSequence* nodep) {
+    AstTask* new_ಆರಂಭ_Func(AstRandSequence* nodep) {
         // Create wrapper that is called by the sequence
-        AstTask* const taskp = new AstTask{m_startProdp->fileline(), m_rsp->name(), nullptr};
+        AstTask* ಸ್ಥಿರಾಂಕ taskp = ಹೊಸ AstTask{m_ಆರಂಭ_Prodp->fileline(), m_rsp->name(), ಶೂನ್ಯಸೂಚಕ};
         taskp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        m_modp->addStmtsp(taskp);
+        m_modp->ಕೂಡಿಸು_Stmtsp(taskp);
 
         // Create local (not output) break variable
         VL_RESTORER_COPY(m_localizeRemaps);
-        AstVar* breakVarp = newBreakVar(nodep->fileline(), false);
-        taskp->addStmtsp(breakVarp);
+        AstVar* breakVarp = newBreakVar(nodep->fileline(), ಸುಳ್ಳು);
+        taskp->ಕೂಡಿಸು_Stmtsp(breakVarp);
 
         // Call the start production's task
-        taskp->addStmtsp(newProdFuncRef(nodep, m_startProdp, breakVarp, nullptr));
+        taskp->ಕೂಡಿಸು_Stmtsp(newProdFuncRef(nodep, m_ಆರಂಭ_Prodp, breakVarp, ಶೂನ್ಯಸೂಚಕ));
 
         UINFOTREE(9, taskp, "newStart", "");
-        return taskp;
+        ಹಿಂತಿರುಗಿ taskp;
     }
 
-    AstNode* newProdFuncRef(AstNode* nodep, AstRSProd* prodp, AstVar* breakVarp,
+    Ast_ಗಂಟು* newProdFuncRef(Ast_ಗಂಟು* nodep, AstRSProd* prodp, AstVar* breakVarp,
                             AstArg* userArgsp) {
-        auto it = m_prodFuncps.find(prodp);
-        UASSERT_OBJ(it != m_prodFuncps.end(), nodep, "No production function made");
-        AstNodeFTask* const prodFuncp = it->second;
-        FileLine* const fl = nodep->fileline();
+        ಸ್ವಯಂಚಾಲಿತ it = m_prodFuncps.ಕಂಡುಹಿಡಿ(prodp);
+        UASSERT_OBJ(it != m_prodFuncps.ಕೊನೆ(), nodep, "No production function made");
+        Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ prodFuncp = it->ಎರಡನೇ;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
         // V3Width already ran before V3RandSequence, so VarRefs we create here
         // need dtype set explicitly, V3Broken later checks width == widthMin.
-        AstVarRef* const breakRefp = new AstVarRef{fl, breakVarp, VAccess::WRITE};
+        AstVarRef* ಸ್ಥಿರಾಂಕ breakRefp = ಹೊಸ AstVarRef{fl, breakVarp, VAccess::WRITE};
         breakRefp->dtypeFrom(breakVarp);
-        AstArg* const argsp = new AstArg{fl, breakVarp->name(), breakRefp};
-        for (const auto& itr : m_localizeNames) {
-            const AstVar* const lvarp = itr.second;
-            AstVar* const iovarp = m_localizeRemaps[lvarp];
+        AstArg* ಸ್ಥಿರಾಂಕ argsp = ಹೊಸ AstArg{fl, breakVarp->name(), breakRefp};
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& itr : m_localize_ಹೆಸರುಗಳು) {
+            ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ lvarp = itr.ಎರಡನೇ;
+            AstVar* ಸ್ಥಿರಾಂಕ iovarp = m_localizeRemaps[lvarp];
             UASSERT_OBJ(iovarp, nodep, "No new port variable for local variable" << lvarp);
-            AstVarRef* const refp = new AstVarRef{fl, iovarp, VAccess::READWRITE};
+            AstVarRef* ಸ್ಥಿರಾಂಕ refp = ಹೊಸ AstVarRef{fl, iovarp, VAccess::READWRITE};
             refp->dtypeFrom(iovarp);
-            argsp->addNext(new AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(), refp});
+            argsp->ಕೂಡಿಸು_ಮುಂದಿನ(ಹೊಸ AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(), refp});
         }
-        if (userArgsp) argsp->addNext(userArgsp);
-        AstNode* const newp
-            = new AstStmtExpr{fl, new AstTaskRef{fl, VN_AS(prodFuncp, Task), argsp}};
-        return newp;
+        ಆದರೆ (userArgsp) argsp->ಕೂಡಿಸು_ಮುಂದಿನ(userArgsp);
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ newp
+            = ಹೊಸ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{fl, ಹೊಸ AstTaskRef{fl, VN_AS(prodFuncp, Task), argsp}};
+        ಹಿಂತಿರುಗಿ newp;
     }
 
-    void newProdFunc(AstRSProd* nodep) {
+    ಶೂನ್ಯ newProdFunc(AstRSProd* nodep) {
         // Task, as time may pass
-        AstTask* const newp
-            = new AstTask{nodep->fileline(), m_rsp->name() + "_" + nodep->name(), nullptr};
-        m_modp->addStmtsp(newp);
+        AstTask* ಸ್ಥಿರಾಂಕ newp
+            = ಹೊಸ AstTask{nodep->fileline(), m_rsp->name() + "_" + nodep->name(), ಶೂನ್ಯಸೂಚಕ};
+        m_modp->ಕೂಡಿಸು_Stmtsp(newp);
         m_prodFuncps.emplace(nodep, newp);
         UINFOTREE(9, newp, "newProd", "");
     }
 
-    AstNode* newProdRandJoin(AstRSProd* /*prodp*/, AstRSProdList* prodlistp) {
+    Ast_ಗಂಟು* newProdRandJoin(AstRSProd* /*prodp*/, AstRSProdList* prodlistp) {
         // For weight == 1.0 longer sequence (favor stay in a)
         // For weight == 0.0 shorter squence (favor change a/b)
         UASSERT_OBJ(prodlistp->weightp(), prodlistp, "Weight should have default CONST(0.5)");
-        AstNodeExpr* weightp = prodlistp->weightp()->unlinkFrBack();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* weightp = prodlistp->weightp()->unlink_Fr_ಹಿಂಭಾಗ();
 
         // Build map of production lists and productions we need to join
         // Must mainain the relative order of each sequence.
-        std::deque<AstRSProdItem*> lists;
-        std::unordered_map<AstRSProdItem*, std::deque<AstNodeStmt*>> listStmts;
-        for (AstRSProdItem* proditemp = VN_AS(prodlistp->prodsp(), RSProdItem); proditemp;
-             proditemp = VN_AS(proditemp->nextp(), RSProdItem)) {
-            lists.push_back(proditemp);
-            const AstRSProd* const subProdp = proditemp->prodp();
-            if (!subProdp) continue;
-            if (!subProdp->rulesp()) continue;
-            if (!subProdp->rulesp()->prodlistsp()) continue;
-            for (AstNodeStmt* subStmtp
-                 = VN_AS(subProdp->rulesp()->prodlistsp()->prodsp(), NodeStmt);
-                 subStmtp; subStmtp = VN_AS(subStmtp->nextp(), NodeStmt)) {
-                listStmts[proditemp].push_back(subStmtp);
+        std::deque<Ast_RSProd_ಅಂಶ*> lists;
+        std::unordered_map<Ast_RSProd_ಅಂಶ*, std::deque<Ast_ಗಂಟು_Stmt*>> listStmts;
+        ಗಾಗಿ (Ast_RSProd_ಅಂಶ* proditemp = VN_AS(prodlistp->prodsp(), RSProd_ಅಂಶ); proditemp;
+             proditemp = VN_AS(proditemp->nextp(), RSProd_ಅಂಶ)) {
+            lists.ತಳ್ಳು_ಹಿಂಭಾಗ(proditemp);
+            ಸ್ಥಿರಾಂಕ AstRSProd* ಸ್ಥಿರಾಂಕ subProdp = proditemp->prodp();
+            ಆದರೆ (!subProdp) ಮುಂದುವರಿ;
+            ಆದರೆ (!subProdp->rulesp()) ಮುಂದುವರಿ;
+            ಆದರೆ (!subProdp->rulesp()->prodlistsp()) ಮುಂದುವರಿ;
+            ಗಾಗಿ (Ast_ಗಂಟು_Stmt* subStmtp
+                 = VN_AS(subProdp->rulesp()->prodlistsp()->prodsp(), ಗಂಟು_Stmt);
+                 subStmtp; subStmtp = VN_AS(subStmtp->nextp(), ಗಂಟು_Stmt)) {
+                listStmts[proditemp].ತಳ್ಳು_ಹಿಂಭಾಗ(subStmtp);
             }
         }
 
         UINFO(9, "RandJoin productions called:");
-        for (AstRSProdItem* proditemp : lists) {
+        ಗಾಗಿ (Ast_RSProd_ಅಂಶ* proditemp : lists) {
             UINFO(9, "  list " << proditemp);
-            for (const AstNodeStmt* prodip : listStmts[proditemp])
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Stmt* prodip : listStmts[proditemp])
                 UINFO(9, "    calls " << prodip);
         }
 
         // Need to clone all nodes used
 
-        FileLine* fl = prodlistp->fileline();
-        AstNode* newp = nullptr;
+        File_ಸಾಲು* fl = prodlistp->fileline();
+        Ast_ಗಂಟು* newp = ಶೂನ್ಯಸೂಚಕ;
 
         // "bool _Vjoin_repick = true;"  // Pick a new longer sequence
-        AstVar* repickVarp = new AstVar{fl, VVarType::VAR, "_Vjoin_repick", VFlagBitPacked{}, 1};
+        AstVar* repickVarp = ಹೊಸ AstVar{fl, VVarType::VAR, "_Vjoin_repick", VFlag_ಬಿಟ್_Packed{}, 1};
         repickVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        repickVarp->funcLocal(true);
-        m_breakVarp->addNextHere(repickVarp);  // Add to function top, not newp
-        newp = AstNode::addNext(newp,
-                                new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                              new AstConst{fl, AstConst::BitTrue{}}});
+        repickVarp->funcLocal(ನಿಜ);
+        m_breakVarp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(repickVarp);  // Add to function top, not newp
+        newp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(newp,
+                                ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                              ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}}});
 
         // "int _Vjoin_nleft_0 = N(items);"  // N(a) Number left to generate in list 0, starts at
         // N(list0)
         std::deque<AstVar*> nleftVarps;
-        int i = 0;
-        for (AstRSProdItem* proditemp : lists) {
+        ಪೂರ್ಣಾಂಕ i = 0;
+        ಗಾಗಿ (Ast_RSProd_ಅಂಶ* proditemp : lists) {
             // 'rand join arule arule arule' is legal, so need numbered, not non-unique named
             // nleft's
-            AstVar* const varp = new AstVar{
-                fl, VVarType::VAR, "_Vjoin_nleft_" + std::to_string(i++), VFlagBitPacked{}, 32};
+            AstVar* ಸ್ಥಿರಾಂಕ varp = ಹೊಸ AstVar{
+                fl, VVarType::VAR, "_Vjoin_nleft_" + std::ಗಮ್ಯ_string(i++), VFlag_ಬಿಟ್_Packed{}, 32};
             varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            varp->funcLocal(true);
-            m_breakVarp->addNextHere(varp);  // Add to function top, not newp
-            nleftVarps.push_back(varp);
+            varp->funcLocal(ನಿಜ);
+            m_breakVarp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(varp);  // Add to function top, not newp
+            nleftVarps.ತಳ್ಳು_ಹಿಂಭಾಗ(varp);
 
-            newp = AstNode::addNext(
+            newp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(
                 newp,
-                new AstAssign{fl, new AstVarRef{fl, varp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::WidthedValue{}, 32,
-                                           static_cast<uint32_t>(listStmts[proditemp].size())}});
+                ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, varp, VAccess::WRITE},
+                              ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32,
+                                           static_cast<uint32_t>(listStmts[proditemp].ಗಾತ್ರ_2())}});
         }
 
         // "int _Vjoin_picked_elist = 0;"  // 0 = pick first eligible (non-finished) list, 1 = pick
         // second, etc
-        AstVar* const pickedVarp
-            = new AstVar{fl, VVarType::VAR, "_Vjoin_picked_elist", VFlagBitPacked{}, 1};
+        AstVar* ಸ್ಥಿರಾಂಕ pickedVarp
+            = ಹೊಸ AstVar{fl, VVarType::VAR, "_Vjoin_picked_elist", VFlag_ಬಿಟ್_Packed{}, 1};
         pickedVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        pickedVarp->funcLocal(true);
-        m_breakVarp->addNextHere(pickedVarp);  // Add to function top, not newp
+        pickedVarp->funcLocal(ನಿಜ);
+        m_breakVarp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(pickedVarp);  // Add to function top, not newp
 
         // "while(1) {"  // Generate until make complete sequence
-        AstJumpBlock* const whilep = new AstJumpBlock{fl, nullptr};
-        newp = AstNode::addNext(newp, new AstLoop{fl, whilep});
+        Ast_Jump_ಖಂಡ* ಸ್ಥಿರಾಂಕ whilep = ಹೊಸ Ast_Jump_ಖಂಡ{fl, ಶೂನ್ಯಸೂಚಕ};
+        newp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(newp, ಹೊಸ AstLoop{fl, whilep});
         {
             // "if ((std::rand() & 0xffffUL) > (0xffff * weight)) _Vjoin_repick = true;"
-            whilep->addStmtsp(new AstIf{
+            whilep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstIf{
                 fl,
-                new AstGt{
-                    fl, new AstRand{fl, AstRand::SRandomU32{}},
-                    new AstRToIS{fl, new AstMulD{fl,
-                                                 new AstConst{fl, AstConst::RealDouble{},
-                                                              static_cast<double>(0xffffffffUL)},
+                ಹೊಸ AstGt{
+                    fl, ಹೊಸ AstRand{fl, AstRand::SRandomU32{}},
+                    ಹೊಸ AstRToIS{fl, ಹೊಸ AstMulD{fl,
+                                                 ಹೊಸ AstConst{fl, AstConst::RealDouble{},
+                                                              static_cast<ದ್ವಿಗುಣ>(0xffffffffUL)},
                                                  weightp}}},
-                new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                              new AstConst{fl, AstConst::BitTrue{}}}});
+                ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, repickVarp, VAccess::WRITE},
+                              ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}}}});
 
             // "if (_Vjoin_repick) {"
-            AstIf* ifp = new AstIf{fl, new AstVarRef{fl, repickVarp, VAccess::READ}};
-            whilep->addStmtsp(ifp);
+            AstIf* ifp = ಹೊಸ AstIf{fl, ಹೊಸ AstVarRef{fl, repickVarp, VAccess::READ}};
+            whilep->ಕೂಡಿಸು_Stmtsp(ifp);
             {
                 // "// _Vjoin_nlists_eligible is how many lists eligable for picking"
                 // "int _Vjoin_nlists_eligible = 0;"
-                AstVar* const eligibleVarp = new AstVar{
-                    fl, VVarType::VAR, "_Vjoin_nlists_eligible", VFlagBitPacked{}, 32};
+                AstVar* ಸ್ಥಿರಾಂಕ eligibleVarp = ಹೊಸ AstVar{
+                    fl, VVarType::VAR, "_Vjoin_nlists_eligible", VFlag_ಬಿಟ್_Packed{}, 32};
                 eligibleVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                eligibleVarp->funcLocal(true);
-                m_breakVarp->addNextHere(eligibleVarp);  // Add to function top, not newp
-                ifp->addThensp(new AstAssign{fl, new AstVarRef{fl, eligibleVarp, VAccess::WRITE},
-                                             new AstConst{fl, AstConst::WidthedValue{}, 32, 0}});
+                eligibleVarp->funcLocal(ನಿಜ);
+                m_breakVarp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(eligibleVarp);  // Add to function top, not newp
+                ifp->ಕೂಡಿಸು_Thensp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, eligibleVarp, VAccess::WRITE},
+                                             ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 0}});
 
                 i = 0;
-                for (AstRSProdItem* proditemp : lists) {
-                    (void)proditemp;
+                ಗಾಗಿ (Ast_RSProd_ಅಂಶ* proditemp : lists) {
+                    (ಶೂನ್ಯ)proditemp;
                     // "_Vjoin_nlists_eligible += _Vjoin_nleft_0 ? 1 : 0;"
-                    ifp->addThensp(new AstAssign{
-                        fl, new AstVarRef{fl, eligibleVarp, VAccess::WRITE},
-                        new AstAdd{
-                            fl, new AstVarRef{fl, eligibleVarp, VAccess::READ},
-                            new AstCond{
+                    ifp->ಕೂಡಿಸು_Thensp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                        fl, ಹೊಸ AstVarRef{fl, eligibleVarp, VAccess::WRITE},
+                        ಹೊಸ Ast_ಕೂಡಿಸು{
+                            fl, ಹೊಸ AstVarRef{fl, eligibleVarp, VAccess::READ},
+                            ಹೊಸ AstCond{
                                 fl,
-                                new AstNeq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                           new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                new AstConst{fl, AstConst::WidthedValue{}, 32, 1},
-                                new AstConst{fl, AstConst::WidthedValue{}, 32, 0}}}});
+                                ಹೊಸ AstNeq{fl, ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 0},
+                                           ಹೊಸ AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1},
+                                ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 0}}}});
                     ++i;
                 }
 
                 // "if (!_Vjoin_nlists_eligible) break;"  // Out of elements
-                ifp->addThensp(
-                    new AstIf{fl,
-                              new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                        new AstVarRef{fl, eligibleVarp, VAccess::READ}},
-                              new AstJumpGo{fl, m_jumpBlockp}});
+                ifp->ಕೂಡಿಸು_Thensp(
+                    ಹೊಸ AstIf{fl,
+                              ಹೊಸ AstEq{fl, ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 0},
+                                        ಹೊಸ AstVarRef{fl, eligibleVarp, VAccess::READ}},
+                              ಹೊಸ AstJumpGo{fl, m_jumpBlockp}});
 
                 // "// +1 to simplify usage, so 0 = done"
                 // "_Vjoin_picked_elist = 1 + (std::rand() % _Vjoin_nlists_eligible);"
-                ifp->addThensp(new AstAssign{
-                    fl, new AstVarRef{fl, pickedVarp, VAccess::WRITE},
-                    new AstAdd{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 1},
-                               new AstModDiv{fl, new AstRand{fl, AstRand::SRandomU32{}},
-                                             new AstVarRef{fl, eligibleVarp, VAccess::READ}}}});
+                ifp->ಕೂಡಿಸು_Thensp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                    fl, ಹೊಸ AstVarRef{fl, pickedVarp, VAccess::WRITE},
+                    ಹೊಸ Ast_ಕೂಡಿಸು{fl, ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1},
+                               ಹೊಸ AstModDiv{fl, ಹೊಸ AstRand{fl, AstRand::SRandomU32{}},
+                                             ಹೊಸ AstVarRef{fl, eligibleVarp, VAccess::READ}}}});
 
                 // "_Vjoin_repick = false;
-                ifp->addThensp(new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                             new AstConst{fl, AstConst::BitFalse{}}});
+                ifp->ಕೂಡಿಸು_Thensp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                             ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_False{}}});
             }
 
             // "// Number of eligible lists left before hit _Vjoin_picked one"
             // "int _Vjoin_sel_elist = _Vjoin_picked_elist;"
-            AstVar* const selVarp
-                = new AstVar{fl, VVarType::VAR, "_Vjoin_sel_elist", VFlagBitPacked{}, 32};
+            AstVar* ಸ್ಥಿರಾಂಕ selVarp
+                = ಹೊಸ AstVar{fl, VVarType::VAR, "_Vjoin_sel_elist", VFlag_ಬಿಟ್_Packed{}, 32};
             selVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            selVarp->funcLocal(true);
-            m_breakVarp->addNextHere(selVarp);  // Add to function top, not newp
-            whilep->addStmtsp(new AstAssign{fl, new AstVarRef{fl, selVarp, VAccess::WRITE},
-                                            new AstVarRef{fl, pickedVarp, VAccess::READ}});
+            selVarp->funcLocal(ನಿಜ);
+            m_breakVarp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(selVarp);  // Add to function top, not newp
+            whilep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, selVarp, VAccess::WRITE},
+                                            ಹೊಸ AstVarRef{fl, pickedVarp, VAccess::READ}});
 
             i = -1;
-            for (AstRSProdItem* proditemp : lists) {
+            ಗಾಗಿ (Ast_RSProd_ಅಂಶ* proditemp : lists) {
                 ++i;
                 // "if (_Vjoin_nleft_0) {"
-                ifp = new AstIf{fl,
-                                new AstNeq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                           new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                nullptr, nullptr};
-                whilep->addStmtsp(ifp);
+                ifp = ಹೊಸ AstIf{fl,
+                                ಹೊಸ AstNeq{fl, ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 0},
+                                           ಹೊಸ AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ};
+                whilep->ಕೂಡಿಸು_Stmtsp(ifp);
                 {
                     // "--_Vjoin_sel_elist;"
-                    ifp->addThensp(new AstAssign{
-                        fl, new AstVarRef{fl, selVarp, VAccess::WRITE},
-                        new AstSub{fl, new AstVarRef{fl, selVarp, VAccess::READ},
-                                   new AstConst{fl, AstConst::WidthedValue{}, 32, 1}}});
+                    ifp->ಕೂಡಿಸು_Thensp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                        fl, ಹೊಸ AstVarRef{fl, selVarp, VAccess::WRITE},
+                        ಹೊಸ AstSub{fl, ಹೊಸ AstVarRef{fl, selVarp, VAccess::READ},
+                                   ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1}}});
 
                     // "if (_Vjoin_sel_elist == 0) {"
-                    AstIf* const jIfp = new AstIf{
+                    AstIf* ಸ್ಥಿರಾಂಕ jIfp = ಹೊಸ AstIf{
                         fl,
-                        new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                  new AstVarRef{fl, selVarp, VAccess::READ}},
-                        nullptr, nullptr};
-                    ifp->addThensp(jIfp);
+                        ಹೊಸ AstEq{fl, ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 0},
+                                  ಹೊಸ AstVarRef{fl, selVarp, VAccess::READ}},
+                        ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ};
+                    ifp->ಕೂಡಿಸು_Thensp(jIfp);
                     {
                         // "switch (_Vjoin_nleft_0) {"
                         //     "case 2 / * N(a)  * /: {statement}; break;"
                         //     "case 1 / * N(a) - 1 * /: {statement}; break;"
-                        uint32_t j = static_cast<uint32_t>(listStmts[proditemp].size());
-                        for (AstNodeStmt* iprodp : listStmts[proditemp]) {
-                            jIfp->addThensp(new AstIf{
+                        uint32_t j = static_cast<uint32_t>(listStmts[proditemp].ಗಾತ್ರ_2());
+                        ಗಾಗಿ (Ast_ಗಂಟು_Stmt* iprodp : listStmts[proditemp]) {
+                            jIfp->ಕೂಡಿಸು_Thensp(ಹೊಸ AstIf{
                                 fl,
-                                new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, j},
-                                          new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                                iprodp->cloneTree(false)});
+                                ಹೊಸ AstEq{fl, ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, j},
+                                          ಹೊಸ AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                                iprodp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು)});
                             --j;
                         }
 
                         // "--_Vjoin_nleft_0;"
-                        jIfp->addThensp(new AstAssign{
-                            fl, new AstVarRef{fl, nleftVarps[i], VAccess::WRITE},
-                            new AstSub{fl, new AstVarRef{fl, nleftVarps[i], VAccess::READ},
-                                       new AstConst{fl, AstConst::WidthedValue{}, 32, 1}}});
+                        jIfp->ಕೂಡಿಸು_Thensp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                            fl, ಹೊಸ AstVarRef{fl, nleftVarps[i], VAccess::WRITE},
+                            ಹೊಸ AstSub{fl, ಹೊಸ AstVarRef{fl, nleftVarps[i], VAccess::READ},
+                                       ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1}}});
 
                         // "if (0 == _Vjoin_nleft_0) _Vjoin_repick = true;"
-                        jIfp->addThensp(new AstIf{
+                        jIfp->ಕೂಡಿಸು_Thensp(ಹೊಸ AstIf{
                             fl,
-                            new AstEq{fl, new AstConst{fl, AstConst::WidthedValue{}, 32, 0},
-                                      new AstVarRef{fl, nleftVarps[i], VAccess::READ}},
-                            new AstAssign{fl, new AstVarRef{fl, repickVarp, VAccess::WRITE},
-                                          new AstConst{fl, AstConst::BitTrue{}}}});
+                            ಹೊಸ AstEq{fl, ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 0},
+                                      ಹೊಸ AstVarRef{fl, nleftVarps[i], VAccess::READ}},
+                            ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, repickVarp, VAccess::WRITE},
+                                          ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}}}});
 
                         // "continue;"
-                        jIfp->addThensp(new AstJumpGo{fl, whilep});
+                        jIfp->ಕೂಡಿಸು_Thensp(ಹೊಸ AstJumpGo{fl, whilep});
                     }
                 }
             }
         }
 
         UINFOTREE(9, newp, "ForkJoin new", "-");
-        return newp;
+        ಹಿಂತಿರುಗಿ newp;
     }
 
     // VISITORS
 
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
 
-    void visit(AstRandSequence* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRandSequence* nodep) override {
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_modp, nodep, "randsequence not under module");
-        if (m_rsp) {
+        ಆದರೆ (m_rsp) {
             // No examples found in the wild
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: randsequence under randsequence");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlink_Fr_ಹಿಂಭಾಗ()), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
 
         UINFOTREE(9, nodep, "rsIn", "");
         VL_RESTORER(m_rsp);
         m_rsp = nodep;
-        VL_RESTORER(m_startProdp);
+        VL_RESTORER(m_ಆರಂಭ_Prodp);
 
         VL_RESTORER_COPY(m_localizes);
-        VL_RESTORER_COPY(m_localizeNames);
+        VL_RESTORER_COPY(m_localize_ಹೆಸರುಗಳು);
         VL_RESTORER_COPY(m_localizeRemaps);
-        findLocalizes(nodep);
+        ಕಂಡುಹಿಡಿ_Localizes(nodep);
 
         // Find first production
-        m_startProdp = nodep->prodsp();
-        if (nodep->prodp()) m_startProdp = nodep->prodp();  // Has a start production selected
+        m_ಆರಂಭ_Prodp = nodep->prodsp();
+        ಆದರೆ (nodep->prodp()) m_ಆರಂಭ_Prodp = nodep->prodp();  // Has a start production selected
 
         // Build production functions
-        for (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
+        ಗಾಗಿ (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
             newProdFunc(prodp);
             // Don't iterate yet, need to have tasks we can reference
         }
@@ -436,218 +436,218 @@ class RandSequenceVisitor final : public VNVisitor {
         // Must do those with 'rand join' first, as they need to see the raw AstRS* nodes
         // before they are removed.  (Alternative would be to keep them until the end).
         UINFOTREE(9, nodep, "RS Tree pre-it", "-");
-        std::unordered_set<AstRSProd*> prodHasRandJoin;
-        for (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
-            prodp->foreach([&](const AstRSProdList* const prodlistp) {
-                if (prodlistp->randJoin()) prodHasRandJoin.emplace(prodp);
+        std::unordered_ಗಣ<AstRSProd*> prodHasRandJoin;
+        ಗಾಗಿ (AstRSProd* prodp = nodep->prodsp(); prodp; prodp = VN_AS(prodp->nextp(), RSProd)) {
+            prodp->foreach([&](ಸ್ಥಿರಾಂಕ AstRSProdList* ಸ್ಥಿರಾಂಕ prodlistp) {
+                ಆದರೆ (prodlistp->randJoin()) prodHasRandJoin.emplace(prodp);
             });
         }
-        for (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
+        ಗಾಗಿ (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
             nextp = VN_AS(prodp->nextp(), RSProd);
-            if (prodHasRandJoin.count(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
+            ಆದರೆ (prodHasRandJoin.ಎಣಿಕೆ_2(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
         }
-        for (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
+        ಗಾಗಿ (AstRSProd *nextp, *prodp = nodep->prodsp(); prodp; prodp = nextp) {
             nextp = VN_AS(prodp->nextp(), RSProd);
-            if (!prodHasRandJoin.count(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
+            ಆದರೆ (!prodHasRandJoin.ಎಣಿಕೆ_2(prodp)) VL_DO_DANGLING(iterate(prodp), prodp);
         }
         UINFOTREE(9, nodep, "RS Tree post-it", "-");
 
         // Replace randsequence with call to randsequence start function
-        AstTask* const startFuncp = newStartFunc(nodep);
-        AstArg* argsp = nullptr;
-        for (auto& itr : m_localizeNames) {
-            AstVar* const lvarp = itr.second;
-            argsp = AstNode::addNext(
-                argsp, new AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(),
-                                  new AstVarRef{nodep->fileline(), lvarp, VAccess::READWRITE}});
+        AstTask* ಸ್ಥಿರಾಂಕ ಆರಂಭ_Funcp = new_ಆರಂಭ_Func(nodep);
+        AstArg* argsp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& itr : m_localize_ಹೆಸರುಗಳು) {
+            AstVar* ಸ್ಥಿರಾಂಕ lvarp = itr.ಎರಡನೇ;
+            argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(
+                argsp, ಹೊಸ AstArg{nodep->fileline(), "__Vrsarg_" + lvarp->name(),
+                                  ಹೊಸ AstVarRef{nodep->fileline(), lvarp, VAccess::READWRITE}});
         }
-        AstTaskRef* const callStartp
-            = new AstTaskRef{nodep->fileline(), startFuncp->name(), argsp};
-        callStartp->taskp(startFuncp);
-        nodep->replaceWith(new AstStmtExpr{nodep->fileline(), callStartp});
+        AstTaskRef* ಸ್ಥಿರಾಂಕ callStartp
+            = ಹೊಸ AstTaskRef{nodep->fileline(), ಆರಂಭ_Funcp->name(), argsp};
+        callStartp->taskp(ಆರಂಭ_Funcp);
+        nodep->replaceWith(ಹೊಸ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{nodep->fileline(), callStartp});
 
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstRSProd* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRSProd* nodep) override {
         // Production, immediately under a randsequence
         UINFO(9, "visit " << nodep);
         UINFOTREE(9, nodep, "visit " << nodep, "-");
         UASSERT_OBJ(!m_prodFuncp, nodep, "recursive production definition?");
         VL_RESTORER(m_prodFuncp);
-        auto it = m_prodFuncps.find(nodep);
-        UASSERT_OBJ(it != m_prodFuncps.end(), nodep, "No production function made");
-        m_prodFuncp = it->second;
+        ಸ್ವಯಂಚಾಲಿತ it = m_prodFuncps.ಕಂಡುಹಿಡಿ(nodep);
+        UASSERT_OBJ(it != m_prodFuncps.ಕೊನೆ(), nodep, "No production function made");
+        m_prodFuncp = it->ಎರಡನೇ;
 
         // Create a break variable
         // TODO we could do this only if break exists in the downstream production,
         // but as-is we'll optimize it away in most cases anyways
         VL_RESTORER(m_breakVarp);
         VL_RESTORER_COPY(m_localizeRemaps);
-        m_breakVarp = newBreakVar(nodep->fileline(), true);
-        m_prodFuncp->addStmtsp(m_breakVarp);
+        m_breakVarp = newBreakVar(nodep->fileline(), ನಿಜ);
+        m_prodFuncp->ಕೂಡಿಸು_Stmtsp(m_breakVarp);
 
         // Production formal ports become real input ports on the generated task.
         // Must be added after m_breakVarp / localize ports so positional argument
         // order in newProdFuncRef stays consistent: [break, localize..., user...].
-        if (AstNode* const portsp = nodep->portsp()) {
-            portsp->unlinkFrBackWithNext();
-            m_prodFuncp->addStmtsp(portsp);
-            for (AstNode* itp = portsp; itp; itp = itp->nextp()) {
-                AstVar* const portVarp = VN_AS(itp, Var);
-                portVarp->funcLocal(true);
-                portVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ portsp = nodep->portsp()) {
+            portsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+            m_prodFuncp->ಕೂಡಿಸು_Stmtsp(portsp);
+            ಗಾಗಿ (Ast_ಗಂಟು* itp = portsp; itp; itp = itp->nextp()) {
+                AstVar* ಸ್ಥಿರಾಂಕ ಪೋರ್ಟ್_Varp = VN_AS(itp, Var);
+                ಪೋರ್ಟ್_Varp->funcLocal(ನಿಜ);
+                ಪೋರ್ಟ್_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             }
         }
 
         // Put JumpBlock immediately under the new function to support
         // a future break/return.  V3Const will rip it out if unneeded.
         VL_RESTORER(m_jumpBlockp);
-        m_jumpBlockp = new AstJumpBlock{nodep->fileline(), nullptr};
-        m_prodFuncp->addStmtsp(m_jumpBlockp);
+        m_jumpBlockp = ಹೊಸ Ast_Jump_ಖಂಡ{nodep->fileline(), ಶೂನ್ಯಸೂಚಕ};
+        m_prodFuncp->ಕೂಡಿಸು_Stmtsp(m_jumpBlockp);
 
-        if (nodep->fvarp())
+        ಆದರೆ (nodep->fvarp())
             nodep->fvarp()->v3warn(E_UNSUPPORTED,
                                    "Unsupported: randsequence production function variable");
 
         // Move children into m_prodFuncp, and iterate there
-        if (!nodep->rulesp()) {  // Nothing to do
-        } else if (nodep->rulesp()->prodlistsp() && nodep->rulesp()->prodlistsp()->randJoin()) {
-            AstRSProdList* const prodlistp = nodep->rulesp()->prodlistsp();
-            AstNode* const itemsp = newProdRandJoin(nodep, prodlistp);
-            m_jumpBlockp->addStmtsp(itemsp);
-            iterateAndNextNull(itemsp);
-        } else if (!nodep->rulesp()->nextp()) {  // Single rule/list, can just do it
+        ಆದರೆ (!nodep->rulesp()) {  // Nothing to do
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->rulesp()->prodlistsp() && nodep->rulesp()->prodlistsp()->randJoin()) {
+            AstRSProdList* ಸ್ಥಿರಾಂಕ prodlistp = nodep->rulesp()->prodlistsp();
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ itemsp = newProdRandJoin(nodep, prodlistp);
+            m_jumpBlockp->ಕೂಡಿಸು_Stmtsp(itemsp);
+            iterate_And_ಮುಂದಿನ_Null(itemsp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!nodep->rulesp()->nextp()) {  // Single rule/list, can just do it
             // RSPROD(RSRULE(weight, stmt)) -> IF(weight != 0, stmt)
-            const AstRSRule* const rulep = nodep->rulesp();
-            AstNode* itemsp = nullptr;
-            if (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlinkFrBackWithNext();
-            if (rulep->prodlistsp())
-                itemsp = AstNode::addNext(itemsp, rulep->prodlistsp()->unlinkFrBackWithNext());
+            ಸ್ಥಿರಾಂಕ AstRSRule* ಸ್ಥಿರಾಂಕ rulep = nodep->rulesp();
+            Ast_ಗಂಟು* itemsp = ಶೂನ್ಯಸೂಚಕ;
+            ಆದರೆ (rulep->ತೂಕ_Stmtsp()) itemsp = rulep->ತೂಕ_Stmtsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+            ಆದರೆ (rulep->prodlistsp())
+                itemsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(itemsp, rulep->prodlistsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
             // Can ignore rulep->weightp() unless is zero, in which case noop, add if
-            if (rulep->weightp())
-                itemsp = new AstIf{rulep->weightp()->fileline(),
-                                   new AstNeq{rulep->weightp()->fileline(),
-                                              new AstConst{rulep->weightp()->fileline(), 0},
-                                              rulep->weightp()->unlinkFrBack()},
+            ಆದರೆ (rulep->weightp())
+                itemsp = ಹೊಸ AstIf{rulep->weightp()->fileline(),
+                                   ಹೊಸ AstNeq{rulep->weightp()->fileline(),
+                                              ಹೊಸ AstConst{rulep->weightp()->fileline(), 0},
+                                              rulep->weightp()->unlink_Fr_ಹಿಂಭಾಗ()},
                                    itemsp};
             // Move prodlist to parent (m_prodFunc) and process
-            if (itemsp) {
+            ಆದರೆ (itemsp) {
                 UINFOTREE(9, itemsp, "additems", "-");
-                m_jumpBlockp->addStmtsp(itemsp);
-                iterateAndNextNull(itemsp);
+                m_jumpBlockp->ಕೂಡಿಸು_Stmtsp(itemsp);
+                iterate_And_ಮುಂದಿನ_Null(itemsp);
                 UINFOTREE(9, m_jumpBlockp, "jumpBlockNow", "-");
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // List of rules with "OR", need to random-weight them
             // RSPROD(RSRULE(weight1, stmt!), RSRULE(weight2, stmt2))
             //   -> RANDCASE(CASEITEM(weight1, stmt1), CASEITEM(weight2, stmt2))
-            AstRandCase* const randcasep = new AstRandCase{nodep->fileline(), nullptr};
-            for (AstRSRule* rulep = nodep->rulesp(); rulep;
+            AstRandCase* ಸ್ಥಿರಾಂಕ randcasep = ಹೊಸ AstRandCase{nodep->fileline(), ಶೂನ್ಯಸೂಚಕ};
+            ಗಾಗಿ (AstRSRule* rulep = nodep->rulesp(); rulep;
                  rulep = VN_AS(rulep->nextp(), RSRule)) {
-                AstNode* itemsp = nullptr;
-                if (rulep->weightStmtsp()) itemsp = rulep->weightStmtsp()->unlinkFrBackWithNext();
-                if (rulep->prodlistsp())
-                    itemsp = AstNode::addNext(itemsp, rulep->prodlistsp()->unlinkFrBackWithNext());
-                if (itemsp) {
-                    AstNodeExpr* const weightp = rulep->weightp()
-                                                     ? rulep->weightp()->unlinkFrBack()
-                                                     : new AstConst{rulep->fileline(), 1};
-                    randcasep->addItemsp(new AstCaseItem{rulep->fileline(), weightp, itemsp});
+                Ast_ಗಂಟು* itemsp = ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (rulep->ತೂಕ_Stmtsp()) itemsp = rulep->ತೂಕ_Stmtsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+                ಆದರೆ (rulep->prodlistsp())
+                    itemsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(itemsp, rulep->prodlistsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
+                ಆದರೆ (itemsp) {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ weightp = rulep->weightp()
+                                                     ? rulep->weightp()->unlink_Fr_ಹಿಂಭಾಗ()
+                                                     : ಹೊಸ AstConst{rulep->fileline(), 1};
+                    randcasep->ಕೂಡಿಸು_Itemsp(ಹೊಸ Ast_Case_ಅಂಶ{rulep->fileline(), weightp, itemsp});
                 }
             }
-            m_jumpBlockp->addStmtsp(randcasep);
-            iterateAndNextNull(randcasep);
+            m_jumpBlockp->ಕೂಡಿಸು_Stmtsp(randcasep);
+            iterate_And_ಮುಂದಿನ_Null(randcasep);
         }
 
         // V3Task needs to know if we ended up making a recursive function
-        m_prodFuncp->foreach([&](AstNodeFTaskRef* const nodep) {
-            if (nodep->taskp() == m_prodFuncp) m_prodFuncp->recursive(true);
+        m_prodFuncp->foreach([&](Ast_ಗಂಟು_FTask_Ref* ಸ್ಥಿರಾಂಕ nodep) {
+            ಆದರೆ (nodep->taskp() == m_prodFuncp) m_prodFuncp->recursive(ನಿಜ);
         });
         UINFOTREE(9, m_prodFuncp, "rsprod-task-done " << nodep, "-");
 
         // Done with production, should have moved everything to new task
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlink_Fr_ಹಿಂಭಾಗ()), nodep);
     }
-    void visit(AstRSRule* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRSRule* nodep) override {
         // Rule of what to produce (as a list) under a production
         nodep->v3fatalSrc("randsequence rule should be iterated and deleted by AstRSProd");
     }
-    void visit(AstRSProdList* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRSProdList* nodep) override {
         // List of productions to call, potentially with a weight
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_prodFuncp, nodep, "RSProdList not under production");
 
         // Move prodlist to parent (m_prodFunc) and process
-        if (AstNode* const itemsp = nodep->prodsp()) {
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ itemsp = nodep->prodsp()) {
             UASSERT_OBJ(!nodep->randJoin(), nodep,
                         "rand join should have been handled in visit(RSRule)");
-            nodep->replaceWith(itemsp->unlinkFrBackWithNext());
+            nodep->replaceWith(itemsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
             // Will soon iterate itemsp as part of normal visit process
             // These will become sequential in the generated task
-        } else {
-            nodep->unlinkFrBack();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            nodep->unlink_Fr_ಹಿಂಭಾಗ();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstRSProdItem* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_RSProd_ಅಂಶ* nodep) override {
         // "call" to generate using another production
         UINFO(9, "visit " << nodep);
         UASSERT_OBJ(m_prodFuncp, nodep, "RSProdItem not under production");
-        AstRSProd* const foundp = nodep->prodp();
+        AstRSProd* ಸ್ಥಿರಾಂಕ foundp = nodep->prodp();
         UASSERT_OBJ(foundp, nodep, "Unlinked production reference");
         // Pass through caller-side argument list (IEEE 1800-2023 18.17.7).
-        AstArg* const userArgsp
-            = nodep->argsp() ? nodep->argsp()->unlinkFrBackWithNext() : nullptr;
+        AstArg* ಸ್ಥಿರಾಂಕ userArgsp
+            = nodep->argsp() ? nodep->argsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ() : ಶೂನ್ಯಸೂಚಕ;
         // Convert to task call
-        AstNode* const newp = newProdFuncRef(nodep, foundp, m_breakVarp, userArgsp);
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ newp = newProdFuncRef(nodep, foundp, m_breakVarp, userArgsp);
         // The production might have done a "break;", skip other steps if so
-        newp->addNext(new AstIf{nodep->fileline(),
-                                new AstVarRef{nodep->fileline(), m_breakVarp, VAccess::READ},
-                                new AstJumpGo{nodep->fileline(), m_jumpBlockp}});
+        newp->ಕೂಡಿಸು_ಮುಂದಿನ(ಹೊಸ AstIf{nodep->fileline(),
+                                ಹೊಸ AstVarRef{nodep->fileline(), m_breakVarp, VAccess::READ},
+                                ಹೊಸ AstJumpGo{nodep->fileline(), m_jumpBlockp}});
 
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    void visit(AstRSBreak* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRSBreak* nodep) override {
         UASSERT_OBJ(m_jumpBlockp, nodep, "RSBreak not under production jump block");
         UASSERT_OBJ(m_breakVarp, nodep, "no break variable");
-        AstNodeStmt* const newp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), m_breakVarp, VAccess::WRITE},
-            new AstConst{nodep->fileline(), AstConst::BitTrue{}}};
-        newp->addNext(new AstJumpGo{nodep->fileline(), m_jumpBlockp});
+        Ast_ಗಂಟು_Stmt* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+            nodep->fileline(), ಹೊಸ AstVarRef{nodep->fileline(), m_breakVarp, VAccess::WRITE},
+            ಹೊಸ AstConst{nodep->fileline(), AstConst::ಬಿಟ್_True{}}};
+        newp->ಕೂಡಿಸು_ಮುಂದಿನ(ಹೊಸ AstJumpGo{nodep->fileline(), m_jumpBlockp});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstRSReturn* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRSReturn* nodep) override {
         UASSERT_OBJ(m_jumpBlockp, nodep, "RSReturn not under production jump block");
-        nodep->replaceWith(new AstJumpGo{nodep->fileline(), m_jumpBlockp});
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(ಹೊಸ AstJumpGo{nodep->fileline(), m_jumpBlockp});
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarRef* nodep) override {
         // Change references to variables inside randsequence to references to
         // ref variables on the new task
-        const auto it = m_localizeRemaps.find(nodep->varp());
-        if (it != m_localizeRemaps.end()) {
-            AstVar* const iovarp = it->second;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_localizeRemaps.ಕಂಡುಹಿಡಿ(nodep->varp());
+        ಆದರೆ (it != m_localizeRemaps.ಕೊನೆ()) {
+            AstVar* ಸ್ಥಿರಾಂಕ iovarp = it->ಎರಡನೇ;
             UINFO(9, "VARREF remap " << nodep << " -> " << iovarp);
             nodep->varp(iovarp);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit RandSequenceVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~RandSequenceVisitor() override = default;
+    ಸ್ಪಷ್ಟ RandSequenceVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~RandSequenceVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //######################################################################
 // RandSequence method class functions
 
-void V3RandSequence::randSequenceNetlist(AstNetlist* nodep) {
+ಶೂನ್ಯ V3RandSequence::randSequenceNetlist(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { const RandSequenceVisitor randSequenceVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("randsequence", 0, dumpTreeEitherLevel() >= 3);
+    { ಸ್ಥಿರಾಂಕ RandSequenceVisitor randSequenceVisitor{nodep}; }
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("randsequence", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

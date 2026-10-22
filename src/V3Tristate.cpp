@@ -117,213 +117,213 @@
 // unsupported.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Tristate.h"
+#ಅನ್ತರ್ಭಾವ "V3Tristate.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Graph.h"
-#include "V3Inst.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3AstUserAllocator.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Inst.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class TristateBaseVisitor VL_NOT_FINAL : public VNVisitor {
-public:
+ವರ್ಗ Tristate_ತಳ_Visitor VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ VNVisitor {
+ಸಾರ್ವಜನಿಕ:
     // METHODS
 };
 
 //######################################################################
 // Graph support classes
 
-class TristateVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(TristateVertex, V3GraphVertex)
-    AstNode* const m_nodep;
-    bool m_isTristate = false;  // Logic indicates a tristate
-    bool m_feedsTri = false;  // Propagates to a tristate node (on RHS)
-    bool m_processed = false;  // Tristating was cleaned up
-public:
-    TristateVertex(V3Graph* graphp, AstNode* nodep)
-        : V3GraphVertex{graphp}
+ವರ್ಗ Tristate_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Tristate_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ m_nodep;
+    ತಾರ್ಕಿಕ m_isTristate = ಸುಳ್ಳು;  // Logic indicates a tristate
+    ತಾರ್ಕಿಕ m_feedsTri = ಸುಳ್ಳು;  // Propagates to a tristate node (on RHS)
+    ತಾರ್ಕಿಕ m_processed = ಸುಳ್ಳು;  // Tristating was cleaned up
+ಸಾರ್ವಜನಿಕ:
+    Tristate_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, Ast_ಗಂಟು* nodep)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_nodep{nodep} {}
-    ~TristateVertex() override = default;
+    ~Tristate_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
     // ACCESSORS
-    AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-    const AstVar* varp() const { return VN_CAST(nodep(), Var); }
-    string name() const override {
-        return ((isTristate() ? "tri\\n"
+    Ast_ಗಂಟು* nodep() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_nodep; }
+    ಸ್ಥಿರಾಂಕ AstVar* varp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ VN_CAST(nodep(), Var); }
+    string name() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ((isTristate() ? "tri\\n"
                  : feedsTri() ? "feed\\n"
                               : "-\\n")
-                + (nodep()->prettyTypeName() + " " + cvtToHex(nodep())));
+                + (nodep()->prettyTypeName() + " " + cvt_ಗಮ್ಯ_Hex(nodep())));
     }
-    string dotColor() const override {
-        return (varp() ? (isTristate() ? "darkblue"
+    string dotColor() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ (varp() ? (isTristate() ? "darkblue"
                           : feedsTri() ? "blue"
                                        : "lightblue")
                        : (isTristate() ? "darkgreen"
                           : feedsTri() ? "green"
                                        : "lightgreen"));
     }
-    FileLine* fileline() const override { return nodep()->fileline(); }
-    bool isTristate() const VL_MT_SAFE { return m_isTristate; }
-    void isTristate(bool flag) { m_isTristate = flag; }
-    bool feedsTri() const VL_MT_SAFE { return m_feedsTri; }
-    void feedsTri(bool flag) { m_feedsTri = flag; }
-    bool processed() const { return m_processed; }
-    void processed(bool flag) { m_processed = flag; }
+    File_ಸಾಲು* fileline() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ nodep()->fileline(); }
+    ತಾರ್ಕಿಕ isTristate() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ m_isTristate; }
+    ಶೂನ್ಯ isTristate(ತಾರ್ಕಿಕ flag) { m_isTristate = flag; }
+    ತಾರ್ಕಿಕ feedsTri() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ m_feedsTri; }
+    ಶೂನ್ಯ feedsTri(ತಾರ್ಕಿಕ flag) { m_feedsTri = flag; }
+    ತಾರ್ಕಿಕ processed() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_processed; }
+    ಶೂನ್ಯ processed(ತಾರ್ಕಿಕ flag) { m_processed = flag; }
 };
 
 //######################################################################
 
-class TristateGraph final {
+ವರ್ಗ Tristate_ನಕ್ಷೆ final {
     // NODE STATE
     //   AstVar::user4p         -> TristateVertex* for variable being built
     // VNUser4InUse     m_inuser4;   // In visitor below
 
     // TYPES
-public:
-    using VarVec = std::vector<AstVar*>;
+ಸಾರ್ವಜನಿಕ:
+    ಬಳಸಿ VarVec = std::ಸದಿಶ<AstVar*>;
 
-private:
+ಖಾಸಗಿ:
     // MEMBERS
-    V3Graph m_graph;  // Logic graph
+    V3_ನಕ್ಷೆ m_ನಕ್ಷೆ;  // Logic graph
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    TristateGraph() { clearAndCheck(); }
-    virtual ~TristateGraph() { clearAndCheck(); }
-    VL_UNCOPYABLE(TristateGraph);
+    Tristate_ನಕ್ಷೆ() { clearAndCheck(); }
+    ವಾಸ್ತವಿಕ ~Tristate_ನಕ್ಷೆ() { clearAndCheck(); }
+    VL_UNCOPYABLE(Tristate_ನಕ್ಷೆ);
 
-private:
+ಖಾಸಗಿ:
     // METHODS
 
-    TristateVertex* makeVertex(AstNode* nodep) {
-        TristateVertex* vertexp = reinterpret_cast<TristateVertex*>(nodep->user4p());
-        if (!vertexp) {
+    Tristate_ಶೃಂಗ* make_ಶೃಂಗ(Ast_ಗಂಟು* nodep) {
+        Tristate_ಶೃಂಗ* vertexp = reinterpret_cast<Tristate_ಶೃಂಗ*>(nodep->user4p());
+        ಆದರೆ (!vertexp) {
             UINFO(6, "         New vertex " << nodep);
-            vertexp = new TristateVertex{&m_graph, nodep};
+            vertexp = ಹೊಸ Tristate_ಶೃಂಗ{&m_ನಕ್ಷೆ, nodep};
             nodep->user4p(vertexp);
         }
-        return vertexp;
+        ಹಿಂತಿರುಗಿ vertexp;
     }
 
     // METHODS - Graph optimization
-    void graphWalkRecurseFwd(TristateVertex* vtxp, int level) {
+    ಶೂನ್ಯ ನಕ್ಷೆ_Walk_Recurse_Fwd(Tristate_ಶೃಂಗ* vtxp, ಪೂರ್ಣಾಂಕ level) {
         // Propagate tristate forward to all sinks
         // For example if on a CONST, propagate through CONCATS to ASSIGN
         // to LHS VARREF of signal to tristate
-        if (!vtxp->isTristate()) return;  // tristate involved
-        if (vtxp->user() == 1) return;
+        ಆದರೆ (!vtxp->isTristate()) ಹಿಂತಿರುಗಿ;  // tristate involved
+        ಆದರೆ (vtxp->user() == 1) ಹಿಂತಿರುಗಿ;
         vtxp->user(1);  // Recursed
         UINFO(9, "  Mark tri " << level << "  " << vtxp);
-        if (!vtxp->varp()) {  // not a var where we stop the recursion
-            for (V3GraphEdge& edge : vtxp->outEdges()) {
-                TristateVertex* const vvertexp = static_cast<TristateVertex*>(edge.top());
+        ಆದರೆ (!vtxp->varp()) {  // not a var where we stop the recursion
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+                Tristate_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = static_cast<Tristate_ಶೃಂಗ*>(ಅಂಚು.ತುದಿ());
                 // Doesn't hurt to not check if already set, but by doing so when we
                 // print out the debug messages, we'll see this node at level 0 instead.
-                if (!vvertexp->isTristate()) {
-                    vvertexp->isTristate(true);
-                    graphWalkRecurseFwd(vvertexp, level + 1);
+                ಆದರೆ (!vvertexp->isTristate()) {
+                    vvertexp->isTristate(ನಿಜ);
+                    ನಕ್ಷೆ_Walk_Recurse_Fwd(vvertexp, level + 1);
                 }
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // A variable is tristated.  Find all of the LHS VARREFs that
             // drive this signal; they now need tristate drivers
-            for (V3GraphEdge& edge : vtxp->inEdges()) {
-                TristateVertex* const vvertexp = static_cast<TristateVertex*>(edge.fromp());
-                if (const AstVarRef* const refp = VN_CAST(vvertexp->nodep(), VarRef)) {
-                    if (refp->access().isWriteOrRW()
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಒಳ_ಅಂಚುಗಳು()) {
+                Tristate_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = static_cast<Tristate_ಶೃಂಗ*>(ಅಂಚು.fromp());
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(vvertexp->nodep(), VarRef)) {
+                    ಆದರೆ (refp->access().isWriteOrRW()
                         // Doesn't hurt to not check if already set, but by doing so when we
                         // print out the debug messages, we'll see this node at level 0 instead.
                         && !vvertexp->isTristate()) {
-                        vvertexp->isTristate(true);
-                        graphWalkRecurseFwd(vvertexp, level + 1);
+                        vvertexp->isTristate(ನಿಜ);
+                        ನಕ್ಷೆ_Walk_Recurse_Fwd(vvertexp, level + 1);
                     }
                 }
             }
         }
     }
-    void graphWalkRecurseBack(TristateVertex* vtxp, int level) {
+    ಶೂನ್ಯ ನಕ್ಷೆ_Walk_Recurse_ಹಿಂಭಾಗ(Tristate_ಶೃಂಗ* vtxp, ಪೂರ್ಣಾಂಕ level) {
         // Called only on a tristate node; propagate a feedsTri attribute "backwards"
         // towards any driving nodes, i.e. from a LHS VARREF back to a driving RHS VARREF
         // This way if the RHS VARREF is also tristated we'll connect the
         // enables up to the LHS VARREF. Otherwise if not marked
         // feedsTri() we'll drop the LHS' enables, if any
-        if (!(vtxp->isTristate() || vtxp->feedsTri())) return;  // tristate involved
-        if (vtxp->user() == 3) return;
+        ಆದರೆ (!(vtxp->isTristate() || vtxp->feedsTri())) ಹಿಂತಿರುಗಿ;  // tristate involved
+        ಆದರೆ (vtxp->user() == 3) ಹಿಂತಿರುಗಿ;
         vtxp->user(3);  // Recursed
         UINFO(9, "  Mark feedstri " << level << "  " << vtxp);
-        if (!vtxp->varp()) {  // not a var where we stop the recursion
-            for (V3GraphEdge& edge : vtxp->inEdges()) {
-                TristateVertex* const vvertexp = static_cast<TristateVertex*>(edge.fromp());
+        ಆದರೆ (!vtxp->varp()) {  // not a var where we stop the recursion
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಒಳ_ಅಂಚುಗಳು()) {
+                Tristate_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = static_cast<Tristate_ಶೃಂಗ*>(ಅಂಚು.fromp());
                 // Doesn't hurt to not check if already set, but by doing so when we
                 // print out the debug messages, we'll see this node at level 0 instead.
-                if (!vvertexp->feedsTri()) {
-                    vvertexp->feedsTri(true);
-                    graphWalkRecurseBack(vvertexp, level + 1);
+                ಆದರೆ (!vvertexp->feedsTri()) {
+                    vvertexp->feedsTri(ನಿಜ);
+                    ನಕ್ಷೆ_Walk_Recurse_ಹಿಂಭಾಗ(vvertexp, level + 1);
                 }
             }
         }
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    bool empty() const { return m_graph.empty(); }
-    void clearAndCheck() {
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            const TristateVertex& vvertex = static_cast<TristateVertex&>(vtx);
-            if (vvertex.isTristate() && !vvertex.processed()) {
+    ತಾರ್ಕಿಕ ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ನಕ್ಷೆ.ಖಾಲಿಗಳು(); }
+    ಶೂನ್ಯ clearAndCheck() {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ಸ್ಥಿರಾಂಕ Tristate_ಶೃಂಗ& vvertex = static_cast<Tristate_ಶೃಂಗ&>(vtx);
+            ಆದರೆ (vvertex.isTristate() && !vvertex.processed()) {
                 // Not v3errorSrc as no reason to stop the world
                 vvertex.nodep()->v3warn(E_UNSUPPORTED, "Unsupported tristate construct"
                                                        " (in graph; not converted): "
                                                            << vvertex.nodep()->prettyTypeName());
             }
         }
-        m_graph.clear();
-        AstNode::user4ClearTree();  // Wipe all node user4p's that point to vertexes
+        m_ನಕ್ಷೆ.clear();
+        Ast_ಗಂಟು::user4_Clear_ವೃಕ್ಷ();  // Wipe all node user4p's that point to vertexes
     }
-    void graphWalk(AstNodeModule* nodep) {
+    ಶೂನ್ಯ ನಕ್ಷೆ_Walk(Ast_ಗಂಟು_Module* nodep) {
         UINFO(9, " Walking " << nodep);
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            graphWalkRecurseFwd(static_cast<TristateVertex*>(&vtx), 0);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ನಕ್ಷೆ_Walk_Recurse_Fwd(static_cast<Tristate_ಶೃಂಗ*>(&vtx), 0);
         }
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            graphWalkRecurseBack(static_cast<TristateVertex*>(&vtx), 0);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ನಕ್ಷೆ_Walk_Recurse_ಹಿಂಭಾಗ(static_cast<Tristate_ಶೃಂಗ*>(&vtx), 0);
         }
-        if (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("tri_pos__" + nodep->name());
+        ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 9) m_ನಕ್ಷೆ.dumpDotFilePrefixed("tri_pos__" + nodep->name());
     }
-    void associate(AstNode* fromp, AstNode* top) {
-        new V3GraphEdge{&m_graph, makeVertex(fromp), makeVertex(top), 1};
+    ಶೂನ್ಯ associate(Ast_ಗಂಟು* fromp, Ast_ಗಂಟು* ತುದಿ) {
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, make_ಶೃಂಗ(fromp), make_ಶೃಂಗ(ತುದಿ), 1};
     }
-    void deleteVerticesFromSubtreeRecurse(AstNode* nodep) {
-        if (!nodep) return;
+    ಶೂನ್ಯ deleteVerticesFromSubtreeRecurse(Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (!nodep) ಹಿಂತಿರುಗಿ;
         // Skip vars, because they may be connected to more than one varref
-        if (!VN_IS(nodep, Var)) {
-            TristateVertex* const vertexp = reinterpret_cast<TristateVertex*>(nodep->user4p());
-            if (vertexp) vertexp->unlinkDelete(&m_graph);
+        ಆದರೆ (!VN_IS(nodep, Var)) {
+            Tristate_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vertexp = reinterpret_cast<Tristate_ಶೃಂಗ*>(nodep->user4p());
+            ಆದರೆ (vertexp) vertexp->unlinkDelete(&m_ನಕ್ಷೆ);
         }
-        if (AstNode* const refp = nodep->op1p()) deleteVerticesFromSubtreeRecurse(refp);
-        if (AstNode* const refp = nodep->op2p()) deleteVerticesFromSubtreeRecurse(refp);
-        if (AstNode* const refp = nodep->op3p()) deleteVerticesFromSubtreeRecurse(refp);
-        if (AstNode* const refp = nodep->op4p()) deleteVerticesFromSubtreeRecurse(refp);
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ refp = nodep->op1p()) deleteVerticesFromSubtreeRecurse(refp);
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ refp = nodep->op2p()) deleteVerticesFromSubtreeRecurse(refp);
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ refp = nodep->op3p()) deleteVerticesFromSubtreeRecurse(refp);
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ refp = nodep->op4p()) deleteVerticesFromSubtreeRecurse(refp);
     }
-    void setTristate(AstNode* nodep) { makeVertex(nodep)->isTristate(true); }
-    bool isTristate(const AstNode* nodep) {
-        const TristateVertex* const vertexp = reinterpret_cast<TristateVertex*>(nodep->user4p());
-        return vertexp && vertexp->isTristate();
+    ಶೂನ್ಯ ಗಣ_Tristate(Ast_ಗಂಟು* nodep) { make_ಶೃಂಗ(nodep)->isTristate(ನಿಜ); }
+    ತಾರ್ಕಿಕ isTristate(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
+        ಸ್ಥಿರಾಂಕ Tristate_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vertexp = reinterpret_cast<Tristate_ಶೃಂಗ*>(nodep->user4p());
+        ಹಿಂತಿರುಗಿ vertexp && vertexp->isTristate();
     }
-    bool feedsTri(const AstNode* nodep) {
-        const TristateVertex* const vertexp = reinterpret_cast<TristateVertex*>(nodep->user4p());
-        return vertexp && vertexp->feedsTri();
+    ತಾರ್ಕಿಕ feedsTri(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
+        ಸ್ಥಿರಾಂಕ Tristate_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vertexp = reinterpret_cast<Tristate_ಶೃಂಗ*>(nodep->user4p());
+        ಹಿಂತಿರುಗಿ vertexp && vertexp->feedsTri();
     }
-    void didProcess(AstNode* nodep, bool quiet = false) {
-        if (TristateVertex* const vertexp = reinterpret_cast<TristateVertex*>(nodep->user4p())) {
+    ಶೂನ್ಯ didProcess(Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ quiet = ಸುಳ್ಳು) {
+        ಆದರೆ (Tristate_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vertexp = reinterpret_cast<Tristate_ಶೃಂಗ*>(nodep->user4p())) {
             // We don't warn if no vertexp->isTristate() as the creation
             // process makes midling nodes that don't have it set
-            vertexp->processed(true);
-        } else if (!quiet) {
+            vertexp->processed(ನಿಜ);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!quiet) {
             // Not v3errorSrc as no reason to stop the world
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported tristate construct (not in propagation graph): "
@@ -334,13 +334,13 @@ public:
     VarVec tristateVars() {
         // Return all tristate variables
         VarVec v;
-        for (const V3GraphVertex& vtx : m_graph.vertices()) {
-            const TristateVertex& vvertex = static_cast<const TristateVertex&>(vtx);
-            if (vvertex.isTristate()) {
-                if (AstVar* const nodep = VN_CAST(vvertex.nodep(), Var)) v.push_back(nodep);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ಸ್ಥಿರಾಂಕ Tristate_ಶೃಂಗ& vvertex = static_cast<ಸ್ಥಿರಾಂಕ Tristate_ಶೃಂಗ&>(vtx);
+            ಆದರೆ (vvertex.isTristate()) {
+                ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ nodep = VN_CAST(vvertex.nodep(), Var)) v.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
             }
         }
-        return v;
+        ಹಿಂತಿರುಗಿ v;
     }
 };
 
@@ -348,50 +348,50 @@ public:
 // Given a node, flip any VarRef from LValue to RValue (i.e. make it an input)
 // See also V3LinkLValue::linkLValueSet
 
-class TristatePinVisitor final : public TristateBaseVisitor {
-    TristateGraph& m_tgraph;
-    const bool m_lvalue;  // Flip to be an LVALUE
+ವರ್ಗ TristatePinVisitor final : ಸಾರ್ವಜನಿಕ Tristate_ತಳ_Visitor {
+    Tristate_ನಕ್ಷೆ& m_tgraph;
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ m_lvalue;  // Flip to be an LVALUE
     // VISITORS
     // AstNodeVarRef, not just AstVarRef: a cross-hierarchy pin expression into an
     // interface (.pin(iface.net)) is an AstVarXRef and needs the same access flip.
-    void visit(AstNodeVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Var_Ref* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Tristate unexpected on R/W access flip");
-        if (m_lvalue && !nodep->access().isWriteOrRW()) {
+        ಆದರೆ (m_lvalue && !nodep->access().isWriteOrRW()) {
             UINFO(9, "  Flip-to-LValue " << nodep);
             nodep->access(VAccess::WRITE);
-        } else if (!m_lvalue && !nodep->access().isReadOnly()) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!m_lvalue && !nodep->access().isReadOnly()) {
             UINFO(9, "  Flip-to-RValue " << nodep);
             nodep->access(VAccess::READ);
             // Mark the ex-output as tristated
             UINFO(9, "  setTristate-subpin " << nodep->varp());
-            m_tgraph.setTristate(nodep->varp());
+            m_tgraph.ಗಣ_Tristate(nodep->varp());
         }
     }
-    void visit(AstArraySel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstArraySel* nodep) override {
         // Doesn't work because we'd set lvalue on the array index's var
         UASSERT_OBJ(!m_lvalue, nodep, "ArraySel conversion to output, under tristate node");
         iterateChildren(nodep);
     }
-    void visit(AstSliceSel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ತುಂಡು_Sel* nodep) override {
         // Doesn't work because we'd set lvalue on the array index's var
         UASSERT_OBJ(!m_lvalue, nodep, "SliceSel conversion to output, under tristate node");
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    TristatePinVisitor(AstNode* nodep, TristateGraph& tgraph, bool lvalue)
+    TristatePinVisitor(Ast_ಗಂಟು* nodep, Tristate_ನಕ್ಷೆ& tgraph, ತಾರ್ಕಿಕ lvalue)
         : m_tgraph(tgraph)  // Need () or GCC 4.8 false warning
         , m_lvalue{lvalue} {
         iterate(nodep);
     }
-    ~TristatePinVisitor() override = default;
+    ~TristatePinVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //######################################################################
 
-class TristateVisitor final : public TristateBaseVisitor {
+ವರ್ಗ TristateVisitor final : ಸಾರ್ವಜನಿಕ Tristate_ತಳ_Visitor {
     // NODE STATE
     //   *::user1p              -> pointer to output enable __en expressions
     //   *::user2               -> int - already visited, see U2_ enum
@@ -399,38 +399,38 @@ class TristateVisitor final : public TristateBaseVisitor {
     // See TristateGraph:
     //   AstVar::user4p         -> TristateVertex* for variable being built
     //   AstStmt::user4p        -> TristateVertex* for this statement
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
-    const VNUser4InUse m_inuser4;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use m_inuser2;
+    ಸ್ಥಿರಾಂಕ VNUser3_ಒಳ_Use m_inuser3;
+    ಸ್ಥಿರಾಂಕ VNUser4_ಒಳ_Use m_inuser4;
 
-    struct AuxAstVar final {
-        AstPull* pullp = nullptr;  // pullup/pulldown direction (whole variable)
-        AstVar* outVarp = nullptr;  // output __out var
-        bool ifaceTristate = false;  // Interface var known to be tristate (set when the
+    ರಚನೆ AuxAstVar final {
+        AstPull* pullp = ಶೂನ್ಯಸೂಚಕ;  // pullup/pulldown direction (whole variable)
+        AstVar* ಹೊರಹೋಗು_Varp = ಶೂನ್ಯಸೂಚಕ;  // output __out var
+        ತಾರ್ಕಿಕ ifaceTristate = ಸುಳ್ಳು;  // Interface var known to be tristate (set when the
                                      // interface module is processed). Lets a module that
                                      // drives this var across hierarchy with a plain (non-Z)
                                      // assign be recognised as a tristate contributor even
                                      // though that module's own graph has no Z on the net.
-        std::unordered_map<int, int>
-            bitPulls;  // Per-bit pull: bit_index -> direction (1=up, 0=down)
+        std::unordered_map<ಪೂರ್ಣಾಂಕ, ಪೂರ್ಣಾಂಕ>
+            ಬಿಟ್_Pulls;  // Per-bit pull: bit_index -> direction (1=up, 0=down)
     };
 
     AstUser3Allocator<AstVar, AuxAstVar> m_varAux;
 
     // TYPES
-    struct RefStrength final {
-        AstNodeVarRef* m_varrefp;  // Variable reference this strength/enable info was found on
-        AstNodeAssign* m_assignp;  // Assignment containing m_varrefp
-        const AstNodeProcedure* m_procedurep;  // Process containing m_assignp, if procedural
-        AstNodeExpr* m_enLhsp;  // Procedural enable LHS with same footprint as m_varrefp
-        AstNodeVarRef* m_enVarrefp;  // Variable reference within m_enLhsp to retarget
-        AstNodeExpr* m_enRhsp;  // Procedural enable value matching m_enLhsp
+    ರಚನೆ RefStrength final {
+        Ast_ಗಂಟು_Var_Ref* m_varrefp;  // Variable reference this strength/enable info was found on
+        Ast_ಗಂಟು_ನಿಯೋಜಿಸು* m_assignp;  // Assignment containing m_varrefp
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Procedure* m_procedurep;  // Process containing m_assignp, if procedural
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_enLhsp;  // Procedural enable LHS with same footprint as m_varrefp
+        Ast_ಗಂಟು_Var_Ref* m_enVarrefp;  // Variable reference within m_enLhsp to retarget
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_enRhsp;  // Procedural enable value matching m_enLhsp
         VStrength m_strength;  // Drive strength of the assignment/procedural write
         AstDelay* m_delayp;  // Explicit delay on the continuous assignment
-        RefStrength(AstNodeVarRef* varrefp, AstNodeAssign* assignp,
-                    const AstNodeProcedure* procedurep, AstNodeExpr* enLhsp,
-                    AstNodeVarRef* enVarrefp, AstNodeExpr* enRhsp, VStrength strength,
+        RefStrength(Ast_ಗಂಟು_Var_Ref* varrefp, Ast_ಗಂಟು_ನಿಯೋಜಿಸು* assignp,
+                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Procedure* procedurep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enLhsp,
+                    Ast_ಗಂಟು_Var_Ref* enVarrefp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enRhsp, VStrength strength,
                     AstDelay* delayp)
             : m_varrefp{varrefp}
             , m_assignp{assignp}
@@ -441,280 +441,280 @@ class TristateVisitor final : public TristateBaseVisitor {
             , m_strength{strength}
             , m_delayp{delayp} {}
     };
-    struct LhsProjection final {
-        AstNodeExpr* m_lhsp;  // LHS giving the enable assign
-        AstNodeVarRef* m_varrefp;  // Variable reference within m_lhsp to retarget to enable var
-        AstNodeExpr* m_enp;  // Procedural enable value to assign through m_lhsp
+    ರಚನೆ LhsProjection final {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_lhsp;  // LHS giving the enable assign
+        Ast_ಗಂಟು_Var_Ref* m_varrefp;  // Variable reference within m_lhsp to retarget to enable var
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_enp;  // Procedural enable value to assign through m_lhsp
     };
-    struct ProceduralEnable final {
-        AstNodeExpr* m_lhsp;  // Enable LHS piece to concat onto the combined assignment LHS
-        AstNodeExpr* m_rhsp;  // Enable value piece to concat onto the combined assignment RHS
+    ರಚನೆ ProceduralEnable final {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_lhsp;  // Enable LHS piece to concat onto the combined assignment LHS
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_rhsp;  // Enable value piece to concat onto the combined assignment RHS
     };
-    using RefStrengthVec = std::vector<RefStrength>;
-    using VarMap = std::map<AstVar*, RefStrengthVec*>;
-    using Assigns = std::vector<AstAssignW*>;
-    using VarToAssignsMap = std::map<AstVar*, Assigns>;
-    using AssignEnableMap = std::map<AstNodeAssign*, AstNodeExpr*>;
-    using ProceduralEnableMap = std::map<AstNodeAssign*, std::vector<ProceduralEnable>>;
-    enum : uint8_t {
+    ಬಳಸಿ RefStrengthVec = std::ಸದಿಶ<RefStrength>;
+    ಬಳಸಿ VarMap = std::map<AstVar*, RefStrengthVec*>;
+    ಬಳಸಿ Assigns = std::ಸದಿಶ<Ast_ನಿಯೋಜಿಸು_W*>;
+    ಬಳಸಿ Var_ಗಮ್ಯ_Assigns_Map = std::map<AstVar*, Assigns>;
+    ಬಳಸಿ ನಿಯೋಜಿಸು_Enable_Map = std::map<Ast_ಗಂಟು_ನಿಯೋಜಿಸು*, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>;
+    ಬಳಸಿ ProceduralEnableMap = std::map<Ast_ಗಂಟು_ನಿಯೋಜಿಸು*, std::ಸದಿಶ<ProceduralEnable>>;
+    ಎಣಿಕೆ : uint8_t {
         U2_GRAPHING = 1,  // bit[0] if did m_graphing visit
         U2_NONGRAPH = 2,  // bit[1] if did !m_graphing visit
         U2_BOTH = 3  // Both bits set
     };
 
     // MEMBERS
-    bool m_graphing = false;  // Major mode - creating graph
+    ತಾರ್ಕಿಕ m_graphing = ಸುಳ್ಳು;  // Major mode - creating graph
     //
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstCell* m_cellp = nullptr;  // current cell
+    Ast_ಗಂಟು_Module* m_modp = ಶೂನ್ಯಸೂಚಕ;  // Current module
+    AstCell* m_cellp = ಶೂನ್ಯಸೂಚಕ;  // current cell
     VarMap m_lhsmap;  // Tristate left-hand-side driver map
-    VarToAssignsMap m_assigns;  // Assigns in current module
-    AssignEnableMap m_assignEnps;  // Raw enable expression for each procedural assignment
+    Var_ಗಮ್ಯ_Assigns_Map m_assigns;  // Assigns in current module
+    ನಿಯೋಜಿಸು_Enable_Map m_ನಿಯೋಜಿಸು_Enps;  // Raw enable expression for each procedural assignment
     ProceduralEnableMap m_proceduralEnables;  // Enable updates to merge into assignments
-    int m_unique = 0;
-    bool m_alhs = false;  // On LHS of assignment
-    bool m_inAlias = false;  // Inside alias statement
-    bool m_processedIfaces = false;  // Interface modules already processed (interfaces-first pass)
+    ಪೂರ್ಣಾಂಕ m_unique = 0;
+    ತಾರ್ಕಿಕ m_alhs = ಸುಳ್ಳು;  // On LHS of assignment
+    ತಾರ್ಕಿಕ m_ಒಳ_Alias = ಸುಳ್ಳು;  // Inside alias statement
+    ತಾರ್ಕಿಕ m_processedIfaces = ಸುಳ್ಳು;  // Interface modules already processed (interfaces-first pass)
     VStrength m_currentStrength = VStrength::STRONG;  // Current strength of assignment,
                                                       // Used only on LHS of assignment
-    AstDelay* m_currentDelayp = nullptr;  // Delay of assignment currently collecting LHS drivers
-    const AstNode* m_logicp = nullptr;  // Current logic being built
-    AstNodeAssign* m_assignp = nullptr;  // Current assignment
-    const AstNodeProcedure* m_procedurep = nullptr;  // Current procedural process
-    TristateGraph m_tgraph;  // Logic graph
+    AstDelay* m_currentDelayp = ಶೂನ್ಯಸೂಚಕ;  // Delay of assignment currently collecting LHS drivers
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* m_logicp = ಶೂನ್ಯಸೂಚಕ;  // Current logic being built
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* m_assignp = ಶೂನ್ಯಸೂಚಕ;  // Current assignment
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Procedure* m_procedurep = ಶೂನ್ಯಸೂಚಕ;  // Current procedural process
+    Tristate_ನಕ್ಷೆ m_tgraph;  // Logic graph
     // Map: interface AstVar* -> list of per-module (enVarp, outVarp) contribution pairs
-    std::map<AstVar*, std::vector<std::pair<AstVar*, AstVar*>>> m_ifaceContribs;
+    std::map<AstVar*, std::ಸದಿಶ<std::pair<AstVar*, AstVar*>>> m_ifaceContribs;
 
     // STATS
     VDouble0 m_statTriSigs;  // stat tracking
 
     // METHODS
-    string dbgState() const {
+    string dbgState() ಸ್ಥಿರಾಂಕ {
         string o = (m_graphing ? " gr " : " ng ");
-        if (m_alhs) o += "alhs ";
-        return o;
+        ಆದರೆ (m_alhs) o += "alhs ";
+        ಹಿಂತಿರುಗಿ o;
     }
-    void modAddStmtp(AstNode* nodep, AstNode* newp) {
-        if (!m_modp) {
+    ಶೂನ್ಯ mod_ಕೂಡಿಸು_Stmtp(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು* newp) {
+        ಆದರೆ (!m_modp) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Creating tristate signal not underneath a module: "
                               << nodep->prettyNameQ());
-        } else {
-            m_modp->addStmtsp(newp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            m_modp->ಕೂಡಿಸು_Stmtsp(newp);
         }
     }
-    void associateLogic(AstNode* fromp, AstNode* top) {
-        if (m_logicp) m_tgraph.associate(fromp, top);
+    ಶೂನ್ಯ associateLogic(Ast_ಗಂಟು* fromp, Ast_ಗಂಟು* ತುದಿ) {
+        ಆದರೆ (m_logicp) m_tgraph.associate(fromp, ತುದಿ);
     }
-    AstConst* newAllZerosOrOnes(AstNode* nodep, bool ones) {
-        V3Number num{nodep, nodep->width()};
-        if (ones) num.setAllBits1();
-        AstConst* const newp = new AstConst{nodep->fileline(), num};
-        return newp;
+    AstConst* newAllZerosOrOnes(Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ ones) {
+        V3_ಸಂಖ್ಯೆ ಅಂಕೆ{nodep, nodep->ಅಗಲ()};
+        ಆದರೆ (ones) ಅಂಕೆ.ಗಣ_All_Bits1();
+        AstConst* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstConst{nodep->fileline(), ಅಂಕೆ};
+        ಹಿಂತಿರುಗಿ newp;
     }
     // Create AstVarXRef with inlinedDots copied from a source xref
-    AstVarXRef* newVarXRef(FileLine* fl, AstVar* varp, const string& dotted, VAccess access,
-                           const string& inlinedDots) {
-        AstVarXRef* const xrefp = new AstVarXRef{fl, varp, dotted, access};
+    AstVarXRef* newVarXRef(File_ಸಾಲು* fl, AstVar* varp, ಸ್ಥಿರಾಂಕ string& dotted, VAccess access,
+                           ಸ್ಥಿರಾಂಕ string& inlinedDots) {
+        AstVarXRef* ಸ್ಥಿರಾಂಕ xrefp = ಹೊಸ AstVarXRef{fl, varp, dotted, access};
         xrefp->inlinedDots(inlinedDots);
-        return xrefp;
+        ಹಿಂತಿರುಗಿ xrefp;
     }
     // Check if a module accesses an interface through a modport, by looking up
     // the first component of the dotted path among the module's interface port vars.
     // No symbol table is available at V3Tristate time, so linear scan is required.
-    AstModport* findModportForDotted(AstNodeModule* modp, const string& dottedPath) {
-        if (dottedPath.empty()) return nullptr;
-        const string firstComp = dottedPath.substr(0, dottedPath.find('.'));
-        for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstVar* const ivarp = VN_CAST(stmtp, Var);
-            if (!ivarp || ivarp->name() != firstComp) continue;
-            const AstIfaceRefDType* const ifaceDtp
+    AstModport* ಕಂಡುಹಿಡಿ_Modport_For_Dotted(Ast_ಗಂಟು_Module* modp, ಸ್ಥಿರಾಂಕ string& dotted_ಮಾರ್ಗ) {
+        ಆದರೆ (dotted_ಮಾರ್ಗ.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        ಸ್ಥಿರಾಂಕ string ಮೊದಲ_Comp = dotted_ಮಾರ್ಗ.substr(0, dotted_ಮಾರ್ಗ.ಕಂಡುಹಿಡಿ('.'));
+        ಗಾಗಿ (Ast_ಗಂಟು* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstVar* ಸ್ಥಿರಾಂಕ ivarp = VN_CAST(stmtp, Var);
+            ಆದರೆ (!ivarp || ivarp->name() != ಮೊದಲ_Comp) ಮುಂದುವರಿ;
+            ಸ್ಥಿರಾಂಕ AstIfaceRefDType* ಸ್ಥಿರಾಂಕ ifaceDtp
                 = VN_CAST(ivarp->dtypep()->skipRefp(), IfaceRefDType);
-            if (ifaceDtp && ifaceDtp->modportp()) return ifaceDtp->modportp();
-            break;
+            ಆದರೆ (ifaceDtp && ifaceDtp->modportp()) ಹಿಂತಿರುಗಿ ifaceDtp->modportp();
+            ನಿಲ್ಲಿಸು;
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
-    AstNodeExpr* getEnp(AstNode* nodep) {
-        if (nodep->user1p()) {
-            if (AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
-                if (refp->varp()->isIO()) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getEnp(Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (nodep->user1p()) {
+            ಆದರೆ (Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ refp = VN_CAST(nodep, ಗಂಟು_Var_Ref)) {
+                ಆದರೆ (refp->varp()->isIO()) {
                     // When reading a tri-state port, we can always use the value
                     // because such port will have resolution logic in upper module.
-                    return newAllZerosOrOnes(nodep, true);
+                    ಹಿಂತಿರುಗಿ newAllZerosOrOnes(nodep, ನಿಜ);
                 }
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // There's no select being built yet, so add what will become a
             // constant output enable driver of all 1's
-            nodep->user1p(newAllZerosOrOnes(nodep, true));
+            nodep->user1p(newAllZerosOrOnes(nodep, ನಿಜ));
         }
         // Otherwise return the previous output enable
-        return VN_AS(nodep->user1p(), NodeExpr);
+        ಹಿಂತಿರುಗಿ VN_AS(nodep->user1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
     }
     // Add a ModportVarRef for varp to modportp if not already present
-    void addModportVarRefIfMissing(AstModport* modportp, AstVar* varp, VDirection dir) {
-        for (AstNode* mrp = modportp->varsp(); mrp; mrp = mrp->nextp()) {
-            AstModportVarRef* const mvrp = VN_CAST(mrp, ModportVarRef);
-            if (mvrp && mvrp->varp() == varp) return;  // Already present
+    ಶೂನ್ಯ ಕೂಡಿಸು_Modport_Var_Ref_If_Missing(AstModport* modportp, AstVar* varp, VDirection dir) {
+        ಗಾಗಿ (Ast_ಗಂಟು* mrp = modportp->varsp(); mrp; mrp = mrp->nextp()) {
+            AstModportVarRef* ಸ್ಥಿರಾಂಕ mvrp = VN_CAST(mrp, ModportVarRef);
+            ಆದರೆ (mvrp && mvrp->varp() == varp) ಹಿಂತಿರುಗಿ;  // Already present
         }
-        AstModportVarRef* const mvrp = new AstModportVarRef{varp->fileline(), varp->name(), dir};
+        AstModportVarRef* ಸ್ಥಿರಾಂಕ mvrp = ಹೊಸ AstModportVarRef{varp->fileline(), varp->name(), dir};
         mvrp->varp(varp);
-        modportp->addVarsp(mvrp);
+        modportp->ಕೂಡಿಸು_Varsp(mvrp);
     }
-    AstVar* getCreateEnVarp(AstVar* invarp, bool isTop) {
+    AstVar* getCreateEnVarp(AstVar* invarp, ತಾರ್ಕಿಕ is_ತುದಿ) {
         // Return the master __en for the specified input variable
-        if (!invarp->user1p()) {
-            AstVar* const newp
-                = new AstVar{invarp->fileline(), isTop ? VVarType::VAR : VVarType::MODULETEMP,
+        ಆದರೆ (!invarp->user1p()) {
+            AstVar* ಸ್ಥಿರಾಂಕ newp
+                = ಹೊಸ AstVar{invarp->fileline(), is_ತುದಿ ? VVarType::VAR : VVarType::MODULETEMP,
                              invarp->name() + "__en", invarp};
             // Inherited VDirection::INPUT
             UINFO(9, "       newenv " << newp);
             // If the variable belongs to a different module (e.g. interface),
             // create __en in that module so VarXRefs with the same dotted path can reach it.
-            AstNodeModule* const ownerModp = findParentModule(invarp);
-            if (ownerModp && ownerModp != m_modp) {
-                ownerModp->addStmtsp(newp);
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp = ಕಂಡುಹಿಡಿ_ಪೋಷಕ_Module(invarp);
+            ಆದರೆ (ownerModp && ownerModp != m_modp) {
+                ownerModp->ಕೂಡಿಸು_Stmtsp(newp);
                 // Add __en to any modports that reference the original var,
                 // so VarXRefs through modport paths can resolve it.
-                for (AstNode* stmtp = ownerModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    AstModport* const modportp = VN_CAST(stmtp, Modport);
-                    if (!modportp) continue;
-                    for (AstNode* mrp = modportp->varsp(); mrp; mrp = mrp->nextp()) {
-                        AstModportVarRef* const mvrp = VN_CAST(mrp, ModportVarRef);
-                        if (mvrp && mvrp->varp() == invarp) {
-                            addModportVarRefIfMissing(modportp, newp, VDirection::INPUT);
-                            break;
+                ಗಾಗಿ (Ast_ಗಂಟು* stmtp = ownerModp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    AstModport* ಸ್ಥಿರಾಂಕ modportp = VN_CAST(stmtp, Modport);
+                    ಆದರೆ (!modportp) ಮುಂದುವರಿ;
+                    ಗಾಗಿ (Ast_ಗಂಟು* mrp = modportp->varsp(); mrp; mrp = mrp->nextp()) {
+                        AstModportVarRef* ಸ್ಥಿರಾಂಕ mvrp = VN_CAST(mrp, ModportVarRef);
+                        ಆದರೆ (mvrp && mvrp->varp() == invarp) {
+                            ಕೂಡಿಸು_Modport_Var_Ref_If_Missing(modportp, newp, VDirection::ಒಳಹರಿವು);
+                            ನಿಲ್ಲಿಸು;
                         }
                     }
                 }
-            } else {
-                modAddStmtp(invarp, newp);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                mod_ಕೂಡಿಸು_Stmtp(invarp, newp);
             }
             invarp->user1p(newp);  // find envar given invarp
         }
-        return VN_AS(invarp->user1p(), Var);
+        ಹಿಂತಿರುಗಿ VN_AS(invarp->user1p(), Var);
     }
-    AstConst* getNonZConstp(AstConst* const constp) {
-        FileLine* const fl = constp->fileline();
-        V3Number numz{constp, constp->width()};
-        numz.opBitsZ(constp->num());  // Z->1, else 0
-        V3Number numz0{constp, constp->width()};
+    AstConst* getNonZConstp(AstConst* ಸ್ಥಿರಾಂಕ constp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = constp->fileline();
+        V3_ಸಂಖ್ಯೆ numz{constp, constp->ಅಗಲ()};
+        numz.op_ಬಿಟ್ಟುಗಳು_Z(constp->ಅಂಕೆ());  // Z->1, else 0
+        V3_ಸಂಖ್ಯೆ numz0{constp, constp->ಅಗಲ()};
         numz0.opNot(numz);  // Z->0, else 1
-        return new AstConst{fl, numz0};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{fl, numz0};
     }
-    AstNodeExpr* getEnExprBasedOnOriginalp(AstNodeExpr* const nodep) {
-        if (AstVarRef* const varrefp = VN_CAST(nodep, VarRef)) {
-            return new AstVarRef{varrefp->fileline(), getCreateEnVarp(varrefp->varp(), false),
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* get_En_ಅಭಿವ್ಯಕ್ತಿ_Based_On_Originalp(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nodep) {
+        ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(nodep, VarRef)) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstVarRef{varrefp->fileline(), getCreateEnVarp(varrefp->varp(), ಸುಳ್ಳು),
                                  VAccess::READ};
-        } else if (AstVarXRef* const xrefp = VN_CAST(nodep, VarXRef)) {
-            AstVar* const enVarp = getCreateEnVarp(xrefp->varp(), false);
-            return newVarXRef(xrefp->fileline(), enVarp, xrefp->dotted(), VAccess::READ,
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstVarXRef* ಸ್ಥಿರಾಂಕ xrefp = VN_CAST(nodep, VarXRef)) {
+            AstVar* ಸ್ಥಿರಾಂಕ enVarp = getCreateEnVarp(xrefp->varp(), ಸುಳ್ಳು);
+            ಹಿಂತಿರುಗಿ newVarXRef(xrefp->fileline(), enVarp, xrefp->dotted(), VAccess::READ,
                               xrefp->inlinedDots());
-        } else if (AstConst* const constp = VN_CAST(nodep, Const)) {
-            return getNonZConstp(constp);
-        } else if (AstExtend* const extendp = VN_CAST(nodep, Extend)) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(nodep, Const)) {
+            ಹಿಂತಿರುಗಿ getNonZConstp(constp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstExtend* ಸ್ಥಿರಾಂಕ extendp = VN_CAST(nodep, Extend)) {
             // Extend inserts 0 at the beginning. 0 in __en variable means that this bit equals z,
             // so in order to preserve the value of the original AstExtend node we should insert 1
             // instead of 0. To extend __en expression we have to negate its lhsp() and then negate
             // whole extend.
 
             // Unlink lhsp before copying to save unnecessary copy of lhsp
-            AstNodeExpr* const lhsp = extendp->lhsp()->unlinkFrBack();
-            AstExtend* const enExtendp = extendp->cloneTree(false);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp = extendp->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+            AstExtend* ಸ್ಥಿರಾಂಕ enExtendp = extendp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
             extendp->lhsp(lhsp);
-            AstNodeExpr* const enLhsp = getEnExprBasedOnOriginalp(lhsp);
-            enExtendp->lhsp(new AstNot{enLhsp->fileline(), enLhsp});
-            return new AstNot{enExtendp->fileline(), enExtendp};
-        } else if (AstSel* const selp = VN_CAST(nodep, Sel)) {
-            AstNodeExpr* const fromp = selp->fromp()->unlinkFrBack();
-            AstSel* const enSelp = selp->cloneTree(false);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enLhsp = get_En_ಅಭಿವ್ಯಕ್ತಿ_Based_On_Originalp(lhsp);
+            enExtendp->lhsp(ಹೊಸ AstNot{enLhsp->fileline(), enLhsp});
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstNot{enExtendp->fileline(), enExtendp};
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, Sel)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = selp->fromp()->unlink_Fr_ಹಿಂಭಾಗ();
+            AstSel* ಸ್ಥಿರಾಂಕ enSelp = selp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
             selp->fromp(fromp);
-            AstNodeExpr* const enFromp = getEnExprBasedOnOriginalp(fromp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enFromp = get_En_ಅಭಿವ್ಯಕ್ತಿ_Based_On_Originalp(fromp);
             enSelp->fromp(enFromp);
-            return enSelp;
-        } else {
+            ಹಿಂತಿರುಗಿ enSelp;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported tristate construct: " << nodep->prettyTypeName()
                                                              << " in function " << __func__);
-            return nullptr;
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         }
     }
-    AstVar* getCreateOutVarp(AstVar* invarp, bool isTop) {
+    AstVar* get_Create_ಹೊರಹೋಗು_Varp(AstVar* invarp, ತಾರ್ಕಿಕ is_ತುದಿ) {
         // Return the master __out for the specified input variable
-        if (!m_varAux(invarp).outVarp) {
-            AstVar* const newp
-                = new AstVar{invarp->fileline(), isTop ? VVarType::VAR : VVarType::MODULETEMP,
+        ಆದರೆ (!m_varAux(invarp).ಹೊರಹೋಗು_Varp) {
+            AstVar* ಸ್ಥಿರಾಂಕ newp
+                = ಹೊಸ AstVar{invarp->fileline(), is_ತುದಿ ? VVarType::VAR : VVarType::MODULETEMP,
                              invarp->name() + "__out", invarp};
             // Inherited VDirection::OUTPUT
             UINFO(9, "       newout " << newp);
-            modAddStmtp(invarp, newp);
-            m_varAux(invarp).outVarp = newp;  // find outvar given invarp
+            mod_ಕೂಡಿಸು_Stmtp(invarp, newp);
+            m_varAux(invarp).ಹೊರಹೋಗು_Varp = newp;  // find outvar given invarp
         }
-        return m_varAux(invarp).outVarp;
+        ಹಿಂತಿರುಗಿ m_varAux(invarp).ಹೊರಹೋಗು_Varp;
     }
-    AstVar* getCreateUnconnVarp(AstNode* fromp, AstNodeDType* dtypep) {
-        AstVar* const newp = new AstVar{fromp->fileline(), VVarType::MODULETEMP,
-                                        "__Vtriunconn" + cvtToStr(m_unique++), dtypep};
+    AstVar* getCreateUnconnVarp(Ast_ಗಂಟು* fromp, Ast_ಗಂಟು_DType* dtypep) {
+        AstVar* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstVar{fromp->fileline(), VVarType::MODULETEMP,
+                                        "__Vtriunconn" + cvt_ಗಮ್ಯ_Str(m_unique++), dtypep};
         UINFO(9, "       newunc " << newp);
-        modAddStmtp(newp, newp);
-        return newp;
+        mod_ಕೂಡಿಸು_Stmtp(newp, newp);
+        ಹಿಂತಿರುಗಿ newp;
     }
 
-    LhsProjection newLhsProjection(AstNodeExpr* lhsp, AstNodeVarRef* targetp, AstNodeExpr* enp) {
+    LhsProjection newLhsProjection(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_Var_Ref* targetp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enp) {
         // LHS concatenations are split before V3Tristate. Clone the remaining LHS expression so
         // the data and enable assignments update the same footprint.
-        AstNodeExpr* const newLhsp = lhsp->cloneTreePure(false);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ newLhsp = lhsp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
         // user1p carries pass-local enable ownership, not semantic AST state. Sharing those
         // pointers with the projected LHS would leave the clone referring to enable nodes owned
         // by the original assignment.
-        newLhsp->foreach([](AstNode* nodep) { nodep->user1p(nullptr); });
-        AstNodeVarRef* const newVarrefp = targetp->clonep();
+        newLhsp->foreach([](Ast_ಗಂಟು* nodep) { nodep->user1p(ಶೂನ್ಯಸೂಚಕ); });
+        Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ newVarrefp = targetp->clonep();
         UASSERT_OBJ(newVarrefp, targetp, "Procedural tristate LHS clone lost variable reference");
-        return LhsProjection{newLhsp, newVarrefp, enp};
+        ಹಿಂತಿರುಗಿ LhsProjection{newLhsp, newVarrefp, enp};
     }
 
-    void mapInsertLhsVarRef(AstNodeVarRef* nodep) {
+    ಶೂನ್ಯ map_ಸೇರಿಸು_Lhs_Var_Ref(Ast_ಗಂಟು_Var_Ref* nodep) {
         UINFO(9, "    mapInsertLhsVarRef " << nodep);
-        AstVar* const key = nodep->varp();
-        const auto pair = m_lhsmap.emplace(key, nullptr);
-        if (pair.second) pair.first->second = new RefStrengthVec;
-        AstNodeExpr* enLhsp = nullptr;
-        AstNodeVarRef* enVarrefp = nullptr;
-        AstNodeExpr* enRhsp = nullptr;
-        const auto enIt = m_assignEnps.find(m_assignp);
+        AstVar* ಸ್ಥಿರಾಂಕ ಕೀಲಿ = nodep->varp();
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ pair = m_lhsmap.emplace(ಕೀಲಿ, ಶೂನ್ಯಸೂಚಕ);
+        ಆದರೆ (pair.ಎರಡನೇ) pair.ಮೊದಲ->ಎರಡನೇ = ಹೊಸ RefStrengthVec;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enLhsp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_Var_Ref* enVarrefp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enRhsp = ಶೂನ್ಯಸೂಚಕ;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ enIt = m_ನಿಯೋಜಿಸು_Enps.ಕಂಡುಹಿಡಿ(m_assignp);
         // Struct and union resolver expressions require member-wise lowering. Keep their
         // established per-assignment path until procedural coalescing provides that
         // representation.
-        const bool canCombineProcedural = !VN_IS(key->dtypep()->skipRefp(), NodeUOrStructDType);
-        const AstNodeProcedure* const procedurep
-            = enIt != m_assignEnps.end() && canCombineProcedural ? m_procedurep : nullptr;
-        if (procedurep) {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ canCombineProcedural = !VN_IS(ಕೀಲಿ->dtypep()->skipRefp(), ಗಂಟು_UOr_Struct_DType);
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Procedure* ಸ್ಥಿರಾಂಕ procedurep
+            = enIt != m_ನಿಯೋಜಿಸು_Enps.ಕೊನೆ() && canCombineProcedural ? m_procedurep : ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (procedurep) {
             LhsProjection projection
-                = newLhsProjection(m_assignp->lhsp(), nodep, enIt->second->cloneTreePure(false));
+                = newLhsProjection(m_assignp->lhsp(), nodep, enIt->ಎರಡನೇ->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು));
             enLhsp = projection.m_lhsp;
             enVarrefp = projection.m_varrefp;
             enRhsp = projection.m_enp;
         }
-        pair.first->second->push_back(RefStrength{nodep, m_assignp, procedurep, enLhsp, enVarrefp,
+        pair.ಮೊದಲ->ಎರಡನೇ->ತಳ್ಳು_ಹಿಂಭಾಗ(RefStrength{nodep, m_assignp, procedurep, enLhsp, enVarrefp,
                                                   enRhsp, m_currentStrength, m_currentDelayp});
     }
 
-    AstNodeExpr* newEnableDeposit(AstSel* selp, AstNodeExpr* enp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newEnableDeposit(AstSel* selp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enp) {
         // Form a "deposit" instruction for given enable, using existing select as a template.
         // Would be nicer if we made this a new AST type
-        AstNodeExpr* const newp = new AstShiftL{
-            selp->fileline(), new AstExtend{selp->fileline(), enp, selp->fromp()->width()},
-            selp->lsbp()->cloneTreePure(false), selp->fromp()->width()};
-        return newp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ Ast_ಸರಿಸು_L{
+            selp->fileline(), ಹೊಸ AstExtend{selp->fileline(), enp, selp->fromp()->ಅಗಲ()},
+            selp->lsbp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), selp->fromp()->ಅಗಲ()};
+        ಹಿಂತಿರುಗಿ newp;
     }
 
-    void setPullDirection(AstVar* varp, AstPull* pullp) {
-        const AstPull* const oldpullp = m_varAux(varp).pullp;
-        if (!oldpullp) {
+    ಶೂನ್ಯ ಗಣ_Pull_Direction(AstVar* varp, AstPull* pullp) {
+        ಸ್ಥಿರಾಂಕ AstPull* ಸ್ಥಿರಾಂಕ oldpullp = m_varAux(varp).pullp;
+        ಆದರೆ (!oldpullp) {
             m_varAux(varp).pullp = pullp;  // save off to indicate the pull direction
-        } else {
-            if (oldpullp->direction() != pullp->direction()) {
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (oldpullp->direction() != pullp->direction()) {
                 pullp->v3warn(E_UNSUPPORTED, "Unsupported: Conflicting pull directions.\n"
                                                  << pullp->warnContextPrimary() << '\n'
                                                  << oldpullp->warnOther()
@@ -724,45 +724,45 @@ class TristateVisitor final : public TristateBaseVisitor {
         }
     }
 
-    void setBitPullDirection(AstVar* varp, int bitIndex, int direction) {
+    ಶೂನ್ಯ ಗಣ_ಬಿಟ್_Pull_Direction(AstVar* varp, ಪೂರ್ಣಾಂಕ ಬಿಟ್_ಸೂಚ್ಯಂಕ, ಪೂರ್ಣಾಂಕ direction) {
         // Set pull direction for a specific bit of a bus.
         // direction: 1 = pullup, 0 = pulldown
-        auto& bitPulls = m_varAux(varp).bitPulls;
-        auto it = bitPulls.find(bitIndex);
-        if (it != bitPulls.end() && it->second != direction) {
+        ಸ್ವಯಂಚಾಲಿತ& ಬಿಟ್_Pulls = m_varAux(varp).ಬಿಟ್_Pulls;
+        ಸ್ವಯಂಚಾಲಿತ it = ಬಿಟ್_Pulls.ಕಂಡುಹಿಡಿ(ಬಿಟ್_ಸೂಚ್ಯಂಕ);
+        ಆದರೆ (it != ಬಿಟ್_Pulls.ಕೊನೆ() && it->ಎರಡನೇ != direction) {
             varp->v3warn(E_UNSUPPORTED, "Conflicting pullup/pulldown direction on bit "
-                                            << bitIndex << " of " << varp->prettyNameQ());
+                                            << ಬಿಟ್_ಸೂಚ್ಯಂಕ << " of " << varp->prettyNameQ());
         }
-        bitPulls[bitIndex] = direction;
+        ಬಿಟ್_Pulls[ಬಿಟ್_ಸೂಚ್ಯಂಕ] = direction;
     }
 
-    AstConst* createPerBitPullConst(AstVar* varp) {
+    AstConst* create_ಪ್ರತಿ_ಬಿಟ್_Pull_Const(AstVar* varp) {
         // Create a constant with per-bit pull values.
         // Bits without explicit pull default to pulldown (0).
         // V3Number::setBit silently no-ops if bitIndex exceeds the variable width.
-        const auto& bitPulls = m_varAux(varp).bitPulls;
-        V3Number num{varp, varp->width(), 0};  // Start with all zeros
-        for (const auto& pair : bitPulls) {
-            if (pair.second == 1) num.setBit(pair.first, 1);
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ಬಿಟ್_Pulls = m_varAux(varp).ಬಿಟ್_Pulls;
+        V3_ಸಂಖ್ಯೆ ಅಂಕೆ{varp, varp->ಅಗಲ(), 0};  // Start with all zeros
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair : ಬಿಟ್_Pulls) {
+            ಆದರೆ (pair.ಎರಡನೇ == 1) ಅಂಕೆ.ಗಣ_ಬಿಟ್(pair.ಮೊದಲ, 1);
         }  // LCOV_EXCL_LINE
-        return new AstConst{varp->fileline(), num};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{varp->fileline(), ಅಂಕೆ};
     }
 
-    bool hasPerBitPulls(AstVar* varp) {
+    ತಾರ್ಕಿಕ has_ಪ್ರತಿ_ಬಿಟ್_Pulls(AstVar* varp) {
         // Note: Not const - m_varAux allocates on access
-        return !m_varAux(varp).bitPulls.empty();
+        ಹಿಂತಿರುಗಿ !m_varAux(varp).ಬಿಟ್_Pulls.ಖಾಲಿಗಳು();
     }
 
-    void checkUnhandled(AstNode* nodep) {
+    ಶೂನ್ಯ checkUnhandled(Ast_ಗಂಟು* nodep) {
         // Check for unsupported tristate constructs. This is not a 100% check.
         // The best way would be to visit the tree again and find any user1p()
         // pointers that did not get picked up and expanded.
-        if (m_alhs && nodep->user1p()) {
+        ಆದರೆ (m_alhs && nodep->user1p()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported LHS tristate construct: " << nodep->prettyTypeName());
         }
         // Ignore Var because they end up adjacent to statements
-        if ((nodep->op1p() && nodep->op1p()->user1p() && !VN_IS(nodep->op1p(), Var))
+        ಆದರೆ ((nodep->op1p() && nodep->op1p()->user1p() && !VN_IS(nodep->op1p(), Var))
             || (nodep->op2p() && nodep->op2p()->user1p() && !VN_IS(nodep->op2p(), Var))
             || (nodep->op3p() && nodep->op3p()->user1p() && !VN_IS(nodep->op3p(), Var))
             || (nodep->op4p() && nodep->op4p()->user1p() && !VN_IS(nodep->op4p(), Var))) {
@@ -771,256 +771,256 @@ class TristateVisitor final : public TristateBaseVisitor {
         }
     }
 
-    void insertTristates(AstNodeModule* nodep) {
+    ಶೂನ್ಯ ಸೇರಿಸು_Tristates(Ast_ಗಂಟು_Module* nodep) {
         // Go through all the vars and find any that are outputs without drivers
         // or inouts without high-Z logic and put a 1'bz driver on them and add
         // them to the lhs map so they get expanded correctly.
-        const TristateGraph::VarVec vars = m_tgraph.tristateVars();
-        for (auto varp : vars) {
-            if (!m_tgraph.isTristate(varp)) continue;
-            const auto it = m_lhsmap.find(varp);
-            if (it != m_lhsmap.end()) continue;
+        ಸ್ಥಿರಾಂಕ Tristate_ನಕ್ಷೆ::VarVec vars = m_tgraph.tristateVars();
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ varp : vars) {
+            ಆದರೆ (!m_tgraph.isTristate(varp)) ಮುಂದುವರಿ;
+            ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_lhsmap.ಕಂಡುಹಿಡಿ(varp);
+            ಆದರೆ (it != m_lhsmap.ಕೊನೆ()) ಮುಂದುವರಿ;
             // This variable is floating, set output enable to always be off on this assign.
             // For pullup/pulldown vars, use pull value with en=0 - the final resolution will
             // apply the pull formula: final = (driven_value & en) | (~en & pull_value)
             UINFO(8, "  Adding driver to var " << varp);
-            const AstPull* const pullp = m_varAux(varp).pullp;
-            const bool pullValue = pullp && pullp->direction() == 1;
-            AstConst* const constp = newAllZerosOrOnes(varp, pullValue);
-            AstVarRef* const varrefp = new AstVarRef{varp->fileline(), varp, VAccess::WRITE};
-            AstAssignW* const newp = new AstAssignW{varp->fileline(), varrefp, constp};
+            ಸ್ಥಿರಾಂಕ AstPull* ಸ್ಥಿರಾಂಕ pullp = m_varAux(varp).pullp;
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ pull_ಮೌಲ್ಯ = pullp && pullp->direction() == 1;
+            AstConst* ಸ್ಥಿರಾಂಕ constp = newAllZerosOrOnes(varp, pull_ಮೌಲ್ಯ);
+            AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = ಹೊಸ AstVarRef{varp->fileline(), varp, VAccess::WRITE};
+            Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{varp->fileline(), varrefp, constp};
             UINFO(9, "       newoev " << newp);
-            varrefp->user1p(newAllZerosOrOnes(varp, false));  // en=0 for floating/pullup vars
-            nodep->addStmtsp(new AstAlways{newp});
-            mapInsertLhsVarRef(varrefp);  // insertTristates will convert
+            varrefp->user1p(newAllZerosOrOnes(varp, ಸುಳ್ಳು));  // en=0 for floating/pullup vars
+            nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{newp});
+            map_ಸೇರಿಸು_Lhs_Var_Ref(varrefp);  // insertTristates will convert
             //                               // to a varref to the __out# variable
         }
 
         // Now go through the lhs driver map and generate the output
         // enable logic for any tristates.
         // Note there might not be any drivers.
-        for (AstVar* varp : vars) {  // Use vector instead of m_lhsmap iteration for stability
-            const std::map<AstVar*, RefStrengthVec*>::iterator it = m_lhsmap.find(varp);
-            if (it == m_lhsmap.end()) continue;
-            AstVar* const invarp = it->first;
-            RefStrengthVec* refsp = it->second;
+        ಗಾಗಿ (AstVar* varp : vars) {  // Use vector instead of m_lhsmap iteration for stability
+            ಸ್ಥಿರಾಂಕ std::map<AstVar*, RefStrengthVec*>::iterator it = m_lhsmap.ಕಂಡುಹಿಡಿ(varp);
+            ಆದರೆ (it == m_lhsmap.ಕೊನೆ()) ಮುಂದುವರಿ;
+            AstVar* ಸ್ಥಿರಾಂಕ invarp = it->ಮೊದಲ;
+            RefStrengthVec* refsp = it->ಎರಡನೇ;
             // Figure out if this var needs tristate expanded.
-            if (m_tgraph.isTristate(invarp)) {
+            ಆದರೆ (m_tgraph.isTristate(invarp)) {
                 // Check if the var is owned by a different module (cross-module reference).
                 // For interface vars this is expected; for regular modules it's unsupported.
-                AstNodeModule* const ownerModp = findParentModule(invarp);
-                const bool isCrossModule = ownerModp && ownerModp != nodep;
-                const bool isIfaceTri = isCrossModule && VN_IS(ownerModp, Iface);
+                Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp = ಕಂಡುಹಿಡಿ_ಪೋಷಕ_Module(invarp);
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isCrossModule = ownerModp && ownerModp != nodep;
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isIfaceTri = isCrossModule && VN_IS(ownerModp, Iface);
 
-                if (isCrossModule && !isIfaceTri) {
+                ಆದರೆ (isCrossModule && !isIfaceTri) {
                     // Hierarchical writes to non-interface module tri wires are unsupported
-                    for (const RefStrength& rs : *refsp) {
-                        if (VN_IS(rs.m_varrefp, VarXRef)) {
+                    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ RefStrength& rs : *refsp) {
+                        ಆದರೆ (VN_IS(rs.m_varrefp, VarXRef)) {
                             rs.m_varrefp->v3warn(
                                 E_UNSUPPORTED,
                                 "Unsupported tristate construct: hierarchical driver"
                                 " of non-interface tri signal: "
                                     << invarp->prettyNameQ());
-                            break;
+                            ನಿಲ್ಲಿಸು;
                         }
                     }
-                } else if (isIfaceTri) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (isIfaceTri) {
                     // Mark here too, so a net made tristate only by an external 'z driver
                     // still captures a plain cross-hierarchy driver processed later.
-                    m_varAux(invarp).ifaceTristate = true;
+                    m_varAux(invarp).ifaceTristate = ನಿಜ;
                     // Interface tristate vars: drivers from different interface instances
                     // (different VarXRef dotted paths) must be processed separately.
                     // E.g. io_ifc.d and io_ifc_local.d both target the same AstVar d in
                     // the ifc interface, but each instance needs its own contribution slot.
-                    struct PartitionInfo final {
+                    ರಚನೆ ವಿಭಜನೆ_Info final {
                         RefStrengthVec refs;
                         string inlinedDots;
                     };
-                    std::map<string, PartitionInfo> partitions;
-                    for (const RefStrength& rs : *refsp) {
-                        if (AstVarXRef* const xrefp = VN_CAST(rs.m_varrefp, VarXRef)) {
-                            PartitionInfo& pi = partitions[xrefp->dotted()];
-                            pi.refs.push_back(rs);
-                            if (pi.inlinedDots.empty()) { pi.inlinedDots = xrefp->inlinedDots(); }
-                        } else {
-                            partitions[""].refs.push_back(rs);
+                    std::map<string, ವಿಭಜನೆ_Info> partitions;
+                    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ RefStrength& rs : *refsp) {
+                        ಆದರೆ (AstVarXRef* ಸ್ಥಿರಾಂಕ xrefp = VN_CAST(rs.m_varrefp, VarXRef)) {
+                            ವಿಭಜನೆ_Info& pi = partitions[xrefp->dotted()];
+                            pi.refs.ತಳ್ಳು_ಹಿಂಭಾಗ(rs);
+                            ಆದರೆ (pi.inlinedDots.ಖಾಲಿಗಳು()) { pi.inlinedDots = xrefp->inlinedDots(); }
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            partitions[""].refs.ತಳ್ಳು_ಹಿಂಭಾಗ(rs);
                         }
                     }
-                    for (auto& kv : partitions) {
-                        insertTristatesSignal(nodep, invarp, &kv.second.refs, true, kv.first,
-                                              kv.second.inlinedDots,
-                                              findModportForDotted(nodep, kv.first));
+                    ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& kv : partitions) {
+                        ಸೇರಿಸು_Tristates_Signal(nodep, invarp, &kv.ಎರಡನೇ.refs, ನಿಜ, kv.ಮೊದಲ,
+                                              kv.ಎರಡನೇ.inlinedDots,
+                                              ಕಂಡುಹಿಡಿ_Modport_For_Dotted(nodep, kv.ಮೊದಲ));
                     }
-                } else if (VN_IS(nodep, Iface) && !invarp->isIO()) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(nodep, Iface) && !invarp->isIO()) {
                     // Local driver in an interface module - use contribution mechanism
                     // so it can be combined with any external drivers later. Record that
                     // this interface net is tristate, so a module that drives it across
                     // hierarchy with a plain (non-Z) assign is also routed through the
                     // contribution mechanism (its own graph has no Z to mark it tristate).
-                    m_varAux(invarp).ifaceTristate = true;
-                    insertTristatesSignal(nodep, invarp, refsp, true, "", "", nullptr);
-                } else {
-                    insertTristatesSignal(nodep, invarp, refsp, false, "", "", nullptr);
+                    m_varAux(invarp).ifaceTristate = ನಿಜ;
+                    ಸೇರಿಸು_Tristates_Signal(nodep, invarp, refsp, ನಿಜ, "", "", ಶೂನ್ಯಸೂಚಕ);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ಸೇರಿಸು_Tristates_Signal(nodep, invarp, refsp, ಸುಳ್ಳು, "", "", ಶೂನ್ಯಸೂಚಕ);
                 }
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 UINFO(8, "  NO TRISTATE ON:" << invarp);
             }
             // Delete the map and vector list now that we have expanded it.
             m_lhsmap.erase(invarp);
-            VL_DO_DANGLING(delete refsp, refsp);
+            VL_DO_DANGLING(ಅಳಿಸು refsp, refsp);
         }
     }
 
-    void aggregateTriSameStrength(AstNodeModule* nodep, AstVar* const varp, AstVar* const envarp,
+    ಶೂನ್ಯ aggregateTriSameStrength(Ast_ಗಂಟು_Module* nodep, AstVar* ಸ್ಥಿರಾಂಕ varp, AstVar* ಸ್ಥಿರಾಂಕ envarp,
                                   RefStrengthVec::iterator beginStrength,
-                                  RefStrengthVec::iterator endStrength) {
+                                  RefStrengthVec::iterator ಕೊನೆ_Strength) {
         // Separate procedural processes are independent drivers, but ordered assignments within
         // one process form a single driver. Create data and enable variables for each driver, then
         // aggregate independent drivers using | to form assignments to varp and envarp.
-        struct DriverGroup final {
-            const AstNodeProcedure* m_procedurep;  // Process owning these assignments
-            std::vector<RefStrength*> m_refsp;  // Ordered assignments in this driver
+        ರಚನೆ Driver_ಗುಂಪು final {
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Procedure* m_procedurep;  // Process owning these assignments
+            std::ಸದಿಶ<RefStrength*> m_refsp;  // Ordered assignments in this driver
         };
-        std::vector<DriverGroup> drivers;
-        std::map<const AstNodeProcedure*, size_t> procedureToDriver;
-        for (auto it = beginStrength; it != endStrength; ++it) {
-            if (it->m_procedurep) {
-                const auto emplaced = procedureToDriver.emplace(it->m_procedurep, drivers.size());
-                if (!emplaced.second) {
-                    drivers[emplaced.first->second].m_refsp.push_back(&*it);
-                    continue;
+        std::ಸದಿಶ<Driver_ಗುಂಪು> drivers;
+        std::map<ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Procedure*, ಗಾತ್ರ_t> procedure_ಗಮ್ಯ_Driver;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it = beginStrength; it != ಕೊನೆ_Strength; ++it) {
+            ಆದರೆ (it->m_procedurep) {
+                ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ emplaced = procedure_ಗಮ್ಯ_Driver.emplace(it->m_procedurep, drivers.ಗಾತ್ರ_2());
+                ಆದರೆ (!emplaced.ಎರಡನೇ) {
+                    drivers[emplaced.ಮೊದಲ->ಎರಡನೇ].m_refsp.ತಳ್ಳು_ಹಿಂಭಾಗ(&*it);
+                    ಮುಂದುವರಿ;
                 }
             }  // LCOV_EXCL_LINE -- GCC exception cleanup branch
-            drivers.push_back(DriverGroup{it->m_procedurep, {&*it}});
+            drivers.ತಳ್ಳು_ಹಿಂಭಾಗ(Driver_ಗುಂಪು{it->m_procedurep, {&*it}});
         }
 
-        AstNodeExpr* orp = nullptr;
-        AstNodeExpr* enp = nullptr;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* orp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enp = ಶೂನ್ಯಸೂಚಕ;
 
-        for (DriverGroup& driver : drivers) {
+        ಗಾಗಿ (Driver_ಗುಂಪು& driver : drivers) {
             // Create the new LHS data and enable variables for this driver.
-            AstVar* const newLhsp = new AstVar{varp->fileline(), VVarType::MODULETEMP,
-                                               varp->name() + "__out" + cvtToStr(m_unique),
+            AstVar* ಸ್ಥಿರಾಂಕ newLhsp = ಹೊಸ AstVar{varp->fileline(), VVarType::MODULETEMP,
+                                               varp->name() + "__out" + cvt_ಗಮ್ಯ_Str(m_unique),
                                                varp};  // 2-state ok; sep enable
-            newLhsp->setDfgTriLowered();
+            newLhsp->ಗಣ_Dfg_Tri_Lowered();
             UINFO(9, "       newout " << newLhsp);
-            nodep->addStmtsp(newLhsp);
-            AstVar* const newEnLhsp
-                = new AstVar{varp->fileline(), VVarType::MODULETEMP,
-                             varp->name() + "__en" + cvtToStr(m_unique++), envarp};  // 2-state ok
-            newEnLhsp->setDfgTriLowered();
+            nodep->ಕೂಡಿಸು_Stmtsp(newLhsp);
+            AstVar* ಸ್ಥಿರಾಂಕ newEnLhsp
+                = ಹೊಸ AstVar{varp->fileline(), VVarType::MODULETEMP,
+                             varp->name() + "__en" + cvt_ಗಮ್ಯ_Str(m_unique++), envarp};  // 2-state ok
+            newEnLhsp->ಗಣ_Dfg_Tri_Lowered();
             UINFO(9, "       newenlhsp " << newEnLhsp);
-            nodep->addStmtsp(newEnLhsp);
+            nodep->ಕೂಡಿಸು_Stmtsp(newEnLhsp);
 
-            for (RefStrength* const refStrengthp : driver.m_refsp) {
-                AstNodeVarRef* refp = refStrengthp->m_varrefp;
+            ಗಾಗಿ (RefStrength* ಸ್ಥಿರಾಂಕ refStrengthp : driver.m_refsp) {
+                Ast_ಗಂಟು_Var_Ref* refp = refStrengthp->m_varrefp;
 
                 // When retargeting a VarXRef to a local __out var, the dotted path becomes
                 // inconsistent. Replace the VarXRef with a local VarRef.
-                if (VN_IS(refp, VarXRef)) {
-                    AstVarRef* const localRefp
-                        = new AstVarRef{refp->fileline(), newLhsp, VAccess::WRITE};
+                ಆದರೆ (VN_IS(refp, VarXRef)) {
+                    AstVarRef* ಸ್ಥಿರಾಂಕ localRefp
+                        = ಹೊಸ AstVarRef{refp->fileline(), newLhsp, VAccess::WRITE};
                     // Preserve ownership of any detached enable tree for the existing end-of-pass
                     // cleanup, regardless of whether this is a procedural driver.
                     localRefp->user1p(refp->user1p());
-                    refp->user1p(nullptr);
+                    refp->user1p(ಶೂನ್ಯಸೂಚಕ);
                     refp->replaceWith(localRefp);
-                    VL_DO_DANGLING(pushDeletep(refp), refp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
                     refp = localRefp;
                     refStrengthp->m_varrefp = localRefp;
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     refp->varp(newLhsp);
                 }
 
-                if (driver.m_procedurep) {
+                ಆದರೆ (driver.m_procedurep) {
                     UASSERT_OBJ(refStrengthp->m_assignp, refp,
                                 "Procedural tristate driver without assignment");
                     UASSERT_OBJ(refStrengthp->m_enLhsp && refStrengthp->m_enVarrefp
                                     && refStrengthp->m_enRhsp,
                                 refp, "Procedural tristate driver without projected enable");
 
-                    AstNodeExpr* enLhsp = refStrengthp->m_enLhsp;
-                    AstNodeVarRef* const enVarrefp = refStrengthp->m_enVarrefp;
-                    if (VN_IS(enVarrefp, VarXRef)) {
-                        AstVarRef* const localRefp
-                            = new AstVarRef{enVarrefp->fileline(), newEnLhsp, VAccess::WRITE};
-                        if (enLhsp == enVarrefp) {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enLhsp = refStrengthp->m_enLhsp;
+                    Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ enVarrefp = refStrengthp->m_enVarrefp;
+                    ಆದರೆ (VN_IS(enVarrefp, VarXRef)) {
+                        AstVarRef* ಸ್ಥಿರಾಂಕ localRefp
+                            = ಹೊಸ AstVarRef{enVarrefp->fileline(), newEnLhsp, VAccess::WRITE};
+                        ಆದರೆ (enLhsp == enVarrefp) {
                             enLhsp = localRefp;
-                            VL_DO_DANGLING(enVarrefp->deleteTree(), enVarrefp);
-                        } else {
+                            VL_DO_DANGLING(enVarrefp->delete_ವೃಕ್ಷ(), enVarrefp);
+                        } ಇಲ್ಲದಿದ್ದರೆ {
                             enVarrefp->replaceWith(localRefp);
-                            VL_DO_DANGLING(pushDeletep(enVarrefp), enVarrefp);
+                            VL_DO_DANGLING(ತಳ್ಳು_Deletep(enVarrefp), enVarrefp);
                         }
-                    } else {
+                    } ಇಲ್ಲದಿದ್ದರೆ {
                         enVarrefp->varp(newEnLhsp);
                     }
                     UINFO(9, "       new procedural enable LHS " << enLhsp);
-                    m_proceduralEnables[refStrengthp->m_assignp].push_back(
+                    m_proceduralEnables[refStrengthp->m_assignp].ತಳ್ಳು_ಹಿಂಭಾಗ(
                         ProceduralEnable{enLhsp, refStrengthp->m_enRhsp});
-                    refStrengthp->m_enLhsp = nullptr;
-                    refStrengthp->m_enVarrefp = nullptr;
-                    refStrengthp->m_enRhsp = nullptr;
-                } else {
-                    AstAssignW* const enLhspAssignp = new AstAssignW{
+                    refStrengthp->m_enLhsp = ಶೂನ್ಯಸೂಚಕ;
+                    refStrengthp->m_enVarrefp = ಶೂನ್ಯಸೂಚಕ;
+                    refStrengthp->m_enRhsp = ಶೂನ್ಯಸೂಚಕ;
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ enLhspAssignp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{
                         refp->fileline(),
-                        new AstVarRef{refp->fileline(), newEnLhsp, VAccess::WRITE}, getEnp(refp)};
-                    if (refStrengthp->m_delayp) {
-                        enLhspAssignp->timingControlp(refStrengthp->m_delayp->cloneTree(false));
+                        ಹೊಸ AstVarRef{refp->fileline(), newEnLhsp, VAccess::WRITE}, getEnp(refp)};
+                    ಆದರೆ (refStrengthp->m_delayp) {
+                        enLhspAssignp->timingControlp(refStrengthp->m_delayp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
                     }
                     UINFO(9, "       newenlhspAssignp " << enLhspAssignp);
-                    nodep->addStmtsp(new AstAlways{enLhspAssignp});
+                    nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{enLhspAssignp});
                 }
             }
 
             // Append this driver to the resolution logic.
-            FileLine* const fl = driver.m_refsp.front()->m_varrefp->fileline();
-            AstNodeExpr* const ref1p = new AstVarRef{fl, newLhsp, VAccess::READ};
-            AstNodeExpr* const ref2p = new AstVarRef{fl, newEnLhsp, VAccess::READ};
-            AstNodeExpr* const andp = new AstAnd{fl, ref1p, ref2p};
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = driver.m_refsp.front()->m_varrefp->fileline();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ref1p = ಹೊಸ AstVarRef{fl, newLhsp, VAccess::READ};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ref2p = ಹೊಸ AstVarRef{fl, newEnLhsp, VAccess::READ};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ andp = ಹೊಸ AstAnd{fl, ref1p, ref2p};
 
             // or this to the others
-            orp = (!orp) ? andp : new AstOr{fl, orp, andp};
+            orp = (!orp) ? andp : ಹೊಸ AstOr{fl, orp, andp};
 
-            AstNodeExpr* const ref3p = new AstVarRef{fl, newEnLhsp, VAccess::READ};
-            enp = (!enp) ? ref3p : new AstOr{ref3p->fileline(), enp, ref3p};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ref3p = ಹೊಸ AstVarRef{fl, newEnLhsp, VAccess::READ};
+            enp = (!enp) ? ref3p : ಹೊಸ AstOr{ref3p->fileline(), enp, ref3p};
         }
-        AstAssignW* const assp = new AstAssignW{
-            varp->fileline(), new AstVarRef{varp->fileline(), varp, VAccess::WRITE}, orp};
+        Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ assp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{
+            varp->fileline(), ಹೊಸ AstVarRef{varp->fileline(), varp, VAccess::WRITE}, orp};
         UINFO(9, "       newassp " << assp);
-        nodep->addStmtsp(new AstAlways{assp});
+        nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{assp});
 
-        AstAssignW* const enAssp = new AstAssignW{
-            envarp->fileline(), new AstVarRef{envarp->fileline(), envarp, VAccess::WRITE}, enp};
+        Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ enAssp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{
+            envarp->fileline(), ಹೊಸ AstVarRef{envarp->fileline(), envarp, VAccess::WRITE}, enp};
         UINFO(9, "       newenassp " << enAssp);
-        nodep->addStmtsp(new AstAlways{enAssp});
+        nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{enAssp});
     }
 
-    void insertProceduralEnableAssignments(AstNodeModule* nodep) {
-        for (auto& assignEnables : m_proceduralEnables) {
-            AstNodeAssign* const assignp = assignEnables.first;
-            AstNodeExpr* combinedLhsp = assignp->lhsp()->unlinkFrBack();
-            AstNodeExpr* combinedRhsp = assignp->rhsp()->unlinkFrBack();
-            for (ProceduralEnable& enable : assignEnables.second) {
-                combinedLhsp = new AstConcat{assignp->fileline(), enable.m_lhsp, combinedLhsp};
-                combinedRhsp = new AstConcat{assignp->fileline(), enable.m_rhsp, combinedRhsp};
+    ಶೂನ್ಯ ಸೇರಿಸು_Procedural_Enable_Assignments(Ast_ಗಂಟು_Module* nodep) {
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& ನಿಯೋಜಿಸು_Enables : m_proceduralEnables) {
+            Ast_ಗಂಟು_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ assignp = ನಿಯೋಜಿಸು_Enables.ಮೊದಲ;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* combinedLhsp = assignp->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* combinedRhsp = assignp->rhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+            ಗಾಗಿ (ProceduralEnable& enable : ನಿಯೋಜಿಸು_Enables.ಎರಡನೇ) {
+                combinedLhsp = ಹೊಸ AstConcat{assignp->fileline(), enable.m_lhsp, combinedLhsp};
+                combinedRhsp = ಹೊಸ AstConcat{assignp->fileline(), enable.m_rhsp, combinedRhsp};
             }
 
-            if (!VN_IS(assignp, AssignDly) && assignp->timingControlp()) {
+            ಆದರೆ (!VN_IS(assignp, ನಿಯೋಜಿಸು_Dly) && assignp->timingControlp()) {
                 // A blocking intra-assignment timing control must suspend only once. Sample data
                 // and enables together, then apply both after the timing control completes.
-                AstVar* const sampledp
-                    = new AstVar{assignp->fileline(), VVarType::MODULETEMP,
-                                 "__VtriSample" + cvtToStr(m_unique++), combinedRhsp->dtypep()};
-                nodep->addStmtsp(sampledp);
-                assignp->lhsp(new AstVarRef{assignp->fileline(), sampledp, VAccess::WRITE});
+                AstVar* ಸ್ಥಿರಾಂಕ sampledp
+                    = ಹೊಸ AstVar{assignp->fileline(), VVarType::MODULETEMP,
+                                 "__VtriSample" + cvt_ಗಮ್ಯ_Str(m_unique++), combinedRhsp->dtypep()};
+                nodep->ಕೂಡಿಸು_Stmtsp(sampledp);
+                assignp->lhsp(ಹೊಸ AstVarRef{assignp->fileline(), sampledp, VAccess::WRITE});
                 assignp->rhsp(combinedRhsp);
                 assignp->dtypeFrom(combinedRhsp);
-                AstAssign* const applyp
-                    = new AstAssign{assignp->fileline(), combinedLhsp,
-                                    new AstVarRef{assignp->fileline(), sampledp, VAccess::READ}};
+                Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ applyp
+                    = ಹೊಸ Ast_ನಿಯೋಜಿಸು{assignp->fileline(), combinedLhsp,
+                                    ಹೊಸ AstVarRef{assignp->fileline(), sampledp, VAccess::READ}};
                 UINFO(9, "       new timed procedural tristate apply " << applyp);
-                assignp->addNextHere(applyp);
-            } else {
+                assignp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(applyp);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // Keeping data and enables in one assignment preserves NBA scheduling and makes
                 // every partial LHS update affect the identical enable footprint.
                 assignp->lhsp(combinedLhsp);
@@ -1035,9 +1035,9 @@ class TristateVisitor final : public TristateBaseVisitor {
     // isIfaceTri: true when the var is a tristate in an interface module (local or external).
     // ifaceDottedPath/ifaceInlinedDots/ifaceModportp are non-empty only for external
     // (cross-module) drivers; empty for local drivers within the interface itself.
-    void insertTristatesSignal(AstNodeModule* nodep, AstVar* const invarp, RefStrengthVec* refsp,
-                               bool isIfaceTri, const string& ifaceDottedPath,
-                               const string& ifaceInlinedDots, AstModport* ifaceModportp) {
+    ಶೂನ್ಯ ಸೇರಿಸು_Tristates_Signal(Ast_ಗಂಟು_Module* nodep, AstVar* ಸ್ಥಿರಾಂಕ invarp, RefStrengthVec* refsp,
+                               ತಾರ್ಕಿಕ isIfaceTri, ಸ್ಥಿರಾಂಕ string& iface_Dotted_ಮಾರ್ಗ,
+                               ಸ್ಥಿರಾಂಕ string& ifaceInlinedDots, AstModport* ifaceModportp) {
         UINFO(8, "  TRISTATE EXPANDING:" << invarp);
         ++m_statTriSigs;
         m_tgraph.didProcess(invarp);
@@ -1050,162 +1050,162 @@ class TristateVisitor final : public TristateBaseVisitor {
         // Top-level inouts are also expanded for pinsInoutEnables() or library generation.
         // Resolution is then performed by the caller or the library's SV wrapper.
         // Interface tristate vars skip port conversion (they use contribution vars instead).
-        AstVar* envarp = nullptr;
-        AstVar* outvarp = nullptr;  // __out
+        AstVar* envarp = ಶೂನ್ಯಸೂಚಕ;
+        AstVar* outvarp = ಶೂನ್ಯಸೂಚಕ;  // __out
         AstVar* lhsp = invarp;  // Variable to assign drive-value to (<in> or __out)
-        const bool isTopInout = !isIfaceTri && (invarp->direction() == VDirection::INOUT)
-                                && invarp->isIO() && nodep->isTop();
-        if (!isIfaceTri) {
-            if (((v3Global.opt.pinsInoutEnables() || !v3Global.opt.libCreate().empty())
-                 && isTopInout)
-                || (!nodep->isTop() && invarp->isIO())) {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ is_ತುದಿ_Inout = !isIfaceTri && (invarp->direction() == VDirection::INOUT)
+                                && invarp->isIO() && nodep->is_ತುದಿ();
+        ಆದರೆ (!isIfaceTri) {
+            ಆದರೆ (((v3Global.opt.pinsInoutEnables() || !v3Global.opt.libCreate().ಖಾಲಿಗಳು())
+                 && is_ತುದಿ_Inout)
+                || (!nodep->is_ತುದಿ() && invarp->isIO())) {
                 // This var becomes an input
-                invarp->varType2In();  // convert existing port to type input
+                invarp->var_Type2_ಒಳ();  // convert existing port to type input
                 // Create an output port (__out)
-                outvarp = getCreateOutVarp(invarp, isTopInout);
-                outvarp->varType2Out();
+                outvarp = get_Create_ಹೊರಹೋಗು_Varp(invarp, is_ತುದಿ_Inout);
+                outvarp->var_Type2_ಹೊರಹೋಗು();
                 lhsp = outvarp;  // Must assign to __out, not to normal input signal
                 UINFO(9, "     TRISTATE propagates up with " << lhsp);
                 // Create an output enable port (__en)
                 // May already be created if have foo === 1'bz somewhere
-                envarp = getCreateEnVarp(invarp, isTopInout);  // dir set in visit(AstPin*)
+                envarp = getCreateEnVarp(invarp, is_ತುದಿ_Inout);  // dir set in visit(AstPin*)
                 outvarp->user1p(envarp);
                 m_varAux(outvarp).pullp = m_varAux(invarp).pullp;  // AstPull* propagation
-                m_varAux(outvarp).bitPulls
-                    = m_varAux(invarp).bitPulls;  // Per-bit pull propagation
-                if (m_varAux(invarp).pullp) UINFO(9, "propagate pull to " << outvarp);
-                if (!m_varAux(invarp).bitPulls.empty()) {
+                m_varAux(outvarp).ಬಿಟ್_Pulls
+                    = m_varAux(invarp).ಬಿಟ್_Pulls;  // Per-bit pull propagation
+                ಆದರೆ (m_varAux(invarp).pullp) UINFO(9, "propagate pull to " << outvarp);
+                ಆದರೆ (!m_varAux(invarp).ಬಿಟ್_Pulls.ಖಾಲಿಗಳು()) {
                     UINFO(9, "propagate per-bit pulls to " << outvarp);
                 }
-            } else if (invarp->user1p()) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (invarp->user1p()) {
                 envarp = VN_AS(invarp->user1p(), Var);  // From CASEEQ, foo === 1'bz
             }
         }
 
-        AstNodeExpr* orp = nullptr;
-        AstNodeExpr* enp = nullptr;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* orp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enp = ಶೂನ್ಯಸೂಚಕ;
 
-        std::sort(refsp->begin(), refsp->end(),
-                  [](RefStrength a, RefStrength b) { return a.m_strength > b.m_strength; });
+        std::ವಿಂಗಡಿಸು(refsp->begin(), refsp->ಕೊನೆ(),
+                  [](RefStrength a, RefStrength b) { ಹಿಂತಿರುಗಿ a.m_strength > b.m_strength; });
 
         RefStrengthVec::iterator beginStrength = refsp->begin();
-        while (beginStrength != refsp->end()) {
-            RefStrengthVec::iterator endStrength = beginStrength + 1;
-            while (endStrength != refsp->end()
-                   && endStrength->m_strength == beginStrength->m_strength)
-                endStrength++;
+        ಆಗ (beginStrength != refsp->ಕೊನೆ()) {
+            RefStrengthVec::iterator ಕೊನೆ_Strength = beginStrength + 1;
+            ಆಗ (ಕೊನೆ_Strength != refsp->ಕೊನೆ()
+                   && ಕೊನೆ_Strength->m_strength == beginStrength->m_strength)
+                ಕೊನೆ_Strength++;
 
-            FileLine* const fl = beginStrength->m_varrefp->fileline();
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = beginStrength->m_varrefp->fileline();
             // For interface tristate vars, uniquify strength var names by including the
             // interface instance path, since multiple interface instances may have
             // identically-named tristate signals (e.g. io_ifc.d and io_ifc_mc.d both
             // create d__strong in the driving module)
-            string strengthPrefix;
-            if (isIfaceTri && !ifaceDottedPath.empty()) {
-                strengthPrefix = ifaceDottedPath;
-                std::replace(strengthPrefix.begin(), strengthPrefix.end(), '.', '_');
-                strengthPrefix += "__";
+            string strength_ಪೂರ್ವಪ್ರತ್ಯಯ;
+            ಆದರೆ (isIfaceTri && !iface_Dotted_ಮಾರ್ಗ.ಖಾಲಿಗಳು()) {
+                strength_ಪೂರ್ವಪ್ರತ್ಯಯ = iface_Dotted_ಮಾರ್ಗ;
+                std::replace(strength_ಪೂರ್ವಪ್ರತ್ಯಯ.begin(), strength_ಪೂರ್ವಪ್ರತ್ಯಯ.ಕೊನೆ(), '.', '_');
+                strength_ಪೂರ್ವಪ್ರತ್ಯಯ += "__";
             }
-            const string strengthVarName
-                = strengthPrefix + lhsp->name() + "__" + beginStrength->m_strength.ascii();
+            ಸ್ಥಿರಾಂಕ string strengthVarName
+                = strength_ಪೂರ್ವಪ್ರತ್ಯಯ + lhsp->name() + "__" + beginStrength->m_strength.ascii();
 
             // var__strength variable
-            AstVar* const varStrengthp = new AstVar{fl, VVarType::MODULETEMP, strengthVarName,
+            AstVar* ಸ್ಥಿರಾಂಕ varStrengthp = ಹೊಸ AstVar{fl, VVarType::MODULETEMP, strengthVarName,
                                                     invarp};  // 2-state ok; sep enable;
-            varStrengthp->setDfgTriLowered();
+            varStrengthp->ಗಣ_Dfg_Tri_Lowered();
             UINFO(9, "       newstrength " << varStrengthp);
-            nodep->addStmtsp(varStrengthp);
+            nodep->ಕೂಡಿಸು_Stmtsp(varStrengthp);
 
             // var__strength__en variable
-            AstVar* const enVarStrengthp = new AstVar{
+            AstVar* ಸ್ಥಿರಾಂಕ enVarStrengthp = ಹೊಸ AstVar{
                 fl, VVarType::MODULETEMP, strengthVarName + "__en", invarp};  // 2-state ok;
-            enVarStrengthp->setDfgTriLowered();
+            enVarStrengthp->ಗಣ_Dfg_Tri_Lowered();
             UINFO(9, "       newenstrength " << enVarStrengthp);
-            nodep->addStmtsp(enVarStrengthp);
+            nodep->ಕೂಡಿಸು_Stmtsp(enVarStrengthp);
 
             aggregateTriSameStrength(nodep, varStrengthp, enVarStrengthp, beginStrength,
-                                     endStrength);
+                                     ಕೊನೆ_Strength);
 
-            AstNodeExpr* exprCurrentStrengthp;
-            if (enp) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಅಭಿವ್ಯಕ್ತಿ_Current_Strengthp;
+            ಆದರೆ (enp) {
                 // If weaker driver should be overwritten by a stronger, replace its value with z
-                exprCurrentStrengthp
-                    = new AstAnd{fl, new AstVarRef{fl, varStrengthp, VAccess::READ},
-                                 new AstNot{fl, enp->cloneTreePure(false)}};
-            } else {
-                exprCurrentStrengthp = new AstVarRef{fl, varStrengthp, VAccess::READ};
+                ಅಭಿವ್ಯಕ್ತಿ_Current_Strengthp
+                    = ಹೊಸ AstAnd{fl, ಹೊಸ AstVarRef{fl, varStrengthp, VAccess::READ},
+                                 ಹೊಸ AstNot{fl, enp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)}};
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಅಭಿವ್ಯಕ್ತಿ_Current_Strengthp = ಹೊಸ AstVarRef{fl, varStrengthp, VAccess::READ};
             }
-            orp = (!orp) ? exprCurrentStrengthp : new AstOr{fl, orp, exprCurrentStrengthp};
+            orp = (!orp) ? ಅಭಿವ್ಯಕ್ತಿ_Current_Strengthp : ಹೊಸ AstOr{fl, orp, ಅಭಿವ್ಯಕ್ತಿ_Current_Strengthp};
 
-            AstNodeExpr* const enVarStrengthRefp
-                = new AstVarRef{fl, enVarStrengthp, VAccess::READ};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enVarStrengthRefp
+                = ಹೊಸ AstVarRef{fl, enVarStrengthp, VAccess::READ};
 
-            enp = (!enp) ? enVarStrengthRefp : new AstOr{fl, enp, enVarStrengthRefp};
+            enp = (!enp) ? enVarStrengthRefp : ಹೊಸ AstOr{fl, enp, enVarStrengthRefp};
 
-            beginStrength = endStrength;
+            beginStrength = ಕೊನೆ_Strength;
         }
 
         // For interface tristate vars, store per-module contributions for later combining.
         // The interface module owns the contribution vars; resolution happens in
         // combineIfaceContribs() after all modules are processed.
-        if (isIfaceTri) {
+        ಆದರೆ (isIfaceTri) {
             // This net intentionally has multiple contributors; DFG should not emit
             // MULTIDRIVEN warnings for this lowered tristate pattern.
-            invarp->setDfgAllowMultidriveTri();
-            AstNodeModule* const ifaceModp = findParentModule(invarp);
+            invarp->ಗಣ_Dfg_Allow_Multidrive_Tri();
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ifaceModp = ಕಂಡುಹಿಡಿ_ಪೋಷಕ_Module(invarp);
             UASSERT_OBJ(ifaceModp, invarp, "Interface tristate var has no parent module");
-            const int contribIdx = static_cast<int>(m_ifaceContribs[invarp].size());
-            FileLine* const fl = invarp->fileline();
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ contribIdx = static_cast<ಪೂರ್ಣಾಂಕ>(m_ifaceContribs[invarp].ಗಾತ್ರ_2());
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = invarp->fileline();
 
             // Create contribution vars in the interface module
-            AstVar* const contribOutp = new AstVar{
-                fl, VVarType::MODULETEMP, invarp->name() + "__out" + cvtToStr(contribIdx), invarp};
-            contribOutp->setDfgTriLowered();
+            AstVar* ಸ್ಥಿರಾಂಕ contribOutp = ಹೊಸ AstVar{
+                fl, VVarType::MODULETEMP, invarp->name() + "__out" + cvt_ಗಮ್ಯ_Str(contribIdx), invarp};
+            contribOutp->ಗಣ_Dfg_Tri_Lowered();
             UINFO(9, "       iface contribOut " << contribOutp);
-            ifaceModp->addStmtsp(contribOutp);
+            ifaceModp->ಕೂಡಿಸು_Stmtsp(contribOutp);
 
-            AstVar* const contribEnp = new AstVar{
-                fl, VVarType::MODULETEMP, invarp->name() + "__en" + cvtToStr(contribIdx), invarp};
-            contribEnp->setDfgTriLowered();
+            AstVar* ಸ್ಥಿರಾಂಕ contribEnp = ಹೊಸ AstVar{
+                fl, VVarType::MODULETEMP, invarp->name() + "__en" + cvt_ಗಮ್ಯ_Str(contribIdx), invarp};
+            contribEnp->ಗಣ_Dfg_Tri_Lowered();
             UINFO(9, "       iface contribEn " << contribEnp);
-            ifaceModp->addStmtsp(contribEnp);
+            ifaceModp->ಕೂಡಿಸು_Stmtsp(contribEnp);
 
             // If the driving module accesses the interface through a modport,
             // add the new contribution vars to the modport so VarXRefs
             // can be resolved by V3LinkDot through the modport path.
-            if (ifaceModportp) {
+            ಆದರೆ (ifaceModportp) {
                 UINFO(9, "       adding to modport " << ifaceModportp->name());
-                addModportVarRefIfMissing(ifaceModportp, contribOutp, VDirection::OUTPUT);
-                addModportVarRefIfMissing(ifaceModportp, contribEnp, VDirection::OUTPUT);
+                ಕೂಡಿಸು_Modport_Var_Ref_If_Missing(ifaceModportp, contribOutp, VDirection::OUTPUT);
+                ಕೂಡಿಸು_Modport_Var_Ref_If_Missing(ifaceModportp, contribEnp, VDirection::OUTPUT);
             }
 
             // Assign drive value and enable to contribution vars.
             // External drivers use VarXRef; local drivers use VarRef.
             {
-                AstNodeVarRef* const lhsp
-                    = ifaceDottedPath.empty() ? static_cast<AstNodeVarRef*>(
-                                                    new AstVarRef{fl, contribOutp, VAccess::WRITE})
-                                              : static_cast<AstNodeVarRef*>(
-                                                    newVarXRef(fl, contribOutp, ifaceDottedPath,
+                Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ lhsp
+                    = iface_Dotted_ಮಾರ್ಗ.ಖಾಲಿಗಳು() ? static_cast<Ast_ಗಂಟು_Var_Ref*>(
+                                                    ಹೊಸ AstVarRef{fl, contribOutp, VAccess::WRITE})
+                                              : static_cast<Ast_ಗಂಟು_Var_Ref*>(
+                                                    newVarXRef(fl, contribOutp, iface_Dotted_ಮಾರ್ಗ,
                                                                VAccess::WRITE, ifaceInlinedDots));
-                AstAssignW* const assp = new AstAssignW{fl, lhsp, orp};
+                Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ assp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{fl, lhsp, orp};
                 assp->user2Or(U2_BOTH);
-                nodep->addStmtsp(new AstAlways{assp});
+                nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{assp});
             }
             {
-                AstNodeVarRef* const lhsp
-                    = ifaceDottedPath.empty() ? static_cast<AstNodeVarRef*>(
-                                                    new AstVarRef{fl, contribEnp, VAccess::WRITE})
-                                              : static_cast<AstNodeVarRef*>(
-                                                    newVarXRef(fl, contribEnp, ifaceDottedPath,
+                Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ lhsp
+                    = iface_Dotted_ಮಾರ್ಗ.ಖಾಲಿಗಳು() ? static_cast<Ast_ಗಂಟು_Var_Ref*>(
+                                                    ಹೊಸ AstVarRef{fl, contribEnp, VAccess::WRITE})
+                                              : static_cast<Ast_ಗಂಟು_Var_Ref*>(
+                                                    newVarXRef(fl, contribEnp, iface_Dotted_ಮಾರ್ಗ,
                                                                VAccess::WRITE, ifaceInlinedDots));
-                AstAssignW* const assp = new AstAssignW{fl, lhsp, enp};
+                Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ assp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{fl, lhsp, enp};
                 assp->user2Or(U2_BOTH);
-                nodep->addStmtsp(new AstAlways{assp});
+                nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{assp});
             }
 
-            m_ifaceContribs[invarp].push_back({contribEnp, contribOutp});
-            return;
+            m_ifaceContribs[invarp].ತಳ್ಳು_ಹಿಂಭಾಗ({contribEnp, contribOutp});
+            ಹಿಂತಿರುಗಿ;
         }
 
         // Apply pull formula: final = orp | (~enp & pull_value)
@@ -1214,301 +1214,301 @@ class TristateVisitor final : public TristateBaseVisitor {
         // so this is semantically a no-op but it links enp into the tree.
         // Also run at intermediate levels when there's a pull, so the pull is baked into
         // the contribution flowing up the hierarchy.
-        const bool hasPull = m_varAux(lhsp).pullp || hasPerBitPulls(lhsp);
-        if (!outvarp || hasPull) {
-            AstNodeExpr* undrivenp;
-            if (envarp) {
-                undrivenp = new AstNot{envarp->fileline(),
-                                       new AstVarRef{envarp->fileline(), envarp, VAccess::READ}};
-            } else if (enp) {
-                undrivenp = new AstNot{enp->fileline(), enp};
-                enp = nullptr;  // moved into undrivenp
-            } else {
-                undrivenp = newAllZerosOrOnes(invarp, true);  // LCOV_EXCL_LINE
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ hasPull = m_varAux(lhsp).pullp || has_ಪ್ರತಿ_ಬಿಟ್_Pulls(lhsp);
+        ಆದರೆ (!outvarp || hasPull) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* undrivenp;
+            ಆದರೆ (envarp) {
+                undrivenp = ಹೊಸ AstNot{envarp->fileline(),
+                                       ಹೊಸ AstVarRef{envarp->fileline(), envarp, VAccess::READ}};
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (enp) {
+                undrivenp = ಹೊಸ AstNot{enp->fileline(), enp};
+                enp = ಶೂನ್ಯಸೂಚಕ;  // moved into undrivenp
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                undrivenp = newAllZerosOrOnes(invarp, ನಿಜ);  // LCOV_EXCL_LINE
             }
 
             AstConst* pullConstp;
-            if (hasPerBitPulls(lhsp)) {
-                pullConstp = createPerBitPullConst(lhsp);
-            } else {
-                const AstPull* const pullp = m_varAux(lhsp).pullp;
-                const bool pull1 = pullp && pullp->direction() == 1;
+            ಆದರೆ (has_ಪ್ರತಿ_ಬಿಟ್_Pulls(lhsp)) {
+                pullConstp = create_ಪ್ರತಿ_ಬಿಟ್_Pull_Const(lhsp);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಸ್ಥಿರಾಂಕ AstPull* ಸ್ಥಿರಾಂಕ pullp = m_varAux(lhsp).pullp;
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ pull1 = pullp && pullp->direction() == 1;
                 pullConstp = newAllZerosOrOnes(invarp, pull1);
             }
 
-            undrivenp = new AstAnd{invarp->fileline(), undrivenp, pullConstp};
-            orp = orp ? new AstOr{invarp->fileline(), orp, undrivenp} : undrivenp;
+            undrivenp = ಹೊಸ AstAnd{invarp->fileline(), undrivenp, pullConstp};
+            orp = orp ? ಹೊಸ AstOr{invarp->fileline(), orp, undrivenp} : undrivenp;
         }
 
         // Ensure enp is valid when envarp exists (pullup/pulldown only = no active driver)
-        if (envarp && !enp) enp = newAllZerosOrOnes(invarp, false);
+        ಆದರೆ (envarp && !enp) enp = newAllZerosOrOnes(invarp, ಸುಳ್ಳು);
 
-        if (envarp) {
-            AstAssignW* const enAssp = new AstAssignW{
-                enp->fileline(), new AstVarRef{envarp->fileline(), envarp, VAccess::WRITE}, enp};
+        ಆದರೆ (envarp) {
+            Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ enAssp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{
+                enp->fileline(), ಹೊಸ AstVarRef{envarp->fileline(), envarp, VAccess::WRITE}, enp};
             UINFOTREE(9, enAssp, "", "enAssp");
-            nodep->addStmtsp(new AstAlways{enAssp});
+            nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{enAssp});
         }
 
         // __out (child) or <in> (parent) = drive-value expression
-        AstAssignW* const assp = new AstAssignW{
-            lhsp->fileline(), new AstVarRef{lhsp->fileline(), lhsp, VAccess::WRITE}, orp};
+        Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ assp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{
+            lhsp->fileline(), ಹೊಸ AstVarRef{lhsp->fileline(), lhsp, VAccess::WRITE}, orp};
         assp->user2Or(U2_BOTH);  // Don't process further; already resolved
         UINFOTREE(9, assp, "", "lhsp-eqn");
-        nodep->addStmtsp(new AstAlways{assp});
+        nodep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{assp});
 
         // If this is a top-level inout, make sure that the INOUT pins get __en and __out
-        if ((v3Global.opt.pinsInoutEnables() || !v3Global.opt.libCreate().empty()) && isTopInout) {
-            if (envarp) {
-                envarp->primaryIO(true);
+        ಆದರೆ ((v3Global.opt.pinsInoutEnables() || !v3Global.opt.libCreate().ಖಾಲಿಗಳು()) && is_ತುದಿ_Inout) {
+            ಆದರೆ (envarp) {
+                envarp->primaryIO(ನಿಜ);
                 envarp->direction(VDirection::OUTPUT);
                 envarp->protect(invarp->protect());
             }
-            if (outvarp) {
-                outvarp->primaryIO(true);
+            ಆದರೆ (outvarp) {
+                outvarp->primaryIO(ನಿಜ);
                 outvarp->direction(VDirection::OUTPUT);
                 outvarp->protect(invarp->protect());
             }
-            if (!v3Global.opt.libCreate().empty()) {
-                const int id = ++m_unique;
+            ಆದರೆ (!v3Global.opt.libCreate().ಖಾಲಿಗಳು()) {
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ id = ++m_unique;
                 invarp->libInoutId(id);
                 outvarp->libInoutId(id);
                 envarp->libInoutId(id);
-                envarp->libInoutEnable(true);
+                envarp->libInoutEnable(ನಿಜ);
             }
         }
     }
 
-    bool isOnlyAssignmentIsToLhsVar(const AstAssignW* const nodep) {
-        if (const AstVarRef* const varRefp = VN_CAST(nodep->lhsp(), VarRef)) {
-            auto foundIt = m_assigns.find(varRefp->varp());
-            if (foundIt != m_assigns.end()) {
-                auto const& assignsToVar = foundIt->second;
-                if (assignsToVar.size() == 1 && assignsToVar[0] == nodep) return true;
+    ತಾರ್ಕಿಕ is_Only_Assignment_Is_ಗಮ್ಯ_Lhs_Var(ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ nodep) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(nodep->lhsp(), VarRef)) {
+            ಸ್ವಯಂಚಾಲಿತ ಸಿಕ್ಕಿತು_It = m_assigns.ಕಂಡುಹಿಡಿ(varRefp->varp());
+            ಆದರೆ (ಸಿಕ್ಕಿತು_It != m_assigns.ಕೊನೆ()) {
+                ಸ್ವಯಂಚಾಲಿತ ಸ್ಥಿರಾಂಕ& assigns_ಗಮ್ಯ_Var = ಸಿಕ್ಕಿತು_It->ಎರಡನೇ;
+                ಆದರೆ (assigns_ಗಮ್ಯ_Var.ಗಾತ್ರ_2() == 1 && assigns_ಗಮ್ಯ_Var[0] == nodep) ಹಿಂತಿರುಗಿ ನಿಜ;
             }
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
-    void addToAssignmentList(AstAssignW* nodep) {
-        if (AstVarRef* const varRefp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (varRefp->varp()->isNet()) {
-                m_assigns[varRefp->varp()].push_back(nodep);
-            } else if (nodep->strengthSpecp()) {
-                nodep->strengthSpecp()->unlinkFrBack()->deleteTree();
+    ಶೂನ್ಯ ಕೂಡಿಸು_ಗಮ್ಯ_Assignment_List(Ast_ನಿಯೋಜಿಸು_W* nodep) {
+        ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(nodep->lhsp(), VarRef)) {
+            ಆದರೆ (varRefp->varp()->isNet()) {
+                m_assigns[varRefp->varp()].ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->strengthSpecp()) {
+                nodep->strengthSpecp()->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ();
             }
-        } else if (nodep->strengthSpecp()) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->strengthSpecp()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Assignments with signal strength with LHS of type: "
                               << nodep->lhsp()->prettyTypeName());
         }
     }
 
-    uint8_t getStrength(const AstAssignW* const nodep, bool value) {
-        if (AstStrengthSpec* const strengthSpec = nodep->strengthSpecp()) {
-            return value ? strengthSpec->strength1() : strengthSpec->strength0();
+    uint8_t getStrength(ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ nodep, ತಾರ್ಕಿಕ ಮೌಲ್ಯ) {
+        ಆದರೆ (AstStrengthSpec* ಸ್ಥಿರಾಂಕ strengthSpec = nodep->strengthSpecp()) {
+            ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ ? strengthSpec->strength1() : strengthSpec->strength0();
         }
-        return VStrength::STRONG;  // default strength is strong
+        ಹಿಂತಿರುಗಿ VStrength::STRONG;  // default strength is strong
     }
 
-    bool assignmentOfValueOnAllBits(const AstAssignW* const nodep, bool value) {
-        if (const AstConst* const constp = VN_CAST(nodep->rhsp(), Const)) {
-            const V3Number num = constp->num();
-            return value ? num.isEqAllOnes() : num.isEqZero();
+    ತಾರ್ಕಿಕ assignment_ದ_ಮೌಲ್ಯ_On_All_ಬಿಟ್ಟುಗಳು(ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ nodep, ತಾರ್ಕಿಕ ಮೌಲ್ಯ) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(nodep->rhsp(), Const)) {
+            ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ = constp->ಅಂಕೆ();
+            ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ ? ಅಂಕೆ.isEqAllOnes() : ಅಂಕೆ.isEqZero();
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
-    AstAssignW* getStrongestAssignmentOfValue(const Assigns& assigns, bool value) {
-        auto maxIt = std::max_element(
-            assigns.begin(), assigns.end(), [&](const AstAssignW* ap, const AstAssignW* bp) {
-                const bool valuesOnRhsA = assignmentOfValueOnAllBits(ap, value);
-                const bool valuesOnRhsB = assignmentOfValueOnAllBits(bp, value);
-                if (!valuesOnRhsA) return valuesOnRhsB;
-                if (!valuesOnRhsB) return false;
-                return getStrength(ap, value) < getStrength(bp, value);
+    Ast_ನಿಯೋಜಿಸು_W* get_Strongest_Assignment_ದ_ಮೌಲ್ಯ(ಸ್ಥಿರಾಂಕ Assigns& assigns, ತಾರ್ಕಿಕ ಮೌಲ್ಯ) {
+        ಸ್ವಯಂಚಾಲಿತ maxIt = std::max_element(
+            assigns.begin(), assigns.ಕೊನೆ(), [&](ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ap, ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* bp) {
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಮೌಲ್ಯಗಳು_On_Rhs_A = assignment_ದ_ಮೌಲ್ಯ_On_All_ಬಿಟ್ಟುಗಳು(ap, ಮೌಲ್ಯ);
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಮೌಲ್ಯಗಳು_On_Rhs_B = assignment_ದ_ಮೌಲ್ಯ_On_All_ಬಿಟ್ಟುಗಳು(bp, ಮೌಲ್ಯ);
+                ಆದರೆ (!ಮೌಲ್ಯಗಳು_On_Rhs_A) ಹಿಂತಿರುಗಿ ಮೌಲ್ಯಗಳು_On_Rhs_B;
+                ಆದರೆ (!ಮೌಲ್ಯಗಳು_On_Rhs_B) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+                ಹಿಂತಿರುಗಿ getStrength(ap, ಮೌಲ್ಯ) < getStrength(bp, ಮೌಲ್ಯ);
             });
         // If not all assignments have const with all bits equal to value on the RHS,
         // std::max_element will return one of them anyway, so it has to be checked before
         // returning
-        return assignmentOfValueOnAllBits(*maxIt, value) ? *maxIt : nullptr;
+        ಹಿಂತಿರುಗಿ assignment_ದ_ಮೌಲ್ಯ_On_All_ಬಿಟ್ಟುಗಳು(*maxIt, ಮೌಲ್ಯ) ? *maxIt : ಶೂನ್ಯಸೂಚಕ;
     }
 
-    bool isAssignmentNotStrongerThanStrength(const AstAssignW* assignp, uint8_t strength) {
+    ತಾರ್ಕಿಕ isAssignmentNotStrongerThanStrength(ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* assignp, uint8_t strength) {
         // If the value of the RHS is known and has all bits equal, only strength corresponding to
         // its value is taken into account. In opposite case, both strengths are compared.
-        const uint8_t strength0 = getStrength(assignp, 0);
-        const uint8_t strength1 = getStrength(assignp, 1);
-        return (strength0 <= strength && strength1 <= strength)
-               || (strength0 <= strength && assignmentOfValueOnAllBits(assignp, 0))
-               || (strength1 <= strength && assignmentOfValueOnAllBits(assignp, 1));
+        ಸ್ಥಿರಾಂಕ uint8_t strength0 = getStrength(assignp, 0);
+        ಸ್ಥಿರಾಂಕ uint8_t strength1 = getStrength(assignp, 1);
+        ಹಿಂತಿರುಗಿ (strength0 <= strength && strength1 <= strength)
+               || (strength0 <= strength && assignment_ದ_ಮೌಲ್ಯ_On_All_ಬಿಟ್ಟುಗಳು(assignp, 0))
+               || (strength1 <= strength && assignment_ದ_ಮೌಲ್ಯ_On_All_ಬಿಟ್ಟುಗಳು(assignp, 1));
     }
 
-    AstNodeExpr* newMergeExpr(AstNodeExpr* const lhsp, AstNodeExpr* const rhsp, FileLine* const fl,
-                              bool isWor) {
-        AstNodeExpr* expr = nullptr;
-        if (isWor)
-            expr = new AstOr{fl, lhsp, rhsp};
-        else
-            expr = new AstAnd{fl, lhsp, rhsp};
-        return expr;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_ವಿಲೀನ_ಅಭಿವ್ಯಕ್ತಿ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp, File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl,
+                              ತಾರ್ಕಿಕ isWor) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಅಭಿವ್ಯಕ್ತಿ = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (isWor)
+            ಅಭಿವ್ಯಕ್ತಿ = ಹೊಸ AstOr{fl, lhsp, rhsp};
+        ಇಲ್ಲದಿದ್ದರೆ
+            ಅಭಿವ್ಯಕ್ತಿ = ಹೊಸ AstAnd{fl, lhsp, rhsp};
+        ಹಿಂತಿರುಗಿ ಅಭಿವ್ಯಕ್ತಿ;
     }
 
-    void mergeWiredNetsAssignments() {
+    ಶೂನ್ಯ ವಿಲೀನ_Wired_Nets_Assignments() {
         // Support for WOR/TRIOR/WAND/TRIAND, by merging the Assignments for the
         // same Net (merge by or for WOR/TIOR and merge by and for WAND/TRIAND).
-        for (auto& varpAssigns : m_assigns) {
-            Assigns& assigns = varpAssigns.second;
-            if (assigns.size() <= 1) continue;
-            AstVar* const varp = varpAssigns.first;
-            if (!varp->isWiredNet()) continue;
-            auto it = assigns.begin();
-            AstAssignW* const assignWp0 = *it;
-            FileLine* const fl = assignWp0->fileline();
-            AstNodeExpr* wExp = nullptr;
-            while (++it != assigns.end()) {
-                AstAssignW* assignWpi = *it;
-                if (!wExp) {
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& varpAssigns : m_assigns) {
+            Assigns& assigns = varpAssigns.ಎರಡನೇ;
+            ಆದರೆ (assigns.ಗಾತ್ರ_2() <= 1) ಮುಂದುವರಿ;
+            AstVar* ಸ್ಥಿರಾಂಕ varp = varpAssigns.ಮೊದಲ;
+            ಆದರೆ (!varp->isWiredNet()) ಮುಂದುವರಿ;
+            ಸ್ವಯಂಚಾಲಿತ it = assigns.begin();
+            Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ ನಿಯೋಜಿಸು_Wp0 = *it;
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ನಿಯೋಜಿಸು_Wp0->fileline();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* wExp = ಶೂನ್ಯಸೂಚಕ;
+            ಆಗ (++it != assigns.ಕೊನೆ()) {
+                Ast_ನಿಯೋಜಿಸು_W* ನಿಯೋಜಿಸು_Wpi = *it;
+                ಆದರೆ (!wExp) {
                     wExp
-                        = newMergeExpr(assignWp0->rhsp()->cloneTreePure(false),
-                                       assignWpi->rhsp()->cloneTreePure(false), fl, varp->isWor());
-                } else {
-                    wExp = newMergeExpr(wExp, assignWpi->rhsp()->cloneTreePure(false), fl,
+                        = new_ವಿಲೀನ_ಅಭಿವ್ಯಕ್ತಿ(ನಿಯೋಜಿಸು_Wp0->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                                       ನಿಯೋಜಿಸು_Wpi->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), fl, varp->isWor());
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    wExp = new_ವಿಲೀನ_ಅಭಿವ್ಯಕ್ತಿ(wExp, ನಿಯೋಜಿಸು_Wpi->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), fl,
                                         varp->isWor());
                 }
-                VL_DO_DANGLING((assignWpi->unlinkFrBack()->deleteTree()), assignWpi);
+                VL_DO_DANGLING((ನಿಯೋಜಿಸು_Wpi->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ()), ನಿಯೋಜಿಸು_Wpi);
             }
-            AstVarRef* const wVarRef = new AstVarRef{fl, varp, VAccess::WRITE};
-            AstAssignW* const wAssignp = new AstAssignW{fl, wVarRef, wExp};
-            assignWp0->replaceWith(wAssignp);
-            VL_DO_DANGLING(pushDeletep(assignWp0), assignWp0);
+            AstVarRef* ಸ್ಥಿರಾಂಕ wVarRef = ಹೊಸ AstVarRef{fl, varp, VAccess::WRITE};
+            Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ wAssignp = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{fl, wVarRef, wExp};
+            ನಿಯೋಜಿಸು_Wp0->replaceWith(wAssignp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(ನಿಯೋಜಿಸು_Wp0), ನಿಯೋಜಿಸು_Wp0);
             assigns.clear();
-            assigns.push_back(wAssignp);
+            assigns.ತಳ್ಳು_ಹಿಂಭಾಗ(wAssignp);
         }
     }
 
-    void removeNotStrongerAssignments(Assigns& assigns, const AstAssignW* strongestp,
-                                      uint8_t greatestKnownStrength) {
+    ಶೂನ್ಯ removeNotStrongerAssignments(Assigns& assigns, ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* strongestp,
+                                      uint8_t greatest_ತಿಳಿದ_Strength) {
         // Weaker assignments are these assignments that can't change the final value of the net.
         // They can be safely removed. Assignments of the same strength are also removed, because
         // duplicates aren't needed. One problem is with 2 assignments of different values and
         // equal strengths. It should result in assignment of x value, but these values aren't
         // supported now.
-        auto removedIt = std::remove_if(assigns.begin(), assigns.end(), [&](AstAssignW* assignp) {
-            if (assignp == strongestp) return false;
-            if (isAssignmentNotStrongerThanStrength(assignp, greatestKnownStrength)) {
+        ಸ್ವಯಂಚಾಲಿತ removedIt = std::remove_if(assigns.begin(), assigns.ಕೊನೆ(), [&](Ast_ನಿಯೋಜಿಸು_W* assignp) {
+            ಆದರೆ (assignp == strongestp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+            ಆದರೆ (isAssignmentNotStrongerThanStrength(assignp, greatest_ತಿಳಿದ_Strength)) {
                 // Vertices corresponding to nodes from removed assignment's subtree have to be
                 // removed.
                 m_tgraph.deleteVerticesFromSubtreeRecurse(assignp);
-                VL_DO_DANGLING(pushDeletep(assignp->unlinkFrBack()), assignp);
-                return true;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(assignp->unlink_Fr_ಹಿಂಭಾಗ()), assignp);
+                ಹಿಂತಿರುಗಿ ನಿಜ;
             }
-            return false;
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         });
-        assigns.erase(removedIt, assigns.end());
+        assigns.erase(removedIt, assigns.ಕೊನೆ());
     }
 
-    void removeAssignmentsNotStrongerThanUniformConstant() {
+    ಶೂನ್ಯ remove_Assignments_Not_Stronger_Than_ಏಕರೂಪ_Constant() {
         // If a stronger assignment of a constant with all bits equal to the same
         // value (0 or 1), is found, all weaker assignments can be safely removed.
-        for (auto& varpAssigns : m_assigns) {
-            Assigns& assigns = varpAssigns.second;
-            if (assigns.size() <= 1) continue;
-            const AstAssignW* const strongest0p = getStrongestAssignmentOfValue(assigns, 0);
-            const AstAssignW* const strongest1p = getStrongestAssignmentOfValue(assigns, 1);
-            const AstAssignW* strongestp = nullptr;
-            uint8_t greatestKnownStrength = 0;
-            const auto getIfStrongest
-                = [&](const AstAssignW* const strongestCandidatep, bool value) {
-                      if (!strongestCandidatep) return;
-                      const uint8_t strength = getStrength(strongestCandidatep, value);
-                      if (strength >= greatestKnownStrength) {
-                          greatestKnownStrength = strength;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& varpAssigns : m_assigns) {
+            Assigns& assigns = varpAssigns.ಎರಡನೇ;
+            ಆದರೆ (assigns.ಗಾತ್ರ_2() <= 1) ಮುಂದುವರಿ;
+            ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ strongest0p = get_Strongest_Assignment_ದ_ಮೌಲ್ಯ(assigns, 0);
+            ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ strongest1p = get_Strongest_Assignment_ದ_ಮೌಲ್ಯ(assigns, 1);
+            ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* strongestp = ಶೂನ್ಯಸೂಚಕ;
+            uint8_t greatest_ತಿಳಿದ_Strength = 0;
+            ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ getIfStrongest
+                = [&](ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ strongestCandidatep, ತಾರ್ಕಿಕ ಮೌಲ್ಯ) {
+                      ಆದರೆ (!strongestCandidatep) ಹಿಂತಿರುಗಿ;
+                      ಸ್ಥಿರಾಂಕ uint8_t strength = getStrength(strongestCandidatep, ಮೌಲ್ಯ);
+                      ಆದರೆ (strength >= greatest_ತಿಳಿದ_Strength) {
+                          greatest_ತಿಳಿದ_Strength = strength;
                           strongestp = strongestCandidatep;
                       }
                   };
             getIfStrongest(strongest0p, 0);
             getIfStrongest(strongest1p, 1);
 
-            if (strongestp) {
-                removeNotStrongerAssignments(assigns, strongestp, greatestKnownStrength);
+            ಆದರೆ (strongestp) {
+                removeNotStrongerAssignments(assigns, strongestp, greatest_ತಿಳಿದ_Strength);
             }
         }
     }
 
-    void removeAssignmentsNotStrongerThanNonTristate() {
+    ಶೂನ್ಯ removeAssignmentsNotStrongerThanNonTristate() {
         // Similar function as removeAssignmentsNotStrongerThanUniformConstant, but here the
         // assignments that have strength not stronger than the strongest assignment with
         // non-tristate RHS are removed. Strengths are compared according to their smaller values,
         // because the values of RHSs are unknown. (Assignments not stronger than strongest
         // constant are already removed.)
-        for (auto& varpAssigns : m_assigns) {
-            Assigns& assigns = varpAssigns.second;
-            if (assigns.size() <= 1) continue;
-            auto maxIt = std::max_element(
-                assigns.begin(), assigns.end(), [&](const AstAssignW* ap, const AstAssignW* bp) {
-                    if (m_tgraph.isTristate(ap)) return !m_tgraph.isTristate(bp);
-                    if (m_tgraph.isTristate(bp)) return false;
-                    const uint8_t minStrengthA = std::min(getStrength(ap, 0), getStrength(ap, 1));
-                    const uint8_t minStrengthB = std::min(getStrength(bp, 0), getStrength(bp, 1));
-                    return minStrengthA < minStrengthB;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& varpAssigns : m_assigns) {
+            Assigns& assigns = varpAssigns.ಎರಡನೇ;
+            ಆದರೆ (assigns.ಗಾತ್ರ_2() <= 1) ಮುಂದುವರಿ;
+            ಸ್ವಯಂಚಾಲಿತ maxIt = std::max_element(
+                assigns.begin(), assigns.ಕೊನೆ(), [&](ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ap, ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* bp) {
+                    ಆದರೆ (m_tgraph.isTristate(ap)) ಹಿಂತಿರುಗಿ !m_tgraph.isTristate(bp);
+                    ಆದರೆ (m_tgraph.isTristate(bp)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+                    ಸ್ಥಿರಾಂಕ uint8_t minStrengthA = std::min(getStrength(ap, 0), getStrength(ap, 1));
+                    ಸ್ಥಿರಾಂಕ uint8_t minStrengthB = std::min(getStrength(bp, 0), getStrength(bp, 1));
+                    ಹಿಂತಿರುಗಿ minStrengthA < minStrengthB;
                 });
             // If RHSs of all assignments are tristate, 1st element is returned, so it is
             // needed to check if it is non-tristate.
-            const AstAssignW* const strongestp = m_tgraph.isTristate(*maxIt) ? nullptr : *maxIt;
-            if (strongestp) {
-                const uint8_t greatestKnownStrength
+            ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ strongestp = m_tgraph.isTristate(*maxIt) ? ಶೂನ್ಯಸೂಚಕ : *maxIt;
+            ಆದರೆ (strongestp) {
+                ಸ್ಥಿರಾಂಕ uint8_t greatest_ತಿಳಿದ_Strength
                     = std::min(getStrength(strongestp, 0), getStrength(strongestp, 1));
-                removeNotStrongerAssignments(assigns, strongestp, greatestKnownStrength);
+                removeNotStrongerAssignments(assigns, strongestp, greatest_ತಿಳಿದ_Strength);
             }
         }
     }
 
     // VISITORS
-    void visit(AstConst* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConst* nodep) override {
         UINFO(9, dbgState() << nodep);
-        if (m_graphing) {
-            if (!m_alhs && nodep->num().hasZ()) m_tgraph.setTristate(nodep);
-        } else {
+        ಆದರೆ (m_graphing) {
+            ಆದರೆ (!m_alhs && nodep->ಅಂಕೆ().hasZ()) m_tgraph.ಗಣ_Tristate(nodep);
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // Detect any Z consts and convert them to 0's with an enable that is also 0.
-            if (m_alhs && nodep->user1p()) {
+            ಆದರೆ (m_alhs && nodep->user1p()) {
                 // A pin with 1'b0 or similar connection results in an assign with constant on LHS
                 // due to the pinReconnectSimple call in visit AstPin.
                 // We can ignore the output override by making a temporary
-                AstVar* const varp = getCreateUnconnVarp(nodep, nodep->dtypep());
-                AstNode* const newp = new AstVarRef{nodep->fileline(), varp, VAccess::WRITE};
+                AstVar* ಸ್ಥಿರಾಂಕ varp = getCreateUnconnVarp(nodep, nodep->dtypep());
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstVarRef{nodep->fileline(), varp, VAccess::WRITE};
                 UINFO(9, " const->" << newp);
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (m_tgraph.isTristate(nodep)) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (m_tgraph.isTristate(nodep)) {
                 m_tgraph.didProcess(nodep);
-                FileLine* const fl = nodep->fileline();
-                AstConst* const enp = getNonZConstp(nodep);
-                V3Number num1{nodep, nodep->width()};
-                num1.opAnd(nodep->num(), enp->num());  // 01X->01X, Z->0
-                AstConst* const newconstp = new AstConst{fl, num1};
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                AstConst* ಸ್ಥಿರಾಂಕ enp = getNonZConstp(nodep);
+                V3_ಸಂಖ್ಯೆ num1{nodep, nodep->ಅಗಲ()};
+                num1.opAnd(nodep->ಅಂಕೆ(), enp->ಅಂಕೆ());  // 01X->01X, Z->0
+                AstConst* ಸ್ಥಿರಾಂಕ newconstp = ಹೊಸ AstConst{fl, num1};
                 nodep->replaceWith(newconstp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
                 newconstp->user1p(enp);  // Propagate up constant with non-Z bits as 1
             }
         }
     }
 
-    void visit(AstCond* nodep) override {
-        if (m_graphing) {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCond* nodep) override {
+        ಆದರೆ (m_graphing) {
             iterateChildren(nodep);
-            if (m_alhs) {
+            ಆದರೆ (m_alhs) {
                 associateLogic(nodep, nodep->thenp());
                 associateLogic(nodep, nodep->elsep());
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 associateLogic(nodep->thenp(), nodep);
                 associateLogic(nodep->elsep(), nodep);
             }
-        } else {
-            if (m_alhs && nodep->user1p()) {
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (m_alhs && nodep->user1p()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported LHS tristate construct: " << nodep->prettyTypeName());
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
             iterateChildren(nodep);
             UINFO(9, dbgState() << nodep);
@@ -1516,75 +1516,75 @@ class TristateVisitor final : public TristateBaseVisitor {
             // expression 1 or 2 have an output enable '__en' signal. If the
             // condition has an enable, not sure what to do, so generate an
             // error.
-            AstNodeExpr* const condp = nodep->condp();
-            if (condp->user1p()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp = nodep->condp();
+            ಆದರೆ (condp->user1p()) {
                 condp->v3warn(E_UNSUPPORTED, "Unsupported: don't know how to deal with "
                                              "tristate logic in the conditional expression");
             }
-            AstNodeExpr* const thenp = nodep->thenp();
-            AstNodeExpr* const elsep = nodep->elsep();
-            if (thenp->user1p() || elsep->user1p()) {  // else no tristates
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ thenp = nodep->thenp();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ elsep = nodep->elsep();
+            ಆದರೆ (thenp->user1p() || elsep->user1p()) {  // else no tristates
                 m_tgraph.didProcess(nodep);
-                AstNodeExpr* const en1p = getEnp(thenp);
-                AstNodeExpr* const en2p = getEnp(elsep);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ en1p = getEnp(thenp);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ en2p = getEnp(elsep);
                 // The output enable of a cond is a cond of the output enable of the
                 // two expressions with the same conditional.
-                AstNodeExpr* const enp
-                    = new AstCond{nodep->fileline(), condp->cloneTree(false), en1p, en2p};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enp
+                    = ಹೊಸ AstCond{nodep->fileline(), condp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), en1p, en2p};
                 UINFO(9, "       newcond " << enp);
                 nodep->user1p(enp);  // propagate up COND(lhsp->enable, rhsp->enable)
-                if (thenp->user1p() && !thenp->user1p()->backp()) pushDeletep(thenp->user1p());
-                if (elsep->user1p() && !elsep->user1p()->backp()) pushDeletep(elsep->user1p());
-                thenp->user1p(nullptr);
-                elsep->user1p(nullptr);
+                ಆದರೆ (thenp->user1p() && !thenp->user1p()->backp()) ತಳ್ಳು_Deletep(thenp->user1p());
+                ಆದರೆ (elsep->user1p() && !elsep->user1p()->backp()) ತಳ್ಳು_Deletep(elsep->user1p());
+                thenp->user1p(ಶೂನ್ಯಸೂಚಕ);
+                elsep->user1p(ಶೂನ್ಯಸೂಚಕ);
             }
         }
     }
 
-    void visit(AstExprStmt* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* nodep) override {
         iterateChildren(nodep);
-        if (m_graphing) {
+        ಆದರೆ (m_graphing) {
             UASSERT_OBJ(!m_alhs, nodep, "AstExprStmt node on the LHS of assignment");
             associateLogic(nodep->resultp(), nodep);
-        } else if (nodep->resultp()->user1p()) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->resultp()->user1p()) {
             nodep->user1p(getEnp(nodep->resultp()));
-            nodep->resultp()->user1p(nullptr);
+            nodep->resultp()->user1p(ಶೂನ್ಯಸೂಚಕ);
             m_tgraph.didProcess(nodep);
         }
     }
 
-    void visit(AstSel* nodep) override {
-        if (m_graphing) {
+    ಶೂನ್ಯ ಭೇಟಿ(AstSel* nodep) override {
+        ಆದರೆ (m_graphing) {
             iterateChildren(nodep);
-            if (m_alhs) {
+            ಆದರೆ (m_alhs) {
                 associateLogic(nodep, nodep->fromp());
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 associateLogic(nodep->fromp(), nodep);
             }
-        } else {
-            if (m_alhs) {
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (m_alhs) {
                 UINFO(9, dbgState() << nodep);
-                if (nodep->user1p()) {
+                ಆದರೆ (nodep->user1p()) {
                     // Form a "deposit" instruction.  Would be nicer if we made this a new AST type
-                    AstNodeExpr* const newp
-                        = newEnableDeposit(nodep, VN_AS(nodep->user1p(), NodeExpr));
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ newp
+                        = newEnableDeposit(nodep, VN_AS(nodep->user1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ));
                     nodep->fromp()->user1p(newp);  // Push to varref (etc)
                     UINFOTREE(9, newp, "", "assign-sel");
                     m_tgraph.didProcess(nodep);
                 }
                 iterateChildren(nodep);
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 iterateChildren(nodep);
                 UINFO(9, dbgState() << nodep);
-                if (nodep->lsbp()->user1p()) {
+                ಆದರೆ (nodep->lsbp()->user1p()) {
                     nodep->v3warn(E_UNSUPPORTED, "Unsupported RHS tristate construct: "
                                                      << nodep->prettyTypeName());
                 }
-                if (nodep->fromp()->user1p()) {  // SEL(VARREF, lsb)
-                    AstNodeExpr* const en1p = getEnp(nodep->fromp());
-                    AstNodeExpr* const enp
-                        = new AstSel{nodep->fileline(), en1p, nodep->lsbp()->cloneTreePure(true),
-                                     nodep->widthConst()};
+                ಆದರೆ (nodep->fromp()->user1p()) {  // SEL(VARREF, lsb)
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ en1p = getEnp(nodep->fromp());
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enp
+                        = ಹೊಸ AstSel{nodep->fileline(), en1p, nodep->lsbp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ),
+                                     nodep->ಅಗಲ_Const()};
                     UINFO(9, "       newsel " << enp);
                     nodep->user1p(enp);  // propagate up SEL(fromp->enable, value)
                     m_tgraph.didProcess(nodep);
@@ -1593,96 +1593,96 @@ class TristateVisitor final : public TristateBaseVisitor {
         }
     }
 
-    void visit(AstConcat* nodep) override {
-        if (m_graphing) {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConcat* nodep) override {
+        ಆದರೆ (m_graphing) {
             iterateChildren(nodep);
-            if (m_alhs) {
+            ಆದರೆ (m_alhs) {
                 associateLogic(nodep, nodep->lhsp());
                 associateLogic(nodep, nodep->rhsp());
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 associateLogic(nodep->lhsp(), nodep);
                 associateLogic(nodep->rhsp(), nodep);
             }
-        } else {
-            if (m_alhs) {
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (m_alhs) {
                 UINFO(9, dbgState() << nodep);
-                if (nodep->user1p()) {
+                ಆದರೆ (nodep->user1p()) {
                     // Each half of the concat gets a select of the enable expression
-                    AstNodeExpr* const enp = VN_AS(nodep->user1p(), NodeExpr);
-                    nodep->user1p(nullptr);
-                    nodep->lhsp()->user1p(new AstSel{nodep->fileline(), enp->cloneTreePure(true),
-                                                     nodep->rhsp()->width(),
-                                                     nodep->lhsp()->width()});
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enp = VN_AS(nodep->user1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+                    nodep->user1p(ಶೂನ್ಯಸೂಚಕ);
+                    nodep->lhsp()->user1p(ಹೊಸ AstSel{nodep->fileline(), enp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ),
+                                                     nodep->rhsp()->ಅಗಲ(),
+                                                     nodep->lhsp()->ಅಗಲ()});
                     nodep->rhsp()->user1p(
-                        new AstSel{nodep->fileline(), enp, 0, nodep->rhsp()->width()});
+                        ಹೊಸ AstSel{nodep->fileline(), enp, 0, nodep->rhsp()->ಅಗಲ()});
                     m_tgraph.didProcess(nodep);
                 }
                 iterateChildren(nodep);
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 iterateChildren(nodep);
                 UINFO(9, dbgState() << nodep);
                 // Generate the new output enable signal, just as a concat
                 // identical to the data concat
-                AstNodeExpr* const expr1p = nodep->lhsp();
-                AstNodeExpr* const expr2p = nodep->rhsp();
-                if (expr1p->user1p() || expr2p->user1p()) {  // else no tristates
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr1p = nodep->lhsp();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr2p = nodep->rhsp();
+                ಆದರೆ (expr1p->user1p() || expr2p->user1p()) {  // else no tristates
                     m_tgraph.didProcess(nodep);
-                    AstNodeExpr* const en1p = getEnp(expr1p);
-                    AstNodeExpr* const en2p = getEnp(expr2p);
-                    AstNodeExpr* const enp = new AstConcat{nodep->fileline(), en1p, en2p};
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ en1p = getEnp(expr1p);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ en2p = getEnp(expr2p);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enp = ಹೊಸ AstConcat{nodep->fileline(), en1p, en2p};
                     UINFO(9, "       newconc " << enp);
                     nodep->user1p(enp);  // propagate up CONCAT(lhsp->enable, rhsp->enable)
-                    expr1p->user1p(nullptr);
-                    expr2p->user1p(nullptr);
+                    expr1p->user1p(ಶೂನ್ಯಸೂಚಕ);
+                    expr2p->user1p(ಶೂನ್ಯಸೂಚಕ);
                 }
             }
         }
     }
 
-    void visit(AstBufIf1* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstBufIf1* nodep) override {
         // For BufIf1, the enable is the LHS expression
         iterateChildren(nodep);
         UINFO(9, dbgState() << nodep);
-        if (m_graphing) {
+        ಆದರೆ (m_graphing) {
             associateLogic(nodep->rhsp(), nodep);
-            m_tgraph.setTristate(nodep);
-        } else {
+            m_tgraph.ಗಣ_Tristate(nodep);
+        } ಇಲ್ಲದಿದ್ದರೆ {
             UINFOTREE(9, nodep->backp(), "", "bufif");
-            if (m_alhs) {
+            ಆದರೆ (m_alhs) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported LHS tristate construct: " << nodep->prettyTypeName());
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
             m_tgraph.didProcess(nodep);
-            AstNodeExpr* const expr1p = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const expr2p = nodep->rhsp()->unlinkFrBack();
-            AstNodeExpr* enp;
-            if (AstNodeExpr* const en2p = VN_AS(expr2p->user1p(), NodeExpr)) {
-                enp = new AstAnd{nodep->fileline(), expr1p, en2p};
-            } else {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr1p = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr2p = nodep->rhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enp;
+            ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ en2p = VN_AS(expr2p->user1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
+                enp = ಹೊಸ AstAnd{nodep->fileline(), expr1p, en2p};
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 enp = expr1p;
             }
-            expr1p->user1p(nullptr);
+            expr1p->user1p(ಶೂನ್ಯಸೂಚಕ);
             expr2p->user1p(enp);  // Becomes new node
             // Don't need the BufIf any more, can just have the data direct
             nodep->replaceWith(expr2p);
             UINFO(9, "   bufif  datap=" << expr2p);
             UINFO(9, "   bufif  enp=" << enp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
     }
 
-    void visitAndOr(AstNodeBiop* nodep, bool isAnd) {
+    ಶೂನ್ಯ ಭೇಟಿ_And_Or(Ast_ಗಂಟು_Biop* nodep, ತಾರ್ಕಿಕ isAnd) {
         iterateChildren(nodep);
         UINFO(9, dbgState() << nodep);
-        if (m_graphing) {
+        ಆದರೆ (m_graphing) {
             associateLogic(nodep->lhsp(), nodep);
             associateLogic(nodep->rhsp(), nodep);
-        } else {
-            if (m_alhs && nodep->user1p()) {
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (m_alhs && nodep->user1p()) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported LHS tristate construct: " << nodep->prettyTypeName());
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
             // ANDs and Z's have issues. Earlier optimizations convert
             // expressions like "(COND) ? 1'bz : 1'b0" to "COND & 1'bz". So we
@@ -1697,174 +1697,174 @@ class TristateVisitor final : public TristateBaseVisitor {
             // have to define what is means to OR 1'bz with other
             // expressions. Here I take the approach that when one expression
             // is 0, that is passes the other.
-            AstNodeExpr* const expr1p = nodep->lhsp();
-            AstNodeExpr* const expr2p = nodep->rhsp();
-            if (!expr1p->user1p() && !expr2p->user1p()) {
-                return;  // no tristates in either expression, so nothing to do
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr1p = nodep->lhsp();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr2p = nodep->rhsp();
+            ಆದರೆ (!expr1p->user1p() && !expr2p->user1p()) {
+                ಹಿಂತಿರುಗಿ;  // no tristates in either expression, so nothing to do
             }
             m_tgraph.didProcess(nodep);
-            AstNodeExpr* en1p = getEnp(expr1p);
-            AstNodeExpr* en2p = getEnp(expr2p);
-            AstNodeExpr* subexpr1p = expr1p->cloneTreePure(false);
-            AstNodeExpr* subexpr2p = expr2p->cloneTreePure(false);
-            if (isAnd) {
-                subexpr1p = new AstNot{nodep->fileline(), subexpr1p};
-                subexpr2p = new AstNot{nodep->fileline(), subexpr2p};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* en1p = getEnp(expr1p);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* en2p = getEnp(expr2p);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* subexpr1p = expr1p->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* subexpr2p = expr2p->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+            ಆದರೆ (isAnd) {
+                subexpr1p = ಹೊಸ AstNot{nodep->fileline(), subexpr1p};
+                subexpr2p = ಹೊಸ AstNot{nodep->fileline(), subexpr2p};
             }
             // The new output enable is en1&en2 | en1&sub1 | en2&sub2, which factors to
             // en1&(en2|sub1) | en2&sub2. That references en1 once and en2 twice. Chained
             // gates (e.g. a many-input primitive) nest on one side, so make the nested
             // (non-leaf) side en1 to keep the enable linear in size.
-            if (!en1p->op1p() && en2p->op1p()) {
-                std::swap(en1p, en2p);
-                std::swap(subexpr1p, subexpr2p);
+            ಆದರೆ (!en1p->op1p() && en2p->op1p()) {
+                std::ಅದಲುಬದಲು(en1p, en2p);
+                std::ಅದಲುಬದಲು(subexpr1p, subexpr2p);
             }
             // calc new output enable
-            AstNodeExpr* const enp = new AstOr{
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enp = ಹೊಸ AstOr{
                 nodep->fileline(),
-                new AstAnd{nodep->fileline(), en1p, new AstOr{nodep->fileline(), en2p, subexpr1p}},
-                new AstAnd{nodep->fileline(), en2p->cloneTree(false), subexpr2p}};
+                ಹೊಸ AstAnd{nodep->fileline(), en1p, ಹೊಸ AstOr{nodep->fileline(), en2p, subexpr1p}},
+                ಹೊಸ AstAnd{nodep->fileline(), en2p->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), subexpr2p}};
             UINFO(9, "       neweqn " << enp);
             nodep->user1p(enp);
-            expr1p->user1p(nullptr);
-            expr2p->user1p(nullptr);
+            expr1p->user1p(ಶೂನ್ಯಸೂಚಕ);
+            expr2p->user1p(ಶೂನ್ಯಸೂಚಕ);
         }
     }
-    void visit(AstAnd* nodep) override { visitAndOr(nodep, true); }
-    void visit(AstOr* nodep) override { visitAndOr(nodep, false); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstAnd* nodep) override { ಭೇಟಿ_And_Or(nodep, ನಿಜ); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstOr* nodep) override { ಭೇಟಿ_And_Or(nodep, ಸುಳ್ಳು); }
 
-    void visitAssign(AstNodeAssign* nodep) {
+    ಶೂನ್ಯ ಭೇಟಿ_ನಿಯೋಜಿಸು(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* nodep) {
         VL_RESTORER(m_alhs);
         VL_RESTORER(m_assignp);
         VL_RESTORER(m_currentStrength);
         VL_RESTORER(m_currentDelayp);
         m_assignp = nodep;
-        if (VN_IS(nodep->rhsp(), CReset)) return;
-        if (AstAssignW* const assignWp = VN_CAST(nodep, AssignW)) {
-            m_currentDelayp = VN_CAST(assignWp->timingControlp(), Delay);
+        ಆದರೆ (VN_IS(nodep->rhsp(), CReset)) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ ನಿಯೋಜಿಸು_Wp = VN_CAST(nodep, ನಿಯೋಜಿಸು_W)) {
+            m_currentDelayp = VN_CAST(ನಿಯೋಜಿಸು_Wp->timingControlp(), Delay);
         }
-        if (m_graphing) {
-            if (AstAssignW* assignWp = VN_CAST(nodep, AssignW)) {
-                if (assignWp->getLhsNetDelay()) return;
-                if (assignWp->timingControlp() && !m_currentDelayp) return;
+        ಆದರೆ (m_graphing) {
+            ಆದರೆ (Ast_ನಿಯೋಜಿಸು_W* ನಿಯೋಜಿಸು_Wp = VN_CAST(nodep, ನಿಯೋಜಿಸು_W)) {
+                ಆದರೆ (ನಿಯೋಜಿಸು_Wp->getLhsNetDelay()) ಹಿಂತಿರುಗಿ;
+                ಆದರೆ (ನಿಯೋಜಿಸು_Wp->timingControlp() && !m_currentDelayp) ಹಿಂತಿರುಗಿ;
                 // Separate data and enable assignments cannot preserve distinct rise/fall delays.
-                if (m_currentDelayp && m_currentDelayp->fallDelay()) return;
-                if (!assignWp->timingControlp()) addToAssignmentList(assignWp);
+                ಆದರೆ (m_currentDelayp && m_currentDelayp->fallDelay()) ಹಿಂತಿರುಗಿ;
+                ಆದರೆ (!ನಿಯೋಜಿಸು_Wp->timingControlp()) ಕೂಡಿಸು_ಗಮ್ಯ_Assignment_List(ನಿಯೋಜಿಸು_Wp);
             }
 
-            if (nodep->user2() & U2_GRAPHING) return;
+            ಆದರೆ (nodep->user2() & U2_GRAPHING) ಹಿಂತಿರುಗಿ;
             VL_RESTORER(m_logicp);
             m_logicp = nodep;
             nodep->user2Or(U2_GRAPHING);
-            iterateAndNextNull(nodep->rhsp());
-            m_alhs = true;
-            iterateAndNextNull(nodep->lhsp());
-            m_alhs = false;
+            iterate_And_ಮುಂದಿನ_Null(nodep->rhsp());
+            m_alhs = ನಿಜ;
+            iterate_And_ಮುಂದಿನ_Null(nodep->lhsp());
+            m_alhs = ಸುಳ್ಳು;
             associateLogic(nodep->rhsp(), nodep);
             associateLogic(nodep, nodep->lhsp());
-        } else {
-            if (nodep->user2() & U2_NONGRAPH) {
-                return;  // Iterated here, or created assignment to ignore
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (nodep->user2() & U2_NONGRAPH) {
+                ಹಿಂತಿರುಗಿ;  // Iterated here, or created assignment to ignore
             }
             nodep->user2Or(U2_NONGRAPH);
-            iterateAndNextNull(nodep->rhsp());
+            iterate_And_ಮುಂದಿನ_Null(nodep->rhsp());
             UINFO(9, dbgState() << nodep);
             UINFOTREE(9, nodep, "", "assign");
-            if (m_procedurep) {
-                UASSERT_OBJ(!VN_IS(nodep, AssignW), nodep,
+            ಆದರೆ (m_procedurep) {
+                UASSERT_OBJ(!VN_IS(nodep, ನಿಯೋಜಿಸು_W), nodep,
                             "Continuous assignment inside procedural process");
-                AstNodeExpr* const enp
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enp
                     = nodep->rhsp()->user1p()
-                          ? VN_AS(nodep->rhsp()->user1p(), NodeExpr)->cloneTreePure(false)
-                          : newAllZerosOrOnes(nodep->lhsp(), true);
-                const bool inserted = m_assignEnps.emplace(nodep, enp).second;
+                          ? VN_AS(nodep->rhsp()->user1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)
+                          : newAllZerosOrOnes(nodep->lhsp(), ನಿಜ);
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ inserted = m_ನಿಯೋಜಿಸು_Enps.emplace(nodep, enp).ಎರಡನೇ;
                 UASSERT_OBJ(inserted, nodep, "Procedural assignment enable recorded twice");
             }
             // if the rhsp of this assign statement has an output enable driver,
             // then propagate the corresponding output enable assign statement.
             // down the lvalue tree by recursion for eventual attachment to
             // the appropriate output signal's VarRef.
-            if (nodep->rhsp()->user1p()) {
+            ಆದರೆ (nodep->rhsp()->user1p()) {
                 nodep->lhsp()->user1p(nodep->rhsp()->user1p());
-                nodep->rhsp()->user1p(nullptr);
+                nodep->rhsp()->user1p(ಶೂನ್ಯಸೂಚಕ);
                 UINFO(9, "   enp<-rhs " << nodep->lhsp()->user1p());
                 m_tgraph.didProcess(nodep);
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // Non-tristate RHS. For SEL assigns to tristate variables, we still
                 // need to track which bits are driven by creating a proper enable.
-                if (AstSel* const selp = VN_CAST(nodep->lhsp(), Sel)) {
-                    if (AstNodeVarRef* const varrefp = VN_CAST(selp->fromp(), NodeVarRef)) {
-                        if (m_tgraph.isTristate(varrefp->varp())) {
+                ಆದರೆ (AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep->lhsp(), Sel)) {
+                    ಆದರೆ (Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(selp->fromp(), ಗಂಟು_Var_Ref)) {
+                        ಆದರೆ (m_tgraph.isTristate(varrefp->varp())) {
                             // Create an all-1s enable for the SEL width - this will be
                             // deposited into the correct bit positions by newEnableDeposit
-                            nodep->lhsp()->user1p(newAllZerosOrOnes(nodep->lhsp(), true));
+                            nodep->lhsp()->user1p(newAllZerosOrOnes(nodep->lhsp(), ನಿಜ));
                             UINFO(9, "   enp<-nonTri SEL " << nodep->lhsp()->user1p());
                             m_tgraph.didProcess(nodep);
-                        } else {
-                            m_tgraph.didProcess(nodep, true);
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            m_tgraph.didProcess(nodep, ನಿಜ);
                         }
-                    } else {
-                        m_tgraph.didProcess(nodep, true);  // LCOV_EXCL_LINE
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        m_tgraph.didProcess(nodep, ನಿಜ);  // LCOV_EXCL_LINE
                     }
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     // Don't set user1p here as there are no handlers for many LHS node types
                     // (ArraySel, MemberSel, StructSel, etc.) and checkUnhandled() would error.
-                    m_tgraph.didProcess(nodep, true);
+                    m_tgraph.didProcess(nodep, ನಿಜ);
                 }
             }
-            m_alhs = true;  // And user1p() will indicate tristate equation, if any
-            if (AstAssignW* const assignWp = VN_CAST(nodep, AssignW)) {
-                if (AstStrengthSpec* const specp = assignWp->strengthSpecp()) {
-                    if (specp->strength0() != specp->strength1()) {
+            m_alhs = ನಿಜ;  // And user1p() will indicate tristate equation, if any
+            ಆದರೆ (Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ ನಿಯೋಜಿಸು_Wp = VN_CAST(nodep, ನಿಯೋಜಿಸು_W)) {
+                ಆದರೆ (AstStrengthSpec* ಸ್ಥಿರಾಂಕ specp = ನಿಯೋಜಿಸು_Wp->strengthSpecp()) {
+                    ಆದರೆ (specp->strength0() != specp->strength1()) {
                         // Unequal strengths are not a problem if the assignment is the only
                         // assignment to its variable. Unfortunately, m_assigns map stores only
                         // assignments to var. Selects are not inserted, so they may be handled
                         // improperly
-                        if (!isOnlyAssignmentIsToLhsVar(assignWp)) {
-                            assignWp->v3warn(
+                        ಆದರೆ (!is_Only_Assignment_Is_ಗಮ್ಯ_Lhs_Var(ನಿಯೋಜಿಸು_Wp)) {
+                            ನಿಯೋಜಿಸು_Wp->v3warn(
                                 E_UNSUPPORTED,
                                 "Unsupported: Unable to resolve unequal strength specifier");
                         }
-                    } else {
+                    } ಇಲ್ಲದಿದ್ದರೆ {
                         m_currentStrength = specp->strength0();
                     }
                 }
             }
-            iterateAndNextNull(nodep->lhsp());
+            iterate_And_ಮುಂದಿನ_Null(nodep->lhsp());
         }
     }
-    void visit(AstAssignW* nodep) override { visitAssign(nodep); }
-    void visit(AstAssign* nodep) override { visitAssign(nodep); }
-    void visit(AstAssignDly* nodep) override { visitAssign(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_W* nodep) override { ಭೇಟಿ_ನಿಯೋಜಿಸು(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು* nodep) override { ಭೇಟಿ_ನಿಯೋಜಿಸು(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_Dly* nodep) override { ಭೇಟಿ_ನಿಯೋಜಿಸು(nodep); }
 
-    void visit(AstNodeProcedure* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Procedure* nodep) override {
         VL_RESTORER(m_procedurep);
-        const AstAlways* const alwaysp = VN_CAST(nodep, Always);
-        m_procedurep = alwaysp && alwaysp->keyword() == VAlwaysKwd::CONT_ASSIGN ? nullptr : nodep;
+        ಸ್ಥಿರಾಂಕ AstAlways* ಸ್ಥಿರಾಂಕ alwaysp = VN_CAST(nodep, Always);
+        m_procedurep = alwaysp && alwaysp->keyword() == VAlwaysKwd::CONT_ನಿಯೋಜಿಸು ? ಶೂನ್ಯಸೂಚಕ : nodep;
         iterateChildren(nodep);
         checkUnhandled(nodep);
     }
-    void visit(AstAlias* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstAlias* nodep) override {
         VL_RESTORER(m_alhs);
-        VL_RESTORER(m_inAlias);
-        m_inAlias = true;
-        if (m_graphing) {
-            if (nodep->user2() & U2_GRAPHING) return;
-            m_alhs = true;  // In AstAlias all operands should be considered as lhs
+        VL_RESTORER(m_ಒಳ_Alias);
+        m_ಒಳ_Alias = ನಿಜ;
+        ಆದರೆ (m_graphing) {
+            ಆದರೆ (nodep->user2() & U2_GRAPHING) ಹಿಂತಿರುಗಿ;
+            m_alhs = ನಿಜ;  // In AstAlias all operands should be considered as lhs
             iterateChildren(nodep);
-            for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+            ಗಾಗಿ (Ast_ಗಂಟು* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
                 associateLogic(itemp, nodep);
                 associateLogic(nodep, itemp);
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             iterateChildren(nodep);
         }
     }
 
-    void visitCaseEq(AstNodeBiop* nodep, bool neq) {
-        if (m_graphing) {
+    ಶೂನ್ಯ ಭೇಟಿ_Case_Eq(Ast_ಗಂಟು_Biop* nodep, ತಾರ್ಕಿಕ neq) {
+        ಆದರೆ (m_graphing) {
             iterateChildren(nodep);
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             checkUnhandled(nodep);
             // Unsupported: A === 3'b000 should compare with the enables, but we don't do
             // so at present, we only compare if there is a z in the equation.
@@ -1873,124 +1873,124 @@ class TristateVisitor final : public TristateBaseVisitor {
             iterateChildren(nodep);
             UINFO(9, dbgState() << nodep);
             // Constification always moves const to LHS
-            AstConst* const constp = VN_CAST(nodep->lhsp(), Const);
-            if (constp && constp->user1p()) {
+            AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(nodep->lhsp(), Const);
+            ಆದರೆ (constp && constp->user1p()) {
                 // 3'b1z0 -> ((3'b101 == in__en) && (3'b100 == in))
-                AstNodeExpr* const rhsp = nodep->rhsp();
-                rhsp->unlinkFrBack();
-                FileLine* const fl = nodep->fileline();
-                AstNodeExpr* enRhsp;
-                if (rhsp->user1p()) {
-                    enRhsp = VN_AS(rhsp->user1p(), NodeExpr);
-                    rhsp->user1p(nullptr);
-                } else {
-                    enRhsp = getEnExprBasedOnOriginalp(rhsp);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = nodep->rhsp();
+                rhsp->unlink_Fr_ಹಿಂಭಾಗ();
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enRhsp;
+                ಆದರೆ (rhsp->user1p()) {
+                    enRhsp = VN_AS(rhsp->user1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+                    rhsp->user1p(ಶೂನ್ಯಸೂಚಕ);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    enRhsp = get_En_ಅಭಿವ್ಯಕ್ತಿ_Based_On_Originalp(rhsp);
                 }
-                AstNodeExpr* newp
-                    = new AstLogAnd{fl, new AstEq{fl, VN_AS(constp->user1p(), Const), enRhsp},
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp
+                    = ಹೊಸ AstLogAnd{fl, ಹೊಸ AstEq{fl, VN_AS(constp->user1p(), Const), enRhsp},
                                     // Keep the caseeq if there are X's present
-                                    new AstEqCase{fl, new AstConst{fl, constp->num()}, rhsp}};
-                constp->user1p(nullptr);
-                if (neq) newp = new AstLogNot{fl, newp};
+                                    ಹೊಸ AstEqCase{fl, ಹೊಸ AstConst{fl, constp->ಅಂಕೆ()}, rhsp}};
+                constp->user1p(ಶೂನ್ಯಸೂಚಕ);
+                ಆದರೆ (neq) newp = ಹೊಸ AstLogNot{fl, newp};
                 UINFO(9, "       newceq " << newp);
                 UINFOTREE(9, nodep, "", "caseeq-old");
                 UINFOTREE(9, newp, "", "caseeq-new");
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (constp && nodep->rhsp()->user1p()) {
-                FileLine* const fl = nodep->fileline();
-                constp->unlinkFrBack();
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                AstNodeExpr* newp = new AstLogAnd{fl,
-                                                  new AstEq{fl, newAllZerosOrOnes(constp, false),
-                                                            VN_AS(rhsp->user1p(), NodeExpr)},
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (constp && nodep->rhsp()->user1p()) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                constp->unlink_Fr_ಹಿಂಭಾಗ();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = nodep->rhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = ಹೊಸ AstLogAnd{fl,
+                                                  ಹೊಸ AstEq{fl, newAllZerosOrOnes(constp, ಸುಳ್ಳು),
+                                                            VN_AS(rhsp->user1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)},
                                                   // Keep the caseeq if there are X's present
-                                                  new AstEqCase{fl, constp, rhsp}};
-                if (neq) newp = new AstLogNot{fl, newp};
-                rhsp->user1p(nullptr);
+                                                  ಹೊಸ AstEqCase{fl, constp, rhsp}};
+                ಆದರೆ (neq) newp = ಹೊಸ AstLogNot{fl, newp};
+                rhsp->user1p(ಶೂನ್ಯಸೂಚಕ);
                 UINFO(9, "       newceq " << newp);
                 UINFOTREE(9, nodep, "", "caseeq-old");
                 UINFOTREE(9, newp, "", "caseeq-new");
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 checkUnhandled(nodep);
             }
         }
     }
-    void visitEqNeqWild(AstNodeBiop* nodep) {
-        if (!VN_IS(nodep->rhsp(), Const) && nodep->rhsp()->dtypep()->isFourstate()) {
+    ಶೂನ್ಯ ಭೇಟಿ_Eq_Neq_Wild(Ast_ಗಂಟು_Biop* nodep) {
+        ಆದರೆ (!VN_IS(nodep->rhsp(), Const) && nodep->rhsp()->dtypep()->isFourstate()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: RHS of ==? or !=? is fourstate but not a constant");
             // rhs we want to keep X/Z intact, so otherwise ignore
         }
-        iterateAndNextNull(nodep->lhsp());
-        if (nodep->lhsp()->user1p()) {
+        iterate_And_ಮುಂದಿನ_Null(nodep->lhsp());
+        ಆದರೆ (nodep->lhsp()->user1p()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported LHS tristate construct: " << nodep->prettyTypeName());
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
     }
-    void visit(AstEqCase* nodep) override { visitCaseEq(nodep, false); }
-    void visit(AstNeqCase* nodep) override { visitCaseEq(nodep, true); }
-    void visit(AstEqWild* nodep) override { visitEqNeqWild(nodep); }
-    void visit(AstNeqWild* nodep) override { visitEqNeqWild(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstEqCase* nodep) override { ಭೇಟಿ_Case_Eq(nodep, ಸುಳ್ಳು); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstNeqCase* nodep) override { ಭೇಟಿ_Case_Eq(nodep, ನಿಜ); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstEqWild* nodep) override { ಭೇಟಿ_Eq_Neq_Wild(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstNeqWild* nodep) override { ಭೇಟಿ_Eq_Neq_Wild(nodep); }
 
-    void visit(AstCountBits* nodep) override {
-        std::array<bool, 3> dropop;
-        dropop[0] = VN_IS(nodep->rhsp(), Const) && VN_AS(nodep->rhsp(), Const)->num().isAnyZ();
-        dropop[1] = VN_IS(nodep->thsp(), Const) && VN_AS(nodep->thsp(), Const)->num().isAnyZ();
-        dropop[2] = VN_IS(nodep->fhsp(), Const) && VN_AS(nodep->fhsp(), Const)->num().isAnyZ();
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು* nodep) override {
+        std::array<ತಾರ್ಕಿಕ, 3> dropop;
+        dropop[0] = VN_IS(nodep->rhsp(), Const) && VN_AS(nodep->rhsp(), Const)->ಅಂಕೆ().isAnyZ();
+        dropop[1] = VN_IS(nodep->thsp(), Const) && VN_AS(nodep->thsp(), Const)->ಅಂಕೆ().isAnyZ();
+        dropop[2] = VN_IS(nodep->fhsp(), Const) && VN_AS(nodep->fhsp(), Const)->ಅಂಕೆ().isAnyZ();
         UINFO(4, " COUNTBITS(" << dropop[0] << dropop[1] << dropop[2] << " " << nodep);
-        if (m_graphing) {
-            iterateAndNextNull(nodep->lhsp());
-            if (!dropop[0]) iterateAndNextNull(nodep->rhsp());
-            if (!dropop[1]) iterateAndNextNull(nodep->thsp());
-            if (!dropop[2]) iterateAndNextNull(nodep->fhsp());
-        } else {
-            AstNodeExpr* nonXp = nullptr;
-            if (!dropop[0]) {
+        ಆದರೆ (m_graphing) {
+            iterate_And_ಮುಂದಿನ_Null(nodep->lhsp());
+            ಆದರೆ (!dropop[0]) iterate_And_ಮುಂದಿನ_Null(nodep->rhsp());
+            ಆದರೆ (!dropop[1]) iterate_And_ಮುಂದಿನ_Null(nodep->thsp());
+            ಆದರೆ (!dropop[2]) iterate_And_ಮುಂದಿನ_Null(nodep->fhsp());
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nonXp = ಶೂನ್ಯಸೂಚಕ;
+            ಆದರೆ (!dropop[0]) {
                 nonXp = nodep->rhsp();
-            } else if (!dropop[1]) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!dropop[1]) {
                 nonXp = nodep->thsp();
-            } else if (!dropop[2]) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!dropop[2]) {
                 nonXp = nodep->fhsp();
             }
             // Replace 'z with non-Z
-            if (dropop[0] || dropop[1] || dropop[2]) {
+            ಆದರೆ (dropop[0] || dropop[1] || dropop[2]) {
                 // Unsupported: A $countones('0) should compare with the enables, but we don't
                 // do so at present, we only compare if there is a z in the equation. Otherwise
                 // we'd need to attach an enable to every signal, then optimize them away later
                 // when we determine the signal has no tristate
-                const AstVarRef* const varrefp = VN_CAST(nodep->lhsp(), VarRef);  // Input variable
-                if (!varrefp) {
+                ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(nodep->lhsp(), VarRef);  // Input variable
+                ಆದರೆ (!varrefp) {
                     nodep->v3warn(E_UNSUPPORTED, "Unsupported LHS tristate construct: "
                                                      << nodep->prettyTypeName());
-                    return;
+                    ಹಿಂತಿರುಗಿ;
                 }
-                AstVar* const envarp = getCreateEnVarp(varrefp->varp(), false);
+                AstVar* ಸ್ಥಿರಾಂಕ envarp = getCreateEnVarp(varrefp->varp(), ಸುಳ್ಳು);
                 // If any drops, we need to add in the count of Zs (from __en)
                 UINFO(4, " COUNTBITS('z)-> " << nodep);
                 VNRelinker relinkHandle;
-                nodep->unlinkFrBack(&relinkHandle);
-                AstNodeExpr* newp = new AstCountOnes{
-                    nodep->fileline(), new AstVarRef{nodep->fileline(), envarp, VAccess::READ}};
-                if (nonXp) {  // Need to still count '0 or '1 or 'x's
-                    if (dropop[0]) {
-                        nodep->rhsp()->unlinkFrBack()->deleteTree();
-                        nodep->rhsp(nonXp->cloneTreePure(true));
+                nodep->unlink_Fr_ಹಿಂಭಾಗ(&relinkHandle);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = ಹೊಸ Ast_ಎಣಿಕೆ_Ones{
+                    nodep->fileline(), ಹೊಸ AstVarRef{nodep->fileline(), envarp, VAccess::READ}};
+                ಆದರೆ (nonXp) {  // Need to still count '0 or '1 or 'x's
+                    ಆದರೆ (dropop[0]) {
+                        nodep->rhsp()->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ();
+                        nodep->rhsp(nonXp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ));
                     }
-                    if (dropop[1]) {
-                        nodep->thsp()->unlinkFrBack()->deleteTree();
-                        nodep->thsp(nonXp->cloneTreePure(true));
+                    ಆದರೆ (dropop[1]) {
+                        nodep->thsp()->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ();
+                        nodep->thsp(nonXp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ));
                     }
-                    if (dropop[2]) {
-                        nodep->fhsp()->unlinkFrBack()->deleteTree();
-                        nodep->fhsp(nonXp->cloneTreePure(true));
+                    ಆದರೆ (dropop[2]) {
+                        nodep->fhsp()->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ();
+                        nodep->fhsp(nonXp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ));
                     }
-                    newp = new AstAdd{nodep->fileline(), nodep, newp};
-                } else {
-                    pushDeletep(nodep);  // TODO: looks dubious that we still iterate this below...
+                    newp = ಹೊಸ Ast_ಕೂಡಿಸು{nodep->fileline(), nodep, newp};
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ತಳ್ಳು_Deletep(nodep);  // TODO: looks dubious that we still iterate this below...
                 }
                 UINFOTREE(9, newp, "", "countout");
                 relinkHandle.relink(newp);
@@ -1998,26 +1998,26 @@ class TristateVisitor final : public TristateBaseVisitor {
             iterateChildren(nodep);
         }
     }
-    void visit(AstPull* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstPull* nodep) override {
         UINFO(9, dbgState() << nodep);
-        AstVarRef* varrefp = nullptr;
-        if (VN_IS(nodep->lhsp(), VarRef)) {
+        AstVarRef* varrefp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (VN_IS(nodep->lhsp(), VarRef)) {
             varrefp = VN_AS(nodep->lhsp(), VarRef);
-        } else if (VN_IS(nodep->lhsp(), Sel)
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(nodep->lhsp(), Sel)
                    && VN_IS(VN_AS(nodep->lhsp(), Sel)->fromp(), VarRef)) {
             varrefp = VN_AS(VN_AS(nodep->lhsp(), Sel)->fromp(), VarRef);
         }
-        if (!varrefp) {
+        ಆದರೆ (!varrefp) {
             UINFOTREE(4, nodep, "", "");
             nodep->v3warn(E_UNSUPPORTED, "Unsupported pullup/down (weak driver) construct.");
-        } else {
-            if (m_graphing) {
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (m_graphing) {
                 VL_RESTORER(m_logicp);
                 m_logicp = nodep;
                 varrefp->access(VAccess::WRITE);
-                m_tgraph.setTristate(nodep);
+                m_tgraph.ಗಣ_Tristate(nodep);
                 associateLogic(nodep, varrefp->varp());
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // Replace any pullup/pulldowns with assignw logic and set the
                 // direction of the pull in the var aux data.  A pull on a
                 // constant part select is recorded per bit, so different bits
@@ -2026,37 +2026,37 @@ class TristateVisitor final : public TristateBaseVisitor {
                 varrefp->access(VAccess::WRITE);
                 m_tgraph.didProcess(nodep);
                 m_tgraph.didProcess(varrefp->varp());
-                const AstSel* const selp = VN_CAST(nodep->lhsp(), Sel);
-                const AstConst* const lsbp = selp ? VN_CAST(selp->lsbp(), Const) : nullptr;
-                if (lsbp) {
-                    const int lsb = lsbp->toSInt();
-                    for (int i = 0; i < selp->widthConst(); ++i) {
-                        setBitPullDirection(varrefp->varp(), lsb + i, nodep->direction());
+                ಸ್ಥಿರಾಂಕ AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep->lhsp(), Sel);
+                ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ lsbp = selp ? VN_CAST(selp->lsbp(), Const) : ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (lsbp) {
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lsb = lsbp->ಗಮ್ಯ_SInt();
+                    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < selp->ಅಗಲ_Const(); ++i) {
+                        ಗಣ_ಬಿಟ್_Pull_Direction(varrefp->varp(), lsb + i, nodep->direction());
                     }
-                } else {
-                    setPullDirection(varrefp->varp(), nodep);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ಗಣ_Pull_Direction(varrefp->varp(), nodep);
                 }
             }
         }
-        if (!m_graphing) {
-            nodep->unlinkFrBack();
+        ಆದರೆ (!m_graphing) {
+            nodep->unlink_Fr_ಹಿಂಭಾಗ();
             // Node must persist as var aux data points to it
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
     }
 
-    void iteratePinGuts(AstPin* nodep) {
-        if (m_graphing) {
+    ಶೂನ್ಯ iteratePinGuts(AstPin* nodep) {
+        ಆದರೆ (m_graphing) {
             VL_RESTORER(m_logicp);
             m_logicp = nodep;
-            if (nodep->exprp()) {
+            ಆದರೆ (nodep->exprp()) {
                 associateLogic(nodep->exprp(), nodep);
                 associateLogic(nodep, nodep->exprp());
             }
             iterateChildren(nodep);
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // All heavy lifting completed in graph visitor.
-            if (nodep->exprp()) m_tgraph.didProcess(nodep);
+            ಆದರೆ (nodep->exprp()) m_tgraph.didProcess(nodep);
             iterateChildren(nodep);
         }
     }
@@ -2082,197 +2082,197 @@ class TristateVisitor final : public TristateBaseVisitor {
     //                     __out(to-resolver-only)
     //     const inout  Spec says illegal
     //     const output Unsupported; Illegal?
-    void visit(AstPin* nodep) override {
-        if (m_graphing) {
-            if (nodep->user2() & U2_GRAPHING) return;  // This pin is already expanded
+    ಶೂನ್ಯ ಭೇಟಿ(AstPin* nodep) override {
+        ಆದರೆ (m_graphing) {
+            ಆದರೆ (nodep->user2() & U2_GRAPHING) ಹಿಂತಿರುಗಿ;  // This pin is already expanded
             nodep->user2Or(U2_GRAPHING);
             // Find child module's new variables.
-            AstVar* const enModVarp = static_cast<AstVar*>(nodep->modVarp()->user1p());
-            if (!enModVarp) {
+            AstVar* ಸ್ಥಿರಾಂಕ enModVarp = static_cast<AstVar*>(nodep->modVarp()->user1p());
+            ಆದರೆ (!enModVarp) {
                 // May have an output only that later connects to a tristate, so simplify now.
-                V3Inst::pinReconnectSimple(nodep, m_cellp, false);
+                V3Inst::pinReconnectSimple(nodep, m_cellp, ಸುಳ್ಳು);
                 iteratePinGuts(nodep);
-                return;  // No __en signals on this pin
+                ಹಿಂತಿರುಗಿ;  // No __en signals on this pin
             }
             // Tristate exists:
             UINFO(9, dbgState() << nodep);
             UINFOTREE(9, nodep, "", "pin-pre");
 
             // Empty/in-only; need Z to propagate
-            const bool inDeclProcessing = (nodep->exprp()
-                                           && nodep->modVarp()->direction() == VDirection::INPUT
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಒಳ_Decl_Processing = (nodep->exprp()
+                                           && nodep->modVarp()->direction() == VDirection::ಒಳಹರಿವು
                                            // Need to consider the original state
                                            // instead of current state as we converted
                                            // tristates to inputs, which do not want
                                            // to have this.
                                            && !nodep->modVarp()->declDirection().isWritable());
-            if (!nodep->exprp()) {  // No-connect; covert to empty connection
+            ಆದರೆ (!nodep->exprp()) {  // No-connect; covert to empty connection
                 UINFO(5, "Unconnected pin terminate " << nodep);
-                AstVar* const ucVarp = getCreateUnconnVarp(nodep, nodep->modVarp()->dtypep());
-                nodep->exprp(new AstVarRef{nodep->fileline(), ucVarp,
+                AstVar* ಸ್ಥಿರಾಂಕ ucVarp = getCreateUnconnVarp(nodep, nodep->modVarp()->dtypep());
+                nodep->exprp(ಹೊಸ AstVarRef{nodep->fileline(), ucVarp,
                                            // We converted, so use declaration output state
                                            nodep->modVarp()->declDirection().isWritable()
                                                ? VAccess::WRITE
                                                : VAccess::READ});
-                m_tgraph.setTristate(ucVarp);
+                m_tgraph.ಗಣ_Tristate(ucVarp);
                 // We don't need a driver on the wire; the lack of one will default to tristate
-            } else if (inDeclProcessing) {  // Not an input that was a converted tristate
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಒಳ_Decl_Processing) {  // Not an input that was a converted tristate
                 // Input only may have driver in underneath module which would stomp
                 // the input value.  So make a temporary connection.
-                const AstAssignW* const reAssignp
-                    = V3Inst::pinReconnectSimple(nodep, m_cellp, true, true);
+                ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ reAssignp
+                    = V3Inst::pinReconnectSimple(nodep, m_cellp, ನಿಜ, ನಿಜ);
                 UINFO(5, "Input pin buffering: " << reAssignp);
-                m_tgraph.setTristate(reAssignp->lhsp());
+                m_tgraph.ಗಣ_Tristate(reAssignp->lhsp());
             }
 
             // pinReconnectSimple needs to presume input or output behavior; we need both
             // Therefore, create the enable, output and separate input pin,
             // then pinReconnectSimple all
             // Create the output enable pin, connect to new signal
-            AstVar* const enVarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP,
-                                              nodep->name() + "__en" + cvtToStr(m_unique++),
-                                              VFlagBitPacked{}, enModVarp->width()};
-            if (inDeclProcessing) {  // __en(from-resolver-const) or __en(from-resolver-wire)
-                enModVarp->varType2In();
-            } else {
-                enModVarp->varType2Out();
+            AstVar* ಸ್ಥಿರಾಂಕ enVarp = ಹೊಸ AstVar{nodep->fileline(), VVarType::MODULETEMP,
+                                              nodep->name() + "__en" + cvt_ಗಮ್ಯ_Str(m_unique++),
+                                              VFlag_ಬಿಟ್_Packed{}, enModVarp->ಅಗಲ()};
+            ಆದರೆ (ಒಳ_Decl_Processing) {  // __en(from-resolver-const) or __en(from-resolver-wire)
+                enModVarp->var_Type2_ಒಳ();
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                enModVarp->var_Type2_ಹೊರಹೋಗು();
             }
             UINFO(9, "       newenv " << enVarp);
-            AstPin* const enpinp
-                = new AstPin{nodep->fileline(), nodep->pinNum(),
+            AstPin* ಸ್ಥಿರಾಂಕ enpinp
+                = ಹೊಸ AstPin{nodep->fileline(), nodep->pin_ಅಂಕೆ(),
                              enModVarp->name(),  // should be {var}"__en"
-                             new AstVarRef{nodep->fileline(), enVarp,
-                                           inDeclProcessing ? VAccess::READ : VAccess::WRITE}};
+                             ಹೊಸ AstVarRef{nodep->fileline(), enVarp,
+                                           ಒಳ_Decl_Processing ? VAccess::READ : VAccess::WRITE}};
             enpinp->modVarp(enModVarp);
             UINFO(9, "       newpin " << enpinp);
             enpinp->user2Or(U2_BOTH);  // don't iterate the pin later
-            nodep->addNextHere(enpinp);
-            m_modp->addStmtsp(enVarp);
+            nodep->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(enpinp);
+            m_modp->ಕೂಡಿಸು_Stmtsp(enVarp);
             UINFOTREE(9, enpinp, "", "pin-ena");
 
             // Create new output pin
-            const AstAssignW* outAssignp = nullptr;  // If reconnected, the related assignment
-            AstPin* outpinp = nullptr;
-            AstVar* const outModVarp = m_varAux(nodep->modVarp()).outVarp;
-            if (!outModVarp) {
+            ಸ್ಥಿರಾಂಕ Ast_ನಿಯೋಜಿಸು_W* ಹೊರಹೋಗು_Assignp = ಶೂನ್ಯಸೂಚಕ;  // If reconnected, the related assignment
+            AstPin* outpinp = ಶೂನ್ಯಸೂಚಕ;
+            AstVar* ಸ್ಥಿರಾಂಕ ಹೊರಹೋಗು_Mod_Varp = m_varAux(nodep->modVarp()).ಹೊರಹೋಗು_Varp;
+            ಆದರೆ (!ಹೊರಹೋಗು_Mod_Varp) {
                 // At top, no need for __out as might be input only. Otherwise resolvable.
-                if (!m_modp->isTop()) {
+                ಆದರೆ (!m_modp->is_ತುದಿ()) {
                     nodep->v3warn(E_UNSUPPORTED, "Unsupported: tristate in top-level IO: "
                                                      << nodep->prettyNameQ());
                 }
-            } else {
-                AstNodeExpr* const outexprp = VN_AS(nodep->exprp(), NodeExpr)
-                                                  ->cloneTreePure(false);  // Note has lvalue() set
-                outpinp = new AstPin{nodep->fileline(), nodep->pinNum(),
-                                     outModVarp->name(),  // should be {var}"__out"
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ outexprp = VN_AS(nodep->exprp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)
+                                                  ->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);  // Note has lvalue() set
+                outpinp = ಹೊಸ AstPin{nodep->fileline(), nodep->pin_ಅಂಕೆ(),
+                                     ಹೊರಹೋಗು_Mod_Varp->name(),  // should be {var}"__out"
                                      outexprp};
-                outpinp->modVarp(outModVarp);
+                outpinp->modVarp(ಹೊರಹೋಗು_Mod_Varp);
                 UINFO(9, "       newpin " << outpinp);
                 outpinp->user2Or(U2_BOTH);  // don't iterate the pin later
-                nodep->addNextHere(outpinp);
+                nodep->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(outpinp);
                 // Simplify
-                if (inDeclProcessing) {  // Not an input that was a converted tristate
+                ಆದರೆ (ಒಳ_Decl_Processing) {  // Not an input that was a converted tristate
                     // The pin is an input, but we need an output
                     // The if() above is needed because the Visitor is
                     // simple, it will flip ArraySel's and such, but if the
                     // pin is an input the earlier reconnectSimple made it
                     // a VarRef without any ArraySel, etc
-                    TristatePinVisitor{outexprp, m_tgraph, true};
+                    TristatePinVisitor{outexprp, m_tgraph, ನಿಜ};
                 }
                 UINFOTREE(9, outpinp, "", "pin-opr");
-                outAssignp = V3Inst::pinReconnectSimple(outpinp, m_cellp,
-                                                        true);  // Note may change outpinp->exprp()
+                ಹೊರಹೋಗು_Assignp = V3Inst::pinReconnectSimple(outpinp, m_cellp,
+                                                        ನಿಜ);  // Note may change outpinp->exprp()
                 UINFOTREE(9, outpinp, "", "pin-out");
-                UINFOTREE(9, outAssignp, "", "pin-oas");
+                UINFOTREE(9, ಹೊರಹೋಗು_Assignp, "", "pin-oas");
                 // Must still iterate the outAssignp, as need to build output equation
             }
 
             // Existing pin becomes an input, and we mark each resulting signal as tristate
-            const TristatePinVisitor visitor{nodep->exprp(), m_tgraph, false};
-            const AstNode* const inAssignp = V3Inst::pinReconnectSimple(
-                nodep, m_cellp, true);  // Note may change nodep->exprp()
+            ಸ್ಥಿರಾಂಕ TristatePinVisitor visitor{nodep->exprp(), m_tgraph, ಸುಳ್ಳು};
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ ಒಳ_Assignp = V3Inst::pinReconnectSimple(
+                nodep, m_cellp, ನಿಜ);  // Note may change nodep->exprp()
             UINFOTREE(9, nodep, "", "pin-in:");
-            UINFOTREE(9, inAssignp, "", "pin-as:");
+            UINFOTREE(9, ಒಳ_Assignp, "", "pin-as:");
 
             // Connect enable to output signal
             AstVarRef* exprrefp;  // Tristate variable that the Pin's expression refers to
-            if (!outAssignp) {
-                if (!outpinp) {
-                    exprrefp = nullptr;  // Primary input only
-                } else {
+            ಆದರೆ (!ಹೊರಹೋಗು_Assignp) {
+                ಆದರೆ (!outpinp) {
+                    exprrefp = ಶೂನ್ಯಸೂಚಕ;  // Primary input only
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     // pinReconnect should have converted this
                     exprrefp = VN_CAST(outpinp->exprp(), VarRef);
-                    if (!exprrefp) {
+                    ಆದರೆ (!exprrefp) {
                         nodep->v3warn(E_UNSUPPORTED, "Unsupported tristate port expression: "
                                                          << nodep->exprp()->prettyTypeName());
                     }
                 }
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // pinReconnect should have converted this
-                exprrefp = VN_CAST(outAssignp->rhsp(),
+                exprrefp = VN_CAST(ಹೊರಹೋಗು_Assignp->rhsp(),
                                    VarRef);  // This should be the same var as the output pin
-                if (!exprrefp) {
+                ಆದರೆ (!exprrefp) {
                     nodep->v3warn(E_UNSUPPORTED, "Unsupported tristate port expression: "
                                                      << nodep->exprp()->prettyTypeName());
                 }
             }
-            if (exprrefp) {
+            ಆದರೆ (exprrefp) {
                 UINFO(9, "outref " << exprrefp);
                 // Mark as now tristated; iteration will pick it up from there
-                exprrefp->user1p(new AstVarRef{nodep->fileline(), enVarp, VAccess::READ});
-                if (!outAssignp) {
-                    mapInsertLhsVarRef(exprrefp);  // insertTristates will convert
+                exprrefp->user1p(ಹೊಸ AstVarRef{nodep->fileline(), enVarp, VAccess::READ});
+                ಆದರೆ (!ಹೊರಹೋಗು_Assignp) {
+                    map_ಸೇರಿಸು_Lhs_Var_Ref(exprrefp);  // insertTristates will convert
                     //                     // to a varref to the __out# variable
                 }  // else the assignment deals with the connection
             }
 
             // Propagate any pullups/pulldowns upwards if necessary
-            if (exprrefp) {
-                AstPull* const pullp = m_varAux(nodep->modVarp()).pullp;
-                const auto& srcBitPulls = m_varAux(nodep->modVarp()).bitPulls;
+            ಆದರೆ (exprrefp) {
+                AstPull* ಸ್ಥಿರಾಂಕ pullp = m_varAux(nodep->modVarp()).pullp;
+                ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& src_ಬಿಟ್_Pulls = m_varAux(nodep->modVarp()).ಬಿಟ್_Pulls;
 
                 // For part-select port connections (e.g. .out(bus[23:16])) extract
                 // the parent var, LSB, and width once; reused by both propagations.
-                AstVar* selVarp = nullptr;
-                int selLsb = 0;
-                int selWidth = 0;
-                if (outAssignp) {
-                    if (AstSel* const selp = VN_CAST(outAssignp->lhsp(), Sel)) {
-                        AstVarRef* const vrefp = VN_CAST(selp->fromp(), VarRef);
-                        AstConst* const lsbp = VN_CAST(selp->lsbp(), Const);
-                        if (vrefp && lsbp) {  // LCOV_EXCL_BR_LINE
+                AstVar* selVarp = ಶೂನ್ಯಸೂಚಕ;
+                ಪೂರ್ಣಾಂಕ selLsb = 0;
+                ಪೂರ್ಣಾಂಕ sel_ಅಗಲ = 0;
+                ಆದರೆ (ಹೊರಹೋಗು_Assignp) {
+                    ಆದರೆ (AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(ಹೊರಹೋಗು_Assignp->lhsp(), Sel)) {
+                        AstVarRef* ಸ್ಥಿರಾಂಕ vrefp = VN_CAST(selp->fromp(), VarRef);
+                        AstConst* ಸ್ಥಿರಾಂಕ lsbp = VN_CAST(selp->lsbp(), Const);
+                        ಆದರೆ (vrefp && lsbp) {  // LCOV_EXCL_BR_LINE
                             selVarp = vrefp->varp();
-                            selLsb = lsbp->toSInt();
-                            selWidth = selp->widthConst();
+                            selLsb = lsbp->ಗಮ್ಯ_SInt();
+                            sel_ಅಗಲ = selp->ಅಗಲ_Const();
                         }
                     }
                 }
 
-                if (pullp) {
+                ಆದರೆ (pullp) {
                     UINFO(9, "propagate pull on " << exprrefp);
-                    setPullDirection(exprrefp->varp(), pullp);
+                    ಗಣ_Pull_Direction(exprrefp->varp(), pullp);
                     // For a part-select target, record per-bit pull direction across
                     // the SEL range instead of setting pull on the whole variable.
-                    if (selVarp) {
-                        const int direction = pullp->direction();
-                        for (int i = 0; i < selWidth; ++i) {
-                            setBitPullDirection(selVarp, selLsb + i, direction);
+                    ಆದರೆ (selVarp) {
+                        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ direction = pullp->direction();
+                        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < sel_ಅಗಲ; ++i) {
+                            ಗಣ_ಬಿಟ್_Pull_Direction(selVarp, selLsb + i, direction);
                         }
                     }
                 }
 
                 // Per-bit pulls: the source bit indices must be offset by the SEL's
                 // LSB so they land on the correct bits of the parent variable.
-                if (!srcBitPulls.empty()) {
+                ಆದರೆ (!src_ಬಿಟ್_Pulls.ಖಾಲಿಗಳು()) {
                     UINFO(9, "propagate per-bit pulls from " << nodep->modVarp());
-                    for (const auto& pair : srcBitPulls) {
-                        setBitPullDirection(exprrefp->varp(), pair.first, pair.second);
+                    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair : src_ಬಿಟ್_Pulls) {
+                        ಗಣ_ಬಿಟ್_Pull_Direction(exprrefp->varp(), pair.ಮೊದಲ, pair.ಎರಡನೇ);
                     }  // LCOV_EXCL_LINE
-                    if (selVarp) {
+                    ಆದರೆ (selVarp) {
                         UINFO(9, "propagate per-bit pulls to SEL target " << selVarp
                                                                           << " offset=" << selLsb);
-                        for (const auto& pair : srcBitPulls) {
-                            setBitPullDirection(selVarp, selLsb + pair.first, pair.second);
+                        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair : src_ಬಿಟ್_Pulls) {
+                            ಗಣ_ಬಿಟ್_Pull_Direction(selVarp, selLsb + pair.ಮೊದಲ, pair.ಎರಡನೇ);
                         }  // LCOV_EXCL_LINE
                     }
                 }
@@ -2284,52 +2284,52 @@ class TristateVisitor final : public TristateBaseVisitor {
             iteratePinGuts(nodep);
         }
         // Not graph building
-        else {
-            if (nodep->user2() & U2_NONGRAPH) return;  // This pin is already expanded
+        ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (nodep->user2() & U2_NONGRAPH) ಹಿಂತಿರುಗಿ;  // This pin is already expanded
             nodep->user2Or(U2_NONGRAPH);
             UINFO(9, " " << nodep);
             iteratePinGuts(nodep);
         }
     }
 
-    void handleNodeVarRef(AstNodeVarRef* nodep) {
+    ಶೂನ್ಯ handle_ಗಂಟು_Var_Ref(Ast_ಗಂಟು_Var_Ref* nodep) {
         UINFO(9, dbgState() << nodep);
         UASSERT_OBJ(nodep->varp(), nodep, "Unlinked");
-        if (m_graphing) {
-            if (nodep->access().isWriteOrRW()) associateLogic(nodep, nodep->varp());
-            if (nodep->access().isReadOrRW()) associateLogic(nodep->varp(), nodep);
+        ಆದರೆ (m_graphing) {
+            ಆದರೆ (nodep->access().isWriteOrRW()) associateLogic(nodep, nodep->varp());
+            ಆದರೆ (nodep->access().isReadOrRW()) associateLogic(nodep->varp(), nodep);
             // Only interface tristate nets need this: a plain (non-Z) cross-hierarchy
             // driver has no Z in its own module's graph, so mark the net tristate here to
             // collect the driver as a contribution. The ifaceTristate flag is only set for
             // interface nets; a non-interface cross-module tri driver does nothing here and
             // is instead rejected (E_UNSUPPORTED) later in insertTristates.
-            if (nodep->access().isWriteOrRW() && VN_IS(nodep, VarXRef)
+            ಆದರೆ (nodep->access().isWriteOrRW() && VN_IS(nodep, VarXRef)
                 && m_varAux(nodep->varp()).ifaceTristate) {
-                m_tgraph.setTristate(nodep->varp());
+                m_tgraph.ಗಣ_Tristate(nodep->varp());
             }
-        } else {
-            if (nodep->user2() & U2_NONGRAPH) return;  // Processed
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (nodep->user2() & U2_NONGRAPH) ಹಿಂತಿರುಗಿ;  // Processed
             nodep->user2Or(U2_NONGRAPH);
             // Detect all var lhs drivers and adds them to the
             // VarMap so that after the walk through the module we can expand
             // any tristate logic on the driver.
-            if (nodep->access().isWriteOrRW() && m_tgraph.isTristate(nodep->varp())) {
+            ಆದರೆ (nodep->access().isWriteOrRW() && m_tgraph.isTristate(nodep->varp())) {
                 UINFO(9, "     Ref-to-lvalue " << nodep);
-                if (m_inAlias) {
-                    if (nodep->varp()->direction().isAny()) {
+                ಆದರೆ (m_ಒಳ_Alias) {
+                    ಆದರೆ (nodep->varp()->direction().isAny()) {
                         nodep->v3warn(E_UNSUPPORTED, "Unsupported: Port as alias argument: "
                                                          << nodep->prettyNameQ());
-                    } else {
+                    } ಇಲ್ಲದಿದ್ದರೆ {
                         nodep->v3warn(E_UNSUPPORTED,
                                       "Unsupported: Tristate variable referenced in alias: "
                                           << nodep->prettyNameQ());
                     }
-                    return;
+                    ಹಿಂತಿರುಗಿ;
                 }
                 UASSERT_OBJ(!nodep->access().isRW(), nodep, "Tristate unexpected on R/W access");
                 m_tgraph.didProcess(nodep);
-                mapInsertLhsVarRef(nodep);
-            } else if (nodep->access().isReadOnly()
+                map_ಸೇರಿಸು_Lhs_Var_Ref(nodep);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->access().isReadOnly()
                        // Not already processed, nor varref from visit(AstPin) creation
                        && !nodep->user1p()
                        // Reference to another tristate variable
@@ -2338,88 +2338,88 @@ class TristateVisitor final : public TristateBaseVisitor {
                        && m_tgraph.feedsTri(nodep)) {
                 // Then propagate the enable from the original variable
                 UINFO(9, "     Ref-to-tri " << nodep);
-                FileLine* const fl = nodep->fileline();
-                AstVar* const enVarp = getCreateEnVarp(nodep->varp(), false);
-                if (AstVarXRef* const xrefp = VN_CAST(nodep, VarXRef)) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                AstVar* ಸ್ಥಿರಾಂಕ enVarp = getCreateEnVarp(nodep->varp(), ಸುಳ್ಳು);
+                ಆದರೆ (AstVarXRef* ಸ್ಥಿರಾಂಕ xrefp = VN_CAST(nodep, VarXRef)) {
                     nodep->user1p(newVarXRef(fl, enVarp, xrefp->dotted(), VAccess::READ,
                                              xrefp->inlinedDots()));
-                } else {
-                    nodep->user1p(new AstVarRef{fl, enVarp, VAccess::READ});
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    nodep->user1p(ಹೊಸ AstVarRef{fl, enVarp, VAccess::READ});
                 }
             }
         }
     }
 
-    void visit(AstVarRef* nodep) override { handleNodeVarRef(nodep); }
-    void visit(AstVarXRef* nodep) override { handleNodeVarRef(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarRef* nodep) override { handle_ಗಂಟು_Var_Ref(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarXRef* nodep) override { handle_ಗಂಟು_Var_Ref(nodep); }
 
-    void visit(AstVar* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar* nodep) override {
         iterateChildren(nodep);
         UINFO(9, dbgState() << nodep);
-        if (m_graphing) {
+        ಆದರೆ (m_graphing) {
             // If tri0/1 force a pullup
-            if (nodep->user2() & U2_GRAPHING) return;  // Already processed
+            ಆದರೆ (nodep->user2() & U2_GRAPHING) ಹಿಂತಿರುಗಿ;  // Already processed
             nodep->user2Or(U2_GRAPHING);
 
-            if (nodep->isPulldown() || nodep->isPullup()) {
-                AstNode* const newp = new AstPull{
-                    nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+            ಆದರೆ (nodep->isPulldown() || nodep->isPullup()) {
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstPull{
+                    nodep->fileline(), ಹೊಸ AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
                     nodep->isPullup()};
                 UINFO(9, "       newpul " << newp);
-                nodep->addNextHere(newp);
+                nodep->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(newp);
                 // We'll iterate on the new AstPull later
             }
-            if (nodep->isInout()) {
+            ಆದರೆ (nodep->isInout()) {
                 //|| varp->isOutput()
                 // Note unconnected output only changes behavior vs. previous
                 // versions and causes outputs that don't come from anywhere to
                 // possibly create connection errors.
                 // One example of problems is this:  "output z;  task t; z <= {something}; endtask"
                 UINFO(9, "  setTristate-inout " << nodep);
-                m_tgraph.setTristate(nodep);
+                m_tgraph.ಗಣ_Tristate(nodep);
             }
-        } else {  // !graphing
-            if (m_tgraph.isTristate(nodep)) {
+        } ಇಲ್ಲದಿದ್ದರೆ {  // !graphing
+            ಆದರೆ (m_tgraph.isTristate(nodep)) {
                 // nodep->isPulldown() || nodep->isPullup() handled in TristateGraphVisitor
                 m_tgraph.didProcess(nodep);
             }
         }
     }
 
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
         // Interfaces are processed first in the constructor; skip the duplicate visit
         // during the later iterateChildrenBackwardsConst() pass over all modules.
-        if (m_processedIfaces && VN_IS(nodep, Iface)) return;
+        ಆದರೆ (m_processedIfaces && VN_IS(nodep, Iface)) ಹಿಂತಿರುಗಿ;
         UINFO(8, dbgState() << nodep);
         VL_RESTORER(m_modp);
         VL_RESTORER(m_graphing);
         VL_RESTORER(m_unique);
         VL_RESTORER_CLEAR(m_lhsmap);
         VL_RESTORER_CLEAR(m_assigns);
-        VL_RESTORER_CLEAR(m_assignEnps);
+        VL_RESTORER_CLEAR(m_ನಿಯೋಜಿಸು_Enps);
         VL_RESTORER_CLEAR(m_proceduralEnables);
         // Not preserved, needs pointer instead: TristateGraph origTgraph = m_tgraph;
-        UASSERT_OBJ(m_tgraph.empty(), nodep, "Unsupported: NodeModule under NodeModule");
+        UASSERT_OBJ(m_tgraph.ಖಾಲಿಗಳು(), nodep, "Unsupported: NodeModule under NodeModule");
 
         // Clear state
-        m_graphing = false;
+        m_graphing = ಸುಳ್ಳು;
         m_tgraph.clearAndCheck();
         m_unique = 0;
-        m_logicp = nullptr;
+        m_logicp = ಶೂನ್ಯಸೂಚಕ;
         m_modp = nodep;
         // Walk the graph, finding all variables and tristate constructs
-        m_graphing = true;
+        m_graphing = ನಿಜ;
         UINFO(9, dbgState() << "graphing mod " << nodep);
         iterateChildren(nodep);
-        m_graphing = false;
+        m_graphing = ಸುಳ್ಳು;
         UINFO(9, dbgState() << "processing mod " << nodep);
 
         // Merge the assignments for very Wired net LHS : wor, trior, wand and triand
-        mergeWiredNetsAssignments();
+        ವಿಲೀನ_Wired_Nets_Assignments();
         // Remove all assignments not stronger than the strongest uniform constant
-        removeAssignmentsNotStrongerThanUniformConstant();
+        remove_Assignments_Not_Stronger_Than_ಏಕರೂಪ_Constant();
         // Use graph to find tristate signals
-        m_tgraph.graphWalk(nodep);
+        m_tgraph.ನಕ್ಷೆ_Walk(nodep);
 
         // Remove all assignments not stronger than the strongest non-tristate RHS
         removeAssignmentsNotStrongerThanNonTristate();
@@ -2427,150 +2427,150 @@ class TristateVisitor final : public TristateBaseVisitor {
         // Build the LHS drivers map for this module
         iterateChildren(nodep);
         // Insert new logic for all tristates
-        insertTristates(nodep);
-        insertProceduralEnableAssignments(nodep);
+        ಸೇರಿಸು_Tristates(nodep);
+        ಸೇರಿಸು_Procedural_Enable_Assignments(nodep);
 
-        for (auto& assignEnp : m_assignEnps) {
-            VL_DO_DANGLING(assignEnp.second->deleteTree(), assignEnp.second);
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& ನಿಯೋಜಿಸು_Enp : m_ನಿಯೋಜಿಸು_Enps) {
+            VL_DO_DANGLING(ನಿಯೋಜಿಸು_Enp.ಎರಡನೇ->delete_ವೃಕ್ಷ(), ನಿಯೋಜಿಸು_Enp.ಎರಡನೇ);
         }
-        m_assignEnps.clear();
+        m_ನಿಯೋಜಿಸು_Enps.clear();
 
         m_tgraph.clearAndCheck();  // Recursion not supported
     }
 
-    void visit(AstClass* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstClass* nodep) override {
         // don't deal with classes
     }
-    void visit(AstNodeFTask* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask* nodep) override {
         // don't deal with functions
     }
 
-    void visit(AstCaseItem* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Case_ಅಂಶ* nodep) override {
         // don't deal with casez compare '???? values
-        iterateAndNextNull(nodep->stmtsp());
+        iterate_And_ಮುಂದಿನ_Null(nodep->stmtsp());
     }
 
-    void visit(AstCell* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCell* nodep) override {
         VL_RESTORER(m_cellp);
         VL_RESTORER(m_alhs);
         m_cellp = nodep;
-        m_alhs = false;
+        m_alhs = ಸುಳ್ಳು;
         iterateChildren(nodep);
     }
 
     // Default: Just iterate
-    void visit(AstNode* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override {
         iterateChildren(nodep);
         checkUnhandled(nodep);
     }
 
-    void combineIfaceContribs() {
+    ಶೂನ್ಯ combineIfaceContribs() {
         // After all modules have been processed, combine per-module contributions
         // for each interface tristate signal into final resolution logic.
         // Key is the canonical AstVar in the interface module (shared across instances).
-        for (const std::pair<AstVar* const, std::vector<std::pair<AstVar*, AstVar*>>>& kv :
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ std::pair<AstVar* ಸ್ಥಿರಾಂಕ, std::ಸದಿಶ<std::pair<AstVar*, AstVar*>>>& kv :
              m_ifaceContribs) {
-            AstVar* const invarp = kv.first;
-            const std::vector<std::pair<AstVar*, AstVar*>>& contribs = kv.second;
-            AstNodeModule* const ifaceModp = findParentModule(invarp);
+            AstVar* ಸ್ಥಿರಾಂಕ invarp = kv.ಮೊದಲ;
+            ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<std::pair<AstVar*, AstVar*>>& contribs = kv.ಎರಡನೇ;
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ifaceModp = ಕಂಡುಹಿಡಿ_ಪೋಷಕ_Module(invarp);
             UASSERT_OBJ(ifaceModp, invarp, "Interface tristate var has no parent module");
-            FileLine* const fl = invarp->fileline();
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = invarp->fileline();
 
-            UINFO(8, "  IFACE COMBINE " << contribs.size() << " contribs for " << invarp);
+            UINFO(8, "  IFACE COMBINE " << contribs.ಗಾತ್ರ_2() << " contribs for " << invarp);
 
             // Build resolution: d = (out0 & en0) | (out1 & en1) | ... | (~combined_en & pull)
-            AstNodeExpr* orp = nullptr;
-            AstNodeExpr* enp = nullptr;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* orp = ಶೂನ್ಯಸೂಚಕ;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enp = ಶೂನ್ಯಸೂಚಕ;
 
-            for (const std::pair<AstVar*, AstVar*>& contrib : contribs) {
-                AstVar* const contribEnp = contrib.first;
-                AstVar* const contribOutp = contrib.second;
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ std::pair<AstVar*, AstVar*>& contrib : contribs) {
+                AstVar* ಸ್ಥಿರಾಂಕ contribEnp = contrib.ಮೊದಲ;
+                AstVar* ಸ್ಥಿರಾಂಕ contribOutp = contrib.ಎರಡನೇ;
 
-                AstNodeExpr* const outRefp = new AstVarRef{fl, contribOutp, VAccess::READ};
-                AstNodeExpr* const enRefp = new AstVarRef{fl, contribEnp, VAccess::READ};
-                AstNodeExpr* const andp = new AstAnd{fl, outRefp, enRefp};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಹೊರಹೋಗು_Refp = ಹೊಸ AstVarRef{fl, contribOutp, VAccess::READ};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enRefp = ಹೊಸ AstVarRef{fl, contribEnp, VAccess::READ};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ andp = ಹೊಸ AstAnd{fl, ಹೊರಹೋಗು_Refp, enRefp};
 
-                orp = (!orp) ? andp : new AstOr{fl, orp, andp};
+                orp = (!orp) ? andp : ಹೊಸ AstOr{fl, orp, andp};
 
-                AstNodeExpr* const enRef2p = new AstVarRef{fl, contribEnp, VAccess::READ};
-                enp = (!enp) ? enRef2p : new AstOr{fl, enp, enRef2p};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ enRef2p = ಹೊಸ AstVarRef{fl, contribEnp, VAccess::READ};
+                enp = (!enp) ? enRef2p : ಹೊಸ AstOr{fl, enp, enRef2p};
             }
 
             // Create or get __en var for this interface signal
             AstVar* envarp = VN_CAST(invarp->user1p(), Var);
-            if (!envarp) {
-                envarp = new AstVar{fl, VVarType::MODULETEMP, invarp->name() + "__en", invarp};
-                envarp->setDfgTriLowered();
-                ifaceModp->addStmtsp(envarp);
+            ಆದರೆ (!envarp) {
+                envarp = ಹೊಸ AstVar{fl, VVarType::MODULETEMP, invarp->name() + "__en", invarp};
+                envarp->ಗಣ_Dfg_Tri_Lowered();
+                ifaceModp->ಕೂಡಿಸು_Stmtsp(envarp);
                 invarp->user1p(envarp);
             }
 
             // Assign combined enable
-            AstAssignW* const enAssp
-                = new AstAssignW{fl, new AstVarRef{fl, envarp, VAccess::WRITE}, enp};
+            Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ enAssp
+                = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{fl, ಹೊಸ AstVarRef{fl, envarp, VAccess::WRITE}, enp};
             UINFOTREE(9, enAssp, "", "iface-enAssp");
-            ifaceModp->addStmtsp(new AstAlways{enAssp});
+            ifaceModp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{enAssp});
 
             // Pull resolution
-            const AstPull* const pullp = m_varAux(invarp).pullp;
-            const bool pull1 = pullp && pullp->direction() == 1;  // Else default is down
+            ಸ್ಥಿರಾಂಕ AstPull* ಸ್ಥಿರಾಂಕ pullp = m_varAux(invarp).pullp;
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ pull1 = pullp && pullp->direction() == 1;  // Else default is down
 
-            AstNodeExpr* undrivenp = new AstNot{fl, new AstVarRef{fl, envarp, VAccess::READ}};
-            undrivenp = new AstAnd{fl, undrivenp, newAllZerosOrOnes(invarp, pull1)};
-            orp = new AstOr{fl, orp, undrivenp};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* undrivenp = ಹೊಸ AstNot{fl, ಹೊಸ AstVarRef{fl, envarp, VAccess::READ}};
+            undrivenp = ಹೊಸ AstAnd{fl, undrivenp, newAllZerosOrOnes(invarp, pull1)};
+            orp = ಹೊಸ AstOr{fl, orp, undrivenp};
 
             // Assign final value to invarp
-            AstAssignW* const assp
-                = new AstAssignW{fl, new AstVarRef{fl, invarp, VAccess::WRITE}, orp};
+            Ast_ನಿಯೋಜಿಸು_W* ಸ್ಥಿರಾಂಕ assp
+                = ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{fl, ಹೊಸ AstVarRef{fl, invarp, VAccess::WRITE}, orp};
             assp->user2Or(U2_BOTH);
             UINFOTREE(9, assp, "", "iface-lhsp-eqn");
-            ifaceModp->addStmtsp(new AstAlways{assp});
+            ifaceModp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{assp});
         }
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit TristateVisitor(AstNetlist* netlistp) {
+    ಸ್ಪಷ್ಟ TristateVisitor(AstNetlist* netlistp) {
         m_tgraph.clearAndCheck();
         // Process interface modules first, so an interface tristate net is recorded
         // (AuxAstVar::ifaceTristate) before any module that drives it across hierarchy is
         // graphed. A module driving such a net with a plain (non-Z) assign has no Z in its
         // own graph to mark the net tristate, so without this its driver would be dropped.
         // Collect only the interfaces (reverse declaration order to match the pass below).
-        std::vector<AstNodeModule*> ifacesp;
-        for (AstNode* modp = netlistp->modulesp(); modp; modp = modp->nextp()) {
-            if (VN_IS(modp, Iface)) ifacesp.push_back(VN_AS(modp, NodeModule));
+        std::ಸದಿಶ<Ast_ಗಂಟು_Module*> ifacesp;
+        ಗಾಗಿ (Ast_ಗಂಟು* modp = netlistp->modulesp(); modp; modp = modp->nextp()) {
+            ಆದರೆ (VN_IS(modp, Iface)) ifacesp.ತಳ್ಳು_ಹಿಂಭಾಗ(VN_AS(modp, ಗಂಟು_Module));
         }
-        for (auto it = ifacesp.rbegin(); it != ifacesp.rend(); ++it) iterate(*it);
-        m_processedIfaces = true;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it = ifacesp.rbegin(); it != ifacesp.rend(); ++it) iterate(*it);
+        m_processedIfaces = ನಿಜ;
         // Then the rest in the historical order; interfaces are skipped (already done).
         iterateChildrenBackwardsConst(netlistp);
 
         // Combine interface tristate contributions after all modules processed
         combineIfaceContribs();
 
-#ifdef VL_LEAK_CHECKS
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_LEAK_CHECKS
         // It's a bit chaotic up there
-        std::vector<AstNode*> unusedRootps;
-        netlistp->foreach([&](AstNode* nodep) {
-            AstNode* const enp = nodep->user1p();
-            if (!enp) return;
-            if (enp->backp()) return;
-            unusedRootps.emplace_back(enp);
+        std::ಸದಿಶ<Ast_ಗಂಟು*> ಬಳಸದ_Rootps;
+        netlistp->foreach([&](Ast_ಗಂಟು* nodep) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ enp = nodep->user1p();
+            ಆದರೆ (!enp) ಹಿಂತಿರುಗಿ;
+            ಆದರೆ (enp->backp()) ಹಿಂತಿರುಗಿ;
+            ಬಳಸದ_Rootps.emplace_ಹಿಂಭಾಗ(enp);
         });
-        for (AstNode* const nodep : unusedRootps) VL_DO_DANGLING(nodep->deleteTree(), nodep);
-#endif
+        ಗಾಗಿ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep : ಬಳಸದ_Rootps) VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+#ಆದರೆ_ಅಂತ್ಯ
     }
     ~TristateVisitor() override {
-        V3Stats::addStat("Tristate, Tristate resolved nets", m_statTriSigs);
+        V3Stats::ಕೂಡಿಸು_Stat("Tristate, Tristate resolved nets", m_statTriSigs);
     }
 };
 
 //######################################################################
 // Tristate class functions
 
-void V3Tristate::tristateAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Tristate::tristateAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { TristateVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("tristate", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("tristate", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

@@ -29,33 +29,33 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Randomize.h"
+#ಅನ್ತರ್ಭಾವ "V3Randomize.h"
 
-#include "V3Ast.h"
-#include "V3Const.h"
-#include "V3ConstPool.h"
-#include "V3Container.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
-#include "V3MemberMap.h"
-#include "V3Task.h"
-#include "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Const.h"
+#ಅನ್ತರ್ಭಾವ "V3ConstPool.h"
+#ಅನ್ತರ್ಭಾವ "V3Container.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3FileLine.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3MemberMap.h"
+#ಅನ್ತರ್ಭಾವ "V3Task.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
 
-#include <queue>
-#include <tuple>
-#include <utility>
+#ಅನ್ತರ್ಭಾವ <queue>
+#ಅನ್ತರ್ಭಾವ <tuple>
+#ಅನ್ತರ್ಭಾವ <utility>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 // Determines if a class is used with randomization
 
-enum ClassRandom : uint8_t {
+ಎಣಿಕೆ ClassRandom : uint8_t {
     NONE,  // randomize() is not called
     IS_RANDOMIZED,  // randomize() is called
     IS_RANDOMIZED_GLOBAL,  // randomize() is called with global constraints
@@ -66,142 +66,142 @@ enum ClassRandom : uint8_t {
 // ######################################################################
 // Constants for global constraint processing
 
-static constexpr const char* GLOBAL_CONSTRAINT_SEPARATOR = "__DT__";
-static constexpr const char* BASIC_RANDOMIZE_FUNC_NAME = "__VBasicRand";
+ಸ್ಥಿರ constexpr ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* GLOBAL_CONSTRAINT_SEPARATOR = "__DT__";
+ಸ್ಥಿರ constexpr ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* BASIC_RANDOMIZE_FUNC_NAME = "__VBasicRand";
 
 // Walk extends chain to find __Vrandmode variable (stored in AstClass::user2p).
 // user2p is only set on the root class where __Vrandmode was created, so
 // derived classes need this chain walk. Accepts AstNodeModule* for flexibility.
-static AstVar* getRandModeVarFromClass(AstNodeModule* classp) {
-    while (classp) {
-        if (classp->user2p()) return VN_AS(classp->user2p(), Var);
-        AstClass* const cp = VN_CAST(classp, Class);
-        if (!cp || !cp->extendsp()) return nullptr;
+ಸ್ಥಿರ AstVar* get_Rand_ಬಹುಲಕ_Var_From_Class(Ast_ಗಂಟು_Module* classp) {
+    ಆಗ (classp) {
+        ಆದರೆ (classp->user2p()) ಹಿಂತಿರುಗಿ VN_AS(classp->user2p(), Var);
+        AstClass* ಸ್ಥಿರಾಂಕ cp = VN_CAST(classp, Class);
+        ಆದರೆ (!cp || !cp->extendsp()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         classp = cp->extendsp()->classp();
     }
-    return nullptr;
+    ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 }
 
 // Walk extends chain to find random generator variable (stored in AstClass::user3p).
-static AstVar* getRandomGenerator(AstClass* const classp) {
-    if (classp->user3p()) return VN_AS(classp->user3p(), Var);
-    if (classp->extendsp()) return getRandomGenerator(classp->extendsp()->classp());
-    return nullptr;
+ಸ್ಥಿರ AstVar* getRandomGenerator(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+    ಆದರೆ (classp->user3p()) ಹಿಂತಿರುಗಿ VN_AS(classp->user3p(), Var);
+    ಆದರೆ (classp->extendsp()) ಹಿಂತಿರುಗಿ getRandomGenerator(classp->extendsp()->classp());
+    ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 }
 
 // Create __Vsetup_constraints function if non existant inside memberMap,
 // if existant return one already present
-static AstTask* getCreateConstraintSetupFunc(AstClass* classp, VMemberMap& memberMap) {
-    static const char* const name = "__Vsetup_constraints";
-    AstTask* setupAllTaskp = VN_AS(memberMap.findMember(classp, name), Task);
-    if (setupAllTaskp) return setupAllTaskp;
-    setupAllTaskp = new AstTask{classp->fileline(), "__Vsetup_constraints", nullptr};
-    setupAllTaskp->classMethod(true);
-    setupAllTaskp->isVirtual(true);
-    classp->addMembersp(setupAllTaskp);
-    memberMap.insert(classp, setupAllTaskp);
-    return setupAllTaskp;
+ಸ್ಥಿರ AstTask* get_Create_Constraint_ಸಿದ್ಧತೆ_Func(AstClass* classp, VMemberMap& memberMap) {
+    ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ name = "__Vsetup_constraints";
+    AstTask* ಸಿದ್ಧತೆ_All_Taskp = VN_AS(memberMap.ಕಂಡುಹಿಡಿ_Member(classp, name), Task);
+    ಆದರೆ (ಸಿದ್ಧತೆ_All_Taskp) ಹಿಂತಿರುಗಿ ಸಿದ್ಧತೆ_All_Taskp;
+    ಸಿದ್ಧತೆ_All_Taskp = ಹೊಸ AstTask{classp->fileline(), "__Vsetup_constraints", ಶೂನ್ಯಸೂಚಕ};
+    ಸಿದ್ಧತೆ_All_Taskp->class_ವಿಧಾನ(ನಿಜ);
+    ಸಿದ್ಧತೆ_All_Taskp->isVirtual(ನಿಜ);
+    classp->ಕೂಡಿಸು_Membersp(ಸಿದ್ಧತೆ_All_Taskp);
+    memberMap.ಸೇರಿಸು(classp, ಸಿದ್ಧತೆ_All_Taskp);
+    ಹಿಂತಿರುಗಿ ಸಿದ್ಧತೆ_All_Taskp;
 }
 
 // ######################################################################
 // Establishes the target of a rand_mode() call
 
-struct RandModeTarget final {
+ರಚನೆ Rand_ಬಹುಲಕ_ಗುರಿ final {
     // MEMBERS
-    AstVar* const receiverp;  // Variable that is the target of the rand_mode() call
-    AstNodeExpr* const fromp;  // Expression from which the rand_mode() call originates
-    AstClass* const classp;  // Class in which rand_mode should be set
+    AstVar* ಸ್ಥಿರಾಂಕ receiverp;  // Variable that is the target of the rand_mode() call
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp;  // Expression from which the rand_mode() call originates
+    AstClass* ಸ್ಥಿರಾಂಕ classp;  // Class in which rand_mode should be set
 
     // METHODS
-    static RandModeTarget get(AstNodeExpr* fromp, AstNodeModule* modp) {
-        if (!fromp) return {nullptr, nullptr, VN_AS(modp, Class)};
-        if (AstCMethodHard* const methodHardp = VN_CAST(fromp, CMethodHard)) {
-            return RandModeTarget::get(methodHardp->fromp(), modp);
+    ಸ್ಥಿರ Rand_ಬಹುಲಕ_ಗುರಿ get(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_Module* modp) {
+        ಆದರೆ (!fromp) ಹಿಂತಿರುಗಿ {ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ, VN_AS(modp, Class)};
+        ಆದರೆ (AstCMethodHard* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Hardp = VN_CAST(fromp, CMethodHard)) {
+            ಹಿಂತಿರುಗಿ Rand_ಬಹುಲಕ_ಗುರಿ::get(ವಿಧಾನ_Hardp->fromp(), modp);
         }
-        AstVar* receiverp = nullptr;
+        AstVar* receiverp = ಶೂನ್ಯಸೂಚಕ;
         AstClass* classp = VN_CAST(modp, Class);
-        if (AstVarRef* const varrefp = VN_CAST(fromp, VarRef)) {
+        ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(fromp, VarRef)) {
             receiverp = varrefp->varp();
-            if (receiverp->isRand()) {
-                fromp = nullptr;
-                if (receiverp->lifetime().isStatic()) {
+            ಆದರೆ (receiverp->isRand()) {
+                fromp = ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (receiverp->lifetime().isStatic()) {
                     classp = VN_AS(varrefp->classOrPackagep(), Class);
                 }
             }
-        } else if (AstMemberSel* const memberSelp = VN_CAST(fromp, MemberSel)) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(fromp, MemberSel)) {
             receiverp = memberSelp->varp();
-            if (receiverp->isRand()) {
+            ಆದರೆ (receiverp->isRand()) {
                 fromp = memberSelp->fromp();
                 classp = VN_AS(fromp->dtypep()->skipRefp(), ClassRefDType)->classp();
             }
         }
         UASSERT_OBJ(receiverp, fromp, "Unknown rand_mode() receiver");
-        if (!receiverp->isRand()) {
-            AstClassRefDType* const classRefDtp
+        ಆದರೆ (!receiverp->isRand()) {
+            AstClassRefDType* ಸ್ಥಿರಾಂಕ classRefDtp
                 = VN_CAST(receiverp->dtypep()->skipRefp(), ClassRefDType);
-            if (classRefDtp) classp = classRefDtp->classp();
+            ಆದರೆ (classRefDtp) classp = classRefDtp->classp();
         }
-        return {receiverp, fromp, classp};
+        ಹಿಂತಿರುಗಿ {receiverp, fromp, classp};
     }
 };
 
 // ######################################################################
 // Stores info about a variable's rand_mode state/a constraint's constraint_mode state
 
-union RandomizeMode final {
+ಒಕ್ಕೂಟ Randomize_ಬಹುಲಕ final {
     // MEMBERS
-    struct {
-        bool usesMode : 1;  // Variable/constraint uses rand_mode/constraint_mode
-        uint32_t index : 31;  // Index of var/constraint in rand_mode/constraint_mode vector
+    ರಚನೆ {
+        ತಾರ್ಕಿಕ ಬಳಸುತ್ತದೆ_ಬಹುಲಕ : 1;  // Variable/constraint uses rand_mode/constraint_mode
+        uint32_t ಸೂಚ್ಯಂಕ : 31;  // Index of var/constraint in rand_mode/constraint_mode vector
     };
     uint64_t asUQuad;  // Representation as int to be stored in nodep->user*
 };
 
 // Look through unpacked array dimensions to the element type
-static AstNodeDType* arrayElementDTypep(AstNodeDType* dtypep) {
+ಸ್ಥಿರ Ast_ಗಂಟು_DType* arrayElementDTypep(Ast_ಗಂಟು_DType* dtypep) {
     dtypep = dtypep->skipRefp();
-    while (dtypep->isNonPackedArray()) dtypep = dtypep->subDTypep()->skipRefp();
-    return dtypep;
+    ಆಗ (dtypep->isNonPackedArray()) dtypep = dtypep->subDTypep()->skipRefp();
+    ಹಿಂತಿರುಗಿ dtypep;
 }
 
 // Whether dtypep is, or contains anywhere through unpacked array/struct
 // nesting, a real value. A packed struct can't hold one (IEEE disallows
 // real as a packed-struct member), so it's never worth descending into.
-static bool dtypeContainsReal(AstNodeDType* dtypep) {
+ಸ್ಥಿರ ತಾರ್ಕಿಕ dtype_ಒಳಗೊಂಡಿದೆ_Real(Ast_ಗಂಟು_DType* dtypep) {
     dtypep = dtypep->skipRefp();
-    if (AstNodeDType* const subp = dtypep->subDTypep()) return dtypeContainsReal(subp);
-    if (const AstNodeUOrStructDType* const structp = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (structp->packed()) return false;
-        for (AstMemberDType* memberp = structp->membersp(); memberp;
+    ಆದರೆ (Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ subp = dtypep->subDTypep()) ಹಿಂತಿರುಗಿ dtype_ಒಳಗೊಂಡಿದೆ_Real(subp);
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_UOr_Struct_DType* ಸ್ಥಿರಾಂಕ structp = VN_CAST(dtypep, ಗಂಟು_UOr_Struct_DType)) {
+        ಆದರೆ (structp->packed()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಗಾಗಿ (AstMemberDType* memberp = structp->membersp(); memberp;
              memberp = VN_AS(memberp->nextp(), MemberDType)) {
-            if (dtypeContainsReal(memberp->subDTypep())) return true;
+            ಆದರೆ (dtype_ಒಳಗೊಂಡಿದೆ_Real(memberp->subDTypep())) ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
-    const AstBasicDType* const basicp = VN_CAST(dtypep, BasicDType);
-    return basicp && basicp->isDouble();
+    ಸ್ಥಿರಾಂಕ AstBasicDType* ಸ್ಥಿರಾಂಕ basicp = VN_CAST(dtypep, BasicDType);
+    ಹಿಂತಿರುಗಿ basicp && basicp->isDouble();
 }
 
 // Check a rand/randc variable's type against IEEE 1800-2023 18.4's
 // allowed list. Purely diagnostic: codegen sites that would otherwise
 // mishandle one of these types guard themselves on V3Error::errorCount()
 // rather than relying on anything checked here.
-static void checkRandTypeEligibility(AstNode* contextp, AstNodeDType* dtypep, bool isRandc) {
+ಸ್ಥಿರ ಶೂನ್ಯ checkRandTypeEligibility(Ast_ಗಂಟು* contextp, Ast_ಗಂಟು_DType* dtypep, ತಾರ್ಕಿಕ isRandc) {
     dtypep = dtypep->skipRefp();
-    if (AstNodeDType* const subp = dtypep->subDTypep()) {
+    ಆದರೆ (Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ subp = dtypep->subDTypep()) {
         checkRandTypeEligibility(contextp, subp, isRandc);  // Containers inherit rand/randc kind
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
-    if (VN_IS(dtypep, ClassRefDType)) {
+    ಆದರೆ (VN_IS(dtypep, ClassRefDType)) {
         // rand on a class handle is legal (recursive randomization).
         // Only randc is disallowed.
-        if (isRandc) {
+        ಆದರೆ (isRandc) {
             contextp->v3error("'randc' on an object handle (IEEE 1800-2023 18.4: object "
                               "handles shall not be declared randc)");
         }
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
-    if (const AstIfaceRefDType* const ifacep = VN_CAST(dtypep, IfaceRefDType)) {
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ AstIfaceRefDType* ಸ್ಥಿರಾಂಕ ifacep = VN_CAST(dtypep, IfaceRefDType)) {
         // A class property can only hold a *virtual* interface handle --
         // a plain interface can't be a class member at all -- so a
         // rand-qualified var landing here is always the virtual kind.
@@ -211,57 +211,57 @@ static void checkRandTypeEligibility(AstNode* contextp, AstNodeDType* dtypep, bo
         // compile if left unchecked.
         contextp->v3error("'rand'/'randc' on a virtual interface handle (not "
                           "in IEEE 1800-2023 18.4's random-variable type domain)");
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
-    if (const AstNodeUOrStructDType* const structp = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (structp->packed()) return;  // Integral by construction; members checked separately
-        if (VN_IS(structp, UnionDType)) {
+    ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_UOr_Struct_DType* ಸ್ಥಿರಾಂಕ structp = VN_CAST(dtypep, ಗಂಟು_UOr_Struct_DType)) {
+        ಆದರೆ (structp->packed()) ಹಿಂತಿರುಗಿ;  // Integral by construction; members checked separately
+        ಆದರೆ (VN_IS(structp, UnionDType)) {
             contextp->v3error("'rand'/'randc' on an unpacked union (IEEE "
                               "1800-2023 18.4: unpacked unions shall not be declared as rand "
                               "or randc)");
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        for (AstMemberDType* memberp = structp->membersp(); memberp;
+        ಗಾಗಿ (AstMemberDType* memberp = structp->membersp(); memberp;
              memberp = VN_AS(memberp->nextp(), MemberDType)) {
             // Each unpacked-struct member independently declares its own rand/randc.
-            if (memberp->rand().isRandomizable()) {
+            ಆದರೆ (memberp->rand().isRandomizable()) {
                 checkRandTypeEligibility(memberp, memberp->subDTypep(), memberp->rand().isRandC());
             }
         }
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
-    const AstBasicDType* const basicp = VN_CAST(dtypep, BasicDType);
+    ಸ್ಥಿರಾಂಕ AstBasicDType* ಸ್ಥಿರಾಂಕ basicp = VN_CAST(dtypep, BasicDType);
     // V3Width has already resolved every dtype by this pass, and every
     // other leaf kind (class handle, virtual interface, struct/union) was
     // already dispatched above, so a rand-qualified var's dtype can only
     // be a BasicDType here.
     UASSERT_OBJ(basicp, dtypep, "Unexpected non-basic leaf dtype for rand var");
-    if (basicp->isDouble()) {
+    ಆದರೆ (basicp->isDouble()) {
         // rand on a real variable is legal; only randc is disallowed.
-        if (isRandc) {
+        ಆದರೆ (isRandc) {
             contextp->v3error("'randc' on a real variable (IEEE 1800-2023 18.4: "
                               "real variables shall not be declared randc)");
         }
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
-    switch (basicp->keyword()) {
-    case VBasicDTypeKwd::STRING:
-    case VBasicDTypeKwd::CHANDLE:
-    case VBasicDTypeKwd::EVENT: {
-        const char* const articlep = basicp->keyword() == VBasicDTypeKwd::EVENT ? "an" : "a";
+    ಆಯ್ಕೆ (basicp->keyword()) {
+    ಸ್ಥಿತಿ VBasicDTypeKwd::STRING:
+    ಸ್ಥಿತಿ VBasicDTypeKwd::CHANDLE:
+    ಸ್ಥಿತಿ VBasicDTypeKwd::EVENT: {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ articlep = basicp->keyword() == VBasicDTypeKwd::EVENT ? "an" : "a";
         contextp->v3error("'rand'/'randc' on " << articlep << " " << basicp->keyword().typeName()
                                                << " variable (not in IEEE 1800-2023 18.4's "
                                                   "random-variable type domain)");
-        break;
+        ನಿಲ್ಲಿಸು;
     }
-    default: break;
+    ಪೂರ್ವನಿಯೋಜಿತ: ನಿಲ್ಲಿಸು;
     }
 }
 
 //######################################################################
 // Visitor that marks classes needing a randomize() method
 
-class RandomizeMarkVisitor final : public VNVisitor {
+ವರ್ಗ RandomizeMarkVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // Cleared on Netlist
     //  AstClass::user1()       -> bool.  Set true to indicate needs randomize processing
@@ -272,80 +272,80 @@ class RandomizeMarkVisitor final : public VNVisitor {
     //  AstVar::user2p()        -> AstNodeModule*. Pointer to containing module
     //  AstNodeFTask::user2p()  -> AstNodeModule*. Pointer to containing module
     //  AstMemberSel::user2p()  -> AstNodeModule*. Pointer to containing module
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use m_inuser2;
 
-    using DerivedSet = std::unordered_set<AstClass*>;
-    using BaseToDerivedMap = std::unordered_map<const AstClass*, DerivedSet>;
+    ಬಳಸಿ Derived_ಗಣ = std::unordered_ಗಣ<AstClass*>;
+    ಬಳಸಿ ತಳ_ಗಮ್ಯ_Derived_Map = std::unordered_map<ಸ್ಥಿರಾಂಕ AstClass*, Derived_ಗಣ>;
 
-    BaseToDerivedMap m_baseToDerivedMap;  // Mapping from base classes to classes that extend them
-    AstClass* m_classp = nullptr;  // Current class
-    AstNode* m_constraintExprGenp = nullptr;  // Current constraint or constraint if expression
-    AstNodeModule* m_modp;  // Current module
-    AstNodeStmt* m_stmtp = nullptr;  // Current statement
-    AstNodeFTaskRef* m_stdRandCallp = nullptr;  // Current std::randomize() call
-    bool m_inStdWith = false;  // True when inside a 'with {}' clause
-    std::set<AstNodeVarRef*> m_staticRefs;  // References to static variables under `with` clauses
-    AstWith* m_withp = nullptr;  // Current 'with' constraint node
+    ತಳ_ಗಮ್ಯ_Derived_Map m_ತಳ_ಗಮ್ಯ_Derived_Map;  // Mapping from base classes to classes that extend them
+    AstClass* m_classp = ಶೂನ್ಯಸೂಚಕ;  // Current class
+    Ast_ಗಂಟು* m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp = ಶೂನ್ಯಸೂಚಕ;  // Current constraint or constraint if expression
+    Ast_ಗಂಟು_Module* m_modp;  // Current module
+    Ast_ಗಂಟು_Stmt* m_stmtp = ಶೂನ್ಯಸೂಚಕ;  // Current statement
+    Ast_ಗಂಟು_FTask_Ref* m_stdRandCallp = ಶೂನ್ಯಸೂಚಕ;  // Current std::randomize() call
+    ತಾರ್ಕಿಕ m_ಒಳ_Std_With = ಸುಳ್ಳು;  // True when inside a 'with {}' clause
+    std::ಗಣ<Ast_ಗಂಟು_Var_Ref*> m_staticRefs;  // References to static variables under `with` clauses
+    AstWith* m_withp = ಶೂನ್ಯಸೂಚಕ;  // Current 'with' constraint node
 
     // METHODS
     // Mark all rand variables in IS_RANDOMIZED_GLOBAL classes as globalConstrained
-    void markGlobalConstrainedVars(AstClass* classp) {
-        for (const AstClass* cp = classp; cp;
-             cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            for (AstNode* memberp = cp->stmtsp(); memberp; memberp = memberp->nextp()) {
-                AstVar* const varp = VN_CAST(memberp, Var);
-                if (!varp) continue;
-                if (varp->rand().isRandomizable()) varp->globalConstrained(true);
+    ಶೂನ್ಯ markGlobalConstrainedVars(AstClass* classp) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstClass* cp = classp; cp;
+             cp = cp->extendsp() ? cp->extendsp()->classp() : ಶೂನ್ಯಸೂಚಕ) {
+            ಗಾಗಿ (Ast_ಗಂಟು* memberp = cp->stmtsp(); memberp; memberp = memberp->nextp()) {
+                AstVar* ಸ್ಥಿರಾಂಕ varp = VN_CAST(memberp, Var);
+                ಆದರೆ (!varp) ಮುಂದುವರಿ;
+                ಆದರೆ (varp->rand().isRandomizable()) varp->globalConstrained(ನಿಜ);
             }
         }
     }
     // Check if a variable is listed in std::randomize() arguments
-    bool isVarInStdRandomizeArgs(const AstVar* varp) const {
-        if (!m_inStdWith || !m_stdRandCallp) return false;
+    ತಾರ್ಕಿಕ is_Var_ಒಳ_Std_Randomize_ವಾದಗಳು(ಸ್ಥಿರಾಂಕ AstVar* varp) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (!m_ಒಳ_Std_With || !m_stdRandCallp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 
-        for (AstArg* argp = m_stdRandCallp->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-            const AstNodeExpr* exprp = argp->exprp();
+        ಗಾಗಿ (AstArg* argp = m_stdRandCallp->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = argp->exprp();
             // Traverse through expression to find the base variable
-            while (exprp) {
-                if (const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef)) {
-                    if (varrefp->varp() == varp) return true;
-                    break;
+            ಆಗ (exprp) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(exprp, ಗಂಟು_Var_Ref)) {
+                    ಆದರೆ (varrefp->varp() == varp) ಹಿಂತಿರುಗಿ ನಿಜ;
+                    ನಿಲ್ಲಿಸು;
                 }
-                if (const AstMemberSel* const memberselp = VN_CAST(exprp, MemberSel)) {
-                    if (memberselp->varp() == varp) return true;
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ memberselp = VN_CAST(exprp, MemberSel)) {
+                    ಆದರೆ (memberselp->varp() == varp) ಹಿಂತಿರುಗಿ ನಿಜ;
                     exprp = memberselp->fromp();
-                } else if (const AstArraySel* const arrselp = VN_CAST(exprp, ArraySel)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstArraySel* ಸ್ಥಿರಾಂಕ arrselp = VN_CAST(exprp, ArraySel)) {
                     exprp = arrselp->fromp();
-                } else if (const AstStructSel* const strselp = VN_CAST(exprp, StructSel)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ strselp = VN_CAST(exprp, StructSel)) {
                     exprp = strselp->fromp();
-                } else if (const AstCMethodHard* const methodp = VN_CAST(exprp, CMethodHard)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = VN_CAST(exprp, CMethodHard)) {
                     exprp = methodp->fromp();
-                } else {
-                    break;
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ನಿಲ್ಲಿಸು;
                 }
             }
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
-    void markMembers(const AstClass* nodep) {
-        for (const AstClass* classp = nodep; classp;
-             classp = classp->extendsp() ? classp->extendsp()->classp() : nullptr) {
-            for (AstNode* memberp = classp->stmtsp(); memberp; memberp = memberp->nextp()) {
-                AstVar* const varp = VN_CAST(memberp, Var);
-                if (!varp) continue;
+    ಶೂನ್ಯ markMembers(ಸ್ಥಿರಾಂಕ AstClass* nodep) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstClass* classp = nodep; classp;
+             classp = classp->extendsp() ? classp->extendsp()->classp() : ಶೂನ್ಯಸೂಚಕ) {
+            ಗಾಗಿ (Ast_ಗಂಟು* memberp = classp->stmtsp(); memberp; memberp = memberp->nextp()) {
+                AstVar* ಸ್ಥಿರಾಂಕ varp = VN_CAST(memberp, Var);
+                ಆದರೆ (!varp) ಮುಂದುವರಿ;
                 // If member is randomizable and of class type, mark its class
-                if (varp->rand().isRandomizable()) {
-                    const AstNodeDType* const varDtypep = varp->dtypep()->skipRefp();
-                    const AstClassRefDType* classRefp = VN_CAST(varDtypep, ClassRefDType);
-                    if (!classRefp) {
-                        const AstNodeDType* subDTypep = varDtypep->subDTypep();
-                        if (subDTypep) subDTypep = subDTypep->skipRefp();
+                ಆದರೆ (varp->rand().isRandomizable()) {
+                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ varDtypep = varp->dtypep()->skipRefp();
+                    ಸ್ಥಿರಾಂಕ AstClassRefDType* classRefp = VN_CAST(varDtypep, ClassRefDType);
+                    ಆದರೆ (!classRefp) {
+                        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* subDTypep = varDtypep->subDTypep();
+                        ಆದರೆ (subDTypep) subDTypep = subDTypep->skipRefp();
                         classRefp = VN_CAST(subDTypep, ClassRefDType);
                     }
-                    if (classRefp) {
-                        AstClass* const rclassp = classRefp->classp();
-                        if (!rclassp->user1()) {
+                    ಆದರೆ (classRefp) {
+                        AstClass* ಸ್ಥಿರಾಂಕ rclassp = classRefp->classp();
+                        ಆದರೆ (!rclassp->user1()) {
                             rclassp->user1(IS_RANDOMIZED_GLOBAL);
                             markGlobalConstrainedVars(rclassp);
                             markMembers(rclassp);
@@ -353,20 +353,20 @@ class RandomizeMarkVisitor final : public VNVisitor {
                         }
                     }
                     // If the class is randomized inline, all members use rand mode
-                    if (nodep->user1() == IS_RANDOMIZED_INLINE) {
-                        RandomizeMode randMode = {};
-                        randMode.usesMode = true;
-                        varp->user1(randMode.asUQuad);
+                    ಆದರೆ (nodep->user1() == IS_RANDOMIZED_INLINE) {
+                        Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {};
+                        rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ = ನಿಜ;
+                        varp->user1(rand_ಬಹುಲಕ.asUQuad);
                     }
                 }
             }
         }
     }
-    void markDerived(const AstClass* nodep) {
-        const auto it = m_baseToDerivedMap.find(nodep);
-        if (it != m_baseToDerivedMap.end()) {
-            for (auto* classp : it->second) {
-                if (classp->user1() < nodep->user1()) {
+    ಶೂನ್ಯ markDerived(ಸ್ಥಿರಾಂಕ AstClass* nodep) {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_ತಳ_ಗಮ್ಯ_Derived_Map.ಕಂಡುಹಿಡಿ(nodep);
+        ಆದರೆ (it != m_ತಳ_ಗಮ್ಯ_Derived_Map.ಕೊನೆ()) {
+            ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ* classp : it->ಎರಡನೇ) {
+                ಆದರೆ (classp->user1() < nodep->user1()) {
                     classp->user1(nodep->user1());
                     markMembers(classp);
                     markDerived(classp);
@@ -374,788 +374,788 @@ class RandomizeMarkVisitor final : public VNVisitor {
             }
         }
     }
-    void markAllDerived() {
-        for (const auto& p : m_baseToDerivedMap) {
-            if (p.first->user1()) markDerived(p.first);
+    ಶೂನ್ಯ markAllDerived() {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& p : m_ತಳ_ಗಮ್ಯ_Derived_Map) {
+            ಆದರೆ (p.ಮೊದಲ->user1()) markDerived(p.ಮೊದಲ);
         }
     }
-    void setPackageRefs() {
-        for (AstNodeVarRef* staticRefp : m_staticRefs) {
+    ಶೂನ್ಯ ಗಣ_Package_Refs() {
+        ಗಾಗಿ (Ast_ಗಂಟು_Var_Ref* staticRefp : m_staticRefs) {
             UINFO(9, "Updated classOrPackage ref for " << staticRefp->name());
-            staticRefp->classOrPackagep(VN_AS(staticRefp->varp()->user2p(), NodeModule));
+            staticRefp->classOrPackagep(VN_AS(staticRefp->varp()->user2p(), ಗಂಟು_Module));
         }
     }
-    void markNestedGlobalConstrainedRecurse(AstNode* nodep) {
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            AstVar* const varp = refp->varp();
-            if (varp->globalConstrained()) return;
-            varp->globalConstrained(true);
-        } else if (const AstMemberSel* const memberSelp = VN_CAST(nodep, MemberSel)) {
-            if (memberSelp->varp()) {
-                AstVar* const varp = memberSelp->varp();
-                if (varp->globalConstrained()) return;
-                varp->globalConstrained(true);
+    ಶೂನ್ಯ markNestedGlobalConstrainedRecurse(Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(nodep, VarRef)) {
+            AstVar* ಸ್ಥಿರಾಂಕ varp = refp->varp();
+            ಆದರೆ (varp->globalConstrained()) ಹಿಂತಿರುಗಿ;
+            varp->globalConstrained(ನಿಜ);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(nodep, MemberSel)) {
+            ಆದರೆ (memberSelp->varp()) {
+                AstVar* ಸ್ಥಿರಾಂಕ varp = memberSelp->varp();
+                ಆದರೆ (varp->globalConstrained()) ಹಿಂತಿರುಗಿ;
+                varp->globalConstrained(ನಿಜ);
             }
             markNestedGlobalConstrainedRecurse(memberSelp->fromp());
         }
     }
 
     // Build MemberSel chain from variable path
-    AstNodeExpr* buildMemberSelChain(AstVarRef* rootVarRefp, const std::vector<AstVar*>& path) {
-        AstNodeExpr* exprp = rootVarRefp->cloneTree(false);
-        for (AstVar* memberVarp : path) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* buildMemberSelChain(AstVarRef* ಬೇರು_Var_Refp, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<AstVar*>& ಮಾರ್ಗ) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = ಬೇರು_Var_Refp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+        ಗಾಗಿ (AstVar* memberVarp : ಮಾರ್ಗ) {
             AstMemberSel* memberSelp
-                = new AstMemberSel{rootVarRefp->fileline(), exprp, memberVarp};
+                = ಹೊಸ AstMemberSel{ಬೇರು_Var_Refp->fileline(), exprp, memberVarp};
             memberSelp->user2p(m_classp);
             exprp = memberSelp;
         }
-        return exprp;
+        ಹಿಂತಿರುಗಿ exprp;
     }
 
     // Process a single constraint during nested constraint cloning
-    void processNestedConstraint(AstConstraint* const constrp, AstVarRef* rootVarRefp,
-                                 const std::vector<AstVar*>& newPath, AstClass* targetClassp) {
-        std::string pathPrefix = rootVarRefp->name();
-        for (AstVar* pathMemberVarp : newPath) {
-            pathPrefix += GLOBAL_CONSTRAINT_SEPARATOR + pathMemberVarp->name();
+    ಶೂನ್ಯ processNestedConstraint(AstConstraint* ಸ್ಥಿರಾಂಕ constrp, AstVarRef* ಬೇರು_Var_Refp,
+                                 ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<AstVar*>& new_ಮಾರ್ಗ, AstClass* ಗುರಿ_Classp) {
+        std::string ಮಾರ್ಗ_ಪೂರ್ವಪ್ರತ್ಯಯ = ಬೇರು_Var_Refp->name();
+        ಗಾಗಿ (AstVar* ಮಾರ್ಗ_Member_Varp : new_ಮಾರ್ಗ) {
+            ಮಾರ್ಗ_ಪೂರ್ವಪ್ರತ್ಯಯ += GLOBAL_CONSTRAINT_SEPARATOR + ಮಾರ್ಗ_Member_Varp->name();
         }
 
-        const std::string newName = pathPrefix + GLOBAL_CONSTRAINT_SEPARATOR + constrp->name();
+        ಸ್ಥಿರಾಂಕ std::string newName = ಮಾರ್ಗ_ಪೂರ್ವಪ್ರತ್ಯಯ + GLOBAL_CONSTRAINT_SEPARATOR + constrp->name();
 
         // Check if this constraint already exists in the target class
-        bool isDuplicate = false;
-        targetClassp->foreachMember([&](AstClass* const, AstConstraint* const existingConstrp) {
-            if (existingConstrp->name() == newName) {
+        ತಾರ್ಕಿಕ isDuplicate = ಸುಳ್ಳು;
+        ಗುರಿ_Classp->foreachMember([&](AstClass* ಸ್ಥಿರಾಂಕ, AstConstraint* ಸ್ಥಿರಾಂಕ existingConstrp) {
+            ಆದರೆ (existingConstrp->name() == newName) {
                 // Multiple paths lead to same constraint - unsupported pattern
-                isDuplicate = true;
+                isDuplicate = ನಿಜ;
             }
         });
-        if (isDuplicate) return;
+        ಆದರೆ (isDuplicate) ಹಿಂತಿರುಗಿ;
 
-        AstConstraint* const cloneConstrp = constrp->cloneTree(false);
+        AstConstraint* ಸ್ಥಿರಾಂಕ cloneConstrp = constrp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
         cloneConstrp->name(newName);
 
         // FuncRefs are converted after the traversal. Converting moves the args under the new
         // MethodCall, where foreach would not visit VarRefs or nested calls such as add(lim()).
-        std::vector<AstFuncRef*> funcRefps;
-        cloneConstrp->foreach([&](AstNodeExpr* exprp) {
-            if (AstVarRef* const varRefp = VN_CAST(exprp, VarRef)) {
-                if (!varRefp->varp()->isClassMember()) return;
-                AstNodeExpr* const chainp = buildMemberSelChain(rootVarRefp, newPath);
-                AstMemberSel* const finalSelp
-                    = new AstMemberSel{varRefp->fileline(), chainp, varRefp->varp()};
+        std::ಸದಿಶ<AstFuncRef*> funcRefps;
+        cloneConstrp->foreach([&](Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+            ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(exprp, VarRef)) {
+                ಆದರೆ (!varRefp->varp()->isClassMember()) ಹಿಂತಿರುಗಿ;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ chainp = buildMemberSelChain(ಬೇರು_Var_Refp, new_ಮಾರ್ಗ);
+                AstMemberSel* ಸ್ಥಿರಾಂಕ finalSelp
+                    = ಹೊಸ AstMemberSel{varRefp->fileline(), chainp, varRefp->varp()};
                 finalSelp->user2p(m_classp);
                 varRefp->replaceWith(finalSelp);
-                VL_DO_DANGLING(pushDeletep(varRefp), varRefp);
-            } else if (AstFuncRef* const funcRefp = VN_CAST(exprp, FuncRef)) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(varRefp), varRefp);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstFuncRef* ಸ್ಥಿರಾಂಕ funcRefp = VN_CAST(exprp, FuncRef)) {
                 // Static and non-member calls are correctly qualified already
-                if (funcRefp->taskp()->classMethod() && !funcRefp->taskp()->isStatic()) {
-                    funcRefps.push_back(funcRefp);
+                ಆದರೆ (funcRefp->taskp()->class_ವಿಧಾನ() && !funcRefp->taskp()->isStatic()) {
+                    funcRefps.ತಳ್ಳು_ಹಿಂಭಾಗ(funcRefp);
                 }
             }
         });
-        for (AstFuncRef* funcRefp : funcRefps) {
-            AstNodeExpr* const chainp = buildMemberSelChain(rootVarRefp, newPath);
-            AstArg* const argsp
-                = funcRefp->argsp() ? funcRefp->argsp()->unlinkFrBackWithNext() : nullptr;
-            AstMethodCall* const callp
-                = new AstMethodCall{funcRefp->fileline(), chainp, funcRefp->name(), argsp};
+        ಗಾಗಿ (AstFuncRef* funcRefp : funcRefps) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ chainp = buildMemberSelChain(ಬೇರು_Var_Refp, new_ಮಾರ್ಗ);
+            AstArg* ಸ್ಥಿರಾಂಕ argsp
+                = funcRefp->argsp() ? funcRefp->argsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ() : ಶೂನ್ಯಸೂಚಕ;
+            Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp
+                = ಹೊಸ Ast_ವಿಧಾನ_Call{funcRefp->fileline(), chainp, funcRefp->name(), argsp};
             callp->taskp(funcRefp->taskp());
             callp->classOrPackagep(funcRefp->classOrPackagep());
             callp->dtypep(funcRefp->dtypep());
             callp->superReference(funcRefp->superReference());
             funcRefp->replaceWith(callp);
-            VL_DO_DANGLING(pushDeletep(funcRefp), funcRefp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(funcRefp), funcRefp);
         }
         funcRefps.clear();
 
         // Add constraint directly to the target class
-        targetClassp->addStmtsp(cloneConstrp);
+        ಗುರಿ_Classp->ಕೂಡಿಸು_Stmtsp(cloneConstrp);
         // Immediately iterate to set user1 marks
         iterateConst(cloneConstrp);
     }
 
     // Clone constraints from nested rand class members
-    void cloneNestedConstraintsRecurse(AstVarRef* rootVarRefp, AstClass* classp,
-                                       const std::vector<AstVar*>& pathToClass,
-                                       AstClass* targetClassp) {
-        for (AstNode* memberNodep = classp->membersp(); memberNodep;
+    ಶೂನ್ಯ cloneNestedConstraintsRecurse(AstVarRef* ಬೇರು_Var_Refp, AstClass* classp,
+                                       ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<AstVar*>& ಮಾರ್ಗ_ಗಮ್ಯ_Class,
+                                       AstClass* ಗುರಿ_Classp) {
+        ಗಾಗಿ (Ast_ಗಂಟು* memberNodep = classp->membersp(); memberNodep;
              memberNodep = memberNodep->nextp()) {
-            AstVar* const memberVarp = VN_CAST(memberNodep, Var);
-            if (!memberVarp) continue;
-            if (!memberVarp->rand().isRandomizable()) continue;
-            const AstClassRefDType* const memberClassRefp
+            AstVar* ಸ್ಥಿರಾಂಕ memberVarp = VN_CAST(memberNodep, Var);
+            ಆದರೆ (!memberVarp) ಮುಂದುವರಿ;
+            ಆದರೆ (!memberVarp->rand().isRandomizable()) ಮುಂದುವರಿ;
+            ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ memberClassRefp
                 = VN_CAST(memberVarp->dtypep()->skipRefp(), ClassRefDType);
-            if (!memberClassRefp || !memberClassRefp->classp()) continue;
+            ಆದರೆ (!memberClassRefp || !memberClassRefp->classp()) ಮುಂದುವರಿ;
 
             AstClass* nestedClassp = memberClassRefp->classp();
 
-            std::vector<AstVar*> newPath = pathToClass;
-            newPath.push_back(memberVarp);
+            std::ಸದಿಶ<AstVar*> new_ಮಾರ್ಗ = ಮಾರ್ಗ_ಗಮ್ಯ_Class;
+            new_ಮಾರ್ಗ.ತಳ್ಳು_ಹಿಂಭಾಗ(memberVarp);
             // Replace all variable references inside the cloned constraint with proper
             // member selections
             nestedClassp->foreachMember(
-                [&](AstClass* const containingClassp, AstConstraint* const constrp) {
-                    processNestedConstraint(constrp, rootVarRefp, newPath, targetClassp);
+                [&](AstClass* ಸ್ಥಿರಾಂಕ containingClassp, AstConstraint* ಸ್ಥಿರಾಂಕ constrp) {
+                    processNestedConstraint(constrp, ಬೇರು_Var_Refp, new_ಮಾರ್ಗ, ಗುರಿ_Classp);
                 });
-            cloneNestedConstraintsRecurse(rootVarRefp, nestedClassp, newPath, targetClassp);
+            cloneNestedConstraintsRecurse(ಬೇರು_Var_Refp, nestedClassp, new_ಮಾರ್ಗ, ಗುರಿ_Classp);
         }
     }
 
     // Get randomized variables from (std::)randomize() arguments
     // and mark AstNodeModule nodes in which they are defined
-    void handleRandomizeArgument(AstNodeExpr* exprp, AstVar* const varp, const bool stdRandomize) {
+    ಶೂನ್ಯ handle_Randomize_ವಾದ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstVar* ಸ್ಥಿರಾಂಕ varp, ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ stdRandomize) {
         // IEEE 1800-2023 18.11: "Arguments are limited to the names of properties
         // of the calling object; expressions are not allowed."
         // However, for compatibility with other simulators, we support complex
         // expressions like obj.member[idx].field in inline randomize().
-        while (exprp) {
-            AstVar* randVarp = nullptr;
-            if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
+        ಆಗ (exprp) {
+            AstVar* randVarp = ಶೂನ್ಯಸೂಚಕ;
+            ಆದರೆ (AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(exprp, MemberSel)) {
                 randVarp = memberSelp->varp();
                 exprp = memberSelp->fromp();
-            } else if (AstArraySel* const arraySelp = VN_CAST(exprp, ArraySel)) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstArraySel* ಸ್ಥಿರಾಂಕ arraySelp = VN_CAST(exprp, ArraySel)) {
                 exprp = arraySelp->fromp();
-                continue;  // Skip ArraySel, continue traversing
-            } else if (AstStructSel* const structSelp = VN_CAST(exprp, StructSel)) {
+                ಮುಂದುವರಿ;  // Skip ArraySel, continue traversing
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstStructSel* ಸ್ಥಿರಾಂಕ structSelp = VN_CAST(exprp, StructSel)) {
                 exprp = structSelp->fromp();
-                continue;  // Skip StructSel, continue traversing
-            } else if (AstCMethodHard* const methodp = VN_CAST(exprp, CMethodHard)) {
+                ಮುಂದುವರಿ;  // Skip StructSel, continue traversing
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = VN_CAST(exprp, CMethodHard)) {
                 exprp = methodp->fromp();
-                continue;
-            } else if (AstVarRef* const varrefp = VN_CAST(exprp, VarRef)) {
+                ಮುಂದುವರಿ;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(exprp, VarRef)) {
                 randVarp = varrefp->varp();
-                varrefp->user1(true);
+                varrefp->user1(ನಿಜ);
                 varrefp->access(VAccess::READWRITE);
-                exprp = nullptr;
-            } else {
+                exprp = ಶೂನ್ಯಸೂಚಕ;
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // All invalid and unsupported expressions should be caught in V3Width
                 exprp->v3fatalSrc("Unexpected expression type in randomize() argument");
             }
             UASSERT_OBJ(randVarp, exprp, "No rand variable found");
-            if (randVarp == varp) return;
-            AstNode* backp = randVarp;
-            while (backp && !VN_IS(backp, NodeModule)) backp = backp->backp();
-            if (stdRandomize) {
+            ಆದರೆ (randVarp == varp) ಹಿಂತಿರುಗಿ;
+            Ast_ಗಂಟು* backp = randVarp;
+            ಆಗ (backp && !VN_IS(backp, ಗಂಟು_Module)) backp = backp->backp();
+            ಆದರೆ (stdRandomize) {
                 UASSERT_OBJ(backp, randVarp, "No class or module found for rand variable");
                 backp->user1(IS_STD_RANDOMIZED);
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // Inline randomized then
                 UASSERT_OBJ(VN_IS(backp, Class), randVarp,
                             "No class found for inline randomized variable");
-                RandomizeMode randMode = {};
-                randMode.usesMode = true;
-                randVarp->user1(randMode.asUQuad);
+                Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {};
+                rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ = ನಿಜ;
+                randVarp->user1(rand_ಬಹುಲಕ.asUQuad);
                 backp->user1(IS_RANDOMIZED_INLINE);
             }
         }
     }
 
     // VISITORS
-    void visit(AstClass* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstClass* nodep) override {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_modp);
         m_modp = m_classp = nodep;
         iterateChildrenConst(nodep);
-        if (nodep->extendsp()) {
+        ಆದರೆ (nodep->extendsp()) {
             // Record derived class for inheritance hierarchy tracking
-            const AstClass* const basep = nodep->extendsp()->classp();
-            m_baseToDerivedMap[basep].insert(nodep);
+            ಸ್ಥಿರಾಂಕ AstClass* ಸ್ಥಿರಾಂಕ basep = nodep->extendsp()->classp();
+            m_ತಳ_ಗಮ್ಯ_Derived_Map[basep].ಸೇರಿಸು(nodep);
         }
     }
-    void visit(AstNodeStmt* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Stmt* nodep) override {
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
-        if (!nodep->backp()) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        ಆದರೆ (!nodep->backp()) VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std")
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask_Ref* nodep) override {
+        ಆದರೆ (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std")
             m_stdRandCallp = nodep;
         iterateChildrenConst(nodep);
-        if (nodep->name() == "rand_mode") {
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            AstNodeExpr* const fromp = methodCallp ? methodCallp->fromp() : nullptr;
-            bool valid = true;
-            if (VN_IS(fromp, ArraySel)) {
+        ಆದರೆ (nodep->name() == "rand_mode") {
+            Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp = VN_CAST(nodep, ವಿಧಾನ_Call);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = ವಿಧಾನ_Callp ? ವಿಧಾನ_Callp->fromp() : ಶೂನ್ಯಸೂಚಕ;
+            ತಾರ್ಕಿಕ valid = ನಿಜ;
+            ಆದರೆ (VN_IS(fromp, ArraySel)) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: 'rand_mode()' on unpacked array element");
-                valid = false;
-            } else if (VN_IS(fromp, StructSel)) {
+                valid = ಸುಳ್ಳು;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(fromp, StructSel)) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: 'rand_mode()' on unpacked struct element");
-                valid = false;
-            } else if (VN_IS(fromp, Sel)) {
+                valid = ಸುಳ್ಳು;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(fromp, Sel)) {
                 nodep->v3error("Cannot call 'rand_mode()' on packed array element");
-                valid = false;
-            } else if (AstCMethodHard* const methodHardp = VN_CAST(fromp, CMethodHard)) {
-                if (methodHardp->method() == VCMethod::ARRAY_AT
-                    || methodHardp->method() == VCMethod::ARRAY_AT_WRITE) {
+                valid = ಸುಳ್ಳು;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstCMethodHard* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Hardp = VN_CAST(fromp, CMethodHard)) {
+                ಆದರೆ (ವಿಧಾನ_Hardp->ವಿಧಾನ() == VCMethod::ARRAY_AT
+                    || ವಿಧಾನ_Hardp->ವಿಧಾನ() == VCMethod::ARRAY_AT_WRITE) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: 'rand_mode()' on dynamic array element");
-                    valid = false;
-                } else {
-                    methodHardp->v3fatalSrc("Unknown rand_mode() receiver");
+                    valid = ಸುಳ್ಳು;
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ವಿಧಾನ_Hardp->v3fatalSrc("Unknown rand_mode() receiver");
                 }
             }
-            if (!nodep->argsp() && VN_IS(nodep->backp(), StmtExpr)
-                && !nodep->backp()->fileline()->warnIsOff(V3ErrorCode::IGNOREDRETURN)) {
+            ಆದರೆ (!nodep->argsp() && VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)
+                && !nodep->backp()->fileline()->warnIsOff(V3_Error_ಸಂಕೇತ::IGNOREDRETURN)) {
                 nodep->v3warn(
                     IGNOREDRETURN,
                     "Ignoring return value of non-void function (IEEE 1800-2023 13.4.1)");
-                valid = false;
+                valid = ಸುಳ್ಳು;
             }
-            if (valid) {
-                const RandModeTarget randModeTarget = RandModeTarget::get(fromp, m_classp);
-                if ((!randModeTarget.receiverp || !randModeTarget.receiverp->isRand())
+            ಆದರೆ (valid) {
+                ಸ್ಥಿರಾಂಕ Rand_ಬಹುಲಕ_ಗುರಿ rand_ಬಹುಲಕ_ಗುರಿ = Rand_ಬಹುಲಕ_ಗುರಿ::get(fromp, m_classp);
+                ಆದರೆ ((!rand_ಬಹುಲಕ_ಗುರಿ.receiverp || !rand_ಬಹುಲಕ_ಗುರಿ.receiverp->isRand())
                     && !nodep->argsp()) {
                     nodep->v3error(
                         "Cannot call 'rand_mode()' as a function on non-random variable");
-                    valid = false;
-                } else if (!randModeTarget.classp) {
+                    valid = ಸುಳ್ಳು;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!rand_ಬಹುಲಕ_ಗುರಿ.classp) {
                     nodep->v3error("Cannot call 'rand_mode()' on non-random, non-class variable");
-                    valid = false;
-                } else if (nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
+                    valid = ಸುಳ್ಳು;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
                     nodep->v3error("'rand_mode()' with arguments cannot be called as a function");
-                    valid = false;
-                } else if (randModeTarget.receiverp && randModeTarget.receiverp->isRand()) {
+                    valid = ಸುಳ್ಳು;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (rand_ಬಹುಲಕ_ಗುರಿ.receiverp && rand_ಬಹುಲಕ_ಗುರಿ.receiverp->isRand()) {
                     // Called on a rand member variable
-                    RandomizeMode randMode = {};
-                    randMode.usesMode = true;
-                    randModeTarget.receiverp->user1(randMode.asUQuad);
-                } else {
+                    Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {};
+                    rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ = ನಿಜ;
+                    rand_ಬಹುಲಕ_ಗುರಿ.receiverp->user1(rand_ಬಹುಲಕ.asUQuad);
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     // Called on 'this' or a non-rand class instance
-                    randModeTarget.classp->foreachMember([&](AstClass*, AstVar* varp) {
-                        if (!varp->isRand()) return;
-                        RandomizeMode randMode = {};
-                        randMode.usesMode = true;
-                        varp->user1(randMode.asUQuad);
+                    rand_ಬಹುಲಕ_ಗುರಿ.classp->foreachMember([&](AstClass*, AstVar* varp) {
+                        ಆದರೆ (!varp->isRand()) ಹಿಂತಿರುಗಿ;
+                        Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {};
+                        rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ = ನಿಜ;
+                        varp->user1(rand_ಬಹುಲಕ.asUQuad);
                     });
                 }
             }
-            if (!valid) {
-                if (!nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
-                    nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                } else {
-                    m_stmtp->unlinkFrBack();
+            ಆದರೆ (!valid) {
+                ಆದರೆ (!nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
+                    nodep->replaceWith(ಹೊಸ AstConst{nodep->fileline(), 0});
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    m_stmtp->unlink_Fr_ಹಿಂಭಾಗ();
                 }
             }
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (nodep->name() == "constraint_mode") {
-            bool valid = true;
-            if (nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
+        ಆದರೆ (nodep->name() == "constraint_mode") {
+            ತಾರ್ಕಿಕ valid = ನಿಜ;
+            ಆದರೆ (nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
                 nodep->v3error(
                     "'constraint_mode()' with arguments cannot be called as a function");
-                valid = false;
-            } else if (!nodep->argsp() && VN_IS(nodep->backp(), StmtExpr)
-                       && !nodep->backp()->fileline()->warnIsOff(V3ErrorCode::IGNOREDRETURN)) {
+                valid = ಸುಳ್ಳು;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!nodep->argsp() && VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)
+                       && !nodep->backp()->fileline()->warnIsOff(V3_Error_ಸಂಕೇತ::IGNOREDRETURN)) {
                 nodep->v3warn(
                     IGNOREDRETURN,
                     "Ignoring return value of non-void function (IEEE 1800-2023 13.4.1)");
-                valid = false;
+                valid = ಸುಳ್ಳು;
             }
-            AstConstraint* constrp = nullptr;
+            AstConstraint* constrp = ಶೂನ್ಯಸೂಚಕ;
             AstClass* classp = m_classp;
-            if (const AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall)) {
-                if (const AstConstraintRef* const constrRefp
-                    = VN_CAST(methodCallp->fromp(), ConstraintRef)) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp = VN_CAST(nodep, ವಿಧಾನ_Call)) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConstraintRef* ಸ್ಥಿರಾಂಕ constrRefp
+                    = VN_CAST(ವಿಧಾನ_Callp->fromp(), ConstraintRef)) {
                     constrp = constrRefp->constrp();
-                    if (constrRefp->fromp()) classp = VN_AS(constrRefp->classOrPackagep(), Class);
-                } else if (AstClassRefDType* classRefDtp
-                           = VN_CAST(methodCallp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
+                    ಆದರೆ (constrRefp->fromp()) classp = VN_AS(constrRefp->classOrPackagep(), Class);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstClassRefDType* classRefDtp
+                           = VN_CAST(ವಿಧಾನ_Callp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
                     classp = classRefDtp->classp();
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     nodep->v3error("Cannot call 'constraint_mode()' on a non-class variable");
-                    valid = false;
+                    valid = ಸುಳ್ಳು;
                 }
             }
-            if (!nodep->argsp() && !constrp) {
+            ಆದರೆ (!nodep->argsp() && !constrp) {
                 nodep->v3error("Cannot call 'constraint_mode()' as a function on a variable");
-                valid = false;
+                valid = ಸುಳ್ಳು;
             }
-            if (valid) {
-                RandomizeMode constraintMode = {};
-                constraintMode.usesMode = true;
-                if (constrp) {
-                    constrp->user1(constraintMode.asUQuad);
-                } else {
+            ಆದರೆ (valid) {
+                Randomize_ಬಹುಲಕ constraint_ಬಹುಲಕ = {};
+                constraint_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ = ನಿಜ;
+                ಆದರೆ (constrp) {
+                    constrp->user1(constraint_ಬಹುಲಕ.asUQuad);
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     classp->foreachMember([=](AstClass*, AstConstraint* constrp) {
-                        constrp->user1(constraintMode.asUQuad);
+                        constrp->user1(constraint_ಬಹುಲಕ.asUQuad);
                     });
                 }
-            } else {
-                if (!nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
-                    nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                } else {
-                    m_stmtp->unlinkFrBack();
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಆದರೆ (!nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
+                    nodep->replaceWith(ಹೊಸ AstConst{nodep->fileline(), 0});
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    m_stmtp->unlink_Fr_ಹಿಂಭಾಗ();
                 }
             }
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (nodep->name() != "randomize") {
+        ಆದರೆ (nodep->name() != "randomize") {
             // Propagate user1 from children (same pattern as visit(AstNodeExpr*))
-            if (m_constraintExprGenp || m_inStdWith) {
+            ಆದರೆ (m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp || m_ಒಳ_Std_With) {
                 // Only the arguments decide whether a call depends on rand variables. The object
                 // it's called on doesn't count, so a.f() isn't marked just because 'a' is rand
-                for (AstNode* argp = nodep->argsp(); argp; argp = argp->nextp()) {
-                    if (argp->user1()) {
-                        nodep->user1(true);
-                        break;
+                ಗಾಗಿ (Ast_ಗಂಟು* argp = nodep->argsp(); argp; argp = argp->nextp()) {
+                    ಆದರೆ (argp->user1()) {
+                        nodep->user1(ನಿಜ);
+                        ನಿಲ್ಲಿಸು;
                     }
                 }
             }
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
         AstClass* classp = m_classp;
-        if (const AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall)) {
-            if (const AstClassRefDType* const classRefp
-                = VN_CAST(methodCallp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp = VN_CAST(nodep, ವಿಧಾನ_Call)) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ classRefp
+                = VN_CAST(ವಿಧಾನ_Callp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
                 classp = classRefp->classp();
             }
         }
-        if (classp) {
-            if (!classp->user1()) classp->user1(IS_RANDOMIZED);
+        ಆದರೆ (classp) {
+            ಆದರೆ (!classp->user1()) classp->user1(IS_RANDOMIZED);
             markMembers(classp);
             // Clone constraints from all IS_RANDOMIZED_GLOBAL members
-            classp->foreachMember([&](AstClass* const, AstVar* const memberVarp) {
-                if (!memberVarp->rand().isRandomizable()) return;
-                const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-                const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType);
-                if (!classRefp || !classRefp->classp()) return;
-                AstClass* const memberClassp = classRefp->classp();
-                if (memberClassp->user1() != IS_RANDOMIZED_GLOBAL) return;
-                memberVarp->globalConstrained(true);
+            classp->foreachMember([&](AstClass* ಸ್ಥಿರಾಂಕ, AstVar* ಸ್ಥಿರಾಂಕ memberVarp) {
+                ಆದರೆ (!memberVarp->rand().isRandomizable()) ಹಿಂತಿರುಗಿ;
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = memberVarp->dtypep()->skipRefp();
+                ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ classRefp = VN_CAST(dtypep, ClassRefDType);
+                ಆದರೆ (!classRefp || !classRefp->classp()) ಹಿಂತಿರುಗಿ;
+                AstClass* ಸ್ಥಿರಾಂಕ memberClassp = classRefp->classp();
+                ಆದರೆ (memberClassp->user1() != IS_RANDOMIZED_GLOBAL) ಹಿಂತಿರುಗಿ;
+                memberVarp->globalConstrained(ನಿಜ);
                 // Clone constraints from this IS_RANDOMIZED_GLOBAL member class
-                AstVarRef* rootVarRefp
-                    = new AstVarRef{nodep->fileline(), classp, memberVarp, VAccess::READ};
-                std::vector<AstVar*> emptyPath;
-                memberClassp->foreachMember([&](AstClass* const, AstConstraint* const constrp) {
-                    processNestedConstraint(constrp, rootVarRefp, emptyPath, classp);
+                AstVarRef* ಬೇರು_Var_Refp
+                    = ಹೊಸ AstVarRef{nodep->fileline(), classp, memberVarp, VAccess::READ};
+                std::ಸದಿಶ<AstVar*> ಖಾಲಿಗಳು_ಮಾರ್ಗ;
+                memberClassp->foreachMember([&](AstClass* ಸ್ಥಿರಾಂಕ, AstConstraint* ಸ್ಥಿರಾಂಕ constrp) {
+                    processNestedConstraint(constrp, ಬೇರು_Var_Refp, ಖಾಲಿಗಳು_ಮಾರ್ಗ, classp);
                 });
-                cloneNestedConstraintsRecurse(rootVarRefp, memberClassp, emptyPath, classp);
+                cloneNestedConstraintsRecurse(ಬೇರು_Var_Refp, memberClassp, ಖಾಲಿಗಳು_ಮಾರ್ಗ, classp);
                 // Delete the temporary VarRef created for constraint cloning
-                VL_DO_DANGLING(rootVarRefp->deleteTree(), rootVarRefp);
+                VL_DO_DANGLING(ಬೇರು_Var_Refp->delete_ವೃಕ್ಷ(), ಬೇರು_Var_Refp);
             });
         }
-        if (nodep->classOrPackagep()->name() == "std") {
-            m_stdRandCallp = nullptr;
-            for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-                handleRandomizeArgument(argp->exprp(), nullptr, true);
+        ಆದರೆ (nodep->classOrPackagep()->name() == "std") {
+            m_stdRandCallp = ಶೂನ್ಯಸೂಚಕ;
+            ಗಾಗಿ (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+                handle_Randomize_ವಾದ(argp->exprp(), ಶೂನ್ಯಸೂಚಕ, ನಿಜ);
             }
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+        ಗಾಗಿ (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
             // randomize(null): handle before IS_RANDOMIZED_INLINE so the
             // check-only path does not allocate unused __Vrandmode slots.
-            if (const AstConst* const constp = VN_CAST(argp->exprp(), Const)) {
-                UASSERT_OBJ(constp->num().isNull(), constp,
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(argp->exprp(), Const)) {
+                UASSERT_OBJ(constp->ಅಂಕೆ().isNull(), constp,
                             "Non-null AstConst arg to randomize() should have been "
                             "rejected by V3Width");
                 // SMT pin only handles scalars; nested-class constraints don't cascade.
-                const bool hasUnsupportedMember
-                    = classp->existsMember([](const AstClass*, const AstVar* memberVarp) {
-                          if (!memberVarp->rand().isRandomizable()) return false;
-                          const AstNodeDType* const dtp = memberVarp->dtypep()->skipRefp();
-                          return VN_IS(dtp, UnpackArrayDType) || VN_IS(dtp, DynArrayDType)
-                                 || VN_IS(dtp, QueueDType) || VN_IS(dtp, AssocArrayDType)
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ hasUnsupportedMember
+                    = classp->existsMember([](ಸ್ಥಿರಾಂಕ AstClass*, ಸ್ಥಿರಾಂಕ AstVar* memberVarp) {
+                          ಆದರೆ (!memberVarp->rand().isRandomizable()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+                          ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtp = memberVarp->dtypep()->skipRefp();
+                          ಹಿಂತಿರುಗಿ VN_IS(dtp, UnpackArrayDType) || VN_IS(dtp, DynArrayDType)
+                                 || VN_IS(dtp, ಸರತಿ_DType) || VN_IS(dtp, AssocArrayDType)
                                  || VN_IS(dtp, WildcardArrayDType) || VN_IS(dtp, ClassRefDType);
                       });
-                if (hasUnsupportedMember) {
+                ಆದರೆ (hasUnsupportedMember) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: 'randomize(null)' on class with rand "
                                   "container or class member");
                 }
-                continue;
+                ಮುಂದುವರಿ;
             }
             classp->user1(IS_RANDOMIZED_INLINE);
-            AstVar* fromVarp = nullptr;  // If nodep is a method call, this is its receiver
-            if (AstMethodCall* methodCallp = VN_CAST(nodep, MethodCall)) {
-                if (AstMemberSel* const memberSelp = VN_CAST(methodCallp->fromp(), MemberSel)) {
+            AstVar* fromVarp = ಶೂನ್ಯಸೂಚಕ;  // If nodep is a method call, this is its receiver
+            ಆದರೆ (Ast_ವಿಧಾನ_Call* ವಿಧಾನ_Callp = VN_CAST(nodep, ವಿಧಾನ_Call)) {
+                ಆದರೆ (AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(ವಿಧಾನ_Callp->fromp(), MemberSel)) {
                     fromVarp = memberSelp->varp();
-                } else {
-                    AstVarRef* const varrefp = VN_AS(methodCallp->fromp(), VarRef);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_AS(ವಿಧಾನ_Callp->fromp(), VarRef);
                     fromVarp = varrefp->varp();
                 }
             }
-            handleRandomizeArgument(argp->exprp(), fromVarp, false);
+            handle_Randomize_ವಾದ(argp->exprp(), fromVarp, ಸುಳ್ಳು);
         }
         // Re-mark members after the class became inline-randomized above.
-        if (classp && classp->user1() == IS_RANDOMIZED_INLINE) markMembers(classp);
+        ಆದರೆ (classp && classp->user1() == IS_RANDOMIZED_INLINE) markMembers(classp);
     }
-    void visit(AstConstraintUnique* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConstraintUnique* nodep) override {
         VL_RESTORER(m_stmtp);
-        VL_RESTORER(m_constraintExprGenp);
+        VL_RESTORER(m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp);
         m_stmtp = nodep;
-        m_constraintExprGenp = nodep;
+        m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp = nodep;
         iterateChildren(nodep);
-        if (!nodep->backp()) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        ಆದರೆ (!nodep->backp()) VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstConstraintExpr* nodep) override {
-        VL_RESTORER(m_constraintExprGenp);
-        m_constraintExprGenp = nodep;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
+        VL_RESTORER(m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp);
+        m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstConstraintIf* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConstraintIf* nodep) override {
         {
-            VL_RESTORER(m_constraintExprGenp);
-            m_constraintExprGenp = nodep;
+            VL_RESTORER(m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp);
+            m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp = nodep;
             iterateConst(nodep->condp());
         }
-        iterateAndNextConstNull(nodep->thensp());
-        iterateAndNextConstNull(nodep->elsesp());
+        iterate_And_ಮುಂದಿನ_Const_Null(nodep->thensp());
+        iterate_And_ಮುಂದಿನ_Const_Null(nodep->elsesp());
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (!m_constraintExprGenp) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Var_Ref* nodep) override {
+        ಆದರೆ (!m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp) ಹಿಂತಿರುಗಿ;
 
-        if (nodep->varp()->lifetime().isStatic()) m_staticRefs.emplace(nodep);
+        ಆದರೆ (nodep->varp()->lifetime().isStatic()) m_staticRefs.emplace(nodep);
 
         // Mark as randomizable if: rand-declared, or listed in std::randomize() args
-        if (nodep->varp()->rand().isRandomizable() && !(m_inStdWith && m_stdRandCallp)) {
-            nodep->user1(true);
-        } else if (isVarInStdRandomizeArgs(nodep->varp())) {
-            nodep->user1(true);
+        ಆದರೆ (nodep->varp()->rand().isRandomizable() && !(m_ಒಳ_Std_With && m_stdRandCallp)) {
+            nodep->user1(ನಿಜ);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (is_Var_ಒಳ_Std_Randomize_ವಾದಗಳು(nodep->varp())) {
+            nodep->user1(ನಿಜ);
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (!m_constraintExprGenp) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstMemberSel* nodep) override {
+        ಆದರೆ (!m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp) ಹಿಂತಿರುಗಿ;
         iterateChildrenConst(nodep);
-        const bool randObject = nodep->fromp()->user1() || VN_IS(nodep->fromp(), LambdaArgRef);
-        const bool randMember = nodep->varp()->rand().isRandomizable();
-        const bool inStdWith = m_inStdWith && m_stdRandCallp;
-        if (randObject && randMember && !inStdWith) {
-            nodep->user1(true);
-        } else if (inStdWith && isVarInStdRandomizeArgs(nodep->varp())) {
-            nodep->user1(true);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ randObject = nodep->fromp()->user1() || VN_IS(nodep->fromp(), LambdaArgRef);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ randMember = nodep->varp()->rand().isRandomizable();
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಒಳ_Std_With = m_ಒಳ_Std_With && m_stdRandCallp;
+        ಆದರೆ (randObject && randMember && !ಒಳ_Std_With) {
+            nodep->user1(ನಿಜ);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಒಳ_Std_With && is_Var_ಒಳ_Std_Randomize_ವಾದಗಳು(nodep->varp())) {
+            nodep->user1(ನಿಜ);
             // Mark parent object for constraint expression visitor
-            if (VN_IS(nodep->fromp(), VarRef)) nodep->fromp()->user1(true);
+            ಆದರೆ (VN_IS(nodep->fromp(), VarRef)) nodep->fromp()->user1(ನಿಜ);
         }
 
-        if (m_withp) {
-            AstNode* backp = m_withp;
-            while (backp->backp()) {
-                if (const AstMethodCall* const callp = VN_CAST(backp, MethodCall)) {
+        ಆದರೆ (m_withp) {
+            Ast_ಗಂಟು* backp = m_withp;
+            ಆಗ (backp->backp()) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp = VN_CAST(backp, ವಿಧಾನ_Call)) {
                     AstClassRefDType* classdtype
                         = VN_AS(callp->fromp()->dtypep()->skipRefp(), ClassRefDType);
                     nodep->user2p(classdtype->classp());
-                    break;
+                    ನಿಲ್ಲಿಸು;
                 }
                 backp = backp->backp();
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             nodep->user2p(m_modp);
         }
     }
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask* nodep) override {
         nodep->user2p(m_modp);
         iterateChildrenConst(nodep);
     }
-    void visit(AstVar* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar* nodep) override {
         nodep->user2p(m_modp);
-        if (nodep->rand().isRandomizable()) {
+        ಆದರೆ (nodep->rand().isRandomizable()) {
             checkRandTypeEligibility(nodep, nodep->dtypep(), nodep->rand().isRandC());
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstWith* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstWith* nodep) override {
         VL_RESTORER(m_withp);
         m_withp = nodep;
-        if (m_stdRandCallp && nodep == m_stdRandCallp->withp()) m_inStdWith = true;
+        ಆದರೆ (m_stdRandCallp && nodep == m_stdRandCallp->withp()) m_ಒಳ_Std_With = ನಿಜ;
         iterateChildrenConst(nodep);
-        m_inStdWith = false;
+        m_ಒಳ_Std_With = ಸುಳ್ಳು;
     }
 
-    void visit(AstNodeExpr* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
         iterateChildrenConst(nodep);
-        if (!m_constraintExprGenp && !m_inStdWith) return;
+        ಆದರೆ (!m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp && !m_ಒಳ_Std_With) ಹಿಂತಿರುಗಿ;
         nodep->user1((nodep->op1p() && nodep->op1p()->user1())
                      || (nodep->op2p() && nodep->op2p()->user1())
                      || (nodep->op3p() && nodep->op3p()->user1())
                      || (nodep->op4p() && nodep->op4p()->user1()));
     }
-    void visit(AstArg* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstArg* nodep) override {
         iterateChildrenConst(nodep);
-        if (!m_constraintExprGenp && !m_inStdWith) return;
+        ಆದರೆ (!m_constraint_ಅಭಿವ್ಯಕ್ತಿ_Genp && !m_ಒಳ_Std_With) ಹಿಂತಿರುಗಿ;
         nodep->user1(nodep->exprp() && nodep->exprp()->user1());
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit RandomizeMarkVisitor(AstNode* nodep) {
+    ಸ್ಪಷ್ಟ RandomizeMarkVisitor(Ast_ಗಂಟು* nodep) {
         iterateConst(nodep);
         markAllDerived();
-        setPackageRefs();
+        ಗಣ_Package_Refs();
     }
-    ~RandomizeMarkVisitor() override = default;
+    ~RandomizeMarkVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //######################################################################
 // Visitor that turns constraints into template strings for solvers
 
-class ConstraintExprVisitor final : public VNVisitor {
+ವರ್ಗ Constraint_ಅಭಿವ್ಯಕ್ತಿ_Visitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // AstVar::user3() -> bool. Handled in constraints
     // AstNodeExpr::user1()    -> bool. Depending on a randomized variable
     // AstMemberSel::user2p()  -> AstNodeModule*. Pointer to containing module
     // VNuser3InUse m_inuser3; (Allocated for use in RandomizeVisitor)
 
-    AstClass* const m_classp;
-    AstNodeFTask* const m_inlineInitTaskp;  // Method to add write_var calls to
+    AstClass* ಸ್ಥಿರಾಂಕ m_classp;
+    Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ m_inlineInitTaskp;  // Method to add write_var calls to
                                             // (may be null, then new() is used)
-    AstNodeFTask* const m_memberselInitTaskp;  // Fallback for membersel write_var when
+    Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ m_memberselInitTaskp;  // Fallback for membersel write_var when
                                                // classp has no randomize() (inherited members)
-    AstVar* const m_genp;  // VlRandomizer variable of the class
-    AstVar* m_randModeVarp;  // Relevant randmode state variable
-    bool m_wantSingle = false;  // Whether to merge constraint expressions with LOGAND
+    AstVar* ಸ್ಥಿರಾಂಕ m_genp;  // VlRandomizer variable of the class
+    AstVar* m_rand_ಬಹುಲಕ_Varp;  // Relevant randmode state variable
+    ತಾರ್ಕಿಕ m_wantSingle = ಸುಳ್ಳು;  // Whether to merge constraint expressions with LOGAND
     VMemberMap& m_memberMap;  // Member names cached for fast lookup
-    bool m_structSel = false;  // Marks when inside structSel
+    ತಾರ್ಕಿಕ m_structSel = ಸುಳ್ಳು;  // Marks when inside structSel
                                // (used to format "%s.%s" for struct arrays and nested structs)
-    bool m_deferRandModeHoist = false;  // Wait for the complete struct member path
-    std::set<std::string>& m_writtenVars;  // Track which variable paths have write_var generated
+    ತಾರ್ಕಿಕ m_defer_Rand_ಬಹುಲಕ_Hoist = ಸುಳ್ಳು;  // Wait for the complete struct member path
+    std::ಗಣ<std::string>& m_writtenVars;  // Track which variable paths have write_var generated
                                            // (shared across all constraints)
-    std::set<std::string> m_inlineWrittenVars;  // Per-instance tracking for inline constraints
-    VInsertionSet<AstVar*>* m_sizeConstrainedArraysp = nullptr;  // Arrays with size constraints
-    AstNodeExpr* m_conditionp = nullptr;  // Condition under which current expression is defined
+    std::ಗಣ<std::string> m_inlineWrittenVars;  // Per-instance tracking for inline constraints
+    VInsertion_ಗಣ<AstVar*>* m_ಗಾತ್ರ_Constrained_Arraysp = ಶೂನ್ಯಸೂಚಕ;  // Arrays with size constraints
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* m_conditionp = ಶೂನ್ಯಸೂಚಕ;  // Condition under which current expression is defined
                                           // (nullptr == always defined)
-    AstNodeFTask* m_prepareConstrainedArraysp = nullptr;  // Grow arrays for indexed struct access
-    uint32_t* m_uniqueConstraintId = nullptr;  // Current ID of unique call
-    V3UniqueNames& m_uniqueNames;  // Unique names of temporaries, and of blocks holding them
-    std::vector<AstVar*> m_rangeConstrainedEnums;  // Enums that are already range-constrained
-    AstNode* m_firstExpressionInsideIndexp = nullptr;
-    AstConstraintForeach* m_foreachp = nullptr;  // Innermost constraint-foreach being processed
-    std::set<const AstVar*> m_foreachIdxVars;  // Index vars of all enclosing constraint-foreaches
+    Ast_ಗಂಟು_FTask* m_prepareConstrainedArraysp = ಶೂನ್ಯಸೂಚಕ;  // Grow arrays for indexed struct access
+    uint32_t* m_uniqueConstraintId = ಶೂನ್ಯಸೂಚಕ;  // Current ID of unique call
+    V3_Unique_ಹೆಸರುಗಳು& m_unique_ಹೆಸರುಗಳು;  // Unique names of temporaries, and of blocks holding them
+    std::ಸದಿಶ<AstVar*> m_rangeConstrainedEnums;  // Enums that are already range-constrained
+    Ast_ಗಂಟು* m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_Indexp = ಶೂನ್ಯಸೂಚಕ;
+    AstConstraintForeach* m_foreachp = ಶೂನ್ಯಸೂಚಕ;  // Innermost constraint-foreach being processed
+    std::ಗಣ<ಸ್ಥಿರಾಂಕ AstVar*> m_foreachIdxVars;  // Index vars of all enclosing constraint-foreaches
 
-    class NestedAccessPath final {
-        AstMemberSel* m_topNestedArrayMemberSelp
-            = nullptr;  // Top node of nested array/member access
-        AstSFormatF* m_nestedNameFormatTopp = nullptr;  // Top node of variable's name format
-        AstSFormatF* m_nestedNameFormatp = nullptr;  // Last node of variable's name format
-        AstNode** m_firstExpressionInsideIndexPointerp
-            = nullptr;  // First expression with no name, used for "Multiple expressions inside
+    ವರ್ಗ Nested_Access_ಮಾರ್ಗ final {
+        AstMemberSel* m_ತುದಿ_Nested_Array_Member_Selp
+            = ಶೂನ್ಯಸೂಚಕ;  // Top node of nested array/member access
+        AstSFormatF* m_nestedNameFormatTopp = ಶೂನ್ಯಸೂಚಕ;  // Top node of variable's name format
+        AstSFormatF* m_nestedNameFormatp = ಶೂನ್ಯಸೂಚಕ;  // Last node of variable's name format
+        Ast_ಗಂಟು** m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_ಸೂಚ್ಯಂಕ_Pointerp
+            = ಶೂನ್ಯಸೂಚಕ;  // First expression with no name, used for "Multiple expressions inside
                         // indices of complex expression in constraint" error
 
         std::string m_smtName;  // string name for shouldWriteVar checking
 
-    public:
-        void addVarNamePart(AstSFormatF* const nodep, std::string&& name) {
-            if (!m_nestedNameFormatp) {
+    ಸಾರ್ವಜನಿಕ:
+        ಶೂನ್ಯ ಕೂಡಿಸು_Var_Name_Part(AstSFormatF* ಸ್ಥಿರಾಂಕ nodep, std::string&& name) {
+            ಆದರೆ (!m_nestedNameFormatp) {
                 m_nestedNameFormatTopp = nodep;
                 m_nestedNameFormatp = m_nestedNameFormatTopp;
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 m_nestedNameFormatp->prependExprsp(nodep);
             }
             m_nestedNameFormatp = nodep;
 
-            m_smtName.insert(0, "." + name);
+            m_smtName.ಸೇರಿಸು(0, "." + name);
             // Some expressions have empty name which can cause some variables to have the same
             // name and only first one will be written
-            if (name == "") {
-                if (*m_firstExpressionInsideIndexPointerp) {
-                    (*m_firstExpressionInsideIndexPointerp)
+            ಆದರೆ (name == "") {
+                ಆದರೆ (*m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_ಸೂಚ್ಯಂಕ_Pointerp) {
+                    (*m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_ಸೂಚ್ಯಂಕ_Pointerp)
                         ->v3warn(
                             E_UNSUPPORTED,
                             "Unsupported: Multiple expressions inside indices of complex "
                             "expression in constraint\n"
-                                << (*m_firstExpressionInsideIndexPointerp)->warnContextPrimary()
+                                << (*m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_ಸೂಚ್ಯಂಕ_Pointerp)->warnContextPrimary()
                                 << nodep->warnOther() << "... Location of second expression\n"
                                 << nodep->warnContextSecondary());
                 }
-                *m_firstExpressionInsideIndexPointerp = nodep;
+                *m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_ಸೂಚ್ಯಂಕ_Pointerp = nodep;
             }
         }
 
-        AstMemberSel* accessTree() { return m_topNestedArrayMemberSelp; }
-        const std::string& smtName() { return m_smtName; }
+        AstMemberSel* access_ವೃಕ್ಷ() { ಹಿಂತಿರುಗಿ m_ತುದಿ_Nested_Array_Member_Selp; }
+        ಸ್ಥಿರಾಂಕ std::string& smtName() { ಹಿಂತಿರುಗಿ m_smtName; }
 
-        AstStmtExpr* makeWriteVarStmt(AstVar* varp, AstVar* genp) {
-            AstCMethodHard* const methodp = new AstCMethodHard{
+        Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* makeWriteVarStmt(AstVar* varp, AstVar* genp) {
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = ಹೊಸ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(genp->user2p(), NodeModule), genp,
+                ಹೊಸ AstVarRef{varp->fileline(), VN_AS(genp->user2p(), ಗಂಟು_Module), genp,
                               VAccess::READWRITE},
                 VCMethod::RANDOMIZER_WRITE_VAR};
-            methodp->dtypeSetVoid();
+            methodp->dtype_ಗಣ_Void();
 
-            methodp->addPinsp(m_topNestedArrayMemberSelp);  // Variable
+            methodp->ಕೂಡಿಸು_Pinsp(m_ತುದಿ_Nested_Array_Member_Selp);  // Variable
 
-            const AstNodeDType* const dtypep = varp->dtypep();  // Width
-            const size_t width = m_topNestedArrayMemberSelp->varp()->dtypep()->width();
-            methodp->addPinsp(new AstConst{dtypep->fileline(), AstConst::Unsized64{}, width});
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = varp->dtypep();  //ಅಗಲ
+            ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಅಗಲ = m_ತುದಿ_Nested_Array_Member_Selp->varp()->dtypep()->ಅಗಲ();
+            methodp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{dtypep->fileline(), AstConst::Unsized64{}, ಅಗಲ});
 
-            methodp->addPinsp(m_nestedNameFormatTopp);  // Solver name
-            m_nestedNameFormatp = nullptr;
+            methodp->ಕೂಡಿಸು_Pinsp(m_nestedNameFormatTopp);  // Solver name
+            m_nestedNameFormatp = ಶೂನ್ಯಸೂಚಕ;
 
-            methodp->addPinsp(
-                new AstConst{dtypep->fileline(), AstConst::Unsized64{}, 0});  // Dimension
+            methodp->ಕೂಡಿಸು_Pinsp(
+                ಹೊಸ AstConst{dtypep->fileline(), AstConst::Unsized64{}, 0});  // Dimension
 
-            m_topNestedArrayMemberSelp = nullptr;
-            return methodp->makeStmt();
+            m_ತುದಿ_Nested_Array_Member_Selp = ಶೂನ್ಯಸೂಚಕ;
+            ಹಿಂತಿರುಗಿ methodp->makeStmt();
         }
 
-        AstNodeExpr* cloneName() { return m_nestedNameFormatTopp->cloneTree(false); }
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* cloneName() { ಹಿಂತಿರುಗಿ m_nestedNameFormatTopp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು); }
 
-        void error() {
-            VL_DO_DANGLING(m_topNestedArrayMemberSelp->deleteTree(), m_topNestedArrayMemberSelp);
+        ಶೂನ್ಯ error() {
+            VL_DO_DANGLING(m_ತುದಿ_Nested_Array_Member_Selp->delete_ವೃಕ್ಷ(), m_ತುದಿ_Nested_Array_Member_Selp);
         }
 
-        NestedAccessPath(AstMemberSel* topMemberSelp, AstNode** pointerToFirstExprp)
-            : m_topNestedArrayMemberSelp{topMemberSelp}
-            , m_firstExpressionInsideIndexPointerp{pointerToFirstExprp} {}
-        ~NestedAccessPath() {
-            if (m_nestedNameFormatp) {
-                VL_DO_CLEAR(m_nestedNameFormatTopp->deleteTree(),
-                            m_nestedNameFormatTopp = nullptr);
-                m_nestedNameFormatp = nullptr;
+        Nested_Access_ಮಾರ್ಗ(AstMemberSel* ತುದಿ_Member_Selp, Ast_ಗಂಟು** ಸೂಚಕ_ಗಮ್ಯ_ಮೊದಲ_Exprp)
+            : m_ತುದಿ_Nested_Array_Member_Selp{ತುದಿ_Member_Selp}
+            , m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_ಸೂಚ್ಯಂಕ_Pointerp{ಸೂಚಕ_ಗಮ್ಯ_ಮೊದಲ_Exprp} {}
+        ~Nested_Access_ಮಾರ್ಗ() {
+            ಆದರೆ (m_nestedNameFormatp) {
+                VL_DO_CLEAR(m_nestedNameFormatTopp->delete_ವೃಕ್ಷ(),
+                            m_nestedNameFormatTopp = ಶೂನ್ಯಸೂಚಕ);
+                m_nestedNameFormatp = ಶೂನ್ಯಸೂಚಕ;
             }
         }
     };
-    NestedAccessPath* m_nestedAccess = nullptr;  // Indicates state of nested access
+    Nested_Access_ಮಾರ್ಗ* m_nestedAccess = ಶೂನ್ಯಸೂಚಕ;  // Indicates state of nested access
 
     // Emit enum range hard constraint for a single variable
-    AstNodeExpr* createEnumConstraint(FileLine* const fl, const std::string& smtName,
-                                      AstEnumDType* const enumDtp, AstVar* const genVarp) {
-        AstNodeModule* const genModp = VN_AS(genVarp->user2p(), NodeModule);
-        const int width = enumDtp->width();
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* createEnumConstraint(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, ಸ್ಥಿರಾಂಕ std::string& smtName,
+                                      AstEnumDType* ಸ್ಥಿರಾಂಕ enumDtp, AstVar* ಸ್ಥಿರಾಂಕ genVarp) {
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ genModp = VN_AS(genVarp->user2p(), ಗಂಟು_Module);
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = enumDtp->ಅಗಲ();
         std::string constraint = "(__Vbv (or";
-        for (AstEnumItem* itemp = enumDtp->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            const AstConst* const vconstp = VN_AS(itemp->valuep(), Const);
-            constraint += " (= " + smtName + " (_ bv" + cvtToStr(vconstp->toUInt()) + " "
-                          + cvtToStr(width) + "))";
+        ಗಾಗಿ (Ast_Enum_ಅಂಶ* itemp = enumDtp->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Enum_ಅಂಶ)) {
+            ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ vconstp = VN_AS(itemp->valuep(), Const);
+            constraint += " (= " + smtName + " (_ bv" + cvt_ಗಮ್ಯ_Str(vconstp->ಗಮ್ಯ_UInt()) + " "
+                          + cvt_ಗಮ್ಯ_Str(ಅಗಲ) + "))";
         }
         constraint += "))";
-        AstCMethodHard* const callp = new AstCMethodHard{
-            fl, new AstVarRef{fl, genModp, genVarp, VAccess::READWRITE}, VCMethod::RANDOMIZER_HARD,
-            new AstCExpr{fl, AstCExpr::Pure{}, "\"" + constraint + "\""}};
-        callp->dtypeSetVoid();
-        return callp;
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCMethodHard{
+            fl, ಹೊಸ AstVarRef{fl, genModp, genVarp, VAccess::READWRITE}, VCMethod::RANDOMIZER_HARD,
+            ಹೊಸ AstCExpr{fl, AstCExpr::ಶುದ್ಧ{}, "\"" + constraint + "\""}};
+        callp->dtype_ಗಣ_Void();
+        ಹಿಂತಿರುಗಿ callp;
     };
 
     // Routes nested sub-objects with static rand vars when the outer class has none.
-    AstVar* findStaticRandModeVarMember(AstClass* classp) const {
-        while (true) {
-            if (AstVar* const varp
-                = VN_CAST(m_memberMap.findMember(classp, "__Vstaticrandmode"), Var)) {
-                return varp;
+    AstVar* ಕಂಡುಹಿಡಿ_Static_Rand_ಬಹುಲಕ_Var_Member(AstClass* classp) ಸ್ಥಿರಾಂಕ {
+        ಆಗ (ನಿಜ) {
+            ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ varp
+                = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, "__Vstaticrandmode"), Var)) {
+                ಹಿಂತಿರುಗಿ varp;
             }
-            AstClassExtends* const extendsp = classp->extendsp();
-            if (!extendsp) return nullptr;
+            AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp();
+            ಆದರೆ (!extendsp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
             classp = extendsp->classp();
         }
     }
 
     // Mark the one directly-referenced member; it must reach the solver even when it
     // carries no rand qualifier (the constraint refers to it).
-    void markConstrainedRandMember(AstStructDType* const structp, const std::string& name) {
-        AstMemberDType* const memberp
-            = VN_CAST(m_memberMap.findMember(structp, name), MemberDType);
+    ಶೂನ್ಯ markConstrainedRandMember(AstStructDType* ಸ್ಥಿರಾಂಕ structp, ಸ್ಥಿರಾಂಕ std::string& name) {
+        AstMemberDType* ಸ್ಥಿರಾಂಕ memberp
+            = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(structp, name), MemberDType);
         UASSERT_OBJ(memberp, structp, "Constraint references unknown struct member " << name);
-        memberp->markConstrainedRand(true);
+        memberp->markConstrainedRand(ನಿಜ);
     }
 
     // True when the aggregate is reached through rand-qualified struct members only
-    bool isRandQualifiedPath(const AstNodeExpr* nodep) {
-        while (nodep) {
-            if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
-                if (AstStructDType* const structp
+    ತಾರ್ಕಿಕ is_Rand_Qualified_ಮಾರ್ಗ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಆಗ (nodep) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, StructSel)) {
+                ಆದರೆ (AstStructDType* ಸ್ಥಿರಾಂಕ structp
                     = VN_CAST(selp->fromp()->dtypep()->skipRefp(), StructDType)) {
-                    const AstMemberDType* const memberp
-                        = VN_CAST(m_memberMap.findMember(structp, selp->name()), MemberDType);
-                    if (memberp && !memberp->rand().isRandomizable()) return false;
+                    ಸ್ಥಿರಾಂಕ AstMemberDType* ಸ್ಥಿರಾಂಕ memberp
+                        = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(structp, selp->name()), MemberDType);
+                    ಆದರೆ (memberp && !memberp->rand().isRandomizable()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 }
                 nodep = selp->fromp();
-            } else if (const AstArraySel* const selp = VN_CAST(nodep, ArraySel)) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstArraySel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, ArraySel)) {
                 nodep = selp->fromp();
-            } else if (const AstCMethodHard* const methodp = VN_CAST(nodep, CMethodHard)) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = VN_CAST(nodep, CMethodHard)) {
                 nodep = methodp->fromp();
-            } else {
-                break;
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ನಿಲ್ಲಿಸು;
             }
         }
-        return true;
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
 
     // IEEE 1800-2023 18.4: all rand members of a rand unpacked struct are solved
     // concurrently, so unreferenced rand members must still reach the solver.
-    static void markStructConstrainedRandRecurse(AstNodeDType* const dtypep) {
-        AstStructDType* const structp = VN_CAST(arrayElementDTypep(dtypep), StructDType);
-        if (!structp || structp->packed()) return;
-        structp->markConstrainedRand(true);
-        for (AstMemberDType* memberp = structp->membersp(); memberp;
+    ಸ್ಥಿರ ಶೂನ್ಯ markStructConstrainedRandRecurse(Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep) {
+        AstStructDType* ಸ್ಥಿರಾಂಕ structp = VN_CAST(arrayElementDTypep(dtypep), StructDType);
+        ಆದರೆ (!structp || structp->packed()) ಹಿಂತಿರುಗಿ;
+        structp->markConstrainedRand(ನಿಜ);
+        ಗಾಗಿ (AstMemberDType* memberp = structp->membersp(); memberp;
              memberp = VN_AS(memberp->nextp(), MemberDType)) {
             // Non-rand members keep their value. TODO: randc members are solved as
             // plain rand (uniform); per-member cyclic state is not generated for structs.
-            if (!memberp->rand().isRandomizable()) continue;
-            memberp->markConstrainedRand(true);
+            ಆದರೆ (!memberp->rand().isRandomizable()) ಮುಂದುವರಿ;
+            memberp->markConstrainedRand(ನಿಜ);
             markStructConstrainedRandRecurse(memberp->subDTypep());
         }
     }
 
     // Build full path for a MemberSel chain (e.g., "obj.l2.l3.l4")
-    std::string buildMemberPath(const AstMemberSel* const memberSelp) {
-        const AstNode* fromp = memberSelp->fromp();
-        if (const AstVarRef* const refp = VN_CAST(fromp, VarRef)) {
+    std::string build_Member_ಮಾರ್ಗ(ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp) {
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* fromp = memberSelp->fromp();
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(fromp, VarRef)) {
             // Base case: reached root VarRef
-            return refp->name() + "." + memberSelp->name();
-        } else if (const AstMemberSel* const selp = VN_CAST(fromp, MemberSel)) {
+            ಹಿಂತಿರುಗಿ refp->name() + "." + memberSelp->name();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(fromp, MemberSel)) {
             // Recursive case: build path from outer levels
-            return buildMemberPath(selp) + "." + memberSelp->name();
+            ಹಿಂತಿರುಗಿ build_Member_ಮಾರ್ಗ(selp) + "." + memberSelp->name();
         }
         memberSelp->v3fatalSrc("Unexpected node type in MemberSel chain");
-        return "";
+        ಹಿಂತಿರುಗಿ "";
     }
 
-    static AstNodeExpr* getFromp(const AstNodeExpr* const nodep) {
-        if (const AstCMethodHard* const cmethp = VN_CAST(nodep, CMethodHard)) {
-            return cmethp->fromp();
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getFromp(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nodep) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstCMethodHard* ಸ್ಥಿರಾಂಕ cmethp = VN_CAST(nodep, CMethodHard)) {
+            ಹಿಂತಿರುಗಿ cmethp->fromp();
         }
-        return getSelFromp(nodep);
+        ಹಿಂತಿರುಗಿ getSelFromp(nodep);
     }
 
-    static std::string extractSolveBeforeBaseName(const AstNodeExpr* exprp) {
-        while (const AstNodeExpr* const fromp = getFromp(exprp)) exprp = fromp;
-        if (const AstVarRef* const vrefp = VN_CAST(exprp, VarRef)) return vrefp->name();
-        return "";
+    ಸ್ಥಿರ std::string ಹೊರತೆಗೆ_Solve_Before_ತಳ_Name(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಆಗ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = getFromp(exprp)) exprp = fromp;
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ vrefp = VN_CAST(exprp, VarRef)) ಹಿಂತಿರುಗಿ vrefp->name();
+        ಹಿಂತಿರುಗಿ "";
     }
 
-    static void buildNamePrefix(AstCExpr* exprp, const AstNodeExpr* const nodep) {
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            exprp->add("(\""s + refp->name());
-            return;
+    ಸ್ಥಿರ ಶೂನ್ಯ build_Name_ಪೂರ್ವಪ್ರತ್ಯಯ(AstCExpr* exprp, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nodep) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(nodep, VarRef)) {
+            exprp->ಕೂಡಿಸು("(\""s + refp->name());
+            ಹಿಂತಿರುಗಿ;
         }
 
-        const AstNodeExpr* const fromp = getFromp(nodep);
-        if (fromp) buildNamePrefix(exprp, fromp);
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = getFromp(nodep);
+        ಆದರೆ (fromp) build_Name_ಪೂರ್ವಪ್ರತ್ಯಯ(exprp, fromp);
 
-        if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
-            exprp->add("." + selp->name());
-        } else if (VN_IS(nodep, MemberSel)) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, StructSel)) {
+            exprp->ಕೂಡಿಸು("." + selp->name());
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(nodep, MemberSel)) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Nested array element access in global constraint");
-            return;
-        } else if (const AstCMethodHard* const cmethp = VN_CAST(nodep, CMethodHard)) {
-            if (cmethp->method() == VCMethod::ARRAY_AT) {
-                AstNodeExpr* const argp = cmethp->pinsp();
-                exprp->add(".\" + ");
-                AstCFuncHard* const solverHexFuncp
-                    = new AstCFuncHard{nodep->fileline(), VCFunction::RANDOMIZER_TO_SOLVER_HEX};
-                solverHexFuncp->addPinsp(argp->cloneTreePure(false));
-                solverHexFuncp->dtypeSetString();
-                exprp->add(solverHexFuncp);
-                exprp->add(" + \"");
-            } else {
+            ಹಿಂತಿರುಗಿ;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstCMethodHard* ಸ್ಥಿರಾಂಕ cmethp = VN_CAST(nodep, CMethodHard)) {
+            ಆದರೆ (cmethp->ವಿಧಾನ() == VCMethod::ARRAY_AT) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = cmethp->pinsp();
+                exprp->ಕೂಡಿಸು(".\" + ");
+                AstCFuncHard* ಸ್ಥಿರಾಂಕ solverHexFuncp
+                    = ಹೊಸ AstCFuncHard{nodep->fileline(), VCFunction::RANDOMIZER_ಗಮ್ಯ_SOLVER_HEX};
+                solverHexFuncp->ಕೂಡಿಸು_Pinsp(argp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು));
+                solverHexFuncp->dtype_ಗಣ_String();
+                exprp->ಕೂಡಿಸು(solverHexFuncp);
+                exprp->ಕೂಡಿಸು(" + \"");
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 cmethp->v3fatalSrc("Unexpected CMethodHard: " << cmethp->prettyTypeName());
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
         }
     }
@@ -1163,2394 +1163,2394 @@ class ConstraintExprVisitor final : public VNVisitor {
     // Build a C++ expression (as AstNodeExpr) that evaluates to a const char*
     // containing the SMT variable name for a solve-before variable reference.
     // Handles simple vars, struct selects, and array element selects (for foreach).
-    static AstCExpr* buildPathExpr(FileLine* const fl, const AstNodeExpr* nodep,
-                                   const std::string selName) {
-        AstCExpr* const exprp = new AstCExpr{fl, ""};
-        buildNamePrefix(exprp, nodep);
-        if (selName != "") {
-            exprp->add(".");
-            exprp->add(selName);
+    ಸ್ಥಿರ AstCExpr* build_ಮಾರ್ಗ_ಅಭಿವ್ಯಕ್ತಿ(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep,
+                                   ಸ್ಥಿರಾಂಕ std::string selName) {
+        AstCExpr* ಸ್ಥಿರಾಂಕ exprp = ಹೊಸ AstCExpr{fl, ""};
+        build_Name_ಪೂರ್ವಪ್ರತ್ಯಯ(exprp, nodep);
+        ಆದರೆ (selName != "") {
+            exprp->ಕೂಡಿಸು(".");
+            exprp->ಕೂಡಿಸು(selName);
         }
-        exprp->add("\")");
-        return exprp;
+        exprp->ಕೂಡಿಸು("\")");
+        ಹಿಂತಿರುಗಿ exprp;
     }
     // Build a C++ expression (as AstNodeExpr) that evaluates to a const char*
     // containing the SMT variable name for a solve-before variable reference.
     // Handles simple vars, member selects, and array element selects (for foreach).
     // Returns nullptr for unsupported expression types.
     // Helper: build a dynamic AstCExpr for "baseName[idx]" pattern
-    AstCExpr* buildArraySelNameExpr(FileLine* fl, const std::string& baseName,
-                                    const AstNodeSel* selp) {
-        AstCExpr* const p = new AstCExpr{fl, ""};
-        p->add("(\""s + baseName + ".\"");
-        p->add("+");
-        AstCFuncHard* const solverHexFuncp
-            = new AstCFuncHard{fl, VCFunction::RANDOMIZER_TO_SOLVER_HEX};
-        solverHexFuncp->addPinsp(selp->bitp()->cloneTreePure(false));
-        solverHexFuncp->dtypeSetString();
-        p->add(solverHexFuncp);
-        p->add(")");
-        p->dtypeSetString();
-        return p;
+    AstCExpr* build_Array_Sel_Name_ಅಭಿವ್ಯಕ್ತಿ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ std::string& ತಳ_Name,
+                                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Sel* selp) {
+        AstCExpr* ಸ್ಥಿರಾಂಕ p = ಹೊಸ AstCExpr{fl, ""};
+        p->ಕೂಡಿಸು("(\""s + ತಳ_Name + ".\"");
+        p->ಕೂಡಿಸು("+");
+        AstCFuncHard* ಸ್ಥಿರಾಂಕ solverHexFuncp
+            = ಹೊಸ AstCFuncHard{fl, VCFunction::RANDOMIZER_ಗಮ್ಯ_SOLVER_HEX};
+        solverHexFuncp->ಕೂಡಿಸು_Pinsp(selp->bitp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು));
+        solverHexFuncp->dtype_ಗಣ_String();
+        p->ಕೂಡಿಸು(solverHexFuncp);
+        p->ಕೂಡಿಸು(")");
+        p->dtype_ಗಣ_String();
+        ಹಿಂತಿರುಗಿ p;
     }
 
     // Helper: get fromp from MemberSel or StructSel
-    static AstNodeExpr* getSelFromp(const AstNodeExpr* exprp) {
-        if (const AstMemberSel* const mp = VN_CAST(exprp, MemberSel)) return mp->fromp();
-        if (const AstStructSel* const sp = VN_CAST(exprp, StructSel)) return sp->fromp();
-        return nullptr;
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getSelFromp(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mp = VN_CAST(exprp, MemberSel)) ಹಿಂತಿರುಗಿ mp->fromp();
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ sp = VN_CAST(exprp, StructSel)) ಹಿಂತಿರುಗಿ sp->fromp();
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
 
-    AstNodeExpr* buildSolveBeforeNameExpr(FileLine* fl, AstNodeExpr* exprp) {
-        if (const AstVarRef* const varrefp = VN_CAST(exprp, VarRef)) {
-            AstCExpr* const p = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + varrefp->name() + "\"s"};
-            p->dtypeSetString();
-            return p;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* build_Solve_Before_Name_ಅಭಿವ್ಯಕ್ತಿ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(exprp, VarRef)) {
+            AstCExpr* ಸ್ಥಿರಾಂಕ p = ಹೊಸ AstCExpr{fl, AstCExpr::ಶುದ್ಧ{}, "\"" + varrefp->name() + "\"s"};
+            p->dtype_ಗಣ_String();
+            ಹಿಂತಿರುಗಿ p;
         }
         // Handle MemberSel or StructSel (V3Width converts MemberSel -> StructSel for structs)
-        if (AstNodeExpr* const selFromp = getSelFromp(exprp)) {
-            const std::string selName = exprp->name();
+        ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ selFromp = getSelFromp(exprp)) {
+            ಸ್ಥಿರಾಂಕ std::string selName = exprp->name();
             // Check if fromp chain contains ArraySel (e.g., cfg[i].w)
-            if (const AstArraySel* const arrSelp = VN_CAST(selFromp, ArraySel)) {
-                std::string baseName;
-                if (const AstVarRef* const vp = VN_CAST(arrSelp->fromp(), VarRef)) {
-                    baseName = vp->name();
-                } else if (const AstMemberSel* const mp = VN_CAST(arrSelp->fromp(), MemberSel)) {
-                    baseName = buildMemberPath(mp);
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstArraySel* ಸ್ಥಿರಾಂಕ arrSelp = VN_CAST(selFromp, ArraySel)) {
+                std::string ತಳ_Name;
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ vp = VN_CAST(arrSelp->fromp(), VarRef)) {
+                    ತಳ_Name = vp->name();
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mp = VN_CAST(arrSelp->fromp(), MemberSel)) {
+                    ತಳ_Name = build_Member_ಮಾರ್ಗ(mp);
                 }
-                if (baseName.empty()) return nullptr;
-                AstCExpr* const p = new AstCExpr{fl, ""};
-                p->add("(\""s + baseName + ".\"");
-                p->add("+");
-                AstCFuncHard* const solverHexFuncp
-                    = new AstCFuncHard{fl, VCFunction::RANDOMIZER_TO_SOLVER_HEX};
-                solverHexFuncp->addPinsp(arrSelp->bitp()->cloneTreePure(false));
-                solverHexFuncp->dtypeSetString();
-                p->add(solverHexFuncp);
-                p->add(")");
-                p->dtypeSetString();
-                return p;
+                ಆದರೆ (ತಳ_Name.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+                AstCExpr* ಸ್ಥಿರಾಂಕ p = ಹೊಸ AstCExpr{fl, ""};
+                p->ಕೂಡಿಸು("(\""s + ತಳ_Name + ".\"");
+                p->ಕೂಡಿಸು("+");
+                AstCFuncHard* ಸ್ಥಿರಾಂಕ solverHexFuncp
+                    = ಹೊಸ AstCFuncHard{fl, VCFunction::RANDOMIZER_ಗಮ್ಯ_SOLVER_HEX};
+                solverHexFuncp->ಕೂಡಿಸು_Pinsp(arrSelp->bitp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು));
+                solverHexFuncp->dtype_ಗಣ_String();
+                p->ಕೂಡಿಸು(solverHexFuncp);
+                p->ಕೂಡಿಸು(")");
+                p->dtype_ಗಣ_String();
+                ಹಿಂತಿರುಗಿ p;
             }
             // Static member path (obj.field)
-            if (const AstVarRef* const vp = VN_CAST(selFromp, VarRef)) {
-                const std::string path = vp->name() + "." + selName;
-                AstCExpr* const p = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + path + "\"s"};
-                p->dtypeSetString();
-                return p;
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ vp = VN_CAST(selFromp, VarRef)) {
+                ಸ್ಥಿರಾಂಕ std::string ಮಾರ್ಗ = vp->name() + "." + selName;
+                AstCExpr* ಸ್ಥಿರಾಂಕ p = ಹೊಸ AstCExpr{fl, AstCExpr::ಶುದ್ಧ{}, "\"" + ಮಾರ್ಗ + "\"s"};
+                p->dtype_ಗಣ_String();
+                ಹಿಂತಿರುಗಿ p;
             }
-            if (VN_IS(selFromp, MemberSel) || VN_IS(selFromp, StructSel)
+            ಆದರೆ (VN_IS(selFromp, MemberSel) || VN_IS(selFromp, StructSel)
                 || VN_IS(selFromp, CMethodHard)) {
-                AstCExpr* const p = buildPathExpr(fl, selFromp, selName);
-                p->dtypeSetString();
-                return p;
+                AstCExpr* ಸ್ಥಿರಾಂಕ p = build_ಮಾರ್ಗ_ಅಭಿವ್ಯಕ್ತಿ(fl, selFromp, selName);
+                p->dtype_ಗಣ_String();
+                ಹಿಂತಿರುಗಿ p;
             }
-            return nullptr;
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         }
-        if (VN_IS(exprp, CMethodHard)) {
-            AstCExpr* const p = buildPathExpr(fl, exprp, "");
-            p->dtypeSetString();
-            return p;
+        ಆದರೆ (VN_IS(exprp, CMethodHard)) {
+            AstCExpr* ಸ್ಥಿರಾಂಕ p = build_ಮಾರ್ಗ_ಅಭಿವ್ಯಕ್ತಿ(fl, exprp, "");
+            p->dtype_ಗಣ_String();
+            ಹಿಂತಿರುಗಿ p;
         }
-        const AstNodeSel* selp = VN_CAST(exprp, ArraySel);
-        if (!selp) selp = VN_CAST(exprp, AssocSel);
-        if (selp) {
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Sel* selp = VN_CAST(exprp, ArraySel);
+        ಆದರೆ (!selp) selp = VN_CAST(exprp, AssocSel);
+        ಆದರೆ (selp) {
             // arr[i] -> dynamic name
-            std::string baseName;
-            if (const AstVarRef* const vp = VN_CAST(selp->fromp(), VarRef)) {
-                baseName = vp->name();
-            } else if (const AstMemberSel* const mp = VN_CAST(selp->fromp(), MemberSel)) {
-                baseName = buildMemberPath(mp);
+            std::string ತಳ_Name;
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ vp = VN_CAST(selp->fromp(), VarRef)) {
+                ತಳ_Name = vp->name();
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mp = VN_CAST(selp->fromp(), MemberSel)) {
+                ತಳ_Name = build_Member_ಮಾರ್ಗ(mp);
             }
-            if (baseName.empty()) return nullptr;
-            return buildArraySelNameExpr(fl, baseName, selp);
+            ಆದರೆ (ತಳ_Name.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+            ಹಿಂತಿರುಗಿ build_Array_Sel_Name_ಅಭಿವ್ಯಕ್ತಿ(fl, ತಳ_Name, selp);
         }
         // Packed struct member: SEL(ARRAYSEL(...)) -- bit select on array element.
         // Solver registers the whole element, so promote to array element level.
-        if (const AstSel* const bitSelp = VN_CAST(exprp, Sel)) {
-            return buildSolveBeforeNameExpr(fl, bitSelp->fromp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstSel* ಸ್ಥಿರಾಂಕ ಬಿಟ್_Selp = VN_CAST(exprp, Sel)) {
+            ಹಿಂತಿರುಗಿ build_Solve_Before_Name_ಅಭಿವ್ಯಕ್ತಿ(fl, ಬಿಟ್_Selp->fromp());
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
 
-    AstSFormatF* getConstFormat(AstNodeExpr* nodep) {
-        return new AstSFormatF{nodep->fileline(), (nodep->width() & 3) ? "#b%b" : "#x%x", false,
+    AstSFormatF* getConstFormat(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstSFormatF{nodep->fileline(), (nodep->ಅಗಲ() & 3) ? "#b%b" : "#x%x", ಸುಳ್ಳು,
                                nodep};
     }
-    bool editFormat(AstNodeExpr* nodep) {
-        if (nodep->user1()) return false;
+    ತಾರ್ಕಿಕ editFormat(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಆದರೆ (nodep->user1()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // Replace computable expression with SMT constant
         VNRelinker handle;
-        nodep->unlinkFrBack(&handle);
+        nodep->unlink_Fr_ಹಿಂಭಾಗ(&handle);
         handle.relink(getConstFormat(nodep));
-        return true;
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
-    AstNodeExpr* wrapWithCond(AstNodeExpr* const exprp, AstNodeExpr* const condp,
-                              const int width) {
-        if (condp) {
-            FileLine* const flp = exprp->fileline();
-            return new AstCond{
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* wrapWithCond(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp,
+                              ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ) {
+        ಆದರೆ (condp) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = exprp->fileline();
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstCond{
                 flp, condp, exprp,
-                getConstFormat(new AstConst{flp, AstConst::WidthedValue{}, width, 0})};
+                getConstFormat(ಹೊಸ AstConst{flp, AstConst::Widthed_ಮೌಲ್ಯ{}, ಅಗಲ, 0})};
         }
-        return exprp;
+        ಹಿಂತಿರುಗಿ exprp;
     }
-    AstSFormatF* editSMT(AstNodeExpr* nodep, AstNodeExpr* lhsp = nullptr,
-                         AstNodeExpr* rhsp = nullptr, AstNodeExpr* thsp = nullptr) {
+    AstSFormatF* editSMT(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp = ಶೂನ್ಯಸೂಚಕ,
+                         Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp = ಶೂನ್ಯಸೂಚಕ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp = ಶೂನ್ಯಸೂಚಕ) {
         // Replace incomputable (result-dependent) expression with SMT expression
-        std::string smtExpr = nodep->emitSMT();  // Might need child width (AstExtend)
-        if (smtExpr == "") {
+        std::string smt_ಅಭಿವ್ಯಕ್ತಿ = nodep->emitSMT();  // Might need child width (AstExtend)
+        ಆದರೆ (smt_ಅಭಿವ್ಯಕ್ತಿ == "") {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported expression inside constraint");
-            return nullptr;
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         }
 
-        const int lhsWidth = lhsp ? lhsp->width() : 0;
-        const int rhsWidth = rhsp ? rhsp->width() : 0;
-        const int thsWidth = thsp ? thsp->width() : 0;
-        AstNodeExpr* lhsCondp = nullptr;
-        AstNodeExpr* rhsCondp = nullptr;
-        AstNodeExpr* thsCondp = nullptr;
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lhs_ಅಗಲ = lhsp ? lhsp->ಅಗಲ() : 0;
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ rhs_ಅಗಲ = rhsp ? rhsp->ಅಗಲ() : 0;
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ths_ಅಗಲ = thsp ? thsp->ಅಗಲ() : 0;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsCondp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsCondp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsCondp = ಶೂನ್ಯಸೂಚಕ;
 
-        if (lhsp) {
+        ಆದರೆ (lhsp) {
             VL_RESTORER(m_conditionp);
-            m_conditionp = nullptr;
-            lhsp = VN_AS(iterateSubtreeReturnEdits(lhsp->backp() ? lhsp->unlinkFrBack() : lhsp),
-                         NodeExpr);
+            m_conditionp = ಶೂನ್ಯಸೂಚಕ;
+            lhsp = VN_AS(iterateSubtreeReturnEdits(lhsp->backp() ? lhsp->unlink_Fr_ಹಿಂಭಾಗ() : lhsp),
+                         ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
             lhsCondp = m_conditionp;
         }
-        if (rhsp) {
+        ಆದರೆ (rhsp) {
             VL_RESTORER(m_conditionp);
-            m_conditionp = nullptr;
-            rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp->backp() ? rhsp->unlinkFrBack() : rhsp),
-                         NodeExpr);
+            m_conditionp = ಶೂನ್ಯಸೂಚಕ;
+            rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp->backp() ? rhsp->unlink_Fr_ಹಿಂಭಾಗ() : rhsp),
+                         ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
             rhsCondp = m_conditionp;
         }
-        if (thsp) {
+        ಆದರೆ (thsp) {
             VL_RESTORER(m_conditionp);
-            m_conditionp = nullptr;
-            thsp = VN_AS(iterateSubtreeReturnEdits(thsp->backp() ? thsp->unlinkFrBack() : thsp),
-                         NodeExpr);
+            m_conditionp = ಶೂನ್ಯಸೂಚಕ;
+            thsp = VN_AS(iterateSubtreeReturnEdits(thsp->backp() ? thsp->unlink_Fr_ಹಿಂಭಾಗ() : thsp),
+                         ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
             thsCondp = m_conditionp;
         }
 
-        AstNodeExpr* argsp = nullptr;
-        for (string::iterator pos = smtExpr.begin(); pos != smtExpr.end(); ++pos) {
-            if (pos[0] == '%') {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (string::iterator pos = smt_ಅಭಿವ್ಯಕ್ತಿ.begin(); pos != smt_ಅಭಿವ್ಯಕ್ತಿ.ಕೊನೆ(); ++pos) {
+            ಆದರೆ (pos[0] == '%') {
                 ++pos;
-                switch (pos[0]) {
-                case '%': break;
-                case 'l':
+                ಆಯ್ಕೆ (pos[0]) {
+                ಸ್ಥಿತಿ '%': ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ 'l':
                     pos[0] = 's';
                     UASSERT_OBJ(lhsp, nodep, "emitSMT() references undef node");
-                    argsp = AstNode::addNext(argsp, wrapWithCond(lhsp, lhsCondp, lhsWidth));
-                    lhsp = nullptr;
-                    break;
-                case 'r':
+                    argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(argsp, wrapWithCond(lhsp, lhsCondp, lhs_ಅಗಲ));
+                    lhsp = ಶೂನ್ಯಸೂಚಕ;
+                    ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ 'r':
                     pos[0] = 's';
                     UASSERT_OBJ(rhsp, nodep, "emitSMT() references undef node");
-                    argsp = AstNode::addNext(argsp, wrapWithCond(rhsp, rhsCondp, rhsWidth));
-                    rhsp = nullptr;
-                    break;
-                case 't':
+                    argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(argsp, wrapWithCond(rhsp, rhsCondp, rhs_ಅಗಲ));
+                    rhsp = ಶೂನ್ಯಸೂಚಕ;
+                    ನಿಲ್ಲಿಸು;
+                ಸ್ಥಿತಿ 't':
                     pos[0] = 's';
                     UASSERT_OBJ(thsp, nodep, "emitSMT() references undef node");
-                    argsp = AstNode::addNext(argsp, wrapWithCond(thsp, thsCondp, thsWidth));
-                    thsp = nullptr;
-                    break;
-                default: nodep->v3fatalSrc("Unknown emitSMT format code: %" << pos[0]); break;
+                    argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(argsp, wrapWithCond(thsp, thsCondp, ths_ಅಗಲ));
+                    thsp = ಶೂನ್ಯಸೂಚಕ;
+                    ನಿಲ್ಲಿಸು;
+                ಪೂರ್ವನಿಯೋಜಿತ: nodep->v3fatalSrc("Unknown emitSMT format code: %" << pos[0]); ನಿಲ್ಲಿಸು;
                 }
             }
         }
         UASSERT_OBJ(!lhsp, nodep, "Missing emitSMT %l for " << lhsp);
         UASSERT_OBJ(!rhsp, nodep, "Missing emitSMT %r for " << rhsp);
         UASSERT_OBJ(!thsp, nodep, "Missing emitSMT %t for " << thsp);
-        AstSFormatF* const newp = new AstSFormatF{nodep->fileline(), smtExpr, false, argsp};
+        AstSFormatF* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstSFormatF{nodep->fileline(), smt_ಅಭಿವ್ಯಕ್ತಿ, ಸುಳ್ಳು, argsp};
 
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return newp;
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        ಹಿಂತಿರುಗಿ newp;
     }
 
-    AstNodeExpr* editSingle(FileLine* fl, AstNode* itemsp) {
-        if (!itemsp) return nullptr;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* editSingle(File_ಸಾಲು* fl, Ast_ಗಂಟು* itemsp) {
+        ಆದರೆ (!itemsp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 
         VL_RESTORER(m_wantSingle);
-        m_wantSingle = true;
+        m_wantSingle = ನಿಜ;
 
         {
-            AstBegin* const tempp
-                = new AstBegin{fl, "[EditWrapper]", itemsp->unlinkFrBackWithNext(), false};
-            VL_DO_DANGLING(iterateAndNextNull(tempp->stmtsp()), itemsp);
+            AstBegin* ಸ್ಥಿರಾಂಕ tempp
+                = ಹೊಸ AstBegin{fl, "[EditWrapper]", itemsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ(), ಸುಳ್ಳು};
+            VL_DO_DANGLING(iterate_And_ಮುಂದಿನ_Null(tempp->stmtsp()), itemsp);
             itemsp = tempp->stmtsp();
-            if (itemsp) itemsp->unlinkFrBackWithNext();
-            VL_DO_DANGLING(tempp->deleteTree(), tempp);
+            ಆದರೆ (itemsp) itemsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+            VL_DO_DANGLING(tempp->delete_ವೃಕ್ಷ(), tempp);
         }
-        if (!itemsp) return nullptr;
+        ಆದರೆ (!itemsp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 
-        AstNodeExpr* const exprsp = VN_CAST(itemsp, NodeExpr);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprsp = VN_CAST(itemsp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
         UASSERT_OBJ(exprsp, itemsp, "Single not expression?");
 
-        if (!exprsp->nextp()) return exprsp;
+        ಆದರೆ (!exprsp->nextp()) ಹಿಂತಿರುಗಿ exprsp;
 
         std::ostringstream fmt;
         fmt << "(bvand";
-        for (AstNode* itemp = exprsp; itemp; itemp = itemp->nextp()) fmt << " %s";
+        ಗಾಗಿ (Ast_ಗಂಟು* itemp = exprsp; itemp; itemp = itemp->nextp()) fmt << " %s";
         fmt << ')';
-        return new AstSFormatF{fl, fmt.str(), false, exprsp};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstSFormatF{fl, fmt.str(), ಸುಳ್ಳು, exprsp};
     }
 
-    AstNodeExpr* newSel(FileLine* fl, AstNodeExpr* arrayp, AstNodeExpr* idxp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* arrayp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* idxp) {
         // similar to V3WidthSel.cpp
         // skipRefp() unwraps typedef wrappers (AstRefDType) so the dtype kind
         // checks below recognize types spelled as `typedef <scalar> <name>[$]`.
-        AstNodeDType* const arrDtp = arrayp->unlinkFrBack()->dtypep()->skipRefp();
-        AstNodeExpr* selp = nullptr;
-        if (VN_IS(arrDtp, QueueDType) || VN_IS(arrDtp, DynArrayDType))
-            selp = new AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, idxp};
-        else if (VN_IS(arrDtp, UnpackArrayDType))
-            selp = new AstArraySel{fl, arrayp, idxp};
-        else if (VN_IS(arrDtp, AssocArrayDType))
-            selp = new AstAssocSel{fl, arrayp, idxp};
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ arrDtp = arrayp->unlink_Fr_ಹಿಂಭಾಗ()->dtypep()->skipRefp();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* selp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (VN_IS(arrDtp, ಸರತಿ_DType) || VN_IS(arrDtp, DynArrayDType))
+            selp = ಹೊಸ AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, idxp};
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(arrDtp, UnpackArrayDType))
+            selp = ಹೊಸ AstArraySel{fl, arrayp, idxp};
+        ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(arrDtp, AssocArrayDType))
+            selp = ಹೊಸ AstAssocSel{fl, arrayp, idxp};
         UASSERT_OBJ(selp, arrayp, "Selecting from non-array?");
         selp->dtypep(arrDtp->subDTypep());
-        return selp;
+        ಹಿಂತಿರುಗಿ selp;
     }
 
     // Convert expression to target width using extend or truncate as needed
-    AstNodeExpr* adjustWidth(FileLine* fl, AstNodeExpr* exprp, int targetWidth,
-                             VSigning targetSigning) {
-        const int exprWidth = exprp->width();
-        if (targetWidth > exprWidth) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* adjust_ಅಗಲ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಪೂರ್ಣಾಂಕ ಗುರಿ_ಅಗಲ,
+                             VSigning ಗುರಿ_Signing) {
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಭಿವ್ಯಕ್ತಿ_ಅಗಲ = exprp->ಅಗಲ();
+        ಆದರೆ (ಗುರಿ_ಅಗಲ > ಅಭಿವ್ಯಕ್ತಿ_ಅಗಲ) {
             // Extend to match target width
-            AstNodeExpr* const result = new AstExtend{fl, exprp, targetWidth};
-            result->dtypeChgSigned(targetSigning);
-            return result;
-        } else if (targetWidth < exprWidth) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಫಲಿತಾಂಶ = ಹೊಸ AstExtend{fl, exprp, ಗುರಿ_ಅಗಲ};
+            ಫಲಿತಾಂಶ->dtypeChgSigned(ಗುರಿ_Signing);
+            ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಗುರಿ_ಅಗಲ < ಅಭಿವ್ಯಕ್ತಿ_ಅಗಲ) {
             // Truncate to match target width
-            AstNodeExpr* const result = new AstSel{fl, exprp, 0, targetWidth};
-            result->dtypeChgSigned(targetSigning);
-            return result;
-        } else {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಫಲಿತಾಂಶ = ಹೊಸ AstSel{fl, exprp, 0, ಗುರಿ_ಅಗಲ};
+            ಫಲಿತಾಂಶ->dtypeChgSigned(ಗುರಿ_Signing);
+            ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // Width already matches
-            return exprp;
+            ಹಿಂತಿರುಗಿ exprp;
         }
     }
 
     // Extract return expression from a simple function body, or nullptr if too complex.
     // Uses foreach to walk all assigns regardless of body organization (JumpBlock nesting etc.).
     // Takes the last assignment to the return variable -- the first is the initializer.
-    AstNodeExpr* extractReturnExpr(AstFunc* funcp) {
-        AstVar* const retVarp = VN_CAST(funcp->fvarp(), Var);
-        if (!retVarp) return nullptr;
-        AstNodeExpr* retExprp = nullptr;
-        int assignCount = 0;
-        funcp->foreach([&](AstAssign* assignp) {
-            AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-            if (!lhsp || lhsp->varp() != retVarp) return;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಹೊರತೆಗೆ_Return_ಅಭಿವ್ಯಕ್ತಿ(AstFunc* funcp) {
+        AstVar* ಸ್ಥಿರಾಂಕ retVarp = VN_CAST(funcp->fvarp(), Var);
+        ಆದರೆ (!retVarp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* retExprp = ಶೂನ್ಯಸೂಚಕ;
+        ಪೂರ್ಣಾಂಕ ನಿಯೋಜಿಸು_ಎಣಿಕೆ = 0;
+        funcp->foreach([&](Ast_ನಿಯೋಜಿಸು* assignp) {
+            AstVarRef* ಸ್ಥಿರಾಂಕ lhsp = VN_CAST(assignp->lhsp(), VarRef);
+            ಆದರೆ (!lhsp || lhsp->varp() != retVarp) ಹಿಂತಿರುಗಿ;
             retExprp = assignp->rhsp();
-            ++assignCount;
+            ++ನಿಯೋಜಿಸು_ಎಣಿಕೆ;
         });
         // Simple function: initializer + return (2) or just return (1)
-        if (assignCount > 2 || !retExprp) return nullptr;
-        return retExprp;
+        ಆದರೆ (ನಿಯೋಜಿಸು_ಎಣಿಕೆ > 2 || !retExprp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        ಹಿಂತಿರುಗಿ retExprp;
     }
 
     // Bottom-up user1 propagation on inlined expression tree
-    void propagateUser1InlineRecurse(AstNodeExpr* nodep) {
-        if (VN_IS(nodep, NodeVarRef)) {
-            nodep->user1(VN_AS(nodep, NodeVarRef)->varp()->rand().isRandomizable());
-            return;
+    ಶೂನ್ಯ propagateUser1InlineRecurse(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಆದರೆ (VN_IS(nodep, ಗಂಟು_Var_Ref)) {
+            nodep->user1(VN_AS(nodep, ಗಂಟು_Var_Ref)->varp()->rand().isRandomizable());
+            ಹಿಂತಿರುಗಿ;
         }
-        if (VN_IS(nodep, Const)) {
-            nodep->user1(false);
-            return;
+        ಆದರೆ (VN_IS(nodep, Const)) {
+            nodep->user1(ಸುಳ್ಳು);
+            ಹಿಂತಿರುಗಿ;
         }
-        int anyChild = false;  // Used as bool
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op1p(), NodeExpr)) {
+        ಪೂರ್ಣಾಂಕ any_ಮಗು = ಸುಳ್ಳು;  // Used as bool
+        ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ cp = VN_CAST(nodep->op1p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ಮಗು |= cp->user1();
         }
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op2p(), NodeExpr)) {
+        ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ cp = VN_CAST(nodep->op2p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ಮಗು |= cp->user1();
         }
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op3p(), NodeExpr)) {
+        ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ cp = VN_CAST(nodep->op3p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ಮಗು |= cp->user1();
         }
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op4p(), NodeExpr)) {
+        ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ cp = VN_CAST(nodep->op4p(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ಮಗು |= cp->user1();
         }
-        nodep->user1(anyChild);
+        nodep->user1(any_ಮಗು);
     }
 
     // Prepend the bucket preamble stmts stored on user3p by lowerDistConstraints to the
     // statements that will become the body of the generated AstForeach, so the per-element
     // bucket draw is declared and evaluated in the same scope as its references.
-    static AstNode* prependDistPreamble(AstConstraintForeach* nodep, AstNode* bodyp) {
-        AstNode* const preamblep = nodep->user3p();
-        if (!preamblep) return bodyp;
-        nodep->user3p(nullptr);
-        preamblep->addNext(bodyp);
-        return preamblep;
+    ಸ್ಥಿರ Ast_ಗಂಟು* prependDistPreamble(AstConstraintForeach* nodep, Ast_ಗಂಟು* bodyp) {
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ preamblep = nodep->user3p();
+        ಆದರೆ (!preamblep) ಹಿಂತಿರುಗಿ bodyp;
+        nodep->user3p(ಶೂನ್ಯಸೂಚಕ);
+        preamblep->ಕೂಡಿಸು_ಮುಂದಿನ(bodyp);
+        ಹಿಂತಿರುಗಿ preamblep;
     }
 
     // True if the statement references an index variable of an enclosing
     // constraint-foreach. Such a statement must stay inside the loop body; hoisting
     // it out leaves a dangling reference once task inlining deletes the index.
-    bool referencesForeachIdx(const AstNode* nodep) const {
-        if (m_foreachIdxVars.empty()) return false;
-        return nodep->exists(
-            [&](const AstVarRef* refp) { return m_foreachIdxVars.count(refp->varp()) != 0; });
+    ತಾರ್ಕಿಕ referencesForeachIdx(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (m_foreachIdxVars.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಹಿಂತಿರುಗಿ nodep->exists(
+            [&](ಸ್ಥಿರಾಂಕ AstVarRef* refp) { ಹಿಂತಿರುಗಿ m_foreachIdxVars.ಎಣಿಕೆ_2(refp->varp()) != 0; });
     }
 
     // Place a solver-registration statement: into the enclosing foreach body when it
     // references an enclosing foreach index (so it is not hoisted out of the index's
     // scope), otherwise into the init task.
-    void addRegistrationStmt(AstNode* const stmtp, AstNodeFTask* const initTaskp) {
-        if (m_foreachp && referencesForeachIdx(stmtp)) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_Registration_Stmt(Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtp, Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ initTaskp) {
+        ಆದರೆ (m_foreachp && referencesForeachIdx(stmtp)) {
             // Appending to the body mid-iteration is safe: visit(AstStmtExpr) is a
             // no-op so the appended node is not re-processed, and prependDistPreamble()
             // correctly keeps it as a loop-body statement.
-            m_foreachp->addBodyp(stmtp);
-        } else {
-            initTaskp->addStmtsp(stmtp);
+            m_foreachp->ಕೂಡಿಸು_Bodyp(stmtp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            initTaskp->ಕೂಡಿಸು_Stmtsp(stmtp);
         }
     }
 
     // Create SFormatF for array dereference inside solver
-    AstSFormatF* createSolverArrDerefp(FileLine* const fl, AstNodeExpr* const arrExprp,
-                                       AstNodeExpr* const idxExprp) {
-        AstNodeExpr* const argsp = AstNode::addNext(arrExprp, idxExprp);
-        AstSFormatF* const formatp = new AstSFormatF{fl, "(select %s %s)", false, argsp};
-        return formatp;
+    AstSFormatF* createSolverArrDerefp(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ arrExprp,
+                                       Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ idxExprp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(arrExprp, idxExprp);
+        AstSFormatF* ಸ್ಥಿರಾಂಕ formatp = ಹೊಸ AstSFormatF{fl, "(select %s %s)", ಸುಳ್ಳು, argsp};
+        ಹಿಂತಿರುಗಿ formatp;
     }
 
-    void setRandMode(AstVar* const varp, AstMemberSel* const memberselp,
-                     const std::string& smtName, const RandomizeMode& randMode,
-                     AstNodeFTask* const initTaskp) {
-        AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
-        AstVar* const subRandModeVarp = getRandModeVarFromClass(varClassp);
-        if (subRandModeVarp) {
-            AstNodeExpr* const parentAccessp = memberselp->fromp()->cloneTree(false);
-            AstMemberSel* const randModeSelp
-                = new AstMemberSel{varp->fileline(), parentAccessp, subRandModeVarp};
-            randModeSelp->dtypep(subRandModeVarp->dtypep());
-            AstCMethodHard* const atp
-                = new AstCMethodHard{varp->fileline(), randModeSelp, VCMethod::ARRAY_AT,
-                                     new AstConst{varp->fileline(), randMode.index}};
-            atp->dtypeSetUInt32();
+    ಶೂನ್ಯ ಗಣ_Rand_ಬಹುಲಕ(AstVar* ಸ್ಥಿರಾಂಕ varp, AstMemberSel* ಸ್ಥಿರಾಂಕ memberselp,
+                     ಸ್ಥಿರಾಂಕ std::string& smtName, ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ& rand_ಬಹುಲಕ,
+                     Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ initTaskp) {
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ varClassp = VN_AS(varp->user2p(), ಗಂಟು_Module);
+        AstVar* ಸ್ಥಿರಾಂಕ sub_Rand_ಬಹುಲಕ_Varp = get_Rand_ಬಹುಲಕ_Var_From_Class(varClassp);
+        ಆದರೆ (sub_Rand_ಬಹುಲಕ_Varp) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಪೋಷಕ_Accessp = memberselp->fromp()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+            AstMemberSel* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Selp
+                = ಹೊಸ AstMemberSel{varp->fileline(), ಪೋಷಕ_Accessp, sub_Rand_ಬಹುಲಕ_Varp};
+            rand_ಬಹುಲಕ_Selp->dtypep(sub_Rand_ಬಹುಲಕ_Varp->dtypep());
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ atp
+                = ಹೊಸ AstCMethodHard{varp->fileline(), rand_ಬಹುಲಕ_Selp, VCMethod::ARRAY_AT,
+                                     ಹೊಸ AstConst{varp->fileline(), rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ}};
+            atp->dtype_ಗಣ_UInt32();
             // rand_mode ON: clear disabled state
-            AstCMethodHard* const enablep = new AstCMethodHard{
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ enablep = ಹೊಸ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+                ಹೊಸ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ಗಂಟು_Module), m_genp,
                               VAccess::READWRITE},
                 VCMethod::RANDOMIZER_CLEAR_VAR_DISABLED};
-            enablep->dtypeSetVoid();
-            AstNodeExpr* const nameExprp
+            enablep->dtype_ಗಣ_Void();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nameExprp
                 = m_nestedAccess ? m_nestedAccess->cloneName()
-                                 : new AstSFormatF{varp->fileline(), smtName, false, nullptr};
+                                 : ಹೊಸ AstSFormatF{varp->fileline(), smtName, ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ};
             nameExprp->dtypep(varp->dtypep());
-            enablep->addPinsp(nameExprp);
+            enablep->ಕೂಡಿಸು_Pinsp(nameExprp);
             // rand_mode OFF: set disabled state
-            AstCMethodHard* const disablep = new AstCMethodHard{
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ disablep = ಹೊಸ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+                ಹೊಸ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ಗಂಟು_Module), m_genp,
                               VAccess::READWRITE},
-                VCMethod::RANDOMIZER_SET_VAR_DISABLED};
-            disablep->dtypeSetVoid();
-            AstNodeExpr* const disnp = nameExprp->cloneTree(false);
-            disablep->addPinsp(disnp);
-            AstIf* const ifp
-                = new AstIf{varp->fileline(), atp, enablep->makeStmt(), disablep->makeStmt()};
-            addRegistrationStmt(ifp, initTaskp);
+                VCMethod::RANDOMIZER_ಗಣ_VAR_DISABLED};
+            disablep->dtype_ಗಣ_Void();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ disnp = nameExprp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+            disablep->ಕೂಡಿಸು_Pinsp(disnp);
+            AstIf* ಸ್ಥಿರಾಂಕ ifp
+                = ಹೊಸ AstIf{varp->fileline(), atp, enablep->makeStmt(), disablep->makeStmt()};
+            ಕೂಡಿಸು_Registration_Stmt(ifp, initTaskp);
         }
     }
 
-    void markRandc(AstVar* const varp, const std::string& smtName, AstNodeFTask* const initTaskp) {
-        AstCMethodHard* const markp = new AstCMethodHard{
+    ಶೂನ್ಯ markRandc(AstVar* ಸ್ಥಿರಾಂಕ varp, ಸ್ಥಿರಾಂಕ std::string& smtName, Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ initTaskp) {
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ markp = ಹೊಸ AstCMethodHard{
             varp->fileline(),
-            new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ಹೊಸ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ಗಂಟು_Module), m_genp,
                           VAccess::READWRITE},
             VCMethod::RANDOMIZER_MARK_RANDC};
-        markp->dtypeSetVoid();
-        AstNodeExpr* const nameExprp
+        markp->dtype_ಗಣ_Void();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nameExprp
             = m_nestedAccess ? m_nestedAccess->cloneName()
-                             : new AstSFormatF{varp->fileline(), smtName, false, nullptr};
+                             : ಹೊಸ AstSFormatF{varp->fileline(), smtName, ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ};
         nameExprp->dtypep(varp->dtypep());
-        markp->addPinsp(nameExprp);
-        addRegistrationStmt(markp->makeStmt(), initTaskp);
+        markp->ಕೂಡಿಸು_Pinsp(nameExprp);
+        ಕೂಡಿಸು_Registration_Stmt(markp->makeStmt(), initTaskp);
     }
 
-    AstNodeModule* getLeftmostVarModulep(AstMemberSel* const memberselp,
-                                         AstVar* const varp) const {
-        if (memberselp) {
+    Ast_ಗಂಟು_Module* getLeftmostVarModulep(AstMemberSel* ಸ್ಥಿರಾಂಕ memberselp,
+                                         AstVar* ಸ್ಥಿರಾಂಕ varp) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (memberselp) {
             // For memberselp, find the leftmost varref to get the class
-            AstNode* leftMostNodep = memberselp->fromp();
-            while (AstMemberSel* const nestedMemberSelp = VN_CAST(leftMostNodep, MemberSel)) {
-                leftMostNodep = nestedMemberSelp->fromp();
+            Ast_ಗಂಟು* ಎಡ_Most_Nodep = memberselp->fromp();
+            ಆಗ (AstMemberSel* ಸ್ಥಿರಾಂಕ nestedMemberSelp = VN_CAST(ಎಡ_Most_Nodep, MemberSel)) {
+                ಎಡ_Most_Nodep = nestedMemberSelp->fromp();
             }
-            if (AstNodeVarRef* const rootVarRefp = VN_CAST(leftMostNodep, NodeVarRef)) {
-                return VN_AS(rootVarRefp->varp()->user2p(), NodeModule);
+            ಆದರೆ (Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ ಬೇರು_Var_Refp = VN_CAST(ಎಡ_Most_Nodep, ಗಂಟು_Var_Ref)) {
+                ಹಿಂತಿರುಗಿ VN_AS(ಬೇರು_Var_Refp->varp()->user2p(), ಗಂಟು_Module);
             }
-            return VN_AS(memberselp->user2p(), NodeModule);
+            ಹಿಂತಿರುಗಿ VN_AS(memberselp->user2p(), ಗಂಟು_Module);
         }
-        return VN_AS(varp->user2p(), NodeModule);
+        ಹಿಂತಿರುಗಿ VN_AS(varp->user2p(), ಗಂಟು_Module);
     }
 
-    AstNodeFTask* getInitTaskp(AstVar* const varp, const bool memberselOrStructSel,
-                               AstNodeModule* const classp) const {
-        if (m_inlineInitTaskp) return m_inlineInitTaskp;
-        varp->user3(true);
-        if (memberselOrStructSel) {
-            if (AstNodeFTask* const initTaskp
-                = VN_AS(m_memberMap.findMember(classp, "randomize"), NodeFTask)) {
-                return initTaskp;
+    Ast_ಗಂಟು_FTask* getInitTaskp(AstVar* ಸ್ಥಿರಾಂಕ varp, ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ memberselOrStructSel,
+                               Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classp) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (m_inlineInitTaskp) ಹಿಂತಿರುಗಿ m_inlineInitTaskp;
+        varp->user3(ನಿಜ);
+        ಆದರೆ (memberselOrStructSel) {
+            ಆದರೆ (Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ initTaskp
+                = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, "randomize"), ಗಂಟು_FTask)) {
+                ಹಿಂತಿರುಗಿ initTaskp;
             }
             // Inherited rand members may belong to a base class
             // that has no randomize(); use the caller's function
-            if (m_memberselInitTaskp) return m_memberselInitTaskp;
+            ಆದರೆ (m_memberselInitTaskp) ಹಿಂತಿರುಗಿ m_memberselInitTaskp;
             classp->v3fatalSrc("No randomize() in class");
-        } else {
-            AstNodeFTask* const initTaskp
-                = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ initTaskp
+                = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, "new"), ಗಂಟು_FTask);
             UASSERT_OBJ(initTaskp, classp, "No new() in class");
-            return initTaskp;
+            ಹಿಂತಿರುಗಿ initTaskp;
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
 
-    void createWriteVarForClassFields(AstClass* const elemClassp, const std::string& smtName,
-                                      AstVar* const iterVarp, const bool isUnpackedClassRefArray,
-                                      AstNodeModule* const classOrPackagep, AstVar* const varp,
-                                      AstIf* const ifNonNullp,
-                                      AstClassRefDType* elemClassRefDtp) const {
-        FileLine* const fl = varp->fileline();
-        AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
+    ಶೂನ್ಯ createWriteVarForClassFields(AstClass* ಸ್ಥಿರಾಂಕ elemClassp, ಸ್ಥಿರಾಂಕ std::string& smtName,
+                                      AstVar* ಸ್ಥಿರಾಂಕ iterVarp, ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isUnpackedClassRefArray,
+                                      Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classOrPackagep, AstVar* ಸ್ಥಿರಾಂಕ varp,
+                                      AstIf* ಸ್ಥಿರಾಂಕ ifNonNullp,
+                                      AstClassRefDType* elemClassRefDtp) ಸ್ಥಿರಾಂಕ {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = varp->fileline();
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ varClassp = VN_AS(varp->user2p(), ಗಂಟು_Module);
         // 32-bit index hex chars for SMT name formatting
-        constexpr int idxWidth = 32;
-        const int fmtWidth = VL_WORDS_I(idxWidth) * 8;
+        constexpr ಪೂರ್ಣಾಂಕ idx_ಅಗಲ = 32;
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ fmt_ಅಗಲ = VL_ಪದಗಳು_I(idx_ಅಗಲ) * 8;
 
-        for (const AstClass* cp = elemClassp; cp;
-             cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            for (AstNode* mnodep = cp->stmtsp(); mnodep; mnodep = mnodep->nextp()) {
-                AstVar* const memberVarp = VN_CAST(mnodep, Var);
-                if (!memberVarp || !memberVarp->rand().isRandomizable()) continue;
-                AstNodeDType* const memberDtp = memberVarp->dtypep()->skipRefp();
-                if (VN_IS(memberDtp, ClassRefDType) || memberDtp->isNonPackedArray()) continue;
-                const int memberWidth = memberDtp->width();
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstClass* cp = elemClassp; cp;
+             cp = cp->extendsp() ? cp->extendsp()->classp() : ಶೂನ್ಯಸೂಚಕ) {
+            ಗಾಗಿ (Ast_ಗಂಟು* mnodep = cp->stmtsp(); mnodep; mnodep = mnodep->nextp()) {
+                AstVar* ಸ್ಥಿರಾಂಕ memberVarp = VN_CAST(mnodep, Var);
+                ಆದರೆ (!memberVarp || !memberVarp->rand().isRandomizable()) ಮುಂದುವರಿ;
+                Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ memberDtp = memberVarp->dtypep()->skipRefp();
+                ಆದರೆ (VN_IS(memberDtp, ClassRefDType) || memberDtp->isNonPackedArray()) ಮುಂದುವರಿ;
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ member_ಅಗಲ = memberDtp->ಅಗಲ();
 
-                AstCStmt* const fmtp = new AstCStmt{fl};
-                if (isUnpackedClassRefArray) {
-                    fmtp->add("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%x."
+                AstCStmt* ಸ್ಥಿರಾಂಕ fmtp = ಹೊಸ AstCStmt{fl};
+                ಆದರೆ (isUnpackedClassRefArray) {
+                    fmtp->ಕೂಡಿಸು("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%x."
                               + memberVarp->name() + "\", (unsigned)");
-                } else {
-                    fmtp->add("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%0"
-                              + std::to_string(fmtWidth) + "x." + memberVarp->name()
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    fmtp->ಕೂಡಿಸು("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%0"
+                              + std::ಗಮ್ಯ_string(fmt_ಅಗಲ) + "x." + memberVarp->name()
                               + "\", (unsigned)");
                 }
-                fmtp->add(new AstVarRef{fl, iterVarp, VAccess::READ});
-                fmtp->add(");\n");
-                ifNonNullp->addThensp(fmtp);
+                fmtp->ಕೂಡಿಸು(ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ});
+                fmtp->ಕೂಡಿಸು(");\n");
+                ifNonNullp->ಕೂಡಿಸು_Thensp(fmtp);
 
-                AstVarRef* const arrayWrRefp = new AstVarRef{fl, varClassp, varp, VAccess::WRITE};
+                AstVarRef* ಸ್ಥಿರಾಂಕ arrayWrRefp = ಹೊಸ AstVarRef{fl, varClassp, varp, VAccess::WRITE};
                 arrayWrRefp->classOrPackagep(classOrPackagep);
-                AstNodeExpr* atWritep;
-                if (isUnpackedClassRefArray) {
-                    atWritep = new AstArraySel{fl, arrayWrRefp,
-                                               new AstVarRef{fl, iterVarp, VAccess::READ}};
-                } else {
-                    atWritep = new AstCMethodHard{fl, arrayWrRefp, VCMethod::ARRAY_AT_WRITE,
-                                                  new AstVarRef{fl, iterVarp, VAccess::READ}};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* atWritep;
+                ಆದರೆ (isUnpackedClassRefArray) {
+                    atWritep = ಹೊಸ AstArraySel{fl, arrayWrRefp,
+                                               ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}};
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    atWritep = ಹೊಸ AstCMethodHard{fl, arrayWrRefp, VCMethod::ARRAY_AT_WRITE,
+                                                  ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}};
                 }
                 atWritep->dtypep(elemClassRefDtp);
-                AstMemberSel* const memberSelp = new AstMemberSel{fl, atWritep, memberVarp};
+                AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = ಹೊಸ AstMemberSel{fl, atWritep, memberVarp};
 
-                AstCMethodHard* const writeVarp
-                    = new AstCMethodHard{fl,
-                                         new AstVarRef{fl, VN_AS(m_genp->user2p(), NodeModule),
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ writeVarp
+                    = ಹೊಸ AstCMethodHard{fl,
+                                         ಹೊಸ AstVarRef{fl, VN_AS(m_genp->user2p(), ಗಂಟು_Module),
                                                        m_genp, VAccess::READWRITE},
                                          VCMethod::RANDOMIZER_WRITE_VAR};
-                writeVarp->dtypeSetVoid();
-                writeVarp->addPinsp(memberSelp);
-                writeVarp->addPinsp(
-                    new AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(memberWidth)});
-                AstCExpr* const nameRefp = new AstCExpr{fl, AstCExpr::Pure{}, "__Vn", 0};
+                writeVarp->dtype_ಗಣ_Void();
+                writeVarp->ಕೂಡಿಸು_Pinsp(memberSelp);
+                writeVarp->ಕೂಡಿಸು_Pinsp(
+                    ಹೊಸ AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(member_ಅಗಲ)});
+                AstCExpr* ಸ್ಥಿರಾಂಕ nameRefp = ಹೊಸ AstCExpr{fl, AstCExpr::ಶುದ್ಧ{}, "__Vn", 0};
                 nameRefp->dtypep(varp->dtypep());
-                writeVarp->addPinsp(nameRefp);
-                writeVarp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, 0ULL});
-                ifNonNullp->addThensp(writeVarp->makeStmt());
+                writeVarp->ಕೂಡಿಸು_Pinsp(nameRefp);
+                writeVarp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, AstConst::Unsized64{}, 0ULL});
+                ifNonNullp->ಕೂಡಿಸು_Thensp(writeVarp->makeStmt());
             }
         }
     }
 
-    void createSolverArrayHandle(AstVar* const varp, AstClassRefDType* elemClassRefDtp,
-                                 AstNodeModule* const classOrPackagep,
-                                 const bool isUnpackedClassRefArray,
-                                 const std::string& smtName) const {
-        FileLine* const fl = varp->fileline();
-        AstClass* const elemClassp = elemClassRefDtp->classp();
-        AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
+    ಶೂನ್ಯ createSolverArrayHandle(AstVar* ಸ್ಥಿರಾಂಕ varp, AstClassRefDType* elemClassRefDtp,
+                                 Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classOrPackagep,
+                                 ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isUnpackedClassRefArray,
+                                 ಸ್ಥಿರಾಂಕ std::string& smtName) ಸ್ಥಿರಾಂಕ {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = varp->fileline();
+        AstClass* ಸ್ಥಿರಾಂಕ elemClassp = elemClassRefDtp->classp();
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ varClassp = VN_AS(varp->user2p(), ಗಂಟು_Module);
 
-        AstVar* const iterVarp = new AstVar{fl, VVarType::BLOCKTEMP, m_uniqueNames.get("__Vi"),
-                                            varp->findUInt32DType()};
-        iterVarp->funcLocal(true);
+        AstVar* ಸ್ಥಿರಾಂಕ iterVarp = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, m_unique_ಹೆಸರುಗಳು.get("__Vi"),
+                                            varp->ಕಂಡುಹಿಡಿ_UInt32_DType()};
+        iterVarp->funcLocal(ನಿಜ);
         iterVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
 
-        AstNode* const stmtsp
-            = new AstAssign{fl, new AstVarRef{fl, iterVarp, VAccess::WRITE}, new AstConst{fl, 0}};
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp
+            = ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::WRITE}, ಹೊಸ AstConst{fl, 0}};
 
-        AstNodeExpr* sizep;
-        if (isUnpackedClassRefArray) {
-            const int arraySize
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* sizep;
+        ಆದರೆ (isUnpackedClassRefArray) {
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ array_ಗಾತ್ರ_2
                 = VN_AS(varp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-            sizep = new AstConst{fl, static_cast<uint32_t>(arraySize)};
-        } else {
-            AstVarRef* const arraySizeRefp = new AstVarRef{fl, varClassp, varp, VAccess::READ};
-            arraySizeRefp->classOrPackagep(classOrPackagep);
-            AstCMethodHard* const dynSizep
-                = new AstCMethodHard{fl, arraySizeRefp, VCMethod::DYN_SIZE, nullptr};
-            dynSizep->dtypeSetUInt32();
+            sizep = ಹೊಸ AstConst{fl, static_cast<uint32_t>(array_ಗಾತ್ರ_2)};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            AstVarRef* ಸ್ಥಿರಾಂಕ array_ಗಾತ್ರ_Refp = ಹೊಸ AstVarRef{fl, varClassp, varp, VAccess::READ};
+            array_ಗಾತ್ರ_Refp->classOrPackagep(classOrPackagep);
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ dynSizep
+                = ಹೊಸ AstCMethodHard{fl, array_ಗಾತ್ರ_Refp, VCMethod::DYN_ಗಾತ್ರ, ಶೂನ್ಯಸೂಚಕ};
+            dynSizep->dtype_ಗಣ_UInt32();
             sizep = dynSizep;
         }
 
-        AstLoop* const loopp = new AstLoop{fl};
-        stmtsp->addNext(loopp);
-        loopp->addStmtsp(new AstLoopTest{
-            fl, loopp, new AstLt{fl, new AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
+        AstLoop* ಸ್ಥಿರಾಂಕ loopp = ಹೊಸ AstLoop{fl};
+        stmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(loopp);
+        loopp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstLoopTest{
+            fl, loopp, ಹೊಸ AstLt{fl, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
 
-        AstVarRef* const arrayReadRefp = new AstVarRef{fl, varClassp, varp, VAccess::READ};
+        AstVarRef* ಸ್ಥಿರಾಂಕ arrayReadRefp = ಹೊಸ AstVarRef{fl, varClassp, varp, VAccess::READ};
         arrayReadRefp->classOrPackagep(classOrPackagep);
-        AstNodeExpr* atReadp;
-        if (isUnpackedClassRefArray) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* atReadp;
+        ಆದರೆ (isUnpackedClassRefArray) {
             atReadp
-                = new AstArraySel{fl, arrayReadRefp, new AstVarRef{fl, iterVarp, VAccess::READ}};
-        } else {
-            atReadp = new AstCMethodHard{fl, arrayReadRefp, VCMethod::ARRAY_AT,
-                                         new AstVarRef{fl, iterVarp, VAccess::READ}};
+                = ಹೊಸ AstArraySel{fl, arrayReadRefp, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            atReadp = ಹೊಸ AstCMethodHard{fl, arrayReadRefp, VCMethod::ARRAY_AT,
+                                         ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}};
         }
         atReadp->dtypep(elemClassRefDtp);
-        AstIf* const ifNonNullp
-            = new AstIf{fl, new AstNeq{fl, atReadp, new AstConst{fl, AstConst::Null{}}}, nullptr};
-        loopp->addStmtsp(ifNonNullp);
+        AstIf* ಸ್ಥಿರಾಂಕ ifNonNullp
+            = ಹೊಸ AstIf{fl, ಹೊಸ AstNeq{fl, atReadp, ಹೊಸ AstConst{fl, AstConst::Null{}}}, ಶೂನ್ಯಸೂಚಕ};
+        loopp->ಕೂಡಿಸು_Stmtsp(ifNonNullp);
 
-        AstCStmt* const bufDeclp = new AstCStmt{fl, "char __Vn[256];\n"};
-        ifNonNullp->addThensp(bufDeclp);
+        AstCStmt* ಸ್ಥಿರಾಂಕ bufDeclp = ಹೊಸ AstCStmt{fl, "char __Vn[256];\n"};
+        ifNonNullp->ಕೂಡಿಸು_Thensp(bufDeclp);
 
         createWriteVarForClassFields(elemClassp, smtName, iterVarp, isUnpackedClassRefArray,
                                      classOrPackagep, varp, ifNonNullp, elemClassRefDtp);
 
-        loopp->addStmtsp(new AstAssign{
-            fl, new AstVarRef{fl, iterVarp, VAccess::WRITE},
-            new AstAdd{fl, new AstConst{fl, 1}, new AstVarRef{fl, iterVarp, VAccess::READ}}});
+        loopp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+            fl, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::WRITE},
+            ಹೊಸ Ast_ಕೂಡಿಸು{fl, ಹೊಸ AstConst{fl, 1}, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}}});
 
-        varp->user3(true);
-        AstNodeFTask* initTaskp = m_inlineInitTaskp;
-        if (!initTaskp) {
-            initTaskp = VN_AS(m_memberMap.findMember(varClassp, "new"), NodeFTask);
+        varp->user3(ನಿಜ);
+        Ast_ಗಂಟು_FTask* initTaskp = m_inlineInitTaskp;
+        ಆದರೆ (!initTaskp) {
+            initTaskp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(varClassp, "new"), ಗಂಟು_FTask);
             UASSERT_OBJ(initTaskp, varClassp, "No new() in class");
         }
         // At the beginning, so declared before referenced
         initTaskp->prependStmtsp(iterVarp);
-        initTaskp->addStmtsp(stmtsp);
+        initTaskp->ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
 
-    void createSolverVarHandle(AstVar* const varp, const bool structSelOrCMeth,
-                               const bool isGlobalConstrained, const RandomizeMode randMode,
-                               AstMemberSel* const memberselp, const std::string& smtName,
-                               AstNodeModule* const classOrPackagep, AstNodeModule* const classp,
-                               AstNodeFTask* const initTaskp) {
+    ಶೂನ್ಯ createSolverVarHandle(AstVar* ಸ್ಥಿರಾಂಕ varp, ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ structSelOrCMeth,
+                               ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isGlobalConstrained, ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ,
+                               AstMemberSel* ಸ್ಥಿರಾಂಕ memberselp, ಸ್ಥಿರಾಂಕ std::string& smtName,
+                               Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classOrPackagep, Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classp,
+                               Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ initTaskp) {
         uint32_t unpackedDims = 0;
-        if (varp->dtypeSkipRefp()->isNonPackedArray()) {
-            unpackedDims = varp->dtypep()->dimensions(false).second;
+        ಆದರೆ (varp->dtypeSkipRefp()->isNonPackedArray()) {
+            unpackedDims = varp->dtypep()->dimensions(ಸುಳ್ಳು).ಎರಡನೇ;
         }
-        if (VN_IS(varp->dtypeSkipRefp(), StructDType)
+        ಆದರೆ (VN_IS(varp->dtypeSkipRefp(), StructDType)
             && !VN_AS(varp->dtypeSkipRefp(), StructDType)->packed()) {
             markStructConstrainedRandRecurse(varp->dtypeSkipRefp());
             unpackedDims = 1;
         }
-        AstCMethodHard* const methodp = new AstCMethodHard{
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = ಹೊಸ AstCMethodHard{
             varp->fileline(),
-            new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ಹೊಸ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ಗಂಟು_Module), m_genp,
                           VAccess::READWRITE},
             VCMethod::RANDOMIZER_WRITE_VAR};
-        methodp->dtypeSetVoid();
-        if (memberselp) {
-            methodp->addPinsp(memberselp);
-        } else {
-            AstVarRef* const varRefp
-                = new AstVarRef{varp->fileline(), classp, varp, VAccess::WRITE};
+        methodp->dtype_ಗಣ_Void();
+        ಆದರೆ (memberselp) {
+            methodp->ಕೂಡಿಸು_Pinsp(memberselp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            AstVarRef* ಸ್ಥಿರಾಂಕ varRefp
+                = ಹೊಸ AstVarRef{varp->fileline(), classp, varp, VAccess::WRITE};
             varRefp->classOrPackagep(classOrPackagep);
-            methodp->addPinsp(varRefp);
+            methodp->ಕೂಡಿಸು_Pinsp(varRefp);
         }
-        const size_t width = arrayElementDTypep(varp->dtypep())->width();
-        methodp->addPinsp(new AstConst{varp->fileline(), AstConst::Unsized64{}, width});
-        AstNodeExpr* const varnamep = new AstCExpr{varp->fileline(), AstCExpr::Pure{},
-                                                   "\"" + smtName + "\"", varp->width()};
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಅಗಲ = arrayElementDTypep(varp->dtypep())->ಅಗಲ();
+        methodp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{varp->fileline(), AstConst::Unsized64{}, ಅಗಲ});
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ varnamep = ಹೊಸ AstCExpr{varp->fileline(), AstCExpr::ಶುದ್ಧ{},
+                                                   "\"" + smtName + "\"", varp->ಅಗಲ()};
         varnamep->dtypep(varp->dtypep());
-        methodp->addPinsp(varnamep);
-        methodp->addPinsp(
-            new AstConst{varp->dtypep()->fileline(), AstConst::Unsized64{}, unpackedDims});
-        if (randMode.usesMode && !(isGlobalConstrained && memberselp)) {
-            methodp->addPinsp(
-                new AstConst{varp->fileline(), AstConst::Unsized64{}, randMode.index});
+        methodp->ಕೂಡಿಸು_Pinsp(varnamep);
+        methodp->ಕೂಡಿಸು_Pinsp(
+            ಹೊಸ AstConst{varp->dtypep()->fileline(), AstConst::Unsized64{}, unpackedDims});
+        ಆದರೆ (rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ && !(isGlobalConstrained && memberselp)) {
+            methodp->ಕೂಡಿಸು_Pinsp(
+                ಹೊಸ AstConst{varp->fileline(), AstConst::Unsized64{}, rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ});
         }
         // For globalConstrained sub-object members with rand_mode:
         // Always call write_var (keeps variable in solver for constraint
         // evaluation), but toggle disabled state so the solver skips
         // write-back when rand_mode is off.
-        initTaskp->addStmtsp(methodp->makeStmt());
-        if (varp->lifetime().isStatic() && randMode.usesMode) {
-            AstCMethodHard* const markp = new AstCMethodHard{
+        initTaskp->ಕೂಡಿಸು_Stmtsp(methodp->makeStmt());
+        ಆದರೆ (varp->lifetime().isStatic() && rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ markp = ಹೊಸ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+                ಹೊಸ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ಗಂಟು_Module), m_genp,
                               VAccess::READWRITE},
                 VCMethod::RANDOMIZER_MARK_VAR_STATIC};
-            AstNodeExpr* const namep = new AstCExpr{varp->fileline(), AstCExpr::Pure{},
-                                                    "\"" + smtName + "\"", varp->width()};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ namep = ಹೊಸ AstCExpr{varp->fileline(), AstCExpr::ಶುದ್ಧ{},
+                                                    "\"" + smtName + "\"", varp->ಅಗಲ()};
             namep->dtypep(varp->dtypep());
-            markp->addPinsp(namep);
-            markp->dtypeSetVoid();
-            initTaskp->addStmtsp(markp->makeStmt());
+            markp->ಕೂಡಿಸು_Pinsp(namep);
+            markp->dtype_ಗಣ_Void();
+            initTaskp->ಕೂಡಿಸು_Stmtsp(markp->makeStmt());
         }
-        if (isGlobalConstrained && memberselp && randMode.usesMode) {
-            setRandMode(varp, memberselp, smtName, randMode, initTaskp);
+        ಆದರೆ (isGlobalConstrained && memberselp && rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
+            ಗಣ_Rand_ಬಹುಲಕ(varp, memberselp, smtName, rand_ಬಹುಲಕ, initTaskp);
         }
         // If randc, also emit markRandc() for cyclic tracking
-        if (varp->isRandC()) markRandc(varp, smtName, initTaskp);
+        ಆದರೆ (varp->isRandC()) markRandc(varp, smtName, initTaskp);
     }
 
-    AstNodeExpr* createVarExprp(AstNodeVarRef* nodep, const RandomizeMode randMode,
-                                const std::string& smtName, const bool isGlobalConstrained,
-                                AstMemberSel* memberselp, AstVar* const varp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* createVarExprp(Ast_ಗಂಟು_Var_Ref* nodep, ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ,
+                                ಸ್ಥಿರಾಂಕ std::string& smtName, ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isGlobalConstrained,
+                                AstMemberSel* memberselp, AstVar* ಸ್ಥಿರಾಂಕ varp) {
         // Use AstSFormatF (not AstConst{String}) to prevent editFormat/V3Const
         // from reformatting the SMT variable name into a hex literal
-        AstNodeExpr* exprp = new AstSFormatF{
-            nodep->fileline(), m_nestedAccess ? nodep->name() : smtName, false, nullptr};
-        if (!randMode.usesMode) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = ಹೊಸ AstSFormatF{
+            nodep->fileline(), m_nestedAccess ? nodep->name() : smtName, ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ};
+        ಆದರೆ (!rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
             // Global constraints keep nodep alive for write_var processing
-            if (!isGlobalConstrained) VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return exprp;
+            ಆದರೆ (!isGlobalConstrained) VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಹಿಂತಿರುಗಿ exprp;
         }
 
         // Get const format, using memberselp if available for correct width/value
-        AstNodeExpr* constFormatp
-            = memberselp ? getConstFormat(memberselp->cloneTree(false)) : getConstFormat(nodep);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* constFormatp
+            = memberselp ? getConstFormat(memberselp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು)) : getConstFormat(nodep);
 
         // Static rand vars route through the var's owning class's static array
         // (may differ from m_classp when the rand var lives in a sub-object).
-        AstNodeExpr* randModeAccess;
-        const bool varIsStatic = varp->lifetime().isStatic();
-        AstClass* const varOwningClassp = varIsStatic ? VN_CAST(varp->user2p(), Class) : nullptr;
-        AstVar* const ownerStaticRandModeVarp
-            = varOwningClassp ? findStaticRandModeVarMember(varOwningClassp) : nullptr;
-        if (ownerStaticRandModeVarp) {
-            randModeAccess = new AstVarRef{varp->fileline(),
-                                           VN_AS(ownerStaticRandModeVarp->user2p(), NodeModule),
-                                           ownerStaticRandModeVarp, VAccess::READ};
-        } else if (memberselp) {
-            AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
-            AstVar* const effectiveRandModeVarp = getRandModeVarFromClass(varClassp);
-            if (effectiveRandModeVarp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rand_ಬಹುಲಕ_Access;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ varIsStatic = varp->lifetime().isStatic();
+        AstClass* ಸ್ಥಿರಾಂಕ varOwningClassp = varIsStatic ? VN_CAST(varp->user2p(), Class) : ಶೂನ್ಯಸೂಚಕ;
+        AstVar* ಸ್ಥಿರಾಂಕ owner_Static_Rand_ಬಹುಲಕ_Varp
+            = varOwningClassp ? ಕಂಡುಹಿಡಿ_Static_Rand_ಬಹುಲಕ_Var_Member(varOwningClassp) : ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (owner_Static_Rand_ಬಹುಲಕ_Varp) {
+            rand_ಬಹುಲಕ_Access = ಹೊಸ AstVarRef{varp->fileline(),
+                                           VN_AS(owner_Static_Rand_ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module),
+                                           owner_Static_Rand_ಬಹುಲಕ_Varp, VAccess::READ};
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (memberselp) {
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ varClassp = VN_AS(varp->user2p(), ಗಂಟು_Module);
+            AstVar* ಸ್ಥಿರಾಂಕ effective_Rand_ಬಹುಲಕ_Varp = get_Rand_ಬಹುಲಕ_Var_From_Class(varClassp);
+            ಆದರೆ (effective_Rand_ಬಹುಲಕ_Varp) {
                 // Member's class has randmode, use it
-                AstNodeExpr* parentAccess = memberselp->fromp()->cloneTree(false);
-                AstMemberSel* randModeSel
-                    = new AstMemberSel{varp->fileline(), parentAccess, effectiveRandModeVarp};
-                randModeSel->dtypep(effectiveRandModeVarp->dtypep());
-                randModeAccess = randModeSel;
-            } else {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಪೋಷಕ_Access = memberselp->fromp()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+                AstMemberSel* rand_ಬಹುಲಕ_Sel
+                    = ಹೊಸ AstMemberSel{varp->fileline(), ಪೋಷಕ_Access, effective_Rand_ಬಹುಲಕ_Varp};
+                rand_ಬಹುಲಕ_Sel->dtypep(effective_Rand_ಬಹುಲಕ_Varp->dtypep());
+                rand_ಬಹುಲಕ_Access = rand_ಬಹುಲಕ_Sel;
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // Member's class has no randmode, use current scope's randmode
-                UASSERT_OBJ(m_randModeVarp, nodep, "No m_randModeVarp");
-                randModeAccess
-                    = new AstVarRef{varp->fileline(), VN_AS(m_randModeVarp->user2p(), NodeModule),
-                                    m_randModeVarp, VAccess::READ};
+                UASSERT_OBJ(m_rand_ಬಹುಲಕ_Varp, nodep, "No m_randModeVarp");
+                rand_ಬಹುಲಕ_Access
+                    = ಹೊಸ AstVarRef{varp->fileline(), VN_AS(m_rand_ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module),
+                                    m_rand_ಬಹುಲಕ_Varp, VAccess::READ};
             }
-        } else {
-            UASSERT_OBJ(m_randModeVarp, nodep, "No m_randModeVarp");
-            randModeAccess
-                = new AstVarRef{varp->fileline(), VN_AS(m_randModeVarp->user2p(), NodeModule),
-                                m_randModeVarp, VAccess::READ};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            UASSERT_OBJ(m_rand_ಬಹುಲಕ_Varp, nodep, "No m_randModeVarp");
+            rand_ಬಹುಲಕ_Access
+                = ಹೊಸ AstVarRef{varp->fileline(), VN_AS(m_rand_ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module),
+                                m_rand_ಬಹುಲಕ_Varp, VAccess::READ};
         }
 
-        AstCMethodHard* const atp
-            = new AstCMethodHard{nodep->fileline(), randModeAccess, VCMethod::ARRAY_AT,
-                                 new AstConst{nodep->fileline(), randMode.index}};
-        atp->dtypeSetUInt32();
-        exprp = new AstCond{varp->fileline(), atp, exprp, constFormatp};
-        exprp->user1(true);  // Mark as formatted
-        return exprp;
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ atp
+            = ಹೊಸ AstCMethodHard{nodep->fileline(), rand_ಬಹುಲಕ_Access, VCMethod::ARRAY_AT,
+                                 ಹೊಸ AstConst{nodep->fileline(), rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ}};
+        atp->dtype_ಗಣ_UInt32();
+        exprp = ಹೊಸ AstCond{varp->fileline(), atp, exprp, constFormatp};
+        exprp->user1(ನಿಜ);  // Mark as formatted
+        ಹಿಂತಿರುಗಿ exprp;
     }
 
     // VISITORS
-    void visit(AstNodeVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Var_Ref* nodep) override {
         AstVar* varp = nodep->varp();
-        if (varp->user4p()) {
-            bool isSizeRef = false;
-            if (AstCMethodHard* const methodp = VN_CAST(nodep->backp(), CMethodHard)) {
-                if (methodp->method() == VCMethod::ASSOC_SIZE
-                    || methodp->method() == VCMethod::DYN_SIZE) {
-                    isSizeRef = true;
+        ಆದರೆ (varp->user4p()) {
+            ತಾರ್ಕಿಕ is_ಗಾತ್ರ_Ref = ಸುಳ್ಳು;
+            ಆದರೆ (AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = VN_CAST(nodep->backp(), CMethodHard)) {
+                ಆದರೆ (methodp->ವಿಧಾನ() == VCMethod::ASSOC_ಗಾತ್ರ
+                    || methodp->ವಿಧಾನ() == VCMethod::DYN_ಗಾತ್ರ) {
+                    is_ಗಾತ್ರ_Ref = ನಿಜ;
                 }
             }
-            if (!isSizeRef && m_sizeConstrainedArraysp) { m_sizeConstrainedArraysp->insert(varp); }
+            ಆದರೆ (!is_ಗಾತ್ರ_Ref && m_ಗಾತ್ರ_Constrained_Arraysp) { m_ಗಾತ್ರ_Constrained_Arraysp->ಸೇರಿಸು(varp); }
         }
 
         // Check if this variable is marked as globally constrained
-        const bool isGlobalConstrained = nodep->varp()->globalConstrained();
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isGlobalConstrained = nodep->varp()->globalConstrained();
 
-        AstMemberSel* memberselp = nullptr;
-        bool structSelOrCMeth = false;
+        AstMemberSel* memberselp = ಶೂನ್ಯಸೂಚಕ;
+        ತಾರ್ಕಿಕ structSelOrCMeth = ಸುಳ್ಳು;
         // Set below only when narrowing to one struct field/array element;
         // staying null means "check varp's own type" (see its use further down).
-        AstNodeDType* selectedDtypep = nullptr;
+        Ast_ಗಂಟು_DType* selectedDtypep = ಶೂನ್ಯಸೂಚಕ;
         std::string smtName;
-        if (m_nestedAccess) {
-            m_nestedAccess->addVarNamePart(
-                new AstSFormatF{varp->fileline(), nodep->name(), false, nullptr}, nodep->name());
+        ಆದರೆ (m_nestedAccess) {
+            m_nestedAccess->ಕೂಡಿಸು_Var_Name_Part(
+                ಹೊಸ AstSFormatF{varp->fileline(), nodep->name(), ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ}, nodep->name());
             smtName = m_nestedAccess->smtName();
-            memberselp = m_nestedAccess->accessTree();
-        } else if (VN_IS(nodep->backp(), MemberSel)) {
+            memberselp = m_nestedAccess->access_ವೃಕ್ಷ();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(nodep->backp(), MemberSel)) {
             // Build complete path from topmost MemberSel
-            AstNode* topMemberSel = nodep->backp();
-            while (VN_IS(topMemberSel->backp(), MemberSel)) {
-                topMemberSel = topMemberSel->backp();
+            Ast_ಗಂಟು* ತುದಿ_Member_Sel = nodep->backp();
+            ಆಗ (VN_IS(ತುದಿ_Member_Sel->backp(), MemberSel)) {
+                ತುದಿ_Member_Sel = ತುದಿ_Member_Sel->backp();
             }
-            memberselp = VN_AS(topMemberSel, MemberSel)->cloneTree(false);
-            smtName = buildMemberPath(memberselp);
-        } else if (VN_IS(nodep->backp(), StructSel) || VN_IS(nodep->backp(), CMethodHard)) {
+            memberselp = VN_AS(ತುದಿ_Member_Sel, MemberSel)->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+            smtName = build_Member_ಮಾರ್ಗ(memberselp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(nodep->backp(), StructSel) || VN_IS(nodep->backp(), CMethodHard)) {
             // Build complete path for topmost StructSel or CMethodHard::ARRAY_AT
-            AstNode* topNodep = nodep->backp();
-            while (VN_IS(topNodep->backp(), StructSel) || VN_IS(topNodep->backp(), CMethodHard)) {
-                topNodep = topNodep->backp();
+            Ast_ಗಂಟು* ತುದಿ_Nodep = nodep->backp();
+            ಆಗ (VN_IS(ತುದಿ_Nodep->backp(), StructSel) || VN_IS(ತುದಿ_Nodep->backp(), CMethodHard)) {
+                ತುದಿ_Nodep = ತುದಿ_Nodep->backp();
             }
 
-            if (VN_IS(topNodep, StructSel) || VN_IS(topNodep, CMethodHard)) {
-                structSelOrCMeth = true;
-                selectedDtypep = VN_AS(topNodep, NodeExpr)->dtypep();
+            ಆದರೆ (VN_IS(ತುದಿ_Nodep, StructSel) || VN_IS(ತುದಿ_Nodep, CMethodHard)) {
+                structSelOrCMeth = ನಿಜ;
+                selectedDtypep = VN_AS(ತುದಿ_Nodep, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)->dtypep();
             }
 
-            memberselp = VN_CAST(topNodep, MemberSel);
-            if (memberselp) smtName = buildMemberPath(memberselp);
+            memberselp = VN_CAST(ತುದಿ_Nodep, MemberSel);
+            ಆದರೆ (memberselp) smtName = build_Member_ಮಾರ್ಗ(memberselp);
 
             // Above functions returned empty string, unrecognized node type,
             // Using nodep->name();
-            if (smtName == "") smtName = nodep->name();
-        } else {
+            ಆದರೆ (smtName == "") smtName = nodep->name();
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // No MemberSel, StructSel or CMethodHard:at : just variable name
             smtName = nodep->name();
         }
 
-        if (memberselp) varp = memberselp->varp();
+        ಆದರೆ (memberselp) varp = memberselp->varp();
         // The SMT translation assumes bit-vector operands and does not
         // type-check; embedding a real value produces a malformed width.
         // Check the selected field/element's type, not the whole
         // struct/array's -- a real sibling field elsewhere is irrelevant.
-        if (dtypeContainsReal(structSelOrCMeth ? selectedDtypep : varp->dtypep())) {
+        ಆದರೆ (dtype_ಒಳಗೊಂಡಿದೆ_Real(structSelOrCMeth ? selectedDtypep : varp->dtypep())) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: real value in this constraint expression");
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        AstNodeModule* const classOrPackagep = nodep->classOrPackagep();
-        const RandomizeMode randMode = {.asUQuad = varp->user1()};
-        if (!randMode.usesMode && editFormat(nodep)) return;
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classOrPackagep = nodep->classOrPackagep();
+        ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {.asUQuad = varp->user1()};
+        ಆದರೆ (!rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ && editFormat(nodep)) ಹಿಂತಿರುಗಿ;
 
-        AstEnumDType* enumDtp = VN_CAST(nodep->dtypep()->skipRefToEnump(), EnumDType);
-        if (enumDtp
-            && (std::find(m_rangeConstrainedEnums.begin(), m_rangeConstrainedEnums.end(), varp)
-                == m_rangeConstrainedEnums.end())) {
+        AstEnumDType* enumDtp = VN_CAST(nodep->dtypep()->skip_Ref_ಗಮ್ಯ_Enump(), EnumDType);
+        ಆದರೆ (enumDtp
+            && (std::ಕಂಡುಹಿಡಿ(m_rangeConstrainedEnums.begin(), m_rangeConstrainedEnums.ಕೊನೆ(), varp)
+                == m_rangeConstrainedEnums.ಕೊನೆ())) {
             AstVar* genVarp = m_genp;
-            if (m_classp && m_classp->user3p()) genVarp = VN_AS(m_classp->user3p(), Var);
+            ಆದರೆ (m_classp && m_classp->user3p()) genVarp = VN_AS(m_classp->user3p(), Var);
             UASSERT_OBJ(genVarp, nodep, "No 'randomize' variable in m_genp or m_classp");
-            AstNodeExpr* enumRangeExprp
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* enumRangeExprp
                 = createEnumConstraint(nodep->fileline(), varp->name(), enumDtp, genVarp);
-            AstNodeFTask* targetTaskp = m_inlineInitTaskp;
-            if (!targetTaskp) targetTaskp = getCreateConstraintSetupFunc(m_classp, m_memberMap);
-            UASSERT_OBJ(targetTaskp, nodep, "No function to inline enum range constraint into");
-            targetTaskp->addStmtsp(enumRangeExprp->makeStmt());
-            m_rangeConstrainedEnums.push_back(varp);
+            Ast_ಗಂಟು_FTask* ಗುರಿ_Taskp = m_inlineInitTaskp;
+            ಆದರೆ (!ಗುರಿ_Taskp) ಗುರಿ_Taskp = get_Create_Constraint_ಸಿದ್ಧತೆ_Func(m_classp, m_memberMap);
+            UASSERT_OBJ(ಗುರಿ_Taskp, nodep, "No function to inline enum range constraint into");
+            ಗುರಿ_Taskp->ಕೂಡಿಸು_Stmtsp(enumRangeExprp->makeStmt());
+            m_rangeConstrainedEnums.ತಳ್ಳು_ಹಿಂಭಾಗ(varp);
         }
 
         VNRelinker relinker;
-        nodep->unlinkFrBack(&relinker);
-        AstNodeExpr* const exprp
-            = createVarExprp(nodep, randMode, smtName, isGlobalConstrained, memberselp, varp);
+        nodep->unlink_Fr_ಹಿಂಭಾಗ(&relinker);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp
+            = createVarExprp(nodep, rand_ಬಹುಲಕ, smtName, isGlobalConstrained, memberselp, varp);
         relinker.relink(exprp);
 
         // Global / inline / class-level member-select refs key on the full path
         // (so same-type sub-objects c1.x, c2.x stay distinct); a plain class-level
         // variable keys on user3(). Inline 'with' dedups per function (own solver).
-        const bool alreadyWritten = m_inlineInitTaskp     ? m_inlineWrittenVars.count(smtName) > 0
-                                    : isGlobalConstrained ? m_writtenVars.count(smtName) > 0
-                                    : memberselp          ? m_writtenVars.count(smtName) > 0
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ alreadyWritten = m_inlineInitTaskp     ? m_inlineWrittenVars.ಎಣಿಕೆ_2(smtName) > 0
+                                    : isGlobalConstrained ? m_writtenVars.ಎಣಿಕೆ_2(smtName) > 0
+                                    : memberselp          ? m_writtenVars.ಎಣಿಕೆ_2(smtName) > 0
                                                           : varp->user3();
-        const bool shouldWriteVar = !alreadyWritten;
-        if (shouldWriteVar) {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ shouldWriteVar = !alreadyWritten;
+        ಆದರೆ (shouldWriteVar) {
             // Track this variable path as written
-            if (m_inlineInitTaskp)
-                m_inlineWrittenVars.insert(smtName);
-            else if (isGlobalConstrained || memberselp)
-                m_writtenVars.insert(smtName);
+            ಆದರೆ (m_inlineInitTaskp)
+                m_inlineWrittenVars.ಸೇರಿಸು(smtName);
+            ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (isGlobalConstrained || memberselp)
+                m_writtenVars.ಸೇರಿಸು(smtName);
             // For global constraints, delete nodep after processing
-            if (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            ಆದರೆ (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
 
-            bool isClassRefArray = false;
-            bool isUnpackedClassRefArray = false;
-            AstClassRefDType* elemClassRefDtp = nullptr;
+            ತಾರ್ಕಿಕ isClassRefArray = ಸುಳ್ಳು;
+            ತಾರ್ಕಿಕ isUnpackedClassRefArray = ಸುಳ್ಳು;
+            AstClassRefDType* elemClassRefDtp = ಶೂನ್ಯಸೂಚಕ;
             {
-                AstNodeDType* varDtp = varp->dtypep()->skipRefp();
-                if (varDtp->isNonPackedArray()) {
-                    AstNodeDType* const elemDtp = varDtp->subDTypep()->skipRefp();
+                Ast_ಗಂಟು_DType* varDtp = varp->dtypep()->skipRefp();
+                ಆದರೆ (varDtp->isNonPackedArray()) {
+                    Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ elemDtp = varDtp->subDTypep()->skipRefp();
                     elemClassRefDtp = VN_CAST(elemDtp, ClassRefDType);
-                    if (elemClassRefDtp) {
-                        isClassRefArray = true;
+                    ಆದರೆ (elemClassRefDtp) {
+                        isClassRefArray = ನಿಜ;
                         isUnpackedClassRefArray = VN_IS(varDtp, UnpackArrayDType);
                     }
                 }
             }
 
-            AstNodeModule* const classp = getLeftmostVarModulep(memberselp, varp);
-            AstNodeFTask* const initTaskp
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classp = getLeftmostVarModulep(memberselp, varp);
+            Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ initTaskp
                 = getInitTaskp(varp, memberselp || structSelOrCMeth, classp);
-            if (m_nestedAccess) {
-                AstStmtExpr* const writeVarStmtp = m_nestedAccess->makeWriteVarStmt(varp, m_genp);
-                addRegistrationStmt(writeVarStmtp, initTaskp);
-                if (isGlobalConstrained && memberselp && randMode.usesMode) {
-                    setRandMode(varp, memberselp, smtName, randMode, initTaskp);
+            ಆದರೆ (m_nestedAccess) {
+                Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ writeVarStmtp = m_nestedAccess->makeWriteVarStmt(varp, m_genp);
+                ಕೂಡಿಸು_Registration_Stmt(writeVarStmtp, initTaskp);
+                ಆದರೆ (isGlobalConstrained && memberselp && rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
+                    ಗಣ_Rand_ಬಹುಲಕ(varp, memberselp, smtName, rand_ಬಹುಲಕ, initTaskp);
                 }
                 // If randc, also emit markRandc() for cyclic tracking
-                if (varp->isRandC()) markRandc(varp, smtName, initTaskp);
-            } else if (isClassRefArray && !memberselp) {
+                ಆದರೆ (varp->isRandC()) markRandc(varp, smtName, initTaskp);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (isClassRefArray && !memberselp) {
                 createSolverArrayHandle(varp, elemClassRefDtp, classOrPackagep,
                                         isUnpackedClassRefArray, smtName);
-            } else {
-                createSolverVarHandle(varp, structSelOrCMeth, isGlobalConstrained, randMode,
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                createSolverVarHandle(varp, structSelOrCMeth, isGlobalConstrained, rand_ಬಹುಲಕ,
                                       memberselp, smtName, classOrPackagep, classp, initTaskp);
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // Variable already written, clean up cloned memberselp if any
-            if (memberselp) VL_DO_DANGLING(memberselp->deleteTree(), memberselp);
+            ಆದರೆ (memberselp) VL_DO_DANGLING(memberselp->delete_ವೃಕ್ಷ(), memberselp);
             // Delete nodep if it's a global constraint (not deleted yet)
-            if (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            ಆದರೆ (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         }
-        if (m_nestedAccess) { VL_DO_DANGLING(delete m_nestedAccess, m_nestedAccess); }
+        ಆದರೆ (m_nestedAccess) { VL_DO_DANGLING(ಅಳಿಸು m_nestedAccess, m_nestedAccess); }
     }
     // Build popcount expansion: (x & 1) + ((x & 2) >> 1) + ...
     // argp is consumed; caller must clone if reusing.
-    AstNodeExpr* buildCountOnesExpansion(FileLine* fl, AstNodeExpr* argp) {
-        const V3Number numOne{fl, argp->width(), 1};
-        AstNodeExpr* sump = new AstAnd{fl, argp, new AstConst{fl, numOne}};
-        sump->user1(true);
-        for (int i = 1; i < argp->width(); i++) {
-            V3Number numBitMask{fl, argp->width(), 0};
-            numBitMask.setBit(i, 1);
-            AstAnd* const andp
-                = new AstAnd{fl, argp->cloneTreePure(false), new AstConst{fl, numBitMask}};
-            andp->user1(true);
-            AstShiftR* const shiftp
-                = new AstShiftR{fl, andp,
-                                new AstConst{fl, AstConst::WidthedValue{}, argp->width(),
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* build_ಎಣಿಕೆ_Ones_Expansion(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argp) {
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_One{fl, argp->ಅಗಲ(), 1};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* sump = ಹೊಸ AstAnd{fl, argp, ಹೊಸ AstConst{fl, ಅಂಕೆ_One}};
+        sump->user1(ನಿಜ);
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < argp->ಅಗಲ(); i++) {
+            V3_ಸಂಖ್ಯೆ ಅಂಕೆ_ಬಿಟ್_ಮುಖವಾಡ{fl, argp->ಅಗಲ(), 0};
+            ಅಂಕೆ_ಬಿಟ್_ಮುಖವಾಡ.ಗಣ_ಬಿಟ್(i, 1);
+            AstAnd* ಸ್ಥಿರಾಂಕ andp
+                = ಹೊಸ AstAnd{fl, argp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), ಹೊಸ AstConst{fl, ಅಂಕೆ_ಬಿಟ್_ಮುಖವಾಡ}};
+            andp->user1(ನಿಜ);
+            Ast_ಸರಿಸು_R* ಸ್ಥಿರಾಂಕ shiftp
+                = ಹೊಸ Ast_ಸರಿಸು_R{fl, andp,
+                                ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, argp->ಅಗಲ(),
                                              static_cast<uint32_t>(i)}};
-            shiftp->user1(true);
-            sump = new AstAdd{fl, sump, shiftp};
-            sump->user1(true);
+            shiftp->user1(ನಿಜ);
+            sump = ಹೊಸ Ast_ಕೂಡಿಸು{fl, sump, shiftp};
+            sump->user1(ನಿಜ);
         }
-        return sump;
+        ಹಿಂತಿರುಗಿ sump;
     }
 
-    void visit(AstCountOnes* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* sump = buildCountOnesExpansion(fl, argp);
-        sump = adjustWidth(fl, sump, nodep->width(), nodep->dtypep()->numeric());
-        sump->user1(true);
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಎಣಿಕೆ_Ones* nodep) override {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* sump = build_ಎಣಿಕೆ_Ones_Expansion(fl, argp);
+        sump = adjust_ಅಗಲ(fl, sump, nodep->ಅಗಲ(), nodep->dtypep()->numeric());
+        sump->user1(ನಿಜ);
         nodep->replaceWith(sump);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(sump);
     }
-    void visit(AstRedXor* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstRedXor* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
 
         // Build popcount expansion: (extract x 1 1) ^ (extract x 2 2) ^ ...
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
 
-        AstNodeExpr* redxorp = new AstSel{fl, argp, 0, 1};
-        redxorp->user1(true);
-        for (int i = 1; i < argp->width(); i++) {
-            AstSel* const selp = new AstSel{fl, argp->cloneTreePure(false), i, 1};
-            selp->user1(true);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* redxorp = ಹೊಸ AstSel{fl, argp, 0, 1};
+        redxorp->user1(ನಿಜ);
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 1; i < argp->ಅಗಲ(); i++) {
+            AstSel* ಸ್ಥಿರಾಂಕ selp = ಹೊಸ AstSel{fl, argp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), i, 1};
+            selp->user1(ನಿಜ);
 
-            redxorp = new AstXor{fl, redxorp, selp};
-            redxorp->user1(true);
+            redxorp = ಹೊಸ AstXor{fl, redxorp, selp};
+            redxorp->user1(ನಿಜ);
         }
 
         nodep->replaceWith(redxorp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(redxorp);
     }
-    void visit(AstRedAnd* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstRedAnd* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         // Convert to (~x == 0)
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const V3Number numZero{fl, argp->width(), 0};
-        AstNodeExpr* const negp = new AstNot{fl, argp};
-        negp->user1(true);
-        AstNodeExpr* const eqp = new AstEq{fl, negp, new AstConst{fl, numZero}};
-        eqp->user1(true);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_Zero{fl, argp->ಅಗಲ(), 0};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ negp = ಹೊಸ AstNot{fl, argp};
+        negp->user1(ನಿಜ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ eqp = ಹೊಸ AstEq{fl, negp, ಹೊಸ AstConst{fl, ಅಂಕೆ_Zero}};
+        eqp->user1(ನಿಜ);
         nodep->replaceWith(eqp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(eqp);
     }
-    void visit(AstRedOr* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstRedOr* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         // Convert to (x != 0)
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const V3Number numZero{fl, argp->width(), 0};
-        AstNodeExpr* const neqp = new AstNeq{fl, argp, new AstConst{fl, numZero}};
-        neqp->user1(true);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_Zero{fl, argp->ಅಗಲ(), 0};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ neqp = ಹೊಸ AstNeq{fl, argp, ಹೊಸ AstConst{fl, ಅಂಕೆ_Zero}};
+        neqp->user1(ನಿಜ);
         nodep->replaceWith(neqp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(neqp);
     }
-    void visit(AstOneHot* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstOneHot* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         // $onehot(x) = (x != 0) && ((x & (x-1)) == 0)
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int w = argp->width();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ w = argp->ಅಗಲ();
 
-        const V3Number numZero{fl, w, 0};
-        AstNeq* const neZerop
-            = new AstNeq{fl, argp->cloneTreePure(false), new AstConst{fl, numZero}};
-        neZerop->user1(true);
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_Zero{fl, w, 0};
+        AstNeq* ಸ್ಥಿರಾಂಕ neZerop
+            = ಹೊಸ AstNeq{fl, argp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), ಹೊಸ AstConst{fl, ಅಂಕೆ_Zero}};
+        neZerop->user1(ನಿಜ);
 
-        const V3Number numOne{fl, w, 1};
-        AstSub* const subp = new AstSub{fl, argp->cloneTreePure(false), new AstConst{fl, numOne}};
-        subp->user1(true);
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_One{fl, w, 1};
+        AstSub* ಸ್ಥಿರಾಂಕ subp = ಹೊಸ AstSub{fl, argp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), ಹೊಸ AstConst{fl, ಅಂಕೆ_One}};
+        subp->user1(ನಿಜ);
 
-        AstAnd* const andp = new AstAnd{fl, argp, subp};
-        andp->user1(true);
+        AstAnd* ಸ್ಥಿರಾಂಕ andp = ಹೊಸ AstAnd{fl, argp, subp};
+        andp->user1(ನಿಜ);
 
-        const V3Number numZero2{fl, w, 0};
-        AstEq* const eqZerop = new AstEq{fl, andp, new AstConst{fl, numZero2}};
-        eqZerop->user1(true);
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_Zero2{fl, w, 0};
+        AstEq* ಸ್ಥಿರಾಂಕ eqZerop = ಹೊಸ AstEq{fl, andp, ಹೊಸ AstConst{fl, ಅಂಕೆ_Zero2}};
+        eqZerop->user1(ನಿಜ);
 
-        AstLogAnd* const resultp = new AstLogAnd{fl, neZerop, eqZerop};
-        resultp->user1(true);
+        AstLogAnd* ಸ್ಥಿರಾಂಕ resultp = ಹೊಸ AstLogAnd{fl, neZerop, eqZerop};
+        resultp->user1(ನಿಜ);
 
         nodep->replaceWith(resultp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(resultp);
     }
-    void visit(AstOneHot0* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstOneHot0* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         // $onehot0(x) = (x & (x-1)) == 0
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int w = argp->width();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ w = argp->ಅಗಲ();
 
-        const V3Number numOne{fl, w, 1};
-        AstSub* const subp = new AstSub{fl, argp->cloneTreePure(false), new AstConst{fl, numOne}};
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_One{fl, w, 1};
+        AstSub* ಸ್ಥಿರಾಂಕ subp = ಹೊಸ AstSub{fl, argp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), ಹೊಸ AstConst{fl, ಅಂಕೆ_One}};
         subp->dtypeFrom(argp);
-        subp->user1(true);
+        subp->user1(ನಿಜ);
 
-        AstAnd* const andp = new AstAnd{fl, argp, subp};
+        AstAnd* ಸ್ಥಿರಾಂಕ andp = ಹೊಸ AstAnd{fl, argp, subp};
         andp->dtypeFrom(argp);
-        andp->user1(true);
+        andp->user1(ನಿಜ);
 
-        const V3Number numZero{fl, w, 0};
-        AstEq* const eqp = new AstEq{fl, andp, new AstConst{fl, numZero}};
-        eqp->user1(true);
+        ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_Zero{fl, w, 0};
+        AstEq* ಸ್ಥಿರಾಂಕ eqp = ಹೊಸ AstEq{fl, andp, ಹೊಸ AstConst{fl, ಅಂಕೆ_Zero}};
+        eqp->user1(ನಿಜ);
 
         nodep->replaceWith(eqp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(eqp);
     }
-    void visit(AstCountBits* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
 
-        bool countOnes = false;
-        bool countZeros = false;
-        for (AstNodeExpr* ctrlp : {nodep->rhsp(), nodep->thsp(), nodep->fhsp()}) {
-            const AstConst* const cp = VN_CAST(ctrlp, Const);
-            if (!cp) {
+        ತಾರ್ಕಿಕ ಎಣಿಕೆ_Ones = ಸುಳ್ಳು;
+        ತಾರ್ಕಿಕ ಎಣಿಕೆ_Zeros = ಸುಳ್ಳು;
+        ಗಾಗಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ctrlp : {nodep->rhsp(), nodep->thsp(), nodep->fhsp()}) {
+            ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ cp = VN_CAST(ctrlp, Const);
+            ಆದರೆ (!cp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: non-constant control in $countbits inside constraint");
-                AstConst* const zerop
-                    = new AstConst{fl, AstConst::WidthedValue{}, nodep->width(), 0U};
+                AstConst* ಸ್ಥಿರಾಂಕ zerop
+                    = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, nodep->ಅಗಲ(), 0U};
                 nodep->replaceWith(zerop);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                return;
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                ಹಿಂತಿರುಗಿ;
             }
-            if (cp->num().bitIs1(0) && !countOnes)
-                countOnes = true;
-            else if (cp->num().bitIs0(0) && !countZeros)
-                countZeros = true;
+            ಆದರೆ (cp->ಅಂಕೆ().ಬಿಟ್_Is1(0) && !ಎಣಿಕೆ_Ones)
+                ಎಣಿಕೆ_Ones = ನಿಜ;
+            ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (cp->ಅಂಕೆ().ಬಿಟ್_Is0(0) && !ಎಣಿಕೆ_Zeros)
+                ಎಣಿಕೆ_Zeros = ನಿಜ;
         }
 
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int argWidth = argp->width();
-        AstNodeExpr* sump = nullptr;
-        if (countOnes && countZeros) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ arg_ಅಗಲ = argp->ಅಗಲ();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* sump = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (ಎಣಿಕೆ_Ones && ಎಣಿಕೆ_Zeros) {
             // ones + zeros = width for 2-state types
-            sump = new AstConst{fl, AstConst::WidthedValue{}, nodep->width(), (uint32_t)argWidth};
-            VL_DO_DANGLING(argp->deleteTree(), argp);
-        } else if (countOnes) {
-            sump = buildCountOnesExpansion(fl, argp);
-        } else if (countZeros) {
+            sump = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, nodep->ಅಗಲ(), (uint32_t)arg_ಅಗಲ};
+            VL_DO_DANGLING(argp->delete_ವೃಕ್ಷ(), argp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಎಣಿಕೆ_Ones) {
+            sump = build_ಎಣಿಕೆ_Ones_Expansion(fl, argp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಎಣಿಕೆ_Zeros) {
             // width - countones(x)
-            AstNodeExpr* const onesCountp = buildCountOnesExpansion(fl, argp);
-            const V3Number widthVal{nodep, onesCountp->width(), (uint32_t)argWidth};
-            sump = new AstSub{fl, new AstConst{fl, widthVal}, onesCountp};
-            sump->user1(true);
-        } else {
-            sump = new AstConst{fl, AstConst::WidthedValue{}, nodep->width(), 0U};
-            VL_DO_DANGLING(argp->deleteTree(), argp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ onesCountp = build_ಎಣಿಕೆ_Ones_Expansion(fl, argp);
+            ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಗಲ_Val{nodep, onesCountp->ಅಗಲ(), (uint32_t)arg_ಅಗಲ};
+            sump = ಹೊಸ AstSub{fl, ಹೊಸ AstConst{fl, ಅಗಲ_Val}, onesCountp};
+            sump->user1(ನಿಜ);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            sump = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, nodep->ಅಗಲ(), 0U};
+            VL_DO_DANGLING(argp->delete_ವೃಕ್ಷ(), argp);
         }
 
-        sump = adjustWidth(fl, sump, nodep->width(), nodep->dtypep()->numeric());
-        sump->user1(true);
+        sump = adjust_ಅಗಲ(fl, sump, nodep->ಅಗಲ(), nodep->dtypep()->numeric());
+        sump->user1(ನಿಜ);
 
         nodep->replaceWith(sump);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(sump);
     }
-    void visit(AstCLog2* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstCLog2* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         // $clog2(x): ITE chain (x<=1)?0 : (x<=2)?1 : ... : argWidth
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int argWidth = argp->width();
-        const int resultWidth = nodep->width();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ arg_ಅಗಲ = argp->ಅಗಲ();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_ಅಗಲ = nodep->ಅಗಲ();
 
-        AstNodeExpr* resultp
-            = new AstConst{fl, AstConst::WidthedValue{}, resultWidth, (uint32_t)argWidth};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resultp
+            = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, ಫಲಿತಾಂಶ_ಅಗಲ, (uint32_t)arg_ಅಗಲ};
 
-        for (int k = argWidth - 1; k >= 0; k--) {
-            V3Number threshold{fl, argWidth, 0};
-            if (k < 32)
-                threshold.setLong(1ULL << k);
-            else
-                threshold.setBit(k, 1);
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ k = arg_ಅಗಲ - 1; k >= 0; k--) {
+            V3_ಸಂಖ್ಯೆ ಮಿತಿ{fl, arg_ಅಗಲ, 0};
+            ಆದರೆ (k < 32)
+                ಮಿತಿ.ಗಣ_Long(1ULL << k);
+            ಇಲ್ಲದಿದ್ದರೆ
+                ಮಿತಿ.ಗಣ_ಬಿಟ್(k, 1);
 
-            AstLte* const ltep
-                = new AstLte{fl, argp->cloneTreePure(false), new AstConst{fl, threshold}};
-            ltep->user1(true);
+            AstLte* ಸ್ಥಿರಾಂಕ ltep
+                = ಹೊಸ AstLte{fl, argp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), ಹೊಸ AstConst{fl, ಮಿತಿ}};
+            ltep->user1(ನಿಜ);
 
-            AstConst* const valuep
-                = new AstConst{fl, AstConst::WidthedValue{}, resultWidth, (uint32_t)k};
+            AstConst* ಸ್ಥಿರಾಂಕ valuep
+                = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, ಫಲಿತಾಂಶ_ಅಗಲ, (uint32_t)k};
 
-            resultp = new AstCond{fl, ltep, valuep, resultp};
+            resultp = ಹೊಸ AstCond{fl, ltep, valuep, resultp};
             resultp->dtypeChgSigned(VSigning::SIGNED);
-            resultp->user1(true);
+            resultp->user1(ನಿಜ);
         }
 
-        VL_DO_DANGLING(argp->deleteTree(), argp);
+        VL_DO_DANGLING(argp->delete_ವೃಕ್ಷ(), argp);
         nodep->replaceWith(resultp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         iterate(resultp);
     }
-    void visit(AstIsUnbounded* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstIsUnbounded* nodep) override {
         // Only true for the literal '$' token, never a real expression, so
         // this always folds to false. It has no runtime implementation of
         // its own, so it must be substituted now rather than left for later.
         nodep->v3warn(CONSTRAINTIGN,
                       "Unsupported: $isunbounded() in a constraint, treating as constant");
-        AstConst* const zerop = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+        AstConst* ಸ್ಥಿರಾಂಕ zerop = ಹೊಸ AstConst{nodep->fileline(), AstConst::ಬಿಟ್_False{}};
         nodep->replaceWith(zerop);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         // So the constant is rendered as an SMT literal like every other
         // folded constant here, instead of being left behind unconverted.
         iterate(zerop);
     }
-    void handlePow(AstNodeBiop* nodep) {
-        if (AstConst* const exponentp = VN_CAST(nodep->rhsp(), Const)) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* const basep = nodep->lhsp();
-            const V3Number numOne{nodep, basep->width(), 1};
-            AstNodeExpr* powerp = new AstConst{fl, numOne};
-            const bool baseSigned = VN_IS(nodep, PowSS) || VN_IS(nodep, PowSU);
-            const int32_t exponent = baseSigned ? exponentp->toSInt() : exponentp->toUInt();
-            if (exponent > 0) {
-                for (int32_t i = 0; i < exponent; i++) {
-                    if (baseSigned) {
-                        powerp = new AstMulS{fl, powerp, basep->cloneTreePure(false)};
-                    } else {
-                        powerp = new AstMul{fl, powerp, basep->cloneTreePure(false)};
+    ಶೂನ್ಯ handlePow(Ast_ಗಂಟು_Biop* nodep) {
+        ಆದರೆ (AstConst* ಸ್ಥಿರಾಂಕ exponentp = VN_CAST(nodep->rhsp(), Const)) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ basep = nodep->lhsp();
+            ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_One{nodep, basep->ಅಗಲ(), 1};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* powerp = ಹೊಸ AstConst{fl, ಅಂಕೆ_One};
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ತಳ_Signed = VN_IS(nodep, PowSS) || VN_IS(nodep, PowSU);
+            ಸ್ಥಿರಾಂಕ int32_t exponent = ತಳ_Signed ? exponentp->ಗಮ್ಯ_SInt() : exponentp->ಗಮ್ಯ_UInt();
+            ಆದರೆ (exponent > 0) {
+                ಗಾಗಿ (int32_t i = 0; i < exponent; i++) {
+                    ಆದರೆ (ತಳ_Signed) {
+                        powerp = ಹೊಸ AstMulS{fl, powerp, basep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        powerp = ಹೊಸ AstMul{fl, powerp, basep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
                     }
-                    powerp->user1(true);
+                    powerp->user1(ನಿಜ);
                 }
-            } else if (exponent < 0) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (exponent < 0) {
                 // Limit chain of divisions to max 2, because operations are on integers.
                 // Two divisions are needed to preserve the sign.
-                if (baseSigned) {
-                    powerp = new AstDivS{fl, powerp, basep->cloneTreePure(false)};
-                    powerp->user1(true);
-                    powerp = new AstDivS{fl, powerp, basep->cloneTreePure(false)};
-                    powerp->user1(true);
-                } else {
-                    powerp = new AstDiv{fl, powerp, basep->cloneTreePure(false)};
-                    powerp->user1(true);
+                ಆದರೆ (ತಳ_Signed) {
+                    powerp = ಹೊಸ AstDivS{fl, powerp, basep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                    powerp->user1(ನಿಜ);
+                    powerp = ಹೊಸ AstDivS{fl, powerp, basep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                    powerp->user1(ನಿಜ);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    powerp = ಹೊಸ AstDiv{fl, powerp, basep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                    powerp->user1(ನಿಜ);
                 }
             }
             nodep->replaceWith(powerp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
             iterate(powerp);
-        } else if (const AstConst* const basep = VN_CAST(nodep->lhsp(), Const)) {
-            if (basep->num().toUInt() == 2) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ basep = VN_CAST(nodep->lhsp(), Const)) {
+            ಆದರೆ (basep->ಅಂಕೆ().ಗಮ್ಯ_UInt() == 2) {
                 // Non-constant exponent, base == 2: transform to shift-based SMT expression.
                 // AstPow/AstPowSU (unsigned exponent): 2**n -> 1<<n
                 // AstPowSS/AstPowUS (signed exponent): 2**n -> n>=0 ? 1<<n : 0
                 // IEEE 1800-2023 ss11.4.3: integer base with negative exponent gives 0,
                 // which ShiftL cannot represent; use SMT ite (AstCond -> bvsge + bvshl).
-                FileLine* const fl = nodep->fileline();
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                const int width = nodep->width();
-                const bool rhsDependent = rhsp->user1();
-                AstConst* const onep = new AstConst{fl, AstConst::WidthedValue{}, width, 1};
-                AstShiftL* const shiftp = new AstShiftL{fl, onep, rhsp, width};
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = nodep->rhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = nodep->ಅಗಲ();
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ rhsDependent = rhsp->user1();
+                AstConst* ಸ್ಥಿರಾಂಕ onep = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, ಅಗಲ, 1};
+                Ast_ಸರಿಸು_L* ಸ್ಥಿರಾಂಕ shiftp = ಹೊಸ Ast_ಸರಿಸು_L{fl, onep, rhsp, ಅಗಲ};
                 shiftp->dtypeFrom(nodep);
                 shiftp->user1(rhsDependent);
-                AstNodeExpr* resultp = shiftp;
-                if (VN_IS(nodep, PowSS) || VN_IS(nodep, PowUS)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resultp = shiftp;
+                ಆದರೆ (VN_IS(nodep, PowSS) || VN_IS(nodep, PowUS)) {
                     // Signed exponent: guard 1<<n with n>=0 check
-                    AstNodeExpr* const nClonep = rhsp->cloneTreePure(false);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ nClonep = rhsp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
                     nClonep->user1(rhsDependent);
-                    AstConst* const zeroNp
-                        = new AstConst{fl, AstConst::WidthedValue{}, rhsp->width(), 0};
-                    AstGteS* const condp = new AstGteS{fl, nClonep, zeroNp};
+                    AstConst* ಸ್ಥಿರಾಂಕ zeroNp
+                        = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, rhsp->ಅಗಲ(), 0};
+                    AstGteS* ಸ್ಥಿರಾಂಕ condp = ಹೊಸ AstGteS{fl, nClonep, zeroNp};
                     condp->user1(rhsDependent);
-                    AstConst* const zeroRp = new AstConst{fl, AstConst::WidthedValue{}, width, 0};
-                    resultp = new AstCond{fl, condp, shiftp, zeroRp};
+                    AstConst* ಸ್ಥಿರಾಂಕ zeroRp = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, ಅಗಲ, 0};
+                    resultp = ಹೊಸ AstCond{fl, condp, shiftp, zeroRp};
                     resultp->dtypeFrom(nodep);
                     resultp->user1(nodep->user1());
                 }
                 nodep->replaceWith(resultp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
                 iterate(resultp);
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->v3warn(CONSTRAINTIGN,
                               "Unsupported: Power (**) expression with non-2 base in constraint");
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             nodep->v3warn(
                 CONSTRAINTIGN,
                 "Unsupported: Power (**) expression with non-constant exponent in constraint");
         }
     }
-    void visit(AstPow* nodep) override { handlePow(nodep); }
-    void visit(AstPowSS* nodep) override { handlePow(nodep); }
-    void visit(AstPowSU* nodep) override { handlePow(nodep); }
-    void visit(AstPowUS* nodep) override { handlePow(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstPow* nodep) override { handlePow(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstPowSS* nodep) override { handlePow(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstPowSU* nodep) override { handlePow(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstPowUS* nodep) override { handlePow(nodep); }
     // SMT-LIB2 shift operations (bvshl/bvlshr/bvashr) require both operands
     // to have the same bitvector width. Extend the narrower operand, then
     // truncate the result if the value was widened. Never truncate the shift
     // amount, as large shifts must still shift out all of the original bits.
-    void handleShift(AstNodeBiop* nodep) {
-        if (editFormat(nodep)) return;
-        const int lhsWidth = nodep->lhsp()->width();
-        const int rhsWidth = nodep->rhsp()->width();
-        if (rhsWidth < lhsWidth) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            AstExtend* const extendp = new AstExtend{fl, rhsp, lhsWidth};
+    ಶೂನ್ಯ handle_ಸರಿಸು(Ast_ಗಂಟು_Biop* nodep) {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lhs_ಅಗಲ = nodep->lhsp()->ಅಗಲ();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ rhs_ಅಗಲ = nodep->rhsp()->ಅಗಲ();
+        ಆದರೆ (rhs_ಅಗಲ < lhs_ಅಗಲ) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = nodep->rhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+            AstExtend* ಸ್ಥಿರಾಂಕ extendp = ಹೊಸ AstExtend{fl, rhsp, lhs_ಅಗಲ};
             // Always visit the wrapper: a rand MemberSel can have user1 unset until its
             // own visitor translates it. Copying that flag would format the entire
             // extension from the pre-randomize value. Non-rand children are still
             // formatted as constants by their own visitors.
-            extendp->user1(true);
+            extendp->user1(ನಿಜ);
             nodep->rhsp(extendp);
-        } else if (rhsWidth > lhsWidth) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeDType* const dtypep = nodep->dtypep();
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const extendp
-                = VN_IS(nodep, ShiftRS)
-                      ? static_cast<AstNodeExpr*>(new AstExtendS{fl, lhsp, rhsWidth})
-                      : static_cast<AstNodeExpr*>(new AstExtend{fl, lhsp, rhsWidth});
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (rhs_ಅಗಲ > lhs_ಅಗಲ) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+            Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = nodep->dtypep();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp = nodep->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ extendp
+                = VN_IS(nodep, ಸರಿಸು_RS)
+                      ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ಹೊಸ AstExtendS{fl, lhsp, rhs_ಅಗಲ})
+                      : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ಹೊಸ AstExtend{fl, lhsp, rhs_ಅಗಲ});
             // Likewise, visit the extension instead of prematurely formatting rand
             // member selections as constants.
-            extendp->user1(true);
+            extendp->user1(ನಿಜ);
             nodep->lhsp(extendp);
-            nodep->dtypeSetLogicSized(rhsWidth, dtypep->numeric());
+            nodep->dtype_ಗಣ_Logic_Sized(rhs_ಅಗಲ, dtypep->numeric());
             VNRelinker relinker;
-            nodep->unlinkFrBack(&relinker);
-            AstSel* const selp = new AstSel{fl, nodep, 0, lhsWidth};
+            nodep->unlink_Fr_ಹಿಂಭಾಗ(&relinker);
+            AstSel* ಸ್ಥಿರಾಂಕ selp = ಹೊಸ AstSel{fl, nodep, 0, lhs_ಅಗಲ};
             selp->dtypep(dtypep);
             selp->user1(nodep->user1());
             relinker.relink(selp);
             iterate(selp);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
         editSMT(nodep, nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstShiftL* nodep) override { handleShift(nodep); }
-    void visit(AstShiftR* nodep) override { handleShift(nodep); }
-    void visit(AstShiftRS* nodep) override { handleShift(nodep); }
-    void visit(AstNodeBiop* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಸರಿಸು_L* nodep) override { handle_ಸರಿಸು(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಸರಿಸು_R* nodep) override { handle_ಸರಿಸು(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಸರಿಸು_RS* nodep) override { handle_ಸರಿಸು(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Biop* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         editSMT(nodep, nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Uniop* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         editSMT(nodep, nodep->lhsp());
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Triop* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         editSMT(nodep, nodep->lhsp(), nodep->rhsp(), nodep->thsp());
     }
-    void visit(AstCond* nodep) override {
-        if (editFormat(nodep)) return;
-        if (!nodep->condp()->user1()) {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCond* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (!nodep->condp()->user1()) {
             // Do not burden the solver if cond computable: (cond ? "then" : "else")
             iterate(nodep->thenp());
             iterate(nodep->elsep());
             UASSERT_OBJ(
                 nodep->thenp()->isString() && nodep->elsep()->isString(), nodep,
                 "Branches of conditional expression in constraint not converted to strings");
-            nodep->dtypeSetString();
-            return;
+            nodep->dtype_ಗಣ_String();
+            ಹಿಂತಿರುಗಿ;
         }
         // Fall back to "(ite cond then else)"
-        visit(static_cast<AstNodeTriop*>(nodep));
+        ಭೇಟಿ(static_cast<Ast_ಗಂಟು_Triop*>(nodep));
     }
-    void visit(AstReplicate* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstReplicate* nodep) override {
         // Biop, but RHS is harmful
-        if (editFormat(nodep)) return;
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         editSMT(nodep, nodep->srcp());
     }
-    void visit(AstSel* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstSel* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         VNRelinker handle;
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const msbp = new AstSFormatF{
-            fl, "%1d", false,
-            new AstAdd{fl, nodep->lsbp()->cloneTreePure(false),
-                       new AstConst{fl, static_cast<uint32_t>(nodep->widthConst() - 1)}}};
-        AstNodeExpr* const lsbp
-            = new AstSFormatF{fl, "%1d", false, nodep->lsbp()->unlinkFrBack(&handle)};
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ msbp = ಹೊಸ AstSFormatF{
+            fl, "%1d", ಸುಳ್ಳು,
+            ಹೊಸ Ast_ಕೂಡಿಸು{fl, nodep->lsbp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                       ಹೊಸ AstConst{fl, static_cast<uint32_t>(nodep->ಅಗಲ_Const() - 1)}}};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lsbp
+            = ಹೊಸ AstSFormatF{fl, "%1d", ಸುಳ್ಳು, nodep->lsbp()->unlink_Fr_ಹಿಂಭಾಗ(&handle)};
         handle.relink(lsbp);
 
         editSMT(nodep, nodep->fromp(), lsbp, msbp);
     }
-    void visit(AstStructSel* nodep) override {
-        if (editFormat(nodep)) return;
-        const bool outermost = !m_deferRandModeHoist;
-        AstNodeExpr* const origp = outermost ? nodep->cloneTree(false) : nullptr;
+    ಶೂನ್ಯ ಭೇಟಿ(AstStructSel* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ outermost = !m_defer_Rand_ಬಹುಲಕ_Hoist;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ origp = outermost ? nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು) : ಶೂನ್ಯಸೂಚಕ;
         VL_RESTORER(m_structSel);
-        m_structSel = true;
-        if (VN_IS(nodep->fromp()->dtypep()->skipRefp(), StructDType)) {
-            AstNodeExpr* const fromp = nodep->fromp();
-            AstStructDType* const structp = VN_AS(fromp->dtypep()->skipRefp(), StructDType);
+        m_structSel = ನಿಜ;
+        ಆದರೆ (VN_IS(nodep->fromp()->dtypep()->skipRefp(), StructDType)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = nodep->fromp();
+            AstStructDType* ಸ್ಥಿರಾಂಕ structp = VN_AS(fromp->dtypep()->skipRefp(), StructDType);
             markConstrainedRandMember(structp, nodep->name());
-            if (isRandQualifiedPath(fromp)) {
+            ಆದರೆ (is_Rand_Qualified_ಮಾರ್ಗ(fromp)) {
                 markStructConstrainedRandRecurse(fromp->dtypep());
-            } else {
-                structp->markConstrainedRand(true);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                structp->markConstrainedRand(ನಿಜ);
             }
         }
         // Mark Random for structArray
-        if (VN_IS(nodep->fromp(), ArraySel) || VN_IS(nodep->fromp(), CMethodHard)) {
-            AstNodeExpr* const fromp = VN_IS(nodep->fromp(), ArraySel)
+        ಆದರೆ (VN_IS(nodep->fromp(), ArraySel) || VN_IS(nodep->fromp(), CMethodHard)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = VN_IS(nodep->fromp(), ArraySel)
                                            ? VN_AS(nodep->fromp(), ArraySel)->fromp()
                                            : VN_AS(nodep->fromp(), CMethodHard)->fromp();
-            AstStructDType* const structp
+            AstStructDType* ಸ್ಥಿರಾಂಕ structp
                 = VN_AS(fromp->dtypep()->skipRefp()->subDTypep()->skipRefp(), StructDType);
             markConstrainedRandMember(structp, nodep->name());
-            if (isRandQualifiedPath(fromp)) {
+            ಆದರೆ (is_Rand_Qualified_ಮಾರ್ಗ(fromp)) {
                 markStructConstrainedRandRecurse(fromp->dtypep()->skipRefp()->subDTypep());
-            } else {
-                structp->markConstrainedRand(true);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                structp->markConstrainedRand(ನಿಜ);
             }
         }
         {
-            VL_RESTORER(m_deferRandModeHoist);
-            m_deferRandModeHoist = true;
+            VL_RESTORER(m_defer_Rand_ಬಹುಲಕ_Hoist);
+            m_defer_Rand_ಬಹುಲಕ_Hoist = ನಿಜ;
             iterateChildren(nodep);
         }
-        FileLine* const fl = nodep->fileline();
-        AstSFormatF* newp = nullptr;
-        if (VN_AS(nodep->fromp(), SFormatF)->name() == "%s.%s") {
-            newp = new AstSFormatF{fl, "%s.%s." + nodep->name(), false,
-                                   VN_AS(nodep->fromp(), SFormatF)->exprsp()->cloneTreePure(true)};
-            if (newp->exprsp()->nextp()->name().rfind("#x", 0) == 0)
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        AstSFormatF* newp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (VN_AS(nodep->fromp(), SFormatF)->name() == "%s.%s") {
+            newp = ಹೊಸ AstSFormatF{fl, "%s.%s." + nodep->name(), ಸುಳ್ಳು,
+                                   VN_AS(nodep->fromp(), SFormatF)->exprsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ)};
+            ಆದರೆ (newp->exprsp()->nextp()->name().rfind("#x", 0) == 0)
                 newp->exprsp()->nextp()->name("%x");  //  for #x%x to %x
-        } else {
-            newp = new AstSFormatF{fl, nodep->fromp()->name() + "." + nodep->name(), false,
-                                   nullptr};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            newp = ಹೊಸ AstSFormatF{fl, nodep->fromp()->name() + "." + nodep->name(), ಸುಳ್ಳು,
+                                   ಶೂನ್ಯಸೂಚಕ};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        if (origp && !hoistRandModeOverSelectAndMember(newp, origp)) {
-            VL_DO_DANGLING(pushDeletep(origp), origp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        ಆದರೆ (origp && !hoist_Rand_ಬಹುಲಕ_Over_Select_And_Member(newp, origp)) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(origp), origp);
         }
     }
-    void addStringNamePart(AstNodeExpr* const indexp, const std::string& fmt = "%32x") {
-        if (m_nestedAccess) {
-            AstNodeExpr* const bitp = indexp->cloneTreePure(false);
-            AstNodeExpr* const bitFormatp = new AstSFormatF{bitp->fileline(), fmt, false, bitp};
-            AstSFormatF* const herep
-                = new AstSFormatF{indexp->fileline(), "%s.%s", false, bitFormatp};
-            m_nestedAccess->addVarNamePart(herep, indexp->name());
+    ಶೂನ್ಯ ಕೂಡಿಸು_String_Name_Part(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ indexp, ಸ್ಥಿರಾಂಕ std::string& fmt = "%32x") {
+        ಆದರೆ (m_nestedAccess) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ bitp = indexp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಬಿಟ್_Formatp = ಹೊಸ AstSFormatF{bitp->fileline(), fmt, ಸುಳ್ಳು, bitp};
+            AstSFormatF* ಸ್ಥಿರಾಂಕ herep
+                = ಹೊಸ AstSFormatF{indexp->fileline(), "%s.%s", ಸುಳ್ಳು, ಬಿಟ್_Formatp};
+            m_nestedAccess->ಕೂಡಿಸು_Var_Name_Part(herep, indexp->name());
         }
     }
-    void visit(AstAssocSel* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ಶೂನ್ಯ ಭೇಟಿ(AstAssocSel* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
         // Keep a pre-edit clone for the rand_mode hoist below.
-        AstNodeExpr* const origp = nodep->cloneTree(false);
-        AstSFormatF* newp = nullptr;
-        if (VN_IS(nodep->bitp(), VarRef) && VN_AS(nodep->bitp(), VarRef)->isString()) {
-            addStringNamePart(nodep->bitp());
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ origp = nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+        AstSFormatF* newp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (VN_IS(nodep->bitp(), VarRef) && VN_AS(nodep->bitp(), VarRef)->isString()) {
+            ಕೂಡಿಸು_String_Name_Part(nodep->bitp());
             VNRelinker handle;
-            AstNodeExpr* const idxp = new AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), false,
-                                                      nodep->bitp()->unlinkFrBack(&handle)};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ idxp = ಹೊಸ AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), ಸುಳ್ಳು,
+                                                      nodep->bitp()->unlink_Fr_ಹಿಂಭಾಗ(&handle)};
             handle.relink(idxp);
             newp = editSMT(nodep, nodep->fromp(), idxp);
-        } else if (VN_IS(nodep->bitp(), CvtPackString)
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(nodep->bitp(), CvtPackString)
                    && VN_IS(nodep->bitp()->dtypep(), BasicDType)) {
-            AstCvtPackString* const stringp = VN_AS(nodep->bitp(), CvtPackString);
-            const size_t stringSize = VN_AS(stringp->lhsp(), Const)->width();
-            if (stringSize > 128) {
+            AstCvtPackString* ಸ್ಥಿರಾಂಕ stringp = VN_AS(nodep->bitp(), CvtPackString);
+            ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t string_ಗಾತ್ರ = VN_AS(stringp->lhsp(), Const)->ಅಗಲ();
+            ಆದರೆ (string_ಗಾತ್ರ > 128) {
                 stringp->v3warn(
                     CONSTRAINTIGN,
                     "Unsupported: Constrained randomization of associative array keys of "
-                        << stringSize << "bits, limit is 128 bits");
+                        << string_ಗಾತ್ರ << "bits, limit is 128 bits");
             }
-            addStringNamePart(nodep->bitp());
+            ಕೂಡಿಸು_String_Name_Part(nodep->bitp());
             VNRelinker handle;
-            AstNodeExpr* const idxp = new AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), false,
-                                                      stringp->lhsp()->unlinkFrBack(&handle)};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ idxp = ಹೊಸ AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), ಸುಳ್ಳು,
+                                                      stringp->lhsp()->unlink_Fr_ಹಿಂಭಾಗ(&handle)};
             handle.relink(idxp);
             newp = editSMT(nodep, nodep->fromp(), idxp);
-        } else {
-            if (VN_IS(nodep->bitp()->dtypep(), BasicDType)
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (VN_IS(nodep->bitp()->dtypep(), BasicDType)
                 || (VN_IS(nodep->bitp()->dtypep(), StructDType)
                     && VN_AS(nodep->bitp()->dtypep(), StructDType)->packed())
                 || VN_IS(nodep->bitp()->dtypep(), EnumDType)
                 || VN_IS(nodep->bitp()->dtypep(), PackArrayDType)) {
-                const int actual_width = nodep->bitp()->width();
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ actual_ಅಗಲ = nodep->bitp()->ಅಗಲ();
                 std::string fmt;
                 // Normalize to standard bit width
-                if (actual_width <= 8) {
+                ಆದರೆ (actual_ಅಗಲ <= 8) {
                     fmt = m_structSel ? "%2x" : "#x%2x";
-                } else if (actual_width <= 16) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (actual_ಅಗಲ <= 16) {
                     fmt = m_structSel ? "%4x" : "#x%4x";
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     fmt = (m_structSel ? "%" : "#x%")
-                          + std::to_string(VL_WORDS_I(actual_width) * 8) + "x";
+                          + std::ಗಮ್ಯ_string(VL_ಪದಗಳು_I(actual_ಅಗಲ) * 8) + "x";
                 }
-                if (m_nestedAccess) addStringNamePart(nodep->bitp(), fmt);
+                ಆದರೆ (m_nestedAccess) ಕೂಡಿಸು_String_Name_Part(nodep->bitp(), fmt);
                 VNRelinker handle;
-                AstNodeExpr* const idxp
-                    = new AstSFormatF{fl, fmt, false, nodep->bitp()->unlinkFrBack(&handle)};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ idxp
+                    = ಹೊಸ AstSFormatF{fl, fmt, ಸುಳ್ಳು, nodep->bitp()->unlink_Fr_ಹಿಂಭಾಗ(&handle)};
                 handle.relink(idxp);
                 newp = editSMT(nodep, nodep->fromp(), idxp);
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->bitp()->v3error(
                     "Illegal non-integral expression or subexpression in random constraint."
                     " (IEEE 1800-2023 18.3)");
-                if (m_nestedAccess) m_nestedAccess->error();
+                ಆದರೆ (m_nestedAccess) m_nestedAccess->error();
             }
         }
-        if (newp && m_structSel && newp->name() == "(select %s %s)") { newp->name("%s.%s"); }
-        if (!newp || !hoistRandModeOverSelectAndMember(newp, origp)) {
-            VL_DO_DANGLING(origp->deleteTree(), origp);
+        ಆದರೆ (newp && m_structSel && newp->name() == "(select %s %s)") { newp->name("%s.%s"); }
+        ಆದರೆ (!newp || !hoist_Rand_ಬಹುಲಕ_Over_Select_And_Member(newp, origp)) {
+            VL_DO_DANGLING(origp->delete_ವೃಕ್ಷ(), origp);
         }
     }
-    void renameArrayExpr(AstSFormatF* const newp) const {
-        if (m_structSel) {
+    ಶೂನ್ಯ rename_Array_ಅಭಿವ್ಯಕ್ತಿ(AstSFormatF* ಸ್ಥಿರಾಂಕ newp) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (m_structSel) {
             newp->name("%s.%s");
             newp->exprsp()->nextp()->name("%x");
         }
     }
-    void visit(AstArraySel* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ಶೂನ್ಯ ಭೇಟಿ(AstArraySel* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
         VNRelinker handle;
         // Check if index actually references a rand variable (not just user1,
         // which can be over-marked in sum/with expansion contexts). A
         // std::randomize() with-clause argument carries no rand qualifier of
         // its own but is still part of the solve.
-        bool indexIsRand = false;
-        nodep->bitp()->foreach([&](const AstNodeVarRef* vrefp) {
-            if (vrefp->varp()->rand().isRandomizable() || vrefp->varp()->isStdRandomizeArg()) {
-                indexIsRand = true;
+        ತಾರ್ಕಿಕ ಸೂಚ್ಯಂಕ_Is_Rand = ಸುಳ್ಳು;
+        nodep->bitp()->foreach([&](ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* vrefp) {
+            ಆದರೆ (vrefp->varp()->rand().isRandomizable() || vrefp->varp()->isStdRandomizeArg()) {
+                ಸೂಚ್ಯಂಕ_Is_Rand = ನಿಜ;
             }
         });
-        if (m_nestedAccess) {
-            AstNodeExpr* const bitp = nodep->bitp()->cloneTreePure(false);
-            AstNodeExpr* const bitFormatp
-                = indexIsRand ? new AstSFormatF{bitp->fileline(), bitp->name(), false, nullptr}
-                              : new AstSFormatF{bitp->fileline(), "%x", false, bitp};
-            AstSFormatF* const herep
-                = new AstSFormatF{nodep->fileline(), "%s.%s", false, bitFormatp};
-            if (AstSel* const selp = VN_CAST(bitp, Sel)) {
-                m_nestedAccess->addVarNamePart(herep, selp->fromp()->name());
-            } else {
-                m_nestedAccess->addVarNamePart(herep, bitp->name());
+        ಆದರೆ (m_nestedAccess) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ bitp = nodep->bitp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಬಿಟ್_Formatp
+                = ಸೂಚ್ಯಂಕ_Is_Rand ? ಹೊಸ AstSFormatF{bitp->fileline(), bitp->name(), ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ}
+                              : ಹೊಸ AstSFormatF{bitp->fileline(), "%x", ಸುಳ್ಳು, bitp};
+            AstSFormatF* ಸ್ಥಿರಾಂಕ herep
+                = ಹೊಸ AstSFormatF{nodep->fileline(), "%s.%s", ಸುಳ್ಳು, ಬಿಟ್_Formatp};
+            ಆದರೆ (AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(bitp, Sel)) {
+                m_nestedAccess->ಕೂಡಿಸು_Var_Name_Part(herep, selp->fromp()->name());
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                m_nestedAccess->ಕೂಡಿಸು_Var_Name_Part(herep, bitp->name());
             }
-            if (indexIsRand) {
+            ಆದರೆ (ಸೂಚ್ಯಂಕ_Is_Rand) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Randomized index in complex expression");
                 m_nestedAccess->error();
-                VL_DO_DANGLING(bitp->deleteTree(), bitp);
-                return;
+                VL_DO_DANGLING(bitp->delete_ವೃಕ್ಷ(), bitp);
+                ಹಿಂತಿರುಗಿ;
             }
         }
-        if (indexIsRand) {
+        ಆದರೆ (ಸೂಚ್ಯಂಕ_Is_Rand) {
             // Index depends on rand variable -- keep as SMT symbol.
             // Array index sort is 32-bit, so zero-extend narrower indices.
-            AstNodeExpr* indexp = nodep->bitp()->unlinkFrBack(&handle);
-            if (indexp->width() < 32) {
-                AstExtend* const extendp = new AstExtend{fl, indexp, 32};
-                extendp->user1(true);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* indexp = nodep->bitp()->unlink_Fr_ಹಿಂಭಾಗ(&handle);
+            ಆದರೆ (indexp->ಅಗಲ() < 32) {
+                AstExtend* ಸ್ಥಿರಾಂಕ extendp = ಹೊಸ AstExtend{fl, indexp, 32};
+                extendp->user1(ನಿಜ);
                 indexp = extendp;
             }
             handle.relink(indexp);
-            AstSFormatF* const newp = editSMT(nodep, nodep->fromp(), indexp);
-            renameArrayExpr(newp);
-        } else {
+            AstSFormatF* ಸ್ಥಿರಾಂಕ newp = editSMT(nodep, nodep->fromp(), indexp);
+            rename_Array_ಅಭಿವ್ಯಕ್ತಿ(newp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // Index is constant or non-rand -- format as hex literal.
             // Keep a pre-edit clone for the rand_mode hoist below.
-            AstNodeExpr* const origp = nodep->cloneTree(false);
-            AstNodeExpr* const indexp
-                = new AstSFormatF{fl, "#x%8x", false, nodep->bitp()->unlinkFrBack(&handle)};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ origp = nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ indexp
+                = ಹೊಸ AstSFormatF{fl, "#x%8x", ಸುಳ್ಳು, nodep->bitp()->unlink_Fr_ಹಿಂಭಾಗ(&handle)};
             handle.relink(indexp);
-            AstSFormatF* const newp = editSMT(nodep, nodep->fromp(), indexp);
-            renameArrayExpr(newp);
-            if (!newp || !hoistRandModeOverSelectAndMember(newp, origp)) {
-                VL_DO_DANGLING(origp->deleteTree(), origp);
+            AstSFormatF* ಸ್ಥಿರಾಂಕ newp = editSMT(nodep, nodep->fromp(), indexp);
+            rename_Array_ಅಭಿವ್ಯಕ್ತಿ(newp);
+            ಆದರೆ (!newp || !hoist_Rand_ಬಹುಲಕ_Over_Select_And_Member(newp, origp)) {
+                VL_DO_DANGLING(origp->delete_ವೃಕ್ಷ(), origp);
             }
         }
     }
     // True iff exprp is an ARRAY_AT read of a class's own instance mode array.
-    static bool isRandModeGate(const AstNodeExpr* exprp) {
-        const AstCMethodHard* const atp = VN_CAST(exprp, CMethodHard);
-        if (!atp || atp->method() != VCMethod::ARRAY_AT) return false;
-        const AstVar* varp = nullptr;
-        if (const AstVarRef* const refp = VN_CAST(atp->fromp(), VarRef)) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ is_Rand_ಬಹುಲಕ_Gate(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp) {
+        ಸ್ಥಿರಾಂಕ AstCMethodHard* ಸ್ಥಿರಾಂಕ atp = VN_CAST(exprp, CMethodHard);
+        ಆದರೆ (!atp || atp->ವಿಧಾನ() != VCMethod::ARRAY_AT) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ AstVar* varp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(atp->fromp(), VarRef)) {
             varp = refp->varp();
-        } else if (const AstMemberSel* const mselp = VN_CAST(atp->fromp(), MemberSel)) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mselp = VN_CAST(atp->fromp(), MemberSel)) {
             varp = mselp->varp();
         }
-        if (!varp) return false;
-        const AstClass* const classp = VN_CAST(varp->user2p(), Class);
-        return classp && classp->user2p() == varp;
+        ಆದರೆ (!varp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ AstClass* ಸ್ಥಿರಾಂಕ classp = VN_CAST(varp->user2p(), Class);
+        ಹಿಂತಿರುಗಿ classp && classp->user2p() == varp;
     }
     // Lift a rand_mode Cond above the (select ...) chain of a frozen array element.
-    bool hoistRandModeOverSelectAndMember(AstSFormatF* newp, AstNodeExpr* origp) {
-        if (m_deferRandModeHoist) return false;
+    ತಾರ್ಕಿಕ hoist_Rand_ಬಹುಲಕ_Over_Select_And_Member(AstSFormatF* newp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* origp) {
+        ಆದರೆ (m_defer_Rand_ಬಹುಲಕ_Hoist) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // Only for selects yielding a non-array element (full chains)
-        if (VN_IS(origp->dtypep()->skipRefp(), UnpackArrayDType)) return false;
+        ಆದರೆ (VN_IS(origp->dtypep()->skipRefp(), UnpackArrayDType)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // Walk nested "(select %s %s)" frames down to a mode-gating AstCond
-        std::vector<AstSFormatF*> frames;
-        AstCond* modeCondp = nullptr;
-        for (AstSFormatF* curp = newp;
+        std::ಸದಿಶ<AstSFormatF*> ಚೌಕಟ್ಟುಗಳು;
+        AstCond* ಬಹುಲಕ_Condp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (AstSFormatF* curp = newp;
              curp
              && (curp->name() == "(select %s %s)" || curp->name() == "%s.%s"
                  || curp->name().rfind("%s.", 0) == 0);) {
-            AstNodeExpr* const firstp = curp->exprsp();
-            frames.push_back(curp);
-            if (AstCond* const condp = VN_CAST(firstp, Cond)) {
-                if (isRandModeGate(condp->condp())) modeCondp = condp;
-                break;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ firstp = curp->exprsp();
+            ಚೌಕಟ್ಟುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(curp);
+            ಆದರೆ (AstCond* ಸ್ಥಿರಾಂಕ condp = VN_CAST(firstp, Cond)) {
+                ಆದರೆ (is_Rand_ಬಹುಲಕ_Gate(condp->condp())) ಬಹುಲಕ_Condp = condp;
+                ನಿಲ್ಲಿಸು;
             }
             curp = VN_CAST(firstp, SFormatF);
         }
-        if (!modeCondp) return false;
-        FileLine* const fl = newp->fileline();
-        AstNodeExpr* const modep = modeCondp->condp()->unlinkFrBack();
-        AstNodeExpr* activep = modeCondp->thenp()->unlinkFrBack();
+        ಆದರೆ (!ಬಹುಲಕ_Condp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = newp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ modep = ಬಹುಲಕ_Condp->condp()->unlink_Fr_ಹಿಂಭಾಗ();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* activep = ಬಹುಲಕ_Condp->thenp()->unlink_Fr_ಹಿಂಭಾಗ();
         // Rebuild the select chain text around the SMT name, innermost first
-        for (auto it = frames.rbegin(); it != frames.rend(); ++it) {
-            AstNodeExpr* const remainingArgsp = VN_CAST((*it)->exprsp()->nextp(), NodeExpr);
-            if (remainingArgsp) { remainingArgsp->unlinkFrBackWithNext(); }
-            activep = new AstSFormatF{fl, (*it)->name(), false,
-                                      AstNode::addNext(activep, remainingArgsp)};
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it = ಚೌಕಟ್ಟುಗಳು.rbegin(); it != ಚೌಕಟ್ಟುಗಳು.rend(); ++it) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಉಳಿದ_Argsp = VN_CAST((*it)->exprsp()->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+            ಆದರೆ (ಉಳಿದ_Argsp) { ಉಳಿದ_Argsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ(); }
+            activep = ಹೊಸ AstSFormatF{fl, (*it)->name(), ಸುಳ್ಳು,
+                                      Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(activep, ಉಳಿದ_Argsp)};
         }
-        AstCond* const hoistp = new AstCond{fl, modep, activep, getConstFormat(origp)};
-        hoistp->user1(true);  // Mark as formatted
+        AstCond* ಸ್ಥಿರಾಂಕ hoistp = ಹೊಸ AstCond{fl, modep, activep, getConstFormat(origp)};
+        hoistp->user1(ನಿಜ);  // Mark as formatted
         newp->replaceWith(hoistp);
-        VL_DO_DANGLING(pushDeletep(newp), newp);
-        return true;
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(newp), newp);
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
-    void visit(AstMemberSel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstMemberSel* nodep) override {
         // Check if rootVar is globalConstrained
-        if (nodep->varp()->rand().isRandomizable() && nodep->fromp()) {
-            FileLine* const fl = nodep->fileline();
-            if (m_nestedAccess) {
-                AstSFormatF* const formatp = new AstSFormatF{fl, nodep->name(), false, nullptr};
-                m_nestedAccess->addVarNamePart(new AstSFormatF{fl, "%s.%s", false, formatp},
+        ಆದರೆ (nodep->varp()->rand().isRandomizable() && nodep->fromp()) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+            ಆದರೆ (m_nestedAccess) {
+                AstSFormatF* ಸ್ಥಿರಾಂಕ formatp = ಹೊಸ AstSFormatF{fl, nodep->name(), ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ};
+                m_nestedAccess->ಕೂಡಿಸು_Var_Name_Part(ಹೊಸ AstSFormatF{fl, "%s.%s", ಸುಳ್ಳು, formatp},
                                                nodep->name());
             }
-            AstNode* rootNode = nodep->fromp();
-            while (const AstMemberSel* const selp = VN_CAST(rootNode, MemberSel)) {
-                rootNode = selp->fromp();
+            Ast_ಗಂಟು* ಬೇರು_ಗಂಟು = nodep->fromp();
+            ಆಗ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(ಬೇರು_ಗಂಟು, MemberSel)) {
+                ಬೇರು_ಗಂಟು = selp->fromp();
             }
 
-            AstNodeSel* arraySelp = VN_CAST(rootNode, ArraySel);
-            if (!arraySelp) arraySelp = VN_CAST(rootNode, AssocSel);
+            Ast_ಗಂಟು_Sel* arraySelp = VN_CAST(ಬೇರು_ಗಂಟು, ArraySel);
+            ಆದರೆ (!arraySelp) arraySelp = VN_CAST(ಬೇರು_ಗಂಟು, AssocSel);
 
-            if (arraySelp) {
-                AstNodeDType* const arrayDtp = arraySelp->fromp()->dtypep()->skipRefp();
-                AstNodeDType* const elemDtp
-                    = arrayDtp->subDTypep() ? arrayDtp->subDTypep()->skipRefp() : nullptr;
-                if (elemDtp && VN_IS(elemDtp, ClassRefDType)) {
-                    const bool isSimple
-                        = nodep->fromp() == rootNode && VN_IS(arraySelp->fromp(), VarRef);
-                    if (!isSimple && !m_nestedAccess) {
-                        m_nestedAccess = new NestedAccessPath(nodep->cloneTree(false),
-                                                              &m_firstExpressionInsideIndexp);
-                        AstSFormatF* const formatp
-                            = new AstSFormatF{fl, nodep->name(), false, nullptr};
-                        m_nestedAccess->addVarNamePart(
-                            new AstSFormatF{fl, "%s.%s", false, formatp}, nodep->name());
+            ಆದರೆ (arraySelp) {
+                Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ arrayDtp = arraySelp->fromp()->dtypep()->skipRefp();
+                Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ elemDtp
+                    = arrayDtp->subDTypep() ? arrayDtp->subDTypep()->skipRefp() : ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (elemDtp && VN_IS(elemDtp, ClassRefDType)) {
+                    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isSimple
+                        = nodep->fromp() == ಬೇರು_ಗಂಟು && VN_IS(arraySelp->fromp(), VarRef);
+                    ಆದರೆ (!isSimple && !m_nestedAccess) {
+                        m_nestedAccess = ಹೊಸ Nested_Access_ಮಾರ್ಗ(nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು),
+                                                              &m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_Indexp);
+                        AstSFormatF* ಸ್ಥಿರಾಂಕ formatp
+                            = ಹೊಸ AstSFormatF{fl, nodep->name(), ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ};
+                        m_nestedAccess->ಕೂಡಿಸು_Var_Name_Part(
+                            ಹೊಸ AstSFormatF{fl, "%s.%s", ಸುಳ್ಳು, formatp}, nodep->name());
                     }
                     VL_RESTORER(m_structSel);
-                    m_structSel = true;
-                    nodep->user1(true);
-                    arraySelp->user1(true);
-                    AstNodeExpr* const origp = nodep->cloneTree(false);
+                    m_structSel = ನಿಜ;
+                    nodep->user1(ನಿಜ);
+                    arraySelp->user1(ನಿಜ);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ origp = nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
                     iterateChildren(nodep);
-                    AstSFormatF* const newp = new AstSFormatF{fl, "%s." + nodep->name(), false,
-                                                              nodep->fromp()->unlinkFrBack()};
+                    AstSFormatF* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstSFormatF{fl, "%s." + nodep->name(), ಸುಳ್ಳು,
+                                                              nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ()};
                     nodep->replaceWith(newp);
-                    if (!hoistRandModeOverSelectAndMember(newp, origp))
-                        VL_DO_DANGLING(origp->deleteTree(), origp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    VL_DO_DANGLING(delete m_nestedAccess, m_nestedAccess);
-                    return;
+                    ಆದರೆ (!hoist_Rand_ಬಹುಲಕ_Over_Select_And_Member(newp, origp))
+                        VL_DO_DANGLING(origp->delete_ವೃಕ್ಷ(), origp);
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                    VL_DO_DANGLING(ಅಳಿಸು m_nestedAccess, m_nestedAccess);
+                    ಹಿಂತಿರುಗಿ;
                 }
             }
             // Check if the root variable participates in global constraints
-            if (const AstVarRef* const varRefp = VN_CAST(rootNode, VarRef)) {
-                AstVar* const constrainedVar = varRefp->varp();
-                if (constrainedVar->globalConstrained()) {
-                    bool const beforeIterate = m_nestedAccess;
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(ಬೇರು_ಗಂಟು, VarRef)) {
+                AstVar* ಸ್ಥಿರಾಂಕ constrainedVar = varRefp->varp();
+                ಆದರೆ (constrainedVar->globalConstrained()) {
+                    ತಾರ್ಕಿಕ ಸ್ಥಿರಾಂಕ beforeIterate = m_nestedAccess;
                     // Global constraint - unwrap the MemberSel
                     iterateChildren(nodep);
-                    if (beforeIterate) {
-                        nodep->replaceWith(new AstSFormatF{fl, "%s." + nodep->name(), false,
-                                                           nodep->fromp()->unlinkFrBack()});
-                    } else {
-                        nodep->replaceWith(nodep->fromp()->unlinkFrBack());
+                    ಆದರೆ (beforeIterate) {
+                        nodep->replaceWith(ಹೊಸ AstSFormatF{fl, "%s." + nodep->name(), ಸುಳ್ಳು,
+                                                           nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ()});
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        nodep->replaceWith(nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ());
                     }
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                    return;
+                    VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                    ಹಿಂತಿರುಗಿ;
                 }
             }
         }
         // Handle MemberSel references created by captureRefByThis()
-        if (VN_IS(nodep->fromp(), VarRef)
+        ಆದರೆ (VN_IS(nodep->fromp(), VarRef)
             && nodep->fromp()->user1()  // Depending on a randomized variable
             && nodep->user2p()  // Pointer to containing module
-            && VN_AS(nodep->user2p(), NodeModule) == nodep->varp()->user2p()) {
+            && VN_AS(nodep->user2p(), ಗಂಟು_Module) == nodep->varp()->user2p()) {
             // Convert to VarRef
-            AstVarRef* const varRefp
-                = new AstVarRef{nodep->fileline(), nodep->varp(), VAccess::READ};
+            AstVarRef* ಸ್ಥಿರಾಂಕ varRefp
+                = ಹೊಸ AstVarRef{nodep->fileline(), nodep->varp(), VAccess::READ};
             varRefp->user1(nodep->varp()->rand().isRandomizable());
-            varRefp->classOrPackagep(VN_AS(nodep->user2p(), NodeModule));
+            varRefp->classOrPackagep(VN_AS(nodep->user2p(), ಗಂಟು_Module));
             nodep->replaceWith(varRefp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            visit(varRefp);
-        } else if (nodep->user1() && VN_IS(nodep->fromp(), CMethodHard)
-                   && VN_AS(nodep->fromp(), CMethodHard)->method() == VCMethod::ARRAY_AT) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಭೇಟಿ(varRefp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->user1() && VN_IS(nodep->fromp(), CMethodHard)
+                   && VN_AS(nodep->fromp(), CMethodHard)->ವಿಧಾನ() == VCMethod::ARRAY_AT) {
             // Class ref array element member access (e.g., items[i].val)
-            AstCMethodHard* const cmethodp = VN_AS(nodep->fromp(), CMethodHard);
-            AstNodeDType* const arrayDtp = cmethodp->fromp()->dtypep()->skipRefp();
-            AstNodeDType* const elemDtp = arrayDtp->subDTypep()->skipRefp();
-            if (VN_IS(elemDtp, ClassRefDType)) {
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ cmethodp = VN_AS(nodep->fromp(), CMethodHard);
+            Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ arrayDtp = cmethodp->fromp()->dtypep()->skipRefp();
+            Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ elemDtp = arrayDtp->subDTypep()->skipRefp();
+            ಆದರೆ (VN_IS(elemDtp, ClassRefDType)) {
                 VL_RESTORER(m_structSel);
-                m_structSel = true;
+                m_structSel = ನಿಜ;
                 iterateChildren(nodep);
-                FileLine* const fl = nodep->fileline();
-                AstSFormatF* newp = nullptr;
-                if (AstSFormatF* const fromp = VN_CAST(nodep->fromp(), SFormatF)) {
-                    if (fromp->name() == "%s.%s") {
-                        newp = new AstSFormatF{fl, "%s.%s." + nodep->name(), false,
-                                               fromp->exprsp()->cloneTreePure(true)};
-                    } else {
-                        newp = new AstSFormatF{fl, fromp->name() + "." + nodep->name(), false,
-                                               nullptr};
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                AstSFormatF* newp = ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (AstSFormatF* ಸ್ಥಿರಾಂಕ fromp = VN_CAST(nodep->fromp(), SFormatF)) {
+                    ಆದರೆ (fromp->name() == "%s.%s") {
+                        newp = ಹೊಸ AstSFormatF{fl, "%s.%s." + nodep->name(), ಸುಳ್ಳು,
+                                               fromp->exprsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ)};
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        newp = ಹೊಸ AstSFormatF{fl, fromp->name() + "." + nodep->name(), ಸುಳ್ಳು,
+                                               ಶೂನ್ಯಸೂಚಕ};
                     }
-                } else {
-                    newp = new AstSFormatF{fl, nodep->name(), false, nullptr};
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    newp = ಹೊಸ AstSFormatF{fl, nodep->name(), ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ};
                 }
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+                ಹಿಂತಿರುಗಿ;
             }
             // Not a class ref element, fall through to normal handling
             iterateChildren(nodep);
-            nodep->replaceWith(nodep->fromp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
-        } else if (nodep->user1()) {
+            nodep->replaceWith(nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ());
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಹಿಂತಿರುಗಿ;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->user1()) {
             iterateChildren(nodep);
-            nodep->replaceWith(nodep->fromp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
-        } else {
+            nodep->replaceWith(nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ());
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಹಿಂತಿರುಗಿ;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             editFormat(nodep);
         }
     }
-    void visit(AstSFormatF* nodep) override {}
-    void visit(AstStmtExpr* nodep) override {}
-    void visit(AstCStmt* nodep) override {}
-    void visit(AstIf* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstSFormatF* nodep) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(AstCStmt* nodep) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(AstIf* nodep) override {
         // Hoisted runtime-conditional disable_soft statements parked in the
         // constraint-items list by the pre-pass; already fully lowered.
     }
-    void visit(AstConstraintIf* nodep) override {
-        AstNodeExpr* newp = nullptr;
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const thenp = editSingle(fl, nodep->thensp());
-        AstNodeExpr* const elsep = editSingle(fl, nodep->elsesp());
-        if (thenp && elsep) {
-            newp = new AstCond{fl, nodep->condp()->unlinkFrBack(), thenp, elsep};
-        } else if (thenp) {
-            newp = new AstLogIf{fl, nodep->condp()->unlinkFrBack(), thenp};
-        } else if (elsep) {
-            newp = new AstLogIf{fl, new AstNot{fl, nodep->condp()->unlinkFrBack()}, elsep};
+    ಶೂನ್ಯ ಭೇಟಿ(AstConstraintIf* nodep) override {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = ಶೂನ್ಯಸೂಚಕ;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ thenp = editSingle(fl, nodep->thensp());
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ elsep = editSingle(fl, nodep->elsesp());
+        ಆದರೆ (thenp && elsep) {
+            newp = ಹೊಸ AstCond{fl, nodep->condp()->unlink_Fr_ಹಿಂಭಾಗ(), thenp, elsep};
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (thenp) {
+            newp = ಹೊಸ AstLogIf{fl, nodep->condp()->unlink_Fr_ಹಿಂಭಾಗ(), thenp};
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (elsep) {
+            newp = ಹೊಸ AstLogIf{fl, ಹೊಸ AstNot{fl, nodep->condp()->unlink_Fr_ಹಿಂಭಾಗ()}, elsep};
         }
-        if (newp) {
-            newp->dtypeSetBit();  // Result is boolean (prevents bare-var != 0 wrapping)
-            newp->user1(true);  // Assume result-dependent
-            nodep->replaceWith(new AstConstraintExpr{fl, newp});
-        } else {
-            nodep->unlinkFrBack();
+        ಆದರೆ (newp) {
+            newp->dtype_ಗಣ_ಬಿಟ್();  // Result is boolean (prevents bare-var != 0 wrapping)
+            newp->user1(ನಿಜ);  // Assume result-dependent
+            nodep->replaceWith(ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, newp});
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            nodep->unlink_Fr_ಹಿಂಭಾಗ();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Gen_ಖಂಡ* nodep) override {
         // Dubious but this is what we used to do. Does that mean no randomzie
         // methods work under a generage block?
     }
-    void visit(AstBegin* nodep) override {}
-    void visit(AstConstraintForeach* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstBegin* nodep) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(AstConstraintForeach* nodep) override {
         // Convert to plain foreach
-        FileLine* const fl = nodep->fileline();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
 
-        if (!nodep->bodyp()) {
-            nodep->unlinkFrBack();
-        } else if (m_wantSingle) {
-            AstNodeExpr* const itemp = editSingle(fl, nodep->bodyp());
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            cstmtp->add("ret += \" \";\n");
-            cstmtp->add("ret += ");
-            cstmtp->add(itemp);
-            cstmtp->add(";");
-            AstNode* const bodyp = prependDistPreamble(nodep, cstmtp);
-            AstCExpr* const cexprp = new AstCExpr{fl};
-            cexprp->dtypeSetString();
-            cexprp->add("([&]{\nstd::string ret;\n");
-            cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                     new AstForeach{fl, nodep->headerp()->unlinkFrBack(), bodyp},
-                                     true});
-            cexprp->add("return ret.empty() ? \"#b1\" : \"(bvand\" + ret + \")\";\n})()");
-            nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
-        } else {
+        ಆದರೆ (!nodep->bodyp()) {
+            nodep->unlink_Fr_ಹಿಂಭಾಗ();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (m_wantSingle) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ itemp = editSingle(fl, nodep->bodyp());
+            AstCStmt* ಸ್ಥಿರಾಂಕ cstmtp = ಹೊಸ AstCStmt{fl};
+            cstmtp->ಕೂಡಿಸು("ret += \" \";\n");
+            cstmtp->ಕೂಡಿಸು("ret += ");
+            cstmtp->ಕೂಡಿಸು(itemp);
+            cstmtp->ಕೂಡಿಸು(";");
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ bodyp = prependDistPreamble(nodep, cstmtp);
+            AstCExpr* ಸ್ಥಿರಾಂಕ cexprp = ಹೊಸ AstCExpr{fl};
+            cexprp->dtype_ಗಣ_String();
+            cexprp->ಕೂಡಿಸು("([&]{\nstd::string ret;\n");
+            cexprp->ಕೂಡಿಸು(ಹೊಸ AstBegin{fl, m_unique_ಹೆಸರುಗಳು.get("__VrandBlock"),
+                                     ಹೊಸ AstForeach{fl, nodep->headerp()->unlink_Fr_ಹಿಂಭಾಗ(), bodyp},
+                                     ನಿಜ});
+            cexprp->ಕೂಡಿಸು("return ret.empty() ? \"#b1\" : \"(bvand\" + ret + \")\";\n})()");
+            nodep->replaceWith(ಹೊಸ AstSFormatF{fl, "%s", ಸುಳ್ಳು, cexprp});
+        } ಇಲ್ಲದಿದ್ದರೆ {
             VL_RESTORER(m_foreachp);
             VL_RESTORER_COPY(m_foreachIdxVars);
             m_foreachp = nodep;
-            for (AstNode* elemp = nodep->headerp()->elementsp(); elemp; elemp = elemp->nextp()) {
-                if (const AstVar* const varp = VN_CAST(elemp, Var)) m_foreachIdxVars.insert(varp);
+            ಗಾಗಿ (Ast_ಗಂಟು* elemp = nodep->headerp()->elementsp(); elemp; elemp = elemp->nextp()) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ varp = VN_CAST(elemp, Var)) m_foreachIdxVars.ಸೇರಿಸು(varp);
             }
-            iterateAndNextNull(nodep->bodyp());
-            AstNode* const bodyp
-                = prependDistPreamble(nodep, nodep->bodyp()->unlinkFrBackWithNext());
+            iterate_And_ಮುಂದಿನ_Null(nodep->bodyp());
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ bodyp
+                = prependDistPreamble(nodep, nodep->bodyp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
             nodep->replaceWith(
-                new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                             new AstForeach{fl, nodep->headerp()->unlinkFrBack(), bodyp}, true});
+                ಹೊಸ AstBegin{fl, m_unique_ಹೆಸರುಗಳು.get("__VrandBlock"),
+                             ಹೊಸ AstForeach{fl, nodep->headerp()->unlink_Fr_ಹಿಂಭಾಗ(), bodyp}, ನಿಜ});
         }
         UASSERT_OBJ(!nodep->user3p(), nodep, "Dist bucket preamble not injected into foreach");
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstConstraintBefore* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConstraintBefore* nodep) override {
         // Generate solveBefore() calls for each (lhs, rhs) variable pair.
         // Do NOT iterate children -- these are variable references, not constraint expressions.
-        FileLine* const fl = nodep->fileline();
-        AstNodeModule* const genModp = VN_AS(m_genp->user2p(), NodeModule);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ genModp = VN_AS(m_genp->user2p(), ಗಂಟು_Module);
 
-        for (AstNodeExpr* lhsp = nodep->lhssp(); lhsp; lhsp = VN_CAST(lhsp->nextp(), NodeExpr)) {
-            AstNodeExpr* const lhsTestp = buildSolveBeforeNameExpr(fl, lhsp);
-            if (!lhsTestp) {
+        ಗಾಗಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp = nodep->lhssp(); lhsp; lhsp = VN_CAST(lhsp->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsTestp = build_Solve_Before_Name_ಅಭಿವ್ಯಕ್ತಿ(fl, lhsp);
+            ಆದರೆ (!lhsTestp) {
                 lhsp->v3fatalSrc("Unexpected expression type in solve...before lhs");
-                continue;
+                ಮುಂದುವರಿ;
             }
-            VL_DO_DANGLING(lhsTestp->deleteTree(), lhsTestp);
-            for (AstNodeExpr* rhsp = nodep->rhssp(); rhsp;
-                 rhsp = VN_CAST(rhsp->nextp(), NodeExpr)) {
-                AstNodeExpr* const rhsNamep = buildSolveBeforeNameExpr(fl, rhsp);
-                if (!rhsNamep) {
+            VL_DO_DANGLING(lhsTestp->delete_ವೃಕ್ಷ(), lhsTestp);
+            ಗಾಗಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp = nodep->rhssp(); rhsp;
+                 rhsp = VN_CAST(rhsp->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsNamep = build_Solve_Before_Name_ಅಭಿವ್ಯಕ್ತಿ(fl, rhsp);
+                ಆದರೆ (!rhsNamep) {
                     rhsp->v3fatalSrc("Unexpected expression type in solve...before rhs");
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
-                AstCMethodHard* const callp = new AstCMethodHard{
-                    fl, new AstVarRef{fl, genModp, m_genp, VAccess::READWRITE},
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCMethodHard{
+                    fl, ಹೊಸ AstVarRef{fl, genModp, m_genp, VAccess::READWRITE},
                     VCMethod::RANDOMIZER_SOLVE_BEFORE};
-                callp->dtypeSetVoid();
-                callp->addPinsp(buildSolveBeforeNameExpr(fl, lhsp));
-                callp->addPinsp(rhsNamep);
-                nodep->addHereThisAsNext(callp->makeStmt());
+                callp->dtype_ಗಣ_Void();
+                callp->ಕೂಡಿಸು_Pinsp(build_Solve_Before_Name_ಅಭಿವ್ಯಕ್ತಿ(fl, lhsp));
+                callp->ಕೂಡಿಸು_Pinsp(rhsNamep);
+                nodep->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(callp->makeStmt());
             }
         }
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstConstraintUnique* nodep) override {
-        AstNodeFTask* initTaskp;
+    ಶೂನ್ಯ ಭೇಟಿ(AstConstraintUnique* nodep) override {
+        Ast_ಗಂಟು_FTask* initTaskp;
         AstVar* genVarp = m_genp;
-        FileLine* const fl = nodep->fileline();
-        AstNodeModule* genModp = nullptr;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        Ast_ಗಂಟು_Module* genModp = ಶೂನ್ಯಸೂಚಕ;
 
-        if (m_classp) {
-            initTaskp = VN_AS(m_memberMap.findMember(m_classp, "new"), NodeFTask);
+        ಆದರೆ (m_classp) {
+            initTaskp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(m_classp, "new"), ಗಂಟು_FTask);
             genVarp = getRandomGenerator(m_classp);
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             initTaskp = m_inlineInitTaskp;
         }
         UASSERT_OBJ(initTaskp, nodep, "No init Task for unique constraint");
 
         // UASSERT_OBJ(genVarp, nodep, "No generator variable");
-        if (!genVarp) {
+        ಆದರೆ (!genVarp) {
             // This shall be substituted with an assert when it will be supported
             nodep->v3warn(CONSTRAINTIGN, "Unsupported: Unique constraint in randomize() with {}");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlink_Fr_ಹಿಂಭಾಗ()), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
-        if (m_classp) {
-            genModp = VN_AS(genVarp->user2p(), NodeModule);
+        ಆದರೆ (m_classp) {
+            genModp = VN_AS(genVarp->user2p(), ಗಂಟು_Module);
             UASSERT_OBJ(genModp, nodep, "genVarp inside m_classp has no NodeModule set");
         }
 
         // Registration calls emitted where the unique statement stood, so they end up
         // in the constraint setup task and re-run on every randomize()
-        AstNode* setupStmtsp = nullptr;
+        Ast_ಗಂಟು* ಸಿದ್ಧತೆ_Stmtsp = ಶೂನ್ಯಸೂಚಕ;
         // Under a condition the distinctness must instead become part of the guarded
         // constraint expression, which needs an element count known at verilation time
-        std::vector<std::string> smtExprs;
-        for (AstNode* itemp = nodep->rangesp(); itemp; itemp = itemp->nextp()) {
-            if (AstVarRef* const varRefp = VN_CAST(itemp, VarRef)) {
-                AstVar* const varp = varRefp->varp();
-                AstNodeModule* const varModp = VN_AS(varp->user2p(), NodeModule);
+        std::ಸದಿಶ<std::string> smtExprs;
+        ಗಾಗಿ (Ast_ಗಂಟು* itemp = nodep->rangesp(); itemp; itemp = itemp->nextp()) {
+            ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(itemp, VarRef)) {
+                AstVar* ಸ್ಥಿರಾಂಕ varp = varRefp->varp();
+                Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ varModp = VN_AS(varp->user2p(), ಗಂಟು_Module);
                 UASSERT_OBJ(varModp, nodep, "varp has no NodeModule set");
-                AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
+                Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = varp->dtypep()->skipRefp();
 
-                const static auto dynDTypeSupported
-                    = [](const AstNodeDType* const dtypep) -> bool {
-                    return VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, QueueDType)
+                ಸ್ಥಿರಾಂಕ ಸ್ಥಿರ ಸ್ವಯಂಚಾಲಿತ dynDTypeSupported
+                    = [](ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep) -> ತಾರ್ಕಿಕ {
+                    ಹಿಂತಿರುಗಿ VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, ಸರತಿ_DType)
                            || VN_IS(dtypep, AssocArrayDType);
                 };
 
                 // Establish it is an array before asking for its element type
-                uint64_t elemWidth;
-                uint32_t staticSize = 0;  // Element count, zero when only known at run time
-                if (const AstUnpackArrayDType* const up = VN_CAST(dtypep, UnpackArrayDType)) {
-                    const AstRange* const rangep = up->rangep();
+                uint64_t elem_ಅಗಲ;
+                uint32_t static_ಗಾತ್ರ = 0;  // Element count, zero when only known at run time
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstUnpackArrayDType* ಸ್ಥಿರಾಂಕ ಮೇಲೆ = VN_CAST(dtypep, UnpackArrayDType)) {
+                    ಸ್ಥಿರಾಂಕ AstRange* ಸ್ಥಿರಾಂಕ rangep = ಮೇಲೆ->rangep();
                     UASSERT_OBJ(rangep && VN_IS(rangep->leftp(), Const)
                                     && VN_IS(rangep->rightp(), Const),
                                 nodep, "Unpack array does not have a constant range");
-                    staticSize = up->elementsConst();
-                    if (staticSize > 100) {
+                    static_ಗಾತ್ರ = ಮೇಲೆ->elementsConst();
+                    ಆದರೆ (static_ಗಾತ್ರ > 100) {
                         nodep->v3warn(
                             CONSTRAINTIGN,
                             "Unsupported: Unique constraint on static arrays of size > 100");
-                        continue;
+                        ಮುಂದುವರಿ;
                     }
-                    elemWidth = static_cast<uint64_t>(varp->dtypep()->width());
-                } else if (dynDTypeSupported(dtypep)) {
-                    elemWidth = static_cast<uint64_t>(dtypep->subDTypep()->width());
-                } else {
+                    elem_ಅಗಲ = static_cast<uint64_t>(varp->dtypep()->ಅಗಲ());
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (dynDTypeSupported(dtypep)) {
+                    elem_ಅಗಲ = static_cast<uint64_t>(dtypep->subDTypep()->ಅಗಲ());
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     nodep->v3warn(CONSTRAINTIGN, "Unsupported: Unique constraint on "
-                                                     << dtypep->prettyDTypeName(false));
-                    continue;
+                                                     << dtypep->prettyDTypeName(ಸುಳ್ಳು));
+                    ಮುಂದುವರಿ;
                 }
 
                 // Ensure it is ONLY 1-D by checking that the element type is not an array/queue
-                const AstNodeDType* const subp = dtypep->subDTypep()->skipRefp();
-                if (VN_IS(subp, NodeArrayDType) || VN_IS(subp, QueueDType)
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ subp = dtypep->subDTypep()->skipRefp();
+                ಆದರೆ (VN_IS(subp, ಗಂಟು_Array_DType) || VN_IS(subp, ಸರತಿ_DType)
                     || VN_IS(subp, DynArrayDType) || VN_IS(subp, AssocArrayDType)
                     || VN_IS(subp, WildcardArrayDType)) {
                     nodep->v3warn(CONSTRAINTIGN,
                                   "Unsupported: Unique constraint on multidimensional arrays");
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
 
-                if (m_wantSingle && !staticSize) {
+                ಆದರೆ (m_wantSingle && !static_ಗಾತ್ರ) {
                     nodep->v3warn(CONSTRAINTIGN,
                                   "Unsupported: Unique constraint on dynamically sized array "
                                   "inside conditional constraint");
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
 
-                if (!varp->user3()) {
-                    varp->user3(true);  // Solver owns it; __VBasicRand must not overwrite
+                ಆದರೆ (!varp->user3()) {
+                    varp->user3(ನಿಜ);  // Solver owns it; __VBasicRand must not overwrite
                     // Convert to C string
-                    AstNodeExpr* const varnamep = new AstCExpr{
-                        fl, AstCExpr::Pure{}, "\"" + varp->name() + "\"", varp->width()};
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ varnamep = ಹೊಸ AstCExpr{
+                        fl, AstCExpr::ಶುದ್ಧ{}, "\"" + varp->name() + "\"", varp->ಅಗಲ()};
 
-                    AstCMethodHard* const writeVarCallp = new AstCMethodHard{
-                        fl, new AstVarRef{fl, genModp, genVarp, VAccess::READ},
+                    AstCMethodHard* ಸ್ಥಿರಾಂಕ writeVarCallp = ಹೊಸ AstCMethodHard{
+                        fl, ಹೊಸ AstVarRef{fl, genModp, genVarp, VAccess::READ},
                         VCMethod::RANDOMIZER_WRITE_VAR};
-                    AstVarRef* const argVarRefp = new AstVarRef{fl, varp, VAccess::READ};
-                    if (m_classp) argVarRefp->classOrPackagep(varModp);
-                    writeVarCallp->addPinsp(argVarRefp);
-                    writeVarCallp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, elemWidth});
-                    writeVarCallp->addPinsp(varnamep);
-                    writeVarCallp->addPinsp(new AstConst{fl, 1});  // Dimension
-                    const RandomizeMode randMode = {.asUQuad = varp->user1()};
-                    if (randMode.usesMode) {
-                        writeVarCallp->addPinsp(
-                            new AstConst{fl, AstConst::Unsized64{}, randMode.index});
+                    AstVarRef* ಸ್ಥಿರಾಂಕ argVarRefp = ಹೊಸ AstVarRef{fl, varp, VAccess::READ};
+                    ಆದರೆ (m_classp) argVarRefp->classOrPackagep(varModp);
+                    writeVarCallp->ಕೂಡಿಸು_Pinsp(argVarRefp);
+                    writeVarCallp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, AstConst::Unsized64{}, elem_ಅಗಲ});
+                    writeVarCallp->ಕೂಡಿಸು_Pinsp(varnamep);
+                    writeVarCallp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, 1});  // Dimension
+                    ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {.asUQuad = varp->user1()};
+                    ಆದರೆ (rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
+                        writeVarCallp->ಕೂಡಿಸು_Pinsp(
+                            ಹೊಸ AstConst{fl, AstConst::Unsized64{}, rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ});
                     }
-                    writeVarCallp->dtypeSetVoid();
-                    initTaskp->addStmtsp(new AstStmtExpr{fl, writeVarCallp});
+                    writeVarCallp->dtype_ಗಣ_Void();
+                    initTaskp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{fl, writeVarCallp});
                 }
 
                 // A solver-sized container is resized between solve passes; joining the
                 // size-constrained set gets its element table refreshed in between
-                if (varp->user4p() && m_sizeConstrainedArraysp) {
-                    m_sizeConstrainedArraysp->insert(varp);
+                ಆದರೆ (varp->user4p() && m_ಗಾತ್ರ_Constrained_Arraysp) {
+                    m_ಗಾತ್ರ_Constrained_Arraysp->ಸೇರಿಸು(varp);
                 }
 
-                if (m_wantSingle) {
+                ಆದರೆ (m_wantSingle) {
                     // Fewer than two elements are trivially distinct
-                    if (staticSize < 2) continue;
-                    std::string exprStr = "(__Vbv (distinct";
-                    for (uint32_t i = 0; i < staticSize; ++i) {
-                        exprStr += " (select " + varp->name() + " #x";
-                        for (int shift = 28; shift >= 0; shift -= 4) {
-                            exprStr += "0123456789abcdef"[(i >> shift) & 0xf];
+                    ಆದರೆ (static_ಗಾತ್ರ < 2) ಮುಂದುವರಿ;
+                    std::string ಅಭಿವ್ಯಕ್ತಿ_Str = "(__Vbv (distinct";
+                    ಗಾಗಿ (uint32_t i = 0; i < static_ಗಾತ್ರ; ++i) {
+                        ಅಭಿವ್ಯಕ್ತಿ_Str += " (select " + varp->name() + " #x";
+                        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ ಸರಿಸು_2 = 28; ಸರಿಸು_2 >= 0; ಸರಿಸು_2 -= 4) {
+                            ಅಭಿವ್ಯಕ್ತಿ_Str += "0123456789abcdef"[(i >> ಸರಿಸು_2) & 0xf];
                         }
-                        exprStr += ')';
+                        ಅಭಿವ್ಯಕ್ತಿ_Str += ')';
                     }
-                    smtExprs.emplace_back(exprStr + "))");
-                    continue;
+                    smtExprs.emplace_ಹಿಂಭಾಗ(ಅಭಿವ್ಯಕ್ತಿ_Str + "))");
+                    ಮುಂದುವರಿ;
                 }
 
-                AstNodeExpr* const namep = new AstConst{fl, AstConst::String{}, varp->name()};
-                AstCMethodHard* const randUniqueCallp
-                    = new AstCMethodHard{fl, new AstVarRef{fl, genModp, genVarp, VAccess::READ},
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ namep = ಹೊಸ AstConst{fl, AstConst::String{}, varp->name()};
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ randUniqueCallp
+                    = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, genModp, genVarp, VAccess::READ},
                                          VCMethod::RANDOMIZER_UNIQUE, namep};
-                randUniqueCallp->dtypep(nodep->findVoidDType());
-                randUniqueCallp->addPinsp(new AstConst{fl, *m_uniqueConstraintId});
-                setupStmtsp = AstNode::addNext(setupStmtsp, new AstStmtExpr{fl, randUniqueCallp});
+                randUniqueCallp->dtypep(nodep->ಕಂಡುಹಿಡಿ_Void_DType());
+                randUniqueCallp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, *m_uniqueConstraintId});
+                ಸಿದ್ಧತೆ_Stmtsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(ಸಿದ್ಧತೆ_Stmtsp, ಹೊಸ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{fl, randUniqueCallp});
             }
         }
         ++(*m_uniqueConstraintId);
-        if (m_wantSingle && !smtExprs.empty()) {
-            std::string exprStr = smtExprs.front();
-            if (smtExprs.size() > 1) {
-                exprStr = "(bvand";
-                for (const std::string& oneExprp : smtExprs) exprStr += " " + oneExprp;
-                exprStr += ')';
+        ಆದರೆ (m_wantSingle && !smtExprs.ಖಾಲಿಗಳು()) {
+            std::string ಅಭಿವ್ಯಕ್ತಿ_Str = smtExprs.front();
+            ಆದರೆ (smtExprs.ಗಾತ್ರ_2() > 1) {
+                ಅಭಿವ್ಯಕ್ತಿ_Str = "(bvand";
+                ಗಾಗಿ (ಸ್ಥಿರಾಂಕ std::string& oneExprp : smtExprs) ಅಭಿವ್ಯಕ್ತಿ_Str += " " + oneExprp;
+                ಅಭಿವ್ಯಕ್ತಿ_Str += ')';
             }
-            AstSFormatF* const newp = new AstSFormatF{fl, exprStr, false, nullptr};
+            AstSFormatF* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstSFormatF{fl, ಅಭಿವ್ಯಕ್ತಿ_Str, ಸುಳ್ಳು, ಶೂನ್ಯಸೂಚಕ};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
-        if (setupStmtsp) nodep->addHereThisAsNext(setupStmtsp);
-        nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        ಆದರೆ (ಸಿದ್ಧತೆ_Stmtsp) nodep->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(ಸಿದ್ಧತೆ_Stmtsp);
+        nodep->unlink_Fr_ಹಿಂಭಾಗ();
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-    void visit(AstConstraintExpr* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
         // IEEE 1800-2023 18.5.13: 'disable soft' is a meta-level directive on
         // the constraint graph, lowered to a void RANDOMIZER_DISABLE_SOFT
         // call.  Conditional occurrences (if / foreach / implication body)
         // are rewritten by extractConditionalDisableSofts() before this
         // visitor runs, so anything we see here is unconditional.
-        VL_RESTORER(m_firstExpressionInsideIndexp);
-        if (nodep->isDisableSoft()) {
+        VL_RESTORER(m_ಮೊದಲ_ಅಭಿವ್ಯಕ್ತಿ_Inside_Indexp);
+        ಆದರೆ (nodep->isDisableSoft()) {
             nodep->replaceWith(buildDisableSoftCallStmt(nodep));
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
         // IEEE 1800-2023 18.5.1: A bare expression used as a constraint is
         // implicitly treated as "expr != 0" when wider than 1 bit.
         // Must wrap before iterateChildren, which converts to SMT format.
         {
-            AstNodeExpr* const exprp = nodep->exprp();
-            if (exprp->width() > 1) {
-                FileLine* const fl = exprp->fileline();
-                const V3Number numZero{fl, exprp->width(), 0};
-                AstNodeExpr* const neqp
-                    = new AstNeq{fl, exprp->unlinkFrBack(), new AstConst{fl, numZero}};
-                neqp->user1(true);  // Mark as rand-dependent for SMT path
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp = nodep->exprp();
+            ಆದರೆ (exprp->ಅಗಲ() > 1) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = exprp->fileline();
+                ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ ಅಂಕೆ_Zero{fl, exprp->ಅಗಲ(), 0};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ neqp
+                    = ಹೊಸ AstNeq{fl, exprp->unlink_Fr_ಹಿಂಭಾಗ(), ಹೊಸ AstConst{fl, ಅಂಕೆ_Zero}};
+                neqp->user1(ನಿಜ);  // Mark as rand-dependent for SMT path
                 nodep->exprp(neqp);
             }
         }
         iterateChildren(nodep);
-        if (m_wantSingle) {
-            nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+        ಆದರೆ (m_wantSingle) {
+            nodep->replaceWith(nodep->exprp()->unlink_Fr_ಹಿಂಭಾಗ());
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
         // Emit as soft or hard constraint per IEEE 1800-2023 18.5.13
-        const VCMethod method
+        ಸ್ಥಿರಾಂಕ VCMethod ವಿಧಾನ
             = nodep->isSoft() ? VCMethod::RANDOMIZER_SOFT : VCMethod::RANDOMIZER_HARD;
-        AstCMethodHard* const callp = new AstCMethodHard{
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCMethodHard{
             nodep->fileline(),
-            new AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ಹೊಸ AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), ಗಂಟು_Module), m_genp,
                           VAccess::READWRITE},
-            method, nodep->exprp()->unlinkFrBack()};
-        callp->dtypeSetVoid();
+            ವಿಧಾನ, nodep->exprp()->unlink_Fr_ಹಿಂಭಾಗ()};
+        callp->dtype_ಗಣ_Void();
         // Pass filename, lineno, and source as separate arguments
         // This allows EmitC to call protect() on filename, similar to VL_STOP
         // Add filename parameter
-        callp->addPinsp(new AstCExpr{nodep->fileline(), AstCExpr::Pure{},
+        callp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstCExpr{nodep->fileline(), AstCExpr::ಶುದ್ಧ{},
                                      "\"" + nodep->fileline()->filename() + "\""});
         // Add line number parameter
-        const uint32_t lineno = static_cast<uint32_t>(nodep->fileline()->lineno());
-        callp->addPinsp(new AstConst{nodep->fileline(), lineno});
+        ಸ್ಥಿರಾಂಕ uint32_t lineno = static_cast<uint32_t>(nodep->fileline()->lineno());
+        callp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{nodep->fileline(), lineno});
         // Add source text parameter (empty if --protect-ids to avoid source leakage)
-        std::string prettyText;
-        if (!v3Global.opt.protectIds()) {
-            prettyText = nodep->fileline()->prettySource();
-            size_t pos = 0;
-            while ((pos = prettyText.find('"', pos)) != std::string::npos) {
-                prettyText.insert(pos, "\\");
-                pos += std::strlen("\\\"");
+        std::string pretty_ಪಠ್ಯ;
+        ಆದರೆ (!v3Global.opt.protectIds()) {
+            pretty_ಪಠ್ಯ = nodep->fileline()->pretty_ಮೂಲ();
+            ಗಾತ್ರ_t pos = 0;
+            ಆಗ ((pos = pretty_ಪಠ್ಯ.ಕಂಡುಹಿಡಿ('"', pos)) != std::string::npos) {
+                pretty_ಪಠ್ಯ.ಸೇರಿಸು(pos, "\\");
+                pos += std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("\\\"");
             }
         }
-        callp->addPinsp(
-            new AstCExpr{nodep->fileline(), AstCExpr::Pure{}, "\"" + prettyText + "\""});
+        callp->ಕೂಡಿಸು_Pinsp(
+            ಹೊಸ AstCExpr{nodep->fileline(), AstCExpr::ಶುದ್ಧ{}, "\"" + pretty_ಪಠ್ಯ + "\""});
         nodep->replaceWith(callp->makeStmt());
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ಶೂನ್ಯ ಭೇಟಿ(AstCMethodHard* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
 
-        if (nodep->method() == VCMethod::ARRAY_AT) {
-            addStringNamePart(nodep->pinsp(), "%x");
-            const bool indexIsRand = nodep->pinsp()->exists([](const AstNodeVarRef* const vrefp) {
-                return vrefp->varp()->rand().isRandomizable();
+        ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_AT) {
+            ಕೂಡಿಸು_String_Name_Part(nodep->pinsp(), "%x");
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಸೂಚ್ಯಂಕ_Is_Rand = nodep->pinsp()->exists([](ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ vrefp) {
+                ಹಿಂತಿರುಗಿ vrefp->varp()->rand().isRandomizable();
             });
-            if (nodep->fromp()->user1()) {
+            ಆದರೆ (nodep->fromp()->user1()) {
                 // Queue/dynamic element: pre-edit clone for the rand_mode hoist, non-rand index
                 // only. A std::randomize() with-clause argument carries no rand qualifier of its
                 // own but is still part of the solve.
                 {
-                    const AstNode* const basep = nodep->baseFromp(true);
-                    if (basep->name() == "__Vthis"
+                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ basep = nodep->ತಳ_Fromp(ನಿಜ);
+                    ಆದರೆ (basep->name() == "__Vthis"
                         && VN_AS(basep->backp(), MemberSel)->varp()->isRand()) {
                         nodep->fromp()->v3warn(E_UNSUPPORTED,
                                                "Unsupported: Complex expression captured from "
                                                "current scope with randomized variable");
-                        return;
+                        ಹಿಂತಿರುಗಿ;
                     }
                 }
-                AstNodeExpr* const origp = indexIsRand ? nullptr : nodep->cloneTree(false);
-                const AstVarRef* const baseRefp
-                    = m_structSel ? VN_CAST(nodep->fromp()->baseFromp(true), VarRef) : nullptr;
-                if (baseRefp && VN_IS(nodep->pinsp(), Const)
-                    && VN_IS(baseRefp->varp()->dtypep()->skipRefp(), DynArrayDType)
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ origp = ಸೂಚ್ಯಂಕ_Is_Rand ? ಶೂನ್ಯಸೂಚಕ : nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+                ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ ತಳ_Refp
+                    = m_structSel ? VN_CAST(nodep->fromp()->ತಳ_Fromp(ನಿಜ), VarRef) : ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (ತಳ_Refp && VN_IS(nodep->pinsp(), Const)
+                    && VN_IS(ತಳ_Refp->varp()->dtypep()->skipRefp(), DynArrayDType)
                     && m_prepareConstrainedArraysp) {
-                    AstNodeExpr* const indexp = nodep->pinsp()->cloneTreePure(false);
-                    AstNodeExpr* const arrayp = nodep->fromp()->cloneTreePure(false);
-                    AstCMethodHard* const currentSizep
-                        = new AstCMethodHard{fl, arrayp->cloneTreePure(false), VCMethod::DYN_SIZE};
-                    currentSizep->dtypeSetInt();
-                    AstNodeExpr* const inRangeRequiredp = new AstLogAnd{
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ indexp = nodep->pinsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ arrayp = nodep->fromp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                    AstCMethodHard* ಸ್ಥಿರಾಂಕ currentSizep
+                        = ಹೊಸ AstCMethodHard{fl, arrayp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), VCMethod::DYN_ಗಾತ್ರ};
+                    currentSizep->dtype_ಗಣ_Int();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಒಳ_Range_Requiredp = ಹೊಸ AstLogAnd{
                         fl,
-                        new AstLteS{fl,
-                                    new AstConst{fl, AstConst::WidthedValue{}, indexp->width(), 0},
-                                    indexp->cloneTreePure(false)},
-                        new AstGteS{fl, indexp->cloneTreePure(false), currentSizep}};
-                    AstCMethodHard* const resizep
-                        = new AstCMethodHard{fl, arrayp, VCMethod::DYN_RESIZE,
-                                             new AstAdd{fl, indexp, new AstConst{fl, 1}}};
-                    resizep->dtypeSetVoid();
-                    m_prepareConstrainedArraysp->addStmtsp(
-                        new AstIf{fl, inRangeRequiredp, resizep->makeStmt()});
+                        ಹೊಸ AstLteS{fl,
+                                    ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, indexp->ಅಗಲ(), 0},
+                                    indexp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)},
+                        ಹೊಸ AstGteS{fl, indexp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), currentSizep}};
+                    AstCMethodHard* ಸ್ಥಿರಾಂಕ resizep
+                        = ಹೊಸ AstCMethodHard{fl, arrayp, VCMethod::DYN_RESIZE,
+                                             ಹೊಸ Ast_ಕೂಡಿಸು{fl, indexp, ಹೊಸ AstConst{fl, 1}}};
+                    resizep->dtype_ಗಣ_Void();
+                    m_prepareConstrainedArraysp->ಕೂಡಿಸು_Stmtsp(
+                        ಹೊಸ AstIf{fl, ಒಳ_Range_Requiredp, resizep->makeStmt()});
                 }
-                AstCMethodHard* const sizep
-                    = m_structSel ? new AstCMethodHard{fl, nodep->fromp()->cloneTreePure(false),
-                                                       VCMethod::DYN_SIZE}
-                                  : nullptr;
-                AstNodeExpr* const originalPinp = nodep->pinsp();
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ sizep
+                    = m_structSel ? ಹೊಸ AstCMethodHard{fl, nodep->fromp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                                                       VCMethod::DYN_ಗಾತ್ರ}
+                                  : ಶೂನ್ಯಸೂಚಕ;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ originalPinp = nodep->pinsp();
                 iterateChildren(nodep);
-                AstNodeExpr* const pinp = nodep->pinsp()->unlinkFrBack();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ pinp = nodep->pinsp()->unlink_Fr_ಹಿಂಭಾಗ();
                 AstSFormatF* newp;
-                if (m_structSel) {
-                    if (AstSFormatF* const sformatfp = VN_CAST(pinp, SFormatF)) {
+                ಆದರೆ (m_structSel) {
+                    ಆದರೆ (AstSFormatF* ಸ್ಥಿರಾಂಕ sformatfp = VN_CAST(pinp, SFormatF)) {
                         sformatfp->name("%x");
                     }
-                    AstNodeExpr* const argsp
-                        = AstNode::addNext(nodep->fromp()->unlinkFrBack(), pinp);
-                    sizep->dtypeSetInt();
-                    AstLogAnd* const condp
-                        = new AstLogAnd{fl,
-                                        new AstLteS{fl,
-                                                    new AstConst{fl, AstConst::WidthedValue{},
-                                                                 originalPinp->width(), 0},
-                                                    originalPinp->cloneTreePure(false)},
-                                        new AstLtS{fl, originalPinp->cloneTreePure(false), sizep}};
-                    m_conditionp = m_conditionp ? new AstLogAnd{fl, m_conditionp, condp} : condp;
-                    newp = new AstSFormatF{fl, "%s.%s", false, argsp};
-                } else {
-                    newp = createSolverArrDerefp(fl, nodep->fromp()->unlinkFrBack(), pinp);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argsp
+                        = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ(), pinp);
+                    sizep->dtype_ಗಣ_Int();
+                    AstLogAnd* ಸ್ಥಿರಾಂಕ condp
+                        = ಹೊಸ AstLogAnd{fl,
+                                        ಹೊಸ AstLteS{fl,
+                                                    ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{},
+                                                                 originalPinp->ಅಗಲ(), 0},
+                                                    originalPinp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)},
+                                        ಹೊಸ AstLtS{fl, originalPinp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), sizep}};
+                    m_conditionp = m_conditionp ? ಹೊಸ AstLogAnd{fl, m_conditionp, condp} : condp;
+                    newp = ಹೊಸ AstSFormatF{fl, "%s.%s", ಸುಳ್ಳು, argsp};
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    newp = createSolverArrDerefp(fl, nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ(), pinp);
                 }
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                if (origp && !hoistRandModeOverSelectAndMember(newp, origp)) {
-                    VL_DO_DANGLING(origp->deleteTree(), origp);
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                ಆದರೆ (origp && !hoist_Rand_ಬಹುಲಕ_Over_Select_And_Member(newp, origp)) {
+                    VL_DO_DANGLING(origp->delete_ವೃಕ್ಷ(), origp);
                 }
 
-            } else if (indexIsRand) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸೂಚ್ಯಂಕ_Is_Rand) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Randomization of an index to a non-random variable");
 
-            } else {
-                nodep->user1(false);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                nodep->user1(ಸುಳ್ಳು);
                 UASSERT_OBJ(editFormat(nodep), nodep,
                             "editFormat should return true when user1 is false");
             }
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (nodep->method() == VCMethod::ARRAY_INSIDE) {
-            const bool randArr = nodep->fromp()->user1();
+        ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_INSIDE) {
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ randArr = nodep->fromp()->user1();
 
-            AstVar* const newVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, "__Vinside", nodep->findIntDType()};
-            AstNodeExpr* const idxRefp = new AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
-            AstForeachHeader* const headerp
-                = new AstForeachHeader{fl, nodep->fromp()->cloneTreePure(false), newVarp};
-            AstNodeExpr* const selp = newSel(nodep->fileline(), nodep->fromp(), idxRefp);
+            AstVar* ಸ್ಥಿರಾಂಕ newVarp
+                = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, "__Vinside", nodep->ಕಂಡುಹಿಡಿ_Int_DType()};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ idxRefp = ಹೊಸ AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
+            Ast_Foreach_ಶೀರ್ಷಿಕೆ* ಸ್ಥಿರಾಂಕ headerp
+                = ಹೊಸ Ast_Foreach_ಶೀರ್ಷಿಕೆ{fl, nodep->fromp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), newVarp};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ selp = newSel(nodep->fileline(), nodep->fromp(), idxRefp);
             selp->user1(randArr);
-            AstNode* const itemp = new AstEq{fl, selp, nodep->pinsp()->unlinkFrBack()};
-            itemp->user1(true);
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ itemp = ಹೊಸ AstEq{fl, selp, nodep->pinsp()->unlink_Fr_ಹಿಂಭಾಗ()};
+            itemp->user1(ನಿಜ);
 
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            cstmtp->add("ret += \" \";\n");
-            cstmtp->add("ret += ");
-            cstmtp->add(iterateSubtreeReturnEdits(itemp));
-            cstmtp->add(";");
-            AstCExpr* const cexprp = new AstCExpr{fl};
-            cexprp->dtypeSetString();
-            cexprp->add("([&]{\nstd::string ret;\n");
-            cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                     new AstForeach{fl, headerp, cstmtp}, true});
-            cexprp->add("return ret.empty() ? \"#b0\" : \"(bvor\" + ret + \")\";\n})()");
-            nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            AstCStmt* ಸ್ಥಿರಾಂಕ cstmtp = ಹೊಸ AstCStmt{fl};
+            cstmtp->ಕೂಡಿಸು("ret += \" \";\n");
+            cstmtp->ಕೂಡಿಸು("ret += ");
+            cstmtp->ಕೂಡಿಸು(iterateSubtreeReturnEdits(itemp));
+            cstmtp->ಕೂಡಿಸು(";");
+            AstCExpr* ಸ್ಥಿರಾಂಕ cexprp = ಹೊಸ AstCExpr{fl};
+            cexprp->dtype_ಗಣ_String();
+            cexprp->ಕೂಡಿಸು("([&]{\nstd::string ret;\n");
+            cexprp->ಕೂಡಿಸು(ಹೊಸ AstBegin{fl, m_unique_ಹೆಸರುಗಳು.get("__VrandBlock"),
+                                     ಹೊಸ AstForeach{fl, headerp, cstmtp}, ನಿಜ});
+            cexprp->ಕೂಡಿಸು("return ret.empty() ? \"#b0\" : \"(bvor\" + ret + \")\";\n})()");
+            nodep->replaceWith(ಹೊಸ AstSFormatF{fl, "%s", ಸುಳ್ಳು, cexprp});
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
 
         // Array reduction methods (sum, product, and, or, xor)
-        if (nodep->method() == VCMethod::ARRAY_R_SUM
-            || nodep->method() == VCMethod::ARRAY_R_PRODUCT
-            || nodep->method() == VCMethod::ARRAY_R_AND || nodep->method() == VCMethod::ARRAY_R_OR
-            || nodep->method() == VCMethod::ARRAY_R_XOR) {
+        ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_ಮೊತ್ತ
+            || nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_ಗುಣಲಬ್ಧ
+            || nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_AND || nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_OR
+            || nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_XOR) {
 
-            AstWith* const withp = nodep->withp();
+            AstWith* ಸ್ಥಿರಾಂಕ withp = nodep->withp();
 
             // For 'with' clause: check array size limit and item.index support
-            if (withp) {
-                if (AstUnpackArrayDType* const adtypep
+            ಆದರೆ (withp) {
+                ಆದರೆ (AstUnpackArrayDType* ಸ್ಥಿರಾಂಕ adtypep
                     = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), UnpackArrayDType)) {
-                    const int arraySize = adtypep->elementsConst();
-                    if (arraySize > v3Global.opt.constraintArrayLimit()) {
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ array_ಗಾತ್ರ_2 = adtypep->elementsConst();
+                    ಆದರೆ (array_ಗಾತ್ರ_2 > v3Global.opt.constraint_Array_ಎಲ್ಲೆ()) {
                         nodep->v3warn(CONSTRAINTIGN,
                                       "Constraint array reduction ignored (array size "
-                                          + cvtToStr(arraySize)
+                                          + cvt_ಗಮ್ಯ_Str(array_ಗಾತ್ರ_2)
                                           + " exceeds --constraint-array-limit of "
-                                          + cvtToStr(v3Global.opt.constraintArrayLimit())
+                                          + cvt_ಗಮ್ಯ_Str(v3Global.opt.constraint_Array_ಎಲ್ಲೆ())
                                           + "), treating as state");
-                        nodep->user1(false);
-                        if (editFormat(nodep)) return;
+                        nodep->user1(ಸುಳ್ಳು);
+                        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
                         nodep->v3fatalSrc("Method not handled in constraints? " << nodep);
-                        return;
+                        ಹಿಂತಿರುಗಿ;
                     }
                 }
             }
 
             // For without 'with' clause: need random array for variable registration
-            const bool hasRandomArray = nodep->fromp()->user1();
-            if (!withp && !hasRandomArray) {
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ hasRandomArray = nodep->fromp()->user1();
+            ಆದರೆ (!withp && !hasRandomArray) {
                 // No 'with' clause and not a random array - can't handle
                 nodep->v3warn(CONSTRAINTIGN,
                               "Unsupported: randomizing this expression, treating as state");
-                nodep->user1(false);
-                if (editFormat(nodep)) return;
+                nodep->user1(ಸುಳ್ಳು);
+                ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
                 nodep->v3fatalSrc("Method not handled in constraints? " << nodep);
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
-            if (!VN_IS(nodep->fromp(), VarRef)) {
+            ಆದರೆ (!VN_IS(nodep->fromp(), VarRef)) {
                 // Non-dynamic subarrays and member arrays are handled in other parts of code
                 nodep->v3warn(CONSTRAINTIGN, "Unsupported: Array reduction constraint on dynamic "
                                              "array inside array or struct");
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
 
             // Create loop variable and header
-            AstVar* const loopVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, "__Vreduce", nodep->findIntDType()};
-            AstForeachHeader* const headerp
-                = new AstForeachHeader{fl, nodep->fromp()->cloneTreePure(false), loopVarp};
+            AstVar* ಸ್ಥಿರಾಂಕ loopVarp
+                = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, "__Vreduce", nodep->ಕಂಡುಹಿಡಿ_Int_DType()};
+            Ast_Foreach_ಶೀರ್ಷಿಕೆ* ಸ್ಥಿರಾಂಕ headerp
+                = ಹೊಸ Ast_Foreach_ಶೀರ್ಷಿಕೆ{fl, nodep->fromp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), loopVarp};
 
             // Determine SMT operation and compute identity elements
-            const char* smtOp = nullptr;
-            std::string identity;
-            if (withp) {
+            ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* smtOp = ಶೂನ್ಯಸೂಚಕ;
+            std::string ತಟಸ್ಥ;
+            ಆದರೆ (withp) {
                 // For 'with' clause: use binary format, compute from result width
-                const int width = nodep->dtypep()->width();
-                if (nodep->method() == VCMethod::ARRAY_R_SUM) {
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = nodep->dtypep()->ಅಗಲ();
+                ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_ಮೊತ್ತ) {
                     smtOp = "bvadd";
-                    identity = "#b" + std::string(width, '0');
-                } else if (nodep->method() == VCMethod::ARRAY_R_PRODUCT) {
+                    ತಟಸ್ಥ = "#b" + std::string(ಅಗಲ, '0');
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_ಗುಣಲಬ್ಧ) {
                     smtOp = "bvmul";
-                    identity = (width > 0) ? "#b" + std::string(width - 1, '0') + "1" : "#b0";
-                } else if (nodep->method() == VCMethod::ARRAY_R_AND) {
+                    ತಟಸ್ಥ = (ಅಗಲ > 0) ? "#b" + std::string(ಅಗಲ - 1, '0') + "1" : "#b0";
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_AND) {
                     smtOp = "bvand";
-                    identity = "#b" + std::string(width, '1');
-                } else if (nodep->method() == VCMethod::ARRAY_R_OR) {
+                    ತಟಸ್ಥ = "#b" + std::string(ಅಗಲ, '1');
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_OR) {
                     smtOp = "bvor";
-                    identity = "#b" + std::string(width, '0');
-                } else {  // ARRAY_R_XOR
+                    ತಟಸ್ಥ = "#b" + std::string(ಅಗಲ, '0');
+                } ಇಲ್ಲದಿದ್ದರೆ {  // ARRAY_R_XOR
                     smtOp = "bvxor";
-                    identity = "#b" + std::string(width, '0');
+                    ತಟಸ್ಥ = "#b" + std::string(ಅಗಲ, '0');
                 }
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // For without 'with' clause: use hex format, compute from element width
-                AstVarRef* const arrRefp = VN_CAST(nodep->fromp(), VarRef);
+                AstVarRef* ಸ್ಥಿರಾಂಕ arrRefp = VN_CAST(nodep->fromp(), VarRef);
                 UASSERT_OBJ(arrRefp, nodep, "Array reduction in constraint has non-VarRef source");
-                AstVar* const arrVarp = arrRefp->varp();
-                AstNodeDType* elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
-                const int elemWidth = elemDtp->width();
-                const int hexDigits = (elemWidth + 3) / 4;
+                AstVar* ಸ್ಥಿರಾಂಕ arrVarp = arrRefp->varp();
+                Ast_ಗಂಟು_DType* elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ elem_ಅಗಲ = elemDtp->ಅಗಲ();
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ hexDigits = (elem_ಅಗಲ + 3) / 4;
 
-                const std::string zeroIdentity = "#x" + std::string(hexDigits, '0');
-                const std::string oneIdentity = "#x" + std::string(hexDigits - 1, '0') + "1";
-                const std::string allOnesIdentity = "#x" + std::string(hexDigits, 'f');
+                ಸ್ಥಿರಾಂಕ std::string zero_ತಟಸ್ಥ = "#x" + std::string(hexDigits, '0');
+                ಸ್ಥಿರಾಂಕ std::string one_ತಟಸ್ಥ = "#x" + std::string(hexDigits - 1, '0') + "1";
+                ಸ್ಥಿರಾಂಕ std::string all_Ones_ತಟಸ್ಥ = "#x" + std::string(hexDigits, 'f');
 
-                if (nodep->method() == VCMethod::ARRAY_R_SUM) {
+                ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_ಮೊತ್ತ) {
                     smtOp = "bvadd";
-                    identity = zeroIdentity;
-                } else if (nodep->method() == VCMethod::ARRAY_R_PRODUCT) {
+                    ತಟಸ್ಥ = zero_ತಟಸ್ಥ;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_ಗುಣಲಬ್ಧ) {
                     smtOp = "bvmul";
-                    identity = oneIdentity;
-                } else if (nodep->method() == VCMethod::ARRAY_R_AND) {
+                    ತಟಸ್ಥ = one_ತಟಸ್ಥ;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_AND) {
                     smtOp = "bvand";
-                    identity = allOnesIdentity;
-                } else if (nodep->method() == VCMethod::ARRAY_R_OR) {
+                    ತಟಸ್ಥ = all_Ones_ತಟಸ್ಥ;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::ARRAY_R_OR) {
                     smtOp = "bvor";
-                    identity = zeroIdentity;
-                } else {  // ARRAY_R_XOR
+                    ತಟಸ್ಥ = zero_ತಟಸ್ಥ;
+                } ಇಲ್ಲದಿದ್ದರೆ {  // ARRAY_R_XOR
                     smtOp = "bvxor";
-                    identity = zeroIdentity;
+                    ತಟಸ್ಥ = zero_ತಟಸ್ಥ;
                 }
             }
 
             // Build loop body based on whether we have a 'with' clause
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            if (withp) {
+            AstCStmt* ಸ್ಥಿರಾಂಕ cstmtp = ಹೊಸ AstCStmt{fl};
+            ಆದರೆ (withp) {
                 // With 'with' clause: evaluate expression for each element
-                const bool randArr = nodep->fromp()->user1();
-                AstNodeExpr* const idxRefp = new AstVarRef{fl, loopVarp, VAccess::READ};
-                AstNodeExpr* const elemSelp = newSel(fl, nodep->fromp(), idxRefp);
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ randArr = nodep->fromp()->user1();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ idxRefp = ಹೊಸ AstVarRef{fl, loopVarp, VAccess::READ};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ elemSelp = newSel(fl, nodep->fromp(), idxRefp);
                 elemSelp->user1(randArr);
 
                 // Get the result width for the reduction
-                const int resultWidth = nodep->dtypep()->width();
-                const VSigning resultSigning = nodep->dtypep()->numeric();
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಫಲಿತಾಂಶ_ಅಗಲ = nodep->dtypep()->ಅಗಲ();
+                ಸ್ಥಿರಾಂಕ VSigning ಫಲಿತಾಂಶ_Signing = nodep->dtypep()->numeric();
 
-                AstNode* perElemExprp = withp->exprp()->cloneTreePure(false);
-                if (AstLambdaArgRef* const rootRefp = VN_CAST(perElemExprp, LambdaArgRef)) {
-                    if (rootRefp->index()) {
+                Ast_ಗಂಟು* ಪ್ರತಿ_Elem_Exprp = withp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                ಆದರೆ (AstLambdaArgRef* ಸ್ಥಿರಾಂಕ ಬೇರು_Refp = VN_CAST(ಪ್ರತಿ_Elem_Exprp, LambdaArgRef)) {
+                    ಆದರೆ (ಬೇರು_Refp->ಸೂಚ್ಯಂಕ()) {
                         // item.index at root -> replace with loop variable, adjust width
-                        AstVarRef* const loopRef = new AstVarRef{fl, loopVarp, VAccess::READ};
-                        perElemExprp = adjustWidth(fl, loopRef, resultWidth, resultSigning);
-                    } else {
+                        AstVarRef* ಸ್ಥಿರಾಂಕ loopRef = ಹೊಸ AstVarRef{fl, loopVarp, VAccess::READ};
+                        ಪ್ರತಿ_Elem_Exprp = adjust_ಅಗಲ(fl, loopRef, ಫಲಿತಾಂಶ_ಅಗಲ, ಫಲಿತಾಂಶ_Signing);
+                    } ಇಲ್ಲದಿದ್ದರೆ {
                         // item at root -> replace with array element
-                        perElemExprp = elemSelp->cloneTreePure(false);
+                        ಪ್ರತಿ_Elem_Exprp = elemSelp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
                     }
-                    VL_DO_DANGLING(rootRefp->deleteTree(), rootRefp);
-                } else {
-                    perElemExprp->foreach([&](AstLambdaArgRef* refp) {
-                        if (refp->index()) {
+                    VL_DO_DANGLING(ಬೇರು_Refp->delete_ವೃಕ್ಷ(), ಬೇರು_Refp);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ಪ್ರತಿ_Elem_Exprp->foreach([&](AstLambdaArgRef* refp) {
+                        ಆದರೆ (refp->ಸೂಚ್ಯಂಕ()) {
                             // item.index -> replace with loop variable, adjust width
-                            AstVarRef* const loopRef = new AstVarRef{fl, loopVarp, VAccess::READ};
-                            AstNode* const replacement
-                                = adjustWidth(fl, loopRef, resultWidth, resultSigning);
+                            AstVarRef* ಸ್ಥಿರಾಂಕ loopRef = ಹೊಸ AstVarRef{fl, loopVarp, VAccess::READ};
+                            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ replacement
+                                = adjust_ಅಗಲ(fl, loopRef, ಫಲಿತಾಂಶ_ಅಗಲ, ಫಲಿತಾಂಶ_Signing);
                             refp->replaceWith(replacement);
-                        } else {
+                        } ಇಲ್ಲದಿದ್ದರೆ {
                             // item -> replace with array element
-                            refp->replaceWith(elemSelp->cloneTreePure(false));
+                            refp->replaceWith(elemSelp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು));
                         }
-                        VL_DO_DANGLING(pushDeletep(refp), refp);
+                        VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
                     });
                 }
-                VL_DO_DANGLING(elemSelp->deleteTree(), elemSelp);
+                VL_DO_DANGLING(elemSelp->delete_ವೃಕ್ಷ(), elemSelp);
 
                 // enum-literal folding pass already ran -- re-fold the literals.
-                perElemExprp = V3Const::constifyEdit(perElemExprp);
+                ಪ್ರತಿ_Elem_Exprp = V3Const::constifyEdit(ಪ್ರತಿ_Elem_Exprp);
 
-                perElemExprp->foreach([&](AstNode* nodep) {
+                ಪ್ರತಿ_Elem_Exprp->foreach([&](Ast_ಗಂಟು* nodep) {
                     // Don't mark loop variable references as randomizable
-                    if (!VN_IS(nodep, Const)) {
-                        if (AstNodeVarRef* const vrefp = VN_CAST(nodep, NodeVarRef)) {
-                            if (vrefp->varp() != loopVarp) nodep->user1(true);
-                        } else {
-                            nodep->user1(true);
+                    ಆದರೆ (!VN_IS(nodep, Const)) {
+                        ಆದರೆ (Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ vrefp = VN_CAST(nodep, ಗಂಟು_Var_Ref)) {
+                            ಆದರೆ (vrefp->varp() != loopVarp) nodep->user1(ನಿಜ);
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            nodep->user1(ನಿಜ);
                         }
                     }
                 });
 
-                cstmtp->add("ret = \"(" + std::string(smtOp) + " \" + ret + \" \";\n");
-                cstmtp->add("ret += ");
-                cstmtp->add(iterateSubtreeReturnEdits(perElemExprp));
-                cstmtp->add(";\n");
-                cstmtp->add("ret += \")\";\n");
-            } else {
+                cstmtp->ಕೂಡಿಸು("ret = \"(" + std::string(smtOp) + " \" + ret + \" \";\n");
+                cstmtp->ಕೂಡಿಸು("ret += ");
+                cstmtp->ಕೂಡಿಸು(iterateSubtreeReturnEdits(ಪ್ರತಿ_Elem_Exprp));
+                cstmtp->ಕೂಡಿಸು(";\n");
+                cstmtp->ಕೂಡಿಸು("ret += \")\";\n");
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // Without 'with' clause: register each element as solver variable
-                AstVarRef* const arrRefp = VN_CAST(nodep->fromp(), VarRef);
-                AstVar* const arrVarp = arrRefp->varp();
-                const std::string smtArrayName = arrVarp->name();
-                AstNodeDType* const elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
-                const int elemWidth = elemDtp->width();
-                AstNodeModule* const arrModulep = VN_AS(arrVarp->user2p(), NodeModule);
-                AstNodeModule* const genModulep = VN_AS(m_genp->user2p(), NodeModule);
-                arrVarp->user3(true);
+                AstVarRef* ಸ್ಥಿರಾಂಕ arrRefp = VN_CAST(nodep->fromp(), VarRef);
+                AstVar* ಸ್ಥಿರಾಂಕ arrVarp = arrRefp->varp();
+                ಸ್ಥಿರಾಂಕ std::string smtArrayName = arrVarp->name();
+                Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ elem_ಅಗಲ = elemDtp->ಅಗಲ();
+                Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ arrModulep = VN_AS(arrVarp->user2p(), ಗಂಟು_Module);
+                Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ genModulep = VN_AS(m_genp->user2p(), ಗಂಟು_Module);
+                arrVarp->user3(ನಿಜ);
 
                 // Add write_var call to init task
-                AstNodeExpr* const arrVarNamep
-                    = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + smtArrayName + "\"", elemWidth};
-                AstCMethodHard* const writeVarCallp
-                    = new AstCMethodHard{fl, new AstVarRef{fl, genModulep, m_genp, VAccess::READ},
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ arrVarNamep
+                    = ಹೊಸ AstCExpr{fl, AstCExpr::ಶುದ್ಧ{}, "\"" + smtArrayName + "\"", elem_ಅಗಲ};
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ writeVarCallp
+                    = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, genModulep, m_genp, VAccess::READ},
                                          VCMethod::RANDOMIZER_WRITE_VAR};
-                writeVarCallp->addPinsp(new AstVarRef{fl, arrModulep, arrVarp, VAccess::READ});
-                writeVarCallp->addPinsp(
-                    new AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(elemWidth)});
-                writeVarCallp->addPinsp(arrVarNamep);
-                const uint32_t unpackedDims = arrVarp->dtypep()->dimensions(false).second;
+                writeVarCallp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstVarRef{fl, arrModulep, arrVarp, VAccess::READ});
+                writeVarCallp->ಕೂಡಿಸು_Pinsp(
+                    ಹೊಸ AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(elem_ಅಗಲ)});
+                writeVarCallp->ಕೂಡಿಸು_Pinsp(arrVarNamep);
+                ಸ್ಥಿರಾಂಕ uint32_t unpackedDims = arrVarp->dtypep()->dimensions(ಸುಳ್ಳು).ಎರಡನೇ;
                 UASSERT_OBJ(unpackedDims == 1, arrVarp, "Array isn't 1-D");
-                writeVarCallp->addPinsp(new AstConst{fl, 1});  // Dimension
+                writeVarCallp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, 1});  // Dimension
 
-                const RandomizeMode randMode = {.asUQuad = arrVarp->user1()};
-                if (randMode.usesMode) {
-                    writeVarCallp->addPinsp(
-                        new AstConst{fl, AstConst::Unsized64{}, randMode.index});
+                ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {.asUQuad = arrVarp->user1()};
+                ಆದರೆ (rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
+                    writeVarCallp->ಕೂಡಿಸು_Pinsp(
+                        ಹೊಸ AstConst{fl, AstConst::Unsized64{}, rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ});
                 }
-                writeVarCallp->dtypeSetVoid();
-                AstNodeFTask* initTaskp = m_inlineInitTaskp;
-                if (!initTaskp) {
-                    initTaskp = VN_AS(m_memberMap.findMember(arrModulep, "new"), NodeFTask);
+                writeVarCallp->dtype_ಗಣ_Void();
+                Ast_ಗಂಟು_FTask* initTaskp = m_inlineInitTaskp;
+                ಆದರೆ (!initTaskp) {
+                    initTaskp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(arrModulep, "new"), ಗಂಟು_FTask);
                     UASSERT_OBJ(initTaskp, arrModulep, "No new() in class");
                 }
-                initTaskp->addStmtsp(writeVarCallp->makeStmt());
+                initTaskp->ಕೂಡಿಸು_Stmtsp(writeVarCallp->makeStmt());
 
                 // Create solver constraints
-                AstSFormatF* const idxFormatp = new AstSFormatF{
-                    fl, "#x%08x", false, new AstVarRef{fl, loopVarp, VAccess::READ}};
+                AstSFormatF* ಸ್ಥಿರಾಂಕ idxFormatp = ಹೊಸ AstSFormatF{
+                    fl, "#x%08x", ಸುಳ್ಳು, ಹೊಸ AstVarRef{fl, loopVarp, VAccess::READ}};
                 iterateChildren(nodep);
-                AstSFormatF* const varNamep
-                    = createSolverArrDerefp(fl, nodep->fromp()->unlinkFrBack(), idxFormatp);
+                AstSFormatF* ಸ್ಥಿರಾಂಕ varNamep
+                    = createSolverArrDerefp(fl, nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ(), idxFormatp);
 
-                cstmtp->add("ret += \" \";\n");
-                cstmtp->add("ret += ");
-                cstmtp->add(varNamep);
-                cstmtp->add(";\n");
+                cstmtp->ಕೂಡಿಸು("ret += \" \";\n");
+                cstmtp->ಕೂಡಿಸು("ret += ");
+                cstmtp->ಕೂಡಿಸು(varNamep);
+                cstmtp->ಕೂಡಿಸು(";\n");
             }
 
             // Build final expression
-            if (withp) {
+            ಆದರೆ (withp) {
                 // For 'with' clause: use lambda expression with AstCExpr
-                AstCExpr* const cexprp = new AstCExpr{fl};
-                cexprp->dtypeSetString();
-                cexprp->add("([&]{\nstd::string ret = \"" + identity + "\";\n");
-                cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                         new AstForeach{fl, headerp, cstmtp}, true});
-                cexprp->add("return ret;\n})()");
-                nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
-            } else {
+                AstCExpr* ಸ್ಥಿರಾಂಕ cexprp = ಹೊಸ AstCExpr{fl};
+                cexprp->dtype_ಗಣ_String();
+                cexprp->ಕೂಡಿಸು("([&]{\nstd::string ret = \"" + ತಟಸ್ಥ + "\";\n");
+                cexprp->ಕೂಡಿಸು(ಹೊಸ AstBegin{fl, m_unique_ಹೆಸರುಗಳು.get("__VrandBlock"),
+                                         ಹೊಸ AstForeach{fl, headerp, cstmtp}, ನಿಜ});
+                cexprp->ಕೂಡಿಸು("return ret;\n})()");
+                nodep->replaceWith(ಹೊಸ AstSFormatF{fl, "%s", ಸುಳ್ಳು, cexprp});
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // For without 'with' clause: use AstCExpr with conditional
-                AstCExpr* const cexprp = new AstCExpr{fl};
-                cexprp->dtypeSetString();
-                cexprp->add("([&]{\nstd::string ret;\n");
-                cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                         new AstForeach{fl, headerp, cstmtp}, true});
-                cexprp->add("return ret.empty() ? \"" + identity + "\" : \"(" + smtOp
+                AstCExpr* ಸ್ಥಿರಾಂಕ cexprp = ಹೊಸ AstCExpr{fl};
+                cexprp->dtype_ಗಣ_String();
+                cexprp->ಕೂಡಿಸು("([&]{\nstd::string ret;\n");
+                cexprp->ಕೂಡಿಸು(ಹೊಸ AstBegin{fl, m_unique_ಹೆಸರುಗಳು.get("__VrandBlock"),
+                                         ಹೊಸ AstForeach{fl, headerp, cstmtp}, ನಿಜ});
+                cexprp->ಕೂಡಿಸು("return ret.empty() ? \"" + ತಟಸ್ಥ + "\" : \"(" + smtOp
                             + "\" + ret + \")\";\n})()");
-                nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
+                nodep->replaceWith(ಹೊಸ AstSFormatF{fl, "%s", ಸುಳ್ಳು, cexprp});
             }
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
 
         // We've handled DYN_SIZE already if they should be randomized
-        if (nodep->method() == VCMethod::DYN_SIZE || nodep->method() == VCMethod::ASSOC_SIZE) {
-            AstNodeExpr* nodeExprp = nodep->fromp();
+        ಆದರೆ (nodep->ವಿಧಾನ() == VCMethod::DYN_ಗಾತ್ರ || nodep->ವಿಧಾನ() == VCMethod::ASSOC_ಗಾತ್ರ) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಗಂಟು_Exprp = nodep->fromp();
             // Check if it is a pure chain of MemberSel ended with VarRef
             // if not throw warning
-            while (VN_IS(nodeExprp, MemberSel)) {
-                nodeExprp = VN_AS(nodeExprp, MemberSel)->fromp();
+            ಆಗ (VN_IS(ಗಂಟು_Exprp, MemberSel)) {
+                ಗಂಟು_Exprp = VN_AS(ಗಂಟು_Exprp, MemberSel)->fromp();
             }
-            if (VN_IS(nodeExprp, VarRef)) {
-                nodep->replaceWith(getConstFormat(nodep->cloneTreePure(false)));
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                return;
+            ಆದರೆ (VN_IS(ಗಂಟು_Exprp, VarRef)) {
+                nodep->replaceWith(getConstFormat(nodep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)));
+                VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
+                ಹಿಂತಿರುಗಿ;
             }
         }
 
         nodep->v3warn(CONSTRAINTIGN,
                       "Unsupported: randomizing this expression, treating as state");
-        nodep->user1(false);
+        nodep->user1(ಸುಳ್ಳು);
 
-        if (editFormat(nodep)) return;
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         nodep->v3fatalSrc("Method not handled in constraints? " << nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask_Ref* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
 
-        AstFunc* const funcp = VN_CAST(nodep->taskp(), Func);
-        if (!funcp) {
+        AstFunc* ಸ್ಥಿರಾಂಕ funcp = VN_CAST(nodep->taskp(), Func);
+        ಆದರೆ (!funcp) {
             // Tasks have no return value and can't appear in expressions.
             // Parser rejects this, so reaching here indicates a compiler bug.
             nodep->v3fatalSrc("Unexpected task call in constraint expression");
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
-        AstNodeExpr* const retExprp = extractReturnExpr(funcp);
-        if (!retExprp) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ retExprp = ಹೊರತೆಗೆ_Return_ಅಭಿವ್ಯಕ್ತಿ(funcp);
+        ಆದರೆ (!retExprp) {
             nodep->v3warn(CONSTRAINTIGN,
                           "Unsupported: complex function in constraint, treating as state");
-            nodep->user1(false);
-            if (editFormat(nodep)) return;
-            return;
+            nodep->user1(ಸುಳ್ಳು);
+            ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
+            ಹಿಂತಿರುಗಿ;
         }
 
         // Map formal parameters to actual arguments using V3Task infrastructure
-        const V3TaskConnects tconnects
-            = V3Task::taskConnects(nodep, funcp->stmtsp(), nullptr, false);
+        ಸ್ಥಿರಾಂಕ V3TaskConnects tconnects
+            = V3Task::taskConnects(nodep, funcp->stmtsp(), ಶೂನ್ಯಸೂಚಕ, ಸುಳ್ಳು);
 
         // Clone return expression, substitute params with args.
         // Track the root via a local pointer: when the root itself is a VarRef to a port
         // (e.g. body `F = d;`), the cloned root has no back pointer, so foreach's
         // replaceWith would trip the "no back" assertion -- substitute the root pointer
         // directly instead.
-        AstNodeExpr* inlinedp = retExprp->cloneTreePure(false);
-        for (const auto& tconnect : tconnects) {
-            const AstVar* const portp = tconnect.first;
-            AstArg* const argp = tconnect.second;
-            if (!argp || !argp->exprp()) continue;
-            if (AstVarRef* const rootRefp = VN_CAST(inlinedp, VarRef)) {
-                if (rootRefp->varp() == portp) {
-                    inlinedp = argp->exprp()->cloneTreePure(false);
-                    VL_DO_DANGLING(rootRefp->deleteTree(), rootRefp);
-                    continue;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* inlinedp = retExprp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& tconnect : tconnects) {
+            ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ portp = tconnect.ಮೊದಲ;
+            AstArg* ಸ್ಥಿರಾಂಕ argp = tconnect.ಎರಡನೇ;
+            ಆದರೆ (!argp || !argp->exprp()) ಮುಂದುವರಿ;
+            ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ ಬೇರು_Refp = VN_CAST(inlinedp, VarRef)) {
+                ಆದರೆ (ಬೇರು_Refp->varp() == portp) {
+                    inlinedp = argp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                    VL_DO_DANGLING(ಬೇರು_Refp->delete_ವೃಕ್ಷ(), ಬೇರು_Refp);
+                    ಮುಂದುವರಿ;
                 }
             }
             inlinedp->foreach([&](AstVarRef* refp) {
-                if (refp->varp() == portp) {
-                    refp->replaceWith(argp->exprp()->cloneTreePure(false));
-                    VL_DO_DANGLING(refp->deleteTree(), refp);
+                ಆದರೆ (refp->varp() == portp) {
+                    refp->replaceWith(argp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು));
+                    VL_DO_DANGLING(refp->delete_ವೃಕ್ಷ(), refp);
                 }
             });
         }
@@ -3558,17 +3558,17 @@ class ConstraintExprVisitor final : public VNVisitor {
         inlinedp->dtypep(nodep->dtypep());
         propagateUser1InlineRecurse(inlinedp);
         nodep->replaceWith(inlinedp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         iterate(inlinedp);
     }
     // Skip non-constraint stmts appended to the iterating list during inline randomize-with
-    void visit(AstNodeStmt* nodep) override {}
-    void visit(AstNodeExpr* nodep) override {
-        if (editFormat(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Stmt* nodep) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
+        ಆದರೆ (editFormat(nodep)) ಹಿಂತಿರುಗಿ;
         nodep->v3fatalSrc(
             "Visit function missing? Constraint function missing for math node: " << nodep);
     }
-    void visit(AstNode* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override {
         nodep->v3fatalSrc(
             "Visit function missing? Constraint function missing for node: " << nodep);
     }
@@ -3576,23 +3576,23 @@ class ConstraintExprVisitor final : public VNVisitor {
     // Build the runtime statement that calls RANDOMIZER_DISABLE_SOFT on the
     // variable referenced by the given AstConstraintExpr.  Parser enforces
     // constraint_primary operand (verilog.y, IEEE 1800-2023 18.5.13).
-    AstNode* buildDisableSoftCallStmt(AstConstraintExpr* nodep) {
+    Ast_ಗಂಟು* buildDisableSoftCallStmt(Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
         std::string varName;
-        if (const AstNodeVarRef* const vrefp = VN_CAST(nodep->exprp(), NodeVarRef)) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ vrefp = VN_CAST(nodep->exprp(), ಗಂಟು_Var_Ref)) {
             varName = vrefp->name();
-        } else if (const AstMemberSel* const mselp = VN_CAST(nodep->exprp(), MemberSel)) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mselp = VN_CAST(nodep->exprp(), MemberSel)) {
             varName = mselp->name();
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             nodep->v3fatalSrc("Unexpected expression type in disable soft");
         }
-        AstCMethodHard* const callp = new AstCMethodHard{
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCMethodHard{
             nodep->fileline(),
-            new AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ಹೊಸ AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), ಗಂಟು_Module), m_genp,
                           VAccess::READWRITE},
             VCMethod::RANDOMIZER_DISABLE_SOFT,
-            new AstConst{nodep->fileline(), AstConst::String{}, varName}};
-        callp->dtypeSetVoid();
-        return callp->makeStmt();
+            ಹೊಸ AstConst{nodep->fileline(), AstConst::String{}, varName}};
+        callp->dtype_ಗಣ_Void();
+        ಹಿಂತಿರುಗಿ callp->makeStmt();
     }
 
     // Pre-pass: for every AstConstraintExpr(isDisableSoft) nested inside an
@@ -3604,349 +3604,349 @@ class ConstraintExprVisitor final : public VNVisitor {
     // list to the constraint-items chain; that chain becomes the setup task
     // body, which runs before the solver on every randomize() call -- giving
     // disable-soft real conditional semantics per IEEE 1800-2023 18.5.13.
-    AstNode* extractConditionalDisableSofts(AstNode* itemsp, AstNodeExpr* outerCondp) {
-        AstNode* hoistListp = nullptr;
-        for (AstNode *stmtp = itemsp, *nextp; stmtp; stmtp = nextp) {
+    Ast_ಗಂಟು* ಹೊರತೆಗೆ_Conditional_Disable_Softs(Ast_ಗಂಟು* itemsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* outerCondp) {
+        Ast_ಗಂಟು* hoistListp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (Ast_ಗಂಟು *stmtp = itemsp, *nextp; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstConstraintIf* const ifp = VN_CAST(stmtp, ConstraintIf)) {
-                FileLine* const fl = ifp->fileline();
+            ಆದರೆ (AstConstraintIf* ಸ್ಥಿರಾಂಕ ifp = VN_CAST(stmtp, ConstraintIf)) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ifp->fileline();
                 // then branch: accumulated = outer && this.cond
-                AstNodeExpr* const thenCondp
-                    = outerCondp ? static_cast<AstNodeExpr*>(
-                                       new AstLogAnd{fl, outerCondp->cloneTreePure(false),
-                                                     ifp->condp()->cloneTreePure(false)})
-                                 : ifp->condp()->cloneTreePure(false);
-                if (AstNode* const thenHoistp
-                    = extractConditionalDisableSofts(ifp->thensp(), thenCondp)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ thenCondp
+                    = outerCondp ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                       ಹೊಸ AstLogAnd{fl, outerCondp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                                                     ifp->condp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)})
+                                 : ifp->condp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ thenHoistp
+                    = ಹೊರತೆಗೆ_Conditional_Disable_Softs(ifp->thensp(), thenCondp)) {
                     hoistListp
-                        = hoistListp ? AstNode::addNext(hoistListp, thenHoistp) : thenHoistp;
+                        = hoistListp ? Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(hoistListp, thenHoistp) : thenHoistp;
                 }
-                VL_DO_DANGLING(thenCondp->deleteTree(), thenCondp);
-                if (ifp->elsesp()) {
+                VL_DO_DANGLING(thenCondp->delete_ವೃಕ್ಷ(), thenCondp);
+                ಆದರೆ (ifp->elsesp()) {
                     // else branch: accumulated = outer && !this.cond
-                    AstNodeExpr* const notInnerp
-                        = new AstLogNot{fl, ifp->condp()->cloneTreePure(false)};
-                    AstNodeExpr* const elseCondp
-                        = outerCondp ? static_cast<AstNodeExpr*>(new AstLogAnd{
-                                           fl, outerCondp->cloneTreePure(false), notInnerp})
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ notInnerp
+                        = ಹೊಸ AstLogNot{fl, ifp->condp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ elseCondp
+                        = outerCondp ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(ಹೊಸ AstLogAnd{
+                                           fl, outerCondp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), notInnerp})
                                      : notInnerp;
-                    if (AstNode* const elseHoistp
-                        = extractConditionalDisableSofts(ifp->elsesp(), elseCondp)) {
+                    ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ elseHoistp
+                        = ಹೊರತೆಗೆ_Conditional_Disable_Softs(ifp->elsesp(), elseCondp)) {
                         hoistListp
-                            = hoistListp ? AstNode::addNext(hoistListp, elseHoistp) : elseHoistp;
+                            = hoistListp ? Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(hoistListp, elseHoistp) : elseHoistp;
                     }
-                    VL_DO_DANGLING(elseCondp->deleteTree(), elseCondp);
+                    VL_DO_DANGLING(elseCondp->delete_ವೃಕ್ಷ(), elseCondp);
                 }
-            } else if (AstConstraintExpr* const exprp = VN_CAST(stmtp, ConstraintExpr)) {
-                if (exprp->isDisableSoft() && outerCondp) {
-                    FileLine* const fl = exprp->fileline();
-                    AstIf* const hoistIfp = new AstIf{fl, outerCondp->cloneTreePure(false),
-                                                      buildDisableSoftCallStmt(exprp), nullptr};
-                    hoistListp = hoistListp ? AstNode::addNext(hoistListp,
-                                                               static_cast<AstNode*>(hoistIfp))
-                                            : static_cast<AstNode*>(hoistIfp);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp = VN_CAST(stmtp, Constraint_ಅಭಿವ್ಯಕ್ತಿ)) {
+                ಆದರೆ (exprp->isDisableSoft() && outerCondp) {
+                    File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = exprp->fileline();
+                    AstIf* ಸ್ಥಿರಾಂಕ hoistIfp = ಹೊಸ AstIf{fl, outerCondp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                                                      buildDisableSoftCallStmt(exprp), ಶೂನ್ಯಸೂಚಕ};
+                    hoistListp = hoistListp ? Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(hoistListp,
+                                                               static_cast<Ast_ಗಂಟು*>(hoistIfp))
+                                            : static_cast<Ast_ಗಂಟು*>(hoistIfp);
                     // Replace in-tree disable-soft with a no-op boolean
                     // constraint so editSingle() folds cleanly.
-                    AstConstraintExpr* const truep
-                        = new AstConstraintExpr{fl, new AstConst{fl, AstConst::BitTrue{}}};
+                    Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ truep
+                        = ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}}};
                     exprp->replaceWith(truep);
-                    VL_DO_DANGLING(exprp->deleteTree(), exprp);
+                    VL_DO_DANGLING(exprp->delete_ವೃಕ್ಷ(), exprp);
                 }
             }
             // foreach/unique bodies are left untouched: disable-soft inside
             // a foreach would need per-iteration condition support, and
             // unique cannot legally contain disable-soft.
         }
-        return hoistListp;
+        ಹಿಂತಿರುಗಿ hoistListp;
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit ConstraintExprVisitor(AstClass* classp, VMemberMap& memberMap, AstNode* nodep,
-                                   AstNodeFTask* inlineInitTaskp, AstVar* genp,
-                                   AstVar* randModeVarp, std::set<std::string>& writtenVars,
-                                   uint32_t* uniqueConstraintId, V3UniqueNames& uniqueNames,
-                                   AstNodeFTask* memberselInitTaskp = nullptr,
-                                   VInsertionSet<AstVar*>* sizeConstrainedArraysp = nullptr,
-                                   AstNodeFTask* prepareConstrainedArraysp = nullptr)
+    ಸ್ಪಷ್ಟ Constraint_ಅಭಿವ್ಯಕ್ತಿ_Visitor(AstClass* classp, VMemberMap& memberMap, Ast_ಗಂಟು* nodep,
+                                   Ast_ಗಂಟು_FTask* inlineInitTaskp, AstVar* genp,
+                                   AstVar* rand_ಬಹುಲಕ_Varp, std::ಗಣ<std::string>& writtenVars,
+                                   uint32_t* uniqueConstraintId, V3_Unique_ಹೆಸರುಗಳು& unique_ಹೆಸರುಗಳು,
+                                   Ast_ಗಂಟು_FTask* memberselInitTaskp = ಶೂನ್ಯಸೂಚಕ,
+                                   VInsertion_ಗಣ<AstVar*>* ಗಾತ್ರ_Constrained_Arraysp = ಶೂನ್ಯಸೂಚಕ,
+                                   Ast_ಗಂಟು_FTask* prepareConstrainedArraysp = ಶೂನ್ಯಸೂಚಕ)
         : m_classp{classp}
         , m_inlineInitTaskp{inlineInitTaskp}
         , m_memberselInitTaskp{memberselInitTaskp}
         , m_genp{genp}
-        , m_randModeVarp{randModeVarp}
+        , m_rand_ಬಹುಲಕ_Varp{rand_ಬಹುಲಕ_Varp}
         , m_memberMap{memberMap}
         , m_writtenVars{writtenVars}
-        , m_sizeConstrainedArraysp{sizeConstrainedArraysp}
+        , m_ಗಾತ್ರ_Constrained_Arraysp{ಗಾತ್ರ_Constrained_Arraysp}
         , m_prepareConstrainedArraysp{prepareConstrainedArraysp}
         , m_uniqueConstraintId{uniqueConstraintId}
-        , m_uniqueNames{uniqueNames} {
+        , m_unique_ಹೆಸರುಗಳು{unique_ಹೆಸರುಗಳು} {
         // Pre-pass before SMT lowering: extract conditional disable-soft
         // directives as runtime AstIf statements and append them to the
         // constraint-items chain so they reach the setup task body.  The SMT
         // visitor skips these via visit(AstIf) above.
-        if (AstNode* const hoistListp
-            = nodep ? extractConditionalDisableSofts(nodep, nullptr) : nullptr) {
-            nodep->addNext(hoistListp);
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ hoistListp
+            = nodep ? ಹೊರತೆಗೆ_Conditional_Disable_Softs(nodep, ಶೂನ್ಯಸೂಚಕ) : ಶೂನ್ಯಸೂಚಕ) {
+            nodep->ಕೂಡಿಸು_ಮುಂದಿನ(hoistListp);
         }
-        iterateAndNextNull(nodep);
+        iterate_And_ಮುಂದಿನ_Null(nodep);
     }
 };
 
-enum class CaptureMode : uint8_t {
+ಎಣಿಕೆ ವರ್ಗ Capture_ಬಹುಲಕ : uint8_t {
     CAP_NO = 0x0,
-    CAP_VALUE = 0x01,
+    CAP_ಮೌಲ್ಯ = 0x01,
     CAP_THIS = 0x02,
-    CAP_F_SET_CLASSORPACKAGEP = 0x4,
+    CAP_F_ಗಣ_CLASSORPACKAGEP = 0x4,
     CAP_F_XREF = 0x8
 };
-CaptureMode operator|(CaptureMode a, CaptureMode b) {
-    return static_cast<CaptureMode>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+Capture_ಬಹುಲಕ ಕ್ರಿಯಾಕಾರಕ|(Capture_ಬಹುಲಕ a, Capture_ಬಹುಲಕ b) {
+    ಹಿಂತಿರುಗಿ static_cast<Capture_ಬಹುಲಕ>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
 }
-CaptureMode operator&(CaptureMode a, CaptureMode b) {
-    return static_cast<CaptureMode>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+Capture_ಬಹುಲಕ ಕ್ರಿಯಾಕಾರಕ&(Capture_ಬಹುಲಕ a, Capture_ಬಹುಲಕ b) {
+    ಹಿಂತಿರುಗಿ static_cast<Capture_ಬಹುಲಕ>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
 }
-CaptureMode mode(CaptureMode a) { return a & static_cast<CaptureMode>(0x3); }
-bool hasFlags(CaptureMode a, CaptureMode flags) {
-    return ((static_cast<uint8_t>(a) & 0xc & static_cast<uint8_t>(flags))
+Capture_ಬಹುಲಕ ಬಹುಲಕ(Capture_ಬಹುಲಕ a) { ಹಿಂತಿರುಗಿ a & static_cast<Capture_ಬಹುಲಕ>(0x3); }
+ತಾರ್ಕಿಕ hasFlags(Capture_ಬಹುಲಕ a, Capture_ಬಹುಲಕ flags) {
+    ಹಿಂತಿರುಗಿ ((static_cast<uint8_t>(a) & 0xc & static_cast<uint8_t>(flags))
             == static_cast<uint8_t>(flags));
 }
 
-class CaptureVisitor final : public VNVisitor {
-    AstArg* m_argsp = nullptr;  // Original references turned into arguments
-    AstNodeModule* m_callerp;  // Module of the outer context (for capturing `this`)
+ವರ್ಗ CaptureVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
+    AstArg* m_argsp = ಶೂನ್ಯಸೂಚಕ;  // Original references turned into arguments
+    Ast_ಗಂಟು_Module* m_callerp;  // Module of the outer context (for capturing `this`)
     AstClass* m_targetp;  // Module of inner context (for symbol lookup)
-    std::map<const AstVar*, AstVar*> m_varCloneMap;  // Map original var nodes to their clones
-    std::set<AstNode*> m_ignore;  // Nodes to ignore for capturing
-    AstVar* m_thisp = nullptr;  // Variable for outer context's object, if necessary
-    bool m_staticContext = false;  // True when capturing from a static function context
+    std::map<ಸ್ಥಿರಾಂಕ AstVar*, AstVar*> m_varCloneMap;  // Map original var nodes to their clones
+    std::ಗಣ<Ast_ಗಂಟು*> m_ignore;  // Nodes to ignore for capturing
+    AstVar* m_thisp = ಶೂನ್ಯಸೂಚಕ;  // Variable for outer context's object, if necessary
+    ತಾರ್ಕಿಕ m_staticContext = ಸುಳ್ಳು;  // True when capturing from a static function context
 
     // METHODS
 
-    bool captureVariable(FileLine* const fileline, AstNodeVarRef* varrefp, AstVar*& varp) {
-        auto it = m_varCloneMap.find(varrefp->varp());
-        if (it == m_varCloneMap.end()) {
-            AstVar* const newVarp = varrefp->varp()->cloneTree(false);
+    ತಾರ್ಕಿಕ captureVariable(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fileline, Ast_ಗಂಟು_Var_Ref* varrefp, AstVar*& varp) {
+        ಸ್ವಯಂಚಾಲಿತ it = m_varCloneMap.ಕಂಡುಹಿಡಿ(varrefp->varp());
+        ಆದರೆ (it == m_varCloneMap.ಕೊನೆ()) {
+            AstVar* ಸ್ಥಿರಾಂಕ newVarp = varrefp->varp()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
             newVarp->fileline(fileline);
             newVarp->varType(VVarType::BLOCKTEMP);
-            newVarp->funcLocal(true);
-            newVarp->direction(VDirection::INPUT);
+            newVarp->funcLocal(ನಿಜ);
+            newVarp->direction(VDirection::ಒಳಹರಿವು);
             newVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             m_varCloneMap.emplace(varrefp->varp(), newVarp);
             varp = newVarp;
-            return true;
+            ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        varp = it->second;
-        return false;
+        varp = it->ಎರಡನೇ;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
-    template <typename T_Node>
-    void fixupClassOrPackage(AstNode* memberp, T_Node refp) {
-        AstNodeModule* const declClassp = VN_AS(memberp->user2p(), NodeModule);
-        if (declClassp != m_targetp) refp->classOrPackagep(declClassp);
+    ಮಾದರಿ <ಬಗೆ_ಹೆಸರು T_ಗಂಟು>
+    ಶೂನ್ಯ fixupClassOrPackage(Ast_ಗಂಟು* memberp, T_ಗಂಟು refp) {
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ declClassp = VN_AS(memberp->user2p(), ಗಂಟು_Module);
+        ಆದರೆ (declClassp != m_targetp) refp->classOrPackagep(declClassp);
     }
 
-    template <typename T_Node>
-    bool isReferenceToInnerMember(T_Node nodep) {
-        return VN_IS(nodep->fromp(), LambdaArgRef);
+    ಮಾದರಿ <ಬಗೆ_ಹೆಸರು T_ಗಂಟು>
+    ತಾರ್ಕಿಕ is_Reference_ಗಮ್ಯ_Inner_Member(T_ಗಂಟು nodep) {
+        ಹಿಂತಿರುಗಿ VN_IS(nodep->fromp(), LambdaArgRef);
     }
 
-    AstVar* importThisp(FileLine* fl) {
-        if (!m_thisp) {
-            AstClassRefDType* const refDTypep
-                = new AstClassRefDType{fl, VN_AS(m_callerp, Class), nullptr};
-            v3Global.rootp()->typeTablep()->addTypesp(refDTypep);
-            m_thisp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vthis", refDTypep};
-            m_thisp->funcLocal(true);
+    AstVar* importThisp(File_ಸಾಲು* fl) {
+        ಆದರೆ (!m_thisp) {
+            AstClassRefDType* ಸ್ಥಿರಾಂಕ refDTypep
+                = ಹೊಸ AstClassRefDType{fl, VN_AS(m_callerp, Class), ಶೂನ್ಯಸೂಚಕ};
+            v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(refDTypep);
+            m_thisp = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, "__Vthis", refDTypep};
+            m_thisp->funcLocal(ನಿಜ);
             m_thisp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            m_thisp->direction(VDirection::INPUT);
-            m_argsp = AstNode::addNext(m_argsp, new AstArg{fl, "", new AstThisRef{fl, refDTypep}});
+            m_thisp->direction(VDirection::ಒಳಹರಿವು);
+            m_argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(m_argsp, ಹೊಸ AstArg{fl, "", ಹೊಸ AstThisRef{fl, refDTypep}});
         }
-        return m_thisp;
+        ಹಿಂತಿರುಗಿ m_thisp;
     }
 
-    AstVar* getVar(AstVar* const varp) const {
-        const auto it = m_varCloneMap.find(varp);
-        if (it == m_varCloneMap.end()) return nullptr;
-        if (it->second->isStdRandomizeArg()) return nullptr;
-        return it->second;
+    AstVar* getVar(AstVar* ಸ್ಥಿರಾಂಕ varp) ಸ್ಥಿರಾಂಕ {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_varCloneMap.ಕಂಡುಹಿಡಿ(varp);
+        ಆದರೆ (it == m_varCloneMap.ಕೊನೆ()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (it->ಎರಡನೇ->isStdRandomizeArg()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
     }
 
-    CaptureMode getVarRefCaptureMode(AstNodeVarRef* varRefp) {
-        AstNodeModule* const varModp = VN_AS(varRefp->varp()->user2p(), NodeModule);
-        AstClass* const varClassp = VN_CAST(varModp, Class);
-        AstClass* const callerClassp = VN_CAST(m_callerp, Class);
+    Capture_ಬಹುಲಕ get_Var_Ref_Capture_ಬಹುಲಕ(Ast_ಗಂಟು_Var_Ref* varRefp) {
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ varModp = VN_AS(varRefp->varp()->user2p(), ಗಂಟು_Module);
+        AstClass* ಸ್ಥಿರಾಂಕ varClassp = VN_CAST(varModp, Class);
+        AstClass* ಸ್ಥಿರಾಂಕ callerClassp = VN_CAST(m_callerp, Class);
 
-        const bool callerIsClass = callerClassp;
-        const bool refIsXref = VN_IS(varRefp, VarXRef);
-        const bool varIsFuncLocal = varRefp->varp()->isFuncLocal();
-        const bool varHasAutomaticLifetime = varRefp->varp()->lifetime().isAutomatic();
-        const bool varIsFieldOfCaller = AstClass::isClassExtendedFrom(callerClassp, varClassp);
-        const bool varIsParam = varRefp->varp()->isParam();
-        const bool varIsConstraintIterator
-            = VN_IS(varRefp->varp()->firstAbovep(), ForeachHeader)
-              && VN_IS(varRefp->varp()->firstAbovep()->firstAbovep(), ConstraintForeach);
-        if (refIsXref) return CaptureMode::CAP_VALUE | CaptureMode::CAP_F_XREF;
-        if (varIsConstraintIterator) return CaptureMode::CAP_NO;
-        if (varIsFuncLocal && varHasAutomaticLifetime) return CaptureMode::CAP_VALUE;
-        if (varIsParam) return CaptureMode::CAP_VALUE;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ callerIsClass = callerClassp;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ refIsXref = VN_IS(varRefp, VarXRef);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ varIsFuncLocal = varRefp->varp()->isFuncLocal();
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ varHasAutomaticLifetime = varRefp->varp()->lifetime().isAutomatic();
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ var_Is_ಕ್ಷೇತ್ರ_ದ_Caller = AstClass::isClassExtendedFrom(callerClassp, varClassp);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ varIsParam = varRefp->varp()->isParam();
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ varIsConstraintIterator
+            = VN_IS(varRefp->varp()->ಮೊದಲ_Abovep(), Foreach_ಶೀರ್ಷಿಕೆ)
+              && VN_IS(varRefp->varp()->ಮೊದಲ_Abovep()->ಮೊದಲ_Abovep(), ConstraintForeach);
+        ಆದರೆ (refIsXref) ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_ಮೌಲ್ಯ | Capture_ಬಹುಲಕ::CAP_F_XREF;
+        ಆದರೆ (varIsConstraintIterator) ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_NO;
+        ಆದರೆ (varIsFuncLocal && varHasAutomaticLifetime) ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_ಮೌಲ್ಯ;
+        ಆದರೆ (varIsParam) ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_ಮೌಲ್ಯ;
         // Static var in function (will not be inlined, because it's in class)
-        if (callerIsClass && varIsFuncLocal) return CaptureMode::CAP_VALUE;
+        ಆದರೆ (callerIsClass && varIsFuncLocal) ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_ಮೌಲ್ಯ;
         // Static class members in static context don't need 'this' capture;
         // V3Class will move both the function and the member to __Vclpkg
-        if (m_staticContext && callerIsClass && varIsFieldOfCaller
+        ಆದರೆ (m_staticContext && callerIsClass && var_Is_ಕ್ಷೇತ್ರ_ದ_Caller
             && varRefp->varp()->lifetime().isStatic())
-            return CaptureMode::CAP_NO;
-        if (callerIsClass && varIsFieldOfCaller) return CaptureMode::CAP_THIS;
+            ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_NO;
+        ಆದರೆ (callerIsClass && var_Is_ಕ್ಷೇತ್ರ_ದ_Caller) ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_THIS;
         // Static member of a different class: V3Width replaces AstMemberSel with a bare
         // AstVarRef (classOrPackagep set). Capture current value as a function argument.
-        if (callerIsClass && varClassp && !varIsFieldOfCaller
+        ಆದರೆ (callerIsClass && varClassp && !var_Is_ಕ್ಷೇತ್ರ_ದ_Caller
             && varRefp->varp()->lifetime().isStatic())
-            return CaptureMode::CAP_VALUE;
+            ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_ಮೌಲ್ಯ;
         UASSERT_OBJ(!callerIsClass, varRefp, "Invalid reference?");
-        return CaptureMode::CAP_VALUE;
+        ಹಿಂತಿರುಗಿ Capture_ಬಹುಲಕ::CAP_ಮೌಲ್ಯ;
     }
 
-    void captureRefByValue(AstNodeVarRef* nodep, CaptureMode capModeFlags) {
+    ಶೂನ್ಯ capture_Ref_By_ಮೌಲ್ಯ(Ast_ಗಂಟು_Var_Ref* nodep, Capture_ಬಹುಲಕ cap_ಬಹುಲಕ_Flags) {
         AstVar* newVarp;
-        const bool newCapture = captureVariable(nodep->fileline(), nodep, newVarp /*ref*/);
-        AstNodeVarRef* const newVarRefp = newCapture ? nodep->cloneTree(false) : nullptr;
-        if (!hasFlags(capModeFlags, CaptureMode::CAP_F_SET_CLASSORPACKAGEP)) {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ newCapture = captureVariable(nodep->fileline(), nodep, newVarp /*ref*/);
+        Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ newVarRefp = newCapture ? nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು) : ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (!hasFlags(cap_ಬಹುಲಕ_Flags, Capture_ಬಹುಲಕ::CAP_F_ಗಣ_CLASSORPACKAGEP)) {
             // Keeping classOrPackagep will cause a broken link after inlining
-            nodep->classOrPackagep(nullptr);  // AstScope will figure this out
+            nodep->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);  // AstScope will figure this out
         }
         nodep->varp(newVarp);
-        if (!newCapture) return;
-        if (hasFlags(capModeFlags, CaptureMode::CAP_F_XREF)) {
-            AstVarRef* const notXVarRefp
-                = new AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
+        ಆದರೆ (!newCapture) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (hasFlags(cap_ಬಹುಲಕ_Flags, Capture_ಬಹುಲಕ::CAP_F_XREF)) {
+            AstVarRef* ಸ್ಥಿರಾಂಕ notXVarRefp
+                = ಹೊಸ AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
             notXVarRefp->classOrPackagep(nodep->classOrPackagep());
             nodep->replaceWith(notXVarRefp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
             nodep = notXVarRefp;
         }
         m_ignore.emplace(nodep);
-        m_argsp = AstNode::addNext(m_argsp, new AstArg{nodep->fileline(), "", newVarRefp});
+        m_argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(m_argsp, ಹೊಸ AstArg{nodep->fileline(), "", newVarRefp});
     }
 
-    void captureRefByThis(AstNodeVarRef* nodep, CaptureMode /*capModeFlags*/) {
-        AstVar* const thisp = importThisp(nodep->fileline());
-        AstVarRef* const thisRefp = new AstVarRef{nodep->fileline(), thisp, nodep->access()};
-        thisRefp->user1(true);
+    ಶೂನ್ಯ captureRefByThis(Ast_ಗಂಟು_Var_Ref* nodep, Capture_ಬಹುಲಕ /*capModeFlags*/) {
+        AstVar* ಸ್ಥಿರಾಂಕ thisp = importThisp(nodep->fileline());
+        AstVarRef* ಸ್ಥಿರಾಂಕ thisRefp = ಹೊಸ AstVarRef{nodep->fileline(), thisp, nodep->access()};
+        thisRefp->user1(ನಿಜ);
         m_ignore.emplace(thisRefp);
-        AstMemberSel* const memberSelp
-            = new AstMemberSel{nodep->fileline(), thisRefp, nodep->varp()};
+        AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp
+            = ಹೊಸ AstMemberSel{nodep->fileline(), thisRefp, nodep->varp()};
         // Propagate random-dependence marking; forcing it on read-only operands
         // would route them through the solver write path.
-        if (!m_targetp && nodep->user1()) memberSelp->user1(true);
+        ಆದರೆ (!m_targetp && nodep->user1()) memberSelp->user1(ನಿಜ);
         memberSelp->user2p(m_targetp);
         nodep->replaceWith(memberSelp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         m_ignore.emplace(memberSelp);
     }
 
     // VISITORS
 
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_ignore.count(nodep)) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Var_Ref* nodep) override {
+        ಆದರೆ (m_ignore.ಎಣಿಕೆ_2(nodep)) ಹಿಂತಿರುಗಿ;
         m_ignore.emplace(nodep);
         UASSERT_OBJ(nodep->varp(), nodep, "Variable unlinked");
-        if (nodep->varp()->isStdRandomizeArg()) return;
-        const CaptureMode capMode = getVarRefCaptureMode(nodep);
-        if (mode(capMode) == CaptureMode::CAP_NO) return;
-        if (mode(capMode) == CaptureMode::CAP_VALUE) captureRefByValue(nodep, capMode);
-        if (mode(capMode) == CaptureMode::CAP_THIS) captureRefByThis(nodep, capMode);
+        ಆದರೆ (nodep->varp()->isStdRandomizeArg()) ಹಿಂತಿರುಗಿ;
+        ಸ್ಥಿರಾಂಕ Capture_ಬಹುಲಕ cap_ಬಹುಲಕ = get_Var_Ref_Capture_ಬಹುಲಕ(nodep);
+        ಆದರೆ (ಬಹುಲಕ(cap_ಬಹುಲಕ) == Capture_ಬಹುಲಕ::CAP_NO) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (ಬಹುಲಕ(cap_ಬಹುಲಕ) == Capture_ಬಹುಲಕ::CAP_ಮೌಲ್ಯ) capture_Ref_By_ಮೌಲ್ಯ(nodep, cap_ಬಹುಲಕ);
+        ಆದರೆ (ಬಹುಲಕ(cap_ಬಹುಲಕ) == Capture_ಬಹುಲಕ::CAP_THIS) captureRefByThis(nodep, cap_ಬಹುಲಕ);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (m_ignore.count(nodep)) {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask_Ref* nodep) override {
+        ಆದರೆ (m_ignore.ಎಣಿಕೆ_2(nodep)) {
             iterateChildren(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
         m_ignore.emplace(nodep);
         UASSERT_OBJ(nodep->taskp(), nodep, "Task unlinked");
         // We assume that constraint targets are not referenced this way.
-        if (VN_IS(nodep, MethodCall) || VN_IS(nodep, New)) {
+        ಆದರೆ (VN_IS(nodep, ವಿಧಾನ_Call) || VN_IS(nodep, New)) {
             m_ignore.emplace(nodep);
             iterateChildren(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        AstClass* const classp = VN_CAST(nodep->taskp()->user2p(), Class);
-        if ((classp == m_callerp) && VN_IS(m_callerp, Class)) {
-            AstArg* const argsp = nodep->argsp();
-            if (argsp) argsp->unlinkFrBack();  // TODO: should this be unlinkFrBackWithNext?
-            AstVar* const thisp = importThisp(nodep->fileline());
-            AstVarRef* const thisRefp = new AstVarRef{
-                nodep->fileline(), thisp, nodep->isPure() ? VAccess::READ : VAccess::READWRITE};
+        AstClass* ಸ್ಥಿರಾಂಕ classp = VN_CAST(nodep->taskp()->user2p(), Class);
+        ಆದರೆ ((classp == m_callerp) && VN_IS(m_callerp, Class)) {
+            AstArg* ಸ್ಥಿರಾಂಕ argsp = nodep->argsp();
+            ಆದರೆ (argsp) argsp->unlink_Fr_ಹಿಂಭಾಗ();  // TODO: should this be unlinkFrBackWithNext?
+            AstVar* ಸ್ಥಿರಾಂಕ thisp = importThisp(nodep->fileline());
+            AstVarRef* ಸ್ಥಿರಾಂಕ thisRefp = ಹೊಸ AstVarRef{
+                nodep->fileline(), thisp, nodep->is_ಶುದ್ಧ() ? VAccess::READ : VAccess::READWRITE};
             m_ignore.emplace(thisRefp);
-            AstMethodCall* const methodCallp
-                = new AstMethodCall{nodep->fileline(), thisRefp, thisp->name(), argsp};
-            methodCallp->taskp(nodep->taskp());
-            methodCallp->dtypep(nodep->dtypep());
-            nodep->replaceWith(methodCallp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            m_ignore.emplace(methodCallp);
+            Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp
+                = ಹೊಸ Ast_ವಿಧಾನ_Call{nodep->fileline(), thisRefp, thisp->name(), argsp};
+            ವಿಧಾನ_Callp->taskp(nodep->taskp());
+            ವಿಧಾನ_Callp->dtypep(nodep->dtypep());
+            nodep->replaceWith(ವಿಧಾನ_Callp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+            m_ignore.emplace(ವಿಧಾನ_Callp);
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (!isReferenceToInnerMember(nodep)) {
+    ಶೂನ್ಯ ಭೇಟಿ(AstMemberSel* nodep) override {
+        ಆದರೆ (!is_Reference_ಗಮ್ಯ_Inner_Member(nodep)) {
             iterateChildren(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        AstVarRef* const varRefp
-            = new AstVarRef{nodep->fileline(), nodep->varp(), nodep->access()};
+        AstVarRef* ಸ್ಥಿರಾಂಕ varRefp
+            = ಹೊಸ AstVarRef{nodep->fileline(), nodep->varp(), nodep->access()};
         fixupClassOrPackage(nodep->varp(), varRefp);
         varRefp->user1(nodep->user1());
         nodep->replaceWith(varRefp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         m_ignore.emplace(varRefp);
     }
-    void visit(AstMethodCall* nodep) override {
-        if (!isReferenceToInnerMember(nodep) || m_ignore.count(nodep)) {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ವಿಧಾನ_Call* nodep) override {
+        ಆದರೆ (!is_Reference_ಗಮ್ಯ_Inner_Member(nodep) || m_ignore.ಎಣಿಕೆ_2(nodep)) {
             iterateChildren(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        AstArg* const argsp = nodep->argsp();
-        if (argsp) argsp->unlinkFrBackWithNext();
-        AstNodeFTaskRef* taskRefp = nullptr;
-        if (AstTask* const taskp = VN_CAST(nodep->taskp(), Task)) {
-            taskRefp = new AstTaskRef{nodep->fileline(), taskp, argsp};
-        } else if (AstFunc* const taskp = VN_CAST(nodep->taskp(), Func)) {
-            taskRefp = new AstFuncRef{nodep->fileline(), taskp, argsp};
-        } else {
+        AstArg* ಸ್ಥಿರಾಂಕ argsp = nodep->argsp();
+        ಆದರೆ (argsp) argsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+        Ast_ಗಂಟು_FTask_Ref* taskRefp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ taskp = VN_CAST(nodep->taskp(), Task)) {
+            taskRefp = ಹೊಸ AstTaskRef{nodep->fileline(), taskp, argsp};
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstFunc* ಸ್ಥಿರಾಂಕ taskp = VN_CAST(nodep->taskp(), Func)) {
+            taskRefp = ಹೊಸ AstFuncRef{nodep->fileline(), taskp, argsp};
+        } ಇಲ್ಲದಿದ್ದರೆ {
             nodep->v3fatalSrc("Node needs to point to regular method");
         }
         fixupClassOrPackage(nodep->taskp(), taskRefp);
         taskRefp->user1(nodep->user1());
         nodep->replaceWith(taskRefp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
         m_ignore.emplace(taskRefp);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit CaptureVisitor(AstNode* const nodep, AstNodeModule* callerp, AstClass* const targetp,
-                            bool staticContext = false)
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಪಷ್ಟ CaptureVisitor(Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep, Ast_ಗಂಟು_Module* callerp, AstClass* ಸ್ಥಿರಾಂಕ targetp,
+                            ತಾರ್ಕಿಕ staticContext = ಸುಳ್ಳು)
         : m_callerp{callerp}
         , m_targetp{targetp}
         , m_staticContext{staticContext} {
-        iterateAndNextNull(nodep);
+        iterate_And_ಮುಂದಿನ_Null(nodep);
     }
 
     // PUBLIC METHODS
 
-    AstArg* getArgs() const { return m_argsp; }
-    AstVar* getThisp() const { return m_thisp; }
+    AstArg* get_ವಾದಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_argsp; }
+    AstVar* getThisp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_thisp; }
 
-    void addFunctionArguments(AstNodeFTask* funcp) const {
-        for (AstArg* argp = getArgs(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-            if (AstNodeVarRef* varrefp = VN_CAST(argp->exprp(), NodeVarRef)) {
-                if ((varrefp->classOrPackagep() == m_callerp) || VN_IS(varrefp, VarXRef)) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_Function_Arguments(Ast_ಗಂಟು_FTask* funcp) ಸ್ಥಿರಾಂಕ {
+        ಗಾಗಿ (AstArg* argp = get_ವಾದಗಳು(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+            ಆದರೆ (Ast_ಗಂಟು_Var_Ref* varrefp = VN_CAST(argp->exprp(), ಗಂಟು_Var_Ref)) {
+                ಆದರೆ ((varrefp->classOrPackagep() == m_callerp) || VN_IS(varrefp, VarXRef)) {
                     // Keeping classOrPackagep will cause a broken link after inlining
-                    varrefp->classOrPackagep(nullptr);
+                    varrefp->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);
                 }
-                funcp->addStmtsp(getVar(varrefp->varp()));
-            } else {
+                funcp->ಕೂಡಿಸು_Stmtsp(getVar(varrefp->varp()));
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 UASSERT_OBJ(VN_IS(argp->exprp(), ThisRef), argp->exprp(), "Wrong arg expression");
-                funcp->addStmtsp(m_thisp);
+                funcp->ಕೂಡಿಸು_Stmtsp(m_thisp);
             }
         }
     }
@@ -3955,7 +3955,7 @@ public:
 //######################################################################
 // Visitor that defines a randomize method where needed
 
-class RandomizeVisitor final : public VNVisitor {
+ವರ್ಗ RandomizeVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // Cleared on Netlist
     //  AstClass::user1()       -> bool.  Set true to indicate needs randomize processing
@@ -3974,343 +3974,343 @@ class RandomizeVisitor final : public VNVisitor {
     //  AstMemberSel::user2p()  -> AstNodeModule*. Pointer to containing module
     // VNUser1InUse    m_inuser1;      (Allocated for use in RandomizeMarkVisitor)
     // VNUser2InUse    m_inuser2;      (Allocated for use in RandomizeMarkVisitor)
-    const VNUser3InUse m_inuser3;
-    const VNUser4InUse m_inuser4;
+    ಸ್ಥಿರಾಂಕ VNUser3_ಒಳ_Use m_inuser3;
+    ಸ್ಥಿರಾಂಕ VNUser4_ಒಳ_Use m_inuser4;
 
     // STATE
-    V3UniqueNames m_inlineUniqueNames;  // For generating unique function names
-    V3UniqueNames m_randArrayUniqueNames{"__Vrandarr"};  // Random array loop indices
-    V3UniqueNames m_modeUniqueNames{"__Vmode"};  // For generating unique rand/constraint
+    V3_Unique_ಹೆಸರುಗಳು m_inline_Unique_ಹೆಸರುಗಳು;  // For generating unique function names
+    V3_Unique_ಹೆಸರುಗಳು m_rand_Array_Unique_ಹೆಸರುಗಳು{"__Vrandarr"};  // Random array loop indices
+    V3_Unique_ಹೆಸರುಗಳು m_ಬಹುಲಕ_Unique_ಹೆಸರುಗಳು{"__Vmode"};  // For generating unique rand/constraint
                                                  // mode state var names
-    V3UniqueNames m_inlineUniqueStdName{"__VStdrand"};
-    V3UniqueNames m_uniqueNames;  // Unique names of temporaries, and of blocks holding them
+    V3_Unique_ಹೆಸರುಗಳು m_inlineUniqueStdName{"__VStdrand"};
+    V3_Unique_ಹೆಸರುಗಳು m_unique_ಹೆಸರುಗಳು;  // Unique names of temporaries, and of blocks holding them
     VMemberMap m_memberMap;  // Member names cached for fast lookup
-    AstNodeModule* m_modp = nullptr;  // Current module
-    std::unordered_map<AstNodeModule*, AstVar*> m_stdMap;  // Map from module/class to AST Var
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNodeStmt* m_stmtp = nullptr;  // Current statement
-    AstDynArrayDType* m_dynarrayDtp = nullptr;  // Dynamic array type (for rand mode)
-    int m_randCaseNum = 0;  // Randcase number within a module for var naming
-    int m_distNum = 0;  // Dist bucket variable counter within a module for var naming
+    Ast_ಗಂಟು_Module* m_modp = ಶೂನ್ಯಸೂಚಕ;  // Current module
+    std::unordered_map<Ast_ಗಂಟು_Module*, AstVar*> m_stdMap;  // Map from module/class to AST Var
+    Ast_ಗಂಟು_FTask* m_ftaskp = ಶೂನ್ಯಸೂಚಕ;  // Current function/task
+    Ast_ಗಂಟು_Stmt* m_stmtp = ಶೂನ್ಯಸೂಚಕ;  // Current statement
+    AstDynArrayDType* m_dynarrayDtp = ಶೂನ್ಯಸೂಚಕ;  // Dynamic array type (for rand mode)
+    ಪೂರ್ಣಾಂಕ m_rand_Case_ಅಂಕೆ = 0;  // Randcase number within a module for var naming
+    ಪೂರ್ಣಾಂಕ m_dist_ಅಂಕೆ = 0;  // Dist bucket variable counter within a module for var naming
     std::map<std::string, AstCDType*> m_randcDtypes;  // RandC data type deduplication
-    AstConstraint* m_constraintp = nullptr;  // Current constraint
-    std::set<std::string> m_writtenVars;  // Track write_var calls per class to avoid duplicates
-    std::map<AstClass*, VInsertionSet<AstVar*>> m_sizeConstrainedArrays;  // Per-class arrays
+    AstConstraint* m_constraintp = ಶೂನ್ಯಸೂಚಕ;  // Current constraint
+    std::ಗಣ<std::string> m_writtenVars;  // Track write_var calls per class to avoid duplicates
+    std::map<AstClass*, VInsertion_ಗಣ<AstVar*>> m_ಗಾತ್ರ_Constrained_Arrays;  // Per-class arrays
     std::map<AstClass*, AstVar*>
-        m_staticConstraintModeVars;  // Static constraint mode vars per class
-    std::map<AstClass*, AstVar*> m_staticRandModeVars;  // Static rand mode vars per class
-    std::map<AstClass*, std::pair<bool, bool>>
+        m_static_Constraint_ಬಹುಲಕ_Vars;  // Static constraint mode vars per class
+    std::map<AstClass*, AstVar*> m_static_Rand_ಬಹುಲಕ_Vars;  // Static rand mode vars per class
+    std::map<AstClass*, std::pair<ತಾರ್ಕಿಕ, ತಾರ್ಕಿಕ>>
         m_prePostWrap;  // Per-handle-type pre/post virtual wrapper presence
     uint32_t m_uniqueConstraintId = 0;  // current ID of unique call
 
     // METHODS
     // Check if two nodes are semantically equivalent (not pointer equality):
-    static bool isSimilarNode(const AstNodeExpr* withExpr, const AstNodeExpr* argExpr) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ is_Similar_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* with_ಅಭಿವ್ಯಕ್ತಿ, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* arg_ಅಭಿವ್ಯಕ್ತಿ) {
         // VarRef: compare variable pointers
-        if (VN_IS(argExpr, VarRef) && VN_IS(withExpr, VarRef)) {
-            return VN_AS(withExpr, VarRef)->varp() == VN_AS(argExpr, VarRef)->varp();
+        ಆದರೆ (VN_IS(arg_ಅಭಿವ್ಯಕ್ತಿ, VarRef) && VN_IS(with_ಅಭಿವ್ಯಕ್ತಿ, VarRef)) {
+            ಹಿಂತಿರುಗಿ VN_AS(with_ಅಭಿವ್ಯಕ್ತಿ, VarRef)->varp() == VN_AS(arg_ಅಭಿವ್ಯಕ್ತಿ, VarRef)->varp();
         }
         // MemberSel: compare object and member (obj.y)
-        if (VN_IS(argExpr, MemberSel) && VN_IS(withExpr, MemberSel)) {
-            const AstMemberSel* const withMSp = VN_AS(withExpr, MemberSel);
-            const AstMemberSel* const argMSp = VN_AS(argExpr, MemberSel);
-            if (withMSp->varp() != argMSp->varp()) return false;
+        ಆದರೆ (VN_IS(arg_ಅಭಿವ್ಯಕ್ತಿ, MemberSel) && VN_IS(with_ಅಭಿವ್ಯಕ್ತಿ, MemberSel)) {
+            ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ withMSp = VN_AS(with_ಅಭಿವ್ಯಕ್ತಿ, MemberSel);
+            ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ argMSp = VN_AS(arg_ಅಭಿವ್ಯಕ್ತಿ, MemberSel);
+            ಆದರೆ (withMSp->varp() != argMSp->varp()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             // Recursively compare the base object expression
-            return isSimilarNode(withMSp->fromp(), argMSp->fromp());
+            ಹಿಂತಿರುಗಿ is_Similar_ಗಂಟು(withMSp->fromp(), argMSp->fromp());
         }
         // ArraySel: compare array base and index (arr[i])
-        if (VN_IS(argExpr, ArraySel) && VN_IS(withExpr, ArraySel)) {
-            const AstArraySel* const withASp = VN_AS(withExpr, ArraySel);
-            const AstArraySel* const argASp = VN_AS(argExpr, ArraySel);
+        ಆದರೆ (VN_IS(arg_ಅಭಿವ್ಯಕ್ತಿ, ArraySel) && VN_IS(with_ಅಭಿವ್ಯಕ್ತಿ, ArraySel)) {
+            ಸ್ಥಿರಾಂಕ AstArraySel* ಸ್ಥಿರಾಂಕ withASp = VN_AS(with_ಅಭಿವ್ಯಕ್ತಿ, ArraySel);
+            ಸ್ಥಿರಾಂಕ AstArraySel* ಸ್ಥಿರಾಂಕ argASp = VN_AS(arg_ಅಭಿವ್ಯಕ್ತಿ, ArraySel);
             // Before checking Sel type index, check if both are Const
-            if (VN_IS(withASp->bitp(), Const) && VN_IS(argASp->bitp(), Const)) {
-                const AstConst* const withIdxp = VN_AS(withASp->bitp(), Const);
-                const AstConst* const argIdxp = VN_AS(argASp->bitp(), Const);
-                return isSimilarNode(withASp->fromp(), argASp->fromp())
-                       && withIdxp->num().isCaseEq(argIdxp->num());
+            ಆದರೆ (VN_IS(withASp->bitp(), Const) && VN_IS(argASp->bitp(), Const)) {
+                ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ withIdxp = VN_AS(withASp->bitp(), Const);
+                ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ argIdxp = VN_AS(argASp->bitp(), Const);
+                ಹಿಂತಿರುಗಿ is_Similar_ಗಂಟು(withASp->fromp(), argASp->fromp())
+                       && withIdxp->ಅಂಕೆ().isCaseEq(argIdxp->ಅಂಕೆ());
             }
             // Index must be Sel type, extract VarRef using fromp()
-            if (!VN_IS(withASp->bitp(), Sel) || !VN_IS(argASp->bitp(), Sel)) return false;
-            const AstNodeExpr* const withIdxp = VN_AS(withASp->bitp(), Sel)->fromp();
-            const AstNodeExpr* const argIdxp = VN_AS(argASp->bitp(), Sel)->fromp();
-            return isSimilarNode(withASp->fromp(), argASp->fromp())
-                   && isSimilarNode(withIdxp, argIdxp);
+            ಆದರೆ (!VN_IS(withASp->bitp(), Sel) || !VN_IS(argASp->bitp(), Sel)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ withIdxp = VN_AS(withASp->bitp(), Sel)->fromp();
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argIdxp = VN_AS(argASp->bitp(), Sel)->fromp();
+            ಹಿಂತಿರುಗಿ is_Similar_ಗಂಟು(withASp->fromp(), argASp->fromp())
+                   && is_Similar_ಗಂಟು(withIdxp, argIdxp);
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
     // Expand unique{a,b,c} with explicit elements into pairwise != constraints.
     // Whole-array unique{arr} is left for ConstraintExprVisitor's rand_unique handling.
     // Recurses into conditional and foreach bodies, so that the pairwise
     // constraints stay under the guard they were written under.
-    static void expandUniqueElementList(AstNode* itemsp) {
-        AstNode* itemp = itemsp;
-        while (itemp) {
-            AstNode* const nextp = itemp->nextp();
-            if (const AstConstraintIf* const ifp = VN_CAST(itemp, ConstraintIf)) {
+    ಸ್ಥಿರ ಶೂನ್ಯ expandUniqueElementList(Ast_ಗಂಟು* itemsp) {
+        Ast_ಗಂಟು* itemp = itemsp;
+        ಆಗ (itemp) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nextp = itemp->nextp();
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConstraintIf* ಸ್ಥಿರಾಂಕ ifp = VN_CAST(itemp, ConstraintIf)) {
                 expandUniqueElementList(ifp->thensp());
                 expandUniqueElementList(ifp->elsesp());
                 itemp = nextp;
-                continue;
+                ಮುಂದುವರಿ;
             }
-            if (const AstConstraintForeach* const foreachp = VN_CAST(itemp, ConstraintForeach)) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConstraintForeach* ಸ್ಥಿರಾಂಕ foreachp = VN_CAST(itemp, ConstraintForeach)) {
                 expandUniqueElementList(foreachp->bodyp());
                 itemp = nextp;
-                continue;
+                ಮುಂದುವರಿ;
             }
-            AstConstraintUnique* const uniquep = VN_CAST(itemp, ConstraintUnique);
-            if (!uniquep) {
+            AstConstraintUnique* ಸ್ಥಿರಾಂಕ uniquep = VN_CAST(itemp, ConstraintUnique);
+            ಆದರೆ (!uniquep) {
                 itemp = nextp;
-                continue;
+                ಮುಂದುವರಿ;
             }
 
-            std::vector<AstNodeExpr*> exprItems;
-            bool hasArrayVarRef = false;
-            for (AstNode* rp = uniquep->rangesp(); rp; rp = rp->nextp()) {
-                if (const AstVarRef* const vrp = VN_CAST(rp, VarRef)) {
+            std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು;
+            ತಾರ್ಕಿಕ hasArrayVarRef = ಸುಳ್ಳು;
+            ಗಾಗಿ (Ast_ಗಂಟು* rp = uniquep->rangesp(); rp; rp = rp->nextp()) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ vrp = VN_CAST(rp, VarRef)) {
                     // A container's elements are made distinct by rand_unique, not pairwise
-                    const AstNodeDType* const dtypep = vrp->varp()->dtypep()->skipRefp();
-                    if (VN_IS(dtypep, NodeArrayDType) || VN_IS(dtypep, QueueDType)
+                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = vrp->varp()->dtypep()->skipRefp();
+                    ಆದರೆ (VN_IS(dtypep, ಗಂಟು_Array_DType) || VN_IS(dtypep, ಸರತಿ_DType)
                         || VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, AssocArrayDType)
                         || VN_IS(dtypep, WildcardArrayDType)) {
-                        hasArrayVarRef = true;
-                        continue;
+                        hasArrayVarRef = ನಿಜ;
+                        ಮುಂದುವರಿ;
                     }
                 }
-                exprItems.push_back(VN_AS(rp, NodeExpr));
+                ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(VN_AS(rp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ));
             }
 
-            if (exprItems.size() >= 2) {
-                FileLine* const fl = uniquep->fileline();
-                for (size_t i = 0; i < exprItems.size(); i++) {
-                    for (size_t j = i + 1; j < exprItems.size(); j++) {
-                        AstNodeExpr* const lhsp = exprItems[i]->cloneTree(false);
-                        AstNodeExpr* const rhsp = exprItems[j]->cloneTree(false);
-                        AstNeq* const neqp = new AstNeq{fl, lhsp, rhsp};
-                        neqp->user1(true);
-                        AstConstraintExpr* const cexprp = new AstConstraintExpr{fl, neqp};
-                        uniquep->addNextHere(cexprp);
+            ಆದರೆ (ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು.ಗಾತ್ರ_2() >= 2) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = uniquep->fileline();
+                ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು.ಗಾತ್ರ_2(); i++) {
+                    ಗಾಗಿ (ಗಾತ್ರ_t j = i + 1; j < ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು.ಗಾತ್ರ_2(); j++) {
+                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp = ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು[i]->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು[j]->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+                        AstNeq* ಸ್ಥಿರಾಂಕ neqp = ಹೊಸ AstNeq{fl, lhsp, rhsp};
+                        neqp->user1(ನಿಜ);
+                        Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ cexprp = ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, neqp};
+                        uniquep->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(cexprp);
                     }
                 }
-                if (!hasArrayVarRef) {
-                    uniquep->unlinkFrBack();
-                    VL_DO_DANGLING(uniquep->deleteTree(), uniquep);
+                ಆದರೆ (!hasArrayVarRef) {
+                    uniquep->unlink_Fr_ಹಿಂಭಾಗ();
+                    VL_DO_DANGLING(uniquep->delete_ವೃಕ್ಷ(), uniquep);
                 }
-            } else if (exprItems.size() == 1 && !hasArrayVarRef) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಅಭಿವ್ಯಕ್ತಿ_ವಸ್ತುಗಳು.ಗಾತ್ರ_2() == 1 && !hasArrayVarRef) {
                 // A set of one element is unique whatever that element holds
-                uniquep->unlinkFrBack();
-                VL_DO_DANGLING(uniquep->deleteTree(), uniquep);
+                uniquep->unlink_Fr_ಹಿಂಭಾಗ();
+                VL_DO_DANGLING(uniquep->delete_ವೃಕ್ಷ(), uniquep);
             }
             itemp = nextp;
         }
     }
-    void createRandomGenerator(AstClass* const classp) {
-        if (classp->user3p()) return;
-        if (classp->extendsp()) {
+    ಶೂನ್ಯ createRandomGenerator(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಆದರೆ (classp->user3p()) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (classp->extendsp()) {
             createRandomGenerator(classp->extendsp()->classp());
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        AstVar* const genp = new AstVar{classp->fileline(), VVarType::MEMBER, "constraint",
-                                        classp->findBasicDType(VBasicDTypeKwd::RANDOM_GENERATOR)};
+        AstVar* ಸ್ಥಿರಾಂಕ genp = ಹೊಸ AstVar{classp->fileline(), VVarType::MEMBER, "constraint",
+                                        classp->ಕಂಡುಹಿಡಿ_Basic_DType(VBasicDTypeKwd::RANDOM_GENERATOR)};
         genp->user2p(classp);
-        classp->addMembersp(genp);
+        classp->ಕೂಡಿಸು_Membersp(genp);
         classp->user3p(genp);
     }
-    AstVar* createStdRandomGenerator(AstNodeModule* const modp) {
-        auto it = m_stdMap.find(modp);
-        if (it == m_stdMap.end()) {
-            AstVar* const stdgenp
-                = new AstVar{modp->fileline(), VVarType::MEMBER, "stdrand",
-                             modp->findBasicDType(VBasicDTypeKwd::RANDOM_STDGENERATOR)};
-            stdgenp->fileline()->warnOff(V3ErrorCode::IMPURE, true);
-            modp->addStmtsp(stdgenp);
+    AstVar* createStdRandomGenerator(Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ modp) {
+        ಸ್ವಯಂಚಾಲಿತ it = m_stdMap.ಕಂಡುಹಿಡಿ(modp);
+        ಆದರೆ (it == m_stdMap.ಕೊನೆ()) {
+            AstVar* ಸ್ಥಿರಾಂಕ stdgenp
+                = ಹೊಸ AstVar{modp->fileline(), VVarType::MEMBER, "stdrand",
+                             modp->ಕಂಡುಹಿಡಿ_Basic_DType(VBasicDTypeKwd::RANDOM_STDGENERATOR)};
+            stdgenp->fileline()->warnOff(V3_Error_ಸಂಕೇತ::IMPURE, ನಿಜ);
+            modp->ಕೂಡಿಸು_Stmtsp(stdgenp);
             m_stdMap.emplace(modp, stdgenp);
-            return stdgenp;
+            ಹಿಂತಿರುಗಿ stdgenp;
         }
-        return it->second;
+        ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
     }
-    AstTask* createPrepareConstrainedArraysTask(AstClass* const classp) {
-        static const char* const name = "__Vprepare_constrained_arrays";
-        AstTask* const taskp = new AstTask{classp->fileline(), name, nullptr};
-        taskp->classMethod(true);
-        classp->addMembersp(taskp);
-        m_memberMap.insert(classp, taskp);
-        return taskp;
+    AstTask* createPrepareConstrainedArraysTask(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ name = "__Vprepare_constrained_arrays";
+        AstTask* ಸ್ಥಿರಾಂಕ taskp = ಹೊಸ AstTask{classp->fileline(), name, ಶೂನ್ಯಸೂಚಕ};
+        taskp->class_ವಿಧಾನ(ನಿಜ);
+        classp->ಕೂಡಿಸು_Membersp(taskp);
+        m_memberMap.ಸೇರಿಸು(classp, taskp);
+        ಹಿಂತಿರುಗಿ taskp;
     }
-    AstTask* getCreateAggrResizeTask(AstClass* const classp) {
-        static constexpr const char* const name = "__Vresize_constrained_arrays";
-        AstTask* resizeTaskp = VN_AS(m_memberMap.findMember(classp, name), Task);
-        if (resizeTaskp) return resizeTaskp;
-        resizeTaskp = new AstTask{classp->fileline(), name, nullptr};
-        resizeTaskp->classMethod(true);
-        resizeTaskp->isVirtual(true);
-        classp->addMembersp(resizeTaskp);
-        m_memberMap.insert(classp, resizeTaskp);
-        return resizeTaskp;
+    AstTask* getCreateAggrResizeTask(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಸ್ಥಿರ constexpr ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ name = "__Vresize_constrained_arrays";
+        AstTask* resizeTaskp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, name), Task);
+        ಆದರೆ (resizeTaskp) ಹಿಂತಿರುಗಿ resizeTaskp;
+        resizeTaskp = ಹೊಸ AstTask{classp->fileline(), name, ಶೂನ್ಯಸೂಚಕ};
+        resizeTaskp->class_ವಿಧಾನ(ನಿಜ);
+        resizeTaskp->isVirtual(ನಿಜ);
+        classp->ಕೂಡಿಸು_Membersp(resizeTaskp);
+        m_memberMap.ಸೇರಿಸು(classp, resizeTaskp);
+        ಹಿಂತಿರುಗಿ resizeTaskp;
     }
-    AstVar* getCreateRandModeVar(AstClass* const classp) {
-        if (classp->user2p()) return VN_AS(classp->user2p(), Var);
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateRandModeVar(extendsp->classp());
+    AstVar* get_Create_Rand_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಆದರೆ (classp->user2p()) ಹಿಂತಿರುಗಿ VN_AS(classp->user2p(), Var);
+        ಆದರೆ (AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp()) {
+            ಹಿಂತಿರುಗಿ get_Create_Rand_ಬಹುಲಕ_Var(extendsp->classp());
         }
-        AstVar* const randModeVarp = createModeVar(classp, "__Vrandmode");
-        classp->user2p(randModeVarp);
-        return randModeVarp;
+        AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp = create_ಬಹುಲಕ_Var(classp, "__Vrandmode");
+        classp->user2p(rand_ಬಹುಲಕ_Varp);
+        ಹಿಂತಿರುಗಿ rand_ಬಹುಲಕ_Varp;
     }
-    AstVar* getCreateConstraintModeVar(AstClass* const classp) {
-        if (classp->user4p()) return VN_AS(classp->user4p(), Var);
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateConstraintModeVar(extendsp->classp());
+    AstVar* get_Create_Constraint_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಆದರೆ (classp->user4p()) ಹಿಂತಿರುಗಿ VN_AS(classp->user4p(), Var);
+        ಆದರೆ (AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp()) {
+            ಹಿಂತಿರುಗಿ get_Create_Constraint_ಬಹುಲಕ_Var(extendsp->classp());
         }
-        AstVar* const constraintModeVarp = createModeVar(classp, "__Vconstraintmode");
-        classp->user4p(constraintModeVarp);
-        return constraintModeVarp;
+        AstVar* ಸ್ಥಿರಾಂಕ constraint_ಬಹುಲಕ_Varp = create_ಬಹುಲಕ_Var(classp, "__Vconstraintmode");
+        classp->user4p(constraint_ಬಹುಲಕ_Varp);
+        ಹಿಂತಿರುಗಿ constraint_ಬಹುಲಕ_Varp;
     }
-    static AstVar* getConstraintModeVar(AstClass* const classp) {
-        if (classp->user4p()) return VN_AS(classp->user4p(), Var);
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getConstraintModeVar(extendsp->classp());
+    ಸ್ಥಿರ AstVar* get_Constraint_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಆದರೆ (classp->user4p()) ಹಿಂತಿರುಗಿ VN_AS(classp->user4p(), Var);
+        ಆದರೆ (AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp()) {
+            ಹಿಂತಿರುಗಿ get_Constraint_ಬಹುಲಕ_Var(extendsp->classp());
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
-    AstVar* getCreateStaticConstraintModeVar(AstClass* const classp) {
-        auto it = m_staticConstraintModeVars.find(classp);
-        if (it != m_staticConstraintModeVars.end()) return it->second;
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateStaticConstraintModeVar(extendsp->classp());
+    AstVar* get_Create_Static_Constraint_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಸ್ವಯಂಚಾಲಿತ it = m_static_Constraint_ಬಹುಲಕ_Vars.ಕಂಡುಹಿಡಿ(classp);
+        ಆದರೆ (it != m_static_Constraint_ಬಹುಲಕ_Vars.ಕೊನೆ()) ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
+        ಆದರೆ (AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp()) {
+            ಹಿಂತಿರುಗಿ get_Create_Static_Constraint_ಬಹುಲಕ_Var(extendsp->classp());
         }
-        AstVar* const staticModeVarp = createStaticModeVar(classp, "__Vstaticconstraintmode");
-        m_staticConstraintModeVars[classp] = staticModeVarp;
-        return staticModeVarp;
+        AstVar* ಸ್ಥಿರಾಂಕ static_ಬಹುಲಕ_Varp = create_Static_ಬಹುಲಕ_Var(classp, "__Vstaticconstraintmode");
+        m_static_Constraint_ಬಹುಲಕ_Vars[classp] = static_ಬಹುಲಕ_Varp;
+        ಹಿಂತಿರುಗಿ static_ಬಹುಲಕ_Varp;
     }
-    AstVar* getStaticConstraintModeVar(AstClass* const classp) {
-        auto it = m_staticConstraintModeVars.find(classp);
-        if (it != m_staticConstraintModeVars.end()) return it->second;
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getStaticConstraintModeVar(extendsp->classp());
+    AstVar* get_Static_Constraint_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಸ್ವಯಂಚಾಲಿತ it = m_static_Constraint_ಬಹುಲಕ_Vars.ಕಂಡುಹಿಡಿ(classp);
+        ಆದರೆ (it != m_static_Constraint_ಬಹುಲಕ_Vars.ಕೊನೆ()) ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
+        ಆದರೆ (AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp()) {
+            ಹಿಂತಿರುಗಿ get_Static_Constraint_ಬಹುಲಕ_Var(extendsp->classp());
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
-    AstVar* getCreateStaticRandModeVar(AstClass* const classp) {
-        if (m_staticRandModeVars.count(classp)) return m_staticRandModeVars[classp];
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateStaticRandModeVar(extendsp->classp());
+    AstVar* get_Create_Static_Rand_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಆದರೆ (m_static_Rand_ಬಹುಲಕ_Vars.ಎಣಿಕೆ_2(classp)) ಹಿಂತಿರುಗಿ m_static_Rand_ಬಹುಲಕ_Vars[classp];
+        ಆದರೆ (AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp()) {
+            ಹಿಂತಿರುಗಿ get_Create_Static_Rand_ಬಹುಲಕ_Var(extendsp->classp());
         }
-        AstVar* const staticModeVarp = createStaticModeVar(classp, "__Vstaticrandmode");
-        m_staticRandModeVars[classp] = staticModeVarp;
-        return staticModeVarp;
+        AstVar* ಸ್ಥಿರಾಂಕ static_ಬಹುಲಕ_Varp = create_Static_ಬಹುಲಕ_Var(classp, "__Vstaticrandmode");
+        m_static_Rand_ಬಹುಲಕ_Vars[classp] = static_ಬಹುಲಕ_Varp;
+        ಹಿಂತಿರುಗಿ static_ಬಹುಲಕ_Varp;
     }
-    AstVar* getStaticRandModeVar(AstClass* const classp) {
-        if (m_staticRandModeVars.count(classp)) return m_staticRandModeVars[classp];
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getStaticRandModeVar(extendsp->classp());
+    AstVar* get_Static_Rand_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಆದರೆ (m_static_Rand_ಬಹುಲಕ_Vars.ಎಣಿಕೆ_2(classp)) ಹಿಂತಿರುಗಿ m_static_Rand_ಬಹುಲಕ_Vars[classp];
+        ಆದರೆ (AstClassExtends* ಸ್ಥಿರಾಂಕ extendsp = classp->extendsp()) {
+            ಹಿಂತಿರುಗಿ get_Static_Rand_ಬಹುಲಕ_Var(extendsp->classp());
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
-    AstVar* createModeVar(AstClass* const classp, const char* const name) {
-        FileLine* const fl = classp->fileline();
-        if (!m_dynarrayDtp) {
-            m_dynarrayDtp = new AstDynArrayDType{
-                fl, v3Global.rootp()->typeTablep()->findBitDType()->dtypep()};
+    AstVar* create_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ name) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = classp->fileline();
+        ಆದರೆ (!m_dynarrayDtp) {
+            m_dynarrayDtp = ಹೊಸ AstDynArrayDType{
+                fl, v3Global.rootp()->typeTablep()->ಕಂಡುಹಿಡಿ_ಬಿಟ್_DType()->dtypep()};
             m_dynarrayDtp->dtypep(m_dynarrayDtp);
-            v3Global.rootp()->typeTablep()->addTypesp(m_dynarrayDtp);
+            v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(m_dynarrayDtp);
         }
         // MEMBER, not MODULETEMP, so V3Localize does not localize it into new().
-        AstVar* const modeVarp = new AstVar{fl, VVarType::MEMBER, name, m_dynarrayDtp};
-        modeVarp->user2p(classp);
-        classp->addStmtsp(modeVarp);
-        return modeVarp;
+        AstVar* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Varp = ಹೊಸ AstVar{fl, VVarType::MEMBER, name, m_dynarrayDtp};
+        ಬಹುಲಕ_Varp->user2p(classp);
+        classp->ಕೂಡಿಸು_Stmtsp(ಬಹುಲಕ_Varp);
+        ಹಿಂತಿರುಗಿ ಬಹುಲಕ_Varp;
     }
-    AstVar* createStaticModeVar(AstClass* const classp, const char* const name) {
+    AstVar* create_Static_ಬಹುಲಕ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ name) {
         // Create a static variable that will be shared across all instances.
         // By setting lifetime to STATIC_EXPLICIT, V3Class will move this to the class package.
-        FileLine* const fl = classp->fileline();
-        if (!m_dynarrayDtp) {
-            m_dynarrayDtp = new AstDynArrayDType{
-                fl, v3Global.rootp()->typeTablep()->findBitDType()->dtypep()};
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = classp->fileline();
+        ಆದರೆ (!m_dynarrayDtp) {
+            m_dynarrayDtp = ಹೊಸ AstDynArrayDType{
+                fl, v3Global.rootp()->typeTablep()->ಕಂಡುಹಿಡಿ_ಬಿಟ್_DType()->dtypep()};
             m_dynarrayDtp->dtypep(m_dynarrayDtp);
-            v3Global.rootp()->typeTablep()->addTypesp(m_dynarrayDtp);
+            v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(m_dynarrayDtp);
         }
-        AstVar* const modeVarp = new AstVar{fl, VVarType::MODULETEMP, name, m_dynarrayDtp};
-        modeVarp->lifetime(VLifetime::STATIC_EXPLICIT);
+        AstVar* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Varp = ಹೊಸ AstVar{fl, VVarType::MODULETEMP, name, m_dynarrayDtp};
+        ಬಹುಲಕ_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
         // Note: user2p is set to classp here. V3Scope will later update varScopep
         // to point to the package scope when the variable is moved by V3Class.
-        modeVarp->user2p(classp);
-        classp->addStmtsp(modeVarp);
+        ಬಹುಲಕ_Varp->user2p(classp);
+        classp->ಕೂಡಿಸು_Stmtsp(ಬಹುಲಕ_Varp);
         // Register so findStaticRandModeVarMember sees it through the already
         // scanned member cache
-        m_memberMap.insert(classp, modeVarp);
-        return modeVarp;
+        m_memberMap.ಸೇರಿಸು(classp, ಬಹುಲಕ_Varp);
+        ಹಿಂತಿರುಗಿ ಬಹುಲಕ_Varp;
     }
-    static void addSetRandMode(AstNodeFTask* const ftaskp, AstVar* const genp,
-                               AstVar* const randModeVarp) {
-        FileLine* const fl = ftaskp->fileline();
-        AstCMethodHard* const setRandModep = new AstCMethodHard{
-            fl, new AstVarRef{fl, VN_AS(genp->user2p(), NodeModule), genp, VAccess::WRITE},
-            VCMethod::CLASS_SET_RANDMODE,
-            new AstVarRef{fl, VN_AS(randModeVarp->user2p(), NodeModule), randModeVarp,
+    ಸ್ಥಿರ ಶೂನ್ಯ ಕೂಡಿಸು_ಗಣ_Rand_ಬಹುಲಕ(Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ ftaskp, AstVar* ಸ್ಥಿರಾಂಕ genp,
+                               AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ftaskp->fileline();
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ ಗಣ_Rand_Modep = ಹೊಸ AstCMethodHard{
+            fl, ಹೊಸ AstVarRef{fl, VN_AS(genp->user2p(), ಗಂಟು_Module), genp, VAccess::WRITE},
+            VCMethod::CLASS_ಗಣ_RANDMODE,
+            ಹೊಸ AstVarRef{fl, VN_AS(rand_ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module), rand_ಬಹುಲಕ_Varp,
                           VAccess::READ}};
-        setRandModep->dtypeSetVoid();
-        ftaskp->addStmtsp(setRandModep->makeStmt());
+        ಗಣ_Rand_Modep->dtype_ಗಣ_Void();
+        ftaskp->ಕೂಡಿಸು_Stmtsp(ಗಣ_Rand_Modep->makeStmt());
     }
-    static void addSetStaticRandMode(AstNodeFTask* const ftaskp, AstVar* const genp,
-                                     AstVar* const staticRandModeVarp) {
-        FileLine* const fl = ftaskp->fileline();
-        AstCMethodHard* const setp = new AstCMethodHard{
-            fl, new AstVarRef{fl, VN_AS(genp->user2p(), NodeModule), genp, VAccess::WRITE},
-            VCMethod::RANDOMIZER_SET_STATIC_RANDMODE,
-            new AstVarRef{fl, VN_AS(staticRandModeVarp->user2p(), NodeModule), staticRandModeVarp,
+    ಸ್ಥಿರ ಶೂನ್ಯ ಕೂಡಿಸು_ಗಣ_Static_Rand_ಬಹುಲಕ(Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ ftaskp, AstVar* ಸ್ಥಿರಾಂಕ genp,
+                                     AstVar* ಸ್ಥಿರಾಂಕ static_Rand_ಬಹುಲಕ_Varp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ftaskp->fileline();
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ setp = ಹೊಸ AstCMethodHard{
+            fl, ಹೊಸ AstVarRef{fl, VN_AS(genp->user2p(), ಗಂಟು_Module), genp, VAccess::WRITE},
+            VCMethod::RANDOMIZER_ಗಣ_STATIC_RANDMODE,
+            ಹೊಸ AstVarRef{fl, VN_AS(static_Rand_ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module), static_Rand_ಬಹುಲಕ_Varp,
                           VAccess::READ}};
-        setp->dtypeSetVoid();
-        ftaskp->addStmtsp(setp->makeStmt());
+        setp->dtype_ಗಣ_Void();
+        ftaskp->ಕೂಡಿಸು_Stmtsp(setp->makeStmt());
     }
-    void createRandomizeClassVars(AstNetlist* const netlistp) {
+    ಶೂನ್ಯ createRandomizeClassVars(AstNetlist* ಸ್ಥಿರಾಂಕ netlistp) {
         // Defer init to one emission per root with max descendant count;
         // super.new() runs Base ctor before Derived can resize the static array.
-        std::map<AstClass*, uint32_t> rootStaticRandModeCount;
-        netlistp->foreach([this, &rootStaticRandModeCount](AstClass* const classp) {
-            bool hasConstraints = false;
-            uint32_t randModeCount = 0;
-            uint32_t staticRandModeCount = 0;
-            uint32_t constraintModeCount = 0;
-            uint32_t staticConstraintModeCount = 0;
-            classp->foreachMember([&](AstClass*, AstNode* memberp) {
+        std::map<AstClass*, uint32_t> ಬೇರು_Static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ;
+        netlistp->foreach([ಇದು, &ಬೇರು_Static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ](AstClass* ಸ್ಥಿರಾಂಕ classp) {
+            ತಾರ್ಕಿಕ hasConstraints = ಸುಳ್ಳು;
+            uint32_t rand_ಬಹುಲಕ_ಎಣಿಕೆ = 0;
+            uint32_t static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ = 0;
+            uint32_t constraint_ಬಹುಲಕ_ಎಣಿಕೆ = 0;
+            uint32_t static_Constraint_ಬಹುಲಕ_ಎಣಿಕೆ = 0;
+            classp->foreachMember([&](AstClass*, Ast_ಗಂಟು* memberp) {
                 // SystemVerilog only allows single inheritance, so we don't need to worry about
                 // index overlap. If the index > 0, it's already been set.
-                if (AstConstraint* const constrp = VN_CAST(memberp, Constraint)) {
-                    hasConstraints = true;
-                    RandomizeMode constraintMode = {.asUQuad = memberp->user1()};
-                    if (!constraintMode.usesMode) return;
-                    if (constraintMode.index == 0) {
+                ಆದರೆ (AstConstraint* ಸ್ಥಿರಾಂಕ constrp = VN_CAST(memberp, Constraint)) {
+                    hasConstraints = ನಿಜ;
+                    Randomize_ಬಹುಲಕ constraint_ಬಹುಲಕ = {.asUQuad = memberp->user1()};
+                    ಆದರೆ (!constraint_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) ಹಿಂತಿರುಗಿ;
+                    ಆದರೆ (constraint_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ == 0) {
                         // Use separate index counters for static vs non-static constraints
-                        if (constrp->isStatic()) {
-                            constraintMode.index = staticConstraintModeCount++;
-                        } else {
-                            constraintMode.index = constraintModeCount++;
+                        ಆದರೆ (constrp->isStatic()) {
+                            constraint_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ = static_Constraint_ಬಹುಲಕ_ಎಣಿಕೆ++;
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            constraint_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ = constraint_ಬಹುಲಕ_ಎಣಿಕೆ++;
                         }
-                        memberp->user1(constraintMode.asUQuad);
-                    } else {
-                        if (constrp->isStatic()) {
-                            staticConstraintModeCount = constraintMode.index + 1;
-                        } else {
-                            constraintModeCount = constraintMode.index + 1;
+                        memberp->user1(constraint_ಬಹುಲಕ.asUQuad);
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಆದರೆ (constrp->isStatic()) {
+                            static_Constraint_ಬಹುಲಕ_ಎಣಿಕೆ = constraint_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ + 1;
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            constraint_ಬಹುಲಕ_ಎಣಿಕೆ = constraint_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ + 1;
                         }
                     }
-                } else if (AstVar* const varp = VN_CAST(memberp, Var)) {
-                    RandomizeMode randMode = {.asUQuad = memberp->user1()};
-                    if (!randMode.usesMode) return;
-                    const bool isStaticVar = varp->lifetime().isStatic();
-                    if (randMode.index == 0) {
-                        if (isStaticVar) {
-                            randMode.index = staticRandModeCount++;
-                        } else {
-                            randMode.index = randModeCount++;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ varp = VN_CAST(memberp, Var)) {
+                    Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {.asUQuad = memberp->user1()};
+                    ಆದರೆ (!rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) ಹಿಂತಿರುಗಿ;
+                    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isStaticVar = varp->lifetime().isStatic();
+                    ಆದರೆ (rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ == 0) {
+                        ಆದರೆ (isStaticVar) {
+                            rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ = static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ++;
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ = rand_ಬಹುಲಕ_ಎಣಿಕೆ++;
                         }
-                        memberp->user1(randMode.asUQuad);
-                    } else {
-                        if (isStaticVar) {
-                            staticRandModeCount = randMode.index + 1;
-                        } else {
-                            randModeCount = randMode.index + 1;
+                        memberp->user1(rand_ಬಹುಲಕ.asUQuad);
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಆದರೆ (isStaticVar) {
+                            static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ = rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ + 1;
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            rand_ಬಹುಲಕ_ಎಣಿಕೆ = rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ + 1;
                         }
                     }
                 }
@@ -4320,431 +4320,431 @@ class RandomizeVisitor final : public VNVisitor {
             // setup functions, the generated code references this->__Vrandmode.at(index).
             // We must ensure this class's __Vrandmode is initialized to cover those indices.
             {
-                std::function<void(AstClass*)> findSubObjRandModes = [&](AstClass* subClassp) {
-                    subClassp->foreachMember([&](AstClass*, AstNode* subMemberp) {
-                        if (AstVar* const subVarp = VN_CAST(subMemberp, Var)) {
-                            const RandomizeMode rm = {.asUQuad = subVarp->user1()};
-                            if (!rm.usesMode) return;
+                std::function<ಶೂನ್ಯ(AstClass*)> ಕಂಡುಹಿಡಿ_Sub_Obj_Rand_Modes = [&](AstClass* subClassp) {
+                    subClassp->foreachMember([&](AstClass*, Ast_ಗಂಟು* subMemberp) {
+                        ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ subVarp = VN_CAST(subMemberp, Var)) {
+                            ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rm = {.asUQuad = subVarp->user1()};
+                            ಆದರೆ (!rm.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) ಹಿಂತಿರುಗಿ;
                             // Static rand vars index into their own class's static
                             // rand mode array, not into the outer __Vrandmode.
-                            if (subVarp->lifetime().isStatic()) return;
-                            const uint32_t needed = rm.index + 1;
-                            if (needed > randModeCount) randModeCount = needed;
+                            ಆದರೆ (subVarp->lifetime().isStatic()) ಹಿಂತಿರುಗಿ;
+                            ಸ್ಥಿರಾಂಕ uint32_t needed = rm.ಸೂಚ್ಯಂಕ + 1;
+                            ಆದರೆ (needed > rand_ಬಹುಲಕ_ಎಣಿಕೆ) rand_ಬಹುಲಕ_ಎಣಿಕೆ = needed;
                         }
                     });
                 };
                 classp->foreachMember([&](AstClass*, AstVar* memberVarp) {
-                    if (!memberVarp->globalConstrained()) return;
-                    const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-                    const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType);
-                    if (!classRefp) return;
-                    findSubObjRandModes(classRefp->classp());
+                    ಆದರೆ (!memberVarp->globalConstrained()) ಹಿಂತಿರುಗಿ;
+                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = memberVarp->dtypep()->skipRefp();
+                    ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ classRefp = VN_CAST(dtypep, ClassRefDType);
+                    ಆದರೆ (!classRefp) ಹಿಂತಿರುಗಿ;
+                    ಕಂಡುಹಿಡಿ_Sub_Obj_Rand_Modes(classRefp->classp());
                 });
             }
-            if (hasConstraints) createRandomGenerator(classp);
-            if (randModeCount > 0) {
-                AstVar* const randModeVarp = getCreateRandModeVar(classp);
-                makeModeInit(randModeVarp, classp, randModeCount);
+            ಆದರೆ (hasConstraints) createRandomGenerator(classp);
+            ಆದರೆ (rand_ಬಹುಲಕ_ಎಣಿಕೆ > 0) {
+                AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp = get_Create_Rand_ಬಹುಲಕ_Var(classp);
+                make_ಬಹುಲಕ_Init(rand_ಬಹುಲಕ_Varp, classp, rand_ಬಹುಲಕ_ಎಣಿಕೆ);
             }
-            if (constraintModeCount > 0) {
-                AstVar* const constraintModeVarp = getCreateConstraintModeVar(classp);
-                makeModeInit(constraintModeVarp, classp, constraintModeCount);
+            ಆದರೆ (constraint_ಬಹುಲಕ_ಎಣಿಕೆ > 0) {
+                AstVar* ಸ್ಥಿರಾಂಕ constraint_ಬಹುಲಕ_Varp = get_Create_Constraint_ಬಹುಲಕ_Var(classp);
+                make_ಬಹುಲಕ_Init(constraint_ಬಹುಲಕ_Varp, classp, constraint_ಬಹುಲಕ_ಎಣಿಕೆ);
             }
-            if (staticConstraintModeCount > 0) {
-                AstVar* const staticConstraintModeVarp = getCreateStaticConstraintModeVar(classp);
-                makeStaticModeInit(staticConstraintModeVarp, classp, staticConstraintModeCount);
+            ಆದರೆ (static_Constraint_ಬಹುಲಕ_ಎಣಿಕೆ > 0) {
+                AstVar* ಸ್ಥಿರಾಂಕ static_Constraint_ಬಹುಲಕ_Varp = get_Create_Static_Constraint_ಬಹುಲಕ_Var(classp);
+                make_Static_ಬಹುಲಕ_Init(static_Constraint_ಬಹುಲಕ_Varp, classp, static_Constraint_ಬಹುಲಕ_ಎಣಿಕೆ);
             }
-            if (staticRandModeCount > 0) {
-                getCreateStaticRandModeVar(classp);
+            ಆದರೆ (static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ > 0) {
+                get_Create_Static_Rand_ಬಹುಲಕ_Var(classp);
                 AstClass* rootp = classp;
-                while (AstClassExtends* const ep = rootp->extendsp()) rootp = ep->classp();
-                uint32_t& slot = rootStaticRandModeCount[rootp];
-                if (staticRandModeCount > slot) slot = staticRandModeCount;
+                ಆಗ (AstClassExtends* ಸ್ಥಿರಾಂಕ ep = rootp->extendsp()) rootp = ep->classp();
+                uint32_t& ಸ್ಥಾನ_2 = ಬೇರು_Static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ[rootp];
+                ಆದರೆ (static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ > ಸ್ಥಾನ_2) ಸ್ಥಾನ_2 = static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ;
             }
         });
-        for (const auto& kv : rootStaticRandModeCount) emitRootStaticModeInit(kv.first, kv.second);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& kv : ಬೇರು_Static_Rand_ಬಹುಲಕ_ಎಣಿಕೆ) emit_ಬೇರು_Static_ಬಹುಲಕ_Init(kv.ಮೊದಲ, kv.ಎರಡನೇ);
     }
-    void emitRootStaticModeInit(AstClass* const rootp, const uint32_t count) {
-        AstVar* const staticRandModeVarp = m_staticRandModeVars[rootp];
-        UASSERT_OBJ(staticRandModeVarp, rootp, "Root must have a static rand-mode var");
-        makeStaticModeInit(staticRandModeVarp, rootp, count);
+    ಶೂನ್ಯ emit_ಬೇರು_Static_ಬಹುಲಕ_Init(AstClass* ಸ್ಥಿರಾಂಕ rootp, ಸ್ಥಿರಾಂಕ uint32_t ಎಣಿಕೆ_2) {
+        AstVar* ಸ್ಥಿರಾಂಕ static_Rand_ಬಹುಲಕ_Varp = m_static_Rand_ಬಹುಲಕ_Vars[rootp];
+        UASSERT_OBJ(static_Rand_ಬಹುಲಕ_Varp, rootp, "Root must have a static rand-mode var");
+        make_Static_ಬಹುಲಕ_Init(static_Rand_ಬಹುಲಕ_Varp, rootp, ಎಣಿಕೆ_2);
     }
-    void makeModeInit(AstVar* modeVarp, AstClass* classp, uint32_t modeCount) {
-        AstNodeModule* const modeVarModp = VN_AS(modeVarp->user2p(), NodeModule);
-        FileLine* const fl = modeVarp->fileline();
-        AstVar* const oldSizeVarp = new AstVar{
-            fl, VVarType::BLOCKTEMP, m_uniqueNames.get("__VoldSize"), modeVarp->findUInt32DType()};
-        oldSizeVarp->funcLocal(true);
-        oldSizeVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        AstCMethodHard* const oldSizep
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::READ},
-                                 VCMethod::DYN_SIZE, nullptr};
-        oldSizep->dtypeSetUInt32();
-        AstCMethodHard* const dynarrayNewp
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE},
-                                 VCMethod::DYN_RESIZE, new AstConst{fl, modeCount}};
-        dynarrayNewp->dtypeSetVoid();
-        AstNodeFTask* const ctorNewp = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
+    ಶೂನ್ಯ make_ಬಹುಲಕ_Init(AstVar* ಬಹುಲಕ_Varp, AstClass* classp, uint32_t ಬಹುಲಕ_ಎಣಿಕೆ) {
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Var_Modp = VN_AS(ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ಬಹುಲಕ_Varp->fileline();
+        AstVar* ಸ್ಥಿರಾಂಕ old_ಗಾತ್ರ_Varp = ಹೊಸ AstVar{
+            fl, VVarType::BLOCKTEMP, m_unique_ಹೆಸರುಗಳು.get("__VoldSize"), ಬಹುಲಕ_Varp->ಕಂಡುಹಿಡಿ_UInt32_DType()};
+        old_ಗಾತ್ರ_Varp->funcLocal(ನಿಜ);
+        old_ಗಾತ್ರ_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ oldSizep
+            = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, ಬಹುಲಕ_Var_Modp, ಬಹುಲಕ_Varp, VAccess::READ},
+                                 VCMethod::DYN_ಗಾತ್ರ, ಶೂನ್ಯಸೂಚಕ};
+        oldSizep->dtype_ಗಣ_UInt32();
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ dynarrayNewp
+            = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, ಬಹುಲಕ_Var_Modp, ಬಹುಲಕ_Varp, VAccess::WRITE},
+                                 VCMethod::DYN_RESIZE, ಹೊಸ AstConst{fl, ಬಹುಲಕ_ಎಣಿಕೆ}};
+        dynarrayNewp->dtype_ಗಣ_Void();
+        Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ ctorNewp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, "new"), ಗಂಟು_FTask);
         UASSERT_OBJ(ctorNewp, classp, "No new() in class");
         // Preserve inherited modes set by super.new() and initialize only newly added entries.
-        AstNode* const initFirstp = oldSizeVarp;
-        initFirstp->addNext(
-            new AstAssign{fl, new AstVarRef{fl, oldSizeVarp, VAccess::WRITE}, oldSizep});
-        initFirstp->addNext(dynarrayNewp->makeStmt());
-        initFirstp->addNext(makeModeSetLoop(
-            fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE}, new AstConst{fl, 1},
-            true, new AstVarRef{fl, oldSizeVarp, VAccess::READ}));
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ initFirstp = old_ಗಾತ್ರ_Varp;
+        initFirstp->ಕೂಡಿಸು_ಮುಂದಿನ(
+            ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, old_ಗಾತ್ರ_Varp, VAccess::WRITE}, oldSizep});
+        initFirstp->ಕೂಡಿಸು_ಮುಂದಿನ(dynarrayNewp->makeStmt());
+        initFirstp->ಕೂಡಿಸು_ಮುಂದಿನ(make_ಬಹುಲಕ_ಗಣ_Loop(
+            fl, ಹೊಸ AstVarRef{fl, ಬಹುಲಕ_Var_Modp, ಬಹುಲಕ_Varp, VAccess::WRITE}, ಹೊಸ AstConst{fl, 1},
+            ನಿಜ, ಹೊಸ AstVarRef{fl, old_ಗಾತ್ರ_Varp, VAccess::READ}));
         // Prepend init code before user statements in constructor body, but after
         // var declarations and super.new(). This ensures that user's constraint_mode()
         // or rand_mode() calls in the constructor execute after mode arrays are initialized.
         // Pattern from V3LinkDot::addImplicitSuperNewCall.
-        for (AstNode* stmtp = ctorNewp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (!VN_IS(stmtp, NodeStmt)) continue;  // Skip var declarations
-            if (const AstStmtExpr* const sep = VN_CAST(stmtp, StmtExpr)) {
-                if (VN_IS(sep->exprp(), New)) continue;  // Skip super.new()
+        ಗಾಗಿ (Ast_ಗಂಟು* stmtp = ctorNewp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ಆದರೆ (!VN_IS(stmtp, ಗಂಟು_Stmt)) ಮುಂದುವರಿ;  // Skip var declarations
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ sep = VN_CAST(stmtp, Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
+                ಆದರೆ (VN_IS(sep->exprp(), New)) ಮುಂದುವರಿ;  // Skip super.new()
             }
             // Found first user statement - insert init code before it
-            stmtp->addHereThisAsNext(initFirstp);
-            return;
+            stmtp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(initFirstp);
+            ಹಿಂತಿರುಗಿ;
         }
         // No user statements (empty constructor or only var decls/super.new)
-        ctorNewp->addStmtsp(initFirstp);
+        ctorNewp->ಕೂಡಿಸು_Stmtsp(initFirstp);
     }
-    void makeStaticModeInit(AstVar* modeVarp, AstClass* classp, uint32_t modeCount) {
+    ಶೂನ್ಯ make_Static_ಬಹುಲಕ_Init(AstVar* ಬಹುಲಕ_Varp, AstClass* classp, uint32_t ಬಹುಲಕ_ಎಣಿಕೆ) {
         // For static constraint mode, we need lazy initialization since it's shared across
         // instances. Generate: if (size() == 0) { resize(N); set all to 1; }
-        AstNodeModule* const modeVarModp = VN_AS(modeVarp->user2p(), NodeModule);
-        FileLine* const fl = modeVarp->fileline();
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Var_Modp = VN_AS(ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ಬಹುಲಕ_Varp->fileline();
 
         // Build the condition: size() == 0
-        AstCMethodHard* const sizep
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::READ},
-                                 VCMethod::DYN_SIZE, nullptr};
-        sizep->dtypeSetUInt32();
-        AstEq* const condp = new AstEq{fl, sizep, new AstConst{fl, 0}};
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ sizep
+            = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, ಬಹುಲಕ_Var_Modp, ಬಹುಲಕ_Varp, VAccess::READ},
+                                 VCMethod::DYN_ಗಾತ್ರ, ಶೂನ್ಯಸೂಚಕ};
+        sizep->dtype_ಗಣ_UInt32();
+        AstEq* ಸ್ಥಿರಾಂಕ condp = ಹೊಸ AstEq{fl, sizep, ಹೊಸ AstConst{fl, 0}};
 
         // Build the then-block: resize and set all to 1
-        AstCMethodHard* const dynarrayNewp
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE},
-                                 VCMethod::DYN_RESIZE, new AstConst{fl, modeCount}};
-        dynarrayNewp->dtypeSetVoid();
-        AstNode* const thenStmtsp = dynarrayNewp->makeStmt();
-        thenStmtsp->addNext(
-            makeModeSetLoop(fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE},
-                            new AstConst{fl, 1}, true));
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ dynarrayNewp
+            = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, ಬಹುಲಕ_Var_Modp, ಬಹುಲಕ_Varp, VAccess::WRITE},
+                                 VCMethod::DYN_RESIZE, ಹೊಸ AstConst{fl, ಬಹುಲಕ_ಎಣಿಕೆ}};
+        dynarrayNewp->dtype_ಗಣ_Void();
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ thenStmtsp = dynarrayNewp->makeStmt();
+        thenStmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(
+            make_ಬಹುಲಕ_ಗಣ_Loop(fl, ಹೊಸ AstVarRef{fl, ಬಹುಲಕ_Var_Modp, ಬಹುಲಕ_Varp, VAccess::WRITE},
+                            ಹೊಸ AstConst{fl, 1}, ನಿಜ));
 
         // Build the if statement
-        AstIf* const ifp = new AstIf{fl, condp, thenStmtsp};
+        AstIf* ಸ್ಥಿರಾಂಕ ifp = ಹೊಸ AstIf{fl, condp, thenStmtsp};
 
         // Add to new() constructor
-        AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
+        Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ newp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, "new"), ಗಂಟು_FTask);
         UASSERT_OBJ(newp, classp, "No new() in class");
-        newp->addStmtsp(ifp);
+        newp->ಕೂಡಿಸು_Stmtsp(ifp);
     }
-    AstNode* makeModeSetLoop(FileLine* const fl, AstNodeExpr* const lhsp, AstNodeExpr* const rhsp,
-                             bool inTask, AstNodeExpr* const startp = nullptr) {
-        AstVar* const iterVarp = new AstVar{fl, VVarType::BLOCKTEMP, "i", lhsp->findUInt32DType()};
-        iterVarp->funcLocal(inTask);
+    Ast_ಗಂಟು* make_ಬಹುಲಕ_ಗಣ_Loop(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp,
+                             ತಾರ್ಕಿಕ ಒಳ_Task, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ startp = ಶೂನ್ಯಸೂಚಕ) {
+        AstVar* ಸ್ಥಿರಾಂಕ iterVarp = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, "i", lhsp->ಕಂಡುಹಿಡಿ_UInt32_DType()};
+        iterVarp->funcLocal(ಒಳ_Task);
         iterVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        AstCMethodHard* const sizep = new AstCMethodHard{fl, lhsp, VCMethod::DYN_SIZE, nullptr};
-        sizep->dtypeSetUInt32();
-        AstCMethodHard* const setp
-            = new AstCMethodHard{fl, lhsp->cloneTree(false), VCMethod::ARRAY_AT_WRITE,
-                                 new AstVarRef{fl, iterVarp, VAccess::READ}};
-        setp->dtypeSetUInt32();
-        AstNode* const stmtsp = iterVarp;
-        stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, iterVarp, VAccess::WRITE},
-                                      startp ? startp : new AstConst{fl, 0}});
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ sizep = ಹೊಸ AstCMethodHard{fl, lhsp, VCMethod::DYN_ಗಾತ್ರ, ಶೂನ್ಯಸೂಚಕ};
+        sizep->dtype_ಗಣ_UInt32();
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ setp
+            = ಹೊಸ AstCMethodHard{fl, lhsp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), VCMethod::ARRAY_AT_WRITE,
+                                 ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}};
+        setp->dtype_ಗಣ_UInt32();
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp = iterVarp;
+        stmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::WRITE},
+                                      startp ? startp : ಹೊಸ AstConst{fl, 0}});
 
-        AstLoop* const loopp = new AstLoop{fl};
-        stmtsp->addNext(loopp);
-        loopp->addStmtsp(new AstLoopTest{
-            fl, loopp, new AstLt{fl, new AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
-        loopp->addStmtsp(new AstAssign{fl, setp, rhsp});
-        loopp->addStmtsp(new AstAssign{
-            fl, new AstVarRef{fl, iterVarp, VAccess::WRITE},
-            new AstAdd{fl, new AstConst{fl, 1}, new AstVarRef{fl, iterVarp, VAccess::READ}}});
-        return new AstBegin{fl, m_uniqueNames.get("__VrandBlock"), stmtsp, true};
+        AstLoop* ಸ್ಥಿರಾಂಕ loopp = ಹೊಸ AstLoop{fl};
+        stmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(loopp);
+        loopp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstLoopTest{
+            fl, loopp, ಹೊಸ AstLt{fl, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
+        loopp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, setp, rhsp});
+        loopp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+            fl, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::WRITE},
+            ಹೊಸ Ast_ಕೂಡಿಸು{fl, ಹೊಸ AstConst{fl, 1}, ಹೊಸ AstVarRef{fl, iterVarp, VAccess::READ}}});
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstBegin{fl, m_unique_ಹೆಸರುಗಳು.get("__VrandBlock"), stmtsp, ನಿಜ};
     }
-    void addTempVarsp(AstVar* varsp) {
-        for (AstVar* varp = varsp; varp; varp = VN_AS(varp->nextp(), Var)) {
-            if (m_ftaskp) {
-                varp->funcLocal(true);
-            } else {
+    ಶೂನ್ಯ ಕೂಡಿಸು_ತಾತ್ಕಾಲಿಕ_Varsp(AstVar* varsp) {
+        ಗಾಗಿ (AstVar* varp = varsp; varp; varp = VN_AS(varp->nextp(), Var)) {
+            ಆದರೆ (m_ftaskp) {
+                varp->funcLocal(ನಿಜ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 varp->varType(VVarType::MODULETEMP);
                 varp->lifetime(VLifetime::STATIC_EXPLICIT);
             }
         }
-        if (!m_ftaskp) {
-            m_modp->addStmtsp(varsp);
-        } else {
+        ಆದರೆ (!m_ftaskp) {
+            m_modp->ಕೂಡಿಸು_Stmtsp(varsp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
             m_ftaskp->prependStmtsp(varsp);
         }
     }
-    AstNodeStmt* wrapIfRandMode(AstClass* classp, AstVar* const varp, AstNodeStmt* stmtp) {
-        const RandomizeMode rmode = {.asUQuad = varp->user1()};
-        AstVar* const modeVarp = varp->lifetime().isStatic() ? getStaticRandModeVar(classp)
-                                                             : getRandModeVarFromClass(classp);
-        return VN_AS(wrapIfMode(rmode, modeVarp, stmtp), NodeStmt);
+    Ast_ಗಂಟು_Stmt* wrap_If_Rand_ಬಹುಲಕ(AstClass* classp, AstVar* ಸ್ಥಿರಾಂಕ varp, Ast_ಗಂಟು_Stmt* stmtp) {
+        ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = varp->user1()};
+        AstVar* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Varp = varp->lifetime().isStatic() ? get_Static_Rand_ಬಹುಲಕ_Var(classp)
+                                                             : get_Rand_ಬಹುಲಕ_Var_From_Class(classp);
+        ಹಿಂತಿರುಗಿ VN_AS(wrap_If_ಬಹುಲಕ(rmode, ಬಹುಲಕ_Varp, stmtp), ಗಂಟು_Stmt);
     }
-    AstNode* wrapIfConstraintMode(AstClass* classp, AstConstraint* const constrp, AstNode* stmtp) {
-        const RandomizeMode rmode = {.asUQuad = constrp->user1()};
-        AstVar* const modeVarp = constrp->isStatic() ? getStaticConstraintModeVar(classp)
-                                                     : getConstraintModeVar(classp);
-        return wrapIfMode(rmode, modeVarp, stmtp);
+    Ast_ಗಂಟು* wrap_If_Constraint_ಬಹುಲಕ(AstClass* classp, AstConstraint* ಸ್ಥಿರಾಂಕ constrp, Ast_ಗಂಟು* stmtp) {
+        ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = constrp->user1()};
+        AstVar* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Varp = constrp->isStatic() ? get_Static_Constraint_ಬಹುಲಕ_Var(classp)
+                                                     : get_Constraint_ಬಹುಲಕ_Var(classp);
+        ಹಿಂತಿರುಗಿ wrap_If_ಬಹುಲಕ(rmode, ಬಹುಲಕ_Varp, stmtp);
     }
-    static AstNode* wrapIfMode(const RandomizeMode mode, AstVar* modeVarp, AstNode* stmtp) {
-        FileLine* const fl = stmtp->fileline();
-        if (mode.usesMode) {
+    ಸ್ಥಿರ Ast_ಗಂಟು* wrap_If_ಬಹುಲಕ(ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ ಬಹುಲಕ, AstVar* ಬಹುಲಕ_Varp, Ast_ಗಂಟು* stmtp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = stmtp->fileline();
+        ಆದರೆ (ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
             // user2p can be either AstClass or AstClassPackage (for static constraints)
-            AstNodeModule* const modp = VN_AS(modeVarp->user2p(), NodeModule);
-            AstCMethodHard* const atp
-                = new AstCMethodHard{fl, new AstVarRef{fl, modp, modeVarp, VAccess::READ},
-                                     VCMethod::ARRAY_AT, new AstConst{fl, mode.index}};
-            atp->dtypeSetUInt32();
-            return new AstIf{fl, atp, stmtp};
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ modp = VN_AS(ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module);
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ atp
+                = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, modp, ಬಹುಲಕ_Varp, VAccess::READ},
+                                     VCMethod::ARRAY_AT, ಹೊಸ AstConst{fl, ಬಹುಲಕ.ಸೂಚ್ಯಂಕ}};
+            atp->dtype_ಗಣ_UInt32();
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstIf{fl, atp, stmtp};
         }
-        return stmtp;
+        ಹಿಂತಿರುಗಿ stmtp;
     }
-    AstVarRef* enumValueTabRefp(AstEnumDType* const nodep) {
+    AstVarRef* enum_ಮೌಲ್ಯ_Tab_Refp(AstEnumDType* ಸ್ಥಿರಾಂಕ nodep) {
         // Return a reference to a constant table of the values of the given enum. The reference
         // is cached, so the table is built only once.
-        if (nodep->user2p()) return VN_AS(nodep->user2p(), VarRef)->cloneTree(false);
+        ಆದರೆ (nodep->user2p()) ಹಿಂತಿರುಗಿ VN_AS(nodep->user2p(), VarRef)->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
         UINFO(9, "Construct enum value table " << nodep);
-        AstNodeArrayDType* const vardtypep = new AstUnpackArrayDType{
+        Ast_ಗಂಟು_Array_DType* ಸ್ಥಿರಾಂಕ vardtypep = ಹೊಸ AstUnpackArrayDType{
             nodep->fileline(), nodep->dtypep(),
-            new AstRange{nodep->fileline(), static_cast<int>(nodep->itemCount()) - 1, 0}};
-        v3Global.rootp()->typeTablep()->addTypesp(vardtypep);
-        AstConsArray* const consp = new AstConsArray{nodep->fileline(), vardtypep};
+            ಹೊಸ AstRange{nodep->fileline(), static_cast<ಪೂರ್ಣಾಂಕ>(nodep->ಅಂಶ_ಎಣಿಕೆ()) - 1, 0}};
+        v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(vardtypep);
+        AstConsArray* ಸ್ಥಿರಾಂಕ consp = ಹೊಸ AstConsArray{nodep->fileline(), vardtypep};
         UASSERT_OBJ(nodep->itemsp(), nodep, "Enum without items");
-        uint64_t index = 0;
-        for (AstEnumItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            AstConst* const vconstp = VN_AS(itemp->valuep(), Const);
+        uint64_t ಸೂಚ್ಯಂಕ = 0;
+        ಗಾಗಿ (Ast_Enum_ಅಂಶ* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Enum_ಅಂಶ)) {
+            AstConst* ಸ್ಥಿರಾಂಕ vconstp = VN_AS(itemp->valuep(), Const);
             UASSERT_OBJ(vconstp, nodep, "Enum item without constified value");
-            consp->valuep(index++, vconstp->cloneTree(false));
+            consp->valuep(ಸೂಚ್ಯಂಕ++, vconstp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
         }
         // Share identical tables via the constant pool
-        AstVarRef* const refp = V3ConstPool::find(consp);
-        VL_DO_DANGLING(consp->deleteTree(), consp);  // V3ConstPool::find clones it
-        pushDeletep(refp);  // Deleted with the visitor - always cloned
+        AstVarRef* ಸ್ಥಿರಾಂಕ refp = V3ConstPool::ಕಂಡುಹಿಡಿ(consp);
+        VL_DO_DANGLING(consp->delete_ವೃಕ್ಷ(), consp);  // V3ConstPool::find clones it
+        ತಳ್ಳು_Deletep(refp);  // Deleted with the visitor - always cloned
         nodep->user2p(refp);
-        return refp->cloneTree(false);
+        ಹಿಂತಿರುಗಿ refp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
     }
 
-    AstCDType* findVlRandCDType(FileLine* const fl, uint64_t items) {
+    AstCDType* ಕಂಡುಹಿಡಿ_Vl_Rand_CDType(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, uint64_t ವಸ್ತುಗಳು) {
         // For 8 items we need to have a 9 item LFSR so items is max count
         // width(items) = log2(items) + 1
-        const std::string type = AstCDType::typeToHold(V3Number::log2bQuad(items) + 1);
-        const std::string name = "VlRandC<" + type + ", " + cvtToStr(items) + "ULL>";
+        ಸ್ಥಿರಾಂಕ std::string type = AstCDType::type_ಗಮ್ಯ_Hold(V3_ಸಂಖ್ಯೆ::log2bQuad(ವಸ್ತುಗಳು) + 1);
+        ಸ್ಥಿರಾಂಕ std::string name = "VlRandC<" + type + ", " + cvt_ಗಮ್ಯ_Str(ವಸ್ತುಗಳು) + "ULL>";
         // Create or reuse (to avoid duplicates) randomization object dtype
-        const auto pair = m_randcDtypes.emplace(name, nullptr);
-        if (pair.second) {
-            AstCDType* const newp = new AstCDType{fl, name};
-            v3Global.rootp()->typeTablep()->addTypesp(newp);
-            pair.first->second = newp;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ pair = m_randcDtypes.emplace(name, ಶೂನ್ಯಸೂಚಕ);
+        ಆದರೆ (pair.ಎರಡನೇ) {
+            AstCDType* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstCDType{fl, name};
+            v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(newp);
+            pair.ಮೊದಲ->ಎರಡನೇ = newp;
         }
-        return pair.first->second;
+        ಹಿಂತಿರುಗಿ pair.ಮೊದಲ->ಎರಡನೇ;
     }
 
-    AstVar* newRandcVarsp(AstVar* const varp, AstClass* const classp) {
+    AstVar* newRandcVarsp(AstVar* ಸ್ಥಿರಾಂಕ varp, AstClass* ಸ್ಥಿರಾಂಕ classp) {
         // Might be called multiple times on same var, if var is referenced in class extends,
         // If so, each is randomized separately, so the select lands in the extending class
 
         // If a randc, make a VlRandC object to hold the state
-        if (!varp->isRandC()) return nullptr;
+        ಆದರೆ (!varp->isRandC()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 
-        uint64_t items = 0;
-        if (AstEnumDType* const enumDtp = VN_CAST(varp->dtypep()->skipRefToEnump(), EnumDType)) {
-            items = static_cast<uint64_t>(enumDtp->itemCount());
-        } else if (AstBasicDType* const basicp = varp->dtypep()->skipRefp()->basicp()) {
-            if (basicp->width() > 32) {
+        uint64_t ವಸ್ತುಗಳು = 0;
+        ಆದರೆ (AstEnumDType* ಸ್ಥಿರಾಂಕ enumDtp = VN_CAST(varp->dtypep()->skip_Ref_ಗಮ್ಯ_Enump(), EnumDType)) {
+            ವಸ್ತುಗಳು = static_cast<uint64_t>(enumDtp->ಅಂಶ_ಎಣಿಕೆ());
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstBasicDType* ಸ್ಥಿರಾಂಕ basicp = varp->dtypep()->skipRefp()->basicp()) {
+            ಆದರೆ (basicp->ಅಗಲ() > 32) {
                 // Real/chandle/string/event are rejected by type upstream already;
                 // an over-width integral type isn't, so still needs its own message.
-                if (!V3Error::errorCount()) {
+                ಆದರೆ (!V3Error::error_ಎಣಿಕೆ()) {
                     varp->v3error("Maximum implemented width for randc is 32 bits, "
-                                  << varp->prettyNameQ() << " is " << basicp->width() << " bits");
+                                  << varp->prettyNameQ() << " is " << basicp->ಅಗಲ() << " bits");
                 }
                 varp->rand(VRandAttr::RAND);
-                return nullptr;
+                ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
             }
-            items = 1ULL << basicp->width();
-        } else if (AstStructDType* const dtp = VN_CAST(varp->dtypep()->skipRefp(), StructDType)) {
+            ವಸ್ತುಗಳು = 1ULL << basicp->ಅಗಲ();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstStructDType* ಸ್ಥಿರಾಂಕ dtp = VN_CAST(varp->dtypep()->skipRefp(), StructDType)) {
             UASSERT_OBJ(!dtp->packed(), dtp, "skipRef should have hidden packed before got here");
             dtp->v3error("Unpacked structs shall not be declared as randc"
                          " (IEEE 1800-2023 18.4)");
-            return nullptr;
-        } else {
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // Only remaining possibility: an object handle, virtual interface,
             // or unpacked union declared randc -- checkRandTypeEligibility()
             // already rejected each of those with its own error, earlier in
             // this same pass, before newRandcVarsp() ever runs on this var.
-            UASSERT_OBJ(V3Error::errorCount(), varp, "Unexpected randc variable dtype");
-            return nullptr;
+            UASSERT_OBJ(V3Error::error_ಎಣಿಕೆ(), varp, "Unexpected randc variable dtype");
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         }
-        AstCDType* const newdtp = findVlRandCDType(varp->fileline(), items);
-        AstVar* const newp
-            = new AstVar{varp->fileline(), VVarType::MEMBER, varp->name() + "__Vrandc", newdtp};
-        newp->isInternal(true);
-        classp->addStmtsp(newp);
+        AstCDType* ಸ್ಥಿರಾಂಕ newdtp = ಕಂಡುಹಿಡಿ_Vl_Rand_CDType(varp->fileline(), ವಸ್ತುಗಳು);
+        AstVar* ಸ್ಥಿರಾಂಕ newp
+            = ಹೊಸ AstVar{varp->fileline(), VVarType::MEMBER, varp->name() + "__Vrandc", newdtp};
+        newp->is_ಆಂತರಿಕ(ನಿಜ);
+        classp->ಕೂಡಿಸು_Stmtsp(newp);
         UINFO(9, "created " << varp);
-        return newp;
+        ಹಿಂತಿರುಗಿ newp;
     }
-    AstNodeStmt* createArrayForeachLoop(FileLine* const fl, AstNodeDType* const dtypep,
-                                        AstNodeExpr* exprp, AstVar* const outputVarp) {
-        AstNodeDType* tempDTypep = dtypep;
-        AstVar* randLoopIndxp = nullptr;
-        auto createLoopIndex = [&](AstNodeDType* tempDTypep) {
-            if (VN_IS(tempDTypep, AssocArrayDType)) {
-                return new AstVar{fl, VVarType::VAR, m_randArrayUniqueNames.get(""),
-                                  VN_AS(tempDTypep, AssocArrayDType)->keyDTypep()};
+    Ast_ಗಂಟು_Stmt* createArrayForeachLoop(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep,
+                                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstVar* ಸ್ಥಿರಾಂಕ outputVarp) {
+        Ast_ಗಂಟು_DType* ತಾತ್ಕಾಲಿಕ_DTypep = dtypep;
+        AstVar* randLoopIndxp = ಶೂನ್ಯಸೂಚಕ;
+        ಸ್ವಯಂಚಾಲಿತ create_Loop_ಸೂಚ್ಯಂಕ = [&](Ast_ಗಂಟು_DType* ತಾತ್ಕಾಲಿಕ_DTypep) {
+            ಆದರೆ (VN_IS(ತಾತ್ಕಾಲಿಕ_DTypep, AssocArrayDType)) {
+                ಹಿಂತಿರುಗಿ ಹೊಸ AstVar{fl, VVarType::VAR, m_rand_Array_Unique_ಹೆಸರುಗಳು.get(""),
+                                  VN_AS(ತಾತ್ಕಾಲಿಕ_DTypep, AssocArrayDType)->ಕೀಲಿ_DTypep()};
             }
-            return new AstVar{fl, VVarType::VAR, m_randArrayUniqueNames.get(""),
-                              dtypep->findBasicDType(VBasicDTypeKwd::UINT32)};
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstVar{fl, VVarType::VAR, m_rand_Array_Unique_ಹೆಸರುಗಳು.get(""),
+                              dtypep->ಕಂಡುಹಿಡಿ_Basic_DType(VBasicDTypeKwd::UINT32)};
         };
-        AstNodeExpr* tempElementp = nullptr;
-        while (tempDTypep->isNonPackedArray()) {
-            AstVar* const newRandLoopIndxp = createLoopIndex(tempDTypep);
-            randLoopIndxp = AstNode::addNext(randLoopIndxp, newRandLoopIndxp);
-            AstNodeExpr* const tempExprp = tempElementp ? tempElementp : exprp;
-            AstVarRef* const tempRefp = new AstVarRef{fl, newRandLoopIndxp, VAccess::READ};
-            if (VN_IS(tempDTypep, DynArrayDType)) {
-                tempElementp
-                    = new AstCMethodHard{fl, tempExprp, VCMethod::ARRAY_AT_WRITE, tempRefp};
-            } else if (VN_IS(tempDTypep, UnpackArrayDType)) {
-                AstNodeArrayDType* const aryDTypep = VN_CAST(tempDTypep, NodeArrayDType);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ತಾತ್ಕಾಲಿಕ_Elementp = ಶೂನ್ಯಸೂಚಕ;
+        ಆಗ (ತಾತ್ಕಾಲಿಕ_DTypep->isNonPackedArray()) {
+            AstVar* ಸ್ಥಿರಾಂಕ newRandLoopIndxp = create_Loop_ಸೂಚ್ಯಂಕ(ತಾತ್ಕಾಲಿಕ_DTypep);
+            randLoopIndxp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(randLoopIndxp, newRandLoopIndxp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ತಾತ್ಕಾಲಿಕ_Exprp = ತಾತ್ಕಾಲಿಕ_Elementp ? ತಾತ್ಕಾಲಿಕ_Elementp : exprp;
+            AstVarRef* ಸ್ಥಿರಾಂಕ ತಾತ್ಕಾಲಿಕ_Refp = ಹೊಸ AstVarRef{fl, newRandLoopIndxp, VAccess::READ};
+            ಆದರೆ (VN_IS(ತಾತ್ಕಾಲಿಕ_DTypep, DynArrayDType)) {
+                ತಾತ್ಕಾಲಿಕ_Elementp
+                    = ಹೊಸ AstCMethodHard{fl, ತಾತ್ಕಾಲಿಕ_Exprp, VCMethod::ARRAY_AT_WRITE, ತಾತ್ಕಾಲಿಕ_Refp};
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(ತಾತ್ಕಾಲಿಕ_DTypep, UnpackArrayDType)) {
+                Ast_ಗಂಟು_Array_DType* ಸ್ಥಿರಾಂಕ aryDTypep = VN_CAST(ತಾತ್ಕಾಲಿಕ_DTypep, ಗಂಟು_Array_DType);
                 // Adjust the bitp to ensure it covers all possible indices
-                tempElementp = new AstArraySel{
-                    fl, tempExprp,
-                    new AstSel{
+                ತಾತ್ಕಾಲಿಕ_Elementp = ಹೊಸ AstArraySel{
+                    fl, ತಾತ್ಕಾಲಿಕ_Exprp,
+                    ಹೊಸ AstSel{
                         fl,
-                        new AstSub{fl, tempRefp,
-                                   new AstConst{fl, static_cast<uint32_t>(aryDTypep->lo())}},
-                        new AstConst{fl, 0}, V3Number::log2b(aryDTypep->hi()) + 1}};
-            } else if (VN_IS(tempDTypep, AssocArrayDType)) {
-                tempElementp = new AstAssocSel{fl, tempExprp, tempRefp};
-            } else if (VN_IS(tempDTypep, QueueDType)) {
-                tempElementp
-                    = new AstCMethodHard{fl, tempExprp, VCMethod::DYN_AT_WRITE_APPEND, tempRefp};
+                        ಹೊಸ AstSub{fl, ತಾತ್ಕಾಲಿಕ_Refp,
+                                   ಹೊಸ AstConst{fl, static_cast<uint32_t>(aryDTypep->lo())}},
+                        ಹೊಸ AstConst{fl, 0}, V3_ಸಂಖ್ಯೆ::log2b(aryDTypep->hi()) + 1}};
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(ತಾತ್ಕಾಲಿಕ_DTypep, AssocArrayDType)) {
+                ತಾತ್ಕಾಲಿಕ_Elementp = ಹೊಸ AstAssocSel{fl, ತಾತ್ಕಾಲಿಕ_Exprp, ತಾತ್ಕಾಲಿಕ_Refp};
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(ತಾತ್ಕಾಲಿಕ_DTypep, ಸರತಿ_DType)) {
+                ತಾತ್ಕಾಲಿಕ_Elementp
+                    = ಹೊಸ AstCMethodHard{fl, ತಾತ್ಕಾಲಿಕ_Exprp, VCMethod::DYN_AT_WRITE_APPEND, ತಾತ್ಕಾಲಿಕ_Refp};
             }
-            tempElementp->dtypep(tempDTypep->subDTypep());
-            tempDTypep = tempDTypep->virtRefDTypep();
+            ತಾತ್ಕಾಲಿಕ_Elementp->dtypep(ತಾತ್ಕಾಲಿಕ_DTypep->subDTypep());
+            ತಾತ್ಕಾಲಿಕ_DTypep = ತಾತ್ಕಾಲಿಕ_DTypep->virtRefDTypep();
         }
 
-        AstForeachHeader* const headerp
-            = new AstForeachHeader{fl, exprp->cloneTree(false), randLoopIndxp};
-        AstNodeStmt* const randStmtsp = newRandStmtsp(fl, tempElementp, nullptr, outputVarp);
+        Ast_Foreach_ಶೀರ್ಷಿಕೆ* ಸ್ಥಿರಾಂಕ headerp
+            = ಹೊಸ Ast_Foreach_ಶೀರ್ಷಿಕೆ{fl, exprp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), randLoopIndxp};
+        Ast_ಗಂಟು_Stmt* ಸ್ಥಿರಾಂಕ randStmtsp = newRandStmtsp(fl, ತಾತ್ಕಾಲಿಕ_Elementp, ಶೂನ್ಯಸೂಚಕ, outputVarp);
         // TODO: we should just not clone in 'newRandStmtsp' if not necessary
-        if (!tempElementp->backp()) VL_DO_DANGLING(pushDeletep(tempElementp), tempElementp);
-        return new AstForeach{fl, headerp, randStmtsp};
+        ಆದರೆ (!ತಾತ್ಕಾಲಿಕ_Elementp->backp()) VL_DO_DANGLING(ತಳ್ಳು_Deletep(ತಾತ್ಕಾಲಿಕ_Elementp), ತಾತ್ಕಾಲಿಕ_Elementp);
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstForeach{fl, headerp, randStmtsp};
     }
-    AstNodeStmt* newRandStmtsp(FileLine* fl, AstNodeExpr* exprp, AstVar* randcVarp,
-                               AstVar* const outputVarp, int offset = 0,
-                               AstMemberDType* memberp = nullptr) {
-        AstNodeDType* const memberDtp
+    Ast_ಗಂಟು_Stmt* newRandStmtsp(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstVar* randcVarp,
+                               AstVar* ಸ್ಥಿರಾಂಕ outputVarp, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ = 0,
+                               AstMemberDType* memberp = ಶೂನ್ಯಸೂಚಕ) {
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ memberDtp
             = memberp ? memberp->subDTypep()->skipRefp() : exprp->dtypep()->skipRefp();
-        if (const auto* const structDtp = VN_CAST(memberDtp, StructDType)) {
-            AstNodeStmt* stmtsp = nullptr;
-            if (structDtp->packed()) offset += memberp ? memberp->lsb() : 0;
-            for (AstMemberDType* smemberp = structDtp->membersp(); smemberp;
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ structDtp = VN_CAST(memberDtp, StructDType)) {
+            Ast_ಗಂಟು_Stmt* stmtsp = ಶೂನ್ಯಸೂಚಕ;
+            ಆದರೆ (structDtp->packed()) ಸ್ಥಾನಾಂತರ += memberp ? memberp->lsb() : 0;
+            ಗಾಗಿ (AstMemberDType* smemberp = structDtp->membersp(); smemberp;
                  smemberp = VN_AS(smemberp->nextp(), MemberDType)) {
-                AstNodeStmt* randp = nullptr;
-                if (structDtp->packed()) {
-                    randp = newRandStmtsp(fl, stmtsp ? exprp->cloneTree(false) : exprp, nullptr,
-                                          outputVarp, offset, smemberp);
-                } else if (smemberp->rand().isRandomizable()) {
+                Ast_ಗಂಟು_Stmt* randp = ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (structDtp->packed()) {
+                    randp = newRandStmtsp(fl, stmtsp ? exprp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು) : exprp, ಶೂನ್ಯಸೂಚಕ,
+                                          outputVarp, ಸ್ಥಾನಾಂತರ, smemberp);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (smemberp->rand().isRandomizable()) {
                     // IEEE 1800-2023 18.4: an unpacked struct member is only
                     // randomized if its own declaration carries rand/randc.
                     AstStructSel* structSelp
-                        = new AstStructSel{fl, exprp->cloneTree(false), smemberp->name()};
-                    structSelp->dtypep(smemberp->childDTypep());
-                    if (!structSelp->dtypep()) structSelp->dtypep(smemberp->subDTypep());
-                    randp = newRandStmtsp(fl, structSelp, nullptr, outputVarp);
+                        = ಹೊಸ AstStructSel{fl, exprp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), smemberp->name()};
+                    structSelp->dtypep(smemberp->ಮಗು_DTypep());
+                    ಆದರೆ (!structSelp->dtypep()) structSelp->dtypep(smemberp->subDTypep());
+                    randp = newRandStmtsp(fl, structSelp, ಶೂನ್ಯಸೂಚಕ, outputVarp);
                 }
-                stmtsp = AstNode::addNextNull(stmtsp, randp);
+                stmtsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ_Null(stmtsp, randp);
             }
-            return stmtsp;
-        } else if (const auto* const unionDtp = VN_CAST(memberDtp, UnionDType)) {
+            ಹಿಂತಿರುಗಿ stmtsp;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ unionDtp = VN_CAST(memberDtp, UnionDType)) {
             // Illegal for rand/randc, rejected by type upstream for every such
             // case; nothing valid to build a randomize statement for here.
-            if (!unionDtp->packed()) return nullptr;
-            AstMemberDType* const firstMemberp = unionDtp->membersp();
-            return newRandStmtsp(fl, exprp, nullptr, outputVarp, offset, firstMemberp);
-        } else if (const AstClassRefDType* const classRefDtp = VN_CAST(memberDtp, ClassRefDType)) {
-            AstFunc* const memberFuncp
+            ಆದರೆ (!unionDtp->packed()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+            AstMemberDType* ಸ್ಥಿರಾಂಕ ಮೊದಲ_Memberp = unionDtp->membersp();
+            ಹಿಂತಿರುಗಿ newRandStmtsp(fl, exprp, ಶೂನ್ಯಸೂಚಕ, outputVarp, ಸ್ಥಾನಾಂತರ, ಮೊದಲ_Memberp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ classRefDtp = VN_CAST(memberDtp, ClassRefDType)) {
+            AstFunc* ಸ್ಥಿರಾಂಕ memberFuncp
                 = V3Randomize::newRandomizeFunc(m_memberMap, classRefDtp->classp());
-            AstMethodCall* const callp = new AstMethodCall{fl, exprp, "randomize"};
+            Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ Ast_ವಿಧಾನ_Call{fl, exprp, "randomize"};
             callp->taskp(memberFuncp);
             callp->dtypeFrom(memberFuncp);
-            AstAssign* const assignp = new AstAssign{
-                fl, new AstVarRef{fl, outputVarp, VAccess::WRITE},
-                new AstAnd{fl, new AstVarRef{fl, outputVarp, VAccess::READ}, callp}};
-            return new AstIf{
-                fl, new AstNeq{fl, exprp->cloneTree(false), new AstConst{fl, AstConst::Null{}}},
+            Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ assignp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                fl, ಹೊಸ AstVarRef{fl, outputVarp, VAccess::WRITE},
+                ಹೊಸ AstAnd{fl, ಹೊಸ AstVarRef{fl, outputVarp, VAccess::READ}, callp}};
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstIf{
+                fl, ಹೊಸ AstNeq{fl, exprp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), ಹೊಸ AstConst{fl, AstConst::Null{}}},
                 assignp};
-        } else if (AstDynArrayDType* const dynarrayDtp = VN_CAST(memberDtp, DynArrayDType)) {
-            return createArrayForeachLoop(fl, dynarrayDtp, exprp, outputVarp);
-        } else if (AstQueueDType* const queueDtp = VN_CAST(memberDtp, QueueDType)) {
-            return createArrayForeachLoop(fl, queueDtp, exprp, outputVarp);
-        } else if (AstUnpackArrayDType* const unpackarrayDtp
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstDynArrayDType* ಸ್ಥಿರಾಂಕ dynarrayDtp = VN_CAST(memberDtp, DynArrayDType)) {
+            ಹಿಂತಿರುಗಿ createArrayForeachLoop(fl, dynarrayDtp, exprp, outputVarp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (Ast_ಸರತಿ_DType* ಸ್ಥಿರಾಂಕ ಸರತಿ_Dtp = VN_CAST(memberDtp, ಸರತಿ_DType)) {
+            ಹಿಂತಿರುಗಿ createArrayForeachLoop(fl, ಸರತಿ_Dtp, exprp, outputVarp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstUnpackArrayDType* ಸ್ಥಿರಾಂಕ unpackarrayDtp
                    = VN_CAST(memberDtp, UnpackArrayDType)) {
-            return createArrayForeachLoop(fl, unpackarrayDtp, exprp, outputVarp);
-        } else if (AstAssocArrayDType* const assocarrayDtp = VN_CAST(memberDtp, AssocArrayDType)) {
-            return createArrayForeachLoop(fl, assocarrayDtp, exprp, outputVarp);
-        } else {
-            AstNodeExpr* valp;
-            if (AstEnumDType* const enumDtp = VN_CAST(memberp ? memberp->subDTypep()->subDTypep()
+            ಹಿಂತಿರುಗಿ createArrayForeachLoop(fl, unpackarrayDtp, exprp, outputVarp);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstAssocArrayDType* ಸ್ಥಿರಾಂಕ assocarrayDtp = VN_CAST(memberDtp, AssocArrayDType)) {
+            ಹಿಂತಿರುಗಿ createArrayForeachLoop(fl, assocarrayDtp, exprp, outputVarp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valp;
+            ಆದರೆ (AstEnumDType* ಸ್ಥಿರಾಂಕ enumDtp = VN_CAST(memberp ? memberp->subDTypep()->subDTypep()
                                                               : exprp->dtypep()->subDTypep(),
                                                       EnumDType)) {
-                AstVarRef* const tabRefp = enumValueTabRefp(enumDtp);
-                AstNodeExpr* const randp
-                    = newRandValue(fl, randcVarp, exprp->findBasicDType(VBasicDTypeKwd::UINT32));
-                AstNodeExpr* const moddivp = new AstModDiv{
-                    fl, randp, new AstConst{fl, static_cast<uint32_t>(enumDtp->itemCount())}};
+                AstVarRef* ಸ್ಥಿರಾಂಕ tabRefp = enum_ಮೌಲ್ಯ_Tab_Refp(enumDtp);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ randp
+                    = new_Rand_ಮೌಲ್ಯ(fl, randcVarp, exprp->ಕಂಡುಹಿಡಿ_Basic_DType(VBasicDTypeKwd::UINT32));
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ moddivp = ಹೊಸ AstModDiv{
+                    fl, randp, ಹೊಸ AstConst{fl, static_cast<uint32_t>(enumDtp->ಅಂಶ_ಎಣಿಕೆ())}};
                 moddivp->dtypep(enumDtp);
-                valp = new AstArraySel{fl, tabRefp, moddivp};
-            } else {
+                valp = ಹೊಸ AstArraySel{fl, tabRefp, moddivp};
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 valp
-                    = newRandValue(fl, randcVarp, (memberp ? memberp->dtypep() : exprp->dtypep()));
+                    = new_Rand_ಮೌಲ್ಯ(fl, randcVarp, (memberp ? memberp->dtypep() : exprp->dtypep()));
             }
-            AstAssign* assignp
-                = new AstAssign{fl,
-                                new AstSel{fl, exprp, offset + (memberp ? memberp->lsb() : 0),
-                                           memberp ? memberp->width() : exprp->width()},
+            Ast_ನಿಯೋಜಿಸು* assignp
+                = ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl,
+                                ಹೊಸ AstSel{fl, exprp, ಸ್ಥಾನಾಂತರ + (memberp ? memberp->lsb() : 0),
+                                           memberp ? memberp->ಅಗಲ() : exprp->ಅಗಲ()},
                                 valp};
-            AstVar* varp = nullptr;
-            exprp->exists([&](const AstVarRef* varrefp) {
-                if (varrefp->access().isWriteOrRW()) varp = varrefp->varp();
-                return varp != nullptr;
+            AstVar* varp = ಶೂನ್ಯಸೂಚಕ;
+            exprp->exists([&](ಸ್ಥಿರಾಂಕ AstVarRef* varrefp) {
+                ಆದರೆ (varrefp->access().isWriteOrRW()) varp = varrefp->varp();
+                ಹಿಂತಿರುಗಿ varp != ಶೂನ್ಯಸೂಚಕ;
             });
-            return wrapIfRandMode(VN_AS(m_modp, Class), varp, assignp);
+            ಹಿಂತಿರುಗಿ wrap_If_Rand_ಬಹುಲಕ(VN_AS(m_modp, Class), varp, assignp);
         }
     }
-    AstNodeExpr* newRandValue(FileLine* const fl, AstVar* const randcVarp,
-                              AstNodeDType* const dtypep) {
-        if (randcVarp) {
-            AstCExpr* const cexprp = new AstCExpr{fl};
-            cexprp->add(new AstVarRef{fl, randcVarp, VAccess::READWRITE});
-            cexprp->add(".randomize(__Vm_rng)");
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_Rand_ಮೌಲ್ಯ(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, AstVar* ಸ್ಥಿರಾಂಕ randcVarp,
+                              Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep) {
+        ಆದರೆ (randcVarp) {
+            AstCExpr* ಸ್ಥಿರಾಂಕ cexprp = ಹೊಸ AstCExpr{fl};
+            cexprp->ಕೂಡಿಸು(ಹೊಸ AstVarRef{fl, randcVarp, VAccess::READWRITE});
+            cexprp->ಕೂಡಿಸು(".randomize(__Vm_rng)");
             cexprp->dtypep(dtypep);
-            return cexprp;
+            ಹಿಂತಿರುಗಿ cexprp;
         }
 
-        return new AstRandRNG{fl, dtypep};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstRandRNG{fl, dtypep};
     }
     // Find pre_randomize/post_randomize task in class hierarchy (walks extendsp chain)
-    AstTask* findPrePostTask(AstClass* classp, const string& name) {
-        for (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            if (AstTask* const taskp = VN_CAST(m_memberMap.findMember(cp, name), Task)) {
-                return taskp;
+    AstTask* ಕಂಡುಹಿಡಿ_Pre_Post_Task(AstClass* classp, ಸ್ಥಿರಾಂಕ string& name) {
+        ಗಾಗಿ (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : ಶೂನ್ಯಸೂಚಕ) {
+            ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ taskp = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(cp, name), Task)) {
+                ಹಿಂತಿರುಗಿ taskp;
             }
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
-    void addPrePostCall(AstClass* const classp, AstNodeFTask* const funcp, const string& name) {
-        if (AstTask* const userFuncp = findPrePostTask(classp, name)) {
-            AstTaskRef* const callp = new AstTaskRef{userFuncp->fileline(), userFuncp};
-            funcp->addStmtsp(callp->makeStmt());
+    ಶೂನ್ಯ ಕೂಡಿಸು_Pre_Post_Call(AstClass* ಸ್ಥಿರಾಂಕ classp, Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ funcp, ಸ್ಥಿರಾಂಕ string& name) {
+        ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ userFuncp = ಕಂಡುಹಿಡಿ_Pre_Post_Task(classp, name)) {
+            AstTaskRef* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstTaskRef{userFuncp->fileline(), userFuncp};
+            funcp->ಕೂಡಿಸು_Stmtsp(callp->makeStmt());
         }
     }
     // Per-class virtual wrapper that invokes the class's effective
@@ -4753,538 +4753,538 @@ class RandomizeVisitor final : public VNVisitor {
     // is virtual. The inline `randomize() with` path builds a non-virtual
     // function on the static handle type, so it dispatches pre/post through
     // this wrapper to reach the dynamic type's override.
-    AstTask* getCreatePrePostCallback(AstClass* const classp, const string& which) {
-        const string name = "__V" + which;
-        if (AstTask* const existingp = VN_CAST(m_memberMap.findMember(classp, name), Task)) {
-            return existingp;
+    AstTask* getCreatePrePostCallback(AstClass* ಸ್ಥಿರಾಂಕ classp, ಸ್ಥಿರಾಂಕ string& which) {
+        ಸ್ಥಿರಾಂಕ string name = "__V" + which;
+        ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ existingp = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, name), Task)) {
+            ಹಿಂತಿರುಗಿ existingp;
         }
-        AstTask* const taskp = new AstTask{classp->fileline(), name, nullptr};
-        taskp->classMethod(true);
+        AstTask* ಸ್ಥಿರಾಂಕ taskp = ಹೊಸ AstTask{classp->fileline(), name, ಶೂನ್ಯಸೂಚಕ};
+        taskp->class_ವಿಧಾನ(ನಿಜ);
         taskp->isVirtual(classp->isExtended());
-        classp->addMembersp(taskp);
-        m_memberMap.insert(classp, taskp);
-        addPrePostCall(classp, taskp, which);
-        return taskp;
+        classp->ಕೂಡಿಸು_Membersp(taskp);
+        m_memberMap.ಸೇರಿಸು(classp, taskp);
+        ಕೂಡಿಸು_Pre_Post_Call(classp, taskp, which);
+        ಹಿಂತಿರುಗಿ taskp;
     }
     // Build the virtual pre/post wrappers across classp's whole hierarchy so a
     // `randomize() with` through a base handle dispatches to a derived
     // override. Returns whether a pre/post wrapper exists anywhere in the
     // hierarchy (cached per static handle type).
-    std::pair<bool, bool> buildPrePostVirtualWrappers(AstClass* const classp) {
-        const auto cachedIt = m_prePostWrap.find(classp);
-        if (cachedIt != m_prePostWrap.end()) return cachedIt->second;
-        std::vector<AstClass*> hierp{classp};
+    std::pair<ತಾರ್ಕಿಕ, ತಾರ್ಕಿಕ> buildPrePostVirtualWrappers(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ cachedIt = m_prePostWrap.ಕಂಡುಹಿಡಿ(classp);
+        ಆದರೆ (cachedIt != m_prePostWrap.ಕೊನೆ()) ಹಿಂತಿರುಗಿ cachedIt->ಎರಡನೇ;
+        std::ಸದಿಶ<AstClass*> hierp{classp};
         v3Global.rootp()->foreach([&](AstClass* subp) {
-            if (subp != classp && AstClass::isClassExtendedFrom(subp, classp))
-                hierp.push_back(subp);
+            ಆದರೆ (subp != classp && AstClass::isClassExtendedFrom(subp, classp))
+                hierp.ತಳ್ಳು_ಹಿಂಭಾಗ(subp);
         });
-        bool hasPre = false;
-        bool hasPost = false;
-        for (AstClass* const cp : hierp) {
-            if (findPrePostTask(cp, "pre_randomize")) {
+        ತಾರ್ಕಿಕ hasPre = ಸುಳ್ಳು;
+        ತಾರ್ಕಿಕ hasPost = ಸುಳ್ಳು;
+        ಗಾಗಿ (AstClass* ಸ್ಥಿರಾಂಕ cp : hierp) {
+            ಆದರೆ (ಕಂಡುಹಿಡಿ_Pre_Post_Task(cp, "pre_randomize")) {
                 getCreatePrePostCallback(cp, "pre_randomize");
-                hasPre = true;
+                hasPre = ನಿಜ;
             }
-            if (findPrePostTask(cp, "post_randomize")) {
+            ಆದರೆ (ಕಂಡುಹಿಡಿ_Pre_Post_Task(cp, "post_randomize")) {
                 getCreatePrePostCallback(cp, "post_randomize");
-                hasPost = true;
+                hasPost = ನಿಜ;
             }
         }
         // Ensure the static handle type owns the slot whenever a subclass
         // overrides, so the virtual call resolves on a base handle.
-        if (hasPre) getCreatePrePostCallback(classp, "pre_randomize");
-        if (hasPost) getCreatePrePostCallback(classp, "post_randomize");
-        const std::pair<bool, bool> result{hasPre, hasPost};
-        m_prePostWrap.emplace(classp, result);
-        return result;
+        ಆದರೆ (hasPre) getCreatePrePostCallback(classp, "pre_randomize");
+        ಆದರೆ (hasPost) getCreatePrePostCallback(classp, "post_randomize");
+        ಸ್ಥಿರಾಂಕ std::pair<ತಾರ್ಕಿಕ, ತಾರ್ಕಿಕ> ಫಲಿತಾಂಶ{hasPre, hasPost};
+        m_prePostWrap.emplace(classp, ಫಲಿತಾಂಶ);
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
-    void addVirtualPrePostCall(AstFunc* const randomizeFuncp, AstClass* const classp,
-                               const string& which) {
-        FileLine* const fl = classp->fileline();
-        AstTask* const wrapperp = getCreatePrePostCallback(classp, which);
-        AstClassRefDType* const refDTypep = new AstClassRefDType{fl, classp, nullptr};
-        v3Global.rootp()->typeTablep()->addTypesp(refDTypep);
-        AstMethodCall* const callp
-            = new AstMethodCall{fl, new AstThisRef{fl, refDTypep}, wrapperp->name(), nullptr};
+    ಶೂನ್ಯ ಕೂಡಿಸು_Virtual_Pre_Post_Call(AstFunc* ಸ್ಥಿರಾಂಕ randomizeFuncp, AstClass* ಸ್ಥಿರಾಂಕ classp,
+                               ಸ್ಥಿರಾಂಕ string& which) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = classp->fileline();
+        AstTask* ಸ್ಥಿರಾಂಕ wrapperp = getCreatePrePostCallback(classp, which);
+        AstClassRefDType* ಸ್ಥಿರಾಂಕ refDTypep = ಹೊಸ AstClassRefDType{fl, classp, ಶೂನ್ಯಸೂಚಕ};
+        v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(refDTypep);
+        Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp
+            = ಹೊಸ Ast_ವಿಧಾನ_Call{fl, ಹೊಸ AstThisRef{fl, refDTypep}, wrapperp->name(), ಶೂನ್ಯಸೂಚಕ};
         callp->taskp(wrapperp);
-        callp->dtypeSetVoid();
-        randomizeFuncp->addStmtsp(callp->makeStmt());
+        callp->dtype_ಗಣ_Void();
+        randomizeFuncp->ಕೂಡಿಸು_Stmtsp(callp->makeStmt());
     }
     // Check if a class (including inherited members) has any rand class-type members
-    bool classHasRandClassMembers(AstClass* classp) {
-        return classp->existsMember([](const AstClass*, const AstVar* varp) {
-            if (!varp->rand().isRandomizable()) return false;
-            const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-            return VN_IS(dtypep, ClassRefDType);
+    ತಾರ್ಕಿಕ classHasRandClassMembers(AstClass* classp) {
+        ಹಿಂತಿರುಗಿ classp->existsMember([](ಸ್ಥಿರಾಂಕ AstClass*, ಸ್ಥಿರಾಂಕ AstVar* varp) {
+            ಆದರೆ (!varp->rand().isRandomizable()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = varp->dtypep()->skipRefp();
+            ಹಿಂತಿರುಗಿ VN_IS(dtypep, ClassRefDType);
         });
     }
     // True if this class owns a global constraint: a member-select chain rooted
     // at a rand class-typed handle reaching into a sub-object.
-    bool classOwnsGlobalConstraint(const AstClass* classp) const {
-        return classp->existsMember([](const AstClass*, const AstConstraint* constrp) {
-            bool owns = false;
-            constrp->foreach([&](const AstMemberSel* memberSelp) {
-                const AstNode* const rootp
-                    = const_cast<AstMemberSel*>(memberSelp)->baseFromp(true);
-                if (const AstVarRef* const refp = VN_CAST(rootp, VarRef)) {
+    ತಾರ್ಕಿಕ classOwnsGlobalConstraint(ಸ್ಥಿರಾಂಕ AstClass* classp) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ classp->existsMember([](ಸ್ಥಿರಾಂಕ AstClass*, ಸ್ಥಿರಾಂಕ AstConstraint* constrp) {
+            ತಾರ್ಕಿಕ owns = ಸುಳ್ಳು;
+            constrp->foreach([&](ಸ್ಥಿರಾಂಕ AstMemberSel* memberSelp) {
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ rootp
+                    = const_cast<AstMemberSel*>(memberSelp)->ತಳ_Fromp(ನಿಜ);
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(rootp, VarRef)) {
                     // Owns a sub-object constraint if the root is a class handle, or
                     // an array/assoc/queue/unpacked array of class handles.
-                    const AstNodeDType* dtypep = refp->varp()->dtypep()->skipRefp();
-                    while (const AstNodeDType* const subp = dtypep->subDTypep())
+                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* dtypep = refp->varp()->dtypep()->skipRefp();
+                    ಆಗ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ subp = dtypep->subDTypep())
                         dtypep = subp->skipRefp();
-                    if (VN_IS(dtypep, ClassRefDType)) owns = true;
+                    ಆದರೆ (VN_IS(dtypep, ClassRefDType)) owns = ನಿಜ;
                 }
             });
-            return owns;
+            ಹಿಂತಿರುಗಿ owns;
         });
     }
     // Get or create __VrandCb_pre/__VrandCb_post task for nested callbacks
-    AstTask* getCreateNestedCallbackTask(AstClass* classp, const string& suffix) {
-        const string name = "__VrandCb_" + suffix;
-        AstTask* taskp = VN_CAST(m_memberMap.findMember(classp, name), Task);
-        if (taskp) return taskp;
-        taskp = new AstTask{classp->fileline(), name, nullptr};
-        taskp->classMethod(true);
-        classp->addMembersp(taskp);
-        m_memberMap.insert(classp, taskp);
-        return taskp;
+    AstTask* getCreateNestedCallbackTask(AstClass* classp, ಸ್ಥಿರಾಂಕ string& suffix) {
+        ಸ್ಥಿರಾಂಕ string name = "__VrandCb_" + suffix;
+        AstTask* taskp = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, name), Task);
+        ಆದರೆ (taskp) ಹಿಂತಿರುಗಿ taskp;
+        taskp = ಹೊಸ AstTask{classp->fileline(), name, ಶೂನ್ಯಸೂಚಕ};
+        taskp->class_ವಿಧಾನ(ನಿಜ);
+        classp->ಕೂಡಿಸು_Membersp(taskp);
+        m_memberMap.ಸೇರಿಸು(classp, taskp);
+        ಹಿಂತಿರುಗಿ taskp;
     }
     // Populate nested callback task body: calls pre/post_randomize on nested rand class members
-    void populateNestedCallbackTask(AstTask* const callbackTaskp, AstClass* const classp,
-                                    const string& cbName) {
-        FileLine* const fl = classp->fileline();
+    ಶೂನ್ಯ populateNestedCallbackTask(AstTask* ಸ್ಥಿರಾಂಕ callbackTaskp, AstClass* ಸ್ಥಿರಾಂಕ classp,
+                                    ಸ್ಥಿರಾಂಕ string& cbName) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = classp->fileline();
         classp->foreachMember([&](AstClass* ownerClassp, AstVar* memberVarp) {
-            if (!memberVarp->rand().isRandomizable()) return;
-            const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-            const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType);
-            if (!classRefp) return;
-            AstClass* const memberClassp = classRefp->classp();
-            if (memberClassp == classp) return;  // Avoid self-reference
+            ಆದರೆ (!memberVarp->rand().isRandomizable()) ಹಿಂತಿರುಗಿ;
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = memberVarp->dtypep()->skipRefp();
+            ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ classRefp = VN_CAST(dtypep, ClassRefDType);
+            ಆದರೆ (!classRefp) ಹಿಂತಿರುಗಿ;
+            AstClass* ಸ್ಥಿರಾಂಕ memberClassp = classRefp->classp();
+            ಆದರೆ (memberClassp == classp) ಹಿಂತಿರುಗಿ;  // Avoid self-reference
 
             // Force-visit member class if not yet processed
-            if (memberClassp->user1()) {
+            ಆದರೆ (memberClassp->user1()) {
                 iterate(memberClassp);
                 m_writtenVars.clear();
             }
 
-            AstNode* stmtsp = nullptr;
+            Ast_ಗಂಟು* stmtsp = ಶೂನ್ಯಸೂಚಕ;
 
             // 1. Call member.pre/post_randomize() if exists in hierarchy
-            if (AstTask* const userFuncp = findPrePostTask(memberClassp, cbName)) {
-                AstMethodCall* const callp = new AstMethodCall{
-                    fl, new AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE}, cbName};
+            ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ userFuncp = ಕಂಡುಹಿಡಿ_Pre_Post_Task(memberClassp, cbName)) {
+                Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ Ast_ವಿಧಾನ_Call{
+                    fl, ಹೊಸ AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE}, cbName};
                 callp->taskp(userFuncp);
-                callp->dtypeSetVoid();
-                stmtsp = AstNode::addNext(stmtsp, callp->makeStmt());
+                callp->dtype_ಗಣ_Void();
+                stmtsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(stmtsp, callp->makeStmt());
             }
 
             // 2. Call member.__VrandCb_pre/post() for deeper recursion
-            if (classHasRandClassMembers(memberClassp)) {
-                const string suffix = (cbName == "pre_randomize") ? "pre" : "post";
-                AstTask* const nestedTaskp = getCreateNestedCallbackTask(memberClassp, suffix);
-                AstMethodCall* const recurseCallp = new AstMethodCall{
-                    fl, new AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE},
+            ಆದರೆ (classHasRandClassMembers(memberClassp)) {
+                ಸ್ಥಿರಾಂಕ string suffix = (cbName == "pre_randomize") ? "pre" : "post";
+                AstTask* ಸ್ಥಿರಾಂಕ nestedTaskp = getCreateNestedCallbackTask(memberClassp, suffix);
+                Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ recurseCallp = ಹೊಸ Ast_ವಿಧಾನ_Call{
+                    fl, ಹೊಸ AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE},
                     nestedTaskp->name()};
                 recurseCallp->taskp(nestedTaskp);
-                recurseCallp->dtypeSetVoid();
-                stmtsp = AstNode::addNext(stmtsp, recurseCallp->makeStmt());
+                recurseCallp->dtype_ಗಣ_Void();
+                stmtsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(stmtsp, recurseCallp->makeStmt());
             }
 
-            if (!stmtsp) return;
+            ಆದರೆ (!stmtsp) ಹಿಂತಿರುಗಿ;
 
             // Wrap in null check
-            AstIf* const nullCheckp = new AstIf{
+            AstIf* ಸ್ಥಿರಾಂಕ nullCheckp = ಹೊಸ AstIf{
                 fl,
-                new AstNeq{fl, new AstVarRef{fl, ownerClassp, memberVarp, VAccess::READ},
-                           new AstConst{fl, AstConst::Null{}}},
+                ಹೊಸ AstNeq{fl, ಹೊಸ AstVarRef{fl, ownerClassp, memberVarp, VAccess::READ},
+                           ಹೊಸ AstConst{fl, AstConst::Null{}}},
                 stmtsp};
 
             // Wrap in rand_mode check
-            callbackTaskp->addStmtsp(wrapIfRandMode(classp, memberVarp, nullCheckp));
+            callbackTaskp->ಕೂಡಿಸು_Stmtsp(wrap_If_Rand_ಬಹುಲಕ(classp, memberVarp, nullCheckp));
         });
     }
-    AstTask* newSetupConstraintTask(AstClass* const nodep, const std::string& name) {
-        AstTask* const taskp = new AstTask{nodep->fileline(), name + "_setup_constraint", nullptr};
-        taskp->classMethod(true);
-        nodep->addMembersp(taskp);
-        return taskp;
+    AstTask* new_ಸಿದ್ಧತೆ_Constraint_Task(AstClass* ಸ್ಥಿರಾಂಕ nodep, ಸ್ಥಿರಾಂಕ std::string& name) {
+        AstTask* ಸ್ಥಿರಾಂಕ taskp = ಹೊಸ AstTask{nodep->fileline(), name + "_setup_constraint", ಶೂನ್ಯಸೂಚಕ};
+        taskp->class_ವಿಧಾನ(ನಿಜ);
+        nodep->ಕೂಡಿಸು_Membersp(taskp);
+        ಹಿಂತಿರುಗಿ taskp;
     }
-    AstTask* newResizeConstrainedArrayTask(AstClass* const nodep, const std::string& name) {
-        AstTask* const taskp
-            = new AstTask{nodep->fileline(), name + "_resize_constrained_array", nullptr};
-        taskp->classMethod(true);
-        nodep->addMembersp(taskp);
-        return taskp;
+    AstTask* newResizeConstrainedArrayTask(AstClass* ಸ್ಥಿರಾಂಕ nodep, ಸ್ಥಿರಾಂಕ std::string& name) {
+        AstTask* ಸ್ಥಿರಾಂಕ taskp
+            = ಹೊಸ AstTask{nodep->fileline(), name + "_resize_constrained_array", ಶೂನ್ಯಸೂಚಕ};
+        taskp->class_ವಿಧಾನ(ನಿಜ);
+        nodep->ಕೂಡಿಸು_Membersp(taskp);
+        ಹಿಂತಿರುಗಿ taskp;
     }
-    AstNodeStmt* implementConstraintsClear(FileLine* const fileline, AstVar* const genp) {
-        AstCMethodHard* const clearp = new AstCMethodHard{
+    Ast_ಗಂಟು_Stmt* implementConstraintsClear(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fileline, AstVar* ಸ್ಥಿರಾಂಕ genp) {
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ clearp = ಹೊಸ AstCMethodHard{
             fileline,
-            new AstVarRef{fileline, VN_AS(genp->user2p(), NodeModule), genp, VAccess::READWRITE},
+            ಹೊಸ AstVarRef{fileline, VN_AS(genp->user2p(), ಗಂಟು_Module), genp, VAccess::READWRITE},
             VCMethod::RANDOMIZER_CLEARCONSTRAINTS};
-        clearp->dtypeSetVoid();
-        return clearp->makeStmt();
+        clearp->dtype_ಗಣ_Void();
+        ಹಿಂತಿರುಗಿ clearp->makeStmt();
     }
-    AstNodeStmt* implementConstraintsClearAll(FileLine* const fileline, AstVar* const genp) {
-        AstCMethodHard* const clearp = new AstCMethodHard{
+    Ast_ಗಂಟು_Stmt* implementConstraintsClearAll(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fileline, AstVar* ಸ್ಥಿರಾಂಕ genp) {
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ clearp = ಹೊಸ AstCMethodHard{
             fileline,
-            new AstVarRef{fileline, VN_AS(genp->user2p(), NodeModule), genp, VAccess::READWRITE},
+            ಹೊಸ AstVarRef{fileline, VN_AS(genp->user2p(), ಗಂಟು_Module), genp, VAccess::READWRITE},
             VCMethod::RANDOMIZER_CLEARALL};
-        clearp->dtypeSetVoid();
-        return clearp->makeStmt();
+        clearp->dtype_ಗಣ_Void();
+        ಹಿಂತಿರುಗಿ clearp->makeStmt();
     }
-    AstVar* getVarFromRef(AstNodeExpr* const exprp) {
-        if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            return memberSelp->varp();
-        } else if (AstVarRef* const varrefp = VN_CAST(exprp, VarRef)) {
-            return varrefp->varp();
+    AstVar* getVarFromRef(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp) {
+        ಆದರೆ (AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(exprp, MemberSel)) {
+            ಹಿಂತಿರುಗಿ memberSelp->varp();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(exprp, VarRef)) {
+            ಹಿಂತಿರುಗಿ varrefp->varp();
         }
         exprp->v3fatalSrc("Not a MemberSel nor VarRef");
-        return nullptr;  // LCOV_EXCL_LINE
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;  // LCOV_EXCL_LINE
     }
     // Build a reference to a rand_mode/constraint_mode dyn-array.
     // Static-mode vars live on the class package; V3Scope resolves the VarRef later.
-    AstNodeExpr* makeModeVarRef(AstNodeExpr* const exprp, AstVar* const modeVarp,
-                                const VAccess access) {
-        if (modeVarp->lifetime().isStatic()) {
-            return new AstVarRef{exprp->fileline(), VN_AS(modeVarp->user2p(), NodeModule),
-                                 modeVarp, access};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* make_ಬಹುಲಕ_Var_Ref(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp, AstVar* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Varp,
+                                ಸ್ಥಿರಾಂಕ VAccess access) {
+        ಆದರೆ (ಬಹುಲಕ_Varp->lifetime().isStatic()) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstVarRef{exprp->fileline(), VN_AS(ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module),
+                                 ಬಹುಲಕ_Varp, access};
         }
-        if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            AstMemberSel* const newMemberSelp = new AstMemberSel{
-                exprp->fileline(), memberSelp->fromp()->cloneTree(false), modeVarp};
+        ಆದರೆ (AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(exprp, MemberSel)) {
+            AstMemberSel* ಸ್ಥಿರಾಂಕ newMemberSelp = ಹೊಸ AstMemberSel{
+                exprp->fileline(), memberSelp->fromp()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), ಬಹುಲಕ_Varp};
             newMemberSelp->foreach([access](AstVarRef* varrefp) { varrefp->access(access); });
-            return newMemberSelp;
+            ಹಿಂತಿರುಗಿ newMemberSelp;
         }
         UASSERT_OBJ(VN_IS(exprp, VarRef), exprp, "Should be a VarRef");
-        return new AstVarRef{exprp->fileline(), VN_AS(modeVarp->user2p(), Class), modeVarp,
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstVarRef{exprp->fileline(), VN_AS(ಬಹುಲಕ_Varp->user2p(), Class), ಬಹುಲಕ_Varp,
                              access};
     }
     // Get or create a size variable for a constrained dynamic/queue/assoc array.
     // Returns the size variable. Sets wasCreated=true if a new variable was made.
-    AstVar* createOrGetSizeVar(AstClass* const classp, AstVar* const arrVarp, FileLine* const fl,
-                               AstNodeDType* const signed32DTypep, bool& wasCreated) {
-        AstVar* sizeVarp = VN_CAST(arrVarp->user4p(), Var);
-        wasCreated = false;
-        if (!sizeVarp) {
-            sizeVarp = new AstVar{fl, VVarType::MEMBER, "__V" + arrVarp->name() + "_size",
+    AstVar* create_Or_Get_ಗಾತ್ರ_Var(AstClass* ಸ್ಥಿರಾಂಕ classp, AstVar* ಸ್ಥಿರಾಂಕ arrVarp, File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl,
+                               Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ signed32DTypep, ತಾರ್ಕಿಕ& wasCreated) {
+        AstVar* ಗಾತ್ರ_Varp = VN_CAST(arrVarp->user4p(), Var);
+        wasCreated = ಸುಳ್ಳು;
+        ಆದರೆ (!ಗಾತ್ರ_Varp) {
+            ಗಾತ್ರ_Varp = ಹೊಸ AstVar{fl, VVarType::MEMBER, "__V" + arrVarp->name() + "_size",
                                   signed32DTypep};
-            classp->addMembersp(sizeVarp);
-            m_memberMap.insert(classp, sizeVarp);
-            sizeVarp->user2p(classp);
-            arrVarp->user4p(sizeVarp);
-            wasCreated = true;
+            classp->ಕೂಡಿಸು_Membersp(ಗಾತ್ರ_Varp);
+            m_memberMap.ಸೇರಿಸು(classp, ಗಾತ್ರ_Varp);
+            ಗಾತ್ರ_Varp->user2p(classp);
+            arrVarp->user4p(ಗಾತ್ರ_Varp);
+            wasCreated = ನಿಜ;
         }
-        return sizeVarp;
+        ಹಿಂತಿರುಗಿ ಗಾತ್ರ_Varp;
     }
     // Build a size >= 0 constraint expression (signed int size must be non-negative).
     // Returns a new AstConstraintExpr with user1 bits set for solver visibility.
-    AstConstraintExpr* createSizeGteZeroConstraint(FileLine* const fl, AstVar* const sizeVarp,
-                                                   AstNodeExpr* derefFromp = nullptr) {
-        AstNodeExpr* sizeNodeExprp = nullptr;
-        if (derefFromp) {
-            sizeNodeExprp = buildMemberSelExprp(derefFromp, sizeVarp);
-        } else {
-            sizeNodeExprp = new AstVarRef{fl, sizeVarp, VAccess::READ};
+    Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* create_ಗಾತ್ರ_Gte_Zero_Constraint(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, AstVar* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Varp,
+                                                   Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* derefFromp = ಶೂನ್ಯಸೂಚಕ) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಗಾತ್ರ_ಗಂಟು_Exprp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (derefFromp) {
+            ಗಾತ್ರ_ಗಂಟು_Exprp = buildMemberSelExprp(derefFromp, ಗಾತ್ರ_Varp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಗಾತ್ರ_ಗಂಟು_Exprp = ಹೊಸ AstVarRef{fl, ಗಾತ್ರ_Varp, VAccess::READ};
         }
-        sizeNodeExprp->user1(true);
-        AstGteS* const sizeGtep = new AstGteS{fl, sizeNodeExprp, new AstConst{fl, 0}};
-        sizeGtep->user1(true);
-        return new AstConstraintExpr{fl, sizeGtep};
+        ಗಾತ್ರ_ಗಂಟು_Exprp->user1(ನಿಜ);
+        AstGteS* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Gtep = ಹೊಸ AstGteS{fl, ಗಾತ್ರ_ಗಂಟು_Exprp, ಹೊಸ AstConst{fl, 0}};
+        ಗಾತ್ರ_Gtep->user1(ನಿಜ);
+        ಹಿಂತಿರುಗಿ ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, ಗಾತ್ರ_Gtep};
     }
-    AstNodeExpr* getFromp(AstNodeExpr* const exprp) {
-        if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            return memberSelp->fromp();
-        } else if (AstMethodCall* const methodCallp = VN_CAST(exprp, MethodCall)) {
-            return methodCallp->fromp();
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* getFromp(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp) {
+        ಆದರೆ (AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(exprp, MemberSel)) {
+            ಹಿಂತಿರುಗಿ memberSelp->fromp();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp = VN_CAST(exprp, ವಿಧಾನ_Call)) {
+            ಹಿಂತಿರುಗಿ ವಿಧಾನ_Callp->fromp();
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
-    AstVar* makeTmpRandModeVar(AstNodeExpr* siblingExprp, AstVar* randModeVarp,
-                               AstNode*& storeStmtspr, AstNodeStmt*& restoreStmtspr) {
-        FileLine* const fl = randModeVarp->fileline();
-        AstVar* const randModeTmpVarp = new AstVar{
-            fl, VVarType::BLOCKTEMP, m_modeUniqueNames.get(randModeVarp), randModeVarp->dtypep()};
-        randModeTmpVarp->funcLocal(m_ftaskp);
-        randModeTmpVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        storeStmtspr = AstNode::addNext(
+    AstVar* make_Tmp_Rand_ಬಹುಲಕ_Var(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* siblingExprp, AstVar* rand_ಬಹುಲಕ_Varp,
+                               Ast_ಗಂಟು*& storeStmtspr, Ast_ಗಂಟು_Stmt*& restoreStmtspr) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = rand_ಬಹುಲಕ_Varp->fileline();
+        AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Tmp_Varp = ಹೊಸ AstVar{
+            fl, VVarType::BLOCKTEMP, m_ಬಹುಲಕ_Unique_ಹೆಸರುಗಳು.get(rand_ಬಹುಲಕ_Varp), rand_ಬಹುಲಕ_Varp->dtypep()};
+        rand_ಬಹುಲಕ_Tmp_Varp->funcLocal(m_ftaskp);
+        rand_ಬಹುಲಕ_Tmp_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+        storeStmtspr = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(
             storeStmtspr,
-            new AstAssign{fl, new AstVarRef{fl, randModeTmpVarp, VAccess::WRITE},
-                          makeModeVarRef(siblingExprp, randModeVarp, VAccess::READ)});
-        storeStmtspr = AstNode::addNext(
+            ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, rand_ಬಹುಲಕ_Tmp_Varp, VAccess::WRITE},
+                          make_ಬಹುಲಕ_Var_Ref(siblingExprp, rand_ಬಹುಲಕ_Varp, VAccess::READ)});
+        storeStmtspr = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(
             storeStmtspr,
-            makeModeSetLoop(fl, makeModeVarRef(siblingExprp, randModeVarp, VAccess::WRITE),
-                            new AstConst{fl, 0}, m_ftaskp));
-        restoreStmtspr = AstNode::addNext(
+            make_ಬಹುಲಕ_ಗಣ_Loop(fl, make_ಬಹುಲಕ_Var_Ref(siblingExprp, rand_ಬಹುಲಕ_Varp, VAccess::WRITE),
+                            ಹೊಸ AstConst{fl, 0}, m_ftaskp));
+        restoreStmtspr = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(
             restoreStmtspr,
-            new AstAssign{fl, makeModeVarRef(siblingExprp, randModeVarp, VAccess::WRITE),
-                          new AstVarRef{fl, randModeTmpVarp, VAccess::READ}});
-        return randModeTmpVarp;
+            ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, make_ಬಹುಲಕ_Var_Ref(siblingExprp, rand_ಬಹುಲಕ_Varp, VAccess::WRITE),
+                          ಹೊಸ AstVarRef{fl, rand_ಬಹುಲಕ_Tmp_Varp, VAccess::READ}});
+        ಹಿಂತಿರುಗಿ rand_ಬಹುಲಕ_Tmp_Varp;
     }
     // Returns the common prefix of two hierarchical accesses, or nullptr if there is none
     // e.g. a.b.c and a.b.d -> a.b
-    AstNodeExpr* sliceToCommonPrefix(AstNodeExpr* thisp, AstNodeExpr* otherp) {
-        static std::vector<AstNodeExpr*> thisHier, otherHier;  // Keep around
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ತುಂಡು_ಗಮ್ಯ_Common_ಪೂರ್ವಪ್ರತ್ಯಯ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thisp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* otherp) {
+        ಸ್ಥಿರ std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> thisHier, otherHier;  // Keep around
                                                                // to avoid reallocations
         thisHier.clear();
         otherHier.clear();
-        while (thisp) {
-            thisHier.push_back(thisp);
+        ಆಗ (thisp) {
+            thisHier.ತಳ್ಳು_ಹಿಂಭಾಗ(thisp);
             thisp = getFromp(thisp);
         }
-        while (otherp) {
-            otherHier.push_back(otherp);
+        ಆಗ (otherp) {
+            otherHier.ತಳ್ಳು_ಹಿಂಭಾಗ(otherp);
             otherp = getFromp(otherp);
         }
-        AstNodeExpr* commonp = nullptr;
-        for (auto thisIt = thisHier.rbegin(), otherIt = otherHier.rbegin();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* commonp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ thisIt = thisHier.rbegin(), otherIt = otherHier.rbegin();
              thisIt != thisHier.rend() && otherIt != otherHier.rend(); ++thisIt, ++otherIt) {
-            if ((*thisIt)->type() != (*otherIt)->type()) break;
-            if (AstMemberSel* const memberSelp = VN_CAST(*thisIt, MemberSel)) {
-                AstMemberSel* const otherMemberSelp = VN_AS(*otherIt, MemberSel);
-                if (memberSelp->varp() == otherMemberSelp->varp()) {
+            ಆದರೆ ((*thisIt)->type() != (*otherIt)->type()) ನಿಲ್ಲಿಸು;
+            ಆದರೆ (AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(*thisIt, MemberSel)) {
+                AstMemberSel* ಸ್ಥಿರಾಂಕ otherMemberSelp = VN_AS(*otherIt, MemberSel);
+                ಆದರೆ (memberSelp->varp() == otherMemberSelp->varp()) {
                     commonp = memberSelp;
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
-            } else if (AstMethodCall* const thisMethodCallp = VN_CAST(*thisIt, MethodCall)) {
-                AstMethodCall* const otherMethodCallp = VN_AS(*otherIt, MethodCall);
-                if (thisMethodCallp->taskp() == otherMethodCallp->taskp()) {
-                    commonp = thisMethodCallp;
-                    continue;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ this_ವಿಧಾನ_Callp = VN_CAST(*thisIt, ವಿಧಾನ_Call)) {
+                Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ other_ವಿಧಾನ_Callp = VN_AS(*otherIt, ವಿಧಾನ_Call);
+                ಆದರೆ (this_ವಿಧಾನ_Callp->taskp() == other_ವಿಧಾನ_Callp->taskp()) {
+                    commonp = this_ವಿಧಾನ_Callp;
+                    ಮುಂದುವರಿ;
                 }
-            } else if (AstVarRef* const firstVarRefp = VN_CAST(*thisIt, VarRef)) {
-                AstVarRef* const secondVarRefp = VN_AS(*otherIt, VarRef);
-                if (firstVarRefp->varp() == secondVarRefp->varp()) {
-                    commonp = firstVarRefp;
-                    continue;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ ಮೊದಲ_Var_Refp = VN_CAST(*thisIt, VarRef)) {
+                AstVarRef* ಸ್ಥಿರಾಂಕ ಎರಡನೇ_Var_Refp = VN_AS(*otherIt, VarRef);
+                ಆದರೆ (ಮೊದಲ_Var_Refp->varp() == ಎರಡನೇ_Var_Refp->varp()) {
+                    commonp = ಮೊದಲ_Var_Refp;
+                    ಮುಂದುವರಿ;
                 }
             }
-            break;
+            ನಿಲ್ಲಿಸು;
         }
-        return commonp;
+        ಹಿಂತಿರುಗಿ commonp;
     }
     // Returns MemberSel chain, with deepest VarRef being reference to deepestVarp
-    AstNodeExpr* buildMemberSelExprp(AstNodeExpr* exprp, AstVar* deepestVarp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* buildMemberSelExprp(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstVar* ಅತ್ಯಂತಆಳ_Varp) {
         UASSERT_OBJ(VN_IS(exprp, MemberSel) || VN_IS(exprp, VarRef), exprp,
                     "Should be MemberSel or VarRef");
 
-        AstNodeExpr* resExprp = nullptr;
-        if (const AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            resExprp = buildMemberSelExprp(memberSelp->fromp(), nullptr);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resExprp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp = VN_CAST(exprp, MemberSel)) {
+            resExprp = buildMemberSelExprp(memberSelp->fromp(), ಶೂನ್ಯಸೂಚಕ);
             AstVar* varp = memberSelp->varp();
-            if (deepestVarp) varp = deepestVarp;
-            resExprp = new AstMemberSel{exprp->fileline(), resExprp, varp};
-        } else if (const AstVarRef* const varRefp = VN_CAST(exprp, VarRef)) {
+            ಆದರೆ (ಅತ್ಯಂತಆಳ_Varp) varp = ಅತ್ಯಂತಆಳ_Varp;
+            resExprp = ಹೊಸ AstMemberSel{exprp->fileline(), resExprp, varp};
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(exprp, VarRef)) {
             AstVar* varp = varRefp->varp();
-            if (deepestVarp) varp = deepestVarp;
-            resExprp = new AstVarRef{exprp->fileline(), VN_AS(varp->user2p(), NodeModule), varp,
+            ಆದರೆ (ಅತ್ಯಂತಆಳ_Varp) varp = ಅತ್ಯಂತಆಳ_Varp;
+            resExprp = ಹೊಸ AstVarRef{exprp->fileline(), VN_AS(varp->user2p(), ಗಂಟು_Module), varp,
                                      VAccess::READWRITE};
         }
 
-        resExprp->user1(true);
-        return resExprp;
+        resExprp->user1(ನಿಜ);
+        ಹಿಂತಿರುಗಿ resExprp;
     }
 
-    void addUpdateRandVarsBody(AstClass* const nodep, AstFunc* const randomizep) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_Update_Rand_Vars_Body(AstClass* ಸ್ಥಿರಾಂಕ nodep, AstFunc* ಸ್ಥಿರಾಂಕ randomizep) {
         UASSERT_OBJ(!nodep->hasRandVarsUpdate(), nodep, "__VupdateRandVars already exists");
-        AstFunc* const updatep
-            = new AstFunc{nodep->fileline(), "__VupdateRandVars", nullptr, nullptr};
-        updatep->classMethod(true);
-        updatep->isVirtual(true);
-        updatep->keepAlive(true);
-        updatep->needsSyms(false);
-        nodep->addMembersp(updatep);
-        nodep->hasRandVarsUpdate(true);
+        AstFunc* ಸ್ಥಿರಾಂಕ updatep
+            = ಹೊಸ AstFunc{nodep->fileline(), "__VupdateRandVars", ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ};
+        updatep->class_ವಿಧಾನ(ನಿಜ);
+        updatep->isVirtual(ನಿಜ);
+        updatep->keepAlive(ನಿಜ);
+        updatep->needsSyms(ಸುಳ್ಳು);
+        nodep->ಕೂಡಿಸು_Membersp(updatep);
+        nodep->hasRandVarsUpdate(ನಿಜ);
 
-        for (AstClass* classp = nodep; classp;
-             classp = classp->extendsp() ? classp->extendsp()->classp() : nullptr) {
-            AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
-            for (AstNode* stmtp = newp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                AstStmtExpr* const stmtExprp = VN_CAST(stmtp, StmtExpr);
-                if (!stmtExprp) continue;
-                AstCMethodHard* const methodp = VN_CAST(stmtExprp->exprp(), CMethodHard);
-                if (!methodp || methodp->method() != VCMethod::RANDOMIZER_WRITE_VAR) continue;
+        ಗಾಗಿ (AstClass* classp = nodep; classp;
+             classp = classp->extendsp() ? classp->extendsp()->classp() : ಶೂನ್ಯಸೂಚಕ) {
+            Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ newp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, "new"), ಗಂಟು_FTask);
+            ಗಾಗಿ (Ast_ಗಂಟು* stmtp = newp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ stmtExprp = VN_CAST(stmtp, Stmt_ಅಭಿವ್ಯಕ್ತಿ);
+                ಆದರೆ (!stmtExprp) ಮುಂದುವರಿ;
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = VN_CAST(stmtExprp->exprp(), CMethodHard);
+                ಆದರೆ (!methodp || methodp->ವಿಧಾನ() != VCMethod::RANDOMIZER_WRITE_VAR) ಮುಂದುವರಿ;
 
-                AstNodeVarRef* const varRefp = VN_AS(methodp->pinsp(), NodeVarRef);
-                if (varRefp->varp()->lifetime().isStatic()) {
+                Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ varRefp = VN_AS(methodp->pinsp(), ಗಂಟು_Var_Ref);
+                ಆದರೆ (varRefp->varp()->lifetime().isStatic()) {
                     // There is no need to update pointer to a static variable
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
-                AstCMethodHard* const updateMethodp = new AstCMethodHard{
-                    methodp->fileline(), methodp->fromp()->cloneTreePure(false),
-                    VCMethod::RANDOMIZER_UPDATE_VAR, varRefp->cloneTreePure(false)};
-                updateMethodp->dtypeSetVoid();
-                AstNodeExpr* const namep = VN_AS(varRefp->nextp()->nextp(), NodeExpr);
-                updateMethodp->addPinsp(namep->cloneTreePure(false));
-                updateMethodp->method(VCMethod::RANDOMIZER_UPDATE_VAR);
-                updatep->addStmtsp(updateMethodp->makeStmt());
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ updateMethodp = ಹೊಸ AstCMethodHard{
+                    methodp->fileline(), methodp->fromp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                    VCMethod::RANDOMIZER_UPDATE_VAR, varRefp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                updateMethodp->dtype_ಗಣ_Void();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ namep = VN_AS(varRefp->nextp()->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ);
+                updateMethodp->ಕೂಡಿಸು_Pinsp(namep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು));
+                updateMethodp->ವಿಧಾನ(VCMethod::RANDOMIZER_UPDATE_VAR);
+                updatep->ಕೂಡಿಸು_Stmtsp(updateMethodp->makeStmt());
             }
         }
     }
 
-    void addBasicRandomizeBody(AstFunc* const basicRandomizep, AstClass* const nodep,
-                               AstVar* randModeVarp) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_Basic_Randomize_Body(AstFunc* ಸ್ಥಿರಾಂಕ basicRandomizep, AstClass* ಸ್ಥಿರಾಂಕ nodep,
+                               AstVar* rand_ಬಹುಲಕ_Varp) {
         UINFO(9, "addBasicRTB " << nodep);
-        FileLine* const fl = nodep->fileline();
-        AstVar* const basicFvarp = VN_AS(basicRandomizep->fvarp(), Var);
-        AstVarRef* const basicFvarRefp = new AstVarRef{fl, basicFvarp, VAccess::WRITE};
-        AstConst* const beginBasicValp = new AstConst{fl, AstConst::WidthedValue{}, 32, 1};
-        basicRandomizep->addStmtsp(new AstAssign{fl, basicFvarRefp, beginBasicValp});
-        AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(nodep, "new"), NodeFTask);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        AstVar* ಸ್ಥಿರಾಂಕ basicFvarp = VN_AS(basicRandomizep->fvarp(), Var);
+        AstVarRef* ಸ್ಥಿರಾಂಕ basicFvarRefp = ಹೊಸ AstVarRef{fl, basicFvarp, VAccess::WRITE};
+        AstConst* ಸ್ಥಿರಾಂಕ beginBasicValp = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1};
+        basicRandomizep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, basicFvarRefp, beginBasicValp});
+        Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ newp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(nodep, "new"), ಗಂಟು_FTask);
         UASSERT_OBJ(newp, nodep, "No new() in class");
         nodep->foreachMember([&](AstClass* classp, AstVar* memberVarp) {
-            if (!memberVarp->rand().isRandomizable()) return;
-            const RandomizeMode randMode = {.asUQuad = memberVarp->user1()};
-            if (randMode.usesMode
+            ಆದರೆ (!memberVarp->rand().isRandomizable()) ಹಿಂತಿರುಗಿ;
+            ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {.asUQuad = memberVarp->user1()};
+            ಆದರೆ (rand_ಬಹುಲಕ.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ
                 && !memberVarp->rand().isRand()) {  // Not randomizable by default
-                AstCMethodHard* const setp = new AstCMethodHard{
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ setp = ಹೊಸ AstCMethodHard{
                     nodep->fileline(),
-                    new AstVarRef{fl, VN_AS(randModeVarp->user2p(), NodeModule), randModeVarp,
+                    ಹೊಸ AstVarRef{fl, VN_AS(rand_ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module), rand_ಬಹುಲಕ_Varp,
                                   VAccess::WRITE},
-                    VCMethod::ARRAY_AT_WRITE, new AstConst{nodep->fileline(), randMode.index}};
-                setp->dtypeSetUInt32();
-                newp->addStmtsp(new AstAssign{fl, setp, new AstConst{fl, 0}});
+                    VCMethod::ARRAY_AT_WRITE, ಹೊಸ AstConst{nodep->fileline(), rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ}};
+                setp->dtype_ಗಣ_UInt32();
+                newp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, setp, ಹೊಸ AstConst{fl, 0}});
             }
-            if (memberVarp->user3()) return;  // Handled in constraints
-            const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-            if (const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType)) {
-                if (classRefp->classp() == nodep) {
+            ಆದರೆ (memberVarp->user3()) ಹಿಂತಿರುಗಿ;  // Handled in constraints
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = memberVarp->dtypep()->skipRefp();
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ classRefp = VN_CAST(dtypep, ClassRefDType)) {
+                ಆದರೆ (classRefp->classp() == nodep) {
                     memberVarp->v3warn(E_UNSUPPORTED,
                                        "Unsupported: random member variable with the "
                                        "type of the containing class");
-                    return;
+                    ಹಿಂತಿರುಗಿ;
                 }
-                AstFunc* const memberFuncp
+                AstFunc* ಸ್ಥಿರಾಂಕ memberFuncp
                     = memberVarp->globalConstrained()
                           ? V3Randomize::newRandomizeFunc(m_memberMap, classRefp->classp(),
                                                           BASIC_RANDOMIZE_FUNC_NAME)
                           : V3Randomize::newRandomizeFunc(m_memberMap, classRefp->classp());
-                AstMethodCall* const callp
+                Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp
                     = memberVarp->globalConstrained()
-                          ? new AstMethodCall{fl,
-                                              new AstVarRef{fl, classp, memberVarp,
+                          ? ಹೊಸ Ast_ವಿಧಾನ_Call{fl,
+                                              ಹೊಸ AstVarRef{fl, classp, memberVarp,
                                                             VAccess::WRITE},
                                               BASIC_RANDOMIZE_FUNC_NAME}
-                          : new AstMethodCall{
-                                fl, new AstVarRef{fl, classp, memberVarp, VAccess::WRITE},
+                          : ಹೊಸ Ast_ವಿಧಾನ_Call{
+                                fl, ಹೊಸ AstVarRef{fl, classp, memberVarp, VAccess::WRITE},
                                 "randomize"};
                 callp->taskp(memberFuncp);
                 callp->dtypeFrom(memberFuncp);
-                AstVarRef* const basicFvarRefReadp = basicFvarRefp->cloneTree(false);
+                AstVarRef* ಸ್ಥಿರಾಂಕ basicFvarRefReadp = basicFvarRefp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
                 basicFvarRefReadp->access(VAccess::READ);
-                AstIf* const assignIfNotNullp = new AstIf{
+                AstIf* ಸ್ಥಿರಾಂಕ ನಿಯೋಜಿಸು_If_Not_Nullp = ಹೊಸ AstIf{
                     fl,
-                    new AstNeq{fl, new AstVarRef{fl, classp, memberVarp, VAccess::READ},
-                               new AstConst{fl, AstConst::Null{}}},
-                    new AstAssign{fl, basicFvarRefp->cloneTree(false),
-                                  new AstAnd{fl, basicFvarRefReadp, callp}}};
-                basicRandomizep->addStmtsp(wrapIfRandMode(nodep, memberVarp, assignIfNotNullp));
-            } else {
-                AstVar* const randcVarp = newRandcVarsp(memberVarp, nodep);
-                AstVarRef* const refp
-                    = new AstVarRef{memberVarp->fileline(), classp, memberVarp, VAccess::WRITE};
-                AstNodeStmt* const stmtp = newRandStmtsp(fl, refp, randcVarp, basicFvarp);
-                if (!refp->backp()) VL_DO_DANGLING(refp->deleteTree(), refp);
-                basicRandomizep->addStmtsp(
-                    new AstBegin{fl, m_uniqueNames.get("__VrandBlock"), stmtp, false});
+                    ಹೊಸ AstNeq{fl, ಹೊಸ AstVarRef{fl, classp, memberVarp, VAccess::READ},
+                               ಹೊಸ AstConst{fl, AstConst::Null{}}},
+                    ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, basicFvarRefp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು),
+                                  ಹೊಸ AstAnd{fl, basicFvarRefReadp, callp}}};
+                basicRandomizep->ಕೂಡಿಸು_Stmtsp(wrap_If_Rand_ಬಹುಲಕ(nodep, memberVarp, ನಿಯೋಜಿಸು_If_Not_Nullp));
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                AstVar* ಸ್ಥಿರಾಂಕ randcVarp = newRandcVarsp(memberVarp, nodep);
+                AstVarRef* ಸ್ಥಿರಾಂಕ refp
+                    = ಹೊಸ AstVarRef{memberVarp->fileline(), classp, memberVarp, VAccess::WRITE};
+                Ast_ಗಂಟು_Stmt* ಸ್ಥಿರಾಂಕ stmtp = newRandStmtsp(fl, refp, randcVarp, basicFvarp);
+                ಆದರೆ (!refp->backp()) VL_DO_DANGLING(refp->delete_ವೃಕ್ಷ(), refp);
+                basicRandomizep->ಕೂಡಿಸು_Stmtsp(
+                    ಹೊಸ AstBegin{fl, m_unique_ಹೆಸರುಗಳು.get("__VrandBlock"), stmtp, ಸುಳ್ಳು});
             }
         });
     }
 
     // Creates a lvalue reference to the randomize mode var. Called by visit(AstNodeFTaskRef*)
-    AstNodeExpr* makeModeAssignLhs(FileLine* const fl, AstClass* const classp,
-                                   AstNodeExpr* const fromp, AstVar* const modeVarp) {
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* make_ಬಹುಲಕ_ನಿಯೋಜಿಸು_Lhs(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, AstClass* ಸ್ಥಿರಾಂಕ classp,
+                                   Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp, AstVar* ಸ್ಥಿರಾಂಕ ಬಹುಲಕ_Varp) {
         // For static constraint mode vars, always use VarRef (not MemberSel).
         // At this point V3Class hasn't run yet, so user2p may be nullptr.
         // Generate VarRef with classp as module; V3Scope will update varScopep later
         // when the variable is moved to the class package.
-        if (modeVarp->lifetime().isStatic()) {
+        ಆದರೆ (ಬಹುಲಕ_Varp->lifetime().isStatic()) {
             // Hint owning class so V3Scope resolves from derived call sites.
-            if (fromp) VL_DO_DANGLING(fromp->unlinkFrBack()->deleteTree(), fromp);
-            return new AstVarRef{fl, VN_AS(modeVarp->user2p(), NodeModule), modeVarp,
+            ಆದರೆ (fromp) VL_DO_DANGLING(fromp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), fromp);
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstVarRef{fl, VN_AS(ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module), ಬಹುಲಕ_Varp,
                                  VAccess::WRITE};
-        } else if (classp == m_modp) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (classp == m_modp) {
             // Called on 'this' or a member of 'this'
-            return new AstVarRef{fl, VN_AS(modeVarp->user2p(), NodeModule), modeVarp,
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstVarRef{fl, VN_AS(ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module), ಬಹುಲಕ_Varp,
                                  VAccess::WRITE};
-        } else {
-            AstMemberSel* const memberselp = new AstMemberSel{fl, fromp->unlinkFrBack(), modeVarp};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            AstMemberSel* ಸ್ಥಿರಾಂಕ memberselp = ಹೊಸ AstMemberSel{fl, fromp->unlink_Fr_ಹಿಂಭಾಗ(), ಬಹುಲಕ_Varp};
             memberselp->foreach([](AstVarRef* varrefp) { varrefp->access(VAccess::WRITE); });
-            return memberselp;
+            ಹಿಂತಿರುಗಿ memberselp;
         }
     }
     // Replace the node with an assignment to the mode variable. Called by visit(AstNodeFTaskRef*)
-    void replaceWithModeAssign(AstNodeFTaskRef* const ftaskRefp, AstNode* const receiverp,
-                               AstNodeExpr* const lhsp) {
-        replaceWithModeAssignAndAppend(ftaskRefp, receiverp, lhsp, nullptr);
+    ಶೂನ್ಯ replace_With_ಬಹುಲಕ_ನಿಯೋಜಿಸು(Ast_ಗಂಟು_FTask_Ref* ಸ್ಥಿರಾಂಕ ftaskRefp, Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ receiverp,
+                               Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp) {
+        replace_With_ಬಹುಲಕ_ನಿಯೋಜಿಸು_And_Append(ftaskRefp, receiverp, lhsp, ಶೂನ್ಯಸೂಚಕ);
     }
     // Append BEFORE swap; backp()/nextp() unreliable after replaceWith.
-    void replaceWithModeAssignAndAppend(AstNodeFTaskRef* const ftaskRefp, AstNode* const receiverp,
-                                        AstNodeExpr* const lhsp, AstNode* const appendStmtp) {
-        FileLine* const fl = ftaskRefp->fileline();
-        if (ftaskRefp->argsp()) {
-            UASSERT_OBJ(VN_IS(ftaskRefp->backp(), StmtExpr), ftaskRefp, "Should be a statement");
-            AstNodeExpr* const rhsp = ftaskRefp->argsp()->exprp()->unlinkFrBack();
-            AstNode* newStmtp = nullptr;
-            if (receiverp) {
+    ಶೂನ್ಯ replace_With_ಬಹುಲಕ_ನಿಯೋಜಿಸು_And_Append(Ast_ಗಂಟು_FTask_Ref* ಸ್ಥಿರಾಂಕ ftaskRefp, Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ receiverp,
+                                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp, Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ appendStmtp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ftaskRefp->fileline();
+        ಆದರೆ (ftaskRefp->argsp()) {
+            UASSERT_OBJ(VN_IS(ftaskRefp->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ), ftaskRefp, "Should be a statement");
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = ftaskRefp->argsp()->exprp()->unlink_Fr_ಹಿಂಭಾಗ();
+            Ast_ಗಂಟು* newStmtp = ಶೂನ್ಯಸೂಚಕ;
+            ಆದರೆ (receiverp) {
                 // Called on a rand member variable/constraint. Set the variable/constraint's
-                // mode
-                const RandomizeMode rmode = {.asUQuad = receiverp->user1()};
-                UASSERT_OBJ(rmode.usesMode, ftaskRefp, "Failed to set usesMode");
-                AstCMethodHard* const setp = new AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
-                                                                new AstConst{fl, rmode.index}};
-                setp->dtypeSetUInt32();
-                newStmtp = new AstAssign{fl, setp, rhsp};
-            } else {
+                //ಬಹುಲಕ
+                ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = receiverp->user1()};
+                UASSERT_OBJ(rmode.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ, ftaskRefp, "Failed to set usesMode");
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ setp = ಹೊಸ AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
+                                                                ಹೊಸ AstConst{fl, rmode.ಸೂಚ್ಯಂಕ}};
+                setp->dtype_ಗಣ_UInt32();
+                newStmtp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, setp, rhsp};
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // For rand_mode: Called on 'this' or a non-rand class instance.
                 // For constraint_mode: Called on a class instance.
                 // Set the rand mode of all members
-                newStmtp = makeModeSetLoop(fl, lhsp, rhsp, m_ftaskp);
+                newStmtp = make_ಬಹುಲಕ_ಗಣ_Loop(fl, lhsp, rhsp, m_ftaskp);
             }
-            if (appendStmtp) newStmtp->addNext(appendStmtp);
+            ಆದರೆ (appendStmtp) newStmtp->ಕೂಡಿಸು_ಮುಂದಿನ(appendStmtp);
             m_stmtp->replaceWith(newStmtp);
-            VL_DO_CLEAR(pushDeletep(m_stmtp), m_stmtp = nullptr);
-        } else {
+            VL_DO_CLEAR(ತಳ್ಳು_Deletep(m_stmtp), m_stmtp = ಶೂನ್ಯಸೂಚಕ);
+        } ಇಲ್ಲದಿದ್ದರೆ {
             UASSERT_OBJ(receiverp, ftaskRefp, "Should have receiver");
             UASSERT_OBJ(!appendStmtp, ftaskRefp, "Append path requires arg-form rand_mode");
-            const RandomizeMode rmode = {.asUQuad = receiverp->user1()};
-            UASSERT_OBJ(rmode.usesMode, ftaskRefp, "Failed to set usesMode");
-            AstCMethodHard* const setp = new AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
-                                                            new AstConst{fl, rmode.index}};
-            setp->dtypeSetUInt32();
+            ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = receiverp->user1()};
+            UASSERT_OBJ(rmode.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ, ftaskRefp, "Failed to set usesMode");
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ setp = ಹೊಸ AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
+                                                            ಹೊಸ AstConst{fl, rmode.ಸೂಚ್ಯಂಕ}};
+            setp->dtype_ಗಣ_UInt32();
             ftaskRefp->replaceWith(setp);
-            VL_DO_DANGLING(pushDeletep(ftaskRefp), ftaskRefp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(ftaskRefp), ftaskRefp);
         }
     };
 
     // Wrap obj.randomize() with null guard: (obj != null) ? obj.randomize() : 0
     // IEEE 1800 requires randomize() on null handle to return 0.
     // Uses user4() to prevent re-wrapping during iterateChildren.
-    void wrapRandomizeCallWithNullGuard(AstNodeFTaskRef* nodep) {
-        AstMethodCall* const callp = VN_CAST(nodep, MethodCall);
-        if (!callp) return;
-        if (callp->user4SetOnce()) return;
-        FileLine* const fl = callp->fileline();
-        AstNodeExpr* const checkp
-            = new AstNeq{fl, callp->fromp()->cloneTree(false), new AstConst{fl, AstConst::Null{}}};
+    ಶೂನ್ಯ wrapRandomizeCallWithNullGuard(Ast_ಗಂಟು_FTask_Ref* nodep) {
+        Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp = VN_CAST(nodep, ವಿಧಾನ_Call);
+        ಆದರೆ (!callp) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (callp->user4_ಗಣ_Once()) ಹಿಂತಿರುಗಿ;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = callp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ checkp
+            = ಹೊಸ AstNeq{fl, callp->fromp()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), ಹೊಸ AstConst{fl, AstConst::Null{}}};
         VNRelinker relinker;
-        callp->unlinkFrBack(&relinker);
-        relinker.relink(new AstCond{fl, checkp, callp, new AstConst{fl, 0}});
+        callp->unlink_Fr_ಹಿಂಭಾಗ(&relinker);
+        relinker.relink(ಹೊಸ AstCond{fl, checkp, callp, ಹೊಸ AstConst{fl, 0}});
     }
 
     // Handle inline random variable control. After this, the randomize() call has no args
-    void handleRandomizeArgs(AstNodeFTaskRef* const nodep) {
-        if (!nodep->argsp()) return;
+    ಶೂನ್ಯ handle_Randomize_ವಾದಗಳು(Ast_ಗಂಟು_FTask_Ref* ಸ್ಥಿರಾಂಕ nodep) {
+        ಆದರೆ (!nodep->argsp()) ಹಿಂತಿರುಗಿ;
         // Strip the null literal arg. V3Width already rejected mixed/non-null
         // AstConst args.
-        bool hasNullArg = false;
-        for (AstArg *argp = nodep->argsp(), *nextp = nullptr; argp; argp = nextp) {
+        ತಾರ್ಕಿಕ hasNullArg = ಸುಳ್ಳು;
+        ಗಾಗಿ (AstArg *argp = nodep->argsp(), *nextp = ಶೂನ್ಯಸೂಚಕ; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
-            if (const AstConst* const constp = VN_CAST(argp->exprp(), Const)) {
-                UASSERT_OBJ(constp->num().isNull(), constp,
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(argp->exprp(), Const)) {
+                UASSERT_OBJ(constp->ಅಂಕೆ().isNull(), constp,
                             "Non-null AstConst arg to randomize() should have been "
                             "rejected by V3Width");
-                hasNullArg = true;
-                VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+                hasNullArg = ನಿಜ;
+                VL_DO_DANGLING(argp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), argp);
             }
         }
         // This assumes arguments to always be a member sel from nodep->fromp(), if applicable
@@ -5292,96 +5292,96 @@ class RandomizeVisitor final : public VNVisitor {
         // Merge pins with common prefixes so that setting their rand mode doesn't interfere
         // with each other.
         // e.g. a.randomize(a.b, a.c, a.b.d) -> a.randomize(a.b, a.c)
-        for (AstArg *argp = nodep->argsp(), *nextp = nullptr; argp; argp = nextp) {
+        ಗಾಗಿ (AstArg *argp = nodep->argsp(), *nextp = ಶೂನ್ಯಸೂಚಕ; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
-            for (AstArg *otherArgp = nextp, *otherNextp = nullptr; otherArgp;
+            ಗಾಗಿ (AstArg *otherArgp = nextp, *otherNextp = ಶೂನ್ಯಸೂಚಕ; otherArgp;
                  otherArgp = otherNextp) {
                 otherNextp = VN_AS(otherArgp->nextp(), Arg);
-                if (AstNodeExpr* const prefixp
-                    = sliceToCommonPrefix(argp->exprp(), otherArgp->exprp())) {
-                    if (prefixp == argp->exprp()) {
-                        if (nextp == otherArgp) nextp = VN_AS(nextp->nextp(), Arg);
-                        VL_DO_DANGLING(otherArgp->unlinkFrBack()->deleteTree(), otherArgp);
-                        continue;
+                ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ prefixp
+                    = ತುಂಡು_ಗಮ್ಯ_Common_ಪೂರ್ವಪ್ರತ್ಯಯ(argp->exprp(), otherArgp->exprp())) {
+                    ಆದರೆ (prefixp == argp->exprp()) {
+                        ಆದರೆ (nextp == otherArgp) nextp = VN_AS(nextp->nextp(), Arg);
+                        VL_DO_DANGLING(otherArgp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), otherArgp);
+                        ಮುಂದುವರಿ;
                     }
                 }
-                if (AstNodeExpr* const prefixp
-                    = sliceToCommonPrefix(otherArgp->exprp(), argp->exprp())) {
-                    if (prefixp == otherArgp->exprp()) {
-                        VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
-                        break;
+                ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ prefixp
+                    = ತುಂಡು_ಗಮ್ಯ_Common_ಪೂರ್ವಪ್ರತ್ಯಯ(otherArgp->exprp(), argp->exprp())) {
+                    ಆದರೆ (prefixp == otherArgp->exprp()) {
+                        VL_DO_DANGLING(argp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), argp);
+                        ನಿಲ್ಲಿಸು;
                     }
                 }
             }
         }
         // Construct temp vars, and store and restore statements
-        std::set<AstVar*> savedRandModeVarps;
-        AstVar* tmpVarps = nullptr;
-        AstNode* storeStmtsp = nullptr;
-        AstNode* setStmtsp = nullptr;
-        AstNodeStmt* restoreStmtsp = nullptr;
-        for (AstArg *argp = nodep->argsp(), *nextp = nullptr; argp; argp = nextp) {
+        std::ಗಣ<AstVar*> saved_Rand_ಬಹುಲಕ_Varps;
+        AstVar* tmpVarps = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು* storeStmtsp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು* ಗಣ_Stmtsp = ಶೂನ್ಯಸೂಚಕ;
+        Ast_ಗಂಟು_Stmt* restoreStmtsp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (AstArg *argp = nodep->argsp(), *nextp = ಶೂನ್ಯಸೂಚಕ; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
-            AstNodeExpr* exprp = argp->exprp();
-            AstNodeExpr* const commonPrefixp = sliceToCommonPrefix(exprp, nodep);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = argp->exprp();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ commonPrefixp = ತುಂಡು_ಗಮ್ಯ_Common_ಪೂರ್ವಪ್ರತ್ಯಯ(exprp, nodep);
             UASSERT_OBJ(commonPrefixp != exprp, nodep,
                         "Common prefix should be different than pin");
-            FileLine* const fl = argp->fileline();
-            while (exprp) {
-                if (commonPrefixp == exprp) break;
-                AstVar* const randVarp = getVarFromRef(exprp);
-                AstClass* const classp = VN_AS(randVarp->user2p(), Class);
-                AstVar* const randModeVarp = randVarp->lifetime().isStatic()
-                                                 ? getStaticRandModeVar(classp)
-                                                 : getRandModeVarFromClass(classp);
-                UASSERT_OBJ(randModeVarp, randVarp,
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = argp->fileline();
+            ಆಗ (exprp) {
+                ಆದರೆ (commonPrefixp == exprp) ನಿಲ್ಲಿಸು;
+                AstVar* ಸ್ಥಿರಾಂಕ randVarp = getVarFromRef(exprp);
+                AstClass* ಸ್ಥಿರಾಂಕ classp = VN_AS(randVarp->user2p(), Class);
+                AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp = randVarp->lifetime().isStatic()
+                                                 ? get_Static_Rand_ಬಹುಲಕ_Var(classp)
+                                                 : get_Rand_ಬಹುಲಕ_Var_From_Class(classp);
+                UASSERT_OBJ(rand_ಬಹುಲಕ_Varp, randVarp,
                             "Rand var with rand_mode must have a mode array");
-                if (savedRandModeVarps.find(randModeVarp) == savedRandModeVarps.end()) {
-                    AstVar* const randModeTmpVarp
-                        = makeTmpRandModeVar(exprp, randModeVarp, storeStmtsp, restoreStmtsp);
-                    savedRandModeVarps.insert(randModeVarp);
-                    tmpVarps = AstNode::addNext(tmpVarps, randModeTmpVarp);
+                ಆದರೆ (saved_Rand_ಬಹುಲಕ_Varps.ಕಂಡುಹಿಡಿ(rand_ಬಹುಲಕ_Varp) == saved_Rand_ಬಹುಲಕ_Varps.ಕೊನೆ()) {
+                    AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Tmp_Varp
+                        = make_Tmp_Rand_ಬಹುಲಕ_Var(exprp, rand_ಬಹುಲಕ_Varp, storeStmtsp, restoreStmtsp);
+                    saved_Rand_ಬಹುಲಕ_Varps.ಸೇರಿಸು(rand_ಬಹುಲಕ_Varp);
+                    tmpVarps = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(tmpVarps, rand_ಬಹುಲಕ_Tmp_Varp);
                 }
-                const RandomizeMode randMode = {.asUQuad = randVarp->user1()};
-                AstCMethodHard* setp = new AstCMethodHard{
-                    fl, makeModeVarRef(exprp, randModeVarp, VAccess::WRITE),
-                    VCMethod::ARRAY_AT_WRITE, new AstConst{fl, randMode.index}};
-                setp->dtypeSetUInt32();
-                setStmtsp
-                    = AstNode::addNext(setStmtsp, new AstAssign{fl, setp, new AstConst{fl, 1}});
+                ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rand_ಬಹುಲಕ = {.asUQuad = randVarp->user1()};
+                AstCMethodHard* setp = ಹೊಸ AstCMethodHard{
+                    fl, make_ಬಹುಲಕ_Var_Ref(exprp, rand_ಬಹುಲಕ_Varp, VAccess::WRITE),
+                    VCMethod::ARRAY_AT_WRITE, ಹೊಸ AstConst{fl, rand_ಬಹುಲಕ.ಸೂಚ್ಯಂಕ}};
+                setp->dtype_ಗಣ_UInt32();
+                ಗಣ_Stmtsp
+                    = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(ಗಣ_Stmtsp, ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, setp, ಹೊಸ AstConst{fl, 1}});
                 exprp = getFromp(exprp);
             }
-            VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+            VL_DO_DANGLING(argp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), argp);
         }
-        if (hasNullArg) {  // Re-point to the per-class __Vrandomize_null wrapper
-            AstClass* targetClassp = nullptr;
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            if (methodCallp) {
-                const AstNodeDType* const fromDTypep = methodCallp->fromp()->dtypep();
-                const AstClassRefDType* const crdtp
+        ಆದರೆ (hasNullArg) {  // Re-point to the per-class __Vrandomize_null wrapper
+            AstClass* ಗುರಿ_Classp = ಶೂನ್ಯಸೂಚಕ;
+            Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp = VN_CAST(nodep, ವಿಧಾನ_Call);
+            ಆದರೆ (ವಿಧಾನ_Callp) {
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ fromDTypep = ವಿಧಾನ_Callp->fromp()->dtypep();
+                ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ crdtp
                     = VN_CAST(fromDTypep->skipRefp(), ClassRefDType);
                 UASSERT_OBJ(crdtp, nodep, "randomize(null) receiver is not a class type");
-                targetClassp = crdtp->classp();
-            } else {
-                targetClassp = VN_CAST(m_modp, Class);
+                ಗುರಿ_Classp = crdtp->classp();
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಗುರಿ_Classp = VN_CAST(m_modp, Class);
             }
-            UASSERT_OBJ(targetClassp, nodep, "randomize(null) target class unresolved");
-            AstFunc* const checkOnlyFuncp = getCreateRandomizeNullFunc(targetClassp);
+            UASSERT_OBJ(ಗುರಿ_Classp, nodep, "randomize(null) target class unresolved");
+            AstFunc* ಸ್ಥಿರಾಂಕ checkOnlyFuncp = getCreateRandomizeNullFunc(ಗುರಿ_Classp);
             nodep->name(checkOnlyFuncp->name());
             nodep->taskp(checkOnlyFuncp);
             nodep->dtypeFrom(checkOnlyFuncp->dtypep());
         }
-        if (tmpVarps) {
-            UASSERT_OBJ(storeStmtsp && setStmtsp && restoreStmtsp, nodep, "Should have stmts");
+        ಆದರೆ (tmpVarps) {
+            UASSERT_OBJ(storeStmtsp && ಗಣ_Stmtsp && restoreStmtsp, nodep, "Should have stmts");
             VNRelinker relinker;
-            m_stmtp->unlinkFrBack(&relinker);
-            AstNode* const stmtsp = storeStmtsp;
-            stmtsp->addNext(setStmtsp);
-            stmtsp->addNext(m_stmtp);
-            stmtsp->addNext(restoreStmtsp);
+            m_stmtp->unlink_Fr_ಹಿಂಭಾಗ(&relinker);
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp = storeStmtsp;
+            stmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(ಗಣ_Stmtsp);
+            stmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(m_stmtp);
+            stmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(restoreStmtsp);
             relinker.relink(stmtsp);
             // After relinking, so the function body is complete
-            addTempVarsp(tmpVarps);
+            ಕೂಡಿಸು_ತಾತ್ಕಾಲಿಕ_Varsp(tmpVarps);
         }
     }
 
@@ -5396,751 +5396,751 @@ class RandomizeVisitor final : public VNVisitor {
     //        `__Vsetup_constraints`, then `fvar = gen.next_check_only(rng)`.
     //   3. if (fvar) post_randomize() -- IEEE 1800-2023 18.6.3 says
     //      post_randomize is not called when randomize() fails.
-    AstFunc* getCreateRandomizeNullFunc(AstClass* const classp) {
-        static constexpr const char* const name = "__Vrandomize_null";
-        if (AstFunc* const existingp = VN_AS(m_memberMap.findMember(classp, name), Func)) {
-            return existingp;
+    AstFunc* getCreateRandomizeNullFunc(AstClass* ಸ್ಥಿರಾಂಕ classp) {
+        ಸ್ಥಿರ constexpr ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ name = "__Vrandomize_null";
+        ಆದರೆ (AstFunc* ಸ್ಥಿರಾಂಕ existingp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, name), Func)) {
+            ಹಿಂತಿರುಗಿ existingp;
         }
-        FileLine* const fl = classp->fileline();
-        AstFunc* const funcp = V3Randomize::newRandomizeFunc(m_memberMap, classp, name);
-        AstVar* const fvarp = VN_AS(funcp->fvarp(), Var);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = classp->fileline();
+        AstFunc* ಸ್ಥಿರಾಂಕ funcp = V3Randomize::newRandomizeFunc(m_memberMap, classp, name);
+        AstVar* ಸ್ಥಿರಾಂಕ fvarp = VN_AS(funcp->fvarp(), Var);
 
         // 1. pre_randomize -- always
-        addPrePostCall(classp, funcp, "pre_randomize");
+        ಕೂಡಿಸು_Pre_Post_Call(classp, funcp, "pre_randomize");
 
         // 2. Compute result
-        AstVar* const classGenp = getRandomGenerator(classp);
-        if (!classGenp) {
-            funcp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, fvarp, VAccess::WRITE},
-                                           new AstConst{fl, AstConst::WidthedValue{}, 32, 1}});
-        } else {
-            AstNodeModule* const genModp = VN_AS(classGenp->user2p(), NodeModule);
-            funcp->addStmtsp(implementConstraintsClear(fl, classGenp));
-            AstTask* const setupAllTaskp = getCreateConstraintSetupFunc(classp, m_memberMap);
-            funcp->addStmtsp((new AstTaskRef{fl, setupAllTaskp})->makeStmt());
-            AstCExpr* const solverCallp = new AstCExpr{fl};
-            solverCallp->dtypeSetBit();
-            solverCallp->add(new AstVarRef{fl, genModp, classGenp, VAccess::READWRITE});
-            solverCallp->add(".next_check_only(__Vm_rng)");
-            funcp->addStmtsp(
-                new AstAssign{fl, new AstVarRef{fl, fvarp, VAccess::WRITE}, solverCallp});
-            classp->needRNG(true);
+        AstVar* ಸ್ಥಿರಾಂಕ classGenp = getRandomGenerator(classp);
+        ಆದರೆ (!classGenp) {
+            funcp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, fvarp, VAccess::WRITE},
+                                           ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1}});
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ genModp = VN_AS(classGenp->user2p(), ಗಂಟು_Module);
+            funcp->ಕೂಡಿಸು_Stmtsp(implementConstraintsClear(fl, classGenp));
+            AstTask* ಸ್ಥಿರಾಂಕ ಸಿದ್ಧತೆ_All_Taskp = get_Create_Constraint_ಸಿದ್ಧತೆ_Func(classp, m_memberMap);
+            funcp->ಕೂಡಿಸು_Stmtsp((ಹೊಸ AstTaskRef{fl, ಸಿದ್ಧತೆ_All_Taskp})->makeStmt());
+            AstCExpr* ಸ್ಥಿರಾಂಕ solverCallp = ಹೊಸ AstCExpr{fl};
+            solverCallp->dtype_ಗಣ_ಬಿಟ್();
+            solverCallp->ಕೂಡಿಸು(ಹೊಸ AstVarRef{fl, genModp, classGenp, VAccess::READWRITE});
+            solverCallp->ಕೂಡಿಸು(".next_check_only(__Vm_rng)");
+            funcp->ಕೂಡಿಸು_Stmtsp(
+                ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, fvarp, VAccess::WRITE}, solverCallp});
+            classp->needRNG(ನಿಜ);
         }
 
         // 3. post_randomize -- only if result is non-zero
-        if (AstTask* const userPostp = findPrePostTask(classp, "post_randomize")) {
-            AstTaskRef* const callp = new AstTaskRef{userPostp->fileline(), userPostp};
-            funcp->addStmtsp(
-                new AstIf{fl, new AstVarRef{fl, fvarp, VAccess::READ}, callp->makeStmt()});
+        ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ userPostp = ಕಂಡುಹಿಡಿ_Pre_Post_Task(classp, "post_randomize")) {
+            AstTaskRef* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstTaskRef{userPostp->fileline(), userPostp};
+            funcp->ಕೂಡಿಸು_Stmtsp(
+                ಹೊಸ AstIf{fl, ಹೊಸ AstVarRef{fl, fvarp, VAccess::READ}, callp->makeStmt()});
         }
 
-        return funcp;
+        ಹಿಂತಿರುಗಿ funcp;
     }
 
     // Rewrite a LogIf-of-Dist chain into nested AstConstraintIf. The outermost
     // AstLogIf shell is left for the caller's AstConstraintExpr to free; inner
     // shells are deleted here once their children are transplanted.
-    AstConstraintIf* liftLogIfChainToConstraintIf(AstLogIf* logIfp) {
-        FileLine* const fl = logIfp->fileline();
-        AstNodeExpr* const condp = logIfp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = logIfp->rhsp()->unlinkFrBack();
-        AstNode* thenBodyp;
-        if (AstLogIf* const innerLogIfp = VN_CAST(rhsp, LogIf)) {
-            thenBodyp = liftLogIfChainToConstraintIf(innerLogIfp);
-            VL_DO_DANGLING(pushDeletep(innerLogIfp), innerLogIfp);
-        } else {
-            thenBodyp = new AstConstraintExpr{fl, rhsp};
+    AstConstraintIf* lift_Log_If_Chain_ಗಮ್ಯ_Constraint_If(AstLogIf* logIfp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = logIfp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp = logIfp->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = logIfp->rhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        Ast_ಗಂಟು* thenBodyp;
+        ಆದರೆ (AstLogIf* ಸ್ಥಿರಾಂಕ innerLogIfp = VN_CAST(rhsp, LogIf)) {
+            thenBodyp = lift_Log_If_Chain_ಗಮ್ಯ_Constraint_If(innerLogIfp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(innerLogIfp), innerLogIfp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            thenBodyp = ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, rhsp};
         }
-        return new AstConstraintIf{fl, condp, thenBodyp, nullptr};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstConstraintIf{fl, condp, thenBodyp, ಶೂನ್ಯಸೂಚಕ};
     }
 
-    static bool distBoundRefsRandVar(const AstNode* boundp) {
-        return boundp->exists(
-            [](const AstVarRef* vrefp) { return vrefp->varp()->rand().isRandomizable(); });
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ distBoundRefsRandVar(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* boundp) {
+        ಹಿಂತಿರುಗಿ boundp->exists(
+            [](ಸ್ಥಿರಾಂಕ AstVarRef* vrefp) { ಹಿಂತಿರುಗಿ vrefp->varp()->rand().isRandomizable(); });
     }
 
-    static bool distBoundRefsModeVar(const AstNode* boundp) {
-        return boundp->exists([](const AstVarRef* vrefp) {
-            if (!vrefp->varp()->rand().isRandomizable()) return false;
-            const RandomizeMode rmode = {.asUQuad = vrefp->varp()->user1()};
-            return rmode.usesMode;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ dist_Bound_Refs_ಬಹುಲಕ_Var(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* boundp) {
+        ಹಿಂತಿರುಗಿ boundp->exists([](ಸ್ಥಿರಾಂಕ AstVarRef* vrefp) {
+            ಆದರೆ (!vrefp->varp()->rand().isRandomizable()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+            ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = vrefp->varp()->user1()};
+            ಹಿಂತಿರುಗಿ rmode.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ;
         });
     }
 
     // (distExpr >= lo) && (distExpr <= hi); signed comparisons for signed vars
-    static AstNodeExpr* newDistRangeMembership(AstDist* distp, const AstInsideRange* irp) {
-        FileLine* const fl = distp->fileline();
-        const bool isSigned = distp->exprp()->isSigned();
-        AstNodeExpr* const distExprGtep = distp->exprp()->cloneTreePure(false);
-        AstNodeExpr* const distExprLtep = distp->exprp()->cloneTreePure(false);
-        distExprGtep->user1(true);
-        distExprLtep->user1(true);
-        AstNodeExpr* const gep
-            = isSigned ? static_cast<AstNodeExpr*>(
-                             new AstGteS{fl, distExprGtep, irp->lhsp()->cloneTreePure(false)})
-                       : static_cast<AstNodeExpr*>(
-                             new AstGte{fl, distExprGtep, irp->lhsp()->cloneTreePure(false)});
-        AstNodeExpr* const lep
-            = isSigned ? static_cast<AstNodeExpr*>(
-                             new AstLteS{fl, distExprLtep, irp->rhsp()->cloneTreePure(false)})
-                       : static_cast<AstNodeExpr*>(
-                             new AstLte{fl, distExprLtep, irp->rhsp()->cloneTreePure(false)});
-        gep->user1(true);
-        lep->user1(true);
-        AstNodeExpr* const andp = new AstLogAnd{fl, gep, lep};
-        andp->user1(true);
-        return andp;
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newDistRangeMembership(AstDist* distp, ಸ್ಥಿರಾಂಕ AstInsideRange* irp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isSigned = distp->exprp()->isSigned();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ dist_ಅಭಿವ್ಯಕ್ತಿ_Gtep = distp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ dist_ಅಭಿವ್ಯಕ್ತಿ_Ltep = distp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+        dist_ಅಭಿವ್ಯಕ್ತಿ_Gtep->user1(ನಿಜ);
+        dist_ಅಭಿವ್ಯಕ್ತಿ_Ltep->user1(ನಿಜ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ gep
+            = isSigned ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                             ಹೊಸ AstGteS{fl, dist_ಅಭಿವ್ಯಕ್ತಿ_Gtep, irp->lhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)})
+                       : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                             ಹೊಸ AstGte{fl, dist_ಅಭಿವ್ಯಕ್ತಿ_Gtep, irp->lhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)});
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lep
+            = isSigned ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                             ಹೊಸ AstLteS{fl, dist_ಅಭಿವ್ಯಕ್ತಿ_Ltep, irp->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)})
+                       : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                             ಹೊಸ AstLte{fl, dist_ಅಭಿವ್ಯಕ್ತಿ_Ltep, irp->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)});
+        gep->user1(ನಿಜ);
+        lep->user1(ನಿಜ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ andp = ಹೊಸ AstLogAnd{fl, gep, lep};
+        andp->user1(ನಿಜ);
+        ಹಿಂತಿರುಗಿ andp;
     }
 
-    struct DistBucket final {
-        AstNodeExpr* rangep;  // A single value or an InsideRange
-        AstNodeExpr* weightExprp;  // Effective 64-bit weight (range weight scaled by size)
+    ರಚನೆ Dist_ಪಾತ್ರೆ final {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rangep;  // A single value or an InsideRange
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ತೂಕ_Exprp;  // Effective 64-bit weight (range weight scaled by size)
     };
 
     // Non-zero-weight buckets with each weight extended to 64 bits.
-    std::vector<DistBucket> collectDistBuckets(AstDist* const distp) {
-        FileLine* const fl = distp->fileline();
-        std::vector<DistBucket> buckets;
-        for (AstDistItem* ditemp = distp->itemsp(); ditemp;
-             ditemp = VN_AS(ditemp->nextp(), DistItem)) {
-            if (const AstConst* const constp = VN_CAST(ditemp->weightp(), Const)) {
-                if (constp->toUQuad() == 0) continue;
+    std::ಸದಿಶ<Dist_ಪಾತ್ರೆ> collectDistBuckets(AstDist* ಸ್ಥಿರಾಂಕ distp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        std::ಸದಿಶ<Dist_ಪಾತ್ರೆ> buckets;
+        ಗಾಗಿ (Ast_Dist_ಅಂಶ* ditemp = distp->itemsp(); ditemp;
+             ditemp = VN_AS(ditemp->nextp(), Dist_ಅಂಶ)) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(ditemp->weightp(), Const)) {
+                ಆದರೆ (constp->ಗಮ್ಯ_UQuad() == 0) ಮುಂದುವರಿ;
             }
-            AstNodeExpr* weightExprp
-                = new AstExtend{fl, ditemp->weightp()->cloneTreePure(false), 64};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ತೂಕ_Exprp
+                = ಹೊಸ AstExtend{fl, ditemp->weightp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), 64};
             // := on a range weights every element, so scale by the range size.
-            if (!ditemp->isWhole()) {
-                if (const AstInsideRange* const irp = VN_CAST(ditemp->rangep(), InsideRange)) {
-                    const AstConst* const lop = VN_CAST(irp->lhsp(), Const);
-                    const AstConst* const hip = VN_CAST(irp->rhsp(), Const);
-                    AstNodeExpr* rangeSizep;
-                    if (lop && hip) {
-                        const uint64_t rangeSize = hip->toUQuad() - lop->toUQuad() + 1;
-                        rangeSizep = new AstConst{fl, AstConst::Unsized64{}, rangeSize};
-                    } else {
-                        rangeSizep = new AstAdd{
-                            fl, new AstConst{fl, AstConst::Unsized64{}, 1},
-                            new AstSub{fl,
-                                       new AstExtend{fl, irp->rhsp()->cloneTreePure(false), 64},
-                                       new AstExtend{fl, irp->lhsp()->cloneTreePure(false), 64}}};
+            ಆದರೆ (!ditemp->is_ಸಂಪೂರ್ಣ()) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstInsideRange* ಸ್ಥಿರಾಂಕ irp = VN_CAST(ditemp->rangep(), InsideRange)) {
+                    ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ lop = VN_CAST(irp->lhsp(), Const);
+                    ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ hip = VN_CAST(irp->rhsp(), Const);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rangeSizep;
+                    ಆದರೆ (lop && hip) {
+                        ಸ್ಥಿರಾಂಕ uint64_t range_ಗಾತ್ರ = hip->ಗಮ್ಯ_UQuad() - lop->ಗಮ್ಯ_UQuad() + 1;
+                        rangeSizep = ಹೊಸ AstConst{fl, AstConst::Unsized64{}, range_ಗಾತ್ರ};
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        rangeSizep = ಹೊಸ Ast_ಕೂಡಿಸು{
+                            fl, ಹೊಸ AstConst{fl, AstConst::Unsized64{}, 1},
+                            ಹೊಸ AstSub{fl,
+                                       ಹೊಸ AstExtend{fl, irp->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), 64},
+                                       ಹೊಸ AstExtend{fl, irp->lhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), 64}}};
                     }
-                    weightExprp = new AstMul{fl, weightExprp, rangeSizep};
+                    ತೂಕ_Exprp = ಹೊಸ AstMul{fl, ತೂಕ_Exprp, rangeSizep};
                 }
             }
-            buckets.push_back({ditemp->rangep(), weightExprp});
+            buckets.ತಳ್ಳು_ಹಿಂಭಾಗ({ditemp->rangep(), ತೂಕ_Exprp});
         }
-        return buckets;
+        ಹಿಂತಿರುಗಿ buckets;
     }
 
     // Membership test for one bucket: a range comparison or an equality.
-    static AstNodeExpr* newDistMembershipTerm(AstDist* distp, AstNodeExpr* rangep) {
-        if (const AstInsideRange* const irp = VN_CAST(rangep, InsideRange)) {
-            return newDistRangeMembership(distp, irp);
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_Dist_Membership_ಪದ(AstDist* distp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rangep) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstInsideRange* ಸ್ಥಿರಾಂಕ irp = VN_CAST(rangep, InsideRange)) {
+            ಹಿಂತಿರುಗಿ newDistRangeMembership(distp, irp);
         }
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* const eqExprp = distp->exprp()->cloneTreePure(false);
-        eqExprp->user1(true);
-        AstNodeExpr* const eqp = new AstEq{fl, eqExprp, rangep->cloneTreePure(false)};
-        eqp->user1(true);
-        return eqp;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ eqExprp = distp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+        eqExprp->user1(ನಿಜ);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ eqp = ಹೊಸ AstEq{fl, eqExprp, rangep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+        eqp->user1(ನಿಜ);
+        ಹಿಂತಿರುಗಿ eqp;
     }
 
     // Hard constraint that the dist value stays inside the union of its ranges
     // (IEEE 1800-2023 18.5.3: values outside the set must never appear).
-    AstConstraintExpr* buildDistMembership(AstDist* distp,
-                                           const std::vector<DistBucket>& buckets) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* unionExprp = nullptr;
-        for (const auto& bucket : buckets) {
-            AstNodeExpr* const memberp = newDistMembershipTerm(distp, bucket.rangep);
-            if (!unionExprp) {
+    Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* buildDistMembership(AstDist* distp,
+                                           ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Dist_ಪಾತ್ರೆ>& buckets) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* unionExprp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ಪಾತ್ರೆ : buckets) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ memberp = new_Dist_Membership_ಪದ(distp, ಪಾತ್ರೆ.rangep);
+            ಆದರೆ (!unionExprp) {
                 unionExprp = memberp;
-            } else {
-                unionExprp = new AstLogOr{fl, memberp, unionExprp};
-                unionExprp->user1(true);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                unionExprp = ಹೊಸ AstLogOr{fl, memberp, unionExprp};
+                unionExprp->user1(ನಿಜ);
             }
         }
-        return new AstConstraintExpr{fl, unionExprp};
+        ಹಿಂತಿರುಗಿ ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, unionExprp};
     }
 
     // Gate junction with constants folded and identical terms merged.
-    AstNodeExpr* newGateJoin(FileLine* fl, AstNodeExpr* ap, AstNodeExpr* bp, bool isAnd) {
-        if (ap->sameTree(bp)) {
-            VL_DO_DANGLING(pushDeletep(bp), bp);
-            return ap;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newGateJoin(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ap, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bp, ತಾರ್ಕಿಕ isAnd) {
+        ಆದರೆ (ap->same_ವೃಕ್ಷ(bp)) {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(bp), bp);
+            ಹಿಂತಿರುಗಿ ap;
         }
-        if (VN_IS(bp, Const)) std::swap(ap, bp);
-        if (VN_IS(ap, Const)) {
-            const bool constWins = VN_AS(ap, Const)->isZero() == isAnd;
-            if (!constWins) std::swap(ap, bp);
-            VL_DO_DANGLING(pushDeletep(bp), bp);
-            return ap;
+        ಆದರೆ (VN_IS(bp, Const)) std::ಅದಲುಬದಲು(ap, bp);
+        ಆದರೆ (VN_IS(ap, Const)) {
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ constWins = VN_AS(ap, Const)->isZero() == isAnd;
+            ಆದರೆ (!constWins) std::ಅದಲುಬದಲು(ap, bp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(bp), bp);
+            ಹಿಂತಿರುಗಿ ap;
         }
-        if (isAnd) return new AstLogAnd{fl, ap, bp};
-        return new AstLogOr{fl, ap, bp};
+        ಆದರೆ (isAnd) ಹಿಂತಿರುಗಿ ಹೊಸ AstLogAnd{fl, ap, bp};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstLogOr{fl, ap, bp};
     }
-    AstNodeExpr* newGateOr(FileLine* fl, AstNodeExpr* ap, AstNodeExpr* bp) {
-        return newGateJoin(fl, ap, bp, false);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newGateOr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ap, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bp) {
+        ಹಿಂತಿರುಗಿ newGateJoin(fl, ap, bp, ಸುಳ್ಳು);
     }
-    AstNodeExpr* newGateAnd(FileLine* fl, AstNodeExpr* ap, AstNodeExpr* bp) {
-        return newGateJoin(fl, ap, bp, true);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newGateAnd(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ap, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bp) {
+        ಹಿಂತಿರುಗಿ newGateJoin(fl, ap, bp, ನಿಜ);
     }
 
     // The rand_mode bit of varp: static class var, owner object's array via the
     // member select, or this object's array.
-    AstNodeExpr* newModeBitRead(AstVar* varp, const AstMemberSel* mselp, AstVar* randModeVarp,
-                                FileLine* fl) {
-        AstNodeExpr* arrayp = nullptr;
-        if (varp->lifetime().isStatic()) {
-            AstClass* const ownerp = VN_CAST(varp->user2p(), Class);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_ಬಹುಲಕ_ಬಿಟ್_Read(AstVar* varp, ಸ್ಥಿರಾಂಕ AstMemberSel* mselp, AstVar* rand_ಬಹುಲಕ_Varp,
+                                File_ಸಾಲು* fl) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* arrayp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (varp->lifetime().isStatic()) {
+            AstClass* ಸ್ಥಿರಾಂಕ ownerp = VN_CAST(varp->user2p(), Class);
             UASSERT_OBJ(ownerp, varp, "usesMode static var without an owning class");
-            AstVar* const smodep = getStaticRandModeVar(ownerp);
+            AstVar* ಸ್ಥಿರಾಂಕ smodep = get_Static_Rand_ಬಹುಲಕ_Var(ownerp);
             UASSERT_OBJ(smodep, varp, "usesMode static var without a static rand-mode array");
-            arrayp = new AstVarRef{fl, VN_AS(smodep->user2p(), NodeModule), smodep, VAccess::READ};
-        } else if (mselp) {
-            AstVar* const memberModep = getRandModeVarFromClass(VN_AS(varp->user2p(), NodeModule));
+            arrayp = ಹೊಸ AstVarRef{fl, VN_AS(smodep->user2p(), ಗಂಟು_Module), smodep, VAccess::READ};
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (mselp) {
+            AstVar* ಸ್ಥಿರಾಂಕ memberModep = get_Rand_ಬಹುಲಕ_Var_From_Class(VN_AS(varp->user2p(), ಗಂಟು_Module));
             UASSERT_OBJ(memberModep, varp, "usesMode member without a class rand-mode array");
-            arrayp = new AstMemberSel{fl, mselp->fromp()->cloneTreePure(false), memberModep};
-        } else {
-            UASSERT_OBJ(randModeVarp, varp, "rand_mode variable without a class mode array");
-            arrayp = new AstVarRef{fl, VN_AS(randModeVarp->user2p(), NodeModule), randModeVarp,
+            arrayp = ಹೊಸ AstMemberSel{fl, mselp->fromp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), memberModep};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            UASSERT_OBJ(rand_ಬಹುಲಕ_Varp, varp, "rand_mode variable without a class mode array");
+            arrayp = ಹೊಸ AstVarRef{fl, VN_AS(rand_ಬಹುಲಕ_Varp->user2p(), ಗಂಟು_Module), rand_ಬಹುಲಕ_Varp,
                                    VAccess::READ};
         }
-        const RandomizeMode rmode = {.asUQuad = varp->user1()};
-        AstCMethodHard* const atp
-            = new AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, new AstConst{fl, rmode.index}};
-        atp->dtypeSetUInt32();
-        return atp;
+        ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = varp->user1()};
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ atp
+            = ಹೊಸ AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, ಹೊಸ AstConst{fl, rmode.ಸೂಚ್ಯಂಕ}};
+        atp->dtype_ಗಣ_UInt32();
+        ಹಿಂತಿರುಗಿ atp;
     }
 
     // The rand_mode bit of one variable access, or a constant when it has none.
     // A non-rand value can never be re-drawn; a non-rand owner level is skipped.
-    AstNodeExpr* newVarGate(AstVar* varp, const AstMemberSel* mselp, bool ownerLevel,
-                            AstVar* randModeVarp, FileLine* fl) {
-        if (!varp->rand().isRandomizable()) {
-            return new AstConst{fl, AstConst::BitTrue{}, ownerLevel};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newVarGate(AstVar* varp, ಸ್ಥಿರಾಂಕ AstMemberSel* mselp, ತಾರ್ಕಿಕ ownerLevel,
+                            AstVar* rand_ಬಹುಲಕ_Varp, File_ಸಾಲು* fl) {
+        ಆದರೆ (!varp->rand().isRandomizable()) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}, ownerLevel};
         }
-        const RandomizeMode rmode = {.asUQuad = varp->user1()};
-        if (!rmode.usesMode) return new AstConst{fl, AstConst::BitTrue{}};
-        return newModeBitRead(varp, mselp, randModeVarp, fl);
+        ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = varp->user1()};
+        ಆದರೆ (!rmode.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}};
+        ಹಿಂತಿರುಗಿ new_ಬಹುಲಕ_ಬಿಟ್_Read(varp, mselp, rand_ಬಹುಲಕ_Varp, fl);
     }
 
     // Change bit of one variable access, ANDed level by level down the
     // member-select owner path.
-    AstNodeExpr* newAccessGate(const AstNode* nodep, bool ownerLevel, AstVar* randModeVarp,
-                               FileLine* fl) {
-        if (const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel)) {
-            return newGateAnd(fl, newVarGate(mselp->varp(), mselp, ownerLevel, randModeVarp, fl),
-                              newAccessGate(mselp->fromp(), true, randModeVarp, fl));
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newAccessGate(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ ownerLevel, AstVar* rand_ಬಹುಲಕ_Varp,
+                               File_ಸಾಲು* fl) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstMemberSel* ಸ್ಥಿರಾಂಕ mselp = VN_CAST(nodep, MemberSel)) {
+            ಹಿಂತಿರುಗಿ newGateAnd(fl, newVarGate(mselp->varp(), mselp, ownerLevel, rand_ಬಹುಲಕ_Varp, fl),
+                              newAccessGate(mselp->fromp(), ನಿಜ, rand_ಬಹುಲಕ_Varp, fl));
         }
-        if (const AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
-            return newVarGate(refp->varp(), nullptr, ownerLevel, randModeVarp, fl);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ refp = VN_CAST(nodep, ಗಂಟು_Var_Ref)) {
+            ಹಿಂತಿರುಗಿ newVarGate(refp->varp(), ಶೂನ್ಯಸೂಚಕ, ownerLevel, rand_ಬಹುಲಕ_Varp, fl);
         }
-        if (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-            return newAccessGate(selp->fromp(), true, randModeVarp, fl);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Sel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, ಗಂಟು_Sel)) {
+            ಹಿಂತಿರುಗಿ newAccessGate(selp->fromp(), ನಿಜ, rand_ಬಹುಲಕ_Varp, fl);
         }
-        if (distBoundRefsModeVar(nodep)) {
+        ಆದರೆ (dist_Bound_Refs_ಬಹುಲಕ_Var(nodep)) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: 'rand_mode' on a variable used inside this form of"
                           " 'dist' expression");
         }
-        return new AstConst{fl, AstConst::BitTrue{}};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}};
     }
 
     // Gate of one dist expression node: nonzero while its value can still be
     // freshly drawn. Constant when no runtime rand_mode bit is involved.
-    AstNodeExpr* newDistGate(const AstNode* nodep, AstVar* randModeVarp, FileLine* fl) {
-        if (VN_IS(nodep, NodeVarRef) || VN_IS(nodep, MemberSel)) {
-            return newAccessGate(nodep, false, randModeVarp, fl);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newDistGate(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep, AstVar* rand_ಬಹುಲಕ_Varp, File_ಸಾಲು* fl) {
+        ಆದರೆ (VN_IS(nodep, ಗಂಟು_Var_Ref) || VN_IS(nodep, MemberSel)) {
+            ಹಿಂತಿರುಗಿ newAccessGate(nodep, ಸುಳ್ಳು, rand_ಬಹುಲಕ_Varp, fl);
         }
         // A selection is drawn through its base; the index never gates.
-        if (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-            return newDistGate(selp->fromp(), randModeVarp, fl);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Sel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, ಗಂಟು_Sel)) {
+            ಹಿಂತಿರುಗಿ newDistGate(selp->fromp(), rand_ಬಹುಲಕ_Varp, fl);
         }
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return newDistGate(selp->fromp(), randModeVarp, fl);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, Sel)) {
+            ಹಿಂತಿರುಗಿ newDistGate(selp->fromp(), rand_ಬಹುಲಕ_Varp, fl);
         }
-        if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
-            return newDistGate(selp->fromp(), randModeVarp, fl);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, StructSel)) {
+            ಹಿಂತಿರುಗಿ newDistGate(selp->fromp(), rand_ಬಹುಲಕ_Varp, fl);
         }
-        if (const AstCMethodHard* const methodp = VN_CAST(nodep, CMethodHard)) {
-            if (methodp->method() == VCMethod::ARRAY_AT
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp = VN_CAST(nodep, CMethodHard)) {
+            ಆದರೆ (methodp->ವಿಧಾನ() == VCMethod::ARRAY_AT
                 && VN_IS(methodp->fromp()->dtypep()->skipRefp(),  // LCOV_EXCL_BR_LINE
                          DynArrayDType)) {  // Queue form is rejected before dist lowering
-                return newDistGate(methodp->fromp(), randModeVarp, fl);
+                ಹಿಂತಿರುಗಿ newDistGate(methodp->fromp(), rand_ಬಹುಲಕ_Varp, fl);
             }
         }
         // A conditional re-draws through an active selector or the selected arm.
-        if (const AstCond* const condp = VN_CAST(nodep, Cond)) {
-            AstNodeExpr* const thenGatep = newDistGate(condp->thenp(), randModeVarp, fl);
-            AstNodeExpr* const elseGatep = newDistGate(condp->elsep(), randModeVarp, fl);
-            AstNodeExpr* armGatep = thenGatep;
-            if (thenGatep->sameTree(elseGatep)) {
-                VL_DO_DANGLING(pushDeletep(elseGatep), elseGatep);
-            } else {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstCond* ಸ್ಥಿರಾಂಕ condp = VN_CAST(nodep, Cond)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ thenGatep = newDistGate(condp->thenp(), rand_ಬಹುಲಕ_Varp, fl);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ elseGatep = newDistGate(condp->elsep(), rand_ಬಹುಲಕ_Varp, fl);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* armGatep = thenGatep;
+            ಆದರೆ (thenGatep->same_ವೃಕ್ಷ(elseGatep)) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(elseGatep), elseGatep);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 armGatep
-                    = new AstCond{fl, condp->condp()->cloneTreePure(false), thenGatep, elseGatep};
+                    = ಹೊಸ AstCond{fl, condp->condp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), thenGatep, elseGatep};
             }
-            return newGateOr(fl, newDistGate(condp->condp(), randModeVarp, fl), armGatep);
+            ಹಿಂತಿರುಗಿ newGateOr(fl, newDistGate(condp->condp(), rand_ಬಹುಲಕ_Varp, fl), armGatep);
         }
-        if (const AstNodeUniop* const uopp = VN_CAST(nodep, NodeUniop)) {
-            return newDistGate(uopp->lhsp(), randModeVarp, fl);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Uniop* ಸ್ಥಿರಾಂಕ uopp = VN_CAST(nodep, ಗಂಟು_Uniop)) {
+            ಹಿಂತಿರುಗಿ newDistGate(uopp->lhsp(), rand_ಬಹುಲಕ_Varp, fl);
         }
-        if (const AstNodeBiop* const bopp = VN_CAST(nodep, NodeBiop)) {
-            return newGateOr(fl, newDistGate(bopp->lhsp(), randModeVarp, fl),
-                             newDistGate(bopp->rhsp(), randModeVarp, fl));
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Biop* ಸ್ಥಿರಾಂಕ bopp = VN_CAST(nodep, ಗಂಟು_Biop)) {
+            ಹಿಂತಿರುಗಿ newGateOr(fl, newDistGate(bopp->lhsp(), rand_ಬಹುಲಕ_Varp, fl),
+                             newDistGate(bopp->rhsp(), rand_ಬಹುಲಕ_Varp, fl));
         }
-        if (distBoundRefsModeVar(nodep)) {
+        ಆದರೆ (dist_Bound_Refs_ಬಹುಲಕ_Var(nodep)) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: 'rand_mode' on a variable used inside this form of"
                           " 'dist' expression");
         }
         // Constants and remaining forms re-draw only if a rand var is inside.
-        return new AstConst{fl, AstConst::BitTrue{}, distBoundRefsRandVar(nodep)};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}, distBoundRefsRandVar(nodep)};
     }
 
     // Membership union of the dist set, with runtime-zero weights excluded.
-    AstConstraintExpr* buildFrozenMembership(AstDist* distp,
-                                             const std::vector<DistBucket>& buckets) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* unionExprp = nullptr;
-        for (const auto& bucket : buckets) {
-            AstNodeExpr* termp = newDistMembershipTerm(distp, bucket.rangep);
+    Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* buildFrozenMembership(AstDist* distp,
+                                             ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Dist_ಪಾತ್ರೆ>& buckets) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* unionExprp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ಪಾತ್ರೆ : buckets) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* termp = new_Dist_Membership_ಪದ(distp, ಪಾತ್ರೆ.rangep);
             // A weight that is zero only at runtime excludes the bucket's values too.
-            const bool runtimeWeight
-                = bucket.weightExprp->exists([](const AstNodeVarRef*) { return true; });
-            if (runtimeWeight) {
-                AstNeq* const nzp = new AstNeq{fl, bucket.weightExprp->cloneTreePure(false),
-                                               new AstConst{fl, AstConst::Unsized64{}, 0}};
-                nzp->user1(true);
-                termp = new AstLogAnd{fl, termp, nzp};
-                termp->user1(true);
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ runtime_ತೂಕ
+                = ಪಾತ್ರೆ.ತೂಕ_Exprp->exists([](ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref*) { ಹಿಂತಿರುಗಿ ನಿಜ; });
+            ಆದರೆ (runtime_ತೂಕ) {
+                AstNeq* ಸ್ಥಿರಾಂಕ nzp = ಹೊಸ AstNeq{fl, ಪಾತ್ರೆ.ತೂಕ_Exprp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                                               ಹೊಸ AstConst{fl, AstConst::Unsized64{}, 0}};
+                nzp->user1(ನಿಜ);
+                termp = ಹೊಸ AstLogAnd{fl, termp, nzp};
+                termp->user1(ನಿಜ);
             }
-            if (unionExprp) {
-                unionExprp = new AstLogOr{fl, unionExprp, termp};
-                unionExprp->user1(true);
-            } else {
+            ಆದರೆ (unionExprp) {
+                unionExprp = ಹೊಸ AstLogOr{fl, unionExprp, termp};
+                unionExprp->user1(ನಿಜ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 unionExprp = termp;
             }
         }
-        return new AstConstraintExpr{fl, unionExprp};
+        ಹಿಂತಿರುಗಿ ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, unionExprp};
     }
 
     // Weighted chain while the dist value can still be freshly drawn, membership
     // once it is frozen; membership only when it can never be re-drawn.
-    AstNode* gateFrozenDist(AstNode* chainp, AstDist* distp,
-                            const std::vector<DistBucket>& buckets, AstVar* randModeVarp) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* gatep = newDistGate(distp->exprp(), randModeVarp, fl);
-        if (VN_IS(gatep, Const)) {
-            const bool drawable = !VN_AS(gatep, Const)->isZero();
-            VL_DO_DANGLING(pushDeletep(gatep), gatep);
-            if (drawable) return chainp;
-            VL_DO_DANGLING(pushDeletep(chainp), chainp);
-            return buildFrozenMembership(distp, buckets);
+    Ast_ಗಂಟು* gateFrozenDist(Ast_ಗಂಟು* chainp, AstDist* distp,
+                            ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Dist_ಪಾತ್ರೆ>& buckets, AstVar* rand_ಬಹುಲಕ_Varp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* gatep = newDistGate(distp->exprp(), rand_ಬಹುಲಕ_Varp, fl);
+        ಆದರೆ (VN_IS(gatep, Const)) {
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ drawable = !VN_AS(gatep, Const)->isZero();
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(gatep), gatep);
+            ಆದರೆ (drawable) ಹಿಂತಿರುಗಿ chainp;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(chainp), chainp);
+            ಹಿಂತಿರುಗಿ buildFrozenMembership(distp, buckets);
         }
-        return new AstConstraintIf{fl, gatep, chainp, buildFrozenMembership(distp, buckets)};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstConstraintIf{fl, gatep, chainp, buildFrozenMembership(distp, buckets)};
     }
 
-    AstNodeExpr* newUniformRangePick(AstDist* distp, const AstInsideRange* irp) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* const distExprCopyp = distp->exprp()->cloneTreePure(false);
-        distExprCopyp->user1(true);
-        const int distWidth = distp->exprp()->width();
-        const AstConst* const lopC = VN_CAST(irp->lhsp(), Const);
-        const AstConst* const hipC = VN_CAST(irp->rhsp(), Const);
-        AstNodeExpr* rangeSzp;
-        if (lopC && hipC) {
-            const uint64_t rsz = hipC->toUQuad() - lopC->toUQuad() + 1;
-            rangeSzp = new AstConst{fl, AstConst::Unsized64{}, rsz};
-        } else {
-            const bool isSigned = irp->lhsp()->isSigned();
-            AstNodeExpr* const lo64p
-                = isSigned ? static_cast<AstNodeExpr*>(
-                                 new AstExtendS{fl, irp->lhsp()->cloneTreePure(false), 64})
-                           : static_cast<AstNodeExpr*>(
-                                 new AstExtend{fl, irp->lhsp()->cloneTreePure(false), 64});
-            AstNodeExpr* const hi64p
-                = isSigned ? static_cast<AstNodeExpr*>(
-                                 new AstExtendS{fl, irp->rhsp()->cloneTreePure(false), 64})
-                           : static_cast<AstNodeExpr*>(
-                                 new AstExtend{fl, irp->rhsp()->cloneTreePure(false), 64});
-            rangeSzp = new AstAdd{fl, new AstConst{fl, AstConst::Unsized64{}, 1ULL},
-                                  new AstSub{fl, hi64p, lo64p}};
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_ಏಕರೂಪ_Range_Pick(AstDist* distp, ಸ್ಥಿರಾಂಕ AstInsideRange* irp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ dist_ಅಭಿವ್ಯಕ್ತಿ_Copyp = distp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+        dist_ಅಭಿವ್ಯಕ್ತಿ_Copyp->user1(ನಿಜ);
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ dist_ಅಗಲ = distp->exprp()->ಅಗಲ();
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ lopC = VN_CAST(irp->lhsp(), Const);
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ hipC = VN_CAST(irp->rhsp(), Const);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rangeSzp;
+        ಆದರೆ (lopC && hipC) {
+            ಸ್ಥಿರಾಂಕ uint64_t rsz = hipC->ಗಮ್ಯ_UQuad() - lopC->ಗಮ್ಯ_UQuad() + 1;
+            rangeSzp = ಹೊಸ AstConst{fl, AstConst::Unsized64{}, rsz};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isSigned = irp->lhsp()->isSigned();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lo64p
+                = isSigned ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                 ಹೊಸ AstExtendS{fl, irp->lhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), 64})
+                           : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                 ಹೊಸ AstExtend{fl, irp->lhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), 64});
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ hi64p
+                = isSigned ? static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                 ಹೊಸ AstExtendS{fl, irp->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), 64})
+                           : static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(
+                                 ಹೊಸ AstExtend{fl, irp->rhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), 64});
+            rangeSzp = ಹೊಸ Ast_ಕೂಡಿಸು{fl, ಹೊಸ AstConst{fl, AstConst::Unsized64{}, 1ULL},
+                                  ಹೊಸ AstSub{fl, hi64p, lo64p}};
         }
-        AstNodeExpr* const rand64p = new AstRand{fl, nullptr, false};
-        rand64p->dtypeSetUInt64();
-        AstNodeExpr* const offsetp
-            = new AstCCast{fl, new AstModDiv{fl, rand64p, rangeSzp}, distWidth};
-        AstNodeExpr* const valuep = new AstAdd{fl, irp->lhsp()->cloneTreePure(false), offsetp};
-        AstNodeExpr* const eqp = new AstEq{fl, distExprCopyp, valuep};
-        eqp->user1(true);
-        return eqp;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rand64p = ಹೊಸ AstRand{fl, ಶೂನ್ಯಸೂಚಕ, ಸುಳ್ಳು};
+        rand64p->dtype_ಗಣ_UInt64();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ offsetp
+            = ಹೊಸ AstCCast{fl, ಹೊಸ AstModDiv{fl, rand64p, rangeSzp}, dist_ಅಗಲ};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ valuep = ಹೊಸ Ast_ಕೂಡಿಸು{fl, irp->lhsp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು), offsetp};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ eqp = ಹೊಸ AstEq{fl, dist_ಅಭಿವ್ಯಕ್ತಿ_Copyp, valuep};
+        eqp->user1(ನಿಜ);
+        ಹಿಂತಿರುಗಿ eqp;
     }
 
     // Soft weighted bucket chain: select a bucket by bucketVar against cumulative weights.
-    AstNode* buildWeightedBucketChain(AstDist* distp, const std::vector<DistBucket>& buckets,
-                                      AstVar* bucketVarp,
-                                      const std::vector<AstNodeExpr*>& cumSums) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* chainp = nullptr;
-        for (int i = static_cast<int>(buckets.size()) - 1; i >= 0; --i) {
-            AstNodeExpr* constraintExprp;
-            const AstInsideRange* const irp = VN_CAST(buckets[i].rangep, InsideRange);
-            if (irp && (distBoundRefsRandVar(irp->lhsp()) || distBoundRefsRandVar(irp->rhsp()))) {
+    Ast_ಗಂಟು* build_Weighted_ಪಾತ್ರೆ_Chain(AstDist* distp, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Dist_ಪಾತ್ರೆ>& buckets,
+                                      AstVar* ಪಾತ್ರೆ_Varp,
+                                      ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>& cumSums) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* chainp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = static_cast<ಪೂರ್ಣಾಂಕ>(buckets.ಗಾತ್ರ_2()) - 1; i >= 0; --i) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* constraintExprp;
+            ಸ್ಥಿರಾಂಕ AstInsideRange* ಸ್ಥಿರಾಂಕ irp = VN_CAST(buckets[i].rangep, InsideRange);
+            ಆದರೆ (irp && (distBoundRefsRandVar(irp->lhsp()) || distBoundRefsRandVar(irp->rhsp()))) {
                 constraintExprp = newDistRangeMembership(distp, irp);
-            } else if (irp) {
-                constraintExprp = newUniformRangePick(distp, irp);
-            } else {
-                AstNodeExpr* const distExprCopyp = distp->exprp()->cloneTreePure(false);
-                distExprCopyp->user1(true);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (irp) {
+                constraintExprp = new_ಏಕರೂಪ_Range_Pick(distp, irp);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ dist_ಅಭಿವ್ಯಕ್ತಿ_Copyp = distp->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                dist_ಅಭಿವ್ಯಕ್ತಿ_Copyp->user1(ನಿಜ);
                 constraintExprp
-                    = new AstEq{fl, distExprCopyp, buckets[i].rangep->cloneTreePure(false)};
-                constraintExprp->user1(true);
+                    = ಹೊಸ AstEq{fl, dist_ಅಭಿವ್ಯಕ್ತಿ_Copyp, buckets[i].rangep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                constraintExprp->user1(ನಿಜ);
             }
-            if (!chainp) {
+            ಆದರೆ (!chainp) {
                 chainp = constraintExprp;
-            } else {
-                AstNodeExpr* const condp
-                    = new AstLte{fl, new AstVarRef{fl, bucketVarp, VAccess::READ}, cumSums[i]};
-                condp->user1(true);
-                chainp = new AstCond{fl, condp, constraintExprp, chainp};
-                chainp->user1(true);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp
+                    = ಹೊಸ AstLte{fl, ಹೊಸ AstVarRef{fl, ಪಾತ್ರೆ_Varp, VAccess::READ}, cumSums[i]};
+                condp->user1(ನಿಜ);
+                chainp = ಹೊಸ AstCond{fl, condp, constraintExprp, chainp};
+                chainp->user1(ನಿಜ);
             }
         }
-        AstConstraintExpr* const chainExprp = new AstConstraintExpr{fl, chainp};
-        chainExprp->isSoft(true);
-        return chainExprp;
+        Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ chainExprp = ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, chainp};
+        chainExprp->isSoft(ನಿಜ);
+        ಹಿಂತಿರುಗಿ chainExprp;
     }
 
     // Replace AstDist with weighted bucket selection via AstConstraintIf chain.
     // Supports both constant and variable weight expressions.
-    void lowerDistConstraints(AstTask* taskp, AstNode* constrItemsp, AstVar* randModeVarp,
-                              AstConstraintForeach* foreachp = nullptr) {
+    ಶೂನ್ಯ ಅಧೋ_Dist_Constraints(AstTask* taskp, Ast_ಗಂಟು* constrItemsp, AstVar* rand_ಬಹುಲಕ_Varp,
+                              AstConstraintForeach* foreachp = ಶೂನ್ಯಸೂಚಕ) {
         // When inside a foreach, bucket preamble stmts are stored in foreachp->user3p()
         // (as a linked list) so visit(AstConstraintForeach*) can inject them into the
         // real AstForeach body. Outside a foreach, they go directly into taskp.
-        AstNode* foreachTailp = nullptr;
-        auto addStmt = [&](AstNode* nodep) {
-            if (foreachp) {
-                if (!foreachTailp) {
+        Ast_ಗಂಟು* foreachTailp = ಶೂನ್ಯಸೂಚಕ;
+        ಸ್ವಯಂಚಾಲಿತ ಕೂಡಿಸು_Stmt = [&](Ast_ಗಂಟು* nodep) {
+            ಆದರೆ (foreachp) {
+                ಆದರೆ (!foreachTailp) {
                     foreachp->user3p(nodep);
                     foreachTailp = nodep;
-                } else {
-                    foreachTailp->addNext(nodep);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    foreachTailp->ಕೂಡಿಸು_ಮುಂದಿನ(nodep);
                     foreachTailp = nodep;
                 }
-            } else {
-                taskp->addStmtsp(nodep);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                taskp->ಕೂಡಿಸು_Stmtsp(nodep);
             }
         };
 
-        for (AstNode *nextip, *itemp = constrItemsp; itemp; itemp = nextip) {
+        ಗಾಗಿ (Ast_ಗಂಟು *nextip, *itemp = constrItemsp; itemp; itemp = nextip) {
             nextip = itemp->nextp();
 
             // dist can appear inside an if/else or foreach constraint.
-            if (AstConstraintIf* const cifp = VN_CAST(itemp, ConstraintIf)) {
+            ಆದರೆ (AstConstraintIf* ಸ್ಥಿರಾಂಕ cifp = VN_CAST(itemp, ConstraintIf)) {
                 UASSERT_OBJ(cifp->thensp(), cifp, "constraint if without a then body");
-                lowerDistConstraints(taskp, cifp->thensp(), randModeVarp, foreachp);
-                if (cifp->elsesp()) {
-                    lowerDistConstraints(taskp, cifp->elsesp(), randModeVarp, foreachp);
+                ಅಧೋ_Dist_Constraints(taskp, cifp->thensp(), rand_ಬಹುಲಕ_Varp, foreachp);
+                ಆದರೆ (cifp->elsesp()) {
+                    ಅಧೋ_Dist_Constraints(taskp, cifp->elsesp(), rand_ಬಹುಲಕ_Varp, foreachp);
                 }
-                continue;
+                ಮುಂದುವರಿ;
             }
-            if (AstConstraintForeach* const cfep = VN_CAST(itemp, ConstraintForeach)) {
+            ಆದರೆ (AstConstraintForeach* ಸ್ಥಿರಾಂಕ cfep = VN_CAST(itemp, ConstraintForeach)) {
                 UASSERT_OBJ(cfep->bodyp(), cfep, "constraint foreach without a body");
-                lowerDistConstraints(taskp, cfep->bodyp(), randModeVarp, cfep);
-                continue;
+                ಅಧೋ_Dist_Constraints(taskp, cfep->bodyp(), rand_ಬಹುಲಕ_Varp, cfep);
+                ಮುಂದುವರಿ;
             }
 
-            AstConstraintExpr* const constrExprp = VN_CAST(itemp, ConstraintExpr);
-            if (!constrExprp) continue;
+            Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ constrExprp = VN_CAST(itemp, Constraint_ಅಭಿವ್ಯಕ್ತಿ);
+            ಆದರೆ (!constrExprp) ಮುಂದುವರಿ;
 
             // `cond -> x dist {...}` parses as ConstraintExpr(LogIf(cond, Dist)).
             // This pass only scans ConstraintExpr/If/Foreach for Dist, so lift the
             // LogIf chain into nested ConstraintIf first. Chains like
             // `a -> b -> dist` nest accordingly.
-            if (AstLogIf* const topLogIfp = VN_CAST(constrExprp->exprp(), LogIf)) {
-                AstNode* chainEndp = topLogIfp->rhsp();
-                while (AstLogIf* const innerp = VN_CAST(chainEndp, LogIf)) {
+            ಆದರೆ (AstLogIf* ಸ್ಥಿರಾಂಕ ತುದಿ_Log_Ifp = VN_CAST(constrExprp->exprp(), LogIf)) {
+                Ast_ಗಂಟು* chainEndp = ತುದಿ_Log_Ifp->rhsp();
+                ಆಗ (AstLogIf* ಸ್ಥಿರಾಂಕ innerp = VN_CAST(chainEndp, LogIf)) {
                     chainEndp = innerp->rhsp();
                 }
-                if (VN_IS(chainEndp, Dist)) {
-                    AstConstraintIf* const liftedp = liftLogIfChainToConstraintIf(topLogIfp);
+                ಆದರೆ (VN_IS(chainEndp, Dist)) {
+                    AstConstraintIf* ಸ್ಥಿರಾಂಕ liftedp = lift_Log_If_Chain_ಗಮ್ಯ_Constraint_If(ತುದಿ_Log_Ifp);
                     constrExprp->replaceWith(liftedp);
-                    VL_DO_DANGLING(pushDeletep(constrExprp), constrExprp);
-                    lowerDistConstraints(taskp, liftedp->thensp(), randModeVarp, foreachp);
-                    continue;
+                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(constrExprp), constrExprp);
+                    ಅಧೋ_Dist_Constraints(taskp, liftedp->thensp(), rand_ಬಹುಲಕ_Varp, foreachp);
+                    ಮುಂದುವರಿ;
                 }
             }
 
-            AstDist* const distp = VN_CAST(constrExprp->exprp(), Dist);
-            if (!distp) continue;
+            AstDist* ಸ್ಥಿರಾಂಕ distp = VN_CAST(constrExprp->exprp(), Dist);
+            ಆದರೆ (!distp) ಮುಂದುವರಿ;
 
-            FileLine* const fl = distp->fileline();
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = distp->fileline();
 
-            std::vector<DistBucket> buckets = collectDistBuckets(distp);
+            std::ಸದಿಶ<Dist_ಪಾತ್ರೆ> buckets = collectDistBuckets(distp);
 
-            if (buckets.empty()) {
+            ಆದರೆ (buckets.ಖಾಲಿಗಳು()) {
                 // All weights are zero: dist is vacuously true (unconstrained)
-                AstConstraintExpr* const truep
-                    = new AstConstraintExpr{fl, new AstConst{fl, AstConst::BitTrue{}}};
+                Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ truep
+                    = ಹೊಸ Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ{fl, ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}}};
                 constrExprp->replaceWith(truep);
-                VL_DO_DANGLING(pushDeletep(constrExprp), constrExprp);
-                continue;
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(constrExprp), constrExprp);
+                ಮುಂದುವರಿ;
             }
 
-            AstConstraintExpr* const membershipp = buildDistMembership(distp, buckets);
+            Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ membershipp = buildDistMembership(distp, buckets);
 
             // Build totalWeight expression: w[0] + w[1] + ... + w[N-1]
-            AstNodeExpr* totalWeightExprp = nullptr;
-            for (auto& bucket : buckets) {
-                if (!totalWeightExprp) {
-                    totalWeightExprp = bucket.weightExprp->cloneTreePure(false);
-                } else {
-                    totalWeightExprp = new AstAdd{fl, totalWeightExprp,
-                                                  bucket.weightExprp->cloneTreePure(false)};
-                    totalWeightExprp->dtypeSetUInt64();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಒಟ್ಟು_ತೂಕ_Exprp = ಶೂನ್ಯಸೂಚಕ;
+            ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& ಪಾತ್ರೆ : buckets) {
+                ಆದರೆ (!ಒಟ್ಟು_ತೂಕ_Exprp) {
+                    ಒಟ್ಟು_ತೂಕ_Exprp = ಪಾತ್ರೆ.ತೂಕ_Exprp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ಒಟ್ಟು_ತೂಕ_Exprp = ಹೊಸ Ast_ಕೂಡಿಸು{fl, ಒಟ್ಟು_ತೂಕ_Exprp,
+                                                  ಪಾತ್ರೆ.ತೂಕ_Exprp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                    ಒಟ್ಟು_ತೂಕ_Exprp->dtype_ಗಣ_UInt64();
                 }
             }
 
             // Store totalWeight in temp var (evaluated once, used twice)
-            const int distId = m_distNum++;
-            const std::string totalName = "__Vdist_total" + cvtToStr(distId);
-            AstVar* const totalVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, totalName, taskp->findUInt64DType()};
-            totalVarp->noSubst(true);
-            totalVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            totalVarp->funcLocal(true);
-            totalVarp->isInternal(true);
-            addStmt(totalVarp);
-            addStmt(
-                new AstAssign{fl, new AstVarRef{fl, totalVarp, VAccess::WRITE}, totalWeightExprp});
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ distId = m_dist_ಅಂಕೆ++;
+            ಸ್ಥಿರಾಂಕ std::string ಒಟ್ಟು_Name = "__Vdist_total" + cvt_ಗಮ್ಯ_Str(distId);
+            AstVar* ಸ್ಥಿರಾಂಕ ಒಟ್ಟು_Varp
+                = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, ಒಟ್ಟು_Name, taskp->ಕಂಡುಹಿಡಿ_UInt64_DType()};
+            ಒಟ್ಟು_Varp->noSubst(ನಿಜ);
+            ಒಟ್ಟು_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+            ಒಟ್ಟು_Varp->funcLocal(ನಿಜ);
+            ಒಟ್ಟು_Varp->is_ಆಂತರಿಕ(ನಿಜ);
+            ಕೂಡಿಸು_Stmt(ಒಟ್ಟು_Varp);
+            ಕೂಡಿಸು_Stmt(
+                ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, ಒಟ್ಟು_Varp, VAccess::WRITE}, ಒಟ್ಟು_ತೂಕ_Exprp});
 
             // bucketVar = (rand64() % totalWeight) + 1
-            const std::string bucketName = "__Vdist_bucket" + cvtToStr(distId);
-            AstVar* const bucketVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, bucketName, taskp->findUInt64DType()};
-            bucketVarp->noSubst(true);
-            bucketVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            bucketVarp->funcLocal(true);
-            bucketVarp->isInternal(true);
-            addStmt(bucketVarp);
+            ಸ್ಥಿರಾಂಕ std::string ಪಾತ್ರೆ_Name = "__Vdist_bucket" + cvt_ಗಮ್ಯ_Str(distId);
+            AstVar* ಸ್ಥಿರಾಂಕ ಪಾತ್ರೆ_Varp
+                = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, ಪಾತ್ರೆ_Name, taskp->ಕಂಡುಹಿಡಿ_UInt64_DType()};
+            ಪಾತ್ರೆ_Varp->noSubst(ನಿಜ);
+            ಪಾತ್ರೆ_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+            ಪಾತ್ರೆ_Varp->funcLocal(ನಿಜ);
+            ಪಾತ್ರೆ_Varp->is_ಆಂತರಿಕ(ನಿಜ);
+            ಕೂಡಿಸು_Stmt(ಪಾತ್ರೆ_Varp);
 
-            AstNodeExpr* const randp = new AstRand{fl, nullptr, false};
-            randp->dtypeSetUInt64();
-            addStmt(new AstAssign{
-                fl, new AstVarRef{fl, bucketVarp, VAccess::WRITE},
-                new AstAdd{
-                    fl, new AstConst{fl, AstConst::Unsized64{}, 1},
-                    new AstModDiv{fl, randp, new AstVarRef{fl, totalVarp, VAccess::READ}}}});
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ randp = ಹೊಸ AstRand{fl, ಶೂನ್ಯಸೂಚಕ, ಸುಳ್ಳು};
+            randp->dtype_ಗಣ_UInt64();
+            ಕೂಡಿಸು_Stmt(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                fl, ಹೊಸ AstVarRef{fl, ಪಾತ್ರೆ_Varp, VAccess::WRITE},
+                ಹೊಸ Ast_ಕೂಡಿಸು{
+                    fl, ಹೊಸ AstConst{fl, AstConst::Unsized64{}, 1},
+                    ಹೊಸ AstModDiv{fl, randp, ಹೊಸ AstVarRef{fl, ಒಟ್ಟು_Varp, VAccess::READ}}}});
 
             // Build cumulative sum expressions forward: cumSum[i] = w[0]+...+w[i]
-            std::vector<AstNodeExpr*> cumSums;
-            AstNodeExpr* runningSump = nullptr;
-            for (size_t i = 0; i < buckets.size(); ++i) {
-                if (!runningSump) {
-                    runningSump = buckets[i].weightExprp->cloneTreePure(false);
-                } else {
-                    runningSump = new AstAdd{fl, runningSump,
-                                             buckets[i].weightExprp->cloneTreePure(false)};
-                    runningSump->dtypeSetUInt64();
+            std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> cumSums;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* runningSump = ಶೂನ್ಯಸೂಚಕ;
+            ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < buckets.ಗಾತ್ರ_2(); ++i) {
+                ಆದರೆ (!runningSump) {
+                    runningSump = buckets[i].ತೂಕ_Exprp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    runningSump = ಹೊಸ Ast_ಕೂಡಿಸು{fl, runningSump,
+                                             buckets[i].ತೂಕ_Exprp->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು)};
+                    runningSump->dtype_ಗಣ_UInt64();
                 }
-                cumSums.push_back(runningSump->cloneTreePure(true));
+                cumSums.ತಳ್ಳು_ಹಿಂಭಾಗ(runningSump->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ));
             }
 
-            AstNode* chainp = buildWeightedBucketChain(distp, buckets, bucketVarp, cumSums);
+            Ast_ಗಂಟು* chainp = build_Weighted_ಪಾತ್ರೆ_Chain(distp, buckets, ಪಾತ್ರೆ_Varp, cumSums);
 
-            chainp = gateFrozenDist(chainp, distp, buckets, randModeVarp);
+            chainp = gateFrozenDist(chainp, distp, buckets, rand_ಬಹುಲಕ_Varp);
 
             constrExprp->replaceWith(chainp);
-            VL_DO_DANGLING(pushDeletep(constrExprp), constrExprp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(constrExprp), constrExprp);
             // Hard membership precedes the soft bucket chain in the constraint list.
-            chainp->addHereThisAsNext(membershipp);
+            chainp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(membershipp);
 
             // Clean up nodes used only as clone templates (never inserted into tree)
-            for (auto& bucket : buckets) {
-                VL_DO_DANGLING(pushDeletep(bucket.weightExprp), bucket.weightExprp);
+            ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& ಪಾತ್ರೆ : buckets) {
+                VL_DO_DANGLING(ತಳ್ಳು_Deletep(ಪಾತ್ರೆ.ತೂಕ_Exprp), ಪಾತ್ರೆ.ತೂಕ_Exprp);
             }
-            VL_DO_DANGLING(pushDeletep(runningSump), runningSump);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(runningSump), runningSump);
             // Last cumSum is unused (last bucket is unconditional default)
-            pushDeletep(cumSums.back());
+            ತಳ್ಳು_Deletep(cumSums.ಹಿಂಭಾಗ());
         }
     }
 
-    static bool isDynArrOfClassTypeRecurse(const AstNodeDType* const dtypep) {
-        const AstNodeDType* const refp = dtypep->skipRefp();
-        if (VN_IS(refp, DynArrayDType) || VN_IS(refp, QueueDType)) {
-            return isDynArrOfClassTypeRecurse(refp->subDTypep());
-        } else if (VN_IS(refp, ClassRefDType)) {
-            return true;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ is_Dyn_Arr_ದ_Class_Type_Recurse(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep) {
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ refp = dtypep->skipRefp();
+        ಆದರೆ (VN_IS(refp, DynArrayDType) || VN_IS(refp, ಸರತಿ_DType)) {
+            ಹಿಂತಿರುಗಿ is_Dyn_Arr_ದ_Class_Type_Recurse(refp->subDTypep());
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VN_IS(refp, ClassRefDType)) {
+            ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
     // Add write_var calls for each array element after resizing it with array-size constraint
-    void addArrayElemRefresh(FileLine* const fl, AstVar* const arrVarp, AstFunc* const randomizep,
-                             AstVar* const genp) {
-        AstNodeModule* const genModp = VN_AS(genp->user2p(), NodeModule);
+    ಶೂನ್ಯ ಕೂಡಿಸು_Array_Elem_Refresh(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, AstVar* ಸ್ಥಿರಾಂಕ arrVarp, AstFunc* ಸ್ಥಿರಾಂಕ randomizep,
+                             AstVar* ಸ್ಥಿರಾಂಕ genp) {
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ genModp = VN_AS(genp->user2p(), ಗಂಟು_Module);
         // Array elements of class data type are passed to the solver as separate
         // variables, so passing the original array variable is redundant, because it
         // won't be referenced
-        const uint32_t unpackedDims = arrVarp->dtypep()->dimensions(false).second;
-        if (isDynArrOfClassTypeRecurse(arrVarp->dtypep())) {
-            if (unpackedDims > 1) {
+        ಸ್ಥಿರಾಂಕ uint32_t unpackedDims = arrVarp->dtypep()->dimensions(ಸುಳ್ಳು).ಎರಡನೇ;
+        ಆದರೆ (is_Dyn_Arr_ದ_Class_Type_Recurse(arrVarp->dtypep())) {
+            ಆದರೆ (unpackedDims > 1) {
                 arrVarp->v3warn(E_UNSUPPORTED,
                                 "Unsupported: Nested array element access in global constraint");
             }
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        AstCMethodHard* const methodp
-            = new AstCMethodHard{fl, new AstVarRef{fl, genModp, genp, VAccess::READWRITE},
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp
+            = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, genModp, genp, VAccess::READWRITE},
                                  VCMethod::RANDOMIZER_WRITE_VAR};
-        methodp->dtypeSetVoid();
+        methodp->dtype_ಗಣ_Void();
 
-        AstNodeModule* const classp = VN_AS(arrVarp->user2p(), NodeModule);
-        AstVarRef* const varRefp = new AstVarRef{fl, classp, arrVarp, VAccess::WRITE};
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ classp = VN_AS(arrVarp->user2p(), ಗಂಟು_Module);
+        AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = ಹೊಸ AstVarRef{fl, classp, arrVarp, VAccess::WRITE};
         varRefp->classOrPackagep(classp);
-        methodp->addPinsp(varRefp);
+        methodp->ಕೂಡಿಸು_Pinsp(varRefp);
 
-        const size_t width = arrayElementDTypep(arrVarp->dtypep())->width();
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಅಗಲ = arrayElementDTypep(arrVarp->dtypep())->ಅಗಲ();
 
-        methodp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, width});
-        AstNodeExpr* const varnamep
-            = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + arrVarp->name() + "\"", arrVarp->width()};
+        methodp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, AstConst::Unsized64{}, ಅಗಲ});
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ varnamep
+            = ಹೊಸ AstCExpr{fl, AstCExpr::ಶುದ್ಧ{}, "\"" + arrVarp->name() + "\"", arrVarp->ಅಗಲ()};
         varnamep->dtypep(arrVarp->dtypep());
-        methodp->addPinsp(varnamep);
-        methodp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, unpackedDims});
-        const RandomizeMode rmode = {.asUQuad = arrVarp->user1()};
-        if (rmode.usesMode) {
-            methodp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, rmode.index});
+        methodp->ಕೂಡಿಸು_Pinsp(varnamep);
+        methodp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, AstConst::Unsized64{}, unpackedDims});
+        ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = arrVarp->user1()};
+        ಆದರೆ (rmode.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) {
+            methodp->ಕೂಡಿಸು_Pinsp(ಹೊಸ AstConst{fl, AstConst::Unsized64{}, rmode.ಸೂಚ್ಯಂಕ});
         }
 
-        randomizep->addStmtsp(methodp->makeStmt());
+        randomizep->ಕೂಡಿಸು_Stmtsp(methodp->makeStmt());
     }
 
-    AstNodeStmt* newPinSizeVariable(FileLine* const fl, AstVar* const arrVarp,
-                                    AstVar* const genp) {
-        AstNodeModule* const genModp = VN_AS(genp->user2p(), NodeModule);
-        AstVar* const sizeVarp = VN_AS(arrVarp->user4p(), Var);
-        AstCMethodHard* const pinp
-            = new AstCMethodHard{fl, new AstVarRef{fl, genModp, genp, VAccess::READWRITE},
+    Ast_ಗಂಟು_Stmt* new_Pin_ಗಾತ್ರ_Variable(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, AstVar* ಸ್ಥಿರಾಂಕ arrVarp,
+                                    AstVar* ಸ್ಥಿರಾಂಕ genp) {
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ genModp = VN_AS(genp->user2p(), ಗಂಟು_Module);
+        AstVar* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Varp = VN_AS(arrVarp->user4p(), Var);
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ pinp
+            = ಹೊಸ AstCMethodHard{fl, ಹೊಸ AstVarRef{fl, genModp, genp, VAccess::READWRITE},
                                  VCMethod::RANDOMIZER_PIN_VAR};
-        pinp->dtypeSetVoid();
-        AstCExpr* const namep = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + sizeVarp->name() + "\""};
-        namep->dtypeSetUInt32();
-        pinp->addPinsp(namep);
-        pinp->addPinsp(
-            new AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(sizeVarp->width())});
+        pinp->dtype_ಗಣ_Void();
+        AstCExpr* ಸ್ಥಿರಾಂಕ namep = ಹೊಸ AstCExpr{fl, AstCExpr::ಶುದ್ಧ{}, "\"" + ಗಾತ್ರ_Varp->name() + "\""};
+        namep->dtype_ಗಣ_UInt32();
+        pinp->ಕೂಡಿಸು_Pinsp(namep);
+        pinp->ಕೂಡಿಸು_Pinsp(
+            ಹೊಸ AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(ಗಾತ್ರ_Varp->ಅಗಲ())});
         // sizeVarp may live in a base class when the constrained array is inherited; route the
         // reference through its declaring class so V3Scope can resolve it.
-        AstVarRef* const sizeVarRefp = new AstVarRef{fl, sizeVarp, VAccess::READ};
-        sizeVarRefp->classOrPackagep(VN_AS(sizeVarp->user2p(), NodeModule));
-        pinp->addPinsp(sizeVarRefp);
-        return pinp->makeStmt();
+        AstVarRef* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Var_Refp = ಹೊಸ AstVarRef{fl, ಗಾತ್ರ_Varp, VAccess::READ};
+        ಗಾತ್ರ_Var_Refp->classOrPackagep(VN_AS(ಗಾತ್ರ_Varp->user2p(), ಗಂಟು_Module));
+        pinp->ಕೂಡಿಸು_Pinsp(ಗಾತ್ರ_Var_Refp);
+        ಹಿಂತಿರುಗಿ pinp->makeStmt();
     }
 
-    void addFrozenSizePin(FileLine* const fl, AstVar* const arrVarp, AstFunc* const randomizep,
-                          AstVar* const genp, AstVar* const randModeVarp) {
-        const RandomizeMode rmode = {.asUQuad = arrVarp->user1()};
-        if (!rmode.usesMode) return;
-        AstVar* const sizeVarp = VN_AS(arrVarp->user4p(), Var);
-        AstNodeModule* const arrClassp = VN_AS(arrVarp->user2p(), NodeModule);
-        AstNodeModule* const sizeClassp = VN_AS(sizeVarp->user2p(), NodeModule);
-        AstVarRef* const sizeWritep = new AstVarRef{fl, sizeClassp, sizeVarp, VAccess::WRITE};
-        const VCMethod sizeMethod = VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)
-                                        ? VCMethod::ASSOC_SIZE
-                                        : VCMethod::DYN_SIZE;
-        AstCMethodHard* const currentSizep = new AstCMethodHard{
-            fl, new AstVarRef{fl, arrClassp, arrVarp, VAccess::READ}, sizeMethod};
-        currentSizep->dtypep(sizeVarp->dtypep());
-        randomizep->addStmtsp(new AstAssign{fl, sizeWritep, currentSizep});
-        AstNodeExpr* const modep = newModeBitRead(arrVarp, nullptr, randModeVarp, fl);
-        randomizep->addStmtsp(
-            new AstIf{fl, new AstLogNot{fl, modep}, newPinSizeVariable(fl, arrVarp, genp)});
+    ಶೂನ್ಯ ಕೂಡಿಸು_Frozen_ಗಾತ್ರ_Pin(File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl, AstVar* ಸ್ಥಿರಾಂಕ arrVarp, AstFunc* ಸ್ಥಿರಾಂಕ randomizep,
+                          AstVar* ಸ್ಥಿರಾಂಕ genp, AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp) {
+        ಸ್ಥಿರಾಂಕ Randomize_ಬಹುಲಕ rmode = {.asUQuad = arrVarp->user1()};
+        ಆದರೆ (!rmode.ಬಳಸುತ್ತದೆ_ಬಹುಲಕ) ಹಿಂತಿರುಗಿ;
+        AstVar* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Varp = VN_AS(arrVarp->user4p(), Var);
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ arrClassp = VN_AS(arrVarp->user2p(), ಗಂಟು_Module);
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Classp = VN_AS(ಗಾತ್ರ_Varp->user2p(), ಗಂಟು_Module);
+        AstVarRef* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Writep = ಹೊಸ AstVarRef{fl, ಗಾತ್ರ_Classp, ಗಾತ್ರ_Varp, VAccess::WRITE};
+        ಸ್ಥಿರಾಂಕ VCMethod ಗಾತ್ರ_ವಿಧಾನ = VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)
+                                        ? VCMethod::ASSOC_ಗಾತ್ರ
+                                        : VCMethod::DYN_ಗಾತ್ರ;
+        AstCMethodHard* ಸ್ಥಿರಾಂಕ currentSizep = ಹೊಸ AstCMethodHard{
+            fl, ಹೊಸ AstVarRef{fl, arrClassp, arrVarp, VAccess::READ}, ಗಾತ್ರ_ವಿಧಾನ};
+        currentSizep->dtypep(ಗಾತ್ರ_Varp->dtypep());
+        randomizep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಗಾತ್ರ_Writep, currentSizep});
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ modep = new_ಬಹುಲಕ_ಬಿಟ್_Read(arrVarp, ಶೂನ್ಯಸೂಚಕ, rand_ಬಹುಲಕ_Varp, fl);
+        randomizep->ಕೂಡಿಸು_Stmtsp(
+            ಹೊಸ AstIf{fl, ಹೊಸ AstLogNot{fl, modep}, new_Pin_ಗಾತ್ರ_Variable(fl, arrVarp, genp)});
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_randCaseNum);
-        VL_RESTORER_COPY(m_randArrayUniqueNames);
+        VL_RESTORER(m_rand_Case_ಅಂಕೆ);
+        VL_RESTORER_COPY(m_rand_Array_Unique_ಹೆಸರುಗಳು);
         m_modp = nodep;
-        m_randCaseNum = 0;
-        m_randArrayUniqueNames.reset();
+        m_rand_Case_ಅಂಕೆ = 0;
+        m_rand_Array_Unique_ಹೆಸರುಗಳು.reset();
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstClass* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstClass* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_randCaseNum);
-        VL_RESTORER(m_distNum);
+        VL_RESTORER(m_rand_Case_ಅಂಕೆ);
+        VL_RESTORER(m_dist_ಅಂಕೆ);
         m_modp = nodep;
-        m_randCaseNum = 0;
-        m_distNum = 0;
+        m_rand_Case_ಅಂಕೆ = 0;
+        m_dist_ಅಂಕೆ = 0;
         m_writtenVars.clear();  // Each class has its own set of written variables
 
         iterateChildren(nodep);
-        if (!nodep->user1()) return;  // Doesn't need randomize, or already processed
+        ಆದರೆ (!nodep->user1()) ಹಿಂತಿರುಗಿ;  // Doesn't need randomize, or already processed
         UINFO(9, "Define randomize() for " << nodep);
-        nodep->baseMostClassp()->needRNG(true);
+        nodep->ತಳ_Most_Classp()->needRNG(ನಿಜ);
 
         // Detect global-constraint ownership BEFORE the constraint items are
         // unlinked into setup tasks below (after that the member-selects are gone).
-        const bool basicFirst = classOwnsGlobalConstraint(nodep);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ basic_ಮೊದಲ = classOwnsGlobalConstraint(nodep);
 
-        FileLine* const fl = nodep->fileline();
-        AstFunc* const randomizep = V3Randomize::newRandomizeFunc(m_memberMap, nodep);
-        AstVar* const fvarp = VN_AS(randomizep->fvarp(), Var);
-        AstVar* const randModeVarp = getRandModeVarFromClass(nodep);
-        addPrePostCall(nodep, randomizep, "pre_randomize");
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        AstFunc* ಸ್ಥಿರಾಂಕ randomizep = V3Randomize::newRandomizeFunc(m_memberMap, nodep);
+        AstVar* ಸ್ಥಿರಾಂಕ fvarp = VN_AS(randomizep->fvarp(), Var);
+        AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp = get_Rand_ಬಹುಲಕ_Var_From_Class(nodep);
+        ಕೂಡಿಸು_Pre_Post_Call(nodep, randomizep, "pre_randomize");
 
         // Call nested pre_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(nodep)) {
-            AstTask* const preTaskp = getCreateNestedCallbackTask(nodep, "pre");
+        ಆದರೆ (classHasRandClassMembers(nodep)) {
+            AstTask* ಸ್ಥಿರಾಂಕ preTaskp = getCreateNestedCallbackTask(nodep, "pre");
             populateNestedCallbackTask(preTaskp, nodep, "pre_randomize");
-            randomizep->addStmtsp((new AstTaskRef{fl, preTaskp})->makeStmt());
+            randomizep->ಕೂಡಿಸು_Stmtsp((ಹೊಸ AstTaskRef{fl, preTaskp})->makeStmt());
         }
 
         // Both IS_RANDOMIZED and IS_RANDOMIZED_GLOBAL classes need full constraint support
         // IS_RANDOMIZED_GLOBAL classes can be randomized independently
-        AstNodeExpr* beginValp = nullptr;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* beginValp = ಶೂನ್ಯಸೂಚಕ;
         AstVar* genp = getRandomGenerator(nodep);
-        if (genp) {
+        ಆದರೆ (genp) {
             // Phase 1: Process all constraints (create tasks, run ConstraintExprVisitor)
             // Setup task refs are NOT added to setupAllTaskp here -- done in phase 2
-            AstTask* const prepareArraysTaskp = createPrepareConstrainedArraysTask(nodep);
-            nodep->foreachMember([&](AstClass* const classp, AstConstraint* const constrp) {
+            AstTask* ಸ್ಥಿರಾಂಕ prepareArraysTaskp = createPrepareConstrainedArraysTask(nodep);
+            nodep->foreachMember([&](AstClass* ಸ್ಥಿರಾಂಕ classp, AstConstraint* ಸ್ಥಿರಾಂಕ constrp) {
                 AstTask* taskp = VN_AS(constrp->user2p(), Task);
-                if (!taskp) {
-                    taskp = newSetupConstraintTask(classp, constrp->name());
+                ಆದರೆ (!taskp) {
+                    taskp = new_ಸಿದ್ಧತೆ_Constraint_Task(classp, constrp->name());
                     constrp->user2p(taskp);
                 }
 
-                if (AstTask* const resizeTaskp = VN_CAST(constrp->user3p(), Task)) {
-                    AstTask* const resizeAllTaskp = getCreateAggrResizeTask(nodep);
-                    AstTaskRef* const resizeTaskRefp
-                        = new AstTaskRef{constrp->fileline(), resizeTaskp};
+                ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ resizeTaskp = VN_CAST(constrp->user3p(), Task)) {
+                    AstTask* ಸ್ಥಿರಾಂಕ resizeAllTaskp = getCreateAggrResizeTask(nodep);
+                    AstTaskRef* ಸ್ಥಿರಾಂಕ resizeTaskRefp
+                        = ಹೊಸ AstTaskRef{constrp->fileline(), resizeTaskp};
                     resizeTaskRefp->classOrPackagep(classp);
-                    resizeAllTaskp->addStmtsp(resizeTaskRefp->makeStmt());
+                    resizeAllTaskp->ಕೂಡಿಸು_Stmtsp(resizeTaskRefp->makeStmt());
                 }
 
-                if (constrp->itemsp()) expandUniqueElementList(constrp->itemsp());
-                if (constrp->itemsp()) {
-                    lowerDistConstraints(taskp, constrp->itemsp(), randModeVarp);
+                ಆದರೆ (constrp->itemsp()) expandUniqueElementList(constrp->itemsp());
+                ಆದರೆ (constrp->itemsp()) {
+                    ಅಧೋ_Dist_Constraints(taskp, constrp->itemsp(), rand_ಬಹುಲಕ_Varp);
                 }
-                VInsertionSet<AstVar*>& sizeArrays = m_sizeConstrainedArrays[classp];
-                ConstraintExprVisitor{
-                    classp,        m_memberMap,  constrp->itemsp(), nullptr,
-                    genp,          randModeVarp, m_writtenVars,     &m_uniqueConstraintId,
-                    m_uniqueNames, randomizep,   &sizeArrays,       prepareArraysTaskp};
-                if (constrp->itemsp()) {
-                    taskp->addStmtsp(wrapIfConstraintMode(
-                        nodep, constrp, constrp->itemsp()->unlinkFrBackWithNext()));
+                VInsertion_ಗಣ<AstVar*>& ಗಾತ್ರ_Arrays = m_ಗಾತ್ರ_Constrained_Arrays[classp];
+                Constraint_ಅಭಿವ್ಯಕ್ತಿ_Visitor{
+                    classp,        m_memberMap,  constrp->itemsp(), ಶೂನ್ಯಸೂಚಕ,
+                    genp,          rand_ಬಹುಲಕ_Varp, m_writtenVars,     &m_uniqueConstraintId,
+                    m_unique_ಹೆಸರುಗಳು, randomizep,   &ಗಾತ್ರ_Arrays,       prepareArraysTaskp};
+                ಆದರೆ (constrp->itemsp()) {
+                    taskp->ಕೂಡಿಸು_Stmtsp(wrap_If_Constraint_ಬಹುಲಕ(
+                        nodep, constrp, constrp->itemsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ()));
                 }
             });
 
@@ -6148,221 +6148,221 @@ class RandomizeVisitor final : public VNVisitor {
             // Ensures outer-scope soft constraints override inner-scope (IEEE 18.5.13)
             {
                 // Count nesting depth by GLOBAL_CONSTRAINT_SEPARATOR occurrences
-                const auto constraintDepth = [](const AstConstraint* constrp) {
-                    int depth = 0;
-                    size_t pos = 0;
-                    while ((pos = constrp->name().find(GLOBAL_CONSTRAINT_SEPARATOR, pos))
+                ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ constraint_ಆಳ = [](ಸ್ಥಿರಾಂಕ AstConstraint* constrp) {
+                    ಪೂರ್ಣಾಂಕ ಆಳ = 0;
+                    ಗಾತ್ರ_t pos = 0;
+                    ಆಗ ((pos = constrp->name().ಕಂಡುಹಿಡಿ(GLOBAL_CONSTRAINT_SEPARATOR, pos))
                            != std::string::npos) {
-                        ++depth;
-                        pos += std::strlen(GLOBAL_CONSTRAINT_SEPARATOR);
+                        ++ಆಳ;
+                        pos += std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(GLOBAL_CONSTRAINT_SEPARATOR);
                     }
-                    return depth;
+                    ಹಿಂತಿರುಗಿ ಆಳ;
                 };
-                int maxDepth = 0;
-                nodep->foreachMember([&](AstClass* const, AstConstraint* const constrp) {
-                    maxDepth = std::max(maxDepth, constraintDepth(constrp));
+                ಪೂರ್ಣಾಂಕ max_ಆಳ = 0;
+                nodep->foreachMember([&](AstClass* ಸ್ಥಿರಾಂಕ, AstConstraint* ಸ್ಥಿರಾಂಕ constrp) {
+                    max_ಆಳ = std::max(max_ಆಳ, constraint_ಆಳ(constrp));
                 });
-                AstTask* const setupAllTaskp = getCreateConstraintSetupFunc(nodep, m_memberMap);
-                for (int d = maxDepth; d >= 0; --d) {
+                AstTask* ಸ್ಥಿರಾಂಕ ಸಿದ್ಧತೆ_All_Taskp = get_Create_Constraint_ಸಿದ್ಧತೆ_Func(nodep, m_memberMap);
+                ಗಾಗಿ (ಪೂರ್ಣಾಂಕ d = max_ಆಳ; d >= 0; --d) {
                     nodep->foreachMember(
-                        [&](AstClass* const classp, AstConstraint* const constrp) {
-                            if (constraintDepth(constrp) != d) return;
-                            AstTask* const taskp = VN_AS(constrp->user2p(), Task);
-                            AstTaskRef* const setupTaskRefp
-                                = new AstTaskRef{constrp->fileline(), taskp};
-                            setupTaskRefp->classOrPackagep(classp);
-                            setupAllTaskp->addStmtsp(setupTaskRefp->makeStmt());
+                        [&](AstClass* ಸ್ಥಿರಾಂಕ classp, AstConstraint* ಸ್ಥಿರಾಂಕ constrp) {
+                            ಆದರೆ (constraint_ಆಳ(constrp) != d) ಹಿಂತಿರುಗಿ;
+                            AstTask* ಸ್ಥಿರಾಂಕ taskp = VN_AS(constrp->user2p(), Task);
+                            AstTaskRef* ಸ್ಥಿರಾಂಕ ಸಿದ್ಧತೆ_Task_Refp
+                                = ಹೊಸ AstTaskRef{constrp->fileline(), taskp};
+                            ಸಿದ್ಧತೆ_Task_Refp->classOrPackagep(classp);
+                            ಸಿದ್ಧತೆ_All_Taskp->ಕೂಡಿಸು_Stmtsp(ಸಿದ್ಧತೆ_Task_Refp->makeStmt());
                         });
                 }
             }
             // For derived classes: clone write_var calls from parent's randomize()
             // and save every array that has is size-constrained array to generate
             // array element refresh later
-            VInsertionSet<AstVar*> sizeArrayVars;
-            if (nodep->extendsp()) {
-                AstClass* parentClassp = nodep->extendsp()->classp();
-                while (parentClassp) {
-                    const auto sizeArraysIt = m_sizeConstrainedArrays.find(parentClassp);
-                    if (sizeArraysIt != m_sizeConstrainedArrays.end()) {
-                        for (AstVar* const arrVarp : sizeArraysIt->second) {
-                            sizeArrayVars.insert(arrVarp);
+            VInsertion_ಗಣ<AstVar*> ಗಾತ್ರ_Array_Vars;
+            ಆದರೆ (nodep->extendsp()) {
+                AstClass* ಪೋಷಕ_Classp = nodep->extendsp()->classp();
+                ಆಗ (ಪೋಷಕ_Classp) {
+                    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಗಾತ್ರ_Arrays_It = m_ಗಾತ್ರ_Constrained_Arrays.ಕಂಡುಹಿಡಿ(ಪೋಷಕ_Classp);
+                    ಆದರೆ (ಗಾತ್ರ_Arrays_It != m_ಗಾತ್ರ_Constrained_Arrays.ಕೊನೆ()) {
+                        ಗಾಗಿ (AstVar* ಸ್ಥಿರಾಂಕ arrVarp : ಗಾತ್ರ_Arrays_It->ಎರಡನೇ) {
+                            ಗಾತ್ರ_Array_Vars.ಸೇರಿಸು(arrVarp);
                         }
                     }
-                    AstFunc* const parentRandomizep
-                        = VN_CAST(m_memberMap.findMember(parentClassp, "randomize"), Func);
-                    if (parentRandomizep && parentRandomizep->stmtsp()) {
+                    AstFunc* ಸ್ಥಿರಾಂಕ ಪೋಷಕ_Randomizep
+                        = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(ಪೋಷಕ_Classp, "randomize"), Func);
+                    ಆದರೆ (ಪೋಷಕ_Randomizep && ಪೋಷಕ_Randomizep->stmtsp()) {
                         // Clone write_var statements from parent (stop at clearConstraints)
-                        for (AstNode* stmtp = parentRandomizep->stmtsp(); stmtp;
+                        ಗಾಗಿ (Ast_ಗಂಟು* stmtp = ಪೋಷಕ_Randomizep->stmtsp(); stmtp;
                              stmtp = stmtp->nextp()) {
-                            bool foundClearConstraints = false;
+                            ತಾರ್ಕಿಕ ಸಿಕ್ಕಿತು_Clear_Constraints = ಸುಳ್ಳು;
                             stmtp->foreach([&](AstCMethodHard* methodp) {
-                                if (methodp->method() == VCMethod::RANDOMIZER_WRITE_VAR
-                                    || methodp->method() == VCMethod::RANDOMIZER_MARK_RANDC) {
-                                    randomizep->addStmtsp(stmtp->cloneTree(false));
-                                } else if (methodp->method()
+                                ಆದರೆ (methodp->ವಿಧಾನ() == VCMethod::RANDOMIZER_WRITE_VAR
+                                    || methodp->ವಿಧಾನ() == VCMethod::RANDOMIZER_MARK_RANDC) {
+                                    randomizep->ಕೂಡಿಸು_Stmtsp(stmtp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+                                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (methodp->ವಿಧಾನ()
                                            == VCMethod::RANDOMIZER_CLEARCONSTRAINTS) {
-                                    foundClearConstraints = true;
+                                    ಸಿಕ್ಕಿತು_Clear_Constraints = ನಿಜ;
                                 }
                             });
-                            if (foundClearConstraints) break;
+                            ಆದರೆ (ಸಿಕ್ಕಿತು_Clear_Constraints) ನಿಲ್ಲಿಸು;
                         }
                     }
-                    parentClassp
-                        = parentClassp->extendsp() ? parentClassp->extendsp()->classp() : nullptr;
+                    ಪೋಷಕ_Classp
+                        = ಪೋಷಕ_Classp->extendsp() ? ಪೋಷಕ_Classp->extendsp()->classp() : ಶೂನ್ಯಸೂಚಕ;
                 }
             }
-            randomizep->addStmtsp(implementConstraintsClear(fl, genp));
+            randomizep->ಕೂಡಿಸು_Stmtsp(implementConstraintsClear(fl, genp));
 
-            const auto sizeArraysIt = m_sizeConstrainedArrays.find(nodep);
-            if (sizeArraysIt != m_sizeConstrainedArrays.end()) {
-                for (AstVar* const arrVarp : sizeArraysIt->second) sizeArrayVars.insert(arrVarp);
+            ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಗಾತ್ರ_Arrays_It = m_ಗಾತ್ರ_Constrained_Arrays.ಕಂಡುಹಿಡಿ(nodep);
+            ಆದರೆ (ಗಾತ್ರ_Arrays_It != m_ಗಾತ್ರ_Constrained_Arrays.ಕೊನೆ()) {
+                ಗಾಗಿ (AstVar* ಸ್ಥಿರಾಂಕ arrVarp : ಗಾತ್ರ_Arrays_It->ಎರಡನೇ) ಗಾತ್ರ_Array_Vars.ಸೇರಿಸು(arrVarp);
             }
-            AstTask* const setupAllTaskp = getCreateConstraintSetupFunc(nodep, m_memberMap);
-            if (!sizeArrayVars.empty() && prepareArraysTaskp->stmtsp()) {
-                AstNodeStmt* const preparep = (new AstTaskRef{fl, prepareArraysTaskp})->makeStmt();
+            AstTask* ಸ್ಥಿರಾಂಕ ಸಿದ್ಧತೆ_All_Taskp = get_Create_Constraint_ಸಿದ್ಧತೆ_Func(nodep, m_memberMap);
+            ಆದರೆ (!ಗಾತ್ರ_Array_Vars.ಖಾಲಿಗಳು() && prepareArraysTaskp->stmtsp()) {
+                Ast_ಗಂಟು_Stmt* ಸ್ಥಿರಾಂಕ preparep = (ಹೊಸ AstTaskRef{fl, prepareArraysTaskp})->makeStmt();
                 // A size-constrained array always has a preceding write_var registration.
-                for (AstNode* stmtp = randomizep->stmtsp(); stmtp;  // LCOV_EXCL_BR_LINE
+                ಗಾಗಿ (Ast_ಗಂಟು* stmtp = randomizep->stmtsp(); stmtp;  // LCOV_EXCL_BR_LINE
                      stmtp = stmtp->nextp()) {
-                    bool writesArray = false;
+                    ತಾರ್ಕಿಕ writesArray = ಸುಳ್ಳು;
                     stmtp->foreach([&](AstCMethodHard* methodp) {
-                        writesArray |= methodp->method() == VCMethod::RANDOMIZER_WRITE_VAR;
+                        writesArray |= methodp->ವಿಧಾನ() == VCMethod::RANDOMIZER_WRITE_VAR;
                     });
-                    if (!writesArray) continue;
-                    stmtp->addHereThisAsNext(preparep);
-                    break;
+                    ಆದರೆ (!writesArray) ಮುಂದುವರಿ;
+                    stmtp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(preparep);
+                    ನಿಲ್ಲಿಸು;
                 }
             }
-            AstTaskRef* const setupTaskRefp = new AstTaskRef{fl, setupAllTaskp};
-            randomizep->addStmtsp(setupTaskRefp->makeStmt());
+            AstTaskRef* ಸ್ಥಿರಾಂಕ ಸಿದ್ಧತೆ_Task_Refp = ಹೊಸ AstTaskRef{fl, ಸಿದ್ಧತೆ_All_Taskp};
+            randomizep->ಕೂಡಿಸು_Stmtsp(ಸಿದ್ಧತೆ_Task_Refp->makeStmt());
 
-            AstNodeModule* const genModp = VN_AS(genp->user2p(), NodeModule);
+            Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ genModp = VN_AS(genp->user2p(), ಗಂಟು_Module);
 
-            AstCExpr* const solverCallp = new AstCExpr{fl};
-            solverCallp->dtypeSetBit();
-            solverCallp->add(new AstVarRef{fl, genModp, genp, VAccess::READWRITE});
-            solverCallp->add(".next(__Vm_rng)");
-            if (!sizeArrayVars.empty()) {
-                AstVar* const sizeOkVarp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vsize_ok",
-                                                      nodep->findBasicDType(VBasicDTypeKwd::BIT)};
-                sizeOkVarp->funcLocal(true);
-                randomizep->addStmtsp(sizeOkVarp);
+            AstCExpr* ಸ್ಥಿರಾಂಕ solverCallp = ಹೊಸ AstCExpr{fl};
+            solverCallp->dtype_ಗಣ_ಬಿಟ್();
+            solverCallp->ಕೂಡಿಸು(ಹೊಸ AstVarRef{fl, genModp, genp, VAccess::READWRITE});
+            solverCallp->ಕೂಡಿಸು(".next(__Vm_rng)");
+            ಆದರೆ (!ಗಾತ್ರ_Array_Vars.ಖಾಲಿಗಳು()) {
+                AstVar* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Ok_Varp = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, "__Vsize_ok",
+                                                      nodep->ಕಂಡುಹಿಡಿ_Basic_DType(VBasicDTypeKwd::ಬಿಟ್)};
+                ಗಾತ್ರ_Ok_Varp->funcLocal(ನಿಜ);
+                randomizep->ಕೂಡಿಸು_Stmtsp(ಗಾತ್ರ_Ok_Varp);
 
-                AstVar* const finalOkVarp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vfinal_ok",
-                                                       nodep->findBasicDType(VBasicDTypeKwd::BIT)};
-                finalOkVarp->funcLocal(true);
-                randomizep->addStmtsp(finalOkVarp);
+                AstVar* ಸ್ಥಿರಾಂಕ finalOkVarp = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, "__Vfinal_ok",
+                                                       nodep->ಕಂಡುಹಿಡಿ_Basic_DType(VBasicDTypeKwd::ಬಿಟ್)};
+                finalOkVarp->funcLocal(ನಿಜ);
+                randomizep->ಕೂಡಿಸು_Stmtsp(finalOkVarp);
 
                 // A disabled array keeps its current size. Pin its size proxy before solving so
                 // an incompatible size constraint fails instead of resizing the frozen array.
-                for (AstVar* const arrVarp : sizeArrayVars)
-                    addFrozenSizePin(fl, arrVarp, randomizep, genp, randModeVarp);
+                ಗಾಗಿ (AstVar* ಸ್ಥಿರಾಂಕ arrVarp : ಗಾತ್ರ_Array_Vars)
+                    ಕೂಡಿಸು_Frozen_ಗಾತ್ರ_Pin(fl, arrVarp, randomizep, genp, rand_ಬಹುಲಕ_Varp);
 
                 // First pass: solve size variables (and other constraints) to determine sizes
-                randomizep->addStmtsp(
-                    new AstAssign{fl, new AstVarRef{fl, sizeOkVarp, VAccess::WRITE}, solverCallp});
+                randomizep->ಕೂಡಿಸು_Stmtsp(
+                    ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, ಗಾತ್ರ_Ok_Varp, VAccess::WRITE}, solverCallp});
 
                 // Resize constrained arrays before rebuilding constraints
-                if (AstTask* const resizeAllTaskp
-                    = VN_AS(m_memberMap.findMember(nodep, "__Vresize_constrained_arrays"), Task)) {
-                    AstTaskRef* const resizeTaskRefp = new AstTaskRef{fl, resizeAllTaskp};
-                    AstIf* const ifp = new AstIf{fl, new AstVarRef{fl, sizeOkVarp, VAccess::READ},
-                                                 resizeTaskRefp->makeStmt(), nullptr};
-                    randomizep->addStmtsp(ifp);
+                ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ resizeAllTaskp
+                    = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(nodep, "__Vresize_constrained_arrays"), Task)) {
+                    AstTaskRef* ಸ್ಥಿರಾಂಕ resizeTaskRefp = ಹೊಸ AstTaskRef{fl, resizeAllTaskp};
+                    AstIf* ಸ್ಥಿರಾಂಕ ifp = ಹೊಸ AstIf{fl, ಹೊಸ AstVarRef{fl, ಗಾತ್ರ_Ok_Varp, VAccess::READ},
+                                                 resizeTaskRefp->makeStmt(), ಶೂನ್ಯಸೂಚಕ};
+                    randomizep->ಕೂಡಿಸು_Stmtsp(ifp);
                 }
 
                 // Refresh array element tables after resize
-                for (const auto& arrVarp : sizeArrayVars) {
-                    addArrayElemRefresh(fl, arrVarp, randomizep, genp);
+                ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& arrVarp : ಗಾತ್ರ_Array_Vars) {
+                    ಕೂಡಿಸು_Array_Elem_Refresh(fl, arrVarp, randomizep, genp);
                 }
 
                 // Rebuild constraints after resize and pin size variables
-                randomizep->addStmtsp(implementConstraintsClear(fl, genp));
-                AstTaskRef* const setupTaskRefp2 = new AstTaskRef{fl, setupAllTaskp};
-                randomizep->addStmtsp(setupTaskRefp2->makeStmt());
+                randomizep->ಕೂಡಿಸು_Stmtsp(implementConstraintsClear(fl, genp));
+                AstTaskRef* ಸ್ಥಿರಾಂಕ ಸಿದ್ಧತೆ_Task_Refp2 = ಹೊಸ AstTaskRef{fl, ಸಿದ್ಧತೆ_All_Taskp};
+                randomizep->ಕೂಡಿಸು_Stmtsp(ಸಿದ್ಧತೆ_Task_Refp2->makeStmt());
 
-                for (AstVar* const arrVarp : sizeArrayVars) {
-                    randomizep->addStmtsp(newPinSizeVariable(fl, arrVarp, genp));
+                ಗಾಗಿ (AstVar* ಸ್ಥಿರಾಂಕ arrVarp : ಗಾತ್ರ_Array_Vars) {
+                    randomizep->ಕೂಡಿಸು_Stmtsp(new_Pin_ಗಾತ್ರ_Variable(fl, arrVarp, genp));
                 }
 
                 // Final pass: solve full constraints with sizes pinned
-                AstCExpr* const solverCallp2 = new AstCExpr{fl};
-                solverCallp2->dtypeSetBit();
-                solverCallp2->add(new AstVarRef{fl, genModp, genp, VAccess::READWRITE});
-                solverCallp2->add(".next(__Vm_rng)");
-                randomizep->addStmtsp(new AstAssign{
-                    fl, new AstVarRef{fl, finalOkVarp, VAccess::WRITE}, solverCallp2});
+                AstCExpr* ಸ್ಥಿರಾಂಕ solverCallp2 = ಹೊಸ AstCExpr{fl};
+                solverCallp2->dtype_ಗಣ_ಬಿಟ್();
+                solverCallp2->ಕೂಡಿಸು(ಹೊಸ AstVarRef{fl, genModp, genp, VAccess::READWRITE});
+                solverCallp2->ಕೂಡಿಸು(".next(__Vm_rng)");
+                randomizep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                    fl, ಹೊಸ AstVarRef{fl, finalOkVarp, VAccess::WRITE}, solverCallp2});
 
-                beginValp = new AstAnd{fl, new AstVarRef{fl, sizeOkVarp, VAccess::READ},
-                                       new AstVarRef{fl, finalOkVarp, VAccess::READ}};
-            } else {
+                beginValp = ಹೊಸ AstAnd{fl, ಹೊಸ AstVarRef{fl, ಗಾತ್ರ_Ok_Varp, VAccess::READ},
+                                       ಹೊಸ AstVarRef{fl, finalOkVarp, VAccess::READ}};
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 beginValp = solverCallp;
             }
-            if (randModeVarp) {
-                AstNodeModule* const randModeClassp = VN_AS(randModeVarp->user2p(), Class);
-                AstNodeFTask* const newp
-                    = VN_AS(m_memberMap.findMember(randModeClassp, "new"), NodeFTask);
-                UASSERT_OBJ(newp, randModeClassp, "No new() in class");
-                addSetRandMode(newp, genp, randModeVarp);
+            ಆದರೆ (rand_ಬಹುಲಕ_Varp) {
+                Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Classp = VN_AS(rand_ಬಹುಲಕ_Varp->user2p(), Class);
+                Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ newp
+                    = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(rand_ಬಹುಲಕ_Classp, "new"), ಗಂಟು_FTask);
+                UASSERT_OBJ(newp, rand_ಬಹುಲಕ_Classp, "No new() in class");
+                ಕೂಡಿಸು_ಗಣ_Rand_ಬಹುಲಕ(newp, genp, rand_ಬಹುಲಕ_Varp);
             }
-            if (AstVar* const staticRandModeVarp = getStaticRandModeVar(nodep)) {
+            ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ static_Rand_ಬಹುಲಕ_Varp = get_Static_Rand_ಬಹುಲಕ_Var(nodep)) {
                 // Wire the shared static rand_mode queue into the class generator.
-                AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(nodep, "new"), NodeFTask);
+                Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ newp = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(nodep, "new"), ಗಂಟು_FTask);
                 UASSERT_OBJ(newp, nodep, "No new() in class");
-                addSetStaticRandMode(newp, genp, staticRandModeVarp);
+                ಕೂಡಿಸು_ಗಣ_Static_Rand_ಬಹುಲಕ(newp, genp, static_Rand_ಬಹುಲಕ_Varp);
             }
-        } else {
-            beginValp = new AstConst{fl, AstConst::WidthedValue{}, 32, 1};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            beginValp = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1};
         }
 
-        addUpdateRandVarsBody(nodep, randomizep);
+        ಕೂಡಿಸು_Update_Rand_Vars_Body(nodep, randomizep);
 
-        AstFunc* const basicRandomizep
+        AstFunc* ಸ್ಥಿರಾಂಕ basicRandomizep
             = V3Randomize::newRandomizeFunc(m_memberMap, nodep, BASIC_RANDOMIZE_FUNC_NAME);
-        addBasicRandomizeBody(basicRandomizep, nodep, randModeVarp);
+        ಕೂಡಿಸು_Basic_Randomize_Body(basicRandomizep, nodep, rand_ಬಹುಲಕ_Varp);
         // A basicFirst owner basic-randomizes first, then the solver overrides the
         // constrained leaves, so a globally-constrained leaf (not user3) is still
         // basic-randomized when its type is randomized standalone.
-        AstVarRef* const fvarRefp = new AstVarRef{fl, fvarp, VAccess::WRITE};
-        randomizep->addStmtsp(new AstAssign{
-            fl, fvarRefp, basicFirst ? new AstFuncRef{fl, basicRandomizep} : beginValp});
+        AstVarRef* ಸ್ಥಿರಾಂಕ fvarRefp = ಹೊಸ AstVarRef{fl, fvarp, VAccess::WRITE};
+        randomizep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+            fl, fvarRefp, basic_ಮೊದಲ ? ಹೊಸ AstFuncRef{fl, basicRandomizep} : beginValp});
 
-        const auto sizeArraysIt = m_sizeConstrainedArrays.find(nodep);
-        const bool needsSizePhase
-            = sizeArraysIt != m_sizeConstrainedArrays.end() && !sizeArraysIt->second.empty();
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಗಾತ್ರ_Arrays_It = m_ಗಾತ್ರ_Constrained_Arrays.ಕಂಡುಹಿಡಿ(nodep);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ needs_ಗಾತ್ರ_Phase
+            = ಗಾತ್ರ_Arrays_It != m_ಗಾತ್ರ_Constrained_Arrays.ಕೊನೆ() && !ಗಾತ್ರ_Arrays_It->ಎರಡನೇ.ಖಾಲಿಗಳು();
         // Size-only resize fallback (no element constraint, so no two-pass phase).
         // Must run after the solver .next() that sets the size variable; emit it
         // after whichever assignment below holds the solver call.
-        const auto emitResizeFallback = [&]() {
-            if (needsSizePhase) return;
-            if (AstTask* const resizeAllTaskp
-                = VN_AS(m_memberMap.findMember(nodep, "__Vresize_constrained_arrays"), Task)) {
-                AstTaskRef* const resizeTaskRefp = new AstTaskRef{fl, resizeAllTaskp};
-                randomizep->addStmtsp(resizeTaskRefp->makeStmt());
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ emitResizeFallback = [&]() {
+            ಆದರೆ (needs_ಗಾತ್ರ_Phase) ಹಿಂತಿರುಗಿ;
+            ಆದರೆ (AstTask* ಸ್ಥಿರಾಂಕ resizeAllTaskp
+                = VN_AS(m_memberMap.ಕಂಡುಹಿಡಿ_Member(nodep, "__Vresize_constrained_arrays"), Task)) {
+                AstTaskRef* ಸ್ಥಿರಾಂಕ resizeTaskRefp = ಹೊಸ AstTaskRef{fl, resizeAllTaskp};
+                randomizep->ಕೂಡಿಸು_Stmtsp(resizeTaskRefp->makeStmt());
             }
         };
-        if (!basicFirst) emitResizeFallback();
+        ಆದರೆ (!basic_ಮೊದಲ) emitResizeFallback();
 
-        AstVarRef* const fvarRefReadp = fvarRefp->cloneTree(false);
+        AstVarRef* ಸ್ಥಿರಾಂಕ fvarRefReadp = fvarRefp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
         fvarRefReadp->access(VAccess::READ);
 
-        AstNodeExpr* const secondHalfp
-            = basicFirst ? beginValp : new AstFuncRef{fl, basicRandomizep};
-        randomizep->addStmtsp(new AstAssign{fl, fvarRefp->cloneTree(false),
-                                            new AstAnd{fl, fvarRefReadp, secondHalfp}});
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಎರಡನೇ_Halfp
+            = basic_ಮೊದಲ ? beginValp : ಹೊಸ AstFuncRef{fl, basicRandomizep};
+        randomizep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, fvarRefp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು),
+                                            ಹೊಸ AstAnd{fl, fvarRefReadp, ಎರಡನೇ_Halfp}});
 
-        if (basicFirst) emitResizeFallback();
+        ಆದರೆ (basic_ಮೊದಲ) emitResizeFallback();
 
         // Call nested post_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(nodep)) {
-            AstTask* const postTaskp = getCreateNestedCallbackTask(nodep, "post");
+        ಆದರೆ (classHasRandClassMembers(nodep)) {
+            AstTask* ಸ್ಥಿರಾಂಕ postTaskp = getCreateNestedCallbackTask(nodep, "post");
             populateNestedCallbackTask(postTaskp, nodep, "post_randomize");
-            randomizep->addStmtsp((new AstTaskRef{fl, postTaskp})->makeStmt());
+            randomizep->ಕೂಡಿಸು_Stmtsp((ಹೊಸ AstTaskRef{fl, postTaskp})->makeStmt());
         }
 
-        addPrePostCall(nodep, randomizep, "post_randomize");
-        nodep->user1(false);
+        ಕೂಡಿಸು_Pre_Post_Call(nodep, randomizep, "post_randomize");
+        nodep->user1(ಸುಳ್ಳು);
     }
-    void visit(AstRandCase* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRandCase* nodep) override {
         // RANDCASE
         //   CASEITEM expr1 : stmt1
         //   CASEITEM expr2 : stmt2
@@ -6374,248 +6374,248 @@ class RandomizeVisitor final : public VNVisitor {
         // Note this code assumes that the expressions after V3Const are fast to compute
         // Optimize: we would be better with a binary search tree to reduce ifs that execute
         UINFOTREE(9, nodep, "", "rcin:");
-        AstNodeDType* const sumDTypep = nodep->findUInt64DType();
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ ಮೊತ್ತ_DTypep = nodep->ಕಂಡುಹಿಡಿ_UInt64_DType();
 
-        FileLine* const fl = nodep->fileline();
-        const std::string name = "__Vrandcase" + cvtToStr(m_randCaseNum++);
-        AstVar* const randVarp = new AstVar{fl, VVarType::BLOCKTEMP, name, sumDTypep};
-        randVarp->noSubst(true);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        ಸ್ಥಿರಾಂಕ std::string name = "__Vrandcase" + cvt_ಗಮ್ಯ_Str(m_rand_Case_ಅಂಕೆ++);
+        AstVar* ಸ್ಥಿರಾಂಕ randVarp = ಹೊಸ AstVar{fl, VVarType::BLOCKTEMP, name, ಮೊತ್ತ_DTypep};
+        randVarp->noSubst(ನಿಜ);
         randVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        addTempVarsp(randVarp);
-        AstNodeExpr* sump = new AstConst{fl, AstConst::WidthedValue{}, 64, 0};
-        AstNodeIf* const firstIfsp
-            = new AstIf{fl, new AstConst{fl, AstConst::BitFalse{}}, nullptr, nullptr};
-        AstNodeIf* ifsp = firstIfsp;
+        ಕೂಡಿಸು_ತಾತ್ಕಾಲಿಕ_Varsp(randVarp);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* sump = ಹೊಸ AstConst{fl, AstConst::Widthed_ಮೌಲ್ಯ{}, 64, 0};
+        Ast_ಗಂಟು_If* ಸ್ಥಿರಾಂಕ ಮೊದಲ_Ifsp
+            = ಹೊಸ AstIf{fl, ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_False{}}, ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ};
+        Ast_ಗಂಟು_If* ifsp = ಮೊದಲ_Ifsp;
 
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), CaseItem)) {
-            AstNodeExpr* const condp = itemp->condsp()->unlinkFrBack();
+        ಗಾಗಿ (Ast_Case_ಅಂಶ* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Case_ಅಂಶ)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp = itemp->condsp()->unlink_Fr_ಹಿಂಭಾಗ();
             sump
-                = new AstAdd{condp->fileline(), sump, new AstExtend{itemp->fileline(), condp, 64}};
-            AstNode* const stmtsp
-                = itemp->stmtsp() ? itemp->stmtsp()->unlinkFrBackWithNext() : nullptr;
-            AstVarRef* const randVarRefp = new AstVarRef{fl, randVarp, VAccess::WRITE};
-            AstNodeIf* const newifp
-                = new AstIf{itemp->fileline(),
-                            new AstLte{condp->fileline(), randVarRefp, sump->cloneTreePure(true)},
-                            stmtsp, nullptr};
-            ifsp->addElsesp(newifp);
+                = ಹೊಸ Ast_ಕೂಡಿಸು{condp->fileline(), sump, ಹೊಸ AstExtend{itemp->fileline(), condp, 64}};
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp
+                = itemp->stmtsp() ? itemp->stmtsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ() : ಶೂನ್ಯಸೂಚಕ;
+            AstVarRef* ಸ್ಥಿರಾಂಕ randVarRefp = ಹೊಸ AstVarRef{fl, randVarp, VAccess::WRITE};
+            Ast_ಗಂಟು_If* ಸ್ಥಿರಾಂಕ newifp
+                = ಹೊಸ AstIf{itemp->fileline(),
+                            ಹೊಸ AstLte{condp->fileline(), randVarRefp, sump->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ನಿಜ)},
+                            stmtsp, ಶೂನ್ಯಸೂಚಕ};
+            ifsp->ಕೂಡಿಸು_Elsesp(newifp);
             ifsp = newifp;
         }
-        AstDisplay* const dispp = new AstDisplay{
+        AstDisplay* ಸ್ಥಿರಾಂಕ dispp = ಹೊಸ AstDisplay{
             fl, VDisplayType::DT_ERROR, "All randcase items had 0 weights (IEEE 1800-2023 18.16)",
-            nullptr, nullptr};
+            ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ};
         UASSERT_OBJ(m_modp, nodep, "randcase not under module");
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        ifsp->addElsesp(dispp);
+        ifsp->ಕೂಡಿಸು_Elsesp(dispp);
 
-        AstNodeExpr* const randp = new AstRand{fl, nullptr, false};
-        randp->dtypeSetUInt64();
-        AstVarRef* const randVarRefp = new AstVarRef{fl, randVarp, VAccess::WRITE};
-        AstNode* const newp
-            = new AstAssign{fl, randVarRefp,
-                            new AstAdd{fl, new AstConst{fl, AstConst::Unsized64{}, 1},
-                                       new AstModDiv{fl, randp, sump}}};
-        newp->addNext(firstIfsp);
-        if (debug() >= 9) newp->dumpTreeAndNext(cout, "-  rcnew: ");
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ randp = ಹೊಸ AstRand{fl, ಶೂನ್ಯಸೂಚಕ, ಸುಳ್ಳು};
+        randp->dtype_ಗಣ_UInt64();
+        AstVarRef* ಸ್ಥಿರಾಂಕ randVarRefp = ಹೊಸ AstVarRef{fl, randVarp, VAccess::WRITE};
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ newp
+            = ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, randVarRefp,
+                            ಹೊಸ Ast_ಕೂಡಿಸು{fl, ಹೊಸ AstConst{fl, AstConst::Unsized64{}, 1},
+                                       ಹೊಸ AstModDiv{fl, randp, sump}}};
+        newp->ಕೂಡಿಸು_ಮುಂದಿನ(ಮೊದಲ_Ifsp);
+        ಆದರೆ (debug() >= 9) newp->dump_ವೃಕ್ಷ_And_ಮುಂದಿನ(ಹೊರಗೆ, "-  rcnew: ");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->name() == "rand_mode") {
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            AstNodeExpr* const fromp = methodCallp ? methodCallp->fromp() : nullptr;
-            const RandModeTarget randModeTarget = RandModeTarget::get(fromp, m_modp);
-            UASSERT_OBJ(randModeTarget.classp, nodep,
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask_Ref* nodep) override {
+        ಆದರೆ (nodep->name() == "rand_mode") {
+            Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp = VN_CAST(nodep, ವಿಧಾನ_Call);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = ವಿಧಾನ_Callp ? ವಿಧಾನ_Callp->fromp() : ಶೂನ್ಯಸೂಚಕ;
+            ಸ್ಥಿರಾಂಕ Rand_ಬಹುಲಕ_ಗುರಿ rand_ಬಹುಲಕ_ಗುರಿ = Rand_ಬಹುಲಕ_ಗುರಿ::get(fromp, m_modp);
+            UASSERT_OBJ(rand_ಬಹುಲಕ_ಗುರಿ.classp, nodep,
                         "Should have checked in RandomizeMarkVisitor");
-            AstVar* const receiverp = randModeTarget.receiverp;
-            const bool isClassLevel = !(receiverp && receiverp->rand().isRand());
+            AstVar* ಸ್ಥಿರಾಂಕ receiverp = rand_ಬಹುಲಕ_ಗುರಿ.receiverp;
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isClassLevel = !(receiverp && receiverp->rand().isRand());
             // Class-level rand_mode(N) must also flush the shared static array.
-            AstNode* classLevelStaticLoopp = nullptr;
-            if (isClassLevel && nodep->argsp()) {
-                if (AstVar* const sVarp = getStaticRandModeVar(randModeTarget.classp)) {
-                    FileLine* const fl = nodep->fileline();
-                    AstNodeExpr* const staticLhsp
-                        = makeModeAssignLhs(fl, randModeTarget.classp, nullptr, sVarp);
-                    AstNodeExpr* const argClonep = nodep->argsp()->exprp()->cloneTreePure(false);
-                    classLevelStaticLoopp = makeModeSetLoop(fl, staticLhsp, argClonep, m_ftaskp);
+            Ast_ಗಂಟು* classLevelStaticLoopp = ಶೂನ್ಯಸೂಚಕ;
+            ಆದರೆ (isClassLevel && nodep->argsp()) {
+                ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ sVarp = get_Static_Rand_ಬಹುಲಕ_Var(rand_ಬಹುಲಕ_ಗುರಿ.classp)) {
+                    File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ staticLhsp
+                        = make_ಬಹುಲಕ_ನಿಯೋಜಿಸು_Lhs(fl, rand_ಬಹುಲಕ_ಗುರಿ.classp, ಶೂನ್ಯಸೂಚಕ, sVarp);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ argClonep = nodep->argsp()->exprp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+                    classLevelStaticLoopp = make_ಬಹುಲಕ_ಗಣ_Loop(fl, staticLhsp, argClonep, m_ftaskp);
                 }
             }
-            const bool receiverIsStaticRand
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ receiverIsStaticRand
                 = receiverp && receiverp->rand().isRand() && receiverp->lifetime().isStatic();
-            AstVar* const randModeVarp = receiverIsStaticRand
-                                             ? getStaticRandModeVar(randModeTarget.classp)
-                                             : getRandModeVarFromClass(randModeTarget.classp);
-            if (!randModeVarp) {
+            AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp = receiverIsStaticRand
+                                             ? get_Static_Rand_ಬಹುಲಕ_Var(rand_ಬಹುಲಕ_ಗುರಿ.classp)
+                                             : get_Rand_ಬಹುಲಕ_Var_From_Class(rand_ಬಹುಲಕ_ಗುರಿ.classp);
+            ಆದರೆ (!rand_ಬಹುಲಕ_Varp) {
                 UASSERT_OBJ(isClassLevel && classLevelStaticLoopp, nodep,
                             "Per-instance rand_mode var missing without static fallback");
-                UASSERT_OBJ(VN_IS(nodep->backp(), StmtExpr), nodep, "Should be a statement");
+                UASSERT_OBJ(VN_IS(nodep->backp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ), nodep, "Should be a statement");
                 m_stmtp->replaceWith(classLevelStaticLoopp);
-                VL_DO_CLEAR(pushDeletep(m_stmtp), m_stmtp = nullptr);
-                return;
+                VL_DO_CLEAR(ತಳ್ಳು_Deletep(m_stmtp), m_stmtp = ಶೂನ್ಯಸೂಚಕ);
+                ಹಿಂತಿರುಗಿ;
             }
-            AstNodeExpr* const lhsp = makeModeAssignLhs(nodep->fileline(), randModeTarget.classp,
-                                                        randModeTarget.fromp, randModeVarp);
-            replaceWithModeAssignAndAppend(
-                nodep, receiverp && receiverp->rand().isRand() ? receiverp : nullptr, lhsp,
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp = make_ಬಹುಲಕ_ನಿಯೋಜಿಸು_Lhs(nodep->fileline(), rand_ಬಹುಲಕ_ಗುರಿ.classp,
+                                                        rand_ಬಹುಲಕ_ಗುರಿ.fromp, rand_ಬಹುಲಕ_Varp);
+            replace_With_ಬಹುಲಕ_ನಿಯೋಜಿಸು_And_Append(
+                nodep, receiverp && receiverp->rand().isRand() ? receiverp : ಶೂನ್ಯಸೂಚಕ, lhsp,
                 classLevelStaticLoopp);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (nodep->name() == "constraint_mode") {
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            AstNodeExpr* fromp = methodCallp ? methodCallp->fromp() : nullptr;
-            AstConstraint* constrp = nullptr;
+        ಆದರೆ (nodep->name() == "constraint_mode") {
+            Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ ವಿಧಾನ_Callp = VN_CAST(nodep, ವಿಧಾನ_Call);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp = ವಿಧಾನ_Callp ? ವಿಧಾನ_Callp->fromp() : ಶೂನ್ಯಸೂಚಕ;
+            AstConstraint* constrp = ಶೂನ್ಯಸೂಚಕ;
             AstClass* classp = VN_CAST(m_modp, Class);
-            if (AstConstraintRef* const constrRefp = VN_CAST(fromp, ConstraintRef)) {
+            ಆದರೆ (AstConstraintRef* ಸ್ಥಿರಾಂಕ constrRefp = VN_CAST(fromp, ConstraintRef)) {
                 constrp = constrRefp->constrp();
-                if (constrRefp->fromp()) {
+                ಆದರೆ (constrRefp->fromp()) {
                     fromp = constrRefp->fromp();
                     classp = VN_AS(fromp->dtypep()->skipRefp(), ClassRefDType)->classp();
                 }
-            } else if (fromp) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (fromp) {
                 classp = VN_AS(fromp->dtypep()->skipRefp(), ClassRefDType)->classp();
             }
             UASSERT_OBJ(classp, nodep, "Failed to find class");
             // Use correct mode variable based on whether constraint is static
-            AstVar* const constraintModeVarp = (constrp && constrp->isStatic())
-                                                   ? getStaticConstraintModeVar(classp)
-                                                   : getConstraintModeVar(classp);
-            AstNodeExpr* const lhsp
-                = makeModeAssignLhs(nodep->fileline(), classp, fromp, constraintModeVarp);
-            replaceWithModeAssign(nodep, constrp, lhsp);
-            return;
+            AstVar* ಸ್ಥಿರಾಂಕ constraint_ಬಹುಲಕ_Varp = (constrp && constrp->isStatic())
+                                                   ? get_Static_Constraint_ಬಹುಲಕ_Var(classp)
+                                                   : get_Constraint_ಬಹುಲಕ_Var(classp);
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp
+                = make_ಬಹುಲಕ_ನಿಯೋಜಿಸು_Lhs(nodep->fileline(), classp, fromp, constraint_ಬಹುಲಕ_Varp);
+            replace_With_ಬಹುಲಕ_ನಿಯೋಜಿಸು(nodep, constrp, lhsp);
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (nodep->name() != "randomize") {
+        ಆದರೆ (nodep->name() != "randomize") {
             // Iterate children so nested rand_mode/constraint_mode/randomize calls
             // inside function arguments are still visited and transformed
             iterateChildren(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std") {
+        ಆದರೆ (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std") {
             // Handle std::randomize; create wrapper function that calls basicStdRandomization on
             // each varref argument, then transform nodep to call that wrapper
-            const bool inStaticContext = m_ftaskp && m_ftaskp->isStatic();
-            AstVar* const stdrand = createStdRandomGenerator(m_modp);
-            AstFunc* const randomizeFuncp
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಒಳ_Static_Context = m_ftaskp && m_ftaskp->isStatic();
+            AstVar* ಸ್ಥಿರಾಂಕ stdrand = createStdRandomGenerator(m_modp);
+            AstFunc* ಸ್ಥಿರಾಂಕ randomizeFuncp
                 = V3Randomize::newRandomizeStdFunc(m_modp, m_inlineUniqueStdName.get(nodep));
             // When called from a static function, mark helper and stdrand as static
             // so V3Class moves them to __Vclpkg alongside the calling function
-            if (inStaticContext) {
+            ಆದರೆ (ಒಳ_Static_Context) {
                 stdrand->lifetime(VLifetime::STATIC_EXPLICIT);
-                randomizeFuncp->isStatic(true);
+                randomizeFuncp->isStatic(ನಿಜ);
             }
-            randomizeFuncp->addStmtsp(
-                new AstAssign{nodep->fileline(),
-                              new AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
+            randomizeFuncp->ಕೂಡಿಸು_Stmtsp(
+                ಹೊಸ Ast_ನಿಯೋಜಿಸು{nodep->fileline(),
+                              ಹೊಸ AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
                                             VAccess::WRITE},
-                              new AstConst{nodep->fileline(), AstConst::WidthedValue{}, 32, 1}});
+                              ಹೊಸ AstConst{nodep->fileline(), AstConst::Widthed_ಮೌಲ್ಯ{}, 32, 1}});
             std::unique_ptr<CaptureVisitor> withCapturep;
-            int argn = 0;
-            AstWith* const withp = nodep->withp();
-            for (const AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-                AstNodeExpr* const exprp = argp->exprp();
-                AstCMethodHard* const basicMethodp = new AstCMethodHard{
+            ಪೂರ್ಣಾಂಕ argn = 0;
+            AstWith* ಸ್ಥಿರಾಂಕ withp = nodep->withp();
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp = argp->exprp();
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ basicMethodp = ಹೊಸ AstCMethodHard{
                     nodep->fileline(),
-                    new AstVarRef{nodep->fileline(), stdrand, VAccess::READWRITE},
+                    ಹೊಸ AstVarRef{nodep->fileline(), stdrand, VAccess::READWRITE},
                     VCMethod::RANDOMIZER_BASIC_STD_RANDOMIZATION};
-                AstVar* const refvarp
-                    = new AstVar{exprp->fileline(), VVarType::MEMBER,
-                                 "__Varg"s + std::to_string(++argn), exprp->dtypep()};
-                refvarp->setStdRandomizeArg();
+                AstVar* ಸ್ಥಿರಾಂಕ refvarp
+                    = ಹೊಸ AstVar{exprp->fileline(), VVarType::MEMBER,
+                                 "__Varg"s + std::ಗಮ್ಯ_string(++argn), exprp->dtypep()};
+                refvarp->ಗಣ_Std_Randomize_Arg();
                 // Replace argument occurrences in 'with' clause with __Varg* reference.
-                if (withp) {
-                    withp->foreach([&](AstNodeExpr* exp) {
-                        if (isSimilarNode(exp, exprp)) {
-                            AstVarRef* const replaceVar
-                                = new AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE};
-                            exp->replaceWith(replaceVar);
-                            replaceVar->user1(exp->user1());
+                ಆದರೆ (withp) {
+                    withp->foreach([&](Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಘಾತಾಂಕ) {
+                        ಆದರೆ (is_Similar_ಗಂಟು(ಘಾತಾಂಕ, exprp)) {
+                            AstVarRef* ಸ್ಥಿರಾಂಕ replaceVar
+                                = ಹೊಸ AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE};
+                            ಘಾತಾಂಕ->replaceWith(replaceVar);
+                            replaceVar->user1(ಘಾತಾಂಕ->user1());
                             replaceVar->varp()->user2p(m_modp);
-                            VL_DO_DANGLING(pushDeletep(exp), exp);
+                            VL_DO_DANGLING(ತಳ್ಳು_Deletep(ಘಾತಾಂಕ), ಘಾತಾಂಕ);
                         }
                     });
                 }
                 refvarp->direction(VDirection::REF);
-                refvarp->funcLocal(true);
+                refvarp->funcLocal(ನಿಜ);
                 refvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                randomizeFuncp->addStmtsp(refvarp);
+                randomizeFuncp->ಕೂಡಿಸು_Stmtsp(refvarp);
 
-                const size_t width = exprp->width();
-                basicMethodp->addPinsp(
-                    new AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE});
+                ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಅಗಲ = exprp->ಅಗಲ();
+                basicMethodp->ಕೂಡಿಸು_Pinsp(
+                    ಹೊಸ AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE});
 
-                basicMethodp->addPinsp(
-                    new AstConst{nodep->fileline(), AstConst::Unsized64{}, width});
-                basicMethodp->dtypeSetBit();
+                basicMethodp->ಕೂಡಿಸು_Pinsp(
+                    ಹೊಸ AstConst{nodep->fileline(), AstConst::Unsized64{}, ಅಗಲ});
+                basicMethodp->dtype_ಗಣ_ಬಿಟ್();
 
-                randomizeFuncp->addStmtsp(new AstAssign{
+                randomizeFuncp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
                     nodep->fileline(),
-                    new AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
+                    ಹೊಸ AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
                                   VAccess::WRITE},
-                    new AstAnd{nodep->fileline(),
-                               new AstVarRef{nodep->fileline(),
+                    ಹೊಸ AstAnd{nodep->fileline(),
+                               ಹೊಸ AstVarRef{nodep->fileline(),
                                              VN_AS(randomizeFuncp->fvarp(), Var), VAccess::READ},
                                basicMethodp}});
             }
-            if (withp) {
-                FileLine* const fl = nodep->fileline();
-                withCapturep = std::make_unique<CaptureVisitor>(withp->exprp(), m_modp, nullptr,
-                                                                inStaticContext);
-                withCapturep->addFunctionArguments(randomizeFuncp);
+            ಆದರೆ (withp) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+                withCapturep = std::make_unique<CaptureVisitor>(withp->exprp(), m_modp, ಶೂನ್ಯಸೂಚಕ,
+                                                                ಒಳ_Static_Context);
+                withCapturep->ಕೂಡಿಸು_Function_Arguments(randomizeFuncp);
                 // Clear old constraints and variables for std::randomize with clause
-                if (stdrand) {
-                    randomizeFuncp->addStmtsp(
+                ಆದರೆ (stdrand) {
+                    randomizeFuncp->ಕೂಡಿಸು_Stmtsp(
                         implementConstraintsClearAll(randomizeFuncp->fileline(), stdrand));
                 }
-                AstNode* const capturedTreep = withp->exprp()->unlinkFrBackWithNext();
-                randomizeFuncp->addStmtsp(capturedTreep);
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ capturedTreep = withp->exprp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+                randomizeFuncp->ಕೂಡಿಸು_Stmtsp(capturedTreep);
                 {
                     expandUniqueElementList(capturedTreep);
-                    ConstraintExprVisitor{
-                        nullptr, m_memberMap,   capturedTreep,         randomizeFuncp, stdrand,
-                        nullptr, m_writtenVars, &m_uniqueConstraintId, m_uniqueNames,  nullptr};
+                    Constraint_ಅಭಿವ್ಯಕ್ತಿ_Visitor{
+                        ಶೂನ್ಯಸೂಚಕ, m_memberMap,   capturedTreep,         randomizeFuncp, stdrand,
+                        ಶೂನ್ಯಸೂಚಕ, m_writtenVars, &m_uniqueConstraintId, m_unique_ಹೆಸರುಗಳು,  ಶೂನ್ಯಸೂಚಕ};
                 }
-                AstCExpr* const solverCallp = new AstCExpr{fl};
-                solverCallp->dtypeSetBit();
-                solverCallp->add(new AstVarRef{fl, stdrand, VAccess::READWRITE});
-                solverCallp->add(".next()");
-                AstVar* const fvarp = VN_AS(randomizeFuncp->fvarp(), Var);
-                AstNodeExpr* const andExprp
-                    = new AstAnd{fl, new AstVarRef{fl, fvarp, VAccess::READ}, solverCallp};
-                randomizeFuncp->addStmtsp(
-                    new AstAssign{fl, new AstVarRef{fl, fvarp, VAccess::WRITE}, andExprp});
+                AstCExpr* ಸ್ಥಿರಾಂಕ solverCallp = ಹೊಸ AstCExpr{fl};
+                solverCallp->dtype_ಗಣ_ಬಿಟ್();
+                solverCallp->ಕೂಡಿಸು(ಹೊಸ AstVarRef{fl, stdrand, VAccess::READWRITE});
+                solverCallp->ಕೂಡಿಸು(".next()");
+                AstVar* ಸ್ಥಿರಾಂಕ fvarp = VN_AS(randomizeFuncp->fvarp(), Var);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ andExprp
+                    = ಹೊಸ AstAnd{fl, ಹೊಸ AstVarRef{fl, fvarp, VAccess::READ}, solverCallp};
+                randomizeFuncp->ಕೂಡಿಸು_Stmtsp(
+                    ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, fvarp, VAccess::WRITE}, andExprp});
                 // Remove With nodes as processed
-                VL_DO_DANGLING(withp->unlinkFrBack()->deleteTree(), withp);
+                VL_DO_DANGLING(withp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), withp);
             }
             // Replace the node with a call to that function
             nodep->name(randomizeFuncp->name());
             nodep->taskp(randomizeFuncp);
             nodep->dtypeFrom(randomizeFuncp->dtypep());
-            if (VN_IS(m_modp, Class)) nodep->classOrPackagep(m_modp);
-            if (withCapturep) nodep->addArgsp(withCapturep->getArgs());
+            ಆದರೆ (VN_IS(m_modp, Class)) nodep->classOrPackagep(m_modp);
+            ಆದರೆ (withCapturep) nodep->ಕೂಡಿಸು_Argsp(withCapturep->get_ವಾದಗಳು());
             UINFOTREE(9, nodep, "", "std::rnd-call");
             UINFOTREE(9, randomizeFuncp, "", "std::rnd-func");
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        handleRandomizeArgs(nodep);
+        handle_Randomize_ವಾದಗಳು(nodep);
 
-        AstWith* const withp = nodep->withp();
-        if (!withp) {
+        AstWith* ಸ್ಥಿರಾಂಕ withp = nodep->withp();
+        ಆದರೆ (!withp) {
             iterateChildren(nodep);
             wrapRandomizeCallWithNullGuard(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        withp->unlinkFrBack();
+        withp->unlink_Fr_ಹಿಂಭಾಗ();
         iterateChildren(nodep);
 
-        AstClass* classp = nullptr;
-        if (AstMethodCall* const callp = VN_CAST(nodep, MethodCall)) {
-            const AstNodeDType* const fromDTypep = callp->fromp()->dtypep();
+        AstClass* classp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (Ast_ವಿಧಾನ_Call* ಸ್ಥಿರಾಂಕ callp = VN_CAST(nodep, ವಿಧಾನ_Call)) {
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ fromDTypep = callp->fromp()->dtypep();
             UASSERT_OBJ(fromDTypep, callp->fromp(), "Object dtype is not linked");
-            const AstClassRefDType* const classrefdtypep
+            ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ classrefdtypep
                 = VN_CAST(fromDTypep->skipRefp(), ClassRefDType);
             UASSERT_OBJ(classrefdtypep, callp->fromp(),
                         "Randomize called on expression of non-class type "
@@ -6623,286 +6623,286 @@ class RandomizeVisitor final : public VNVisitor {
                             << " (it should be detected earlier)");
             classp = classrefdtypep->classp();
             UASSERT_OBJ(classp, classrefdtypep, "Class type is unlinked to its ref type");
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             classp = VN_CAST(m_modp, Class);
             UASSERT_OBJ(classp, m_modp, "Module not class, should have failed in V3Width");
         }
-        if (classp->user1()) {
+        ಆದರೆ (classp->user1()) {
             // We need to first ensure that the class constraints are transformed
             // NOTE: This is safe only because AstClass visit function overwrites all
             // nesting-dependent state variables
             iterate(classp);
         }
 
-        AstVar* const classGenp = getRandomGenerator(classp);
-        AstVar* const localGenp
-            = new AstVar{nodep->fileline(), VVarType::BLOCKTEMP, "randomizer",
-                         classp->findBasicDType(VBasicDTypeKwd::RANDOM_GENERATOR)};
-        localGenp->funcLocal(true);
+        AstVar* ಸ್ಥಿರಾಂಕ classGenp = getRandomGenerator(classp);
+        AstVar* ಸ್ಥಿರಾಂಕ localGenp
+            = ಹೊಸ AstVar{nodep->fileline(), VVarType::BLOCKTEMP, "randomizer",
+                         classp->ಕಂಡುಹಿಡಿ_Basic_DType(VBasicDTypeKwd::RANDOM_GENERATOR)};
+        localGenp->funcLocal(ನಿಜ);
 
-        AstFunc* const randomizeFuncp = V3Randomize::newRandomizeFunc(
-            m_memberMap, classp, m_inlineUniqueNames.get(nodep), false);
+        AstFunc* ಸ್ಥಿರಾಂಕ randomizeFuncp = V3Randomize::newRandomizeFunc(
+            m_memberMap, classp, m_inline_Unique_ಹೆಸರುಗಳು.get(nodep), ಸುಳ್ಳು);
 
         // A base-handle `randomize() with` must still reach a derived
         // pre/post_randomize. Route them through per-class virtual wrappers
         // when the static handle type participates in inheritance.
-        const std::pair<bool, bool> prePostWrap = classp->isExtended()
+        ಸ್ಥಿರಾಂಕ std::pair<ತಾರ್ಕಿಕ, ತಾರ್ಕಿಕ> prePostWrap = classp->isExtended()
                                                       ? buildPrePostVirtualWrappers(classp)
-                                                      : std::pair<bool, bool>{false, false};
-        if (prePostWrap.first) {
-            addVirtualPrePostCall(randomizeFuncp, classp, "pre_randomize");
-        } else {
-            addPrePostCall(classp, randomizeFuncp, "pre_randomize");
+                                                      : std::pair<ತಾರ್ಕಿಕ, ತಾರ್ಕಿಕ>{ಸುಳ್ಳು, ಸುಳ್ಳು};
+        ಆದರೆ (prePostWrap.ಮೊದಲ) {
+            ಕೂಡಿಸು_Virtual_Pre_Post_Call(randomizeFuncp, classp, "pre_randomize");
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಕೂಡಿಸು_Pre_Post_Call(classp, randomizeFuncp, "pre_randomize");
         }
 
         // Call nested pre_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(classp)) {
-            AstTask* const preTaskp = getCreateNestedCallbackTask(classp, "pre");
-            if (!preTaskp->stmtsp()) {
+        ಆದರೆ (classHasRandClassMembers(classp)) {
+            AstTask* ಸ್ಥಿರಾಂಕ preTaskp = getCreateNestedCallbackTask(classp, "pre");
+            ಆದರೆ (!preTaskp->stmtsp()) {
                 populateNestedCallbackTask(preTaskp, classp, "pre_randomize");
             }
-            randomizeFuncp->addStmtsp((new AstTaskRef{nodep->fileline(), preTaskp})->makeStmt());
+            randomizeFuncp->ಕೂಡಿಸು_Stmtsp((ಹೊಸ AstTaskRef{nodep->fileline(), preTaskp})->makeStmt());
         }
 
         // Detach the expression and prepare variable copies
-        const CaptureVisitor captured{withp->exprp(), m_modp, classp};
+        ಸ್ಥಿರಾಂಕ CaptureVisitor captured{withp->exprp(), m_modp, classp};
         // Add function arguments
-        captured.addFunctionArguments(randomizeFuncp);
+        captured.ಕೂಡಿಸು_Function_Arguments(randomizeFuncp);
 
         // Add constraints clearing code
-        if (classGenp) {
+        ಆದರೆ (classGenp) {
             // Clone write_var calls from main randomize() for path-connected variables
-            AstFunc* const mainRandomizep
-                = VN_CAST(m_memberMap.findMember(classp, "randomize"), Func);
-            if (mainRandomizep && mainRandomizep->stmtsp()) {
-                for (AstNode* stmtp = mainRandomizep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    bool foundClearConstraints = false;
+            AstFunc* ಸ್ಥಿರಾಂಕ mainRandomizep
+                = VN_CAST(m_memberMap.ಕಂಡುಹಿಡಿ_Member(classp, "randomize"), Func);
+            ಆದರೆ (mainRandomizep && mainRandomizep->stmtsp()) {
+                ಗಾಗಿ (Ast_ಗಂಟು* stmtp = mainRandomizep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    ತಾರ್ಕಿಕ ಸಿಕ್ಕಿತು_Clear_Constraints = ಸುಳ್ಳು;
                     stmtp->foreach([&](AstCMethodHard* methodp) {
-                        if (methodp->method() == VCMethod::RANDOMIZER_WRITE_VAR
-                            || methodp->method() == VCMethod::RANDOMIZER_MARK_RANDC) {
-                            randomizeFuncp->addStmtsp(stmtp->cloneTree(false));
-                        } else if (methodp->method() == VCMethod::RANDOMIZER_CLEARCONSTRAINTS) {
-                            foundClearConstraints = true;
+                        ಆದರೆ (methodp->ವಿಧಾನ() == VCMethod::RANDOMIZER_WRITE_VAR
+                            || methodp->ವಿಧಾನ() == VCMethod::RANDOMIZER_MARK_RANDC) {
+                            randomizeFuncp->ಕೂಡಿಸು_Stmtsp(stmtp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+                        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (methodp->ವಿಧಾನ() == VCMethod::RANDOMIZER_CLEARCONSTRAINTS) {
+                            ಸಿಕ್ಕಿತು_Clear_Constraints = ನಿಜ;
                         }
                     });
-                    if (foundClearConstraints) break;
+                    ಆದರೆ (ಸಿಕ್ಕಿತು_Clear_Constraints) ನಿಲ್ಲಿಸು;
                 }
             }
-            randomizeFuncp->addStmtsp(
+            randomizeFuncp->ಕೂಡಿಸು_Stmtsp(
                 implementConstraintsClear(randomizeFuncp->fileline(), classGenp));
         }
 
-        randomizeFuncp->addStmtsp(localGenp);
+        randomizeFuncp->ಕೂಡಿಸು_Stmtsp(localGenp);
 
-        AstFunc* const basicRandomizeFuncp
+        AstFunc* ಸ್ಥಿರಾಂಕ basicRandomizeFuncp
             = V3Randomize::newRandomizeFunc(m_memberMap, classp, BASIC_RANDOMIZE_FUNC_NAME);
-        AstFuncRef* const basicRandomizeFuncCallp
-            = new AstFuncRef{nodep->fileline(), basicRandomizeFuncp};
+        AstFuncRef* ಸ್ಥಿರಾಂಕ basicRandomizeFuncCallp
+            = ಹೊಸ AstFuncRef{nodep->fileline(), basicRandomizeFuncp};
 
         // Copy (derive) class constraints if present
-        if (classGenp) {
-            AstTask* const constrSetupFuncp = getCreateConstraintSetupFunc(classp, m_memberMap);
-            AstTaskRef* const callp = new AstTaskRef{nodep->fileline(), constrSetupFuncp};
-            randomizeFuncp->addStmtsp(callp->makeStmt());
-            randomizeFuncp->addStmtsp(new AstAssign{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), localGenp, VAccess::WRITE},
-                new AstVarRef{nodep->fileline(), VN_AS(classGenp->user2p(), NodeModule), classGenp,
+        ಆದರೆ (classGenp) {
+            AstTask* ಸ್ಥಿರಾಂಕ constr_ಸಿದ್ಧತೆ_Funcp = get_Create_Constraint_ಸಿದ್ಧತೆ_Func(classp, m_memberMap);
+            AstTaskRef* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstTaskRef{nodep->fileline(), constr_ಸಿದ್ಧತೆ_Funcp};
+            randomizeFuncp->ಕೂಡಿಸು_Stmtsp(callp->makeStmt());
+            randomizeFuncp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                nodep->fileline(), ಹೊಸ AstVarRef{nodep->fileline(), localGenp, VAccess::WRITE},
+                ಹೊಸ AstVarRef{nodep->fileline(), VN_AS(classGenp->user2p(), ಗಂಟು_Module), classGenp,
                               VAccess::READ}});
         }
 
         // Set rand mode if present (not needed if classGenp exists and was copied)
-        AstVar* const randModeVarp = getRandModeVarFromClass(classp);
-        if (!classGenp && randModeVarp) addSetRandMode(randomizeFuncp, localGenp, randModeVarp);
-        if (!classGenp) {
-            if (AstVar* const sVarp = getStaticRandModeVar(classp)) {
-                addSetStaticRandMode(randomizeFuncp, localGenp, sVarp);
+        AstVar* ಸ್ಥಿರಾಂಕ rand_ಬಹುಲಕ_Varp = get_Rand_ಬಹುಲಕ_Var_From_Class(classp);
+        ಆದರೆ (!classGenp && rand_ಬಹುಲಕ_Varp) ಕೂಡಿಸು_ಗಣ_Rand_ಬಹುಲಕ(randomizeFuncp, localGenp, rand_ಬಹುಲಕ_Varp);
+        ಆದರೆ (!classGenp) {
+            ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ sVarp = get_Static_Rand_ಬಹುಲಕ_Var(classp)) {
+                ಕೂಡಿಸು_ಗಣ_Static_Rand_ಬಹುಲಕ(randomizeFuncp, localGenp, sVarp);
             }
         }
 
         // Generate constraint setup code and a hardcoded call to the solver
-        AstNode* const capturedTreep = withp->exprp()->unlinkFrBackWithNext();
-        randomizeFuncp->addStmtsp(capturedTreep);
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ capturedTreep = withp->exprp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+        randomizeFuncp->ಕೂಡಿಸು_Stmtsp(capturedTreep);
 
         // Pre-scan captured tree for .size on dynamic/assoc arrays and replace
         // with size variables, using shared createOrGetSizeVar helper.
         // After CaptureVisitor, fromp() of .size is AstMemberSel (not VarRef),
         // so extract the underlying variable from the MemberSel chain.
         // Collect resize statements to add after solver call, guarded by success.
-        AstNode* inlineResizeStmtsp = nullptr;
+        Ast_ಗಂಟು* inlineResizeStmtsp = ಶೂನ್ಯಸೂಚಕ;
         {
-            std::vector<AstCMethodHard*> sizeMethodps;
-            capturedTreep->foreachAndNext([&](AstCMethodHard* methodp) {
-                if (methodp->method() == VCMethod::DYN_SIZE
-                    || methodp->method() == VCMethod::ASSOC_SIZE) {
-                    sizeMethodps.push_back(methodp);
+            std::ಸದಿಶ<AstCMethodHard*> ಗಾತ್ರ_Methodps;
+            capturedTreep->foreach_And_ಮುಂದಿನ([&](AstCMethodHard* methodp) {
+                ಆದರೆ (methodp->ವಿಧಾನ() == VCMethod::DYN_ಗಾತ್ರ
+                    || methodp->ವಿಧಾನ() == VCMethod::ASSOC_ಗಾತ್ರ) {
+                    ಗಾತ್ರ_Methodps.ತಳ್ಳು_ಹಿಂಭಾಗ(methodp);
                 }
             });
-            for (AstCMethodHard* const methodp : sizeMethodps) {
+            ಗಾಗಿ (AstCMethodHard* ಸ್ಥಿರಾಂಕ methodp : ಗಾತ್ರ_Methodps) {
                 // Extract array variable from fromp (VarRef or MemberSel after capture)
-                AstVar* arrVarp = nullptr;
-                AstNodeExpr* const rootExprp = methodp->fromp();
-                if (AstMemberSel* memberSelp = VN_CAST(rootExprp, MemberSel)) {
+                AstVar* arrVarp = ಶೂನ್ಯಸೂಚಕ;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಬೇರು_Exprp = methodp->fromp();
+                ಆದರೆ (AstMemberSel* memberSelp = VN_CAST(ಬೇರು_Exprp, MemberSel)) {
                     arrVarp = memberSelp->varp();
-                    while (VN_IS(memberSelp->fromp(), MemberSel)) {
+                    ಆಗ (VN_IS(memberSelp->fromp(), MemberSel)) {
                         memberSelp = VN_CAST(memberSelp->fromp(), MemberSel);
                     }
                     // Only variables that are part of object that randomize is called on shall be
                     // randomized (18.6.1), skip randomization if deepest variable is reference to
                     // __Vthis
-                    const AstNodeExpr* const fromp = memberSelp->fromp();
-                    if (const AstVarRef* const varRefp = VN_CAST(fromp, VarRef)) {
-                        if (varRefp->varp() == captured.getThisp()) continue;
-                    } else {
+                    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = memberSelp->fromp();
+                    ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(fromp, VarRef)) {
+                        ಆದರೆ (varRefp->varp() == captured.getThisp()) ಮುಂದುವರಿ;
+                    } ಇಲ್ಲದಿದ್ದರೆ {
                         fromp->v3warn(E_UNSUPPORTED, "Unsupported: Unsupported size constraint "
                                                      "inside 'with' statement of type "
                                                          << fromp->dtypep()->prettyTypeName());
                     }
-                } else if (AstVarRef* const varRefp = VN_CAST(rootExprp, VarRef)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ varRefp = VN_CAST(ಬೇರು_Exprp, VarRef)) {
                     arrVarp = varRefp->varp();
                 }
-                if (!arrVarp) continue;
+                ಆದರೆ (!arrVarp) ಮುಂದುವರಿ;
                 // Only handle rand-declared dynamic/assoc array variables
-                if (!arrVarp->rand().isRandomizable()) continue;
+                ಆದರೆ (!arrVarp->rand().isRandomizable()) ಮುಂದುವರಿ;
                 // Do not randomize associative array size (IEEE 18.4)
-                if (VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)) continue;
-                FileLine* const fl = methodp->fileline();
-                bool wasCreated = false;
-                AstClass* const varClassp = VN_AS(arrVarp->user2p(), Class);
-                AstVar* const sizeVarp = createOrGetSizeVar(varClassp, arrVarp, fl,
-                                                            methodp->findIntDType(), wasCreated);
+                ಆದರೆ (VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)) ಮುಂದುವರಿ;
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = methodp->fileline();
+                ತಾರ್ಕಿಕ wasCreated = ಸುಳ್ಳು;
+                AstClass* ಸ್ಥಿರಾಂಕ varClassp = VN_AS(arrVarp->user2p(), Class);
+                AstVar* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Varp = create_Or_Get_ಗಾತ್ರ_Var(varClassp, arrVarp, fl,
+                                                            methodp->ಕಂಡುಹಿಡಿ_Int_DType(), wasCreated);
                 // arrVarp and sizeVarp may live in a base class when the
                 // array is inherited; route VarRefs through their declaring
                 // class so V3Scope can resolve them.
-                if (wasCreated) {
-                    AstNodeExpr* const resizeVarRefp = buildMemberSelExprp(rootExprp, arrVarp);
-                    AstNodeExpr* const sizeExprp = buildMemberSelExprp(rootExprp, sizeVarp);
+                ಆದರೆ (wasCreated) {
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ resizeVarRefp = buildMemberSelExprp(ಬೇರು_Exprp, arrVarp);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Exprp = buildMemberSelExprp(ಬೇರು_Exprp, ಗಾತ್ರ_Varp);
                     // Append size >= 0 constraint so ConstraintExprVisitor processes it
-                    capturedTreep->addNext(createSizeGteZeroConstraint(fl, sizeVarp, rootExprp));
-                    AstCMethodHard* const resizep
-                        = new AstCMethodHard{fl, resizeVarRefp, VCMethod::DYN_RESIZE, sizeExprp};
-                    resizep->dtypep(methodp->findVoidDType());
+                    capturedTreep->ಕೂಡಿಸು_ಮುಂದಿನ(create_ಗಾತ್ರ_Gte_Zero_Constraint(fl, ಗಾತ್ರ_Varp, ಬೇರು_Exprp));
+                    AstCMethodHard* ಸ್ಥಿರಾಂಕ resizep
+                        = ಹೊಸ AstCMethodHard{fl, resizeVarRefp, VCMethod::DYN_RESIZE, ಗಾತ್ರ_Exprp};
+                    resizep->dtypep(methodp->ಕಂಡುಹಿಡಿ_Void_DType());
                     inlineResizeStmtsp
-                        = AstNode::addNext(inlineResizeStmtsp, new AstStmtExpr{fl, resizep});
+                        = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(inlineResizeStmtsp, ಹೊಸ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{fl, resizep});
                 }
-                AstNodeExpr* const sizeNodeExprp = buildMemberSelExprp(rootExprp, sizeVarp);
-                methodp->replaceWith(sizeNodeExprp);
-                VL_DO_DANGLING(methodp->deleteTree(), methodp);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_ಗಂಟು_Exprp = buildMemberSelExprp(ಬೇರು_Exprp, ಗಾತ್ರ_Varp);
+                methodp->replaceWith(ಗಾತ್ರ_ಗಂಟು_Exprp);
+                VL_DO_DANGLING(methodp->delete_ವೃಕ್ಷ(), methodp);
             }
         }
 
         {
             expandUniqueElementList(capturedTreep);
-            ConstraintExprVisitor{
+            Constraint_ಅಭಿವ್ಯಕ್ತಿ_Visitor{
                 classp,       m_memberMap,   capturedTreep,         randomizeFuncp, localGenp,
-                randModeVarp, m_writtenVars, &m_uniqueConstraintId, m_uniqueNames,  nullptr};
+                rand_ಬಹುಲಕ_Varp, m_writtenVars, &m_uniqueConstraintId, m_unique_ಹೆಸರುಗಳು,  ಶೂನ್ಯಸೂಚಕ};
         }
 
         // Call the solver and set return value
-        AstCExpr* const solverCallp = new AstCExpr{nodep->fileline()};
-        solverCallp->dtypeSetBit();
-        solverCallp->add(new AstVarRef{nodep->fileline(), localGenp, VAccess::READWRITE});
-        solverCallp->add(".next(__Vm_rng)");
-        randomizeFuncp->addStmtsp(new AstAssign{
+        AstCExpr* ಸ್ಥಿರಾಂಕ solverCallp = ಹೊಸ AstCExpr{nodep->fileline()};
+        solverCallp->dtype_ಗಣ_ಬಿಟ್();
+        solverCallp->ಕೂಡಿಸು(ಹೊಸ AstVarRef{nodep->fileline(), localGenp, VAccess::READWRITE});
+        solverCallp->ಕೂಡಿಸು(".next(__Vm_rng)");
+        randomizeFuncp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_ನಿಯೋಜಿಸು{
             nodep->fileline(),
-            new AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var), VAccess::WRITE},
-            new AstAnd{nodep->fileline(), basicRandomizeFuncCallp, solverCallp}});
+            ಹೊಸ AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var), VAccess::WRITE},
+            ಹೊಸ AstAnd{nodep->fileline(), basicRandomizeFuncCallp, solverCallp}});
 
         // Resize constrained arrays only when solver succeeds, mirroring
         // the class-level if(__Vsize_ok) guard pattern
-        if (inlineResizeStmtsp) {
-            AstVar* const retVarp = VN_AS(randomizeFuncp->fvarp(), Var);
-            AstIf* const ifp = new AstIf{nodep->fileline(),
-                                         new AstVarRef{nodep->fileline(), retVarp, VAccess::READ},
-                                         inlineResizeStmtsp, nullptr};
-            randomizeFuncp->addStmtsp(ifp);
+        ಆದರೆ (inlineResizeStmtsp) {
+            AstVar* ಸ್ಥಿರಾಂಕ retVarp = VN_AS(randomizeFuncp->fvarp(), Var);
+            AstIf* ಸ್ಥಿರಾಂಕ ifp = ಹೊಸ AstIf{nodep->fileline(),
+                                         ಹೊಸ AstVarRef{nodep->fileline(), retVarp, VAccess::READ},
+                                         inlineResizeStmtsp, ಶೂನ್ಯಸೂಚಕ};
+            randomizeFuncp->ಕೂಡಿಸು_Stmtsp(ifp);
         }
 
         // Call nested post_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(classp)) {
-            AstTask* const postTaskp = getCreateNestedCallbackTask(classp, "post");
-            if (!postTaskp->stmtsp()) {
+        ಆದರೆ (classHasRandClassMembers(classp)) {
+            AstTask* ಸ್ಥಿರಾಂಕ postTaskp = getCreateNestedCallbackTask(classp, "post");
+            ಆದರೆ (!postTaskp->stmtsp()) {
                 populateNestedCallbackTask(postTaskp, classp, "post_randomize");
             }
-            randomizeFuncp->addStmtsp((new AstTaskRef{nodep->fileline(), postTaskp})->makeStmt());
+            randomizeFuncp->ಕೂಡಿಸು_Stmtsp((ಹೊಸ AstTaskRef{nodep->fileline(), postTaskp})->makeStmt());
         }
 
-        if (prePostWrap.second) {
-            addVirtualPrePostCall(randomizeFuncp, classp, "post_randomize");
-        } else {
-            addPrePostCall(classp, randomizeFuncp, "post_randomize");
+        ಆದರೆ (prePostWrap.ಎರಡನೇ) {
+            ಕೂಡಿಸು_Virtual_Pre_Post_Call(randomizeFuncp, classp, "post_randomize");
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಕೂಡಿಸು_Pre_Post_Call(classp, randomizeFuncp, "post_randomize");
         }
 
         // Replace the node with a call to that function
         nodep->name(randomizeFuncp->name());
-        nodep->addArgsp(captured.getArgs());
+        nodep->ಕೂಡಿಸು_Argsp(captured.get_ವಾದಗಳು());
         nodep->taskp(randomizeFuncp);
         nodep->dtypeFrom(randomizeFuncp->dtypep());
         nodep->classOrPackagep(classp);
         UINFO(9, "Added `%s` randomization procedure");
         wrapRandomizeCallWithNullGuard(nodep);
-        VL_DO_DANGLING(withp->deleteTree(), withp);
+        VL_DO_DANGLING(withp->delete_ವೃಕ್ಷ(), withp);
     }
-    void visit(AstConstraint* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConstraint* nodep) override {
         VL_RESTORER(m_constraintp);
         m_constraintp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        FileLine* const fl = nodep->fileline();
-        if (m_constraintp && nodep->fromp()->user1()
-            && (nodep->method() == VCMethod::ASSOC_SIZE
-                || nodep->method() == VCMethod::DYN_SIZE)) {
-            AstClass* const classp = VN_AS(m_modp, Class);
-            AstVarRef* const queueVarRefp = VN_CAST(nodep->fromp(), VarRef);
-            if (!queueVarRefp) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = nodep->fileline();
+        ಆದರೆ (m_constraintp && nodep->fromp()->user1()
+            && (nodep->ವಿಧಾನ() == VCMethod::ASSOC_ಗಾತ್ರ
+                || nodep->ವಿಧಾನ() == VCMethod::DYN_ಗಾತ್ರ)) {
+            AstClass* ಸ್ಥಿರಾಂಕ classp = VN_AS(m_modp, Class);
+            AstVarRef* ಸ್ಥಿರಾಂಕ ಸರತಿ_Var_Refp = VN_CAST(nodep->fromp(), VarRef);
+            ಆದರೆ (!ಸರತಿ_Var_Refp) {
                 // Warning from ConstraintExprVisitor will be thrown
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
-            AstVar* const queueVarp = queueVarRefp->varp();
-            bool wasCreated = false;
-            AstVar* const sizeVarp
-                = createOrGetSizeVar(classp, queueVarp, fl, nodep->findIntDType(), wasCreated);
-            if (wasCreated) {
+            AstVar* ಸ್ಥಿರಾಂಕ ಸರತಿ_Varp = ಸರತಿ_Var_Refp->varp();
+            ತಾರ್ಕಿಕ wasCreated = ಸುಳ್ಳು;
+            AstVar* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Varp
+                = create_Or_Get_ಗಾತ್ರ_Var(classp, ಸರತಿ_Varp, fl, nodep->ಕಂಡುಹಿಡಿ_Int_DType(), wasCreated);
+            ಆದರೆ (wasCreated) {
                 // Associative arrays have no resize(); only generate resize
                 // for dynamic arrays and queues
-                if (!VN_IS(queueVarp->dtypep()->skipRefp(), AssocArrayDType)) {
+                ಆದರೆ (!VN_IS(ಸರತಿ_Varp->dtypep()->skipRefp(), AssocArrayDType)) {
                     AstTask* resizerTaskp = VN_AS(m_constraintp->user3p(), Task);
-                    if (!resizerTaskp) {
+                    ಆದರೆ (!resizerTaskp) {
                         resizerTaskp
                             = newResizeConstrainedArrayTask(classp, m_constraintp->name());
                         m_constraintp->user3p(resizerTaskp);
                     }
-                    AstVarRef* const sizeVarRefp = new AstVarRef{
-                        fl, VN_AS(sizeVarp->user2p(), NodeModule), sizeVarp, VAccess::READ};
-                    AstCMethodHard* const resizep = new AstCMethodHard{
-                        fl, nodep->fromp()->unlinkFrBack(), VCMethod::DYN_RESIZE, sizeVarRefp};
-                    resizep->dtypep(nodep->findVoidDType());
-                    resizerTaskp->addStmtsp(new AstStmtExpr{fl, resizep});
+                    AstVarRef* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Var_Refp = ಹೊಸ AstVarRef{
+                        fl, VN_AS(ಗಾತ್ರ_Varp->user2p(), ಗಂಟು_Module), ಗಾತ್ರ_Varp, VAccess::READ};
+                    AstCMethodHard* ಸ್ಥಿರಾಂಕ resizep = ಹೊಸ AstCMethodHard{
+                        fl, nodep->fromp()->unlink_Fr_ಹಿಂಭಾಗ(), VCMethod::DYN_RESIZE, ಗಾತ್ರ_Var_Refp};
+                    resizep->dtypep(nodep->ಕಂಡುಹಿಡಿ_Void_DType());
+                    resizerTaskp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{fl, resizep});
                 }
 
                 // Since size variable is signed int, we need additional constraint
                 // to make sure it is always >= 0.
-                m_constraintp->addItemsp(createSizeGteZeroConstraint(fl, sizeVarp));
+                m_constraintp->ಕೂಡಿಸು_Itemsp(create_ಗಾತ್ರ_Gte_Zero_Constraint(fl, ಗಾತ್ರ_Varp));
             }
-            AstVarRef* const sizeVarRefp = new AstVarRef{fl, VN_AS(sizeVarp->user2p(), NodeModule),
-                                                         sizeVarp, VAccess::READ};
-            sizeVarRefp->user1(true);
-            nodep->replaceWith(sizeVarRefp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            AstVarRef* ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_Var_Refp = ಹೊಸ AstVarRef{fl, VN_AS(ಗಾತ್ರ_Varp->user2p(), ಗಂಟು_Module),
+                                                         ಗಾತ್ರ_Varp, VAccess::READ};
+            ಗಾತ್ರ_Var_Refp->user1(ನಿಜ);
+            nodep->replaceWith(ಗಾತ್ರ_Var_Refp);
+            VL_DO_DANGLING(nodep->delete_ವೃಕ್ಷ(), nodep);
         }
     }
-    void visit(AstNodeStmt* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Stmt* nodep) override {
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit RandomizeVisitor(AstNetlist* nodep)
-        : m_inlineUniqueNames{"__Vrandwith"} {
+    ಸ್ಪಷ್ಟ RandomizeVisitor(AstNetlist* nodep)
+        : m_inline_Unique_ಹೆಸರುಗಳು{"__Vrandwith"} {
         createRandomizeClassVars(nodep);
         // Flag local constraint leaves as solver-owned so __VBasicRand skips them.
         // Runs before any class is lowered. Only a randomized class counts, and
@@ -6910,114 +6910,114 @@ public:
         // a global constraint stays basic-randomized so a standalone randomize()
         // of its type still randomizes it (issue #7833); a class-typed sub-object
         // is skipped so its own members are still basic-randomized.
-        nodep->foreach([&](AstClass* const classp) {
-            if (!classp->user1()) return;
-            classp->foreachMember([&](AstClass* const ownerClassp, AstConstraint* const constrp) {
-                constrp->foreach([&](AstMemberSel* const memberSelp) {
-                    AstVar* const varp = memberSelp->varp();
-                    if (VN_IS(varp->dtypep()->skipRefp(), ClassRefDType)) return;
-                    if (VN_AS(varp->user2p(), NodeModule) != ownerClassp) return;
-                    if (!varp->user3()) varp->user3(true);
+        nodep->foreach([&](AstClass* ಸ್ಥಿರಾಂಕ classp) {
+            ಆದರೆ (!classp->user1()) ಹಿಂತಿರುಗಿ;
+            classp->foreachMember([&](AstClass* ಸ್ಥಿರಾಂಕ ownerClassp, AstConstraint* ಸ್ಥಿರಾಂಕ constrp) {
+                constrp->foreach([&](AstMemberSel* ಸ್ಥಿರಾಂಕ memberSelp) {
+                    AstVar* ಸ್ಥಿರಾಂಕ varp = memberSelp->varp();
+                    ಆದರೆ (VN_IS(varp->dtypep()->skipRefp(), ClassRefDType)) ಹಿಂತಿರುಗಿ;
+                    ಆದರೆ (VN_AS(varp->user2p(), ಗಂಟು_Module) != ownerClassp) ಹಿಂತಿರುಗಿ;
+                    ಆದರೆ (!varp->user3()) varp->user3(ನಿಜ);
                 });
             });
         });
 
         iterate(nodep);
         nodep->foreach([&](AstConstraint* constrp) {
-            VL_DO_DANGLING(pushDeletep(constrp->unlinkFrBack()), constrp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(constrp->unlink_Fr_ಹಿಂಭಾಗ()), constrp);
         });
     }
-    ~RandomizeVisitor() override = default;
+    ~RandomizeVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //######################################################################
 // Randomize method class functions
 
-void V3Randomize::randomizeNetlist(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Randomize::randomizeNetlist(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        const RandomizeMarkVisitor markVisitor{nodep};
-        const RandomizeVisitor randomizeVisitor{nodep};
+        ಸ್ಥಿರಾಂಕ RandomizeMarkVisitor markVisitor{nodep};
+        ಸ್ಥಿರಾಂಕ RandomizeVisitor randomizeVisitor{nodep};
     }
-    V3Global::dumpCheckGlobalTree("randomize", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("randomize", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }
 
 AstFunc* V3Randomize::newRandomizeFunc(VMemberMap& memberMap, AstClass* nodep,
-                                       const std::string& name, bool allowVirtual,
-                                       bool childDType) {
-    AstFunc* funcp = VN_AS(memberMap.findMember(nodep, name), Func);
-    if (!funcp) {
-        v3Global.useRandomizeMethods(true);
-        AstNodeDType* const dtypep
-            = childDType
-                  ? new AstBasicDType{nodep->fileline(), VBasicDTypeKwd::INT}
-                  : nodep->findBitDType(32, 32, VSigning::SIGNED);  // IEEE says int return of 0/1
-        AstVar* const fvarp = childDType
-                                  ? new AstVar{nodep->fileline(), VVarType::MEMBER, name,
-                                               VFlagChildDType{}, dtypep}
-                                  : new AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
-        fvarp->fileline()->warnOff(V3ErrorCode::NORETURN, true);
+                                       ಸ್ಥಿರಾಂಕ std::string& name, ತಾರ್ಕಿಕ allowVirtual,
+                                       ತಾರ್ಕಿಕ ಮಗು_DType) {
+    AstFunc* funcp = VN_AS(memberMap.ಕಂಡುಹಿಡಿ_Member(nodep, name), Func);
+    ಆದರೆ (!funcp) {
+        v3Global.useRandomizeMethods(ನಿಜ);
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep
+            = ಮಗು_DType
+                  ? ಹೊಸ AstBasicDType{nodep->fileline(), VBasicDTypeKwd::INT}
+                  : nodep->ಕಂಡುಹಿಡಿ_ಬಿಟ್_DType(32, 32, VSigning::SIGNED);  // IEEE says int return of 0/1
+        AstVar* ಸ್ಥಿರಾಂಕ fvarp = ಮಗು_DType
+                                  ? ಹೊಸ AstVar{nodep->fileline(), VVarType::MEMBER, name,
+                                               VFlag_ಮಗು_DType{}, dtypep}
+                                  : ಹೊಸ AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
+        fvarp->fileline()->warnOff(V3_Error_ಸಂಕೇತ::NORETURN, ನಿಜ);
         fvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        fvarp->funcLocal(true);
-        fvarp->funcReturn(true);
+        fvarp->funcLocal(ನಿಜ);
+        fvarp->funcReturn(ನಿಜ);
         fvarp->direction(VDirection::OUTPUT);
-        nodep->addMembersp(funcp);
-        funcp = new AstFunc{nodep->fileline(), name, nullptr, fvarp};
-        if (!childDType) funcp->dtypep(dtypep);
-        funcp->classMethod(true);
+        nodep->ಕೂಡಿಸು_Membersp(funcp);
+        funcp = ಹೊಸ AstFunc{nodep->fileline(), name, ಶೂನ್ಯಸೂಚಕ, fvarp};
+        ಆದರೆ (!ಮಗು_DType) funcp->dtypep(dtypep);
+        funcp->class_ವಿಧಾನ(ನಿಜ);
         funcp->isVirtual(allowVirtual && nodep->isExtended());
-        nodep->addMembersp(funcp);
-        memberMap.insert(nodep, funcp);
+        nodep->ಕೂಡಿಸು_Membersp(funcp);
+        memberMap.ಸೇರಿಸು(nodep, funcp);
     }
-    return funcp;
+    ಹಿಂತಿರುಗಿ funcp;
 }
 
-AstFunc* V3Randomize::newRandomizeStdFunc(AstNodeModule* nodep, const std::string& name) {
-    AstFunc* funcp = nullptr;
-    v3Global.useRandomizeMethods(true);
-    AstNodeDType* const dtypep = nodep->findBitDType(32, 32, VSigning::SIGNED);
-    AstVar* const fvarp = new AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
+AstFunc* V3Randomize::newRandomizeStdFunc(Ast_ಗಂಟು_Module* nodep, ಸ್ಥಿರಾಂಕ std::string& name) {
+    AstFunc* funcp = ಶೂನ್ಯಸೂಚಕ;
+    v3Global.useRandomizeMethods(ನಿಜ);
+    Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = nodep->ಕಂಡುಹಿಡಿ_ಬಿಟ್_DType(32, 32, VSigning::SIGNED);
+    AstVar* ಸ್ಥಿರಾಂಕ fvarp = ಹೊಸ AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
     fvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-    fvarp->funcLocal(true);
-    fvarp->funcReturn(true);
+    fvarp->funcLocal(ನಿಜ);
+    fvarp->funcReturn(ನಿಜ);
     fvarp->direction(VDirection::OUTPUT);
-    funcp = new AstFunc{nodep->fileline(), name, nullptr, fvarp};
+    funcp = ಹೊಸ AstFunc{nodep->fileline(), name, ಶೂನ್ಯಸೂಚಕ, fvarp};
     funcp->dtypep(dtypep);
-    if (VN_IS(nodep, Class)) {
-        funcp->classMethod(true);
-    } else {
-        funcp->classMethod(true);
-        funcp->isStatic(true);
+    ಆದರೆ (VN_IS(nodep, Class)) {
+        funcp->class_ವಿಧಾನ(ನಿಜ);
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        funcp->class_ವಿಧಾನ(ನಿಜ);
+        funcp->isStatic(ನಿಜ);
     }
-    nodep->addStmtsp(funcp);
-    return funcp;
+    nodep->ಕೂಡಿಸು_Stmtsp(funcp);
+    ಹಿಂತಿರುಗಿ funcp;
 }
 
 AstFunc* V3Randomize::newSRandomFunc(VMemberMap& memberMap, AstClass* nodep) {
-    AstClass* const basep = nodep->baseMostClassp();
-    AstFunc* funcp = VN_AS(memberMap.findMember(basep, "srandom"), Func);
-    if (!funcp) {
-        v3Global.useRandomizeMethods(true);
-        AstNodeDType* const dtypep
-            = basep->findBitDType(32, 32, VSigning::SIGNED);  // IEEE says argument 0/1
-        AstVar* const ivarp = new AstVar{basep->fileline(), VVarType::MEMBER, "seed", dtypep};
+    AstClass* ಸ್ಥಿರಾಂಕ basep = nodep->ತಳ_Most_Classp();
+    AstFunc* funcp = VN_AS(memberMap.ಕಂಡುಹಿಡಿ_Member(basep, "srandom"), Func);
+    ಆದರೆ (!funcp) {
+        v3Global.useRandomizeMethods(ನಿಜ);
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep
+            = basep->ಕಂಡುಹಿಡಿ_ಬಿಟ್_DType(32, 32, VSigning::SIGNED);  // IEEE says argument 0/1
+        AstVar* ಸ್ಥಿರಾಂಕ ivarp = ಹೊಸ AstVar{basep->fileline(), VVarType::MEMBER, "seed", dtypep};
         ivarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        ivarp->funcLocal(true);
-        ivarp->direction(VDirection::INPUT);
-        funcp = new AstFunc{basep->fileline(), "srandom", ivarp, nullptr};
-        funcp->dtypep(basep->findVoidDType());
-        funcp->classMethod(true);
-        funcp->isVirtual(false);
-        basep->addMembersp(funcp);
-        memberMap.insert(nodep, funcp);
+        ivarp->funcLocal(ನಿಜ);
+        ivarp->direction(VDirection::ಒಳಹರಿವು);
+        funcp = ಹೊಸ AstFunc{basep->fileline(), "srandom", ivarp, ಶೂನ್ಯಸೂಚಕ};
+        funcp->dtypep(basep->ಕಂಡುಹಿಡಿ_Void_DType());
+        funcp->class_ವಿಧಾನ(ನಿಜ);
+        funcp->isVirtual(ಸುಳ್ಳು);
+        basep->ಕೂಡಿಸು_Membersp(funcp);
+        memberMap.ಸೇರಿಸು(nodep, funcp);
         // For std::process, seed the per-process RNG via m_process->srandom()
         // For regular classes, seed the per-object RNG via __Vm_rng
-        if (basep->name() == "process") {
-            funcp->addStmtsp(new AstCStmt{basep->fileline(), "m_process->srandom(seed);"});
-        } else {
-            funcp->addStmtsp(new AstCStmt{basep->fileline(), "__Vm_rng.srandom(seed);"});
-            basep->needRNG(true);
+        ಆದರೆ (basep->name() == "process") {
+            funcp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{basep->fileline(), "m_process->srandom(seed);"});
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            funcp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{basep->fileline(), "__Vm_rng.srandom(seed);"});
+            basep->needRNG(ನಿಜ);
         }
     }
-    return funcp;
+    ಹಿಂತಿರುಗಿ funcp;
 }

@@ -14,140 +14,140 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3STRING_H_
-#define VERILATOR_V3STRING_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3STRING_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3STRING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 // No V3 headers here - this is a base class for Vlc etc
 
-#include <deque>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <deque>
+#ಅನ್ತರ್ಭಾವ <iomanip>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <sstream>
+#ಅನ್ತರ್ಭಾವ <string>
+#ಅನ್ತರ್ಭಾವ <type_traits>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <vector>
 
-using VStringList = std::vector<std::string>;
-using VStringSet = std::set<std::string>;
+using VStringList = std::ಸದಿಶ<std::string>;
+using VString_ಗಣ = std::ಗಣ<std::string>;
 
 //######################################################################
 // Global string-related functions
 
-template <typename T>
-std::string cvtToStr(const T& t) VL_PURE {
+ಮಾದರಿ <typename T>
+std::string cvt_ಗಮ್ಯ_Str(ಸ್ಥಿರಾಂಕ T& t) VL_ಶುದ್ಧ {
     std::ostringstream os;
     os << t;
-    return os.str();
+    ಹಿಂತಿರುಗಿ os.str();
 }
-template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, std::string>::type
-cvtToHex(const T tp) VL_PURE {
+ಮಾದರಿ <typename T>
+typename std::enable_if<std::is_ಸೂಚಕ<T>::ಮೌಲ್ಯ, std::string>::type
+cvt_ಗಮ್ಯ_Hex(ಸ್ಥಿರಾಂಕ T tp) VL_ಶುದ್ಧ {
     std::ostringstream os;
-    os << static_cast<const void*>(tp);
-    return os.str();
+    os << static_cast<ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ*>(tp);
+    ಹಿಂತಿರುಗಿ os.str();
 }
-template <typename T>
-typename std::enable_if<std::is_integral<T>::value, std::string>::type cvtToHex(const T t) {
+ಮಾದರಿ <typename T>
+typename std::enable_if<std::is_integral<T>::ಮೌಲ್ಯ, std::string>::type cvt_ಗಮ್ಯ_Hex(ಸ್ಥಿರಾಂಕ T t) {
     std::ostringstream os;
-    os << std::hex << std::setw(sizeof(T) * 8 / 4) << std::setfill('0') << t;
-    return os.str();
+    os << std::hex << std::setw(ಗಾತ್ರ(T) * 8 / 4) << std::setfill('0') << t;
+    ಹಿಂತಿರುಗಿ os.str();
 }
 
-inline string ucfirst(const string& text) {
-    string result = text;
-    result[0] = std::toupper(result[0]);
-    return result;
+ಸಾಲೊಳಗೆ string ucfirst(ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ) {
+    string ಫಲಿತಾಂಶ = ಪಠ್ಯ;
+    ಫಲಿತಾಂಶ[0] = std::ದೊಡ್ಡ_ಅಕ್ಷರ(ಫಲಿತಾಂಶ[0]);
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 //######################################################################
 // VString - String manipulation
 
 class VString final {
-    static bool wildmatchi(const char* s, const char* p) VL_PURE;
+    ಸ್ಥಿರ bool wildmatchi(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* p) VL_ಶುದ್ಧ;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS (generic string utilities)
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const char* s, const char* p) VL_PURE;
+    ಸ್ಥಿರ bool wildmatch(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* s, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* p) VL_ಶುದ್ಧ;
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const string& s, const string& p) VL_PURE;
+    ಸ್ಥಿರ bool wildmatch(ಸ್ಥಿರಾಂಕ string& s, ಸ್ಥಿರಾಂಕ string& p) VL_ಶುದ್ಧ;
     // Return {a}{dot}{b}, omitting dot if a or b are empty
-    static string dot(const string& a, const string& dot, const string& b);
+    ಸ್ಥಿರ string dot(ಸ್ಥಿರಾಂಕ string& a, ಸ್ಥಿರಾಂಕ string& dot, ಸ್ಥಿರಾಂಕ string& b);
     // Convert string to lowercase (tolower)
-    static string downcase(const string& str) VL_PURE;
+    ಸ್ಥಿರ string downcase(ಸ್ಥಿರಾಂಕ string& str) VL_ಶುದ್ಧ;
     // Convert string to upper case (toupper)
-    static string upcase(const string& str) VL_PURE;
+    ಸ್ಥಿರ string upcase(ಸ್ಥಿರಾಂಕ string& str) VL_ಶುದ್ಧ;
     // Insert esc just before tgt
-    static string quoteAny(const string& str, char tgt, char esc) VL_PURE;
+    ಸ್ಥಿರ string quoteAny(ಸ್ಥಿರಾಂಕ string& str, ಅಕ್ಷರ tgt, ಅಕ್ಷರ esc) VL_ಶುದ್ಧ;
     // Replace any \'s with \\  (two consecutive backslashes)
-    static string quoteBackslash(const string& str) VL_PURE { return quoteAny(str, '\\', '\\'); }
+    ಸ್ಥಿರ string quoteBackslash(ಸ್ಥಿರಾಂಕ string& str) VL_ಶುದ್ಧ { ಹಿಂತಿರುಗಿ quoteAny(str, '\\', '\\'); }
     // Replace any %'s with %%
-    static string quotePercent(const string& str) VL_PURE { return quoteAny(str, '%', '%'); }
+    ಸ್ಥಿರ string quotePercent(ಸ್ಥಿರಾಂಕ string& str) VL_ಶುದ್ಧ { ಹಿಂತಿರುಗಿ quoteAny(str, '%', '%'); }
     // Replace any %%'s with %
-    static string dequotePercent(const string& str);
+    ಸ್ಥಿರ string dequotePercent(ಸ್ಥಿರಾಂಕ string& str);
     // Surround a raw string by double quote and escape if necessary
     // e.g. input abc's  becomes "\"abc\'s\""
-    static string escapeStringForPath(const string& str);
+    ಸ್ಥಿರ string escape_String_For_ಮಾರ್ಗ(ಸ್ಥಿರಾಂಕ string& str);
     // Convert SV quoted string input from source code to normal form.
     // Reverse is V3OutFormatter::quoteNameControls(...)
-    static string unquoteSVString(const string& text, string& errOut);
+    ಸ್ಥಿರ string unquoteSVString(ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ, string& err_ಹೊರಹೋಗು);
     // Position just past the string literal 'pos' opens with '"', as written by
     // V3OutFormatter::quoteNameControls(...), whose escapes each begin with '\', or npos if the
     // literal does not end
-    static size_t quotedEnd(const string& str, size_t pos) VL_PURE;
+    ಸ್ಥಿರ ಗಾತ್ರ_t quoted_ಕೊನೆ(ಸ್ಥಿರಾಂಕ string& str, ಗಾತ್ರ_t pos) VL_ಶುದ್ಧ;
     // Escape path in Windows
     // e.g. input `C:\Program Files\My Program\My Program.exe` becomes
     // `C:\\Program\ Files\\My\ Program\\My\ Program.exe`
-    static string quoteStringLiteralForShell(const string& str);
+    ಸ್ಥಿರ string quoteStringLiteralForShell(ಸ್ಥಿರಾಂಕ string& str);
     // Replace any unprintable with space
     // This includes removing tabs, so column tracking is correct
-    static string spaceUnprintable(const string& str) VL_PURE;
+    ಸ್ಥಿರ string spaceUnprintable(ಸ್ಥಿರಾಂಕ string& str) VL_ಶುದ್ಧ;
     // Remove any whitespace
-    static string removeWhitespace(const string& str);
+    ಸ್ಥಿರ string removeWhitespace(ಸ್ಥಿರಾಂಕ string& str);
     // Trim leading/trailing whitespace on each line
-    static string trimWhitespace(const string& str);
+    ಸ್ಥಿರ string trimWhitespace(ಸ್ಥಿರಾಂಕ string& str);
     // Return true if only identifer or ""
-    static bool isIdentifier(const string& str);
+    ಸ್ಥಿರ bool isIdentifier(ಸ್ಥಿರಾಂಕ string& str);
     // Return true if char is valid character in C identifiers
-    static bool isIdentifierChar(char c) { return isalnum(c) || c == '_'; }
+    ಸ್ಥಿರ bool isIdentifierChar(ಅಕ್ಷರ c) { ಹಿಂತಿರುಗಿ ಅಕ್ಷರವೇ_ಅಂಕಿಯೇ(c) || c == '_'; }
     // Return true if only whitespace or ""
-    static bool isWhitespace(const string& str);
+    ಸ್ಥಿರ bool isWhitespace(ಸ್ಥಿರಾಂಕ string& str);
     // Return number of spaces/tabs leading in string
-    static string::size_type leadingWhitespaceCount(const string& str);
+    ಸ್ಥಿರ string::ಗಾತ್ರ_type leading_Whitespace_ಎಣಿಕೆ(ಸ್ಥಿರಾಂಕ string& str);
     // Return double by parsing string
-    static double parseDouble(const string& str, bool* successp);
+    ಸ್ಥಿರ ದ್ವಿಗುಣ parseDouble(ಸ್ಥಿರಾಂಕ string& str, bool* successp);
     // Replace substring. Often replaceWord is more appropriate.
-    static string replaceSubstr(const string& str, const string& from, const string& to);
+    ಸ್ಥಿರ string replaceSubstr(ಸ್ಥಿರಾಂಕ string& str, ಸ್ಥಿರಾಂಕ string& from, ಸ್ಥಿರಾಂಕ string& ಗಮ್ಯ);
     // Replace all occurrences of the word 'from' in 'str' with 'to'. A word is considered
     // to be a consecutive sequence of the characters [a-zA-Z0-9_]. Sub-words are not replaced.
     // e.g.: replaceWords("one apple bad_apple", "apple", "banana") -> "one banana bad_apple"
-    static string replaceWord(const string& str, const string& from, const string& to);
+    ಸ್ಥಿರ string replace_ಶಬ್ದ(ಸ್ಥಿರಾಂಕ string& str, ಸ್ಥಿರಾಂಕ string& from, ಸ್ಥಿರಾಂಕ string& ಗಮ್ಯ);
     // Return deque of strings split by the given delimiter
-    static std::deque<string> split(const string& str, char delimiter = ',');
+    ಸ್ಥಿರ std::deque<string> ವಿಭಜಿಸು(ಸ್ಥಿರಾಂಕ string& str, ಅಕ್ಷರ delimiter = ',');
     // Predicate to check if 'str' starts with 'prefix'
-    static bool startsWith(const string& str, const char* prefixp) {
-        return !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
+    ಸ್ಥಿರ bool startsWith(ಸ್ಥಿರಾಂಕ string& str, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* prefixp) {
+        ಹಿಂತಿರುಗಿ !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
     }
-    static bool startsWith(const string& str, const string& prefix) {
-        return !str.rfind(prefix, 0);  // Faster than .find(_) == 0
+    ಸ್ಥಿರ bool startsWith(ಸ್ಥಿರಾಂಕ string& str, ಸ್ಥಿರಾಂಕ string& ಪೂರ್ವಪ್ರತ್ಯಯ) {
+        ಹಿಂತಿರುಗಿ !str.rfind(ಪೂರ್ವಪ್ರತ್ಯಯ, 0);  // Faster than .find(_) == 0
     }
     // Predicate to check if 'str' ends with 'suffix'
-    static bool endsWith(const string& str, const string& suffix);
+    ಸ್ಥಿರ bool ತುದಿಗಳು_With(ಸ್ಥಿರಾಂಕ string& str, ಸ್ಥಿರಾಂಕ string& suffix);
     // Return proper article (a/an) for a word. May be inaccurate for some special words
-    static string aOrAn(const char* word);
-    static string aOrAn(const string& word) { return aOrAn(word.c_str()); }
+    ಸ್ಥಿರ string aOrAn(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಶಬ್ದ);
+    ಸ್ಥಿರ string aOrAn(ಸ್ಥಿರಾಂಕ string& ಶಬ್ದ) { ಹಿಂತಿರುಗಿ aOrAn(ಶಬ್ದ.c_str()); }
     // Hash the string
-    static uint64_t hashMurmur(const string& str) VL_PURE;
+    ಸ್ಥಿರ uint64_t hashMurmur(ಸ್ಥಿರಾಂಕ string& str) VL_ಶುದ್ಧ;
 
     // Base 64 encode
-    static string base64Enc(const string& str) VL_PURE;
+    ಸ್ಥಿರ string base64Enc(ಸ್ಥಿರಾಂಕ string& str) VL_ಶುದ್ಧ;
 
-    static void selfTest();  // Test this class
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTest();  // Test this class
 };
 
 //######################################################################
@@ -162,9 +162,9 @@ class VHashSha512 final {
     // MEMBERS
     uint64_t m_inthash[8];  // Intermediate hash, in host order
     string m_remainder;  // Unhashed data
-    size_t m_totLength = 0;  // Total all-chunk length as needed by output digest
+    ಗಾತ್ರ_t m_tot_ಉದ್ದಳತೆ = 0;  // Total all-chunk length as needed by output digest
     bool m_final = false;  // Finalized
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     VHashSha512() {
         m_inthash[0] = 0x6a09e667f3bcc908ULL;
@@ -176,36 +176,36 @@ public:
         m_inthash[6] = 0x1f83d9abfb41bd6bULL;
         m_inthash[7] = 0x5be0cd19137e2179ULL;
     }
-    explicit VHashSha512(const string& data)
+    explicit VHashSha512(ಸ್ಥಿರಾಂಕ string& ದತ್ತಾಂಶ)
         : VHashSha512{} {
-        insert(data);
+        ಸೇರಿಸು(ದತ್ತಾಂಶ);
     }
-    ~VHashSha512() = default;
+    ~VHashSha512() = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // CONSTANTS
     // Characters digestSymbol24 keeps, 6 bits each, so 144 bits and no collisions in practice
-    static constexpr size_t DIGEST_SYMBOL24_LENGTH = 24;
+    ಸ್ಥಿರ constexpr ಗಾತ್ರ_t DIGEST_SYMBOL24_ಉದ್ದಳತೆ = 24;
 
     // METHODS
     string digestBase64();  // Return digest formatted in Base64 (non-URL flavor)
-    string digestBinary();  // Return digest as 64 character binary
+    string digest_ದ್ವಿಮಾನ();  // Return digest as 64 character binary
     string digestHex();  // Return digest formatted as a hex string
     string digestSymbol24();  // Return non-reversable short-formatted as C symbol/base64ish
     uint64_t digestUInt64();  // Return 64-bits of digest
-    static void selfTest();  // Test this class
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTest();  // Test this class
 
     // Inserting hash data
-    void insert(const void* datap, size_t length);  // Process data into the digest
-    void insert(const string& data) {
-        insert(data.data(), data.length());
+    ಶೂನ್ಯ ಸೇರಿಸು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ* datap, ಗಾತ್ರ_t ಉದ್ದಳತೆ);  // Process data into the digest
+    ಶೂನ್ಯ ಸೇರಿಸು(ಸ್ಥಿರಾಂಕ string& ದತ್ತಾಂಶ) {
+        ಸೇರಿಸು(ದತ್ತಾಂಶ.ದತ್ತಾಂಶ(), ದತ್ತಾಂಶ.ಉದ್ದಳತೆ());
     }  // Process data into the digest
-    void insert(uint64_t value) { insert(cvtToStr(value)); }
-    void insertFile(const string& filename);
+    ಶೂನ್ಯ ಸೇರಿಸು(uint64_t ಮೌಲ್ಯ) { ಸೇರಿಸು(cvt_ಗಮ್ಯ_Str(ಮೌಲ್ಯ)); }
+    ಶೂನ್ಯ ಸೇರಿಸು_File(ಸ್ಥಿರಾಂಕ string& filename);
 
-private:
-    static void selfTestOne(const string& data, const string& data2, const string& exp,
-                            const string& exp64, const string& exp24);
-    void finalize();  // Process remaining data
+ಖಾಸಗಿ:
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTestOne(ಸ್ಥಿರಾಂಕ string& ದತ್ತಾಂಶ, ಸ್ಥಿರಾಂಕ string& data2, ಸ್ಥಿರಾಂಕ string& ಘಾತಾಂಕ,
+                            ಸ್ಥಿರಾಂಕ string& exp64, ಸ್ಥಿರಾಂಕ string& exp24);
+    ಶೂನ್ಯ finalize();  // Process remaining data
 };
 
 //######################################################################
@@ -215,27 +215,27 @@ private:
 class VName final {
     string m_name;  // Pre-hashed symbol name
     string m_hashed;  // Hashed version of symbol name
-    static std::map<string, string> s_dehashMap;  // hashed -> original decoder
+    ಸ್ಥಿರ std::map<string, string> s_dehashMap;  // hashed -> original decoder
 
-    static size_t s_maxLength;  // Length at which to start hashing
-    static size_t s_minLength;  // Length to preserve if over maxLength
+    ಸ್ಥಿರ ಗಾತ್ರ_t s_max_ಉದ್ದಳತೆ;  // Length at which to start hashing
+    ಸ್ಥಿರ ಗಾತ್ರ_t s_min_ಉದ್ದಳತೆ;  // Length to preserve if over maxLength
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit VName(const string& name)
+    explicit VName(ಸ್ಥಿರಾಂಕ string& name)
         : m_name{name} {}
-    ~VName() = default;
+    ~VName() = ಪೂರ್ವನಿಯೋಜಿತ;
     // METHODS
-    void name(const string& name) {
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) {
         m_name = name;
         m_hashed = "";
     }
-    string name() const { return m_name; }
+    string name() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_name; }
     string hashedName();
     // CONFIG STATIC METHODS
     // Length at which to start hashing, 0=disable
-    static void maxLength(size_t flag) { s_maxLength = flag; }
-    static string dehash(const string& in);
+    ಸ್ಥಿರ ಶೂನ್ಯ max_ಉದ್ದಳತೆ(ಗಾತ್ರ_t flag) { s_max_ಉದ್ದಳತೆ = flag; }
+    ಸ್ಥಿರ string dehash(ಸ್ಥಿರಾಂಕ string& ಒಳ);
 };
 
 //######################################################################
@@ -243,56 +243,56 @@ public:
 
 class VSpellCheck final {
     // CONSTANTS
-    static constexpr unsigned NUM_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
-    static constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
+    ಸ್ಥಿರ constexpr ಚಿಹ್ನೆರಹಿತ ಅಂಕೆ_CANDIDATE_ಎಲ್ಲೆ = 10000;  // Avoid searching huge netlists
+    ಸ್ಥಿರ constexpr ಚಿಹ್ನೆರಹಿತ ಉದ್ದಳತೆ_ಎಲ್ಲೆ = 100;  // Maximum string length to search
     // TYPES
-    using EditDistance = unsigned int;
-    struct Candidate final {
+    using Edit_ದೂರ = ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ;
+    ರಚನೆ Candidate final {
         std::string str;  // String to be matched
-        std::string msg;  // Message to print on a match
+        std::string ಸಂದೇಶ_2;  // Message to print on a match
     };
     // MEMBERS
-    std::vector<Candidate> m_candidates;  // Strings we try to match
-public:
+    std::ಸದಿಶ<Candidate> m_candidates;  // Strings we try to match
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    VSpellCheck() = default;
-    ~VSpellCheck() = default;
+    VSpellCheck() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~VSpellCheck() = ಪೂರ್ವನಿಯೋಜಿತ;
     // METHODS
     // Push a symbol table value to be considered as a candidate
     // The first item pushed has highest priority, all else being equal
-    void pushCandidate(const string& str) { pushCandidate(str, str); }
+    ಶೂನ್ಯ ತಳ್ಳು_Candidate(ಸ್ಥಿರಾಂಕ string& str) { ತಳ್ಳು_Candidate(str, str); }
     // First argument is string to be matched, the second one is message to print on success
-    void pushCandidate(const string& str, const string& msg) {
-        if (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
+    ಶೂನ್ಯ ತಳ್ಳು_Candidate(ಸ್ಥಿರಾಂಕ string& str, ಸ್ಥಿರಾಂಕ string& ಸಂದೇಶ_2) {
+        ಆದರೆ (m_candidates.ಗಾತ್ರ_2() < ಅಂಕೆ_CANDIDATE_ಎಲ್ಲೆ) m_candidates.ತಳ್ಳು_ಹಿಂಭಾಗ({str, ಸಂದೇಶ_2});
     }
     // Return candidate is closest to provided string, or "" for none
-    VSpellCheck::Candidate bestCandidate(const string& goal) const {
-        EditDistance dist;
-        return bestCandidateInfo(goal, dist /*ref*/);
+    VSpellCheck::Candidate ಉತ್ತಮ_Candidate(ಸ್ಥಿರಾಂಕ string& goal) ಸ್ಥಿರಾಂಕ {
+        Edit_ದೂರ dist;
+        ಹಿಂತಿರುಗಿ ಉತ್ತಮ_Candidate_Info(goal, dist /*ref*/);
     }
     // Return friendly message
-    string bestCandidateMsg(const string& goal) const {
-        const auto candidate = bestCandidate(goal);
-        if (candidate.msg.empty()) return "";
-        return "... Suggested alternative: '"s + candidate.msg + "'";
+    string ಉತ್ತಮ_Candidate_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ string& goal) ಸ್ಥಿರಾಂಕ {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ candidate = ಉತ್ತಮ_Candidate(goal);
+        ಆದರೆ (candidate.ಸಂದೇಶ_2.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ "";
+        ಹಿಂತಿರುಗಿ "... Suggested alternative: '"s + candidate.ಸಂದೇಶ_2 + "'";
     }
-    static void selfTest();
-    std::vector<std::string> candidates() const {
-        std::vector<std::string> result;
-        result.reserve(m_candidates.size());
-        for (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
-        return result;
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTest();
+    std::ಸದಿಶ<std::string> candidates() ಸ್ಥಿರಾಂಕ {
+        std::ಸದಿಶ<std::string> ಫಲಿತಾಂಶ;
+        ಫಲಿತಾಂಶ.reserve(m_candidates.ಗಾತ್ರ_2());
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& candidate : m_candidates) { ಫಲಿತಾಂಶ.ತಳ್ಳು_ಹಿಂಭಾಗ(candidate.ಸಂದೇಶ_2); }
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
 
-private:
-    static EditDistance editDistance(const string& s, const string& t);
-    static EditDistance cutoffDistance(size_t goal_len, size_t candidate_len);
-    VSpellCheck::Candidate bestCandidateInfo(const string& goal, EditDistance& distancer) const;
-    static void selfTestDistanceOne(const string& a, const string& b, EditDistance expected);
-    static void selfTestSuggestOne(bool matches, const string& c, const string& goal,
-                                   EditDistance dist);
+ಖಾಸಗಿ:
+    ಸ್ಥಿರ Edit_ದೂರ edit_ದೂರ(ಸ್ಥಿರಾಂಕ string& s, ಸ್ಥಿರಾಂಕ string& t);
+    ಸ್ಥಿರ Edit_ದೂರ cutoff_ದೂರ(ಗಾತ್ರ_t goal_len, ಗಾತ್ರ_t candidate_len);
+    VSpellCheck::Candidate ಉತ್ತಮ_Candidate_Info(ಸ್ಥಿರಾಂಕ string& goal, Edit_ದೂರ& distancer) ಸ್ಥಿರಾಂಕ;
+    ಸ್ಥಿರ ಶೂನ್ಯ self_Test_ದೂರ_One(ಸ್ಥಿರಾಂಕ string& a, ಸ್ಥಿರಾಂಕ string& b, Edit_ದೂರ expected);
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTestSuggestOne(bool matches, ಸ್ಥಿರಾಂಕ string& c, ಸ್ಥಿರಾಂಕ string& goal,
+                                   Edit_ದೂರ dist);
 };
 
 //######################################################################
 
-#endif  // guard
+#ಆದರೆ_ಅಂತ್ಯ  // guard

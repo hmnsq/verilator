@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTOP_H_
-#define VERILATOR_VLCTOP_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_VLCTOP_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#ಅನ್ತರ್ಭಾವ "VlcOptions.h"
+#ಅನ್ತರ್ಭಾವ "VlcPoint.h"
+#ಅನ್ತರ್ಭಾವ "VlcSource.h"
+#ಅನ್ತರ್ಭಾವ "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_ತುದಿ final {
+ಸಾರ್ವಜನಿಕ:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+ಖಾಸಗಿ:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    ಶೂನ್ಯ annotateCalc();
+    ಶೂನ್ಯ annotateCalcNeeded();
+    ಶೂನ್ಯ annotateOutputFiles(ಸ್ಥಿರಾಂಕ string& dirname);
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_ತುದಿ() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~Vlc_ತುದಿ() = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { ಹಿಂತಿರುಗಿ m_tests; }
+    VlcPoints& points() { ಹಿಂತಿರುಗಿ m_points; }
+    VlcSources& sources() { ಹಿಂತಿರುಗಿ m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    ಶೂನ್ಯ annotate(ಸ್ಥಿರಾಂಕ string& dirname);
+    ಶೂನ್ಯ printHierarchyReport();
+    ಶೂನ್ಯ printTypeSummary();
+    ಶೂನ್ಯ readCoverage(ಸ್ಥಿರಾಂಕ string& filename, bool nonfatal = false);
+    ಶೂನ್ಯ writeCoverage(ಸ್ಥಿರಾಂಕ string& filename);
+    ಶೂನ್ಯ writeInfo(ಸ್ಥಿರಾಂಕ string& filename);
 
-    void rank();
+    ಶೂನ್ಯ rank();
 };
 
 //######################################################################
 
-#endif  // guard
+#ಆದರೆ_ಅಂತ್ಯ  // guard

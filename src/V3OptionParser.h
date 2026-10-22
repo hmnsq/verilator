@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3OPTION_PARSER_H_
-#define VERILATOR_V3OPTION_PARSER_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3OPTION_PARSER_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3OPTION_PARSER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <functional>
-#include <memory>
-#include <string>
+#ಅನ್ತರ್ಭಾವ <functional>
+#ಅನ್ತರ್ಭಾವ <memory>
+#ಅನ್ತರ್ಭಾವ <string>
 
 // Not to include V3Option.h here so that VlcMain or other executables can use this file easily.
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ V3OPTION_PARSER_NO_VOPTION_BOOL
 class VOptionBool;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 // Typical usage would look as below.
 // See also V3Options::parseOptsList() in V3Options.cpp for more detailed usage.
@@ -52,37 +52,37 @@ class VOptionBool;
 // V3 OptionParser
 
 class V3OptionParser final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // TYPES
     class ActionIfs;
     // Functor to register options to V3OptionParser
     class AppendHelper;
-    struct Impl;
+    ರಚನೆ Impl;
 
-private:
+ಖಾಸಗಿ:
     // MEMBERS
-    const std::unique_ptr<Impl> m_pimpl;  // Implementation class
+    ಸ್ಥಿರಾಂಕ std::unique_ptr<Impl> m_pimpl;  // Implementation class
 
     // METHODS
-    ActionIfs* find(const char* optp) VL_MT_DISABLED;
-    template <typename T_Act, typename T_Arg>
-    ActionIfs& add(const string& opt, T_Arg arg) VL_MT_DISABLED;
+    ActionIfs* ಕಂಡುಹಿಡಿ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) VL_MT_DISABLED;
+    ಮಾದರಿ <typename T_Act, typename T_Arg>
+    ActionIfs& ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ string& opt, T_Arg arg) VL_MT_DISABLED;
     // Returns true if strp starts with "-fno"
-    static bool hasPrefixFNo(const char* strp) VL_MT_DISABLED;
+    ಸ್ಥಿರ bool has_ಪೂರ್ವಪ್ರತ್ಯಯ_FNo(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* strp) VL_MT_DISABLED;
     // Returns true if strp starts with "-no"
-    static bool hasPrefixNo(const char* strp) VL_MT_DISABLED;
+    ಸ್ಥಿರ bool has_ಪೂರ್ವಪ್ರತ್ಯಯ_No(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* strp) VL_MT_DISABLED;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS
     // Returns how many args are consumed. 0 means not match.
     // Also bool, true iff option is needed for rerun with --dump-inputs
-    std::pair<int, bool> parse(int idx, int argc, char* argv[]) VL_MT_DISABLED;
+    std::pair<ಪೂರ್ಣಾಂಕ, bool> parse(ಪೂರ್ಣಾಂಕ idx, ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ* argv[]) VL_MT_DISABLED;
     // Find the most similar option
-    string getSuggestion(const char* str) const VL_MT_DISABLED;
-    void addSuggestionCandidate(const string& s) VL_MT_DISABLED;
+    string getSuggestion(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* str) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ಶೂನ್ಯ ಕೂಡಿಸು_Suggestion_Candidate(ಸ್ಥಿರಾಂಕ string& s) VL_MT_DISABLED;
     // Call this function after all options are registered.
-    void finalize() VL_MT_DISABLED;
-    void dumpOptions() VL_MT_DISABLED;
+    ಶೂನ್ಯ finalize() VL_MT_DISABLED;
+    ಶೂನ್ಯ dumpOptions() VL_MT_DISABLED;
 
     // CONSTRUCTORS
     V3OptionParser() VL_MT_DISABLED;
@@ -90,89 +90,89 @@ public:
 };
 
 class V3OptionParser::ActionIfs VL_NOT_FINAL {
-public:
-    virtual ~ActionIfs() = default;
-    virtual bool isValueNeeded() const = 0;  // Need val of "-opt val"
-    virtual bool isFOnOffAllowed() const = 0;  // true if "-fno-opt" is allowed
-    virtual bool isNotForRerun() const = 0;  // Will not be dumped with --dump-inputs
-    virtual bool isOnOffAllowed() const = 0;  // true if "-no-opt" is allowed
-    virtual bool isPartialMatchAllowed() const = 0;  // true if "-Wno-" matches "-Wno-fatal"
-    virtual bool isUndocumented() const = 0;  // Will not be suggested in typo
+ಸಾರ್ವಜನಿಕ:
+    ವಾಸ್ತವಿಕ ~ActionIfs() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ವಾಸ್ತವಿಕ bool is_ಮೌಲ್ಯ_Needed() ಸ್ಥಿರಾಂಕ = 0;  // Need val of "-opt val"
+    ವಾಸ್ತವಿಕ bool isFOnOffAllowed() ಸ್ಥಿರಾಂಕ = 0;  // true if "-fno-opt" is allowed
+    ವಾಸ್ತವಿಕ bool isNotForRerun() ಸ್ಥಿರಾಂಕ = 0;  // Will not be dumped with --dump-inputs
+    ವಾಸ್ತವಿಕ bool isOnOffAllowed() ಸ್ಥಿರಾಂಕ = 0;  // true if "-no-opt" is allowed
+    ವಾಸ್ತವಿಕ bool is_Partial_ಹೊಂದಿಕೆ_Allowed() ಸ್ಥಿರಾಂಕ = 0;  // true if "-Wno-" matches "-Wno-fatal"
+    ವಾಸ್ತವಿಕ bool isUndocumented() ಸ್ಥಿರಾಂಕ = 0;  // Will not be suggested in typo
     // Set a value or run callback
-    virtual void exec(const char* optp, const char* valp) = 0;
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ exec(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) = 0;
     // Mark this option undocumented. (Exclude this option from suggestion list).
-    virtual ActionIfs& undocumented() = 0;
+    ವಾಸ್ತವಿಕ ActionIfs& undocumented() = 0;
     // Mark this as not needed for rerunning with preprocessed sources
-    virtual ActionIfs& notForRerun() = 0;
+    ವಾಸ್ತವಿಕ ActionIfs& notForRerun() = 0;
 };
 
 // A helper class to register options
 class V3OptionParser::AppendHelper final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // TYPES
     // Tag to specify which operator() to call
-    struct FOnOff {};  // For ActionFOnOff
-    struct OnOff {};  // For ActionOnOff
-    struct Set {};  // For ActionSet
+    ರಚನೆ FOnOff {};  // For ActionFOnOff
+    ರಚನೆ OnOff {};  // For ActionOnOff
+    ರಚನೆ ಗಣ_2 {};  // For ActionSet
 
-    struct CbCall {};  // For ActionCbCall
-    struct CbFOnOff {};  // For ActionCbFOnOff
-    struct CbOnOff {};  // For ActionCbOnOff
-    struct CbPartialMatch {};  // For ActionCbPartialMatch
-    struct CbPartialMatchVal {};  // For ActionCbPartialMatchVal
-    struct CbVal {};  // For ActionCbVal
+    ರಚನೆ CbCall {};  // For ActionCbCall
+    ರಚನೆ CbFOnOff {};  // For ActionCbFOnOff
+    ರಚನೆ CbOnOff {};  // For ActionCbOnOff
+    ರಚನೆ Cb_Partial_ಹೊಂದಿಕೆ {};  // For ActionCbPartialMatch
+    ರಚನೆ Cb_Partial_ಹೊಂದಿಕೆ_Val {};  // For ActionCbPartialMatchVal
+    ರಚನೆ CbVal {};  // For ActionCbVal
 
-private:
+ಖಾಸಗಿ:
     // MEMBERS
     V3OptionParser& m_parser;  // The actual option registry
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    ActionIfs& operator()(const char* optp, Set, bool*) const VL_MT_DISABLED;
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, Set, VOptionBool*) const VL_MT_DISABLED;
-#endif
-    ActionIfs& operator()(const char* optp, Set, int*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, Set, string*) const VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಗಣ_2, bool*) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ V3OPTION_PARSER_NO_VOPTION_BOOL
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಗಣ_2, VOptionBool*) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+#ಆದರೆ_ಅಂತ್ಯ
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಗಣ_2, ಪೂರ್ಣಾಂಕ*) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಗಣ_2, string*) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, FOnOff, bool*) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, OnOff, bool*) const VL_MT_DISABLED;
-#ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-    ActionIfs& operator()(const char* optp, OnOff, VOptionBool*) const VL_MT_DISABLED;
-#endif
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, FOnOff, bool*) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, OnOff, bool*) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ V3OPTION_PARSER_NO_VOPTION_BOOL
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, OnOff, VOptionBool*) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+#ಆದರೆ_ಅಂತ್ಯ
 
-    ActionIfs& operator()(const char* optp, CbCall,
-                          std::function<void(void)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbFOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbOnOff,
-                          std::function<void(bool)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal, std::function<void(int)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbVal,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, CbCall,
+                          std::function<ಶೂನ್ಯ(ಶೂನ್ಯ)>) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, CbFOnOff,
+                          std::function<ಶೂನ್ಯ(bool)>) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, CbOnOff,
+                          std::function<ಶೂನ್ಯ(bool)>) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, CbVal, std::function<ಶೂನ್ಯ(ಪೂರ್ಣಾಂಕ)>) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, CbVal,
+                          std::function<ಶೂನ್ಯ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*)>) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
 
-    ActionIfs& operator()(const char* optp, CbPartialMatch,
-                          std::function<void(const char*)>) const VL_MT_DISABLED;
-    ActionIfs& operator()(const char* optp, CbPartialMatchVal,
-                          std::function<void(const char*, const char*)>) const VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, Cb_Partial_ಹೊಂದಿಕೆ,
+                          std::function<ಶೂನ್ಯ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*)>) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
+    ActionIfs& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, Cb_Partial_ಹೊಂದಿಕೆ_Val,
+                          std::function<ಶೂನ್ಯ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*)>) ಸ್ಥಿರಾಂಕ VL_MT_DISABLED;
 
     // CONSTRUCTORS
     explicit AppendHelper(V3OptionParser& parser)
         : m_parser{parser} {}
 };
 
-#define V3OPTION_PARSER_DECL_TAGS \
-    const auto Set VL_ATTR_UNUSED = V3OptionParser::AppendHelper::Set{}; \
-    const auto FOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::FOnOff{}; \
-    const auto OnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::OnOff{}; \
-    const auto CbCall VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbCall{}; \
-    const auto CbFOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbFOnOff{}; \
-    const auto CbOnOff VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbOnOff{}; \
-    const auto CbPartialMatch VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbPartialMatch{}; \
-    const auto CbPartialMatchVal VL_ATTR_UNUSED \
-        = V3OptionParser::AppendHelper::CbPartialMatchVal{}; \
-    const auto CbVal VL_ATTR_UNUSED = V3OptionParser::AppendHelper::CbVal{};
+#ವ್ಯಾಖ್ಯಾನಿಸು V3_OPTION_PARSER_DECL_ಟ್ಯಾಗುಗಳು \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಗಣ_2 VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::ಗಣ_2{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ FOnOff VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::FOnOff{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ OnOff VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::OnOff{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ CbCall VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::CbCall{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ CbFOnOff VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::CbFOnOff{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ CbOnOff VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::CbOnOff{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ Cb_Partial_ಹೊಂದಿಕೆ VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::Cb_Partial_ಹೊಂದಿಕೆ{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ Cb_Partial_ಹೊಂದಿಕೆ_Val VL_ATTR_ಬಳಸದ \
+        = V3OptionParser::AppendHelper::Cb_Partial_ಹೊಂದಿಕೆ_Val{}; \
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ CbVal VL_ATTR_ಬಳಸದ = V3OptionParser::AppendHelper::CbVal{};
 
 //######################################################################
 
-#endif  // guard
+#ಆದರೆ_ಅಂತ್ಯ  // guard

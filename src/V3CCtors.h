@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CCTORS_H_
-#define VERILATOR_V3CCTORS_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3CCTORS_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3CCTORS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 //============================================================================
 
 class V3CCtors final {
-public:
-    static void cctorsAll() VL_MT_DISABLED;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ cctorsAll() VL_MT_DISABLED;
 
-private:
-    static void evalAsserts() VL_MT_DISABLED;
+ಖಾಸಗಿ:
+    ಸ್ಥಿರ ಶೂನ್ಯ evalAsserts() VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

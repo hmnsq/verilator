@@ -16,67 +16,67 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3UNIQUENAMES_H_
-#define VERILATOR_V3UNIQUENAMES_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3UNIQUENAMES_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3UNIQUENAMES_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Hasher.h"
+#ಅನ್ತರ್ಭಾವ "V3Hasher.h"
 
-#include <map>
-#include <string>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <string>
 
-class V3UniqueNames final {
-    std::string m_prefix;  // Prefix to attach to all names
+class V3_Unique_ಹೆಸರುಗಳು final {
+    std::string m_ಪೂರ್ವಪ್ರತ್ಯಯ;  // Prefix to attach to all names
 
-    std::map<std::string, unsigned> m_multiplicity;  // Suffix number for given key
+    std::map<std::string, ಚಿಹ್ನೆರಹಿತ> m_multiplicity;  // Suffix number for given key
 
-    bool m_addSuffix = true;  // Ad suffix or not
+    bool m_ಕೂಡಿಸು_Suffix = true;  // Ad suffix or not
 
-public:
-    V3UniqueNames() = default;
-    explicit V3UniqueNames(const std::string& prefix, bool addSuffix = true)
-        : m_prefix{prefix}
-        , m_addSuffix{addSuffix} {
-        if (!m_prefix.empty()) {
-            UASSERT(VString::startsWith(m_prefix, "__V"), "Prefix must start with '__V'");
-            UASSERT(!VString::endsWith(m_prefix, "_"), "Prefix must not end with '_'");
+ಸಾರ್ವಜನಿಕ:
+    V3_Unique_ಹೆಸರುಗಳು() = ಪೂರ್ವನಿಯೋಜಿತ;
+    explicit V3_Unique_ಹೆಸರುಗಳು(ಸ್ಥಿರಾಂಕ std::string& ಪೂರ್ವಪ್ರತ್ಯಯ, bool ಕೂಡಿಸು_Suffix = true)
+        : m_ಪೂರ್ವಪ್ರತ್ಯಯ{ಪೂರ್ವಪ್ರತ್ಯಯ}
+        , m_ಕೂಡಿಸು_Suffix{ಕೂಡಿಸು_Suffix} {
+        ಆದರೆ (!m_ಪೂರ್ವಪ್ರತ್ಯಯ.ಖಾಲಿಗಳು()) {
+            UASSERT(VString::startsWith(m_ಪೂರ್ವಪ್ರತ್ಯಯ, "__V"), "Prefix must start with '__V'");
+            UASSERT(!VString::ತುದಿಗಳು_With(m_ಪೂರ್ವಪ್ರತ್ಯಯ, "_"), "Prefix must not end with '_'");
         }
     }
 
     // Return argument, prepended with the prefix if any, then appended with a unique suffix each
     // time we are called with the same argument.
-    std::string get(const std::string& name) {
-        if (!m_addSuffix) {
-            if (m_multiplicity.count(name) == 0) {
+    std::string get(ಸ್ಥಿರಾಂಕ std::string& name) {
+        ಆದರೆ (!m_ಕೂಡಿಸು_Suffix) {
+            ಆದರೆ (m_multiplicity.ಎಣಿಕೆ_2(name) == 0) {
                 m_multiplicity[name] = 0;
-                return name;
+                ಹಿಂತಿರುಗಿ name;
             }
-            return get(name + "__" + cvtToStr(m_multiplicity[name]++));
+            ಹಿಂತಿರುಗಿ get(name + "__" + cvt_ಗಮ್ಯ_Str(m_multiplicity[name]++));
         }
         // NORMAL mode
-        const unsigned num = m_multiplicity[name]++;
-        std::string result;
-        if (!m_prefix.empty()) {
-            result += m_prefix;
-            result += "_";
+        ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಅಂಕೆ = m_multiplicity[name]++;
+        std::string ಫಲಿತಾಂಶ;
+        ಆದರೆ (!m_ಪೂರ್ವಪ್ರತ್ಯಯ.ಖಾಲಿಗಳು()) {
+            ಫಲಿತಾಂಶ += m_ಪೂರ್ವಪ್ರತ್ಯಯ;
+            ಫಲಿತಾಂಶ += "_";
         }
-        result += name;
-        result += "__";
-        result += cvtToStr(num);
-        return result;
+        ಫಲಿತಾಂಶ += name;
+        ಫಲಿತಾಂಶ += "__";
+        ಫಲಿತಾಂಶ += cvt_ಗಮ್ಯ_Str(ಅಂಕೆ);
+        ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
     }
 
     // Return hash of node as string, prepended with the prefix if any, appended with a unique
     // suffix each time we are called with a node that hashes to the same value.
-    std::string get(const AstNode* nodep) {
-        if (nodep == nullptr) { return get(""); }
-        return get(V3Hasher::uncachedHash(nodep).toString());
+    std::string get(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (nodep == nullptr) { ಹಿಂತಿರುಗಿ get(""); }
+        ಹಿಂತಿರುಗಿ get(V3Hasher::uncachedHash(nodep).ಗಮ್ಯ_String());
     }
 
     // Reset to initial state (as if just constructed)
-    void reset() { m_multiplicity.clear(); }
+    ಶೂನ್ಯ reset() { m_multiplicity.clear(); }
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

@@ -14,36 +14,36 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTHCOMMIT_H_
-#define VERILATOR_V3WIDTHCOMMIT_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3WIDTHCOMMIT_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3WIDTHCOMMIT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
 
 //============================================================================
 
-class V3WidthCommit final {
-public:
-    static AstConst* newIfConstCommitSize(AstConst* nodep) {
-        if (((nodep->dtypep()->width() != nodep->num().width()) || !nodep->num().sized())
-            && !nodep->num().isString()) {  // Need to force the number from unsized to sized
-            V3Number num{nodep, nodep->dtypep()->width(), nodep->num()};
-            num.isSigned(nodep->isSigned());
-            AstConst* const newp = new AstConst{nodep->fileline(), num};
+class V3_ಅಗಲ_Commit final {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ AstConst* new_If_Const_Commit_ಗಾತ್ರ(AstConst* nodep) {
+        ಆದರೆ (((nodep->dtypep()->ಅಗಲ() != nodep->ಅಂಕೆ().ಅಗಲ()) || !nodep->ಅಂಕೆ().sized())
+            && !nodep->ಅಂಕೆ().isString()) {  // Need to force the number from unsized to sized
+            V3_ಸಂಖ್ಯೆ ಅಂಕೆ{nodep, nodep->dtypep()->ಅಗಲ(), nodep->ಅಂಕೆ()};
+            ಅಂಕೆ.isSigned(nodep->isSigned());
+            AstConst* ಸ್ಥಿರಾಂಕ newp = new AstConst{nodep->fileline(), ಅಂಕೆ};
             newp->dtypeFrom(nodep);
             newp->user1(true);
-            return newp;
+            ಹಿಂತಿರುಗಿ newp;
         }
-        return nullptr;
+        ಹಿಂತಿರುಗಿ nullptr;
     }
 
     // Final step... Mark all widths as equal
-    static void widthCommit(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ ಅಗಲ_Commit(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 //######################################################################
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

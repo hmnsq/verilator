@@ -23,414 +23,414 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Undriven.h"
+#ಅನ್ತರ್ಭಾವ "V3Undriven.h"
 
-#include "V3Stats.h"
-#include "V3UndrivenCapture.h"
-#include "V3Width.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3UndrivenCapture.h"
+#ಅನ್ತರ್ಭಾವ "V3Width.h"
 
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Class for every variable we may process
 
-class UndrivenVarEntry final {
+ವರ್ಗ Undriven_Var_ನಮೂದು final {
     // MEMBERS
-    AstVar* const m_varp;  // Variable this tracks
-    std::vector<bool> m_wholeFlags;  // Used/Driven on whole vector
-    std::vector<bool> m_bitFlags;  // Used/Driven on each subbit
-    const AstNode* m_usedNotDrivenp = nullptr;  // First read before any write
-    const AstAlways* m_alwCombp
-        = nullptr;  // always_comb of var if driven within always_comb, else nullptr
-    const AstAlways* m_alwFFp = nullptr;  // always_ff of var if driven within always_ff
-    const AstAlways* m_alwPlainp = nullptr;  // plain always of var if driven within plain always
-    const AstClocking* m_clockingp = nullptr;  // clocking block of var if driven as output
-    const AstNodeVarRef* m_nodep = nullptr;  // varref if driven, else nullptr
-    const AstNode* m_initStaticp = nullptr;  // varref if in InitialStatic driven
-    const AstNode* m_initialp = nullptr;  // varref if driven in an explicit initial block
-    const AstNode* m_contAssignp = nullptr;  // varref if in continuous assignment driven
-    const AstNode* m_procWritep = nullptr;  // varref if written in process
-    bool m_underGen = false;  // Under a generate
-    bool m_ftaskDriven = false;  // Last driven by function or task
+    AstVar* ಸ್ಥಿರಾಂಕ m_varp;  // Variable this tracks
+    std::ಸದಿಶ<ತಾರ್ಕಿಕ> m_ಸಂಪೂರ್ಣ_Flags;  // Used/Driven on whole vector
+    std::ಸದಿಶ<ತಾರ್ಕಿಕ> m_ಬಿಟ್_Flags;  // Used/Driven on each subbit
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* m_ಬಳಸಿದ_Not_Drivenp = ಶೂನ್ಯಸೂಚಕ;  // First read before any write
+    ಸ್ಥಿರಾಂಕ AstAlways* m_alwCombp
+        = ಶೂನ್ಯಸೂಚಕ;  // always_comb of var if driven within always_comb, else nullptr
+    ಸ್ಥಿರಾಂಕ AstAlways* m_alwFFp = ಶೂನ್ಯಸೂಚಕ;  // always_ff of var if driven within always_ff
+    ಸ್ಥಿರಾಂಕ AstAlways* m_alwPlainp = ಶೂನ್ಯಸೂಚಕ;  // plain always of var if driven within plain always
+    ಸ್ಥಿರಾಂಕ AstClocking* m_clockingp = ಶೂನ್ಯಸೂಚಕ;  // clocking block of var if driven as output
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* m_nodep = ಶೂನ್ಯಸೂಚಕ;  // varref if driven, else nullptr
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* m_initStaticp = ಶೂನ್ಯಸೂಚಕ;  // varref if in InitialStatic driven
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* m_initialp = ಶೂನ್ಯಸೂಚಕ;  // varref if driven in an explicit initial block
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* m_contAssignp = ಶೂನ್ಯಸೂಚಕ;  // varref if in continuous assignment driven
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* m_procWritep = ಶೂನ್ಯಸೂಚಕ;  // varref if written in process
+    ತಾರ್ಕಿಕ m_underGen = ಸುಳ್ಳು;  // Under a generate
+    ತಾರ್ಕಿಕ m_ftaskDriven = ಸುಳ್ಳು;  // Last driven by function or task
 
-    const AstNodeFTaskRef* m_callNodep = nullptr;  // Call node if driven via writeSummary
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_FTask_Ref* m_callNodep = ಶೂನ್ಯಸೂಚಕ;  // Call node if driven via writeSummary
 
-    enum : uint8_t {
-        FLAG_USED = 0,  // Signal or bit has been read/observed
+    ಎಣಿಕೆ : uint8_t {
+        FLAG_ಬಳಸಿದ = 0,  // Signal or bit has been read/observed
         FLAG_DRIVEN = 1,  // Signal or bit has been written/driven
         FLAG_DRIVEN_ALWCOMB = 2,  // Whole signal has been driven from always_comb
         FLAG_DRIVEN_ALWFF = 3,  // Whole signal has been driven from always_ff
         FLAG_DRIVEN_ALWPLAIN = 4,  // Whole signal has been driven from a plain always
         FLAG_DRIVEN_CLOCKING = 5,  // Whole signal has been driven as a clocking block output
-        FLAGS_PER_BIT = 6  // Number of flags stored for each tracked bit
+        FLAGS_ಪ್ರತಿ_ಬಿಟ್ = 6  // Number of flags stored for each tracked bit
     };
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit UndrivenVarEntry(AstVar* varp)
+    ಸ್ಪಷ್ಟ Undriven_Var_ನಮೂದು(AstVar* varp)
         : m_varp{varp} {  // Construction for when a var is used
         UINFO(9, "create " << varp);
-        m_wholeFlags.resize(FLAGS_PER_BIT);
-        for (int i = 0; i < FLAGS_PER_BIT; i++) m_wholeFlags[i] = false;
-        m_bitFlags.resize(varp->width() * FLAGS_PER_BIT);
-        for (int i = 0; i < varp->width() * FLAGS_PER_BIT; i++) m_bitFlags[i] = false;
+        m_ಸಂಪೂರ್ಣ_Flags.resize(FLAGS_ಪ್ರತಿ_ಬಿಟ್);
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < FLAGS_ಪ್ರತಿ_ಬಿಟ್; i++) m_ಸಂಪೂರ್ಣ_Flags[i] = ಸುಳ್ಳು;
+        m_ಬಿಟ್_Flags.resize(varp->ಅಗಲ() * FLAGS_ಪ್ರತಿ_ಬಿಟ್);
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < varp->ಅಗಲ() * FLAGS_ಪ್ರತಿ_ಬಿಟ್; i++) m_ಬಿಟ್_Flags[i] = ಸುಳ್ಳು;
     }
-    ~UndrivenVarEntry() = default;
+    ~Undriven_Var_ನಮೂದು() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-private:
+ಖಾಸಗಿ:
     // METHODS
-    bool bitNumOk(int bit) const {
-        return bit >= 0 && (bit * FLAGS_PER_BIT < static_cast<int>(m_bitFlags.size()));
+    ತಾರ್ಕಿಕ ಬಿಟ್_ಅಂಕೆ_Ok(ಪೂರ್ಣಾಂಕ ಬಿಟ್_2) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ ಬಿಟ್_2 >= 0 && (ಬಿಟ್_2 * FLAGS_ಪ್ರತಿ_ಬಿಟ್ < static_cast<ಪೂರ್ಣಾಂಕ>(m_ಬಿಟ್_Flags.ಗಾತ್ರ_2()));
     }
-    bool usedFlag(int bit) const {
-        return m_wholeFlags[FLAG_USED] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_USED];
+    ತಾರ್ಕಿಕ ಬಳಸಿದ_Flag(ಪೂರ್ಣಾಂಕ ಬಿಟ್_2) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ m_ಸಂಪೂರ್ಣ_Flags[FLAG_ಬಳಸಿದ] || m_ಬಿಟ್_Flags[ಬಿಟ್_2 * FLAGS_ಪ್ರತಿ_ಬಿಟ್ + FLAG_ಬಳಸಿದ];
     }
-    bool drivenFlag(int bit) const {
-        return m_wholeFlags[FLAG_DRIVEN] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_DRIVEN];
+    ತಾರ್ಕಿಕ drivenFlag(ಪೂರ್ಣಾಂಕ ಬಿಟ್_2) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN] || m_ಬಿಟ್_Flags[ಬಿಟ್_2 * FLAGS_ಪ್ರತಿ_ಬಿಟ್ + FLAG_DRIVEN];
     }
-    int bitCount() const { return m_bitFlags.size() / FLAGS_PER_BIT; }
-    void recordUsedNotDriven(const AstNode* nodep) {
-        if (!m_usedNotDrivenp) m_usedNotDrivenp = nodep;
+    ಪೂರ್ಣಾಂಕ ಬಿಟ್_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಬಿಟ್_Flags.ಗಾತ್ರ_2() / FLAGS_ಪ್ರತಿ_ಬಿಟ್; }
+    ಶೂನ್ಯ ದಾಖಲೆ_ಬಳಸಿದ_Not_Driven(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (!m_ಬಳಸಿದ_Not_Drivenp) m_ಬಳಸಿದ_Not_Drivenp = nodep;
     }
-    enum BitNamesWhich : uint8_t { BN_UNUSED, BN_UNDRIVEN, BN_BOTH };
-    string bitNames(BitNamesWhich which) {
-        string bits;
-        bool prev = false;
-        int msb = 0;
+    ಎಣಿಕೆ ಬಿಟ್_ಹೆಸರುಗಳು_Which : uint8_t { BN_ಬಳಸದ, BN_UNDRIVEN, BN_BOTH };
+    string ಬಿಟ್_ಹೆಸರುಗಳು(ಬಿಟ್_ಹೆಸರುಗಳು_Which which) {
+        string ಬಿಟ್ಟುಗಳು;
+        ತಾರ್ಕಿಕ prev = ಸುಳ್ಳು;
+        ಪೂರ್ಣಾಂಕ msb = 0;
         // bit==-1 loops below; we do one extra iteration so end with prev=false
-        for (int bit = (m_bitFlags.size() / FLAGS_PER_BIT) - 1; bit >= -1; --bit) {
-            if (bit >= 0
-                && ((which == BN_UNUSED && !usedFlag(bit) && drivenFlag(bit))
-                    || (which == BN_UNDRIVEN && usedFlag(bit) && !drivenFlag(bit))
-                    || (which == BN_BOTH && !usedFlag(bit) && !drivenFlag(bit)))) {
-                if (!prev) {
-                    prev = true;
-                    msb = bit;
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ ಬಿಟ್_2 = (m_ಬಿಟ್_Flags.ಗಾತ್ರ_2() / FLAGS_ಪ್ರತಿ_ಬಿಟ್) - 1; ಬಿಟ್_2 >= -1; --ಬಿಟ್_2) {
+            ಆದರೆ (ಬಿಟ್_2 >= 0
+                && ((which == BN_ಬಳಸದ && !ಬಳಸಿದ_Flag(ಬಿಟ್_2) && drivenFlag(ಬಿಟ್_2))
+                    || (which == BN_UNDRIVEN && ಬಳಸಿದ_Flag(ಬಿಟ್_2) && !drivenFlag(ಬಿಟ್_2))
+                    || (which == BN_BOTH && !ಬಳಸಿದ_Flag(ಬಿಟ್_2) && !drivenFlag(ಬಿಟ್_2)))) {
+                ಆದರೆ (!prev) {
+                    prev = ನಿಜ;
+                    msb = ಬಿಟ್_2;
                 }
-            } else if (prev) {
-                const AstBasicDType* const bdtypep = m_varp->basicp();
-                const int lsb = bit + 1;
-                if (bits != "") bits += ",";
-                if (lsb == msb) {
-                    bits += cvtToStr(lsb + bdtypep->lo());
-                } else {
-                    if (bdtypep->ascending()) {
-                        bits
-                            += cvtToStr(lsb + bdtypep->lo()) + ":" + cvtToStr(msb + bdtypep->lo());
-                    } else {
-                        bits
-                            += cvtToStr(msb + bdtypep->lo()) + ":" + cvtToStr(lsb + bdtypep->lo());
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (prev) {
+                ಸ್ಥಿರಾಂಕ AstBasicDType* ಸ್ಥಿರಾಂಕ bdtypep = m_varp->basicp();
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lsb = ಬಿಟ್_2 + 1;
+                ಆದರೆ (ಬಿಟ್ಟುಗಳು != "") ಬಿಟ್ಟುಗಳು += ",";
+                ಆದರೆ (lsb == msb) {
+                    ಬಿಟ್ಟುಗಳು += cvt_ಗಮ್ಯ_Str(lsb + bdtypep->lo());
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ಆದರೆ (bdtypep->ascending()) {
+                        ಬಿಟ್ಟುಗಳು
+                            += cvt_ಗಮ್ಯ_Str(lsb + bdtypep->lo()) + ":" + cvt_ಗಮ್ಯ_Str(msb + bdtypep->lo());
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಬಿಟ್ಟುಗಳು
+                            += cvt_ಗಮ್ಯ_Str(msb + bdtypep->lo()) + ":" + cvt_ಗಮ್ಯ_Str(lsb + bdtypep->lo());
                     }
                 }
-                prev = false;
+                prev = ಸುಳ್ಳು;
             }
         }
-        return "[" + bits + "]";
+        ಹಿಂತಿರುಗಿ "[" + ಬಿಟ್ಟುಗಳು + "]";
     }
 
-public:
-    void usedWhole(const AstNode* nodep) {
+ಸಾರ್ವಜನಿಕ:
+    ಶೂನ್ಯ ಬಳಸಿದ_ಸಂಪೂರ್ಣ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
         UINFO(9, "set u[*] " << m_varp->name() << " " << nodep);
-        if (!m_wholeFlags[FLAG_DRIVEN]) {
-            for (int bit = 0; bit < bitCount(); ++bit) {
-                if (!drivenFlag(bit)) {
-                    recordUsedNotDriven(nodep);
-                    break;
+        ಆದರೆ (!m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN]) {
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ ಬಿಟ್_2 = 0; ಬಿಟ್_2 < ಬಿಟ್_ಎಣಿಕೆ(); ++ಬಿಟ್_2) {
+                ಆದರೆ (!drivenFlag(ಬಿಟ್_2)) {
+                    ದಾಖಲೆ_ಬಳಸಿದ_Not_Driven(nodep);
+                    ನಿಲ್ಲಿಸು;
                 }
             }
         }
-        m_wholeFlags[FLAG_USED] = true;
+        m_ಸಂಪೂರ್ಣ_Flags[FLAG_ಬಳಸಿದ] = ನಿಜ;
     }
-    void drivenWhole(const AstNode* nodep) {
+    ಶೂನ್ಯ driven_ಸಂಪೂರ್ಣ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
         UINFO(9, "set d[*] " << m_varp->name() << " " << nodep);
-        m_wholeFlags[FLAG_DRIVEN] = true;
+        m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN] = ನಿಜ;
     }
-    void drivenWhole(const AstNodeVarRef* nodep, bool ftaskDef) {
-        const bool wasDriven = isDrivenWhole();
-        drivenWhole(nodep);
+    ಶೂನ್ಯ driven_ಸಂಪೂರ್ಣ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* nodep, ತಾರ್ಕಿಕ ftaskDef) {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ wasDriven = is_Driven_ಸಂಪೂರ್ಣ();
+        driven_ಸಂಪೂರ್ಣ(nodep);
         // A write in a task/function definition is not an executed process, so it must not
         // displace an already recorded write, nor clear the flag that keeps such a write
         // from being reported as the other write of a MULTIDRIVEN
-        if (ftaskDef && wasDriven) return;
+        ಆದರೆ (ftaskDef && wasDriven) ಹಿಂತಿರುಗಿ;
         m_ftaskDriven = ftaskDef;
         m_nodep = nodep;
     }
-    void drivenAlwaysCombWhole(const AstAlways* alwCombp) {
-        m_wholeFlags[FLAG_DRIVEN_ALWCOMB] = true;
+    ಶೂನ್ಯ driven_Always_Comb_ಸಂಪೂರ್ಣ(ಸ್ಥಿರಾಂಕ AstAlways* alwCombp) {
+        m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_ALWCOMB] = ನಿಜ;
         m_alwCombp = alwCombp;
     }
-    void drivenAlwaysFFWhole(const AstAlways* alwFFp, const AstVar* varp) {
-        m_wholeFlags[FLAG_DRIVEN_ALWFF] = true;
+    ಶೂನ್ಯ drivenAlwaysFFWhole(ಸ್ಥಿರಾಂಕ AstAlways* alwFFp, ಸ್ಥಿರಾಂಕ AstVar* varp) {
+        m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_ALWFF] = ನಿಜ;
         m_alwFFp = alwFFp;
     }
-    void drivenAlwaysPlainWhole(const AstAlways* alwPlainp) {
-        m_wholeFlags[FLAG_DRIVEN_ALWPLAIN] = true;
+    ಶೂನ್ಯ driven_Always_Plain_ಸಂಪೂರ್ಣ(ಸ್ಥಿರಾಂಕ AstAlways* alwPlainp) {
+        m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_ALWPLAIN] = ನಿಜ;
         m_alwPlainp = alwPlainp;
     }
-    void drivenClockingWhole(const AstClocking* clockingp) {
-        m_wholeFlags[FLAG_DRIVEN_CLOCKING] = true;
+    ಶೂನ್ಯ driven_Clocking_ಸಂಪೂರ್ಣ(ಸ್ಥಿರಾಂಕ AstClocking* clockingp) {
+        m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_CLOCKING] = ನಿಜ;
         m_clockingp = clockingp;
     }
 
-    const AstNode* initStaticp() const { return m_initStaticp; }
-    void initStaticp(const AstNode* nodep) { m_initStaticp = nodep; }
-    const AstNode* initialp() const { return m_initialp; }
-    void initialp(const AstNode* nodep) { m_initialp = nodep; }
-    const AstNode* contAssignp() const { return m_contAssignp; }
-    void contAssignp(const AstNode* nodep) { m_contAssignp = nodep; }
-    const AstNode* procWritep() const { return m_procWritep; }
-    void procWritep(const AstNode* nodep) { m_procWritep = nodep; }
-    void underGenerate() { m_underGen = true; }
-    bool isUnderGen() const { return m_underGen; }
-    bool isDrivenWhole() const { return m_wholeFlags[FLAG_DRIVEN]; }
-    bool isDrivenAlwaysCombWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWCOMB]; }
-    bool isDrivenAlwaysFFWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWFF]; }
-    bool isDrivenAlwaysPlainWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWPLAIN]; }
-    bool isDrivenClockingWhole() const { return m_wholeFlags[FLAG_DRIVEN_CLOCKING]; }
-    bool isFtaskDriven() const { return m_ftaskDriven; }
-    const AstNodeVarRef* getNodep() const { return m_nodep; }
-    const AstAlways* getAlwCombp() const { return m_alwCombp; }
-    const AstAlways* getAlwFFp() const { return m_alwFFp; }
-    const AstAlways* getAlwPlainp() const { return m_alwPlainp; }
-    const AstClocking* getClockingp() const { return m_clockingp; }
-    void usedBit(int bit, int width, const AstNode* nodep) {
-        UINFO(9, "set u[" << (bit + width - 1) << ":" << bit << "] " << m_varp->name());
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)) {
-                if (!drivenFlag(bit + i)) recordUsedNotDriven(nodep);
-                m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_USED] = true;
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* initStaticp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_initStaticp; }
+    ಶೂನ್ಯ initStaticp(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) { m_initStaticp = nodep; }
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* initialp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_initialp; }
+    ಶೂನ್ಯ initialp(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) { m_initialp = nodep; }
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* contAssignp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_contAssignp; }
+    ಶೂನ್ಯ contAssignp(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) { m_contAssignp = nodep; }
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* procWritep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_procWritep; }
+    ಶೂನ್ಯ procWritep(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) { m_procWritep = nodep; }
+    ಶೂನ್ಯ underGenerate() { m_underGen = ನಿಜ; }
+    ತಾರ್ಕಿಕ isUnderGen() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_underGen; }
+    ತಾರ್ಕಿಕ is_Driven_ಸಂಪೂರ್ಣ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN]; }
+    ತಾರ್ಕಿಕ is_Driven_Always_Comb_ಸಂಪೂರ್ಣ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_ALWCOMB]; }
+    ತಾರ್ಕಿಕ isDrivenAlwaysFFWhole() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_ALWFF]; }
+    ತಾರ್ಕಿಕ is_Driven_Always_Plain_ಸಂಪೂರ್ಣ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_ALWPLAIN]; }
+    ತಾರ್ಕಿಕ is_Driven_Clocking_ಸಂಪೂರ್ಣ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN_CLOCKING]; }
+    ತಾರ್ಕಿಕ isFtaskDriven() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ftaskDriven; }
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* getNodep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_nodep; }
+    ಸ್ಥಿರಾಂಕ AstAlways* getAlwCombp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_alwCombp; }
+    ಸ್ಥಿರಾಂಕ AstAlways* getAlwFFp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_alwFFp; }
+    ಸ್ಥಿರಾಂಕ AstAlways* getAlwPlainp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_alwPlainp; }
+    ಸ್ಥಿರಾಂಕ AstClocking* getClockingp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_clockingp; }
+    ಶೂನ್ಯ ಬಳಸಿದ_ಬಿಟ್_2(ಪೂರ್ಣಾಂಕ ಬಿಟ್_2, ಪೂರ್ಣಾಂಕ ಅಗಲ, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
+        UINFO(9, "set u[" << (ಬಿಟ್_2 + ಅಗಲ - 1) << ":" << ಬಿಟ್_2 << "] " << m_varp->name());
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಗಲ; i++) {
+            ಆದರೆ (ಬಿಟ್_ಅಂಕೆ_Ok(ಬಿಟ್_2 + i)) {
+                ಆದರೆ (!drivenFlag(ಬಿಟ್_2 + i)) ದಾಖಲೆ_ಬಳಸಿದ_Not_Driven(nodep);
+                m_ಬಿಟ್_Flags[(ಬಿಟ್_2 + i) * FLAGS_ಪ್ರತಿ_ಬಿಟ್ + FLAG_ಬಳಸಿದ] = ನಿಜ;
             }
         }
     }
-    void drivenBit(int bit, int width) {
-        UINFO(9, "set d[" << (bit + width - 1) << ":" << bit << "] " << m_varp->name());
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)) m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_DRIVEN] = true;
+    ಶೂನ್ಯ driven_ಬಿಟ್(ಪೂರ್ಣಾಂಕ ಬಿಟ್_2, ಪೂರ್ಣಾಂಕ ಅಗಲ) {
+        UINFO(9, "set d[" << (ಬಿಟ್_2 + ಅಗಲ - 1) << ":" << ಬಿಟ್_2 << "] " << m_varp->name());
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಗಲ; i++) {
+            ಆದರೆ (ಬಿಟ್_ಅಂಕೆ_Ok(ಬಿಟ್_2 + i)) m_ಬಿಟ್_Flags[(ಬಿಟ್_2 + i) * FLAGS_ಪ್ರತಿ_ಬಿಟ್ + FLAG_DRIVEN] = ನಿಜ;
         }
     }
-    bool isUsedNotDrivenBit(int bit, int width) const {
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)
-                && (m_wholeFlags[FLAG_USED] || m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_USED])
-                && !(m_wholeFlags[FLAG_DRIVEN]
-                     || m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_DRIVEN]))
-                return true;
+    ತಾರ್ಕಿಕ is_ಬಳಸಿದ_Not_Driven_ಬಿಟ್(ಪೂರ್ಣಾಂಕ ಬಿಟ್_2, ಪೂರ್ಣಾಂಕ ಅಗಲ) ಸ್ಥಿರಾಂಕ {
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < ಅಗಲ; i++) {
+            ಆದರೆ (ಬಿಟ್_ಅಂಕೆ_Ok(ಬಿಟ್_2 + i)
+                && (m_ಸಂಪೂರ್ಣ_Flags[FLAG_ಬಳಸಿದ] || m_ಬಿಟ್_Flags[(ಬಿಟ್_2 + i) * FLAGS_ಪ್ರತಿ_ಬಿಟ್ + FLAG_ಬಳಸಿದ])
+                && !(m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN]
+                     || m_ಬಿಟ್_Flags[(ಬಿಟ್_2 + i) * FLAGS_ಪ್ರತಿ_ಬಿಟ್ + FLAG_DRIVEN]))
+                ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
-    bool isUsedNotDrivenAny() const {
-        return isUsedNotDrivenBit(0, m_bitFlags.size() / FLAGS_PER_BIT);
+    ತಾರ್ಕಿಕ is_ಬಳಸಿದ_Not_Driven_Any() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ is_ಬಳಸಿದ_Not_Driven_ಬಿಟ್(0, m_ಬಿಟ್_Flags.ಗಾತ್ರ_2() / FLAGS_ಪ್ರತಿ_ಬಿಟ್);
     }
-    const AstNode* firstUsedNotDrivenp() const { return m_usedNotDrivenp; }
-    static bool unusedMatch(AstVar* nodep) {
-        const string regexp = v3Global.opt.unusedRegexp();
-        if (regexp == "") return false;
-        const string prettyName = nodep->prettyName();
-        return VString::wildmatch(prettyName.c_str(), regexp.c_str());
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಮೊದಲ_ಬಳಸಿದ_Not_Drivenp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಬಳಸಿದ_Not_Drivenp; }
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ ಬಳಸದ_ಹೊಂದಿಕೆ(AstVar* nodep) {
+        ಸ್ಥಿರಾಂಕ string regexp = v3Global.opt.ಬಳಸದ_Regexp();
+        ಆದರೆ (regexp == "") ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ string prettyName = nodep->prettyName();
+        ಹಿಂತಿರುಗಿ VString::wildmatch(prettyName.c_str(), regexp.c_str());
     }
-    void reportViolations() {
+    ಶೂನ್ಯ reportViolations() {
         // Combine bits into overall state
-        AstVar* const nodep = m_varp;
+        AstVar* ಸ್ಥಿರಾಂಕ nodep = m_varp;
 
-        if (initStaticp() && procWritep() && nodep->hasUserInit() && !nodep->isClassMember()
+        ಆದರೆ (initStaticp() && procWritep() && nodep->hasUserInit() && !nodep->isClassMember()
             && !nodep->isFuncLocal()) {
             initStaticp()->v3warn(
                 PROCASSINIT,
                 "Procedural assignment to declaration with initial value: "
                     << nodep->prettyNameQ() << '\n'
-                    << initStaticp()->warnMore() << "... Location of variable initialization\n"
+                    << initStaticp()->warn_ಇನ್ನಷ್ಟು() << "... Location of variable initialization\n"
                     << initStaticp()->warnContextPrimary() << '\n'
                     << procWritep()->warnOther() << "... Location of variable process write\n"
-                    << procWritep()->warnMore()
+                    << procWritep()->warn_ಇನ್ನಷ್ಟು()
                     << "... Perhaps should initialize instead using a reset in this process\n"
                     << procWritep()->warnContextSecondary());
         }
-        const AstNode* const initp = nodep->hasUserInit() ? initStaticp() : initialp();
-        if (initp && contAssignp() && !nodep->isClassMember() && !nodep->isFuncLocal()) {
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ initp = nodep->hasUserInit() ? initStaticp() : initialp();
+        ಆದರೆ (initp && contAssignp() && !nodep->isClassMember() && !nodep->isFuncLocal()) {
             initp->v3warn(E_CONTASSINIT, "Continuous assignment to variable with initial value: "
                                              << nodep->prettyNameQ() << '\n'
-                                             << initp->warnMore()
+                                             << initp->warn_ಇನ್ನಷ್ಟು()
                                              << "... Location of variable initialization\n"
                                              << initp->warnContextPrimary() << '\n'
                                              << contAssignp()->warnOther()
                                              << "... Location of continuous assignment\n"
                                              << contAssignp()->warnContextSecondary());
         }
-        if (nodep->isGenVar()) {  // Genvar
-            if (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
+        ಆದರೆ (nodep->isGenVar()) {  // Genvar
+            ಆದರೆ (!nodep->isIfaceRef() && !nodep->is_ಬಳಸಿದ_Param() && !ಬಳಸದ_ಹೊಂದಿಕೆ(nodep)) {
                 nodep->v3warn(UNUSEDGENVAR, "Genvar is not used: " << nodep->prettyNameQ());
-                nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDGENVAR,
-                                                 true);  // Warn only once
+                nodep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNUSEDGENVAR,
+                                                 ನಿಜ);  // Warn only once
             }
-        } else if (nodep->isParam()) {  // Parameter
-            if (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->isParam()) {  // Parameter
+            ಆದರೆ (!nodep->isIfaceRef() && !nodep->is_ಬಳಸಿದ_Param() && !ಬಳಸದ_ಹೊಂದಿಕೆ(nodep)) {
                 nodep->v3warn(UNUSEDPARAM, "Parameter is not used: " << nodep->prettyNameQ());
-                nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDPARAM,
-                                                 true);  // Warn only once
+                nodep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNUSEDPARAM,
+                                                 ನಿಜ);  // Warn only once
             }
-        } else {  // Signal
-            const string varType{nodep->isFuncLocal() ? "Function variable" : "Signal"};
-            const bool funcInout = nodep->isFuncLocal() && nodep->isInout();
-            bool allU = true;
-            bool allD = true;
-            bool anyU = m_wholeFlags[FLAG_USED];
-            bool anyD = m_wholeFlags[FLAG_DRIVEN];
-            bool anyUnotD = false;
-            bool anyDnotU = false;
-            bool anynotDU = false;
-            for (unsigned bit = 0; bit < m_bitFlags.size() / FLAGS_PER_BIT; bit++) {
-                const bool used = usedFlag(bit);
-                const bool driv = drivenFlag(bit);
-                allU &= used;
-                anyU |= used;
+        } ಇಲ್ಲದಿದ್ದರೆ {  // Signal
+            ಸ್ಥಿರಾಂಕ string varType{nodep->isFuncLocal() ? "Function variable" : "Signal"};
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ funcInout = nodep->isFuncLocal() && nodep->isInout();
+            ತಾರ್ಕಿಕ allU = ನಿಜ;
+            ತಾರ್ಕಿಕ allD = ನಿಜ;
+            ತಾರ್ಕಿಕ anyU = m_ಸಂಪೂರ್ಣ_Flags[FLAG_ಬಳಸಿದ];
+            ತಾರ್ಕಿಕ anyD = m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN];
+            ತಾರ್ಕಿಕ anyUnotD = ಸುಳ್ಳು;
+            ತಾರ್ಕಿಕ anyDnotU = ಸುಳ್ಳು;
+            ತಾರ್ಕಿಕ anynotDU = ಸುಳ್ಳು;
+            ಗಾಗಿ (ಚಿಹ್ನೆರಹಿತ ಬಿಟ್_2 = 0; ಬಿಟ್_2 < m_ಬಿಟ್_Flags.ಗಾತ್ರ_2() / FLAGS_ಪ್ರತಿ_ಬಿಟ್; ಬಿಟ್_2++) {
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಬಳಸಿದ = ಬಳಸಿದ_Flag(ಬಿಟ್_2);
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ driv = drivenFlag(ಬಿಟ್_2);
+                allU &= ಬಳಸಿದ;
+                anyU |= ಬಳಸಿದ;
                 allD &= driv;
                 anyD |= driv;
-                anyUnotD |= used && !driv;
-                anyDnotU |= !used && driv;
-                anynotDU |= !used && !driv;
+                anyUnotD |= ಬಳಸಿದ && !driv;
+                anyDnotU |= !ಬಳಸಿದ && driv;
+                anynotDU |= !ಬಳಸಿದ && !driv;
             }
-            if (funcInout) {
-                if (anyD) allU = true;
-                allD = true;
+            ಆದರೆ (funcInout) {
+                ಆದರೆ (anyD) allU = ನಿಜ;
+                allD = ನಿಜ;
             }
-            if (allU) m_wholeFlags[FLAG_USED] = true;
-            if (allD) m_wholeFlags[FLAG_DRIVEN] = true;
+            ಆದರೆ (allU) m_ಸಂಪೂರ್ಣ_Flags[FLAG_ಬಳಸಿದ] = ನಿಜ;
+            ಆದರೆ (allD) m_ಸಂಪೂರ್ಣ_Flags[FLAG_DRIVEN] = ನಿಜ;
             // Test results
-            if (nodep->isIfaceRef()) {
+            ಆದರೆ (nodep->isIfaceRef()) {
                 // For interface top level we don't do any tracking
                 // Ideally we'd report unused instance cells, but presumably a signal inside one
                 // would get reported as unused
-            } else if (allU && allD) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (allU && allD) {
                 // It's fine
-            } else if (!anyD && !anyU) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!anyD && !anyU) {
                 // UNDRIVEN is considered more serious - as is more likely a bug,
                 // thus undriven+unused bits get UNUSED warnings, as they're not as buggy.
-                if (!unusedMatch(nodep)) {
+                ಆದರೆ (!ಬಳಸದ_ಹೊಂದಿಕೆ(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
                                   varType << " is not driven, nor used: " << nodep->prettyNameQ());
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL,
-                                                     true);  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNUSEDSIGNAL,
+                                                     ನಿಜ);  // Warn only once
                 }
-            } else if (allD && !anyU) {
-                if (!unusedMatch(nodep)) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (allD && !anyU) {
+                ಆದರೆ (!ಬಳಸದ_ಹೊಂದಿಕೆ(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
                                   varType << " is not used: " << nodep->prettyNameQ());
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL,
-                                                     true);  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNUSEDSIGNAL,
+                                                     ನಿಜ);  // Warn only once
                 }
-            } else if (!anyD && allU) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!anyD && allU) {
                 nodep->v3warn(UNDRIVEN, varType << " is not driven: " << nodep->prettyNameQ());
-                nodep->fileline()->modifyWarnOff(V3ErrorCode::UNDRIVEN, true);  // Warn only once
-            } else if (!funcInout) {
+                nodep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNDRIVEN, ನಿಜ);  // Warn only once
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!funcInout) {
                 // Bits have different dispositions
-                const std::string varTypeLower = [&varType]() {
+                ಸ್ಥಿರಾಂಕ std::string var_Type_ಅಧೋ = [&varType]() {
                     std::string str = varType;
-                    str[0] = std::tolower(static_cast<unsigned char>(str[0]));
-                    return str;
+                    str[0] = std::tolower(static_cast<ಚಿಹ್ನೆರಹಿತ ಅಕ್ಷರ>(str[0]));
+                    ಹಿಂತಿರುಗಿ str;
                 }();
-                bool setU = false;
-                bool setD = false;
-                if (anynotDU && !unusedMatch(nodep)) {
+                ತಾರ್ಕಿಕ ಗಣ_U = ಸುಳ್ಳು;
+                ತಾರ್ಕಿಕ ಗಣ_D = ಸುಳ್ಳು;
+                ಆದರೆ (anynotDU && !ಬಳಸದ_ಹೊಂದಿಕೆ(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
-                                  "Bits of " << varTypeLower << " are not driven, nor used: "
-                                             << nodep->prettyNameQ() << bitNames(BN_BOTH));
-                    setU = true;
+                                  "Bits of " << var_Type_ಅಧೋ << " are not driven, nor used: "
+                                             << nodep->prettyNameQ() << ಬಿಟ್_ಹೆಸರುಗಳು(BN_BOTH));
+                    ಗಣ_U = ನಿಜ;
                 }
-                if (anyDnotU && !unusedMatch(nodep)) {
-                    nodep->v3warn(UNUSEDSIGNAL, "Bits of " << varTypeLower << " are not used: "
+                ಆದರೆ (anyDnotU && !ಬಳಸದ_ಹೊಂದಿಕೆ(nodep)) {
+                    nodep->v3warn(UNUSEDSIGNAL, "Bits of " << var_Type_ಅಧೋ << " are not used: "
                                                            << nodep->prettyNameQ()
-                                                           << bitNames(BN_UNUSED));
-                    setU = true;
+                                                           << ಬಿಟ್_ಹೆಸರುಗಳು(BN_ಬಳಸದ));
+                    ಗಣ_U = ನಿಜ;
                 }
-                if (anyUnotD) {
-                    nodep->v3warn(UNDRIVEN, "Bits of " << varTypeLower << " are not driven: "
+                ಆದರೆ (anyUnotD) {
+                    nodep->v3warn(UNDRIVEN, "Bits of " << var_Type_ಅಧೋ << " are not driven: "
                                                        << nodep->prettyNameQ()
-                                                       << bitNames(BN_UNDRIVEN));
-                    setD = true;
+                                                       << ಬಿಟ್_ಹೆಸರುಗಳು(BN_UNDRIVEN));
+                    ಗಣ_D = ನಿಜ;
                 }
-                if (setU) {  // Warn only once
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL, true);
+                ಆದರೆ (ಗಣ_U) {  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNUSEDSIGNAL, ನಿಜ);
                 }
-                if (setD) {  // Warn only once
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNDRIVEN, true);
+                ಆದರೆ (ಗಣ_D) {  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNDRIVEN, ನಿಜ);
                 }
             }
         }
     }
 
-    void drivenViaCall(const AstNodeFTaskRef* nodep) {
-        drivenWhole(nodep);
-        if (!m_callNodep) m_callNodep = nodep;
+    ಶೂನ್ಯ driven_ಮೂಲಕ_Call(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_FTask_Ref* nodep) {
+        driven_ಸಂಪೂರ್ಣ(nodep);
+        ಆದರೆ (!m_callNodep) m_callNodep = nodep;
     }
-    const AstNodeFTaskRef* callNodep() const { return m_callNodep; }
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_FTask_Ref* callNodep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_callNodep; }
 };
 
 //######################################################################
 // Undriven state, as a visitor of each AstNode
 
-class UndrivenVisitor final : public VNVisitorConst {
+ವರ್ಗ UndrivenVisitor final : ಸಾರ್ವಜನಿಕ VNVisitorConst {
     // NODE STATE
     // Netlist:
     //  AstVar::user1p          -> UndrivenVar* for usage var, 0=not set yet
-    const VNUser1InUse m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
     // Each always:
     //  AstNode::user2p         -> UndrivenVar* for usage var, 0=not set yet
-    const VNUser2InUse m_inuser2;
+    ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use m_inuser2;
 
     // STATE
-    std::array<std::vector<UndrivenVarEntry*>, 3> m_entryps = {};  // Nodes to delete when finished
-    bool m_inBBox = false;  // In black box; mark as driven+used
-    bool m_inContAssign = false;  // In continuous assignment
-    bool m_inInitial = false;  // In explicit initial block
-    bool m_inInitialSetup = false;  // In InitialAutomatic*/InitialStatic* assignment LHS
-    bool m_inInitialStatic = false;  // In InitialStatic
-    bool m_inProcAssign = false;  // In procedural assignment
-    bool m_inFTaskRef = false;  // In function or task call
-    bool m_inInoutOrRefPin = false;  // Connected to pin that is inout
-    bool m_inSelLhs = false;  // Iterating the fromp of an AstSel (a partial-bit write target)
-    const AstNodeFTask* m_taskp = nullptr;  // Current task
-    const AstAlways* m_alwaysp = nullptr;  // Current always of either type
-    const AstAlways* m_alwaysCombp = nullptr;  // Current always if combo, otherwise nullptr
-    const AstAlways* m_alwaysFFp = nullptr;  // Current always if ff, otherwise nullptr
-    const AstAlways* m_alwaysPlainp = nullptr;  // Current always if plain (not comb/ff/latch)
-    const AstClocking* m_clockingp = nullptr;  // Current clocking block, otherwise nullptr
+    std::array<std::ಸದಿಶ<Undriven_Var_ನಮೂದು*>, 3> m_entryps = {};  // Nodes to delete when finished
+    ತಾರ್ಕಿಕ m_ಒಳ_BBox = ಸುಳ್ಳು;  // In black box; mark as driven+used
+    ತಾರ್ಕಿಕ m_ಒಳ_Cont_ನಿಯೋಜಿಸು = ಸುಳ್ಳು;  // In continuous assignment
+    ತಾರ್ಕಿಕ m_ಒಳ_Initial = ಸುಳ್ಳು;  // In explicit initial block
+    ತಾರ್ಕಿಕ m_ಒಳ_Initial_ಸಿದ್ಧತೆ = ಸುಳ್ಳು;  // In InitialAutomatic*/InitialStatic* assignment LHS
+    ತಾರ್ಕಿಕ m_ಒಳ_Initial_Static = ಸುಳ್ಳು;  // In InitialStatic
+    ತಾರ್ಕಿಕ m_ಒಳ_Proc_ನಿಯೋಜಿಸು = ಸುಳ್ಳು;  // In procedural assignment
+    ತಾರ್ಕಿಕ m_ಒಳ_FTask_Ref = ಸುಳ್ಳು;  // In function or task call
+    ತಾರ್ಕಿಕ m_ಒಳ_Inout_Or_Ref_Pin = ಸುಳ್ಳು;  // Connected to pin that is inout
+    ತಾರ್ಕಿಕ m_ಒಳ_Sel_Lhs = ಸುಳ್ಳು;  // Iterating the fromp of an AstSel (a partial-bit write target)
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_FTask* m_taskp = ಶೂನ್ಯಸೂಚಕ;  // Current task
+    ಸ್ಥಿರಾಂಕ AstAlways* m_alwaysp = ಶೂನ್ಯಸೂಚಕ;  // Current always of either type
+    ಸ್ಥಿರಾಂಕ AstAlways* m_alwaysCombp = ಶೂನ್ಯಸೂಚಕ;  // Current always if combo, otherwise nullptr
+    ಸ್ಥಿರಾಂಕ AstAlways* m_alwaysFFp = ಶೂನ್ಯಸೂಚಕ;  // Current always if ff, otherwise nullptr
+    ಸ್ಥಿರಾಂಕ AstAlways* m_alwaysPlainp = ಶೂನ್ಯಸೂಚಕ;  // Current always if plain (not comb/ff/latch)
+    ಸ್ಥಿರಾಂಕ AstClocking* m_clockingp = ಶೂನ್ಯಸೂಚಕ;  // Current clocking block, otherwise nullptr
 
-    V3UndrivenCapture* const m_capturep = nullptr;  // Capture object.  'nullptr' if disabled.
+    V3UndrivenCapture* ಸ್ಥಿರಾಂಕ m_capturep = ಶೂನ್ಯಸೂಚಕ;  // Capture object.  'nullptr' if disabled.
 
     // METHODS
 
-    UndrivenVarEntry* getEntryp(AstVar* nodep, int which_user) {
-        if (!(which_user == 1 ? nodep->user1p() : nodep->user2p())) {
-            UndrivenVarEntry* const entryp = new UndrivenVarEntry{nodep};
+    Undriven_Var_ನಮೂದು* getEntryp(AstVar* nodep, ಪೂರ್ಣಾಂಕ which_user) {
+        ಆದರೆ (!(which_user == 1 ? nodep->user1p() : nodep->user2p())) {
+            Undriven_Var_ನಮೂದು* ಸ್ಥಿರಾಂಕ entryp = ಹೊಸ Undriven_Var_ನಮೂದು{nodep};
             // UINFO(9," Associate u="<<which_user<<" "<<cvtToHex(this)<<" "<<nodep->name()<<endl);
-            m_entryps[which_user].push_back(entryp);
-            if (which_user == 1) {
+            m_entryps[which_user].ತಳ್ಳು_ಹಿಂಭಾಗ(entryp);
+            ಆದರೆ (which_user == 1) {
                 nodep->user1p(entryp);
-            } else if (which_user == 2) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (which_user == 2) {
                 nodep->user2p(entryp);
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->v3fatalSrc("Bad case");
             }
-            return entryp;
-        } else {
-            UndrivenVarEntry* const entryp = reinterpret_cast<UndrivenVarEntry*>(
+            ಹಿಂತಿರುಗಿ entryp;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            Undriven_Var_ನಮೂದು* ಸ್ಥಿರಾಂಕ entryp = reinterpret_cast<Undriven_Var_ನಮೂದು*>(
                 which_user == 1 ? nodep->user1p() : nodep->user2p());
-            return entryp;
+            ಹಿಂತಿರುಗಿ entryp;
         }
     }
 
-    void warnAlwCombOrder(AstNodeVarRef* nodep, const AstNode* readp) {
-        AstVar* const varp = nodep->varp();
-        if (!varp->isParam() && !varp->isGenVar() && !varp->isUsedLoopIdx()
+    ಶೂನ್ಯ warn_Alw_Comb_ಕ್ರಮ(Ast_ಗಂಟು_Var_Ref* nodep, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* readp) {
+        AstVar* ಸ್ಥಿರಾಂಕ varp = nodep->varp();
+        ಆದರೆ (!varp->isParam() && !varp->isGenVar() && !varp->is_ಬಳಸಿದ_Loop_Idx()
             && !varp->ignoreSchedWrite()
-            && !m_inBBox  // We may have falsely considered a SysIgnore as a driver
+            && !m_ಒಳ_BBox  // We may have falsely considered a SysIgnore as a driver
             && !VN_IS(nodep, VarXRef)  // Xrefs might point at two different instances
             && !varp->fileline()->warnIsOff(
-                V3ErrorCode::ALWCOMBORDER)) {  // Warn only once per variable
+                V3_Error_ಸಂಕೇತ::ALWCOMBORDER)) {  // Warn only once per variable
             nodep->v3warn(ALWCOMBORDER,
                           "always_comb reads "
                               << nodep->prettyNameQ()
@@ -441,28 +441,28 @@ class UndrivenVisitor final : public VNVisitorConst {
                                               + "... Location of earlier read\n"
                                               + readp->warnContextSecondary()
                                         : ""));
-            varp->fileline()->modifyWarnOff(V3ErrorCode::ALWCOMBORDER,
-                                            true);  // Complain just once for any usage
+            varp->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::ALWCOMBORDER,
+                                            ನಿಜ);  // Complain just once for any usage
         }
     }
     // A clocking block 'output' is an additional driver of the signal it names.
     // The conflict is found from whichever driver is reached second.
-    bool clockingDrivesOther(const UndrivenVarEntry* entryp, bool otherWriteIsStaticInit) const {
-        const bool otherIsExplicitProc
-            = entryp->isDrivenAlwaysCombWhole() || entryp->isDrivenAlwaysFFWhole();
-        return m_clockingp && !otherIsExplicitProc && !otherWriteIsStaticInit
+    ತಾರ್ಕಿಕ clockingDrivesOther(ಸ್ಥಿರಾಂಕ Undriven_Var_ನಮೂದು* entryp, ತಾರ್ಕಿಕ otherWriteIsStaticInit) ಸ್ಥಿರಾಂಕ {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ otherIsExplicitProc
+            = entryp->is_Driven_Always_Comb_ಸಂಪೂರ್ಣ() || entryp->isDrivenAlwaysFFWhole();
+        ಹಿಂತಿರುಗಿ m_clockingp && !otherIsExplicitProc && !otherWriteIsStaticInit
                && m_clockingp != entryp->getClockingp();
     }
-    bool otherDrivesClocking(const UndrivenVarEntry* entryp) const {
-        return !m_clockingp && !m_alwaysCombp && !m_alwaysFFp && !m_inInitialStatic
-               && entryp->isDrivenClockingWhole();
+    ತಾರ್ಕಿಕ otherDrivesClocking(ಸ್ಥಿರಾಂಕ Undriven_Var_ನಮೂದು* entryp) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ !m_clockingp && !m_alwaysCombp && !m_alwaysFFp && !m_ಒಳ_Initial_Static
+               && entryp->is_Driven_Clocking_ಸಂಪೂರ್ಣ();
     }
     // A continuous assignment contending with a clocking block 'output' is an
     // unambiguous driver conflict. Multiple clocking blocks may drive the same
     // signal, the last drive wins (IEEE 1800-2023 14.16.2).
-    void warnClockingDriven(AstNodeVarRef* nodep, const UndrivenVarEntry* entryp,
-                            const AstNode* otherWritep, bool otherWriteIsStaticInit) {
-        if (clockingDrivesOther(entryp, otherWriteIsStaticInit)
+    ಶೂನ್ಯ warnClockingDriven(Ast_ಗಂಟು_Var_Ref* nodep, ಸ್ಥಿರಾಂಕ Undriven_Var_ನಮೂದು* entryp,
+                            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* otherWritep, ತಾರ್ಕಿಕ otherWriteIsStaticInit) {
+        ಆದರೆ (clockingDrivesOther(entryp, otherWriteIsStaticInit)
             && otherWritep == entryp->contAssignp()) {
             nodep->v3warn(MULTIDRIVEN,
                           "Variable written to in clocking block also driven by continuous "
@@ -474,7 +474,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                               << "... Location of continuous assignment\n"
                               << otherWritep->warnContextSecondary());
         }
-        if (otherDrivesClocking(entryp) && m_inContAssign) {
+        ಆದರೆ (otherDrivesClocking(entryp) && m_ಒಳ_Cont_ನಿಯೋಜಿಸು) {
             nodep->v3warn(MULTIDRIVEN,
                           "Variable driven by continuous assignment also written to in "
                           "clocking block"
@@ -488,9 +488,9 @@ class UndrivenVisitor final : public VNVisitorConst {
     }
     // Driving a signal from both a clocking block and a plain process is a deliberate
     // idiom in some testbenches, as with the plain always conflicts above.
-    void warnClockingDrivenProc(AstNodeVarRef* nodep, const UndrivenVarEntry* entryp,
-                                const AstNode* otherWritep, bool otherWriteIsStaticInit) {
-        if (clockingDrivesOther(entryp, otherWriteIsStaticInit) && !entryp->getClockingp()
+    ಶೂನ್ಯ warnClockingDrivenProc(Ast_ಗಂಟು_Var_Ref* nodep, ಸ್ಥಿರಾಂಕ Undriven_Var_ನಮೂದು* entryp,
+                                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* otherWritep, ತಾರ್ಕಿಕ otherWriteIsStaticInit) {
+        ಆದರೆ (clockingDrivesOther(entryp, otherWriteIsStaticInit) && !entryp->getClockingp()
             && otherWritep != entryp->contAssignp()) {
             nodep->v3warn(MULTIDRIVENPROC,
                           "Variable written to in clocking block also written by another "
@@ -501,7 +501,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                               << otherWritep->warnOther() << "... Location of other write\n"
                               << otherWritep->warnContextSecondary());
         }
-        if (otherDrivesClocking(entryp) && !m_inContAssign) {
+        ಆದರೆ (otherDrivesClocking(entryp) && !m_ಒಳ_Cont_ನಿಯೋಜಿಸು) {
             nodep->v3warn(MULTIDRIVENPROC,
                           "Variable written to in process also written to in clocking block"
                               << " (IEEE 1800-2023 14.3): " << nodep->prettyNameQ() << '\n'
@@ -514,82 +514,82 @@ class UndrivenVisitor final : public VNVisitorConst {
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        const bool funcInout = nodep->isFuncLocal() && nodep->isInout();
-        for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar* nodep) override {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ funcInout = nodep->isFuncLocal() && nodep->isInout();
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
             // For assigns and non-combo always, do just usr==1, to look
             // for module-wide undriven etc.
             // For combo always, run both usr==1 for above, and also
             // usr==2 for always-only checks.
-            UndrivenVarEntry* const entryp = getEntryp(nodep, usr);
-            if ((nodep->isNonOutput() && !funcInout) || nodep->isSigPublic()
+            Undriven_Var_ನಮೂದು* ಸ್ಥಿರಾಂಕ entryp = getEntryp(nodep, usr);
+            ಆದರೆ ((nodep->isNonOutput() && !funcInout) || nodep->is_Sig_ಬಹಿರಂಗ()
                 || nodep->hasUserInit() || nodep->isSigUserRWPublic()
                 || (m_taskp && (m_taskp->dpiImport() || m_taskp->dpiExport()))) {
-                entryp->drivenWhole(nodep);
+                entryp->driven_ಸಂಪೂರ್ಣ(nodep);
             }
-            if ((nodep->isWritable() && !funcInout) || nodep->isSigPublic()
-                || nodep->isSigUserRWPublic() || nodep->isSigUserRdPublic()
+            ಆದರೆ ((nodep->isWritable() && !funcInout) || nodep->is_Sig_ಬಹಿರಂಗ()
+                || nodep->isSigUserRWPublic() || nodep->is_Sig_User_Rd_ಬಹಿರಂಗ()
                 || (m_taskp && (m_taskp->dpiImport() || m_taskp->dpiExport()))) {
-                entryp->usedWhole(nodep);
+                entryp->ಬಳಸಿದ_ಸಂಪೂರ್ಣ(nodep);
             }
-            if (nodep->valuep()) entryp->drivenWhole(nodep->valuep());
+            ಆದರೆ (nodep->valuep()) entryp->driven_ಸಂಪೂರ್ಣ(nodep->valuep());
         }
         // Discover variables used in bit definitions, etc
         iterateChildrenConst(nodep);
     }
-    void visit(AstArraySel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstArraySel* nodep) override {
         // Arrays are rarely constant assigned, so for now we punt and do all entries
         iterateChildrenConst(nodep);
     }
-    void visit(AstSliceSel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ತುಂಡು_Sel* nodep) override {
         // Arrays are rarely constant assigned, so for now we punt and do all entries
         iterateChildrenConst(nodep);
     }
-    void visit(AstSel* nodep) override {
-        AstNodeVarRef* const varrefp = VN_CAST(nodep->fromp(), NodeVarRef);
-        AstConst* const constp = VN_CAST(nodep->lsbp(), Const);
-        if (varrefp && constp && !constp->num().isFourState()) {
-            for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
-                UndrivenVarEntry* const entryp = getEntryp(varrefp->varp(), usr);
-                const int lsb = constp->toUInt();
-                if (m_inBBox || varrefp->access().isWriteOrRW()) {
+    ಶೂನ್ಯ ಭೇಟಿ(AstSel* nodep) override {
+        Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(nodep->fromp(), ಗಂಟು_Var_Ref);
+        AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(nodep->lsbp(), Const);
+        ಆದರೆ (varrefp && constp && !constp->ಅಂಕೆ().isFourState()) {
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+                Undriven_Var_ನಮೂದು* ಸ್ಥಿರಾಂಕ entryp = getEntryp(varrefp->varp(), usr);
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lsb = constp->ಗಮ್ಯ_UInt();
+                ಆದರೆ (m_ಒಳ_BBox || varrefp->access().isWriteOrRW()) {
                     // Don't warn if already driven earlier as "a=0; if(a) a=1;" is fine.
-                    if (usr == 2 && m_alwaysCombp
-                        && entryp->isUsedNotDrivenBit(lsb, nodep->width())) {
-                        UINFO(9, " Select.  Entryp=" << cvtToHex(entryp));
-                        warnAlwCombOrder(varrefp, entryp->firstUsedNotDrivenp());
+                    ಆದರೆ (usr == 2 && m_alwaysCombp
+                        && entryp->is_ಬಳಸಿದ_Not_Driven_ಬಿಟ್(lsb, nodep->ಅಗಲ())) {
+                        UINFO(9, " Select.  Entryp=" << cvt_ಗಮ್ಯ_Hex(entryp));
+                        warn_Alw_Comb_ಕ್ರಮ(varrefp, entryp->ಮೊದಲ_ಬಳಸಿದ_Not_Drivenp());
                     }
-                    entryp->drivenBit(lsb, nodep->width());
+                    entryp->driven_ಬಿಟ್(lsb, nodep->ಅಗಲ());
                 }
-                if (m_inBBox || !varrefp->access().isWriteOrRW())
-                    entryp->usedBit(lsb, nodep->width(), varrefp);
+                ಆದರೆ (m_ಒಳ_BBox || !varrefp->access().isWriteOrRW())
+                    entryp->ಬಳಸಿದ_ಬಿಟ್_2(lsb, nodep->ಅಗಲ(), varrefp);
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // skip over static longest static prefix
             iterateConst(nodep->lsbp());
-            VL_RESTORER(m_inSelLhs);
-            m_inSelLhs = !V3Width::selectNonConstantRecurse(nodep->lsbp(), /*inSel=*/true);
+            VL_RESTORER(m_ಒಳ_Sel_Lhs);
+            m_ಒಳ_Sel_Lhs = !V3_ಅಗಲ::selectNonConstantRecurse(nodep->lsbp(), /*inSel=*/ನಿಜ);
             iterateConst(nodep->fromp());
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Var_Ref* nodep) override {
         // Any variable
-        if (nodep->access().isWriteOrRW()
+        ಆದರೆ (nodep->access().isWriteOrRW()
             && !VN_IS(nodep, VarXRef)) {  // Ignore interface variables and similar ugly items
-            if (m_inProcAssign && !nodep->varp()->varType().isProcAssignable()
+            ಆದರೆ (m_ಒಳ_Proc_ನಿಯೋಜಿಸು && !nodep->varp()->varType().isProcAssignable()
                 && !nodep->varp()->isDeclTyped()  //
                 && !nodep->varp()->isClassMember() && !nodep->varp()->isFuncLocal()) {
                 nodep->v3warn(PROCASSWIRE, "Procedural assignment to wire, perhaps intended var"
                                                << " (IEEE 1800-2023 6.5): "
                                                << nodep->prettyNameQ());
-            } else if (m_inContAssign && !nodep->varp()->varType().isContAssignable()
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (m_ಒಳ_Cont_ನಿಯೋಜಿಸು && !nodep->varp()->varType().isContAssignable()
                        && !nodep->fileline()->language().systemVerilog()) {
                 nodep->v3warn(CONTASSREG,
                               "Continuous assignment to reg, perhaps intended wire"
                                   << " (IEEE 1364-2005 6.1; Verilog only, legal in SV): "
                                   << nodep->prettyNameQ());
             }
-            if (m_inFTaskRef && nodep->varp()->varType().isNet()) {
+            ಆದರೆ (m_ಒಳ_FTask_Ref && nodep->varp()->varType().isNet()) {
                 nodep->v3warn(
                     PROCASSWIRE,
                     "Passed wire on output or inout subroutine argument, expected expression that "
@@ -600,44 +600,44 @@ class UndrivenVisitor final : public VNVisitorConst {
 
         // If writeSummary is enabled, task/function definitions are treated as non-executed.
         // Remember that anything driven here doesn't count toward MULTIDRIVEN.
-        bool ftaskDef = false;
-        if (m_taskp && !m_alwaysp && !m_inContAssign && !m_inInitialStatic && !m_inBBox
+        ತಾರ್ಕಿಕ ftaskDef = ಸುಳ್ಳು;
+        ಆದರೆ (m_taskp && !m_alwaysp && !m_ಒಳ_Cont_ನಿಯೋಜಿಸು && !m_ಒಳ_Initial_Static && !m_ಒಳ_BBox
             && !m_taskp->dpiExport()) {
-            AstVar* const retVarp = VN_CAST(m_taskp->fvarp(), Var);
-            if (!retVarp || nodep->varp() != retVarp) ftaskDef = true;
+            AstVar* ಸ್ಥಿರಾಂಕ retVarp = VN_CAST(m_taskp->fvarp(), Var);
+            ಆದರೆ (!retVarp || nodep->varp() != retVarp) ftaskDef = ನಿಜ;
         }
 
-        for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
-            UndrivenVarEntry* const entryp = getEntryp(nodep->varp(), usr);
-            const bool fdrv = nodep->access().isWriteOrRW()
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+            Undriven_Var_ನಮೂದು* ಸ್ಥಿರಾಂಕ entryp = getEntryp(nodep->varp(), usr);
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ fdrv = nodep->access().isWriteOrRW()
                               && nodep->varp()->attrFileDescr();  // FD's are also being read from
-            if (m_inBBox || nodep->access().isWriteOrRW()) {
-                if (usr == 2 && m_alwaysCombp && entryp->isUsedNotDrivenAny()) {
-                    UINFO(9, " Full bus.  Entryp=" << cvtToHex(entryp));
-                    warnAlwCombOrder(nodep, entryp->firstUsedNotDrivenp());
+            ಆದರೆ (m_ಒಳ_BBox || nodep->access().isWriteOrRW()) {
+                ಆದರೆ (usr == 2 && m_alwaysCombp && entryp->is_ಬಳಸಿದ_Not_Driven_Any()) {
+                    UINFO(9, " Full bus.  Entryp=" << cvt_ಗಮ್ಯ_Hex(entryp));
+                    warn_Alw_Comb_ಕ್ರಮ(nodep, entryp->ಮೊದಲ_ಬಳಸಿದ_Not_Drivenp());
                 }
-                const AstNodeVarRef* const otherVarRefp = entryp->getNodep();
-                const AstNode* const otherWritep = otherVarRefp
-                                                       ? static_cast<const AstNode*>(otherVarRefp)
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ otherVarRefp = entryp->getNodep();
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ otherWritep = otherVarRefp
+                                                       ? static_cast<ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*>(otherVarRefp)
                                                        : entryp->callNodep();
-                const bool sameFileLine
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ same_File_ಸಾಲು
                     = otherVarRefp && nodep->fileline() == otherVarRefp->fileline();
                 // Preconditions shared by MULTIDRIVEN and MULTIDRIVENPROC.
-                const bool multidrivenCommon
-                    = entryp->isDrivenWhole() && !m_inBBox && !VN_IS(nodep, VarXRef)
-                      && !VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType) && !sameFileLine
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ multidrivenCommon
+                    = entryp->is_Driven_ಸಂಪೂರ್ಣ() && !m_ಒಳ_BBox && !VN_IS(nodep, VarXRef)
+                      && !VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType) && !same_File_ಸಾಲು
                       && !entryp->isUnderGen() && otherWritep && !entryp->isFtaskDriven()
-                      && !ftaskDef && !m_inSelLhs;
+                      && !ftaskDef && !m_ಒಳ_Sel_Lhs;
                 // The two warnings are gated independently on the variable
                 // declaration's fileline, as v3warn suppression will check
                 // the driving fileline and still warn even if the warning
                 // was suppressed with lint_off at the declaration.
-                const bool otherWriteIsStaticInit
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ otherWriteIsStaticInit
                     = nodep->varp()->hasUserInit() && otherWritep == entryp->initStaticp();
-                if (multidrivenCommon
-                    && !nodep->varp()->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVEN)) {
-                    if (m_alwaysCombp
-                        && (!entryp->isDrivenAlwaysCombWhole()
+                ಆದರೆ (multidrivenCommon
+                    && !nodep->varp()->fileline()->warnIsOff(V3_Error_ಸಂಕೇತ::MULTIDRIVEN)) {
+                    ಆದರೆ (m_alwaysCombp
+                        && (!entryp->is_Driven_Always_Comb_ಸಂಪೂರ್ಣ()
                             || (m_alwaysCombp != entryp->getAlwCombp()
                                 && m_alwaysCombp->fileline()
                                        != entryp->getAlwCombp()->fileline()))) {
@@ -650,7 +650,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                 << otherWritep->warnOther() << "... Location of other write\n"
                                 << otherWritep->warnContextSecondary());
                     }
-                    if (!m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()) {
+                    ಆದರೆ (!m_alwaysCombp && entryp->is_Driven_Always_Comb_ಸಂಪೂರ್ಣ()) {
                         nodep->v3warn(MULTIDRIVEN, "Variable also written to in always_comb"
                                                        << " (IEEE 1800-2023 9.2.2.2): "
                                                        << nodep->prettyNameQ() << '\n'
@@ -660,7 +660,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                                        << "... Location of always_comb write\n"
                                                        << otherWritep->warnContextSecondary());
                     }
-                    if (m_alwaysFFp && !otherWriteIsStaticInit
+                    ಆದರೆ (m_alwaysFFp && !otherWriteIsStaticInit
                         && (!entryp->isDrivenAlwaysFFWhole()
                             || (m_alwaysFFp != entryp->getAlwFFp()
                                 && m_alwaysFFp->fileline() != entryp->getAlwFFp()->fileline()))) {
@@ -673,7 +673,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                 << otherWritep->warnOther() << "... Location of other write\n"
                                 << otherWritep->warnContextSecondary());
                     }
-                    if (!m_alwaysFFp && !m_inInitialStatic && entryp->isDrivenAlwaysFFWhole()) {
+                    ಆದರೆ (!m_alwaysFFp && !m_ಒಳ_Initial_Static && entryp->isDrivenAlwaysFFWhole()) {
                         nodep->v3warn(MULTIDRIVEN, "Variable also written to in always_ff"
                                                        << " (IEEE 1800-2023 9.2.2.4): "
                                                        << nodep->prettyNameQ() << '\n'
@@ -685,8 +685,8 @@ class UndrivenVisitor final : public VNVisitorConst {
                     }
                     warnClockingDriven(nodep, entryp, otherWritep, otherWriteIsStaticInit);
                 }
-                if (multidrivenCommon && !nodep->varp()->isUsedLoopIdx()
-                    && !nodep->varp()->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVENPROC)) {
+                ಆದರೆ (multidrivenCommon && !nodep->varp()->is_ಬಳಸಿದ_Loop_Idx()
+                    && !nodep->varp()->fileline()->warnIsOff(V3_Error_ಸಂಕೇತ::MULTIDRIVENPROC)) {
                     // Two plain always blocks driving the whole signal: legal
                     // SystemVerilog, but a driver conflict for synthesis. The
                     // always_ff/always_comb cases above already cover mixes with
@@ -694,15 +694,15 @@ class UndrivenVisitor final : public VNVisitorConst {
                     // When the two blocks are clocked differently, the
                     // (on-by-default) MULTIDRIVEN check in V3Delayed already reports
                     // the conflict, so don't also emit MULTIDRIVENPROC for that case.
-                    const AstAlways* const otherAlwaysp = entryp->getAlwPlainp();
-                    const AstSenTree* const senp
-                        = m_alwaysPlainp ? m_alwaysPlainp->sentreep() : nullptr;
-                    const AstSenTree* const otherSenp
-                        = otherAlwaysp ? otherAlwaysp->sentreep() : nullptr;
-                    const bool differentClocking = senp && otherSenp && senp->hasClocked()
+                    ಸ್ಥಿರಾಂಕ AstAlways* ಸ್ಥಿರಾಂಕ otherAlwaysp = entryp->getAlwPlainp();
+                    ಸ್ಥಿರಾಂಕ Ast_Sen_ವೃಕ್ಷ* ಸ್ಥಿರಾಂಕ senp
+                        = m_alwaysPlainp ? m_alwaysPlainp->sentreep() : ಶೂನ್ಯಸೂಚಕ;
+                    ಸ್ಥಿರಾಂಕ Ast_Sen_ವೃಕ್ಷ* ಸ್ಥಿರಾಂಕ otherSenp
+                        = otherAlwaysp ? otherAlwaysp->sentreep() : ಶೂನ್ಯಸೂಚಕ;
+                    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ differentClocking = senp && otherSenp && senp->hasClocked()
                                                    && otherSenp->hasClocked()
-                                                   && !senp->sameTree(otherSenp);
-                    if (m_alwaysPlainp && entryp->isDrivenAlwaysPlainWhole()
+                                                   && !senp->same_ವೃಕ್ಷ(otherSenp);
+                    ಆದರೆ (m_alwaysPlainp && entryp->is_Driven_Always_Plain_ಸಂಪೂರ್ಣ()
                         && m_alwaysPlainp != otherAlwaysp
                         && m_alwaysPlainp->fileline() != otherAlwaysp->fileline()
                         && !differentClocking) {
@@ -718,196 +718,196 @@ class UndrivenVisitor final : public VNVisitorConst {
                     }
                     warnClockingDrivenProc(nodep, entryp, otherWritep, otherWriteIsStaticInit);
                 }
-                if (!m_inInitialSetup || nodep->varp()->hasUserInit()) {
+                ಆದರೆ (!m_ಒಳ_Initial_ಸಿದ್ಧತೆ || nodep->varp()->hasUserInit()) {
                     // Else don't count default initialization as a driver to a net/variable
-                    entryp->drivenWhole(nodep, ftaskDef);
+                    entryp->driven_ಸಂಪೂರ್ಣ(nodep, ftaskDef);
                 }
-                if (m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()
+                ಆದರೆ (m_alwaysCombp && entryp->is_Driven_Always_Comb_ಸಂಪೂರ್ಣ()
                     && m_alwaysCombp != entryp->getAlwCombp()
                     && m_alwaysCombp->fileline() == entryp->getAlwCombp()->fileline())
                     entryp->underGenerate();
-                if (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
-                if (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, nodep->varp());
-                if (m_alwaysPlainp) entryp->drivenAlwaysPlainWhole(m_alwaysPlainp);
-                if (m_clockingp) entryp->drivenClockingWhole(m_clockingp);
+                ಆದರೆ (m_alwaysCombp) entryp->driven_Always_Comb_ಸಂಪೂರ್ಣ(m_alwaysCombp);
+                ಆದರೆ (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, nodep->varp());
+                ಆದರೆ (m_alwaysPlainp) entryp->driven_Always_Plain_ಸಂಪೂರ್ಣ(m_alwaysPlainp);
+                ಆದರೆ (m_clockingp) entryp->driven_Clocking_ಸಂಪೂರ್ಣ(m_clockingp);
             }
-            if (nodep->access().isWriteOrRW() && !VN_IS(nodep, VarXRef)) {
+            ಆದರೆ (nodep->access().isWriteOrRW() && !VN_IS(nodep, VarXRef)) {
                 // Ignoring xrefs as the initial and assignment to track might refer to two
                 // different instances.  Ideally all of V3Undriven would move after V3Scope,
                 // then could use VarScope tracking instead.
-                if (m_inInitialStatic && !entryp->initStaticp()) entryp->initStaticp(nodep);
-                if (m_inInitial && !entryp->initialp()) entryp->initialp(nodep);
-                if (m_inContAssign && !entryp->contAssignp()) entryp->contAssignp(nodep);
-                if (m_alwaysp && m_inProcAssign && !entryp->procWritep())
+                ಆದರೆ (m_ಒಳ_Initial_Static && !entryp->initStaticp()) entryp->initStaticp(nodep);
+                ಆದರೆ (m_ಒಳ_Initial && !entryp->initialp()) entryp->initialp(nodep);
+                ಆದರೆ (m_ಒಳ_Cont_ನಿಯೋಜಿಸು && !entryp->contAssignp()) entryp->contAssignp(nodep);
+                ಆದರೆ (m_alwaysp && m_ಒಳ_Proc_ನಿಯೋಜಿಸು && !entryp->procWritep())
                     entryp->procWritep(nodep);
             }
-            if ((!m_inInitialSetup || nodep->varp()->hasUserInit())
-                && (m_inBBox || nodep->access().isReadOrRW()
+            ಆದರೆ ((!m_ಒಳ_Initial_ಸಿದ್ಧತೆ || nodep->varp()->hasUserInit())
+                && (m_ಒಳ_BBox || nodep->access().isReadOrRW()
                     || fdrv
                     // Inouts have only isWrite set, as we don't have more
                     // information and operating on module boundary, treat as
                     // both read and writing
-                    || m_inInoutOrRefPin))
-                entryp->usedWhole(nodep);
+                    || m_ಒಳ_Inout_Or_Ref_Pin))
+                entryp->ಬಳಸಿದ_ಸಂಪೂರ್ಣ(nodep);
         }
     }
 
     // Don't know what black boxed calls do, assume in+out
-    void visit(AstSysIgnore* nodep) override {
-        VL_RESTORER(m_inBBox);
-        m_inBBox = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstSysIgnore* nodep) override {
+        VL_RESTORER(m_ಒಳ_BBox);
+        m_ಒಳ_BBox = ನಿಜ;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstAssign* nodep) override {
-        VL_RESTORER(m_inProcAssign);
-        m_inProcAssign = true;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು* nodep) override {
+        VL_RESTORER(m_ಒಳ_Proc_ನಿಯೋಜಿಸು);
+        m_ಒಳ_Proc_ನಿಯೋಜಿಸು = ನಿಜ;
         {
-            VL_RESTORER(m_inInitialSetup);
-            m_inInitialSetup = false;
+            VL_RESTORER(m_ಒಳ_Initial_ಸಿದ್ಧತೆ);
+            m_ಒಳ_Initial_ಸಿದ್ಧತೆ = ಸುಳ್ಳು;
             iterateConst(nodep->rhsp());
         }
         iterateConst(nodep->lhsp());
     }
-    void visit(AstAssignDly* nodep) override {
-        VL_RESTORER(m_inProcAssign);
-        m_inProcAssign = true;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_Dly* nodep) override {
+        VL_RESTORER(m_ಒಳ_Proc_ನಿಯೋಜಿಸು);
+        m_ಒಳ_Proc_ನಿಯೋಜಿಸು = ನಿಜ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstAssignForce* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_Force* nodep) override {
         iterateConst(nodep->rhsp());
-        VL_RESTORER(m_inInitial);
-        m_inInitial = false;
+        VL_RESTORER(m_ಒಳ_Initial);
+        m_ಒಳ_Initial = ಸುಳ್ಳು;
         iterateConst(nodep->lhsp());
     }
-    void visit(AstAssignW* nodep) override {
-        VL_RESTORER(m_inContAssign);
-        m_inContAssign = true;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_W* nodep) override {
+        VL_RESTORER(m_ಒಳ_Cont_ನಿಯೋಜಿಸು);
+        m_ಒಳ_Cont_ನಿಯೋಜಿಸು = ನಿಜ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstRelease* nodep) override {
-        VL_RESTORER(m_inInitial);
-        m_inInitial = false;
+    ಶೂನ್ಯ ಭೇಟಿ(AstRelease* nodep) override {
+        VL_RESTORER(m_ಒಳ_Initial);
+        m_ಒಳ_Initial = ಸುಳ್ಳು;
         iterateConst(nodep->lhsp());
     }
-    void visit(AstInitial* nodep) override {
-        VL_RESTORER(m_inInitial);
-        m_inInitial = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstInitial* nodep) override {
+        VL_RESTORER(m_ಒಳ_Initial);
+        m_ಒಳ_Initial = ನಿಜ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomatic* nodep) override {
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstInitialAutomatic* nodep) override {
+        VL_RESTORER(m_ಒಳ_Initial_ಸಿದ್ಧತೆ);
+        m_ಒಳ_Initial_ಸಿದ್ಧತೆ = ನಿಜ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstInitialAutomaticStmt* nodep) override {
+        VL_RESTORER(m_ಒಳ_Initial_ಸಿದ್ಧತೆ);
+        m_ಒಳ_Initial_ಸಿದ್ಧತೆ = ನಿಜ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        VL_RESTORER(m_inInitialStatic);
-        m_inInitialStatic = true;
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstInitialStatic* nodep) override {
+        VL_RESTORER(m_ಒಳ_Initial_Static);
+        m_ಒಳ_Initial_Static = ನಿಜ;
+        VL_RESTORER(m_ಒಳ_Initial_ಸಿದ್ಧತೆ);
+        m_ಒಳ_Initial_ಸಿದ್ಧತೆ = ನಿಜ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstInitialStaticStmt* nodep) override {
+        VL_RESTORER(m_ಒಳ_Initial_ಸಿದ್ಧತೆ);
+        m_ಒಳ_Initial_ಸಿದ್ಧತೆ = ನಿಜ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstAlways* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstAlways* nodep) override {
         VL_RESTORER(m_alwaysp);
         VL_RESTORER(m_alwaysCombp);
         VL_RESTORER(m_alwaysFFp);
         VL_RESTORER(m_alwaysPlainp);
-        AstNode::user2ClearTree();
+        Ast_ಗಂಟು::user2_Clear_ವೃಕ್ಷ();
         m_alwaysp = nodep;
-        if (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
+        ಆದರೆ (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
             UINFO(9, "   " << nodep);
             m_alwaysCombp = nodep;
-        } else {
-            m_alwaysCombp = nullptr;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            m_alwaysCombp = ಶೂನ್ಯಸೂಚಕ;
         }
-        m_alwaysFFp = nodep->keyword() == VAlwaysKwd::ALWAYS_FF ? nodep : nullptr;
-        m_alwaysPlainp = nodep->keyword() == VAlwaysKwd::ALWAYS ? nodep : nullptr;
+        m_alwaysFFp = nodep->keyword() == VAlwaysKwd::ALWAYS_FF ? nodep : ಶೂನ್ಯಸೂಚಕ;
+        m_alwaysPlainp = nodep->keyword() == VAlwaysKwd::ALWAYS ? nodep : ಶೂನ್ಯಸೂಚಕ;
         iterateChildrenConst(nodep);
-        if (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) UINFO(9, "   Done " << nodep);
+        ಆದರೆ (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) UINFO(9, "   Done " << nodep);
     }
-    void visit(AstClocking* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstClocking* nodep) override {
         VL_RESTORER(m_clockingp);
         m_clockingp = nodep;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeFTaskRef* nodep) override {
-        VL_RESTORER(m_inFTaskRef);
-        m_inFTaskRef = true;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask_Ref* nodep) override {
+        VL_RESTORER(m_ಒಳ_FTask_Ref);
+        m_ಒಳ_FTask_Ref = ನಿಜ;
 
         iterateChildrenConst(nodep);
 
-        if (!m_capturep) return;
+        ಆದರೆ (!m_capturep) ಹಿಂತಿರುಗಿ;
 
         // If writeSummary is enabled, task/function definitions are treated as non-executed.
         // Do not apply writeSummary at calls inside a task definition, or they will look like
         // independent drivers (phantom MULTIDRIVEN).
-        const bool inExecutedContext
-            = !(m_taskp && !m_alwaysp && !m_inContAssign && !m_inInitialStatic && !m_inBBox
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಒಳ_Executed_Context
+            = !(m_taskp && !m_alwaysp && !m_ಒಳ_Cont_ನಿಯೋಜಿಸು && !m_ಒಳ_Initial_Static && !m_ಒಳ_BBox
                 && !m_taskp->dpiExport());
 
-        if (!inExecutedContext) return;
+        ಆದರೆ (!ಒಳ_Executed_Context) ಹಿಂತಿರುಗಿ;
 
-        AstNodeFTask* const calleep = nodep->taskp();
-        if (!calleep) return;
+        Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ calleep = nodep->taskp();
+        ಆದರೆ (!calleep) ಹಿಂತಿರುಗಿ;
 
-        const auto& vars = m_capturep->writeSummary(calleep);
-        for (AstVar* const varp : vars) {
-            for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
-                UndrivenVarEntry* const entryp = getEntryp(varp, usr);
-                entryp->drivenViaCall(nodep);
-                if (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
-                if (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, varp);
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& vars = m_capturep->writeSummary(calleep);
+        ಗಾಗಿ (AstVar* ಸ್ಥಿರಾಂಕ varp : vars) {
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+                Undriven_Var_ನಮೂದು* ಸ್ಥಿರಾಂಕ entryp = getEntryp(varp, usr);
+                entryp->driven_ಮೂಲಕ_Call(nodep);
+                ಆದರೆ (m_alwaysCombp) entryp->driven_Always_Comb_ಸಂಪೂರ್ಣ(m_alwaysCombp);
+                ಆದರೆ (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, varp);
             }
         }
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask* nodep) override {
         VL_RESTORER(m_taskp);
         m_taskp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstPin* nodep) override {
-        VL_RESTORER(m_inInoutOrRefPin);
-        m_inInoutOrRefPin = nodep->modVarp()->isInoutOrRef();
+    ಶೂನ್ಯ ಭೇಟಿ(AstPin* nodep) override {
+        VL_RESTORER(m_ಒಳ_Inout_Or_Ref_Pin);
+        m_ಒಳ_Inout_Or_Ref_Pin = nodep->modVarp()->isInoutOrRef();
         iterateChildrenConst(nodep);
     }
 
     // Until we support tables, primitives will have undriven and unused I/Os
-    void visit(AstPrimitive*) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(AstPrimitive*) override {}
 
     // Coverage artifacts etc shouldn't count as a sink
-    void visit(AstNodeCoverDecl*) override {}
-    void visit(AstCoverInc*) override {}
-    void visit(AstCoverToggle*) override {}
-    void visit(AstTraceDecl* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
-    void visit(AstTraceInc* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Cover_Decl*) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(AstCoverInc*) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(AstCoverToggle*) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(AstTraceDecl* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstTraceInc* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
 
     // iterate
-    void visit(AstConst* nodep) override {}
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstConst* nodep) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit UndrivenVisitor(AstNetlist* nodep, V3UndrivenCapture* capturep)
+    ಸ್ಪಷ್ಟ UndrivenVisitor(AstNetlist* nodep, V3UndrivenCapture* capturep)
         : m_capturep{capturep} {
         iterateConst(nodep);
     }
 
     ~UndrivenVisitor() override {
-        for (UndrivenVarEntry* ip : m_entryps[1]) ip->reportViolations();
-        for (int usr = 1; usr < 3; ++usr) {
-            for (UndrivenVarEntry* ip : m_entryps[usr]) delete ip;
+        ಗಾಗಿ (Undriven_Var_ನಮೂದು* ip : m_entryps[1]) ip->reportViolations();
+        ಗಾಗಿ (ಪೂರ್ಣಾಂಕ usr = 1; usr < 3; ++usr) {
+            ಗಾಗಿ (Undriven_Var_ನಮೂದು* ip : m_entryps[usr]) ಅಳಿಸು ip;
         }
     }
 };
@@ -915,11 +915,11 @@ public:
 //######################################################################
 // Undriven class functions
 
-void V3Undriven::undrivenAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Undriven::undrivenAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
 
     V3UndrivenCapture capture{nodep};
     { UndrivenVisitor{nodep, &capture}; }
 
-    if (v3Global.opt.stats()) V3Stats::statsStage("undriven");
+    ಆದರೆ (v3Global.opt.stats()) V3Stats::statsStage("undriven");
 }

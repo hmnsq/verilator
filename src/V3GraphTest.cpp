@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_MT_DISABLED_ಸಂಕೇತ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -28,84 +28,84 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Test class
 
-class V3GraphTest VL_NOT_FINAL {
-protected:
+ವರ್ಗ V3_ನಕ್ಷೆ_Test VL_NOT_FINAL {
+ಸಂರಕ್ಷಿತ:
     // MEMBERS
-    V3Graph m_graph;
+    V3_ನಕ್ಷೆ m_ನಕ್ಷೆ;
 
     // METHODS - for children
-    virtual void runTest() = 0;  // Run the test
-    virtual string name() = 0;  // Name of the test
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಸತತ_Test() = 0;  // Run the test
+    ವಾಸ್ತವಿಕ string name() = 0;  // Name of the test
 
     // Utilities
-    void dumpSelf() {
-        if (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
+    ಶೂನ್ಯ dumpSelf() {
+        ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 9) m_ನಕ್ಷೆ.dumpDotFilePrefixed("v3graphtest_" + name());
     }
 
-public:
-    V3GraphTest() = default;
-    virtual ~V3GraphTest() = default;
+ಸಾರ್ವಜನಿಕ:
+    V3_ನಕ್ಷೆ_Test() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ವಾಸ್ತವಿಕ ~V3_ನಕ್ಷೆ_Test() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-    void run() { runTest(); }
+    ಶೂನ್ಯ ಸತತ() { ಸತತ_Test(); }
 };
 
 //######################################################################
 //######################################################################
 // Vertices and nodes
 
-class V3GraphTestVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(V3GraphTestVertex, V3GraphVertex)
-    const string m_name;
+ವರ್ಗ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(V3_ನಕ್ಷೆ_Test_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    ಸ್ಥಿರಾಂಕ string m_name;
 
-public:
-    V3GraphTestVertex(V3Graph* graphp, const string& name)
-        : V3GraphVertex{graphp}
+ಸಾರ್ವಜನಿಕ:
+    V3_ನಕ್ಷೆ_Test_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, ಸ್ಥಿರಾಂಕ string& name)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_name{name} {}
-    ~V3GraphTestVertex() override = default;
+    ~V3_ನಕ್ಷೆ_Test_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
 };
 
-class V3GraphTestVarVertex final : public V3GraphTestVertex {
-public:
-    V3GraphTestVarVertex(V3Graph* graphp, const string& name)
-        : V3GraphTestVertex{graphp, name} {}
-    ~V3GraphTestVarVertex() override = default;
+ವರ್ಗ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ {
+ಸಾರ್ವಜನಿಕ:
+    V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, ಸ್ಥಿರಾಂಕ string& name)
+        : V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{graphp, name} {}
+    ~V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
     // ACCESSORS
-    string dotColor() const override { return "blue"; }
+    string dotColor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "blue"; }
 };
 
 //######################################################################
 //######################################################################
 // Test vertices and nodes
 
-class V3GraphTestStrong final : public V3GraphTest {
-public:
-    string name() override { return "strong"; }
-    void runTest() override {
-        V3Graph* gp = &m_graph;
+ವರ್ಗ V3_ನಕ್ಷೆ_Test_Strong final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_Test {
+ಸಾರ್ವಜನಿಕ:
+    string name() override { ಹಿಂತಿರುಗಿ "strong"; }
+    ಶೂನ್ಯ ಸತತ_Test() override {
+        V3_ನಕ್ಷೆ* gp = &m_ನಕ್ಷೆ;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        V3GraphTestVertex* q = new V3GraphTestVarVertex{gp, "q"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g3, g2, 2, true};
-        new V3GraphEdge{gp, g2, g3, 2, true};
-        new V3GraphEdge{gp, g1, q, 2, true};
-        new V3GraphEdge{gp, g2, q, 2, true};
-        new V3GraphEdge{gp, g3, q, 2, true};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* i = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "*INPUTS*"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* a = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "a"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* b = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "b"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* g1 = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "g1"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* g2 = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "g2"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* g3 = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "g3"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* q = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "q"};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, i, a, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, a, b, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b, g1, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b, g2, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b, g3, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g1, a, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g3, g2, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g2, g3, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g1, q, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g2, q, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g3, q, 2, ನಿಜ};
 
-        gp->stronglyConnected(&V3GraphEdge::followAlwaysTrue);
+        gp->stronglyConnected(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
         dumpSelf();
 
         UASSERT(i->color() != a->color() && a->color() != g2->color() && g2->color() != q->color(),
@@ -117,56 +117,56 @@ public:
     }
 };
 
-class V3GraphTestAcyc final : public V3GraphTest {
-public:
-    string name() override { return "acyc"; }
-    void runTest() override {
-        V3Graph* gp = &m_graph;
+ವರ್ಗ V3_ನಕ್ಷೆ_Test_Acyc final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_Test {
+ಸಾರ್ವಜನಿಕ:
+    string name() override { ಹಿಂತಿರುಗಿ "acyc"; }
+    ಶೂನ್ಯ ಸತತ_Test() override {
+        V3_ನಕ್ಷೆ* gp = &m_ನಕ್ಷೆ;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g2, a, 2, true};
-        new V3GraphEdge{gp, g3, a, 2, true};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* i = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "*INPUTS*"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* a = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "a"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* b = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "b"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* g1 = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "g1"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* g2 = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "g2"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* g3 = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "g3"};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, i, a, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, a, b, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b, g1, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b, g2, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b, g3, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g1, a, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g2, a, 2, ನಿಜ};
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, g3, a, 2, ನಿಜ};
 
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
-        gp->order();
+        gp->acyclic(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
+        gp->ಕ್ರಮ();
         dumpSelf();
     }
 };
 
-class V3GraphTestVars final : public V3GraphTest {
-public:
-    string name() override { return "vars"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+ವರ್ಗ V3_ನಕ್ಷೆ_Test_Vars final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_Test {
+ಸಾರ್ವಜನಿಕ:
+    string name() override { ಹಿಂತಿರುಗಿ "vars"; }
+    ಶೂನ್ಯ ಸತತ_Test() override {
+        V3_ನಕ್ಷೆ* ಸ್ಥಿರಾಂಕ gp = &m_ನಕ್ಷೆ;
 
-        V3GraphTestVertex* const clk = new V3GraphTestVarVertex{gp, "$clk"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ clk = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$clk"};
 
-        V3GraphTestVertex* const a = new V3GraphTestVarVertex{gp, "$a"};
-        V3GraphTestVertex* const a_dly = new V3GraphTestVarVertex{gp, "$a_dly"};
-        V3GraphTestVertex* const a_dlyblk = new V3GraphTestVarVertex{gp, "$a_dlyblk"};
-        V3GraphTestVertex* const b = new V3GraphTestVarVertex{gp, "$b"};
-        V3GraphTestVertex* const b_dly = new V3GraphTestVarVertex{gp, "$b_dly"};
-        V3GraphTestVertex* const b_dlyblk = new V3GraphTestVarVertex{gp, "$b_dlyblk"};
-        V3GraphTestVertex* const c = new V3GraphTestVarVertex{gp, "$c"};
-        V3GraphTestVertex* const i = new V3GraphTestVarVertex{gp, "$i"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ a = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$a"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ a_dly = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$a_dly"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ a_dlyblk = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$a_dlyblk"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ b = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$b"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ b_dly = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$b_dly"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ b_dlyblk = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$b_dlyblk"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ c = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$c"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ i = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$i"};
 
-        V3GraphTestVertex* const ap = new V3GraphTestVarVertex{gp, "$a_pre"};
-        V3GraphTestVertex* const bp = new V3GraphTestVarVertex{gp, "$b_pre"};
-        V3GraphTestVertex* const cp = new V3GraphTestVarVertex{gp, "$c_pre"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ap = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$a_pre"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ bp = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$b_pre"};
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ cp = ಹೊಸ V3_ನಕ್ಷೆ_Test_Var_ಶೃಂಗ{gp, "$c_pre"};
 
-        V3GraphTestVertex* n;
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* n;
 
         // Logical order between clk, and posedge blocks
         //   implemented by special CLK prod/cons?
@@ -179,68 +179,68 @@ public:
         // Desired order between different _DLY blocks so we can elim temporaries
         //   implemented by cutable "pre" signal dependencies
 
-        n = new V3GraphTestVertex{gp, "*INPUTS*"};
+        n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "*INPUTS*"};
         {
-            new V3GraphEdge{gp, n, clk, 2};
-            new V3GraphEdge{gp, n, i, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, clk, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, i, 2};
         }
 
-        V3GraphTestVertex* const posedge = n = new V3GraphTestVertex{gp, "*posedge clk*"};
-        { new V3GraphEdge{gp, clk, n, 2}; }
+        V3_ನಕ್ಷೆ_Test_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ posedge = n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "*posedge clk*"};
+        { ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, clk, n, 2}; }
 
         // AlwaysPre's     VarRefs on LHS:  generate special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume 'pre' (required to save cutable tests)
-        n = new V3GraphTestVertex{gp, "a_dly<PRE=a"};
+        n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "a_dly<PRE=a"};
         {
-            new V3GraphEdge{gp, n, a_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, a_dly, 2};
-            new V3GraphEdge{gp, ap, n, 2, true};  // DESIRED delayed ordering (inp is required)
-            new V3GraphEdge{gp, posedge, n, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, a_dlyblk, 2};  // Block ordering
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, a_dly, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, ap, n, 2, ನಿಜ};  // DESIRED delayed ordering (inp is required)
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<PRE=b"};
+        n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "b_dly<PRE=b"};
         {
-            new V3GraphEdge{gp, n, b_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, bp, n, 2, true};  // DESIRED delayed ordering
-            new V3GraphEdge{gp, posedge, n, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, b_dlyblk, 2};  // Block ordering
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, b_dly, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, bp, n, 2, ನಿಜ};  // DESIRED delayed ordering
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, posedge, n, 2};
         }
 
         // AssignDly's     VarRefs on LHS:  consume special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  generate 'pre' signals (cutable)
         //    SenItems:    consume CLOCK dependency
-        n = new V3GraphTestVertex{gp, "a_dly<=b|c"};
+        n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "a_dly<=b|c"};
         {
-            new V3GraphEdge{gp, a_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, a_dly, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, a_dlyblk, n, 2};  // Block ordering in
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, a_dly, 2};
             // Note we don't include ap as we're generating a_dly
-            new V3GraphEdge{gp, n, bp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, n, cp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, bp, 2};  // DESIRED delayed usage
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, cp, 2};  // DESIRED delayed usage
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<=a"};
+        n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "b_dly<=a"};
         {
-            new V3GraphEdge{gp, b_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, n, ap, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b_dlyblk, n, 2};  // Block ordering in
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, b_dly, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, ap, 2};  // DESIRED delayed usage
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, posedge, n, 2};
         }
 
         // AlwaysPost's
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume normal
-        n = new V3GraphTestVertex{gp, "a=POST=a_dly"};
+        n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "a=POST=a_dly"};
         {
-            new V3GraphEdge{gp, n, a, 3};
-            new V3GraphEdge{gp, a_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, a, 3};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, a_dly, n, 3};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b=POST=b_dly"};
+        n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "b=POST=b_dly"};
         {
-            new V3GraphEdge{gp, n, b, 3};
-            new V3GraphEdge{gp, b_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, b, 3};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b_dly, n, 3};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, posedge, n, 2};
         }
 
         // COMBO
@@ -248,18 +248,18 @@ public:
         // Outbound are cutable, as we may need to evaluate multiple times
 
         {
-            n = new V3GraphTestVertex{gp, "c=a|b|i"};
-            new V3GraphEdge{gp, n, c, 1, true};
-            new V3GraphEdge{gp, a, n, 1, false};
-            new V3GraphEdge{gp, b, n, 1, false};
-            new V3GraphEdge{gp, i, n, 1, false};
+            n = ಹೊಸ V3_ನಕ್ಷೆ_Test_ಶೃಂಗ{gp, "c=a|b|i"};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, n, c, 1, ನಿಜ};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, a, n, 1, ಸುಳ್ಳು};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, b, n, 1, ಸುಳ್ಳು};
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{gp, i, n, 1, ಸುಳ್ಳು};
         }
 
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
-        gp->order();
+        gp->acyclic(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
+        gp->ಕ್ರಮ();
 
         // Test debug function
-        gp->dumpEdges(std::cout, *ap);
+        gp->dump_ಅಂಚುಗಳು(std::ಹೊರಗೆ, *ap);
 
         dumpSelf();
     }
@@ -267,40 +267,40 @@ public:
 
 //======================================================================
 
-class V3GraphTestImport final : public V3GraphTest {
+ವರ್ಗ V3_ನಕ್ಷೆ_Test_Import final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_Test {
 
-#ifdef GRAPH_IMPORT
-    void dotImport();
-#else
-    void dotImport() {}
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ ನಕ್ಷೆ_IMPORT
+    ಶೂನ್ಯ dotImport();
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಶೂನ್ಯ dotImport() {}
+#ಆದರೆ_ಅಂತ್ಯ
 
-public:
-    string name() override { return "import"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+ಸಾರ್ವಜನಿಕ:
+    string name() override { ಹಿಂತಿರುಗಿ "import"; }
+    ಶೂನ್ಯ ಸತತ_Test() override {
+        V3_ನಕ್ಷೆ* ಸ್ಥಿರಾಂಕ gp = &m_ನಕ್ಷೆ;
         dotImport();
         dumpSelf();
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
+        gp->acyclic(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
         dumpSelf();
-        gp->rank(&V3GraphEdge::followAlwaysTrue);
+        gp->rank(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
         dumpSelf();
     }
 };
 
 // clang-format off
-#ifdef GRAPH_IMPORT
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ ನಕ್ಷೆ_IMPORT
 # include "graph_export.cpp"
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 // clang-format on
 
 //======================================================================
 
-void V3Graph::selfTest() {
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::selfTest() {
     // Execute all of the tests
     UINFO(2, __FUNCTION__ << ":");
-    { V3GraphTestStrong{}.run(); }
-    { V3GraphTestAcyc{}.run(); }
-    { V3GraphTestVars{}.run(); }
-    { V3GraphTestImport{}.run(); }
+    { V3_ನಕ್ಷೆ_Test_Strong{}.ಸತತ(); }
+    { V3_ನಕ್ಷೆ_Test_Acyc{}.ಸತತ(); }
+    { V3_ನಕ್ಷೆ_Test_Vars{}.ಸತತ(); }
+    { V3_ನಕ್ಷೆ_Test_Import{}.ಸತತ(); }
 }

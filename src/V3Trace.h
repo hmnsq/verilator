@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TRACE_H_
-#define VERILATOR_V3TRACE_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3TRACE_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3TRACE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Trace final {
-public:
-    static void traceAll(AstNetlist* nodep) VL_MT_DISABLED;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ traceAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

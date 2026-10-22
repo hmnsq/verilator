@@ -14,22 +14,22 @@
 //
 //*************************************************************************
 
-#ifndef _V3TIMING_H_
-#define _V3TIMING_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _V3TIMING_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು _V3TIMING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
 
 //============================================================================
 
 class V3Timing final {
-public:
-    static void timingAll(AstNetlist* nodep) VL_MT_DISABLED;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ timingAll(AstNetlist* nodep) VL_MT_DISABLED;
     // Scale a delay in the given time unit to time precision ticks, rounding real delays; #1step
     // is one tick
-    static AstNodeExpr* delayToTicks(AstNodeExpr* valuep, VTimescale timeunit) VL_MT_DISABLED;
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* delay_ಗಮ್ಯ_Ticks(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep, VTimescale timeunit) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

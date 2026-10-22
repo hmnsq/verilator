@@ -18,44 +18,44 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DUPFINDER_H_
-#define VERILATOR_V3DUPFINDER_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3DUPFINDER_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3DUPFINDER_H_
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Hasher.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Hasher.h"
 
-#include <map>
-#include <memory>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <memory>
 
 //============================================================================
 
-struct V3DupFinderUserSame VL_NOT_FINAL {
+ರಚನೆ V3DupFinderUserSame VL_NOT_FINAL {
     // Functor for V3DupFinder::findDuplicate
-    virtual bool isSame(AstNode*, AstNode*) = 0;
-    V3DupFinderUserSame() = default;
-    virtual ~V3DupFinderUserSame() = default;
+    ವಾಸ್ತವಿಕ bool isSame(Ast_ಗಂಟು*, Ast_ಗಂಟು*) = 0;
+    V3DupFinderUserSame() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ವಾಸ್ತವಿಕ ~V3DupFinderUserSame() = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 // This really is just a multimap from 'node hash' to 'node pointer', with some minor extensions.
-class V3DupFinder final : private std::multimap<V3Hash, AstNode*> {
-    using Super = std::multimap<V3Hash, AstNode*>;
+class V3DupFinder final : ಖಾಸಗಿ std::multimap<V3Hash, Ast_ಗಂಟು*> {
+    using Super = std::multimap<V3Hash, Ast_ಗಂಟು*>;
 
     // MEMBERS
-    const V3Hasher* const m_hasherOwnedp = nullptr;  // Pointer to owned hasher
-    const V3Hasher& m_hasher;  // Reference to hasher
+    ಸ್ಥಿರಾಂಕ V3Hasher* ಸ್ಥಿರಾಂಕ m_hasherOwnedp = nullptr;  // Pointer to owned hasher
+    ಸ್ಥಿರಾಂಕ V3Hasher& m_hasher;  // Reference to hasher
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     V3DupFinder()
         : m_hasherOwnedp{new V3Hasher}
         , m_hasher{*m_hasherOwnedp} {}
-    explicit V3DupFinder(const V3Hasher& hasher)
+    explicit V3DupFinder(ಸ್ಥಿರಾಂಕ V3Hasher& hasher)
         : m_hasher{hasher} {}
     ~V3DupFinder() {
-        if (m_hasherOwnedp) delete m_hasherOwnedp;
+        ಆದರೆ (m_hasherOwnedp) delete m_hasherOwnedp;
     }
 
     // METHODS
@@ -66,24 +66,24 @@ public:
     using Super::cend;
     using Super::clear;
     using Super::const_iterator;
-    using Super::empty;
-    using Super::end;
+    using Super::ಖಾಲಿಗಳು;
+    using Super::ಕೊನೆ;
     using Super::erase;
     using Super::iterator;
-    using Super::size_type;
+    using Super::ಗಾತ್ರ_type;
 
     // Insert node into data structure
-    iterator insert(AstNode* nodep) { return emplace(m_hasher(nodep), nodep); }
+    iterator ಸೇರಿಸು(Ast_ಗಂಟು* nodep) { ಹಿಂತಿರುಗಿ emplace(m_hasher(nodep), nodep); }
 
     // Erase node from data structure
-    size_type erase(AstNode* nodep) VL_MT_DISABLED;
+    ಗಾತ್ರ_type erase(Ast_ಗಂಟು* nodep) VL_MT_DISABLED;
 
     // Return duplicate, if one was inserted, with optional user check for sameness
-    iterator findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
+    iterator ಕಂಡುಹಿಡಿ_Duplicate(Ast_ಗಂಟು* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
 
     // Dump for debug
-    void dumpFile(const string& filename, bool tree) VL_MT_DISABLED;
-    void dumpFilePrefixed(const string& nameComment, bool tree = false) VL_MT_DISABLED;
+    ಶೂನ್ಯ dumpFile(ಸ್ಥಿರಾಂಕ string& filename, bool ವೃಕ್ಷ) VL_MT_DISABLED;
+    ಶೂನ್ಯ dumpFilePrefixed(ಸ್ಥಿರಾಂಕ string& nameComment, bool ವೃಕ್ಷ = false) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

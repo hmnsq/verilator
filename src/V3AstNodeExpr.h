@@ -30,196 +30,196 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTNODEEXPR_H_
-#define VERILATOR_V3ASTNODEEXPR_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3ASTNODEEXPR_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3ASTNODEEXPR_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3AST_H_
+#ದೋಷ "Use V3Ast.h as the include"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#ಆದರೆ_ಅಂತ್ಯ
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeExpr VL_NOT_FINAL : public AstNode {
+class Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು {
     // An expression tree node
-protected:
-    AstNodeExpr(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ(VNType t, File_ಸಾಲು* fl)
+        : Ast_ಗಂಟು{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeExpr;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     // Every expression must have a data type after V3Width
-    bool hasDType() const override final VL_MT_SAFE { return true; }
-    virtual string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
+    bool hasDType() ಸ್ಥಿರಾಂಕ override final VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    ವಾಸ್ತವಿಕ string emitVerilog() = 0;  /// Format string for verilog writing; see V3EmitV
     // For documentation on emitC format see EmitCFunc::emitOpName
-    virtual string emitC() = 0;
-    virtual string emitSMT() const { return ""; };
-    virtual string emitSimpleOperator() { return ""; }  // "" means not ok to use
-    virtual bool emitCheckMaxWords() { return false; }  // Check VL_MULS_MAX_WORDS
-    virtual bool cleanOut() const = 0;  // True if output has extra upper bits zero
+    ವಾಸ್ತವಿಕ string emitC() = 0;
+    ವಾಸ್ತವಿಕ string emitSMT() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ""; };
+    ವಾಸ್ತವಿಕ string emitSimpleOperator() { ಹಿಂತಿರುಗಿ ""; }  // "" means not ok to use
+    ವಾಸ್ತವಿಕ bool emit_Check_Max_ಪದಗಳು() { ಹಿಂತಿರುಗಿ false; }  // Check VL_MULS_MAX_WORDS
+    ವಾಸ್ತವಿಕ bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ = 0;  // True if output has extra upper bits zero
     // True for SVA multi-cycle sequence nodes (SExpr, SConsRep, etc.)
-    virtual bool isMultiCycleSva() const { return false; }
-    const AstNodeExpr* getVAccessTargetRecurse() const;
-    AstNodeExpr* getVAccessTargetRecurse() {
-        return const_cast<AstNodeExpr*>(  // casting constness away is safe since this function is
+    ವಾಸ್ತವಿಕ bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* get_VAccess_ಗುರಿ_Recurse() ಸ್ಥಿರಾಂಕ;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* get_VAccess_ಗುರಿ_Recurse() {
+        ಹಿಂತಿರುಗಿ const_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(  // casting constness away is safe since this function is
                                           // non-const itself therefore, caller guarantees that
                                           // this object is non-const
-            static_cast<const AstNodeExpr*>(this)->getVAccessTargetRecurse());
+            static_cast<ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(this)->get_VAccess_ಗುರಿ_Recurse());
     }
-    VAccess getVAccessRecurse() const;
+    VAccess getVAccessRecurse() ಸ್ಥಿರಾಂಕ;
     // TODO: this actually means it's a write or RW, not that it's an LValue
-    bool isLValue() const { return getVAccessRecurse().isWriteOrRW(); }
+    bool isLValue() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ getVAccessRecurse().isWriteOrRW(); }
     // A constant value known at compile time: a Const, or a NodeCons of only constants
-    bool isConstantTree() const;
+    bool is_Constant_ವೃಕ್ಷ() ಸ್ಥಿರಾಂಕ;
     // Return base var (or const) nodep dereferences
-    AstNode* baseFromp(bool overMembers);
+    Ast_ಗಂಟು* ತಳ_Fromp(bool overMembers);
 
     // Wrap This expression into an AstStmtExpr to denote it occurs in statement position
-    inline AstStmtExpr* makeStmt();
+    ಸಾಲೊಳಗೆ Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* makeStmt();
     // Returns an error message if widthMin() is not correct otherwise returns nullptr like
     // broken()
-    virtual const char* widthMismatch() const VL_MT_STABLE { return nullptr; }
+    ವಾಸ್ತವಿಕ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಅಗಲ_Mismatch() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ nullptr; }
 
     // S-expression inspired dump of node and operands for debugging
-    std::string patternString(uint32_t depth = 0) const;
-    bool isFourstateOrNoDtype() const {
-        if (!dtypep()) return true;
-        return dtypep()->skipRefp()->isFourstate();
+    std::string ನಮೂನೆ_String(uint32_t ಆಳ = 0) ಸ್ಥಿರಾಂಕ;
+    bool isFourstateOrNoDtype() ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (!dtypep()) ಹಿಂತಿರುಗಿ true;
+        ಹಿಂತಿರುಗಿ dtypep()->skipRefp()->isFourstate();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p) {
-        return expr1p->isFourstateOrNoDtype();
+    ಸ್ಥಿರ bool isFourstateOrNoDtype(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr1p) {
+        ಹಿಂತಿರುಗಿ expr1p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p) {
-        return expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
+    ಸ್ಥಿರ bool isFourstateOrNoDtype(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr1p,
+                                     ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr2p) {
+        ಹಿಂತಿರುಗಿ expr1p->isFourstateOrNoDtype() || expr2p->isFourstateOrNoDtype();
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
+    ಸ್ಥಿರ bool isFourstateOrNoDtype(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr1p,
+                                     ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr2p,
+                                     ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr3p) {
+        ಹಿಂತಿರುಗಿ isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p);
     }
-    static bool isFourstateOrNoDtype(const AstNodeExpr* const expr1p,
-                                     const AstNodeExpr* const expr2p,
-                                     const AstNodeExpr* const expr3p,
-                                     const AstNodeExpr* const expr4p) {
-        return isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
+    ಸ್ಥಿರ bool isFourstateOrNoDtype(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr1p,
+                                     ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr2p,
+                                     ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr3p,
+                                     ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ expr4p) {
+        ಹಿಂತಿರುಗಿ isFourstateOrNoDtype(expr1p, expr2p) || isFourstateOrNoDtype(expr3p, expr4p);
     }
 };
-class AstNodeBiop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Biop VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Binary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeExpr{t, fl} {
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Biop(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiop;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Biop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) = 0;
+    ವಾಸ್ತವಿಕ bool cleanLhs() ಸ್ಥಿರಾಂಕ = 0;  // True if LHS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool cleanRhs() ಸ್ಥಿರಾಂಕ = 0;  // True if RHS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on lhs size
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on rhs size
+    ವಾಸ್ತವಿಕ bool doubleFlavor() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    ವಾಸ್ತವಿಕ bool signedFlavor() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }
+    ವಾಸ್ತವಿಕ bool stringFlavor() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }  // N flavor of nodes with both flavors?
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
 
-private:
-    bool getPurityRecurse() const { return lhsp()->isPure() && rhsp()->isPure(); }
+ಖಾಸಗಿ:
+    bool getPurityRecurse() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ lhsp()->is_ಶುದ್ಧ() && rhsp()->is_ಶುದ್ಧ(); }
 };
-class AstNodeBiCom VL_NOT_FINAL : public AstNodeBiop {
+class Ast_ಗಂಟು_Bi_Com VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Binary expr with commutative properties
-protected:
-    AstNodeBiCom(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiop{t, fl, lhs, rhs} {}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Bi_Com(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhs, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhs)
+        : Ast_ಗಂಟು_Biop{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiCom;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Bi_Com;
 };
-class AstNodeBiComAsv VL_NOT_FINAL : public AstNodeBiCom {
+class Ast_ಗಂಟು_Bi_Com_Asv VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // Binary expr with commutative & associative properties
-protected:
-    AstNodeBiComAsv(VNType t, FileLine* fl, AstNodeExpr* lhs, AstNodeExpr* rhs)
-        : AstNodeBiCom{t, fl, lhs, rhs} {}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Bi_Com_Asv(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhs, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhs)
+        : Ast_ಗಂಟು_Bi_Com{t, fl, lhs, rhs} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBiComAsv;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Bi_Com_Asv;
 };
-class AstNodeDistBiop VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeDistBiop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        dtypeSetInteger2State();
+class Ast_ಗಂಟು_Dist_Biop VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಂಟು_Dist_Biop(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : Ast_ಗಂಟು_Biop{t, fl, lhsp, rhsp} {
+        dtype_ಗಣ_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstNodeDistBiop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Dist_Biop;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL_TRIG; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
 };
-class AstNodeSel VL_NOT_FINAL : public AstNodeBiop {
+class Ast_ಗಂಟು_Sel VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // @astgen alias op1 := fromp // Expression we are indexing into
     // @astgen alias op2 := bitp // The index // TODO: rename to idxp
-protected:
-    AstNodeSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : AstNodeBiop{t, fl, fromp, bitp} {}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Sel(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp)
+        : Ast_ಗಂಟು_Biop{t, fl, fromp, bitp} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeSel;
-    int bitConst() const;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Sel;
+    ಪೂರ್ಣಾಂಕ ಬಿಟ್_Const() ಸ್ಥಿರಾಂಕ;
 };
-class AstNodeStream VL_NOT_FINAL : public AstNodeBiop {
+class Ast_ಗಂಟು_ಹರಿವು VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
-protected:
-    AstNodeStream(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        if (lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(lhsp->width(), lhsp->widthMin(), VSigning::UNSIGNED,
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_ಹರಿವು(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : Ast_ಗಂಟು_Biop{t, fl, lhsp, rhsp} {
+        ಆದರೆ (lhsp->dtypep()) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(lhsp->ಅಗಲ(), lhsp->ಅಗಲ_Min(), VSigning::UNSIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeStream;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_ಹರಿವು;
 };
-class AstNodeSystemBiopD VL_NOT_FINAL : public AstNodeBiop {
-public:
-    AstNodeSystemBiopD(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : AstNodeBiop{t, fl, lhsp, rhsp} {
-        dtypeSetDouble();
+class Ast_ಗಂಟು_System_Biop_D VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಂಟು_System_Biop_D(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : Ast_ಗಂಟು_Biop{t, fl, lhsp, rhsp} {
+        dtype_ಗಣ_Double();
     }
-    ASTGEN_MEMBERS_AstNodeSystemBiopD;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_System_Biop_D;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL_TRIG; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_CCall VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A call of a C++ function, perhaps a AstCFunc or perhaps globally named
     // @astgen op2 := argsp : List[AstNodeExpr]  // Note: op1 used by some sub-types only
     //
@@ -228,56 +228,56 @@ class AstNodeCCall VL_NOT_FINAL : public AstNodeExpr {
     string m_argTypes;
     bool m_superReference = false;  // Called with super reference
 
-protected:
-    AstNodeCCall(VNType t, FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
-        : AstNodeExpr{t, fl}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_CCall(VNType t, File_ಸಾಲು* fl, AstCFunc* funcp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = nullptr)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl}
         , m_funcp{funcp} {
-        addArgsp(argsp);
+        ಕೂಡಿಸು_Argsp(argsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeCCall;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return INSTR_COUNT_CALL; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeCCall* const asamep = VN_DBG_AS(samep, NodeCCall);
-        return (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_CCall;
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_CALL; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_CCall* ಸ್ಥಿರಾಂಕ asamep = VN_DBG_AS(samep, ಗಂಟು_CCall);
+        ಹಿಂತಿರುಗಿ (funcp() == asamep->funcp() && argTypes() == asamep->argTypes());
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override;
-    bool isOutputter() override { return !isPure(); }
-    AstCFunc* funcp() const { return m_funcp; }
-    void funcp(AstCFunc* funcp) { m_funcp = funcp; }
-    string argTypes() const { return m_argTypes; }
-    void argTypes(const string& str) { m_argTypes = str; }
-    bool isUnlikely() const override { return m_funcp && m_funcp->isUnlikely(); }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override;
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ !is_ಶುದ್ಧ(); }
+    AstCFunc* funcp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_funcp; }
+    ಶೂನ್ಯ funcp(AstCFunc* funcp) { m_funcp = funcp; }
+    string argTypes() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_argTypes; }
+    ಶೂನ್ಯ argTypes(ಸ್ಥಿರಾಂಕ string& str) { m_argTypes = str; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_funcp && m_funcp->isUnlikely(); }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ final override { ಹಿಂತಿರುಗಿ true; }
+    bool superReference() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_superReference; }
+    ಶೂನ್ಯ superReference(bool flag) { m_superReference = flag; }
 };
-class AstNodeCons VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Cons VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Construct a value of an aggregate type
-    friend class AstNodeExpr;  // For m_knownConstantTree
-    mutable bool m_knownConstantTree = false;  // Known to be 'this->isConstantTree() == true'
+    ಮಿತ್ರ class Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ;  // For m_knownConstantTree
+    mutable bool m_ತಿಳಿದ_Constant_ವೃಕ್ಷ = false;  // Known to be 'this->isConstantTree() == true'
 
-protected:
-    AstNodeCons(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Cons(VNType t, File_ಸಾಲು* fl)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeCons;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Cons;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     std::string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     std::string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { return true; }
-    int instrCount() const final override { return widthInstrs(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ final override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ final override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_FTask_Ref VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A reference to a task (or function)
     // op1 used by some sub-types only
     // @astgen op2 := argsp : List[AstArg]
@@ -286,65 +286,65 @@ class AstNodeFTaskRef VL_NOT_FINAL : public AstNodeExpr {
     //
     // @astgen ptr := m_taskp : Optional[AstNodeFTask]  // [AfterLink] Pointer to task referenced
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the task
-    ASTGEN_MEMBERS_AstNodeFTaskRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_FTask_Ref;  // Gen pointers before other members for performance
+ಖಾಸಗಿ:
     string m_name;  // Name of variable
     string m_dotted;  // Dotted part of scope the name()ed task/func is under or ""
     string m_inlinedDots;  // Dotted hierarchy flattened out
-    bool m_containsGenBlock = false;  // Contains gen block reference
+    bool m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ = false;  // Contains gen block reference
     bool m_pli = false;  // Pli system call ($name)
     bool m_superReference = false;  // Called with super reference
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeFTaskRef(VNType t, FileLine* fl, const string& name, AstArg* argsp)
-        : AstNodeExpr{t, fl}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_FTask_Ref(VNType t, File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, AstArg* argsp)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl}
         , m_name{name} {
-        addArgsp(argsp);
+        ಕೂಡಿಸು_Argsp(argsp);
     }
 
-public:
-    const char* broken() const override;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool isGateOptimizable() const override;
-    string dotted() const { return m_dotted; }  // * = Scope name or ""
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    AstNodeFTask* taskp() const { return m_taskp; }  // [After Link] Pointer to variable
-    void taskp(AstNodeFTask* taskp) { m_taskp = taskp; }
-    void name(const string& name) override { m_name = name; }
-    void dotted(const string& name) { m_dotted = name; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool pli() const { return m_pli; }
-    void pli(bool flag) { m_pli = flag; }
-    bool superReference() const { return m_superReference; }
-    void superReference(bool flag) { m_superReference = flag; }
-    bool isPure() override;
-    bool isUnlikely() const override { return m_taskp && m_taskp->isUnlikely(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeFTaskRef* const asamep = VN_DBG_AS(samep, NodeFTaskRef);
-        return taskp() == asamep->taskp()  //
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override;
+    string dotted() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dotted; }  // * = Scope name or ""
+    string inlinedDots() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_inlinedDots; }
+    ಶೂನ್ಯ inlinedDots(ಸ್ಥಿರಾಂಕ string& flag) { m_inlinedDots = flag; }
+    Ast_ಗಂಟು_FTask* taskp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_taskp; }  // [After Link] Pointer to variable
+    ಶೂನ್ಯ taskp(Ast_ಗಂಟು_FTask* taskp) { m_taskp = taskp; }
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    ಶೂನ್ಯ dotted(ಸ್ಥಿರಾಂಕ string& name) { m_dotted = name; }
+    Ast_ಗಂಟು_Module* classOrPackagep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_classOrPackagep; }
+    ಶೂನ್ಯ classOrPackagep(Ast_ಗಂಟು_Module* nodep) { m_classOrPackagep = nodep; }
+    bool ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ; }
+    ಶೂನ್ಯ ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ(ಸ್ಥಿರಾಂಕ bool flag) { m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ = flag; }
+    bool pli() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_pli; }
+    ಶೂನ್ಯ pli(bool flag) { m_pli = flag; }
+    bool superReference() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_superReference; }
+    ಶೂನ್ಯ superReference(bool flag) { m_superReference = flag; }
+    bool is_ಶುದ್ಧ() override;
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_taskp && m_taskp->isUnlikely(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_FTask_Ref* ಸ್ಥಿರಾಂಕ asamep = VN_DBG_AS(samep, ಗಂಟು_FTask_Ref);
+        ಹಿಂತಿರುಗಿ taskp() == asamep->taskp()  //
                && classOrPackagep() == asamep->classOrPackagep()  //
                && name() == asamep->name()  //
                && dotted() == asamep->dotted()  //
                && inlinedDots() == asamep->inlinedDots()  //
                && pli() == asamep->pli()  //
-               && containsGenBlock() == asamep->containsGenBlock()
+               && ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ() == asamep->ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ()
                && superReference() == asamep->superReference();
     }
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ final override { V3ERROR_NA_RETURN(true); }
 
-private:
-    bool getPurityRecurse() const;
+ಖಾಸಗಿ:
+    bool getPurityRecurse() ಸ್ಥಿರಾಂಕ;
 };
-class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Pre_Sel VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Something that becomes an AstSel
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -352,31 +352,31 @@ class AstNodePreSel VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := attrp : Optional[AstAttrOf]
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodePreSel(VNType t, FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Pre_Sel(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl} {
         this->fromp(fromp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodePreSel;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Pre_Sel;
     // METHODS
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
-    bool isPure() override;
-    const char* broken() const override;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ final override { V3ERROR_NA_RETURN(true); }
+    bool is_ಶುದ್ಧ() override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
 
-private:
-    bool getPurityRecurse() const {
-        return fromp()->isPure() && rhsp()->isPure() && (!thsp() || thsp()->isPure());
+ಖಾಸಗಿ:
+    bool getPurityRecurse() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ fromp()->is_ಶುದ್ಧ() && rhsp()->is_ಶುದ್ಧ() && (!thsp() || thsp()->is_ಶುದ್ಧ());
     }
 };
-class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Quadop VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // 4-ary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
@@ -384,218 +384,218 @@ class AstNodeQuadop VL_NOT_FINAL : public AstNodeExpr {
     // @astgen op4 := fhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeQuadop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp,
-                  AstNodeExpr* fhsp)
-        : AstNodeExpr{t, fl} {
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Quadop(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp,
+                  Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fhsp)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
         this->fhsp(fhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeQuadop;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Quadop;
     // METHODS
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths, const V3Number& fhs)
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs,
+                               ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ths, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& fhs)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool cleanFhs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    virtual bool sizeMattersFhs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    ವಾಸ್ತವಿಕ bool cleanLhs() ಸ್ಥಿರಾಂಕ = 0;  // True if LHS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool cleanRhs() ಸ್ಥಿರಾಂಕ = 0;  // True if RHS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool cleanThs() ಸ್ಥಿರಾಂಕ = 0;  // True if THS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool cleanFhs() ಸ್ಥಿರಾಂಕ = 0;  // True if THS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on lhs size
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on rhs size
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on ths size
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Fhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on ths size
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure() && fhsp()->isPure();
+ಖಾಸಗಿ:
+    bool getPurityRecurse() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ lhsp()->is_ಶುದ್ಧ() && rhsp()->is_ಶುದ್ಧ() && thsp()->is_ಶುದ್ಧ() && fhsp()->is_ಶುದ್ಧ();
     }
 };
-class AstNodeTermop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Termop VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Terminal operator -- an operator with no "inputs"
-protected:
-    AstNodeTermop(VNType t, FileLine* fl)
-        : AstNodeExpr{t, fl} {}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Termop(VNType t, File_ಸಾಲು* fl)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeTermop;
-    bool isSystemFunc() const override { return true; }
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Termop;
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNodeTriop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Triop VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Ternary expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := thsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : AstNodeExpr{t, fl} {
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Triop(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
         this->thsp(thsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeTriop;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Triop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     // Set out to evaluation of a AstConst'ed
-    virtual void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                               const V3Number& ths)
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs,
+                               ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ths)
         = 0;
-    virtual bool cleanLhs() const = 0;  // True if LHS must have extra upper bits zero
-    virtual bool cleanRhs() const = 0;  // True if RHS must have extra upper bits zero
-    virtual bool cleanThs() const = 0;  // True if THS must have extra upper bits zero
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool sizeMattersRhs() const = 0;  // True if output result depends on rhs size
-    virtual bool sizeMattersThs() const = 0;  // True if output result depends on ths size
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    ವಾಸ್ತವಿಕ bool cleanLhs() ಸ್ಥಿರಾಂಕ = 0;  // True if LHS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool cleanRhs() ಸ್ಥಿರಾಂಕ = 0;  // True if RHS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool cleanThs() ಸ್ಥಿರಾಂಕ = 0;  // True if THS must have extra upper bits zero
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on lhs size
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on rhs size
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on ths size
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
 
-private:
-    bool getPurityRecurse() const {
-        return lhsp()->isPure() && rhsp()->isPure() && thsp()->isPure();
+ಖಾಸಗಿ:
+    bool getPurityRecurse() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ lhsp()->is_ಶುದ್ಧ() && rhsp()->is_ಶುದ್ಧ() && thsp()->is_ಶುದ್ಧ();
     }
 };
-class AstNodeDistTriop VL_NOT_FINAL : public AstNodeTriop {
-public:
-    AstNodeDistTriop(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                     AstNodeExpr* thsp)
-        : AstNodeTriop{t, fl, lhsp, rhsp, thsp} {
-        dtypeSetInteger2State();
+class Ast_ಗಂಟು_Dist_Triop VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Triop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಂಟು_Dist_Triop(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp,
+                     Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp)
+        : Ast_ಗಂಟು_Triop{t, fl, lhsp, rhsp, thsp} {
+        dtype_ಗಣ_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstNodeDistTriop;
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Dist_Triop;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanThs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL_TRIG; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs,
+                       ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ths) override {
         V3ERROR_NA;
     }
 };
-class AstNodeUniop VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Uniop VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Unary expression
     // @astgen op1 := lhsp : AstNodeExpr
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeUniop(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeExpr{t, fl} {
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Uniop(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl} {
         dtypeFrom(lhsp);
         this->lhsp(lhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeUniop;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Uniop;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     // Set out to evaluation of a AstConst'ed lhs
-    virtual void numberOperate(V3Number& out, const V3Number& lhs) = 0;
-    virtual bool cleanLhs() const = 0;
-    virtual bool sizeMattersLhs() const = 0;  // True if output result depends on lhs size
-    virtual bool doubleFlavor() const { return false; }  // D flavor of nodes with both flavors?
+    ವಾಸ್ತವಿಕ ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) = 0;
+    ವಾಸ್ತವಿಕ bool cleanLhs() ಸ್ಥಿರಾಂಕ = 0;
+    ವಾಸ್ತವಿಕ bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ = 0;  // True if output result depends on lhs size
+    ವಾಸ್ತವಿಕ bool doubleFlavor() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }  // D flavor of nodes with both flavors?
     // Signed flavor of nodes with both flavors?
-    virtual bool signedFlavor() const { return false; }
-    virtual bool stringFlavor() const { return false; }  // N flavor of nodes with both flavors?
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isPure() override;
-    const char* broken() const override;
+    ವಾಸ್ತವಿಕ bool signedFlavor() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }
+    ವಾಸ್ತವಿಕ bool stringFlavor() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }  // N flavor of nodes with both flavors?
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
 };
-class AstNodeSystemUniopD VL_NOT_FINAL : public AstNodeUniop {
-public:
-    AstNodeSystemUniopD(VNType t, FileLine* fl, AstNodeExpr* lhsp)
-        : AstNodeUniop{t, fl, lhsp} {
-        dtypeSetDouble();
+class Ast_ಗಂಟು_System_Uniop_D VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಂಟು_System_Uniop_D(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : Ast_ಗಂಟು_Uniop{t, fl, lhsp} {
+        dtype_ಗಣ_Double();
     }
-    ASTGEN_MEMBERS_AstNodeSystemUniopD;
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL_TRIG; }
-    bool doubleFlavor() const override { return true; }
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_System_Uniop_D;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL_TRIG; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNodeVarRef VL_NOT_FINAL : public AstNodeExpr {
+class Ast_ಗಂಟು_Var_Ref VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // An AstVarRef or AstVarXRef
     // @astgen ptr := m_varp : Optional[AstVar]  // [AfterLink] Pointer to variable itself
     // @astgen ptr := m_varScopep : Optional[AstVarScope]  // Varscope for hierarchy
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of the variable
-    ASTGEN_MEMBERS_AstNodeVarRef;  // Gen pointers before other members for performance
-private:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Var_Ref;  // Gen pointers before other members for performance
+ಖಾಸಗಿ:
     VAccess m_access;  // Left hand side assignment
-    VSelfPointerText m_selfPointer
-        = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
+    VSelf_ಸೂಚಕ_ಪಠ್ಯ m_self_ಸೂಚಕ
+        = VSelf_ಸೂಚಕ_ಪಠ್ಯ{VSelf_ಸೂಚಕ_ಪಠ್ಯ::ಖಾಲಿಗಳು_2()};  // Output code object
                                                         // pointer (e.g.: 'this')
-protected:
-    AstNodeVarRef(VNType t, FileLine* fl, AstVar* varp, const VAccess& access)
-        : AstNodeExpr{t, fl}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Var_Ref(VNType t, File_ಸಾಲು* fl, AstVar* varp, ಸ್ಥಿರಾಂಕ VAccess& access)
+        : Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ{t, fl}
         , m_access{access} {
         // May have varp==nullptr
         this->varp(varp);
     }
 
-public:
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return widthInstrs(); }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* varp) {
+ಸಾರ್ವಜನಿಕ:
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    VAccess access() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_access; }
+    ಶೂನ್ಯ access(ಸ್ಥಿರಾಂಕ VAccess& flag) { m_access = flag; }  // Avoid using this; Set in constructor
+    AstVar* varp() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_varp; }  // [After Link] Pointer to variable
+    ಶೂನ್ಯ varp(AstVar* varp) {
         m_varp = varp;
-        dtypeFrom(reinterpret_cast<AstNode*>(varp));
+        dtypeFrom(reinterpret_cast<Ast_ಗಂಟು*>(varp));
     }
-    AstVarScope* varScopep() const { return m_varScopep; }
-    void varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    AstVarScope* varScopep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_varScopep; }
+    ಶೂನ್ಯ varScopep(AstVarScope* varscp) { m_varScopep = varscp; }
+    ಸ್ಥಿರಾಂಕ VSelf_ಸೂಚಕ_ಪಠ್ಯ& self_ಸೂಚಕ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_self_ಸೂಚಕ; }
+    ಶೂನ್ಯ self_ಸೂಚಕ(ಸ್ಥಿರಾಂಕ VSelf_ಸೂಚಕ_ಪಠ್ಯ& self_ಸೂಚಕ) { m_self_ಸೂಚಕ = self_ಸೂಚಕ; }
+    string self_ಸೂಚಕ_Protect(bool useSelfForThis) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ self_ಸೂಚಕ().protect(useSelfForThis, protect());
     }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    Ast_ಗಂಟು_Module* classOrPackagep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_classOrPackagep; }
+    ಶೂನ್ಯ classOrPackagep(Ast_ಗಂಟು_Module* nodep) { m_classOrPackagep = nodep; }
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstArg final : public AstNode {
+class AstArg final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು {
     // An argument to a function/task, which is either an expression, or is a placeholder for an
     // omitted argument.
     // @astgen op1 := exprp : Optional[AstNodeExpr] // nullptr if omitted
     std::string m_name;  // Argument name, or "" for number based interconnect
-public:
-    AstArg(FileLine* fl, const std::string& name, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstArg(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ std::string& name, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_Arg(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstArg;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    bool emptyConnectNoNext() const { return !exprp() && name() == "" && !nextp(); }
+    std::string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ std::string& name) override { m_name = name; }
+    bool ಖಾಲಿಗಳು_Connect_No_ಮುಂದಿನ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ !exprp() && name() == "" && !nextp(); }
 };
-class AstWith final : public AstNode {
+class AstWith final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು {
     // Similar to AstArg, but this is essentially a lambda passed to a call.
     // Not an AstNodeExpr as there is no concept of function values in Verilator
     // The dtypep() contains the with lambda's return dtype, not a function type.
@@ -607,360 +607,360 @@ class AstWith final : public AstNode {
     // @astgen op2 := valueArgRefp : AstLambdaArgRef
     // @astgen op3 := exprp : List[AstNode]  // Pins, expression and constraints
     // TODO: Separate expression and constraints
-private:
+ಖಾಸಗಿ:
     // 'with (identifier_list) {...}' restricted form (IEEE 1800-2023 18.7).
     bool m_restricted = false;
     // dist-ast-dump-suppress  // V3LinkDot temporary use only
     bool m_validated = false;  // identifier_list typo / unused checks already run
-    std::set<std::string> m_restrictedNames;
+    std::ಗಣ<std::string> m_restricted_ಹೆಸರುಗಳು;
 
-public:
-    AstWith(FileLine* fl, AstLambdaArgRef* indexArgRefp, AstLambdaArgRef* valueArgRefp,
-            AstNode* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstWith(File_ಸಾಲು* fl, AstLambdaArgRef* ಸೂಚ್ಯಂಕ_Arg_Refp, AstLambdaArgRef* ಮೌಲ್ಯ_Arg_Refp,
+            Ast_ಗಂಟು* exprp)
         : ASTGEN_SUPER_With(fl) {
-        this->indexArgRefp(indexArgRefp);
-        this->valueArgRefp(valueArgRefp);
-        addExprp(exprp);
+        this->ಸೂಚ್ಯಂಕ_Arg_Refp(ಸೂಚ್ಯಂಕ_Arg_Refp);
+        this->ಮೌಲ್ಯ_Arg_Refp(ಮೌಲ್ಯ_Arg_Refp);
+        ಕೂಡಿಸು_Exprp(exprp);
     }
     ASTGEN_MEMBERS_AstWith;
-    bool hasDType() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!indexArgRefp());  // varp needed to know lambda's arg dtype
-        BROKEN_RTN(!valueArgRefp());  // varp needed to know lambda's arg dtype
-        return nullptr;
+    bool hasDType() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
+        BROKEN_RTN(!ಸೂಚ್ಯಂಕ_Arg_Refp());  // varp needed to know lambda's arg dtype
+        BROKEN_RTN(!ಮೌಲ್ಯ_Arg_Refp());  // varp needed to know lambda's arg dtype
+        ಹಿಂತಿರುಗಿ nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void restricted(bool flag) { m_restricted = flag; }
-    bool restricted() const { return m_restricted; }
-    bool validated() const { return m_validated; }
-    void validated(bool flag) { m_validated = flag; }
-    void addRestrictedName(const std::string& name) { m_restrictedNames.insert(name); }
-    const std::set<std::string>& restrictedNames() const { return m_restrictedNames; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ restricted(bool flag) { m_restricted = flag; }
+    bool restricted() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_restricted; }
+    bool validated() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_validated; }
+    ಶೂನ್ಯ validated(bool flag) { m_validated = flag; }
+    ಶೂನ್ಯ ಕೂಡಿಸು_Restricted_Name(ಸ್ಥಿರಾಂಕ std::string& name) { m_restricted_ಹೆಸರುಗಳು.ಸೇರಿಸು(name); }
+    ಸ್ಥಿರಾಂಕ std::ಗಣ<std::string>& restricted_ಹೆಸರುಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_restricted_ಹೆಸರುಗಳು; }
     // True if 'name' binds into the randomize() target class.
-    bool nameResolvesToTarget(const std::string& name) const {
-        return !m_restricted || m_restrictedNames.count(name);
+    bool name_Resolves_ಗಮ್ಯ_ಗುರಿ(ಸ್ಥಿರಾಂಕ std::string& name) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ !m_restricted || m_restricted_ಹೆಸರುಗಳು.ಎಣಿಕೆ_2(name);
     }
 };
 
 // === AstNodeExpr ===
-class AstAbortOn final : public AstNodeExpr {
+class AstAbortOn final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // IEEE 1800-2023 16.12.14: accept_on/reject_on/sync_accept_on/sync_reject_on
     // (cond) prop. The four operators share an identical AST shape and lowering
     // scaffolding -- VAbortKind selects between Accept/Reject verdict and
     // Async/Sync sampling.
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := propp : AstNodeExpr
-    VAbortKind m_kind{VAbortKind::ACCEPT_ON};
+    VAbort_ಬಗೆ m_ಬಗೆ{VAbort_ಬಗೆ::ACCEPT_ON};
 
-public:
-    AstAbortOn(FileLine* fl, VAbortKind kind, AstNodeExpr* condp, AstNodeExpr* propp)
+ಸಾರ್ವಜನಿಕ:
+    AstAbortOn(File_ಸಾಲು* fl, VAbort_ಬಗೆ ಬಗೆ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* propp)
         : ASTGEN_SUPER_AbortOn(fl)
-        , m_kind{kind} {
+        , m_ಬಗೆ{ಬಗೆ} {
         this->condp(condp);
         this->propp(propp);
     }
     ASTGEN_MEMBERS_AstAbortOn;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VAbortKind kind() const { return m_kind; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    VAbort_ಬಗೆ ಬಗೆ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಬಗೆ; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstAddrOfCFunc final : public AstNodeExpr {
+class Ast_Addr_ದ_CFunc final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Get address of CFunc
     // @astgen ptr := m_funcp : AstCFunc  // Pointer to function itself
 
-public:
-    AstAddrOfCFunc(FileLine* fl, AstCFunc* funcp)
-        : ASTGEN_SUPER_AddrOfCFunc(fl)
+ಸಾರ್ವಜನಿಕ:
+    Ast_Addr_ದ_CFunc(File_ಸಾಲು* fl, AstCFunc* funcp)
+        : ASTGEN_SUPER_Addr_ದ_CFunc(fl)
         , m_funcp{funcp} {
-        dtypep(findCHandleDType());
+        dtypep(ಕಂಡುಹಿಡಿ_CHandle_DType());
     }
 
-    ASTGEN_MEMBERS_AstAddrOfCFunc;
-    void dump(std::ostream& str) const override;
+    ASTGEN_MEMBERS_Ast_Addr_ದ_CFunc;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstCFunc* funcp() const { return m_funcp; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    AstCFunc* funcp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_funcp; }
 };
-class AstAttrOf final : public AstNodeExpr {
+class Ast_Attr_ದ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Return a value of a attribute, for example a LSB or array LSB of a signal
     // @astgen op1 := fromp : Optional[AstNode<AstNodeExpr|AstNodeDType>]
     // @astgen op2 := dimp : Optional[AstNodeExpr]
     VAttrType m_attrType;  // What sort of extraction
     string m_name;  // Name for some attributes
-public:
-    AstAttrOf(FileLine* fl, VAttrType attrtype, AstNode* fromp = nullptr,
-              AstNodeExpr* dimp = nullptr)
-        : ASTGEN_SUPER_AttrOf(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Attr_ದ(File_ಸಾಲು* fl, VAttrType attrtype, Ast_ಗಂಟು* fromp = nullptr,
+              Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* dimp = nullptr)
+        : ASTGEN_SUPER_Attr_ದ(fl) {
         this->fromp(fromp);
         this->dimp(dimp);
         m_attrType = attrtype;
     }
-    ASTGEN_MEMBERS_AstAttrOf;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    VAttrType attrType() const { return m_attrType; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    ASTGEN_MEMBERS_Ast_Attr_ದ;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    VAttrType attrType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_attrType; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCExpr final : public AstNodeExpr {
+class AstCExpr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // C expression emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Pure optimizable
+    ಸ್ಥಿರಾಂಕ bool m_ಶುದ್ಧ;  // Pure optimizable
 
-    void init(const string& text, int setwidth) {
-        if (!text.empty()) add(text);
-        if (setwidth) {
-            dtypeSetBitSized(setwidth, VSigning::UNSIGNED);
-        } else {
-            dtypeSetVoid();  // Caller to override if necessary
+    ಶೂನ್ಯ init(ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ, ಪೂರ್ಣಾಂಕ setwidth) {
+        ಆದರೆ (!ಪಠ್ಯ.ಖಾಲಿಗಳು()) ಕೂಡಿಸು(ಪಠ್ಯ);
+        ಆದರೆ (setwidth) {
+            dtype_ಗಣ_ಬಿಟ್_Sized(setwidth, VSigning::UNSIGNED);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            dtype_ಗಣ_Void();  // Caller to override if necessary
         }
     }
 
-public:
-    class Pure {};
-    explicit AstCExpr(FileLine* fl, const string& text = "", int setwidth = 0)
+ಸಾರ್ವಜನಿಕ:
+    class ಶುದ್ಧ {};
+    explicit AstCExpr(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ = "", ಪೂರ್ಣಾಂಕ setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
-        , m_pure{false} {
-        init(text, setwidth);
+        , m_ಶುದ್ಧ{false} {
+        init(ಪಠ್ಯ, setwidth);
     }
-    AstCExpr(FileLine* fl, Pure, const string& text = "", int setwidth = 0)
+    AstCExpr(File_ಸಾಲು* fl, ಶುದ್ಧ, ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ = "", ಪೂರ್ಣಾಂಕ setwidth = 0)
         : ASTGEN_SUPER_CExpr(fl)
-        , m_pure{true} {
-        init(text, setwidth);
+        , m_ಶುದ್ಧ{true} {
+        init(ಪಠ್ಯ, setwidth);
     }
     ASTGEN_MEMBERS_AstCExpr;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return true; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_ಶುದ್ಧ; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_ಶುದ್ಧ; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ m_ಶುದ್ಧ; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ std::string& ಪಠ್ಯ) { ಕೂಡಿಸು_Nodesp(new Ast_ಪಠ್ಯ{fileline(), ಪಠ್ಯ}); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(Ast_ಗಂಟು* nodep) { ಕೂಡಿಸು_Nodesp(nodep); }
 };
-class AstCExprUser final : public AstNodeExpr {
+class AstCExprUser final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // User '$c' or '$cpure' expression - Like AstCStmt, with text tracking and optimizations
     // disabled.
     //
     // Use AstCExpr instead, unless the text is from user input.
     //
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_pure;  // Whether the function is pure
-public:
-    class Pure {};
-    explicit AstCExprUser(FileLine* fl)
+    ಸ್ಥಿರಾಂಕ bool m_ಶುದ್ಧ;  // Whether the function is pure
+ಸಾರ್ವಜನಿಕ:
+    class ಶುದ್ಧ {};
+    explicit AstCExprUser(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_CExprUser(fl)
-        , m_pure{false} {}
-    AstCExprUser(FileLine* fl, Pure)
+        , m_ಶುದ್ಧ{false} {}
+    AstCExprUser(File_ಸಾಲು* fl, ಶುದ್ಧ)
         : ASTGEN_SUPER_CExprUser(fl)
-        , m_pure{true} {}
+        , m_ಶುದ್ಧ{true} {}
     ASTGEN_MEMBERS_AstCExprUser;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool cleanOut() const override { return false; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
     std::string emitC() override { V3ERROR_NA_RETURN(""); }
     std::string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return m_pure; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return m_pure; }
-    bool isPure() override { return m_pure; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_ಶುದ್ಧ; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_ಶುದ್ಧ; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ m_ಶುದ್ಧ; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
     // Add some text, or a node to this expression
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ std::string& ಪಠ್ಯ) { ಕೂಡಿಸು_Nodesp(new Ast_ಪಠ್ಯ{fileline(), ಪಠ್ಯ}); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(Ast_ಗಂಟು* nodep) { ಕೂಡಿಸು_Nodesp(nodep); }
 };
-class AstCFuncHard final : public AstNodeExpr {
+class AstCFuncHard final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A call to a C++ function in the runtime library (include/verilated*)
     // PARENTS: stmt/expr
     // @astgen op1 := pinsp : List[AstNodeExpr] // Arguments
     VIsCached m_purity;  // Pure optimizable
     VCFunction m_function;  // Which function to call
-public:
-    AstCFuncHard(FileLine* fl, VCFunction function, AstNodeExpr* pinsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstCFuncHard(File_ಸಾಲು* fl, VCFunction function, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* pinsp = nullptr)
         : ASTGEN_SUPER_CFuncHard(fl)
         , m_function{function} {
-        addPinsp(pinsp);
+        ಕೂಡಿಸು_Pinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCFuncHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return function().ascii(); }
-    bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ function().ascii(); }
+    bool is_ಶುದ್ಧ() override {
+        ಆದರೆ (!m_purity.isCached()) m_purity.ಗಣ(getPurity());
+        ಹಿಂತಿರುಗಿ m_purity.get();
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    VCFunction function() const VL_MT_STABLE { return m_function; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    VCFunction function() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_function; }
 
-private:
+ಖಾಸಗಿ:
     bool getPurity();
 };
-class AstCMethodHard final : public AstNodeExpr {
+class AstCMethodHard final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A reference to a "C" hardcoded member task (or function)
     // PARENTS: stmt/expr
     // @astgen op1 := fromp : AstNodeExpr // Subject of method call
     // @astgen op2 := pinsp : List[AstNodeExpr] // Arguments
     // @astgen op3 := withp : Optional[AstWith] // With clause
-    VCMethod m_method;  // Which method to call
+    VCMethod m_ವಿಧಾನ;  // Which method to call
     VIsCached m_purity;  // Pure optimizable
     bool m_usePtr = false;  // Use '->' not '.'
-public:
-    AstCMethodHard(FileLine* fl, AstNodeExpr* fromp, VCMethod method, AstNodeExpr* pinsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstCMethodHard(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, VCMethod ವಿಧಾನ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* pinsp = nullptr)
         : ASTGEN_SUPER_CMethodHard(fl)
-        , m_method{method} {
+        , m_ವಿಧಾನ{ವಿಧಾನ} {
         this->fromp(fromp);
-        addPinsp(pinsp);
+        ಕೂಡಿಸು_Pinsp(pinsp);
     }
     ASTGEN_MEMBERS_AstCMethodHard;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return method().ascii(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCMethodHard* const asamep = VN_DBG_AS(samep, CMethodHard);
-        return (m_method == asamep->m_method);
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ ವಿಧಾನ().ascii(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstCMethodHard* ಸ್ಥಿರಾಂಕ asamep = VN_DBG_AS(samep, CMethodHard);
+        ಹಿಂತಿರುಗಿ (m_ವಿಧಾನ == asamep->m_ವಿಧಾನ);
     }
-    bool isPure() override {
-        if (!m_purity.isCached()) m_purity.set(getPurity());
-        return m_purity.get();
+    bool is_ಶುದ್ಧ() override {
+        ಆದರೆ (!m_purity.isCached()) m_purity.ಗಣ(getPurity());
+        ಹಿಂತಿರುಗಿ m_purity.get();
     }
-    int instrCount() const override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return m_method.isClean(); }
-    bool usePtr() const { return m_usePtr; }
-    void usePtr(bool flag) { m_usePtr = flag; }
-    VCMethod method() const VL_MT_STABLE { return m_method; }
-    void method(VCMethod value) { m_method = value; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_ವಿಧಾನ.isClean(); }
+    bool usePtr() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_usePtr; }
+    ಶೂನ್ಯ usePtr(bool flag) { m_usePtr = flag; }
+    VCMethod ವಿಧಾನ() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_ವಿಧಾನ; }
+    ಶೂನ್ಯ ವಿಧಾನ(VCMethod ಮೌಲ್ಯ) { m_ವಿಧಾನ = ಮೌಲ್ಯ; }
 
-private:
+ಖಾಸಗಿ:
     bool getPurity();
 };
-class AstCReset final : public AstNodeExpr {
+class AstCReset final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Reset variable at startup
-    const bool m_constructing;  // Previously cleared by constructor
-public:
-    AstCReset(FileLine* fl, AstVar* varp, bool constructing)
+    ಸ್ಥಿರಾಂಕ bool m_constructing;  // Previously cleared by constructor
+ಸಾರ್ವಜನಿಕ:
+    AstCReset(File_ಸಾಲು* fl, AstVar* varp, bool constructing)
         : ASTGEN_SUPER_CReset(fl)
         , m_constructing{constructing} {
         dtypeFrom(varp);
     }
     ASTGEN_MEMBERS_AstCReset;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isPure() override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(backp(), NodeAssign));  // V3Emit* assumption
-        return nullptr;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
+        BROKEN_RTN(!VN_IS(backp(), ಗಂಟು_ನಿಯೋಜಿಸು));  // V3Emit* assumption
+        ಹಿಂತಿರುಗಿ nullptr;
     }
-    bool sameNode(const AstNode* samep) const override {
-        return constructing() == VN_DBG_AS(samep, CReset)->constructing();
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ constructing() == VN_DBG_AS(samep, CReset)->constructing();
     }
-    bool constructing() const { return m_constructing; }
+    bool constructing() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_constructing; }
 };
-class AstCast final : public AstNodeExpr {
+class AstCast final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Cast to appropriate data type
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := childDTypep : Optional[AstNodeDType]
-public:
-    AstCast(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, AstNodeDType* dtp)
+ಸಾರ್ವಜನಿಕ:
+    AstCast(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, VFlag_ಮಗು_DType, Ast_ಗಂಟು_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
-        childDTypep(dtp);
+        ಮಗು_DTypep(dtp);
         dtypeFrom(dtp);
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCast(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
+    AstCast(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_DType* dtp)
         : ASTGEN_SUPER_Cast(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
     ASTGEN_MEMBERS_AstCast;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
+    Ast_ಗಂಟು_DType* get_ಮಗು_DTypep() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಮಗು_DTypep(); }
+    Ast_ಗಂಟು_DType* subDTypep() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ dtypep() ? dtypep() : ಮಗು_DTypep(); }
 };
-class AstCastParse final : public AstNodeExpr {
+class AstCastParse final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Cast to appropriate type, where we haven't determined yet what the data type is
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := dtp : AstNode
-public:
-    AstCastParse(FileLine* fl, AstNodeExpr* lhsp, AstNode* dtp)
+ಸಾರ್ವಜನಿಕ:
+    AstCastParse(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು* dtp)
         : ASTGEN_SUPER_CastParse(fl) {
         this->lhsp(lhsp);
         this->dtp(dtp);
     }
     ASTGEN_MEMBERS_AstCastParse;
-    string emitVerilog() override { return "((%d)'(%l))"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "((%d)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCastSize final : public AstNodeExpr {
+class Ast_Cast_ಗಾತ್ರ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Cast to specific size; signed/twostate inherited from lower element per IEEE
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstConst
-public:
-    AstCastSize(FileLine* fl, AstNodeExpr* lhsp, AstConst* rhsp)
-        : ASTGEN_SUPER_CastSize(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Cast_ಗಾತ್ರ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, AstConst* rhsp)
+        : ASTGEN_SUPER_Cast_ಗಾತ್ರ(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
-    ASTGEN_MEMBERS_AstCastSize;
-    string emitVerilog() override { return "((%r)'(%l))"; }
+    ASTGEN_MEMBERS_Ast_Cast_ಗಾತ್ರ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "((%r)'(%l))"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellArrayRef final : public AstNodeExpr {
+class AstCellArrayRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // As-of-yet unlinkable reference into an array of cells
     // @astgen op1 := selp : List[AstNodeExpr] // Select expression
     string m_name;  // Array name
-public:
-    AstCellArrayRef(FileLine* fl, const string& name, AstNodeExpr* selp)
+ಸಾರ್ವಜನಿಕ:
+    AstCellArrayRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* selp)
         : ASTGEN_SUPER_CellArrayRef(fl)
         , m_name{name} {
-        addSelp(selp);
+        ಕೂಡಿಸು_Selp(selp);
     }
     ASTGEN_MEMBERS_AstCellArrayRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstCellRef final : public AstNodeExpr {
+class AstCellRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // As-of-yet unlinkable reference into a cell
     // @astgen op1 := cellp : AstNode
     // @astgen op2 := exprp : AstNode<AstNodeExpr|AstNodeDType>
     string m_name;  // Cell name
-public:
-    AstCellRef(FileLine* fl, const string& name, AstNode* cellp, AstNode* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstCellRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು* cellp, Ast_ಗಂಟು* exprp)
         : ASTGEN_SUPER_CellRef(fl)
         , m_name{name} {
         this->cellp(cellp);
@@ -968,332 +968,332 @@ public:
     }
     ASTGEN_MEMBERS_AstCellRef;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Array name
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Array name
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstClassOrPackageRef final : public AstNodeExpr {
+class AstClassOrPackageRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := paramsp : List[AstPin]
     string m_name;
     // Node not NodeModule to appease some early parser usage
     // @astgen ptr := m_classOrPackageNodep : Optional[AstNode]  // Class/package referenced
-public:
-    AstClassOrPackageRef(FileLine* fl, const string& name, AstNode* classOrPackageNodep,
+ಸಾರ್ವಜನಿಕ:
+    AstClassOrPackageRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು* classOrPackageNodep,
                          AstPin* paramsp)
         : ASTGEN_SUPER_ClassOrPackageRef(fl)
         , m_name{name}
         , m_classOrPackageNodep{classOrPackageNodep} {
-        addParamsp(paramsp);
+        ಕೂಡಿಸು_Paramsp(paramsp);
     }
     ASTGEN_MEMBERS_AstClassOrPackageRef;
     // METHODS
-    bool sameNode(const AstNode* samep) const override {
-        return (m_classOrPackageNodep
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ (m_classOrPackageNodep
                 == VN_DBG_AS(samep, ClassOrPackageRef)->m_classOrPackageNodep);
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
     // There's no classOrPackagep(); use classOrPackageNodep() to get Node,
     // or iterating to package with classOrPackageSkipp()
-    AstNodeModule* classOrPackageSkipp(const bool doRefs = true) const;
-    AstNode* classOrPackageNodep() const { return m_classOrPackageNodep; }
-    void classOrPackageNodep(AstNode* nodep) { m_classOrPackageNodep = nodep; }
-    void classOrPackagep(AstNodeModule* nodep) {
-        m_classOrPackageNodep = reinterpret_cast<AstNode*>(nodep);
+    Ast_ಗಂಟು_Module* classOrPackageSkipp(ಸ್ಥಿರಾಂಕ bool doRefs = true) ಸ್ಥಿರಾಂಕ;
+    Ast_ಗಂಟು* classOrPackageNodep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_classOrPackageNodep; }
+    ಶೂನ್ಯ classOrPackageNodep(Ast_ಗಂಟು* nodep) { m_classOrPackageNodep = nodep; }
+    ಶೂನ್ಯ classOrPackagep(Ast_ಗಂಟು_Module* nodep) {
+        m_classOrPackageNodep = reinterpret_cast<Ast_ಗಂಟು*>(nodep);
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstConst final : public AstNodeExpr {
+class AstConst final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A constant
-    V3Number m_num;  // Constant value
-    void initWithNumber() {
-        if (m_num.isDouble()) {
-            dtypeSetDouble();
-        } else if (m_num.isString()) {
-            dtypeSetString();
-        } else {
-            dtypeSetBitOrLogicUnsized(m_num.width(), (m_num.sized() ? 0 : m_num.widthToFit()),
-                                      VSigning::fromBool(m_num.isSigned()), m_num.isAnyXZ());
+    V3_ಸಂಖ್ಯೆ m_ಅಂಕೆ;  // Constant value
+    ಶೂನ್ಯ init_With_ಸಂಖ್ಯೆ() {
+        ಆದರೆ (m_ಅಂಕೆ.isDouble()) {
+            dtype_ಗಣ_Double();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (m_ಅಂಕೆ.isString()) {
+            dtype_ಗಣ_String();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(m_ಅಂಕೆ.ಅಗಲ(), (m_ಅಂಕೆ.sized() ? 0 : m_ಅಂಕೆ.ಅಗಲ_ಗಮ್ಯ_Fit()),
+                                      VSigning::fromBool(m_ಅಂಕೆ.isSigned()), m_ಅಂಕೆ.isAnyXZ());
         }
-        m_num.nodep(this);
+        m_ಅಂಕೆ.nodep(this);
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     ~AstConst() override;
-    AstConst(FileLine* fl, const V3Number& num)
+    AstConst(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ಅಂಕೆ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{num} {
-        initWithNumber();
+        , m_ಅಂಕೆ{ಅಂಕೆ} {
+        init_With_ಸಂಖ್ಯೆ();
     }
-    class WidthedValue {};  // for creator type-overload selection
-    AstConst(FileLine* fl, WidthedValue, int width, uint32_t value)
+    class Widthed_ಮೌಲ್ಯ {};  // for creator type-overload selection
+    AstConst(File_ಸಾಲು* fl, Widthed_ಮೌಲ್ಯ, ಪೂರ್ಣಾಂಕ ಅಗಲ, uint32_t ಮೌಲ್ಯ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, width, value) {  // Need () constructor
-        initWithNumber();
+        , m_ಅಂಕೆ(this, ಅಗಲ, ಮೌಲ್ಯ) {  // Need () constructor
+        init_With_ಸಂಖ್ಯೆ();
     }
     class DTyped {};  // for creator type-overload selection
     // Zero/empty constant with a type matching nodetypep
-    AstConst(FileLine* fl, DTyped, const AstNodeDType* nodedtypep)
+    AstConst(File_ಸಾಲು* fl, DTyped, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* nodedtypep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, nodedtypep} {
-        initWithNumber();
+        , m_ಅಂಕೆ{this, nodedtypep} {
+        init_With_ಸಂಖ್ಯೆ();
     }
-    class StringToParse {};  // for creator type-overload selection
-    AstConst(FileLine* fl, StringToParse, const char* sourcep)
+    class String_ಗಮ್ಯ_Parse {};  // for creator type-overload selection
+    AstConst(File_ಸಾಲು* fl, String_ಗಮ್ಯ_Parse, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* sourcep)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, sourcep} {
-        initWithNumber();
+        , m_ಅಂಕೆ{this, V3_ಸಂಖ್ಯೆ::Verilog_ಸಂಖ್ಯೆ_Literal{}, sourcep} {
+        init_With_ಸಂಖ್ಯೆ();
     }
     class VerilogStringLiteral {};  // for creator type-overload selection
-    AstConst(FileLine* fl, VerilogStringLiteral, const string& str)
+    AstConst(File_ಸಾಲು* fl, VerilogStringLiteral, ಸ್ಥಿರಾಂಕ string& str)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogStringLiteral{}, str} {
-        initWithNumber();
+        , m_ಅಂಕೆ{this, V3_ಸಂಖ್ಯೆ::VerilogStringLiteral{}, str} {
+        init_With_ಸಂಖ್ಯೆ();
     }
-    AstConst(FileLine* fl, uint32_t num)
+    AstConst(File_ಸಾಲು* fl, uint32_t ಅಂಕೆ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        dtypeSetBitUnsized(m_num.width(), 0, VSigning::UNSIGNED);
+        , m_ಅಂಕೆ(this, 32, ಅಂಕೆ) {  // Need () constructor
+        dtype_ಗಣ_ಬಿಟ್_Unsized(m_ಅಂಕೆ.ಅಗಲ(), 0, VSigning::UNSIGNED);
     }
     class Unsized32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized32, uint32_t num)  // Unsized 32-bit integer of specified value
+    AstConst(File_ಸಾಲು* fl, Unsized32, uint32_t ಅಂಕೆ)  // Unsized 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, false);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::UNSIGNED);
+        , m_ಅಂಕೆ(this, 32, ಅಂಕೆ) {  // Need () constructor
+        m_ಅಂಕೆ.ಅಗಲ(32, false);
+        dtype_ಗಣ_ಬಿಟ್_Unsized(32, m_ಅಂಕೆ.ಅಗಲ_ಗಮ್ಯ_Fit(), VSigning::UNSIGNED);
     }
     class Signed32 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Signed32, int32_t num)  // Signed 32-bit integer of specified value
+    AstConst(File_ಸಾಲು* fl, Signed32, int32_t ಅಂಕೆ)  // Signed 32-bit integer of specified value
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 32, num) {  // Need () constructor
-        m_num.width(32, true);
-        dtypeSetBitUnsized(32, m_num.widthToFit(), VSigning::SIGNED);
+        , m_ಅಂಕೆ(this, 32, ಅಂಕೆ) {  // Need () constructor
+        m_ಅಂಕೆ.ಅಗಲ(32, true);
+        dtype_ಗಣ_ಬಿಟ್_Unsized(32, m_ಅಂಕೆ.ಅಗಲ_ಗಮ್ಯ_Fit(), VSigning::SIGNED);
     }
     class Unsized64 {};  // for creator type-overload selection
-    AstConst(FileLine* fl, Unsized64, uint64_t num)
+    AstConst(File_ಸಾಲು* fl, Unsized64, uint64_t ಅಂಕೆ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64, 0) {  // Need () constructor
-        m_num.setQuad(num);
-        dtypeSetBitSized(64, VSigning::UNSIGNED);
+        , m_ಅಂಕೆ(this, 64, 0) {  // Need () constructor
+        m_ಅಂಕೆ.ಗಣ_Quad(ಅಂಕೆ);
+        dtype_ಗಣ_ಬಿಟ್_Sized(64, VSigning::UNSIGNED);
     }
     class SizedEData {};  // for creator type-overload selection
-    AstConst(FileLine* fl, SizedEData, uint64_t num)
+    AstConst(File_ಸಾಲು* fl, SizedEData, uint64_t ಅಂಕೆ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, VL_EDATASIZE, 0) {  // Need () constructor
-        m_num.setQuad(num);
-        dtypeSetBitSized(VL_EDATASIZE, VSigning::UNSIGNED);
+        , m_ಅಂಕೆ(this, VL_EDATASIZE, 0) {  // Need () constructor
+        m_ಅಂಕೆ.ಗಣ_Quad(ಅಂಕೆ);
+        dtype_ಗಣ_ಬಿಟ್_Sized(VL_EDATASIZE, VSigning::UNSIGNED);
     }
     class RealDouble {};  // for creator type-overload selection
-    AstConst(FileLine* fl, RealDouble, double num)
+    AstConst(File_ಸಾಲು* fl, RealDouble, ದ್ವಿಗುಣ ಅಂಕೆ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 64) {  // Need () constructor
-        m_num.setDouble(num);
-        dtypeSetDouble();
+        , m_ಅಂಕೆ(this, 64) {  // Need () constructor
+        m_ಅಂಕೆ.ಗಣ_Double(ಅಂಕೆ);
+        dtype_ಗಣ_Double();
     }
     class String {};  // for creator type-overload selection
-    AstConst(FileLine* fl, String, const string& num)
+    AstConst(File_ಸಾಲು* fl, String, ಸ್ಥಿರಾಂಕ string& ಅಂಕೆ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::String{}, num} {
-        dtypeSetString();
+        , m_ಅಂಕೆ{this, V3_ಸಂಖ್ಯೆ::String{}, ಅಂಕೆ} {
+        dtype_ಗಣ_String();
     }
-    class BitFalse {};
-    AstConst(FileLine* fl, BitFalse)  // Shorthand const 0, dtype should be a bit of size 1
+    class ಬಿಟ್_False {};
+    AstConst(File_ಸಾಲು* fl, ಬಿಟ್_False)  // Shorthand const 0, dtype should be a bit of size 1
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
-        dtypeSetBit();
+        , m_ಅಂಕೆ(this, 1, 0) {  // Need () constructor
+        dtype_ಗಣ_ಬಿಟ್();
     }
     // False but created due to reporting earlier error; suppress some later errors
-    class BitFalseErroring {};
-    AstConst(FileLine* fl, BitFalseErroring)
+    class ಬಿಟ್_False_Erroring {};
+    AstConst(File_ಸಾಲು* fl, ಬಿಟ್_False_Erroring)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, 0) {  // Need () constructor
-        dtypeSetBit();
-        FileLine* const newfl = new FileLine{fileline()};
+        , m_ಅಂಕೆ(this, 1, 0) {  // Need () constructor
+        dtype_ಗಣ_ಬಿಟ್();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ newfl = new File_ಸಾಲು{fileline()};
         newfl->erroringOn(true);
         fileline(newfl);
     }
     // Shorthand const 1 (or with argument 0/1), dtype should be a bit of size 1
-    class BitTrue {};
-    AstConst(FileLine* fl, BitTrue, bool on = true)
+    class ಬಿಟ್_True {};
+    AstConst(File_ಸಾಲು* fl, ಬಿಟ್_True, bool on = true)
         : ASTGEN_SUPER_Const(fl)
-        , m_num(this, 1, on) {  // Need () constructor
-        dtypeSetBit();
+        , m_ಅಂಕೆ(this, 1, on) {  // Need () constructor
+        dtype_ಗಣ_ಬಿಟ್();
     }
     class All0 {};
-    AstConst(FileLine* fl, All0)
+    AstConst(File_ಸಾಲು* fl, All0)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'0"} {
-        initWithNumber();
-        fl->warnOff(V3ErrorCode::NEWERSTD, true);
+        , m_ಅಂಕೆ{this, V3_ಸಂಖ್ಯೆ::Verilog_ಸಂಖ್ಯೆ_Literal{}, "'0"} {
+        init_With_ಸಂಖ್ಯೆ();
+        fl->warnOff(V3_Error_ಸಂಕೇತ::NEWERSTD, true);
     }
     class All1 {};
-    AstConst(FileLine* fl, All1)
+    AstConst(File_ಸಾಲು* fl, All1)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::VerilogNumberLiteral{}, "'1"} {
-        initWithNumber();
-        fl->warnOff(V3ErrorCode::NEWERSTD, true);
+        , m_ಅಂಕೆ{this, V3_ಸಂಖ್ಯೆ::Verilog_ಸಂಖ್ಯೆ_Literal{}, "'1"} {
+        init_With_ಸಂಖ್ಯೆ();
+        fl->warnOff(V3_Error_ಸಂಕೇತ::NEWERSTD, true);
     }
     class Null {};
-    AstConst(FileLine* fl, Null)
+    AstConst(File_ಸಾಲು* fl, Null)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::Null{}} {
-        dtypep(findNullDType());
-        initWithNumber();
+        , m_ಅಂಕೆ{this, V3_ಸಂಖ್ಯೆ::Null{}} {
+        dtypep(ಕಂಡುಹಿಡಿ_Null_DType());
+        init_With_ಸಂಖ್ಯೆ();
     }
-    class OneStep {};
-    AstConst(FileLine* fl, OneStep)
+    class One_ಹೆಜ್ಜೆ {};
+    AstConst(File_ಸಾಲು* fl, One_ಹೆಜ್ಜೆ)
         : ASTGEN_SUPER_Const(fl)
-        , m_num{this, V3Number::OneStep{}} {
-        dtypeSetBitSized(64, VSigning::UNSIGNED);
-        initWithNumber();
+        , m_ಅಂಕೆ{this, V3_ಸಂಖ್ಯೆ::One_ಹೆಜ್ಜೆ{}} {
+        dtype_ಗಣ_ಬಿಟ್_Sized(64, VSigning::UNSIGNED);
+        init_With_ಸಂಖ್ಯೆ();
     }
     ASTGEN_MEMBERS_AstConst;
-    string name() const override VL_MT_STABLE { return num().ascii(); }  // * = Value
-    const V3Number& num() const VL_MT_SAFE { return m_num; }  // * = Value
-    V3Number& num() { return m_num; }  // * = Value
-    string origParamName() const;
-    void origParamName(const string& name);
-    uint32_t toUInt() const { return num().toUInt(); }
-    int32_t toSInt() const VL_MT_SAFE { return num().toSInt(); }
-    uint64_t toUQuad() const { return num().toUQuad(); }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ ಅಂಕೆ().ascii(); }  // * = Value
+    ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ಅಂಕೆ() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ m_ಅಂಕೆ; }  // * = Value
+    V3_ಸಂಖ್ಯೆ& ಅಂಕೆ() { ಹಿಂತಿರುಗಿ m_ಅಂಕೆ; }  // * = Value
+    string origParamName() ಸ್ಥಿರಾಂಕ;
+    ಶೂನ್ಯ origParamName(ಸ್ಥಿರಾಂಕ string& name);
+    uint32_t ಗಮ್ಯ_UInt() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಅಂಕೆ().ಗಮ್ಯ_UInt(); }
+    int32_t ಗಮ್ಯ_SInt() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ ಅಂಕೆ().ಗಮ್ಯ_SInt(); }
+    uint64_t ಗಮ್ಯ_UQuad() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಅಂಕೆ().ಗಮ್ಯ_UQuad(); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstConst* const sp = VN_DBG_AS(samep, Const);
-        return num().isCaseEq(sp->num());
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ sp = VN_DBG_AS(samep, Const);
+        ಹಿಂತಿರುಗಿ ಅಂಕೆ().isCaseEq(sp->ಅಂಕೆ());
     }
-    void cloneRelink() override;
-    const char* broken() const override {
-        BROKEN_RTN(m_num.nodep() && m_num.nodep() != this);
-        return nullptr;
+    ಶೂನ್ಯ cloneRelink() override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
+        BROKEN_RTN(m_ಅಂಕೆ.nodep() && m_ಅಂಕೆ.nodep() != this);
+        ಹಿಂತಿರುಗಿ nullptr;
     }
-    int instrCount() const override { return widthInstrs(); }
-    bool isEqAllOnes() const { return num().isEqAllOnes(width()); }
-    bool isEqAllOnesV() const { return num().isEqAllOnes(widthMinV()); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool isEqAllOnes() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಅಂಕೆ().isEqAllOnes(ಅಗಲ()); }
+    bool isEqAllOnesV() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಅಂಕೆ().isEqAllOnes(ಅಗಲ_Min_V()); }
     // Whether a parameter declared without a data type takes the same type from this value
     // as from 'samep': both real, both string, or both integral with the same width and
     // signedness. Unlike AstNodeDType::similarDType, ignores whether two-state or four-state.
-    bool sameValueType(const AstConst* samep) const;
+    bool same_ಮೌಲ್ಯ_Type(ಸ್ಥಿರಾಂಕ AstConst* samep) ಸ್ಥಿರಾಂಕ;
     // Parse string and create appropriate type of AstConst.
     // May return nullptr on parse failure.
-    static AstConst* parseParamLiteral(FileLine* fl, const string& literal);
+    ಸ್ಥಿರ AstConst* parseParamLiteral(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& literal);
 };
-class AstConstraintRef final : public AstNodeExpr {
+class AstConstraintRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A reference to a constraint identifier
     // @astgen op1 := fromp : Optional[AstNodeExpr]
     //
     // @astgen ptr := m_constrp : AstConstraint  // The constraint pointed to
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package of constraint
 
-public:
-    AstConstraintRef(FileLine* fl, AstNodeExpr* fromp, AstConstraint* constrp)
+ಸಾರ್ವಜನಿಕ:
+    AstConstraintRef(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, AstConstraint* constrp)
         : ASTGEN_SUPER_ConstraintRef(fl) {
         this->fromp(fromp);
         this->constrp(constrp);
-        dtypep(findConstraintRefDType());
+        dtypep(ಕಂಡುಹಿಡಿ_Constraint_Ref_DType());
     }
     ASTGEN_MEMBERS_AstConstraintRef;
-    string name() const override VL_MT_STABLE;
-    AstConstraint* constrp() const VL_MT_STABLE { return m_constrp; }
-    void constrp(AstConstraint* nodep) { m_constrp = nodep; }
-    AstNodeModule* classOrPackagep() const VL_MT_STABLE { return m_classOrPackagep; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE;
+    AstConstraint* constrp() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_constrp; }
+    ಶೂನ್ಯ constrp(AstConstraint* nodep) { m_constrp = nodep; }
+    Ast_ಗಂಟು_Module* classOrPackagep() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_classOrPackagep; }
     // TODO: this setter is unused
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    ಶೂನ್ಯ classOrPackagep(Ast_ಗಂಟು_Module* nodep) { m_classOrPackagep = nodep; }
 
     string emitVerilog() final override { V3ERROR_NA_RETURN(""); }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const final override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ final override { V3ERROR_NA_RETURN(true); }
 };
-class AstCvtArrayToArray final : public AstNodeExpr {
+class Ast_Cvt_Array_ಗಮ್ಯ_Array final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Copy/Cast from dynamic/unpacked types to dynamic/unpacked types
     // @astgen op1 := fromp : AstNodeExpr
-private:
-    const bool m_reverse;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
-    const int m_blockSize;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
-    const int m_dstElementBits;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
-    const int m_srcElementBits;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
+ಖಾಸಗಿ:
+    ಸ್ಥಿರಾಂಕ bool m_ಹಿಮ್ಮುಖ;  // whether ordering gets reversed in this operation (ex: {<<{expr}})
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ m_ಖಂಡ_ಗಾತ್ರ;  // num bits per block in a streaming operation (ex: 4 in {<<4{expr}}))
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ m_dst_Element_ಬಿಟ್ಟುಗಳು;  // num bits in lhs (ex: 8 if to byte-queue, 1 if to bit-queue)
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ m_src_Element_ಬಿಟ್ಟುಗಳು;  // num bits in rhs (ex 8 if from byte-queue, 1 if from bit-queue)
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp, bool reverse,
-                       int blockSize, int dstElementBits, int srcElementBits)
-        : ASTGEN_SUPER_CvtArrayToArray(fl)
-        , m_reverse{reverse}
-        , m_blockSize{blockSize}
-        , m_dstElementBits{dstElementBits}
-        , m_srcElementBits{srcElementBits} {
+    Ast_Cvt_Array_ಗಮ್ಯ_Array(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_DType* dtp, bool ಹಿಮ್ಮುಖ,
+                       ಪೂರ್ಣಾಂಕ ಖಂಡ_ಗಾತ್ರ, ಪೂರ್ಣಾಂಕ dst_Element_ಬಿಟ್ಟುಗಳು, ಪೂರ್ಣಾಂಕ src_Element_ಬಿಟ್ಟುಗಳು)
+        : ASTGEN_SUPER_Cvt_Array_ಗಮ್ಯ_Array(fl)
+        , m_ಹಿಮ್ಮುಖ{ಹಿಮ್ಮುಖ}
+        , m_ಖಂಡ_ಗಾತ್ರ{ಖಂಡ_ಗಾತ್ರ}
+        , m_dst_Element_ಬಿಟ್ಟುಗಳು{dst_Element_ಬಿಟ್ಟುಗಳು}
+        , m_src_Element_ಬಿಟ್ಟುಗಳು{src_Element_ಬಿಟ್ಟುಗಳು} {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtArrayToArray;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ASTGEN_MEMBERS_Ast_Cvt_Array_ಗಮ್ಯ_Array;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool reverse() const { return m_reverse; }
-    int blockSize() const { return m_blockSize; }
-    int dstElementBits() const { return m_dstElementBits; }
-    int srcElementBits() const { return m_srcElementBits; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಹಿಮ್ಮುಖ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಹಿಮ್ಮುಖ; }
+    ಪೂರ್ಣಾಂಕ ಖಂಡ_ಗಾತ್ರ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಖಂಡ_ಗಾತ್ರ; }
+    ಪೂರ್ಣಾಂಕ dst_Element_ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dst_Element_ಬಿಟ್ಟುಗಳು; }
+    ಪೂರ್ಣಾಂಕ src_Element_ಬಿಟ್ಟುಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_src_Element_ಬಿಟ್ಟುಗಳು; }
 };
-class AstCvtArrayToPacked final : public AstNodeExpr {
+class Ast_Cvt_Array_ಗಮ್ಯ_Packed final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Cast from dynamic queue data type to packed array
     // @astgen op1 := fromp : AstNodeExpr
-public:
+ಸಾರ್ವಜನಿಕ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtArrayToPacked(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtArrayToPacked(fl) {
+    Ast_Cvt_Array_ಗಮ್ಯ_Packed(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Array_ಗಮ್ಯ_Packed(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtArrayToPacked;
+    ASTGEN_MEMBERS_Ast_Cvt_Array_ಗಮ್ಯ_Packed;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCvtPackedToArray final : public AstNodeExpr {
+class Ast_Cvt_Packed_ಗಮ್ಯ_Array final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Cast from packed array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+ಸಾರ್ವಜನಿಕ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtPackedToArray(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtPackedToArray(fl) {
+    Ast_Cvt_Packed_ಗಮ್ಯ_Array(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Packed_ಗಮ್ಯ_Array(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtPackedToArray;
+    ASTGEN_MEMBERS_Ast_Cvt_Packed_ಗಮ್ಯ_Array;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCvtUnpackToQueue final : public AstNodeExpr {
+class Ast_Cvt_Unpack_ಗಮ್ಯ_ಸರತಿ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Cast from unpacked array to dynamic/unpacked queue data type
     // @astgen op1 := fromp : AstNodeExpr
-public:
+ಸಾರ್ವಜನಿಕ:
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCvtUnpackToQueue(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtUnpackToQueue(fl) {
+    Ast_Cvt_Unpack_ಗಮ್ಯ_ಸರತಿ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Unpack_ಗಮ್ಯ_ಸರತಿ(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtUnpackToQueue;
+    ASTGEN_MEMBERS_Ast_Cvt_Unpack_ಗಮ್ಯ_ಸರತಿ;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
-    bool cleanOut() const override { return true; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_CVT_UNPACK_TO_Q(%P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCvtUnpackToUnpack final : public AstNodeExpr {
+class Ast_Cvt_Unpack_ಗಮ್ಯ_Unpack final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Convert an unpacked array to one with the same shape but different ascending/descending
     // direction in at least one dimension (IEEE 1800-2023 7.6).
     // Any combination of dimensions is reversed by the one conversion, which dimensions follow
@@ -1302,62 +1302,62 @@ class AstCvtUnpackToUnpack final : public AstNodeExpr {
     // outer one. A conversion of an inner dimension is not inserted lower down instead, which
     // would need the arrays split into elements.
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCvtUnpackToUnpack(FileLine* fl, AstNodeExpr* fromp, AstNodeDType* dtp)
-        : ASTGEN_SUPER_CvtUnpackToUnpack(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Cvt_Unpack_ಗಮ್ಯ_Unpack(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_DType* dtp)
+        : ASTGEN_SUPER_Cvt_Unpack_ಗಮ್ಯ_Unpack(fl) {
         this->fromp(fromp);
         dtypeFrom(dtp);
     }
-    ASTGEN_MEMBERS_AstCvtUnpackToUnpack;
+    ASTGEN_MEMBERS_Ast_Cvt_Unpack_ಗಮ್ಯ_Unpack;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstDist final : public AstNodeExpr {
+class AstDist final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstDistItem]
-public:
-    AstDist(FileLine* fl, AstNodeExpr* exprp, AstDistItem* itemsp)
+ಸಾರ್ವಜನಿಕ:
+    AstDist(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_Dist_ಅಂಶ* itemsp)
         : ASTGEN_SUPER_Dist(fl) {
         this->exprp(exprp);
-        addItemsp(itemsp);
-        dtypeSetBit();
+        ಕೂಡಿಸು_Itemsp(itemsp);
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstDist;
-    string emitVerilog() override { return "%l dist { %r }"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l dist { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // NA
 };
-class AstDistItem final : public AstNodeExpr {
+class Ast_Dist_ಅಂಶ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Constraint distribution item
     // @astgen op1 := rangep : AstNodeExpr
     // @astgen op2 := weightp : AstNodeExpr
-    bool m_isWhole = false;  // True for weight ':/', false for ':='
-public:
-    AstDistItem(FileLine* fl, AstNodeExpr* rangep, AstNodeExpr* weightp)
-        : ASTGEN_SUPER_DistItem(fl) {
+    bool m_is_ಸಂಪೂರ್ಣ = false;  // True for weight ':/', false for ':='
+ಸಾರ್ವಜನಿಕ:
+    Ast_Dist_ಅಂಶ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rangep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* weightp)
+        : ASTGEN_SUPER_Dist_ಅಂಶ(fl) {
         this->rangep(rangep);
         this->weightp(weightp);
     }
-    ASTGEN_MEMBERS_AstDistItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "%l "s + (m_isWhole ? ":/" : ":=") + " %r"; }
+    ASTGEN_MEMBERS_Ast_Dist_ಅಂಶ;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l "s + (m_is_ಸಂಪೂರ್ಣ ? ":/" : ":=") + " %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
-    void isWhole(bool flag) { m_isWhole = flag; }
-    bool isWhole() const { return m_isWhole; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // NA
+    ಶೂನ್ಯ is_ಸಂಪೂರ್ಣ(bool flag) { m_is_ಸಂಪೂರ್ಣ = flag; }
+    bool is_ಸಂಪೂರ್ಣ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_is_ಸಂಪೂರ್ಣ; }
 };
-class AstDot final : public AstNodeExpr {
+class AstDot final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A dot separating paths in an AstVarXRef, AstFuncRef or AstTaskRef
     // These are eliminated in the link stage
     // @astgen op1 := lhsp : AstNode<AstNodeExpr|AstNodeDType>
     // @astgen op2 := rhsp : AstNode<AstNodeExpr|AstNodeDType>
     //
     // We don't have a list of elements as it's probably legal to do '(foo.bar).(baz.bap)'
-    const bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
-public:
-    AstDot(FileLine* fl, bool colon, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+    ಸ್ಥಿರಾಂಕ bool m_colon;  // Is a "::" instead of a "." (lhs must be package/class)
+ಸಾರ್ವಜನಿಕ:
+    AstDot(File_ಸಾಲು* fl, bool colon, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Dot(fl)
         , m_colon{colon} {
         this->lhsp(lhsp);
@@ -1365,382 +1365,382 @@ public:
     }
     ASTGEN_MEMBERS_AstDot;
     // For parser, make only if non-null package
-    static AstNodeExpr* newIfPkg(FileLine* fl, AstNodeExpr* packageOrClassp, AstNodeExpr* rhsp) {
-        if (!packageOrClassp) return rhsp;
-        return new AstDot{fl, true, packageOrClassp, rhsp};
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newIfPkg(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* packageOrClassp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) {
+        ಆದರೆ (!packageOrClassp) ಹಿಂತಿರುಗಿ rhsp;
+        ಹಿಂತಿರುಗಿ new AstDot{fl, true, packageOrClassp, rhsp};
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool colon() const { return m_colon; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool colon() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_colon; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstEmptyQueue final : public AstNodeExpr {
-public:
-    explicit AstEmptyQueue(FileLine* fl)
-        : ASTGEN_SUPER_EmptyQueue(fl) {}
-    ASTGEN_MEMBERS_AstEmptyQueue;
+class Ast_ಖಾಲಿಗಳು_ಸರತಿ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ಖಾಲಿಗಳು_ಸರತಿ(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ಖಾಲಿಗಳು_ಸರತಿ(fl) {}
+    ASTGEN_MEMBERS_Ast_ಖಾಲಿಗಳು_ಸರತಿ;
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitVerilog() override { return "{}"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "{}"; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstEnumItemRef final : public AstNodeExpr {
+class Ast_Enum_ಅಂಶ_Ref final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen ptr := m_itemp : Optional[AstEnumItem]  // [AfterLink] Pointer to item
     // @astgen ptr := m_classOrPackagep : Optional[AstNodeModule]  // Class/package defined in
     string m_name;  // Name of enum (for param relink)
     string m_dotted;  // Dotted part of scope the name()'ed reference is under or ""
-    bool m_containsGenBlock = false;  // Contains gen block reference
-public:
-    AstEnumItemRef(FileLine* fl, AstEnumItem* itemp, AstNodeModule* classOrPackagep)
-        : ASTGEN_SUPER_EnumItemRef(fl)
+    bool m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ = false;  // Contains gen block reference
+ಸಾರ್ವಜನಿಕ:
+    Ast_Enum_ಅಂಶ_Ref(File_ಸಾಲು* fl, Ast_Enum_ಅಂಶ* itemp, Ast_ಗಂಟು_Module* classOrPackagep)
+        : ASTGEN_SUPER_Enum_ಅಂಶ_Ref(fl)
         , m_name{itemp->name()}
         , m_itemp{itemp}
         , m_classOrPackagep{classOrPackagep} {
         dtypeFrom(m_itemp);
     }
-    ASTGEN_MEMBERS_AstEnumItemRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    string name() const override VL_MT_STABLE { return itemp() ? itemp()->name() : m_name; }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstEnumItemRef* const sp = VN_DBG_AS(samep, EnumItemRef);
-        return itemp() == sp->itemp() && dotted() == sp->dotted()
-               && containsGenBlock() == sp->containsGenBlock();
+    ASTGEN_MEMBERS_Ast_Enum_ಅಂಶ_Ref;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ itemp() ? itemp()->name() : m_name; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ Ast_Enum_ಅಂಶ_Ref* ಸ್ಥಿರಾಂಕ sp = VN_DBG_AS(samep, Enum_ಅಂಶ_Ref);
+        ಹಿಂತಿರುಗಿ itemp() == sp->itemp() && dotted() == sp->dotted()
+               && ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ() == sp->ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ();
     }
-    AstEnumItem* itemp() const VL_MT_STABLE { return m_itemp; }
-    void itemp(AstEnumItem* nodep) { m_itemp = nodep; }
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
+    Ast_Enum_ಅಂಶ* itemp() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_itemp; }
+    ಶೂನ್ಯ itemp(Ast_Enum_ಅಂಶ* nodep) { m_itemp = nodep; }
+    string dotted() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dotted; }
+    ಶೂನ್ಯ dotted(ಸ್ಥಿರಾಂಕ string& dotted) { m_dotted = dotted; }
+    bool ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ; }
+    ಶೂನ್ಯ ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ(ಸ್ಥಿರಾಂಕ bool flag) { m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    void classOrPackagep(AstNodeModule* nodep) { m_classOrPackagep = nodep; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    Ast_ಗಂಟು_Module* classOrPackagep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_classOrPackagep; }
+    ಶೂನ್ಯ classOrPackagep(Ast_ಗಂಟು_Module* nodep) { m_classOrPackagep = nodep; }
 };
-class AstExprStmt final : public AstNodeExpr {
+class Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Perform a statement, often assignment inside an expression node,
     // the parent gets passed the 'resultp()'.
     // resultp is evaluated AFTER the statement(s).
     // @astgen op1 := stmtsp : List[AstNode]
     // @astgen op2 := resultp : AstNodeExpr
-private:
-    bool m_hasResult = true;  // Returns result via resultp()
+ಖಾಸಗಿ:
+    bool m_has_ಫಲಿತಾಂಶ = true;  // Returns result via resultp()
 
-public:
-    AstExprStmt(FileLine* fl, AstNode* stmtsp, AstNodeExpr* resultp)
-        : ASTGEN_SUPER_ExprStmt(fl) {
-        addStmtsp(stmtsp);
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt(File_ಸಾಲು* fl, Ast_ಗಂಟು* stmtsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resultp)
+        : ASTGEN_SUPER_ಅಭಿವ್ಯಕ್ತಿ_Stmt(fl) {
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
         this->resultp(resultp);
         dtypeFrom(resultp);
     }
-    ASTGEN_MEMBERS_AstExprStmt;
+    ASTGEN_MEMBERS_Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isPure() override {
-        if (AstNode::afterCommentp(stmtsp())) return false;
-        return resultp()->isPure();
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override {
+        ಆದರೆ (Ast_ಗಂಟು::afterCommentp(stmtsp())) ಹಿಂತಿರುಗಿ false;
+        ಹಿಂತಿರುಗಿ resultp()->is_ಶುದ್ಧ();
     }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool hasResult() const { return m_hasResult; }
-    void hasResult(bool flag) { m_hasResult = flag; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool has_ಫಲಿತಾಂಶ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_has_ಫಲಿತಾಂಶ; }
+    ಶೂನ್ಯ has_ಫಲಿತಾಂಶ(bool flag) { m_has_ಫಲಿತಾಂಶ = flag; }
 };
-class AstFError final : public AstNodeExpr {
+class AstFError final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := filep : AstNodeExpr
     // @astgen op2 := strp : AstNodeExpr
-public:
-    AstFError(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* strp)
+ಸಾರ್ವಜನಿಕ:
+    AstFError(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* strp)
         : ASTGEN_SUPER_FError(fl) {
         this->filep(filep);
         this->strp(strp);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFError;
-    string emitVerilog() override { return "%f$ferror(%l, %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$ferror(%l, %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 64; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFOpen final : public AstNodeExpr {
+class AstFOpen final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op2 := filenamep : AstNodeExpr
     // @astgen op3 := modep : AstNodeExpr
-public:
-    AstFOpen(FileLine* fl, AstNodeExpr* filenamep, AstNodeExpr* modep)
+ಸಾರ್ವಜನಿಕ:
+    AstFOpen(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filenamep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* modep)
         : ASTGEN_SUPER_FOpen(fl) {
         this->filenamep(filenamep);
         this->modep(modep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFOpen;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$fopen"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFOpenMcd final : public AstNodeExpr {
+class AstFOpenMcd final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op2 := filenamep : AstNodeExpr
-public:
-    AstFOpenMcd(FileLine* fl, AstNodeExpr* filenamep)
+ಸಾರ್ವಜನಿಕ:
+    AstFOpenMcd(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filenamep)
         : ASTGEN_SUPER_FOpenMcd(fl) {
         this->filenamep(filenamep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFOpenMcd;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    string verilogKwd() const override { return "$fopen"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$fopen"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFRead final : public AstNodeExpr {
+class AstFRead final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := memp : AstNodeExpr // VarRef for result
     // @astgen op2 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op3 := startp : Optional[AstNodeExpr] // Offset
     // @astgen op4 := countp : Optional[AstNodeExpr] // Size
-public:
-    AstFRead(FileLine* fl, AstNodeExpr* memp, AstNodeExpr* filep, AstNodeExpr* startp,
-             AstNodeExpr* countp)
+ಸಾರ್ವಜನಿಕ:
+    AstFRead(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* memp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* startp,
+             Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp)
         : ASTGEN_SUPER_FRead(fl) {
         this->memp(memp);
         this->filep(filep);
         this->startp(startp);
         this->countp(countp);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_ಗಣ_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRead;
-    string verilogKwd() const override { return "$fread"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$fread"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: makes output
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFRewind final : public AstNodeExpr {
+class AstFRewind final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := filep : Optional[AstNodeExpr]
-public:
-    AstFRewind(FileLine* fl, AstNodeExpr* filep)
+ಸಾರ್ವಜನಿಕ:
+    AstFRewind(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep)
         : ASTGEN_SUPER_FRewind(fl) {
         this->filep(filep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFRewind;
-    string verilogKwd() const override { return "$frewind"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$frewind"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFScanF final : public AstNodeExpr {
+class AstFScanF final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
-    string m_text;
+    string m_ಪಠ್ಯ;
 
-public:
-    AstFScanF(FileLine* fl, const string& text, AstNodeExpr* filep, AstNodeExpr* exprsp)
+ಸಾರ್ವಜನಿಕ:
+    AstFScanF(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp)
         : ASTGEN_SUPER_FScanF(fl)
-        , m_text{text} {
-        addExprsp(exprsp);
+        , m_ಪಠ್ಯ{ಪಠ್ಯ} {
+        ಕೂಡಿಸು_Exprsp(exprsp);
         this->filep(filep);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_ಗಣ_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$fscanf"; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_ಪಠ್ಯ; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$fscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, FScanF)->text();
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: makes output
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ಪಠ್ಯ() == VN_DBG_AS(samep, FScanF)->ಪಠ್ಯ();
     }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    bool isSystemFunc() const override { return true; }
+    string ಪಠ್ಯ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಪಠ್ಯ; }  // * = Text to display
+    ಶೂನ್ಯ ಪಠ್ಯ(ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ) { m_ಪಠ್ಯ = ಪಠ್ಯ; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFSeek final : public AstNodeExpr {
+class AstFSeek final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
     // @astgen op2 := offset : Optional[AstNodeExpr]
     // @astgen op3 := operation : Optional[AstNodeExpr]
-public:
-    AstFSeek(FileLine* fl, AstNodeExpr* filep, AstNodeExpr* offset, AstNodeExpr* operation)
+ಸಾರ್ವಜನಿಕ:
+    AstFSeek(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಾನಾಂತರ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* operation)
         : ASTGEN_SUPER_FSeek(fl) {
         this->filep(filep);
-        this->offset(offset);
+        this->ಸ್ಥಾನಾಂತರ(ಸ್ಥಾನಾಂತರ);
         this->operation(operation);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFSeek;
-    string verilogKwd() const override { return "$fseek"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$fseek"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: makes output
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFTell final : public AstNodeExpr {
+class AstFTell final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
-public:
-    AstFTell(FileLine* fl, AstNodeExpr* filep)
+ಸಾರ್ವಜನಿಕ:
+    AstFTell(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep)
         : ASTGEN_SUPER_FTell(fl) {
         this->filep(filep);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFTell;
-    string verilogKwd() const override { return "$ftell"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$ftell"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFalling final : public AstNodeExpr {
+class AstFalling final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $falling_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstFalling(FileLine* fl, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstFalling(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_Falling(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstFalling;
-    string emitVerilog() override { return "$falling_gclk(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$falling_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFell final : public AstNodeExpr {
+class AstFell final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $fell
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFell(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ಸಾರ್ವಜನಿಕ:
+    AstFell(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_Sen_ವೃಕ್ಷ* sentreep)
         : ASTGEN_SUPER_Fell(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFell;
-    string emitVerilog() override { return "$fell(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$fell(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFuture final : public AstNodeExpr {
+class AstFuture final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $future_gclk
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstFuture(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ಸಾರ್ವಜನಿಕ:
+    AstFuture(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_Sen_ವೃಕ್ಷ* sentreep)
         : ASTGEN_SUPER_Future(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstFuture;
-    string emitVerilog() override { return "$future_gclk(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$future_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstGatePin final : public AstNodeExpr {
+class AstGatePin final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Possibly expand a gate primitive input pin value to match the range of the gate primitive
     // @astgen op1 := exprp : AstNodeExpr // Pin expression
     // @astgen op2 := rangep : AstRange // Range of pin
-public:
-    AstGatePin(FileLine* fl, AstNodeExpr* exprp, AstRange* rangep)
+ಸಾರ್ವಜನಿಕ:
+    AstGatePin(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, AstRange* rangep)
         : ASTGEN_SUPER_GatePin(fl) {
         this->exprp(exprp);
         this->rangep(rangep);
     }
     ASTGEN_MEMBERS_AstGatePin;
-    string emitVerilog() override { return "%l"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstGetInitialRandomSeed final : public AstNodeExpr {
+class Ast_Get_Initial_Random_ಬೀಜ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $get_initial_random_seed()
-public:
-    explicit AstGetInitialRandomSeed(FileLine* fl)
-        : ASTGEN_SUPER_GetInitialRandomSeed(fl) {
-        dtypeSetInt();
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_Get_Initial_Random_ಬೀಜ(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_Get_Initial_Random_ಬೀಜ(fl) {
+        dtype_ಗಣ_Int();
     }
-    ASTGEN_MEMBERS_AstGetInitialRandomSeed;
-    string emitVerilog() override { return "$get_initial_random_seed()"; }
+    ASTGEN_MEMBERS_Ast_Get_Initial_Random_ಬೀಜ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$get_initial_random_seed()"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
-    bool isPure() override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstImplication final : public AstNodeExpr {
+class AstImplication final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Implication |-> |=> (IEEE 1800-2023 16.12.7) and followed-by #-# #=#
     // (IEEE 1800-2023 16.12.9). Antecedent-miss is vacuous-pass for implication
     // and non-vacuous-fail for followed-by, hence the separate flag.
@@ -1748,12 +1748,12 @@ class AstImplication final : public AstNodeExpr {
     // @astgen op2 := rhsp : AstNodeExpr
     // @astgen op3 := sentreep : Optional[AstSenTree]
 
-private:
-    const bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
-    const bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
+ಖಾಸಗಿ:
+    ಸ್ಥಿರಾಂಕ bool m_isOverlapped;  // True if overlapped form (|-> / #-#)
+    ಸ್ಥಿರಾಂಕ bool m_isFollowedBy;  // True if followed-by (#-# / #=#) rather than implication
 
-public:
-    AstImplication(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool isOverlapped,
+ಸಾರ್ವಜನಿಕ:
+    AstImplication(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, bool isOverlapped,
                    bool isFollowedBy = false)
         : ASTGEN_SUPER_Implication(fl)
         , m_isOverlapped{isOverlapped}
@@ -1762,74 +1762,74 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstImplication;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return m_isFollowedBy || !m_isOverlapped; }
-    bool isOverlapped() const { return m_isOverlapped; }
-    bool isFollowedBy() const { return m_isFollowedBy; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_isFollowedBy || !m_isOverlapped; }
+    bool isOverlapped() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isOverlapped; }
+    bool isFollowedBy() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isFollowedBy; }
 };
-class AstInside final : public AstNodeExpr {
+class AstInside final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := itemsp : List[AstNodeExpr]
-public:
-    AstInside(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* itemsp)
+ಸಾರ್ವಜನಿಕ:
+    AstInside(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* itemsp)
         : ASTGEN_SUPER_Inside(fl) {
         this->exprp(exprp);
-        addItemsp(itemsp);
-        dtypeSetBit();
+        ಕೂಡಿಸು_Itemsp(itemsp);
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstInside;
-    string emitVerilog() override { return "%l inside { %r }"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l inside { %r }"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // NA
 };
-class AstInsideRange final : public AstNodeExpr {
+class AstInsideRange final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
-public:
-    AstInsideRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstInsideRange(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_InsideRange(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstInsideRange;
-    string emitVerilog() override { return "[%l:%r]"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "[%l:%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }  // NA
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // NA
     // Create AstAnd(AstGte(...), AstLte(...))
-    AstNodeExpr* newAndFromInside(AstNodeExpr* exprp, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newAndFromInside(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp);
 };
-class AstLambdaArgRef final : public AstNodeExpr {
+class AstLambdaArgRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Lambda argument usage
     // These are not AstVarRefs because we need to be able to delete/clone lambdas during
     // optimizations and AstVar's are painful to remove.
     string m_name;  // Name of variable
-    bool m_index;  // Index, not value
+    bool m_ಸೂಚ್ಯಂಕ;  // Index, not value
 
-public:
-    AstLambdaArgRef(FileLine* fl, const string& name, bool index)
+ಸಾರ್ವಜನಿಕ:
+    AstLambdaArgRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, bool ಸೂಚ್ಯಂಕ)
         : ASTGEN_SUPER_LambdaArgRef(fl)
         , m_name{name}
-        , m_index{index} {}
+        , m_ಸೂಚ್ಯಂಕ{ಸೂಚ್ಯಂಕ} {}
     ASTGEN_MEMBERS_AstLambdaArgRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    string emitVerilog() override { return name(); }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ name(); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool index() const { return m_index; }
-    bool isExprCoverageEligible() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    bool ಸೂಚ್ಯಂಕ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸೂಚ್ಯಂಕ; }
+    bool is_ಅಭಿವ್ಯಕ್ತಿ_Coverage_Eligible() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstMatchMasked final : public AstNodeExpr {
+class Ast_ಹೊಂದಿಕೆ_Masked final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // This is a non-source construct, created internally to represent
     // some case statements. It is a '(mask & _) == bits' matching loop
     // where {mask, bits} pairs are packed into a single wide 'matchp',
@@ -1837,106 +1837,106 @@ class AstMatchMasked final : public AstNodeExpr {
     // See VL_DECODER_* runtime functions.
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := matchp : AstVarRef
-public:
-    inline AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp);
-    ASTGEN_MEMBERS_AstMatchMasked;
+ಸಾರ್ವಜನಿಕ:
+    ಸಾಲೊಳಗೆ Ast_ಹೊಂದಿಕೆ_Masked(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, AstVarRef* matchp);
+    ASTGEN_MEMBERS_Ast_ಹೊಂದಿಕೆ_Masked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
-    string emitC() override { return "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    static uint32_t fold(const V3Number& lhs, AstVar* matchVarp);
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_MATCHMASKED_%lq(%lw, %li, %ri)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಸ್ಥಿರ uint32_t fold(ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, AstVar* ಹೊಂದಿಕೆ_Varp);
 };
-class AstMatches final : public AstNodeExpr {
+class AstMatches final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // "matches" operator: "expr matches pattern"
     // @astgen op1 := lhsp : AstNodeExpr  // Expression to match
     // @astgen op2 := patternp : AstNode  // Pattern to match against
-public:
-    AstMatches(FileLine* fl, AstNodeExpr* lhsp, AstNode* patternp)
+ಸಾರ್ವಜನಿಕ:
+    AstMatches(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು* patternp)
         : ASTGEN_SUPER_Matches(fl) {
         this->lhsp(lhsp);
         this->patternp(patternp);
     }
     ASTGEN_MEMBERS_AstMatches;
-    string emitVerilog() override { return "%l matches %r"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l matches %r"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstMemberSel final : public AstNodeExpr {
+class AstMemberSel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := fromp : AstNodeExpr
     //
     // @astgen ptr := m_varp : Optional[AstVar]  // Post link, variable in class that is selecting
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     string m_name;
     VAccess m_access;  // Read or write, as in AstNodeVarRef
-public:
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name)
+ಸಾರ್ವಜನಿಕ:
+    AstMemberSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, VFlag_ಮಗು_DType, ಸ್ಥಿರಾಂಕ string& name)
         : ASTGEN_SUPER_MemberSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp);
+    AstMemberSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, AstVar* varp);
     ASTGEN_MEMBERS_AstMemberSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    VAccess access() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_access; }
+    ಶೂನ್ಯ access(ಸ್ಥಿರಾಂಕ VAccess& flag) { m_access = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override;
-    int instrCount() const override { return widthInstrs(); }
-    AstVar* varp() const { return m_varp; }
-    void varp(AstVar* nodep) { m_varp = nodep; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    AstVar* varp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_varp; }
+    ಶೂನ್ಯ varp(AstVar* nodep) { m_varp = nodep; }
 };
-class AstNewCopy final : public AstNodeExpr {
+class AstNewCopy final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // New as shallow copy
     // @astgen op1 := rhsp : AstNodeExpr
-public:
-    AstNewCopy(FileLine* fl, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNewCopy(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_NewCopy(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewCopy;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstNewDynamic final : public AstNodeExpr {
+class AstNewDynamic final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // New for dynamic array
     // @astgen op1 := sizep : AstNodeExpr
     // @astgen op2 := rhsp : Optional[AstNodeExpr]
-public:
-    AstNewDynamic(FileLine* fl, AstNodeExpr* sizep, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNewDynamic(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* sizep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_NewDynamic(fl) {
         dtypeFrom(rhsp);  // otherwise V3Width will resolve
         this->sizep(sizep);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstNewDynamic;
-    string emitVerilog() override { return "new"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "new"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstPExpr final : public AstNodeExpr {
+class AstPExpr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Property expression
     // @astgen op1 := bodyp : AstBegin
     // @astgen op2 := finalp : Optional[AstNodeStmt]
-public:
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeDType* dtypep)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstPExpr(File_ಸಾಲು* fl, AstBegin* bodyp, Ast_ಗಂಟು_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(nullptr);
         this->dtypep(dtypep);
     }
-    explicit AstPExpr(FileLine* fl, AstBegin* bodyp, AstNodeStmt* finalp, AstNodeDType* dtypep)
+    explicit AstPExpr(File_ಸಾಲು* fl, AstBegin* bodyp, Ast_ಗಂಟು_Stmt* finalp, Ast_ಗಂಟು_DType* dtypep)
         : ASTGEN_SUPER_PExpr(fl) {
         this->bodyp(bodyp);
         this->finalp(finalp);
@@ -1945,21 +1945,21 @@ public:
     ASTGEN_MEMBERS_AstPExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstParseHolder final : public AstNodeExpr {
+class AstParseHolder final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A reference to something soon to replace, used in a select at parse time
     // that needs conversion to pull the upper lvalue later
-public:
-    explicit AstParseHolder(FileLine* fl)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstParseHolder(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_ParseHolder(fl) {}
     ASTGEN_MEMBERS_AstParseHolder;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstParseRef final : public AstNodeExpr {
+class AstParseRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A reference to a variable, function or task
     // We don't know which at parse time due to bison constraints
     // The link stages will replace this with AstVarRef, or AstTaskRef, etc.
@@ -1968,27 +1968,27 @@ class AstParseRef final : public AstNodeExpr {
 
     string m_name;  // Name of the variable/function/task
 
-public:
-    AstParseRef(FileLine* fl, const string& name, AstNodeExpr* lhsp = nullptr,
-                AstNodeFTaskRef* ftaskrefp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstParseRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp = nullptr,
+                Ast_ಗಂಟು_FTask_Ref* ftaskrefp = nullptr)
         : ASTGEN_SUPER_ParseRef(fl)
         , m_name{name} {
         this->lhsp(lhsp);
         this->ftaskrefp(ftaskrefp);
     }
     ASTGEN_MEMBERS_AstParseRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstParseRef* const asamep = VN_DBG_AS(samep, ParseRef);
-        return m_name == asamep->m_name;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstParseRef* ಸ್ಥಿರಾಂಕ asamep = VN_DBG_AS(samep, ParseRef);
+        ಹಿಂತಿರುಗಿ m_name == asamep->m_name;
     }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPast final : public AstNodeExpr {
+class AstPast final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $past
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := ticksp : Optional[AstNodeExpr]
@@ -1999,9 +1999,9 @@ class AstPast final : public AstNodeExpr {
     // functions such as $rose/$fell must remain false so they receive default initialization.
     bool m_propertyTiming : 1;
 
-public:
-    AstPast(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ticksp = nullptr,
-            AstSenTree* sentreep = nullptr, bool propertyTiming = false)
+ಸಾರ್ವಜನಿಕ:
+    AstPast(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ticksp = nullptr,
+            Ast_Sen_ವೃಕ್ಷ* sentreep = nullptr, bool propertyTiming = false)
         : ASTGEN_SUPER_Past(fl)
         , m_propertyTiming{propertyTiming} {
         this->exprp(exprp);
@@ -2009,20 +2009,20 @@ public:
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstPast;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        return m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_propertyTiming == VN_DBG_AS(samep, Past)->m_propertyTiming;
     }
-    bool propertyTiming() const { return m_propertyTiming; }
-    bool isSystemFunc() const override { return true; }
+    bool propertyTiming() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_propertyTiming; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstPatMember final : public AstNodeExpr {
+class AstPatMember final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog '{a} or '{a{b}}
     // Parents: AstPattern
     // Children: expression, AstPattern, replication count, decoded nodep if TEXT
@@ -2034,82 +2034,82 @@ class AstPatMember final : public AstNodeExpr {
     bool m_isDefault = false;  // Has default
     bool m_isConcat = false;  // From concatenate
 
-public:
-    AstPatMember(FileLine* fl, AstNodeExpr* lhssp, AstNode* keyp, AstNodeExpr* repp)
+ಸಾರ್ವಜನಿಕ:
+    AstPatMember(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhssp, Ast_ಗಂಟು* keyp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* repp)
         : ASTGEN_SUPER_PatMember(fl) {
-        addLhssp(lhssp);
+        ಕೂಡಿಸು_Lhssp(lhssp);
         this->keyp(keyp);
         this->repp(repp);
     }
     ASTGEN_MEMBERS_AstPatMember;
-    string emitVerilog() override { return lhssp() ? "%f{%r{%k%l}}" : "%l"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ lhssp() ? "%f{%r{%k%l}}" : "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs() * 2; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool isConcat() const { return m_isConcat; }
-    void isConcat(bool flag) { m_isConcat = flag; }
-    bool isDefault() const { return m_isDefault; }
-    void isDefault(bool flag) { m_isDefault = flag; }
-    AstNodeExpr* keyExprp() const { return varrefp() ? varrefp() : VN_CAST(keyp(), NodeExpr); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 2; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    bool isConcat() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isConcat; }
+    ಶೂನ್ಯ isConcat(bool flag) { m_isConcat = flag; }
+    bool isDefault() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isDefault; }
+    ಶೂನ್ಯ isDefault(bool flag) { m_isDefault = flag; }
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಕೀಲಿ_Exprp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ varrefp() ? varrefp() : VN_CAST(keyp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ); }
 };
-class AstPattern final : public AstNodeExpr {
+class Ast_ನಮೂನೆ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog '{a,b,c,d...}
     // Parents: AstNodeAssign, AstPattern, ...
     // Children: expression, AstPattern, AstPatReplicate
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := itemsp : List[AstNode] // AstPatReplicate, AstPatMember, etc
-public:
-    AstPattern(FileLine* fl, AstNode* itemsp)
-        : ASTGEN_SUPER_Pattern(fl) {
-        addItemsp(itemsp);
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಮೂನೆ(File_ಸಾಲು* fl, Ast_ಗಂಟು* itemsp)
+        : ASTGEN_SUPER_ನಮೂನೆ(fl) {
+        ಕೂಡಿಸು_Itemsp(itemsp);
     }
-    ASTGEN_MEMBERS_AstPattern;
+    ASTGEN_MEMBERS_Ast_ನಮೂನೆ;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* subDTypep() const VL_MT_STABLE { return dtypep() ? dtypep() : childDTypep(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    Ast_ಗಂಟು_DType* get_ಮಗು_DTypep() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಮಗು_DTypep(); }
+    Ast_ಗಂಟು_DType* subDTypep() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ dtypep() ? dtypep() : ಮಗು_DTypep(); }
 };
-class AstPatternStar final : public AstNodeExpr {
+class Ast_ನಮೂನೆ_ನಕ್ಷತ್ರ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Pattern wildcard: ".*"
-public:
-    explicit AstPatternStar(FileLine* fl)
-        : ASTGEN_SUPER_PatternStar(fl) {}
-    ASTGEN_MEMBERS_AstPatternStar;
-    string emitVerilog() override { return ".*"; }
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ನಮೂನೆ_ನಕ್ಷತ್ರ(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ನಮೂನೆ_ನಕ್ಷತ್ರ(fl) {}
+    ASTGEN_MEMBERS_Ast_ನಮೂನೆ_ನಕ್ಷತ್ರ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ ".*"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstPatternVar final : public AstNodeExpr {
+class Ast_ನಮೂನೆ_Var final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Pattern variable binding: ".variable"
     string m_name;  // Variable name
-public:
-    AstPatternVar(FileLine* fl, const string& name)
-        : ASTGEN_SUPER_PatternVar(fl)
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಮೂನೆ_Var(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name)
+        : ASTGEN_SUPER_ನಮೂನೆ_Var(fl)
         , m_name{name} {}
-    ASTGEN_MEMBERS_AstPatternVar;
-    string emitVerilog() override { return ".%k"; }
+    ASTGEN_MEMBERS_Ast_ನಮೂನೆ_Var;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ ".%k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, PatternVar)->m_name;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_name == VN_DBG_AS(samep, ನಮೂನೆ_Var)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
 };
-class AstPropAlways final : public AstNodeExpr {
+class AstPropAlways final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // always[m:n] / s_always[m:n] (IEEE 1800-2023 16.12.11)
     // @astgen op1 := propp : AstNodeExpr
     // @astgen op2 := loBoundp : AstNodeExpr
     // @astgen op3 := hiBoundp : AstNodeExpr
-    const bool m_isStrong = false;  // s_always
-public:
-    AstPropAlways(FileLine* fl, AstNodeExpr* propp, AstNodeExpr* loBoundp, AstNodeExpr* hiBoundp,
+    ಸ್ಥಿರಾಂಕ bool m_isStrong = false;  // s_always
+ಸಾರ್ವಜನಿಕ:
+    AstPropAlways(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* propp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* loBoundp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* hiBoundp,
                   bool isStrong)
         : ASTGEN_SUPER_PropAlways(fl)
         , m_isStrong{isStrong} {
@@ -2118,126 +2118,126 @@ public:
         this->hiBoundp(hiBoundp);
     }
     ASTGEN_MEMBERS_AstPropAlways;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool isStrong() const { return m_isStrong; }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(0); }
+    bool isStrong() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isStrong; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstRand final : public AstNodeExpr {
+class AstRand final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // $random/$random(seed) or $urandom/$urandom(seed)
     // Return a random number, based upon width()
     // @astgen op1 := seedp : Optional[AstNodeExpr]
-    const bool m_urandom;  // $urandom vs $random
-public:
+    ಸ್ಥಿರಾಂಕ bool m_urandom;  // $urandom vs $random
+ಸಾರ್ವಜನಿಕ:
     class Reset {};
-    AstRand(FileLine* fl, AstNodeExpr* seedp, bool urandom)
+    AstRand(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* seedp, bool urandom)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{urandom} {
         this->seedp(seedp);
     }
     class SRandomU32 {};
-    AstRand(FileLine* fl, SRandomU32)
+    AstRand(File_ಸಾಲು* fl, SRandomU32)
         : ASTGEN_SUPER_Rand(fl)
         , m_urandom{true} {
-        dtypeSetUInt32();
+        dtype_ಗಣ_UInt32();
     }
     ASTGEN_MEMBERS_AstRand;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override {
-        return seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
+        ಹಿಂತಿರುಗಿ seedp() ? (m_urandom ? "%f$urandom(%l)" : "%f$random(%l)")
                        : (m_urandom ? "%f$urandom()" : "%f$random()");
     }
     string emitC() override {
-        if (seedp()) {
-            if (urandom()) return "VL_URANDOM_SEEDED_%nq%lq(%li)";
-            return "VL_RANDOM_SEEDED_%nq%lq(%li)";
+        ಆದರೆ (seedp()) {
+            ಆದರೆ (urandom()) ಹಿಂತಿರುಗಿ "VL_URANDOM_SEEDED_%nq%lq(%li)";
+            ಹಿಂತಿರುಗಿ "VL_RANDOM_SEEDED_%nq%lq(%li)";
         }
-        if (isWide()) return "VL_RANDOM_%nq(%nw, %P)";
-        return "VL_RANDOM_%nq()";
+        ಆದರೆ (isWide()) ಹಿಂತಿರುಗಿ "VL_RANDOM_%nq(%nw, %P)";
+        ಹಿಂತಿರುಗಿ "VL_RANDOM_%nq()";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !seedp(); }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool combinable(const AstRand* samep) const {
-        return !seedp() && !samep->seedp() && urandom() == samep->urandom();
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ !seedp(); }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool combinable(ಸ್ಥಿರಾಂಕ AstRand* samep) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ !seedp() && !samep->seedp() && urandom() == samep->urandom();
     }
-    bool urandom() const { return m_urandom; }
+    bool urandom() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_urandom; }
 };
-class AstRandRNG final : public AstNodeExpr {
+class AstRandRNG final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Random used in a class using VlRNG
     // Return a random number, based upon width()
-public:
-    AstRandRNG(FileLine* fl, AstNodeDType* dtp)
+ಸಾರ್ವಜನಿಕ:
+    AstRandRNG(File_ಸಾಲು* fl, Ast_ಗಂಟು_DType* dtp)
         : ASTGEN_SUPER_RandRNG(fl) {
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstRandRNG;
-    string emitVerilog() override { return "%f$rngrandom()"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$rngrandom()"; }
     string emitC() override {
-        return isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
+        ಹಿಂತಿರುಗಿ isWide() ? "VL_RANDOM_RNG_%nq(__Vm_rng, %nw, %P)"  //
                         : "VL_RANDOM_RNG_%nq(__Vm_rng)";
     }
-    bool cleanOut() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstRising final : public AstNodeExpr {
+class AstRising final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $rising_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstRising(FileLine* fl, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstRising(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_Rising(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstRising;
-    string emitVerilog() override { return "$rising_gclk(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$rising_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstRose final : public AstNodeExpr {
+class AstRose final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $rose
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstRose(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ಸಾರ್ವಜನಿಕ:
+    AstRose(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_Sen_ವೃಕ್ಷ* sentreep)
         : ASTGEN_SUPER_Rose(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstRose;
-    string emitVerilog() override { return "$rose(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$rose(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSClocked final : public AstNodeExpr {
+class AstSClocked final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Sequence expression with an explicit leading clocking event
     // IEEE 1800-2023 16.7: sequence_expr ::= clocking_event sequence_expr
     // The clocking event is hoisted to the enclosing assertion clock by V3AssertNfa.
     // @astgen op1 := sensesp : AstSenItem
     // @astgen op2 := exprp : AstNodeExpr
-public:
-    AstSClocked(FileLine* fl, AstSenItem* sensesp, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstSClocked(File_ಸಾಲು* fl, Ast_Sen_ಅಂಶ* sensesp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_SClocked(fl) {
         this->sensesp(sensesp);
         this->exprp(exprp);
@@ -2245,9 +2245,9 @@ public:
     ASTGEN_MEMBERS_AstSClocked;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
 };
-class AstSConsRep final : public AstNodeExpr {
+class AstSConsRep final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Consecutive repetition [*N], [*N:M], [*N:$], [+], [*] (IEEE 1800-2023 16.9.2)
     // op1 := exprp -- the repeated expression
     // op2 := countp -- min repetition count (N); always a non-negative constant after V3Width
@@ -2266,16 +2266,16 @@ class AstSConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-    const bool m_unbounded = false;  // True when the upper bound is $
-public:
+    ಸ್ಥಿರಾಂಕ bool m_unbounded = false;  // True when the upper bound is $
+ಸಾರ್ವಜನಿಕ:
     // Exact [*N]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSConsRep(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp)
         : ASTGEN_SUPER_SConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [*N:M] or unbounded [*N:$]/[+]/[*]
-    AstSConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp,
+    AstSConsRep(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* maxCountp,
                 bool unbounded)
         : ASTGEN_SUPER_SConsRep(fl)
         , m_unbounded{unbounded} {
@@ -2284,45 +2284,45 @@ public:
         this->maxCountp(maxCountp);
     }
     ASTGEN_MEMBERS_AstSConsRep;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { V3ERROR_NA_RETURN(0); }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(0); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {  // LCOV_EXCL_LINE
+        ಹಿಂತಿರುಗಿ m_unbounded == VN_DBG_AS(samep, SConsRep)->m_unbounded;  // LCOV_EXCL_LINE
     }
-    bool unbounded() const { return m_unbounded; }
-    bool isMultiCycleSva() const override { return true; }
+    bool unbounded() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_unbounded; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSEventually final : public AstNodeExpr {
+class AstSEventually final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // s_eventually
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    explicit AstSEventually(FileLine* fl, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstSEventually(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_SEventually(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSEventually;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
 };
-class AstSExpr final : public AstNodeExpr {
+class AstSExpr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Sequence expression
     // @astgen op1 := preExprp: Optional[AstNodeExpr]
     // @astgen op2 := delayp : AstNodeStmt<AstDelay|AstBegin>
     // @astgen op3 := exprp : AstNodeExpr
-public:
-    explicit AstSExpr(FileLine* fl, AstNodeExpr* preExprp, AstNodeStmt* delayp, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstSExpr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* preExprp, Ast_ಗಂಟು_Stmt* delayp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(preExprp);
         this->delayp(delayp);
         this->exprp(exprp);
     }
-    explicit AstSExpr(FileLine* fl, AstNodeStmt* delayp, AstNodeExpr* exprp)
+    explicit AstSExpr(File_ಸಾಲು* fl, Ast_ಗಂಟು_Stmt* delayp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_SExpr(fl) {
         this->preExprp(nullptr);
         this->delayp(delayp);
@@ -2331,11 +2331,11 @@ public:
     ASTGEN_MEMBERS_AstSExpr;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSFormatArg final : public AstNodeExpr {
+class AstSFormatArg final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Information for formatting each argument to AstSFormat,
     // used to pass to (potentially) runtime decoding of format arguments
     // PARENT: SFormatF (or next list of expressions)
@@ -2343,114 +2343,114 @@ class AstSFormatArg final : public AstNodeExpr {
     // @astgen op2 := namep : Optional[AstNodeExpr] // Runtime enum name lookup
     VFormatAttr m_formatAttr;  // How to format expression
 
-public:
-    AstSFormatArg(FileLine* fl, VFormatAttr formatAttr, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstSFormatArg(File_ಸಾಲು* fl, VFormatAttr formatAttr, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_SFormatArg(fl)
         , m_formatAttr{formatAttr} {
         dtypeFrom(exprp);
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSFormatArg;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ formatAttr() == VN_DBG_AS(samep, SFormatArg)->formatAttr();
     }
-    string verilogKwd() const override { return "$sformatarg"; }
-    string emitVerilog() override { return "%l"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$sformatarg"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(backp(), SFormatF) && firstAbovep());  // In list under SFormatF
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
+        BROKEN_RTN(!VN_IS(backp(), SFormatF) && ಮೊದಲ_Abovep());  // In list under SFormatF
         BROKEN_RTN(formatAttr().isEnum() != static_cast<bool>(namep()));
-        return nullptr;
+        ಹಿಂತಿರುಗಿ nullptr;
     }
-    VFormatAttr formatAttr() const { return m_formatAttr; }
-    void formatAttr(const VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
-    static VFormatAttr formatAttrDefauled(const AstSFormatArg* nodep, const AstNodeDType* dtypep);
+    VFormatAttr formatAttr() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_formatAttr; }
+    ಶೂನ್ಯ formatAttr(ಸ್ಥಿರಾಂಕ VFormatAttr& formatAttr) { m_formatAttr = formatAttr; }
+    ಸ್ಥಿರ VFormatAttr formatAttrDefauled(ಸ್ಥಿರಾಂಕ AstSFormatArg* nodep, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* dtypep);
 };
-class AstSFormatF final : public AstNodeExpr {
+class AstSFormatF final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Convert format to string, generally under an AstDisplay or AstSFormat
     // Also used as "real" function for /*verilator sformat*/ functions
     // exprsp() once past parsing may be AstSFormatArgs
     // @astgen op1 := exprsp : List[AstNodeExpr]
     // @astgen op2 := scopeNamep : Optional[AstScopeName]
-    string m_text;
+    string m_ಪಠ್ಯ;
     bool m_hidden;  // Under display, etc
-    bool m_exprFormat
+    bool m_ಅಭಿವ್ಯಕ್ತಿ_Format
         = false;  // Runtime Node* format, false = text() format code, false = possibly r
     bool m_optionalFormat
         = false;  // With exprFormat, first argument is either format or format-implied
-    const char m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ m_missingArgChar;  // Format code when argument without format, 'h'/'o'/'b'
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    class ExprFormat {};
-    AstSFormatF(FileLine* fl, const string& text, bool hidden, AstNodeExpr* exprsp,
-                char missingArgChar = 'd')
+ಸಾರ್ವಜನಿಕ:
+    class ಅಭಿವ್ಯಕ್ತಿ_Format {};
+    AstSFormatF(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ, bool hidden, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp,
+                ಅಕ್ಷರ missingArgChar = 'd')
         : ASTGEN_SUPER_SFormatF(fl)
-        , m_text{text}
+        , m_ಪಠ್ಯ{ಪಠ್ಯ}
         , m_hidden{hidden}
         , m_missingArgChar{missingArgChar} {
-        dtypeSetString();
-        addExprsp(exprsp);
+        dtype_ಗಣ_String();
+        ಕೂಡಿಸು_Exprsp(exprsp);
     }
-    AstSFormatF(FileLine* fl, ExprFormat, AstNodeExpr* exprsp, char missingArgChar = 'd',
+    AstSFormatF(File_ಸಾಲು* fl, ಅಭಿವ್ಯಕ್ತಿ_Format, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp, ಅಕ್ಷರ missingArgChar = 'd',
                 bool hidden = true)
         : ASTGEN_SUPER_SFormatF(fl)
-        , m_text{""}
+        , m_ಪಠ್ಯ{""}
         , m_hidden{hidden}
-        , m_exprFormat{true}
+        , m_ಅಭಿವ್ಯಕ್ತಿ_Format{true}
         , m_missingArgChar{missingArgChar} {
-        dtypeSetString();
-        addExprsp(exprsp);
+        dtype_ಗಣ_String();
+        ಕೂಡಿಸು_Exprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSFormatF;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_text; }
-    void name(const string& name) override { m_text = name; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, SFormatF)->text();
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_ಪಠ್ಯ; }
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_ಪಠ್ಯ = name; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ಪಠ್ಯ() == VN_DBG_AS(samep, SFormatF)->ಪಠ್ಯ();
     }
-    string verilogKwd() const override { return "$sformatf"; }
-    string text() const { return m_text; }  // * = Text to display
-    void text(const string& text) { m_text = text; }
-    const char* broken() const override {
-        BROKEN_RTN(text() != "" && exprFormat());  // Expr format means no literal format
-        return nullptr;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$sformatf"; }
+    string ಪಠ್ಯ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಪಠ್ಯ; }  // * = Text to display
+    ಶೂನ್ಯ ಪಠ್ಯ(ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ) { m_ಪಠ್ಯ = ಪಠ್ಯ; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
+        BROKEN_RTN(ಪಠ್ಯ() != "" && ಅಭಿವ್ಯಕ್ತಿ_Format_2());  // Expr format means no literal format
+        ಹಿಂತಿರುಗಿ nullptr;
     }
-    bool formatScopeTracking() const {  // Track scopeNamep();  Ok if false positive
-        if (exprFormat() || name().find("%m") != string::npos || name().find("%M") != string::npos)
-            return true;
-        for (const AstNode* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
-            if (const AstConst* const fmtp = VN_CAST(exprp, Const)) {
-                if (fmtp->num().isFromString()) {
-                    const string str = fmtp->num().toString();
-                    if (str.find("%m") != string::npos || str.find("%M") != string::npos)
-                        return true;
+    bool formatScopeTracking() ಸ್ಥಿರಾಂಕ {  // Track scopeNamep();  Ok if false positive
+        ಆದರೆ (ಅಭಿವ್ಯಕ್ತಿ_Format_2() || name().ಕಂಡುಹಿಡಿ("%m") != string::npos || name().ಕಂಡುಹಿಡಿ("%M") != string::npos)
+            ಹಿಂತಿರುಗಿ true;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* exprp = this->exprsp(); exprp; exprp = exprp->nextp()) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ fmtp = VN_CAST(exprp, Const)) {
+                ಆದರೆ (fmtp->ಅಂಕೆ().isFromString()) {
+                    ಸ್ಥಿರಾಂಕ string str = fmtp->ಅಂಕೆ().ಗಮ್ಯ_String();
+                    ಆದರೆ (str.ಕಂಡುಹಿಡಿ("%m") != string::npos || str.ಕಂಡುಹಿಡಿ("%M") != string::npos)
+                        ಹಿಂತಿರುಗಿ true;
                 }
             }
         }
-        return false;
+        ಹಿಂತಿರುಗಿ false;
     }
-    bool hidden() const { return m_hidden; }
-    void hidden(bool flag) { m_hidden = flag; }
-    bool exprFormat() const { return m_exprFormat; }
-    void exprFormat(bool flag) { m_exprFormat = flag; }
-    bool optionalFormat() const { return m_optionalFormat; }
-    void optionalFormat(bool flag) { m_optionalFormat = flag; }
-    char missingArgChar() const { return m_missingArgChar; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool hidden() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_hidden; }
+    ಶೂನ್ಯ hidden(bool flag) { m_hidden = flag; }
+    bool ಅಭಿವ್ಯಕ್ತಿ_Format_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಅಭಿವ್ಯಕ್ತಿ_Format; }
+    ಶೂನ್ಯ ಅಭಿವ್ಯಕ್ತಿ_Format_2(bool flag) { m_ಅಭಿವ್ಯಕ್ತಿ_Format = flag; }
+    bool optionalFormat() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_optionalFormat; }
+    ಶೂನ್ಯ optionalFormat(bool flag) { m_optionalFormat = flag; }
+    ಅಕ್ಷರ missingArgChar() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_missingArgChar; }
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSGotoRep final : public AstNodeExpr {
+class AstSGotoRep final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Goto repetition: expr [-> count] or [-> count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2459,15 +2459,15 @@ class AstSGotoRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+ಸಾರ್ವಜನಿಕ:
     // Exact [->N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSGotoRep(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [->M:N]
-    AstSGotoRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSGotoRep(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* maxCountp)
         : ASTGEN_SUPER_SGotoRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2476,10 +2476,10 @@ public:
     ASTGEN_MEMBERS_AstSGotoRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSNonConsRep final : public AstNodeExpr {
+class AstSNonConsRep final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Nonconsecutive repetition: expr [= count] or [= count : maxCount]
     // IEEE 1800-2023 16.9.2
     // op1 := exprp -- the repeated expression
@@ -2488,15 +2488,15 @@ class AstSNonConsRep final : public AstNodeExpr {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := countp : AstNodeExpr
     // @astgen op3 := maxCountp : Optional[AstNodeExpr]
-public:
+ಸಾರ್ವಜನಿಕ:
     // Exact [=N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp)
+    AstSNonConsRep(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
     }
     // Range [=M:N]
-    AstSNonConsRep(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* countp, AstNodeExpr* maxCountp)
+    AstSNonConsRep(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* maxCountp)
         : ASTGEN_SUPER_SNonConsRep(fl) {
         this->exprp(exprp);
         this->countp(countp);
@@ -2505,89 +2505,89 @@ public:
     ASTGEN_MEMBERS_AstSNonConsRep;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSScanF final : public AstNodeExpr {
+class AstSScanF final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := exprsp : List[AstNodeExpr] // VarRefs for results
     // @astgen op2 := fromp : AstNodeExpr
-    string m_text;
+    string m_ಪಠ್ಯ;
     VTimescale m_timeunit;  // Parent module time unit
 
-public:
-    AstSScanF(FileLine* fl, const string& text, AstNodeExpr* fromp, AstNodeExpr* exprsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSScanF(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp)
         : ASTGEN_SUPER_SScanF(fl)
-        , m_text{text} {
-        addExprsp(exprsp);
+        , m_ಪಠ್ಯ{ಪಠ್ಯ} {
+        ಕೂಡಿಸು_Exprsp(exprsp);
         this->fromp(fromp);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_ಗಣ_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSScanF;
-    string name() const override VL_MT_STABLE { return m_text; }
-    string verilogKwd() const override { return "$sscanf"; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_ಪಠ್ಯ; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$sscanf"; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: makes output
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstSScanF* const asamep = VN_DBG_AS(samep, SScanF);
-        return text() == asamep->text() && timeunit() == asamep->timeunit();
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: makes output
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstSScanF* ಸ್ಥಿರಾಂಕ asamep = VN_DBG_AS(samep, SScanF);
+        ಹಿಂತಿರುಗಿ ಪಠ್ಯ() == asamep->ಪಠ್ಯ() && timeunit() == asamep->timeunit();
     }
-    string text() const { return m_text; }  // * = Text to display
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    bool isSystemFunc() const override { return true; }
+    string ಪಠ್ಯ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಪಠ್ಯ; }  // * = Text to display
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSampled final : public AstNodeExpr {
+class AstSampled final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $sampled
     // @astgen op1 := exprp : AstNode<AstNodeExpr|AstPropSpec>
-    bool m_internal : 1;  // Internally created, not from a source $sampled
-public:
-    AstSampled(FileLine* fl, AstNode* exprp, AstNodeDType* dtypep, bool internal = false)
+    bool m_ಆಂತರಿಕ : 1;  // Internally created, not from a source $sampled
+ಸಾರ್ವಜನಿಕ:
+    AstSampled(File_ಸಾಲು* fl, Ast_ಗಂಟು* exprp, Ast_ಗಂಟು_DType* dtypep, bool ಆಂತರಿಕ_2 = false)
         : ASTGEN_SUPER_Sampled(fl)
-        , m_internal{internal} {
+        , m_ಆಂತರಿಕ{ಆಂತರಿಕ_2} {
         this->exprp(exprp);
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstSampled;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string emitVerilog() override { return "$sampled(%l)"; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$sampled(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return 0; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_internal == VN_DBG_AS(samep, Sampled)->m_internal;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_ಆಂತರಿಕ == VN_DBG_AS(samep, Sampled)->m_ಆಂತರಿಕ;
     }
-    bool internal() const { return m_internal; }
-    bool isSystemFunc() const override { return true; }
+    bool ಆಂತರಿಕ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಆಂತರಿಕ; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstScopeName final : public AstNodeExpr {
+class AstScopeName final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // For display %m and DPI context imports
     // Parents:  AstSFormatF, AstNodeFTaskRef, AstNodeFTask, AstScope
     std::string m_scopeAttr;
     std::string m_scopeEntr;  // Scope path for the DPI import/export context name
     bool m_dpiExport = false;  // Is for dpiExport
     bool m_selfRelative = false;  // scopeAttr is the pretty path below the running instance
-    const bool m_forFormat;  // Is for a format %m
-    static std::string scopeNameFormatter(const std::string& text);
-    static std::string scopePrettyNameFormatter(const std::string& text);
+    ಸ್ಥಿರಾಂಕ bool m_forFormat;  // Is for a format %m
+    ಸ್ಥಿರ std::string scopeNameFormatter(ಸ್ಥಿರಾಂಕ std::string& ಪಠ್ಯ);
+    ಸ್ಥಿರ std::string scopePrettyNameFormatter(ಸ್ಥಿರಾಂಕ std::string& ಪಠ್ಯ);
 
-public:
+ಸಾರ್ವಜನಿಕ:
     class ForFormat {};
-    AstScopeName(FileLine* fl, bool forFormat)
+    AstScopeName(File_ಸಾಲು* fl, bool forFormat)
         : ASTGEN_SUPER_ScopeName(fl)
         , m_forFormat{forFormat} {
-        dtypeSetUInt64();
+        dtype_ಗಣ_UInt64();
     }
     ASTGEN_MEMBERS_AstScopeName;
-    bool sameNode(const AstNode* samep) const override {
-        const AstScopeName* const sp = VN_DBG_AS(samep, ScopeName);
-        return m_scopeAttr == sp->m_scopeAttr  //
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstScopeName* ಸ್ಥಿರಾಂಕ sp = VN_DBG_AS(samep, ScopeName);
+        ಹಿಂತಿರುಗಿ m_scopeAttr == sp->m_scopeAttr  //
                && m_scopeEntr == sp->m_scopeEntr  //
                && m_dpiExport == sp->m_dpiExport  //
                && m_selfRelative == sp->m_selfRelative  //
@@ -2595,305 +2595,305 @@ public:
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
     // ACCESSORS
-    const std::string& scopeAttr() const { return m_scopeAttr; }
-    void scopeAttr(const std::string& val) { m_scopeAttr = val; }
-    const std::string& scopeEntr() const { return m_scopeEntr; }
-    void scopeEntr(const std::string& val) { m_scopeEntr = val; }
-    bool dpiExport() const { return m_dpiExport; }
-    void dpiExport(bool flag) { m_dpiExport = flag; }
-    bool selfRelative() const { return m_selfRelative; }
-    void selfRelative(bool flag) { m_selfRelative = flag; }
-    bool forFormat() const { return m_forFormat; }
+    ಸ್ಥಿರಾಂಕ std::string& scopeAttr() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_scopeAttr; }
+    ಶೂನ್ಯ scopeAttr(ಸ್ಥಿರಾಂಕ std::string& val) { m_scopeAttr = val; }
+    ಸ್ಥಿರಾಂಕ std::string& scopeEntr() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_scopeEntr; }
+    ಶೂನ್ಯ scopeEntr(ಸ್ಥಿರಾಂಕ std::string& val) { m_scopeEntr = val; }
+    bool dpiExport() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dpiExport; }
+    ಶೂನ್ಯ dpiExport(bool flag) { m_dpiExport = flag; }
+    bool selfRelative() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_selfRelative; }
+    ಶೂನ್ಯ selfRelative(bool flag) { m_selfRelative = flag; }
+    bool forFormat() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_forFormat; }
     // Name for __Vscopep variable including children
-    string scopeSymName() const { return scopeNameFormatter(m_scopeAttr); }
+    string scopeSymName() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ scopeNameFormatter(m_scopeAttr); }
     // Name for DPI import scope
-    string scopeDpiName() const { return scopeNameFormatter(m_scopeEntr); }
+    string scopeDpiName() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ scopeNameFormatter(m_scopeEntr); }
     // Name for __Vscopep variable including children
-    string scopePrettySymName() const { return scopePrettyNameFormatter(m_scopeAttr); }
+    string scopePrettySymName() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ scopePrettyNameFormatter(m_scopeAttr); }
     // Name for __Vscopep variable including children
-    string scopePrettyDpiName() const { return scopePrettyNameFormatter(m_scopeEntr); }
+    string scopePrettyDpiName() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ scopePrettyNameFormatter(m_scopeEntr); }
 };
-class AstStable final : public AstNodeExpr {
+class AstStable final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $stable
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := sentreep : Optional[AstSenTree]
-public:
-    AstStable(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep)
+ಸಾರ್ವಜನಿಕ:
+    AstStable(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_Sen_ವೃಕ್ಷ* sentreep)
         : ASTGEN_SUPER_Stable(fl) {
         this->exprp(exprp);
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstStable;
-    string emitVerilog() override { return "$stable(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$stable(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstStackTraceF final : public AstNodeExpr {
+class Ast_ರಾಶಿ_Trace_F final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // $stacktrace used as function
-public:
-    explicit AstStackTraceF(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceF(fl) {
-        dtypeSetString();
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ರಾಶಿ_Trace_F(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ರಾಶಿ_Trace_F(fl) {
+        dtype_ಗಣ_String();
     }
-    ASTGEN_MEMBERS_AstStackTraceF;
-    string verilogKwd() const override { return "$stacktrace"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_STACKTRACE_N()"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_ರಾಶಿ_Trace_F;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$stacktrace"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ verilogKwd(); }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_STACKTRACE_N()"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSteady final : public AstNodeExpr {
+class AstSteady final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $steady_gclk
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstSteady(FileLine* fl, AstNodeExpr* exprp)
+ಸಾರ್ವಜನಿಕ:
+    AstSteady(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
         : ASTGEN_SUPER_Steady(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstSteady;
-    string emitVerilog() override { return "$steady_gclk(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$steady_gclk(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstStructSel final : public AstNodeExpr {
+class AstStructSel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Unpacked struct/union member access
     // Parents: math|stmt
     // Children: varref, math
     // @astgen op1 := fromp : AstNodeExpr
     string m_name;  // Name of the member
-public:
-    AstStructSel(FileLine* fl, AstNodeExpr* fromp, const string& name)
+ಸಾರ್ವಜನಿಕ:
+    AstStructSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, ಸ್ಥಿರಾಂಕ string& name)
         : ASTGEN_SUPER_StructSel(fl)
         , m_name{name} {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
     ASTGEN_MEMBERS_AstStructSel;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override {
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override {
         // Not a union
-        return VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
+        ಹಿಂತಿರುಗಿ VN_IS(fromp()->dtypep()->skipRefp(), StructDType);
     }
-    bool sameNode(const AstNode* samep) const override {
-        const AstStructSel* const sp = VN_DBG_AS(samep, StructSel);
-        return m_name == sp->m_name;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ sp = VN_DBG_AS(samep, StructSel);
+        ಹಿಂತಿರುಗಿ m_name == sp->m_name;
     }
-    int instrCount() const override { return widthInstrs(); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstSysIgnore final : public AstNodeExpr {
+class AstSysIgnore final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // @astgen op1 := exprsp : List[AstNodeExpr] // Expressions to output (???)
-public:
-    AstSysIgnore(FileLine* fl, AstNodeExpr* exprsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSysIgnore(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp)
         : ASTGEN_SUPER_SysIgnore(fl) {
-        addExprsp(exprsp);
+        ಕೂಡಿಸು_Exprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstSysIgnore;
-    string verilogKwd() const override { return "$ignored"; }
-    bool isGateOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPure() override { return false; }  // Though deleted before opt
-    bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$ignored"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Though deleted before opt
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Though deleted before opt
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // Though deleted before opt
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // Though deleted before opt
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstSystemF final : public AstNodeExpr {
+class AstSystemF final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // $system used as function
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstSystemF(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSystemF(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_SystemF(fl) {
         this->lhsp(lhsp);
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_ಗಣ_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstSystemF;
-    string verilogKwd() const override { return "$system"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_SYSTEM_%nq(%lw, %P)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isSystemFunc() const override { return true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$system"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ verilogKwd(); }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SYSTEM_%nq(%lw, %P)"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstTaggedExpr final : public AstNodeExpr {
+class Ast_Tagged_ಅಭಿವ್ಯಕ್ತಿ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Tagged union expression: "tagged MemberName [expr]"
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Optional value expression
     string m_name;  // Member identifier name
-public:
-    AstTaggedExpr(FileLine* fl, const string& name, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_TaggedExpr(fl)
+ಸಾರ್ವಜನಿಕ:
+    Ast_Tagged_ಅಭಿವ್ಯಕ್ತಿ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
+        : ASTGEN_SUPER_Tagged_ಅಭಿವ್ಯಕ್ತಿ(fl)
         , m_name{name} {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstTaggedExpr;
-    string emitVerilog() override { return "tagged %k"; }
+    ASTGEN_MEMBERS_Ast_Tagged_ಅಭಿವ್ಯಕ್ತಿ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedExpr)->m_name;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_name == VN_DBG_AS(samep, Tagged_ಅಭಿವ್ಯಕ್ತಿ)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
 };
-class AstTaggedPattern final : public AstNodeExpr {
+class Ast_Tagged_ನಮೂನೆ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Tagged pattern for matches: "tagged MemberName [pattern]"
     // @astgen op1 := patternp : Optional[AstNode]  // Optional nested pattern
     string m_name;  // Member identifier name
-public:
-    AstTaggedPattern(FileLine* fl, const string& name, AstNode* patternp)
-        : ASTGEN_SUPER_TaggedPattern(fl)
+ಸಾರ್ವಜನಿಕ:
+    Ast_Tagged_ನಮೂನೆ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು* patternp)
+        : ASTGEN_SUPER_Tagged_ನಮೂನೆ(fl)
         , m_name{name} {
         this->patternp(patternp);
     }
-    ASTGEN_MEMBERS_AstTaggedPattern;
-    string emitVerilog() override { return "tagged %k"; }
+    ASTGEN_MEMBERS_Ast_Tagged_ನಮೂನೆ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "tagged %k"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_name == VN_DBG_AS(samep, TaggedPattern)->m_name;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_name == VN_DBG_AS(samep, Tagged_ನಮೂನೆ)->m_name;
     }
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
 };
-class AstTestPlusArgs final : public AstNodeExpr {
+class Ast_Test_Plus_ವಾದಗಳು final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
-public:
-    AstTestPlusArgs(FileLine* fl, AstNodeExpr* searchp)
-        : ASTGEN_SUPER_TestPlusArgs(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Test_Plus_ವಾದಗಳು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* searchp)
+        : ASTGEN_SUPER_Test_Plus_ವಾದಗಳು(fl) {
         this->searchp(searchp);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
-    ASTGEN_MEMBERS_AstTestPlusArgs;
-    string verilogKwd() const override { return "$test$plusargs"; }
-    string emitVerilog() override { return verilogKwd(); }
-    string emitC() override { return "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
+    ASTGEN_MEMBERS_Ast_Test_Plus_ವಾದಗಳು;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$test$plusargs"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ verilogKwd(); }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_VALUEPLUSARGS_%nq(%lw, %P, nullptr)"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
     // but isPure() true
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstThisRef final : public AstNodeExpr {
+class AstThisRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Reference to 'this'.
     // @astgen op1 := childDTypep : Optional[AstClassRefDType] // dtype of the node
-public:
-    AstThisRef(FileLine* fl, VFlagChildDType, AstClassRefDType* dtypep)
+ಸಾರ್ವಜನಿಕ:
+    AstThisRef(File_ಸಾಲು* fl, VFlag_ಮಗು_DType, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
-        childDTypep(dtypep);
+        ಮಗು_DTypep(dtypep);
     }
-    AstThisRef(FileLine* fl, AstClassRefDType* dtypep)
+    AstThisRef(File_ಸಾಲು* fl, AstClassRefDType* dtypep)
         : ASTGEN_SUPER_ThisRef(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstThisRef;
-    string emitC() override { return "this"; }
-    string emitVerilog() override { return "this"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool cleanOut() const override { return true; }
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
+    string emitC() override { ಹಿಂತಿರುಗಿ "this"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "this"; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    Ast_ಗಂಟು_DType* get_ಮಗು_DTypep() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಮಗು_DTypep(); }
 };
-class AstTimePrecision final : public AstNodeExpr {
+class Ast_ಸಮಯ_Precision final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Verilog $timeprecision
-public:
-    explicit AstTimePrecision(FileLine* fl)
-        : ASTGEN_SUPER_TimePrecision(fl) {
-        dtypeSetInteger2State();
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ಸಮಯ_Precision(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ಸಮಯ_Precision(fl) {
+        dtype_ಗಣ_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstTimePrecision;
-    string emitVerilog() override { return "$timeprecision"; }
+    ASTGEN_MEMBERS_Ast_ಸಮಯ_Precision;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$timeprecision"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstTimeUnit final : public AstNodeExpr {
+class Ast_ಸಮಯ_Unit final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     VTimescale m_timeunit;  // Parent module time unit
     // Verilog $timeunit
-public:
-    explicit AstTimeUnit(FileLine* fl)
-        : ASTGEN_SUPER_TimeUnit(fl) {
-        dtypeSetInteger2State();
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ಸಮಯ_Unit(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ಸಮಯ_Unit(fl) {
+        dtype_ಗಣ_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstTimeUnit;
-    string emitVerilog() override { return "$timeunit"; }
+    ASTGEN_MEMBERS_Ast_ಸಮಯ_Unit;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$timeunit"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTriggered final : public AstNodeExpr {
+class AstTriggered final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // True if any of the triggers at 'm_indices' are set in 'trigRefp'.
     // Explicit form of the trigger check, so the triggers tested can be recovered directly.
     // @astgen op1 := trigRefp : AstVarRef  // Reference to the trigger vector
-    const std::vector<uint32_t> m_indices;  // Indices of the triggers tested
-public:
-    AstTriggered(FileLine* fl, AstVarScope* trigVscp, const std::vector<uint32_t>& indices);
+    ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<uint32_t> m_indices;  // Indices of the triggers tested
+ಸಾರ್ವಜನಿಕ:
+    AstTriggered(File_ಸಾಲು* fl, AstVarScope* trigVscp, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<uint32_t>& indices);
     ASTGEN_MEMBERS_AstTriggered;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_indices == VN_DBG_AS(samep, Triggered)->m_indices;
     }
-    const std::vector<uint32_t>& indices() const { return m_indices; }
+    ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<uint32_t>& indices() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_indices; }
 };
-class AstUnbounded final : public AstNodeExpr {
+class AstUnbounded final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // A $ in the parser, used for unbounded and queues
     // Due to where is used, treated as int
-public:
-    explicit AstUnbounded(FileLine* fl)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstUnbounded(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_Unbounded(fl) {
-        dtypeSetInt();
+        dtype_ಗಣ_Int();
     }
     ASTGEN_MEMBERS_AstUnbounded;
-    string emitVerilog() override { return "$"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstUnlinkedRef final : public AstNodeExpr {
+class AstUnlinkedRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // As-of-yet unlinkable Ref
     // @astgen op1 := refp : AstNode
     // @astgen op2 := cellrefp : AstNode
 
     string m_name;  // Var name // TODO: There is no way to access this, fix or remove
-public:
-    AstUnlinkedRef(FileLine* fl, AstNode* refp, const string& name, AstNode* cellrefp)
+ಸಾರ್ವಜನಿಕ:
+    AstUnlinkedRef(File_ಸಾಲು* fl, Ast_ಗಂಟು* refp, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು* cellrefp)
         : ASTGEN_SUPER_UnlinkedRef(fl)
         , m_name{name} {
         this->refp(refp);
@@ -2903,17 +2903,17 @@ public:
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstUntil final : public AstNodeExpr {
+class AstUntil final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // The until property expression
     // @astgen op1 := lhsp : AstNodeExpr
     // @astgen op2 := rhsp : AstNodeExpr
 
-    const bool m_strong;  // 's_' preffix
-    const bool m_overlapping;  // '_with` suffix
-public:
-    AstUntil(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool strong, bool overlapping)
+    ಸ್ಥಿರಾಂಕ bool m_strong;  // 's_' preffix
+    ಸ್ಥಿರಾಂಕ bool m_overlapping;  // '_with` suffix
+ಸಾರ್ವಜನಿಕ:
+    AstUntil(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, bool strong, bool overlapping)
         : ASTGEN_SUPER_Until(fl)
         , m_strong{strong}
         , m_overlapping{overlapping} {
@@ -2921,46 +2921,46 @@ public:
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstUntil;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    string verilogKwd() const override {
-        return (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ (isStrong() ? "s_" : string()) + "until" + (isOverlapping() ? "_with" : "");
     }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isMultiCycleSva() const override { return true; }
-    bool isStrong() const { return m_strong; }
-    bool isOverlapping() const { return m_overlapping; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isStrong() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_strong; }
+    bool isOverlapping() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_overlapping; }
 };
-class AstValuePlusArgs final : public AstNodeExpr {
+class Ast_ಮೌಲ್ಯ_Plus_ವಾದಗಳು final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // Search expression. If nullptr then this is a $test$plusargs instead of $value$plusargs.
     // @astgen op1 := searchp : Optional[AstNodeExpr]
     // @astgen op2 := outp : AstNodeExpr // VarRef for result
-public:
-    AstValuePlusArgs(FileLine* fl, AstNodeExpr* searchp, AstNodeExpr* outp)
-        : ASTGEN_SUPER_ValuePlusArgs(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಮೌಲ್ಯ_Plus_ವಾದಗಳು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* searchp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* outp)
+        : ASTGEN_SUPER_ಮೌಲ್ಯ_Plus_ವಾದಗಳು(fl) {
         this->searchp(searchp);
         this->outp(outp);
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
-    ASTGEN_MEMBERS_AstValuePlusArgs;
-    string verilogKwd() const override { return "$value$plusargs"; }
-    string emitVerilog() override { return "%f$value$plusargs(%l, %k%r)"; }
+    ASTGEN_MEMBERS_Ast_ಮೌಲ್ಯ_Plus_ವಾದಗಳು;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$value$plusargs"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$value$plusargs(%l, %k%r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !outp(); }
-    bool isSystemFunc() const override { return true; }
-    bool cleanOut() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ !outp(); }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstWithParse final : public AstNodeExpr {
+class AstWithParse final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ {
     // In early parse, FUNC(index) WITH equation-using-index
     // Replaced with AstWith
     // Parents: expr|stmt
@@ -2968,54 +2968,54 @@ class AstWithParse final : public AstNodeExpr {
     // @astgen op1 := funcrefp : AstNodeExpr
     // @astgen op3 := exprsp : List[AstNodeExpr]  // With's parenthesis part
     // @astgen op4 := constraintsp : List[AstNode]  // With's braces part
-private:
+ಖಾಸಗಿ:
     // True for the 'with (identifier_list) {...}' form, including 'with () {...}'.
     bool m_restricted = false;
 
-public:
-    AstWithParse(FileLine* fl, AstNodeExpr* funcrefp, AstNodeExpr* exprsp,
-                 AstNode* constraintsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstWithParse(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* funcrefp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp,
+                 Ast_ಗಂಟು* constraintsp = nullptr)
         : ASTGEN_SUPER_WithParse(fl) {
         this->funcrefp(funcrefp);
-        addExprsp(exprsp);
-        addConstraintsp(constraintsp);
+        ಕೂಡಿಸು_Exprsp(exprsp);
+        ಕೂಡಿಸು_Constraintsp(constraintsp);
     }
     ASTGEN_MEMBERS_AstWithParse;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool restricted() const { return m_restricted; }
-    void restricted(bool flag) { m_restricted = flag; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool restricted() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_restricted; }
+    ಶೂನ್ಯ restricted(bool flag) { m_restricted = flag; }
 
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
 
 // === AstNodeBiop ===
-class AstBufIf1 final : public AstNodeBiop {
+class AstBufIf1 final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // lhs is enable, rhs is data to drive
     // Note unlike the Verilog bufif1() UDP, this allows any width; each lhsp
     // bit enables respective rhsp bit
-public:
-    AstBufIf1(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstBufIf1(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_BufIf1(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstBufIf1;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opBufIf1(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opBufIf1(lhs, rhs);
     }
-    string emitVerilog() override { return "bufif(%r,%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "bufif(%r,%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanOut() const override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(""); }  // Lclean || Rclean
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstCastDynamic final : public AstNodeBiop {
+class AstCastDynamic final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Verilog $cast used as a function
     // Task usage of $cast is converted during parse to assert($cast(...))
     // lhsp() is value (we are converting FROM) to match AstCCast etc, this
@@ -3023,3524 +3023,3524 @@ class AstCastDynamic final : public AstNodeBiop {
     // value reading from.  Suggest use fromp()/top() instead of lhsp/rhsp().
     // @astgen alias op1 := fromp
     // @astgen alias op2 := top
-public:
-    AstCastDynamic(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstCastDynamic(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_CastDynamic(fl, lhsp, rhsp) {
-        dtypeSetBitUnsized(32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_ಬಿಟ್_Unsized(32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
                            VSigning::SIGNED);  // Spec says int return
     }
     ASTGEN_MEMBERS_AstCastDynamic;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
         V3ERROR_NA;
     }
-    string emitVerilog() override { return "%f$cast(%r, %l)"; }
-    string emitC() override { return "VL_DYNAMIC_CAST(%r, %l)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 20; }
-    bool isPure() override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$cast(%r, %l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DYNAMIC_CAST(%r, %l)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 20; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstCompareNN final : public AstNodeBiop {
+class AstCompareNN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Verilog str.compare() and str.icompare()
-    const bool m_ignoreCase;  // True for str.icompare()
-public:
-    AstCompareNN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool ignoreCase)
+    ಸ್ಥಿರಾಂಕ bool m_ignoreCase;  // True for str.icompare()
+ಸಾರ್ವಜನಿಕ:
+    AstCompareNN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, bool ignoreCase)
         : ASTGEN_SUPER_CompareNN(fl, lhsp, rhsp)
         , m_ignoreCase{ignoreCase} {
-        dtypeSetInt();
+        dtype_ಗಣ_Int();
     }
     ASTGEN_MEMBERS_AstCompareNN;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opCompareNN(lhs, rhs, m_ignoreCase);
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opCompareNN(lhs, rhs, m_ignoreCase);
     }
-    string name() const override VL_MT_STABLE { return m_ignoreCase ? "icompare" : "compare"; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_ignoreCase ? "icompare" : "compare"; }
     string emitVerilog() override {
-        return m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
+        ಹಿಂತಿರುಗಿ m_ignoreCase ? "%k(%l.icompare(%r))" : "%k(%l.compare(%r))";
     }
     string emitC() override {
-        return m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
+        ಹಿಂತಿರುಗಿ m_ignoreCase ? "VL_CMP_NN(%li,%ri,true)" : "VL_CMP_NN(%li,%ri,false)";
     }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool ignoreCase() const { return m_ignoreCase; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ignoreCase() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ignoreCase; }
 };
-class AstConcat final : public AstNodeBiop {
+class AstConcat final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // If you're looking for {#{}}, see AstReplicate
     // @astgen makeDfgVertex
-public:
-    AstConcat(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstConcat(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Concat(fl, lhsp, rhsp) {
-        if (lhsp->dtypep() && rhsp->dtypep()) {
-            dtypeSetBitOrLogicSized(lhsp->dtypep()->width() + rhsp->dtypep()->width(),
+        ಆದರೆ (lhsp->dtypep() && rhsp->dtypep()) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Sized(lhsp->dtypep()->ಅಗಲ() + rhsp->dtypep()->ಅಗಲ(),
                                     VSigning::UNSIGNED, isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
     ASTGEN_MEMBERS_AstConcat;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opConcat(lhs, rhs);
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f{%l, %k%r}"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opConcat(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(concat %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_CONCAT_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(concat %l %r)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 2; }
 };
-class AstConcatN final : public AstNodeBiop {
+class AstConcatN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // String concatenate
-public:
-    AstConcatN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstConcatN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_ConcatN(fl, lhsp, rhsp) {
-        dtypeSetString();
+        dtype_ಗಣ_String();
     }
     ASTGEN_MEMBERS_AstConcatN;
-    string emitVerilog() override { return "%f{%l, %k%r}"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opConcatN(lhs, rhs);
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f{%l, %k%r}"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opConcatN(lhs, rhs);
     }
-    string emitC() override { return "VL_CONCATN_NNN(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_CONCATN_NNN(%li, %ri)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstDiv final : public AstNodeBiop {
+class AstDiv final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstDiv(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Div(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opDiv(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvudiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f/ %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvudiv %l %r)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_DIV; }
 };
-class AstDivD final : public AstNodeBiop {
-public:
-    AstDivD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDivD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstDivD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_DivD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
     ASTGEN_MEMBERS_AstDivD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opDivD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opDivD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f/ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "/"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "/"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL_DIV; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstDivS final : public AstNodeBiop {
+class AstDivS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstDivS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_DivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opDivS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f/ %r)"; }
-    string emitC() override { return "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsdiv %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f/ %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvsdiv %l %r)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_DIV; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstEqWild final : public AstNodeBiop {
+class AstEqWild final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Note wildcard operator rhs differs from lhs
     // @astgen makeDfgVertex
-public:
-    AstEqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstEqWild(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_EqWild(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstEqWild;
     // Return AstEqWild/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opWildEq(lhs, rhs);
+    ಸ್ಥಿರ Ast_ಗಂಟು_Biop* newTyped(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opWildEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f==? %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f==? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        ಆದರೆ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_EQ_%lq(%lW, %P, %li, %ri)";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಹಿಂತಿರುಗಿ "VL_EQ_%lq(%lW, %P, %li, %ri)";
         }
     }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (= %l %r))"; }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        ಆದರೆ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "==";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಹಿಂತಿರುಗಿ "==";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstFGetS final : public AstNodeBiop {
+class AstFGetS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen alias op1 := strgp
     // @astgen alias op2 := filep
-public:
-    AstFGetS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstFGetS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_FGetS(fl, lhsp, rhsp) {
-        dtypeSetInteger2State();  // Spec says integer return
+        dtype_ಗಣ_Integer2_State();  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetS;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgets(%l,%r)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$fgets(%l,%r)"; }
     string emitC() override {
-        return strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
+        ಹಿಂತಿರುಗಿ strgp()->dtypep()->basicp()->isString() ? "VL_FGETS_NI(%li, %ri)"
                                                        : "VL_FGETS_%nqX%rq(%lw, %P, &(%li), %ri)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 64; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
 };
-class AstFUngetC final : public AstNodeBiop {
-public:
-    AstFUngetC(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstFUngetC final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstFUngetC(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_FUngetC(fl, lhsp, rhsp) {
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFUngetC;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$ungetc(%r, %l)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$ungetc(%r, %l)"; }
     // Non-existent filehandle returns EOF
     string emitC() override {
-        return "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
+        ಹಿಂತಿರುಗಿ "(%li ? (ungetc(%ri, VL_CVT_I_FP(%li)) >= 0 ? 0 : -1) : -1)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    AstNode* charp() const { return rhsp(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 64; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_ಗಂಟು* filep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ lhsp(); }
+    Ast_ಗಂಟು* charp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ rhsp(); }
 };
-class AstGetcN final : public AstNodeBiop {
+class AstGetcN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Verilog string.getc()
-public:
-    AstGetcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstGetcN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GetcN(fl, lhsp, rhsp) {
-        dtypeSetBitSized(8, VSigning::UNSIGNED);
+        dtype_ಗಣ_ಬಿಟ್_Sized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGetcN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGetcN(lhs, rhs);
     }
-    string name() const override VL_MT_STABLE { return "getc"; }
-    string emitVerilog() override { return "%k(%l.getc(%r))"; }
-    string emitC() override { return "VL_GETC_N(%li,%ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ "getc"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l.getc(%r))"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_GETC_N(%li,%ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstGetcRefN final : public AstNodeBiop {
+class AstGetcRefN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Verilog string[#] on the left-hand-side of assignment
     // Spec says is of type byte (not string of single character)
-public:
-    AstGetcRefN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstGetcRefN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GetcRefN(fl, lhsp, rhsp) {
-        dtypeSetBitSized(8, VSigning::UNSIGNED);
+        dtype_ಗಣ_ಬಿಟ್_Sized(8, VSigning::UNSIGNED);
     }
     ASTGEN_MEMBERS_AstGetcRefN;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k%l[%r]"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k%l[%r]"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstGt final : public AstNodeBiop {
+class AstGt final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstGt(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Gt(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGt(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvugt %l %r))"; }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f> %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_GT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvugt %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ">"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstGtD final : public AstNodeBiop {
-public:
-    AstGtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstGtD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GtD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstGtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGtD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ">"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstGtN final : public AstNodeBiop {
-public:
-    AstGtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGtN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstGtN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GtN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstGtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGtN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f> %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ">"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstGtS final : public AstNodeBiop {
+class AstGtS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstGtS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GtS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGtS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f> %r)"; }
-    string emitC() override { return "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsgt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f> %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_GTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvsgt %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstGte final : public AstNodeBiop {
+class AstGte final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstGte(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Gte(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGte(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvuge %l %r))"; }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>= %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_GTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvuge %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ">="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstGteD final : public AstNodeBiop {
-public:
-    AstGteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstGteD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GteD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstGteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGteD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ">="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstGteN final : public AstNodeBiop {
-public:
-    AstGteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstGteN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstGteN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GteN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstGteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGteN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return ">="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ">="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstGteS final : public AstNodeBiop {
+class AstGteS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstGteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstGteS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_GteS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstGteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opGteS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opGteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>= %r)"; }
-    string emitC() override { return "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsge %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>= %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_GTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvsge %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstLogAnd final : public AstNodeBiop {
+class AstLogAnd final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLogAnd(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LogAnd(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f&& %r)"; }
-    string emitC() override { return "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&&"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f&& %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LOGAND_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvand %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "&&"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstLogIf final : public AstNodeBiop {
+class AstLogIf final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogIf(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLogIf(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LogIf(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogIf;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogIf(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogIf(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f-> %r)"; }
-    string emitC() override { return "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
-    string emitSimpleOperator() override { return "->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f-> %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LOGIF_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (=> (__Vbool %l) (__Vbool %r)))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "->"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstLogOr final : public AstNodeBiop {
+class AstLogOr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLogOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLogOr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LogOr(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogOr(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f|| %r)"; }
-    string emitC() override { return "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "||"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f|| %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LOGOR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvor %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "||"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstLt final : public AstNodeBiop {
+class AstLt final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLt(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLt(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Lt(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLt;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLt(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLt(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LT_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvult %l %r))"; }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f< %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LT_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvult %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "<"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstLtD final : public AstNodeBiop {
-public:
-    AstLtD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstLtD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LtD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstLtD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLtD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLtD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "<"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstLtN final : public AstNodeBiop {
-public:
-    AstLtN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLtN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstLtN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LtN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstLtN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLtN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLtN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f< %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "<"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstLtS final : public AstNodeBiop {
+class AstLtS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLtS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLtS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LtS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLtS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLtS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLtS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f< %r)"; }
-    string emitC() override { return "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvslt %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f< %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LTS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvslt %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstLte final : public AstNodeBiop {
+class AstLte final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLte(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLte(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Lte(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLte;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLte(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLte(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvule %l %r))"; }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f<= %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LTE_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvule %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "<="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstLteD final : public AstNodeBiop {
-public:
-    AstLteD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstLteD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LteD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstLteD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLteD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLteD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "<="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstLteN final : public AstNodeBiop {
-public:
-    AstLteN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstLteN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstLteN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LteN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstLteN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLteN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLteN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f<= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "<="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "<="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstLteS final : public AstNodeBiop {
+class AstLteS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstLteS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLteS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LteS(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLteS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLteS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLteS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<= %r)"; }
-    string emitC() override { return "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (bvsle %l %r))"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f<= %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LTES_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (bvsle %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstModDiv final : public AstNodeBiop {
+class AstModDiv final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDiv(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstModDiv(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_ModDiv(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDiv;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opModDiv(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opModDiv(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvurem %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f%% %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_MODDIV_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvurem %l %r)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_DIV; }
 };
-class AstModDivS final : public AstNodeBiop {
+class AstModDivS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstModDivS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstModDivS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_ModDivS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstModDivS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opModDivS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opModDivS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f%% %r)"; }
-    string emitC() override { return "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsmod %l %r)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_DIV; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f%% %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_MODDIVS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvsmod %l %r)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_DIV; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNeqWild final : public AstNodeBiop {
+class AstNeqWild final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstNeqWild(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNeqWild(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_NeqWild(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstNeqWild;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opWildNeq(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opWildNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!=? %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f!=? %r)"; }
     string emitC() override {
-        if (v3Global.opt.fourstate()) {
+        ಆದರೆ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "VL_NEQ_%lq(%lW, %P, %li, %ri)";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಹಿಂತಿರುಗಿ "VL_NEQ_%lq(%lW, %P, %li, %ri)";
         }
     }
     string emitSimpleOperator() override {
-        if (v3Global.opt.fourstate()) {
+        ಆದರೆ (v3Global.opt.fourstate()) {
             V3ERROR_NA_RETURN("");
-        } else {
-            return "!=";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಹಿಂತಿರುಗಿ "!=";
         }
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstPow final : public AstNodeBiop {
+class AstPow final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPow(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPow(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Pow(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPow;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPow(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opPow(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f** %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_POW_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_MUL * 10; }
 };
-class AstPowD final : public AstNodeBiop {
-public:
-    AstPowD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstPowD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstPowD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_PowD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
     ASTGEN_MEMBERS_AstPowD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opPowD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "pow(%li,%ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL_DIV * 5; }
-    bool doubleFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f** %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "pow(%li,%ri)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL_DIV * 5; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstPowSS final : public AstNodeBiop {
+class AstPowSS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPowSS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_PowSS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowSS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opPowSS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f** %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,1)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_MUL * 10; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstPowSU final : public AstNodeBiop {
+class AstPowSU final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowSU(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPowSU(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_PowSU(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowSU;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowSU(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opPowSU(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f** %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 1,0)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_MUL * 10; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstPowUS final : public AstNodeBiop {
+class AstPowUS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstPowUS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPowUS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_PowUS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstPowUS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opPowUS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opPowUS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f** %r)"; }
-    string emitC() override { return "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL * 10; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f** %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_POWSS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri, 0,1)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_MUL * 10; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstReplicate final : public AstNodeBiop {
+class AstReplicate final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Also used as a "Uniop" flavor of Concat, e.g. "{a}"
     // Verilog {rhs{lhs}} - Note rhsp() is the replicate value, not the lhsp()
     // @astgen alias op1 := srcp
     // @astgen alias op2 := countp
-public:
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstReplicate(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Replicate(fl, lhsp, rhsp) {
-        if (lhsp) {
-            if (const AstConst* const constp = VN_CAST(rhsp, Const)) {
-                if (constp->num().isFourState()
-                    || (constp->dtypep()->isSigned() && constp->num().isNegative())) {
-                    dtypeSetBitOrLogicSized(lhsp->width(), VSigning::UNSIGNED,
+        ಆದರೆ (lhsp) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(rhsp, Const)) {
+                ಆದರೆ (constp->ಅಂಕೆ().isFourState()
+                    || (constp->dtypep()->isSigned() && constp->ಅಂಕೆ().isNegative())) {
+                    dtype_ಗಣ_ಬಿಟ್_Or_Logic_Sized(lhsp->ಅಗಲ(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());  // V3Width warns
-                } else {
-                    dtypeSetBitOrLogicSized(lhsp->width() * constp->toSInt(), VSigning::UNSIGNED,
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    dtype_ಗಣ_ಬಿಟ್_Or_Logic_Sized(lhsp->ಅಗಲ() * constp->ಗಮ್ಯ_SInt(), VSigning::UNSIGNED,
                                             lhsp->isFourstateOrNoDtype());
                 }
             }
         }
     }
-    AstReplicate(FileLine* fl, AstNodeExpr* lhsp, uint32_t repCount)
-        : AstReplicate{fl, lhsp, new AstConst{fl, repCount}} {}
+    AstReplicate(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, uint32_t rep_ಎಣಿಕೆ)
+        : AstReplicate{fl, lhsp, new AstConst{fl, rep_ಎಣಿಕೆ}} {}
     ASTGEN_MEMBERS_AstReplicate;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opRepl(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opRepl(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override {
-        return "((_ repeat " + cvtToStr(width() / lhsp()->width()) + ") %l)";
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f{%r{%k%l}}"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_REPLICATE_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ "((_ repeat " + cvt_ಗಮ್ಯ_Str(ಅಗಲ() / lhsp()->ಅಗಲ()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 2; }
 };
-class AstReplicateN final : public AstNodeBiop {
+class AstReplicateN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // String replicate
-public:
-    AstReplicateN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstReplicateN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_ReplicateN(fl, lhsp, rhsp) {
-        dtypeSetString();
+        dtype_ಗಣ_String();
     }
     ASTGEN_MEMBERS_AstReplicateN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opReplN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opReplN(lhs, rhs);
     }
-    string emitVerilog() override { return "%f{%r{%k%l}}"; }
-    string emitC() override { return "VL_REPLICATEN_NN%rq(%li, %ri)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
-    bool stringFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f{%r{%k%l}}"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_REPLICATEN_NN%rq(%li, %ri)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 2; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSAnd final : public AstNodeBiop {
+class AstSAnd final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Sequence 'and' (IEEE 1800-2023 16.9.5): both operand sequences must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogAnd.
-    const bool m_propertyControl;  // Parser-generated property if/case branch conjunction
-public:
-    AstSAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, bool propertyControl = false)
+    ಸ್ಥಿರಾಂಕ bool m_propertyControl;  // Parser-generated property if/case branch conjunction
+ಸಾರ್ವಜನಿಕ:
+    AstSAnd(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, bool propertyControl = false)
         : ASTGEN_SUPER_SAnd(fl, lhsp, rhsp)
         , m_propertyControl{propertyControl} {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstSAnd;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fand %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %fand %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_LINE
-        return m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {  // LCOV_EXCL_LINE
+        ಹಿಂತಿರುಗಿ m_propertyControl == VN_DBG_AS(samep, SAnd)->m_propertyControl;  // LCOV_EXCL_LINE
     }
-    bool propertyControl() const { return m_propertyControl; }
+    bool propertyControl() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_propertyControl; }
 };
-class AstSIntersect final : public AstNodeBiop {
+class AstSIntersect final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Sequence 'intersect' (IEEE 1800-2023 16.9.6): both operands match with equal length.
     // AND with a length restriction. For boolean operands, lowered to AstLogAnd.
-public:
-    AstSIntersect(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSIntersect(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_SIntersect(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstSIntersect;
     // LCOV_EXCL_START  // Lowered before these are ever called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fintersect %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %fintersect %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSOr final : public AstNodeBiop {
+class AstSOr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Sequence 'or' (IEEE 1800-2023 16.9.7): at least one operand sequence must match.
     // Operates on match sets, not values. For boolean operands, lowered to AstLogOr.
-public:
-    AstSOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSOr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_SOr(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstSOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogOr(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %for %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %for %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isMultiCycleSva() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSThroughout final : public AstNodeBiop {
+class AstSThroughout final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // expr throughout seq (IEEE 1800-2023 16.9.9)
-public:
-    AstSThroughout(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSThroughout(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_SThroughout(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstSThroughout;
     // LCOV_EXCL_START // Lowered in V3AssertProp before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fthroughout %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %fthroughout %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSWithin final : public AstNodeBiop {
+class AstSWithin final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // seq1 within seq2 (IEEE 1800-2023 16.9.10)
-public:
-    AstSWithin(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSWithin(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_SWithin(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstSWithin;
     // LCOV_EXCL_START  // Lowered in V3AssertNfa before these are called
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogAnd(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %fwithin %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %fwithin %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
     // LCOV_EXCL_STOP
-    bool isMultiCycleSva() const override { return true; }
+    bool is_Multi_ಚಕ್ರ_Sva() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSel final : public AstNodeBiop {
+class AstSel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // *Resolved* (tyep checked) multiple bit range extraction. Always const width
     // @astgen alias op1 := fromp
     // @astgen alias op2 := lsbp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-    int m_declElWidth;  // If a packed array, the number of bits per element
+    ಪೂರ್ಣಾಂಕ m_decl_El_ಅಗಲ;  // If a packed array, the number of bits per element
     // Selection width (!= this->width() from V3Clean onwards, != this->widthMin() in V3Width)
-    int m_widthConst;
+    ಪೂರ್ಣಾಂಕ m_ಅಗಲ_Const;
 
-public:
-    AstSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* lsbp, int bitwidth)
+ಸಾರ್ವಜನಿಕ:
+    AstSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lsbp, ಪೂರ್ಣಾಂಕ bitwidth)
         : ASTGEN_SUPER_Sel(fl, fromp, lsbp)
-        , m_declElWidth{1}
-        , m_widthConst{bitwidth} {
-        dtypeSetBitOrLogicSized(bitwidth, VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
+        , m_decl_El_ಅಗಲ{1}
+        , m_ಅಗಲ_Const{bitwidth} {
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic_Sized(bitwidth, VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
-    AstSel(FileLine* fl, AstNodeExpr* fromp, int lsb, int bitwidth, int bitwidthMin = 0)
+    AstSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, ಪೂರ್ಣಾಂಕ lsb, ಪೂರ್ಣಾಂಕ bitwidth, ಪೂರ್ಣಾಂಕ bitwidthMin = 0)
         : ASTGEN_SUPER_Sel(fl, fromp, new AstConst(fl, lsb))  // Need () constructor
-        , m_declElWidth{1}
-        , m_widthConst{bitwidth} {
-        dtypeSetBitOrLogicUnsized(bitwidth, bitwidthMin ? bitwidthMin : bitwidth,
+        , m_decl_El_ಅಗಲ{1}
+        , m_ಅಗಲ_Const{bitwidth} {
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(bitwidth, bitwidthMin ? bitwidthMin : bitwidth,
                                   VSigning::UNSIGNED, fromp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& bit) override {
-        out.opSel(from, bit.toUInt() + widthConst() - 1, bit.toUInt());
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& from, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ಬಿಟ್_2) override {
+        ಹೊರಹೋಗು.opSel(from, ಬಿಟ್_2.ಗಮ್ಯ_UInt() + ಅಗಲ_Const() - 1, ಬಿಟ್_2.ಗಮ್ಯ_UInt());
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override {
-        return widthConst() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
+        ಹಿಂತಿರುಗಿ ಅಗಲ_Const() == 1 ? "VL_BITSEL_%nq%lq%rqI(%lw, %P, %li, %ri)"
                : isWide()        ? "VL_SEL_%nq%lq%rqI(%nw, %lw, %P, %li, %ri, %nw)"
                                  : "VL_SEL_%nq%lq%rqI(%lw, %P, %li, %ri, %nw)";
     }
-    string emitSMT() const override { return "((_ extract %t %r) %l)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* otherp) const override {
-        return widthConst() == VN_DBG_AS(otherp, Sel)->widthConst();
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "((_ extract %t %r) %l)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* otherp) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ಅಗಲ_Const() == VN_DBG_AS(otherp, Sel)->ಅಗಲ_Const();
     }
-    int instrCount() const override {
-        return widthInstrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * (VN_CAST(lsbp(), Const) ? 3 : 10) + 1;
     }
-    int widthConst() const { return m_widthConst; }
-    void widthConst(int value) { m_widthConst = value; }
-    int lsbConst() const { return VN_AS(lsbp(), Const)->toSInt(); }
-    int msbConst() const { return lsbConst() + widthConst() - 1; }
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
-    void declRange(const VNumRange& flag) { m_declRange = flag; }
-    int declElWidth() const { return m_declElWidth; }
-    void declElWidth(int flag) { m_declElWidth = flag; }
+    ಪೂರ್ಣಾಂಕ ಅಗಲ_Const() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಅಗಲ_Const; }
+    ಶೂನ್ಯ ಅಗಲ_Const(ಪೂರ್ಣಾಂಕ ಮೌಲ್ಯ) { m_ಅಗಲ_Const = ಮೌಲ್ಯ; }
+    ಪೂರ್ಣಾಂಕ lsbConst() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ VN_AS(lsbp(), Const)->ಗಮ್ಯ_SInt(); }
+    ಪೂರ್ಣಾಂಕ msbConst() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ lsbConst() + ಅಗಲ_Const() - 1; }
+    VNumRange& declRange() VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_declRange; }
+    ಸ್ಥಿರಾಂಕ VNumRange& declRange() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_declRange; }
+    ಶೂನ್ಯ declRange(ಸ್ಥಿರಾಂಕ VNumRange& flag) { m_declRange = flag; }
+    ಪೂರ್ಣಾಂಕ decl_El_ಅಗಲ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_decl_El_ಅಗಲ; }
+    ಶೂನ್ಯ decl_El_ಅಗಲ(ಪೂರ್ಣಾಂಕ flag) { m_decl_El_ಅಗಲ = flag; }
 };
-class AstShiftL final : public AstNodeBiop {
+class Ast_ಸರಿಸು_L final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftL(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸರಿಸು_L(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, ಪೂರ್ಣಾಂಕ setwidth = 0)
+        : ASTGEN_SUPER_ಸರಿಸು_L(fl, lhsp, rhsp) {
+        ಆದರೆ (setwidth) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = lhsp->dtypep()) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(dtypep->ಅಗಲ(), dtypep->ಅಗಲ_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftL;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftL(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_ಸರಿಸು_L;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಸರಿಸು_L(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvshl %l %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f<< %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvshl %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
+        ಹಿಂತಿರುಗಿ (rhsp()->isWide() || rhsp()->isQuad()) ? "" : "<<";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstShiftLOvr final : public AstNodeBiop {
+class Ast_ಸರಿಸು_LOvr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Like ShiftL but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftL
-public:
-    AstShiftLOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftLOvr(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸರಿಸು_LOvr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, ಪೂರ್ಣಾಂಕ setwidth = 0)
+        : ASTGEN_SUPER_ಸರಿಸು_LOvr(fl, lhsp, rhsp) {
+        ಆದರೆ (setwidth) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(dtypep->ಅಗಲ(), dtypep->ಅಗಲ_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftLOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftL(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_ಸರಿಸು_LOvr;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಸರಿಸು_L(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<< %r)"; }
-    string emitC() override { return "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f<< %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SHIFTL_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstShiftR final : public AstNodeBiop {
+class Ast_ಸರಿಸು_R final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstShiftR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftR(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸರಿಸು_R(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, ಪೂರ್ಣಾಂಕ setwidth = 0)
+        : ASTGEN_SUPER_ಸರಿಸು_R(fl, lhsp, rhsp) {
+        ಆದರೆ (setwidth) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = lhsp->dtypep()) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(dtypep->ಅಗಲ(), dtypep->ಅಗಲ_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftR;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftR(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_ಸರಿಸು_R;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಸರಿಸು_R(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvlshr %l %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>> %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvlshr %l %r)"; }
     string emitSimpleOperator() override {
-        return (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
+        ಹಿಂತಿರುಗಿ (rhsp()->isWide() || rhsp()->isQuad()) ? "" : ">>";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstShiftROvr final : public AstNodeBiop {
+class Ast_ಸರಿಸು_ROvr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Like ShiftR but checks for an over shift and returns zeros
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftR
-public:
-    AstShiftROvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftROvr(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸರಿಸು_ROvr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, ಪೂರ್ಣಾಂಕ setwidth = 0)
+        : ASTGEN_SUPER_ಸರಿಸು_ROvr(fl, lhsp, rhsp) {
+        ಆದರೆ (setwidth) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(setwidth, 0,
                                       lhsp->dtypep() ? lhsp->dtypep()->numeric()
                                                      : VSigning{VSigning::UNSIGNED},
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), dtypep->numeric(),
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(dtypep->ಅಗಲ(), dtypep->ಅಗಲ_Min(), dtypep->numeric(),
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftROvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftR(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_ಸರಿಸು_ROvr;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಸರಿಸು_R(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f>> %r)"; }
-    string emitC() override { return "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>> %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SHIFTR_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
     // LHS size might be > output size, so don't want to force size
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstShiftRS final : public AstNodeBiop {
+class Ast_ಸರಿಸು_RS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Shift right with sign extension, >>> operator
     // Output data type's width determines which bit is used for sign extension
     // @astgen makeDfgVertex
-public:
-    AstShiftRS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftRS(fl, lhsp, rhsp) {
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸರಿಸು_RS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, ಪೂರ್ಣಾಂಕ setwidth = 0)
+        : ASTGEN_SUPER_ಸರಿಸು_RS(fl, lhsp, rhsp) {
+        ಆದರೆ (setwidth) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else if (const AstNodeDType* const dtypep = lhsp->dtypep()) {
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = lhsp->dtypep()) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(dtypep->ಅಗಲ(), dtypep->ಅಗಲ_Min(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftRS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
+    ASTGEN_MEMBERS_Ast_ಸರಿಸು_RS;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಸರಿಸು_RS(lhs, rhs, lhsp()->ಅಗಲ_Min_V());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitSMT() const override { return "(bvashr %l %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>>> %r)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvashr %l %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstShiftRSOvr final : public AstNodeBiop {
+class Ast_ಸರಿಸು_RSOvr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // Shift right with sign extension, >>> operator, checks for an over shift and returns zeros
     // Output data type's width determines which bit is used for sign extension
     // TODO: All Verilog shifts should start as these and later get demoted to AstShiftRSOvr
-public:
-    AstShiftRSOvr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, int setwidth = 0)
-        : ASTGEN_SUPER_ShiftRSOvr(fl, lhsp, rhsp) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸರಿಸು_RSOvr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, ಪೂರ್ಣಾಂಕ setwidth = 0)
+        : ASTGEN_SUPER_ಸರಿಸು_RSOvr(fl, lhsp, rhsp) {
         // Important that widthMin be correct, as opExtend requires it after V3Expand
-        if (setwidth) {
-            dtypeSetBitOrLogicUnsized(setwidth, 0, VSigning::SIGNED,
+        ಆದರೆ (setwidth) {
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(setwidth, 0, VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
-        } else {
-            const AstNodeDType* const dtypep = lhsp->dtypep();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = lhsp->dtypep();
             UASSERT_OBJ(dtypep, this, "ShiftOvr should be created with lhs which has dtype");
-            dtypeSetBitOrLogicUnsized(dtypep->width(), dtypep->widthMin(), VSigning::SIGNED,
+            dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(dtypep->ಅಗಲ(), dtypep->ಅಗಲ_Min(), VSigning::SIGNED,
                                       isFourstateOrNoDtype(lhsp, rhsp));
         }
     }
-    ASTGEN_MEMBERS_AstShiftRSOvr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opShiftRS(lhs, rhs, lhsp()->widthMinV());
+    ASTGEN_MEMBERS_Ast_ಸರಿಸು_RSOvr;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಸರಿಸು_RS(lhs, rhs, lhsp()->ಅಗಲ_Min_V());
     }
-    string emitVerilog() override { return "%k(%l %f>>> %r)"; }
-    string emitC() override { return "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f>>> %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SHIFTRS_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSub final : public AstNodeBiop {
+class AstSub final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // @astgen makeDfgVertex
-public:
-    AstSub(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSub(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Sub(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstSub;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opSub(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opSub(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
-    string emitC() override { return "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvsub %l %r)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f- %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SUB_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvsub %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "-"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSubD final : public AstNodeBiop {
-public:
-    AstSubD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstSubD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstSubD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_SubD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
     ASTGEN_MEMBERS_AstSubD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opSubD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opSubD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f- %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f- %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "-"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstURandomRange final : public AstNodeBiop {
+class AstURandomRange final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Biop {
     // $urandom_range
-public:
-    AstURandomRange(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstURandomRange(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_URandomRange(fl, lhsp, rhsp) {
-        dtypeSetUInt32();  // Says IEEE
+        dtype_ಗಣ_UInt32();  // Says IEEE
     }
     ASTGEN_MEMBERS_AstURandomRange;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$urandom_range(%l, %r)"; }
-    string emitC() override { return "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$urandom_range(%l, %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_URANDOM_RANGE_%nq(%li, %ri)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
 };
 
 // === AstNodeBiCom ===
-class AstEq final : public AstNodeBiCom {
+class AstEq final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstEq(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Eq(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstEq;
     // Return AstEq/AstEqD
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opEq(lhs, rhs);
+    ಸ್ಥಿರ Ast_ಗಂಟು_Biop* newTyped(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(__Vbv (= %l %r))"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f== %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (= %l %r))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "=="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstEqCase final : public AstNodeBiCom {
+class AstEqCase final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstEqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstEqCase(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_EqCase(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstEqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opCaseEq(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opCaseEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f=== %r)"; }
-    string emitC() override { return "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f=== %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_EQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "=="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstEqD final : public AstNodeBiCom {
-public:
-    AstEqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
+ಸಾರ್ವಜನಿಕ:
+    AstEqD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_EqD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstEqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opEqD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opEqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "=="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstEqN final : public AstNodeBiCom {
-public:
-    AstEqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstEqN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
+ಸಾರ್ವಜನಿಕ:
+    AstEqN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_EqN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstEqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opEqN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opEqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "=="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstEqT final : public AstNodeBiCom {
+class AstEqT final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // Equal (==) for data types
-public:
-    AstEqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstEqT(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_EqT(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstEqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f== %r)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f== %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "=="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "=="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
 };
-class AstLogEq final : public AstNodeBiCom {
+class AstLogEq final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstLogEq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLogEq(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_LogEq(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstLogEq;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opLogEq(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opLogEq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f<-> %r)"; }
-    string emitC() override { return "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxnor %l %r)"; }
-    string emitSimpleOperator() override { return "<->"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f<-> %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LOGEQ_%nq%lq%rq(%nw,%lw,%rw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvxnor %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "<->"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstNeq final : public AstNodeBiCom {
+class AstNeq final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeq(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNeq(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Neq(fl, lhsp, rhsp) {
-        dtypeSetBitOrLogic(isFourstateOrNoDtype(lhsp, rhsp));
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(isFourstateOrNoDtype(lhsp, rhsp));
     }
     ASTGEN_MEMBERS_AstNeq;
-    static AstNodeBiop* newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp);
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opNeq(lhs, rhs);
+    ಸ್ಥಿರ Ast_ಗಂಟು_Biop* newTyped(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    string emitSMT() const override { return "(__Vbv (not (= %l %r)))"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f!= %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "!="; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (not (= %l %r)))"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstNeqCase final : public AstNodeBiCom {
+class AstNeqCase final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // @astgen makeDfgVertex
-public:
-    AstNeqCase(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNeqCase(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_NeqCase(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstNeqCase;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opCaseNeq(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opCaseNeq(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!== %r)"; }
-    string emitC() override { return "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f!== %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_NEQ_%lq(%lW, %P, %li, %ri)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "!="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstNeqD final : public AstNodeBiCom {
-public:
-    AstNeqD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
+ಸಾರ್ವಜನಿಕ:
+    AstNeqD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_NeqD(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstNeqD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opNeqD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opNeqD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "!="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNeqN final : public AstNodeBiCom {
-public:
-    AstNeqN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstNeqN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
+ಸಾರ್ವಜನಿಕ:
+    AstNeqN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_NeqN(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstNeqN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opNeqN(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opNeqN(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
-    bool stringFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "!="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
+    bool stringFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNeqT final : public AstNodeBiCom {
+class AstNeqT final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com {
     // Not-equal (!=) for data types
-public:
-    AstNeqT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNeqT(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_NeqT(fl, lhsp, rhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstNeqT;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l %f!= %r)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f!= %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "!="; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_STR; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "!="; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_STR; }
 };
 
 // === AstNodeBiComAsv ===
-class AstAdd final : public AstNodeBiComAsv {
+class Ast_ಕೂಡಿಸು final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAdd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_Add(fl, lhsp, rhsp) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಕೂಡಿಸು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_ಕೂಡಿಸು(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAdd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAdd(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_ಕೂಡಿಸು;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಕೂಡಿಸು(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
-    string emitC() override { return "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvadd %l %r)"; }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f+ %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_ADD_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvadd %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "+"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstAddD final : public AstNodeBiComAsv {
-public:
-    AstAddD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_AddD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+class Ast_ಕೂಡಿಸು_D final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಕೂಡಿಸು_D(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_ಕೂಡಿಸು_D(fl, lhsp, rhsp) {
+        dtype_ಗಣ_Double();
     }
-    ASTGEN_MEMBERS_AstAddD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAddD(lhs, rhs);
+    ASTGEN_MEMBERS_Ast_ಕೂಡಿಸು_D;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಕೂಡಿಸು_D(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f+ %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f+ %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "+"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "+"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstAnd final : public AstNodeBiComAsv {
+class AstAnd final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstAnd(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstAnd(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_And(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAnd(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opAnd(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f& %r)"; }
-    string emitC() override { return "VL_AND_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvand %l %r)"; }
-    string emitSimpleOperator() override { return "&"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f& %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_AND_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvand %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "&"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಅಗಲ_Mismatch() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE;
 };
-class AstMul final : public AstNodeBiComAsv {
+class AstMul final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMul(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstMul(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Mul(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMul;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opMul(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opMul(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f* %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_MUL_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "*"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_MUL; }
 };
-class AstMulD final : public AstNodeBiComAsv {
-public:
-    AstMulD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstMulD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
+ಸಾರ್ವಜನಿಕ:
+    AstMulD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_MulD(fl, lhsp, rhsp) {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
     ASTGEN_MEMBERS_AstMulD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opMulD(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opMulD(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f* %r)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "*"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "*"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstMulS final : public AstNodeBiComAsv {
+class AstMulS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstMulS(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstMulS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_MulS(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstMulS;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opMulS(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opMulS(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f* %r)"; }
-    string emitC() override { return "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvmul %l %r)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return true; }
-    bool sizeMattersRhs() const override { return true; }
-    int instrCount() const override { return widthInstrs() * INSTR_COUNT_INT_MUL; }
-    bool signedFlavor() const override { return true; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f* %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_MULS_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvmul %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * INSTR_ಎಣಿಕೆ_INT_MUL; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstOr final : public AstNodeBiComAsv {
+class AstOr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstOr(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstOr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Or(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstOr;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opOr(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opOr(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f| %r)"; }
-    string emitC() override { return "VL_OR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvor %l %r)"; }
-    string emitSimpleOperator() override { return "|"; }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f| %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_OR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvor %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "|"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಅಗಲ_Mismatch() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE;
 };
-class AstXor final : public AstNodeBiComAsv {
+class AstXor final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Bi_Com_Asv {
     // @astgen makeDfgVertex
-public:
-    AstXor(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstXor(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Xor(fl, lhsp, rhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstXor;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opXor(lhs, rhs);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.opXor(lhs, rhs);
     }
-    string emitVerilog() override { return "%k(%l %f^ %r)"; }
-    string emitC() override { return "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
-    string emitSMT() const override { return "(bvxor %l %r)"; }
-    string emitSimpleOperator() override { return "^"; }
-    bool cleanOut() const override { return false; }  // Lclean && Rclean
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f^ %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_XOR_%lq(%lW, %P, %li, %ri)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvxor %l %r)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "^"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Lclean && Rclean
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಅಗಲ_Mismatch() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE;
 };
 
 // === AstNodeDistBiop ===
-class AstDistChiSquare final : public AstNodeDistBiop {
-public:
-    AstDistChiSquare(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_DistChiSquare(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstDistChiSquare;
-    string emitVerilog() override { return "%f$dist_chi_square(%l, %r)"; }
-    string emitC() override { return "VL_DIST_CHI_SQUARE(%li, %ri)"; }
+class Ast_Dist_Chi_ವರ್ಗಫಲ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Dist_Biop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Dist_Chi_ವರ್ಗಫಲ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_Dist_Chi_ವರ್ಗಫಲ(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_Chi_ವರ್ಗಫಲ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$dist_chi_square(%l, %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIST_CHI_SQUARE(%li, %ri)"; }
 };
-class AstDistExponential final : public AstNodeDistBiop {
-public:
-    AstDistExponential(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_DistExponential(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstDistExponential;
-    string emitVerilog() override { return "%f$dist_exponential(%l, %r)"; }
-    string emitC() override { return "VL_DIST_EXPONENTIAL(%li, %ri)"; }
+class Ast_Dist_ಘಾತೀಯ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Dist_Biop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Dist_ಘಾತೀಯ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_Dist_ಘಾತೀಯ(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_ಘಾತೀಯ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$dist_exponential(%l, %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIST_EXPONENTIAL(%li, %ri)"; }
 };
-class AstDistPoisson final : public AstNodeDistBiop {
-public:
-    AstDistPoisson(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_DistPoisson(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstDistPoisson;
-    string emitVerilog() override { return "%f$dist_poisson(%l, %r)"; }
-    string emitC() override { return "VL_DIST_POISSON(%li, %ri)"; }
+class Ast_Dist_ಪಾಯಿಸನ್ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Dist_Biop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Dist_ಪಾಯಿಸನ್(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_Dist_ಪಾಯಿಸನ್(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_ಪಾಯಿಸನ್;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$dist_poisson(%l, %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIST_POISSON(%li, %ri)"; }
 };
-class AstDistT final : public AstNodeDistBiop {
-public:
-    AstDistT(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstDistT final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Dist_Biop {
+ಸಾರ್ವಜನಿಕ:
+    AstDistT(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_DistT(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstDistT;
-    string emitVerilog() override { return "%f$dist_t(%l, %r)"; }
-    string emitC() override { return "VL_DIST_T(%li, %ri)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$dist_t(%l, %r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIST_T(%li, %ri)"; }
 };
 
 // === AstNodeSel ===
-class AstArraySel final : public AstNodeSel {
+class AstArraySel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Sel {
     // @astgen makeDfgVertex
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), NodeArrayDType)) {
+    ಶೂನ್ಯ init(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* fromp) {
+        ಆದರೆ (fromp && VN_IS(fromp->dtypep()->skipRefp(), ಗಂಟು_Array_DType)) {
             // Strip off array to find what array references
-            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), NodeArrayDType)->subDTypep());
+            dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), ಗಂಟು_Array_DType)->subDTypep());
         }
     }
 
-public:
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ಸಾರ್ವಜನಿಕ:
+    AstArraySel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp)
         : ASTGEN_SUPER_ArraySel(fl, fromp, bitp) {
         init(fromp);
     }
-    AstArraySel(FileLine* fl, AstNodeExpr* fromp, int bit)
-        : ASTGEN_SUPER_ArraySel(fl, fromp, new AstConst(fl, bit)) {  // Need () constructor
+    AstArraySel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, ಪೂರ್ಣಾಂಕ ಬಿಟ್_2)
+        : ASTGEN_SUPER_ArraySel(fl, fromp, new AstConst(fl, ಬಿಟ್_2)) {  // Need () constructor
         init(fromp);
     }
     ASTGEN_MEMBERS_AstArraySel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(select %l %r)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstAssocSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
+class AstAssocSel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Sel {
+    ಶೂನ್ಯ init(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* fromp) {
+        ಆದರೆ (fromp && VN_IS(fromp->dtypep()->skipRefp(), AssocArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), AssocArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstAssocSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ಸಾರ್ವಜನಿಕ:
+    AstAssocSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp)
         : ASTGEN_SUPER_AssocSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstAssocSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    string emitSMT() const override { return "(select %l %r)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override {
-        return !isLValue();  // AssocSel creates on miss
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l%f[%r])"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "%li%k[%ri]"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(select %l %r)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ !isLValue();  // AssocSel creates on miss
     }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return !isLValue(); }  // AssocSel creates on miss
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ !isLValue(); }  // AssocSel creates on miss
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstWildcardSel final : public AstNodeSel {
-    void init(const AstNode* fromp) {
-        if (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
+class AstWildcardSel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Sel {
+    ಶೂನ್ಯ init(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* fromp) {
+        ಆದರೆ (fromp && VN_IS(fromp->dtypep()->skipRefp(), WildcardArrayDType)) {
             // Strip off array to find what array references
             dtypeFrom(VN_AS(fromp->dtypep()->skipRefp(), WildcardArrayDType)->subDTypep());
         }
     }
 
-public:
-    AstWildcardSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
+ಸಾರ್ವಜನಿಕ:
+    AstWildcardSel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp)
         : ASTGEN_SUPER_WildcardSel(fl, fromp, bitp) {
         init(fromp);
     }
     ASTGEN_MEMBERS_AstWildcardSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
-    string emitC() override { return "%li%k[%ri]"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool isGateOptimizable() const override { return true; }  // esp for V3Const::ifSameAssign
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l%f[%r])"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "%li%k[%ri]"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }  // esp for V3Const::ifSameAssign
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
 };
-class AstWordSel final : public AstNodeSel {
+class Ast_ಶಬ್ದ_Sel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Sel {
     // Select a single word from a multi-word wide value
-public:
-    AstWordSel(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : ASTGEN_SUPER_WordSel(fl, fromp, bitp) {
-        dtypeSetUInt32();  // Always used on VlWide arrays so returns EData size
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಶಬ್ದ_Sel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp)
+        : ASTGEN_SUPER_ಶಬ್ದ_Sel(fl, fromp, bitp) {
+        dtype_ಗಣ_UInt32();  // Always used on VlWide arrays so returns EData size
     }
-    ASTGEN_MEMBERS_AstWordSel;
-    void numberOperate(V3Number&, const V3Number&, const V3Number&) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%k(%l%f[%r])"; }
+    ASTGEN_MEMBERS_Ast_ಶಬ್ದ_Sel;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l%f[%r])"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Special cased
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
 
 // === AstNodeStream ===
-class AstStreamL final : public AstNodeStream {
+class Ast_ಹರಿವು_L final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಹರಿವು {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamL(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_StreamL(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstStreamL;
-    string emitVerilog() override { return "%f{ << %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opStreamL(lhs, rhs);
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಹರಿವು_L(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_ಹರಿವು_L(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_ಹರಿವು_L;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f{ << %r %k{%l} }"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ಹರಿವು_L(lhs, rhs);
     }
-    string emitC() override { return "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_STREAML_%nq%lq%rq(%lw, %P, %li, %ri)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 2; }
 };
-class AstStreamR final : public AstNodeStream {
+class Ast_ಹರಿವು_R final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಹರಿವು {
     // Verilog {rhs{lhs}} - Note rhsp() is the slice size, not the lhsp()
     // @astgen makeDfgVertex
-public:
-    AstStreamR(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_StreamR(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstStreamR;
-    string emitVerilog() override { return "%f{ >> %r %k{%l} }"; }
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.opAssign(lhs);
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಹರಿವು_R(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_ಹರಿವು_R(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_ಹರಿವು_R;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f{ >> %r %k{%l} }"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.op_ನಿಯೋಜಿಸು(lhs);
     }
-    string emitC() override { return isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 2; }
+    string emitC() override { ಹಿಂತಿರುಗಿ isWide() ? "VL_ASSIGN_W(%nw, %P, %li)" : "%li"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 2; }
 };
 
 // === AstNodeSystemBiopD ===
-class AstAtan2D final : public AstNodeSystemBiopD {
-public:
-    AstAtan2D(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstAtan2D final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Biop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstAtan2D(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_Atan2D(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstAtan2D;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.setDouble(std::atan2(lhs.toDouble(), rhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::atan2(lhs.ಗಮ್ಯ_Double(), rhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$atan2(%l,%r)"; }
-    string emitC() override { return "atan2(%li,%ri)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$atan2(%l,%r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "atan2(%li,%ri)"; }
 };
-class AstHypotD final : public AstNodeSystemBiopD {
-public:
-    AstHypotD(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+class AstHypotD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Biop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstHypotD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
         : ASTGEN_SUPER_HypotD(fl, lhsp, rhsp) {}
     ASTGEN_MEMBERS_AstHypotD;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs) override {
-        out.setDouble(std::hypot(lhs.toDouble(), rhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::hypot(lhs.ಗಮ್ಯ_Double(), rhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$hypot(%l,%r)"; }
-    string emitC() override { return "hypot(%li,%ri)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$hypot(%l,%r)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "hypot(%li,%ri)"; }
 };
 
 // === AstNodeCCall ===
-class AstCCall final : public AstNodeCCall {
+class AstCCall final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_CCall {
     // C++ function call
-    VSelfPointerText m_selfPointer
-        = VSelfPointerText{VSelfPointerText::Empty()};  // Output code object
+    VSelf_ಸೂಚಕ_ಪಠ್ಯ m_self_ಸೂಚಕ
+        = VSelf_ಸೂಚಕ_ಪಠ್ಯ{VSelf_ಸೂಚಕ_ಪಠ್ಯ::ಖಾಲಿಗಳು_2()};  // Output code object
                                                         // pointer (e.g.: 'this')
-public:
-    AstCCall(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstCCall(File_ಸಾಲು* fl, AstCFunc* funcp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = nullptr)
         : ASTGEN_SUPER_CCall(fl, funcp, argsp) {
         UASSERT_OBJ(funcp, this, "CCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCCall;
 
-    const VSelfPointerText& selfPointer() const { return m_selfPointer; }
-    void selfPointer(const VSelfPointerText& selfPointer) { m_selfPointer = selfPointer; }
-    string selfPointerProtect(bool useSelfForThis) const {
-        return selfPointer().protect(useSelfForThis, protect());
+    ಸ್ಥಿರಾಂಕ VSelf_ಸೂಚಕ_ಪಠ್ಯ& self_ಸೂಚಕ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_self_ಸೂಚಕ; }
+    ಶೂನ್ಯ self_ಸೂಚಕ(ಸ್ಥಿರಾಂಕ VSelf_ಸೂಚಕ_ಪಠ್ಯ& self_ಸೂಚಕ) { m_self_ಸೂಚಕ = self_ಸೂಚಕ; }
+    string self_ಸೂಚಕ_Protect(bool useSelfForThis) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ self_ಸೂಚಕ().protect(useSelfForThis, protect());
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    bool maybe_Pointed_ಗಮ್ಯ() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCMethodCall final : public AstNodeCCall {
+class AstCMethodCall final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_CCall {
     // C++ method call
     // @astgen op1 := fromp : AstNodeExpr
-public:
-    AstCMethodCall(FileLine* fl, AstNodeExpr* fromp, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstCMethodCall(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, AstCFunc* funcp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = nullptr)
         : ASTGEN_SUPER_CMethodCall(fl, funcp, argsp) {
         this->fromp(fromp);
         UASSERT_OBJ(funcp, this, "CMethodCall created calling null function");
     }
     ASTGEN_MEMBERS_AstCMethodCall;
 };
-class AstCNew final : public AstNodeCCall {
+class AstCNew final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_CCall {
     // C++ new() call
-public:
-    AstCNew(FileLine* fl, AstCFunc* funcp, AstNodeExpr* argsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstCNew(File_ಸಾಲು* fl, AstCFunc* funcp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = nullptr)
         : ASTGEN_SUPER_CNew(fl, funcp, argsp) {}
     ASTGEN_MEMBERS_AstCNew;
 };
 
 // === AstNodeCons ===
-class AstConsArray final : public AstNodeCons {
+class AstConsArray final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cons {
     // Construct an unpacked array value, '{value, ...}, '{index: value, default: value}
     // If default is specified, the items may be sparse, and not provide each element.
     // Indices are C++ array style, with lo() at index 0
     // @astgen op1 := defaultp : Optional[AstNodeExpr] // Default, if sparse
     // @astgen op2 := itemsp : private List[AstConsArrayItem] // In increasing index order
     // dist-ast-dump-suppress  // Dumped by the itemsp list
-    std::map<uint64_t, AstConsArrayItem*> m_itemps;  // The item at each index given
+    std::map<uint64_t, Ast_Cons_Array_ಅಂಶ*> m_itemps;  // The item at each index given
 
-public:
-    AstConsArray(FileLine* fl, AstNodeDType* newDTypep, AstNodeExpr* defaultp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstConsArray(File_ಸಾಲು* fl, Ast_ಗಂಟು_DType* newDTypep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* defaultp = nullptr)
         : ASTGEN_SUPER_ConsArray(fl) {
         dtypep(newDTypep);
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsArray;
-    const char* broken() const override;
-    void cloneRelink() override;
-    inline AstConsArrayItem* itemsp() const VL_MT_STABLE;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ cloneRelink() override;
+    ಸಾಲೊಳಗೆ Ast_Cons_Array_ಅಂಶ* itemsp() ಸ್ಥಿರಾಂಕ VL_MT_STABLE;
     // The value at the index, or the default if not given
-    AstNodeExpr* valuep(uint64_t index) const;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep(uint64_t ಸೂಚ್ಯಂಕ) ಸ್ಥಿರಾಂಕ;
     // Add the value of the element at the index, which must not be given yet
-    void valuep(uint64_t index, AstNodeExpr* newp);
+    ಶೂನ್ಯ valuep(uint64_t ಸೂಚ್ಯಂಕ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp);
     // Add the elements of the array 'arrayp', starting at the index
-    void spliceValues(uint64_t index, AstNodeExpr* arrayp);
+    ಶೂನ್ಯ splice_ಮೌಲ್ಯಗಳು(uint64_t ಸೂಚ್ಯಂಕ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* arrayp);
 };
-class AstConsAssoc final : public AstNodeCons {
+class AstConsAssoc final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cons {
     // Construct an associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsAssocItem]
-public:
-    explicit AstConsAssoc(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstConsAssoc(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* defaultp = nullptr)
         : ASTGEN_SUPER_ConsAssoc(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsAssoc;
-    const char* broken() const override {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), AssocArrayDType));
-        return nullptr;
+        ಹಿಂತಿರುಗಿ nullptr;
     }
 };
-class AstConsDynArray final : public AstNodeCons {
+class AstConsDynArray final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cons {
     // Construct a dynamic array value, '{value, ...}, {value, array, ...},
     // or with 'sizep', new[size]('{index: value, default: value})
     // @astgen op1 := sizep : Optional[AstNodeExpr]
     // @astgen op2 := defaultp : Optional[AstNodeExpr] // Only with sizep
     // @astgen op3 := itemsp : List[AstConsDynArrayItem]
-public:
-    explicit AstConsDynArray(FileLine* fl)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstConsDynArray(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_ConsDynArray(fl) {}
     ASTGEN_MEMBERS_AstConsDynArray;
-    const char* broken() const override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
 };
-class AstConsQueue final : public AstNodeCons {
+class Ast_Cons_ಸರತಿ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cons {
     // Construct a queue value, '{value, ...}, {value, array, ...}
     // @astgen op1 := itemsp : List[AstConsQueueItem]
-public:
-    explicit AstConsQueue(FileLine* fl)
-        : ASTGEN_SUPER_ConsQueue(fl) {}
-    ASTGEN_MEMBERS_AstConsQueue;
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), QueueDType));
-        return nullptr;
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_Cons_ಸರತಿ(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_Cons_ಸರತಿ(fl) {}
+    ASTGEN_MEMBERS_Ast_Cons_ಸರತಿ;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
+        BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), ಸರತಿ_DType));
+        ಹಿಂತಿರುಗಿ nullptr;
     }
 };
-class AstConsStruct final : public AstNodeCons {
+class AstConsStruct final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cons {
     // Construct an unpacked struct value, '{member: value, ...}
     // @astgen op1 := itemsp : List[AstConsStructItem] // A value for each member, in order
-public:
-    AstConsStruct(FileLine* fl, AstStructDType* dtypep)
+ಸಾರ್ವಜನಿಕ:
+    AstConsStruct(File_ಸಾಲು* fl, AstStructDType* dtypep)
         : ASTGEN_SUPER_ConsStruct(fl) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstConsStruct;
-    const char* broken() const override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
     // The value of the member called 'name'
-    AstNodeExpr* memberValuep(const string& name) const;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* memberValuep(ಸ್ಥಿರಾಂಕ string& name) ಸ್ಥಿರಾಂಕ;
 };
-class AstConsWildcard final : public AstNodeCons {
+class AstConsWildcard final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cons {
     // Construct a wildcard associative array value, '{key: value, default: value}
     // @astgen op1 := defaultp : Optional[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstConsWildcardItem]
-public:
-    explicit AstConsWildcard(FileLine* fl, AstNodeExpr* defaultp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstConsWildcard(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* defaultp = nullptr)
         : ASTGEN_SUPER_ConsWildcard(fl) {
         this->defaultp(defaultp);
     }
     ASTGEN_MEMBERS_AstConsWildcard;
-    const char* broken() const override {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
         BROKEN_RTN(!VN_IS(dtypep()->skipRefp(), WildcardArrayDType));
-        return nullptr;
+        ಹಿಂತಿರುಗಿ nullptr;
     }
 };
 
 // === AstNodeFTaskRef ===
-class AstFuncRef final : public AstNodeFTaskRef {
+class AstFuncRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_FTask_Ref {
     // A reference to a function
-public:
-    inline AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp = nullptr);
-    AstFuncRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    ಸಾಲೊಳಗೆ AstFuncRef(File_ಸಾಲು* fl, AstFunc* taskp, AstArg* argsp = nullptr);
+    AstFuncRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_FuncRef(fl, name, argsp) {}
     ASTGEN_MEMBERS_AstFuncRef;
 };
-class AstMethodCall final : public AstNodeFTaskRef {
+class Ast_ವಿಧಾನ_Call final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_FTask_Ref {
     // A reference to a member task (or function)
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     // @astgen op1 := fromp : AstNodeExpr
     //
-public:
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, VFlagChildDType, const string& name,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ವಿಧಾನ_Call(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, VFlag_ಮಗು_DType, ಸ್ಥಿರಾಂಕ string& name,
                   AstArg* argsp = nullptr)
-        : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
+        : ASTGEN_SUPER_ವಿಧಾನ_Call(fl, name, argsp) {
         this->fromp(fromp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstMethodCall(FileLine* fl, AstNodeExpr* fromp, const string& name, AstArg* argsp = nullptr)
-        : ASTGEN_SUPER_MethodCall(fl, name, argsp) {
+    Ast_ವಿಧಾನ_Call(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, ಸ್ಥಿರಾಂಕ string& name, AstArg* argsp = nullptr)
+        : ASTGEN_SUPER_ವಿಧಾನ_Call(fl, name, argsp) {
         this->fromp(fromp);
     }
-    ASTGEN_MEMBERS_AstMethodCall;
+    ASTGEN_MEMBERS_Ast_ವಿಧಾನ_Call;
 };
-class AstNew final : public AstNodeFTaskRef {
+class AstNew final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_FTask_Ref {
     // New as constructor
     // Don't need the class we are extracting from, as the "fromp()"'s datatype can get us to it
     bool m_isImplicit = false;  // Implicitly generated from extends args
     bool m_isScoped = false;  // Had :: scope when parsed
-public:
-    AstNew(FileLine* fl, AstArg* argsp = nullptr, bool isScoped = false)
+ಸಾರ್ವಜನಿಕ:
+    AstNew(File_ಸಾಲು* fl, AstArg* argsp = nullptr, bool isScoped = false)
         : ASTGEN_SUPER_New(fl, "new", argsp)
         , m_isScoped{isScoped} {}
     ASTGEN_MEMBERS_AstNew;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    int instrCount() const override { return widthInstrs(); }
-    bool isImplicit() const { return m_isImplicit; }
-    void isImplicit(bool flag) { m_isImplicit = flag; }
-    bool isScoped() const { return m_isScoped; }
-    void isScoped(bool flag) { m_isScoped = flag; }
-    bool isPure() override { return false; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool isImplicit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isImplicit; }
+    ಶೂನ್ಯ isImplicit(bool flag) { m_isImplicit = flag; }
+    bool isScoped() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isScoped; }
+    ಶೂನ್ಯ isScoped(bool flag) { m_isScoped = flag; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstTaskRef final : public AstNodeFTaskRef {
+class AstTaskRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_FTask_Ref {
     // A reference to a task
-public:
-    inline AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp = nullptr);
-    AstTaskRef(FileLine* fl, const string& name, AstArg* argsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    ಸಾಲೊಳಗೆ AstTaskRef(File_ಸಾಲು* fl, AstTask* taskp, AstArg* argsp = nullptr);
+    AstTaskRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, AstArg* argsp = nullptr)
         : ASTGEN_SUPER_TaskRef(fl, name, argsp) {
-        dtypeSetVoid();
+        dtype_ಗಣ_Void();
     }
     ASTGEN_MEMBERS_AstTaskRef;
 };
 
 // === AstNodePreSel ===
-class AstSelBit final : public AstNodePreSel {
+class Ast_Sel_ಬಿಟ್ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Pre_Sel {
     // Single bit range extraction, perhaps with non-constant selection or array selection
     // Gets replaced during link with AstArraySel or AstSel
     // @astgen alias op2 := bitp
-private:
+ಖಾಸಗಿ:
     VAccess m_access;  // Left hand side assignment
-public:
-    AstSelBit(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp)
-        : ASTGEN_SUPER_SelBit(fl, fromp, bitp, nullptr) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Sel_ಬಿಟ್(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp)
+        : ASTGEN_SUPER_Sel_ಬಿಟ್(fl, fromp, bitp, nullptr) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
-    ASTGEN_MEMBERS_AstSelBit;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VAccess access() const { return m_access; }
-    void access(const VAccess& flag) { m_access = flag; }
+    ASTGEN_MEMBERS_Ast_Sel_ಬಿಟ್;
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    VAccess access() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_access; }
+    ಶೂನ್ಯ access(ಸ್ಥಿರಾಂಕ VAccess& flag) { m_access = flag; }
 };
-class AstSelExtract final : public AstNodePreSel {
+class Ast_Sel_ಹೊರತೆಗೆ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Pre_Sel {
     // Range extraction, gets replaced with AstSel
     // @astgen alias op2 := leftp
     // @astgen alias op3 := rightp
-public:
-    AstSelExtract(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* msbp, AstNodeExpr* lsbp)
-        : ASTGEN_SUPER_SelExtract(fl, fromp, msbp, lsbp) {}
-    ASTGEN_MEMBERS_AstSelExtract;
+ಸಾರ್ವಜನಿಕ:
+    Ast_Sel_ಹೊರತೆಗೆ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* msbp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lsbp)
+        : ASTGEN_SUPER_Sel_ಹೊರತೆಗೆ(fl, fromp, msbp, lsbp) {}
+    ASTGEN_MEMBERS_Ast_Sel_ಹೊರತೆಗೆ;
 };
-class AstSelMinus final : public AstNodePreSel {
+class AstSelMinus final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Pre_Sel {
     // -: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelMinus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+ಸಾರ್ವಜನಿಕ:
+    AstSelMinus(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* widthp)
         : ASTGEN_SUPER_SelMinus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelMinus;
 };
-class AstSelPlus final : public AstNodePreSel {
+class AstSelPlus final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Pre_Sel {
     // +: range extraction, perhaps with non-constant selection
     // Gets replaced during link with AstSel
     // @astgen alias op2 := bitp
     // @astgen alias op3 := widthp
-public:
-    AstSelPlus(FileLine* fl, AstNodeExpr* fromp, AstNodeExpr* bitp, AstNodeExpr* widthp)
+ಸಾರ್ವಜನಿಕ:
+    AstSelPlus(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* bitp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* widthp)
         : ASTGEN_SUPER_SelPlus(fl, fromp, bitp, widthp) {}
     ASTGEN_MEMBERS_AstSelPlus;
 };
 
 // === AstNodeQuadop ===
-class AstCountBits final : public AstNodeQuadop {
+class Ast_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Quadop {
     // Number of bits set in vector
-public:
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl1p->cloneTreePure(false),
-                                 ctrl1p->cloneTreePure(false)) {
-        dtypeSetInt();
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ctrl1p)
+        : ASTGEN_SUPER_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು(fl, exprp, ctrl1p, ctrl1p->clone_ವೃಕ್ಷ_ಶುದ್ಧ(false),
+                                 ctrl1p->clone_ವೃಕ್ಷ_ಶುದ್ಧ(false)) {
+        dtype_ಗಣ_Int();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl2p->cloneTreePure(false)) {
-        dtypeSetInt();
+    Ast_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ctrl1p, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ctrl2p)
+        : ASTGEN_SUPER_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು(fl, exprp, ctrl1p, ctrl2p, ctrl2p->clone_ವೃಕ್ಷ_ಶುದ್ಧ(false)) {
+        dtype_ಗಣ_Int();
     }
-    AstCountBits(FileLine* fl, AstNodeExpr* exprp, AstNodeExpr* ctrl1p, AstNodeExpr* ctrl2p,
-                 AstNodeExpr* ctrl3p)
-        : ASTGEN_SUPER_CountBits(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
-        dtypeSetInt();
+    Ast_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ctrl1p, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ctrl2p,
+                 Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ctrl3p)
+        : ASTGEN_SUPER_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು(fl, exprp, ctrl1p, ctrl2p, ctrl3p) {
+        dtype_ಗಣ_Int();
     }
-    ASTGEN_MEMBERS_AstCountBits;
-    void numberOperate(V3Number& out, const V3Number& expr, const V3Number& ctrl1,
-                       const V3Number& ctrl2, const V3Number& ctrl3) override {
-        out.opCountBits(expr, ctrl1, ctrl2, ctrl3);
+    ASTGEN_MEMBERS_Ast_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ಅಭಿವ್ಯಕ್ತಿ, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ctrl1,
+                       ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ctrl2, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ctrl3) override {
+        ಹೊರಹೋಗು.op_ಎಣಿಕೆ_ಬಿಟ್ಟುಗಳು(ಅಭಿವ್ಯಕ್ತಿ, ctrl1, ctrl2, ctrl3);
     }
-    string emitVerilog() override { return "%f$countbits(%l, %r, %f, %o)"; }
-    string emitC() override { return ""; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool cleanFhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sizeMattersFhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$countbits(%l, %r, %f, %o)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanThs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanFhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Fhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 16; }
 };
 
 // === AstNodeTermop ===
-class AstInferredDisable final : public AstNodeTermop {
-public:
-    explicit AstInferredDisable(FileLine* fl)
+class AstInferredDisable final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Termop {
+ಸಾರ್ವಜನಿಕ:
+    explicit AstInferredDisable(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_InferredDisable(fl) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstInferredDisable;
-    string emitVerilog() override { return "%f$inferred_disable"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$inferred_disable"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isSystemFunc() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstTime final : public AstNodeTermop {
+class Ast_ಸಮಯ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTime(FileLine* fl, const VTimescale& timeunit)
-        : ASTGEN_SUPER_Time(fl)
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸಮಯ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ VTimescale& timeunit)
+        : ASTGEN_SUPER_ಸಮಯ(fl)
         , m_timeunit{timeunit} {
-        dtypeSetUInt64();
+        dtype_ಗಣ_UInt64();
     }
-    ASTGEN_MEMBERS_AstTime;
-    string emitVerilog() override { return "%f$time"; }
+    ASTGEN_MEMBERS_Ast_ಸಮಯ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$time"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_ಸಮಯ; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
 };
-class AstTimeD final : public AstNodeTermop {
+class Ast_ಸಮಯ_D final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Termop {
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeD(FileLine* fl, const VTimescale& timeunit)
-        : ASTGEN_SUPER_TimeD(fl)
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸಮಯ_D(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ VTimescale& timeunit)
+        : ASTGEN_SUPER_ಸಮಯ_D(fl)
         , m_timeunit{timeunit} {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
-    ASTGEN_MEMBERS_AstTimeD;
-    string emitVerilog() override { return "%f$realtime"; }
+    ASTGEN_MEMBERS_Ast_ಸಮಯ_D;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$realtime"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isSystemFunc() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_TIME; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_ಸಮಯ; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
 };
 
 // === AstNodeTriop ===
 
-class AstCond final : public AstNodeTriop {
+class AstCond final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Triop {
     // @astgen alias op1 := condp
     // @astgen alias op2 := thenp
     // @astgen alias op3 := elsep
     // @astgen makeDfgVertex
-public:
-    AstCond(FileLine* fl, AstNodeExpr* condp, AstNodeExpr* thenp, AstNodeExpr* elsep);
+ಸಾರ್ವಜನಿಕ:
+    AstCond(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thenp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* elsep);
     ASTGEN_MEMBERS_AstCond;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
-        out.opAssign(lhs.isNeqZero() ? rhs : ths);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs,
+                       ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ths) override {
+        ಹೊರಹೋಗು.op_ನಿಯೋಜಿಸು(lhs.isNeqZero() ? rhs : ths);
     }
-    string emitVerilog() override { return "%k(%l %f? %r %k: %t)"; }
-    string emitC() override { return "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
-    string emitSMT() const override { return "(ite (__Vbool %l) %r %t)"; }
-    bool cleanOut() const override { return false; }  // clean if e1 & e2 clean
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return false; }
-    bool cleanThs() const override { return false; }  // Propagates up
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l %f? %r %k: %t)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_COND_%nq%lq%rq%tq(%nw, %P, %li, %ri, %ti)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(ite (__Vbool %l) %r %t)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // clean if e1 & e2 clean
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanThs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Propagates up
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstPutcN final : public AstNodeTriop {
+class AstPutcN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Triop {
     // Verilog string.putc()
-public:
-    AstPutcN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+ಸಾರ್ವಜನಿಕ:
+    AstPutcN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ths)
         : ASTGEN_SUPER_PutcN(fl, lhsp, rhsp, ths) {
-        dtypeSetString();
+        dtype_ಗಣ_String();
     }
     ASTGEN_MEMBERS_AstPutcN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
-        out.opPutcN(lhs, rhs, ths);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs,
+                       ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ths) override {
+        ಹೊರಹೋಗು.opPutcN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "putc"; }
-    string emitVerilog() override { return "%k(%l.putc(%r,%t))"; }
-    string emitC() override { return "VL_PUTC_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ "putc"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l.putc(%r,%t))"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_PUTC_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanThs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstSliceSel final : public AstNodeTriop {
+class Ast_ತುಂಡು_Sel final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Triop {
     // Multiple array element extraction
     // @astgen alias op1 := fromp
     VNumRange m_declRange;  // Range of the 'from' array if isRanged() is set, else invalid
-public:
-    AstSliceSel(FileLine* fl, AstNodeExpr* fromp, const VNumRange& declRange)
-        : ASTGEN_SUPER_SliceSel(fl, fromp,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ತುಂಡು_Sel(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, ಸ್ಥಿರಾಂಕ VNumRange& declRange)
+        : ASTGEN_SUPER_ತುಂಡು_Sel(fl, fromp,
                                 new AstConst(fl, declRange.lo()),  // Need () constructor
                                 new AstConst(fl, declRange.elements()))  // Need () constructor
         , m_declRange{declRange} {}
-    ASTGEN_MEMBERS_AstSliceSel;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void numberOperate(V3Number& out, const V3Number& from, const V3Number& lo,
-                       const V3Number& width) override {
+    ASTGEN_MEMBERS_Ast_ತುಂಡು_Sel;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& from, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lo,
+                       ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ಅಗಲ) override {
         V3ERROR_NA;
     }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }  // Removed before EmitC
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    int instrCount() const override { return 10; }  // Removed before matters
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanThs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 10; }  // Removed before matters
     // For widthConst()/loConst etc, see declRange().elements() and other VNumRange methods
-    VNumRange& declRange() VL_MT_STABLE { return m_declRange; }
-    const VNumRange& declRange() const VL_MT_STABLE { return m_declRange; }
+    VNumRange& declRange() VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_declRange; }
+    ಸ್ಥಿರಾಂಕ VNumRange& declRange() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_declRange; }
 };
-class AstSubstrN final : public AstNodeTriop {
+class AstSubstrN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Triop {
     // Verilog string.substr()
-public:
-    AstSubstrN(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* ths)
+ಸಾರ್ವಜನಿಕ:
+    AstSubstrN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ths)
         : ASTGEN_SUPER_SubstrN(fl, lhsp, rhsp, ths) {
-        dtypeSetString();
+        dtype_ಗಣ_String();
     }
     ASTGEN_MEMBERS_AstSubstrN;
-    void numberOperate(V3Number& out, const V3Number& lhs, const V3Number& rhs,
-                       const V3Number& ths) override {
-        out.opSubstrN(lhs, rhs, ths);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& rhs,
+                       ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& ths) override {
+        ಹೊರಹೋಗು.opSubstrN(lhs, rhs, ths);
     }
-    string name() const override VL_MT_STABLE { return "substr"; }
-    string emitVerilog() override { return "%k(%l.substr(%r,%t))"; }
-    string emitC() override { return "VL_SUBSTR_N(%li,%ri,%ti)"; }
-    string emitSimpleOperator() override { return ""; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool cleanRhs() const override { return true; }
-    bool cleanThs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sizeMattersRhs() const override { return false; }
-    bool sizeMattersThs() const override { return false; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ "substr"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l.substr(%r,%t))"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_SUBSTR_N(%li,%ri,%ti)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ ""; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanRhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanThs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Rhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Ths() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
 
 // === AstNodeDistTriop ===
-class AstDistErlang final : public AstNodeDistTriop {
-public:
-    AstDistErlang(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
+class AstDistErlang final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Dist_Triop {
+ಸಾರ್ವಜನಿಕ:
+    AstDistErlang(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp)
         : ASTGEN_SUPER_DistErlang(fl, lhsp, rhsp, thsp) {}
     ASTGEN_MEMBERS_AstDistErlang;
-    string emitVerilog() override { return "%f$dist_erlang(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_ERLANG(%li, %ri, %ti)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$dist_erlang(%l, %r, %t)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIST_ERLANG(%li, %ri, %ti)"; }
 };
-class AstDistNormal final : public AstNodeDistTriop {
-public:
-    AstDistNormal(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : ASTGEN_SUPER_DistNormal(fl, lhsp, rhsp, thsp) {}
-    ASTGEN_MEMBERS_AstDistNormal;
-    string emitVerilog() override { return "%f$dist_normal(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_NORMAL(%li, %ri, %ti)"; }
+class Ast_Dist_ಸಾಮಾನ್ಯ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Dist_Triop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Dist_ಸಾಮಾನ್ಯ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp)
+        : ASTGEN_SUPER_Dist_ಸಾಮಾನ್ಯ(fl, lhsp, rhsp, thsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_ಸಾಮಾನ್ಯ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$dist_normal(%l, %r, %t)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIST_NORMAL(%li, %ri, %ti)"; }
 };
-class AstDistUniform final : public AstNodeDistTriop {
-public:
-    AstDistUniform(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp, AstNodeExpr* thsp)
-        : ASTGEN_SUPER_DistUniform(fl, lhsp, rhsp, thsp) {}
-    ASTGEN_MEMBERS_AstDistUniform;
-    string emitVerilog() override { return "%f$dist_uniform(%l, %r, %t)"; }
-    string emitC() override { return "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
+class Ast_Dist_ಏಕರೂಪ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Dist_Triop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Dist_ಏಕರೂಪ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* thsp)
+        : ASTGEN_SUPER_Dist_ಏಕರೂಪ(fl, lhsp, rhsp, thsp) {}
+    ASTGEN_MEMBERS_Ast_Dist_ಏಕರೂಪ;
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$dist_uniform(%l, %r, %t)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_DIST_UNIFORM(%li, %ri, %ti)"; }
 };
 
 // === AstNodeUniop ===
-class AstAtoN final : public AstNodeUniop {
+class AstAtoN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // string.atoi(), atobin(), atohex(), atooct(), atoireal()
-public:
-    enum FmtType : int { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
+ಸಾರ್ವಜನಿಕ:
+    ಎಣಿಕೆ FmtType : ಪೂರ್ಣಾಂಕ { ATOI = 10, ATOHEX = 16, ATOOCT = 8, ATOBIN = 2, ATOREAL = -1 };
 
-private:
+ಖಾಸಗಿ:
     // dist-ast-dump-suppress  // Part of name()
-    const FmtType m_fmtType;  // Operation type
-public:
-    AstAtoN(FileLine* fl, AstNodeExpr* lhsp, FmtType fmtType)
+    ಸ್ಥಿರಾಂಕ FmtType m_fmtType;  // Operation type
+ಸಾರ್ವಜನಿಕ:
+    AstAtoN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, FmtType fmtType)
         : ASTGEN_SUPER_AtoN(fl, lhsp)
         , m_fmtType{fmtType} {
-        fmtType == ATOREAL ? dtypeSetDouble() : dtypeSetInteger();
+        fmtType == ATOREAL ? dtype_ಗಣ_Double() : dtype_ಗಣ_Integer();
     }
     ASTGEN_MEMBERS_AstAtoN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAtoN(lhs, m_fmtType); }
-    string name() const override VL_MT_STABLE {
-        switch (m_fmtType) {
-        case ATOI: return "atoi";
-        case ATOHEX: return "atohex";
-        case ATOOCT: return "atooct";
-        case ATOBIN: return "atobin";
-        case ATOREAL: return "atoreal";
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opAtoN(lhs, m_fmtType); }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE {
+        ಆಯ್ಕೆ (m_fmtType) {
+        ಸ್ಥಿತಿ ATOI: ಹಿಂತಿರುಗಿ "atoi";
+        ಸ್ಥಿತಿ ATOHEX: ಹಿಂತಿರುಗಿ "atohex";
+        ಸ್ಥಿತಿ ATOOCT: ಹಿಂತಿರುಗಿ "atooct";
+        ಸ್ಥಿತಿ ATOBIN: ಹಿಂತಿರುಗಿ "atobin";
+        ಸ್ಥಿತಿ ATOREAL: ಹಿಂತಿರುಗಿ "atoreal";
         }
         V3ERROR_NA_RETURN("");
     }
-    string emitVerilog() override { return "%l." + name() + "()"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l." + name() + "()"; }
     string emitC() override {
-        switch (m_fmtType) {
-        case ATOI: return "VL_ATOI_N(%li, 10)";
-        case ATOHEX: return "VL_ATOI_N(%li, 16)";
-        case ATOOCT: return "VL_ATOI_N(%li, 8)";
-        case ATOBIN: return "VL_ATOI_N(%li, 2)";
-        case ATOREAL: return "VL_ATOREAL_N(%li)";
+        ಆಯ್ಕೆ (m_fmtType) {
+        ಸ್ಥಿತಿ ATOI: ಹಿಂತಿರುಗಿ "VL_ATOI_N(%li, 10)";
+        ಸ್ಥಿತಿ ATOHEX: ಹಿಂತಿರುಗಿ "VL_ATOI_N(%li, 16)";
+        ಸ್ಥಿತಿ ATOOCT: ಹಿಂತಿರುಗಿ "VL_ATOI_N(%li, 8)";
+        ಸ್ಥಿತಿ ATOBIN: ಹಿಂತಿರುಗಿ "VL_ATOI_N(%li, 2)";
+        ಸ್ಥಿತಿ ATOREAL: ಹಿಂತಿರುಗಿ "VL_ATOREAL_N(%li)";
         }
         V3ERROR_NA_RETURN("");
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    FmtType fmtType() const { return m_fmtType; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    FmtType fmtType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_fmtType; }
 };
-class AstBitsToRealD final : public AstNodeUniop {
-public:
-    AstBitsToRealD(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_BitsToRealD(fl, lhsp) {
-        dtypeSetDouble();
+class Ast_ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_Real_D final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_Real_D(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_Real_D(fl, lhsp) {
+        dtype_ಗಣ_Double();
     }
-    ASTGEN_MEMBERS_AstBitsToRealD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opBitsToRealD(lhs); }
-    string emitVerilog() override { return "%f$bitstoreal(%l)"; }
-    string emitC() override { return "VL_CVT_D_Q(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_Real_D;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_Real_D(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$bitstoreal(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_CVT_D_Q(%li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCCast final : public AstNodeUniop {
+class AstCCast final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Cast to C-based data type
-    int m_size;
+    ಪೂರ್ಣಾಂಕ m_ಗಾತ್ರ;
 
-public:
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, int setwidth, int minwidth = -1)
+ಸಾರ್ವಜನಿಕ:
+    AstCCast(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, ಪೂರ್ಣಾಂಕ setwidth, ಪೂರ್ಣಾಂಕ minwidth = -1)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
-        m_size = setwidth;
-        if (setwidth) {
-            if (minwidth == -1) minwidth = setwidth;
-            dtypeSetBitUnsized(setwidth, minwidth, VSigning::UNSIGNED);
+        m_ಗಾತ್ರ = setwidth;
+        ಆದರೆ (setwidth) {
+            ಆದರೆ (minwidth == -1) minwidth = setwidth;
+            dtype_ಗಣ_ಬಿಟ್_Unsized(setwidth, minwidth, VSigning::UNSIGNED);
         }
     }
     // cppcheck-suppress constParameterPointer
     // cppcheck-suppress constParameterCallback
-    AstCCast(FileLine* fl, AstNodeExpr* lhsp, AstNode* typeFromp)
+    AstCCast(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು* typeFromp)
         : ASTGEN_SUPER_CCast(fl, lhsp) {
         dtypeFrom(typeFromp);
-        m_size = width();
+        m_ಗಾತ್ರ = ಅಗಲ();
     }
     ASTGEN_MEMBERS_AstCCast;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%f$_CAST(%l)"; }
-    string emitC() override { return "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }  // Special cased in V3Cast
-    bool sameNode(const AstNode* samep) const override {
-        return size() == VN_DBG_AS(samep, CCast)->size();
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_ನಿಯೋಜಿಸು(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$_CAST(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_CAST_%nq%lq(%nw,%lw, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Special cased in V3Cast
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2() == VN_DBG_AS(samep, CCast)->ಗಾತ್ರ_2();
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
     //
-    int size() const { return m_size; }
+    ಪೂರ್ಣಾಂಕ ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಗಾತ್ರ; }
 };
-class AstCLog2 final : public AstNodeUniop {
-public:
-    AstCLog2(FileLine* fl, AstNodeExpr* lhsp)
+class AstCLog2 final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    AstCLog2(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_CLog2(fl, lhsp) {
-        dtypeSetInteger2State();
+        dtype_ಗಣ_Integer2_State();
     }
     ASTGEN_MEMBERS_AstCLog2;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCLog2(lhs); }
-    string emitVerilog() override { return "%f$clog2(%l)"; }
-    string emitC() override { return "VL_CLOG2_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opCLog2(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$clog2(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_CLOG2_%lq(%lW, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 16; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCastWrap final : public AstNodeUniop {
+class AstCastWrap final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // A cast which has been expanded and the LHSP does all the lifting
     // This remains until V3Width final commit pass to suppress ENUMVALUE warnings
-public:
-    AstCastWrap(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstCastWrap(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_CastWrap(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCastWrap;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "(%l)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_ನಿಯೋಜಿಸು(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
 };
-class AstCountOnes final : public AstNodeUniop {
+class Ast_ಎಣಿಕೆ_Ones final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Number of bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstCountOnes(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_CountOnes(fl, lhsp) {
-        dtypeSetInt();
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಎಣಿಕೆ_Ones(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_ಎಣಿಕೆ_Ones(fl, lhsp) {
+        dtype_ಗಣ_Int();
     }
-    ASTGEN_MEMBERS_AstCountOnes;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCountOnes(lhs); }
-    string emitVerilog() override { return "%f$countones(%l)"; }
-    string emitC() override { return "VL_COUNTONES_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_ಎಣಿಕೆ_Ones;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_ಎಣಿಕೆ_Ones(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$countones(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_COUNTONES_%lq(%lW, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 16; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCvtPackString final : public AstNodeUniop {
+class AstCvtPackString final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Convert to Verilator Packed String (aka verilog "string")
-public:
-    AstCvtPackString(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstCvtPackString(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_CvtPackString(fl, lhsp) {
-        dtypeSetString();
+        dtype_ಗಣ_String();
     }
     ASTGEN_MEMBERS_AstCvtPackString;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opCvtPackString(lhs); }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opCvtPackString(lhs); }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstExtend final : public AstNodeUniop {
+class AstExtend final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Expand a value into a wider entity by 0 extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstExtend(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Extend(fl, lhsp) {}
-    AstExtend(FileLine* fl, AstNodeExpr* lhsp, int width, int widthMin = 0)
+    AstExtend(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, ಪೂರ್ಣಾಂಕ ಅಗಲ, ಪೂರ್ಣಾಂಕ ಅಗಲ_Min = 0)
         : ASTGEN_SUPER_Extend(fl, lhsp) {
-        dtypeSetBitOrLogicUnsized(width, widthMin ? widthMin : width, VSigning::UNSIGNED,
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic_Unsized(ಅಗಲ, ಅಗಲ_Min ? ಅಗಲ_Min : ಅಗಲ, VSigning::UNSIGNED,
                                   lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtend;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opAssign(lhs); }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ zero_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_ನಿಯೋಜಿಸು(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_EXTEND_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ "((_ zero_extend " + cvt_ಗಮ್ಯ_Str(ಅಗಲ() - lhsp()->ಅಗಲ()) + ") %l)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
 };
-class AstExtendS final : public AstNodeUniop {
+class AstExtendS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Expand a value into a wider entity by sign extension.  Width is implied from nodep->width()
     // @astgen makeDfgVertex
-public:
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstExtendS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {}
-    AstExtendS(FileLine* fl, AstNodeExpr* lhsp, int width)
+    AstExtendS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, ಪೂರ್ಣಾಂಕ ಅಗಲ)
         // Important that widthMin be correct, as opExtend requires it after V3Expand
         : ASTGEN_SUPER_ExtendS(fl, lhsp) {
-        dtypeSetBitOrLogicSized(width, VSigning::UNSIGNED, lhsp->isFourstateOrNoDtype());
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic_Sized(ಅಗಲ, VSigning::UNSIGNED, lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstExtendS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.opExtendS(lhs, lhsp()->widthMinV());
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.opExtendS(lhs, lhsp()->ಅಗಲ_Min_V());
     }
-    string emitVerilog() override { return "%l"; }
-    string emitC() override { return "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override {
-        return "((_ sign_extend " + cvtToStr(width() - lhsp()->width()) + ") %l)";
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_EXTENDS_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ "((_ sign_extend " + cvt_ಗಮ್ಯ_Str(ಅಗಲ() - lhsp()->ಅಗಲ()) + ") %l)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override {
-        return false;  // Because the EXTEND operator self-casts
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ false;  // Because the EXTEND operator self-casts
     }
-    int instrCount() const override { return 0; }
-    bool signedFlavor() const override { return true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool signedFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFEof final : public AstNodeUniop {
-public:
-    AstFEof(FileLine* fl, AstNodeExpr* lhsp)
+class AstFEof final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    AstFEof(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_FEof(fl, lhsp) {
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 1,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 1,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFEof;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$feof(%l)"; }
-    string emitC() override { return "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isSystemFunc() const override { return true; }
-    AstNode* filep() const { return lhsp(); }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$feof(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "(%li ? feof(VL_CVT_I_FP(%li)) : true)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 16; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    Ast_ಗಂಟು* filep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ lhsp(); }
 };
-class AstFGetC final : public AstNodeUniop {
-public:
-    AstFGetC(FileLine* fl, AstNodeExpr* lhsp)
+class AstFGetC final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    AstFGetC(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_FGetC(fl, lhsp) {
-        dtypeSetLogic2StateUnsized(
-            32, v3Global.widthMinUsage() == VWidthMinUsage::MATCHES_WIDTH ? 32 : 8,
+        dtype_ಗಣ_Logic2_State_Unsized(
+            32, v3Global.ಅಗಲ_Min_Usage() == VWidthMinUsage::MATCHES_ಅಗಲ ? 32 : 8,
             VSigning::SIGNED);  // Spec says integer return
     }
     ASTGEN_MEMBERS_AstFGetC;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%f$fgetc(%l)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$fgetc(%l)"; }
     // Non-existent filehandle returns EOF
-    string emitC() override { return "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 64; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    AstNode* filep() const { return lhsp(); }
-    bool isSystemFunc() const override { return true; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "(%li ? fgetc(VL_CVT_I_FP(%li)) : -1)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 64; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    Ast_ಗಂಟು* filep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ lhsp(); }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstISToRD final : public AstNodeUniop {
+class AstISToRD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // $itor where lhs is signed
-public:
-    AstISToRD(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstISToRD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_ISToRD(fl, lhsp) {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
     ASTGEN_MEMBERS_AstISToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opISToRD(lhs); }
-    string emitVerilog() override { return "%f$itor($signed(%l))"; }
-    string emitC() override { return "VL_ISTOR_D_%lq(%lw, %li)"; }
-    bool emitCheckMaxWords() override { return true; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opISToRD(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$itor($signed(%l))"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_ISTOR_D_%lq(%lw, %li)"; }
+    bool emit_Check_Max_ಪದಗಳು() override { ಹಿಂತಿರುಗಿ true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstIToRD final : public AstNodeUniop {
+class AstIToRD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // $itor where lhs is unsigned
-public:
-    AstIToRD(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstIToRD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_IToRD(fl, lhsp) {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
     ASTGEN_MEMBERS_AstIToRD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIToRD(lhs); }
-    string emitVerilog() override { return "%f$itor(%l)"; }
-    string emitC() override { return "VL_ITOR_D_%lq(%lw, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opIToRD(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$itor(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_ITOR_D_%lq(%lw, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstIsUnbounded final : public AstNodeUniop {
+class AstIsUnbounded final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // True if is unbounded ($)
-public:
-    AstIsUnbounded(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstIsUnbounded(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_IsUnbounded(fl, lhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstIsUnbounded;
-    void numberOperate(V3Number& out, const V3Number&) override {
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ&) override {
         // Any constant isn't unbounded
-        out.setZero();
+        ಹೊರಹೋಗು.ಗಣ_Zero();
     }
-    string emitVerilog() override { return "%f$isunbounded(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$isunbounded(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstIsUnknown final : public AstNodeUniop {
+class AstIsUnknown final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // True if any unknown bits
-public:
-    AstIsUnknown(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstIsUnknown(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_IsUnknown(fl, lhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstIsUnknown;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opIsUnknown(lhs); }
-    string emitVerilog() override { return "%f$isunknown(%l)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opIsUnknown(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$isunknown(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstLenN final : public AstNodeUniop {
+class AstLenN final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Length of a string
-public:
-    AstLenN(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstLenN(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_LenN(fl, lhsp) {
-        dtypeSetInt();
+        dtype_ಗಣ_Int();
     }
     ASTGEN_MEMBERS_AstLenN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLenN(lhs); }
-    string emitVerilog() override { return "%f(%l)"; }
-    string emitC() override { return "VL_LEN_IN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opLenN(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LEN_IN(%li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstLogNot final : public AstNodeUniop {
+class AstLogNot final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // @astgen makeDfgVertex
-private:
-    const bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
+ಖಾಸಗಿ:
+    ಸ್ಥಿರಾಂಕ bool m_fromProperty;  // True if from property 'not' keyword (IEEE 1800-2023 16.12.3),
                                 // false for boolean '!' (IEEE 1800-2023 11.4.7)
-public:
-    AstLogNot(FileLine* fl, AstNodeExpr* lhsp, bool fromProperty = false)
+ಸಾರ್ವಜನಿಕ:
+    AstLogNot(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, bool fromProperty = false)
         : ASTGEN_SUPER_LogNot(fl, lhsp)
         , m_fromProperty{fromProperty} {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstLogNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opLogNot(lhs); }
-    string emitVerilog() override { return "%f(! %l)"; }
-    string emitC() override { return "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
-    string emitSMT() const override { return "(__Vbv (not (__Vbool %l)))"; }
-    string emitSimpleOperator() override { return "!"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool fromProperty() const { return m_fromProperty; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opLogNot(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(! %l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_LOGNOT_%nq%lq(%nw,%lw, %P, %li)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(__Vbv (not (__Vbool %l)))"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "!"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool fromProperty() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_fromProperty; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
 };
-class AstMostSetBitP1 final : public AstNodeUniop {
+class Ast_Most_ಗಣ_ಬಿಟ್_P1 final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Most-significant set bit plus one (bit-width); 0 if value is zero
-public:
-    AstMostSetBitP1(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_MostSetBitP1(fl, lhsp) {
-        dtypeSetInteger2State();
+ಸಾರ್ವಜನಿಕ:
+    Ast_Most_ಗಣ_ಬಿಟ್_P1(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_Most_ಗಣ_ಬಿಟ್_P1(fl, lhsp) {
+        dtype_ಗಣ_Integer2_State();
     }
-    ASTGEN_MEMBERS_AstMostSetBitP1;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opMostSetBitP1(lhs); }
-    string emitVerilog() override { return "%f$mostsetbitp1(%l)"; }
-    string emitC() override { return "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 16; }
+    ASTGEN_MEMBERS_Ast_Most_ಗಣ_ಬಿಟ್_P1;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_Most_ಗಣ_ಬಿಟ್_P1(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$mostsetbitp1(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_MOSTSETBITP1_%lq(%lW, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 16; }
 };
-class AstNToI final : public AstNodeUniop {
+class AstNToI final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // String to any-size integral
-public:
-    AstNToI(FileLine* fl, AstNodeExpr* lhsp, AstNodeDType* dtypep = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstNToI(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_DType* dtypep = nullptr)
         : ASTGEN_SUPER_NToI(fl, lhsp) {
         this->dtypep(dtypep);
     }
     ASTGEN_MEMBERS_AstNToI;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNToI(lhs); }
-    string emitVerilog() override { return "'(%l)"; }
-    string emitC() override { return "VL_NTOI_%nq(%nw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opNToI(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "'(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_NTOI_%nq(%nw, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstNegate final : public AstNodeUniop {
+class AstNegate final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNegate(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNegate(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Negate(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNegate;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegate(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
-    string emitC() override { return "VL_NEGATE_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvneg %l)"; }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opNegate(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(- %l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_NEGATE_%lq(%lW, %P, %li)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvneg %l)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "-"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNegateD final : public AstNodeUniop {
-public:
-    AstNegateD(FileLine* fl, AstNodeExpr* lhsp)
+class AstNegateD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    AstNegateD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_NegateD(fl, lhsp) {
-        dtypeSetDouble();
+        dtype_ಗಣ_Double();
     }
     ASTGEN_MEMBERS_AstNegateD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNegateD(lhs); }
-    string emitVerilog() override { return "%f(- %l)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opNegateD(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(- %l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    string emitSimpleOperator() override { return "-"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool doubleFlavor() const override { return true; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "-"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool doubleFlavor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNot final : public AstNodeUniop {
+class AstNot final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstNot(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNot(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Not(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opNot(lhs); }
-    string emitVerilog() override { return "%f(~ %l)"; }
-    string emitC() override { return "VL_NOT_%lq(%lW, %P, %li)"; }
-    string emitSMT() const override { return "(bvnot %l)"; }
-    string emitSimpleOperator() override { return "~"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return true; }
-    const char* widthMismatch() const override VL_MT_STABLE;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opNot(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(~ %l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_NOT_%lq(%lW, %P, %li)"; }
+    string emitSMT() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "(bvnot %l)"; }
+    string emitSimpleOperator() override { ಹಿಂತಿರುಗಿ "~"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಅಗಲ_Mismatch() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE;
 };
-class AstNullCheck final : public AstNodeUniop {
+class AstNullCheck final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Return LHS after checking that LHS is non-null
-public:
-    AstNullCheck(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstNullCheck(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_NullCheck(fl, lhsp) {
         dtypeFrom(lhsp);
     }
     ASTGEN_MEMBERS_AstNullCheck;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    int instrCount() const override { return 1; }  // Rarely executes
-    string emitVerilog() override { return "%l"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { V3ERROR_NA; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 1; }  // Rarely executes
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ fileline() == samep->fileline(); }
 };
-class AstOneHot final : public AstNodeUniop {
+class AstOneHot final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // True if only single bit set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstOneHot(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_OneHot(fl, lhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstOneHot;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot(lhs); }
-    string emitVerilog() override { return "%f$onehot(%l)"; }
-    string emitC() override { return "VL_ONEHOT_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 4; }
-    bool isSystemFunc() const override { return true; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opOneHot(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$onehot(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_ONEHOT_%lq(%lW, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 4; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstOneHot0 final : public AstNodeUniop {
+class AstOneHot0 final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // True if only single bit, or no bits set in vector
     // @astgen makeDfgVertex
-public:
-    AstOneHot0(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstOneHot0(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_OneHot0(fl, lhsp) {
-        dtypeSetBit();
+        dtype_ಗಣ_ಬಿಟ್();
     }
     ASTGEN_MEMBERS_AstOneHot0;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opOneHot0(lhs); }
-    string emitVerilog() override { return "%f$onehot0(%l)"; }
-    string emitC() override { return "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return widthInstrs() * 3; }
-    bool isSystemFunc() const override { return true; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opOneHot0(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$onehot0(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_ONEHOT0_%lq(%lW, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() * 3; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstPostDec final : public AstNodeUniop {
+class AstPostDec final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Post-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPostDec(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPostDec(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_PostDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l--)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l--)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPostInc final : public AstNodeUniop {
+class AstPostInc final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Post-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPostInc(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPostInc(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_PostInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPostInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(%l++)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(%l++)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreDec final : public AstNodeUniop {
+class AstPreDec final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Pre-decrement/subtract
     // Children: lhsp: tree with AstVarRef to be decremented
-public:
-    AstPreDec(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPreDec(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_PreDec(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreDec;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(--%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(--%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstPreInc final : public AstNodeUniop {
+class AstPreInc final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Pre-increment/add
     // Children: lhsp: tree with AstVarRef to be incremented
-public:
-    AstPreInc(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstPreInc(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_PreInc(fl, lhsp) {}
     ASTGEN_MEMBERS_AstPreInc;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
         V3ERROR_NA;  // Need to modify lhs
     }
-    string emitVerilog() override { return "%k(++%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%k(++%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
     string emitSimpleOperator() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { V3ERROR_NA_RETURN(false); }
-    bool cleanLhs() const override { V3ERROR_NA_RETURN(false); }
-    bool sizeMattersLhs() const override { V3ERROR_NA_RETURN(true); }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(false); }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }
 };
-class AstRToIRoundS final : public AstNodeUniop {
+class AstRToIRoundS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Convert real to integer, with arbitrary sized output (not just "integer" format)
-public:
-    AstRToIRoundS(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRToIRoundS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_RToIRoundS(fl, lhsp) {
-        dtypeSetInteger2State();
+        dtype_ಗಣ_Integer2_State();
     }
     ASTGEN_MEMBERS_AstRToIRoundS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIRoundS(lhs); }
-    string emitVerilog() override { return "%f$rtoi_rounded(%l)"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opRToIRoundS(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$rtoi_rounded(%l)"; }
     string emitC() override {
-        return isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
+        ಹಿಂತಿರುಗಿ isWide() ? "VL_RTOIROUND_%nq_D(%nw, %P, %li)" : "VL_RTOIROUND_%nq_D(%li)";
     }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstRToIS final : public AstNodeUniop {
+class AstRToIS final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // $rtoi(lhs)
-public:
-    AstRToIS(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRToIS(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_RToIS(fl, lhsp) {
-        dtypeSetInteger2State();
+        dtype_ಗಣ_Integer2_State();
     }
     ASTGEN_MEMBERS_AstRToIS;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRToIS(lhs); }
-    string emitVerilog() override { return "%f$rtoi(%l)"; }
-    string emitC() override { return "VL_RTOI_I_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opRToIS(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$rtoi(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_RTOI_I_D(%li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstRealToBits final : public AstNodeUniop {
-public:
-    AstRealToBits(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_RealToBits(fl, lhsp) {
-        dtypeSetUInt64();
+class Ast_Real_ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Real_ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_Real_ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು(fl, lhsp) {
+        dtype_ಗಣ_UInt64();
     }
-    ASTGEN_MEMBERS_AstRealToBits;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRealToBits(lhs); }
-    string emitVerilog() override { return "%f$realtobits(%l)"; }
-    string emitC() override { return "VL_CVT_Q_D(%li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return false; }  // Eliminated before matters
-    int instrCount() const override { return INSTR_COUNT_DBL; }
-    bool isSystemFunc() const override { return true; }
+    ASTGEN_MEMBERS_Ast_Real_ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_Real_ಗಮ್ಯ_ಬಿಟ್ಟುಗಳು(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$realtobits(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_CVT_Q_D(%li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_DBL; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstRedAnd final : public AstNodeUniop {
+class AstRedAnd final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedAnd(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRedAnd(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_RedAnd(fl, lhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedAnd;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedAnd(lhs); }
-    string emitVerilog() override { return "%f(& %l)"; }
-    string emitC() override { return "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opRedAnd(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(& %l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_REDAND_%nq%lq(%lw, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstRedOr final : public AstNodeUniop {
+class AstRedOr final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedOr(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRedOr(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_RedOr(fl, lhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedOr;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedOr(lhs); }
-    string emitVerilog() override { return "%f(| %l)"; }
-    string emitC() override { return "VL_REDOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opRedOr(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(| %l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_REDOR_%lq(%lW, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstRedXor final : public AstNodeUniop {
+class AstRedXor final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // @astgen makeDfgVertex
-public:
-    AstRedXor(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRedXor(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_RedXor(fl, lhsp) {
-        dtypeSetBitOrLogic(lhsp->isFourstateOrNoDtype());
+        dtype_ಗಣ_ಬಿಟ್_Or_Logic(lhsp->isFourstateOrNoDtype());
     }
     ASTGEN_MEMBERS_AstRedXor;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opRedXor(lhs); }
-    string emitVerilog() override { return "%f(^ %l)"; }
-    string emitC() override { return "VL_REDXOR_%lq(%lW, %P, %li)"; }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override {
-        const int w = lhsp()->width();
-        return (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.opRedXor(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f(^ %l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_REDXOR_%lq(%lW, %P, %li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ w = lhsp()->ಅಗಲ();
+        ಹಿಂತಿರುಗಿ (w != 1 && w != 2 && w != 4 && w != 8 && w != 16);
     }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 1 + V3Number::log2b(width()); }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 1 + V3_ಸಂಖ್ಯೆ::log2b(ಅಗಲ()); }
 };
-class AstResizeLValue final : public AstNodeUniop {
+class AstResizeLValue final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Resize a LValue into a wider/narrower entity at function argument boundry
     // Width and signness is implied from nodep->width()
-public:
-    AstResizeLValue(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstResizeLValue(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_ResizeLValue(fl, lhsp) {}
     ASTGEN_MEMBERS_AstResizeLValue;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l"; }
     string emitC() final override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
-    int instrCount() const override { return 0; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
 };
-class AstSigned final : public AstNodeUniop {
+class AstSigned final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // $signed(lhs)
-public:
-    AstSigned(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSigned(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Signed(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstSigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.opAssign(lhs);
-        out.isSigned(false);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.op_ನಿಯೋಜಿಸು(lhs);
+        ಹೊರಹೋಗು.isSigned(false);
     }
-    string emitVerilog() override { return "%f$signed(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$signed(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }  // Eliminated before matters
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstTimeImport final : public AstNodeUniop {
+class Ast_ಸಮಯ_Import final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // Take a constant that represents a time and needs conversion based on time units
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    AstTimeImport(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_TimeImport(fl, lhsp) {}
-    ASTGEN_MEMBERS_AstTimeImport;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "%l"; }
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸಮಯ_Import(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_ಸಮಯ_Import(fl, lhsp) {}
+    ASTGEN_MEMBERS_Ast_ಸಮಯ_Import;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }
-    bool sizeMattersLhs() const override { return false; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
 };
-class AstToLowerN final : public AstNodeUniop {
+class Ast_ಗಮ್ಯ_ಅಧೋ_N final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // string.tolower()
-public:
-    AstToLowerN(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_ToLowerN(fl, lhsp) {
-        dtypeSetString();
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಮ್ಯ_ಅಧೋ_N(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_ಗಮ್ಯ_ಅಧೋ_N(fl, lhsp) {
+        dtype_ಗಣ_String();
     }
-    ASTGEN_MEMBERS_AstToLowerN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToLowerN(lhs); }
-    string emitVerilog() override { return "%l.tolower()"; }
-    string emitC() override { return "VL_TOLOWER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ASTGEN_MEMBERS_Ast_ಗಮ್ಯ_ಅಧೋ_N;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_ಗಮ್ಯ_ಅಧೋ_N(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l.tolower()"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_TOLOWER_NN(%li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstToStringN final : public AstNodeUniop {
-public:
-    AstToStringN(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_ToStringN(fl, lhsp) {
-        dtypeSetString();
+class Ast_ಗಮ್ಯ_String_N final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಮ್ಯ_String_N(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_ಗಮ್ಯ_String_N(fl, lhsp) {
+        dtype_ಗಣ_String();
     }
-    ASTGEN_MEMBERS_AstToStringN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { V3ERROR_NA; }
-    string emitVerilog() override { return "$sformatf(\"%p\", %l)"; }
+    ASTGEN_MEMBERS_Ast_ಗಮ್ಯ_String_N;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { V3ERROR_NA; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "$sformatf(\"%p\", %l)"; }
     string emitC() override {
-        return isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
+        ಹಿಂತಿರುಗಿ isWide() ? "VL_TO_STRING_W(%nw, %li)" : "VL_TO_STRING_DEREF(%li)";
     }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstToUpperN final : public AstNodeUniop {
+class Ast_ಗಮ್ಯ_ಊರ್ಧ್ವ_N final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // string.toupper()
-public:
-    AstToUpperN(FileLine* fl, AstNodeExpr* lhsp)
-        : ASTGEN_SUPER_ToUpperN(fl, lhsp) {
-        dtypeSetString();
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಮ್ಯ_ಊರ್ಧ್ವ_N(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
+        : ASTGEN_SUPER_ಗಮ್ಯ_ಊರ್ಧ್ವ_N(fl, lhsp) {
+        dtype_ಗಣ_String();
     }
-    ASTGEN_MEMBERS_AstToUpperN;
-    void numberOperate(V3Number& out, const V3Number& lhs) override { out.opToUpperN(lhs); }
-    string emitVerilog() override { return "%l.toupper()"; }
-    string emitC() override { return "VL_TOUPPER_NN(%li)"; }
-    bool cleanOut() const override { return true; }
-    bool cleanLhs() const override { return true; }
-    bool sizeMattersLhs() const override { return false; }
+    ASTGEN_MEMBERS_Ast_ಗಮ್ಯ_ಊರ್ಧ್ವ_N;
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override { ಹೊರಹೋಗು.op_ಗಮ್ಯ_ಊರ್ಧ್ವ_N(lhs); }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%l.toupper()"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "VL_TOUPPER_NN(%li)"; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstUnsigned final : public AstNodeUniop {
+class AstUnsigned final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Uniop {
     // $unsigned(lhs)
-public:
-    AstUnsigned(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstUnsigned(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Unsigned(fl, lhsp) {
         UASSERT_OBJ(!v3Global.assertDTypesResolved(), this,
                     "not coded to create after dtypes resolved");
     }
     ASTGEN_MEMBERS_AstUnsigned;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.opAssign(lhs);
-        out.isSigned(false);
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.op_ನಿಯೋಜಿಸು(lhs);
+        ಹೊರಹೋಗು.isSigned(false);
     }
-    string emitVerilog() override { return "%f$unsigned(%l)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$unsigned(%l)"; }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return false; }
-    bool cleanLhs() const override { return false; }  // Eliminated before matters
-    bool sizeMattersLhs() const override { return true; }  // Eliminated before matters
-    int instrCount() const override { return 0; }
-    bool isSystemFunc() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool cleanLhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Eliminated before matters
+    bool ಗಾತ್ರ_Matters_Lhs() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }  // Eliminated before matters
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool isSystemFunc() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
 
 // === AstNodeSystemUniopD ===
-class AstAcosD final : public AstNodeSystemUniopD {
-public:
-    AstAcosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcosD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstAcosD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_AcosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::acos(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::acos(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$acos(%l)"; }
-    string emitC() override { return "acos(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$acos(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "acos(%li)"; }
 };
-class AstAcoshD final : public AstNodeSystemUniopD {
-public:
-    AstAcoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAcoshD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstAcoshD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_AcoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAcoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::acosh(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::acosh(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$acosh(%l)"; }
-    string emitC() override { return "acosh(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$acosh(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "acosh(%li)"; }
 };
-class AstAsinD final : public AstNodeSystemUniopD {
-public:
-    AstAsinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstAsinD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_AsinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::asin(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::asin(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$asin(%l)"; }
-    string emitC() override { return "asin(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$asin(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "asin(%li)"; }
 };
-class AstAsinhD final : public AstNodeSystemUniopD {
-public:
-    AstAsinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAsinhD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstAsinhD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_AsinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAsinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::asinh(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::asinh(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$asinh(%l)"; }
-    string emitC() override { return "asinh(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$asinh(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "asinh(%li)"; }
 };
-class AstAtanD final : public AstNodeSystemUniopD {
-public:
-    AstAtanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstAtanD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_AtanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::atan(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::atan(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$atan(%l)"; }
-    string emitC() override { return "atan(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$atan(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "atan(%li)"; }
 };
-class AstAtanhD final : public AstNodeSystemUniopD {
-public:
-    AstAtanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstAtanhD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstAtanhD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_AtanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstAtanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::atanh(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::atanh(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$atanh(%l)"; }
-    string emitC() override { return "atanh(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$atanh(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "atanh(%li)"; }
 };
-class AstCeilD final : public AstNodeSystemUniopD {
-public:
-    AstCeilD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCeilD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstCeilD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_CeilD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCeilD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::ceil(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::ceil(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$ceil(%l)"; }
-    string emitC() override { return "ceil(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$ceil(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "ceil(%li)"; }
 };
-class AstCosD final : public AstNodeSystemUniopD {
-public:
-    AstCosD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCosD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstCosD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_CosD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCosD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::cos(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::ಕೋಜ್ಯಾ(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$cos(%l)"; }
-    string emitC() override { return "cos(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$cos(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "cos(%li)"; }
 };
-class AstCoshD final : public AstNodeSystemUniopD {
-public:
-    AstCoshD(FileLine* fl, AstNodeExpr* lhsp)
+class AstCoshD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstCoshD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_CoshD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstCoshD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::cosh(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::cosh(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$cosh(%l)"; }
-    string emitC() override { return "cosh(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$cosh(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "cosh(%li)"; }
 };
-class AstExpD final : public AstNodeSystemUniopD {
-public:
-    AstExpD(FileLine* fl, AstNodeExpr* lhsp)
+class AstExpD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstExpD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_ExpD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstExpD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::exp(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::ಘಾತಾಂಕ(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$exp(%l)"; }
-    string emitC() override { return "exp(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$exp(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "exp(%li)"; }
 };
-class AstFloorD final : public AstNodeSystemUniopD {
-public:
-    AstFloorD(FileLine* fl, AstNodeExpr* lhsp)
+class AstFloorD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstFloorD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_FloorD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstFloorD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::floor(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::floor(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$floor(%l)"; }
-    string emitC() override { return "floor(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$floor(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "floor(%li)"; }
 };
-class AstLog10D final : public AstNodeSystemUniopD {
-public:
-    AstLog10D(FileLine* fl, AstNodeExpr* lhsp)
+class AstLog10D final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstLog10D(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Log10D(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLog10D;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::log10(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::log10(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$log10(%l)"; }
-    string emitC() override { return "log10(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$log10(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "log10(%li)"; }
 };
-class AstLogD final : public AstNodeSystemUniopD {
-public:
-    AstLogD(FileLine* fl, AstNodeExpr* lhsp)
+class AstLogD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstLogD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_LogD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstLogD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::log(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::ಲಘುಗಣಕ(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$ln(%l)"; }
-    string emitC() override { return "log(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$ln(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "log(%li)"; }
 };
-class AstSinD final : public AstNodeSystemUniopD {
-public:
-    AstSinD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstSinD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_SinD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::sin(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::ಜ್ಯಾ(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$sin(%l)"; }
-    string emitC() override { return "sin(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$sin(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "sin(%li)"; }
 };
-class AstSinhD final : public AstNodeSystemUniopD {
-public:
-    AstSinhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSinhD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstSinhD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_SinhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSinhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::sinh(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::sinh(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$sinh(%l)"; }
-    string emitC() override { return "sinh(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$sinh(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "sinh(%li)"; }
 };
-class AstSqrtD final : public AstNodeSystemUniopD {
-public:
-    AstSqrtD(FileLine* fl, AstNodeExpr* lhsp)
+class AstSqrtD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstSqrtD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_SqrtD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstSqrtD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::sqrt(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::ವರ್ಗಮೂಲ(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$sqrt(%l)"; }
-    string emitC() override { return "sqrt(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$sqrt(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "sqrt(%li)"; }
 };
-class AstTanD final : public AstNodeSystemUniopD {
-public:
-    AstTanD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstTanD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_TanD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::tan(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::tan(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$tan(%l)"; }
-    string emitC() override { return "tan(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$tan(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "tan(%li)"; }
 };
-class AstTanhD final : public AstNodeSystemUniopD {
-public:
-    AstTanhD(FileLine* fl, AstNodeExpr* lhsp)
+class AstTanhD final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_System_Uniop_D {
+ಸಾರ್ವಜನಿಕ:
+    AstTanhD(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_TanhD(fl, lhsp) {}
     ASTGEN_MEMBERS_AstTanhD;
-    void numberOperate(V3Number& out, const V3Number& lhs) override {
-        out.setDouble(std::tanh(lhs.toDouble()));
+    ಶೂನ್ಯ ಸಂಖ್ಯೆ_ನಿರ್ವಹಿಸು(V3_ಸಂಖ್ಯೆ& ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ V3_ಸಂಖ್ಯೆ& lhs) override {
+        ಹೊರಹೋಗು.ಗಣ_Double(std::tanh(lhs.ಗಮ್ಯ_Double()));
     }
-    string emitVerilog() override { return "%f$tanh(%l)"; }
-    string emitC() override { return "tanh(%li)"; }
+    string emitVerilog() override { ಹಿಂತಿರುಗಿ "%f$tanh(%l)"; }
+    string emitC() override { ಹಿಂತಿರುಗಿ "tanh(%li)"; }
 };
 
 // === AstNodeVarRef ===
-class AstVarRef final : public AstNodeVarRef {
+class AstVarRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Var_Ref {
     // A reference to a variable (lvalue or rvalue)
     std::string m_name;  // Name of varref, though name() favors varp()->namep()
                          // if non-null pointer (e.g.: 'this')
-public:
+ಸಾರ್ವಜನಿಕ:
     // This form only allowed post-link because output/wire compression may
     // lead to deletion of AstVar's
-    inline AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access);
-    inline AstVarRef(FileLine* fl, AstNodeModule* classOrPackagep, AstVar* varp,
-                     const VAccess& access);
+    ಸಾಲೊಳಗೆ AstVarRef(File_ಸಾಲು* fl, AstVar* varp, ಸ್ಥಿರಾಂಕ VAccess& access);
+    ಸಾಲೊಳಗೆ AstVarRef(File_ಸಾಲು* fl, Ast_ಗಂಟು_Module* classOrPackagep, AstVar* varp,
+                     ಸ್ಥಿರಾಂಕ VAccess& access);
     // This form only allowed post-link (see above)
-    inline AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access);
+    ಸಾಲೊಳಗೆ AstVarRef(File_ಸಾಲು* fl, AstVarScope* varscp, ಸ್ಥಿರಾಂಕ VAccess& access);
     ASTGEN_MEMBERS_AstVarRef;
-    std::string nameThis() const { return m_name; }
-    inline string name() const override;  // * = Var name
-    void name(const string& name) override { m_name = name; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override;
-    bool sameNode(const AstNode* samep) const override;
-    inline bool sameNode(const AstVarRef* samep) const;
-    inline bool sameNoLvalue(const AstVarRef* samep) const;
-    int instrCount() const override;
+    std::string nameThis() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_name; }
+    ಸಾಲೊಳಗೆ string name() ಸ್ಥಿರಾಂಕ override;  // * = Var name
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override;
+    ಸಾಲೊಳಗೆ bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ AstVarRef* samep) ಸ್ಥಿರಾಂಕ;
+    ಸಾಲೊಳಗೆ bool sameNoLvalue(ಸ್ಥಿರಾಂಕ AstVarRef* samep) ಸ್ಥಿರಾಂಕ;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override;
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstVarXRef final : public AstNodeVarRef {
+class AstVarXRef final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Var_Ref {
     // A VarRef to something in another module before AstScope.
     // Includes pin on a cell, as part of a ASSIGN statement to connect I/Os until AstScope
     string m_name;
     string m_dotted;  // Dotted part of scope the name()'ed reference is under or ""
     string m_inlinedDots;  // Dotted hierarchy flattened out
-    bool m_containsGenBlock = false;  // Contains gen block reference
+    bool m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ = false;  // Contains gen block reference
     bool m_readOnlyModport = false;  // Linked via an input-only modport, until V3LinkLValue
-public:
-    AstVarXRef(FileLine* fl, const string& name, const string& dotted, const VAccess& access)
+ಸಾರ್ವಜನಿಕ:
+    AstVarXRef(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, ಸ್ಥಿರಾಂಕ string& dotted, ಸ್ಥಿರಾಂಕ VAccess& access)
         : ASTGEN_SUPER_VarXRef(fl, nullptr, access)
         , m_name{name}
         , m_dotted{dotted} {}
-    inline AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access);
+    ಸಾಲೊಳಗೆ AstVarXRef(File_ಸಾಲು* fl, AstVar* varp, ಸ್ಥಿರಾಂಕ string& dotted, ಸ್ಥಿರಾಂಕ VAccess& access);
     ASTGEN_MEMBERS_AstVarXRef;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void name(const std::string& name) override { m_name = name; }  // * = Var name
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string dotted() const { return m_dotted; }
-    void dotted(const string& dotted) { m_dotted = dotted; }
-    string inlinedDots() const { return m_inlinedDots; }
-    void inlinedDots(const string& flag) { m_inlinedDots = flag; }
-    bool containsGenBlock() const { return m_containsGenBlock; }
-    void containsGenBlock(const bool flag) { m_containsGenBlock = flag; }
-    bool readOnlyModport() const { return m_readOnlyModport; }
-    void readOnlyModport(const bool flag) { m_readOnlyModport = flag; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ std::string& name) override { m_name = name; }  // * = Var name
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string dotted() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dotted; }
+    ಶೂನ್ಯ dotted(ಸ್ಥಿರಾಂಕ string& dotted) { m_dotted = dotted; }
+    string inlinedDots() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_inlinedDots; }
+    ಶೂನ್ಯ inlinedDots(ಸ್ಥಿರಾಂಕ string& flag) { m_inlinedDots = flag; }
+    bool ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ; }
+    ಶೂನ್ಯ ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ(ಸ್ಥಿರಾಂಕ bool flag) { m_ಒಳಗೊಂಡಿದೆ_Gen_ಖಂಡ = flag; }
+    bool readOnlyModport() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_readOnlyModport; }
+    ಶೂನ್ಯ readOnlyModport(ಸ್ಥಿರಾಂಕ bool flag) { m_readOnlyModport = flag; }
     string emitVerilog() override { V3ERROR_NA_RETURN(""); }
     string emitC() override { V3ERROR_NA_RETURN(""); }
-    bool cleanOut() const override { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
-        return (selfPointer() == asamep->selfPointer() && varp() == asamep->varp()
+    bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstVarXRef* asamep = VN_DBG_AS(samep, VarXRef);
+        ಹಿಂತಿರುಗಿ (self_ಸೂಚಕ() == asamep->self_ಸೂಚಕ() && varp() == asamep->varp()
                 && name() == asamep->name() && dotted() == asamep->dotted());
     }
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

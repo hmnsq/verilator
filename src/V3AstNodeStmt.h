@@ -18,79 +18,79 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTNODESTMT_H_
-#define VERILATOR_V3ASTNODESTMT_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3ASTNODESTMT_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3ASTNODESTMT_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
-#define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3AST_H_
+#ದೋಷ "Use V3Ast.h as the include"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
+#ಆದರೆ_ಅಂತ್ಯ
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeStmt VL_NOT_FINAL : public AstNode {
+class Ast_ಗಂಟು_Stmt VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು {
     // Procedural statement
-protected:
-    AstNodeStmt(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_Stmt(VNType t, File_ಸಾಲು* fl)
+        : Ast_ಗಂಟು{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeStmt;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Stmt;
     // METHODS
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
 };
-class AstNodeAssign VL_NOT_FINAL : public AstNodeStmt {
+class Ast_ಗಂಟು_ನಿಯೋಜಿಸು VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Iteration is in order, and we want rhsp to be visited first (which is the execution order)
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := lhsp : AstNodeExpr
     // @astgen op3 := timingControlp : Optional[AstNode]
-protected:
-    AstNodeAssign(VNType t, FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
-        : AstNodeStmt{t, fl} {
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp,
+                  Ast_ಗಂಟು* timingControlp = nullptr)
+        : Ast_ಗಂಟು_Stmt{t, fl} {
         this->rhsp(rhsp);
         this->lhsp(lhsp);
         this->timingControlp(timingControlp);
         dtypeFrom(lhsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeAssign;
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_ನಿಯೋಜಿಸು;
     // Clone single node, just get same type back.
-    void dump(std::ostream& str) const override;
-    virtual AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) = 0;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    virtual bool cleanRhs() const { return true; }
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode*) const override { return true; }
-    string verilogKwd() const override { return "="; }
-    bool isTimingControl() const override { return timingControlp(); }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ವಾಸ್ತವಿಕ Ast_ಗಂಟು_ನಿಯೋಜಿಸು* cloneType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) = 0;
+    bool hasDType() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    ವಾಸ್ತವಿಕ bool cleanRhs() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "="; }
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ timingControlp(); }
 };
-class AstNodeBlock VL_NOT_FINAL : public AstNodeStmt {
+class Ast_ಗಂಟು_ಖಂಡ VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // A Begin/fork block
     // Parents: statement
     // @astgen op1 := declsp : List[AstNode] // Declarations inside block
     // @astgen op2 := stmtsp : List[AstNode] // Sequential statements inside block
     string m_name;  // Name of block
     bool m_unnamed;  // Originally unnamed (name change does not affect this)
-protected:
-    AstNodeBlock(VNType t, FileLine* fl, const string& name)
-        : AstNodeStmt{t, fl}
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_ಖಂಡ(VNType t, File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name)
+        : Ast_ಗಂಟು_Stmt{t, fl}
         , m_name{name}
         , m_unnamed{name == ""} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeBlock;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Block name
-    void name(const string& name) override { m_name = name; }
-    bool unnamed() const { return m_unnamed; }
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_ಖಂಡ;
+    bool maybe_Pointed_ಗಮ್ಯ() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Block name
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    bool unnamed() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_unnamed; }
 };
-class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
+class Ast_ಗಂಟು_Cover_Or_Assert VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Cover or Assert
     // Parents:  {statement list}
     // @astgen op1 := propp : AstNode
@@ -98,151 +98,151 @@ class AstNodeCoverOrAssert VL_NOT_FINAL : public AstNodeStmt {
     // op3 used by some sub-types only
     // @astgen op4 := passsp: List[AstNode] // Statements when propp is passing/truthly
     string m_name;  // Name to report
-    const VAssertType m_userType;  // Assertion/cover type for user enable/disable
-    const VAssertDirectiveType m_directive;  // Assertion directive type
+    ಸ್ಥಿರಾಂಕ VAssertType m_userType;  // Assertion/cover type for user enable/disable
+    ಸ್ಥಿರಾಂಕ VAssertDirectiveType m_directive;  // Assertion directive type
     bool m_senFromAlways = false;  // Sensitivity list copied from upper always
-    bool m_immediate = false;  // Immediate assert (may differ from userType being immediate)
+    bool m_ತಕ್ಷಣ = false;  // Immediate assert (may differ from userType being immediate)
 
-public:
-    AstNodeCoverOrAssert(VNType t, FileLine* fl, AstNode* propp, AstNode* passsp,
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಂಟು_Cover_Or_Assert(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು* propp, Ast_ಗಂಟು* passsp,
                          VAssertType userType, VAssertDirectiveType directive,
-                         const string& name = "")
-        : AstNodeStmt{t, fl}
+                         ಸ್ಥಿರಾಂಕ string& name = "")
+        : Ast_ಗಂಟು_Stmt{t, fl}
         , m_name{name}
         , m_userType{userType}
         , m_directive{directive} {
         this->propp(propp);
-        addPasssp(passsp);
-        m_immediate = m_userType.containsAny(VAssertType::SIMPLE_IMMEDIATE
-                                             | VAssertType::OBSERVED_DEFERRED_IMMEDIATE
-                                             | VAssertType::FINAL_DEFERRED_IMMEDIATE)
-                      || m_userType == VAssertType::INTERNAL;
+        ಕೂಡಿಸು_Passsp(passsp);
+        m_ತಕ್ಷಣ = m_userType.ಒಳಗೊಂಡಿದೆ_Any(VAssertType::SIMPLE_ತಕ್ಷಣ
+                                             | VAssertType::OBSERVED_DEFERRED_ತಕ್ಷಣ
+                                             | VAssertType::FINAL_DEFERRED_ತಕ್ಷಣ)
+                      || m_userType == VAssertType::ಆಂತರಿಕ;
     }
-    ASTGEN_MEMBERS_AstNodeCoverOrAssert;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool sameNode(const AstNode* samep) const override { return samep->name() == name(); }
-    void name(const string& name) override { m_name = name; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string type() { return ""; }
-    VAssertType userType() const VL_MT_SAFE { return m_userType; }
-    VAssertDirectiveType directive() const { return m_directive; }
-    bool immediate() const { return m_immediate; }
-    void immediate(bool flag) { m_immediate = flag; }
-    bool senFromAlways() const VL_MT_STABLE { return m_senFromAlways; }
-    void senFromAlways(bool flag) { m_senFromAlways = flag; }
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Cover_Or_Assert;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ samep->name() == name(); }
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    string type() { ಹಿಂತಿರುಗಿ ""; }
+    VAssertType userType() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ m_userType; }
+    VAssertDirectiveType directive() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_directive; }
+    bool ತಕ್ಷಣ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ತಕ್ಷಣ; }
+    ಶೂನ್ಯ ತಕ್ಷಣ(bool flag) { m_ತಕ್ಷಣ = flag; }
+    bool senFromAlways() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_senFromAlways; }
+    ಶೂನ್ಯ senFromAlways(bool flag) { m_senFromAlways = flag; }
 };
-class AstNodeForeach VL_NOT_FINAL : public AstNodeStmt {
+class Ast_ಗಂಟು_Foreach VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := headerp : AstForeachHeader
     // @astgen op2 := bodyp : List[AstNode]
-public:
-    AstNodeForeach(VNType t, FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp)
-        : AstNodeStmt(t, fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಂಟು_Foreach(VNType t, File_ಸಾಲು* fl, Ast_Foreach_ಶೀರ್ಷಿಕೆ* headerp, Ast_ಗಂಟು* bodyp)
+        : Ast_ಗಂಟು_Stmt(t, fl) {
         this->headerp(headerp);
-        addBodyp(bodyp);
+        ಕೂಡಿಸು_Bodyp(bodyp);
     }
-    ASTGEN_MEMBERS_AstNodeForeach;
-    bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Foreach;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstNodeIf VL_NOT_FINAL : public AstNodeStmt {
+class Ast_ಗಂಟು_If VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := thensp : List[AstNode]
     // @astgen op3 := elsesp : List[AstNode]
     VBranchPred m_branchPred;  // Branch prediction as taken/untaken?
     bool m_isBoundsCheck;  // True if this if node is for assertion/bounds checking
-protected:
-    AstNodeIf(VNType t, FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
-        : AstNodeStmt{t, fl} {
+ಸಂರಕ್ಷಿತ:
+    Ast_ಗಂಟು_If(VNType t, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, Ast_ಗಂಟು* thensp, Ast_ಗಂಟು* elsesp)
+        : Ast_ಗಂಟು_Stmt{t, fl} {
         this->condp(condp);
-        addThensp(thensp);
-        addElsesp(elsesp);
+        ಕೂಡಿಸು_Thensp(thensp);
+        ಕೂಡಿಸು_Elsesp(elsesp);
         isBoundsCheck(false);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeIf;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isGateDedupable() const override { return true; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void branchPred(VBranchPred flag) { m_branchPred = flag; }
-    VBranchPred branchPred() const { return m_branchPred; }
-    void isBoundsCheck(bool flag) { m_isBoundsCheck = flag; }
-    bool isBoundsCheck() const { return m_isBoundsCheck; }
+ಸಾರ್ವಜನಿಕ:
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_If;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isGateDedupable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ branchPred(VBranchPred flag) { m_branchPred = flag; }
+    VBranchPred branchPred() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_branchPred; }
+    ಶೂನ್ಯ isBoundsCheck(bool flag) { m_isBoundsCheck = flag; }
+    bool isBoundsCheck() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isBoundsCheck; }
 };
-class AstNodeReadWriteMem VL_NOT_FINAL : public AstNodeStmt {
+class Ast_ಗಂಟು_Read_Write_Mem VL_NOT_FINAL : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := filenamep : AstNodeExpr
     // @astgen op2 := memp : AstNodeExpr
     // @astgen op3 := lsbp : Optional[AstNodeExpr]
     // @astgen op4 := msbp : Optional[AstNodeExpr]
 
-    const bool m_isHex;  // readmemh, not readmemb
-public:
-    AstNodeReadWriteMem(VNType t, FileLine* fl, bool hex, AstNodeExpr* filenamep,
-                        AstNodeExpr* memp, AstNodeExpr* lsbp, AstNodeExpr* msbp)
-        : AstNodeStmt{t, fl}
+    ಸ್ಥಿರಾಂಕ bool m_isHex;  // readmemh, not readmemb
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಗಂಟು_Read_Write_Mem(VNType t, File_ಸಾಲು* fl, bool hex, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filenamep,
+                        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* memp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lsbp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* msbp)
+        : Ast_ಗಂಟು_Stmt{t, fl}
         , m_isHex{hex} {
         this->filenamep(filenamep);
         this->memp(memp);
         this->lsbp(lsbp);
         this->msbp(msbp);
     }
-    ASTGEN_MEMBERS_AstNodeReadWriteMem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return isHex() == VN_DBG_AS(samep, NodeReadWriteMem)->isHex();
+    ASTGEN_MEMBERS_Ast_ಗಂಟು_Read_Write_Mem;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ isHex() == VN_DBG_AS(samep, ಗಂಟು_Read_Write_Mem)->isHex();
     }
-    bool isHex() const { return m_isHex; }
-    virtual const char* cFuncPrefixp() const = 0;
+    bool isHex() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isHex; }
+    ವಾಸ್ತವಿಕ ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* cFuncPrefixp() ಸ್ಥಿರಾಂಕ = 0;
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstCaseItem final : public AstNode {
+class Ast_Case_ಅಂಶ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು {
     // Single item of AstCase/AstRandCase
     // @astgen op1 := condsp : List[AstNodeExpr]
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstCaseItem(FileLine* fl, AstNodeExpr* condsp, AstNode* stmtsp)
-        : ASTGEN_SUPER_CaseItem(fl) {
-        addCondsp(condsp);
-        addStmtsp(stmtsp);
+ಸಾರ್ವಜನಿಕ:
+    Ast_Case_ಅಂಶ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condsp, Ast_ಗಂಟು* stmtsp)
+        : ASTGEN_SUPER_Case_ಅಂಶ(fl) {
+        ಕೂಡಿಸು_Condsp(condsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
-    ASTGEN_MEMBERS_AstCaseItem;
-    int instrCount() const override { return widthInstrs() + INSTR_COUNT_BRANCH; }
-    bool isDefault() const { return condsp() == nullptr; }
+    ASTGEN_MEMBERS_Ast_Case_ಅಂಶ;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs() + INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool isDefault() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ condsp() == nullptr; }
 };
 
-class AstForeachHeader final : public AstNode {
+class Ast_Foreach_ಶೀರ್ಷಿಕೆ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು {
     // Variable reference + index enumeration "ref [id, id, id]" for a foreach statement
     // @astgen op1 := fromp : AstNodeExpr
     // @astgen op2 := elementsp : List[AstNode<AstNodeExpr|AstVar|AstEmpty>]
     //             AstNodeExpr/AstEmpty during parsing (only AstParseRef/AstEmpty is well formed)
     //             then AstVar/AstEmpty after LinkDot
-public:
-    AstForeachHeader(FileLine* fl, AstNodeExpr* fromp, AstNode* elementsp)
-        : ASTGEN_SUPER_ForeachHeader(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Foreach_ಶೀರ್ಷಿಕೆ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು* elementsp)
+        : ASTGEN_SUPER_Foreach_ಶೀರ್ಷಿಕೆ(fl) {
         this->fromp(fromp);
-        addElementsp(elementsp);
+        ಕೂಡಿಸು_Elementsp(elementsp);
     }
-    ASTGEN_MEMBERS_AstForeachHeader;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
+    ASTGEN_MEMBERS_Ast_Foreach_ಶೀರ್ಷಿಕೆ;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool maybe_Pointed_ಗಮ್ಯ() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ false; }
 };
 
 // === AstNodeStmt ===
-class AstAssertCtl final : public AstNodeStmt {
+class AstAssertCtl final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := controlTypep : AstNodeExpr
     // @astgen op2 := assertTypesp : Optional[AstNodeExpr]
     // @astgen op3 := directiveTypesp : Optional[AstNodeExpr]
@@ -252,134 +252,134 @@ class AstAssertCtl final : public AstNodeStmt {
     VAssertType m_assertTypes;  // Types of assertions affected
     VAssertDirectiveType m_directiveTypes;  // Types of directives affected
 
-public:
-    AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
-                 AstNodeExpr* levelp = nullptr, AstNodeExpr* itemsp = nullptr);
-    AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr* assertTypesp = nullptr,
-                 AstNodeExpr* directiveTypep = nullptr, AstNodeExpr* levelp = nullptr,
-                 AstNodeExpr* itemsp = nullptr);
+ಸಾರ್ವಜನಿಕ:
+    AstAssertCtl(File_ಸಾಲು* fl, VAssertCtlType ctlType, uint32_t assertType, uint32_t directiveType,
+                 Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* levelp = nullptr, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* itemsp = nullptr);
+    AstAssertCtl(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* controlTypep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* assertTypesp = nullptr,
+                 Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* directiveTypep = nullptr, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* levelp = nullptr,
+                 Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* itemsp = nullptr);
     ASTGEN_MEMBERS_AstAssertCtl;
-    string verilogKwd() const override { return m_ctlType.ascii(); }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    VAssertCtlType ctlType() const { return m_ctlType; }
-    void ctlType(int32_t type) { m_ctlType = VAssertCtlType{type}; }
-    VAssertType assertTypes() const { return m_assertTypes; }
-    void assertTypes(VAssertType types) { m_assertTypes = types; }
-    VAssertDirectiveType directiveTypes() const { return m_directiveTypes; }
-    void directiveTypes(VAssertDirectiveType types) { m_directiveTypes = types; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_ctlType.ascii(); }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    VAssertCtlType ctlType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ctlType; }
+    ಶೂನ್ಯ ctlType(int32_t type) { m_ctlType = VAssertCtlType{type}; }
+    VAssertType assertTypes() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_assertTypes; }
+    ಶೂನ್ಯ assertTypes(VAssertType types) { m_assertTypes = types; }
+    VAssertDirectiveType directiveTypes() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_directiveTypes; }
+    ಶೂನ್ಯ directiveTypes(VAssertDirectiveType types) { m_directiveTypes = types; }
+    ಶೂನ್ಯ dump(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str = std::cout) ಸ್ಥಿರಾಂಕ override;
 };
-class AstBreak final : public AstNodeStmt {
-public:
-    explicit AstBreak(FileLine* fl)
+class AstBreak final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+ಸಾರ್ವಜನಿಕ:
+    explicit AstBreak(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_Break(fl) {}
     ASTGEN_MEMBERS_AstBreak;
-    string verilogKwd() const override { return "break"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "break"; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCAwait final : public AstNodeStmt {
+class AstCAwait final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // C++'s co_await. While this is an expression in C++, in Verilator it is only used
     // with void result types and always appears in statement position. There must never
     // be a suspendable process that returns a value, so modeling as a statement instead.
     // @astgen op1 := exprp : AstNodeExpr
     //
     // @astgen ptr := m_sentreep : Optional[AstSenTree]  // Sentree related to this await
-public:
-    AstCAwait(FileLine* fl, AstNodeExpr* exprp, AstSenTree* sentreep = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstCAwait(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_Sen_ವೃಕ್ಷ* sentreep = nullptr)
         : ASTGEN_SUPER_CAwait(fl)
         , m_sentreep{sentreep} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstCAwait;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isTimingControl() const override { return true; }
-    AstSenTree* sentreep() const { return m_sentreep; }
-    void clearSentreep() { m_sentreep = nullptr; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    Ast_Sen_ವೃಕ್ಷ* sentreep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_sentreep; }
+    ಶೂನ್ಯ clearSentreep() { m_sentreep = nullptr; }
 };
-class AstCLocalScope final : public AstNodeStmt {
+class AstCLocalScope final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Pack statements into an unnamed scope when generating C++
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstCLocalScope(FileLine* fl, AstNode* stmtsp)
+ಸಾರ್ವಜನಿಕ:
+    AstCLocalScope(File_ಸಾಲು* fl, Ast_ಗಂಟು* stmtsp)
         : ASTGEN_SUPER_CLocalScope(fl) {
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstCLocalScope;
 };
-class AstCReturn final : public AstNodeStmt {
+class AstCReturn final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // C++ return from a function
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstCReturn(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstCReturn(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_CReturn(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstCReturn;
-    int instrCount() const override { return widthInstrs(); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ಅಗಲ_Instrs(); }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstCStmt final : public AstNodeStmt {
+class AstCStmt final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // C statement emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode<AstNodeStmt|AstNodeExpr|AstText>]
-    const VCStmtType m_stmtType;  // Special statement (instead of comparing name())
+    ಸ್ಥಿರಾಂಕ VCStmtType m_stmtType;  // Special statement (instead of comparing name())
 
-    static AstCStmt* profExecSection(FileLine* flp, const std::string& section, bool push) {
+    ಸ್ಥಿರ AstCStmt* profExecSection(File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ std::string& section, bool ತಳ್ಳು) {
         // Compute the label
         std::string label;
-        if (v3Global.opt.hierChild()) {
-            label += v3Global.opt.topModule() + ":";
-        } else if (!v3Global.opt.libCreate().empty()) {
+        ಆದರೆ (v3Global.opt.hier_ಮಗು()) {
+            label += v3Global.opt.ತುದಿ_Module() + ":";
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!v3Global.opt.libCreate().ಖಾಲಿಗಳು()) {
             label += v3Global.opt.libCreate() + ":";
         }
         label += section;
         // The profiler statement
         std::string pStmt = "VL_EXEC_TRACE_ADD_RECORD(vlSymsp)";
-        pStmt += push ? ".sectionPush" : ".sectionPop";
+        pStmt += ತಳ್ಳು ? ".sectionPush" : ".sectionPop";
         pStmt += "(";
-        if (push) pStmt += "\"" + label + "\"";
+        ಆದರೆ (ತಳ್ಳು) pStmt += "\"" + label + "\"";
         pStmt += ");";
         // The debug statement
         std::string dStmt = "VL_DEBUG_IF(VL_DBG_MSGF(\"+    --prof-exec ";
-        dStmt += push ? "sectionPush " : "sectionPop ";
+        dStmt += ತಳ್ಳು ? "sectionPush " : "sectionPop ";
         dStmt += label;
         dStmt += "\\n\"););";
         // Concatenate
-        return new AstCStmt{flp, push ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
+        ಹಿಂತಿರುಗಿ new AstCStmt{flp, ತಳ್ಳು ? pStmt + "\n" + dStmt : dStmt + "\n" + pStmt};
     }
 
-public:
-    explicit AstCStmt(FileLine* fl, const std::string& text = "",
-                      const VCStmtType& stmtType = VCStmtType::NONE)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstCStmt(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ std::string& ಪಠ್ಯ = "",
+                      ಸ್ಥಿರಾಂಕ VCStmtType& stmtType = VCStmtType::NONE)
         : ASTGEN_SUPER_CStmt(fl)
         , m_stmtType{stmtType} {
-        if (!text.empty()) add(text);
+        ಆದರೆ (!ಪಠ್ಯ.ಖಾಲಿಗಳು()) ಕೂಡಿಸು(ಪಠ್ಯ);
     }
     ASTGEN_MEMBERS_AstCStmt;
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VCStmtType stmtType() const { return m_stmtType; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    VCStmtType stmtType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_stmtType; }
     // Add some text, or a node to this statement
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ std::string& ಪಠ್ಯ) { ಕೂಡಿಸು_Nodesp(new Ast_ಪಠ್ಯ{fileline(), ಪಠ್ಯ}); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(Ast_ಗಂಟು* nodep) { ಕೂಡಿಸು_Nodesp(nodep); }
     // Static factory methods for specific cases
-    static AstCStmt* profExecSectionPush(FileLine* flp, const std::string& section) {
-        return profExecSection(flp, section, true);
+    ಸ್ಥಿರ AstCStmt* prof_Exec_Section_ತಳ್ಳು(File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ std::string& section) {
+        ಹಿಂತಿರುಗಿ profExecSection(flp, section, true);
     }
-    static AstCStmt* profExecSectionPop(FileLine* flp, const std::string& section) {
-        return profExecSection(flp, section, false);
+    ಸ್ಥಿರ AstCStmt* prof_Exec_Section_ತೆಗೆ(File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ std::string& section) {
+        ಹಿಂತಿರುಗಿ profExecSection(flp, section, false);
     }
 };
-class AstCStmtUser final : public AstNodeStmt {
+class AstCStmtUser final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // User '$c' statement, also used for handling some AstSystemCSection.
     // Same as AstCStmt, with text tracking disabled.
     //
@@ -389,144 +389,144 @@ class AstCStmtUser final : public AstNodeStmt {
     // Use AstCStmt instead, unless the text is from user input.
     //
     // @astgen op1 := nodesp : List[AstNode<AstNodeExpr|AstText>]
-    const bool m_fromDollarC;  // Is from source '$c', emit decoration
-public:
-    explicit AstCStmtUser(FileLine* fl, bool fromDollarC = false)
+    ಸ್ಥಿರಾಂಕ bool m_fromDollarC;  // Is from source '$c', emit decoration
+ಸಾರ್ವಜನಿಕ:
+    explicit AstCStmtUser(File_ಸಾಲು* fl, bool fromDollarC = false)
         : ASTGEN_SUPER_CStmtUser(fl)
         , m_fromDollarC{fromDollarC} {}
     ASTGEN_MEMBERS_AstCStmtUser;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool sameNode(const AstNode*) const override { return true; }
-    bool fromDollarC() const { return m_fromDollarC; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool fromDollarC() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_fromDollarC; }
     // Add some text, or a node to this statement
-    void add(const std::string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(ಸ್ಥಿರಾಂಕ std::string& ಪಠ್ಯ) { ಕೂಡಿಸು_Nodesp(new Ast_ಪಠ್ಯ{fileline(), ಪಠ್ಯ}); }
+    ಶೂನ್ಯ ಕೂಡಿಸು(Ast_ಗಂಟು* nodep) { ಕೂಡಿಸು_Nodesp(nodep); }
 };
-class AstCase final : public AstNodeStmt {
+class AstCase final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Case statement
     // @astgen op1 := exprp : AstNodeExpr // Condition (scurtinee) expression
     // @astgen op2 := itemsp : List[AstCaseItem]
     // @astgen op3 := notParallelp : List[AstNode] // assertion code for non-full case's
     VCaseType m_caseType;  // 0=case, 1=casex, 2=casez
-    bool m_fullPragma = false;  // Synthesis full_case
+    bool m_ತುಂಬಿದ_Pragma = false;  // Synthesis full_case
     bool m_parallelPragma = false;  // Synthesis parallel_case
     bool m_uniquePragma = false;  // unique case
     bool m_unique0Pragma = false;  // unique0 case
-    bool m_priorityPragma = false;  // priority case
-public:
-    AstCase(FileLine* fl, VCaseType caseType, AstNodeExpr* exprp, AstCaseItem* itemsp)
+    bool m_ಆದ್ಯತೆ_Pragma = false;  // priority case
+ಸಾರ್ವಜನಿಕ:
+    AstCase(File_ಸಾಲು* fl, VCaseType caseType, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, Ast_Case_ಅಂಶ* itemsp)
         : ASTGEN_SUPER_Case(fl)
         , m_caseType{caseType} {
         this->exprp(exprp);
-        addItemsp(itemsp);
+        ಕೂಡಿಸು_Itemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstCase;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    string verilogKwd() const override { return casez() ? "casez" : casex() ? "casex" : "case"; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_caseType == VN_DBG_AS(samep, Case)->m_caseType;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ casez() ? "casez" : casex() ? "casex" : "case"; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_caseType == VN_DBG_AS(samep, Case)->m_caseType;
     }
-    bool casex() const { return m_caseType == VCaseType::CT_CASEX; }
-    bool casez() const { return m_caseType == VCaseType::CT_CASEZ; }
-    bool caseInside() const { return m_caseType == VCaseType::CT_CASEINSIDE; }
-    bool caseMatches() const { return m_caseType == VCaseType::CT_CASEMATCHES; }
-    bool caseSimple() const { return m_caseType == VCaseType::CT_CASE; }
-    void caseInsideSet() { m_caseType = VCaseType::CT_CASEINSIDE; }
-    void caseMatchesSet() { m_caseType = VCaseType::CT_CASEMATCHES; }
-    bool fullPragma() const { return m_fullPragma; }
-    void fullPragma(bool flag) { m_fullPragma = flag; }
-    bool parallelPragma() const { return m_parallelPragma; }
-    void parallelPragma(bool flag) { m_parallelPragma = flag; }
-    bool uniquePragma() const { return m_uniquePragma; }
-    void uniquePragma(bool flag) { m_uniquePragma = flag; }
-    bool unique0Pragma() const { return m_unique0Pragma; }
-    void unique0Pragma(bool flag) { m_unique0Pragma = flag; }
-    bool priorityPragma() const { return m_priorityPragma; }
-    void priorityPragma(bool flag) { m_priorityPragma = flag; }
-    string pragmaString() const;
+    bool casex() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_caseType == VCaseType::CT_CASEX; }
+    bool casez() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_caseType == VCaseType::CT_CASEZ; }
+    bool caseInside() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_caseType == VCaseType::CT_CASEINSIDE; }
+    bool caseMatches() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_caseType == VCaseType::CT_CASEMATCHES; }
+    bool caseSimple() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_caseType == VCaseType::CT_CASE; }
+    ಶೂನ್ಯ case_Inside_ಗಣ() { m_caseType = VCaseType::CT_CASEINSIDE; }
+    ಶೂನ್ಯ case_Matches_ಗಣ() { m_caseType = VCaseType::CT_CASEMATCHES; }
+    bool ತುಂಬಿದ_Pragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ತುಂಬಿದ_Pragma; }
+    ಶೂನ್ಯ ತುಂಬಿದ_Pragma(bool flag) { m_ತುಂಬಿದ_Pragma = flag; }
+    bool parallelPragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_parallelPragma; }
+    ಶೂನ್ಯ parallelPragma(bool flag) { m_parallelPragma = flag; }
+    bool uniquePragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_uniquePragma; }
+    ಶೂನ್ಯ uniquePragma(bool flag) { m_uniquePragma = flag; }
+    bool unique0Pragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_unique0Pragma; }
+    ಶೂನ್ಯ unique0Pragma(bool flag) { m_unique0Pragma = flag; }
+    bool ಆದ್ಯತೆ_Pragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಆದ್ಯತೆ_Pragma; }
+    ಶೂನ್ಯ ಆದ್ಯತೆ_Pragma(bool flag) { m_ಆದ್ಯತೆ_Pragma = flag; }
+    string pragmaString() ಸ್ಥಿರಾಂಕ;
 };
-class AstComment final : public AstNodeStmt {
+class AstComment final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Some comment to put into the output stream
-    const string m_name;  // Text of comment
-    const bool m_showAt;  // Show "at <fileline>"
-public:
-    AstComment(FileLine* fl, const string& name, bool showAt = false)
+    ಸ್ಥಿರಾಂಕ string m_name;  // Text of comment
+    ಸ್ಥಿರಾಂಕ bool m_showAt;  // Show "at <fileline>"
+ಸಾರ್ವಜನಿಕ:
+    AstComment(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, bool showAt = false)
         : ASTGEN_SUPER_Comment(fl)
         , m_name{name}
         , m_showAt{showAt} {}
     ASTGEN_MEMBERS_AstComment;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Text
-    bool sameNode(const AstNode* samep) const override { return true; }  // Ignore name in comments
-    virtual bool showAt() const { return m_showAt; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Text
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }  // Ignore name in comments
+    ವಾಸ್ತವಿಕ bool showAt() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_showAt; }
 };
-class AstConstraintBefore final : public AstNodeStmt {
+class AstConstraintBefore final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Constraint solve before item
     // @astgen op1 := lhssp : List[AstNodeExpr]
     // @astgen op2 := rhssp : List[AstNodeExpr]
-public:
-    AstConstraintBefore(FileLine* fl, AstNodeExpr* lhssp, AstNodeExpr* rhssp)
+ಸಾರ್ವಜನಿಕ:
+    AstConstraintBefore(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhssp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhssp)
         : ASTGEN_SUPER_ConstraintBefore(fl) {
-        addLhssp(lhssp);
-        addRhssp(rhssp);
+        ಕೂಡಿಸು_Lhssp(lhssp);
+        ಕೂಡಿಸು_Rhssp(rhssp);
     }
     ASTGEN_MEMBERS_AstConstraintBefore;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstConstraintExpr final : public AstNodeStmt {
+class Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Constraint expression
     // @astgen op1 := exprp : AstNodeExpr
     bool m_isDisableSoft = false;  // Disable soft constraint expression
     bool m_isSoft = false;  // Soft constraint expression
-public:
-    AstConstraintExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_ConstraintExpr(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
+        : ASTGEN_SUPER_Constraint_ಅಭಿವ್ಯಕ್ತಿ(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstConstraintExpr;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isDisableSoft() const { return m_isDisableSoft; }
-    void isDisableSoft(bool flag) { m_isDisableSoft = flag; }
-    bool isSoft() const { return m_isSoft; }
-    void isSoft(bool flag) { m_isSoft = flag; }
+    ASTGEN_MEMBERS_Ast_Constraint_ಅಭಿವ್ಯಕ್ತಿ;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isDisableSoft() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isDisableSoft; }
+    ಶೂನ್ಯ isDisableSoft(bool flag) { m_isDisableSoft = flag; }
+    bool isSoft() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isSoft; }
+    ಶೂನ್ಯ isSoft(bool flag) { m_isSoft = flag; }
 };
-class AstConstraintUnique final : public AstNodeStmt {
+class AstConstraintUnique final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Constraint unique statement
     // @astgen op1 := rangesp : List[AstNode]
-public:
-    AstConstraintUnique(FileLine* fl, AstNode* rangesp)
+ಸಾರ್ವಜನಿಕ:
+    AstConstraintUnique(File_ಸಾಲು* fl, Ast_ಗಂಟು* rangesp)
         : ASTGEN_SUPER_ConstraintUnique(fl) {
-        addRangesp(rangesp);
+        ಕೂಡಿಸು_Rangesp(rangesp);
     }
     ASTGEN_MEMBERS_AstConstraintUnique;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstContinue final : public AstNodeStmt {
-public:
-    explicit AstContinue(FileLine* fl)
+class AstContinue final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+ಸಾರ್ವಜನಿಕ:
+    explicit AstContinue(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_Continue(fl) {}
     ASTGEN_MEMBERS_AstContinue;
-    string verilogKwd() const override { return "continue"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "continue"; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstCoverInc final : public AstNodeStmt {
+class AstCoverInc final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Coverage analysis point; increment coverage count
     // @astgen op1 := toggleExprp : Optional[AstNodeExpr]  // [After V3Clock]
     // @astgen op2 := toggleCovExprp : Optional[AstNodeExpr]  // [After V3Clock]
@@ -536,175 +536,175 @@ class AstCoverInc final : public AstNodeStmt {
 
     bool m_isDuplicate = false;  // Duplicate AstCoverInc associated with one AstNodeCoverDecl
 
-public:
-    AstCoverInc(FileLine* fl, AstNodeCoverDecl* declp, const bool isDuplicate = false)
+ಸಾರ್ವಜನಿಕ:
+    AstCoverInc(File_ಸಾಲು* fl, Ast_ಗಂಟು_Cover_Decl* declp, ಸ್ಥಿರಾಂಕ bool isDuplicate = false)
         : ASTGEN_SUPER_CoverInc(fl)
         , m_isDuplicate{isDuplicate}
         , m_declp{declp} {}
     ASTGEN_MEMBERS_AstCoverInc;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 1 + 2 * INSTR_COUNT_LD; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCoverInc* const otherp = VN_DBG_AS(samep, CoverInc);
-        return declp() == otherp->declp() && isDuplicate() == otherp->isDuplicate();
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 1 + 2 * INSTR_ಎಣಿಕೆ_LD; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstCoverInc* ಸ್ಥಿರಾಂಕ otherp = VN_DBG_AS(samep, CoverInc);
+        ಹಿಂತಿರುಗಿ declp() == otherp->declp() && isDuplicate() == otherp->isDuplicate();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPure() override { return false; }
-    AstNodeCoverDecl* declp() const { return m_declp; }  // Where defined
-    void declp(AstNodeCoverDecl* nodep) { m_declp = nodep; }
-    bool isDuplicate() const { return m_isDuplicate; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    Ast_ಗಂಟು_Cover_Decl* declp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_declp; }  // Where defined
+    ಶೂನ್ಯ declp(Ast_ಗಂಟು_Cover_Decl* nodep) { m_declp = nodep; }
+    bool isDuplicate() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isDuplicate; }
 };
-class AstDeassign final : public AstNodeStmt {
+class AstDeassign final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Procedural 'deassign' statement
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstDeassign(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstDeassign(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Deassign(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstDeassign;
 };
-class AstDelay final : public AstNodeStmt {
+class AstDelay final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Delay statement
     // @astgen op1 := lhsp : AstNodeExpr // Delay value (or min for range)
     // @astgen op2 := stmtsp : List[AstNode] // Statements under delay
     // @astgen op3 := rhsp : Optional[AstNodeExpr] // Max bound for cycle range or fall delay
     // @astgen op4 := throughoutp : Optional[AstNodeExpr] // Throughout condition (IEEE 16.9.9)
     VTimescale m_timeunit;  // Delay's time unit
-    const bool m_isCycleDelay;  // True if it is a cycle delay
-public:
-    AstDelay(FileLine* fl, AstNodeExpr* lhsp, bool isCycleDelay)
+    ಸ್ಥಿರಾಂಕ bool m_is_ಚಕ್ರ_Delay;  // True if it is a cycle delay
+ಸಾರ್ವಜನಿಕ:
+    AstDelay(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, bool is_ಚಕ್ರ_Delay)
         : ASTGEN_SUPER_Delay(fl)
-        , m_isCycleDelay{isCycleDelay} {
+        , m_is_ಚಕ್ರ_Delay{is_ಚಕ್ರ_Delay} {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstDelay;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isTimingControl() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
-    bool isCycleDelay() const { return m_isCycleDelay; }
-    bool isRangeDelay() const { return m_isCycleDelay && rhsp(); }
-    bool isUnbounded() const { return isRangeDelay() && VN_IS(rhsp(), Unbounded); }
-    void fallDelay(AstNodeExpr* const fallDelayp) { rhsp(fallDelayp); }
-    AstNodeExpr* fallDelay() const { return m_isCycleDelay ? nullptr : rhsp(); }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
+    bool is_ಚಕ್ರ_Delay() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_is_ಚಕ್ರ_Delay; }
+    bool isRangeDelay() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_is_ಚಕ್ರ_Delay && rhsp(); }
+    bool isUnbounded() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ isRangeDelay() && VN_IS(rhsp(), Unbounded); }
+    ಶೂನ್ಯ fallDelay(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fallDelayp) { rhsp(fallDelayp); }
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fallDelay() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_is_ಚಕ್ರ_Delay ? nullptr : rhsp(); }
 };
-class AstDisable final : public AstNodeStmt {
+class AstDisable final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := targetRefp : Optional[AstNodeExpr]  // Reference to link in V3LinkDot
     // @astgen ptr := m_targetp : Optional[AstNode]  // Task or block after V3LinkDot
-public:
-    AstDisable(FileLine* fl, AstNodeExpr* targetRefp)
+ಸಾರ್ವಜನಿಕ:
+    AstDisable(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಗುರಿ_Refp)
         : ASTGEN_SUPER_Disable(fl) {
-        this->targetRefp(targetRefp);
+        this->ಗುರಿ_Refp(ಗುರಿ_Refp);
     }
     ASTGEN_MEMBERS_AstDisable;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    void targetp(AstNode* nodep) { m_targetp = nodep; }
-    AstNode* targetp() const { return m_targetp; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ targetp(Ast_ಗಂಟು* nodep) { m_targetp = nodep; }
+    Ast_ಗಂಟು* targetp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_targetp; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstDisableFork final : public AstNodeStmt {
+class AstDisableFork final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // A "disable fork" statement
-public:
-    explicit AstDisableFork(FileLine* fl)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstDisableFork(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_DisableFork(fl) {}
     ASTGEN_MEMBERS_AstDisableFork;
-    string verilogKwd() const override { return "disable fork"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "disable fork"; }
 };
-class AstDisplay final : public AstNodeStmt {
+class AstDisplay final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Parents: stmtlist
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := filep : Optional[AstNodeExpr] // file (must resolve to a VarRef)
     VDisplayType m_displayType;
 
-public:
-    AstDisplay(FileLine* fl, VDisplayType dispType, const string& text, AstNodeExpr* filep,
-               AstNodeExpr* exprsp, char missingArgChar = 'd')
+ಸಾರ್ವಜನಿಕ:
+    AstDisplay(File_ಸಾಲು* fl, VDisplayType dispType, ಸ್ಥಿರಾಂಕ string& ಪಠ್ಯ, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep,
+               Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp, ಅಕ್ಷರ missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
-        fmtp(new AstSFormatF{fl, text, true, exprsp, missingArgChar});
+        fmtp(new AstSFormatF{fl, ಪಠ್ಯ, true, exprsp, missingArgChar});
         this->filep(filep);
     }
-    AstDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* filep, AstNodeExpr* exprsp,
-               char missingArgChar = 'd')
+    AstDisplay(File_ಸಾಲು* fl, VDisplayType dispType, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp,
+               ಅಕ್ಷರ missingArgChar = 'd')
         : ASTGEN_SUPER_Display(fl)
         , m_displayType{dispType} {
-        AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+        AstSFormatF* ಸ್ಥಿರಾಂಕ newp
+            = new AstSFormatF{fl, AstSFormatF::ಅಭಿವ್ಯಕ್ತಿ_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(true);
         fmtp(newp);
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstDisplay;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    const char* broken() const override {
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        ಹಿಂತಿರುಗಿ nullptr;
     }
-    string verilogKwd() const override {
-        return (filep() ? "$f"s + string{displayType().ascii()}
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ (filep() ? "$f"s + string{displayType().ascii()}
                         : "$"s + string{displayType().ascii()});
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return displayType() == VN_DBG_AS(samep, Display)->displayType();
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ displayType() == VN_DBG_AS(samep, Display)->displayType();
     }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    VDisplayType displayType() const { return m_displayType; }
-    void displayType(VDisplayType type) { m_displayType = type; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    VDisplayType displayType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_displayType; }
+    ಶೂನ್ಯ displayType(VDisplayType type) { m_displayType = type; }
     // * = Add a newline for $display
-    bool addNewline() const { return displayType().addNewline(); }
+    bool ಕೂಡಿಸು_Newline() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ displayType().ಕೂಡಿಸು_Newline(); }
 };
-class AstDumpCtl final : public AstNodeStmt {
+class AstDumpCtl final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // $dumpon etc
     // Parents: expr
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Expression based on type of statement
-    const VDumpCtlType m_ctlType;  // Type of operation
-public:
-    AstDumpCtl(FileLine* fl, VDumpCtlType ctlType, AstNodeExpr* exprp = nullptr)
+    ಸ್ಥಿರಾಂಕ VDumpCtlType m_ctlType;  // Type of operation
+ಸಾರ್ವಜನಿಕ:
+    AstDumpCtl(File_ಸಾಲು* fl, VDumpCtlType ctlType, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp = nullptr)
         : ASTGEN_SUPER_DumpCtl(fl)
         , m_ctlType{ctlType} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstDumpCtl;
-    string verilogKwd() const override { return ctlType().ascii(); }
-    bool isGateOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    virtual bool cleanOut() const { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VDumpCtlType ctlType() const { return m_ctlType; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ ctlType().ascii(); }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    ವಾಸ್ತವಿಕ bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    VDumpCtlType ctlType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ctlType; }
 };
-class AstEventControl final : public AstNodeStmt {
+class AstEventControl final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Parents: stmtlist
     // @astgen op1 := sentreep : Optional[AstSenTree]
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstEventControl(FileLine* fl, AstSenTree* sentreep, AstNode* stmtsp)
+ಸಾರ್ವಜನಿಕ:
+    AstEventControl(File_ಸಾಲು* fl, Ast_Sen_ವೃಕ್ಷ* sentreep, Ast_ಗಂಟು* stmtsp)
         : ASTGEN_SUPER_EventControl(fl) {
         this->sentreep(sentreep);
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstEventControl;
-    string verilogKwd() const override { return "@(%l) %r"; }
-    bool isTimingControl() const override { return true; }
-    int instrCount() const override { return 0; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "@(%l) %r"; }
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
 };
-class AstExecGraph final : public AstNodeStmt {
+class Ast_Exec_ನಕ್ಷೆ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // For parallel execution, this node contains a dependency graph. Each
     // vertex in the graph is an ExecMTask, which includes a function that
     // holds the sequential body of the mtask.
@@ -724,130 +724,130 @@ class AstExecGraph final : public AstNodeStmt {
     // Static cost of the logic each trigger guards, populated by V3ExecGraph::implement
     // @astgen op4 := triggerCostsp : Optional[AstVarRef]
     // @astgen ptr := m_runfuncp : Optional[AstCFunc]  // Statically scheduled dispatch function
-    V3Graph* const m_depGraphp;  // contains ExecMTask vertices
-    const string m_name;  // Name of this AstExecGraph (for uniqueness at code generation)
+    V3_ನಕ್ಷೆ* ಸ್ಥಿರಾಂಕ m_depGraphp;  // contains ExecMTask vertices
+    ಸ್ಥಿರಾಂಕ string m_name;  // Name of this AstExecGraph (for uniqueness at code generation)
 
-public:
-    AstExecGraph(FileLine* fl, const string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
-    ~AstExecGraph() override;
-    ASTGEN_MEMBERS_AstExecGraph;
-    void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
-    const char* broken() const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    V3Graph* depGraphp() { return m_depGraphp; }
-    const V3Graph* depGraphp() const { return m_depGraphp; }
-    AstCFunc* runfuncp() const { return m_runfuncp; }
-    void runfuncp(AstCFunc* funcp) { m_runfuncp = funcp; }
+ಸಾರ್ವಜನಿಕ:
+    Ast_Exec_ನಕ್ಷೆ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, AstVarScope* trigVscp) VL_MT_DISABLED;
+    ~Ast_Exec_ನಕ್ಷೆ() override;
+    ASTGEN_MEMBERS_Ast_Exec_ನಕ್ಷೆ;
+    ಶೂನ್ಯ cloneRelink() override { V3ERROR_NA; }  // Not cloneable
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
+    V3_ನಕ್ಷೆ* depGraphp() { ಹಿಂತಿರುಗಿ m_depGraphp; }
+    ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ* depGraphp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_depGraphp; }
+    AstCFunc* runfuncp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_runfuncp; }
+    ಶೂನ್ಯ runfuncp(AstCFunc* funcp) { m_runfuncp = funcp; }
 };
-class AstFClose final : public AstNodeStmt {
+class AstFClose final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : AstNodeExpr // file (must be a VarRef)
-public:
-    AstFClose(FileLine* fl, AstNodeExpr* filep)
+ಸಾರ್ವಜನಿಕ:
+    AstFClose(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep)
         : ASTGEN_SUPER_FClose(fl) {
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstFClose;
-    string verilogKwd() const override { return "$fclose"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$fclose"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFFlush final : public AstNodeStmt {
+class AstFFlush final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Parents: stmtlist
     // @astgen op1 := filep : Optional[AstNodeExpr] // file (must be a VarRef)
-public:
-    AstFFlush(FileLine* fl, AstNodeExpr* filep)
+ಸಾರ್ವಜನಿಕ:
+    AstFFlush(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filep)
         : ASTGEN_SUPER_FFlush(fl) {
         this->filep(filep);
     }
     ASTGEN_MEMBERS_AstFFlush;
-    string verilogKwd() const override { return "$fflush"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$fflush"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstFinish final : public AstNodeStmt {
-public:
-    explicit AstFinish(FileLine* fl)
-        : ASTGEN_SUPER_Finish(fl) {}
-    ASTGEN_MEMBERS_AstFinish;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+class Ast_ಮುಕ್ತಾಯ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ಮುಕ್ತಾಯ(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ಮುಕ್ತಾಯ(fl) {}
+    ASTGEN_MEMBERS_Ast_ಮುಕ್ತಾಯ;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }  // Rarely executes
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ fileline() == samep->fileline(); }
 };
-class AstFinishFork final : public AstNodeStmt {
+class Ast_ಮುಕ್ತಾಯ_Fork final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // $finish in fork
-public:
-    explicit AstFinishFork(FileLine* fl)
-        : ASTGEN_SUPER_FinishFork(fl) {}
-    ASTGEN_MEMBERS_AstFinishFork;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ಮುಕ್ತಾಯ_Fork(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ಮುಕ್ತಾಯ_Fork(fl) {}
+    ASTGEN_MEMBERS_Ast_ಮುಕ್ತಾಯ_Fork;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }  // Rarely executes
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ fileline() == samep->fileline(); }
 };
-class AstFireEvent final : public AstNodeStmt {
+class AstFireEvent final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // '-> _' and '->> _' event trigger statements
     // @astgen op1 := operandp : AstNodeExpr
-    const bool m_delayed;  // Delayed (->>) vs non-delayed (->)
-public:
-    AstFireEvent(FileLine* fl, AstNodeExpr* operandp, bool delayed)
+    ಸ್ಥಿರಾಂಕ bool m_delayed;  // Delayed (->>) vs non-delayed (->)
+ಸಾರ್ವಜನಿಕ:
+    AstFireEvent(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* operandp, bool delayed)
         : ASTGEN_SUPER_FireEvent(fl)
         , m_delayed{delayed} {
         this->operandp(operandp);
     }
     ASTGEN_MEMBERS_AstFireEvent;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isDelayed() const { return m_delayed; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isDelayed() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_delayed; }
 };
-class AstInitialAutomaticStmt final : public AstNodeStmt {
+class AstInitialAutomaticStmt final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Automatic variable initialization in a statement position
     // Used during early stages to record an initial initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialAutomatic, or
     // AstCFunc normal statement
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstInitialAutomaticStmt(FileLine* fl, AstNode* stmtsp)
+ಸಾರ್ವಜನಿಕ:
+    AstInitialAutomaticStmt(File_ಸಾಲು* fl, Ast_ಗಂಟು* stmtsp)
         : ASTGEN_SUPER_InitialAutomaticStmt(fl) {
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialAutomaticStmt;
-    int instrCount() const override { return 0; }
-    bool isPure() override { return true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstInitialStaticStmt final : public AstNodeStmt {
+class AstInitialStaticStmt final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Static variable initialization in a statement position
     // Used during early stages to record a static initialization of a variable
     // Moves later to an appropriate constructor, or AstInitialStatic, or
     // AstCFunc normal statement
     // Children: {statement list usually only with assignments}
     // @astgen op1 := stmtsp : List[AstNode]
-public:
-    AstInitialStaticStmt(FileLine* fl, AstNode* stmtsp)
+ಸಾರ್ವಜನಿಕ:
+    AstInitialStaticStmt(File_ಸಾಲು* fl, Ast_ಗಂಟು* stmtsp)
         : ASTGEN_SUPER_InitialStaticStmt(fl) {
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstInitialStaticStmt;
-    int instrCount() const override { return 0; }
-    bool isPure() override { return true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstJumpBlock final : public AstNodeStmt {
+class Ast_Jump_ಖಂಡ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Block of code that might contain AstJumpGo statements as children,
     // which when exectued branch to right after the referenced AstJumpBlock.
     // AstJumpBlocks can nest, and an AstJumpGo can reference any of the
@@ -856,45 +856,45 @@ class AstJumpBlock final : public AstNodeStmt {
     // Children: {statement list, with JumpGo below}
     // @astgen op1 := stmtsp : List[AstNode]
     VIsCached m_purity;  // Pure state
-public:
+ಸಾರ್ವಜನಿಕ:
     // After construction must call ->labelp to associate with appropriate label
-    AstJumpBlock(FileLine* fl, AstNode* stmtsp)
-        : ASTGEN_SUPER_JumpBlock(fl) {
-        addStmtsp(stmtsp);
+    Ast_Jump_ಖಂಡ(File_ಸಾಲು* fl, Ast_ಗಂಟು* stmtsp)
+        : ASTGEN_SUPER_Jump_ಖಂಡ(fl) {
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
-    ASTGEN_MEMBERS_AstJumpBlock;
-    int instrCount() const override { return 0; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool isPure() override;
+    ASTGEN_MEMBERS_Ast_Jump_ಖಂಡ;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
+    bool maybe_Pointed_ಗಮ್ಯ() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override;
 
-private:
-    bool getPurityRecurse() const;
+ಖಾಸಗಿ:
+    bool getPurityRecurse() ಸ್ಥಿರಾಂಕ;
 };
-class AstJumpGo final : public AstNodeStmt {
+class AstJumpGo final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Branch to right after the referenced encloding AstJumpBlock
     // Parents:  statement, including the referenced AstJumpBlock
     // Children: none
     //
     // @astgen ptr := m_blockp : AstJumpBlock  // The AstJumpBlock we are branching after
-public:
-    AstJumpGo(FileLine* fl, AstJumpBlock* blockp)
+ಸಾರ್ವಜನಿಕ:
+    AstJumpGo(File_ಸಾಲು* fl, Ast_Jump_ಖಂಡ* blockp)
         : ASTGEN_SUPER_JumpGo(fl)
         , m_blockp{blockp} {}
     ASTGEN_MEMBERS_AstJumpGo;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* samep) const override {
-        return blockp() == VN_DBG_AS(samep, JumpGo)->blockp();
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ blockp() == VN_DBG_AS(samep, JumpGo)->blockp();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isBrancher() const override {
-        return true;  // SPECIAL: We don't process code after breaks
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ true;  // SPECIAL: We don't process code after breaks
     }
-    AstJumpBlock* blockp() const { return m_blockp; }
+    Ast_Jump_ಖಂಡ* blockp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_blockp; }
 };
-class AstLoop final : public AstNodeStmt {
+class AstLoop final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // An inifinite loop, used to model all source level procedural loops.
     // Executes as:
     //  while (true) {
@@ -906,25 +906,25 @@ class AstLoop final : public AstNodeStmt {
     // @astgen op1 := stmtsp : List[AstNode]
     // @astgen op2 := contsp : List[AstNode] // Empty after LinkJump
     VOptionBool m_unroll;  // Full, none, or default unrolling
-public:
-    explicit AstLoop(FileLine* fl, AstNode* stmtsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstLoop(File_ಸಾಲು* fl, Ast_ಗಂಟು* stmtsp = nullptr)
         : ASTGEN_SUPER_Loop(fl) {
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstLoop;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* thatp) const override {
-        return m_unroll == VN_DBG_AS(thatp, Loop)->m_unroll;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* thatp) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_unroll == VN_DBG_AS(thatp, Loop)->m_unroll;
     }
-    bool isGateOptimizable() const override { return false; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool maybe_Pointed_ಗಮ್ಯ() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
     // ACCESSORS
-    VOptionBool unroll() const { return m_unroll; }
-    void unroll(const VOptionBool flag) { m_unroll = flag; }
+    VOptionBool unroll() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_unroll; }
+    ಶೂನ್ಯ unroll(ಸ್ಥಿರಾಂಕ VOptionBool flag) { m_unroll = flag; }
 };
-class AstLoopTest final : public AstNodeStmt {
+class AstLoopTest final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // The condition test inside an AstLoop. If the condition is true,
     // execution continues after this AstLoopTest statement. If the condition
     // is false, control is transfered to after the corresponding AstLoop.
@@ -932,276 +932,276 @@ class AstLoopTest final : public AstNodeStmt {
     // which breaks out of the loop if the condition is false.
     // @astgen op1 := condp : AstNodeExpr  // The loop condition
     // @astgen ptr := m_loopp : AstLoop  // The corresponding AstLoop
-public:
-    AstLoopTest(FileLine* fl, AstLoop* loopp, AstNodeExpr* condp)
+ಸಾರ್ವಜನಿಕ:
+    AstLoopTest(File_ಸಾಲು* fl, AstLoop* loopp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp)
         : ASTGEN_SUPER_LoopTest(fl)
         , m_loopp{loopp} {
         this->condp(condp);
     }
     ASTGEN_MEMBERS_AstLoopTest;
-    const char* broken() const override;
-    void dump(std::ostream& str) const override;
-    bool sameNode(const AstNode*) const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isBrancher() const override { return true; }
-    int instrCount() const override { return 0; }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }
     // ACCESSORS
-    AstLoop* loopp() const { return m_loopp; }
+    AstLoop* loopp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_loopp; }
 };
-class AstMonitorOff final : public AstNodeStmt {
-    const bool m_off;  // Monitor off.  Using 0=on allows faster init and comparison
+class AstMonitorOff final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+    ಸ್ಥಿರಾಂಕ bool m_off;  // Monitor off.  Using 0=on allows faster init and comparison
 
-public:
-    AstMonitorOff(FileLine* fl, bool off)
+ಸಾರ್ವಜನಿಕ:
+    AstMonitorOff(File_ಸಾಲು* fl, bool off)
         : ASTGEN_SUPER_MonitorOff(fl)
         , m_off{off} {}
     ASTGEN_MEMBERS_AstMonitorOff;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return m_off ? "$monitoroff" : "$monitoron"; }
-    bool isGateOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPredictOptimizable() const override { return false; }  // Though deleted before opt
-    bool isPure() override { return false; }  // Though deleted before opt
-    bool isOutputter() override { return true; }  // Though deleted before opt
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* samep) const override {
-        return m_off == VN_DBG_AS(samep, MonitorOff)->m_off;
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ m_off ? "$monitoroff" : "$monitoron"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Though deleted before opt
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Though deleted before opt
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // Though deleted before opt
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // Though deleted before opt
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ m_off == VN_DBG_AS(samep, MonitorOff)->m_off;
     }
-    bool off() const { return m_off; }
+    bool off() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_off; }
 };
-class AstPExprClause final : public AstNodeStmt {
-    const bool m_pass;  // Will be replaced by passing assertion clause, false for
+class AstPExprClause final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+    ಸ್ಥಿರಾಂಕ bool m_pass;  // Will be replaced by passing assertion clause, false for
                         // assertion failure clause
-    const bool m_vacuous;  // Pass is vacuous
+    ಸ್ಥಿರಾಂಕ bool m_vacuous;  // Pass is vacuous
 
-public:
+ಸಾರ್ವಜನಿಕ:
     ASTGEN_MEMBERS_AstPExprClause;
-    explicit AstPExprClause(FileLine* fl, bool pass = true, bool vacuous = false)
+    explicit AstPExprClause(File_ಸಾಲು* fl, bool pass = true, bool vacuous = false)
         : ASTGEN_SUPER_PExprClause(fl)
         , m_pass{pass}
         , m_vacuous{vacuous} {}
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool pass() const { return m_pass; }
-    bool vacuous() const { return m_vacuous; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool pass() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_pass; }
+    bool vacuous() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_vacuous; }
 };
-class AstPrintTimeScale final : public AstNodeStmt {
+class Ast_Print_ಸಮಯ_Scale final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Parents: stmtlist
     string m_name;  // Parent module name
     VTimescale m_timeunit;  // Parent module time unit
-public:
-    explicit AstPrintTimeScale(FileLine* fl)
-        : ASTGEN_SUPER_PrintTimeScale(fl) {}
-    ASTGEN_MEMBERS_AstPrintTimeScale;
-    void name(const string& name) override { m_name = name; }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return "$printtimescale"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_Print_ಸಮಯ_Scale(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_Print_ಸಮಯ_Scale(fl) {}
+    ASTGEN_MEMBERS_Ast_Print_ಸಮಯ_Scale;
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Var name
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$printtimescale"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    ಶೂನ್ಯ timeunit(ಸ್ಥಿರಾಂಕ VTimescale& flag) { m_timeunit = flag; }
+    VTimescale timeunit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_timeunit; }
 };
-class AstRSBreak final : public AstNodeStmt {
+class AstRSBreak final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // randsequence break
-public:
-    explicit AstRSBreak(FileLine* fl)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstRSBreak(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_RSBreak(fl) {}
     ASTGEN_MEMBERS_AstRSBreak;
-    string verilogKwd() const override { return "break"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "break"; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSProd final : public AstNodeStmt {
+class AstRSProd final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // randomsequence production, under a AstRandSequence
     // @astgen op1 := fvarp : Optional[AstVar]
     // @astgen op2 := portsp : List[AstNode]
     // @astgen op3 := rulesp : List[AstRSRule]
     string m_name;  // Name of block, or "" to use first production
-public:
-    AstRSProd(FileLine* fl, const string& name, AstNode* portsp, AstRSRule* rulesp)
+ಸಾರ್ವಜನಿಕ:
+    AstRSProd(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು* portsp, AstRSRule* rulesp)
         : ASTGEN_SUPER_RSProd(fl)
         , m_name{name} {
-        addPortsp(portsp);
-        addRulesp(rulesp);
+        ಕೂಡಿಸು_Portsp(portsp);
+        ಕೂಡಿಸು_Rulesp(rulesp);
     }
     ASTGEN_MEMBERS_AstRSProd;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    bool maybe_Pointed_ಗಮ್ಯ() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstRSProdItem final : public AstNodeStmt {
+class Ast_RSProd_ಅಂಶ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // randomsquence production item
     // @astgen op1 := argsp : List[AstArg]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to production
     string m_name;  // Name of block, or "" to use first production
-public:
-    AstRSProdItem(FileLine* fl, const string& name, AstArg* argsp)
-        : ASTGEN_SUPER_RSProdItem(fl)
+ಸಾರ್ವಜನಿಕ:
+    Ast_RSProd_ಅಂಶ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, AstArg* argsp)
+        : ASTGEN_SUPER_RSProd_ಅಂಶ(fl)
         , m_name{name} {
-        addArgsp(argsp);
+        ಕೂಡಿಸು_Argsp(argsp);
     }
-    ASTGEN_MEMBERS_AstRSProdItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    AstRSProd* prodp() const { return m_prodp; }
-    void prodp(AstRSProd* nodep) { m_prodp = nodep; }
+    ASTGEN_MEMBERS_Ast_RSProd_ಅಂಶ;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    AstRSProd* prodp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_prodp; }
+    ಶೂನ್ಯ prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRSProdList final : public AstNodeStmt {
+class AstRSProdList final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // randomsquence production list
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodsp : List[AstNode]
     bool m_randJoin = false;  // Is rand join'ed
-public:
-    AstRSProdList(FileLine* fl, AstNodeExpr* weightp, AstNode* prodsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRSProdList(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* weightp, Ast_ಗಂಟು* prodsp)
         : ASTGEN_SUPER_RSProdList(fl) {
         this->weightp(weightp);
-        addProdsp(prodsp);
+        ಕೂಡಿಸು_Prodsp(prodsp);
     }
     ASTGEN_MEMBERS_AstRSProdList;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool randJoin() const { return m_randJoin; }
-    void randJoin(bool flag) { m_randJoin = flag; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool randJoin() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_randJoin; }
+    ಶೂನ್ಯ randJoin(bool flag) { m_randJoin = flag; }
 };
-class AstRSReturn final : public AstNodeStmt {
+class AstRSReturn final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // randsequence return
-public:
-    explicit AstRSReturn(FileLine* fl)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstRSReturn(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_RSReturn(fl) {}
     ASTGEN_MEMBERS_AstRSReturn;
-    string verilogKwd() const override { return "return"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "return"; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstRSRule final : public AstNodeStmt {
+class AstRSRule final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // randomsquence rule
     // @astgen op1 := weightp : Optional[AstNodeExpr]
     // @astgen op2 := prodlistsp : List[AstRSProdList]
     // @astgen op3 := weightStmtsp : List[AstNode]
-public:
-    AstRSRule(FileLine* fl, AstNodeExpr* weightp, AstRSProdList* prodlistsp, AstNode* weightStmtsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRSRule(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* weightp, AstRSProdList* prodlistsp, Ast_ಗಂಟು* ತೂಕ_Stmtsp)
         : ASTGEN_SUPER_RSRule(fl) {
         this->weightp(weightp);
-        addProdlistsp(prodlistsp);
-        addWeightStmtsp(weightStmtsp);
+        ಕೂಡಿಸು_Prodlistsp(prodlistsp);
+        ಕೂಡಿಸು_ತೂಕ_Stmtsp(ತೂಕ_Stmtsp);
     }
     ASTGEN_MEMBERS_AstRSRule;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstRandCase final : public AstNodeStmt {
+class AstRandCase final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op2 := itemsp : List[AstCaseItem]
-public:
-    AstRandCase(FileLine* fl, AstCaseItem* itemsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRandCase(File_ಸಾಲು* fl, Ast_Case_ಅಂಶ* itemsp)
         : ASTGEN_SUPER_RandCase(fl) {
-        addItemsp(itemsp);
+        ಕೂಡಿಸು_Itemsp(itemsp);
         v3Global.useRandomizeMethods(true);
     }
     ASTGEN_MEMBERS_AstRandCase;
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
 };
-class AstRandSequence final : public AstNodeStmt {
+class AstRandSequence final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op2 := prodsp : List[AstRSProd]
     // @astgen ptr := m_prodp : Optional[AstRSProd]  // Pointer to start production (if any)
     string m_name;  // Created unique name
-    string m_start;  // Name of start production, or "" to use first production
-public:
-    AstRandSequence(FileLine* fl, const string& start, AstRSProd* prodsp)
+    string m_ಆರಂಭ;  // Name of start production, or "" to use first production
+ಸಾರ್ವಜನಿಕ:
+    AstRandSequence(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& ಆರಂಭ, AstRSProd* prodsp)
         : ASTGEN_SUPER_RandSequence(fl)
-        , m_start{start} {
-        addProdsp(prodsp);
+        , m_ಆರಂಭ{ಆರಂಭ} {
+        ಕೂಡಿಸು_Prodsp(prodsp);
     }
     ASTGEN_MEMBERS_AstRandSequence;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Block name
-    void name(const string& name) override { m_name = name; }
-    string start() const VL_MT_STABLE { return m_start; }
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    AstRSProd* prodp() const { return m_prodp; }
-    void prodp(AstRSProd* nodep) { m_prodp = nodep; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_name; }  // * = Block name
+    ಶೂನ್ಯ name(ಸ್ಥಿರಾಂಕ string& name) override { m_name = name; }
+    string ಆರಂಭ() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_ಆರಂಭ; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    AstRSProd* prodp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_prodp; }
+    ಶೂನ್ಯ prodp(AstRSProd* nodep) { m_prodp = nodep; }
 };
-class AstRelease final : public AstNodeStmt {
+class AstRelease final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Procedural 'release' statement
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstRelease(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRelease(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_Release(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstRelease;
 };
-class AstRepeat final : public AstNodeStmt {
+class AstRepeat final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := countp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstRepeat(FileLine* fl, AstNodeExpr* countp, AstNode* stmtsp)
+ಸಾರ್ವಜನಿಕ:
+    AstRepeat(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* countp, Ast_ಗಂಟು* stmtsp)
         : ASTGEN_SUPER_Repeat(fl) {
         this->countp(countp);
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstRepeat;
-    bool isGateOptimizable() const override { return false; }  // Not relevant - converted to FOR
-    int instrCount() const override { return INSTR_COUNT_BRANCH; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }  // Not relevant - converted to FOR
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_BRANCH; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstReturn final : public AstNodeStmt {
+class AstReturn final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := lhsp : Optional[AstNodeExpr]
-public:
-    explicit AstReturn(FileLine* fl, AstNodeExpr* lhsp = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstReturn(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp = nullptr)
         : ASTGEN_SUPER_Return(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstReturn;
-    string verilogKwd() const override { return "return"; }
-    bool isBrancher() const override { V3ERROR_NA_RETURN(true); }  // Node removed early
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "return"; }
+    bool isBrancher() ಸ್ಥಿರಾಂಕ override { V3ERROR_NA_RETURN(true); }  // Node removed early
 };
-class AstSFormat final : public AstNodeStmt {
+class AstSFormat final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Parents: statement container
     // @astgen op1 := fmtp : AstSFormatF
     // @astgen op2 := lhsp : AstNodeExpr
-public:
-    AstSFormat(FileLine* fl, bool optionalFormat, AstNodeExpr* lhsp, AstNodeExpr* exprsp,
-               char missingArgChar = 'd')
+ಸಾರ್ವಜನಿಕ:
+    AstSFormat(File_ಸಾಲು* fl, bool optionalFormat, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp,
+               ಅಕ್ಷರ missingArgChar = 'd')
         : ASTGEN_SUPER_SFormat(fl) {
-        AstSFormatF* const newp
-            = new AstSFormatF{fl, AstSFormatF::ExprFormat{}, exprsp, missingArgChar};
+        AstSFormatF* ಸ್ಥಿರಾಂಕ newp
+            = new AstSFormatF{fl, AstSFormatF::ಅಭಿವ್ಯಕ್ತಿ_Format{}, exprsp, missingArgChar};
         newp->optionalFormat(optionalFormat);
         fmtp(newp);
         this->lhsp(lhsp);
     }
-    AstSFormat(FileLine* fl, AstSFormatF* fmtp, AstNodeExpr* lhsp)
+    AstSFormat(File_ಸಾಲು* fl, AstSFormatF* fmtp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_SFormat(fl) {
         this->fmtp(fmtp);
         this->lhsp(lhsp);
         fmtp->hidden(true);
     }
     ASTGEN_MEMBERS_AstSFormat;
-    const char* broken() const override {
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* broken() ಸ್ಥಿರಾಂಕ override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        ಹಿಂತಿರುಗಿ nullptr;
     }
-    string verilogKwd() const override { return "$sformat"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
-    bool isPure() override { return true; }
-    bool isOutputter() override { return false; }
-    virtual bool cleanOut() const { return false; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$sformat"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ true; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ false; }
+    ವಾಸ್ತವಿಕ bool clean_ಹೊರಹೋಗು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ false; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstSetuphold final : public AstNodeStmt {
+class AstSetuphold final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Verilog $setuphold
     // @astgen op1 := refevp : AstNodeExpr
     // @astgen op2 := dataevp : AstNodeExpr
     // @astgen op3 := delrefp : Optional[AstNodeExpr]
     // @astgen op4 := deldatap : Optional[AstNodeExpr]
-public:
-    AstSetuphold(FileLine* fl, AstNodeExpr* refevp, AstNodeExpr* dataevp,
-                 AstNodeExpr* delrefp = nullptr, AstNodeExpr* deldatap = nullptr)
+ಸಾರ್ವಜನಿಕ:
+    AstSetuphold(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* refevp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* dataevp,
+                 Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* delrefp = nullptr, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* deldatap = nullptr)
         : ASTGEN_SUPER_Setuphold(fl) {
         this->refevp(refevp);
         this->dataevp(dataevp);
@@ -1209,104 +1209,104 @@ public:
         this->deldatap(deldatap);
     }
     ASTGEN_MEMBERS_AstSetuphold;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstStackTraceT final : public AstNodeStmt {
+class Ast_ರಾಶಿ_Trace_T final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // $stacktrace used as task
-public:
-    explicit AstStackTraceT(FileLine* fl)
-        : ASTGEN_SUPER_StackTraceT(fl) {}
-    ASTGEN_MEMBERS_AstStackTraceT;
-    string verilogKwd() const override { return "$stacktrace"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_ರಾಶಿ_Trace_T(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_ರಾಶಿ_Trace_T(fl) {}
+    ASTGEN_MEMBERS_Ast_ರಾಶಿ_Trace_T;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$stacktrace"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstStmtExpr final : public AstNodeStmt {
+class Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Expression in statement position
     // @astgen op1 := exprp : AstNodeExpr
-public:
-    AstStmtExpr(FileLine* fl, AstNodeExpr* exprp)
-        : ASTGEN_SUPER_StmtExpr(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp)
+        : ASTGEN_SUPER_Stmt_ಅಭಿವ್ಯಕ್ತಿ(fl) {
         this->exprp(exprp);
     }
-    ASTGEN_MEMBERS_AstStmtExpr;
+    ASTGEN_MEMBERS_Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ;
     // cppcheck-suppress uselessOverride
-    bool isPure() override { return exprp()->isPure(); }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ exprp()->is_ಶುದ್ಧ(); }
 };
-class AstStmtPragma final : public AstNodeStmt {
+class AstStmtPragma final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Pragma in statement position
     // @astgen op1 := pragp : AstPragma
-public:
-    AstStmtPragma(FileLine* fl, AstPragma* pragp)
+ಸಾರ್ವಜನಿಕ:
+    AstStmtPragma(File_ಸಾಲು* fl, AstPragma* pragp)
         : ASTGEN_SUPER_StmtPragma(fl) {
         this->pragp(pragp);
     }
     ASTGEN_MEMBERS_AstStmtPragma;
 };
-class AstStop final : public AstNodeStmt {
-    const bool m_isFatal;  // $fatal not $stop
-public:
-    AstStop(FileLine* fl, bool isFatal)
+class AstStop final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+    ಸ್ಥಿರಾಂಕ bool m_isFatal;  // $fatal not $stop
+ಸಾರ್ವಜನಿಕ:
+    AstStop(File_ಸಾಲು* fl, bool isFatal)
         : ASTGEN_SUPER_Stop(fl)
         , m_isFatal{isFatal} {}
     ASTGEN_MEMBERS_AstStop;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    int instrCount() const override { return 0; }  // Rarely executes
-    bool sameNode(const AstNode* samep) const override { return fileline() == samep->fileline(); }
-    string emitVerilog() const { return m_isFatal ? "$fatal" : "$stop"; }
-    bool isFatal() const { return m_isFatal; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }  // SPECIAL: $display makes output
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 0; }  // Rarely executes
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ fileline() == samep->fileline(); }
+    string emitVerilog() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isFatal ? "$fatal" : "$stop"; }
+    bool isFatal() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isFatal; }
 };
-class AstSystemT final : public AstNodeStmt {
+class AstSystemT final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // $system used as task
     // @astgen op1 := lhsp : AstNodeExpr
-public:
-    AstSystemT(FileLine* fl, AstNodeExpr* lhsp)
+ಸಾರ್ವಜನಿಕ:
+    AstSystemT(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp)
         : ASTGEN_SUPER_SystemT(fl) {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstSystemT;
-    string verilogKwd() const override { return "$system"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$system"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool isUnlikely() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* /*samep*/) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstTimeFormat final : public AstNodeStmt {
+class Ast_ಸಮಯ_Format final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Parents: stmtlist
     // @astgen op1 := unitsp : Optional[AstNodeExpr]
     // @astgen op2 := precisionp : Optional[AstNodeExpr]
     // @astgen op3 := suffixp : Optional[AstNodeExpr]
     // @astgen op4 := widthp : Optional[AstNodeExpr]
-public:
-    AstTimeFormat(FileLine* fl, AstNodeExpr* unitsp, AstNodeExpr* precisionp, AstNodeExpr* suffixp,
-                  AstNodeExpr* widthp)
-        : ASTGEN_SUPER_TimeFormat(fl) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ಸಮಯ_Format(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* unitsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* precisionp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* suffixp,
+                  Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* widthp)
+        : ASTGEN_SUPER_ಸಮಯ_Format(fl) {
         this->unitsp(unitsp);
         this->precisionp(precisionp);
         this->suffixp(suffixp);
         this->widthp(widthp);
     }
-    ASTGEN_MEMBERS_AstTimeFormat;
-    string verilogKwd() const override { return "$timeformat"; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
+    ASTGEN_MEMBERS_Ast_ಸಮಯ_Format;
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "$timeformat"; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ INSTR_ಎಣಿಕೆ_PLI; }
 };
-class AstTraceDecl final : public AstNodeStmt {
+class AstTraceDecl final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Trace point declaration
     // Separate from AstTraceInc; as a declaration can't be deleted
     // Parents:  {statement list}
@@ -1315,278 +1315,278 @@ class AstTraceDecl final : public AstNodeStmt {
     //
     // @astgen ptr := m_dtypeCallp: Optional[AstCCall] // Type init function call
     // @astgen ptr := m_dtypeDeclp: Optional[AstTraceDecl] // CCall TraceDecl which replaces this
-    uint32_t m_code{std::numeric_limits<uint32_t>::max()};  // Trace identifier code
+    uint32_t m_ಸಂಕೇತ{std::numeric_limits<uint32_t>::max()};  // Trace identifier code
     uint32_t m_fidx{0};  // Trace function index
-    const string m_showname;  // Name of variable
-    const VNumRange m_bitRange;  // Property of var the trace details
-    const VNumRange m_arrayRange;  // Property of var the trace details
-    const VVarType m_varType;  // Type of variable (for localparam vs. param)
-    const VDirection m_declDirection;  // Declared direction input/output etc
-    const bool m_inDtypeFunc;  // Trace decl inside type init function
+    ಸ್ಥಿರಾಂಕ string m_showname;  // Name of variable
+    ಸ್ಥಿರಾಂಕ VNumRange m_ಬಿಟ್_Range;  // Property of var the trace details
+    ಸ್ಥಿರಾಂಕ VNumRange m_arrayRange;  // Property of var the trace details
+    ಸ್ಥಿರಾಂಕ VVarType m_varType;  // Type of variable (for localparam vs. param)
+    ಸ್ಥಿರಾಂಕ VDirection m_declDirection;  // Declared direction input/output etc
+    ಸ್ಥಿರಾಂಕ bool m_ಒಳ_Dtype_Func;  // Trace decl inside type init function
     // dist-ast-dump-suppress  // Not stable and of low value
-    int m_codeInc{0};  // Code increment for type
-public:
-    AstTraceDecl(FileLine* fl, const string& showname,
+    ಪೂರ್ಣಾಂಕ m_ಸಂಕೇತ_Inc{0};  // Code increment for type
+ಸಾರ್ವಜನಿಕ:
+    AstTraceDecl(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& showname,
                  AstVar* varp,  // For input/output state etc
-                 AstNodeExpr* valuep, const VNumRange& bitRange, const VNumRange& arrayRange,
-                 AstCCall* const dtypeCallp, const bool inDtypeFunc)
+                 Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* valuep, ಸ್ಥಿರಾಂಕ VNumRange& ಬಿಟ್_Range, ಸ್ಥಿರಾಂಕ VNumRange& arrayRange,
+                 AstCCall* ಸ್ಥಿರಾಂಕ dtypeCallp, ಸ್ಥಿರಾಂಕ bool ಒಳ_Dtype_Func)
         : ASTGEN_SUPER_TraceDecl(fl)
         , m_showname{showname}
-        , m_bitRange{bitRange}
+        , m_ಬಿಟ್_Range{ಬಿಟ್_Range}
         , m_arrayRange{arrayRange}
         , m_varType{varp->varType()}
         , m_declDirection{varp->declDirection()}
-        , m_inDtypeFunc{inDtypeFunc} {
+        , m_ಒಳ_Dtype_Func{ಒಳ_Dtype_Func} {
         dtypeFrom(valuep);
         this->valuep(valuep);
         this->dtypeCallp(dtypeCallp);
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 100; }  // Large...
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 100; }  // Large...
     ASTGEN_MEMBERS_AstTraceDecl;
-    string name() const override VL_MT_STABLE { return m_showname; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override { return true; }
-    string showname() const { return m_showname; }  // * = Var name
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_showname; }
+    bool maybe_Pointed_ಗಮ್ಯ() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    bool hasDType() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    string showname() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_showname; }  // * = Var name
     // Details on what we're tracing
-    uint32_t code() const { return m_code; }
-    void code(uint32_t code) { m_code = code; }
-    bool codeAssigned() const { return m_code != std::numeric_limits<uint32_t>::max(); }
-    uint32_t fidx() const { return m_fidx; }
-    void fidx(uint32_t fidx) { m_fidx = fidx; }
-    void codeInc(uint32_t codeInc) { m_codeInc = codeInc; }
-    uint32_t codeInc() const {
-        if (m_codeInc) { return m_codeInc; }
-        return (m_arrayRange.ranged() ? m_arrayRange.elements() : 1)
-               * valuep()->dtypep()->widthWords()
+    uint32_t ಸಂಕೇತ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸಂಕೇತ; }
+    ಶೂನ್ಯ ಸಂಕೇತ_2(uint32_t ಸಂಕೇತ_2) { m_ಸಂಕೇತ = ಸಂಕೇತ_2; }
+    bool ಸಂಕೇತ_Assigned() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಸಂಕೇತ != std::numeric_limits<uint32_t>::max(); }
+    uint32_t fidx() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_fidx; }
+    ಶೂನ್ಯ fidx(uint32_t fidx) { m_fidx = fidx; }
+    ಶೂನ್ಯ ಸಂಕೇತ_Inc(uint32_t ಸಂಕೇತ_Inc) { m_ಸಂಕೇತ_Inc = ಸಂಕೇತ_Inc; }
+    uint32_t ಸಂಕೇತ_Inc() ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (m_ಸಂಕೇತ_Inc) { ಹಿಂತಿರುಗಿ m_ಸಂಕೇತ_Inc; }
+        ಹಿಂತಿರುಗಿ (m_arrayRange.ranged() ? m_arrayRange.elements() : 1)
+               * valuep()->dtypep()->ಅಗಲ_ಪದಗಳು()
                * (VL_EDATASIZE / 32);  // A code is always 32-bits
     }
-    const VNumRange& bitRange() const { return m_bitRange; }
-    const VNumRange& arrayRange() const { return m_arrayRange; }
-    VVarType varType() const { return m_varType; }
-    VDirection declDirection() const { return m_declDirection; }
-    AstCCall* dtypeCallp() const { return m_dtypeCallp; }
-    void dtypeCallp(AstCCall* const callp) { m_dtypeCallp = callp; }
-    AstTraceDecl* dtypeDeclp() const { return m_dtypeDeclp; }
-    void dtypeDeclp(AstTraceDecl* const declp) { m_dtypeDeclp = declp; }
-    bool inDtypeFunc() const { return m_inDtypeFunc; }
+    ಸ್ಥಿರಾಂಕ VNumRange& ಬಿಟ್_Range() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಬಿಟ್_Range; }
+    ಸ್ಥಿರಾಂಕ VNumRange& arrayRange() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_arrayRange; }
+    VVarType varType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_varType; }
+    VDirection declDirection() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_declDirection; }
+    AstCCall* dtypeCallp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dtypeCallp; }
+    ಶೂನ್ಯ dtypeCallp(AstCCall* ಸ್ಥಿರಾಂಕ callp) { m_dtypeCallp = callp; }
+    AstTraceDecl* dtypeDeclp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dtypeDeclp; }
+    ಶೂನ್ಯ dtypeDeclp(AstTraceDecl* ಸ್ಥಿರಾಂಕ declp) { m_dtypeDeclp = declp; }
+    bool ಒಳ_Dtype_Func() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಒಳ_Dtype_Func; }
 };
-class AstTraceInc final : public AstNodeStmt {
+class AstTraceInc final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // Trace point dump
     // @astgen op1 := valuep : AstNodeExpr // Expression being traced (from decl)
     //
     // @astgen ptr := m_declp : AstTraceDecl  // Pointer to declaration
-    const uint32_t m_baseCode;  // Trace code base value in function containing this AstTraceInc
-    const VTraceType m_traceType;  // Is this a const/full/incremental dump
+    ಸ್ಥಿರಾಂಕ uint32_t m_ತಳ_ಸಂಕೇತ;  // Trace code base value in function containing this AstTraceInc
+    ಸ್ಥಿರಾಂಕ VTraceType m_traceType;  // Is this a const/full/incremental dump
 
-public:
-    AstTraceInc(FileLine* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t baseCode = 0)
+ಸಾರ್ವಜನಿಕ:
+    AstTraceInc(File_ಸಾಲು* fl, AstTraceDecl* declp, VTraceType traceType, uint32_t ತಳ_ಸಂಕೇತ = 0)
         : ASTGEN_SUPER_TraceInc(fl)
-        , m_baseCode{baseCode}
+        , m_ತಳ_ಸಂಕೇತ{ತಳ_ಸಂಕೇತ}
         , m_traceType{traceType}
         , m_declp{declp} {
         dtypeFrom(declp);
         // Note: A clone is necessary (instead of using declp()->valuep()),
         // for insertion of local temporaries in V3Premit
-        valuep(declp->valuep()->cloneTree(true));
+        valuep(declp->valuep()->clone_ವೃಕ್ಷ(true));
     }
     ASTGEN_MEMBERS_AstTraceInc;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 10 + 2 * INSTR_COUNT_LD; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return declp() == VN_DBG_AS(samep, TraceInc)->declp();
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಪೂರ್ಣಾಂಕ instr_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ 10 + 2 * INSTR_ಎಣಿಕೆ_LD; }
+    bool hasDType() ಸ್ಥಿರಾಂಕ override VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ true; }
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ declp() == VN_DBG_AS(samep, TraceInc)->declp();
     }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isOutputter() override { return true; }
-    bool isPure() override { return false; }
-    AstTraceDecl* declp() const { return m_declp; }
-    VTraceType traceType() const { return m_traceType; }
-    uint32_t baseCode() const { return m_baseCode; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isPredictOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    bool isOutputter() override { ಹಿಂತಿರುಗಿ true; }
+    bool is_ಶುದ್ಧ() override { ಹಿಂತಿರುಗಿ false; }
+    AstTraceDecl* declp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_declp; }
+    VTraceType traceType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_traceType; }
+    uint32_t ತಳ_ಸಂಕೇತ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ತಳ_ಸಂಕೇತ; }
 };
-class AstTracePopPrefix final : public AstNodeStmt {
-public:
-    explicit AstTracePopPrefix(FileLine* fl)
-        : ASTGEN_SUPER_TracePopPrefix(fl) {}
-    ASTGEN_MEMBERS_AstTracePopPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
+class Ast_Trace_ತೆಗೆ_ಪೂರ್ವಪ್ರತ್ಯಯ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+ಸಾರ್ವಜನಿಕ:
+    explicit Ast_Trace_ತೆಗೆ_ಪೂರ್ವಪ್ರತ್ಯಯ(File_ಸಾಲು* fl)
+        : ASTGEN_SUPER_Trace_ತೆಗೆ_ಪೂರ್ವಪ್ರತ್ಯಯ(fl) {}
+    ASTGEN_MEMBERS_Ast_Trace_ತೆಗೆ_ಪೂರ್ವಪ್ರತ್ಯಯ;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
 };
-class AstTracePushPrefix final : public AstNodeStmt {
-    const string m_prefix;  // Prefix to add to signal names
-    const VTracePrefixType m_prefixType;  // Type of prefix being pushed
-    const int m_left;  // Array left index, or struct/union member count
-    const int m_right;  // Array right index
-    const bool m_quotedPrefix;  // Quote prefix name
-public:
-    AstTracePushPrefix(FileLine* fl, const string& prefix, VTracePrefixType prefixType,
-                       int left = 0, int right = 0, bool quotedPrefix = true)
-        : ASTGEN_SUPER_TracePushPrefix(fl)
-        , m_prefix{prefix}
-        , m_prefixType{prefixType}
-        , m_left{left}
-        , m_right{right}
-        , m_quotedPrefix{quotedPrefix} {}
-    ASTGEN_MEMBERS_AstTracePushPrefix;
-    bool sameNode(const AstNode* samep) const override { return false; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string prefix() const { return m_prefix; }
-    VTracePrefixType prefixType() const { return m_prefixType; }
-    int left() const { return m_left; }
-    int right() const { return m_right; }
-    bool quotedPrefix() const { return m_quotedPrefix; }
+class Ast_Trace_ತಳ್ಳು_ಪೂರ್ವಪ್ರತ್ಯಯ final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
+    ಸ್ಥಿರಾಂಕ string m_ಪೂರ್ವಪ್ರತ್ಯಯ;  // Prefix to add to signal names
+    ಸ್ಥಿರಾಂಕ VTrace_ಪೂರ್ವಪ್ರತ್ಯಯ_Type m_ಪೂರ್ವಪ್ರತ್ಯಯ_Type;  // Type of prefix being pushed
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ m_ಎಡ;  // Array left index, or struct/union member count
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ m_ಬಲ;  // Array right index
+    ಸ್ಥಿರಾಂಕ bool m_quoted_ಪೂರ್ವಪ್ರತ್ಯಯ;  // Quote prefix name
+ಸಾರ್ವಜನಿಕ:
+    Ast_Trace_ತಳ್ಳು_ಪೂರ್ವಪ್ರತ್ಯಯ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& ಪೂರ್ವಪ್ರತ್ಯಯ, VTrace_ಪೂರ್ವಪ್ರತ್ಯಯ_Type ಪೂರ್ವಪ್ರತ್ಯಯ_Type,
+                       ಪೂರ್ಣಾಂಕ ಎಡ_2 = 0, ಪೂರ್ಣಾಂಕ ಬಲ_2 = 0, bool quoted_ಪೂರ್ವಪ್ರತ್ಯಯ = true)
+        : ASTGEN_SUPER_Trace_ತಳ್ಳು_ಪೂರ್ವಪ್ರತ್ಯಯ(fl)
+        , m_ಪೂರ್ವಪ್ರತ್ಯಯ{ಪೂರ್ವಪ್ರತ್ಯಯ}
+        , m_ಪೂರ್ವಪ್ರತ್ಯಯ_Type{ಪೂರ್ವಪ್ರತ್ಯಯ_Type}
+        , m_ಎಡ{ಎಡ_2}
+        , m_ಬಲ{ಬಲ_2}
+        , m_quoted_ಪೂರ್ವಪ್ರತ್ಯಯ{quoted_ಪೂರ್ವಪ್ರತ್ಯಯ} {}
+    ASTGEN_MEMBERS_Ast_Trace_ತಳ್ಳು_ಪೂರ್ವಪ್ರತ್ಯಯ;
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    string ಪೂರ್ವಪ್ರತ್ಯಯ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಪೂರ್ವಪ್ರತ್ಯಯ; }
+    VTrace_ಪೂರ್ವಪ್ರತ್ಯಯ_Type ಪೂರ್ವಪ್ರತ್ಯಯ_Type() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಪೂರ್ವಪ್ರತ್ಯಯ_Type; }
+    ಪೂರ್ಣಾಂಕ ಎಡ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಎಡ; }
+    ಪೂರ್ಣಾಂಕ ಬಲ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಬಲ; }
+    bool quoted_ಪೂರ್ವಪ್ರತ್ಯಯ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_quoted_ಪೂರ್ವಪ್ರತ್ಯಯ; }
 };
-class AstWait final : public AstNodeStmt {
+class AstWait final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := stmtsp : List[AstNode]
-public:
-    AstWait(FileLine* fl, AstNodeExpr* condp, AstNode* stmtsp)
+ಸಾರ್ವಜನಿಕ:
+    AstWait(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, Ast_ಗಂಟು* stmtsp)
         : ASTGEN_SUPER_Wait(fl) {
         this->condp(condp);
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstWait;
-    bool isTimingControl() const override { return true; }
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
 };
-class AstWaitFork final : public AstNodeStmt {
+class AstWaitFork final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Stmt {
     // A "wait fork" statement
-public:
-    explicit AstWaitFork(FileLine* fl)
+ಸಾರ್ವಜನಿಕ:
+    explicit AstWaitFork(File_ಸಾಲು* fl)
         : ASTGEN_SUPER_WaitFork(fl) {}
     ASTGEN_MEMBERS_AstWaitFork;
-    bool isTimingControl() const override { return true; }
-    string verilogKwd() const override { return "wait fork"; }
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ true; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "wait fork"; }
 };
 
 // === AstNodeAssign ===
-class AstAssign final : public AstNodeAssign {
-public:
-    AstAssign(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-              AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_Assign(fl, lhsp, rhsp, timingControlp) {
+class Ast_ನಿಯೋಜಿಸು final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ನಿಯೋಜಿಸು {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಿಯೋಜಿಸು(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp,
+              Ast_ಗಂಟು* timingControlp = nullptr)
+        : ASTGEN_SUPER_ನಿಯೋಜಿಸು(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAssign;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssign{fileline(), lhsp, rhsp, controlp};
+    ASTGEN_MEMBERS_Ast_ನಿಯೋಜಿಸು;
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* cloneType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) override {
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ controlp = timingControlp() ? timingControlp()->clone_ವೃಕ್ಷ(false) : nullptr;
+        ಹಿಂತಿರುಗಿ new Ast_ನಿಯೋಜಿಸು{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignCompound final : public AstNodeAssign {
+class Ast_ನಿಯೋಜಿಸು_Compound final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ನಿಯೋಜಿಸು {
     // Compound assignments (+=, -=, *=, ...)
-public:
-    enum operation : uint8_t {
-        Add,
+ಸಾರ್ವಜನಿಕ:
+    ಎಣಿಕೆ operation : uint8_t {
+        ಕೂಡಿಸು_2,
         And,
         Div,
         ModDiv,
         Mul,
         Or,
-        ShiftL,
-        ShiftR,
-        ShiftRS,
+        ಸರಿಸು_L,
+        ಸರಿಸು_R,
+        ಸರಿಸು_RS,
         Sub,
         Xor,
     };
 
-private:
+ಖಾಸಗಿ:
     operation m_operation;
 
-public:
-    AstAssignCompound(AstAssignCompound::operation operation, FileLine* fl, AstNodeExpr* lhsp,
-                      AstNodeExpr* rhsp, AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignCompound(fl, lhsp, rhsp, timingControlp) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಿಯೋಜಿಸು_Compound(Ast_ನಿಯೋಜಿಸು_Compound::operation operation, File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp,
+                      Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp, Ast_ಗಂಟು* timingControlp = nullptr)
+        : ASTGEN_SUPER_ನಿಯೋಜಿಸು_Compound(fl, lhsp, rhsp, timingControlp) {
         this->m_operation = operation;
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAssignCompound;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignCompound{operation(), fileline(), lhsp, rhsp, controlp};
+    ASTGEN_MEMBERS_Ast_ನಿಯೋಜಿಸು_Compound;
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* cloneType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) override {
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ controlp = timingControlp() ? timingControlp()->clone_ವೃಕ್ಷ(false) : nullptr;
+        ಹಿಂತಿರುಗಿ new Ast_ನಿಯೋಜಿಸು_Compound{operation(), fileline(), lhsp, rhsp, controlp};
     }
-    operation operation() { return m_operation; }
+    operation operation() { ಹಿಂತಿರುಗಿ m_operation; }
 };
-class AstAssignCont final : public AstNodeAssign {
+class Ast_ನಿಯೋಜಿಸು_Cont final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ನಿಯೋಜಿಸು {
     // Continuous procedural 'assign'.  See AstAssignW for non-procedural version.
-public:
-    AstAssignCont(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                  AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignCont(fl, lhsp, rhsp, timingControlp) {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಿಯೋಜಿಸು_Cont(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp,
+                  Ast_ಗಂಟು* timingControlp = nullptr)
+        : ASTGEN_SUPER_ನಿಯೋಜಿಸು_Cont(fl, lhsp, rhsp, timingControlp) {
         dtypeFrom(lhsp);
     }
-    ASTGEN_MEMBERS_AstAssignCont;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignCont{fileline(), lhsp, rhsp, controlp};
+    ASTGEN_MEMBERS_Ast_ನಿಯೋಜಿಸು_Cont;
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* cloneType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) override {
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ controlp = timingControlp() ? timingControlp()->clone_ವೃಕ್ಷ(false) : nullptr;
+        ಹಿಂತಿರುಗಿ new Ast_ನಿಯೋಜಿಸು_Cont{fileline(), lhsp, rhsp, controlp};
     }
 };
-class AstAssignDly final : public AstNodeAssign {
-public:
-    AstAssignDly(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-                 AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignDly(fl, lhsp, rhsp, timingControlp) {}
-    ASTGEN_MEMBERS_AstAssignDly;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignDly{fileline(), lhsp, rhsp, controlp};
+class Ast_ನಿಯೋಜಿಸು_Dly final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ನಿಯೋಜಿಸು {
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಿಯೋಜಿಸು_Dly(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp,
+                 Ast_ಗಂಟು* timingControlp = nullptr)
+        : ASTGEN_SUPER_ನಿಯೋಜಿಸು_Dly(fl, lhsp, rhsp, timingControlp) {}
+    ASTGEN_MEMBERS_Ast_ನಿಯೋಜಿಸು_Dly;
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* cloneType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) override {
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ controlp = timingControlp() ? timingControlp()->clone_ವೃಕ್ಷ(false) : nullptr;
+        ಹಿಂತಿರುಗಿ new Ast_ನಿಯೋಜಿಸು_Dly{fileline(), lhsp, rhsp, controlp};
     }
-    bool isGateOptimizable() const override { return false; }
-    string verilogKwd() const override { return "<="; }
+    bool isGateOptimizable() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ false; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "<="; }
 };
-class AstAssignForce final : public AstNodeAssign {
+class Ast_ನಿಯೋಜಿಸು_Force final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ನಿಯೋಜಿಸು {
     // Procedural 'force' statement
-public:
-    AstAssignForce(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
-        : ASTGEN_SUPER_AssignForce(fl, lhsp, rhsp) {}
-    ASTGEN_MEMBERS_AstAssignForce;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        return new AstAssignForce{fileline(), lhsp, rhsp};
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಿಯೋಜಿಸು_Force(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp)
+        : ASTGEN_SUPER_ನಿಯೋಜಿಸು_Force(fl, lhsp, rhsp) {}
+    ASTGEN_MEMBERS_Ast_ನಿಯೋಜಿಸು_Force;
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* cloneType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) override {
+        ಹಿಂತಿರುಗಿ new Ast_ನಿಯೋಜಿಸು_Force{fileline(), lhsp, rhsp};
     }
 };
-class AstAssignW final : public AstNodeAssign {
+class Ast_ನಿಯೋಜಿಸು_W final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ನಿಯೋಜಿಸು {
     // Like assign, but wire/assign's in verilog, the only setting of the specified variable
     // @astgen op4 := strengthSpecp : Optional[AstStrengthSpec]
-public:
-    AstAssignW(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp,
-               AstNode* timingControlp = nullptr)
-        : ASTGEN_SUPER_AssignW(fl, lhsp, rhsp, timingControlp) {}
-    ASTGEN_MEMBERS_AstAssignW;
-    AstNodeAssign* cloneType(AstNodeExpr* lhsp, AstNodeExpr* rhsp) override {
-        AstNode* const controlp = timingControlp() ? timingControlp()->cloneTree(false) : nullptr;
-        return new AstAssignW{fileline(), lhsp, rhsp, controlp};
+ಸಾರ್ವಜನಿಕ:
+    Ast_ನಿಯೋಜಿಸು_W(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp,
+               Ast_ಗಂಟು* timingControlp = nullptr)
+        : ASTGEN_SUPER_ನಿಯೋಜಿಸು_W(fl, lhsp, rhsp, timingControlp) {}
+    ASTGEN_MEMBERS_Ast_ನಿಯೋಜಿಸು_W;
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* cloneType(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) override {
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ controlp = timingControlp() ? timingControlp()->clone_ವೃಕ್ಷ(false) : nullptr;
+        ಹಿಂತಿರುಗಿ new Ast_ನಿಯೋಜಿಸು_W{fileline(), lhsp, rhsp, controlp};
     }
-    bool isTimingControl() const override {
-        return timingControlp() || lhsp()->exists([](const AstNodeVarRef* refp) {
-            return refp->access().isWriteOrRW() && refp->varp()->delayp();
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ timingControlp() || lhsp()->exists([](ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* refp) {
+            ಹಿಂತಿರುಗಿ refp->access().isWriteOrRW() && refp->varp()->delayp();
         });
     }
-    AstDelay* getLhsNetDelay() const;
+    AstDelay* getLhsNetDelay() ಸ್ಥಿರಾಂಕ;
 };
 
 // === AstNodeBlock ===
-class AstBegin final : public AstNodeBlock {
+class AstBegin final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಖಂಡ {
     // A 'begin'/'end' named block.
     bool m_needProcess : 1;  // Uses VlProcess
-    const bool m_implied : 1;  // Not inserted by user
-public:
-    AstBegin(FileLine* fl, const string& name, AstNode* stmtsp, bool implied)
+    ಸ್ಥಿರಾಂಕ bool m_implied : 1;  // Not inserted by user
+ಸಾರ್ವಜನಿಕ:
+    AstBegin(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& name, Ast_ಗಂಟು* stmtsp, bool implied)
         : ASTGEN_SUPER_Begin(fl, name)
         , m_needProcess{false}
         , m_implied{implied} {
-        addStmtsp(stmtsp);
+        ಕೂಡಿಸು_Stmtsp(stmtsp);
     }
     ASTGEN_MEMBERS_AstBegin;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    void setNeedProcess() { m_needProcess = true; }
-    bool needProcess() const { return m_needProcess; }
-    bool implied() const { return m_implied; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ ಗಣ_Need_Process() { m_needProcess = true; }
+    bool needProcess() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_needProcess; }
+    bool implied() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_implied; }
 };
-class AstFork final : public AstNodeBlock {
+class AstFork final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_ಖಂಡ {
     // A 'fork'/'join*' named block. Note that this is a strict superset of
     // AstBegin, and it does contain AstNodeBlock::stmtsp(), which are
     // statements that execute sequentially before the parallel statements are
@@ -1596,149 +1596,149 @@ class AstFork final : public AstNodeBlock {
     // be executed sequentially within each fork branch.
     //
     // @astgen op3 := forksp : List[AstBegin]
-    const VJoinType m_joinType;  // Join keyword type
-    bool m_immediateStart = false;  // Fork starts before its parent blocks or exits
+    ಸ್ಥಿರಾಂಕ VJoinType m_joinType;  // Join keyword type
+    bool m_ತಕ್ಷಣ_ಆರಂಭ = false;  // Fork starts before its parent blocks or exits
 
-public:
-    AstFork(FileLine* fl, VJoinType joinType, const string& name = "")
+ಸಾರ್ವಜನಿಕ:
+    AstFork(File_ಸಾಲು* fl, VJoinType joinType, ಸ್ಥಿರಾಂಕ string& name = "")
         : ASTGEN_SUPER_Fork(fl, name)
         , m_joinType{joinType} {}
     ASTGEN_MEMBERS_AstFork;
-    bool sameNode(const AstNode* samep) const override {
-        const AstFork* const asamep = VN_DBG_AS(samep, Fork);
-        return joinType() == asamep->joinType() && immediateStart() == asamep->immediateStart();
+    bool same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ override {
+        ಸ್ಥಿರಾಂಕ AstFork* ಸ್ಥಿರಾಂಕ asamep = VN_DBG_AS(samep, Fork);
+        ಹಿಂತಿರುಗಿ joinType() == asamep->joinType() && ತಕ್ಷಣ_ಆರಂಭ() == asamep->ತಕ್ಷಣ_ಆರಂಭ();
     }
-    bool isTimingControl() const override { return !joinType().joinNone(); }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VJoinType joinType() const { return m_joinType; }
-    bool immediateStart() const { return m_immediateStart; }
-    void immediateStart(bool flag) { m_immediateStart = flag; }
+    bool isTimingControl() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ !joinType().joinNone(); }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    VJoinType joinType() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_joinType; }
+    bool ತಕ್ಷಣ_ಆರಂಭ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ತಕ್ಷಣ_ಆರಂಭ; }
+    ಶೂನ್ಯ ತಕ್ಷಣ_ಆರಂಭ(bool flag) { m_ತಕ್ಷಣ_ಆರಂಭ = flag; }
 };
 
 // === AstNodeCoverOrAssert ===
-class AstAssert final : public AstNodeCoverOrAssert {
+class AstAssert final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cover_Or_Assert {
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
 
-public:
+ಸಾರ್ವಜನಿಕ:
     ASTGEN_MEMBERS_AstAssert;
-    AstAssert(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp, VAssertType type,
-              VAssertDirectiveType directive, const string& name = "")
+    AstAssert(File_ಸಾಲು* fl, Ast_ಗಂಟು* propp, Ast_ಗಂಟು* passsp, Ast_ಗಂಟು* failsp, VAssertType type,
+              VAssertDirectiveType directive, ಸ್ಥಿರಾಂಕ string& name = "")
         : ASTGEN_SUPER_Assert(fl, propp, passsp, type, directive, name) {
-        addFailsp(failsp);
+        ಕೂಡಿಸು_Failsp(failsp);
     }
-    string verilogKwd() const override {
-        return directive() == VAssertDirectiveType::ASSERT ? "assert" : "assume";
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ directive() == VAssertDirectiveType::ASSERT ? "assert" : "assume";
     }
 };
-class AstAssertIntrinsic final : public AstNodeCoverOrAssert {
+class AstAssertIntrinsic final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cover_Or_Assert {
     // A $cast or other compiler inserted assert, that must run even without --assert option
     // @astgen op3 := failsp: List[AstNode] // Statements when propp is failing/falsey
-public:
+ಸಾರ್ವಜನಿಕ:
     ASTGEN_MEMBERS_AstAssertIntrinsic;
-    AstAssertIntrinsic(FileLine* fl, AstNode* propp, AstNode* passsp, AstNode* failsp,
-                       const string& name = "")
+    AstAssertIntrinsic(File_ಸಾಲು* fl, Ast_ಗಂಟು* propp, Ast_ಗಂಟು* passsp, Ast_ಗಂಟು* failsp,
+                       ಸ್ಥಿರಾಂಕ string& name = "")
         // Intrinsic asserts are always enabled thus 'type' field is set to INTERNAL.
-        : ASTGEN_SUPER_AssertIntrinsic(fl, propp, passsp, VAssertType::INTERNAL,
+        : ASTGEN_SUPER_AssertIntrinsic(fl, propp, passsp, VAssertType::ಆಂತರಿಕ,
                                        VAssertDirectiveType::INTRINSIC, name) {
-        addFailsp(failsp);
+        ಕೂಡಿಸು_Failsp(failsp);
     }
-    string verilogKwd() const override { return "assert"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "assert"; }
 };
-class AstCover final : public AstNodeCoverOrAssert {
+class AstCover final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cover_Or_Assert {
     // @astgen op3 := coverincsp: List[AstNode] // Coverage node
     bool m_isCoverSeq = false;  // 'cover sequence' (IEEE 1800-2023 16.14.3): fires per
                                 // end-of-match, not per property success
     bool m_isSeqEvent = false;  // Synthesized for a sequence used as an event control
                                 // (IEEE 1800-2023 9.4.2.4)
-public:
+ಸಾರ್ವಜನಿಕ:
     ASTGEN_MEMBERS_AstCover;
-    AstCover(FileLine* fl, AstNode* propp, AstNode* stmtsp, VAssertType type,
-             const string& name = "")
+    AstCover(File_ಸಾಲು* fl, Ast_ಗಂಟು* propp, Ast_ಗಂಟು* stmtsp, VAssertType type,
+             ಸ್ಥಿರಾಂಕ string& name = "")
         : ASTGEN_SUPER_Cover(fl, propp, stmtsp, type, VAssertDirectiveType::COVER, name) {}
-    string verilogKwd() const override { return "cover"; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isCoverSeq() const { return m_isCoverSeq; }
-    void isCoverSeq(bool flag) { m_isCoverSeq = flag; }
-    bool isSeqEvent() const { return m_isSeqEvent; }
-    void isSeqEvent(bool flag) { m_isSeqEvent = flag; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "cover"; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    bool isCoverSeq() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isCoverSeq; }
+    ಶೂನ್ಯ isCoverSeq(bool flag) { m_isCoverSeq = flag; }
+    bool isSeqEvent() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isSeqEvent; }
+    ಶೂನ್ಯ isSeqEvent(bool flag) { m_isSeqEvent = flag; }
 };
-class AstRestrict final : public AstNodeCoverOrAssert {
-public:
+class AstRestrict final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Cover_Or_Assert {
+ಸಾರ್ವಜನಿಕ:
     ASTGEN_MEMBERS_AstRestrict;
-    AstRestrict(FileLine* fl, AstNode* propp)
+    AstRestrict(File_ಸಾಲು* fl, Ast_ಗಂಟು* propp)
         // Intrinsic asserts are always ignored thus 'type' field is set to INTERNAL.
-        : ASTGEN_SUPER_Restrict(fl, propp, nullptr, VAssertType::INTERNAL,
+        : ASTGEN_SUPER_Restrict(fl, propp, nullptr, VAssertType::ಆಂತರಿಕ,
                                 VAssertDirectiveType::RESTRICT) {}
-    string verilogKwd() const override { return "restrict"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "restrict"; }
 };
 
 // === AstNodeForeach ===
-class AstConstraintForeach final : public AstNodeForeach {
+class AstConstraintForeach final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Foreach {
     // Constraint foreach statement
     bool m_soft;  // is soft foreach, non-standard extension
-public:
-    AstConstraintForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* bodyp,
+ಸಾರ್ವಜನಿಕ:
+    AstConstraintForeach(File_ಸಾಲು* fl, Ast_Foreach_ಶೀರ್ಷಿಕೆ* headerp, Ast_ಗಂಟು* bodyp,
                          bool soft = false)
         : ASTGEN_SUPER_ConstraintForeach(fl, headerp, bodyp)
         , m_soft{soft} {}
     ASTGEN_MEMBERS_AstConstraintForeach;
-    bool isSoft() const { return m_soft; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool isSoft() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_soft; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
 };
-class AstForeach final : public AstNodeForeach {
-public:
-    AstForeach(FileLine* fl, AstForeachHeader* headerp, AstNode* stmtsp)
+class AstForeach final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Foreach {
+ಸಾರ್ವಜನಿಕ:
+    AstForeach(File_ಸಾಲು* fl, Ast_Foreach_ಶೀರ್ಷಿಕೆ* headerp, Ast_ಗಂಟು* stmtsp)
         : ASTGEN_SUPER_Foreach(fl, headerp, stmtsp) {}
     ASTGEN_MEMBERS_AstForeach;
 };
 
 // === AstNodeIf ===
-class AstConstraintIf final : public AstNodeIf {
-public:
-    AstConstraintIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
+class AstConstraintIf final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_If {
+ಸಾರ್ವಜನಿಕ:
+    AstConstraintIf(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, Ast_ಗಂಟು* thensp, Ast_ಗಂಟು* elsesp)
         : ASTGEN_SUPER_ConstraintIf(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstConstraintIf;
 };
 
-class AstIf final : public AstNodeIf {
+class AstIf final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_If {
     bool m_uniquePragma = false;  // unique case
     bool m_unique0Pragma = false;  // unique0 case
-    bool m_priorityPragma = false;  // priority case
-public:
-    AstIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp = nullptr, AstNode* elsesp = nullptr)
+    bool m_ಆದ್ಯತೆ_Pragma = false;  // priority case
+ಸಾರ್ವಜನಿಕ:
+    AstIf(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, Ast_ಗಂಟು* thensp = nullptr, Ast_ಗಂಟು* elsesp = nullptr)
         : ASTGEN_SUPER_If(fl, condp, thensp, elsesp) {}
     ASTGEN_MEMBERS_AstIf;
-    bool uniquePragma() const { return m_uniquePragma; }
-    void uniquePragma(bool flag) { m_uniquePragma = flag; }
-    bool unique0Pragma() const { return m_unique0Pragma; }
-    void unique0Pragma(bool flag) { m_unique0Pragma = flag; }
-    bool priorityPragma() const { return m_priorityPragma; }
-    void priorityPragma(bool flag) { m_priorityPragma = flag; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool uniquePragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_uniquePragma; }
+    ಶೂನ್ಯ uniquePragma(bool flag) { m_uniquePragma = flag; }
+    bool unique0Pragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_unique0Pragma; }
+    ಶೂನ್ಯ unique0Pragma(bool flag) { m_unique0Pragma = flag; }
+    bool ಆದ್ಯತೆ_Pragma() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಆದ್ಯತೆ_Pragma; }
+    ಶೂನ್ಯ ಆದ್ಯತೆ_Pragma(bool flag) { m_ಆದ್ಯತೆ_Pragma = flag; }
+    ಶೂನ್ಯ dump(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
+    ಶೂನ್ಯ dumpJson(std::ostream& str) ಸ್ಥಿರಾಂಕ override;
 };
 
 // === AstNodeReadWriteMem ===
-class AstReadMem final : public AstNodeReadWriteMem {
-public:
-    AstReadMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-               AstNodeExpr* lsbp, AstNodeExpr* msbp)
+class AstReadMem final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Read_Write_Mem {
+ಸಾರ್ವಜನಿಕ:
+    AstReadMem(File_ಸಾಲು* fl, bool hex, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filenamep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* memp,
+               Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lsbp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* msbp)
         : ASTGEN_SUPER_ReadMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstReadMem;
-    string verilogKwd() const override { return (isHex() ? "$readmemh" : "$readmemb"); }
-    const char* cFuncPrefixp() const override { return "VL_READMEM_"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ (isHex() ? "$readmemh" : "$readmemb"); }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* cFuncPrefixp() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "VL_READMEM_"; }
 };
-class AstWriteMem final : public AstNodeReadWriteMem {
-public:
-    AstWriteMem(FileLine* fl, bool hex, AstNodeExpr* filenamep, AstNodeExpr* memp,
-                AstNodeExpr* lsbp, AstNodeExpr* msbp)
+class AstWriteMem final : ಸಾರ್ವಜನಿಕ Ast_ಗಂಟು_Read_Write_Mem {
+ಸಾರ್ವಜನಿಕ:
+    AstWriteMem(File_ಸಾಲು* fl, bool hex, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* filenamep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* memp,
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lsbp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* msbp)
         : ASTGEN_SUPER_WriteMem(fl, hex, filenamep, memp, lsbp, msbp) {}
     ASTGEN_MEMBERS_AstWriteMem;
-    string verilogKwd() const override { return (isHex() ? "$writememh" : "$writememb"); }
-    const char* cFuncPrefixp() const override { return "VL_WRITEMEM_"; }
+    string verilogKwd() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ (isHex() ? "$writememh" : "$writememb"); }
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* cFuncPrefixp() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "VL_WRITEMEM_"; }
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

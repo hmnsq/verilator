@@ -14,85 +14,85 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCSOURCE_H_
-#define VERILATOR_VLCSOURCE_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_VLCSOURCE_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_VLCSOURCE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "VlcPoint.h"
+#ಅನ್ತರ್ಭಾವ "VlcPoint.h"
 
-#include <limits>
-#include <map>
-#include <set>
-#include <utility>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <limits>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <utility>
+#ಅನ್ತರ್ಭಾವ <vector>
 
-class VlcPoint;
+class Vlc_ಬಿಂದು;
 
 //********************************************************************
 // VlcColumnCount - count at specific source file, line and column
 
-class VlcSourceCount final {
+class Vlc_ಮೂಲ_ಎಣಿಕೆ final {
     // TYPES
-    using PointsSet = std::set<const VlcPoint*>;
+    using Points_ಗಣ = std::ಗಣ<ಸ್ಥಿರಾಂಕ Vlc_ಬಿಂದು*>;
 
     // MEMBERS
-    const int m_lineno;  ///< Line number
-    uint64_t m_maxCount = 0;  ///< Max count
-    uint64_t m_minCount = std::numeric_limits<uint64_t>::max();  ///< Min count
-    PointsSet m_points;  // Points on this line
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ m_lineno;  ///< Line number
+    uint64_t m_max_ಎಣಿಕೆ = 0;  ///< Max count
+    uint64_t m_min_ಎಣಿಕೆ = std::numeric_limits<uint64_t>::max();  ///< Min count
+    Points_ಗಣ m_points;  // Points on this line
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit VlcSourceCount(int lineno)
+    explicit Vlc_ಮೂಲ_ಎಣಿಕೆ(ಪೂರ್ಣಾಂಕ lineno)
         : m_lineno{lineno} {}
-    ~VlcSourceCount() = default;
+    ~Vlc_ಮೂಲ_ಎಣಿಕೆ() = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // ACCESSORS
-    int lineno() const { return m_lineno; }
-    uint64_t maxCount() const { return m_maxCount; }
-    uint64_t minCount() const { return m_minCount; }
+    ಪೂರ್ಣಾಂಕ lineno() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_lineno; }
+    uint64_t max_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_max_ಎಣಿಕೆ; }
+    uint64_t min_ಎಣಿಕೆ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_min_ಎಣಿಕೆ; }
 
     // METHODS
-    void insertPoint(const VlcPoint* pointp) {
-        m_maxCount = std::max(m_maxCount, pointp->count());
-        m_minCount = std::min(m_minCount, pointp->count());
+    ಶೂನ್ಯ ಸೇರಿಸು_ಬಿಂದು(ಸ್ಥಿರಾಂಕ Vlc_ಬಿಂದು* pointp) {
+        m_max_ಎಣಿಕೆ = std::max(m_max_ಎಣಿಕೆ, pointp->ಎಣಿಕೆ_2());
+        m_min_ಎಣಿಕೆ = std::min(m_min_ಎಣಿಕೆ, pointp->ಎಣಿಕೆ_2());
         m_points.emplace(pointp);
     }
-    const PointsSet& points() { return m_points; }
+    ಸ್ಥಿರಾಂಕ Points_ಗಣ& points() { ಹಿಂತಿರುಗಿ m_points; }
 };
 
 //********************************************************************
 // VlcSource - source file to annotate
 
-class VlcSource final {
-public:
+class Vlc_ಮೂಲ final {
+ಸಾರ್ವಜನಿಕ:
     // TYPES
-    using LinenoMap = std::map<int, VlcSourceCount>;  // Map of {column}
+    using LinenoMap = std::map<ಪೂರ್ಣಾಂಕ, Vlc_ಮೂಲ_ಎಣಿಕೆ>;  // Map of {column}
 
-private:
+ಖಾಸಗಿ:
     // MEMBERS
-    const string m_name;  //< Name of the source file
-    LinenoMap m_lines;  //< Map of each annotated line
+    ಸ್ಥಿರಾಂಕ string m_name;  //< Name of the source file
+    LinenoMap m_ಸಾಲುಗಳು;  //< Map of each annotated line
     bool m_needed = false;  //< Need to annotate; has low coverage
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit VlcSource(const string& name)
+    explicit Vlc_ಮೂಲ(ಸ್ಥಿರಾಂಕ string& name)
         : m_name{name} {}
-    ~VlcSource() = default;
+    ~Vlc_ಮೂಲ() = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // ACCESSORS
-    const string& name() const { return m_name; }
-    bool needed() const { return m_needed; }
-    void needed(bool flag) { m_needed = flag; }
-    LinenoMap& lines() { return m_lines; }
+    ಸ್ಥಿರಾಂಕ string& name() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_name; }
+    bool needed() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_needed; }
+    ಶೂನ್ಯ needed(bool flag) { m_needed = flag; }
+    LinenoMap& ಸಾಲುಗಳು() { ಹಿಂತಿರುಗಿ m_ಸಾಲುಗಳು; }
 
     // METHODS
-    void insertPoint(int lineno, const VlcPoint* pointp) {
-        VlcSourceCount& sc = m_lines.emplace(lineno, lineno).first->second;
-        sc.insertPoint(pointp);
+    ಶೂನ್ಯ ಸೇರಿಸು_ಬಿಂದು(ಪೂರ್ಣಾಂಕ lineno, ಸ್ಥಿರಾಂಕ Vlc_ಬಿಂದು* pointp) {
+        Vlc_ಮೂಲ_ಎಣಿಕೆ& sc = m_ಸಾಲುಗಳು.emplace(lineno, lineno).ಮೊದಲ->ಎರಡನೇ;
+        sc.ಸೇರಿಸು_ಬಿಂದು(pointp);
     }
 };
 
@@ -100,33 +100,33 @@ public:
 // VlcSources - Container of all source files
 
 class VlcSources final {
-public:
+ಸಾರ್ವಜನಿಕ:
     // TYPES
-    using NameMap = std::map<const std::string, VlcSource>;
+    using NameMap = std::map<ಸ್ಥಿರಾಂಕ std::string, Vlc_ಮೂಲ>;
 
-private:
+ಖಾಸಗಿ:
     // MEMBERS
     NameMap m_sources;  //< List of all sources
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // ITERATORS
     using iterator = NameMap::iterator;
-    NameMap::iterator begin() { return m_sources.begin(); }
-    NameMap::iterator end() { return m_sources.end(); }
+    NameMap::iterator begin() { ಹಿಂತಿರುಗಿ m_sources.begin(); }
+    NameMap::iterator ಕೊನೆ() { ಹಿಂತಿರುಗಿ m_sources.ಕೊನೆ(); }
 
     // CONSTRUCTORS
-    VlcSources() = default;
-    ~VlcSources() = default;
+    VlcSources() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~VlcSources() = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // METHODS
-    VlcSource& findNewSource(const string& name) {
-        NameMap::iterator iter = m_sources.find(name);
-        if (iter != m_sources.end()) return iter->second;
-        iter = m_sources.emplace(name, VlcSource{name}).first;
-        return iter->second;
+    Vlc_ಮೂಲ& ಕಂಡುಹಿಡಿ_New_ಮೂಲ(ಸ್ಥಿರಾಂಕ string& name) {
+        NameMap::iterator iter = m_sources.ಕಂಡುಹಿಡಿ(name);
+        ಆದರೆ (iter != m_sources.ಕೊನೆ()) ಹಿಂತಿರುಗಿ iter->ಎರಡನೇ;
+        iter = m_sources.emplace(name, Vlc_ಮೂಲ{name}).ಮೊದಲ;
+        ಹಿಂತಿರುಗಿ iter->ಎರಡನೇ;
     }
 };
 
 //######################################################################
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

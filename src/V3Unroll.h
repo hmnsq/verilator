@@ -14,14 +14,14 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3UNROLL_H_
-#define VERILATOR_V3UNROLL_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3UNROLL_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3UNROLL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
 
 //============================================================================
 // Generate loop unroller
@@ -30,22 +30,22 @@ class UnrollGenVisitor;
 
 class GenForUnroller final {
     // MEMBERS
-    UnrollGenVisitor* const m_unrollerp;  // Unroller implementation class
+    UnrollGenVisitor* ಸ್ಥಿರಾಂಕ m_unrollerp;  // Unroller implementation class
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTOR
     GenForUnroller() VL_MT_DISABLED;
     ~GenForUnroller() VL_MT_DISABLED;
     // METHODS
-    void unroll(AstGenFor* nodep, const std::string& beginName) VL_MT_DISABLED;
+    ಶೂನ್ಯ unroll(AstGenFor* nodep, ಸ್ಥಿರಾಂಕ std::string& beginName) VL_MT_DISABLED;
 };
 
 //============================================================================
 // Loop statement unroller
 
 class V3Unroll final {
-public:
-    static void unrollAll(AstNetlist* nodep) VL_MT_DISABLED;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ unrollAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

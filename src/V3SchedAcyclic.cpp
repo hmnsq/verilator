@@ -33,89 +33,89 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitV.h"
-#include "V3File.h"
-#include "V3Graph.h"
-#include "V3Sched.h"
-#include "V3SenTree.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitV.h"
+#ಅನ್ತರ್ಭಾವ "V3File.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Sched.h"
+#ಅನ್ತರ್ಭಾವ "V3SenTree.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
-#include <map>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
+#ಅನ್ತರ್ಭಾವ <utility>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+ನಾಮಾಕಾಶ V3Sched {
 
-namespace {
+ನಾಮಾಕಾಶ {
 
 // ##############################################################################
 //  Data structures (graph types)
 
-class SchedAcyclicLogicVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedAcyclicLogicVertex, V3GraphVertex)
-    AstNode* const m_logicp;  // The logic node this vertex represents
-    AstScope* const m_scopep;  // The enclosing AstScope of the logic node
+ವರ್ಗ Sched_Acyclic_Logic_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Sched_Acyclic_Logic_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ m_logicp;  // The logic node this vertex represents
+    AstScope* ಸ್ಥಿರಾಂಕ m_scopep;  // The enclosing AstScope of the logic node
 
-public:
-    SchedAcyclicLogicVertex(V3Graph* graphp, AstNode* logicp, AstScope* scopep)
-        : V3GraphVertex{graphp}
+ಸಾರ್ವಜನಿಕ:
+    Sched_Acyclic_Logic_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, Ast_ಗಂಟು* logicp, AstScope* scopep)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_logicp{logicp}
         , m_scopep{scopep} {}
-    V3GraphVertex* clone(V3Graph* graphp) const override {
-        return new SchedAcyclicLogicVertex{graphp, logicp(), scopep()};
+    V3_ನಕ್ಷೆ_ಶೃಂಗ* clone(V3_ನಕ್ಷೆ* graphp) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ಹೊಸ Sched_Acyclic_Logic_ಶೃಂಗ{graphp, logicp(), scopep()};
     }
 
-    AstNode* logicp() const { return m_logicp; }
-    AstScope* scopep() const { return m_scopep; }
+    Ast_ಗಂಟು* logicp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_logicp; }
+    AstScope* scopep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_scopep; }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_logicp->fileline()->ascii(); };
-    string dotShape() const override { return "rectangle2"; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_logicp->fileline()->ascii(); };
+    string dotShape() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "rectangle2"; }
     // LCOV_EXCL_STOP
 };
 
-class SchedAcyclicVarVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(SchedAcyclicVarVertex, V3GraphVertex)
-    AstVarScope* const m_vscp;  // The AstVarScope this vertex represents
+ವರ್ಗ Sched_Acyclic_Var_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Sched_Acyclic_Var_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    AstVarScope* ಸ್ಥಿರಾಂಕ m_vscp;  // The AstVarScope this vertex represents
 
-public:
-    SchedAcyclicVarVertex(V3Graph* graphp, AstVarScope* vscp)
-        : V3GraphVertex{graphp}
+ಸಾರ್ವಜನಿಕ:
+    Sched_Acyclic_Var_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, AstVarScope* vscp)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_vscp{vscp} {}
-    AstVarScope* vscp() const { return m_vscp; }
-    AstVar* varp() const { return m_vscp->varp(); }
-    V3GraphVertex* clone(V3Graph* graphp) const override {
-        return new SchedAcyclicVarVertex{graphp, vscp()};
+    AstVarScope* vscp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_vscp; }
+    AstVar* varp() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_vscp->varp(); }
+    V3_ನಕ್ಷೆ_ಶೃಂಗ* clone(V3_ನಕ್ಷೆ* graphp) ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ ಹೊಸ Sched_Acyclic_Var_ಶೃಂಗ{graphp, vscp()};
     }
 
     // LCOV_EXCL_START // Debug code
-    string name() const override VL_MT_STABLE { return m_vscp->name(); }
-    string dotShape() const override { return "ellipse"; }
-    string dotColor() const override { return "blue"; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_vscp->name(); }
+    string dotShape() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "ellipse"; }
+    string dotColor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "blue"; }
     // LCOV_EXCL_STOP
 };
 
-class Graph final : public V3Graph {
-    string loopsVertexCb(V3GraphVertex* vtxp) override {
-        if (SchedAcyclicLogicVertex* const lvtxp = vtxp->cast<SchedAcyclicLogicVertex>()) {
-            AstNode* const logicp = lvtxp->logicp();
+ವರ್ಗ ನಕ್ಷೆ_2 final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ {
+    string loops_ಶೃಂಗ_Cb(V3_ನಕ್ಷೆ_ಶೃಂಗ* vtxp) override {
+        ಆದರೆ (Sched_Acyclic_Logic_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ lvtxp = vtxp->cast<Sched_Acyclic_Logic_ಶೃಂಗ>()) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ logicp = lvtxp->logicp();
             std::string logicName = logicp->prettyTypeName();
-            if (const AstAlways* const alwaysp = VN_CAST(logicp, Always)) {
-                if (alwaysp->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstAlways* ಸ್ಥಿರಾಂಕ alwaysp = VN_CAST(logicp, Always)) {
+                ಆದರೆ (alwaysp->keyword() == VAlwaysKwd::CONT_ನಿಯೋಜಿಸು) {
                     logicName = "ASSIGNW";  // Keep using historiacl name until we have better
                 }
             }
-            return logicp->fileline()->warnOther() + "     Example path: " + logicName + "\n";
-        } else {
-            SchedAcyclicVarVertex* const vvtxp = vtxp->as<SchedAcyclicVarVertex>();
-            AstVarScope* const vscp = vvtxp->vscp();
-            return vscp->fileline()->warnOther() + "     Example path: " + vscp->prettyName()
+            ಹಿಂತಿರುಗಿ logicp->fileline()->warnOther() + "     Example path: " + logicName + "\n";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            Sched_Acyclic_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvtxp = vtxp->as<Sched_Acyclic_Var_ಶೃಂಗ>();
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = vvtxp->vscp();
+            ಹಿಂತಿರುಗಿ vscp->fileline()->warnOther() + "     Example path: " + vscp->prettyName()
                    + "\n";
         }
     }
@@ -124,91 +124,91 @@ class Graph final : public V3Graph {
 //##############################################################################
 // Algorithm implementation
 
-std::unique_ptr<Graph> buildGraph(const LogicByScope& lbs) {
-    std::unique_ptr<Graph> graphp{new Graph};
+std::unique_ptr<ನಕ್ಷೆ_2> build_ನಕ್ಷೆ(ಸ್ಥಿರಾಂಕ LogicByScope& lbs) {
+    std::unique_ptr<ನಕ್ಷೆ_2> graphp{ಹೊಸ ನಕ್ಷೆ_2};
 
     // AstVarScope::user1() -> VarVertx
-    const VNUser1InUse user1InUse;
-    const auto getVarVertex = [&](AstVarScope* vscp) {
-        if (!vscp->user1p()) vscp->user1p(new SchedAcyclicVarVertex{graphp.get(), vscp});
-        return vscp->user1u().to<SchedAcyclicVarVertex*>();
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use user1_ಒಳ_Use;
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ get_Var_ಶೃಂಗ = [&](AstVarScope* vscp) {
+        ಆದರೆ (!vscp->user1p()) vscp->user1p(ಹೊಸ Sched_Acyclic_Var_ಶೃಂಗ{graphp.get(), vscp});
+        ಹಿಂತಿರುಗಿ vscp->user1u().ಗಮ್ಯ<Sched_Acyclic_Var_ಶೃಂಗ*>();
     };
 
-    const auto addEdge = [&](V3GraphVertex* fromp, V3GraphVertex* top, int weight, bool cuttable) {
-        new V3GraphEdge{graphp.get(), fromp, top, weight, cuttable};
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಕೂಡಿಸು_ಅಂಚು = [&](V3_ನಕ್ಷೆ_ಶೃಂಗ* fromp, V3_ನಕ್ಷೆ_ಶೃಂಗ* ತುದಿ, ಪೂರ್ಣಾಂಕ ತೂಕ_2, ತಾರ್ಕಿಕ cuttable) {
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{graphp.get(), fromp, ತುದಿ, ತೂಕ_2, cuttable};
     };
 
-    for (const auto& entry : lbs) {
-        AstScope* const scopep = entry.m_scopep;
-        AstActive* const activep = entry.m_activep;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ನಮೂದು : lbs) {
+        AstScope* ಸ್ಥಿರಾಂಕ scopep = ನಮೂದು.m_scopep;
+        Ast_ಸಕ್ರಿಯ* ಸ್ಥಿರಾಂಕ activep = ನಮೂದು.m_activep;
         UASSERT_OBJ(activep->hasCombo(), activep, "Not combinational logic");
-        for (AstNode* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
+        ಗಾಗಿ (Ast_ಗಂಟು* nodep = activep->stmtsp(); nodep; nodep = nodep->nextp()) {
             // Can safely ignore Postponed as we generate them all
-            if (VN_IS(nodep, AlwaysPostponed)) continue;
+            ಆದರೆ (VN_IS(nodep, AlwaysPostponed)) ಮುಂದುವರಿ;
 
-            SchedAcyclicLogicVertex* const lvtxp
-                = new SchedAcyclicLogicVertex{graphp.get(), nodep, scopep};
-            const VNUser2InUse user2InUse;
-            const VNUser3InUse user3InUse;
+            Sched_Acyclic_Logic_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ lvtxp
+                = ಹೊಸ Sched_Acyclic_Logic_ಶೃಂಗ{graphp.get(), nodep, scopep};
+            ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use user2_ಒಳ_Use;
+            ಸ್ಥಿರಾಂಕ VNUser3_ಒಳ_Use user3_ಒಳ_Use;
 
-            V3Sched::util::VarScopeSet forceReadEdgeIgnores;
-            V3Sched::util::collectForceReadEdgeIgnores(nodep, forceReadEdgeIgnores);
+            V3Sched::util::Var_Scope_ಗಣ force_Read_ಅಂಚು_Ignores;
+            V3Sched::util::collect_Force_Read_ಅಂಚು_Ignores(nodep, force_Read_ಅಂಚು_Ignores);
 
             nodep->foreach([&](AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                SchedAcyclicVarVertex* const vvtxp = getVarVertex(vscp);
+                AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
+                Sched_Acyclic_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvtxp = get_Var_ಶೃಂಗ(vscp);
                 // We want to cut the narrowest signals
-                const int weight = vscp->width() / 8 + 1;
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ತೂಕ_2 = vscp->ಅಗಲ() / 8 + 1;
                 // If written, add logic -> var edge
-                if (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
-                    && !vscp->user2SetOnce())
-                    addEdge(lvtxp, vvtxp, weight, true);
+                ಆದರೆ (refp->access().isWriteOrRW() && !refp->varp()->ignoreSchedWrite()
+                    && !vscp->user2_ಗಣ_Once())
+                    ಕೂಡಿಸು_ಅಂಚು(lvtxp, vvtxp, ತೂಕ_2, ನಿಜ);
                 // If read, add var -> logic edge
                 // Note: Use same heuristic as ordering does to ignore written variables
                 // TODO: Use live variable analysis.
-                if (refp->access().isReadOrRW() && !vscp->user3SetOnce() && !vscp->user2()
-                    && !forceReadEdgeIgnores.count(vscp))
-                    addEdge(vvtxp, lvtxp, weight, true);
+                ಆದರೆ (refp->access().isReadOrRW() && !vscp->user3_ಗಣ_Once() && !vscp->user2()
+                    && !force_Read_ಅಂಚು_Ignores.ಎಣಿಕೆ_2(vscp))
+                    ಕೂಡಿಸು_ಅಂಚು(vvtxp, lvtxp, ತೂಕ_2, ನಿಜ);
             });
         }
     }
 
-    return graphp;
+    ಹಿಂತಿರುಗಿ graphp;
 }
 
-void removeNonCyclic(Graph* graphp) {
+ಶೂನ್ಯ removeNonCyclic(ನಕ್ಷೆ_2* graphp) {
     // Work queue
-    std::vector<V3GraphVertex*> queue;
+    std::ಸದಿಶ<V3_ನಕ್ಷೆ_ಶೃಂಗ*> ಸರತಿ;
 
-    const auto enqueue = [&](V3GraphVertex* vtxp) {
-        if (vtxp->user()) return;  // Already in queue
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಸರತಿಗೆ_ಸೇರಿಸು = [&](V3_ನಕ್ಷೆ_ಶೃಂಗ* vtxp) {
+        ಆದರೆ (vtxp->user()) ಹಿಂತಿರುಗಿ;  // Already in queue
         vtxp->user(1);
-        queue.push_back(vtxp);
+        ಸರತಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(vtxp);
     };
 
     // Start with vertices with no inputs or outputs
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (vtx.inEmpty() || vtx.outEmpty()) enqueue(&vtx);
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : graphp->vertices()) {
+        ಆದರೆ (vtx.ಒಳ_ಖಾಲಿಗಳು() || vtx.ಹೊರಹೋಗು_ಖಾಲಿಗಳು()) ಸರತಿಗೆ_ಸೇರಿಸು(&vtx);
     }
 
     // Iterate while we still have candidates
-    while (!queue.empty()) {
+    ಆಗ (!ಸರತಿ.ಖಾಲಿಗಳು()) {
         // Pop next candidate
-        V3GraphVertex* const vtxp = queue.back();
-        queue.pop_back();
+        V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = ಸರತಿ.ಹಿಂಭಾಗ();
+        ಸರತಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
         vtxp->user(0);  // No longer in queue
 
-        if (vtxp->inEmpty()) {
+        ಆದರೆ (vtxp->ಒಳ_ಖಾಲಿಗಳು()) {
             // Enqueue children for consideration, remove out edges, and delete this vertex
-            for (V3GraphEdge* const edgep : vtxp->outEdges().unlinkable()) {
-                enqueue(edgep->top());
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು* ಸ್ಥಿರಾಂಕ edgep : vtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು().unlinkable()) {
+                ಸರತಿಗೆ_ಸೇರಿಸು(edgep->ತುದಿ());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
             VL_DO_DANGLING(vtxp->unlinkDelete(graphp), vtxp);
-        } else if (vtxp->outEmpty()) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (vtxp->ಹೊರಹೋಗು_ಖಾಲಿಗಳು()) {
             // Enqueue parents for consideration, remove in edges, and delete this vertex
-            for (V3GraphEdge* const edgep : vtxp->inEdges().unlinkable()) {
-                enqueue(edgep->fromp());
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು* ಸ್ಥಿರಾಂಕ edgep : vtxp->ಒಳ_ಅಂಚುಗಳು().unlinkable()) {
+                ಸರತಿಗೆ_ಸೇರಿಸು(edgep->fromp());
                 VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
             }
             VL_DO_DANGLING(vtxp->unlinkDelete(graphp), vtxp);
@@ -217,215 +217,215 @@ void removeNonCyclic(Graph* graphp) {
 }
 
 // Has this VarVertex been cut? (any edges in or out has been cut)
-bool isCut(const SchedAcyclicVarVertex* vtxp) {
-    for (const V3GraphEdge& edge : vtxp->inEdges()) {
-        if (edge.weight() == 0) return true;
+ತಾರ್ಕಿಕ isCut(ಸ್ಥಿರಾಂಕ Sched_Acyclic_Var_ಶೃಂಗ* vtxp) {
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಒಳ_ಅಂಚುಗಳು()) {
+        ಆದರೆ (ಅಂಚು.ತೂಕ_2() == 0) ಹಿಂತಿರುಗಿ ನಿಜ;
     }
-    for (const V3GraphEdge& edge : vtxp->outEdges()) {
-        if (edge.weight() == 0) return true;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+        ಆದರೆ (ಅಂಚು.ತೂಕ_2() == 0) ಹಿಂತಿರುಗಿ ನಿಜ;
     }
-    return false;
+    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 }
 
-std::vector<SchedAcyclicVarVertex*> findCutVertices(Graph* graphp) {
+std::ಸದಿಶ<Sched_Acyclic_Var_ಶೃಂಗ*> ಕಂಡುಹಿಡಿ_Cut_Vertices(ನಕ್ಷೆ_2* graphp) {
     // List of cut vertices being computed here
-    std::vector<SchedAcyclicVarVertex*> result;
-    const VNUser1InUse user1InUse;  // bool: already added to result
+    std::ಸದಿಶ<Sched_Acyclic_Var_ಶೃಂಗ*> ಫಲಿತಾಂಶ;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use user1_ಒಳ_Use;  // bool: already added to result
 
     // Statistics
-    size_t nCyclicVtxs = 0;  // Number of vertices that are part of an SCC (cycle)
-    size_t nCyclicVars = 0;  // Number of variables that are part of an SCC (cycle)
-    std::unordered_set<uint32_t> sccs;  // Unique SCC colors
+    ಗಾತ್ರ_t nCyclicVtxs = 0;  // Number of vertices that are part of an SCC (cycle)
+    ಗಾತ್ರ_t nCyclicVars = 0;  // Number of variables that are part of an SCC (cycle)
+    std::unordered_ಗಣ<uint32_t> sccs;  // Unique SCC colors
 
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (!vtx.color()) continue;  // Not part of an SCC (cycle), can ignore
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : graphp->vertices()) {
+        ಆದರೆ (!vtx.color()) ಮುಂದುವರಿ;  // Not part of an SCC (cycle), can ignore
         ++nCyclicVtxs;
-        if (SchedAcyclicVarVertex* const vvtxp = vtx.cast<SchedAcyclicVarVertex>()) {
+        ಆದರೆ (Sched_Acyclic_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvtxp = vtx.cast<Sched_Acyclic_Var_ಶೃಂಗ>()) {
             ++nCyclicVars;
-            if (!vvtxp->vscp()->user1SetOnce() && isCut(vvtxp)) result.push_back(vvtxp);
+            ಆದರೆ (!vvtxp->vscp()->user1_ಗಣ_Once() && isCut(vvtxp)) ಫಲಿತಾಂಶ.ತಳ್ಳು_ಹಿಂಭಾಗ(vvtxp);
         }
         // Don't bother counting if not dumping statistics
-        if (v3Global.opt.stats()) sccs.insert(vtx.color());
+        ಆದರೆ (v3Global.opt.stats()) sccs.ಸೇರಿಸು(vtx.color());
     }
 
-    V3Stats::addStat("Scheduling, Cycles, cyclic variables", nCyclicVars);
-    V3Stats::addStat("Scheduling, Cycles, cyclic logic blocks", nCyclicVtxs - nCyclicVars);
-    V3Stats::addStat("Scheduling, Cycles, unique SCCs", sccs.size());
-    V3Stats::addStat("Scheduling, Cycles, cut variables", result.size());
+    V3Stats::ಕೂಡಿಸು_Stat("Scheduling, Cycles, cyclic variables", nCyclicVars);
+    V3Stats::ಕೂಡಿಸು_Stat("Scheduling, Cycles, cyclic logic blocks", nCyclicVtxs - nCyclicVars);
+    V3Stats::ಕೂಡಿಸು_Stat("Scheduling, Cycles, unique SCCs", sccs.ಗಾತ್ರ_2());
+    V3Stats::ಕೂಡಿಸು_Stat("Scheduling, Cycles, cut variables", ಫಲಿತಾಂಶ.ಗಾತ್ರ_2());
 
-    return result;
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
-void resetEdgeWeights(const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
-    for (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
-        for (V3GraphEdge& e : vvtxp->inEdges()) e.weight(1);
-        for (V3GraphEdge& e : vvtxp->outEdges()) e.weight(1);
+ಶೂನ್ಯ reset_ಅಂಚು_Weights(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Sched_Acyclic_Var_ಶೃಂಗ*>& cutVertices) {
+    ಗಾಗಿ (Sched_Acyclic_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvtxp : cutVertices) {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& e : vvtxp->ಒಳ_ಅಂಚುಗಳು()) e.ತೂಕ_2(1);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& e : vvtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) e.ತೂಕ_2(1);
     }
 }
 
 // A VarVertex together with its fanout
-using Candidate = std::pair<SchedAcyclicVarVertex*, unsigned>;
+ಬಳಸಿ Candidate = std::pair<Sched_Acyclic_Var_ಶೃಂಗ*, ಚಿಹ್ನೆರಹಿತ>;
 
 // Gather all splitting candidates that are in the same SCC as the given vertex
-void gatherSCCCandidates(V3GraphVertex* vtxp, std::vector<Candidate>& candidates) {
-    if (vtxp->user()) return;  // Already done
-    vtxp->user(true);
+ಶೂನ್ಯ gatherSCCCandidates(V3_ನಕ್ಷೆ_ಶೃಂಗ* vtxp, std::ಸದಿಶ<Candidate>& candidates) {
+    ಆದರೆ (vtxp->user()) ಹಿಂತಿರುಗಿ;  // Already done
+    vtxp->user(ನಿಜ);
 
-    if (SchedAcyclicVarVertex* const vvtxp = vtxp->cast<SchedAcyclicVarVertex>()) {
-        AstVar* const varp = vvtxp->varp();
-        const string name = varp->prettyName();
-        if (!varp->user3SetOnce()  // Only consider each AstVar once
-            && varp->width() != 1  // Ignore 1-bit signals (they cannot be split further)
-            && name.find("__Vdly") == string::npos  // Ignore internal signals
-            && name.find("__Vcell") == string::npos) {
+    ಆದರೆ (Sched_Acyclic_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvtxp = vtxp->cast<Sched_Acyclic_Var_ಶೃಂಗ>()) {
+        AstVar* ಸ್ಥಿರಾಂಕ varp = vvtxp->varp();
+        ಸ್ಥಿರಾಂಕ string name = varp->prettyName();
+        ಆದರೆ (!varp->user3_ಗಣ_Once()  // Only consider each AstVar once
+            && varp->ಅಗಲ() != 1  // Ignore 1-bit signals (they cannot be split further)
+            && name.ಕಂಡುಹಿಡಿ("__Vdly") == string::npos  // Ignore internal signals
+            && name.ಕಂಡುಹಿಡಿ("__Vcell") == string::npos) {
             // Also compute the fanout of this vertex
-            const unsigned fanout = vtxp->outEdges().size();
-            candidates.emplace_back(vvtxp, fanout);
+            ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ fanout = vtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು().ಗಾತ್ರ_2();
+            candidates.emplace_ಹಿಂಭಾಗ(vvtxp, fanout);
         }
     }
 
     // Iterate through all the vertices within the same strongly connected component (same color)
-    for (V3GraphEdge& edge : vtxp->outEdges()) {
-        V3GraphVertex* const top = edge.top();
-        if (top->color() == vtxp->color()) gatherSCCCandidates(top, candidates);
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+        V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ತುದಿ = ಅಂಚು.ತುದಿ();
+        ಆದರೆ (ತುದಿ->color() == vtxp->color()) gatherSCCCandidates(ತುದಿ, candidates);
     }
-    for (V3GraphEdge& edge : vtxp->inEdges()) {
-        V3GraphVertex* const fromp = edge.fromp();
-        if (fromp->color() == vtxp->color()) gatherSCCCandidates(fromp, candidates);
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಒಳ_ಅಂಚುಗಳು()) {
+        V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ fromp = ಅಂಚು.fromp();
+        ಆದರೆ (fromp->color() == vtxp->color()) gatherSCCCandidates(fromp, candidates);
     }
 }
 
 // Find all variables in a loop (SCC) that are candidates for splitting to break loops.
-std::string reportLoopVars(FileLine* /*warnFl*/, Graph* graphp, SchedAcyclicVarVertex* vvtxp) {
+std::string reportLoopVars(File_ಸಾಲು* /*warnFl*/, ನಕ್ಷೆ_2* graphp, Sched_Acyclic_Var_ಶೃಂಗ* vvtxp) {
     std::ostringstream ss;
     // Vector of variables in UNOPTFLAT loop that are candidates for splitting.
-    std::vector<Candidate> candidates;
+    std::ಸದಿಶ<Candidate> candidates;
     {
         // AstNode::user3 is used to mark if we have done a particular variable.
         // V3GraphVertex::user is used to mark if we have seen this vertex before.
-        const VNUser3InUse user3InUse;
+        ಸ್ಥಿರಾಂಕ VNUser3_ಒಳ_Use user3_ಒಳ_Use;
         graphp->userClearVertices();
         gatherSCCCandidates(vvtxp, candidates);
         graphp->userClearVertices();
     }
 
     // Possible we only have candidates the user cannot do anything about, so don't bother them.
-    if (candidates.empty()) return "";
+    ಆದರೆ (candidates.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ "";
 
     // There may be a very large number of candidates, so only report up to 10 of the "most
     // important" signals.
-    unsigned splittable = 0;
-    const auto reportFirst10
-        = [&](std::function<bool(const Candidate&, const Candidate&)> less) -> string {
-        std::stable_sort(candidates.begin(), candidates.end(), less);
+    ಚಿಹ್ನೆರಹಿತ splittable = 0;
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ reportFirst10
+        = [&](std::function<ತಾರ್ಕಿಕ(ಸ್ಥಿರಾಂಕ Candidate&, ಸ್ಥಿರಾಂಕ Candidate&)> less) -> string {
+        std::stable_ವಿಂಗಡಿಸು(candidates.begin(), candidates.ಕೊನೆ(), less);
         std::ostringstream ss2;
-        for (size_t i = 0; i < 10; i++) {
-            if (i == candidates.size()) break;
-            const Candidate& candidate = candidates[i];
-            AstVar* const varp = candidate.first->varp();
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < 10; i++) {
+            ಆದರೆ (i == candidates.ಗಾತ್ರ_2()) ನಿಲ್ಲಿಸು;
+            ಸ್ಥಿರಾಂಕ Candidate& candidate = candidates[i];
+            AstVar* ಸ್ಥಿರಾಂಕ varp = candidate.ಮೊದಲ->varp();
 
-            ss2 << V3Error::warnMore() << "    " << varp->fileline() << ' ' << varp->prettyName()
-                << ", width " << std::dec << varp->width() << ", circular fanout "
-                << candidate.second;
-            if (!varp->cannotSplitKindReason()) {
+            ss2 << V3Error::warn_ಇನ್ನಷ್ಟು() << "    " << varp->fileline() << ' ' << varp->prettyName()
+                << ", width " << std::dec << varp->ಅಗಲ() << ", circular fanout "
+                << candidate.ಎರಡನೇ;
+            ಆದರೆ (!varp->cannot_ವಿಭಜಿಸು_ಬಗೆ_Reason()) {
                 ss2 << ", can split_var";
                 ++splittable;
             }
             ss2 << '\n';
         }
-        return ss2.str();
+        ಹಿಂತಿರುಗಿ ss2.str();
     };
 
     // Widest variables
-    ss << V3Error::warnMore() << "... Widest variables candidate to splitting:\n"
-       << reportFirst10([](const Candidate& a, const Candidate& b) {
-              return a.first->varp()->width() > b.first->varp()->width();
+    ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "... Widest variables candidate to splitting:\n"
+       << reportFirst10([](ಸ್ಥಿರಾಂಕ Candidate& a, ಸ್ಥಿರಾಂಕ Candidate& b) {
+              ಹಿಂತಿರುಗಿ a.ಮೊದಲ->varp()->ಅಗಲ() > b.ಮೊದಲ->varp()->ಅಗಲ();
           });
 
     // Highest fanout
-    ss << V3Error::warnMore() << "... Candidates with the highest fanout:\n"
-       << reportFirst10([](const Candidate& a, const Candidate& b) {  //
-              return a.second > b.second;
+    ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "... Candidates with the highest fanout:\n"
+       << reportFirst10([](ಸ್ಥಿರಾಂಕ Candidate& a, ಸ್ಥಿರಾಂಕ Candidate& b) {  //
+              ಹಿಂತಿರುಗಿ a.ಎರಡನೇ > b.ಎರಡನೇ;
           });
 
-    if (splittable) {
-        ss << V3Error::warnMore()
+    ಆದರೆ (splittable) {
+        ss << V3Error::warn_ಇನ್ನಷ್ಟು()
            << "... Suggest add /*verilator split_var*/ to appropriate variables above.\n";
     }
-    V3Stats::addStat("Scheduling, split_var, candidates", splittable);
-    return ss.str();
+    V3Stats::ಕೂಡಿಸು_Stat("Scheduling, split_var, candidates", splittable);
+    ಹಿಂತಿರುಗಿ ss.str();
 }
 
-void reportCycles(Graph* graphp, const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
-    for (SchedAcyclicVarVertex* vvtxp : cutVertices) {
-        AstVarScope* const vscp = vvtxp->vscp();
-        FileLine* const flp = vscp->fileline();
+ಶೂನ್ಯ report_ಚಕ್ರಗಳು(ನಕ್ಷೆ_2* graphp, ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Sched_Acyclic_Var_ಶೃಂಗ*>& cutVertices) {
+    ಗಾಗಿ (Sched_Acyclic_Var_ಶೃಂಗ* vvtxp : cutVertices) {
+        AstVarScope* ಸ್ಥಿರಾಂಕ vscp = vvtxp->vscp();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = vscp->fileline();
 
         // First v3warn not inside warnIsOff so we can see the suppressions with --debug
-        if (flp->warnIsOff(V3ErrorCode::UNOPTFLAT)) {
+        ಆದರೆ (flp->warnIsOff(V3_Error_ಸಂಕೇತ::UNOPTFLAT)) {
             // First v3warn not inside warnIsOff so we can see the suppressions with --debug
             vscp->v3warn(UNOPTFLAT, "Signal unoptimizable: Circular combinational logic: "
                                         << vscp->prettyNameQ());
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             vscp->v3warn(UNOPTFLAT,
                          "Signal unoptimizable: Circular combinational logic: "
                              << vscp->prettyNameQ() << '\n'
                              << vscp->warnContextPrimary()
                              << V3Error::warnAdditionalInfo()
                              // Calls Graph::loopsVertexCb
-                             << graphp->reportLoops(&V3GraphEdge::followAlwaysTrue, vvtxp)
+                             << graphp->reportLoops(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue, vvtxp)
                              // Report candidate variables for splitting
                              << (v3Global.opt.reportUnoptflat()
                                      ? reportLoopVars(vscp->fileline(), graphp, vvtxp)
                                      : ""));
             // Complain just once
-            flp->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
+            flp->modifyWarnOff(V3_Error_ಸಂಕೇತ::UNOPTFLAT, ನಿಜ);
             // Create a subgraph for the UNOPTFLAT loop
-            if (v3Global.opt.reportUnoptflat()) {
-                V3Graph loopGraph;
-                graphp->subtreeLoops(&V3GraphEdge::followAlwaysTrue, vvtxp, &loopGraph);
-                loopGraph.dumpDotFilePrefixedAlways("unoptflat");
+            ಆದರೆ (v3Global.opt.reportUnoptflat()) {
+                V3_ನಕ್ಷೆ loop_ನಕ್ಷೆ;
+                graphp->subtreeLoops(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue, vvtxp, &loop_ನಕ್ಷೆ);
+                loop_ನಕ್ಷೆ.dumpDotFilePrefixedAlways("unoptflat");
             }
         }
     }
 }
 
-void dumpSccs(V3Graph* graphp) {
+ಶೂನ್ಯ dumpSccs(V3_ನಕ್ಷೆ* graphp) {
     // Map from SCC color to vertices in that SCC
-    std::map<uint32_t, std::vector<V3GraphVertex*>> scc2Vtxps;
+    std::map<uint32_t, std::ಸದಿಶ<V3_ನಕ್ಷೆ_ಶೃಂಗ*>> scc2Vtxps;
 
     // Gather all vertices in each SCC
-    for (V3GraphVertex& vtx : graphp->vertices()) {
-        if (!vtx.color()) continue;
-        scc2Vtxps[vtx.color()].push_back(&vtx);
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : graphp->vertices()) {
+        ಆದರೆ (!vtx.color()) ಮುಂದುವರಿ;
+        scc2Vtxps[vtx.color()].ತಳ್ಳು_ಹಿಂಭಾಗ(&vtx);
     }
 
     // Dump Verilog for each SCC into separate files
-    for (const auto& pair : scc2Vtxps) {
-        const uint32_t color = pair.first;
-        const std::vector<V3GraphVertex*>& vtxps = pair.second;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair : scc2Vtxps) {
+        ಸ್ಥಿರಾಂಕ uint32_t color = pair.ಮೊದಲ;
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<V3_ನಕ್ಷೆ_ಶೃಂಗ*>& vtxps = pair.ಎರಡನೇ;
 
         // Open dump file
-        const std::string fname
-            = v3Global.debugFilename("sched_scc_" + std::to_string(color) + ".v");
-        const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(fname)};
-        if (ofp->fail()) v3fatal("Can't write file: " << fname);
+        ಸ್ಥಿರಾಂಕ std::string fname
+            = v3Global.debugFilename("sched_scc_" + std::ಗಮ್ಯ_string(color) + ".v");
+        ಸ್ಥಿರಾಂಕ std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(fname)};
+        ಆದರೆ (ofp->fail()) v3fatal("Can't write file: " << fname);
 
         // Write header
-        *ofp << "// SCC " << color << ", size: " << vtxps.size() << "\n\n";
+        *ofp << "// SCC " << color << ", size: " << vtxps.ಗಾತ್ರ_2() << "\n\n";
 
         // Dump variables
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "// Variables\n";
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "\n";
-        for (V3GraphVertex* vtxp : vtxps) {
-            const SchedAcyclicVarVertex* const vvtxp = vtxp->cast<SchedAcyclicVarVertex>();
-            if (!vvtxp) continue;
-            AstVarScope* const vscp = vvtxp->vscp();
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ* vtxp : vtxps) {
+            ಸ್ಥಿರಾಂಕ Sched_Acyclic_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvtxp = vtxp->cast<Sched_Acyclic_Var_ಶೃಂಗ>();
+            ಆದರೆ (!vvtxp) ಮುಂದುವರಿ;
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = vvtxp->vscp();
             *ofp << "// " << vscp->fileline()->ascii() << "\n";
             *ofp << "// " << vscp->prettyName() << "\n";
-            V3EmitV::debugVerilogForTree(vscp->varp(), *ofp);
+            V3EmitV::debug_Verilog_For_ವೃಕ್ಷ(vscp->varp(), *ofp);
             *ofp << "\n";
         }
 
@@ -435,93 +435,93 @@ void dumpSccs(V3Graph* graphp) {
         *ofp << "// Logic\n";
         *ofp << "//////////////////////////////////////////////////////////////////////\n";
         *ofp << "\n";
-        for (V3GraphVertex* vtxp : vtxps) {
-            const SchedAcyclicLogicVertex* const lvtxp = vtxp->cast<SchedAcyclicLogicVertex>();
-            if (!lvtxp) continue;
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ* vtxp : vtxps) {
+            ಸ್ಥಿರಾಂಕ Sched_Acyclic_Logic_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ lvtxp = vtxp->cast<Sched_Acyclic_Logic_ಶೃಂಗ>();
+            ಆದರೆ (!lvtxp) ಮುಂದುವರಿ;
             *ofp << "// " << lvtxp->logicp()->fileline()->ascii() << "\n";
-            V3EmitV::debugVerilogForTree(lvtxp->logicp(), *ofp);
+            V3EmitV::debug_Verilog_For_ವೃಕ್ಷ(lvtxp->logicp(), *ofp);
             *ofp << "\n";
         }
     }
 }
 
 LogicByScope fixCuts(AstNetlist* netlistp,
-                     const std::vector<SchedAcyclicVarVertex*>& cutVertices) {
+                     ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Sched_Acyclic_Var_ಶೃಂಗ*>& cutVertices) {
     // For all logic that reads a cut vertex, build a map from logic -> list of cut AstVarScope
     // they read. Also build a vector of the involved logic for deterministic results.
-    std::unordered_map<SchedAcyclicLogicVertex*, std::vector<AstVarScope*>> lvtx2Cuts;
-    std::vector<SchedAcyclicLogicVertex*> lvtxps;
+    std::unordered_map<Sched_Acyclic_Logic_ಶೃಂಗ*, std::ಸದಿಶ<AstVarScope*>> lvtx2Cuts;
+    std::ಸದಿಶ<Sched_Acyclic_Logic_ಶೃಂಗ*> lvtxps;
     {
-        const VNUser1InUse user1InUse;  // bool: already added to 'lvtxps'
-        for (SchedAcyclicVarVertex* const vvtxp : cutVertices) {
-            for (V3GraphEdge& edge : vvtxp->outEdges()) {
-                SchedAcyclicLogicVertex* const lvtxp
-                    = static_cast<SchedAcyclicLogicVertex*>(edge.top());
-                if (!lvtxp->logicp()->user1SetOnce()) lvtxps.push_back(lvtxp);
-                lvtx2Cuts[lvtxp].push_back(vvtxp->vscp());
+        ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use user1_ಒಳ_Use;  // bool: already added to 'lvtxps'
+        ಗಾಗಿ (Sched_Acyclic_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvtxp : cutVertices) {
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vvtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+                Sched_Acyclic_Logic_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ lvtxp
+                    = static_cast<Sched_Acyclic_Logic_ಶೃಂಗ*>(ಅಂಚು.ತುದಿ());
+                ಆದರೆ (!lvtxp->logicp()->user1_ಗಣ_Once()) lvtxps.ತಳ್ಳು_ಹಿಂಭಾಗ(lvtxp);
+                lvtx2Cuts[lvtxp].ತಳ್ಳು_ಹಿಂಭಾಗ(vvtxp->vscp());
             }
         }
     }
 
     // Make the logic reading cut vertices use a hybrid sensitivity (combinational, but with some
     // explicit additional triggers on the cut variables)
-    LogicByScope result;
-    SenTreeFinder finder{netlistp};
-    for (SchedAcyclicLogicVertex* const lvtxp : lvtxps) {
-        AstNode* const logicp = lvtxp->logicp();
-        logicp->unlinkFrBack();
-        FileLine* const flp = logicp->fileline();
+    LogicByScope ಫಲಿತಾಂಶ;
+    Sen_ವೃಕ್ಷ_Finder finder{netlistp};
+    ಗಾಗಿ (Sched_Acyclic_Logic_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ lvtxp : lvtxps) {
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ logicp = lvtxp->logicp();
+        logicp->unlink_Fr_ಹಿಂಭಾಗ();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = logicp->fileline();
         // Build the hybrid sensitivity list
-        AstSenItem* senItemsp = nullptr;
-        for (AstVarScope* const vscp : lvtx2Cuts[lvtxp]) {
-            AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::READ};
-            AstSenItem* const nextp = new AstSenItem{flp, VEdgeType::ET_HYBRID, refp};
-            senItemsp = AstNode::addNext(senItemsp, nextp);
+        Ast_Sen_ಅಂಶ* senItemsp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (AstVarScope* ಸ್ಥಿರಾಂಕ vscp : lvtx2Cuts[lvtxp]) {
+            AstVarRef* ಸ್ಥಿರಾಂಕ refp = ಹೊಸ AstVarRef{flp, vscp, VAccess::READ};
+            Ast_Sen_ಅಂಶ* ಸ್ಥಿರಾಂಕ nextp = ಹೊಸ Ast_Sen_ಅಂಶ{flp, VEdgeType::ET_HYBRID, refp};
+            senItemsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(senItemsp, nextp);
         }
-        AstSenTree* const senTree = new AstSenTree{flp, senItemsp};
+        Ast_Sen_ವೃಕ್ಷ* ಸ್ಥಿರಾಂಕ sen_ವೃಕ್ಷ = ಹೊಸ Ast_Sen_ವೃಕ್ಷ{flp, senItemsp};
         // Add logic to result with new sensitivity
-        result.add(lvtxp->scopep(), finder.getSenTree(senTree), logicp);
+        ಫಲಿತಾಂಶ.ಕೂಡಿಸು(lvtxp->scopep(), finder.get_Sen_ವೃಕ್ಷ(sen_ವೃಕ್ಷ), logicp);
         // SenTreeFinder::getSenTree clones, so clean up
-        VL_DO_DANGLING(senTree->deleteTree(), senTree);
+        VL_DO_DANGLING(sen_ವೃಕ್ಷ->delete_ವೃಕ್ಷ(), sen_ವೃಕ್ಷ);
     }
-    return result;
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 }  // namespace
 
-LogicByScope breakCycles(AstNetlist* netlistp, const LogicByScope& combinationalLogic) {
+LogicByScope break_ಚಕ್ರಗಳು(AstNetlist* netlistp, ಸ್ಥಿರಾಂಕ LogicByScope& combinationalLogic) {
     // Build the dataflow (dependency) graph
-    const std::unique_ptr<Graph> graphp = buildGraph(combinationalLogic);
+    ಸ್ಥಿರಾಂಕ std::unique_ptr<ನಕ್ಷೆ_2> graphp = build_ನಕ್ಷೆ(combinationalLogic);
 
     // Remove nodes that don't form part of a cycle
     removeNonCyclic(graphp.get());
 
     // Nothing to do if no cycles, yay!
-    if (graphp->empty()) return LogicByScope{};
+    ಆದರೆ (graphp->ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ LogicByScope{};
 
     // Dump for debug
-    if (dumpGraphLevel() >= 6) graphp->dumpDotFilePrefixed("sched-comb-cycles");
+    ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 6) graphp->dumpDotFilePrefixed("sched-comb-cycles");
 
     // Make graph acyclic by cutting some edges. Note: This also colors strongly connected
     // components which reportCycles uses to print each SCCs separately.
     // TODO: A more optimal algorithm that cuts by removing/marking VarVertex vertices is possible
     //       Search for "Feedback vertex set" (current algorithm is "Feedback arc set")
-    graphp->acyclic(&V3GraphEdge::followAlwaysTrue);
+    graphp->acyclic(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
 
     // Find all cut vertices
-    const std::vector<SchedAcyclicVarVertex*> cutVertices = findCutVertices(graphp.get());
+    ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Sched_Acyclic_Var_ಶೃಂಗ*> cutVertices = ಕಂಡುಹಿಡಿ_Cut_Vertices(graphp.get());
 
     // Reset edge weights for reporting
-    resetEdgeWeights(cutVertices);
+    reset_ಅಂಚು_Weights(cutVertices);
 
     // Report warnings/diagnostics
-    reportCycles(graphp.get(), cutVertices);
+    report_ಚಕ್ರಗಳು(graphp.get(), cutVertices);
 
     // Debug dump
-    if (dumpLevel() >= 6) dumpSccs(graphp.get());
+    ಆದರೆ (dumpLevel() >= 6) dumpSccs(graphp.get());
 
     // Fix cuts by converting dependent logic to use hybrid sensitivities
-    return fixCuts(netlistp, cutVertices);
+    ಹಿಂತಿರುಗಿ fixCuts(netlistp, cutVertices);
 }
 
 }  // namespace V3Sched

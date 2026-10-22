@@ -29,238 +29,238 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Reloop.h"
+#ಅನ್ತರ್ಭಾವ "V3Reloop.h"
 
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class ReloopVisitor final : public VNVisitor {
+ವರ್ಗ ReloopVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // AstCFunc::user1p      -> Var number temp var, 0=not set yet
-    const VNUser1InUse m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
 
     // STATE
     VDouble0 m_statReloops;  // Statistic tracking
-    VDouble0 m_statReItems;  // Statistic tracking
-    AstCFunc* m_cfuncp = nullptr;  // Current block
+    VDouble0 m_stat_Re_ವಸ್ತುಗಳು;  // Statistic tracking
+    AstCFunc* m_cfuncp = ಶೂನ್ಯಸೂಚಕ;  // Current block
 
-    std::vector<AstNodeAssign*> m_mgAssignps;  // List of assignments merging
-    AstCFunc* m_mgCfuncp = nullptr;  // Parent C function
-    const AstNode* m_mgNextp = nullptr;  // Next node
-    const AstNodeSel* m_mgSelLp = nullptr;  // Parent select, nullptr = idle
-    const AstNodeSel* m_mgSelRp = nullptr;  // Parent select, nullptr = constant
-    const AstNodeVarRef* m_mgVarrefLp = nullptr;  // Parent varref
-    const AstNodeVarRef* m_mgVarrefRp = nullptr;  // Parent varref, nullptr = constant
-    int64_t m_mgOffset = 0;  // Index offset
-    const AstConst* m_mgConstRp = nullptr;  // Parent RHS constant, nullptr = sel
-    uint32_t m_mgIndexLo = 0;  // Merge range
-    uint32_t m_mgIndexHi = 0;  // Merge range
+    std::ಸದಿಶ<Ast_ಗಂಟು_ನಿಯೋಜಿಸು*> m_mgAssignps;  // List of assignments merging
+    AstCFunc* m_mgCfuncp = ಶೂನ್ಯಸೂಚಕ;  // Parent C function
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* m_mgNextp = ಶೂನ್ಯಸೂಚಕ;  // Next node
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Sel* m_mgSelLp = ಶೂನ್ಯಸೂಚಕ;  // Parent select, nullptr = idle
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Sel* m_mgSelRp = ಶೂನ್ಯಸೂಚಕ;  // Parent select, nullptr = constant
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* m_mgVarrefLp = ಶೂನ್ಯಸೂಚಕ;  // Parent varref
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* m_mgVarrefRp = ಶೂನ್ಯಸೂಚಕ;  // Parent varref, nullptr = constant
+    int64_t m_mg_ಸ್ಥಾನಾಂತರ = 0;  // Index offset
+    ಸ್ಥಿರಾಂಕ AstConst* m_mgConstRp = ಶೂನ್ಯಸೂಚಕ;  // Parent RHS constant, nullptr = sel
+    uint32_t m_mg_ಸೂಚ್ಯಂಕ_Lo = 0;  // Merge range
+    uint32_t m_mg_ಸೂಚ್ಯಂಕ_Hi = 0;  // Merge range
 
     // METHODS
 
-    static AstVar* createVarTemp(FileLine* fl, AstCFunc* cfuncp) {
+    ಸ್ಥಿರ AstVar* create_Var_ತಾತ್ಕಾಲಿಕ(File_ಸಾಲು* fl, AstCFunc* cfuncp) {
         UASSERT_OBJ(cfuncp, fl, "Assignment not under a function");
-        const string newvarname{"__Vilp" + std::to_string(cfuncp->user1Inc() + 1)};
-        AstVar* const varp
-            = new AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
-        cfuncp->addVarsp(varp);
-        return varp;
+        ಸ್ಥಿರಾಂಕ string newvarname{"__Vilp" + std::ಗಮ್ಯ_string(cfuncp->user1Inc() + 1)};
+        AstVar* ಸ್ಥಿರಾಂಕ varp
+            = ಹೊಸ AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
+        cfuncp->ಕೂಡಿಸು_Varsp(varp);
+        ಹಿಂತಿರುಗಿ varp;
     }
-    void mergeEnd() {
-        if (!m_mgAssignps.empty()) {
-            const uint32_t items = m_mgIndexHi - m_mgIndexLo + 1;
-            UINFO(9, "End merge iter=" << items << " " << m_mgIndexHi << ":" << m_mgIndexLo << " "
-                                       << m_mgOffset << " " << m_mgAssignps[0]);
-            if (items >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
-                UINFO(6, "Reloop merging items=" << items << " " << m_mgIndexHi << ":"
-                                                 << m_mgIndexLo << " " << m_mgOffset << " "
+    ಶೂನ್ಯ ವಿಲೀನ_ಕೊನೆ() {
+        ಆದರೆ (!m_mgAssignps.ಖಾಲಿಗಳು()) {
+            ಸ್ಥಿರಾಂಕ uint32_t ವಸ್ತುಗಳು = m_mg_ಸೂಚ್ಯಂಕ_Hi - m_mg_ಸೂಚ್ಯಂಕ_Lo + 1;
+            UINFO(9, "End merge iter=" << ವಸ್ತುಗಳು << " " << m_mg_ಸೂಚ್ಯಂಕ_Hi << ":" << m_mg_ಸೂಚ್ಯಂಕ_Lo << " "
+                                       << m_mg_ಸ್ಥಾನಾಂತರ << " " << m_mgAssignps[0]);
+            ಆದರೆ (ವಸ್ತುಗಳು >= static_cast<uint32_t>(v3Global.opt.reloop_ಎಲ್ಲೆ())) {
+                UINFO(6, "Reloop merging items=" << ವಸ್ತುಗಳು << " " << m_mg_ಸೂಚ್ಯಂಕ_Hi << ":"
+                                                 << m_mg_ಸೂಚ್ಯಂಕ_Lo << " " << m_mg_ಸ್ಥಾನಾಂತರ << " "
                                                  << m_mgAssignps[0]);
                 ++m_statReloops;
-                m_statReItems += items;
+                m_stat_Re_ವಸ್ತುಗಳು += ವಸ್ತುಗಳು;
 
                 // Transform first assign into for loop body
-                AstNodeAssign* const bodyp = m_mgAssignps.front();
+                Ast_ಗಂಟು_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ bodyp = m_mgAssignps.front();
                 UASSERT_OBJ(bodyp->lhsp() == m_mgSelLp, bodyp, "Corrupt queue/state");
-                FileLine* const fl = bodyp->fileline();
-                AstVar* const itp = createVarTemp(fl, m_mgCfuncp);
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = bodyp->fileline();
+                AstVar* ಸ್ಥಿರಾಂಕ itp = create_Var_ತಾತ್ಕಾಲಿಕ(fl, m_mgCfuncp);
 
-                if (m_mgOffset > 0) {
-                    UASSERT_OBJ(m_mgIndexLo >= m_mgOffset, bodyp,
+                ಆದರೆ (m_mg_ಸ್ಥಾನಾಂತರ > 0) {
+                    UASSERT_OBJ(m_mg_ಸೂಚ್ಯಂಕ_Lo >= m_mg_ಸ್ಥಾನಾಂತರ, bodyp,
                                 "Reloop iteration starts at negative index");
-                    m_mgIndexLo -= m_mgOffset;
-                    m_mgIndexHi -= m_mgOffset;
+                    m_mg_ಸೂಚ್ಯಂಕ_Lo -= m_mg_ಸ್ಥಾನಾಂತರ;
+                    m_mg_ಸೂಚ್ಯಂಕ_Hi -= m_mg_ಸ್ಥಾನಾಂತರ;
                 }
 
-                AstNode* const initp = new AstAssign{fl, new AstVarRef{fl, itp, VAccess::WRITE},
-                                                     new AstConst{fl, m_mgIndexLo}};
-                AstNodeExpr* const condp = new AstLte{fl, new AstVarRef{fl, itp, VAccess::READ},
-                                                      new AstConst{fl, m_mgIndexHi}};
-                AstNode* const incp = new AstAssign{
-                    fl, new AstVarRef{fl, itp, VAccess::WRITE},
-                    new AstAdd{fl, new AstConst{fl, 1}, new AstVarRef{fl, itp, VAccess::READ}}};
-                AstLoop* const loopp = new AstLoop{fl};
-                loopp->addStmtsp(new AstLoopTest{fl, loopp, condp});
-                initp->addNext(loopp);
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ initp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, ಹೊಸ AstVarRef{fl, itp, VAccess::WRITE},
+                                                     ಹೊಸ AstConst{fl, m_mg_ಸೂಚ್ಯಂಕ_Lo}};
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ condp = ಹೊಸ AstLte{fl, ಹೊಸ AstVarRef{fl, itp, VAccess::READ},
+                                                      ಹೊಸ AstConst{fl, m_mg_ಸೂಚ್ಯಂಕ_Hi}};
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ incp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+                    fl, ಹೊಸ AstVarRef{fl, itp, VAccess::WRITE},
+                    ಹೊಸ Ast_ಕೂಡಿಸು{fl, ಹೊಸ AstConst{fl, 1}, ಹೊಸ AstVarRef{fl, itp, VAccess::READ}}};
+                AstLoop* ಸ್ಥಿರಾಂಕ loopp = ಹೊಸ AstLoop{fl};
+                loopp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstLoopTest{fl, loopp, condp});
+                initp->ಕೂಡಿಸು_ಮುಂದಿನ(loopp);
                 bodyp->replaceWith(initp);
-                loopp->addStmtsp(bodyp);
-                loopp->addStmtsp(incp);
+                loopp->ಕೂಡಿಸು_Stmtsp(bodyp);
+                loopp->ಕೂಡಿಸು_Stmtsp(incp);
 
                 // Replace constant index with new loop index
-                AstNodeExpr* const offsetp
-                    = m_mgOffset == 0 ? nullptr : new AstConst(fl, std::abs(m_mgOffset));
-                AstNodeExpr* const lbitp = m_mgSelLp->bitp();
-                AstNodeExpr* const lvrefp = new AstVarRef{fl, itp, VAccess::READ};
-                lbitp->replaceWith(m_mgOffset > 0 ? new AstAdd{fl, lvrefp, offsetp} : lvrefp);
-                VL_DO_DANGLING(lbitp->deleteTree(), lbitp);
-                if (m_mgSelRp) {  // else constant and no replace
-                    AstNodeExpr* const rbitp = m_mgSelRp->bitp();
-                    AstNodeExpr* const rvrefp = new AstVarRef{fl, itp, VAccess::READ};
-                    rbitp->replaceWith(m_mgOffset < 0 ? new AstAdd{fl, rvrefp, offsetp} : rvrefp);
-                    VL_DO_DANGLING(rbitp->deleteTree(), lbitp);
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ offsetp
+                    = m_mg_ಸ್ಥಾನಾಂತರ == 0 ? ಶೂನ್ಯಸೂಚಕ : ಹೊಸ AstConst(fl, std::ನಿರಪೇಕ್ಷ(m_mg_ಸ್ಥಾನಾಂತರ));
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lbitp = m_mgSelLp->bitp();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lvrefp = ಹೊಸ AstVarRef{fl, itp, VAccess::READ};
+                lbitp->replaceWith(m_mg_ಸ್ಥಾನಾಂತರ > 0 ? ಹೊಸ Ast_ಕೂಡಿಸು{fl, lvrefp, offsetp} : lvrefp);
+                VL_DO_DANGLING(lbitp->delete_ವೃಕ್ಷ(), lbitp);
+                ಆದರೆ (m_mgSelRp) {  // else constant and no replace
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rbitp = m_mgSelRp->bitp();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rvrefp = ಹೊಸ AstVarRef{fl, itp, VAccess::READ};
+                    rbitp->replaceWith(m_mg_ಸ್ಥಾನಾಂತರ < 0 ? ಹೊಸ Ast_ಕೂಡಿಸು{fl, rvrefp, offsetp} : rvrefp);
+                    VL_DO_DANGLING(rbitp->delete_ವೃಕ್ಷ(), lbitp);
                 }
                 UINFOTREE(9, initp, "", "new");
                 UINFOTREE(9, loopp, "", "new");
 
                 // Remove remaining assigns
-                for (AstNodeAssign* assp : m_mgAssignps) {
-                    if (assp != bodyp) {
-                        VL_DO_DANGLING(assp->unlinkFrBack()->deleteTree(), assp);
+                ಗಾಗಿ (Ast_ಗಂಟು_ನಿಯೋಜಿಸು* assp : m_mgAssignps) {
+                    ಆದರೆ (assp != bodyp) {
+                        VL_DO_DANGLING(assp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), assp);
                     }
                 }
             }
             // Setup for next merge
             m_mgAssignps.clear();
-            m_mgSelLp = nullptr;
-            m_mgSelRp = nullptr;
-            m_mgVarrefLp = nullptr;
-            m_mgVarrefRp = nullptr;
-            m_mgOffset = 0;
-            m_mgConstRp = nullptr;
+            m_mgSelLp = ಶೂನ್ಯಸೂಚಕ;
+            m_mgSelRp = ಶೂನ್ಯಸೂಚಕ;
+            m_mgVarrefLp = ಶೂನ್ಯಸೂಚಕ;
+            m_mgVarrefRp = ಶೂನ್ಯಸೂಚಕ;
+            m_mg_ಸ್ಥಾನಾಂತರ = 0;
+            m_mgConstRp = ಶೂನ್ಯಸೂಚಕ;
         }
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCFunc* nodep) override {
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildren(nodep);
-        mergeEnd();  // Finish last pending merge, if any
+        ವಿಲೀನ_ಕೊನೆ();  // Finish last pending merge, if any
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_cfuncp) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* nodep) override {
+        ಆದರೆ (!m_cfuncp) ಹಿಂತಿರುಗಿ;
 
         // Left select WordSel or ArraySel
-        AstNodeSel* const lselp = VN_CAST(nodep->lhsp(), NodeSel);
-        if (!lselp) {  // Not ever merged
-            mergeEnd();
-            return;
+        Ast_ಗಂಟು_Sel* ಸ್ಥಿರಾಂಕ lselp = VN_CAST(nodep->lhsp(), ಗಂಟು_Sel);
+        ಆದರೆ (!lselp) {  // Not ever merged
+            ವಿಲೀನ_ಕೊನೆ();
+            ಹಿಂತಿರುಗಿ;
         }
         // Of a constant index
-        const AstConst* const lbitp = VN_CAST(lselp->bitp(), Const);
-        if (!lbitp) {
-            mergeEnd();
-            return;
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ lbitp = VN_CAST(lselp->bitp(), Const);
+        ಆದರೆ (!lbitp) {
+            ವಿಲೀನ_ಕೊನೆ();
+            ಹಿಂತಿರುಗಿ;
         }
-        if (lbitp->width() > 32) {  // Assoc arrays can do this
-            mergeEnd();
-            return;
+        ಆದರೆ (lbitp->ಅಗಲ() > 32) {  // Assoc arrays can do this
+            ವಿಲೀನ_ಕೊನೆ();
+            ಹಿಂತಿರುಗಿ;
         }
-        const uint32_t lindex = lbitp->toUInt();
+        ಸ್ಥಿರಾಂಕ uint32_t lindex = lbitp->ಗಮ್ಯ_UInt();
         // Of variable
-        const AstNodeVarRef* const lvarrefp = VN_CAST(lselp->fromp(), NodeVarRef);
-        if (!lvarrefp) {
-            mergeEnd();
-            return;
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* ಸ್ಥಿರಾಂಕ lvarrefp = VN_CAST(lselp->fromp(), ಗಂಟು_Var_Ref);
+        ಆದರೆ (!lvarrefp) {
+            ವಿಲೀನ_ಕೊನೆ();
+            ಹಿಂತಿರುಗಿ;
         }
 
         // RHS is a constant or a select
-        const AstConst* const rconstp = VN_CAST(nodep->rhsp(), Const);
-        const AstNodeSel* const rselp = VN_CAST(nodep->rhsp(), NodeSel);
-        const AstNodeVarRef* rvarrefp = nullptr;
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ rconstp = VN_CAST(nodep->rhsp(), Const);
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Sel* ಸ್ಥಿರಾಂಕ rselp = VN_CAST(nodep->rhsp(), ಗಂಟು_Sel);
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Var_Ref* rvarrefp = ಶೂನ್ಯಸೂಚಕ;
         uint32_t rindex = lindex;
-        if (rconstp) {  // Ok
-        } else if (rselp) {
-            const AstConst* const rbitp = VN_CAST(rselp->bitp(), Const);
-            rvarrefp = VN_CAST(rselp->fromp(), NodeVarRef);
-            if (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
-                mergeEnd();
-                return;
+        ಆದರೆ (rconstp) {  // Ok
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (rselp) {
+            ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ rbitp = VN_CAST(rselp->bitp(), Const);
+            rvarrefp = VN_CAST(rselp->fromp(), ಗಂಟು_Var_Ref);
+            ಆದರೆ (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
+                ವಿಲೀನ_ಕೊನೆ();
+                ಹಿಂತಿರುಗಿ;
             }
-            rindex = rbitp->toUInt();
-        } else {
-            mergeEnd();
-            return;
+            rindex = rbitp->ಗಮ್ಯ_UInt();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ವಿಲೀನ_ಕೊನೆ();
+            ಹಿಂತಿರುಗಿ;
         }
 
-        if (m_mgSelLp) {  // Old merge
-            if (m_mgCfuncp == m_cfuncp  // In same function
+        ಆದರೆ (m_mgSelLp) {  // Old merge
+            ಆದರೆ (m_mgCfuncp == m_cfuncp  // In same function
                 && m_mgNextp == nodep  // Consecutive node
                 && m_mgVarrefLp->isSame(lvarrefp)  // Same array on left hand side
                 && (m_mgConstRp  // On the right hand side either ...
                         ? (rconstp && m_mgConstRp->isSame(rconstp))  // ... same constant
                         : (rselp && m_mgVarrefRp->isSame(rvarrefp)))  // ... or same array
-                && (lindex == m_mgIndexLo - 1 || lindex == m_mgIndexHi + 1)  // Left index +/- 1
-                && (m_mgConstRp || lindex == rindex + m_mgOffset)  // Same right index offset
+                && (lindex == m_mg_ಸೂಚ್ಯಂಕ_Lo - 1 || lindex == m_mg_ಸೂಚ್ಯಂಕ_Hi + 1)  // Left index +/- 1
+                && (m_mgConstRp || lindex == rindex + m_mg_ಸ್ಥಾನಾಂತರ)  // Same right index offset
             ) {
                 // Sequentially next to last assign; continue merge
-                if (lindex == m_mgIndexLo - 1) {
-                    m_mgIndexLo = lindex;
-                } else if (lindex == m_mgIndexHi + 1) {
-                    m_mgIndexHi = lindex;
+                ಆದರೆ (lindex == m_mg_ಸೂಚ್ಯಂಕ_Lo - 1) {
+                    m_mg_ಸೂಚ್ಯಂಕ_Lo = lindex;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (lindex == m_mg_ಸೂಚ್ಯಂಕ_Hi + 1) {
+                    m_mg_ಸೂಚ್ಯಂಕ_Hi = lindex;
                 }
-                UINFO(9, "Continue merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
+                UINFO(9, "Continue merge i=" << lindex << " " << m_mg_ಸೂಚ್ಯಂಕ_Hi << ":" << m_mg_ಸೂಚ್ಯಂಕ_Lo
                                              << " " << nodep);
-                m_mgAssignps.push_back(nodep);
+                m_mgAssignps.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
                 m_mgNextp = nodep->nextp();
-                return;
-            } else {
-                UINFO(9, "End merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
+                ಹಿಂತಿರುಗಿ;
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                UINFO(9, "End merge i=" << lindex << " " << m_mg_ಸೂಚ್ಯಂಕ_Hi << ":" << m_mg_ಸೂಚ್ಯಂಕ_Lo
                                         << " " << nodep);
                 // This assign doesn't merge with previous assign,
                 // but should start a new merge
-                mergeEnd();
+                ವಿಲೀನ_ಕೊನೆ();
             }
         }
 
         // Merge start
-        m_mgAssignps.push_back(nodep);
+        m_mgAssignps.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
         m_mgCfuncp = m_cfuncp;
         m_mgNextp = nodep->nextp();
         m_mgSelLp = lselp;
         m_mgSelRp = rselp;
         m_mgVarrefLp = lvarrefp;
         m_mgVarrefRp = rvarrefp;
-        m_mgOffset = static_cast<int64_t>(lindex) - static_cast<int64_t>(rindex);
+        m_mg_ಸ್ಥಾನಾಂತರ = static_cast<int64_t>(lindex) - static_cast<int64_t>(rindex);
         m_mgConstRp = rconstp;
-        m_mgIndexLo = lindex;
-        m_mgIndexHi = lindex;
-        UINFO(9, "Start merge i=" << lindex << " o=" << m_mgOffset << nodep);
+        m_mg_ಸೂಚ್ಯಂಕ_Lo = lindex;
+        m_mg_ಸೂಚ್ಯಂಕ_Hi = lindex;
+        UINFO(9, "Start merge i=" << lindex << " o=" << m_mg_ಸ್ಥಾನಾಂತರ << nodep);
     }
-    void visit(AstExprStmt* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* nodep) override { iterateChildren(nodep); }
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar*) override {}  // Accelerate
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*) override {}  // Accelerate
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit ReloopVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ಸ್ಪಷ್ಟ ReloopVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ReloopVisitor() override {
-        V3Stats::addStat("Optimizations, Reloops", m_statReloops);
-        V3Stats::addStat("Optimizations, Reloop iterations", m_statReItems);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Reloops", m_statReloops);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Reloop iterations", m_stat_Re_ವಸ್ತುಗಳು);
     }
 };
 
 //######################################################################
 // Reloop class functions
 
-void V3Reloop::reloopAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Reloop::reloopAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ReloopVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("reloop", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("reloop", 0, dump_ವೃಕ್ಷ_Either_Level() >= 6);
 }

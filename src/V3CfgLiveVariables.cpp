@@ -19,188 +19,188 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Cfg.h"
 
-#include <memory>
+#ಅನ್ತರ್ಭಾವ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgLiveVariables final : VNVisitorConst {
+ವರ್ಗ Cfg_ಜೀವಂತ_Variables final : VNVisitorConst {
     // State associted with each basic block
-    struct BlockState final {
+    ರಚನೆ ಖಂಡ_State final {
         // Variables used in block, before a complete assignment in the same block
-        std::unordered_set<AstVarScope*> m_gen;
+        std::unordered_ಗಣ<AstVarScope*> m_gen;
         // Variables that are assigned a complete value in the basic block
-        std::unordered_set<AstVarScope*> m_kill;
-        std::unordered_set<AstVarScope*> m_liveIn;  // Variables live on entry to the block
-        std::unordered_set<AstVarScope*> m_liveOut;  // Variables live on exit from the block
-        bool m_isOnWorkList = false;  // Block is on work list
-        bool m_wasProcessed = false;  // Already processed at least once
+        std::unordered_ಗಣ<AstVarScope*> m_kill;
+        std::unordered_ಗಣ<AstVarScope*> m_ಜೀವಂತ_ಒಳ;  // Variables live on entry to the block
+        std::unordered_ಗಣ<AstVarScope*> m_ಜೀವಂತ_ಹೊರಹೋಗು;  // Variables live on exit from the block
+        ತಾರ್ಕಿಕ m_isOnWorkList = ಸುಳ್ಳು;  // Block is on work list
+        ತಾರ್ಕಿಕ m_wasProcessed = ಸುಳ್ಳು;  // Already processed at least once
     };
 
     // STATE
-    const CfgGraph& m_cfg;  // The CFG beign analysed
+    ಸ್ಥಿರಾಂಕ Cfg_ನಕ್ಷೆ& m_cfg;  // The CFG beign analysed
     // State for each block
-    CfgBlockMap<BlockState> m_blockState{m_cfg.makeBlockMap<BlockState>()};
-    BlockState* m_currp = nullptr;  // State of current block being analysed
-    bool m_abort = false;  // Abort analysis - unhandled construct
+    Cfg_ಖಂಡ_Map<ಖಂಡ_State> m_ಖಂಡ_State{m_cfg.make_ಖಂಡ_Map<ಖಂಡ_State>()};
+    ಖಂಡ_State* m_currp = ಶೂನ್ಯಸೂಚಕ;  // State of current block being analysed
+    ತಾರ್ಕಿಕ m_abort = ಸುಳ್ಳು;  // Abort analysis - unhandled construct
 
     // METHODS
 
-    static bool isPacked(const AstVarScope* vscp) {
-        AstNodeDType* const dtypep = vscp->dtypep()->skipRefp();
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
-            return typep->keyword().isIntNumeric();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isPacked(ಸ್ಥಿರಾಂಕ AstVarScope* vscp) {
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = vscp->dtypep()->skipRefp();
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstBasicDType* ಸ್ಥಿರಾಂಕ typep = VN_CAST(dtypep, BasicDType)) {
+            ಹಿಂತಿರುಗಿ typep->keyword().isIntNumeric();
         }
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (const AstNodeUOrStructDType* const typep = VN_CAST(dtypep, NodeUOrStructDType)) {
-            return typep->packed();
+        ಆದರೆ (VN_IS(dtypep, PackArrayDType)) ಹಿಂತಿರುಗಿ ನಿಜ;
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_UOr_Struct_DType* ಸ್ಥಿರಾಂಕ typep = VN_CAST(dtypep, ಗಂಟು_UOr_Struct_DType)) {
+            ಹಿಂತಿರುಗಿ typep->packed();
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
-    void updateGen(AstNode* nodep) {
+    ಶೂನ್ಯ updateGen(Ast_ಗಂಟು* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ಸ್ಥಿರಾಂಕ AstVarRef* refp) {
             // Only care about reads
-            if (refp->access().isWriteOnly()) return false;
+            ಆದರೆ (refp->access().isWriteOnly()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
             // Add to gen set, if not killed - assume whole variable read
-            if (m_currp->m_kill.count(vscp)) return false;
+            ಆದರೆ (m_currp->m_kill.ಎಣಿಕೆ_2(vscp)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             m_currp->m_gen.emplace(vscp);
-            return false;
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         });
     }
 
-    void updateKill(AstNode* nodep) {
+    ಶೂನ್ಯ updateKill(Ast_ಗಂಟು* nodep) {
         UASSERT_OBJ(!m_abort, nodep, "Doing useless work");
-        m_abort = nodep->exists([&](const AstVarRef* refp) {
+        m_abort = nodep->exists([&](ಸ್ಥಿರಾಂಕ AstVarRef* refp) {
             // Only care about writes
-            if (refp->access().isReadOnly()) return false;
+            ಆದರೆ (refp->access().isReadOnly()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             // Grab referenced variable
-            AstVarScope* const vscp = refp->varScopep();
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
             // Safety case: bail on variables with unusual semantics
-            if (vscp->varp()->ignoreSchedWrite()) return true;
+            ಆದರೆ (vscp->varp()->ignoreSchedWrite()) ಹಿಂತಿರುಗಿ ನಿಜ;
             // If not a packed variable, assume it's not a whole update, don't add to kill set
-            if (!isPacked(vscp)) return false;
+            ಆದರೆ (!isPacked(vscp)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             // If packed, and updated partially, don't add to kill set
-            if (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) return false;
+            ಆದರೆ (refp->backp()->nextp() != refp && VN_IS(refp->abovep(), Sel)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             // Whole variable is writen, add to kill set
             m_currp->m_kill.emplace(vscp);
-            return false;
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         });
     }
 
-    void single(AstNode* nodep) {
+    ಶೂನ್ಯ single(Ast_ಗಂಟು* nodep) {
         // Assume all reads hapen before any writes
-        if (m_abort) return;
+        ಆದರೆ (m_abort) ಹಿಂತಿರುಗಿ;
         updateGen(nodep);
-        if (m_abort) return;
+        ಆದರೆ (m_abort) ಹಿಂತಿರುಗಿ;
         updateKill(nodep);
     }
 
     // Apply transfer function of block, return true if changed
-    bool transfer(const CfgBlock& bb) {
-        BlockState& state = m_blockState[bb];
+    ತಾರ್ಕಿಕ transfer(ಸ್ಥಿರಾಂಕ Cfg_ಖಂಡ& bb) {
+        ಖಂಡ_State& state = m_ಖಂಡ_State[bb];
 
         // liveIn = gen union (liveOut - kill)
-        std::unordered_set<AstVarScope*> liveIn = state.m_gen;
-        for (AstVarScope* const varp : state.m_liveOut) {
-            if (state.m_kill.count(varp)) continue;
-            liveIn.insert(varp);
+        std::unordered_ಗಣ<AstVarScope*> ಜೀವಂತ_ಒಳ = state.m_gen;
+        ಗಾಗಿ (AstVarScope* ಸ್ಥಿರಾಂಕ varp : state.m_ಜೀವಂತ_ಹೊರಹೋಗು) {
+            ಆದರೆ (state.m_kill.ಎಣಿಕೆ_2(varp)) ಮುಂದುವರಿ;
+            ಜೀವಂತ_ಒಳ.ಸೇರಿಸು(varp);
         }
-        if (liveIn == state.m_liveIn) return false;
-        std::swap(liveIn, state.m_liveIn);
-        return true;
+        ಆದರೆ (ಜೀವಂತ_ಒಳ == state.m_ಜೀವಂತ_ಒಳ) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        std::ಅದಲುಬದಲು(ಜೀವಂತ_ಒಳ, state.m_ಜೀವಂತ_ಒಳ);
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
 
-    // VISIT
-    void visit(AstNode* nodep) override {  //
+    //ಭೇಟಿ
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override {  //
         UASSERT_OBJ(!m_abort, nodep, "Repeat traversal after abort");
-        m_abort = true;
+        m_abort = ನಿಜ;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
     }
 
-    void visit(AstAssign* nodep) override { single(nodep); }
-    void visit(AstAssignW* nodep) override { single(nodep); }
-    void visit(AstDisplay* nodep) override { single(nodep); }
-    void visit(AstFinish* nodep) override { single(nodep); }
-    void visit(AstFinishFork* nodep) override { single(nodep); }
-    void visit(AstStmtExpr* nodep) override { single(nodep); }
-    void visit(AstStop* nodep) override { single(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು* nodep) override { single(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_W* nodep) override { single(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstDisplay* nodep) override { single(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಮುಕ್ತಾಯ* nodep) override { single(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಮುಕ್ತಾಯ_Fork* nodep) override { single(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* nodep) override { single(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstStop* nodep) override { single(nodep); }
 
     // Only the condition check belongs to the terminated basic block
-    void visit(AstIf* nodep) override { single(nodep->condp()); }
-    void visit(AstLoopTest* nodep) override { single(nodep->condp()); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstIf* nodep) override { single(nodep->condp()); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstLoopTest* nodep) override { single(nodep->condp()); }
 
     // CONSTRUCTOR
-    explicit CfgLiveVariables(const CfgGraph& cfg)
+    ಸ್ಪಷ್ಟ Cfg_ಜೀವಂತ_Variables(ಸ್ಥಿರಾಂಕ Cfg_ನಕ್ಷೆ& cfg)
         : m_cfg{cfg} {
         // For each basic block, compute the gen and kill set via visit
-        for (const V3GraphVertex& vtx : cfg.vertices()) {
-            const CfgBlock& bb = static_cast<const CfgBlock&>(vtx);
-            if (m_abort) return;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : cfg.vertices()) {
+            ಸ್ಥಿರಾಂಕ Cfg_ಖಂಡ& bb = static_cast<ಸ್ಥಿರಾಂಕ Cfg_ಖಂಡ&>(vtx);
+            ಆದರೆ (m_abort) ಹಿಂತಿರುಗಿ;
             VL_RESTORER(m_currp);
-            m_currp = &m_blockState[bb];
-            for (AstNode* const stmtp : bb.stmtps()) iterateConst(stmtp);
+            m_currp = &m_ಖಂಡ_State[bb];
+            ಗಾಗಿ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtp : bb.stmtps()) iterateConst(stmtp);
         }
-        if (m_abort) return;
+        ಆದರೆ (m_abort) ಹಿಂತಿರುಗಿ;
 
         // Perform the flow analysis
-        std::deque<const CfgBlock*> workList;
-        const auto enqueue = [&](const CfgBlock& bb) {
-            BlockState& state = m_blockState[bb];
-            if (state.m_isOnWorkList) return;
-            state.m_isOnWorkList = true;
-            workList.emplace_back(&bb);
+        std::deque<ಸ್ಥಿರಾಂಕ Cfg_ಖಂಡ*> workList;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಸರತಿಗೆ_ಸೇರಿಸು = [&](ಸ್ಥಿರಾಂಕ Cfg_ಖಂಡ& bb) {
+            ಖಂಡ_State& state = m_ಖಂಡ_State[bb];
+            ಆದರೆ (state.m_isOnWorkList) ಹಿಂತಿರುಗಿ;
+            state.m_isOnWorkList = ನಿಜ;
+            workList.emplace_ಹಿಂಭಾಗ(&bb);
         };
 
-        enqueue(cfg.exit());
+        ಸರತಿಗೆ_ಸೇರಿಸು(cfg.ನಿರ್ಗಮಿಸು());
 
-        while (!workList.empty()) {
-            const CfgBlock* const currp = workList.front();
-            workList.pop_front();
-            BlockState& state = m_blockState[*currp];
-            state.m_isOnWorkList = false;
+        ಆಗ (!workList.ಖಾಲಿಗಳು()) {
+            ಸ್ಥಿರಾಂಕ Cfg_ಖಂಡ* ಸ್ಥಿರಾಂಕ currp = workList.front();
+            workList.ತೆಗೆ_front();
+            ಖಂಡ_State& state = m_ಖಂಡ_State[*currp];
+            state.m_isOnWorkList = ಸುಳ್ಳು;
 
             // Compute meet (liveOut = union liveIn of successors)
-            currp->forEachSuccessor([&](const CfgBlock& bb) {
-                auto& liveIn = m_blockState[bb].m_liveIn;
-                state.m_liveOut.insert(liveIn.begin(), liveIn.end());
+            currp->forEachSuccessor([&](ಸ್ಥಿರಾಂಕ Cfg_ಖಂಡ& bb) {
+                ಸ್ವಯಂಚಾಲಿತ& ಜೀವಂತ_ಒಳ = m_ಖಂಡ_State[bb].m_ಜೀವಂತ_ಒಳ;
+                state.m_ಜೀವಂತ_ಹೊರಹೋಗು.ಸೇರಿಸು(ಜೀವಂತ_ಒಳ.begin(), ಜೀವಂತ_ಒಳ.ಕೊನೆ());
             });
 
             // Apply transfer function of block
-            const bool changed = transfer(*currp);
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಬದಲಾಯಿತು = transfer(*currp);
             // Enqueue predecessors
-            if (changed || !state.m_wasProcessed) currp->forEachPredecessor(enqueue);
+            ಆದರೆ (ಬದಲಾಯಿತು || !state.m_wasProcessed) currp->forEachPredecessor(ಸರತಿಗೆ_ಸೇರಿಸು);
             // Mark as done with first visit
-            state.m_wasProcessed = true;
+            state.m_wasProcessed = ನಿಜ;
         }
     }
 
-public:
-    static std::unique_ptr<std::vector<AstVarScope*>> apply(const CfgGraph& cfg) {
-        CfgLiveVariables analysis{cfg};
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ std::unique_ptr<std::ಸದಿಶ<AstVarScope*>> apply(ಸ್ಥಿರಾಂಕ Cfg_ನಕ್ಷೆ& cfg) {
+        Cfg_ಜೀವಂತ_Variables analysis{cfg};
         // If failed, return nullptr
-        if (analysis.m_abort) return nullptr;
+        ಆದರೆ (analysis.m_abort) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         // Gather variables live in to the entry block
-        const std::unordered_set<AstVarScope*>& lin = analysis.m_blockState[cfg.enter()].m_liveIn;
-        std::vector<AstVarScope*>* const resultp
-            = new std::vector<AstVarScope*>{lin.begin(), lin.end()};
+        ಸ್ಥಿರಾಂಕ std::unordered_ಗಣ<AstVarScope*>& lin = analysis.m_ಖಂಡ_State[cfg.enter()].m_ಜೀವಂತ_ಒಳ;
+        std::ಸದಿಶ<AstVarScope*>* ಸ್ಥಿರಾಂಕ resultp
+            = ಹೊಸ std::ಸದಿಶ<AstVarScope*>{lin.begin(), lin.ಕೊನೆ()};
         // Sort for stability
-        std::stable_sort(resultp->begin(), resultp->end(),
+        std::stable_ವಿಂಗಡಿಸು(resultp->begin(), resultp->ಕೊನೆ(),
                          [](AstVarScope* ap, AstVarScope* bp) {  //
-                             return ap->name() < bp->name();
+                             ಹಿಂತಿರುಗಿ ap->name() < bp->name();
                          });
-        return std::unique_ptr<std::vector<AstVarScope*>>{resultp};
+        ಹಿಂತಿರುಗಿ std::unique_ptr<std::ಸದಿಶ<AstVarScope*>>{resultp};
     }
 };
 
-std::unique_ptr<std::vector<AstVarScope*>> V3Cfg::liveVarScopes(const CfgGraph& cfg) {
-    return CfgLiveVariables::apply(cfg);
+std::unique_ptr<std::ಸದಿಶ<AstVarScope*>> V3Cfg::ಜೀವಂತ_Var_Scopes(ಸ್ಥಿರಾಂಕ Cfg_ನಕ್ಷೆ& cfg) {
+    ಹಿಂತಿರುಗಿ Cfg_ಜೀವಂತ_Variables::apply(cfg);
 }

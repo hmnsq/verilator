@@ -15,16 +15,16 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3INSTRCOUNT_H_
-#define VERILATOR_V3INSTRCOUNT_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3INSTRCOUNT_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3INSTRCOUNT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-class AstNode;
+class Ast_ಗಂಟು;
 
-class V3InstrCount final {
-public:
+class V3_Instr_ಎಣಿಕೆ final {
+ಸಾರ್ವಜನಿಕ:
     // Return the estimate count of instructions we'd incur while running
     // code in and under nodep.
     //
@@ -38,8 +38,8 @@ public:
     // if we see the same node twice (across more than one call to count,
     // potentially) raises an error.
     // Optional osp is stream to dump critical path to.
-    static uint32_t count(AstNode* nodep, bool assertNoDups,
+    ಸ್ಥಿರ uint32_t ಎಣಿಕೆ_2(Ast_ಗಂಟು* nodep, bool assertNoDups,
                           std::ostream* osp = nullptr) VL_MT_DISABLED;
 };
 
-#endif  // guard
+#ಆದರೆ_ಅಂತ್ಯ  // guard

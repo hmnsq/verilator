@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ACTIVE_H_
-#define VERILATOR_V3ACTIVE_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3_ಸಕ್ರಿಯ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3_ಸಕ್ರಿಯ_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Active final {
-public:
-    static void activeAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ಸಕ್ರಿಯ final {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ ಸಕ್ರಿಯ_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

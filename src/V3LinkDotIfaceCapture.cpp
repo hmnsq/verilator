@@ -36,30 +36,30 @@
 //      from its owner module and retargets it by name, then clears all tags.
 //
 
-#include "V3LinkDotIfaceCapture.h"
+#ಅನ್ತರ್ಭಾವ "V3LinkDotIfaceCapture.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Stats.h"
-#include "V3SymTable.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3SymTable.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-std::deque<VIfaceCaptureTag> V3LinkDotIfaceCapture::s_tags{};
-bool V3LinkDotIfaceCapture::s_enabled = true;
+std::deque<VIface_Capture_ಟ್ಯಾಗ್> V3LinkDotIfaceCapture::s_ಟ್ಯಾಗುಗಳು{};
+ತಾರ್ಕಿಕ V3LinkDotIfaceCapture::s_enabled = ನಿಜ;
 
 // LCOV_EXCL_START
-void V3LinkDotIfaceCapture::enable(bool flag) {
+ಶೂನ್ಯ V3LinkDotIfaceCapture::enable(ತಾರ್ಕಿಕ flag) {
     s_enabled = flag;
-    if (!flag) clearModuleCache();
+    ಆದರೆ (!flag) clearModuleCache();
 }
 // LCOV_EXCL_STOP
 
-void V3LinkDotIfaceCapture::reset() {
-    s_tags.clear();
+ಶೂನ್ಯ V3LinkDotIfaceCapture::reset() {
+    s_ಟ್ಯಾಗುಗಳು.clear();
     clearModuleCache();
 }
 
@@ -67,209 +67,209 @@ void V3LinkDotIfaceCapture::reset() {
 // Lazily built on first access for a given module; cleared at phase boundaries.
 // Uses vectors per name to handle rare cases where different node types share a name
 // (e.g. a Typedef and a ParamTypeDType both named 'sc_tag_status_t').
-namespace {
-struct StmtNameMap final {
-    std::unordered_map<string, std::vector<AstNode*>> m_byName;
+ನಾಮಾಕಾಶ {
+ರಚನೆ StmtNameMap final {
+    std::unordered_map<string, std::ಸದಿಶ<Ast_ಗಂಟು*>> m_byName;
 };
-std::unordered_map<AstNodeModule*, StmtNameMap> s_moduleCache;
+std::unordered_map<Ast_ಗಂಟು_Module*, StmtNameMap> s_moduleCache;
 
-const StmtNameMap& getOrBuild(AstNodeModule* modp) {
-    auto it = s_moduleCache.find(modp);
-    if (it != s_moduleCache.end()) return it->second;
+ಸ್ಥಿರಾಂಕ StmtNameMap& getOrBuild(Ast_ಗಂಟು_Module* modp) {
+    ಸ್ವಯಂಚಾಲಿತ it = s_moduleCache.ಕಂಡುಹಿಡಿ(modp);
+    ಆದರೆ (it != s_moduleCache.ಕೊನೆ()) ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
     StmtNameMap& cache = s_moduleCache[modp];
-    for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        const string& nm = stmtp->name();
-        if (!nm.empty()) cache.m_byName[nm].push_back(stmtp);
+    ಗಾಗಿ (Ast_ಗಂಟು* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        ಸ್ಥಿರಾಂಕ string& nm = stmtp->name();
+        ಆದರೆ (!nm.ಖಾಲಿಗಳು()) cache.m_byName[nm].ತಳ್ಳು_ಹಿಂಭಾಗ(stmtp);
     }
-    return cache;
+    ಹಿಂತಿರುಗಿ cache;
 }
 }  // namespace
 
-void V3LinkDotIfaceCapture::clearModuleCache() { s_moduleCache.clear(); }
+ಶೂನ್ಯ V3LinkDotIfaceCapture::clearModuleCache() { s_moduleCache.clear(); }
 
-AstIfaceRefDType* V3LinkDotIfaceCapture::ifaceRefFromVarDType(AstNodeDType* dtypep) {
-    AstIfaceRefDType* resultp = nullptr;
-    for (AstNodeDType* curp = dtypep; curp;) {
-        if (AstIfaceRefDType* const irefp = VN_CAST(curp, IfaceRefDType)) {
+AstIfaceRefDType* V3LinkDotIfaceCapture::ifaceRefFromVarDType(Ast_ಗಂಟು_DType* dtypep) {
+    AstIfaceRefDType* resultp = ಶೂನ್ಯಸೂಚಕ;
+    ಗಾಗಿ (Ast_ಗಂಟು_DType* curp = dtypep; curp;) {
+        ಆದರೆ (AstIfaceRefDType* ಸ್ಥಿರಾಂಕ irefp = VN_CAST(curp, IfaceRefDType)) {
             resultp = irefp;
-            break;
-        } else if (AstBracketArrayDType* const bracketp = VN_CAST(curp, BracketArrayDType)) {
+            ನಿಲ್ಲಿಸು;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstBracketArrayDType* ಸ್ಥಿರಾಂಕ bracketp = VN_CAST(curp, BracketArrayDType)) {
             curp = bracketp->subDTypep();
-        } else if (AstUnpackArrayDType* const unpackp = VN_CAST(curp, UnpackArrayDType)) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstUnpackArrayDType* ಸ್ಥಿರಾಂಕ unpackp = VN_CAST(curp, UnpackArrayDType)) {
             curp = unpackp->subDTypep();
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             v3fatalSrc("ifaceRefFromVarDType: unexpected dtype " << curp->prettyTypeName()
                                                                  << " in chain");
         }
     }
-    return resultp;
+    ಹಿಂತಿರುಗಿ resultp;
 }
 
-namespace {
+ನಾಮಾಕಾಶ {
 // Resolve the owner module name for a typedef/paramType node.
 // Returns hint if non-empty, otherwise walks backp() to find the owner module name.
-string resolveOwnerName(const string& hint, AstNode* nodep) {
-    if (!hint.empty()) return hint;
-    if (!nodep) return "";
-    AstNodeModule* const ownerp = V3LinkDotIfaceCapture::findOwnerModule(nodep);
-    return ownerp ? ownerp->name() : string{};
+string resolveOwnerName(ಸ್ಥಿರಾಂಕ string& hint, Ast_ಗಂಟು* nodep) {
+    ಆದರೆ (!hint.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ hint;
+    ಆದರೆ (!nodep) ಹಿಂತಿರುಗಿ "";
+    Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerp = V3LinkDotIfaceCapture::ಕಂಡುಹಿಡಿ_Owner_Module(nodep);
+    ಹಿಂತಿರುಗಿ ownerp ? ownerp->name() : string{};
 }
 }  // namespace
 
-AstTypedef* V3LinkDotIfaceCapture::findTypedefInModule(AstNodeModule* modp, const string& name) {
-    AstTypedef* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstTypedef* const tdp = VN_CAST(nodep, Typedef)) {
+AstTypedef* V3LinkDotIfaceCapture::ಕಂಡುಹಿಡಿ_Typedef_ಒಳ_Module(Ast_ಗಂಟು_Module* modp, ಸ್ಥಿರಾಂಕ string& name) {
+    AstTypedef* resultp = ಶೂನ್ಯಸೂಚಕ;
+    ಸ್ಥಿರಾಂಕ StmtNameMap& cache = getOrBuild(modp);
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = cache.m_byName.ಕಂಡುಹಿಡಿ(name);
+    ಆದರೆ (!(it == cache.m_byName.ಕೊನೆ())) {
+        ಗಾಗಿ (Ast_ಗಂಟು* nodep : it->ಎರಡನೇ) {
+            ಆದರೆ (AstTypedef* ಸ್ಥಿರಾಂಕ tdp = VN_CAST(nodep, Typedef)) {
                 resultp = tdp;
-                break;
+                ನಿಲ್ಲಿಸು;
             }
         }
     }
-    return resultp;
+    ಹಿಂತಿರುಗಿ resultp;
 }
-AstNodeDType* V3LinkDotIfaceCapture::findDTypeInModule(AstNodeModule* modp, const string& name,
+Ast_ಗಂಟು_DType* V3LinkDotIfaceCapture::ಕಂಡುಹಿಡಿ_DType_ಒಳ_Module(Ast_ಗಂಟು_Module* modp, ಸ್ಥಿರಾಂಕ string& name,
                                                        VNType type) {
 
-    AstNodeDType* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstNodeDType* const dtp = VN_CAST(nodep, NodeDType)) {
-                if (dtp->type() == type) {
+    Ast_ಗಂಟು_DType* resultp = ಶೂನ್ಯಸೂಚಕ;
+    ಸ್ಥಿರಾಂಕ StmtNameMap& cache = getOrBuild(modp);
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = cache.m_byName.ಕಂಡುಹಿಡಿ(name);
+    ಆದರೆ (!(it == cache.m_byName.ಕೊನೆ())) {
+        ಗಾಗಿ (Ast_ಗಂಟು* nodep : it->ಎರಡನೇ) {
+            ಆದರೆ (Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtp = VN_CAST(nodep, ಗಂಟು_DType)) {
+                ಆದರೆ (dtp->type() == type) {
                     resultp = dtp;
-                    break;
+                    ನಿಲ್ಲಿಸು;
                 }
             }
         }
     }
-    return resultp;
+    ಹಿಂತಿರುಗಿ resultp;
 }
-AstParamTypeDType* V3LinkDotIfaceCapture::findParamTypeInModule(AstNodeModule* modp,
-                                                                const string& name) {
+AstParamTypeDType* V3LinkDotIfaceCapture::ಕಂಡುಹಿಡಿ_Param_Type_ಒಳ_Module(Ast_ಗಂಟು_Module* modp,
+                                                                ಸ್ಥಿರಾಂಕ string& name) {
 
-    AstParamTypeDType* resultp = nullptr;
-    const StmtNameMap& cache = getOrBuild(modp);
-    const auto it = cache.m_byName.find(name);
-    if (!(it == cache.m_byName.end())) {
-        for (AstNode* nodep : it->second) {
-            if (AstParamTypeDType* const ptdp = VN_CAST(nodep, ParamTypeDType)) {
+    AstParamTypeDType* resultp = ಶೂನ್ಯಸೂಚಕ;
+    ಸ್ಥಿರಾಂಕ StmtNameMap& cache = getOrBuild(modp);
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = cache.m_byName.ಕಂಡುಹಿಡಿ(name);
+    ಆದರೆ (!(it == cache.m_byName.ಕೊನೆ())) {
+        ಗಾಗಿ (Ast_ಗಂಟು* nodep : it->ಎರಡನೇ) {
+            ಆದರೆ (AstParamTypeDType* ಸ್ಥಿರಾಂಕ ptdp = VN_CAST(nodep, ParamTypeDType)) {
                 resultp = ptdp;
-                break;
+                ನಿಲ್ಲಿಸು;
             }
         }
     }
-    return resultp;
+    ಹಿಂತಿರುಗಿ resultp;
 }
 
-bool V3LinkDotIfaceCapture::retargetRefToModule(AstRefDType* refp, AstNodeModule* targetModp) {
-    const VIfaceCaptureTag* const tagp = refp->captureTagp();
+ತಾರ್ಕಿಕ V3LinkDotIfaceCapture::retarget_Ref_ಗಮ್ಯ_Module(AstRefDType* refp, Ast_ಗಂಟು_Module* ಗುರಿ_Modp) {
+    ಸ್ಥಿರಾಂಕ VIface_Capture_ಟ್ಯಾಗ್* ಸ್ಥಿರಾಂಕ tagp = refp->captureTagp();
     UASSERT_OBJ(tagp, refp, "Retarget of a reference that was not captured");
-    UASSERT_OBJ(targetModp, refp, "Retarget to a null module");
+    UASSERT_OBJ(ಗುರಿ_Modp, refp, "Retarget to a null module");
 
-    if (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE) {
-        AstParamTypeDType* const paramTypep = findParamTypeInModule(targetModp, refp->name());
-        if (!paramTypep) return false;
-        retargetRefToParamType(refp, paramTypep);
-        return true;
+    ಆದರೆ (tagp->m_ಬಗೆ == VIface_Capture_ಟ್ಯಾಗ್::ಬಗೆ_2::PARAM_TYPE) {
+        AstParamTypeDType* ಸ್ಥಿರಾಂಕ paramTypep = ಕಂಡುಹಿಡಿ_Param_Type_ಒಳ_Module(ಗುರಿ_Modp, refp->name());
+        ಆದರೆ (!paramTypep) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        retarget_Ref_ಗಮ್ಯ_Param_Type(refp, paramTypep);
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
 
-    AstTypedef* const typedefp = findTypedefInModule(targetModp, refp->name());
-    if (!typedefp) return false;
-    retargetRefToTypedef(refp, typedefp);
-    return true;
+    AstTypedef* ಸ್ಥಿರಾಂಕ typedefp = ಕಂಡುಹಿಡಿ_Typedef_ಒಳ_Module(ಗುರಿ_Modp, refp->name());
+    ಆದರೆ (!typedefp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+    retarget_Ref_ಗಮ್ಯ_Typedef(refp, typedefp);
+    ಹಿಂತಿರುಗಿ ನಿಜ;
 }
 
-void V3LinkDotIfaceCapture::retargetRefToParamType(AstRefDType* refp,
+ಶೂನ್ಯ V3LinkDotIfaceCapture::retarget_Ref_ಗಮ್ಯ_Param_Type(AstRefDType* refp,
                                                    AstParamTypeDType* paramTypep) {
     UASSERT_OBJ(paramTypep, refp, "Retarget to a null parameter type");
     refp->refDTypep(paramTypep);
     refp->dtypep(paramTypep);
 }
 
-void V3LinkDotIfaceCapture::retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp) {
+ಶೂನ್ಯ V3LinkDotIfaceCapture::retarget_Ref_ಗಮ್ಯ_Typedef(AstRefDType* refp, AstTypedef* typedefp) {
     UASSERT_OBJ(typedefp, refp, "Retarget to a null typedef");
     refp->typedefp(typedefp);
     // An incomplete typedef is still a successful name resolution, but
     // must not erase type links that a later width pass can complete.
-    if (AstNodeDType* const dtypep = typedefp->subDTypep()) {
+    ಆದರೆ (Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = typedefp->subDTypep()) {
         refp->refDTypep(dtypep);
         refp->dtypep(dtypep);
     }
 }
 
-namespace {
-using LiveNodes = std::unordered_set<const AstNode*>;
+ನಾಮಾಕಾಶ {
+ಬಳಸಿ ಜೀವಂತ_Nodes = std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು*>;
 
 // A scoped snapshot of every node currently in the tree.  V3Broken::isLinkable()
 // cannot serve this role: its table is populated only while V3Broken::brokenAll()
 // runs and is cleared before it returns.
-LiveNodes collectLiveNodes() {
-    LiveNodes liveNodes;
-    v3Global.rootp()->foreach([&](AstNode* nodep) { liveNodes.insert(nodep); });
-    return liveNodes;
+ಜೀವಂತ_Nodes collect_ಜೀವಂತ_Nodes() {
+    ಜೀವಂತ_Nodes ಜೀವಂತ_Nodes_2;
+    v3Global.rootp()->foreach([&](Ast_ಗಂಟು* nodep) { ಜೀವಂತ_Nodes_2.ಸೇರಿಸು(nodep); });
+    ಹಿಂತಿರುಗಿ ಜೀವಂತ_Nodes_2;
 }
 
 // Find the module that owns this node; a snapshot, if given, stops the walk at a stale link.
-AstNodeModule* findOwnerModuleImpl(AstNode* nodep, const LiveNodes* liveNodesp) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (liveNodesp && !liveNodesp->count(curp)) return nullptr;
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+Ast_ಗಂಟು_Module* ಕಂಡುಹಿಡಿ_Owner_Module_Impl(Ast_ಗಂಟು* nodep, ಸ್ಥಿರಾಂಕ ಜೀವಂತ_Nodes* ಜೀವಂತ_Nodesp) {
+    ಗಾಗಿ (Ast_ಗಂಟು* curp = nodep; curp; curp = curp->backp()) {
+        ಆದರೆ (ಜೀವಂತ_Nodesp && !ಜೀವಂತ_Nodesp->ಎಣಿಕೆ_2(curp)) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ modp = VN_CAST(curp, ಗಂಟು_Module)) ಹಿಂತಿರುಗಿ modp;
     }
-    return nullptr;
+    ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 }
 
-AstNodeModule* findOwnerModuleIfLive(AstNode* nodep, const LiveNodes& liveNodes) {
-    return findOwnerModuleImpl(nodep, &liveNodes);
+Ast_ಗಂಟು_Module* ಕಂಡುಹಿಡಿ_Owner_Module_If_ಜೀವಂತ(Ast_ಗಂಟು* nodep, ಸ್ಥಿರಾಂಕ ಜೀವಂತ_Nodes& ಜೀವಂತ_Nodes_2) {
+    ಹಿಂತಿರುಗಿ ಕಂಡುಹಿಡಿ_Owner_Module_Impl(nodep, &ಜೀವಂತ_Nodes_2);
 }
 
-bool moduleMatchesOwner(const AstNodeModule* modp, const string& ownerName) {
-    if (!modp || ownerName.empty()) return false;
-    return modp->name() == ownerName || modp->origName() == ownerName;
+ತಾರ್ಕಿಕ moduleMatchesOwner(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Module* modp, ಸ್ಥಿರಾಂಕ string& ownerName) {
+    ಆದರೆ (!modp || ownerName.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+    ಹಿಂತಿರುಗಿ modp->name() == ownerName || modp->origName() == ownerName;
 }
 }  // namespace
 
-AstNodeModule* V3LinkDotIfaceCapture::findOwnerModule(AstNode* nodep) {
-    return findOwnerModuleImpl(nodep, nullptr);
+Ast_ಗಂಟು_Module* V3LinkDotIfaceCapture::ಕಂಡುಹಿಡಿ_Owner_Module(Ast_ಗಂಟು* nodep) {
+    ಹಿಂತಿರುಗಿ ಕಂಡುಹಿಡಿ_Owner_Module_Impl(nodep, ಶೂನ್ಯಸೂಚಕ);
 }
 
-void V3LinkDotIfaceCapture::dumpEntries(const string& label) {
+ಶೂನ್ಯ V3LinkDotIfaceCapture::dumpEntries(ಸ್ಥಿರಾಂಕ string& label) {
     UINFO(9, "========== iface capture dumpEntries: " << label << " ==========");
-    int idx = 0;
+    ಪೂರ್ಣಾಂಕ idx = 0;
     v3Global.rootp()->foreach([&](AstRefDType* refp) {
-        const VIfaceCaptureTag* const tagp = captureTag(refp);
-        if (!tagp) return;
-        const AstNodeModule* const ownerModp = findOwnerModule(refp);
-        UINFO(9, "  [" << idx << "] ref=" << refp->name() << " refp=" << cvtToHex(refp)
+        ಸ್ಥಿರಾಂಕ VIface_Capture_ಟ್ಯಾಗ್* ಸ್ಥಿರಾಂಕ tagp = capture_ಟ್ಯಾಗ್(refp);
+        ಆದರೆ (!tagp) ಹಿಂತಿರುಗಿ;
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp = ಕಂಡುಹಿಡಿ_Owner_Module(refp);
+        UINFO(9, "  [" << idx << "] ref=" << refp->name() << " refp=" << cvt_ಗಮ್ಯ_Hex(refp)
                        << " ownerMod=" << (ownerModp ? ownerModp->name() : "<null>")
-                       << " cellPath='" << tagp->m_cellPath << "' ownerModName='"
+                       << " cellPath='" << tagp->m_cell_ಮಾರ್ಗ << "' ownerModName='"
                        << tagp->m_ownerModName << "' kind="
-                       << (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE ? "param type"
+                       << (tagp->m_ಬಗೆ == VIface_Capture_ಟ್ಯಾಗ್::ಬಗೆ_2::PARAM_TYPE ? "param type"
                                                                               : "typedef"));
         ++idx;
     });
     UINFO(9, "========== end iface capture dumpEntries (" << idx << " captured) ==========");
 }
 
-void V3LinkDotIfaceCapture::tag(AstRefDType* refp, const AstNodeModule* capturedInp,
-                                VIfaceCaptureTag::Kind kind, const string& cellPath,
-                                const string& ownerModName) {
+ಶೂನ್ಯ V3LinkDotIfaceCapture::ಟ್ಯಾಗ್(AstRefDType* refp, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Module* capturedInp,
+                                VIface_Capture_ಟ್ಯಾಗ್::ಬಗೆ_2 ಬಗೆ, ಸ್ಥಿರಾಂಕ string& cell_ಮಾರ್ಗ,
+                                ಸ್ಥಿರಾಂಕ string& ownerModName) {
     UASSERT_OBJ(!refp->captureTagp(), refp, "Reference captured twice");
     UASSERT_OBJ(capturedInp, refp, "Captured reference is not in a module");
-    UASSERT_OBJ(!cellPath.empty(), refp, "Captured reference has no cell path");
-    s_tags.emplace_back(VIfaceCaptureTag{kind, cellPath, ownerModName, capturedInp->origName()});
-    refp->captureTagp(&s_tags.back());
+    UASSERT_OBJ(!cell_ಮಾರ್ಗ.ಖಾಲಿಗಳು(), refp, "Captured reference has no cell path");
+    s_ಟ್ಯಾಗುಗಳು.emplace_ಹಿಂಭಾಗ(VIface_Capture_ಟ್ಯಾಗ್{ಬಗೆ, cell_ಮಾರ್ಗ, ownerModName, capturedInp->origName()});
+    refp->captureTagp(&s_ಟ್ಯಾಗುಗಳು.ಹಿಂಭಾಗ());
 }
 
-const VIfaceCaptureTag* V3LinkDotIfaceCapture::captureTag(AstRefDType* refp) {
-    const VIfaceCaptureTag* const tagp = refp->captureTagp();
-    if (!tagp) return nullptr;
-    const AstNodeModule* const ownerp = findOwnerModule(refp);
-    if (!ownerp || ownerp->origName() != tagp->m_capturedInName) return nullptr;
-    return tagp;
+ಸ್ಥಿರಾಂಕ VIface_Capture_ಟ್ಯಾಗ್* V3LinkDotIfaceCapture::capture_ಟ್ಯಾಗ್(AstRefDType* refp) {
+    ಸ್ಥಿರಾಂಕ VIface_Capture_ಟ್ಯಾಗ್* ಸ್ಥಿರಾಂಕ tagp = refp->captureTagp();
+    ಆದರೆ (!tagp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerp = ಕಂಡುಹಿಡಿ_Owner_Module(refp);
+    ಆದರೆ (!ownerp || ownerp->origName() != tagp->m_captured_ಒಳ_Name) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+    ಹಿಂತಿರುಗಿ tagp;
 }
 
 // Walk a dot-separated cell path through the cell / IFACEREFDTYPE hierarchy
@@ -277,124 +277,124 @@ const VIfaceCaptureTag* V3LinkDotIfaceCapture::captureTag(AstRefDType* refp) {
 // nullptr if any component cannot be resolved.
 // Cell/port names are preserved across clones by cloneTree, so this works
 // identically on template and cloned modules.
-AstNodeModule* V3LinkDotIfaceCapture::followCellPath(AstNodeModule* startModp,
-                                                     const string& cellPath) {
-    if (cellPath.empty() || !startModp) return nullptr;
-    AstNodeModule* curModp = startModp;
-    string remaining = cellPath;
-    while (!remaining.empty() && curModp) {
+Ast_ಗಂಟು_Module* V3LinkDotIfaceCapture::follow_Cell_ಮಾರ್ಗ(Ast_ಗಂಟು_Module* ಆರಂಭ_Modp,
+                                                     ಸ್ಥಿರಾಂಕ string& cell_ಮಾರ್ಗ) {
+    ಆದರೆ (cell_ಮಾರ್ಗ.ಖಾಲಿಗಳು() || !ಆರಂಭ_Modp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+    Ast_ಗಂಟು_Module* curModp = ಆರಂಭ_Modp;
+    string ಉಳಿದ = cell_ಮಾರ್ಗ;
+    ಆಗ (!ಉಳಿದ.ಖಾಲಿಗಳು() && curModp) {
         string component;
-        const size_t dotPos = remaining.find('.');
-        if (dotPos == string::npos) {
-            component = remaining;
-            remaining.clear();
-        } else {
-            component = remaining.substr(0, dotPos);
-            remaining = remaining.substr(dotPos + 1);
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t dotPos = ಉಳಿದ.ಕಂಡುಹಿಡಿ('.');
+        ಆದರೆ (dotPos == string::npos) {
+            component = ಉಳಿದ;
+            ಉಳಿದ.clear();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            component = ಉಳಿದ.substr(0, dotPos);
+            ಉಳಿದ = ಉಳಿದ.substr(dotPos + 1);
         }
         // Matched without any array index; the elements of an instance array (see V3Param) all
         // instantiate the same module, so any of them will do
-        const string componentBase = AstNode::nameNoArray(component);
-        AstNodeModule* nextModp = nullptr;
-        for (AstNode* sp = curModp->stmtsp(); sp; sp = sp->nextp()) {
-            if (AstCell* const cellp = VN_CAST(sp, Cell)) {
-                if ((cellp->name() == component
-                     || AstNode::nameNoArray(cellp->name()) == componentBase)
+        ಸ್ಥಿರಾಂಕ string component_ತಳ = Ast_ಗಂಟು::nameNoArray(component);
+        Ast_ಗಂಟು_Module* ಮುಂದಿನ_Modp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (Ast_ಗಂಟು* sp = curModp->stmtsp(); sp; sp = sp->nextp()) {
+            ಆದರೆ (AstCell* ಸ್ಥಿರಾಂಕ cellp = VN_CAST(sp, Cell)) {
+                ಆದರೆ ((cellp->name() == component
+                     || Ast_ಗಂಟು::nameNoArray(cellp->name()) == component_ತಳ)
                     && cellp->modp()) {
-                    nextModp = cellp->modp();
-                    break;
+                    ಮುಂದಿನ_Modp = cellp->modp();
+                    ನಿಲ್ಲಿಸು;
                 }
             }
-            if (AstVar* const varp = VN_CAST(sp, Var)) {
-                if (varp->isIfaceRef() && varp->subDTypep()) {
-                    string varBaseName = varp->name();
-                    const size_t viftopPos = varBaseName.find("__Viftop");
-                    if (viftopPos != string::npos) {
-                        varBaseName = varBaseName.substr(0, viftopPos);
+            ಆದರೆ (AstVar* ಸ್ಥಿರಾಂಕ varp = VN_CAST(sp, Var)) {
+                ಆದರೆ (varp->isIfaceRef() && varp->subDTypep()) {
+                    string var_ತಳ_Name = varp->name();
+                    ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t viftopPos = var_ತಳ_Name.ಕಂಡುಹಿಡಿ("__Viftop");
+                    ಆದರೆ (viftopPos != string::npos) {
+                        var_ತಳ_Name = var_ತಳ_Name.substr(0, viftopPos);
                     }
-                    if (varBaseName == component
-                        || AstNode::nameNoArray(varBaseName) == componentBase) {
-                        if (AstIfaceRefDType* const irefp
+                    ಆದರೆ (var_ತಳ_Name == component
+                        || Ast_ಗಂಟು::nameNoArray(var_ತಳ_Name) == component_ತಳ) {
+                        ಆದರೆ (AstIfaceRefDType* ಸ್ಥಿರಾಂಕ irefp
                             = ifaceRefFromVarDType(varp->subDTypep())) {
-                            AstIface* const ifacep = irefp->ifaceViaCellp();
-                            if (ifacep) {
-                                nextModp = ifacep;
-                                break;
+                            AstIface* ಸ್ಥಿರಾಂಕ ifacep = irefp->iface_ಮೂಲಕ_Cellp();
+                            ಆದರೆ (ifacep) {
+                                ಮುಂದಿನ_Modp = ifacep;
+                                ನಿಲ್ಲಿಸು;
                             }
                         }
                     }
                 }
             }
         }
-        curModp = nextModp;
+        curModp = ಮುಂದಿನ_Modp;
     }
-    return curModp;
+    ಹಿಂತಿರುಗಿ curModp;
 }
 
 // replaces the lambda used in V3LinkDot.cpp for iface capture
-void V3LinkDotIfaceCapture::captureTypedefContext(AstRefDType* refp, const char* stageLabel,
-                                                  int dotPos, const std::string& dotText,
-                                                  VSymEnt* dotSymp, AstNodeModule* modp,
-                                                  const std::function<std::string()>& indentFn) {
-    if (!enabled() || !refp) return;
+ಶೂನ್ಯ V3LinkDotIfaceCapture::captureTypedefContext(AstRefDType* refp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* stageLabel,
+                                                  ಪೂರ್ಣಾಂಕ dotPos, ಸ್ಥಿರಾಂಕ std::string& dot_ಪಠ್ಯ,
+                                                  VSymEnt* dotSymp, Ast_ಗಂಟು_Module* modp,
+                                                  ಸ್ಥಿರಾಂಕ std::function<std::string()>& indentFn) {
+    ಆದರೆ (!enabled() || !refp) ಹಿಂತಿರುಗಿ;
 
     UINFO(9, indentFn() << "iface capture capture request stage=" << stageLabel
                         << " typedef=" << refp << " name=" << refp->name() << " dotPos=" << dotPos
-                        << " dotText='" << dotText << "' dotSym=" << dotSymp);
+                        << " dotText='" << dot_ಪಠ್ಯ << "' dotSym=" << dotSymp);
 
-    const AstCell* ifaceCellp = nullptr;
-    if (dotSymp && VN_IS(dotSymp->nodep(), Cell)) {
-        const AstCell* const cellp = VN_AS(dotSymp->nodep(), Cell);
-        if (cellp->modp() && VN_IS(cellp->modp(), Iface)) ifaceCellp = cellp;
+    ಸ್ಥಿರಾಂಕ AstCell* ifaceCellp = ಶೂನ್ಯಸೂಚಕ;
+    ಆದರೆ (dotSymp && VN_IS(dotSymp->nodep(), Cell)) {
+        ಸ್ಥಿರಾಂಕ AstCell* ಸ್ಥಿರಾಂಕ cellp = VN_AS(dotSymp->nodep(), Cell);
+        ಆದರೆ (cellp->modp() && VN_IS(cellp->modp(), Iface)) ifaceCellp = cellp;
     }
-    if (!ifaceCellp) {
+    ಆದರೆ (!ifaceCellp) {
         UINFO(9, indentFn() << "iface capture capture skipped typedef=" << refp
                             << " (no iface context)");
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
     // Skip internal interface typedef references (typedef used within its own interface)
-    if (ifaceCellp->modp() == modp) {
+    ಆದರೆ (ifaceCellp->modp() == modp) {
         UINFO(9, indentFn() << "iface capture capture skipped typedef=" << refp
                             << " (internal to interface " << modp->name() << ")");
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
 
     // dotText is always non-empty for interface typedef captures.  If this
     // fires, the caller resolved to an interface Cell but did not accumulate
     // a dotText path - investigate the dot-state in visitParseRef.
-    UASSERT_OBJ(!dotText.empty(), refp, "captureTypedefContext: dotText empty");
-    const string cellPath = dotText;
+    UASSERT_OBJ(!dot_ಪಠ್ಯ.ಖಾಲಿಗಳು(), refp, "captureTypedefContext: dotText empty");
+    ಸ್ಥಿರಾಂಕ string cell_ಮಾರ್ಗ = dot_ಪಠ್ಯ;
 
     // A reference to a ParamTypeDType is captured as a parameter type, else as a typedef
-    if (AstParamTypeDType* const paramTypep = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
-        V3LinkDotIfaceCapture::addParamType(refp, cellPath, modp, paramTypep, "");
-    } else {
-        tag(refp, modp, VIfaceCaptureTag::Kind::TYPEDEF, cellPath,
+    ಆದರೆ (AstParamTypeDType* ಸ್ಥಿರಾಂಕ paramTypep = VN_CAST(refp->refDTypep(), ParamTypeDType)) {
+        V3LinkDotIfaceCapture::ಕೂಡಿಸು_Param_Type(refp, cell_ಮಾರ್ಗ, modp, paramTypep, "");
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        ಟ್ಯಾಗ್(refp, modp, VIface_Capture_ಟ್ಯಾಗ್::ಬಗೆ_2::TYPEDEF, cell_ಮಾರ್ಗ,
             resolveOwnerName("", refp->typedefp()));
     }
 
     UINFO(9, indentFn() << "iface capture capture success typedef=" << refp
-                        << " cell=" << ifaceCellp << " cellPath='" << cellPath << "'"
+                        << " cell=" << ifaceCellp << " cellPath='" << cell_ಮಾರ್ಗ << "'"
                         << " mod=" << (ifaceCellp->modp() ? ifaceCellp->modp()->name() : "<null>")
                         << " dotPos=" << dotPos);
 }
 
-void V3LinkDotIfaceCapture::addParamType(AstRefDType* refp, const string& cellPath,
-                                         AstNodeModule* ownerModp, AstParamTypeDType* paramTypep,
-                                         const string& paramTypeOwnerModName) {
+ಶೂನ್ಯ V3LinkDotIfaceCapture::ಕೂಡಿಸು_Param_Type(AstRefDType* refp, ಸ್ಥಿರಾಂಕ string& cell_ಮಾರ್ಗ,
+                                         Ast_ಗಂಟು_Module* ownerModp, AstParamTypeDType* paramTypep,
+                                         ಸ್ಥಿರಾಂಕ string& paramTypeOwnerModName) {
     UASSERT(refp, "addParamType() called with null refp");
     UASSERT(ownerModp,
             "addParamType() called with null ownerModp for refp='" << refp->prettyNameQ() << "'");
     UASSERT_OBJ(paramTypep, refp,
                 "addParamType() called with null paramTypep for refp='" << refp->prettyNameQ()
                                                                         << "'");
-    const string ptOwnerName = resolveOwnerName(paramTypeOwnerModName, paramTypep);
-    UINFO(9, "addParamType: refp=" << refp << " cellPath='" << cellPath << "'"
+    ಸ್ಥಿರಾಂಕ string ptOwnerName = resolveOwnerName(paramTypeOwnerModName, paramTypep);
+    UINFO(9, "addParamType: refp=" << refp << " cellPath='" << cell_ಮಾರ್ಗ << "'"
                                    << " ownerModp=" << (ownerModp ? ownerModp->name() : "<null>")
                                    << " paramTypep=" << paramTypep << " paramTypeOwnerModName='"
                                    << ptOwnerName << "'");
     UINFO(9, "addParamType: paramTypep subDTypep chain:");
-    if (debug())
+    ಆದರೆ (debug())
         paramTypep->foreach([&](AstRefDType* innerRefp) {
             UINFO(9,
                   "  inner RefDType: "
@@ -402,11 +402,11 @@ void V3LinkDotIfaceCapture::addParamType(AstRefDType* refp, const string& cellPa
                       << (innerRefp->refDTypep() ? " refDTypep->name=" : "")
                       << (innerRefp->refDTypep() ? innerRefp->refDTypep()->prettyTypeName() : ""));
         });
-    tag(refp, ownerModp, VIfaceCaptureTag::Kind::PARAM_TYPE, cellPath, ptOwnerName);
+    ಟ್ಯಾಗ್(refp, ownerModp, VIface_Capture_ಟ್ಯಾಗ್::ಬಗೆ_2::PARAM_TYPE, cell_ಮಾರ್ಗ, ptOwnerName);
 }
 
-int V3LinkDotIfaceCapture::resolveCapturedRefs() {
-    int fixed = 0;
+ಪೂರ್ಣಾಂಕ V3LinkDotIfaceCapture::resolveCapturedRefs() {
+    ಪೂರ್ಣಾಂಕ fixed = 0;
 
     // TARGET RESOLUTION.  By this point all cloning is complete and cell
     // pointers are wired to the correct interface clones.  For each tagged
@@ -415,74 +415,74 @@ int V3LinkDotIfaceCapture::resolveCapturedRefs() {
     // See the ARCHITECTURE comment above for the full picture.
 
     v3Global.rootp()->foreach([&](AstRefDType* refp) {
-        const VIfaceCaptureTag* const tagp = captureTag(refp);
-        if (!tagp) return;
-        AstNodeModule* const ownerModp = findOwnerModule(refp);
-        if (!ownerModp || ownerModp->dead() || VN_IS(ownerModp, Package)) return;
+        ಸ್ಥಿರಾಂಕ VIface_Capture_ಟ್ಯಾಗ್* ಸ್ಥಿರಾಂಕ tagp = capture_ಟ್ಯಾಗ್(refp);
+        ಆದರೆ (!tagp) ಹಿಂತಿರುಗಿ;
+        Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp = ಕಂಡುಹಿಡಿ_Owner_Module(refp);
+        ಆದರೆ (!ownerModp || ownerModp->dead() || VN_IS(ownerModp, Package)) ಹಿಂತಿರುಗಿ;
 
         UINFO(9, "finalizeIfaceCapture Phase3 entry: refp="
-                     << refp->name() << " (" << cvtToHex(refp) << ")" << " ownerMod="
-                     << ownerModp->name() << " cellPath='" << tagp->m_cellPath << "' targetKind="
-                     << (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE ? "param type"
+                     << refp->name() << " (" << cvt_ಗಮ್ಯ_Hex(refp) << ")" << " ownerMod="
+                     << ownerModp->name() << " cellPath='" << tagp->m_cell_ಮಾರ್ಗ << "' targetKind="
+                     << (tagp->m_ಬಗೆ == VIface_Capture_ಟ್ಯಾಗ್::ಬಗೆ_2::PARAM_TYPE ? "param type"
                                                                             : "typedef"));
 
         // Prefer the owner itself when its stable template identity matches the
         // captured target owner.  Otherwise resolve and validate the cell path.
-        AstNodeModule* correctModp = nullptr;
-        if (moduleMatchesOwner(ownerModp, tagp->m_ownerModName)) {
+        Ast_ಗಂಟು_Module* correctModp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (moduleMatchesOwner(ownerModp, tagp->m_ownerModName)) {
             correctModp = ownerModp;
-        } else {
-            correctModp = followCellPath(ownerModp, tagp->m_cellPath);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            correctModp = follow_Cell_ಮಾರ್ಗ(ownerModp, tagp->m_cell_ಮಾರ್ಗ);
             UINFO(9, "  followCellPath('"
-                         << ownerModp->name() << "', '" << tagp->m_cellPath
+                         << ownerModp->name() << "', '" << tagp->m_cell_ಮಾರ್ಗ
                          << "') = " << (correctModp ? correctModp->name() : "<null>")
                          << (correctModp ? (correctModp->dead() ? " (DEAD)" : " (live)") : ""));
             UASSERT_OBJ(correctModp && !correctModp->dead()
                             && moduleMatchesOwner(correctModp, tagp->m_ownerModName),
                         refp,
                         "captured ref '" << refp->prettyNameQ() << "' cell path '"
-                                         << tagp->m_cellPath << "' did not resolve to live owner '"
+                                         << tagp->m_cell_ಮಾರ್ಗ << "' did not resolve to live owner '"
                                          << tagp->m_ownerModName << "'");
         }
-        UASSERT_OBJ(retargetRefToModule(refp, correctModp), refp,
+        UASSERT_OBJ(retarget_Ref_ಗಮ್ಯ_Module(refp, correctModp), refp,
                     "could not retarget captured "
-                        << (tagp->m_kind == VIfaceCaptureTag::Kind::PARAM_TYPE ? "parameter type "
+                        << (tagp->m_ಬಗೆ == VIface_Capture_ಟ್ಯಾಗ್::ಬಗೆ_2::PARAM_TYPE ? "parameter type "
                                                                                : "typedef ")
                         << refp->prettyNameQ() << " in " << correctModp->prettyNameQ());
-        refp->user3(true);
+        refp->user3(ನಿಜ);
         ++fixed;
     });
 
-    return fixed;
+    ಹಿಂತಿರುಗಿ fixed;
 }
 
-void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
+ಶೂನ್ಯ V3LinkDotIfaceCapture::verifyNoDeadRefs(ಸ್ಥಿರಾಂಕ ಜೀವಂತ_Nodes& ಜೀವಂತ_Nodes_2) {
     // Assert: no REFDTYPE in any live module should have typedefp or refDTypep
     // pointing to a dead module.
-    for (AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-        if (AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) {
-            if (modp->dead()) continue;
+    ಗಾಗಿ (Ast_ಗಂಟು* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+        ಆದರೆ (Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ modp = VN_CAST(nodep, ಗಂಟು_Module)) {
+            ಆದರೆ (modp->dead()) ಮುಂದುವರಿ;
             modp->foreach([&](AstRefDType* refp) {
-                if (refp->typedefp()) {
-                    UASSERT_OBJ(liveNodes.count(refp->typedefp()), refp,
+                ಆದರೆ (refp->typedefp()) {
+                    UASSERT_OBJ(ಜೀವಂತ_Nodes_2.ಎಣಿಕೆ_2(refp->typedefp()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has a dangling typedefp");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->typedefp(), liveNodes);
+                    Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp
+                        = ಕಂಡುಹಿಡಿ_Owner_Module_If_ಜೀವಂತ(refp->typedefp(), ಜೀವಂತ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has typedefp pointing to dead module '"
                                              << ownerModp->prettyNameQ() << "'");
                 }
-                if (refp->refDTypep()) {
-                    UASSERT_OBJ(liveNodes.count(refp->refDTypep()), refp,
+                ಆದರೆ (refp->refDTypep()) {
+                    UASSERT_OBJ(ಜೀವಂತ_Nodes_2.ಎಣಿಕೆ_2(refp->refDTypep()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
                                              << "' has a dangling refDTypep");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->refDTypep(), liveNodes);
+                    Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp
+                        = ಕಂಡುಹಿಡಿ_Owner_Module_If_ಜೀವಂತ(refp->refDTypep(), ಜೀವಂತ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '" << refp->prettyNameQ() << "' in live module '"
                                              << modp->prettyNameQ()
@@ -492,28 +492,28 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
             });
         }
     }
-    if (v3Global.rootp()->typeTablep()) {
-        for (AstNode* nodep = v3Global.rootp()->typeTablep()->typesp(); nodep;
+    ಆದರೆ (v3Global.rootp()->typeTablep()) {
+        ಗಾಗಿ (Ast_ಗಂಟು* nodep = v3Global.rootp()->typeTablep()->typesp(); nodep;
              nodep = nodep->nextp()) {
             nodep->foreach([&](AstRefDType* refp) {
-                if (refp->typedefp()) {
-                    UASSERT_OBJ(liveNodes.count(refp->typedefp()), refp,
+                ಆದರೆ (refp->typedefp()) {
+                    UASSERT_OBJ(ಜೀವಂತ_Nodes_2.ಎಣಿಕೆ_2(refp->typedefp()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ()
                                              << "' in type table has a dangling typedefp");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->typedefp(), liveNodes);
+                    Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp
+                        = ಕಂಡುಹಿಡಿ_Owner_Module_If_ಜೀವಂತ(refp->typedefp(), ಜೀವಂತ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '"
                                     << refp->prettyNameQ()
                                     << "' in type table has typedefp pointing to dead module '"
                                     << ownerModp->prettyNameQ() << "'");
                 }
-                if (refp->refDTypep()) {
-                    UASSERT_OBJ(liveNodes.count(refp->refDTypep()), refp,
+                ಆದರೆ (refp->refDTypep()) {
+                    UASSERT_OBJ(ಜೀವಂತ_Nodes_2.ಎಣಿಕೆ_2(refp->refDTypep()), refp,
                                 "REFDTYPE '" << refp->prettyNameQ()
                                              << "' in type table has a dangling refDTypep");
-                    AstNodeModule* const ownerModp
-                        = findOwnerModuleIfLive(refp->refDTypep(), liveNodes);
+                    Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ ownerModp
+                        = ಕಂಡುಹಿಡಿ_Owner_Module_If_ಜೀವಂತ(refp->refDTypep(), ಜೀವಂತ_Nodes_2);
                     UASSERT_OBJ(!ownerModp || !ownerModp->dead(), refp,
                                 "REFDTYPE '"
                                     << refp->prettyNameQ()
@@ -525,26 +525,26 @@ void V3LinkDotIfaceCapture::verifyNoDeadRefs(const LiveNodes& liveNodes) {
     }
 }
 
-void V3LinkDotIfaceCapture::finalizeIfaceCapture() {
-    if (!s_enabled) return;
+ಶೂನ್ಯ V3LinkDotIfaceCapture::finalizeIfaceCapture() {
+    ಆದರೆ (!s_enabled) ಹಿಂತಿರುಗಿ;
     UINFO(4, "finalizeIfaceCapture: fixing remaining cross-interface refs");
-    if (!v3Global.rootp()) return;
+    ಆದರೆ (!v3Global.rootp()) ಹಿಂತಿರುಗಿ;
     clearModuleCache();  // Ensure fresh view after all cloning/widthing
 
     // Resolve live captured refs from stable path metadata before inspecting
     // any inherited target pointers, which may refer to replaced template nodes.
-    const int capturedFixed = resolveCapturedRefs();
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ capturedFixed = resolveCapturedRefs();
     UINFO(4, "finalizeIfaceCapture: structurally resolved " << capturedFixed << " captured refs");
 
-    if (debug() >= 9) dumpEntries("after finalizeIfaceCapture");
+    ಆದರೆ (debug() >= 9) dumpEntries("after finalizeIfaceCapture");
 
     // Emit statistics for --stats
-    V3Stats::addStat("IfaceCapture, Captured refs", s_tags.size());
-    V3Stats::addStat("IfaceCapture, Captured refs resolved", capturedFixed);
+    V3Stats::ಕೂಡಿಸು_Stat("IfaceCapture, Captured refs", s_ಟ್ಯಾಗುಗಳು.ಗಾತ್ರ_2());
+    V3Stats::ಕೂಡಿಸು_Stat("IfaceCapture, Captured refs resolved", capturedFixed);
 
     // No reference may be left pointing into a module about to be removed
-    if (v3Global.opt.debugCheck()) verifyNoDeadRefs(collectLiveNodes());
+    ಆದರೆ (v3Global.opt.debugCheck()) verifyNoDeadRefs(collect_ಜೀವಂತ_Nodes());
     // Drop every tag before its record is freed.
-    v3Global.rootp()->foreach([](AstRefDType* refp) { refp->captureTagp(nullptr); });
+    v3Global.rootp()->foreach([](AstRefDType* refp) { refp->captureTagp(ಶೂನ್ಯಸೂಚಕ); });
     reset();
 }

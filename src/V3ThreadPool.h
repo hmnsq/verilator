@@ -14,43 +14,43 @@
 //
 //*************************************************************************
 
-#ifndef _V3THREADPOOL_H_
-#define _V3THREADPOOL_H_ 1
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _V3THREADPOOL_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು _V3THREADPOOL_H_ 1
 
-#ifdef VL_MT_DISABLED_CODE_UNIT
-#error "Source file has been declared as MT_DISABLED, threads use is prohibited."
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_MT_DISABLED_ಸಂಕೇತ_UNIT
+#ದೋಷ "Source file has been declared as MT_DISABLED, threads use is prohibited."
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "V3Mutex.h"
+#ಅನ್ತರ್ಭಾವ "V3Mutex.h"
 
-#include <atomic>
-#include <condition_variable>
-#include <functional>
-#include <queue>
-#include <thread>
+#ಅನ್ತರ್ಭಾವ <atomic>
+#ಅನ್ತರ್ಭಾವ <condition_variable>
+#ಅನ್ತರ್ಭಾವ <functional>
+#ಅನ್ತರ್ಭಾವ <queue>
+#ಅನ್ತರ್ಭಾವ <thread>
 
 //============================================================================
 
 class V3ThreadPool final {
     // MEMBERS
-    std::vector<std::thread> m_workers;  // Worker threads
-    std::queue<std::function<void()>> m_queue VL_GUARDED_BY(m_mutex);  // Job queue
+    std::ಸದಿಶ<std::thread> m_workers;  // Worker threads
+    std::ಸರತಿ<std::function<ಶೂನ್ಯ()>> m_ಸರತಿ VL_GUARDED_BY(m_mutex);  // Job queue
     std::condition_variable_any m_cv;  // Conditions to wake up workers
     std::atomic<bool> m_shutdown{false};  // Termination pending
-    std::atomic<size_t> m_pendingJobs{0};  // Number of started and not yet finished jobs
+    std::atomic<ಗಾತ್ರ_t> m_pendingJobs{0};  // Number of started and not yet finished jobs
     V3Mutex m_mutex;  // Mutex for use by m_queue
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit V3ThreadPool(int numThreads);
+    explicit V3ThreadPool(ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ಎಳೆಗಳು);
     ~V3ThreadPool() VL_EXCLUDES(m_mutex);
     VL_UNCOPYABLE(V3ThreadPool);
     VL_UNMOVABLE(V3ThreadPool);
 
-    static void selfTest();
-    static void selfTestMtDisabled() VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTest();
+    ಸ್ಥಿರ ಶೂನ್ಯ selfTestMtDisabled() VL_MT_DISABLED;
 
-private:
+ಖಾಸಗಿ:
     // METHODS
     // Enqueue a job for asynchronous execution
     // Due to missing support for lambda annotations in c++11,
@@ -59,20 +59,20 @@ private:
     // will call it. `VL_MT_START` here indicates that
     // every function call inside this `std::function` requires
     // annotations.
-    void enqueue(std::function<void()>&& f) VL_MT_START VL_EXCLUDES(m_mutex);
+    ಶೂನ್ಯ ಸರತಿಗೆ_ಸೇರಿಸು(std::function<ಶೂನ್ಯ()>&& f) VL_MT_ಆರಂಭ VL_EXCLUDES(m_mutex);
 
     // Wait for all enqueued jobs to finish
-    void wait() VL_MT_SAFE;
+    ಶೂನ್ಯ wait() VL_MT_ಸುರಕ್ಷಿತ;
 
     // Job execution loop
     // Each worker wait for available job and executes it when it is available.
-    void workerJobLoop() VL_MT_SAFE VL_EXCLUDES(m_mutex);
+    ಶೂನ್ಯ ಕೆಲಸಗಾರ_ಕೆಲಸ_Loop() VL_MT_ಸುರಕ್ಷಿತ VL_EXCLUDES(m_mutex);
 
     // Start worker thread
-    static void startWorker(V3ThreadPool* selfThreadp) VL_MT_SAFE VL_EXCLUDES(m_mutex);
+    ಸ್ಥಿರ ಶೂನ್ಯ ಆರಂಭ_ಕೆಲಸಗಾರ(V3ThreadPool* selfThreadp) VL_MT_ಸುರಕ್ಷಿತ VL_EXCLUDES(m_mutex);
 
     // For access to enqueue() and wait()
-    friend class V3ThreadScope;
+    ಮಿತ್ರ class V3ThreadScope;
 };
 
 // The actual interface for submitting jobs and ensuring their completion.
@@ -81,18 +81,18 @@ class V3ThreadScope final {
     // MEMBERS
     V3ThreadPool* m_pool = nullptr;  // Global thread pool instance
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    V3ThreadScope() VL_MT_SAFE VL_ACQUIRE(VlOs::MtScopeMutex::s_haveThreadScope);
-    ~V3ThreadScope() VL_MT_SAFE VL_RELEASE(VlOs::MtScopeMutex::s_haveThreadScope) { wait(); }
+    V3ThreadScope() VL_MT_ಸುರಕ್ಷಿತ VL_ACQUIRE(VlOs::MtScopeMutex::s_haveThreadScope);
+    ~V3ThreadScope() VL_MT_ಸುರಕ್ಷಿತ VL_RELEASE(VlOs::MtScopeMutex::s_haveThreadScope) { wait(); }
     VL_UNCOPYABLE(V3ThreadScope);
     VL_UNMOVABLE(V3ThreadScope);
 
     // METHODS
     // Submit job to the thread pool instance
-    void enqueue(std::function<void()>&& f) VL_MT_START;
+    ಶೂನ್ಯ ಸರತಿಗೆ_ಸೇರಿಸು(std::function<ಶೂನ್ಯ()>&& f) VL_MT_ಆರಂಭ;
     // Wait for thread pool's jobs completion
-    void wait() VL_MT_SAFE VL_REQUIRES(VlOs::MtScopeMutex::s_haveThreadScope);
+    ಶೂನ್ಯ wait() VL_MT_ಸುರಕ್ಷಿತ VL_REQUIRES(VlOs::MtScopeMutex::s_haveThreadScope);
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

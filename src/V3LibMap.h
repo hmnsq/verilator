@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIBMAP_H_
-#define VERILATOR_V3LIBMAP_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3LIBMAP_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3LIBMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 class AstNetlist;
 class VInFilter;
@@ -30,38 +30,38 @@ class V3ParseSym;
 
 // State to pass between config parsing and cell linking visitors.
 class LibMapping final {
-    const string m_pattern;  // Pattern to match
-    const string m_libname;  // Library name
-    const string m_base;  // Relative path of the libmap file
+    ಸ್ಥಿರಾಂಕ string m_ನಮೂನೆ;  // Pattern to match
+    ಸ್ಥಿರಾಂಕ string m_libname;  // Library name
+    ಸ್ಥಿರಾಂಕ string m_ತಳ;  // Relative path of the libmap file
 
-public:
-    LibMapping(const string& pattern_, const string& libname_, const string& base_)
-        : m_pattern{pattern_}
+ಸಾರ್ವಜನಿಕ:
+    LibMapping(ಸ್ಥಿರಾಂಕ string& ನಮೂನೆ_3, ಸ್ಥಿರಾಂಕ string& libname_, ಸ್ಥಿರಾಂಕ string& ತಳ_2)
+        : m_ನಮೂನೆ{ನಮೂನೆ_3}
         , m_libname{libname_}
-        , m_base{base_} {}
-    string pattern() const { return m_pattern; }
-    string libname() const { return m_libname; }
-    string base() const { return m_base; }
+        , m_ತಳ{ತಳ_2} {}
+    string ನಮೂನೆ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ನಮೂನೆ; }
+    string libname() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_libname; }
+    string ತಳ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ತಳ; }
 };
 
 class V3LibMap final {
-private:
+ಖಾಸಗಿ:
     // STATE
     // 33.3.1.1 File path resolution
     //   If a file name potentially matches multiple file path specifications, the path
     //   specifications shall be resolved in the following order: a) File path specifications that
     //   end with an explicit file name b) File path specifications that end with a wildcarded file
     //   name c) File path specifications that end with a directory name
-    std::vector<LibMapping> m_explicitMappings;
-    std::vector<LibMapping> m_wildcardMappings;
-    std::vector<LibMapping> m_directoryMappings;
+    std::ಸದಿಶ<LibMapping> m_explicitMappings;
+    std::ಸದಿಶ<LibMapping> m_wildcardMappings;
+    std::ಸದಿಶ<LibMapping> m_directoryMappings;
 
     // METHODS
-public:
-    string matchMapping(const string& filename);
-    void addPattern(const string& pattern, const string& libname, const string& base);
+ಸಾರ್ವಜನಿಕ:
+    string ಹೊಂದಿಕೆ_Mapping(ಸ್ಥಿರಾಂಕ string& filename);
+    ಶೂನ್ಯ ಕೂಡಿಸು_ನಮೂನೆ(ಸ್ಥಿರಾಂಕ string& ನಮೂನೆ_2, ಸ್ಥಿರಾಂಕ string& libname, ಸ್ಥಿರಾಂಕ string& ತಳ);
 
-    static void map(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ map(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

@@ -24,194 +24,194 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstUserAllocator.h"
-#include "V3ClassGraph.h"
-#include "V3EmitCBase.h"
-#include "V3Sched.h"
+#ಅನ್ತರ್ಭಾವ "V3AstUserAllocator.h"
+#ಅನ್ತರ್ಭಾವ "V3ClassGraph.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitCBase.h"
+#ಅನ್ತರ್ಭಾವ "V3Sched.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+ನಾಮಾಕಾಶ V3Sched {
 
 //============================================================================
 // Trigger indices of the external domains of each variable
 
-std::map<const AstVarScope*, std::vector<uint32_t>>
-TimingKit::externalTriggerIndices(const TriggerKit& trigKit) const {
-    std::map<const AstVarScope*, std::vector<uint32_t>> result;
-    for (const auto& vscpDomains : m_externalDomains) {
-        std::vector<uint32_t>& indices = result[vscpDomains.first];
-        for (const AstSenTree* const domainp : vscpDomains.second) {
-            for (const AstSenItem* itemp = domainp->sensesp(); itemp;
-                 itemp = VN_AS(itemp->nextp(), SenItem)) {
-                indices.push_back(trigKit.senItem2TrigIdx(itemp));
+std::map<ಸ್ಥಿರಾಂಕ AstVarScope*, std::ಸದಿಶ<uint32_t>>
+TimingKit::externalTriggerIndices(ಸ್ಥಿರಾಂಕ TriggerKit& trigKit) ಸ್ಥಿರಾಂಕ {
+    std::map<ಸ್ಥಿರಾಂಕ AstVarScope*, std::ಸದಿಶ<uint32_t>> ಫಲಿತಾಂಶ;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& vscpDomains : m_externalDomains) {
+        std::ಸದಿಶ<uint32_t>& indices = ಫಲಿತಾಂಶ[vscpDomains.ಮೊದಲ];
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Ast_Sen_ವೃಕ್ಷ* ಸ್ಥಿರಾಂಕ domainp : vscpDomains.ಎರಡನೇ) {
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Ast_Sen_ಅಂಶ* itemp = domainp->sensesp(); itemp;
+                 itemp = VN_AS(itemp->nextp(), Sen_ಅಂಶ)) {
+                indices.ತಳ್ಳು_ಹಿಂಭಾಗ(trigKit.senItem2TrigIdx(itemp));
             }
         }
     }
-    return result;
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 //============================================================================
 // Creates a timing resume call (if needed, else returns null)
 
 AstCCall* TimingKit::createResume(AstVarScope* trigVscp) {
-    if (!m_resumeFuncp) {
-        if (m_lbs.empty()) return nullptr;
+    ಆದರೆ (!m_resumeFuncp) {
+        ಆದರೆ (m_lbs.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         // Create global resume function
-        AstNetlist* const netlistp = v3Global.rootp();
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        m_resumeFuncp = new AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
-        m_resumeFuncp->dontCombine(true);
-        m_resumeFuncp->isLoose(true);
-        m_resumeFuncp->isConst(false);
-        m_resumeFuncp->declPrivate(true);
-        scopeTopp->addBlocksp(m_resumeFuncp);
+        AstNetlist* ಸ್ಥಿರಾಂಕ netlistp = v3Global.rootp();
+        AstScope* ಸ್ಥಿರಾಂಕ scopeTopp = netlistp->ತುದಿ_Scopep()->scopep();
+        m_resumeFuncp = ಹೊಸ AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
+        m_resumeFuncp->dontCombine(ನಿಜ);
+        m_resumeFuncp->isLoose(ನಿಜ);
+        m_resumeFuncp->isConst(ಸುಳ್ಳು);
+        m_resumeFuncp->decl_ಖಾಸಗಿ(ನಿಜ);
+        scopeTopp->ಕೂಡಿಸು_Blocksp(m_resumeFuncp);
 
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            activep->foreach([this](AstCMethodHard* const exprp) {
-                if (exprp->method() != VCMethod::SCHED_RESUME) return;
-                AstNodeExpr* const fromp = exprp->fromp();
-                if (VN_AS(fromp->dtypep(), BasicDType)->keyword()
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ನಮೂದು : m_lbs) {
+            Ast_ಸಕ್ರಿಯ* ಸ್ಥಿರಾಂಕ activep = ನಮೂದು.m_activep;
+            activep->foreach([ಇದು](AstCMethodHard* ಸ್ಥಿರಾಂಕ exprp) {
+                ಆದರೆ (exprp->ವಿಧಾನ() != VCMethod::SCHED_RESUME) ಹಿಂತಿರುಗಿ;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ fromp = exprp->fromp();
+                ಆದರೆ (VN_AS(fromp->dtypep(), BasicDType)->keyword()
                     != VBasicDTypeKwd::TRIGGER_SCHEDULER) {
-                    return;
+                    ಹಿಂತಿರುಗಿ;
                 }
-                AstCMethodHard* const moveToResumep = new AstCMethodHard{
-                    fromp->fileline(), fromp->cloneTree(false),
-                    VCMethod::SCHED_MOVE_TO_RESUME_QUEUE,
-                    exprp->pinsp() ? exprp->pinsp()->cloneTree(true) : nullptr};
-                moveToResumep->dtypeSetVoid();
-                m_resumeFuncp->addStmtsp(moveToResumep->makeStmt());
+                AstCMethodHard* ಸ್ಥಿರಾಂಕ move_ಗಮ್ಯ_Resumep = ಹೊಸ AstCMethodHard{
+                    fromp->fileline(), fromp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು),
+                    VCMethod::SCHED_MOVE_ಗಮ್ಯ_RESUME_ಸರತಿ,
+                    exprp->pinsp() ? exprp->pinsp()->clone_ವೃಕ್ಷ(ನಿಜ) : ಶೂನ್ಯಸೂಚಕ};
+                move_ಗಮ್ಯ_Resumep->dtype_ಗಣ_Void();
+                m_resumeFuncp->ಕೂಡಿಸು_Stmtsp(move_ಗಮ್ಯ_Resumep->makeStmt());
             });
         }
 
         // Put all the timing actives in the resume function
-        AstIf* dlyShedIfp = nullptr;
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
+        AstIf* dlyShedIfp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ನಮೂದು : m_lbs) {
+            Ast_ಸಕ್ರಿಯ* ಸ್ಥಿರಾಂಕ activep = ನಮೂದು.m_activep;
             // Resume time delays last. For no particular reason other than
             // that's what we used to do prior to proper #0 support.
-            AstVarRef* const schedrefp = VN_AS(
-                VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
+            AstVarRef* ಸ್ಥಿರಾಂಕ schedrefp = VN_AS(
+                VN_AS(VN_AS(activep->stmtsp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)->exprp(), CMethodHard)->fromp(), VarRef);
 
-            AstNode* const actionp = activep->stmtsp()->unlinkFrBackWithNext();
-            if (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
-                FileLine* const flp = trigVscp->fileline();
-                const std::set<uint32_t>& triggers = entry.m_triggers;
-                AstTriggered* const condp
-                    = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-                dlyShedIfp = new AstIf{flp, condp};
-                dlyShedIfp->addThensp(actionp);
-            } else {
-                m_resumeFuncp->addStmtsp(actionp);
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ actionp = activep->stmtsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+            ಆದರೆ (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = trigVscp->fileline();
+                ಸ್ಥಿರಾಂಕ std::ಗಣ<uint32_t>& triggers = ನಮೂದು.m_triggers;
+                AstTriggered* ಸ್ಥಿರಾಂಕ condp
+                    = ಹೊಸ AstTriggered{flp, trigVscp, {triggers.begin(), triggers.ಕೊನೆ()}};
+                dlyShedIfp = ಹೊಸ AstIf{flp, condp};
+                dlyShedIfp->ಕೂಡಿಸು_Thensp(actionp);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                m_resumeFuncp->ಕೂಡಿಸು_Stmtsp(actionp);
             }
         }
-        if (dlyShedIfp) m_resumeFuncp->addStmtsp(dlyShedIfp);
+        ಆದರೆ (dlyShedIfp) m_resumeFuncp->ಕೂಡಿಸು_Stmtsp(dlyShedIfp);
 
         // These are now spent, oispose of now empty AstActive instances
         m_lbs.deleteActives();
     }
-    AstCCall* const callp = new AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
-    callp->dtypeSetVoid();
-    return callp;
+    AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
+    callp->dtype_ಗಣ_Void();
+    ಹಿಂತಿರುಗಿ callp;
 }
 
-AstVarScope* TimingKit::getDelayScheduler(AstNetlist* const /*netlistp*/) {
-    for (const auto& entry : m_lbs) {
-        AstActive* const ap = entry.m_activep;
+AstVarScope* TimingKit::getDelayScheduler(AstNetlist* ಸ್ಥಿರಾಂಕ /*netlistp*/) {
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ನಮೂದು : m_lbs) {
+        Ast_ಸಕ್ರಿಯ* ಸ್ಥಿರಾಂಕ ap = ನಮೂದು.m_activep;
         // TODO: this triple VN_AS expression is ridiculous
-        AstVarRef* const schedrefp
-            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
-        AstVarScope* const vscp = schedrefp->varScopep();
-        if (vscp->dtypep()->basicp()->isDelayScheduler()) return vscp;
+        AstVarRef* ಸ್ಥಿರಾಂಕ schedrefp
+            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)->exprp(), CMethodHard)->fromp(), VarRef);
+        AstVarScope* ಸ್ಥಿರಾಂಕ vscp = schedrefp->varScopep();
+        ಆದರೆ (vscp->dtypep()->basicp()->isDelayScheduler()) ಹಿಂತಿರುಗಿ vscp;
     }
     // None found. Design doesn't use any time delays
-    return nullptr;
+    ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
 }
 
 //============================================================================
 // Creates a timing ready call (if needed, else returns null)
 
 AstCCall* TimingKit::createReady(AstVarScope* trigVscp) {
-    if (!m_readyFuncp) {
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            auto* const resumep = VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard);
+    ಆದರೆ (!m_readyFuncp) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ನಮೂದು : m_lbs) {
+            Ast_ಸಕ್ರಿಯ* ಸ್ಥಿರಾಂಕ activep = ನಮೂದು.m_activep;
+            ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ resumep = VN_AS(VN_AS(activep->stmtsp(), Stmt_ಅಭಿವ್ಯಕ್ತಿ)->exprp(), CMethodHard);
             UASSERT_OBJ(!resumep->nextp(), resumep, "Should be the only statement here");
-            AstVarScope* const schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
+            AstVarScope* ಸ್ಥಿರಾಂಕ schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
             UASSERT_OBJ(schedulerp->dtypep()->basicp()->isDelayScheduler()
                             || schedulerp->dtypep()->basicp()->isTriggerScheduler()
                             || schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler(),
                         schedulerp, "Unexpected type");
-            if (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) continue;
+            ಆದರೆ (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) ಮುಂದುವರಿ;
             // Create the global ready function only if we have trigger schedulers
-            if (!m_readyFuncp) {
-                AstNetlist* const netlistp = v3Global.rootp();
-                AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-                m_readyFuncp = new AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
-                m_readyFuncp->dontCombine(true);
-                m_readyFuncp->isLoose(true);
-                m_readyFuncp->isConst(false);
-                m_readyFuncp->declPrivate(true);
-                scopeTopp->addBlocksp(m_readyFuncp);
+            ಆದರೆ (!m_readyFuncp) {
+                AstNetlist* ಸ್ಥಿರಾಂಕ netlistp = v3Global.rootp();
+                AstScope* ಸ್ಥಿರಾಂಕ scopeTopp = netlistp->ತುದಿ_Scopep()->scopep();
+                m_readyFuncp = ಹೊಸ AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
+                m_readyFuncp->dontCombine(ನಿಜ);
+                m_readyFuncp->isLoose(ನಿಜ);
+                m_readyFuncp->isConst(ಸುಳ್ಳು);
+                m_readyFuncp->decl_ಖಾಸಗಿ(ನಿಜ);
+                scopeTopp->ಕೂಡಿಸು_Blocksp(m_readyFuncp);
             }
 
-            FileLine* const flp = activep->sentreep()->fileline();
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = activep->sentreep()->fileline();
 
             // Create an 'AstIf' sensitive to the suspending triggers
-            const std::set<uint32_t>& triggers = entry.m_triggers;
-            AstTriggered* const condp
-                = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-            AstIf* const ifp = new AstIf{flp, condp};
-            m_readyFuncp->addStmtsp(ifp);
+            ಸ್ಥಿರಾಂಕ std::ಗಣ<uint32_t>& triggers = ನಮೂದು.m_triggers;
+            AstTriggered* ಸ್ಥಿರಾಂಕ condp
+                = ಹೊಸ AstTriggered{flp, trigVscp, {triggers.begin(), triggers.ಕೊನೆ()}};
+            AstIf* ಸ್ಥಿರಾಂಕ ifp = ಹೊಸ AstIf{flp, condp};
+            m_readyFuncp->ಕೂಡಿಸು_Stmtsp(ifp);
 
             // Mark as ready the processes resumed on this sensitivity expression
-            AstVarRef* const refp = new AstVarRef{flp, schedulerp, VAccess::READWRITE};
-            AstCMethodHard* const callp = new AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
-            callp->dtypeSetVoid();
-            if (resumep->pinsp()) callp->addPinsp(resumep->pinsp()->cloneTree(false));
-            ifp->addThensp(callp->makeStmt());
+            AstVarRef* ಸ್ಥಿರಾಂಕ refp = ಹೊಸ AstVarRef{flp, schedulerp, VAccess::READWRITE};
+            AstCMethodHard* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
+            callp->dtype_ಗಣ_Void();
+            ಆದರೆ (resumep->pinsp()) callp->ಕೂಡಿಸು_Pinsp(resumep->pinsp()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+            ifp->ಕೂಡಿಸು_Thensp(callp->makeStmt());
         }
         // We still haven't created a ready function (no trigger schedulers), return null
-        if (!m_readyFuncp) return nullptr;
+        ಆದರೆ (!m_readyFuncp) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
-    AstCCall* const callp = new AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
-    callp->dtypeSetVoid();
-    return callp;
+    AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
+    callp->dtype_ಗಣ_Void();
+    ಹಿಂತಿರುಗಿ callp;
 }
 
 //============================================================================
 // Creates the timing kit and marks variables written by suspendables
 
-class AwaitVisitor final : public VNVisitor {
+ವರ್ಗ AwaitVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     //  AstSenTree::user1()  -> bool.               Set true if the sentree has been visited.
     //  AstCFunc::user1()    -> AstUser1Allocator.  See alocator below
-    const VNUser1InUse m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
 
     // STATE
-    bool m_inProcess = false;  // Are we in a process?
-    bool m_gatherVars = false;  // Should we gather vars in m_writtenBySuspendable?
-    AstScope* const m_scopeTopp;  // Scope at the top
+    ತಾರ್ಕಿಕ m_ಒಳ_Process = ಸುಳ್ಳು;  // Are we in a process?
+    ತಾರ್ಕಿಕ m_gatherVars = ಸುಳ್ಳು;  // Should we gather vars in m_writtenBySuspendable?
+    AstScope* ಸ್ಥಿರಾಂಕ m_scopeTopp;  // Scope at the top
     LogicByScope& m_lbs;  // Timing resume actives
-    AstNodeStmt*& m_postUpdatesr;  // Post updates for the trigger eval function
+    Ast_ಗಂಟು_Stmt*& m_postUpdatesr;  // Post updates for the trigger eval function
     // Additional var sensitivities
-    std::map<const AstVarScope*, std::set<AstSenTree*>>& m_externalDomains;
-    std::unique_ptr<V3ClassGraph>
+    std::map<ಸ್ಥಿರಾಂಕ AstVarScope*, std::ಗಣ<Ast_Sen_ವೃಕ್ಷ*>>& m_externalDomains;
+    std::unique_ptr<V3_Class_ನಕ್ಷೆ>
         m_classGraphp;  // class graph to get possibly called functions from a virtual call
-    std::set<AstSenTree*> m_processDomains;  // Sentrees from the current process
+    std::ಗಣ<Ast_Sen_ವೃಕ್ಷ*> m_processDomains;  // Sentrees from the current process
     // Variables written by suspendable processes
-    std::set<AstVarScope*> m_writtenBySuspendable;
-    struct CFuncCache final {
-        std::set<AstSenTree*> m_processDomains;  // What shall be added to m_processDomains
-        std::set<AstVarScope*>
+    std::ಗಣ<AstVarScope*> m_writtenBySuspendable;
+    ರಚನೆ CFuncCache final {
+        std::ಗಣ<Ast_Sen_ವೃಕ್ಷ*> m_processDomains;  // What shall be added to m_processDomains
+        std::ಗಣ<AstVarScope*>
             m_writtenBySuspendable;  // What shall be added to m_writtenBySuspendable
-        std::set<AstCFunc*> m_includes;  // CFuncs whose CFuncCache shall be included into this
+        std::ಗಣ<AstCFunc*> m_includes;  // CFuncs whose CFuncCache shall be included into this
         // m_includes does not need to keep bool with m_gatherVars to know which cache shall be
         // used since:
         //  Only possible transition in a graph is from `!m_gatherVars` to `m_gatherVars`
@@ -221,273 +221,273 @@ class AwaitVisitor final : public VNVisitor {
         //  won't be in visiting state
         //  therefore, every node in a m_includes shall take value of m_gatherVars under which
         //  current CFuncCache is
-        enum State : uint8_t {
+        ಎಣಿಕೆ State : uint8_t {
             UNINITIALIZED = 0,  // Not initialized members are empty
             VISITING,  // Visiting - needed for breaking recursion
             INITIALIZED,  // Members contains correct values
         } m_state  // Current state of Cache
             = UNINITIALIZED;
     };
-    std::vector<const AstCFunc*> m_callStack;  // Current callstack of AstCFuncs
+    std::ಸದಿಶ<ಸ್ಥಿರಾಂಕ AstCFunc*> m_call_ರಾಶಿ;  // Current callstack of AstCFuncs
     // Caches how visiting the function with given value of m_gatherVars changes
     // m_processDomains and m_writtenBySuspendable - only accessed from visit(AstCFunc* nodep)
     AstUser1Allocator<AstCFunc, std::array<CFuncCache, 2>> m_cfuncsCache;
     // Count uses of not inlined writes to signals in suspendables
-    VDouble0 m_notInlinedWritesInSuspendableUsage;
+    VDouble0 m_not_Inlined_Writes_ಒಳ_Suspendable_Usage;
 
     // METHODS
     // Add arguments to a resume() call based on arguments in the suspending call
-    void addResumePins(AstCMethodHard* const resumep, AstNodeExpr* pinsp) {
-        AstCExpr* const exprp = VN_CAST(pinsp, CExpr);
-        AstText* const textp = VN_CAST(exprp->nodesp(), Text);
-        if (textp) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_Resume_Pins(AstCMethodHard* ಸ್ಥಿರಾಂಕ resumep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* pinsp) {
+        AstCExpr* ಸ್ಥಿರಾಂಕ exprp = VN_CAST(pinsp, CExpr);
+        Ast_ಪಠ್ಯ* ಸ್ಥಿರಾಂಕ textp = VN_CAST(exprp->nodesp(), ಪಠ್ಯ_2);
+        ಆದರೆ (textp) {
             // The first argument, vlProcess, isn't used by any of resume() methods, skip it
-            if ((pinsp = VN_CAST(pinsp->nextp(), NodeExpr))) {
-                resumep->addPinsp(pinsp->cloneTree(false));
+            ಆದರೆ ((pinsp = VN_CAST(pinsp->nextp(), ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ))) {
+                resumep->ಕೂಡಿಸು_Pinsp(pinsp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
             }
-        } else {
-            resumep->addPinsp(pinsp->cloneTree(false));
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            resumep->ಕೂಡಿಸು_Pinsp(pinsp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
         }
     }
-    void addCFuncCachedValues(const AstCFunc* const cfuncp,
-                              std::unordered_set<const AstCFunc*>& visited) {
-        if (!visited.insert(cfuncp).second) return;
-        CFuncCache& value = m_cfuncsCache(cfuncp)[static_cast<size_t>(m_gatherVars)];
-        const size_t initialSize = m_writtenBySuspendable.size();
-        m_writtenBySuspendable.insert(value.m_writtenBySuspendable.begin(),
-                                      value.m_writtenBySuspendable.end());
-        m_notInlinedWritesInSuspendableUsage += m_writtenBySuspendable.size() - initialSize;
-        m_processDomains.insert(value.m_processDomains.begin(), value.m_processDomains.end());
-        for (const AstCFunc* const includedp : value.m_includes) {
-            addCFuncCachedValues(includedp, visited);
+    ಶೂನ್ಯ ಕೂಡಿಸು_CFunc_Cached_ಮೌಲ್ಯಗಳು(ಸ್ಥಿರಾಂಕ AstCFunc* ಸ್ಥಿರಾಂಕ cfuncp,
+                              std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ AstCFunc*>& ಭೇಟಿಯಾದ) {
+        ಆದರೆ (!ಭೇಟಿಯಾದ.ಸೇರಿಸು(cfuncp).ಎರಡನೇ) ಹಿಂತಿರುಗಿ;
+        CFuncCache& ಮೌಲ್ಯ = m_cfuncsCache(cfuncp)[static_cast<ಗಾತ್ರ_t>(m_gatherVars)];
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t initial_ಗಾತ್ರ = m_writtenBySuspendable.ಗಾತ್ರ_2();
+        m_writtenBySuspendable.ಸೇರಿಸು(ಮೌಲ್ಯ.m_writtenBySuspendable.begin(),
+                                      ಮೌಲ್ಯ.m_writtenBySuspendable.ಕೊನೆ());
+        m_not_Inlined_Writes_ಒಳ_Suspendable_Usage += m_writtenBySuspendable.ಗಾತ್ರ_2() - initial_ಗಾತ್ರ;
+        m_processDomains.ಸೇರಿಸು(ಮೌಲ್ಯ.m_processDomains.begin(), ಮೌಲ್ಯ.m_processDomains.ಕೊನೆ());
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstCFunc* ಸ್ಥಿರಾಂಕ includedp : ಮೌಲ್ಯ.m_includes) {
+            ಕೂಡಿಸು_CFunc_Cached_ಮೌಲ್ಯಗಳು(includedp, ಭೇಟಿಯಾದ);
         }
     }
     // Create an active with a timing scheduler resume() call
-    void createResumeActive(AstCAwait* const awaitp) {
-        auto* const methodp = VN_AS(awaitp->exprp(), CMethodHard);
-        AstVarScope* const schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
-        AstSenTree* const sentreep = awaitp->sentreep();
-        FileLine* const flp = sentreep->fileline();
+    ಶೂನ್ಯ create_Resume_ಸಕ್ರಿಯ(AstCAwait* ಸ್ಥಿರಾಂಕ awaitp) {
+        ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ methodp = VN_AS(awaitp->exprp(), CMethodHard);
+        AstVarScope* ಸ್ಥಿರಾಂಕ schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
+        Ast_Sen_ವೃಕ್ಷ* ಸ್ಥಿರಾಂಕ sentreep = awaitp->sentreep();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = sentreep->fileline();
         // Create a resume() call on the timing scheduler
-        auto* const resumep = new AstCMethodHard{
-            flp, new AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
-        resumep->dtypeSetVoid();
-        if (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
+        ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ resumep = ಹೊಸ AstCMethodHard{
+            flp, ಹೊಸ AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
+        resumep->dtype_ಗಣ_Void();
+        ಆದರೆ (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
             UASSERT_OBJ(methodp->pinsp(), methodp,
                         "Trigger method should have pins from V3Timing");
             // The first pin is the ready boolean, the rest (if any) should be debug info
             // See V3Timing for details
-            if (AstNode* const dbginfop = methodp->pinsp()->nextp()) {
-                if (methodp->pinsp()) addResumePins(resumep, static_cast<AstNodeExpr*>(dbginfop));
+            ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ dbginfop = methodp->pinsp()->nextp()) {
+                ಆದರೆ (methodp->pinsp()) ಕೂಡಿಸು_Resume_Pins(resumep, static_cast<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*>(dbginfop));
             }
-        } else if (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
-            auto* const postp = resumep->cloneTree(false);
-            postp->method(VCMethod::SCHED_DO_POST_UPDATES);
-            m_postUpdatesr = AstNode::addNext(m_postUpdatesr, postp->makeStmt());
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
+            ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ postp = resumep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
+            postp->ವಿಧಾನ(VCMethod::SCHED_DO_POST_UPDATES);
+            m_postUpdatesr = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(m_postUpdatesr, postp->makeStmt());
         }
         // Put it in an active
-        AstActive* const activep = new AstActive{flp, "_timing", sentreep};
-        activep->addStmtsp(resumep->makeStmt());
-        m_lbs.add(m_scopeTopp, activep);
+        Ast_ಸಕ್ರಿಯ* ಸ್ಥಿರಾಂಕ activep = ಹೊಸ Ast_ಸಕ್ರಿಯ{flp, "_timing", sentreep};
+        activep->ಕೂಡಿಸು_Stmtsp(resumep->makeStmt());
+        m_lbs.ಕೂಡಿಸು(m_scopeTopp, activep);
     }
     // Visit AstCFunc from a AstNodeCCall - this function is rather expensive to call therefore, it
     // only shall be called when necessary
-    void visitCalledCFunc(AstCFunc* const nodep) {
-        if (!m_inProcess) return;  // Skip if not in process - nothing would be added to any set
-        const size_t cacheKey = static_cast<size_t>(m_gatherVars);
-        CFuncCache& value = m_cfuncsCache(nodep)[cacheKey];
-        switch (value.m_state) {
-        case CFuncCache::UNINITIALIZED: {
+    ಶೂನ್ಯ ಭೇಟಿ_Called_CFunc(AstCFunc* ಸ್ಥಿರಾಂಕ nodep) {
+        ಆದರೆ (!m_ಒಳ_Process) ಹಿಂತಿರುಗಿ;  // Skip if not in process - nothing would be added to any set
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t cache_ಕೀಲಿ = static_cast<ಗಾತ್ರ_t>(m_gatherVars);
+        CFuncCache& ಮೌಲ್ಯ = m_cfuncsCache(nodep)[cache_ಕೀಲಿ];
+        ಆಯ್ಕೆ (ಮೌಲ್ಯ.m_state) {
+        ಸ್ಥಿತಿ CFuncCache::UNINITIALIZED: {
             // Save current state
             VL_RESTORER_CLEAR(m_processDomains);
             VL_RESTORER_CLEAR(m_writtenBySuspendable);
 
             // Visit
-            value.m_state = CFuncCache::VISITING;
-            m_callStack.push_back(nodep);
+            ಮೌಲ್ಯ.m_state = CFuncCache::VISITING;
+            m_call_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
             iterateChildren(nodep);
-            m_callStack.pop_back();
-            value.m_state = CFuncCache::INITIALIZED;
+            m_call_ರಾಶಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
+            ಮೌಲ್ಯ.m_state = CFuncCache::INITIALIZED;
 
             // Save a cache
-            std::swap(m_processDomains, value.m_processDomains);
-            std::swap(m_writtenBySuspendable, value.m_writtenBySuspendable);
-        } break;
-        case CFuncCache::VISITING: {
-            for (size_t i = m_callStack.size() - 1; m_callStack.at(i) != nodep; --i) {
-                m_cfuncsCache(m_callStack[i])[cacheKey].m_includes.insert(nodep);
+            std::ಅದಲುಬದಲು(m_processDomains, ಮೌಲ್ಯ.m_processDomains);
+            std::ಅದಲುಬದಲು(m_writtenBySuspendable, ಮೌಲ್ಯ.m_writtenBySuspendable);
+        } ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ CFuncCache::VISITING: {
+            ಗಾಗಿ (ಗಾತ್ರ_t i = m_call_ರಾಶಿ.ಗಾತ್ರ_2() - 1; m_call_ರಾಶಿ.at(i) != nodep; --i) {
+                m_cfuncsCache(m_call_ರಾಶಿ[i])[cache_ಕೀಲಿ].m_includes.ಸೇರಿಸು(nodep);
             }
-            return;  // Break recursion
+            ಹಿಂತಿರುಗಿ;  // Break recursion
         }
-        case CFuncCache::INITIALIZED: break;
+        ಸ್ಥಿತಿ CFuncCache::INITIALIZED: ನಿಲ್ಲಿಸು;
         }
-        std::unordered_set<const AstCFunc*> visited;
-        addCFuncCachedValues(nodep, visited);
+        std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ AstCFunc*> ಭೇಟಿಯಾದ;
+        ಕೂಡಿಸು_CFunc_Cached_ಮೌಲ್ಯಗಳು(nodep, ಭೇಟಿಯಾದ);
     }
 
     // VISITORS
-    void visit(AstNodeProcedure* const nodep) override {
-        UASSERT_OBJ(!m_inProcess && !m_gatherVars && m_processDomains.empty()
-                        && m_writtenBySuspendable.empty(),
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Procedure* ಸ್ಥಿರಾಂಕ nodep) override {
+        UASSERT_OBJ(!m_ಒಳ_Process && !m_gatherVars && m_processDomains.ಖಾಲಿಗಳು()
+                        && m_writtenBySuspendable.ಖಾಲಿಗಳು(),
                     nodep, "Process in process?");
-        m_inProcess = true;
+        m_ಒಳ_Process = ನಿಜ;
         m_gatherVars = nodep->isSuspendable();  // Only gather vars in a suspendable
         iterateChildren(nodep);
-        for (AstVarScope* const vscp : m_writtenBySuspendable) {
-            m_externalDomains[vscp].insert(m_processDomains.begin(), m_processDomains.end());
-            vscp->varp()->setWrittenBySuspendable();
+        ಗಾಗಿ (AstVarScope* ಸ್ಥಿರಾಂಕ vscp : m_writtenBySuspendable) {
+            m_externalDomains[vscp].ಸೇರಿಸು(m_processDomains.begin(), m_processDomains.ಕೊನೆ());
+            vscp->varp()->ಗಣ_Written_By_Suspendable();
         }
         m_processDomains.clear();
         m_writtenBySuspendable.clear();
-        m_inProcess = false;
-        m_gatherVars = false;
+        m_ಒಳ_Process = ಸುಳ್ಳು;
+        m_gatherVars = ಸುಳ್ಳು;
     }
-    void visit(AstFork* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstFork* nodep) override {
         VL_RESTORER(m_gatherVars);
-        if (m_inProcess) m_gatherVars = true;
+        ಆದರೆ (m_ಒಳ_Process) m_gatherVars = ನಿಜ;
         // If not in a process, we don't need to gather variables or domains
         iterateChildren(nodep);
     }
-    void visit(AstCAwait* nodep) override {
-        if (AstSenTree* const sentreep = nodep->sentreep()) {
-            if (!sentreep->user1SetOnce()) createResumeActive(nodep);
-            if (m_inProcess) m_processDomains.insert(sentreep);
+    ಶೂನ್ಯ ಭೇಟಿ(AstCAwait* nodep) override {
+        ಆದರೆ (Ast_Sen_ವೃಕ್ಷ* ಸ್ಥಿರಾಂಕ sentreep = nodep->sentreep()) {
+            ಆದರೆ (!sentreep->user1_ಗಣ_Once()) create_Resume_ಸಕ್ರಿಯ(nodep);
+            ಆದರೆ (m_ಒಳ_Process) m_processDomains.ಸೇರಿಸು(sentreep);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
-            m_writtenBySuspendable.insert(nodep->varScopep());
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Var_Ref* nodep) override {
+        ಆದರೆ (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
+            m_writtenBySuspendable.ಸೇರಿಸು(nodep->varScopep());
         }
     }
-    void visit(AstNodeCCall* const nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_CCall* ಸ್ಥಿರಾಂಕ nodep) override {
         iterateChildren(nodep);
         // We need to visit bodies of non-inlined functions
-        const auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
-        if (cfuncps.empty()) {
-            visitCalledCFunc(nodep->funcp());
-        } else {
-            for (AstCFunc* const cfuncp : cfuncps) visitCalledCFunc(cfuncp);
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
+        ಆದರೆ (cfuncps.ಖಾಲಿಗಳು()) {
+            ಭೇಟಿ_Called_CFunc(nodep->funcp());
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಗಾಗಿ (AstCFunc* ಸ್ಥಿರಾಂಕ cfuncp : cfuncps) ಭೇಟಿ_Called_CFunc(cfuncp);
         }
     }
-    void visit(AstCFunc* const nodep) override {
-        const auto& value = m_cfuncsCache(nodep);
+    ಶೂನ್ಯ ಭೇಟಿ(AstCFunc* ಸ್ಥಿರಾಂಕ nodep) override {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& ಮೌಲ್ಯ = m_cfuncsCache(nodep);
         // Check whether it was already visited by visitCalledCFunc()
-        if (value[0].m_state != CFuncCache::UNINITIALIZED
-            || value[1].m_state != CFuncCache::UNINITIALIZED) {
-            return;
+        ಆದರೆ (ಮೌಲ್ಯ[0].m_state != CFuncCache::UNINITIALIZED
+            || ಮೌಲ್ಯ[1].m_state != CFuncCache::UNINITIALIZED) {
+            ಹಿಂತಿರುಗಿ;
         }
         iterateChildren(nodep);
     }
-    void visit(AstExprStmt* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* nodep) override { iterateChildren(nodep); }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, AstNodeStmt*& postUpdatesr,
-                          std::map<const AstVarScope*, std::set<AstSenTree*>>& externalDomains)
-        : m_scopeTopp{nodep->topScopep()->scopep()}
+    ಸ್ಪಷ್ಟ AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, Ast_ಗಂಟು_Stmt*& postUpdatesr,
+                          std::map<ಸ್ಥಿರಾಂಕ AstVarScope*, std::ಗಣ<Ast_Sen_ವೃಕ್ಷ*>>& externalDomains)
+        : m_scopeTopp{nodep->ತುದಿ_Scopep()->scopep()}
         , m_lbs{lbs}
         , m_postUpdatesr{postUpdatesr}
         , m_externalDomains{externalDomains}
-        , m_classGraphp{V3ClassGraph::build(nodep)} {
+        , m_classGraphp{V3_Class_ನಕ್ಷೆ::build(nodep)} {
         iterate(nodep);
     }
     ~AwaitVisitor() override {
-        V3Stats::addStat("Scheduling, count of non-inlined signal writes in suspendables",
-                         m_notInlinedWritesInSuspendableUsage);
+        V3Stats::ಕೂಡಿಸು_Stat("Scheduling, count of non-inlined signal writes in suspendables",
+                         m_not_Inlined_Writes_ಒಳ_Suspendable_Usage);
     }
 };
 
-TimingKit prepareTiming(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return {};
+TimingKit prepareTiming(AstNetlist* ಸ್ಥಿರಾಂಕ netlistp) {
+    ಆದರೆ (!v3Global.ಬಳಸುತ್ತದೆ_Timing()) ಹಿಂತಿರುಗಿ {};
     LogicByScope lbs;
-    AstNodeStmt* postUpdates = nullptr;
-    std::map<const AstVarScope*, std::set<AstSenTree*>> externalDomains;
+    Ast_ಗಂಟು_Stmt* postUpdates = ಶೂನ್ಯಸೂಚಕ;
+    std::map<ಸ್ಥಿರಾಂಕ AstVarScope*, std::ಗಣ<Ast_Sen_ವೃಕ್ಷ*>> externalDomains;
     { AwaitVisitor{netlistp, lbs, postUpdates, externalDomains}; }
-    return {std::move(lbs), postUpdates, std::move(externalDomains)};
+    ಹಿಂತಿರುಗಿ {std::move(lbs), postUpdates, std::move(externalDomains)};
 }
 
 //============================================================================
 // Visits all forks and transforms their sub-statements into separate functions.
 
 // Transform all forked processes into functions
-class TransformForksVisitor final : public VNVisitor {
+ವರ್ಗ TransformForksVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     //  AstVar::user1()  -> bool.  Set true if the variable was declared before the current fork.
-    const VNUser1InUse m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
 
     // STATE
-    bool m_inClass = false;  // Are we in a class?
-    bool m_beginHasAwaits = false;  // Does the current begin have awaits?
-    AstFork* m_forkp = nullptr;  // Current fork
-    AstCFunc* m_funcp = nullptr;  // Current function
+    ತಾರ್ಕಿಕ m_ಒಳ_Class = ಸುಳ್ಳು;  // Are we in a class?
+    ತಾರ್ಕಿಕ m_beginHasAwaits = ಸುಳ್ಳು;  // Does the current begin have awaits?
+    AstFork* m_forkp = ಶೂನ್ಯಸೂಚಕ;  // Current fork
+    AstCFunc* m_funcp = ಶೂನ್ಯಸೂಚಕ;  // Current function
 
     // METHODS
     // Remap local vars referenced by the given fork function
     // TODO: We should only pass variables to the fork that are
     // live in the fork body, but for that we need a proper data
     // flow analysis framework which we don't have at the moment
-    void remapLocals(AstCFunc* const funcp, AstCCall* const callp) {
-        const VNUser2InUse user2InUse;  // AstVarScope -> AstVarScope: var to remap to
-        funcp->foreach([&](AstNodeVarRef* refp) {
-            AstVar* const varp = refp->varp();
-            AstVarScope* const vscp = refp->varScopep();
-            AstBasicDType* const dtypep = varp->dtypep()->basicp();
+    ಶೂನ್ಯ remapLocals(AstCFunc* ಸ್ಥಿರಾಂಕ funcp, AstCCall* ಸ್ಥಿರಾಂಕ callp) {
+        ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use user2_ಒಳ_Use;  // AstVarScope -> AstVarScope: var to remap to
+        funcp->foreach([&](Ast_ಗಂಟು_Var_Ref* refp) {
+            AstVar* ಸ್ಥಿರಾಂಕ varp = refp->varp();
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
+            AstBasicDType* ಸ್ಥಿರಾಂಕ dtypep = varp->dtypep()->basicp();
             // If not a fork..join, copy. All write refs should've been handled by V3Fork
-            bool passByValue = !m_forkp->joinType().join();
-            if (vscp->forkByValue()) {
+            ತಾರ್ಕಿಕ pass_By_ಮೌಲ್ಯ = !m_forkp->joinType().join();
+            ಆದರೆ (vscp->fork_By_ಮೌಲ್ಯ()) {
                 // Set just before the fork, for its processes to get by value
-                passByValue = true;
-            } else if (!varp->isFuncLocal()) {
+                pass_By_ಮೌಲ್ಯ = ನಿಜ;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!varp->isFuncLocal()) {
                 // Not func local. Its lifetime is longer than the forked process. Skip
-                return;
-            } else if (!varp->user1()) {
+                ಹಿಂತಿರುಗಿ;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!varp->user1()) {
                 // Not declared before the fork. It cannot outlive the forked process
-                return;
-            } else if (dtypep && dtypep->isForkSync()) {
+                ಹಿಂತಿರುಗಿ;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (dtypep && dtypep->isForkSync()) {
                 // We can just pass it by value to the new function
-                passByValue = true;
+                pass_By_ಮೌಲ್ಯ = ನಿಜ;
             }
             // Remap the reference
-            if (!vscp->user2p()) {
+            ಆದರೆ (!vscp->user2p()) {
                 // Clone the var to the new function
-                AstVar* const newvarp
-                    = new AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
-                newvarp->funcLocal(true);
-                newvarp->direction(passByValue ? VDirection::INPUT : VDirection::REF);
-                funcp->addArgsp(newvarp);
-                AstVarScope* const newvscp
-                    = new AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
-                funcp->scopep()->addVarsp(newvscp);
+                AstVar* ಸ್ಥಿರಾಂಕ newvarp
+                    = ಹೊಸ AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
+                newvarp->funcLocal(ನಿಜ);
+                newvarp->direction(pass_By_ಮೌಲ್ಯ ? VDirection::ಒಳಹರಿವು : VDirection::REF);
+                funcp->ಕೂಡಿಸು_Argsp(newvarp);
+                AstVarScope* ಸ್ಥಿರಾಂಕ newvscp
+                    = ಹೊಸ AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
+                funcp->scopep()->ಕೂಡಿಸು_Varsp(newvscp);
                 vscp->user2p(newvscp);
-                callp->addArgsp(new AstVarRef{refp->fileline(), vscp,
-                                              passByValue ? VAccess::READ : VAccess::READWRITE});
+                callp->ಕೂಡಿಸು_Argsp(ಹೊಸ AstVarRef{refp->fileline(), vscp,
+                                              pass_By_ಮೌಲ್ಯ ? VAccess::READ : VAccess::READWRITE});
             }
-            AstVarScope* const newvscp = VN_AS(vscp->user2p(), VarScope);
+            AstVarScope* ಸ್ಥಿರಾಂಕ newvscp = VN_AS(vscp->user2p(), VarScope);
             refp->varScopep(newvscp);
             refp->varp(newvscp->varp());
         });
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        VL_RESTORER(m_inClass);
-        m_inClass = VN_IS(nodep, Class);
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
+        VL_RESTORER(m_ಒಳ_Class);
+        m_ಒಳ_Class = VN_IS(nodep, Class);
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
         m_funcp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (!m_forkp) nodep->user1(true);
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar* nodep) override {
+        ಆದರೆ (!m_forkp) nodep->user1(ನಿಜ);
     }
-    void visit(AstFork* nodep) override {
-        if (m_forkp) return;  // Handle forks in forks after moving them to new functions
+    ಶೂನ್ಯ ಭೇಟಿ(AstFork* nodep) override {
+        ಆದರೆ (m_forkp) ಹಿಂತಿರುಗಿ;  // Handle forks in forks after moving them to new functions
         VL_RESTORER(m_forkp);
         m_forkp = nodep;
         iterateChildrenConst(nodep);  // Const, so we don't iterate the calls twice
@@ -495,88 +495,88 @@ class TransformForksVisitor final : public VNVisitor {
         // process to suspend whenever any of the children do)
         // V3Dead could have removed all statements from the fork, so guard against it
         // Inline begins now that they are not needed
-        AstNode* resp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
-            resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        Ast_ಗಂಟು* resp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ declsp = nodep->declsp()) {
+            resp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(resp, declsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
-            resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp = nodep->stmtsp()) {
+            resp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(resp, stmtsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
         }
-        while (AstBegin* const beginp = nodep->forksp()) {
-            if (AstNode* const declsp = beginp->declsp()) {
-                resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        ಆಗ (AstBegin* ಸ್ಥಿರಾಂಕ beginp = nodep->forksp()) {
+            ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ declsp = beginp->declsp()) {
+                resp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(resp, declsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
             }
-            if (AstNode* const stmtsp = beginp->stmtsp()) {
-                resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+            ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp = beginp->stmtsp()) {
+                resp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(resp, stmtsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
             }
-            VL_DO_DANGLING(pushDeletep(beginp->unlinkFrBack()), beginp);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(beginp->unlink_Fr_ಹಿಂಭಾಗ()), beginp);
         }
-        if (resp) {
+        ಆದರೆ (resp) {
             nodep->replaceWith(resp);
-        } else {
-            nodep->unlinkFrBack();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            nodep->unlink_Fr_ಹಿಂಭಾಗ();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
-    void visit(AstBegin* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstBegin* nodep) override {
         UASSERT_OBJ(m_forkp, nodep, "Begin outside of a fork");
         // Start with children, so later we only find awaits that are actually in this begin
-        m_beginHasAwaits = false;
+        m_beginHasAwaits = ಸುಳ್ಳು;
         iterateChildrenConst(nodep);
-        if (!nodep->stmtsp()) return;
-        if (!m_beginHasAwaits && !nodep->needProcess()) return;
+        ಆದರೆ (!nodep->stmtsp()) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (!m_beginHasAwaits && !nodep->needProcess()) ಹಿಂತಿರುಗಿ;
 
-        UASSERT_OBJ(!nodep->name().empty(), nodep, "Begin needs a name");
+        UASSERT_OBJ(!nodep->name().ಖಾಲಿಗಳು(), nodep, "Begin needs a name");
         // Create a function to put this begin's statements in
-        FileLine* const flp = nodep->fileline();
-        AstCFunc* const newfuncp = new AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = nodep->fileline();
+        AstCFunc* ಸ್ಥಿರಾಂಕ newfuncp = ಹೊಸ AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
                                                 m_funcp->scopep(), "VlCoroutine"};
 
-        m_funcp->addNextHere(newfuncp);
+        m_funcp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(newfuncp);
         newfuncp->isLoose(m_funcp->isLoose());
         newfuncp->slow(m_funcp->slow());
         newfuncp->isConst(m_funcp->isConst());
-        newfuncp->declPrivate(true);
+        newfuncp->decl_ಖಾಸಗಿ(ನಿಜ);
         // Create the call to the function
-        AstCCall* const callp = new AstCCall{flp, newfuncp};
-        callp->dtypeSetVoid();
+        AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{flp, newfuncp};
+        callp->dtype_ಗಣ_Void();
         // If we're in a class, add a vlSymsp arg
-        if (m_inClass) {
-            newfuncp->addStmtsp(new AstCStmt{flp, "VL_KEEP_THIS;"});
+        ಆದರೆ (m_ಒಳ_Class) {
+            newfuncp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{flp, "VL_KEEP_THIS;"});
             newfuncp->argTypes(EmitCUtil::symClassVar());
             callp->argTypes("vlSymsp");
         }
         // Put the begin's statements in the function
-        if (AstNode* const declsp = nodep->declsp()) {
-            newfuncp->addStmtsp(declsp->unlinkFrBackWithNext());
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ declsp = nodep->declsp()) {
+            newfuncp->ಕೂಡಿಸು_Stmtsp(declsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
-            newfuncp->addStmtsp(stmtsp->unlinkFrBackWithNext());
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp = nodep->stmtsp()) {
+            newfuncp->ಕೂಡಿಸು_Stmtsp(stmtsp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
         }
         // Replace the body of the begin with a call to the newly created function
-        nodep->addStmtsp(callp->makeStmt());
+        nodep->ಕೂಡಿಸು_Stmtsp(callp->makeStmt());
         // Propagate if needs process
-        if (nodep->needProcess()) newfuncp->setNeedProcess();
+        ಆದರೆ (nodep->needProcess()) newfuncp->ಗಣ_Need_Process();
         remapLocals(newfuncp, callp);
     }
-    void visit(AstCAwait* nodep) override {
-        m_beginHasAwaits = true;
+    ಶೂನ್ಯ ಭೇಟಿ(AstCAwait* nodep) override {
+        m_beginHasAwaits = ನಿಜ;
         iterateChildrenConst(nodep);
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit TransformForksVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~TransformForksVisitor() override = default;
+    ಸ್ಪಷ್ಟ TransformForksVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~TransformForksVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
-void transformForks(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return;
+ಶೂನ್ಯ transformForks(AstNetlist* ಸ್ಥಿರಾಂಕ netlistp) {
+    ಆದರೆ (!v3Global.ಬಳಸುತ್ತದೆ_Timing()) ಹಿಂತಿರುಗಿ;
     { TransformForksVisitor{netlistp}; }
-    V3Global::dumpCheckGlobalTree("transform_forks", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("transform_forks", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }
 
 }  // namespace V3Sched

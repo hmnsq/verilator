@@ -33,159 +33,159 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstNodeExpr.h"
-#include "V3Sched.h"
+#ಅನ್ತರ್ಭಾವ "V3AstNodeExpr.h"
+#ಅನ್ತರ್ಭಾವ "V3Sched.h"
 
-#include <unordered_set>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+ನಾಮಾಕಾಶ V3Sched {
 
-const CovergroupRefBindings::Bindings CovergroupRefBindings::s_none;
+ಸ್ಥಿರಾಂಕ CovergroupRefBindings::Bindings CovergroupRefBindings::s_none;
 
-void CovergroupRefBindings::addConstruction(const AstClass* classp, const AstVarScope* instp,
-                                            const Bindings& bindings) {
+ಶೂನ್ಯ CovergroupRefBindings::ಕೂಡಿಸು_Construction(ಸ್ಥಿರಾಂಕ AstClass* classp, ಸ್ಥಿರಾಂಕ AstVarScope* instp,
+                                            ಸ್ಥಿರಾಂಕ Bindings& bindings) {
     Bindings& classBindings = m_byClass[classp];
-    classBindings.insert(classBindings.end(), bindings.begin(), bindings.end());
+    classBindings.ಸೇರಿಸು(classBindings.ಕೊನೆ(), bindings.begin(), bindings.ಕೊನೆ());
     // Note this creates an entry even when 'bindings' is empty, so that a handle binding
     // nothing stays distinguishable from a handle we know nothing about
-    if (instp) {
+    ಆದರೆ (instp) {
         Bindings& instBindings = m_byInstance[instp];
-        instBindings.insert(instBindings.end(), bindings.begin(), bindings.end());
+        instBindings.ಸೇರಿಸು(instBindings.ಕೊನೆ(), bindings.begin(), bindings.ಕೊನೆ());
     }
 }
 
-const CovergroupRefBindings::Bindings&
-CovergroupRefBindings::forSample(const AstVarScope* instp, const AstClass* classp) const {
-    if (instp) {
-        const auto it = m_byInstance.find(instp);
-        if (it != m_byInstance.end()) {
-            ++m_numExactCalls;
-            return it->second;
+ಸ್ಥಿರಾಂಕ CovergroupRefBindings::Bindings&
+CovergroupRefBindings::forSample(ಸ್ಥಿರಾಂಕ AstVarScope* instp, ಸ್ಥಿರಾಂಕ AstClass* classp) ಸ್ಥಿರಾಂಕ {
+    ಆದರೆ (instp) {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_byInstance.ಕಂಡುಹಿಡಿ(instp);
+        ಆದರೆ (it != m_byInstance.ಕೊನೆ()) {
+            ++m_ಅಂಕೆ_Exact_Calls;
+            ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
         }
     }
-    const auto it = m_byClass.find(classp);
-    if (it != m_byClass.end()) {
-        ++m_numUnionCalls;
-        return it->second;
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_byClass.ಕಂಡುಹಿಡಿ(classp);
+    ಆದರೆ (it != m_byClass.ಕೊನೆ()) {
+        ++m_ಅಂಕೆ_Union_Calls;
+        ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
     }
     // A covergroup with no reference formal at all
-    return s_none;
+    ಹಿಂತಿರುಗಿ s_none;
 }
 
-class CovergroupRefBindVisitor final : public VNVisitorConst {
+ವರ್ಗ CovergroupRefBindVisitor final : ಸಾರ್ವಜನಿಕ VNVisitorConst {
     // STATE
-    CovergroupRefBindings m_bindings;  // Result
+    CovergroupRefBindings m_bindings;  //ಫಲಿತಾಂಶ
     // Covergroup handles written by something other than a construction we recognized
-    std::unordered_set<const AstVarScope*> m_tainted;
+    std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ AstVarScope*> m_tainted;
 
     // METHODS
 
     // The covergroup class this call constructs, or nullptr if it is not a covergroup
     // construction
-    static AstClass* constructedCovergroup(const AstNodeCCall* nodep) {
-        const AstCFunc* const funcp = nodep->funcp();
-        if (!funcp->isConstructor()) return nullptr;
+    ಸ್ಥಿರ AstClass* constructedCovergroup(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_CCall* nodep) {
+        ಸ್ಥಿರಾಂಕ AstCFunc* ಸ್ಥಿರಾಂಕ funcp = nodep->funcp();
+        ಆದರೆ (!funcp->isConstructor()) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         // A constructor is a class method, so it is scoped and its scope is that of a class
-        AstClass* const classp = VN_AS(funcp->scopep()->modp(), Class);
-        return classp->isCovergroup() ? classp : nullptr;
+        AstClass* ಸ್ಥಿರಾಂಕ classp = VN_AS(funcp->scopep()->modp(), Class);
+        ಹಿಂತಿರುಗಿ classp->isCovergroup() ? classp : ಶೂನ್ಯಸೂಚಕ;
     }
 
     // True if this variable holds a handle to a covergroup object
-    static bool isCovergroupHandle(const AstVar* varp) {
-        const AstClassRefDType* const dtypep = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-        return dtypep && dtypep->classp()->isCovergroup();
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isCovergroupHandle(ಸ್ಥಿರಾಂಕ AstVar* varp) {
+        ಸ್ಥಿರಾಂಕ AstClassRefDType* ಸ್ಥಿರಾಂಕ dtypep = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
+        ಹಿಂತಿರುಗಿ dtypep && dtypep->classp()->isCovergroup();
     }
 
     // True if this constructor takes a reference formal, and so has anything to bind
-    static bool hasRefFormal(const AstCFunc* funcp) {
-        for (AstNode* portp = funcp->argsp(); portp; portp = portp->nextp()) {
-            const AstVar* const varp = VN_AS(portp, Var);
-            if (varp->declDirection().isRef() || varp->declDirection().isConstRef()) return true;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ hasRefFormal(ಸ್ಥಿರಾಂಕ AstCFunc* funcp) {
+        ಗಾಗಿ (Ast_ಗಂಟು* portp = funcp->argsp(); portp; portp = portp->nextp()) {
+            ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ varp = VN_AS(portp, Var);
+            ಆದರೆ (varp->declDirection().isRef() || varp->declDirection().isConstRef()) ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
     // Record one construction of 'classp' assigning to 'instp' (nullptr if not identified).
     // A covergroup with no reference formal has nothing to bind, and is left out entirely, so
     // that an entry with no bindings means only 'this handle binds nothing a sample() reads'.
-    void recordConstruction(AstNodeCCall* nodep, const AstClass* classp,
-                            const AstVarScope* instp) {
-        if (!hasRefFormal(nodep->funcp())) return;
+    ಶೂನ್ಯ ದಾಖಲೆ_Construction(Ast_ಗಂಟು_CCall* nodep, ಸ್ಥಿರಾಂಕ AstClass* classp,
+                            ಸ್ಥಿರಾಂಕ AstVarScope* instp) {
+        ಆದರೆ (!hasRefFormal(nodep->funcp())) ಹಿಂತಿರುಗಿ;
         CovergroupRefBindings::Bindings bindings;
         // Actuals correspond one to one, in order, with the function's argument variables.
         // A constructor returns void, so none of them is a return value variable.
-        AstNode* actualp = nodep->argsp();
-        for (AstNode* portp = nodep->funcp()->argsp(); portp; portp = portp->nextp()) {
-            AstNode* const thisActualp = actualp;
+        Ast_ಗಂಟು* actualp = nodep->argsp();
+        ಗಾಗಿ (Ast_ಗಂಟು* portp = nodep->funcp()->argsp(); portp; portp = portp->nextp()) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ thisActualp = actualp;
             actualp = actualp->nextp();
-            const AstVar* const varp = VN_AS(portp, Var);
-            if (!varp->declDirection().isRef() && !varp->declDirection().isConstRef()) continue;
+            ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ varp = VN_AS(portp, Var);
+            ಆದರೆ (!varp->declDirection().isRef() && !varp->declDirection().isConstRef()) ಮುಂದುವರಿ;
             // A 'ref' actual is an lvalue expression, so it need not be a plain variable
             // reference. Bind every variable it names: for 'sigs[0]' that is 'sigs', which is
             // exact rather than approximate, as V3Order models the whole array as one
             // VarScope. An index expression contributes its own variables as well, which is an
             // over-approximation, and so safe.
             thisActualp->foreach([&](AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                bindings.push_back(vscp);
+                AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
+                bindings.ತಳ್ಳು_ಹಿಂಭಾಗ(vscp);
             });
         }
-        m_bindings.addConstruction(classp, instp, bindings);
+        m_bindings.ಕೂಡಿಸು_Construction(classp, instp, bindings);
     }
 
     // VISITORS
-    void visit(AstNodeAssign* nodep) override {
-        AstCNew* const cnewp = VN_CAST(nodep->rhsp(), CNew);
-        AstVarRef* const lhsRefp = VN_CAST(nodep->lhsp(), VarRef);
-        AstClass* const classp = cnewp && lhsRefp ? constructedCovergroup(cnewp) : nullptr;
-        if (!classp) {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* nodep) override {
+        AstCNew* ಸ್ಥಿರಾಂಕ cnewp = VN_CAST(nodep->rhsp(), CNew);
+        AstVarRef* ಸ್ಥಿರಾಂಕ lhsRefp = VN_CAST(nodep->lhsp(), VarRef);
+        AstClass* ಸ್ಥಿರಾಂಕ classp = cnewp && lhsRefp ? constructedCovergroup(cnewp) : ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (!classp) {
             iterateChildrenConst(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        recordConstruction(cnewp, classp, lhsRefp->varScopep());
+        ದಾಖಲೆ_Construction(cnewp, classp, lhsRefp->varScopep());
         // Deliberately not iterating the destination: this write is the one shape that does not
         // taint the handle. Do iterate the arguments, which may write handles of their own.
         iterateChildrenConst(cnewp);
     }
 
-    void visit(AstNodeCCall* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_CCall* nodep) override {
         iterateChildrenConst(nodep);
         // A construction reached only here is one whose destination we could not identify, so
         // every handle of the class must assume it
-        if (const AstClass* const classp = constructedCovergroup(nodep)) {
-            recordConstruction(nodep, classp, nullptr);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstClass* ಸ್ಥಿರಾಂಕ classp = constructedCovergroup(nodep)) {
+            ದಾಖಲೆ_Construction(nodep, classp, ಶೂನ್ಯಸೂಚಕ);
         }
     }
 
-    void visit(AstVarRef* nodep) override {
-        if (!nodep->access().isWriteOrRW()) return;
-        if (!isCovergroupHandle(nodep->varp())) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarRef* nodep) override {
+        ಆದರೆ (!nodep->access().isWriteOrRW()) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (!isCovergroupHandle(nodep->varp())) ಹಿಂತಿರುಗಿ;
         m_tainted.emplace(nodep->varScopep());
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit CovergroupRefBindVisitor(AstNetlist* nodep) {
+    ಸ್ಪಷ್ಟ CovergroupRefBindVisitor(AstNetlist* nodep) {
         iterateConst(nodep);
-        for (const AstVarScope* const vscp : m_tainted) m_bindings.dropInstance(vscp);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstVarScope* ಸ್ಥಿರಾಂಕ vscp : m_tainted) m_bindings.dropInstance(vscp);
     }
-    ~CovergroupRefBindVisitor() override = default;
+    ~CovergroupRefBindVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // METHODS
-    CovergroupRefBindings take_bindings() { return std::move(m_bindings); }
+    CovergroupRefBindings take_bindings() { ಹಿಂತಿರುಗಿ std::move(m_bindings); }
 };
 
-const CovergroupRefBindings makeCovergroupRefBindings(AstNetlist* nodep) {
+ಸ್ಥಿರಾಂಕ CovergroupRefBindings makeCovergroupRefBindings(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     CovergroupRefBindings bindings{};
-    if (v3Global.useCovergroup()) bindings = CovergroupRefBindVisitor{nodep}.take_bindings();
-    return bindings;
+    ಆದರೆ (v3Global.useCovergroup()) bindings = CovergroupRefBindVisitor{nodep}.take_bindings();
+    ಹಿಂತಿರುಗಿ bindings;
 }
 
 }  // namespace V3Sched

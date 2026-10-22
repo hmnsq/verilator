@@ -33,174 +33,174 @@
 // here after scoping to allow more dead node removal.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dead.h"
+#ಅನ್ತರ್ಭಾವ "V3Dead.h"
 
-#include "V3ConstPool.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3ConstPool.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
-#include <queue>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <queue>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Dead tracking graph
 
-class DeadVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(DeadVertex, V3GraphVertex)
-    AstNode* const m_nodep;  // Node that created vertex
+ವರ್ಗ Dead_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Dead_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ m_nodep;  // Node that created vertex
     uint64_t m_workPos = 0;  // Position on DeadWorkList, 0 = not on list
-    bool m_removable = false;  // Subject to dead removal
-    bool m_isVirtual = false;  // Virtual node, indirection
+    ತಾರ್ಕಿಕ m_removable = ಸುಳ್ಳು;  // Subject to dead removal
+    ತಾರ್ಕಿಕ m_isVirtual = ಸುಳ್ಳು;  // Virtual node, indirection
 
-public:
-    DeadVertex(V3Graph* graphp, AstNode* nodep)
-        : V3GraphVertex{graphp}
+ಸಾರ್ವಜನಿಕ:
+    Dead_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, Ast_ಗಂಟು* nodep)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_nodep{nodep} {}
-    ~DeadVertex() override = default;
-    string dotShape() const override {
-        return isVirtual() ? "diamond" : removable() ? "rectangle" : "ellipse";
+    ~Dead_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
+    string dotShape() ಸ್ಥಿರಾಂಕ override {
+        ಹಿಂತಿರುಗಿ isVirtual() ? "diamond" : removable() ? "rectangle" : "ellipse";
     }
-    AstNode* nodep() const VL_MT_STABLE { return m_nodep; }
-    string name() const override VL_MT_STABLE {
-        return (isVirtual()   ? "[VIRT] "
+    Ast_ಗಂಟು* nodep() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ m_nodep; }
+    string name() ಸ್ಥಿರಾಂಕ override VL_MT_STABLE {
+        ಹಿಂತಿರುಗಿ (isVirtual()   ? "[VIRT] "
                 : removable() ? "[R] "s
                               : "[NR] ")
-               + nodep()->typeName() + ' ' + cvtToHex(nodep()) + ' ' + nodep()->name();
+               + nodep()->typeName() + ' ' + cvt_ಗಮ್ಯ_Hex(nodep()) + ' ' + nodep()->name();
     }
-    bool removable() const { return m_removable; }
-    void removable(bool flag) { m_removable = flag; }
-    bool isVirtual() const { return m_isVirtual; }
-    void isVirtual(bool flag) { m_isVirtual = flag; }
-    uint64_t workPos() const { return m_workPos; }
-    void workPos(uint64_t value) { m_workPos = value; }
+    ತಾರ್ಕಿಕ removable() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_removable; }
+    ಶೂನ್ಯ removable(ತಾರ್ಕಿಕ flag) { m_removable = flag; }
+    ತಾರ್ಕಿಕ isVirtual() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_isVirtual; }
+    ಶೂನ್ಯ isVirtual(ತಾರ್ಕಿಕ flag) { m_isVirtual = flag; }
+    uint64_t workPos() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_workPos; }
+    ಶೂನ್ಯ workPos(uint64_t ಮೌಲ್ಯ) { m_workPos = ಮೌಲ್ಯ; }
 };
 
 // Work list which keeps ordering of elements (so stable), adds always to
 // the end of the queue, and allows arbitrary removal
-class DeadWorkList final {
+ವರ್ಗ DeadWorkList final {
     // MEMBERS
-    static uint64_t s_sequence;  // Sequence number, inc each push
-    std::map<uint64_t, DeadVertex*> m_works;  // Work list by sequence
-public:
+    ಸ್ಥಿರ uint64_t s_sequence;  // Sequence number, inc each push
+    std::map<uint64_t, Dead_ಶೃಂಗ*> m_ಕೆಲಸಮಾಡುತ್ತದೆ;  // Work list by sequence
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    bool empty() const { return m_works.empty(); }
-    void push(DeadVertex* vtxp) {
-        if (vtxp->workPos()) return;  // Already on list
-        const uint64_t id = ++s_sequence;
+    ತಾರ್ಕಿಕ ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಕೆಲಸಮಾಡುತ್ತದೆ.ಖಾಲಿಗಳು(); }
+    ಶೂನ್ಯ ತಳ್ಳು(Dead_ಶೃಂಗ* vtxp) {
+        ಆದರೆ (vtxp->workPos()) ಹಿಂತಿರುಗಿ;  // Already on list
+        ಸ್ಥಿರಾಂಕ uint64_t id = ++s_sequence;
         vtxp->workPos(id);
-        m_works.emplace(id, vtxp);
+        m_ಕೆಲಸಮಾಡುತ್ತದೆ.emplace(id, vtxp);
         UINFO(9, "Worklist.push " << vtxp);
     }
-    void erase(DeadVertex* vtxp) {
-        const uint64_t id = vtxp->workPos();
-        if (!id) return;
+    ಶೂನ್ಯ erase(Dead_ಶೃಂಗ* vtxp) {
+        ಸ್ಥಿರಾಂಕ uint64_t id = vtxp->workPos();
+        ಆದರೆ (!id) ಹಿಂತಿರುಗಿ;
         UINFO(9, "Worklist.erase " << vtxp);
-        const auto it = m_works.find(id);
-        UASSERT_OBJ(it != m_works.end(), vtxp->nodep(),
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_ಕೆಲಸಮಾಡುತ್ತದೆ.ಕಂಡುಹಿಡಿ(id);
+        UASSERT_OBJ(it != m_ಕೆಲಸಮಾಡುತ್ತದೆ.ಕೊನೆ(), vtxp->nodep(),
                     "vertex thought to be on work list but not");
-        m_works.erase(it);
+        m_ಕೆಲಸಮಾಡುತ್ತದೆ.erase(it);
         vtxp->workPos(0);
     }
-    DeadVertex* getPopFront() {
-        UDEBUGONLY(UASSERT(!empty(), "Front invalid to call on empty list"););
-        const auto it = m_works.begin();
-        DeadVertex* const vtxp = it->second;
-        m_works.erase(it);
+    Dead_ಶೃಂಗ* get_ತೆಗೆ_Front() {
+        UDEBUGONLY(UASSERT(!ಖಾಲಿಗಳು(), "Front invalid to call on empty list"););
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_ಕೆಲಸಮಾಡುತ್ತದೆ.begin();
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = it->ಎರಡನೇ;
+        m_ಕೆಲಸಮಾಡುತ್ತದೆ.erase(it);
         vtxp->workPos(0);
         UINFO(9, "Worklist.getPopFront " << vtxp);
-        return vtxp;
+        ಹಿಂತಿರುಗಿ vtxp;
     }
 };
 
 uint64_t DeadWorkList::s_sequence = 0;
 
-class DeadGraph final : public V3Graph {
+ವರ್ಗ Dead_ನಕ್ಷೆ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ {
     // NODE STATE
     //  AstNodeFTask::user2p()  -> DeadVertex* for this node
     //  See const VNUser2InUse m_inuser2; inside DeadVisitor
     // MEMBERS
     DeadWorkList m_funcs;  // Functions eligble for deletion
     // Each virtual vertex by the ftask name()
-    std::unordered_map<std::string, DeadVertex*> m_virtualVtxsp;
+    std::unordered_map<std::string, Dead_ಶೃಂಗ*> m_virtualVtxsp;
 
-    void newEdge(DeadVertex* fromp, DeadVertex* top) {
-        new V3GraphEdge{this, fromp, top, 1, false};
-        if (top->removable()) m_funcs.erase(top);  // Now has an input edge
+    ಶೂನ್ಯ new_ಅಂಚು(Dead_ಶೃಂಗ* fromp, Dead_ಶೃಂಗ* ತುದಿ) {
+        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{ಇದು, fromp, ತುದಿ, 1, ಸುಳ್ಳು};
+        ಆದರೆ (ತುದಿ->removable()) m_funcs.erase(ತುದಿ);  // Now has an input edge
     }
-    void pushWorkMaybe(DeadVertex* vtxp, bool allowSize1) {
-        if (vtxp->removable()) {
-            if (VN_IS(vtxp->nodep(), NodeFTask)
-                && (vtxp->inEmpty() || (allowSize1 && vtxp->inSize1())))
-                m_funcs.push(vtxp);
+    ಶೂನ್ಯ ತಳ್ಳು_Work_Maybe(Dead_ಶೃಂಗ* vtxp, ತಾರ್ಕಿಕ allowSize1) {
+        ಆದರೆ (vtxp->removable()) {
+            ಆದರೆ (VN_IS(vtxp->nodep(), ಗಂಟು_FTask)
+                && (vtxp->ಒಳ_ಖಾಲಿಗಳು() || (allowSize1 && vtxp->ಒಳ_Size1())))
+                m_funcs.ತಳ್ಳು(vtxp);
         }
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    DeadGraph() = default;
-    ~DeadGraph() override = default;
-    DeadVertex* findNewVertex(AstNode* nodep) {
-        DeadVertex* vtxp = nodep->user2u().to<DeadVertex*>();
-        if (!vtxp) {
-            vtxp = new DeadVertex{this, nodep};
+    Dead_ನಕ್ಷೆ() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~Dead_ನಕ್ಷೆ() override = ಪೂರ್ವನಿಯೋಜಿತ;
+    Dead_ಶೃಂಗ* ಕಂಡುಹಿಡಿ_New_ಶೃಂಗ(Ast_ಗಂಟು* nodep) {
+        Dead_ಶೃಂಗ* vtxp = nodep->user2u().ಗಮ್ಯ<Dead_ಶೃಂಗ*>();
+        ಆದರೆ (!vtxp) {
+            vtxp = ಹೊಸ Dead_ಶೃಂಗ{ಇದು, nodep};
             nodep->user2p(vtxp);
-            pushWorkMaybe(vtxp, false);
+            ತಳ್ಳು_Work_Maybe(vtxp, ಸುಳ್ಳು);
         }
         UASSERT_OBJ(vtxp->nodep() == nodep, nodep, "Vertex points at different node");
-        return vtxp;
+        ಹಿಂತಿರುಗಿ vtxp;
     }
-    DeadVertex* findVirtualVertex(AstNode* nodep) {
-        const auto it = m_virtualVtxsp.find(nodep->name());
-        DeadVertex* vtxp;
-        if (it != m_virtualVtxsp.end()) {
-            vtxp = it->second;
-        } else {
-            vtxp = new DeadVertex{this, nodep};
-            vtxp->removable(true);
-            vtxp->isVirtual(true);
-            pushWorkMaybe(vtxp, false);
+    Dead_ಶೃಂಗ* ಕಂಡುಹಿಡಿ_Virtual_ಶೃಂಗ(Ast_ಗಂಟು* nodep) {
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_virtualVtxsp.ಕಂಡುಹಿಡಿ(nodep->name());
+        Dead_ಶೃಂಗ* vtxp;
+        ಆದರೆ (it != m_virtualVtxsp.ಕೊನೆ()) {
+            vtxp = it->ಎರಡನೇ;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            vtxp = ಹೊಸ Dead_ಶೃಂಗ{ಇದು, nodep};
+            vtxp->removable(ನಿಜ);
+            vtxp->isVirtual(ನಿಜ);
+            ತಳ್ಳು_Work_Maybe(vtxp, ಸುಳ್ಳು);
             m_virtualVtxsp.emplace(nodep->name(), vtxp);
         }
-        return vtxp;
+        ಹಿಂತಿರುಗಿ vtxp;
     }
-    void findNewRemovableVertex(AstNode* nodep, bool removable) {
-        DeadVertex* const vtxp = findNewVertex(nodep);
+    ಶೂನ್ಯ ಕಂಡುಹಿಡಿ_New_Removable_ಶೃಂಗ(Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ removable) {
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = ಕಂಡುಹಿಡಿ_New_ಶೃಂಗ(nodep);
         // Wasn't removable before (due to earlier insert), make removable now
-        if (removable && !vtxp->removable()) {
-            vtxp->removable(true);
-            pushWorkMaybe(vtxp, false);
+        ಆದರೆ (removable && !vtxp->removable()) {
+            vtxp->removable(ನಿಜ);
+            ತಳ್ಳು_Work_Maybe(vtxp, ಸುಳ್ಳು);
         }
     }
-    void deleteNodeVertex(AstNode* nodep) {
-        if (DeadVertex* const vtxp = nodep->user2u().to<DeadVertex*>()) deleteVertex(vtxp);
+    ಶೂನ್ಯ delete_ಗಂಟು_ಶೃಂಗ(Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = nodep->user2u().ಗಮ್ಯ<Dead_ಶೃಂಗ*>()) delete_ಶೃಂಗ(vtxp);
     }
-    void deleteVertex(DeadVertex* vtxp) {
+    ಶೂನ್ಯ delete_ಶೃಂಗ(Dead_ಶೃಂಗ* vtxp) {
         UINFO(9, "Delete vertex " << vtxp->name());
         // Mark all about-to-empty downstream vertices onto worklist
-        for (const V3GraphEdge& oedge : vtxp->outEdges()) {
-            DeadVertex* const toVtxp = static_cast<DeadVertex*>(oedge.top());
-            pushWorkMaybe(toVtxp, true);  // size1 ok as about to delete below
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು& oedge : vtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+            Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ಗಮ್ಯ_Vtxp = static_cast<Dead_ಶೃಂಗ*>(oedge.ತುದಿ());
+            ತಳ್ಳು_Work_Maybe(ಗಮ್ಯ_Vtxp, ನಿಜ);  // size1 ok as about to delete below
         }
         // Node shouldn't be looking at user2p later as node being deleting, but in case
-        if (!vtxp->isVirtual()) vtxp->nodep()->user2p(nullptr);
-        if (vtxp->removable()) m_funcs.erase(vtxp);
-        VL_DO_DANGLING(vtxp->unlinkDelete(this), vtxp);
+        ಆದರೆ (!vtxp->isVirtual()) vtxp->nodep()->user2p(ಶೂನ್ಯಸೂಚಕ);
+        ಆದರೆ (vtxp->removable()) m_funcs.erase(vtxp);
+        VL_DO_DANGLING(vtxp->unlinkDelete(ಇದು), vtxp);
     }
     // This only tracks usage dependancy, not "containership",
     // When all needs disappear the related node is eligble for deletion
-    void needs(AstNode* nodep, AstNode* parentp) {
-        if (parentp == nodep) return;  // No need for tracking needs itself (recursion)
+    ಶೂನ್ಯ needs(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು* parentp) {
+        ಆದರೆ (parentp == nodep) ಹಿಂತಿರುಗಿ;  // No need for tracking needs itself (recursion)
         UINFO(9, "Edge node " << nodep << " -> " << parentp);
-        DeadVertex* const parentVtxp = findNewVertex(parentp);
-        DeadVertex* const nodeVtxp = findNewVertex(nodep);
-        UINFO(9, "Edge need " << parentVtxp << " -> " << nodeVtxp);
-        newEdge(parentVtxp, nodeVtxp);
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ಪೋಷಕ_Vtxp = ಕಂಡುಹಿಡಿ_New_ಶೃಂಗ(parentp);
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ಗಂಟು_Vtxp = ಕಂಡುಹಿಡಿ_New_ಶೃಂಗ(nodep);
+        UINFO(9, "Edge need " << ಪೋಷಕ_Vtxp << " -> " << ಗಂಟು_Vtxp);
+        new_ಅಂಚು(ಪೋಷಕ_Vtxp, ಗಂಟು_Vtxp);
     }
-    void needsVirtual(AstNodeFTask* nodep, AstNode* parentp) {
+    ಶೂನ್ಯ needsVirtual(Ast_ಗಂಟು_FTask* nodep, Ast_ಗಂಟು* parentp) {
         // Virtual call can be to any function in the call hierarchy.
         // For simplicity rather than tracking possible multiple base
         // classes (due to 'implements' classes there can be more than
@@ -208,41 +208,41 @@ public:
         // can call any other virtual function of the same name
         // Track via an intermediate node.
         //  All calling parents' verticies -> Virtual Vertex -> all ftasks verticies
-        if (parentp == nodep) return;  // No need for tracking needs itself (recursion)
-        DeadVertex* const parentVtxp = findNewVertex(parentp);
-        DeadVertex* const virtualVtxp = findVirtualVertex(nodep);
-        UINFO(9, "Edge needVirtual " << parentVtxp << " -> " << virtualVtxp);
-        newEdge(parentVtxp, virtualVtxp);
+        ಆದರೆ (parentp == nodep) ಹಿಂತಿರುಗಿ;  // No need for tracking needs itself (recursion)
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ಪೋಷಕ_Vtxp = ಕಂಡುಹಿಡಿ_New_ಶೃಂಗ(parentp);
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ virtualVtxp = ಕಂಡುಹಿಡಿ_Virtual_ಶೃಂಗ(nodep);
+        UINFO(9, "Edge needVirtual " << ಪೋಷಕ_Vtxp << " -> " << virtualVtxp);
+        new_ಅಂಚು(ಪೋಷಕ_Vtxp, virtualVtxp);
     }
-    void funcVirtual(AstNodeFTask* nodep) {
+    ಶೂನ್ಯ funcVirtual(Ast_ಗಂಟು_FTask* nodep) {
         //  Virtual Vertex -> all ftasks verticies
-        DeadVertex* const virtualVtxp = findVirtualVertex(nodep);
-        DeadVertex* const nodeVtxp = findNewVertex(nodep);
-        UINFO(9, "Edge funcvirtual " << virtualVtxp << " -> " << nodeVtxp);
-        newEdge(virtualVtxp, nodeVtxp);
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ virtualVtxp = ಕಂಡುಹಿಡಿ_Virtual_ಶೃಂಗ(nodep);
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ಗಂಟು_Vtxp = ಕಂಡುಹಿಡಿ_New_ಶೃಂಗ(nodep);
+        UINFO(9, "Edge funcvirtual " << virtualVtxp << " -> " << ಗಂಟು_Vtxp);
+        new_ಅಂಚು(virtualVtxp, ಗಂಟು_Vtxp);
     }
-    bool funcsEmpty() const { return m_funcs.empty(); }
-    AstNode* funcsGetPopFront() {
-        DeadVertex* const vtxp = m_funcs.getPopFront();
-        UASSERT_OBJ(vtxp->inEmpty(), vtxp->nodep(), "Non-empty node on work list");
+    ತಾರ್ಕಿಕ funcs_ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_funcs.ಖಾಲಿಗಳು(); }
+    Ast_ಗಂಟು* funcs_Get_ತೆಗೆ_Front() {
+        Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = m_funcs.get_ತೆಗೆ_Front();
+        UASSERT_OBJ(vtxp->ಒಳ_ಖಾಲಿಗಳು(), vtxp->nodep(), "Non-empty node on work list");
         UASSERT_OBJ(vtxp->removable(), vtxp->nodep(), "Non-removable node on work list");
-        if (vtxp->isVirtual()) {
+        ಆದರೆ (vtxp->isVirtual()) {
             // Emptied (no inbound edge) virtual wrapper; all
             // destinations verticies are now unused too (e.g. all virtual
             // functions of this name may be deleted)
             UINFO(9, "Removing virtual " << vtxp);
-            deleteVertex(vtxp);
-            return nullptr;  // Caller will search again
+            delete_ಶೃಂಗ(vtxp);
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;  // Caller will search again
         }
-        AstNode* const nodep = vtxp->nodep();
-        return nodep;
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep = vtxp->nodep();
+        ಹಿಂತಿರುಗಿ nodep;
     }
 };
 
 //######################################################################
 // Dead state, as a visitor of each AstNode
 
-class DeadVisitor final : public VNVisitor {
+ವರ್ಗ DeadVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // Entire Netlist:
     //  AstNodeModule::user1()  -> int. Count of number of cells referencing this module.
@@ -250,38 +250,38 @@ class DeadVisitor final : public VNVisitor {
     //  AstVar::user2()         -> bool. Is a formal function argument
     //  AstVarScope::user1()    -> int. Count of number of references
     //  AstNodeDType::user1()   -> int. Count of number of references
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;  // For usage information see DeadGraph
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use m_inuser2;  // For usage information see DeadGraph
 
     // TYPES
-    using AssignMap = std::multimap<AstVarScope*, AstNodeAssign*>;
+    ಬಳಸಿ ನಿಯೋಜಿಸು_Map = std::multimap<AstVarScope*, Ast_ಗಂಟು_ನಿಯೋಜಿಸು*>;
 
     // STATE - across all visitors
-    const bool m_elimUserVars;  // Allow removal of user's vars
-    const bool m_elimDTypes;  // Allow removal of DTypes
-    const bool m_elimCells;  // Allow removal of Cells
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ m_elimUserVars;  // Allow removal of user's vars
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ m_elimDTypes;  // Allow removal of DTypes
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ m_elimCells;  // Allow removal of Cells
 
-    DeadGraph m_graph;  // Tracking graph
+    Dead_ನಕ್ಷೆ m_ನಕ್ಷೆ;  // Tracking graph
 
     // List of all encountered to avoid another loop through tree
-    std::vector<AstVar*> m_varsp;
-    std::vector<AstNode*> m_dtypeElimsp;  // Data types might eliminate
-    std::map<AstNodeDType*, AstNodeModule*> m_dtypePkgsp;  // Data type's containing package
-    std::vector<AstVarScope*> m_vscsp;
-    std::vector<AstScope*> m_scopesp;
-    std::vector<AstCell*> m_cellsp;
-    std::vector<AstClass*> m_classesp;
-    std::vector<AstTypedef*> m_typedefsp;
-    AssignMap m_assignMap;  // List of all simple assignments for each variable
-    bool m_sideEffect = false;  // Side effects discovered in assign RHS
+    std::ಸದಿಶ<AstVar*> m_varsp;
+    std::ಸದಿಶ<Ast_ಗಂಟು*> m_dtypeElimsp;  // Data types might eliminate
+    std::map<Ast_ಗಂಟು_DType*, Ast_ಗಂಟು_Module*> m_dtypePkgsp;  // Data type's containing package
+    std::ಸದಿಶ<AstVarScope*> m_vscsp;
+    std::ಸದಿಶ<AstScope*> m_scopesp;
+    std::ಸದಿಶ<AstCell*> m_cellsp;
+    std::ಸದಿಶ<AstClass*> m_classesp;
+    std::ಸದಿಶ<AstTypedef*> m_typedefsp;
+    ನಿಯೋಜಿಸು_Map m_ನಿಯೋಜಿಸು_Map;  // List of all simple assignments for each variable
+    ತಾರ್ಕಿಕ m_sideEffect = ಸುಳ್ಳು;  // Side effects discovered in assign RHS
 
     // STATE - for current visit position (use VL_RESTORER)
-    bool m_inAssign = false;  // Currently in an assign
-    AstNodeDType* m_curDTypep = nullptr;  // Current NodeDType
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstForeachHeader* m_foreachHeaderp = nullptr;  // Current foreach header
-    AstNode* m_containingFTaskRefp = nullptr;  // Parent of ftaskref (e.g. task/module)
-    bool m_inFTask = false;  // Under an AstNodeFTask
+    ತಾರ್ಕಿಕ m_ಒಳ_ನಿಯೋಜಿಸು = ಸುಳ್ಳು;  // Currently in an assign
+    Ast_ಗಂಟು_DType* m_curDTypep = ಶೂನ್ಯಸೂಚಕ;  // Current NodeDType
+    Ast_ಗಂಟು_Module* m_modp = ಶೂನ್ಯಸೂಚಕ;  // Current module
+    Ast_Foreach_ಶೀರ್ಷಿಕೆ* m_foreachHeaderp = ಶೂನ್ಯಸೂಚಕ;  // Current foreach header
+    Ast_ಗಂಟು* m_containingFTaskRefp = ಶೂನ್ಯಸೂಚಕ;  // Parent of ftaskref (e.g. task/module)
+    ತಾರ್ಕಿಕ m_ಒಳ_FTask = ಸುಳ್ಳು;  // Under an AstNodeFTask
 
     // STATE - Statistic tracking
     VDouble0 m_statFTasksDemoted;
@@ -291,349 +291,349 @@ class DeadVisitor final : public VNVisitor {
 
     // METHODS
 
-    void deleting(AstNode* nodep) {
+    ಶೂನ್ಯ deleting(Ast_ಗಂಟು* nodep) {
         UINFO(9, "  deleting " << nodep);
-        m_graph.deleteNodeVertex(nodep);
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        m_ನಕ್ಷೆ.delete_ಗಂಟು_ಶೃಂಗ(nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlink_Fr_ಹಿಂಭಾಗ()), nodep);
     }
 
     // cppcheck-suppress constParameterPointer
-    void checkAll(AstNode* nodep) {
-        if (AstNode* const subnodep = nodep->dtypep()) {
-            if (nodep != subnodep  // Not NodeDTypes reference themselves
+    ಶೂನ್ಯ checkAll(Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ subnodep = nodep->dtypep()) {
+            ಆದರೆ (nodep != subnodep  // Not NodeDTypes reference themselves
                 && m_curDTypep != subnodep) {  // Not EnumItem referencing parent Enum
                 subnodep->user1Inc();
             }
         }
-        if (AstNode* const subnodep = nodep->getChildDTypep()) subnodep->user1Inc();
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ subnodep = nodep->get_ಮಗು_DTypep()) subnodep->user1Inc();
     }
-    void checkVarRef(AstNodeVarRef* nodep) const {
-        if (nodep->classOrPackagep() && m_elimCells) nodep->classOrPackagep(nullptr);
+    ಶೂನ್ಯ checkVarRef(Ast_ಗಂಟು_Var_Ref* nodep) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (nodep->classOrPackagep() && m_elimCells) nodep->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);
     }
-    void checkDType(AstNodeDType* nodep) {
-        if (!nodep->generic()  // Don't remove generic types
+    ಶೂನ್ಯ checkDType(Ast_ಗಂಟು_DType* nodep) {
+        ಆದರೆ (!nodep->generic()  // Don't remove generic types
             && m_elimDTypes  // dtypes stick around until post-widthing
             && !VN_IS(nodep, MemberDType)  // Keep member names iff upper type exists
             && !nodep->undead()  // VoidDType or something Netlist points to
         ) {
-            m_dtypeElimsp.push_back(nodep);
+            m_dtypeElimsp.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
         }
-        if (VN_IS(m_modp, Package) || VN_IS(m_modp, Class)) m_dtypePkgsp.emplace(nodep, m_modp);
+        ಆದರೆ (VN_IS(m_modp, Package) || VN_IS(m_modp, Class)) m_dtypePkgsp.emplace(nodep, m_modp);
         // A struct type moved to the type table refers to its package via classOrPackagep
-        if (const AstNodeUOrStructDType* const sdtypep = VN_CAST(nodep, NodeUOrStructDType)) {
-            if (sdtypep->classOrPackagep() && sdtypep->classOrPackagep() != m_modp) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_UOr_Struct_DType* ಸ್ಥಿರಾಂಕ sdtypep = VN_CAST(nodep, ಗಂಟು_UOr_Struct_DType)) {
+            ಆದರೆ (sdtypep->classOrPackagep() && sdtypep->classOrPackagep() != m_modp) {
                 m_dtypePkgsp.emplace(nodep, sdtypep->classOrPackagep());
             }
         }
-        if (AstNode* const subnodep = nodep->virtRefDTypep()) subnodep->user1Inc();
-        if (AstNode* const subnodep = nodep->virtRefDType2p()) subnodep->user1Inc();
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ subnodep = nodep->virtRefDTypep()) subnodep->user1Inc();
+        ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ subnodep = nodep->virtRefDType2p()) subnodep->user1Inc();
     }
-    void needsTask(AstNodeFTask* taskp, AstNode* containerp) {
-        if (!taskp) return;  // Unlinked
-        if (taskp->isVirtual()) {
-            m_graph.needsVirtual(taskp, containerp);
-        } else {
-            m_graph.needs(taskp, containerp);
+    ಶೂನ್ಯ needsTask(Ast_ಗಂಟು_FTask* taskp, Ast_ಗಂಟು* containerp) {
+        ಆದರೆ (!taskp) ಹಿಂತಿರುಗಿ;  // Unlinked
+        ಆದರೆ (taskp->isVirtual()) {
+            m_ನಕ್ಷೆ.needsVirtual(taskp, containerp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            m_ನಕ್ಷೆ.needs(taskp, containerp);
         }
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (m_modp) m_modp->user1Inc();  // e.g. Class under Package
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
+        ಆದರೆ (m_modp) m_modp->user1Inc();  // e.g. Class under Package
         VL_RESTORER(m_modp);
         m_modp = nodep;
         VL_RESTORER(m_containingFTaskRefp);
         m_containingFTaskRefp = nodep;
-        if (nodep->dead()) return;
-        if (nodep->modPublic()) m_modp->user1Inc();
+        ಆದರೆ (nodep->dead()) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (nodep->mod_ಬಹಿರಂಗ()) m_modp->user1Inc();
         iterateChildren(nodep);
         checkAll(nodep);
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            if (classp->extendsp()) classp->extendsp()->user1Inc();
-            if (classp->classOrPackagep()) classp->classOrPackagep()->user1Inc();
-            m_classesp.push_back(classp);
+        ಆದರೆ (AstClass* ಸ್ಥಿರಾಂಕ classp = VN_CAST(nodep, Class)) {
+            ಆದರೆ (classp->extendsp()) classp->extendsp()->user1Inc();
+            ಆದರೆ (classp->classOrPackagep()) classp->classOrPackagep()->user1Inc();
+            m_classesp.ತಳ್ಳು_ಹಿಂಭಾಗ(classp);
             // TODO we don't reclaim dead classes yet - graph implementation instead?
             classp->user1Inc();
         }
     }
-    void visit(AstCFunc* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCFunc* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        if (nodep->scopep()) nodep->scopep()->user1Inc();
+        ಆದರೆ (nodep->scopep()) nodep->scopep()->user1Inc();
         // Keep formal arguments
-        for (AstVar* varp = nodep->argsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+        ಗಾಗಿ (AstVar* varp = nodep->argsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
             varp->user1Inc();
             varp->user2(1);
         }
     }
-    void visit(AstPin* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstPin* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        if (nodep->modVarp()) nodep->modVarp()->user1Inc();
+        ಆದರೆ (nodep->modVarp()) nodep->modVarp()->user1Inc();
     }
-    void visit(AstScope* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstScope* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        if (nodep->aboveScopep()) nodep->aboveScopep()->user1Inc();
+        ಆದರೆ (nodep->aboveScopep()) nodep->aboveScopep()->user1Inc();
         // Class packages might have no children, but need to remain as
         // long as the class they refer to is needed
-        if (VN_IS(m_modp, Class) || VN_IS(m_modp, ClassPackage)) nodep->user1Inc();
+        ಆದರೆ (VN_IS(m_modp, Class) || VN_IS(m_modp, ClassPackage)) nodep->user1Inc();
         // The constant pool scope must remain for entries created later
-        if (m_modp->isConstPool()) nodep->user1Inc();
-        if (!nodep->isTop() && !nodep->varsp() && !nodep->blocksp()) {
-            m_scopesp.push_back(nodep);
+        ಆದರೆ (m_modp->isConstPool()) nodep->user1Inc();
+        ಆದರೆ (!nodep->is_ತುದಿ() && !nodep->varsp() && !nodep->blocksp()) {
+            m_scopesp.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
         }
     }
-    void visit(AstCell* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCell* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        m_cellsp.push_back(nodep);
+        m_cellsp.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
         nodep->modp()->user1Inc();
     }
 
-    void visit(AstNodeVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Var_Ref* nodep) override {
         // Note NodeAssign skips calling this in some cases
         iterateChildren(nodep);
         checkAll(nodep);
         checkVarRef(nodep);
-        if (nodep->varScopep()) {
+        ಆದರೆ (nodep->varScopep()) {
             nodep->varScopep()->user1Inc();
             nodep->varScopep()->varp()->user1Inc();
         }
-        if (nodep->varp()) nodep->varp()->user1Inc();
-        if (nodep->classOrPackagep()) nodep->classOrPackagep()->user1Inc();
+        ಆದರೆ (nodep->varp()) nodep->varp()->user1Inc();
+        ಆದರೆ (nodep->classOrPackagep()) nodep->classOrPackagep()->user1Inc();
     }
-    void visit(AstNodeFTaskRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask_Ref* nodep) override {
         iterateChildren(nodep);
-        if (!m_sideEffect && !nodep->isPure()) m_sideEffect = true;
+        ಆದರೆ (!m_sideEffect && !nodep->is_ಶುದ್ಧ()) m_sideEffect = ನಿಜ;
         checkAll(nodep);
         needsTask(nodep->taskp(), m_containingFTaskRefp);
-        if (nodep->classOrPackagep()) {
-            if (m_elimCells) {
-                nodep->classOrPackagep(nullptr);
-            } else {
+        ಆದರೆ (nodep->classOrPackagep()) {
+            ಆದರೆ (m_elimCells) {
+                nodep->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->classOrPackagep()->user1Inc();
             }
         }
     }
-    void visit(AstModportFTaskRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstModportFTaskRef* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
         needsTask(nodep->ftaskp(), m_containingFTaskRefp);
     }
-    void visit(AstModportVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstModportVarRef* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        if (nodep->varp()) nodep->varp()->user1Inc();
+        ಆದರೆ (nodep->varp()) nodep->varp()->user1Inc();
     }
-    void visit(AstRefDType* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstRefDType* nodep) override {
         iterateChildren(nodep);
         checkDType(nodep);
         checkAll(nodep);
         UASSERT_OBJ(!(m_elimCells && nodep->typedefp()), nodep,
                     "RefDType should point to data type before typedefs removed");
-        if (nodep->classOrPackagep()) {
-            if (m_elimCells) {
-                nodep->classOrPackagep(nullptr);
-            } else {
+        ಆದರೆ (nodep->classOrPackagep()) {
+            ಆದರೆ (m_elimCells) {
+                nodep->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->classOrPackagep()->user1Inc();
             }
         }
     }
-    void visit(AstClassRefDType* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstClassRefDType* nodep) override {
         iterateChildren(nodep);
         checkDType(nodep);
         checkAll(nodep);
-        if (nodep->classOrPackagep()) {
-            if (m_elimCells) {
-                nodep->classOrPackagep(nullptr);
-            } else {
+        ಆದರೆ (nodep->classOrPackagep()) {
+            ಆದರೆ (m_elimCells) {
+                nodep->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->classOrPackagep()->user1Inc();
             }
         }
-        if (nodep->classp()) nodep->classp()->user1Inc();
+        ಆದರೆ (nodep->classp()) nodep->classp()->user1Inc();
     }
-    void visit(AstIfaceRefDType* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstIfaceRefDType* nodep) override {
         iterateChildren(nodep);
         checkDType(nodep);
         checkAll(nodep);
-        if (nodep->modportp()) {
-            if (m_elimCells) {
-                nodep->modportp(nullptr);
-            } else {
+        ಆದರೆ (nodep->modportp()) {
+            ಆದರೆ (m_elimCells) {
+                nodep->modportp(ಶೂನ್ಯಸೂಚಕ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->modportp()->user1Inc();
             }
         }
-        if (nodep->ifaceViaCellp()) nodep->ifaceViaCellp()->user1Inc();
+        ಆದರೆ (nodep->iface_ಮೂಲಕ_Cellp()) nodep->iface_ಮೂಲಕ_Cellp()->user1Inc();
     }
-    void visit(AstNodeDType* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_DType* nodep) override {
         VL_RESTORER(m_curDTypep);
         m_curDTypep = nodep;
         iterateChildren(nodep);
         checkDType(nodep);
         checkAll(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Enum_ಅಂಶ_Ref* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        if (nodep->classOrPackagep()) {
-            if (m_elimCells) {
-                nodep->classOrPackagep(nullptr);
-            } else {
+        ಆದರೆ (nodep->classOrPackagep()) {
+            ಆದರೆ (m_elimCells) {
+                nodep->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->classOrPackagep()->user1Inc();
             }
         }
         checkAll(nodep);
     }
-    void visit(AstMemberSel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstMemberSel* nodep) override {
         iterateChildren(nodep);
-        if (nodep->varp()) nodep->varp()->user1Inc();
-        if (nodep->fromp()->dtypep()) nodep->fromp()->dtypep()->user1Inc();  // classref
+        ಆದರೆ (nodep->varp()) nodep->varp()->user1Inc();
+        ಆದರೆ (nodep->fromp()->dtypep()) nodep->fromp()->dtypep()->user1Inc();  // classref
         checkAll(nodep);
     }
-    void visit(AstStructSel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstStructSel* nodep) override {
         iterateChildren(nodep);
-        if (nodep->fromp()->dtypep()) nodep->fromp()->dtypep()->user1Inc();  // structdtype
+        ಆದರೆ (nodep->fromp()->dtypep()) nodep->fromp()->dtypep()->user1Inc();  // structdtype
         checkAll(nodep);
     }
-    void visit(AstModport* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstModport* nodep) override {
         iterateChildren(nodep);
-        if (m_elimCells) {
-            if (!nodep->varsp()) {
+        ಆದರೆ (m_elimCells) {
+            ಆದರೆ (!nodep->varsp()) {
                 deleting(nodep);
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
         }
         checkAll(nodep);
     }
-    void visit(AstForeachHeader* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Foreach_ಶೀರ್ಷಿಕೆ* nodep) override {
         // Var under a ForeachHeader means we haven't called V3Width to remove them yet
         VL_RESTORER(m_foreachHeaderp);
         m_foreachHeaderp = nodep;
         iterateChildren(nodep);
         checkAll(nodep);
     }
-    void visit(AstTypedef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstTypedef* nodep) override {
         iterateChildren(nodep);
-        m_typedefsp.push_back(nodep);
+        m_typedefsp.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
 
         // Don't let packages with only public variables disappear
         // Normal modules may disappear, e.g. if they are parameterized then removed
-        if (nodep->attrPublic() && m_modp && VN_IS(m_modp, Package)) m_modp->user1Inc();
+        ಆದರೆ (nodep->attr_ಬಹಿರಂಗ() && m_modp && VN_IS(m_modp, Package)) m_modp->user1Inc();
     }
-    void visit(AstVarScope* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarScope* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        if (nodep->scopep()) nodep->scopep()->user1Inc();
-        if (mightElimVar(nodep->varp())) m_vscsp.push_back(nodep);
+        ಆದರೆ (nodep->scopep()) nodep->scopep()->user1Inc();
+        ಆದರೆ (mightElimVar(nodep->varp())) m_vscsp.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
     }
-    void visit(AstVar* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar* nodep) override {
         iterateChildren(nodep);
         checkAll(nodep);
-        if (m_foreachHeaderp) nodep->user1Inc();
+        ಆದರೆ (m_foreachHeaderp) nodep->user1Inc();
         // Keep formal arguments
-        if (m_inFTask && nodep->isIO()) {
+        ಆದರೆ (m_ಒಳ_FTask && nodep->isIO()) {
             nodep->user1Inc();
             nodep->user2(1);
         }
-        if (mightElimVar(nodep)) {
-            m_varsp.push_back(nodep);
-        } else {
-            if (m_modp && VN_IS(m_modp, Package)) m_modp->user1Inc();
+        ಆದರೆ (mightElimVar(nodep)) {
+            m_varsp.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (m_modp && VN_IS(m_modp, Package)) m_modp->user1Inc();
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* nodep) override {
         // See if simple assignments to variables may be eliminated because
         // that variable is never used.
         // Similar code in V3Life
-        const bool assignInAssign = m_inAssign;  // Might be Assign(..., ExprStmt(Assign), ...)
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ನಿಯೋಜಿಸು_ಒಳ_ನಿಯೋಜಿಸು = m_ಒಳ_ನಿಯೋಜಿಸು;  // Might be Assign(..., ExprStmt(Assign), ...)
         {
-            VL_RESTORER(m_inAssign);
+            VL_RESTORER(m_ಒಳ_ನಿಯೋಜಿಸು);
             VL_RESTORER(m_sideEffect);
-            m_inAssign = true;
+            m_ಒಳ_ನಿಯೋಜಿಸು = ನಿಜ;
             m_sideEffect = nodep->isTimingControl();  // Can't remove the delay
-            iterateAndNextNull(nodep->rhsp());
+            iterate_And_ಮುಂದಿನ_Null(nodep->rhsp());
             checkAll(nodep);
             // Has to be direct assignment without any EXTRACTing.
-            AstVarRef* const varrefp = VN_CAST(nodep->lhsp(), VarRef);
-            if (varrefp && !m_sideEffect && v3Global.opt.fDeadAssigns()
+            AstVarRef* ಸ್ಥಿರಾಂಕ varrefp = VN_CAST(nodep->lhsp(), VarRef);
+            ಆದರೆ (varrefp && !m_sideEffect && v3Global.opt.fDeadAssigns()
                 && varrefp->varScopep()) {  // For simplicity, we only remove post-scoping
-                m_assignMap.emplace(varrefp->varScopep(), nodep);
+                m_ನಿಯೋಜಿಸು_Map.emplace(varrefp->varScopep(), nodep);
                 checkAll(varrefp);  // Must track reference to dtype()
                 checkVarRef(varrefp);
-            } else {  // Track like any other statement
-                iterateAndNextNull(nodep->lhsp());
+            } ಇಲ್ಲದಿದ್ದರೆ {  // Track like any other statement
+                iterate_And_ಮುಂದಿನ_Null(nodep->lhsp());
             }
             iterateNull(nodep->timingControlp());
         }
-        if (assignInAssign) m_sideEffect = true;  // Parent assign shouldn't optimize
+        ಆದರೆ (ನಿಯೋಜಿಸು_ಒಳ_ನಿಯೋಜಿಸು) m_sideEffect = ನಿಜ;  // Parent assign shouldn't optimize
     }
-    void visit(AstNodeFTask* nodep) override {
-        const bool removable = !(nodep->taskPublic() || nodep->dpiExport() || nodep->dpiImport()
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_FTask* nodep) override {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ removable = !(nodep->task_ಬಹಿರಂಗ() || nodep->dpiExport() || nodep->dpiImport()
                                  || nodep->keepAlive() || nodep->isConstructor()
-                                 || (!v3Global.opt.fDeadMethods() && nodep->classMethod()));
-        m_graph.findNewRemovableVertex(nodep, removable);
+                                 || (!v3Global.opt.fDeadMethods() && nodep->class_ವಿಧಾನ()));
+        m_ನಕ್ಷೆ.ಕಂಡುಹಿಡಿ_New_Removable_ಶೃಂಗ(nodep, removable);
         //
         VL_RESTORER(m_containingFTaskRefp);
-        VL_RESTORER(m_inFTask);
+        VL_RESTORER(m_ಒಳ_FTask);
         m_containingFTaskRefp = nodep;
-        m_inFTask = true;
+        m_ಒಳ_FTask = ನಿಜ;
         iterateChildren(nodep);
         checkAll(nodep);
-        if (nodep->isVirtual()) m_graph.funcVirtual(nodep);
-        if (!removable) {
-            if (m_modp && !m_modp->dead() && !m_modp->verilatorLib())
+        ಆದರೆ (nodep->isVirtual()) m_ನಕ್ಷೆ.funcVirtual(nodep);
+        ಆದರೆ (!removable) {
+            ಆದರೆ (m_modp && !m_modp->dead() && !m_modp->verilatorLib())
                 m_modp->user1Inc();  // Keep container
         }
-        if (nodep->classOrPackagep()) {
-            if (m_elimCells) {
-                nodep->classOrPackagep(nullptr);
-            } else {
+        ಆದರೆ (nodep->classOrPackagep()) {
+            ಆದರೆ (m_elimCells) {
+                nodep->classOrPackagep(ಶೂನ್ಯಸೂಚಕ);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 nodep->classOrPackagep()->user1Inc();
             }
         }
     }
 
     //-----
-    void visit(AstClockingItem* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Clocking_ಅಂಶ* nodep) override {
         // Prevent V3Dead from deleting clockvars that are seemingly dead before V3AssertPre. Later
         // the vars will be moved to the containing module so if they are actually dead they will
         // still get deleted.
     }
-    void visit(AstNode* nodep) override {
-        if (!m_sideEffect && !nodep->isPure()) m_sideEffect = true;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override {
+        ಆದರೆ (!m_sideEffect && !nodep->is_ಶುದ್ಧ()) m_sideEffect = ನಿಜ;
         iterateChildren(nodep);
         checkAll(nodep);
     }
 
     // METHODS
-    void deadCheckTypedefs() {
-        for (AstTypedef* typedefp : m_typedefsp) {
-            if (shouldDeleteTypedef(typedefp)) {
+    ಶೂನ್ಯ deadCheckTypedefs() {
+        ಗಾಗಿ (AstTypedef* typedefp : m_typedefsp) {
+            ಆದರೆ (shouldDeleteTypedef(typedefp)) {
                 deleting(typedefp);
-                continue;
+                ಮುಂದುವರಿ;
             }
             checkAll(typedefp);
         }
     }
-    bool shouldDeleteTypedef(const AstTypedef* typedefp) const {
-        if (const auto* const structp = VN_CAST(typedefp->subDTypep(), NodeUOrStructDType)) {
-            if (structp->user1() && !structp->packed()) return false;
+    ತಾರ್ಕಿಕ shouldDeleteTypedef(ಸ್ಥಿರಾಂಕ AstTypedef* typedefp) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ* ಸ್ಥಿರಾಂಕ structp = VN_CAST(typedefp->subDTypep(), ಗಂಟು_UOr_Struct_DType)) {
+            ಆದರೆ (structp->user1() && !structp->packed()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         }
-        return m_elimCells && !typedefp->attrPublic();
+        ಹಿಂತಿರುಗಿ m_elimCells && !typedefp->attr_ಬಹಿರಂಗ();
     }
 
-    void deadCheckTasks() {
-        while (!m_graph.funcsEmpty()) {
-            AstNode* const nodep = m_graph.funcsGetPopFront();
-            if (!nodep) continue;
+    ಶೂನ್ಯ deadCheckTasks() {
+        ಆಗ (!m_ನಕ್ಷೆ.funcs_ಖಾಲಿಗಳು()) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep = m_ನಕ್ಷೆ.funcs_Get_ತೆಗೆ_Front();
+            ಆದರೆ (!nodep) ಮುಂದುವರಿ;
             UINFO(9, "Dead " << nodep);
-            if (AstNodeFTask* const taskp = VN_CAST(nodep, NodeFTask)) {
-                if (taskp->isVirtual()) {
+            ಆದರೆ (Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ taskp = VN_CAST(nodep, ಗಂಟು_FTask)) {
+                ಆದರೆ (taskp->isVirtual()) {
                     ++m_statFTasksVirtDeadified;
-                } else if (taskp->classMethod()) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (taskp->class_ವಿಧಾನ()) {
                     ++m_statFTasksMDeadified;
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     ++m_statFTasksNMDeadified;
                 }
             }
@@ -641,21 +641,21 @@ class DeadVisitor final : public VNVisitor {
         }
     }
 
-    void deadCheckDemote() {
-        for (V3GraphVertex& gvtx : m_graph.vertices()) {
-            DeadVertex* const vtxp = gvtx.cast<DeadVertex>();
+    ಶೂನ್ಯ deadCheckDemote() {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& gvtx : m_ನಕ್ಷೆ.vertices()) {
+            Dead_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = gvtx.cast<Dead_ಶೃಂಗ>();
             // A isVirtual vertex with single out means there's only one target virtual function
             // that can be virtually called, so can make it non-virtual for faster execution
             // (UVM benefits from this)
-            if (!vtxp->outSize1()) continue;
-            if (!vtxp->isVirtual()) continue;
-            for (V3GraphEdge& edge : vtxp->outEdges()) {  // Always a single one
-                AstNode* const nodep = edge.top()->as<DeadVertex>()->nodep();
-                AstNodeFTask* const funcp = VN_AS(nodep, NodeFTask);
+            ಆದರೆ (!vtxp->ಹೊರಹೋಗು_Size1()) ಮುಂದುವರಿ;
+            ಆದರೆ (!vtxp->isVirtual()) ಮುಂದುವರಿ;
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {  // Always a single one
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep = ಅಂಚು.ತುದಿ()->as<Dead_ಶೃಂಗ>()->nodep();
+                Ast_ಗಂಟು_FTask* ಸ್ಥಿರಾಂಕ funcp = VN_AS(nodep, ಗಂಟು_FTask);
                 UASSERT_OBJ(funcp->isVirtual(), funcp,
                             "Only virtual ftasks should be under DeadVirtualVertex");
-                if (v3Global.opt.fDeadMethods()) {
-                    funcp->isVirtual(false);
+                ಆದರೆ (v3Global.opt.fDeadMethods()) {
+                    funcp->isVirtual(ಸುಳ್ಳು);
                     UINFO(9, "Demote to non-virtual " << funcp);
                     ++m_statFTasksDemoted;
                 }
@@ -663,149 +663,149 @@ class DeadVisitor final : public VNVisitor {
         }
     }
 
-    void deadCheckMod() {
+    ಶೂನ್ಯ deadCheckMod() {
         // Kill any unused modules
         // V3LinkCells has a graph that is capable of this too, but we need to do it
         // after we've done all the generate blocks
-        for (bool retry = true; retry;) {
-            retry = false;
-            AstNodeModule* nextmodp;
-            for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp; modp = nextmodp) {
-                nextmodp = VN_AS(modp->nextp(), NodeModule);
+        ಗಾಗಿ (ತಾರ್ಕಿಕ retry = ನಿಜ; retry;) {
+            retry = ಸುಳ್ಳು;
+            Ast_ಗಂಟು_Module* nextmodp;
+            ಗಾಗಿ (Ast_ಗಂಟು_Module* modp = v3Global.rootp()->modulesp(); modp; modp = nextmodp) {
+                nextmodp = VN_AS(modp->nextp(), ಗಂಟು_Module);
                 // Keep $unit until m_elimCells stages. Note v3Global.opt.serializeOnly()
                 // won't reach this stage, and will always have an empty $unit. That's ok.
                 // The constant pool is always kept, entries might be created later.
-                const bool keep = (!m_elimCells && modp->isDollarUnit()) || modp->isConstPool();
-                if (modp->dead() || (!modp->isTop() && modp->user1() == 0 && !keep)) {
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ keep = (!m_elimCells && modp->isDollarUnit()) || modp->isConstPool();
+                ಆದರೆ (modp->dead() || (!modp->is_ತುದಿ() && modp->user1() == 0 && !keep)) {
                     // > 2 because L1 is the wrapper, L2 is the top user module
                     UINFO(4, "  Dead module " << modp);
                     // And its children may now be killable too; correct counts
                     // Recurse, as cells may not be directly under the module but in a generate
-                    if (!modp->dead()) {  // If was dead didn't increment user1's
-                        modp->foreach([](const AstCell* cellp) {  //
+                    ಆದರೆ (!modp->dead()) {  // If was dead didn't increment user1's
+                        modp->foreach([](ಸ್ಥಿರಾಂಕ AstCell* cellp) {  //
                             cellp->modp()->user1Inc(-1);
                         });
                     }
-                    if (modp->isDollarUnit()) v3Global.rootp()->dollarUnitPkgp(nullptr);
+                    ಆದರೆ (modp->isDollarUnit()) v3Global.rootp()->dollarUnitPkgp(ಶೂನ್ಯಸೂಚಕ);
                     deleting(modp);
-                    retry = true;
+                    retry = ನಿಜ;
                 }
             }
         }
     }
-    bool mightElimVar(const AstVar* nodep) const {
-        if (nodep->isSigPublic()) return false;  // Can't elim publics!
-        if (nodep->isPrimaryIO() || nodep->isClassMember() || nodep->sensIfacep()) return false;
-        if (nodep->isTemp() && !nodep->isTrace()) return true;
-        return m_elimUserVars;  // Post-Trace can kill most anything
+    ತಾರ್ಕಿಕ mightElimVar(ಸ್ಥಿರಾಂಕ AstVar* nodep) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ (nodep->is_Sig_ಬಹಿರಂಗ()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;  // Can't elim publics!
+        ಆದರೆ (nodep->isPrimaryIO() || nodep->isClassMember() || nodep->sensIfacep()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಆದರೆ (nodep->is_ತಾತ್ಕಾಲಿಕ() && !nodep->isTrace()) ಹಿಂತಿರುಗಿ ನಿಜ;
+        ಹಿಂತಿರುಗಿ m_elimUserVars;  // Post-Trace can kill most anything
     }
 
-    void deadCheckScope() {
-        for (bool retry = true; retry;) {
-            retry = false;
-            for (std::vector<AstScope*>::iterator it = m_scopesp.begin(); it != m_scopesp.end();
+    ಶೂನ್ಯ deadCheckScope() {
+        ಗಾಗಿ (ತಾರ್ಕಿಕ retry = ನಿಜ; retry;) {
+            retry = ಸುಳ್ಳು;
+            ಗಾಗಿ (std::ಸದಿಶ<AstScope*>::iterator it = m_scopesp.begin(); it != m_scopesp.ಕೊನೆ();
                  ++it) {
-                AstScope* const scp = *it;
-                if (!scp) continue;
-                if (scp->user1() == 0) {
+                AstScope* ಸ್ಥಿರಾಂಕ scp = *it;
+                ಆದರೆ (!scp) ಮುಂದುವರಿ;
+                ಆದರೆ (scp->user1() == 0) {
                     UINFO(4, "  Dead AstScope " << scp);
                     scp->aboveScopep()->user1Inc(-1);
-                    if (scp->dtypep()) scp->dtypep()->user1Inc(-1);
+                    ಆದರೆ (scp->dtypep()) scp->dtypep()->user1Inc(-1);
                     deleting(scp);
-                    *it = nullptr;
-                    retry = true;
+                    *it = ಶೂನ್ಯಸೂಚಕ;
+                    retry = ನಿಜ;
                 }
             }
         }
     }
 
-    void deadCheckCells() {
-        for (AstCell* cellp : m_cellsp) {
-            if (cellp->user1() == 0 && v3Global.opt.fDeadCells() &&  //
+    ಶೂನ್ಯ deadCheckCells() {
+        ಗಾಗಿ (AstCell* cellp : m_cellsp) {
+            ಆದರೆ (cellp->user1() == 0 && v3Global.opt.fDeadCells() &&  //
                 !cellp->modp()->stmtsp() && !cellp->modp()->scSectionsp()) {
                 cellp->modp()->user1Inc(-1);
                 deleting(cellp);
             }
         }
     }
-    void deadCheckClasses() {
-        for (bool retry = true; retry;) {
-            retry = false;
-            for (auto& itr : m_classesp) {
-                if (AstClass* const nodep = itr) {  // nullptr if deleted earlier
-                    if (nodep->user1() == 0) {
-                        if (nodep->extendsp()) nodep->extendsp()->user1Inc(-1);
-                        if (nodep->classOrPackagep()) nodep->classOrPackagep()->user1Inc(-1);
+    ಶೂನ್ಯ deadCheckClasses() {
+        ಗಾಗಿ (ತಾರ್ಕಿಕ retry = ನಿಜ; retry;) {
+            retry = ಸುಳ್ಳು;
+            ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& itr : m_classesp) {
+                ಆದರೆ (AstClass* ಸ್ಥಿರಾಂಕ nodep = itr) {  // nullptr if deleted earlier
+                    ಆದರೆ (nodep->user1() == 0) {
+                        ಆದರೆ (nodep->extendsp()) nodep->extendsp()->user1Inc(-1);
+                        ಆದರೆ (nodep->classOrPackagep()) nodep->classOrPackagep()->user1Inc(-1);
                         deleting(nodep);
-                        itr = nullptr;
-                        retry = true;
+                        itr = ಶೂನ್ಯಸೂಚಕ;
+                        retry = ನಿಜ;
                     }
                 }
             }
         }
     }
 
-    void deadCheckVar() {
+    ಶೂನ್ಯ deadCheckVar() {
         // Delete any unused varscopes
-        for (AstVarScope* vscp : m_vscsp) {
+        ಗಾಗಿ (AstVarScope* vscp : m_vscsp) {
             // Keep formal arguments
-            if (vscp->varp()->user2()) continue;
-            if (vscp->user1() == 0) {
+            ಆದರೆ (vscp->varp()->user2()) ಮುಂದುವರಿ;
+            ಆದರೆ (vscp->user1() == 0) {
                 UINFO(4, "  Dead " << vscp);
-                const std::pair<AssignMap::iterator, AssignMap::iterator> eqrange
-                    = m_assignMap.equal_range(vscp);
-                for (AssignMap::iterator itr = eqrange.first; itr != eqrange.second; ++itr) {
-                    AstNodeAssign* const assp = itr->second;
+                ಸ್ಥಿರಾಂಕ std::pair<ನಿಯೋಜಿಸು_Map::iterator, ನಿಯೋಜಿಸು_Map::iterator> eqrange
+                    = m_ನಿಯೋಜಿಸು_Map.equal_range(vscp);
+                ಗಾಗಿ (ನಿಯೋಜಿಸು_Map::iterator itr = eqrange.ಮೊದಲ; itr != eqrange.ಎರಡನೇ; ++itr) {
+                    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ assp = itr->ಎರಡನೇ;
                     UINFO(4, "    Dead assign " << assp);
                     assp->dtypep()->user1Inc(-1);
                     deleting(assp);
                 }
-                if (vscp->scopep()) vscp->scopep()->user1Inc(-1);
+                ಆದರೆ (vscp->scopep()) vscp->scopep()->user1Inc(-1);
                 vscp->dtypep()->user1Inc(-1);
                 deleting(vscp);
             }
         }
-        for (bool retry = true; retry;) {
-            retry = false;
-            for (std::vector<AstVar*>::iterator it = m_varsp.begin(); it != m_varsp.end(); ++it) {
-                AstVar* const varp = *it;
-                if (!varp) continue;
-                if (varp->user1() == 0) {
+        ಗಾಗಿ (ತಾರ್ಕಿಕ retry = ನಿಜ; retry;) {
+            retry = ಸುಳ್ಳು;
+            ಗಾಗಿ (std::ಸದಿಶ<AstVar*>::iterator it = m_varsp.begin(); it != m_varsp.ಕೊನೆ(); ++it) {
+                AstVar* ಸ್ಥಿರಾಂಕ varp = *it;
+                ಆದರೆ (!varp) ಮುಂದುವರಿ;
+                ಆದರೆ (varp->user1() == 0) {
                     UINFO(4, "  Dead " << varp);
-                    if (varp->dtypep()) varp->dtypep()->user1Inc(-1);
+                    ಆದರೆ (varp->dtypep()) varp->dtypep()->user1Inc(-1);
                     deleting(varp);
-                    *it = nullptr;
-                    retry = true;
+                    *it = ಶೂನ್ಯಸೂಚಕ;
+                    retry = ನಿಜ;
                 }
             }
         }
-        for (std::vector<AstNode*>::iterator it = m_dtypeElimsp.begin(); it != m_dtypeElimsp.end();
+        ಗಾಗಿ (std::ಸದಿಶ<Ast_ಗಂಟು*>::iterator it = m_dtypeElimsp.begin(); it != m_dtypeElimsp.ಕೊನೆ();
              ++it) {
-            if ((*it)->user1() == 0) {
+            ಆದರೆ ((*it)->user1() == 0) {
                 // It's possible that there if a reference to each individual member, but
                 // not to the dtype itself.  Check and don't remove the parent dtype if
                 // members are still alive.
-                if (const AstNodeUOrStructDType* const classp
-                    = VN_CAST((*it), NodeUOrStructDType)) {
-                    bool cont = true;
-                    for (AstMemberDType* memberp = classp->membersp(); memberp;
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_UOr_Struct_DType* ಸ್ಥಿರಾಂಕ classp
+                    = VN_CAST((*it), ಗಂಟು_UOr_Struct_DType)) {
+                    ತಾರ್ಕಿಕ cont = ನಿಜ;
+                    ಗಾಗಿ (AstMemberDType* memberp = classp->membersp(); memberp;
                          memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                        if (memberp->user1() != 0) {
-                            cont = false;
-                            break;
+                        ಆದರೆ (memberp->user1() != 0) {
+                            cont = ಸುಳ್ಳು;
+                            ನಿಲ್ಲಿಸು;
                         }
                     }
-                    if (!cont) continue;
+                    ಆದರೆ (!cont) ಮುಂದುವರಿ;
                 }
                 deleting(*it);
             }
         }
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    DeadVisitor(AstNetlist* nodep, bool elimUserVars, bool elimDTypes, bool elimScopes,
-                bool elimCells, bool elimTasks)
+    DeadVisitor(AstNetlist* nodep, ತಾರ್ಕಿಕ elimUserVars, ತಾರ್ಕಿಕ elimDTypes, ತಾರ್ಕಿಕ elimScopes,
+                ತಾರ್ಕಿಕ elimCells, ತಾರ್ಕಿಕ elimTasks)
         : m_elimUserVars{elimUserVars}
         , m_elimDTypes{elimDTypes}
         , m_elimCells{elimCells}
@@ -816,47 +816,47 @@ public:
         // Operate on whole netlist
         iterate(nodep);
 
-        if (AstVarScope* const vscp = nodep->dpiExportTriggerp()) {
+        ಆದರೆ (AstVarScope* ಸ್ಥಿರಾಂಕ vscp = nodep->dpiExportTriggerp()) {
             vscp->user1Inc();
             vscp->varp()->user1Inc();
         }
 
         // If data type has a reference in another package, then keep defining package around
-        for (auto& itr : m_dtypePkgsp) {
-            if (itr.first->user1()) itr.second->user1Inc();
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ& itr : m_dtypePkgsp) {
+            ಆದರೆ (itr.ಮೊದಲ->user1()) itr.ಎರಡನೇ->user1Inc();
         }
 
         // Simplify redundant edges (e.g. function calls another function many times)
-        m_graph.removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9 || debug() >= 9)
-            m_graph.dumpDotFilePrefixed("dead_graph", false);
+        m_ನಕ್ಷೆ.remove_Redundant_ಅಂಚುಗಳು_Max(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
+        ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 9 || debug() >= 9)
+            m_ನಕ್ಷೆ.dumpDotFilePrefixed("dead_graph", ಸುಳ್ಳು);
 
-        if (elimTasks) deadCheckTasks();
+        ಆದರೆ (elimTasks) deadCheckTasks();
         deadCheckTypedefs();
         deadCheckVar();
         // We only eliminate scopes when in a flattened structure
         // Otherwise we have no easy way to know if a scope is used
-        if (elimScopes) deadCheckScope();
-        if (elimCells) deadCheckCells();
+        ಆದರೆ (elimScopes) deadCheckScope();
+        ಆದರೆ (elimCells) deadCheckCells();
         deadCheckClasses();
         // Modules after vars, because might be vars we delete inside a mod we delete
         deadCheckMod();
 
         // After deleting as much as can, demote some virtual functions
-        if (elimTasks) deadCheckDemote();
+        ಆದರೆ (elimTasks) deadCheckDemote();
 
         // We may have removed some datatypes, cleanup
         nodep->typeTablep()->repairCache();
-        VIsCached::clearCacheTree();  // Removing assignments may affect isPure
+        VIsCached::clear_Cache_ವೃಕ್ಷ();  // Removing assignments may affect isPure
         V3ConstPool::invalidateCache();  // Might have deleted constant pool entries
     }
     ~DeadVisitor() override {
-        V3Stats::addStatSum("Optimizations, FTasks, virtual-to-nonvirtual demotion",
+        V3Stats::ಕೂಡಿಸು_Stat_ಮೊತ್ತ("Optimizations, FTasks, virtual-to-nonvirtual demotion",
                             m_statFTasksDemoted);
-        V3Stats::addStatSum("Optimizations, FTasks, deadified, methods", m_statFTasksMDeadified);
-        V3Stats::addStatSum("Optimizations, FTasks, deadified, non-methods",
+        V3Stats::ಕೂಡಿಸು_Stat_ಮೊತ್ತ("Optimizations, FTasks, deadified, methods", m_statFTasksMDeadified);
+        V3Stats::ಕೂಡಿಸು_Stat_ಮೊತ್ತ("Optimizations, FTasks, deadified, non-methods",
                             m_statFTasksNMDeadified);
-        V3Stats::addStatSum("Optimizations, FTasks, deadified, virtual",
+        V3Stats::ಕೂಡಿಸು_Stat_ಮೊತ್ತ("Optimizations, FTasks, deadified, virtual",
                             m_statFTasksVirtDeadified);
     };
 };
@@ -864,34 +864,34 @@ public:
 //######################################################################
 // Dead class functions
 
-void V3Dead::deadifyModules(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Dead::deadifyModules(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {  // node, elimUserVars, elimDTypes, elimScopes, elimCells, elimTasks
-        DeadVisitor{nodep, false, false, false, false, false};
+        DeadVisitor{nodep, ಸುಳ್ಳು, ಸುಳ್ಳು, ಸುಳ್ಳು, ಸುಳ್ಳು, ಸುಳ್ಳು};
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("deadModules", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("deadModules", 0, dump_ವೃಕ್ಷ_Either_Level() >= 6);
 }
 
-void V3Dead::deadifyDTypes(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Dead::deadifyDTypes(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { DeadVisitor{nodep, false, true, false, false, true}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("deadDtypes", 0, dumpTreeEitherLevel() >= 3);
+    { DeadVisitor{nodep, ಸುಳ್ಳು, ನಿಜ, ಸುಳ್ಳು, ಸುಳ್ಳು, ನಿಜ}; }  // Destruct before checking
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("deadDtypes", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }
 
-void V3Dead::deadifyDTypesScoped(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Dead::deadifyDTypesScoped(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { DeadVisitor{nodep, false, true, true, false, false}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("deadDtypesScoped", 0, dumpTreeEitherLevel() >= 3);
+    { DeadVisitor{nodep, ಸುಳ್ಳು, ನಿಜ, ನಿಜ, ಸುಳ್ಳು, ಸುಳ್ಳು}; }  // Destruct before checking
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("deadDtypesScoped", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }
 
-void V3Dead::deadifyAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Dead::deadifyAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { DeadVisitor{nodep, true, true, false, true, true}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("deadAll", 0, dumpTreeEitherLevel() >= 3);
+    { DeadVisitor{nodep, ನಿಜ, ನಿಜ, ಸುಳ್ಳು, ನಿಜ, ನಿಜ}; }  // Destruct before checking
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("deadAll", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }
 
-void V3Dead::deadifyAllScoped(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Dead::deadifyAllScoped(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { DeadVisitor{nodep, true, true, true, true, true}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("deadAllScoped", 0, dumpTreeEitherLevel() >= 3);
+    { DeadVisitor{nodep, ನಿಜ, ನಿಜ, ನಿಜ, ನಿಜ, ನಿಜ}; }  // Destruct before checking
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("deadAllScoped", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

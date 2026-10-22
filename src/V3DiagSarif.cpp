@@ -14,182 +14,182 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DiagSarif.h"
+#ಅನ್ತರ್ಭಾವ "V3DiagSarif.h"
 
-#include "V3File.h"
-#include "V3Os.h"
+#ಅನ್ತರ್ಭಾವ "V3File.h"
+#ಅನ್ತರ್ಭಾವ "V3Os.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 
-class V3DiagSarifImp final {
+ವರ್ಗ V3DiagSarifImp final {
     // MEMBERS
-    std::deque<VErrorMessage> m_messages;
-    std::set<V3ErrorCode> m_codes;
-    std::map<V3ErrorCode, int> m_codeIndex;
+    std::deque<VError_ಸಂದೇಶ> m_messages;
+    std::ಗಣ<V3_Error_ಸಂಕೇತ> m_codes;
+    std::map<V3_Error_ಸಂಕೇತ, ಪೂರ್ಣಾಂಕ> m_ಸಂಕೇತ_ಸೂಚ್ಯಂಕ;
 
     // METHODS
-    void calculate() {
-        for (const VErrorMessage& msgr : m_messages)
-            if (msgr.code().isNamed()) m_codes.emplace(msgr.code());
-        int i = 0;
-        for (const V3ErrorCode& code : m_codes) m_codeIndex[code] = i++;
+    ಶೂನ್ಯ calculate() {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ VError_ಸಂದೇಶ& msgr : m_messages)
+            ಆದರೆ (msgr.ಸಂಕೇತ_2().isNamed()) m_codes.emplace(msgr.ಸಂಕೇತ_2());
+        ಪೂರ್ಣಾಂಕ i = 0;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_Error_ಸಂಕೇತ& ಸಂಕೇತ_2 : m_codes) m_ಸಂಕೇತ_ಸೂಚ್ಯಂಕ[ಸಂಕೇತ_2] = i++;
     }
 
-    void putRules(V3OutJsonFile& of) const {
-        for (const V3ErrorCode& code : m_codes) {
-            of.begin().put("id", code.ascii()).put("helpUri", code.url()).end();
+    ಶೂನ್ಯ put_ನಿಯಮಗಳು(V3_ಹೊರಹೋಗು_Json_File& ದ) ಸ್ಥಿರಾಂಕ {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_Error_ಸಂಕೇತ& ಸಂಕೇತ_2 : m_codes) {
+            ದ.begin().put("id", ಸಂಕೇತ_2.ascii()).put("helpUri", ಸಂಕೇತ_2.url()).ಕೊನೆ();
         }
     }
 
-    void putText(V3OutJsonFile& of, const string& clean, const string& formatted) const {
-        const string markdown = "```\n" + formatted + "\n```\n";
-        of.put("text", VString::trimWhitespace(clean)).put("markdown", markdown);
+    ಶೂನ್ಯ put_ಪಠ್ಯ(V3_ಹೊರಹೋಗು_Json_File& ದ, ಸ್ಥಿರಾಂಕ string& clean, ಸ್ಥಿರಾಂಕ string& formatted) ಸ್ಥಿರಾಂಕ {
+        ಸ್ಥಿರಾಂಕ string markdown = "```\n" + formatted + "\n```\n";
+        ದ.put("text", VString::trimWhitespace(clean)).put("markdown", markdown);
     }
 
-    void putLocation(V3OutJsonFile& of, const FileLine* fl) const {
-        const string filename = V3Os::filenameRealPath(fl->filename());
-        of.begin("physicalLocation");
-        of.begin("artifactLocation");
-        if (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
-            of.put("uri", "file:" + filename).put("uriBaseId", "%srcroot%");
-        } else {
-            of.put("uri", "file://" + filename);
+    ಶೂನ್ಯ putLocation(V3_ಹೊರಹೋಗು_Json_File& ದ, ಸ್ಥಿರಾಂಕ File_ಸಾಲು* fl) ಸ್ಥಿರಾಂಕ {
+        ಸ್ಥಿರಾಂಕ string filename = V3Os::filename_Real_ಮಾರ್ಗ(fl->filename());
+        ದ.begin("physicalLocation");
+        ದ.begin("artifactLocation");
+        ಆದರೆ (V3Os::filenameIsRel(filename)) {  // SARIF spec says rel has no //
+            ದ.put("uri", "file:" + filename).put("uriBaseId", "%srcroot%");
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ದ.put("uri", "file://" + filename);
         }
-        of.end()
+        ದ.ಕೊನೆ()
             .begin("region")
             .put("sourceLanguage", "systemverilog")
-            .put("startLine", fl->firstLineno())
-            .put("startColumn", fl->firstColumn());
-        if (fl->firstLineno() != fl->lastLineno()) of.put("endLine", fl->lastLineno());
-        of.put("endColumn", fl->lastColumn());
-        of.begin("snippit", '{');
-        putText(of, fl->prettySource(), V3Error::stripMetaText(fl->warnContextPrimary(), false));
-        of.end();  // snippit
-        of.end();  // region
-        of.end();  // artifactLocation
+            .put("startLine", fl->ಮೊದಲ_Lineno())
+            .put("startColumn", fl->ಮೊದಲ_ಸ್ತಂಭ());
+        ಆದರೆ (fl->ಮೊದಲ_Lineno() != fl->ಕೊನೆಯ_Lineno()) ದ.put("endLine", fl->ಕೊನೆಯ_Lineno());
+        ದ.put("endColumn", fl->ಕೊನೆಯ_ಸ್ತಂಭ());
+        ದ.begin("snippit", '{');
+        put_ಪಠ್ಯ(ದ, fl->pretty_ಮೂಲ(), V3Error::strip_Meta_ಪಠ್ಯ(fl->warnContextPrimary(), ಸುಳ್ಳು));
+        ದ.ಕೊನೆ();  // snippit
+        ದ.ಕೊನೆ();  // region
+        ದ.ಕೊನೆ();  // artifactLocation
     }
 
-    string substrToNextRelated(const string& str) {
-        const size_t pos = str.find("__WARNRELATED(", 0);
-        return (pos == std::string::npos) ? str : str.substr(0, pos);
+    string substr_ಗಮ್ಯ_ಮುಂದಿನ_Related(ಸ್ಥಿರಾಂಕ string& str) {
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t pos = str.ಕಂಡುಹಿಡಿ("__WARNRELATED(", 0);
+        ಹಿಂತಿರುಗಿ (pos == std::string::npos) ? str : str.substr(0, pos);
     }
 
-    void putResult(V3OutJsonFile& of, const VErrorMessage& msg) {
-        of.begin();
-        of.put("level", msg.code().severityInfo()             ? "none"
-                        : V3Error::isError(msg.code(), false) ? "error"
+    ಶೂನ್ಯ put_ಫಲಿತಾಂಶ(V3_ಹೊರಹೋಗು_Json_File& ದ, ಸ್ಥಿರಾಂಕ VError_ಸಂದೇಶ& ಸಂದೇಶ_2) {
+        ದ.begin();
+        ದ.put("level", ಸಂದೇಶ_2.ಸಂಕೇತ_2().severityInfo()             ? "none"
+                        : V3Error::isError(ಸಂದೇಶ_2.ಸಂಕೇತ_2(), ಸುಳ್ಳು) ? "error"
                                                               : "warning");
 
-        string text = msg.text();
+        string ಪಠ್ಯ = ಸಂದೇಶ_2.ಪಠ್ಯ();
         // UINFO(9, "Result raw text " << text);
 
         // We put the entire message including relatedLocations text
         // into the primary message text, because viewers such as
         // https://microsoft.github.io/sarif-web-component/
         // currently appear to ignore relatedLocations.
-        const string first_clean = V3Error::stripMetaText(text, true);
-        const string first_fmt = V3Error::stripMetaText(text, false);
+        ಸ್ಥಿರಾಂಕ string ಮೊದಲ_clean = V3Error::strip_Meta_ಪಠ್ಯ(ಪಠ್ಯ, ನಿಜ);
+        ಸ್ಥಿರಾಂಕ string ಮೊದಲ_fmt = V3Error::strip_Meta_ಪಠ್ಯ(ಪಠ್ಯ, ಸುಳ್ಳು);
 
-        of.begin("message");
-        putText(of, first_clean, first_fmt);
-        of.end();
-        if (const FileLine* const fl = msg.fileline()) {
-            of.begin("locations", '[').begin();
-            putLocation(of, fl);
-            of.end();
-            of.end();
+        ದ.begin("message");
+        put_ಪಠ್ಯ(ದ, ಮೊದಲ_clean, ಮೊದಲ_fmt);
+        ದ.ಕೊನೆ();
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = ಸಂದೇಶ_2.fileline()) {
+            ದ.begin("locations", '[').begin();
+            putLocation(ದ, fl);
+            ದ.ಕೊನೆ();
+            ದ.ಕೊನೆ();
         }
 
-        if (text.find("__WARNRELATED(") != std::string::npos) {
-            of.begin("relatedLocations", '[');
-            size_t pos = 0;
-            while ((pos = text.find("__WARNRELATED(", pos)) != std::string::npos) {
-                const size_t start = pos + std::strlen("__WARNRELATED(");
-                size_t end = start;
-                while (end < text.size() && text[end] != ')') ++end;
-                const size_t index = std::atoi(text.substr(start, end + 1).c_str());
-                if (end < text.size()) end += std::strlen(")");
-                text = text.substr(end, text.size());
-                UASSERT_STATIC(index < msg.filelines().size(),
+        ಆದರೆ (ಪಠ್ಯ.ಕಂಡುಹಿಡಿ("__WARNRELATED(") != std::string::npos) {
+            ದ.begin("relatedLocations", '[');
+            ಗಾತ್ರ_t pos = 0;
+            ಆಗ ((pos = ಪಠ್ಯ.ಕಂಡುಹಿಡಿ("__WARNRELATED(", pos)) != std::string::npos) {
+                ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಆರಂಭ = pos + std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("__WARNRELATED(");
+                ಗಾತ್ರ_t ಕೊನೆ = ಆರಂಭ;
+                ಆಗ (ಕೊನೆ < ಪಠ್ಯ.ಗಾತ್ರ_2() && ಪಠ್ಯ[ಕೊನೆ] != ')') ++ಕೊನೆ;
+                ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಸೂಚ್ಯಂಕ = std::atoi(ಪಠ್ಯ.substr(ಆರಂಭ, ಕೊನೆ + 1).c_str());
+                ಆದರೆ (ಕೊನೆ < ಪಠ್ಯ.ಗಾತ್ರ_2()) ಕೊನೆ += std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(")");
+                ಪಠ್ಯ = ಪಠ್ಯ.substr(ಕೊನೆ, ಪಠ್ಯ.ಗಾತ್ರ_2());
+                UASSERT_STATIC(ಸೂಚ್ಯಂಕ < ಸಂದೇಶ_2.filelines().ಗಾತ್ರ_2(),
                                "Error message warnRelated without fileline");
 
-                const string related_clean
-                    = V3Error::stripMetaText(substrToNextRelated(text), true);
-                const string related_fmt
-                    = V3Error::stripMetaText(substrToNextRelated(text), false);
-                const FileLine* fl = msg.filelines()[index];
-                of.begin().begin("message");
-                putText(of, related_clean, related_fmt);
-                of.end();  // message
-                putLocation(of, fl);
-                of.end();
+                ಸ್ಥಿರಾಂಕ string related_clean
+                    = V3Error::strip_Meta_ಪಠ್ಯ(substr_ಗಮ್ಯ_ಮುಂದಿನ_Related(ಪಠ್ಯ), ನಿಜ);
+                ಸ್ಥಿರಾಂಕ string related_fmt
+                    = V3Error::strip_Meta_ಪಠ್ಯ(substr_ಗಮ್ಯ_ಮುಂದಿನ_Related(ಪಠ್ಯ), ಸುಳ್ಳು);
+                ಸ್ಥಿರಾಂಕ File_ಸಾಲು* fl = ಸಂದೇಶ_2.filelines()[ಸೂಚ್ಯಂಕ];
+                ದ.begin().begin("message");
+                put_ಪಠ್ಯ(ದ, related_clean, related_fmt);
+                ದ.ಕೊನೆ();  //ಸಂದೇಶ
+                putLocation(ದ, fl);
+                ದ.ಕೊನೆ();
             }
-            of.end();
+            ದ.ಕೊನೆ();
         }
 
-        if (msg.code().isNamed())
-            of.put("ruleId", msg.code().ascii()).put("ruleIndex", m_codeIndex[msg.code()]);
+        ಆದರೆ (ಸಂದೇಶ_2.ಸಂಕೇತ_2().isNamed())
+            ದ.put("ruleId", ಸಂದೇಶ_2.ಸಂಕೇತ_2().ascii()).put("ruleIndex", m_ಸಂಕೇತ_ಸೂಚ್ಯಂಕ[ಸಂದೇಶ_2.ಸಂಕೇತ_2()]);
 
-        of.end();
+        ದ.ಕೊನೆ();
     }
 
     // STATIC FUNCTIONS
-public:
-    static V3DiagSarifImp& s() {
-        static V3DiagSarifImp s_s;
-        return s_s;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ V3DiagSarifImp& s() {
+        ಸ್ಥಿರ V3DiagSarifImp s_s;
+        ಹಿಂತಿರುಗಿ s_s;
     }
 
-    void pushMessage(const VErrorMessage& msg) { m_messages.push_back(msg); }
+    ಶೂನ್ಯ ತಳ್ಳು_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ VError_ಸಂದೇಶ& ಸಂದೇಶ_2) { m_messages.ತಳ್ಳು_ಹಿಂಭಾಗ(ಸಂದೇಶ_2); }
 
-    void output(bool success) {
-        V3OutJsonFile of{v3Global.opt.diagnosticsSarifOutput()};
+    ಶೂನ್ಯ output(ತಾರ್ಕಿಕ success) {
+        V3_ಹೊರಹೋಗು_Json_File ದ{v3Global.opt.diagnosticsSarifOutput()};
         calculate();
 
-        of.put("$schema", "https://json.schemastore.org/sarif-2.1.0-rtm.5.json")
+        ದ.put("$schema", "https://json.schemastore.org/sarif-2.1.0-rtm.5.json")
             .put("version", "2.1.0");
 
-        of.begin("runs", '[').begin();
+        ದ.begin("runs", '[').begin();
 
-        of.begin("tool")
+        ದ.begin("tool")
             .begin("driver")
             .put("name", "Verilator")
-            .put("version", VString::replaceSubstr(V3Options::version(), "Verilator ", ""))
+            .put("version", VString::replaceSubstr(V3Options::ಆವೃತ್ತಿ(), "Verilator ", ""))
             .put("informationUri", "https://verilator.org");
 
-        of.begin("rules", '[');
-        putRules(of);
-        of.end()  // rules
-            .end()  // driver
-            .end();  //tool
+        ದ.begin("rules", '[');
+        put_ನಿಯಮಗಳು(ದ);
+        ದ.ಕೊನೆ()  //ನಿಯಮಗಳು
+            .ಕೊನೆ()  // driver
+            .ಕೊನೆ();  //tool
 
-        of.begin("invocations", '[')
+        ದ.begin("invocations", '[')
             .begin()
-            .put("commandLine", v3Global.opt.allArgsString())
+            .put("commandLine", v3Global.opt.all_ವಾದಗಳು_String())
             .put("executionSuccessful", success)
-            .end()
-            .end();
+            .ಕೊನೆ()
+            .ಕೊನೆ();
 
-        of.begin("results", '[');
-        for (const VErrorMessage& msgr : m_messages) putResult(of, msgr);
-        of.end();
+        ದ.begin("results", '[');
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ VError_ಸಂದೇಶ& msgr : m_messages) put_ಫಲಿತಾಂಶ(ದ, msgr);
+        ದ.ಕೊನೆ();
 
-        of.end();  // runs ]
-        of.end();  // runs }
+        ದ.ಕೊನೆ();  // runs ]
+        ದ.ಕೊನೆ();  // runs }
     }
 };
 
-void V3DiagSarif::pushMessage(const VErrorMessage& msg) VL_MT_DISABLED {
-    if (!v3Global.opt.diagnosticsSarif()) return;
-    V3DiagSarifImp::s().pushMessage(msg);
+ಶೂನ್ಯ V3DiagSarif::ತಳ್ಳು_ಸಂದೇಶ(ಸ್ಥಿರಾಂಕ VError_ಸಂದೇಶ& ಸಂದೇಶ_2) VL_MT_DISABLED {
+    ಆದರೆ (!v3Global.opt.diagnosticsSarif()) ಹಿಂತಿರುಗಿ;
+    V3DiagSarifImp::s().ತಳ್ಳು_ಸಂದೇಶ(ಸಂದೇಶ_2);
 }
 
-void V3DiagSarif::output(bool success) {
-    if (!v3Global.opt.diagnosticsSarif()) return;
+ಶೂನ್ಯ V3DiagSarif::output(ತಾರ್ಕಿಕ success) {
+    ಆದರೆ (!v3Global.opt.diagnosticsSarif()) ಹಿಂತಿರುಗಿ;
     UINFO(2, __FUNCTION__ << ":");
     V3DiagSarifImp::s().output(success);
 }

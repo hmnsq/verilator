@@ -14,130 +14,130 @@
 //
 //*************************************************************************
 
-#include "V3HashTable.h"
+#ಅನ್ತರ್ಭಾವ "V3HashTable.h"
 
-#include "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
 
-#include <array>
-#include <functional>
-#include <map>
-#include <set>
-#include <string>
-#include <type_traits>
-#include <utility>
+#ಅನ್ತರ್ಭಾವ <array>
+#ಅನ್ತರ್ಭಾವ <functional>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <string>
+#ಅನ್ತರ್ಭಾವ <type_traits>
+#ಅನ್ತರ್ಭಾವ <utility>
 
-namespace V3HashTableInternals {
+ನಾಮಾಕಾಶ V3_Hash_ಕೋಷ್ಟಕ_Internals {
 
 // Entries that fill a table of the given capacity to its maximum load, so one more grows it
-constexpr size_t maxLoad(size_t capacity) { return capacity * LOAD_FACTOR_NUM / LOAD_FACTOR_DEN; }
+constexpr ಗಾತ್ರ_t max_ತುಂಬು(ಗಾತ್ರ_t ಸಾಮರ್ಥ್ಯ) { ಹಿಂತಿರುಗಿ ಸಾಮರ್ಥ್ಯ * ತುಂಬು_ಗುಣಕ_ಅಂಕೆ / ತುಂಬು_ಗುಣಕ_DEN; }
 
 // Enough entries to grow the smallest table twice, that is, to fill four times the minimum
-constexpr size_t GROWS_TWICE = maxLoad(4 * MIN_CAPACITY);
-static_assert(GROWS_TWICE > maxLoad(2 * MIN_CAPACITY),
+constexpr ಗಾತ್ರ_t GROWS_TWICE = max_ತುಂಬು(4 * MIN_ಸಾಮರ್ಥ್ಯ);
+static_assert(GROWS_TWICE > max_ತುಂಬು(2 * MIN_ಸಾಮರ್ಥ್ಯ),
               "SelfTest: 'GROWS_TWICE' must overflow a table twice the minimum");
 
 //######################################################################
 // Set key by value
 
-void testValueKeys() {
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Id of this entry
+ಶೂನ್ಯ test_ಮೌಲ್ಯ_ಕೀಲಿಗಳು() {
+    ರಚನೆ ಮೌಲ್ಯ_2 final {
+        ಗಾತ್ರ_t m_hash = 0;  // Hash of this entry
+        ಗಾತ್ರ_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value& value) const { return operator()(value.m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    ರಚನೆ Hash final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2& ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ಮೌಲ್ಯ.m_hash, 0); }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t hash, ಗಾತ್ರ_t) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value& a, const Value& b) const {
-            return operator()(a, b.m_hash, b.m_id);
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2& a, ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2& b) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(a, b.m_hash, b.m_id);
         }
-        bool operator()(const Value& value, size_t hash, size_t id) const {
-            return value.m_hash == hash && value.m_id == id;
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2& ಮೌಲ್ಯ, ಗಾತ್ರ_t hash, ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ.m_hash == hash && ಮೌಲ್ಯ.m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value, Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<ಮೌಲ್ಯ_2, Hash, Equal>;
 
     // Entries that are added are found, entries that are not are not
     {
-        const Value value{1, 0};
-        const Value equal{1, 0};  // Equal to 'value', and hashes the same
-        Set set;
-        UASSERT_SELFTEST(set.empty(), true);  // Starts empty
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So iterates nothing
-        UASSERT_SELFTEST(set.find(value) == set.end(), true);  // And finds nothing
-        const std::pair<Set::iterator, bool> added = set.insert(value);
-        UASSERT_SELFTEST(added.second, true);  // Added, as it was absent
-        UASSERT_SELFTEST(added.first->m_id, value.m_id);  // The iterator is at the entry
-        UASSERT_SELFTEST(&*added.first != &value, true);  // Which is a copy of the argument
-        UASSERT_SELFTEST(set.size(), 1);  // And is the only one
-        UASSERT_SELFTEST(set.empty(), false);  // So the set is no longer empty
+        ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2 ಮೌಲ್ಯ{1, 0};
+        ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2 equal{1, 0};  // Equal to 'value', and hashes the same
+        ಗಣ_2 ಗಣ;
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Starts empty
+        UASSERT_SELFTEST(ಗಣ.begin() == ಗಣ.ಕೊನೆ(), ನಿಜ);  // So iterates nothing
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(ಮೌಲ್ಯ) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // And finds nothing
+        ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> added = ಗಣ.ಸೇರಿಸು(ಮೌಲ್ಯ);
+        UASSERT_SELFTEST(added.ಎರಡನೇ, ನಿಜ);  // Added, as it was absent
+        UASSERT_SELFTEST(added.ಮೊದಲ->m_id, ಮೌಲ್ಯ.m_id);  // The iterator is at the entry
+        UASSERT_SELFTEST(&*added.ಮೊದಲ != &ಮೌಲ್ಯ, ನಿಜ);  // Which is a copy of the argument
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 1);  // And is the only one
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ಸುಳ್ಳು);  // So the set is no longer empty
         {
-            const Set::iterator it = set.find(value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Found by itself
-            UASSERT_SELFTEST(&*it, &*added.first);  // At the entry held
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Found by itself
+            UASSERT_SELFTEST(&*it, &*added.ಮೊದಲ);  // At the entry held
         }
         {
-            const Set::iterator it = set.find(equal);
-            UASSERT_SELFTEST(it != set.end(), true);  // And by an equal entry
-            UASSERT_SELFTEST(&*it, &*added.first);  // At that same entry
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(equal);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // And by an equal entry
+            UASSERT_SELFTEST(&*it, &*added.ಮೊದಲ);  // At that same entry
         }
         {
-            const Set::iterator it = set.find(1, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // And by its parts
-            UASSERT_SELFTEST(&*it, &*added.first);  // At that same entry again
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(1, ಗಾತ್ರ_t{0});
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // And by its parts
+            UASSERT_SELFTEST(&*it, &*added.ಮೊದಲ);  // At that same entry again
         }
-        UASSERT_SELFTEST(set.find(1, size_t{1}) == set.end(), true);  // Hash same, id not
-        UASSERT_SELFTEST(set.find(2, size_t{0}) == set.end(), true);  // Id same, hash not
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(1, ಗಾತ್ರ_t{1}) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // Hash same, id not
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(2, ಗಾತ್ರ_t{0}) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // Id same, hash not
         // Adding an equal entry returns the one in the set, and does not add
-        const std::pair<Set::iterator, bool> again = set.insert(equal);
-        UASSERT_SELFTEST(again.second, false);  // Not added, as an equal is present
-        UASSERT_SELFTEST(&*again.first, &*added.first);  // At the entry already held
-        UASSERT_SELFTEST(set.size(), 1);  // Still just the one entry
+        ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> again = ಗಣ.ಸೇರಿಸು(equal);
+        UASSERT_SELFTEST(again.ಎರಡನೇ, ಸುಳ್ಳು);  // Not added, as an equal is present
+        UASSERT_SELFTEST(&*again.ಮೊದಲ, &*added.ಮೊದಲ);  // At the entry already held
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 1);  // Still just the one entry
         // Erasing through an iterator removes the entry it is at
         {
-            const Set::iterator it = set.find(value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            set.erase(it);
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Present before the erase
+            ಗಣ.erase(it);
         }
-        UASSERT_SELFTEST(set.empty(), true);  // Empty again
-        UASSERT_SELFTEST(set.find(value) == set.end(), true);  // So the entry is gone
-        UASSERT_SELFTEST(set.contains(value), false);  // As 'contains' agrees
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Empty again
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(ಮೌಲ್ಯ) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // So the entry is gone
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(ಮೌಲ್ಯ), ಸುಳ್ಳು);  // As 'contains' agrees
         // Erase by key removes whatever that key finds
-        UASSERT_SELFTEST(set.erase(value), false);  // Nothing to erase, so says so
-        set.insert(value);
-        UASSERT_SELFTEST(set.erase(equal), true);  // An equal key erases the entry held
-        UASSERT_SELFTEST(set.empty(), true);  // Which leaves the set empty
+        UASSERT_SELFTEST(ಗಣ.erase(ಮೌಲ್ಯ), ಸುಳ್ಳು);  // Nothing to erase, so says so
+        ಗಣ.ಸೇರಿಸು(ಮೌಲ್ಯ);
+        UASSERT_SELFTEST(ಗಣ.erase(equal), ನಿಜ);  // An equal key erases the entry held
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Which leaves the set empty
         // And by a key spelled as the parts of an entry
-        set.insert(value);
-        UASSERT_SELFTEST(set.erase(1, size_t{0}), true);  // Those parts find and erase it
-        UASSERT_SELFTEST(set.empty(), true);  // Empty once more
+        ಗಣ.ಸೇರಿಸು(ಮೌಲ್ಯ);
+        UASSERT_SELFTEST(ಗಣ.erase(1, ಗಾತ್ರ_t{0}), ನಿಜ);  // Those parts find and erase it
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Empty once more
     }
 
     // Colliding entries are all kept and stay reachable, including after the table grows
     {
-        constexpr size_t N = GROWS_TWICE;
-        Set set;
-        for (size_t i = 0; i < N; ++i) {
-            const std::pair<Set::iterator, bool> added = set.insert(Value{7, i});
-            UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
+        constexpr ಗಾತ್ರ_t N = GROWS_TWICE;
+        ಗಣ_2 ಗಣ;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+            ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> added = ಗಣ.ಸೇರಿಸು(ಮೌಲ್ಯ_2{7, i});
+            UASSERT_SELFTEST(added.ಎರಡನೇ, ನಿಜ);  // Ids differ, so each is added
         }
-        UASSERT_SELFTEST(set.size(), N);  // All of them, in the one probe run
-        for (size_t i = 0; i < N; ++i) {
-            const Set::iterator it = set.find(size_t{7}, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // The growth lost nothing
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // All of them, in the one probe run
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಗಾತ್ರ_t{7}, i);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // The growth lost nothing
             UASSERT_SELFTEST(it->m_id, i);  // And is the entry asked for
         }
         // Iterating visits every entry exactly once
-        std::array<bool, N> seen{};
-        size_t n = 0;
-        for (const Value& entry : set) {
-            UASSERT_SELFTEST(entry.m_hash, size_t{7});  // Only entries added
-            UASSERT_SELFTEST(seen[entry.m_id], false);  // Each of them exactly once
-            seen[entry.m_id] = true;
+        std::array<ತಾರ್ಕಿಕ, N> ನೋಡಿದ{};
+        ಗಾತ್ರ_t n = 0;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2& ನಮೂದು : ಗಣ) {
+            UASSERT_SELFTEST(ನಮೂದು.m_hash, ಗಾತ್ರ_t{7});  // Only entries added
+            UASSERT_SELFTEST(ನೋಡಿದ[ನಮೂದು.m_id], ಸುಳ್ಳು);  // Each of them exactly once
+            ನೋಡಿದ[ನಮೂದು.m_id] = ನಿಜ;
             ++n;
         }
         UASSERT_SELFTEST(n, N);  // And every one of them
@@ -147,263 +147,263 @@ void testValueKeys() {
 //######################################################################
 // Set key by pointer
 
-void testPointerKeys() {
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Id of this entry
+ಶೂನ್ಯ test_ಸೂಚಕ_ಕೀಲಿಗಳು() {
+    ರಚನೆ ಮೌಲ್ಯ_2 final {
+        ಗಾತ್ರ_t m_hash = 0;  // Hash of this entry
+        ಗಾತ್ರ_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    ರಚನೆ Hash final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* valuep) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(valuep->m_hash, 0); }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t hash, ಗಾತ್ರ_t) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* ap, ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* bp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ap, bp->m_hash, bp->m_id);
         }
-        bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* valuep, ಗಾತ್ರ_t hash, ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value*, Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<ಮೌಲ್ಯ_2*, Hash, Equal>;
 
     // Entries that are added are found, entries that are not are not
     {
-        Value value{1, 0};
-        Value equal{1, 0};  // Equal to 'value', and hashes the same
-        Set set;
-        UASSERT_SELFTEST(set.empty(), true);  // Starts empty
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So iterates nothing
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // And finds nothing
-        const std::pair<Set::iterator, bool> added = set.insert(&value);
-        UASSERT_SELFTEST(added.second, true);  // Added, as it was absent
-        UASSERT_SELFTEST(*added.first, &value);  // The iterator is at the new entry
-        UASSERT_SELFTEST(set.size(), 1);  // Which is the only one
-        UASSERT_SELFTEST(set.empty(), false);  // So the set is no longer empty
+        ಮೌಲ್ಯ_2 ಮೌಲ್ಯ{1, 0};
+        ಮೌಲ್ಯ_2 equal{1, 0};  // Equal to 'value', and hashes the same
+        ಗಣ_2 ಗಣ;
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Starts empty
+        UASSERT_SELFTEST(ಗಣ.begin() == ಗಣ.ಕೊನೆ(), ನಿಜ);  // So iterates nothing
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // And finds nothing
+        ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> added = ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯ);
+        UASSERT_SELFTEST(added.ಎರಡನೇ, ನಿಜ);  // Added, as it was absent
+        UASSERT_SELFTEST(*added.ಮೊದಲ, &ಮೌಲ್ಯ);  // The iterator is at the new entry
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 1);  // Which is the only one
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ಸುಳ್ಳು);  // So the set is no longer empty
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Found by itself
-            UASSERT_SELFTEST(*it, &value);  // At the entry held
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Found by itself
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // At the entry held
         }
         {
-            const Set::iterator it = set.find(&equal);
-            UASSERT_SELFTEST(it != set.end(), true);  // And by an equal entry
-            UASSERT_SELFTEST(*it, &value);  // At that same entry
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&equal);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // And by an equal entry
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // At that same entry
         }
         {
-            const Set::iterator it = set.find(1, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // And by its parts
-            UASSERT_SELFTEST(*it, &value);  // At that same entry again
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(1, ಗಾತ್ರ_t{0});
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // And by its parts
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // At that same entry again
         }
-        UASSERT_SELFTEST(set.find(1, size_t{1}) == set.end(), true);  // Hash same, id not
-        UASSERT_SELFTEST(set.find(2, size_t{0}) == set.end(), true);  // Id same, hash not
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(1, ಗಾತ್ರ_t{1}) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // Hash same, id not
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(2, ಗಾತ್ರ_t{0}) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // Id same, hash not
         // Adding an equal entry returns the one in the set, and does not add
-        const std::pair<Set::iterator, bool> again = set.insert(&equal);
-        UASSERT_SELFTEST(again.second, false);  // Not added, as an equal is present
-        UASSERT_SELFTEST(*again.first, &value);  // The iterator is at the stored one
-        UASSERT_SELFTEST(set.size(), 1);  // Still just the one entry
+        ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> again = ಗಣ.ಸೇರಿಸು(&equal);
+        UASSERT_SELFTEST(again.ಎರಡನೇ, ಸುಳ್ಳು);  // Not added, as an equal is present
+        UASSERT_SELFTEST(*again.ಮೊದಲ, &ಮೌಲ್ಯ);  // The iterator is at the stored one
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 1);  // Still just the one entry
         // Given the distinct but equal '&equal', 'find' still yields the stored '&value'
         {
-            const Set::iterator it = set.find(&equal);
-            UASSERT_SELFTEST(it != set.end(), true);  // Found, as they compare equal
-            UASSERT_SELFTEST(*it, &value);  // But it is the stored one
-            UASSERT_SELFTEST(*it == &equal, false);  // Not the one asked for
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&equal);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Found, as they compare equal
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // But it is the stored one
+            UASSERT_SELFTEST(*it == &equal, ಸುಳ್ಳು);  // Not the one asked for
         }
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // The entry is still there
-            UASSERT_SELFTEST(*it, &value);  // And is the one stored
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // The entry is still there
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // And is the one stored
         }
         // Erasing the very entry held does remove it
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            UASSERT_SELFTEST(*it, &value);  // And is the object asked for
-            set.erase(it);
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Present before the erase
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // And is the object asked for
+            ಗಣ.erase(it);
         }
-        UASSERT_SELFTEST(set.empty(), true);  // Empty again
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // So the entry is gone
-        UASSERT_SELFTEST(set.contains(&value), false);  // As 'contains' agrees
-        UASSERT_SELFTEST(set.empty(), true);  // And no lookup added anything
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Empty again
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // So the entry is gone
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(&ಮೌಲ್ಯ), ಸುಳ್ಳು);  // As 'contains' agrees
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // And no lookup added anything
         // Erase by key makes no such check, so it removes whatever the key finds, here
         // the stored '&value' when given the equal '&equal'
-        UASSERT_SELFTEST(set.erase(&value), false);  // Nothing to erase, so says so
-        set.insert(&value);
-        UASSERT_SELFTEST(set.erase(&equal), true);  // The equal key erases the stored one
-        UASSERT_SELFTEST(set.empty(), true);  // Which leaves the set empty
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // And unreachable
+        UASSERT_SELFTEST(ಗಣ.erase(&ಮೌಲ್ಯ), ಸುಳ್ಳು);  // Nothing to erase, so says so
+        ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯ);
+        UASSERT_SELFTEST(ಗಣ.erase(&equal), ನಿಜ);  // The equal key erases the stored one
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Which leaves the set empty
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // And unreachable
         // And by a key spelled as the parts of an entry
-        set.insert(&value);
-        UASSERT_SELFTEST(set.erase(1, size_t{0}), true);  // Those parts find and erase it
-        UASSERT_SELFTEST(set.empty(), true);  // Empty once more
+        ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯ);
+        UASSERT_SELFTEST(ಗಣ.erase(1, ಗಾತ್ರ_t{0}), ನಿಜ);  // Those parts find and erase it
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Empty once more
     }
 
     // Erasing leaves the other entries reachable, whichever is erased, including when
     // entries with equal hashes are all in the one probe run
-    for (size_t erase = 0; erase < 4; ++erase) {
-        for (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {  // Wraps too
-            std::array<Value, 4> values{Value{hash, 0}, Value{hash, 1},  //
-                                        Value{hash, 2}, Value{hash, 3}};
-            Set set;
-            for (Value& value : values) set.insert(&value);
-            UASSERT_SELFTEST(set.size(), 4);  // All distinct, so all added
+    ಗಾಗಿ (ಗಾತ್ರ_t erase = 0; erase < 4; ++erase) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t hash : {ಗಾತ್ರ_t{0}, ಗಾತ್ರ_t{7}, ~ಗಾತ್ರ_t{0}}) {  // Wraps too
+            std::array<ಮೌಲ್ಯ_2, 4> ಮೌಲ್ಯಗಳು{ಮೌಲ್ಯ_2{hash, 0}, ಮೌಲ್ಯ_2{hash, 1},  //
+                                        ಮೌಲ್ಯ_2{hash, 2}, ಮೌಲ್ಯ_2{hash, 3}};
+            ಗಣ_2 ಗಣ;
+            ಗಾಗಿ (ಮೌಲ್ಯ_2& ಮೌಲ್ಯ : ಮೌಲ್ಯಗಳು) ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 4);  // All distinct, so all added
             {
-                const Set::iterator it = set.find(&values[erase]);
-                UASSERT_SELFTEST(it != set.end(), true);  // The one to erase is present
-                UASSERT_SELFTEST(*it, &values[erase]);  // And is the object held
-                set.erase(it);
+                ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯಗಳು[erase]);
+                UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // The one to erase is present
+                UASSERT_SELFTEST(*it, &ಮೌಲ್ಯಗಳು[erase]);  // And is the object held
+                ಗಣ.erase(it);
             }
-            UASSERT_SELFTEST(set.size(), 3);  // Exactly one was erased
-            UASSERT_SELFTEST(set.find(&values[erase]) == set.end(), true);  // That one
-            for (size_t i = 0; i < values.size(); ++i) {
-                if (i == erase) continue;
-                const Set::iterator it = set.find(hash, i);
-                UASSERT_SELFTEST(it != set.end(), true);  // The others are all there
-                UASSERT_SELFTEST(*it, &values[i]);  // Each at the entry inserted
+            UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 3);  // Exactly one was erased
+            UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯಗಳು[erase]) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // That one
+            ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2(); ++i) {
+                ಆದರೆ (i == erase) ಮುಂದುವರಿ;
+                ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(hash, i);
+                UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // The others are all there
+                UASSERT_SELFTEST(*it, &ಮೌಲ್ಯಗಳು[i]);  // Each at the entry inserted
             }
         }
     }
 
     // Growing leaves all entries reachable, including when their run wraps around the end
     // of the table. Note this needs enough entries to actually grow, so do not reserve here.
-    for (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {
-        std::array<Value, GROWS_TWICE> many{};
-        Set set;
-        for (size_t i = 0; i < many.size(); ++i) {
-            many[i] = Value{hash, i};
-            set.insert(&many[i]);
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t hash : {ಗಾತ್ರ_t{0}, ಗಾತ್ರ_t{7}, ~ಗಾತ್ರ_t{0}}) {
+        std::array<ಮೌಲ್ಯ_2, GROWS_TWICE> many{};
+        ಗಣ_2 ಗಣ;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < many.ಗಾತ್ರ_2(); ++i) {
+            many[i] = ಮೌಲ್ಯ_2{hash, i};
+            ಗಣ.ಸೇರಿಸು(&many[i]);
         }
-        UASSERT_SELFTEST(set.size(), many.size());  // All of them were added
-        for (size_t i = 0; i < many.size(); ++i) {
-            const Set::iterator it = set.find(hash, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // And all survived the growth
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), many.ಗಾತ್ರ_2());  // All of them were added
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < many.ಗಾತ್ರ_2(); ++i) {
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(hash, i);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // And all survived the growth
             UASSERT_SELFTEST(*it, &many[i]);  // Each at the entry inserted
         }
     }
 
     // Entries that collide but are not equal are both kept, and erase removes only the one
     {
-        Value value{1, 0};
-        Value other{1, 1};  // Not equal to 'value', but lands on the same slot
-        Set set;
-        set.reserve(2);
-        set.insert(&value);
-        set.insert(&other);
-        UASSERT_SELFTEST(set.size(), 2);  // Both kept, despite the collision
+        ಮೌಲ್ಯ_2 ಮೌಲ್ಯ{1, 0};
+        ಮೌಲ್ಯ_2 other{1, 1};  // Not equal to 'value', but lands on the same slot
+        ಗಣ_2 ಗಣ;
+        ಗಣ.reserve(2);
+        ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯ);
+        ಗಣ.ಸೇರಿಸು(&other);
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 2);  // Both kept, despite the collision
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // The first of the run is there
-            UASSERT_SELFTEST(*it, &value);  // And is that entry
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // The first of the run is there
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // And is that entry
         }
         {
-            const Set::iterator it = set.find(&other);
-            UASSERT_SELFTEST(it != set.end(), true);  // As is the one behind it
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&other);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // As is the one behind it
             UASSERT_SELFTEST(*it, &other);  // Which probing reached past the first
         }
         {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            UASSERT_SELFTEST(*it, &value);  // And is the object held
-            set.erase(it);
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Present before the erase
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // And is the object held
+            ಗಣ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), 1);  // Only one was erased
-        UASSERT_SELFTEST(set.find(&value) == set.end(), true);  // Namely that one
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 1);  // Only one was erased
+        UASSERT_SELFTEST(ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ) == ಗಣ.ಕೊನೆ(), ನಿಜ);  // Namely that one
         {
-            const Set::iterator it = set.find(&other);
-            UASSERT_SELFTEST(it != set.end(), true);  // The collider stays
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&other);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // The collider stays
             UASSERT_SELFTEST(*it, &other);  // Shifted back over the hole left
         }
     }
 
     // Reserving avoids growing, and all entries survive either way
-    for (const bool doReserve : {false, true}) {
-        std::array<Value, 8> values{};
-        Set set;
-        if (doReserve) set.reserve(values.size());
-        for (size_t i = 0; i < values.size(); ++i) {
-            values[i] = Value{static_cast<size_t>(i * 1234567), i};
-            set.insert(&values[i]);
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ doReserve : {ಸುಳ್ಳು, ನಿಜ}) {
+        std::array<ಮೌಲ್ಯ_2, 8> ಮೌಲ್ಯಗಳು{};
+        ಗಣ_2 ಗಣ;
+        ಆದರೆ (doReserve) ಗಣ.reserve(ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2());
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2(); ++i) {
+            ಮೌಲ್ಯಗಳು[i] = ಮೌಲ್ಯ_2{static_cast<ಗಾತ್ರ_t>(i * 1234567), i};
+            ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯಗಳು[i]);
         }
-        for (Value& value : values) {
-            const Set::iterator it = set.find(&value);
-            UASSERT_SELFTEST(it != set.end(), true);  // Each entry survives
-            UASSERT_SELFTEST(*it, &value);  // And is the one inserted
+        ಗಾಗಿ (ಮೌಲ್ಯ_2& ಮೌಲ್ಯ : ಮೌಲ್ಯಗಳು) {
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(&ಮೌಲ್ಯ);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Each entry survives
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯ);  // And is the one inserted
         }
-        UASSERT_SELFTEST(set.size(), values.size());  // And none was added twice
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2());  // And none was added twice
     }
 
     // 'insertLazy' creates only on a miss, including when that grows the table
     {
-        constexpr size_t N = GROWS_TWICE;
-        std::array<Value, N> values{};
-        Set set;
-        for (size_t i = 0; i < N; ++i) {
-            values[i] = Value{7, i};  // All of them hash the same
-            const std::pair<Set::iterator, bool> pair
-                = set.insertLazy(size_t{7}, i, [&]() -> Value* { return &values[i]; });
-            UASSERT_SELFTEST(pair.second, true);  // Created, as it was absent
-            UASSERT_SELFTEST(*pair.first, &values[i]);  // And is what the factory made
+        constexpr ಗಾತ್ರ_t N = GROWS_TWICE;
+        std::array<ಮೌಲ್ಯ_2, N> ಮೌಲ್ಯಗಳು{};
+        ಗಣ_2 ಗಣ;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+            ಮೌಲ್ಯಗಳು[i] = ಮೌಲ್ಯ_2{7, i};  // All of them hash the same
+            ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> pair
+                = ಗಣ.ಸೇರಿಸು_Lazy(ಗಾತ್ರ_t{7}, i, [&]() -> ಮೌಲ್ಯ_2* { ಹಿಂತಿರುಗಿ &ಮೌಲ್ಯಗಳು[i]; });
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, ನಿಜ);  // Created, as it was absent
+            UASSERT_SELFTEST(*pair.ಮೊದಲ, &ಮೌಲ್ಯಗಳು[i]);  // And is what the factory made
         }
-        UASSERT_SELFTEST(set.size(), N);  // All of them were added
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // All of them were added
         // They are all present now, so nothing is created
-        for (size_t i = 0; i < N; ++i) {
-            bool created = false;
-            const std::pair<Set::iterator, bool> pair
-                = set.insertLazy(size_t{7}, i, [&]() -> Value* {
-                      created = true;  // LCOV_EXCL_START
-                      return &values[i];  // LCOV_EXCL_STOP
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+            ತಾರ್ಕಿಕ created = ಸುಳ್ಳು;
+            ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> pair
+                = ಗಣ.ಸೇರಿಸು_Lazy(ಗಾತ್ರ_t{7}, i, [&]() -> ಮೌಲ್ಯ_2* {
+                      created = ನಿಜ;  // LCOV_EXCL_START
+                      ಹಿಂತಿರುಗಿ &ಮೌಲ್ಯಗಳು[i];  // LCOV_EXCL_STOP
                   });
-            UASSERT_SELFTEST(created, false);  // The factory was never called
-            UASSERT_SELFTEST(pair.second, false);  // As the lookup hit
-            UASSERT_SELFTEST(*pair.first, &values[i]);  // On the stored entry
+            UASSERT_SELFTEST(created, ಸುಳ್ಳು);  // The factory was never called
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, ಸುಳ್ಳು);  // As the lookup hit
+            UASSERT_SELFTEST(*pair.ಮೊದಲ, &ಮೌಲ್ಯಗಳು[i]);  // On the stored entry
         }
-        UASSERT_SELFTEST(set.size(), N);  // And the set is unchanged
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // And the set is unchanged
     }
 
     // Iterating visits every entry exactly once
     {
-        std::array<Value, 20> values{};
-        std::array<bool, 20> seen{};
-        Set set;
-        for (size_t i = 0; i < values.size(); ++i) {
-            values[i] = Value{i / 2, i};  // Pairs of them collide
-            set.insert(&values[i]);
+        std::array<ಮೌಲ್ಯ_2, 20> ಮೌಲ್ಯಗಳು{};
+        std::array<ತಾರ್ಕಿಕ, 20> ನೋಡಿದ{};
+        ಗಣ_2 ಗಣ;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2(); ++i) {
+            ಮೌಲ್ಯಗಳು[i] = ಮೌಲ್ಯ_2{i / 2, i};  // Pairs of them collide
+            ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯಗಳು[i]);
         }
-        size_t n = 0;
-        for (Value* const valuep : set) {
-            UASSERT_SELFTEST(valuep->m_id < seen.size(), true);  // Only entries added
-            UASSERT_SELFTEST(seen[valuep->m_id], false);  // Each of them exactly once
-            seen[valuep->m_id] = true;
+        ಗಾತ್ರ_t n = 0;
+        ಗಾಗಿ (ಮೌಲ್ಯ_2* ಸ್ಥಿರಾಂಕ valuep : ಗಣ) {
+            UASSERT_SELFTEST(valuep->m_id < ನೋಡಿದ.ಗಾತ್ರ_2(), ನಿಜ);  // Only entries added
+            UASSERT_SELFTEST(ನೋಡಿದ[valuep->m_id], ಸುಳ್ಳು);  // Each of them exactly once
+            ನೋಡಿದ[valuep->m_id] = ನಿಜ;
             ++n;
         }
-        UASSERT_SELFTEST(n, values.size());  // And every one of them
+        UASSERT_SELFTEST(n, ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2());  // And every one of them
     }
 }
 
 //######################################################################
 // Entries held by value, which are constructed and destroyed in step with the slots
 
-void testEntryLifetime() {
-    size_t alive = 0;  // Number of live entries, which the entries themselves count
+ಶೂನ್ಯ test_ನಮೂದು_Lifetime() {
+    ಗಾತ್ರ_t alive = 0;  // Number of live entries, which the entries themselves count
 
     // A test entry that is not default constructible, nor assignable, and that counts how
     // many are alive. A move makes another live entry, so the count tracks the occupied
     // slots however the container shuffles them about.
-    class NoDefault final {
-        size_t* m_alivep;  // Where the live entries are counted
-        size_t m_hash;  // Hash of this entry
-        size_t m_id;  // Entries with equal ids are equal
+    ವರ್ಗ NoDefault final {
+        ಗಾತ್ರ_t* m_alivep;  // Where the live entries are counted
+        ಗಾತ್ರ_t m_hash;  // Hash of this entry
+        ಗಾತ್ರ_t m_id;  // Entries with equal ids are equal
 
-    public:
-        NoDefault(size_t* alivep, size_t hash, size_t id)
+    ಸಾರ್ವಜನಿಕ:
+        NoDefault(ಗಾತ್ರ_t* alivep, ಗಾತ್ರ_t hash, ಗಾತ್ರ_t id)
             : m_alivep{alivep}
             , m_hash{hash}
             , m_id{id} {
             ++*m_alivep;
         }
-        NoDefault(const NoDefault& that)
+        NoDefault(ಸ್ಥಿರಾಂಕ NoDefault& that)
             : m_alivep{that.m_alivep}
             , m_hash{that.m_hash}
             , m_id{that.m_id} {
@@ -416,111 +416,111 @@ void testEntryLifetime() {
             ++*m_alivep;
         }
         ~NoDefault() { --*m_alivep; }
-        NoDefault& operator=(const NoDefault&) = delete;
-        NoDefault& operator=(NoDefault&&) = delete;
+        NoDefault& ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ NoDefault&) = ಅಳಿಸು;
+        NoDefault& ಕ್ರಿಯಾಕಾರಕ=(NoDefault&&) = ಅಳಿಸು;
 
-        size_t hash() const { return m_hash; }
-        size_t id() const { return m_id; }
-        bool operator==(const NoDefault& that) const { return m_id == that.m_id; }
+        ಗಾತ್ರ_t hash() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_hash; }
+        ಗಾತ್ರ_t id() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_id; }
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ==(ಸ್ಥಿರಾಂಕ NoDefault& that) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_id == that.m_id; }
     };
 
-    static_assert(!std::is_default_constructible<NoDefault>::value,
+    static_assert(!std::is_default_constructible<NoDefault>::ಮೌಲ್ಯ,
                   "SelfTest: 'NoDefault' must not be default constructible");
-    static_assert(!std::is_copy_assignable<NoDefault>::value,
+    static_assert(!std::is_copy_assignable<NoDefault>::ಮೌಲ್ಯ,
                   "SelfTest: 'NoDefault' must not be copy assignable");
-    static_assert(!std::is_move_assignable<NoDefault>::value,
+    static_assert(!std::is_move_assignable<NoDefault>::ಮೌಲ್ಯ,
                   "SelfTest: 'NoDefault' must not be move assignable");
-    static_assert(std::is_move_constructible<NoDefault>::value,
+    static_assert(std::is_move_constructible<NoDefault>::ಮೌಲ್ಯ,
                   "SelfTest: 'NoDefault' must be move constructible, to exercise moving");
 
-    struct Hash final {
-        size_t operator()(const NoDefault& value) const { return value.hash(); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    ರಚನೆ Hash final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ NoDefault& ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ.hash(); }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t hash, ಗಾತ್ರ_t) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ hash; }
     };
 
-    struct Equal final {
-        bool operator()(const NoDefault& a, const NoDefault& b) const {
-            return operator()(a, b.hash(), b.id());
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ NoDefault& a, ಸ್ಥಿರಾಂಕ NoDefault& b) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(a, b.hash(), b.id());
         }
-        bool operator()(const NoDefault& a, size_t, size_t id) const { return a.id() == id; }
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ NoDefault& a, ಗಾತ್ರ_t, ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ a.id() == id; }
     };
 
-    using Set = V3HashSet<NoDefault, Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<NoDefault, Hash, Equal>;
 
-    constexpr size_t N = GROWS_TWICE;
+    constexpr ಗಾತ್ರ_t N = GROWS_TWICE;
     UASSERT_SELFTEST(alive, 0);  // Nothing built yet
     {
-        Set set;
-        for (size_t i = 0; i < N; ++i) {
-            const std::pair<Set::iterator, bool> added = set.insert(NoDefault{&alive, 7, i});
-            UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
+        ಗಣ_2 ಗಣ;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+            ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> added = ಗಣ.ಸೇರಿಸು(NoDefault{&alive, 7, i});
+            UASSERT_SELFTEST(added.ಎರಡನೇ, ನಿಜ);  // Ids differ, so each is added
         }
-        UASSERT_SELFTEST(set.size(), N);  // All of them are in
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // All of them are in
         UASSERT_SELFTEST(alive, N);  // Held by exactly that many slots
         // All of them hash the same, so they are all in the one probe run
-        for (size_t i = 0; i < N; ++i) {
-            const Set::iterator it = set.find(size_t{7}, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // Reachable through the run
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಗಾತ್ರ_t{7}, i);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Reachable through the run
             UASSERT_SELFTEST(it->id(), i);  // And is the entry asked for
         }
         // A rejected insert constructs no entry: the argument is only copied on a miss
         {
-            const std::pair<Set::iterator, bool> dup = set.insert(NoDefault{&alive, 7, 0});
-            UASSERT_SELFTEST(dup.second, false);  // Not added, as an equal is present
-            UASSERT_SELFTEST(dup.first->id(), 0);  // The iterator is at the stored one
+            ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> dup = ಗಣ.ಸೇರಿಸು(NoDefault{&alive, 7, 0});
+            UASSERT_SELFTEST(dup.ಎರಡನೇ, ಸುಳ್ಳು);  // Not added, as an equal is present
+            UASSERT_SELFTEST(dup.ಮೊದಲ->id(), 0);  // The iterator is at the stored one
         }
-        UASSERT_SELFTEST(set.size(), N);  // Nothing was added
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // Nothing was added
         UASSERT_SELFTEST(alive, N);  // And no copy of the argument was kept
         {
-            const Set::iterator it = set.find(size_t{7}, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            UASSERT_SELFTEST(it->id(), size_t{0});  // And is the entry asked for
-            set.erase(it);
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಗಾತ್ರ_t{7}, ಗಾತ್ರ_t{0});
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Present before the erase
+            UASSERT_SELFTEST(it->id(), ಗಾತ್ರ_t{0});  // And is the entry asked for
+            ಗಣ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), N - 1);  // One fewer entry
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N - 1);  // One fewer entry
         UASSERT_SELFTEST(alive, N - 1);  // And one fewer live object
-        UASSERT_SELFTEST(set.contains(size_t{7}, size_t{0}), false);  // Namely that one
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(ಗಾತ್ರ_t{7}, ಗಾತ್ರ_t{0}), ಸುಳ್ಳು);  // Namely that one
         // Erasing the rest keeps the live entries in step with the slots, all the way down.
         // They all collide, so every erase shifts entries back over the hole.
-        for (size_t i = 1; i < N; ++i) {
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 1; i < N; ++i) {
             {
-                const Set::iterator it = set.find(size_t{7}, i);
-                UASSERT_SELFTEST(it != set.end(), true);  // Still reachable
+                ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಗಾತ್ರ_t{7}, i);
+                UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Still reachable
                 UASSERT_SELFTEST(it->id(), i);  // And is the entry asked for
-                set.erase(it);
+                ಗಣ.erase(it);
             }
-            UASSERT_SELFTEST(set.size(), N - 1 - i);  // The count follows the erases
+            UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N - 1 - i);  // The count follows the erases
             UASSERT_SELFTEST(alive, N - 1 - i);  // As do the live entries
-            for (size_t j = i + 1; j < N; ++j) {
-                UASSERT_SELFTEST(set.contains(size_t{7}, j), true);  // Shifted, not lost
+            ಗಾಗಿ (ಗಾತ್ರ_t j = i + 1; j < N; ++j) {
+                UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(ಗಾತ್ರ_t{7}, j), ನಿಜ);  // Shifted, not lost
             }
         }
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // Erased down to empty
+        UASSERT_SELFTEST(ಗಣ.begin() == ಗಣ.ಕೊನೆ(), ನಿಜ);  // Erased down to empty
         UASSERT_SELFTEST(alive, 0);  // With every entry destroyed
         // Clearing destroys every entry at once, and leaves a usable, empty set
-        for (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) ಗಣ.ಸೇರಿಸು(NoDefault{&alive, 7, i});
         UASSERT_SELFTEST(alive, N);  // Filled up again
-        set.clear();
-        UASSERT_SELFTEST(set.size(), 0);  // Nothing left
-        UASSERT_SELFTEST(set.empty(), true);  // Says so
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // Iterates nothing
+        ಗಣ.clear();
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 0);  // Nothing left
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Says so
+        UASSERT_SELFTEST(ಗಣ.begin() == ಗಣ.ಕೊನೆ(), ನಿಜ);  // Iterates nothing
         UASSERT_SELFTEST(alive, 0);  // With every entry destroyed
-        UASSERT_SELFTEST(set.contains(size_t{7}, size_t{0}), false);  // Nor finds any
-        set.clear();  // Clearing an empty set does nothing
-        UASSERT_SELFTEST(set.empty(), true);  // Still empty
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(ಗಾತ್ರ_t{7}, ಗಾತ್ರ_t{0}), ಸುಳ್ಳು);  // Nor finds any
+        ಗಣ.clear();  // Clearing an empty set does nothing
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Still empty
         // Leave entries in the set, so its destructor has some to destroy
-        for (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) ಗಣ.ಸೇರಿಸು(NoDefault{&alive, 7, i});
         UASSERT_SELFTEST(alive, N);  // Live as the set goes out of scope
     }
     // The set is gone, so every entry it still held has been destroyed
     UASSERT_SELFTEST(alive, 0);  // Leaking none of them
     // Clearing a set that never allocated a table does nothing
     {
-        Set set;
-        set.clear();
-        UASSERT_SELFTEST(set.empty(), true);  // Still empty
-        set.insert(NoDefault{&alive, 7, 0});
-        UASSERT_SELFTEST(set.size(), 1);  // And still usable
+        ಗಣ_2 ಗಣ;
+        ಗಣ.clear();
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // Still empty
+        ಗಣ.ಸೇರಿಸು(NoDefault{&alive, 7, 0});
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 1);  // And still usable
     }
     UASSERT_SELFTEST(alive, 0);  // Leaking nothing
 }
@@ -528,72 +528,72 @@ void testEntryLifetime() {
 //######################################################################
 // A table can be moved, handing over the entries and leaving an empty table behind
 
-void testMove() {
-    size_t alive = 0;  // Number of live entries, which the entries themselves count
+ಶೂನ್ಯ testMove() {
+    ಗಾತ್ರ_t alive = 0;  // Number of live entries, which the entries themselves count
 
     // A test entry that counts the live ones, so a move that copied an entry, dropped
     // one, or destroyed one twice, shows up in the count
-    struct Counted final {
-        size_t* m_alivep;  // Where the live entries are counted
-        size_t m_id;  // Entries with equal ids are equal
+    ರಚನೆ Counted final {
+        ಗಾತ್ರ_t* m_alivep;  // Where the live entries are counted
+        ಗಾತ್ರ_t m_id;  // Entries with equal ids are equal
 
-        Counted(size_t* alivep, size_t id)
+        Counted(ಗಾತ್ರ_t* alivep, ಗಾತ್ರ_t id)
             : m_alivep{alivep}
             , m_id{id} {
             ++*m_alivep;
         }
-        Counted(const Counted& that)
+        Counted(ಸ್ಥಿರಾಂಕ Counted& that)
             : Counted{that.m_alivep, that.m_id} {}
         Counted(Counted&& that)
             : Counted{that.m_alivep, that.m_id} {}
         ~Counted() { --*m_alivep; }
-        Counted& operator=(const Counted&) = delete;
-        Counted& operator=(Counted&&) = delete;
+        Counted& ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ Counted&) = ಅಳಿಸು;
+        Counted& ಕ್ರಿಯಾಕಾರಕ=(Counted&&) = ಅಳಿಸು;
     };
 
-    struct Hash final {
-        size_t operator()(const Counted& entry) const { return operator()(entry.m_id); }
-        size_t operator()(size_t id) const { return id; }
+    ರಚನೆ Hash final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Counted& ನಮೂದು) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ನಮೂದು.m_id); }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ id; }
     };
 
-    struct Equal final {
-        bool operator()(const Counted& a, const Counted& b) const { return operator()(a, b.m_id); }
-        bool operator()(const Counted& a, size_t id) const { return a.m_id == id; }
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Counted& a, ಸ್ಥಿರಾಂಕ Counted& b) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(a, b.m_id); }
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ Counted& a, ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ a.m_id == id; }
     };
 
-    using Set = V3HashSet<Counted, Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<Counted, Hash, Equal>;
 
-    constexpr size_t N = GROWS_TWICE;
+    constexpr ಗಾತ್ರ_t N = GROWS_TWICE;
     {
-        Set set;
-        for (size_t i = 0; i < N; ++i) set.insert(Counted{&alive, i});
-        UASSERT_SELFTEST(set.size(), N);  // All of them are in
+        ಗಣ_2 ಗಣ;
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) ಗಣ.ಸೇರಿಸು(Counted{&alive, i});
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // All of them are in
         UASSERT_SELFTEST(alive, N);  // Held by exactly that many slots
 
         // Move construction takes the entries, making and destroying none
-        Set moved{std::move(set)};
-        UASSERT_SELFTEST(moved.size(), N);  // Which the target now holds
+        ಗಣ_2 moved{std::move(ಗಣ)};
+        UASSERT_SELFTEST(moved.ಗಾತ್ರ_2(), N);  // Which the target now holds
         UASSERT_SELFTEST(alive, N);  // With no entry made or destroyed
-        UASSERT_SELFTEST(set.empty(), true);  // And the source no longer holds them
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So it iterates nothing
-        for (size_t i = 0; i < N; ++i) {
-            UASSERT_SELFTEST(moved.contains(i), true);  // Every entry came across
-            UASSERT_SELFTEST(set.contains(i), false);  // And none stayed behind
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // And the source no longer holds them
+        UASSERT_SELFTEST(ಗಣ.begin() == ಗಣ.ಕೊನೆ(), ನಿಜ);  // So it iterates nothing
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+            UASSERT_SELFTEST(moved.ಒಳಗೊಂಡಿದೆ(i), ನಿಜ);  // Every entry came across
+            UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(i), ಸುಳ್ಳು);  // And none stayed behind
         }
 
         // The moved from table is empty rather than broken, so it can be filled again
-        UASSERT_SELFTEST(set.insert(Counted{&alive, N}).second, true);  // It took an entry
-        UASSERT_SELFTEST(set.size(), 1);  // Which is all it holds
-        UASSERT_SELFTEST(set.empty(), false);  // So it is no longer empty
+        UASSERT_SELFTEST(ಗಣ.ಸೇರಿಸು(Counted{&alive, N}).ಎರಡನೇ, ನಿಜ);  // It took an entry
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 1);  // Which is all it holds
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ಸುಳ್ಳು);  // So it is no longer empty
         UASSERT_SELFTEST(alive, N + 1);  // And is one more live entry
 
         // Move assignment destroys what the target held, then takes the source's
-        set = std::move(moved);
-        UASSERT_SELFTEST(set.size(), N);  // The target holds the moved entries
+        ಗಣ = std::move(moved);
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // The target holds the moved entries
         UASSERT_SELFTEST(alive, N);  // The entry it held itself was destroyed
-        UASSERT_SELFTEST(set.contains(N), false);  // Namely that one
-        UASSERT_SELFTEST(moved.empty(), true);  // And the source is empty again
-        for (size_t i = 0; i < N; ++i) UASSERT_SELFTEST(set.contains(i), true);  // The rest moved
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(N), ಸುಳ್ಳು);  // Namely that one
+        UASSERT_SELFTEST(moved.ಖಾಲಿಗಳು(), ನಿಜ);  // And the source is empty again
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(i), ನಿಜ);  // The rest moved
     }
     // Both tables are gone, so every entry either still held has been destroyed
     UASSERT_SELFTEST(alive, 0);  // Leaking none of them
@@ -602,104 +602,104 @@ void testMove() {
 //######################################################################
 // Entries that cannot be copied, only moved
 
-void testMoveOnlyEntries() {
+ಶೂನ್ಯ testMoveOnlyEntries() {
     // Only 'insertLazy' can add one of these, as 'insert' would copy it, and any copy the
     // container made of an entry would stop this compiling.
-    class MoveOnly final {
-        size_t m_id;  // Entries with equal ids are equal
+    ವರ್ಗ MoveOnly final {
+        ಗಾತ್ರ_t m_id;  // Entries with equal ids are equal
 
-    public:
-        explicit MoveOnly(size_t id)
+    ಸಾರ್ವಜನಿಕ:
+        ಸ್ಪಷ್ಟ MoveOnly(ಗಾತ್ರ_t id)
             : m_id{id} {}
-        MoveOnly(MoveOnly&&) = default;
-        MoveOnly(const MoveOnly&) = delete;
-        MoveOnly& operator=(const MoveOnly&) = delete;
-        MoveOnly& operator=(MoveOnly&&) = delete;
-        ~MoveOnly() = default;
+        MoveOnly(MoveOnly&&) = ಪೂರ್ವನಿಯೋಜಿತ;
+        MoveOnly(ಸ್ಥಿರಾಂಕ MoveOnly&) = ಅಳಿಸು;
+        MoveOnly& ಕ್ರಿಯಾಕಾರಕ=(ಸ್ಥಿರಾಂಕ MoveOnly&) = ಅಳಿಸು;
+        MoveOnly& ಕ್ರಿಯಾಕಾರಕ=(MoveOnly&&) = ಅಳಿಸು;
+        ~MoveOnly() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-        size_t id() const { return m_id; }
+        ಗಾತ್ರ_t id() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_id; }
     };
 
-    static_assert(!std::is_copy_constructible<MoveOnly>::value,
+    static_assert(!std::is_copy_constructible<MoveOnly>::ಮೌಲ್ಯ,
                   "SelfTest: 'MoveOnly' must not be copy constructible");
-    static_assert(std::is_move_constructible<MoveOnly>::value,
+    static_assert(std::is_move_constructible<MoveOnly>::ಮೌಲ್ಯ,
                   "SelfTest: 'MoveOnly' must be move constructible");
 
-    struct Hash final {
+    ರಚನೆ Hash final {
         // Every entry hashes the same, so they all end up in the one probe run
-        size_t operator()(const MoveOnly& value) const { return operator()(value.id()); }
-        size_t operator()(size_t) const { return 7; }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ MoveOnly& ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ಮೌಲ್ಯ.id()); }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ 7; }
     };
 
-    struct Equal final {
-        bool operator()(const MoveOnly& a, const MoveOnly& b) const {
-            return operator()(a, b.id());
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ MoveOnly& a, ಸ್ಥಿರಾಂಕ MoveOnly& b) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(a, b.id());
         }
-        bool operator()(const MoveOnly& a, size_t id) const { return a.id() == id; }
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ MoveOnly& a, ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ a.id() == id; }
     };
 
-    using Set = V3HashSet<MoveOnly, Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<MoveOnly, Hash, Equal>;
 
-    constexpr size_t N = GROWS_TWICE;
-    Set set;
-    for (size_t i = 0; i < N; ++i) {
-        const std::pair<Set::iterator, bool> added
-            = set.insertLazy(i, [i] { return MoveOnly{i}; });
-        UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
-        UASSERT_SELFTEST(added.first->id(), i);  // Moved into the slot, never copied
+    constexpr ಗಾತ್ರ_t N = GROWS_TWICE;
+    ಗಣ_2 ಗಣ;
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> added
+            = ಗಣ.ಸೇರಿಸು_Lazy(i, [i] { ಹಿಂತಿರುಗಿ MoveOnly{i}; });
+        UASSERT_SELFTEST(added.ಎರಡನೇ, ನಿಜ);  // Ids differ, so each is added
+        UASSERT_SELFTEST(added.ಮೊದಲ->id(), i);  // Moved into the slot, never copied
     }
-    UASSERT_SELFTEST(set.size(), N);  // All of them are in
+    UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // All of them are in
     // They all collide, so erasing every other one shifts the rest back over the holes
-    for (size_t i = 0; i < N; i += 2) {
-        const Set::iterator it = set.find(i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-        set.erase(it);
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; i += 2) {
+        ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(i);
+        UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Present before the erase
+        ಗಣ.erase(it);
     }
-    UASSERT_SELFTEST(set.size(), N / 2);  // Half of them are gone
-    for (size_t i = 0; i < N; ++i) {
-        const bool erased = (i % 2) == 0;
-        UASSERT_SELFTEST(set.contains(i), !erased);  // And it is the right half
+    UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N / 2);  // Half of them are gone
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ erased = (i % 2) == 0;
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(i), !erased);  // And it is the right half
     }
 }
 
 //######################################################################
 // Stateful functors, which the two argument constructor moves in
 
-void testStatefulFunctors() {
+ಶೂನ್ಯ testStatefulFunctors() {
     // Hashing and comparison that both depend on a mask the functor holds, so the set only
     // works if it keeps the instances it was handed
-    class Hash final {
-        size_t m_mask;  // Only these bits of an entry matter
+    ವರ್ಗ Hash final {
+        ಗಾತ್ರ_t m_ಮುಖವಾಡ;  // Only these bits of an entry matter
 
-    public:
-        explicit Hash(size_t mask)
-            : m_mask{mask} {}
-        size_t operator()(size_t value) const { return value & m_mask; }
+    ಸಾರ್ವಜನಿಕ:
+        ಸ್ಪಷ್ಟ Hash(ಗಾತ್ರ_t ಮುಖವಾಡ)
+            : m_ಮುಖವಾಡ{ಮುಖವಾಡ} {}
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ & m_ಮುಖವಾಡ; }
     };
 
-    class Equal final {
-        size_t m_mask;  // Only these bits of an entry matter
+    ವರ್ಗ Equal final {
+        ಗಾತ್ರ_t m_ಮುಖವಾಡ;  // Only these bits of an entry matter
 
-    public:
-        explicit Equal(size_t mask)
-            : m_mask{mask} {}
-        bool operator()(size_t a, size_t b) const { return (a & m_mask) == (b & m_mask); }
+    ಸಾರ್ವಜನಿಕ:
+        ಸ್ಪಷ್ಟ Equal(ಗಾತ್ರ_t ಮುಖವಾಡ)
+            : m_ಮುಖವಾಡ{ಮುಖವಾಡ} {}
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t a, ಗಾತ್ರ_t b) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (a & m_ಮುಖವಾಡ) == (b & m_ಮುಖವಾಡ); }
     };
 
     // Neither is default constructible, so the set cannot make its own
-    static_assert(!std::is_default_constructible<Hash>::value,
+    static_assert(!std::is_default_constructible<Hash>::ಮೌಲ್ಯ,
                   "SelfTest: 'Hash' must not be default constructible");
-    static_assert(!std::is_default_constructible<Equal>::value,
+    static_assert(!std::is_default_constructible<Equal>::ಮೌಲ್ಯ,
                   "SelfTest: 'Equal' must not be default constructible");
 
     // Only the low two bits matter, so the 16 entries fall into 4 classes
-    V3HashSet<size_t, Hash, Equal> set{Hash{3}, Equal{3}};
-    for (size_t i = 0; i < 16; ++i) set.insert(i);
-    UASSERT_SELFTEST(set.size(), 4);  // So the set kept the functors it was given
+    V3_Hash_ಗಣ<ಗಾತ್ರ_t, Hash, Equal> ಗಣ{Hash{3}, Equal{3}};
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < 16; ++i) ಗಣ.ಸೇರಿಸು(i);
+    UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 4);  // So the set kept the functors it was given
     // Every entry finds the first one added of its class, which is the class itself
-    for (size_t i = 0; i < 16; ++i) {
-        const V3HashSet<size_t, Hash, Equal>::iterator it = set.find(i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Its class is present
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < 16; ++i) {
+        ಸ್ಥಿರಾಂಕ V3_Hash_ಗಣ<ಗಾತ್ರ_t, Hash, Equal>::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(i);
+        UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Its class is present
         UASSERT_SELFTEST(*it, (i & 3));  // Represented by the first one added
     }
 }
@@ -708,77 +708,77 @@ void testStatefulFunctors() {
 // Backward shift deletion moves back exactly the entries whose probe run crosses the
 // hole: an entry standing at its home position past the hole must stay put
 
-void testBackwardShiftDeletion() {
+ಶೂನ್ಯ test_Backward_ಸರಿಸು_Deletion() {
     // A test entry with an explicit hash, so probe runs can be laid out at will
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Entries with equal ids are equal
+    ರಚನೆ ಮೌಲ್ಯ_2 final {
+        ಗಾತ್ರ_t m_hash = 0;  // Hash of this entry
+        ಗಾತ್ರ_t m_id = 0;  // Entries with equal ids are equal
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    ರಚನೆ Hash final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* valuep) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(valuep->m_hash, 0); }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t hash, ಗಾತ್ರ_t) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* ap, ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* bp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ap, bp->m_hash, bp->m_id);
         }
-        bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* valuep, ಗಾತ್ರ_t hash, ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value*, Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<ಮೌಲ್ಯ_2*, Hash, Equal>;
 
     // One probe run of four entries with alternating home positions 'h' and 'h + 1',
     // occupying four adjacent slots. Erasing the first leaves a hole: the second sits
     // at its own home and must not be moved into it, while the third and fourth have
     // their runs broken by the hole and must be moved back.
-    for (const size_t h : {size_t{0}, size_t{5}, ~size_t{0}}) {  // Wraps too
-        std::array<Value, 4> values{Value{h, 0}, Value{h + 1, 1},  //
-                                    Value{h, 2}, Value{h + 1, 3}};
-        Set set;
-        for (Value& value : values) set.insert(&value);
-        UASSERT_SELFTEST(set.size(), 4);  // The run holds all four
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t h : {ಗಾತ್ರ_t{0}, ಗಾತ್ರ_t{5}, ~ಗಾತ್ರ_t{0}}) {  // Wraps too
+        std::array<ಮೌಲ್ಯ_2, 4> ಮೌಲ್ಯಗಳು{ಮೌಲ್ಯ_2{h, 0}, ಮೌಲ್ಯ_2{h + 1, 1},  //
+                                    ಮೌಲ್ಯ_2{h, 2}, ಮೌಲ್ಯ_2{h + 1, 3}};
+        ಗಣ_2 ಗಣ;
+        ಗಾಗಿ (ಮೌಲ್ಯ_2& ಮೌಲ್ಯ : ಮೌಲ್ಯಗಳು) ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯ);
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 4);  // The run holds all four
 
         // Erase the entry at the head of the run
         {
-            const Set::iterator it = set.find(h, size_t{0});
-            UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
-            set.erase(it);
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(h, ಗಾತ್ರ_t{0});
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Present before the erase
+            ಗಣ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), 3);  // One fewer entry
-        UASSERT_SELFTEST(set.contains(h, size_t{0}), false);  // Namely that one
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 3);  // One fewer entry
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(h, ಗಾತ್ರ_t{0}), ಸುಳ್ಳು);  // Namely that one
         // Whether moved back or left in place, every entry must remain reachable
-        for (size_t i = 1; i < values.size(); ++i) {
-            const Set::iterator it = set.find(values[i].m_hash, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // The shift lost nothing
-            UASSERT_SELFTEST(*it, &values[i]);  // And moved back the right entries
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 1; i < ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2(); ++i) {
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಮೌಲ್ಯಗಳು[i].m_hash, i);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // The shift lost nothing
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯಗಳು[i]);  // And moved back the right entries
         }
 
         // Erase the entry that stayed at its home position, shifting the last one again
         {
-            const Set::iterator it = set.find(h + 1, size_t{1});
-            UASSERT_SELFTEST(it != set.end(), true);  // Left where the first erase found it
-            set.erase(it);
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(h + 1, ಗಾತ್ರ_t{1});
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Left where the first erase found it
+            ಗಣ.erase(it);
         }
-        UASSERT_SELFTEST(set.size(), 2);  // Two are left
-        for (size_t i = 2; i < values.size(); ++i) {
-            const Set::iterator it = set.find(values[i].m_hash, i);
-            UASSERT_SELFTEST(it != set.end(), true);  // Both still reachable
-            UASSERT_SELFTEST(*it, &values[i]);  // And are the entries they were
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), 2);  // Two are left
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 2; i < ಮೌಲ್ಯಗಳು.ಗಾತ್ರ_2(); ++i) {
+            ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಮೌಲ್ಯಗಳು[i].m_hash, i);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Both still reachable
+            UASSERT_SELFTEST(*it, &ಮೌಲ್ಯಗಳು[i]);  // And are the entries they were
         }
         // Iterating visits exactly the remaining entries
-        std::array<bool, 4> seen{};
-        for (const Value* const valuep : set) {
-            UASSERT_SELFTEST(seen[valuep->m_id], false);  // Each entry once
-            seen[valuep->m_id] = true;
+        std::array<ತಾರ್ಕಿಕ, 4> ನೋಡಿದ{};
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* ಸ್ಥಿರಾಂಕ valuep : ಗಣ) {
+            UASSERT_SELFTEST(ನೋಡಿದ[valuep->m_id], ಸುಳ್ಳು);  // Each entry once
+            ನೋಡಿದ[valuep->m_id] = ನಿಜ;
         }
-        UASSERT_SELFTEST(seen[0], false);  // Erased first
-        UASSERT_SELFTEST(seen[1], false);  // Erased second
-        UASSERT_SELFTEST(seen[2], true);  // Moved back over the first hole
-        UASSERT_SELFTEST(seen[3], true);  // And back again over the second
+        UASSERT_SELFTEST(ನೋಡಿದ[0], ಸುಳ್ಳು);  // Erased first
+        UASSERT_SELFTEST(ನೋಡಿದ[1], ಸುಳ್ಳು);  // Erased second
+        UASSERT_SELFTEST(ನೋಡಿದ[2], ನಿಜ);  // Moved back over the first hole
+        UASSERT_SELFTEST(ನೋಡಿದ[3], ನಿಜ);  // And back again over the second
     }
 }
 
@@ -786,81 +786,81 @@ void testBackwardShiftDeletion() {
 // Entries stay in place unless the table grows or an entry is erased, as only those
 // two invalidate iterators
 
-void testReferenceStability() {
-    struct Value final {
-        size_t m_hash = 0;  // Hash of this entry
-        size_t m_id = 0;  // Id of this entry
+ಶೂನ್ಯ testReferenceStability() {
+    ರಚನೆ ಮೌಲ್ಯ_2 final {
+        ಗಾತ್ರ_t m_hash = 0;  // Hash of this entry
+        ಗಾತ್ರ_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    ರಚನೆ Hash final {
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* valuep) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(valuep->m_hash, 0); }
+        ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t hash, ಗಾತ್ರ_t) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ hash; }
     };
 
-    struct Equal final {
-        bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* ap, ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* bp) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ ಕ್ರಿಯಾಕಾರಕ()(ap, bp->m_hash, bp->m_id);
         }
-        bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ ಮೌಲ್ಯ_2* valuep, ಗಾತ್ರ_t hash, ಗಾತ್ರ_t id) ಸ್ಥಿರಾಂಕ {
+            ಹಿಂತಿರುಗಿ valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
-    using Set = V3HashSet<Value*, Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<ಮೌಲ್ಯ_2*, Hash, Equal>;
 
     // A reserved but still empty set finds nothing and iterates nothing
     {
-        Set set;
-        set.reserve(8);
-        UASSERT_SELFTEST(set.contains(size_t{7}, size_t{0}), false);  // Room, but no entry
-        UASSERT_SELFTEST(set.begin() == set.end(), true);  // So iterates nothing
-        UASSERT_SELFTEST(set.empty(), true);  // And holds nothing
+        ಗಣ_2 ಗಣ;
+        ಗಣ.reserve(8);
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(ಗಾತ್ರ_t{7}, ಗಾತ್ರ_t{0}), ಸುಳ್ಳು);  // Room, but no entry
+        UASSERT_SELFTEST(ಗಣ.begin() == ಗಣ.ಕೊನೆ(), ನಿಜ);  // So iterates nothing
+        UASSERT_SELFTEST(ಗಣ.ಖಾಲಿಗಳು(), ನಿಜ);  // And holds nothing
     }
 
     // 'N' is exactly what the reservation must hold, so this also checks the boundary
     // arithmetic of 'reserve' against that of the growth check. It is more than an
     // unreserved table holds without growing, so the reservation is doing the work.
-    constexpr size_t N = maxLoad(2 * MIN_CAPACITY);
-    static_assert(N > maxLoad(MIN_CAPACITY), "SelfTest: 'N' must need more than a new table");
-    std::array<Value, N> values{};
-    std::array<Value* const*, N> entrypps{};  // Where each entry is stored, as inserted
-    Set set;
-    set.reserve(N);
+    constexpr ಗಾತ್ರ_t N = max_ತುಂಬು(2 * MIN_ಸಾಮರ್ಥ್ಯ);
+    static_assert(N > max_ತುಂಬು(MIN_ಸಾಮರ್ಥ್ಯ), "SelfTest: 'N' must need more than a new table");
+    std::array<ಮೌಲ್ಯ_2, N> ಮೌಲ್ಯಗಳು{};
+    std::array<ಮೌಲ್ಯ_2* ಸ್ಥಿರಾಂಕ*, N> entrypps{};  // Where each entry is stored, as inserted
+    ಗಣ_2 ಗಣ;
+    ಗಣ.reserve(N);
     // All entries collide, so every insertion probes through the whole existing run
-    for (size_t i = 0; i < N; ++i) {
-        values[i] = Value{7, i};
-        const std::pair<Set::iterator, bool> pair = set.insert(&values[i]);
-        UASSERT_SELFTEST(pair.second, true);  // Ids differ, so each is added
-        entrypps[i] = &*pair.first;
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಮೌಲ್ಯಗಳು[i] = ಮೌಲ್ಯ_2{7, i};
+        ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> pair = ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯಗಳು[i]);
+        UASSERT_SELFTEST(pair.ಎರಡನೇ, ನಿಜ);  // Ids differ, so each is added
+        entrypps[i] = &*pair.ಮೊದಲ;
     }
     // The set was reserved, so no insertion grew the table, and no entry has moved
-    for (size_t i = 0; i < N; ++i) {
-        const Set::iterator it = set.find(size_t{7}, i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Every entry is still there
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಗಾತ್ರ_t{7}, i);
+        UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Every entry is still there
         UASSERT_SELFTEST(&*it, entrypps[i]);  // In the slot it was put in
     }
     // Inserting entries that are present adds nothing and moves nothing
-    for (size_t i = 0; i < N; ++i) {
-        const std::pair<Set::iterator, bool> pair = set.insert(&values[i]);
-        UASSERT_SELFTEST(pair.second, false);  // Rejected, as it is present
-        UASSERT_SELFTEST(&*pair.first, entrypps[i]);  // And nothing moved
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ std::pair<ಗಣ_2::iterator, ತಾರ್ಕಿಕ> pair = ಗಣ.ಸೇರಿಸು(&ಮೌಲ್ಯಗಳು[i]);
+        UASSERT_SELFTEST(pair.ಎರಡನೇ, ಸುಳ್ಳು);  // Rejected, as it is present
+        UASSERT_SELFTEST(&*pair.ಮೊದಲ, entrypps[i]);  // And nothing moved
     }
-    UASSERT_SELFTEST(set.size(), N);  // No duplicate was added
+    UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // No duplicate was added
     // Growing an occupied set through 'reserve' keeps every entry
-    set.reserve(8 * N);
-    UASSERT_SELFTEST(set.size(), N);  // Rehashing dropped nothing
-    std::array<Value* const*, N> grownpps{};  // Where each entry is after the growth
-    for (size_t i = 0; i < N; ++i) {
-        const Set::iterator it = set.find(size_t{7}, i);
-        UASSERT_SELFTEST(it != set.end(), true);  // And left every entry reachable
+    ಗಣ.reserve(8 * N);
+    UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // Rehashing dropped nothing
+    std::array<ಮೌಲ್ಯ_2* ಸ್ಥಿರಾಂಕ*, N> grownpps{};  // Where each entry is after the growth
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಗಾತ್ರ_t{7}, i);
+        UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // And left every entry reachable
         grownpps[i] = &*it;
     }
     // Reserving room that is there already leaves the table alone, so nothing moves
-    set.reserve(N);
-    UASSERT_SELFTEST(set.size(), N);  // The smaller request changed nothing
-    for (size_t i = 0; i < N; ++i) {
-        const Set::iterator it = set.find(size_t{7}, i);
-        UASSERT_SELFTEST(it != set.end(), true);  // Every entry is still there
+    ಗಣ.reserve(N);
+    UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), N);  // The smaller request changed nothing
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(ಗಾತ್ರ_t{7}, i);
+        UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), ನಿಜ);  // Every entry is still there
         UASSERT_SELFTEST(&*it, grownpps[i]);  // In the slot the growth left it in
     }
 }
@@ -869,192 +869,192 @@ void testReferenceStability() {
 // A pseudo random workload checked against std::set or std::map as the reference model
 
 // Only a few distinct hashes, so probe runs are long and every erase shifts entries
-struct ClusteredHash final {
-    size_t operator()(size_t value) const { return value & 0x7; }
+ರಚನೆ ClusteredHash final {
+    ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ & 0x7; }
 };
 
 // Hashes spread by a large odd multiplier, so most probe runs are short
-struct SpreadHash final {
-    size_t operator()(size_t value) const {
-        return static_cast<size_t>(value * 0x9e3779b97f4a7c15ULL);
+ರಚನೆ ಹರಡುವಿಕೆ_Hash final {
+    ಗಾತ್ರ_t ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t ಮೌಲ್ಯ) ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ static_cast<ಗಾತ್ರ_t>(ಮೌಲ್ಯ * 0x9e3779b97f4a7c15ULL);
     }
 };
 
 // Drive a set through a deterministic pseudo random workload of insertions, erasures,
 // and lookups, checking every step against a std::set holding the same entries
-template <typename T_Hash>
-void testSetAgainstModel() {
-    struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+ಮಾದರಿ <ಬಗೆ_ಹೆಸರು T_Hash>
+ಶೂನ್ಯ test_ಗಣ_Against_Model() {
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t a, ಗಾತ್ರ_t b) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ a == b; }
     };
 
-    using Set = V3HashSet<size_t, T_Hash, Equal>;
+    ಬಳಸಿ ಗಣ_2 = V3_Hash_ಗಣ<ಗಾತ್ರ_t, T_Hash, Equal>;
 
-    constexpr size_t UNIVERSE = 64;  // Entries drawn from a small range, so lookups hit
-    constexpr size_t STEPS = 10000;  // Number of operations applied
+    constexpr ಗಾತ್ರ_t UNIVERSE = 64;  // Entries drawn from a small range, so lookups hit
+    constexpr ಗಾತ್ರ_t ಹೆಜ್ಜೆಗಳು = 10000;  // Number of operations applied
 
     // A simple linear congruential generator, with a fixed seed so failures reproduce
     uint64_t state = 0x123456789abcdef0ULL;
-    const auto nextRand = [&state]() -> size_t {
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಮುಂದಿನ_Rand = [&state]() -> ಗಾತ್ರ_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        ಹಿಂತಿರುಗಿ static_cast<ಗಾತ್ರ_t>(state >> 32);
     };
 
-    Set set;
-    std::set<size_t> model;
+    ಗಣ_2 ಗಣ;
+    std::ಗಣ<ಗಾತ್ರ_t> model;
 
-    for (size_t step = 0; step < STEPS; ++step) {
-        const size_t id = nextRand() % UNIVERSE;
-        switch (nextRand() % 4) {
-        case 0: {  // Insert a copy
-            const std::pair<typename Set::iterator, bool> pair = set.insert(id);
-            UASSERT_SELFTEST(pair.second, model.insert(id).second);  // As the model
-            UASSERT_SELFTEST(*pair.first, id);  // At the entry asked for
-            break;
+    ಗಾಗಿ (ಗಾತ್ರ_t ಹೆಜ್ಜೆ = 0; ಹೆಜ್ಜೆ < ಹೆಜ್ಜೆಗಳು; ++ಹೆಜ್ಜೆ) {
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t id = ಮುಂದಿನ_Rand() % UNIVERSE;
+        ಆಯ್ಕೆ (ಮುಂದಿನ_Rand() % 4) {
+        ಸ್ಥಿತಿ 0: {  // Insert a copy
+            ಸ್ಥಿರಾಂಕ std::pair<ಬಗೆ_ಹೆಸರು ಗಣ_2::iterator, ತಾರ್ಕಿಕ> pair = ಗಣ.ಸೇರಿಸು(id);
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, model.ಸೇರಿಸು(id).ಎರಡನೇ);  // As the model
+            UASSERT_SELFTEST(*pair.ಮೊದಲ, id);  // At the entry asked for
+            ನಿಲ್ಲಿಸು;
         }
-        case 1: {  // Insert lazily, which must create only on a miss
-            bool created = false;
-            const std::pair<typename Set::iterator, bool> pair
-                = set.insertLazy(id, [&]() -> size_t {
-                      created = true;
-                      return id;
+        ಸ್ಥಿತಿ 1: {  // Insert lazily, which must create only on a miss
+            ತಾರ್ಕಿಕ created = ಸುಳ್ಳು;
+            ಸ್ಥಿರಾಂಕ std::pair<ಬಗೆ_ಹೆಸರು ಗಣ_2::iterator, ತಾರ್ಕಿಕ> pair
+                = ಗಣ.ಸೇರಿಸು_Lazy(id, [&]() -> ಗಾತ್ರ_t {
+                      created = ನಿಜ;
+                      ಹಿಂತಿರುಗಿ id;
                   });
-            UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
-            UASSERT_SELFTEST(pair.second, model.insert(id).second);  // As the model
-            UASSERT_SELFTEST(*pair.first, id);  // At the entry asked for
-            break;
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, created);  // Created only on a miss
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, model.ಸೇರಿಸು(id).ಎರಡನೇ);  // As the model
+            UASSERT_SELFTEST(*pair.ಮೊದಲ, id);  // At the entry asked for
+            ನಿಲ್ಲಿಸು;
         }
-        case 2: {  // Erase, if present
-            const typename Set::iterator it = set.find(id);
-            UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) {
-                set.erase(it);
+        ಸ್ಥಿತಿ 2: {  // Erase, if present
+            ಸ್ಥಿರಾಂಕ ಬಗೆ_ಹೆಸರು ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(id);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), model.ಎಣಿಕೆ_2(id) != 0);  // As the model
+            ಆದರೆ (it != ಗಣ.ಕೊನೆ()) {
+                ಗಣ.erase(it);
                 model.erase(id);
             }
-            break;
+            ನಿಲ್ಲಿಸು;
         }
-        default: {  // Look up only
-            const typename Set::iterator it = set.find(id);
-            UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) UASSERT_SELFTEST(*it, id);  // And is the entry
-            break;
+        ಪೂರ್ವನಿಯೋಜಿತ: {  // Look up only
+            ಸ್ಥಿರಾಂಕ ಬಗೆ_ಹೆಸರು ಗಣ_2::iterator it = ಗಣ.ಕಂಡುಹಿಡಿ(id);
+            UASSERT_SELFTEST(it != ಗಣ.ಕೊನೆ(), model.ಎಣಿಕೆ_2(id) != 0);  // As the model
+            ಆದರೆ (it != ಗಣ.ಕೊನೆ()) UASSERT_SELFTEST(*it, id);  // And is the entry
+            ನಿಲ್ಲಿಸು;
         }
         }
-        UASSERT_SELFTEST(set.size(), model.size());  // Every step, not just at the end
+        UASSERT_SELFTEST(ಗಣ.ಗಾತ್ರ_2(), model.ಗಾತ್ರ_2());  // Every step, not just at the end
     }
 
     // Check the final content exhaustively
-    for (size_t id = 0; id < UNIVERSE; ++id) {
-        UASSERT_SELFTEST(set.contains(id), model.count(id) != 0);  // Present iff modelled
+    ಗಾಗಿ (ಗಾತ್ರ_t id = 0; id < UNIVERSE; ++id) {
+        UASSERT_SELFTEST(ಗಣ.ಒಳಗೊಂಡಿದೆ(id), model.ಎಣಿಕೆ_2(id) != 0);  // Present iff modelled
     }
     // And that iterating visits exactly the model content, each entry once
-    std::array<bool, UNIVERSE> seen{};
-    size_t n = 0;
-    for (const size_t entry : set) {
-        UASSERT_SELFTEST(entry < UNIVERSE, true);  // Nothing out of thin air
-        UASSERT_SELFTEST(model.count(entry) != 0, true);  // Only what was inserted
-        UASSERT_SELFTEST(seen[entry], false);  // Each entry once
-        seen[entry] = true;
+    std::array<ತಾರ್ಕಿಕ, UNIVERSE> ನೋಡಿದ{};
+    ಗಾತ್ರ_t n = 0;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ನಮೂದು : ಗಣ) {
+        UASSERT_SELFTEST(ನಮೂದು < UNIVERSE, ನಿಜ);  // Nothing out of thin air
+        UASSERT_SELFTEST(model.ಎಣಿಕೆ_2(ನಮೂದು) != 0, ನಿಜ);  // Only what was inserted
+        UASSERT_SELFTEST(ನೋಡಿದ[ನಮೂದು], ಸುಳ್ಳು);  // Each entry once
+        ನೋಡಿದ[ನಮೂದು] = ನಿಜ;
         ++n;
     }
-    UASSERT_SELFTEST(n, model.size());  // And all of them
+    UASSERT_SELFTEST(n, model.ಗಾತ್ರ_2());  // And all of them
 }
 
 //######################################################################
 // A hash table used as a map, whose entries are plain key and value pairs
 
-void testMap() {
+ಶೂನ್ಯ testMap() {
     // The key extractor means the hash and equality see only keys, never entries, so
     // the standard functors do, and they are what V3HashMap defaults to
-    using Map = V3HashMap<std::string, int>;
-    using Entry = Map::Entry;
+    ಬಳಸಿ Map = V3HashMap<std::string, ಪೂರ್ಣಾಂಕ>;
+    ಬಳಸಿ ನಮೂದು_2 = Map::ನಮೂದು_2;
 
     // A map entry is a plain pair, so a caller never meets an internal type
-    static_assert(std::is_same<Entry, std::pair<std::string, int>>::value,
+    static_assert(std::is_same<ನಮೂದು_2, std::pair<std::string, ಪೂರ್ಣಾಂಕ>>::ಮೌಲ್ಯ,
                   "SelfTest: a map entry must be a plain pair");
 
-    constexpr size_t N = GROWS_TWICE;
+    constexpr ಗಾತ್ರ_t N = GROWS_TWICE;
     Map map;
-    for (size_t i = 0; i < N; ++i) {
-        const std::string key = "key" + std::to_string(i);
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ std::string ಕೀಲಿ = "key" + std::ಗಮ್ಯ_string(i);
         // 'insertLazy' calls the factory only on a miss, so a hit builds no entry
-        const std::pair<Map::iterator, bool> pair
-            = map.insertLazy(key, [&]() -> Entry { return {key, static_cast<int>(i)}; });
-        UASSERT_SELFTEST(pair.second, true);  // Keys differ, so each is added
+        ಸ್ಥಿರಾಂಕ std::pair<Map::iterator, ತಾರ್ಕಿಕ> pair
+            = map.ಸೇರಿಸು_Lazy(ಕೀಲಿ, [&]() -> ನಮೂದು_2 { ಹಿಂತಿರುಗಿ {ಕೀಲಿ, static_cast<ಪೂರ್ಣಾಂಕ>(i)}; });
+        UASSERT_SELFTEST(pair.ಎರಡನೇ, ನಿಜ);  // Keys differ, so each is added
     }
-    UASSERT_SELFTEST(map.size(), N);  // All of them are in
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N);  // All of them are in
 
     // A bare key finds the entry, with no Entry built to look it up
-    for (size_t i = 0; i < N; ++i) {
-        const Map::iterator it = map.find("key" + std::to_string(i));
-        UASSERT_SELFTEST(it != map.end(), true);  // The key alone finds it
-        UASSERT_SELFTEST(it->second, static_cast<int>(i));  // With the value given
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ Map::iterator it = map.ಕಂಡುಹಿಡಿ("key" + std::ಗಮ್ಯ_string(i));
+        UASSERT_SELFTEST(it != map.ಕೊನೆ(), ನಿಜ);  // The key alone finds it
+        UASSERT_SELFTEST(it->ಎರಡನೇ, static_cast<ಪೂರ್ಣಾಂಕ>(i));  // With the value given
     }
 
     // A value can be changed by erasing the entry and inserting it again
-    for (size_t i = 0; i < N; ++i) {
-        const std::string key = "key" + std::to_string(i);
-        map.erase(map.find(key));
-        UASSERT_SELFTEST(map.insert({key, static_cast<int>(i) + 100}).second, true);  // Anew
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ std::string ಕೀಲಿ = "key" + std::ಗಮ್ಯ_string(i);
+        map.erase(map.ಕಂಡುಹಿಡಿ(ಕೀಲಿ));
+        UASSERT_SELFTEST(map.ಸೇರಿಸು({ಕೀಲಿ, static_cast<ಪೂರ್ಣಾಂಕ>(i) + 100}).ಎರಡನೇ, ನಿಜ);  // Anew
     }
-    UASSERT_SELFTEST(map.size(), N);  // The same keys, so the map has not grown
-    for (size_t i = 0; i < N; ++i) {
-        const Map::iterator it = map.find("key" + std::to_string(i));
-        UASSERT_SELFTEST(it != map.end(), true);  // Each key is still there
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 100);  // With its new value
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N);  // The same keys, so the map has not grown
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ Map::iterator it = map.ಕಂಡುಹಿಡಿ("key" + std::ಗಮ್ಯ_string(i));
+        UASSERT_SELFTEST(it != map.ಕೊನೆ(), ನಿಜ);  // Each key is still there
+        UASSERT_SELFTEST(it->ಎರಡನೇ, static_cast<ಪೂರ್ಣಾಂಕ>(i) + 100);  // With its new value
     }
 
     // Or a value is changed in place, via 'value()', which leaves the key alone
-    for (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() += 100;
-    UASSERT_SELFTEST(map.size(), N);  // The map is unchanged otherwise
-    for (size_t i = 0; i < N; ++i) {
-        const Map::iterator it = map.find("key" + std::to_string(i));
-        UASSERT_SELFTEST(it != map.end(), true);  // Each key still finds its entry
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 200);  // With its new value
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) map.ಕಂಡುಹಿಡಿ("key" + std::ಗಮ್ಯ_string(i)).ಮೌಲ್ಯ() += 100;
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N);  // The map is unchanged otherwise
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) {
+        ಸ್ಥಿರಾಂಕ Map::iterator it = map.ಕಂಡುಹಿಡಿ("key" + std::ಗಮ್ಯ_string(i));
+        UASSERT_SELFTEST(it != map.ಕೊನೆ(), ನಿಜ);  // Each key still finds its entry
+        UASSERT_SELFTEST(it->ಎರಡನೇ, static_cast<ಪೂರ್ಣಾಂಕ>(i) + 200);  // With its new value
     }
     // And back, as the checks below expect the earlier values
-    for (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() -= 100;
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < N; ++i) map.ಕಂಡುಹಿಡಿ("key" + std::ಗಮ್ಯ_string(i)).ಮೌಲ್ಯ() -= 100;
 
     // Adding a key that is present changes nothing
     {
-        const std::string key = "key0";
-        bool created = false;
-        const std::pair<Map::iterator, bool> pair = map.insertLazy(key, [&]() -> Entry {
-            created = true;  // LCOV_EXCL_START
-            return {key, 0};  // LCOV_EXCL_STOP
+        ಸ್ಥಿರಾಂಕ std::string ಕೀಲಿ = "key0";
+        ತಾರ್ಕಿಕ created = ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ std::pair<Map::iterator, ತಾರ್ಕಿಕ> pair = map.ಸೇರಿಸು_Lazy(ಕೀಲಿ, [&]() -> ನಮೂದು_2 {
+            created = ನಿಜ;  // LCOV_EXCL_START
+            ಹಿಂತಿರುಗಿ {ಕೀಲಿ, 0};  // LCOV_EXCL_STOP
         });
-        UASSERT_SELFTEST(created, false);  // The factory was never called
-        UASSERT_SELFTEST(pair.second, false);  // As the key is present
-        UASSERT_SELFTEST(pair.first->second, 100);  // Holding its old value
+        UASSERT_SELFTEST(created, ಸುಳ್ಳು);  // The factory was never called
+        UASSERT_SELFTEST(pair.ಎರಡನೇ, ಸುಳ್ಳು);  // As the key is present
+        UASSERT_SELFTEST(pair.ಮೊದಲ->ಎರಡನೇ, 100);  // Holding its old value
     }
-    UASSERT_SELFTEST(map.size(), N);  // And nothing was added
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N);  // And nothing was added
 
     // 'insert' adds a key and a value as a plain pair, as std::unordered_map::insert does
     {
-        const std::pair<Map::iterator, bool> added = map.insert({std::string{"fresh"}, 5});
-        UASSERT_SELFTEST(added.second, true);  // Added, as the key is new
-        UASSERT_SELFTEST(added.first->second, 5);  // With the value given
-        const std::pair<Map::iterator, bool> again = map.insert({std::string{"fresh"}, 6});
-        UASSERT_SELFTEST(again.second, false);  // Rejected, as the key is present
-        UASSERT_SELFTEST(again.first->second, 5);  // And the value is untouched
+        ಸ್ಥಿರಾಂಕ std::pair<Map::iterator, ತಾರ್ಕಿಕ> added = map.ಸೇರಿಸು({std::string{"fresh"}, 5});
+        UASSERT_SELFTEST(added.ಎರಡನೇ, ನಿಜ);  // Added, as the key is new
+        UASSERT_SELFTEST(added.ಮೊದಲ->ಎರಡನೇ, 5);  // With the value given
+        ಸ್ಥಿರಾಂಕ std::pair<Map::iterator, ತಾರ್ಕಿಕ> again = map.ಸೇರಿಸು({std::string{"fresh"}, 6});
+        UASSERT_SELFTEST(again.ಎರಡನೇ, ಸುಳ್ಳು);  // Rejected, as the key is present
+        UASSERT_SELFTEST(again.ಮೊದಲ->ಎರಡನೇ, 5);  // And the value is untouched
     }
-    UASSERT_SELFTEST(map.size(), N + 1);  // Just the one entry was added
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N + 1);  // Just the one entry was added
     {
-        const Map::iterator it = map.find(std::string{"fresh"});
-        UASSERT_SELFTEST(it != map.end(), true);  // Present before the erase
-        UASSERT_SELFTEST(it->second, 5);  // Still holding the first value
+        ಸ್ಥಿರಾಂಕ Map::iterator it = map.ಕಂಡುಹಿಡಿ(std::string{"fresh"});
+        UASSERT_SELFTEST(it != map.ಕೊನೆ(), ನಿಜ);  // Present before the erase
+        UASSERT_SELFTEST(it->ಎರಡನೇ, 5);  // Still holding the first value
         map.erase(it);
     }
-    UASSERT_SELFTEST(map.size(), N);  // Back to the earlier content
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N);  // Back to the earlier content
 
     // Erasing by key removes just that entry, and says whether it did
-    UASSERT_SELFTEST(map.erase(std::string{"absent"}), false);  // No such key
-    UASSERT_SELFTEST(map.size(), N);  // So nothing was erased
-    UASSERT_SELFTEST(map.erase(std::string{"key0"}), true);  // That key is present
-    UASSERT_SELFTEST(map.size(), N - 1);  // And just the one entry went
-    UASSERT_SELFTEST(map.contains(std::string{"key0"}), false);  // Namely that one
-    for (size_t i = 1; i < N; ++i) {
-        UASSERT_SELFTEST(map.contains("key" + std::to_string(i)), true);  // Others intact
+    UASSERT_SELFTEST(map.erase(std::string{"absent"}), ಸುಳ್ಳು);  // No such key
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N);  // So nothing was erased
+    UASSERT_SELFTEST(map.erase(std::string{"key0"}), ನಿಜ);  // That key is present
+    UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), N - 1);  // And just the one entry went
+    UASSERT_SELFTEST(map.ಒಳಗೊಂಡಿದೆ(std::string{"key0"}), ಸುಳ್ಳು);  // Namely that one
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 1; i < N; ++i) {
+        UASSERT_SELFTEST(map.ಒಳಗೊಂಡಿದೆ("key" + std::ಗಮ್ಯ_string(i)), ನಿಜ);  // Others intact
     }
 }
 
@@ -1063,112 +1063,112 @@ void testMap() {
 
 // Drive a map through a deterministic pseudo random workload of insertions, erasures,
 // value changes and lookups, checking every step against a std::map holding the same
-template <typename T_Hash>
-void testMapAgainstModel() {
-    struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+ಮಾದರಿ <ಬಗೆ_ಹೆಸರು T_Hash>
+ಶೂನ್ಯ testMapAgainstModel() {
+    ರಚನೆ Equal final {
+        ತಾರ್ಕಿಕ ಕ್ರಿಯಾಕಾರಕ()(ಗಾತ್ರ_t a, ಗಾತ್ರ_t b) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ a == b; }
     };
 
-    using Map = V3HashMap<size_t, size_t, T_Hash, Equal>;
-    using Entry = typename Map::Entry;
+    ಬಳಸಿ Map = V3HashMap<ಗಾತ್ರ_t, ಗಾತ್ರ_t, T_Hash, Equal>;
+    ಬಳಸಿ ನಮೂದು_2 = ಬಗೆ_ಹೆಸರು Map::ನಮೂದು_2;
 
-    constexpr size_t UNIVERSE = 64;  // Keys drawn from a small range, so lookups hit
-    constexpr size_t STEPS = 10000;  // Number of operations applied
+    constexpr ಗಾತ್ರ_t UNIVERSE = 64;  // Keys drawn from a small range, so lookups hit
+    constexpr ಗಾತ್ರ_t ಹೆಜ್ಜೆಗಳು = 10000;  // Number of operations applied
 
     // A simple linear congruential generator, with a fixed seed so failures reproduce
     uint64_t state = 0x0fedcba987654321ULL;
-    const auto nextRand = [&state]() -> size_t {
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಮುಂದಿನ_Rand = [&state]() -> ಗಾತ್ರ_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        ಹಿಂತಿರುಗಿ static_cast<ಗಾತ್ರ_t>(state >> 32);
     };
 
     Map map;
-    std::map<size_t, size_t> model;
+    std::map<ಗಾತ್ರ_t, ಗಾತ್ರ_t> model;
 
-    for (size_t step = 0; step < STEPS; ++step) {
-        const size_t key = nextRand() % UNIVERSE;
-        const size_t val = step;  // Distinct every step, so a stale value is visible
-        switch (nextRand() % 5) {
-        case 0: {  // Insert a whole entry
-            const std::pair<typename Map::iterator, bool> pair = map.insert({key, val});
-            UASSERT_SELFTEST(pair.second, model.insert({key, val}).second);  // Ditto
-            UASSERT_SELFTEST(pair.first->first, key);  // At the key asked for
-            break;
+    ಗಾಗಿ (ಗಾತ್ರ_t ಹೆಜ್ಜೆ = 0; ಹೆಜ್ಜೆ < ಹೆಜ್ಜೆಗಳು; ++ಹೆಜ್ಜೆ) {
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಕೀಲಿ = ಮುಂದಿನ_Rand() % UNIVERSE;
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t val = ಹೆಜ್ಜೆ;  // Distinct every step, so a stale value is visible
+        ಆಯ್ಕೆ (ಮುಂದಿನ_Rand() % 5) {
+        ಸ್ಥಿತಿ 0: {  // Insert a whole entry
+            ಸ್ಥಿರಾಂಕ std::pair<ಬಗೆ_ಹೆಸರು Map::iterator, ತಾರ್ಕಿಕ> pair = map.ಸೇರಿಸು({ಕೀಲಿ, val});
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, model.ಸೇರಿಸು({ಕೀಲಿ, val}).ಎರಡನೇ);  // Ditto
+            UASSERT_SELFTEST(pair.ಮೊದಲ->ಮೊದಲ, ಕೀಲಿ);  // At the key asked for
+            ನಿಲ್ಲಿಸು;
         }
-        case 1: {  // Insert lazily, which must create only on a miss
-            bool created = false;
-            const std::pair<typename Map::iterator, bool> pair
-                = map.insertLazy(key, [&]() -> Entry {
-                      created = true;
-                      return {key, val};
+        ಸ್ಥಿತಿ 1: {  // Insert lazily, which must create only on a miss
+            ತಾರ್ಕಿಕ created = ಸುಳ್ಳು;
+            ಸ್ಥಿರಾಂಕ std::pair<ಬಗೆ_ಹೆಸರು Map::iterator, ತಾರ್ಕಿಕ> pair
+                = map.ಸೇರಿಸು_Lazy(ಕೀಲಿ, [&]() -> ನಮೂದು_2 {
+                      created = ನಿಜ;
+                      ಹಿಂತಿರುಗಿ {ಕೀಲಿ, val};
                   });
-            UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
-            UASSERT_SELFTEST(pair.second, model.insert({key, val}).second);  // Ditto
-            UASSERT_SELFTEST(pair.first->first, key);  // At the key asked for
-            break;
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, created);  // Created only on a miss
+            UASSERT_SELFTEST(pair.ಎರಡನೇ, model.ಸೇರಿಸು({ಕೀಲಿ, val}).ಎರಡನೇ);  // Ditto
+            UASSERT_SELFTEST(pair.ಮೊದಲ->ಮೊದಲ, ಕೀಲಿ);  // At the key asked for
+            ನಿಲ್ಲಿಸು;
         }
-        case 2: {  // Erase by key, if present
-            UASSERT_SELFTEST(map.erase(key), model.erase(key) != 0);  // As model
-            break;
+        ಸ್ಥಿತಿ 2: {  // Erase by key, if present
+            UASSERT_SELFTEST(map.erase(ಕೀಲಿ), model.erase(ಕೀಲಿ) != 0);  // As model
+            ನಿಲ್ಲಿಸು;
         }
-        case 3: {  // Change a value, which is erasing the entry and inserting it again
-            const typename Map::iterator it = map.find(key);
-            if (it != map.end()) {
+        ಸ್ಥಿತಿ 3: {  // Change a value, which is erasing the entry and inserting it again
+            ಸ್ಥಿರಾಂಕ ಬಗೆ_ಹೆಸರು Map::iterator it = map.ಕಂಡುಹಿಡಿ(ಕೀಲಿ);
+            ಆದರೆ (it != map.ಕೊನೆ()) {
                 map.erase(it);
-                UASSERT_SELFTEST(map.insert({key, val}).second, true);  // The key is free
-                model[key] = val;
+                UASSERT_SELFTEST(map.ಸೇರಿಸು({ಕೀಲಿ, val}).ಎರಡನೇ, ನಿಜ);  // The key is free
+                model[ಕೀಲಿ] = val;
             }
-            break;
+            ನಿಲ್ಲಿಸು;
         }
-        default: {  // Look up only
-            const typename Map::iterator it = map.find(key);
-            UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // As the model
-            if (it != map.end()) {
-                UASSERT_SELFTEST(it->first, key);  // At the key asked for
-                UASSERT_SELFTEST(it->second, model.at(key));  // With its value
+        ಪೂರ್ವನಿಯೋಜಿತ: {  // Look up only
+            ಸ್ಥಿರಾಂಕ ಬಗೆ_ಹೆಸರು Map::iterator it = map.ಕಂಡುಹಿಡಿ(ಕೀಲಿ);
+            UASSERT_SELFTEST(it != map.ಕೊನೆ(), model.ಎಣಿಕೆ_2(ಕೀಲಿ) != 0);  // As the model
+            ಆದರೆ (it != map.ಕೊನೆ()) {
+                UASSERT_SELFTEST(it->ಮೊದಲ, ಕೀಲಿ);  // At the key asked for
+                UASSERT_SELFTEST(it->ಎರಡನೇ, model.at(ಕೀಲಿ));  // With its value
             }
-            break;
+            ನಿಲ್ಲಿಸು;
         }
         }
-        UASSERT_SELFTEST(map.size(), model.size());  // Every step, not just at the end
+        UASSERT_SELFTEST(map.ಗಾತ್ರ_2(), model.ಗಾತ್ರ_2());  // Every step, not just at the end
     }
 
     // Check the final content exhaustively, values included
-    for (size_t key = 0; key < UNIVERSE; ++key) {
-        const typename Map::iterator it = map.find(key);
-        UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // Present iff modelled
-        if (it != map.end()) {
-            UASSERT_SELFTEST(it->second, model.at(key));  // With the right value
+    ಗಾಗಿ (ಗಾತ್ರ_t ಕೀಲಿ = 0; ಕೀಲಿ < UNIVERSE; ++ಕೀಲಿ) {
+        ಸ್ಥಿರಾಂಕ ಬಗೆ_ಹೆಸರು Map::iterator it = map.ಕಂಡುಹಿಡಿ(ಕೀಲಿ);
+        UASSERT_SELFTEST(it != map.ಕೊನೆ(), model.ಎಣಿಕೆ_2(ಕೀಲಿ) != 0);  // Present iff modelled
+        ಆದರೆ (it != map.ಕೊನೆ()) {
+            UASSERT_SELFTEST(it->ಎರಡನೇ, model.at(ಕೀಲಿ));  // With the right value
         }
     }
     // And that iterating visits exactly the model content, each entry once
-    std::array<bool, UNIVERSE> seen{};
-    size_t n = 0;
-    for (const Entry& entry : map) {
-        UASSERT_SELFTEST(entry.first < UNIVERSE, true);  // Nothing out of thin air
-        UASSERT_SELFTEST(model.count(entry.first) != 0, true);  // Only what was inserted
-        UASSERT_SELFTEST(entry.second, model.at(entry.first));  // With the right value
-        UASSERT_SELFTEST(seen[entry.first], false);  // Each entry once
-        seen[entry.first] = true;
+    std::array<ತಾರ್ಕಿಕ, UNIVERSE> ನೋಡಿದ{};
+    ಗಾತ್ರ_t n = 0;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ನಮೂದು_2& ನಮೂದು : map) {
+        UASSERT_SELFTEST(ನಮೂದು.ಮೊದಲ < UNIVERSE, ನಿಜ);  // Nothing out of thin air
+        UASSERT_SELFTEST(model.ಎಣಿಕೆ_2(ನಮೂದು.ಮೊದಲ) != 0, ನಿಜ);  // Only what was inserted
+        UASSERT_SELFTEST(ನಮೂದು.ಎರಡನೇ, model.at(ನಮೂದು.ಮೊದಲ));  // With the right value
+        UASSERT_SELFTEST(ನೋಡಿದ[ನಮೂದು.ಮೊದಲ], ಸುಳ್ಳು);  // Each entry once
+        ನೋಡಿದ[ನಮೂದು.ಮೊದಲ] = ನಿಜ;
         ++n;
     }
-    UASSERT_SELFTEST(n, model.size());  // And all of them
+    UASSERT_SELFTEST(n, model.ಗಾತ್ರ_2());  // And all of them
 }
 
-void selfTest() {
-    testValueKeys();
-    testPointerKeys();
-    testEntryLifetime();
+ಶೂನ್ಯ selfTest() {
+    test_ಮೌಲ್ಯ_ಕೀಲಿಗಳು();
+    test_ಸೂಚಕ_ಕೀಲಿಗಳು();
+    test_ನಮೂದು_Lifetime();
     testMove();
     testMoveOnlyEntries();
     testStatefulFunctors();
-    testBackwardShiftDeletion();
+    test_Backward_ಸರಿಸು_Deletion();
     testReferenceStability();
-    testSetAgainstModel<ClusteredHash>();
-    testSetAgainstModel<SpreadHash>();
+    test_ಗಣ_Against_Model<ClusteredHash>();
+    test_ಗಣ_Against_Model<ಹರಡುವಿಕೆ_Hash>();
     testMap();
     testMapAgainstModel<ClusteredHash>();
-    testMapAgainstModel<SpreadHash>();
+    testMapAgainstModel<ಹರಡುವಿಕೆ_Hash>();
 }
 
 }  // namespace V3HashTableInternals

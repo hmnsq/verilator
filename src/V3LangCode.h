@@ -14,23 +14,23 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LANGCODE_H_
-#define VERILATOR_V3LANGCODE_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3LANGCODE_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3LANGCODE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 //######################################################################
 //! Class for the different languages supported.
 //! A separate file, since used both in V3Options (globally) and FileLine 9per
 //! file).
-class V3LangCode final {
-public:
-    enum en : uint8_t {
+class V3_Lang_ಸಂಕೇತ final {
+ಸಾರ್ವಜನಿಕ:
+    ಎಣಿಕೆ en : uint8_t {
         L_ERROR,  // Must be first.
         L1364_1995,
         L1364_2001,
@@ -41,34 +41,34 @@ public:
         L1800_2017,
         L1800_2023,
         // ***Add new elements below also***
-        _ENUM_END
+        ENUM_ಕೊನೆ
     };
-    const char* ascii() const {
-        const char* const names[]
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ascii() ಸ್ಥಿರಾಂಕ {
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ ಹೆಸರುಗಳು[]
             = {// These must match the `begin_keywords values
                " ERROR",    "1364-1995", "1364-2001", "1364-2005", "1800-2005",
                "1800-2009", "1800-2012", "1800-2017", "1800-2023"};
-        return names[m_e];
+        ಹಿಂತಿರುಗಿ ಹೆಸರುಗಳು[m_e];
     }
-    static V3LangCode mostRecent() VL_MT_SAFE { return V3LangCode{L1800_2023}; }
-    bool systemVerilog() const {
-        return m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
+    ಸ್ಥಿರ V3_Lang_ಸಂಕೇತ mostRecent() VL_MT_ಸುರಕ್ಷಿತ { ಹಿಂತಿರುಗಿ V3_Lang_ಸಂಕೇತ{L1800_2023}; }
+    bool systemVerilog() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ m_e == L1800_2005 || m_e == L1800_2009 || m_e == L1800_2012 || m_e == L1800_2017
                || m_e == L1800_2023;
     }
-    bool legal() const { return m_e != L_ERROR; }
+    bool legal() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_e != L_ERROR; }
     //
-    enum en m_e;
-    V3LangCode()
+    ಎಣಿಕೆ en m_e;
+    V3_Lang_ಸಂಕೇತ()
         : m_e{L_ERROR} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr V3LangCode(en _e)
+    constexpr V3_Lang_ಸಂಕೇತ(en _e)
         : m_e{_e} {}
-    explicit V3LangCode(const char* textp);
-    explicit V3LangCode(int _e)
+    explicit V3_Lang_ಸಂಕೇತ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* textp);
+    explicit V3_Lang_ಸಂಕೇತ(ಪೂರ್ಣಾಂಕ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr ಕ್ರಿಯಾಕಾರಕ en() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_e; }
 };
 
 //######################################################################
 
-#endif  // guard
+#ಆದರೆ_ಅಂತ್ಯ  // guard

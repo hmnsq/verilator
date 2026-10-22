@@ -15,177 +15,177 @@
 //*************************************************************************
 
 // clang-format off
-#define VL_MT_DISABLED_CODE_UNIT 1
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_MT_DISABLED_ಸಂಕೇತ_UNIT 1
 
-#include "config_build.h"
-#ifndef HAVE_CONFIG_PACKAGE
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 // clang-format on
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 // Cheat for speed and compile .cpp files into one object TODO: Reconsider
-#ifndef V3ERROR_NO_GLOBAL_
-#define V3ERROR_NO_GLOBAL_
-#endif
-#include "V3Error.h"
-static int debug() { return V3Error::debugDefault(); }
-#include "V3Error.cpp"
-#include "V3String.cpp"
-#define V3OPTION_PARSER_NO_VOPTION_BOOL
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ V3ERROR_NO_GLOBAL_
+#ವ್ಯಾಖ್ಯಾನಿಸು V3ERROR_NO_GLOBAL_
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ debug() { ಹಿಂತಿರುಗಿ V3Error::debugDefault(); }
+#ಅನ್ತರ್ಭಾವ "V3Error.cpp"
+#ಅನ್ತರ್ಭಾವ "V3String.cpp"
+#ವ್ಯಾಖ್ಯಾನಿಸು V3OPTION_PARSER_NO_VOPTION_BOOL
 // clang-format off
-#include "V3OptionParser.cpp"
-#include "V3Os.cpp"
-#include "VlcTop.cpp"
+#ಅನ್ತರ್ಭಾವ "V3OptionParser.cpp"
+#ಅನ್ತರ್ಭಾವ "V3Os.cpp"
+#ಅನ್ತರ್ಭಾವ "VlcTop.cpp"
 // clang-format on
 
-#include "VlcOptions.h"
-#include "VlcTop.h"
+#ಅನ್ತರ್ಭಾವ "VlcOptions.h"
+#ಅನ್ತರ್ಭಾವ "VlcTop.h"
 
-#include <algorithm>
-#include <fstream>
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <fstream>
 
 //######################################################################
 // VlcOptions
 
-void VlcOptions::addReadFile(const string& filename) { m_readFiles.insert(filename); }
+ಶೂನ್ಯ VlcOptions::ಕೂಡಿಸು_Read_File(ಸ್ಥಿರಾಂಕ string& filename) { m_readFiles.ಸೇರಿಸು(filename); }
 
-string VlcOptions::version() {
+string VlcOptions::ಆವೃತ್ತಿ() {
     string ver = PACKAGE_STRING;
-    ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    ver += " rev " + cvt_ಗಮ್ಯ_Str(DTVERSION_rev);
+    ಹಿಂತಿರುಗಿ ver;
 }
 
-void VlcOptions::parseReportOption() {
-    if (m_report.empty()) return;
-    string::size_type start = 0;
-    while (true) {
-        const string::size_type comma = m_report.find(',', start);
-        const string kind = m_report.substr(start, comma - start);
-        if (kind == "summary") {
-            m_reportSummary = true;
-        } else if (kind == "hier" || kind == "hierarchy") {
-            m_reportHierarchy = true;
-        } else {
+ಶೂನ್ಯ VlcOptions::parseReportOption() {
+    ಆದರೆ (m_report.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ;
+    string::ಗಾತ್ರ_type ಆರಂಭ = 0;
+    ಆಗ (ನಿಜ) {
+        ಸ್ಥಿರಾಂಕ string::ಗಾತ್ರ_type comma = m_report.ಕಂಡುಹಿಡಿ(',', ಆರಂಭ);
+        ಸ್ಥಿರಾಂಕ string ಬಗೆ = m_report.substr(ಆರಂಭ, comma - ಆರಂಭ);
+        ಆದರೆ (ಬಗೆ == "summary") {
+            m_reportSummary = ನಿಜ;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಬಗೆ == "hier" || ಬಗೆ == "hierarchy") {
+            m_reportHierarchy = ನಿಜ;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             v3fatal("Invalid --report option: " << m_report);
         }
-        if (comma == string::npos) break;
-        start = comma + 1;
+        ಆದರೆ (comma == string::npos) ನಿಲ್ಲಿಸು;
+        ಆರಂಭ = comma + 1;
     }
 }
 
-void VlcOptions::parseOptsList(int argc, char** argv) {
+ಶೂನ್ಯ VlcOptions::parseOptsList(ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ** argv) {
     V3OptionParser parser;
     V3OptionParser::AppendHelper DECL_OPTION{parser};
-    V3OPTION_PARSER_DECL_TAGS;
+    V3_OPTION_PARSER_DECL_ಟ್ಯಾಗುಗಳು;
 
-    DECL_OPTION("-annotate", Set, &m_annotateOut);
+    DECL_OPTION("-annotate", ಗಣ_2, &m_annotate_ಹೊರಹೋಗು);
     DECL_OPTION("-annotate-all", OnOff, &m_annotateAll);
-    DECL_OPTION("-annotate-min", Set, &m_annotateMin);
+    DECL_OPTION("-annotate-min", ಗಣ_2, &m_annotateMin);
     DECL_OPTION("-annotate-points", OnOff, &m_annotatePoints);
     DECL_OPTION("-debug", CbCall, []() { V3Error::debugDefault(3); });
-    DECL_OPTION("-debugi", CbVal, [](int v) { V3Error::debugDefault(v); });
-    DECL_OPTION("-filter-type", Set, &m_filterType);
+    DECL_OPTION("-debugi", CbVal, [](ಪೂರ್ಣಾಂಕ v) { V3Error::debugDefault(v); });
+    DECL_OPTION("-filter-type", ಗಣ_2, &m_filterType);
     DECL_OPTION("-include-reset-arcs", OnOff, &m_includeResetArcs);
-    DECL_OPTION("-levels", Set, &m_reportLevels);
+    DECL_OPTION("-levels", ಗಣ_2, &m_report_ಮಟ್ಟಗಳು);
     DECL_OPTION("-rank", OnOff, &m_rank);
-    DECL_OPTION("-report", Set, &m_report);
+    DECL_OPTION("-report", ಗಣ_2, &m_report);
     DECL_OPTION("-unlink", OnOff, &m_unlink);
     DECL_OPTION("-V", CbCall, []() {
-        showVersion(true);
-        std::exit(0);
+        show_ಆವೃತ್ತಿ(ನಿಜ);
+        std::ನಿರ್ಗಮಿಸು(0);
     });
     DECL_OPTION("-version", CbCall, []() {
-        showVersion(false);
-        std::exit(0);
+        show_ಆವೃತ್ತಿ(ಸುಳ್ಳು);
+        std::ನಿರ್ಗಮಿಸು(0);
     });
-    DECL_OPTION("-write", Set, &m_writeFile);
-    DECL_OPTION("-write-info", Set, &m_writeInfoFile);
+    DECL_OPTION("-write", ಗಣ_2, &m_writeFile);
+    DECL_OPTION("-write-info", ಗಣ_2, &m_writeInfoFile);
     parser.finalize();
 
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
-    for (int i = 0; i < argc;) {
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
-        if (argv[i][0] == '-') {
-            if (const int consumed = parser.parse(i, argc, argv).first) {
+        ಆದರೆ (argv[i][0] == '-') {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ consumed = parser.parse(i, argc, argv).ಮೊದಲ) {
                 i += consumed;
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                 ++i;  // LCOV_EXCL_LINE
             }
-        } else {
-            addReadFile(argv[i]);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಕೂಡಿಸು_Read_File(argv[i]);
             ++i;
         }
     }
     parseReportOption();
 }
 
-void VlcOptions::showVersion(bool verbose) {
-    std::cout << version();
-    std::cout << "\n";
-    if (!verbose) return;
+ಶೂನ್ಯ VlcOptions::show_ಆವೃತ್ತಿ(ತಾರ್ಕಿಕ verbose) {
+    std::ಹೊರಗೆ << ಆವೃತ್ತಿ();
+    std::ಹೊರಗೆ << "\n";
+    ಆದರೆ (!verbose) ಹಿಂತಿರುಗಿ;
 
-    std::cout << "\n";
-    std::cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
-    std::cout << "redistribute it and/or modify the Verilator internals under the terms of\n";
-    std::cout << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
-    std::cout << "License Version 2.0.\n";
+    std::ಹೊರಗೆ << "\n";
+    std::ಹೊರಗೆ << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
+    std::ಹೊರಗೆ << "redistribute it and/or modify the Verilator internals under the terms of\n";
+    std::ಹೊರಗೆ << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
+    std::ಹೊರಗೆ << "License Version 2.0.\n";
 
-    std::cout << "\n";
-    std::cout << "See https://verilator.org for documentation\n";
+    std::ಹೊರಗೆ << "\n";
+    std::ಹೊರಗೆ << "See https://verilator.org for documentation\n";
 }
 
 //######################################################################
 
-int main(int argc, char** argv) {
+ಪೂರ್ಣಾಂಕ ಮುಖ್ಯ(ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ** argv) {
     // General initialization
     std::ios::sync_with_stdio();
 
-    VlcTop top;
+    Vlc_ತುದಿ ತುದಿ;
 
     // Command option parsing
-    top.opt.parseOptsList(argc - 1, argv + 1);
+    ತುದಿ.opt.parseOptsList(argc - 1, argv + 1);
 
-    if (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
+    ಆದರೆ (ತುದಿ.opt.readFiles().ಖಾಲಿಗಳು()) ತುದಿ.opt.ಕೂಡಿಸು_Read_File("vlt_coverage.dat");
 
     {
-        const VlStringSet& readFiles = top.opt.readFiles();
-        for (const auto& filename : readFiles) top.readCoverage(filename);
+        ಸ್ಥಿರಾಂಕ Vl_String_ಗಣ& readFiles = ತುದಿ.opt.readFiles();
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& filename : readFiles) ತುದಿ.readCoverage(filename);
     }
 
-    if (debug() >= 9) {
-        top.tests().dump(true);
-        top.points().dump();
+    ಆದರೆ (debug() >= 9) {
+        ತುದಿ.tests().dump(ನಿಜ);
+        ತುದಿ.points().dump();
     }
 
-    const bool defaultReport = !top.opt.reportSpecified() && !top.opt.rank()
-                               && top.opt.writeFile().empty() && top.opt.writeInfoFile().empty();
-    if (top.opt.reportSpecified()) {
-        if (top.opt.reportSummary()) top.printTypeSummary();
-        if (top.opt.reportHierarchy()) top.printHierarchyReport();
-    } else if (defaultReport) {
-        top.printTypeSummary();
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ defaultReport = !ತುದಿ.opt.reportSpecified() && !ತುದಿ.opt.rank()
+                               && ತುದಿ.opt.writeFile().ಖಾಲಿಗಳು() && ತುದಿ.opt.writeInfoFile().ಖಾಲಿಗಳು();
+    ಆದರೆ (ತುದಿ.opt.reportSpecified()) {
+        ಆದರೆ (ತುದಿ.opt.reportSummary()) ತುದಿ.printTypeSummary();
+        ಆದರೆ (ತುದಿ.opt.reportHierarchy()) ತುದಿ.printHierarchyReport();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (defaultReport) {
+        ತುದಿ.printTypeSummary();
     }
 
     V3Error::abortIfWarnings();
-    if (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
+    ಆದರೆ (!ತುದಿ.opt.annotate_ಹೊರಹೋಗು().ಖಾಲಿಗಳು()) ತುದಿ.annotate(ತುದಿ.opt.annotate_ಹೊರಹೋಗು());
 
-    if (top.opt.rank()) {
-        top.rank();
-        top.tests().dump(false);
+    ಆದರೆ (ತುದಿ.opt.rank()) {
+        ತುದಿ.rank();
+        ತುದಿ.tests().dump(ಸುಳ್ಳು);
     }
 
-    if (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
-        if (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
-        if (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
+    ಆದರೆ (!ತುದಿ.opt.writeFile().ಖಾಲಿಗಳು() || !ತುದಿ.opt.writeInfoFile().ಖಾಲಿಗಳು()) {
+        ಆದರೆ (!ತುದಿ.opt.writeFile().ಖಾಲಿಗಳು()) ತುದಿ.writeCoverage(ತುದಿ.opt.writeFile());
+        ಆದರೆ (!ತುದಿ.opt.writeInfoFile().ಖಾಲಿಗಳು()) ತುದಿ.writeInfo(ತುದಿ.opt.writeInfoFile());
         V3Error::abortIfWarnings();
-        if (top.opt.unlink()) {
-            const VlStringSet& readFiles = top.opt.readFiles();
-            for (const auto& filename : readFiles) unlink(filename.c_str());
+        ಆದರೆ (ತುದಿ.opt.unlink()) {
+            ಸ್ಥಿರಾಂಕ Vl_String_ಗಣ& readFiles = ತುದಿ.opt.readFiles();
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& filename : readFiles) unlink(filename.c_str());
         }
     }
 

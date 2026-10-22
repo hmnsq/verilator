@@ -24,338 +24,338 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clean.h"
+#ಅನ್ತರ್ಭಾವ "V3Clean.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Clean state, as a visitor of each AstNode
 
-class CleanVisitor final : public VNVisitor {
+ವರ್ಗ CleanVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // Entire netlist:
     //  AstNode::user1()        -> CleanState.  For this node, 0==UNKNOWN
     //  AstNode::user2()        -> bool.  True indicates widthMin has been propagated
     //  AstNodeDType::user3()   -> AstNodeDType*.  Alternative node with C size
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use m_inuser2;
+    ಸ್ಥಿರಾಂಕ VNUser3_ಒಳ_Use m_inuser3;
 
     // TYPES
-    enum CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
+    ಎಣಿಕೆ CleanState : uint8_t { CS_UNKNOWN, CS_CLEAN, CS_DIRTY };
 
     // STATE - for current visit position (use VL_RESTORER)
-    const AstNodeModule* m_modp = nullptr;
+    ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Module* m_modp = ಶೂನ್ಯಸೂಚಕ;
 
     // METHODS
 
     // Width resetting
-    int cppWidth(const AstNode* nodep) {
-        if (nodep->width() <= VL_IDATASIZE) {
-            return VL_IDATASIZE;
-        } else if (nodep->width() <= VL_QUADSIZE) {
-            return VL_QUADSIZE;
-        } else {
-            return nodep->widthWords() * VL_EDATASIZE;
+    ಪೂರ್ಣಾಂಕ cpp_ಅಗಲ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (nodep->ಅಗಲ() <= VL_IDATASIZE) {
+            ಹಿಂತಿರುಗಿ VL_IDATASIZE;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (nodep->ಅಗಲ() <= VL_QUADSIZE) {
+            ಹಿಂತಿರುಗಿ VL_QUADSIZE;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಹಿಂತಿರುಗಿ nodep->ಅಗಲ_ಪದಗಳು() * VL_EDATASIZE;
         }
     }
-    void setCppWidth(AstNode* nodep) {
-        nodep->user2(true);  // Don't resize it again
-        AstNodeDType* const old_dtypep = nodep->dtypep();
-        const int width = cppWidth(nodep);  // widthMin is unchanged
-        if (old_dtypep->width() != width) {
+    ಶೂನ್ಯ ಗಣ_Cpp_ಅಗಲ(Ast_ಗಂಟು* nodep) {
+        nodep->user2(ನಿಜ);  // Don't resize it again
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ old_dtypep = nodep->dtypep();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = cpp_ಅಗಲ(nodep);  // widthMin is unchanged
+        ಆದರೆ (old_dtypep->ಅಗಲ() != ಅಗಲ) {
             // Since any given dtype's cppWidth() is the same, we can just
             // remember one conversion for each, and reuse it
-            if (AstNodeDType* const new_dtypep = VN_CAST(old_dtypep->user3p(), NodeDType)) {
+            ಆದರೆ (Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ new_dtypep = VN_CAST(old_dtypep->user3p(), ಗಂಟು_DType)) {
                 nodep->dtypep(new_dtypep);
-            } else {
-                nodep->dtypeChgWidth(width, nodep->widthMin());
-                AstNodeDType* const new_dtypep2 = nodep->dtypep();
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                nodep->dtype_Chg_ಅಗಲ(ಅಗಲ, nodep->ಅಗಲ_Min());
+                Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ new_dtypep2 = nodep->dtypep();
                 UASSERT_OBJ(new_dtypep2 != old_dtypep, nodep,
                             "Dtype didn't change when width changed");
                 old_dtypep->user3p(new_dtypep2);  // Remember for next time
             }
         }
     }
-    void computeCppWidth(AstNode* nodep) {
-        if (!nodep->user2() && nodep->hasDType()) {
-            if (VN_IS(nodep, Var)  //
-                || VN_IS(nodep, NodeDType)  // Don't want to change variable widths!
-                || VN_IS(nodep, NodeSel)  // Array selects should reflect variable widths
+    ಶೂನ್ಯ compute_Cpp_ಅಗಲ(Ast_ಗಂಟು* nodep) {
+        ಆದರೆ (!nodep->user2() && nodep->hasDType()) {
+            ಆದರೆ (VN_IS(nodep, Var)  //
+                || VN_IS(nodep, ಗಂಟು_DType)  // Don't want to change variable widths!
+                || VN_IS(nodep, ಗಂಟು_Sel)  // Array selects should reflect variable widths
                 || VN_IS(nodep, SFormatArg)  // Retain the logical argument type, not storage width
                 || VN_IS(nodep->dtypep()->skipRefp(), AssocArrayDType)  // Or arrays
                 || VN_IS(nodep->dtypep()->skipRefp(), WildcardArrayDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), DynArrayDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), ClassRefDType)
-                || VN_IS(nodep->dtypep()->skipRefp(), QueueDType)
-                || VN_IS(nodep->dtypep()->skipRefp(), StreamDType)
+                || VN_IS(nodep->dtypep()->skipRefp(), ಸರತಿ_DType)
+                || VN_IS(nodep->dtypep()->skipRefp(), ಹರಿವು_DType)
                 || VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverCrossDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), CoverpointDType)
                 || VN_IS(nodep->dtypep()->skipRefp(), VoidDType)) {
-            } else {
-                const AstNodeUOrStructDType* const dtypep
-                    = VN_CAST(nodep->dtypep()->skipRefp(), NodeUOrStructDType);
-                if (!dtypep || dtypep->packed()) setCppWidth(nodep);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_UOr_Struct_DType* ಸ್ಥಿರಾಂಕ dtypep
+                    = VN_CAST(nodep->dtypep()->skipRefp(), ಗಂಟು_UOr_Struct_DType);
+                ಆದರೆ (!dtypep || dtypep->packed()) ಗಣ_Cpp_ಅಗಲ(nodep);
             }
         }
     }
 
     // Store the clean state in the userp on each node
-    void setCleanState(AstNode* nodep, CleanState clean) { nodep->user1(clean); }
-    CleanState getCleanState(const AstNode* nodep) {
-        return static_cast<CleanState>(nodep->user1());
+    ಶೂನ್ಯ ಗಣ_Clean_State(Ast_ಗಂಟು* nodep, CleanState clean) { nodep->user1(clean); }
+    CleanState getCleanState(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) {
+        ಹಿಂತಿರುಗಿ static_cast<CleanState>(nodep->user1());
     }
-    bool isClean(AstNode* nodep) {
-        const CleanState clstate = getCleanState(nodep);
-        if (clstate == CS_CLEAN) return true;
-        if (clstate == CS_DIRTY) return false;
+    ತಾರ್ಕಿಕ isClean(Ast_ಗಂಟು* nodep) {
+        ಸ್ಥಿರಾಂಕ CleanState clstate = getCleanState(nodep);
+        ಆದರೆ (clstate == CS_CLEAN) ಹಿಂತಿರುಗಿ ನಿಜ;
+        ಆದರೆ (clstate == CS_DIRTY) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         nodep->v3fatalSrc("Unknown clean state on node: " + nodep->prettyTypeName());
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
-    void setClean(AstNode* nodep, bool isClean) {
-        computeCppWidth(nodep);  // Just to be sure it's in widthMin
-        const bool wholeUint
-            = (nodep->widthMin() == VL_IDATASIZE || nodep->widthMin() == VL_QUADSIZE
-               || (nodep->widthMin() % VL_EDATASIZE) == 0);
-        setCleanState(nodep, ((isClean || wholeUint) ? CS_CLEAN : CS_DIRTY));
+    ಶೂನ್ಯ ಗಣ_Clean(Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ isClean) {
+        compute_Cpp_ಅಗಲ(nodep);  // Just to be sure it's in widthMin
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಸಂಪೂರ್ಣ_Uint
+            = (nodep->ಅಗಲ_Min() == VL_IDATASIZE || nodep->ಅಗಲ_Min() == VL_QUADSIZE
+               || (nodep->ಅಗಲ_Min() % VL_EDATASIZE) == 0);
+        ಗಣ_Clean_State(nodep, ((isClean || ಸಂಪೂರ್ಣ_Uint) ? CS_CLEAN : CS_DIRTY));
     }
 
     // Operate on nodes
-    void insertClean(AstNodeExpr* nodep) {  // We'll insert ABOVE passed node
+    ಶೂನ್ಯ ಸೇರಿಸು_Clean(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {  // We'll insert ABOVE passed node
         UINFO(4, "  NeedClean " << nodep);
         VNRelinker relinkHandle;
-        nodep->unlinkFrBack(&relinkHandle);
+        nodep->unlink_Fr_ಹಿಂಭಾಗ(&relinkHandle);
         //
-        computeCppWidth(nodep);
-        V3Number mask{nodep, cppWidth(nodep)};
-        mask.setMask(nodep->widthMin());
-        AstNode* const cleanp
-            = new AstAnd{nodep->fileline(), new AstConst{nodep->fileline(), mask}, nodep};
+        compute_Cpp_ಅಗಲ(nodep);
+        V3_ಸಂಖ್ಯೆ ಮುಖವಾಡ{nodep, cpp_ಅಗಲ(nodep)};
+        ಮುಖವಾಡ.ಗಣ_ಮುಖವಾಡ(nodep->ಅಗಲ_Min());
+        Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ cleanp
+            = ಹೊಸ AstAnd{nodep->fileline(), ಹೊಸ AstConst{nodep->fileline(), ಮುಖವಾಡ}, nodep};
         cleanp->dtypeFrom(nodep);  // Otherwise the AND normally picks LHS
         relinkHandle.relink(cleanp);
     }
-    void ensureClean(AstNodeExpr* nodep) {
-        computeCppWidth(nodep);
-        if (!isClean(nodep)) insertClean(nodep);
+    ಶೂನ್ಯ ensureClean(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        compute_Cpp_ಅಗಲ(nodep);
+        ಆದರೆ (!isClean(nodep)) ಸೇರಿಸು_Clean(nodep);
     }
-    void ensureCleanAndNext(AstNode* nodep) {
+    ಶೂನ್ಯ ensure_Clean_And_ಮುಂದಿನ(Ast_ಗಂಟು* nodep) {
         // Editing list, careful looping!
-        for (AstNode* argp = nodep; argp;) {
-            AstNode* const nextp = argp->nextp();
-            if (AstNodeExpr* const exprp = VN_CAST(argp, NodeExpr)) ensureClean(exprp);
+        ಗಾಗಿ (Ast_ಗಂಟು* argp = nodep; argp;) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nextp = argp->nextp();
+            ಆದರೆ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp = VN_CAST(argp, ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ)) ensureClean(exprp);
             argp = nextp;
         }
     }
 
     // Base type handling methods
-    void operandBiop(AstNodeBiop* nodep) {
+    ಶೂನ್ಯ ಕಾರ್ಯಾಂಶ_Biop(Ast_ಗಂಟು_Biop* nodep) {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        compute_Cpp_ಅಗಲ(nodep);
+        ಆದರೆ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        ಆದರೆ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandTriop(AstNodeTriop* nodep) {
+    ಶೂನ್ಯ ಕಾರ್ಯಾಂಶ_Triop(Ast_ಗಂಟು_Triop* nodep) {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
+        compute_Cpp_ಅಗಲ(nodep);
+        ಆದರೆ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        ಆದರೆ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        ಆದರೆ (nodep->cleanThs()) ensureClean(nodep->thsp());
         // no setClean.. must do it in each user routine.
     }
-    void operandQuadop(AstNodeQuadop* nodep) {
+    ಶೂನ್ಯ ಕಾರ್ಯಾಂಶ_Quadop(Ast_ಗಂಟು_Quadop* nodep) {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
-        if (nodep->cleanThs()) ensureClean(nodep->thsp());
-        if (nodep->cleanFhs()) ensureClean(nodep->fhsp());
+        compute_Cpp_ಅಗಲ(nodep);
+        ಆದರೆ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        ಆದರೆ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        ಆದರೆ (nodep->cleanThs()) ensureClean(nodep->thsp());
+        ಆದರೆ (nodep->cleanFhs()) ensureClean(nodep->fhsp());
         // no setClean.. must do it in each user routine.
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNodeUniop* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Uniop* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanLhs()) ensureClean(nodep->lhsp());
-        setClean(nodep, nodep->cleanOut());
+        compute_Cpp_ಅಗಲ(nodep);
+        ಆದರೆ (nodep->cleanLhs()) ensureClean(nodep->lhsp());
+        ಗಣ_Clean(nodep, nodep->clean_ಹೊರಹೋಗು());
     }
-    void visit(AstNodeBiop* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, nodep->cleanOut());
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Biop* nodep) override {
+        ಕಾರ್ಯಾಂಶ_Biop(nodep);
+        ಗಣ_Clean(nodep, nodep->clean_ಹೊರಹೋಗು());
     }
-    void visit(AstAnd* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, isClean(nodep->lhsp()) || isClean(nodep->rhsp()));
+    ಶೂನ್ಯ ಭೇಟಿ(AstAnd* nodep) override {
+        ಕಾರ್ಯಾಂಶ_Biop(nodep);
+        ಗಣ_Clean(nodep, isClean(nodep->lhsp()) || isClean(nodep->rhsp()));
     }
-    void visit(AstXor* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
+    ಶೂನ್ಯ ಭೇಟಿ(AstXor* nodep) override {
+        ಕಾರ್ಯಾಂಶ_Biop(nodep);
+        ಗಣ_Clean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstOr* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
+    ಶೂನ್ಯ ಭೇಟಿ(AstOr* nodep) override {
+        ಕಾರ್ಯಾಂಶ_Biop(nodep);
+        ಗಣ_Clean(nodep, isClean(nodep->lhsp()) && isClean(nodep->rhsp()));
     }
-    void visit(AstNodeQuadop* nodep) override {
-        operandQuadop(nodep);
-        setClean(nodep, nodep->cleanOut());
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Quadop* nodep) override {
+        ಕಾರ್ಯಾಂಶ_Quadop(nodep);
+        ಗಣ_Clean(nodep, nodep->clean_ಹೊರಹೋಗು());
     }
-    void visit(AstExprStmt* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        setClean(nodep, isClean(nodep->resultp()));
+        compute_Cpp_ಅಗಲ(nodep);
+        ಗಣ_Clean(nodep, isClean(nodep->resultp()));
     }
-    void visit(AstNodeExpr* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        setClean(nodep, nodep->cleanOut());
+        compute_Cpp_ಅಗಲ(nodep);
+        ಗಣ_Clean(nodep, nodep->clean_ಹೊರಹೋಗು());
     }
-    void visit(AstNodeAssign* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        if (nodep->cleanRhs()) ensureClean(nodep->rhsp());
+        compute_Cpp_ಅಗಲ(nodep);
+        ಆದರೆ (nodep->cleanRhs()) ensureClean(nodep->rhsp());
     }
-    void visit(AstScopeName* nodep) override {  //
-        setClean(nodep, true);
+    ಶೂನ್ಯ ಭೇಟಿ(AstScopeName* nodep) override {  //
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstCNew* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCNew* nodep) override {
         iterateChildren(nodep);
-        setClean(nodep, true);
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
     // Constructor values are stored, so must be clean
-    void visit(AstConsAssoc* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
-        setClean(nodep, true);
+        ಆದರೆ (nodep->defaultp()) ensureClean(nodep->defaultp());
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstConsDynArray* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
-        setClean(nodep, true);
+        ಆದರೆ (nodep->defaultp()) ensureClean(nodep->defaultp());
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstConsWildcard* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) ensureClean(nodep->defaultp());
-        setClean(nodep, true);
+        ಆದರೆ (nodep->defaultp()) ensureClean(nodep->defaultp());
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstNodeConsItem* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Cons_ಅಂಶ* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->valuep());
     }
-    void visit(AstMatchMasked* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಹೊಂದಿಕೆ_Masked* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
-        setClean(nodep, true);
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstSel* nodep) override {
-        operandBiop(nodep);
-        setClean(nodep, nodep->cleanOut());
+    ಶೂನ್ಯ ಭೇಟಿ(AstSel* nodep) override {
+        ಕಾರ್ಯಾಂಶ_Biop(nodep);
+        ಗಣ_Clean(nodep, nodep->clean_ಹೊರಹೋಗು());
     }
-    void visit(AstCExprUser* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCExprUser* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
-        setClean(nodep, false);
+        compute_Cpp_ಅಗಲ(nodep);
+        ಗಣ_Clean(nodep, ಸುಳ್ಳು);
         // We always clean, as we don't trust those pesky users.
-        if (!VN_IS(nodep->backp(), And)) insertClean(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ಆದರೆ (!VN_IS(nodep->backp(), And)) ಸೇರಿಸು_Clean(nodep);
+        ensure_Clean_And_ಮುಂದಿನ(nodep->nodesp());
     }
-    void visit(AstTraceDecl* nodep) override {}  // Nothing to do here
-    void visit(AstTraceInc* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstTraceDecl* nodep) override {}  // Nothing to do here
+    ಶೂನ್ಯ ಭೇಟಿ(AstTraceInc* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->valuep());
+        ensure_Clean_And_ಮುಂದಿನ(nodep->valuep());
     }
-    void visit(AstTypedef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstTypedef* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
-    void visit(AstParamTypeDType* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstParamTypeDType* nodep) override {
         // No cleaning, or would loose pointer to enum
         iterateChildren(nodep);
     }
 
     // Control flow operators
-    void visit(AstCond* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCond* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
-        setClean(nodep, isClean(nodep->thenp()) && isClean(nodep->elsep()));
+        ಗಣ_Clean(nodep, isClean(nodep->thenp()) && isClean(nodep->elsep()));
     }
-    void visit(AstLoop* nodep) override { iterateChildren(nodep); }
-    void visit(AstLoopTest* nodep) override {
-        iterateChildren(nodep);
-        ensureClean(nodep->condp());
-    }
-    void visit(AstNodeIf* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstLoop* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstLoopTest* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->condp());
     }
-    void visit(AstSFormatArg* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_If* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->exprp());
-        setClean(nodep, true);
+        ensureClean(nodep->condp());
     }
-    void visit(AstSFormatF* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstSFormatArg* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->exprsp());
-        setClean(nodep, true);  // generates a string, so not relevant
+        ensure_Clean_And_ಮುಂದಿನ(nodep->exprp());
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstCStmt* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstSFormatF* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ensure_Clean_And_ಮುಂದಿನ(nodep->exprsp());
+        ಗಣ_Clean(nodep, ನಿಜ);  // generates a string, so not relevant
     }
-    void visit(AstCStmtUser* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCStmt* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->nodesp());
+        ensure_Clean_And_ಮುಂದಿನ(nodep->nodesp());
     }
-    void visit(AstNodeCCall* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCStmtUser* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->argsp());
-        setClean(nodep, true);
+        ensure_Clean_And_ಮುಂದಿನ(nodep->nodesp());
     }
-    void visit(AstCMethodHard* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_CCall* nodep) override {
         iterateChildren(nodep);
-        ensureCleanAndNext(nodep->pinsp());
-        setClean(nodep, nodep->cleanOut());
+        ensure_Clean_And_ಮುಂದಿನ(nodep->argsp());
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstWith* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        setClean(nodep, true);
+        ensure_Clean_And_ಮುಂದಿನ(nodep->pinsp());
+        ಗಣ_Clean(nodep, nodep->clean_ಹೊರಹೋಗು());
     }
-    void visit(AstCReturn* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstWith* nodep) override {
+        iterateChildren(nodep);
+        ಗಣ_Clean(nodep, ನಿಜ);
+    }
+    ಶೂನ್ಯ ಭೇಟಿ(AstCReturn* nodep) override {
         iterateChildren(nodep);
         ensureClean(nodep->lhsp());
-        setClean(nodep, true);
+        ಗಣ_Clean(nodep, ನಿಜ);
     }
-    void visit(AstIntfRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstIntfRef* nodep) override {
         iterateChildren(nodep);
-        setClean(nodep, true);  // generates a string, so not relevant
+        ಗಣ_Clean(nodep, ನಿಜ);  // generates a string, so not relevant
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstNode* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override {
         iterateChildren(nodep);
-        computeCppWidth(nodep);
+        compute_Cpp_ಅಗಲ(nodep);
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit CleanVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~CleanVisitor() override = default;
+    ಸ್ಪಷ್ಟ CleanVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~CleanVisitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //######################################################################
 // Clean class functions
 
-void V3Clean::cleanAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Clean::cleanAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CleanVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clean", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("clean", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

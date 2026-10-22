@@ -35,136 +35,136 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Trace.h"
+#ಅನ್ತರ್ಭಾವ "V3Trace.h"
 
-#include "V3Ast.h"
-#include "V3DupFinder.h"
-#include "V3EmitCBase.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3DupFinder.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitCBase.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
 
-#include <limits>
-#include <map>
-#include <set>
-#include <unordered_map>
+#ಅನ್ತರ್ಭಾವ <limits>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Graph vertexes
 
-class TraceActivityVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(TraceActivityVertex, V3GraphVertex)
-    AstNode* const m_insertp;
-    int32_t m_activityCode;
-    bool m_slow;  // If always slow, we can use the same code
-public:
-    enum { ACTIVITY_NEVER = ((1UL << 31) - 1) };
-    enum { ACTIVITY_ALWAYS = ((1UL << 31) - 2) };
-    enum { ACTIVITY_SLOW = 0 };
-    TraceActivityVertex(V3Graph* graphp, AstNode* nodep, bool slow)
-        : V3GraphVertex{graphp}
+ವರ್ಗ Trace_Activity_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Trace_Activity_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ m_insertp;
+    int32_t m_activity_ಸಂಕೇತ;
+    ತಾರ್ಕಿಕ m_slow;  // If always slow, we can use the same code
+ಸಾರ್ವಜನಿಕ:
+    ಎಣಿಕೆ { ACTIVITY_NEVER = ((1UL << 31) - 1) };
+    ಎಣಿಕೆ { ACTIVITY_ALWAYS = ((1UL << 31) - 2) };
+    ಎಣಿಕೆ { ACTIVITY_SLOW = 0 };
+    Trace_Activity_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ slow)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_insertp{nodep} {
-        m_activityCode = 0;
+        m_activity_ಸಂಕೇತ = 0;
         m_slow = slow;
     }
-    TraceActivityVertex(V3Graph* graphp, int32_t code)
-        : V3GraphVertex{graphp}
-        , m_insertp{nullptr} {
-        m_activityCode = code;
-        m_slow = false;
+    Trace_Activity_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, int32_t ಸಂಕೇತ_2)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
+        , m_insertp{ಶೂನ್ಯಸೂಚಕ} {
+        m_activity_ಸಂಕೇತ = ಸಂಕೇತ_2;
+        m_slow = ಸುಳ್ಳು;
     }
-    ~TraceActivityVertex() override = default;
+    ~Trace_Activity_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
     // ACCESSORS
-    AstNode* insertp() const {
+    Ast_ಗಂಟು* insertp() ಸ್ಥಿರಾಂಕ {
         UASSERT(m_insertp, "Null insertp; probably called on a special always/slow");
-        return m_insertp;
+        ಹಿಂತಿರುಗಿ m_insertp;
     }
-    string name() const override {
-        if (activityAlways()) {
-            return "*ALWAYS*";
-        } else {
-            return std::string{slow() ? "*SLOW* " : ""} + insertp()->name();
+    string name() ಸ್ಥಿರಾಂಕ override {
+        ಆದರೆ (activityAlways()) {
+            ಹಿಂತಿರುಗಿ "*ALWAYS*";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಹಿಂತಿರುಗಿ std::string{slow() ? "*SLOW* " : ""} + insertp()->name();
         }
     }
-    string dotColor() const override { return slow() ? "yellowGreen" : "green"; }
-    int32_t activityCode() const { return m_activityCode; }
-    bool activityAlways() const { return activityCode() == ACTIVITY_ALWAYS; }
-    bool activitySlow() const { return activityCode() == ACTIVITY_SLOW; }
-    void activityCode(int32_t code) { m_activityCode = code; }
-    bool slow() const { return m_slow; }
-    void slow(bool flag) {
-        if (!flag) m_slow = false;
+    string dotColor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ slow() ? "yellowGreen" : "green"; }
+    int32_t activity_ಸಂಕೇತ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_activity_ಸಂಕೇತ; }
+    ತಾರ್ಕಿಕ activityAlways() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ activity_ಸಂಕೇತ() == ACTIVITY_ALWAYS; }
+    ತಾರ್ಕಿಕ activitySlow() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ activity_ಸಂಕೇತ() == ACTIVITY_SLOW; }
+    ಶೂನ್ಯ activity_ಸಂಕೇತ(int32_t ಸಂಕೇತ_2) { m_activity_ಸಂಕೇತ = ಸಂಕೇತ_2; }
+    ತಾರ್ಕಿಕ slow() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_slow; }
+    ಶೂನ್ಯ slow(ತಾರ್ಕಿಕ flag) {
+        ಆದರೆ (!flag) m_slow = ಸುಳ್ಳು;
     }
 };
 
-class TraceCFuncVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(TraceCFuncVertex, V3GraphVertex)
-    AstCFunc* const m_nodep;
+ವರ್ಗ Trace_CFunc_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Trace_CFunc_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    AstCFunc* ಸ್ಥಿರಾಂಕ m_nodep;
 
-public:
-    TraceCFuncVertex(V3Graph* graphp, AstCFunc* nodep)
-        : V3GraphVertex{graphp}
+ಸಾರ್ವಜನಿಕ:
+    Trace_CFunc_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, AstCFunc* nodep)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_nodep{nodep} {}
-    ~TraceCFuncVertex() override = default;
+    ~Trace_CFunc_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
     // ACCESSORS
-    AstCFunc* nodep() const { return m_nodep; }
-    string name() const override { return nodep()->name(); }
-    string dotColor() const override { return "yellow"; }
-    FileLine* fileline() const override { return nodep()->fileline(); }
+    AstCFunc* nodep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_nodep; }
+    string name() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ nodep()->name(); }
+    string dotColor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "yellow"; }
+    File_ಸಾಲು* fileline() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ nodep()->fileline(); }
 };
 
-class TraceTraceVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(TraceTraceVertex, V3GraphVertex)
-    AstTraceDecl* const m_nodep;  // TRACEINC this represents
+ವರ್ಗ Trace_Trace_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Trace_Trace_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    AstTraceDecl* ಸ್ಥಿರಾಂಕ m_nodep;  // TRACEINC this represents
     // nullptr, or other vertex with the real code() that duplicates this one
-    TraceTraceVertex* m_duplicatep = nullptr;
+    Trace_Trace_ಶೃಂಗ* m_duplicatep = ಶೂನ್ಯಸೂಚಕ;
     // When aliasing to a dtype parent, offset of the member within the dtype
-    uint32_t m_dtypeAliasOffset = 0;
+    uint32_t m_dtype_Alias_ಸ್ಥಾನಾಂತರ = 0;
 
-public:
-    TraceTraceVertex(V3Graph* graphp, AstTraceDecl* nodep)
-        : V3GraphVertex{graphp}
+ಸಾರ್ವಜನಿಕ:
+    Trace_Trace_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, AstTraceDecl* nodep)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_nodep{nodep} {}
-    ~TraceTraceVertex() override = default;
+    ~Trace_Trace_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
     // ACCESSORS
-    AstTraceDecl* nodep() const { return m_nodep; }
-    string name() const override { return nodep()->name(); }
-    string dotColor() const override { return "red"; }
-    FileLine* fileline() const override { return nodep()->fileline(); }
-    TraceTraceVertex* duplicatep() const { return m_duplicatep; }
-    void duplicatep(TraceTraceVertex* dupp) {
+    AstTraceDecl* nodep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_nodep; }
+    string name() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ nodep()->name(); }
+    string dotColor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "red"; }
+    File_ಸಾಲು* fileline() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ nodep()->fileline(); }
+    Trace_Trace_ಶೃಂಗ* duplicatep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_duplicatep; }
+    ಶೂನ್ಯ duplicatep(Trace_Trace_ಶೃಂಗ* dupp) {
         UASSERT_OBJ(!duplicatep(), nodep(), "Assigning duplicatep() to already duplicated node");
         m_duplicatep = dupp;
     }
-    void redirectDuplicatep(TraceTraceVertex* dupp) { m_duplicatep = dupp; }
-    uint32_t dtypeAliasOffset() const { return m_dtypeAliasOffset; }
-    void dtypeAliasOffset(uint32_t offset) { m_dtypeAliasOffset = offset; }
+    ಶೂನ್ಯ redirectDuplicatep(Trace_Trace_ಶೃಂಗ* dupp) { m_duplicatep = dupp; }
+    uint32_t dtype_Alias_ಸ್ಥಾನಾಂತರ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_dtype_Alias_ಸ್ಥಾನಾಂತರ; }
+    ಶೂನ್ಯ dtype_Alias_ಸ್ಥಾನಾಂತರ(uint32_t ಸ್ಥಾನಾಂತರ) { m_dtype_Alias_ಸ್ಥಾನಾಂತರ = ಸ್ಥಾನಾಂತರ; }
 };
 
-class TraceVarVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(TraceVarVertex, V3GraphVertex)
-    AstVarScope* const m_nodep;
+ವರ್ಗ Trace_Var_ಶೃಂಗ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ_ಶೃಂಗ {
+    VL_RTTI_IMPL(Trace_Var_ಶೃಂಗ, V3_ನಕ್ಷೆ_ಶೃಂಗ)
+    AstVarScope* ಸ್ಥಿರಾಂಕ m_nodep;
 
-public:
-    TraceVarVertex(V3Graph* graphp, AstVarScope* nodep)
-        : V3GraphVertex{graphp}
+ಸಾರ್ವಜನಿಕ:
+    Trace_Var_ಶೃಂಗ(V3_ನಕ್ಷೆ* graphp, AstVarScope* nodep)
+        : V3_ನಕ್ಷೆ_ಶೃಂಗ{graphp}
         , m_nodep{nodep} {}
-    ~TraceVarVertex() override = default;
+    ~Trace_Var_ಶೃಂಗ() override = ಪೂರ್ವನಿಯೋಜಿತ;
     // ACCESSORS
-    AstVarScope* nodep() const { return m_nodep; }
-    string name() const override { return nodep()->name(); }
-    string dotColor() const override { return "skyblue"; }
-    FileLine* fileline() const override { return nodep()->fileline(); }
+    AstVarScope* nodep() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_nodep; }
+    string name() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ nodep()->name(); }
+    string dotColor() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ "skyblue"; }
+    File_ಸಾಲು* fileline() ಸ್ಥಿರಾಂಕ override { ಹಿಂತಿರುಗಿ nodep()->fileline(); }
 };
 
 //######################################################################
 // Trace state, as a visitor of each AstNode
 
-class TraceVisitor final : public VNVisitor {
+ವರ್ಗ TraceVisitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
     // V3Hasher in V3DupFinder
     //  Ast*::user4()                   // V3Hasher calculation
@@ -177,83 +177,83 @@ class TraceVisitor final : public VNVisitor {
     //  AstStmtExpr::user2()            // bool; walked next list for other ccalls
     //  AstVarRef::user2()              // dtype V3TraceDecl* for this node
     //  Ast*::user3()                   // TraceActivityVertex* for this node
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser3InUse m_inuser3;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use m_inuser2;
+    ಸ್ಥಿರಾಂಕ VNUser3_ಒಳ_Use m_inuser3;
     // VNUser4InUse     In V3Hasher via V3DupFinder
 
     // STATE
-    AstNodeModule* m_topModp = nullptr;  // Module to add variables to
-    AstScope* const m_topScopep = v3Global.rootp()->topScopep()->scopep();  // The top AstScope
-    AstCFunc* m_cfuncp = nullptr;  // C function adding to graph
-    AstCFunc* m_regFuncp = nullptr;  // Trace registration function
-    AstCFunc* m_actAllFuncp = nullptr;  // Set all activity function
-    AstTraceDecl* m_tracep = nullptr;  // Trace function adding to graph
-    AstVarScope* m_activityVscp = nullptr;  // Activity variable
-    uint32_t m_activityNumber = 0;  // Count of fields in activity variable
-    uint32_t m_code = 0;  // Trace ident code# being assigned
-    V3Graph m_graph;  // Var/CFunc tracking
-    TraceActivityVertex* const m_alwaysVtxp;  // "Always trace" vertex
-    bool m_finding = false;  // Pass one of algorithm?
-    struct DtypeFuncs final {
-    public:
-        AstCFunc* fullFuncp = nullptr;
-        AstCFunc* chgFuncp = nullptr;
+    Ast_ಗಂಟು_Module* m_ತುದಿ_Modp = ಶೂನ್ಯಸೂಚಕ;  // Module to add variables to
+    AstScope* ಸ್ಥಿರಾಂಕ m_ತುದಿ_Scopep = v3Global.rootp()->ತುದಿ_Scopep()->scopep();  // The top AstScope
+    AstCFunc* m_cfuncp = ಶೂನ್ಯಸೂಚಕ;  // C function adding to graph
+    AstCFunc* m_regFuncp = ಶೂನ್ಯಸೂಚಕ;  // Trace registration function
+    AstCFunc* m_actAllFuncp = ಶೂನ್ಯಸೂಚಕ;  // Set all activity function
+    AstTraceDecl* m_tracep = ಶೂನ್ಯಸೂಚಕ;  // Trace function adding to graph
+    AstVarScope* m_activityVscp = ಶೂನ್ಯಸೂಚಕ;  // Activity variable
+    uint32_t m_activity_ಸಂಖ್ಯೆ = 0;  // Count of fields in activity variable
+    uint32_t m_ಸಂಕೇತ = 0;  // Trace ident code# being assigned
+    V3_ನಕ್ಷೆ m_ನಕ್ಷೆ;  // Var/CFunc tracking
+    Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ m_alwaysVtxp;  // "Always trace" vertex
+    ತಾರ್ಕಿಕ m_finding = ಸುಳ್ಳು;  // Pass one of algorithm?
+    ರಚನೆ DtypeFuncs final {
+    ಸಾರ್ವಜನಿಕ:
+        AstCFunc* ತುಂಬಿದ_Funcp = ಶೂನ್ಯಸೂಚಕ;
+        AstCFunc* chgFuncp = ಶೂನ್ಯಸೂಚಕ;
     };
-    std::unordered_map<const AstNodeDType*, DtypeFuncs>
+    std::unordered_map<ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType*, DtypeFuncs>
         m_dtypeNonConstFuncs;  // Full / Chg funcs per type
-    std::unordered_map<const AstNodeDType*, AstCFunc*> m_dtypeConstFuncs;  // Const func per type
-    V3UniqueNames m_dtypeNames{""};  // Unique type func names
+    std::unordered_map<ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType*, AstCFunc*> m_dtypeConstFuncs;  // Const func per type
+    V3_Unique_ಹೆಸರುಗಳು m_dtype_ಹೆಸರುಗಳು{""};  // Unique type func names
 
     // Trace parallelism. Only VCD tracing can be parallelized at this time.
-    const uint32_t m_parallelism
-        = v3Global.opt.useTraceParallel() ? static_cast<uint32_t>(v3Global.opt.threads()) : 1;
+    ಸ್ಥಿರಾಂಕ uint32_t m_parallelism
+        = v3Global.opt.useTraceParallel() ? static_cast<uint32_t>(v3Global.opt.ಎಳೆಗಳು()) : 1;
 
     VDouble0 m_statSetters;  // Statistic tracking
     VDouble0 m_statSettersSlow;  // Statistic tracking
     VDouble0 m_statUniqSigs;  // Statistic tracking
 
     // All activity numbers applying to a given trace
-    using ActCodeSet = std::set<uint32_t>;
+    ಬಳಸಿ Act_ಸಂಕೇತ_ಗಣ = std::ಗಣ<uint32_t>;
     // For activity set, what traces apply
-    using TraceVec = std::multimap<ActCodeSet, TraceTraceVertex*>;
+    ಬಳಸಿ TraceVec = std::multimap<Act_ಸಂಕೇತ_ಗಣ, Trace_Trace_ಶೃಂಗ*>;
     // Candidate interface-member VarScopes keyed by (interface type, member name)
-    std::map<std::pair<const AstIface*, std::string>, std::vector<AstVarScope*>>
+    std::map<std::pair<ಸ್ಥಿರಾಂಕ AstIface*, std::string>, std::ಸದಿಶ<AstVarScope*>>
         m_ifaceMemberVscps;
 
-    class TraceInitDeclCollector final : public VNVisitor {
-        std::vector<AstTraceDecl*>& m_declps;  // Output: trace declarations found so far
-        std::set<const AstCFunc*> m_seenFuncps;
+    ವರ್ಗ TraceInitDeclCollector final : ಸಾರ್ವಜನಿಕ VNVisitor {
+        std::ಸದಿಶ<AstTraceDecl*>& m_declps;  // Output: trace declarations found so far
+        std::ಗಣ<ಸ್ಥಿರಾಂಕ AstCFunc*> m_ನೋಡಿದ_Funcps;
 
-        void visit(AstTraceDecl* nodep) override { m_declps.push_back(nodep); }
-        void visit(AstCCall* nodep) override {
-            if (AstCFunc* const funcp = nodep->funcp()) collect(funcp);
+        ಶೂನ್ಯ ಭೇಟಿ(AstTraceDecl* nodep) override { m_declps.ತಳ್ಳು_ಹಿಂಭಾಗ(nodep); }
+        ಶೂನ್ಯ ಭೇಟಿ(AstCCall* nodep) override {
+            ಆದರೆ (AstCFunc* ಸ್ಥಿರಾಂಕ funcp = nodep->funcp()) collect(funcp);
         }
-        void visit(AstNode* nodep) override { iterateChildren(nodep); }
+        ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-    public:
-        explicit TraceInitDeclCollector(std::vector<AstTraceDecl*>& declps)
+    ಸಾರ್ವಜನಿಕ:
+        ಸ್ಪಷ್ಟ TraceInitDeclCollector(std::ಸದಿಶ<AstTraceDecl*>& declps)
             : m_declps{declps} {}
-        void collect(AstCFunc* funcp) {
-            if (funcp && m_seenFuncps.insert(funcp).second) iterate(funcp);
+        ಶೂನ್ಯ collect(AstCFunc* funcp) {
+            ಆದರೆ (funcp && m_ನೋಡಿದ_Funcps.ಸೇರಿಸು(funcp).ಎರಡನೇ) iterate(funcp);
         }
     };
 
     // METHODS
 
-    static bool sameRootInitAlias(const AstTraceDecl* rootDeclp, const AstTraceDecl* topDeclp) {
-        const VNumRange& rootBitRange = rootDeclp->bitRange();
-        const VNumRange& topBitRange = topDeclp->bitRange();
-        return rootDeclp->showname() == topDeclp->showname()
-               && rootDeclp->declDirection() == topDeclp->declDirection()
-               && rootDeclp->widthMin() == topDeclp->widthMin()
-               && rootBitRange.ranged() == topBitRange.ranged()
-               && (!rootBitRange.ranged()
-                   || (rootBitRange.left() == topBitRange.left()
-                       && rootBitRange.right() == topBitRange.right()));
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ same_ಬೇರು_Init_Alias(ಸ್ಥಿರಾಂಕ AstTraceDecl* ಬೇರು_Declp, ಸ್ಥಿರಾಂಕ AstTraceDecl* ತುದಿ_Declp) {
+        ಸ್ಥಿರಾಂಕ VNumRange& ಬೇರು_ಬಿಟ್_Range = ಬೇರು_Declp->ಬಿಟ್_Range();
+        ಸ್ಥಿರಾಂಕ VNumRange& ತುದಿ_ಬಿಟ್_Range = ತುದಿ_Declp->ಬಿಟ್_Range();
+        ಹಿಂತಿರುಗಿ ಬೇರು_Declp->showname() == ತುದಿ_Declp->showname()
+               && ಬೇರು_Declp->declDirection() == ತುದಿ_Declp->declDirection()
+               && ಬೇರು_Declp->ಅಗಲ_Min() == ತುದಿ_Declp->ಅಗಲ_Min()
+               && ಬೇರು_ಬಿಟ್_Range.ranged() == ತುದಿ_ಬಿಟ್_Range.ranged()
+               && (!ಬೇರು_ಬಿಟ್_Range.ranged()
+                   || (ಬೇರು_ಬಿಟ್_Range.ಎಡ() == ತುದಿ_ಬಿಟ್_Range.ಎಡ()
+                       && ಬೇರು_ಬಿಟ್_Range.ಬಲ() == ತುದಿ_ಬಿಟ್_Range.ಬಲ()));
     }
 
-    void detectDuplicates() {
+    ಶೂನ್ಯ detectDuplicates() {
         UINFO(9, "Finding duplicates");
         // Note uses user4
         V3DupFinder dupFinder;  // Duplicate code detection
@@ -261,401 +261,401 @@ class TraceVisitor final : public VNVisitor {
         // Compute member offsets within dtype instances incrementally.
         // For each dtype member TraceDecl, stores its code offset within the
         // dtype parent's code range.
-        std::unordered_map<const AstTraceDecl*, uint32_t> memberOffsets;
-        std::unordered_map<const AstTraceDecl*, uint32_t> runningOffset;
+        std::unordered_map<ಸ್ಥಿರಾಂಕ AstTraceDecl*, uint32_t> memberOffsets;
+        std::unordered_map<ಸ್ಥಿರಾಂಕ AstTraceDecl*, uint32_t> running_ಸ್ಥಾನಾಂತರ;
 
         // For fixup pass: track dups redirected to dtype parents, so we can
         // fix them if the parent's user2 is later set during the loop.
         // Maps dup vertex -> original canonical member vertex.
-        std::vector<std::pair<TraceTraceVertex*, TraceTraceVertex*>> dtypeParentRedirects;
+        std::ಸದಿಶ<std::pair<Trace_Trace_ಶೃಂಗ*, Trace_Trace_ಶೃಂಗ*>> dtype_ಪೋಷಕ_Redirects;
 
         // Hash all of the traced values and find if there are any duplicates
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (TraceTraceVertex* const vvertexp = vtx.cast<TraceTraceVertex>()) {
-                AstTraceDecl* const nodep = vvertexp->nodep();
-                if (nodep->dtypeCallp()) continue;
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ಆದರೆ (Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = vtx.cast<Trace_Trace_ಶೃಂಗ>()) {
+                AstTraceDecl* ಸ್ಥಿರಾಂಕ nodep = vvertexp->nodep();
+                ಆದರೆ (nodep->dtypeCallp()) ಮುಂದುವರಿ;
 
-                if (nodep->dtypeDeclp()) {
-                    uint32_t& offset = runningOffset[nodep->dtypeDeclp()];
-                    memberOffsets[nodep] = offset;
-                    offset += nodep->codeInc();
+                ಆದರೆ (nodep->dtypeDeclp()) {
+                    uint32_t& ಸ್ಥಾನಾಂತರ = running_ಸ್ಥಾನಾಂತರ[nodep->dtypeDeclp()];
+                    memberOffsets[nodep] = ಸ್ಥಾನಾಂತರ;
+                    ಸ್ಥಾನಾಂತರ += nodep->ಸಂಕೇತ_Inc();
                 }
 
                 UASSERT_OBJ(!vvertexp->duplicatep(), nodep, "Should not be a duplicate");
-                const auto dupit = dupFinder.findDuplicate(nodep);
-                if (dupit == dupFinder.end()) {
-                    dupFinder.insert(nodep);
-                } else {
-                    AstTraceDecl* const dupDeclp = VN_AS(dupit->second, TraceDecl);
+                ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ dupit = dupFinder.ಕಂಡುಹಿಡಿ_Duplicate(nodep);
+                ಆದರೆ (dupit == dupFinder.ಕೊನೆ()) {
+                    dupFinder.ಸೇರಿಸು(nodep);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    AstTraceDecl* ಸ್ಥಿರಾಂಕ dupDeclp = VN_AS(dupit->ಎರಡನೇ, TraceDecl);
                     UASSERT_OBJ(dupDeclp, nodep, "Trace duplicate of wrong type");
-                    TraceTraceVertex* const dupvertexp
-                        = dupDeclp->user1u().toGraphVertex()->cast<TraceTraceVertex>();
-                    UINFO(8, "  Orig " << dupDeclp << endl);
-                    UINFO(8, "   dup " << nodep << endl);
+                    Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ dupvertexp
+                        = dupDeclp->user1u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ()->cast<Trace_Trace_ಶೃಂಗ>();
+                    UINFO(8, "  Orig " << dupDeclp << ಸಾಲು_ಅಂತ್ಯ);
+                    UINFO(8, "   dup " << nodep << ಸಾಲು_ಅಂತ್ಯ);
 
-                    if (dupDeclp->dtypeDeclp() && !dupDeclp->dtypeDeclp()->user2()) {
-                        AstTraceDecl* const dtypeParentp = dupDeclp->dtypeDeclp();
-                        TraceTraceVertex* const dtypeVtxp
-                            = dtypeParentp->user1u().toGraphVertex()->cast<TraceTraceVertex>();
-                        const auto it2 = memberOffsets.find(dupDeclp);
-                        UASSERT_OBJ(it2 != memberOffsets.end(), dupDeclp,
+                    ಆದರೆ (dupDeclp->dtypeDeclp() && !dupDeclp->dtypeDeclp()->user2()) {
+                        AstTraceDecl* ಸ್ಥಿರಾಂಕ dtypeParentp = dupDeclp->dtypeDeclp();
+                        Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ dtypeVtxp
+                            = dtypeParentp->user1u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ()->cast<Trace_Trace_ಶೃಂಗ>();
+                        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it2 = memberOffsets.ಕಂಡುಹಿಡಿ(dupDeclp);
+                        UASSERT_OBJ(it2 != memberOffsets.ಕೊನೆ(), dupDeclp,
                                     "Member offset not precomputed");
                         vvertexp->duplicatep(dtypeVtxp);
-                        vvertexp->dtypeAliasOffset(it2->second);
-                        dtypeParentRedirects.emplace_back(vvertexp, dupvertexp);
-                    } else {
+                        vvertexp->dtype_Alias_ಸ್ಥಾನಾಂತರ(it2->ಎರಡನೇ);
+                        dtype_ಪೋಷಕ_Redirects.emplace_ಹಿಂಭಾಗ(vvertexp, dupvertexp);
+                    } ಇಲ್ಲದಿದ್ದರೆ {
                         vvertexp->duplicatep(dupvertexp);
                     }
-                    if (nodep->dtypeDeclp()) nodep->dtypeDeclp()->user2(true);
+                    ಆದರೆ (nodep->dtypeDeclp()) nodep->dtypeDeclp()->user2(ನಿಜ);
                 }
             }
         }
 
-        for (const auto& pair : dtypeParentRedirects) {
-            TraceTraceVertex* const dupVtxp = pair.first;
-            TraceTraceVertex* const memberVtxp = pair.second;
-            const AstTraceDecl* const parentDeclp = dupVtxp->duplicatep()->nodep();
-            if (parentDeclp->user2()) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair : dtype_ಪೋಷಕ_Redirects) {
+            Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ dupVtxp = pair.ಮೊದಲ;
+            Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ memberVtxp = pair.ಎರಡನೇ;
+            ಸ್ಥಿರಾಂಕ AstTraceDecl* ಸ್ಥಿರಾಂಕ ಪೋಷಕ_Declp = dupVtxp->duplicatep()->nodep();
+            ಆದರೆ (ಪೋಷಕ_Declp->user2()) {
                 dupVtxp->redirectDuplicatep(memberVtxp);
-                dupVtxp->dtypeAliasOffset(0);
+                dupVtxp->dtype_Alias_ಸ್ಥಾನಾಂತರ(0);
             }
         }
 
-        if (dumpLevel() || debug() >= 9)
-            dupFinder.dumpFile(v3Global.debugFilename("trace") + ".hash", false);
+        ಆದರೆ (dumpLevel() || debug() >= 9)
+            dupFinder.dumpFile(v3Global.debugFilename("trace") + ".hash", ಸುಳ್ಳು);
     }
 
-    void graphDtypePrune() {
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            if (TraceTraceVertex* const vvertexp = vtxp->cast<TraceTraceVertex>()) {
-                AstTraceDecl* const declp = vvertexp->nodep();
+    ಶೂನ್ಯ ನಕ್ಷೆ_Dtype_Prune() {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : m_ನಕ್ಷೆ.vertices().unlinkable()) {
+            ಆದರೆ (Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = vtxp->cast<Trace_Trace_ಶೃಂಗ>()) {
+                AstTraceDecl* ಸ್ಥಿರಾಂಕ declp = vvertexp->nodep();
                 // This skips the dtype sub-func optimization if a var is affected by multiple
                 // activities.  We really only need to do this for _chg funcs (and not decls,
                 // _const and _full) but it's simpiler to do it all one way or the other.
-                if (declp) {
-                    if (declp->user2() || (declp->dtypeDeclp() && !declp->dtypeDeclp()->user2())) {
-                        AstCCall* const callp = declp->dtypeCallp();
-                        if (callp) {
-                            AstNode* stmtexprp = callp->backp();
-                            VL_DO_DANGLING(pushDeletep(stmtexprp->unlinkFrBack()), stmtexprp);
-                        } else {
-                            bool emptyScope;
-                            do {
-                                emptyScope = false;
-                                AstNode* const declBackp = declp->backp();
-                                AstNode* const declNextp = declp->nextp();
-                                if (VN_IS(declBackp, TracePushPrefix)
-                                    && VN_IS(declNextp, TracePopPrefix)) {
-                                    VL_DO_DANGLING(pushDeletep(declBackp->unlinkFrBack()),
+                ಆದರೆ (declp) {
+                    ಆದರೆ (declp->user2() || (declp->dtypeDeclp() && !declp->dtypeDeclp()->user2())) {
+                        AstCCall* ಸ್ಥಿರಾಂಕ callp = declp->dtypeCallp();
+                        ಆದರೆ (callp) {
+                            Ast_ಗಂಟು* stmtexprp = callp->backp();
+                            VL_DO_DANGLING(ತಳ್ಳು_Deletep(stmtexprp->unlink_Fr_ಹಿಂಭಾಗ()), stmtexprp);
+                        } ಇಲ್ಲದಿದ್ದರೆ {
+                            ತಾರ್ಕಿಕ ಖಾಲಿಗಳು_Scope;
+                            ಮಾಡು {
+                                ಖಾಲಿಗಳು_Scope = ಸುಳ್ಳು;
+                                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ declBackp = declp->backp();
+                                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ declNextp = declp->nextp();
+                                ಆದರೆ (VN_IS(declBackp, Trace_ತಳ್ಳು_ಪೂರ್ವಪ್ರತ್ಯಯ)
+                                    && VN_IS(declNextp, Trace_ತೆಗೆ_ಪೂರ್ವಪ್ರತ್ಯಯ)) {
+                                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(declBackp->unlink_Fr_ಹಿಂಭಾಗ()),
                                                    declBackp);
-                                    VL_DO_DANGLING(pushDeletep(declNextp->unlinkFrBack()),
+                                    VL_DO_DANGLING(ತಳ್ಳು_Deletep(declNextp->unlink_Fr_ಹಿಂಭಾಗ()),
                                                    declNextp);
-                                    emptyScope = true;
+                                    ಖಾಲಿಗಳು_Scope = ನಿಜ;
                                 }
-                            } while (emptyScope);
+                            } ಆಗ (ಖಾಲಿಗಳು_Scope);
                         }
                         // Can't purge until we finish this pass
-                        pushDeletep(declp->unlinkFrBack());  // declp used below
-                        vvertexp->rerouteEdges(&m_graph);
-                        vvertexp->unlinkDelete(&m_graph);
+                        ತಳ್ಳು_Deletep(declp->unlink_Fr_ಹಿಂಭಾಗ());  // declp used below
+                        vvertexp->reroute_ಅಂಚುಗಳು(&m_ನಕ್ಷೆ);
+                        vvertexp->unlinkDelete(&m_ನಕ್ಷೆ);
                     }
-                    declp->dtypeDeclp(nullptr);
+                    declp->dtypeDeclp(ಶೂನ್ಯಸೂಚಕ);
                 }
             }
         }
     }
 
-    void splitTraceDeclFuncs() {
-        const int splitLimit = v3Global.opt.outputSplitCTrace() ? v3Global.opt.outputSplitCTrace()
-                                                                : std::numeric_limits<int>::max();
-        if (splitLimit == std::numeric_limits<int>::max()) return;
+    ಶೂನ್ಯ ವಿಭಜಿಸು_Trace_Decl_Funcs() {
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ವಿಭಜಿಸು_ಎಲ್ಲೆ = v3Global.opt.output_ವಿಭಜಿಸು_CTrace() ? v3Global.opt.output_ವಿಭಜಿಸು_CTrace()
+                                                                : std::numeric_limits<ಪೂರ್ಣಾಂಕ>::max();
+        ಆದರೆ (ವಿಭಜಿಸು_ಎಲ್ಲೆ == std::numeric_limits<ಪೂರ್ಣಾಂಕ>::max()) ಹಿಂತಿರುಗಿ;
 
-        for (AstNode* nodep = m_topScopep->blocksp(); nodep; nodep = nodep->nextp()) {
-            AstCFunc* const funcp = VN_CAST(nodep, CFunc);
-            if (!funcp || !funcp->user2()) continue;
+        ಗಾಗಿ (Ast_ಗಂಟು* nodep = m_ತುದಿ_Scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+            AstCFunc* ಸ್ಥಿರಾಂಕ funcp = VN_CAST(nodep, CFunc);
+            ಆದರೆ (!funcp || !funcp->user2()) ಮುಂದುವರಿ;
 
-            const string baseName = funcp->name();
-            uint32_t subNum = 1;
-            int curSize = 0;
+            ಸ್ಥಿರಾಂಕ string ತಳ_Name = funcp->name();
+            uint32_t sub_ಅಂಕೆ = 1;
+            ಪೂರ್ಣಾಂಕ cur_ಗಾತ್ರ = 0;
             AstCFunc* curFuncp = funcp;
-            std::vector<AstNodeStmt*> callStmts;
+            std::ಸದಿಶ<Ast_ಗಂಟು_Stmt*> callStmts;
 
-            auto startNewSubFunc = [&]() {
-                FileLine* const flp = funcp->fileline();
-                const string newName = baseName + "_" + cvtToStr(subNum++);
-                AstCFunc* const newFuncp = new AstCFunc{flp, newName, m_topScopep};
-                newFuncp->argTypes(v3Global.opt.traceClassBase() + "* tracep");
-                newFuncp->isTrace(true);
-                newFuncp->isStatic(false);
-                newFuncp->isLoose(true);
-                newFuncp->slow(true);
-                newFuncp->dontCombine(true);
-                m_topScopep->addBlocksp(newFuncp);
-                newFuncp->addStmtsp(new AstCStmt{flp, "const int c = vlSymsp->__Vm_baseCode;"});
-                AstCCall* const callp = new AstCCall{flp, newFuncp};
-                callp->dtypeSetVoid();
+            ಸ್ವಯಂಚಾಲಿತ ಆರಂಭ_New_Sub_Func = [&]() {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = funcp->fileline();
+                ಸ್ಥಿರಾಂಕ string newName = ತಳ_Name + "_" + cvt_ಗಮ್ಯ_Str(sub_ಅಂಕೆ++);
+                AstCFunc* ಸ್ಥಿರಾಂಕ newFuncp = ಹೊಸ AstCFunc{flp, newName, m_ತುದಿ_Scopep};
+                newFuncp->argTypes(v3Global.opt.trace_Class_ತಳ() + "* tracep");
+                newFuncp->isTrace(ನಿಜ);
+                newFuncp->isStatic(ಸುಳ್ಳು);
+                newFuncp->isLoose(ನಿಜ);
+                newFuncp->slow(ನಿಜ);
+                newFuncp->dontCombine(ನಿಜ);
+                m_ತುದಿ_Scopep->ಕೂಡಿಸು_Blocksp(newFuncp);
+                newFuncp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{flp, "const int c = vlSymsp->__Vm_baseCode;"});
+                AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{flp, newFuncp};
+                callp->dtype_ಗಣ_Void();
                 callp->argTypes("tracep");
-                callStmts.push_back(callp->makeStmt());
+                callStmts.ತಳ್ಳು_ಹಿಂಭಾಗ(callp->makeStmt());
                 curFuncp = newFuncp;
-                curSize = 0;
+                cur_ಗಾತ್ರ = 0;
             };
 
-            for (AstNode *stmtp = funcp->stmtsp(), *nextp; stmtp; stmtp = nextp) {
+            ಗಾಗಿ (Ast_ಗಂಟು *stmtp = funcp->stmtsp(), *nextp; stmtp; stmtp = nextp) {
                 nextp = stmtp->nextp();
-                curSize += stmtp->nodeCount();
+                cur_ಗಾತ್ರ += stmtp->ಗಂಟು_ಎಣಿಕೆ();
 
-                if (curFuncp != funcp) {
-                    stmtp->unlinkFrBack();
-                    curFuncp->addStmtsp(stmtp);
+                ಆದರೆ (curFuncp != funcp) {
+                    stmtp->unlink_Fr_ಹಿಂಭಾಗ();
+                    curFuncp->ಕೂಡಿಸು_Stmtsp(stmtp);
                 }
 
-                if (curSize > splitLimit && nextp) startNewSubFunc();
+                ಆದರೆ (cur_ಗಾತ್ರ > ವಿಭಜಿಸು_ಎಲ್ಲೆ && nextp) ಆರಂಭ_New_Sub_Func();
             }
 
-            for (AstNodeStmt* const callStmtp : callStmts) { funcp->addStmtsp(callStmtp); }
+            ಗಾಗಿ (Ast_ಗಂಟು_Stmt* ಸ್ಥಿರಾಂಕ callStmtp : callStmts) { funcp->ಕೂಡಿಸು_Stmtsp(callStmtp); }
         }
     }
 
-    void graphSimplify(bool initial) {
-        if (initial) {
+    ಶೂನ್ಯ ನಕ್ಷೆ_Simplify(ತಾರ್ಕಿಕ initial) {
+        ಆದರೆ (initial) {
             // Remove all variable nodes
-            for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-                if (TraceVarVertex* const vvertexp = vtxp->cast<TraceVarVertex>()) {
-                    vvertexp->rerouteEdges(&m_graph);
-                    vvertexp->unlinkDelete(&m_graph);
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : m_ನಕ್ಷೆ.vertices().unlinkable()) {
+                ಆದರೆ (Trace_Var_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = vtxp->cast<Trace_Var_ಶೃಂಗ>()) {
+                    vvertexp->reroute_ಅಂಚುಗಳು(&m_ನಕ್ಷೆ);
+                    vvertexp->unlinkDelete(&m_ನಕ್ಷೆ);
                 }
             }
             // Remove multiple variables connecting funcs to traces
             // We do this twice, as then we have fewer edges to multiply out in the below
             // expansion.
-            m_graph.removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
+            m_ನಕ್ಷೆ.remove_Redundant_ಅಂಚುಗಳು_Max(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
             // Remove all Cfunc nodes
-            for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-                if (TraceCFuncVertex* const vvertexp = vtxp->cast<TraceCFuncVertex>()) {
-                    vvertexp->rerouteEdges(&m_graph);
-                    vvertexp->unlinkDelete(&m_graph);
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : m_ನಕ್ಷೆ.vertices().unlinkable()) {
+                ಆದರೆ (Trace_CFunc_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = vtxp->cast<Trace_CFunc_ಶೃಂಗ>()) {
+                    vvertexp->reroute_ಅಂಚುಗಳು(&m_ನಕ್ಷೆ);
+                    vvertexp->unlinkDelete(&m_ನಕ್ಷೆ);
                 }
             }
         }
 
         // Remove multiple variables connecting funcs to traces
-        m_graph.removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
+        m_ನಕ್ಷೆ.remove_Redundant_ಅಂಚುಗಳು_Max(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
 
         // If there are any edges from a always, keep only the always
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (TraceTraceVertex* const vvertexp = vtx.cast<TraceTraceVertex>()) {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ಆದರೆ (Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = vtx.cast<Trace_Trace_ಶೃಂಗ>()) {
                 // Search for the incoming always edge
-                const V3GraphEdge* alwaysEdgep = nullptr;
-                for (const V3GraphEdge& edge : vvertexp->inEdges()) {
-                    const TraceActivityVertex* const actVtxp
-                        = edge.fromp()->as<const TraceActivityVertex>();
-                    if (actVtxp->activityAlways()) {
-                        alwaysEdgep = &edge;
-                        break;
+                ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು* alwaysEdgep = ಶೂನ್ಯಸೂಚಕ;
+                ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vvertexp->ಒಳ_ಅಂಚುಗಳು()) {
+                    ಸ್ಥಿರಾಂಕ Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ actVtxp
+                        = ಅಂಚು.fromp()->as<ಸ್ಥಿರಾಂಕ Trace_Activity_ಶೃಂಗ>();
+                    ಆದರೆ (actVtxp->activityAlways()) {
+                        alwaysEdgep = &ಅಂಚು;
+                        ನಿಲ್ಲಿಸು;
                     }
                 }
                 // If always edge exists, remove all other edges
-                if (alwaysEdgep) {
-                    for (V3GraphEdge* const edgep : vvertexp->inEdges().unlinkable()) {
-                        if (edgep != alwaysEdgep) VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
+                ಆದರೆ (alwaysEdgep) {
+                    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು* ಸ್ಥಿರಾಂಕ edgep : vvertexp->ಒಳ_ಅಂಚುಗಳು().unlinkable()) {
+                        ಆದರೆ (edgep != alwaysEdgep) VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
                     }
                 }
             }
         }
 
         // Activity points with no outputs can be removed
-        for (V3GraphVertex* const vtxp : m_graph.vertices().unlinkable()) {
-            if (TraceActivityVertex* const aVtxp = vtxp->cast<TraceActivityVertex>()) {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : m_ನಕ್ಷೆ.vertices().unlinkable()) {
+            ಆದರೆ (Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ aVtxp = vtxp->cast<Trace_Activity_ಶೃಂಗ>()) {
                 // Leave in the always vertex for later use.
-                if (aVtxp != m_alwaysVtxp && aVtxp->outEmpty()) {
-                    VL_DO_DANGLING(aVtxp->unlinkDelete(&m_graph), aVtxp);
+                ಆದರೆ (aVtxp != m_alwaysVtxp && aVtxp->ಹೊರಹೋಗು_ಖಾಲಿಗಳು()) {
+                    VL_DO_DANGLING(aVtxp->unlinkDelete(&m_ನಕ್ಷೆ), aVtxp);
                 }
             }
         }
     }
 
     uint32_t assignactivityNumbers() {
-        uint32_t activityNumber = 1;  // Note 0 indicates "slow" only
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (TraceActivityVertex* const vvertexp = vtx.cast<TraceActivityVertex>()) {
-                if (vvertexp != m_alwaysVtxp) {
-                    if (vvertexp->slow()) {
-                        vvertexp->activityCode(TraceActivityVertex::ACTIVITY_SLOW);
-                    } else {
-                        vvertexp->activityCode(activityNumber++);
+        uint32_t activity_ಸಂಖ್ಯೆ = 1;  // Note 0 indicates "slow" only
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ಆದರೆ (Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vvertexp = vtx.cast<Trace_Activity_ಶೃಂಗ>()) {
+                ಆದರೆ (vvertexp != m_alwaysVtxp) {
+                    ಆದರೆ (vvertexp->slow()) {
+                        vvertexp->activity_ಸಂಕೇತ(Trace_Activity_ಶೃಂಗ::ACTIVITY_SLOW);
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        vvertexp->activity_ಸಂಕೇತ(activity_ಸಂಖ್ಯೆ++);
                     }
                 }
             }
         }
-        return activityNumber;
+        ಹಿಂತಿರುಗಿ activity_ಸಂಖ್ಯೆ;
     }
 
-    void sortTraces(TraceVec& traces, uint32_t& nNonConstCodes) {
+    ಶೂನ್ಯ ವಿಂಗಡಿಸು_Traces(TraceVec& traces, uint32_t& nNonConstCodes) {
         // Populate sort structure
         traces.clear();
         nNonConstCodes = 0;
-        for (V3GraphVertex& vtx : m_graph.vertices()) {
-            if (TraceTraceVertex* const vtxp = vtx.cast<TraceTraceVertex>()) {
-                ActCodeSet actSet;
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ಆದರೆ (Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = vtx.cast<Trace_Trace_ಶೃಂಗ>()) {
+                Act_ಸಂಕೇತ_ಗಣ act_ಗಣ;
                 UINFO(9, "  Add to sort: " << vtxp);
                 UINFOTREE(9, vtxp->nodep(), "", "trnode");
-                for (const V3GraphEdge& edge : vtxp->inEdges()) {
-                    const TraceActivityVertex* const cfvertexp
-                        = edge.fromp()->cast<const TraceActivityVertex>();
+                ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtxp->ಒಳ_ಅಂಚುಗಳು()) {
+                    ಸ್ಥಿರಾಂಕ Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ cfvertexp
+                        = ಅಂಚು.fromp()->cast<ಸ್ಥಿರಾಂಕ Trace_Activity_ಶೃಂಗ>();
                     UASSERT_OBJ(cfvertexp, vtxp->nodep(),
                                 "Should have been function pointing to this trace");
                     UINFO(9, "   Activity: " << cfvertexp);
-                    if (cfvertexp->activityAlways()) {
+                    ಆದರೆ (cfvertexp->activityAlways()) {
                         // If code 0, we always trace; ignore other codes
-                        actSet.insert(TraceActivityVertex::ACTIVITY_ALWAYS);
-                    } else {
-                        actSet.insert(cfvertexp->activityCode());
+                        act_ಗಣ.ಸೇರಿಸು(Trace_Activity_ಶೃಂಗ::ACTIVITY_ALWAYS);
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        act_ಗಣ.ಸೇರಿಸು(cfvertexp->activity_ಸಂಕೇತ());
                     }
                 }
-                UASSERT_OBJ(actSet.count(TraceActivityVertex::ACTIVITY_ALWAYS) == 0
-                                || actSet.size() == 1,
+                UASSERT_OBJ(act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_ALWAYS) == 0
+                                || act_ಗಣ.ಗಾತ್ರ_2() == 1,
                             vtxp->nodep(), "Always active trace has further triggers");
                 // Count nodes
-                if (!vtxp->duplicatep() && !actSet.empty())
-                    nNonConstCodes += vtxp->nodep()->codeInc();
-                if (actSet.empty()) {
+                ಆದರೆ (!vtxp->duplicatep() && !act_ಗಣ.ಖಾಲಿಗಳು())
+                    nNonConstCodes += vtxp->nodep()->ಸಂಕೇತ_Inc();
+                ಆದರೆ (act_ಗಣ.ಖಾಲಿಗಳು()) {
                     // If a trace doesn't have activity, it's constant, and we
                     // don't need to track changes on it.
-                    actSet.insert(TraceActivityVertex::ACTIVITY_NEVER);
-                } else if (actSet.count(TraceActivityVertex::ACTIVITY_SLOW) && actSet.size() > 1) {
+                    act_ಗಣ.ಸೇರಿಸು(Trace_Activity_ಶೃಂಗ::ACTIVITY_NEVER);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_SLOW) && act_ಗಣ.ಗಾತ್ರ_2() > 1) {
                     // If a trace depends on the slow flag as well as other
                     // flags, remove the dependency on the slow flag. We will
                     // make slow routines set all activity flags.
-                    actSet.erase(TraceActivityVertex::ACTIVITY_SLOW);
+                    act_ಗಣ.erase(Trace_Activity_ಶೃಂಗ::ACTIVITY_SLOW);
                 }
-                traces.emplace(actSet, vtxp);
+                traces.emplace(act_ಗಣ, vtxp);
             }
         }
     }
 
-    void graphOptimize() {
+    ಶೂನ್ಯ ನಕ್ಷೆ_Optimize() {
         // Assign initial activity numbers to activity vertices
         assignactivityNumbers();
 
         // Sort the traces by activity sets
         TraceVec traces;
         uint32_t unused1;
-        sortTraces(traces, unused1);
+        ವಿಂಗಡಿಸು_Traces(traces, unused1);
 
         // For each activity set with only a small number of signals, make those
         // signals always traced, as it's cheaper to check a few value changes
         // than to test a lot of activity flags
-        auto it = traces.begin();
-        const auto end = traces.end();
-        while (it != end) {
-            auto head = it;
+        ಸ್ವಯಂಚಾಲಿತ it = traces.begin();
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಕೊನೆ = traces.ಕೊನೆ();
+        ಆಗ (it != ಕೊನೆ) {
+            ಸ್ವಯಂಚಾಲಿತ ತಲೆ = it;
             // Approximate the complexity of the value change check
             uint32_t complexity = 0;
-            const ActCodeSet& actSet = it->first;
-            for (; it != end && it->first == actSet; ++it) {
-                if (!it->second->duplicatep()) {
-                    uint32_t cost = 0;
-                    const AstTraceDecl* const declp = it->second->nodep();
+            ಸ್ಥಿರಾಂಕ Act_ಸಂಕೇತ_ಗಣ& act_ಗಣ = it->ಮೊದಲ;
+            ಗಾಗಿ (; it != ಕೊನೆ && it->ಮೊದಲ == act_ಗಣ; ++it) {
+                ಆದರೆ (!it->ಎರಡನೇ->duplicatep()) {
+                    uint32_t ವೆಚ್ಚ = 0;
+                    ಸ್ಥಿರಾಂಕ AstTraceDecl* ಸ್ಥಿರಾಂಕ declp = it->ಎರಡನೇ->nodep();
                     // The number of comparisons required by bufp->chg*
-                    cost += declp->isWide() ? declp->codeInc() : 1;
+                    ವೆಚ್ಚ += declp->isWide() ? declp->ಸಂಕೇತ_Inc() : 1;
                     // Arrays are traced by element
-                    cost *= declp->arrayRange().ranged() ? declp->arrayRange().elements() : 1;
+                    ವೆಚ್ಚ *= declp->arrayRange().ranged() ? declp->arrayRange().elements() : 1;
                     // Note: Experiments factoring in the size of declp->valuep()
                     // showed no benefit in tracing speed, even for large trees,
                     // so we will leave those out for now.
-                    complexity += cost;
+                    complexity += ವೆಚ್ಚ;
                 }
             }
             // Leave alone always changing, never changing and signals only set in slow code
-            if (actSet.count(TraceActivityVertex::ACTIVITY_ALWAYS)) continue;
-            if (actSet.count(TraceActivityVertex::ACTIVITY_NEVER)) continue;
-            if (actSet.count(TraceActivityVertex::ACTIVITY_SLOW)) continue;
+            ಆದರೆ (act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_ALWAYS)) ಮುಂದುವರಿ;
+            ಆದರೆ (act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_NEVER)) ಮುಂದುವರಿ;
+            ಆದರೆ (act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_SLOW)) ಮುಂದುವರಿ;
             // If the value comparisons are cheaper to perform than checking the
             // activity flags make the signals always traced. Note this cost
             // equation is heuristic.
-            if (complexity <= actSet.size() * 2) {
-                for (; head != it; ++head) {
-                    new V3GraphEdge{&m_graph, m_alwaysVtxp, head->second, 1};
+            ಆದರೆ (complexity <= act_ಗಣ.ಗಾತ್ರ_2() * 2) {
+                ಗಾಗಿ (; ತಲೆ != it; ++ತಲೆ) {
+                    ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, m_alwaysVtxp, ತಲೆ->ಎರಡನೇ, 1};
                 }
             }
         }
 
-        graphSimplify(false);
+        ನಕ್ಷೆ_Simplify(ಸುಳ್ಳು);
     }
 
-    AstNodeExpr* selectActivity(FileLine* flp, uint32_t acode, const VAccess& access) {
-        return new AstArraySel(flp, new AstVarRef{flp, m_activityVscp, access}, acode);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* selectActivity(File_ಸಾಲು* flp, uint32_t acode, ಸ್ಥಿರಾಂಕ VAccess& access) {
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstArraySel(flp, ಹೊಸ AstVarRef{flp, m_activityVscp, access}, acode);
     }
 
-    AstNode* newActivitySetter(AstNode* insertp, uint32_t code) {
+    Ast_ಗಂಟು* newActivitySetter(Ast_ಗಂಟು* insertp, uint32_t ಸಂಕೇತ_2) {
         ++m_statSetters;
-        FileLine* const fl = insertp->fileline();
-        AstAssign* const setterp = new AstAssign{fl, selectActivity(fl, code, VAccess::WRITE),
-                                                 new AstConst{fl, AstConst::BitTrue{}}};
-        return setterp;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = insertp->fileline();
+        Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ setterp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, selectActivity(fl, ಸಂಕೇತ_2, VAccess::WRITE),
+                                                 ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_True{}}};
+        ಹಿಂತಿರುಗಿ setterp;
     }
 
-    AstNode* newActivityAll(AstNode* insertp) {
+    Ast_ಗಂಟು* newActivityAll(Ast_ಗಂಟು* insertp) {
         ++m_statSettersSlow;
-        if (!m_actAllFuncp) {
-            FileLine* const flp = m_topScopep->fileline();
-            AstCFunc* const funcp = new AstCFunc{flp, "__VtraceActivitySetAll", m_topScopep};
-            funcp->slow(true);
-            funcp->isStatic(false);
-            funcp->isLoose(true);
-            m_topScopep->addBlocksp(funcp);
-            for (uint32_t code = 0; code < m_activityNumber; ++code) {
-                AstNode* const setterp = newActivitySetter(insertp, code);
-                funcp->addStmtsp(setterp);
+        ಆದರೆ (!m_actAllFuncp) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = m_ತುದಿ_Scopep->fileline();
+            AstCFunc* ಸ್ಥಿರಾಂಕ funcp = ಹೊಸ AstCFunc{flp, "__VtraceActivitySetAll", m_ತುದಿ_Scopep};
+            funcp->slow(ನಿಜ);
+            funcp->isStatic(ಸುಳ್ಳು);
+            funcp->isLoose(ನಿಜ);
+            m_ತುದಿ_Scopep->ಕೂಡಿಸು_Blocksp(funcp);
+            ಗಾಗಿ (uint32_t ಸಂಕೇತ_2 = 0; ಸಂಕೇತ_2 < m_activity_ಸಂಖ್ಯೆ; ++ಸಂಕೇತ_2) {
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ setterp = newActivitySetter(insertp, ಸಂಕೇತ_2);
+                funcp->ಕೂಡಿಸು_Stmtsp(setterp);
             }
             m_actAllFuncp = funcp;
         }
-        AstCCall* const callp = new AstCCall{insertp->fileline(), m_actAllFuncp};
-        callp->dtypeSetVoid();
-        return callp->makeStmt();
+        AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{insertp->fileline(), m_actAllFuncp};
+        callp->dtype_ಗಣ_Void();
+        ಹಿಂತಿರುಗಿ callp->makeStmt();
     }
 
-    void createActivityFlags() {
+    ಶೂನ್ಯ createActivityFlags() {
         // Assign final activity numbers
-        m_activityNumber = assignactivityNumbers();
+        m_activity_ಸಂಖ್ಯೆ = assignactivityNumbers();
 
         // Create an array of bytes, not a bit vector, as they can be set
         // atomically by mtasks, and are cheaper to set (no need for
         // read-modify-write on the C type), and the speed of the tracing code
         // is the same on largish designs.
-        FileLine* const flp = m_topScopep->fileline();
-        AstNodeDType* const newScalarDtp = new AstBasicDType{flp, VFlagBitPacked{}, 1};
-        v3Global.rootp()->typeTablep()->addTypesp(newScalarDtp);
-        AstRange* const newArange
-            = new AstRange{flp, VNumRange{static_cast<int>(m_activityNumber) - 1, 0}};
-        AstNodeDType* const newArrDtp = new AstUnpackArrayDType{flp, newScalarDtp, newArange};
-        v3Global.rootp()->typeTablep()->addTypesp(newArrDtp);
-        m_activityVscp = v3Global.rootp()->topScopep()->createTemp("__VtraceActivity", newArrDtp);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = m_ತುದಿ_Scopep->fileline();
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ newScalarDtp = ಹೊಸ AstBasicDType{flp, VFlag_ಬಿಟ್_Packed{}, 1};
+        v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(newScalarDtp);
+        AstRange* ಸ್ಥಿರಾಂಕ newArange
+            = ಹೊಸ AstRange{flp, VNumRange{static_cast<ಪೂರ್ಣಾಂಕ>(m_activity_ಸಂಖ್ಯೆ) - 1, 0}};
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ newArrDtp = ಹೊಸ AstUnpackArrayDType{flp, newScalarDtp, newArange};
+        v3Global.rootp()->typeTablep()->ಕೂಡಿಸು_Typesp(newArrDtp);
+        m_activityVscp = v3Global.rootp()->ತುದಿ_Scopep()->create_ತಾತ್ಕಾಲಿಕ("__VtraceActivity", newArrDtp);
 
         // Insert activity setters
-        for (const V3GraphVertex& vtx : m_graph.vertices()) {
-            if (const TraceActivityVertex* const vtxp = vtx.cast<const TraceActivityVertex>()) {
-                AstNode* setterp = nullptr;
-                if (vtxp->activitySlow()) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_ನಕ್ಷೆ.vertices()) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = vtx.cast<ಸ್ಥಿರಾಂಕ Trace_Activity_ಶೃಂಗ>()) {
+                Ast_ಗಂಟು* setterp = ಶೂನ್ಯಸೂಚಕ;
+                ಆದರೆ (vtxp->activitySlow()) {
                     setterp = newActivityAll(vtxp->insertp());
                     // Just set all flags in slow code as it should be rare.
                     // This will be rolled up into a loop by V3Reloop.
-                } else if (!vtxp->activityAlways()) {
-                    setterp = newActivitySetter(vtxp->insertp(), vtxp->activityCode());
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!vtxp->activityAlways()) {
+                    setterp = newActivitySetter(vtxp->insertp(), vtxp->activity_ಸಂಕೇತ());
                 }
-                if (setterp) {
-                    AstNode* const insertp = vtxp->insertp();
-                    if (AstStmtExpr* const stmtp = VN_CAST(insertp, StmtExpr)) {
-                        stmtp->addNextHere(setterp);
-                    } else if (AstCFunc* const funcp = VN_CAST(insertp, CFunc)) {
+                ಆದರೆ (setterp) {
+                    Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ insertp = vtxp->insertp();
+                    ಆದರೆ (Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ stmtp = VN_CAST(insertp, Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
+                        stmtp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(setterp);
+                    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstCFunc* ಸ್ಥಿರಾಂಕ funcp = VN_CAST(insertp, CFunc)) {
                         // If there are awaits, insert the setter after each await
-                        if (funcp->isCoroutine() && funcp->stmtsp()) {
-                            funcp->stmtsp()->foreachAndNext([setterp](AstCAwait* awaitp) {
-                                awaitp->addNextHere(setterp->cloneTree(false));
+                        ಆದರೆ (funcp->isCoroutine() && funcp->stmtsp()) {
+                            funcp->stmtsp()->foreach_And_ಮುಂದಿನ([setterp](AstCAwait* awaitp) {
+                                awaitp->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(setterp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
                             });
                         }
-                        funcp->addStmtsp(setterp);
-                    } else {
+                        funcp->ಕೂಡಿಸು_Stmtsp(setterp);
+                    } ಇಲ್ಲದಿದ್ದರೆ {
                         insertp->v3fatalSrc("Bad trace activity vertex");
                     }
                 }
@@ -663,413 +663,413 @@ class TraceVisitor final : public VNVisitor {
         }
     }
 
-    AstCFunc* newCFunc(VTraceType traceType, AstCFunc* topFuncp, uint32_t funcNum,
-                       uint32_t baseCode = 0, const AstTraceDecl* const declp = nullptr,
-                       bool declSub = false) {
+    AstCFunc* newCFunc(VTraceType traceType, AstCFunc* ತುದಿ_Funcp, uint32_t func_ಅಂಕೆ,
+                       uint32_t ತಳ_ಸಂಕೇತ = 0, ಸ್ಥಿರಾಂಕ AstTraceDecl* ಸ್ಥಿರಾಂಕ declp = ಶೂನ್ಯಸೂಚಕ,
+                       ತಾರ್ಕಿಕ declSub = ಸುಳ್ಳು) {
         // Create new function
-        const bool isTopFunc = !declp && topFuncp == nullptr;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ is_ತುದಿ_Func = !declp && ತುದಿ_Funcp == ಶೂನ್ಯಸೂಚಕ;
         std::string funcName;
-        if (isTopFunc || declp) {
-            funcName = traceType.func_prefix();
-        } else {
-            funcName = topFuncp->name();
+        ಆದರೆ (is_ತುದಿ_Func || declp) {
+            funcName = traceType.func_ಪೂರ್ವಪ್ರತ್ಯಯ();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            funcName = ತುದಿ_Funcp->name();
             funcName += "_sub";
         }
-        if (declp) {
+        ಆದರೆ (declp) {
             funcName += "_dtype";
-            if (declSub) funcName += "_sub";
+            ಆದರೆ (declSub) funcName += "_sub";
             funcName += "__";
-            funcName = m_dtypeNames.get(funcName);
-        } else {
+            funcName = m_dtype_ಹೆಸರುಗಳು.get(funcName);
+        } ಇಲ್ಲದಿದ್ದರೆ {
             funcName += "_";
-            funcName += cvtToStr(funcNum);
+            funcName += cvt_ಗಮ್ಯ_Str(func_ಅಂಕೆ);
         }
 
-        FileLine* const flp = m_topScopep->fileline();
-        AstCFunc* const funcp = new AstCFunc{flp, funcName, m_topScopep};
-        funcp->isTrace(true);
-        funcp->dontCombine(true);
-        funcp->isLoose(true);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = m_ತುದಿ_Scopep->fileline();
+        AstCFunc* ಸ್ಥಿರಾಂಕ funcp = ಹೊಸ AstCFunc{flp, funcName, m_ತುದಿ_Scopep};
+        funcp->isTrace(ನಿಜ);
+        funcp->dontCombine(ನಿಜ);
+        funcp->isLoose(ನಿಜ);
         funcp->slow(traceType != VTraceType::CHANGE);
-        funcp->isStatic(isTopFunc);
+        funcp->isStatic(is_ತುದಿ_Func);
         // Add it to top scope
-        m_topScopep->addBlocksp(funcp);
-        const std::string bufArg
-            = v3Global.opt.traceClassBase() + "::Buffer* bufp"
-              + (declp ? (", uint32_t offset, const " + declp->dtypep()->cType("", true, true)
+        m_ತುದಿ_Scopep->ಕೂಡಿಸು_Blocksp(funcp);
+        ಸ್ಥಿರಾಂಕ std::string bufArg
+            = v3Global.opt.trace_Class_ತಳ() + "::Buffer* bufp"
+              + (declp ? (", uint32_t offset, const " + declp->dtypep()->cType("", ನಿಜ, ನಿಜ)
                           + " __VdtypeVar")
                        : "");
-        if (isTopFunc) {
+        ಆದರೆ (is_ತುದಿ_Func) {
             // Top functions
             funcp->argTypes("void* voidSelf, " + bufArg);
-            funcp->addStmtsp(new AstCStmt{flp, EmitCUtil::voidSelfAssign(m_topModp)});
-            funcp->addStmtsp(new AstCStmt{flp, EmitCUtil::symClassAssign()});
+            funcp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{flp, EmitCUtil::void_Self_ನಿಯೋಜಿಸು(m_ತುದಿ_Modp)});
+            funcp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{flp, EmitCUtil::sym_Class_ನಿಯೋಜಿಸು()});
             // Add global activity check to change dump functions
-            if (traceType == VTraceType::CHANGE) {  //
-                funcp->addStmtsp(
-                    new AstCStmt{flp, "if (VL_UNLIKELY(!vlSymsp->__Vm_activity)) return;"});
+            ಆದರೆ (traceType == VTraceType::CHANGE) {  //
+                funcp->ಕೂಡಿಸು_Stmtsp(
+                    ಹೊಸ AstCStmt{flp, "if (VL_UNLIKELY(!vlSymsp->__Vm_activity)) return;"});
             }
             // Register function
-            AstCStmt* const cstmtp = new AstCStmt{flp};
-            m_regFuncp->addStmtsp(cstmtp);
-            if (traceType == VTraceType::CONSTANT) {
-                cstmtp->add("tracep->addConstCb(");
-                cstmtp->add(new AstAddrOfCFunc{flp, funcp});
-                cstmtp->add(", " + std::to_string(funcNum) + ", vlSelf);");
-            } else if (traceType == VTraceType::FULL) {
-                cstmtp->add("tracep->addFullCb(");
-                cstmtp->add(new AstAddrOfCFunc{flp, funcp});
-                cstmtp->add(", " + std::to_string(funcNum) + ", vlSelf);");
-            } else {
-                cstmtp->add("tracep->addChgCb(");
-                cstmtp->add(new AstAddrOfCFunc{flp, funcp});
-                cstmtp->add(", " + std::to_string(funcNum) + ", vlSelf);");
+            AstCStmt* ಸ್ಥಿರಾಂಕ cstmtp = ಹೊಸ AstCStmt{flp};
+            m_regFuncp->ಕೂಡಿಸು_Stmtsp(cstmtp);
+            ಆದರೆ (traceType == VTraceType::CONSTANT) {
+                cstmtp->ಕೂಡಿಸು("tracep->addConstCb(");
+                cstmtp->ಕೂಡಿಸು(ಹೊಸ Ast_Addr_ದ_CFunc{flp, funcp});
+                cstmtp->ಕೂಡಿಸು(", " + std::ಗಮ್ಯ_string(func_ಅಂಕೆ) + ", vlSelf);");
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (traceType == VTraceType::ತುಂಬಿದ) {
+                cstmtp->ಕೂಡಿಸು("tracep->addFullCb(");
+                cstmtp->ಕೂಡಿಸು(ಹೊಸ Ast_Addr_ದ_CFunc{flp, funcp});
+                cstmtp->ಕೂಡಿಸು(", " + std::ಗಮ್ಯ_string(func_ಅಂಕೆ) + ", vlSelf);");
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                cstmtp->ಕೂಡಿಸು("tracep->addChgCb(");
+                cstmtp->ಕೂಡಿಸು(ಹೊಸ Ast_Addr_ದ_CFunc{flp, funcp});
+                cstmtp->ಕೂಡಿಸು(", " + std::ಗಮ್ಯ_string(func_ಅಂಕೆ) + ", vlSelf);");
             }
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             // Sub functions
             funcp->argTypes(bufArg);
             // Setup base references. Note in rare occasions we can end up with an empty trace
             // sub function, hence the VL_ATTR_UNUSED attributes.
-            if (traceType != VTraceType::CHANGE) {
+            ಆದರೆ (traceType != VTraceType::CHANGE) {
                 // Full dump sub function
-                funcp->addStmtsp(new AstCStmt{flp,  //
+                funcp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{flp,  //
                                               string("uint32_t* const oldp VL_ATTR_UNUSED = "
                                                      "bufp->oldp(vlSymsp->__Vm_baseCode")
                                                   + (declp ? " + offset" : "") + ");\n"});
-            } else {
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // Change dump sub function
-                funcp->addStmtsp(new AstCStmt{flp,  //
+                funcp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{flp,  //
                                               "uint32_t* const oldp VL_ATTR_UNUSED = "
                                               "bufp->oldp(vlSymsp->__Vm_baseCode + "
-                                                  + (declp ? " offset" : cvtToStr(baseCode))
+                                                  + (declp ? " offset" : cvt_ಗಮ್ಯ_Str(ತಳ_ಸಂಕೇತ))
                                                   + ");\n"});
             }
-            if (!declp) {
+            ಆದರೆ (!declp) {
                 // Add call to top function
-                AstCCall* const callp = new AstCCall{funcp->fileline(), funcp};
-                callp->dtypeSetVoid();
+                AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{funcp->fileline(), funcp};
+                callp->dtype_ಗಣ_Void();
                 callp->argTypes("bufp");
-                topFuncp->addStmtsp(callp->makeStmt());
+                ತುದಿ_Funcp->ಕೂಡಿಸು_Stmtsp(callp->makeStmt());
             }
         }
-        // Done
+        //ಮುಗಿದ
         UINFO(5, "  newCFunc " << funcp);
-        return funcp;
+        ಹಿಂತಿರುಗಿ funcp;
     }
 
-    AstCFunc* newCDtypeSubFunc(VTraceType traceType, const AstTraceDecl* const declp,
+    AstCFunc* newCDtypeSubFunc(VTraceType traceType, ಸ್ಥಿರಾಂಕ AstTraceDecl* ಸ್ಥಿರಾಂಕ declp,
                                AstCFunc* parentp) {
-        AstCFunc* const funcp = newCFunc(traceType, nullptr, 0, 0, declp, true);
-        FileLine* const flp = m_topScopep->fileline();
-        AstCCall* const callp = new AstCCall{flp, funcp};
-        callp->dtypeSetVoid();
+        AstCFunc* ಸ್ಥಿರಾಂಕ funcp = newCFunc(traceType, ಶೂನ್ಯಸೂಚಕ, 0, 0, declp, ನಿಜ);
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = m_ತುದಿ_Scopep->fileline();
+        AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{flp, funcp};
+        callp->dtype_ಗಣ_Void();
         callp->argTypes("bufp, offset, __VdtypeVar");
-        parentp->addStmtsp(callp->makeStmt());
-        return funcp;
+        parentp->ಕೂಡಿಸು_Stmtsp(callp->makeStmt());
+        ಹಿಂತಿರುಗಿ funcp;
     }
 
-    AstCFunc* createConstDtypeTraceFunctions(const AstTraceDecl* declp) {
-        const AstNodeDType* const dtypep = declp->dtypep()->skipRefp();
-        auto pair = m_dtypeConstFuncs.emplace(dtypep, nullptr);
-        if (pair.second) {
-            FileLine* const flp = declp->fileline();
-            AstCFunc* const funcp = newCFunc(VTraceType::CONSTANT, nullptr, 0, 0, declp);
+    AstCFunc* createConstDtypeTraceFunctions(ಸ್ಥಿರಾಂಕ AstTraceDecl* declp) {
+        ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = declp->dtypep()->skipRefp();
+        ಸ್ವಯಂಚಾಲಿತ pair = m_dtypeConstFuncs.emplace(dtypep, ಶೂನ್ಯಸೂಚಕ);
+        ಆದರೆ (pair.ಎರಡನೇ) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = declp->fileline();
+            AstCFunc* ಸ್ಥಿರಾಂಕ funcp = newCFunc(VTraceType::CONSTANT, ಶೂನ್ಯಸೂಚಕ, 0, 0, declp);
 
-            bool first = true;
-            for (AstNode* callStmtp = declp->dtypeCallp()->funcp()->stmtsp(); callStmtp;
+            ತಾರ್ಕಿಕ ಮೊದಲ = ನಿಜ;
+            ಗಾಗಿ (Ast_ಗಂಟು* callStmtp = declp->dtypeCallp()->funcp()->stmtsp(); callStmtp;
                  callStmtp = callStmtp->nextp()) {
-                const AstCCall* const callp
-                    = VN_CAST(VN_CAST(callStmtp, StmtExpr)->exprp(), CCall);
-                bool onlyOne = first && !callStmtp->nextp();
-                AstCFunc* const subFuncp
+                ಸ್ಥಿರಾಂಕ AstCCall* ಸ್ಥಿರಾಂಕ callp
+                    = VN_CAST(VN_CAST(callStmtp, Stmt_ಅಭಿವ್ಯಕ್ತಿ)->exprp(), CCall);
+                ತಾರ್ಕಿಕ onlyOne = ಮೊದಲ && !callStmtp->nextp();
+                AstCFunc* ಸ್ಥಿರಾಂಕ subFuncp
                     = onlyOne ? funcp : newCDtypeSubFunc(VTraceType::CONSTANT, declp, funcp);
-                for (AstNode* stmtp = callp->funcp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstTraceDecl* const fieldDeclp = VN_CAST(stmtp, TraceDecl)) {
-                        AstTraceInc* const incp
-                            = new AstTraceInc{flp, fieldDeclp, VTraceType::CONSTANT};
-                        subFuncp->addStmtsp(incp);
+                ಗಾಗಿ (Ast_ಗಂಟು* stmtp = callp->funcp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    ಆದರೆ (AstTraceDecl* ಸ್ಥಿರಾಂಕ ಕ್ಷೇತ್ರ_Declp = VN_CAST(stmtp, TraceDecl)) {
+                        AstTraceInc* ಸ್ಥಿರಾಂಕ incp
+                            = ಹೊಸ AstTraceInc{flp, ಕ್ಷೇತ್ರ_Declp, VTraceType::CONSTANT};
+                        subFuncp->ಕೂಡಿಸು_Stmtsp(incp);
                     }
                 }
-                first = false;
+                ಮೊದಲ = ಸುಳ್ಳು;
             }
 
-            pair.first->second = funcp;
+            pair.ಮೊದಲ->ಎರಡನೇ = funcp;
         }
 
-        return pair.first->second;
+        ಹಿಂತಿರುಗಿ pair.ಮೊದಲ->ಎರಡನೇ;
     }
 
-    void createConstTraceFunctions(const TraceVec& traces) {
-        const int splitLimit = v3Global.opt.outputSplitCTrace() ? v3Global.opt.outputSplitCTrace()
-                                                                : std::numeric_limits<int>::max();
+    ಶೂನ್ಯ createConstTraceFunctions(ಸ್ಥಿರಾಂಕ TraceVec& traces) {
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ವಿಭಜಿಸು_ಎಲ್ಲೆ = v3Global.opt.output_ವಿಭಜಿಸು_CTrace() ? v3Global.opt.output_ವಿಭಜಿಸು_CTrace()
+                                                                : std::numeric_limits<ಪೂರ್ಣಾಂಕ>::max();
 
-        AstCFunc* const topFuncp = newCFunc(VTraceType::CONSTANT, nullptr, 0);
-        uint32_t subFuncNum = 0;
-        AstCFunc* subFuncp = nullptr;
-        int subStmts = 0;
-        std::vector<const TraceTraceVertex*> duplicates;
-        for (auto it = traces.cbegin(); it != traces.end(); ++it) {
-            const TraceTraceVertex* const vtxp = it->second;
-            AstTraceDecl* const declp = vtxp->nodep();
-            if (vtxp->duplicatep()) {
-                duplicates.push_back(vtxp);
-                continue;
+        AstCFunc* ಸ್ಥಿರಾಂಕ ತುದಿ_Funcp = newCFunc(VTraceType::CONSTANT, ಶೂನ್ಯಸೂಚಕ, 0);
+        uint32_t sub_Func_ಅಂಕೆ = 0;
+        AstCFunc* subFuncp = ಶೂನ್ಯಸೂಚಕ;
+        ಪೂರ್ಣಾಂಕ subStmts = 0;
+        std::ಸದಿಶ<ಸ್ಥಿರಾಂಕ Trace_Trace_ಶೃಂಗ*> duplicates;
+        ಗಾಗಿ (ಸ್ವಯಂಚಾಲಿತ it = traces.cbegin(); it != traces.ಕೊನೆ(); ++it) {
+            ಸ್ಥಿರಾಂಕ Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = it->ಎರಡನೇ;
+            AstTraceDecl* ಸ್ಥಿರಾಂಕ declp = vtxp->nodep();
+            ಆದರೆ (vtxp->duplicatep()) {
+                duplicates.ತಳ್ಳು_ಹಿಂಭಾಗ(vtxp);
+                ಮುಂದುವರಿ;
             }
 
             // This is a canonical trace node. Assign trace code (signal number).
-            UASSERT_OBJ(!declp->codeAssigned(), declp,
+            UASSERT_OBJ(!declp->ಸಂಕೇತ_Assigned(), declp,
                         "Canonical node should not have code assigned yet");
-            declp->code(m_code);
-            const uint32_t codeInc = declp->codeInc();
-            m_code += codeInc;
+            declp->ಸಂಕೇತ_2(m_ಸಂಕೇತ);
+            ಸ್ಥಿರಾಂಕ uint32_t ಸಂಕೇತ_Inc = declp->ಸಂಕೇತ_Inc();
+            m_ಸಂಕೇತ += ಸಂಕೇತ_Inc;
             ++m_statUniqSigs;
 
             // If this is a const signal, add the AstTraceInc
-            const ActCodeSet& actSet = it->first;
-            if (actSet.count(TraceActivityVertex::ACTIVITY_NEVER)) {
+            ಸ್ಥಿರಾಂಕ Act_ಸಂಕೇತ_ಗಣ& act_ಗಣ = it->ಮೊದಲ;
+            ಆದರೆ (act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_NEVER)) {
                 // Crate new sub function if required
-                if (!subFuncp || subStmts > splitLimit) {
+                ಆದರೆ (!subFuncp || subStmts > ವಿಭಜಿಸು_ಎಲ್ಲೆ) {
                     subStmts = 0;
-                    subFuncp = newCFunc(VTraceType::CONSTANT, topFuncp, subFuncNum);
-                    ++subFuncNum;
+                    subFuncp = newCFunc(VTraceType::CONSTANT, ತುದಿ_Funcp, sub_Func_ಅಂಕೆ);
+                    ++sub_Func_ಅಂಕೆ;
                 }
-                FileLine* const flp = declp->fileline();
-                if (declp->dtypeCallp()) {
-                    AstCFunc* const funcp = createConstDtypeTraceFunctions(declp);
-                    AstNodeExpr* argsp = nullptr;
-                    argsp = AstNode::addNext(argsp, declp->valuep()->cloneTree(false));
-                    AstCCall* const callp = new AstCCall{flp, funcp, argsp};
-                    callp->dtypeSetVoid();
-                    callp->argTypes(callp->argTypes() + "bufp, " + std::to_string(declp->code()));
-                    subFuncp->addStmtsp(callp->makeStmt());
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = declp->fileline();
+                ಆದರೆ (declp->dtypeCallp()) {
+                    AstCFunc* ಸ್ಥಿರಾಂಕ funcp = createConstDtypeTraceFunctions(declp);
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = ಶೂನ್ಯಸೂಚಕ;
+                    argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(argsp, declp->valuep()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+                    AstCCall* ಸ್ಥಿರಾಂಕ callp = ಹೊಸ AstCCall{flp, funcp, argsp};
+                    callp->dtype_ಗಣ_Void();
+                    callp->argTypes(callp->argTypes() + "bufp, " + std::ಗಮ್ಯ_string(declp->ಸಂಕೇತ_2()));
+                    subFuncp->ಕೂಡಿಸು_Stmtsp(callp->makeStmt());
 
                     subStmts += 1;
-                } else {
-                    AstTraceInc* const incp = new AstTraceInc{flp, declp, VTraceType::CONSTANT};
-                    subFuncp->addStmtsp(incp);
-                    subStmts += incp->nodeCount();
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    AstTraceInc* ಸ್ಥಿರಾಂಕ incp = ಹೊಸ AstTraceInc{flp, declp, VTraceType::CONSTANT};
+                    subFuncp->ಕೂಡಿಸು_Stmtsp(incp);
+                    subStmts += incp->ಗಂಟು_ಎಣಿಕೆ();
                 }
             }
         }
 
         // Assign codes to duplicate nodes from their canonicals
-        for (const TraceTraceVertex* const vtxp : duplicates) {
-            AstTraceDecl* const declp = vtxp->nodep();
-            const TraceTraceVertex* const canonVtxp = vtxp->duplicatep();
-            const AstTraceDecl* const canonDeclp = canonVtxp->nodep();
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : duplicates) {
+            AstTraceDecl* ಸ್ಥಿರಾಂಕ declp = vtxp->nodep();
+            ಸ್ಥಿರಾಂಕ Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ canonVtxp = vtxp->duplicatep();
+            ಸ್ಥಿರಾಂಕ AstTraceDecl* ಸ್ಥಿರಾಂಕ canonDeclp = canonVtxp->nodep();
             UASSERT_OBJ(!canonVtxp->duplicatep(), canonDeclp, "Canonical node is a duplicate");
-            UASSERT_OBJ(canonDeclp->codeAssigned(), canonDeclp,
+            UASSERT_OBJ(canonDeclp->ಸಂಕೇತ_Assigned(), canonDeclp,
                         "Canonical node should have code assigned already");
-            declp->code(canonDeclp->code() + vtxp->dtypeAliasOffset());
+            declp->ಸಂಕೇತ_2(canonDeclp->ಸಂಕೇತ_2() + vtxp->dtype_Alias_ಸ್ಥಾನಾಂತರ());
         }
     }
 
-    DtypeFuncs createNonConstDtypeTraceFunctions(const AstTraceDecl* declp) {
-        AstNodeDType* dtypep = declp->dtypep()->skipRefp();
-        auto pair = m_dtypeNonConstFuncs.emplace(dtypep, DtypeFuncs{});
-        if (pair.second) {
-            FileLine* const flp = declp->fileline();
-            AstCFunc* const fullFuncp = newCFunc(VTraceType::FULL, nullptr, 0, 0, declp);
-            AstCFunc* const chgFuncp = newCFunc(VTraceType::CHANGE, nullptr, 0, 0, declp);
+    DtypeFuncs createNonConstDtypeTraceFunctions(ಸ್ಥಿರಾಂಕ AstTraceDecl* declp) {
+        Ast_ಗಂಟು_DType* dtypep = declp->dtypep()->skipRefp();
+        ಸ್ವಯಂಚಾಲಿತ pair = m_dtypeNonConstFuncs.emplace(dtypep, DtypeFuncs{});
+        ಆದರೆ (pair.ಎರಡನೇ) {
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = declp->fileline();
+            AstCFunc* ಸ್ಥಿರಾಂಕ ತುಂಬಿದ_Funcp = newCFunc(VTraceType::ತುಂಬಿದ, ಶೂನ್ಯಸೂಚಕ, 0, 0, declp);
+            AstCFunc* ಸ್ಥಿರಾಂಕ chgFuncp = newCFunc(VTraceType::CHANGE, ಶೂನ್ಯಸೂಚಕ, 0, 0, declp);
 
-            bool first = true;
-            for (AstNode* callStmtp = declp->dtypeCallp()->funcp()->stmtsp(); callStmtp;
+            ತಾರ್ಕಿಕ ಮೊದಲ = ನಿಜ;
+            ಗಾಗಿ (Ast_ಗಂಟು* callStmtp = declp->dtypeCallp()->funcp()->stmtsp(); callStmtp;
                  callStmtp = callStmtp->nextp()) {
-                const AstCCall* const callp
-                    = VN_CAST(VN_CAST(callStmtp, StmtExpr)->exprp(), CCall);
-                bool onlyOne = first && !callStmtp->nextp();
-                AstCFunc* const fullSubFuncp
-                    = onlyOne ? fullFuncp : newCDtypeSubFunc(VTraceType::FULL, declp, fullFuncp);
-                AstCFunc* const chgSubFuncp
+                ಸ್ಥಿರಾಂಕ AstCCall* ಸ್ಥಿರಾಂಕ callp
+                    = VN_CAST(VN_CAST(callStmtp, Stmt_ಅಭಿವ್ಯಕ್ತಿ)->exprp(), CCall);
+                ತಾರ್ಕಿಕ onlyOne = ಮೊದಲ && !callStmtp->nextp();
+                AstCFunc* ಸ್ಥಿರಾಂಕ ತುಂಬಿದ_Sub_Funcp
+                    = onlyOne ? ತುಂಬಿದ_Funcp : newCDtypeSubFunc(VTraceType::ತುಂಬಿದ, declp, ತುಂಬಿದ_Funcp);
+                AstCFunc* ಸ್ಥಿರಾಂಕ chgSubFuncp
                     = onlyOne ? chgFuncp : newCDtypeSubFunc(VTraceType::CHANGE, declp, chgFuncp);
-                for (AstNode* stmtp = callp->funcp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstTraceDecl* const fieldDeclp = VN_CAST(stmtp, TraceDecl)) {
-                        AstTraceInc* const incFullp
-                            = new AstTraceInc{flp, fieldDeclp, VTraceType::FULL};
-                        fullSubFuncp->addStmtsp(incFullp);
-                        AstTraceInc* const incChgp
-                            = new AstTraceInc{flp, fieldDeclp, VTraceType::CHANGE};
-                        chgSubFuncp->addStmtsp(incChgp);
+                ಗಾಗಿ (Ast_ಗಂಟು* stmtp = callp->funcp()->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    ಆದರೆ (AstTraceDecl* ಸ್ಥಿರಾಂಕ ಕ್ಷೇತ್ರ_Declp = VN_CAST(stmtp, TraceDecl)) {
+                        AstTraceInc* ಸ್ಥಿರಾಂಕ incFullp
+                            = ಹೊಸ AstTraceInc{flp, ಕ್ಷೇತ್ರ_Declp, VTraceType::ತುಂಬಿದ};
+                        ತುಂಬಿದ_Sub_Funcp->ಕೂಡಿಸು_Stmtsp(incFullp);
+                        AstTraceInc* ಸ್ಥಿರಾಂಕ incChgp
+                            = ಹೊಸ AstTraceInc{flp, ಕ್ಷೇತ್ರ_Declp, VTraceType::CHANGE};
+                        chgSubFuncp->ಕೂಡಿಸು_Stmtsp(incChgp);
                     }
                 }
-                first = false;
+                ಮೊದಲ = ಸುಳ್ಳು;
             }
 
-            pair.first->second = {.fullFuncp = fullFuncp, .chgFuncp = chgFuncp};
+            pair.ಮೊದಲ->ಎರಡನೇ = {.ತುಂಬಿದ_Funcp = ತುಂಬಿದ_Funcp, .chgFuncp = chgFuncp};
         }
 
-        return pair.first->second;
+        ಹಿಂತಿರುಗಿ pair.ಮೊದಲ->ಎರಡನೇ;
     }
 
-    void createNonConstTraceFunctions(const TraceVec& traces, uint32_t nAllCodes,
+    ಶೂನ್ಯ createNonConstTraceFunctions(ಸ್ಥಿರಾಂಕ TraceVec& traces, uint32_t nAllCodes,
                                       uint32_t parallelism) {
-        const int splitLimit = v3Global.opt.outputSplitCTrace() ? v3Global.opt.outputSplitCTrace()
-                                                                : std::numeric_limits<int>::max();
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ವಿಭಜಿಸು_ಎಲ್ಲೆ = v3Global.opt.output_ವಿಭಜಿಸು_CTrace() ? v3Global.opt.output_ವಿಭಜಿಸು_CTrace()
+                                                                : std::numeric_limits<ಪೂರ್ಣಾಂಕ>::max();
 
         // pre-incremented, so starts at 0
-        uint32_t topFuncNum = std::numeric_limits<uint32_t>::max();
+        uint32_t ತುದಿ_Func_ಅಂಕೆ = std::numeric_limits<uint32_t>::max();
         TraceVec::const_iterator it = traces.begin();
-        while (it != traces.end()) {
-            AstCFunc* topFulFuncp = nullptr;
-            AstCFunc* topChgFuncp = nullptr;
-            AstCFunc* subFulFuncp = nullptr;
-            AstCFunc* subChgFuncp = nullptr;
-            uint32_t subFuncNum = 0;
-            int subStmts = 0;
-            const uint32_t maxCodes = std::max((nAllCodes + parallelism - 1) / parallelism, 1U);
+        ಆಗ (it != traces.ಕೊನೆ()) {
+            AstCFunc* ತುದಿ_Ful_Funcp = ಶೂನ್ಯಸೂಚಕ;
+            AstCFunc* ತುದಿ_Chg_Funcp = ಶೂನ್ಯಸೂಚಕ;
+            AstCFunc* subFulFuncp = ಶೂನ್ಯಸೂಚಕ;
+            AstCFunc* subChgFuncp = ಶೂನ್ಯಸೂಚಕ;
+            uint32_t sub_Func_ಅಂಕೆ = 0;
+            ಪೂರ್ಣಾಂಕ subStmts = 0;
+            ಸ್ಥಿರಾಂಕ uint32_t maxCodes = std::max((nAllCodes + parallelism - 1) / parallelism, 1U);
             uint32_t nCodes = 0;
-            const ActCodeSet* prevActSet = nullptr;
-            AstIf* ifp = nullptr;
-            uint32_t baseCode = 0;
-            for (; nCodes < maxCodes && it != traces.end(); ++it) {
-                const ActCodeSet& actSet = it->first;
+            ಸ್ಥಿರಾಂಕ Act_ಸಂಕೇತ_ಗಣ* prev_Act_ಗಣ = ಶೂನ್ಯಸೂಚಕ;
+            AstIf* ifp = ಶೂನ್ಯಸೂಚಕ;
+            uint32_t ತಳ_ಸಂಕೇತ = 0;
+            ಗಾಗಿ (; nCodes < maxCodes && it != traces.ಕೊನೆ(); ++it) {
+                ಸ್ಥಿರಾಂಕ Act_ಸಂಕೇತ_ಗಣ& act_ಗಣ = it->ಮೊದಲ;
                 // Traced value never changes, no need to add it
-                if (actSet.count(TraceActivityVertex::ACTIVITY_NEVER)) continue;
+                ಆದರೆ (act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_NEVER)) ಮುಂದುವರಿ;
 
-                const TraceTraceVertex* const vtxp = it->second;
-                AstTraceDecl* const declp = vtxp->nodep();
+                ಸ್ಥಿರಾಂಕ Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = it->ಎರಡನೇ;
+                AstTraceDecl* ಸ್ಥಿರಾಂಕ declp = vtxp->nodep();
 
                 // This is a duplicate decl, no need to add it, but must set the
                 // function index to the same as the canonical node.
-                if (const TraceTraceVertex* const canonVtxp = vtxp->duplicatep()) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ Trace_Trace_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ canonVtxp = vtxp->duplicatep()) {
                     declp->fidx(canonVtxp->nodep()->fidx());
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
 
                 // Create top function if not yet created
-                if (!topFulFuncp) {
-                    ++topFuncNum;
-                    topFulFuncp = newCFunc(VTraceType::FULL, nullptr, topFuncNum);
-                    topChgFuncp = newCFunc(VTraceType::CHANGE, nullptr, topFuncNum);
+                ಆದರೆ (!ತುದಿ_Ful_Funcp) {
+                    ++ತುದಿ_Func_ಅಂಕೆ;
+                    ತುದಿ_Ful_Funcp = newCFunc(VTraceType::ತುಂಬಿದ, ಶೂನ್ಯಸೂಚಕ, ತುದಿ_Func_ಅಂಕೆ);
+                    ತುದಿ_Chg_Funcp = newCFunc(VTraceType::CHANGE, ಶೂನ್ಯಸೂಚಕ, ತುದಿ_Func_ಅಂಕೆ);
                 }
 
                 // Create new sub function if required
-                if (!subFulFuncp || subStmts > splitLimit) {
-                    baseCode = declp->code();
+                ಆದರೆ (!subFulFuncp || subStmts > ವಿಭಜಿಸು_ಎಲ್ಲೆ) {
+                    ತಳ_ಸಂಕೇತ = declp->ಸಂಕೇತ_2();
                     subStmts = 0;
-                    subFulFuncp = newCFunc(VTraceType::FULL, topFulFuncp, subFuncNum, baseCode);
-                    subChgFuncp = newCFunc(VTraceType::CHANGE, topChgFuncp, subFuncNum, baseCode);
-                    ++subFuncNum;
-                    prevActSet = nullptr;
-                    ifp = nullptr;
+                    subFulFuncp = newCFunc(VTraceType::ತುಂಬಿದ, ತುದಿ_Ful_Funcp, sub_Func_ಅಂಕೆ, ತಳ_ಸಂಕೇತ);
+                    subChgFuncp = newCFunc(VTraceType::CHANGE, ತುದಿ_Chg_Funcp, sub_Func_ಅಂಕೆ, ತಳ_ಸಂಕೇತ);
+                    ++sub_Func_ಅಂಕೆ;
+                    prev_Act_ಗಣ = ಶೂನ್ಯಸೂಚಕ;
+                    ifp = ಶೂನ್ಯಸೂಚಕ;
                 }
 
                 // If required, create the conditional node checking the activity flags
-                if (!prevActSet || actSet != *prevActSet) {
-                    FileLine* const flp = m_topScopep->fileline();
-                    const bool always = actSet.count(TraceActivityVertex::ACTIVITY_ALWAYS) != 0;
-                    AstNodeExpr* condp = nullptr;
-                    if (always) {
-                        condp = new AstConst{flp, 1};  // Always true, will be folded later
-                    } else {
-                        for (const uint32_t actCode : actSet) {
-                            AstNodeExpr* const selp = selectActivity(flp, actCode, VAccess::READ);
-                            condp = condp ? new AstOr{flp, condp, selp} : selp;
+                ಆದರೆ (!prev_Act_ಗಣ || act_ಗಣ != *prev_Act_ಗಣ) {
+                    File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = m_ತುದಿ_Scopep->fileline();
+                    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ always = act_ಗಣ.ಎಣಿಕೆ_2(Trace_Activity_ಶೃಂಗ::ACTIVITY_ALWAYS) != 0;
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp = ಶೂನ್ಯಸೂಚಕ;
+                    ಆದರೆ (always) {
+                        condp = ಹೊಸ AstConst{flp, 1};  // Always true, will be folded later
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ uint32_t act_ಸಂಕೇತ : act_ಗಣ) {
+                            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ selp = selectActivity(flp, act_ಸಂಕೇತ, VAccess::READ);
+                            condp = condp ? ಹೊಸ AstOr{flp, condp, selp} : selp;
                         }
                     }
-                    ifp = new AstIf{flp, condp};
-                    if (!always) ifp->branchPred(VBranchPred::BP_UNLIKELY);
-                    subChgFuncp->addStmtsp(ifp);
-                    subStmts += ifp->nodeCount();
-                    prevActSet = &actSet;
+                    ifp = ಹೊಸ AstIf{flp, condp};
+                    ಆದರೆ (!always) ifp->branchPred(VBranchPred::BP_UNLIKELY);
+                    subChgFuncp->ಕೂಡಿಸು_Stmtsp(ifp);
+                    subStmts += ifp->ಗಂಟು_ಎಣಿಕೆ();
+                    prev_Act_ಗಣ = &act_ಗಣ;
                 }
 
                 // Add TraceInc nodes
-                FileLine* const flp = declp->fileline();
-                if (declp->dtypeCallp()) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = declp->fileline();
+                ಆದರೆ (declp->dtypeCallp()) {
                     DtypeFuncs funcs = createNonConstDtypeTraceFunctions(declp);
-                    AstNodeExpr* argsp = nullptr;
-                    argsp = AstNode::addNext(argsp, declp->valuep()->cloneTree(false));
-                    AstCCall* const callFullp = new AstCCall{flp, funcs.fullFuncp, argsp};
-                    callFullp->dtypeSetVoid();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* argsp = ಶೂನ್ಯಸೂಚಕ;
+                    argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(argsp, declp->valuep()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+                    AstCCall* ಸ್ಥಿರಾಂಕ callFullp = ಹೊಸ AstCCall{flp, funcs.ತುಂಬಿದ_Funcp, argsp};
+                    callFullp->dtype_ಗಣ_Void();
                     callFullp->argTypes(callFullp->argTypes() + "bufp, "
-                                        + std::to_string(declp->code()));
-                    subFulFuncp->addStmtsp(callFullp->makeStmt());
-                    argsp = nullptr;
-                    argsp = AstNode::addNext(argsp, declp->valuep()->cloneTree(false));
-                    AstCCall* const callChgp = new AstCCall{flp, funcs.chgFuncp, argsp};
-                    callChgp->dtypeSetVoid();
+                                        + std::ಗಮ್ಯ_string(declp->ಸಂಕೇತ_2()));
+                    subFulFuncp->ಕೂಡಿಸು_Stmtsp(callFullp->makeStmt());
+                    argsp = ಶೂನ್ಯಸೂಚಕ;
+                    argsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(argsp, declp->valuep()->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+                    AstCCall* ಸ್ಥಿರಾಂಕ callChgp = ಹೊಸ AstCCall{flp, funcs.chgFuncp, argsp};
+                    callChgp->dtype_ಗಣ_Void();
                     callChgp->argTypes(callChgp->argTypes() + "bufp, "
-                                       + std::to_string(declp->code()));
-                    ifp->addThensp(callChgp->makeStmt());
+                                       + std::ಗಮ್ಯ_string(declp->ಸಂಕೇತ_2()));
+                    ifp->ಕೂಡಿಸು_Thensp(callChgp->makeStmt());
 
                     subStmts += 2;
-                } else {
-                    AstTraceInc* const incFulp = new AstTraceInc{flp, declp, VTraceType::FULL};
-                    subFulFuncp->addStmtsp(incFulp);
-                    AstTraceInc* const incChgp
-                        = new AstTraceInc{flp, declp, VTraceType::CHANGE, baseCode};
-                    ifp->addThensp(incChgp);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    AstTraceInc* ಸ್ಥಿರಾಂಕ incFulp = ಹೊಸ AstTraceInc{flp, declp, VTraceType::ತುಂಬಿದ};
+                    subFulFuncp->ಕೂಡಿಸು_Stmtsp(incFulp);
+                    AstTraceInc* ಸ್ಥಿರಾಂಕ incChgp
+                        = ಹೊಸ AstTraceInc{flp, declp, VTraceType::CHANGE, ತಳ_ಸಂಕೇತ};
+                    ifp->ಕೂಡಿಸು_Thensp(incChgp);
 
                     // Set the function index of the decl
-                    declp->fidx(topFuncNum);
+                    declp->fidx(ತುದಿ_Func_ಅಂಕೆ);
 
                     // Track splitting due to size
-                    UASSERT_OBJ(incFulp->nodeCount() == incChgp->nodeCount(), declp,
+                    UASSERT_OBJ(incFulp->ಗಂಟು_ಎಣಿಕೆ() == incChgp->ಗಂಟು_ಎಣಿಕೆ(), declp,
                                 "Should have equal cost");
-                    const VNumRange range = declp->arrayRange();
-                    if (range.ranged()) {
+                    ಸ್ಥಿರಾಂಕ VNumRange range = declp->arrayRange();
+                    ಆದರೆ (range.ranged()) {
                         // 2x because each element is a TraceInc and a VarRef
                         subStmts += range.elements() * 2;
-                    } else {
-                        subStmts += incChgp->nodeCount();
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        subStmts += incChgp->ಗಂಟು_ಎಣಿಕೆ();
                     }
                 }
 
                 // Track partitioning
-                nCodes += declp->codeInc();
+                nCodes += declp->ಸಂಕೇತ_Inc();
             }
         }
     }
 
-    void createCleanupFunction() {
-        FileLine* const fl = m_topScopep->fileline();
-        AstCFunc* const cleanupFuncp = new AstCFunc{fl, "trace_cleanup", m_topScopep};
-        cleanupFuncp->argTypes("void* voidSelf, " + v3Global.opt.traceClassBase()
+    ಶೂನ್ಯ createCleanupFunction() {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ fl = m_ತುದಿ_Scopep->fileline();
+        AstCFunc* ಸ್ಥಿರಾಂಕ cleanupFuncp = ಹೊಸ AstCFunc{fl, "trace_cleanup", m_ತುದಿ_Scopep};
+        cleanupFuncp->argTypes("void* voidSelf, " + v3Global.opt.trace_Class_ತಳ()
                                + "* /*unused*/");
-        cleanupFuncp->isTrace(true);
-        cleanupFuncp->slow(false);
-        cleanupFuncp->isStatic(true);
-        cleanupFuncp->isLoose(true);
-        m_topScopep->addBlocksp(cleanupFuncp);
-        cleanupFuncp->addStmtsp(new AstCStmt{fl, EmitCUtil::voidSelfAssign(m_topModp)});
-        cleanupFuncp->addStmtsp(new AstCStmt{fl, EmitCUtil::symClassAssign()});
+        cleanupFuncp->isTrace(ನಿಜ);
+        cleanupFuncp->slow(ಸುಳ್ಳು);
+        cleanupFuncp->isStatic(ನಿಜ);
+        cleanupFuncp->isLoose(ನಿಜ);
+        m_ತುದಿ_Scopep->ಕೂಡಿಸು_Blocksp(cleanupFuncp);
+        cleanupFuncp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{fl, EmitCUtil::void_Self_ನಿಯೋಜಿಸು(m_ತುದಿ_Modp)});
+        cleanupFuncp->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstCStmt{fl, EmitCUtil::sym_Class_ನಿಯೋಜಿಸು()});
 
         // Register it
         {
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            m_regFuncp->addStmtsp(cstmtp);
-            cstmtp->add("tracep->addCleanupCb(");
-            cstmtp->add(new AstAddrOfCFunc{fl, cleanupFuncp});
-            cstmtp->add(", vlSelf);");
+            AstCStmt* ಸ್ಥಿರಾಂಕ cstmtp = ಹೊಸ AstCStmt{fl};
+            m_regFuncp->ಕೂಡಿಸು_Stmtsp(cstmtp);
+            cstmtp->ಕೂಡಿಸು("tracep->addCleanupCb(");
+            cstmtp->ಕೂಡಿಸು(ಹೊಸ Ast_Addr_ದ_CFunc{fl, cleanupFuncp});
+            cstmtp->ಕೂಡಿಸು(", vlSelf);");
         }
 
         // Clear global activity flag
-        cleanupFuncp->addStmtsp(
-            new AstCStmt{m_topScopep->fileline(), "vlSymsp->__Vm_activity = false;"s});
+        cleanupFuncp->ಕೂಡಿಸು_Stmtsp(
+            ಹೊಸ AstCStmt{m_ತುದಿ_Scopep->fileline(), "vlSymsp->__Vm_activity = false;"s});
 
         // Clear fine grained activity flags
-        for (uint32_t i = 0; i < m_activityNumber; ++i) {
-            AstNode* const clrp = new AstAssign{fl, selectActivity(fl, i, VAccess::WRITE),
-                                                new AstConst{fl, AstConst::BitFalse{}}};
-            cleanupFuncp->addStmtsp(clrp);
+        ಗಾಗಿ (uint32_t i = 0; i < m_activity_ಸಂಖ್ಯೆ; ++i) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ clrp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{fl, selectActivity(fl, i, VAccess::WRITE),
+                                                ಹೊಸ AstConst{fl, AstConst::ಬಿಟ್_False{}}};
+            cleanupFuncp->ಕೂಡಿಸು_Stmtsp(clrp);
         }
     }
 
-    void createTraceFunctions() {
+    ಶೂನ್ಯ createTraceFunctions() {
         // Detect and remove duplicate values
         detectDuplicates();
 
-        graphDtypePrune();
-        splitTraceDeclFuncs();
-        m_graph.removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
+        ನಕ್ಷೆ_Dtype_Prune();
+        ವಿಭಜಿಸು_Trace_Decl_Funcs();
+        m_ನಕ್ಷೆ.remove_Redundant_ಅಂಚುಗಳು_Max(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
 
         // Simplify & optimize the graph
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("trace_pre");
-        graphSimplify(true);
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("trace_simplified");
-        graphOptimize();
-        if (dumpGraphLevel() >= 6) m_graph.dumpDotFilePrefixed("trace_optimized");
+        ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 6) m_ನಕ್ಷೆ.dumpDotFilePrefixed("trace_pre");
+        ನಕ್ಷೆ_Simplify(ನಿಜ);
+        ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 6) m_ನಕ್ಷೆ.dumpDotFilePrefixed("trace_simplified");
+        ನಕ್ಷೆ_Optimize();
+        ಆದರೆ (dump_ನಕ್ಷೆ_Level() >= 6) m_ನಕ್ಷೆ.dumpDotFilePrefixed("trace_optimized");
 
         // Create the fine grained activity flags
         createActivityFlags();
@@ -1079,7 +1079,7 @@ class TraceVisitor final : public VNVisitor {
         // We will split functions such that each have to dump roughly the same amount of data
         // for this we need to keep tack of the number of codes used by the trace functions.
         uint32_t nNonConstCodes = 0;
-        sortTraces(traces, nNonConstCodes);
+        ವಿಂಗಡಿಸು_Traces(traces, nNonConstCodes);
 
         // Our keys are now sorted to have same activity number adjacent, then
         // by trace order. (Better would be execution order for cache
@@ -1087,14 +1087,14 @@ class TraceVisitor final : public VNVisitor {
         // last value vector is more compact
 
         // Create the trace registration function
-        m_regFuncp = new AstCFunc{m_topScopep->fileline(), "trace_register", m_topScopep};
-        m_regFuncp->argTypes(v3Global.opt.traceClassBase() + "* tracep");
-        m_regFuncp->entryPoint(true);
-        m_regFuncp->isTrace(true);
-        m_regFuncp->slow(true);
-        m_regFuncp->isStatic(false);
-        m_regFuncp->isLoose(true);
-        m_topScopep->addBlocksp(m_regFuncp);
+        m_regFuncp = ಹೊಸ AstCFunc{m_ತುದಿ_Scopep->fileline(), "trace_register", m_ತುದಿ_Scopep};
+        m_regFuncp->argTypes(v3Global.opt.trace_Class_ತಳ() + "* tracep");
+        m_regFuncp->ನಮೂದು_ಬಿಂದು(ನಿಜ);
+        m_regFuncp->isTrace(ನಿಜ);
+        m_regFuncp->slow(ನಿಜ);
+        m_regFuncp->isStatic(ಸುಳ್ಳು);
+        m_regFuncp->isLoose(ನಿಜ);
+        m_ತುದಿ_Scopep->ಕೂಡಿಸು_Blocksp(m_regFuncp);
 
         // Create the const dump functions. Also allocates trace codes.
         createConstTraceFunctions(traces);
@@ -1103,105 +1103,105 @@ class TraceVisitor final : public VNVisitor {
         createNonConstTraceFunctions(traces, nNonConstCodes, m_parallelism);
 
         // Root-traced libraries alias wrapper IOs onto the existing top-module codes.
-        if (!v3Global.opt.libCreate().empty()) {
-            std::vector<AstTraceDecl*> rootDeclps;
-            std::vector<AstTraceDecl*> topDeclps;
-            TraceInitDeclCollector rootCollector{rootDeclps};
-            TraceInitDeclCollector topCollector{topDeclps};
-            for (AstNode* blockp = m_topScopep->blocksp(); blockp; blockp = blockp->nextp()) {
-                AstCFunc* const funcp = VN_CAST(blockp, CFunc);
-                if (funcp && VString::startsWith(funcp->name(), "trace_init_leaf_root__")) {
-                    rootCollector.collect(funcp);
-                } else if (funcp && VString::startsWith(funcp->name(), "trace_init_leaf_top__")) {
-                    topCollector.collect(funcp);
+        ಆದರೆ (!v3Global.opt.libCreate().ಖಾಲಿಗಳು()) {
+            std::ಸದಿಶ<AstTraceDecl*> ಬೇರು_Declps;
+            std::ಸದಿಶ<AstTraceDecl*> ತುದಿ_Declps;
+            TraceInitDeclCollector ಬೇರು_Collector{ಬೇರು_Declps};
+            TraceInitDeclCollector ತುದಿ_Collector{ತುದಿ_Declps};
+            ಗಾಗಿ (Ast_ಗಂಟು* blockp = m_ತುದಿ_Scopep->blocksp(); blockp; blockp = blockp->nextp()) {
+                AstCFunc* ಸ್ಥಿರಾಂಕ funcp = VN_CAST(blockp, CFunc);
+                ಆದರೆ (funcp && VString::startsWith(funcp->name(), "trace_init_leaf_root__")) {
+                    ಬೇರು_Collector.collect(funcp);
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (funcp && VString::startsWith(funcp->name(), "trace_init_leaf_top__")) {
+                    ತುದಿ_Collector.collect(funcp);
                 }
             }
 
-            std::vector<bool> used(topDeclps.size(), false);
-            for (AstTraceDecl* const rootDeclp : rootDeclps) {
-                for (size_t i = 0; i < topDeclps.size(); ++i) {
-                    if (used[i] || !sameRootInitAlias(rootDeclp, topDeclps[i])) continue;
-                    rootDeclp->code(topDeclps[i]->code());
-                    used[i] = true;
-                    break;
+            std::ಸದಿಶ<ತಾರ್ಕಿಕ> ಬಳಸಿದ(ತುದಿ_Declps.ಗಾತ್ರ_2(), ಸುಳ್ಳು);
+            ಗಾಗಿ (AstTraceDecl* ಸ್ಥಿರಾಂಕ ಬೇರು_Declp : ಬೇರು_Declps) {
+                ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ತುದಿ_Declps.ಗಾತ್ರ_2(); ++i) {
+                    ಆದರೆ (ಬಳಸಿದ[i] || !same_ಬೇರು_Init_Alias(ಬೇರು_Declp, ತುದಿ_Declps[i])) ಮುಂದುವರಿ;
+                    ಬೇರು_Declp->ಸಂಕೇತ_2(ತುದಿ_Declps[i]->ಸಂಕೇತ_2());
+                    ಬಳಸಿದ[i] = ನಿಜ;
+                    ನಿಲ್ಲಿಸು;
                 }
             }
         }
 
         // Remove refs to traced values from TraceDecl nodes, these have now moved under
         // TraceInc
-        for (const auto& i : traces) {
-            AstNode* const valuep = i.second->nodep()->valuep();
-            VL_DO_DANGLING(valuep->unlinkFrBack()->deleteTree(), valuep);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& i : traces) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ valuep = i.ಎರಡನೇ->nodep()->valuep();
+            VL_DO_DANGLING(valuep->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), valuep);
         }
 
         // Create the trace cleanup function clearing the activity flags
         createCleanupFunction();
     }
 
-    TraceCFuncVertex* getCFuncVertexp(AstCFunc* nodep) {
-        V3GraphVertex* const vtxp = nodep->user1u().toGraphVertex();
-        TraceCFuncVertex* vertexp = vtxp ? vtxp->cast<TraceCFuncVertex>() : nullptr;
-        if (!vertexp) {
-            vertexp = new TraceCFuncVertex{&m_graph, nodep};
+    Trace_CFunc_ಶೃಂಗ* getCFuncVertexp(AstCFunc* nodep) {
+        V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = nodep->user1u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ();
+        Trace_CFunc_ಶೃಂಗ* vertexp = vtxp ? vtxp->cast<Trace_CFunc_ಶೃಂಗ>() : ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (!vertexp) {
+            vertexp = ಹೊಸ Trace_CFunc_ಶೃಂಗ{&m_ನಕ್ಷೆ, nodep};
             nodep->user1p(vertexp);
         }
-        return vertexp;
+        ಹಿಂತಿರುಗಿ vertexp;
     }
-    TraceActivityVertex* getActivityVertexp(AstNode* nodep, bool slow) {
-        V3GraphVertex* const vtxp = nodep->user3u().toGraphVertex();
-        TraceActivityVertex* vertexp = vtxp ? vtxp->cast<TraceActivityVertex>() : nullptr;
-        if (!vertexp) {
-            vertexp = new TraceActivityVertex{&m_graph, nodep, slow};
+    Trace_Activity_ಶೃಂಗ* getActivityVertexp(Ast_ಗಂಟು* nodep, ತಾರ್ಕಿಕ slow) {
+        V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp = nodep->user3u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ();
+        Trace_Activity_ಶೃಂಗ* vertexp = vtxp ? vtxp->cast<Trace_Activity_ಶೃಂಗ>() : ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (!vertexp) {
+            vertexp = ಹೊಸ Trace_Activity_ಶೃಂಗ{&m_ನಕ್ಷೆ, nodep, slow};
             nodep->user3p(vertexp);
         }
         vertexp->slow(slow);
-        return vertexp;
+        ಹಿಂತಿರುಗಿ vertexp;
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstNetlist* nodep) override {
         // Add vertexes for all TraceDecl, and edges from VARs each trace looks at
-        m_finding = false;
+        m_finding = ಸುಳ್ಳು;
         iterateChildren(nodep);
 
         // Add vertexes for all CFUNCs, and edges to VARs the func sets
-        m_finding = true;
+        m_finding = ನಿಜ;
         iterateChildren(nodep);
 
         // Create the trace functions and insert them into the tree
         createTraceFunctions();
 
         // Save number of trace codes used
-        nodep->nTraceCodes(m_code);
+        nodep->nTraceCodes(m_ಸಂಕೇತ);
     }
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->isTop()) m_topModp = nodep;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Module* nodep) override {
+        ಆದರೆ (nodep->is_ತುದಿ()) m_ತುದಿ_Modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {
-        if (!m_finding) {
-            if (const AstIface* const ifacep = nodep->varp()->sensIfacep()) {
-                m_ifaceMemberVscps[{ifacep, nodep->varp()->name()}].push_back(nodep);
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarScope* nodep) override {
+        ಆದರೆ (!m_finding) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstIface* ಸ್ಥಿರಾಂಕ ifacep = nodep->varp()->sensIfacep()) {
+                m_ifaceMemberVscps[{ifacep, nodep->varp()->name()}].ತಳ್ಳು_ಹಿಂಭಾಗ(nodep);
             }
         }
     }
-    void visit(AstStmtExpr* nodep) override {
-        if (!m_finding && !nodep->user2()) {
-            if (AstCCall* const callp = VN_CAST(nodep->exprp(), CCall)) {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
+        ಆದರೆ (!m_finding && !nodep->user2()) {
+            ಆದರೆ (AstCCall* ಸ್ಥಿರಾಂಕ callp = VN_CAST(nodep->exprp(), CCall)) {
                 UINFO(8, "   CCALL " << callp);
                 // See if there are other calls in same statement list;
                 // If so, all funcs might share the same activity code
-                TraceActivityVertex* const activityVtxp
+                Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ activityVtxp
                     = getActivityVertexp(nodep, callp->funcp()->slow());
-                for (AstNode* nextp = nodep; nextp; nextp = nextp->nextp()) {
-                    if (AstStmtExpr* const stmtp = VN_CAST(nextp, StmtExpr)) {
-                        if (AstCCall* const ccallp = VN_CAST(stmtp->exprp(), CCall)) {
-                            stmtp->user2(true);  // Processed
+                ಗಾಗಿ (Ast_ಗಂಟು* nextp = nodep; nextp; nextp = nextp->nextp()) {
+                    ಆದರೆ (Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ stmtp = VN_CAST(nextp, Stmt_ಅಭಿವ್ಯಕ್ತಿ)) {
+                        ಆದರೆ (AstCCall* ಸ್ಥಿರಾಂಕ ccallp = VN_CAST(stmtp->exprp(), CCall)) {
+                            stmtp->user2(ನಿಜ);  // Processed
                             UINFO(8, "     SubCCALL " << ccallp);
-                            V3GraphVertex* const ccallFuncVtxp = getCFuncVertexp(ccallp->funcp());
+                            V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ccallFuncVtxp = getCFuncVertexp(ccallp->funcp());
                             activityVtxp->slow(ccallp->funcp()->slow());
-                            new V3GraphEdge{&m_graph, activityVtxp, ccallFuncVtxp, 1};
+                            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, activityVtxp, ccallFuncVtxp, 1};
                         }
                     }
                 }
@@ -1209,26 +1209,26 @@ class TraceVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCFunc* nodep) override {
         UINFO(8, "   CFUNC " << nodep);
-        V3GraphVertex* const funcVtxp = getCFuncVertexp(nodep);
-        if (!m_finding) {  // If public, we need a unique activity code to allow for sets
+        V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ funcVtxp = getCFuncVertexp(nodep);
+        ಆದರೆ (!m_finding) {  // If public, we need a unique activity code to allow for sets
                            // directly in this func
-            if (nodep->funcPublic() || nodep->dpiExportImpl() || nodep->entryPoint()
+            ಆದರೆ (nodep->func_ಬಹಿರಂಗ() || nodep->dpiExportImpl() || nodep->ನಮೂದು_ಬಿಂದು()
                 || nodep->isCoroutine()) {
                 // Cannot treat a coroutine as slow, it may be resumed later
-                const bool slow = nodep->slow() && !nodep->isCoroutine();
-                TraceActivityVertex* const activityVtxp = getActivityVertexp(nodep, slow);
-                new V3GraphEdge{&m_graph, activityVtxp, funcVtxp, 1};
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ slow = nodep->slow() && !nodep->isCoroutine();
+                Trace_Activity_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ activityVtxp = getActivityVertexp(nodep, slow);
+                ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, activityVtxp, funcVtxp, 1};
             }
         }
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstTraceDecl* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstTraceDecl* nodep) override {
         UINFO(8, "   TRACE " << nodep);
-        if (!m_finding && !nodep->inDtypeFunc()) {
+        ಆದರೆ (!m_finding && !nodep->ಒಳ_Dtype_Func()) {
             // Skip decls inside trace_init_leaf_root__* functions: these are
             // duplicates of decls in trace_init_leaf_top__* (root vs regular
             // scope path) and should share the top decl's code via the
@@ -1240,70 +1240,70 @@ class TraceVisitor final : public VNVisitor {
             //   verilated_saif_c.cpp: Activity must be declared earlier
             //   verilated_vcd_c.cpp: finishLine: suffixp[0] failed
             // (cf. t_lib, t_trace_hier_block_*).
-            if (m_cfuncp && VString::startsWith(m_cfuncp->name(), "trace_init_leaf_root__")) {
-                return;
+            ಆದರೆ (m_cfuncp && VString::startsWith(m_cfuncp->name(), "trace_init_leaf_root__")) {
+                ಹಿಂತಿರುಗಿ;
             }
-            V3GraphVertex* const vertexp = new TraceTraceVertex{&m_graph, nodep};
+            V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vertexp = ಹೊಸ Trace_Trace_ಶೃಂಗ{&m_ನಕ್ಷೆ, nodep};
             nodep->user1p(vertexp);
 
             UASSERT_OBJ(m_cfuncp, nodep, "Trace not under func");
-            m_cfuncp->user2(true);
+            m_cfuncp->user2(ನಿಜ);
             VL_RESTORER(m_tracep);
             m_tracep = nodep;
             iterateChildren(nodep);
         }
     }
-    void visit(AstVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarRef* nodep) override {
         UASSERT_OBJ(nodep->varScopep(), nodep, "No var scope?");
-        AstVarScope* const varscopep = nodep->varScopep();
-        V3GraphVertex* varVtxp = varscopep->user1u().toGraphVertex();
-        if (m_tracep) {
+        AstVarScope* ಸ್ಥಿರಾಂಕ varscopep = nodep->varScopep();
+        V3_ನಕ್ಷೆ_ಶೃಂಗ* varVtxp = varscopep->user1u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ();
+        ಆದರೆ (m_tracep) {
             UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Lvalue in trace?  Should be const.");
-            if (!varVtxp) {
-                varVtxp = new TraceVarVertex{&m_graph, nodep->varScopep()};
+            ಆದರೆ (!varVtxp) {
+                varVtxp = ಹೊಸ Trace_Var_ಶೃಂಗ{&m_ನಕ್ಷೆ, nodep->varScopep()};
                 nodep->varScopep()->user1p(varVtxp);
             }
-            V3GraphVertex* const traceVtxp = m_tracep->user1u().toGraphVertex();
-            new V3GraphEdge{&m_graph, varVtxp, traceVtxp, 1};
-            if (nodep->varp()->isPrimaryInish()  // Always need to trace primary inputs
-                || nodep->varp()->isSigPublic()) {  // Or ones user can change
-                new V3GraphEdge{&m_graph, m_alwaysVtxp, traceVtxp, 1};
+            V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ traceVtxp = m_tracep->user1u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ();
+            ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, varVtxp, traceVtxp, 1};
+            ಆದರೆ (nodep->varp()->isPrimaryInish()  // Always need to trace primary inputs
+                || nodep->varp()->is_Sig_ಬಹಿರಂಗ()) {  // Or ones user can change
+                ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, m_alwaysVtxp, traceVtxp, 1};
             }
-            if (m_tracep->dtypeCallp()) varscopep->user2p(m_tracep);
-        } else if (m_cfuncp && m_finding && nodep->access().isWriteOrRW()) {
-            V3GraphVertex* const funcVtxp = getCFuncVertexp(m_cfuncp);
-            if (varVtxp) {  // else we're not tracing this signal
-                new V3GraphEdge{&m_graph, funcVtxp, varVtxp, 1};
-                AstTraceDecl* const declp = VN_AS(varscopep->user2p(), TraceDecl);
-                if (declp) {
-                    V3GraphVertex* const cFuncVtxp = getCFuncVertexp(m_cfuncp);
-                    for (const V3GraphEdge& edge : cFuncVtxp->inEdges()) {
-                        V3GraphVertex* const activityp = edge.fromp();
-                        if (!declp->user3p()) {
+            ಆದರೆ (m_tracep->dtypeCallp()) varscopep->user2p(m_tracep);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (m_cfuncp && m_finding && nodep->access().isWriteOrRW()) {
+            V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ funcVtxp = getCFuncVertexp(m_cfuncp);
+            ಆದರೆ (varVtxp) {  // else we're not tracing this signal
+                ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, funcVtxp, varVtxp, 1};
+                AstTraceDecl* ಸ್ಥಿರಾಂಕ declp = VN_AS(varscopep->user2p(), TraceDecl);
+                ಆದರೆ (declp) {
+                    V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ cFuncVtxp = getCFuncVertexp(m_cfuncp);
+                    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : cFuncVtxp->ಒಳ_ಅಂಚುಗಳು()) {
+                        V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ activityp = ಅಂಚು.fromp();
+                        ಆದರೆ (!declp->user3p()) {
                             declp->user3p(activityp);
-                        } else if (declp->user3u().toGraphVertex() != activityp) {
-                            declp->user2(true);
+                        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (declp->user3u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ() != activityp) {
+                            declp->user2(ನಿಜ);
                         }
                     }
                 }
             }
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (m_cfuncp && m_finding && nodep->access().isWriteOrRW()) {
-            AstIfaceRefDType* const dtypep
+    ಶೂನ್ಯ ಭೇಟಿ(AstMemberSel* nodep) override {
+        ಆದರೆ (m_cfuncp && m_finding && nodep->access().isWriteOrRW()) {
+            AstIfaceRefDType* ಸ್ಥಿರಾಂಕ dtypep
                 = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), IfaceRefDType);
-            if (dtypep && dtypep->isVirtual()) {
-                const auto it = m_ifaceMemberVscps.find({dtypep->ifacep(), nodep->varp()->name()});
-                if (it != m_ifaceMemberVscps.end()) {
-                    V3GraphVertex* const funcVtxp = getCFuncVertexp(m_cfuncp);
-                    for (AstVarScope* const vscp : it->second) {
-                        V3GraphVertex* varVtxp = vscp->user1u().toGraphVertex();
-                        if (!varVtxp) {
-                            varVtxp = new TraceVarVertex{&m_graph, vscp};
+            ಆದರೆ (dtypep && dtypep->isVirtual()) {
+                ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_ifaceMemberVscps.ಕಂಡುಹಿಡಿ({dtypep->ifacep(), nodep->varp()->name()});
+                ಆದರೆ (it != m_ifaceMemberVscps.ಕೊನೆ()) {
+                    V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ funcVtxp = getCFuncVertexp(m_cfuncp);
+                    ಗಾಗಿ (AstVarScope* ಸ್ಥಿರಾಂಕ vscp : it->ಎರಡನೇ) {
+                        V3_ನಕ್ಷೆ_ಶೃಂಗ* varVtxp = vscp->user1u().ಗಮ್ಯ_ನಕ್ಷೆ_ಶೃಂಗ();
+                        ಆದರೆ (!varVtxp) {
+                            varVtxp = ಹೊಸ Trace_Var_ಶೃಂಗ{&m_ನಕ್ಷೆ, vscp};
                             vscp->user1p(varVtxp);
                         }
-                        new V3GraphEdge{&m_graph, funcVtxp, varVtxp, 1};
+                        ಹೊಸ V3_ನಕ್ಷೆ_ಅಂಚು{&m_ನಕ್ಷೆ, funcVtxp, varVtxp, 1};
                     }
                 }
             }
@@ -1311,35 +1311,35 @@ class TraceVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit TraceVisitor(AstNetlist* nodep)
-        : m_alwaysVtxp{new TraceActivityVertex{&m_graph, TraceActivityVertex::ACTIVITY_ALWAYS}} {
-        nodep->user2ClearTree();  // TraceDecl multiple activities flag
-        nodep->user3ClearTree();  // TraceDecl TraceActivityVertex (assumes we start at nullptr)
+    ಸ್ಪಷ್ಟ TraceVisitor(AstNetlist* nodep)
+        : m_alwaysVtxp{ಹೊಸ Trace_Activity_ಶೃಂಗ{&m_ನಕ್ಷೆ, Trace_Activity_ಶೃಂಗ::ACTIVITY_ALWAYS}} {
+        nodep->user2_Clear_ವೃಕ್ಷ();  // TraceDecl multiple activities flag
+        nodep->user3_Clear_ವೃಕ್ಷ();  // TraceDecl TraceActivityVertex (assumes we start at nullptr)
         iterate(nodep);
-        nodep->foreach([](AstTraceDecl* const declp) {
-            if (declp->inDtypeFunc()) {
-                declp->valuep()->unlinkFrBack()->deleteTree();
-                declp->valuep(nullptr);
+        nodep->foreach([](AstTraceDecl* ಸ್ಥಿರಾಂಕ declp) {
+            ಆದರೆ (declp->ಒಳ_Dtype_Func()) {
+                declp->valuep()->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ();
+                declp->valuep(ಶೂನ್ಯಸೂಚಕ);
             }
         });
     }
     ~TraceVisitor() override {
-        V3Stats::addStat("Tracing, Activity setters", m_statSetters);
-        V3Stats::addStat("Tracing, Activity slow blocks", m_statSettersSlow);
-        V3Stats::addStat("Tracing, Unique trace codes", m_code);
-        V3Stats::addStat("Tracing, Unique traced signals", m_statUniqSigs);
+        V3Stats::ಕೂಡಿಸು_Stat("Tracing, Activity setters", m_statSetters);
+        V3Stats::ಕೂಡಿಸು_Stat("Tracing, Activity slow blocks", m_statSettersSlow);
+        V3Stats::ಕೂಡಿಸು_Stat("Tracing, Unique trace codes", m_ಸಂಕೇತ);
+        V3Stats::ಕೂಡಿಸು_Stat("Tracing, Unique traced signals", m_statUniqSigs);
     }
 };
 
 //######################################################################
 // Trace class functions
 
-void V3Trace::traceAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Trace::traceAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { TraceVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("trace", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("trace", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

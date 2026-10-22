@@ -14,22 +14,22 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3BEGIN_H_
-#define VERILATOR_V3BEGIN_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3BEGIN_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3BEGIN_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
+class Ast_ಗಂಟು;
 class AstForeach;
 
 //============================================================================
 
 class V3Begin final {
-public:
-    static void debeginAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* convertToWhile(AstForeach* nodep) VL_MT_DISABLED;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ debeginAll(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ Ast_ಗಂಟು* convert_ಗಮ್ಯ_While(AstForeach* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

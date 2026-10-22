@@ -14,31 +14,31 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTH_H_
-#define VERILATOR_V3WIDTH_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3_ಅಗಲ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3_ಅಗಲ_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_ಗಂಟು;
+class Ast_ಗಂಟು_ನಿಯೋಜಿಸು;
+class Ast_ಗಂಟು_DType;
 
 //============================================================================
 
-class V3Width final {
-public:
-    static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+class V3_ಅಗಲ final {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ ಅಗಲ(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ Ast_ಗಂಟು* ಅಗಲ_Params_Edit(Ast_ಗಂಟು* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ Ast_ಗಂಟು* ಅಗಲ_Generate_Params_Edit(Ast_ಗಂಟು* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ Ast_ಗಂಟು* selectNonConstantRecurse(Ast_ಗಂಟು* nodep, bool ಒಳ_Sel = false) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ ಹರಿವು_ನಿಯೋಜಿಸು_ಅಧೋ_Edit(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ Ast_ಗಂಟು* ಅಗಲ_Sel_No_Iter_Edit(Ast_ಗಂಟು* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

@@ -14,222 +14,222 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTINLINES_H_
-#define VERILATOR_V3ASTINLINES_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3ASTINLINES_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3ASTINLINES_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3AST_H_
+#ದೋಷ "Use V3Ast.h as the include"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
+#ಆದರೆ_ಅಂತ್ಯ
 
 //######################################################################
 // Inline METHODS
 
-int AstNode::width() const VL_MT_STABLE { return dtypep() ? dtypep()->width() : 0; }
-int AstNode::widthMin() const VL_MT_STABLE { return dtypep() ? dtypep()->widthMin() : 0; }
-bool AstNode::width1() const {  // V3Const uses to know it can optimize
-    return dtypep() && dtypep()->width() == 1;
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು::ಅಗಲ() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ dtypep() ? dtypep()->ಅಗಲ() : 0; }
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು::ಅಗಲ_Min() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ dtypep() ? dtypep()->ಅಗಲ_Min() : 0; }
+bool Ast_ಗಂಟು::width1() ಸ್ಥಿರಾಂಕ {  // V3Const uses to know it can optimize
+    ಹಿಂತಿರುಗಿ dtypep() && dtypep()->ಅಗಲ() == 1;
 }
-int AstNode::widthInstrs() const {
-    return (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->widthWords() : 1));
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು::ಅಗಲ_Instrs() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->ಅಗಲ_ಪದಗಳು() : 1));
 }
-bool AstNode::isCHandle() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
+bool Ast_ಗಂಟು::isCHandle() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಹಿಂತಿರುಗಿ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
 }
-bool AstNode::isDouble() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
+bool Ast_ಗಂಟು::isDouble() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಹಿಂತಿರುಗಿ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
 }
-bool AstNode::isString() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
+bool Ast_ಗಂಟು::isString() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಹಿಂತಿರುಗಿ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
 }
-bool AstNode::isEvent() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
+bool Ast_ಗಂಟು::isEvent() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಹಿಂತಿರುಗಿ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
 }
 
-bool AstNode::isSigned() const VL_MT_STABLE { return dtypep() && dtypep()->isSigned(); }
+bool Ast_ಗಂಟು::isSigned() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ dtypep() && dtypep()->isSigned(); }
 
-bool AstNode::isClassHandleValue() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNull())
+bool Ast_ಗಂಟು::is_Class_Handle_ಮೌಲ್ಯ() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (VN_IS(this, Const) && VN_AS(this, Const)->ಅಂಕೆ().isNull())
            || (dtypep() && VN_IS(dtypep()->skipRefp(), ClassRefDType));
 }
-bool AstNode::isNull() const { return VN_IS(this, Const) && VN_AS(this, Const)->num().isNull(); }
-bool AstNode::isZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqZero());
+bool Ast_ಗಂಟು::isNull() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ VN_IS(this, Const) && VN_AS(this, Const)->ಅಂಕೆ().isNull(); }
+bool Ast_ಗಂಟು::isZero() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (VN_IS(this, Const) && VN_AS(this, Const)->ಅಂಕೆ().isEqZero());
 }
-bool AstNode::isNeqZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNeqZero());
+bool Ast_ಗಂಟು::isNeqZero() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (VN_IS(this, Const) && VN_AS(this, Const)->ಅಂಕೆ().isNeqZero());
 }
-bool AstNode::isOne() const { return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqOne()); }
-bool AstNode::isAllOnes() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
+bool Ast_ಗಂಟು::isOne() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (VN_IS(this, Const) && VN_AS(this, Const)->ಅಂಕೆ().isEqOne()); }
+bool Ast_ಗಂಟು::isAllOnes() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
 }
-bool AstNode::isAllOnesV() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
+bool Ast_ಗಂಟು::isAllOnesV() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
 }
-bool AstNode::sameTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, false);
+bool Ast_ಗಂಟು::same_ವೃಕ್ಷ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* node2p) ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ same_ವೃಕ್ಷ_Iter(this, node2p, true, false);
 }
-bool AstNode::sameGateTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, true);
+bool Ast_ಗಂಟು::same_Gate_ವೃಕ್ಷ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* node2p) ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ same_ವೃಕ್ಷ_Iter(this, node2p, true, true);
 }
 
-int AstNodeArrayDType::left() const VL_MT_STABLE { return rangep()->leftConst(); }
-int AstNodeArrayDType::right() const VL_MT_STABLE { return rangep()->rightConst(); }
-int AstNodeArrayDType::hi() const VL_MT_STABLE { return rangep()->hiConst(); }
-int AstNodeArrayDType::lo() const VL_MT_STABLE { return rangep()->loConst(); }
-int AstNodeArrayDType::elementsConst() const VL_MT_STABLE { return rangep()->elementsConst(); }
-VNumRange AstNodeArrayDType::declRange() const VL_MT_STABLE { return VNumRange{left(), right()}; }
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು_Array_DType::ಎಡ_2() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ rangep()->ಎಡ_Const(); }
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು_Array_DType::ಬಲ_2() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ rangep()->ಬಲ_Const(); }
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು_Array_DType::hi() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ rangep()->hiConst(); }
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು_Array_DType::lo() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ rangep()->loConst(); }
+ಪೂರ್ಣಾಂಕ Ast_ಗಂಟು_Array_DType::elementsConst() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ rangep()->elementsConst(); }
+VNumRange Ast_ಗಂಟು_Array_DType::declRange() ಸ್ಥಿರಾಂಕ VL_MT_STABLE { ಹಿಂತಿರುಗಿ VNumRange{ಎಡ_2(), ಬಲ_2()}; }
 
-AstFuncRef::AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp)
+AstFuncRef::AstFuncRef(File_ಸಾಲು* fl, AstFunc* taskp, AstArg* argsp)
     : ASTGEN_SUPER_FuncRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
     dtypeFrom(taskp);
 }
 
-AstRange::AstRange(FileLine* fl, int left, int right)
+AstRange::AstRange(File_ಸಾಲು* fl, ಪೂರ್ಣಾಂಕ ಎಡ_2, ಪೂರ್ಣಾಂಕ ಬಲ_2)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(left)});
-    rightp(new AstConst{fl, static_cast<uint32_t>(right)});
+    leftp(new AstConst{fl, static_cast<uint32_t>(ಎಡ_2)});
+    rightp(new AstConst{fl, static_cast<uint32_t>(ಬಲ_2)});
 }
-AstRange::AstRange(FileLine* fl, const VNumRange& range)
+AstRange::AstRange(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ VNumRange& range)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(range.left())});
-    rightp(new AstConst{fl, static_cast<uint32_t>(range.right())});
+    leftp(new AstConst{fl, static_cast<uint32_t>(range.ಎಡ_2())});
+    rightp(new AstConst{fl, static_cast<uint32_t>(range.ಬಲ_2())});
 }
-int AstRange::leftConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(leftp(), Const);
-    return (constp ? constp->toSInt() : 0);
+ಪೂರ್ಣಾಂಕ AstRange::ಎಡ_Const() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(leftp(), Const);
+    ಹಿಂತಿರುಗಿ (constp ? constp->ಗಮ್ಯ_SInt() : 0);
 }
-int AstRange::rightConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(rightp(), Const);
-    return (constp ? constp->toSInt() : 0);
+ಪೂರ್ಣಾಂಕ AstRange::ಬಲ_Const() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(rightp(), Const);
+    ಹಿಂತಿರುಗಿ (constp ? constp->ಗಮ್ಯ_SInt() : 0);
 }
 
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp,
+AstPackArrayDType::AstPackArrayDType(File_ಸಾಲು* fl, VFlag_ಮಗು_DType, Ast_ಗಂಟು_DType* dtp,
                                      AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
-    childDTypep(dtp);  // Only for parser
+    ಮಗು_DTypep(dtp);  // Only for parser
     refDTypep(nullptr);
     this->rangep(rangep);
     dtypep(nullptr);  // V3Width will resolve
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = subDTypep()->ಅಗಲ() * rangep->elementsConst();
+    ಅಗಲ_Force(ಅಗಲ, ಅಗಲ);
 }
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
+AstPackArrayDType::AstPackArrayDType(File_ಸಾಲು* fl, Ast_ಗಂಟು_DType* dtp, AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
     refDTypep(dtp);
     this->rangep(rangep);
     dtypep(this);
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = subDTypep()->ಅಗಲ() * rangep->elementsConst();
+    ಅಗಲ_Force(ಅಗಲ, ಅಗಲ);
 }
 
-int AstQueueDType::boundConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(boundp(), Const);
-    return (constp ? constp->toSInt() : 0);
+ಪೂರ್ಣಾಂಕ Ast_ಸರತಿ_DType::boundConst() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(boundp(), Const);
+    ಹಿಂತಿರುಗಿ (constp ? constp->ಗಮ್ಯ_SInt() : 0);
 }
 
-AstTaskRef::AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp)
+AstTaskRef::AstTaskRef(File_ಸಾಲು* fl, AstTask* taskp, AstArg* argsp)
     : ASTGEN_SUPER_TaskRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
-    dtypeSetVoid();
+    dtype_ಗಣ_Void();
 }
 
-int AstBasicDType::hi() const { return (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
-int AstBasicDType::lo() const { return (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
-int AstBasicDType::elements() const {
-    return (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
+ಪೂರ್ಣಾಂಕ AstBasicDType::hi() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
+ಪೂರ್ಣಾಂಕ AstBasicDType::lo() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
+ಪೂರ್ಣಾಂಕ AstBasicDType::elements() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
 }
-bool AstBasicDType::ascending() const {
-    return (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
+bool AstBasicDType::ascending() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
 }
 
-bool AstActive::hasClocked() const { return m_sentreep->hasClocked(); }
-bool AstActive::hasCombo() const { return m_sentreep->hasCombo(); }
-bool AstActive::hasInitial() const { return m_sentreep->hasInitial(); }
-bool AstActive::hasStatic() const { return m_sentreep->hasStatic(); }
+bool Ast_ಸಕ್ರಿಯ::hasClocked() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_sentreep->hasClocked(); }
+bool Ast_ಸಕ್ರಿಯ::hasCombo() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_sentreep->hasCombo(); }
+bool Ast_ಸಕ್ರಿಯ::hasInitial() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_sentreep->hasInitial(); }
+bool Ast_ಸಕ್ರಿಯ::hasStatic() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_sentreep->hasStatic(); }
 
-bool AstNodeModule::isDollarUnit() const { return this == v3Global.rootp()->dollarUnitPkgp(); }
-bool AstNodeModule::isConstPool() const { return this == v3Global.rootp()->constPoolPkgp(); }
+bool Ast_ಗಂಟು_Module::isDollarUnit() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ this == v3Global.rootp()->dollarUnitPkgp(); }
+bool Ast_ಗಂಟು_Module::isConstPool() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ this == v3Global.rootp()->constPoolPkgp(); }
 
-AstAlways::AstAlways(AstAssignW* assignp)
+AstAlways::AstAlways(Ast_ನಿಯೋಜಿಸು_W* assignp)
     : ASTGEN_SUPER_Always(assignp->fileline(), assignp)
-    , m_keyword{VAlwaysKwd::CONT_ASSIGN} {}
+    , m_keyword{VAlwaysKwd::CONT_ನಿಯೋಜಿಸು} {}
 
-AstElabDisplay::AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* exprsp)
+AstElabDisplay::AstElabDisplay(File_ಸಾಲು* fl, VDisplayType dispType, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprsp)
     : ASTGEN_SUPER_ElabDisplay(fl) {
-    addFmtp(new AstSFormatF{fl, "", true, exprsp});
+    ಕೂಡಿಸು_Fmtp(new AstSFormatF{fl, "", true, exprsp});
     m_displayType = dispType;
 }
 
-bool AstVar::sameNode(const AstNode* samep) const {
-    const AstVar* const asamep = VN_DBG_AS(samep, Var);
-    return m_name == asamep->m_name && varType() == asamep->varType()
+bool AstVar::same_ಗಂಟು(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* samep) ಸ್ಥಿರಾಂಕ {
+    ಸ್ಥಿರಾಂಕ AstVar* ಸ್ಥಿರಾಂಕ asamep = VN_DBG_AS(samep, Var);
+    ಹಿಂತಿರುಗಿ m_name == asamep->m_name && varType() == asamep->varType()
            && covergroupRefMember() == asamep->covergroupRefMember()
            && libInoutId() == asamep->libInoutId() && libInoutEnable() == asamep->libInoutEnable();
 }
 
-AstMatchMasked::AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp)
-    : ASTGEN_SUPER_MatchMasked(fl) {
+Ast_ಹೊಂದಿಕೆ_Masked::Ast_ಹೊಂದಿಕೆ_Masked(File_ಸಾಲು* fl, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, AstVarRef* matchp)
+    : ASTGEN_SUPER_ಹೊಂದಿಕೆ_Masked(fl) {
     this->lhsp(lhsp);
     this->matchp(matchp);
-    dtypeSetUInt32();
+    dtype_ಗಣ_UInt32();
 }
 
-AstVarRef::AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_ಸಾಲು* fl, AstVar* varp, ಸ್ಥಿರಾಂಕ VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varp, access) {
-    if (v3Global.assertDTypesResolved()) {
+    ಆದರೆ (v3Global.assertDTypesResolved()) {
         UASSERT_OBJ(varp, this, "Require non-null varp post resolution");
-    } else if (varp) {
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (varp) {
         m_name = varp->name();
     }
 }
-AstVarRef::AstVarRef(FileLine* fl, AstNodeModule* pkgp, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_ಸಾಲು* fl, Ast_ಗಂಟು_Module* pkgp, AstVar* varp, ಸ್ಥಿರಾಂಕ VAccess& access)
     : AstVarRef{fl, varp, access} {
     classOrPackagep(pkgp);
 }
 // This form only allowed post-link (see above)
-AstVarRef::AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access)
+AstVarRef::AstVarRef(File_ಸಾಲು* fl, AstVarScope* varscp, ಸ್ಥಿರಾಂಕ VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varscp->varp(), access) {
     varScopep(varscp);
 }
 
-string AstVarRef::name() const { return varp() ? varp()->name() : nameThis(); }
+string AstVarRef::name() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ varp() ? varp()->name() : nameThis(); }
 
-bool AstVarRef::sameNode(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep() && access() == samep->access());
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
+bool AstVarRef::same_ಗಂಟು(ಸ್ಥಿರಾಂಕ AstVarRef* samep) ಸ್ಥಿರಾಂಕ {
+    ಆದರೆ (varScopep()) ಹಿಂತಿರುಗಿ (varScopep() == samep->varScopep() && access() == samep->access());
+    ಹಿಂತಿರುಗಿ (self_ಸೂಚಕ() == samep->self_ಸೂಚಕ() && classOrPackagep() == samep->classOrPackagep()
             && access() == samep->access()
-            && (varp() && samep->varp() && varp()->sameNode(samep->varp())));
+            && (varp() && samep->varp() && varp()->same_ಗಂಟು(samep->varp())));
 }
-bool AstVarRef::sameNoLvalue(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep());
+bool AstVarRef::sameNoLvalue(ಸ್ಥಿರಾಂಕ AstVarRef* samep) ಸ್ಥಿರಾಂಕ {
+    ಆದರೆ (varScopep()) ಹಿಂತಿರುಗಿ (varScopep() == samep->varScopep());
 
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
-            && (!selfPointer().isEmpty() || !samep->selfPointer().isEmpty())
-            && varp()->sameNode(samep->varp()));
+    ಹಿಂತಿರುಗಿ (self_ಸೂಚಕ() == samep->self_ಸೂಚಕ() && classOrPackagep() == samep->classOrPackagep()
+            && (!self_ಸೂಚಕ().is_ಖಾಲಿಗಳು() || !samep->self_ಸೂಚಕ().is_ಖಾಲಿಗಳು())
+            && varp()->same_ಗಂಟು(samep->varp()));
 }
 
-AstVarXRef::AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access)
+AstVarXRef::AstVarXRef(File_ಸಾಲು* fl, AstVar* varp, ಸ್ಥಿರಾಂಕ string& dotted, ಸ್ಥಿರಾಂಕ VAccess& access)
     : ASTGEN_SUPER_VarXRef(fl, varp, access)
     , m_name{varp->name()}
     , m_dotted{dotted} {
     dtypeFrom(varp);
 }
 
-AstStmtExpr* AstNodeExpr::makeStmt() { return new AstStmtExpr{fileline(), this}; }
+Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ* Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ::makeStmt() { ಹಿಂತಿರುಗಿ new Ast_Stmt_ಅಭಿವ್ಯಕ್ತಿ{fileline(), this}; }
 
-AstConsArrayItem* AstConsArray::itemsp() const VL_MT_STABLE {
-    return VN_DBG_AS(op2p(), ConsArrayItem);
+Ast_Cons_Array_ಅಂಶ* AstConsArray::itemsp() ಸ್ಥಿರಾಂಕ VL_MT_STABLE {
+    ಹಿಂತಿರುಗಿ VN_DBG_AS(op2p(), Cons_Array_ಅಂಶ);
 }
 
 // Walk up the AST via backp() to find the containing AstNodeModule.
 // Returns nullptr if not found.
-inline AstNodeModule* findParentModule(AstNode* nodep) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+ಸಾಲೊಳಗೆ Ast_ಗಂಟು_Module* ಕಂಡುಹಿಡಿ_ಪೋಷಕ_Module(Ast_ಗಂಟು* nodep) {
+    ಗಾಗಿ (Ast_ಗಂಟು* curp = nodep; curp; curp = curp->backp()) {
+        ಆದರೆ (Ast_ಗಂಟು_Module* ಸ್ಥಿರಾಂಕ modp = VN_CAST(curp, ಗಂಟು_Module)) ಹಿಂತಿರುಗಿ modp;
     }
-    return nullptr;
+    ಹಿಂತಿರುಗಿ nullptr;
 }
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

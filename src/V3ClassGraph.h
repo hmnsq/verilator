@@ -14,44 +14,44 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CLASS_GRAPH_H_
-#define VERILATOR_V3CLASS_GRAPH_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3_CLASS_ನಕ್ಷೆ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3_CLASS_ನಕ್ಷೆ_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
 
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
+#ಅನ್ತರ್ಭಾವ <memory>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
 
 //============================================================================
 
-class V3ClassGraphVertex;
+class V3_Class_ನಕ್ಷೆ_ಶೃಂಗ;
 
 // Graph of classes - build by V3ClassGraph::build() and used to get CFuncs that may be
 // called by a AstNodeCCall (due to virtualization)
-class V3ClassGraph final : public V3Graph {
-    friend class ClassGraphBuilderVisitor;
-    std::unordered_map<const AstCFunc*, V3ClassGraphVertex*>
-        m_memberFuncToClassVertex;  // Map from member function to its class
-    const std::unordered_set<AstCFunc*>
-        m_emptySet;  // Always empty set - used to return a reference to an empty set
+class V3_Class_ನಕ್ಷೆ final : ಸಾರ್ವಜನಿಕ V3_ನಕ್ಷೆ {
+    ಮಿತ್ರ class Class_ನಕ್ಷೆ_Builder_Visitor;
+    std::unordered_map<ಸ್ಥಿರಾಂಕ AstCFunc*, V3_Class_ನಕ್ಷೆ_ಶೃಂಗ*>
+        m_member_Func_ಗಮ್ಯ_Class_ಶೃಂಗ;  // Map from member function to its class
+    ಸ್ಥಿರಾಂಕ std::unordered_ಗಣ<AstCFunc*>
+        m_ಖಾಲಿಗಳು_ಗಣ;  // Always empty set - used to return a reference to an empty set
 
-    V3ClassGraph() = default;
+    V3_Class_ನಕ್ಷೆ() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-public:
-    static std::unique_ptr<V3ClassGraph> build(AstNetlist*);
-    ~V3ClassGraph() override = default;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ std::unique_ptr<V3_Class_ನಕ್ಷೆ> build(AstNetlist*);
+    ~V3_Class_ನಕ್ಷೆ() override = ಪೂರ್ವನಿಯೋಜಿತ;
 
     // Returns possible CFuncs that may be called due to a NodeCCall passed as a callp argument
     // Warning: returned set may be empty if NodeCCall is a New call or a super call - in such
     // cases only `callp->funcp()` may be called. Also, if callp is to a non-member function the
     // set will be empty - post V3Task static functions are not member functions anymore.
-    const std::unordered_set<AstCFunc*>&
-    getCallPossibleCFuncs(const AstNodeCCall* const callp) const&;
+    ಸ್ಥಿರಾಂಕ std::unordered_ಗಣ<AstCFunc*>&
+    getCallPossibleCFuncs(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_CCall* ಸ್ಥಿರಾಂಕ callp) ಸ್ಥಿರಾಂಕ&;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

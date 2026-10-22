@@ -14,53 +14,53 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ಅನ್ತರ್ಭಾವ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitC.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitCBase.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
-#include <map>
+#ಅನ್ತರ್ಭಾವ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class EmitCInlines final : EmitCBaseVisitorConst {
+ವರ್ಗ EmitCInlines final : EmitCBaseVisitorConst {
     // STATE
 
     // METHODS
 
     // VISITORS
-    void visit(AstCNew* nodep) override {
-        if (v3Global.opt.savable())
+    ಶೂನ್ಯ ಭೇಟಿ(AstCNew* nodep) override {
+        ಆದರೆ (v3Global.opt.savable())
             v3warn(E_UNSUPPORTED, "Unsupported: --savable with dynamic new");
         iterateChildrenConst(nodep);
     }
-    void visit(AstDumpCtl* nodep) override {
-        if (v3Global.opt.trace()) v3Global.needTraceDumper(true);
+    ಶೂನ್ಯ ಭೇಟಿ(AstDumpCtl* nodep) override {
+        ಆದರೆ (v3Global.opt.trace()) v3Global.needTraceDumper(ನಿಜ);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistBiop* nodep) override {
-        v3Global.setUsesProbDist();
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Dist_Biop* nodep) override {
+        v3Global.ಗಣ_ಬಳಸುತ್ತದೆ_Prob_Dist();
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistTriop* nodep) override {
-        v3Global.setUsesProbDist();
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Dist_Triop* nodep) override {
+        v3Global.ಗಣ_ಬಳಸುತ್ತದೆ_Prob_Dist();
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit EmitCInlines(AstNetlist* nodep) { iterateConst(nodep); }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಪಷ್ಟ EmitCInlines(AstNetlist* nodep) { iterateConst(nodep); }
 };
 
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcInlines() {
+ಶೂನ್ಯ V3EmitC::emitcInlines() {
     UINFO(2, __FUNCTION__ << ":");
     { EmitCInlines{v3Global.rootp()}; }
 }

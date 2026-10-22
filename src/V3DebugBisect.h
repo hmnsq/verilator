@@ -14,37 +14,37 @@
 //
 //*************************************************************************
 
-#ifndef VL_MT_DISABLED_CODE_UNIT
-#error "V3DebugBisect.h uses global state and is not thread-safe"
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VL_MT_DISABLED_ಸಂಕೇತ_UNIT
+#ದೋಷ "V3DebugBisect.h uses global state and is not thread-safe"
+#ಆದರೆ_ಅಂತ್ಯ
 
-#include "V3Os.h"
+#ಅನ್ತರ್ಭಾವ "V3Os.h"
 
-#include <string>
+#ಅನ್ತರ್ಭಾವ <string>
 
 // Please see the inernals documentation for using this utility class with 'verilator_bisect'
 class V3DebugBisect final {
     // Name of instance
-    const char* const m_namep;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ m_namep;
     // Limit for stopping - 0 means no limit
-    const size_t m_limit = std::stoull(V3Os::getenvStr("VERILATOR_DEBUG_BISECT_"s + m_namep, "0"));
+    ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t m_ಎಲ್ಲೆ = std::stoull(V3Os::getenvStr("VERILATOR_DEBUG_BISECT_"s + m_namep, "0"));
     // Calls so far
-    size_t m_count = 0;
+    ಗಾತ್ರ_t m_ಎಣಿಕೆ = 0;
 
-public:
-    explicit V3DebugBisect(const char* namep)
+ಸಾರ್ವಜನಿಕ:
+    explicit V3DebugBisect(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* namep)
         : m_namep{namep} {}
 
     // Returns 'false' up to m_limit invocations, then returns 'true'.
     // Calls 'f' on the last invocation that returns 'false', which can be used for reporting.
-    template <typename Callable>
+    ಮಾದರಿ <typename Callable>
     bool stop(Callable&& f) {
-        if (VL_LIKELY(!m_limit)) return false;
-        ++m_count;
-        if (VL_UNLIKELY(m_count == m_limit)) f();
-        return m_count > m_limit;
+        ಆದರೆ (VL_LIKELY(!m_ಎಲ್ಲೆ)) ಹಿಂತಿರುಗಿ false;
+        ++m_ಎಣಿಕೆ;
+        ಆದರೆ (VL_UNLIKELY(m_ಎಣಿಕೆ == m_ಎಲ್ಲೆ)) f();
+        ಹಿಂತಿರುಗಿ m_ಎಣಿಕೆ > m_ಎಲ್ಲೆ;
     }
 
     // Returns true if the limit has been reached
-    bool isStopped() const { return m_count > m_limit; }
+    bool isStopped() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಎಣಿಕೆ > m_ಎಲ್ಲೆ; }
 };

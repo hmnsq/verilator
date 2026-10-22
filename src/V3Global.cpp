@@ -14,73 +14,73 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ಅನ್ತರ್ಭಾವ "V3PchAstMT.h"
 
-#include "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
 
-#include "V3ConstPool.h"
-#include "V3EmitV.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3HierBlock.h"
-#include "V3LibMap.h"
-#include "V3LinkCells.h"
-#include "V3Parse.h"
-#include "V3ParseImp.h"
-#include "V3PreShell.h"
-#include "V3Stats.h"
-#include "V3ThreadPool.h"
+#ಅನ್ತರ್ಭಾವ "V3ConstPool.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitV.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3File.h"
+#ಅನ್ತರ್ಭಾವ "V3HierBlock.h"
+#ಅನ್ತರ್ಭಾವ "V3LibMap.h"
+#ಅನ್ತರ್ಭಾವ "V3LinkCells.h"
+#ಅನ್ತರ್ಭಾವ "V3Parse.h"
+#ಅನ್ತರ್ಭಾವ "V3ParseImp.h"
+#ಅನ್ತರ್ಭಾವ "V3PreShell.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3ThreadPool.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // AddressSanitizer default options
 
-#ifdef VL_ASAN
-extern "C" const char* __asan_default_options() {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_ASAN
+ಬಾಹ್ಯ "C" ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* __asan_default_options() {
     // See https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
     // or 'env ASAN_OPTIONS=help=1 ./verilator_bin'
-    return ""
-#ifndef VL_LEAK_CHECKS
+    ಹಿಂತಿರುಗಿ ""
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VL_LEAK_CHECKS
            ":detect_leaks=0"
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         ;
 }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
 //######################################################################
 // V3Global
 
-void V3Global::boot() {
+ಶೂನ್ಯ V3Global::boot() {
     UASSERT(!m_rootp, "call once");
-    m_rootp = new AstNetlist;
-    m_constPoolp = new V3ConstPool;
-    m_libMapp = new V3LibMap;
+    m_rootp = ಹೊಸ AstNetlist;
+    m_constPoolp = ಹೊಸ V3ConstPool;
+    m_libMapp = ಹೊಸ V3LibMap;
 }
 
-void V3Global::shutdown() {
+ಶೂನ್ಯ V3Global::shutdown() {
     V3PreShell::shutdown();
-    VL_DO_CLEAR(delete m_hierGraphp, m_hierGraphp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_threadPoolp, m_threadPoolp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_libMapp, m_libMapp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_constPoolp, m_constPoolp = nullptr);  // delete nullptr is safe
-#ifdef VL_LEAK_CHECKS
-    if (m_rootp) VL_DO_CLEAR(m_rootp->deleteTree(), m_rootp = nullptr);
-#endif
-    FileLine::deleteAllRemaining();
+    VL_DO_CLEAR(ಅಳಿಸು m_hierGraphp, m_hierGraphp = ಶೂನ್ಯಸೂಚಕ);  // delete nullptr is safe
+    VL_DO_CLEAR(ಅಳಿಸು m_threadPoolp, m_threadPoolp = ಶೂನ್ಯಸೂಚಕ);  // delete nullptr is safe
+    VL_DO_CLEAR(ಅಳಿಸು m_libMapp, m_libMapp = ಶೂನ್ಯಸೂಚಕ);  // delete nullptr is safe
+    VL_DO_CLEAR(ಅಳಿಸು m_constPoolp, m_constPoolp = ಶೂನ್ಯಸೂಚಕ);  // delete nullptr is safe
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_LEAK_CHECKS
+    ಆದರೆ (m_rootp) VL_DO_CLEAR(m_rootp->delete_ವೃಕ್ಷ(), m_rootp = ಶೂನ್ಯಸೂಚಕ);
+#ಆದರೆ_ಅಂತ್ಯ
+    File_ಸಾಲು::delete_All_ಉಳಿದ();
 }
 
-void V3Global::vlExit(int status) {
+ಶೂನ್ಯ V3Global::vlExit(ಪೂರ್ಣಾಂಕ ಸ್ಥಿತಿ_2) {
     shutdown();
-    std::exit(status);
+    std::ನಿರ್ಗಮಿಸು(ಸ್ಥಿತಿ_2);
 }
 
-void V3Global::checkTree() const { rootp()->checkTree(); }
+ಶೂನ್ಯ V3Global::check_ವೃಕ್ಷ() ಸ್ಥಿರಾಂಕ { rootp()->check_ವೃಕ್ಷ(); }
 
-void V3Global::readFiles() {
+ಶೂನ್ಯ V3Global::readFiles() {
     // NODE STATE
     //   AstNode::user4p()      // VSymEnt*    Package and typedef symbol names
-    const VNUser4InUse inuser4;
+    ಸ್ಥಿರಾಂಕ VNUser4_ಒಳ_Use inuser4;
 
     VInFilter filter{v3Global.opt.pipeFilter()};
 
@@ -88,57 +88,57 @@ void V3Global::readFiles() {
         V3Parse parser{v3Global.rootp(), &filter};
 
         // Parse the std waivers
-        if (v3Global.opt.stdWaiver()) {
+        ಆದರೆ (v3Global.opt.stdWaiver()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdWaiverPath()}, V3Options::getStdWaiverPath(), false,
-                false, "work",
+                ಹೊಸ File_ಸಾಲು{V3Options::get_Std_Waiver_ಮಾರ್ಗ()}, V3Options::get_Std_Waiver_ಮಾರ್ಗ(), ಸುಳ್ಳು,
+                ಸುಳ್ಳು, "work",
                 "Cannot find verilated_std_waiver.vlt containing built-in lint waivers: ");
         }
         // Read .vlt files
-        for (const VFileLibName& filelib : v3Global.opt.vltFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, filelib.libname(),
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ VFileLibName& filelib : v3Global.opt.vltFiles()) {
+            parser.parseFile(ಹೊಸ File_ಸಾಲು{File_ಸಾಲು::command_ಸಾಲು_Filename()}, filelib.filename(),
+                             ಸುಳ್ಳು, ಸುಳ್ಳು, filelib.libname(),
                              "Cannot find file containing .vlt file: ");
         }
 
         // Parse the std package
-        if (v3Global.opt.stdPackage()) {
+        ಆದರೆ (v3Global.opt.stdPackage()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdPackagePath()}, V3Options::getStdPackagePath(),
-                false, false, "work",
+                ಹೊಸ File_ಸಾಲು{V3Options::get_Std_Package_ಮಾರ್ಗ()}, V3Options::get_Std_Package_ಮಾರ್ಗ(),
+                ಸುಳ್ಳು, ಸುಳ್ಳು, "work",
                 "Cannot find verilated_std.sv containing built-in std:: definitions: ");
         }
 
         // Parse libmap files
-        for (const string& filename : v3Global.opt.libmapFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filename, false, true,
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& filename : v3Global.opt.libmapFiles()) {
+            parser.parseFile(ಹೊಸ File_ಸಾಲು{File_ಸಾಲು::command_ಸಾಲು_Filename()}, filename, ಸುಳ್ಳು, ನಿಜ,
                              "work", "Cannot find file containing libmap definitions: ");
         }
         // Create library mapping
         V3LibMap::map(v3Global.rootp());
 
         // Read top module
-        for (const auto& filelib : v3Global.opt.vFiles()) {
-            const string& libname = filelib.libname() == "work"
-                                        ? v3Global.libMapp()->matchMapping(filelib.filename())
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& filelib : v3Global.opt.vFiles()) {
+            ಸ್ಥಿರಾಂಕ string& libname = filelib.libname() == "work"
+                                        ? v3Global.libMapp()->ಹೊಂದಿಕೆ_Mapping(filelib.filename())
                                         : filelib.libname();
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, libname, "Cannot find file containing module: ");
+            parser.parseFile(ಹೊಸ File_ಸಾಲು{File_ಸಾಲು::command_ಸಾಲು_Filename()}, filelib.filename(),
+                             ಸುಳ್ಳು, ಸುಳ್ಳು, libname, "Cannot find file containing module: ");
         }
 
         // Read libraries
         // To be compatible with other simulators,
         // this needs to be done after the top file is read
-        for (const auto& filelib : v3Global.opt.libraryFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             true, false, filelib.libname(),
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& filelib : v3Global.opt.libraryFiles()) {
+            parser.parseFile(ಹೊಸ File_ಸಾಲು{File_ಸಾಲು::command_ಸಾಲು_Filename()}, filelib.filename(),
+                             ನಿಜ, ಸುಳ್ಳು, filelib.libname(),
                              "Cannot find file containing library module: ");
         }
 
         // Read hierarchical type parameter file
-        for (const auto& filelib : v3Global.opt.hierParamFile()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, filelib.libname(),
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& filelib : v3Global.opt.hierParamFile()) {
+            parser.parseFile(ಹೊಸ File_ಸಾಲು{File_ಸಾಲು::command_ಸಾಲು_Filename()}, filelib.filename(),
+                             ಸುಳ್ಳು, ಸುಳ್ಳು, filelib.libname(),
                              "Cannot open file containing hierarchical parameter declarations: ");
         }
     }
@@ -146,116 +146,116 @@ void V3Global::readFiles() {
     // v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("parse.tree"));
     V3Error::abortIfErrors();
 
-    if (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
+    ಆದರೆ (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
         // Resolve all modules cells refer to
         V3LinkCells::link(v3Global.rootp(), &filter);
     }
 
-    V3Global::dumpCheckGlobalTree("cells", false, dumpTreeEitherLevel() >= 9);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("cells", ಸುಳ್ಳು, dump_ವೃಕ್ಷ_Either_Level() >= 9);
 }
 
-void V3Global::removeStd() {
+ಶೂನ್ಯ V3Global::removeStd() {
     // Delete the std package if unused
-    if (!usesStdPackage()) {
+    ಆದರೆ (!ಬಳಸುತ್ತದೆ_Std_Package()) {
         UINFO(3, "Removing unused std:: package");
-        if (AstNodeModule* stdp = v3Global.rootp()->stdPackagep()) {
-            v3Global.rootp()->stdPackagep(nullptr);
-            v3Global.rootp()->stdPackageProcessp(nullptr);
-            VL_DO_DANGLING(stdp->unlinkFrBack()->deleteTree(), stdp);
+        ಆದರೆ (Ast_ಗಂಟು_Module* stdp = v3Global.rootp()->stdPackagep()) {
+            v3Global.rootp()->stdPackagep(ಶೂನ್ಯಸೂಚಕ);
+            v3Global.rootp()->stdPackageProcessp(ಶೂನ್ಯಸೂಚಕ);
+            VL_DO_DANGLING(stdp->unlink_Fr_ಹಿಂಭಾಗ()->delete_ವೃಕ್ಷ(), stdp);
         }
     }
 }
 
-string V3Global::debugFilename(const string& nameComment, int newNumber) {
-    ++m_debugFileNumber;
-    if (newNumber) m_debugFileNumber = newNumber;
-    return opt.hierTopDataDir() + "/" + opt.prefix() + "_" + digitsFilename(m_debugFileNumber)
+string V3Global::debugFilename(ಸ್ಥಿರಾಂಕ string& nameComment, ಪೂರ್ಣಾಂಕ new_ಸಂಖ್ಯೆ) {
+    ++m_debug_File_ಸಂಖ್ಯೆ;
+    ಆದರೆ (new_ಸಂಖ್ಯೆ) m_debug_File_ಸಂಖ್ಯೆ = new_ಸಂಖ್ಯೆ;
+    ಹಿಂತಿರುಗಿ opt.hier_ತುದಿ_ದತ್ತಾಂಶ_Dir() + "/" + opt.ಪೂರ್ವಪ್ರತ್ಯಯ() + "_" + digitsFilename(m_debug_File_ಸಂಖ್ಯೆ)
            + "_" + nameComment;
 }
-string V3Global::digitsFilename(int number) {
+string V3Global::digitsFilename(ಪೂರ್ಣಾಂಕ ಸಂಖ್ಯೆ) {
     std::stringstream ss;
-    ss << std::setfill('0') << std::setw(3) << number;
-    return ss.str();
+    ss << std::setfill('0') << std::setw(3) << ಸಂಖ್ಯೆ;
+    ಹಿಂತಿರುಗಿ ss.str();
 }
 
-void V3Global::dumpCheckGlobalTree(const string& stagename, int newNumber, bool doDump,
-                                   bool doCheck) {
-    const string treeFilename = v3Global.debugFilename(stagename + ".tree", newNumber);
-    if (dumpTreeLevel()) v3Global.rootp()->dumpTreeFile(treeFilename, doDump);
-    if (dumpTreeJsonLevel()) {
-        v3Global.rootp()->dumpTreeJsonFile(treeFilename + ".json", doDump);
+ಶೂನ್ಯ V3Global::dump_Check_Global_ವೃಕ್ಷ(ಸ್ಥಿರಾಂಕ string& stagename, ಪೂರ್ಣಾಂಕ new_ಸಂಖ್ಯೆ, ತಾರ್ಕಿಕ doDump,
+                                   ತಾರ್ಕಿಕ doCheck) {
+    ಸ್ಥಿರಾಂಕ string ವೃಕ್ಷ_Filename = v3Global.debugFilename(stagename + ".tree", new_ಸಂಖ್ಯೆ);
+    ಆದರೆ (dump_ವೃಕ್ಷ_Level()) v3Global.rootp()->dump_ವೃಕ್ಷ_File(ವೃಕ್ಷ_Filename, doDump);
+    ಆದರೆ (dump_ವೃಕ್ಷ_Json_Level()) {
+        v3Global.rootp()->dump_ವೃಕ್ಷ_Json_File(ವೃಕ್ಷ_Filename + ".json", doDump);
     }
-    if (v3Global.opt.dumpTreeDot()) {
-        v3Global.rootp()->dumpTreeDotFile(treeFilename + ".dot", doDump);
+    ಆದರೆ (v3Global.opt.dump_ವೃಕ್ಷ_Dot()) {
+        v3Global.rootp()->dump_ವೃಕ್ಷ_Dot_File(ವೃಕ್ಷ_Filename + ".dot", doDump);
     }
-    if (v3Global.opt.stats()) V3Stats::statsStage(stagename);
+    ಆದರೆ (v3Global.opt.stats()) V3Stats::statsStage(stagename);
 
-    if (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(treeFilename + ".v");
-    if (doCheck && (v3Global.opt.debugCheck() || dumpTreeEitherLevel())) {
+    ಆದರೆ (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(ವೃಕ್ಷ_Filename + ".v");
+    ಆದರೆ (doCheck && (v3Global.opt.debugCheck() || dump_ವೃಕ್ಷ_Either_Level())) {
         // Error check
-        v3Global.rootp()->checkTree();
+        v3Global.rootp()->check_ವೃಕ್ಷ();
         // Broken isn't part of check tree because it can munge iterp's
         // set by other steps if it is called in the middle of other operations
         V3Broken::brokenAll(v3Global.rootp());
     }
 }
 
-void V3Global::idPtrMapDumpJson(std::ostream& os) {
+ಶೂನ್ಯ V3Global::idPtrMapDumpJson(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"pointers\": {";
-    for (const auto& itr : m_ptrToId) {
-        os << sep << '"' << itr.second << "\": \"" << cvtToHex(itr.first) << '"';
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& itr : m_ptr_ಗಮ್ಯ_Id) {
+        os << sep << '"' << itr.ಎರಡನೇ << "\": \"" << cvt_ಗಮ್ಯ_Hex(itr.ಮೊದಲ) << '"';
         sep = ",\n  ";
     }
     os << "\n }";
 }
 
-void V3Global::saveJsonPtrFieldName(const std::string& fieldName) {
-    m_jsonPtrNames.insert(fieldName);
+ಶೂನ್ಯ V3Global::save_Json_Ptr_ಕ್ಷೇತ್ರ_Name(ಸ್ಥಿರಾಂಕ std::string& ಕ್ಷೇತ್ರ_Name) {
+    m_json_Ptr_ಹೆಸರುಗಳು.ಸೇರಿಸು(ಕ್ಷೇತ್ರ_Name);
 }
 
-void V3Global::ptrNamesDumpJson(std::ostream& os) {
+ಶೂನ್ಯ V3Global::ptr_ಹೆಸರುಗಳು_Dump_Json(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"ptrFieldNames\": [";
-    for (const auto& itr : m_jsonPtrNames) {
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& itr : m_json_Ptr_ಹೆಸರುಗಳು) {
         os << sep << '"' << itr << '"';
         sep = ",\n  ";
     }
     os << "\n ]";
 }
 
-const std::string& V3Global::ptrToId(const void* p) {
-    const auto pair = m_ptrToId.emplace(p, "");
-    if (pair.second) {
+ಸ್ಥಿರಾಂಕ std::string& V3Global::ptr_ಗಮ್ಯ_Id(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ* p) {
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ pair = m_ptr_ಗಮ್ಯ_Id.emplace(p, "");
+    ಆದರೆ (pair.ಎರಡನೇ) {
         std::ostringstream os;
-        if (p) {
+        ಆದರೆ (p) {
             os << "(";
-            unsigned id = m_ptrToId.size();
-            do { os << static_cast<char>('A' + id % 26); } while (id /= 26);
+            ಚಿಹ್ನೆರಹಿತ id = m_ptr_ಗಮ್ಯ_Id.ಗಾತ್ರ_2();
+            ಮಾಡು { os << static_cast<ಅಕ್ಷರ>('A' + id % 26); } ಆಗ (id /= 26);
             os << ")";
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             os << "0";
         }
-        pair.first->second = os.str();
+        pair.ಮೊದಲ->ಎರಡನೇ = os.str();
     }
-    return pair.first->second;
+    ಹಿಂತಿರುಗಿ pair.ಮೊದಲ->ಎರಡನೇ;
 }
 
-std::vector<std::string> V3Global::verilatedCppFiles() {
-    std::vector<std::string> result;
-    result.emplace_back("verilated.cpp");
-    if (v3Global.dpi()) result.emplace_back("verilated_dpi.cpp");
-    if (v3Global.opt.vpi()) result.emplace_back("verilated_vpi.cpp");
-    if (v3Global.opt.savable()) result.emplace_back("verilated_save.cpp");
-    if (v3Global.opt.coverage()) result.emplace_back("verilated_cov.cpp");
-    if (v3Global.opt.coverage() || v3Global.useCovergroup())
-        result.emplace_back("verilated_covergroup.cpp");
-    for (const string& base : v3Global.opt.traceSourceBases())
-        result.emplace_back(base + "_c.cpp");
-    if (v3Global.usesProbDist()) result.emplace_back("verilated_probdist.cpp");
-    if (v3Global.usesTiming()) result.emplace_back("verilated_timing.cpp");
-    if (v3Global.useRandomizeMethods()) result.emplace_back("verilated_random.cpp");
-    result.emplace_back("verilated_threads.cpp");
-    if (v3Global.opt.usesProfiler()) result.emplace_back("verilated_profiler.cpp");
-    return result;
+std::ಸದಿಶ<std::string> V3Global::verilatedCppFiles() {
+    std::ಸದಿಶ<std::string> ಫಲಿತಾಂಶ;
+    ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated.cpp");
+    ಆದರೆ (v3Global.dpi()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_dpi.cpp");
+    ಆದರೆ (v3Global.opt.vpi()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_vpi.cpp");
+    ಆದರೆ (v3Global.opt.savable()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_save.cpp");
+    ಆದರೆ (v3Global.opt.coverage()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_cov.cpp");
+    ಆದರೆ (v3Global.opt.coverage() || v3Global.useCovergroup())
+        ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_covergroup.cpp");
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& ತಳ : v3Global.opt.trace_ಮೂಲ_Bases())
+        ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ(ತಳ + "_c.cpp");
+    ಆದರೆ (v3Global.ಬಳಸುತ್ತದೆ_Prob_Dist()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_probdist.cpp");
+    ಆದರೆ (v3Global.ಬಳಸುತ್ತದೆ_Timing()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_timing.cpp");
+    ಆದರೆ (v3Global.useRandomizeMethods()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_random.cpp");
+    ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_threads.cpp");
+    ಆದರೆ (v3Global.opt.ಬಳಸುತ್ತದೆ_Profiler()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_profiler.cpp");
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }

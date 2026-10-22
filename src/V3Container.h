@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CONTAINER_H_
-#define VERILATOR_V3CONTAINER_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3CONTAINER_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <unordered_set>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
-class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+ಮಾದರಿ <typename T_ಕೀಲಿ>
+class VInsertion_ಗಣ final {
+    std::ಸದಿಶ<T_ಕೀಲಿ> m_ಕೀಲಿಗಳು;  // Elements by insertion order
+    std::unordered_ಗಣ<T_ಕೀಲಿ> m_ಕೀಲಿ_ಗಣ;  // Elements by key
+ಸಾರ್ವಜನಿಕ:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool ಸೇರಿಸು(ಸ್ಥಿರಾಂಕ T_ಕೀಲಿ& ಕೀಲಿ) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it_ಸಿಕ್ಕಿತು_Pair = m_ಕೀಲಿ_ಗಣ.ಸೇರಿಸು(ಕೀಲಿ);
+        ಆದರೆ (it_ಸಿಕ್ಕಿತು_Pair.ಎರಡನೇ) m_ಕೀಲಿಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(ಕೀಲಿ);
+        ಹಿಂತಿರುಗಿ it_ಸಿಕ್ಕಿತು_Pair.ಎರಡನೇ;
     }
-    template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    ಮಾದರಿ <typename T>
+    ಶೂನ್ಯ ಸೇರಿಸು(T begin, ಸ್ಥಿರಾಂಕ T ಕೊನೆ) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::ಮೌಲ್ಯ_type, T_ಕೀಲಿ>::ಮೌಲ್ಯ,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        ಆಗ (begin != ಕೊನೆ) {
+            ಆದರೆ (m_ಕೀಲಿ_ಗಣ.ಸೇರಿಸು(*begin).ಎರಡನೇ) m_ಕೀಲಿಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    ಶೂನ್ಯ clear() {
+        m_ಕೀಲಿಗಳು.clear();
+        m_ಕೀಲಿ_ಗಣ.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool ಖಾಲಿಗಳು() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಕೀಲಿಗಳು.ಖಾಲಿಗಳು(); }
+    ಗಾತ್ರ_t ಗಾತ್ರ_2() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಕೀಲಿಗಳು.ಗಾತ್ರ_2(); }
+    bool exists(ಸ್ಥಿರಾಂಕ T_ಕೀಲಿ& ಕೀಲಿ) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಕೀಲಿ_ಗಣ.ಕಂಡುಹಿಡಿ(ಕೀಲಿ) != m_ಕೀಲಿ_ಗಣ.ಕೊನೆ(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::ಸದಿಶ<T_ಕೀಲಿ>::const_iterator;
+    const_iterator begin() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಕೀಲಿಗಳು.begin(); }
+    const_iterator ಕೊನೆ() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಕೀಲಿಗಳು.ಕೊನೆ(); }
 };
 
 //============================================================================
@@ -72,4 +72,4 @@ public:
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Values may be modified.
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

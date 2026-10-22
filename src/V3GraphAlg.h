@@ -14,33 +14,33 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHALG_H_
-#define VERILATOR_V3GRAPHALG_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3GRAPHALG_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3GRAPHALG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Graph.h"
 
 //=============================================================================
 // Algorithms - common class
 // For internal use, most graph algorithms use this as a base class
 
-template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
-class GraphAlg VL_NOT_FINAL {
-protected:
-    T_Graph* const m_graphp;  // Graph we're operating upon
-    const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
+ಮಾದರಿ <typename T_ನಕ್ಷೆ = V3_ನಕ್ಷೆ>  // Or sometimes const V3Graph
+class ನಕ್ಷೆ_Alg VL_NOT_FINAL {
+ಸಂರಕ್ಷಿತ:
+    T_ನಕ್ಷೆ* ಸ್ಥಿರಾಂಕ m_graphp;  // Graph we're operating upon
+    ಸ್ಥಿರಾಂಕ V3_ಅಂಚು_Func_P m_ಅಂಚು_Funcp;  // Function that says we follow this edge
     // CONSTRUCTORS
-    GraphAlg(T_Graph* graphp, V3EdgeFuncP edgeFuncp)
+    ನಕ್ಷೆ_Alg(T_ನಕ್ಷೆ* graphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp)
         : m_graphp{graphp}
-        , m_edgeFuncp{edgeFuncp} {}
-    ~GraphAlg() = default;
+        , m_ಅಂಚು_Funcp{ಅಂಚು_Funcp} {}
+    ~ನಕ್ಷೆ_Alg() = ಪೂರ್ವನಿಯೋಜಿತ;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool follow_ಅಂಚು(V3_ನಕ್ಷೆ_ಅಂಚು* edgep) { ಹಿಂತಿರುಗಿ (edgep->ತೂಕ_2() && (m_ಅಂಚು_Funcp)(edgep)); }
 };
 
 //============================================================================
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

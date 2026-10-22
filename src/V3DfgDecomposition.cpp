@@ -18,90 +18,90 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
+#ಅನ್ತರ್ಭಾವ "V3Dfg.h"
+#ಅನ್ತರ್ಭಾವ "V3DfgPasses.h"
 
-#include <unordered_map>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <unordered_map>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class SplitIntoComponents final {
+ವರ್ಗ ವಿಭಜಿಸು_Into_Components_2 final {
 
     // STATE
-    DfgGraph& m_dfg;  // The input graph
+    Dfg_ನಕ್ಷೆ& m_dfg;  // The input graph
     // Map from vertices to the weekly connected component they belong to
-    DfgUserMap<size_t> m_component = m_dfg.makeUserMap<size_t>();
-    const std::string m_prefix;  // Component name prefix
-    std::vector<std::unique_ptr<DfgGraph>> m_components;  // The extracted components
+    DfgUserMap<ಗಾತ್ರ_t> m_component = m_dfg.makeUserMap<ಗಾತ್ರ_t>();
+    ಸ್ಥಿರಾಂಕ std::string m_ಪೂರ್ವಪ್ರತ್ಯಯ;  // Component name prefix
+    std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>> m_components;  // The extracted components
     // Component counter - starting from 1 as 0 is the default value used as a marker
-    size_t m_componentCounter = 1;
+    ಗಾತ್ರ_t m_componentCounter = 1;
 
-    void colorComponents() {
+    ಶೂನ್ಯ colorComponents() {
         // Work queue for depth first traversal starting from this vertex
-        std::vector<DfgVertex*> queue;
-        queue.reserve(m_dfg.size());
+        std::ಸದಿಶ<Dfg_ಶೃಂಗ*> ಸರತಿ;
+        ಸರತಿ.reserve(m_dfg.ಗಾತ್ರ_2());
 
         // Any sort of interesting logic must involve a variable, so we only need to iterate them
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) {
+        ಗಾಗಿ (Dfg_ಶೃಂಗ_Var& vtx : m_dfg.varVertices()) {
             // If already assigned this vertex to a component, then continue
-            if (m_component[vtx]) continue;
+            ಆದರೆ (m_component[vtx]) ಮುಂದುವರಿ;
 
             // Start depth first traversal at this vertex
-            queue.push_back(&vtx);
+            ಸರತಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&vtx);
 
             // Depth first traversal
-            do {
+            ಮಾಡು {
                 // Pop next work item
-                DfgVertex& item = *queue.back();
-                queue.pop_back();
+                Dfg_ಶೃಂಗ& ಅಂಶ_2 = *ಸರತಿ.ಹಿಂಭಾಗ();
+                ಸರತಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
 
                 // Move on if already visited
-                if (m_component[item]) continue;
+                ಆದರೆ (m_component[ಅಂಶ_2]) ಮುಂದುವರಿ;
 
                 // Assign to current component
-                m_component[item] = m_componentCounter;
+                m_component[ಅಂಶ_2] = m_componentCounter;
 
                 // Enqueue all sources and sinks of this vertex.
-                item.foreachSource([&](DfgVertex& src) {
-                    queue.push_back(&src);
-                    return false;
+                ಅಂಶ_2.foreach_ಮೂಲ([&](Dfg_ಶೃಂಗ& src) {
+                    ಸರತಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&src);
+                    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 });
-                item.foreachSink([&](DfgVertex& dst) {
-                    queue.push_back(&dst);
-                    return false;
+                ಅಂಶ_2.foreachSink([&](Dfg_ಶೃಂಗ& dst) {
+                    ಸರತಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&dst);
+                    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 });
-            } while (!queue.empty());
+            } ಆಗ (!ಸರತಿ.ಖಾಲಿಗಳು());
 
             // Done with this component
             ++m_componentCounter;
         }
     }
 
-    template <typename Vertex>
-    void moveVertices(DfgVertex::List<Vertex>& list) {
-        for (DfgVertex* const vtxp : list.unlinkable()) {
-            if (const size_t component = m_component[vtxp]) {
-                m_dfg.removeVertex(*vtxp);
-                m_components[component - 1]->addVertex(*vtxp);
-            } else {
+    ಮಾದರಿ <ಬಗೆ_ಹೆಸರು ಶೃಂಗ_2>
+    ಶೂನ್ಯ moveVertices(Dfg_ಶೃಂಗ::List<ಶೃಂಗ_2>& list) {
+        ಗಾಗಿ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : list.unlinkable()) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t component = m_component[vtxp]) {
+                m_dfg.remove_ಶೃಂಗ(*vtxp);
+                m_components[component - 1]->ಕೂಡಿಸು_ಶೃಂಗ(*vtxp);
+            } ಇಲ್ಲದಿದ್ದರೆ {
                 // This vertex is not connected to a variable and is hence unused, remove here
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
             }
         }
     }
 
-    SplitIntoComponents(DfgGraph& dfg, const std::string& label)
+    ವಿಭಜಿಸು_Into_Components_2(Dfg_ನಕ್ಷೆ& dfg, ಸ್ಥಿರಾಂಕ std::string& label)
         : m_dfg{dfg}
-        , m_prefix{dfg.name() + (label.empty() ? "" : "-") + label + "-component-"} {
+        , m_ಪೂರ್ವಪ್ರತ್ಯಯ{dfg.name() + (label.ಖಾಲಿಗಳು() ? "" : "-") + label + "-component-"} {
         // Color each component of the graph
         colorComponents();
         // Allocate the component graphs
         m_components.resize(m_componentCounter - 1);
-        for (size_t i = 1; i < m_componentCounter; ++i) {
-            m_components[i - 1].reset(new DfgGraph{m_dfg.ctx(), m_prefix + cvtToStr(i - 1)});
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 1; i < m_componentCounter; ++i) {
+            m_components[i - 1].reset(ಹೊಸ Dfg_ನಕ್ಷೆ{m_dfg.ctx(), m_ಪೂರ್ವಪ್ರತ್ಯಯ + cvt_ಗಮ್ಯ_Str(i - 1)});
         }
         // Move the vertices to the component graphs
         moveVertices(m_dfg.varVertices());
@@ -109,41 +109,41 @@ class SplitIntoComponents final {
         moveVertices(m_dfg.constVertices());
         moveVertices(m_dfg.opVertices());
         //
-        UASSERT(m_dfg.size() == 0, "'this' DfgGraph should have been emptied");
+        UASSERT(m_dfg.ಗಾತ್ರ_2() == 0, "'this' DfgGraph should have been emptied");
     }
 
-public:
-    static std::vector<std::unique_ptr<DfgGraph>> apply(DfgGraph& dfg, const std::string& label) {
-        return std::move(SplitIntoComponents{dfg, label}.m_components);
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>> apply(Dfg_ನಕ್ಷೆ& dfg, ಸ್ಥಿರಾಂಕ std::string& label) {
+        ಹಿಂತಿರುಗಿ std::move(ವಿಭಜಿಸು_Into_Components_2{dfg, label}.m_components);
     }
 };
 
-std::vector<std::unique_ptr<DfgGraph>> DfgGraph::splitIntoComponents(const std::string& label) {
-    return SplitIntoComponents::apply(*this, label);
+std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>> Dfg_ನಕ್ಷೆ::ವಿಭಜಿಸು_Into_Components(ಸ್ಥಿರಾಂಕ std::string& label) {
+    ಹಿಂತಿರುಗಿ ವಿಭಜಿಸು_Into_Components_2::apply(*ಇದು, label);
 }
 
-class ExtractCyclicComponents final {
+ವರ್ಗ ಹೊರತೆಗೆ_Cyclic_Components_2 final {
     // STATE
-    DfgGraph& m_dfg;  // The input graph
+    Dfg_ನಕ್ಷೆ& m_dfg;  // The input graph
     // Map from vertices to the component they belong to
     DfgUserMap<uint64_t> m_component = m_dfg.makeUserMap<uint64_t>();
-    const std::string m_prefix;  // Component name prefix
-    const bool m_doExpensiveChecks = v3Global.opt.debugCheck();
+    ಸ್ಥಿರಾಂಕ std::string m_ಪೂರ್ವಪ್ರತ್ಯಯ;  // Component name prefix
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ m_doExpensiveChecks = v3Global.opt.debugCheck();
     // The extracted cyclic components
-    std::vector<std::unique_ptr<DfgGraph>> m_components;
+    std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>> m_components;
     // Map from 'variable vertex' -> 'component index' -> 'clone in that component'
-    std::unordered_map<const DfgVertexVar*, std::unordered_map<uint64_t, DfgVertexVar*>> m_clones;
+    std::unordered_map<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Var*, std::unordered_map<uint64_t, Dfg_ಶೃಂಗ_Var*>> m_clones;
 
     // METHODS
-    void addVertexAndExpandSiblings(DfgVertex& vtx, uint64_t component) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_ಶೃಂಗ_And_Expand_Siblings(Dfg_ಶೃಂಗ& vtx, uint64_t component) {
         // Do not go past a variable, we will partition the graph there
-        if (vtx.is<DfgVertexVar>()) return;
+        ಆದರೆ (vtx.is<Dfg_ಶೃಂಗ_Var>()) ಹಿಂತಿರುಗಿ;
         // Pick up component value reference
         uint64_t& vtxComponentr = m_component.at(vtx);
         // Don't need to recurse if the vertex is already in the same component,
         // it was either marked through an earlier traversal, in which case it
         // was processed recursively, or it will be processed later.
-        if (vtxComponentr == component) return;
+        ಆದರೆ (vtxComponentr == component) ಹಿಂತಿರುಗಿ;
         // Because all cycles are through a variable, we can't reach another SCC.
         UASSERT_OBJ(!vtxComponentr, &vtx, "Cycle without variable involvement");
         // Put this vertex in the component, and continue recursively
@@ -151,28 +151,28 @@ class ExtractCyclicComponents final {
         expandSiblings(vtx, component);
     }
 
-    void expandSiblings(DfgVertex& vtx, uint64_t component) {
+    ಶೂನ್ಯ expandSiblings(Dfg_ಶೃಂಗ& vtx, uint64_t component) {
         UASSERT_OBJ(m_component.at(vtx) == component, &vtx, "Traversal didn't stop");
-        vtx.foreachSink([&](DfgVertex& v) {
-            addVertexAndExpandSiblings(v, component);
-            return false;
+        vtx.foreachSink([&](Dfg_ಶೃಂಗ& v) {
+            ಕೂಡಿಸು_ಶೃಂಗ_And_Expand_Siblings(v, component);
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         });
-        vtx.foreachSource([&](DfgVertex& v) {
-            addVertexAndExpandSiblings(v, component);
-            return false;
+        vtx.foreach_ಮೂಲ([&](Dfg_ಶೃಂಗ& v) {
+            ಕೂಡಿಸು_ಶೃಂಗ_And_Expand_Siblings(v, component);
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         });
     }
 
-    void expandComponents() {
+    ಶೂನ್ಯ expandComponents() {
         // Important fact that we will assume below: There are no path between
         // any two SCCs that do not go through a variable before reaching the
         // destination SCC. That is, to get from one SCC to another, you must
         // go through a variable that is not part of the destination SCC. This
         // holds because no operation vertex can have multiple sinks at this
         // point (constants have no inputs, so they are not in an SCC).
-        if (m_doExpensiveChecks) {
-            for (DfgVertex& vtx : m_dfg.opVertices()) {
-                UASSERT_OBJ(!vtx.hasMultipleSinks(), &vtx, "Operation has multiple sinks");
+        ಆದರೆ (m_doExpensiveChecks) {
+            ಗಾಗಿ (Dfg_ಶೃಂಗ& vtx : m_dfg.opVertices()) {
+                UASSERT_OBJ(!vtx.has_ಅಪವರ್ತ್ಯ_Sinks(), &vtx, "Operation has multiple sinks");
             }
         }
 
@@ -181,19 +181,19 @@ class ExtractCyclicComponents final {
         // cyclic variable, put both its 'srcp' and 'defaultp' into the same
         // component if they are not variables themselves. The assertions below
         // must hold because of the assumption above.
-        for (const DfgVertexVar& vtx : m_dfg.varVertices()) {
-            const uint64_t varComponent = m_component.at(vtx);
-            if (!varComponent) continue;
-            if (DfgVertex* const srcp = vtx.srcp()) {
-                if (!srcp->is<DfgVertexVar>()) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ_Var& vtx : m_dfg.varVertices()) {
+            ಸ್ಥಿರಾಂಕ uint64_t varComponent = m_component.at(vtx);
+            ಆದರೆ (!varComponent) ಮುಂದುವರಿ;
+            ಆದರೆ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ srcp = vtx.srcp()) {
+                ಆದರೆ (!srcp->is<Dfg_ಶೃಂಗ_Var>()) {
                     uint64_t& srcComponent = m_component.at(srcp);
                     UASSERT_OBJ(!srcComponent || srcComponent == varComponent, srcp,
                                 "Cycle through 'srcp' that does not go through variable.");
                     srcComponent = varComponent;
                 }
             }
-            if (DfgVertex* const defp = vtx.defaultp()) {
-                if (!defp->is<DfgVertexVar>()) {
+            ಆದರೆ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ defp = vtx.defaultp()) {
+                ಆದರೆ (!defp->is<Dfg_ಶೃಂಗ_Var>()) {
                     uint64_t& defComponent = m_component.at(defp);
                     UASSERT_OBJ(!defComponent || defComponent == varComponent, defp,
                                 "Cycle through 'defaultp' that does not go through variable");
@@ -207,134 +207,134 @@ class ExtractCyclicComponents final {
         // so only need to process op vertices. We do this by starting a DFS
         // from each vertex that is part of a component and add all reachable
         // non-variable vertices to the same.
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
-            if (const uint64_t targetComponent = m_component.at(vtx)) {
-                expandSiblings(vtx, targetComponent);
+        ಗಾಗಿ (Dfg_ಶೃಂಗ& vtx : m_dfg.opVertices()) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ uint64_t ಗುರಿ_Component = m_component.at(vtx)) {
+                expandSiblings(vtx, ಗುರಿ_Component);
             }
         }
     }
 
     // Retrieve clone of vertex in the given component
-    DfgVertexVar* getClone(DfgVertexVar& vtx, uint64_t component) {
+    Dfg_ಶೃಂಗ_Var* getClone(Dfg_ಶೃಂಗ_Var& vtx, uint64_t component) {
         UASSERT_OBJ(m_component.at(vtx) != component, &vtx, "Vertex is in that component");
-        DfgVertexVar*& clonep = m_clones[&vtx][component];
-        if (!clonep) {
-            if (DfgVarPacked* const pVtxp = vtx.cast<DfgVarPacked>()) {
-                clonep = new DfgVarPacked{m_dfg, pVtxp->vscp()};
-            } else if (DfgVarArray* const aVtxp = vtx.cast<DfgVarArray>()) {
-                clonep = new DfgVarArray{m_dfg, aVtxp->vscp()};
+        Dfg_ಶೃಂಗ_Var*& clonep = m_clones[&vtx][component];
+        ಆದರೆ (!clonep) {
+            ಆದರೆ (DfgVarPacked* ಸ್ಥಿರಾಂಕ pVtxp = vtx.cast<DfgVarPacked>()) {
+                clonep = ಹೊಸ DfgVarPacked{m_dfg, pVtxp->vscp()};
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (DfgVarArray* ಸ್ಥಿರಾಂಕ aVtxp = vtx.cast<DfgVarArray>()) {
+                clonep = ಹೊಸ DfgVarArray{m_dfg, aVtxp->vscp()};
             }
             UASSERT_OBJ(clonep, &vtx, "Unhandled 'DfgVertexVar' sub-type");
             m_component[clonep] = component;
             clonep->tmpForp(vtx.tmpForp());
         }
-        return clonep;
+        ಹಿಂತಿರುಗಿ clonep;
     }
 
     // Fix edges that cross components
-    void fixEdges(DfgVertexVar& vtx) {
-        const uint64_t component = m_component.at(vtx);
+    ಶೂನ್ಯ fix_ಅಂಚುಗಳು(Dfg_ಶೃಂಗ_Var& vtx) {
+        ಸ್ಥಿರಾಂಕ uint64_t component = m_component.at(vtx);
 
         // Fix up srcp and dstp (they must be the same component, or variable)
-        if (DfgVertex* const sp = vtx.srcp()) {
-            const uint64_t srcComponent = m_component.at(sp);
-            if (srcComponent != component) {
-                UASSERT_OBJ(sp->is<DfgVertexVar>(), &vtx, "'srcp' in different component");
+        ಆದರೆ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ sp = vtx.srcp()) {
+            ಸ್ಥಿರಾಂಕ uint64_t srcComponent = m_component.at(sp);
+            ಆದರೆ (srcComponent != component) {
+                UASSERT_OBJ(sp->is<Dfg_ಶೃಂಗ_Var>(), &vtx, "'srcp' in different component");
                 getClone(vtx, srcComponent)->srcp(sp);
-                vtx.srcp(nullptr);
+                vtx.srcp(ಶೂನ್ಯಸೂಚಕ);
             }
         }
-        if (DfgVertex* const dp = vtx.defaultp()) {
-            const uint64_t defaultComponent = m_component.at(dp);
-            if (defaultComponent != component) {
-                UASSERT_OBJ(dp->is<DfgVertexVar>(), &vtx, "'defaultp' in different component");
+        ಆದರೆ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ dp = vtx.defaultp()) {
+            ಸ್ಥಿರಾಂಕ uint64_t defaultComponent = m_component.at(dp);
+            ಆದರೆ (defaultComponent != component) {
+                UASSERT_OBJ(dp->is<Dfg_ಶೃಂಗ_Var>(), &vtx, "'defaultp' in different component");
                 getClone(vtx, defaultComponent)->defaultp(dp);
-                vtx.defaultp(nullptr);
+                vtx.defaultp(ಶೂನ್ಯಸೂಚಕ);
             }
         }
         // Fix up sinks in a different component to read the clone
-        std::vector<DfgVertex*> sinkps;
-        vtx.foreachSink([&](DfgVertex& sink) {
-            sinkps.emplace_back(&sink);
-            return false;
+        std::ಸದಿಶ<Dfg_ಶೃಂಗ*> sinkps;
+        vtx.foreachSink([&](Dfg_ಶೃಂಗ& sink) {
+            sinkps.emplace_ಹಿಂಭಾಗ(&sink);
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         });
-        for (DfgVertex* const sinkp : sinkps) {
-            const uint64_t sinkComponent = m_component.at(sinkp);
+        ಗಾಗಿ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ sinkp : sinkps) {
+            ಸ್ಥಿರಾಂಕ uint64_t sinkComponent = m_component.at(sinkp);
             // Same component is OK
-            if (sinkComponent == component) continue;
-            DfgVertex* const clonep = getClone(vtx, sinkComponent);
-            for (size_t i = 0; i < sinkp->nInputs(); ++i) {
-                if (sinkp->inputp(i) == &vtx) sinkp->inputp(i, clonep);
+            ಆದರೆ (sinkComponent == component) ಮುಂದುವರಿ;
+            Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ clonep = getClone(vtx, sinkComponent);
+            ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < sinkp->nInputs(); ++i) {
+                ಆದರೆ (sinkp->inputp(i) == &vtx) sinkp->inputp(i, clonep);
             }
         }
     }
 
-    template <typename Vertex>
-    void moveVertices(DfgVertex::List<Vertex>& list) {
-        for (DfgVertex* const vtxp : list.unlinkable()) {
-            DfgVertex& vtx = *vtxp;
-            if (const uint64_t component = m_component.at(vtx)) {
-                m_dfg.removeVertex(vtx);
-                m_components[component - 1]->addVertex(vtx);
+    ಮಾದರಿ <ಬಗೆ_ಹೆಸರು ಶೃಂಗ_2>
+    ಶೂನ್ಯ moveVertices(Dfg_ಶೃಂಗ::List<ಶೃಂಗ_2>& list) {
+        ಗಾಗಿ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : list.unlinkable()) {
+            Dfg_ಶೃಂಗ& vtx = *vtxp;
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ uint64_t component = m_component.at(vtx)) {
+                m_dfg.remove_ಶೃಂಗ(vtx);
+                m_components[component - 1]->ಕೂಡಿಸು_ಶೃಂಗ(vtx);
             }
         }
     }
 
-    void checkEdges(DfgGraph& dfg) const {
+    ಶೂನ್ಯ check_ಅಂಚುಗಳು(Dfg_ನಕ್ಷೆ& dfg) ಸ್ಥಿರಾಂಕ {
         // Check that edges only cross components at variable boundaries
-        dfg.forEachVertex([&](DfgVertex& vtx) {
-            if (vtx.is<DfgVarPacked>()) return;
-            const uint64_t component = m_component.at(vtx);
-            vtx.foreachSink([&](DfgVertex& snk) {
-                if (snk.is<DfgVertexVar>()) return false;  // OK to cross at variables
+        dfg.for_Each_ಶೃಂಗ([&](Dfg_ಶೃಂಗ& vtx) {
+            ಆದರೆ (vtx.is<DfgVarPacked>()) ಹಿಂತಿರುಗಿ;
+            ಸ್ಥಿರಾಂಕ uint64_t component = m_component.at(vtx);
+            vtx.foreachSink([&](Dfg_ಶೃಂಗ& snk) {
+                ಆದರೆ (snk.is<Dfg_ಶೃಂಗ_Var>()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;  // OK to cross at variables
                 UASSERT_OBJ(component == m_component.at(snk), &vtx,
                             "Edge crossing components without variable involvement");
-                return false;
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
         });
     }
 
-    void checkGraph(DfgGraph& dfg) const {
+    ಶೂನ್ಯ check_ನಕ್ಷೆ(Dfg_ನಕ್ಷೆ& dfg) ಸ್ಥಿರಾಂಕ {
         // Build set of vertices
-        std::unordered_set<const DfgVertex*> vertices{dfg.size()};
-        dfg.forEachVertex([&](const DfgVertex& vtx) { vertices.insert(&vtx); });
+        std::unordered_ಗಣ<ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ*> vertices{dfg.ಗಾತ್ರ_2()};
+        dfg.for_Each_ಶೃಂಗ([&](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx) { vertices.ಸೇರಿಸು(&vtx); });
 
         // Check that each edge connects to a vertex that is within the same graph
-        dfg.forEachVertex([&](const DfgVertex& vtx) {
-            vtx.foreachSource([&](const DfgVertex& src) {
-                UASSERT_OBJ(vertices.count(&src), &vtx, "Source vertex not in graph");
-                return false;
+        dfg.for_Each_ಶೃಂಗ([&](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& vtx) {
+            vtx.foreach_ಮೂಲ([&](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& src) {
+                UASSERT_OBJ(vertices.ಎಣಿಕೆ_2(&src), &vtx, "Source vertex not in graph");
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
-            vtx.foreachSink([&](const DfgVertex& snk) {
-                UASSERT_OBJ(vertices.count(&snk), &snk, "Sink vertex not in graph");
-                return false;
+            vtx.foreachSink([&](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& snk) {
+                UASSERT_OBJ(vertices.ಎಣಿಕೆ_2(&snk), &snk, "Sink vertex not in graph");
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
         });
     }
 
-    void extractComponents(uint32_t nComponents) {
+    ಶೂನ್ಯ ಹೊರತೆಗೆ_Components(uint32_t nComponents) {
         // Allocate result graphs
         m_components.resize(nComponents);
-        for (uint32_t i = 0; i < nComponents; ++i) {
-            m_components[i].reset(new DfgGraph{m_dfg.ctx(), m_prefix + cvtToStr(i)});
+        ಗಾಗಿ (uint32_t i = 0; i < nComponents; ++i) {
+            m_components[i].reset(ಹೊಸ Dfg_ನಕ್ಷೆ{m_dfg.ctx(), m_ಪೂರ್ವಪ್ರತ್ಯಯ + cvt_ಗಮ್ಯ_Str(i)});
         }
 
         // Fix up edges crossing components (we can only do this at variable boundaries, and the
         // earlier merging of components ensured crossing in fact only happen at variable
         // boundaries). Note that fixing up the edges can create clones of variables. Clones do
         // not need fixing up, so we do not need to iterate them.
-        const DfgVertex* const lastp = m_dfg.varVertices().backp();
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) {
+        ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ lastp = m_dfg.varVertices().backp();
+        ಗಾಗಿ (Dfg_ಶೃಂಗ_Var& vtx : m_dfg.varVertices()) {
             // Fix up the edges crossing components
-            fixEdges(vtx);
+            fix_ಅಂಚುಗಳು(vtx);
             // Don't iterate clones added during this loop
-            if (&vtx == lastp) break;
+            ಆದರೆ (&vtx == lastp) ನಿಲ್ಲಿಸು;
         }
 
         // Check results for consistency
-        if (VL_UNLIKELY(m_doExpensiveChecks)) {
-            checkEdges(m_dfg);
-            for (const auto& dfgp : m_components) checkEdges(*dfgp);
+        ಆದರೆ (VL_UNLIKELY(m_doExpensiveChecks)) {
+            check_ಅಂಚುಗಳು(m_dfg);
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& dfgp : m_components) check_ಅಂಚುಗಳು(*dfgp);
         }
 
         // Move other vertices to their component graphs
@@ -345,33 +345,33 @@ class ExtractCyclicComponents final {
         moveVertices(m_dfg.opVertices());
 
         // Check results for consistency
-        if (VL_UNLIKELY(m_doExpensiveChecks)) {
-            checkGraph(m_dfg);
-            for (const auto& dfgp : m_components) checkGraph(*dfgp);
+        ಆದರೆ (VL_UNLIKELY(m_doExpensiveChecks)) {
+            check_ನಕ್ಷೆ(m_dfg);
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& dfgp : m_components) check_ನಕ್ಷೆ(*dfgp);
         }
     }
 
     // CONSTRUCTOR - entry point
-    explicit ExtractCyclicComponents(DfgGraph& dfg, const std::string& label)
+    ಸ್ಪಷ್ಟ ಹೊರತೆಗೆ_Cyclic_Components_2(Dfg_ನಕ್ಷೆ& dfg, ಸ್ಥಿರಾಂಕ std::string& label)
         : m_dfg{dfg}
-        , m_prefix{dfg.name() + (label.empty() ? "" : "-") + label + "-component-"} {
+        , m_ಪೂರ್ವಪ್ರತ್ಯಯ{dfg.name() + (label.ಖಾಲಿಗಳು() ? "" : "-") + label + "-component-"} {
         // Find all the non-trivial SCCs (and trivial cycles) in the graph
-        const uint32_t nSCCs = V3DfgPasses::colorStronglyConnectedComponents(dfg, m_component);
+        ಸ್ಥಿರಾಂಕ uint32_t nSCCs = V3DfgPasses::colorStronglyConnectedComponents(dfg, m_component);
         // If the graph was acyclic (which should be the common case), then we are done.
-        if (!nSCCs) return;
+        ಆದರೆ (!nSCCs) ಹಿಂತಿರುಗಿ;
         // Ensure that component boundaries are always at variables, by expanding SCCs
         expandComponents();
         // Extract the components
-        extractComponents(nSCCs);
+        ಹೊರತೆಗೆ_Components(nSCCs);
     }
 
-public:
-    static std::vector<std::unique_ptr<DfgGraph>> apply(DfgGraph& dfg, const std::string& label) {
-        return std::move(ExtractCyclicComponents{dfg, label}.m_components);
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>> apply(Dfg_ನಕ್ಷೆ& dfg, ಸ್ಥಿರಾಂಕ std::string& label) {
+        ಹಿಂತಿರುಗಿ std::move(ಹೊರತೆಗೆ_Cyclic_Components_2{dfg, label}.m_components);
     }
 };
 
-std::vector<std::unique_ptr<DfgGraph>>
-DfgGraph::extractCyclicComponents(const std::string& label) {
-    return ExtractCyclicComponents::apply(*this, label);
+std::ಸದಿಶ<std::unique_ptr<Dfg_ನಕ್ಷೆ>>
+Dfg_ನಕ್ಷೆ::ಹೊರತೆಗೆ_Cyclic_Components(ಸ್ಥಿರಾಂಕ std::string& label) {
+    ಹಿಂತಿರುಗಿ ಹೊರತೆಗೆ_Cyclic_Components_2::apply(*ಇದು, label);
 }

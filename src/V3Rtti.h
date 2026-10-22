@@ -14,41 +14,41 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3RTTI_H_
-#define VERILATOR_V3RTTI_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3RTTI_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3RTTI_H_
 
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include <cstdint>
-#include <type_traits>
+#ಅನ್ತರ್ಭಾವ <cstdint>
+#ಅನ್ತರ್ಭಾವ <type_traits>
 
 namespace V3Rtti {
 
 // Use 'V3Rtti::isInstanceOf<T>(objp)' to check if 'objp' is of subtype 'T' (downcasting)
-template <typename SubClass, typename SuperClass>
-bool isInstanceOf(SuperClass* objp) {
-    static_assert(std::is_base_of<SuperClass, SubClass>::value, "Impossible 'isInstanceOf'");
-    static_assert(!std::is_same<SuperClass, SubClass>::value, "Useless 'isInstanceOf'");
+ಮಾದರಿ <typename SubClass, typename SuperClass>
+bool is_Instance_ದ(SuperClass* objp) {
+    static_assert(std::is_ತಳ_ದ<SuperClass, SubClass>::ಮೌಲ್ಯ, "Impossible 'isInstanceOf'");
+    static_assert(!std::is_same<SuperClass, SubClass>::ಮೌಲ್ಯ, "Useless 'isInstanceOf'");
     static_assert(std::is_same<  //
                       typename std::remove_cv<SubClass>::type,  //
                       typename SubClass::V3RttiThisClass  //
-                      >::value,
+                      >::ಮೌಲ್ಯ,
                   "Missing VL_RTTI_IMPL(...) in 'SubClass'");
-    return objp->v3RttiIsInstanceOfImpl(SubClass::v3RttiClassId());
+    ಹಿಂತಿರುಗಿ objp->v3_Rtti_Is_Instance_ದ_Impl(SubClass::v3RttiClassId());
 }
 
-namespace internal {
+namespace ಆಂತರಿಕ_2 {
 
 // Returns true iff 'id' equals the 'rttiClassId()' of either 'T', or any of its base classes
-template <typename T>
-inline bool matchClassId(uintptr_t id) VL_PURE {
-    return id == T::v3RttiClassId() || matchClassId<typename T::V3RttiBaseClass>(id);
+ಮಾದರಿ <typename T>
+ಸಾಲೊಳಗೆ bool ಹೊಂದಿಕೆ_Class_Id(uintptr_t id) VL_ಶುದ್ಧ {
+    ಹಿಂತಿರುಗಿ id == T::v3RttiClassId() || ಹೊಂದಿಕೆ_Class_Id<typename T::V3_Rtti_ತಳ_Class>(id);
 }
 
 // Specialization for the root class, which have 'void' for 'V3RttiBaseClass'
-template <>
-inline bool matchClassId<void>(uintptr_t) VL_PURE {
-    return false;
+ಮಾದರಿ <>
+ಸಾಲೊಳಗೆ bool ಹೊಂದಿಕೆ_Class_Id<ಶೂನ್ಯ>(uintptr_t) VL_ಶುದ್ಧ {
+    ಹಿಂತಿರುಗಿ false;
 }
 
 }  // namespace internal
@@ -56,44 +56,44 @@ inline bool matchClassId<void>(uintptr_t) VL_PURE {
 }  // namespace V3Rtti
 
 // Common code used by VL_RTTI_COMMON_IMPL and VL_RTTI_COMMON_IMPL_BASE.
-#define V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, OVERRIDE) \
+#ವ್ಯಾಖ್ಯಾನಿಸು V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, OVERRIDE) \
     using V3RttiThisClass = ThisClass; \
     /* A type used only for implementation of the static_assert below. */ \
-    struct RttiUniqueTypeForThisClass {}; \
+    ರಚನೆ RttiUniqueTypeForThisClass {}; \
     static_assert( \
-        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::value, \
+        std::is_same<RttiUniqueTypeForThisClass, ThisClass::RttiUniqueTypeForThisClass>::ಮೌಲ್ಯ, \
         "'ThisClass' argument (" #ThisClass ") does not match the class name"); \
     /* The implementation can pick up the private members */ \
-    template <typename T> \
-    friend bool V3Rtti::internal::matchClassId(uintptr_t id); \
-    template <typename T, typename U> \
-    friend bool V3Rtti::isInstanceOf(U*); \
+    ಮಾದರಿ <typename T> \
+    ಮಿತ್ರ bool V3Rtti::ಆಂತರಿಕ_2::ಹೊಂದಿಕೆ_Class_Id(uintptr_t id); \
+    ಮಾದರಿ <typename T, typename U> \
+    ಮಿತ್ರ bool V3Rtti::is_Instance_ದ(U*); \
     /* Returns unique type ID of the class. */ \
-    static uintptr_t v3RttiClassId() VL_PURE { \
-        /* Don't complain this function is unused */ (void)&v3RttiClassId; \
+    ಸ್ಥಿರ uintptr_t v3RttiClassId() VL_ಶುದ್ಧ { \
+        /* Don't complain this function is unused */ (ಶೂನ್ಯ)&v3RttiClassId; \
         /* The address of this static variable is used as the unique class type ID. */ \
-        static char s_vlrttiClassId; \
-        return reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
+        ಸ್ಥಿರ ಅಕ್ಷರ s_vlrttiClassId; \
+        ಹಿಂತಿರುಗಿ reinterpret_cast<uintptr_t>(&s_vlrttiClassId); \
     } \
     /* Dispatch to matchClassId with the correct sub type (this type) */ \
-    virtual bool v3RttiIsInstanceOfImpl(uintptr_t id) const OVERRIDE VL_PURE { \
-        return ::V3Rtti::internal::matchClassId<ThisClass>(id); \
+    ವಾಸ್ತವಿಕ bool v3_Rtti_Is_Instance_ದ_Impl(uintptr_t id) ಸ್ಥಿರಾಂಕ OVERRIDE VL_ಶುದ್ಧ { \
+        ಹಿಂತಿರುಗಿ ::V3Rtti::ಆಂತರಿಕ_2::ಹೊಂದಿಕೆ_Class_Id<ThisClass>(id); \
     }
 
 // Call this macro at the beginning of class definition if the class derives
 // from a class with VL_RTTI_IMPL or VL_RTTI_IMPL_BASE calls.
-#define VL_RTTI_IMPL(ThisClass, DirectBaseClass) \
-private: \
-    using V3RttiBaseClass = DirectBaseClass; \
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_RTTI_IMPL(ThisClass, ನೇರ_ತಳ_Class) \
+ಖಾಸಗಿ: \
+    using V3_Rtti_ತಳ_Class = ನೇರ_ತಳ_Class; \
     V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, override) \
-private:
+ಖಾಸಗಿ:
 
 // Call this macro at the beginning of a base class to implement class type
 // usable with V3Rtti::InstanceOf
-#define VL_RTTI_IMPL_BASE(ThisClass) \
-private: \
-    using V3RttiBaseClass = void; \
-    V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, /* base */) \
-private:
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_RTTI_IMPL_ತಳ(ThisClass) \
+ಖಾಸಗಿ: \
+    using V3_Rtti_ತಳ_Class = ಶೂನ್ಯ; \
+    V3RTTIINTERNAL_VL_RTTI_COMMON_IMPL(ThisClass, /*ತಳ*/) \
+ಖಾಸಗಿ:
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

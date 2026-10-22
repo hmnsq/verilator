@@ -14,39 +14,39 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASSERT_H_
-#define VERILATOR_V3ASSERT_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3ASSERT_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3ASSERT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
 
 //============================================================================
 
 class V3AssertCommon final {
-public:
-    static void collectDefaultDisable(AstNetlist* nodep) VL_MT_DISABLED;
-    static void lowerSequenceEvents(AstNetlist* nodep) VL_MT_DISABLED;
-    static string assertCtlGetCall(const char* query, VAssertType type,
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ collectDefaultDisable(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ ಅಧೋ_Sequence_Events(AstNetlist* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ string assertCtlGetCall(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* query, VAssertType type,
                                    VAssertDirectiveType directiveType) VL_MT_DISABLED;
     // Check an SVA value is within the implementation limit, else report it on nodep
-    static bool checkSvaValueLimit(AstNode* nodep, const AstConst* constp,
-                                   const char* what) VL_MT_DISABLED;
+    ಸ್ಥಿರ bool check_Sva_ಮೌಲ್ಯ_ಎಲ್ಲೆ(Ast_ಗಂಟು* nodep, ಸ್ಥಿರಾಂಕ AstConst* constp,
+                                   ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* what) VL_MT_DISABLED;
     // Fold the bounds of a cycle delay in a sequence, and check they are non-negative
     // elaboration-time constants (IEEE 1800-2023 16.7). If not, report it on errp, and replace
     // them with constants, so later steps do not fail after the error.
-    static void checkSvaCycleDelay(AstDelay* nodep, AstNode* errp) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ check_Sva_ಚಕ್ರ_Delay(AstDelay* nodep, Ast_ಗಂಟು* errp) VL_MT_DISABLED;
     // True if the expression references a formal argument of a sequence or property
-    static bool refsSvaFormal(const AstNode* nodep) VL_MT_DISABLED;
+    ಸ್ಥಿರ bool refsSvaFormal(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* nodep) VL_MT_DISABLED;
     // Check the cycle delays of a sequence or property instance, after its formal arguments are
     // replaced with the actual arguments (IEEE 1800-2023 16.8), reporting errors on instp
-    static void checkSvaInstanceDelays(AstNode* nodep, AstNode* instp) VL_MT_DISABLED;
+    ಸ್ಥಿರ ಶೂನ್ಯ checkSvaInstanceDelays(Ast_ಗಂಟು* nodep, Ast_ಗಂಟು* instp) VL_MT_DISABLED;
 };
 
 class V3Assert final {
-public:
-    static void assertAll(AstNetlist* nodep) VL_MT_DISABLED;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ assertAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

@@ -26,108 +26,108 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3Dfg.h"
+#ಅನ್ತರ್ಭಾವ "V3DfgPasses.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class V3DfgPushDownSels final {
+ವರ್ಗ V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels final {
     // TYPES
 
     // Each vertex has an associated State via DfgUserMap
-    struct State final {
+    ರಚನೆ State final {
         // -- For Pearce-Kelly algorithm only
         // Topological ordering index. For all pair of vertices (a, b),
         // ord(a) < ord(b) iff there is no path from b to a in the graph.
         uint32_t ord = 0;
-        bool visited = false;  // Whether the vertex has been visited during DFS
+        ತಾರ್ಕಿಕ ಭೇಟಿಯಾದ = ಸುಳ್ಳು;  // Whether the vertex has been visited during DFS
         // -- For the actial optimization only management
-        bool onWorklist = false;  // Whether the vertex is in m_catps
+        ತಾರ್ಕಿಕ onWorklist = ಸುಳ್ಳು;  // Whether the vertex is in m_catps
     };
 
     // STATE
     // The graph being processed - must be acyclic (DAG)
-    DfgGraph& m_dfg;
+    Dfg_ನಕ್ಷೆ& m_dfg;
     // Context for pass
-    V3DfgPushDownSelsContext& m_ctx;
+    V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels_Context& m_ctx;
     // Map from DfgVertex to State
     DfgUserMap<State> m_stateMap = m_dfg.makeUserMap<State>();
 
     // STATE - Temporaries for Pearce-Kelly algorithm - as members to avoid reallocations
-    std::vector<DfgVertex*> m_stack;  // DFS stack for various steps
-    std::vector<DfgVertex*> m_fwdVtxps;  // Vertices found during forward DFS
-    std::vector<DfgVertex*> m_bwdVtxps;  // Vertices found during backward DFS - also work buffer
-    std::vector<uint32_t> m_ords;  // Ordering numbers reassigned in current ordering update
+    std::ಸದಿಶ<Dfg_ಶೃಂಗ*> m_ರಾಶಿ;  // DFS stack for various steps
+    std::ಸದಿಶ<Dfg_ಶೃಂಗ*> m_fwdVtxps;  // Vertices found during forward DFS
+    std::ಸದಿಶ<Dfg_ಶೃಂಗ*> m_bwdVtxps;  // Vertices found during backward DFS - also work buffer
+    std::ಸದಿಶ<uint32_t> m_ords;  // Ordering numbers reassigned in current ordering update
 
     // STATE - For vertex movement
-    std::vector<DfgConcat*> m_catps;  // DfgConcat vertices that may be optimizable
+    std::ಸದಿಶ<DfgConcat*> m_catps;  // DfgConcat vertices that may be optimizable
 
     // METHODS - Pearce-Kelly algorithm
-    void debugCheck() {
-        if (VL_LIKELY(!v3Global.opt.debugCheck())) return;
-        m_dfg.forEachVertex([&](const DfgVertex& src) {
-            const State& srcState = m_stateMap[src];
-            UASSERT_OBJ(!srcState.visited, &src, "Visit marker not reset");
+    ಶೂನ್ಯ debugCheck() {
+        ಆದರೆ (VL_LIKELY(!v3Global.opt.debugCheck())) ಹಿಂತಿರುಗಿ;
+        m_dfg.for_Each_ಶೃಂಗ([&](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& src) {
+            ಸ್ಥಿರಾಂಕ State& srcState = m_stateMap[src];
+            UASSERT_OBJ(!srcState.ಭೇಟಿಯಾದ, &src, "Visit marker not reset");
             UASSERT_OBJ(srcState.ord > 0, &src, "No ordering assigned");
-            src.foreachSink([&](const DfgVertex& dst) {
-                const State& dstState = m_stateMap[dst];
+            src.foreachSink([&](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& dst) {
+                ಸ್ಥಿರಾಂಕ State& dstState = m_stateMap[dst];
                 UASSERT_OBJ(srcState.ord < dstState.ord, &src, "Invalid ordering");
-                return false;
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
         });
     }
 
     // Find initial topological ordering using reverse post order numbering via DFS
-    void initializeOrdering() {
+    ಶೂನ್ಯ initializeOrdering() {
         // Start from all vertices with no inputs
-        m_stack.reserve(m_dfg.size());
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) {
-            if (vtx.srcp() || vtx.defaultp()) continue;
-            m_stack.push_back(&vtx);
+        m_ರಾಶಿ.reserve(m_dfg.ಗಾತ್ರ_2());
+        ಗಾಗಿ (Dfg_ಶೃಂಗ_Var& vtx : m_dfg.varVertices()) {
+            ಆದರೆ (vtx.srcp() || vtx.defaultp()) ಮುಂದುವರಿ;
+            m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&vtx);
         }
-        for (DfgConst& vtx : m_dfg.constVertices()) m_stack.push_back(&vtx);
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
-            if (!vtx.nInputs()) m_stack.push_back(&vtx);
+        ಗಾಗಿ (DfgConst& vtx : m_dfg.constVertices()) m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&vtx);
+        ಗಾಗಿ (Dfg_ಶೃಂಗ& vtx : m_dfg.opVertices()) {
+            ಆದರೆ (!vtx.nInputs()) m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&vtx);
         }
 
         // Reverse post order number to assign to next vertex
-        uint32_t rpoNext = m_dfg.size();
+        uint32_t rpo_ಮುಂದಿನ = m_dfg.ಗಾತ್ರ_2();
 
         // DFS loop
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
+        ಆಗ (!m_ರಾಶಿ.ಖಾಲಿಗಳು()) {
+            Dfg_ಶೃಂಗ& vtx = *m_ರಾಶಿ.ಹಿಂಭಾಗ();
             State& vtxState = m_stateMap[vtx];
             // If the ordering already assigned, just pop. It was visited
             // through another path through a different child.
-            if (vtxState.ord) {
-                UASSERT_OBJ(vtxState.visited, &vtx, "Not visited, but ordering assigned");
-                m_stack.pop_back();
-                continue;
+            ಆದರೆ (vtxState.ord) {
+                UASSERT_OBJ(vtxState.ಭೇಟಿಯಾದ, &vtx, "Not visited, but ordering assigned");
+                m_ರಾಶಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
+                ಮುಂದುವರಿ;
             }
             // When exiting a vertex, assign the reverse post order number as ordering
-            if (vtxState.visited) {
-                vtxState.ord = rpoNext--;
-                m_stack.pop_back();
-                continue;
+            ಆದರೆ (vtxState.ಭೇಟಿಯಾದ) {
+                vtxState.ord = rpo_ಮುಂದಿನ--;
+                m_ರಾಶಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
+                ಮುಂದುವರಿ;
             }
             // Entering vertex. Enqueue all unvisited children.
-            vtxState.visited = true;
-            vtx.foreachSink([&](DfgVertex& dst) {
-                const State& dstState = m_stateMap[dst];
-                if (dstState.visited) return false;
-                m_stack.push_back(&dst);
-                return false;
+            vtxState.ಭೇಟಿಯಾದ = ನಿಜ;
+            vtx.foreachSink([&](Dfg_ಶೃಂಗ& dst) {
+                ಸ್ಥಿರಾಂಕ State& dstState = m_stateMap[dst];
+                ಆದರೆ (dstState.ಭೇಟಿಯಾದ) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+                m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&dst);
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
         }
 
         // Should reach exact zero
-        UASSERT(!rpoNext, "All vertics should have been visited exactly once");
+        UASSERT(!rpo_ಮುಂದಿನ, "All vertics should have been visited exactly once");
 
         // Reset marks
-        m_dfg.forEachVertex([&](DfgVertex& vtx) { m_stateMap[vtx].visited = false; });
+        m_dfg.for_Each_ಶೃಂಗ([&](Dfg_ಶೃಂಗ& vtx) { m_stateMap[vtx].ಭೇಟಿಯಾದ = ಸುಳ್ಳು; });
 
         // Make sure it's valid
         debugCheck();
@@ -137,112 +137,112 @@ class V3DfgPushDownSels final {
     // a cycle, and in that case, no state is modified, so it is safe to then
     // not add the actual edge. Otherwise returns true and updates state as
     // if the edge was indeed added, so caller must add the actual edge.
-    bool addEdge(DfgVertex& src, DfgVertex& dst) {
+    ತಾರ್ಕಿಕ ಕೂಡಿಸು_ಅಂಚು(Dfg_ಶೃಂಗ& src, Dfg_ಶೃಂಗ& dst) {
         UASSERT_OBJ(&src != &dst, &src, "Should be different");
-        const State& srcState = m_stateMap[src];
-        const State& dstState = m_stateMap[dst];
+        ಸ್ಥಿರಾಂಕ State& srcState = m_stateMap[src];
+        ಸ್ಥಿರಾಂಕ State& dstState = m_stateMap[dst];
         // If 'dst' is after 'src' in the topological ordering,
         // then ok to add edge and no need to update the ordering.
-        if (dstState.ord > srcState.ord) return true;
+        ಆದರೆ (dstState.ord > srcState.ord) ಹಿಂತಿರುಗಿ ನಿಜ;
         // Pearce-Kelly dicovery step
-        if (pkFwdDfs(src, dst)) return false;
+        ಆದರೆ (pkFwdDfs(src, dst)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         pkBwdDfs(src, dst);
         // Pearce-Kelly update step
         pkReorder();
-        return true;
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
 
     // Pearce-Kelly forward DFS discovery step. Record visited vertices.
     // Returns true if a cycle would be created by adding the edge (src, dst).
-    bool pkFwdDfs(DfgVertex& src, DfgVertex& dst) {
-        const uint32_t srcOrd = m_stateMap[src].ord;
+    ತಾರ್ಕಿಕ pkFwdDfs(Dfg_ಶೃಂಗ& src, Dfg_ಶೃಂಗ& dst) {
+        ಸ್ಥಿರಾಂಕ uint32_t srcOrd = m_stateMap[src].ord;
         // DFS forward from dst
-        m_stack.push_back(&dst);
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
-            m_stack.pop_back();
+        m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&dst);
+        ಆಗ (!m_ರಾಶಿ.ಖಾಲಿಗಳು()) {
+            Dfg_ಶೃಂಗ& vtx = *m_ರಾಶಿ.ಹಿಂಭಾಗ();
+            m_ರಾಶಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different sink
-            if (vtxState.visited) continue;
+            ಆದರೆ (vtxState.ಭೇಟಿಯಾದ) ಮುಂದುವರಿ;
 
             // Save vertex, mark visited
-            m_fwdVtxps.push_back(&vtx);
-            vtxState.visited = true;
+            m_fwdVtxps.ತಳ್ಳು_ಹಿಂಭಾಗ(&vtx);
+            vtxState.ಭೇಟಿಯಾದ = ನಿಜ;
 
             // Enqueue unvisited sinks in affeced area
-            const bool cyclic = vtx.foreachSink([&](DfgVertex& sink) {
-                const State& sinkState = m_stateMap[sink];
-                if (sinkState.ord == srcOrd) return true;  // Stop completely if cyclic
-                if (sinkState.visited) return false;  // Stop search if already visited
-                if (sinkState.ord > srcOrd) return false;  // Stop search if outside critical area
-                m_stack.push_back(&sink);
-                return false;
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ cyclic = vtx.foreachSink([&](Dfg_ಶೃಂಗ& sink) {
+                ಸ್ಥಿರಾಂಕ State& sinkState = m_stateMap[sink];
+                ಆದರೆ (sinkState.ord == srcOrd) ಹಿಂತಿರುಗಿ ನಿಜ;  // Stop completely if cyclic
+                ಆದರೆ (sinkState.ಭೇಟಿಯಾದ) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;  // Stop search if already visited
+                ಆದರೆ (sinkState.ord > srcOrd) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;  // Stop search if outside critical area
+                m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&sink);
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
 
             // If would be cyclic, reset state and return true
-            if (cyclic) {
-                for (DfgVertex* const vtxp : m_fwdVtxps) m_stateMap[vtxp].visited = false;
+            ಆದರೆ (cyclic) {
+                ಗಾಗಿ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : m_fwdVtxps) m_stateMap[vtxp].ಭೇಟಿಯಾದ = ಸುಳ್ಳು;
                 m_fwdVtxps.clear();
-                m_stack.clear();
-                return true;
+                m_ರಾಶಿ.clear();
+                ಹಿಂತಿರುಗಿ ನಿಜ;
             }
         }
         // Won't be cyclic, return false
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
     // Pearce-Kelly backward DFS discovery step. Record visited vertices.
-    void pkBwdDfs(DfgVertex& src, DfgVertex& dst) {
-        const uint32_t dstOrd = m_stateMap[dst].ord;
+    ಶೂನ್ಯ pkBwdDfs(Dfg_ಶೃಂಗ& src, Dfg_ಶೃಂಗ& dst) {
+        ಸ್ಥಿರಾಂಕ uint32_t dstOrd = m_stateMap[dst].ord;
         // DFS backward from src
-        m_stack.push_back(&src);
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
-            m_stack.pop_back();
+        m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&src);
+        ಆಗ (!m_ರಾಶಿ.ಖಾಲಿಗಳು()) {
+            Dfg_ಶೃಂಗ& vtx = *m_ರಾಶಿ.ಹಿಂಭಾಗ();
+            m_ರಾಶಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different source
-            if (vtxState.visited) continue;
+            ಆದರೆ (vtxState.ಭೇಟಿಯಾದ) ಮುಂದುವರಿ;
 
             // Save vertex, mark visited
-            m_bwdVtxps.push_back(&vtx);
-            vtxState.visited = true;
+            m_bwdVtxps.ತಳ್ಳು_ಹಿಂಭಾಗ(&vtx);
+            vtxState.ಭೇಟಿಯಾದ = ನಿಜ;
 
             // Enqueue unvisited sources in affeced area
-            vtx.foreachSource([&](DfgVertex& source) {
-                const State& sourceState = m_stateMap[source];
-                if (sourceState.visited) return false;  // Stop search if already visited
-                if (sourceState.ord < dstOrd)
-                    return false;  // Stop search if outside critical area
-                m_stack.push_back(&source);
-                return false;
+            vtx.foreach_ಮೂಲ([&](Dfg_ಶೃಂಗ& ಮೂಲ) {
+                ಸ್ಥಿರಾಂಕ State& ಮೂಲ_State = m_stateMap[ಮೂಲ];
+                ಆದರೆ (ಮೂಲ_State.ಭೇಟಿಯಾದ) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;  // Stop search if already visited
+                ಆದರೆ (ಮೂಲ_State.ord < dstOrd)
+                    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;  // Stop search if outside critical area
+                m_ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(&ಮೂಲ);
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
         }
     }
 
     // Pearce-Kelly reorder step
-    void pkReorder() {
+    ಶೂನ್ಯ pkReorder() {
         // Sort vertices found during forward and backward search
-        const auto cmp = [this](const DfgVertex* const ap, const DfgVertex* const bp) {
-            return m_stateMap[ap].ord < m_stateMap[bp].ord;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ cmp = [ಇದು](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ ap, ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ bp) {
+            ಹಿಂತಿರುಗಿ m_stateMap[ap].ord < m_stateMap[bp].ord;
         };
-        std::sort(m_bwdVtxps.begin(), m_bwdVtxps.end(), cmp);
-        std::sort(m_fwdVtxps.begin(), m_fwdVtxps.end(), cmp);
+        std::ವಿಂಗಡಿಸು(m_bwdVtxps.begin(), m_bwdVtxps.ಕೊನೆ(), cmp);
+        std::ವಿಂಗಡಿಸು(m_fwdVtxps.begin(), m_fwdVtxps.ಕೊನೆ(), cmp);
         // Will use m_bwdVtxps for processing to avoid copying. Save the size.
-        const size_t bwdSize = m_bwdVtxps.size();
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t bwd_ಗಾತ್ರ = m_bwdVtxps.ಗಾತ್ರ_2();
         // Append forward vertices to the backward list for processing
-        m_bwdVtxps.insert(m_bwdVtxps.end(), m_fwdVtxps.begin(), m_fwdVtxps.end());
+        m_bwdVtxps.ಸೇರಿಸು(m_bwdVtxps.ಕೊನೆ(), m_fwdVtxps.begin(), m_fwdVtxps.ಕೊನೆ());
         // Save the current ordering numbers, reset visitation marks
-        for (DfgVertex* const vtxp : m_bwdVtxps) {
+        ಗಾಗಿ (Dfg_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vtxp : m_bwdVtxps) {
             State& state = m_stateMap[vtxp];
-            state.visited = false;
-            m_ords.push_back(state.ord);
+            state.ಭೇಟಿಯಾದ = ಸುಳ್ಳು;
+            m_ords.ತಳ್ಳು_ಹಿಂಭಾಗ(state.ord);
         }
         // The current ordering numbers are sorted in the two sub lists, merge them
-        std::inplace_merge(m_ords.begin(), m_ords.begin() + bwdSize, m_ords.end());
+        std::inplace_ವಿಲೀನ(m_ords.begin(), m_ords.begin() + bwd_ಗಾತ್ರ, m_ords.ಕೊನೆ());
         // Assign new ordering
-        for (size_t i = 0; i < m_ords.size(); ++i) m_stateMap[m_bwdVtxps[i]].ord = m_ords[i];
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < m_ords.ಗಾತ್ರ_2(); ++i) m_stateMap[m_bwdVtxps[i]].ord = m_ords[i];
         // Reset sate
         m_fwdVtxps.clear();
         m_bwdVtxps.clear();
@@ -253,146 +253,146 @@ class V3DfgPushDownSels final {
 
     // METHODS - Vertex processing
 
-    static bool ignoredSink(const DfgVertex& sink) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ ignoredSink(ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& sink) {
         // Ignore non-observable variable sinks. These will be eliminated.
-        if (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
-            if (!varp->hasSinks() && !varp->isObserved()) return true;
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ DfgVarPacked* ಸ್ಥಿರಾಂಕ varp = sink.cast<DfgVarPacked>()) {
+            ಆದರೆ (!varp->hasSinks() && !varp->isObserved()) ಹಿಂತಿರುಗಿ ನಿಜ;
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
     // Find all concatenations that feed another concatenation and may be
     // optimizable. These are the ones that feed a DfgSel, and no other
     // observable sinks. (If there were other observable sinks, a temporary
     // would be required anyway.)
-    void findCandidatess() {
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
+    ಶೂನ್ಯ ಕಂಡುಹಿಡಿ_Candidatess() {
+        ಗಾಗಿ (Dfg_ಶೃಂಗ& vtx : m_dfg.opVertices()) {
             // Consider only concatenations ...
-            DfgConcat* const catp = vtx.cast<DfgConcat>();
-            if (!catp) continue;
+            DfgConcat* ಸ್ಥಿರಾಂಕ catp = vtx.cast<DfgConcat>();
+            ಆದರೆ (!catp) ಮುಂದುವರಿ;
 
             // Count the various types of sinks
             uint32_t nSels = 0;
             uint32_t nCats = 0;
             uint32_t nOther = 0;
-            vtx.foreachSink([&](const DfgVertex& sink) {
-                if (sink.is<DfgSel>()) {
+            vtx.foreachSink([&](ಸ್ಥಿರಾಂಕ Dfg_ಶೃಂಗ& sink) {
+                ಆದರೆ (sink.is<DfgSel>()) {
                     ++nSels;
-                } else if (sink.is<DfgConcat>()) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (sink.is<DfgConcat>()) {
                     ++nCats;
-                } else if (!ignoredSink(sink)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!ignoredSink(sink)) {
                     ++nOther;
                 }
-                return false;
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
 
             // Consider if optimizable
-            if (nSels > 0 && nCats == 1 && nOther == 0) {
-                m_catps.push_back(catp);
-                m_stateMap[catp].onWorklist = true;
+            ಆದರೆ (nSels > 0 && nCats == 1 && nOther == 0) {
+                m_catps.ತಳ್ಳು_ಹಿಂಭಾಗ(catp);
+                m_stateMap[catp].onWorklist = ನಿಜ;
             }
         }
     }
 
-    void pushDownSels() {
+    ಶೂನ್ಯ ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels() {
         // Selects driven by the current vertex. Outside loop to avoid reallocation.
-        std::vector<DfgSel*> selps;
-        selps.reserve(m_dfg.size());
+        std::ಸದಿಶ<DfgSel*> selps;
+        selps.reserve(m_dfg.ಗಾತ್ರ_2());
         // Consider each concatenation
-        while (!m_catps.empty()) {
-            DfgConcat* const catp = m_catps.back();
-            m_catps.pop_back();
-            m_stateMap[catp].onWorklist = false;
+        ಆಗ (!m_catps.ಖಾಲಿಗಳು()) {
+            DfgConcat* ಸ್ಥಿರಾಂಕ catp = m_catps.ಹಿಂಭಾಗ();
+            m_catps.ತೆಗೆ_ಹಿಂಭಾಗ();
+            m_stateMap[catp].onWorklist = ಸುಳ್ಳು;
 
             // Iterate sinks, collect selects, check if should be optimized
             selps.clear();
-            DfgVertex* sinkp = nullptr;  // The only non-DfgSel sink (ignoring some DfgVars)
-            const bool multipleNonSelSinks = catp->foreachSink([&](DfgVertex& sink) {
+            Dfg_ಶೃಂಗ* sinkp = ಶೂನ್ಯಸೂಚಕ;  // The only non-DfgSel sink (ignoring some DfgVars)
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಅಪವರ್ತ್ಯ_Non_Sel_Sinks = catp->foreachSink([&](Dfg_ಶೃಂಗ& sink) {
                 // Collect selects
-                if (DfgSel* const selp = sink.cast<DfgSel>()) {
-                    selps.emplace_back(selp);
-                    return false;
+                ಆದರೆ (DfgSel* ಸ್ಥಿರಾಂಕ selp = sink.cast<DfgSel>()) {
+                    selps.emplace_ಹಿಂಭಾಗ(selp);
+                    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 }
                 // Skip ignored sinks
-                if (ignoredSink(sink)) return false;
+                ಆದರೆ (ignoredSink(sink)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 // If already found a non-DfgSel sink, return true
-                if (sinkp) return true;
+                ಆದರೆ (sinkp) ಹಿಂತಿರುಗಿ ನಿಜ;
                 // Save the non-DfgSel sink
                 sinkp = &sink;
-                return false;
+                ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             });
 
             // It it has multiple non-DfgSel sinks, it will need a temporary, so don't bother
-            if (multipleNonSelSinks) continue;
+            ಆದರೆ (ಅಪವರ್ತ್ಯ_Non_Sel_Sinks) ಮುಂದುವರಿ;
             // We only add DfgConcats to the work list that drive a select.
-            UASSERT_OBJ(!selps.empty(), catp, "Should have selects");
+            UASSERT_OBJ(!selps.ಖಾಲಿಗಳು(), catp, "Should have selects");
             // If no other sink, then nothing to do
-            if (!sinkp) continue;
+            ಆದರೆ (!sinkp) ಮುಂದುವರಿ;
             // If the only other sink is not a concatenation, then nothing to do
-            DfgConcat* const sinkCatp = sinkp->cast<DfgConcat>();
-            if (!sinkCatp) continue;
+            DfgConcat* ಸ್ಥಿರಾಂಕ sinkCatp = sinkp->cast<DfgConcat>();
+            ಆದರೆ (!sinkCatp) ಮುಂದುವರಿ;
 
             // Ok, we can try to push the selects down to the sink DfgConcat
-            const uint32_t offset = sinkCatp->rhsp() == catp ? 0 : sinkCatp->rhsp()->width();
-            const uint32_t pushedDownBefore = m_ctx.m_pushedDown;
-            for (DfgSel* const selp : selps) {
+            ಸ್ಥಿರಾಂಕ uint32_t ಸ್ಥಾನಾಂತರ = sinkCatp->rhsp() == catp ? 0 : sinkCatp->rhsp()->ಅಗಲ();
+            ಸ್ಥಿರಾಂಕ uint32_t pushed_ಕೆಳಕ್ಕೆ_Before = m_ctx.m_pushed_ಕೆಳಕ್ಕೆ;
+            ಗಾಗಿ (DfgSel* ಸ್ಥಿರಾಂಕ selp : selps) {
                 // Don't do it if it would create a cycle
-                if (!addEdge(*sinkCatp, *selp)) {
+                ಆದರೆ (!ಕೂಡಿಸು_ಅಂಚು(*sinkCatp, *selp)) {
                     ++m_ctx.m_wouldBeCyclic;
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
                 // Otherwise redirect the select
-                ++m_ctx.m_pushedDown;
-                selp->lsb(selp->lsb() + offset);
+                ++m_ctx.m_pushed_ಕೆಳಕ್ಕೆ;
+                selp->lsb(selp->lsb() + ಸ್ಥಾನಾಂತರ);
                 selp->fromp(sinkCatp);
             }
             // If we pushed down any selects, then we need to consider the sink concatenation
             // again
             State& sinkCatState = m_stateMap[sinkCatp];
-            if (pushedDownBefore != m_ctx.m_pushedDown && !sinkCatState.onWorklist) {
-                m_catps.push_back(sinkCatp);
-                sinkCatState.onWorklist = true;
+            ಆದರೆ (pushed_ಕೆಳಕ್ಕೆ_Before != m_ctx.m_pushed_ಕೆಳಕ್ಕೆ && !sinkCatState.onWorklist) {
+                m_catps.ತಳ್ಳು_ಹಿಂಭಾಗ(sinkCatp);
+                sinkCatState.onWorklist = ನಿಜ;
             }
         }
     }
 
     // CONSTRUCTOR
-    V3DfgPushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx)
+    V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels(Dfg_ನಕ್ಷೆ& dfg, V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels_Context& ctx)
         : m_dfg{dfg}
         , m_ctx{ctx} {
 
         // Find optimization candidates
-        m_catps.reserve(m_dfg.size());
-        findCandidatess();
+        m_catps.reserve(m_dfg.ಗಾತ್ರ_2());
+        ಕಂಡುಹಿಡಿ_Candidatess();
         // Early exit if nothing to do
-        if (m_catps.empty()) return;
+        ಆದರೆ (m_catps.ಖಾಲಿಗಳು()) ಹಿಂತಿರುಗಿ;
 
         // Pre-allocate storage
-        m_stack.reserve(m_dfg.size());
-        m_fwdVtxps.reserve(m_dfg.size());
-        m_bwdVtxps.reserve(m_dfg.size());
-        m_ords.reserve(m_dfg.size());
+        m_ರಾಶಿ.reserve(m_dfg.ಗಾತ್ರ_2());
+        m_fwdVtxps.reserve(m_dfg.ಗಾತ್ರ_2());
+        m_bwdVtxps.reserve(m_dfg.ಗಾತ್ರ_2());
+        m_ords.reserve(m_dfg.ಗಾತ್ರ_2());
 
         // Initialize topologicel ordering
         initializeOrdering();
 
         // Sort candidates in topological order so we process them the least amount
-        std::sort(m_catps.begin(), m_catps.end(),
-                  [this](const DfgConcat* const ap, const DfgConcat* const bp) {
-                      return m_stateMap[ap].ord < m_stateMap[bp].ord;
+        std::ವಿಂಗಡಿಸು(m_catps.begin(), m_catps.ಕೊನೆ(),
+                  [ಇದು](ಸ್ಥಿರಾಂಕ DfgConcat* ಸ್ಥಿರಾಂಕ ap, ಸ್ಥಿರಾಂಕ DfgConcat* ಸ್ಥಿರಾಂಕ bp) {
+                      ಹಿಂತಿರುಗಿ m_stateMap[ap].ord < m_stateMap[bp].ord;
                   });
 
         // Push selects down to the lowest concatenation
-        pushDownSels();
+        ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels();
     }
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) {
-        V3DfgPushDownSels{dfg, ctx};
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ apply(Dfg_ನಕ್ಷೆ& dfg, V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels_Context& ctx) {
+        V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels{dfg, ctx};
     }
 };
 
-void V3DfgPasses::pushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) {
-    if (!v3Global.opt.fDfgPushDownSels()) return;
-    V3DfgPushDownSels::apply(dfg, ctx);
+ಶೂನ್ಯ V3DfgPasses::ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels(Dfg_ನಕ್ಷೆ& dfg, V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels_Context& ctx) {
+    ಆದರೆ (!v3Global.opt.f_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels()) ಹಿಂತಿರುಗಿ;
+    V3_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels::apply(dfg, ctx);
 }

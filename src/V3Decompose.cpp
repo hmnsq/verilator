@@ -120,17 +120,17 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Decompose.h"
+#ಅನ್ತರ್ಭಾವ "V3Decompose.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3MemberMap.h"
-#include "V3SharedTmps.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3AstUserAllocator.h"
+#ಅನ್ತರ್ಭಾವ "V3MemberMap.h"
+#ಅನ್ತರ್ಭಾವ "V3SharedTmps.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
-#include <algorithm>
-#include <memory>
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -140,88 +140,88 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // methods. It is otherwise stateless and exists only to help separate
 // the code of the steps into logically separate classes.
 
-class DecomposeBase VL_NOT_FINAL {
-protected:
+ವರ್ಗ Decompose_ತಳ VL_NOT_FINAL {
+ಸಂರಕ್ಷಿತ:
     // TYPES
 
     // A component (element or member) of an aggregate type
-    struct Component final {
-        AstNodeDType* dtypep;  // Type of the component
+    ರಚನೆ Component final {
+        Ast_ಗಂಟು_DType* dtypep;  // Type of the component
         AstMemberDType* memberp;  // The member, if a struct
-        int declIdx;  // The declared index of the element, if an array
-        int lsb;  // LSB in the whole value, if packed
-        int msb;  // MSB in the whole value, if packed
+        ಪೂರ್ಣಾಂಕ declIdx;  // The declared index of the element, if an array
+        ಪೂರ್ಣಾಂಕ lsb;  // LSB in the whole value, if packed
+        ಪೂರ್ಣಾಂಕ msb;  // MSB in the whole value, if packed
     };
 
-    struct Place;  // A variable or a component of one, see below
+    ರಚನೆ ಇರಿಸು;  // A variable or a component of one, see below
 
     // A copy between two Places, built from assignments. For unpacked
     // Places, it is always a whole copy. For packed Places, it might be a
     // partial range copy. Only used during the Decision step to track
     // which Places want to be split.
-    struct Copy final {
-        Place* otherp;  // The Place at the other end
+    ರಚನೆ Copy final {
+        ಇರಿಸು* otherp;  // The Place at the other end
         // Following only for packed places
-        int lsb;  // The first bit covered of this end
-        int otherLsb;  // The first bit covered of the other end
-        int width;  // The number of bits covered at each end
+        ಪೂರ್ಣಾಂಕ lsb;  // The first bit covered of this end
+        ಪೂರ್ಣಾಂಕ otherLsb;  // The first bit covered of the other end
+        ಪೂರ್ಣಾಂಕ ಅಗಲ;  // The number of bits covered at each end
     };
 
     // A 'place' represents an original variable that might be split, or one of its
     // components, recursively. See the file header for more details.
-    struct Place final {
-        Place* parentp = nullptr;  // The Place this is a component of, nullptr if original
-        Place* rootp = nullptr;  // The original variable (root of the tree), root points to itself
-        AstNodeDType* dtypep = nullptr;  // The data type of the variable or component
+    ರಚನೆ ಇರಿಸು final {
+        ಇರಿಸು* parentp = ಶೂನ್ಯಸೂಚಕ;  // The Place this is a component of, nullptr if original
+        ಇರಿಸು* rootp = ಶೂನ್ಯಸೂಚಕ;  // The original variable (root of the tree), root points to itself
+        Ast_ಗಂಟು_DType* dtypep = ಶೂನ್ಯಸೂಚಕ;  // The data type of the variable or component
         // The AstVarScope for this Place, null for components of an unsplit Place
-        AstVarScope* vscp = nullptr;
+        AstVarScope* vscp = ಶೂನ್ಯಸೂಚಕ;
         // The component Places created so far, by index, sized on the first one created
-        std::vector<std::unique_ptr<Place>> childrenp;
-        std::vector<Copy> copies;  // The copies covering it, until split
-        bool splittable = true;  // Can be split (there is no reason not to)
-        bool wantsSplit = false;  // Should be split (if possible, do split)
-        bool split = false;  // Place was split
-        bool queued = false;  // On the worklist
+        std::ಸದಿಶ<std::unique_ptr<ಇರಿಸು>> childrenp;
+        std::ಸದಿಶ<Copy> copies;  // The copies covering it, until split
+        ತಾರ್ಕಿಕ splittable = ನಿಜ;  // Can be split (there is no reason not to)
+        ತಾರ್ಕಿಕ ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = ಸುಳ್ಳು;  // Should be split (if possible, do split)
+        ತಾರ್ಕಿಕ ವಿಭಜಿಸು = ಸುಳ್ಳು;  // Place was split
+        ತಾರ್ಕಿಕ queued = ಸುಳ್ಳು;  // On the worklist
     };
 
     // A component selected by a select chain, e.g. one step in 's.a[1][2].b[3]'
-    struct Select final {
-        AstNodeExpr* exprp;  // The select
-        Place* placep;  // The component
-        int lsb;  // The first bit selected from the component, for packed
+    ರಚನೆ Select final {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp;  // The select
+        ಇರಿಸು* placep;  // The component
+        ಪೂರ್ಣಾಂಕ lsb;  // The first bit selected from the component, for packed
     };
 
     // An assignment to expand if a side is split
-    struct Assignment final {
-        AstNodeAssign* assp;  // The assignment
-        Place* lPlacep;  // The Place the LHS addresses exactly, if any
-        Place* rPlacep;  // The Place the RHS addresses exactly, if any
+    ರಚನೆ Assignment final {
+        Ast_ಗಂಟು_ನಿಯೋಜಿಸು* assp;  // The assignment
+        ಇರಿಸು* lPlacep;  // The Place the LHS addresses exactly, if any
+        ಇರಿಸು* rPlacep;  // The Place the RHS addresses exactly, if any
     };
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // The state of the pass, shared by the steps
-    class State final {
+    ವರ್ಗ State final {
         // NODE STATE
         //  AstNodeDType::user4()       -> Components of the type, via dtypeComponents
         //  AstVarScope::user4()        -> Place: the original variable, via places
-        const VNUser4InUse m_user4InUse;
+        ಸ್ಥಿರಾಂಕ VNUser4_ಒಳ_Use m_user4_ಒಳ_Use;
 
-    public:
+    ಸಾರ್ವಜನಿಕ:
         // The components of the aggregate types, see DecomposeBase::dtypeComponents
-        AstUser4Allocator<AstNodeDType, std::vector<Component>> dtypeComponents;
+        AstUser4Allocator<Ast_ಗಂಟು_DType, std::ಸದಿಶ<Component>> dtypeComponents;
         // The Places of the original variables, see DecomposeRecord::placeOf
-        AstUser4Allocator<AstVarScope, Place> places;
-        std::vector<Place*> rootps;  // The original Places, in creation order
-        std::vector<std::vector<Select>> chains;  // Select chains addressing components
-        std::vector<Assignment> assignments;  // Assignments to expand if a side is split
+        AstUser4Allocator<AstVarScope, ಇರಿಸು> places;
+        std::ಸದಿಶ<ಇರಿಸು*> rootps;  // The original Places, in creation order
+        std::ಸದಿಶ<std::ಸದಿಶ<Select>> chains;  // Select chains addressing components
+        std::ಸದಿಶ<Assignment> assignments;  // Assignments to expand if a side is split
     };
 
-protected:
+ಸಂರಕ್ಷಿತ:
     // STATE
     State& m_state;  // The state of the pass
 
     // CONSTRUCTORS
-    explicit DecomposeBase(State& state)
+    ಸ್ಪಷ್ಟ Decompose_ತಳ(State& state)
         : m_state{state} {}
 
     // METHODS
@@ -229,47 +229,47 @@ protected:
     // Splittable unpacked type:
     // - Unpacked struct
     // - Unpacked array
-    static bool isUnpacked(const AstNodeDType* dtypep) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isUnpacked(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, UnpackArrayDType)) return true;
-        const AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        return structp && !structp->packed();
+        ಆದರೆ (VN_IS(dtypep, UnpackArrayDType)) ಹಿಂತಿರುಗಿ ನಿಜ;
+        ಸ್ಥಿರಾಂಕ AstStructDType* ಸ್ಥಿರಾಂಕ structp = VN_CAST(dtypep, StructDType);
+        ಹಿಂತಿರುಗಿ structp && !structp->packed();
     }
 
     // Splittable packed type:
     // - Packed struct
     // - Packed array of width > 1 elements (that is: a multi-dimensional array).
     //   Specifically excludes e.g.: 'logic [31:0], bit_t [31:0], logic [31:0][0:0]'
-    static bool isPacked(const AstNodeDType* dtypep) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isPacked(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            return arrayp->subDTypep()->width() > 1;
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstPackArrayDType* ಸ್ಥಿರಾಂಕ arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            ಹಿಂತಿರುಗಿ arrayp->subDTypep()->ಅಗಲ() > 1;
         }
-        const AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        return structp && structp->packed();
+        ಸ್ಥಿರಾಂಕ AstStructDType* ಸ್ಥಿರಾಂಕ structp = VN_CAST(dtypep, StructDType);
+        ಹಿಂತಿರುಗಿ structp && structp->packed();
     }
 
     // Is the type an aggregate that can be split, as enabled by the options
-    static bool isSplittableType(const AstNodeDType* dtypep) {
-        if (isPacked(dtypep)) return v3Global.opt.fDecomposePacked();
-        if (isUnpacked(dtypep)) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isSplittableType(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* dtypep) {
+        ಆದರೆ (isPacked(dtypep)) ಹಿಂತಿರುಗಿ v3Global.opt.fDecomposePacked();
+        ಆದರೆ (isUnpacked(dtypep)) {
             // Not splittable if has member default values
-            if (const AstStructDType* const structp = VN_CAST(dtypep->skipRefp(), StructDType)) {
-                for (const AstMemberDType* mp = structp->membersp(); mp;
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructDType* ಸ್ಥಿರಾಂಕ structp = VN_CAST(dtypep->skipRefp(), StructDType)) {
+                ಗಾಗಿ (ಸ್ಥಿರಾಂಕ AstMemberDType* mp = structp->membersp(); mp;
                      mp = VN_AS(mp->nextp(), MemberDType)) {
-                    if (mp->valuep()) return false;
+                    ಆದರೆ (mp->valuep()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 }
             }
-            return v3Global.opt.fDecomposeUnpacked();
+            ಹಿಂತಿರುಗಿ v3Global.opt.fDecomposeUnpacked();
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
     // Type of the expression. For a VarRef, this returns the type of the variable,
     // which might differ from the type of the VarRef itself after earlier optimizations.
-    static AstNodeDType* dtypeOf(const AstNodeExpr* nodep) {
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp->varp()->dtypep();
-        return nodep->dtypep();
+    ಸ್ಥಿರ Ast_ಗಂಟು_DType* dtype_ದ(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(nodep, VarRef)) ಹಿಂತಿರುಗಿ refp->varp()->dtypep();
+        ಹಿಂತಿರುಗಿ nodep->dtypep();
     }
 
     // Components of an aggregate type. Indexed in storage order, that is:
@@ -277,181 +277,181 @@ protected:
     // - For packed structs, component 0 is the last declared member, in the LSBs
     // - For unpacked arrays, component 0 is in storage slot 0 at runtime (element at lo() index)
     // - For unpacked structs, component 0 is the last declared member, to match packed
-    const std::vector<Component>& dtypeComponents(AstNodeDType* dtypep) {
+    ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& dtypeComponents(Ast_ಗಂಟು_DType* dtypep) {
         dtypep = dtypep->skipRefp();
         UASSERT_OBJ(isUnpacked(dtypep) || isPacked(dtypep), dtypep,
                     "dtypeComponents of non-aggregate type");
 
         // Cached via user4
-        std::vector<Component>& compsr = m_state.dtypeComponents(dtypep);
+        std::ಸದಿಶ<Component>& compsr = m_state.dtypeComponents(dtypep);
 
         // Compute on first lookup
-        if (compsr.empty()) {
-            if (const AstNodeArrayDType* const arrayp = VN_CAST(dtypep, NodeArrayDType)) {
-                const bool packed = isPacked(dtypep);
-                const VNumRange range = arrayp->declRange();
-                const bool rev = packed && range.ascending();  // Only for naming components
-                AstNodeDType* const subp = arrayp->subDTypep();
-                for (int i = 0; i < range.elements(); ++i) {
-                    const int lsb = packed ? i * subp->width() : 0;
-                    const int msb = packed ? lsb + subp->width() - 1 : 0;
+        ಆದರೆ (compsr.ಖಾಲಿಗಳು()) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_Array_DType* ಸ್ಥಿರಾಂಕ arrayp = VN_CAST(dtypep, ಗಂಟು_Array_DType)) {
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ packed = isPacked(dtypep);
+                ಸ್ಥಿರಾಂಕ VNumRange range = arrayp->declRange();
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ rev = packed && range.ascending();  // Only for naming components
+                Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ subp = arrayp->subDTypep();
+                ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < range.elements(); ++i) {
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lsb = packed ? i * subp->ಅಗಲ() : 0;
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ msb = packed ? lsb + subp->ಅಗಲ() - 1 : 0;
                     // The *declared* index of the element in slot i, only used for the name
-                    const int declIdx = rev ? range.hi() - i : range.lo() + i;
-                    compsr.push_back({subp, nullptr, declIdx, lsb, msb});
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ declIdx = rev ? range.hi() - i : range.lo() + i;
+                    compsr.ತಳ್ಳು_ಹಿಂಭಾಗ({subp, ಶೂನ್ಯಸೂಚಕ, declIdx, lsb, msb});
                 }
-            } else {
-                const AstStructDType* const structp = VN_AS(dtypep, StructDType);
-                const bool packed = isPacked(dtypep);
-                for (AstMemberDType* mp = structp->membersp(); mp;
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಸ್ಥಿರಾಂಕ AstStructDType* ಸ್ಥಿರಾಂಕ structp = VN_AS(dtypep, StructDType);
+                ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ packed = isPacked(dtypep);
+                ಗಾಗಿ (AstMemberDType* mp = structp->membersp(); mp;
                      mp = VN_AS(mp->nextp(), MemberDType)) {
-                    const int lsb = packed ? mp->lsb() : 0;
-                    const int msb = packed ? lsb + mp->width() - 1 : 0;
-                    compsr.push_back({mp->subDTypep(), mp, 0, lsb, msb});
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lsb = packed ? mp->lsb() : 0;
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ msb = packed ? lsb + mp->ಅಗಲ() - 1 : 0;
+                    compsr.ತಳ್ಳು_ಹಿಂಭಾಗ({mp->subDTypep(), mp, 0, lsb, msb});
                 }
                 // Last member is first
-                std::reverse(compsr.begin(), compsr.end());
+                std::ಹಿಮ್ಮುಖ(compsr.begin(), compsr.ಕೊನೆ());
             }
         }
 
         // The components of this data type
-        return compsr;
+        ಹಿಂತಿರುಗಿ compsr;
     }
 
     // Index of the component of a packed type containing bit 'bit'
-    size_t componentIndex(AstNodeDType* dtypep, int bit) {
+    ಗಾತ್ರ_t component_ಸೂಚ್ಯಂಕ(Ast_ಗಂಟು_DType* dtypep, ಪೂರ್ಣಾಂಕ ಬಿಟ್_2) {
         UASSERT_OBJ(isPacked(dtypep), dtypep, "componentIndex of non-packed type");
-        const std::vector<Component>& compsr = dtypeComponents(dtypep);
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& compsr = dtypeComponents(dtypep);
         // The first component ending above the bit. This is O(log n) binary search.
-        const auto it = std::lower_bound(compsr.begin(), compsr.end(), bit,
-                                         [](const Component& comp, int b) {  //
-                                             return b > comp.msb;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = std::ಅಧೋ_bound(compsr.begin(), compsr.ಕೊನೆ(), ಬಿಟ್_2,
+                                         [](ಸ್ಥಿರಾಂಕ Component& comp, ಪೂರ್ಣಾಂಕ b) {  //
+                                             ಹಿಂತಿರುಗಿ b > comp.msb;
                                          });
-        return it - compsr.begin();
+        ಹಿಂತಿರುಗಿ it - compsr.begin();
     }
 
     // The Place for component 'idx' of 'placep', created if needed
-    Place* componentOf(Place* placep, size_t idx) {
-        const std::vector<Component>& comps = dtypeComponents(placep->dtypep);
-        if (placep->childrenp.empty()) placep->childrenp.resize(comps.size());
-        std::unique_ptr<Place>& childpr = placep->childrenp.at(idx);
-        if (!childpr) {
-            childpr = std::make_unique<Place>();
+    ಇರಿಸು* component_ದ(ಇರಿಸು* placep, ಗಾತ್ರ_t idx) {
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& comps = dtypeComponents(placep->dtypep);
+        ಆದರೆ (placep->childrenp.ಖಾಲಿಗಳು()) placep->childrenp.resize(comps.ಗಾತ್ರ_2());
+        std::unique_ptr<ಇರಿಸು>& childpr = placep->childrenp.at(idx);
+        ಆದರೆ (!childpr) {
+            childpr = std::make_unique<ಇರಿಸು>();
             childpr->parentp = placep;
             childpr->rootp = placep->rootp;
             childpr->dtypep = comps.at(idx).dtypep;
             childpr->splittable = isSplittableType(childpr->dtypep);
-            childpr->wantsSplit = placep->rootp->vscp->varp()->attrSplitVar();
+            childpr->ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = placep->rootp->vscp->varp()->attr_ವಿಭಜಿಸು_Var();
         }
-        return childpr.get();
+        ಹಿಂತಿರುಗಿ childpr.get();
     }
 
     // Is 'nodep' cheap to clone
-    static bool isCheap(const AstNodeExpr* nodep) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isCheap(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
         // Constants are cheap
-        if (VN_IS(nodep, Const)) return true;
+        ಆದರೆ (VN_IS(nodep, Const)) ಹಿಂತಿರುಗಿ ನಿಜ;
         // So are resets
-        if (VN_IS(nodep, CReset)) return true;
+        ಆದರೆ (VN_IS(nodep, CReset)) ಹಿಂತಿರುಗಿ ನಿಜ;
         // Variable references are cheap for the most part
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(nodep, VarRef)) {
             // Not a forced variable (not cheap, but also trips several bugs in V3Force)
-            if (refp->varp()->isForced()) return false;
+            ಆದರೆ (refp->varp()->isForced()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             // Not a SystemC variable, which can only be accessed whole, not selected from.
-            if (refp->varp()->isSc()) return false;
+            ಆದರೆ (refp->varp()->isSc()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
             // Otherwise the path rooted here is cheap
-            return true;
+            ಹಿಂತಿರುಗಿ ನಿಜ;
         }
         // Bit selects only with a constant LSB
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return VN_IS(selp->lsbp(), Const) && isCheap(selp->fromp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, Sel)) {
+            ಹಿಂತಿರುಗಿ VN_IS(selp->lsbp(), Const) && isCheap(selp->fromp());
         }
         // Other selects with cheap indices are cheap
-        if (const AstArraySel* const selp = VN_CAST(nodep, ArraySel)) {
-            return isCheap(selp->bitp()) && isCheap(selp->fromp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstArraySel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, ArraySel)) {
+            ಹಿಂತಿರುಗಿ isCheap(selp->bitp()) && isCheap(selp->fromp());
         }
-        if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {  //
-            return isCheap(selp->fromp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, StructSel)) {  //
+            ಹಿಂತಿರುಗಿ isCheap(selp->fromp());
         }
         // A zero extension of a cheap expression, e.g. of a narrow index
-        if (const AstExtend* const extp = VN_CAST(nodep, Extend)) {  //
-            return isCheap(extp->lhsp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstExtend* ಸ್ಥಿರಾಂಕ extp = VN_CAST(nodep, Extend)) {  //
+            ಹಿಂತಿರುಗಿ isCheap(extp->lhsp());
         }
         // Other expressions are not cheap
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 };
 
 //######################################################################
 // Record the facts about the places, without changing the tree
 
-class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
+ವರ್ಗ Decompose_ದಾಖಲೆ final : ಸಾರ್ವಜನಿಕ VNVisitorConst, ಸಾರ್ವಜನಿಕ Decompose_ತಳ {
     // NODE STATE
     //  AstVar::user1()             -> int: bit 0: eligible, bit 1: evaluated, see isEligible
     //  AstStructDType::user1()     -> bool: members annotated with their indices
     //  AstMemberDType::user1()     -> uint64_t: component index of the member
     //  AstNodeExpr::user1u()       -> Place*: the one an assignment side addresses exactly
-    const VNUser1InUse m_user1InUse;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_user1_ಒಳ_Use;
 
     // STATE
     VMemberMap m_memberMap;  // Struct members by name
-    AstNodeAssign* m_assignp = nullptr;  // The visited assignment iff splittable
+    Ast_ಗಂಟು_ನಿಯೋಜಿಸು* m_assignp = ಶೂನ್ಯಸೂಚಕ;  // The visited assignment iff splittable
 
     // METHODS
 
     // Warn that splitting requested via split_var cannot be done, because of 'reasonp'
-    static void warnNoSplit(AstVar* varp, const AstNode* wherep, const char* reasonp) {
+    ಸ್ಥಿರ ಶೂನ್ಯ warn_No_ವಿಭಜಿಸು(AstVar* varp, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* wherep, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* reasonp) {
         // Only warn if user requested splitting
-        if (!varp->attrSplitVar()) return;
+        ಆದರೆ (!varp->attr_ವಿಭಜಿಸು_Var()) ಹಿಂತಿರುಗಿ;
         // A packed variable might still be split by V3BitBlast, which warns if not
-        if (isPacked(varp->dtypep())) return;
+        ಆದರೆ (isPacked(varp->dtypep())) ಹಿಂತಿರುಗಿ;
         wherep->v3warn(SPLITVAR, varp->prettyNameQ()
                                      << " marked split_var but will not be split because "
                                      << reasonp << ".\n");
-        wherep->fileline()->modifyWarnOff(V3ErrorCode::SPLITVAR, true);  // Warn only once
+        wherep->fileline()->modifyWarnOff(V3_Error_ಸಂಕೇತ::SPLITVAR, ನಿಜ);  // Warn only once
     }
 
     // Is the variable eligible for splitting by its type and properties
     // Note this might be overridden by a visit to an unsupported construct,
     // so it is not completely determined until the whole netlist is visited.
-    static bool isEligible(AstVar* varp) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isEligible(AstVar* varp) {
         // Compute and cache eligibility on first encounter
-        if (!varp->user1()) {
-            const bool eligible = [&]() {
+        ಆದರೆ (!varp->user1()) {
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ eligible = [&]() {
                 // Check data type
-                if (!isSplittableType(varp->dtypep())) return false;
+                ಆದರೆ (!isSplittableType(varp->dtypep())) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 // Check properties
-                const char* const reasonp = varp->cannotSplitKindReason();
+                ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ reasonp = varp->cannot_ವಿಭಜಿಸು_ಬಗೆ_Reason();
                 // Warn that it cannot be split if user explicitly requested splitting
-                if (reasonp) warnNoSplit(varp, varp, reasonp);
+                ಆದರೆ (reasonp) warn_No_ವಿಭಜಿಸು(varp, varp, reasonp);
                 // Eligible if no refusal reason returned
-                return !reasonp;
+                ಹಿಂತಿರುಗಿ !reasonp;
             }();
             varp->user1(2 | eligible);
         }
         // Return the cached result
-        return varp->user1() & 1;
+        ಹಿಂತಿರುಗಿ varp->user1() & 1;
     }
 
     // The root Place for the referenced VarScope, nullptr if not eligible
-    Place* placeOf(const AstVarRef* refp) {
-        AstVarScope* const vscp = refp->varScopep();
-        if (!isEligible(vscp->varp())) return nullptr;
-        Place& place = m_state.places(vscp);
-        if (!place.rootp) {
-            place.rootp = &place;
-            place.dtypep = vscp->varp()->dtypep();
-            place.vscp = vscp;
-            place.wantsSplit = vscp->varp()->attrSplitVar();
-            m_state.rootps.push_back(&place);
+    ಇರಿಸು* ಇರಿಸು_ದ(ಸ್ಥಿರಾಂಕ AstVarRef* refp) {
+        AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
+        ಆದರೆ (!isEligible(vscp->varp())) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+        ಇರಿಸು& ಇರಿಸು_2 = m_state.places(vscp);
+        ಆದರೆ (!ಇರಿಸು_2.rootp) {
+            ಇರಿಸು_2.rootp = &ಇರಿಸು_2;
+            ಇರಿಸು_2.dtypep = vscp->varp()->dtypep();
+            ಇರಿಸು_2.vscp = vscp;
+            ಇರಿಸು_2.ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = vscp->varp()->attr_ವಿಭಜಿಸು_Var();
+            m_state.rootps.ತಳ್ಳು_ಹಿಂಭಾಗ(&ಇರಿಸು_2);
         }
-        return &place;
+        ಹಿಂತಿರುಗಿ &ಇರಿಸು_2;
     }
 
     // Block the Place from splitting, due to the construct in 'wherep' which prevents splitting
-    static void block(Place* placep, const AstNode* wherep) {
-        placep->splittable = false;
+    ಸ್ಥಿರ ಶೂನ್ಯ ಖಂಡ(ಇರಿಸು* placep, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* wherep) {
+        placep->splittable = ಸುಳ್ಳು;
         // Warn on the variable only, a component is split as far as possible, as requested
-        if (!placep->parentp) {
-            warnNoSplit(placep->vscp->varp(), wherep, "it is referenced in an unsupported way");
+        ಆದರೆ (!placep->parentp) {
+            warn_No_ವಿಭಜಿಸು(placep->vscp->varp(), wherep, "it is referenced in an unsupported way");
         }
     }
 
@@ -460,406 +460,406 @@ class DecomposeRecord final : public VNVisitorConst, public DecomposeBase {
     // which is selected wants to be split, one used by a select that cannot be followed is
     // blocked. Iterates expressions not part of the select chain. The components selected are
     // appended to 'chain'.
-    Place* resolveChain(AstNodeExpr* exprp, std::vector<Select>& chain) {
+    ಇರಿಸು* resolveChain(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, std::ಸದಿಶ<Select>& chain) {
         // Array selects correspond one to one with a component select
-        if (AstArraySel* const selp = VN_CAST(exprp, ArraySel)) {
-            if (Place* const fromp = resolveChain(selp->fromp(), chain)) {
+        ಆದರೆ (AstArraySel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(exprp, ArraySel)) {
+            ಆದರೆ (ಇರಿಸು* ಸ್ಥಿರಾಂಕ fromp = resolveChain(selp->fromp(), chain)) {
                 UASSERT_OBJ(isUnpacked(fromp->dtypep), selp, "ArraySel of non-unpacked Place");
                 // Index must be constant and in bounds
-                const AstConst* const bitp = VN_CAST(selp->bitp(), Const);
-                if (bitp && bitp->toUQuad() < dtypeComponents(fromp->dtypep).size()) {
-                    Place* const childp = componentOf(fromp, bitp->toUQuad());
-                    fromp->wantsSplit = true;
-                    chain.push_back({selp, childp, 0});
-                    return childp;
+                ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ bitp = VN_CAST(selp->bitp(), Const);
+                ಆದರೆ (bitp && bitp->ಗಮ್ಯ_UQuad() < dtypeComponents(fromp->dtypep).ಗಾತ್ರ_2()) {
+                    ಇರಿಸು* ಸ್ಥಿರಾಂಕ childp = component_ದ(fromp, bitp->ಗಮ್ಯ_UQuad());
+                    fromp->ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = ನಿಜ;
+                    chain.ತಳ್ಳು_ಹಿಂಭಾಗ({selp, childp, 0});
+                    ಹಿಂತಿರುಗಿ childp;
                 }
                 // Otherwise block splitting of the Place
-                block(fromp, selp->fromp());
+                ಖಂಡ(fromp, selp->fromp());
             }
             // Must visit the non-constant index
             iterateConst(selp->bitp());
-            return nullptr;
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         }
         // Struct selects correspond one to one with a component select
-        if (AstStructSel* const selp = VN_CAST(exprp, StructSel)) {
-            if (Place* const fromp = resolveChain(selp->fromp(), chain)) {
-                if (!isUnpacked(fromp->dtypep)) return nullptr;
-                AstStructDType* const structp = VN_AS(fromp->dtypep->skipRefp(), StructDType);
+        ಆದರೆ (AstStructSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(exprp, StructSel)) {
+            ಆದರೆ (ಇರಿಸು* ಸ್ಥಿರಾಂಕ fromp = resolveChain(selp->fromp(), chain)) {
+                ಆದರೆ (!isUnpacked(fromp->dtypep)) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+                AstStructDType* ಸ್ಥಿರಾಂಕ structp = VN_AS(fromp->dtypep->skipRefp(), StructDType);
                 // Annotate member indices of the struct on first encounter
-                if (!structp->user1SetOnce()) {
-                    const std::vector<Component>& compsr = dtypeComponents(structp);
-                    for (size_t i = 0; i < compsr.size(); ++i) compsr[i].memberp->user1(i);
+                ಆದರೆ (!structp->user1_ಗಣ_Once()) {
+                    ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& compsr = dtypeComponents(structp);
+                    ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < compsr.ಗಾತ್ರ_2(); ++i) compsr[i].memberp->user1(i);
                 }
-                const AstNode* const memberp = m_memberMap.findMember(structp, selp->name());
+                ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ memberp = m_memberMap.ಕಂಡುಹಿಡಿ_Member(structp, selp->name());
                 UASSERT_OBJ(memberp, selp, "Struct member not found: " << selp->name());
-                Place* const childp = componentOf(fromp, memberp->user1());
-                fromp->wantsSplit = true;
-                chain.push_back({selp, childp, 0});
-                return childp;
+                ಇರಿಸು* ಸ್ಥಿರಾಂಕ childp = component_ದ(fromp, memberp->user1());
+                fromp->ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = ನಿಜ;
+                chain.ತಳ್ಳು_ಹಿಂಭಾಗ({selp, childp, 0});
+                ಹಿಂತಿರುಗಿ childp;
             }
-            return nullptr;
+            ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
         }
         // A packed Sel corresponds to one or more component selects, depends on source dimensions
         // E.g. Sel(VarRef(a), 3) on 'logic [3:0][2:0][1:0]' a corresponds to a[0][1][1],
         // and will contribute 2 chain entries (the fastest varying dimension is not splittable)
-        if (AstSel* const selp = VN_CAST(exprp, Sel)) {
-            Place* placep = resolveChain(selp->fromp(), chain);
-            if (!placep) {
+        ಆದರೆ (AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(exprp, Sel)) {
+            ಇರಿಸು* placep = resolveChain(selp->fromp(), chain);
+            ಆದರೆ (!placep) {
                 iterateConst(selp->lsbp());
-                return nullptr;
+                ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
             }
             // Not followed with a variable LSB, or if out of range, so the Place is used whole
-            const AstConst* const lsbp = VN_CAST(selp->lsbp(), Const);
-            if (!lsbp || lsbp->toSInt() + selp->widthConst() > placep->dtypep->width()) {
-                block(placep, selp->fromp());
+            ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ lsbp = VN_CAST(selp->lsbp(), Const);
+            ಆದರೆ (!lsbp || lsbp->ಗಮ್ಯ_SInt() + selp->ಅಗಲ_Const() > placep->dtypep->ಅಗಲ()) {
+                ಖಂಡ(placep, selp->fromp());
                 iterateConst(selp->lsbp());
-                return nullptr;
+                ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
             }
             // Descend into the Place containing the bits, until exact
-            int lsb = lsbp->toSInt();
-            int msb = lsb + selp->widthConst() - 1;
-            while (lsb != 0 || msb != placep->dtypep->width() - 1) {
+            ಪೂರ್ಣಾಂಕ lsb = lsbp->ಗಮ್ಯ_SInt();
+            ಪೂರ್ಣಾಂಕ msb = lsb + selp->ಅಗಲ_Const() - 1;
+            ಆಗ (lsb != 0 || msb != placep->dtypep->ಅಗಲ() - 1) {
                 // Within a component of a type not split
-                if (!isPacked(placep->dtypep)) return nullptr;
-                const size_t idx = componentIndex(placep->dtypep, lsb);
+                ಆದರೆ (!isPacked(placep->dtypep)) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
+                ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t idx = component_ಸೂಚ್ಯಂಕ(placep->dtypep, lsb);
                 // Crossing components prevents splitting
-                if (idx != componentIndex(placep->dtypep, msb)) {
-                    block(placep, selp->fromp());
-                    return nullptr;
+                ಆದರೆ (idx != component_ಸೂಚ್ಯಂಕ(placep->dtypep, msb)) {
+                    ಖಂಡ(placep, selp->fromp());
+                    ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
                 }
-                placep->wantsSplit = true;
-                const Component& comp = dtypeComponents(placep->dtypep).at(idx);
+                placep->ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = ನಿಜ;
+                ಸ್ಥಿರಾಂಕ Component& comp = dtypeComponents(placep->dtypep).at(idx);
                 lsb -= comp.lsb;
                 msb -= comp.lsb;
-                placep = componentOf(placep, idx);
-                chain.push_back({selp, placep, lsb});
+                placep = component_ದ(placep, idx);
+                chain.ತಳ್ಳು_ಹಿಂಭಾಗ({selp, placep, lsb});
             }
-            return placep;
+            ಹಿಂತಿರುಗಿ placep;
         }
         // Base case
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) return placeOf(refp);
+        ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(exprp, VarRef)) ಹಿಂತಿರುಗಿ ಇರಿಸು_ದ(refp);
         // Not a select chain
         iterateConst(exprp);
-        return nullptr;
+        ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
     }
 
     // 'nodep' references the Place 'placep' whole
-    void referencedWhole(AstNodeExpr* nodep, Place* placep) {
+    ಶೂನ್ಯ referenced_ಸಂಪೂರ್ಣ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, ಇರಿಸು* placep) {
         // If the reference is one of the sides of a splittable assignment, it can stay
-        if (m_assignp && (nodep == m_assignp->lhsp() || nodep == m_assignp->rhsp())
+        ಆದರೆ (m_assignp && (nodep == m_assignp->lhsp() || nodep == m_assignp->rhsp())
             && isSplittableType(placep->dtypep)) {
             // Mark it for visitAssignment
             nodep->user1p(placep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
         // Otherwise must block splitting of this Place
-        block(placep, nodep);
+        ಖಂಡ(placep, nodep);
     }
 
     // Visit a select expression
-    void visitSelect(AstNodeExpr* nodep) {
+    ಶೂನ್ಯ ಭೇಟಿ_Select(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
         // Resolve the select chain to the Place it addresses exactly, and also capture the chain
-        std::vector<Select> chain;
-        Place* const placep = resolveChain(nodep, chain);
+        std::ಸದಿಶ<Select> chain;
+        ಇರಿಸು* ಸ್ಥಿರಾಂಕ placep = resolveChain(nodep, chain);
         // If the select addresses a Place, it references it whole, mark it as such
-        if (placep) referencedWhole(nodep, placep);
+        ಆದರೆ (placep) referenced_ಸಂಪೂರ್ಣ(nodep, placep);
         // Record the chain for the rewriting phase
-        if (!chain.empty()) m_state.chains.push_back(std::move(chain));
+        ಆದರೆ (!chain.ಖಾಲಿಗಳು()) m_state.chains.ತಳ್ಳು_ಹಿಂಭಾಗ(std::move(chain));
     }
 
     // Do unpacked arrays of the types, at any depth, have ranges of opposite directions.
     // Assigning them pairs elements in reverse order (IEEE 1800-2023 7.6), not supported.
-    static bool hasReversedRange(const AstNodeDType* aDTypep, const AstNodeDType* bDTypep) {
-        const AstUnpackArrayDType* const aArrayp = VN_CAST(aDTypep->skipRefp(), UnpackArrayDType);
-        const AstUnpackArrayDType* const bArrayp = VN_CAST(bDTypep->skipRefp(), UnpackArrayDType);
-        if (!aArrayp || !bArrayp) return false;
-        if (aArrayp->declRange().ascending() != bArrayp->declRange().ascending()) return true;
-        return hasReversedRange(aArrayp->subDTypep(), bArrayp->subDTypep());
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ hasReversedRange(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* aDTypep, ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_DType* bDTypep) {
+        ಸ್ಥಿರಾಂಕ AstUnpackArrayDType* ಸ್ಥಿರಾಂಕ aArrayp = VN_CAST(aDTypep->skipRefp(), UnpackArrayDType);
+        ಸ್ಥಿರಾಂಕ AstUnpackArrayDType* ಸ್ಥಿರಾಂಕ bArrayp = VN_CAST(bDTypep->skipRefp(), UnpackArrayDType);
+        ಆದರೆ (!aArrayp || !bArrayp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಆದರೆ (aArrayp->declRange().ascending() != bArrayp->declRange().ascending()) ಹಿಂತಿರುಗಿ ನಿಜ;
+        ಹಿಂತಿರುಗಿ hasReversedRange(aArrayp->subDTypep(), bArrayp->subDTypep());
     }
 
     // Assignment visitor, shared by the assignment types that can be split
-    void visitAssignment(AstNodeAssign* nodep) {
+    ಶೂನ್ಯ ಭೇಟಿ_Assignment(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* nodep) {
         VL_RESTORER(m_assignp);
         // Not with timing control, or arrays of opposite directions, but always needs visiting
-        const bool reversed = hasReversedRange(dtypeOf(nodep->lhsp()), dtypeOf(nodep->rhsp()));
-        m_assignp = nodep->timingControlp() || reversed ? nullptr : nodep;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ reversed = hasReversedRange(dtype_ದ(nodep->lhsp()), dtype_ದ(nodep->rhsp()));
+        m_assignp = nodep->timingControlp() || reversed ? ಶೂನ್ಯಸೂಚಕ : nodep;
         iterateChildrenConst(nodep);
-        if (!m_assignp) return;
+        ಆದರೆ (!m_assignp) ಹಿಂತಿರುಗಿ;
 
         // Note overlapping LHS/RHS handled in Rewrite
 
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
-        Place* const lPlacep = lhsp->user1u().to<Place*>();
-        Place* const rPlacep = rhsp->user1u().to<Place*>();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp = nodep->lhsp();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = nodep->rhsp();
+        ಇರಿಸು* ಸ್ಥಿರಾಂಕ lPlacep = lhsp->user1u().ಗಮ್ಯ<ಇರಿಸು*>();
+        ಇರಿಸು* ಸ್ಥಿರಾಂಕ rPlacep = rhsp->user1u().ಗಮ್ಯ<ಇರಿಸು*>();
 
         // Is it a splittable assignment
-        const bool splittable = [&]() {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ splittable = [&]() {
             // Assignment between two Places is splittable
-            if (lPlacep && rPlacep) return true;
+            ಆದರೆ (lPlacep && rPlacep) ಹಿಂತಿರುಗಿ ನಿಜ;
             // If the LHS is a Place, the RHS must be a splittable expression
-            if (lPlacep) {
+            ಆದರೆ (lPlacep) {
                 // Packed values are always splittable, potentially through hoisting
-                if (isPacked(lPlacep->dtypep)) return true;
+                ಆದರೆ (isPacked(lPlacep->dtypep)) ಹಿಂತಿರುಗಿ ನಿಜ;
                 // Otherwise each component is assigned a select of the RHS, so it must be cheap
-                return isCheap(rhsp);
+                ಹಿಂತಿರುಗಿ isCheap(rhsp);
             }
             // If the RHS is a Place, the assignment must be expandable component-wise
-            if (rPlacep) {
+            ಆದರೆ (rPlacep) {
                 // If packed, the LHS is assigned once, as LHS = { components of RHS }
-                if (isPacked(rPlacep->dtypep)) return true;
+                ಆದರೆ (isPacked(rPlacep->dtypep)) ಹಿಂತಿರುಗಿ ನಿಜ;
                 // Otherwise each component is assigned to a select of the LHS, so it must be cheap
-                return isCheap(lhsp);
+                ಹಿಂತಿರುಗಿ isCheap(lhsp);
             }
             // Otherwise not splittable
-            return false;
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         }();
 
         // If not splittable, the sides use their Places whole, so they are blocked
-        if (!splittable) {
-            if (rPlacep) block(rPlacep, rhsp);
-            if (lPlacep) block(lPlacep, lhsp);
-            return;
+        ಆದರೆ (!splittable) {
+            ಆದರೆ (rPlacep) ಖಂಡ(rPlacep, rhsp);
+            ಆದರೆ (lPlacep) ಖಂಡ(lPlacep, lhsp);
+            ಹಿಂತಿರುಗಿ;
         }
 
         // If both sides are places, record the whole copies for the Decision phase
-        if (lPlacep && rPlacep) {
-            const int width = lPlacep->dtypep->width();  // Unused when unpacked
-            lPlacep->copies.push_back({rPlacep, 0, 0, width});
-            rPlacep->copies.push_back({lPlacep, 0, 0, width});
+        ಆದರೆ (lPlacep && rPlacep) {
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = lPlacep->dtypep->ಅಗಲ();  // Unused when unpacked
+            lPlacep->copies.ತಳ್ಳು_ಹಿಂಭಾಗ({rPlacep, 0, 0, ಅಗಲ});
+            rPlacep->copies.ತಳ್ಳು_ಹಿಂಭಾಗ({lPlacep, 0, 0, ಅಗಲ});
         }
         // Record for the rewriting phase
-        m_state.assignments.push_back({nodep, lPlacep, rPlacep});
+        m_state.assignments.ತಳ್ಳು_ಹಿಂಭಾಗ({nodep, lPlacep, rPlacep});
     }
 
     // VISITORS
-    void visit(AstNodeDType*) override {}  // No references in data types
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_DType*) override {}  // No references in data types
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }
     // VISITORS - Selects that can cause splitting
-    void visit(AstArraySel* nodep) override { visitSelect(nodep); }
-    void visit(AstStructSel* nodep) override { visitSelect(nodep); }
-    void visit(AstSel* nodep) override { visitSelect(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstArraySel* nodep) override { ಭೇಟಿ_Select(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstStructSel* nodep) override { ಭೇಟಿ_Select(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstSel* nodep) override { ಭೇಟಿ_Select(nodep); }
     // VISITORS - Assignments recordable as Copy
-    void visit(AstAssign* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignW* nodep) override { visitAssignment(nodep); }
-    void visit(AstAssignDly* nodep) override { visitAssignment(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು* nodep) override { ಭೇಟಿ_Assignment(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_W* nodep) override { ಭೇಟಿ_Assignment(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು_Dly* nodep) override { ಭೇಟಿ_Assignment(nodep); }
     // VISITORS - References to Places
-    void visit(AstVarRef* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstVarRef* nodep) override {
         // Reference not handled explicitly in splittable constructs is to the
         // whole of the Place it references, mark as such.
-        if (Place* const placep = placeOf(nodep)) referencedWhole(nodep, placep);
+        ಆದರೆ (ಇರಿಸು* ಸ್ಥಿರಾಂಕ placep = ಇರಿಸು_ದ(nodep)) referenced_ಸಂಪೂರ್ಣ(nodep, placep);
     }
-    void visit(AstMemberSel* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstMemberSel* nodep) override {
         iterateChildrenConst(nodep);
-        AstVar* const varp = nodep->varp();
-        if (!isEligible(varp)) return;
+        AstVar* ಸ್ಥಿರಾಂಕ varp = nodep->varp();
+        ಆದರೆ (!isEligible(varp)) ಹಿಂತಿರುಗಿ;
         varp->user1(2);  // Mark not eligible
-        warnNoSplit(varp, nodep, "it is accessed indirectly");
+        warn_No_ವಿಭಜಿಸು(varp, nodep, "it is accessed indirectly");
     }
 
     // CONSTRUCTORS
-    DecomposeRecord(State& state, AstNetlist* netlistp)
-        : DecomposeBase{state} {
+    Decompose_ದಾಖಲೆ(State& state, AstNetlist* netlistp)
+        : Decompose_ತಳ{state} {
         iterateConst(netlistp);
         // Block the original Places that became ineligible during traversal only
-        for (Place* const placep : m_state.rootps) {
-            if (!isEligible(placep->vscp->varp())) placep->splittable = false;
+        ಗಾಗಿ (ಇರಿಸು* ಸ್ಥಿರಾಂಕ placep : m_state.rootps) {
+            ಆದರೆ (!isEligible(placep->vscp->varp())) placep->splittable = ಸುಳ್ಳು;
         }
     }
 
-public:
-    static void apply(State& state, AstNetlist* netlistp) { DecomposeRecord{state, netlistp}; }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ apply(State& state, AstNetlist* netlistp) { Decompose_ದಾಖಲೆ{state, netlistp}; }
 };
 
 //######################################################################
 // Decision, which places are split, creating their components
 
-class DecomposeDecision final : public DecomposeBase {
+ವರ್ಗ DecomposeDecision final : ಸಾರ್ವಜನಿಕ Decompose_ತಳ {
     // NODE STATE
     //  AstVar::user1()             -> Split components, via m_splitVarps
-    const VNUser1InUse m_user1InUse;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_user1_ಒಳ_Use;
 
     // STATE
-    std::vector<Place*> m_worklist;  // Places to consider splitting
+    std::ಸದಿಶ<ಇರಿಸು*> m_worklist;  // Places to consider splitting
     // The component AstVars of the AstVars, see the node state
-    AstUser1Allocator<AstVar, std::vector<AstVar*>> m_splitVarps;
-    VDouble0 m_statSplitUnpackedOrig;  // Original AstVars of unpacked type split
-    VDouble0 m_statSplitPackedOrig;  // Original AstVars of packed type split
-    VDouble0 m_statSplitUnpackedComp;  // Component AstVars of unpacked type split
-    VDouble0 m_statSplitPackedComp;  // Component AstVars of packed type split
+    AstUser1Allocator<AstVar, std::ಸದಿಶ<AstVar*>> m_ವಿಭಜಿಸು_Varps;
+    VDouble0 m_stat_ವಿಭಜಿಸು_Unpacked_Orig;  // Original AstVars of unpacked type split
+    VDouble0 m_stat_ವಿಭಜಿಸು_Packed_Orig;  // Original AstVars of packed type split
+    VDouble0 m_stat_ವಿಭಜಿಸು_Unpacked_Comp;  // Component AstVars of unpacked type split
+    VDouble0 m_stat_ವಿಭಜಿಸು_Packed_Comp;  // Component AstVars of packed type split
 
     // METHODS
 
     // Can the Place be split, as far as known
-    static bool canSplit(const Place* placep) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ can_ವಿಭಜಿಸು(ಸ್ಥಿರಾಂಕ ಇರಿಸು* placep) {
         // Not if not splittable
-        if (!placep->splittable) return false;
+        ಆದರೆ (!placep->splittable) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // Not if already split
-        if (placep->split) return false;
+        ಆದರೆ (placep->ವಿಭಜಿಸು) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // Original variable or its parent was already split
-        return !placep->parentp || placep->parentp->split;
+        ಹಿಂತಿರುಗಿ !placep->parentp || placep->parentp->ವಿಭಜಿಸು;
     }
 
     // Put the Place on the worklist, if it wants to be and can be split
-    void enqueue(Place* placep) {
-        if (placep->queued || !placep->wantsSplit || !canSplit(placep)) return;
-        placep->queued = true;
-        m_worklist.push_back(placep);
+    ಶೂನ್ಯ ಸರತಿಗೆ_ಸೇರಿಸು(ಇರಿಸು* placep) {
+        ಆದರೆ (placep->queued || !placep->ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು || !can_ವಿಭಜಿಸು(placep)) ಹಿಂತಿರುಗಿ;
+        placep->queued = ನಿಜ;
+        m_worklist.ತಳ್ಳು_ಹಿಂಭಾಗ(placep);
     }
 
     // Create the component AstVarScopes of the split Place, and set them on its components.
     // The component AstVars are shared by all scopes of the AstVar, created when first split.
-    void createComponents(Place* placep) {
-        AstVarScope* const vscp = placep->vscp;
-        AstVar* const varp = vscp->varp();
-        std::vector<AstVar*>& varps = m_splitVarps(varp);
+    ಶೂನ್ಯ createComponents(ಇರಿಸು* placep) {
+        AstVarScope* ಸ್ಥಿರಾಂಕ vscp = placep->vscp;
+        AstVar* ಸ್ಥಿರಾಂಕ varp = vscp->varp();
+        std::ಸದಿಶ<AstVar*>& varps = m_ವಿಭಜಿಸು_Varps(varp);
         // Create the component AstVars on first encounter
-        if (varps.empty()) {
-            const bool packed = isPacked(varp->dtypep());
-            if (placep->parentp) {
-                ++(packed ? m_statSplitPackedComp : m_statSplitUnpackedComp);
-            } else {
-                ++(packed ? m_statSplitPackedOrig : m_statSplitUnpackedOrig);
+        ಆದರೆ (varps.ಖಾಲಿಗಳು()) {
+            ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ packed = isPacked(varp->dtypep());
+            ಆದರೆ (placep->parentp) {
+                ++(packed ? m_stat_ವಿಭಜಿಸು_Packed_Comp : m_stat_ವಿಭಜಿಸು_Unpacked_Comp);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ++(packed ? m_stat_ವಿಭಜಿಸು_Packed_Orig : m_stat_ವಿಭಜಿಸು_Unpacked_Orig);
             }
-            FileLine* const flp = varp->fileline();
-            const VVarType varType = varp->varType();
-            const std::string name = varp->name();
-            for (const Component& comp : dtypeComponents(varp->dtypep())) {
-                const std::string suffix
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = varp->fileline();
+            ಸ್ಥಿರಾಂಕ VVarType varType = varp->varType();
+            ಸ್ಥಿರಾಂಕ std::string name = varp->name();
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Component& comp : dtypeComponents(varp->dtypep())) {
+                ಸ್ಥಿರಾಂಕ std::string suffix
                     = comp.memberp ? "__DOT__" + comp.memberp->name()
-                                   : "__BRA__" + AstNode::encodeNumber(comp.declIdx) + "__KET__";
-                AstVar* const newp = new AstVar{flp, varType, name + suffix, comp.dtypep};
-                newp->propagateSplitAttrFrom(varp);
-                varps.push_back(newp);
-                varp->addHereThisAsNext(newp);
+                                   : "__BRA__" + Ast_ಗಂಟು::encode_ಸಂಖ್ಯೆ(comp.declIdx) + "__KET__";
+                AstVar* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstVar{flp, varType, name + suffix, comp.dtypep};
+                newp->propagate_ವಿಭಜಿಸು_Attr_From(varp);
+                varps.ತಳ್ಳು_ಹಿಂಭಾಗ(newp);
+                varp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(newp);
             }
         }
         // Create the component AstVarScopes
-        AstScope* const scopep = vscp->scopep();
-        FileLine* const flp = vscp->fileline();
-        for (size_t i = 0; i < varps.size(); ++i) {
-            AstVarScope* const newp = new AstVarScope{flp, scopep, varps[i]};
-            componentOf(placep, i)->vscp = newp;
-            vscp->addHereThisAsNext(newp);
+        AstScope* ಸ್ಥಿರಾಂಕ scopep = vscp->scopep();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = vscp->fileline();
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < varps.ಗಾತ್ರ_2(); ++i) {
+            AstVarScope* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstVarScope{flp, scopep, varps[i]};
+            component_ದ(placep, i)->vscp = newp;
+            vscp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(newp);
         }
     }
 
     // Add the copy to the unsplit Place at its end
-    void addCopy(Place* placep, const Copy& copy) {
-        UASSERT(!placep->split, "Copy added to a split Place");
+    ಶೂನ್ಯ ಕೂಡಿಸು_Copy(ಇರಿಸು* placep, ಸ್ಥಿರಾಂಕ Copy& copy) {
+        UASSERT(!placep->ವಿಭಜಿಸು, "Copy added to a split Place");
         // If a Place is not splittable, only the other end matters, no need to attach
-        if (!placep->splittable) return;
+        ಆದರೆ (!placep->splittable) ಹಿಂತಿರುಗಿ;
         // Add the copy to the Place
-        placep->copies.push_back(copy);
+        placep->copies.ತಳ್ಳು_ಹಿಂಭಾಗ(copy);
         // Covering only a portion of a packed Place makes it want to be split,
         // so the copy becomes copies within its components, aligning both ends
-        if (!isPacked(placep->dtypep)) return;
-        if (copy.lsb != 0 || copy.width != placep->dtypep->width()) {
-            placep->wantsSplit = true;
-            enqueue(placep);
+        ಆದರೆ (!isPacked(placep->dtypep)) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (copy.lsb != 0 || copy.ಅಗಲ != placep->dtypep->ಅಗಲ()) {
+            placep->ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = ನಿಜ;
+            ಸರತಿಗೆ_ಸೇರಿಸು(placep);
         }
     }
 
     // A new copy between 'width' bits of Place 'ap' from 'aLsb', and of 'bp' from 'bLsb',
     // or between the whole of them if unpacked
-    void newCopy(Place* ap, int aLsb, Place* bp, int bLsb, int width) {
+    ಶೂನ್ಯ newCopy(ಇರಿಸು* ap, ಪೂರ್ಣಾಂಕ aLsb, ಇರಿಸು* bp, ಪೂರ್ಣಾಂಕ bLsb, ಪೂರ್ಣಾಂಕ ಅಗಲ) {
         UASSERT(ap != bp, "Copy within a Place");
-        addCopy(ap, {bp, aLsb, bLsb, width});
-        addCopy(bp, {ap, bLsb, aLsb, width});
+        ಕೂಡಿಸು_Copy(ap, {bp, aLsb, bLsb, ಅಗಲ});
+        ಕೂಡಿಸು_Copy(bp, {ap, bLsb, aLsb, ಅಗಲ});
     }
 
     // Split the copy of split Place 'placep' into copies between its components, and for
     // packed, the corresponding bits of the other end, or for unpacked, the components of the
     // other end, which then wants to be split too
-    void splitCopy(Place* placep, const Copy& copy) {
-        Place* const otherp = copy.otherp;
+    ಶೂನ್ಯ ವಿಭಜಿಸು_Copy(ಇರಿಸು* placep, ಸ್ಥಿರಾಂಕ Copy& copy) {
+        ಇರಿಸು* ಸ್ಥಿರಾಂಕ otherp = copy.otherp;
 
         // If packed, split the copy based on the components of this place which is being split
-        if (isPacked(placep->dtypep)) {
-            const std::vector<Component>& comps = dtypeComponents(placep->dtypep);
+        ಆದರೆ (isPacked(placep->dtypep)) {
+            ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& comps = dtypeComponents(placep->dtypep);
             // For each component of this place covered by the copy, add copy with other side
-            const int lsb = copy.lsb;
-            const int msb = copy.lsb + copy.width - 1;
-            const size_t first = componentIndex(placep->dtypep, lsb);
-            for (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
-                const Component& comp = comps[i];
-                const int partLsb = std::max(lsb, comp.lsb);
-                const int partMsb = std::min(msb, comp.msb);
-                newCopy(componentOf(placep, i), partLsb - comp.lsb, otherp,
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ lsb = copy.lsb;
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ msb = copy.lsb + copy.ಅಗಲ - 1;
+            ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಮೊದಲ = component_ಸೂಚ್ಯಂಕ(placep->dtypep, lsb);
+            ಗಾಗಿ (ಗಾತ್ರ_t i = ಮೊದಲ; i < comps.ಗಾತ್ರ_2() && comps[i].lsb <= msb; ++i) {
+                ಸ್ಥಿರಾಂಕ Component& comp = comps[i];
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partLsb = std::max(lsb, comp.lsb);
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partMsb = std::min(msb, comp.msb);
+                newCopy(component_ದ(placep, i), partLsb - comp.lsb, otherp,
                         copy.otherLsb + partLsb - lsb, partMsb - partLsb + 1);
             }
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
         // Unpacked copy of a split place: the other end wants to be split too
-        otherp->wantsSplit = true;
-        enqueue(otherp);
+        otherp->ಬಯಸುತ್ತದೆ_ವಿಭಜಿಸು = ನಿಜ;
+        ಸರತಿಗೆ_ಸೇರಿಸು(otherp);
         // The sides are the same shape, so pairwise whole copies
-        const size_t size = dtypeComponents(placep->dtypep).size();
-        for (size_t i = 0; i < size; ++i) {
-            Place* const ap = componentOf(placep, i);
-            if (!ap->splittable) continue;
-            Place* const bp = componentOf(otherp, i);
-            if (!bp->splittable) continue;
-            newCopy(ap, 0, bp, 0, ap->dtypep->width());
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಗಾತ್ರ_2 = dtypeComponents(placep->dtypep).ಗಾತ್ರ_2();
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ಗಾತ್ರ_2; ++i) {
+            ಇರಿಸು* ಸ್ಥಿರಾಂಕ ap = component_ದ(placep, i);
+            ಆದರೆ (!ap->splittable) ಮುಂದುವರಿ;
+            ಇರಿಸು* ಸ್ಥಿರಾಂಕ bp = component_ದ(otherp, i);
+            ಆದರೆ (!bp->splittable) ಮುಂದುವರಿ;
+            newCopy(ap, 0, bp, 0, ap->dtypep->ಅಗಲ());
         }
     }
 
     // Split the Place
-    void splitPlace(Place* placep) {
-        UASSERT(!placep->split, "Place split twice");
+    ಶೂನ್ಯ ವಿಭಜಿಸು_ಇರಿಸು(ಇರಿಸು* placep) {
+        UASSERT(!placep->ವಿಭಜಿಸು, "Place split twice");
         // It is now split
-        placep->split = true;
+        placep->ವಿಭಜಿಸು = ನಿಜ;
         // Create its components
         createComponents(placep);
         // Enqueue the components that want to be split
-        const size_t size = dtypeComponents(placep->dtypep).size();
-        for (size_t i = 0; i < size; ++i) enqueue(componentOf(placep, i));
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಗಾತ್ರ_2 = dtypeComponents(placep->dtypep).ಗಾತ್ರ_2();
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ಗಾತ್ರ_2; ++i) ಸರತಿಗೆ_ಸೇರಿಸು(component_ದ(placep, i));
         // Split the copies covering it, unless the other end is split, which split it already
-        for (const Copy& copy : placep->copies) {
-            if (!copy.otherp->split) splitCopy(placep, copy);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Copy& copy : placep->copies) {
+            ಆದರೆ (!copy.otherp->ವಿಭಜಿಸು) ವಿಭಜಿಸು_Copy(placep, copy);
         }
         placep->copies.clear();
     }
 
     // CONSTRUCTORS
-    explicit DecomposeDecision(State& state)
-        : DecomposeBase{state} {
+    ಸ್ಪಷ್ಟ DecomposeDecision(State& state)
+        : Decompose_ತಳ{state} {
         // Enqueue the original variables
-        for (Place* const placep : m_state.rootps) enqueue(placep);
+        ಗಾಗಿ (ಇರಿಸು* ಸ್ಥಿರಾಂಕ placep : m_state.rootps) ಸರತಿಗೆ_ಸೇರಿಸು(placep);
         // Split enqueued places, which might make others splittable, repeat until done
-        while (!m_worklist.empty()) {
-            Place* const placep = m_worklist.back();
-            m_worklist.pop_back();
-            placep->queued = false;
-            splitPlace(placep);
+        ಆಗ (!m_worklist.ಖಾಲಿಗಳು()) {
+            ಇರಿಸು* ಸ್ಥಿರಾಂಕ placep = m_worklist.ಹಿಂಭಾಗ();
+            m_worklist.ತೆಗೆ_ಹಿಂಭಾಗ();
+            placep->queued = ಸುಳ್ಳು;
+            ವಿಭಜಿಸು_ಇರಿಸು(placep);
         }
 
-        V3Stats::addStat("Optimizations, Decompose, unpacked variables split",
-                         m_statSplitUnpackedOrig);
-        V3Stats::addStat("Optimizations, Decompose, packed variables split",
-                         m_statSplitPackedOrig);
-        V3Stats::addStat("Optimizations, Decompose, unpacked components split further",
-                         m_statSplitUnpackedComp);
-        V3Stats::addStat("Optimizations, Decompose, packed components split further",
-                         m_statSplitPackedComp);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, unpacked variables split",
+                         m_stat_ವಿಭಜಿಸು_Unpacked_Orig);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, packed variables split",
+                         m_stat_ವಿಭಜಿಸು_Packed_Orig);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, unpacked components split further",
+                         m_stat_ವಿಭಜಿಸು_Unpacked_Comp);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, packed components split further",
+                         m_stat_ವಿಭಜಿಸು_Packed_Comp);
     }
 
-public:
-    static void apply(State& state) { DecomposeDecision{state}; }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ apply(State& state) { DecomposeDecision{state}; }
 };
 
 //######################################################################
 // Rewrite, replacing the references to the split places
 
-class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
+ವರ್ಗ DecomposeRewrite final : ಸಾರ್ವಜನಿಕ VNDeleter, ಸಾರ್ವಜನಿಕ Decompose_ತಳ {
     // NODE STATE
     //  AstScope::user1p()          -> AstActive*: combinational active, see comboActive
     //  AstNodeExpr::user2()        -> uint64_t: count of a term, (only in hoistTerms)
     //  AstVarScope::user2()        -> bool: component of the LHS, (only in rewriteAssignment)
     //  AstVarScope::user2()        -> int: bit 0: written, bit 1: read, (only in expandNS)
-    const VNUser1InUse m_user1InUse;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_user1_ಒಳ_Use;
 
     // STATE
     V3SharedTmps m_tmps{"__VdecompHoisted", VVarType::MODULETEMP};  // Temporaries of hoisted terms
@@ -871,537 +871,537 @@ class DecomposeRewrite final : public VNDeleter, public DecomposeBase {
     // METHODS
 
     // Reference to the AstVarScope of the Place
-    static AstVarRef* newRef(FileLine* flp, const Place* placep, VAccess access) {
+    ಸ್ಥಿರ AstVarRef* newRef(File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ ಇರಿಸು* placep, VAccess access) {
         UASSERT(placep->vscp, "Place without AstVarScope");
-        return new AstVarRef{flp, placep->vscp, access};
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstVarRef{flp, placep->vscp, access};
     }
 
     // Replace the longest prefix of the select chain addressing a
     // component of a split Place with a reference to the component
-    void rewriteChain(const std::vector<Select>& chain) {
+    ಶೂನ್ಯ rewriteChain(ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Select>& chain) {
         // The last component selected of a split Place, so all before it are too
-        const Select* selectp = nullptr;
-        for (const Select& select : chain) {
-            if (select.placep->parentp->split) selectp = &select;
+        ಸ್ಥಿರಾಂಕ Select* selectp = ಶೂನ್ಯಸೂಚಕ;
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Select& select : chain) {
+            ಆದರೆ (select.placep->parentp->ವಿಭಜಿಸು) selectp = &select;
         }
-        if (!selectp) return;
-        AstNodeExpr* const exprp = selectp->exprp;
+        ಆದರೆ (!selectp) ಹಿಂತಿರುಗಿ;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp = selectp->exprp;
         // The access of the variable reference at the root of the chain, under the first select
-        const VAccess access = [&]() {
-            const AstNodeExpr* rootp = chain.front().exprp;
-            while (true) {
-                if (const AstArraySel* const selp = VN_CAST(rootp, ArraySel)) {
+        ಸ್ಥಿರಾಂಕ VAccess access = [&]() {
+            ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rootp = chain.front().exprp;
+            ಆಗ (ನಿಜ) {
+                ಆದರೆ (ಸ್ಥಿರಾಂಕ AstArraySel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(rootp, ArraySel)) {
                     rootp = selp->fromp();
-                } else if (const AstStructSel* const selp = VN_CAST(rootp, StructSel)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstStructSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(rootp, StructSel)) {
                     rootp = selp->fromp();
-                } else if (const AstSel* const selp = VN_CAST(rootp, Sel)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಸ್ಥಿರಾಂಕ AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(rootp, Sel)) {
                     rootp = selp->fromp();
-                } else {
-                    return VN_AS(rootp, VarRef)->access();
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ಹಿಂತಿರುಗಿ VN_AS(rootp, VarRef)->access();
                 }
             }
         }();
-        FileLine* const flp = exprp->fileline();
-        AstNodeExpr* newp = newRef(flp, selectp->placep, access);
-        if (const AstSel* const selp = VN_CAST(exprp, Sel)) {
-            const int width = selp->widthConst();
-            if (width != newp->width()) newp = new AstSel{flp, newp, selectp->lsb, width};
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = exprp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newp = newRef(flp, selectp->placep, access);
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(exprp, Sel)) {
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = selp->ಅಗಲ_Const();
+            ಆದರೆ (ಅಗಲ != newp->ಅಗಲ()) newp = ಹೊಸ AstSel{flp, newp, selectp->lsb, ಅಗಲ};
         }
         exprp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(exprp), exprp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(exprp), exprp);
     }
 
     // Select component 'idx' of 'fromp', with the components of aggregate 'dtypep'
-    AstNodeExpr* newSelect(AstNodeExpr* fromp, AstNodeDType* dtypep, size_t idx) {
-        FileLine* const flp = fromp->fileline();
-        const Component& comp = dtypeComponents(dtypep).at(idx);
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* newSelect(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* fromp, Ast_ಗಂಟು_DType* dtypep, ಗಾತ್ರ_t idx) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = fromp->fileline();
+        ಸ್ಥಿರಾಂಕ Component& comp = dtypeComponents(dtypep).at(idx);
         // If Packed, it's a Sel of the bits
-        if (isPacked(dtypep)) {
-            AstSel* const selp = new AstSel{flp, fromp, comp.lsb, comp.dtypep->width()};
+        ಆದರೆ (isPacked(dtypep)) {
+            AstSel* ಸ್ಥಿರಾಂಕ selp = ಹೊಸ AstSel{flp, fromp, comp.lsb, comp.dtypep->ಅಗಲ()};
             selp->dtypep(comp.dtypep);
-            return selp;
+            ಹಿಂತಿರುಗಿ selp;
         }
         // If unpacked array, it's an ArraySel
-        if (VN_IS(dtypep->skipRefp(), UnpackArrayDType)) {
-            const int i = static_cast<int>(idx);
-            UASSERT_OBJ(static_cast<size_t>(i) == idx, fromp, "Index overflow");
-            return new AstArraySel{flp, fromp, i};
+        ಆದರೆ (VN_IS(dtypep->skipRefp(), UnpackArrayDType)) {
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ i = static_cast<ಪೂರ್ಣಾಂಕ>(idx);
+            UASSERT_OBJ(static_cast<ಗಾತ್ರ_t>(i) == idx, fromp, "Index overflow");
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstArraySel{flp, fromp, i};
         }
         // Otherwise must be an unpacked struct, so a StructSel
-        AstStructSel* const selp = new AstStructSel{flp, fromp, comp.memberp->name()};
+        AstStructSel* ಸ್ಥಿರಾಂಕ selp = ಹೊಸ AstStructSel{flp, fromp, comp.memberp->name()};
         selp->dtypep(comp.dtypep);
-        return selp;
+        ಹಿಂತಿರುಗಿ selp;
     }
 
     // Leaf terms of a Concat/Replicate tree, in LSB order, or the expression itself if neither
-    static std::vector<AstNodeExpr*> concatTerms(AstNodeExpr* nodep) {
-        std::vector<AstNodeExpr*> termps;
-        std::vector<AstNodeExpr*> stack{nodep};
-        while (!stack.empty()) {
-            AstNodeExpr* const exprp = stack.back();
-            stack.pop_back();
-            if (AstConcat* const concatp = VN_CAST(exprp, Concat)) {
-                stack.push_back(concatp->lhsp());
-                stack.push_back(concatp->rhsp());
-                continue;
+    ಸ್ಥಿರ std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> concatTerms(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> termps;
+        std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> ರಾಶಿ{nodep};
+        ಆಗ (!ರಾಶಿ.ಖಾಲಿಗಳು()) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ exprp = ರಾಶಿ.ಹಿಂಭಾಗ();
+            ರಾಶಿ.ತೆಗೆ_ಹಿಂಭಾಗ();
+            ಆದರೆ (AstConcat* ಸ್ಥಿರಾಂಕ concatp = VN_CAST(exprp, Concat)) {
+                ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(concatp->lhsp());
+                ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(concatp->rhsp());
+                ಮುಂದುವರಿ;
             }
-            if (AstReplicate* const repp = VN_CAST(exprp, Replicate)) {
-                const AstConst* const countp = VN_AS(repp->countp(), Const);
-                for (uint32_t i = 0; i < countp->toUInt(); ++i) stack.push_back(repp->srcp());
-                continue;
+            ಆದರೆ (AstReplicate* ಸ್ಥಿರಾಂಕ repp = VN_CAST(exprp, Replicate)) {
+                ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ countp = VN_AS(repp->countp(), Const);
+                ಗಾಗಿ (uint32_t i = 0; i < countp->ಗಮ್ಯ_UInt(); ++i) ರಾಶಿ.ತಳ್ಳು_ಹಿಂಭಾಗ(repp->srcp());
+                ಮುಂದುವರಿ;
             }
-            termps.push_back(exprp);
+            termps.ತಳ್ಳು_ಹಿಂಭಾಗ(exprp);
         }
-        return termps;
+        ಹಿಂತಿರುಗಿ termps;
     }
 
     // Can bits of 'nodep' be selected without evaluating it more than once, see newSlice
-    static bool isSliceable(const AstNodeExpr* nodep) {
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return VN_IS(selp->lsbp(), Const) && isSliceable(selp->fromp());
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ isSliceable(ಸ್ಥಿರಾಂಕ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, Sel)) {
+            ಹಿಂತಿರುಗಿ VN_IS(selp->lsbp(), Const) && isSliceable(selp->fromp());
         }
-        if (const AstConcat* const catp = VN_CAST(nodep, Concat)) {
-            return isSliceable(catp->lhsp()) && isSliceable(catp->rhsp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConcat* ಸ್ಥಿರಾಂಕ catp = VN_CAST(nodep, Concat)) {
+            ಹಿಂತಿರುಗಿ isSliceable(catp->lhsp()) && isSliceable(catp->rhsp());
         }
-        if (const AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return isCheap(condp->condp()) && isSliceable(condp->thenp())
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstCond* ಸ್ಥಿರಾಂಕ condp = VN_CAST(nodep, Cond)) {
+            ಹಿಂತಿರುಗಿ isCheap(condp->condp()) && isSliceable(condp->thenp())
                    && isSliceable(condp->elsep());
         }
-        if (const AstAnd* const andp = VN_CAST(nodep, And)) {
-            return isSliceable(andp->lhsp()) && isSliceable(andp->rhsp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstAnd* ಸ್ಥಿರಾಂಕ andp = VN_CAST(nodep, And)) {
+            ಹಿಂತಿರುಗಿ isSliceable(andp->lhsp()) && isSliceable(andp->rhsp());
         }
-        if (const AstOr* const orp = VN_CAST(nodep, Or)) {
-            return isSliceable(orp->lhsp()) && isSliceable(orp->rhsp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstOr* ಸ್ಥಿರಾಂಕ orp = VN_CAST(nodep, Or)) {
+            ಹಿಂತಿರುಗಿ isSliceable(orp->lhsp()) && isSliceable(orp->rhsp());
         }
-        if (const AstXor* const xorp = VN_CAST(nodep, Xor)) {
-            return isSliceable(xorp->lhsp()) && isSliceable(xorp->rhsp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstXor* ಸ್ಥಿರಾಂಕ xorp = VN_CAST(nodep, Xor)) {
+            ಹಿಂತಿರುಗಿ isSliceable(xorp->lhsp()) && isSliceable(xorp->rhsp());
         }
-        if (const AstExtend* const extp = VN_CAST(nodep, Extend)) {
-            return isSliceable(extp->lhsp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstExtend* ಸ್ಥಿರಾಂಕ extp = VN_CAST(nodep, Extend)) {
+            ಹಿಂತಿರುಗಿ isSliceable(extp->lhsp());
         }
-        if (const AstNot* const notp = VN_CAST(nodep, Not)) {  //
-            return isSliceable(notp->lhsp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstNot* ಸ್ಥಿರಾಂಕ notp = VN_CAST(nodep, Not)) {  //
+            ಹಿಂತಿರುಗಿ isSliceable(notp->lhsp());
         }
-        if (const AstReplicate* const repp = VN_CAST(nodep, Replicate)) {
-            return isSliceable(repp->srcp());
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstReplicate* ಸ್ಥಿರಾಂಕ repp = VN_CAST(nodep, Replicate)) {
+            ಹಿಂತಿರುಗಿ isSliceable(repp->srcp());
         }
-        return isCheap(nodep);
+        ಹಿಂತಿರುಗಿ isCheap(nodep);
     }
 
     // Select 'width' bits of 'nodep' from 'lsb', pushing the select into the operands where the
     // operation allows
-    static AstNodeExpr* newSlice(AstNodeExpr* nodep, int lsb, int width) {
-        FileLine* const flp = nodep->fileline();
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_ತುಂಡು(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, ಪೂರ್ಣಾಂಕ lsb, ಪೂರ್ಣಾಂಕ ಅಗಲ) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = nodep->fileline();
         // A constant, as a new constant of the bits
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            V3Number num{nodep, width};
-            num.opSel(constp->num(), lsb + width - 1, lsb);
-            return new AstConst{flp, num};
+        ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ constp = VN_CAST(nodep, Const)) {
+            V3_ಸಂಖ್ಯೆ ಅಂಕೆ{nodep, ಅಗಲ};
+            ಅಂಕೆ.opSel(constp->ಅಂಕೆ(), lsb + ಅಗಲ - 1, lsb);
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{flp, ಅಂಕೆ};
         }
         // A constant bit select, from the bits of what it selects from
-        if (AstSel* const selp = VN_CAST(nodep, Sel)) {
-            if (const AstConst* const lsbp = VN_CAST(selp->lsbp(), Const)) {
-                return newSlice(selp->fromp(), lsbp->toSInt() + lsb, width);
+        ಆದರೆ (AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(nodep, Sel)) {
+            ಆದರೆ (ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ lsbp = VN_CAST(selp->lsbp(), Const)) {
+                ಹಿಂತಿರುಗಿ new_ತುಂಡು(selp->fromp(), lsbp->ಗಮ್ಯ_SInt() + lsb, ಅಗಲ);
             }
         }
         // A concatenation, from the RHS for the low bits, and the LHS for the high bits
-        if (AstConcat* const catp = VN_CAST(nodep, Concat)) {
-            const int rWidth = catp->rhsp()->width();
-            const int msb = lsb + width - 1;
-            if (msb < rWidth) return newSlice(catp->rhsp(), lsb, width);
-            if (lsb >= rWidth) return newSlice(catp->lhsp(), lsb - rWidth, width);
-            return new AstConcat{flp, newSlice(catp->lhsp(), 0, msb - rWidth + 1),
-                                 newSlice(catp->rhsp(), lsb, rWidth - lsb)};
+        ಆದರೆ (AstConcat* ಸ್ಥಿರಾಂಕ catp = VN_CAST(nodep, Concat)) {
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ r_ಅಗಲ = catp->rhsp()->ಅಗಲ();
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ msb = lsb + ಅಗಲ - 1;
+            ಆದರೆ (msb < r_ಅಗಲ) ಹಿಂತಿರುಗಿ new_ತುಂಡು(catp->rhsp(), lsb, ಅಗಲ);
+            ಆದರೆ (lsb >= r_ಅಗಲ) ಹಿಂತಿರುಗಿ new_ತುಂಡು(catp->lhsp(), lsb - r_ಅಗಲ, ಅಗಲ);
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstConcat{flp, new_ತುಂಡು(catp->lhsp(), 0, msb - r_ಅಗಲ + 1),
+                                 new_ತುಂಡು(catp->rhsp(), lsb, r_ಅಗಲ - lsb)};
         }
-        if (AstCond* const condp = VN_CAST(nodep, Cond)) {
-            return new AstCond{flp, condp->condp()->cloneTreePure(false),
-                               newSlice(condp->thenp(), lsb, width),
-                               newSlice(condp->elsep(), lsb, width)};
+        ಆದರೆ (AstCond* ಸ್ಥಿರಾಂಕ condp = VN_CAST(nodep, Cond)) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstCond{flp, condp->condp()->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು),
+                               new_ತುಂಡು(condp->thenp(), lsb, ಅಗಲ),
+                               new_ತುಂಡು(condp->elsep(), lsb, ಅಗಲ)};
         }
-        if (AstAnd* const andp = VN_CAST(nodep, And)) {
-            return new AstAnd{flp, newSlice(andp->lhsp(), lsb, width),
-                              newSlice(andp->rhsp(), lsb, width)};
+        ಆದರೆ (AstAnd* ಸ್ಥಿರಾಂಕ andp = VN_CAST(nodep, And)) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstAnd{flp, new_ತುಂಡು(andp->lhsp(), lsb, ಅಗಲ),
+                              new_ತುಂಡು(andp->rhsp(), lsb, ಅಗಲ)};
         }
-        if (AstOr* const orp = VN_CAST(nodep, Or)) {
-            return new AstOr{flp, newSlice(orp->lhsp(), lsb, width),
-                             newSlice(orp->rhsp(), lsb, width)};
+        ಆದರೆ (AstOr* ಸ್ಥಿರಾಂಕ orp = VN_CAST(nodep, Or)) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstOr{flp, new_ತುಂಡು(orp->lhsp(), lsb, ಅಗಲ),
+                             new_ತುಂಡು(orp->rhsp(), lsb, ಅಗಲ)};
         }
-        if (AstXor* const xorp = VN_CAST(nodep, Xor)) {
-            return new AstXor{flp, newSlice(xorp->lhsp(), lsb, width),
-                              newSlice(xorp->rhsp(), lsb, width)};
+        ಆದರೆ (AstXor* ಸ್ಥಿರಾಂಕ xorp = VN_CAST(nodep, Xor)) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstXor{flp, new_ತುಂಡು(xorp->lhsp(), lsb, ಅಗಲ),
+                              new_ತುಂಡು(xorp->rhsp(), lsb, ಅಗಲ)};
         }
         // A zero extension, from the operand for its bits, and zeros above
-        if (AstExtend* const extp = VN_CAST(nodep, Extend)) {
-            const int srcWidth = extp->lhsp()->width();
-            const int msb = lsb + width - 1;
-            if (msb < srcWidth) return newSlice(extp->lhsp(), lsb, width);
-            if (lsb >= srcWidth) return new AstConst{flp, AstConst::WidthedValue{}, width, 0};
-            return new AstConcat{
-                flp, new AstConst{flp, AstConst::WidthedValue{}, msb - srcWidth + 1, 0},
-                newSlice(extp->lhsp(), lsb, srcWidth - lsb)};
+        ಆದರೆ (AstExtend* ಸ್ಥಿರಾಂಕ extp = VN_CAST(nodep, Extend)) {
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ src_ಅಗಲ = extp->lhsp()->ಅಗಲ();
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ msb = lsb + ಅಗಲ - 1;
+            ಆದರೆ (msb < src_ಅಗಲ) ಹಿಂತಿರುಗಿ new_ತುಂಡು(extp->lhsp(), lsb, ಅಗಲ);
+            ಆದರೆ (lsb >= src_ಅಗಲ) ಹಿಂತಿರುಗಿ ಹೊಸ AstConst{flp, AstConst::Widthed_ಮೌಲ್ಯ{}, ಅಗಲ, 0};
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstConcat{
+                flp, ಹೊಸ AstConst{flp, AstConst::Widthed_ಮೌಲ್ಯ{}, msb - src_ಅಗಲ + 1, 0},
+                new_ತುಂಡು(extp->lhsp(), lsb, src_ಅಗಲ - lsb)};
         }
-        if (AstNot* const notp = VN_CAST(nodep, Not)) {
-            return new AstNot{flp, newSlice(notp->lhsp(), lsb, width)};
+        ಆದರೆ (AstNot* ಸ್ಥಿರಾಂಕ notp = VN_CAST(nodep, Not)) {
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstNot{flp, new_ತುಂಡು(notp->lhsp(), lsb, ಅಗಲ)};
         }
         // A replication, from the portions of the copies overlapping the bits
-        if (AstReplicate* const repp = VN_CAST(nodep, Replicate)) {
-            AstNodeExpr* const srcp = repp->srcp();
-            const int srcWidth = srcp->width();
-            const int msb = lsb + width - 1;
-            AstNodeExpr* resultp = nullptr;
-            for (int copyLsb = lsb / srcWidth * srcWidth; copyLsb <= msb; copyLsb += srcWidth) {
-                const int partLsb = std::max(lsb, copyLsb) - copyLsb;
-                const int partMsb = std::min(msb, copyLsb + srcWidth - 1) - copyLsb;
-                AstNodeExpr* const bitsp = newSlice(srcp, partLsb, partMsb - partLsb + 1);
+        ಆದರೆ (AstReplicate* ಸ್ಥಿರಾಂಕ repp = VN_CAST(nodep, Replicate)) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ srcp = repp->srcp();
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ src_ಅಗಲ = srcp->ಅಗಲ();
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ msb = lsb + ಅಗಲ - 1;
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resultp = ಶೂನ್ಯಸೂಚಕ;
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ copyLsb = lsb / src_ಅಗಲ * src_ಅಗಲ; copyLsb <= msb; copyLsb += src_ಅಗಲ) {
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partLsb = std::max(lsb, copyLsb) - copyLsb;
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partMsb = std::min(msb, copyLsb + src_ಅಗಲ - 1) - copyLsb;
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ bitsp = new_ತುಂಡು(srcp, partLsb, partMsb - partLsb + 1);
                 // Higher bits go to the left
-                resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
+                resultp = resultp ? ಹೊಸ AstConcat{flp, bitsp, resultp} : bitsp;
             }
-            return resultp;
+            ಹಿಂತಿರುಗಿ resultp;
         }
-        AstNodeExpr* const clonep = nodep->cloneTreePure(false);
-        if (lsb == 0 && width == nodep->width()) return clonep;
-        return new AstSel{flp, clonep, lsb, width};
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ clonep = nodep->clone_ವೃಕ್ಷ_ಶುದ್ಧ(ಸುಳ್ಳು);
+        ಆದರೆ (lsb == 0 && ಅಗಲ == nodep->ಅಗಲ()) ಹಿಂತಿರುಗಿ clonep;
+        ಹಿಂತಿರುಗಿ ಹೊಸ AstSel{flp, clonep, lsb, ಅಗಲ};
     }
 
     // Values of the components of 'nodep', with the components of 'dtypep': for a reset cloned
     // from it, for packed assembled from the portions of its terms, otherwise selected from it
-    std::vector<AstNodeExpr*> newAssignRhsps(AstNodeExpr* nodep, AstNodeDType* dtypep) {
-        const std::vector<Component>& compsr = dtypeComponents(dtypep);
-        std::vector<AstNodeExpr*> valueps;
-        valueps.reserve(compsr.size());
+    std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> new_ನಿಯೋಜಿಸು_Rhsps(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, Ast_ಗಂಟು_DType* dtypep) {
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& compsr = dtypeComponents(dtypep);
+        std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> valueps;
+        valueps.reserve(compsr.ಗಾತ್ರ_2());
 
         // If CReset, it is duplicated for each component
-        if (AstCReset* const cresetp = VN_CAST(nodep, CReset)) {
-            for (const Component& comp : compsr) {
-                AstCReset* const newp = cresetp->cloneTree(false);
+        ಆದರೆ (AstCReset* ಸ್ಥಿರಾಂಕ cresetp = VN_CAST(nodep, CReset)) {
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Component& comp : compsr) {
+                AstCReset* ಸ್ಥಿರಾಂಕ newp = cresetp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು);
                 newp->dtypep(comp.dtypep);
-                valueps.push_back(newp);
+                valueps.ತಳ್ಳು_ಹಿಂಭಾಗ(newp);
             }
-            return valueps;
+            ಹಿಂತಿರುಗಿ valueps;
         }
 
         // If packed, assemble each component from the portions of the terms overlapping it.
         // This avoids quadratic cloning then folding if the RHS is a concatenation.
-        if (isPacked(dtypep)) {
-            valueps.resize(compsr.size(), nullptr);
-            int lsb = 0;  // LSB of the current term
-            for (AstNodeExpr* const termp : concatTerms(nodep)) {
-                const int msb = lsb + termp->width() - 1;
-                const size_t first = componentIndex(dtypep, lsb);
-                for (size_t i = first; i < compsr.size() && compsr[i].lsb <= msb; ++i) {
-                    const Component& comp = compsr[i];
-                    const int partLsb = std::max(lsb, comp.lsb);
-                    const int partMsb = std::min(msb, comp.msb);
-                    FileLine* const flp = termp->fileline();
-                    AstNodeExpr* const sp = newSlice(termp, partLsb - lsb, partMsb - partLsb + 1);
-                    valueps[i] = valueps[i] ? new AstConcat{flp, sp, valueps[i]} : sp;
+        ಆದರೆ (isPacked(dtypep)) {
+            valueps.resize(compsr.ಗಾತ್ರ_2(), ಶೂನ್ಯಸೂಚಕ);
+            ಪೂರ್ಣಾಂಕ lsb = 0;  // LSB of the current term
+            ಗಾಗಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ termp : concatTerms(nodep)) {
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ msb = lsb + termp->ಅಗಲ() - 1;
+                ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಮೊದಲ = component_ಸೂಚ್ಯಂಕ(dtypep, lsb);
+                ಗಾಗಿ (ಗಾತ್ರ_t i = ಮೊದಲ; i < compsr.ಗಾತ್ರ_2() && compsr[i].lsb <= msb; ++i) {
+                    ಸ್ಥಿರಾಂಕ Component& comp = compsr[i];
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partLsb = std::max(lsb, comp.lsb);
+                    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partMsb = std::min(msb, comp.msb);
+                    File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = termp->fileline();
+                    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ sp = new_ತುಂಡು(termp, partLsb - lsb, partMsb - partLsb + 1);
+                    valueps[i] = valueps[i] ? ಹೊಸ AstConcat{flp, sp, valueps[i]} : sp;
                 }
                 lsb = msb + 1;
             }
-            return valueps;
+            ಹಿಂತಿರುಗಿ valueps;
         }
 
         // Otherwise unpacked, so select each component
-        for (size_t i = 0; i < compsr.size(); ++i) {
-            valueps.push_back(newSelect(nodep->cloneTree(false), dtypep, i));
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < compsr.ಗಾತ್ರ_2(); ++i) {
+            valueps.ತಳ್ಳು_ಹಿಂಭಾಗ(newSelect(nodep->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), dtypep, i));
         }
-        return valueps;
+        ಹಿಂತಿರುಗಿ valueps;
     }
 
     // Return the expression holding bits 'lsb' to 'msb' of the packed Place
-    AstNodeExpr* newBits(FileLine* flp, const Place* placep, int lsb, int msb) {
-        AstNodeDType* const dtypep = placep->dtypep;
+    Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* new_ಬಿಟ್ಟುಗಳು(File_ಸಾಲು* flp, ಸ್ಥಿರಾಂಕ ಇರಿಸು* placep, ಪೂರ್ಣಾಂಕ lsb, ಪೂರ್ಣಾಂಕ msb) {
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = placep->dtypep;
         // Only splittable packed Places are split
-        UASSERT_OBJ(isPacked(dtypep) || !placep->split, dtypep, "Bits of non-packed Place");
+        UASSERT_OBJ(isPacked(dtypep) || !placep->ವಿಭಜಿಸು, dtypep, "Bits of non-packed Place");
         // If not split, return the bits selected out of a reference
-        if (!placep->split) {
-            AstVarRef* const refp = newRef(flp, placep, VAccess::READ);
-            if (lsb == 0 && msb == dtypep->width() - 1) return refp;
-            return new AstSel{flp, refp, lsb, msb - lsb + 1};
+        ಆದರೆ (!placep->ವಿಭಜಿಸು) {
+            AstVarRef* ಸ್ಥಿರಾಂಕ refp = newRef(flp, placep, VAccess::READ);
+            ಆದರೆ (lsb == 0 && msb == dtypep->ಅಗಲ() - 1) ಹಿಂತಿರುಗಿ refp;
+            ಹಿಂತಿರುಗಿ ಹೊಸ AstSel{flp, refp, lsb, msb - lsb + 1};
         }
         // Otherwise, assemble the bits from the components via concatenations
-        const std::vector<Component>& comps = dtypeComponents(dtypep);
-        AstNodeExpr* resultp = nullptr;
-        const size_t first = componentIndex(dtypep, lsb);
-        for (size_t i = first; i < comps.size() && comps[i].lsb <= msb; ++i) {
-            const Component& comp = comps[i];
-            const int partLsb = std::max(lsb, comp.lsb) - comp.lsb;
-            const int partMsb = std::min(msb, comp.msb) - comp.lsb;
-            Place* const childp = placep->childrenp.at(i).get();
-            AstNodeExpr* const bitsp = newBits(flp, childp, partLsb, partMsb);
-            resultp = resultp ? new AstConcat{flp, bitsp, resultp} : bitsp;
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& comps = dtypeComponents(dtypep);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resultp = ಶೂನ್ಯಸೂಚಕ;
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಮೊದಲ = component_ಸೂಚ್ಯಂಕ(dtypep, lsb);
+        ಗಾಗಿ (ಗಾತ್ರ_t i = ಮೊದಲ; i < comps.ಗಾತ್ರ_2() && comps[i].lsb <= msb; ++i) {
+            ಸ್ಥಿರಾಂಕ Component& comp = comps[i];
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partLsb = std::max(lsb, comp.lsb) - comp.lsb;
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ partMsb = std::min(msb, comp.msb) - comp.lsb;
+            ಇರಿಸು* ಸ್ಥಿರಾಂಕ childp = placep->childrenp.at(i).get();
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ bitsp = new_ಬಿಟ್ಟುಗಳು(flp, childp, partLsb, partMsb);
+            resultp = resultp ? ಹೊಸ AstConcat{flp, bitsp, resultp} : bitsp;
         }
-        return resultp;
+        ಹಿಂತಿರುಗಿ resultp;
     }
 
-    static void addNewAssign(AstNodeAssign* origp, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-        origp->addHereThisAsNext(origp->cloneType(lhsp, rhsp));
+    ಸ್ಥಿರ ಶೂನ್ಯ ಕೂಡಿಸು_New_ನಿಯೋಜಿಸು(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* origp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) {
+        origp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(origp->cloneType(lhsp, rhsp));
     }
 
     // Expand the assignment between two split Places
-    void expandSS(AstNodeAssign* origp, Place* lPlacep, Place* rPlacep) {
-        FileLine* const flp = origp->fileline();
-        const std::vector<Component>& compsr = dtypeComponents(lPlacep->dtypep);
-        if (isPacked(rPlacep->dtypep)) {
-            for (size_t i = 0; i < compsr.size(); ++i) {
-                Place* const lChildp = lPlacep->childrenp.at(i).get();
-                AstNodeExpr* const rp = newBits(flp, rPlacep, compsr[i].lsb, compsr[i].msb);
-                expand(origp, lChildp, nullptr, nullptr, rp);
+    ಶೂನ್ಯ expandSS(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* origp, ಇರಿಸು* lPlacep, ಇರಿಸು* rPlacep) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = origp->fileline();
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Component>& compsr = dtypeComponents(lPlacep->dtypep);
+        ಆದರೆ (isPacked(rPlacep->dtypep)) {
+            ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < compsr.ಗಾತ್ರ_2(); ++i) {
+                ಇರಿಸು* ಸ್ಥಿರಾಂಕ lChildp = lPlacep->childrenp.at(i).get();
+                Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rp = new_ಬಿಟ್ಟುಗಳು(flp, rPlacep, compsr[i].lsb, compsr[i].msb);
+                expand(origp, lChildp, ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ, rp);
             }
-        } else {
-            for (size_t i = 0; i < compsr.size(); ++i) {
-                Place* const lChildp = lPlacep->childrenp.at(i).get();
-                expand(origp, lChildp, nullptr, rPlacep->childrenp.at(i).get(), nullptr);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < compsr.ಗಾತ್ರ_2(); ++i) {
+                ಇರಿಸು* ಸ್ಥಿರಾಂಕ lChildp = lPlacep->childrenp.at(i).get();
+                expand(origp, lChildp, ಶೂನ್ಯಸೂಚಕ, rPlacep->childrenp.at(i).get(), ಶೂನ್ಯಸೂಚಕ);
             }
         }
     }
 
     // Expand the assignment between the split 'lPlacep' and non split 'rhsp'
-    void expandSN(AstNodeAssign* origp, Place* lPlacep, AstNodeExpr* rhsp) {
-        const std::vector<AstNodeExpr*> valueps = newAssignRhsps(rhsp, lPlacep->dtypep);
-        for (size_t i = 0; i < valueps.size(); ++i) {
-            expand(origp, lPlacep->childrenp.at(i).get(), nullptr, nullptr, valueps[i]);
+    ಶೂನ್ಯ expandSN(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* origp, ಇರಿಸು* lPlacep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) {
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> valueps = new_ನಿಯೋಜಿಸು_Rhsps(rhsp, lPlacep->dtypep);
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < valueps.ಗಾತ್ರ_2(); ++i) {
+            expand(origp, lPlacep->childrenp.at(i).get(), ಶೂನ್ಯಸೂಚಕ, ಶೂನ್ಯಸೂಚಕ, valueps[i]);
         }
-        VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(rhsp), rhsp);
     }
 
     // Expand the assignment between the non split 'lhsp' and the split 'rPlacep'
-    void expandNS(AstNodeAssign* origp, AstNodeExpr* lhsp, Place* rPlacep) {
-        FileLine* const flp = origp->fileline();
+    ಶೂನ್ಯ expandNS(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* origp, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp, ಇರಿಸು* rPlacep) {
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = origp->fileline();
         // If RHS is packed, assign the whole value assembled from the components
-        if (isPacked(rPlacep->dtypep)) {
-            addNewAssign(origp, lhsp, newBits(flp, rPlacep, 0, rPlacep->dtypep->width() - 1));
-            return;
+        ಆದರೆ (isPacked(rPlacep->dtypep)) {
+            ಕೂಡಿಸು_New_ನಿಯೋಜಿಸು(origp, lhsp, new_ಬಿಟ್ಟುಗಳು(flp, rPlacep, 0, rPlacep->dtypep->ಅಗಲ() - 1));
+            ಹಿಂತಿರುಗಿ;
         }
         // Unpacked of the same shape, component-wise
-        AstNodeDType* const dtypep = dtypeOf(lhsp);
+        Ast_ಗಂಟು_DType* ಸ್ಥಿರಾಂಕ dtypep = dtype_ದ(lhsp);
         // If the LHS reads its own variable, e.g. 'a[a[0].k] = s', assigning a component could
         // change where the others go, so assemble the value in a temporary, and assign it once.
         // Not for NBAs, as the writes commit after all reads.
-        const bool readsWrittenVar = !VN_IS(origp, AssignDly) && [&]() {
-            const VNUser2InUse user2InUse;
-            return lhsp->exists([](const AstVarRef* refp) {
-                AstVarScope* const vscp = refp->varScopep();
-                if (refp->access().isWriteOrRW()) vscp->user2(vscp->user2() | 1);
-                if (refp->access().isReadOrRW()) vscp->user2(vscp->user2() | 2);
-                return vscp->user2() == 3;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ readsWrittenVar = !VN_IS(origp, ನಿಯೋಜಿಸು_Dly) && [&]() {
+            ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use user2_ಒಳ_Use;
+            ಹಿಂತಿರುಗಿ lhsp->exists([](ಸ್ಥಿರಾಂಕ AstVarRef* refp) {
+                AstVarScope* ಸ್ಥಿರಾಂಕ vscp = refp->varScopep();
+                ಆದರೆ (refp->access().isWriteOrRW()) vscp->user2(vscp->user2() | 1);
+                ಆದರೆ (refp->access().isReadOrRW()) vscp->user2(vscp->user2() | 2);
+                ಹಿಂತಿರುಗಿ vscp->user2() == 3;
             });
         }();
-        if (readsWrittenVar) {
+        ಆದರೆ (readsWrittenVar) {
             ++m_statLhsReadsLhs;
-            AstScope* const scopep = rPlacep->rootp->vscp->scopep();
-            AstVarScope* const vscp = m_tmps.make(flp, scopep, dtypep);
-            expand(origp, nullptr, new AstVarRef{flp, vscp, VAccess::WRITE}, rPlacep, nullptr);
-            addNewAssign(origp, lhsp, new AstVarRef{flp, vscp, VAccess::READ});
-            return;
+            AstScope* ಸ್ಥಿರಾಂಕ scopep = rPlacep->rootp->vscp->scopep();
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = m_tmps.make(flp, scopep, dtypep);
+            expand(origp, ಶೂನ್ಯಸೂಚಕ, ಹೊಸ AstVarRef{flp, vscp, VAccess::WRITE}, rPlacep, ಶೂನ್ಯಸೂಚಕ);
+            ಕೂಡಿಸು_New_ನಿಯೋಜಿಸು(origp, lhsp, ಹೊಸ AstVarRef{flp, vscp, VAccess::READ});
+            ಹಿಂತಿರುಗಿ;
         }
-        const size_t size = dtypeComponents(dtypep).size();
-        for (size_t i = 0; i < size; ++i) {
-            AstNodeExpr* const newLhsp = newSelect(lhsp->cloneTree(false), dtypep, i);
-            expand(origp, nullptr, newLhsp, rPlacep->childrenp.at(i).get(), nullptr);
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t ಗಾತ್ರ_2 = dtypeComponents(dtypep).ಗಾತ್ರ_2();
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < ಗಾತ್ರ_2; ++i) {
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ newLhsp = newSelect(lhsp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), dtypep, i);
+            expand(origp, ಶೂನ್ಯಸೂಚಕ, newLhsp, rPlacep->childrenp.at(i).get(), ಶೂನ್ಯಸೂಚಕ);
         }
-        VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(lhsp), lhsp);
     }
 
     // Expand the assignment to the LHS from the RHS, into assignments of the type of 'origp',
     // inserted before it. Each side is either a Place, a component of a split one if not
     // split itself, or an expression, the other being nullptr.
     // Takes ownership of 'lhsp' and 'rhsp'.
-    void expand(AstNodeAssign* origp,  //
-                Place* lPlacep, AstNodeExpr* lhsp,  //
-                Place* rPlacep, AstNodeExpr* rhsp) {
+    ಶೂನ್ಯ expand(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* origp,  //
+                ಇರಿಸು* lPlacep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* lhsp,  //
+                ಇರಿಸು* rPlacep, Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* rhsp) {
         UASSERT_OBJ(!lPlacep != !lhsp, origp, "Exactly one of lPlacep or lhsp must be non-null");
         UASSERT_OBJ(!rPlacep != !rhsp, origp, "Exactly one of rPlacep or rhsp must be non-null");
-        FileLine* const flp = origp->fileline();
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = origp->fileline();
         // A Place not split is referenced
-        if (lPlacep && !lPlacep->split) {
+        ಆದರೆ (lPlacep && !lPlacep->ವಿಭಜಿಸು) {
             lhsp = newRef(flp, lPlacep, VAccess::WRITE);
-            lPlacep = nullptr;
+            lPlacep = ಶೂನ್ಯಸೂಚಕ;
         }
-        if (rPlacep && !rPlacep->split) {
+        ಆದರೆ (rPlacep && !rPlacep->ವಿಭಜಿಸು) {
             rhsp = newRef(flp, rPlacep, VAccess::READ);
-            rPlacep = nullptr;
+            rPlacep = ಶೂನ್ಯಸೂಚಕ;
         }
-        if (lPlacep && rPlacep) {
+        ಆದರೆ (lPlacep && rPlacep) {
             expandSS(origp, lPlacep, rPlacep);
-        } else if (lPlacep) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (lPlacep) {
             expandSN(origp, lPlacep, rhsp);
-        } else if (rPlacep) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (rPlacep) {
             expandNS(origp, lhsp, rPlacep);
-        } else {
-            addNewAssign(origp, lhsp, rhsp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಕೂಡಿಸು_New_ನಿಯೋಜಿಸು(origp, lhsp, rhsp);
         }
     }
 
     // Will bits 'lsb' to 'msb' of the Place be in different variables after splitting it?
-    bool isSplitBetween(const Place* placep, int lsb, int msb) {
-        while (placep->split) {
-            const size_t idx = componentIndex(placep->dtypep, lsb);
-            if (idx != componentIndex(placep->dtypep, msb)) return true;
-            const Component& comp = dtypeComponents(placep->dtypep).at(idx);
+    ತಾರ್ಕಿಕ is_ವಿಭಜಿಸು_Between(ಸ್ಥಿರಾಂಕ ಇರಿಸು* placep, ಪೂರ್ಣಾಂಕ lsb, ಪೂರ್ಣಾಂಕ msb) {
+        ಆಗ (placep->ವಿಭಜಿಸು) {
+            ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t idx = component_ಸೂಚ್ಯಂಕ(placep->dtypep, lsb);
+            ಆದರೆ (idx != component_ಸೂಚ್ಯಂಕ(placep->dtypep, msb)) ಹಿಂತಿರುಗಿ ನಿಜ;
+            ಸ್ಥಿರಾಂಕ Component& comp = dtypeComponents(placep->dtypep).at(idx);
             lsb -= comp.lsb;
             msb -= comp.lsb;
             placep = placep->childrenp.at(idx).get();
         }
-        return false;
+        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
     }
 
     // Assign the RHS terms of 'origp' that expanding it to the split 'lPlacep' would
     // evaluate more than once, or that are impure, to temporaries before 'origp'
-    void hoistTerms(AstNodeAssign* origp, const Place* lPlacep) {
-        AstNodeExpr* const rhsp = origp->rhsp();
-        const std::vector<AstNodeExpr*> termps = concatTerms(rhsp);
+    ಶೂನ್ಯ hoistTerms(Ast_ಗಂಟು_ನಿಯೋಜಿಸು* origp, ಸ್ಥಿರಾಂಕ ಇರಿಸು* lPlacep) {
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = origp->rhsp();
+        ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ*> termps = concatTerms(rhsp);
         // A replicated term appears multiple times, so would be evaluated once for each
-        const VNUser2InUse user2InUse;
-        for (AstNodeExpr* const termp : termps) termp->user2Inc();
+        ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use user2_ಒಳ_Use;
+        ಗಾಗಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ termp : termps) termp->user2Inc();
         // Hoist the terms, each once, before the assignment
-        AstScope* const scopep = lPlacep->rootp->vscp->scopep();
-        int lsb = 0;  // LSB of the current term
-        for (AstNodeExpr* const termp : termps) {
-            const int tLsb = lsb;
-            const int tMsb = lsb + termp->width() - 1;
+        AstScope* ಸ್ಥಿರಾಂಕ scopep = lPlacep->rootp->vscp->scopep();
+        ಪೂರ್ಣಾಂಕ lsb = 0;  // LSB of the current term
+        ಗಾಗಿ (Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ termp : termps) {
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ tLsb = lsb;
+            ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ tMsb = lsb + termp->ಅಗಲ() - 1;
             lsb = tMsb + 1;
 
             // Already decided, for a replicated term
-            if (!termp->user2()) continue;
+            ಆದರೆ (!termp->user2()) ಮುಂದುವರಿ;
             // Cheap to select from
-            if (isCheap(termp)) {
+            ಆದರೆ (isCheap(termp)) {
                 termp->user2(0);
-                continue;
+                ಮುಂದುವರಿ;
             }
             // No need to hoist if pure, appears once, and lands in one assignment
-            if (termp->isPure() && termp->user2() == 1 && !isSplitBetween(lPlacep, tLsb, tMsb)) {
-                continue;
+            ಆದರೆ (termp->is_ಶುದ್ಧ() && termp->user2() == 1 && !is_ವಿಭಜಿಸು_Between(lPlacep, tLsb, tMsb)) {
+                ಮುಂದುವರಿ;
             }
             // Bits can be selected without evaluating it more than once
-            if (isSliceable(termp)) {
+            ಆದರೆ (isSliceable(termp)) {
                 termp->user2(0);
                 ++m_statSliced;
-                continue;
+                ಮುಂದುವರಿ;
             }
 
             // Hoist this term to a temporary assignment before the original
             termp->user2(0);
             ++m_statHoisted;
-            FileLine* const flp = termp->fileline();
-            AstVarScope* const vscp = m_tmps.make(flp, scopep, termp->dtypep());
-            termp->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
-            AstVarRef* const tmpRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-            origp->addHereThisAsNext(new AstAssign{flp, tmpRefp, termp});
+            File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = termp->fileline();
+            AstVarScope* ಸ್ಥಿರಾಂಕ vscp = m_tmps.make(flp, scopep, termp->dtypep());
+            termp->replaceWith(ಹೊಸ AstVarRef{flp, vscp, VAccess::READ});
+            AstVarRef* ಸ್ಥಿರಾಂಕ tmpRefp = ಹೊಸ AstVarRef{flp, vscp, VAccess::WRITE};
+            origp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(ಹೊಸ Ast_ನಿಯೋಜಿಸು{flp, tmpRefp, termp});
         }
     }
 
     // Mark the AstVarScopes of the components of the split 'placep', at any depth
-    static void markComponents(const Place* placep) {
-        for (const std::unique_ptr<Place>& childp : placep->childrenp) {
-            childp->vscp->user2(true);
-            if (childp->split) markComponents(childp.get());
+    ಸ್ಥಿರ ಶೂನ್ಯ markComponents(ಸ್ಥಿರಾಂಕ ಇರಿಸು* placep) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ std::unique_ptr<ಇರಿಸು>& childp : placep->childrenp) {
+            childp->vscp->user2(ನಿಜ);
+            ಆದರೆ (childp->ವಿಭಜಿಸು) markComponents(childp.get());
         }
     }
 
     // Expand the assignment, if a side is split
-    void rewriteAssignment(const Assignment& assignment) {
-        Place* const lPlacep = assignment.lPlacep;
-        Place* const rPlacep = assignment.rPlacep;
-        const bool lSplit = lPlacep && lPlacep->split;
-        const bool rSplit = rPlacep && rPlacep->split;
+    ಶೂನ್ಯ rewriteAssignment(ಸ್ಥಿರಾಂಕ Assignment& assignment) {
+        ಇರಿಸು* ಸ್ಥಿರಾಂಕ lPlacep = assignment.lPlacep;
+        ಇರಿಸು* ಸ್ಥಿರಾಂಕ rPlacep = assignment.rPlacep;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ l_ವಿಭಜಿಸು = lPlacep && lPlacep->ವಿಭಜಿಸು;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ r_ವಿಭಜಿಸು = rPlacep && rPlacep->ವಿಭಜಿಸು;
         // Nothing to do if neither side is split
-        if (!lSplit && !rSplit) return;
+        ಆದರೆ (!l_ವಿಭಜಿಸು && !r_ವಿಭಜಿಸು) ಹಿಂತಿರುಗಿ;
 
-        AstNodeAssign* const origp = assignment.assp;
+        Ast_ಗಂಟು_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ origp = assignment.assp;
 
         // If the RHS expression reads components of the LHS, e.g. 's = {s.b, s.a}', expanding
         // would read components already written, so assign it to a temporary first. Not for
         // NBAs, as the writes commit after all reads. The LHS reading the RHS is fine, e.g.
         // 'a[s.i] = s', as the expansion only writes the LHS, so the RHS reads the same values
         // in every expanded assignment, unless they overlap, but then the RHS reads the LHS.
-        if (lSplit && !rSplit && !VN_IS(origp, AssignDly)) {
-            const VNUser2InUse user2InUse;
+        ಆದರೆ (l_ವಿಭಜಿಸು && !r_ವಿಭಜಿಸು && !VN_IS(origp, ನಿಯೋಜಿಸು_Dly)) {
+            ಸ್ಥಿರಾಂಕ VNUser2_ಒಳ_Use user2_ಒಳ_Use;
             markComponents(lPlacep);
-            AstNodeExpr* const rhsp = origp->rhsp();
-            if (rhsp->exists([](const AstVarRef* refp) { return refp->varScopep()->user2(); })) {
-                FileLine* const flp = rhsp->fileline();
-                AstScope* const scopep = lPlacep->rootp->vscp->scopep();
-                AstVarScope* const vscp = m_tmps.make(flp, scopep, dtypeOf(rhsp));
-                rhsp->replaceWith(new AstVarRef{flp, vscp, VAccess::READ});
-                AstVarRef* const tmpRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-                origp->addHereThisAsNext(new AstAssign{flp, tmpRefp, rhsp});
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = origp->rhsp();
+            ಆದರೆ (rhsp->exists([](ಸ್ಥಿರಾಂಕ AstVarRef* refp) { ಹಿಂತಿರುಗಿ refp->varScopep()->user2(); })) {
+                File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = rhsp->fileline();
+                AstScope* ಸ್ಥಿರಾಂಕ scopep = lPlacep->rootp->vscp->scopep();
+                AstVarScope* ಸ್ಥಿರಾಂಕ vscp = m_tmps.make(flp, scopep, dtype_ದ(rhsp));
+                rhsp->replaceWith(ಹೊಸ AstVarRef{flp, vscp, VAccess::READ});
+                AstVarRef* ಸ್ಥಿರಾಂಕ tmpRefp = ಹೊಸ AstVarRef{flp, vscp, VAccess::WRITE};
+                origp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(ಹೊಸ Ast_ನಿಯೋಜಿಸು{flp, tmpRefp, rhsp});
                 ++m_statRhsReadsLhs;
             }
         }
         // Hoist the terms of a packed RHS that would be evaluated more than once
-        if (lSplit && !rSplit && isPacked(lPlacep->dtypep)) hoistTerms(origp, lPlacep);
-        AstNodeExpr* const lhsp = origp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = origp->rhsp()->unlinkFrBack();
+        ಆದರೆ (l_ವಿಭಜಿಸು && !r_ವಿಭಜಿಸು && isPacked(lPlacep->dtypep)) hoistTerms(origp, lPlacep);
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp = origp->lhsp()->unlink_Fr_ಹಿಂಭಾಗ();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = origp->rhsp()->unlink_Fr_ಹಿಂಭಾಗ();
         // A side is used if not split, otherwise its components are
         expand(origp,  //
-               lSplit ? lPlacep : nullptr, lSplit ? nullptr : lhsp,  //
-               rSplit ? rPlacep : nullptr, rSplit ? nullptr : rhsp);
-        if (lSplit) VL_DO_DANGLING(pushDeletep(lhsp), lhsp);
-        if (rSplit) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        VL_DO_DANGLING(pushDeletep(origp->unlinkFrBack()), origp);
+               l_ವಿಭಜಿಸು ? lPlacep : ಶೂನ್ಯಸೂಚಕ, l_ವಿಭಜಿಸು ? ಶೂನ್ಯಸೂಚಕ : lhsp,  //
+               r_ವಿಭಜಿಸು ? rPlacep : ಶೂನ್ಯಸೂಚಕ, r_ವಿಭಜಿಸು ? ಶೂನ್ಯಸೂಚಕ : rhsp);
+        ಆದರೆ (l_ವಿಭಜಿಸು) VL_DO_DANGLING(ತಳ್ಳು_Deletep(lhsp), lhsp);
+        ಆದರೆ (r_ವಿಭಜಿಸು) VL_DO_DANGLING(ತಳ್ಳು_Deletep(rhsp), rhsp);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(origp->unlink_Fr_ಹಿಂಭಾಗ()), origp);
     }
 
     // The combinational AstActive of the scope, cached
-    static AstActive* comboActive(AstScope* scopep) {
-        if (!scopep->user1p()) scopep->user1p(scopep->comboActivep(true));
-        return VN_AS(scopep->user1p(), Active);
+    ಸ್ಥಿರ Ast_ಸಕ್ರಿಯ* combo_ಸಕ್ರಿಯ(AstScope* scopep) {
+        ಆದರೆ (!scopep->user1p()) scopep->user1p(scopep->comboActivep(ನಿಜ));
+        ಹಿಂತಿರುಗಿ VN_AS(scopep->user1p(), ಸಕ್ರಿಯ);
     }
 
     // Drive the split Place 'placep' from its components, recursively,
     // so the original variable has its value available.
-    void driveFromComponents(Place* placep, AstActive* activep) {
-        if (!placep->split) return;
-        AstVarScope* const vscp = placep->vscp;
-        FileLine* const flp = vscp->fileline();
-        for (size_t i = 0; i < placep->childrenp.size(); ++i) {
-            Place* const childp = placep->childrenp[i].get();
+    ಶೂನ್ಯ driveFromComponents(ಇರಿಸು* placep, Ast_ಸಕ್ರಿಯ* activep) {
+        ಆದರೆ (!placep->ವಿಭಜಿಸು) ಹಿಂತಿರುಗಿ;
+        AstVarScope* ಸ್ಥಿರಾಂಕ vscp = placep->vscp;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = vscp->fileline();
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 0; i < placep->childrenp.ಗಾತ್ರ_2(); ++i) {
+            ಇರಿಸು* ಸ್ಥಿರಾಂಕ childp = placep->childrenp[i].get();
             driveFromComponents(childp, activep);
-            AstNodeExpr* const rhsp = new AstVarRef{flp, childp->vscp, VAccess::READ};
-            AstNodeExpr* const lhsRefp = new AstVarRef{flp, vscp, VAccess::WRITE};
-            AstNodeExpr* const lhsp = newSelect(lhsRefp, placep->dtypep, i);
-            activep->addStmtsp(new AstAlways{new AstAssignW{flp, lhsp, rhsp}});
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ rhsp = ಹೊಸ AstVarRef{flp, childp->vscp, VAccess::READ};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsRefp = ಹೊಸ AstVarRef{flp, vscp, VAccess::WRITE};
+            Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ lhsp = newSelect(lhsRefp, placep->dtypep, i);
+            activep->ಕೂಡಿಸು_Stmtsp(ಹೊಸ AstAlways{ಹೊಸ Ast_ನಿಯೋಜಿಸು_W{flp, lhsp, rhsp}});
         }
     }
 
     // CONSTRUCTORS
-    explicit DecomposeRewrite(State& state)
-        : DecomposeBase{state} {
+    ಸ್ಪಷ್ಟ DecomposeRewrite(State& state)
+        : Decompose_ತಳ{state} {
         // Rewrite the references: the select chains, then expand the assignments, so the clones
         // of their sides are rewritten already
-        for (const std::vector<Select>& chain : m_state.chains) rewriteChain(chain);
-        for (const Assignment& assignment : m_state.assignments) rewriteAssignment(assignment);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ std::ಸದಿಶ<Select>& chain : m_state.chains) rewriteChain(chain);
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ Assignment& assignment : m_state.assignments) rewriteAssignment(assignment);
 
         // Drive variables that must be kept from their components
-        for (Place* const placep : m_state.rootps) {
-            if (!placep->split) continue;
-            const AstVarScope* const vscp = placep->vscp;
+        ಗಾಗಿ (ಇರಿಸು* ಸ್ಥಿರಾಂಕ placep : m_state.rootps) {
+            ಆದರೆ (!placep->ವಿಭಜಿಸು) ಮುಂದುವರಿ;
+            ಸ್ಥಿರಾಂಕ AstVarScope* ಸ್ಥಿರಾಂಕ vscp = placep->vscp;
             // Only traced ones at this point
-            if (!(vscp->varp()->isTrace() && vscp->isTrace())) continue;
-            AstActive* const activep = comboActive(vscp->scopep());
+            ಆದರೆ (!(vscp->varp()->isTrace() && vscp->isTrace())) ಮುಂದುವರಿ;
+            Ast_ಸಕ್ರಿಯ* ಸ್ಥಿರಾಂಕ activep = combo_ಸಕ್ರಿಯ(vscp->scopep());
             driveFromComponents(placep, activep);
         }
 
-        V3Stats::addStat("Optimizations, Decompose, terms hoisted", m_statHoisted);
-        V3Stats::addStat("Optimizations, Decompose, terms sliced", m_statSliced);
-        V3Stats::addStat("Optimizations, Decompose, RHS reading LHS hoisted", m_statRhsReadsLhs);
-        V3Stats::addStat("Optimizations, Decompose, LHS reading LHS assembled", m_statLhsReadsLhs);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, terms hoisted", m_statHoisted);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, terms sliced", m_statSliced);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, RHS reading LHS hoisted", m_statRhsReadsLhs);
+        V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Decompose, LHS reading LHS assembled", m_statLhsReadsLhs);
     }
 
-public:
-    static void apply(State& state) { DecomposeRewrite{state}; }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ apply(State& state) { DecomposeRewrite{state}; }
 };
 
 //######################################################################
 // V3Decompose class functions
 
-void V3Decompose::decomposeAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Decompose::decomposeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        DecomposeBase::State state;
-        DecomposeRecord::apply(state, nodep);
+        Decompose_ತಳ::State state;
+        Decompose_ದಾಖಲೆ::apply(state, nodep);
         DecomposeDecision::apply(state);
         DecomposeRewrite::apply(state);
     }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("decompose", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("decompose", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

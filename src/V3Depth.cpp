@@ -23,131 +23,131 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Depth.h"
+#ಅನ್ತರ್ಭಾವ "V3Depth.h"
 
-#include "V3UniqueNames.h"
+#ಅನ್ತರ್ಭಾವ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class DepthVisitor final : public VNVisitor {
+ವರ್ಗ ಆಳ_Visitor final : ಸಾರ್ವಜನಿಕ VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstCFunc* m_cfuncp = nullptr;  // Current block
-    AstNode* m_stmtp = nullptr;  // Current statement
-    int m_depth = 0;  // How deep in an expression
-    int m_maxdepth = 0;  // Maximum depth in an expression
-    V3UniqueNames m_tempNames;  // For generating unique temporary variable names
+    AstCFunc* m_cfuncp = ಶೂನ್ಯಸೂಚಕ;  // Current block
+    Ast_ಗಂಟು* m_stmtp = ಶೂನ್ಯಸೂಚಕ;  // Current statement
+    ಪೂರ್ಣಾಂಕ m_ಆಳ = 0;  // How deep in an expression
+    ಪೂರ್ಣಾಂಕ m_maxdepth = 0;  // Maximum depth in an expression
+    V3_Unique_ಹೆಸರುಗಳು m_ತಾತ್ಕಾಲಿಕ_ಹೆಸರುಗಳು;  // For generating unique temporary variable names
 
     // METHODS
 
-    void createDeepTemp(AstNodeExpr* nodep) {
+    ಶೂನ್ಯ create_Deep_ತಾತ್ಕಾಲಿಕ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) {
         UINFO(6, "  Deep  " << nodep);
         // UINFOTREE(9, nodep, "", "deep");
-        AstVar* const varp = new AstVar{nodep->fileline(), VVarType::STMTTEMP,
-                                        m_tempNames.get(nodep), nodep->dtypep()};
-        if (m_cfuncp) {
-            m_cfuncp->addVarsp(varp);
-        } else {
+        AstVar* ಸ್ಥಿರಾಂಕ varp = ಹೊಸ AstVar{nodep->fileline(), VVarType::STMTTEMP,
+                                        m_ತಾತ್ಕಾಲಿಕ_ಹೆಸರುಗಳು.get(nodep), nodep->dtypep()};
+        ಆದರೆ (m_cfuncp) {
+            m_cfuncp->ಕೂಡಿಸು_Varsp(varp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
             nodep->v3fatalSrc("Deep expression not under a function");
         }
         // Replace node tree with reference to var
-        AstVarRef* const newp = new AstVarRef{nodep->fileline(), varp, VAccess::READ};
+        AstVarRef* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ AstVarRef{nodep->fileline(), varp, VAccess::READ};
         nodep->replaceWith(newp);
         // Put assignment before the referencing statement
-        AstAssign* const assp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, nodep};
-        m_stmtp->addHereThisAsNext(assp);
+        Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ assp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{
+            nodep->fileline(), ಹೊಸ AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, nodep};
+        m_stmtp->ಕೂಡಿಸು_ಇಲ್ಲಿ_This_As_ಮುಂದಿನ(assp);
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCFunc* nodep) override {
         VL_RESTORER(m_cfuncp);
-        VL_RESTORER(m_depth);
+        VL_RESTORER(m_ಆಳ);
         VL_RESTORER(m_maxdepth);
         m_cfuncp = nodep;
-        m_depth = 0;
+        m_ಆಳ = 0;
         m_maxdepth = 0;
-        m_tempNames.reset();
+        m_ತಾತ್ಕಾಲಿಕ_ಹೆಸರುಗಳು.reset();
         iterateChildren(nodep);
     }
-    void visitStmt(AstNodeStmt* nodep) {
+    ಶೂನ್ಯ ಭೇಟಿ_Stmt(Ast_ಗಂಟು_Stmt* nodep) {
         VL_RESTORER(m_stmtp);
-        VL_RESTORER(m_depth);
+        VL_RESTORER(m_ಆಳ);
         VL_RESTORER(m_maxdepth);
         m_stmtp = nodep;
-        m_depth = 0;
+        m_ಆಳ = 0;
         m_maxdepth = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeStmt* nodep) override { visitStmt(nodep); }
-    void visit(AstSFormatArg* nodep) override { iterateChildren(nodep); }  // Don't split
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Stmt* nodep) override { ಭೇಟಿ_Stmt(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstSFormatArg* nodep) override { iterateChildren(nodep); }  // Don't split
     // Operators
-    void visit(AstNodeTermop* nodep) override {}
-    void visit(AstNodeExpr* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_Termop* nodep) override {}
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep) override {
         // We have some operator defines that use 2 parens, so += 2.
         {
-            VL_RESTORER(m_depth);
-            m_depth += 2;
-            if (m_depth > m_maxdepth) m_maxdepth = m_depth;
+            VL_RESTORER(m_ಆಳ);
+            m_ಆಳ += 2;
+            ಆದರೆ (m_ಆಳ > m_maxdepth) m_maxdepth = m_ಆಳ;
             iterateChildren(nodep);
         }
-        if (m_stmtp && (v3Global.opt.compLimitParens() >= 1)  // Else compiler doesn't need it
-            && (m_maxdepth - m_depth) > v3Global.opt.compLimitParens()
-            && !VN_IS(nodep->backp(), NodeStmt)  // Not much point if we're about to use it
+        ಆದರೆ (m_stmtp && (v3Global.opt.comp_ಎಲ್ಲೆ_Parens() >= 1)  // Else compiler doesn't need it
+            && (m_maxdepth - m_ಆಳ) > v3Global.opt.comp_ಎಲ್ಲೆ_Parens()
+            && !VN_IS(nodep->backp(), ಗಂಟು_Stmt)  // Not much point if we're about to use it
         ) {
-            m_maxdepth = m_depth;
-            createDeepTemp(nodep);
+            m_maxdepth = m_ಆಳ;
+            create_Deep_ತಾತ್ಕಾಲಿಕ(nodep);
         }
     }
 
     //--------------------
     // Marking of non-static functions (because they might need "this")
     // (Here instead of new visitor after V3Descope just to avoid another visitor)
-    void needNonStaticFunc(AstNode* nodep) {
+    ಶೂನ್ಯ needNonStaticFunc(Ast_ಗಂಟು* nodep) {
         UASSERT_OBJ(m_cfuncp, nodep, "Non-static accessor not under a function");
         // DPI export implementations are always invoked via the generic DPI dispatcher,
         // which can only ever supply the symbol table pointer, never a scope-specific
         // "this", so they must remain static regardless of what they contain.
-        if (m_cfuncp->isStatic() && !m_cfuncp->dpiExportImpl()) {
+        ಆದರೆ (m_cfuncp->isStatic() && !m_cfuncp->dpiExportImpl()) {
             UINFO(5, "Mark non-public due to " << nodep);
-            m_cfuncp->isStatic(false);
+            m_cfuncp->isStatic(ಸುಳ್ಳು);
         }
     }
-    void visit(AstCExprUser* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCExprUser* nodep) override {
         needNonStaticFunc(nodep);
         iterateChildren(nodep);
     }
-    void visit(AstCStmtUser* nodep) override {
+    ಶೂನ್ಯ ಭೇಟಿ(AstCStmtUser* nodep) override {
         needNonStaticFunc(nodep);
-        visitStmt(nodep);
+        ಭೇಟಿ_Stmt(nodep);
     }
 
     //--------------------
     // Default: Just iterate
-    void visit(AstVar*) override {}  // Don't hit varrefs under vars
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(AstVar*) override {}  // Don't hit varrefs under vars
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
-    explicit DepthVisitor(AstNetlist* nodep)
-        : m_tempNames{"__Vdeeptemp"} {
+    ಸ್ಪಷ್ಟ ಆಳ_Visitor(AstNetlist* nodep)
+        : m_ತಾತ್ಕಾಲಿಕ_ಹೆಸರುಗಳು{"__Vdeeptemp"} {
         iterate(nodep);
         // Extracting expressions can effect purity
-        VIsCached::clearCacheTree();
+        VIsCached::clear_Cache_ವೃಕ್ಷ();
     }
-    ~DepthVisitor() override = default;
+    ~ಆಳ_Visitor() override = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //######################################################################
 // Depth class functions
 
-void V3Depth::depthAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3_ಆಳ::ಆಳ_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    { DepthVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("depth", 0, dumpTreeEitherLevel() >= 6);
+    { ಆಳ_Visitor{nodep}; }  // Destruct before checking
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("depth", 0, dump_ವೃಕ್ಷ_Either_Level() >= 6);
 }

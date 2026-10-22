@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SPLIT_H_
-#define VERILATOR_V3SPLIT_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3_ವಿಭಜಿಸು_H
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3_ವಿಭಜಿಸು_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Split final {
-public:
-    static void splitAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ವಿಭಜಿಸು final {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ ವಿಭಜಿಸು_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard

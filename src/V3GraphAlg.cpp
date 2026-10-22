@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#ವ್ಯಾಖ್ಯಾನಿಸು VL_MT_DISABLED_ಸಂಕೇತ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3GraphAlg.h"
+#ಅನ್ತರ್ಭಾವ "V3GraphAlg.h"
 
-#include "V3Global.h"
-#include "V3GraphPathChecker.h"
-#include "V3GraphStream.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3GraphPathChecker.h"
+#ಅನ್ತರ್ಭಾವ "V3GraphStream.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
-#include <algorithm>
-#include <limits>
-#include <list>
-#include <map>
-#include <numeric>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <limits>
+#ಅನ್ತರ್ಭಾವ <list>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <numeric>
+#ಅನ್ತರ್ಭಾವ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -40,141 +40,141 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Algorithms - Remove redundancies
 // Changes user() and weight()
 
-class GraphRemoveRedundant final : GraphAlg<> {
-    const bool m_sumWeights;  // Sum, rather then maximize weights
-private:
-    void main() {
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertexIterate(&vertex);
+ವರ್ಗ ನಕ್ಷೆ_Remove_Redundant final : ನಕ್ಷೆ_Alg<> {
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ m_ಮೊತ್ತ_Weights;  // Sum, rather then maximize weights
+ಖಾಸಗಿ:
+    ಶೂನ್ಯ ಮುಖ್ಯ() {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) ಶೃಂಗ_Iterate(&ಶೃಂಗ);
     }
-    void vertexIterate(V3GraphVertex* vertexp) {
+    ಶೂನ್ಯ ಶೃಂಗ_Iterate(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp) {
         // Clear marks
-        for (V3GraphEdge& edge : vertexp->outEdges()) edge.top()->userp(nullptr);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) ಅಂಚು.ತುದಿ()->userp(ಶೂನ್ಯಸೂಚಕ);
 
         // Mark edges and detect duplications
 
-        for (V3GraphEdge* const edgep : vertexp->outEdges().unlinkable()) {
-            if (followEdge(edgep)) {
-                V3GraphVertex* outVertexp = edgep->top();
-                V3GraphEdge* prevEdgep = static_cast<V3GraphEdge*>(outVertexp->userp());
-                if (!prevEdgep) {  // No previous assignment
-                    outVertexp->userp(edgep);
-                } else {  // Duplicate
-                    bool saveOld = true;
-                    if (prevEdgep->cutable() && !edgep->cutable()) {
-                        saveOld = false;  // new !cutable more important than old
-                    } else if (!prevEdgep->cutable() && edgep->cutable()) {
-                        saveOld = true;  // old !cutable more important than new
-                    } else {
-                        saveOld = true;
-                        if (!m_sumWeights
-                            && (prevEdgep->weight() < edgep->weight())) {  // Keep max weight
-                            prevEdgep->weight(edgep->weight());
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು* ಸ್ಥಿರಾಂಕ edgep : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು().unlinkable()) {
+            ಆದರೆ (follow_ಅಂಚು(edgep)) {
+                V3_ನಕ್ಷೆ_ಶೃಂಗ* ಹೊರಹೋಗು_Vertexp = edgep->ತುದಿ();
+                V3_ನಕ್ಷೆ_ಅಂಚು* prevEdgep = static_cast<V3_ನಕ್ಷೆ_ಅಂಚು*>(ಹೊರಹೋಗು_Vertexp->userp());
+                ಆದರೆ (!prevEdgep) {  // No previous assignment
+                    ಹೊರಹೋಗು_Vertexp->userp(edgep);
+                } ಇಲ್ಲದಿದ್ದರೆ {  // Duplicate
+                    ತಾರ್ಕಿಕ saveOld = ನಿಜ;
+                    ಆದರೆ (prevEdgep->cutable() && !edgep->cutable()) {
+                        saveOld = ಸುಳ್ಳು;  // new !cutable more important than old
+                    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!prevEdgep->cutable() && edgep->cutable()) {
+                        saveOld = ನಿಜ;  // old !cutable more important than new
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        saveOld = ನಿಜ;
+                        ಆದರೆ (!m_ಮೊತ್ತ_Weights
+                            && (prevEdgep->ತೂಕ_2() < edgep->ತೂಕ_2())) {  // Keep max weight
+                            prevEdgep->ತೂಕ_2(edgep->ತೂಕ_2());
                         }
                     }
-                    if (saveOld) {
-                        if (m_sumWeights) prevEdgep->weight(prevEdgep->weight() + edgep->weight());
+                    ಆದರೆ (saveOld) {
+                        ಆದರೆ (m_ಮೊತ್ತ_Weights) prevEdgep->ತೂಕ_2(prevEdgep->ತೂಕ_2() + edgep->ತೂಕ_2());
                         VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-                    } else {
-                        if (m_sumWeights) edgep->weight(prevEdgep->weight() + edgep->weight());
+                    } ಇಲ್ಲದಿದ್ದರೆ {
+                        ಆದರೆ (m_ಮೊತ್ತ_Weights) edgep->ತೂಕ_2(prevEdgep->ತೂಕ_2() + edgep->ತೂಕ_2());
                         VL_DO_DANGLING(prevEdgep->unlinkDelete(), prevEdgep);
-                        outVertexp->userp(edgep);
+                        ಹೊರಹೋಗು_Vertexp->userp(edgep);
                     }
                 }
             }
         }
     }
 
-public:
-    GraphRemoveRedundant(V3Graph* graphp, V3EdgeFuncP edgeFuncp, bool sumWeights)
-        : GraphAlg<>{graphp, edgeFuncp}
-        , m_sumWeights{sumWeights} {
-        main();
+ಸಾರ್ವಜನಿಕ:
+    ನಕ್ಷೆ_Remove_Redundant(V3_ನಕ್ಷೆ* graphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp, ತಾರ್ಕಿಕ ಮೊತ್ತ_Weights)
+        : ನಕ್ಷೆ_Alg<>{graphp, ಅಂಚು_Funcp}
+        , m_ಮೊತ್ತ_Weights{ಮೊತ್ತ_Weights} {
+        ಮುಖ್ಯ();
     }
-    ~GraphRemoveRedundant() = default;
+    ~ನಕ್ಷೆ_Remove_Redundant() = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
-void V3Graph::removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, false};
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::remove_Redundant_ಅಂಚುಗಳು_Max(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp) {
+    ನಕ್ಷೆ_Remove_Redundant{ಇದು, ಅಂಚು_Funcp, ಸುಳ್ಳು};
 }
-void V3Graph::removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, true};
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::remove_Redundant_ಅಂಚುಗಳು_ಮೊತ್ತ(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp) {
+    ನಕ್ಷೆ_Remove_Redundant{ಇದು, ಅಂಚು_Funcp, ನಿಜ};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - remove transitive
 
-class GraphAlgRemoveTransitiveEdges final : GraphAlg<> {
-public:
-    explicit GraphAlgRemoveTransitiveEdges(V3Graph* graphp)
-        : GraphAlg<>(graphp, nullptr) {}
-    void go() {
-        GraphPathChecker checker{m_graphp};
-        for (V3GraphVertex& vtx : m_graphp->vertices()) {
-            V3GraphEdge* deletep = nullptr;
-            for (V3GraphEdge& edge : vtx.outEdges()) {
-                if (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = nullptr);
+ವರ್ಗ ನಕ್ಷೆ_Alg_Remove_ಸಂಕ್ರಾಮಿಕ_ಅಂಚುಗಳು final : ನಕ್ಷೆ_Alg<> {
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಪಷ್ಟ ನಕ್ಷೆ_Alg_Remove_ಸಂಕ್ರಾಮಿಕ_ಅಂಚುಗಳು(V3_ನಕ್ಷೆ* graphp)
+        : ನಕ್ಷೆ_Alg<>(graphp, ಶೂನ್ಯಸೂಚಕ) {}
+    ಶೂನ್ಯ go() {
+        ನಕ್ಷೆ_ಮಾರ್ಗ_Checker checker{m_graphp};
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& vtx : m_graphp->vertices()) {
+            V3_ನಕ್ಷೆ_ಅಂಚು* deletep = ಶೂನ್ಯಸೂಚಕ;
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vtx.ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+                ಆದರೆ (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = ಶೂನ್ಯಸೂಚಕ);
                 // It should be safe to modify the graph, despite using
                 // the GraphPathChecker, as none of the modifications will
                 // change what can be reached from what, nor should they
                 // change the rank or CP of any node.
-                if (checker.isTransitiveEdge(&edge)) deletep = &edge;
+                ಆದರೆ (checker.is_ಸಂಕ್ರಾಮಿಕ_ಅಂಚು(&ಅಂಚು)) deletep = &ಅಂಚು;
             }
-            if (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
+            ಆದರೆ (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
         }
     }
 
-private:
-    VL_UNCOPYABLE(GraphAlgRemoveTransitiveEdges);
+ಖಾಸಗಿ:
+    VL_UNCOPYABLE(ನಕ್ಷೆ_Alg_Remove_ಸಂಕ್ರಾಮಿಕ_ಅಂಚುಗಳು);
 };
 
-void V3Graph::removeTransitiveEdges() { GraphAlgRemoveTransitiveEdges{this}.go(); }
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::remove_ಸಂಕ್ರಾಮಿಕ_ಅಂಚುಗಳು() { ನಕ್ಷೆ_Alg_Remove_ಸಂಕ್ರಾಮಿಕ_ಅಂಚುಗಳು{ಇದು}.go(); }
 
 //######################################################################
 //######################################################################
 // Algorithms - weakly connected components
 // Changes color()
 
-class GraphAlgWeakly final : GraphAlg<> {
+ವರ್ಗ ನಕ್ಷೆ_Alg_Weakly final : ನಕ್ಷೆ_Alg<> {
     // Sentinel color, meaning not colored yet. Colors themselves are 0 .. m_numColors-1.
-    static constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
+    ಸ್ಥಿರ constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
 
-    uint32_t m_numColors = 0;  // Number of colors assigned
+    uint32_t m_ಅಂಕೆ_Colors = 0;  // Number of colors assigned
 
-    void main() {
+    ಶೂನ್ಯ ಮುಖ್ಯ() {
         // Initialize state
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertex.color(UNCOLORED);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) ಶೃಂಗ.color(UNCOLORED);
         // Color graph, without gaps
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (vertex.color() == UNCOLORED) vertexIterate(&vertex, m_numColors++);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ಆದರೆ (ಶೃಂಗ.color() == UNCOLORED) ಶೃಂಗ_Iterate(&ಶೃಂಗ, m_ಅಂಕೆ_Colors++);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentColor) {
+    ಶೂನ್ಯ ಶೃಂಗ_Iterate(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp, uint32_t currentColor) {
         // Assign new color to each unvisited node
         // then visit each of its edges, giving them the same color
-        if (vertexp->color() != UNCOLORED) return;  // Already colored it
+        ಆದರೆ (vertexp->color() != UNCOLORED) ಹಿಂತಿರುಗಿ;  // Already colored it
         vertexp->color(currentColor);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentColor);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+            ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) ಶೃಂಗ_Iterate(ಅಂಚು.ತುದಿ(), currentColor);
         }
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.fromp(), currentColor);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಒಳ_ಅಂಚುಗಳು()) {
+            ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) ಶೃಂಗ_Iterate(ಅಂಚು.fromp(), currentColor);
         }
     }
 
-public:
-    GraphAlgWeakly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>(graphp, edgeFuncp) {
-        main();
+ಸಾರ್ವಜನಿಕ:
+    ನಕ್ಷೆ_Alg_Weakly(V3_ನಕ್ಷೆ* graphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp)
+        : ನಕ್ಷೆ_Alg<>(graphp, ಅಂಚು_Funcp) {
+        ಮುಖ್ಯ();
     }
-    ~GraphAlgWeakly() = default;
+    ~ನಕ್ಷೆ_Alg_Weakly() = ಪೂರ್ವನಿಯೋಜಿತ;
 
-    uint32_t numColors() const { return m_numColors; }
+    uint32_t ಅಂಕೆ_Colors() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_ಅಂಕೆ_Colors; }
 };
 
-uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
-    return GraphAlgWeakly{this, edgeFuncp}.numColors();
+uint32_t V3_ನಕ್ಷೆ::weaklyConnected(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp) {
+    ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_Alg_Weakly{ಇದು, ಅಂಚು_Funcp}.ಅಂಕೆ_Colors();
 }
 
 //######################################################################
@@ -182,11 +182,11 @@ uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
 // Algorithms - strongly connected components
 // Changes user() and color()
 
-class GraphAlgStrongly final : GraphAlg<> {
+ವರ್ಗ ನಕ್ಷೆ_Alg_Strongly final : ನಕ್ಷೆ_Alg<> {
     uint32_t m_currentDfs = 0;  // DFS count
-    std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
+    std::ಸದಿಶ<V3_ನಕ್ಷೆ_ಶೃಂಗ*> m_callTrace;  // List of everything we hit processing so far
 
-    void main() {
+    ಶೂನ್ಯ ಮುಖ್ಯ() {
         // Use Pearce's algorithm to color the strongly connected components. For reference see
         // "An Improved Algorithm for Finding the Strongly Connected Components of a Directed
         // Graph", David J.Pearce, 2005
@@ -196,228 +196,228 @@ class GraphAlgStrongly final : GraphAlg<> {
         //     Vertex::color    // Output subtree number (fully processed)
 
         // Clear info
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            vertex.color(0);
-            vertex.user(0);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ಶೃಂಗ.color(0);
+            ಶೃಂಗ.user(0);
         }
         // Color graph
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) {
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ಆದರೆ (!ಶೃಂಗ.user()) {
                 m_currentDfs++;
-                vertexIterate(&vertex);
+                ಶೃಂಗ_Iterate(&ಶೃಂಗ);
             }
         }
         // If there's a single vertex of a color, it doesn't need a subgraph
         // This simplifies the consumer's code, and reduces graph debugging clutter
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            bool onecolor = true;
-            for (V3GraphEdge& edge : vertex.outEdges()) {
-                if (followEdge(&edge)) {
-                    if (vertex.color() == edge.top()->color()) {
-                        onecolor = false;
-                        break;
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ತಾರ್ಕಿಕ onecolor = ನಿಜ;
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : ಶೃಂಗ.ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+                ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) {
+                    ಆದರೆ (ಶೃಂಗ.color() == ಅಂಚು.ತುದಿ()->color()) {
+                        onecolor = ಸುಳ್ಳು;
+                        ನಿಲ್ಲಿಸು;
                     }
                 }
             }
-            if (onecolor) vertex.color(0);
+            ಆದರೆ (onecolor) ಶೃಂಗ.color(0);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp) {
-        const uint32_t thisDfsNum = m_currentDfs++;
-        vertexp->user(thisDfsNum);
+    ಶೂನ್ಯ ಶೃಂಗ_Iterate(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp) {
+        ಸ್ಥಿರಾಂಕ uint32_t this_Dfs_ಅಂಕೆ = m_currentDfs++;
+        vertexp->user(this_Dfs_ಅಂಕೆ);
         vertexp->color(0);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) {
-                V3GraphVertex* top = edge.top();
-                if (!top->user()) {  // Dest not computed yet
-                    vertexIterate(top);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+            ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) {
+                V3_ನಕ್ಷೆ_ಶೃಂಗ* ತುದಿ = ಅಂಚು.ತುದಿ();
+                ಆದರೆ (!ತುದಿ->user()) {  // Dest not computed yet
+                    ಶೃಂಗ_Iterate(ತುದಿ);
                 }
-                if (!top->color()) {  // Dest not in a component
-                    if (vertexp->user() > top->user()) vertexp->user(top->user());
+                ಆದರೆ (!ತುದಿ->color()) {  // Dest not in a component
+                    ಆದರೆ (vertexp->user() > ತುದಿ->user()) vertexp->user(ತುದಿ->user());
                 }
             }
         }
-        if (vertexp->user() == thisDfsNum) {  // New head of subtree
-            vertexp->color(thisDfsNum);  // Mark as component
-            while (!m_callTrace.empty()) {
-                V3GraphVertex* popVertexp = m_callTrace.back();
-                if (popVertexp->user() >= thisDfsNum) {  // Lower node is part of this subtree
-                    m_callTrace.pop_back();
-                    popVertexp->color(thisDfsNum);
-                } else {
-                    break;
+        ಆದರೆ (vertexp->user() == this_Dfs_ಅಂಕೆ) {  // New head of subtree
+            vertexp->color(this_Dfs_ಅಂಕೆ);  // Mark as component
+            ಆಗ (!m_callTrace.ಖಾಲಿಗಳು()) {
+                V3_ನಕ್ಷೆ_ಶೃಂಗ* ತೆಗೆ_Vertexp = m_callTrace.ಹಿಂಭಾಗ();
+                ಆದರೆ (ತೆಗೆ_Vertexp->user() >= this_Dfs_ಅಂಕೆ) {  // Lower node is part of this subtree
+                    m_callTrace.ತೆಗೆ_ಹಿಂಭಾಗ();
+                    ತೆಗೆ_Vertexp->color(this_Dfs_ಅಂಕೆ);
+                } ಇಲ್ಲದಿದ್ದರೆ {
+                    ನಿಲ್ಲಿಸು;
                 }
             }
-        } else {  // In another subtree (maybe...)
-            m_callTrace.push_back(vertexp);
+        } ಇಲ್ಲದಿದ್ದರೆ {  // In another subtree (maybe...)
+            m_callTrace.ತಳ್ಳು_ಹಿಂಭಾಗ(vertexp);
         }
     }
 
-public:
-    GraphAlgStrongly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+ಸಾರ್ವಜನಿಕ:
+    ನಕ್ಷೆ_Alg_Strongly(V3_ನಕ್ಷೆ* graphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp)
+        : ನಕ್ಷೆ_Alg<>{graphp, ಅಂಚು_Funcp} {
+        ಮುಖ್ಯ();
     }
-    ~GraphAlgStrongly() = default;
+    ~ನಕ್ಷೆ_Alg_Strongly() = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
-void V3Graph::stronglyConnected(V3EdgeFuncP edgeFuncp) { GraphAlgStrongly{this, edgeFuncp}; }
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::stronglyConnected(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp) { ನಕ್ಷೆ_Alg_Strongly{ಇದು, ಅಂಚು_Funcp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking
 // Changes user() and rank()
 
-class GraphAlgRank final : GraphAlg<> {
-    void main() {
+ವರ್ಗ ನಕ್ಷೆ_Alg_Rank final : ನಕ್ಷೆ_Alg<> {
+    ಶೂನ್ಯ ಮುಖ್ಯ() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            vertex.rank(0);
-            vertex.user(0);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ಶೃಂಗ.rank(0);
+            ಶೃಂಗ.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex, 1);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ಆದರೆ (!ಶೃಂಗ.user()) ಶೃಂಗ_Iterate(&ಶೃಂಗ, 1);
         }
     }
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    ಶೂನ್ಯ ಶೃಂಗ_Iterate(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // If larger rank is found, assign it and loop back through
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
-            m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
+        ಆದರೆ (vertexp->user() == 1) {
+            m_graphp->loops_ಸಂದೇಶ_Cb(vertexp, m_ಅಂಚು_Funcp);
+            ಹಿಂತಿರುಗಿ;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
         }
-        if (vertexp->rank() >= currentRank) return;  // Already processed it
+        ಆದರೆ (vertexp->rank() >= currentRank) ಹಿಂತಿರುಗಿ;  // Already processed it
         vertexp->user(1);
         vertexp->rank(currentRank);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank + vertexp->rankAdder());
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+            ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) ಶೃಂಗ_Iterate(ಅಂಚು.ತುದಿ(), currentRank + vertexp->rankAdder());
         }
         vertexp->user(2);
     }
 
-public:
-    GraphAlgRank(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+ಸಾರ್ವಜನಿಕ:
+    ನಕ್ಷೆ_Alg_Rank(V3_ನಕ್ಷೆ* graphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp)
+        : ನಕ್ಷೆ_Alg<>{graphp, ಅಂಚು_Funcp} {
+        ಮುಖ್ಯ();
     }
-    ~GraphAlgRank() = default;
+    ~ನಕ್ಷೆ_Alg_Rank() = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
-void V3Graph::rank() { rank(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rank(V3EdgeFuncP edgeFuncp) { GraphAlgRank{this, edgeFuncp}; }
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::rank() { rank(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue); }
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::rank(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp) { ನಕ್ಷೆ_Alg_Rank{ಇದು, ಅಂಚು_Funcp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking min
 // Changes user() and rank()
 
-class GraphAlgRankMin final : GraphAlg<> {
-    void main() {
+ವರ್ಗ ನಕ್ಷೆ_Alg_Rank_Min final : ನಕ್ಷೆ_Alg<> {
+    ಶೂನ್ಯ ಮುಖ್ಯ() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            vertex.rank(0);
-            vertex.user(0);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ಶೃಂಗ.rank(0);
+            ಶೃಂಗ.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_graphp->vertices()) {
+            ಆದರೆ (!ಶೃಂಗ.user()) ಶೃಂಗ_Iterate(&ಶೃಂಗ);
         }
     }
-    uint32_t vertexIterate(V3GraphVertex* vertexp) {
+    uint32_t ಶೃಂಗ_Iterate(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp) {
         // Assign rank to each unvisited node
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
-            m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return vertexp->rank();
+        ಆದರೆ (vertexp->user() == 1) {
+            m_graphp->loops_ಸಂದೇಶ_Cb(vertexp, m_ಅಂಚು_Funcp);
+            ಹಿಂತಿರುಗಿ vertexp->rank();
         }
-        if (vertexp->user()) return vertexp->rank();  // Done earlier
+        ಆದರೆ (vertexp->user()) ಹಿಂತಿರುಗಿ vertexp->rank();  // Done earlier
         vertexp->user(1);
         vertexp->rank(1);  // In case loop
         // If no input edges, then rank 1 (+ adder)
         // Otherwise, get minimum from following all inputs.
         uint32_t minrank = ~0U;
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) {
-                const uint32_t nrank = vertexIterate(edge.fromp());
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಒಳ_ಅಂಚುಗಳು()) {
+            ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) {
+                ಸ್ಥಿರಾಂಕ uint32_t nrank = ಶೃಂಗ_Iterate(ಅಂಚು.fromp());
                 minrank = std::min(minrank, nrank);
             }
         }
-        if (minrank == ~0U) minrank = 0;
+        ಆದರೆ (minrank == ~0U) minrank = 0;
         vertexp->rank(minrank + vertexp->rankAdder());
         vertexp->user(2);
-        return vertexp->rank();
+        ಹಿಂತಿರುಗಿ vertexp->rank();
     }
 
-public:
-    GraphAlgRankMin(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+ಸಾರ್ವಜನಿಕ:
+    ನಕ್ಷೆ_Alg_Rank_Min(V3_ನಕ್ಷೆ* graphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp)
+        : ನಕ್ಷೆ_Alg<>{graphp, ಅಂಚು_Funcp} {
+        ಮುಖ್ಯ();
     }
-    ~GraphAlgRankMin() = default;
+    ~ನಕ್ಷೆ_Alg_Rank_Min() = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
-void V3Graph::rankMin() { rankMin(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rankMin(V3EdgeFuncP edgeFuncp) { GraphAlgRankMin{this, edgeFuncp}; }
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::rankMin() { rankMin(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue); }
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::rankMin(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp) { ನಕ್ಷೆ_Alg_Rank_Min{ಇದು, ಅಂಚು_Funcp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - report loops
 // Changes user()
 
-class GraphAlgRLoops final : GraphAlg<> {
-    std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
-    std::vector<string> m_msgs;  // Output messages
-    bool m_done = false;  // Exit algorithm
+ವರ್ಗ ನಕ್ಷೆ_Alg_RLoops final : ನಕ್ಷೆ_Alg<> {
+    std::ಸದಿಶ<V3_ನಕ್ಷೆ_ಶೃಂಗ*> m_callTrace;  // List of everything we hit processing so far
+    std::ಸದಿಶ<string> m_msgs;  // Output messages
+    ತಾರ್ಕಿಕ m_ಮುಗಿದ = ಸುಳ್ಳು;  // Exit algorithm
 
-    void main(V3GraphVertex* vertexp) {
+    ಶೂನ್ಯ ಮುಖ್ಯ(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp) {
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
         m_graphp->userClearVertices();
         m_callTrace.reserve(100);
-        vertexIterate(vertexp, 0);
+        ಶೃಂಗ_Iterate(vertexp, 0);
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    ಶೂನ್ಯ ಶೃಂಗ_Iterate(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // When we hit ourself again, return the list of all loops
-        if (m_done) return;
+        ಆದರೆ (m_ಮುಗಿದ) ಹಿಂತಿರುಗಿ;
 
         // Can't just reserve(), unless we modify size() before setting array directly
-        while (m_callTrace.size() <= currentRank) m_callTrace.push_back(vertexp);
+        ಆಗ (m_callTrace.ಗಾತ್ರ_2() <= currentRank) m_callTrace.ತಳ್ಳು_ಹಿಂಭಾಗ(vertexp);
         m_callTrace[currentRank++] = vertexp;
 
-        if (vertexp->user() == 1) {
-            for (unsigned i = 0; i < currentRank; i++)
-                m_msgs.emplace_back(m_graphp->loopsVertexCb(m_callTrace[i]));
-            m_done = true;
-            return;
+        ಆದರೆ (vertexp->user() == 1) {
+            ಗಾಗಿ (ಚಿಹ್ನೆರಹಿತ i = 0; i < currentRank; i++)
+                m_msgs.emplace_ಹಿಂಭಾಗ(m_graphp->loops_ಶೃಂಗ_Cb(m_callTrace[i]));
+            m_ಮುಗಿದ = ನಿಜ;
+            ಹಿಂತಿರುಗಿ;
         }
-        if (vertexp->user() == 2) return;  // Already processed it
+        ಆದರೆ (vertexp->user() == 2) ಹಿಂತಿರುಗಿ;  // Already processed it
         vertexp->user(1);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+            ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) ಶೃಂಗ_Iterate(ಅಂಚು.ತುದಿ(), currentRank);
         }
         vertexp->user(2);
     }
 
-public:
-    GraphAlgRLoops(V3Graph* graphp, V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp)
-        : GraphAlg<>{graphp, edgeFuncp} {
-        main(vertexp);
+ಸಾರ್ವಜನಿಕ:
+    ನಕ್ಷೆ_Alg_RLoops(V3_ನಕ್ಷೆ* graphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp, V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp)
+        : ನಕ್ಷೆ_Alg<>{graphp, ಅಂಚು_Funcp} {
+        ಮುಖ್ಯ(vertexp);
     }
-    ~GraphAlgRLoops() = default;
-    string message() const {
-        return std::accumulate(m_msgs.begin(), m_msgs.end(), std::string{""});
+    ~ನಕ್ಷೆ_Alg_RLoops() = ಪೂರ್ವನಿಯೋಜಿತ;
+    string ಸಂದೇಶ() ಸ್ಥಿರಾಂಕ {
+        ಹಿಂತಿರುಗಿ std::accumulate(m_msgs.begin(), m_msgs.ಕೊನೆ(), std::string{""});
     }
 };
 
-string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
-    return GraphAlgRLoops{this, edgeFuncp, vertexp}.message();
+string V3_ನಕ್ಷೆ::reportLoops(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp, V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp) {
+    ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_Alg_RLoops{ಇದು, ಅಂಚು_Funcp, vertexp}.ಸಂದೇಶ();
 }
 
 //######################################################################
@@ -425,84 +425,84 @@ string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
 // Algorithms - subtrees
 // Changes user()
 
-class GraphAlgSubtrees final : GraphAlg<> {
-    V3Graph* const m_loopGraphp;
+ವರ್ಗ ನಕ್ಷೆ_Alg_Subtrees final : ನಕ್ಷೆ_Alg<> {
+    V3_ನಕ್ಷೆ* ಸ್ಥಿರಾಂಕ m_loopGraphp;
 
     //! Iterate through all connected nodes of a graph with a loop or loops.
-    V3GraphVertex* vertexIterateAll(V3GraphVertex* vertexp) {
-        if (V3GraphVertex* newVertexp = static_cast<V3GraphVertex*>(vertexp->userp())) {
-            return newVertexp;
-        } else {
+    V3_ನಕ್ಷೆ_ಶೃಂಗ* ಶೃಂಗ_Iterate_All(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp) {
+        ಆದರೆ (V3_ನಕ್ಷೆ_ಶೃಂಗ* newVertexp = static_cast<V3_ನಕ್ಷೆ_ಶೃಂಗ*>(vertexp->userp())) {
+            ಹಿಂತಿರುಗಿ newVertexp;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             newVertexp = vertexp->clone(m_loopGraphp);
             vertexp->userp(newVertexp);
 
-            for (V3GraphEdge& edge : vertexp->outEdges()) {
-                if (followEdge(&edge)) {
-                    V3GraphEdge* newEdgep = static_cast<V3GraphEdge*>(edge.userp());
-                    if (!newEdgep) {
-                        V3GraphVertex* newTop = vertexIterateAll(edge.top());
-                        newEdgep = edge.clone(m_loopGraphp, newVertexp, newTop);
-                        edge.userp(newEdgep);
+            ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+                ಆದರೆ (follow_ಅಂಚು(&ಅಂಚು)) {
+                    V3_ನಕ್ಷೆ_ಅಂಚು* newEdgep = static_cast<V3_ನಕ್ಷೆ_ಅಂಚು*>(ಅಂಚು.userp());
+                    ಆದರೆ (!newEdgep) {
+                        V3_ನಕ್ಷೆ_ಶೃಂಗ* new_ತುದಿ = ಶೃಂಗ_Iterate_All(ಅಂಚು.ತುದಿ());
+                        newEdgep = ಅಂಚು.clone(m_loopGraphp, newVertexp, new_ತುದಿ);
+                        ಅಂಚು.userp(newEdgep);
                     }
                 }
             }
-            return newVertexp;
+            ಹಿಂತಿರುಗಿ newVertexp;
         }
     }
 
-public:
-    GraphAlgSubtrees(V3Graph* graphp, V3Graph* loopGraphp, V3EdgeFuncP edgeFuncp,
-                     V3GraphVertex* vertexp)
-        : GraphAlg<>{graphp, edgeFuncp}
+ಸಾರ್ವಜನಿಕ:
+    ನಕ್ಷೆ_Alg_Subtrees(V3_ನಕ್ಷೆ* graphp, V3_ನಕ್ಷೆ* loopGraphp, V3_ಅಂಚು_Func_P ಅಂಚು_Funcp,
+                     V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp)
+        : ನಕ್ಷೆ_Alg<>{graphp, ಅಂಚು_Funcp}
         , m_loopGraphp{loopGraphp} {
         // Vertex::m_userp - New vertex if we have seen this vertex already
         // Edge::m_userp - New edge if we have seen this edge already
         m_graphp->userClearVertices();
-        m_graphp->userClearEdges();
-        (void)vertexIterateAll(vertexp);
+        m_graphp->user_Clear_ಅಂಚುಗಳು();
+        (ಶೂನ್ಯ)ಶೃಂಗ_Iterate_All(vertexp);
     }
-    ~GraphAlgSubtrees() = default;
+    ~ನಕ್ಷೆ_Alg_Subtrees() = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //! Report the entire connected graph with a loop or loops
-void V3Graph::subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp, V3Graph* loopGraphp) {
-    GraphAlgSubtrees{this, loopGraphp, edgeFuncp, vertexp};
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::subtreeLoops(V3_ಅಂಚು_Func_P ಅಂಚು_Funcp, V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp, V3_ನಕ್ಷೆ* loopGraphp) {
+    ನಕ್ಷೆ_Alg_Subtrees{ಇದು, loopGraphp, ಅಂಚು_Funcp, vertexp};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - sorting
 
-void V3Graph::sortVertices() {
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::ವಿಂಗಡಿಸು_Vertices() {
     // Sort list of vertices by rank, then fanout
-    std::vector<V3GraphVertex*> vertexps;
-    for (V3GraphVertex& vertex : m_vertices) vertexps.push_back(&vertex);
-    std::stable_sort(vertexps.begin(), vertexps.end(),
-                     [](const V3GraphVertex* lhsp, const V3GraphVertex* rhsp) {  //
-                         return lhsp->sortCmp(rhsp) < 0;
+    std::ಸದಿಶ<V3_ನಕ್ಷೆ_ಶೃಂಗ*> vertexps;
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : m_vertices) vertexps.ತಳ್ಳು_ಹಿಂಭಾಗ(&ಶೃಂಗ);
+    std::stable_ವಿಂಗಡಿಸು(vertexps.begin(), vertexps.ಕೊನೆ(),
+                     [](ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ* lhsp, ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ* rhsp) {  //
+                         ಹಿಂತಿರುಗಿ lhsp->ವಿಂಗಡಿಸು_Cmp(rhsp) < 0;
                      });
     // Re-insert in sorted order
-    for (V3GraphVertex* const vertexp : vertexps) {
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ* ಸ್ಥಿರಾಂಕ vertexp : vertexps) {
         m_vertices.unlink(vertexp);
-        m_vertices.linkBack(vertexp);
+        m_vertices.link_ಹಿಂಭಾಗ(vertexp);
     }
 }
 
-void V3Graph::sortEdges() {
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::ವಿಂಗಡಿಸು_ಅಂಚುಗಳು() {
     // Sort edges by rank then fanout of node they point to
-    std::vector<V3GraphEdge*> edges;
-    for (V3GraphVertex& vertex : vertices()) {
+    std::ಸದಿಶ<V3_ನಕ್ಷೆ_ಅಂಚು*> ಅಂಚುಗಳು;
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : vertices()) {
         // Make a vector
-        for (V3GraphEdge& edge : vertex.outEdges()) edges.push_back(&edge);
-        // Sort
-        std::stable_sort(edges.begin(), edges.end(),
-                         [](const V3GraphEdge* lhsp, const V3GraphEdge* rhsp) {  //
-                             return lhsp->sortCmp(rhsp) < 0;
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : ಶೃಂಗ.ಹೊರಹೋಗು_ಅಂಚುಗಳು()) ಅಂಚುಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(&ಅಂಚು);
+        //ವಿಂಗಡಿಸು
+        std::stable_ವಿಂಗಡಿಸು(ಅಂಚುಗಳು.begin(), ಅಂಚುಗಳು.ಕೊನೆ(),
+                         [](ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು* lhsp, ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು* rhsp) {  //
+                             ಹಿಂತಿರುಗಿ lhsp->ವಿಂಗಡಿಸು_Cmp(rhsp) < 0;
                          });
         // Relink edges in specified order
-        for (V3GraphEdge* const edgep : edges) edgep->relinkFromp(&vertex);
+        ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು* ಸ್ಥಿರಾಂಕ edgep : ಅಂಚುಗಳು) edgep->relinkFromp(&ಶೃಂಗ);
         // Prep for next
-        edges.clear();
+        ಅಂಚುಗಳು.clear();
     }
 }
 
@@ -514,101 +514,101 @@ void V3Graph::sortEdges() {
 //          Visit edges and assign ranks to keep minimal crossings
 //              (Results in better dcache packing.)
 
-void V3Graph::order() {
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::ಕ್ರಮ() {
     UINFO(2, "Order:");
 
     // Compute rankings again
-    rank(&V3GraphEdge::followAlwaysTrue);
-    orderPreRanked();
+    rank(&V3_ನಕ್ಷೆ_ಅಂಚು::followAlwaysTrue);
+    ಕ್ರಮ_Pre_Ranked();
 }
 
-void V3Graph::orderPreRanked() {
+ಶೂನ್ಯ V3_ನಕ್ಷೆ::ಕ್ರಮ_Pre_Ranked() {
     // Compute fanouts
     // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
     userClearVertices();
-    for (V3GraphVertex& vertex : vertices()) {
-        if (!vertex.user()) orderDFSIterate(&vertex);
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಶೃಂಗ& ಶೃಂಗ : vertices()) {
+        ಆದರೆ (!ಶೃಂಗ.user()) ಕ್ರಮ_DFSIterate(&ಶೃಂಗ);
     }
 
     // Sort list of vertices by rank, then fanout. Fanout is a bit of a
     // misnomer. It is the sum of all the fanouts of nodes reached from a node
     // *plus* the count of edges in to that node.
-    sortVertices();
+    ವಿಂಗಡಿಸು_Vertices();
     // Sort edges by rank then fanout of node they point to
-    sortEdges();
+    ವಿಂಗಡಿಸು_ಅಂಚುಗಳು();
 }
 
-double V3Graph::orderDFSIterate(V3GraphVertex* vertexp) {
+ದ್ವಿಗುಣ V3_ನಕ್ಷೆ::ಕ್ರಮ_DFSIterate(V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp) {
     // Compute fanouts of each node
     // If forward edge, don't double count that fanout
-    if (vertexp->user() == 2) return vertexp->fanout();  // Already processed it
+    ಆದರೆ (vertexp->user() == 2) ಹಿಂತಿರುಗಿ vertexp->fanout();  // Already processed it
     UASSERT_OBJ(vertexp->user() != 1, vertexp, "Loop found, backward edges should be dead");
     vertexp->user(1);
-    double fanout = 0;
-    for (V3GraphEdge& edge : vertexp->outEdges()) {
-        if (edge.weight()) fanout += orderDFSIterate(edge.top());
+    ದ್ವಿಗುಣ fanout = 0;
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಹೊರಹೋಗು_ಅಂಚುಗಳು()) {
+        ಆದರೆ (ಅಂಚು.ತೂಕ_2()) fanout += ಕ್ರಮ_DFSIterate(ಅಂಚು.ತುದಿ());
     }
     // Just count inbound edges
-    for (V3GraphEdge& edge : vertexp->inEdges()) {
-        if (edge.weight()) ++fanout;
+    ಗಾಗಿ (V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಒಳ_ಅಂಚುಗಳು()) {
+        ಆದರೆ (ಅಂಚು.ತೂಕ_2()) ++fanout;
     }
     vertexp->fanout(fanout);
     vertexp->user(2);
-    return vertexp->fanout();
+    ಹಿಂತಿರುಗಿ vertexp->fanout();
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - parallelism report
 
-class GraphAlgParallelismReport final {
+ವರ್ಗ ನಕ್ಷೆ_Alg_Parallelism_Report final {
     // MEMBERS
-    V3Graph& m_graph;  // The graph
-    const std::function<uint64_t(const V3GraphVertex*)> m_vertexCost;  // vertex cost function
-    V3Graph::ParallelismReport m_report;  // The result report
+    V3_ನಕ್ಷೆ& m_ನಕ್ಷೆ;  // The graph
+    ಸ್ಥಿರಾಂಕ std::function<uint64_t(ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ*)> m_ಶೃಂಗ_ವೆಚ್ಚ;  // vertex cost function
+    V3_ನಕ್ಷೆ::ParallelismReport m_report;  // The result report
 
     // CONSTRUCTORS
-    explicit GraphAlgParallelismReport(V3Graph& graph,
-                                       std::function<uint64_t(const V3GraphVertex*)> vertexCost)
-        : m_graph{graph}
-        , m_vertexCost{vertexCost} {
+    ಸ್ಪಷ್ಟ ನಕ್ಷೆ_Alg_Parallelism_Report(V3_ನಕ್ಷೆ& ನಕ್ಷೆ,
+                                       std::function<uint64_t(ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ*)> ಶೃಂಗ_ವೆಚ್ಚ)
+        : m_ನಕ್ಷೆ{ನಕ್ಷೆ}
+        , m_ಶೃಂಗ_ವೆಚ್ಚ{ಶೃಂಗ_ವೆಚ್ಚ} {
         // For each node, record the critical path cost from the start
         // of the graph through the end of the node.
-        std::unordered_map<const V3GraphVertex*, uint64_t> critPaths;
-        GraphStreamUnordered serialize{&m_graph};
-        for (const V3GraphVertex* vertexp; (vertexp = serialize.nextp());) {
-            ++m_report.m_vertexCount;
-            uint64_t cpCostToHere = 0;
-            for (const V3GraphEdge& edge : vertexp->inEdges()) {
-                ++m_report.m_edgeCount;
+        std::unordered_map<ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ*, uint64_t> critPaths;
+        ನಕ್ಷೆ_ಹರಿವು_Unordered serialize{&m_ನಕ್ಷೆ};
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ* vertexp; (vertexp = serialize.nextp());) {
+            ++m_report.m_ಶೃಂಗ_ಎಣಿಕೆ;
+            uint64_t cp_ವೆಚ್ಚ_ಗಮ್ಯ_ಇಲ್ಲಿ = 0;
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಅಂಚು& ಅಂಚು : vertexp->ಒಳ_ಅಂಚುಗಳು()) {
+                ++m_report.m_ಅಂಚು_ಎಣಿಕೆ;
                 // For each upstream item, add its critical path cost to
                 // the cost of this edge, to form a new candidate critical
                 // path cost to the current node. Whichever is largest is
                 // the critical path to reach the start of this node.
-                cpCostToHere = std::max(cpCostToHere, critPaths[edge.fromp()]);
+                cp_ವೆಚ್ಚ_ಗಮ್ಯ_ಇಲ್ಲಿ = std::max(cp_ವೆಚ್ಚ_ಗಮ್ಯ_ಇಲ್ಲಿ, critPaths[ಅಂಚು.fromp()]);
             }
             // Include the cost of the current vertex in the critical
             // path, so it represents the critical path to the end of
             // this vertex.
-            cpCostToHere += m_vertexCost(vertexp);
-            critPaths[vertexp] = cpCostToHere;
-            m_report.m_criticalPathCost = std::max(m_report.m_criticalPathCost, cpCostToHere);
+            cp_ವೆಚ್ಚ_ಗಮ್ಯ_ಇಲ್ಲಿ += m_ಶೃಂಗ_ವೆಚ್ಚ(vertexp);
+            critPaths[vertexp] = cp_ವೆಚ್ಚ_ಗಮ್ಯ_ಇಲ್ಲಿ;
+            m_report.m_critical_ಮಾರ್ಗ_ವೆಚ್ಚ = std::max(m_report.m_critical_ಮಾರ್ಗ_ವೆಚ್ಚ, cp_ವೆಚ್ಚ_ಗಮ್ಯ_ಇಲ್ಲಿ);
             // Tally the total cost contributed by vertices.
-            m_report.m_totalGraphCost += m_vertexCost(vertexp);
+            m_report.m_ಒಟ್ಟು_ನಕ್ಷೆ_ವೆಚ್ಚ += m_ಶೃಂಗ_ವೆಚ್ಚ(vertexp);
         }
     }
-    ~GraphAlgParallelismReport() = default;
-    VL_UNCOPYABLE(GraphAlgParallelismReport);
-    VL_UNMOVABLE(GraphAlgParallelismReport);
+    ~ನಕ್ಷೆ_Alg_Parallelism_Report() = ಪೂರ್ವನಿಯೋಜಿತ;
+    VL_UNCOPYABLE(ನಕ್ಷೆ_Alg_Parallelism_Report);
+    VL_UNMOVABLE(ನಕ್ಷೆ_Alg_Parallelism_Report);
 
-public:
-    static V3Graph::ParallelismReport
-    apply(V3Graph& graph, std::function<uint32_t(const V3GraphVertex*)> vertexCost) {
-        return GraphAlgParallelismReport(graph, vertexCost).m_report;
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ V3_ನಕ್ಷೆ::ParallelismReport
+    apply(V3_ನಕ್ಷೆ& ನಕ್ಷೆ, std::function<uint32_t(ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ*)> ಶೃಂಗ_ವೆಚ್ಚ) {
+        ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_Alg_Parallelism_Report(ನಕ್ಷೆ, ಶೃಂಗ_ವೆಚ್ಚ).m_report;
     }
 };
 
-V3Graph::ParallelismReport
-V3Graph::parallelismReport(std::function<uint64_t(const V3GraphVertex*)> vertexCost) {
-    return GraphAlgParallelismReport::apply(*this, vertexCost);
+V3_ನಕ್ಷೆ::ParallelismReport
+V3_ನಕ್ಷೆ::parallelismReport(std::function<uint64_t(ಸ್ಥಿರಾಂಕ V3_ನಕ್ಷೆ_ಶೃಂಗ*)> ಶೃಂಗ_ವೆಚ್ಚ) {
+    ಹಿಂತಿರುಗಿ ನಕ್ಷೆ_Alg_Parallelism_Report::apply(*ಇದು, ಶೃಂಗ_ವೆಚ್ಚ);
 }

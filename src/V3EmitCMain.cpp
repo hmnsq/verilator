@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitCMain.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitCMain.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitC.h"
+#ಅನ್ತರ್ಭಾವ "V3EmitCBase.h"
 
-#include <map>
+#ಅನ್ತರ್ಭಾವ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class EmitCMain final : EmitCBaseVisitorConst {
+ವರ್ಗ EmitCMain final : EmitCBaseVisitorConst {
     // METHODS
 
     // VISITORS
     // This visitor doesn't really iterate, but exist to appease base class
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }  // LCOV_EXCL_LINE
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildrenConst(nodep); }  // LCOV_EXCL_LINE
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTORS
     EmitCMain() { emitInt(); }
 
-private:
+ಖಾಸಗಿ:
     // MAIN METHOD
-    void emitInt() {
+    ಶೂನ್ಯ emitInt() {
         // Not defining main_time/vl_time_stamp, so
-        v3Global.opt.addCFlags("-DVL_TIME_CONTEXT");  // On MSVC++ anyways
+        v3Global.opt.ಕೂಡಿಸು_CFlags("-DVL_TIME_CONTEXT");  // On MSVC++ anyways
 
         // Optional main top name argument, with empty string replacement
-        string topName = v3Global.opt.mainTopName();
-        if (topName == "-") topName = "";
+        string ತುದಿ_Name = v3Global.opt.main_ತುದಿ_Name();
+        ಆದರೆ (ತುದಿ_Name == "-") ತುದಿ_Name = "";
 
-        openNewOutputSourceFile(EmitCUtil::topClassName() + "__main", false, false,
+        open_New_Output_ಮೂಲ_File(EmitCUtil::ತುದಿ_Class_Name() + "__main", ಸುಳ್ಳು, ಸುಳ್ಳು,
                                 "main() simulation loop, created with --main");
         puts("\n");
 
         // Heavily commented output, as users are likely to look at or copy this code
 
         puts("#include \"verilated.h\"\n");
-        if (v3Global.opt.vpi()) puts("#include \"verilated_vpi.h\"\n");
-        puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
-        if (v3Global.opt.debugRuntimeTimeout()) {
+        ಆದರೆ (v3Global.opt.vpi()) puts("#include \"verilated_vpi.h\"\n");
+        puts("#include \"" + EmitCUtil::ತುದಿ_Class_Name() + ".h\"\n");
+        ಆದರೆ (v3Global.opt.debugRuntimeTimeout()) {
             puts("\n");
             puts("#include <csignal>\n");
         }
         puts("\n");
 
-        if (v3Global.opt.vpi()) {
+        ಆದರೆ (v3Global.opt.vpi()) {
             puts("// User VPI code adds to this array to get startup main() callbacks\n");
             puts("extern \"C\" void (*vlog_startup_routines[])() VL_ATTR_WEAK;\n");
             puts("\n");
@@ -71,14 +71,14 @@ private:
 
         puts("//======================\n\n");
 
-        if (v3Global.opt.debugRuntimeTimeout()) {
+        ಆದರೆ (v3Global.opt.debugRuntimeTimeout()) {
             puts("void alarmHandler(int signum) {\n");
             // Add newline so %Error is at beginning-of-line, as might get the alarm
             // when in the middle of some other print with no newline
             puts("    VL_PRINTF_MT(\"\\n\");\n");
             puts("    VL_FATAL_MT(\"\", 0, \"\", \"Alarm signal received,"s
                  + " '--debug-runtime-timeout "s
-                 + std::to_string(v3Global.opt.debugRuntimeTimeout()) + "' exceeded\\n\");\n");
+                 + std::ಗಮ್ಯ_string(v3Global.opt.debugRuntimeTimeout()) + "' exceeded\\n\");\n");
             puts("}\n");
             puts("\n");
         }
@@ -87,23 +87,23 @@ private:
         puts("// Setup context, defaults, and parse command line\n");
         puts("Verilated::debug(0);\n");
         puts("const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};\n");
-        if (v3Global.opt.trace()) puts("contextp->traceEverOn(true);\n");
-        puts("contextp->threads(" + std::to_string(v3Global.opt.threads()) + ");\n");
+        ಆದರೆ (v3Global.opt.trace()) puts("contextp->traceEverOn(true);\n");
+        puts("contextp->threads(" + std::ಗಮ್ಯ_string(v3Global.opt.ಎಳೆಗಳು()) + ");\n");
         puts("contextp->commandArgs(argc, argv);\n");
         puts("\n");
 
-        if (v3Global.opt.debugRuntimeTimeout()) {
+        ಆದರೆ (v3Global.opt.debugRuntimeTimeout()) {
             puts("signal(SIGALRM, alarmHandler);\n");
-            puts("alarm("s + std::to_string(v3Global.opt.debugRuntimeTimeout()) + ");\n");
+            puts("alarm("s + std::ಗಮ್ಯ_string(v3Global.opt.debugRuntimeTimeout()) + ");\n");
             puts("\n");
         }
 
         puts("// Construct the Verilated model, from Vtop.h generated from Verilating\n");
-        puts("const std::unique_ptr<" + EmitCUtil::topClassName() + "> topp{new "
-             + EmitCUtil::topClassName() + "{contextp.get(), \"" + topName + "\"}};\n");
+        puts("const std::unique_ptr<" + EmitCUtil::ತುದಿ_Class_Name() + "> topp{new "
+             + EmitCUtil::ತುದಿ_Class_Name() + "{contextp.get(), \"" + ತುದಿ_Name + "\"}};\n");
         puts("\n");
 
-        if (v3Global.opt.vpi()) {
+        ಆದರೆ (v3Global.opt.vpi()) {
             // VPI shared libraries requested via +verilator+vpi+<lib> are loaded by
             // contextp->commandArgs() above, before the statically-linked startup routines.
             puts("// Hook VPI startup routines and invoke callback\n");
@@ -117,7 +117,7 @@ private:
 
         puts("// Simulate until $finish\n");
         puts("while (VL_LIKELY(!contextp->gotFinish())) {\n");
-        if (v3Global.opt.vpi()) {
+        ಆದರೆ (v3Global.opt.vpi()) {
             puts(/**/ "// VPI callbacks\n");
             puts(/**/ "VerilatedVpi::callTimedCbs();\n");
             puts(/**/ "VerilatedVpi::callCbs(cbNextSimTime);\n");  // Before next event queue
@@ -125,7 +125,7 @@ private:
         }
         puts(/**/ "// Evaluate model\n");
         puts(/**/ "topp->eval();\n");
-        if (v3Global.opt.vpi()) {
+        ಆದರೆ (v3Global.opt.vpi()) {
             puts(/**/ "// VPI callbacks\n");
             puts(/**/ "VerilatedVpi::callValueCbs();\n");
             puts(/**/ "VerilatedVpi::callCbs(cbAtEndOfSimTime);\n");  // After nonblocking events
@@ -133,15 +133,15 @@ private:
             puts(/**/ "VerilatedVpi::callCbs(cbReadOnlySynch);\n");  // After cbReadWriteSynch
         }
         puts(/**/ "// Advance time\n");
-        if (v3Global.rootp()->delaySchedulerp() || v3Global.opt.timing()) {
+        ಆದರೆ (v3Global.rootp()->delaySchedulerp() || v3Global.opt.timing()) {
             puts("if (!topp->eventsPending()) break;\n");
         }
-        const std::string nextSlot = v3Global.rootp()->delaySchedulerp() ? "topp->nextTimeSlot()"
+        ಸ್ಥಿರಾಂಕ std::string ಮುಂದಿನ_ಸ್ಥಾನ = v3Global.rootp()->delaySchedulerp() ? "topp->nextTimeSlot()"
                                                                          : "contextp->time() + 1";
-        if (v3Global.opt.vpi()) {
-            puts("contextp->time(std::min("s + nextSlot + ", VerilatedVpi::cbNextDeadline()));\n");
-        } else {
-            puts("contextp->time("s + nextSlot + ");\n");
+        ಆದರೆ (v3Global.opt.vpi()) {
+            puts("contextp->time(std::min("s + ಮುಂದಿನ_ಸ್ಥಾನ + ", VerilatedVpi::cbNextDeadline()));\n");
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            puts("contextp->time("s + ಮುಂದಿನ_ಸ್ಥಾನ + ");\n");
         }
 
         puts("}\n");
@@ -154,12 +154,12 @@ private:
 
         puts("// Execute 'final' processes\n");
         puts("topp->final();\n");
-        if (v3Global.opt.vpi()) puts("VerilatedVpi::callCbs(cbEndOfSimulation);\n");
+        ಆದರೆ (v3Global.opt.vpi()) puts("VerilatedVpi::callCbs(cbEndOfSimulation);\n");
         puts("\n");
 
-        if (v3Global.opt.coverage()) {
+        ಆದರೆ (v3Global.opt.coverage()) {
             puts("// Write coverage data (since Verilated with --coverage)\n");
-            if (v3Global.opt.coveragePerInstance()) {
+            ಆದರೆ (v3Global.opt.coverage_ಪ್ರತಿ_Instance()) {
                 puts("contextp->coveragep()->forcePerInstance(true);\n");
             }
             puts("contextp->coveragep()->write();\n");
@@ -180,7 +180,7 @@ private:
 //######################################################################
 // EmitC class functions
 
-void V3EmitCMain::emit() {
+ಶೂನ್ಯ V3EmitCMain::emit() {
     UINFO(2, __FUNCTION__ << ":");
-    { const EmitCMain visitor; }
+    { ಸ್ಥಿರಾಂಕ EmitCMain visitor; }
 }

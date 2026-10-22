@@ -18,35 +18,35 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ಅನ್ತರ್ಭಾವ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Unroll.h"
+#ಅನ್ತರ್ಭಾವ "V3Unroll.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#ಅನ್ತರ್ಭಾವ "V3Const.h"
+#ಅನ್ತರ್ಭಾವ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Statistics tracking
 
-struct UnrollStats final {
-    class Stat final {
-        size_t m_value = 0;  // Statistics value
-        const char* const m_name;  // Name for stats file and UDEBUG
+ರಚನೆ UnrollStats final {
+    ವರ್ಗ Stat final {
+        ಗಾತ್ರ_t m_ಮೌಲ್ಯ = 0;  // Statistics value
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ m_name;  // Name for stats file and UDEBUG
 
-    public:
-        explicit Stat(const char* const name)
+    ಸಾರ್ವಜನಿಕ:
+        ಸ್ಪಷ್ಟ Stat(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ name)
             : m_name{name} {}
-        ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_value); }
-        const char* name() const { return m_name; }
-        Stat& operator++() {
-            ++m_value;
-            return *this;
+        ~Stat() { V3Stats::ಕೂಡಿಸು_Stat("Optimizations, Loop unrolling, "s + m_name, m_ಮೌಲ್ಯ); }
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* name() ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ m_name; }
+        Stat& ಕ್ರಿಯಾಕಾರಕ++() {
+            ++m_ಮೌಲ್ಯ;
+            ಹಿಂತಿರುಗಿ *ಇದು;
         }
-        Stat& operator+=(size_t v) {
-            m_value += v;
-            return *this;
+        Stat& ಕ್ರಿಯಾಕಾರಕ+=(ಗಾತ್ರ_t v) {
+            m_ಮೌಲ್ಯ += v;
+            ಹಿಂತಿರುಗಿ *ಇದು;
         }
     };
 
@@ -57,55 +57,55 @@ struct UnrollStats final {
     Stat m_nFailInfinite{"Failed - infinite loop"};
     Stat m_nFailNestedLoopTest{"Failed - loop test in sub-statement"};
     Stat m_nFailTimingControl{"Failed - contains timing control"};
-    Stat m_nFailUnrollCount{"Failed - reached --unroll-count"};
+    Stat m_n_Fail_Unroll_ಎಣಿಕೆ{"Failed - reached --unroll-count"};
     Stat m_nFailUnrollStmts{"Failed - reached --unroll-stmts"};
     Stat m_nPragmaDisabled{"Pragma unroll_disable"};
     Stat m_nUnrolledLoops{"Unrolled loops"};
     Stat m_nUnrolledIters{"Unrolled iterations"};
-    Stat m_bitScanLowered{"Lowered priority-encoder to mostsetbitp1"};
-    Stat m_countOnesLowered{"Lowered count-set-bits to countones"};
+    Stat m_ಬಿಟ್_ಪರಿಶೀಲನೆ_Lowered{"Lowered priority-encoder to mostsetbitp1"};
+    Stat m_ಎಣಿಕೆ_Ones_Lowered{"Lowered count-set-bits to countones"};
 };
 
 //######################################################################
 // Variable bindings
-class UnrolllBindings final {
+ವರ್ಗ UnrolllBindings final {
     // NODE STATE
     // AstVarScope::user1()    int: index of the binding in m_bindings
-    const VNUser1InUse m_inuser1;
+    ಸ್ಥಿರಾಂಕ VNUser1_ಒಳ_Use m_inuser1;
 
     // STATE
     // Map from AstVarScope::user1() to current variable value, nullptr if not bound - idx 0 unused
-    std::vector<AstConst*> m_curr{nullptr};
+    std::ಸದಿಶ<AstConst*> m_curr{ಶೂನ್ಯಸೂಚಕ};
     // Stack of binding checkpoints
-    std::vector<std::vector<AstConst*>> m_checkpoints;
+    std::ಸದಿಶ<std::ಸದಿಶ<AstConst*>> m_checkpoints;
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // CONSTRUCTOR
-    UnrolllBindings() = default;
-    ~UnrolllBindings() = default;
+    UnrolllBindings() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~UnrolllBindings() = ಪೂರ್ವನಿಯೋಜಿತ;
     VL_UNCOPYABLE(UnrolllBindings);
     VL_UNMOVABLE(UnrolllBindings);
 
     // METHODS
-    void clear() {
+    ಶೂನ್ಯ clear() {
         m_curr.resize(1);
         m_checkpoints.clear();
-        AstNode::user1ClearTree();
+        Ast_ಗಂಟು::user1_Clear_ವೃಕ್ಷ();
     }
 
-    void checkpoint() { m_checkpoints.push_back(m_curr); }
+    ಶೂನ್ಯ checkpoint() { m_checkpoints.ತಳ್ಳು_ಹಿಂಭಾಗ(m_curr); }
 
-    void revert() {
-        m_curr = std::move(m_checkpoints.back());
-        m_checkpoints.pop_back();
+    ಶೂನ್ಯ revert() {
+        m_curr = std::move(m_checkpoints.ಹಿಂಭಾಗ());
+        m_checkpoints.ತೆಗೆ_ಹಿಂಭಾಗ();
     }
 
-    void commit() { m_checkpoints.pop_back(); }
+    ಶೂನ್ಯ commit() { m_checkpoints.ತೆಗೆ_ಹಿಂಭಾಗ(); }
 
-    void set(AstVarScope* vscp, AstConst* valp) {
-        if (!vscp->user1()) {
-            vscp->user1(m_curr.size());
-            m_curr.push_back(nullptr);
+    ಶೂನ್ಯ ಗಣ(AstVarScope* vscp, AstConst* valp) {
+        ಆದರೆ (!vscp->user1()) {
+            vscp->user1(m_curr.ಗಾತ್ರ_2());
+            m_curr.ತಳ್ಳು_ಹಿಂಭಾಗ(ಶೂನ್ಯಸೂಚಕ);
         }
         UINFO(6, "Binding SET " << vscp->name() << " / " << vscp->user1() << " := " << valp);
         m_curr[vscp->user1()] = valp;
@@ -113,175 +113,175 @@ public:
 
     AstConst* get(AstVarScope* vscp) {
         // It's possible after a revert that user1 is set, but the vector is shorter, pad up
-        if (static_cast<size_t>(vscp->user1()) >= m_curr.size()) {
-            m_curr.resize(vscp->user1() + 1, nullptr);
+        ಆದರೆ (static_cast<ಗಾತ್ರ_t>(vscp->user1()) >= m_curr.ಗಾತ್ರ_2()) {
+            m_curr.resize(vscp->user1() + 1, ಶೂನ್ಯಸೂಚಕ);
         }
-        AstConst* const valp = vscp->user1() ? m_curr[vscp->user1()] : nullptr;
+        AstConst* ಸ್ಥಿರಾಂಕ valp = vscp->user1() ? m_curr[vscp->user1()] : ಶೂನ್ಯಸೂಚಕ;
         UINFO(6, "Binding GET " << vscp->name() << " / " << vscp->user1() << " == " << valp);
-        return valp;
+        ಹಿಂತಿರುಗಿ valp;
     }
 };
 
 //######################################################################
 // Unroll one AstLoop
 
-class UnrollOneVisitor final : VNVisitor {
+ವರ್ಗ UnrollOneVisitor final : VNVisitor {
     // STATE
     UnrollStats& m_stats;  // Statistics tracking
     UnrolllBindings& m_bindings;  // Variable bindings
-    AstLoop* const m_loopp;  // The loop we are trying to unroll
-    AstNode* m_stmtsp = nullptr;  // Resulting unrolled statement
-    size_t m_unrolledSize = 0;  // Number of nodes in unrolled loop
+    AstLoop* ಸ್ಥಿರಾಂಕ m_loopp;  // The loop we are trying to unroll
+    Ast_ಗಂಟು* m_stmtsp = ಶೂನ್ಯಸೂಚಕ;  // Resulting unrolled statement
+    ಗಾತ್ರ_t m_unrolled_ಗಾತ್ರ = 0;  // Number of nodes in unrolled loop
     // Temporary block needed for iteration of cloned statements
-    AstBegin* const m_wrapp = new AstBegin{m_loopp->fileline(), "[EditWrapper]", nullptr, false};
-    const bool m_unrollFull = m_loopp->unroll().isSetTrue();  // Completely unroll the loop?
-    bool m_ok = true;  // Unrolling successful so far, gave up if false
+    AstBegin* ಸ್ಥಿರಾಂಕ m_wrapp = ಹೊಸ AstBegin{m_loopp->fileline(), "[EditWrapper]", ಶೂನ್ಯಸೂಚಕ, ಸುಳ್ಳು};
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ m_unroll_ತುಂಬಿದ = m_loopp->unroll().is_ಗಣ_True();  // Completely unroll the loop?
+    ತಾರ್ಕಿಕ m_ok = ನಿಜ;  // Unrolling successful so far, gave up if false
 
     // METHODS
-    void cantUnroll(AstNode* nodep, UnrollStats::Stat& stat) {
-        m_ok = false;
+    ಶೂನ್ಯ cantUnroll(Ast_ಗಂಟು* nodep, UnrollStats::Stat& stat) {
+        m_ok = ಸುಳ್ಳು;
         ++stat;
         UINFO(4, "   Can't Unroll: " << stat.name() << " :" << nodep);
     }
 
     // Returns false if the loop terminated (or we gave up)
-    bool unrollOneIteration(AstNode* stmtsp) {
+    ತಾರ್ಕಿಕ unrollOneIteration(Ast_ಗಂಟು* stmtsp) {
         // True if the loop contains at least one dependent AstLoopTest
-        bool foundLoopTest = false;
+        ತಾರ್ಕಿಕ ಸಿಕ್ಕಿತು_Loop_Test = ಸುಳ್ಳು;
         // Process one body statement at a time
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+        ಗಾಗಿ (Ast_ಗಂಟು* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Check if this is a loop test - before substitution
-            if (AstLoopTest* const testp = VN_CAST(stmtp, LoopTest)) {
-                AstNode* const condp = V3Const::constifyEdit(testp->condp());
-                if (condp->isZero()) {
+            ಆದರೆ (AstLoopTest* ಸ್ಥಿರಾಂಕ testp = VN_CAST(stmtp, LoopTest)) {
+                Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ condp = V3Const::constifyEdit(testp->condp());
+                ಆದರೆ (condp->isZero()) {
                     // Loop terminates
-                    return false;
-                } else if (condp->isNeqZero()) {
+                    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (condp->isNeqZero()) {
                     // Loop test is unconditionally true, ignore
-                    continue;
+                    ಮುಂದುವರಿ;
                 }
             }
 
             // Clone and iterate one body statement
-            m_wrapp->addStmtsp(stmtp->cloneTree(false));
-            iterateAndNextNull(m_wrapp->stmtsp());
+            m_wrapp->ಕೂಡಿಸು_Stmtsp(stmtp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+            iterate_And_ಮುಂದಿನ_Null(m_wrapp->stmtsp());
             // Give up if failed
-            if (!m_ok) return false;
+            ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
 
             // Add statements to unrolled body
-            while (AstNode* const nodep = m_wrapp->stmtsp()) {
+            ಆಗ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ nodep = m_wrapp->stmtsp()) {
                 // Check if we reached the size limit, unless full unrolling is requested
-                if (!m_unrollFull) {
-                    m_unrolledSize += nodep->nodeCount();
-                    if (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
+                ಆದರೆ (!m_unroll_ತುಂಬಿದ) {
+                    m_unrolled_ಗಾತ್ರ += nodep->ಗಂಟು_ಎಣಿಕೆ();
+                    ಆದರೆ (m_unrolled_ಗಾತ್ರ > static_cast<ಗಾತ್ರ_t>(v3Global.opt.unrollStmts())) {
                         cantUnroll(m_loopp, m_stats.m_nFailUnrollStmts);
-                        return false;
+                        ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                     }
                 }
 
                 // Will be adding to results (or deleting)
-                nodep->unlinkFrBack();
+                nodep->unlink_Fr_ಹಿಂಭಾಗ();
 
                 // If a LoopTest, check how it resolved
-                if (AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
-                    foundLoopTest = true;
+                ಆದರೆ (AstLoopTest* ಸ್ಥಿರಾಂಕ testp = VN_CAST(nodep, LoopTest)) {
+                    ಸಿಕ್ಕಿತು_Loop_Test = ನಿಜ;
                     // Will not actually need it, nor any subsequent
-                    pushDeletep(testp);  // TODO testp used past here
+                    ತಳ್ಳು_Deletep(testp);  // TODO testp used past here
                     // Loop continues - add rest of statements
-                    if (testp->condp()->isNeqZero()) continue;
+                    ಆದರೆ (testp->condp()->isNeqZero()) ಮುಂದುವರಿ;
                     // Won't need any of the trailing statements
-                    if (m_wrapp->stmtsp()) pushDeletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
+                    ಆದರೆ (m_wrapp->stmtsp()) ತಳ್ಳು_Deletep(m_wrapp->stmtsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
                     // Loop terminates
-                    if (testp->condp()->isZero()) return false;
+                    ಆದರೆ (testp->condp()->isZero()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                     // Loop condition unknown - cannot unroll
                     cantUnroll(testp->condp(), m_stats.m_nFailCondition);
-                    return false;
+                    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 }
 
                 // Add this statement to the result list
-                m_stmtsp = AstNode::addNext(m_stmtsp, nodep);
+                m_stmtsp = Ast_ಗಂಟು::ಕೂಡಿಸು_ಮುಂದಿನ(m_stmtsp, nodep);
 
                 // Check if terminated via JumpGo
-                if (VN_IS(nodep, JumpGo)) {
+                ಆದರೆ (VN_IS(nodep, JumpGo)) {
                     UASSERT_OBJ(!m_wrapp->stmtsp(), nodep, "Statements after JumpGo");
                     // This JumpGo is going directly into the body of the unrolled loop.
                     // A JumpGo always redirects to the end of an enclosing JumpBlock,
                     // so this JumpGo must go outside the loop. The loop terminates.
-                    return false;
+                    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
                 }
             }
         }
         // If there is no loop test in the body, give up, it's an infinite loop
-        if (!foundLoopTest) {
+        ಆದರೆ (!ಸಿಕ್ಕಿತು_Loop_Test) {
             cantUnroll(m_loopp, m_stats.m_nFailInfinite);
-            return false;
+            ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         }
         // One iteration done, loop continues
-        return true;
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
 
     // Substitute all reads of bound variables with their value. If a write is
     // encountered, remove the binding and don't substitute that variable.
     // Returns false if we can't unroll
-    bool process(AstNode* nodep) {
+    ತಾರ್ಕಿಕ process(Ast_ಗಂಟು* nodep) {
         UASSERT_OBJ(m_ok, nodep, "Should not call 'substituteCondVscp' if we gave up");
-        if (!nodep) return true;
+        ಆದರೆ (!nodep) ಹಿಂತಿರುಗಿ ನಿಜ;
         // Variable references we should try to substitute
-        std::vector<AstVarRef*> toSubstitute;
+        std::ಸದಿಶ<AstVarRef*> ಗಮ್ಯ_Substitute;
         // Iterate subtree
-        nodep->foreach([&](AstNode* np) {
+        nodep->foreach([&](Ast_ಗಂಟು* np) {
             // Failed earlier
-            if (!m_ok) return;
+            ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ;
             // Check for AstLoopTest
-            if (AstLoopTest* const testp = VN_CAST(np, LoopTest)) {
+            ಆದರೆ (AstLoopTest* ಸ್ಥಿರಾಂಕ testp = VN_CAST(np, LoopTest)) {
                 // Nested loop is OK, bail only if the nested LoopTest is for the current loop
-                if (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
-                return;
+                ಆದರೆ (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
+                ಹಿಂತಿರುಗಿ;
             }
             // Check for AstFork - can't unroll
-            if (VN_IS(np, Fork)) {
+            ಆದರೆ (VN_IS(np, Fork)) {
                 cantUnroll(np, m_stats.m_nFailFork);
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
             // Check for calls - can't unroll if not pure might modify bindings
-            if (AstNodeCCall* const callp = VN_CAST(np, NodeCCall)) {
-                if (!callp->isPure()) {
+            ಆದರೆ (Ast_ಗಂಟು_CCall* ಸ್ಥಿರಾಂಕ callp = VN_CAST(np, ಗಂಟು_CCall)) {
+                ಆದರೆ (!callp->is_ಶುದ್ಧ()) {
                     cantUnroll(np, m_stats.m_nFailCall);
-                    return;
+                    ಹಿಂತಿರುಗಿ;
                 }
             }
             // Check for timing control - can't unroll, might modify bindings
-            if (np->isTimingControl()) {
+            ಆದರೆ (np->isTimingControl()) {
                 cantUnroll(np, m_stats.m_nFailTimingControl);
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
             // Process variable references
-            AstVarRef* const refp = VN_CAST(np, VarRef);
-            if (!refp) return;
+            AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(np, VarRef);
+            ಆದರೆ (!refp) ಹಿಂತಿರುಗಿ;
             // Ignore if the referenced variable has no binding
-            AstConst* const valp = m_bindings.get(refp->varScopep());
-            if (!valp) return;
+            AstConst* ಸ್ಥಿರಾಂಕ valp = m_bindings.get(refp->varScopep());
+            ಆದರೆ (!valp) ಹಿಂತಿರುಗಿ;
             // If writen, remove the binding
-            if (refp->access().isWriteOrRW()) {
-                m_bindings.set(refp->varScopep(), nullptr);
-                return;
+            ಆದರೆ (refp->access().isWriteOrRW()) {
+                m_bindings.ಗಣ(refp->varScopep(), ಶೂನ್ಯಸೂಚಕ);
+                ಹಿಂತಿರುಗಿ;
             }
             // Otherwise add it to the list of variables to substitute
-            toSubstitute.push_back(refp);
+            ಗಮ್ಯ_Substitute.ತಳ್ಳು_ಹಿಂಭಾಗ(refp);
         });
         // Give up if we have to
-        if (!m_ok) return false;
+        ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // Actually substitute the variables that still have bindings
-        for (AstVarRef* const refp : toSubstitute) {
+        ಗಾಗಿ (AstVarRef* ಸ್ಥಿರಾಂಕ refp : ಗಮ್ಯ_Substitute) {
             // Pick up bound value
-            AstConst* const valp = m_bindings.get(refp->varScopep());
+            AstConst* ಸ್ಥಿರಾಂಕ valp = m_bindings.get(refp->varScopep());
             // Binding might have been removed after adding to 'toSubstitute'
-            if (!valp) continue;
+            ಆದರೆ (!valp) ಮುಂದುವರಿ;
             // Substitute it
-            refp->replaceWith(valp->cloneTree(false));
-            VL_DO_DANGLING(pushDeletep(refp), refp);
+            refp->replaceWith(valp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು));
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(refp), refp);
         }
-        return true;
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
 
     // CONSTRUCTOR
@@ -291,135 +291,135 @@ class UnrollOneVisitor final : VNVisitor {
         , m_loopp{loopp} {
         UASSERT_OBJ(!loopp->contsp(), loopp, "'contsp' only used before LinkJump");
         // Do not unroll if we are told not to
-        if (loopp->unroll().isSetFalse()) {
+        ಆದರೆ (loopp->unroll().is_ಗಣ_False()) {
             cantUnroll(loopp, m_stats.m_nPragmaDisabled);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
         // Attempt to unroll the loop
-        const size_t iterLimit = m_unrollFull ? v3Global.opt.unrollLimit()  //
-                                              : v3Global.opt.unrollCount();
-        size_t iterCount = 0;
-        do {
-            if (iterCount > iterLimit) {
-                cantUnroll(m_loopp, m_stats.m_nFailUnrollCount);
-                if (m_unrollFull) {
+        ಸ್ಥಿರಾಂಕ ಗಾತ್ರ_t iter_ಎಲ್ಲೆ = m_unroll_ತುಂಬಿದ ? v3Global.opt.unroll_ಎಲ್ಲೆ()  //
+                                              : v3Global.opt.unroll_ಎಣಿಕೆ();
+        ಗಾತ್ರ_t iter_ಎಣಿಕೆ = 0;
+        ಮಾಡು {
+            ಆದರೆ (iter_ಎಣಿಕೆ > iter_ಎಲ್ಲೆ) {
+                cantUnroll(m_loopp, m_stats.m_n_Fail_Unroll_ಎಣಿಕೆ);
+                ಆದರೆ (m_unroll_ತುಂಬಿದ) {
                     loopp->v3error("Unrolling procedural loop with '/* verilator unroll_full */' "
                                    "took too long; probably this is an infinite loop, otherwise "
                                    "set '--unroll-limit' above "
-                                   << iterLimit);
+                                   << iter_ಎಲ್ಲೆ);
                 }
-                return;
+                ಹಿಂತಿರುಗಿ;
             }
-            ++iterCount;
-        } while (unrollOneIteration(loopp->stmtsp()));
+            ++iter_ಎಣಿಕೆ;
+        } ಆಗ (unrollOneIteration(loopp->stmtsp()));
 
-        if (m_ok) {
+        ಆದರೆ (m_ok) {
             ++m_stats.m_nUnrolledLoops;
-            m_stats.m_nUnrolledIters += iterCount;
+            m_stats.m_nUnrolledIters += iter_ಎಣಿಕೆ;
         }
     }
-    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->deleteTree(), m_wrapp); }
+    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->delete_ವೃಕ್ಷ(), m_wrapp); }
 
     // VISIT - these are called for the statements directly in the loop body
-    void visit(AstNode* nodep) override {
-        if (!m_ok) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override {
+        ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ;
         // Generic body statement, just substitute
         process(nodep);
     }
-    void visit(AstLoopTest* nodep) override {
-        if (!m_ok) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstLoopTest* nodep) override {
+        ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ;
         // If the condition is a ExprStmt, move it before the LoopTest
-        if (AstExprStmt* const exprp = VN_CAST(nodep->condp(), ExprStmt)) {
-            AstNode* const stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
-            exprp->replaceWith(exprp->resultp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
+        ಆದರೆ (Ast_ಅಭಿವ್ಯಕ್ತಿ_Stmt* ಸ್ಥಿರಾಂಕ exprp = VN_CAST(nodep->condp(), ಅಭಿವ್ಯಕ್ತಿ_Stmt)) {
+            Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ stmtsp = exprp->stmtsp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ();
+            exprp->replaceWith(exprp->resultp()->unlink_Fr_ಹಿಂಭಾಗ());
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(exprp), exprp);
             VNRelinker relinker;
-            nodep->unlinkFrBack(&relinker);
-            stmtsp->addNext(nodep);
+            nodep->unlink_Fr_ಹಿಂಭಾಗ(&relinker);
+            stmtsp->ಕೂಡಿಸು_ಮುಂದಿನ(nodep);
             relinker.relink(stmtsp);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
         // Substitute the condition only, this is not a nested AstLoopTest
         process(nodep->condp());
         // Also simplify it, it will be checked later
         V3Const::constifyEdit(nodep->condp());
     }
-    void visit(AstAssign* nodep) override {
-        if (!m_ok) return;
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ನಿಯೋಜಿಸು* nodep) override {
+        ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ;
         // Can't do it if delayed
-        if (nodep->timingControlp()) {
+        ಆದರೆ (nodep->timingControlp()) {
             cantUnroll(nodep, m_stats.m_nFailTimingControl);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        if (!process(nodep->rhsp())) return;
+        ಆದರೆ (!process(nodep->rhsp())) ಹಿಂತಿರುಗಿ;
         // If a simple variable assignment, update the binding
-        AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef);
-        AstConst* const valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
-        if (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
-            m_bindings.set(lhsp->varScopep(), valp);
-            return;
+        AstVarRef* ಸ್ಥಿರಾಂಕ lhsp = VN_CAST(nodep->lhsp(), VarRef);
+        AstConst* ಸ್ಥಿರಾಂಕ valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
+        ಆದರೆ (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
+            m_bindings.ಗಣ(lhsp->varScopep(), valp);
+            ಹಿಂತಿರುಗಿ;
         }
         // Otherwise just like a generic statement
         process(nodep->lhsp());
     }
-    void visit(AstIf* nodep) override {
-        if (!m_ok) return;
-        if (!process(nodep->condp())) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstIf* nodep) override {
+        ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ;
+        ಆದರೆ (!process(nodep->condp())) ಹಿಂತಿರುಗಿ;
         // If condition is constant, replce with the relevant branch
-        if (AstConst* const condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
-            if (AstNode* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
-                nodep->addNextHere(bodyp->unlinkFrBackWithNext());  // This will be iterated next
+        ಆದರೆ (AstConst* ಸ್ಥಿರಾಂಕ condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
+            ಆದರೆ (Ast_ಗಂಟು* ಸ್ಥಿರಾಂಕ bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
+                nodep->ಕೂಡಿಸು_ಮುಂದಿನ_ಇಲ್ಲಿ(bodyp->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());  // This will be iterated next
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlink_Fr_ಹಿಂಭಾಗ()), nodep);
+            ಹಿಂತಿರುಗಿ;
         }
         // Otherwise just like a generic statement
         process(nodep);
     }
-    void visit(AstJumpGo* nodep) override {
-        if (!m_ok) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstJumpGo* nodep) override {
+        ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ;
         // Remove trailing dead code
-        if (nodep->nextp()) pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
+        ಆದರೆ (nodep->nextp()) ತಳ್ಳು_Deletep(nodep->nextp()->unlink_Fr_ಹಿಂಭಾಗ_With_ಮುಂದಿನ());
     }
-    void visit(AstLoop* nodep) override {
-        if (!m_ok) return;
+    ಶೂನ್ಯ ಭೇಟಿ(AstLoop* nodep) override {
+        ಆದರೆ (!m_ok) ಹಿಂತಿರುಗಿ;
         m_bindings.checkpoint();
-        std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        std::pair<Ast_ಗಂಟು*, ತಾರ್ಕಿಕ> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, revert the bindings and process the loop as a generic statement
-        if (!pair.second) {
+        ಆದರೆ (!pair.ಎರಡನೇ) {
             m_bindings.revert();
             process(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
         // Commit the bindings and replace the loop with the unrolled code
         m_bindings.commit();
-        if (pair.first) {
-            nodep->replaceWith(pair.first);
-        } else {
-            nodep->unlinkFrBack();
+        ಆದರೆ (pair.ಮೊದಲ) {
+            nodep->replaceWith(pair.ಮೊದಲ);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            nodep->unlink_Fr_ಹಿಂಭಾಗ();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
     }
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Unroll the given loop. Returns the resulting statements and a flag indicating success
-    static std::pair<AstNode*, bool> apply(UnrollStats& stats, UnrolllBindings& bindings,
+    ಸ್ಥಿರ std::pair<Ast_ಗಂಟು*, ತಾರ್ಕಿಕ> apply(UnrollStats& stats, UnrolllBindings& bindings,
                                            AstLoop* loopp) {
         UnrollOneVisitor visitor{stats, bindings, loopp};
         // If successfully unrolled, return the resulting list of statements - might be empty
-        if (visitor.m_ok) return {visitor.m_stmtsp, true};
+        ಆದರೆ (visitor.m_ok) ಹಿಂತಿರುಗಿ {visitor.m_stmtsp, ನಿಜ};
         // Otherwise delete intermediate results
-        if (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->deleteTree(), visitor.m_stmtsp);
-        return {nullptr, false};
+        ಆದರೆ (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->delete_ವೃಕ್ಷ(), visitor.m_stmtsp);
+        ಹಿಂತಿರುಗಿ {ಶೂನ್ಯಸೂಚಕ, ಸುಳ್ಳು};
     }
 };
 
 //######################################################################
 // Unroll all AstLoop statements
 
-class UnrollAllVisitor final : VNVisitor {
+ವರ್ಗ UnrollAllVisitor final : VNVisitor {
     // STATE
     UnrollStats m_stats;  // Statistic tracking
     UnrolllBindings m_bindings;  // Variable bindings
@@ -428,62 +428,62 @@ class UnrollAllVisitor final : VNVisitor {
     // Peel value-preserving width casts (Extend/ExtendS, or a low-bits Sel with lsb 0) to the
     // underlying VarRef.  A Sel kept narrower than 'minWidth' is a lossy narrowing (idx[1:0])
     // and is rejected.
-    static AstVarRef* unwrapToVarRef(AstNodeExpr* nodep, int minWidth) {
-        while (true) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp;
-            if (AstExtend* const ep = VN_CAST(nodep, Extend)) {
+    ಸ್ಥಿರ AstVarRef* unwrap_ಗಮ್ಯ_Var_Ref(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* nodep, ಪೂರ್ಣಾಂಕ min_ಅಗಲ) {
+        ಆಗ (ನಿಜ) {
+            ಆದರೆ (AstVarRef* ಸ್ಥಿರಾಂಕ refp = VN_CAST(nodep, VarRef)) ಹಿಂತಿರುಗಿ refp;
+            ಆದರೆ (AstExtend* ಸ್ಥಿರಾಂಕ ep = VN_CAST(nodep, Extend)) {
                 nodep = ep->lhsp();
-            } else if (AstExtendS* const ep = VN_CAST(nodep, ExtendS)) {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstExtendS* ಸ್ಥಿರಾಂಕ ep = VN_CAST(nodep, ExtendS)) {
                 nodep = ep->lhsp();
-            } else if (AstSel* const sp = VN_CAST(nodep, Sel)) {
-                const AstConst* const lsbp = VN_CAST(sp->lsbp(), Const);
-                if (!lsbp || lsbp->toUInt() != 0 || sp->width() < minWidth) return nullptr;
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstSel* ಸ್ಥಿರಾಂಕ sp = VN_CAST(nodep, Sel)) {
+                ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ lsbp = VN_CAST(sp->lsbp(), Const);
+                ಆದರೆ (!lsbp || lsbp->ಗಮ್ಯ_UInt() != 0 || sp->ಅಗಲ() < min_ಅಗಲ) ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
                 nodep = sp->fromp();
-            } else {
-                return nullptr;
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಹಿಂತಿರುಗಿ ಶೂನ್ಯಸೂಚಕ;
             }
         }
     }
     // True if 'nodep' is exactly '1 + var' for 'vscp' (V3Const puts the constant on the LHS).
     // Passing the add's width as minWidth rejects a lossy increment like 32'(i[1:0]) + 1.
-    bool isVarPlus1(AstNode* nodep, const AstVarScope* vscp) {
-        AstAdd* const addp = VN_CAST(nodep, Add);
-        if (!addp || !addp->lhsp()->isOne()) return false;
-        const AstVarRef* const r = unwrapToVarRef(addp->rhsp(), addp->width());
-        return r && r->varScopep() == vscp;
+    ತಾರ್ಕಿಕ isVarPlus1(Ast_ಗಂಟು* nodep, ಸ್ಥಿರಾಂಕ AstVarScope* vscp) {
+        Ast_ಕೂಡಿಸು* ಸ್ಥಿರಾಂಕ addp = VN_CAST(nodep, ಕೂಡಿಸು_2);
+        ಆದರೆ (!addp || !addp->lhsp()->isOne()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ r = unwrap_ಗಮ್ಯ_Var_Ref(addp->rhsp(), addp->ಅಗಲ());
+        ಹಿಂತಿರುಗಿ r && r->varScopep() == vscp;
     }
     // Resize the 32-bit reduction to the accumulator width; truncating the low bits matches
     // the original counted loop's wrap-around.
-    static AstNodeExpr* resizeToWidth(AstNodeExpr* exprp, const AstVarRef* targetRefp) {
-        const int width = targetRefp->width();
-        if (width == 32) return exprp;
-        FileLine* const flp = exprp->fileline();
-        if (width < 32) return new AstSel{flp, exprp, 0, width};
-        AstExtend* const extp = new AstExtend{flp, exprp};
-        extp->dtypeFrom(targetRefp);
-        return extp;
+    ಸ್ಥಿರ Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* resize_ಗಮ್ಯ_ಅಗಲ(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* exprp, ಸ್ಥಿರಾಂಕ AstVarRef* ಗುರಿ_Refp) {
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಗಲ = ಗುರಿ_Refp->ಅಗಲ();
+        ಆದರೆ (ಅಗಲ == 32) ಹಿಂತಿರುಗಿ exprp;
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = exprp->fileline();
+        ಆದರೆ (ಅಗಲ < 32) ಹಿಂತಿರುಗಿ ಹೊಸ AstSel{flp, exprp, 0, ಅಗಲ};
+        AstExtend* ಸ್ಥಿರಾಂಕ extp = ಹೊಸ AstExtend{flp, exprp};
+        extp->dtypeFrom(ಗುರಿ_Refp);
+        ಹಿಂತಿರುಗಿ extp;
     }
     // Match a strict ascending loop bound 'idx < W'.  V3Const canonicalizes this to the
     // 'W > idx' form (Gt unsigned, GtS signed), so only that form is matched.
-    static bool ascendingBound(AstNodeExpr* condp, AstConst*& wp, AstVarRef*& idxRefp) {
-        if (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ ascendingBound(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, AstConst*& wp, AstVarRef*& idxRefp) {
+        ಆದರೆ (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        Ast_ಗಂಟು_Biop* ಸ್ಥಿರಾಂಕ bp = VN_AS(condp, ಗಂಟು_Biop);
         wp = VN_CAST(bp->lhsp(), Const);
         idxRefp = VN_CAST(bp->rhsp(), VarRef);
-        return wp && idxRefp && !wp->num().isFourState();
+        ಹಿಂತಿರುಗಿ wp && idxRefp && !wp->ಅಂಕೆ().isFourState();
     }
     // Recognize the redundant in-range guard Verilator auto-inserts for a select into a
     // non-power-of-two vector.  V3Const canonicalizes 'idx <= C' to '(C >= idx)' (Gte/GteS,
     // const on the LHS), so only that form occurs; with C >= W-1 it is always true for idx
     // in 0..W-1.
-    static bool isInRangeGuard(AstNodeExpr* condp, const AstVarScope* idxVscp, uint32_t width,
-                               int addrBits) {
-        if (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
-        const AstConst* const cp = VN_CAST(bp->lhsp(), Const);
-        if (!cp || cp->num().isFourState() || cp->toUInt() < width - 1) return false;
-        const AstVarRef* const r = unwrapToVarRef(bp->rhsp(), addrBits);
-        return r && r->varScopep() == idxVscp;
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ is_ಒಳ_Range_Guard(Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp, ಸ್ಥಿರಾಂಕ AstVarScope* idxVscp, uint32_t ಅಗಲ,
+                               ಪೂರ್ಣಾಂಕ addr_ಬಿಟ್ಟುಗಳು) {
+        ಆದರೆ (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        Ast_ಗಂಟು_Biop* ಸ್ಥಿರಾಂಕ bp = VN_AS(condp, ಗಂಟು_Biop);
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ cp = VN_CAST(bp->lhsp(), Const);
+        ಆದರೆ (!cp || cp->ಅಂಕೆ().isFourState() || cp->ಗಮ್ಯ_UInt() < ಅಗಲ - 1) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ r = unwrap_ಗಮ್ಯ_Var_Ref(bp->rhsp(), addr_ಬಿಟ್ಟುಗಳು);
+        ಹಿಂತಿರುಗಿ r && r->varScopep() == idxVscp;
     }
     // Recognize a single-bit scan loop over all W bits of 'vec' (idx 0..W-1, target
     // pre-zeroed) and lower it to a bit-reduction primitive.  Two idioms are matched:
@@ -492,151 +492,151 @@ class UnrollAllVisitor final : VNVisitor {
     // where, when W == width(vec):
     //   <e> = idx + 1     => target = $mostsetbitp1(vec)  (leading-one / bit-width)
     //   <e> = target + 1  => target = $countones(vec)     (population count)
-    bool tryLowerBitScanLoop(AstLoop* loopp) {
-        AstLoopTest* const testp = VN_CAST(loopp->stmtsp(), LoopTest);
-        if (!testp) return false;
-        AstIf* const ifp = VN_CAST(testp->nextp(), If);
-        if (!ifp) return false;
-        AstAssign* const incp = VN_CAST(ifp->nextp(), Assign);
-        if (!incp || incp->nextp()) return false;
-        AstConst* wp = nullptr;
-        AstVarRef* idxRefp = nullptr;
-        if (!ascendingBound(testp->condp(), wp, idxRefp)) return false;
-        AstVarScope* const idxVscp = idxRefp->varScopep();
-        const uint32_t width = wp->toUInt();
+    ತಾರ್ಕಿಕ try_ಅಧೋ_ಬಿಟ್_ಪರಿಶೀಲನೆ_Loop(AstLoop* loopp) {
+        AstLoopTest* ಸ್ಥಿರಾಂಕ testp = VN_CAST(loopp->stmtsp(), LoopTest);
+        ಆದರೆ (!testp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        AstIf* ಸ್ಥಿರಾಂಕ ifp = VN_CAST(testp->nextp(), If);
+        ಆದರೆ (!ifp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ incp = VN_CAST(ifp->nextp(), ನಿಯೋಜಿಸು);
+        ಆದರೆ (!incp || incp->nextp()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        AstConst* wp = ಶೂನ್ಯಸೂಚಕ;
+        AstVarRef* idxRefp = ಶೂನ್ಯಸೂಚಕ;
+        ಆದರೆ (!ascendingBound(testp->condp(), wp, idxRefp)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        AstVarScope* ಸ್ಥಿರಾಂಕ idxVscp = idxRefp->varScopep();
+        ಸ್ಥಿರಾಂಕ uint32_t ಅಗಲ = wp->ಗಮ್ಯ_UInt();
         // Bits needed to address all W bits of 'vec' (clog2(W)); a narrower index is lossy.
-        const int addrBits = width <= 1 ? 1 : V3Number::log2b(width - 1) + 1;
-        const AstConst* const idxInitp = m_bindings.get(idxVscp);
-        if (!idxInitp || !idxInitp->isZero()) return false;
-        AstVarRef* const incLhsp = VN_CAST(incp->lhsp(), VarRef);
-        if (!incLhsp || incLhsp->varScopep() != idxVscp) return false;
-        if (!isVarPlus1(incp->rhsp(), idxVscp)) return false;
-        if (ifp->elsesp()) return false;
-        AstAssign* const thenp = VN_CAST(ifp->thensp(), Assign);
-        if (!thenp || thenp->nextp()) return false;
-        AstVarRef* const targetRefp = VN_CAST(thenp->lhsp(), VarRef);
-        if (!targetRefp) return false;
-        AstVarScope* const targetVscp = targetRefp->varScopep();
-        if (targetVscp == idxVscp) return false;
-        const bool isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
-        const bool isCountOnes = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
-        if (!isLeadingOne && !isCountOnes) return false;
+        ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ addr_ಬಿಟ್ಟುಗಳು = ಅಗಲ <= 1 ? 1 : V3_ಸಂಖ್ಯೆ::log2b(ಅಗಲ - 1) + 1;
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ idxInitp = m_bindings.get(idxVscp);
+        ಆದರೆ (!idxInitp || !idxInitp->isZero()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        AstVarRef* ಸ್ಥಿರಾಂಕ incLhsp = VN_CAST(incp->lhsp(), VarRef);
+        ಆದರೆ (!incLhsp || incLhsp->varScopep() != idxVscp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಆದರೆ (!isVarPlus1(incp->rhsp(), idxVscp)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಆದರೆ (ifp->elsesp()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ thenp = VN_CAST(ifp->thensp(), ನಿಯೋಜಿಸು);
+        ಆದರೆ (!thenp || thenp->nextp()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        AstVarRef* ಸ್ಥಿರಾಂಕ ಗುರಿ_Refp = VN_CAST(thenp->lhsp(), VarRef);
+        ಆದರೆ (!ಗುರಿ_Refp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        AstVarScope* ಸ್ಥಿರಾಂಕ ಗುರಿ_Vscp = ಗುರಿ_Refp->varScopep();
+        ಆದರೆ (ಗುರಿ_Vscp == idxVscp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ is_ಎಣಿಕೆ_Ones = !isLeadingOne && isVarPlus1(thenp->rhsp(), ಗುರಿ_Vscp);
+        ಆದರೆ (!isLeadingOne && !is_ಎಣಿಕೆ_Ones) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // If-cond is the 1-bit select 'vec[idx]', possibly wrapped in the redundant in-range
         // guard Verilator auto-inserts (as 'guard && sel') for a non-power-of-two vector:
         //   '(idx <= W-1) && vec[idx]'        (default / --x-assign 0; a LogAnd), or
         //   '(idx <= W-1) ? vec[idx] : <x>'   (--x-assign unique; a Cond).
         // The guard is always true for idx in 0..W-1, so peel it to reach the select.  Any
         // other compound condition (e.g. 'vec[idx] && en') leaves a non-select, rejected below.
-        AstNodeExpr* condp = ifp->condp();
-        if (AstLogAnd* const andp = VN_CAST(condp, LogAnd)) {
-            if (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
-        } else if (AstCond* const ternp = VN_CAST(condp, Cond)) {
-            if (isInRangeGuard(ternp->condp(), idxVscp, width, addrBits)) condp = ternp->thenp();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* condp = ifp->condp();
+        ಆದರೆ (AstLogAnd* ಸ್ಥಿರಾಂಕ andp = VN_CAST(condp, LogAnd)) {
+            ಆದರೆ (is_ಒಳ_Range_Guard(andp->lhsp(), idxVscp, ಅಗಲ, addr_ಬಿಟ್ಟುಗಳು)) condp = andp->rhsp();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (AstCond* ಸ್ಥಿರಾಂಕ ternp = VN_CAST(condp, Cond)) {
+            ಆದರೆ (is_ಒಳ_Range_Guard(ternp->condp(), idxVscp, ಅಗಲ, addr_ಬಿಟ್ಟುಗಳು)) condp = ternp->thenp();
         }
-        AstSel* const selp = VN_CAST(condp, Sel);
-        if (!selp || selp->width() != 1) return false;
-        const AstVarRef* const fromp = VN_CAST(selp->fromp(), VarRef);
-        if (!fromp) return false;
-        const AstVarScope* const fromVscp = fromp->varScopep();
-        if (fromVscp == idxVscp || fromVscp == targetVscp) return false;
-        AstNodeExpr* const vecExprp = selp->fromp();
+        AstSel* ಸ್ಥಿರಾಂಕ selp = VN_CAST(condp, Sel);
+        ಆದರೆ (!selp || selp->ಅಗಲ() != 1) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ fromp = VN_CAST(selp->fromp(), VarRef);
+        ಆದರೆ (!fromp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ AstVarScope* ಸ್ಥಿರಾಂಕ fromVscp = fromp->varScopep();
+        ಆದರೆ (fromVscp == idxVscp || fromVscp == ಗುರಿ_Vscp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* ಸ್ಥಿರಾಂಕ vecExprp = selp->fromp();
         // Must scan all W bits of 'vec', indexed by exactly 'idx' (address kept >= clog2(W),
         // so a lossy narrowing like vec[idx[2:0]] is rejected).
-        if (static_cast<int>(width) != vecExprp->width()) return false;
-        const AstVarRef* const idxInSel = unwrapToVarRef(selp->lsbp(), addrBits);
-        if (!idxInSel || idxInSel->varScopep() != idxVscp) return false;
+        ಆದರೆ (static_cast<ಪೂರ್ಣಾಂಕ>(ಅಗಲ) != vecExprp->ಅಗಲ()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+        ಸ್ಥಿರಾಂಕ AstVarRef* ಸ್ಥಿರಾಂಕ idx_ಒಳ_Sel = unwrap_ಗಮ್ಯ_Var_Ref(selp->lsbp(), addr_ಬಿಟ್ಟುಗಳು);
+        ಆದರೆ (!idx_ಒಳ_Sel || idx_ಒಳ_Sel->varScopep() != idxVscp) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // 'target' must be const-0 immediately before the loop (collected in m_bindings),
         // so that an all-zero 'vec' yields 0, matching $mostsetbitp1's definition.
-        const AstConst* const targetInitp = m_bindings.get(targetVscp);
-        if (!targetInitp || !targetInitp->isZero()) return false;
+        ಸ್ಥಿರಾಂಕ AstConst* ಸ್ಥಿರಾಂಕ ಗುರಿ_Initp = m_bindings.get(ಗುರಿ_Vscp);
+        ಆದರೆ (!ಗುರಿ_Initp || !ಗುರಿ_Initp->isZero()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
         // Rewrite to 'target = <reduction>(vec); idx = W'.  The 'idx = W' store preserves the
         // loop's exit value, so this is sound even if idx is read afterwards (else DCE drops it).
-        FileLine* const flp = loopp->fileline();
-        AstNodeExpr* reducep;
-        if (isLeadingOne) {
-            reducep = new AstMostSetBitP1{flp, vecExprp->cloneTree(false)};
-        } else {
-            AstCountOnes* const conep = new AstCountOnes{flp, vecExprp->cloneTree(false)};
+        File_ಸಾಲು* ಸ್ಥಿರಾಂಕ flp = loopp->fileline();
+        Ast_ಗಂಟು_ಅಭಿವ್ಯಕ್ತಿ* reducep;
+        ಆದರೆ (isLeadingOne) {
+            reducep = ಹೊಸ Ast_Most_ಗಣ_ಬಿಟ್_P1{flp, vecExprp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು)};
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            Ast_ಎಣಿಕೆ_Ones* ಸ್ಥಿರಾಂಕ conep = ಹೊಸ Ast_ಎಣಿಕೆ_Ones{flp, vecExprp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು)};
             reducep = conep;
         }
-        reducep = resizeToWidth(reducep, targetRefp);
-        AstAssign* const newp = new AstAssign{flp, targetRefp->cloneTree(false), reducep};
-        newp->addNext(new AstAssign{flp, incLhsp->cloneTree(false), wp->cloneTree(false)});
+        reducep = resize_ಗಮ್ಯ_ಅಗಲ(reducep, ಗುರಿ_Refp);
+        Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ newp = ಹೊಸ Ast_ನಿಯೋಜಿಸು{flp, ಗುರಿ_Refp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), reducep};
+        newp->ಕೂಡಿಸು_ಮುಂದಿನ(ಹೊಸ Ast_ನಿಯೋಜಿಸು{flp, incLhsp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು), wp->clone_ವೃಕ್ಷ(ಸುಳ್ಳು)});
         loopp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(loopp), loopp);
-        if (isLeadingOne) {
+        VL_DO_DANGLING(ತಳ್ಳು_Deletep(loopp), loopp);
+        ಆದರೆ (isLeadingOne) {
             UINFO(4, "Lowered priority-encoder loop to $mostsetbitp1: " << newp);
-            ++m_stats.m_bitScanLowered;
-        } else {
+            ++m_stats.m_ಬಿಟ್_ಪರಿಶೀಲನೆ_Lowered;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             UINFO(4, "Lowered count-set-bits loop to $countones: " << newp);
-            ++m_stats.m_countOnesLowered;
+            ++m_stats.m_ಎಣಿಕೆ_Ones_Lowered;
         }
-        return true;
+        ಹಿಂತಿರುಗಿ ನಿಜ;
     }
 
-    // VISIT
-    void visit(AstLoop* nodep) override {
+    //ಭೇಟಿ
+    ಶೂನ್ಯ ಭೇಟಿ(AstLoop* nodep) override {
         // Gather variable bindings from the preceding statements
         m_bindings.clear();
-        for (AstNode *succp = nodep, *currp = nodep->backp(); true;
+        ಗಾಗಿ (Ast_ಗಂಟು *succp = nodep, *currp = nodep->backp(); ನಿಜ;
              succp = currp, currp = currp->backp()) {
             // If the current statement is in higher list, proceed carefully
-            if (currp->nextp() != succp) {
+            ಆದರೆ (currp->nextp() != succp) {
                 // Jump block is OK, there is only one way to get here
-                if (VN_IS(currp, JumpBlock)) continue;
+                ಆದರೆ (VN_IS(currp, Jump_ಖಂಡ)) ಮುಂದುವರಿ;
                 // TODO: if?
                 // Otherwise we dont' know the control flow, give up
-                break;
+                ನಿಲ್ಲಿಸು;
             }
-            AstAssign* const assignp = VN_CAST(currp, Assign);
-            if (!assignp) break;
-            AstConst* const valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
-            if (!valp) break;
-            AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-            if (!lhsp) break;
+            Ast_ನಿಯೋಜಿಸು* ಸ್ಥಿರಾಂಕ assignp = VN_CAST(currp, ನಿಯೋಜಿಸು);
+            ಆದರೆ (!assignp) ನಿಲ್ಲಿಸು;
+            AstConst* ಸ್ಥಿರಾಂಕ valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
+            ಆದರೆ (!valp) ನಿಲ್ಲಿಸು;
+            AstVarRef* ಸ್ಥಿರಾಂಕ lhsp = VN_CAST(assignp->lhsp(), VarRef);
+            ಆದರೆ (!lhsp) ನಿಲ್ಲಿಸು;
             // Don't bind if volatile
-            if (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) continue;
+            ಆದರೆ (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) ಮುಂದುವರಿ;
             // Don't overwrite a later binding
-            if (m_bindings.get(lhsp->varScopep())) continue;
+            ಆದರೆ (m_bindings.get(lhsp->varScopep())) ಮುಂದುವರಿ;
             // Set up the binding
-            m_bindings.set(lhsp->varScopep(), valp);
+            m_bindings.ಗಣ(lhsp->varScopep(), valp);
         }
 
         // Recognize a bit counting loop and lower it to a builtin
-        if (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) return;
+        ಆದರೆ (v3Global.opt.f_ಬಿಟ್_ಪರಿಶೀಲನೆ_Loops() && try_ಅಧೋ_ಬಿಟ್_ಪರಿಶೀಲನೆ_Loop(nodep)) ಹಿಂತಿರುಗಿ;
 
         // Attempt to unroll this loop
-        const std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        ಸ್ಥಿರಾಂಕ std::pair<Ast_ಗಂಟು*, ತಾರ್ಕಿಕ> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, carry on with nested loop
-        if (!pair.second) {
+        ಆದರೆ (!pair.ಎರಡನೇ) {
             iterateChildren(nodep);
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
 
         // Otherwise replace the loop with the unrolled code - might be empty
-        if (pair.first) {
-            nodep->replaceWith(pair.first);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        ಆದರೆ (pair.ಮೊದಲ) {
+            nodep->replaceWith(pair.ಮೊದಲ);
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep), nodep);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            VL_DO_DANGLING(ತಳ್ಳು_Deletep(nodep->unlink_Fr_ಹಿಂಭಾಗ()), nodep);
         }
         // Iteration continues with the unrolled body
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ಶೂನ್ಯ ಭೇಟಿ(Ast_ಗಂಟು* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTOR
-    explicit UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    ಸ್ಪಷ್ಟ UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
 
-public:
-    static void apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
+ಸಾರ್ವಜನಿಕ:
+    ಸ್ಥಿರ ಶೂನ್ಯ apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
 };
 
 //######################################################################
 // V3Unroll class functions
 
-void V3Unroll::unrollAll(AstNetlist* nodep) {
+ಶೂನ್ಯ V3Unroll::unrollAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     UnrollAllVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("unroll", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ವೃಕ್ಷ("unroll", 0, dump_ವೃಕ್ಷ_Either_Level() >= 3);
 }

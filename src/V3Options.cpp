@@ -14,47 +14,47 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ಅನ್ತರ್ಭಾವ "V3PchAstMT.h"
 
-#include "V3Options.h"
+#ಅನ್ತರ್ಭಾವ "V3Options.h"
 
-#include "V3Container.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3OptionParser.h"
-#include "V3Os.h"
-#include "V3PreShell.h"
-#include "V3String.h"
+#ಅನ್ತರ್ಭಾವ "V3Container.h"
+#ಅನ್ತರ್ಭಾವ "V3Error.h"
+#ಅನ್ತರ್ಭಾವ "V3File.h"
+#ಅನ್ತರ್ಭಾವ "V3Global.h"
+#ಅನ್ತರ್ಭಾವ "V3Mutex.h"
+#ಅನ್ತರ್ಭಾವ "V3OptionParser.h"
+#ಅನ್ತರ್ಭಾವ "V3Os.h"
+#ಅನ್ತರ್ಭಾವ "V3PreShell.h"
+#ಅನ್ತರ್ಭಾವ "V3String.h"
 
 // clang-format off
-#include <sys/types.h>
-#include <sys/stat.h>
-#ifndef _WIN32
+#ಅನ್ತರ್ಭಾವ <sys/types.h>
+#ಅನ್ತರ್ಭಾವ <sys/stat.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ _WIN32
 # include <sys/utsname.h>
-#endif
-#include <algorithm>
-#include <cctype>
-#ifdef _MSC_VER
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <algorithm>
+#ಅನ್ತರ್ಭಾವ <cctype>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _MSC_VER
 # include <filesystem> // C++17
-# define S_ISDIR(mode) (((mode) & _S_IFMT) == _S_IFDIR)
-#else
+# define S_ISDIR(ಬಹುಲಕ) (((ಬಹುಲಕ) & _S_IFMT) == _S_IFDIR)
+#ಇಲ್ಲದಿದ್ದರೆ
 # include <dirent.h>
-#endif
-#include <fcntl.h>
-#include <list>
-#include <map>
-#include <memory>
-#include <thread>
-#include <set>
-#include <string>
+#ಆದರೆ_ಅಂತ್ಯ
+#ಅನ್ತರ್ಭಾವ <fcntl.h>
+#ಅನ್ತರ್ಭಾವ <list>
+#ಅನ್ತರ್ಭಾವ <map>
+#ಅನ್ತರ್ಭಾವ <memory>
+#ಅನ್ತರ್ಭಾವ <thread>
+#ಅನ್ತರ್ಭಾವ <set>
+#ಅನ್ತರ್ಭಾವ <string>
 
-#include "config_rev.h"
+#ಅನ್ತರ್ಭಾವ "config_rev.h"
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#ಆದರೆ defined(_WIN32) || defined(__MINGW32__)
 # include <io.h>  // open, close
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 // clang-format on
 
 VL_DEFINE_DEBUG_FUNCTIONS;
@@ -62,80 +62,80 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // V3 Internal state
 
-class V3OptionsImp final {
-public:
+ವರ್ಗ V3OptionsImp final {
+ಸಾರ್ವಜನಿಕ:
     // TYPES
-    using DirMap = std::map<const string, std::set<std::string>>;  // Directory listing
+    ಬಳಸಿ DirMap = std::map<ಸ್ಥಿರಾಂಕ string, std::ಗಣ<std::string>>;  // Directory listing
 
     // STATE
-    std::list<string> m_lineArgs;  // List of command line argument encountered
+    std::list<string> m_ಸಾಲು_ವಾದಗಳು;  // List of command line argument encountered
     // List of arguments encounterd, and a bool in needed for rerunning --dump-inputs
-    std::list<std::pair<std::list<std::string>, bool>> m_allArgs;
-    VInsertionSet<std::string> m_incDirUsers;  // Include directories (ordered)
+    std::list<std::pair<std::list<std::string>, ತಾರ್ಕಿಕ>> m_all_ವಾದಗಳು;
+    VInsertion_ಗಣ<std::string> m_incDirUsers;  // Include directories (ordered)
     std::list<string> m_incDirFallbacks;  // Include directories (ordered)
-    std::set<string> m_incDirFallbackSet;  // Include directories (for removing duplicates)
-    std::map<const string, V3LangCode> m_langExts;  // Language extension map
-    VInsertionSet<std::string> m_libExtVs;  // Library extensions (ordered)
+    std::ಗಣ<string> m_inc_Dir_Fallback_ಗಣ;  // Include directories (for removing duplicates)
+    std::map<ಸ್ಥಿರಾಂಕ string, V3_Lang_ಸಂಕೇತ> m_langExts;  // Language extension map
+    VInsertion_ಗಣ<std::string> m_libExtVs;  // Library extensions (ordered)
     DirMap m_dirMap;  // Directory listing
 
     // ACCESSOR METHODS
-    void addIncDirUser(const string& incdir) {
-        const string& dir = V3Os::filenameCleanup(incdir);
-        const bool inserted = m_incDirUsers.insert(dir);
-        if (inserted) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_Inc_Dir_User(ಸ್ಥಿರಾಂಕ string& incdir) {
+        ಸ್ಥಿರಾಂಕ string& dir = V3Os::filenameCleanup(incdir);
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ inserted = m_incDirUsers.ಸೇರಿಸು(dir);
+        ಆದರೆ (inserted) {
             // cppcheck-suppress stlFindInsert  // cppcheck 1.90 bug
             m_incDirFallbacks.remove(dir);  // User has priority over Fallback
-            m_incDirFallbackSet.erase(dir);  // User has priority over Fallback
+            m_inc_Dir_Fallback_ಗಣ.erase(dir);  // User has priority over Fallback
         }
     }
-    void addIncDirFallback(const string& incdir) {
-        const string& dir = V3Os::filenameCleanup(incdir);
-        if (!m_incDirUsers.exists(dir)) {  // User has priority over Fallback
-            const auto itFoundPair = m_incDirFallbackSet.insert(dir);
-            if (itFoundPair.second) m_incDirFallbacks.push_back(dir);
+    ಶೂನ್ಯ ಕೂಡಿಸು_Inc_Dir_Fallback(ಸ್ಥಿರಾಂಕ string& incdir) {
+        ಸ್ಥಿರಾಂಕ string& dir = V3Os::filenameCleanup(incdir);
+        ಆದರೆ (!m_incDirUsers.exists(dir)) {  // User has priority over Fallback
+            ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it_ಸಿಕ್ಕಿತು_Pair = m_inc_Dir_Fallback_ಗಣ.ಸೇರಿಸು(dir);
+            ಆದರೆ (it_ಸಿಕ್ಕಿತು_Pair.ಎರಡನೇ) m_incDirFallbacks.ತಳ್ಳು_ಹಿಂಭಾಗ(dir);
         }
     }
-    void addLangExt(const string& langext, const V3LangCode& lc) {
+    ಶೂನ್ಯ ಕೂಡಿಸು_Lang_Ext(ಸ್ಥಿರಾಂಕ string& langext, ಸ್ಥಿರಾಂಕ V3_Lang_ಸಂಕೇತ& lc) {
         // New language extension replaces any pre-existing one.
         string addext = langext;
-        if (addext[0] == '.') addext = addext.substr(1);
-        (void)m_langExts.erase(addext);
+        ಆದರೆ (addext[0] == '.') addext = addext.substr(1);
+        (ಶೂನ್ಯ)m_langExts.erase(addext);
         m_langExts[addext] = lc;
     }
 
-    void addLibExtV(const string& libext) { m_libExtVs.insert(libext); }
-    V3OptionsImp() = default;
-    ~V3OptionsImp() = default;
+    ಶೂನ್ಯ ಕೂಡಿಸು_Lib_Ext_V(ಸ್ಥಿರಾಂಕ string& libext) { m_libExtVs.ಸೇರಿಸು(libext); }
+    V3OptionsImp() = ಪೂರ್ವನಿಯೋಜಿತ;
+    ~V3OptionsImp() = ಪೂರ್ವನಿಯೋಜಿತ;
 };
 
 //######################################################################
 // V3LangCode class functions
 
-V3LangCode::V3LangCode(const char* textp) {
+V3_Lang_ಸಂಕೇತ::V3_Lang_ಸಂಕೇತ(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* textp) {
     // Return code for given string, or ERROR, which is a bad code
-    for (int codei = V3LangCode::L_ERROR; codei < V3LangCode::_ENUM_END; ++codei) {
-        const V3LangCode code{codei};
-        if (0 == VL_STRCASECMP(textp, code.ascii())) {
-            m_e = code;
-            return;
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ codei = V3_Lang_ಸಂಕೇತ::L_ERROR; codei < V3_Lang_ಸಂಕೇತ::ENUM_ಕೊನೆ; ++codei) {
+        ಸ್ಥಿರಾಂಕ V3_Lang_ಸಂಕೇತ ಸಂಕೇತ_2{codei};
+        ಆದರೆ (0 == VL_STRCASECMP(textp, ಸಂಕೇತ_2.ascii())) {
+            m_e = ಸಂಕೇತ_2;
+            ಹಿಂತಿರುಗಿ;
         }
     }
-    m_e = V3LangCode::L_ERROR;
+    m_e = V3_Lang_ಸಂಕೇತ::L_ERROR;
 }
 
 //######################################################################
 // VTimescale class functions
 
-VTimescale::VTimescale(const string& value, bool& badr)
+VTimescale::VTimescale(ಸ್ಥಿರಾಂಕ string& ಮೌಲ್ಯ, ತಾರ್ಕಿಕ& badr)
     : m_e{VTimescale::NONE} {
-    badr = true;
-    const string spaceless = VString::removeWhitespace(value);
-    for (int i = TS_100S; i < _ENUM_END; ++i) {
-        const VTimescale ts{i};
-        if (spaceless == ts.ascii()) {
-            badr = false;
+    badr = ನಿಜ;
+    ಸ್ಥಿರಾಂಕ string spaceless = VString::removeWhitespace(ಮೌಲ್ಯ);
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = TS_100S; i < ENUM_ಕೊನೆ; ++i) {
+        ಸ್ಥಿರಾಂಕ VTimescale ts{i};
+        ಆದರೆ (spaceless == ts.ascii()) {
+            badr = ಸುಳ್ಳು;
             m_e = ts.m_e;
-            break;
+            ನಿಲ್ಲಿಸು;
         }
     }
 }
@@ -145,83 +145,83 @@ VTimescale::VTimescale(const string& value, bool& badr)
 
 // Parse "--hierarchical-block orig_name,mangled_name,param0_name,param0_value,... " option.
 // The format of value is as same as -G option. (can be string literal surrounded by ")
-V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
+V3_ಶ್ರೇಣೀಕೃತ_ಖಂಡ_Option::V3_ಶ್ರೇಣೀಕೃತ_ಖಂಡ_Option(ಸ್ಥಿರಾಂಕ string& opts) {
     VStringList vals;
-    bool inStr = false;
+    ತಾರ್ಕಿಕ ಒಳ_Str = ಸುಳ್ಳು;
     string cur;
-    static const string hierBlock("--hierarchical-block");
-    FileLine cmdfl(FileLine::commandLineFilename());
+    ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ string hier_ಖಂಡ("--hierarchical-block");
+    File_ಸಾಲು cmdfl(File_ಸಾಲು::command_ಸಾಲು_Filename());
     // Split by ','. If ',' appears between "", that is not a separator.
-    for (string::const_iterator it = opts.begin(); it != opts.end();) {
-        if (inStr) {
-            if (*it == '\\') {
+    ಗಾಗಿ (string::const_iterator it = opts.begin(); it != opts.ಕೊನೆ();) {
+        ಆದರೆ (ಒಳ_Str) {
+            ಆದರೆ (*it == '\\') {
                 ++it;
-                if (it == opts.end()) {
-                    cmdfl.v3error(hierBlock + " must not end with \\");
-                    break;
+                ಆದರೆ (it == opts.ಕೊನೆ()) {
+                    cmdfl.v3error(hier_ಖಂಡ + " must not end with \\");
+                    ನಿಲ್ಲಿಸು;
                 }
-                if (*it != '"' && *it != '\\') {
-                    cmdfl.v3error(hierBlock + " does not allow '" + *it + "' after \\");
-                    break;
+                ಆದರೆ (*it != '"' && *it != '\\') {
+                    cmdfl.v3error(hier_ಖಂಡ + " does not allow '" + *it + "' after \\");
+                    ನಿಲ್ಲಿಸು;
                 }
-                cur.push_back(*it);
+                cur.ತಳ್ಳು_ಹಿಂಭಾಗ(*it);
                 ++it;
-            } else if (*it == '"') {  // end of string
-                cur.push_back(*it);
-                vals.push_back(cur);
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (*it == '"') {  // end of string
+                cur.ತಳ್ಳು_ಹಿಂಭಾಗ(*it);
+                vals.ತಳ್ಳು_ಹಿಂಭಾಗ(cur);
                 cur.clear();
                 ++it;
-                if (it != opts.end()) {
-                    if (*it != ',') {
-                        cmdfl.v3error(hierBlock + " expects ',', but '" + *it + "' is passed");
-                        break;
+                ಆದರೆ (it != opts.ಕೊನೆ()) {
+                    ಆದರೆ (*it != ',') {
+                        cmdfl.v3error(hier_ಖಂಡ + " expects ',', but '" + *it + "' is passed");
+                        ನಿಲ್ಲಿಸು;
                     }
                     ++it;
-                    if (it == opts.end()) {
-                        cmdfl.v3error(hierBlock + " must not end with ','");
-                        break;
+                    ಆದರೆ (it == opts.ಕೊನೆ()) {
+                        cmdfl.v3error(hier_ಖಂಡ + " must not end with ','");
+                        ನಿಲ್ಲಿಸು;
                     }
-                    inStr = *it == '"';
-                    cur.push_back(*it);
+                    ಒಳ_Str = *it == '"';
+                    cur.ತಳ್ಳು_ಹಿಂಭಾಗ(*it);
                     ++it;
                 }
-            } else {
-                cur.push_back(*it);
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                cur.ತಳ್ಳು_ಹಿಂಭಾಗ(*it);
                 ++it;
             }
-        } else {
-            if (*it == '"') {
-                cmdfl.v3error(hierBlock + " does not allow '\"' in the middle of literal");
-                break;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಆದರೆ (*it == '"') {
+                cmdfl.v3error(hier_ಖಂಡ + " does not allow '\"' in the middle of literal");
+                ನಿಲ್ಲಿಸು;
             }
-            if (*it == ',') {  // end of this parameter
-                vals.push_back(cur);
+            ಆದರೆ (*it == ',') {  // end of this parameter
+                vals.ತಳ್ಳು_ಹಿಂಭಾಗ(cur);
                 cur.clear();
                 ++it;
-                if (it == opts.end()) {
-                    cmdfl.v3error(hierBlock + " must not end with ','");
-                    break;
+                ಆದರೆ (it == opts.ಕೊನೆ()) {
+                    cmdfl.v3error(hier_ಖಂಡ + " must not end with ','");
+                    ನಿಲ್ಲಿಸು;
                 }
-                inStr = *it == '"';
+                ಒಳ_Str = *it == '"';
             }
-            cur.push_back(*it);
+            cur.ತಳ್ಳು_ಹಿಂಭಾಗ(*it);
             ++it;
         }
     }
-    if (!cur.empty()) vals.push_back(cur);
-    if (vals.size() >= 2) {
-        if (vals.size() % 2) {
-            cmdfl.v3error(hierBlock + " requires the number of entries to be even");
+    ಆದರೆ (!cur.ಖಾಲಿಗಳು()) vals.ತಳ್ಳು_ಹಿಂಭಾಗ(cur);
+    ಆದರೆ (vals.ಗಾತ್ರ_2() >= 2) {
+        ಆದರೆ (vals.ಗಾತ್ರ_2() % 2) {
+            cmdfl.v3error(hier_ಖಂಡ + " requires the number of entries to be even");
         }
         m_origName = vals[0];
         m_mangledName = vals[1];
-    } else {
-        cmdfl.v3error(hierBlock + " requires at least two comma-separated values");
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        cmdfl.v3error(hier_ಖಂಡ + " requires at least two comma-separated values");
     }
-    for (size_t i = 2; i + 1 < vals.size(); i += 2) {
-        const bool inserted = m_parameters.emplace(vals[i], vals[i + 1]).second;
-        if (!inserted) {
-            cmdfl.v3error("Module name '" + vals[i] + "' is duplicated in " + hierBlock);
+    ಗಾಗಿ (ಗಾತ್ರ_t i = 2; i + 1 < vals.ಗಾತ್ರ_2(); i += 2) {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ inserted = m_parameters.emplace(vals[i], vals[i + 1]).ಎರಡನೇ;
+        ಆದರೆ (!inserted) {
+            cmdfl.v3error("Module name '" + vals[i] + "' is duplicated in " + hier_ಖಂಡ);
         }
     }
 }
@@ -229,53 +229,53 @@ V3HierarchicalBlockOption::V3HierarchicalBlockOption(const string& opts) {
 //######################################################################
 // V3Options class functions
 
-void VTimescale::parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr,
-                              VTimescale& precr, bool allowEmpty) {
+ಶೂನ್ಯ VTimescale::parseSlashed(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* textp, VTimescale& unitr,
+                              VTimescale& precr, ತಾರ್ಕಿಕ allow_ಖಾಲಿಗಳು) {
     // Parse `timescale of <number><units> / <number><units>
     unitr = VTimescale::NONE;
     precr = VTimescale::NONE;
 
-    const char* cp = textp;
-    for (; std::isspace(*cp); ++cp) {}
-    const char* const unitp = cp;
-    for (; *cp && *cp != '/'; ++cp) {}
-    const string unitStr(unitp, cp - unitp);
-    for (; std::isspace(*cp); ++cp) {}
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* cp = textp;
+    ಗಾಗಿ (; std::ಖಾಲಿಯೇ(*cp); ++cp) {}
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ unitp = cp;
+    ಗಾಗಿ (; *cp && *cp != '/'; ++cp) {}
+    ಸ್ಥಿರಾಂಕ string unitStr(unitp, cp - unitp);
+    ಗಾಗಿ (; std::ಖಾಲಿಯೇ(*cp); ++cp) {}
     string precStr;
-    if (*cp == '/') {
+    ಆದರೆ (*cp == '/') {
         ++cp;
-        for (; std::isspace(*cp); ++cp) {}
-        const char* const precp = cp;
-        for (; *cp && *cp != '/'; ++cp) {}
+        ಗಾಗಿ (; std::ಖಾಲಿಯೇ(*cp); ++cp) {}
+        ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ precp = cp;
+        ಗಾಗಿ (; *cp && *cp != '/'; ++cp) {}
         precStr = string(precp, cp - precp);
     }
-    for (; std::isspace(*cp); ++cp) {}
-    if (*cp) {
+    ಗಾಗಿ (; std::ಖಾಲಿಯೇ(*cp); ++cp) {}
+    ಆದರೆ (*cp) {
         fl->v3error("`timescale syntax error: '" << textp << "'");
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
 
-    bool unitbad = false;
-    const VTimescale unit{unitStr, unitbad /*ref*/};
-    if (unitbad && !(unitStr.empty() && allowEmpty)) {
+    ತಾರ್ಕಿಕ unitbad = ಸುಳ್ಳು;
+    ಸ್ಥಿರಾಂಕ VTimescale unit{unitStr, unitbad /*ref*/};
+    ಆದರೆ (unitbad && !(unitStr.ಖಾಲಿಗಳು() && allow_ಖಾಲಿಗಳು)) {
         fl->v3error("`timescale timeunit syntax error: '" << unitStr << "'");
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
     unitr = unit;
 
-    if (!precStr.empty()) {
+    ಆದರೆ (!precStr.ಖಾಲಿಗಳು()) {
         VTimescale prec{VTimescale::NONE};
-        bool precbad;
+        ತಾರ್ಕಿಕ precbad;
         prec = VTimescale{precStr, precbad /*ref*/};
-        if (precbad) {
+        ಆದರೆ (precbad) {
             fl->v3error("`timescale timeprecision syntax error: '" << precStr << "'");
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        if (!unit.isNone() && !prec.isNone() && unit < prec) {
+        ಆದರೆ (!unit.isNone() && !prec.isNone() && unit < prec) {
             fl->v3error("`timescale timeunit '"
                         << unitStr << "' must be greater than or equal to timeprecision '"
                         << precStr << "'");
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
         precr = prec;
     }
@@ -284,315 +284,315 @@ void VTimescale::parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr
 //######################################################################
 // V3Options class functions
 
-void V3Options::addIncDirUser(const string& incdir) { m_impp->addIncDirUser(incdir); }
-void V3Options::addIncDirFallback(const string& incdir) { m_impp->addIncDirFallback(incdir); }
-void V3Options::addLangExt(const string& langext, const V3LangCode& lc) {
-    m_impp->addLangExt(langext, lc);
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Inc_Dir_User(ಸ್ಥಿರಾಂಕ string& incdir) { m_impp->ಕೂಡಿಸು_Inc_Dir_User(incdir); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Inc_Dir_Fallback(ಸ್ಥಿರಾಂಕ string& incdir) { m_impp->ಕೂಡಿಸು_Inc_Dir_Fallback(incdir); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Lang_Ext(ಸ್ಥಿರಾಂಕ string& langext, ಸ್ಥಿರಾಂಕ V3_Lang_ಸಂಕೇತ& lc) {
+    m_impp->ಕೂಡಿಸು_Lang_Ext(langext, lc);
 }
-void V3Options::addLibExtV(const string& libext) { m_impp->addLibExtV(libext); }
-void V3Options::addDefine(const string& defline, bool allowPlus) VL_MT_DISABLED {
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Lib_Ext_V(ಸ್ಥಿರಾಂಕ string& libext) { m_impp->ಕೂಡಿಸು_Lib_Ext_V(libext); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Define(ಸ್ಥಿರಾಂಕ string& defline, ತಾರ್ಕಿಕ allowPlus) VL_MT_DISABLED {
     // Split +define+foo=value into the appropriate parts and parse
     // Optional + says to allow multiple defines on the line
     // + is not quotable, as other simulators do not allow that
-    string left = defline;
-    while (left != "") {
-        string def = left;
-        string::size_type pos;
-        if (allowPlus && ((pos = left.find('+')) != string::npos)) {
-            left = left.substr(pos + 1);
+    string ಎಡ = defline;
+    ಆಗ (ಎಡ != "") {
+        string def = ಎಡ;
+        string::ಗಾತ್ರ_type pos;
+        ಆದರೆ (allowPlus && ((pos = ಎಡ.ಕಂಡುಹಿಡಿ('+')) != string::npos)) {
+            ಎಡ = ಎಡ.substr(pos + 1);
             def.erase(pos);
-        } else {
-            left = "";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಎಡ = "";
         }
-        string value;
-        if ((pos = def.find('=')) != string::npos) {
-            value = def.substr(pos + 1);
+        string ಮೌಲ್ಯ;
+        ಆದರೆ ((pos = def.ಕಂಡುಹಿಡಿ('=')) != string::npos) {
+            ಮೌಲ್ಯ = def.substr(pos + 1);
             def.erase(pos);
         }
-        V3PreShell::defineCmdLine(def, value);
+        V3PreShell::define_Cmd_ಸಾಲು(def, ಮೌಲ್ಯ);
     }
 }
-void V3Options::addParameter(const string& paramline, bool allowPlus) {
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Parameter(ಸ್ಥಿರಾಂಕ string& paramline, ತಾರ್ಕಿಕ allowPlus) {
     // Split +define+foo=value into the appropriate parts and parse
     // Optional + says to allow multiple defines on the line
     // + is not quotable, as other simulators do not allow that
-    string left = paramline;
-    while (left != "") {
-        string param = left;
-        string::size_type pos;
-        if (allowPlus && ((pos = left.find('+')) != string::npos)) {
-            left = left.substr(pos + 1);
+    string ಎಡ = paramline;
+    ಆಗ (ಎಡ != "") {
+        string param = ಎಡ;
+        string::ಗಾತ್ರ_type pos;
+        ಆದರೆ (allowPlus && ((pos = ಎಡ.ಕಂಡುಹಿಡಿ('+')) != string::npos)) {
+            ಎಡ = ಎಡ.substr(pos + 1);
             param.erase(pos);
-        } else {
-            left = "";
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಎಡ = "";
         }
-        string value;
-        if ((pos = param.find('=')) != string::npos) {
-            value = param.substr(pos + 1);
+        string ಮೌಲ್ಯ;
+        ಆದರೆ ((pos = param.ಕಂಡುಹಿಡಿ('=')) != string::npos) {
+            ಮೌಲ್ಯ = param.substr(pos + 1);
             param.erase(pos);
         }
-        UINFO(4, "Add parameter" << param << "=" << value);
-        (void)m_parameters.erase(param);
-        m_parameters[param] = value;
+        UINFO(4, "Add parameter" << param << "=" << ಮೌಲ್ಯ);
+        (ಶೂನ್ಯ)m_parameters.erase(param);
+        m_parameters[param] = ಮೌಲ್ಯ;
     }
 }
 
-bool V3Options::hasParameter(const string& name) {
-    return m_parameters.find(name) != m_parameters.end();
+ತಾರ್ಕಿಕ V3Options::hasParameter(ಸ್ಥಿರಾಂಕ string& name) {
+    ಹಿಂತಿರುಗಿ m_parameters.ಕಂಡುಹಿಡಿ(name) != m_parameters.ಕೊನೆ();
 }
 
-string V3Options::parameter(const string& name) {
-    string value = m_parameters.find(name)->second;
-    m_parameters.erase(m_parameters.find(name));
-    return value;
+string V3Options::parameter(ಸ್ಥಿರಾಂಕ string& name) {
+    string ಮೌಲ್ಯ = m_parameters.ಕಂಡುಹಿಡಿ(name)->ಎರಡನೇ;
+    m_parameters.erase(m_parameters.ಕಂಡುಹಿಡಿ(name));
+    ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ;
 }
 
-void V3Options::checkParameters() {
-    if (!m_parameters.empty()) {
-        std::stringstream msg;
-        msg << "Parameters from the command line were not found in the design:";
-        for (const auto& i : m_parameters) msg << " " << i.first;
-        v3error(msg.str());
+ಶೂನ್ಯ V3Options::checkParameters() {
+    ಆದರೆ (!m_parameters.ಖಾಲಿಗಳು()) {
+        std::stringstream ಸಂದೇಶ_2;
+        ಸಂದೇಶ_2 << "Parameters from the command line were not found in the design:";
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& i : m_parameters) ಸಂದೇಶ_2 << " " << i.ಮೊದಲ;
+        v3error(ಸಂದೇಶ_2.str());
     }
 }
 
-void V3Options::addCppFile(const string& filename) { m_cppFiles.insert(filename); }
-void V3Options::addCFlags(const string& filename) { m_cFlags.push_back(filename); }
-void V3Options::addLibMapFile(const string& filename) { m_libmapFiles.insert(filename); }
-void V3Options::addCompilerIncludes(const string& filename) {
-    m_compilerIncludes.insert(filename);
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Cpp_File(ಸ್ಥಿರಾಂಕ string& filename) { m_cppFiles.ಸೇರಿಸು(filename); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_CFlags(ಸ್ಥಿರಾಂಕ string& filename) { m_cFlags.ತಳ್ಳು_ಹಿಂಭಾಗ(filename); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Lib_Map_File(ಸ್ಥಿರಾಂಕ string& filename) { m_libmapFiles.ಸೇರಿಸು(filename); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Compiler_Includes(ಸ್ಥಿರಾಂಕ string& filename) {
+    m_compilerIncludes.ಸೇರಿಸು(filename);
 }
-void V3Options::addLdLibFile(const string& filename) {
-    m_ldLibFiles.push_back(filename);
-    addLdLibs(filename);
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Ld_Lib_File(ಸ್ಥಿರಾಂಕ string& filename) {
+    m_ldLibFiles.ತಳ್ಳು_ಹಿಂಭಾಗ(filename);
+    ಕೂಡಿಸು_Ld_Libs(filename);
 }
-void V3Options::addLdLibs(const string& filename) { m_ldLibs.push_back(filename); }
-void V3Options::addMakeFlags(const string& filename) { m_makeFlags.push_back(filename); }
-void V3Options::addFuture(const string& flag) { m_futures.insert(flag); }
-void V3Options::addFuture0(const string& flag) { m_future0s.insert(flag); }
-void V3Options::addFuture1(const string& flag) { m_future1s.insert(flag); }
-bool V3Options::isFuture(const string& flag) const {
-    return m_futures.find(flag) != m_futures.end();
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Ld_Libs(ಸ್ಥಿರಾಂಕ string& filename) { m_ldLibs.ತಳ್ಳು_ಹಿಂಭಾಗ(filename); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Make_Flags(ಸ್ಥಿರಾಂಕ string& filename) { m_makeFlags.ತಳ್ಳು_ಹಿಂಭಾಗ(filename); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Future(ಸ್ಥಿರಾಂಕ string& flag) { m_futures.ಸೇರಿಸು(flag); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Future0(ಸ್ಥಿರಾಂಕ string& flag) { m_future0s.ಸೇರಿಸು(flag); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Future1(ಸ್ಥಿರಾಂಕ string& flag) { m_future1s.ಸೇರಿಸು(flag); }
+ತಾರ್ಕಿಕ V3Options::isFuture(ಸ್ಥಿರಾಂಕ string& flag) ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ m_futures.ಕಂಡುಹಿಡಿ(flag) != m_futures.ಕೊನೆ();
 }
-bool V3Options::isFuture0(const string& flag) const {
-    return m_future0s.find(flag) != m_future0s.end();
+ತಾರ್ಕಿಕ V3Options::isFuture0(ಸ್ಥಿರಾಂಕ string& flag) ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ m_future0s.ಕಂಡುಹಿಡಿ(flag) != m_future0s.ಕೊನೆ();
 }
-bool V3Options::isFuture1(const string& flag) const {
-    return m_future1s.find(flag) != m_future1s.end();
+ತಾರ್ಕಿಕ V3Options::isFuture1(ಸ್ಥಿರಾಂಕ string& flag) ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ m_future1s.ಕಂಡುಹಿಡಿ(flag) != m_future1s.ಕೊನೆ();
 }
-bool V3Options::isLibraryFile(const string& filename, const string& libname) const {
-    return m_libraryFiles.find({filename, libname}) != m_libraryFiles.end();
+ತಾರ್ಕಿಕ V3Options::isLibraryFile(ಸ್ಥಿರಾಂಕ string& filename, ಸ್ಥಿರಾಂಕ string& libname) ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ m_libraryFiles.ಕಂಡುಹಿಡಿ({filename, libname}) != m_libraryFiles.ಕೊನೆ();
 }
-void V3Options::addLibraryFile(const string& filename, const string& libname) {
-    m_libraryFiles.insert({filename, libname});
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Library_File(ಸ್ಥಿರಾಂಕ string& filename, ಸ್ಥಿರಾಂಕ string& libname) {
+    m_libraryFiles.ಸೇರಿಸು({filename, libname});
 }
-void V3Options::addVFile(const string& filename, const string& libname) {
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_VFile(ಸ್ಥಿರಾಂಕ string& filename, ಸ್ಥಿರಾಂಕ string& libname) {
     // We use a list for v files, because it's legal to have includes
     // in a specific order and multiple of them.
-    m_vFiles.push_back({filename, libname});  // Not emplace
+    m_vFiles.ತಳ್ಳು_ಹಿಂಭಾಗ({filename, libname});  // Not emplace
 }
-void V3Options::addVltFile(const string& filename, const string& libname) {
-    m_vltFiles.insert({filename, libname});
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Vlt_File(ಸ್ಥಿರಾಂಕ string& filename, ಸ್ಥಿರಾಂಕ string& libname) {
+    m_vltFiles.ಸೇರಿಸು({filename, libname});
 }
-void V3Options::addForceInc(const string& filename) { m_forceIncs.push_back(filename); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Force_Inc(ಸ್ಥಿರಾಂಕ string& filename) { m_forceIncs.ತಳ್ಳು_ಹಿಂಭಾಗ(filename); }
 
-void V3Options::addLineArg(const string& arg) { m_impp->m_lineArgs.push_back(arg); }
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_ಸಾಲು_Arg(ಸ್ಥಿರಾಂಕ string& arg) { m_impp->m_ಸಾಲು_ವಾದಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(arg); }
 
-void V3Options::addArg(char** argv, size_t count, bool isForRerun) {
-    m_impp->m_allArgs.emplace_back();
-    std::pair<std::list<std::string>, bool>& pair = m_impp->m_allArgs.back();
-    pair.second = isForRerun;
-    for (size_t n = 0; n < count; ++n) pair.first.emplace_back(argv[n]);
-}
-
-void V3Options::addArg(const std::string& arg, bool isForRerun) {
-    m_impp->m_allArgs.emplace_back();
-    std::pair<std::list<std::string>, bool>& pair = m_impp->m_allArgs.back();
-    pair.second = isForRerun;
-    pair.first.emplace_back(arg);
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Arg(ಅಕ್ಷರ** argv, ಗಾತ್ರ_t ಎಣಿಕೆ_2, ತಾರ್ಕಿಕ isForRerun) {
+    m_impp->m_all_ವಾದಗಳು.emplace_ಹಿಂಭಾಗ();
+    std::pair<std::list<std::string>, ತಾರ್ಕಿಕ>& pair = m_impp->m_all_ವಾದಗಳು.ಹಿಂಭಾಗ();
+    pair.ಎರಡನೇ = isForRerun;
+    ಗಾಗಿ (ಗಾತ್ರ_t n = 0; n < ಎಣಿಕೆ_2; ++n) pair.ಮೊದಲ.emplace_ಹಿಂಭಾಗ(argv[n]);
 }
 
-const std::list<std::pair<std::list<std::string>, bool>>& V3Options::allArgs() const {
-    return m_impp->m_allArgs;
+ಶೂನ್ಯ V3Options::ಕೂಡಿಸು_Arg(ಸ್ಥಿರಾಂಕ std::string& arg, ತಾರ್ಕಿಕ isForRerun) {
+    m_impp->m_all_ವಾದಗಳು.emplace_ಹಿಂಭಾಗ();
+    std::pair<std::list<std::string>, ತಾರ್ಕಿಕ>& pair = m_impp->m_all_ವಾದಗಳು.ಹಿಂಭಾಗ();
+    pair.ಎರಡನೇ = isForRerun;
+    pair.ಮೊದಲ.emplace_ಹಿಂಭಾಗ(arg);
 }
 
-string V3Options::allArgsString() const VL_MT_SAFE {
-    string result;
-    for (const auto& pair : m_impp->m_allArgs) {
-        for (const string& arg : pair.first) {
-            if (!result.empty()) result += " ";
-            result += arg;
+ಸ್ಥಿರಾಂಕ std::list<std::pair<std::list<std::string>, ತಾರ್ಕಿಕ>>& V3Options::all_ವಾದಗಳು() ಸ್ಥಿರಾಂಕ {
+    ಹಿಂತಿರುಗಿ m_impp->m_all_ವಾದಗಳು;
+}
+
+string V3Options::all_ವಾದಗಳು_String() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    string ಫಲಿತಾಂಶ;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair : m_impp->m_all_ವಾದಗಳು) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& arg : pair.ಮೊದಲ) {
+            ಆದರೆ (!ಫಲಿತಾಂಶ.ಖಾಲಿಗಳು()) ಫಲಿತಾಂಶ += " ";
+            ಫಲಿತಾಂಶ += arg;
         }
     }
-    return result;
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
 
 // Delete some options for Verilation of the hierarchical blocks.
-string V3Options::allArgsStringForHierBlock(bool forTop) const {
+string V3Options::all_ವಾದಗಳು_String_For_Hier_ಖಂಡ(ತಾರ್ಕಿಕ for_ತುದಿ) ಸ್ಥಿರಾಂಕ {
     // cppcheck-suppress shadowFunction
-    std::set<string> vFiles;
-    for (const auto& vFile : m_vFiles) vFiles.insert(vFile.filename());
-    string out;
-    bool stripArg = false;
-    bool stripArgIfNum = false;
-    for (const auto& pair : m_impp->m_allArgs) {
-        for (const string& arg : pair.first) {
-            if (stripArg) {
-                stripArg = false;
-                continue;
+    std::ಗಣ<string> vFiles;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& vFile : m_vFiles) vFiles.ಸೇರಿಸು(vFile.filename());
+    string ಹೊರಹೋಗು;
+    ತಾರ್ಕಿಕ stripArg = ಸುಳ್ಳು;
+    ತಾರ್ಕಿಕ strip_Arg_If_ಅಂಕೆ = ಸುಳ್ಳು;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& pair : m_impp->m_all_ವಾದಗಳು) {
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& arg : pair.ಮೊದಲ) {
+            ಆದರೆ (stripArg) {
+                stripArg = ಸುಳ್ಳು;
+                ಮುಂದುವರಿ;
             }
-            if (stripArgIfNum) {
-                stripArgIfNum = false;
-                if (isdigit(arg[0])) continue;
+            ಆದರೆ (strip_Arg_If_ಅಂಕೆ) {
+                strip_Arg_If_ಅಂಕೆ = ಸುಳ್ಳು;
+                ಆದರೆ (ಅಂಕಿಯೇ(arg[0])) ಮುಂದುವರಿ;
             }
-            int skip = 0;
-            if (arg.length() >= 2 && arg[0] == '-' && arg[1] == '-') {
+            ಪೂರ್ಣಾಂಕ skip = 0;
+            ಆದರೆ (arg.ಉದ್ದಳತೆ() >= 2 && arg[0] == '-' && arg[1] == '-') {
                 skip = 2;
-            } else if (arg.length() >= 1 && arg[0] == '-') {
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (arg.ಉದ್ದಳತೆ() >= 1 && arg[0] == '-') {
                 skip = 1;
             }
-            if (skip > 0) {  // arg is an option
-                const string opt = arg.substr(skip);  // Remove '-' in the beginning
-                const int numStrip = stripOptionsForChildRun(opt, forTop);
-                if (numStrip) {
-                    UASSERT(0 <= numStrip && numStrip <= 3, "should be one of 0, 1, 2, 3");
-                    if (numStrip == 2) stripArg = true;
-                    if (numStrip == 3) stripArgIfNum = true;
-                    continue;
+            ಆದರೆ (skip > 0) {  // arg is an option
+                ಸ್ಥಿರಾಂಕ string opt = arg.substr(skip);  // Remove '-' in the beginning
+                ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ಅಂಕೆ_Strip = strip_Options_For_ಮಗು_ಸತತ(opt, for_ತುದಿ);
+                ಆದರೆ (ಅಂಕೆ_Strip) {
+                    UASSERT(0 <= ಅಂಕೆ_Strip && ಅಂಕೆ_Strip <= 3, "should be one of 0, 1, 2, 3");
+                    ಆದರೆ (ಅಂಕೆ_Strip == 2) stripArg = ನಿಜ;
+                    ಆದರೆ (ಅಂಕೆ_Strip == 3) strip_Arg_If_ಅಂಕೆ = ನಿಜ;
+                    ಮುಂದುವರಿ;
                 }
-            } else {  // Not an option
-                if (vFiles.find(arg) != vFiles.end()  // Remove HDL
-                    || m_cppFiles.find(arg) != m_cppFiles.end()) {  // Remove C++
-                    continue;
+            } ಇಲ್ಲದಿದ್ದರೆ {  // Not an option
+                ಆದರೆ (vFiles.ಕಂಡುಹಿಡಿ(arg) != vFiles.ಕೊನೆ()  // Remove HDL
+                    || m_cppFiles.ಕಂಡುಹಿಡಿ(arg) != m_cppFiles.ಕೊನೆ()) {  // Remove C++
+                    ಮುಂದುವರಿ;
                 }
             }
-            if (out != "") out += " ";
+            ಆದರೆ (ಹೊರಹೋಗು != "") ಹೊರಹೋಗು += " ";
             // Don't use opt here because '-' is removed in arg
             // Use double quote because arg may contain whitespaces
-            out += '"' + VString::quoteAny(arg, '"', '\\') + '"';
+            ಹೊರಹೋಗು += '"' + VString::quoteAny(arg, '"', '\\') + '"';
         }
     }
-    return out;
+    ಹಿಂತಿರುಗಿ ಹೊರಹೋಗು;
 }
 
-void V3Options::ccSet() {  // --cc
-    m_outFormatOk = true;
-    m_systemC = false;
+ಶೂನ್ಯ V3Options::cc_ಗಣ() {  // --cc
+    m_ಹೊರಹೋಗು_Format_Ok = ನಿಜ;
+    m_systemC = ಸುಳ್ಳು;
 }
 
-void V3Options::decorations(FileLine* fl, const string& arg) {  // --decorations
-    if (arg == "none") {
-        m_decoration = false;
-        m_decorationNodes = false;
-    } else if (arg == "node") {
-        m_decoration = true;
-        m_decorationNodes = true;
-    } else if (arg == "medium") {
-        m_decoration = true;
-        m_decorationNodes = false;
-    } else {
+ಶೂನ್ಯ V3Options::decorations(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& arg) {  // --decorations
+    ಆದರೆ (arg == "none") {
+        m_decoration = ಸುಳ್ಳು;
+        m_decorationNodes = ಸುಳ್ಳು;
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (arg == "node") {
+        m_decoration = ನಿಜ;
+        m_decorationNodes = ನಿಜ;
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (arg == "medium") {
+        m_decoration = ನಿಜ;
+        m_decorationNodes = ಸುಳ್ಳು;
+    } ಇಲ್ಲದಿದ್ದರೆ {
         fl->v3error("Unknown setting for --decorations: '"
                     << arg << "'\n"
-                    << fl->warnMore() << "... Suggest 'none', 'medium', or 'node'");
+                    << fl->warn_ಇನ್ನಷ್ಟು() << "... Suggest 'none', 'medium', or 'node'");
     }
 }
 
-std::vector<std::string> V3Options::traceClassBases() const VL_MT_SAFE {
-    std::vector<std::string> result;
-    if (traceEnabledFst()) result.emplace_back("VerilatedFst");
-    if (traceEnabledSaif()) result.emplace_back("VerilatedSaif");
-    if (traceEnabledVcd()) result.emplace_back("VerilatedVcd");
-    return result;
+std::ಸದಿಶ<std::string> V3Options::traceClassBases() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    std::ಸದಿಶ<std::string> ಫಲಿತಾಂಶ;
+    ಆದರೆ (traceEnabledFst()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("VerilatedFst");
+    ಆದರೆ (traceEnabledSaif()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("VerilatedSaif");
+    ಆದರೆ (traceEnabledVcd()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("VerilatedVcd");
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
-std::vector<std::string> V3Options::traceClassLangs() const VL_MT_SAFE {
-    std::vector<std::string> result;
-    for (const auto& cbase : traceClassBases())
-        result.emplace_back(cbase + (systemC() ? "Sc" : "C"));
-    return result;
+std::ಸದಿಶ<std::string> V3Options::traceClassLangs() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    std::ಸದಿಶ<std::string> ಫಲಿತಾಂಶ;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& cbase : traceClassBases())
+        ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ(cbase + (systemC() ? "Sc" : "C"));
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
-std::vector<std::string> V3Options::traceSourceBases() const VL_MT_SAFE {
-    std::vector<std::string> result;
-    if (traceEnabledFst()) result.emplace_back("verilated_fst");
-    if (traceEnabledSaif()) result.emplace_back("verilated_saif");
-    if (traceEnabledVcd()) result.emplace_back("verilated_vcd");
-    return result;
+std::ಸದಿಶ<std::string> V3Options::trace_ಮೂಲ_Bases() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    std::ಸದಿಶ<std::string> ಫಲಿತಾಂಶ;
+    ಆದರೆ (traceEnabledFst()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_fst");
+    ಆದರೆ (traceEnabledSaif()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_saif");
+    ಆದರೆ (traceEnabledVcd()) ಫಲಿತಾಂಶ.emplace_ಹಿಂಭಾಗ("verilated_vcd");
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
-std::vector<std::string> V3Options::traceSourceLangs() const VL_MT_SAFE {
-    std::vector<std::string> result = traceSourceBases();
-    for (std::string& str : result) str += systemC() ? "_sc"s : "_c"s;
-    return result;
+std::ಸದಿಶ<std::string> V3Options::trace_ಮೂಲ_Langs() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    std::ಸದಿಶ<std::string> ಫಲಿತಾಂಶ = trace_ಮೂಲ_Bases();
+    ಗಾಗಿ (std::string& str : ಫಲಿತಾಂಶ) str += systemC() ? "_sc"s : "_c"s;
+    ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 }
-std::string V3Options::traceClassBase() const VL_MT_SAFE {
+std::string V3Options::trace_Class_ತಳ() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
     // Deprecated - Needs to be fixed to support multiple trace, issue #5813
-    UASSERT(!traceClassBases().empty(), "Call traceClassBase only when trace() enabled");
-    return traceClassBases().front();
+    UASSERT(!traceClassBases().ಖಾಲಿಗಳು(), "Call traceClassBase only when trace() enabled");
+    ಹಿಂತಿರುಗಿ traceClassBases().front();
 }
-std::string V3Options::traceClassLang() const VL_MT_SAFE {
+std::string V3Options::traceClassLang() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
     // Deprecated - Needs to be fixed to support multiple trace, issue #5813
-    UASSERT(!traceClassBases().empty(), "Call traceClassLang only when trace() enabled");
-    return traceClassLangs().front();
+    UASSERT(!traceClassBases().ಖಾಲಿಗಳು(), "Call traceClassLang only when trace() enabled");
+    ಹಿಂತಿರುಗಿ traceClassLangs().front();
 }
 
 //######################################################################
 // File searching
 
-bool V3Options::fileStatNormal(const string& filename) {
+ತಾರ್ಕಿಕ V3Options::file_Stat_ಸಾಮಾನ್ಯ(ಸ್ಥಿರಾಂಕ string& filename) {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-    struct stat sstat;  // Stat information
-    const int err = stat(filename.c_str(), &sstat);
-    if (err != 0) return false;
-    if (S_ISDIR(sstat.st_mode)) return false;
-    return true;
+    ರಚನೆ stat sstat;  // Stat information
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ err = stat(filename.c_str(), &sstat);
+    ಆದರೆ (err != 0) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+    ಆದರೆ (S_ISDIR(sstat.st_ಬಹುಲಕ)) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+    ಹಿಂತಿರುಗಿ ನಿಜ;
 }
 
-string V3Options::fileExists(const string& filename) {
+string V3Options::fileExists(ಸ್ಥಿರಾಂಕ string& filename) {
     // Surprisingly, for some other simulators, this process
     // is quite slow; presumably because of re-reading each directory
     // many times.  So we read a whole dir at once and cache it
 
-    const string dir = V3Os::filenameDir(filename);
-    const string basename = V3Os::filenameNonDir(filename);
+    ಸ್ಥಿರಾಂಕ string dir = V3Os::filenameDir(filename);
+    ಸ್ಥಿರಾಂಕ string basename = V3Os::filenameNonDir(filename);
 
-    auto diriter = m_impp->m_dirMap.find(dir);
-    if (diriter == m_impp->m_dirMap.end()) {
+    ಸ್ವಯಂಚಾಲಿತ diriter = m_impp->m_dirMap.ಕಂಡುಹಿಡಿ(dir);
+    ಆದರೆ (diriter == m_impp->m_dirMap.ಕೊನೆ()) {
         // Read the listing
-        m_impp->m_dirMap.emplace(dir, std::set<string>());
-        diriter = m_impp->m_dirMap.find(dir);
+        m_impp->m_dirMap.emplace(dir, std::ಗಣ<string>());
+        diriter = m_impp->m_dirMap.ಕಂಡುಹಿಡಿ(dir);
 
-        std::set<string>* const setp = &(diriter->second);
+        std::ಗಣ<string>* ಸ್ಥಿರಾಂಕ setp = &(diriter->ಎರಡನೇ);
 
-#ifdef _MSC_VER
-        try {
-            for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str()))
-                setp->insert(dirEntry.path().filename().string());
-        } catch (std::filesystem::filesystem_error const& ex) {
-            (void)ex;
-            return "";
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ _MSC_VER
+        ಪ್ರಯತ್ನಿಸು {
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ& dir_ನಮೂದು : std::filesystem::directory_iterator(dir.c_str()))
+                setp->ಸೇರಿಸು(dir_ನಮೂದು.ಮಾರ್ಗ().filename().string());
+        } ಹಿಡಿ (std::filesystem::filesystem_error ಸ್ಥಿರಾಂಕ& ex) {
+            (ಶೂನ್ಯ)ex;
+            ಹಿಂತಿರುಗಿ "";
         }
-#else
-        if (DIR* const dirp = opendir(dir.c_str())) {
-            while (struct dirent* direntp = readdir(dirp)) setp->insert(direntp->d_name);
+#ಇಲ್ಲದಿದ್ದರೆ
+        ಆದರೆ (DIR* ಸ್ಥಿರಾಂಕ dirp = opendir(dir.c_str())) {
+            ಆಗ (ರಚನೆ dirent* direntp = readdir(dirp)) setp->ಸೇರಿಸು(direntp->d_name);
             closedir(dirp);
         }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
     }
     // Find it
-    const std::set<string>* const filesetp = &(diriter->second);
-    const auto fileiter = filesetp->find(basename);
-    if (fileiter == filesetp->end()) return "";  // Not found
+    ಸ್ಥಿರಾಂಕ std::ಗಣ<string>* ಸ್ಥಿರಾಂಕ filesetp = &(diriter->ಎರಡನೇ);
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ fileiter = filesetp->ಕಂಡುಹಿಡಿ(basename);
+    ಆದರೆ (fileiter == filesetp->ಕೊನೆ()) ಹಿಂತಿರುಗಿ "";  // Not found
     // Check if it is a directory, ignore if so
-    const string filenameOut = V3Os::filenameJoin(dir, basename);
-    if (!fileStatNormal(filenameOut)) return "";  // Directory
-    return filenameOut;
+    ಸ್ಥಿರಾಂಕ string filename_ಹೊರಹೋಗು = V3Os::filenameJoin(dir, basename);
+    ಆದರೆ (!file_Stat_ಸಾಮಾನ್ಯ(filename_ಹೊರಹೋಗು)) ಹಿಂತಿರುಗಿ "";  // Directory
+    ಹಿಂತಿರುಗಿ filename_ಹೊರಹೋಗು;
 }
 
-string V3Options::filePathCheckOneDir(const string& modname, const string& dirname) {
-    for (const string& i : m_impp->m_libExtVs) {
-        const string fn = V3Os::filenameJoin(dirname, modname + i);
-        const string exists = fileExists(fn);
-        if (exists != "") return exists;
+string V3Options::file_ಮಾರ್ಗ_Check_One_Dir(ಸ್ಥಿರಾಂಕ string& modname, ಸ್ಥಿರಾಂಕ string& dirname) {
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& i : m_impp->m_libExtVs) {
+        ಸ್ಥಿರಾಂಕ string fn = V3Os::filenameJoin(dirname, modname + i);
+        ಸ್ಥಿರಾಂಕ string exists = fileExists(fn);
+        ಆದರೆ (exists != "") ಹಿಂತಿರುಗಿ exists;
     }
-    return "";
+    ಹಿಂತಿರುಗಿ "";
 }
 
 // Checks if a option needs to be stripped for child run of hierarchical Verilation.
@@ -600,9 +600,9 @@ string V3Options::filePathCheckOneDir(const string& modname, const string& dirna
 // 1: Delete the option which has no argument
 // 2: Delete the option and its argument
 // 3: Delete the option and its argument if it is a number
-int V3Options::stripOptionsForChildRun(const string& opt, bool forTop) {
+ಪೂರ್ಣಾಂಕ V3Options::strip_Options_For_ಮಗು_ಸತತ(ಸ್ಥಿರಾಂಕ string& opt, ತಾರ್ಕಿಕ for_ತುದಿ) {
     // Options to strip for both the top wrapper, and hier blocks
-    static const std::unordered_map<std::string, int> commonOpts{
+    ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ std::unordered_map<std::string, ಪೂರ್ಣಾಂಕ> commonOpts{
         //
         {"j", 3},
         //
@@ -623,550 +623,550 @@ int V3Options::stripOptionsForChildRun(const string& opt, bool forTop) {
         {"build", 1},
         {"hierarchical", 1},
     };
-    if (commonOpts.count(opt)) return commonOpts.at(opt);
+    ಆದರೆ (commonOpts.ಎಣಿಕೆ_2(opt)) ಹಿಂತಿರುಗಿ commonOpts.at(opt);
 
     // Options to strip only for hier blocks
-    if (!forTop) {
-        static const std::unordered_map<std::string, int> subOpts{
+    ಆದರೆ (!for_ತುದಿ) {
+        ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ std::unordered_map<std::string, ಪೂರ್ಣಾಂಕ> subOpts{
             {"cc", 1},
             {"exe", 1},
             {"sc", 1},
             {"binary", 1},
         };
-        if (subOpts.count(opt)) return subOpts.at(opt);
-        if (VString::startsWith(opt, "G")) return 1;
-        if (VString::startsWith(opt, "pvalue")) return 1;
+        ಆದರೆ (subOpts.ಎಣಿಕೆ_2(opt)) ಹಿಂತಿರುಗಿ subOpts.at(opt);
+        ಆದರೆ (VString::startsWith(opt, "G")) ಹಿಂತಿರುಗಿ 1;
+        ಆದರೆ (VString::startsWith(opt, "pvalue")) ಹಿಂತಿರುಗಿ 1;
     }
 
     // Do not strip
-    return 0;
+    ಹಿಂತಿರುಗಿ 0;
 }
 
-void V3Options::validateIdentifier(FileLine* fl, const string& arg, const string& opt) {
-    if (!VString::isIdentifier(arg)) {
+ಶೂನ್ಯ V3Options::validateIdentifier(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& arg, ಸ್ಥಿರಾಂಕ string& opt) {
+    ಆದರೆ (!VString::isIdentifier(arg)) {
         fl->v3error(opt << " argument must be a legal C++ identifier: '" << arg << "'");
     }
 }
 
-string V3Options::filePath(FileLine* fl, const string& modname, const string& lastpath,
-                           const string& errmsg) {  // Error prefix or "" to suppress error
+string V3Options::file_ಮಾರ್ಗ(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& modname, ಸ್ಥಿರಾಂಕ string& lastpath,
+                           ಸ್ಥಿರಾಂಕ string& errmsg) {  // Error prefix or "" to suppress error
     // Find a filename to read the specified module name,
     // using the incdir and libext's.
     // Return "" if not found.
-    const string filename = V3Os::filenameCleanup(VName::dehash(modname));
-    if (!V3Os::filenameIsRel(filename)) {
+    ಸ್ಥಿರಾಂಕ string filename = V3Os::filenameCleanup(VName::dehash(modname));
+    ಆದರೆ (!V3Os::filenameIsRel(filename)) {
         // filename is an absolute path, so can find getStdPackagePath()/getStdWaiverPath()
-        const string exists = filePathCheckOneDir(filename, "");
-        if (exists != "") return exists;
+        ಸ್ಥಿರಾಂಕ string exists = file_ಮಾರ್ಗ_Check_One_Dir(filename, "");
+        ಆದರೆ (exists != "") ಹಿಂತಿರುಗಿ exists;
     }
-    for (const string& dir : m_impp->m_incDirUsers) {
-        const string exists = filePathCheckOneDir(filename, dir);
-        if (exists != "") return exists;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& dir : m_impp->m_incDirUsers) {
+        ಸ್ಥಿರಾಂಕ string exists = file_ಮಾರ್ಗ_Check_One_Dir(filename, dir);
+        ಆದರೆ (exists != "") ಹಿಂತಿರುಗಿ exists;
     }
-    for (const string& dir : m_impp->m_incDirFallbacks) {
-        const string exists = filePathCheckOneDir(filename, dir);
-        if (exists != "") return exists;
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& dir : m_impp->m_incDirFallbacks) {
+        ಸ್ಥಿರಾಂಕ string exists = file_ಮಾರ್ಗ_Check_One_Dir(filename, dir);
+        ಆದರೆ (exists != "") ಹಿಂತಿರುಗಿ exists;
     }
 
-    if (m_relativeIncludes) {
-        const string exists = filePathCheckOneDir(filename, lastpath);
-        if (exists != "") return V3Os::filenameRealPath(exists);
+    ಆದರೆ (m_relativeIncludes) {
+        ಸ್ಥಿರಾಂಕ string exists = file_ಮಾರ್ಗ_Check_One_Dir(filename, lastpath);
+        ಆದರೆ (exists != "") ಹಿಂತಿರುಗಿ V3Os::filename_Real_ಮಾರ್ಗ(exists);
     }
 
     // Warn and return not found
-    if (errmsg != "") {
+    ಆದರೆ (errmsg != "") {
         fl->v3error(errmsg << "'"s << filename << "'\n"s << fl->warnContextPrimary()
-                           << V3Error::warnAdditionalInfo() << filePathLookedMsg(fl, filename));
+                           << V3Error::warnAdditionalInfo() << file_ಮಾರ್ಗ_Looked_ಸಂದೇಶ(fl, filename));
     }
-    return "";
+    ಹಿಂತಿರುಗಿ "";
 }
 
-string V3Options::filePathLookedMsg(FileLine* /*fl*/, const string& modname) {
-    static bool s_shown_notfound_msg = false;
+string V3Options::file_ಮಾರ್ಗ_Looked_ಸಂದೇಶ(File_ಸಾಲು* /*fl*/, ಸ್ಥಿರಾಂಕ string& modname) {
+    ಸ್ಥಿರ ತಾರ್ಕಿಕ s_shown_notfound_ಸಂದೇಶ = ಸುಳ್ಳು;
     std::ostringstream ss;
-    if (modname.find("__Vhsh") != string::npos) {
-        ss << V3Error::warnMore() << "... Note: Name is longer than 127 characters; automatic"
+    ಆದರೆ (modname.ಕಂಡುಹಿಡಿ("__Vhsh") != string::npos) {
+        ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "... Note: Name is longer than 127 characters; automatic"
            << " file lookup may have failed due to OS filename length limits.\n";
-        ss << V3Error::warnMore() << "... Suggest putting filename with this module/package"
+        ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "... Suggest putting filename with this module/package"
            << " onto command line instead.\n";
-    } else if (!s_shown_notfound_msg) {
-        s_shown_notfound_msg = true;
-        if (m_impp->m_incDirUsers.empty()) {
-            ss << V3Error::warnMore()
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!s_shown_notfound_ಸಂದೇಶ) {
+        s_shown_notfound_ಸಂದೇಶ = ನಿಜ;
+        ಆದರೆ (m_impp->m_incDirUsers.ಖಾಲಿಗಳು()) {
+            ss << V3Error::warn_ಇನ್ನಷ್ಟು()
                << "... This may be because there's no search path specified with -I<dir>.\n";
         }
-        ss << V3Error::warnMore() << "... Looked in:\n";
-        for (const string& dir : m_impp->m_incDirUsers) {
-            for (const string& ext : m_impp->m_libExtVs) {
-                const string fn = V3Os::filenameJoin(dir, modname + ext);
-                ss << V3Error::warnMore() << "     " << fn << "\n";
+        ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "... Looked in:\n";
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& dir : m_impp->m_incDirUsers) {
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& ext : m_impp->m_libExtVs) {
+                ಸ್ಥಿರಾಂಕ string fn = V3Os::filenameJoin(dir, modname + ext);
+                ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "     " << fn << "\n";
             }
         }
-        for (const string& dir : m_impp->m_incDirFallbacks) {
-            for (const string& ext : m_impp->m_libExtVs) {
-                const string fn = V3Os::filenameJoin(dir, modname + ext);
-                ss << V3Error::warnMore() << "     " << fn << "\n";
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& dir : m_impp->m_incDirFallbacks) {
+            ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& ext : m_impp->m_libExtVs) {
+                ಸ್ಥಿರಾಂಕ string fn = V3Os::filenameJoin(dir, modname + ext);
+                ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "     " << fn << "\n";
             }
         }
-        ss << V3Error::warnMore() << "... With current working directory '" << V3Os::cwd()
+        ss << V3Error::warn_ಇನ್ನಷ್ಟು() << "... With current working directory '" << V3Os::cwd()
            << "'\n";
     }
-    return ss.str();
+    ಹಿಂತಿರುಗಿ ss.str();
 }
 
 //! Determine what language is associated with a filename
 
 //! If we recognize the extension, use its language, otherwise, use the
 //! default language.
-V3LangCode V3Options::fileLanguage(const string& filename) {
+V3_Lang_ಸಂಕೇತ V3Options::fileLanguage(ಸ್ಥಿರಾಂಕ string& filename) {
     string ext = V3Os::filenameNonDir(filename);
-    string::size_type pos;
-    if (filename == V3Options::getStdPackagePath() || filename == V3Options::getStdWaiverPath()) {
-        return V3LangCode::mostRecent();
-    } else if ((pos = ext.rfind('.')) != string::npos) {
+    string::ಗಾತ್ರ_type pos;
+    ಆದರೆ (filename == V3Options::get_Std_Package_ಮಾರ್ಗ() || filename == V3Options::get_Std_Waiver_ಮಾರ್ಗ()) {
+        ಹಿಂತಿರುಗಿ V3_Lang_ಸಂಕೇತ::mostRecent();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ ((pos = ext.rfind('.')) != string::npos) {
         ext.erase(0, pos + 1);
-        const auto it = m_impp->m_langExts.find(ext);
-        if (it != m_impp->m_langExts.end()) return it->second;
+        ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ it = m_impp->m_langExts.ಕಂಡುಹಿಡಿ(ext);
+        ಆದರೆ (it != m_impp->m_langExts.ಕೊನೆ()) ಹಿಂತಿರುಗಿ it->ಎರಡನೇ;
     }
-    return m_defaultLanguage;
+    ಹಿಂತಿರುಗಿ m_defaultLanguage;
 }
 
 //######################################################################
 // Environment
 
-string V3Options::getenvBuiltins(const string& var) {
+string V3Options::getenvBuiltins(ಸ್ಥಿರಾಂಕ string& var) {
     // If update below, also update V3Options::showVersion()
-    if (var == "MAKE") {
-        return getenvMAKE();
-    } else if (var == "PERL") {
-        return getenvPERL();
-    } else if (var == "PYTHON3") {
-        return getenvPYTHON3();
-    } else if (var == "SYSTEMC") {
-        return getenvSYSTEMC();
-    } else if (var == "SYSTEMC_ARCH") {
-        return getenvSYSTEMC_ARCH();
-    } else if (var == "SYSTEMC_INCLUDE") {
-        return getenvSYSTEMC_INCLUDE();
-    } else if (var == "SYSTEMC_LIBDIR") {
-        return getenvSYSTEMC_LIBDIR();
-    } else if (var == "VERILATOR_ROOT") {
-        return getenvVERILATOR_ROOT();
-    } else {
-        return V3Os::getenvStr(var, "");
+    ಆದರೆ (var == "MAKE") {
+        ಹಿಂತಿರುಗಿ getenvMAKE();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "PERL") {
+        ಹಿಂತಿರುಗಿ getenvPERL();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "PYTHON3") {
+        ಹಿಂತಿರುಗಿ getenvPYTHON3();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "SYSTEMC") {
+        ಹಿಂತಿರುಗಿ getenvSYSTEMC();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "SYSTEMC_ARCH") {
+        ಹಿಂತಿರುಗಿ getenvSYSTEMC_ARCH();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "SYSTEMC_INCLUDE") {
+        ಹಿಂತಿರುಗಿ getenvSYSTEMC_INCLUDE();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "SYSTEMC_LIBDIR") {
+        ಹಿಂತಿರುಗಿ getenvSYSTEMC_LIBDIR();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "VERILATOR_ROOT") {
+        ಹಿಂತಿರುಗಿ getenv_VERILATOR_ಬೇರು();
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        ಹಿಂತಿರುಗಿ V3Os::getenvStr(var, "");
     }
 }
 
-#ifdef __FreeBSD__
-string V3Options::getenvMAKE() { return V3Os::getenvStr("MAKE", "gmake"); }
-#else
-string V3Options::getenvMAKE() { return V3Os::getenvStr("MAKE", "make"); }
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __FreeBSD__
+string V3Options::getenvMAKE() { ಹಿಂತಿರುಗಿ V3Os::getenvStr("MAKE", "gmake"); }
+#ಇಲ್ಲದಿದ್ದರೆ
+string V3Options::getenvMAKE() { ಹಿಂತಿರುಗಿ V3Os::getenvStr("MAKE", "make"); }
+#ಆದರೆ_ಅಂತ್ಯ
 
 string V3Options::getenvMAKEFLAGS() {  //
-    return V3Os::getenvStr("MAKEFLAGS", "");
+    ಹಿಂತಿರುಗಿ V3Os::getenvStr("MAKEFLAGS", "");
 }
 
 string V3Options::getenvPERL() {  //
-    return V3Os::filenameCleanup(V3Os::getenvStr("PERL", "perl"));
+    ಹಿಂತಿರುಗಿ V3Os::filenameCleanup(V3Os::getenvStr("PERL", "perl"));
 }
 
 string V3Options::getenvPYTHON3() {  //
-    return V3Os::filenameCleanup(V3Os::getenvStr("PYTHON3", "python3"));
+    ಹಿಂತಿರುಗಿ V3Os::filenameCleanup(V3Os::getenvStr("PYTHON3", "python3"));
 }
 
 string V3Options::getenvSYSTEMC() {
     string var = V3Os::getenvStr("SYSTEMC", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC};
-    if (var == "" && defenv != "") {
+    ಸ್ಥಿರಾಂಕ string defenv = string{DEFENV_SYSTEMC};
+    ಆದರೆ (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC", var, "Hardcoded at build time");
     }
-    return V3Os::filenameCleanup(var);
+    ಹಿಂತಿರುಗಿ V3Os::filenameCleanup(var);
 }
 
 string V3Options::getenvSYSTEMC_ARCH() {
     string var = V3Os::getenvStr("SYSTEMC_ARCH", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC_ARCH};
-    if (var == "" && defenv != "") {
+    ಸ್ಥಿರಾಂಕ string defenv = string{DEFENV_SYSTEMC_ARCH};
+    ಆದರೆ (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC_ARCH", var, "Hardcoded at build time");
     }
-    if (var == "") {
-#if defined(__MINGW32__)
+    ಆದರೆ (var == "") {
+#ಆದರೆ defined(__MINGW32__)
         // Hardcoded with MINGW current version. Would like a better way.
-        const string sysname = "MINGW32_NT-5.0";
+        ಸ್ಥಿರಾಂಕ string sysname = "MINGW32_NT-5.0";
         var = "mingw32";
-#elif defined(_WIN32)
-        const string sysname = "WIN32";
+#ಅಥವಾಆದರೆ defined(_WIN32)
+        ಸ್ಥಿರಾಂಕ string sysname = "WIN32";
         var = "win32";
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-        struct utsname uts;
+        ರಚನೆ utsname uts;
         uname(&uts);
-        const string sysname = VString::downcase(uts.sysname);  // aka  'uname -s'
-        if (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*solaris*"))) {
+        ಸ್ಥಿರಾಂಕ string sysname = VString::downcase(uts.sysname);  // aka  'uname -s'
+        ಆದರೆ (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*solaris*"))) {
             var = "gccsparcOS5";  // LCOV_EXCL_LINE
-        } else if (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*cygwin*"))) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (VL_UNCOVERABLE(VString::wildmatch(sysname.c_str(), "*cygwin*"))) {
             var = "cygwin";  // LCOV_EXCL_LINE
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             var = "linux";
         }
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
         V3Os::setenvStr("SYSTEMC_ARCH", var, "From sysname '" + sysname + "'");
     }
-    return var;
+    ಹಿಂತಿರುಗಿ var;
 }
 
 string V3Options::getenvSYSTEMC_INCLUDE() {
     string var = V3Os::getenvStr("SYSTEMC_INCLUDE", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC_INCLUDE};
-    if (var == "" && defenv != "") {
+    ಸ್ಥಿರಾಂಕ string defenv = string{DEFENV_SYSTEMC_INCLUDE};
+    ಆದರೆ (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC_INCLUDE", var, "Hardcoded at build time");
     }
-    if (var == "") {
-        const string sc = getenvSYSTEMC();
-        if (sc != "") var = V3Os::filenameJoin(sc, "include");
+    ಆದರೆ (var == "") {
+        ಸ್ಥಿರಾಂಕ string sc = getenvSYSTEMC();
+        ಆದರೆ (sc != "") var = V3Os::filenameJoin(sc, "include");
     }
-    return V3Os::filenameCleanup(var);
+    ಹಿಂತಿರುಗಿ V3Os::filenameCleanup(var);
 }
 
 string V3Options::getenvSYSTEMC_LIBDIR() {
     string var = V3Os::getenvStr("SYSTEMC_LIBDIR", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_SYSTEMC_LIBDIR};
-    if (var == "" && defenv != "") {
+    ಸ್ಥಿರಾಂಕ string defenv = string{DEFENV_SYSTEMC_LIBDIR};
+    ಆದರೆ (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("SYSTEMC_LIBDIR", var, "Hardcoded at build time");
     }
-    if (var == "") {
-        const string sc = getenvSYSTEMC();
-        const string arch = getenvSYSTEMC_ARCH();
-        if (sc != "" && arch != "") var = V3Os::filenameJoin(sc, "lib-" + arch);
+    ಆದರೆ (var == "") {
+        ಸ್ಥಿರಾಂಕ string sc = getenvSYSTEMC();
+        ಸ್ಥಿರಾಂಕ string arch = getenvSYSTEMC_ARCH();
+        ಆದರೆ (sc != "" && arch != "") var = V3Os::filenameJoin(sc, "lib-" + arch);
     }
-    return V3Os::filenameCleanup(var);
+    ಹಿಂತಿರುಗಿ V3Os::filenameCleanup(var);
 }
 
-string V3Options::getenvVERILATOR_ROOT() {
+string V3Options::getenv_VERILATOR_ಬೇರು() {
     string var = V3Os::getenvStr("VERILATOR_ROOT", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_VERILATOR_ROOT};
-    if (var == "" && defenv != "") {
+    ಸ್ಥಿರಾಂಕ string defenv = string{DEFENV_VERILATOR_ಬೇರು};
+    ಆದರೆ (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("VERILATOR_ROOT", var, "Hardcoded at build time");
     }
-    if (var == "") v3fatal("$VERILATOR_ROOT needs to be in environment\n");
-    return V3Os::filenameCleanup(var);
+    ಆದರೆ (var == "") v3fatal("$VERILATOR_ROOT needs to be in environment\n");
+    ಹಿಂತಿರುಗಿ V3Os::filenameCleanup(var);
 }
 
 string V3Options::getenvVERILATOR_SOLVER() {
     string var = V3Os::getenvStr("VERILATOR_SOLVER", "");
     // Treat compiled-in DEFENV string literals as C-strings to enable
     // binary patching for relocatable installs (e.g. conda)
-    const string defenv = string{DEFENV_VERILATOR_SOLVER};
-    if (var == "" && defenv != "") {
+    ಸ್ಥಿರಾಂಕ string defenv = string{DEFENV_VERILATOR_SOLVER};
+    ಆದರೆ (var == "" && defenv != "") {
         var = defenv;
         V3Os::setenvStr("VERILATOR_SOLVER", var, "Hardcoded at build time");
     }
-    return var;
+    ಹಿಂತಿರುಗಿ var;
 }
 
-string V3Options::getStdPackagePath() {
-    return V3Os::filenameJoin(getenvVERILATOR_ROOT(), "include", "verilated_std.sv");
+string V3Options::get_Std_Package_ಮಾರ್ಗ() {
+    ಹಿಂತಿರುಗಿ V3Os::filenameJoin(getenv_VERILATOR_ಬೇರು(), "include", "verilated_std.sv");
 }
-string V3Options::getStdWaiverPath() {
-    return V3Os::filenameJoin(getenvVERILATOR_ROOT(), "include", "verilated_std_waiver.vlt");
+string V3Options::get_Std_Waiver_ಮಾರ್ಗ() {
+    ಹಿಂತಿರುಗಿ V3Os::filenameJoin(getenv_VERILATOR_ಬೇರು(), "include", "verilated_std_waiver.vlt");
 }
 
-string V3Options::getSupported(const string& var) {
+string V3Options::getSupported(ಸ್ಥಿರಾಂಕ string& var) {
     // If update below, also update V3Options::showVersion()
-    if (var == "COROUTINES" && coroutineSupport()) {
-        return "1";
-    } else if (var == "TSAN" && tsanSupport()) {
-        return "1";
-    } else if (var == "DEV_ASAN" && devAsan()) {
-        return "1";
-    } else if (var == "DEV_GCOV" && devGcov()) {
-        return "1";
+    ಆದರೆ (var == "COROUTINES" && coroutineSupport()) {
+        ಹಿಂತಿರುಗಿ "1";
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "TSAN" && tsanSupport()) {
+        ಹಿಂತಿರುಗಿ "1";
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "DEV_ASAN" && devAsan()) {
+        ಹಿಂತಿರುಗಿ "1";
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "DEV_GCOV" && devGcov()) {
+        ಹಿಂತಿರುಗಿ "1";
         // cppcheck-suppress knownConditionTrueFalse
-    } else if (var == "SYSTEMC" && systemCFound()) {
-        return "1";
-    } else {
-        return "";
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (var == "SYSTEMC" && systemCFound()) {
+        ಹಿಂತಿರುಗಿ "1";
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        ಹಿಂತಿರುಗಿ "";
     }
 }
 
-bool V3Options::systemCSystemWide() {
-#ifdef HAVE_SYSTEMC
-    return true;
-#else
-    return false;
-#endif
+ತಾರ್ಕಿಕ V3Options::systemCSystemWide() {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_SYSTEMC
+    ಹಿಂತಿರುಗಿ ನಿಜ;
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-bool V3Options::systemCFound() {
-    return (systemCSystemWide()
-            || (!getenvSYSTEMC_INCLUDE().empty() && !getenvSYSTEMC_LIBDIR().empty()));
+ತಾರ್ಕಿಕ V3Options::systemCFound() {
+    ಹಿಂತಿರುಗಿ (systemCSystemWide()
+            || (!getenvSYSTEMC_INCLUDE().ಖಾಲಿಗಳು() && !getenvSYSTEMC_LIBDIR().ಖಾಲಿಗಳು()));
 }
 
-bool V3Options::coroutineSupport() {
-#ifdef HAVE_COROUTINES
-    return true;
-#else
-    return false;
-#endif
+ತಾರ್ಕಿಕ V3Options::coroutineSupport() {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_COROUTINES
+    ಹಿಂತಿರುಗಿ ನಿಜ;
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-bool V3Options::devAsan() {
-#ifdef HAVE_DEV_ASAN
-    return true;
-#else
-    return false;
-#endif
+ತಾರ್ಕಿಕ V3Options::devAsan() {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_DEV_ASAN
+    ಹಿಂತಿರುಗಿ ನಿಜ;
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-bool V3Options::devGcov() {
-#ifdef HAVE_DEV_GCOV
-    return true;
-#else
-    return false;
-#endif
+ತಾರ್ಕಿಕ V3Options::devGcov() {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_DEV_GCOV
+    ಹಿಂತಿರುಗಿ ನಿಜ;
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
-bool V3Options::tsanSupport() {
-#ifdef HAVE_TSAN
-    return true;
-#else
-    return false;
-#endif
+ತಾರ್ಕಿಕ V3Options::tsanSupport() {
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ HAVE_TSAN
+    ಹಿಂತಿರುಗಿ ನಿಜ;
+#ಇಲ್ಲದಿದ್ದರೆ
+    ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+#ಆದರೆ_ಅಂತ್ಯ
 }
 
 //######################################################################
 // V3 Options notification methods
 
-void V3Options::notify() VL_MT_DISABLED {
+ಶೂನ್ಯ V3Options::notify() VL_MT_DISABLED {
     // Notify that all arguments have been passed and final modification can be made.
-    FileLine* const cmdfl = new FileLine{FileLine::commandLineFilename()};
+    File_ಸಾಲು* ಸ್ಥಿರಾಂಕ cmdfl = ಹೊಸ File_ಸಾಲು{File_ಸಾಲು::command_ಸಾಲು_Filename()};
 
-    if (!outFormatOk() && v3Global.opt.main()) ccSet();  // --main implies --cc if not provided
-    if (!outFormatOk() && !dpiHdrOnly() && !lintOnly() && !preprocOnly() && !serializeOnly()) {
+    ಆದರೆ (!ಹೊರಹೋಗು_Format_Ok() && v3Global.opt.ಮುಖ್ಯ()) cc_ಗಣ();  // --main implies --cc if not provided
+    ಆದರೆ (!ಹೊರಹೋಗು_Format_Ok() && !dpiHdrOnly() && !lintOnly() && !preprocOnly() && !serializeOnly()) {
         v3fatal("verilator: Need --binary, --cc, --sc, --dpi-hdr-only, --lint-only, "
                 "--json-only or --E option");
     }
 
-    if (m_build && (m_gmake || m_makeJson)) {
+    ಆದರೆ (m_build && (m_gmake || m_makeJson)) {
         cmdfl->v3error("--make cannot be used together with --build. Suggest see manual");
     }
 
     // m_build, m_preprocOnly, m_dpiHdrOnly, m_lintOnly, and m_jsonOnly are mutually
     // exclusive
-    std::vector<std::string> backendFlags;
-    if (m_build) {
-        if (m_binary)
-            backendFlags.emplace_back("--binary");
-        else
-            backendFlags.emplace_back("--build");
+    std::ಸದಿಶ<std::string> backendFlags;
+    ಆದರೆ (m_build) {
+        ಆದರೆ (m_ದ್ವಿಮಾನ)
+            backendFlags.emplace_ಹಿಂಭಾಗ("--binary");
+        ಇಲ್ಲದಿದ್ದರೆ
+            backendFlags.emplace_ಹಿಂಭಾಗ("--build");
     }
-    if (m_preprocOnly) backendFlags.emplace_back("-E");
-    if (m_dpiHdrOnly) backendFlags.emplace_back("--dpi-hdr-only");
-    if (m_lintOnly) backendFlags.emplace_back("--lint-only");
-    if (m_jsonOnly) backendFlags.emplace_back("--json-only");
-    if (backendFlags.size() > 1) {
+    ಆದರೆ (m_preprocOnly) backendFlags.emplace_ಹಿಂಭಾಗ("-E");
+    ಆದರೆ (m_dpiHdrOnly) backendFlags.emplace_ಹಿಂಭಾಗ("--dpi-hdr-only");
+    ಆದರೆ (m_lintOnly) backendFlags.emplace_ಹಿಂಭಾಗ("--lint-only");
+    ಆದರೆ (m_jsonOnly) backendFlags.emplace_ಹಿಂಭಾಗ("--json-only");
+    ಆದರೆ (backendFlags.ಗಾತ್ರ_2() > 1) {
         std::string backendFlagsString = backendFlags.front();
-        for (size_t i = 1; i < backendFlags.size(); i++) {
+        ಗಾಗಿ (ಗಾತ್ರ_t i = 1; i < backendFlags.ಗಾತ್ರ_2(); i++) {
             backendFlagsString += ", " + backendFlags[i];
         }
         v3error("The following cannot be used together: " + backendFlagsString
                 + ". Suggest see manual");
     }
 
-    if (m_exe && !v3Global.opt.libCreate().empty()) {
+    ಆದರೆ (m_exe && !v3Global.opt.libCreate().ಖಾಲಿಗಳು()) {
         cmdfl->v3error("--exe cannot be used together with --lib-create. Suggest see manual");
     }
 
     // Make sure at least one make system is enabled
-    if (!m_gmake && !m_makeJson) m_gmake = true;
+    ಆದರೆ (!m_gmake && !m_makeJson) m_gmake = ನಿಜ;
 
-    if (m_hierarchical && (m_hierChild || !m_hierBlocks.empty())) {
+    ಆದರೆ (m_ಶ್ರೇಣೀಕೃತ && (m_hier_ಮಗು || !m_hier_ಖಂಡಗಳು.ಖಾಲಿಗಳು())) {
         cmdfl->v3error(
             "--hierarchical must not be set with --hierarchical-child or --hierarchical-block");
     }
-    if (m_hierChild) {
-        if (m_hierBlocks.empty()) {
+    ಆದರೆ (m_hier_ಮಗು) {
+        ಆದರೆ (m_hier_ಖಂಡಗಳು.ಖಾಲಿಗಳು()) {
             cmdfl->v3error("--hierarchical-block must be set when --hierarchical-child is set");
         }
-        m_main = false;
+        m_main = ಸುಳ್ಳು;
     }
 
-    if (trace() && !traceEnabledFst() && !traceEnabledSaif() && !traceEnabledVcd()) {
-        m_traceEnabledVcd = true;  // No format, with --trace means wanted --trace-vcd
+    ಆದರೆ (trace() && !traceEnabledFst() && !traceEnabledSaif() && !traceEnabledVcd()) {
+        m_traceEnabledVcd = ನಿಜ;  // No format, with --trace means wanted --trace-vcd
     }
-    if (traceEnabledFst() || traceEnabledSaif() || traceEnabledVcd()) m_trace = true;
-    const int ntraces = traceEnabledFst() + traceEnabledSaif() + traceEnabledVcd();
-    if (ntraces > 1)  // Issue #5813
+    ಆದರೆ (traceEnabledFst() || traceEnabledSaif() || traceEnabledVcd()) m_trace = ನಿಜ;
+    ಸ್ಥಿರಾಂಕ ಪೂರ್ಣಾಂಕ ntraces = traceEnabledFst() + traceEnabledSaif() + traceEnabledVcd();
+    ಆದರೆ (ntraces > 1)  // Issue #5813
         cmdfl->v3error("Only one of --trace-fst, --trace-saif or --trace--vcd may be used");
 
-    if (protectIds()) {
-        if (allPublic()) {
+    ಆದರೆ (protectIds()) {
+        ಆದರೆ (all_ಬಹಿರಂಗ()) {
             // We always call protect() on names, we don't check if public or not
             // Hence any external references wouldn't be able to find the refed public object.
             cmdfl->v3warn(E_UNSUPPORTED, "Unsupported: Using --protect-ids with --public\n"  //
-                                             + cmdfl->warnMore() + "... Suggest remove --public.");
+                                             + cmdfl->warn_ಇನ್ನಷ್ಟು() + "... Suggest remove --public.");
         }
-        if (trace()) {
+        ಆದರೆ (trace()) {
             cmdfl->v3warn(INSECURE,
                           "Using --protect-ids with --trace may expose private design details\n"
-                              + cmdfl->warnMore() + "... Suggest remove --trace.");
+                              + cmdfl->warn_ಇನ್ನಷ್ಟು() + "... Suggest remove --trace.");
         }
-        if (vpi()) {
+        ಆದರೆ (vpi()) {
             cmdfl->v3warn(INSECURE,
                           "Using --protect-ids with --vpi may expose private design details\n"
-                              + cmdfl->warnMore() + "... Suggest remove --vpi.");
+                              + cmdfl->warn_ಇನ್ನಷ್ಟು() + "... Suggest remove --vpi.");
         }
     }
 
     // Default some options if not turned on or off
-    if (v3Global.opt.skipIdentical().isDefault()) {
-        v3Global.opt.m_skipIdentical.setTrueOrFalse(  //
+    ಆದರೆ (v3Global.opt.skipIdentical().isDefault()) {
+        v3Global.opt.m_skipIdentical.ಗಣ_True_Or_False(  //
             !v3Global.opt.dpiHdrOnly()  //
             && !v3Global.opt.lintOnly()  //
             && !v3Global.opt.preprocOnly()  //
             && !v3Global.opt.serializeOnly());
     }
-    if (v3Global.opt.makeDepend().isDefault()) {
-        v3Global.opt.m_makeDepend.setTrueOrFalse(  //
+    ಆದರೆ (v3Global.opt.makeDepend().isDefault()) {
+        v3Global.opt.m_makeDepend.ಗಣ_True_Or_False(  //
             !v3Global.opt.dpiHdrOnly()  //
             && !v3Global.opt.lintOnly()  //
             && !v3Global.opt.preprocOnly()  //
             && !v3Global.opt.serializeOnly());
     }
 
-    if (m_timing.isDefault() && (v3Global.opt.jsonOnly() || v3Global.opt.lintOnly()))
-        v3Global.opt.m_timing.setTrueOrFalse(true);
+    ಆದರೆ (m_timing.isDefault() && (v3Global.opt.jsonOnly() || v3Global.opt.lintOnly()))
+        v3Global.opt.m_timing.ಗಣ_True_Or_False(ನಿಜ);
 
     // Default split limits if not specified
-    if (m_outputSplitCFuncs < 0) m_outputSplitCFuncs = m_outputSplit;
-    if (m_outputSplitCTrace < 0) m_outputSplitCTrace = m_outputSplit;
+    ಆದರೆ (m_output_ವಿಭಜಿಸು_CFuncs < 0) m_output_ವಿಭಜಿಸು_CFuncs = m_output_ವಿಭಜಿಸು;
+    ಆದರೆ (m_output_ವಿಭಜಿಸು_CTrace < 0) m_output_ವಿಭಜಿಸು_CTrace = m_output_ವಿಭಜಿಸು;
 
-    if (v3Global.opt.main() && v3Global.opt.systemC()) {
+    ಆದರೆ (v3Global.opt.ಮುಖ್ಯ() && v3Global.opt.systemC()) {
         cmdfl->v3warn(E_UNSUPPORTED,
                       "--main not usable with SystemC. Suggest see examples for sc_main().");
     }
 
-    if (fourstate()) {
+    ಆದರೆ (fourstate()) {
         cmdfl->v3warn(FUTURE, "--fourstate is not supported as is under development");
-        if (hierarchical()) {
+        ಆದರೆ (ಶ್ರೇಣೀಕೃತ()) {
             cmdfl->v3warn(E_UNSUPPORTED,
                           "--fourstate is not supported with hierarchical Verilation");
         }
     }
 
-    if (coverage() && savable()) {
+    ಆದರೆ (coverage() && savable()) {
         cmdfl->v3error("Unsupported: --coverage and --savable not supported together");
     }
-    if (v3Global.opt.timing().isSetTrue() && savable()) {
+    ಆದರೆ (v3Global.opt.timing().is_ಗಣ_True() && savable()) {
         cmdfl->v3error("Unsupported: --timing and --savable not supported together");
     }
 
     // --dump-tree-dot will turn on tree dumping.
-    if (!m_dumpLevel.count("tree") && m_dumpLevel.count("tree-dot")) {
+    ಆದರೆ (!m_dumpLevel.ಎಣಿಕೆ_2("tree") && m_dumpLevel.ಎಣಿಕೆ_2("tree-dot")) {
         m_dumpLevel["tree"] = m_dumpLevel["tree-dot"];
     }
 
     // Sanity check of expected configuration
-    UASSERT(threads() >= 1, "'threads()' must return a value >= 1");
-    if (m_outputGroups == -1) m_outputGroups = (m_buildJobs != -1) ? m_buildJobs : 0;
-    if (m_buildJobs == -1) m_buildJobs = 1;
-    if (m_verilateJobs == -1) m_verilateJobs = 1;
+    UASSERT(ಎಳೆಗಳು() >= 1, "'threads()' must return a value >= 1");
+    ಆದರೆ (m_outputGroups == -1) m_outputGroups = (m_buildJobs != -1) ? m_buildJobs : 0;
+    ಆದರೆ (m_buildJobs == -1) m_buildJobs = 1;
+    ಆದರೆ (m_verilateJobs == -1) m_verilateJobs = 1;
 
     // Preprocessor defines based on options used
-    if (timing().isSetTrue()) V3PreShell::defineCmdLine("VERILATOR_TIMING", "1");
+    ಆದರೆ (timing().is_ಗಣ_True()) V3PreShell::define_Cmd_ಸಾಲು("VERILATOR_TIMING", "1");
 
     // If VPI is used, and no explicit ico change detect option was passed, disable it by default
-    if (m_vpi.isTrue() && m_fIcoChangeDetect.isDefault()) m_fIcoChangeDetect.setTrueOrFalse(false);
+    ಆದರೆ (m_vpi.isTrue() && m_fIcoChangeDetect.isDefault()) m_fIcoChangeDetect.ಗಣ_True_Or_False(ಸುಳ್ಳು);
 
     // === Leave last
     // Mark options as available
-    m_available = true;
+    m_ಲಭ್ಯ = ನಿಜ;
 }
 
 //######################################################################
 // V3 Options accessors
 
-string V3Options::version() VL_PURE {
+string V3Options::ಆವೃತ್ತಿ() VL_ಶುದ್ಧ {
     string ver = PACKAGE_STRING;
-    ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    ver += " rev " + cvt_ಗಮ್ಯ_Str(DTVERSION_rev);
+    ಹಿಂತಿರುಗಿ ver;
 }
 
-string V3Options::protectKeyDefaulted() VL_MT_SAFE {
-    static V3Mutex s_mutex;
-    const V3LockGuard lock{s_mutex};
-    if (m_protectKey.empty()) {
+string V3Options::protect_ಕೀಲಿ_Defaulted() VL_MT_ಸುರಕ್ಷಿತ {
+    ಸ್ಥಿರ V3Mutex s_mutex;
+    ಸ್ಥಿರಾಂಕ V3_ಬೀಗ_Guard ಬೀಗ_2{s_mutex};
+    ಆದರೆ (m_protect_ಕೀಲಿ.ಖಾಲಿಗಳು()) {
         // Create a key with a human-readable symbol-like name.
         // This conversion drops ~2 bits of entropy out of 256, shouldn't matter.
         VHashSha512 digest{V3Os::trueRandom(64)};
-        m_protectKey = "VL-KEY-" + digest.digestBase64();
+        m_protect_ಕೀಲಿ = "VL-KEY-" + digest.digestBase64();
     }
-    return m_protectKey;
+    ಹಿಂತಿರುಗಿ m_protect_ಕೀಲಿ;
 }
 
-void V3Options::throwSigsegv() {  // LCOV_EXCL_START
-#if !(defined(VL_CPPCHECK) || defined(__clang_analyzer__))
+ಶೂನ್ಯ V3Options::throwSigsegv() {  // LCOV_EXCL_START
+#ಆದರೆ !(defined(VL_CPPCHECK) || defined(__clang_analyzer__))
     // clang-format off
-    *static_cast<volatile char*>(nullptr) = 0;  // Intentional core dump, ignore warnings here
+    *static_cast<ಅಸ್ಥಿರ ಅಕ್ಷರ*>(ಶೂನ್ಯಸೂಚಕ) = 0;  // Intentional core dump, ignore warnings here
     // clang-format on
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 }  // LCOV_EXCL_STOP
 
-VTimescale V3Options::timeComputePrec(const VTimescale& flag) const {
-    if (!timeOverridePrec().isNone()) {
-        return timeOverridePrec();
-    } else if (flag.isNone()) {
-        return timeDefaultPrec();
-    } else {
-        return flag;
+VTimescale V3Options::ಸಮಯ_Compute_Prec(ಸ್ಥಿರಾಂಕ VTimescale& flag) ಸ್ಥಿರಾಂಕ {
+    ಆದರೆ (!ಸಮಯ_Override_Prec().isNone()) {
+        ಹಿಂತಿರುಗಿ ಸಮಯ_Override_Prec();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (flag.isNone()) {
+        ಹಿಂತಿರುಗಿ ಸಮಯ_Default_Prec();
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        ಹಿಂತಿರುಗಿ flag;
     }
 }
 
-VTimescale V3Options::timeComputeUnit(const VTimescale& flag) const {
-    if (!timeOverrideUnit().isNone()) {
-        return timeOverrideUnit();
-    } else if (flag.isNone()) {
-        return timeDefaultUnit();
-    } else {
-        return flag;
+VTimescale V3Options::ಸಮಯ_Compute_Unit(ಸ್ಥಿರಾಂಕ VTimescale& flag) ಸ್ಥಿರಾಂಕ {
+    ಆದರೆ (!ಸಮಯ_Override_Unit().isNone()) {
+        ಹಿಂತಿರುಗಿ ಸಮಯ_Override_Unit();
+    } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (flag.isNone()) {
+        ಹಿಂತಿರುಗಿ ಸಮಯ_Default_Unit();
+    } ಇಲ್ಲದಿದ್ದರೆ {
+        ಹಿಂತಿರುಗಿ flag;
     }
 }
 
 //######################################################################
 // V3 Options utilities
 
-string V3Options::argString(int argc, char** argv) {
+string V3Options::argString(ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ** argv) {
     // Return list of arguments as simple string
     string opts;
-    for (int i = 0; i < argc; ++i) {
-        if (i != 0) opts += " ";
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < argc; ++i) {
+        ಆದರೆ (i != 0) opts += " ";
         opts += string{argv[i]};
     }
-    return opts;
+    ಹಿಂತಿರುಗಿ opts;
 }
 
 //######################################################################
 // V3 Options Parsing
 
-void V3Options::parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED {
+ಶೂನ್ಯ V3Options::parseOpts(File_ಸಾಲು* fl, ಪೂರ್ಣಾಂಕ argc, ಅಕ್ಷರ** argv) VL_MT_DISABLED {
     // Save command line options
-    for (int i = 0; i < argc; ++i) addLineArg(argv[i]);
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < argc; ++i) ಕೂಡಿಸು_ಸಾಲು_Arg(argv[i]);
 
     // Parse all options
     // Initial entry point from Verilator.cpp
@@ -1174,41 +1174,41 @@ void V3Options::parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED {
 
     // Default certain options and error check
     // Detailed error, since this is what we often get when run with minimal arguments
-    if (vFiles().empty()) {
+    ಆದರೆ (vFiles().ಖಾಲಿಗಳು()) {
         v3fatal("verilator: No input Verilog file specified on command line, "
                 "see 'verilator --help' for more information\n");
     }
 
     // Default prefix to the filename
-    if (prefix() == "" && topModule() != "") m_prefix = "V"s + topModule();  // Already encoded
-    if (prefix() == "" && vFiles().size() >= 1)
-        m_prefix
-            = "V"s + AstNode::encodeName(V3Os::filenameNonDirExt(vFiles().begin()->filename()));
-    if (modPrefix() == "") m_modPrefix = prefix();
+    ಆದರೆ (ಪೂರ್ವಪ್ರತ್ಯಯ() == "" && ತುದಿ_Module() != "") m_ಪೂರ್ವಪ್ರತ್ಯಯ = "V"s + ತುದಿ_Module();  // Already encoded
+    ಆದರೆ (ಪೂರ್ವಪ್ರತ್ಯಯ() == "" && vFiles().ಗಾತ್ರ_2() >= 1)
+        m_ಪೂರ್ವಪ್ರತ್ಯಯ
+            = "V"s + Ast_ಗಂಟು::encodeName(V3Os::filenameNonDirExt(vFiles().begin()->filename()));
+    ಆದರೆ (mod_ಪೂರ್ವಪ್ರತ್ಯಯ() == "") m_mod_ಪೂರ್ವಪ್ರತ್ಯಯ = ಪೂರ್ವಪ್ರತ್ಯಯ();
 
     // Find files in makedir
-    addIncDirFallback(makeDir());
+    ಕೂಡಿಸು_Inc_Dir_Fallback(makeDir());
 }
 
 //======================================================================
 
-bool V3Options::suffixed(const string& sw, const char* arg) {
-    if (std::strlen(arg) > sw.length()) return false;
-    return (0 == std::strcmp(sw.c_str() + sw.length() - std::strlen(arg), arg));
+ತಾರ್ಕಿಕ V3Options::suffixed(ಸ್ಥಿರಾಂಕ string& sw, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* arg) {
+    ಆದರೆ (std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(arg) > sw.ಉದ್ದಳತೆ()) ಹಿಂತಿರುಗಿ ಸುಳ್ಳು;
+    ಹಿಂತಿರುಗಿ (0 == std::strcmp(sw.c_str() + sw.ಉದ್ದಳತೆ() - std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(arg), arg));
 }
 
-void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
-                              char** argv) VL_MT_DISABLED {
+ಶೂನ್ಯ V3Options::parseOptsList(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& optdir, ಪೂರ್ಣಾಂಕ argc,
+                              ಅಕ್ಷರ** argv) VL_MT_DISABLED {
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
 
     V3OptionParser parser;
-    const V3OptionParser::AppendHelper DECL_OPTION{parser};
-    V3OPTION_PARSER_DECL_TAGS;
+    ಸ್ಥಿರಾಂಕ V3OptionParser::AppendHelper DECL_OPTION{parser};
+    V3_OPTION_PARSER_DECL_ಟ್ಯಾಗುಗಳು;
 
-    const auto callStrSetter = [this](void (V3Options::*cbStr)(const string&)) {
-        return [this, cbStr](const string& v) { (this->*cbStr)(v); };
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ callStrSetter = [ಇದು](ಶೂನ್ಯ (V3Options::*cbStr)(ಸ್ಥಿರಾಂಕ string&)) {
+        ಹಿಂತಿರುಗಿ [ಇದು, cbStr](ಸ್ಥಿರಾಂಕ string& v) { (ಇದು->*cbStr)(v); };
     };
     // Usage
     // DECL_OPTION("-option", action, pointer_or_lambda);
@@ -1243,195 +1243,195 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     // (If DECL_OPTION is a macro, then lambda would be collapsed into a single line).
 
     // Plus options
-    DECL_OPTION("+define+", CbPartialMatch, [this](const char* optp) VL_MT_DISABLED {
-        addDefine(optp, true);
+    DECL_OPTION("+define+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) VL_MT_DISABLED {
+        ಕೂಡಿಸು_Define(optp, ನಿಜ);
     }).notForRerun();
-    DECL_OPTION("+incdir+", CbPartialMatch, [this, &optdir](const char* optp) {
+    DECL_OPTION("+incdir+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು, &optdir](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
         string dirs = optp;
-        string::size_type pos;
-        while ((pos = dirs.find('+')) != string::npos) {
-            addIncDirUser(parseFileArg(optdir, dirs.substr(0, pos)));
+        string::ಗಾತ್ರ_type pos;
+        ಆಗ ((pos = dirs.ಕಂಡುಹಿಡಿ('+')) != string::npos) {
+            ಕೂಡಿಸು_Inc_Dir_User(parseFileArg(optdir, dirs.substr(0, pos)));
             dirs = dirs.substr(pos + 1);
         }
-        addIncDirUser(parseFileArg(optdir, dirs));
+        ಕೂಡಿಸು_Inc_Dir_User(parseFileArg(optdir, dirs));
     }).notForRerun();
-    DECL_OPTION("+libext+", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("+libext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
         string exts = optp;
-        string::size_type pos;
-        while ((pos = exts.find('+')) != string::npos) {
-            addLibExtV(exts.substr(0, pos));
+        string::ಗಾತ್ರ_type pos;
+        ಆಗ ((pos = exts.ಕಂಡುಹಿಡಿ('+')) != string::npos) {
+            ಕೂಡಿಸು_Lib_Ext_V(exts.substr(0, pos));
             exts = exts.substr(pos + 1);
         }
-        addLibExtV(exts);
+        ಕೂಡಿಸು_Lib_Ext_V(exts);
     }).notForRerun();
     DECL_OPTION("+librescan", CbCall, []() {}).notForRerun();  // NOP
     DECL_OPTION("+notimingchecks", CbCall, []() {}).notForRerun();  // NOP
-    DECL_OPTION("+systemverilogext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1800_2017);
+    DECL_OPTION("+systemverilogext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1800_2017);
     }).notForRerun();
-    DECL_OPTION("+verilog1995ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1364_1995);
+    DECL_OPTION("+verilog1995ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1364_1995);
     }).notForRerun();
-    DECL_OPTION("+verilog2001ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1364_2001);
+    DECL_OPTION("+verilog2001ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1364_2001);
     }).notForRerun();
-    DECL_OPTION("+1364-1995ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1364_1995);
+    DECL_OPTION("+1364-1995ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1364_1995);
     }).notForRerun();
-    DECL_OPTION("+1364-2001ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1364_2001);
+    DECL_OPTION("+1364-2001ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1364_2001);
     }).notForRerun();
-    DECL_OPTION("+1364-2005ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1364_2005);
+    DECL_OPTION("+1364-2005ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1364_2005);
     }).notForRerun();
-    DECL_OPTION("+1800-2005ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1800_2005);
+    DECL_OPTION("+1800-2005ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1800_2005);
     }).notForRerun();
-    DECL_OPTION("+1800-2009ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1800_2009);
+    DECL_OPTION("+1800-2009ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1800_2009);
     }).notForRerun();
-    DECL_OPTION("+1800-2012ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1800_2012);
+    DECL_OPTION("+1800-2012ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1800_2012);
     }).notForRerun();
-    DECL_OPTION("+1800-2017ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1800_2017);
+    DECL_OPTION("+1800-2017ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1800_2017);
     }).notForRerun();
-    DECL_OPTION("+1800-2023ext+", CbPartialMatch, [this](const char* optp) {
-        addLangExt(optp, V3LangCode::L1800_2023);
+    DECL_OPTION("+1800-2023ext+", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Lang_Ext(optp, V3_Lang_ಸಂಕೇತ::L1800_2023);
     }).notForRerun();
 
     // Minus options
-    DECL_OPTION("-aslr", CbOnOff, [](bool) {});  // Processed only in bin/verilator shell
-    DECL_OPTION("-assert", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-aslr", CbOnOff, [](ತಾರ್ಕಿಕ) {});  // Processed only in bin/verilator shell
+    DECL_OPTION("-assert", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_assert = flag;
         m_assertCase = flag;
     });
     DECL_OPTION("-assert-case", OnOff, &m_assertCase);
-    DECL_OPTION("-assert-unroll-limit", CbVal, [fl](const char*) {
+    DECL_OPTION("-assert-unroll-limit", CbVal, [fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*) {
         fl->v3warn(DEPRECATED, "Option '--assert-unroll-limit' is deprecated and has no effect.");
     }).notForRerun();
     DECL_OPTION("-autoflush", OnOff, &m_autoflush);
 
     DECL_OPTION("-bbox-sys", OnOff, &m_bboxSys);
-    DECL_OPTION("-bbox-unsup", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-bbox-unsup", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_bboxUnsup = flag;
-        FileLine::globalWarnOff(V3ErrorCode::E_UNSUPPORTED, true);
+        File_ಸಾಲು::globalWarnOff(V3_Error_ಸಂಕೇತ::E_UNSUPPORTED, ನಿಜ);
     });
-    DECL_OPTION("-binary", CbCall, [this]() {
-        m_binary = true;
-        m_build = true;
-        m_exe = true;
-        m_main = true;
-        if (m_timing.isDefault()) m_timing = VOptionBool::OPT_TRUE;
+    DECL_OPTION("-binary", CbCall, [ಇದು]() {
+        m_ದ್ವಿಮಾನ = ನಿಜ;
+        m_build = ನಿಜ;
+        m_exe = ನಿಜ;
+        m_main = ನಿಜ;
+        ಆದರೆ (m_timing.isDefault()) m_timing = VOptionBool::OPT_TRUE;
     });
-    DECL_OPTION("-build", Set, &m_build);
-    DECL_OPTION("-build-dep-bin", Set, &m_buildDepBin);
-    DECL_OPTION("-build-jobs", CbVal, [this, fl](const char* valp) {
-        int val = std::atoi(valp);
-        if (val < 0) {
+    DECL_OPTION("-build", ಗಣ_2, &m_build);
+    DECL_OPTION("-build-dep-bin", ಗಣ_2, &m_buildDepBin);
+    DECL_OPTION("-build-jobs", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಪೂರ್ಣಾಂಕ val = std::atoi(valp);
+        ಆದರೆ (val < 0) {
             fl->v3error("--build-jobs requires a non-negative integer, but '" << valp
                                                                               << "' was passed");
             val = 1;
-        } else if (val == 0) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (val == 0) {
             val = VlOs::getProcessDefaultParallelism();
         }
         m_buildJobs = val;
     });
 
-    DECL_OPTION("-CFLAGS", CbVal, callStrSetter(&V3Options::addCFlags));
-    DECL_OPTION("-cc", CbCall, [this]() { ccSet(); });
-    DECL_OPTION("-clk", CbVal, [fl](const std::string&) {
+    DECL_OPTION("-CFLAGS", CbVal, callStrSetter(&V3Options::ಕೂಡಿಸು_CFlags));
+    DECL_OPTION("-cc", CbCall, [ಇದು]() { cc_ಗಣ(); });
+    DECL_OPTION("-clk", CbVal, [fl](ಸ್ಥಿರಾಂಕ std::string&) {
         fl->v3warn(DEPRECATED, "Option '--clk' is deprecated and has no effect.");
     });
-    DECL_OPTION("-no-clk", CbVal, [fl](const std::string&) {
+    DECL_OPTION("-no-clk", CbVal, [fl](ಸ್ಥಿರಾಂಕ std::string&) {
         fl->v3warn(DEPRECATED, "Option '--no-clk' is deprecated and has no effect.");
     });
-    DECL_OPTION("-comp-limit-blocks", Set, &m_compLimitBlocks).undocumented();
-    DECL_OPTION("-comp-limit-members", Set,
-                &m_compLimitMembers)
+    DECL_OPTION("-comp-limit-blocks", ಗಣ_2, &m_comp_ಎಲ್ಲೆ_ಖಂಡಗಳು).undocumented();
+    DECL_OPTION("-comp-limit-members", ಗಣ_2,
+                &m_comp_ಎಲ್ಲೆ_Members)
         .undocumented();  // Ideally power-of-two so structs stay aligned
-    DECL_OPTION("-comp-limit-parens", Set, &m_compLimitParens).undocumented();
-    DECL_OPTION("-comp-limit-syms", CbVal, [](int val) { VName::maxLength(val); }).undocumented();
-    DECL_OPTION("-compiler", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "clang")) {
-            m_compLimitBlocks = 80;  // limit unknown
-            m_compLimitMembers = 64;  // soft limit, has slowdown bug as of clang++ 3.8
-            m_compLimitParens = 240;  // controlled by -fbracket-depth, which defaults to 256
-        } else if (!std::strcmp(valp, "gcc")) {
-            m_compLimitBlocks = 0;  // Bug free
-            m_compLimitMembers = 64;  // soft limit, has slowdown bug as of g++ 7.1
-            m_compLimitParens = 240;  // Unlimited, but generate same code as for clang
-        } else if (!std::strcmp(valp, "msvc")) {
-            m_compLimitBlocks = 80;  // 128, but allow some room
-            m_compLimitMembers = 0;  // probably ok, and AFAIK doesn't support anon structs
-            m_compLimitParens = 80;  // 128, but allow some room
-        } else {
+    DECL_OPTION("-comp-limit-parens", ಗಣ_2, &m_comp_ಎಲ್ಲೆ_Parens).undocumented();
+    DECL_OPTION("-comp-limit-syms", CbVal, [](ಪೂರ್ಣಾಂಕ val) { VName::max_ಉದ್ದಳತೆ(val); }).undocumented();
+    DECL_OPTION("-compiler", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಆದರೆ (!std::strcmp(valp, "clang")) {
+            m_comp_ಎಲ್ಲೆ_ಖಂಡಗಳು = 80;  // limit unknown
+            m_comp_ಎಲ್ಲೆ_Members = 64;  // soft limit, has slowdown bug as of clang++ 3.8
+            m_comp_ಎಲ್ಲೆ_Parens = 240;  // controlled by -fbracket-depth, which defaults to 256
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "gcc")) {
+            m_comp_ಎಲ್ಲೆ_ಖಂಡಗಳು = 0;  // Bug free
+            m_comp_ಎಲ್ಲೆ_Members = 64;  // soft limit, has slowdown bug as of g++ 7.1
+            m_comp_ಎಲ್ಲೆ_Parens = 240;  // Unlimited, but generate same code as for clang
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "msvc")) {
+            m_comp_ಎಲ್ಲೆ_ಖಂಡಗಳು = 80;  // 128, but allow some room
+            m_comp_ಎಲ್ಲೆ_Members = 0;  // probably ok, and AFAIK doesn't support anon structs
+            m_comp_ಎಲ್ಲೆ_Parens = 80;  // 128, but allow some room
+        } ಇಲ್ಲದಿದ್ದರೆ {
             fl->v3error("Unknown setting for --compiler: '"
                         << valp << "'\n"
-                        << fl->warnMore() << "... Suggest 'clang', 'gcc', or 'msvc'");
+                        << fl->warn_ಇನ್ನಷ್ಟು() << "... Suggest 'clang', 'gcc', or 'msvc'");
         }
     });
-    DECL_OPTION("-compiler-include", CbVal, callStrSetter(&V3Options::addCompilerIncludes));
-    DECL_OPTION("-converge-limit", Set, &m_convergeLimit);
-    DECL_OPTION("-coverage", CbOnOff, [this](bool flag) { coverage(flag); });
+    DECL_OPTION("-compiler-include", CbVal, callStrSetter(&V3Options::ಕೂಡಿಸು_Compiler_Includes));
+    DECL_OPTION("-converge-limit", ಗಣ_2, &m_converge_ಎಲ್ಲೆ);
+    DECL_OPTION("-coverage", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) { coverage(flag); });
     DECL_OPTION("-coverage-branch", OnOff, &m_coverageBranch);
-    DECL_OPTION("-coverage-expr", OnOff, &m_coverageExpr);
-    DECL_OPTION("-coverage-expr-max", Set, &m_coverageExprMax);
+    DECL_OPTION("-coverage-expr", OnOff, &m_coverage_ಅಭಿವ್ಯಕ್ತಿ);
+    DECL_OPTION("-coverage-expr-max", ಗಣ_2, &m_coverage_ಅಭಿವ್ಯಕ್ತಿ_Max);
     DECL_OPTION("-coverage-fsm", OnOff, &m_coverageFsm);
-    DECL_OPTION("-coverage-fsm-expand", CbVal, [this, fl](const char* const valp) {
-        if (!std::strcmp(valp, "auto")) {
+    DECL_OPTION("-coverage-fsm-expand", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* ಸ್ಥಿರಾಂಕ valp) {
+        ಆದರೆ (!std::strcmp(valp, "auto")) {
             m_coverageFsmExpand = VFsmExpandType::AUTO;
-        } else if (!std::strcmp(valp, "auto-expand")) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "auto-expand")) {
             m_coverageFsmExpand = VFsmExpandType::AUTO_EXPAND;
-        } else if (!std::strcmp(valp, "full")) {
-            m_coverageFsmExpand = VFsmExpandType::FULL;
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "full")) {
+            m_coverageFsmExpand = VFsmExpandType::ತುಂಬಿದ;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             fl->v3error("Unknown setting for --coverage-fsm-expand: '"
                         << valp << "'\n"
-                        << fl->warnMore() << "... Suggest 'auto', 'auto-expand', or 'full'");
+                        << fl->warn_ಇನ್ನಷ್ಟು() << "... Suggest 'auto', 'auto-expand', or 'full'");
         }
     });
-    DECL_OPTION("-coverage-fsm-max-arcs", Set, &m_coverageFsmMaxArcs);
-    DECL_OPTION("-coverage-line", OnOff, &m_coverageLine);
+    DECL_OPTION("-coverage-fsm-max-arcs", ಗಣ_2, &m_coverageFsmMaxArcs);
+    DECL_OPTION("-coverage-line", OnOff, &m_coverage_ಸಾಲು);
     // Covergroup bins limits; the runtime indexes bins with 32 bits
-    const auto parseBinsLimit = [fl](const char* optp, const char* valp, uint32_t& limitr) {
-        char* endp = nullptr;
-        const unsigned long long value = std::strtoull(valp, &endp, 10);
-        if (*endp || value < 1 || value > std::numeric_limits<uint32_t>::max()) {
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ parse_Bins_ಎಲ್ಲೆ = [fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp, uint32_t& limitr) {
+        ಅಕ್ಷರ* endp = ಶೂನ್ಯಸೂಚಕ;
+        ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದೀರ್ಘ ಮೌಲ್ಯ = std::strtoull(valp, &endp, 10);
+        ಆದರೆ (*endp || ಮೌಲ್ಯ < 1 || ಮೌಲ್ಯ > std::numeric_limits<uint32_t>::max()) {
             fl->v3error(optp << " requires an integer from 1 to "
                              << std::numeric_limits<uint32_t>::max() << ", but '" << valp
                              << "' was passed");
-            return;
+            ಹಿಂತಿರುಗಿ;
         }
-        limitr = static_cast<uint32_t>(value);
+        limitr = static_cast<uint32_t>(ಮೌಲ್ಯ);
     };
-    DECL_OPTION("-coverage-max-bins", CbVal, [this, parseBinsLimit](const char* valp) {
-        parseBinsLimit("--coverage-max-bins", valp, m_coverageMaxBins);
+    DECL_OPTION("-coverage-max-bins", CbVal, [ಇದು, parse_Bins_ಎಲ್ಲೆ](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        parse_Bins_ಎಲ್ಲೆ("--coverage-max-bins", valp, m_coverageMaxBins);
     });
-    DECL_OPTION("-coverage-max-real-bins", CbVal, [this, parseBinsLimit](const char* valp) {
-        parseBinsLimit("--coverage-max-real-bins", valp, m_coverageMaxRealBins);
+    DECL_OPTION("-coverage-max-real-bins", CbVal, [ಇದು, parse_Bins_ಎಲ್ಲೆ](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        parse_Bins_ಎಲ್ಲೆ("--coverage-max-real-bins", valp, m_coverageMaxRealBins);
     });
-    DECL_OPTION("-coverage-max-width", Set, &m_coverageMaxWidth);
-    DECL_OPTION("-coverage-merge-instances", OnOff, &m_coverageMergeInstances);
-    DECL_OPTION("-coverage-per-instance", OnOff, &m_coveragePerInstance);
+    DECL_OPTION("-coverage-max-width", ಗಣ_2, &m_coverage_Max_ಅಗಲ);
+    DECL_OPTION("-coverage-merge-instances", OnOff, &m_coverage_ವಿಲೀನ_Instances);
+    DECL_OPTION("-coverage-per-instance", OnOff, &m_coverage_ಪ್ರತಿ_Instance);
     DECL_OPTION("-coverage-toggle", OnOff, &m_coverageToggle);
     DECL_OPTION("-coverage-underscore", OnOff, &m_coverageUnderscore);
     DECL_OPTION("-coverage-user", OnOff, &m_coverageUser);
 
-    DECL_OPTION("-D", CbPartialMatch, [this](const char* valp) VL_MT_DISABLED {
-        addDefine(valp, false);
+    DECL_OPTION("-D", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) VL_MT_DISABLED {
+        ಕೂಡಿಸು_Define(valp, ಸುಳ್ಳು);
     }).notForRerun();
-    DECL_OPTION("-debug", CbCall, [this]() { setDebugMode(3); }).notForRerun();
-    DECL_OPTION("-debugi", CbVal, [this](int v) { setDebugMode(v); }).notForRerun();
-    DECL_OPTION("-debugi-", CbPartialMatchVal, [this](const char* optp, const char* valp) {
+    DECL_OPTION("-debug", CbCall, [ಇದು]() { ಗಣ_Debug_ಬಹುಲಕ(3); }).notForRerun();
+    DECL_OPTION("-debugi", CbVal, [ಇದು](ಪೂರ್ಣಾಂಕ v) { ಗಣ_Debug_ಬಹುಲಕ(v); }).notForRerun();
+    DECL_OPTION("-debugi-", Cb_Partial_ಹೊಂದಿಕೆ_Val, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         m_debugLevel[optp] = std::atoi(valp);
     });
     DECL_OPTION("-debug-abort", CbCall, []() {
         V3Error::vlAbort();  // LCOV_EXCL_LINE
     }).undocumented();  // See also --debug-sigseg
-#ifdef VL_ALLOC_RANDOM_CHECKS
-    DECL_OPTION("-debug-alloc-random", Set, &m_debugAllocRandom).undocumented();
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ VL_ALLOC_RANDOM_CHECKS
+    DECL_OPTION("-debug-alloc-random", ಗಣ_2, &m_debugAllocRandom).undocumented();
+#ಆದರೆ_ಅಂತ್ಯ
     DECL_OPTION("-debug-check", OnOff, &m_debugCheck);
     DECL_OPTION("-debug-collision", OnOff, &m_debugCollision).undocumented();
     DECL_OPTION("-debug-emitv", OnOff, &m_debugEmitV).undocumented();
@@ -1443,119 +1443,119 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-debug-leak", OnOff, &m_debugLeak);
     DECL_OPTION("-debug-nondeterminism", OnOff, &m_debugNondeterminism).undocumented();
     DECL_OPTION("-debug-options", OnOff, &m_debugOptions).undocumented();
-    DECL_OPTION("-debug-partition", OnOff, &m_debugPartition).undocumented();
+    DECL_OPTION("-debug-partition", OnOff, &m_debug_ವಿಭಜನೆ).undocumented();
     DECL_OPTION("-debug-preproc-passthru", OnOff, &m_debugPreprocPassthru).undocumented();
     DECL_OPTION("-debug-protect", OnOff, &m_debugProtect).undocumented();
-    DECL_OPTION("-debug-runtime-timeout", Set, &m_debugRuntimeTimeout).undocumented();
+    DECL_OPTION("-debug-runtime-timeout", ಗಣ_2, &m_debugRuntimeTimeout).undocumented();
     DECL_OPTION("-debug-self-test", OnOff, &m_debugSelfTest).undocumented();
     DECL_OPTION("-debug-sigsegv", CbCall, throwSigsegv).undocumented();  // See also --debug-abort
-    DECL_OPTION("-debug-stack-check", OnOff, &m_debugStackCheck).undocumented();
-    DECL_OPTION("-debug-width", OnOff, &m_debugWidth).undocumented();
-    DECL_OPTION("-decoration", CbCall, [this, fl]() { decorations(fl, "medium"); });
-    DECL_OPTION("-decorations", CbVal, [this, fl](const char* optp) { decorations(fl, optp); });
-    DECL_OPTION("-no-decoration", CbCall, [this, fl]() { decorations(fl, "none"); });
+    DECL_OPTION("-debug-stack-check", OnOff, &m_debug_ರಾಶಿ_Check).undocumented();
+    DECL_OPTION("-debug-width", OnOff, &m_debug_ಅಗಲ).undocumented();
+    DECL_OPTION("-decoration", CbCall, [ಇದು, fl]() { decorations(fl, "medium"); });
+    DECL_OPTION("-decorations", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) { decorations(fl, optp); });
+    DECL_OPTION("-no-decoration", CbCall, [ಇದು, fl]() { decorations(fl, "none"); });
     DECL_OPTION("-diagnostics-sarif", OnOff, &m_diagnosticsSarif);
-    DECL_OPTION("-diagnostics-sarif-output", CbVal, [this](const char* optp) {
+    DECL_OPTION("-diagnostics-sarif-output", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
         m_diagnosticsSarifOutput = optp;
-        m_diagnosticsSarif = true;
+        m_diagnosticsSarif = ನಿಜ;
     });
     DECL_OPTION("-dpi-hdr-only", OnOff, &m_dpiHdrOnly);
-    DECL_OPTION("-dump-", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("-dump-", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
         m_dumpLevel[optp] = 3;
     }).notForRerun();
-    DECL_OPTION("-no-dump-", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("-no-dump-", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
         m_dumpLevel[optp] = 0;
     }).notForRerun();
-    DECL_OPTION("-dumpi-", CbPartialMatchVal, [this](const char* optp, const char* valp) {
+    DECL_OPTION("-dumpi-", Cb_Partial_ಹೊಂದಿಕೆ_Val, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         m_dumpLevel[optp] = std::atoi(valp);
     }).notForRerun();
 
-    DECL_OPTION("-E", CbOnOff, [this](bool flag) {
-        if (flag) {
-            m_stdPackage = false;
-            m_stdWaiver = false;
+    DECL_OPTION("-E", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
+        ಆದರೆ (flag) {
+            m_stdPackage = ಸುಳ್ಳು;
+            m_stdWaiver = ಸುಳ್ಳು;
         }
         m_preprocOnly = flag;
     });
     DECL_OPTION("-emit-accessors", OnOff, &m_emitAccessors);
-    DECL_OPTION("-error-limit", CbVal, static_cast<void (*)(int)>(&V3Error::errorLimit));
+    DECL_OPTION("-error-limit", CbVal, static_cast<ಶೂನ್ಯ (*)(ಪೂರ್ಣಾಂಕ)>(&V3Error::error_ಎಲ್ಲೆ));
     DECL_OPTION("-exe", OnOff, &m_exe);
     DECL_OPTION("-expand-limit", CbVal,
-                [this](const char* valp) { m_expandLimit = std::atoi(valp); });
+                [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) { m_expand_ಎಲ್ಲೆ = std::atoi(valp); });
 
-    DECL_OPTION("-F", CbVal, [this, fl, &optdir](const char* valp) VL_MT_DISABLED {
-        parseOptsFile(fl, parseFileArg(optdir, valp), true);
+    DECL_OPTION("-F", CbVal, [ಇದು, fl, &optdir](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) VL_MT_DISABLED {
+        parseOptsFile(fl, parseFileArg(optdir, valp), ನಿಜ);
     }).notForRerun();
     DECL_OPTION("-FI", CbVal,
-                [this, &optdir](const char* valp) { addForceInc(parseFileArg(optdir, valp)); });
-    DECL_OPTION("-f", CbVal, [this, fl, &optdir](const char* valp) VL_MT_DISABLED {
-        parseOptsFile(fl, parseFileArg(optdir, valp), false);
+                [ಇದು, &optdir](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) { ಕೂಡಿಸು_Force_Inc(parseFileArg(optdir, valp)); });
+    DECL_OPTION("-f", CbVal, [ಇದು, fl, &optdir](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) VL_MT_DISABLED {
+        parseOptsFile(fl, parseFileArg(optdir, valp), ಸುಳ್ಳು);
     }).notForRerun();
     DECL_OPTION("-flatten", OnOff, &m_flatten);
     DECL_OPTION("-fourstate", OnOff, &m_fourstate).undocumented();
-    DECL_OPTION("-future0", CbVal, [this](const char* valp) { addFuture0(valp); });
-    DECL_OPTION("-future1", CbVal, [this](const char* valp) { addFuture1(valp); });
+    DECL_OPTION("-future0", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) { ಕೂಡಿಸು_Future0(valp); });
+    DECL_OPTION("-future1", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) { ಕೂಡಿಸು_Future1(valp); });
 
     DECL_OPTION("-facyc-simp", FOnOff, &m_fAcycSimp);
     DECL_OPTION("-fassemble", FOnOff, &m_fAssemble);
-    DECL_OPTION("-fbit-scan-loops", FOnOff, &m_fBitScanLoops);
+    DECL_OPTION("-fbit-scan-loops", FOnOff, &m_f_ಬಿಟ್_ಪರಿಶೀಲನೆ_Loops);
     DECL_OPTION("-fbitblast", FOnOff, &m_fBitblast);
-    DECL_OPTION("-fcase", CbFOnOff, [this](bool flag) {
+    DECL_OPTION("-fcase", CbFOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_fCaseDecoder = flag;
-        m_fCaseTable = flag;
-        m_fCaseTree = flag;
+        m_f_Case_ಕೋಷ್ಟಕ = flag;
+        m_f_Case_ವೃಕ್ಷ = flag;
     });
     DECL_OPTION("-fcase-decoder", FOnOff, &m_fCaseDecoder);
-    DECL_OPTION("-fcase-table", FOnOff, &m_fCaseTable);
-    DECL_OPTION("-fcase-tree", FOnOff, &m_fCaseTree);
+    DECL_OPTION("-fcase-table", FOnOff, &m_f_Case_ಕೋಷ್ಟಕ);
+    DECL_OPTION("-fcase-tree", FOnOff, &m_f_Case_ವೃಕ್ಷ);
     DECL_OPTION("-fcombine", FOnOff, &m_fCombine);
     DECL_OPTION("-fconst", FOnOff, &m_fConst);
     DECL_OPTION("-fconst-before-dfg", FOnOff, &m_fConstBeforeDfg);
-    DECL_OPTION("-fconst-bit-op-tree", FOnOff, &m_fConstBitOpTree);
+    DECL_OPTION("-fconst-bit-op-tree", FOnOff, &m_f_Const_ಬಿಟ್_Op_ವೃಕ್ಷ);
     DECL_OPTION("-fconst-eager", FOnOff, &m_fConstEager);
     DECL_OPTION("-fdead-assigns", FOnOff, &m_fDeadAssigns);
     DECL_OPTION("-fdead-cells", FOnOff, &m_fDeadCells);
     DECL_OPTION("-fdead-methods", FOnOff, &m_fDeadMethods);
-    DECL_OPTION("-fdecompose", CbFOnOff, [this](bool flag) {
+    DECL_OPTION("-fdecompose", CbFOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_fDecomposePacked = flag;
         m_fDecomposeUnpacked = flag;
     });
     DECL_OPTION("-fdecompose-packed", FOnOff, &m_fDecomposePacked);
     DECL_OPTION("-fdecompose-unpacked", FOnOff, &m_fDecomposeUnpacked);
     DECL_OPTION("-fdedup", FOnOff, &m_fDedupe);
-    DECL_OPTION("-fdfg", CbFOnOff, [this](bool flag) { m_fDfg = flag; });
-    DECL_OPTION("-fdfg-break-cycles", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fdfg", CbFOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) { m_fDfg = flag; });
+    DECL_OPTION("-fdfg-break-cycles", CbFOnOff, [fl](ತಾರ್ಕಿಕ) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-break-cycles' is deprecated and has no effect");
     });
     DECL_OPTION("-fdfg-peephole", FOnOff, &m_fDfgPeephole);
-    DECL_OPTION("-fdfg-peephole-", CbPartialMatch, [this](const char* optp) {  //
+    DECL_OPTION("-fdfg-peephole-", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {  //
         m_fDfgPeepholeDisabled.erase(optp);
     });
-    DECL_OPTION("-fno-dfg-peephole-", CbPartialMatch, [this](const char* optp) {  //
+    DECL_OPTION("-fno-dfg-peephole-", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {  //
         m_fDfgPeepholeDisabled.emplace(optp);
     });
-    DECL_OPTION("-fdfg-pre-inline", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fdfg-pre-inline", CbFOnOff, [fl](ತಾರ್ಕಿಕ) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-pre-inline' is deprecated and has no effect");
     });
-    DECL_OPTION("-fdfg-post-inline", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fdfg-post-inline", CbFOnOff, [fl](ತಾರ್ಕಿಕ) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-post-inline' is deprecated and has no effect");
     });
-    DECL_OPTION("-fdfg-push-down-sels", FOnOff, &m_fDfgPushDownSels);
+    DECL_OPTION("-fdfg-push-down-sels", FOnOff, &m_f_Dfg_ತಳ್ಳು_ಕೆಳಕ್ಕೆ_Sels);
     DECL_OPTION("-fdfg-synthesize-all", FOnOff, &m_fDfgSynthesizeAll);
-    DECL_OPTION("-fdfg-scoped", CbFOnOff, [this, fl](bool flag) {
+    DECL_OPTION("-fdfg-scoped", CbFOnOff, [ಇದು, fl](ತಾರ್ಕಿಕ flag) {
         fl->v3warn(DEPRECATED, "Option '-fno-dfg-scoped' is deprecated, use '-fno-dfg' instead.");
         m_fDfg = flag;
     });
     DECL_OPTION("-fexpand", FOnOff, &m_fExpand);
-    DECL_OPTION("-ffunc-opt", CbFOnOff, [this](bool flag) {  //
-        m_fFuncSplitCat = flag;
+    DECL_OPTION("-ffunc-opt", CbFOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {  //
+        m_f_Func_ವಿಭಜಿಸು_Cat = flag;
         m_fFuncBalanceCat = flag;
     });
     DECL_OPTION("-ffunc-opt-balance-cat", FOnOff, &m_fFuncBalanceCat);
-    DECL_OPTION("-ffunc-opt-split-cat", FOnOff, &m_fFuncSplitCat);
+    DECL_OPTION("-ffunc-opt-split-cat", FOnOff, &m_f_Func_ವಿಭಜಿಸು_Cat);
     DECL_OPTION("-fgate", FOnOff, &m_fGate);
-    DECL_OPTION("-fico-change-detect", CbFOnOff, [this](bool flag) {  //
-        m_fIcoChangeDetect.setTrueOrFalse(flag);
+    DECL_OPTION("-fico-change-detect", CbFOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {  //
+        m_fIcoChangeDetect.ಗಣ_True_Or_False(flag);
     });
     DECL_OPTION("-finline", FOnOff, &m_fInline);
     DECL_OPTION("-finline-cfuncs", FOnOff, &m_fInlineCFuncs);
@@ -1563,224 +1563,224 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-finline-funcs-eager", FOnOff, &m_fInlineFuncsEager);
     DECL_OPTION("-flife", FOnOff, &m_fLife);
     DECL_OPTION("-flife-post", FOnOff, &m_fLifePost);
-    DECL_OPTION("-flift-expr", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-flift-expr", CbFOnOff, [fl](ತಾರ್ಕಿಕ) {
         fl->v3warn(DEPRECATED, "Option '-fno-lift-expr' is deprecated and has no effect");
     });
     DECL_OPTION("-flocalize", FOnOff, &m_fLocalize);
-    DECL_OPTION("-fmerge-cond", FOnOff, &m_fMergeCond);
-    DECL_OPTION("-fmerge-cond-motion", FOnOff, &m_fMergeCondMotion);
-    DECL_OPTION("-fmerge-const-pool", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fmerge-cond", FOnOff, &m_f_ವಿಲೀನ_Cond);
+    DECL_OPTION("-fmerge-cond-motion", FOnOff, &m_f_ವಿಲೀನ_Cond_Motion);
+    DECL_OPTION("-fmerge-const-pool", CbFOnOff, [fl](ತಾರ್ಕಿಕ) {
         fl->v3warn(DEPRECATED, "Option '-fno-merge-const-pool' is deprecated and has no effect");
     });
     DECL_OPTION("-freloop", FOnOff, &m_fReloop);
     DECL_OPTION("-freorder", FOnOff, &m_fReorder);
-    DECL_OPTION("-fslice", FOnOff, &m_fSlice);
-    DECL_OPTION("-fslice-element-limit", CbVal, [this, fl](const char* valp) {
-        m_fSliceElementLimit = std::atoi(valp);
-        if (m_fSliceElementLimit < 0) fl->v3fatal("--fslice-element-limit must be >= 0: " << valp);
+    DECL_OPTION("-fslice", FOnOff, &m_f_ತುಂಡು);
+    DECL_OPTION("-fslice-element-limit", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_f_ತುಂಡು_Element_ಎಲ್ಲೆ = std::atoi(valp);
+        ಆದರೆ (m_f_ತುಂಡು_Element_ಎಲ್ಲೆ < 0) fl->v3fatal("--fslice-element-limit must be >= 0: " << valp);
     });
-    DECL_OPTION("-fsplit", FOnOff, &m_fSplit);
+    DECL_OPTION("-fsplit", FOnOff, &m_f_ವಿಭಜಿಸು);
     DECL_OPTION("-fsubst", FOnOff, &m_fSubst);
     DECL_OPTION("-fsubst-const", FOnOff, &m_fSubstConst);
-    DECL_OPTION("-ftable", FOnOff, &m_fTable);
+    DECL_OPTION("-ftable", FOnOff, &m_f_ಕೋಷ್ಟಕ);
     DECL_OPTION("-ftaskify-all-forked", FOnOff, &m_fTaskifyAll).undocumented();  // Debug
-    DECL_OPTION("-fvar-split", CbFOnOff, [fl](bool) {
+    DECL_OPTION("-fvar-split", CbFOnOff, [fl](ತಾರ್ಕಿಕ) {
         fl->v3warn(DEPRECATED, "Option '-fno-var-split' is deprecated and has no effect");
     });
-    DECL_OPTION("-G", CbPartialMatch, [this](const char* optp) { addParameter(optp, false); });
-    DECL_OPTION("-gate-stmts", Set, &m_gateStmts);
+    DECL_OPTION("-G", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) { ಕೂಡಿಸು_Parameter(optp, ಸುಳ್ಳು); });
+    DECL_OPTION("-gate-stmts", ಗಣ_2, &m_gateStmts);
     DECL_OPTION("-gdb", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-gdbbt", CbCall, []() {});  // Processed only in bin/verilator shell
-    DECL_OPTION("-generate-key", CbCall, [this]() {
-        cout << protectKeyDefaulted() << '\n';
+    DECL_OPTION("-generate-key", CbCall, [ಇದು]() {
+        ಹೊರಗೆ << protect_ಕೀಲಿ_Defaulted() << '\n';
         v3Global.vlExit(0);
     });
-    DECL_OPTION("-getenv", CbVal, [](const char* valp) {
-        cout << V3Options::getenvBuiltins(valp) << '\n';
+    DECL_OPTION("-getenv", CbVal, [](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಹೊರಗೆ << V3Options::getenvBuiltins(valp) << '\n';
         v3Global.vlExit(0);
     });
-    DECL_OPTION("-get-supported", CbVal, [](const char* valp) {
-        cout << V3Options::getSupported(valp) << '\n';
+    DECL_OPTION("-get-supported", CbVal, [](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಹೊರಗೆ << V3Options::getSupported(valp) << '\n';
         v3Global.vlExit(0);
     });
 
-    DECL_OPTION("-hierarchical", OnOff, &m_hierarchical);
-    DECL_OPTION("-hierarchical-block", CbVal, [this](const char* valp) {
-        const V3HierarchicalBlockOption opt{valp};
-        m_hierBlocks.emplace(opt.mangledName(), opt);
+    DECL_OPTION("-hierarchical", OnOff, &m_ಶ್ರೇಣೀಕೃತ);
+    DECL_OPTION("-hierarchical-block", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಸ್ಥಿರಾಂಕ V3_ಶ್ರೇಣೀಕೃತ_ಖಂಡ_Option opt{valp};
+        m_hier_ಖಂಡಗಳು.emplace(opt.mangledName(), opt);
     });
-    DECL_OPTION("-hierarchical-child", Set, &m_hierChild);
+    DECL_OPTION("-hierarchical-child", ಗಣ_2, &m_hier_ಮಗು);
     DECL_OPTION("-hierarchical-params-file", CbVal,
-                [this](const char* optp) { m_hierParamsFile.push_back({optp, work()}); });
+                [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) { m_hierParamsFile.ತಳ್ಳು_ಹಿಂಭಾಗ({optp, work()}); });
 
-    DECL_OPTION("-I", CbPartialMatch, [this, &optdir](const char* optp) {
-        addIncDirUser(parseFileArg(optdir, optp));
+    DECL_OPTION("-I", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು, &optdir](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಕೂಡಿಸು_Inc_Dir_User(parseFileArg(optdir, optp));
     }).notForRerun();
-    DECL_OPTION("-if-depth", Set, &m_ifDepth);
+    DECL_OPTION("-if-depth", ಗಣ_2, &m_if_ಆಳ);
     DECL_OPTION("-ignc", OnOff, &m_ignc).undocumented();
-    DECL_OPTION("-inline-cfuncs", Set, &m_inlineCFuncs);
-    DECL_OPTION("-inline-cfuncs-product", Set, &m_inlineCFuncsProduct);
-    DECL_OPTION("-inline-mult", Set, &m_inlineMult);
-    DECL_OPTION("-instr-count-dpi", CbVal, [this, fl](int val) {
-        m_instrCountDpi = val;
-        if (m_instrCountDpi < 0) fl->v3fatal("--instr-count-dpi must be non-negative: " << val);
+    DECL_OPTION("-inline-cfuncs", ಗಣ_2, &m_inlineCFuncs);
+    DECL_OPTION("-inline-cfuncs-product", ಗಣ_2, &m_inline_CFuncs_ಗುಣಲಬ್ಧ);
+    DECL_OPTION("-inline-mult", ಗಣ_2, &m_inlineMult);
+    DECL_OPTION("-instr-count-dpi", CbVal, [ಇದು, fl](ಪೂರ್ಣಾಂಕ val) {
+        m_instr_ಎಣಿಕೆ_Dpi = val;
+        ಆದರೆ (m_instr_ಎಣಿಕೆ_Dpi < 0) fl->v3fatal("--instr-count-dpi must be non-negative: " << val);
     });
 
     DECL_OPTION("-json-edit-nums", OnOff, &m_jsonEditNums);
     DECL_OPTION("-json-ids", OnOff, &m_jsonIds);
     DECL_OPTION("-json-only", OnOff, &m_jsonOnly);
-    DECL_OPTION("-json-only-meta-output", CbVal, [this](const char* valp) {
+    DECL_OPTION("-json-only-meta-output", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         m_jsonOnlyMetaOutput = valp;
-        m_jsonOnly = true;
+        m_jsonOnly = ನಿಜ;
     });
-    DECL_OPTION("-json-only-output", CbVal, [this](const char* valp) {
+    DECL_OPTION("-json-only-output", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         m_jsonOnlyOutput = valp;
-        m_jsonOnly = true;
+        m_jsonOnly = ನಿಜ;
     });
 
-    DECL_OPTION("-LDFLAGS", CbVal, callStrSetter(&V3Options::addLdLibs));
-    DECL_OPTION("-l2-name", Set, &m_l2Name);
-    DECL_OPTION("-no-l2name", CbCall, [this]() { m_l2Name = ""; }).undocumented();  // Historical
-    DECL_OPTION("-l2name", CbCall, [this]() { m_l2Name = "v"; }).undocumented();  // Historical
-    const auto setLang = [this, fl](const char* valp) {
-        const V3LangCode optval{valp};
-        if (optval.legal()) {
+    DECL_OPTION("-LDFLAGS", CbVal, callStrSetter(&V3Options::ಕೂಡಿಸು_Ld_Libs));
+    DECL_OPTION("-l2-name", ಗಣ_2, &m_l2Name);
+    DECL_OPTION("-no-l2name", CbCall, [ಇದು]() { m_l2Name = ""; }).undocumented();  // Historical
+    DECL_OPTION("-l2name", CbCall, [ಇದು]() { m_l2Name = "v"; }).undocumented();  // Historical
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ ಗಣ_Lang = [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಸ್ಥಿರಾಂಕ V3_Lang_ಸಂಕೇತ optval{valp};
+        ಆದರೆ (optval.legal()) {
             m_defaultLanguage = optval;
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             VSpellCheck spell;
-            for (int i = V3LangCode::L_ERROR + 1; i < V3LangCode::_ENUM_END; ++i) {
-                spell.pushCandidate(V3LangCode{i}.ascii());
+            ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = V3_Lang_ಸಂಕೇತ::L_ERROR + 1; i < V3_Lang_ಸಂಕೇತ::ENUM_ಕೊನೆ; ++i) {
+                spell.ತಳ್ಳು_Candidate(V3_Lang_ಸಂಕೇತ{i}.ascii());
             }
-            fl->v3error("Unknown language specified: " << valp << spell.bestCandidateMsg(valp));
+            fl->v3error("Unknown language specified: " << valp << spell.ಉತ್ತಮ_Candidate_ಸಂದೇಶ(valp));
         }
     };
-    DECL_OPTION("-default-language", CbVal, setLang).notForRerun();
-    DECL_OPTION("-language", CbVal, setLang).notForRerun();
-    DECL_OPTION("-libmap", CbVal, [this](const char* valp) { addLibMapFile(valp); });
-    DECL_OPTION("-lib-create", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-default-language", CbVal, ಗಣ_Lang).notForRerun();
+    DECL_OPTION("-language", CbVal, ಗಣ_Lang).notForRerun();
+    DECL_OPTION("-libmap", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) { ಕೂಡಿಸು_Lib_Map_File(valp); });
+    DECL_OPTION("-lib-create", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         validateIdentifier(fl, valp, "--lib-create");
         m_libCreate = valp;
     });
     DECL_OPTION("-lint-only", OnOff, &m_lintOnly);
-    DECL_OPTION("-localize-max-size", Set, &m_localizeMaxSize);
+    DECL_OPTION("-localize-max-size", ಗಣ_2, &m_localize_Max_ಗಾತ್ರ);
 
-    DECL_OPTION("-MAKEFLAGS", CbVal, callStrSetter(&V3Options::addMakeFlags));
+    DECL_OPTION("-MAKEFLAGS", CbVal, callStrSetter(&V3Options::ಕೂಡಿಸು_Make_Flags));
     DECL_OPTION("-MMD", OnOff, &m_makeDepend);
     DECL_OPTION("-MP", OnOff, &m_makePhony);
-    DECL_OPTION("-Mdir", CbVal, [this](const char* valp) {
+    DECL_OPTION("-Mdir", CbVal, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         m_makeDir = valp;
-        addIncDirFallback(m_makeDir);  // Need to find generated files there too
+        ಕೂಡಿಸು_Inc_Dir_Fallback(m_makeDir);  // Need to find generated files there too
     }).notForRerun();
     DECL_OPTION("-main", OnOff, &m_main);
-    DECL_OPTION("-main-top-name", Set, &m_mainTopName);
-    DECL_OPTION("-make", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "gmake")) {
-            m_gmake = true;
-        } else if (!std::strcmp(valp, "json")) {
-            m_makeJson = true;
-        } else {
+    DECL_OPTION("-main-top-name", ಗಣ_2, &m_main_ತುದಿ_Name);
+    DECL_OPTION("-make", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಆದರೆ (!std::strcmp(valp, "gmake")) {
+            m_gmake = ನಿಜ;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "json")) {
+            m_makeJson = ನಿಜ;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             fl->v3error("Unknown --make system specified: '" << valp << "'");
         }
     });
-    DECL_OPTION("-func-recursion-depth", Set, &m_funcRecursion);
-    DECL_OPTION("-max-num-width", Set, &m_maxNumWidth);
-    DECL_OPTION("-mod-prefix", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-func-recursion-depth", ಗಣ_2, &m_funcRecursion);
+    DECL_OPTION("-max-num-width", ಗಣ_2, &m_max_ಅಂಕೆ_ಅಗಲ);
+    DECL_OPTION("-mod-prefix", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         validateIdentifier(fl, valp, "--mod-prefix");
-        m_modPrefix = valp;
+        m_mod_ಪೂರ್ವಪ್ರತ್ಯಯ = valp;
     });
 
-    DECL_OPTION("-O0", CbCall, [this]() { optimize(0); });
-    DECL_OPTION("-O1", CbCall, [this]() { optimize(1); });
-    DECL_OPTION("-O2", CbCall, [this]() { optimize(2); });
-    DECL_OPTION("-O3", CbCall, [this]() { optimize(3); });
+    DECL_OPTION("-O0", CbCall, [ಇದು]() { optimize(0); });
+    DECL_OPTION("-O1", CbCall, [ಇದು]() { optimize(1); });
+    DECL_OPTION("-O2", CbCall, [ಇದು]() { optimize(2); });
+    DECL_OPTION("-O3", CbCall, [ಇದು]() { optimize(3); });
 
-    DECL_OPTION("-o", Set, &m_exeName);
-    DECL_OPTION("-order-clock-delay", CbOnOff, [fl](bool /*flag*/) {
+    DECL_OPTION("-o", ಗಣ_2, &m_exeName);
+    DECL_OPTION("-order-clock-delay", CbOnOff, [fl](ತಾರ್ಕಿಕ /*flag*/) {
         fl->v3warn(DEPRECATED, "Option order-clock-delay is deprecated and has no effect.");
     }).undocumented();
-    DECL_OPTION("-output-groups", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-output-groups", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         m_outputGroups = std::atoi(valp);
-        if (m_outputGroups < -1) fl->v3error("--output-groups must be >= -1: " << valp);
+        ಆದರೆ (m_outputGroups < -1) fl->v3error("--output-groups must be >= -1: " << valp);
     });
-    DECL_OPTION("-output-groups-size", CbVal, [this, fl](const char* valp) {
-        m_outputGroupsSize = std::atoll(valp);
-        if (m_outputGroupsSize < 0) fl->v3error("--output-groups-size must be >= 0: " << valp);
+    DECL_OPTION("-output-groups-size", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_output_Groups_ಗಾತ್ರ = std::atoll(valp);
+        ಆದರೆ (m_output_Groups_ಗಾತ್ರ < 0) fl->v3error("--output-groups-size must be >= 0: " << valp);
     });
-    DECL_OPTION("-output-split", Set, &m_outputSplit);
-    DECL_OPTION("-output-split-cfuncs", CbVal, [this, fl](const char* valp) {
-        m_outputSplitCFuncs = std::atoi(valp);
-        if (m_outputSplitCFuncs < 0) {
+    DECL_OPTION("-output-split", ಗಣ_2, &m_output_ವಿಭಜಿಸು);
+    DECL_OPTION("-output-split-cfuncs", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_output_ವಿಭಜಿಸು_CFuncs = std::atoi(valp);
+        ಆದರೆ (m_output_ವಿಭಜಿಸು_CFuncs < 0) {
             fl->v3error("--output-split-cfuncs must be >= 0: " << valp);
         }
     });
-    DECL_OPTION("-output-split-ctrace", CbVal, [this, fl](const char* valp) {
-        m_outputSplitCTrace = std::atoi(valp);
-        if (m_outputSplitCTrace < 0) {
+    DECL_OPTION("-output-split-ctrace", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_output_ವಿಭಜಿಸು_CTrace = std::atoi(valp);
+        ಆದರೆ (m_output_ವಿಭಜಿಸು_CTrace < 0) {
             fl->v3error("--output-split-ctrace must be >= 0: " << valp);
         }
     });
 
-    DECL_OPTION("-P", Set, &m_preprocNoLine);
-    DECL_OPTION("-pins64", CbCall, [this]() { m_pinsBv = 65; });
-    DECL_OPTION("-no-pins64", CbCall, [this]() { m_pinsBv = 33; });
-    DECL_OPTION("-pins-bv", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-P", ಗಣ_2, &m_preproc_No_ಸಾಲು);
+    DECL_OPTION("-pins64", CbCall, [ಇದು]() { m_pinsBv = 65; });
+    DECL_OPTION("-no-pins64", CbCall, [ಇದು]() { m_pinsBv = 33; });
+    DECL_OPTION("-pins-bv", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         m_pinsBv = std::atoi(valp);
-        if (m_pinsBv > 65) fl->v3error("--pins-bv maximum is 65: " << valp);
+        ಆದರೆ (m_pinsBv > 65) fl->v3error("--pins-bv maximum is 65: " << valp);
     });
     DECL_OPTION("-pins-inout-enables", OnOff, &m_pinsInoutEnables);
-    DECL_OPTION("-pins-sc-uint", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-pins-sc-uint", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_pinsScUint = flag;
-        if (!m_pinsScBigUint) m_pinsBv = 65;
+        ಆದರೆ (!m_pinsScBigUint) m_pinsBv = 65;
     });
-    DECL_OPTION("-pins-sc-uint-bool", CbOnOff, [this](bool flag) { m_pinsScUintBool = flag; });
-    DECL_OPTION("-pins-sc-biguint", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-pins-sc-uint-bool", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) { m_pinsScUintBool = flag; });
+    DECL_OPTION("-pins-sc-biguint", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_pinsScBigUint = flag;
         m_pinsBv = 513;
     });
     DECL_OPTION("-pins-uint8", OnOff, &m_pinsUint8);
-    DECL_OPTION("-pipe-filter", Set, &m_pipeFilter);
+    DECL_OPTION("-pipe-filter", ಗಣ_2, &m_pipeFilter);
     DECL_OPTION("-pp-comments", OnOff, &m_preprocComments).undocumented();  // Renamed
-    DECL_OPTION("-prefix", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-prefix", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         validateIdentifier(fl, valp, "--prefix");
-        m_prefix = valp;
+        m_ಪೂರ್ವಪ್ರತ್ಯಯ = valp;
     });
     DECL_OPTION("-preproc-comments", OnOff, &m_preprocComments);
-    DECL_OPTION("-preproc-defines", OnOff, &m_preprocDefines);
+    DECL_OPTION("-preproc-defines", OnOff, &m_preproc_ನಿರೂಪಿಸುತ್ತದೆ);
     DECL_OPTION("-preproc-resolve", OnOff, &m_preprocResolve);
-    DECL_OPTION("-preproc-token-limit", CbVal, [this, fl](const char* valp) {
-        m_preprocTokenLimit = std::atoi(valp);
-        if (m_preprocTokenLimit <= 0) fl->v3error("--preproc-token-limit must be > 0: " << valp);
+    DECL_OPTION("-preproc-token-limit", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_preproc_Token_ಎಲ್ಲೆ = std::atoi(valp);
+        ಆದರೆ (m_preproc_Token_ಎಲ್ಲೆ <= 0) fl->v3error("--preproc-token-limit must be > 0: " << valp);
     });
-    DECL_OPTION("-private", CbCall, [this]() { m_public = false; });
+    DECL_OPTION("-private", CbCall, [ಇದು]() { m_ಬಹಿರಂಗ = ಸುಳ್ಳು; });
     DECL_OPTION("-prof-c", OnOff, &m_profC);
-    DECL_OPTION("-prof-cfuncs", CbCall, [this]() { m_profC = m_profCFuncs = true; });
+    DECL_OPTION("-prof-cfuncs", CbCall, [ಇದು]() { m_profC = m_profCFuncs = ನಿಜ; });
     DECL_OPTION("-prof-exec", OnOff, &m_profExec);
     DECL_OPTION("-prof-pgo", OnOff, &m_profPgo);
-    DECL_OPTION("-profile-cfuncs", CbCall, [this]() {
-        m_profC = m_profCFuncs = true;
+    DECL_OPTION("-profile-cfuncs", CbCall, [ಇದು]() {
+        m_profC = m_profCFuncs = ನಿಜ;
     }).undocumented();  // Renamed
     DECL_OPTION("-protect-ids", OnOff, &m_protectIds);
-    DECL_OPTION("-protect-key", Set, &m_protectKey);
-    DECL_OPTION("-protect-lib", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-protect-key", ಗಣ_2, &m_protect_ಕೀಲಿ);
+    DECL_OPTION("-protect-lib", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         validateIdentifier(fl, valp, "--protect-lib");
         m_libCreate = valp;
-        m_protectIds = true;
+        m_protectIds = ನಿಜ;
     });
-    DECL_OPTION("-public", OnOff, &m_public);
-    DECL_OPTION("-public-depth", Set, &m_publicDepth);
-    DECL_OPTION("-public-flat-rw", CbOnOff, [this](bool flag) {
-        m_publicFlatRW = flag;
-        v3Global.dpi(true);
+    DECL_OPTION("-public", OnOff, &m_ಬಹಿರಂಗ);
+    DECL_OPTION("-public-depth", ಗಣ_2, &m_ಬಹಿರಂಗ_ಆಳ);
+    DECL_OPTION("-public-flat-rw", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
+        m_ಬಹಿರಂಗ_Flat_RW = flag;
+        v3Global.dpi(ನಿಜ);
     });
-    DECL_OPTION("-public-ignore", CbOnOff, [this](bool flag) { m_publicIgnore = flag; });
-    DECL_OPTION("-public-params", CbOnOff, [this](bool flag) {
-        m_publicParams = flag;
-        v3Global.dpi(true);
+    DECL_OPTION("-public-ignore", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) { m_ಬಹಿರಂಗ_Ignore = flag; });
+    DECL_OPTION("-public-params", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
+        m_ಬಹಿರಂಗ_Params = flag;
+        v3Global.dpi(ನಿಜ);
     });
-    DECL_OPTION("-pvalue+", CbPartialMatch,
-                [this](const char* varp) { addParameter(varp, false); });
+    DECL_OPTION("-pvalue+", Cb_Partial_ಹೊಂದಿಕೆ,
+                [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* varp) { ಕೂಡಿಸು_Parameter(varp, ಸುಳ್ಳು); });
 
-    DECL_OPTION("-quiet", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-quiet", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_quietBuild = flag;
         m_quietExit = flag;
         m_quietStats = flag;
@@ -1790,327 +1790,327 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
     DECL_OPTION("-quiet-stats", OnOff, &m_quietStats);
 
     DECL_OPTION("-relative-includes", OnOff, &m_relativeIncludes);
-    DECL_OPTION("-reloop-limit", CbVal, [this, fl](const char* valp) {
-        m_reloopLimit = std::atoi(valp);
-        if (m_reloopLimit < 2) fl->v3error("--reloop-limit must be >= 2: " << valp);
+    DECL_OPTION("-reloop-limit", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_reloop_ಎಲ್ಲೆ = std::atoi(valp);
+        ಆದರೆ (m_reloop_ಎಲ್ಲೆ < 2) fl->v3error("--reloop-limit must be >= 2: " << valp);
     });
     DECL_OPTION("-report-unoptflat", OnOff, &m_reportUnoptflat);
-    DECL_OPTION("-replication-limit", CbVal, [this, fl](const char* valp) {
-        m_replicationLimit = std::atoi(valp);
-        if (m_replicationLimit < 0) fl->v3error("--replication-limit must be >= 0: " << valp);
+    DECL_OPTION("-replication-limit", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_replication_ಎಲ್ಲೆ = std::atoi(valp);
+        ಆದರೆ (m_replication_ಎಲ್ಲೆ < 0) fl->v3error("--replication-limit must be >= 0: " << valp);
     });
     DECL_OPTION("-rr", CbCall, []() {});  // Processed only in bin/verilator shell
-    DECL_OPTION("-runtime-debug", CbCall, [this, fl]() {
+    DECL_OPTION("-runtime-debug", CbCall, [ಇದು, fl]() {
         decorations(fl, "node");
-        addCFlags("-ggdb");
-        addLdLibs("-ggdb");
-        addCFlags("-fsanitize=address,undefined");
-        addLdLibs("-fsanitize=address,undefined");
-        addCFlags("-D_GLIBCXX_DEBUG");
-        addCFlags("-DVL_DEBUG=1");
+        ಕೂಡಿಸು_CFlags("-ggdb");
+        ಕೂಡಿಸು_Ld_Libs("-ggdb");
+        ಕೂಡಿಸು_CFlags("-fsanitize=address,undefined");
+        ಕೂಡಿಸು_Ld_Libs("-fsanitize=address,undefined");
+        ಕೂಡಿಸು_CFlags("-D_GLIBCXX_DEBUG");
+        ಕೂಡಿಸು_CFlags("-DVL_DEBUG=1");
     });
 
     DECL_OPTION("-savable", OnOff, &m_savable);
-    DECL_OPTION("-sc", CbCall, [this]() {
-        m_outFormatOk = true;
-        m_systemC = true;
+    DECL_OPTION("-sc", CbCall, [ಇದು]() {
+        m_ಹೊರಹೋಗು_Format_Ok = ನಿಜ;
+        m_systemC = ನಿಜ;
     });
     DECL_OPTION("-sched-zero-delay", OnOff, &m_schedZeroDelay);
     DECL_OPTION("-skip-identical", OnOff, &m_skipIdentical);
     DECL_OPTION("-stats", OnOff, &m_stats);
-    DECL_OPTION("-stats-vars", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-stats-vars", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_statsVars = flag;
         m_stats |= flag;
     });
-    DECL_OPTION("-std", CbOnOff, [this](bool flag) {
+    DECL_OPTION("-std", CbOnOff, [ಇದು](ತಾರ್ಕಿಕ flag) {
         m_stdPackage = flag;
         m_stdWaiver = flag;
     });
     DECL_OPTION("-std-package", OnOff, &m_stdPackage);
     DECL_OPTION("-std-waiver", OnOff, &m_stdWaiver);
     DECL_OPTION("-stop-fail", OnOff, &m_stopFail);
-    DECL_OPTION("-sv", CbCall, [this]() { m_defaultLanguage = V3LangCode::L1800_2023; });
+    DECL_OPTION("-sv", CbCall, [ಇದು]() { m_defaultLanguage = V3_Lang_ಸಂಕೇತ::L1800_2023; });
 
-    DECL_OPTION("-no-threads", CbCall, [this, fl]() {
+    DECL_OPTION("-no-threads", CbCall, [ಇದು, fl]() {
         fl->v3warn(DEPRECATED, "Option --no-threads is deprecated, use '--threads 1' instead");
-        m_threads = 1;
+        m_ಎಳೆಗಳು = 1;
     });
-    DECL_OPTION("-threads", CbVal, [this, fl](const char* valp) {
-        m_threads = std::atoi(valp);
-        if (m_threads < 0) fl->v3fatal("--threads must be >= 0: " << valp);
-        if (m_threads == 0) {
+    DECL_OPTION("-threads", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_ಎಳೆಗಳು = std::atoi(valp);
+        ಆದರೆ (m_ಎಳೆಗಳು < 0) fl->v3fatal("--threads must be >= 0: " << valp);
+        ಆದರೆ (m_ಎಳೆಗಳು == 0) {
             fl->v3warn(DEPRECATED, "Option --threads 0 is deprecated, use '--threads 1' instead");
-            m_threads = 1;
+            m_ಎಳೆಗಳು = 1;
         }
     });
-    DECL_OPTION("-hierarchical-threads", CbVal, [this, fl](const char* valp) {
-        m_hierThreads = std::atoi(valp);
-        if (m_hierThreads < 0) fl->v3fatal("--hierarchical-threads must be >= 0: " << valp);
+    DECL_OPTION("-hierarchical-threads", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_hier_ಎಳೆಗಳು = std::atoi(valp);
+        ಆದರೆ (m_hier_ಎಳೆಗಳು < 0) fl->v3fatal("--hierarchical-threads must be >= 0: " << valp);
     });
-    DECL_OPTION("-threads-coarsen", OnOff, &m_threadsCoarsen).undocumented();  // Debug
-    DECL_OPTION("-threads-dpi", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "all")) {
-            m_threadsDpiPure = true;
-            m_threadsDpiUnpure = true;
-        } else if (!std::strcmp(valp, "none")) {
-            m_threadsDpiPure = false;
-            m_threadsDpiUnpure = false;
-        } else if (!std::strcmp(valp, "pure")) {
-            m_threadsDpiPure = true;
-            m_threadsDpiUnpure = false;
-        } else {
+    DECL_OPTION("-threads-coarsen", OnOff, &m_ಎಳೆಗಳು_Coarsen).undocumented();  // Debug
+    DECL_OPTION("-threads-dpi", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಆದರೆ (!std::strcmp(valp, "all")) {
+            m_ಎಳೆಗಳು_Dpi_ಶುದ್ಧ = ನಿಜ;
+            m_ಎಳೆಗಳು_Dpi_Unpure = ನಿಜ;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "none")) {
+            m_ಎಳೆಗಳು_Dpi_ಶುದ್ಧ = ಸುಳ್ಳು;
+            m_ಎಳೆಗಳು_Dpi_Unpure = ಸುಳ್ಳು;
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "pure")) {
+            m_ಎಳೆಗಳು_Dpi_ಶುದ್ಧ = ನಿಜ;
+            m_ಎಳೆಗಳು_Dpi_Unpure = ಸುಳ್ಳು;
+        } ಇಲ್ಲದಿದ್ದರೆ {
             fl->v3error("Unknown setting for --threads-dpi: '"
                         << valp << "'\n"
-                        << fl->warnMore() << "... Suggest 'all', 'none', or 'pure'");
+                        << fl->warn_ಇನ್ನಷ್ಟು() << "... Suggest 'all', 'none', or 'pure'");
         }
     });
-    DECL_OPTION("-threads-max-mtasks", CbVal, [this, fl](const char* valp) {
-        m_threadsMaxMTasks = std::atoi(valp);
-        if (m_threadsMaxMTasks < 1) fl->v3fatal("--threads-max-mtasks must be >= 1: " << valp);
+    DECL_OPTION("-threads-max-mtasks", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        m_ಎಳೆಗಳು_Max_MTasks = std::atoi(valp);
+        ಆದರೆ (m_ಎಳೆಗಳು_Max_MTasks < 1) fl->v3fatal("--threads-max-mtasks must be >= 1: " << valp);
     });
-    DECL_OPTION("-timescale", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-timescale", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         VTimescale unit;
         VTimescale prec;
         VTimescale::parseSlashed(fl, valp, unit /*ref*/, prec /*ref*/);
-        if (!unit.isNone() && timeOverrideUnit().isNone()) m_timeDefaultUnit = unit;
-        if (!prec.isNone() && timeOverridePrec().isNone()) m_timeDefaultPrec = prec;
+        ಆದರೆ (!unit.isNone() && ಸಮಯ_Override_Unit().isNone()) m_ಸಮಯ_Default_Unit = unit;
+        ಆದರೆ (!prec.isNone() && ಸಮಯ_Override_Prec().isNone()) m_ಸಮಯ_Default_Prec = prec;
     });
-    DECL_OPTION("-timescale-override", CbVal, [this, fl](const char* valp) {
+    DECL_OPTION("-timescale-override", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
         VTimescale unit;
         VTimescale prec;
-        VTimescale::parseSlashed(fl, valp, unit /*ref*/, prec /*ref*/, true);
-        if (!unit.isNone()) {
-            m_timeDefaultUnit = unit;
-            m_timeOverrideUnit = unit;
+        VTimescale::parseSlashed(fl, valp, unit /*ref*/, prec /*ref*/, ನಿಜ);
+        ಆದರೆ (!unit.isNone()) {
+            m_ಸಮಯ_Default_Unit = unit;
+            m_ಸಮಯ_Override_Unit = unit;
         }
-        if (!prec.isNone()) {
-            m_timeDefaultPrec = prec;
-            m_timeOverridePrec = prec;
+        ಆದರೆ (!prec.isNone()) {
+            m_ಸಮಯ_Default_Prec = prec;
+            m_ಸಮಯ_Override_Prec = prec;
         }
     });
     DECL_OPTION("-timing", OnOff, &m_timing);
     DECL_OPTION("-top", CbVal,
-                [this](const std::string& flag) { m_topModule = AstNode::encodeName(flag); });
+                [ಇದು](ಸ್ಥಿರಾಂಕ std::string& flag) { m_ತುದಿ_Module = Ast_ಗಂಟು::encodeName(flag); });
     DECL_OPTION("-top-module", CbVal,
-                [this](const std::string& flag) { m_topModule = AstNode::encodeName(flag); });
-    DECL_OPTION("-top-module-encoded", Set, &m_topModule).undocumented();
+                [ಇದು](ಸ್ಥಿರಾಂಕ std::string& flag) { m_ತುದಿ_Module = Ast_ಗಂಟು::encodeName(flag); });
+    DECL_OPTION("-top-module-encoded", ಗಣ_2, &m_ತುದಿ_Module).undocumented();
     DECL_OPTION("-trace", OnOff, &m_trace);
-    DECL_OPTION("-trace-saif", CbCall, [this]() { m_traceEnabledSaif = true; });
+    DECL_OPTION("-trace-saif", CbCall, [ಇದು]() { m_traceEnabledSaif = ನಿಜ; });
     DECL_OPTION("-trace-coverage", OnOff, &m_traceCoverage);
-    DECL_OPTION("-trace-depth", Set, &m_traceDepth);
-    DECL_OPTION("-trace-fst", CbCall, [this]() {
-        m_traceEnabledFst = true;
-        addLdLibs("-lz");
+    DECL_OPTION("-trace-depth", ಗಣ_2, &m_trace_ಆಳ);
+    DECL_OPTION("-trace-fst", CbCall, [ಇದು]() {
+        m_traceEnabledFst = ನಿಜ;
+        ಕೂಡಿಸು_Ld_Libs("-lz");
     });
     DECL_OPTION("-trace-fst-thread", CbCall, [fl]() {
         fl->v3warn(DEPRECATED, "Option '--trace-fst-thread' is deprecated and has no effect.");
     }).undocumented();
-    DECL_OPTION("-trace-max-array", Set, &m_traceMaxArray);
-    DECL_OPTION("-trace-max-width", Set, &m_traceMaxWidth);
+    DECL_OPTION("-trace-max-array", ಗಣ_2, &m_traceMaxArray);
+    DECL_OPTION("-trace-max-width", ಗಣ_2, &m_trace_Max_ಅಗಲ);
     DECL_OPTION("-trace-params", OnOff, &m_traceParams);
     DECL_OPTION("-trace-structs", OnOff, &m_traceStructs);
-    DECL_OPTION("-trace-threads", CbVal, [fl](const char*) {
+    DECL_OPTION("-trace-threads", CbVal, [fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ*) {
         fl->v3warn(DEPRECATED, "Option '--trace-threads' is deprecated and has no effect.");
     }).undocumented();
-    DECL_OPTION("-no-trace-top", Set, &m_noTraceTop);
+    DECL_OPTION("-no-trace-top", ಗಣ_2, &m_no_Trace_ತುದಿ);
     DECL_OPTION("-trace-underscore", OnOff, &m_traceUnderscore);
-    DECL_OPTION("-trace-vcd", CbCall, [this]() { m_traceEnabledVcd = true; });
+    DECL_OPTION("-trace-vcd", CbCall, [ಇದು]() { m_traceEnabledVcd = ನಿಜ; });
 
-    DECL_OPTION("-U", CbPartialMatch, &V3PreShell::undef);
+    DECL_OPTION("-U", Cb_Partial_ಹೊಂದಿಕೆ, &V3PreShell::undef);
     DECL_OPTION("-underline-zero", OnOff, &m_underlineZero).undocumented();  // Deprecated
     DECL_OPTION("-no-unlimited-stack", CbCall, []() {});  // Processed only in bin/verilator shell
-    DECL_OPTION("-constraint-array-limit", Set, &m_constraintArrayLimit);
-    DECL_OPTION("-unroll-count", Set, &m_unrollCount).undocumented();  // Optimization tweak
-    DECL_OPTION("-unroll-limit", Set, &m_unrollLimit);
-    DECL_OPTION("-unroll-stmts", Set, &m_unrollStmts).undocumented();  // Optimization tweak
-    DECL_OPTION("-unused-regexp", Set, &m_unusedRegexp);
+    DECL_OPTION("-constraint-array-limit", ಗಣ_2, &m_constraint_Array_ಎಲ್ಲೆ);
+    DECL_OPTION("-unroll-count", ಗಣ_2, &m_unroll_ಎಣಿಕೆ).undocumented();  // Optimization tweak
+    DECL_OPTION("-unroll-limit", ಗಣ_2, &m_unroll_ಎಲ್ಲೆ);
+    DECL_OPTION("-unroll-stmts", ಗಣ_2, &m_unrollStmts).undocumented();  // Optimization tweak
+    DECL_OPTION("-unused-regexp", ಗಣ_2, &m_ಬಳಸದ_Regexp);
 
-    DECL_OPTION("-V", CbCall, [this]() {
-        showVersion(true);
+    DECL_OPTION("-V", CbCall, [ಇದು]() {
+        show_ಆವೃತ್ತಿ(ನಿಜ);
         v3Global.vlExit(0);
     });
-    DECL_OPTION("-v", CbVal, [this, &optdir](const char* valp) {
-        V3Options::addLibraryFile(parseFileArg(optdir, valp), work());
+    DECL_OPTION("-v", CbVal, [ಇದು, &optdir](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        V3Options::ಕೂಡಿಸು_Library_File(parseFileArg(optdir, valp), work());
     }).notForRerun();
     DECL_OPTION("-valgrind", CbCall, []() {});  // Processed only in bin/verilator shell
     DECL_OPTION("-verilate", OnOff, &m_verilate);
-    DECL_OPTION("-verilate-jobs", CbVal, [this, fl](const char* valp) {
-        int val = std::atoi(valp);
-        if (val < 0) {
+    DECL_OPTION("-verilate-jobs", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಪೂರ್ಣಾಂಕ val = std::atoi(valp);
+        ಆದರೆ (val < 0) {
             fl->v3error("--verilate-jobs requires a non-negative integer, but '"
                         << valp << "' was passed");
             val = 1;
-        } else if (val == 0) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (val == 0) {
             val = VlOs::getProcessDefaultParallelism();
         }
         m_verilateJobs = val;
     });
-    DECL_OPTION("-version", CbCall, [this]() {
-        showVersion(false);
+    DECL_OPTION("-version", CbCall, [ಇದು]() {
+        show_ಆವೃತ್ತಿ(ಸುಳ್ಳು);
         v3Global.vlExit(0);
     });
     DECL_OPTION("-vpi", OnOff, &m_vpi);
 
-    DECL_OPTION("-Wall", CbCall, []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, false); });
-    DECL_OPTION("-Werror-", CbPartialMatch, [this, fl](const char* optp) {
-        const V3ErrorCode code{optp};
-        if (code == V3ErrorCode::EC_ERROR) {
-            if (!isFuture(optp)) fl->v3fatal("Unknown warning specified: -Werror-" << optp);
-        } else {
-            V3Error::pretendError(code, true);
+    DECL_OPTION("-Wall", CbCall, []() { File_ಸಾಲು::globalWarnOff(V3_Error_ಸಂಕೇತ::I_LINT, ಸುಳ್ಳು); });
+    DECL_OPTION("-Werror-", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
+        ಸ್ಥಿರಾಂಕ V3_Error_ಸಂಕೇತ ಸಂಕೇತ_2{optp};
+        ಆದರೆ (ಸಂಕೇತ_2 == V3_Error_ಸಂಕೇತ::EC_ERROR) {
+            ಆದರೆ (!isFuture(optp)) fl->v3fatal("Unknown warning specified: -Werror-" << optp);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            V3Error::pretendError(ಸಂಕೇತ_2, ನಿಜ);
         }
     });
-    DECL_OPTION("-Wfuture-", CbPartialMatch, [this](const char* optp) {
+    DECL_OPTION("-Wfuture-", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) {
         // Note it may not be a future option, but one that is currently implemented.
-        addFuture(optp);
+        ಕೂಡಿಸು_Future(optp);
     });
-    DECL_OPTION("-Wno-", CbPartialMatch, [fl, &parser](const char* optp) VL_MT_DISABLED {
-        const string err = FileLine::globalWarnOffParse(optp, true);
-        if (!err.empty()) {
-            const string fullopt = "-Wno-"s + optp;
+    DECL_OPTION("-Wno-", Cb_Partial_ಹೊಂದಿಕೆ, [fl, &parser](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) VL_MT_DISABLED {
+        ಸ್ಥಿರಾಂಕ string err = File_ಸಾಲು::globalWarnOffParse(optp, ನಿಜ);
+        ಆದರೆ (!err.ಖಾಲಿಗಳು()) {
+            ಸ್ಥಿರಾಂಕ string fullopt = "-Wno-"s + optp;
             fl->v3fatal("Unknown warning specified: " << fullopt
                                                       << parser.getSuggestion(fullopt.c_str()));
         }
     });
-    for (int i = V3ErrorCode::EC_FIRST_WARN; i < V3ErrorCode::_ENUM_MAX; ++i) {
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = V3_Error_ಸಂಕೇತ::EC_ಮೊದಲ_WARN; i < V3_Error_ಸಂಕೇತ::_ENUM_MAX; ++i) {
         // cppcheck-suppress shadowFunction
-        for (const string prefix : {"-Wno-", "-Wwarn-"})
-            parser.addSuggestionCandidate(prefix + V3ErrorCode{i}.ascii());
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string ಪೂರ್ವಪ್ರತ್ಯಯ : {"-Wno-", "-Wwarn-"})
+            parser.ಕೂಡಿಸು_Suggestion_Candidate(ಪೂರ್ವಪ್ರತ್ಯಯ + V3_Error_ಸಂಕೇತ{i}.ascii());
     }
-    DECL_OPTION("-Wno-context", CbCall, [this]() { m_context = false; });
-    DECL_OPTION("-Wno-fatal", CbCall, []() { V3Error::warnFatal(false); });
-    DECL_OPTION("-Wno-lint", CbCall, []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, true); });
+    DECL_OPTION("-Wno-context", CbCall, [ಇದು]() { m_context = ಸುಳ್ಳು; });
+    DECL_OPTION("-Wno-fatal", CbCall, []() { V3Error::warnFatal(ಸುಳ್ಳು); });
+    DECL_OPTION("-Wno-lint", CbCall, []() { File_ಸಾಲು::globalWarnOff(V3_Error_ಸಂಕೇತ::I_LINT, ನಿಜ); });
     DECL_OPTION("-Wno-style", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_STYLE, true); });
-    DECL_OPTION("-work", Set, &m_work);
-    DECL_OPTION("-Wpedantic", CbCall, [this]() {
-        m_pedantic = true;
-        V3Error::pretendError(V3ErrorCode::ASSIGNIN, false);
+                []() { File_ಸಾಲು::globalWarnOff(V3_Error_ಸಂಕೇತ::I_STYLE, ನಿಜ); });
+    DECL_OPTION("-work", ಗಣ_2, &m_work);
+    DECL_OPTION("-Wpedantic", CbCall, [ಇದು]() {
+        m_pedantic = ನಿಜ;
+        V3Error::pretendError(V3_Error_ಸಂಕೇತ::ASSIGNIN, ಸುಳ್ಳು);
     });
-    DECL_OPTION("-Wwarn-", CbPartialMatch, [this, fl, &parser](const char* optp) VL_MT_DISABLED {
-        const V3ErrorCode code{optp};
-        if (code == V3ErrorCode::EC_ERROR) {
-            if (!isFuture(optp)) {
-                const string fullopt = "-Wwarn-"s + optp;
+    DECL_OPTION("-Wwarn-", Cb_Partial_ಹೊಂದಿಕೆ, [ಇದು, fl, &parser](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* optp) VL_MT_DISABLED {
+        ಸ್ಥಿರಾಂಕ V3_Error_ಸಂಕೇತ ಸಂಕೇತ_2{optp};
+        ಆದರೆ (ಸಂಕೇತ_2 == V3_Error_ಸಂಕೇತ::EC_ERROR) {
+            ಆದರೆ (!isFuture(optp)) {
+                ಸ್ಥಿರಾಂಕ string fullopt = "-Wwarn-"s + optp;
                 fl->v3fatal("Unknown warning specified: "
                             << fullopt << parser.getSuggestion(fullopt.c_str()));
             }
-        } else {
-            FileLine::globalWarnOff(code, false);
-            V3Error::pretendError(code, false);
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            File_ಸಾಲು::globalWarnOff(ಸಂಕೇತ_2, ಸುಳ್ಳು);
+            V3Error::pretendError(ಸಂಕೇತ_2, ಸುಳ್ಳು);
         }
     });
     DECL_OPTION("-Wwarn-lint", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_LINT, false); });
+                []() { File_ಸಾಲು::globalWarnOff(V3_Error_ಸಂಕೇತ::I_LINT, ಸುಳ್ಳು); });
     DECL_OPTION("-Wwarn-style", CbCall,
-                []() { FileLine::globalWarnOff(V3ErrorCode::I_STYLE, false); });
+                []() { File_ಸಾಲು::globalWarnOff(V3_Error_ಸಂಕೇತ::I_STYLE, ಸುಳ್ಳು); });
     DECL_OPTION("-waiver-multiline", OnOff, &m_waiverMultiline);
-    DECL_OPTION("-waiver-output", Set, &m_waiverOutput);
+    DECL_OPTION("-waiver-output", ಗಣ_2, &m_waiverOutput);
 
-    DECL_OPTION("-x-assign", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "0")) {
-            m_xAssign = "0";
-        } else if (!std::strcmp(valp, "1")) {
-            m_xAssign = "1";
-        } else if (!std::strcmp(valp, "fast")) {
-            m_xAssign = "fast";
-        } else if (!std::strcmp(valp, "unique")) {
-            m_xAssign = "unique";
-        } else {
+    DECL_OPTION("-x-assign", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಆದರೆ (!std::strcmp(valp, "0")) {
+            m_x_ನಿಯೋಜಿಸು = "0";
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "1")) {
+            m_x_ನಿಯೋಜಿಸು = "1";
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "fast")) {
+            m_x_ನಿಯೋಜಿಸು = "fast";
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "unique")) {
+            m_x_ನಿಯೋಜಿಸು = "unique";
+        } ಇಲ್ಲದಿದ್ದರೆ {
             fl->v3error("Unknown setting for --x-assign: '"
                         << valp << "'\n"
-                        << fl->warnMore() << "... Suggest '0', '1', 'fast', or 'unique'");
+                        << fl->warn_ಇನ್ನಷ್ಟು() << "... Suggest '0', '1', 'fast', or 'unique'");
         }
     });
-    DECL_OPTION("-x-initial", CbVal, [this, fl](const char* valp) {
-        if (!std::strcmp(valp, "0")) {
+    DECL_OPTION("-x-initial", CbVal, [ಇದು, fl](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಆದರೆ (!std::strcmp(valp, "0")) {
             m_xInitial = "0";
-        } else if (!std::strcmp(valp, "fast")) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "fast")) {
             m_xInitial = "fast";
-        } else if (!std::strcmp(valp, "unique")) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!std::strcmp(valp, "unique")) {
             m_xInitial = "unique";
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             fl->v3error("Unknown setting for --x-initial: '"
                         << valp << "'\n"
-                        << fl->warnMore() << "... Suggest '0', 'fast', or 'unique'");
+                        << fl->warn_ಇನ್ನಷ್ಟು() << "... Suggest '0', 'fast', or 'unique'");
         }
     });
-    DECL_OPTION("-x-initial-edge", OnOff, &m_xInitialEdge);
+    DECL_OPTION("-x-initial-edge", OnOff, &m_x_Initial_ಅಂಚು);
 
-    DECL_OPTION("-y", CbVal, [this, &optdir](const char* valp) {
-        addIncDirUser(parseFileArg(optdir, string{valp}));
+    DECL_OPTION("-y", CbVal, [ಇದು, &optdir](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* valp) {
+        ಕೂಡಿಸು_Inc_Dir_User(parseFileArg(optdir, string{valp}));
     }).notForRerun();
 
     parser.finalize();
 
-    for (int i = 0; i < argc;) {
+    ಗಾಗಿ (ಪೂರ್ಣಾಂಕ i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
 
         // Option
-        if (argv[i][0] == '-' || argv[i][0] == '+') {
-            const std::string argName = argv[i] + (argv[i][0] == argv[i][1] ? 2 : 1);
-            int consumed = 0;
-            bool isForRerun = true;
+        ಆದರೆ (argv[i][0] == '-' || argv[i][0] == '+') {
+            ಸ್ಥಿರಾಂಕ std::string argName = argv[i] + (argv[i][0] == argv[i][1] ? 2 : 1);
+            ಪೂರ್ಣಾಂಕ consumed = 0;
+            ತಾರ್ಕಿಕ isForRerun = ನಿಜ;
 
             // Special case for -j which has an optional argument
-            if (argv[i][0] == '-' && argName == "j") {
+            ಆದರೆ (argv[i][0] == '-' && argName == "j") {
                 consumed = 1;
-                int val = 0;
-                if (i + 1 < argc && std::isdigit(argv[i + 1][0])) {
+                ಪೂರ್ಣಾಂಕ val = 0;
+                ಆದರೆ (i + 1 < argc && std::ಅಂಕಿಯೇ(argv[i + 1][0])) {
                     val = std::atoi(argv[i + 1]);  // Can't be negative due to isdigit above
-                    if (val == 0) val = VlOs::getProcessDefaultParallelism();
+                    ಆದರೆ (val == 0) val = VlOs::getProcessDefaultParallelism();
                     consumed = 2;
                 }
-                if (m_buildJobs == -1) m_buildJobs = val;
-                if (m_verilateJobs == -1) m_verilateJobs = val;
-                if (m_outputGroups == -1) m_outputGroups = val;
-            } else {
-                const auto pair = parser.parse(i, argc, argv);
-                consumed = pair.first;
-                isForRerun = pair.second;
-                if (consumed) {
+                ಆದರೆ (m_buildJobs == -1) m_buildJobs = val;
+                ಆದರೆ (m_verilateJobs == -1) m_verilateJobs = val;
+                ಆದರೆ (m_outputGroups == -1) m_outputGroups = val;
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ pair = parser.parse(i, argc, argv);
+                consumed = pair.ಮೊದಲ;
+                isForRerun = pair.ಎರಡನೇ;
+                ಆದರೆ (consumed) {
                     // Already processed
-                } else if (isFuture0(argName)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (isFuture0(argName)) {
                     consumed = 1;
-                } else if (isFuture1(argName)) {
+                } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (isFuture1(argName)) {
                     consumed = 2;
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     fl->v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                     consumed = 1;
                 }
             }
             UASSERT(consumed, "Failed to consume argument: " << argv[i]);
             // Record all arguments except for -f and -F (their contents will be recorded instead)
-            if (argName != "f" && argName != "F") addArg(argv + i, consumed, isForRerun);
+            ಆದರೆ (argName != "f" && argName != "F") ಕೂಡಿಸು_Arg(argv + i, consumed, isForRerun);
             i += consumed;
-            continue;
+            ಮುಂದುವರಿ;
         }
 
         // Filename
-        const std::string filename = parseFileArg(optdir, argv[i]);
-        bool isForRerun = true;
-        if (suffixed(filename, ".cpp")  //
+        ಸ್ಥಿರಾಂಕ std::string filename = parseFileArg(optdir, argv[i]);
+        ತಾರ್ಕಿಕ isForRerun = ನಿಜ;
+        ಆದರೆ (suffixed(filename, ".cpp")  //
             || suffixed(filename, ".cxx")  //
             || suffixed(filename, ".cc")  //
             || suffixed(filename, ".c")  //
             || suffixed(filename, ".sp")) {
-            V3Options::addCppFile(filename);
-        } else if (suffixed(filename, ".a")  //
+            V3Options::ಕೂಡಿಸು_Cpp_File(filename);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (suffixed(filename, ".a")  //
                    || suffixed(filename, ".o")  //
                    || suffixed(filename, ".so")) {
-            V3Options::addLdLibFile(filename);
-        } else if (suffixed(filename, ".vlt")) {
-            V3Options::addVltFile(filename, work());
-            isForRerun = false;
-        } else {
-            V3Options::addVFile(filename, work());
-            isForRerun = false;
+            V3Options::ಕೂಡಿಸು_Ld_Lib_File(filename);
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (suffixed(filename, ".vlt")) {
+            V3Options::ಕೂಡಿಸು_Vlt_File(filename, work());
+            isForRerun = ಸುಳ್ಳು;
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            V3Options::ಕೂಡಿಸು_VFile(filename, work());
+            isForRerun = ಸುಳ್ಳು;
         }
-        addArg(filename, isForRerun);
+        ಕೂಡಿಸು_Arg(filename, isForRerun);
         ++i;
     }
 
-    if (m_debugOptions) {
+    ಆದರೆ (m_debugOptions) {
         parser.dumpOptions();
         v3Global.vlExit(0);
     }
@@ -2118,324 +2118,324 @@ void V3Options::parseOptsList(FileLine* fl, const string& optdir, int argc,
 
 //======================================================================
 
-void V3Options::parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED {
+ಶೂನ್ಯ V3Options::parseOptsFile(File_ಸಾಲು* fl, ಸ್ಥಿರಾಂಕ string& filename, ತಾರ್ಕಿಕ rel) VL_MT_DISABLED {
     // Read the specified -f filename and process as arguments
     UINFO(1, "Reading Options File " << filename);
 
-    const std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream(filename)};
-    if (ifp->fail()) {
+    ಸ್ಥಿರಾಂಕ std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream(filename)};
+    ಆದರೆ (ifp->fail()) {
         fl->v3error("Cannot open -f command file: " + filename);
-        return;
+        ಹಿಂತಿರುಗಿ;
     }
 
     // If we find any '// verilator fargs' line in the file, we will only use these,
     // otherwise we will use the file contents. This enables rerunning the output
     // produced by --dump-inptus with:
     //   verilator -f <prefix>__inputs.vpp <prefix>__inputs.vpp
-    bool has_fargs = false;
-    std::string whole_file;
+    ತಾರ್ಕಿಕ has_fargs = ಸುಳ್ಳು;
+    std::string ಸಂಪೂರ್ಣ_file;
 
     // Parses a '// verilator fargs' or '/* verilator fargs */' comment
-    const auto parse_fargs_cmt = [&](const char* p) -> void {
-        const bool blockCmt = p[1] == '*';
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ parse_fargs_cmt = [&](ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* p) -> ಶೂನ್ಯ {
+        ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ ಖಂಡ_Cmt = p[1] == '*';
         p += 2;
-        while (std::isspace(*p)) ++p;
-        if (VString::startsWith(p, "verilator")) {
-            p += std::strlen("verilator");
-            if (std::isspace(*p)) {
-                while (std::isspace(*p)) ++p;
-                if (VString::startsWith(p, "fargs")) {
-                    p += std::strlen("fargs");
-                    if (std::isspace(*p)) {
-                        while (std::isspace(*p)) ++p;
-                        if (!has_fargs) {
-                            has_fargs = true;
-                            whole_file.clear();
+        ಆಗ (std::ಖಾಲಿಯೇ(*p)) ++p;
+        ಆದರೆ (VString::startsWith(p, "verilator")) {
+            p += std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("verilator");
+            ಆದರೆ (std::ಖಾಲಿಯೇ(*p)) {
+                ಆಗ (std::ಖಾಲಿಯೇ(*p)) ++p;
+                ಆದರೆ (VString::startsWith(p, "fargs")) {
+                    p += std::ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("fargs");
+                    ಆದರೆ (std::ಖಾಲಿಯೇ(*p)) {
+                        ಆಗ (std::ಖಾಲಿಯೇ(*p)) ++p;
+                        ಆದರೆ (!has_fargs) {
+                            has_fargs = ನಿಜ;
+                            ಸಂಪೂರ್ಣ_file.clear();
                         }
-                        whole_file += p;
-                        if (blockCmt) {
-                            const std::string::size_type pos = whole_file.find("*/");
-                            if (pos == std::string::npos) {
+                        ಸಂಪೂರ್ಣ_file += p;
+                        ಆದರೆ (ಖಂಡ_Cmt) {
+                            ಸ್ಥಿರಾಂಕ std::string::ಗಾತ್ರ_type pos = ಸಂಪೂರ್ಣ_file.ಕಂಡುಹಿಡಿ("*/");
+                            ಆದರೆ (pos == std::string::npos) {
                                 fl->v3fatal("/* verilator fargs */ must be on single line");
                             }
-                            whole_file.resize(pos);
+                            ಸಂಪೂರ್ಣ_file.resize(pos);
                         }
-                        whole_file += ' ';
+                        ಸಂಪೂರ್ಣ_file += ' ';
                     }
                 }
             }
         }
     };
 
-    bool inCmt = false;
-    while (!ifp->eof()) {
-        const std::string line = V3Os::getline(*ifp);
+    ತಾರ್ಕಿಕ ಒಳ_Cmt = ಸುಳ್ಳು;
+    ಆಗ (!ifp->eof()) {
+        ಸ್ಥಿರಾಂಕ std::string ಸಾಲು = V3Os::getline(*ifp);
         // Strip simple comments
-        char lastch = ' ';  // 'std::isspace(lastch)' is true at the start of the line
-        bool space_begin = true;  // At beginning or leading spaces only
-        for (const char* p = line.c_str(); *p; lastch = *p++) {
-            if (inCmt) {
-                if (p[0] == '*' && p[1] == '/') {
-                    inCmt = false;
+        ಅಕ್ಷರ lastch = ' ';  // 'std::isspace(lastch)' is true at the start of the line
+        ತಾರ್ಕಿಕ space_begin = ನಿಜ;  // At beginning or leading spaces only
+        ಗಾಗಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ* p = ಸಾಲು.c_str(); *p; lastch = *p++) {
+            ಆದರೆ (ಒಳ_Cmt) {
+                ಆದರೆ (p[0] == '*' && p[1] == '/') {
+                    ಒಳ_Cmt = ಸುಳ್ಳು;
                     ++p;
                 }
-            } else if (p[0] == '/' && p[1] == '/' && std::isspace(lastch)) {  // Allow /file//path
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (p[0] == '/' && p[1] == '/' && std::ಖಾಲಿಯೇ(lastch)) {  // Allow /file//path
                 parse_fargs_cmt(p);
-                break;  // Ignore to EOL
-            } else if (p[0] == '#' && space_begin) {  // Only # at [spaced] begin of line
-                break;  // Ignore to EOL
-            } else if (p[0] == '/' && p[1] == '*') {
+                ನಿಲ್ಲಿಸು;  // Ignore to EOL
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (p[0] == '#' && space_begin) {  // Only # at [spaced] begin of line
+                ನಿಲ್ಲಿಸು;  // Ignore to EOL
+            } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (p[0] == '/' && p[1] == '*') {
                 parse_fargs_cmt(p);
-                inCmt = true;
-                space_begin = false;
+                ಒಳ_Cmt = ನಿಜ;
+                space_begin = ಸುಳ್ಳು;
                 ++p;
-            } else {
-                if (!std::isspace(*p)) space_begin = false;
-                if (!has_fargs) whole_file += *p;
+            } ಇಲ್ಲದಿದ್ದರೆ {
+                ಆದರೆ (!std::ಖಾಲಿಯೇ(*p)) space_begin = ಸುಳ್ಳು;
+                ಆದರೆ (!has_fargs) ಸಂಪೂರ್ಣ_file += *p;
             }
         }
-        if (!has_fargs) whole_file += " ";
+        ಆದರೆ (!has_fargs) ಸಂಪೂರ್ಣ_file += " ";
     }
-    whole_file += "\n";  // So string match below is simplified
-    if (inCmt) fl->v3error("Unterminated /* comment inside -f file.");
+    ಸಂಪೂರ್ಣ_file += "\n";  // So string match below is simplified
+    ಆದರೆ (ಒಳ_Cmt) fl->v3error("Unterminated /* comment inside -f file.");
 
-    fl = new FileLine{filename};
+    fl = ಹೊಸ File_ಸಾಲು{filename};
 
     // Split into argument list and process
     // Note we try to respect escaped char, double/simple quoted strings
     // Other simulators don't respect a common syntax...
 
     // Strip off arguments and parse into words
-    std::vector<string> args;
+    std::ಸದಿಶ<string> ವಾದಗಳು;
 
     // Parse file using a state machine, taking into account quoted strings and escaped chars
-    enum state : uint8_t {
-        ST_IN_OPTION,
+    ಎಣಿಕೆ state : uint8_t {
+        ST_ಒಳ_OPTION,
         ST_ESCAPED_CHAR,
-        ST_IN_QUOTED_STR,
-        ST_IN_DOUBLE_QUOTED_STR
+        ST_ಒಳ_QUOTED_STR,
+        ST_ಒಳ_DOUBLE_QUOTED_STR
     };
 
-    state st = ST_IN_OPTION;
-    state last_st = ST_IN_OPTION;
+    state st = ST_ಒಳ_OPTION;
+    state ಕೊನೆಯ_st = ST_ಒಳ_OPTION;
     string arg;
-    for (string::size_type pos = 0; pos < whole_file.length(); ++pos) {
-        char curr_char = whole_file[pos];
-        switch (st) {
-        case ST_IN_OPTION:  // Get all chars up to a white space or a "="
-            if (std::isspace(curr_char)) {  // End of option
-                if (!arg.empty()) {  // End of word
-                    args.push_back(arg);
+    ಗಾಗಿ (string::ಗಾತ್ರ_type pos = 0; pos < ಸಂಪೂರ್ಣ_file.ಉದ್ದಳತೆ(); ++pos) {
+        ಅಕ್ಷರ curr_char = ಸಂಪೂರ್ಣ_file[pos];
+        ಆಯ್ಕೆ (st) {
+        ಸ್ಥಿತಿ ST_ಒಳ_OPTION:  // Get all chars up to a white space or a "="
+            ಆದರೆ (std::ಖಾಲಿಯೇ(curr_char)) {  // End of option
+                ಆದರೆ (!arg.ಖಾಲಿಗಳು()) {  // End of word
+                    ವಾದಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(arg);
                 }
                 arg = "";
-                break;
+                ನಿಲ್ಲಿಸು;
             }
-            if (curr_char == '\\') {  // Escape char, we wait for next char
-                last_st = st;  // Memorize current state
+            ಆದರೆ (curr_char == '\\') {  // Escape char, we wait for next char
+                ಕೊನೆಯ_st = st;  // Memorize current state
                 st = ST_ESCAPED_CHAR;
-                break;
+                ನಿಲ್ಲಿಸು;
             }
-            if (curr_char == '\'') {  // Find begin of quoted string
+            ಆದರೆ (curr_char == '\'') {  // Find begin of quoted string
                 // Examine next char in order to decide between
                 // a string or a base specifier for integer literal
                 ++pos;
-                if (pos < whole_file.length()) curr_char = whole_file[pos];
-                if (curr_char == '"') {  // String
-                    st = ST_IN_QUOTED_STR;
-                } else {  // Base specifier
+                ಆದರೆ (pos < ಸಂಪೂರ್ಣ_file.ಉದ್ದಳತೆ()) curr_char = ಸಂಪೂರ್ಣ_file[pos];
+                ಆದರೆ (curr_char == '"') {  // String
+                    st = ST_ಒಳ_QUOTED_STR;
+                } ಇಲ್ಲದಿದ್ದರೆ {  // Base specifier
                     arg += '\'';
                 }
                 arg += curr_char;
-                break;
+                ನಿಲ್ಲಿಸು;
             }
-            if (curr_char == '"') {  // Find begin of double quoted string
+            ಆದರೆ (curr_char == '"') {  // Find begin of double quoted string
                 // Doesn't insert the quote
-                st = ST_IN_DOUBLE_QUOTED_STR;
-                break;
+                st = ST_ಒಳ_DOUBLE_QUOTED_STR;
+                ನಿಲ್ಲಿಸು;
             }
             arg += curr_char;
-            break;
-        case ST_IN_QUOTED_STR:  // Just store all chars inside string
-            if (curr_char != '\'') {
+            ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ ST_ಒಳ_QUOTED_STR:  // Just store all chars inside string
+            ಆದರೆ (curr_char != '\'') {
                 arg += curr_char;
-            } else {  // End of quoted string
-                st = ST_IN_OPTION;
+            } ಇಲ್ಲದಿದ್ದರೆ {  // End of quoted string
+                st = ST_ಒಳ_OPTION;
             }
-            break;
-        case ST_IN_DOUBLE_QUOTED_STR:  // Take into account escaped chars
-            if (curr_char != '"') {
-                if (curr_char == '\\') {
-                    last_st = st;
+            ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ ST_ಒಳ_DOUBLE_QUOTED_STR:  // Take into account escaped chars
+            ಆದರೆ (curr_char != '"') {
+                ಆದರೆ (curr_char == '\\') {
+                    ಕೊನೆಯ_st = st;
                     st = ST_ESCAPED_CHAR;
-                } else {
+                } ಇಲ್ಲದಿದ್ದರೆ {
                     arg += curr_char;
                 }
-            } else {  // End of double quoted string
-                st = ST_IN_OPTION;
+            } ಇಲ್ಲದಿದ್ದರೆ {  // End of double quoted string
+                st = ST_ಒಳ_OPTION;
             }
-            break;
-        case ST_ESCAPED_CHAR:  // Just add the escaped char
+            ನಿಲ್ಲಿಸು;
+        ಸ್ಥಿತಿ ST_ESCAPED_CHAR:  // Just add the escaped char
             arg += curr_char;
-            st = last_st;
-            break;
+            st = ಕೊನೆಯ_st;
+            ನಿಲ್ಲಿಸು;
         }
     }
-    if (!arg.empty()) {  // Add last word
-        args.push_back(arg);
+    ಆದರೆ (!arg.ಖಾಲಿಗಳು()) {  // Add last word
+        ವಾದಗಳು.ತಳ್ಳು_ಹಿಂಭಾಗ(arg);
     }
 
-    // Path
-    const string optdir = (rel ? V3Os::filenameDir(filename) : ".");
+    //ಮಾರ್ಗ
+    ಸ್ಥಿರಾಂಕ string optdir = (rel ? V3Os::filenameDir(filename) : ".");
 
     // Convert to argv style arg list and parse them
-    std::vector<char*> argv;
-    argv.reserve(args.size() + 1);
-    for (const string& i : args) argv.push_back(const_cast<char*>(i.c_str()));
-    argv.push_back(nullptr);  // argv is nullptr-terminated
-    parseOptsList(fl, optdir, static_cast<int>(argv.size() - 1), argv.data());
+    std::ಸದಿಶ<ಅಕ್ಷರ*> argv;
+    argv.reserve(ವಾದಗಳು.ಗಾತ್ರ_2() + 1);
+    ಗಾಗಿ (ಸ್ಥಿರಾಂಕ string& i : ವಾದಗಳು) argv.ತಳ್ಳು_ಹಿಂಭಾಗ(const_cast<ಅಕ್ಷರ*>(i.c_str()));
+    argv.ತಳ್ಳು_ಹಿಂಭಾಗ(ಶೂನ್ಯಸೂಚಕ);  // argv is nullptr-terminated
+    parseOptsList(fl, optdir, static_cast<ಪೂರ್ಣಾಂಕ>(argv.ಗಾತ್ರ_2() - 1), argv.ದತ್ತಾಂಶ());
 }
 
 //======================================================================
 
-string V3Options::parseFileArg(const string& optdir, const string& relfilename) {
+string V3Options::parseFileArg(ಸ್ಥಿರಾಂಕ string& optdir, ಸ್ಥಿರಾಂಕ string& relfilename) {
     string filename = V3Os::filenameSubstitute(relfilename);
-    if (optdir != "." && V3Os::filenameIsRel(filename))
+    ಆದರೆ (optdir != "." && V3Os::filenameIsRel(filename))
         filename = V3Os::filenameJoin(optdir, filename);
-    return filename;
+    ಹಿಂತಿರುಗಿ filename;
 }
 
 //======================================================================
 
-void V3Options::showVersion(bool verbose) {
-    cout << version();
-    cout << "\n";
-    if (!verbose) return;
+ಶೂನ್ಯ V3Options::show_ಆವೃತ್ತಿ(ತಾರ್ಕಿಕ verbose) {
+    ಹೊರಗೆ << ಆವೃತ್ತಿ();
+    ಹೊರಗೆ << "\n";
+    ಆದರೆ (!verbose) ಹಿಂತಿರುಗಿ;
 
-    cout << "\n";
-    cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
-    cout << "redistribute it and/or modify the Verilator internals under the terms of\n";
-    cout << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
-    cout << "License Version 2.0.\n";
+    ಹೊರಗೆ << "\n";
+    ಹೊರಗೆ << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
+    ಹೊರಗೆ << "redistribute it and/or modify the Verilator internals under the terms of\n";
+    ಹೊರಗೆ << "either the GNU Lesser General Public License Version 3 or the Perl Artistic\n";
+    ಹೊರಗೆ << "License Version 2.0.\n";
 
-    cout << "\n";
-    cout << "See https://verilator.org for documentation\n";
+    ಹೊರಗೆ << "\n";
+    ಹೊರಗೆ << "See https://verilator.org for documentation\n";
 
-    cout << "\n";
-    cout << "Summary of configuration:\n";
-    cout << "  Compiled in defaults if not in environment:\n";
-    cout << "    SYSTEMC            = " << DEFENV_SYSTEMC << "\n";
-    cout << "    SYSTEMC_ARCH       = " << DEFENV_SYSTEMC_ARCH << "\n";
-    cout << "    SYSTEMC_INCLUDE    = " << DEFENV_SYSTEMC_INCLUDE << "\n";
-    cout << "    SYSTEMC_LIBDIR     = " << DEFENV_SYSTEMC_LIBDIR << "\n";
-    cout << "    VERILATOR_ROOT     = " << DEFENV_VERILATOR_ROOT << "\n";
-    cout << "    VERILATOR_SOLVER   = " << DEFENV_VERILATOR_SOLVER << "\n";
-    cout << "    SystemC system-wide = " << cvtToStr(systemCSystemWide()) << "\n";
+    ಹೊರಗೆ << "\n";
+    ಹೊರಗೆ << "Summary of configuration:\n";
+    ಹೊರಗೆ << "  Compiled in defaults if not in environment:\n";
+    ಹೊರಗೆ << "    SYSTEMC            = " << DEFENV_SYSTEMC << "\n";
+    ಹೊರಗೆ << "    SYSTEMC_ARCH       = " << DEFENV_SYSTEMC_ARCH << "\n";
+    ಹೊರಗೆ << "    SYSTEMC_INCLUDE    = " << DEFENV_SYSTEMC_INCLUDE << "\n";
+    ಹೊರಗೆ << "    SYSTEMC_LIBDIR     = " << DEFENV_SYSTEMC_LIBDIR << "\n";
+    ಹೊರಗೆ << "    VERILATOR_ROOT     = " << DEFENV_VERILATOR_ಬೇರು << "\n";
+    ಹೊರಗೆ << "    VERILATOR_SOLVER   = " << DEFENV_VERILATOR_SOLVER << "\n";
+    ಹೊರಗೆ << "    SystemC system-wide = " << cvt_ಗಮ್ಯ_Str(systemCSystemWide()) << "\n";
 
     // If update below, also update V3Options::getenvBuiltins()
-    cout << "\n";
-    cout << "Environment:\n";
-    cout << "    MAKE               = " << V3Os::getenvStr("MAKE", "") << "\n";
-    cout << "    PERL               = " << V3Os::getenvStr("PERL", "") << "\n";
-    cout << "    PYTHON3            = " << V3Os::getenvStr("PYTHON3", "") << "\n";
-    cout << "    SYSTEMC            = " << V3Os::getenvStr("SYSTEMC", "") << "\n";
-    cout << "    SYSTEMC_ARCH       = " << V3Os::getenvStr("SYSTEMC_ARCH", "") << "\n";
-    cout << "    SYSTEMC_INCLUDE    = " << V3Os::getenvStr("SYSTEMC_INCLUDE", "") << "\n";
-    cout << "    SYSTEMC_LIBDIR     = " << V3Os::getenvStr("SYSTEMC_LIBDIR", "") << "\n";
+    ಹೊರಗೆ << "\n";
+    ಹೊರಗೆ << "Environment:\n";
+    ಹೊರಗೆ << "    MAKE               = " << V3Os::getenvStr("MAKE", "") << "\n";
+    ಹೊರಗೆ << "    PERL               = " << V3Os::getenvStr("PERL", "") << "\n";
+    ಹೊರಗೆ << "    PYTHON3            = " << V3Os::getenvStr("PYTHON3", "") << "\n";
+    ಹೊರಗೆ << "    SYSTEMC            = " << V3Os::getenvStr("SYSTEMC", "") << "\n";
+    ಹೊರಗೆ << "    SYSTEMC_ARCH       = " << V3Os::getenvStr("SYSTEMC_ARCH", "") << "\n";
+    ಹೊರಗೆ << "    SYSTEMC_INCLUDE    = " << V3Os::getenvStr("SYSTEMC_INCLUDE", "") << "\n";
+    ಹೊರಗೆ << "    SYSTEMC_LIBDIR     = " << V3Os::getenvStr("SYSTEMC_LIBDIR", "") << "\n";
     // wrapper uses VERILATOR_BIN
-    cout << "    VERILATOR_BIN      = " << V3Os::getenvStr("VERILATOR_BIN", "") << "\n";
-    cout << "    VERILATOR_ROOT     = " << V3Os::getenvStr("VERILATOR_ROOT", "") << "\n";
-    cout << "    VERILATOR_SOLVER   = " << V3Os::getenvStr("VERILATOR_SOLVER", "") << "\n";
+    ಹೊರಗೆ << "    VERILATOR_BIN      = " << V3Os::getenvStr("VERILATOR_BIN", "") << "\n";
+    ಹೊರಗೆ << "    VERILATOR_ROOT     = " << V3Os::getenvStr("VERILATOR_ROOT", "") << "\n";
+    ಹೊರಗೆ << "    VERILATOR_SOLVER   = " << V3Os::getenvStr("VERILATOR_SOLVER", "") << "\n";
 
     // If update below, also update V3Options::getSupported()
-    cout << "\n";
-    cout << "Supported features (compiled-in or forced by environment):\n";
-    cout << "    COROUTINES         = " << getSupported("COROUTINES") << "\n";
-    cout << "    SYSTEMC            = " << getSupported("SYSTEMC") << "\n";
-    cout << "    TSAN               = " << getSupported("TSAN") << "\n";
+    ಹೊರಗೆ << "\n";
+    ಹೊರಗೆ << "Supported features (compiled-in or forced by environment):\n";
+    ಹೊರಗೆ << "    COROUTINES         = " << getSupported("COROUTINES") << "\n";
+    ಹೊರಗೆ << "    SYSTEMC            = " << getSupported("SYSTEMC") << "\n";
+    ಹೊರಗೆ << "    TSAN               = " << getSupported("TSAN") << "\n";
 }
 
 //======================================================================
 
 V3Options::V3Options() {
-    m_impp = new V3OptionsImp;
+    m_impp = ಹೊಸ V3OptionsImp;
 
     m_coverageFsmExpand = VFsmExpandType::AUTO;  // Auto is a default global default
     m_makeDir = "obj_dir";
-    m_unusedRegexp = "*unused*";
-    m_xAssign = "fast";
+    m_ಬಳಸದ_Regexp = "*unused*";
+    m_x_ನಿಯೋಜಿಸು = "fast";
     m_xInitial = "unique";
 
-    m_defaultLanguage = V3LangCode::mostRecent();
+    m_defaultLanguage = V3_Lang_ಸಂಕೇತ::mostRecent();
 
-    VName::maxLength(128);  // Linux filename limits 256; leave half for prefix
+    VName::max_ಉದ್ದಳತೆ(128);  // Linux filename limits 256; leave half for prefix
 
     optimize(1);
     // Default +libext+
-    addLibExtV("");  // So include "filename.v" will find the same file
-    addLibExtV(".v");
-    addLibExtV(".sv");
+    ಕೂಡಿಸು_Lib_Ext_V("");  // So include "filename.v" will find the same file
+    ಕೂಡಿಸು_Lib_Ext_V(".v");
+    ಕೂಡಿಸು_Lib_Ext_V(".sv");
     // Default -I
-    addIncDirFallback(".");  // Looks better than {long_cwd_path}/...
+    ಕೂಡಿಸು_Inc_Dir_Fallback(".");  // Looks better than {long_cwd_path}/...
 }
 
-V3Options::~V3Options() { VL_DO_CLEAR(delete m_impp, m_impp = nullptr); }
+V3Options::~V3Options() { VL_DO_CLEAR(ಅಳಿಸು m_impp, m_impp = ಶೂನ್ಯಸೂಚಕ); }
 
-void V3Options::setDebugMode(int level) {
+ಶೂನ್ಯ V3Options::ಗಣ_Debug_ಬಹುಲಕ(ಪೂರ್ಣಾಂಕ level) {
     V3Error::debugDefault(level);
-    if (!m_dumpLevel.count("tree")) m_dumpLevel["tree"] = 3;  // Don't override if already set.
-    m_stats = true;
-    m_debugCheck = true;
-    if (level) {
-        cout << "- Starting " << version() << "\n";
+    ಆದರೆ (!m_dumpLevel.ಎಣಿಕೆ_2("tree")) m_dumpLevel["tree"] = 3;  // Don't override if already set.
+    m_stats = ನಿಜ;
+    m_debugCheck = ನಿಜ;
+    ಆದರೆ (level) {
+        ಹೊರಗೆ << "- Starting " << ಆವೃತ್ತಿ() << "\n";
         UINFO(1, "Current working directory (CWD) is " << V3Os::cwd());
     }
 }
 
-unsigned V3Options::debugLevel(const string& tag) const VL_MT_SAFE {
-    const auto iter = m_debugLevel.find(tag);
-    return iter != m_debugLevel.end() ? iter->second : V3Error::debugDefault();
+ಚಿಹ್ನೆರಹಿತ V3Options::debugLevel(ಸ್ಥಿರಾಂಕ string& ಟ್ಯಾಗ್) ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ iter = m_debugLevel.ಕಂಡುಹಿಡಿ(ಟ್ಯಾಗ್);
+    ಹಿಂತಿರುಗಿ iter != m_debugLevel.ಕೊನೆ() ? iter->ಎರಡನೇ : V3Error::debugDefault();
 }
 
-unsigned V3Options::debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE {
+ಚಿಹ್ನೆರಹಿತ V3Options::debugSrcLevel(ಸ್ಥಿರಾಂಕ string& srcfile_ಮಾರ್ಗ) ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
     // For simplicity, calling functions can just use __FILE__ for srcfile.
     // That means we need to strip the filenames: ../Foo.cpp -> Foo
-    return debugLevel(V3Os::filenameNonDirExt(srcfile_path));
+    ಹಿಂತಿರುಗಿ debugLevel(V3Os::filenameNonDirExt(srcfile_ಮಾರ್ಗ));
 }
 
-unsigned V3Options::dumpLevel(const string& tag) const VL_MT_SAFE {
-    const auto iter = m_dumpLevel.find(tag);
-    return iter != m_dumpLevel.end() ? iter->second : 0;
+ಚಿಹ್ನೆರಹಿತ V3Options::dumpLevel(ಸ್ಥಿರಾಂಕ string& ಟ್ಯಾಗ್) ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    ಸ್ಥಿರಾಂಕ ಸ್ವಯಂಚಾಲಿತ iter = m_dumpLevel.ಕಂಡುಹಿಡಿ(ಟ್ಯಾಗ್);
+    ಹಿಂತಿರುಗಿ iter != m_dumpLevel.ಕೊನೆ() ? iter->ಎರಡನೇ : 0;
 }
 
-unsigned V3Options::dumpSrcLevel(const string& srcfile_path) const VL_MT_SAFE {
+ಚಿಹ್ನೆರಹಿತ V3Options::dumpSrcLevel(ಸ್ಥಿರಾಂಕ string& srcfile_ಮಾರ್ಗ) ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
     // For simplicity, calling functions can just use __FILE__ for srcfile.
     // That means we need to strip the filenames: ../Foo.cpp -> Foo
-    return dumpLevel(V3Os::filenameNonDirExt(srcfile_path));
+    ಹಿಂತಿರುಗಿ dumpLevel(V3Os::filenameNonDirExt(srcfile_ಮಾರ್ಗ));
 }
 
-bool V3Options::dumpTreeAddrids() const VL_MT_SAFE {
-    static int s_level = -1;
-    if (VL_UNLIKELY(s_level < 0)) {
-        const unsigned value = dumpLevel("tree-addrids");
-        if (!available()) return value > 0;
-        s_level = static_cast<unsigned>(value);
+ತಾರ್ಕಿಕ V3Options::dump_ವೃಕ್ಷ_Addrids() ಸ್ಥಿರಾಂಕ VL_MT_ಸುರಕ್ಷಿತ {
+    ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ s_level = -1;
+    ಆದರೆ (VL_UNLIKELY(s_level < 0)) {
+        ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ಮೌಲ್ಯ = dumpLevel("tree-addrids");
+        ಆದರೆ (!ಲಭ್ಯ()) ಹಿಂತಿರುಗಿ ಮೌಲ್ಯ > 0;
+        s_level = static_cast<ಚಿಹ್ನೆರಹಿತ>(ಮೌಲ್ಯ);
     }
-    return s_level > 0;
+    ಹಿಂತಿರುಗಿ s_level > 0;
 }
 
-void V3Options::optimize(int level) {
+ಶೂನ್ಯ V3Options::optimize(ಪೂರ್ಣಾಂಕ level) {
     // Set all optimizations to on/off
-    const bool flag = level > 0;
+    ಸ್ಥಿರಾಂಕ ತಾರ್ಕಿಕ flag = level > 0;
     m_fAcycSimp = flag;
     m_fAssemble = flag;
-    m_fBitScanLoops = flag;
+    m_f_ಬಿಟ್_ಪರಿಶೀಲನೆ_Loops = flag;
     m_fBitblast = flag;
     m_fCaseDecoder = flag;
-    m_fCaseTable = flag;
-    m_fCaseTree = flag;
+    m_f_Case_ಕೋಷ್ಟಕ = flag;
+    m_f_Case_ವೃಕ್ಷ = flag;
     m_fCombine = flag;
     m_fConst = flag;
-    m_fConstBitOpTree = flag;
+    m_f_Const_ಬಿಟ್_Op_ವೃಕ್ಷ = flag;
     m_fDedupe = flag;
     m_fDfg = flag;
     m_fDeadAssigns = flag;
@@ -2450,15 +2450,15 @@ void V3Options::optimize(int level) {
     m_fLife = flag;
     m_fLifePost = flag;
     m_fLocalize = flag;
-    m_fMergeCond = flag;
+    m_f_ವಿಲೀನ_Cond = flag;
     m_fReloop = flag;
     m_fReorder = flag;
-    m_fSplit = flag;
+    m_f_ವಿಭಜಿಸು = flag;
     m_fSubst = flag;
     m_fSubstConst = flag;
-    m_fTable = flag;
+    m_f_ಕೋಷ್ಟಕ = flag;
     // And set specific optimization levels
-    if (level >= 3) {
+    ಆದರೆ (level >= 3) {
         m_inlineMult = -1;  // Maximum inlining
     }
 }

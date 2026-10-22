@@ -15,105 +15,105 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTUSERALLOCATOR_H_
-#define VERILATOR_V3ASTUSERALLOCATOR_H_
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ VERILATOR_V3ASTUSERALLOCATOR_H_
+#ವ್ಯಾಖ್ಯಾನಿಸು VERILATOR_V3ASTUSERALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ಅನ್ತರ್ಭಾವ "config_build.h"
+#ಅನ್ತರ್ಭಾವ "verilatedos.h"
 
-#include "V3Ast.h"
+#ಅನ್ತರ್ಭಾವ "V3Ast.h"
 
-#include <type_traits>
-#include <utility>
-#include <vector>
+#ಅನ್ತರ್ಭಾವ <type_traits>
+#ಅನ್ತರ್ಭಾವ <utility>
+#ಅನ್ತರ್ಭಾವ <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
-class AstUserAllocatorBase VL_NOT_FINAL {
+ಮಾದರಿ <typename T_ಗಂಟು, typename T_ದತ್ತಾಂಶ, ಪೂರ್ಣಾಂಕ N_UserN>
+class Ast_User_Allocator_ತಳ VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
-    static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
+    static_assert(std::is_ತಳ_ದ<Ast_ಗಂಟು, T_ಗಂಟು>::ಮೌಲ್ಯ, "T_Node must be an AstNode type");
 
-private:
-    std::deque<T_Data> m_allocated;
+ಖಾಸಗಿ:
+    std::deque<T_ದತ್ತಾಂಶ> m_allocated;
 
-    T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
-            const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+    T_ದತ್ತಾಂಶ* getUserp(ಸ್ಥಿರಾಂಕ T_ಗಂಟು* nodep) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            ಸ್ಥಿರಾಂಕ VNUser user = nodep->user1u();
+            ಹಿಂತಿರುಗಿ user.ಗಮ್ಯ<T_ದತ್ತಾಂಶ*>();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            ಸ್ಥಿರಾಂಕ VNUser user = nodep->user2u();
+            ಹಿಂತಿರುಗಿ user.ಗಮ್ಯ<T_ದತ್ತಾಂಶ*>();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            ಸ್ಥಿರಾಂಕ VNUser user = nodep->user3u();
+            ಹಿಂತಿರುಗಿ user.ಗಮ್ಯ<T_ದತ್ತಾಂಶ*>();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            ಸ್ಥಿರಾಂಕ VNUser user = nodep->user4u();
+            ಹಿಂತಿರುಗಿ user.ಗಮ್ಯ<T_ದತ್ತಾಂಶ*>();
         }
     }
 
-    void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+    ಶೂನ್ಯ ಗಣ_Userp(T_ಗಂಟು* nodep, T_ದತ್ತಾಂಶ* userp) ಸ್ಥಿರಾಂಕ {
+        ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } ಇಲ್ಲದಿದ್ದರೆ {
             nodep->user4u(VNUser{userp});
         }
     }
 
-protected:
-    AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            VNUser3InUse::check();
-        } else {
-            VNUser4InUse::check();
+ಸಂರಕ್ಷಿತ:
+    Ast_User_Allocator_ತಳ() {
+        ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            VNUser1_ಒಳ_Use::check();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            VNUser2_ಒಳ_Use::check();
+        } ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            VNUser3_ಒಳ_Use::check();
+        } ಇಲ್ಲದಿದ್ದರೆ {
+            VNUser4_ಒಳ_Use::check();
         }
     }
 
-    VL_UNCOPYABLE(AstUserAllocatorBase);
+    VL_UNCOPYABLE(Ast_User_Allocator_ತಳ);
 
-public:
+ಸಾರ್ವಜನಿಕ:
     // Get a reference to the user data. If does not exist, construct it with given arguments.
-    template <typename... Args>
-    T_Data& operator()(T_Node* nodep, Args&&... args) {
-        T_Data* userp = getUserp(nodep);
-        if (!userp) {
-            m_allocated.emplace_back(std::forward<Args>(args)...);
-            userp = &m_allocated.back();
-            setUserp(nodep, userp);
+    ಮಾದರಿ <typename... ವಾದಗಳು_2>
+    T_ದತ್ತಾಂಶ& ಕ್ರಿಯಾಕಾರಕ()(T_ಗಂಟು* nodep, ವಾದಗಳು_2&&... ವಾದಗಳು) {
+        T_ದತ್ತಾಂಶ* userp = getUserp(nodep);
+        ಆದರೆ (!userp) {
+            m_allocated.emplace_ಹಿಂಭಾಗ(std::forward<ವಾದಗಳು_2>(ವಾದಗಳು)...);
+            userp = &m_allocated.ಹಿಂಭಾಗ();
+            ಗಣ_Userp(nodep, userp);
         }
-        return *userp;
+        ಹಿಂತಿರುಗಿ *userp;
     }
 
     // Get a reference to the user data
-    T_Data& operator()(const T_Node* nodep) const {
-        T_Data* const userp = getUserp(nodep);
+    T_ದತ್ತಾಂಶ& ಕ್ರಿಯಾಕಾರಕ()(ಸ್ಥಿರಾಂಕ T_ಗಂಟು* nodep) ಸ್ಥಿರಾಂಕ {
+        T_ದತ್ತಾಂಶ* ಸ್ಥಿರಾಂಕ userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        ಹಿಂತಿರುಗಿ *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_ದತ್ತಾಂಶ* tryGet(ಸ್ಥಿರಾಂಕ T_ಗಂಟು* nodep) ಸ್ಥಿರಾಂಕ { ಹಿಂತಿರುಗಿ getUserp(nodep); }
 
-    void clear() { m_allocated.clear(); }
+    ಶೂನ್ಯ clear() { m_allocated.clear(); }
 };
 
 // User pointer allocator classes. T_Node is the type of node the allocator should be applied to
 // and is there for a bit of extra type safety. T_Data is the type of the data structure
 // managed by the allocator.
-template <typename T_Node, typename T_Data>
-class AstUser1Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 1> {};
-template <typename T_Node, typename T_Data>
-class AstUser2Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 2> {};
-template <typename T_Node, typename T_Data>
-class AstUser3Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 3> {};
-template <typename T_Node, typename T_Data>
-class AstUser4Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 4> {};
+ಮಾದರಿ <typename T_ಗಂಟು, typename T_ದತ್ತಾಂಶ>
+class AstUser1Allocator final : ಸಾರ್ವಜನಿಕ Ast_User_Allocator_ತಳ<T_ಗಂಟು, T_ದತ್ತಾಂಶ, 1> {};
+ಮಾದರಿ <typename T_ಗಂಟು, typename T_ದತ್ತಾಂಶ>
+class AstUser2Allocator final : ಸಾರ್ವಜನಿಕ Ast_User_Allocator_ತಳ<T_ಗಂಟು, T_ದತ್ತಾಂಶ, 2> {};
+ಮಾದರಿ <typename T_ಗಂಟು, typename T_ದತ್ತಾಂಶ>
+class AstUser3Allocator final : ಸಾರ್ವಜನಿಕ Ast_User_Allocator_ತಳ<T_ಗಂಟು, T_ದತ್ತಾಂಶ, 3> {};
+ಮಾದರಿ <typename T_ಗಂಟು, typename T_ದತ್ತಾಂಶ>
+class AstUser4Allocator final : ಸಾರ್ವಜನಿಕ Ast_User_Allocator_ತಳ<T_ಗಂಟು, T_ದತ್ತಾಂಶ, 4> {};
 
-#endif  // Guard
+#ಆದರೆ_ಅಂತ್ಯ  // Guard
