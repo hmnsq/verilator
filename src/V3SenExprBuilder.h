@@ -30,7 +30,7 @@
 class SenExprBuilder final {
 public:
     // TYPES
-    struct Results final {
+    sa_nracanaa Results final {
         std::vector<AstNodeStmt*> m_inits;  // Initialization statements for previous values
         std::vector<AstNodeStmt*> m_preUpdates;  // Pre update assignments
         std::vector<AstNodeStmt*> m_postUpdates;  // Post update assignments
@@ -56,18 +56,18 @@ private:
 
     static bool isSupportedDType(AstNodeDType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, BasicDType)) return true;
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (VN_IS(dtypep, UnpackArrayDType)) return isSupportedDType(dtypep->subDTypep());
-        if (VN_IS(dtypep, NodeUOrStructDType)) return true;  // All are packed at the moment
+        ᱡᱩᱫᱤ (VN_IS(dtypep, BasicDType)) ᱨᱩᱣᱟᱹᱲ true;
+        ᱡᱩᱫᱤ (VN_IS(dtypep, PackArrayDType)) ᱨᱩᱣᱟᱹᱲ true;
+        ᱡᱩᱫᱤ (VN_IS(dtypep, UnpackArrayDType)) ᱨᱩᱣᱟᱹᱲ isSupportedDType(dtypep->subDTypep());
+        ᱡᱩᱫᱤ (VN_IS(dtypep, NodeUOrStructDType)) ᱨᱩᱣᱟᱹᱲ true;  // All are packed at the moment
         // Per IEEE, detects reference object pointer changes, not contents of the class changes
-        if (VN_IS(dtypep, ClassRefDType)) return true;
-        return false;
+        ᱡᱩᱫᱤ (VN_IS(dtypep, ClassRefDType)) ᱨᱩᱣᱟᱹᱲ true;
+        ᱨᱩᱣᱟᱹᱲ false;
     }
 
     static bool isSimpleExpr(const AstNode* const exprp) {
-        return exprp->forall([](const AstNode* const nodep) {
-            return VN_IS(nodep, Const) || VN_IS(nodep, NodeVarRef) || VN_IS(nodep, Sel)
+        ᱨᱩᱣᱟᱹᱲ exprp->forall([](const AstNode* const nodep) {
+            ᱨᱩᱣᱟᱹᱲ VN_IS(nodep, Const) || VN_IS(nodep, NodeVarRef) || VN_IS(nodep, Sel)
                    || VN_IS(nodep, NodeSel) || VN_IS(nodep, MemberSel)
                    || VN_IS(nodep, CMethodHard);
         });
@@ -75,18 +75,18 @@ private:
 
     // Whether a reference may be null: a class reference or a virtual interface
     static bool isNullableRef(const AstNodeExpr* const refp) {
-        if (!refp->dtypep()) return false;
+        ᱡᱩᱫᱤ (!refp->dtypep()) ᱨᱩᱣᱟᱹᱲ false;
         const AstNodeDType* const dtypep = refp->dtypep()->skipRefp();
         const AstIfaceRefDType* const ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
-        return VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
+        ᱨᱩᱣᱟᱹᱲ VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
     }
 
     // Check if expression contains a member access through a reference that could be null
     // (e.g., accessing an event through a class reference that may not be initialized)
     static bool hasNullableMemberAccess(const AstNode* const exprp) {
-        return exprp && exprp->exists([](const AstNode* const nodep) {
+        ᱨᱩᱣᱟᱹᱲ exprp && exprp->exists([](const AstNode* const nodep) {
             const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel);
-            return mselp && isNullableRef(mselp->fromp());
+            ᱨᱩᱣᱟᱹᱲ mselp && isNullableRef(mselp->fromp());
         });
     }
 
@@ -94,34 +94,34 @@ private:
     // Returns the outermost reference that needs to be null-checked
     // Note: Returns a pointer into the original tree - caller must clone if needed
     static const AstNodeExpr* getBaseNullableRef(const AstNodeExpr* exprp) {
-        while (exprp) {
-            if (const AstMemberSel* const mselp = VN_CAST(exprp, MemberSel)) {
+        ᱡᱚᱠᱷᱚᱱ (exprp) {
+            ᱡᱩᱫᱤ (const AstMemberSel* const mselp = VN_CAST(exprp, MemberSel)) {
                 const AstNodeExpr* const fromp = mselp->fromp();
-                if (isNullableRef(fromp)) {
+                ᱡᱩᱫᱤ (isNullableRef(fromp)) {
                     // Check if the base itself has a member access through a nullable reference
-                    if (hasNullableMemberAccess(fromp)) {
+                    ᱡᱩᱫᱤ (hasNullableMemberAccess(fromp)) {
                         exprp = fromp;
                         continue;
                     }
-                    return fromp;
+                    ᱨᱩᱣᱟᱹᱲ fromp;
                 }
                 exprp = fromp;
-            } else {
-                return nullptr;
+            } ᱵᱟᱝ {
+                ᱨᱩᱣᱟᱹᱲ nullptr;
             }
         }
-        return nullptr;
+        ᱨᱩᱣᱟᱹᱲ nullptr;
     }
 
     // METHODS
     AstVarScope* crateTemp(AstNodeExpr* exprp) {
         // For readability, use the scoped signal name if the trigger is a simple AstVarRef
         string name;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
+        ᱡᱩᱫᱤ (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
             AstVarScope* const vscp = refp->varScopep();
             name = "__" + vscp->scopep()->nameDotless() + "__" + vscp->varp()->name();
             name = m_prevNames.get(name);
-        } else {
+        } ᱵᱟᱝ {
             name = m_prevNames.get(exprp);
         }
         // Not shared between instances, as the users might move the variables into processes
@@ -132,25 +132,25 @@ private:
         AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
         m_scopep->addVarsp(vscp);
         m_results.m_vars.push_back(varp);
-        return vscp;
+        ᱨᱩᱣᱟᱹᱲ vscp;
     }
 
     // Helper to wrap a statement with a null check: if (baseRef != null) stmt
     AstNodeStmt* wrapStmtWithNullCheck(FileLine* flp, AstNodeStmt* stmtp,
                                        const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return stmtp;
+        ᱡᱩᱫᱤ (!baseRefp) ᱨᱩᱣᱟᱹᱲ stmtp;
         AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
         AstNodeExpr* const checkp
             = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        return new AstIf{flp, checkp, stmtp};
+        ᱨᱩᱣᱟᱹᱲ new AstIf{flp, checkp, stmtp};
     }
 
     // Helper to wrap a trigger expression with a null check if needed
     // Returns the expression wrapped in: (baseRef != null) ? expr : 0
     AstNodeExpr* wrapExprWithNullCheck(FileLine* flp, AstNodeExpr* exprp,
                                        const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return exprp;
+        ᱡᱩᱫᱤ (!baseRefp) ᱨᱩᱣᱟᱹᱲ exprp;
         AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
         AstNodeExpr* const checkp
@@ -158,17 +158,17 @@ private:
         AstNodeExpr* const falsep = new AstConst{flp, AstConst::BitFalse{}};
         AstNodeExpr* const condp = new AstCond{flp, checkp, exprp, falsep};
         condp->dtypeSetBit();
-        return condp;
+        ᱨᱩᱣᱟᱹᱲ condp;
     }
 
     AstNodeExpr* getCurr(AstNodeExpr* exprp) {
         // For simple expressions like varrefs or selects, just use them directly
-        if (isSimpleExpr(exprp)) return exprp->cloneTree(false);
+        ᱡᱩᱫᱤ (isSimpleExpr(exprp)) ᱨᱩᱣᱟᱹᱲ exprp->cloneTree(false);
 
         // Create the 'current value' variable
         FileLine* const flp = exprp->fileline();
         auto result = m_curr.emplace(*exprp, nullptr);
-        if (result.second) result.first->second = crateTemp(exprp);
+        ᱡᱩᱫᱤ (result.second) result.first->second = crateTemp(exprp);
         AstVarScope* const currp = result.first->second;
 
         // Check if we need null guards for a member access through a nullable reference
@@ -176,29 +176,29 @@ private:
             = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
 
         // Add pre update if it does not exist yet in this round
-        if (m_hasPreUpdate.emplace(*currp).second) {
+        ᱡᱩᱫᱤ (m_hasPreUpdate.emplace(*currp).second) {
             m_results.m_preUpdates.push_back(
                 wrapStmtWithNullCheck(flp,
                                       new AstAssign{flp, new AstVarRef{flp, currp, VAccess::WRITE},
                                                     exprp->cloneTree(false)},
                                       baseRefp));
         }
-        return new AstVarRef{flp, currp, VAccess::READ};
+        ᱨᱩᱣᱟᱹᱲ new AstVarRef{flp, currp, VAccess::READ};
     }
 
     AstVarScope* getPrev(AstNodeExpr* exprp) {
         FileLine* const flp = exprp->fileline();
-        const auto rdCurr = [this, exprp]() { return getCurr(exprp); };
+        const auto rdCurr = [this, exprp]() { ᱨᱩᱣᱟᱹᱲ getCurr(exprp); };
 
         // Check if we need null guards for a member access through a nullable reference
         const AstNodeExpr* const baseRefp
             = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
 
         AstNode* scopeExprp = exprp;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
+        ᱡᱩᱫᱤ (AstVarRef* const refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
         // Create the 'previous value' variable
         const auto pair = m_prev.emplace(*scopeExprp, nullptr);
-        if (pair.second) {
+        ᱡᱩᱫᱤ (pair.second) {
             AstVarScope* const prevp = crateTemp(exprp);
             pair.first->second = prevp;
             // Add the initializer init (guarded if through a nullable reference)
@@ -209,33 +209,33 @@ private:
 
         AstVarScope* const prevp = pair.first->second;
 
-        const auto wrPrev = [=]() { return new AstVarRef{flp, prevp, VAccess::WRITE}; };
+        const auto wrPrev = [=]() { ᱨᱩᱣᱟᱹᱲ new AstVarRef{flp, prevp, VAccess::WRITE}; };
 
         // Add post update if it does not exist yet
-        if (m_hasPostUpdate.emplace(*exprp).second) {
+        ᱡᱩᱫᱤ (m_hasPostUpdate.emplace(*exprp).second) {
             AstNodeDType* const exprDtp = exprp->dtypep()->skipRefp();
-            if (!isSupportedDType(exprDtp)) {
+            ᱡᱩᱫᱤ (!isSupportedDType(exprDtp)) {
                 exprp->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Cannot detect changes on expression of complex type "
                         << exprDtp->prettyDTypeNameQ() << "\n"
                         << exprp->warnMore()
                         << "... May be caused by combinational cycles reported with UNOPTFLAT");
-                return prevp;
+                ᱨᱩᱣᱟᱹᱲ prevp;
             }
-            if (VN_IS(exprDtp, UnpackArrayDType)) {
+            ᱡᱩᱫᱤ (VN_IS(exprDtp, UnpackArrayDType)) {
                 AstCMethodHard* const cmhp
                     = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ASSIGN, rdCurr()};
                 cmhp->dtypeSetVoid();
                 m_results.m_postUpdates.push_back(
                     wrapStmtWithNullCheck(flp, cmhp->makeStmt(), baseRefp));
-            } else {
+            } ᱵᱟᱝ {
                 m_results.m_postUpdates.push_back(
                     wrapStmtWithNullCheck(flp, new AstAssign{flp, wrPrev(), rdCurr()}, baseRefp));
             }
         }
 
-        return prevp;
+        ᱨᱩᱣᱟᱹᱲ prevp;
     }
 
     std::pair<AstNodeExpr*, bool> createTerm(const AstSenItem* senItemp) {
@@ -248,42 +248,42 @@ private:
         const AstNodeExpr* const baseRefp
             = hasNullableMemberAccess(senp) ? getBaseNullableRef(senp) : nullptr;
 
-        const auto currp = [this, senp]() { return getCurr(senp); };
+        const auto currp = [this, senp]() { ᱨᱩᱣᱟᱹᱲ getCurr(senp); };
         const auto prevp
-            = [this, flp, senp]() { return new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
-        const auto lsb = [=](AstNodeExpr* opp) { return new AstSel{flp, opp, 0, 1}; };
+            = [this, flp, senp]() { ᱨᱩᱣᱟᱹᱲ new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
+        const auto lsb = [=](AstNodeExpr* opp) { ᱨᱩᱣᱟᱹᱲ new AstSel{flp, opp, 0, 1}; };
 
         // All event signals should be 1-bit at this point
         switch (senItemp->edgeType()) {
-        case VEdgeType::ET_CHANGED:
-        case VEdgeType::ET_HYBRID:  //
-            if (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
+        pak_sa VEdgeType::ET_CHANGED:
+        pak_sa VEdgeType::ET_HYBRID:  //
+            ᱡᱩᱫᱤ (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // operand order reversed to avoid calling neq() method on non-VlUnpacked type, see
                 // issue #5125
                 AstCMethodHard* const resultp
                     = new AstCMethodHard{flp, prevp(), VCMethod::UNPACKED_NEQ, currp()};
                 resultp->dtypeSetBit();
-                return {wrapExprWithNullCheck(flp, resultp, baseRefp), true};
+                ᱨᱩᱣᱟᱹᱲ {wrapExprWithNullCheck(flp, resultp, baseRefp), true};
             }
-            return {wrapExprWithNullCheck(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
-        case VEdgeType::ET_BOTHEDGE:  //
-            return {wrapExprWithNullCheck(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
+            ᱨᱩᱣᱟᱹᱲ {wrapExprWithNullCheck(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
+        pak_sa VEdgeType::ET_BOTHEDGE:  //
+            ᱨᱩᱣᱟᱹᱲ {wrapExprWithNullCheck(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
                     false};
-        case VEdgeType::ET_POSEDGE:  //
-            return {wrapExprWithNullCheck(
+        pak_sa VEdgeType::ET_POSEDGE:  //
+            ᱨᱩᱣᱟᱹᱲ {wrapExprWithNullCheck(
                         flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), baseRefp),
                     false};
-        case VEdgeType::ET_NEGEDGE:  //
-            return {wrapExprWithNullCheck(
+        pak_sa VEdgeType::ET_NEGEDGE:  //
+            ᱨᱩᱣᱟᱹᱲ {wrapExprWithNullCheck(
                         flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), baseRefp),
                     false};
-        case VEdgeType::ET_EVENT: {
+        pak_sa VEdgeType::ET_EVENT: {
             UASSERT_OBJ(v3Global.hasEvents(), senItemp, "Inconsistent");
 
             // Clear 'fired' state when done (guarded if through a nullable reference)
             // The event is modified, so the select (e.g. assoc array) must be an lvalue
             AstNodeExpr* const clearFromp = currp();
-            if (AstNodeVarRef* const refp
+            ᱡᱩᱫᱤ (AstNodeVarRef* const refp
                 = VN_CAST(clearFromp->getVAccessTargetRecurse(), NodeVarRef)) {
                 refp->access(VAccess::WRITE);
             }
@@ -300,9 +300,9 @@ private:
                 = new AstCMethodHard{flp, currp(), VCMethod::EVENT_IS_FIRED};
             callp->dtypeSetBit();
             AstNodeExpr* const firedp = wrapExprWithNullCheck(flp, callp, baseRefp);
-            if (const AstVarRef* const refp = VN_CAST(senp, VarRef)) {
+            ᱡᱩᱫᱤ (const AstVarRef* const refp = VN_CAST(senp, VarRef)) {
                 // The private NBA event must run so pending assignments finish settling.
-                if (refp->varScopep() == v3Global.rootp()->nbaEventp()) return {firedp, false};
+                ᱡᱩᱫᱤ (refp->varScopep() == v3Global.rootp()->nbaEventp()) ᱨᱩᱣᱟᱹᱲ {firedp, false};
             }
             // Do not trigger user named-event processes after $finish.
             AstNodeExpr* const notFinishp
@@ -310,15 +310,15 @@ private:
                                "VL_LIKELY(!vlSymsp->_vm_contextp__->gotFinish() && "
                                "!vlSymsp->_vm_contextp__->finishPending())",
                                1};
-            return {new AstLogAnd{flp, notFinishp, firedp}, false};
+            ᱨᱩᱣᱟᱹᱲ {new AstLogAnd{flp, notFinishp, firedp}, false};
         }
-        case VEdgeType::ET_TRUE:  //
-            return {currp(), false};
-        case VEdgeType::ET_INITIAL_NBA:  //
-            return {new AstConst{flp, AstConst::BitFalse{}}, true};
+        pak_sa VEdgeType::ET_TRUE:  //
+            ᱨᱩᱣᱟᱹᱲ {currp(), false};
+        pak_sa VEdgeType::ET_INITIAL_NBA:  //
+            ᱨᱩᱣᱟᱹᱲ {new AstConst{flp, AstConst::BitFalse{}}, true};
         default:  // LCOV_EXCL_START
             senItemp->v3fatalSrc("Unknown edge type");
-            return {nullptr, false};
+            ᱨᱩᱣᱟᱹᱲ {nullptr, false};
         }  // LCOV_EXCL_STOP
     }
 
@@ -327,10 +327,10 @@ public:
     // this trigger should be fired on the first evaluation (at initialization)
     std::pair<AstNodeExpr*, bool> build(const AstSenItem* senItemp) {
         auto term = createTerm(senItemp);
-        if (AstNodeExpr* const condp = senItemp->condp()) {
+        ᱡᱩᱫᱤ (AstNodeExpr* const condp = senItemp->condp()) {
             term.first = new AstAnd{senItemp->fileline(), condp->cloneTreePure(false), term.first};
         }
-        return term;
+        ᱨᱩᱣᱟᱹᱲ term;
     }
 
     // Like above, but for a whole SenTree
@@ -341,12 +341,12 @@ public:
         for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
              senItemp = VN_AS(senItemp->nextp(), SenItem)) {
             const auto& pair = build(senItemp);
-            if (AstNodeExpr* termp = pair.first) {
+            ᱡᱩᱫᱤ (AstNodeExpr* termp = pair.first) {
                 resultp = resultp ? new AstOr{flp, resultp, termp} : termp;
                 firedAtInitialization |= pair.second;
             }
         }
-        return {resultp, firedAtInitialization};
+        ᱨᱩᱣᱟᱹᱲ {resultp, firedAtInitialization};
     }
 
     Results getResultsAndClearUpdates() {
@@ -354,7 +354,7 @@ public:
         m_hasPostUpdate.clear();
         Results ans = std::move(m_results);
         m_results = {};
-        return ans;
+        ᱨᱩᱣᱟᱹᱲ ans;
     }
 
     Results getAndClearResults() {
@@ -362,7 +362,7 @@ public:
         m_prev.clear();
         m_hasPreUpdate.clear();
         m_hasPostUpdate.clear();
-        return std::move(m_results);
+        ᱨᱩᱣᱟᱹᱲ std::move(m_results);
     }
 
     // CONSTRUCTOR

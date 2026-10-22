@@ -59,7 +59,7 @@ public:
     AstVar* m_handlep = nullptr;  // Class handle for holding variables of dynamic scope
 
     // True if the instance exists
-    bool initialized() const { return m_classp != nullptr; }
+    bool initialized() const { ᱨᱩᱣᱟᱹᱲ m_classp != nullptr; }
 };
 
 class ForkDynScopeFrame final {
@@ -95,26 +95,26 @@ public:
         m_instance.m_handlep->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
         UINFO(9, "new dynscope var " << m_instance.m_handlep);
 
-        return m_instance;
+        ᱨᱩᱣᱟᱹᱲ m_instance;
     }
 
-    const ForkDynScopeInstance& instance() const { return m_instance; }
+    const ForkDynScopeInstance& instance() const { ᱨᱩᱣᱟᱹᱲ m_instance; }
     void captureVarInsert(AstVar* varp) {
         auto r = m_captures.emplace(varp);
-        if (r.second) m_captureOrder.push_back(varp);
+        ᱡᱩᱫᱤ (r.second) m_captureOrder.push_back(varp);
     }
-    bool captured(AstVar* varp) { return m_captures.count(varp) != 0; }
-    AstNode* procp() const { return m_procp; }
+    bool captured(AstVar* varp) { ᱨᱩᱣᱟᱹᱲ m_captures.count(varp) != 0; }
+    AstNode* procp() const { ᱨᱩᱣᱟᱹᱲ m_procp; }
 
     void populateClass() {
         UASSERT_OBJ(m_instance.initialized(), m_procp, "No DynScope prototype");
 
         // Move variables into the class
         for (AstVar* varp : m_captureOrder) {
-            if (varp->direction().isAny()) {
+            ᱡᱩᱫᱤ (varp->direction().isAny()) {
                 varp = varp->cloneTree(false);
                 varp->direction(VDirection::NONE);
-            } else {
+            } ᱵᱟᱝ {
                 varp->unlinkFrBack();
             }
             varp->funcLocal(false);
@@ -138,9 +138,9 @@ public:
         UASSERT_OBJ(m_instance.initialized(), m_procp, "No dynamic scope prototype");
         UASSERT_OBJ(!linked(), m_instance.m_handlep, "Handle already linked");
 
-        if (AstFork* const forkp = VN_CAST(m_procp, Fork)) {
+        ᱡᱩᱫᱤ (AstFork* const forkp = VN_CAST(m_procp, Fork)) {
             linkNodesOfFork(memberMap, forkp);
-            return;
+            ᱨᱩᱣᱟᱹᱲ;
         }
 
         AstNode* stmtp = getProcStmts();
@@ -150,7 +150,7 @@ public:
 
         // Find node after last variable declaration
         AstNode* initp = stmtp;
-        while (initp && VN_IS(initp, Var)) initp = initp->nextp();
+        ᱡᱚᱠᱷᱚᱱ (initp && VN_IS(initp, Var)) initp = initp->nextp();
         UASSERT(stmtp, "Procedure lacks body");
         UASSERT(initp, "Procedure lacks statements besides declarations");
 
@@ -165,9 +165,9 @@ public:
 
         AstNode* initsp = nullptr;  // Arguments need to be copied
         for (AstVar* varp : m_captureOrder) {
-            if (!varp->direction().isAny()) continue;
+            ᱡᱩᱫᱤ (!varp->direction().isAny()) continue;
 
-            if (varp->direction().isNonOutput()) {
+            ᱡᱩᱫᱤ (varp->direction().isNonOutput()) {
                 AstMemberSel* const memberselp = new AstMemberSel{
                     varp->fileline(),
                     new AstVarRef{varp->fileline(), m_instance.m_handlep, VAccess::WRITE},
@@ -178,12 +178,12 @@ public:
                 initsp = AstNode::addNext(initsp, initAsgnp);
             }
 
-            if (AstBasicDType* const dtypep = VN_CAST(varp->dtypep()->skipRefp(), BasicDType)) {
+            ᱡᱩᱫᱤ (AstBasicDType* const dtypep = VN_CAST(varp->dtypep()->skipRefp(), BasicDType)) {
                 v3Global.setAssignsEvents();
-                if (dtypep->isEvent()) continue;
+                ᱡᱩᱫᱤ (dtypep->isEvent()) continue;
             }
 
-            if (varp->direction().isWritable()) {
+            ᱡᱩᱫᱤ (varp->direction().isWritable()) {
                 AstMemberSel* const memberselp = new AstMemberSel{
                     varp->fileline(),
                     new AstVarRef{varp->fileline(), m_instance.m_handlep, VAccess::READ},
@@ -194,11 +194,11 @@ public:
                 stmtp = AstNode::addNext(stmtp, writebackAsgnp);
             }
         }
-        if (initsp) AstNode::addNext(asgnp, initsp);
+        ᱡᱩᱫᱤ (initsp) AstNode::addNext(asgnp, initsp);
 
-        if (initp != stmtp) {
+        ᱡᱩᱫᱤ (initp != stmtp) {
             initp->addHereThisAsNext(asgnp);
-        } else {
+        } ᱵᱟᱝ {
             AstNode::addNext(asgnp, static_cast<AstNode*>(initp));
             stmtp = asgnp;
         }
@@ -208,7 +208,7 @@ public:
         m_modp->addStmtsp(m_instance.m_classp);
     }
 
-    bool linked() const { return m_instance.initialized() && m_instance.m_handlep->backp(); }
+    bool linked() const { ᱨᱩᱣᱟᱹᱲ m_instance.initialized() && m_instance.m_handlep->backp(); }
 
 private:
     AstAssign* instantiateDynScope(VMemberMap& memberMap) {
@@ -217,7 +217,7 @@ private:
         newp->dtypep(m_instance.m_refDTypep);
         newp->classOrPackagep(m_instance.m_classp);
 
-        return new AstAssign{
+        ᱨᱩᱣᱟᱹᱲ new AstAssign{
             m_procp->fileline(),
             new AstVarRef{m_procp->fileline(), m_instance.m_handlep, VAccess::WRITE}, newp};
     }
@@ -233,30 +233,30 @@ private:
         // Create the dynamic scope in the Begin
         beginp->addStmtsp(instantiateDynScope(memberMap));
         // Move all sequential statements there
-        if (forkp->stmtsp()) beginp->addStmtsp(forkp->stmtsp()->unlinkFrBackWithNext());
+        ᱡᱩᱫᱤ (forkp->stmtsp()) beginp->addStmtsp(forkp->stmtsp()->unlinkFrBackWithNext());
         // Put the Fork back at the end of the Begin
         beginp->addStmtsp(forkp);
         m_modp->addStmtsp(m_instance.m_classp);
     }
 
-    string generateDynScopeClassName() { return "__VDynScope_" + cvtToStr(m_class_id); }
+    string generateDynScopeClassName() { ᱨᱩᱣᱟᱹᱲ "__VDynScope_" + cvtToStr(m_class_id); }
 
     string generateDynScopeHandleName(const AstNode* fromp) {
-        return "__VDynScope_" + (!fromp->name().empty() ? (fromp->name() + "_") : "ANON_")
+        ᱨᱩᱣᱟᱹᱲ "__VDynScope_" + (!fromp->name().empty() ? (fromp->name() + "_") : "ANON_")
                + cvtToStr(m_id);
     }
 
     AstNode* getProcStmts() {
         AstNode* stmtsp = nullptr;
-        if (!m_procp) return nullptr;
-        if (AstBegin* const beginp = VN_CAST(m_procp, Begin)) {
+        ᱡᱩᱫᱤ (!m_procp) ᱨᱩᱣᱟᱹᱲ nullptr;
+        ᱡᱩᱫᱤ (AstBegin* const beginp = VN_CAST(m_procp, Begin)) {
             stmtsp = beginp->stmtsp();
-        } else if (AstNodeFTask* const taskp = VN_CAST(m_procp, NodeFTask)) {
+        } ᱵᱟᱝ ᱡᱩᱫᱤ (AstNodeFTask* const taskp = VN_CAST(m_procp, NodeFTask)) {
             stmtsp = taskp->stmtsp();
-        } else {
+        } ᱵᱟᱝ {
             m_procp->v3fatalSrc("m_procp is not a begin block or a procedure");
         }
-        return stmtsp;
+        ᱨᱩᱣᱟᱹᱲ stmtsp;
     }
 };
 
@@ -291,14 +291,14 @@ class DynScopeVisitor final : public VNVisitor {
 
     ForkDynScopeFrame* frameOf(AstNode* nodep) {
         auto frameIt = m_frames.find(nodep);
-        if (frameIt == m_frames.end()) return nullptr;
-        return frameIt->second;
+        ᱡᱩᱫᱤ (frameIt == m_frames.end()) ᱨᱩᱣᱟᱹᱲ nullptr;
+        ᱨᱩᱣᱟᱹᱲ frameIt->second;
     }
 
     const ForkDynScopeFrame* frameOf(AstNode* nodep) const {
         auto frameIt = m_frames.find(nodep);
-        if (frameIt == m_frames.end()) return nullptr;
-        return frameIt->second;
+        ᱡᱩᱫᱤ (frameIt == m_frames.end()) ᱨᱩᱣᱟᱹᱲ nullptr;
+        ᱨᱩᱣᱟᱹᱲ frameIt->second;
     }
 
     ForkDynScopeFrame* pushDynScopeFrame(AstNode* procp) {
@@ -307,7 +307,7 @@ class DynScopeVisitor final : public VNVisitor {
         auto r = m_frames.emplace(procp, framep);
         UASSERT_OBJ(r.second, m_modp, "Procedure already contains a frame");
         m_frameOrder.push_back(procp);
-        return framep;
+        ᱨᱩᱣᱟᱹᱲ framep;
     }
 
     void replaceWithMemberSel(AstVarRef* refp, const ForkDynScopeInstance& dynScope) {
@@ -316,10 +316,10 @@ class DynScopeVisitor final : public VNVisitor {
         AstMemberSel* const membersel = new AstMemberSel{
             refp->fileline(), new AstVarRef{refp->fileline(), dynScope.m_handlep, refp->access()},
             refp->varp()};
-        if (refp->varp()->direction().isAny()) {
+        ᱡᱩᱫᱤ (refp->varp()->direction().isAny()) {
             membersel->varp(
                 VN_AS(m_memberMap.findMember(dynScope.m_classp, refp->varp()->name()), Var));
-        } else {
+        } ᱵᱟᱝ {
             membersel->varp(refp->varp());
         }
         handle.relink(membersel);
@@ -327,28 +327,28 @@ class DynScopeVisitor final : public VNVisitor {
     }
 
     static bool hasAsyncFork(AstNode* nodep) {
-        return nodep->exists([](AstFork* forkp) { return !forkp->joinType().join(); })
-               || nodep->exists([](AstAssignDly*) { return true; });
+        ᱨᱩᱣᱟᱹᱲ nodep->exists([](AstFork* forkp) { ᱨᱩᱣᱟᱹᱲ !forkp->joinType().join(); })
+               || nodep->exists([](AstAssignDly*) { ᱨᱩᱣᱟᱹᱲ true; });
     }
 
     void bindNodeToDynScope(AstNode* nodep, ForkDynScopeFrame* framep) {
         auto r = m_frames.emplace(nodep, framep);
-        if (r.second) m_frameOrder.push_back(nodep);
+        ᱡᱩᱫᱤ (r.second) m_frameOrder.push_back(nodep);
     }
     void bindInitIterate(AstNode* stmtsp, ForkDynScopeFrame* framep) {
         for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
-            if (AstAssign* const asgnp = VN_CAST(stmtp, Assign)) {
+            ᱡᱩᱫᱤ (AstAssign* const asgnp = VN_CAST(stmtp, Assign)) {
                 bindNodeToDynScope(asgnp->lhsp(), framep);
                 iterate(asgnp->rhsp());
-            } else if (AstInitialAutomaticStmt* astmtp
+            } ᱵᱟᱝ ᱡᱩᱫᱤ (AstInitialAutomaticStmt* astmtp
                        = VN_CAST(stmtp, InitialAutomaticStmt)) {  // Moves in V3Begin
                 // Underlying assign RHS might use function argument, so can't just
                 // move whole thing into the new class's constructor/statements
                 bindInitIterate(astmtp->stmtsp(), framep);
-            } else if (AstInitialStaticStmt* astmtp
+            } ᱵᱟᱝ ᱡᱩᱫᱤ (AstInitialStaticStmt* astmtp
                        = VN_CAST(stmtp, InitialStaticStmt)) {  // Moves in V3Begin
                 bindInitIterate(astmtp->stmtsp(), framep);
-            } else {
+            } ᱵᱟᱝ {
                 stmtp->v3fatalSrc("Invalid node under block item initialization part of fork");
             }
         }
@@ -356,7 +356,7 @@ class DynScopeVisitor final : public VNVisitor {
 
     bool needsDynScope(const AstVarRef* refp) const {
         const AstVar* const varp = refp->varp();
-        return
+        ᱨᱩᱣᱟᱹᱲ
             // Can this variable escape the scope
             ((m_forkDepth > varp->user1()) && varp->isFuncLocal())
             && varp->lifetime().isAutomatic()
@@ -370,7 +370,7 @@ class DynScopeVisitor final : public VNVisitor {
     // VISITORS
     void visit(AstNodeModule* nodep) override {
         VL_RESTORER(m_modp);
-        if (!VN_IS(nodep, Class)) m_modp = nodep;
+        ᱡᱩᱫᱤ (!VN_IS(nodep, Class)) m_modp = nodep;
         VL_RESTORER(m_id);
         m_id = 0;
         iterateChildren(nodep);
@@ -380,31 +380,31 @@ class DynScopeVisitor final : public VNVisitor {
         m_procp = nodep;
         VL_RESTORER(m_inFunc);
         m_inFunc = VN_IS(nodep, Func);
-        if (hasAsyncFork(nodep)) pushDynScopeFrame(m_procp);
+        ᱡᱩᱫᱤ (hasAsyncFork(nodep)) pushDynScopeFrame(m_procp);
         iterateChildren(nodep);
     }
     void visit(AstBegin* nodep) override {
         VL_RESTORER(m_procp);
         m_procp = nodep;
-        if (hasAsyncFork(nodep)) pushDynScopeFrame(m_procp);
+        ᱡᱩᱫᱤ (hasAsyncFork(nodep)) pushDynScopeFrame(m_procp);
         iterateChildren(nodep);
     }
     void visit(AstFork* nodep) override {
         VL_RESTORER(m_forkDepth);
-        if (!nodep->joinType().join()) ++m_forkDepth;
+        ᱡᱩᱫᱤ (!nodep->joinType().join()) ++m_forkDepth;
 
         const bool oldAfterTimingControl = m_afterTimingControl;
 
         ForkDynScopeFrame* framep = nullptr;
-        if (nodep->declsp() || nodep->stmtsp()) framep = pushDynScopeFrame(nodep);
+        ᱡᱩᱫᱤ (nodep->declsp() || nodep->stmtsp()) framep = pushDynScopeFrame(nodep);
 
         // This can be probably optimized to detect cases in which dynscopes could be avoided
         for (AstNode* declp = nodep->declsp(); declp; declp = declp->nextp()) {
             AstVar* const varp = VN_CAST(declp, Var);
             UASSERT_OBJ(varp, declp, "Invalid node under block item initialization part of fork");
             UASSERT_OBJ(!varp->lifetime().isNone(), nodep, "Variable's lifetime is unknown");
-            if (varp->lifetime().isAutomatic()) {  // else V3Begin will move later
-                if (!framep->instance().initialized()) framep->createInstancePrototype();
+            ᱡᱩᱫᱤ (varp->lifetime().isAutomatic()) {  // else V3Begin will move later
+                ᱡᱩᱫᱤ (!framep->instance().initialized()) framep->createInstancePrototype();
                 framep->captureVarInsert(varp);
                 bindNodeToDynScope(varp, framep);
             }
@@ -416,7 +416,7 @@ class DynScopeVisitor final : public VNVisitor {
             iterate(stmtp);
         }
         m_afterTimingControl = oldAfterTimingControl;
-        if (nodep->isTimingControl()) m_afterTimingControl = true;
+        ᱡᱩᱫᱤ (nodep->isTimingControl()) m_afterTimingControl = true;
     }
     void visit(AstNodeFTaskRef* nodep) override {
         visit(static_cast<AstNodeExpr*>(nodep));
@@ -428,19 +428,19 @@ class DynScopeVisitor final : public VNVisitor {
     void visit(AstVar* nodep) override {
         nodep->user1(m_forkDepth);
         ForkDynScopeFrame* const framep = frameOf(m_procp);
-        if (!framep) return;  // Cannot be legally referenced from a fork
+        ᱡᱩᱫᱤ (!framep) ᱨᱩᱣᱟᱹᱲ;  // Cannot be legally referenced from a fork
         bindNodeToDynScope(nodep, framep);
     }
     void visit(AstVarRef* nodep) override {
         ForkDynScopeFrame* const framep = frameOf(nodep->varp());
-        if (!framep) return;
-        if (needsDynScope(nodep)) {
+        ᱡᱩᱫᱤ (!framep) ᱨᱩᱣᱟᱹᱲ;
+        ᱡᱩᱫᱤ (needsDynScope(nodep)) {
             bool isEvent = false;
-            if (AstBasicDType* const dtypep = VN_CAST(nodep->dtypep()->skipRefp(), BasicDType)) {
+            ᱡᱩᱫᱤ (AstBasicDType* const dtypep = VN_CAST(nodep->dtypep()->skipRefp(), BasicDType)) {
                 v3Global.setAssignsEvents();
                 isEvent = dtypep->isEvent();
             }
-            if (!isEvent && m_afterTimingControl && nodep->varp()->isWritable()
+            ᱡᱩᱫᱤ (!isEvent && m_afterTimingControl && nodep->varp()->isWritable()
                 && nodep->access().isWriteOrRW()) {
                 // The output variable may not exist after a delay, so we can't just write to it
                 nodep->v3error(
@@ -449,22 +449,22 @@ class DynScopeVisitor final : public VNVisitor {
                     << (m_inFunc ? "function" : "task")
                     << " after a timing control is not allowed (IEEE 1800-2023 13.2.2)");
             }
-            if (!framep->instance().initialized()) framep->createInstancePrototype();
+            ᱡᱩᱫᱤ (!framep->instance().initialized()) framep->createInstancePrototype();
             framep->captureVarInsert(nodep->varp());
         }
         bindNodeToDynScope(nodep, framep);
     }
     void visit(AstAssign* nodep) override {
-        if (VN_IS(nodep->lhsp(), VarRef) && nodep->lhsp()->isClassHandleValue()) {
+        ᱡᱩᱫᱤ (VN_IS(nodep->lhsp(), VarRef) && nodep->lhsp()->isClassHandleValue()) {
             nodep->lhsp()->user2(true);
         }
         visit(static_cast<AstNodeStmt*>(nodep));
     }
     void visit(AstAssignDly* nodep) override {
-        if (m_procp && !nodep->user2()  // Unhandled AssignDly in function/task
+        ᱡᱩᱫᱤ (m_procp && !nodep->user2()  // Unhandled AssignDly in function/task
             && nodep->lhsp()->exists(  // And writes to a local variable
                 [](AstVarRef* refp) {
-                    return refp->access().isWriteOrRW() && refp->varp()->isFuncLocal();
+                    ᱨᱩᱣᱟᱹᱲ refp->access().isWriteOrRW() && refp->varp()->isFuncLocal();
                 })) {
             nodep->user2(true);
             // Put it in a fork to prevent lifetime issues with the local
@@ -473,12 +473,12 @@ class DynScopeVisitor final : public VNVisitor {
             nodep->replaceWith(forkp);
             forkp->addForksp(new AstBegin{flp, "", nodep, false});
             UINFO(9, "assign new fork " << forkp);
-        } else {
+        } ᱵᱟᱝ {
             visit(static_cast<AstNodeStmt*>(nodep));
         }
     }
     void visit(AstNode* nodep) override {
-        if (nodep->isTimingControl()) m_afterTimingControl = true;
+        ᱡᱩᱫᱤ (nodep->isTimingControl()) m_afterTimingControl = true;
         iterateChildren(nodep);
     }
 
@@ -495,18 +495,18 @@ public:
             auto frameIt = m_frames.find(orderp);
             UASSERT_OBJ(frameIt != m_frames.end(), orderp, "m_frames didn't contain m_frameOrder");
             ForkDynScopeFrame* framep = frameIt->second;
-            if (!framep->instance().initialized()) continue;
-            if (!framep->linked()) {
+            ᱡᱩᱫᱤ (!framep->instance().initialized()) continue;
+            ᱡᱩᱫᱤ (!framep->linked()) {
                 framep->populateClass();
                 framep->linkNodes(m_memberMap);
                 typesAdded = true;
             }
-            if (AstVarRef* const refp = VN_CAST(frameIt->first, VarRef)) {
-                if (framep->captured(refp->varp())) replaceWithMemberSel(refp, framep->instance());
+            ᱡᱩᱫᱤ (AstVarRef* const refp = VN_CAST(frameIt->first, VarRef)) {
+                ᱡᱩᱫᱤ (framep->captured(refp->varp())) replaceWithMemberSel(refp, framep->instance());
             }
         }
 
-        if (typesAdded) v3Global.rootp()->typeTablep()->repairCache();
+        ᱡᱩᱫᱤ (typesAdded) v3Global.rootp()->typeTablep()->repairCache();
     }
     ~DynScopeVisitor() override {
         std::set<ForkDynScopeFrame*> frames;
@@ -542,9 +542,9 @@ class ForkVisitor final : public VNVisitor {
     AstVar* capture(AstVarRef* refp) {
         AstVar* varp = nullptr;
         for (varp = m_capturedVarsp; varp; varp = VN_AS(varp->nextp(), Var)) {
-            if (varp->name() == refp->name()) break;
+            ᱡᱩᱫᱤ (varp->name() == refp->name()) bha_nga;
         }
-        if (varp) return varp;
+        ᱡᱩᱫᱤ (varp) ᱨᱩᱣᱟᱹᱲ varp;
 
         // Create a local copy to capture
         FileLine* const flp = refp->fileline();
@@ -556,7 +556,7 @@ class ForkVisitor final : public VNVisitor {
         // Pass variable as argument
         AstArg* const argp = new AstArg{flp, refp->name(), refp->cloneTree(false)};
         m_capturedArgsp = AstNode::addNext(m_capturedArgsp, argp);
-        return varp;
+        ᱨᱩᱣᱟᱹᱲ varp;
     }
 
     // Wrap body of the given Begin (an AstFork branch), in an AstTask, and
@@ -573,20 +573,20 @@ class ForkVisitor final : public VNVisitor {
         iterate(beginp);
 
         // No need to do it if no variabels are captured
-        if (m_forkLocalsp.empty() && !m_capturedVarsp && !v3Global.opt.fTaskifyAll()) return false;
+        ᱡᱩᱫᱤ (m_forkLocalsp.empty() && !m_capturedVarsp && !v3Global.opt.fTaskifyAll()) ᱨᱩᱣᱟᱹᱲ false;
 
         // Create task holding the statement and repalce statement with call to that task
         FileLine* const flp = beginp->fileline();
         const std::string name = "__VforkTask_" + std::to_string(m_nForkTasks++);
         AstTask* const taskp = new AstTask{flp, name, m_capturedVarsp};
         // A branch that spawns another process must hand its captured variables over to it
-        if (m_hasNestedFork) {
+        ᱡᱩᱫᱤ (m_hasNestedFork) {
             taskp->classMethod(VN_IS(m_modp, Class));
             taskp->isStatic(m_ftaskp && m_ftaskp->isStatic());
         }
         m_tasksp = AstNode::addNext(m_tasksp, taskp);
-        if (beginp->declsp()) taskp->addStmtsp(beginp->declsp()->unlinkFrBackWithNext());
-        if (beginp->stmtsp()) taskp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
+        ᱡᱩᱫᱤ (beginp->declsp()) taskp->addStmtsp(beginp->declsp()->unlinkFrBackWithNext());
+        ᱡᱩᱫᱤ (beginp->stmtsp()) taskp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
         AstTaskRef* const callp = new AstTaskRef{flp, taskp, m_capturedArgsp};
         beginp->addStmtsp(callp->makeStmt());
 
@@ -594,47 +594,47 @@ class ForkVisitor final : public VNVisitor {
         for (AstVar* const localp : m_forkLocalsp) localp->funcLocal(true);
 
         // We did wrap the body
-        return true;
+        ᱨᱩᱣᱟᱹᱲ true;
     }
     static bool isForkJoinNoneSentinelDelay(const AstNode* const nodep) {
         const AstDelay* const delayp = VN_CAST(nodep, Delay);
-        if (!delayp) return false;
+        ᱡᱩᱫᱤ (!delayp) ᱨᱩᱣᱟᱹᱲ false;
         const AstConst* const constp = VN_CAST(delayp->lhsp(), Const);
-        return constp && (constp->toUQuad() == std::numeric_limits<uint64_t>::max());
+        ᱨᱩᱣᱟᱹᱲ constp && (constp->toUQuad() == std::numeric_limits<uint64_t>::max());
     }
     static bool isDisableQueuePushSelfPrefix(AstNode* nodep) {
-        while (AstJumpBlock* const jumpBlockp = VN_CAST(nodep, JumpBlock)) {
+        ᱡᱚᱠᱷᱚᱱ (AstJumpBlock* const jumpBlockp = VN_CAST(nodep, JumpBlock)) {
             nodep = jumpBlockp->stmtsp();
         }
-        return nodep && nodep->isDisableQueuePushSelfStmt();
+        ᱨᱩᱣᱟᱹᱲ nodep && nodep->isDisableQueuePushSelfStmt();
     }
     template <typename T_Owner>
     static bool insertForkSentinelAfterDisableQueuePushes(T_Owner* const ownerp,
                                                           AstNode* const firstStmtp,
                                                           AstNode* const delayp) {
         AstNode* insertBeforep = firstStmtp;
-        while (insertBeforep && insertBeforep->isDisableQueuePushSelfStmt()) {
+        ᱡᱚᱠᱷᱚᱱ (insertBeforep && insertBeforep->isDisableQueuePushSelfStmt()) {
             insertBeforep = insertBeforep->nextp();
         }
-        if (AstJumpBlock* const jumpBlockp = VN_CAST(insertBeforep, JumpBlock)) {
-            if (insertForkSentinelAfterDisableQueuePushes(jumpBlockp, jumpBlockp->stmtsp(),
+        ᱡᱩᱫᱤ (AstJumpBlock* const jumpBlockp = VN_CAST(insertBeforep, JumpBlock)) {
+            ᱡᱩᱫᱤ (insertForkSentinelAfterDisableQueuePushes(jumpBlockp, jumpBlockp->stmtsp(),
                                                           delayp)) {
-                return true;
+                ᱨᱩᱣᱟᱹᱲ true;
             }
         }
-        if (insertBeforep == firstStmtp) return false;
-        if (insertBeforep) {
+        ᱡᱩᱫᱤ (insertBeforep == firstStmtp) ᱨᱩᱣᱟᱹᱲ false;
+        ᱡᱩᱫᱤ (insertBeforep) {
             insertBeforep->addHereThisAsNext(delayp);
-        } else {
+        } ᱵᱟᱝ {
             ownerp->addStmtsp(delayp);
         }
-        return true;
+        ᱨᱩᱣᱟᱹᱲ true;
     }
     static void moveForkSentinelAfterDisableQueuePushes(AstBegin* const beginp) {
         AstNode* const firstStmtp = beginp->stmtsp();
-        if (!isForkJoinNoneSentinelDelay(firstStmtp)) return;
+        ᱡᱩᱫᱤ (!isForkJoinNoneSentinelDelay(firstStmtp)) ᱨᱩᱣᱟᱹᱲ;
         AstNode* const afterSentinelp = firstStmtp->nextp();
-        if (!isDisableQueuePushSelfPrefix(afterSentinelp)) return;
+        ᱡᱩᱫᱤ (!isDisableQueuePushSelfPrefix(afterSentinelp)) ᱨᱩᱣᱟᱹᱲ;
 
         AstNode* const delayp = firstStmtp->unlinkFrBack();
         const bool moved
@@ -643,9 +643,9 @@ class ForkVisitor final : public VNVisitor {
     }
     static bool forkIsDisableable(AstFork* const nodep) {
         for (AstBegin* itemp = nodep->forksp(); itemp; itemp = VN_AS(itemp->nextp(), Begin)) {
-            if (isDisableQueuePushSelfPrefix(itemp->stmtsp())) return true;
+            ᱡᱩᱫᱤ (isDisableQueuePushSelfPrefix(itemp->stmtsp())) ᱨᱩᱣᱟᱹᱲ true;
         }
-        return false;
+        ᱨᱩᱣᱟᱹᱲ false;
     }
 
     // VISITORS
@@ -658,7 +658,7 @@ class ForkVisitor final : public VNVisitor {
         m_tasksp = nullptr;
         iterateChildren(nodep);
         // Add extracted tasks, they don't need to be visited again
-        if (m_tasksp) nodep->addStmtsp(m_tasksp);
+        ᱡᱩᱫᱤ (m_tasksp) nodep->addStmtsp(m_tasksp);
     }
 
     void visit(AstFork* nodep) override {
@@ -670,7 +670,7 @@ class ForkVisitor final : public VNVisitor {
         // deferral for every join type so all branches register their processes before any branch
         // body can disable the block. Compiler-generated immediate-start forks already have the
         // required ordering and must arm their event controls before the parent continues.
-        if ((nodep->joinType().joinNone() && !nodep->immediateStart())
+        ᱡᱩᱫᱤ ((nodep->joinType().joinNone() && !nodep->immediateStart())
             || forkIsDisableable(nodep)) {
             UINFO(9, "Adding fork branch start sentinels " << nodep);
             FileLine* fl = nodep->fileline();
@@ -678,7 +678,7 @@ class ForkVisitor final : public VNVisitor {
             // ACTIVE region with a delay value of 0.
             for (AstBegin *itemp = nodep->forksp(), *nextp; itemp; itemp = nextp) {
                 nextp = VN_AS(itemp->nextp(), Begin);
-                if (!itemp->stmtsp()) continue;
+                ᱡᱩᱫᱤ (!itemp->stmtsp()) continue;
                 AstDelay* const delayp = new AstDelay{
                     fl,
                     new AstConst{fl, AstConst::Unsized64{}, std::numeric_limits<uint64_t>::max()},
@@ -696,9 +696,9 @@ class ForkVisitor final : public VNVisitor {
         // recurse to process any forks nested inside the branches. join_any and join_none
         // branches may outlive the fork, so each branch body is wrapped in a task that
         // captures the variables it references.
-        if (nodep->joinType().join()) {
+        ᱡᱩᱫᱤ (nodep->joinType().join()) {
             iterateAndNextNull(nodep->forksp());
-            return;
+            ᱨᱩᱣᱟᱹᱲ;
         }
 
         std::vector<AstBegin*> wrappedp;
@@ -706,7 +706,7 @@ class ForkVisitor final : public VNVisitor {
             VL_RESTORER(m_inFork);
             m_inFork = true;
             for (AstBegin* itemp = nodep->forksp(); itemp; itemp = VN_AS(itemp->nextp(), Begin)) {
-                if (taskify(itemp)) wrappedp.push_back(itemp);
+                ᱡᱩᱫᱤ (taskify(itemp)) wrappedp.push_back(itemp);
             }
         }
         // Analyze replacements in context of enclosing fork
@@ -718,21 +718,21 @@ class ForkVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
     void visit(AstVar* nodep) override {
-        if (m_inFork) m_forkLocalsp.insert(nodep);
+        ᱡᱩᱫᱤ (m_inFork) m_forkLocalsp.insert(nodep);
     }
     void visit(AstVarRef* nodep) override {
-        if (!m_inFork) return;
+        ᱡᱩᱫᱤ (!m_inFork) ᱨᱩᱣᱟᱹᱲ;
         AstVar* const varp = nodep->varp();
         // Not sure why this is OK ...
-        if (!varp->isFuncLocal() && varp->isClassMember()) return;
+        ᱡᱩᱫᱤ (!varp->isFuncLocal() && varp->isClassMember()) ᱨᱩᱣᱟᱹᱲ;
         // We must know the lifetime at this point, otherwise we can't decide if need to capture
         UASSERT_OBJ(!varp->lifetime().isNone(), nodep, "Variable's lifetime is unknown");
         // Static variables are fine, they are always availabel
-        if (varp->lifetime().isStatic()) return;
+        ᱡᱩᱫᱤ (varp->lifetime().isStatic()) ᱨᱩᱣᱟᱹᱲ;
         // If this ref is to a variable that will move into the task, then nothing to do
-        if (m_forkLocalsp.count(varp)) return;
+        ᱡᱩᱫᱤ (m_forkLocalsp.count(varp)) ᱨᱩᱣᱟᱹᱲ;
 
-        if (nodep->access().isWriteOrRW() && (!nodep->isClassHandleValue() || nodep->user2())
+        ᱡᱩᱫᱤ (nodep->access().isWriteOrRW() && (!nodep->isClassHandleValue() || nodep->user2())
             && !m_inInitStmt) {
             nodep->v3warn(
                 E_LIFETIME,
@@ -742,14 +742,14 @@ class ForkVisitor final : public VNVisitor {
                     << "... Suggest use it as read-only to initialize a local copy at the "
                        "beginning of the process, or declare it as static. It is also "
                        "possible to refer by reference to objects and their members.");
-            return;
+            ᱨᱩᱣᱟᱹᱲ;
         }
 
         // Capture variable and redirect reference to the capturede copy
         nodep->varp(capture(nodep));
     }
     void visit(AstAssign* nodep) override {
-        if (VN_IS(nodep->lhsp(), VarRef) && nodep->lhsp()->isClassHandleValue()) {
+        ᱡᱩᱫᱤ (VN_IS(nodep->lhsp(), VarRef) && nodep->lhsp()->isClassHandleValue()) {
             nodep->lhsp()->user2(true);
         }
         iterateChildren(nodep);

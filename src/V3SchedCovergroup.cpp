@@ -52,7 +52,7 @@ void CovergroupRefBindings::addConstruction(const AstClass* classp, const AstVar
     classBindings.insert(classBindings.end(), bindings.begin(), bindings.end());
     // Note this creates an entry even when 'bindings' is empty, so that a handle binding
     // nothing stays distinguishable from a handle we know nothing about
-    if (instp) {
+    ᱡᱩᱫᱤ (instp) {
         Bindings& instBindings = m_byInstance[instp];
         instBindings.insert(instBindings.end(), bindings.begin(), bindings.end());
     }
@@ -60,20 +60,20 @@ void CovergroupRefBindings::addConstruction(const AstClass* classp, const AstVar
 
 const CovergroupRefBindings::Bindings&
 CovergroupRefBindings::forSample(const AstVarScope* instp, const AstClass* classp) const {
-    if (instp) {
+    ᱡᱩᱫᱤ (instp) {
         const auto it = m_byInstance.find(instp);
-        if (it != m_byInstance.end()) {
+        ᱡᱩᱫᱤ (it != m_byInstance.end()) {
             ++m_numExactCalls;
-            return it->second;
+            ᱨᱩᱣᱟᱹᱲ it->second;
         }
     }
     const auto it = m_byClass.find(classp);
-    if (it != m_byClass.end()) {
+    ᱡᱩᱫᱤ (it != m_byClass.end()) {
         ++m_numUnionCalls;
-        return it->second;
+        ᱨᱩᱣᱟᱹᱲ it->second;
     }
     // A covergroup with no reference formal at all
-    return s_none;
+    ᱨᱩᱣᱟᱹᱲ s_none;
 }
 
 class CovergroupRefBindVisitor final : public VNVisitorConst {
@@ -88,25 +88,25 @@ class CovergroupRefBindVisitor final : public VNVisitorConst {
     // construction
     static AstClass* constructedCovergroup(const AstNodeCCall* nodep) {
         const AstCFunc* const funcp = nodep->funcp();
-        if (!funcp->isConstructor()) return nullptr;
+        ᱡᱩᱫᱤ (!funcp->isConstructor()) ᱨᱩᱣᱟᱹᱲ nullptr;
         // A constructor is a class method, so it is scoped and its scope is that of a class
         AstClass* const classp = VN_AS(funcp->scopep()->modp(), Class);
-        return classp->isCovergroup() ? classp : nullptr;
+        ᱨᱩᱣᱟᱹᱲ classp->isCovergroup() ? classp : nullptr;
     }
 
     // True if this variable holds a handle to a covergroup object
     static bool isCovergroupHandle(const AstVar* varp) {
         const AstClassRefDType* const dtypep = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-        return dtypep && dtypep->classp()->isCovergroup();
+        ᱨᱩᱣᱟᱹᱲ dtypep && dtypep->classp()->isCovergroup();
     }
 
     // True if this constructor takes a reference formal, and so has anything to bind
     static bool hasRefFormal(const AstCFunc* funcp) {
         for (AstNode* portp = funcp->argsp(); portp; portp = portp->nextp()) {
             const AstVar* const varp = VN_AS(portp, Var);
-            if (varp->declDirection().isRef() || varp->declDirection().isConstRef()) return true;
+            ᱡᱩᱫᱤ (varp->declDirection().isRef() || varp->declDirection().isConstRef()) ᱨᱩᱣᱟᱹᱲ true;
         }
-        return false;
+        ᱨᱩᱣᱟᱹᱲ false;
     }
 
     // Record one construction of 'classp' assigning to 'instp' (nullptr if not identified).
@@ -114,7 +114,7 @@ class CovergroupRefBindVisitor final : public VNVisitorConst {
     // that an entry with no bindings means only 'this handle binds nothing a sample() reads'.
     void recordConstruction(AstNodeCCall* nodep, const AstClass* classp,
                             const AstVarScope* instp) {
-        if (!hasRefFormal(nodep->funcp())) return;
+        ᱡᱩᱫᱤ (!hasRefFormal(nodep->funcp())) ᱨᱩᱣᱟᱹᱲ;
         CovergroupRefBindings::Bindings bindings;
         // Actuals correspond one to one, in order, with the function's argument variables.
         // A constructor returns void, so none of them is a return value variable.
@@ -123,7 +123,7 @@ class CovergroupRefBindVisitor final : public VNVisitorConst {
             AstNode* const thisActualp = actualp;
             actualp = actualp->nextp();
             const AstVar* const varp = VN_AS(portp, Var);
-            if (!varp->declDirection().isRef() && !varp->declDirection().isConstRef()) continue;
+            ᱡᱩᱫᱤ (!varp->declDirection().isRef() && !varp->declDirection().isConstRef()) continue;
             // A 'ref' actual is an lvalue expression, so it need not be a plain variable
             // reference. Bind every variable it names: for 'sigs[0]' that is 'sigs', which is
             // exact rather than approximate, as V3Order models the whole array as one
@@ -142,9 +142,9 @@ class CovergroupRefBindVisitor final : public VNVisitorConst {
         AstCNew* const cnewp = VN_CAST(nodep->rhsp(), CNew);
         AstVarRef* const lhsRefp = VN_CAST(nodep->lhsp(), VarRef);
         AstClass* const classp = cnewp && lhsRefp ? constructedCovergroup(cnewp) : nullptr;
-        if (!classp) {
+        ᱡᱩᱫᱤ (!classp) {
             iterateChildrenConst(nodep);
-            return;
+            ᱨᱩᱣᱟᱹᱲ;
         }
         recordConstruction(cnewp, classp, lhsRefp->varScopep());
         // Deliberately not iterating the destination: this write is the one shape that does not
@@ -156,14 +156,14 @@ class CovergroupRefBindVisitor final : public VNVisitorConst {
         iterateChildrenConst(nodep);
         // A construction reached only here is one whose destination we could not identify, so
         // every handle of the class must assume it
-        if (const AstClass* const classp = constructedCovergroup(nodep)) {
+        ᱡᱩᱫᱤ (const AstClass* const classp = constructedCovergroup(nodep)) {
             recordConstruction(nodep, classp, nullptr);
         }
     }
 
     void visit(AstVarRef* nodep) override {
-        if (!nodep->access().isWriteOrRW()) return;
-        if (!isCovergroupHandle(nodep->varp())) return;
+        ᱡᱩᱫᱤ (!nodep->access().isWriteOrRW()) ᱨᱩᱣᱟᱹᱲ;
+        ᱡᱩᱫᱤ (!isCovergroupHandle(nodep->varp())) ᱨᱩᱣᱟᱹᱲ;
         m_tainted.emplace(nodep->varScopep());
     }
 
@@ -178,14 +178,14 @@ public:
     ~CovergroupRefBindVisitor() override = default;
 
     // METHODS
-    CovergroupRefBindings take_bindings() { return std::move(m_bindings); }
+    CovergroupRefBindings take_bindings() { ᱨᱩᱣᱟᱹᱲ std::move(m_bindings); }
 };
 
 const CovergroupRefBindings makeCovergroupRefBindings(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     CovergroupRefBindings bindings{};
-    if (v3Global.useCovergroup()) bindings = CovergroupRefBindVisitor{nodep}.take_bindings();
-    return bindings;
+    ᱡᱩᱫᱤ (v3Global.useCovergroup()) bindings = CovergroupRefBindVisitor{nodep}.take_bindings();
+    ᱨᱩᱣᱟᱹᱲ bindings;
 }
 
 }  // namespace V3Sched

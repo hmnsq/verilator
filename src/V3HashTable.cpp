@@ -29,7 +29,7 @@
 namespace V3HashTableInternals {
 
 // Entries that fill a table of the given capacity to its maximum load, so one more grows it
-constexpr size_t maxLoad(size_t capacity) { return capacity * LOAD_FACTOR_NUM / LOAD_FACTOR_DEN; }
+constexpr size_t maxLoad(size_t capacity) { ᱨᱩᱣᱟᱹᱲ capacity * LOAD_FACTOR_NUM / LOAD_FACTOR_DEN; }
 
 // Enough entries to grow the smallest table twice, that is, to fill four times the minimum
 constexpr size_t GROWS_TWICE = maxLoad(4 * MIN_CAPACITY);
@@ -40,22 +40,22 @@ static_assert(GROWS_TWICE > maxLoad(2 * MIN_CAPACITY),
 // Set key by value
 
 void testValueKeys() {
-    struct Value final {
+    sa_nracanaa Value final {
         size_t m_hash = 0;  // Hash of this entry
         size_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value& value) const { return operator()(value.m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    sa_nracanaa Hash final {
+        size_t operator()(const Value& value) const { ᱨᱩᱣᱟᱹᱲ operator()(value.m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { ᱨᱩᱣᱟᱹᱲ hash; }
     };
 
-    struct Equal final {
+    sa_nracanaa Equal final {
         bool operator()(const Value& a, const Value& b) const {
-            return operator()(a, b.m_hash, b.m_id);
+            ᱨᱩᱣᱟᱹᱲ operator()(a, b.m_hash, b.m_id);
         }
         bool operator()(const Value& value, size_t hash, size_t id) const {
-            return value.m_hash == hash && value.m_id == id;
+            ᱨᱩᱣᱟᱹᱲ value.m_hash == hash && value.m_id == id;
         }
     };
 
@@ -148,22 +148,22 @@ void testValueKeys() {
 // Set key by pointer
 
 void testPointerKeys() {
-    struct Value final {
+    sa_nracanaa Value final {
         size_t m_hash = 0;  // Hash of this entry
         size_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    sa_nracanaa Hash final {
+        size_t operator()(const Value* valuep) const { ᱨᱩᱣᱟᱹᱲ operator()(valuep->m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { ᱨᱩᱣᱟᱹᱲ hash; }
     };
 
-    struct Equal final {
+    sa_nracanaa Equal final {
         bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+            ᱨᱩᱣᱟᱹᱲ operator()(ap, bp->m_hash, bp->m_id);
         }
         bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+            ᱨᱩᱣᱟᱹᱲ valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
@@ -258,7 +258,7 @@ void testPointerKeys() {
             UASSERT_SELFTEST(set.size(), 3);  // Exactly one was erased
             UASSERT_SELFTEST(set.find(&values[erase]) == set.end(), true);  // That one
             for (size_t i = 0; i < values.size(); ++i) {
-                if (i == erase) continue;
+                ᱡᱩᱫᱤ (i == erase) continue;
                 const Set::iterator it = set.find(hash, i);
                 UASSERT_SELFTEST(it != set.end(), true);  // The others are all there
                 UASSERT_SELFTEST(*it, &values[i]);  // Each at the entry inserted
@@ -321,7 +321,7 @@ void testPointerKeys() {
     for (const bool doReserve : {false, true}) {
         std::array<Value, 8> values{};
         Set set;
-        if (doReserve) set.reserve(values.size());
+        ᱡᱩᱫᱤ (doReserve) set.reserve(values.size());
         for (size_t i = 0; i < values.size(); ++i) {
             values[i] = Value{static_cast<size_t>(i * 1234567), i};
             set.insert(&values[i]);
@@ -342,7 +342,7 @@ void testPointerKeys() {
         for (size_t i = 0; i < N; ++i) {
             values[i] = Value{7, i};  // All of them hash the same
             const std::pair<Set::iterator, bool> pair
-                = set.insertLazy(size_t{7}, i, [&]() -> Value* { return &values[i]; });
+                = set.insertLazy(size_t{7}, i, [&]() -> Value* { ᱨᱩᱣᱟᱹᱲ &values[i]; });
             UASSERT_SELFTEST(pair.second, true);  // Created, as it was absent
             UASSERT_SELFTEST(*pair.first, &values[i]);  // And is what the factory made
         }
@@ -353,7 +353,7 @@ void testPointerKeys() {
             const std::pair<Set::iterator, bool> pair
                 = set.insertLazy(size_t{7}, i, [&]() -> Value* {
                       created = true;  // LCOV_EXCL_START
-                      return &values[i];  // LCOV_EXCL_STOP
+                      ᱨᱩᱣᱟᱹᱲ &values[i];  // LCOV_EXCL_STOP
                   });
             UASSERT_SELFTEST(created, false);  // The factory was never called
             UASSERT_SELFTEST(pair.second, false);  // As the lookup hit
@@ -419,9 +419,9 @@ void testEntryLifetime() {
         NoDefault& operator=(const NoDefault&) = delete;
         NoDefault& operator=(NoDefault&&) = delete;
 
-        size_t hash() const { return m_hash; }
-        size_t id() const { return m_id; }
-        bool operator==(const NoDefault& that) const { return m_id == that.m_id; }
+        size_t hash() const { ᱨᱩᱣᱟᱹᱲ m_hash; }
+        size_t id() const { ᱨᱩᱣᱟᱹᱲ m_id; }
+        bool operator==(const NoDefault& that) const { ᱨᱩᱣᱟᱹᱲ m_id == that.m_id; }
     };
 
     static_assert(!std::is_default_constructible<NoDefault>::value,
@@ -433,16 +433,16 @@ void testEntryLifetime() {
     static_assert(std::is_move_constructible<NoDefault>::value,
                   "SelfTest: 'NoDefault' must be move constructible, to exercise moving");
 
-    struct Hash final {
-        size_t operator()(const NoDefault& value) const { return value.hash(); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    sa_nracanaa Hash final {
+        size_t operator()(const NoDefault& value) const { ᱨᱩᱣᱟᱹᱲ value.hash(); }
+        size_t operator()(size_t hash, size_t) const { ᱨᱩᱣᱟᱹᱲ hash; }
     };
 
-    struct Equal final {
+    sa_nracanaa Equal final {
         bool operator()(const NoDefault& a, const NoDefault& b) const {
-            return operator()(a, b.hash(), b.id());
+            ᱨᱩᱣᱟᱹᱲ operator()(a, b.hash(), b.id());
         }
-        bool operator()(const NoDefault& a, size_t, size_t id) const { return a.id() == id; }
+        bool operator()(const NoDefault& a, size_t, size_t id) const { ᱨᱩᱣᱟᱹᱲ a.id() == id; }
     };
 
     using Set = V3HashSet<NoDefault, Hash, Equal>;
@@ -533,7 +533,7 @@ void testMove() {
 
     // A test entry that counts the live ones, so a move that copied an entry, dropped
     // one, or destroyed one twice, shows up in the count
-    struct Counted final {
+    sa_nracanaa Counted final {
         size_t* m_alivep;  // Where the live entries are counted
         size_t m_id;  // Entries with equal ids are equal
 
@@ -551,14 +551,14 @@ void testMove() {
         Counted& operator=(Counted&&) = delete;
     };
 
-    struct Hash final {
-        size_t operator()(const Counted& entry) const { return operator()(entry.m_id); }
-        size_t operator()(size_t id) const { return id; }
+    sa_nracanaa Hash final {
+        size_t operator()(const Counted& entry) const { ᱨᱩᱣᱟᱹᱲ operator()(entry.m_id); }
+        size_t operator()(size_t id) const { ᱨᱩᱣᱟᱹᱲ id; }
     };
 
-    struct Equal final {
-        bool operator()(const Counted& a, const Counted& b) const { return operator()(a, b.m_id); }
-        bool operator()(const Counted& a, size_t id) const { return a.m_id == id; }
+    sa_nracanaa Equal final {
+        bool operator()(const Counted& a, const Counted& b) const { ᱨᱩᱣᱟᱹᱲ operator()(a, b.m_id); }
+        bool operator()(const Counted& a, size_t id) const { ᱨᱩᱣᱟᱹᱲ a.m_id == id; }
     };
 
     using Set = V3HashSet<Counted, Hash, Equal>;
@@ -617,7 +617,7 @@ void testMoveOnlyEntries() {
         MoveOnly& operator=(MoveOnly&&) = delete;
         ~MoveOnly() = default;
 
-        size_t id() const { return m_id; }
+        size_t id() const { ᱨᱩᱣᱟᱹᱲ m_id; }
     };
 
     static_assert(!std::is_copy_constructible<MoveOnly>::value,
@@ -625,17 +625,17 @@ void testMoveOnlyEntries() {
     static_assert(std::is_move_constructible<MoveOnly>::value,
                   "SelfTest: 'MoveOnly' must be move constructible");
 
-    struct Hash final {
+    sa_nracanaa Hash final {
         // Every entry hashes the same, so they all end up in the one probe run
-        size_t operator()(const MoveOnly& value) const { return operator()(value.id()); }
-        size_t operator()(size_t) const { return 7; }
+        size_t operator()(const MoveOnly& value) const { ᱨᱩᱣᱟᱹᱲ operator()(value.id()); }
+        size_t operator()(size_t) const { ᱨᱩᱣᱟᱹᱲ 7; }
     };
 
-    struct Equal final {
+    sa_nracanaa Equal final {
         bool operator()(const MoveOnly& a, const MoveOnly& b) const {
-            return operator()(a, b.id());
+            ᱨᱩᱣᱟᱹᱲ operator()(a, b.id());
         }
-        bool operator()(const MoveOnly& a, size_t id) const { return a.id() == id; }
+        bool operator()(const MoveOnly& a, size_t id) const { ᱨᱩᱣᱟᱹᱲ a.id() == id; }
     };
 
     using Set = V3HashSet<MoveOnly, Hash, Equal>;
@@ -644,7 +644,7 @@ void testMoveOnlyEntries() {
     Set set;
     for (size_t i = 0; i < N; ++i) {
         const std::pair<Set::iterator, bool> added
-            = set.insertLazy(i, [i] { return MoveOnly{i}; });
+            = set.insertLazy(i, [i] { ᱨᱩᱣᱟᱹᱲ MoveOnly{i}; });
         UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
         UASSERT_SELFTEST(added.first->id(), i);  // Moved into the slot, never copied
     }
@@ -674,7 +674,7 @@ void testStatefulFunctors() {
     public:
         explicit Hash(size_t mask)
             : m_mask{mask} {}
-        size_t operator()(size_t value) const { return value & m_mask; }
+        size_t operator()(size_t value) const { ᱨᱩᱣᱟᱹᱲ value & m_mask; }
     };
 
     class Equal final {
@@ -683,7 +683,7 @@ void testStatefulFunctors() {
     public:
         explicit Equal(size_t mask)
             : m_mask{mask} {}
-        bool operator()(size_t a, size_t b) const { return (a & m_mask) == (b & m_mask); }
+        bool operator()(size_t a, size_t b) const { ᱨᱩᱣᱟᱹᱲ (a & m_mask) == (b & m_mask); }
     };
 
     // Neither is default constructible, so the set cannot make its own
@@ -710,22 +710,22 @@ void testStatefulFunctors() {
 
 void testBackwardShiftDeletion() {
     // A test entry with an explicit hash, so probe runs can be laid out at will
-    struct Value final {
+    sa_nracanaa Value final {
         size_t m_hash = 0;  // Hash of this entry
         size_t m_id = 0;  // Entries with equal ids are equal
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    sa_nracanaa Hash final {
+        size_t operator()(const Value* valuep) const { ᱨᱩᱣᱟᱹᱲ operator()(valuep->m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { ᱨᱩᱣᱟᱹᱲ hash; }
     };
 
-    struct Equal final {
+    sa_nracanaa Equal final {
         bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+            ᱨᱩᱣᱟᱹᱲ operator()(ap, bp->m_hash, bp->m_id);
         }
         bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+            ᱨᱩᱣᱟᱹᱲ valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
@@ -787,22 +787,22 @@ void testBackwardShiftDeletion() {
 // two invalidate iterators
 
 void testReferenceStability() {
-    struct Value final {
+    sa_nracanaa Value final {
         size_t m_hash = 0;  // Hash of this entry
         size_t m_id = 0;  // Id of this entry
     };
 
-    struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+    sa_nracanaa Hash final {
+        size_t operator()(const Value* valuep) const { ᱨᱩᱣᱟᱹᱲ operator()(valuep->m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { ᱨᱩᱣᱟᱹᱲ hash; }
     };
 
-    struct Equal final {
+    sa_nracanaa Equal final {
         bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+            ᱨᱩᱣᱟᱹᱲ operator()(ap, bp->m_hash, bp->m_id);
         }
         bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+            ᱨᱩᱣᱟᱹᱲ valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
@@ -869,14 +869,14 @@ void testReferenceStability() {
 // A pseudo random workload checked against std::set or std::map as the reference model
 
 // Only a few distinct hashes, so probe runs are long and every erase shifts entries
-struct ClusteredHash final {
-    size_t operator()(size_t value) const { return value & 0x7; }
+sa_nracanaa ClusteredHash final {
+    size_t operator()(size_t value) const { ᱨᱩᱣᱟᱹᱲ value & 0x7; }
 };
 
 // Hashes spread by a large odd multiplier, so most probe runs are short
-struct SpreadHash final {
+sa_nracanaa SpreadHash final {
     size_t operator()(size_t value) const {
-        return static_cast<size_t>(value * 0x9e3779b97f4a7c15ULL);
+        ᱨᱩᱣᱟᱹᱲ static_cast<size_t>(value * 0x9e3779b97f4a7c15ULL);
     }
 };
 
@@ -884,8 +884,8 @@ struct SpreadHash final {
 // and lookups, checking every step against a std::set holding the same entries
 template <typename T_Hash>
 void testSetAgainstModel() {
-    struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+    sa_nracanaa Equal final {
+        bool operator()(size_t a, size_t b) const { ᱨᱩᱣᱟᱹᱲ a == b; }
     };
 
     using Set = V3HashSet<size_t, T_Hash, Equal>;
@@ -897,7 +897,7 @@ void testSetAgainstModel() {
     uint64_t state = 0x123456789abcdef0ULL;
     const auto nextRand = [&state]() -> size_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        ᱨᱩᱣᱟᱹᱲ static_cast<size_t>(state >> 32);
     };
 
     Set set;
@@ -906,38 +906,38 @@ void testSetAgainstModel() {
     for (size_t step = 0; step < STEPS; ++step) {
         const size_t id = nextRand() % UNIVERSE;
         switch (nextRand() % 4) {
-        case 0: {  // Insert a copy
+        pak_sa 0: {  // Insert a copy
             const std::pair<typename Set::iterator, bool> pair = set.insert(id);
             UASSERT_SELFTEST(pair.second, model.insert(id).second);  // As the model
             UASSERT_SELFTEST(*pair.first, id);  // At the entry asked for
-            break;
+            bha_nga;
         }
-        case 1: {  // Insert lazily, which must create only on a miss
+        pak_sa 1: {  // Insert lazily, which must create only on a miss
             bool created = false;
             const std::pair<typename Set::iterator, bool> pair
                 = set.insertLazy(id, [&]() -> size_t {
                       created = true;
-                      return id;
+                      ᱨᱩᱣᱟᱹᱲ id;
                   });
             UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
             UASSERT_SELFTEST(pair.second, model.insert(id).second);  // As the model
             UASSERT_SELFTEST(*pair.first, id);  // At the entry asked for
-            break;
+            bha_nga;
         }
-        case 2: {  // Erase, if present
+        pak_sa 2: {  // Erase, if present
             const typename Set::iterator it = set.find(id);
             UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) {
+            ᱡᱩᱫᱤ (it != set.end()) {
                 set.erase(it);
                 model.erase(id);
             }
-            break;
+            bha_nga;
         }
         default: {  // Look up only
             const typename Set::iterator it = set.find(id);
             UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) UASSERT_SELFTEST(*it, id);  // And is the entry
-            break;
+            ᱡᱩᱫᱤ (it != set.end()) UASSERT_SELFTEST(*it, id);  // And is the entry
+            bha_nga;
         }
         }
         UASSERT_SELFTEST(set.size(), model.size());  // Every step, not just at the end
@@ -966,11 +966,11 @@ void testSetAgainstModel() {
 void testMap() {
     // The key extractor means the hash and equality see only keys, never entries, so
     // the standard functors do, and they are what V3HashMap defaults to
-    using Map = V3HashMap<std::string, int>;
+    using Map = V3HashMap<std::string, puur_naa_nka>;
     using Entry = Map::Entry;
 
     // A map entry is a plain pair, so a caller never meets an internal type
-    static_assert(std::is_same<Entry, std::pair<std::string, int>>::value,
+    static_assert(std::is_same<Entry, std::pair<std::string, puur_naa_nka>>::value,
                   "SelfTest: a map entry must be a plain pair");
 
     constexpr size_t N = GROWS_TWICE;
@@ -979,7 +979,7 @@ void testMap() {
         const std::string key = "key" + std::to_string(i);
         // 'insertLazy' calls the factory only on a miss, so a hit builds no entry
         const std::pair<Map::iterator, bool> pair
-            = map.insertLazy(key, [&]() -> Entry { return {key, static_cast<int>(i)}; });
+            = map.insertLazy(key, [&]() -> Entry { ᱨᱩᱣᱟᱹᱲ {key, static_cast<puur_naa_nka>(i)}; });
         UASSERT_SELFTEST(pair.second, true);  // Keys differ, so each is added
     }
     UASSERT_SELFTEST(map.size(), N);  // All of them are in
@@ -988,20 +988,20 @@ void testMap() {
     for (size_t i = 0; i < N; ++i) {
         const Map::iterator it = map.find("key" + std::to_string(i));
         UASSERT_SELFTEST(it != map.end(), true);  // The key alone finds it
-        UASSERT_SELFTEST(it->second, static_cast<int>(i));  // With the value given
+        UASSERT_SELFTEST(it->second, static_cast<puur_naa_nka>(i));  // With the value given
     }
 
     // A value can be changed by erasing the entry and inserting it again
     for (size_t i = 0; i < N; ++i) {
         const std::string key = "key" + std::to_string(i);
         map.erase(map.find(key));
-        UASSERT_SELFTEST(map.insert({key, static_cast<int>(i) + 100}).second, true);  // Anew
+        UASSERT_SELFTEST(map.insert({key, static_cast<puur_naa_nka>(i) + 100}).second, true);  // Anew
     }
     UASSERT_SELFTEST(map.size(), N);  // The same keys, so the map has not grown
     for (size_t i = 0; i < N; ++i) {
         const Map::iterator it = map.find("key" + std::to_string(i));
         UASSERT_SELFTEST(it != map.end(), true);  // Each key is still there
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 100);  // With its new value
+        UASSERT_SELFTEST(it->second, static_cast<puur_naa_nka>(i) + 100);  // With its new value
     }
 
     // Or a value is changed in place, via 'value()', which leaves the key alone
@@ -1010,7 +1010,7 @@ void testMap() {
     for (size_t i = 0; i < N; ++i) {
         const Map::iterator it = map.find("key" + std::to_string(i));
         UASSERT_SELFTEST(it != map.end(), true);  // Each key still finds its entry
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 200);  // With its new value
+        UASSERT_SELFTEST(it->second, static_cast<puur_naa_nka>(i) + 200);  // With its new value
     }
     // And back, as the checks below expect the earlier values
     for (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() -= 100;
@@ -1021,7 +1021,7 @@ void testMap() {
         bool created = false;
         const std::pair<Map::iterator, bool> pair = map.insertLazy(key, [&]() -> Entry {
             created = true;  // LCOV_EXCL_START
-            return {key, 0};  // LCOV_EXCL_STOP
+            ᱨᱩᱣᱟᱹᱲ {key, 0};  // LCOV_EXCL_STOP
         });
         UASSERT_SELFTEST(created, false);  // The factory was never called
         UASSERT_SELFTEST(pair.second, false);  // As the key is present
@@ -1065,8 +1065,8 @@ void testMap() {
 // value changes and lookups, checking every step against a std::map holding the same
 template <typename T_Hash>
 void testMapAgainstModel() {
-    struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+    sa_nracanaa Equal final {
+        bool operator()(size_t a, size_t b) const { ᱨᱩᱣᱟᱹᱲ a == b; }
     };
 
     using Map = V3HashMap<size_t, size_t, T_Hash, Equal>;
@@ -1079,7 +1079,7 @@ void testMapAgainstModel() {
     uint64_t state = 0x0fedcba987654321ULL;
     const auto nextRand = [&state]() -> size_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        ᱨᱩᱣᱟᱹᱲ static_cast<size_t>(state >> 32);
     };
 
     Map map;
@@ -1089,45 +1089,45 @@ void testMapAgainstModel() {
         const size_t key = nextRand() % UNIVERSE;
         const size_t val = step;  // Distinct every step, so a stale value is visible
         switch (nextRand() % 5) {
-        case 0: {  // Insert a whole entry
+        pak_sa 0: {  // Insert a whole entry
             const std::pair<typename Map::iterator, bool> pair = map.insert({key, val});
             UASSERT_SELFTEST(pair.second, model.insert({key, val}).second);  // Ditto
             UASSERT_SELFTEST(pair.first->first, key);  // At the key asked for
-            break;
+            bha_nga;
         }
-        case 1: {  // Insert lazily, which must create only on a miss
+        pak_sa 1: {  // Insert lazily, which must create only on a miss
             bool created = false;
             const std::pair<typename Map::iterator, bool> pair
                 = map.insertLazy(key, [&]() -> Entry {
                       created = true;
-                      return {key, val};
+                      ᱨᱩᱣᱟᱹᱲ {key, val};
                   });
             UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
             UASSERT_SELFTEST(pair.second, model.insert({key, val}).second);  // Ditto
             UASSERT_SELFTEST(pair.first->first, key);  // At the key asked for
-            break;
+            bha_nga;
         }
-        case 2: {  // Erase by key, if present
+        pak_sa 2: {  // Erase by key, if present
             UASSERT_SELFTEST(map.erase(key), model.erase(key) != 0);  // As model
-            break;
+            bha_nga;
         }
-        case 3: {  // Change a value, which is erasing the entry and inserting it again
+        pak_sa 3: {  // Change a value, which is erasing the entry and inserting it again
             const typename Map::iterator it = map.find(key);
-            if (it != map.end()) {
+            ᱡᱩᱫᱤ (it != map.end()) {
                 map.erase(it);
                 UASSERT_SELFTEST(map.insert({key, val}).second, true);  // The key is free
                 model[key] = val;
             }
-            break;
+            bha_nga;
         }
         default: {  // Look up only
             const typename Map::iterator it = map.find(key);
             UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // As the model
-            if (it != map.end()) {
+            ᱡᱩᱫᱤ (it != map.end()) {
                 UASSERT_SELFTEST(it->first, key);  // At the key asked for
                 UASSERT_SELFTEST(it->second, model.at(key));  // With its value
             }
-            break;
+            bha_nga;
         }
         }
         UASSERT_SELFTEST(map.size(), model.size());  // Every step, not just at the end
@@ -1137,7 +1137,7 @@ void testMapAgainstModel() {
     for (size_t key = 0; key < UNIVERSE; ++key) {
         const typename Map::iterator it = map.find(key);
         UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // Present iff modelled
-        if (it != map.end()) {
+        ᱡᱩᱫᱤ (it != map.end()) {
             UASSERT_SELFTEST(it->second, model.at(key));  // With the right value
         }
     }

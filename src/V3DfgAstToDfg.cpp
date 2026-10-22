@@ -55,20 +55,20 @@ class AstToDfgAddAstRefs final : public VNVisitorConst {
 
     void visit(AstVarRef* nodep) override {
         // Disguised hierarchical reference handled as external reference, ignore
-        if (nodep->classOrPackagep()) return;
+        ᱡᱩᱫᱤ (nodep->classOrPackagep()) ᱨᱩᱣᱟᱹᱲ;
         // If target is not supported, ignore
         AstVarScope* const vscp = nodep->varScopep();
-        if (!V3Dfg::isSupported(vscp)) return;
+        ᱡᱩᱫᱤ (!V3Dfg::isSupported(vscp)) ᱨᱩᱣᱟᱹᱲ;
         // V3Dfg::isSupported should reject vars with READWRITE references
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "AstVarScope with READWRITE ref not rejected");
         // Get target variable vergtex, ignore if not given one
         DfgVertexVar* const varp = m_getVarVertex(vscp);
-        if (!varp) return;
+        ᱡᱩᱫᱤ (!varp) ᱨᱩᱣᱟᱹᱲ;
         // Create Ast reference vertices
-        if (nodep->access().isReadOnly()) {
+        ᱡᱩᱫᱤ (nodep->access().isReadOnly()) {
             DfgAstRd* const astp = new DfgAstRd{m_dfg, nodep, m_inSenItem, m_inLoop};
             astp->srcp(varp);
-            return;
+            ᱨᱩᱣᱟᱹᱲ;
         }
         // Mark as written from non-DFG logic
         DfgVertexVar::setHasModWrRefs(vscp);
@@ -109,12 +109,12 @@ class AstToDfgVisitor final : public VNVisitor {
     // Mark variables referenced under node
     void markReferenced(AstNode* nodep) {
         V3DfgPasses::addAstRefs(m_dfg, nodep, [this](AstVarScope* vscp) {  //
-            return getVarVertex(vscp);
+            ᱨᱩᱣᱟᱹᱲ getVarVertex(vscp);
         });
     }
 
     DfgVertexVar* getVarVertex(AstVarScope* varp) {
-        if (!varp->user2p()) {
+        ᱡᱩᱫᱤ (!varp->user2p()) {
             // TODO: fix this up when removing the different flavours of DfgVar
             const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
             DfgVertexVar* const vtxp
@@ -123,7 +123,7 @@ class AstToDfgVisitor final : public VNVisitor {
                       : static_cast<DfgVertexVar*>(new DfgVarPacked{m_dfg, varp});
             varp->user2p(vtxp);
         }
-        return varp->user2u().template to<DfgVertexVar*>();
+        ᱨᱩᱣᱟᱹᱲ varp->user2u().template to<DfgVertexVar*>();
     }
 
     // Gather variables written by the given logic node.
@@ -132,17 +132,17 @@ class AstToDfgVisitor final : public VNVisitor {
         const VNUser3InUse user3InUse;
         std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
         const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
-            if (refp->access().isReadOnly()) return false;
+            ᱡᱩᱫᱤ (refp->access().isReadOnly()) ᱨᱩᱣᱟᱹᱲ false;
             AstVarScope* const vscp = refp->varScopep();
-            if (!V3Dfg::isSupported(vscp)) return true;
-            if (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
-            return false;
+            ᱡᱩᱫᱤ (!V3Dfg::isSupported(vscp)) ᱨᱩᱣᱟᱹᱲ true;
+            ᱡᱩᱫᱤ (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
+            ᱨᱩᱣᱟᱹᱲ false;
         });
-        if (abort) {
+        ᱡᱩᱫᱤ (abort) {
             ++m_ctx.m_nonRepVar;
-            return nullptr;
+            ᱨᱩᱣᱟᱹᱲ nullptr;
         }
-        return resp;
+        ᱨᱩᱣᱟᱹᱲ resp;
     }
 
     // Gather variables read by the given logic node.
@@ -151,17 +151,17 @@ class AstToDfgVisitor final : public VNVisitor {
         const VNUser3InUse user3InUse;
         std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
         const bool abort = nodep->exists([&](const AstVarRef* refp) -> bool {
-            if (refp->access().isWriteOnly()) return false;
+            ᱡᱩᱫᱤ (refp->access().isWriteOnly()) ᱨᱩᱣᱟᱹᱲ false;
             AstVarScope* const vscp = refp->varScopep();
-            if (!V3Dfg::isSupported(vscp)) return true;
-            if (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
-            return false;
+            ᱡᱩᱫᱤ (!V3Dfg::isSupported(vscp)) ᱨᱩᱣᱟᱹᱲ true;
+            ᱡᱩᱫᱤ (!vscp->user3SetOnce()) resp->emplace_back(getVarVertex(vscp));
+            ᱨᱩᱣᱟᱹᱲ false;
         });
-        if (abort) {
+        ᱡᱩᱫᱤ (abort) {
             ++m_ctx.m_nonRepVar;
-            return nullptr;
+            ᱨᱩᱣᱟᱹᱲ nullptr;
         }
-        return resp;
+        ᱨᱩᱣᱟᱹᱲ resp;
     }
 
     // Gather variables live in to the given CFG.
@@ -169,9 +169,9 @@ class AstToDfgVisitor final : public VNVisitor {
     std::unique_ptr<std::vector<DfgVertexVar*>> gatherLive(const CfgGraph& cfg) {
         // Run analysis
         std::unique_ptr<std::vector<AstVarScope*>> varps = V3Cfg::liveVarScopes(cfg);
-        if (!varps) {
+        ᱡᱩᱫᱤ (!varps) {
             ++m_ctx.m_nonRepLive;
-            return nullptr;
+            ᱨᱩᱣᱟᱹᱲ nullptr;
         }
 
         // Convert to vertics
@@ -179,14 +179,14 @@ class AstToDfgVisitor final : public VNVisitor {
         std::unique_ptr<std::vector<DfgVertexVar*>> resp{new std::vector<DfgVertexVar*>{}};
         resp->reserve(varps->size());
         for (AstVarScope* const varp : *varps) {
-            if (!V3Dfg::isSupported(varp)) {
+            ᱡᱩᱫᱤ (!V3Dfg::isSupported(varp)) {
                 ++m_ctx.m_nonRepVar;
-                return nullptr;
+                ᱨᱩᱣᱟᱹᱲ nullptr;
             }
             UASSERT_OBJ(!varp->user3SetOnce(), varp, "Live variables should be unique");
             resp->emplace_back(getVarVertex(varp));
         }
-        return resp;
+        ᱨᱩᱣᱟᱹᱲ resp;
     }
 
     // Connect inputs and outputs of a DfgLogic
@@ -196,7 +196,7 @@ class AstToDfgVisitor final : public VNVisitor {
         for (DfgVertexVar* const iVarp : iVarps) vtx.addInput(iVarp);
         // Connect outputs
         for (DfgVertexVar* const oVarp : oVarps) {
-            if (!oVarp->srcp()) oVarp->srcp(new DfgUnresolved{m_dfg, oVarp});
+            ᱡᱩᱫᱤ (!oVarp->srcp()) oVarp->srcp(new DfgUnresolved{m_dfg, oVarp});
             oVarp->srcp()->as<DfgUnresolved>()->addDriver(&vtx);
         }
     }
@@ -204,59 +204,59 @@ class AstToDfgVisitor final : public VNVisitor {
     // Convert AstAlways to DfgLogic, return true if successful.
     bool convert(AstAlways* nodep) {
         const VAlwaysKwd kwd = nodep->keyword();
-        if (kwd == VAlwaysKwd::CONT_ASSIGN) {
+        ᱡᱩᱫᱤ (kwd == VAlwaysKwd::CONT_ASSIGN) {
             // TODO: simplify once CFG analysis can handle arrays
-            if (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
-                if (ap->nextp()) return false;
+            ᱡᱩᱫᱤ (const AstAssignW* const ap = VN_CAST(nodep->stmtsp(), AssignW)) {
+                ᱡᱩᱫᱤ (ap->nextp()) ᱨᱩᱣᱟᱹᱲ false;
                 // Cannot handle assignment with timing control
-                if (ap->timingControlp()) return false;
+                ᱡᱩᱫᱤ (ap->timingControlp()) ᱨᱩᱣᱟᱹᱲ false;
                 // Potentially convertible block
                 ++m_ctx.m_inputs;
                 // Gather written variables, give up if any are not supported
                 const std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(ap);
-                if (!oVarpsp) return false;
+                ᱡᱩᱫᱤ (!oVarpsp) ᱨᱩᱣᱟᱹᱲ false;
                 // Gather read variables, give up if any are not supported
                 const std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherRead(ap);
-                if (!iVarpsp) return false;
+                ᱡᱩᱫᱤ (!iVarpsp) ᱨᱩᱣᱟᱹᱲ false;
                 // Create the DfgLogic
                 DfgLogic* const logicp = new DfgLogic{m_dfg, nodep, m_scopep, nullptr};
                 // Connect it up
                 connect(*logicp, *iVarpsp, *oVarpsp);
                 // Done
                 ++m_ctx.m_representable;
-                return true;
+                ᱨᱩᱣᱟᱹᱲ true;
             }
         }
 
         // Can only handle combinational logic
-        if (nodep->sentreep()) return false;
-        if (kwd != VAlwaysKwd::ALWAYS  //
+        ᱡᱩᱫᱤ (nodep->sentreep()) ᱨᱩᱣᱟᱹᱲ false;
+        ᱡᱩᱫᱤ (kwd != VAlwaysKwd::ALWAYS  //
             && kwd != VAlwaysKwd::ALWAYS_COMB  //
             && kwd != VAlwaysKwd::CONT_ASSIGN) {
-            return false;
+            ᱨᱩᱣᱟᱹᱲ false;
         }
 
         // Potentially convertible block
         ++m_ctx.m_inputs;
         // Attempt to build CFG of AstAlways, give up if failed
         std::unique_ptr<CfgGraph> cfgp = CfgGraph::build(nodep->stmtsp());
-        if (!cfgp) {
+        ᱡᱩᱫᱤ (!cfgp) {
             ++m_ctx.m_nonRepCfg;
-            return false;
+            ᱨᱩᱣᱟᱹᱲ false;
         }
         // Gather written variables, give up if any are not supported
         const std::unique_ptr<std::vector<DfgVertexVar*>> oVarpsp = gatherWritten(nodep);
-        if (!oVarpsp) return false;
+        ᱡᱩᱫᱤ (!oVarpsp) ᱨᱩᱣᱟᱹᱲ false;
         // Gather read variables, give up if any are not supported
         const std::unique_ptr<std::vector<DfgVertexVar*>> iVarpsp = gatherLive(*cfgp);
-        if (!iVarpsp) return false;
+        ᱡᱩᱫᱤ (!iVarpsp) ᱨᱩᱣᱟᱹᱲ false;
         // Create the DfgLogic
         DfgLogic* const logicp = new DfgLogic{m_dfg, nodep, m_scopep, std::move(cfgp)};
         // Connect it up
         connect(*logicp, *iVarpsp, *oVarpsp);
         // Done
         ++m_ctx.m_representable;
-        return true;
+        ᱨᱩᱣᱟᱹᱲ true;
     }
 
     // VISITORS
@@ -267,9 +267,9 @@ class AstToDfgVisitor final : public VNVisitor {
     void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
     void visit(AstModule* nodep) override { iterateAndNextNull(nodep->stmtsp()); }
     void visit(AstIface* nodep) override {
-        if (!nodep->hasVirtualRef()) {
+        ᱡᱩᱫᱤ (!nodep->hasVirtualRef()) {
             iterateAndNextNull(nodep->stmtsp());
-        } else {
+        } ᱵᱟᱝ {
             markReferenced(nodep);
         }
     }
@@ -280,9 +280,9 @@ class AstToDfgVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
     void visit(AstActive* nodep) override {
-        if (nodep->hasCombo()) {
+        ᱡᱩᱫᱤ (nodep->hasCombo()) {
             iterateChildren(nodep);
-        } else {
+        } ᱵᱟᱝ {
             markReferenced(nodep);
         }
     }
@@ -293,7 +293,7 @@ class AstToDfgVisitor final : public VNVisitor {
 
     // Potentially representable constructs
     void visit(AstAlways* nodep) override {
-        if (!convert(nodep)) markReferenced(nodep);
+        ᱡᱩᱫᱤ (!convert(nodep)) markReferenced(nodep);
     }
 
     // CONSTRUCTOR
@@ -311,10 +311,10 @@ public:
         AstToDfgVisitor{dfg, root, ctx};
         // Remove unread and undriven variables (created when something failed to convert)
         for (DfgVertexVar* const varp : dfg.varVertices().unlinkable()) {
-            if (varp->srcp()) continue;
-            const bool keep = varp->foreachSink([&](DfgVertex& d) { return !d.is<DfgAstRd>(); });
-            if (!keep) {
-                while (varp->hasSinks()) varp->firtsSinkp()->unlinkDelete(dfg);
+            ᱡᱩᱫᱤ (varp->srcp()) continue;
+            const bool keep = varp->foreachSink([&](DfgVertex& d) { ᱨᱩᱣᱟᱹᱲ !d.is<DfgAstRd>(); });
+            ᱡᱩᱫᱤ (!keep) {
+                ᱡᱚᱠᱷᱚᱱ (varp->hasSinks()) varp->firtsSinkp()->unlinkDelete(dfg);
                 VL_DO_DANGLING(varp->unlinkDelete(dfg), varp);
             }
         }
@@ -324,5 +324,5 @@ public:
 std::unique_ptr<DfgGraph> V3DfgPasses::astToDfg(AstNetlist& netlist, V3DfgContext& ctx) {
     DfgGraph* const dfgp = new DfgGraph{ctx, "netlist"};
     AstToDfgVisitor::apply(*dfgp, netlist, ctx.m_ast2DfgContext);
-    return std::unique_ptr<DfgGraph>{dfgp};
+    ᱨᱩᱣᱟᱹᱲ std::unique_ptr<DfgGraph>{dfgp};
 }
